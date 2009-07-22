@@ -1,34 +1,60 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 17:50:42 +0100
-Message-ID: <20090722165042.GA21186@rakim.wolfsonmicro.main>
-References: <20090714100634.GA4054@elf.ucw.cz>
- <20090721160436.GD4352@dtor-d630.eng.vmware.com>
- <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
- <200907220939.33399.david-b@pacbell.net>
+Date: Wed, 22 Jul 2009 09:51:53 -0700
+Message-ID: <200907220951.54419.david-b@pacbell.net>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090722121800.GD21171@rakim.wolfsonmicro.main> <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753899AbZGVQv5@vger.kernel.org>
+In-Reply-To: <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
 Content-Disposition: inline
-In-Reply-To: <200907220939.33399.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Peter Zijlstra <peterz@infradead.org>, Daniel Ribeiro <drwyrm@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 22, 2009 at 09:39:32AM -0700, David Brownell wrote:
+On Wednesday 22 July 2009, Thomas Gleixner wrote:
+> main interrupt
+> =A0 =A0 =A0hardirq handler wakes main thread handler
+>=20
+> main thread handler
+> =A0 =A0 bus magic
+> =A0 =A0=A0=A0=A0=A0=A0subdevice1 "hardirq" handler wakes subdevice1 i=
+rq thread
+> =A0 =A0=A0=A0=A0=A0=A0subdevice2 "hardirq" handler wakes subdevice2 i=
+rq thread
 
-> The normal model is that boards don't get involved with that level of
-> logic ... all IRQs get set up once on generic code, and flow handlers
-> don't change.  Or if they do change, it's done when changing the IRQ's
-> trigger mode from edge to level, or vice versa.
+Why force this wasteful/undesired "all subdevices must
+have their own IRQ handling thread" policy?
 
-> Can that be cleaned up a bit, so that the handle_level_oneshot_irq()
-> and unmask_oneshot_irq() stuff kicks in automatically when needed,
-> instead of requiring board-specific (or driver-specific) code to get
-> that stuff right?
+As previously noted, a single thread typically suffices.
+There's no need to waste a dozen (or so) pages of memory
+for such purposes ... these events are (as noted most
+recently by Mark) infrequent/rare and performance isn't
+a functionality gatekeeper.  Plus ...
 
-Thomas was reluctant to do that but up till now every single user has
-been asking for it.  A flag in the driver requesting the behaviour
-sounds OK to me, there are devices that can use threaded IRQs while
-interacting with the device in the primary handler NAPI style.
+
+> =A0 =A0 main thread handler waits for subdevice1/2 handlers to comple=
+te
+
+=2E.. sharing that thread can eliminate that synchronization
+problem, and simplify the whole process.
+
+
+> subdevice1 thread handler
+> =A0 =A0 bus magic
+> =A0 =A0 ....
+> =A0 =A0 thread_fn returns
+> =A0 =A0 signal main thread handler via completion
+>=20
+> subdevice2 thread handler
+> =A0 =A0 bus magic
+> =A0 =A0 ....
+> =A0 =A0 thread_fn returns
+> =A0 =A0 signal main thread handler via completion
+>=20
+> main thread handler resumes
+> =A0 =A0 bus magic
+> =A0 =A0 main thread handler returns from thread_fn
+> =A0 =A0 unmask main interrupt

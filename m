@@ -1,63 +1,218 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 14:31:31 +0100
-Message-ID: <20090722133131.GA28355@rakim.wolfsonmicro.main>
-References: <20090721113642.GC13286@sirena.org.uk>
- <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com>
- <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com>
- <20090721124933.GA5668@rakim.wolfsonmicro.main>
- <20090721160436.GD4352@dtor-d630.eng.vmware.com>
- <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
- <20090721222547.GA1948@opensource.wolfsonmicro.com>
- <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
- <20090722121800.GD21171@rakim.wolfsonmicro.main>
- <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
+From: "Syed Rafiuddin" <rafiuddin.syed@ti.com>
+Subject: [PATCH][RFC] OMAP4: Keypad Support for OMAP4430
+Date: Wed, 22 Jul 2009 19:20:23 +0530 (IST)
+Message-ID: <54980.192.168.10.89.1248270623.squirrel@dbdmail.itg.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0907221427380.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:37013 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752669AbZGVNul (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2009 09:50:41 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-On Wed, Jul 22, 2009 at 02:58:24PM +0200, Thomas Gleixner wrote:
-> On Wed, 22 Jul 2009, Mark Brown wrote:
-> > On Wed, Jul 22, 2009 at 12:44:01PM +0200, Thomas Gleixner wrote:
+This patch adds OMAP4 support to the Keypad driver. This patch adds
+OMAP4 register addresses and configures registers for OMAP4.
 
-> > >    set_irq_handler(irq, handle_level_oneshot_irq);
+Signed-off-by: Syed Rafiuddin <rafiuddin.syed@ti.com>
+---
+ drivers/input/keyboard/omap-keypad.c |  109 ++++++++++++++++++++++++++++++-----
+ 1 files changed, 95 insertions(+), 14 deletions(-)
 
-> > Yeah, I know - the issue I was having was that the use of set_irq_handler()
-> > seemed rather rude for driver code.  Grepping around I see that there
+Index: kernel-omap4/drivers/input/keyboard/omap-keypad.c
+===================================================================
+--- kernel-omap4.orig/drivers/input/keyboard/omap-keypad.c
++++ kernel-omap4/drivers/input/keyboard/omap-keypad.c
+@@ -44,6 +44,36 @@
 
-> I don't think it belongs into the driver code. It belongs into the
-> platform code which sets up the system and knows what's on which
-> interrupt line.
+ #undef NEW_BOARD_LEARNING_MODE
 
-Yeah, that is doable - but it'd be good for usability if it could be
-handled transparently by the driver.  Even in board code it's fairly
-rare to need to explicitly set the handler if you're not actually
-implementing an interrupt controller.  Most of the board-specific code
-doing this is doing so for a CPLD, FPGA or similar on the board rather
-than configuring a preexisting IRQ for use by a leaf device.
++#define OMAP4_KBDOCP_BASE		0x4A31C000
++#define OMAP4_KBD_REVISION		0x00
++#define OMAP4_KBD_SYSCONFIG		0x10
++#define OMAP4_KBD_SYSSTATUS		0x14
++#define OMAP4_KBD_IRQSTATUS		0x18
++#define OMAP4_KBD_IRQENABLE		0x1C
++#define OMAP4_KBD_WAKEUPENABLE		0x20
++#define OMAP4_KBD_PENDING		0x24
++#define OMAP4_KBD_CTRL			0x28
++#define OMAP4_KBD_DEBOUNCINGTIME	0x2C
++#define OMAP4_KBD_LONGKEYTIME		0x30
++#define OMAP4_KBD_TIMEOUT		0x34
++#define OMAP4_KBD_STATEMACHINE		0x38
++#define OMAP4_KBD_ROWINPUTS		0x3C
++#define OMAP4_KBD_COLUMNOUTPUTS		0x40
++#define OMAP4_KBD_FULLCODE31_0		0x44
++#define OMAP4_KBD_FULLCODE63_32		0x48
++
++#define OMAP4_KBD_SYSCONFIG_SOFTRST	(1 << 1)
++#define OMAP4_KBD_SYSCONFIG_ENAWKUP	(1 << 2)
++#define OMAP4_KBD_IRQENABLE_EVENTEN	(1 << 0)
++#define OMAP4_KBD_IRQENABLE_LONGKEY	(1 << 1)
++#define OMAP4_KBD_IRQENABLE_TIMEOUTEN	(1 << 2)
++#define OMAP4_KBD_CTRL_NOSOFTMODE	(1 << 1)
++#define OMAP4_KBD_CTRLPTVVALUE		(1 << 2)
++#define OMAP4_KBD_CTRLPTV		(1 << 1)
++#define OMAP4_KBD_IRQDISABLE		0x00
++
++#define OMAP4_KBD_IRQSTATUSDISABLE	0xffff
++
+ static void omap_kp_tasklet(unsigned long);
+ static void omap_kp_timer(unsigned long);
 
-Half the trouble is that if you're not implementing interrupt controller
-code then calling set_irq_*() is normally a sign that you're doing
-something wrong (for example, for set_irq_type() you should be using
-flags on request_irq()).
+@@ -114,6 +144,13 @@ static irqreturn_t omap_kp_interrupt(int
+ 			else
+ 				disable_irq(gpio_irq);
+ 		}
++	} else if (cpu_is_omap44xx()) {
++		/* disable keyboard interrupt and schedule for handling */
++		omap_writel(OMAP4_KBD_IRQDISABLE, OMAP4_KBDOCP_BASE +
++				OMAP4_KBD_IRQENABLE);
++
++		omap_writel(omap_readl(OMAP4_KBDOCP_BASE + OMAP4_KBD_IRQSTATUS),
++				OMAP4_KBDOCP_BASE + OMAP4_KBD_IRQSTATUS);
+ 	} else
+ 		/* disable keyboard interrupt and schedule for handling */
+ 		omap_writew(1, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+@@ -131,7 +168,7 @@ static void omap_kp_timer(unsigned long
+ static void omap_kp_scan_keypad(struct omap_kp *omap_kp, unsigned char *state)
+ {
+ 	int col = 0;
+-
++	u32 *p = (u32 *) state;
+ 	/* read the keypad status */
+ 	if (cpu_is_omap24xx()) {
+ 		/* read the keypad status */
+@@ -141,6 +178,10 @@ static void omap_kp_scan_keypad(struct o
+ 		}
+ 		set_col_gpio_val(omap_kp, 0);
 
-> Thinking further we should even provide some infrastructure for that
-> in the common code which would handle the completion and attach it to
-> the interrupts in question, so the driver authors would not have to
-> deal with that at all. They just would return from thread_fn and let
-> the generic code deal with the notification. The notification has to
-> be set up by the interrupt controller code. That way you can use the
-> same device driver code w/o knowledge of the interrupt controller
-> implementation it is attached to.
++	} else if (cpu_is_omap44xx()) {
++		*p = omap_readl(OMAP4_KBDOCP_BASE + OMAP4_KBD_FULLCODE31_0);
++		*(p + 1) = omap_readl(OMAP4_KBDOCP_BASE +
++					OMAP4_KBD_FULLCODE63_32);
+ 	} else {
+ 		/* disable keyboard interrupt and schedule for handling */
+ 		omap_writew(1, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+@@ -198,7 +239,12 @@ static void omap_kp_tasklet(unsigned lon
+ 			       row, (new_state[col] & (1 << row)) ?
+ 			       "pressed" : "released");
+ #else
+-			key = omap_kp_find_key(col, row);
++			/* Keymappings have changed in omap4.*/
++			if (cpu_is_omap44xx())
++				key = omap_kp_find_key(row, col);
++			else
++				key = omap_kp_find_key(col, row);
++
+ 			if (key < 0) {
+ 				printk(KERN_WARNING
+ 				      "omap-keypad: Spurious key event %d-%d\n",
+@@ -213,8 +259,14 @@ static void omap_kp_tasklet(unsigned lon
+ 				continue;
 
-Yes, I think that'll be required for users like gpiolib.  If someone's
-done something like have a button implemented by attaching switch to a
-GPIO input on for something like jack detect on an audio CODEC or a wake
-source for a PMIC then we've got generic code that expects to just take
-a gpio/irq and interact with it.
+ 			kp_cur_group = key & GROUP_MASK;
+-			input_report_key(omap_kp_data->input, key & ~GROUP_MASK,
+-					 new_state[col] & (1 << row));
++			if (cpu_is_omap44xx())
++				input_report_key(omap_kp_data->input,
++					key & ~GROUP_MASK, new_state[row]
++						 & (1 << col));
++			else
++				input_report_key(omap_kp_data->input,
++					 key & ~GROUP_MASK, new_state[col]
++						 & (1 << row));
+ #endif
+ 		}
+ 	}
+@@ -233,10 +285,18 @@ static void omap_kp_tasklet(unsigned lon
+ 			int i;
+ 			for (i = 0; i < omap_kp_data->rows; i++)
+ 				enable_irq(gpio_to_irq(row_gpios[i]));
+-		} else {
+-			omap_writew(0, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+-			kp_cur_group = -1;
+-		}
++
++		} else if (cpu_is_omap44xx()) {
++				omap_writew(OMAP4_KBD_IRQENABLE_EVENTEN |
++					OMAP4_KBD_IRQENABLE_LONGKEY,
++					OMAP4_KBDOCP_BASE +
++					OMAP4_KBD_IRQENABLE);
++				kp_cur_group = -1;
++			} else {
++				omap_writew(0, OMAP_MPUIO_BASE +
++						OMAP_MPUIO_KBD_MASKIT);
++				kp_cur_group = -1;
++			}
+ 	}
+ }
+
+@@ -316,7 +376,7 @@ static int __devinit omap_kp_probe(struc
+ 	omap_kp->input = input_dev;
+
+ 	/* Disable the interrupt for the MPUIO keyboard */
+-	if (!cpu_is_omap24xx())
++	if (!cpu_is_omap24xx() && !cpu_is_omap44xx())
+ 		omap_writew(1, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+
+ 	keymap = pdata->keymap;
+@@ -390,19 +450,35 @@ static int __devinit omap_kp_probe(struc
+ 		goto err3;
+ 	}
+
+-	if (pdata->dbounce)
+-		omap_writew(0xff, OMAP_MPUIO_BASE + OMAP_MPUIO_GPIO_DEBOUNCING);
+-
++	if (pdata->dbounce) {
++		if (cpu_is_omap44xx())
++			omap_writew(0xff, OMAP_MPUIO_BASE +
++					OMAP4_KBD_DEBOUNCINGTIME);
++		else
++			omap_writew(0xff, OMAP_MPUIO_BASE +
++					OMAP_MPUIO_GPIO_DEBOUNCING);
++	}
+ 	/* scan current status and enable interrupt */
+ 	omap_kp_scan_keypad(omap_kp, keypad_state);
++
++	/* Configuring OMAP4 keypad registers */
++	if (cpu_is_omap44xx()) {
++		omap_writew(OMAP4_KBD_SYSCONFIG_SOFTRST |
++			 OMAP4_KBD_SYSCONFIG_ENAWKUP, OMAP4_KBDOCP_BASE
++					+ OMAP4_KBD_SYSCONFIG);
++		omap_writew((OMAP4_KBD_CTRLPTVVALUE << OMAP4_KBD_CTRLPTV) |
++					OMAP4_KBD_CTRL_NOSOFTMODE,
++					OMAP4_KBDOCP_BASE + OMAP4_KBD_CTRL);
++	}
+ 	if (!cpu_is_omap24xx()) {
+ 		omap_kp->irq = platform_get_irq(pdev, 0);
+ 		if (omap_kp->irq >= 0) {
+-			if (request_irq(omap_kp->irq, omap_kp_interrupt, 0,
++			if (request_irq(152, omap_kp_interrupt, 0,
+ 					"omap-keypad", omap_kp) < 0)
+ 				goto err4;
+ 		}
+-		omap_writew(0, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
++		if (!cpu_is_omap44xx())
++			omap_writew(0, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+ 	} else {
+ 		for (irq_idx = 0; irq_idx < omap_kp->rows; irq_idx++) {
+ 			if (request_irq(gpio_to_irq(row_gpios[irq_idx]),
+@@ -412,6 +488,11 @@ static int __devinit omap_kp_probe(struc
+ 				goto err5;
+ 		}
+ 	}
++	if (cpu_is_omap44xx()) {
++		omap_writew(OMAP4_KBD_IRQENABLE_EVENTEN |
++			OMAP4_KBD_IRQENABLE_LONGKEY, OMAP4_KBDOCP_BASE +
++				OMAP4_KBD_IRQENABLE);
++	}
+ 	return 0;
+ err5:
+ 	for (i = irq_idx - 1; i >=0; i--)
+
+

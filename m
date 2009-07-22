@@ -1,49 +1,44 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 09:57:15 -0700
-Message-ID: <200907220957.16499.david-b@pacbell.net>
-References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins>
+Date: Wed, 22 Jul 2009 17:57:56 +0100
+Message-ID: <20090722165756.GB21186@rakim.wolfsonmicro.main>
+References: <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com>
+ <20090721124933.GA5668@rakim.wolfsonmicro.main>
+ <20090721160436.GD4352@dtor-d630.eng.vmware.com>
+ <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
+ <20090721222547.GA1948@opensource.wolfsonmicro.com>
+ <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
+ <20090722121800.GD21171@rakim.wolfsonmicro.main>
+ <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
+ <20090722155811.GA2775@dtor-d630.eng.vmware.com>
+ <alpine.LFD.2.00.0907221830410.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1248269443.27058.1449.camel@twins>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:39342 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752163AbZGVQ55 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Jul 2009 12:57:57 -0400
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <alpine.LFD.2.00.0907221830410.2813@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, David Brownell <david-b@pacbell.net>, Peter Zijlstra <peterz@infradead.org>, Daniel Ribeiro <drwyrm@gmail.com>
 
-On Wednesday 22 July 2009, Peter Zijlstra wrote:
-> Wouldn't it be better if we could express the nesting property from
-> within genirq, so that we can do things like:
->=20
-> =A0 register_chip_nested(parent_chip, parent_irq, slave_chip);
->=20
-> And let genirq set-up the needed magic to make the nesting work.
+On Wed, Jul 22, 2009 at 06:40:21PM +0200, Thomas Gleixner wrote:
 
-I've been requesting such IRQ chaining support for some time
-now ... if the ears are now listening, that kind of direction
-should be pursued.
+> If the platform maintainer sets the wrong handler or the wrong
+> platform data then it's not the driver writers problem.
 
+It becomes the driver writer's problem as soon as the people writing the
+machine integration start e-mailing saying that the driver is buggy
+because they've not set this stuff up for the driver, it not being
+something that they'd expect to have to do for any other interrupt in
+their system.
 
-> Also, how important is it that subhandler1..n run in their own thread=
-?
-
-Completely unimportant in a practical sense.  Undesirable, even;
-wasteful to allocate all those stack pages and keep them idle
-most of the time.
-
-There might be an argument that the design isn't technicaly done
-until that model *can* be supported.  On the flip side, last time
-this came up there was no "customer demand" for that ... it was
-all "supplier push".
-
-
-> That is, can't we let them run from the thread that is otherwise wait=
-ing
-> for the completino anyway?
-
-That would be far preferable, yes.
-
-- Dave
+This isn't such an issue in the PC world there's relatively few people
+doing the platform development but in the embedded space that's not the
+case - there are vastly more people doing platform development since
+essentially everyone building a new device has to do some.

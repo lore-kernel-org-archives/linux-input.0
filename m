@@ -1,86 +1,31 @@
-From: David Brownell <david-b@pacbell.net>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 15:09:17 -0700
-Message-ID: <200907221509.18387.david-b@pacbell.net>
-References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <200907220957.16499.david-b@pacbell.net> <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
+Date: Wed, 22 Jul 2009 15:15:06 -0700
+Message-ID: <200907221515.07835.david-b@pacbell.net>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain> <d6200be20907221457r4e2f6d29g57146586fd13776a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp104.sbc.mail.gq1.yahoo.com ([67.195.15.63]:21997 "HELO
-	smtp104.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753832AbZGVWJT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2009 18:09:19 -0400
-In-Reply-To: <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <d6200be20907221457r4e2f6d29g57146586fd13776a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arve =?iso-8859-1?q?Hj=F8nnev=E5g?= <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Daniel Ribeiro <drwyrm@gmail.com>
 
-On Wednesday 22 July 2009, Thomas Gleixner wrote:
-> Ok, so let me summarize what we came up with so far.
-> 
-> 1) handle_level_oneshot_irq is the correct answer to the problem of
-> those "I'm behind a slow bus" interrupt controllers.
+On Wednesday 22 July 2009, Arve Hj=F8nnev=E5g wrote:
+> It would also be useful to mask an edge triggered interrupt until the
+> thread handler has finished. The touchscreen on the G1 is connected t=
+o
+> an edge triggered interrupt, and the touchscreen may toggle the
+> interrupt line while reading its registers.
 
-Where "slow" means "access needs to sleep" ... preventing
-register access from hardirq contexts.
+To clarify:  if it does toggle, do you want that event to be
+queued up so the IRQ is re-issued -- or not?  That "oneshot"
+mechanism does some of that, though it's for level triggers.
 
-I think you must mean "IRQ source" not controller; in
-the examples so far on this thread, the irq_chip in
-these cases has been a typical SoC/ASIC thing, but the
-device issuing the IRQ is over I2C/etc.  (When the
-irq_chip itself is across I2C/etc, #3 applies.)
-
-
-> 2) Some mechanism to request ONESHOT from the driver level is
-> required. Preferrably via a flag on request_threaded_irq
-
-Preferably "explicit"; a flag implementation suffices.  Yes.
-
-
-> 3) a function which allows to express the nested thread irq nature of
-> the interrupt controller and its subdevices.
-
-That's one possible implementation.  Basically, irq chaining
-should work for threaded IRQs; some irq_chip devices will be
-across sleeping/slow busses.  Some will even chain to another
-level of irq_chip across such a bus.
-
-
-> 4) a generic serializing mechanism which is implemented via irq_chip
-> functions to solve the chip->mask/unmask issue for the demultiplexed
-> interrupts. Something like the bus_lock/bus_sync_unlock patch I posted
-> earlier.
-
-In general, all irq_chip methods would need to use the sleeping/slow
-bus ... like set_type(), and more.
-
-That patch somewhat resembles the twl4030_sih_irq_chip stuff.
-
-
-> 5) a common function which allows to call the thread handler of the
-> subdevice interrupts in the context of the main thread which takes
-> care of serialization against disable/enable/request/free irq et al.
-
-A mechanism like that, yes.  ISTR sending a patch a while back with
-a handle_threaded_irq() flow handler which you'd suggested.  I can dig
-that up if you like, but I suspect you've had more thoughts about it
-since that time.
-
-
-> Any more ?
-
-Not that comes quickly to mind.  If genirq can do all that, then
-a lot of drivers/mfd/twl4030-irq.c can vanish ... I mention that
-as probably the strongest "acceptance test" that's handy.
-
-If you like to work with concrete use cases, that's one.  Also, a
-simpler "slow irq_chip" device is the mcp23s08 GPIO expander.
+Parts of that might be appropriate to handle in the threaded
+IRQ handler itself.  It seems a bit device-specific.
 
 - Dave
-
-

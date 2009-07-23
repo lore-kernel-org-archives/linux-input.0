@@ -1,105 +1,60 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH] Input: bf54x-keys - convert printk() to dev_*()
-Date: Thu, 23 Jul 2009 03:15:46 -0400
-Message-ID: <1248333346-19105-1-git-send-email-vapier@gentoo.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Uclinux-dist-devel] [PATCH 2/2] input/joystick: new Blackfin
+	rotary input driver
+Date: Thu, 23 Jul 2009 00:25:50 -0700
+Message-ID: <20090723072550.GA3997@dtor-d630.eng.vmware.com>
+References: <1247592827-16878-1-git-send-email-vapier@gentoo.org> <1247592827-16878-2-git-send-email-vapier@gentoo.org> <20090723044338.GB2782@dtor-d630.eng.vmware.com> <8bd0f97a0907222346x7e80799fkf88c7b59c61091b7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:35159 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752223AbZGWHP7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2009 03:15:59 -0400
+Received: from rv-out-0506.google.com ([209.85.198.238]:43577 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753014AbZGWHZy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 23 Jul 2009 03:25:54 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so214017rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2009 00:25:54 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <8bd0f97a0907222346x7e80799fkf88c7b59c61091b7@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- drivers/input/keyboard/bf54x-keys.c |   26 ++++++++++----------------
- 1 files changed, 10 insertions(+), 16 deletions(-)
+On Thu, Jul 23, 2009 at 02:46:11AM -0400, Mike Frysinger wrote:
+> On Thu, Jul 23, 2009 at 00:43, Dmitry Torokhov wrote:
+> > On Tue, Jul 14, 2009 at 01:33:47PM -0400, Mike Frysinger wrote:
+> >> +struct platform_driver bfin_rotary_device_driver =3D {
+> >> + =A0 =A0 .probe =A0 =A0 =A0 =A0 =A0=3D bfin_rotary_probe,
+> >> + =A0 =A0 .remove =A0 =A0 =A0 =A0 =3D __devexit_p(bfin_rotary_remo=
+ve),
+> >> + =A0 =A0 .suspend =A0 =A0 =A0 =A0=3D bfin_rotary_suspend,
+> >> + =A0 =A0 .resume =A0 =A0 =A0 =A0 =3D bfin_rotary_resume,
+> >
+> > Need to use dev_pm_ops so platform code won;t yell at us.
+>=20
+> looks like something new post 2.6.30 ... guess i'll have to keep this
+> in mind for migrating drivers when 2.6.31 comes out
+>=20
+> > I also think that this driver should too live in drivers/input/misc=
+ so I
+> > moved it there. I did a bit of reshuffling in the patch, could you
+> > please give it a try and if it still works I'll apply to the 'next'
+> > branch.
+>=20
+> could you toss like a standard dev_info("initialized") into the end o=
+f
+> bfin_rotary_probe ?  otherwise, builds and works fine for me with
+> 2.6.31-rc4.  thanks!
 
-diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-index d427f32..9be3109 100644
---- a/drivers/input/keyboard/bf54x-keys.c
-+++ b/drivers/input/keyboard/bf54x-keys.c
-@@ -184,14 +184,13 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 	int i, error;
- 
- 	if (!pdata->rows || !pdata->cols || !pdata->keymap) {
--		printk(KERN_ERR DRV_NAME
--			": No rows, cols or keymap from pdata\n");
-+		dev_err(&pdev->dev, "no rows, cols or keymap from pdata\n");
- 		return -EINVAL;
- 	}
- 
- 	if (!pdata->keymapsize ||
- 	    pdata->keymapsize > (pdata->rows * pdata->cols)) {
--		printk(KERN_ERR DRV_NAME ": Invalid keymapsize\n");
-+		dev_err(&pdev->dev, "invalid keymapsize\n");
- 		return -EINVAL;
- 	}
- 
-@@ -211,8 +210,8 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 
- 	if (!pdata->debounce_time || pdata->debounce_time > MAX_MULT ||
- 	    !pdata->coldrive_time || pdata->coldrive_time > MAX_MULT) {
--		printk(KERN_WARNING DRV_NAME
--			": Invalid Debounce/Columndrive Time in platform data\n");
-+		dev_warn(&pdev->dev,
-+			"invalid platform debounce/columndrive time\n");
- 		bfin_write_KPAD_MSEL(0xFF0);	/* Default MSEL	*/
- 	} else {
- 		bfin_write_KPAD_MSEL(
-@@ -231,16 +230,14 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 
- 	if (peripheral_request_list((u16 *)&per_rows[MAX_RC - pdata->rows],
- 				    DRV_NAME)) {
--		printk(KERN_ERR DRV_NAME
--			": Requesting Peripherals failed\n");
-+		dev_err(&pdev->dev, "requesting peripherals failed\n");
- 		error = -EFAULT;
- 		goto out0;
- 	}
- 
- 	if (peripheral_request_list((u16 *)&per_cols[MAX_RC - pdata->cols],
- 				    DRV_NAME)) {
--		printk(KERN_ERR DRV_NAME
--			": Requesting Peripherals failed\n");
-+		dev_err(&pdev->dev, "requesting peripherals failed\n");
- 		error = -EFAULT;
- 		goto out1;
- 	}
-@@ -254,9 +251,8 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 	error = request_irq(bf54x_kpad->irq, bfin_kpad_isr,
- 				0, DRV_NAME, pdev);
- 	if (error) {
--		printk(KERN_ERR DRV_NAME
--			": unable to claim irq %d; error %d\n",
--			bf54x_kpad->irq, error);
-+		dev_err(&pdev->dev, "unable to claim irq %d\n",
-+			bf54x_kpad->irq);
- 		goto out2;
- 	}
- 
-@@ -297,8 +293,7 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 
- 	error = input_register_device(input);
- 	if (error) {
--		printk(KERN_ERR DRV_NAME
--			": Unable to register input device (%d)\n", error);
-+		dev_err(&pdev->dev, "unable to register input device\n");
- 		goto out4;
- 	}
- 
-@@ -316,8 +311,7 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	printk(KERN_ERR DRV_NAME
--		": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
-+	dev_info(&pdev->dev, "initialized (IRQ %d)\n", bf54x_kpad->irq);
- 
- 	return 0;
- 
--- 
-1.6.3.3
+Don't you find the boot to be too noisy? The input core already
+prints a message when a new input device is registered...
 
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

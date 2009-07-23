@@ -1,79 +1,99 @@
-From: Andy Isaacson <adi@hexapodia.org>
-Subject: Dualpoint button release events quirk (stuck buttons on Dell E4300)
-Date: Wed, 22 Jul 2009 17:55:34 -0700
-Message-ID: <20090723005534.GA16423@hexapodia.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 21:43:22 -0700
+Message-ID: <20090723044321.GA2782@dtor-d630.eng.vmware.com>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins> <200907220957.16499.david-b@pacbell.net> <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from straum.hexapodia.org ([64.81.70.185]:41426 "EHLO
-	straum.hexapodia.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750847AbZGWAze (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.226]:41356 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750938AbZGWEn1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2009 20:55:34 -0400
+	Thu, 23 Jul 2009 00:43:27 -0400
 Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Brownell <david-b@pacbell.net>, Peter Zijlstra <peterz@infradead.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Daniel Ribeiro <drwyrm@gmail.com>
 
-I have a Dell E4300 with a trackpoint + touchpad combo device which
-shows up as:
+On Wed, Jul 22, 2009 at 11:04:33PM +0200, Thomas Gleixner wrote:
+> 
+> Any more ?
+> 
 
-[   17.881956] input: DualPoint Stick as /devices/platform/i8042/serio1/input/input9
-[   17.898488] input: AlpsPS/2 ALPS DualPoint TouchPad as /devices/platform/i8042/serio1/input/input10
+Can we also have something like below by any chance?
 
-With 2.6.31-rc3 stock it suffers from
-http://bugzilla.kernel.org/show_bug.cgi?id=12577 
-which is fixed by
-http://lkml.org/lkml/2008/12/8/182
+-- 
+Dmitry
 
-Running with that patch to correctly handle the 9-byte packets, the
-combo device exhibits an interesting failure mode -- the buttons
-sometimes get stuck.  I finally tracked it down to the following
-sequence:
+genirq: provide dummy hard irq handler for threaded interrupts
 
-1. press btn1 on deviceA (either touchpad or trackpoint button)
-2. press btn1 on deviceB
-3. release btn1 on deviceB
-4. release btn1 on deviceA
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Here's what I get when I do that with i8042.debug=1:
+Quite often drivers using threaded interrupts don't do anything
+in the hard IRQ portion of their interrupt handler; everything
+is offloaded to the threaded half. Instead of having every driver
+implement a stub have one ready in the IRQ core.
 
-bytes received                  event
---------------                  -----
- 09 00 00                       trackpoint click
- 08 00 00                       trackpoint release
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
- cf 06 20 39 4a 00              touchpad click
- cf 06 20 38 4a 00              touchpad release
+ kernel/irq/manage.c |   22 ++++++++++++++++++----
+ 1 files changed, 18 insertions(+), 4 deletions(-)
 
- 09 00 00                       trackpoint click
- cf 06 20 39 4a 00              touchpad click
- cf 06 20 39 4a 00 (*)          touchpad release
- 08 00 00                       trackpoint release
- cf 06 20 39 4a 00              touchpad click
- cf 06 20 38 4a 00              touchpad release
 
-The (*)ed release event has the button state incorrect -- byte 4 should
-be 0x38 but is 0x39 instead.
-
-Running "xinput query-state 'AlpsPS/2 ALPS DualPoint TouchPad'" I see
-that the button gets released at the first motion event on the device
-with the stuck button, which works fine if you only have one pointer --
-but on this hardware it's easy to have the trackpad button stuck down
-while moving with the trackpoint.
-
-So, what's the appropriate way to quirk this hardware?
-
- - synch the buttons on every button-up event?  (Prevents dual-pointer
-   mode from working, but that's not really usable with a combo
-   trackpad+touchpoint just from a physical layout point-of-view.)
- - query the device (how?) when getting a down-on-already-down button?
- - something else?
-
-I suspect that there's a separate failure mode that I haven't tracked
-down yet, too, because in the above scenario, moving the device with the
-stuck button always releases it, while I've also had buttons stick down
-that persisted through vigorous wiggling and clicking of both pointing
-devices.
-
--andy
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 50da676..cdc52f6 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -695,6 +695,15 @@ out_thread:
+ 	return ret;
+ }
+ 
++/*
++ * Default hardirq handler for threaded irqs that is used when
++ * driver did not provide its own implementation.
++ */
++static irqreturn_t dummy_hardirq_handler(int irq, void *dev_id)
++{
++	return IRQ_WAKE_THREAD;
++}
++
+ /**
+  *	setup_irq - setup an interrupt
+  *	@irq: Interrupt line to setup
+@@ -837,8 +846,11 @@ EXPORT_SYMBOL(free_irq);
+  *	request_threaded_irq - allocate an interrupt line
+  *	@irq: Interrupt line to allocate
+  *	@handler: Function to be called when the IRQ occurs.
+- *		  Primary handler for threaded interrupts
+- *	@thread_fn: Function called from the irq handler thread
++ *		  Primary handler for threaded interrupts.
++ *		  May be NULL, in which case a dummy interrupt
++ *		  handler is used that simply returns
++ *		  IRQ_WAKE_THREAD
++ *	@thread_fn: Function called from the irq handler thread.
+  *		    If NULL, no irq thread is created
+  *	@irqflags: Interrupt type flags
+  *	@devname: An ascii name for the claiming device
+@@ -917,14 +929,16 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+ 
+ 	if (desc->status & IRQ_NOREQUEST)
+ 		return -EINVAL;
+-	if (!handler)
++
++	if (!handler && !thread_fn) {
+ 		return -EINVAL;
++	}
+ 
+ 	action = kzalloc(sizeof(struct irqaction), GFP_KERNEL);
+ 	if (!action)
+ 		return -ENOMEM;
+ 
+-	action->handler = handler;
++	action->handler = handler ?: dummy_hardirq_handler;
+ 	action->thread_fn = thread_fn;
+ 	action->flags = irqflags;
+ 	action->name = devname;

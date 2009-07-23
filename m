@@ -1,60 +1,108 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Uclinux-dist-devel] [PATCH 2/2] input/joystick: new Blackfin
-	rotary input driver
-Date: Thu, 23 Jul 2009 00:25:50 -0700
-Message-ID: <20090723072550.GA3997@dtor-d630.eng.vmware.com>
-References: <1247592827-16878-1-git-send-email-vapier@gentoo.org> <1247592827-16878-2-git-send-email-vapier@gentoo.org> <20090723044338.GB2782@dtor-d630.eng.vmware.com> <8bd0f97a0907222346x7e80799fkf88c7b59c61091b7@mail.gmail.com>
+Subject: Re: A few changes to pxa27x_keypad
+Date: Thu, 23 Jul 2009 00:28:02 -0700
+Message-ID: <20090723072802.GB3997@dtor-d630.eng.vmware.com>
+References: <20090721080845.GD10168@dtor-d630.eng.vmware.com> <4A659C28.3040305@compulab.co.il> <20090723063044.GD2782@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.238]:43577 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.239]:51410 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753014AbZGWHZy (ORCPT
+	with ESMTP id S1753093AbZGWH2F (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2009 03:25:54 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so214017rvb.1
-        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2009 00:25:54 -0700 (PDT)
+	Thu, 23 Jul 2009 03:28:05 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so214352rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 23 Jul 2009 00:28:05 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <8bd0f97a0907222346x7e80799fkf88c7b59c61091b7@mail.gmail.com>
+In-Reply-To: <20090723063044.GD2782@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
+To: Mike Rapoport <mike@compulab.co.il>
+Cc: Eric Miao <eric.y.miao@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Jul 23, 2009 at 02:46:11AM -0400, Mike Frysinger wrote:
-> On Thu, Jul 23, 2009 at 00:43, Dmitry Torokhov wrote:
-> > On Tue, Jul 14, 2009 at 01:33:47PM -0400, Mike Frysinger wrote:
-> >> +struct platform_driver bfin_rotary_device_driver =3D {
-> >> + =A0 =A0 .probe =A0 =A0 =A0 =A0 =A0=3D bfin_rotary_probe,
-> >> + =A0 =A0 .remove =A0 =A0 =A0 =A0 =3D __devexit_p(bfin_rotary_remo=
-ve),
-> >> + =A0 =A0 .suspend =A0 =A0 =A0 =A0=3D bfin_rotary_suspend,
-> >> + =A0 =A0 .resume =A0 =A0 =A0 =A0 =3D bfin_rotary_resume,
-> >
-> > Need to use dev_pm_ops so platform code won;t yell at us.
->=20
-> looks like something new post 2.6.30 ... guess i'll have to keep this
-> in mind for migrating drivers when 2.6.31 comes out
->=20
-> > I also think that this driver should too live in drivers/input/misc=
- so I
-> > moved it there. I did a bit of reshuffling in the patch, could you
-> > please give it a try and if it still works I'll apply to the 'next'
-> > branch.
->=20
-> could you toss like a standard dev_info("initialized") into the end o=
-f
-> bfin_rotary_probe ?  otherwise, builds and works fine for me with
-> 2.6.31-rc4.  thanks!
+On Wed, Jul 22, 2009 at 11:30:44PM -0700, Dmitry Torokhov wrote:
+> On Tue, Jul 21, 2009 at 01:44:56PM +0300, Mike Rapoport wrote:
+> > Hi Dmitry,
+> > 
+> > Dmitry Torokhov wrote:
+> > > Hi Eric,
+> > > 
+> > > I made a few adjustments to the pxa27x_keypad driver and was wondering
+> > > if you would be able to give it a sping and check if I broke it or not.
+> > 
+> > Apparently not :)
+> > Tested-by: Mike Rapoport <mike@compulab.co.il>
+> > 
+> 
+> Cool, thanks for testing. I have another one for you then ;)
+> 
+> TIA!
+> 
 
-Don't you find the boot to be too noisy? The input core already
-prints a message when a new input device is registered...
+Umm.. this one is hopefully better...
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Input: pxa27x_keypad - switch to using dev_pm_ops
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/keyboard/pxa27x_keypad.c |   19 ++++++++++++-------
+ 1 files changed, 12 insertions(+), 7 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 0943238..c987cc7 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -389,8 +389,9 @@ static void pxa27x_keypad_close(struct input_dev *dev)
+ }
+ 
+ #ifdef CONFIG_PM
+-static int pxa27x_keypad_suspend(struct platform_device *pdev, pm_message_t state)
++static int pxa27x_keypad_suspend(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
+ 
+ 	clk_disable(keypad->clk);
+@@ -401,8 +402,9 @@ static int pxa27x_keypad_suspend(struct platform_device *pdev, pm_message_t stat
+ 	return 0;
+ }
+ 
+-static int pxa27x_keypad_resume(struct platform_device *pdev)
++static int pxa27x_keypad_resume(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 
+@@ -421,9 +423,11 @@ static int pxa27x_keypad_resume(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
+-#else
+-#define pxa27x_keypad_suspend	NULL
+-#define pxa27x_keypad_resume	NULL
++
++static const struct dev_pm_ops pxa27x_keypad_pm_ops = {
++	.suspend	= pxa27x_keypad_suspend,
++	.resume		= pxa27x_keypad_resume,
++};
+ #endif
+ 
+ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
+@@ -572,11 +576,12 @@ MODULE_ALIAS("platform:pxa27x-keypad");
+ static struct platform_driver pxa27x_keypad_driver = {
+ 	.probe		= pxa27x_keypad_probe,
+ 	.remove		= __devexit_p(pxa27x_keypad_remove),
+-	.suspend	= pxa27x_keypad_suspend,
+-	.resume		= pxa27x_keypad_resume,
+ 	.driver		= {
+ 		.name	= "pxa27x-keypad",
+ 		.owner	= THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	= &pxa27x_keypad_pm_ops,
++#endif
+ 	},
+ };
+ 

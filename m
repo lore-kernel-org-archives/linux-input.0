@@ -1,34 +1,49 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Thu, 23 Jul 2009 16:55:37 +0200
-Message-ID: <20090723145537.GA28158@elf.ucw.cz>
-References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk>
+Subject: Re: xterms freezing on 2.6.31-rc2 (was Re: [regression] Re:
+	2.6.31-rc2: X stop accepting keystrokes?)
+Date: Thu, 23 Jul 2009 20:51:32 +0200
+Message-ID: <20090723185132.GO28158@elf.ucw.cz>
+References: <20090714092459.GA2010@elf.ucw.cz> <20090715131611.GB2367@elf.ucw.cz> <20090717125946.GA2022@elf.ucw.cz> <alpine.LNX.2.00.0907171501080.11648@wotan.suse.de> <20090717130649.GA2202@elf.ucw.cz> <alpine.LNX.2.00.0907171512260.11648@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:52786 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55185 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752987AbZGWOzn (ORCPT
+	with ESMTP id S1751931AbZGWSvj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2009 10:55:43 -0400
+	Thu, 23 Jul 2009 14:51:39 -0400
 Content-Disposition: inline
-In-Reply-To: <20090721113642.GC13286@sirena.org.uk>
+In-Reply-To: <alpine.LNX.2.00.0907171512260.11648@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-
-> > +static irqreturn_t synaptics_ts_hardirq(int irq, void *dev_id)
-> > +{
-> > +	disable_irq_nosync(irq);
-> > +	return IRQ_WAKE_THREAD;
+On Fri 2009-07-17 15:13:41, Jiri Kosina wrote:
+> On Fri, 17 Jul 2009, Pavel Machek wrote:
 > 
-> Are you sure that this is going to work?  The IRQ thread code will not
+> > > > ...and they seem to be slightly different crashes. Once keyboard was
+> > > > dead but mouse worked, second time keyboard still worked but xterms
+> > > > kept locking up. I managed to type dmesg into one of them, but that
+> > > > xterm hung in middle of dump :-(.
+> > > 
+> > > I guess that both keyboard and mouse are PS/2 connected, right?
+> > 
+> > Thinkpad internal keyboard/mouse, yes.
+> > 
+> > > Any possibility to capture serial console output?
+> > 
+> > I managed to get dmesg via magic sysrq at some point. I got some
+> > softlockup messages and processes seemed to hang.
+> 
+> Softlockup in which area?
+> 
+> Are you able to ssh into the machine? Where do the xterms hang? 
+> (/proc/<pid>/stack)
 
-No, I'm not. I copied it from somewhere and could not really test it.
-
+I have not seen it for a while with new kernel, so I assume problem is gone.
 									Pavel
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

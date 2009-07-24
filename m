@@ -1,31 +1,28 @@
 From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
 	<richard.rojfors.ext@mocean-labs.com>
-Subject: [PATCH 1/2] tsc2007: IRQ balancing when stopping work during removal
-Date: Fri, 24 Jul 2009 18:13:22 +0200
-Message-ID: <4A69DDA2.80902@mocean-labs.com>
+Subject: [PATCH 2/2] tsc2007: reduced number of I2C transfers
+Date: Fri, 24 Jul 2009 18:14:37 +0200
+Message-ID: <4A69DDED.50402@mocean-labs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from av8-2-sn3.vrr.skanova.net ([81.228.9.184]:41910 "EHLO
+Received: from av8-2-sn3.vrr.skanova.net ([81.228.9.184]:41944 "EHLO
 	av8-2-sn3.vrr.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753207AbZGXQNX (ORCPT
+	with ESMTP id S1751847AbZGXQOi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jul 2009 12:13:23 -0400
+	Fri, 24 Jul 2009 12:14:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>
 
-The implementation is proposed by Dmitry Torokhov, I have just made som=
-e=20
-changes so it applied to my previous patches, and I tried it out.
-
-The idea is to balance the IRQ:s in the case where the poll worker is=20
-running, so it won't get disabled twice.
-
-Also using __devinit/__devexit macros on probe/remove functions.
+Decreases the number of I2C transactions transferred by the driver.
+During probe we don't need to ask for the coordinates from the controll=
+er.
+When polling the controller we don't need to power down and enable IRQ=20
+if we are going to poll again.
 
 Signed-off-by: Richard R=F6jfors <richard.rojfors.ext@mocean-labs.com>
 ---
@@ -33,124 +30,52 @@ Index: linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 997)
-+++ linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 1040=
+--- linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 1040=
 )
-@@ -61,7 +61,7 @@
-
-  #define PEN_STATE_UP	0x00
-  #define PEN_STATE_DOWN	0x01
--#define PEN_STATE_IRQ	0x01
-+#define PEN_STATE_IRQ	0x02
-
-  struct ts_event {
-  	u16	x;
-@@ -141,8 +141,6 @@
-  	 */
-  	if (rt > MAX_12BIT) {
-  		dev_dbg(&ts->client->dev, "ignored pressure %d\n", rt);
--
--		schedule_delayed_work(&ts->work, TS_POLL_PERIOD);
-  		return;
-  	}
-
-@@ -178,8 +176,6 @@
-  	} else if (!ts->get_pendown_state)
-  		/* no callback to check pendown state, use pressure */
++++ linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 1053=
+)
+@@ -178,6 +178,12 @@
   		ts->penstate =3D PEN_STATE_UP;
--
--	schedule_delayed_work(&ts->work, TS_POLL_PERIOD);
   }
 
-  static int tsc2007_read_values(struct tsc2007 *tsc)
-@@ -228,6 +224,7 @@
-
-  		tsc2007_read_values(ts);
-  		tsc2007_send_event(ts);
-+		schedule_delayed_work(&ts->work, TS_POLL_PERIOD);
-  	}
-  }
-
-@@ -238,7 +235,7 @@
-  	if (!ts->get_pendown_state || likely(ts->get_pendown_state())) {
-  		disable_irq_nosync(ts->irq);
-  		ts->penstate =3D PEN_STATE_IRQ;
--		schedule_delayed_work(&ts->work, 0);
-+		schedule_delayed_work(&ts->work, TS_POLL_PERIOD);
-  	}
-
-  	if (ts->clear_penirq)
-@@ -247,15 +244,25 @@
-  	return IRQ_HANDLED;
-  }
-
--static int tsc2007_probe(struct i2c_client *client,
-+static void tsc2007_free_irq(struct tsc2007 *ts)
++static void tsc2007_power_down(struct tsc2007 *tsc)
 +{
-+	free_irq(ts->irq, ts);
-+	if (cancel_delayed_work_sync(&ts->work))
-+		/* Work was pending, therefore we need to enable IRQ here to
-+		 * balance the disable done in the interrupt handler.
-+		 */
-+		enable_irq(ts->irq);
++	/* power down */
++	tsc2007_xfer(tsc, PWRDOWN);
 +}
 +
-+static int __devinit tsc2007_probe(struct i2c_client *client,
-  			const struct i2c_device_id *id)
+  static int tsc2007_read_values(struct tsc2007 *tsc)
   {
-  	struct tsc2007 *ts;
--	struct tsc2007_platform_data *pdata =3D pdata =3D client->dev.platfor=
-m_data;
-+	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
-  	struct input_dev *input_dev;
-  	int err;
+  	/* y- still on; turn on only y+ (and ADC) */
+@@ -188,11 +194,8 @@
 
--	if (!pdata || !pdata->get_pendown_state) {
-+	if (!pdata) {
-  		dev_err(&client->dev, "platform data is required!\n");
-  		return -EINVAL;
-  	}
-@@ -320,25 +327,24 @@
+  	/* turn y+ off, x- on; we'll use formula #1 */
+  	tsc->tc.z1 =3D tsc2007_xfer(tsc, READ_Z1);
+-	tsc->tc.z2 =3D tsc2007_xfer(tsc, READ_Z2);
++	tsc->tc.z2 =3D tsc2007_xfer(tsc, READ_Z2 | TSC2007_POWER_OFF_IRQ_EN);
+
+-	/* power down */
+-	tsc2007_xfer(tsc, PWRDOWN);
+-
   	return 0;
-
-   err_free_irq:
--	free_irq(ts->irq, ts);
-+	tsc2007_free_irq(ts);
-   err_free_mem:
-+	if (pdata->exit_platform_hw)
-+		pdata->exit_platform_hw();
-  	input_free_device(input_dev);
-  	kfree(ts);
-  	return err;
   }
 
--static int tsc2007_remove(struct i2c_client *client)
-+static int __devexit tsc2007_remove(struct i2c_client *client)
-  {
-  	struct tsc2007	*ts =3D i2c_get_clientdata(client);
--	struct tsc2007_platform_data *pdata;
-+	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
+@@ -217,6 +220,7 @@
+  		input_sync(input);
 
--	cancel_delayed_work_sync(&ts->work);
--
--	pdata =3D client->dev.platform_data;
-+	tsc2007_free_irq(ts);
-  	if (pdata->exit_platform_hw)
-  		pdata->exit_platform_hw();
+  		ts->penstate =3D PEN_STATE_UP;
++		tsc2007_power_down(ts);
+  		enable_irq(ts->irq);
+  	} else {
+  		/* pen is still down, continue with the measurement */
+@@ -305,7 +309,7 @@
+  	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+  	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
 
--	free_irq(ts->irq, ts);
-  	input_unregister_device(ts->input);
-  	kfree(ts);
+-	tsc2007_read_values(ts);
++	tsc2007_power_down(ts);
 
-@@ -359,7 +365,7 @@
-  	},
-  	.id_table	=3D tsc2007_idtable,
-  	.probe		=3D tsc2007_probe,
--	.remove		=3D tsc2007_remove,
-+	.remove		=3D __devexit_p(tsc2007_remove),
-  };
-
-  static int __init tsc2007_init(void)
+  	ts->irq =3D client->irq;
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

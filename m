@@ -1,49 +1,40 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: xterms freezing on 2.6.31-rc2 (was Re: [regression] Re:
-	2.6.31-rc2: X stop accepting keystrokes?)
-Date: Thu, 23 Jul 2009 20:51:32 +0200
-Message-ID: <20090723185132.GO28158@elf.ucw.cz>
-References: <20090714092459.GA2010@elf.ucw.cz> <20090715131611.GB2367@elf.ucw.cz> <20090717125946.GA2022@elf.ucw.cz> <alpine.LNX.2.00.0907171501080.11648@wotan.suse.de> <20090717130649.GA2202@elf.ucw.cz> <alpine.LNX.2.00.0907171512260.11648@wotan.suse.de>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
+	<richard.rojfors.ext@mocean-labs.com>
+Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
+Date: Fri, 24 Jul 2009 16:39:33 +0200
+Message-ID: <4A69C7A5.3060903@mocean-labs.com>
+References: <4A40C288.2060702@mocean-labs.com> <20090714044957.GD2822@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55185 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751931AbZGWSvj (ORCPT
+Received: from av9-1-sn2.hy.skanova.net ([81.228.8.179]:51368 "EHLO
+	av9-1-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750779AbZGXOjl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 23 Jul 2009 14:51:39 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0907171512260.11648@wotan.suse.de>
+	Fri, 24 Jul 2009 10:39:41 -0400
+In-Reply-To: <20090714044957.GD2822@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 
-On Fri 2009-07-17 15:13:41, Jiri Kosina wrote:
-> On Fri, 17 Jul 2009, Pavel Machek wrote:
+Dmitry Torokhov wrote:
 > 
-> > > > ...and they seem to be slightly different crashes. Once keyboard was
-> > > > dead but mouse worked, second time keyboard still worked but xterms
-> > > > kept locking up. I managed to type dmesg into one of them, but that
-> > > > xterm hung in middle of dump :-(.
-> > > 
-> > > I guess that both keyboard and mouse are PS/2 connected, right?
-> > 
-> > Thinkpad internal keyboard/mouse, yes.
-> > 
-> > > Any possibility to capture serial console output?
-> > 
-> > I managed to get dmesg via magic sysrq at some point. I got some
-> > softlockup messages and processes seemed to hang.
-> 
-> Softlockup in which area?
-> 
-> Are you able to ssh into the machine? Where do the xterms hang? 
-> (/proc/<pid>/stack)
+> Could you please try the patch below and see if the touchscreen still
+> works for you? It should be applied on top of your patch.
 
-I have not seen it for a while with new kernel, so I assume problem is gone.
-									Pavel
+Sorry for coming back late, we switched I2C IP so I had to write a new 
+driver for it before trying this out again.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The irq balancing seem to work as in you patch. I didn't run exactly
+you patch, I took some of the changes into my code, since we can not
+provide the callbacks.
+
+I have also done some other small changes, to saves us one of five I2C 
+transactions in polling mode.
+
+I Will post this incremental patch in a couple of minutes.
+
+Thanks
+--Richard

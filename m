@@ -1,40 +1,27 @@
 From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
 	<richard.rojfors.ext@mocean-labs.com>
-Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
-Date: Fri, 24 Jul 2009 16:39:33 +0200
-Message-ID: <4A69C7A5.3060903@mocean-labs.com>
-References: <4A40C288.2060702@mocean-labs.com> <20090714044957.GD2822@dtor-d630.eng.vmware.com>
+Subject: [PATCH 0/2] tsc2007: controlled removal and reduced number of I2C
+ transactions
+Date: Fri, 24 Jul 2009 18:12:07 +0200
+Message-ID: <4A69DD57.6030405@mocean-labs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from av9-1-sn2.hy.skanova.net ([81.228.8.179]:51368 "EHLO
-	av9-1-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750779AbZGXOjl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 24 Jul 2009 10:39:41 -0400
-In-Reply-To: <20090714044957.GD2822@dtor-d630.eng.vmware.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753345AbZGXQMU@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 
-Dmitry Torokhov wrote:
-> 
-> Could you please try the patch below and see if the touchscreen still
-> works for you? It should be applied on top of your patch.
+Two patches are supplied, booth are supposed to be applied against my 
+previous ones, which are added to the -mm-tree.
 
-Sorry for coming back late, we switched I2C IP so I had to write a new 
-driver for it before trying this out again.
+The first one is proposed by Dmitry Torokhov, I have just made some 
+changes so it applied to my previous changes, and I tried it out.
 
-The irq balancing seem to work as in you patch. I didn't run exactly
-you patch, I took some of the changes into my code, since we can not
-provide the callbacks.
+The second one decreases the number of I2C transactions transferred by 
+the driver. A unnecessary one during probe and an unnecessary power down 
+during each poll for coordinates are removed. The chip is explicitly 
+powered down before waiting for interrupts.
 
-I have also done some other small changes, to saves us one of five I2C 
-transactions in polling mode.
-
-I Will post this incremental patch in a couple of minutes.
-
-Thanks
 --Richard

@@ -1,112 +1,64 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: patch staging-htc-dream-touchscreen-driver-for-staging.patch
-	added to gregkh-2.6 tree
-Date: Mon, 27 Jul 2009 17:29:17 -0700
-Message-ID: <d6200be20907271729l4cf2f519occ8ebc1024e5140a@mail.gmail.com>
-References: <20090720105340.GF19341@elf.ucw.cz> <1248710770577@kroah.org>
-	 <d6200be20907271545l4edc4480v22f6dec4cd3d5dc9@mail.gmail.com>
-	 <20090727225545.GC7142@elf.ucw.cz>
+From: "Jory A. Pratt" <geekypenguin@gmail.com>
+Subject: [RFC PATCH] Asus G1S noloop exception
+Date: Mon, 27 Jul 2009 23:29:43 -0500
+Message-ID: <4A6E7EB7.4090703@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:50049 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752406AbZG1A3R convert rfc822-to-8bit (ORCPT
+Received: from mail-yw0-f175.google.com ([209.85.211.175]:63548 "EHLO
+	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750829AbZG1Ev5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Jul 2009 20:29:17 -0400
-Received: by qw-out-2122.google.com with SMTP id 8so1857865qwh.37
-        for <linux-input@vger.kernel.org>; Mon, 27 Jul 2009 17:29:17 -0700 (PDT)
-In-Reply-To: <20090727225545.GC7142@elf.ucw.cz>
+	Tue, 28 Jul 2009 00:51:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: gregkh@suse.de, greg@kroah.com, swetland@google.com, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
 
-On Mon, Jul 27, 2009 at 3:55 PM, Pavel Machek<pavel@ucw.cz> wrote:
-> On Mon 2009-07-27 15:45:48, Arve Hj?nnev?g wrote:
->> On Mon, Jul 27, 2009 at 9:06 AM, <gregkh@suse.de> wrote:
->> ...
->> > This is original version from Arve, fixed only to compile; I do ha=
-ve
->> > cleaner version, but I broken something inside, and this will pres=
-erve
->> > authorship better. I originally tried to push the driver directly =
-to
->> > input/touchscreen, but the driver has some issues with interrupt
->> > handling that are more difficult to fix than I expected at first.
->> >
->>
->> While it would be nice to use the threaded interrupt support, I don'=
-t
->> see why that change cannot be postponed until the the threaded
->> interrupt code supports this class of devices where the interrupt
->> needs to be masked before the thread can run.
->
-> That's up to linux-input people, I guess. But...
->
-> From the discussion, it seems that the driver has more issues. I have
-> quite long list.
->
-> 1) either it needs to switch to threaded interrupt supports, or all
-> the races need to be fixed.
->
-> [Comments I remember here is:]
->
-> (
->> > + =A0 =A0 =A0 =A0 =A0 ts->input_dev->name, ts->use_irq ? "interrup=
-t" :
-> "polling");
->> > +
->> > + =A0 return 0;
->> > +
->> > + err_input_register_device_failed:
->> > + =A0 input_free_device(ts->input_dev);
->> > +
->>
->> Don't see canceling timer nor shutting off WQ here. Also, maybe
->> implement open() and close() so we don't reschedule WQ while polling=
-?_
-> )
+INPUT - Touchpad not detected on Asus G1S
 
-Unless you changed something there should be no failure path after
-starting the timer or enabling the interrupt.
+The synaptic touchpad on the Asus G1S is not properly detected when 
+rebooting machine
+or on cold boot from time to time. Adding the Asus G1S to the noloop 
+exception table resolves
+the issue, as it allows the AUX IRQ to be rasied.
 
-synaptics_ts_remove is missing a flush_work call though.
+# dmidecode 2.10
+SMBIOS 2.4 present.
 
->
-> 2) it uses non-standard multitouch support. Either multitouch needs t=
-o
-> be disabled for merge, or it needs to switch to standard config.
->
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+     Manufacturer: ASUSTeK Computer Inc.
+     Product Name: G1S
+     Version: 1.0
+     Serial Number: NF1G7900340285
+     UUID: 242481DC-61E7-7EFB-2480-001D606B6A5E
+     Wake-up Type: Power Switch
+     SKU Number:
+     Family:
 
-I have a patch that adds support for the new protocol, but it does not
-yet remove the old hack.
+Signed-off-by: Jory A. Pratt <geekypenguin@gmail.com>
 
-> 3) poll mode should probably be removed.
->
-> 4) minor stuff, like properly filling identification fields
-> (vendor/device/product) etc.
->
-> Yes, ideally it should be 3 or 4 patches and it is out of staging and
-> in the kernel proper. But as I already got patches for people trying
-> to help with cleaning, I believe staging is right place for
-> it.
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
-Pavel
-> --
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/hors=
-es/blog.html
->
-
-
-
---=20
-Arve Hj=F8nnev=E5g
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/serio/i8042-x86ia64io.h 
+b/drivers/input/serio/i8042-x86ia64io.h
+index fb8a3cd..6723d04 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -78,6 +78,14 @@ static struct dmi_system_id __initdata 
+i8042_dmi_noloop_table[] = {
+                 },
+         },
+         {
++               .ident = "ASUS G1S",
++               .matches = {
++                       DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer 
+INC."),
++                       DMI_MATCH(DMI_BOARD_NAME, "G1S"),
++                       DMI_MATCH(DMI_BOARD_VERSION, "1.0"),
++               },
++       },
++       {
+                 /* AUX LOOP command does not raise AUX IRQ */
+                 .ident = "ASUS P65UP5",
+                 .matches = {

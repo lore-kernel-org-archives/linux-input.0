@@ -1,171 +1,179 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: patch staging-htc-dream-touchscreen-driver-for-staging.patch
-	added to gregkh-2.6 tree
-Date: Tue, 28 Jul 2009 19:51:43 -0700
-Message-ID: <d6200be20907281951t53c12cdfo82282318eb6fcd33@mail.gmail.com>
-References: <20090720105340.GF19341@elf.ucw.cz> <1248710770577@kroah.org>
-	 <d6200be20907271545l4edc4480v22f6dec4cd3d5dc9@mail.gmail.com>
-	 <20090727225545.GC7142@elf.ucw.cz>
-	 <d6200be20907271729l4cf2f519occ8ebc1024e5140a@mail.gmail.com>
-	 <20090728111417.GB17323@elf.ucw.cz>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] [ARM] pxa/spitz: use GPIO matrix keypad driver
+Date: Wed, 29 Jul 2009 17:07:39 +0200
+Message-ID: <20090729150738.GH1534@ucw.cz>
+References: <1248090115-20571-1-git-send-email-eric.y.miao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:41525 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752776AbZG2Cvn convert rfc822-to-8bit (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:54184 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752891AbZG2PHt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Jul 2009 22:51:43 -0400
-Received: by qw-out-2122.google.com with SMTP id 8so290830qwh.37
-        for <linux-input@vger.kernel.org>; Tue, 28 Jul 2009 19:51:43 -0700 (PDT)
-In-Reply-To: <20090728111417.GB17323@elf.ucw.cz>
+	Wed, 29 Jul 2009 11:07:49 -0400
+Content-Disposition: inline
+In-Reply-To: <1248090115-20571-1-git-send-email-eric.y.miao@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: gregkh@suse.de, greg@kroah.com, swetland@google.com, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-On Tue, Jul 28, 2009 at 4:14 AM, Pavel Machek<pavel@ucw.cz> wrote:
-> Hi!
->
->> >> Don't see canceling timer nor shutting off WQ here. Also, maybe
->> >> implement open() and close() so we don't reschedule WQ while poll=
-ing?_
->> > )
->>
->> Unless you changed something there should be no failure path after
->> starting the timer or enabling the interrupt.
->>
->> synaptics_ts_remove is missing a flush_work call though.
->
-> Can you submit patch to fix that?
->
+On Mon 2009-07-20 19:41:54, Eric Miao wrote:
+> Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
 
-When fix it, sure. This code is unreachable in the configurations we
-use though so I never noticed it before.
+Does this make some other driver obsolete? Should we disable the other
+one or even remove it completely?
 
->> > 2) it uses non-standard multitouch support. Either multitouch need=
-s to
->> > be disabled for merge, or it needs to switch to standard config.
->>
->> I have a patch that adds support for the new protocol, but it does n=
-ot
->> yet remove the old hack.
->
-> Yes, such patch would be welcome. I guess we could wrap old, hacky
-> protocol in ifdef, and then remove it when moving to drivers/input.
 
-I included the patch below. It is not against your cleaned up version
-of the driver, but it could use a review in its current form since I'm
-unclear on how up events should be handled. Another touchscreen only
-sends events for the finger that moved, so the absence of a finger
-report is not a good indication that it was released.
 
---=20
-Arve Hj=F8nnev=E5g
+> diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+> index dda310f..e3156a0 100644
+> --- a/arch/arm/mach-pxa/spitz.c
+> +++ b/arch/arm/mach-pxa/spitz.c
+> @@ -24,6 +24,7 @@
+>  #include <linux/spi/ads7846.h>
+>  #include <linux/spi/corgi_lcd.h>
+>  #include <linux/mtd/sharpsl.h>
+> +#include <linux/input/matrix_keypad.h>
+>  
+>  #include <asm/setup.h>
+>  #include <asm/mach-types.h>
+> @@ -111,6 +112,26 @@ static unsigned long spitz_pin_config[] __initdata = {
+>  	GPIO105_GPIO,	/* SPITZ_GPIO_CF_IRQ */
+>  	GPIO106_GPIO,	/* SPITZ_GPIO_CF2_IRQ */
+>  
+> +	/* GPIO matrix keypad */
+> +	GPIO88_GPIO,	/* column 0 */
+> +	GPIO23_GPIO,	/* column 1 */
+> +	GPIO24_GPIO,	/* column 2 */
+> +	GPIO25_GPIO,	/* column 3 */
+> +	GPIO26_GPIO,	/* column 4 */
+> +	GPIO27_GPIO,	/* column 5 */
+> +	GPIO52_GPIO,	/* column 6 */
+> +	GPIO103_GPIO,	/* column 7 */
+> +	GPIO107_GPIO,	/* column 8 */
+> +	GPIO108_GPIO,	/* column 9 */
+> +	GPIO114_GPIO,	/* column 10 */
+> +	GPIO12_GPIO,	/* row 0 */
+> +	GPIO17_GPIO,	/* row 1 */
+> +	GPIO91_GPIO,	/* row 2 */
+> +	GPIO34_GPIO,	/* row 3 */
+> +	GPIO36_GPIO,	/* row 4 */
+> +	GPIO38_GPIO,	/* row 5 */
+> +	GPIO39_GPIO,	/* row 6 */
+> +
+>  	/* I2C */
+>  	GPIO117_I2C_SCL,
+>  	GPIO118_I2C_SDA,
+> @@ -242,9 +263,106 @@ EXPORT_SYMBOL(spitzscoop2_device);
+>  /*
+>   * Spitz Keyboard Device
+>   */
+> +#define SPITZ_KEY_CALENDAR	KEY_F1
+> +#define SPITZ_KEY_ADDRESS	KEY_F2
+> +#define SPITZ_KEY_FN		KEY_F3
+> +#define SPITZ_KEY_CANCEL	KEY_F4
+> +#define SPITZ_KEY_EXOK		KEY_F5
+> +#define SPITZ_KEY_EXCANCEL	KEY_F6
+> +#define SPITZ_KEY_EXJOGDOWN	KEY_F7
+> +#define SPITZ_KEY_EXJOGUP	KEY_F8
+> +#define SPITZ_KEY_JAP1		KEY_LEFTALT
+> +#define SPITZ_KEY_JAP2		KEY_RIGHTCTRL
+> +#define SPITZ_KEY_SYNC		KEY_F9
+> +#define SPITZ_KEY_MAIL		KEY_F10
+> +#define SPITZ_KEY_OK		KEY_F11
+> +#define SPITZ_KEY_MENU		KEY_F12
+> +
+> +static const uint32_t spitzkbd_keymap[] = {
+> +	KEY(0, 0, KEY_LEFTCTRL),
+> +	KEY(0, 1, KEY_1),
+> +	KEY(0, 2, KEY_3),
+> +	KEY(0, 3, KEY_5),
+> +	KEY(0, 4, KEY_6),
+> +	KEY(0, 5, KEY_7),
+> +	KEY(0, 6, KEY_9),
+> +	KEY(0, 7, KEY_0),
+> +	KEY(0, 8, KEY_BACKSPACE),
+> +	KEY(0, 9, SPITZ_KEY_EXOK),	/* EXOK */
+> +	KEY(0, 10, SPITZ_KEY_EXCANCEL),	/* EXCANCEL */
+> +	KEY(1, 1, KEY_2),
+> +	KEY(1, 2, KEY_4),
+> +	KEY(1, 3, KEY_R),
+> +	KEY(1, 4, KEY_Y),
+> +	KEY(1, 5, KEY_8),
+> +	KEY(1, 6, KEY_I),
+> +	KEY(1, 7, KEY_O),
+> +	KEY(1, 8, KEY_P),
+> +	KEY(1, 9, SPITZ_KEY_EXJOGDOWN),	/* EXJOGDOWN */
+> +	KEY(1, 10, SPITZ_KEY_EXJOGUP),	/* EXJOGUP */
+> +	KEY(2, 0, KEY_TAB),
+> +	KEY(2, 1, KEY_Q),
+> +	KEY(2, 2, KEY_E),
+> +	KEY(2, 3, KEY_T),
+> +	KEY(2, 4, KEY_G),
+> +	KEY(2, 5, KEY_U),
+> +	KEY(2, 6, KEY_J),
+> +	KEY(2, 7, KEY_K),
+> +	KEY(3, 0, SPITZ_KEY_ADDRESS),	/* ADDRESS */
+> +	KEY(3, 1, KEY_W),
+> +	KEY(3, 2, KEY_S),
+> +	KEY(3, 3, KEY_F),
+> +	KEY(3, 4, KEY_V),
+> +	KEY(3, 5, KEY_H),
+> +	KEY(3, 6, KEY_M),
+> +	KEY(3, 7, KEY_L),
+> +	KEY(3, 9, KEY_RIGHTSHIFT),
+> +	KEY(4, 0, SPITZ_KEY_CALENDAR),	/* CALENDAR */
+> +	KEY(4, 1, KEY_A),
+> +	KEY(4, 2, KEY_D),
+> +	KEY(4, 3, KEY_C),
+> +	KEY(4, 4, KEY_B),
+> +	KEY(4, 5, KEY_N),
+> +	KEY(4, 6, KEY_DOT),
+> +	KEY(4, 8, KEY_ENTER),
+> +	KEY(4, 9, KEY_LEFTSHIFT),
+> +	KEY(5, 0, SPITZ_KEY_MAIL),	/* MAIL */
+> +	KEY(5, 1, KEY_Z),
+> +	KEY(5, 2, KEY_X),
+> +	KEY(5, 3, KEY_MINUS),
+> +	KEY(5, 4, KEY_SPACE),
+> +	KEY(5, 5, KEY_COMMA),
+> +	KEY(5, 7, KEY_UP),
+> +	KEY(5, 10, SPITZ_KEY_FN),	/* FN */
+> +	KEY(6, 0, KEY_SYSRQ),
+> +	KEY(6, 1, SPITZ_KEY_JAP1),	/* JAP1 */
+> +	KEY(6, 2, SPITZ_KEY_JAP2),	/* JAP2 */
+> +	KEY(6, 3, SPITZ_KEY_CANCEL),	/* CANCEL */
+> +	KEY(6, 4, SPITZ_KEY_OK),	/* OK */
+> +	KEY(6, 5, SPITZ_KEY_MENU),	/* MENU */
+> +	KEY(6, 6, KEY_LEFT),
+> +	KEY(6, 7, KEY_DOWN),
+> +	KEY(6, 8, KEY_RIGHT),
+> +};
+> +
+> +static struct matrix_keypad_platform_data spitzkbd_pdata = {
+> +	.keymap		= spitzkbd_keymap,
+> +	.keymap_size	= ARRAY_SIZE(spitzkbd_keymap),
+> +	.col_gpios	= {88, 23, 24, 25, 26, 27, 52, 103, 107, 108, 114, -1},
+> +	.row_gpios	= {12, 17, 91, 34, 36, 38, 39, -1},
+> +	.num_col_gpios	= 11,
+> +	.num_row_gpios	= 7,
+> +	.col_scan_delay_us	= 10,
+> +	.debounce_ms		= 10,
+> +	.wakeup			= 1,
+> +};
+> +
+>  static struct platform_device spitzkbd_device = {
+> -	.name		= "spitz-keyboard",
+> +	.name		= "matrix-keypad",
+>  	.id		= -1,
+> +	.dev		= {
+> +		.platform_data = &spitzkbd_pdata,
+> +	},
+>  };
+>  
+>  
 
----
-
-=46rom edc71cab6a21fd0415b626bf2cbe737af29e3491 Mon Sep 17 00:00:00 200=
-1
-=46rom: =3D?utf-8?q?Arve=3D20Hj=3DC3=3DB8nnev=3DC3=3DA5g?=3D <arve@andr=
-oid.com>
-Date: Mon, 20 Jul 2009 20:11:31 -0700
-Subject: [PATCH] Input: synaptics_i2c_rmi: Send new multi touch events
-MIME-Version: 1.0
-Content-Type: text/plain; charset=3Dutf-8
-Content-Transfer-Encoding: 8bit
-
-Send both fingers using the new multitouch protocol in addition to
-the old single finger event and second finger ABS_HAT* hack.
-
-The new protocol does not specify how to report up events. To make
-sure the user-space frameworks can generate up events, we send at
-least one event where ABS_MT_TOUCH_MAJOR is zero before we stop
-sending events for a finger.
-
-Signed-off-by: Arve Hj=F8nnev=E5g <arve@android.com>
----
- drivers/input/touchscreen/synaptics_i2c_rmi.c |   25 +++++++++++++++++=
-++++++++
- 1 files changed, 25 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/synaptics_i2c_rmi.c
-b/drivers/input/touchscreen/synaptics_i2c_rmi.c
-index 56cf371..e003e42 100644
---- a/drivers/input/touchscreen/synaptics_i2c_rmi.c
-+++ b/drivers/input/touchscreen/synaptics_i2c_rmi.c
-@@ -43,6 +43,7 @@ struct synaptics_ts_data {
-        int snap_down[2];
-        int snap_up[2];
-        uint32_t flags;
-+       int reported_finger_count;
-        int8_t sensitivity_adjust;
-        int (*power)(int on);
-        struct early_suspend early_suspend;
-@@ -204,6 +205,26 @@ static void synaptics_ts_work_func(struct
-work_struct *work)
-
-input_report_abs(ts->input_dev, ABS_HAT0X, pos[1][0]);
-
-input_report_abs(ts->input_dev, ABS_HAT0Y, pos[1][1]);
-                                }
-+
-+                               if (!finger)
-+                                       z =3D 0;
-+                               input_report_abs(ts->input_dev,
-ABS_MT_TOUCH_MAJOR, z);
-+                               input_report_abs(ts->input_dev,
-ABS_MT_WIDTH_MAJOR, w);
-+                               input_report_abs(ts->input_dev,
-ABS_MT_POSITION_X, pos[0][0]);
-+                               input_report_abs(ts->input_dev,
-ABS_MT_POSITION_Y, pos[0][1]);
-+                               input_mt_sync(ts->input_dev);
-+                               if (finger2_pressed) {
-+
-input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, z);
-+
-input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, w);
-+
-input_report_abs(ts->input_dev, ABS_MT_POSITION_X, pos[1][0]);
-+
-input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, pos[1][1]);
-+                                       input_mt_sync(ts->input_dev);
-+                               } else if (ts->reported_finger_count > =
-1) {
-+
-input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0);
-+
-input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0);
-+                                       input_mt_sync(ts->input_dev);
-+                               }
-+                               ts->reported_finger_count =3D finger;
-                                input_sync(ts->input_dev);
-                        }
-                }
-@@ -480,6 +501,10 @@ static int synaptics_ts_probe(
-        input_set_abs_params(ts->input_dev, ABS_TOOL_WIDTH, 0, 15, fuzz=
-_w, 0);
-        input_set_abs_params(ts->input_dev, ABS_HAT0X,
--inactive_area_left, max_x + inactive_area_right, fuzz_x, 0);
-input_set_abs_params(ts->input_dev, ABS_HAT0Y, -inactive_area_top,
-max_y + inactive_area_bottom, fuzz_y, 0);+
-input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
--inactive_area_left, max_x + inactive_area_right, fuzz_x, 0);
-+       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
--inactive_area_top, max_y + inactive_area_bottom, fuzz_y, 0);
-+       input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0,
-255, fuzz_p, 0);
-+       input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 15,
-fuzz_w, 0);
-        /* ts->input_dev->name =3D ts->keypad_info->name; */
-        ret =3D input_register_device(ts->input_dev);
-        if (ret) {
---
-1.6.1
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

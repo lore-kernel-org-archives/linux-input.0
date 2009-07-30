@@ -1,191 +1,169 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] [ARM] pxa/spitz: use GPIO matrix keypad driver
-Date: Thu, 30 Jul 2009 13:00:40 +0800
-Message-ID: <4A7128F8.3010506@gmail.com>
-References: <1248090115-20571-1-git-send-email-eric.y.miao@gmail.com> <20090729150738.GH1534@ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
+Date: Wed, 29 Jul 2009 22:44:00 -0700
+Message-ID: <20090730061803.C05C3526EC9@mailhub.coreip.homeip.net>
+References: <3026.1243972079@foxharp.boston.ma.us> <29774.1248905330@foxharp.boston.ma.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.224]:40905 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750800AbZG3FAt (ORCPT
+Received: from mail-px0-f203.google.com ([209.85.216.203]:59581 "EHLO
+	mail-px0-f203.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751370AbZG3FoG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2009 01:00:49 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so344366rvb.1
-        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2009 22:00:49 -0700 (PDT)
-In-Reply-To: <20090729150738.GH1534@ucw.cz>
+	Thu, 30 Jul 2009 01:44:06 -0400
+Content-Disposition: inline
+In-Reply-To: <29774.1248905330@foxharp.boston.ma.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+To: Paul Fox <pgf@laptop.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Mon 2009-07-20 19:41:54, Eric Miao wrote:
->> Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+Hi Paul,
+
+On Wed, Jul 29, 2009 at 06:08:50PM -0400, Paul Fox wrote:
+> this is a resubmission, in the hopes of jump-starting the merge
+> discussion.  it was last discussed in early june of this year.
 > 
-> Does this make some other driver obsolete? Should we disable the other
-> one or even remove it completely?
+> the OLPC XO laptop incorporates a combination touchpad/tablet
+> device which unfortunately requires frequent recalibration.  the
+> driver will force this automatically when various suspicious
+> behaviors are observed, and the user can recalibrate manually
+> (with a special keyboard sequence).  there's currently no way,
+> however, for an external program to cause recalibration.
 > 
-
-Yes, specifically the following two:
-
-  drivers/input/keyboard/corgikbd.c
-  drivers/input/keyboard/spitzkbd.c
-
-which I don't feel quite comfortable since they are referencing the PXA
-GPIO registers directly.
-
-However, marking obsolete might be more smooth for the moment.
-
+> this patch creates a new node in /sys which, when written with '1',
+> will force a touchpad recalibration.  no other writes (or reads)
+> of this node are supported.
 > 
-> 
->> diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
->> index dda310f..e3156a0 100644
->> --- a/arch/arm/mach-pxa/spitz.c
->> +++ b/arch/arm/mach-pxa/spitz.c
->> @@ -24,6 +24,7 @@
->>  #include <linux/spi/ads7846.h>
->>  #include <linux/spi/corgi_lcd.h>
->>  #include <linux/mtd/sharpsl.h>
->> +#include <linux/input/matrix_keypad.h>
->>  
->>  #include <asm/setup.h>
->>  #include <asm/mach-types.h>
->> @@ -111,6 +112,26 @@ static unsigned long spitz_pin_config[] __initdata = {
->>  	GPIO105_GPIO,	/* SPITZ_GPIO_CF_IRQ */
->>  	GPIO106_GPIO,	/* SPITZ_GPIO_CF2_IRQ */
->>  
->> +	/* GPIO matrix keypad */
->> +	GPIO88_GPIO,	/* column 0 */
->> +	GPIO23_GPIO,	/* column 1 */
->> +	GPIO24_GPIO,	/* column 2 */
->> +	GPIO25_GPIO,	/* column 3 */
->> +	GPIO26_GPIO,	/* column 4 */
->> +	GPIO27_GPIO,	/* column 5 */
->> +	GPIO52_GPIO,	/* column 6 */
->> +	GPIO103_GPIO,	/* column 7 */
->> +	GPIO107_GPIO,	/* column 8 */
->> +	GPIO108_GPIO,	/* column 9 */
->> +	GPIO114_GPIO,	/* column 10 */
->> +	GPIO12_GPIO,	/* row 0 */
->> +	GPIO17_GPIO,	/* row 1 */
->> +	GPIO91_GPIO,	/* row 2 */
->> +	GPIO34_GPIO,	/* row 3 */
->> +	GPIO36_GPIO,	/* row 4 */
->> +	GPIO38_GPIO,	/* row 5 */
->> +	GPIO39_GPIO,	/* row 6 */
->> +
->>  	/* I2C */
->>  	GPIO117_I2C_SCL,
->>  	GPIO118_I2C_SDA,
->> @@ -242,9 +263,106 @@ EXPORT_SYMBOL(spitzscoop2_device);
->>  /*
->>   * Spitz Keyboard Device
->>   */
->> +#define SPITZ_KEY_CALENDAR	KEY_F1
->> +#define SPITZ_KEY_ADDRESS	KEY_F2
->> +#define SPITZ_KEY_FN		KEY_F3
->> +#define SPITZ_KEY_CANCEL	KEY_F4
->> +#define SPITZ_KEY_EXOK		KEY_F5
->> +#define SPITZ_KEY_EXCANCEL	KEY_F6
->> +#define SPITZ_KEY_EXJOGDOWN	KEY_F7
->> +#define SPITZ_KEY_EXJOGUP	KEY_F8
->> +#define SPITZ_KEY_JAP1		KEY_LEFTALT
->> +#define SPITZ_KEY_JAP2		KEY_RIGHTCTRL
->> +#define SPITZ_KEY_SYNC		KEY_F9
->> +#define SPITZ_KEY_MAIL		KEY_F10
->> +#define SPITZ_KEY_OK		KEY_F11
->> +#define SPITZ_KEY_MENU		KEY_F12
->> +
->> +static const uint32_t spitzkbd_keymap[] = {
->> +	KEY(0, 0, KEY_LEFTCTRL),
->> +	KEY(0, 1, KEY_1),
->> +	KEY(0, 2, KEY_3),
->> +	KEY(0, 3, KEY_5),
->> +	KEY(0, 4, KEY_6),
->> +	KEY(0, 5, KEY_7),
->> +	KEY(0, 6, KEY_9),
->> +	KEY(0, 7, KEY_0),
->> +	KEY(0, 8, KEY_BACKSPACE),
->> +	KEY(0, 9, SPITZ_KEY_EXOK),	/* EXOK */
->> +	KEY(0, 10, SPITZ_KEY_EXCANCEL),	/* EXCANCEL */
->> +	KEY(1, 1, KEY_2),
->> +	KEY(1, 2, KEY_4),
->> +	KEY(1, 3, KEY_R),
->> +	KEY(1, 4, KEY_Y),
->> +	KEY(1, 5, KEY_8),
->> +	KEY(1, 6, KEY_I),
->> +	KEY(1, 7, KEY_O),
->> +	KEY(1, 8, KEY_P),
->> +	KEY(1, 9, SPITZ_KEY_EXJOGDOWN),	/* EXJOGDOWN */
->> +	KEY(1, 10, SPITZ_KEY_EXJOGUP),	/* EXJOGUP */
->> +	KEY(2, 0, KEY_TAB),
->> +	KEY(2, 1, KEY_Q),
->> +	KEY(2, 2, KEY_E),
->> +	KEY(2, 3, KEY_T),
->> +	KEY(2, 4, KEY_G),
->> +	KEY(2, 5, KEY_U),
->> +	KEY(2, 6, KEY_J),
->> +	KEY(2, 7, KEY_K),
->> +	KEY(3, 0, SPITZ_KEY_ADDRESS),	/* ADDRESS */
->> +	KEY(3, 1, KEY_W),
->> +	KEY(3, 2, KEY_S),
->> +	KEY(3, 3, KEY_F),
->> +	KEY(3, 4, KEY_V),
->> +	KEY(3, 5, KEY_H),
->> +	KEY(3, 6, KEY_M),
->> +	KEY(3, 7, KEY_L),
->> +	KEY(3, 9, KEY_RIGHTSHIFT),
->> +	KEY(4, 0, SPITZ_KEY_CALENDAR),	/* CALENDAR */
->> +	KEY(4, 1, KEY_A),
->> +	KEY(4, 2, KEY_D),
->> +	KEY(4, 3, KEY_C),
->> +	KEY(4, 4, KEY_B),
->> +	KEY(4, 5, KEY_N),
->> +	KEY(4, 6, KEY_DOT),
->> +	KEY(4, 8, KEY_ENTER),
->> +	KEY(4, 9, KEY_LEFTSHIFT),
->> +	KEY(5, 0, SPITZ_KEY_MAIL),	/* MAIL */
->> +	KEY(5, 1, KEY_Z),
->> +	KEY(5, 2, KEY_X),
->> +	KEY(5, 3, KEY_MINUS),
->> +	KEY(5, 4, KEY_SPACE),
->> +	KEY(5, 5, KEY_COMMA),
->> +	KEY(5, 7, KEY_UP),
->> +	KEY(5, 10, SPITZ_KEY_FN),	/* FN */
->> +	KEY(6, 0, KEY_SYSRQ),
->> +	KEY(6, 1, SPITZ_KEY_JAP1),	/* JAP1 */
->> +	KEY(6, 2, SPITZ_KEY_JAP2),	/* JAP2 */
->> +	KEY(6, 3, SPITZ_KEY_CANCEL),	/* CANCEL */
->> +	KEY(6, 4, SPITZ_KEY_OK),	/* OK */
->> +	KEY(6, 5, SPITZ_KEY_MENU),	/* MENU */
->> +	KEY(6, 6, KEY_LEFT),
->> +	KEY(6, 7, KEY_DOWN),
->> +	KEY(6, 8, KEY_RIGHT),
->> +};
->> +
->> +static struct matrix_keypad_platform_data spitzkbd_pdata = {
->> +	.keymap		= spitzkbd_keymap,
->> +	.keymap_size	= ARRAY_SIZE(spitzkbd_keymap),
->> +	.col_gpios	= {88, 23, 24, 25, 26, 27, 52, 103, 107, 108, 114, -1},
->> +	.row_gpios	= {12, 17, 91, 34, 36, 38, 39, -1},
->> +	.num_col_gpios	= 11,
->> +	.num_row_gpios	= 7,
->> +	.col_scan_delay_us	= 10,
->> +	.debounce_ms		= 10,
->> +	.wakeup			= 1,
->> +};
->> +
->>  static struct platform_device spitzkbd_device = {
->> -	.name		= "spitz-keyboard",
->> +	.name		= "matrix-keypad",
->>  	.id		= -1,
->> +	.dev		= {
->> +		.platform_data = &spitzkbd_pdata,
->> +	},
->>  };
->>  
->>  
+> during the previous discussion, dmitry suggested that we instead
+> use the reconnect capability which is already available in /sys. 
+> i experimented with this, and unfortunately a full reset of
+> the touchpad takes quite a long time -- 1.1 or 1.2 seconds. 
+> recalibration deprives the user of their touchpad for long enough
+> as it is -- i don't think we can afford that time.  (note
+> that this is a workaround for bad hardware -- the XO no longer
+> uses this touchpad at least partly due to this very issue, but
+> there are enough in use that we're still trying to improve
+> things.)
 > 
 
+Sorry, I completely forgot about this patch... I am going to apply
+it, however I think that we should not be creating the attribute
+if the touchpad does not support recalibration. Also, I don't see
+the reason why we can't schedule recalibration immediately instead
+of waiting for 1 msec.
+
+Could you please try updated version of the patch below?
+
+Thanks!
+
+-- 
+Dmitry
+
+
+Input: hgpk - forced recalibration for the OLPC touchpad
+
+From: Paul Fox <pgf@laptop.org>
+
+The OLPC XO laptop incorporates a combination touchpad/tablet device
+which unfortunately requires frequent recalibration.  The driver will
+force this automatically when various suspicious behaviors are
+observed, and the user can recalibrate manually (with a special
+keyboard sequence). There's currently no way, however, for an external
+program to cause recalibration. We can not use the reconnect
+capability which is already available in /sys because full reset of
+the touchpad takes 1.1 - 1.2 secons which is too long.
+
+This patch creates a new node in /sys which, when written with '1',
+will force a touchpad recalibration; no other writes (or reads)
+of this node are supported.
+
+Signed-off-by: Paul Fox <pgf@laptop.org>
+Acked-by: Andres Salomon <dilinger@collabora.co.uk>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/mouse/hgpk.c |   55 ++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 52 insertions(+), 3 deletions(-)
+
+
+diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+index a1ad2f1..f5aa035 100644
+--- a/drivers/input/mouse/hgpk.c
++++ b/drivers/input/mouse/hgpk.c
+@@ -369,12 +369,46 @@ static ssize_t hgpk_set_powered(struct psmouse *psmouse, void *data,
+ __PSMOUSE_DEFINE_ATTR(powered, S_IWUSR | S_IRUGO, NULL,
+ 		      hgpk_show_powered, hgpk_set_powered, 0);
+ 
++static ssize_t hgpk_trigger_recal_show(struct psmouse *psmouse,
++		void *data, char *buf)
++{
++	return -EINVAL;
++}
++
++static ssize_t hgpk_trigger_recal(struct psmouse *psmouse, void *data,
++				const char *buf, size_t count)
++{
++	struct hgpk_data *priv = psmouse->private;
++	unsigned long value;
++	int err;
++
++	err = strict_strtoul(buf, 10, &value);
++	if (err || value != 1)
++		return -EINVAL;
++
++	/*
++	 * We queue work instead of doing recalibration right here
++	 * to avoid adding locking to to hgpk_force_recalibrate()
++	 * since workqueue provides serialization.
++	 */
++	psmouse_queue_work(psmouse, &priv->recalib_wq, 0);
++	return count;
++}
++
++__PSMOUSE_DEFINE_ATTR(recalibrate, S_IWUSR | S_IRUGO, NULL,
++		      hgpk_trigger_recal_show, hgpk_trigger_recal, 0);
++
+ static void hgpk_disconnect(struct psmouse *psmouse)
+ {
+ 	struct hgpk_data *priv = psmouse->private;
+ 
+ 	device_remove_file(&psmouse->ps2dev.serio->dev,
+ 			   &psmouse_attr_powered.dattr);
++
++	if (psmouse->model >= HGPK_MODEL_C)
++		device_remove_file(&psmouse->ps2dev.serio->dev,
++				   &psmouse_attr_recalibrate.dattr);
++
+ 	psmouse_reset(psmouse);
+ 	kfree(priv);
+ }
+@@ -423,10 +457,25 @@ static int hgpk_register(struct psmouse *psmouse)
+ 
+ 	err = device_create_file(&psmouse->ps2dev.serio->dev,
+ 				 &psmouse_attr_powered.dattr);
+-	if (err)
+-		hgpk_err(psmouse, "Failed to create sysfs attribute\n");
++	if (err) {
++		hgpk_err(psmouse, "Failed creating 'powered' sysfs node\n");
++		return err;
++	}
+ 
+-	return err;
++	/* C-series touchpads added the recalibrate command */
++	if (psmouse->model >= HGPK_MODEL_C) {
++		err = device_create_file(&psmouse->ps2dev.serio->dev,
++					 &psmouse_attr_recalibrate.dattr);
++		if (err) {
++			hgpk_err(psmouse,
++				"Failed creating 'recalibrate' sysfs node\n");
++			device_remove_file(&psmouse->ps2dev.serio->dev,
++					&psmouse_attr_powered.dattr);
++			return err;
++		}
++	}
++
++	return 0;
+ }
+ 
+ int hgpk_init(struct psmouse *psmouse)

@@ -1,112 +1,39 @@
-From: Paul Fox <pgf@laptop.org>
-Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
-Date: Wed, 29 Jul 2009 18:08:50 -0400
-Message-ID: <29774.1248905330@foxharp.boston.ma.us>
-References: <3026.1243972079@foxharp.boston.ma.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754707AbZG2W3Y@vger.kernel.org>
-In-reply-to: <3026.1243972079@foxharp.boston.ma.us> 
-Content-ID: <29771.1248905330.1@foxharp.boston.ma.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Asus G1S noloop exception V2
+Date: Wed, 29 Jul 2009 19:45:37 -0700
+Message-ID: <20090730031946.C7F1F526EC9@mailhub.coreip.homeip.net>
+Mime-Version: 1.0 (iPhone Mail 7A341)
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0506.google.com ([209.85.198.230]:43616 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750903AbZG3Cpw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 29 Jul 2009 22:45:52 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so322689rvb.1
+        for <linux-input@vger.kernel.org>; Wed, 29 Jul 2009 19:45:50 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Jory A. Pratt" <geekypenguin@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 
-this is a resubmission, in the hopes of jump-starting the merge
-discussion.  it was last discussed in early june of this year.
+Hi Jory,
 
-the OLPC XO laptop incorporates a combination touchpad/tablet
-device which unfortunately requires frequent recalibration.  the
-driver will force this automatically when various suspicious
-behaviors are observed, and the user can recalibrate manually
-(with a special keyboard sequence).  there's currently no way,
-however, for an external program to cause recalibration.
+On Tue, Jul 28, 2009 at 10:11:46PM -0500, Jory A. Pratt wrote:
+> After further testing I realized there was a mistake in the patch. The
+> DMI_BOARD_VENDOR should have been
+> ASUSTeK Computer Inc. instead of ASUSTeK Computer INC. Patch has been
+> fully tested with 20+ reboots and cold
+> boots to ensure it is working properly.
+>
 
-this patch creates a new node in /sys which, when written with '1',
-will force a touchpad recalibration.  no other writes (or reads)
-of this node are supported.
+Since you are saying that AUX loop detection usually works on your
+laptop simply disabling it is not the best solution. Could you please
+provide me with dmesg of booting with i8042.debug=1 when touchpad
+is not detected?
 
-during the previous discussion, dmitry suggested that we instead
-use the reconnect capability which is already available in /sys. 
-i experimented with this, and unfortunately a full reset of
-the touchpad takes quite a long time -- 1.1 or 1.2 seconds. 
-recalibration deprives the user of their touchpad for long enough
-as it is -- i don't think we can afford that time.  (note
-that this is a workaround for bad hardware -- the XO no longer
-uses this touchpad at least partly due to this very issue, but
-there are enough in use that we're still trying to improve
-things.)
-
-paul
-
-Signed-off-by: Paul Fox <pgf@laptop.org>
-Acked-by: Andres Salomon <dilinger@collabora.co.uk>
-
-diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index a1ad2f1..e736ebd 100644
---- a/drivers/input/mouse/hgpk.c
-+++ b/drivers/input/mouse/hgpk.c
-@@ -369,12 +369,40 @@ static ssize_t hgpk_set_powered(struct psmouse *psmouse, void *data,
- __PSMOUSE_DEFINE_ATTR(powered, S_IWUSR | S_IRUGO, NULL,
- 		      hgpk_show_powered, hgpk_set_powered, 0);
- 
-+static ssize_t hgpk_trigger_recal_show(struct psmouse *psmouse,
-+		void *data, char *buf)
-+{
-+	return -EINVAL;
-+}
-+
-+static ssize_t hgpk_trigger_recal(struct psmouse *psmouse, void *data,
-+				const char *buf, size_t count)
-+{
-+	struct hgpk_data *priv = psmouse->private;
-+	unsigned long value;
-+	int err;
-+
-+	err = strict_strtoul(buf, 10, &value);
-+	if (err || value != 1)
-+		return -EINVAL;
-+
-+	psmouse_queue_work(psmouse, &priv->recalib_wq,
-+				msecs_to_jiffies(1));
-+
-+	return count;
-+}
-+
-+__PSMOUSE_DEFINE_ATTR(recalibrate, S_IWUSR | S_IRUGO, NULL,
-+		      hgpk_trigger_recal_show, hgpk_trigger_recal, 0);
-+
- static void hgpk_disconnect(struct psmouse *psmouse)
- {
- 	struct hgpk_data *priv = psmouse->private;
- 
- 	device_remove_file(&psmouse->ps2dev.serio->dev,
- 			   &psmouse_attr_powered.dattr);
-+	device_remove_file(&psmouse->ps2dev.serio->dev,
-+			   &psmouse_attr_recalibrate.dattr);
- 	psmouse_reset(psmouse);
- 	kfree(priv);
- }
-@@ -423,8 +451,18 @@ static int hgpk_register(struct psmouse *psmouse)
- 
- 	err = device_create_file(&psmouse->ps2dev.serio->dev,
- 				 &psmouse_attr_powered.dattr);
--	if (err)
--		hgpk_err(psmouse, "Failed to create sysfs attribute\n");
-+	if (err) {
-+		hgpk_err(psmouse, "Failed creating 'powered' sysfs node\n");
-+	} else {
-+		err = device_create_file(&psmouse->ps2dev.serio->dev,
-+					 &psmouse_attr_recalibrate.dattr);
-+		if (err) {
-+			hgpk_err(psmouse,
-+				"Failed creating 'recalibrate' sysfs node\n");
-+			device_remove_file(&psmouse->ps2dev.serio->dev,
-+					&psmouse_attr_powered.dattr);
-+		}
-+	}
- 
- 	return err;
- }
-=---------------------
- paul fox, pgf@laptop.org
+-- 
+Dmitry

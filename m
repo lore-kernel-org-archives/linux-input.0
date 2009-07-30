@@ -1,30 +1,91 @@
-From: Paul Fox <pgf@laptop.org>
-Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
-Date: Thu, 30 Jul 2009 10:37:24 -0400
-Message-ID: <18567.1248964644@foxharp.boston.ma.us>
-References: <3026.1243972079@foxharp.boston.ma.us> <29774.1248905330@foxharp.boston.ma.us> <20090730061803.C05C3526EC9@mailhub.coreip.homeip.net> (sfid-20090730_014410_549939_B9FD9B58)
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: [PATCH] Enable ADC Filter on UCB1400
+Date: Thu, 30 Jul 2009 19:22:24 +0200
+Message-ID: <200907301922.24818.marek.vasut@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751506AbZG3Oh0@vger.kernel.org>
-In-reply-to: <20090730061803.C05C3526EC9@mailhub.coreip.homeip.net> (sfid-20090730_014410_549939_B9FD9B58) 
-Content-ID: <18564.1248964644.1@foxharp.boston.ma.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f228.google.com ([209.85.220.228]:33198 "EHLO
+	mail-fx0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751420AbZG3RWl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Jul 2009 13:22:41 -0400
+Received: by fxm28 with SMTP id 28so791039fxm.17
+        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2009 10:22:40 -0700 (PDT)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: sameo@linux.intel.com, dmitry.torokhov@gmail.com
 
-hi dmitry --
+Hi!
 
-dmitry wrote:
- > Sorry, I completely forgot about this patch... I am going to apply
- > it, however I think that we should not be creating the attribute
- > if the touchpad does not support recalibration. Also, I don't see
- > the reason why we can't schedule recalibration immediately instead
- > of waiting for 1 msec.
- > 
- > Could you please try updated version of the patch below?
+please consider applying the following patch. I tested it on Palm Tungsten|C 
+(ADCSYNC connected, both disabled and enabled through module parameter) and a 
+friend of mine tested it on Toradex Colibri (ADCSYNC not connected, disabled).
 
-looks and works fine.  thanks!
+Thanks
 
-paul
-=---------------------
- paul fox, pgf@laptop.org
+>From 65cb92df1aba511fbc44d62fa25d5cf38a687952 Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marek.vasut@gmail.com>
+Date: Thu, 30 Jul 2009 19:03:10 +0200
+Subject: [PATCH] Enable ADC Filter on UCB1400
+
+This patch enables ADC filtering on UCB1400 codec by default. The
+benefit from this change is mostly on some Colibri boards where the
+ADCSYNC pin of the UCB1400 codec isn't connected causing the touchscreen
+to jitter very badly. This change has no visible effect on boards where
+the ADCSYNC pin is connected.
+
+Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+---
+ drivers/input/touchscreen/ucb1400_ts.c |    6 ++++++
+ include/linux/ucb1400.h                |    4 ++++
+ 2 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ucb1400_ts.c 
+b/drivers/input/touchscreen/ucb1400_ts.c
+index b2828a3..df8e5f3 100644
+--- a/drivers/input/touchscreen/ucb1400_ts.c
++++ b/drivers/input/touchscreen/ucb1400_ts.c
+@@ -345,6 +345,7 @@ static int ucb1400_ts_detect_irq(struct ucb1400_ts *ucb)
+ static int ucb1400_ts_probe(struct platform_device *dev)
+ {
+ 	int error, x_res, y_res;
++	u16 fcsr;
+ 	struct ucb1400_ts *ucb = dev->dev.platform_data;
+ 
+ 	ucb->ts_idev = input_allocate_device();
+@@ -382,6 +383,11 @@ static int ucb1400_ts_probe(struct platform_device *dev)
+ 	ucb->ts_idev->evbit[0]		= BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+ 	ucb->ts_idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 
++	/* Enable ADC filter to prevent horrible jitter on Colibri. This also
++	 * further reduces jitter on boards where ADCSYNC pin is connected. */
++	fcsr = ucb1400_reg_read(ucb->ac97, UCB_FCSR);
++	ucb1400_reg_write(ucb->ac97, UCB_FCSR, fcsr | UCB_FCSR_AVE);
++
+ 	ucb1400_adc_enable(ucb->ac97);
+ 	x_res = ucb1400_ts_read_xres(ucb);
+ 	y_res = ucb1400_ts_read_yres(ucb);
+diff --git a/include/linux/ucb1400.h b/include/linux/ucb1400.h
+index 464fb34..e489ff6 100644
+--- a/include/linux/ucb1400.h
++++ b/include/linux/ucb1400.h
+@@ -74,6 +74,10 @@
+ 
+ #define UCB_ADC_DATA		0x68
+ #define UCB_ADC_DAT_VALID	(1 << 15)
++
++#define UCB_FCSR		0x6c
++#define UCB_FCSR_AVE		(1 << 12)
++
+ #define UCB_ADC_DAT_MASK	0x3ff
+ 
+ #define UCB_ID			0x7e
+-- 
+1.6.3.3
+
+

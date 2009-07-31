@@ -1,38 +1,85 @@
-From: Webmail Messaging Center <webmail_upgrade1@mail2webmaster.com>
-Subject: Dear Webmail/Email User
-Date: Fri, 31 Jul 2009 20:04:25 +0800
-Message-ID: <web-221192856__39883.7127992467$1249045558$gmane$org@octa4.net.au>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] hid: ignore all recent SoundGraph iMON devices
+Date: Fri, 31 Jul 2009 10:56:36 -0400
+Message-ID: <200907311056.36729.jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from communigate.iinet.net.au ([203.59.2.44]:56960 "EHLO
-	octa4.net.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752615AbZGaNEm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jul 2009 09:04:42 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:57933 "EHLO mx2.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750859AbZGaO6u (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Jul 2009 10:58:50 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
 
+After some inspection of the Windows iMON driver, several additional
+device IDs were added to the lirc_imon driver. At least a few of these
+have been seen in the wild, and require manual quirking to keep the
+usbhid driver from binding to them. Rather than list out every single
+device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
+these may not advertise themselves as HID devices, but no harm done to
+such devices anyway. Does the right thing in brief testing w/my 0x0045
+device.
 
-Dear valued customer, 
-This message is from our Webmail Messaging Center to all 
-our account owners.We are currently upgrading our data 
-base and e-mail center. 
-We are deleting all unused webmail account to Create more 
-space for new accounts. 
-In order to ensure you do not experience service 
-interruption during this period;
-you will have to confirm your webmail account details by 
-providing the following: 
-1.Username:....................................
-2.Password:...................................
-3.Date of Birth:...............................  
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
 
-You will be sent a new confirmation alphanumerical 
-password that will only be valid during this period and 
-can be changed after this process. 
-We are very sorry for the inconvenience this may cost you. 
-Please respond to this notice to enable us provide you 
-better online services with our newly improved webmail 
-features and enhancements.
+---
+ drivers/hid/hid-core.c |   10 +++++-----
+ drivers/hid/hid-ids.h  |    7 ++-----
+ 2 files changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5eb10c2..18bf803 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1623,11 +1623,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LABPRO) },
+@@ -1694,6 +1689,11 @@ static bool hid_ignore(struct hid_device *hdev)
+ 				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
+ 			return true;
+ 		break;
++	case USB_VENDOR_ID_SOUNDGRAPH:
++		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
++		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
++			return true;
++		break;
+ 	}
+ 
+ 	if (hdev->type == HID_TYPE_USBMOUSE &&
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6301010..989a3ba 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -376,11 +376,8 @@
+ #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+ 
+ #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+-#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
+-#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
+-#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
+-#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4	0x0044
+-#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5	0x0045
++#define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
++#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
+ 
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+
+-- 
+Jarod Wilson
+jarod@redhat.com

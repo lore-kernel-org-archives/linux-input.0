@@ -1,201 +1,165 @@
 From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH 1/2] input: Add support for filtering input events
-Date: Fri, 31 Jul 2009 03:26:46 +0100
-Message-ID: <1249007207-27392-1-git-send-email-mjg@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:47481 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752237AbZGaC0z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2009 22:26:55 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 2/2] dell-laptop: Trigger rfkill updates on wifi toggle switch press
+Date: Fri, 31 Jul 2009 03:26:47 +0100
+Message-ID: <1249007207-27392-2-git-send-email-mjg@redhat.com>
+References: <1249007207-27392-1-git-send-email-mjg@redhat.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1249007207-27392-1-git-send-email-mjg@redhat.com>
+Sender: linux-acpi-owner@vger.kernel.org
 To: linux-acpi@vger.kernel.org
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Matthew Garrett <mjg@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
-Devices occasionally use the keyboard controller to send hardware
-notifications that should be handled by the kernel rather than userspace.
-These can be handled in kernel by registering an input handler, but the
-event will still bubble up to userspace where it may cause confusion. This
-patch adds support for the kernel to register filters, allowing it to
-indicate that the event should be consumed by the hardware-specific driver
-rather than passed to other input handlers. The assumption is that, as this
-is hardware specific, there should be no need to have more than one filter -
-similarly, if an input device is grabbed, we assume that people know what
-they're doing and don't pass it to the filter.
+Dell hardware sends the rfkill hardware killswitch event via the keyboard
+controller, even if it's a physical toggle switch on the side of the
+machine. Add support for catching the input event and updating the rfkill
+state, allowing userspace to receive notifications that the change has
+occurred.
 
 Signed-off-by: Matthew Garrett <mjg@redhat.com>
 ---
- drivers/input/input.c |   91 ++++++++++++++++++++++++++++++++++++++++++-------
- include/linux/input.h |    5 +++
- 2 files changed, 83 insertions(+), 13 deletions(-)
+ drivers/platform/x86/dell-laptop.c |  100 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 100 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 7c237e6..80f1e48 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -88,19 +88,26 @@ static int input_defuzz_abs_event(int value, int old_val, int fuzz)
-  */
- static void input_pass_event(struct input_dev *dev,
- 			     unsigned int type, unsigned int code, int value)
--{
--	struct input_handle *handle;
+diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
+index 74909c4..71a4149 100644
+--- a/drivers/platform/x86/dell-laptop.c
++++ b/drivers/platform/x86/dell-laptop.c
+@@ -22,6 +22,7 @@
+ #include <linux/rfkill.h>
+ #include <linux/power_supply.h>
+ #include <linux/acpi.h>
++#include <linux/input.h>
+ #include "../../firmware/dcdbas.h"
+ 
+ #define BRIGHTNESS_TOKEN 0x7d
+@@ -206,6 +207,16 @@ static const struct rfkill_ops dell_rfkill_ops = {
+ 	.query = dell_rfkill_query,
+ };
+ 
++static void dell_rfkill_update(void)
++{
++	if (wifi_rfkill)
++		dell_rfkill_query(wifi_rfkill, (void *)1);
++	if (bluetooth_rfkill)
++		dell_rfkill_query(bluetooth_rfkill, (void *)2);
++	if (wwan_rfkill)
++		dell_rfkill_query(wwan_rfkill, (void *)3);
++}
 +
-+{	struct input_handle *handle;
- 
- 	rcu_read_lock();
- 
- 	handle = rcu_dereference(dev->grab);
--	if (handle)
-+	if (handle) {
- 		handle->handler->event(handle, type, code, value);
--	else
--		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
--			if (handle->open)
--				handle->handler->event(handle,
--							type, code, value);
-+		goto out;
-+	}
-+
-+	handle = rcu_dereference(dev->filter);
-+	if (handle && handle->handler->filter(handle, type, code, value))
-+		goto out;
-+
-+	list_for_each_entry_rcu(handle, &dev->h_list, d_node)
-+		if (handle->open)
-+			handle->handler->event(handle,
-+					       type, code, value);
-+out:
- 	rcu_read_unlock();
- }
- 
-@@ -375,12 +382,15 @@ int input_grab_device(struct input_handle *handle)
- }
- EXPORT_SYMBOL(input_grab_device);
- 
--static void __input_release_device(struct input_handle *handle)
-+static void __input_release_device(struct input_handle *handle, bool filter)
+ static int dell_setup_rfkill(void)
  {
- 	struct input_dev *dev = handle->dev;
+ 	struct calling_interface_buffer buffer;
+@@ -310,6 +321,90 @@ static struct backlight_ops dell_ops = {
+ 	.update_status  = dell_send_intensity,
+ };
  
--	if (dev->grab == handle) {
--		rcu_assign_pointer(dev->grab, NULL);
-+	if (handle == (filter ? dev->filter : dev->grab)) {
-+		if (filter)
-+			rcu_assign_pointer(dev->filter, NULL);
-+		else
-+			rcu_assign_pointer(dev->grab, NULL);
- 		/* Make sure input_pass_event() notices that grab is gone */
- 		synchronize_rcu();
- 
-@@ -404,12 +414,65 @@ void input_release_device(struct input_handle *handle)
- 	struct input_dev *dev = handle->dev;
- 
- 	mutex_lock(&dev->mutex);
--	__input_release_device(handle);
-+	__input_release_device(handle, false);
- 	mutex_unlock(&dev->mutex);
- }
- EXPORT_SYMBOL(input_release_device);
- 
- /**
-+ * input_filter_device - allow input events to be filtered from higher layers
-+ * @handle: input handle that wants to filter the device
-+ *
-+ * When a device is filtered by an input handle all events generated by
-+ * the device are to this handle. If the filter function returns true then
-+ * the event is discarded rather than being passed to any other input handles,
-+ * otherwise it is passed to them as normal. Grabs will be handled before
-+ * filters, so a grabbed device will not deliver events to a filter function.
-+ */
-+int input_filter_device(struct input_handle *handle)
++static const struct input_device_id dell_input_ids[] = {
++	{
++		.bustype = 0x11,
++		.vendor = 0x01,
++		.product = 0x01,
++		.version = 0xab41,
++		.flags = INPUT_DEVICE_ID_MATCH_BUS |
++			 INPUT_DEVICE_ID_MATCH_VENDOR |
++			 INPUT_DEVICE_ID_MATCH_PRODUCT |
++			 INPUT_DEVICE_ID_MATCH_VERSION
++	},
++	{ },
++};
++
++static bool dell_input_filter(struct input_handle *handle, unsigned int type,
++			     unsigned int code, int value)
 +{
-+	struct input_dev *dev = handle->dev;
-+	int retval;
-+
-+	retval = mutex_lock_interruptible(&dev->mutex);
-+	if (retval)
-+		return retval;
-+
-+	if (dev->filter) {
-+		retval = -EBUSY;
-+		goto out;
++	if (type == EV_KEY && code == KEY_WLAN && value == 1) {
++		dell_rfkill_update();
++		return 1;
 +	}
 +
-+	rcu_assign_pointer(dev->filter, handle);
-+	synchronize_rcu();
-+
-+ out:
-+	mutex_unlock(&dev->mutex);
-+	return retval;
++	return 0;
 +}
-+EXPORT_SYMBOL(input_filter_device);
 +
-+/**
-+ * input_unfilter_device - removes a filter from a device
-+ * @handle: input handle that owns the device
-+ *
-+ * Removes the filter from a device so that other input handles can
-+ * start receiving unfiltered input events. Upon release all handlers
-+ * attached to the device have their start() method called so they
-+ * have a change to synchronize device state with the rest of the
-+ * system.
-+ */
-+void input_unfilter_device(struct input_handle *handle)
++static void dell_input_event(struct input_handle *handle, unsigned int type,
++			     unsigned int code, int value)
 +{
-+	struct input_dev *dev = handle->dev;
-+
-+	mutex_lock(&dev->mutex);
-+	__input_release_device(handle, true);
-+	mutex_unlock(&dev->mutex);
 +}
-+EXPORT_SYMBOL(input_unfilter_device);
 +
-+/**
-  * input_open_device - open input device
-  * @handle: handle through which device is being accessed
-  *
-@@ -482,7 +545,9 @@ void input_close_device(struct input_handle *handle)
- 
- 	mutex_lock(&dev->mutex);
- 
--	__input_release_device(handle);
-+	/* Release both grabs and filters */
-+	__input_release_device(handle, false);
-+	__input_release_device(handle, true);
- 
- 	if (!--dev->users && dev->close)
- 		dev->close(dev);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 8b3bc3e..e28f116 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -1118,6 +1118,7 @@ struct input_dev {
- 	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
- 
- 	struct input_handle *grab;
-+	struct input_handle *filter;
- 
- 	spinlock_t event_lock;
- 	struct mutex mutex;
-@@ -1218,6 +1219,7 @@ struct input_handler {
- 	void *private;
- 
- 	void (*event)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
-+	bool (*filter)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
- 	int (*connect)(struct input_handler *handler, struct input_dev *dev, const struct input_device_id *id);
- 	void (*disconnect)(struct input_handle *handle);
- 	void (*start)(struct input_handle *handle);
-@@ -1295,6 +1297,9 @@ void input_unregister_handle(struct input_handle *);
- int input_grab_device(struct input_handle *);
- void input_release_device(struct input_handle *);
- 
-+int input_filter_device(struct input_handle *);
-+void input_unfilter_device(struct input_handle *);
++static int dell_input_connect(struct input_handler *handler,
++			      struct input_dev *dev,
++			      const struct input_device_id *id)
++{
++	struct input_handle *handle;
++	int error;
 +
- int input_open_device(struct input_handle *);
- void input_close_device(struct input_handle *);
++	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
++	if (!handle)
++		return -ENOMEM;
++
++	handle->dev = dev;
++	handle->handler = handler;
++	handle->name = "dell-laptop";
++
++	error = input_register_handle(handle);
++	if (error)
++		goto err_free_handle;
++
++	error = input_open_device(handle);
++	if (error)
++		goto err_unregister_handle;
++
++	error = input_filter_device(handle);
++	if (error)
++		goto err_close_handle;
++
++	return 0;
++
++err_close_handle:
++	input_close_device(handle);
++err_unregister_handle:
++	input_unregister_handle(handle);
++err_free_handle:
++	kfree(handle);
++	return error;
++}
++
++static void dell_input_disconnect(struct input_handle *handle)
++{
++	input_close_device(handle);
++	input_unregister_handle(handle);
++	kfree(handle);
++}
++
++static struct input_handler dell_input_handler = {
++	.name = "dell-laptop",
++	.filter = dell_input_filter,
++	.event = dell_input_event,
++	.connect = dell_input_connect,
++	.disconnect = dell_input_disconnect,
++	.id_table = dell_input_ids,
++};
++
+ static int __init dell_init(void)
+ {
+ 	struct calling_interface_buffer buffer;
+@@ -333,6 +428,10 @@ static int __init dell_init(void)
+ 		goto out;
+ 	}
  
++	if (input_register_handler(&dell_input_handler))
++		printk(KERN_INFO
++		       "dell-laptop: Could not register input filter\n");
++
+ #ifdef CONFIG_ACPI
+ 	/* In the event of an ACPI backlight being available, don't
+ 	 * register the platform controller.
+@@ -388,6 +487,7 @@ static void __exit dell_exit(void)
+ 		rfkill_unregister(bluetooth_rfkill);
+ 	if (wwan_rfkill)
+ 		rfkill_unregister(wwan_rfkill);
++	input_unregister_handler(&dell_input_handler);
+ }
+ 
+ module_init(dell_init);
 -- 
 1.6.2.5
 

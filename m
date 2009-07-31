@@ -1,91 +1,201 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: [PATCH] Enable ADC Filter on UCB1400
-Date: Thu, 30 Jul 2009 19:22:24 +0200
-Message-ID: <200907301922.24818.marek.vasut@gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Matthew Garrett <mjg@redhat.com>
+Subject: [PATCH 1/2] input: Add support for filtering input events
+Date: Fri, 31 Jul 2009 03:26:46 +0100
+Message-ID: <1249007207-27392-1-git-send-email-mjg@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f228.google.com ([209.85.220.228]:33198 "EHLO
-	mail-fx0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751420AbZG3RWl convert rfc822-to-8bit (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:47481 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752237AbZGaC0z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Jul 2009 13:22:41 -0400
-Received: by fxm28 with SMTP id 28so791039fxm.17
-        for <linux-input@vger.kernel.org>; Thu, 30 Jul 2009 10:22:40 -0700 (PDT)
-Content-Disposition: inline
+	Thu, 30 Jul 2009 22:26:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: sameo@linux.intel.com, dmitry.torokhov@gmail.com
+To: linux-acpi@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Matthew Garrett <mjg@redhat.com>
 
-Hi!
+Devices occasionally use the keyboard controller to send hardware
+notifications that should be handled by the kernel rather than userspace.
+These can be handled in kernel by registering an input handler, but the
+event will still bubble up to userspace where it may cause confusion. This
+patch adds support for the kernel to register filters, allowing it to
+indicate that the event should be consumed by the hardware-specific driver
+rather than passed to other input handlers. The assumption is that, as this
+is hardware specific, there should be no need to have more than one filter -
+similarly, if an input device is grabbed, we assume that people know what
+they're doing and don't pass it to the filter.
 
-please consider applying the following patch. I tested it on Palm Tungsten|C 
-(ADCSYNC connected, both disabled and enabled through module parameter) and a 
-friend of mine tested it on Toradex Colibri (ADCSYNC not connected, disabled).
-
-Thanks
-
->From 65cb92df1aba511fbc44d62fa25d5cf38a687952 Mon Sep 17 00:00:00 2001
-From: Marek Vasut <marek.vasut@gmail.com>
-Date: Thu, 30 Jul 2009 19:03:10 +0200
-Subject: [PATCH] Enable ADC Filter on UCB1400
-
-This patch enables ADC filtering on UCB1400 codec by default. The
-benefit from this change is mostly on some Colibri boards where the
-ADCSYNC pin of the UCB1400 codec isn't connected causing the touchscreen
-to jitter very badly. This change has no visible effect on boards where
-the ADCSYNC pin is connected.
-
-Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
 ---
- drivers/input/touchscreen/ucb1400_ts.c |    6 ++++++
- include/linux/ucb1400.h                |    4 ++++
- 2 files changed, 10 insertions(+), 0 deletions(-)
+ drivers/input/input.c |   91 ++++++++++++++++++++++++++++++++++++++++++-------
+ include/linux/input.h |    5 +++
+ 2 files changed, 83 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ucb1400_ts.c 
-b/drivers/input/touchscreen/ucb1400_ts.c
-index b2828a3..df8e5f3 100644
---- a/drivers/input/touchscreen/ucb1400_ts.c
-+++ b/drivers/input/touchscreen/ucb1400_ts.c
-@@ -345,6 +345,7 @@ static int ucb1400_ts_detect_irq(struct ucb1400_ts *ucb)
- static int ucb1400_ts_probe(struct platform_device *dev)
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 7c237e6..80f1e48 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -88,19 +88,26 @@ static int input_defuzz_abs_event(int value, int old_val, int fuzz)
+  */
+ static void input_pass_event(struct input_dev *dev,
+ 			     unsigned int type, unsigned int code, int value)
+-{
+-	struct input_handle *handle;
++
++{	struct input_handle *handle;
+ 
+ 	rcu_read_lock();
+ 
+ 	handle = rcu_dereference(dev->grab);
+-	if (handle)
++	if (handle) {
+ 		handle->handler->event(handle, type, code, value);
+-	else
+-		list_for_each_entry_rcu(handle, &dev->h_list, d_node)
+-			if (handle->open)
+-				handle->handler->event(handle,
+-							type, code, value);
++		goto out;
++	}
++
++	handle = rcu_dereference(dev->filter);
++	if (handle && handle->handler->filter(handle, type, code, value))
++		goto out;
++
++	list_for_each_entry_rcu(handle, &dev->h_list, d_node)
++		if (handle->open)
++			handle->handler->event(handle,
++					       type, code, value);
++out:
+ 	rcu_read_unlock();
+ }
+ 
+@@ -375,12 +382,15 @@ int input_grab_device(struct input_handle *handle)
+ }
+ EXPORT_SYMBOL(input_grab_device);
+ 
+-static void __input_release_device(struct input_handle *handle)
++static void __input_release_device(struct input_handle *handle, bool filter)
  {
- 	int error, x_res, y_res;
-+	u16 fcsr;
- 	struct ucb1400_ts *ucb = dev->dev.platform_data;
+ 	struct input_dev *dev = handle->dev;
  
- 	ucb->ts_idev = input_allocate_device();
-@@ -382,6 +383,11 @@ static int ucb1400_ts_probe(struct platform_device *dev)
- 	ucb->ts_idev->evbit[0]		= BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
- 	ucb->ts_idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+-	if (dev->grab == handle) {
+-		rcu_assign_pointer(dev->grab, NULL);
++	if (handle == (filter ? dev->filter : dev->grab)) {
++		if (filter)
++			rcu_assign_pointer(dev->filter, NULL);
++		else
++			rcu_assign_pointer(dev->grab, NULL);
+ 		/* Make sure input_pass_event() notices that grab is gone */
+ 		synchronize_rcu();
  
-+	/* Enable ADC filter to prevent horrible jitter on Colibri. This also
-+	 * further reduces jitter on boards where ADCSYNC pin is connected. */
-+	fcsr = ucb1400_reg_read(ucb->ac97, UCB_FCSR);
-+	ucb1400_reg_write(ucb->ac97, UCB_FCSR, fcsr | UCB_FCSR_AVE);
+@@ -404,12 +414,65 @@ void input_release_device(struct input_handle *handle)
+ 	struct input_dev *dev = handle->dev;
+ 
+ 	mutex_lock(&dev->mutex);
+-	__input_release_device(handle);
++	__input_release_device(handle, false);
+ 	mutex_unlock(&dev->mutex);
+ }
+ EXPORT_SYMBOL(input_release_device);
+ 
+ /**
++ * input_filter_device - allow input events to be filtered from higher layers
++ * @handle: input handle that wants to filter the device
++ *
++ * When a device is filtered by an input handle all events generated by
++ * the device are to this handle. If the filter function returns true then
++ * the event is discarded rather than being passed to any other input handles,
++ * otherwise it is passed to them as normal. Grabs will be handled before
++ * filters, so a grabbed device will not deliver events to a filter function.
++ */
++int input_filter_device(struct input_handle *handle)
++{
++	struct input_dev *dev = handle->dev;
++	int retval;
 +
- 	ucb1400_adc_enable(ucb->ac97);
- 	x_res = ucb1400_ts_read_xres(ucb);
- 	y_res = ucb1400_ts_read_yres(ucb);
-diff --git a/include/linux/ucb1400.h b/include/linux/ucb1400.h
-index 464fb34..e489ff6 100644
---- a/include/linux/ucb1400.h
-+++ b/include/linux/ucb1400.h
-@@ -74,6 +74,10 @@
- 
- #define UCB_ADC_DATA		0x68
- #define UCB_ADC_DAT_VALID	(1 << 15)
++	retval = mutex_lock_interruptible(&dev->mutex);
++	if (retval)
++		return retval;
 +
-+#define UCB_FCSR		0x6c
-+#define UCB_FCSR_AVE		(1 << 12)
++	if (dev->filter) {
++		retval = -EBUSY;
++		goto out;
++	}
 +
- #define UCB_ADC_DAT_MASK	0x3ff
++	rcu_assign_pointer(dev->filter, handle);
++	synchronize_rcu();
++
++ out:
++	mutex_unlock(&dev->mutex);
++	return retval;
++}
++EXPORT_SYMBOL(input_filter_device);
++
++/**
++ * input_unfilter_device - removes a filter from a device
++ * @handle: input handle that owns the device
++ *
++ * Removes the filter from a device so that other input handles can
++ * start receiving unfiltered input events. Upon release all handlers
++ * attached to the device have their start() method called so they
++ * have a change to synchronize device state with the rest of the
++ * system.
++ */
++void input_unfilter_device(struct input_handle *handle)
++{
++	struct input_dev *dev = handle->dev;
++
++	mutex_lock(&dev->mutex);
++	__input_release_device(handle, true);
++	mutex_unlock(&dev->mutex);
++}
++EXPORT_SYMBOL(input_unfilter_device);
++
++/**
+  * input_open_device - open input device
+  * @handle: handle through which device is being accessed
+  *
+@@ -482,7 +545,9 @@ void input_close_device(struct input_handle *handle)
  
- #define UCB_ID			0x7e
+ 	mutex_lock(&dev->mutex);
+ 
+-	__input_release_device(handle);
++	/* Release both grabs and filters */
++	__input_release_device(handle, false);
++	__input_release_device(handle, true);
+ 
+ 	if (!--dev->users && dev->close)
+ 		dev->close(dev);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 8b3bc3e..e28f116 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1118,6 +1118,7 @@ struct input_dev {
+ 	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+ 
+ 	struct input_handle *grab;
++	struct input_handle *filter;
+ 
+ 	spinlock_t event_lock;
+ 	struct mutex mutex;
+@@ -1218,6 +1219,7 @@ struct input_handler {
+ 	void *private;
+ 
+ 	void (*event)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
++	bool (*filter)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+ 	int (*connect)(struct input_handler *handler, struct input_dev *dev, const struct input_device_id *id);
+ 	void (*disconnect)(struct input_handle *handle);
+ 	void (*start)(struct input_handle *handle);
+@@ -1295,6 +1297,9 @@ void input_unregister_handle(struct input_handle *);
+ int input_grab_device(struct input_handle *);
+ void input_release_device(struct input_handle *);
+ 
++int input_filter_device(struct input_handle *);
++void input_unfilter_device(struct input_handle *);
++
+ int input_open_device(struct input_handle *);
+ void input_close_device(struct input_handle *);
+ 
 -- 
-1.6.3.3
-
+1.6.2.5
 

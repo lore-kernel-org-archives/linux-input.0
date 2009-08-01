@@ -1,58 +1,40 @@
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL_ALL
-Date: Sat, 01 Aug 2009 13:52:22 -0700
-Message-ID: <1249159942.3491.21.camel@localhost.localdomain>
-References: <1249152859-14769-1-git-send-email-mjg@redhat.com>
-	 <1249159133.3491.13.camel@localhost.localdomain>
-	 <20090801204534.GA23642@srcf.ucam.org>
+Date: Sat, 1 Aug 2009 21:54:45 +0100
+Message-ID: <20090801205445.GA23751@srcf.ucam.org>
+References: <1249152859-14769-1-git-send-email-mjg@redhat.com> <1249159133.3491.13.camel@localhost.localdomain> <20090801204534.GA23642@srcf.ucam.org> <1249159942.3491.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:42665 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751767AbZHAUw0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Aug 2009 16:52:26 -0400
-In-Reply-To: <20090801204534.GA23642@srcf.ucam.org>
+Received: from cavan.codon.org.uk ([93.93.128.6]:40363 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752352AbZHAUyp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Aug 2009 16:54:45 -0400
+Content-Disposition: inline
+In-Reply-To: <1249159942.3491.21.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Marcel Holtmann <marcel@holtmann.org>
 Cc: linux-input@vger.kernel.org, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi Matthew,
+On Sat, Aug 01, 2009 at 01:52:22PM -0700, Marcel Holtmann wrote:
 
-> > actually I would prefer if we name this key KEY_RFKILL and not put the
-> > policy of ALL into the kernel. Since we wanna get rid of rfkill-input.
-> > That needs to be done in userspace and by users policy. If they wanna
-> > map that key to ALL then that is fine. If they just wanna toggle WiFi,
-> > then that is also fine. If the wanna have to popup some UI, that is also
-> > reasonable.
-> 
-> My reasoning was that this conceptually maps to a key that controls all 
-> of the radios in the system - whether a single press actually kills all 
-> of them or not is kind of irrelevent (having the simple policy in 
-> rfkill-input works fine for this, but userspace will obviously want 
-> something more cunning). My concern with KEY_RFKILL is that it it's not 
-> obvious that it refers to a specific type of key - ones that purely 
-> control wifi should still be KEY_WLAN, for instance.
+> actually if the key is clearly hardwired to WLAN, then it should not
+> even show up as input event at all. This is one of the mis-concepts of
+> the old RFKILL subsystem. No need to send an input event if the platform
+> driver is going to rfkill that device anyway.
 
-actually if the key is clearly hardwired to WLAN, then it should not
-even show up as input event at all. This is one of the mis-concepts of
-the old RFKILL subsystem. No need to send an input event if the platform
-driver is going to rfkill that device anyway.
+There's still a policy decision. Does it kill internal devices, or does 
+it kill all attached wlan devices?
 
-If a key is clearly labeled as WLAN then it should emit only KEY_WLAN.
-And if it is just a generic key with some radio on it like FN-F5 on my
-ThinkPad, then it better just emits KEY_RFKILL and we let userspace (or
-rfkill-input do the policy).
+> Remember that in the end it is just a key and whatever the user does
+> with it is users policy. So in summary it is up to the platform driver
+> to emit the proper key. For some it might be still KEY_WLAN, for other
+> it might be KEY_RFKILL. Sounds fair?
 
-Remember that in the end it is just a key and whatever the user does
-with it is users policy. So in summary it is up to the platform driver
-to emit the proper key. For some it might be still KEY_WLAN, for other
-it might be KEY_RFKILL. Sounds fair?
+I agree on the technical side, but not the naming. KEY_WLAN is an 
+rfkill-related key, so introducing KEY_RFKILL is potentially confusing. 
+KEY_RFKILL_ALL isn't.
 
-Regards
-
-Marcel
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

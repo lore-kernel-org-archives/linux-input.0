@@ -1,41 +1,38 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 2/2] rfkill: Add support for KEY_RFKILL_ALL
-Date: Sat, 01 Aug 2009 13:41:16 -0700
-Message-ID: <1249159276.3491.15.camel@localhost.localdomain>
-References: <1249152859-14769-1-git-send-email-mjg@redhat.com>
-	 <1249152859-14769-2-git-send-email-mjg@redhat.com>
-	 <1249158328.28327.10654.camel@localhost.localdomain>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL_ALL
+Date: Sat, 1 Aug 2009 21:45:34 +0100
+Message-ID: <20090801204534.GA23642@srcf.ucam.org>
+References: <1249152859-14769-1-git-send-email-mjg@redhat.com> <1249159133.3491.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:55451 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752208AbZHAUlV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Aug 2009 16:41:21 -0400
-In-Reply-To: <1249158328.28327.10654.camel@localhost.localdomain>
+Received: from cavan.codon.org.uk ([93.93.128.6]:60758 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751439AbZHAUpf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 1 Aug 2009 16:45:35 -0400
+Content-Disposition: inline
+In-Reply-To: <1249159133.3491.13.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Matthew Garrett <mjg@redhat.com>, linux-input@vger.kernel.org, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-input@vger.kernel.org, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi Bastien,
+On Sat, Aug 01, 2009 at 01:38:53PM -0700, Marcel Holtmann wrote:
 
-> > +               case KEY_RFKILL_ALL:
-> > +                       rfkill_schedule_toggle(RFKILL_TYPE_WLAN);
-> > +                       rfkill_schedule_toggle(RFKILL_TYPE_BLUETOOTH);
-> > +                       rfkill_schedule_toggle(RFKILL_TYPE_UWB);
-> > +                       rfkill_schedule_toggle(RFKILL_TYPE_WIMAX);
-> > +                       break;
-> 
-> RFKILL_TYPE_ALL?
+> actually I would prefer if we name this key KEY_RFKILL and not put the
+> policy of ALL into the kernel. Since we wanna get rid of rfkill-input.
+> That needs to be done in userspace and by users policy. If they wanna
+> map that key to ALL then that is fine. If they just wanna toggle WiFi,
+> then that is also fine. If the wanna have to popup some UI, that is also
+> reasonable.
 
-this should be RFKILL_TYPE_ALL indeed. Even if rfkill-input is going to
-be removed. For the time being it needs to toggle all. Especially since
-the example above already forgets RFKILL_TYPE_WWAN.
+My reasoning was that this conceptually maps to a key that controls all 
+of the radios in the system - whether a single press actually kills all 
+of them or not is kind of irrelevent (having the simple policy in 
+rfkill-input works fine for this, but userspace will obviously want 
+something more cunning). My concern with KEY_RFKILL is that it it's not 
+obvious that it refers to a specific type of key - ones that purely 
+control wifi should still be KEY_WLAN, for instance.
 
-Regards
-
-Marcel
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

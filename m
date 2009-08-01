@@ -1,42 +1,76 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH] hid: ignore all recent SoundGraph iMON devices
-Date: Fri, 31 Jul 2009 15:00:28 -0400
-Message-ID: <200907311500.28866.jarod@redhat.com>
-References: <200907311056.36729.jarod@redhat.com> <4A733AE2.5000508@gmail.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 7/10] drivers/hid: introduce missing kfree
+Date: Sat, 1 Aug 2009 10:54:43 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0908011054220.23408@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.redhat.com ([66.187.237.31]:45963 "EHLO mx2.redhat.com"
+Received: from mgw1.diku.dk ([130.225.96.91]:50836 "EHLO mgw1.diku.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752707AbZGaTD1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Jul 2009 15:03:27 -0400
-In-Reply-To: <4A733AE2.5000508@gmail.com>
-Content-Disposition: inline
+	id S1752660AbZHAI5T (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 1 Aug 2009 04:57:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Friday 31 July 2009 14:41:38 Anssi Hannula wrote:
-> Jarod Wilson wrote:
-> > After some inspection of the Windows iMON driver, several additional
-> > device IDs were added to the lirc_imon driver. At least a few of these
-> > have been seen in the wild, and require manual quirking to keep the
-> > usbhid driver from binding to them. Rather than list out every single
-> > device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
-> > these may not advertise themselves as HID devices, but no harm done to
-> > such devices anyway. Does the right thing in brief testing w/my 0x0045
-> > device.
-> 
-> I'm not sure this is a good idea. I have a 0x0038 device and I'm
-> developing a proper HID driver for it. If and when I'll submit it for
-> kernel inclusion, this kind of ID range blacklisting may get ugly.
+From: Julia Lawall <julia@diku.dk>
 
-Erm, there's already a full driver for it though, and its already in
-the ignore list...
+Error handling code following a kzalloc should free the allocated data.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+The semantic match that finds the problem is as follows:
+(http://www.emn.fr/x-info/coccinelle/)
+
+// <smpl>
+@r exists@
+local idexpression x;
+statement S;
+expression E;
+identifier f,f1,l;
+position p1,p2;
+expression *ptr != NULL;
+@@
+
+x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
+...
+if (x == NULL) S
+<... when != x
+     when != if (...) { <+...x...+> }
+(
+x->f1 = E
+|
+ (x->f1 == NULL || ...)
+|
+ f(...,x->f1,...)
+)
+...>
+(
+ return \(0\|<+...x...+>\|ptr\);
+|
+ return@p2 ...;
+)
+
+@script:python@
+p1 << r.p1;
+p2 << r.p2;
+@@
+
+print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+---
+ drivers/hid/hid-debug.c             |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index 3e425f7..6abd036 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -928,6 +928,7 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
+ 
+ 	if (!(list->hid_debug_buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
+ 		err = -ENOMEM;
++		kfree(list);
+ 		goto out;
+ 	}
+ 	list->hdev = (struct hid_device *) inode->i_private;

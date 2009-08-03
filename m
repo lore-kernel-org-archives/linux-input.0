@@ -1,63 +1,68 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v2] input: PCAP2 misc input driver
-Date: Mon, 3 Aug 2009 11:39:07 +0200
-Message-ID: <20090803113907.197fd27b.ospite@studenti.unina.it>
-References: <1249291759-15264-1-git-send-email-drwyrm@gmail.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [PATCH] hid: ignore all recent SoundGraph iMON devices
+Date: Mon, 03 Aug 2009 16:05:28 +0300
+Message-ID: <4A76E098.90705@gmail.com>
+References: <200907311056.36729.jarod@redhat.com> <4A733AE2.5000508@gmail.com> <200907311500.28866.jarod@redhat.com> <200908022116.05450.jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__3_Aug_2009_11_39_07_+0200_/hEok/g=81ZxAer1"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out114.alice.it ([85.37.17.114]:1779 "EHLO
-	smtp-out114.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753794AbZHCJkD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Aug 2009 05:40:03 -0400
-In-Reply-To: <1249291759-15264-1-git-send-email-drwyrm@gmail.com>
+Received: from mta-out.inet.fi ([195.156.147.13]:34718 "EHLO kirsi1.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754808AbZHCNFt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Aug 2009 09:05:49 -0400
+In-Reply-To: <200908022116.05450.jarod@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Ribeiro <drwyrm@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Ilya Petrov <ilya.muromec@gmail.com>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
---Signature=_Mon__3_Aug_2009_11_39_07_+0200_/hEok/g=81ZxAer1
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Jarod Wilson wrote:
+> On Friday 31 July 2009 15:00:28 Jarod Wilson wrote:
+>> On Friday 31 July 2009 14:41:38 Anssi Hannula wrote:
+>>> Jarod Wilson wrote:
+>>>> After some inspection of the Windows iMON driver, several additional
+>>>> device IDs were added to the lirc_imon driver. At least a few of these
+>>>> have been seen in the wild, and require manual quirking to keep the
+>>>> usbhid driver from binding to them. Rather than list out every single
+>>>> device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
+>>>> these may not advertise themselves as HID devices, but no harm done to
+>>>> such devices anyway. Does the right thing in brief testing w/my 0x0045
+>>>> device.
+>>> I'm not sure this is a good idea. I have a 0x0038 device and I'm
+>>> developing a proper HID driver for it. If and when I'll submit it for
+>>> kernel inclusion, this kind of ID range blacklisting may get ugly.
+>> Erm, there's already a full driver for it though, and its already in
+>> the ignore list...
+> 
+> Also, out of curiosity, what does a "proper HID driver for it" look
+> like and/or do that the latest lirc_imon doesn't?
 
-On Mon,  3 Aug 2009 11:29:19 +0200
-Daniel Ribeiro <drwyrm@gmail.com> wrote:
+Well, I didn't want to use 3rdparty drivers with my device.
 
-> From: Daniel Ribeiro <wyrm@gmail.com>
->
+Anyways.. my driver implements a hid_driver (see /drivers/hid/hid-*.c),
+and sets a raw_event callback for the non-standard-hid-input events of
+the 2nd interface and emits input layer events for those. The device
+uses standard HID input protocol in first interface, so my driver
+doesn't touch that at all and lets the general hid code handle that
+(some remote control buttons are passed by that). LCD write packets are
+queued via usbhid_submit_report(). The driver also has code for
+registering the LCD as standard framebuffer device and allowing led
+subsystem access to the icons, though I'm not sure yet if those should
+be there (1-bit framebuffers may not be supported by much userspace
+code, haven't checked yet; having the icons registered for led subsystem
+allows triggers and handling via /sys, but I'm not sure if that is
+useful for these kind of icons).
 
-Please discard this From line, the email address is wrong here.
-The patch is actually from Daniel Ribeiro <drwyrm@gmail.com>
+> We're already doing
+> input layer stuff with the mouse mode and mouse buttons, and looking to
+> further extend that, potentially making the driver pure input layer,
+> but still usable with the lirc devinput userspace driver.
 
-Sorry for the mistake.
+Oh, this sounds to me like active work getting lirc into upstreamable
+condition :)  Is it that?
 
-Ciao,
-   Antonio
+More incentive for me to not submit my driver, then.
 
---=20
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
-
---Signature=_Mon__3_Aug_2009_11_39_07_+0200_/hEok/g=81ZxAer1
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkp2sDsACgkQ5xr2akVTsAHuqwCbBiMCg3okhs+7t4yzfvgzfD+J
-qG0An1T8PbSQ2cS7dZvvuvV7rYRrKjkH
-=Zs1F
------END PGP SIGNATURE-----
-
---Signature=_Mon__3_Aug_2009_11_39_07_+0200_/hEok/g=81ZxAer1--
+-- 
+Anssi Hannula

@@ -1,45 +1,88 @@
-From: Liam Girdwood <lrg@slimlogic.co.uk>
-Subject: Re: [PATCH 0/22] WM831x drivers
-Date: Tue, 04 Aug 2009 12:44:09 +0100
-Message-ID: <1249386249.4248.159.camel@vega.slimlogic.co.uk>
-References: <20090727134527.GA12849@rakim.wolfsonmicro.main>
-	 <20090804113528.GB8601@sortiz.org>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
+	<richard.rojfors.ext@mocean-labs.com>
+Subject: Re: [PATCH 2/2] tsc2007: reduced number of I2C transfers
+Date: Tue, 04 Aug 2009 14:12:35 +0200
+Message-ID: <4A7825B3.1010806@mocean-labs.com>
+References: <4A69DDED.50402@mocean-labs.com> <20090724180022.GA6477@dtor-d630.eng.vmware.com> <4A6A0D77.6000600@mocean-labs.com> <20090726080212.GA24365@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754795AbZHDLoQ@vger.kernel.org>
-In-Reply-To: <20090804113528.GB8601@sortiz.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Richard Purdie <rpurdie@rpsys.net>, David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Jean Delvare <khali@linux-fr.org>, Anton Vorontsov <cbouatmailru@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from av8-1-sn3.vrr.skanova.net ([81.228.9.183]:58218 "EHLO
+	av8-1-sn3.vrr.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754936AbZHDMMi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Aug 2009 08:12:38 -0400
+In-Reply-To: <20090726080212.GA24365@dtor-d630.eng.vmware.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>
 
-On Tue, 2009-08-04 at 13:35 +0200, Samuel Ortiz wrote:
-> Hi Mark,
-> 
-> On Mon, Jul 27, 2009 at 02:45:27PM +0100, Mark Brown wrote:
-> > The following patch series adds initial support for the WM813x series of
-> > PMICs.
-> > 
-> > Since these devices have functionality that crosses many subsystems the
-> > patches cross many kernel trees.  For clarity I'm presenting this
-> > initial submission as a single series but I have endeavoured to split
-> > things up so that the patches can be applied separately to the various
-> > subsystems.  In order to avoid merge issues as patches are applied the
-> > platform data for the devices is included in the core patches.
-> > 
-> > Due to Kconfig and Makefile collisons I've also included the patch adding
-> > hwmon support for the WM835x series of PMICs to the series.  Other than
-> > the build system updates there is no interdependence between those two
-> > patches.
-> I applied patches [1-8], the gpio one, the 2 hwmon ones and the input one.
-> I'll now wait for some more feedback for the remaining patches.
-> 
+Dmitry Torokhov wrote:
+>=20
+> I modified the patch a bit before applying. In fact there were a few
+> changes to all the patces so it would be nice if you could take a loo=
+k
+> at the 'next' branch of my tree:
+>=20
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+>=20
+> Also, I di dnot quite like the logic of the patch making
+> get_pendown_state callback optional; could you please try the patch
+> below and let me know of it works for you?
 
-Regulator patches :-
+I like your changes, there is just a small miss while checking the=20
+platform data. You forgot to remove the check for get_pen_down_state in=
+=20
+the probe function, see the patch below (to be applied on top of yours)=
+:
 
-Acked-by Liam Girdwood <lrg@slimlogic.co.uk>
+I also would like a check if the power down failed or not during probe.
 
-Thanks
+--Richard
 
-Liam
+Input: tsc2007 - Check if I2C communication works during probe
+
+Check the result when sending the power down command to the controller.
+
+Signed-off-by: Richard R=F6jfors <richard.rojfors.ext@mocean-labs.com>
+---
+Index: linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 1071=
+)
++++ linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 1073=
+)
+@@ -269,7 +269,7 @@
+  	struct input_dev *input_dev;
+  	int err;
+
+-	if (!pdata || !pdata->get_pendown_state) {
++	if (!pdata) {
+  		dev_err(&client->dev, "platform data is required!\n");
+  		return -EINVAL;
+  	}
+@@ -326,10 +326,14 @@
+  	i2c_set_clientdata(client, ts);
+
+  	/* Prepare for touch readings - power down ADC and enable PENIRQ */
+-	tsc2007_xfer(ts, PWRDOWN);
++	err =3D tsc2007_xfer(ts, PWRDOWN);
++	if (err < 0)
++		goto err_unreg_dev;
+
+  	return 0;
+
++ err_unreg_dev:
++	input_unregister_device(ts->input);
+   err_free_irq:
+  	tsc2007_free_irq(ts);
+  	if (pdata->exit_platform_hw)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

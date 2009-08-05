@@ -1,51 +1,48 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2] input: PCAP2 based touchscreen driver
-Date: Tue, 4 Aug 2009 22:03:42 +0100
-Message-ID: <20090804210342.GC29518@sirena.org.uk>
-References: <1249291800-15316-1-git-send-email-drwyrm@gmail.com>
- <20090803172125.2A490526EA5@mailhub.coreip.homeip.net>
- <20090804225247.8a0bf6d4.ospite@studenti.unina.it>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: Add support for filtering input events
+Date: Tue, 4 Aug 2009 21:49:22 -0700
+Message-ID: <20090805044923.6AE71526EA5@mailhub.coreip.homeip.net>
+References: <1249007207-27392-1-git-send-email-mjg@redhat.com> <20090803170453.F0DF9526EA5@mailhub.coreip.homeip.net> <20090804100158.GA14530@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932809AbZHDVD7@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0506.google.com ([209.85.198.233]:24938 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751706AbZHEEt1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 00:49:27 -0400
 Content-Disposition: inline
-In-Reply-To: <20090804225247.8a0bf6d4.ospite@studenti.unina.it>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ribeiro <drwyrm@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Stefan Schmidt <stefan@datenfreihafen.org>
+In-Reply-To: <20090804100158.GA14530@srcf.ucam.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Aug 04, 2009 at 10:52:47PM +0200, Antonio Ospite wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Tue, Aug 04, 2009 at 11:01:58AM +0100, Matthew Garrett wrote:
+> On Mon, Aug 03, 2009 at 10:04:51AM -0700, Dmitry Torokhov wrote:
+> 
+> > I don't think this is the proper layer to do the filtering, the filter
+> > should be done in i8042, not input core. The way you done it would kill
+> > any possibility of user assigning KEY_WLAN to a spare key on his or her
+> > keyboard and using it to control wireless cards that are not hardwired.
+> 
+> Ok, that seems fine.
+> 
+> > I would accept the patch that would add a filter in the form
+> > 
+> > 	bool (*i8042_fillter)(unsigned char data, unsigned int flags,
+> > 			struct serio *port);
+> > 
+> > I don't think we'd need to chain them into a list or something, one hook
+> > should be enough since I don't expect we'll have several platform
+> > drivers loaded on one box.
+> 
+> So filter on the raw i8042 data rather than after any processing? 
+> Wouldn't this require some level of state machine in the driver using 
+> this functionality?
+> 
 
-> > > +static int __devinit pcap_ts_probe(struct platform_device *pdev)
-> > > +{
-> > > +	struct input_dev *input_dev;
-> > > +	struct pcap_ts *pcap_ts;
-> > > +	int err = -ENOMEM;
-> > > +
-> > > +	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
-> > > +	if (!pcap_ts)
-> > > +		return err;
-> > > +
-> > > +	pcap_ts->pcap = platform_get_drvdata(pdev);
-> > > +	platform_set_drvdata(pdev, pcap_ts);
+Yes, but it should not be too complex - with laptops you can be pretty
+much sure keyboard is in translated set 2 mode.
 
-> > Ewww... Don't mess with data that does not belong to you. Also I don't
-> > see where you restore it so after unloading the driver reload with
-> > probably lead to "inetersting" results.
-
-> Dmitry can you suggest a better way to make the pcap_ts pointer get to
-> pcap_ts_remove()? We need it in order to remove the input device.
-> Or keeping this hack, restoring the original value on remove, can be
-> acceptable?
-
-> We will have to fix this also in all other pcap subdrivers.
-
-Two options from other MFDs:
-
- - Include the data for the input device in the main pcap data; this
-   removes the need to faff around with the 
- - Always find the main pcap data by using dev_get_drvdata() on the
-   parent device of the child, perhaps keeping a copy of a pointer to
-   it in the local data for simplicity.
+-- 
+Dmitry

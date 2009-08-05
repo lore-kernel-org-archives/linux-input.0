@@ -1,42 +1,41 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] input: make matrix keymap size dynamic
-Date: Wed, 05 Aug 2009 19:01:52 +0800
-Message-ID: <4A7966A0.6020903@gmail.com>
-References: <4A77FE31.3010209@gmail.com> <20090805082631.96C1A526EA5@mailhub.coreip.homeip.net>
-Reply-To: eric.y.miao@gmail.com
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: patch staging-htc-dream-touchscreen-more-cleanups.patch added
+	to gregkh-2.6 tree
+Date: Wed, 5 Aug 2009 17:31:34 +0200
+Message-ID: <20090805153133.GB8337@elf.ucw.cz>
+References: <20090721100426.GA15327@elf.ucw.cz> <12487107711539@kroah.org> <d6200be20907271736w46d51fcfled2b382655a2fef0@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f214.google.com ([209.85.219.214]:38522 "EHLO
-	mail-ew0-f214.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751223AbZHELB5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 07:01:57 -0400
-Received: by ewy10 with SMTP id 10so3762ewy.37
-        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2009 04:01:56 -0700 (PDT)
-In-Reply-To: <20090805082631.96C1A526EA5@mailhub.coreip.homeip.net>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:36093 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754867AbZHEPbk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 11:31:40 -0400
+Content-Disposition: inline
+In-Reply-To: <d6200be20907271736w46d51fcfled2b382655a2fef0@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Arve Hj?nnev?g <arve@android.com>, linux-input@vger.kernel.org
+Cc: gregkh@suse.de
 
-Dmitry Torokhov wrote:
-> Hi Eric,
-> 
-> On Tue, Aug 04, 2009 at 05:24:01PM +0800, Eric Miao wrote:
->> The number of rows and columns should really belong to 'struct keymap_data',
->> and assumption on the shift and size of rows/columns removed.
->>
-> 
-> I aplayed with your patch for a while and moving rows and columns into
-> struct keymap_data did not feel right; the changes to activate_cols and
-> others where we have to access 2 different structures to get gpios and
-> upper limit made the code awkward. In the end I decided the sizes should
-> be kept where they were, together with the gpio arrays.
-> 
-> What do you think about the modified version of your patch below? The
-> definitions seem to be working for other matrix drivers I have i my
-> queue as well...
-> 
+On Mon 2009-07-27 17:36:24, Arve Hj?nnev?g wrote:
+> On Mon, Jul 27, 2009 at 9:06 AM, <gregkh@suse.de> wrote:
+> ...
+> > + =A0 =A0 =A0 ts->input_dev->phys =3D "msm/input0";
+>=20
+> What does "msm/input0" refer to? This driver is not only used on the
+> msm platform.
 
-Sure go. I'm quite happy with your approach.
+Ok, what should I write there? "synaptics_i2c"?
+
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

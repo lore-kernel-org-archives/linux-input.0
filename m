@@ -1,48 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Add support for filtering input events
-Date: Tue, 4 Aug 2009 21:49:22 -0700
-Message-ID: <20090805044923.6AE71526EA5@mailhub.coreip.homeip.net>
-References: <1249007207-27392-1-git-send-email-mjg@redhat.com> <20090803170453.F0DF9526EA5@mailhub.coreip.homeip.net> <20090804100158.GA14530@srcf.ucam.org>
+Subject: Re: [PATCH 2/2] tsc2007: reduced number of I2C transfers
+Date: Tue, 4 Aug 2009 22:04:43 -0700
+Message-ID: <20090805050445.1C034526EA5@mailhub.coreip.homeip.net>
+References: <4A69DDED.50402@mocean-labs.com> <20090724180022.GA6477@dtor-d630.eng.vmware.com> <4A6A0D77.6000600@mocean-labs.com> <20090726080212.GA24365@dtor-d630.eng.vmware.com> <4A7825B3.1010806@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.233]:24938 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751706AbZHEEt1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 00:49:27 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933471AbZHEFEv@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20090804100158.GA14530@srcf.ucam.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4A7825B3.1010806@mocean-labs.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard =?iso-8859-1?Q?R=F6jfors?= <richard.rojfors.ext@mocean-labs.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Aug 04, 2009 at 11:01:58AM +0100, Matthew Garrett wrote:
-> On Mon, Aug 03, 2009 at 10:04:51AM -0700, Dmitry Torokhov wrote:
-> 
-> > I don't think this is the proper layer to do the filtering, the filter
-> > should be done in i8042, not input core. The way you done it would kill
-> > any possibility of user assigning KEY_WLAN to a spare key on his or her
-> > keyboard and using it to control wireless cards that are not hardwired.
-> 
-> Ok, that seems fine.
-> 
-> > I would accept the patch that would add a filter in the form
-> > 
-> > 	bool (*i8042_fillter)(unsigned char data, unsigned int flags,
-> > 			struct serio *port);
-> > 
-> > I don't think we'd need to chain them into a list or something, one hook
-> > should be enough since I don't expect we'll have several platform
-> > drivers loaded on one box.
-> 
-> So filter on the raw i8042 data rather than after any processing? 
-> Wouldn't this require some level of state machine in the driver using 
-> this functionality?
-> 
+On Tue, Aug 04, 2009 at 02:12:35PM +0200, Richard R=F6jfors wrote:
+> Dmitry Torokhov wrote:
+>>
+>> I modified the patch a bit before applying. In fact there were a few
+>> changes to all the patces so it would be nice if you could take a lo=
+ok
+>> at the 'next' branch of my tree:
+>>
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+>>
+>> Also, I di dnot quite like the logic of the patch making
+>> get_pendown_state callback optional; could you please try the patch
+>> below and let me know of it works for you?
+>
+> I like your changes, there is just a small miss while checking the =20
+> platform data. You forgot to remove the check for get_pen_down_state =
+in =20
+> the probe function, see the patch below (to be applied on top of your=
+s):
+>
+> I also would like a check if the power down failed or not during prob=
+e.
+>
+> --Richard
+>
+> Input: tsc2007 - Check if I2C communication works during probe
+>
+> Check the result when sending the power down command to the controlle=
+r.
+>
+> Signed-off-by: Richard R=F6jfors <richard.rojfors.ext@mocean-labs.com=
+>
+> ---
+> Index: linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 10=
+71)
+> +++ linux-2.6.31-rc2/drivers/input/touchscreen/tsc2007.c	(revision 10=
+73)
+> @@ -269,7 +269,7 @@
+>  	struct input_dev *input_dev;
+>  	int err;
+>
+> -	if (!pdata || !pdata->get_pendown_state) {
+> +	if (!pdata) {
+>  		dev_err(&client->dev, "platform data is required!\n");
+>  		return -EINVAL;
+>  	}
 
-Yes, but it should not be too complex - with laptops you can be pretty
-much sure keyboard is in translated set 2 mode.
 
--- 
+Ah, yes, thanks.
+
+> @@ -326,10 +326,14 @@
+>  	i2c_set_clientdata(client, ts);
+>
+>  	/* Prepare for touch readings - power down ADC and enable PENIRQ */
+> -	tsc2007_xfer(ts, PWRDOWN);
+> +	err =3D tsc2007_xfer(ts, PWRDOWN);
+> +	if (err < 0)
+> +		goto err_unreg_dev;
+>
+>  	return 0;
+>
+> + err_unreg_dev:
+> +	input_unregister_device(ts->input);
+
+This will case double free.. I will adjust locally.
+
+>   err_free_irq:
+>  	tsc2007_free_irq(ts);
+>  	if (pdata->exit_platform_hw)
+
+--=20
 Dmitry

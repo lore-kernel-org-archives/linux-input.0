@@ -1,137 +1,180 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: PCAP2 based touchscreen driver
-Date: Wed, 5 Aug 2009 01:07:55 -0700
-Message-ID: <20090805080757.0C91D526EA5@mailhub.coreip.homeip.net>
-References: <1249291800-15316-1-git-send-email-drwyrm@gmail.com> <20090803172125.2A490526EA5@mailhub.coreip.homeip.net> <20090804225247.8a0bf6d4.ospite@studenti.unina.it>
+Subject: Re: [PATCH] input: make matrix keymap size dynamic
+Date: Wed, 5 Aug 2009 01:26:30 -0700
+Message-ID: <20090805082631.96C1A526EA5@mailhub.coreip.homeip.net>
+References: <4A77FE31.3010209@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.231]:27438 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.228]:25945 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933355AbZHEIIB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 04:08:01 -0400
+	with ESMTP id S933730AbZHEI0e (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Aug 2009 04:26:34 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so1415612rvb.1
+        for <linux-input@vger.kernel.org>; Wed, 05 Aug 2009 01:26:35 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20090804225247.8a0bf6d4.ospite@studenti.unina.it>
+In-Reply-To: <4A77FE31.3010209@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: Daniel Ribeiro <drwyrm@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Stefan Schmidt <stefan@datenfreihafen.org>
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Antonio,
+Hi Eric,
 
-On Tue, Aug 04, 2009 at 10:52:47PM +0200, Antonio Ospite wrote:
-> On Mon, 3 Aug 2009 10:21:19 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Tue, Aug 04, 2009 at 05:24:01PM +0800, Eric Miao wrote:
 > 
-> > Hi Daniel,
-> >
-> 
-> Hi Dmitry, I am handling this review round.
-> 
-> > > Please note that the driver depends on some changes from the for-next branch
-> > > in Samuel Ortiz's mfd tree:
-> > > http://git.kernel.org/?p=linux/kernel/git/sameo/mfd-2.6.git;a=shortlog;h=for-next
-> > > 
-> > > should this be queued by Samuel or the input people will you take care
-> > > to send this mainline only after Samuel's tree has been merged?
-> > > 
-> > 
-> > I don't mind it going through another tree once all the kinks are worked
-> > out.
-> >
-> 
-> Fine.
-> 
-> > > +static int pcap_ts_open(struct input_dev *dev)
-> > > +{
-> > > +	struct pcap_ts *pcap_ts = input_get_drvdata(dev);
-> > > +	int err;
-> > > +
-> > > +	err = request_irq(pcap_to_irq(pcap_ts->pcap, PCAP_IRQ_TS),
-> > > +			pcap_ts_event_touch, 0, "Touch Screen", pcap_ts);
-> > > +	if (err)
-> > > +		return err;
-> > 
-> > Normally we try to request IRQ in probe() methods instead of delaying it
-> > till open. Open() is supposed to kick-start the device, but not allocate
-> > resoirces.
-> >
-> 
-> Ok, will do.
-> 
-> I must have misunderstood the description of the .open() method in
-> linux/input.h:
->  * @open: this method is called when the very first user calls
->  *	input_open_device(). The driver must prepare the device
->  *	to start generating events (start polling thread,
->  *	request an IRQ, submit URB, etc.)
-> 
-> Does the second sentence here intends that the preparation must be done
-> in .probe()?
->
-
-It probably should be changed to "enable IRQ" instead of "request IRQ".
-
-> > > +
-> > > +	pcap_ts->read_state = PCAP_ADC_TS_M_STANDBY;
-> > > +	schedule_delayed_work(&pcap_ts->work, 0);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static void pcap_ts_close(struct input_dev *dev)
-> > > +{
-> > > +	struct pcap_ts *pcap_ts = input_get_drvdata(dev);
-> > > +
-> > > +	cancel_delayed_work_sync(&pcap_ts->work);
-> > 
-> > So what happens if the device raises IRQ here?
-> >
-> 
-> Swapping the line with the free_irq() should be ok?
+> The number of rows and columns should really belong to 'struct keymap_data',
+> and assumption on the shift and size of rows/columns removed.
 > 
 
-I think so, since you are not playing with enable/disable IRQ in this
-driver.
+I aplayed with your patch for a while and moving rows and columns into
+struct keymap_data did not feel right; the changes to activate_cols and
+others where we have to access 2 different structures to get gpios and
+upper limit made the code awkward. In the end I decided the sizes should
+be kept where they were, together with the gpio arrays.
 
-> > > +	free_irq(pcap_to_irq(pcap_ts->pcap, PCAP_IRQ_TS), pcap_ts);
-> > > +
-> > > +	pcap_ts->read_state = PCAP_ADC_TS_M_NONTS;
-> > > +	pcap_set_ts_bits(pcap_ts->pcap,
-> > > +				pcap_ts->read_state << PCAP_ADC_TS_M_SHIFT);
-> > > +}
-> > > +
-> > > +static int __devinit pcap_ts_probe(struct platform_device *pdev)
-> > > +{
-> > > +	struct input_dev *input_dev;
-> > > +	struct pcap_ts *pcap_ts;
-> > > +	int err = -ENOMEM;
-> > > +
-> > > +	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
-> > > +	if (!pcap_ts)
-> > > +		return err;
-> > > +
-> > > +	pcap_ts->pcap = platform_get_drvdata(pdev);
-> > > +	platform_set_drvdata(pdev, pcap_ts);
-> > 
-> > Ewww... Don't mess with data that does not belong to you. Also I don't
-> > see where you restore it so after unloading the driver reload with
-> > probably lead to "inetersting" results.
-> >
-> 
-> Dmitry can you suggest a better way to make the pcap_ts pointer get to
-> pcap_ts_remove()? We need it in order to remove the input device.
-> Or keeping this hack, restoring the original value on remove, can be
-> acceptable?
-
-I think I like Mark's 2nd suggestion the best, just fetch reference to
-the chip from the parent device.
-
-> 
-> We will have to fix this also in all other pcap subdrivers.
-> 
-
-*nod*
+What do you think about the modified version of your patch below? The
+definitions seem to be working for other matrix drivers I have i my
+queue as well...
 
 -- 
 Dmitry
+
+
+Input: matrix_keypad - make matrix keymap size dynamic
+
+From: Eric Miao <eric.y.miao@gmail.com>
+
+Remove assumption on the shift and size of rows/columns form
+matrix_keypad driver.
+
+Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/keyboard/matrix_keypad.c |   18 +++++++++---------
+ include/linux/input/matrix_keypad.h    |   13 +++++++------
+ 2 files changed, 16 insertions(+), 15 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index e9b2e7c..541b981 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -27,6 +27,7 @@ struct matrix_keypad {
+ 	const struct matrix_keypad_platform_data *pdata;
+ 	struct input_dev *input_dev;
+ 	unsigned short *keycodes;
++	unsigned int row_shift;
+ 
+ 	uint32_t last_key_state[MATRIX_MAX_COLS];
+ 	struct delayed_work work;
+@@ -136,7 +137,7 @@ static void matrix_keypad_scan(struct work_struct *work)
+ 			if ((bits_changed & (1 << row)) == 0)
+ 				continue;
+ 
+-			code = (row << 4) + col;
++			code = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
+ 			input_event(input_dev, EV_MSC, MSC_SCAN, code);
+ 			input_report_key(input_dev,
+ 					 keypad->keycodes[code],
+@@ -317,6 +318,7 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 	struct matrix_keypad *keypad;
+ 	struct input_dev *input_dev;
+ 	unsigned short *keycodes;
++	unsigned int row_shift;
+ 	int i;
+ 	int err;
+ 
+@@ -332,14 +334,11 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!keymap_data->max_keymap_size) {
+-		dev_err(&pdev->dev, "invalid keymap data supplied\n");
+-		return -EINVAL;
+-	}
++	row_shift = get_count_order(pdata->num_col_gpios);
+ 
+ 	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
+-	keycodes = kzalloc(keymap_data->max_keymap_size *
+-				sizeof(keypad->keycodes),
++	keycodes = kzalloc((pdata->num_row_gpios << row_shift) *
++				sizeof(*keycodes),
+ 			   GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+ 	if (!keypad || !keycodes || !input_dev) {
+@@ -350,6 +349,7 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 	keypad->input_dev = input_dev;
+ 	keypad->pdata = pdata;
+ 	keypad->keycodes = keycodes;
++	keypad->row_shift = row_shift;
+ 	keypad->stopped = true;
+ 	INIT_DELAYED_WORK(&keypad->work, matrix_keypad_scan);
+ 	spin_lock_init(&keypad->lock);
+@@ -363,7 +363,7 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 
+ 	input_dev->keycode	= keycodes;
+ 	input_dev->keycodesize	= sizeof(*keycodes);
+-	input_dev->keycodemax	= keymap_data->max_keymap_size;
++	input_dev->keycodemax	= pdata->num_row_gpios << keypad->row_shift;
+ 
+ 	for (i = 0; i < keymap_data->keymap_size; i++) {
+ 		unsigned int key = keymap_data->keymap[i];
+@@ -371,7 +371,7 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+ 		unsigned int col = KEY_COL(key);
+ 		unsigned short code = KEY_VAL(key);
+ 
+-		keycodes[(row << 4) + col] = code;
++		keycodes[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
+ 		__set_bit(code, input_dev->keybit);
+ 	}
+ 	__clear_bit(KEY_RESERVED, input_dev->keybit);
+diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+index 7964516..15d5903 100644
+--- a/include/linux/input/matrix_keypad.h
++++ b/include/linux/input/matrix_keypad.h
+@@ -15,12 +15,13 @@
+ #define KEY_COL(k)		(((k) >> 16) & 0xff)
+ #define KEY_VAL(k)		((k) & 0xffff)
+ 
++#define MATRIX_SCAN_CODE(row, col, row_shift)	(((row) << (row_shift)) + (col))
++
+ /**
+  * struct matrix_keymap_data - keymap for matrix keyboards
+  * @keymap: pointer to array of uint32 values encoded with KEY() macro
+  *	representing keymap
+  * @keymap_size: number of entries (initialized) in this keymap
+- * @max_keymap_size: maximum size of keymap supported by the device
+  *
+  * This structure is supposed to be used by platform code to supply
+  * keymaps to drivers that implement matrix-like keypads/keyboards.
+@@ -28,14 +29,13 @@
+ struct matrix_keymap_data {
+ 	const uint32_t *keymap;
+ 	unsigned int	keymap_size;
+-	unsigned int	max_keymap_size;
+ };
+ 
+ /**
+  * struct matrix_keypad_platform_data - platform-dependent keypad data
+  * @keymap_data: pointer to &matrix_keymap_data
+- * @row_gpios: array of gpio numbers reporesenting rows
+- * @col_gpios: array of gpio numbers reporesenting colums
++ * @row_gpios: pointer to array of gpio numbers representing rows
++ * @col_gpios: pointer to array of gpio numbers reporesenting colums
+  * @num_row_gpios: actual number of row gpios used by device
+  * @num_col_gpios: actual number of col gpios used by device
+  * @col_scan_delay_us: delay, measured in microseconds, that is
+@@ -48,8 +48,9 @@ struct matrix_keymap_data {
+ struct matrix_keypad_platform_data {
+ 	const struct matrix_keymap_data *keymap_data;
+ 
+-	unsigned int	row_gpios[MATRIX_MAX_ROWS];
+-	unsigned int	col_gpios[MATRIX_MAX_COLS];
++	const unsigned int *row_gpios;
++	const unsigned int *col_gpios;
++
+ 	unsigned int	num_row_gpios;
+ 	unsigned int	num_col_gpios;
+ 

@@ -1,56 +1,63 @@
 From: akpm@linux-foundation.org
-Subject: [patch 3/3] hid-core: ignore Philips IEEE802.15.4 RF Dongle
-Date: Thu, 06 Aug 2009 16:03:17 -0700
-Message-ID: <200908062303.n76N3H29000966@imap1.linux-foundation.org>
+Subject: [patch 4/4] input: touchpad not detected on Asus G1S
+Date: Thu, 06 Aug 2009 16:04:14 -0700
+Message-ID: <200908062304.n76N4ETi002625@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:37362 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:38029 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756428AbZHFXDl (ORCPT
+	by vger.kernel.org with ESMTP id S1752978AbZHFXEU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Aug 2009 19:03:41 -0400
+	Thu, 6 Aug 2009 19:04:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, glaweh@debian.org, jikos@jikos.cz
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, geekypenguin@gmail.com
 
-From: Henning Glawe <glaweh@debian.org>
+From: "Jory A. Pratt" <geekypenguin@gmail.com>
 
-This usb device claims to be of HID class, but is in fact a 802.15.4
-lowpan transceiver, therefore the generic HID driver cannot operate this
-device.  A separate driver for this device will be written for this using
-the new 802.15.4 stack.
+The synaptic touchpad on the Asus G1S is not properly detected when
+rebooting machine or on cold boot from time to time.  Adding the Asus G1S
+to the noloop exception table resolves the issue, as it allows the AUX IRQ
+to be rasied.
 
-Signed-off-by: Henning Glawe <glaweh@debian.org>
-Cc: Jiri Kosina <jikos@jikos.cz>
+# dmidecode 2.10
+SMBIOS 2.4 present.
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+     Manufacturer: ASUSTeK Computer Inc.
+     Product Name: G1S
+     Version: 1.0
+     Serial Number: NF1G7900340285
+     UUID: 242481DC-61E7-7EFB-2480-001D606B6A5E
+     Wake-up Type: Power Switch
+     SKU Number:
+     Family:
+
+Signed-off-by: Jory A. Pratt <geekypenguin@gmail.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-ids.h  |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff -puN drivers/hid/hid-core.c~hid-core-ignore-philips-ieee802154-rf-dongle drivers/hid/hid-core.c
---- a/drivers/hid/hid-core.c~hid-core-ignore-philips-ieee802154-rf-dongle
-+++ a/drivers/hid/hid-core.c
-@@ -1644,6 +1644,7 @@ static const struct hid_device_id hid_ig
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0002) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
-diff -puN drivers/hid/hid-ids.h~hid-core-ignore-philips-ieee802154-rf-dongle drivers/hid/hid-ids.h
---- a/drivers/hid/hid-ids.h~hid-core-ignore-philips-ieee802154-rf-dongle
-+++ a/drivers/hid/hid-ids.h
-@@ -360,6 +360,9 @@
- #define USB_VENDOR_ID_PETALYNX		0x18b1
- #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
- 
-+#define USB_VENDOR_ID_PHILIPS       0x0471
-+#define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
-+
- #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
- #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
- 
+diff -puN drivers/input/serio/i8042-x86ia64io.h~input-touchpad-not-detected-on-asus-g1s drivers/input/serio/i8042-x86ia64io.h
+--- a/drivers/input/serio/i8042-x86ia64io.h~input-touchpad-not-detected-on-asus-g1s
++++ a/drivers/input/serio/i8042-x86ia64io.h
+@@ -78,6 +78,14 @@ static struct dmi_system_id __initdata i
+ 		},
+ 	},
+ 	{
++		.ident = "ASUS G1S",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer Inc."),
++			DMI_MATCH(DMI_BOARD_NAME, "G1S"),
++			DMI_MATCH(DMI_BOARD_VERSION, "1.0"),
++		},
++	},
++	{
+ 		/* AUX LOOP command does not raise AUX IRQ */
+ 		.ident = "ASUS P65UP5",
+ 		.matches = {
 _

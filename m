@@ -1,77 +1,154 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Add support for filtering input events
-Date: Thu, 6 Aug 2009 07:48:08 -0700
-Message-ID: <20090806144817.6E610526EA5@mailhub.coreip.homeip.net>
-References: <1249007207-27392-1-git-send-email-mjg@redhat.com> <20090803170453.F0DF9526EA5@mailhub.coreip.homeip.net> <20090804100158.GA14530@srcf.ucam.org> <20090805044923.6AE71526EA5@mailhub.coreip.homeip.net> <20090806124910.GA15867@khazad-dum.debian.net>
-Mime-Version: 1.0 (iPhone Mail 7A341)
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [linux-pm] [PATCH 4/5] input: gpio-keys: switch to new dev_pm_ops
+Date: Thu, 6 Aug 2009 17:19:43 +0200
+Message-ID: <200908061719.44068.rjw@sisk.pl>
+References: <1249496971-9019-1-git-send-email-daniel@caiaq.de> <200908060251.55157.rjw@sisk.pl> <20090806125909.GJ19257@buzzloop.caiaq.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.225]:6065 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753573AbZHFOsX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Aug 2009 10:48:23 -0400
-In-Reply-To: <20090806124910.GA15867@khazad-dum.debian.net>
+Received: from ogre.sisk.pl ([217.79.144.158]:60193 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755995AbZHFPTC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 Aug 2009 11:19:02 -0400
+In-Reply-To: <20090806125909.GJ19257@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-pm@lists.linux-foundation.org, pHilipp Zabel <philipp.zabel@gmail.com>, Phil Blundell <pb@handhelds.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Aug 6, 2009, at 5:49 AM, Henrique de Moraes Holschuh  
-<hmh@hmh.eng.br> wrote:
+On Thursday 06 August 2009, Daniel Mack wrote:
+> On Thu, Aug 06, 2009 at 02:51:55AM +0200, Rafael J. Wysocki wrote:
+> > On Thursday 06 August 2009, Daniel Mack wrote:
+> > > On Wed, Aug 05, 2009 at 10:15:52PM +0200, pHilipp Zabel wrote:
+> > > > On Wed, Aug 5, 2009 at 8:29 PM, Daniel Mack<daniel@caiaq.de> wrote:
+> > > > > -static int gpio_keys_resume(struct platform_device *pdev)
+> > > > > +static int gpio_keys_resume(struct device *dev)
+> > > > >  {
+> > > > > -       struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+> > > > > +       struct gpio_keys_platform_data *pdata = dev->platform_data;
+> > > > >        int i;
+> > > > >
+> > > > > -       if (device_may_wakeup(&pdev->dev)) {
+> > > > > +       if (device_may_wakeup(dev)) {
+> > > > >                for (i = 0; i < pdata->nbuttons; i++) {
+> > > > >                        struct gpio_keys_button *button = &pdata->buttons[i];
+> > > > >                        if (button->wakeup) {
+> > > > > @@ -251,19 +251,27 @@ static int gpio_keys_resume(struct platform_device *pdev)
+> > > > >
+> > > > >        return 0;
+> > > > >  }
+> > > > > +
+> > > > > +static struct dev_pm_ops gpio_keys_pm_ops = {
+> > > > > +       .suspend        = gpio_keys_suspend,
+> > > > > +       .freeze         = gpio_keys_suspend,
+> > > > > +       .resume         = gpio_keys_resume,
+> > > > > +       .thaw           = gpio_keys_resume,
+> > > > 
+> > > > I'm not sure I understand hibernation correctly, but isn't
+> > > > .freeze/.thaw about saving state and halting/resuming the device
+> > > > operation only?
+> > 
+> > It is.
+> > 
+> > > > It seems to me that enabling system wakeup functionality should go
+> > > > into .poweroff. (See <linux/pm.h>)
+> > 
+> > That's correct.
+> > 
+> > And .restore() plays the role of ".resume() from hibernation".
+> 
+> Hence, In case of this driver which only calls disable_irq/enable_irq,
+> setting .poweroff and .restore seems to suffice?
 
-> On Tue, 04 Aug 2009, Dmitry Torokhov wrote:
->> On Tue, Aug 04, 2009 at 11:01:58AM +0100, Matthew Garrett wrote:
->>> On Mon, Aug 03, 2009 at 10:04:51AM -0700, Dmitry Torokhov wrote:
->>>> I don't think this is the proper layer to do the filtering, the  
->>>> filter
->>>> should be done in i8042, not input core. The way you done it  
->>>> would kill
->>>> any possibility of user assigning KEY_WLAN to a spare key on his  
->>>> or her
->>>> keyboard and using it to control wireless cards that are not  
->>>> hardwired.
->>>
->>> Ok, that seems fine.
->>>
->>>> I would accept the patch that would add a filter in the form
->>>>
->>>>    bool (*i8042_fillter)(unsigned char data, unsigned int flags,
->>>>            struct serio *port);
->>>>
->>>> I don't think we'd need to chain them into a list or something,  
->>>> one hook
->>>> should be enough since I don't expect we'll have several platform
->>>> drivers loaded on one box.
->>>
->>> So filter on the raw i8042 data rather than after any processing?
->>> Wouldn't this require some level of state machine in the driver  
->>> using
->>> this functionality?
->>
->> Yes, but it should not be too complex - with laptops you can be  
->> pretty
->> much sure keyboard is in translated set 2 mode.
->
-> But don't we have a crapload of implementation weirdness work- 
-> arounds in the
-> i8042 drivers, including some for problems with the raw protocol  
-> itself?  We
-> wouldn't want to duplicate THAT...
+I'll have a look at the driver.  Still, it seems .suspend and .resume should be
+set too, shouldn't they?
 
-There actually not many quirks there, once we identified all ports on  
-i8042; mostly we need to deal with keys not sending release events.
+> From afa35cebccf49a24613e711afb8009fb6aadce0e Mon Sep 17 00:00:00 2001
+> From: Daniel Mack <daniel@caiaq.de>
+> Date: Wed, 5 Aug 2009 15:28:54 +0200
+> Subject: [PATCH 3/3] input: gpio-keys: switch to new dev_pm_ops
+> 
+> The callbacks for the implemented functions are .poweroff and .restore,
+> as they only care for {dis,en}able_irq(). Renamed the functions
+> to reflect that.
+> 
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> Cc: Phil Blundell <pb@handhelds.org>
+> Cc: linux-input@vger.kernel.org
+> ---
+>  drivers/input/keyboard/gpio_keys.c |   26 ++++++++++++++++----------
+>  1 files changed, 16 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index efed0c9..8e670d4 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -216,12 +216,12 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+>  
+>  
+>  #ifdef CONFIG_PM
+> -static int gpio_keys_suspend(struct platform_device *pdev, pm_message_t state)
+> +static int gpio_keys_poweroff(struct device *dev)
+>  {
+> -	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+> +	struct gpio_keys_platform_data *pdata = dev->platform_data;
+>  	int i;
+>  
+> -	if (device_may_wakeup(&pdev->dev)) {
+> +	if (device_may_wakeup(dev)) {
+>  		for (i = 0; i < pdata->nbuttons; i++) {
+>  			struct gpio_keys_button *button = &pdata->buttons[i];
+>  			if (button->wakeup) {
+> @@ -234,12 +234,12 @@ static int gpio_keys_suspend(struct platform_device *pdev, pm_message_t state)
+>  	return 0;
+>  }
+>  
+> -static int gpio_keys_resume(struct platform_device *pdev)
+> +static int gpio_keys_restore(struct device *dev)
+>  {
+> -	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+> +	struct gpio_keys_platform_data *pdata = dev->platform_data;
+>  	int i;
+>  
+> -	if (device_may_wakeup(&pdev->dev)) {
+> +	if (device_may_wakeup(dev)) {
+>  		for (i = 0; i < pdata->nbuttons; i++) {
+>  			struct gpio_keys_button *button = &pdata->buttons[i];
+>  			if (button->wakeup) {
+> @@ -251,19 +251,25 @@ static int gpio_keys_resume(struct platform_device *pdev)
+>  
+>  	return 0;
+>  }
+> +
+> +static struct dev_pm_ops gpio_keys_pm_ops = {
+> +	.poweroff	= gpio_keys_poweroff,
+> +	.restore	= gpio_keys_restore,
 
-> will the filter be placed somewhere that
-> doesn't have to deal with that kind of bogosity?
+Should .suspend and .resume really be NULL?
 
-The problem with doing this on input core level is that we don't  
-always even have a keycode, nor do we want one. For example my d630  
-sends some crap through keyboard serio port when it is unhappy with  
-power adapter...
+> +};
+> +
+> +#define GPIO_KEYS_PM_OPS (&gpio_keys_pm_ops)
+> +
+>  #else
+> -#define gpio_keys_suspend	NULL
+> -#define gpio_keys_resume	NULL
+> +#define GPIO_KEYS_PM_OPS NULL
+>  #endif
+>  
+>  static struct platform_driver gpio_keys_device_driver = {
+>  	.probe		= gpio_keys_probe,
+>  	.remove		= __devexit_p(gpio_keys_remove),
+> -	.suspend	= gpio_keys_suspend,
+> -	.resume		= gpio_keys_resume,
+>  	.driver		= {
+>  		.name	= "gpio-keys",
+>  		.owner	= THIS_MODULE,
+> +		.pm	= GPIO_KEYS_PM_OPS,
+>  	}
+>  };
 
--- 
-Dmitry
+Thanks,
+Rafael

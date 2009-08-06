@@ -1,79 +1,56 @@
 From: akpm@linux-foundation.org
-Subject: [patch 2/3] drivers/hid: introduce missing kfree
-Date: Thu, 06 Aug 2009 16:03:16 -0700
-Message-ID: <200908062303.n76N3Hpu000933@imap1.linux-foundation.org>
+Subject: [patch 3/3] hid-core: ignore Philips IEEE802.15.4 RF Dongle
+Date: Thu, 06 Aug 2009 16:03:17 -0700
+Message-ID: <200908062303.n76N3H29000966@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:58996 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37362 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755690AbZHFXDV (ORCPT
+	by vger.kernel.org with ESMTP id S1756428AbZHFXDl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Aug 2009 19:03:21 -0400
+	Thu, 6 Aug 2009 19:03:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, julia@diku.dk
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, glaweh@debian.org, jikos@jikos.cz
 
-From: Julia Lawall <julia@diku.dk>
+From: Henning Glawe <glaweh@debian.org>
 
-Error handling code following a kzalloc should free the allocated data.
+This usb device claims to be of HID class, but is in fact a 802.15.4
+lowpan transceiver, therefore the generic HID driver cannot operate this
+device.  A separate driver for this device will be written for this using
+the new 802.15.4 stack.
 
-The semantic match that finds the problem is as follows:
-(http://www.emn.fr/x-info/coccinelle/)
-
-// <smpl>
-@r exists@
-local idexpression x;
-statement S;
-expression E;
-identifier f,f1,l;
-position p1,p2;
-expression *ptr != NULL;
-@@
-
-x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
-...
-if (x == NULL) S
-<... when != x
-     when != if (...) { <+...x...+> }
-(
-x->f1 = E
-|
- (x->f1 == NULL || ...)
-|
- f(...,x->f1,...)
-)
-...>
-(
- return \(0\|<+...x...+>\|ptr\);
-|
- return@p2 ...;
-)
-
-@script:python@
-p1 << r.p1;
-p2 << r.p2;
-@@
-
-print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-Cc: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Henning Glawe <glaweh@debian.org>
+Cc: Jiri Kosina <jikos@jikos.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/hid/hid-debug.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-ids.h  |    3 +++
+ 2 files changed, 4 insertions(+)
 
-diff -puN drivers/hid/hid-debug.c~drivers-hid-introduce-missing-kfree drivers/hid/hid-debug.c
---- a/drivers/hid/hid-debug.c~drivers-hid-introduce-missing-kfree
-+++ a/drivers/hid/hid-debug.c
-@@ -928,6 +928,7 @@ static int hid_debug_events_open(struct 
+diff -puN drivers/hid/hid-core.c~hid-core-ignore-philips-ieee802154-rf-dongle drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c~hid-core-ignore-philips-ieee802154-rf-dongle
++++ a/drivers/hid/hid-core.c
+@@ -1644,6 +1644,7 @@ static const struct hid_device_id hid_ig
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0002) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
+diff -puN drivers/hid/hid-ids.h~hid-core-ignore-philips-ieee802154-rf-dongle drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h~hid-core-ignore-philips-ieee802154-rf-dongle
++++ a/drivers/hid/hid-ids.h
+@@ -360,6 +360,9 @@
+ #define USB_VENDOR_ID_PETALYNX		0x18b1
+ #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
  
- 	if (!(list->hid_debug_buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
- 		err = -ENOMEM;
-+		kfree(list);
- 		goto out;
- 	}
- 	list->hdev = (struct hid_device *) inode->i_private;
++#define USB_VENDOR_ID_PHILIPS       0x0471
++#define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
++
+ #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
+ #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
+ 
 _

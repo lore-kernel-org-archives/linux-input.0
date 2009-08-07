@@ -1,37 +1,215 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 4/4] input: touchpad not detected on Asus G1S
-Date: Fri, 7 Aug 2009 09:57:12 -0700
-Message-ID: <20090807172720.3A043526EA5@mailhub.coreip.homeip.net>
-References: <200908062304.n76N4ETi002625@imap1.linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+From: Daniel Ribeiro <drwyrm@gmail.com>
+Subject: [PATCH v3] input: PCAP2 misc input driver
+Date: Fri,  7 Aug 2009 22:54:16 +0200
+Message-ID: <1249678456-15381-1-git-send-email-drwyrm@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.234]:8003 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754201AbZHGQ5P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Aug 2009 12:57:15 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so481256rvb.1
-        for <linux-input@vger.kernel.org>; Fri, 07 Aug 2009 09:57:16 -0700 (PDT)
-In-Reply-To: <200908062304.n76N4ETi002625@imap1.linux-foundation.org>
-Content-Disposition: inline
+Received: from smtp-out25.alice.it ([85.33.2.25]:2732 "EHLO
+	smtp-out25.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751648AbZHGUzD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Aug 2009 16:55:03 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, geekypenguin@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>
+Cc: Daniel Ribeiro <drwyrm@gmail.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Ilya Petrov <ilya.muromec@gmail.com>, Antonio Ospite <ospite@studenti.unina.it>
 
-On Thursday 06 August 2009 16:04:14 akpm@linux-foundation.org wrote:
-> From: "Jory A. Pratt" <geekypenguin@gmail.com>
->
-> The synaptic touchpad on the Asus G1S is not properly detected when
-> rebooting machine or on cold boot from time to time.  Adding the Asus G1S
-> to the noloop exception table resolves the issue, as it allows the AUX IRQ
-> to be rasied.
->
-> # dmidecode 2.10
+This is a driver for misc input events for the PCAP2 PMIC, it handles
+the Power key and the Headphone button.
 
-Queued for mainline, please drop.
+Signed-off-by: Daniel Ribeiro <drwyrm@gmail.com>
+Signed-off-by: Ilya Petrov <ilya.muromec@gmail.com>
+Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
 
+---
+
+Changes since v2:
+  * Get pcap data from the parent device, don't abuse
+    platform device drvdata
+
+pcap_keys v2 is here: http://patchwork.kernel.org/patch/38863/
+
+ drivers/input/misc/Kconfig     |   11 +++
+ drivers/input/misc/Makefile    |    1 +
+ drivers/input/misc/pcap_keys.c |  144 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 156 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 1acfa3a..b9cbb5e 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -269,4 +269,15 @@ config INPUT_DM355EVM
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called dm355evm_keys.
++
++config INPUT_PCAP
++	tristate "Motorola EZX PCAP misc input events"
++	depends on EZX_PCAP
++	help
++	  Say Y here if you want to use Power key and Headphone button
++	  on Motorola EZX phones.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pcap_keys.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 0d979fd..679bae3 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -26,3 +26,4 @@ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
+ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+diff --git a/drivers/input/misc/pcap_keys.c b/drivers/input/misc/pcap_keys.c
+new file mode 100644
+index 0000000..7ea9693
+--- /dev/null
++++ b/drivers/input/misc/pcap_keys.c
+@@ -0,0 +1,144 @@
++/*
++ *  Input driver for PCAP events:
++ *   * Power key
++ *   * Headphone button
++ *
++ *  Copyright (c) 2008,2009 Ilya Petrov <ilya.muromec@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/mfd/ezx-pcap.h>
++
++struct pcap_keys {
++	struct pcap_chip *pcap;
++	struct input_dev *input;
++};
++
++/* PCAP2 interrupts us on keypress */
++static irqreturn_t pcap_keys_handler(int irq, void *_pcap_keys)
++{
++	struct pcap_keys *pcap_keys = _pcap_keys;
++	int pirq = irq_to_pcap(pcap_keys->pcap, irq);
++	u32 pstat;
++
++	ezx_pcap_read(pcap_keys->pcap, PCAP_REG_PSTAT, &pstat);
++	pstat &= 1 << pirq;
++
++	switch (pirq) {
++	case PCAP_IRQ_ONOFF:
++		input_report_key(pcap_keys->input, KEY_POWER, !pstat);
++		break;
++	case PCAP_IRQ_MIC:
++		input_report_key(pcap_keys->input, KEY_HP, !pstat);
++		break;
++	}
++
++	input_sync(pcap_keys->input);
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit pcap_keys_probe(struct platform_device *pdev)
++{
++	int err = -ENOMEM;
++	struct pcap_keys *pcap_keys;
++	struct input_dev *input_dev;
++
++	pcap_keys = kmalloc(sizeof(struct pcap_keys), GFP_KERNEL);
++	if (!pcap_keys)
++		return err;
++
++	pcap_keys->pcap = dev_get_drvdata(pdev->dev.parent);
++
++	input_dev = input_allocate_device();
++	if (!input_dev)
++		goto fail;
++
++	pcap_keys->input = input_dev;
++
++	platform_set_drvdata(pdev, pcap_keys);
++	input_dev->name = pdev->name;
++	input_dev->phys = "pcap-keys/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->dev.parent = &pdev->dev;
++
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(KEY_POWER, input_dev->keybit);
++	__set_bit(KEY_HP, input_dev->keybit);
++
++	err = input_register_device(input_dev);
++	if (err)
++		goto fail_allocate;
++
++	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
++			pcap_keys_handler, 0, "Power key", pcap_keys);
++	if (err)
++		goto fail_register;
++
++	err = request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
++			pcap_keys_handler, 0, "Headphone button", pcap_keys);
++	if (err)
++		goto fail_pwrkey;
++
++	return 0;
++
++fail_pwrkey:
++	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF), pcap_keys);
++fail_register:
++	input_unregister_device(input_dev);
++	goto fail;
++fail_allocate:
++	input_free_device(input_dev);
++fail:
++	kfree(pcap_keys);
++	return err;
++}
++
++static int __devexit pcap_keys_remove(struct platform_device *pdev)
++{
++	struct pcap_keys *pcap_keys = platform_get_drvdata(pdev);
++
++	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF), pcap_keys);
++	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC), pcap_keys);
++
++	input_unregister_device(pcap_keys->input);
++	kfree(pcap_keys);
++
++	return 0;
++}
++
++static struct platform_driver pcap_keys_device_driver = {
++	.probe		= pcap_keys_probe,
++	.remove		= __devexit_p(pcap_keys_remove),
++	.driver		= {
++		.name	= "pcap-keys",
++		.owner	= THIS_MODULE,
++	}
++};
++
++static int __init pcap_keys_init(void)
++{
++	return platform_driver_register(&pcap_keys_device_driver);
++};
++
++static void __exit pcap_keys_exit(void)
++{
++	platform_driver_unregister(&pcap_keys_device_driver);
++};
++
++module_init(pcap_keys_init);
++module_exit(pcap_keys_exit);
++
++MODULE_DESCRIPTION("Motorola PCAP2 input events driver");
++MODULE_AUTHOR("Ilya Petrov <ilya.muromec@gmail.com>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:pcap_keys");
 -- 
-Dmitry
+tg: (9097083..) ezx/pcap_keys (depends on: ezx/local/pcap)

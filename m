@@ -1,64 +1,93 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: No way to turn avoid building HID drivers
-Date: Sat, 8 Aug 2009 01:41:00 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908080138430.25797@wotan.suse.de>
-References: <Pine.LNX.4.44L0.0907281049560.5214-100000@iolanthe.rowland.org>
+Subject: Re: [PATCH] hid: ignore all recent SoundGraph iMON devices
+Date: Sat, 8 Aug 2009 02:22:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908080221190.25797@wotan.suse.de>
+References: <200907311056.36729.jarod@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58684 "EHLO mx2.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:51757 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757129AbZHGXlB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Aug 2009 19:41:01 -0400
-In-Reply-To: <Pine.LNX.4.44L0.0907281049560.5214-100000@iolanthe.rowland.org>
+	id S1752740AbZHHAWY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Aug 2009 20:22:24 -0400
+In-Reply-To: <200907311056.36729.jarod@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-input@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>
 
-On Tue, 28 Jul 2009, Alan Stern wrote:
+On Fri, 31 Jul 2009, Jarod Wilson wrote:
 
-> The current Kconfig settings for many of the special HID drivers don't 
-> offer any way to avoid building them unless CONFIG_EMBEDDED is on.  For 
-> example:
+> After some inspection of the Windows iMON driver, several additional
+> device IDs were added to the lirc_imon driver. At least a few of these
+> have been seen in the wild, and require manual quirking to keep the
+> usbhid driver from binding to them. Rather than list out every single
+> device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
+> these may not advertise themselves as HID devices, but no harm done to
+> such devices anyway. Does the right thing in brief testing w/my 0x0045
+> device.
 > 
-> config HID_A4TECH
-> 	tristate "A4 tech" if EMBEDDED
-> 	depends on USB_HID
-> 	default !EMBEDDED
-> 	---help---
-> 	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+> Signed-off-by: Jarod Wilson <jarod@redhat.com>
 > 
-> Without CONFIG_EMBEDDED, the tristate doesn't take effect.  Hence the 
-> symbol isn't controllable by the user and Kbuild initializes it to the 
-> !EMBEDDED setting.
+> ---
+>  drivers/hid/hid-core.c |   10 +++++-----
+>  drivers/hid/hid-ids.h  |    7 ++-----
+>  2 files changed, 7 insertions(+), 10 deletions(-)
 > 
-> Should the tristate line say "if !EMBEDDED"?  Or was it your intention 
-> that all these drivers should always be built whenever CONFIG_USB_HID 
-> is on?
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 5eb10c2..18bf803 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1623,11 +1623,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LABPRO) },
+> @@ -1694,6 +1689,11 @@ static bool hid_ignore(struct hid_device *hdev)
+>  				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
+>  			return true;
+>  		break;
+> +	case USB_VENDOR_ID_SOUNDGRAPH:
+> +		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
+> +		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
+> +			return true;
+> +		break;
+>  	}
+>  
+>  	if (hdev->type == HID_TYPE_USBMOUSE &&
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 6301010..989a3ba 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -376,11 +376,8 @@
+>  #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
+>  
+>  #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
+> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
+> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
+> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4	0x0044
+> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5	0x0045
+> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
+> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
+>  
+>  #define USB_VENDOR_ID_SUN		0x0430
+>  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
 
-[ sorry for late reply, I have been on vacation, totally offline, for two 
-  weeks ]
+[ sorry for late reply, have been away for quite some time ]
 
-Hi Alan,
+So after reading the thread, I understand that Anssi will rather submit 
+his changes through lirc project, and has therefore no objections to 
+applying Jarod's patch, right?
 
-actually this question has been raised by several people in the past 
-already. Copy/pasting the latest reply I have sent on this topic
-
-===
-mostly this is because we don't want to bother users with asking for every
-single quirky device/vendor, as there are unfortunately a lot of them.
-Usually compiling everything in doesn't waste runtime footprint (the
-modules don't get loaded unless needed), and they don't cost too much disk
-space either.
-And if you really want to disable them, CONFIG_EMBEDDED allows you to do
-that.
-
-Please see last paragraph on
-
-        http://lkml.org/lkml/2008/10/14/284
-
-===
+Thanks,
 
 -- 
 Jiri Kosina

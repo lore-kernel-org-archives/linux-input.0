@@ -1,62 +1,215 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Synaptics touchscreen for HTC Dream: check that smbus is available
-Date: Sat, 8 Aug 2009 15:40:50 +0200
-Message-ID: <20090808134049.GA13083@elf.ucw.cz>
-References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721102153.GE4133@elf.ucw.cz> <5d5443650907210334k3f562cebsc665511a161c8639@mail.gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: HTC Dream for staging: small cleanups [was Re: Support for
+	synaptic touchscreen in HTC dream]
+Date: Sat, 8 Aug 2009 16:02:51 +0200
+Message-ID: <20090808140250.GC13226@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <20090714175201.GB14661@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1750885AbZHHODE@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5d5443650907210334k3f562cebsc665511a161c8639-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20090714175201.GB14661@dtor-d630.eng.vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-> >> Because this driver is using smbus i2c apis, it will be good to ad=
-d
-> >> that check too.
-> >
-> > So I should do something like
-> >
-> > if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_D=
-ATA))
-> > =A0 =A0 =A0 =A0...
-> >
-> > in addition?
->=20
-> Yes.
+Hi!
 
-Ok, here it is.
+> > This adds support for synaptic touchscreen, used in HTC dream
+> > cellphone.
+> > 
+> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
+> 
+> This is pretty large body of code, could we get a sign-off from Arve as
+> well since he seems to be the author?
 
----=20
+Yes; it is now in staging with his sign-offs.
 
-Check that SMBUS APIs are available in touchscreen driver.
-   =20
-Signed-off-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+> > +config TOUCHSCREEN_SYNAPTICS_I2C_RMI
+> > +	tristate "Synaptics i2c touchscreen"
+> > +	depends on I2C
+> > +	help
+> > +	  This enables support for Synaptics RMI over I2C based touchscreens.
+> > +	  Such touchscreen is used in HTC Dream.
+> > +
+> 
+> To compile this driver as a module...
 
-diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/stagin=
-g/dream/synaptics_i2c_rmi.c
-index dc1e3c7..6e23276 100644
+Ok.
+
+> > +static struct workqueue_struct *synaptics_wq;
+> 
+> Do we need a separate workqueue? Is reading the device that slow that we
+> can use keventd?
+
+Added to the TODO.
+
+> > +	int snap_up[2];
+> > +	u32 flags;
+> > +	int (*power)(int on);
+> 
+> 'bool on'?
+
+Added to the TODO.
+
+> > +static int i2c_read(struct synaptics_ts_data *ts, u8 reg, char *msg)
+> > +{
+> > +	int ret = i2c_smbus_read_byte_data(ts->client, 0xf0);
+> 
+> We are not using 'reg'?
+
+Fixed, thanks.
+
+> Some more info as to what you are trying to do here would be nice.
+
+Done, Arve provided a comment.
+
+> > +	input_report_abs(ts->input_dev, ABS_PRESSURE, z);
+> > +	input_report_abs(ts->input_dev, ABS_TOOL_WIDTH, w);
+> > +	input_report_key(ts->input_dev, BTN_TOUCH, finger);
+> > +	finger2_pressed = finger > 1 && finger != 7;
+> > +	input_report_key(ts->input_dev, BTN_2, finger2_pressed);
+> > +	if (finger2_pressed) {
+> > +		input_report_abs(ts->input_dev, ABS_HAT0X, pos[1][0]);
+> > +		input_report_abs(ts->input_dev, ABS_HAT0Y, pos[1][1]);
+> 
+> ABS_HAT is pretty unusual for a touchscreen...
+
+Added to the TODO list. It should be cleaned up before merge.
+
+> > +		if ((buf[14] & 0xc0) != 0x40) {
+> > +			printk(KERN_WARNING "synaptics_ts_work_func:"
+> > +			       " bad read %x %x %x %x %x %x %x %x %x"
+> > +			       " %x %x %x %x %x %x, ret %d\n",
+> > +			       buf[0], buf[1], buf[2], buf[3],
+> > +			       buf[4], buf[5], buf[6], buf[7],
+> > +			       buf[8], buf[9], buf[10], buf[11],
+> > +			       buf[12], buf[13], buf[14], ret);
+> 
+> Umm... for ()?
+
+I removed debugging instead.
+
+> > +static int synaptics_ts_probe(
+> 
+> __devinit()
+
+Done.
+
+> > +	ts->input_dev = input_allocate_device();
+> > +	if (ts->input_dev == NULL) {
+> > +		ret = -ENOMEM;
+> > +		pr_err("synaptics: Failed to allocate input device\n");
+> > +		goto err_input_dev_alloc_failed;
+> > +	}
+> > +	ts->input_dev->name = "synaptics-rmi-touchscreen";
+> 
+> BUS_I2C, etc.
+
+I'm doing this:
+
+	ts->input_dev->name = "synaptics-rmi-touchscreen";
+	ts->input_dev->phys = "msm/input0";
+	ts->input_dev->id.bustype = BUS_I2C;
+
+I don't know if it is right; if you can suggest better strings...
+
+> > +	set_bit(EV_SYN, ts->input_dev->evbit);
+> 
+> __set_bit(), no need to lock the bus.
+
+Done.
+
+> > +	if (client->irq) {
+> > +		ret = request_irq(client->irq, synaptics_ts_irq_handler,
+> > +				  0, client->name, ts);
+> 
+> I think threaded IRQ will fit the bill and will take care of
+> IRQ/workqueue shutdown races. Of course you still need to use workqueue
+> if polling.
+
+Yep, but that's TODO for now.
+
+> > +	pr_info("synaptics: Start touchscreen %s in %s mode\n", 
+> 
+> Probably "synaptics_ts" throughout so nobody is confused?
+
+Yep.
+
+> > +static int synaptics_ts_remove(struct i2c_client *client)
+> 
+> __devexit()
+
+Ok.
+
+> > +MODULE_DESCRIPTION("Synaptics Touchscreen Driver");
+> > +MODULE_LICENSE("GPL");
+> 
+> MODULE_AUTHOR()?
+
+Fixed; this, and some others were fixed before. Here is just the new
+stuff.
+
+---
+
+Small fixes to synaptics touchscreen driver, and add a TODO list of
+stuff that should be fixed between merge into kernel proper.
+
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
+
+diff --git a/drivers/staging/dream/Kconfig b/drivers/staging/dream/Kconfig
+index 1fdbd48..e19d403 100644
+--- a/drivers/staging/dream/Kconfig
++++ b/drivers/staging/dream/Kconfig
+@@ -8,4 +8,8 @@ config TOUCHSCREEN_SYNAPTICS_I2C_RMI
+ 	help
+ 	  This enables support for Synaptics RMI over I2C based touchscreens.
+ 
++	  To compile this driver as a module, choose M here: the
++	  module will be called synaptics_i2c_rmi.
++
++
+ 
+diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/staging/dream/synaptics_i2c_rmi.c
+index 6e23276..d786a55 100644
 --- a/drivers/staging/dream/synaptics_i2c_rmi.c
 +++ b/drivers/staging/dream/synaptics_i2c_rmi.c
-@@ -373,6 +373,12 @@ static int __devinit synaptics_ts_probe(
- 		goto err_check_functionality_failed;
- 	}
-=20
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DAT=
-A)) {
-+		pr_err("synaptics_ts_probe: need I2C_FUNC_SMBUS_WORD_DATA\n");
-+		ret =3D -ENODEV;
-+		goto err_check_functionality_failed;
-+	}
-+
- 	ts =3D kzalloc(sizeof(*ts), GFP_KERNEL);
- 	if (ts =3D=3D NULL) {
- 		ret =3D -ENOMEM;
+@@ -189,13 +189,7 @@ static void synaptics_ts_work_func(struct work_struct *work)
+ 			continue;
+ 		}
+ 		if ((buf[14] & 0xc0) != 0x40) {
+-			pr_warning("synaptics_ts_work_func:"
+-			       " bad read %x %x %x %x %x %x %x %x %x"
+-			       " %x %x %x %x %x %x, ret %d\n",
+-			       buf[0], buf[1], buf[2], buf[3],
+-			       buf[4], buf[5], buf[6], buf[7],
+-			       buf[8], buf[9], buf[10], buf[11],
+-			       buf[12], buf[13], buf[14], ret);
++			pr_warning("synaptics_ts_work_func: bad data\n");
+ 			if (bad_data)
+ 				synaptics_init_panel(ts);
+ 			bad_data = 1;
+@@ -517,7 +511,7 @@ static int __devinit synaptics_ts_probe(
+ 	register_early_suspend(&ts->early_suspend);
+ #endif
+ 
+-	pr_info("synaptics: Start touchscreen %s in %s mode\n", 
++	pr_info("synaptics_ts: Start touchscreen %s in %s mode\n", 
+ 		ts->input_dev->name, ts->use_irq ? "interrupt" : "polling");
+ 
+ 	return 0;
+@@ -534,7 +528,7 @@ err_check_functionality_failed:
+ 	return ret;
+ }
+ 
+-static int synaptics_ts_remove(struct i2c_client *client)
++static int __devexit synaptics_ts_remove(struct i2c_client *client)
+ {
+ 	struct synaptics_ts_data *ts = i2c_get_clientdata(client);
+ #ifdef CONFIG_HAS_EARLYSUSPEND
 
---=20
+
+-- 
 (english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
-/blog.html
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

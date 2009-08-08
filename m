@@ -1,48 +1,76 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
-Date: Sat, 8 Aug 2009 02:38:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908080237090.25797@wotan.suse.de>
-References: <200908062247.29254.lamarque@gmail.com>
+Subject: Re: [Bug #13837] Input : regression - touchpad not detected
+Date: Sat, 8 Aug 2009 02:41:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908080240470.25797@wotan.suse.de>
+References: <Jya1GruKQpD.A.16.2GObKB@chimera>  <3zAHs5O6maO.A.u-B.KHObKB@chimera> <a8e1da0907270145t1b7e4b7ey30793b97bcd87916@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-270288313-1249692107=:25797"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60403 "EHLO mx2.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:52132 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754918AbZHHAiy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Aug 2009 20:38:54 -0400
-In-Reply-To: <200908062247.29254.lamarque@gmail.com>
+	id S1756041AbZHHAlr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Aug 2009 20:41:47 -0400
+In-Reply-To: <a8e1da0907270145t1b7e4b7ey30793b97bcd87916@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lamarque Vieira Souza <lamarque@gmail.com>
-Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Dave Young <hidave.darkstar@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Testers List <kernel-testers@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, 6 Aug 2009, Lamarque Vieira Souza wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> 	One think I have discovered is that when using hid session the 
-> mouse send several 9-bytes frames with this content:  0x05 0xff 0x6e 
-> 0x6f 0x54 0xc6 0x10 0x00 0x02 (or 0x03 instead of 0x02). If I filter 
-> those frames in hidp_recv_intr_frame (linux/net/bluetooth/hidp/core.c) 
-> before calling hid_input_report, the cursor does not get stucked but the 
-> overhead of doing that is too high, the cursor gets sluggish. Using 
-> input session instead of hid session gets muth better results and is not 
-> as uggly as filtering frames. Can someone help me to find a better 
-> solution?
+--168427776-270288313-1249692107=:25797
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Hi,
 
-we'd need to know a little bit more to be able to interpret that data 
-packet. Could you please
+[ adding Dmitry and linux-input to CC ]
 
-- compile the kernel with CONFIG_HID_DEBUG option set
-- modprobe the 'hid' module with 'debug=2' option
+On Mon, 27 Jul 2009, Dave Young wrote:
 
-and provide the dmesg output that appears when the device is 
-connected (so that we have contents of the HID report descriptor and 
-kernel interpretation of it) and also after the data packet containing the 
-mentioned sequence has been received?
-
-Thanks,
+> On Mon, Jul 27, 2009 at 4:28 AM, Rafael J. Wysocki<rjw@sisk.pl> wrote:
+> > This message has been generated automatically as a part of a report
+> > of recent regressions.
+> >
+> > The following bug entry is on the current list of known regressions
+> > from 2.6.30.  Please verify if it still should be listed and let me know
+> > (either way).
+> 
+> Now I'm not sure if it's a regression, because it happens not every
+> boot. Maybe I just noticed it after 2.6.30
+> 
+> jiri, I found the place via extra printk messages added to the i8042.c
+> 
+> in function i8042_check_aux(), when touchpad detecting fail, it fall
+> into following error path:
+> 
+>  if (wait_for_completion_timeout(&i8042_aux_irq_delivered,
+>                                         msecs_to_jiffies(250)) == 0) { [snip] }
+> 
+> so maybe the timeout value need to be increased? I try redo the
+> i8042_setup_aux after it fails, it fixes the problem indeed, which one
+> is the proper fix do you think? If it's the right fix I can post the
+> patch.
+> 
+> >
+> >
+> > Bug-Entry       : http://bugzilla.kernel.org/show_bug.cgi?id=13837
+> > Subject         : Input : regression - touchpad not detected
+> > Submitter       : Dave Young <hidave.darkstar@gmail.com>
+> > Date            : 2009-07-17 07:13 (10 days old)
+> > References      : http://marc.info/?l=linux-kernel&m=124780763701571&w=4
+> >
+> >
+> >
+> 
+> 
+> 
+> -- 
+> Regards
+> dave
+> 
 
 -- 
 Jiri Kosina
 SUSE Labs
+--168427776-270288313-1249692107=:25797--

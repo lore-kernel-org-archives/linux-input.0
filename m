@@ -1,93 +1,87 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: ignore all recent SoundGraph iMON devices
-Date: Sat, 8 Aug 2009 02:22:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908080221190.25797@wotan.suse.de>
-References: <200907311056.36729.jarod@redhat.com>
+Subject: Re: [PATCH 7/10] drivers/hid: introduce missing kfree
+Date: Sat, 8 Aug 2009 02:26:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908080226210.25797@wotan.suse.de>
+References: <Pine.LNX.4.64.0908011054220.23408@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:51757 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:51793 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752740AbZHHAWY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Aug 2009 20:22:24 -0400
-In-Reply-To: <200907311056.36729.jarod@redhat.com>
+	id S1751905AbZHHA0s (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Aug 2009 20:26:48 -0400
+In-Reply-To: <Pine.LNX.4.64.0908011054220.23408@ask.diku.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>
+To: Julia Lawall <julia@diku.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Fri, 31 Jul 2009, Jarod Wilson wrote:
+On Sat, 1 Aug 2009, Julia Lawall wrote:
 
-> After some inspection of the Windows iMON driver, several additional
-> device IDs were added to the lirc_imon driver. At least a few of these
-> have been seen in the wild, and require manual quirking to keep the
-> usbhid driver from binding to them. Rather than list out every single
-> device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
-> these may not advertise themselves as HID devices, but no harm done to
-> such devices anyway. Does the right thing in brief testing w/my 0x0045
-> device.
+> From: Julia Lawall <julia@diku.dk>
 > 
-> Signed-off-by: Jarod Wilson <jarod@redhat.com>
+> Error handling code following a kzalloc should free the allocated data.
 > 
+> The semantic match that finds the problem is as follows:
+> (http://www.emn.fr/x-info/coccinelle/)
+> 
+> // <smpl>
+> @r exists@
+> local idexpression x;
+> statement S;
+> expression E;
+> identifier f,f1,l;
+> position p1,p2;
+> expression *ptr != NULL;
+> @@
+> 
+> x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
+> ...
+> if (x == NULL) S
+> <... when != x
+>      when != if (...) { <+...x...+> }
+> (
+> x->f1 = E
+> |
+>  (x->f1 == NULL || ...)
+> |
+>  f(...,x->f1,...)
+> )
+> ...>
+> (
+>  return \(0\|<+...x...+>\|ptr\);
+> |
+>  return@p2 ...;
+> )
+> 
+> @script:python@
+> p1 << r.p1;
+> p2 << r.p2;
+> @@
+> 
+> print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
 > ---
->  drivers/hid/hid-core.c |   10 +++++-----
->  drivers/hid/hid-ids.h  |    7 ++-----
->  2 files changed, 7 insertions(+), 10 deletions(-)
+>  drivers/hid/hid-debug.c             |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 5eb10c2..18bf803 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1623,11 +1623,6 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LABPRO) },
-> @@ -1694,6 +1689,11 @@ static bool hid_ignore(struct hid_device *hdev)
->  				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
->  			return true;
->  		break;
-> +	case USB_VENDOR_ID_SOUNDGRAPH:
-> +		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
-> +		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
-> +			return true;
-> +		break;
+> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+> index 3e425f7..6abd036 100644
+> --- a/drivers/hid/hid-debug.c
+> +++ b/drivers/hid/hid-debug.c
+> @@ -928,6 +928,7 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
+>  
+>  	if (!(list->hid_debug_buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
+>  		err = -ENOMEM;
+> +		kfree(list);
+>  		goto out;
 >  	}
->  
->  	if (hdev->type == HID_TYPE_USBMOUSE &&
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 6301010..989a3ba 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -376,11 +376,8 @@
->  #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
->  
->  #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
-> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
-> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
-> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
-> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4	0x0044
-> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5	0x0045
-> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
-> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
->  
->  #define USB_VENDOR_ID_SUN		0x0430
->  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+>  	list->hdev = (struct hid_device *) inode->i_private;
+> 
 
-[ sorry for late reply, have been away for quite some time ]
-
-So after reading the thread, I understand that Anssi will rather submit 
-his changes through lirc project, and has therefore no objections to 
-applying Jarod's patch, right?
-
-Thanks,
+Applied, thanks a lot Julia.
 
 -- 
 Jiri Kosina

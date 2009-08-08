@@ -1,87 +1,57 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 7/10] drivers/hid: introduce missing kfree
-Date: Sat, 8 Aug 2009 02:26:48 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908080226210.25797@wotan.suse.de>
-References: <Pine.LNX.4.64.0908011054220.23408@ask.diku.dk>
+Subject: Re: [PATCH] Ignore Philips IEEE802.15.4 RF Dongle in hid-core
+Date: Sat, 8 Aug 2009 02:29:25 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908080229100.25797@wotan.suse.de>
+References: <20090802201812.GA5631@ruprecht.physik.fu-berlin.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:51793 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751905AbZHHA0s (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 Aug 2009 20:26:48 -0400
-In-Reply-To: <Pine.LNX.4.64.0908011054220.23408@ask.diku.dk>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757176AbZHHA31@vger.kernel.org>
+In-Reply-To: <20090802201812.GA5631@ruprecht.physik.fu-berlin.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henning Glawe <glaweh@debian.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia@diku.dk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Sat, 1 Aug 2009, Julia Lawall wrote:
+On Sun, 2 Aug 2009, Henning Glawe wrote:
 
-> From: Julia Lawall <julia@diku.dk>
+> This usb device claims to be of HID class, but is in fact a 802.15.4
+> lowpan transceiver, therefore the generic HID driver cannot operate this
+> device. A separate driver for this device will be written for this using
+> the new 802.15.4 stack.
 > 
-> Error handling code following a kzalloc should free the allocated data.
-> 
-> The semantic match that finds the problem is as follows:
-> (http://www.emn.fr/x-info/coccinelle/)
-> 
-> // <smpl>
-> @r exists@
-> local idexpression x;
-> statement S;
-> expression E;
-> identifier f,f1,l;
-> position p1,p2;
-> expression *ptr != NULL;
-> @@
-> 
-> x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
-> ...
-> if (x == NULL) S
-> <... when != x
->      when != if (...) { <+...x...+> }
-> (
-> x->f1 = E
-> |
->  (x->f1 == NULL || ...)
-> |
->  f(...,x->f1,...)
-> )
-> ...>
-> (
->  return \(0\|<+...x...+>\|ptr\);
-> |
->  return@p2 ...;
-> )
-> 
-> @script:python@
-> p1 << r.p1;
-> p2 << r.p2;
-> @@
-> 
-> print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
+>  Signed-off-by: Henning Glawe <glaweh@debian.org>
 > ---
->  drivers/hid/hid-debug.c             |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+>  drivers/hid/hid-core.c |    1 +
+>  drivers/hid/hid-ids.h  |    3 +++
+>  2 files changed, 4 insertions(+), 0 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index 3e425f7..6abd036 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -928,6 +928,7 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 8551693..7755949 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1618,6 +1618,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0002) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 4d5ee2b..7f59854 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -359,6 +359,9 @@
+>  #define USB_VENDOR_ID_PETALYNX		0x18b1
+>  #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
 >  
->  	if (!(list->hid_debug_buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
->  		err = -ENOMEM;
-> +		kfree(list);
->  		goto out;
->  	}
->  	list->hdev = (struct hid_device *) inode->i_private;
-> 
+> +#define USB_VENDOR_ID_PHILIPS       0x0471
+> +#define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
+> +
+>  #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
+>  #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
 
-Applied, thanks a lot Julia.
+Appplied, thanks Henning.
 
 -- 
 Jiri Kosina

@@ -1,95 +1,62 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: [PATCH] hid: ignore all recent SoundGraph iMON devices
-Date: Sat, 08 Aug 2009 12:49:49 +0300
-Message-ID: <4A7D4A3D.50102@gmail.com>
-References: <200907311056.36729.jarod@redhat.com> <alpine.LNX.2.00.0908080221190.25797@wotan.suse.de>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Synaptics touchscreen for HTC Dream: check that smbus is available
+Date: Sat, 8 Aug 2009 15:40:50 +0200
+Message-ID: <20090808134049.GA13083@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721102153.GE4133@elf.ucw.cz> <5d5443650907210334k3f562cebsc665511a161c8639@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:33209 "EHLO jenni2.inet.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933934AbZHHJuJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 8 Aug 2009 05:50:09 -0400
-In-Reply-To: <alpine.LNX.2.00.0908080221190.25797@wotan.suse.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5d5443650907210334k3f562cebsc665511a161c8639-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jarod Wilson <jarod@redhat.com>, linux-input@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Fri, 31 Jul 2009, Jarod Wilson wrote:
-> 
->> After some inspection of the Windows iMON driver, several additional
->> device IDs were added to the lirc_imon driver. At least a few of these
->> have been seen in the wild, and require manual quirking to keep the
->> usbhid driver from binding to them. Rather than list out every single
->> device, ignore the entire device ID range, 0x0034 - 0x0046. Some of
->> these may not advertise themselves as HID devices, but no harm done to
->> such devices anyway. Does the right thing in brief testing w/my 0x0045
->> device.
->>
->> Signed-off-by: Jarod Wilson <jarod@redhat.com>
->>
->> ---
->>  drivers/hid/hid-core.c |   10 +++++-----
->>  drivers/hid/hid-ids.h  |    7 ++-----
->>  2 files changed, 7 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 5eb10c2..18bf803 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1623,11 +1623,6 @@ static const struct hid_device_id hid_ignore_list[] = {
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
->>  	{ HID_USB_DEVICE(USB_VENDOR_ID_VERNIER, USB_DEVICE_ID_VERNIER_LABPRO) },
->> @@ -1694,6 +1689,11 @@ static bool hid_ignore(struct hid_device *hdev)
->>  				hdev->product <= USB_DEVICE_ID_LOGITECH_HARMONY_LAST)
->>  			return true;
->>  		break;
->> +	case USB_VENDOR_ID_SOUNDGRAPH:
->> +		if (hdev->product >= USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST &&
->> +		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
->> +			return true;
->> +		break;
->>  	}
->>  
->>  	if (hdev->type == HID_TYPE_USBMOUSE &&
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 6301010..989a3ba 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -376,11 +376,8 @@
->>  #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
->>  
->>  #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
->> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
->> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
->> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
->> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD4	0x0044
->> -#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD5	0x0045
->> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
->> +#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
->>  
->>  #define USB_VENDOR_ID_SUN		0x0430
->>  #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
-> 
-> [ sorry for late reply, have been away for quite some time ]
-> 
-> So after reading the thread, I understand that Anssi will rather submit 
-> his changes through lirc project, and has therefore no objections to 
-> applying Jarod's patch, right?
+> >> Because this driver is using smbus i2c apis, it will be good to ad=
+d
+> >> that check too.
+> >
+> > So I should do something like
+> >
+> > if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_D=
+ATA))
+> > =A0 =A0 =A0 =A0...
+> >
+> > in addition?
+>=20
+> Yes.
 
-Yes.
+Ok, here it is.
 
--- 
-Anssi Hannula
+---=20
+
+Check that SMBUS APIs are available in touchscreen driver.
+   =20
+Signed-off-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+
+diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/stagin=
+g/dream/synaptics_i2c_rmi.c
+index dc1e3c7..6e23276 100644
+--- a/drivers/staging/dream/synaptics_i2c_rmi.c
++++ b/drivers/staging/dream/synaptics_i2c_rmi.c
+@@ -373,6 +373,12 @@ static int __devinit synaptics_ts_probe(
+ 		goto err_check_functionality_failed;
+ 	}
+=20
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DAT=
+A)) {
++		pr_err("synaptics_ts_probe: need I2C_FUNC_SMBUS_WORD_DATA\n");
++		ret =3D -ENODEV;
++		goto err_check_functionality_failed;
++	}
++
+ 	ts =3D kzalloc(sizeof(*ts), GFP_KERNEL);
+ 	if (ts =3D=3D NULL) {
+ 		ret =3D -ENOMEM;
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html

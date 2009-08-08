@@ -1,57 +1,47 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Ignore Philips IEEE802.15.4 RF Dongle in hid-core
-Date: Sat, 8 Aug 2009 02:29:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908080229100.25797@wotan.suse.de>
-References: <20090802201812.GA5631@ruprecht.physik.fu-berlin.de>
+Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
+Date: Sat, 8 Aug 2009 02:38:54 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908080237090.25797@wotan.suse.de>
+References: <200908062247.29254.lamarque@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757176AbZHHA31@vger.kernel.org>
-In-Reply-To: <20090802201812.GA5631@ruprecht.physik.fu-berlin.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henning Glawe <glaweh@debian.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:60403 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754918AbZHHAiy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 Aug 2009 20:38:54 -0400
+In-Reply-To: <200908062247.29254.lamarque@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lamarque Vieira Souza <lamarque@gmail.com>
+Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
 
-On Sun, 2 Aug 2009, Henning Glawe wrote:
+On Thu, 6 Aug 2009, Lamarque Vieira Souza wrote:
 
-> This usb device claims to be of HID class, but is in fact a 802.15.4
-> lowpan transceiver, therefore the generic HID driver cannot operate this
-> device. A separate driver for this device will be written for this using
-> the new 802.15.4 stack.
-> 
->  Signed-off-by: Henning Glawe <glaweh@debian.org>
-> ---
->  drivers/hid/hid-core.c |    1 +
->  drivers/hid/hid-ids.h  |    3 +++
->  2 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 8551693..7755949 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1618,6 +1618,7 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0002) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 4d5ee2b..7f59854 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -359,6 +359,9 @@
->  #define USB_VENDOR_ID_PETALYNX		0x18b1
->  #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
->  
-> +#define USB_VENDOR_ID_PHILIPS       0x0471
-> +#define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
-> +
->  #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
->  #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
+> 	One think I have discovered is that when using hid session the 
+> mouse send several 9-bytes frames with this content:  0x05 0xff 0x6e 
+> 0x6f 0x54 0xc6 0x10 0x00 0x02 (or 0x03 instead of 0x02). If I filter 
+> those frames in hidp_recv_intr_frame (linux/net/bluetooth/hidp/core.c) 
+> before calling hid_input_report, the cursor does not get stucked but the 
+> overhead of doing that is too high, the cursor gets sluggish. Using 
+> input session instead of hid session gets muth better results and is not 
+> as uggly as filtering frames. Can someone help me to find a better 
+> solution?
 
-Appplied, thanks Henning.
+Hi,
+
+we'd need to know a little bit more to be able to interpret that data 
+packet. Could you please
+
+- compile the kernel with CONFIG_HID_DEBUG option set
+- modprobe the 'hid' module with 'debug=2' option
+
+and provide the dmesg output that appears when the device is 
+connected (so that we have contents of the HID report descriptor and 
+kernel interpretation of it) and also after the data packet containing the 
+mentioned sequence has been received?
+
+Thanks,
 
 -- 
 Jiri Kosina

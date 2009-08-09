@@ -1,57 +1,36 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: HTC Dream for staging: add support for input on GPIO pins
-Date: Sat, 8 Aug 2009 23:44:54 +0200
-Message-ID: <20090808214454.GB24153@elf.ucw.cz>
-References: <20090808130315.GA12930@elf.ucw.cz> <5d5443650908080942l50d91d31qb23c494affdf6850@mail.gmail.com>
+From: david@hardeman.nu
+Subject: [patch 0/2] Winbond IR Driver - v2
+Date: Sun, 09 Aug 2009 11:56:45 +0200
+Message-ID: <20090809095645.198777507@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:58043 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751407AbZHHVpA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 8 Aug 2009 17:45:00 -0400
-Content-Disposition: inline
-In-Reply-To: <5d5443650908080942l50d91d31qb23c494affdf6850@mail.gmail.com>
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:59825 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753730AbZHIJ5q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 9 Aug 2009 05:57:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>, swetland@google.com, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, jbarnes@virtuousgeek.org, akpm@linux-foundation.org, bjorn.helgaas@hp.com, randy.dunlap@oracle.com, david@hardeman.nu
 
-On Sat 2009-08-08 22:12:46, Trilok Soni wrote:
-> Hi Pavel,
-> 
-> On Sat, Aug 8, 2009 at 6:33 PM, Pavel Machek<pavel@ucw.cz> wrote:
-> > From: Arve Hj?nnev?g <arve@android.com>
-> >
-> > Support for input devices connected to GPIO pins. This adds support
-> > for HTC Dream's keyboard and its trackball. Generic support already
-> > exists for keyboard on GPIO, but this one is more advanced because it
-> > can detect shadow key presses (and actually works with Dream :-).
-> >
-> > (It also contains Kconfig/Makefile changes, including some that were
-> > missing from previous commit. Sorry.)
-> 
-> I don't see any importance of gpio_matrix.c when we already have
-> generic gpio matrix driver mainlined. I would suggest to remove those
-> bits from this patch. I have added linux-input ML.
+Here's a new patch set which should replace all the patches currently i=
+n the
+-mm tree for the winbond cir driver. The new series incorporate feedbac=
+k from
+Bjorn Helgaas (convert the driver from ACPI to PNP) and Randy Dunlap (K=
+config
+fixes).
 
-Well, I'm trying for staging merge at this point. Reasons why
-gpio_matrix is there are:
+The IR decoding can still be improved but the driver works for in daily=
+ use
+decoding RC6 commands, so I believe it is ready to go upstream.
 
-1) it is non-trivial to remove
-
-2) it has some features mainline lacks
-
-3) HTC Dream actually works with it
-
-(and 4) I'd like to submit code as Arve wrote it, then transform/clean
-it up in staging).
-
-Of course, relevant features will need to be extracted from
-gpio_matrix and merged at the right places, and that needs to happen
-before move from staging/, but I'd like to have working keyboard in
-the meantime.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--=20
+David H=C3=A4rdeman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,66 +1,73 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: HTC Dream for staging: add support for input on GPIO pins
-Date: Sun, 9 Aug 2009 15:01:16 +0200
-Message-ID: <20090809130054.GA1362@ucw.cz>
-References: <20090808130315.GA12930@elf.ucw.cz> <5d5443650908080942l50d91d31qb23c494affdf6850@mail.gmail.com> <20090808214454.GB24153@elf.ucw.cz> <5d5443650908100031t5240daa4h76ef2a7863cc4403@mail.gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v3] input: PCAP2 misc input driver
+Date: Mon, 10 Aug 2009 11:13:00 +0200
+Message-ID: <20090810111300.6c9abe57.ospite@studenti.unina.it>
+References: <1249678456-15381-1-git-send-email-drwyrm@gmail.com>
+	<20090810072431.D2068526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:54685 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751883AbZHJIvD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Aug 2009 04:51:03 -0400
-Content-Disposition: inline
-In-Reply-To: <5d5443650908100031t5240daa4h76ef2a7863cc4403@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753096AbZHJJNj@vger.kernel.org>
+In-Reply-To: <20090810072431.D2068526EC9@mailhub.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Ribeiro <drwyrm@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Ilya Petrov <ilya.muromec@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>, swetland@google.com, linux-input@vger.kernel.org
 
-On Mon 2009-08-10 13:01:28, Trilok Soni wrote:
-> Hi Pavel,
-> 
+--Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >> I don't see any importance of gpio_matrix.c when we already have
-> >> generic gpio matrix driver mainlined. I would suggest to remove those
-> >> bits from this patch. I have added linux-input ML.
-> >
-> > Well, I'm trying for staging merge at this point. Reasons why
-> > gpio_matrix is there are:
-> >
-> > 1) it is non-trivial to remove
-> >
-> > 2) it has some features mainline lacks
-> >
-> > 3) HTC Dream actually works with it
-> >
-> > (and 4) I'd like to submit code as Arve wrote it, then transform/clean
-> > it up in staging).
-> >
-> > Of course, relevant features will need to be extracted from
-> > gpio_matrix and merged at the right places, and that needs to happen
-> > before move from staging/, but I'd like to have working keyboard in
-> > the meantime.
-> 
-> gpio_matrix in mainline should work with HTC G1 with few proper
-> platform data and input name eventhough ghost key clearance code is
-> not yet in mainline driver.
+On Sun, 9 Aug 2009 23:54:07 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-I actually tried to write that platform hooks, but unfortunately I'm
-quite far from being able to test them. 
+> On Fri, Aug 07, 2009 at 10:54:16PM +0200, Daniel Ribeiro wrote:
+> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> > index 0d979fd..679bae3 100644
+> > --- a/drivers/input/misc/Makefile
+> > +++ b/drivers/input/misc/Makefile
+> > @@ -26,3 +26,4 @@ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+=3D twl4030-pw=
+rbutton.o
+> >  obj-$(CONFIG_INPUT_UINPUT)		+=3D uinput.o
+> >  obj-$(CONFIG_INPUT_WISTRON_BTNS)	+=3D wistron_btns.o
+> >  obj-$(CONFIG_INPUT_YEALINK)		+=3D yealink.o
+> > +obj-$(CONFIG_INPUT_PCAP)		+=3D pcap_keys.o
+>=20
+> Btw, could we please keep Makefile sorted alphabetically? This should
+> help with merge conflicts a bit (I know Kconfig is still not sorted).
+>
 
-> I know you want HTC dream to work through staging but I would prefer
-> that such drivers should be discussed and reviewed on
-> linux-input/linux-kernel ML and not just dumped in staging.
+Ok, do I need to send another version?
 
-The stuff I'm submitting is not ready for proper review. It will take
-a while before it is good enough. But I believe it has place in
-staging: it will allow me to get Dream into usable state, and will
-allow others to help with cleanups.
+And, is Samuel taking this one and the pcap_ts one?
+They depends on changes already in his for-next branch.
 
-Of course, it will get proper review before moving to drivers/input.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thanks,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
+
+--Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkp/5JwACgkQ5xr2akVTsAEndQCeJ1oeMWeihERU5zEfpIkNfIWq
+ZoYAn1gqNfj9HT37HCIF+qJ8nu31gm0Z
+=3J0A
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ--

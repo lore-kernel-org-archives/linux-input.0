@@ -1,50 +1,83 @@
-From: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: ads7846: clean up, fix pressure reporting
-Date: Mon, 10 Aug 2009 22:10:48 +0100
-Message-ID: <1249938648.22268.190.camel@dax.rpnet.com>
-References: <20090807180941.GF1728@ucw.cz>
-	 <1249813293.4334.24.camel@utx.utx.cz>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Subject: Re: HTC Dream for staging: add support for input on GPIO pins
+Date: Mon, 10 Aug 2009 15:26:36 -0700
+Message-ID: <d6200be20908101526m31a422feid09c89ab5675220c@mail.gmail.com>
+References: <20090808130315.GA12930@elf.ucw.cz>
+	 <5d5443650908080942l50d91d31qb23c494affdf6850@mail.gmail.com>
+	 <20090808214454.GB24153@elf.ucw.cz>
+	 <5d5443650908100031t5240daa4h76ef2a7863cc4403@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753925AbZHJVMs@vger.kernel.org>
-In-Reply-To: <1249813293.4334.24.camel@utx.utx.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stanislav Brabec <utx@penguin.cz>
-Cc: Pavel Machek <pavel@ucw.cz>, dtor@mail.ru, linux-input@vger.kernel.org, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@Opfer-Online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, dbaryshkov@gmail.com, omegamoon@gmail.com, eric.miao@marvell.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f172.google.com ([209.85.212.172]:57982 "EHLO
+	mail-vw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754085AbZHJW0k convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Aug 2009 18:26:40 -0400
+In-Reply-To: <5d5443650908100031t5240daa4h76ef2a7863cc4403@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>, swetland@google.com, linux-input@vger.kernel.org
 
-On Sun, 2009-08-09 at 12:21 +0200, Stanislav Brabec wrote:
-> Pavel Machek wrote:
-> > Fix pressure reporting, and clean up debug prints.
->=20
-> Thanks.
->=20
-> I see much bigger problem with both the old driver and the new ads784=
-6
-> driver (2.6.30): They are very noisy on my spitz. When you tap to one
-> place, keep stylus pressed and just read values, you get 20-200 pixel=
-s
-> long pointer motion trip each second.
->=20
-> According to Cyril Hrubi=C5=A1, it is caused by the electrical noise =
-that
-> originates in the LCD display. The driver needs to read data
-> synchronously with the LCD refresh. He already made the fix for colli=
-e
-> several years ago.
+On Mon, Aug 10, 2009 at 12:31 AM, Trilok Soni<soni.trilok@gmail.com> wr=
+ote:
+> Hi Pavel,
+>
+> On Sun, Aug 9, 2009 at 3:14 AM, Pavel Machek<pavel@ucw.cz> wrote:
+>> On Sat 2009-08-08 22:12:46, Trilok Soni wrote:
+=2E..
+>>> I don't see any importance of gpio_matrix.c when we already have
+>>> generic gpio matrix driver mainlined. I would suggest to remove tho=
+se
+>>> bits from this patch. I have added linux-input ML.
+>>
+>> Well, I'm trying for staging merge at this point. Reasons why
+>> gpio_matrix is there are:
+>>
+>> 1) it is non-trivial to remove
+>>
+>> 2) it has some features mainline lacks
+>>
+>> 3) HTC Dream actually works with it
+>>
+>> (and 4) I'd like to submit code as Arve wrote it, then transform/cle=
+an
+>> it up in staging).
+>>
+>> Of course, relevant features will need to be extracted from
+>> gpio_matrix and merged at the right places, and that needs to happen
+>> before move from staging/, but I'd like to have working keyboard in
+>> the meantime.
+>
+> gpio_matrix in mainline should work with HTC G1 with few proper
+> platform data and input name eventhough ghost key clearance code is
+> not yet in mainline driver.
 
-This is what I've been led to believe as well. There was code in the ol=
-d
-driver to try and avoid this by only taking touchscreen readings when
-the LCD wasn't electrically active but it sounds like this has become
-broken :(.
+It would also be missing the end-call and volume keys.
 
-Cheers,
+>
+> I know you want HTC dream to work through staging but I would prefer
+> that such drivers should be discussed and reviewed on
+> linux-input/linux-kernel ML and not just dumped in staging.
 
-Richard
+As I mentioned when the matrix keypad driver was posted, we moved away
+from having separate matrix and gpio input drivers since the the
+hardware we use mix both types in the same logical keyboard. I did not
+see any discussion about alternative ways to do this.
 
+The current version of our driver (though this code does not appear to
+be included this path) also supports creating multiple input devices
+from a single set of inputs. This is needed on several new devices
+where the trackball button is in keypad matrix and it is needed if you
+want to report the same keycode from multiple keys (e.g. dream
+external menu key and menu key in main keyboard).
 
 --=20
-Richard Purdie
-Intel Open Source Technology Centre
+Arve Hj=F8nnev=E5g
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

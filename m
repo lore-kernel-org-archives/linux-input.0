@@ -1,72 +1,129 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v3] input: PCAP2 misc input driver
-Date: Mon, 10 Aug 2009 20:43:13 +0200
-Message-ID: <20090810204313.4d7a265a.ospite@studenti.unina.it>
-References: <1249678456-15381-1-git-send-email-drwyrm@gmail.com>
-	<20090810072431.D2068526EC9@mailhub.coreip.homeip.net>
-	<20090810111300.6c9abe57.ospite@studenti.unina.it>
-	<20090810182314.GB9547@sortiz.org>
+From: Stephen Kitt <steve@sk2.org>
+Subject: Re: Restoring joydev BTNMAP ioctl compatibility
+Date: Mon, 10 Aug 2009 21:12:45 +0200
+Message-ID: <20090810211245.73a3b4e5@sk2.org>
+References: <20090810085242.3676ebc6@sk2.org>
+	<20090810084436.98FFA526EC9@mailhub.coreip.homeip.net>
+	<20090810132905.546a95ba@sk2.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__10_Aug_2009_20_43_13_+0200_0WhvUft0biP4llw6"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out112.alice.it ([85.37.17.112]:2261 "EHLO
-	smtp-out112.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752763AbZHJSnh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Aug 2009 14:43:37 -0400
-In-Reply-To: <20090810182314.GB9547@sortiz.org>
+Received: from smtp1-g21.free.fr ([212.27.42.1]:54752 "EHLO smtp1-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751346AbZHJTMx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Aug 2009 15:12:53 -0400
+In-Reply-To: <20090810132905.546a95ba@sk2.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Ribeiro <drwyrm@gmail.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Ilya Petrov <ilya.muromec@gmail.com>
+To: Stephen Kitt <steve@sk2.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
---Signature=_Mon__10_Aug_2009_20_43_13_+0200_0WhvUft0biP4llw6
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 10 Aug 2009 13:29:05 +0200, Stephen Kitt <steve@sk2.org> wrote:
+> A cleaner approach with a single case statement would involve switching on
+> _IOC_NR(cmd) rather than cmd directly, and handling the length explicitly.
+> That would make the ioctl ABI backwards-compatible when KEY_MAX increases
+> without explicit handling! I can rewrite the patch in this way if you wish.
 
-On Mon, 10 Aug 2009 20:23:15 +0200
-Samuel Ortiz <sameo@linux.intel.com> wrote:
+Something like the following, which also makes explicit the handling of
+JSIOCGNAME!
 
-> Hi Antonio,
->=20
-> On Mon, Aug 10, 2009 at 11:13:00AM +0200, Antonio Ospite wrote:
-> >=20
-> > And, is Samuel taking this one and the pcap_ts one?
-> > They depends on changes already in his for-next branch.
->
-> I'm taking this one, and I'll sort the Makefile alphabetically.
->=20
-> Cheers,
-> Samuel.
->=20
+Regards,
 
-Thanks again,
-   Antonio
+Stephen
 
---=20
-Antonio Ospite
-http://ao2.it
+ Input: joydev - handle old values of JSIOCSBTNMAP and JSIOCGBTNMAP ioctls
 
-PGP public key ID: 0x4553B001
+ The KEY_MAX change in 2.6.28 changed the values of the JSIOCSBTNMAP and
+ JSIOCGBTNMAP constants; software compiled with the old values no longer
+ works with kernels following 2.6.28, because the ioctl switch statement no
+ longer matches the values given by the software. This patch handles these
+ ioctls independently of the length of data specified.
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+ Signed-off-by: Stephen Kitt <steve@sk2.org>
 
---Signature=_Mon__10_Aug_2009_20_43_13_+0200_0WhvUft0biP4llw6
-Content-Type: application/pgp-signature
+ ---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+ drivers/input/joydev.c |   50 +++++++++++++++++++++++++++++--------------------
+ 1 file changed, 30 insertions(+), 20 deletions(-)
 
-iEYEARECAAYFAkqAakEACgkQ5xr2akVTsAH1xACZAZZgqal6+tc3YP0yCzZj/rW8
-QdEAoIIV5u8Z1TEGOPmPVmTeIfeZ43S7
-=wuRl
------END PGP SIGNATURE-----
-
---Signature=_Mon__10_Aug_2009_20_43_13_+0200_0WhvUft0biP4llw6--
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 4cfd084..8bd9569 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -456,8 +456,10 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 				unsigned int cmd, void __user *argp)
+ {
+ 	struct input_dev *dev = joydev->handle.dev;
++	size_t len;
+ 	int i, j;
+ 
++	/* Process fixed-sized commands. */
+ 	switch (cmd) {
+ 
+ 	case JS_SET_CAL:
+@@ -514,10 +516,20 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 	case JSIOCGAXMAP:
+ 		return copy_to_user(argp, joydev->abspam,
+ 			sizeof(__u8) * (ABS_MAX + 1)) ? -EFAULT : 0;
++	}
+ 
+-	case JSIOCSBTNMAP:
+-		if (copy_from_user(joydev->keypam, argp,
+-				   sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)))
++	/* Process variable-sized commands (the button map commands are
++	   considered variable-sized for compatibility reasons, and to avoid
++	   problems with future changes to KEY_MAX). */
++	switch (cmd & ~IOCSIZE_MASK) {
++
++	case (JSIOCSBTNMAP & ~IOCSIZE_MASK):
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		/*
++		 * FIXME: we should not copy into our keymap before
++		 * validating the data.
++		 */
++		if (copy_from_user(joydev->keypam, argp, len))
+ 			return -EFAULT;
+ 
+ 		for (i = 0; i < joydev->nkey; i++) {
+@@ -529,25 +541,23 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 
+ 		return 0;
+ 
+-	case JSIOCGBTNMAP:
+-		return copy_to_user(argp, joydev->keypam,
+-			sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)) ? -EFAULT : 0;
++	case (JSIOCGBTNMAP & ~IOCSIZE_MASK):
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		return copy_to_user(argp, joydev->keypam, len) ? -EFAULT : 0;
+ 
+-	default:
+-		if ((cmd & ~IOCSIZE_MASK) == JSIOCGNAME(0)) {
+-			int len;
+-			const char *name = dev->name;
+-
+-			if (!name)
+-				return 0;
+-			len = strlen(name) + 1;
+-			if (len > _IOC_SIZE(cmd))
+-				len = _IOC_SIZE(cmd);
+-			if (copy_to_user(argp, name, len))
+-				return -EFAULT;
+-			return len;
+-		}
++	case JSIOCGNAME(0):
++		const char *name = dev->name;
++
++		if (!name)
++			return 0;
++		len = strlen(name) + 1;
++		if (len > _IOC_SIZE(cmd))
++			len = _IOC_SIZE(cmd);
++		if (copy_to_user(argp, name, len))
++			return -EFAULT;
++		return len;
+ 	}
++
+ 	return -EINVAL;
+ }
+ 

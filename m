@@ -1,73 +1,126 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH v3] input: PCAP2 misc input driver
-Date: Mon, 10 Aug 2009 11:13:00 +0200
-Message-ID: <20090810111300.6c9abe57.ospite@studenti.unina.it>
-References: <1249678456-15381-1-git-send-email-drwyrm@gmail.com>
-	<20090810072431.D2068526EC9@mailhub.coreip.homeip.net>
+From: Stephen Kitt <steve@sk2.org>
+Subject: Re: Restoring joydev BTNMAP ioctl compatibility
+Date: Mon, 10 Aug 2009 13:29:05 +0200
+Message-ID: <20090810132905.546a95ba@sk2.org>
+References: <20090810085242.3676ebc6@sk2.org>
+	<20090810084436.98FFA526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753096AbZHJJNj@vger.kernel.org>
-In-Reply-To: <20090810072431.D2068526EC9@mailhub.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Ribeiro <drwyrm@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, eric.y.miao@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, openezx-devel@lists.openezx.org, Ilya Petrov <ilya.muromec@gmail.com>
-List-Id: linux-input@vger.kernel.org
-
---Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1-g21.free.fr ([212.27.42.1]:52987 "EHLO smtp1-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752747AbZHJL3N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Aug 2009 07:29:13 -0400
+In-Reply-To: <20090810084436.98FFA526EC9@mailhub.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sun, 9 Aug 2009 23:54:07 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Mon, 10 Aug 2009 01:14:12 -0700, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Aug 10, 2009 at 08:52:42AM +0200, Stephen Kitt wrote:
+> > The attached patch reintroduced the old ioctl definitions to restore
+> > compatibility. It only copies as much information as was supported in
+> > previous versions, but since this still allows for devices with 256
+> > buttons I doubt there's much chance of losing information, hence the lack
+> > of a printk() warning.
+> 
+> However adding the "old" ioctls is not the right solution, we should be
+> just respecing the size encoded in the ioctl and limit the amount of
+> data sent/received if it is less than our internal buffers. Could you
+> please try the patch below?
 
-> On Fri, Aug 07, 2009 at 10:54:16PM +0200, Daniel Ribeiro wrote:
-> > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> > index 0d979fd..679bae3 100644
-> > --- a/drivers/input/misc/Makefile
-> > +++ b/drivers/input/misc/Makefile
-> > @@ -26,3 +26,4 @@ obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+=3D twl4030-pw=
-rbutton.o
-> >  obj-$(CONFIG_INPUT_UINPUT)		+=3D uinput.o
-> >  obj-$(CONFIG_INPUT_WISTRON_BTNS)	+=3D wistron_btns.o
-> >  obj-$(CONFIG_INPUT_YEALINK)		+=3D yealink.o
-> > +obj-$(CONFIG_INPUT_PCAP)		+=3D pcap_keys.o
->=20
-> Btw, could we please keep Makefile sorted alphabetically? This should
-> help with merge conflicts a bit (I know Kconfig is still not sorted).
->
+The more generic approach in your patch is indeed better, but it doesn't
+solve the original problem. Because the ioctl command code encodes the
+expected argument size, the case statements still only match the new ioctl
+codes, and the old ones used before 2.6.28 aren't matched and result in
+-EINVAL. For example, jstest built with the 2.6.27 headers will call
+ioctl(..., 2181065268, ...) (2181065268 is the value corresponding to
+JSIOCGBTNMAP before 2.6.28), but 2.6.28 kernels and later will be looking for
+2214619700 which is the value corresponding to JSIOCGBTNMAP from 2.6.28
+onwards.
 
-Ok, do I need to send another version?
+The following merges both and handles all cases...
 
-And, is Samuel taking this one and the pcap_ts one?
-They depends on changes already in his for-next branch.
+A cleaner approach with a single case statement would involve switching on
+_IOC_NR(cmd) rather than cmd directly, and handling the length explicitly.
+That would make the ioctl ABI backwards-compatible when KEY_MAX increases
+without explicit handling! I can rewrite the patch in this way if you wish.
 
-Thanks,
-   Antonio
+Regards,
 
---=20
-Antonio Ospite
-http://ao2.it
+Stephen
 
-PGP public key ID: 0x4553B001
+ Input: joydev - handle old values of JSIOCSBTNMAP and JSIOCGBTNMAP ioctls
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+ The KEY_MAX change in 2.6.28 changed the values of the JSIOCSBTNMAP and
+ JSIOCGBTNMAP constants; software compiled with the old values no longer
+ works with kernels following 2.6.28, because the ioctl switch statement no
+ longer matches the values given by the software. This patch adds explicit
+ handling of the old ioctl values.
 
---Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ
-Content-Type: application/pgp-signature
+ Signed-off-by: Stephen Kitt <steve@sk2.org>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+ ---
 
-iEYEARECAAYFAkp/5JwACgkQ5xr2akVTsAEndQCeJ1oeMWeihERU5zEfpIkNfIWq
-ZoYAn1gqNfj9HT37HCIF+qJ8nu31gm0Z
-=3J0A
------END PGP SIGNATURE-----
+ drivers/input/joydev.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---Signature=_Mon__10_Aug_2009_11_13_00_+0200_lb7ek4ZoAc+CSKaJ--
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 4cfd084..b26de29 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -35,6 +35,11 @@ MODULE_LICENSE("GPL");
+ #define JOYDEV_MINORS		16
+ #define JOYDEV_BUFFER_SIZE	64
+ 
++/* Support for old ioctls using the old value of KEY_MAX. */
++#define OLD_KEY_MAX		0x1ff
++#define OLD_JSIOCSBTNMAP	_IOW('j', 0x33, __u16[OLD_KEY_MAX - BTN_MISC + 1])
++#define OLD_JSIOCGBTNMAP	_IOR('j', 0x34, __u16[OLD_KEY_MAX - BTN_MISC + 1])
++
+ struct joydev {
+ 	int exist;
+ 	int open;
+@@ -456,6 +461,7 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 				unsigned int cmd, void __user *argp)
+ {
+ 	struct input_dev *dev = joydev->handle.dev;
++	size_t len;
+ 	int i, j;
+ 
+ 	switch (cmd) {
+@@ -516,8 +522,13 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 			sizeof(__u8) * (ABS_MAX + 1)) ? -EFAULT : 0;
+ 
+ 	case JSIOCSBTNMAP:
+-		if (copy_from_user(joydev->keypam, argp,
+-				   sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)))
++	case OLD_JSIOCSBTNMAP:
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		/*
++		 * FIXME: we should not copy into our keymap before
++		 * validating the data.
++		 */
++		if (copy_from_user(joydev->keypam, argp, len))
+ 			return -EFAULT;
+ 
+ 		for (i = 0; i < joydev->nkey; i++) {
+@@ -530,12 +541,12 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 		return 0;
+ 
+ 	case JSIOCGBTNMAP:
+-		return copy_to_user(argp, joydev->keypam,
+-			sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)) ? -EFAULT : 0;
++	case OLD_JSIOCGBTNMAP:
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		return copy_to_user(argp, joydev->keypam, len) ? -EFAULT : 0;
+ 
+ 	default:
+ 		if ((cmd & ~IOCSIZE_MASK) == JSIOCGNAME(0)) {
+-			int len;
+ 			const char *name = dev->name;
+ 
+ 			if (!name)

@@ -1,72 +1,109 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: HTC Dream for staging: add support for input on GPIO pins
-Date: Mon, 10 Aug 2009 13:01:28 +0530
-Message-ID: <5d5443650908100031t5240daa4h76ef2a7863cc4403@mail.gmail.com>
-References: <20090808130315.GA12930@elf.ucw.cz>
-	 <5d5443650908080942l50d91d31qb23c494affdf6850@mail.gmail.com>
-	 <20090808214454.GB24153@elf.ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Restoring joydev BTNMAP ioctl compatibility
+Date: Mon, 10 Aug 2009 01:14:12 -0700
+Message-ID: <20090810084436.98FFA526EC9@mailhub.coreip.homeip.net>
+References: <20090810085242.3676ebc6@sk2.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:28629 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751365AbZHJHb2 (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.228]:5141 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751405AbZHJIOQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Aug 2009 03:31:28 -0400
-In-Reply-To: <20090808214454.GB24153@elf.ucw.cz>
+	Mon, 10 Aug 2009 04:14:16 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so937933rvb.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Aug 2009 01:14:16 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20090810085242.3676ebc6@sk2.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Greg KH <greg@kroah.com>, kernel list <linux-kernel@vger.kernel.org>, swetland@google.com, linux-input@vger.kernel.org
+To: Stephen Kitt <steve@sk2.org>
+Cc: linux-input@vger.kernel.org
 
-Hi Pavel,
+Hi Stephen,
 
-On Sun, Aug 9, 2009 at 3:14 AM, Pavel Machek<pavel@ucw.cz> wrote:
-> On Sat 2009-08-08 22:12:46, Trilok Soni wrote:
->> Hi Pavel,
->>
->> On Sat, Aug 8, 2009 at 6:33 PM, Pavel Machek<pavel@ucw.cz> wrote:
->> > From: Arve Hj?nnev?g <arve@android.com>
->> >
->> > Support for input devices connected to GPIO pins. This adds support
->> > for HTC Dream's keyboard and its trackball. Generic support already
->> > exists for keyboard on GPIO, but this one is more advanced because it
->> > can detect shadow key presses (and actually works with Dream :-).
->> >
->> > (It also contains Kconfig/Makefile changes, including some that were
->> > missing from previous commit. Sorry.)
->>
->> I don't see any importance of gpio_matrix.c when we already have
->> generic gpio matrix driver mainlined. I would suggest to remove those
->> bits from this patch. I have added linux-input ML.
->
-> Well, I'm trying for staging merge at this point. Reasons why
-> gpio_matrix is there are:
->
-> 1) it is non-trivial to remove
->
-> 2) it has some features mainline lacks
->
-> 3) HTC Dream actually works with it
->
-> (and 4) I'd like to submit code as Arve wrote it, then transform/clean
-> it up in staging).
->
-> Of course, relevant features will need to be extracted from
-> gpio_matrix and merged at the right places, and that needs to happen
-> before move from staging/, but I'd like to have working keyboard in
-> the meantime.
+On Mon, Aug 10, 2009 at 08:52:42AM +0200, Stephen Kitt wrote:
+> Hi,
+> 
+> The KEY_MAX change in 2.6.28 changed the definitions of the button map
+> joydev ioctls (JSIOCSBTNMAP and JSIOCGBTNMAP). Thus software built using
+> pre-2.6.28 headers fails when retrieving or setting the button map on 2.6.28
+> and greater kernels.
+> 
 
-gpio_matrix in mainline should work with HTC G1 with few proper
-platform data and input name eventhough ghost key clearance code is
-not yet in mainline driver.
+Darn, this is bad...
 
-I know you want HTC dream to work through staging but I would prefer
-that such drivers should be discussed and reviewed on
-linux-input/linux-kernel ML and not just dumped in staging.
+> The attached patch reintroduced the old ioctl definitions to restore
+> compatibility. It only copies as much information as was supported in
+> previous versions, but since this still allows for devices with 256 buttons I
+> doubt there's much chance of losing information, hence the lack of a printk()
+> warning.
+> 
+
+However adding the "old" ioctls is not the right solution, we should be
+just respecing the size encoded in the ioctl and limit the amount of
+data sent/received if it is less than our internal buffers. Could you
+please try the patch below?
+
+Thanks!
 
 -- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+Dmitry
+
+Input: joydev - fix JSIOCSBTNMAP and JSIOCGBTNMAP ioctls
+
+The KEY_MAX change in 2.6.28 changed the amount of data transmitted by
+JSIOCSBTNMAP and JSIOCGBTNMAP joydev ioctls; unfortunately joydev driver
+did not pay attention to the length of the request and thus caused
+software that was compiled with old definitions fail. Change the
+joydev driver to respect size parameter encoded in ioctl.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/joydev.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
+
+
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 4cfd084..d15aaae 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -456,6 +456,7 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 				unsigned int cmd, void __user *argp)
+ {
+ 	struct input_dev *dev = joydev->handle.dev;
++	size_t len;
+ 	int i, j;
+ 
+ 	switch (cmd) {
+@@ -516,8 +517,12 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 			sizeof(__u8) * (ABS_MAX + 1)) ? -EFAULT : 0;
+ 
+ 	case JSIOCSBTNMAP:
+-		if (copy_from_user(joydev->keypam, argp,
+-				   sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)))
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		/*
++		 * FIXME: we should not copy into our keymap before
++		 * validating the data.
++		 */
++		if (copy_from_user(joydev->keypam, argp, len))
+ 			return -EFAULT;
+ 
+ 		for (i = 0; i < joydev->nkey; i++) {
+@@ -530,12 +535,11 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 		return 0;
+ 
+ 	case JSIOCGBTNMAP:
+-		return copy_to_user(argp, joydev->keypam,
+-			sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)) ? -EFAULT : 0;
++		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
++		return copy_to_user(argp, joydev->keypam, len) ? -EFAULT : 0;
+ 
+ 	default:
+ 		if ((cmd & ~IOCSIZE_MASK) == JSIOCGNAME(0)) {
+-			int len;
+ 			const char *name = dev->name;
+ 
+ 			if (!name)

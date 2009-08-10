@@ -1,114 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Restoring joydev BTNMAP ioctl compatibility
-Date: Mon, 10 Aug 2009 13:27:26 -0700
-Message-ID: <20090810205758.C7D3B526EC9@mailhub.coreip.homeip.net>
-References: <20090810085242.3676ebc6@sk2.org> <20090810084436.98FFA526EC9@mailhub.coreip.homeip.net> <20090810132905.546a95ba@sk2.org> <20090810211245.73a3b4e5@sk2.org>
+From: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: ads7846: clean up, fix pressure reporting
+Date: Mon, 10 Aug 2009 22:10:48 +0100
+Message-ID: <1249938648.22268.190.camel@dax.rpnet.com>
+References: <20090807180941.GF1728@ucw.cz>
+	 <1249813293.4334.24.camel@utx.utx.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.181]:36294 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752710AbZHJU1f (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Aug 2009 16:27:35 -0400
-Received: by wa-out-1112.google.com with SMTP id j5so776792wah.21
-        for <linux-input@vger.kernel.org>; Mon, 10 Aug 2009 13:27:36 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20090810211245.73a3b4e5@sk2.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753925AbZHJVMs@vger.kernel.org>
+In-Reply-To: <1249813293.4334.24.camel@utx.utx.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stanislav Brabec <utx@penguin.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, dtor@mail.ru, linux-input@vger.kernel.org, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@Opfer-Online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, dbaryshkov@gmail.com, omegamoon@gmail.com, eric.miao@marvell.com
 List-Id: linux-input@vger.kernel.org
-To: Stephen Kitt <steve@sk2.org>
-Cc: linux-input@vger.kernel.org
 
-Hi Stephen,
+On Sun, 2009-08-09 at 12:21 +0200, Stanislav Brabec wrote:
+> Pavel Machek wrote:
+> > Fix pressure reporting, and clean up debug prints.
+>=20
+> Thanks.
+>=20
+> I see much bigger problem with both the old driver and the new ads784=
+6
+> driver (2.6.30): They are very noisy on my spitz. When you tap to one
+> place, keep stylus pressed and just read values, you get 20-200 pixel=
+s
+> long pointer motion trip each second.
+>=20
+> According to Cyril Hrubi=C5=A1, it is caused by the electrical noise =
+that
+> originates in the LCD display. The driver needs to read data
+> synchronously with the LCD refresh. He already made the fix for colli=
+e
+> several years ago.
 
-On Mon, Aug 10, 2009 at 09:12:45PM +0200, Stephen Kitt wrote:
-> On Mon, 10 Aug 2009 13:29:05 +0200, Stephen Kitt <steve@sk2.org> wrote:
-> > A cleaner approach with a single case statement would involve switching on
-> > _IOC_NR(cmd) rather than cmd directly, and handling the length explicitly.
-> > That would make the ioctl ABI backwards-compatible when KEY_MAX increases
-> > without explicit handling! I can rewrite the patch in this way if you wish.
-> 
-> Something like the following, which also makes explicit the handling of
-> JSIOCGNAME!
-> 
+This is what I've been led to believe as well. There was code in the ol=
+d
+driver to try and avoid this by only taking touchscreen readings when
+the LCD wasn't electrically active but it sounds like this has become
+broken :(.
 
-Looks much better now.
+Cheers,
 
-> Regards,
-> 
-> Stephen
-> 
->  Input: joydev - handle old values of JSIOCSBTNMAP and JSIOCGBTNMAP ioctls
-> 
->  The KEY_MAX change in 2.6.28 changed the values of the JSIOCSBTNMAP and
->  JSIOCGBTNMAP constants; software compiled with the old values no longer
->  works with kernels following 2.6.28, because the ioctl switch statement no
->  longer matches the values given by the software. This patch handles these
->  ioctls independently of the length of data specified.
-> 
->  Signed-off-by: Stephen Kitt <steve@sk2.org>
-> 
->  ---
-> 
->  drivers/input/joydev.c |   50 +++++++++++++++++++++++++++++--------------------
->  1 file changed, 30 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index 4cfd084..8bd9569 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -456,8 +456,10 @@ static int joydev_ioctl_common(struct joydev *joydev,
->  				unsigned int cmd, void __user *argp)
->  {
->  	struct input_dev *dev = joydev->handle.dev;
-> +	size_t len;
->  	int i, j;
->  
-> +	/* Process fixed-sized commands. */
->  	switch (cmd) {
->  
->  	case JS_SET_CAL:
-> @@ -514,10 +516,20 @@ static int joydev_ioctl_common(struct joydev *joydev,
->  	case JSIOCGAXMAP:
->  		return copy_to_user(argp, joydev->abspam,
->  			sizeof(__u8) * (ABS_MAX + 1)) ? -EFAULT : 0;
-> +	}
->  
-> -	case JSIOCSBTNMAP:
-> -		if (copy_from_user(joydev->keypam, argp,
-> -				   sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)))
-> +	/* Process variable-sized commands (the button map commands are
-> +	   considered variable-sized for compatibility reasons, and to avoid
-> +	   problems with future changes to KEY_MAX). */
-> +	switch (cmd & ~IOCSIZE_MASK) {
-> +
-> +	case (JSIOCSBTNMAP & ~IOCSIZE_MASK):
-> +		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
-> +		/*
-> +		 * FIXME: we should not copy into our keymap before
-> +		 * validating the data.
-> +		 */
-> +		if (copy_from_user(joydev->keypam, argp, len))
->  			return -EFAULT;
->  
->  		for (i = 0; i < joydev->nkey; i++) {
-> @@ -529,25 +541,23 @@ static int joydev_ioctl_common(struct joydev *joydev,
->  
->  		return 0;
->  
-> -	case JSIOCGBTNMAP:
-> -		return copy_to_user(argp, joydev->keypam,
-> -			sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)) ? -EFAULT : 0;
-> +	case (JSIOCGBTNMAP & ~IOCSIZE_MASK):
-> +		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
-> +		return copy_to_user(argp, joydev->keypam, len) ? -EFAULT : 0;
+Richard
 
-Actually I think we need to return "len" here to let userspace know how
-much data we produced. Also, could you please give the same treatment to
-JSIOCGAXMAP and JSIOCSAXMAP and I will apply it.
 
-Thanks!
-
--- 
-Dmitry
+--=20
+Richard Purdie
+Intel Open Source Technology Centre

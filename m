@@ -1,176 +1,123 @@
-From: Stephen Kitt <steve@sk2.org>
-Subject: Re: Restoring joydev BTNMAP ioctl compatibility
-Date: Tue, 11 Aug 2009 08:20:32 +0200
-Message-ID: <20090811082032.2aa364eb@sk2.org>
-References: <20090810085242.3676ebc6@sk2.org>
-	<20090810084436.98FFA526EC9@mailhub.coreip.homeip.net>
-	<20090810132905.546a95ba@sk2.org>
-	<20090810211245.73a3b4e5@sk2.org>
-	<20090810205758.C7D3B526EC9@mailhub.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Daniel Mack <daniel@caiaq.de>
+Subject: [PATCH] input: eeti_ts: allow active high irq lines
+Date: Tue, 11 Aug 2009 17:52:52 +0200
+Message-ID: <1250005972-27095-1-git-send-email-daniel@caiaq.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpfb1-g21.free.fr ([212.27.42.9]:52681 "EHLO
-	smtpfb1-g21.free.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751425AbZHKMTc (ORCPT
+Received: from buzzloop.caiaq.de ([212.112.241.133]:49457 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751846AbZHKPxC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Aug 2009 08:19:32 -0400
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [212.27.42.1])
-	by smtpfb1-g21.free.fr (Postfix) with ESMTP id 26A122CFE7
-	for <linux-input@vger.kernel.org>; Tue, 11 Aug 2009 08:21:22 +0200 (CEST)
-In-Reply-To: <20090810205758.C7D3B526EC9@mailhub.coreip.homeip.net>
+	Tue, 11 Aug 2009 11:53:02 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Daniel Mack <daniel@caiaq.de>
 
-Hi Dmitry,
+This adds a struct eeti_ts_platform_data which currently holds only one
+value to specify the interrupt polarity.
 
-On Mon, 10 Aug 2009 13:27:26 -0700, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Actually I think we need to return "len" here to let userspace know how
-> much data we produced. Also, could you please give the same treatment to
-> JSIOCGAXMAP and JSIOCSAXMAP and I will apply it.
+The driver has a fallback if no platform data is passed in via the
+i2c_board_info, so no regression is caused.
 
-Here goes! I'm not too familiar with kernel memory handling, I'll send the
-fixes for the FIXMEs later on as a separate patch once I've figured things
-out; I'm thinking along these lines:
-* vmalloc() a buffer
-* return -ENOMEM if no memory is available
-* copy_from_user the data into the temporary buffer
-* validate the data
-* on error vfree() the buffer and return -EINVAL
-* copy the data from the temporary buffer to the destination array
-* vfree() the buffer
+Signed-off-by: Daniel Mack <daniel@caiaq.de>
+---
+ drivers/input/touchscreen/eeti_ts.c |   22 +++++++++++++++++++---
+ include/linux/input/eeti_ts.h       |    9 +++++++++
+ 2 files changed, 28 insertions(+), 3 deletions(-)
+ create mode 100644 include/linux/input/eeti_ts.h
 
-Would that be OK?
-
-Regards,
-
-Stephen
-
-
- Input: joydev - decouple axis and button map ioctls from input constants
-
- The KEY_MAX change in 2.6.28 changed the values of the JSIOCSBTNMAP and
- JSIOCGBTNMAP constants; software compiled with the old values no longer
- works with kernels following 2.6.28, because the ioctl switch statement
- no longer matches the values given by the software. This patch handles
- these ioctls independently of the length of data specified, and applies the
- same treatment to JSIOCSAXMAP and JSIOCGAXMAP which currently depend on
- ABS_MAX.
-
- Signed-off-by: Stephen Kitt <steve@sk2.org>
-
- ---
-
- drivers/input/joydev.c |   70 ++++++++++++++++++++++++++++++-------------------
- 1 file changed, 43 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 4cfd084..c4a5e7b 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -456,8 +456,11 @@ static int joydev_ioctl_common(struct joydev *joydev,
- 				unsigned int cmd, void __user *argp)
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 3ab9222..9029bd3 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -32,6 +32,7 @@
+ #include <linux/i2c.h>
+ #include <linux/timer.h>
+ #include <linux/gpio.h>
++#include <linux/input/eeti_ts.h>
+ 
+ static int flip_x;
+ module_param(flip_x, bool, 0644);
+@@ -46,7 +47,7 @@ struct eeti_ts_priv {
+ 	struct input_dev *input;
+ 	struct work_struct work;
+ 	struct mutex mutex;
+-	int irq;
++	int irq, irq_active_high;
+ };
+ 
+ #define EETI_TS_BITDEPTH	(11)
+@@ -58,6 +59,11 @@ struct eeti_ts_priv {
+ #define REPORT_BIT_HAS_PRESSURE	(1 << 6)
+ #define REPORT_RES_BITS(v)	(((v) >> 1) + EETI_TS_BITDEPTH)
+ 
++static inline int eeti_ts_irq_active(struct eeti_ts_priv *priv)
++{
++	return gpio_get_value(irq_to_gpio(priv->irq)) == priv->irq_active_high;
++}
++
+ static void eeti_ts_read(struct work_struct *work)
  {
- 	struct input_dev *dev = joydev->handle.dev;
-+	size_t len;
- 	int i, j;
-+	const char *name;
+ 	char buf[6];
+@@ -67,7 +73,7 @@ static void eeti_ts_read(struct work_struct *work)
  
-+	/* Process fixed-sized commands. */
- 	switch (cmd) {
+ 	mutex_lock(&priv->mutex);
  
- 	case JS_SET_CAL:
-@@ -499,9 +502,20 @@ static int joydev_ioctl_common(struct joydev *joydev,
- 		return copy_to_user(argp, joydev->corr,
- 			sizeof(joydev->corr[0]) * joydev->nabs) ? -EFAULT : 0;
+-	while (!gpio_get_value(irq_to_gpio(priv->irq)) && --to)
++	while (eeti_ts_irq_active(priv) && --to)
+ 		i2c_master_recv(priv->client, buf, sizeof(buf));
  
--	case JSIOCSAXMAP:
--		if (copy_from_user(joydev->abspam, argp,
--				   sizeof(__u8) * (ABS_MAX + 1)))
-+	}
+ 	if (!to) {
+@@ -140,8 +146,10 @@ static void eeti_ts_close(struct input_dev *dev)
+ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 				   const struct i2c_device_id *idp)
+ {
++	struct eeti_ts_platform_data *pdata;
+ 	struct eeti_ts_priv *priv;
+ 	struct input_dev *input;
++	unsigned int irq_flags;
+ 	int err = -ENOMEM;
+ 
+ 	/* In contrast to what's described in the datasheet, there seems
+@@ -180,6 +188,14 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 	priv->input = input;
+ 	priv->irq = client->irq;
+ 
++	pdata = client->dev.platform_data;
 +
-+	/* Process variable-sized commands (the axis and button map commands
-+	   are considered variable-sized to decouple them from the values of
-+	   ABS_MAX and KEY_MAX). */
-+	switch (cmd & ~IOCSIZE_MASK) {
++	if (pdata)
++		priv->irq_active_high = pdata->irq_active_high;
 +
-+	case (JSIOCSAXMAP & ~IOCSIZE_MASK):
-+		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->abspam));
-+		/*
-+		 * FIXME: we should not copy into our axis map before
-+		 * validating the data.
-+		 */
-+		if (copy_from_user(joydev->abspam, argp, len))
- 			return -EFAULT;
- 
- 		for (i = 0; i < joydev->nabs; i++) {
-@@ -511,13 +525,17 @@ static int joydev_ioctl_common(struct joydev *joydev,
- 		}
- 		return 0;
- 
--	case JSIOCGAXMAP:
--		return copy_to_user(argp, joydev->abspam,
--			sizeof(__u8) * (ABS_MAX + 1)) ? -EFAULT : 0;
--
--	case JSIOCSBTNMAP:
--		if (copy_from_user(joydev->keypam, argp,
--				   sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)))
-+	case (JSIOCGAXMAP & ~IOCSIZE_MASK):
-+		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->abspam));
-+		return copy_to_user(argp, joydev->abspam, len) ? -EFAULT : len;
++	irq_flags = priv->irq_active_high ?
++		IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
 +
-+	case (JSIOCSBTNMAP & ~IOCSIZE_MASK):
-+		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
-+		/*
-+		 * FIXME: we should not copy into our keymap before
-+		 * validating the data.
-+		 */
-+		if (copy_from_user(joydev->keypam, argp, len))
- 			return -EFAULT;
+ 	INIT_WORK(&priv->work, eeti_ts_read);
+ 	i2c_set_clientdata(client, priv);
+ 	input_set_drvdata(input, priv);
+@@ -188,7 +204,7 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 	if (err)
+ 		goto err1;
  
- 		for (i = 0; i < joydev->nkey; i++) {
-@@ -529,25 +547,23 @@ static int joydev_ioctl_common(struct joydev *joydev,
- 
- 		return 0;
- 
--	case JSIOCGBTNMAP:
--		return copy_to_user(argp, joydev->keypam,
--			sizeof(__u16) * (KEY_MAX - BTN_MISC + 1)) ? -EFAULT : 0;
-+	case (JSIOCGBTNMAP & ~IOCSIZE_MASK):
-+		len = min_t(size_t, _IOC_SIZE(cmd), sizeof(joydev->keypam));
-+		return copy_to_user(argp, joydev->keypam, len) ? -EFAULT : len;
- 
--	default:
--		if ((cmd & ~IOCSIZE_MASK) == JSIOCGNAME(0)) {
--			int len;
--			const char *name = dev->name;
--
--			if (!name)
--				return 0;
--			len = strlen(name) + 1;
--			if (len > _IOC_SIZE(cmd))
--				len = _IOC_SIZE(cmd);
--			if (copy_to_user(argp, name, len))
--				return -EFAULT;
--			return len;
--		}
-+	case JSIOCGNAME(0):
-+		name = dev->name;
+-	err = request_irq(priv->irq, eeti_ts_isr, IRQF_TRIGGER_FALLING,
++	err = request_irq(priv->irq, eeti_ts_isr, irq_flags,
+ 			  client->name, priv);
+ 	if (err) {
+ 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+diff --git a/include/linux/input/eeti_ts.h b/include/linux/input/eeti_ts.h
+new file mode 100644
+index 0000000..f875b31
+--- /dev/null
++++ b/include/linux/input/eeti_ts.h
+@@ -0,0 +1,9 @@
++#ifndef LINUX_INPUT_EETI_TS_H
++#define LINUX_INPUT_EETI_TS_H
 +
-+		if (!name)
-+			return 0;
-+		len = strlen(name) + 1;
-+		if (len > _IOC_SIZE(cmd))
-+			len = _IOC_SIZE(cmd);
-+		if (copy_to_user(argp, name, len))
-+			return -EFAULT;
-+		return len;
- 	}
++struct eeti_ts_platform_data {
++	unsigned int irq_active_high;
++};
 +
- 	return -EINVAL;
- }
- 
++#endif /* LINUX_INPUT_EETI_TS_H */
++
+-- 
+1.6.3.3
+

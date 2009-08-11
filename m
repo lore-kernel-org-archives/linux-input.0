@@ -1,13 +1,14 @@
 From: Sascha Hauer <s.hauer@pengutronix.de>
 Subject: [PATCH 2/5] [input] add mc13783 touchscreen driver
-Date: Tue, 11 Aug 2009 10:59:23 +0200
-Message-ID: <1249981166-4210-2-git-send-email-s.hauer@pengutronix.de>
-References: <1249981166-4210-1-git-send-email-s.hauer@pengutronix.de>
+Date: Tue, 11 Aug 2009 11:07:44 +0200
+Message-ID: <1249981667-4366-3-git-send-email-s.hauer@pengutronix.de>
+References: <1249981667-4366-1-git-send-email-s.hauer@pengutronix.de>
+	<1249981667-4366-2-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <1249981166-4210-1-git-send-email-s.hauer@pengutronix.de>
+In-Reply-To: <1249981667-4366-2-git-send-email-s.hauer@pengutronix.de>
 List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
 List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>

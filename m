@@ -1,281 +1,163 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH] Add EV_IR bit
-Date: Thu, 13 Aug 2009 22:21:21 +0200
-Message-ID: <20090813202121.GA15773@hardeman.nu>
-References: <20090812223327.GA6827@hardeman.nu>
- <20090813072023.7BCC9526EC9@mailhub.coreip.homeip.net>
- <b8f9be4c2061560d4abe638f0ce91949.squirrel@www.hardeman.nu>
- <20090813162830.674A4526EC9@mailhub.coreip.homeip.net>
+From: Lamarque Vieira Souza <lamarque@gmail.com>
+Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
+Date: Thu, 13 Aug 2009 20:05:30 -0300
+Message-ID: <200908132005.30830.lamarque@gmail.com>
+References: <200908062247.29254.lamarque@gmail.com> <200908072223.21450.lamarque@gmail.com> <alpine.LNX.2.00.0908131343290.25797@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_6wJhKjKSiXO0bZG"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:60906 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755758AbZHMUVY (ORCPT
+Received: from mail-qy0-f196.google.com ([209.85.221.196]:58072 "EHLO
+	mail-qy0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753226AbZHMXFo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Aug 2009 16:21:24 -0400
-Content-Disposition: inline
-In-Reply-To: <20090813162830.674A4526EC9@mailhub.coreip.homeip.net>
+	Thu, 13 Aug 2009 19:05:44 -0400
+Received: by qyk34 with SMTP id 34so894779qyk.33
+        for <linux-input@vger.kernel.org>; Thu, 13 Aug 2009 16:05:44 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.0908131343290.25797@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
 
-On Thu, Aug 13, 2009 at 08:57:45AM -0700, Dmitry Torokhov wrote:
->On Thu, Aug 13, 2009 at 10:32:16AM +0200, David H=E4rdeman wrote:
->> On Thu, August 13, 2009 08:49, Dmitry Torokhov wrote:
->>> Do you expect devices to actually _send_ EV_IR events?
->>
->> Yes, and I have some patches going in that direction (loosely based =
-on Jon
->> Smirl's in-kernel IR driver patchset).
-=2E..
->
->Would you mind posting the complete patchset?
+--Boundary-00=_6wJhKjKSiXO0bZG
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Here's an example of what I've been considering, it should hopefully=20
-convey the general idea. (Not actually a tested patch yet).
+> Hi,
 
+	Hi,
 
-Index: linux-2.6/drivers/input/input.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.orig/drivers/input/input.c	2009-08-13 18:18:28.000000000 =
-+0200
-+++ linux-2.6/drivers/input/input.c	2009-08-13 21:43:29.000000000 +0200
-@@ -274,6 +274,10 @@
-  	case EV_PWR:
-  		disposition =3D INPUT_PASS_TO_ALL;
-  		break;
-+
-+	case EV_IR:
-+		disposition =3D INPUT_PASS_TO_ALL;
-+		break;
-  	}
- =20
-  	if (disposition !=3D INPUT_IGNORE_EVENT && type !=3D EV_SYN)
-@@ -1375,6 +1379,10 @@
-  		/* do nothing */
-  		break;
- =20
-+	case EV_IR:
-+		/* do nothing */
-+		break;
-+
-  	default:
-  		printk(KERN_ERR
-  			"input_set_capability: unknown type %u (code %u)\n",
-Index: linux-2.6/include/linux/input.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.orig/include/linux/input.h	2009-08-13 18:18:28.000000000 =
-+0200
-+++ linux-2.6/include/linux/input.h	2009-08-13 21:48:49.000000000 +0200
-@@ -98,6 +98,7 @@
-  #define EV_FF			0x15
-  #define EV_PWR			0x16
-  #define EV_FF_STATUS		0x17
-+#define EV_IR			0x18
-  #define EV_MAX			0x1f
-  #define EV_CNT			(EV_MAX+1)
- =20
-@@ -985,6 +986,32 @@
-  #define FF_MAX		0x7f
-  #define FF_CNT		(FF_MAX+1)
- =20
-+/*
-+ * IR events
-+ */
-+#define IR_RAW		0x00
-+#define IR_PROTOCOL	0x01
-+#define IR_TOGGLE	0x02
-+#define IR_COMMAND	0x03
-+#define IR_DEVICE	0x04
-+#define IR_SUBDEVICE	0x05
-+#define IR_CUSTOMER	0x06
-+
-+/*
-+ * IR Protocol values
-+ */
-+#define IR_PROTOCOL_RC5		0x00
-+#define IR_PROTOCOL_RC5X	0x01
-+#define IR_PROTOCOL_RC6_0	0x02
-+#define IR_PROTOCOL_RC6_6A	0x03
-+#define IR_PROTOCOL_SONY_12	0x04
-+#define IR_PROTOCOL_SONY_15	0x05
-+#define IR_PROTOCOL_SONY_20	0x06
-+#define IR_PROTOCOL_NEC		0x07 /* NEC1, NEC2, NEC1X, NEC2X */
-+#define IR_PROTOCOL_NEC_REP	0x08
-+
-+/* The value of TOGGLE, COMMAND, etc, is protocol-specific */
-+
-  #ifdef __KERNEL__
- =20
-  /*
-@@ -1323,6 +1350,11 @@
-  	input_event(dev, EV_FF_STATUS, code, value);
-  }
- =20
-+static inline void input_report_ir(struct input_dev *dev, unsigned int=
- code, int value)
-+{
-+	input_event(dev, EV_IR, code, value);
-+}
-+
-  static inline void input_report_switch(struct input_dev *dev, unsigne=
-d int code, int value)
-  {
-  	input_event(dev, EV_SW, code, !!value);
-Index: linux-2.6/include/linux/input-ir.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6/include/linux/input-ir.h	2009-08-13 22:06:17.000000000 +0=
-200
-@@ -0,0 +1,104 @@
-+#ifndef _INPUT_IR_H
-+#define _INPUT_IR_H
-+
-+#include <linux/input.h>
-+
-+static inline void input_report_ir_raw(struct input_dev *dev, int valu=
-e)
-+{
-+	input_report_ir(dev, IR_RAW, value);
-+}
-+
-+static inline void input_report_ir_rc5(struct input_dev *dev,
-+				       unsigned int device,
-+				       unsigned int command,
-+				       unsigned int toggle)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_RC5);
-+	input_report_ir(dev, IR_DEVICE, device & 0x1F);
-+	input_report_ir(dev, IR_COMMAND, command & 0x7F);
-+	input_report_ir(dev, IR_TOGGLE, !!toggle);
-+}
-+
-+static inline void input_report_ir_rc5x(struct input_dev *dev,
-+					unsigned int device,
-+					unsigned int subdevice,
-+					unsigned int command,
-+					unsigned int toggle)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_RC5X);
-+	input_report_ir(dev, IR_DEVICE, device & 0x1F);
-+	input_report_ir(dev, IR_SUBDEVICE, device & 0x7F);
-+	input_report_ir(dev, IR_COMMAND, command & 0x3F);
-+	input_report_ir(dev, IR_TOGGLE, !!toggle);
-+}
-+
-+static inline void input_report_ir_rc6_0(struct input_dev *dev,
-+					 unsigned int device,
-+					 unsigned int command,
-+					 unsigned int toggle)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_RC6_0);
-+	input_report_ir(dev, IR_DEVICE, device & 0xFF);
-+	input_report_ir(dev, IR_COMMAND, command & 0xFF);
-+	input_report_ir(dev, IR_TOGGLE, !!toggle);
-+}
-+
-+static inline void input_report_ir_rc6_6a(struct input_dev *dev,
-+					  unsigned int customer,
-+					  unsigned int device,
-+					  unsigned int command,
-+					  unsigned int toggle)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_RC6_0);
-+	input_report_ir(dev, IR_CUSTOMER, customer & 0xFFFF);
-+	input_report_ir(dev, IR_DEVICE, device & 0x7F);
-+	input_report_ir(dev, IR_COMMAND, command & 0xFF);
-+	input_report_ir(dev, IR_TOGGLE, !!toggle);
-+}
-+
-+static inline void input_report_ir_sony_12(struct input_dev *dev,
-+					   unsigned int device,
-+					   unsigned int command)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_SONY_12);
-+	input_report_ir(dev, IR_DEVICE, device & 0x1F);
-+	input_report_ir(dev, IR_COMMAND, command & 0x7F);
-+}
-+
-+static inline void input_report_ir_sony_15(struct input_dev *dev,
-+					   unsigned int device,
-+					   unsigned int command)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_SONY_15);
-+	input_report_ir(dev, IR_DEVICE, device & 0xFF);
-+	input_report_ir(dev, IR_COMMAND, command & 0x7F);
-+}
-+
-+static inline void input_report_ir_sony_20(struct input_dev *dev,
-+					   unsigned int device,
-+					   unsigned int subdevice,
-+					   unsigned int command)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_SONY_20);
-+	input_report_ir(dev, IR_DEVICE, device & 0x1F);
-+	input_report_ir(dev, IR_SUBDEVICE, subdevice & 0xFF);
-+	input_report_ir(dev, IR_COMMAND, command & 0x7F);
-+}
-+
-+static inline void input_report_ir_nec(struct input_dev *dev,
-+					   unsigned int device,
-+					   unsigned int subdevice,
-+					   unsigned int command)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_NEC);
-+	input_report_ir(dev, IR_DEVICE, device & 0xFF);
-+	input_report_ir(dev, IR_SUBDEVICE, subdevice & 0xFF);
-+	input_report_ir(dev, IR_COMMAND, command & 0xFF);
-+}
-+
-+static inline void input_report_ir_nec_rep(struct input_dev *dev)
-+{
-+	input_report_ir(dev, IR_PROTOCOL, IR_PROTOCOL_NEC_REP);
-+}
-+
-+#endif /* _INPUT_IR_H */
-Index: linux-2.6/drivers/media/dvb/ttpci/budget-ci.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.orig/drivers/media/dvb/ttpci/budget-ci.c	2009-08-13 22:11=
-:11.000000000 +0200
-+++ linux-2.6/drivers/media/dvb/ttpci/budget-ci.c	2009-08-13 22:15:52.0=
-00000000 +0200
-@@ -34,6 +34,7 @@
-  #include <linux/slab.h>
-  #include <linux/interrupt.h>
-  #include <linux/input.h>
-+#include <linux/input-ir.h>
-  #include <linux/spinlock.h>
-  #include <media/ir-common.h>
- =20
-@@ -173,6 +174,12 @@
-  	    budget_ci->ir.rc5_device !=3D (command & 0x1f))
-  		return;
- =20
-+	/* Report the raw RC5 event to userspace */
-+	input_report_ir_rc5(budget_ci->dev,
-+			    command & 0x1f,
-+			    budget_ci->ir.ir_key,
-+			    command & 0x20 ? 1 : 0);
-+
-  	/* Is this a repeated key sequence? (same device, command, toggle) *=
-/
-  	raw =3D budget_ci->ir.ir_key | (command << 8);
-  	if (budget_ci->ir.last_raw !=3D raw || !timer_pending(&budget_ci->ir=
-=2Etimer_keyup)) {
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> what kernel is this? The log seems to be very incomplete. What I am
+> missing the most is
+
+	I use kernel 2.6.30.4.	hid is built-in here, the dmesg output was created 
+using 'echo 1 > /sys/module/hid/parameters/debug', sorry. This new dmesg 
+output was created using 'echo 2> /sys/module/hid/parameters/debug' and 64k 
+buffer.
+
+-- 
+Lamarque V. Souza
+http://www.geographicguide.com/brazil.htm
+Linux User #57137 - http://counter.li.org/
+
+--Boundary-00=_6wJhKjKSiXO0bZG
+Content-Type: application/x-gzip;
+  name="dmesg_bluetooth_mouse2.txt.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="dmesg_bluetooth_mouse2.txt.gz"
+
+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
+Dw79Pr2O8wAA
+
+--Boundary-00=_6wJhKjKSiXO0bZG--

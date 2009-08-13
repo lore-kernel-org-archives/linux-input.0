@@ -1,50 +1,60 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
-Date: Thu, 13 Aug 2009 13:47:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908131343290.25797@wotan.suse.de>
-References: <200908062247.29254.lamarque@gmail.com> <alpine.LNX.2.00.0908080237090.25797@wotan.suse.de> <200908072223.21450.lamarque@gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 2/5] [input] add mc13783 touchscreen driver
+Date: Thu, 13 Aug 2009 14:26:48 +0200
+Message-ID: <20090813122648.GH17992@pengutronix.de>
+References: <1250089531-10399-1-git-send-email-s.hauer@pengutronix.de> <1250089531-10399-2-git-send-email-s.hauer@pengutronix.de> <1250089531-10399-3-git-send-email-s.hauer@pengutronix.de> <20090812163521.75631526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36845 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753758AbZHMLrI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Aug 2009 07:47:08 -0400
-In-Reply-To: <200908072223.21450.lamarque@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754486AbZHMMui@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20090812163521.75631526EC9@mailhub.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lamarque Vieira Souza <lamarque@gmail.com>
-Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
 
-On Fri, 7 Aug 2009, Lamarque Vieira Souza wrote:
+On Wed, Aug 12, 2009 at 09:04:38AM -0700, Dmitry Torokhov wrote:
+> On Wed, Aug 12, 2009 at 05:05:28PM +0200, Sascha Hauer wrote:
+> > This driver provides support for the touchscreen interface
+> > integrated into the Freescale MC13783.
+> > 
+> > changes since v1:
+> > 
+> > - remove unused functions
+> > - use queue_delayed_work instead of queue_work
+> > - report pen events as BTN_TOUCH instead of ABS_PRESSURE
+> > - handle interrupt registration in open/close functions
+> > - do not call input_free_device() on already registered
+> >   input_device
+> > - use platform_driver_probe instead of platform_driver_register
+> 
+> BTW, if you are using platform_driver_probe() then __init is OK for
+> .probe() because all probes will only be run once, when driver loads.
+> IIRC the ability to discard probe() code was the main reason for
+> introducing platform_driver_probe().
 
-> >
-> > - compile the kernel with CONFIG_HID_DEBUG option set
-> > - modprobe the 'hid' module with 'debug=2' option
-> >
-> > and provide the dmesg output that appears when the device is
-> > connected (so that we have contents of the HID report descriptor and
-> > kernel interpretation of it) and also after the data packet containing the
-> > mentioned sequence has been received?
-> 	Here is the dmesg output. The mouse constantly emmits those 9-bytes frames 
-> even if I do not touch it, which probably is why it also affects my notebook's 
-> touchpad.
+But __devinit should be ok also, right?
 
-Hi, 
+> 
+> > +
+> > +	/* unmask the ts wakeup interrupt */
+> > +	mc13783_set_bits(priv->mc13783, MC13783_REG_INTERRUPT_MASK_0,
+> > +			MC13783_INT_MASK_TSM, 0);
+> > +
+> > +	mc13783_adc_set_ts_status(priv->mc13783, 1);
+> > +
+> 
+> I actually expected these bits to go into ->open(); not the request IRQ
+> stuff...
 
-what kernel is this? The log seems to be very incomplete. What I am 
-missing the most is
+Yes I know, I just found it convenient to request the interrupts there
+so that we do not risk getting interrupts nobody is interested in this
+moment.
 
-- report descriptor dump and interpretation (we can see that the report 
-  descriptor has been successfully parsed at 408673.371808, but we don't 
-  see the descriptor dump before -- maybe it scrolled away already?)
-- The interpretation of input data is missing (no "hid-input" line as 
-  result of hid_dump_input() being called through 
-  hid_input_field()->hid_process_event()). Are you sure you have modprobe 
-  the hid module with 'debug=2' parameter?
-
-Thanks,
+Sascha
 
 -- 
-Jiri Kosina
-SUSE Labs
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

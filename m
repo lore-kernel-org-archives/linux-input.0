@@ -1,63 +1,111 @@
-From: Lamarque Vieira Souza <lamarque@gmail.com>
-Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
-Date: Thu, 13 Aug 2009 22:30:30 -0300
-Message-ID: <200908132230.30833.lamarque@gmail.com>
-References: <200908062247.29254.lamarque@gmail.com> <alpine.LNX.2.00.0908131343290.25797@wotan.suse.de> <200908132052.01012.lamarque@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [RFC] i8042 - bypass AUX IRQ delivery test on laptops
+Date: Thu, 13 Aug 2009 23:43:49 -0700
+Message-ID: <20090814071438.6C860526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_24LhKF5Z46liSBs"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f175.google.com ([209.85.210.175]:33661 "EHLO
-	mail-yx0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751098AbZHNBas (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.239]:62797 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752323AbZHNGnx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Aug 2009 21:30:48 -0400
-Received: by yxe5 with SMTP id 5so1520904yxe.33
-        for <linux-input@vger.kernel.org>; Thu, 13 Aug 2009 18:30:49 -0700 (PDT)
-In-Reply-To: <200908132052.01012.lamarque@gmail.com>
+	Fri, 14 Aug 2009 02:43:53 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
 
---Boundary-00=_24LhKF5Z46liSBs
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+It seems that many laptops do not fully implement AUX LOOP command
+in their keyboard controllers, causing issues with touchpad detection.
+Hovewer we know that almost every laptop/portable uses PS/2 pointing
+device and even if user disables it in favor of external mouse the
+system will not use IRQ 12 for anything else. Therefore we may bypass
+AUX IRQ delivery test when running on a laptop and assume that it is
+routed properly.
 
-	Actually there is an error in the patch I sent in my last e-mail, this one 
-works (just one line change patch :-)). It was more simpler fix than I have 
-thought.
+Just to be safe we require the box to have good PNP data in order to
+bypass the test.
 
-Em Quinta-feira 13 Agosto 2009, Lamarque Vieira Souza escreveu:
-> 	I think  I have found a good solution for my problem, see the attached
-> patch. I just need to find a better name for the define
-> USB_DEVICE_ID_KYE_58.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/serio/i8042-x86ia64io.h |   34 +++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.c           |    4 +++-
+ 2 files changed, 37 insertions(+), 1 deletions(-)
 
 
--- 
-Lamarque V. Souza
-http://www.geographicguide.com/brazil.htm
-Linux User #57137 - http://counter.li.org/
-
---Boundary-00=_24LhKF5Z46liSBs
-Content-Type: text/x-patch;
-  charset="UTF-8";
-  name="bluetooth-fix-for-acer-bluetooth-optical-rechargeable-mouse.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="bluetooth-fix-for-acer-bluetooth-optical-rechargeable-mouse.patch"
-
-diff -Nru --show-c-function a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
---- a/drivers/hid/hid-core.c	2009-08-13 20:45:11.000000000 -0300
-+++ b/drivers/hid/hid-core.c	2009-08-13 22:25:54.504677594 -0300
-@@ -1636,6 +1636,7 @@ static const struct hid_device_id hid_ig
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_1_PHIDGETSERVO_20) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_8_8_4_IF_KIT) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_KYE, 0x0058) },
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index ae04d8a..6747b9d 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -449,6 +449,34 @@ static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
+ 	},
  	{ }
  };
++
++static struct dmi_system_id __initdata i8042_dmi_laptop_table[] = {
++	{
++		.ident = "Portable",
++		.matches = {
++			DMI_MATCH(DMI_CHASSIS_TYPE, "8"), /* Portable */
++		},
++	},
++	{
++		.ident = "Laptop",
++		.matches = {
++			DMI_MATCH(DMI_CHASSIS_TYPE, "9"), /* Laptop */
++		},
++	},
++	{
++		.ident = "Notebook",
++		.matches = {
++			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
++		},
++	},
++	{
++		.ident = "Sub-Notebook",
++		.matches = {
++			DMI_MATCH(DMI_CHASSIS_TYPE, "14"), /* Sub-Notebook */
++		},
++	},
++
++};
+ #endif
  
-
---Boundary-00=_24LhKF5Z46liSBs--
+ /*
+@@ -727,6 +755,12 @@ static int __init i8042_pnp_init(void)
+ 	i8042_kbd_irq = i8042_pnp_kbd_irq;
+ 	i8042_aux_irq = i8042_pnp_aux_irq;
+ 
++#ifdef CONFIG_X86
++	i8042_bypass_aux_irq_test = !i8042_noaux &&
++				    !pnp_data_busted &&
++				    dmi_check_system(i8042_dmi_laptop_table);
++#endif
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 9f5c050..b53a015 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -83,6 +83,8 @@ module_param_named(debug, i8042_debug, bool, 0600);
+ MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
+ #endif
+ 
++static bool i8042_bypass_aux_irq_test;
++
+ #include "i8042.h"
+ 
+ static DEFINE_SPINLOCK(i8042_lock);
+@@ -641,7 +643,7 @@ static int __devinit i8042_check_aux(void)
+  * used it for a PCI card or somethig else.
+  */
+ 
+-	if (i8042_noloop || aux_loop_broken) {
++	if (i8042_noloop || i8042_bypass_aux_irq_test || aux_loop_broken) {
+ /*
+  * Without LOOP command we can't test AUX IRQ delivery. Assume the port
+  * is working and hope we are right.

@@ -1,69 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Input: iforce -- add support for ACT LABS forceRS
-Date: Mon, 17 Aug 2009 22:48:36 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0908172246340.25797@wotan.suse.de>
-References: <alpine.LNX.2.00.0908171717510.25797@wotan.suse.de> <6cefefac0908171250v6276d5te7e866b5bc5c60b2@mail.gmail.com>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: Synaptics touchscreen for HTC Dream: check that smbus is
+ available
+Date: Mon, 17 Aug 2009 16:47:59 -0700
+Message-ID: <20090817164759.43c39f2d.akpm@linux-foundation.org>
+References: <20090714100634.GA4054@elf.ucw.cz>
+	<5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
+	<20090715133627.GA2538@elf.ucw.cz>
+	<5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
+	<20090721102153.GE4133@elf.ucw.cz>
+	<5d5443650907210334k3f562cebsc665511a161c8639@mail.gmail.com>
+	<20090808134049.GA13083@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-205480899-1250542116=:25797"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:37769 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752086AbZHQUsg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Aug 2009 16:48:36 -0400
-In-Reply-To: <6cefefac0908171250v6276d5te7e866b5bc5c60b2@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090808134049.GA13083-I/5MKhXcvmPrBKCeMvbIDA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org, arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: cmd_ <cemede@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, johann.deneux@gmail.com
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 8 Aug 2009 15:40:50 +0200
+Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org> wrote:
 
---168427776-205480899-1250542116=:25797
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+> > >> Because this driver is using smbus i2c apis, it will be good to add
+> > >> that check too.
+> > >
+> > > So I should do something like
+> > >
+> > > if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
+> > > __ __ __ __...
+> > >
+> > > in addition?
+> > 
+> > Yes.
+> 
+> Ok, here it is.
+> 
+> --- 
+> 
+> Check that SMBUS APIs are available in touchscreen driver.
 
-On Mon, 17 Aug 2009, cmd_ wrote:
+Why?
 
-> Patch does not work as-is for me.
-[ ... ]
-> This was a mistype from my 1st e-mail, sorry.
-
-Thanks, corrected one below.
-
-
-
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] Input: iforce -- add support for ACT LABS forceRS
-
-Add support for ACT LABS forceRS.
-
-Reported-by: cmd_ <cemede@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index baabf83..f6c688c 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -74,6 +74,7 @@ static struct iforce_device iforce_device[] = {
- 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_avb_wheel, abs_wheel, ff_iforce },
- 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_avb_tw, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
-+	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0004, "Gullemot Jet Leader 3D",			btn_joystick, abs_joystick, ff_iforce }, //?
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index f83185a..9f289d8 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -223,6 +223,7 @@ static struct usb_device_id iforce_usb_ids [] = {
- 	{ USB_DEVICE(0x05ef, 0x8884) },		/* AVB Mag Turbo Force */
- 	{ USB_DEVICE(0x05ef, 0x8888) },		/* AVB Top Shot FFB Racing Wheel */
- 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
-+	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
- 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback */
- 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Wheel */
- 	{ USB_DEVICE(0x06f8, 0xa302) },		/* Guillemot Jet Leader 3D */
---168427776-205480899-1250542116=:25797--
+> Signed-off-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+> 
+> diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/staging/dream/synaptics_i2c_rmi.c
+> index dc1e3c7..6e23276 100644
+> --- a/drivers/staging/dream/synaptics_i2c_rmi.c
+> +++ b/drivers/staging/dream/synaptics_i2c_rmi.c
+> @@ -373,6 +373,12 @@ static int __devinit synaptics_ts_probe(
+>  		goto err_check_functionality_failed;
+>  	}
+>  
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA)) {
+> +		pr_err("synaptics_ts_probe: need I2C_FUNC_SMBUS_WORD_DATA\n");
+> +		ret = -ENODEV;
+> +		goto err_check_functionality_failed;
+> +	}
+> +
+>  	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
+>  	if (ts == NULL) {
+>  		ret = -ENOMEM;

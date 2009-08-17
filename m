@@ -1,43 +1,75 @@
-From: Eugeniy Meshcheryakov <eugen@debian.org>
-Subject: [PATCH] input: i8042 - add Acer Aspire 5536 to the noloop list
-Date: Mon, 17 Aug 2009 03:03:22 +0200
-Message-ID: <1250471002-20780-1-git-send-email-eugen@debian.org>
+From: Wan ZongShun <mcuos.com@gmail.com>
+Subject: [PATCH] input: Rename keypad and ts platform driver for w90p910
+Date: Mon, 17 Aug 2009 11:55:05 +0800
+Message-ID: <4A88D499.30302@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.tu-cottbus.de ([141.43.99.248]:34412 "EHLO
-	smtp2.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751714AbZHQBOS (ORCPT
+Received: from wf-out-1314.google.com ([209.85.200.169]:14369 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751714AbZHQDzL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Aug 2009 21:14:18 -0400
+	Sun, 16 Aug 2009 23:55:11 -0400
+Received: by wf-out-1314.google.com with SMTP id 26so724861wfd.4
+        for <linux-input@vger.kernel.org>; Sun, 16 Aug 2009 20:55:12 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eugeniy Meshcheryakov <eugen@debian.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org
 
-Without this patch it is not possible to reenable touchpad
-after disabling it using disable button.
+Dear Dmitry,
+
+Due to I modified the corresponding platform device name, 
+so I make the patch to rename keypad and ts platform driver
+for w90p910 platform.
+
+Thanks!
+
+Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
+
 ---
- drivers/input/serio/i8042-x86ia64io.h |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ drivers/input/keyboard/w90p910_keypad.c |    4 ++--
+ drivers/input/touchscreen/w90p910_ts.c  |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index ae04d8a..e6d0890 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -167,6 +167,14 @@ static struct dmi_system_id __initdata i8042_dmi_noloop_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Rev 1"),
- 		},
+diff --git a/drivers/input/keyboard/w90p910_keypad.c b/drivers/input/keyboard/w90p910_keypad.c
+index 24096cd..ada30ee 100644
+--- a/drivers/input/keyboard/w90p910_keypad.c
++++ b/drivers/input/keyboard/w90p910_keypad.c
+@@ -267,7 +267,7 @@ static struct platform_driver w90p910_keypad_driver = {
+ 	.probe		= w90p910_keypad_probe,
+ 	.remove		= __devexit_p(w90p910_keypad_remove),
+ 	.driver		= {
+-		.name	= "w90p910-keypad",
++		.name	= "nuc900-keypad",
+ 		.owner	= THIS_MODULE,
  	},
-+	{
-+		.ident = "Acer Aspire 5536",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5536"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "0100"),
-+		},
-+	},
- 	{ }
  };
- 
+@@ -288,4 +288,4 @@ module_exit(w90p910_keypad_exit);
+ MODULE_AUTHOR("Wan ZongShun <mcuos.com@gmail.com>");
+ MODULE_DESCRIPTION("w90p910 keypad driver!");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:w90p910-keypad");
++MODULE_ALIAS("platform:nuc900-keypad");
+diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
+index 6071f58..937dfe4 100644
+--- a/drivers/input/touchscreen/w90p910_ts.c
++++ b/drivers/input/touchscreen/w90p910_ts.c
+@@ -326,7 +326,7 @@ static struct platform_driver w90x900ts_driver = {
+ 	.probe		= w90x900ts_probe,
+ 	.remove		= __devexit_p(w90x900ts_remove),
+ 	.driver		= {
+-		.name	= "w90x900-ts",
++		.name	= "nuc900-ts",
+ 		.owner	= THIS_MODULE,
+ 	},
+ };
+@@ -347,4 +347,4 @@ module_exit(w90x900ts_exit);
+ MODULE_AUTHOR("Wan ZongShun <mcuos.com@gmail.com>");
+ MODULE_DESCRIPTION("w90p910 touch screen driver!");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:w90p910-ts");
++MODULE_ALIAS("platform:nuc900-ts");
 -- 
-1.6.3.3
-
+1.5.6.3

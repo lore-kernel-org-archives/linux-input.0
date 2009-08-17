@@ -1,58 +1,41 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: Re: [PATCH] input: Rename keypad and ts platform driver for w90p910
-Date: Mon, 17 Aug 2009 16:44:03 +0800
-Message-ID: <e68bb3470908170144w49cf2e44g56eba456424a9a4b@mail.gmail.com>
-References: <4A88D499.30302@gmail.com>
-	 <20090817084848.6720F526EA5@mailhub.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] Input: iforce -- add support for ACT LABS forceRS
+Date: Mon, 17 Aug 2009 17:20:42 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0908171717510.25797@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f196.google.com ([209.85.222.196]:58053 "EHLO
-	mail-pz0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757401AbZHQIoC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Aug 2009 04:44:02 -0400
-Received: by pzk34 with SMTP id 34so1839087pzk.4
-        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2009 01:44:03 -0700 (PDT)
-In-Reply-To: <20090817084848.6720F526EA5@mailhub.coreip.homeip.net>
+Received: from cantor2.suse.de ([195.135.220.15]:53983 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753952AbZHQPUm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Aug 2009 11:20:42 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, cmd_ <cemede@gmail.com>, johann.deneux@gmail.com
 
-Dear Dmitry,
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] Input: iforce -- add support for ACT LABS forceRS
 
-Sir, Due to only w90p910 was renamed, other CPUs of the series
-originally was named after NUC9xx,
-the ts and keypad was public use by w90p910 ,nuc950 and nuc920, so, if
-the 'w90p910-ts' and 'w90p910-keypad' could not be renamed ,I have to
-make the platform device names of nuc920 and nuc960 named after
-'w90p910-ts' and 'w90p910-keypad' too, Hmm, I think it is so confused.
-Also, it is my mistake not to map out well my w90x900 series platform
-before submitting it.
+Add support for ACT LABS forceRS.
 
-But, if you insist on, I think I can obey without question.
+Reported-by: cmd_ <cemede@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-Thanks!
+--- 
 
-2009/8/17 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Mon, Aug 17, 2009 at 11:55:05AM +0800, Wan ZongShun wrote:
->> Dear Dmitry,
->>
->> Due to I modified the corresponding platform device name,
->> so I make the patch to rename keypad and ts platform driver
->> for w90p910 platform.
->>
->
-> Do we really need to go through renaming the drivers just because the
-> company changed it's name?
->
-> --
-> Dmitry
->
+ drivers/input/joystick/iforce/iforce-main.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-
-
--- 
-Wan z.s
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index baabf83..da77f4e 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -74,6 +74,7 @@ static struct iforce_device iforce_device[] = {
+ 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_avb_wheel, abs_wheel, ff_iforce },
+ 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_avb_tw, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
++	{ 0x061c, 0xc084, "ACT LABS forceRS",				btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0004, "Gullemot Jet Leader 3D",			btn_joystick, abs_joystick, ff_iforce }, //?

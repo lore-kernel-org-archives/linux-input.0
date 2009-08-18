@@ -1,93 +1,117 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: Re: [PATCH] input: Rename keypad and ts platform driver for w90p910
-Date: Tue, 18 Aug 2009 14:13:40 +0800
-Message-ID: <e68bb3470908172313k5be5d102w33e46c19855ef6ea@mail.gmail.com>
-References: <4A88D499.30302@gmail.com>
-	 <20090817084848.6720F526EA5@mailhub.coreip.homeip.net>
-	 <e68bb3470908170144w49cf2e44g56eba456424a9a4b@mail.gmail.com>
-	 <20090818055620.73F65526EA5@mailhub.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC] i8042 - bypass AUX IRQ delivery test on laptops
+Date: Tue, 18 Aug 2009 15:16:29 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0908181516240.2744@twin.jikos.cz>
+References: <20090814071438.6C860526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.168]:15651 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751358AbZHRGNi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Aug 2009 02:13:38 -0400
-Received: by wf-out-1314.google.com with SMTP id 26so958468wfd.4
-        for <linux-input@vger.kernel.org>; Mon, 17 Aug 2009 23:13:40 -0700 (PDT)
-In-Reply-To: <20090818055620.73F65526EA5@mailhub.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:38930 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752131AbZHRNQb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Aug 2009 09:16:31 -0400
+In-Reply-To: <20090814071438.6C860526EC9@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org
+Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Dear sir,
+On Thu, 13 Aug 2009, Dmitry Torokhov wrote:
 
-2009/8/18 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Wan,
->
-> On Mon, Aug 17, 2009 at 04:44:03PM +0800, Wan ZongShun wrote:
->> Dear Dmitry,
->>
->> Sir, Due to only w90p910 was renamed, other CPUs of the series
->> originally was named after NUC9xx,
->> the ts and keypad was public use by w90p910 ,nuc950 and nuc920,
->
-> OK, I see.
->
-> =C2=A0so, if
->> the 'w90p910-ts' and 'w90p910-keypad' could not be renamed ,I have t=
-o
->> make the platform device names of nuc920 and nuc960 named after
->> 'w90p910-ts' and 'w90p910-keypad' too, Hmm, I think it is so confuse=
-d.
->
-> May I suggest calling the driver/devices nuc9xx-ts and nuc9xx-ts?
+> It seems that many laptops do not fully implement AUX LOOP command
+> in their keyboard controllers, causing issues with touchpad detection.
+> Hovewer we know that almost every laptop/portable uses PS/2 pointing
+> device and even if user disables it in favor of external mouse the
+> system will not use IRQ 12 for anything else. Therefore we may bypass
+> AUX IRQ delivery test when running on a laptop and assume that it is
+> routed properly.
+> 
+> Just to be safe we require the box to have good PNP data in order to
+> bypass the test.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/serio/i8042-x86ia64io.h |   34 +++++++++++++++++++++++++++++++++
+>  drivers/input/serio/i8042.c           |    4 +++-
+>  2 files changed, 37 insertions(+), 1 deletions(-)
+> 
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index ae04d8a..6747b9d 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -449,6 +449,34 @@ static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
+>  	},
+>  	{ }
+>  };
+> +
+> +static struct dmi_system_id __initdata i8042_dmi_laptop_table[] = {
+> +	{
+> +		.ident = "Portable",
+> +		.matches = {
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "8"), /* Portable */
+> +		},
+> +	},
+> +	{
+> +		.ident = "Laptop",
+> +		.matches = {
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "9"), /* Laptop */
+> +		},
+> +	},
+> +	{
+> +		.ident = "Notebook",
+> +		.matches = {
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
+> +		},
+> +	},
+> +	{
+> +		.ident = "Sub-Notebook",
+> +		.matches = {
+> +			DMI_MATCH(DMI_CHASSIS_TYPE, "14"), /* Sub-Notebook */
+> +		},
+> +	},
+> +
+> +};
+>  #endif
+>  
+>  /*
+> @@ -727,6 +755,12 @@ static int __init i8042_pnp_init(void)
+>  	i8042_kbd_irq = i8042_pnp_kbd_irq;
+>  	i8042_aux_irq = i8042_pnp_aux_irq;
+>  
+> +#ifdef CONFIG_X86
+> +	i8042_bypass_aux_irq_test = !i8042_noaux &&
+> +				    !pnp_data_busted &&
+> +				    dmi_check_system(i8042_dmi_laptop_table);
+> +#endif
+> +
+>  	return 0;
+>  }
+>  
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index 9f5c050..b53a015 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -83,6 +83,8 @@ module_param_named(debug, i8042_debug, bool, 0600);
+>  MODULE_PARM_DESC(debug, "Turn i8042 debugging mode on and off");
+>  #endif
+>  
+> +static bool i8042_bypass_aux_irq_test;
+> +
+>  #include "i8042.h"
+>  
+>  static DEFINE_SPINLOCK(i8042_lock);
+> @@ -641,7 +643,7 @@ static int __devinit i8042_check_aux(void)
+>   * used it for a PCI card or somethig else.
+>   */
+>  
+> -	if (i8042_noloop || aux_loop_broken) {
+> +	if (i8042_noloop || i8042_bypass_aux_irq_test || aux_loop_broken) {
 
-Sir, I prefer these nuc9xx more than nuc900 too for representing the
-series SoCs,
-but, it just be my embarrassing, I have argued this Naming issue with N=
-uvoton,
-and they did not agree me and prefer to use nuc900.
+I guess some entries could then be nuked from i8042_dmi_noloop_table[]?
 
-I know well it should not have company politics in Linux community,
-but I have to
-consider their point of view sometimes.
+-- 
+Jiri Kosina
+SUSE Labs
 
->Then you should have some wiggle room. Also I think you should push ou=
-t the
-> patches changing driver names together with your platform code (and n=
-ot
-> through subsystem trees), otheriwse there will be a period when drive=
-rs
-> stop binding to your devices. Just make sure you get Acks from the
-> maintainers and you should be set.
-
-Sir, good idea, Can the patch be merged into my platform patch and
-submit Russell's list?
-I had hoped that this patches and platform patches could appear at the
-same time in 2.6.32-rc1,
-so ,regarding miss binding ,there 's no likelihood of it happening.
- It should be so=EF=BC=9F
-
-> And please adjust the Kconfig entries to mention the other chipsets a=
-s
-> well.
-
-Ok. thanks!
-
-> --
-> Dmitry
->
-
-
-
---=20
-Wan z.s
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

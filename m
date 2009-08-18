@@ -1,82 +1,116 @@
-From: Eugeniy Meshcheryakov <eugen@debian.org>
-Subject: Re: [PATCH] input: i8042 - add Acer Aspire 5536 to the noloop list
-Date: Tue, 18 Aug 2009 18:53:26 +0200
-Message-ID: <20090818165326.GA3844@localhost.localdomain>
-References: <1250471002-20780-1-git-send-email-eugen@debian.org>
- <20090818055542.CB3F6526EA5@mailhub.coreip.homeip.net>
+From: Yves-Alexis Perez <corsac@debian.org>
+Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
+ in driver
+Date: Tue, 18 Aug 2009 22:02:10 +0200
+Message-ID: <1250625730.2257.11.camel@hidalgo>
+References: <1235992429.3858.58.camel@hughsie-work.lan>
+	 <20090302112400.GA2356@khazad-dum.debian.net>
+	 <1236164049.3936.17.camel@hughsie-work.lan>
+	 <20090304120439.GA31850@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp2.tu-cottbus.de ([141.43.99.248]:40970 "EHLO
-	smtp2.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759438AbZHRQxe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Aug 2009 12:53:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20090818055542.CB3F6526EA5@mailhub.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-q/e1y43b7Ujj7GgUU+Qf"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20090304120439.GA31850@khazad-dum.debian.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Richard Hughes <hughsient@gmail.com>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+--=-q/e1y43b7Ujj7GgUU+Qf
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On mer, 2009-03-04 at 09:04 -0300, Henrique de Moraes Holschuh wrote:
+> On Wed, 04 Mar 2009, Richard Hughes wrote:
+> > >From d3ce499f80ba7526e83e7b16f85124ccf77ac1f4 Mon Sep 17 00:00:00 2001
+> > From: Richard Hughes <richard@hughsie.com>
+> > Date: Wed, 4 Mar 2009 10:51:52 +0000
+> > Subject: thinkpad-acpi: use correct key names for sleep keys in driver
+> >=20
+> > Use the new key KEY_HIBERNATE and correct the use of KEY_SUSPEND.
+> >=20
+> > KEY_HIBERNATE is used when the decal on the key indicates sleep to disk=
+,
+> > KEY_SUSPEND is used when the decal indicates sleep to memory, and
+> > KEY_SLEEP is used when the sleep type is unknown or unspecified
+> >=20
+> > We've already converted Xorg, HAL, and most of userspace to use the sam=
+e names.
+> >=20
+> > With this patch, the sleep keys can be labeled consistently all the way
+> > through the stack. More patches to other device drivers are to follow.
+> >=20
+> > Signed-off-by: Richard Hughes <hughsient@gmail.com>
+>=20
+> Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-I tried your patch and it does not fix the problem. I still need to add
-i8042.noloop=3D1 to the kernel command line to be able to reenable the
-touchpad. Also at this laptop touchpad is detected correctly, it only
-stops working after disabling and reenabling (also once or twice it
-stopped working even without pressing the disable button, this can be
-related).
+It seems that this patch is still not in master?
 
-17 =D1=81=D0=B5=D1=80=D0=BF=D0=BD=D1=8F 2009 =D0=BE 22:24 -0700 Dmitry Toro=
-khov =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=B2(-=D0=BB=D0=B0):
-> On Mon, Aug 17, 2009 at 03:03:22AM +0200, Eugeniy Meshcheryakov wrote:
-> > Without this patch it is not possible to reenable touchpad
-> > after disabling it using disable button.
->=20
-> Applied, thank you Eugeniy.
->=20
-> However for 2.6.32 I am looking for more generic solution,
-> could you please try the patch below (without yours applied)?
->=20
-> Thanks!
->=20
-> --=20
-> Dmitry
->=20
-> Input: i8042 - bypass AUX IRQ delivery test on laptops
->=20
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->=20
-> It seems that many laptops do not fully implement AUX LOOP command
-> in their keyboard controllers, causing issues with touchpad detection.
-> Hovewer we know that almost every laptop/portable uses PS/2 pointing
-> device and even if user disables it in favor of external mouse the
-> system will not use IRQ 12 for anything else. Therefore we may bypass
-> AUX IRQ delivery test when running on a laptop and assume that it is
-> routed properly.
->=20
-> Just to be safe we require the box to have good PNP data in order to
-> bypass the test.
+Currently (on debian unstable), input-events reports on my T61:
 
---LZvS9be/3tNcYl/X
+KEY_SLEEP for Fn+F4
+KEY_SUSPEND for Fn+F12
+
+which kind-of breaks xfce4-power-manager, where SLEEP and SUSPEND both
+suspend to ram, so I don't have any way to hibernate. Changing xfpm
+doesn't seem like a good idea if the way to go is to use SUSPEND for
+STR, HIBERNATE for STD and SLEEP for either.
+
+So what's the status for this?
+
+>=20
+> > ---
+> >  drivers/platform/x86/thinkpad_acpi.c |    8 ++++----
+> >  1 files changed, 4 insertions(+), 4 deletions(-)
+> >=20
+> > diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x8=
+6/thinkpad_acpi.c
+> > index bcbc051..d89015d 100644
+> > --- a/drivers/platform/x86/thinkpad_acpi.c
+> > +++ b/drivers/platform/x86/thinkpad_acpi.c
+> > @@ -2241,9 +2241,9 @@ static int __init hotkey_init(struct ibm_init_str=
+uct *iibm)
+> >  	 */
+> >  	static u16 ibm_keycode_map[] __initdata =3D {
+> >  		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
+> > -		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SLEEP,
+> > +		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SUSPEND,
+> >  		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
+> > -		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
+> > +		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
+> > =20
+> >  		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
+> >  		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
+> > @@ -2277,9 +2277,9 @@ static int __init hotkey_init(struct ibm_init_str=
+uct *iibm)
+> >  	};
+> >  	static u16 lenovo_keycode_map[] __initdata =3D {
+> >  		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
+> > -		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SLEEP,
+> > +		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SUSPEND,
+> >  		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
+> > -		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
+> > +		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
+> > =20
+> >  		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
+> >  		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
+>=20
+>=20
+Cheers,
+--=20
+Yves-Alexis
+
+--=-q/e1y43b7Ujj7GgUU+Qf
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEARECAAYFAkqK3IYACgkQKaC6+zmozOIEKgCfRnZBHxSlVX5Ocp2nYd1ShHsb
-GtUAn26ntOEx6iAoWKqi5NodxXU/FZYv
-=VpOy
+iEYEABECAAYFAkqLCLwACgkQTUTAIMXAW65GWQCfbF0KRqNiNog+FA5CWtZION4/
+K7EAoJbgmOA+mDc5Aq7T26y+dBy/A1E6
+=O2pv
 -----END PGP SIGNATURE-----
 
---LZvS9be/3tNcYl/X--
+--=-q/e1y43b7Ujj7GgUU+Qf--

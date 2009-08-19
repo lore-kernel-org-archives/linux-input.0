@@ -1,65 +1,39 @@
-From: Ali Abdallah <aliov@xfce.org>
-Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
- in driver
-Date: Wed, 19 Aug 2009 11:18:30 +0200
-Message-ID: <4A8BC366.9070108@xfce.org>
-References: <1235992429.3858.58.camel@hughsie-work.lan>	 <20090302112400.GA2356@khazad-dum.debian.net>	 <1236164049.3936.17.camel@hughsie-work.lan>	 <20090304120439.GA31850@khazad-dum.debian.net>	 <1250625730.2257.11.camel@hidalgo>  <20090818201002.GA32638@srcf.ucam.org> <1250627230.2257.15.camel@hidalgo>
+From: Eugeniy Meshcheryakov <eugen@debian.org>
+Subject: Re: [PATCH] input: i8042 - add Acer Aspire 5536 to the noloop list
+Date: Wed, 19 Aug 2009 13:51:25 +0200
+Message-ID: <20090819115125.GA4282@localhost.localdomain>
+References: <1250471002-20780-1-git-send-email-eugen@debian.org>
+ <20090818055542.CB3F6526EA5@mailhub.coreip.homeip.net>
+ <20090818165326.GA3844@localhost.localdomain>
+ <alpine.LRH.2.00.0908191055590.2744@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1250627230.2257.15.camel@hidalgo>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Yves-Alexis Perez <corsac@debian.org>
-Cc: Matthew Garrett <mjg@redhat.com>, Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Richard Hughes <hughsient@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-acpi <linux-acpi@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp2.tu-cottbus.de ([141.43.99.248]:40301 "EHLO
+	smtp2.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751499AbZHSLva (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Aug 2009 07:51:30 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.00.0908191055590.2744@twin.jikos.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Yves-Alexis Perez wrote:
-> On mar, 2009-08-18 at 21:10 +0100, Matthew Garrett wrote:
->   
->>> It seems that this patch is still not in master?
->>>       
->> Correct. We can't change the existing semantics without breaking 
->> existing userspace applications.
->>     
->
-> Hmh ok, but is it planned?
->   
->>> Currently (on debian unstable), input-events reports on my T61:
->>>
->>> KEY_SLEEP for Fn+F4
->>> KEY_SUSPEND for Fn+F12
->>>
->>> which kind-of breaks xfce4-power-manager, where SLEEP and SUSPEND
->>>       
->> both
->>     
->>> suspend to ram, so I don't have any way to hibernate. Changing xfpm
->>> doesn't seem like a good idea if the way to go is to use SUSPEND for
->>> STR, HIBERNATE for STD and SLEEP for either.
->>>
->>> So what's the status for this?
->>>       
->> KEY_SLEEP is suspend to RAM, KEY_SUSPEND is suspend to disk. xfpm should 
->> be changed to match.
->>
->>     
-> Ok, I'm CC:ing the developer to let him know.
->
-> Cheers,
->
->   
+19 =D1=81=D0=B5=D1=80=D0=BF=D0=BD=D1=8F 2009 =D0=BE 10:56 +0200 Jiri Ko=
+sina =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=B2(-=D0=BB=D0=B0):
+> What chasis type do you see in the 'dmidecode' output on the affected=
+=20
+> system?
 
-Dunno if i should ask the question here, now gpm relies completely on X 
-to map these buttons, in X there is:
+Notebook
 
-HAVE_XF86XK_SLEEP  (Suspend).
-
-HAVE_XF86XK_HIBERNATE
-HAVE_XF86XK_SUSPEND
-
-As i understood These two buttons are suspend two disk, okay, so they 
-should have the same keycode right?, or can they be two different keys?
-
-Cheers And thanks,
-Ali.
+Regards,
+Eugeniy Meshcheryakov
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

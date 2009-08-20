@@ -1,50 +1,25 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.31-rc5
-Date: Wed, 19 Aug 2009 22:34:16 -0700
-Message-ID: <20090820060542.8B7A5526EA5@mailhub.coreip.homeip.net>
+From: <vpcan@bellnet.ca>
+Subject: Lucky Winner
+Date: Thu, 20 Aug 2009 16:09:15 -0400
+Message-ID: <20090820200922.NJUA23730.tomts52-srv.bellnexxia.net@toip52-bus.srvr.bell.ca>
+Reply-To: free.lotto2@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.233]:17972 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751300AbZHTFeV (ORCPT
+Received: from tomts52-srv.bellnexxia.net ([209.226.175.177]:55456 "EHLO
+	tomts52-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752436AbZHTUJW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Aug 2009 01:34:21 -0400
-Content-Disposition: inline
+	Thu, 20 Aug 2009 16:09:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: info@winners.co.uk
 
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. The joydev change fixes userspace
-ABI breakage caused by recent KEY_MAX change.
-
-Changelog:
----------
-
-Jiri Kosina (1):
-      Input: iforce - support new revision of ACT LABS Force RS
-
-Stephen Kitt (1):
-      Input: joydev - decouple axis and button map ioctls from input constants
-
-
-Diffstat:
---------
-
- drivers/input/joydev.c                      |   68 ++++++++++++++++-----------
- drivers/input/joystick/iforce/iforce-main.c |    1 +
- drivers/input/joystick/iforce/iforce-usb.c  |    1 +
- 3 files changed, 43 insertions(+), 27 deletions(-)
-
--- 
-Dmitry
+1,000,000 USD has been Awarded to you in our AWARDPROMO Please acknowledge the receipt in this mail with the details below to us 
+for more information  email
+free.lotto2@btinternet.com
+Name:
+Age:
+Country:
 

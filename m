@@ -1,46 +1,50 @@
-From: Bogdan Puscas <rftghost@gmail.com>
-Subject: Design problem around fixup driver for Saitek Cyborg Mouse
-Date: Wed, 19 Aug 2009 18:14:37 +0300
-Message-ID: <dc9421000908190814w5adafae9x8a13a3ca7a17c923@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.31-rc5
+Date: Wed, 19 Aug 2009 22:34:16 -0700
+Message-ID: <20090820060542.8B7A5526EA5@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f207.google.com ([209.85.219.207]:43973 "EHLO
-	mail-ew0-f207.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751871AbZHSPOi (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.233]:17972 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300AbZHTFeV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Aug 2009 11:14:38 -0400
-Received: by ewy3 with SMTP id 3so2180042ewy.18
-        for <linux-input@vger.kernel.org>; Wed, 19 Aug 2009 08:14:38 -0700 (PDT)
+	Thu, 20 Aug 2009 01:34:21 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
+Hi Linus,
 
-I'm working to create a fixup driver for the Saitek Cyborg Mouse
-(http://www.saitek.com/UK/prod/cyborgmouse.htm) device.
-So far I'm almost done with it, but I have a problem with the
-"trademark" feature of the Cyborg line... the 3 mode switch.
+Please pull from:
 
-I hardcoded the keys/buttons as follows:
-a. For all the modes, the buttons 1,2,3, the wheel axis and the X/Y
-axis are defaults
-b. The buttons 4,5,6 and the D-Pad (another 4 buttons) have this mapping:
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-static unsigned red_code[]= {BTN_0, BTN_1, BTN_2, BTN_3, BTN_4, BTN_5, BTN_6};
-static unsigned green_code[] = {BTN_BACK, BTN_FORWARD, BTN_SIDE,
-BTN_0, BTN_1, BTN_2, BTN_3};
-static unsigned yellow_code[] = {BTN_BACK, BTN_FORWARD, BTN_SIDE,
-KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_LEFT};
+to receive updates for the input subsystem. The joydev change fixes userspace
+ABI breakage caused by recent KEY_MAX change.
 
-My problem is how to expose these to the user. What is the
-common/linux/whatever standard way to do this? IOCTL? sysfs?
+Changelog:
+---------
 
-I'm also working to get the Cyborg Command Unit
-(http://www.saitek.com/UK/prod/cyborgcommand.htm) and the X52 Joystick
-(http://www.saitek.com/UK/prod/x52.htm) working with modal switch.
+Jiri Kosina (1):
+      Input: iforce - support new revision of ACT LABS Force RS
 
-Thanks,
-Bogdan.
+Stephen Kitt (1):
+      Input: joydev - decouple axis and button map ioctls from input constants
+
+
+Diffstat:
+--------
+
+ drivers/input/joydev.c                      |   68 ++++++++++++++++-----------
+ drivers/input/joystick/iforce/iforce-main.c |    1 +
+ drivers/input/joystick/iforce/iforce-usb.c  |    1 +
+ 3 files changed, 43 insertions(+), 27 deletions(-)
+
+-- 
+Dmitry
+

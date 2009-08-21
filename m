@@ -1,47 +1,49 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] [ARM] pxa/em-x270: add synaptics_i2c touchpad
-Date: Fri, 21 Aug 2009 16:16:14 +0200
-Message-ID: <20090821141614.GC1456@ucw.cz>
-References: <cover.1245156138.git.mike@compulab.co.il> <4A65207A.8070909@gmail.com> <20090729150859.GK1534@ucw.cz> <4A7071CD.9020303@compulab.co.il> <20090804131455.GG18974@elf.ucw.cz> <4A792913.8040006@compulab.co.il>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: Synaptics touchscreen for HTC Dream: check that smbus is
+	available
+Date: Fri, 21 Aug 2009 16:23:05 +0200
+Message-ID: <20090821142305.GA1599@ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721102153.GE4133@elf.ucw.cz> <5d5443650907210334k3f562cebsc665511a161c8639@mail.gmail.com> <20090808134049.GA13083@elf.ucw.cz> <20090817164759.43c39f2d.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755825AbZHVMAc@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4A792913.8040006@compulab.co.il>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Rapoport <mike@compulab.co.il>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-arm-kernel@lists.arm.linux.org.uk, kernel list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20090817164759.43c39f2d.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org, arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi!
-
-> >>>>> This patch set adds synaptics_i2c touchpad device registration for the exeda
-> >>>>> platform together with voltage reulator glue needed to enable the touchpad
-> >>>>> controller.
-> >>>>>
-> >>> Hmm, t-mobile g1 uses synaptics touchpad connected over i2c, too... Is
-> >>> there chance they are compatible or at least similar?
-> >> The touchpad controller I have uses the same RMI protocol that g1 does, but it
-> >> supports different register set. Besides, g1 has a *touchscreen* and exeda has
-> >> 1.5cm x 1.5cm  *touchpad*.
+On Mon 2009-08-17 16:47:59, Andrew Morton wrote:
+> On Sat, 8 Aug 2009 15:40:50 +0200
+> Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org> wrote:
+> 
+> > > >> Because this driver is using smbus i2c apis, it will be good to add
+> > > >> that check too.
+> > > >
+> > > > So I should do something like
+> > > >
+> > > > if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
+> > > > __ __ __ __...
+> > > >
+> > > > in addition?
+> > > 
+> > > Yes.
 > > 
-> > Can we get some code shared? It still looks similar enough.
+> > Ok, here it is.
+> > 
+> > --- 
+> > 
+> > Check that SMBUS APIs are available in touchscreen driver.
 > 
-> The controller detection and basic initialization (report rate, filtering, Z
-> Clip) seems to be the same. But afterwards things begin to diverge. For
-> instance, g1 reads and parses 15 bytes of data, whilst my touchpad has only 9
-> data registers.
-> It seems to me that it should be possible to share initialization and basic
-> register access, and have different work functions and input events reporting.
-> 
-> Probably if we had full implementation of Synaptics RMI protocol we could have
-> single driver for all RMI-compatible Synaptics devices. RMI states that device
-> can report what functionality it supports and based on that it should be
-> possible to provide appropriate event parsing and reporting.
+> Why?
 
-Thanks for info. It seems like merging them is project far ahead...
+Well, the touchscreen driver uses those APIs, and I was told I should
+check. It does not matter for htc dream-like machines, but someone
+might want  to run it on pc...
 
-       	   	    	       	       	       	       	   Pavel
+									Pavel
+
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

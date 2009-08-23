@@ -1,44 +1,60 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
-	in driver
-Date: Sat, 22 Aug 2009 15:02:04 -0300
-Message-ID: <20090822180204.GB4894@khazad-dum.debian.net>
-References: <1235992429.3858.58.camel@hughsie-work.lan> <20090302112400.GA2356@khazad-dum.debian.net> <1236164049.3936.17.camel@hughsie-work.lan> <20090304120439.GA31850@khazad-dum.debian.net> <1250625730.2257.11.camel@hidalgo> <20090818201002.GA32638@srcf.ucam.org> <1250627230.2257.15.camel@hidalgo> <20090818204508.GA886@srcf.ucam.org>
+From: Kyungmin Park <kmpark@infradead.org>
+Subject: Re: haptics devices linux driver support
+Date: Sun, 23 Aug 2009 13:45:40 +0900
+Message-ID: <9c9fda240908222145j1938baa3v3ecf8c5899ce3850@mail.gmail.com>
+References: <5d5443650908221004y5b893382m368dc18a38636c1b@mail.gmail.com>
+	 <4A902904.2090008@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090818204508.GA886@srcf.ucam.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: Yves-Alexis Perez <corsac@debian.org>, Ali Abdallah <aliov@xfce.org>, Richard Hughes <hughsient@gmail.com>, Peter Hutterer <peter.hutterer@redhat.com>, linux-acpi <linux-acpi@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f172.google.com ([209.85.212.172]:62478 "EHLO
+	mail-vw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751398AbZHWEpj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 Aug 2009 00:45:39 -0400
+In-Reply-To: <4A902904.2090008@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Trilok Soni <soni.trilok@gmail.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Tue, 18 Aug 2009, Matthew Garrett wrote:
-> On Tue, Aug 18, 2009 at 10:27:10PM +0200, Yves-Alexis Perez wrote:
-> > On mar, 2009-08-18 at 21:10 +0100, Matthew Garrett wrote:
-> > > 
-> > > > It seems that this patch is still not in master?
-> > > 
-> > > Correct. We can't change the existing semantics without breaking 
-> > > existing userspace applications.
-> > 
-> > Hmh ok, but is it planned?
-> 
-> No. We'd break userspace.
+Hi,
 
-Indeed.  I am not merging any changes to SUSPEND/HIBERNATE keymaps,
-until some interested party comes up with a PROPER migration plan and
-helps implementing it across the entire kernel and userspace.
+There's three types as I know,
 
-This obviously mean new keycodes for S3 and S4-specific sleep, that
-won't change the meaning of the old ones.  There is also the generic
-(whatever the system think its best) sleep.
+1) just GPIO enable motor
+2) GPIO & PWM motor.
+3) I2C based GPIO & PWM motor.
 
-X.org's braindead limit of 255 keycodes won't help any.
+=46rankly we made a motor framework at kernel. but I 'm not sure motor
+is right naming or not.
+I think we need new framework. since it's not input device.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Thank you,
+Kyungmin Park
+
+
+On Sun, Aug 23, 2009 at 2:21 AM, Jiri Slaby<jirislaby@gmail.com> wrote:
+> On 08/22/2009 07:04 PM, Trilok Soni wrote:
+>> Does anyone know example Linux drivers for haptics devices?
+>
+> Yup, drivers/misc/phantom.c for Sensable Phantom (the old one over PC=
+I).
+> The rest needed (esp. floating point computation) is done in userspac=
+e.
+>
+> Then, all force-feedack drivers under drivers/input and drivers/hid.
+>
+> What exactly do you want to know?
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

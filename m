@@ -1,53 +1,27 @@
-From: "Alfred Broda" <guaranga@wp.pl>
-Subject: Sanmos TWIN SHOCK gamepad Force Feedback
-Date: Wed, 26 Aug 2009 13:41:27 +0200
-Message-ID: <4a951f67850716.14823285@wp.pl>
+From: Matthew Garrett <mjg@redhat.com>
+Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
+	in driver
+Date: Wed, 26 Aug 2009 14:43:49 +0100
+Message-ID: <20090826134349.GA12404@srcf.ucam.org>
+References: <1235992429.3858.58.camel@hughsie-work.lan> <20090302112400.GA2356@khazad-dum.debian.net> <1236164049.3936.17.camel@hughsie-work.lan> <20090304120439.GA31850@khazad-dum.debian.net> <1250625730.2257.11.camel@hidalgo> <20090818201002.GA32638@srcf.ucam.org> <1251286574.32399.3.camel@miria>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.wp.pl ([212.77.101.1]:43606 "EHLO mx1.wp.pl"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756485AbZHZLsJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 Aug 2009 07:48:09 -0400
-Received: from poczta-19.free.wp-sa.pl (HELO localhost) ([10.1.1.98])
-          (envelope-sender <guaranga@wp.pl>)
-          by smtp.wp.pl (WP-SMTPD) with SMTP
-          for <linux-input@vger.kernel.org>; 26 Aug 2009 13:41:28 +0200
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1251286574.32399.3.camel@miria>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Yves-Alexis Perez <corsac@debian.org>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Richard Hughes <hughsient@gmail.com>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello!
-    I have a Sanmos TWIN SHOCK gamepad (6 axes, 12 buttons, labeled as=20
-"Tracer"). It works great using the default driver, (generic-usb=20
-0003:11C0:5400.000D: input,hidraw0: USB HID v1.00 Joystick [Sanmos TWIN=
-=20
-SHOCK gamepad]), but has no force feedback function that is available=20
-with the Windows driver. It has two motors (left, right) with an=20
-adjustable strength rumble function. Can anyone point me at a simmiliar=
-=20
-driver?
-    I tried altering the GreenAsia driver, with no luck - I can't get a=
-t the=20
-debug info from the hid driver either (compiled into the kernel). I=20
-think it doesn't even probe the device (no output to dmesg), does the=20
-generic-usb driver lock the device somehow?
-PS I've done a few USB snoops of the Windows driver so I can attach one=
-=20
-if that helps.
-          pozdrawiam, Alfred Broda
+On Wed, Aug 26, 2009 at 01:36:14PM +0200, Yves-Alexis Perez wrote:
 
-----------------------------------------------------
-Wiem, =BFe masz fajne pomys=B3y na komponowanie dodatk=F3w ;)
-Pode=B6lij ciekaw=B1 propozycj=EA!
-http://klik.wp.pl/?adr=3Dhttp%3A%2F%2Fcorto.www.wp.pl%2Fas%2Fbloogdodat=
-ki.html&sid=3D842
+> #define XF86XK_Suspend    0x1008FFA7   /* Sleep to RAM                */        
+> #define XF86XK_Hibernate  0x1008FFA8   /* Sleep to disk               */
+> 
+> So (some) userspace seems to have switched already?
 
+Adding those keysyms was, with hindsight, an error.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

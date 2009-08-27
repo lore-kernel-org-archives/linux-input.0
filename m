@@ -1,67 +1,52 @@
 From: Mauro Carvalho Chehab <mchehab@infradead.org>
 Subject: Re: [RFC] Infrared Keycode standardization
-Date: Thu, 27 Aug 2009 16:28:21 -0300
-Message-ID: <20090827162821.5344c2b2@pedra.chehab.org>
+Date: Thu, 27 Aug 2009 16:32:24 -0300
+Message-ID: <20090827163224.445e5610@pedra.chehab.org>
 References: <20090827045710.2d8a7010@pedra.chehab.org>
 	<4A96BD05.1080205@googlemail.com>
 	<829197380908271017x4247a550t44155a46c7e23c79@mail.gmail.com>
-	<Pine.LNX.4.58.0908271124470.11911@shell2.speakeasy.net>
-	<829197380908271134q26b2d44eg2e8c87a844d2b0b5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <829197380908271134q26b2d44eg2e8c87a844d2b0b5@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Trent Piepho <xyzzy@speakeasy.org>, Peter Brouwer <pb.maillists@googlemail.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([18.85.46.34]:50913 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751461AbZH0Tc3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Aug 2009 15:32:29 -0400
+In-Reply-To: <829197380908271017x4247a550t44155a46c7e23c79@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Devin Heitmueller <dheitmueller@kernellabs.com>
+Cc: Peter Brouwer <pb.maillists@googlemail.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-> I recognize that lirc can support multiple remotes.  However, at a
-> minimum the lirc receiver should work out of the box with the remote
-> the product comes with.  And that means there needs to be some way in
-> the driver to associate the tuner with some remote control profile
-> that has its layout defined in lirc.  Sure, if the user wants to then
-> say "I want to use this different remote instead..." then that should
-> be supported as well if the user does the appropriate configuration.
+Em Thu, 27 Aug 2009 13:17:57 -0400
+Devin Heitmueller <dheitmueller@kernellabs.com> escreveu:
 
-No doubt that lirc has its usage, but its usage requires either an out-of-tree
-kernel module, whose setup is not trivial, especially if the distro comes
-without support for it, or its event interface.
+> On Thu, Aug 27, 2009 at 1:06 PM, Peter
+> Brouwer<pb.maillists@googlemail.com> wrote:
+> > Mauro Carvalho Chehab wrote:
+> >
+> > Hi Mauro, All
+> >
+> > Would it be an alternative to let lirc do the mapping and just let the
+> > driver pass the codes of the remote to the event port.
 
->From what I've found looking at a few lirc kernel modules, they also need a
-better glue with the device drivers, to do some needed locks.
+For most devices, this is already allowed, via the standard
+EVIOCGKEYCODE/EVIOCSKEYCODE ioctl. 
 
-Either way, lirc setup is not that easy, since you need to properly configure
-the /etc/lirc*conf, in order to match your board, your IR and your desired
-applications.
+There's a small application showing how to change the keycodes. It is called
+"keytable", and it is avalable at v4l2-apps/util directory at our development
+tree:
+	http://linuxtv.org/hg/v4l-dvb
 
-The event interface also requires that you need to have your device connected
-before calling the daemon, and that the user discover what's the event
-interface used by a device, to fill its command line:
+Yet, there are some DVB-only devices that use a different way to support event
+interface that doesn't allow userspace to replace the IR tables. I've looked on
+the dvb-usb code recently. While a patch for it is not trivial, it shouldn't be
+that hard to change it to support the key GET/SET ioctls, but a patch for it
+requires some care, since it will touch on several different places and drivers.
 
-$ lircd -H devinput -d /dev/input/event6
-
-IMHO, this has practical usage only with non-hotpluggable (e. g. PCI) devices.
-
-Yet, if we provide a standard set of defined keys for IR, it would be possible
-to have standard configurations for event interface on lirc that will work with the
-IR that is provided together with the device, since the keycodes for starting
-TV, changing channels, etc will be the same no matter what video board you're using.
-
-So, it would be easier for distros to find some ways for it to work
-out-of-the-box with their systems, provided that someone invest some time
-improving the lirc event interface to better work with hot-pluggable devices or
-on create some udev rules to start/stop lircd when an IR event interface is
-created.
-
-> While I can appreciate the desire to support all sorts of advanced
-> configurations, this shouldn't be at the cost of the simple
-> configurations not working out-of-the-box.
-
-Agreed. The usage of lirc should be optional, not mandatory.
-
-
+I'll probably try to address this later.
 
 Cheers,
 Mauro

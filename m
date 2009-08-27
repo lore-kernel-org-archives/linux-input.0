@@ -1,74 +1,95 @@
-From: Devin Heitmueller <dheitmueller@kernellabs.com>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
 Subject: Re: [RFC] Infrared Keycode standardization
-Date: Thu, 27 Aug 2009 14:34:11 -0400
-Message-ID: <829197380908271134q26b2d44eg2e8c87a844d2b0b5@mail.gmail.com>
+Date: Thu, 27 Aug 2009 21:36:36 +0300
+Message-ID: <20090827183636.GG26702@sci.fi>
 References: <20090827045710.2d8a7010@pedra.chehab.org>
-	 <4A96BD05.1080205@googlemail.com>
-	 <829197380908271017x4247a550t44155a46c7e23c79@mail.gmail.com>
-	 <Pine.LNX.4.58.0908271124470.11911@shell2.speakeasy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0908271124470.11911@shell2.speakeasy.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Peter Brouwer <pb.maillists@googlemail.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6.welho.com ([213.243.153.40]:48547 "EHLO smtp6.welho.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750862AbZH0S52 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Aug 2009 14:57:28 -0400
+Content-Disposition: inline
+In-Reply-To: <20090827045710.2d8a7010@pedra.chehab.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Thu, Aug 27, 2009 at 2:29 PM, Trent Piepho<xyzzy@speakeasy.org> wrot=
-e:
-> On Thu, 27 Aug 2009, Devin Heitmueller wrote:
->> The biggest challenge with that approach is that lirc is still
->> maintained out-of-kernel, and the inputdev solution does not require
->> lirc at all (which is good for inexperienced end users who want thei=
-r
->> product to "just work").
->
-> If distros started packing lirc as a basic system daemon things would
-> generally just work too. =A0After all, there is plenty of other user =
-space
-> software one needs to do anything.
+On Thu, Aug 27, 2009 at 04:57:10AM -0300, Mauro Carvalho Chehab wrote:
+> After years of analyzing the existing code and receiving/merging patc=
+hes
+> related to IR, and taking a looking at the current scenario, it is cl=
+ear to me
+> that something need to be done, in order to have some standard way to=
+ map and
+> to give precise key meanings for each used media keycode found on
+> include/linux/input.h.
+>=20
+> Just as an example, I've parsed the bigger keymap file we have
+> (linux/media/common/ir-common.c). Most IR's have less than 40 keys, m=
+ost are
+> common between several different models. Yet, we've got almost 500 di=
+fferent
+> mappings there (and I removed from my parser all the "obvious" keys t=
+hat there
+> weren't any comment about what is labeled for that key on the IR).
+>=20
+> The same key name is mapped differently, depending only at the wish o=
+f the
+> patch author, as shown at:
+>=20
+> 	http://linuxtv.org/wiki/index.php/Ir-common.c
+>=20
+> It doesn't come by surprise, but currently, almost all media player
+> applications don't care to properly map all those keys.
+>=20
+> I've tried to find comments and/or descriptions about each media keys=
+ defined
+> at input.h without success. Just a few keys are commented at the file=
+ itself.
+> (or maybe I've just seek them at the wrong places).
+>=20
+> So, I took the initiative of doing a proposition for standardizing th=
+ose keys
+> at:
+>=20
+> 	http://linuxtv.org/wiki/index.php/Proposal
 
-Sure, and when that day comes my opinion will change.  In the
-meantime, users will see a regression (their remotes will stop working
-whereas they worked before the upgrade).
+I welcome this effort. It would be nice to have some kind of consistent
+behaviour between devices. But just limiting the effort to IR devices
+doesn't make sense. It shouldn't matter how the device is connected.
 
->> The other big issue is that right now remotes get associated
->> automaticallywith products as part of the device profile. =A0While t=
-his
->> has the disadvantage that there is not a uniform mechanism to specif=
-y
->> a different remote than the one that ships with the product, it does
->> have the advantage of the product working "out-of-the-box" with
->> whatever remote it came with. =A0It's a usability issue, but what I
->> would consider a pretty important one.
->
-> lirc isn't limited to one remote at a time. =A0You can have many diff=
-erent
-> remotes supported at once. =A0So it's not always necessary to know wh=
-ich
-> remote you have before the remote will work.
+=46ASTWORWARD,REWIND,FORWARD and BACK aren't very clear. To me it would
+make most sense if FASTFORWARD and REWIND were paired and FORWARD and
+BACK were paired. I actually have those two a bit confused in
+ati_remote2 too where I used FASTFORWARD and BACK. I suppose it should
+be REWIND instead.
 
-I recognize that lirc can support multiple remotes.  However, at a
-minimum the lirc receiver should work out of the box with the remote
-the product comes with.  And that means there needs to be some way in
-the driver to associate the tuner with some remote control profile
-that has its layout defined in lirc.  Sure, if the user wants to then
-say "I want to use this different remote instead..." then that should
-be supported as well if the user does the appropriate configuration.
+Also I should probably use ZOOM for the maximize/restore button (it's
+=46RONT now), and maybe SETUP instead of ENTER for another. It has a
+picture of a checkbox, Windows software apparently shows a setup menu
+when it's pressed.
 
-While I can appreciate the desire to support all sorts of advanced
-configurations, this shouldn't be at the cost of the simple
-configurations not working out-of-the-box.
+There are also a couple of buttons where no keycode really seems to
+match. One is the mouse button drag. I suppose I could implement the
+drag lock feature in the driver but I'm not sure if that's a good idea.
+It would make that button special and unmappable. Currently I have that
+mapped to EDIT IIRC.
 
-Devin
+The other oddball button has a picture of a stopwatch (I think, it's
+not very clear). Currently it uses COFFEE, but maybe TIMER or something
+like that should be added. The Windows software's manual just say it
+toggles TV-on-demand, but I have no idea what that actually is.
 
 --=20
-Devin J. Heitmueller - Kernel Labs
-http://www.kernellabs.com
+Ville Syrj=E4l=E4
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/
 --
-To unsubscribe from this list: send the line "unsubscribe linux-media" =
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

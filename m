@@ -1,68 +1,82 @@
-From: semiRocket <semirocket@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
 Subject: Re: [RFC] Infrared Keycode standardization
-Date: Thu, 27 Aug 2009 23:43:40 +0200
-Message-ID: <op.uzcbwtd53xmt7q@crni>
+Date: Thu, 27 Aug 2009 18:58:53 -0300
+Message-ID: <20090827185853.0aa2de76@pedra.chehab.org>
 References: <20090827045710.2d8a7010@pedra.chehab.org>
- <4A96BD05.1080205@googlemail.com>
+	<20090827183636.GG26702@sci.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f217.google.com ([209.85.220.217]:52072 "EHLO
-	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753213AbZH0Vn4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Aug 2009 17:43:56 -0400
-In-Reply-To: <4A96BD05.1080205@googlemail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20090827183636.GG26702@sci.fi>
+Sender: linux-media-owner@vger.kernel.org
+To: Ville =?ISO-8859-1?B?U3lyauRs5A==?= <syrjala@sci.fi>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Linux Media Mailing List <linux-media@vger.kernel.org>
-Cc: Linux Input <linux-input@vger.kernel.org>
 
-On Thu, 27 Aug 2009 19:06:13 +0200, Peter Brouwer
-<pb.maillists@googlemail.com> wrote:
+Em Thu, 27 Aug 2009 21:36:36 +0300
+Ville Syrj=E4l=E4 <syrjala@sci.fi> escreveu:
 
->> After years of analyzing the existing code and receiving/merging patches
->> related to IR, and taking a looking at the current scenario, it is  
->> clear to me
->> that something need to be done, in order to have some standard way to  
->> map and
->> to give precise key meanings for each used media keycode found on
->> include/linux/input.h.
 
-<snip>
+> I welcome this effort. It would be nice to have some kind of consiste=
+nt
+> behaviour between devices. But just limiting the effort to IR devices
+> doesn't make sense. It shouldn't matter how the device is connected.
 
-Hi all,
+Agreed.
 
-Some end user thoughts, perhaps unwelcome but here it goes :)
+>=20
+> FASTWORWARD,REWIND,FORWARD and BACK aren't very clear. To me it would
+> make most sense if FASTFORWARD and REWIND were paired and FORWARD and
+> BACK were paired. I actually have those two a bit confused in
+> ati_remote2 too where I used FASTFORWARD and BACK. I suppose it shoul=
+d
+> be REWIND instead.
 
-I think that standardization of buttons is really needed that application
-programmers can relly on, for example I see this like following:
+Makes sense. I updated it at the wiki. I also tried to group the keycod=
+es by
+function there.
 
-I think that specific MCE compatible buttons need to be implemented that
-are specific on most todays remotes. And I imagine a Linux Media Center
-that works out-of-the-box. I plug in my Linux supported card, point my
-remote and press Media center button which runs media center application.
-Because it's standard and that's applications programers implemeted it as
-key that triggers their app. If press Videos button on my remote, the app
-switches to videos directory, because it's standard, and most remotes have
-it, etc.
+> Also I should probably use ZOOM for the maximize/restore button (it's
+> FRONT now), and maybe SETUP instead of ENTER for another. It has a
+> picture of a checkbox, Windows software apparently shows a setup menu
+> when it's pressed.
+>=20
+> There are also a couple of buttons where no keycode really seems to
+> match. One is the mouse button drag. I suppose I could implement the
+> drag lock feature in the driver but I'm not sure if that's a good ide=
+a.
+> It would make that button special and unmappable. Currently I have th=
+at
+> mapped to EDIT IIRC.
 
-http://www.spinics.net/lists/linux-media/msg07705.html
+I'm not sure what we should do with those buttons.=20
 
-And thinking of that, I have configuring nothing, it's already configured
-because of standardization of buttons. And, if some advanced user doesn't
-like this behavior, he can always tamper configuration files to suite his
-need.
+Probably, the most complete IR spec is the RC5 codes:
+	http://c6000.spectrumdigital.com/davincievm/revf/files/msp430/rc5_code=
+s.pdf
+(not sure if this table is complete or accurate, but on a search I did
+today, this is the one that gave me a better documentation)
 
-Forgive me if I'm missing something, as I don't know how it all works
-together, but I think you've figured out the point of the meaning :).
+I suspect that, after solving the most used cases, we'll need to take a=
+ better look on it,
+identifying the missing cases of the real implementations and add them =
+to input.h.
 
-I also welcome this effort.
+> The other oddball button has a picture of a stopwatch (I think, it's
+> not very clear). Currently it uses COFFEE, but maybe TIMER or somethi=
+ng
+> like that should be added. The Windows software's manual just say it
+> toggles TV-on-demand, but I have no idea what that actually is.
+
+Hmm... Maybe TV-on-demand is another name for pay-per-view?
+
+
 
 Cheers,
-Samuel
-
-
--- 
-Using Opera's revolutionary e-mail client: http://www.opera.com/mail/
+Mauro
+--
+To unsubscribe from this list: send the line "unsubscribe linux-media" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

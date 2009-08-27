@@ -1,71 +1,71 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [RFC] Infrared Keycode standardization
-Date: Thu, 27 Aug 2009 04:57:10 -0300
-Message-ID: <20090827045710.2d8a7010@pedra.chehab.org>
+From: Richie Ward <richies@gmail.com>
+Subject: Re: Sanmos TWIN SHOCK gamepad Force Feedback
+Date: Thu, 27 Aug 2009 13:09:15 +0100
+Message-ID: <6b33c0ac0908270509l3f0baaebl1f27636d3f17f40e@mail.gmail.com>
+References: <4a951f67850716.14823285@wp.pl>
+	 <6b33c0ac0908270505h13121788j5b492ac385893f27@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:46866 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751081AbZH0H5P (ORCPT
+Received: from mail-fx0-f217.google.com ([209.85.220.217]:50292 "EHLO
+	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752296AbZH0MJP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Aug 2009 03:57:15 -0400
+	Thu, 27 Aug 2009 08:09:15 -0400
+Received: by fxm17 with SMTP id 17so870412fxm.37
+        for <linux-input@vger.kernel.org>; Thu, 27 Aug 2009 05:09:15 -0700 (PDT)
+In-Reply-To: <6b33c0ac0908270505h13121788j5b492ac385893f27@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-After years of analyzing the existing code and receiving/merging patches
-related to IR, and taking a looking at the current scenario, it is clear to me
-that something need to be done, in order to have some standard way to map and
-to give precise key meanings for each used media keycode found on
-include/linux/input.h.
+Perhaps the usb id needs to be added in the kernel?
 
-Just as an example, I've parsed the bigger keymap file we have
-(linux/media/common/ir-common.c). Most IR's have less than 40 keys, most are
-common between several different models. Yet, we've got almost 500 different
-mappings there (and I removed from my parser all the "obvious" keys that there
-weren't any comment about what is labeled for that key on the IR).
+> 2009/8/26 Alfred Broda <guaranga@wp.pl>:
+>> Hello!
+>> =C2=A0 =C2=A0I have a Sanmos TWIN SHOCK gamepad (6 axes, 12 buttons,=
+ labeled as
+>> "Tracer"). It works great using the default driver, (generic-usb
+>> 0003:11C0:5400.000D: input,hidraw0: USB HID v1.00 Joystick [Sanmos T=
+WIN
+>> SHOCK gamepad]), but has no force feedback function that is availabl=
+e
+>> with the Windows driver. It has two motors (left, right) with an
+>> adjustable strength rumble function. Can anyone point me at a simmil=
+iar
+>> driver?
+>> =C2=A0 =C2=A0I tried altering the GreenAsia driver, with no luck - I=
+ can't get at the
+>> debug info from the hid driver either (compiled into the kernel). I
+>> think it doesn't even probe the device (no output to dmesg), does th=
+e
+>> generic-usb driver lock the device somehow?
+>> PS I've done a few USB snoops of the Windows driver so I can attach =
+one
+>> if that helps.
+>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0pozdrawiam, Alfred Broda
+>>
+>> ----------------------------------------------------
+>> Wiem, =C5=BCe masz fajne pomys=C5=82y na komponowanie dodatk=C3=B3w =
+;)
+>> Pode=C5=9Blij ciekaw=C4=85 propozycj=C4=99!
+>> http://klik.wp.pl/?adr=3Dhttp%3A%2F%2Fcorto.www.wp.pl%2Fas%2Fbloogdo=
+datki.html&sid=3D842
+>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
+t" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.h=
+tml
+>>
 
-The same key name is mapped differently, depending only at the wish of the
-patch author, as shown at:
-
-	http://linuxtv.org/wiki/index.php/Ir-common.c
-
-It doesn't come by surprise, but currently, almost all media player
-applications don't care to properly map all those keys.
-
-I've tried to find comments and/or descriptions about each media keys defined
-at input.h without success. Just a few keys are commented at the file itself.
-(or maybe I've just seek them at the wrong places).
-
-So, I took the initiative of doing a proposition for standardizing those keys
-at:
-
-	http://linuxtv.org/wiki/index.php/Proposal
-
-While I tried to use the most common binding for a key, sometimes the "commonly
-used" one is so weird that I've used a different key mapping.
-
-Please, don't take it as a finished proposal. For sure we need to adjust it.
-Being it at wiki provides a way for people to edit, add comments and propose
-additional keycode matches.
-
-Also, there are several keys found on just one IR that didn't match any existing
-keycode. So, I just decided to keep those outside the table, for now, to focus
-on the mostly used ones.
-
-That's said, please review my proposal. Feel free to update the proposal and
-the current status if you think it is pertinent for this discussion.
-
-I'm not currently proposing to create any new keycode, but it probably makes
-sense to create a few ones, like KEY_PIP (for picture in picture).
-
-If we can go to a common sense, I intend to add it into a chapter at V4L2 API,
-in order to be used by both driver and userspace developers, submit some
-patches to fix some mappings and to add the proper comments to input.h.
-
-Comments?
-
-Cheers,
-Mauro
+--
+Thanks, Richie Ward
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

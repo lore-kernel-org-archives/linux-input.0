@@ -1,82 +1,99 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
- in driver
-Date: Thu, 27 Aug 2009 21:34:16 -0300
-Message-ID: <20090828003416.GB11195@khazad-dum.debian.net>
-References: <20090302112400.GA2356@khazad-dum.debian.net>
- <1236164049.3936.17.camel@hughsie-work.lan>
- <20090304120439.GA31850@khazad-dum.debian.net>
- <1250625730.2257.11.camel@hidalgo>
- <20090818201002.GA32638@srcf.ucam.org>
- <1251286574.32399.3.camel@miria>
- <20090826134349.GA12404@srcf.ucam.org>
- <1251309161.10837.6.camel@hidalgo>
- <20090826225111.GC23973@khazad-dum.debian.net>
- <20090827065011.10E78526EC9@mailhub.coreip.homeip.net>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [RFC] Infrared Keycode standardization
+Date: Fri, 28 Aug 2009 00:46:28 -0300
+Message-ID: <20090828004628.06f34d12@pedra.chehab.org>
+References: <20090827045710.2d8a7010@pedra.chehab.org>
+	<20090827183636.GG26702@sci.fi>
+	<20090827185853.0aa2de76@pedra.chehab.org>
+	<829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090827065011.10E78526EC9@mailhub.coreip.homeip.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Yves-Alexis Perez <corsac@debian.org>, Matthew Garrett <mjg@redhat.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>, aliov@xfce.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([18.85.46.34]:46430 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751484AbZH1Dqf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 Aug 2009 23:46:35 -0400
+In-Reply-To: <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Devin Heitmueller <dheitmueller@kernellabs.com>
+Cc: Ville =?ISO-8859-1?B?U3lyauRs5A==?= <syrjala@sci.fi>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-On Wed, 26 Aug 2009, Dmitry Torokhov wrote:
-> On Wed, Aug 26, 2009 at 07:51:11PM -0300, Henrique de Moraes Holschuh wrote:
-> > On Wed, 26 Aug 2009, Yves-Alexis Perez wrote:
-> > > On mer, 2009-08-26 at 14:43 +0100, Matthew Garrett wrote:
-> > > > On Wed, Aug 26, 2009 at 01:36:14PM +0200, Yves-Alexis Perez wrote:
-> > > > > #define XF86XK_Suspend    0x1008FFA7   /* Sleep to RAM                */        
-> > > > > #define XF86XK_Hibernate  0x1008FFA8   /* Sleep to disk               */
-> > > > > 
-> > > > > So (some) userspace seems to have switched already?
-> > > > 
-> > > > Adding those keysyms was, with hindsight, an error.
-> > > 
-> > > Ok, so every userland app which began the transition should step back
-> > > until a correct migration plan is set up?
-> > 
-> > IMHO it would be both easier and faster to deploy a proper migration plan
-> > and keep going.  Nobody said the names used by X.org keysyms have to agree
-> > with the ones used by input devices, for example... and a mapping table is
-> > already used anyway.
-> > 
-> > So, userspace can use the X keysyms like the above. There's nothing wrong
-> > with it.  But the correct mapping for kernel input events to those keysyms
-> > is AND WILL REMAIN:
-> > 
-> > KEY_SLEEP -> XF86XK_Suspend
-> > KEY_SUSPEND -> XF86XK_Hibernate
-> > 
-> > If people want to define two new input events, say KEY_SUSPENDTORAM and
-> > KEY_SUSPENDTODISK, start migrating the kernel drivers to use these two, and
-> > after some time with no use of KEY_SLEEP in the kernel, reclaim it to
-> > be a generic "sleep the system in some unspecified way", I'd be fine with
-> > it.
-> > 
-> > So, you'd have:
-> > KEY_SLEEP -> XF86XK_Suspend
-> > KEY_SUSPENDTORAM -> XF86XK_Suspend
-> > KEY_SUSPEND -> XF86XK_Hibernate
-> > KEY_SUSPENDTODISK -> XF86XK_Hibernate
-> > 
-> > I'd guess the only thing that could make us break that ABI the way people
-> > wanted us to (i.e. change the meaning of KEY_SUSPEND and KEY_SLEEP, and add
-> > a new KEY_HIBERNATE), is a proof that we got the USB HID table wrong and
-> > that USB keyboards are doing the wrong thing because of it.
+Em Thu, 27 Aug 2009 18:06:51 -0400
+Devin Heitmueller <dheitmueller@kernellabs.com> escreveu:
+
+> Since we're on the topic of IR support, there are probably a couple of
+> other things we may want to be thinking about if we plan on
+> refactoring the API at all:
 > 
-> Would not it be easier just to adjust HID in this case?
+> 1.  The fact that for RC5 remote controls, the tables in ir-keymaps.c
+> only have the second byte.  In theory, they should have both bytes
+> since the vendor byte helps prevents receiving spurious commands from
+> unrelated remote controls.  We should include the ability to "ignore
+> the vendor byte" so we can continue to support all the remotes
+> currently in the ir-keymaps.c where we don't know what the vendor byte
+> should contain.
 
-Your call.  I really don't know what the USB HID spec wants KEY_foo to mean,
-and I don't know if we got it wrong or not.  I know I used KEY_SLEEP and
-KEY_SUSPEND in thinkpad-acpi because those are the mappings the rest of the
-kernel uses.  The thinkpad hotkeys *do* have sleep-to-ram and sleep-to-disk
-context, they're not generic "sleep" keys.
+This were done due to at least two reasons:
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+1) Several boards uses a few GPIO bits (in general 7 or less bits) for IR.
+There's one logic at ir-common.ko to convert a 32 bits GPIO read into a 7 bits
+scancode.
+
+2) In order to properly support the default EVIOCGKEYCODE/EVIOCSKEYCODE
+handlers, we need to have keycode table, where the scan code is the index. So,
+if we use 14 bits for it, this means that this table would reserve 16384 bytes,
+and will probably a very few of those bytes (on a IR with 64 keys, it would
+need only 64 entries).
+
+As it seems that there are some ways to replace the default
+getkeycode/setkeycode handlers, I suspect that we can get rid of this limitation.
+
+I'll do some tests here with a dib0700 and an em28xx devices.
+
+> 2..  The fact that the current API provides no real way to change the
+> mode of operation for the IR receiver, for those receivers that
+> support multiple modes (NEC/RC5/RC6).  While you have the ability to
+> change the mapping table from userland via the keytable program, there
+> is currently no way to tell the IR receiver which mode to operate in.
+
+In this case, we'll need to have a set of new ioctls at the event interface, to
+allow enum/get/set the IR protocol type(s) per event device.
+
+> One would argue that the above keymaps structure should include new
+> fields to indicate what type of remote it is (NEC/RC5/RC6 etc), as
+> well as field to indicate that the vendor codes are absent from the
+> key mapping for that remote).  Given this, I can change the dib0700
+> and em28xx IR receivers to automatically set the IR capture mode
+> appropriate based on which remote is in the device profile.
+
+Let's go step by step. Adding the ability of dynamically change the type of
+remote will likely cause major changes at the GPIO polling code, since we'll
+need to move some code from bttv and saa7134 into ir-functions.c and rework on
+it. We'll probably end by converting the remaining polling code to use high
+precision timers as we've done with cx88.
+
+So, we need a sort of TODO list for IR changes. A start point (on a random
+order) would be something like:
+
+1) Standardize the keycodes;
+2) Implement a v4l handler for EVIOCGKEYCODE/EVIOCSKEYCODE;
+3) use a different arrangement for IR tables to not spend 16 K for IR table,
+yet allowing RC5 full table;
+4) Use the common IR framework at the dvb drivers with their own iplementation;
+5) Allow getkeycode/setkeycode to work with the dvb framework using the new
+methods;
+6) implement new event ioctls (EVIOEPROTO/EVIOGPROTO/EVIOSPROTO ?), to allow
+enumerating/getting/setting the IR protocol types;
+7) Change the non-gpio drivers to support IR protocol type;
+8) Create a gpio handler that supports changing the protocol type;
+9) Migrate the remaining drivers to the new gpio handler methods;
+10) Merge pertinent lirc drivers;
+11) Add missing keys at input.h.
+
+
+
+Cheers,
+Mauro

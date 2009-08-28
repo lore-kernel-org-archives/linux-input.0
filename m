@@ -1,67 +1,126 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
+From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [RFC] Infrared Keycode standardization
-Date: Fri, 28 Aug 2009 00:46:28 -0300
-Message-ID: <20090828004628.06f34d12@pedra.chehab.org>
-References: <20090827045710.2d8a7010@pedra.chehab.org>
-	<20090827183636.GG26702@sci.fi>
-	<20090827185853.0aa2de76@pedra.chehab.org>
-	<829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
+Date: Fri, 28 Aug 2009 00:00:54 -0400
+Message-ID: <200908280000.54986.jarod@wilsonet.com>
+References: <20090827045710.2d8a7010@pedra.chehab.org> <20090827185853.0aa2de76@pedra.chehab.org> <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:46430 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751484AbZH1Dqf (ORCPT
+Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:35107
+	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750711AbZH1EBR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Aug 2009 23:46:35 -0400
+	Fri, 28 Aug 2009 00:01:17 -0400
 In-Reply-To: <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Ville =?ISO-8859-1?B?U3lyauRs5A==?= <syrjala@sci.fi>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 
-Em Thu, 27 Aug 2009 18:06:51 -0400
-Devin Heitmueller <dheitmueller@kernellabs.com> escreveu:
-
-> Since we're on the topic of IR support, there are probably a couple of
+On Thursday 27 August 2009 18:06:51 Devin Heitmueller wrote:
+> On Thu, Aug 27, 2009 at 5:58 PM, Mauro Carvalho
+> Chehab<mchehab@infradead.org> wrote:
+> > Em Thu, 27 Aug 2009 21:36:36 +0300
+> > Ville Syrj=E4l=E4 <syrjala@sci.fi> escreveu:
+> >
+> >
+> >> I welcome this effort. It would be nice to have some kind of consi=
+stent
+> >> behaviour between devices. But just limiting the effort to IR devi=
+ces
+> >> doesn't make sense. It shouldn't matter how the device is connecte=
+d.
+> >
+> > Agreed.
+> >
+> >>
+> >> FASTWORWARD,REWIND,FORWARD and BACK aren't very clear. To me it wo=
+uld
+> >> make most sense if FASTFORWARD and REWIND were paired and FORWARD =
+and
+> >> BACK were paired. I actually have those two a bit confused in
+> >> ati_remote2 too where I used FASTFORWARD and BACK. I suppose it sh=
+ould
+> >> be REWIND instead.
+> >
+> > Makes sense. I updated it at the wiki. I also tried to group the ke=
+ycodes by
+> > function there.
+> >
+> >> Also I should probably use ZOOM for the maximize/restore button (i=
+t's
+> >> FRONT now), and maybe SETUP instead of ENTER for another. It has a
+> >> picture of a checkbox, Windows software apparently shows a setup m=
+enu
+> >> when it's pressed.
+> >>
+> >> There are also a couple of buttons where no keycode really seems t=
+o
+> >> match. One is the mouse button drag. I suppose I could implement t=
+he
+> >> drag lock feature in the driver but I'm not sure if that's a good =
+idea.
+> >> It would make that button special and unmappable. Currently I have=
+ that
+> >> mapped to EDIT IIRC.
+> >
+> > I'm not sure what we should do with those buttons.
+> >
+> > Probably, the most complete IR spec is the RC5 codes:
+> >        http://c6000.spectrumdigital.com/davincievm/revf/files/msp43=
+0/rc5_codes.pdf
+> > (not sure if this table is complete or accurate, but on a search I =
+did
+> > today, this is the one that gave me a better documentation)
+> >
+> > I suspect that, after solving the most used cases, we'll need to ta=
+ke a better look on it,
+> > identifying the missing cases of the real implementations and add t=
+hem to input.h.
+> >
+> >> The other oddball button has a picture of a stopwatch (I think, it=
+'s
+> >> not very clear). Currently it uses COFFEE, but maybe TIMER or some=
+thing
+> >> like that should be added. The Windows software's manual just say =
+it
+> >> toggles TV-on-demand, but I have no idea what that actually is.
+> >
+> > Hmm... Maybe TV-on-demand is another name for pay-per-view?
+> >
+> >
+> >
+> > Cheers,
+> > Mauro
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-med=
+ia" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+>=20
+> Since we're on the topic of IR support, there are probably a couple o=
+f
 > other things we may want to be thinking about if we plan on
 > refactoring the API at all:
-> 
+>=20
 > 1.  The fact that for RC5 remote controls, the tables in ir-keymaps.c
 > only have the second byte.  In theory, they should have both bytes
 > since the vendor byte helps prevents receiving spurious commands from
 > unrelated remote controls.  We should include the ability to "ignore
 > the vendor byte" so we can continue to support all the remotes
-> currently in the ir-keymaps.c where we don't know what the vendor byte
+> currently in the ir-keymaps.c where we don't know what the vendor byt=
+e
 > should contain.
-
-This were done due to at least two reasons:
-
-1) Several boards uses a few GPIO bits (in general 7 or less bits) for IR.
-There's one logic at ir-common.ko to convert a 32 bits GPIO read into a 7 bits
-scancode.
-
-2) In order to properly support the default EVIOCGKEYCODE/EVIOCSKEYCODE
-handlers, we need to have keycode table, where the scan code is the index. So,
-if we use 14 bits for it, this means that this table would reserve 16384 bytes,
-and will probably a very few of those bytes (on a IR with 64 keys, it would
-need only 64 entries).
-
-As it seems that there are some ways to replace the default
-getkeycode/setkeycode handlers, I suspect that we can get rid of this limitation.
-
-I'll do some tests here with a dib0700 and an em28xx devices.
-
+>=20
 > 2..  The fact that the current API provides no real way to change the
 > mode of operation for the IR receiver, for those receivers that
 > support multiple modes (NEC/RC5/RC6).  While you have the ability to
-> change the mapping table from userland via the keytable program, there
+> change the mapping table from userland via the keytable program, ther=
+e
 > is currently no way to tell the IR receiver which mode to operate in.
-
-In this case, we'll need to have a set of new ioctls at the event interface, to
-allow enum/get/set the IR protocol type(s) per event device.
-
+>=20
 > One would argue that the above keymaps structure should include new
 > fields to indicate what type of remote it is (NEC/RC5/RC6 etc), as
 > well as field to indicate that the vendor codes are absent from the
@@ -69,31 +128,25 @@ allow enum/get/set the IR protocol type(s) per event device.
 > and em28xx IR receivers to automatically set the IR capture mode
 > appropriate based on which remote is in the device profile.
 
-Let's go step by step. Adding the ability of dynamically change the type of
-remote will likely cause major changes at the GPIO polling code, since we'll
-need to move some code from bttv and saa7134 into ir-functions.c and rework on
-it. We'll probably end by converting the remaining polling code to use high
-precision timers as we've done with cx88.
+Jon Smirl actually wrote some fully functional proof-of-concept IR
+handling code about a year ago, that included auto-detection and auto
+decoding of several protocols. Perhaps some of that is relevant and
+reusable here? (I still have a copy of the tree here somewhere...)
 
-So, we need a sort of TODO list for IR changes. A start point (on a random
-order) would be something like:
+I've been toying with the notion of extending the input device support
+that was added to the lirc_imon driver a bit ago, and add a full key
+map that delivers events (we already do this for mouse functionality),
+but include the ability to also use the remote and/or receiver in a
+raw IR mode with lircd. Wouldn't be terribly difficult I think to do
+something similar for the standard MCE remotes and receivers... Just
+a simple matter of some time and some code. Unfortunately, I'm a bit
+short on the time part right now...
 
-1) Standardize the keycodes;
-2) Implement a v4l handler for EVIOCGKEYCODE/EVIOCSKEYCODE;
-3) use a different arrangement for IR tables to not spend 16 K for IR table,
-yet allowing RC5 full table;
-4) Use the common IR framework at the dvb drivers with their own iplementation;
-5) Allow getkeycode/setkeycode to work with the dvb framework using the new
-methods;
-6) implement new event ioctls (EVIOEPROTO/EVIOGPROTO/EVIOSPROTO ?), to allow
-enumerating/getting/setting the IR protocol types;
-7) Change the non-gpio drivers to support IR protocol type;
-8) Create a gpio handler that supports changing the protocol type;
-9) Migrate the remaining drivers to the new gpio handler methods;
-10) Merge pertinent lirc drivers;
-11) Add missing keys at input.h.
-
-
-
-Cheers,
-Mauro
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,34 +1,66 @@
-From: Peter Brouwer <pb.maillists@googlemail.com>
+From: Patrick Boettcher <pboettcher@kernellabs.com>
 Subject: Re: [RFC] Infrared Keycode standardization
-Date: Fri, 28 Aug 2009 11:13:33 +0100
-Message-ID: <4A97ADCD.6060200@googlemail.com>
-References: <20090827045710.2d8a7010@pedra.chehab.org>	<20090827183636.GG26702@sci.fi>	<20090827185853.0aa2de76@pedra.chehab.org>	<829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>	<20090828004628.06f34d12@pedra.chehab.org> <20090828041459.67c1499a@pedra.chehab.org>
+Date: Fri, 28 Aug 2009 12:50:27 +0200 (CEST)
+Message-ID: <alpine.LRH.1.10.0908281150120.10085@pub6.ifh.de>
+References: <20090827045710.2d8a7010@pedra.chehab.org> <20090827183636.GG26702@sci.fi> <20090827185853.0aa2de76@pedra.chehab.org> <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com> <20090828004628.06f34d12@pedra.chehab.org>
+ <20090828041459.67c1499a@pedra.chehab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f206.google.com ([209.85.219.206]:65293 "EHLO
-	mail-ew0-f206.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751049AbZH1KNd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Aug 2009 06:13:33 -0400
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <20090828041459.67c1499a@pedra.chehab.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, Devin Heitmueller <dheitmueller@kernellabs.com>, =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Input <linux-input@vger.kernel.org>, Patrick Boettcher <patrick.boettcher@desy.de>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, Devin Heitmueller <dheitmueller@kernellabs.com>, =?ISO-8859-15?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Input <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
+
+Hi Mauro,
+
+On Fri, 28 Aug 2009, Mauro Carvalho Chehab wrote:
+
+> Em Fri, 28 Aug 2009 00:46:28 -0300
+> Mauro Carvalho Chehab <mchehab@infradead.org> escreveu:
+>
+>> So, we need a sort of TODO list for IR changes. A start point (on a random
+>> order) would be something like:
+>>
+>> 2) Implement a v4l handler for EVIOCGKEYCODE/EVIOCSKEYCODE;
+>> 3) use a different arrangement for IR tables to not spend 16 K for IR table,
+>> yet allowing RC5 full table;
+>> 4) Use the common IR framework at the dvb drivers with their own iplementation;
+>> 5) Allow getkeycode/setkeycode to work with the dvb framework using the new
+>> methods;
+>
+> Ok, I have a code that handles the above for dvb-usb. Se enclosed. It turned to be
+> simpler than what I've expected originally ;)
+
+Yeah, this is due to the nature of modularity of dvb-usb. Saying that, all 
+drivers which have (re)implemented IR-handling needs to ported as well. Or 
+included in dvb-usb :P .
+
+> Tested with kernel 2.6.30.3 and a dibcom device.
+>
+> While this patch works fine, for now, it is just a proof of concept, since there are a few
+> details to be decided/solved for a version 2, as described bellow.
+
+This is the answer to the question I had several times in the past years.
+
+Very good job. It will solve the memory waste in the driver for 
+key-tables filled up with keys for different remotes where the user of 
+one board only has one. The code will also be smaller and easier to read.
+
+This also allows the user to use any remote with any (sensitive) 
+ir-sensor in a USB device.
+
+Is there a feature in 'input' which allows to request a file (like 
+request_firmware)? This would be ideal for a transition from 
+in-kernel-keymaps to user-space-keymap-loading: By default it would 
+request the file corresponding to the remote delivered with the device.
+
+Is that possible somehow?
+
+Patrick.
 
 
-Would like to add one more dimension to the discussion.
 
-The situation of having multiple DVB type boards in one system.
 
-Using one remote would be enough to control the system. So we should have a 
-mechanism/kernel config option, to enable/disable an IR device on a board.
-For multiple boards of the same type, enable the first and disable any 
-subsequently detected boards.
-
-Peter
-
-> 
 

@@ -1,128 +1,82 @@
-From: Devin Heitmueller <dheitmueller@kernellabs.com>
-Subject: Re: [RFC] Infrared Keycode standardization
-Date: Thu, 27 Aug 2009 18:06:51 -0400
-Message-ID: <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
-References: <20090827045710.2d8a7010@pedra.chehab.org>
-	 <20090827183636.GG26702@sci.fi>
-	 <20090827185853.0aa2de76@pedra.chehab.org>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
+ in driver
+Date: Thu, 27 Aug 2009 21:34:16 -0300
+Message-ID: <20090828003416.GB11195@khazad-dum.debian.net>
+References: <20090302112400.GA2356@khazad-dum.debian.net>
+ <1236164049.3936.17.camel@hughsie-work.lan>
+ <20090304120439.GA31850@khazad-dum.debian.net>
+ <1250625730.2257.11.camel@hidalgo>
+ <20090818201002.GA32638@srcf.ucam.org>
+ <1251286574.32399.3.camel@miria>
+ <20090826134349.GA12404@srcf.ucam.org>
+ <1251309161.10837.6.camel@hidalgo>
+ <20090826225111.GC23973@khazad-dum.debian.net>
+ <20090827065011.10E78526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20090827185853.0aa2de76@pedra.chehab.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Media Mailing List <linux-media@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20090827065011.10E78526EC9@mailhub.coreip.homeip.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Yves-Alexis Perez <corsac@debian.org>, Matthew Garrett <mjg@redhat.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>, aliov@xfce.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Aug 27, 2009 at 5:58 PM, Mauro Carvalho
-Chehab<mchehab@infradead.org> wrote:
-> Em Thu, 27 Aug 2009 21:36:36 +0300
-> Ville Syrj=E4l=E4 <syrjala@sci.fi> escreveu:
->
->
->> I welcome this effort. It would be nice to have some kind of consist=
-ent
->> behaviour between devices. But just limiting the effort to IR device=
-s
->> doesn't make sense. It shouldn't matter how the device is connected.
->
-> Agreed.
->
->>
->> FASTWORWARD,REWIND,FORWARD and BACK aren't very clear. To me it woul=
-d
->> make most sense if FASTFORWARD and REWIND were paired and FORWARD an=
-d
->> BACK were paired. I actually have those two a bit confused in
->> ati_remote2 too where I used FASTFORWARD and BACK. I suppose it shou=
-ld
->> be REWIND instead.
->
-> Makes sense. I updated it at the wiki. I also tried to group the keyc=
-odes by
-> function there.
->
->> Also I should probably use ZOOM for the maximize/restore button (it'=
-s
->> FRONT now), and maybe SETUP instead of ENTER for another. It has a
->> picture of a checkbox, Windows software apparently shows a setup men=
-u
->> when it's pressed.
->>
->> There are also a couple of buttons where no keycode really seems to
->> match. One is the mouse button drag. I suppose I could implement the
->> drag lock feature in the driver but I'm not sure if that's a good id=
-ea.
->> It would make that button special and unmappable. Currently I have t=
-hat
->> mapped to EDIT IIRC.
->
-> I'm not sure what we should do with those buttons.
->
-> Probably, the most complete IR spec is the RC5 codes:
-> =A0 =A0 =A0 =A0http://c6000.spectrumdigital.com/davincievm/revf/files=
-/msp430/rc5_codes.pdf
-> (not sure if this table is complete or accurate, but on a search I di=
-d
-> today, this is the one that gave me a better documentation)
->
-> I suspect that, after solving the most used cases, we'll need to take=
- a better look on it,
-> identifying the missing cases of the real implementations and add the=
-m to input.h.
->
->> The other oddball button has a picture of a stopwatch (I think, it's
->> not very clear). Currently it uses COFFEE, but maybe TIMER or someth=
-ing
->> like that should be added. The Windows software's manual just say it
->> toggles TV-on-demand, but I have no idea what that actually is.
->
-> Hmm... Maybe TV-on-demand is another name for pay-per-view?
->
->
->
-> Cheers,
-> Mauro
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+On Wed, 26 Aug 2009, Dmitry Torokhov wrote:
+> On Wed, Aug 26, 2009 at 07:51:11PM -0300, Henrique de Moraes Holschuh wrote:
+> > On Wed, 26 Aug 2009, Yves-Alexis Perez wrote:
+> > > On mer, 2009-08-26 at 14:43 +0100, Matthew Garrett wrote:
+> > > > On Wed, Aug 26, 2009 at 01:36:14PM +0200, Yves-Alexis Perez wrote:
+> > > > > #define XF86XK_Suspend    0x1008FFA7   /* Sleep to RAM                */        
+> > > > > #define XF86XK_Hibernate  0x1008FFA8   /* Sleep to disk               */
+> > > > > 
+> > > > > So (some) userspace seems to have switched already?
+> > > > 
+> > > > Adding those keysyms was, with hindsight, an error.
+> > > 
+> > > Ok, so every userland app which began the transition should step back
+> > > until a correct migration plan is set up?
+> > 
+> > IMHO it would be both easier and faster to deploy a proper migration plan
+> > and keep going.  Nobody said the names used by X.org keysyms have to agree
+> > with the ones used by input devices, for example... and a mapping table is
+> > already used anyway.
+> > 
+> > So, userspace can use the X keysyms like the above. There's nothing wrong
+> > with it.  But the correct mapping for kernel input events to those keysyms
+> > is AND WILL REMAIN:
+> > 
+> > KEY_SLEEP -> XF86XK_Suspend
+> > KEY_SUSPEND -> XF86XK_Hibernate
+> > 
+> > If people want to define two new input events, say KEY_SUSPENDTORAM and
+> > KEY_SUSPENDTODISK, start migrating the kernel drivers to use these two, and
+> > after some time with no use of KEY_SLEEP in the kernel, reclaim it to
+> > be a generic "sleep the system in some unspecified way", I'd be fine with
+> > it.
+> > 
+> > So, you'd have:
+> > KEY_SLEEP -> XF86XK_Suspend
+> > KEY_SUSPENDTORAM -> XF86XK_Suspend
+> > KEY_SUSPEND -> XF86XK_Hibernate
+> > KEY_SUSPENDTODISK -> XF86XK_Hibernate
+> > 
+> > I'd guess the only thing that could make us break that ABI the way people
+> > wanted us to (i.e. change the meaning of KEY_SUSPEND and KEY_SLEEP, and add
+> > a new KEY_HIBERNATE), is a proof that we got the USB HID table wrong and
+> > that USB keyboards are doing the wrong thing because of it.
+> 
+> Would not it be easier just to adjust HID in this case?
 
-Since we're on the topic of IR support, there are probably a couple of
-other things we may want to be thinking about if we plan on
-refactoring the API at all:
+Your call.  I really don't know what the USB HID spec wants KEY_foo to mean,
+and I don't know if we got it wrong or not.  I know I used KEY_SLEEP and
+KEY_SUSPEND in thinkpad-acpi because those are the mappings the rest of the
+kernel uses.  The thinkpad hotkeys *do* have sleep-to-ram and sleep-to-disk
+context, they're not generic "sleep" keys.
 
-1.  The fact that for RC5 remote controls, the tables in ir-keymaps.c
-only have the second byte.  In theory, they should have both bytes
-since the vendor byte helps prevents receiving spurious commands from
-unrelated remote controls.  We should include the ability to "ignore
-the vendor byte" so we can continue to support all the remotes
-currently in the ir-keymaps.c where we don't know what the vendor byte
-should contain.
-
-2..  The fact that the current API provides no real way to change the
-mode of operation for the IR receiver, for those receivers that
-support multiple modes (NEC/RC5/RC6).  While you have the ability to
-change the mapping table from userland via the keytable program, there
-is currently no way to tell the IR receiver which mode to operate in.
-
-One would argue that the above keymaps structure should include new
-fields to indicate what type of remote it is (NEC/RC5/RC6 etc), as
-well as field to indicate that the vendor codes are absent from the
-key mapping for that remote).  Given this, I can change the dib0700
-and em28xx IR receivers to automatically set the IR capture mode
-appropriate based on which remote is in the device profile.
-
-Devin
-
---=20
-Devin J. Heitmueller - Kernel Labs
-http://www.kernellabs.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-media" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

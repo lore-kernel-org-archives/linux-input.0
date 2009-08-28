@@ -1,48 +1,44 @@
-From: Alistair Buxton <a.j.buxton@gmail.com>
-Subject: Re: [RFC] Infrared Keycode standardization
-Date: Fri, 28 Aug 2009 15:22:03 +0100
-Message-ID: <3d374d00908280722l52a9e855t676d965baf208f3d@mail.gmail.com>
-References: <20090827045710.2d8a7010@pedra.chehab.org>
-	 <20090827183636.GG26702@sci.fi>
-	 <20090827185853.0aa2de76@pedra.chehab.org>
-	 <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
-	 <20090828004628.06f34d12@pedra.chehab.org>
-	 <20090828041459.67c1499a@pedra.chehab.org>
-	 <4A97ADCD.6060200@googlemail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH-v2][RFC] OMAP4: Keypad Support for OMAP4430
+Date: Fri, 28 Aug 2009 09:16:45 -0700
+Message-ID: <20090828161645.GM25828@atomide.com>
+References: <47940.192.168.10.88.1251196743.squirrel@dbdmail.itg.ti.com> <20090827065208.9B1C0526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4A97ADCD.6060200@googlemail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Peter Brouwer <pb.maillists@googlemail.com>
-Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, Devin Heitmueller <dheitmueller@kernellabs.com>, =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Input <linux-input@vger.kernel.org>, Patrick Boettcher <patrick.boettcher@desy.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:64919 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751218AbZH1QQt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 28 Aug 2009 12:16:49 -0400
+Content-Disposition: inline
+In-Reply-To: <20090827065208.9B1C0526EC9@mailhub.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Syed Rafiuddin <rafiuddin.syed@ti.com>, soni.trilok@gmail.com, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-2009/8/28 Peter Brouwer <pb.maillists@googlemail.com>:
->
-> Would like to add one more dimension to the discussion.
->
-> The situation of having multiple DVB type boards in one system.
->
-> Using one remote would be enough to control the system. So we should have a
-> mechanism/kernel config option, to enable/disable an IR device on a board.
-> For multiple boards of the same type, enable the first and disable any
-> subsequently detected boards.
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [090826 23:20]:
+> On Tue, Aug 25, 2009 at 04:09:03PM +0530, Syed Rafiuddin wrote:
+> > From: Syed Rafiuddin <rafiuddin.syed@ti.com>
+> > 
+> > Resending with correct Subject.
+> > 
+> > This patch Adds Keypad support on OMAP4.And adds
+> > OMAP4 register addresses and configures them for OMAP4.
+> > 
+> > 
+> > This patch has been updated as per the comments received from
+> > Trilok Soni to remove GPIO based omap2 keypad logic from omap_keypad.c
+> > (http://www.mail-archive.com/linux-omap@vger.kernel.org/msg14570.html)
+> > Matrix_keypad.c (gpio based keypad driver) can be used in OMAP2,
+> > which is not tested on OMAP2 since unavailability of omap2 target's.
+> > 
+> 
+> So has omap2 been switched over to matrix-keypad? Otherwise ripping
+> omap2 support from omap-keypad is premature.
 
-Don't forget that completely different boards can have identical
-remotes. For example the RTL2831 driver has an almost identical copy
-of dvb-usb IR code in it. See here for in depth explanation and patch
-that makes it use dvb-usb instead:
-http://patchwork.kernel.org/patch/38794/
+Hmm yeah that should be a separate patch that swithces 24xx to use
+the GPIO keypad driver and removes the related logic from this patch.
 
-Now I'm not really familiar with frontends and tuners so it may be
-that the RTL driver should be reimplemented within dvb-usb instead,
-but if it can't be it would be nice if that IR code could be shared
-without pulling in all the rest of dvb-usb modules too. I'm told that
-the excessive code duplication is the reason this driver isn't in
-mainline yet - I've been using it with no problems for over two years
-now.
-
--- 
-Alistair Buxton
-a.j.buxton@gmail.com
+Tony

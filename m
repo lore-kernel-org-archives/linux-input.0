@@ -1,112 +1,179 @@
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Subject: input: Phone buttons in USB handsets/phones
-Date: Sun, 30 Aug 2009 23:55:52 +0300
-Message-ID: <4A9AE758.2060106@unixsol.org>
+From: Jeff Smith <lkml.sepix@code.wastedcycles.net>
+Subject: Re: [kmemcheck] WARNING: kmemcheck: Caught 32-bit read from uninitialized
+ memory, in  hid_output_report
+Date: Sun, 30 Aug 2009 22:38:34 +0100
+Message-ID: <4A9AF15A.5080402@code.wastedcycles.net>
+References: <4A9833D3.3040202@code.wastedcycles.net>
+Reply-To: lkml.sepix@code.wastedcycles.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------010507010408030909080403"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.unixsol.org ([193.110.159.2]:57164 "EHLO ns.unixsol.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754024AbZH3Uzw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Aug 2009 16:55:52 -0400
+Received: from thinkula.hx3.notconnected.net ([192.207.141.44]:60976 "EHLO
+	sardonic.codimension.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754112AbZH3VoF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Aug 2009 17:44:05 -0400
+In-Reply-To: <4A9833D3.3040202@code.wastedcycles.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henk Vergonet <henk.vergonet@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, usbb2
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Vegard Nossum <vegardno@ifi.uio.no>
 
-Hi guys, I'm patching yealink.c to support p4k phone and
-I'm wondering what to do about the extra buttons that are
-found the phone [1] but are not defined as KEY_xxxxxx in
-input.h?
+This is a multi-part message in MIME format.
+--------------010507010408030909080403
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-For example the phone that I'm working with have these
-buttons that do not have matching definitions in input.h:
+Jeff Smith wrote (on lkml):
+> A kmemcheck warning on booting my 2.6.31-rc8 (I haven't tried previous versions -- this was 
+> actually not the problem I set out to fix).
+> 
+> I can send Jiri (Bcc'ed) or the list a .config if it will help.
 
-  FLASH
-  REDIAL
-  SPEAKER
+I looked at this a bit more and it seems that hid-core.c:implement() does a 64-bit read
+even when it is not necessary. Admittedly it writes back the same bits
+(modulo the ones it is trying to change), so in theory no harm should
+be done provided the "extra" read neither runs off allocated memory nor 
+the end of the current page boundary, nor ... 
 
-for testing purposes I mapped them to f, r and s
-but that's probably not what should be done.
+A patch follows. It corrects a typo in the comment, changes the function name "implement" to
+"set_into_le_bitstream", changes the parameter name "n" to "bitfield_size", printk's
+unsigned using %u not %d, and only does a 32-bit read-modify-write when a 64-bit one 
+is not necessary.
 
-So what to do about them?
+A patch that writes only the bytes that need to be changed, rather
+than 32 or 64-bit quantities that potentially access irrelevant memory locations -- and
+that therefore require more complicated verification logic -- would be a better approach.
+However, as we are at -rc8 already and I don't fully understand the structures that are
+being changed, or the reasons the code is as it is, I didn't feel confident about 
+presenting such a restructuring here.
 
-[1]: http://www.von-phone.com/prodimages/P4K-functions.jpg
+Could someone from the list give the attached patch a quick look please, and check
+I have not made any elementary endian errors or otherwise (although it does appear to 
+work for me).
 
-Right now mapping looks like this:
+Thanks
+Jeff
 
+PS. I am not on the list, so please Bcc: me direct on lkml.sepix <at> code.wastedcycles.net
+ 
+> Jeff
+> 
+> WARNING: kmemcheck: Caught 32-bit read from uninitialized memory (f6626624)
+> 0100000001000000000000000000000000000000000000000000000000000000
+>  i u u u u u u u u u u u u u u u u u u u u u u u u u u u u u u u
+>          ^
+> 
+> Pid: 1, comm: swapper Not tainted (2.6.31-rc8-MOAT51 #2) ProLiant ML110 G5
+> EIP: 0060:[<c16e8d31>] EFLAGS: 00010046 CPU: 0
+> EIP is at hid_output_report+0x181/0x310
+> EAX: 00000001 EBX: ffffffff ECX: 00000000 EDX: 00000001
+> ESI: f6626620 EDI: 00000000 EBP: f711fc4c ESP: c1db160c
+>  DS: 007b ES: 007b FS: 00d8 GS: 0000 SS: 0068
+> CR0: 8005003b CR2: f676d4fc CR3: 01da4000 CR4: 00002650
+> DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+> DR6: ffff4ff0 DR7: 00000400
+>  [<c16f39cd>] __usbhid_submit_report+0x12d/0x290
+>  [<c16f3b68>] usbhid_submit_report+0x38/0x50
+>  [<c16f3d1c>] usbhid_set_leds+0x9c/0xd0
+>  [<c16f44a7>] usbhid_start+0x627/0x670
+>  [<c16e93c2>] hid_device_probe+0x82/0xd0
+>  [<c14ca5dd>] driver_probe_device+0x6d/0x180
+>  [<c14ca7d1>] __device_attach+0x41/0x50
+>  [<c14c9bbb>] bus_for_each_drv+0x5b/0x80
+>  [<c14ca873>] device_attach+0x63/0x70
+>  [<c14c9997>] bus_attach_device+0x47/0x70
+>  [<c14c8219>] device_add+0x539/0x680
+>  [<c16e9025>] hid_add_device+0x165/0x1d0
+>  [<c16f2cd9>] hid_probe+0x269/0x3d0
+>  [<c165b006>] usb_probe_interface+0x86/0x140
+>  [<c14ca5dd>] driver_probe_device+0x6d/0x180
+>  [<c14ca781>] __driver_attach+0x91/0xa0
+>  [<c14c9e9b>] bus_for_each_dev+0x5b/0x80
+>  [<c14ca479>] driver_attach+0x19/0x20
+>  [<c14c97d7>] bus_add_driver+0x247/0x300
+>  [<c14caa15>] driver_register+0x75/0x170
+>  [<c165ae07>] usb_register_driver+0x87/0x110
+>  [<c1d42fbf>] hid_init+0x9f/0xc2
+>  [<c1001033>] do_one_initcall+0x23/0x190
+>  [<c1d0d345>] kernel_init+0x144/0x19d
+>  [<c1025cc7>] kernel_thread_helper+0x7/0x10
+>  [<ffffffff>] 0xffffffff
+
+
+--------------010507010408030909080403
+Content-Type: text/plain;
+ name="hid-core.c-patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hid-core.c-patch"
+
+--- hid-core.c	2009-08-30 16:48:32.000000000 +0100
++++ hid-core.c-dist	2009-08-28 01:59:04.000000000 +0100
+@@ -767,14 +767,19 @@
+  * The data mangled in the bit stream remains in little endian
+  * order the whole time. It make more sense to talk about
+  * endianness of register values by considering a register
+- * a "cached" copy of the little endian bit stream.
++ * a "cached" copy of the little endiad bit stream.
+  */
+-static __inline__ void set_into_le_bitstream(__u8 *report, unsigned offset, unsigned bitfield_size, __u32 value)
++static __inline__ void implement(__u8 *report, unsigned offset, unsigned n, __u32 value)
+ {
+-	u64 m = (1ULL << bitfield_size) - 1;
++	u64 x;
++	u64 m = (1ULL << n) - 1;
 +
-+/*
-+ * USB-P4K button layout:
-+ *
-+ *        IN   up    OUT
-+ *      VOL+           DEL
-+ *       VOL- down   DIAL
-+ *
-+ *       1      2      3
-+ *       4      5      6
-+ *       7      8      9
-+ *       *      0      #
-+ *
-+ *    HELP     (S)    SEND
-+ *      FLASH       REDIAL
-+ *
-+ * The "up" and "down" keys, are one big key
-+ * The (S) is one big green key with speaker picture on it
-+ */
-+static int map_p4k_to_key(int scancode)
-+{
-+	switch(scancode) {			/* phone key:	*/
-+	case 0x34: return KEY_LEFT;		/*   IN		*/
-+	case 0x32: return KEY_UP;		/*   up		*/
-+	case 0x10: return KEY_RIGHT;		/*   OUT	*/
-+	case 0x30: return KEY_DOWN;		/*   down	*/
-+	case 0x31: return KEY_VOLUMEUP;		/*   VOL+	*/
-+	case 0x40: return KEY_VOLUMEDOWN;	/*   VOL-	*/
-+	case 0x33: return KEY_BACKSPACE;	/*   DEL	*/
-+	case 0x00: return KEY_ENTER;		/*   DIAL	*/
-+	case 0x21: return KEY_1;		/*   1		*/
-+	case 0x11: return KEY_2;		/*   2 		*/
-+	case 0x01: return KEY_3;		/*   3		*/
-+	case 0x22: return KEY_4;		/*   4		*/
-+	case 0x12: return KEY_5;		/*   5		*/
-+	case 0x02: return KEY_6;		/*   6		*/
-+	case 0x23: return KEY_7;		/*   7		*/
-+	case 0x13: return KEY_8;		/*   8		*/
-+	case 0x03: return KEY_9;		/*   9		*/
-+	case 0x24: return KEY_KPASTERISK; 	/*   *		*/
-+	case 0x14: return KEY_0;		/*   0		*/
-+	case 0x04: return KEY_LEFTSHIFT |
-+			  KEY_3 << 8;		/*   #		*/
-+	case 0x05: return KEY_HELP; 		/*   HELP	*/
-+	case 0x15: return KEY_F;   		/*   FLASH	*/
-+	case 0x20: return KEY_S;  		/*   SPEAKER	*/
-+	case 0x25: return KEY_SEND; 		/*   SEND	*/
-+	case 0x44: return KEY_R;    		/*   REDIAL	*/
-+	}
-+	return -EINVAL;
-+}
++	if (n > 32)
++		printk(KERN_WARNING "HID: implement() called with n (%d) > 32! (%s)\n",
++				n, current->comm);
+ 
+ 	if (value > m)
+-		printk(KERN_WARNING "HID: set_into_le_bitstream() value (%u) too big for bitfield for %s\n",
++		printk(KERN_WARNING "HID: implement() called with too large value %d! (%s)\n",
+ 				value, current->comm);
+ 	WARN_ON(value > m);
+ 	value &= m;
+@@ -782,23 +787,10 @@
+ 	report += offset >> 3;
+ 	offset &= 7;
+ 
+-        if (bitfield_size > 32) {
+-            u64 x;
+-
+-            printk(KERN_WARNING "HID: set_into_le_bitstream() called with bitfield_size %u > 32 for %s\n",
+-                   bitfield_size, current->comm);
+-            x = get_unaligned_le64(report);
+-            x &= ~(m << offset);
+-            x |= ((u64)value) << offset;
+-            put_unaligned_le64(x, report);
+-        } else {
+-            u32 x;
+-
+-            x = get_unaligned_le32(report);
+-            x &= ~(m << offset);
+-            x |= value << offset;
+-            put_unaligned_le32(x, report);
+-        }
++	x = get_unaligned_le64(report);
++	x &= ~(m << offset);
++	x |= ((u64)value) << offset;
++	put_unaligned_le64(x, report);
+ }
+ 
+ /*
+@@ -959,9 +951,9 @@
+ 
+ 	for (n = 0; n < count; n++) {
+ 		if (field->logical_minimum < 0)	/* signed values */
+-			set_into_le_bitstream(data, offset + n * size, size, s32ton(field->value[n], size));
++			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+ 		else				/* unsigned values */
+-			set_into_le_bitstream(data, offset + n * size, size, field->value[n]);
++			implement(data, offset + n * size, size, field->value[n]);
+ 	}
+ }
+ 
 
-A related question - cm109 driver uses KEY_NUMERIC_xxx constants
-but since yealink is an older driver (merged in 2.6.14-rc1) it
-returns KEY_0..KEY_9, KPASTERISK and a hack to return #.
-
-Is it a good idea to make yealink return KEY_NUMERIC_xxxx codes
-since they are specially designed for numeric keypads (phones).
-
-On one hand this will unify somehow codes returned by cm109
-(supports at least 5 different usb phone models) and yealink
-(lots of nice usb phones) but on the other hand support for
-KEY_NUMERIC_xxx should be added to every application that
-right now is working fine with yealink driver (but not cm109).
-Right now returning normal 1,2,3,etc makes testing the driver
-a lot easier. Just plug the phone and enter some numbers.
-In this case KEY_NUMERIC_xxxx codes are PITA.
-
-So I'm a bit stuck at what to do, should I patch yealink
-to return NUMERIC_xxx codes or switch cm109 to returning
-KEY_1..KEY_9, KEY_ASTERISK, etc?
-
--- 
-Georgi Chorbadzhiyski
-http://georgi.unixsol.org/
+--------------010507010408030909080403--

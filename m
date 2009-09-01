@@ -1,1652 +1,1542 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: [PATCH 2/2] add ad714x input driver for button/scrollwhell/slider/touchpad
-Date: Tue, 1 Sep 2009 11:55:30 +0800
-Message-ID: <1251777330-16994-3-git-send-email-21cnbao@gmail.com>
-References: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>
- <1251777330-16994-2-git-send-email-21cnbao@gmail.com>
+From: "Ds, Sreedhara" <sreedhara.ds@intel.com>
+Subject: Emailing:
+ 0001-Resistive-touch-screen-driver-for-Intel-Moorestown-p.patch
+Date: Tue, 1 Sep 2009 10:54:56 +0530
+Message-ID: <0AE3E14D83C76F4994657326177D1FF9631330FF@bgsmsx501.gar.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/mixed;
+	boundary="_002_0AE3E14D83C76F4994657326177D1FF9631330FFbgsmsx501garcor_"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:18697 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751712AbZIADyL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Aug 2009 23:54:11 -0400
-In-Reply-To: <1251777330-16994-2-git-send-email-21cnbao@gmail.com>
+Received: from mga01.intel.com ([192.55.52.88]:49791 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751091AbZIAF0N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Sep 2009 01:26:13 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dbrownell@users.sourceforge.net, dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Barry Song <21cnbao@gmail.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Trisal, Kalhan" <kalhan.trisal@intel.com>, "Huded, Ashok V" <ashok.v.huded@intel.com>, "Ds, Sreedhara" <sreedhara.ds@intel.com>
 
-ad7142/ad7147 are Programmable Controllers for Capacitance Touch Sensors.
-The chips don't restrict the specific usage, and it can be used as button/
-slider/scrollwheel/touchpad etc. depending on the hardware connection.
-One special target board can include one or several these components.
+--_002_0AE3E14D83C76F4994657326177D1FF9631330FFbgsmsx501garcor_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-The driver is independent of special boards. It gets the components
-layout information from the platform_data, registers related devices,
-fullfills the algorithms and state machines for these components and
-report related input events to up level.
 
-Signed-off-by: Barry Song <21cnbao@gmail.com>
+Hello,
+
+Resubmitting the patch. Changes include comments from Dmitry Torokhov [dmit=
+ry.torokhov@gmail.com]
+Summary of changes:
+1. Kill this default line.
+        =3D> Corrected
+2. To compile this driver as a module...
+        =3D> Corrected
+3. dev_dbg()?, dev_err()?
+        =3D> Local debug print utility is replaced by dev_dbg and dev_err
+4. Unused variables removed from struct mrstouch_dev
+5. Why global? Can't we write our drivers so they support multiple devices =
+even though platform may only have one?
+        =3D>Global static struct mrstouch_dev *mrstouchdevp removed and cor=
+rected as per the suggestion to support multiple devices
+6. input_sync(); not required after reporting button action events. input_s=
+ync() is enough after reporting X,Y values
+7. -ENOMEM, -EINVAL used as per the suggestion
+8. Who is unregistering input device on request_irq() failure?
+        =3D>Code added to handle unregistering input device on request_irq(=
+) failure
+9. 'suspended' is boolean, so please use 'true' and 'false'. However, what =
+is the point of these 2 functions anyway?
+        =3D>These functions are not required and are removed
+10. Do not call input_free_device() after calling input_unregister_device()
+        =3D>Corrected
+11. Why do you mange retrun value of spi_register_driver()?
+        =3D>Corrected
+12. No need for empty "return" statements.
+        =3D>Corrected
+13. Delayed work queue is replaced by kernel thread to process PENDET inter=
+rupts
+
+
+
+>From ad032521ce86602fd83f313878b25c8fadb66b09 Mon Sep 17 00:00:00 2001
+From: Sreedhara DS <sreedhara.ds@intel.com>
+Date: Wed, 2 Sep 2009 10:44:19 +0530
+Subject: [PATCH] Resistive touch screen driver for Intel Moorestown platfor=
+m
+ Driver works with NEC, MAXIM and FreeScale PMICs
+ Tested with moblin mrstouch Xorg touchscreen driver
+
+        modified:   Kconfig
+        modified:   Makefile
+        new file:   mrstouch.c
+
+Signed-off-by: Sreedhara DS <sreedhara.ds@intel.com>
 ---
- drivers/input/misc/ad714x.c | 1607 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 1607 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/ad714x.c
+ drivers/input/touchscreen/Kconfig    |    9 +
+ drivers/input/touchscreen/Makefile   |    1 +
+ drivers/input/touchscreen/mrstouch.c |  896 ++++++++++++++++++++++++++++++=
+++++
+ 3 files changed, 906 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/mrstouch.c
 
-diff --git a/drivers/input/misc/ad714x.c b/drivers/input/misc/ad714x.c
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/=
+Kconfig
+index 72e2712..0fa31e9 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -498,4 +498,13 @@ config TOUCHSCREEN_W90X900
+          To compile this driver as a module, choose M here: the
+          module will be called w90p910_ts.
+
++config TOUCHSCREEN_MRSTOUCH
++       tristate "Intel Moorestown Resistive touchscreen"
++       depends on LANGWELL_IPC && SPI_MRST
++       default y
++       help
++         Say Y here if you have a Intel Moorstown platform
++
++         To compile this driver as a module, choose M here: the
++         module will be called mrstouch.
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen=
+/Makefile
+index 3e1c5e0..9b67c17 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -40,3 +40,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ATMEL)        +=3D atmel-=
+wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)     +=3D mainstone-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)      +=3D zylonite-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_W90X900)      +=3D w90p910_ts.o
++obj-$(CONFIG_TOUCHSCREEN_MRSTOUCH)    +=3D mrstouch.o
+diff --git a/drivers/input/touchscreen/mrstouch.c b/drivers/input/touchscre=
+en/mrstouch.c
 new file mode 100644
-index 0000000..a9d4057
+index 0000000..0a50e87
 --- /dev/null
-+++ b/drivers/input/misc/ad714x.c
-@@ -0,0 +1,1607 @@
++++ b/drivers/input/touchscreen/mrstouch.c
+@@ -0,0 +1,896 @@
 +/*
-+ * File:         drivers/input/misc/ad714x.c
-+ * Based on:
-+ * Author:       Barry Song <Barry.Song@analog.com>
++ * mrstouch.c - Intel Moorestown Resistive Touch Screen Driver
 + *
-+ * Created:
-+ * Description:  AD714X CapTouch Programmable Controller driver
++ * Copyright (C) 2008 Intel Corp
 + *
-+ * Modified:
-+ *               Copyright 2009 Analog Devices Inc.
-+ *
-+ * Bugs:         Enter bugs at http://blackfin.uclinux.org/
++ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.        See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; ifnot, write to the Free Software Foundation, Inc.,
++ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
++ *
++ * Questions/Comments/Bug fixes to Sreedhara (sreedhara.ds@intel.com)
++ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~
 + */
-+
-+#include <linux/device.h>
++#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/spi/spi.h>
-+#include <linux/i2c.h>
 +#include <linux/input.h>
 +#include <linux/interrupt.h>
-+#include <linux/spi/ad714x.h>
-+
-+#define AD714x_SPI_ADDR        0x1C
-+#define AD714x_SPI_ADDR_SHFT   11
-+#define AD714x_SPI_READ        1
-+#define AD714x_SPI_READ_SHFT   10
-+
-+#define AD714X_PWR_CTRL           0x0
-+#define AD714x_STG_CAL_EN_REG     0x1
-+#define AD714X_AMB_COMP_CTRL0_REG 0x2
-+#define AD714x_PARTID_REG         0x17
-+#define AD7147_PARTID             0x1470
-+#define AD7142_PARTID             0xE620
-+#define AD714x_STAGECFG_REG       0x80
-+#define AD714x_SYSCFG_REG         0x0
-+
-+#define STG_LOW_INT_EN_REG     0x5
-+#define STG_HIGH_INT_EN_REG    0x6
-+#define STG_COM_INT_EN_REG     0x7
-+#define STG_LOW_INT_STA_REG    0x8
-+#define STG_HIGH_INT_STA_REG   0x9
-+#define STG_COM_INT_STA_REG    0xA
-+
-+#define CDC_RESULT_S0          0xB
-+#define CDC_RESULT_S1          0xC
-+#define CDC_RESULT_S2          0xD
-+#define CDC_RESULT_S3          0xE
-+#define CDC_RESULT_S4          0xF
-+#define CDC_RESULT_S5          0x10
-+#define CDC_RESULT_S6          0x11
-+#define CDC_RESULT_S7          0x12
-+#define CDC_RESULT_S8          0x13
-+#define CDC_RESULT_S9          0x14
-+#define CDC_RESULT_S10         0x15
-+#define CDC_RESULT_S11         0x16
-+
-+#define STAGE0_AMBIENT		0xF1
-+#define STAGE1_AMBIENT		0x115
-+#define STAGE2_AMBIENT		0x139
-+#define STAGE3_AMBIENT		0x15D
-+#define STAGE4_AMBIENT		0x181
-+#define STAGE5_AMBIENT		0x1A5
-+#define STAGE6_AMBIENT		0x1C9
-+#define STAGE7_AMBIENT		0x1ED
-+#define STAGE8_AMBIENT		0x211
-+#define STAGE9_AMBIENT		0x234
-+#define STAGE10_AMBIENT		0x259
-+#define STAGE11_AMBIENT		0x27D
-+
-+#define PER_STAGE_REG_NUM      36
-+#define STAGE_NUM              12
-+#define STAGE_CFGREG_NUM       8
-+#define SYS_CFGREG_NUM         8
-+
-+#if defined(CONFIG_INPUT_AD714X_SPI)
-+#define bus_device		struct spi_device
-+#elif defined(CONFIG_INPUT_AD714X_I2C)
-+#define bus_device		struct i2c_client
-+#else
-+#error Communication method needs to be selected (I2C or SPI)
-+#endif
-+
-+/*
-+ * driver information which will be used to maintain the software flow
-+ */
-+typedef enum {IDLE, JITTER, ACTIVE, SPACE} ad714x_device_state;
-+
-+struct ad714x_slider_drv {
-+	int highest_stage;
-+	int abs_pos;
-+	int flt_pos;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_wheel_drv {
-+	int abs_pos;
-+	int flt_pos;
-+	int pre_mean_value;
-+	int pre_highest_stage;
-+	int pre_mean_value_no_offset;
-+	int mean_value;
-+	int mean_value_no_offset;
-+	int pos_offset;
-+	int pos_ratio;
-+	int highest_stage;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_touchpad_drv {
-+	int x_highest_stage;
-+	int x_flt_pos;
-+	int x_abs_pos;
-+	int y_highest_stage;
-+	int y_flt_pos;
-+	int y_abs_pos;
-+	int left_ep;
-+	int left_ep_val;
-+	int right_ep;
-+	int right_ep_val;
-+	int top_ep;
-+	int top_ep_val;
-+	int bottom_ep;
-+	int bottom_ep_val;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_button_drv {
-+	ad714x_device_state state;
-+	/* Unlike slider/wheel/touchpad, all buttons point to
-+	 * same input_dev instance */
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_driver_data {
-+	struct ad714x_slider_drv *slider;
-+	struct ad714x_wheel_drv *wheel;
-+	struct ad714x_touchpad_drv *touchpad;
-+	struct ad714x_button_drv *button;
-+};
-+
-+/* information to integrate all things which will be private data
-+ * of spi/i2c device */
-+struct ad714x_chip {
-+	unsigned short h_state;
-+	unsigned short l_state;
-+	unsigned short c_state;
-+	unsigned short adc_reg[STAGE_NUM];
-+	unsigned short amb_reg[STAGE_NUM];
-+	unsigned short sensor_val[STAGE_NUM];
-+
-+	struct ad714x_platform_data *hw;
-+	struct ad714x_driver_data *sw;
-+
-+	bus_device *bus;
-+	int (*read) (bus_device *, unsigned short, unsigned short *);
-+	int (*write) (bus_device *, unsigned short, unsigned short);
-+
-+	struct mutex mutex;
-+};
-+
-+static void stage_use_com_int(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
-+{
-+	unsigned short data;
-+	unsigned short mask;
-+
-+	mask = ((1 << (end_stage + 1)) - 1) - (1 << start_stage);
-+
-+	ad714x->read(ad714x->bus, STG_COM_INT_EN_REG, &data);
-+	data |= 1 << start_stage;
-+	ad714x->write(ad714x->bus, STG_COM_INT_EN_REG, data);
-+
-+	ad714x->read(ad714x->bus, STG_HIGH_INT_EN_REG, &data);
-+	data &= ~mask;
-+	ad714x->write(ad714x->bus, STG_HIGH_INT_EN_REG, data);
-+}
-+
-+static void stage_use_thr_int(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
-+{
-+	unsigned short data;
-+	unsigned short mask;
-+
-+	mask = ((1 << (end_stage + 1)) - 1) - (1 << start_stage);
-+
-+	ad714x->read(ad714x->bus, STG_COM_INT_EN_REG, &data);
-+	data &= ~(1 << start_stage);
-+	ad714x->write(ad714x->bus, STG_COM_INT_EN_REG, data);
-+
-+	ad714x->read(ad714x->bus, STG_HIGH_INT_EN_REG, &data);
-+	data |= mask;
-+	ad714x->write(ad714x->bus, STG_HIGH_INT_EN_REG, data);
-+}
-+
-+static int stage_cal_highest_stage(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
-+{
-+	int max_res = 0;
-+	int max_idx = 0;
-+	int i;
-+
-+	for (i = start_stage; i <= end_stage; i++) {
-+		if (ad714x->sensor_val[i] > max_res) {
-+			max_res = ad714x->sensor_val[i];
-+			max_idx = i;
-+		}
-+	}
-+
-+	return max_idx;
-+}
-+
-+static int stage_cal_abs_pos(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage, int highest_stage, int max_coord)
-+{
-+	int a_param, b_param;
-+
-+	if (highest_stage == start_stage) {
-+		a_param = ad714x->sensor_val[start_stage + 1];
-+		b_param = ad714x->sensor_val[start_stage] +
-+			ad714x->sensor_val[start_stage + 1];
-+	} else if (highest_stage == end_stage) {
-+		a_param = ad714x->sensor_val[end_stage] *
-+			(end_stage - start_stage) +
-+			ad714x->sensor_val[end_stage - 1] *
-+			(end_stage - start_stage - 1);
-+		b_param = ad714x->sensor_val[end_stage] +
-+			ad714x->sensor_val[end_stage - 1];
-+	} else {
-+		a_param = ad714x->sensor_val[highest_stage] *
-+			(highest_stage - start_stage) +
-+			ad714x->sensor_val[highest_stage - 1] *
-+			(highest_stage - start_stage - 1) +
-+			ad714x->sensor_val[highest_stage + 1] *
-+			(highest_stage - start_stage + 1);
-+		b_param = ad714x->sensor_val[highest_stage] +
-+			ad714x->sensor_val[highest_stage - 1] +
-+			ad714x->sensor_val[highest_stage + 1];
-+	}
-+
-+	return (max_coord / (end_stage - start_stage)) * a_param / b_param;
-+}
-+
-+
-+/* One button can connect to multi postive and negative of CDCs
-+ * Multi-buttons can connect to same postive/negative of one CDC
-+ */
-+static void button_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_button_plat *hw = &ad714x->hw->button[idx];
-+	struct ad714x_button_drv *sw = &ad714x->sw->button[idx];
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (((ad714x->h_state & hw->h_mask) == hw->h_mask) &&
-+			((ad714x->l_state & hw->l_mask) == hw->l_mask)) {
-+			pr_debug("button %d touched\n", idx);
-+			input_report_key(sw->input, hw->keycode, 1);
-+			input_sync(sw->input);
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (((ad714x->h_state & hw->h_mask) != hw->h_mask) ||
-+			((ad714x->l_state & hw->l_mask) != hw->l_mask)) {
-+			pr_debug("button %d released\n", idx);
-+			input_report_key(sw->input, hw->keycode, 0);
-+			input_sync(sw->input);
-+			sw->state = IDLE;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+/* The response of a sensor is defined by the absolute number of codes
-+ * between the current CDC value and the ambient value.
-+ */
-+void slider_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	int i;
-+
-+	for (i = hw->start_stage; i <= hw->end_stage; i++) {
-+		ad714x->read(ad714x->bus, CDC_RESULT_S0 + i,
-+			&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->bus,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+
-+		ad714x->sensor_val[i] = abs(ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i]);
-+	}
-+}
-+
-+void slider_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+
-+	sw->highest_stage = stage_cal_highest_stage(ad714x, hw->start_stage,
-+			hw->end_stage);
-+
-+	pr_debug("slider %d highest_stage:%d\n", idx, sw->highest_stage);
-+}
-+
-+/* The formulae are very straight forward. It uses the sensor with the
-+ * highest response and the 2 adjacent ones.
-+ * When Sensor 0 has the highest response, only sensor 0 and sensor 1
-+ * are used in the calculations. Similarly when the last sensor has the
-+ * highest response, only the last sensor and the second last sensors
-+ * are used in the calculations.
-+ *
-+ * For i= idx_of_peak_Sensor-1 to i= idx_of_peak_Sensor+1
-+ *         v += Sensor response(i)*i
-+ *         w += Sensor response(i)
-+ * POS=(Number_of_Positions_Wanted/(Number_of_Sensors_Used-1)) *(v/w)
-+ */
-+void slider_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+
-+	sw->abs_pos = stage_cal_abs_pos(ad714x, hw->start_stage, hw->end_stage,
-+		sw->highest_stage, hw->max_coord);
-+
-+	pr_debug("slider %d absolute position:%d\n", idx, sw->abs_pos);
-+}
-+
-+/*
-+ * To minimise the Impact of the noise on the algorithm, ADI developed a
-+ * routine that filters the CDC results after they have been read by the
-+ * host processor.
-+ * The filter used is an Infinite Input Response(IIR) filter implemented
-+ * in firmware and attenuates the noise on the CDC results after they've
-+ * been read by the host processor.
-+ * Filtered_CDC_result = (Filtered_CDC_result * (10 - Coefficient) +
-+ * 				Latest_CDC_result * Coefficient)/10
-+ */
-+void slider_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+
-+	sw->flt_pos = (sw->flt_pos * (10 - 4) +
-+			sw->abs_pos * 4)/10;
-+
-+	pr_debug("slider %d filter position:%d\n", idx, sw->flt_pos);
-+}
-+
-+static void slider_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	stage_use_com_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void slider_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	stage_use_thr_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void slider_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
-+
-+	mask = ((1 << (hw->end_stage + 1)) - 1) - ((1 << hw->start_stage) - 1);
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714x
-+			 * continuously generates hardware interrupts.
-+			 */
-+			slider_use_com_int(ad714x, idx);
-+			pr_debug("slider %d touched\n", idx);
-+		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask) {
-+			slider_cal_sensor_val(ad714x, idx);
-+			slider_cal_highest_stage(ad714x, idx);
-+			slider_cal_abs_pos(ad714x, idx);
-+			sw->flt_pos = sw->abs_pos;
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				slider_cal_sensor_val(ad714x, idx);
-+				slider_cal_highest_stage(ad714x, idx);
-+				slider_cal_abs_pos(ad714x, idx);
-+				slider_cal_flt_pos(ad714x, idx);
-+
-+				input_report_abs(sw->input, ABS_X, sw->flt_pos);
-+				input_report_abs(sw->input, ABS_PRESSURE, 1);
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				slider_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_abs(sw->input, ABS_PRESSURE, 0);
-+				pr_debug("slider %d released\n", idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+/* When the scroll wheel is activated, we compute the absolute position based
-+ * on the sensor values. To calculate the position, we first determine the
-+ * sensor that has the greatest response among the 8 sensors that constitutes
-+ * the scrollwheel. Then we determined the 2 sensors on either sides of the
-+ * sensor with the highest response and we apply weights to these sensors.
-+ */
-+void wheel_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+
-+	sw->pre_highest_stage = sw->highest_stage;
-+	sw->highest_stage = stage_cal_highest_stage(ad714x, hw->start_stage,
-+			hw->end_stage);
-+
-+	pr_debug("wheel %d highest_stage:%d\n", idx, sw->highest_stage);
-+}
-+
-+void wheel_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	int i;
-+
-+	for (i = hw->start_stage; i <= hw->end_stage; i++) {
-+		ad714x->read(ad714x->bus, CDC_RESULT_S0 + i,
-+			&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->bus,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
-+			ad714x->sensor_val[i] = ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i];
-+		else
-+			ad714x->sensor_val[i] = 0;
-+	}
-+}
-+
-+/* When the scroll wheel is activated, we compute the absolute position based
-+ * on the sensor values. To calculate the position, we first determine the
-+ * sensor that has the greatest response among the 8 sensors that constitutes
-+ * the scrollwheel. Then we determined the 2 sensors on either sides of the
-+ * sensor with the highest response and we apply weights to these sensors. The
-+ * result of this computation gives us the mean value which defined by the
-+ * following formula:
-+ * For i= second_before_highest_stage to i= second_after_highest_stage
-+ *         v += Sensor response(i)*WEIGHT*(i+3)
-+ *         w += Sensor response(i)
-+ * Mean_Value=v/w
-+ * pos_on_scrollwheel = (Mean_Value - position_offset) / position_ratio
-+ *
-+ */
-+
-+#define WEIGHT_FACTOR 30
-+/* This constant prevents the "PositionOffset" from reaching a big value */
-+#define OFFSET_POSITION_CLAMP	120
-+void wheel_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	int stage_num = hw->end_stage - hw->start_stage + 1;
-+	int second_before, first_before, highest, first_after, second_after;
-+	int a_param, b_param;
-+
-+	/* Calculate Mean value */
-+
-+	second_before = (sw->highest_stage + stage_num - 2) % stage_num;
-+	first_before = (sw->highest_stage + stage_num - 1) % stage_num;
-+	highest = sw->highest_stage;
-+	first_after = (sw->highest_stage + stage_num + 1) % stage_num;
-+	second_after = (sw->highest_stage + stage_num + 2) % stage_num;
-+
-+	if (((sw->highest_stage - hw->start_stage) > 1) &&
-+			((hw->end_stage - sw->highest_stage) > 1)) {
-+		a_param = ad714x->sensor_val[second_before] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_before] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[highest] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_after] *
-+			(first_after - hw->start_stage + 3) +
-+			ad714x->sensor_val[second_after] *
-+			(second_after - hw->start_stage + 3);
-+	} else {
-+		a_param = ad714x->sensor_val[second_before] *
-+			(second_before - hw->start_stage + 1) +
-+			ad714x->sensor_val[first_before] *
-+			(second_before - hw->start_stage + 2) +
-+			ad714x->sensor_val[highest] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_after] *
-+			(first_after - hw->start_stage + 4) +
-+			ad714x->sensor_val[second_after] *
-+			(second_after - hw->start_stage + 5);
-+	}
-+	a_param *= WEIGHT_FACTOR;
-+
-+	b_param = ad714x->sensor_val[second_before] +
-+		ad714x->sensor_val[first_before] +
-+		ad714x->sensor_val[highest] +
-+		ad714x->sensor_val[first_after] +
-+		ad714x->sensor_val[second_after];
-+
-+	sw->pre_mean_value = sw->mean_value;
-+	sw->mean_value = a_param / b_param;
-+
-+	/* Calculate the offset */
-+
-+	if ((sw->pre_highest_stage == hw->end_stage) &&
-+			(sw->highest_stage == hw->start_stage))
-+		sw->pos_offset = sw->mean_value;
-+	else if ((sw->pre_highest_stage == hw->start_stage) &&
-+			(sw->highest_stage == hw->end_stage))
-+		sw->pos_offset = sw->pre_mean_value;
-+	if (sw->pos_offset > OFFSET_POSITION_CLAMP)
-+		sw->pos_offset = OFFSET_POSITION_CLAMP;
-+
-+	/* Calculate the mean value without the offset */
-+
-+	sw->pre_mean_value_no_offset = sw->mean_value_no_offset;
-+	sw->mean_value_no_offset = sw->mean_value - sw->pos_offset;
-+	if (sw->mean_value_no_offset < 0)
-+		sw->mean_value_no_offset = 0;
-+
-+	/* Calculate ratio to scale down to NUMBER_OF_WANTED_POSITIONS */
-+
-+	if ((sw->pre_highest_stage == hw->end_stage) &&
-+			(sw->highest_stage == hw->start_stage))
-+		sw->pos_ratio = (sw->pre_mean_value_no_offset * 100) /
-+			hw->max_coord;
-+	else if ((sw->pre_highest_stage == hw->start_stage) &&
-+			(sw->highest_stage == hw->end_stage))
-+		sw->pos_ratio = (sw->mean_value_no_offset * 100) /
-+			hw->max_coord;
-+	sw->abs_pos = (sw->mean_value_no_offset * 100) / sw->pos_ratio;
-+	if (sw->abs_pos > hw->max_coord)
-+		sw->abs_pos = hw->max_coord;
-+}
-+
-+void wheel_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	if (((sw->pre_highest_stage == hw->end_stage) &&
-+				(sw->highest_stage == hw->start_stage)) ||
-+			((sw->pre_highest_stage == hw->start_stage) &&
-+			 (sw->highest_stage == hw->end_stage)))
-+		sw->flt_pos = sw->abs_pos;
-+	else
-+		sw->flt_pos = ((sw->flt_pos * 30) + (sw->abs_pos * 71)) / 100;
-+
-+	if (sw->flt_pos > hw->max_coord)
-+		sw->flt_pos = hw->max_coord;
-+}
-+
-+static void wheel_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	stage_use_com_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void wheel_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	stage_use_thr_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void wheel_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
-+
-+	mask = ((1 << (hw->end_stage + 1)) - 1) - ((1 << hw->start_stage) - 1);
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714x
-+			 * continuously generates hardware interrupts.
-+			 */
-+			wheel_use_com_int(ad714x, idx);
-+			pr_debug("wheel %d touched\n", idx);
-+		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask)	{
-+			wheel_cal_sensor_val(ad714x, idx);
-+			wheel_cal_highest_stage(ad714x, idx);
-+			wheel_cal_abs_pos(ad714x, idx);
-+			sw->flt_pos = sw->abs_pos;
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				wheel_cal_sensor_val(ad714x, idx);
-+				wheel_cal_highest_stage(ad714x, idx);
-+				wheel_cal_abs_pos(ad714x, idx);
-+
-+				input_report_abs(sw->input, ABS_WHEEL,
-+					sw->abs_pos);
-+				input_report_abs(sw->input, ABS_PRESSURE, 1);
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				wheel_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_abs(sw->input, ABS_PRESSURE, 0);
-+
-+				pr_debug("wheel %d released\n", idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+void touchpad_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	int i;
-+
-+	for (i = hw->x_start_stage; i <= hw->x_end_stage; i++) {
-+		ad714x->read(ad714x->bus, CDC_RESULT_S0 + i,
-+				&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->bus,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
-+			ad714x->sensor_val[i] = ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i];
-+		else
-+			ad714x->sensor_val[i] = 0;
-+	}
-+}
-+
-+static void touchpad_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_highest_stage = stage_cal_highest_stage(ad714x, hw->x_start_stage,
-+			hw->x_end_stage);
-+	sw->y_highest_stage = stage_cal_highest_stage(ad714x, hw->y_start_stage,
-+			hw->y_end_stage);
-+
-+	pr_debug("touchpad %d x_highest_stage:%d, y_highest_stage:%d\n",
-+			idx, sw->x_highest_stage, sw->y_highest_stage);
-+}
-+
-+/* If 2 fingers are touching the sensor then 2 peaks can be observed in the
-+ * distribution.
-+ * The arithmetic doesn't support to get absolute coordinates for multi-touch
-+ * yet.
-+ */
-+static int touchpad_check_second_peak(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+	int i;
-+
-+	for (i = hw->x_start_stage; i < sw->x_highest_stage; i++) {
-+		if ((ad714x->sensor_val[i] - ad714x->sensor_val[i + 1])
-+			> (ad714x->sensor_val[i + 1] / 10))
-+			return 1;
-+	}
-+
-+	for (i = sw->x_highest_stage; i < hw->x_end_stage; i++) {
-+		if ((ad714x->sensor_val[i + 1] - ad714x->sensor_val[i])
-+			> (ad714x->sensor_val[i] / 10))
-+			return 1;
-+	}
-+
-+	for (i = hw->y_start_stage; i < sw->y_highest_stage; i++) {
-+		if ((ad714x->sensor_val[i] - ad714x->sensor_val[i + 1])
-+			> (ad714x->sensor_val[i + 1] / 10))
-+			return 1;
-+	}
-+
-+	for (i = sw->y_highest_stage; i < hw->y_end_stage; i++) {
-+		if ((ad714x->sensor_val[i + 1] - ad714x->sensor_val[i])
-+			> (ad714x->sensor_val[i] / 10))
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* If only one finger is used to activate the touch pad then only 1 peak will be
-+ * registered in the distribution. This peak and the 2 adjacent sensors will be
-+ * used in the calculation of the absolute position. This will prevent hand
-+ * shadows to affect the absolute position calculation.
-+ */
-+static void touchpad_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_abs_pos = stage_cal_abs_pos(ad714x, hw->x_start_stage,
-+			hw->x_end_stage, sw->x_highest_stage, hw->x_max_coord);
-+	sw->y_abs_pos = stage_cal_abs_pos(ad714x, hw->y_start_stage,
-+			hw->y_end_stage, sw->y_highest_stage, hw->y_max_coord);
-+
-+	pr_debug("touchpad %d absolute position:(%d, %d)\n", idx,
-+			sw->x_abs_pos, sw->y_abs_pos);
-+}
-+
-+static void touchpad_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_flt_pos = (sw->x_flt_pos * (10 - 4) +
-+			sw->x_abs_pos * 4)/10;
-+	sw->y_flt_pos = (sw->y_flt_pos * (10 - 4) +
-+			sw->y_abs_pos * 4)/10;
-+
-+	pr_debug("touchpad %d filter position:(%d, %d)\n",
-+			idx, sw->x_flt_pos, sw->y_flt_pos);
-+}
-+
-+/* To prevent distortion from showing in the absolute position, it is
-+ * necessary to detect the end points. When endpoints are detected, the
-+ * driver stops updating the status variables with absolute positions.
-+ * End points are detected on the 4 edges of the touchpad sensor. The
-+ * method to detect them is the same for all 4.
-+ * To detect the end points, the firmware computes the difference in
-+ * percent between the sensor on the edge and the adjacent one. The
-+ * difference is calculated in percent in order to make the end point
-+ * detection independent of the pressure.
-+ */
-+
-+#define LEFT_END_POINT_DETECTION_LEVEL			550
-+#define RIGHT_END_POINT_DETECTION_LEVEL			750
-+#define LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL		850
-+#define TOP_END_POINT_DETECTION_LEVEL			550
-+#define BOTTOM_END_POINT_DETECTION_LEVEL		950
-+#define TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL		700
-+static int touchpad_check_endpoint(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw  = &ad714x->sw->touchpad[idx];
-+	int percent_sensor_diff;
-+
-+	/* left endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->x_start_stage] -
-+			ad714x->sensor_val[hw->x_start_stage + 1]) * 100 /
-+			ad714x->sensor_val[hw->x_start_stage + 1];
-+	if (!sw->left_ep) {
-+		if (percent_sensor_diff >= LEFT_END_POINT_DETECTION_LEVEL)  {
-+			sw->left_ep = 1;
-+			sw->left_ep_val =
-+				ad714x->sensor_val[hw->x_start_stage + 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < LEFT_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->x_start_stage + 1] >
-+		LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL + sw->left_ep_val))
-+			sw->left_ep = 0;
-+	}
-+
-+	/* right endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->x_end_stage] -
-+			ad714x->sensor_val[hw->x_end_stage - 1]) * 100 /
-+			ad714x->sensor_val[hw->x_end_stage - 1];
-+	if (!sw->right_ep) {
-+		if (percent_sensor_diff >= RIGHT_END_POINT_DETECTION_LEVEL)  {
-+			sw->right_ep = 1;
-+			sw->right_ep_val =
-+				ad714x->sensor_val[hw->x_end_stage - 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < RIGHT_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->x_end_stage - 1] >
-+		LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL + sw->right_ep_val))
-+			sw->right_ep = 0;
-+	}
-+
-+	/* top endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->y_start_stage] -
-+			ad714x->sensor_val[hw->y_start_stage + 1]) * 100 /
-+			ad714x->sensor_val[hw->y_start_stage + 1];
-+	if (!sw->top_ep) {
-+		if (percent_sensor_diff >= TOP_END_POINT_DETECTION_LEVEL)  {
-+			sw->top_ep = 1;
-+			sw->top_ep_val =
-+				ad714x->sensor_val[hw->y_start_stage + 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < TOP_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->y_start_stage + 1] >
-+		TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL + sw->top_ep_val))
-+			sw->top_ep = 0;
-+	}
-+
-+	/* bottom endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->y_end_stage] -
-+		ad714x->sensor_val[hw->y_end_stage - 1]) * 100 /
-+		ad714x->sensor_val[hw->y_end_stage - 1];
-+	if (!sw->bottom_ep) {
-+		if (percent_sensor_diff >= BOTTOM_END_POINT_DETECTION_LEVEL)  {
-+			sw->bottom_ep = 1;
-+			sw->bottom_ep_val =
-+				ad714x->sensor_val[hw->y_end_stage - 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < BOTTOM_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->y_end_stage - 1] >
-+		 TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL + sw->bottom_ep_val))
-+			sw->bottom_ep = 0;
-+	}
-+
-+	return sw->left_ep || sw->right_ep || sw->top_ep || sw->bottom_ep;
-+}
-+
-+static void touchpad_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	stage_use_com_int(ad714x, hw->x_start_stage, hw->x_end_stage);
-+}
-+
-+static void touchpad_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	stage_use_thr_int(ad714x, hw->x_start_stage, hw->x_end_stage);
-+	stage_use_thr_int(ad714x, hw->y_start_stage, hw->y_end_stage);
-+}
-+
-+static void touchpad_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
-+
-+	mask = (((1 << (hw->x_end_stage + 1)) - 1) -
-+		((1 << hw->x_start_stage) - 1)) +
-+		(((1 << (hw->y_end_stage + 1)) - 1) -
-+		((1 << hw->y_start_stage) - 1));
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714x
-+			 * continuously generates hardware interrupts.
-+			 */
-+			touchpad_use_com_int(ad714x, idx);
-+			pr_debug("touchpad %d touched\n", idx);
-+		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask) {
-+			touchpad_cal_sensor_val(ad714x, idx);
-+			touchpad_cal_highest_stage(ad714x, idx);
-+			if ((!touchpad_check_second_peak(ad714x, idx)) &&
-+				(!touchpad_check_endpoint(ad714x, idx))) {
-+				pr_debug("touchpad%d, 2 fingers or endpoint\n",
-+						idx);
-+				touchpad_cal_abs_pos(ad714x, idx);
-+				sw->x_flt_pos = sw->x_abs_pos;
-+				sw->y_flt_pos = sw->y_abs_pos;
-+				sw->state = ACTIVE;
-+			}
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				touchpad_cal_sensor_val(ad714x, idx);
-+				touchpad_cal_highest_stage(ad714x, idx);
-+				if ((!touchpad_check_second_peak(ad714x, idx))
-+				  && (!touchpad_check_endpoint(ad714x, idx))) {
-+					touchpad_cal_abs_pos(ad714x, idx);
-+					touchpad_cal_flt_pos(ad714x, idx);
-+					input_report_abs(sw->input, ABS_X,
-+						sw->x_flt_pos);
-+					input_report_abs(sw->input, ABS_Y,
-+						sw->y_flt_pos);
-+					input_report_abs(sw->input,
-+						ABS_PRESSURE, 1);
-+				}
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				touchpad_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_abs(sw->input, ABS_PRESSURE, 0);
-+				pr_debug("touchpad %d released\n", idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+static int ad714x_hw_detect(struct ad714x_chip *ad714x)
-+{
-+	unsigned short data;
-+
-+	ad714x->read(ad714x->bus, AD714x_PARTID_REG, &data);
-+	switch (data & 0xFFF0) {
-+	case AD7147_PARTID:
-+		dev_info(&ad714x->bus->dev, "Found AD7147 captouch, rev:%d\n",
-+				data & 0xF);
-+		return 0;
-+	case AD7142_PARTID:
-+		dev_info(&ad714x->bus->dev, "Found AD7142 captouch, rev:%d\n",
-+				data & 0xF);
-+		return 0;
-+	default:
-+		dev_err(&ad714x->bus->dev, "Fail to detect AD714x captouch,\
-+				read ID is %04x\n", data);
-+		return -ENODEV;
-+	}
-+}
-+
-+static int ad714x_hw_init(struct ad714x_chip *ad714x)
-+{
-+	int i, j;
-+	unsigned short reg_base;
-+	unsigned short data;
-+
-+	/* configuration CDC and interrupts*/
-+
-+	for (i = 0; i < STAGE_NUM; i++) {
-+		reg_base = AD714x_STAGECFG_REG + i * STAGE_CFGREG_NUM;
-+		for (j = 0; j < STAGE_CFGREG_NUM; j++)
-+			ad714x->write(ad714x->bus, reg_base + j,
-+				ad714x->hw->stage_cfg_reg[i][j]);
-+	}
-+
-+	for (i = 0; i < SYS_CFGREG_NUM; i++)
-+		ad714x->write(ad714x->bus, AD714x_SYSCFG_REG + i,
-+			ad714x->hw->sys_cfg_reg[i]);
-+
-+	ad714x->write(ad714x->bus, AD714x_STG_CAL_EN_REG, 0xFFF);
-+
-+	/* clear all interrupts */
-+	ad714x->read(ad714x->bus, STG_LOW_INT_STA_REG, &data);
-+	ad714x->read(ad714x->bus, STG_HIGH_INT_STA_REG, &data);
-+	ad714x->read(ad714x->bus, STG_COM_INT_STA_REG, &data);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t ad714x_interrupt_thread(int irq, void *data)
-+{
-+	struct ad714x_chip *ad714x = data;
-+	int i;
-+
-+	mutex_lock(&ad714x->mutex);
-+
-+	ad714x->read(ad714x->bus, STG_LOW_INT_STA_REG, &ad714x->l_state);
-+	ad714x->read(ad714x->bus, STG_HIGH_INT_STA_REG, &ad714x->h_state);
-+	ad714x->read(ad714x->bus, STG_COM_INT_STA_REG, &ad714x->c_state);
-+
-+	pr_debug("%s l_state:%04x h_state:%04x c_stage:%04x\n", __func__,
-+			ad714x->l_state, ad714x->h_state, ad714x->c_state);
-+
-+	for (i = 0; i < ad714x->hw->button_num; i++)
-+		button_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->slider_num; i++)
-+		slider_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->wheel_num; i++)
-+		wheel_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->touchpad_num; i++)
-+		touchpad_state_machine(ad714x, i);
-+
-+	mutex_unlock(&ad714x->mutex);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ad714x_interrupt(int irq, void *data)
-+{
-+	return IRQ_WAKE_THREAD;
-+}
-+
-+#define MAX_DEVICE_NUM 8
-+static int __devinit ad714x_probe(struct ad714x_chip *ad714x)
-+{
-+	int ret = 0;
-+	struct input_dev *input[MAX_DEVICE_NUM];
-+
-+	struct ad714x_driver_data *drv_data = NULL;
-+
-+	struct ad714x_button_plat *bt_plat   = ad714x->hw->button;
-+	struct ad714x_slider_plat *sd_plat   = ad714x->hw->slider;
-+	struct ad714x_wheel_plat *wl_plat    = ad714x->hw->wheel;
-+	struct ad714x_touchpad_plat *tp_plat = ad714x->hw->touchpad;
-+
-+	struct ad714x_button_drv *bt_drv   = NULL;
-+	struct ad714x_slider_drv *sd_drv   = NULL;
-+	struct ad714x_wheel_drv *wl_drv    = NULL;
-+	struct ad714x_touchpad_drv *tp_drv = NULL;
-+
-+	int alloc_idx = 0, reg_idx = 0;
-+	int i;
-+
-+	ret = ad714x_hw_detect(ad714x);
-+	if (ret)
-+		goto det_err;
-+
-+	/*
-+	 * Allocate and register AD714x input device
-+	 */
-+
-+	drv_data = kzalloc(sizeof(struct ad714x_driver_data), GFP_KERNEL);
-+	if (!drv_data) {
-+		dev_err(&ad714x->bus->dev,
-+			"Can't allocate memory for ad714x driver info\n");
-+		ret = -ENOMEM;
-+		goto fail_alloc_reg;
-+	}
-+	ad714x->sw = drv_data;
-+
-+	/* a slider uses one input_dev instance */
-+	if (ad714x->hw->slider_num > 0) {
-+		sd_drv = kzalloc(sizeof(struct ad714x_slider_drv) *
-+				ad714x->hw->slider_num, GFP_KERNEL);
-+		if (!sd_drv) {
-+			dev_err(&ad714x->bus->dev,
-+				"Can't allocate memory for slider info\n");
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
-+
-+		for (i = 0; i < ad714x->hw->slider_num; i++) {
-+			input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				dev_err(&ad714x->bus->dev,
-+				"Can't allocate input device %d\n", alloc_idx);
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
-+			alloc_idx++;
-+
-+			__set_bit(EV_ABS, input[alloc_idx-1]->evbit);
-+			__set_bit(ABS_X, input[alloc_idx-1]->absbit);
-+			__set_bit(ABS_PRESSURE, input[alloc_idx-1]->absbit);
-+			input_set_abs_params(input[alloc_idx-1], ABS_X, 0,
-+					sd_plat->max_coord, 0, 0);
-+			input_set_abs_params(input[alloc_idx-1], ABS_PRESSURE,
-+				0, 1, 0, 0);
-+
-+			input[alloc_idx-1]->id.bustype = BUS_I2C;
-+
-+			ret = input_register_device(input[reg_idx]);
-+			if (ret) {
-+				dev_err(&ad714x->bus->dev,
-+				"Failed to register AD714x input device!\n");
-+				goto fail_alloc_reg;
-+			}
-+			reg_idx++;
-+
-+			sd_drv[i].input = input[alloc_idx-1];
-+			ad714x->sw->slider = sd_drv;
-+		}
-+	}
-+
-+	/* a wheel uses one input_dev instance */
-+	if (ad714x->hw->wheel_num > 0) {
-+		wl_drv = kzalloc(sizeof(struct ad714x_wheel_drv) *
-+				ad714x->hw->wheel_num, GFP_KERNEL);
-+		if (!wl_drv) {
-+			dev_err(&ad714x->bus->dev,
-+				"Can't allocate memory for wheel info\n");
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
-+
-+		for (i = 0; i < ad714x->hw->wheel_num; i++) {
-+			input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				dev_err(&ad714x->bus->dev,
-+				"Can't allocate input device %d\n", alloc_idx);
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
-+			alloc_idx++;
-+
-+			__set_bit(EV_ABS, input[alloc_idx-1]->evbit);
-+			__set_bit(ABS_WHEEL, input[alloc_idx-1]->absbit);
-+			__set_bit(ABS_PRESSURE, input[alloc_idx-1]->absbit);
-+			input_set_abs_params(input[alloc_idx-1], ABS_WHEEL, 0,
-+					wl_plat->max_coord, 0, 0);
-+			input_set_abs_params(input[alloc_idx-1], ABS_PRESSURE,
-+				0, 1, 0, 0);
-+
-+			input[alloc_idx-1]->id.bustype = BUS_I2C;
-+
-+			ret = input_register_device(input[reg_idx]);
-+			if (ret) {
-+				dev_err(&ad714x->bus->dev,
-+				"Failed to register AD714x input device!\n");
-+				goto fail_alloc_reg;
-+			}
-+			reg_idx++;
-+
-+			wl_drv[i].input = input[alloc_idx-1];
-+			ad714x->sw->wheel = wl_drv;
-+		}
-+	}
-+
-+	/* a touchpad uses one input_dev instance */
-+	if (ad714x->hw->touchpad_num > 0) {
-+		tp_drv = kzalloc(sizeof(struct ad714x_touchpad_drv) *
-+				ad714x->hw->touchpad_num, GFP_KERNEL);
-+		if (!tp_drv) {
-+			dev_err(&ad714x->bus->dev,
-+				"Can't allocate memory for touchpad info\n");
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
-+
-+		for (i = 0; i < ad714x->hw->touchpad_num; i++) {
-+			input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				dev_err(&ad714x->bus->dev,
-+					"Can't allocate input device %d\n",
-+					alloc_idx);
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
-+			alloc_idx++;
-+
-+			__set_bit(EV_ABS, input[alloc_idx-1]->evbit);
-+			__set_bit(ABS_X, input[alloc_idx-1]->absbit);
-+			__set_bit(ABS_Y, input[alloc_idx-1]->absbit);
-+			__set_bit(ABS_PRESSURE, input[alloc_idx-1]->absbit);
-+			input_set_abs_params(input[alloc_idx-1], ABS_X, 0,
-+					tp_plat->x_max_coord, 0, 0);
-+			input_set_abs_params(input[alloc_idx-1], ABS_Y, 0,
-+					tp_plat->y_max_coord, 0, 0);
-+			input_set_abs_params(input[alloc_idx-1], ABS_PRESSURE,
-+				0, 1, 0, 0);
-+
-+			input[alloc_idx-1]->id.bustype = BUS_I2C;
-+
-+			ret = input_register_device(input[reg_idx]);
-+			if (ret) {
-+				dev_err(&ad714x->bus->dev,
-+				"Failed to register AD714x input device!\n");
-+				goto fail_alloc_reg;
-+			}
-+			reg_idx++;
-+
-+			tp_drv[i].input = input[alloc_idx-1];
-+			ad714x->sw->touchpad = tp_drv;
-+		}
-+	}
-+
-+	/* all buttons use one input node */
-+	if (ad714x->hw->button_num > 0) {
-+		bt_drv = kzalloc(sizeof(struct ad714x_button_drv) *
-+				ad714x->hw->button_num, GFP_KERNEL);
-+		if (!bt_drv) {
-+			dev_err(&ad714x->bus->dev,
-+				"Can't allocate memory for button info\n");
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
-+
-+		input[alloc_idx] = input_allocate_device();
-+		if (!input[alloc_idx]) {
-+			dev_err(&ad714x->bus->dev,
-+					"Can't allocate input device %d\n",
-+					alloc_idx);
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
-+		alloc_idx++;
-+
-+		__set_bit(EV_KEY, input[alloc_idx-1]->evbit);
-+		for (i = 0; i < ad714x->hw->button_num; i++) {
-+			__set_bit(bt_plat[i].keycode,
-+				input[alloc_idx-1]->keybit);
-+		}
-+
-+		input[alloc_idx-1]->id.bustype = BUS_I2C;
-+
-+		ret = input_register_device(input[reg_idx]);
-+		if (ret) {
-+			dev_err(&ad714x->bus->dev,
-+				"Failed to register AD714x input device!\n");
-+			goto fail_alloc_reg;
-+		}
-+		reg_idx++;
-+
-+		for (i = 0; i < ad714x->hw->button_num; i++)
-+			bt_drv[i].input = input[alloc_idx-1];
-+		ad714x->sw->button = bt_drv;
-+	}
-+
-+	/* initilize and request sw/hw resources */
-+
-+	ad714x_hw_init(ad714x);
-+	mutex_init(&ad714x->mutex);
-+
-+	if (ad714x->bus->irq > 0) {
-+		ret = request_threaded_irq(ad714x->bus->irq, ad714x_interrupt,
-+				ad714x_interrupt_thread, IRQF_TRIGGER_FALLING,
-+				"ad714x_captouch", ad714x);
-+		if (ret) {
-+			dev_err(&ad714x->bus->dev, "Can't allocate irq %d\n",
-+					ad714x->bus->irq);
-+			goto fail_irq;
-+		}
-+	} else
-+		dev_warn(&ad714x->bus->dev, "IRQ not configured!\n");
-+
-+	return 0;
-+
-+fail_irq:
-+fail_alloc_reg:
-+	for (i = 0; i < reg_idx; i++)
-+		input_unregister_device(input[i]);
-+	for (i = 0; i < alloc_idx; i++)
-+		input_free_device(input[i]);
-+	kfree(bt_drv); /* kfree(NULL) is safe check is not required */
-+	kfree(sd_drv);
-+	kfree(wl_drv);
-+	kfree(tp_drv);
-+	kfree(drv_data);
-+det_err:
-+	return ret;
-+}
-+
-+static int __devexit ad714x_remove(struct ad714x_chip *ad714x)
-+{
-+	int i;
-+
-+	struct ad714x_driver_data *drv_data = ad714x->sw;
-+	struct ad714x_button_drv *bt_drv   = ad714x->sw->button;
-+	struct ad714x_slider_drv *sd_drv   = ad714x->sw->slider;
-+	struct ad714x_wheel_drv *wl_drv    = ad714x->sw->wheel;
-+	struct ad714x_touchpad_drv *tp_drv = ad714x->sw->touchpad;
-+
-+	/* free irq hardware resource */
-+
-+	if (ad714x->bus->irq > 0)
-+		free_irq(ad714x->bus->irq, ad714x);
-+
-+	/* unregister and free all input devices */
-+
-+	for (i = 0; i < ad714x->hw->slider_num; i++) {
-+		input_unregister_device(ad714x->sw->slider[i].input);
-+		input_free_device(ad714x->sw->slider[i].input);
-+	}
-+
-+	for (i = 0; i < ad714x->hw->wheel_num; i++) {
-+		input_unregister_device(ad714x->sw->wheel[i].input);
-+		input_free_device(ad714x->sw->wheel[i].input);
-+	}
-+
-+	for (i = 0; i < ad714x->hw->touchpad_num; i++) {
-+		input_unregister_device(ad714x->sw->touchpad[i].input);
-+		input_free_device(ad714x->sw->touchpad[i].input);
-+	}
-+
-+	input_unregister_device(ad714x->sw->button[0].input);
-+	input_free_device(ad714x->sw->button[0].input);
-+
-+	/* free all memories for software flow */
-+	kfree(bt_drv); /* kfree(NULL) is safe check is not required */
-+	kfree(sd_drv);
-+	kfree(wl_drv);
-+	kfree(tp_drv);
-+	kfree(drv_data);
-+	kfree(ad714x);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int ad714x_suspend(bus_device *bus, pm_message_t message)
-+{
-+	struct ad714x_chip *ad714x = dev_get_drvdata(&bus->dev);
-+	unsigned short data;
-+
-+	pr_debug("%s enter\n", __func__);
-+
-+	mutex_lock(&ad714x->mutex);
-+
-+	data = ad714x->hw->sys_cfg_reg[AD714X_PWR_CTRL] | 0x3;
-+	ad714x->write(bus, AD714X_PWR_CTRL, data);
-+
-+	mutex_unlock(&ad714x->mutex);
-+
-+	return 0;
-+}
-+
-+static int ad714x_resume(bus_device *bus)
-+{
-+	struct ad714x_chip *ad714x = dev_get_drvdata(&bus->dev);
-+	unsigned short data;
-+
-+	pr_debug("%s enter\n", __func__);
-+
-+	mutex_lock(&ad714x->mutex);
-+
-+	/* resume to non-shutdown mode */
-+
-+	ad714x->write(bus, AD714X_PWR_CTRL,
-+			ad714x->hw->sys_cfg_reg[AD714X_PWR_CTRL]);
-+
-+	/* make sure the interrupt output line is not low level after resume,
-+	 * otherwise we will get no chance to enter falling-edge irq again
-+	 */
-+
-+	ad714x->read(bus, STG_LOW_INT_STA_REG, &data);
-+	ad714x->read(bus, STG_HIGH_INT_STA_REG, &data);
-+	ad714x->read(bus, STG_COM_INT_STA_REG, &data);
-+
-+	mutex_unlock(&ad714x->mutex);
-+
-+	return 0;
-+}
-+#else
-+#define ad714x_suspend NULL
-+#define ad714x_resume  NULL
-+#endif
-+
-+#if defined(CONFIG_INPUT_AD714X_SPI)
-+int ad714x_spi_read(struct spi_device *spi, unsigned short reg,
-+		unsigned short *data)
-+{
-+	int ret;
-+	unsigned short tx[2];
-+	unsigned short rx[2];
-+	struct spi_transfer t = {
-+		.tx_buf = tx,
-+		.rx_buf = rx,
-+		.len = 4,
-+	};
-+	struct spi_message m;
-+
-+	tx[0] = (AD714x_SPI_ADDR << AD714x_SPI_ADDR_SHFT) |
-+		(AD714x_SPI_READ << AD714x_SPI_READ_SHFT) | reg;
-+
-+	spi_message_init(&m);
-+	spi_message_add_tail(&t, &m);
-+	ret = spi_sync(spi, &m);
-+
-+	if (ret < 0) {
-+		dev_err(&spi->dev, "SPI read error\n");
-+		return ret;
-+	}
-+
-+	*data = rx[1];
-+	return ret;
-+}
-+
-+int ad714x_spi_write(struct spi_device *spi, unsigned short reg,
-+		unsigned short data)
-+{
-+	int ret = 0;
-+	unsigned short tx[2];
-+	struct spi_transfer t = {
-+		.tx_buf = tx,
-+		.len = 4,
-+	};
-+	struct spi_message m;
-+
-+	tx[0] = (AD714x_SPI_ADDR << AD714x_SPI_ADDR_SHFT) | reg;
-+	tx[1] = data;
-+
-+	spi_message_init(&m);
-+	spi_message_add_tail(&t, &m);
-+
-+	ret = spi_sync(spi, &m);
-+	if (ret < 0)
-+		dev_err(&spi->dev, "SPI write error\n");
-+
-+	return ret;
-+}
-+
-+static int __devinit ad714x_spi_probe(struct spi_device *spi)
-+{
-+	int ret = 0;
-+	struct ad714x_chip *chip;
-+
-+	if (spi->dev.platform_data == NULL) {
-+		dev_err(&spi->dev, "platform data for ad714x doesn't exist\n");
-+		return -ENODEV;
-+	}
-+
-+	chip = kzalloc(sizeof(struct ad714x_chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
-+
-+	chip->bus = spi;
-+	chip->read = ad714x_spi_read;
-+	chip->write = ad714x_spi_write;
-+	chip->hw = spi->dev.platform_data;
-+	spi_set_drvdata(spi, chip);
-+
-+	/* common probe not related with spi/i2c */
-+	ret = ad714x_probe(chip);
-+	if (ret)
-+		kfree(chip);
-+
-+	return ret;
-+}
-+
-+static int __devexit ad714x_spi_remove(struct spi_device *spi)
-+{
-+	struct ad714x_chip *chip = spi_get_drvdata(spi);
-+	ad714x_remove(chip);
-+
-+	return 0;
-+}
-+
-+static struct spi_driver ad714x_spi_driver = {
-+	.driver = {
-+		.name	= "ad714x_captouch",
-+		.bus	= &spi_bus_type,
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= ad714x_spi_probe,
-+	.remove		= __devexit_p(ad714x_spi_remove),
-+	.suspend	= ad714x_suspend,
-+	.resume		= ad714x_resume,
-+};
-+
-+static int __init ad714x_init(void)
-+{
-+	int ret;
-+
-+	ret = spi_register_driver(&ad714x_spi_driver);
-+	if (ret != 0) {
-+		printk(KERN_ERR "Failed to register ad714x SPI driver: %d\n",
-+				ret);
-+	}
-+
-+	return ret;
-+}
-+
-+static void __exit ad714x_exit(void)
-+{
-+	spi_unregister_driver(&ad714x_spi_driver);
-+}
-+#else
-+static int ad714x_i2c_write(struct i2c_client *client, unsigned short reg,
-+		unsigned short data)
-+{
-+	int ret = 0;
-+	u8 tx[4];
-+
-+	/* Do raw I2C, not smbus compatible */
-+	tx[0] = (reg & 0xFF00) >> 8;
-+	tx[1] = (reg & 0x00FF);
-+	tx[2] = (data & 0xFF00) >> 8;
-+	tx[3] = data & 0x00FF;
-+
-+	ret = i2c_master_send(client, tx, 4);
-+	if (ret < 0)
-+		dev_err(&client->dev, "I2C write error\n");
-+
-+	return ret;
-+}
-+
-+static int ad714x_i2c_read(struct i2c_client *client, unsigned short reg,
-+		unsigned short *data)
-+{
-+	int ret = 0;
-+	u8 tx[2];
-+	u8 rx[2];
-+
-+	/* Do raw I2C, not smbus compatible */
-+	tx[0] = (reg & 0xFF00) >> 8;
-+	tx[1] = (reg & 0x00FF);
-+
-+	ret = i2c_master_send(client, tx, 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C read error\n");
-+		return ret;
-+	}
-+
-+	ret = i2c_master_recv(client, rx, 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C read error\n");
-+		return ret;
-+	}
-+
-+	*data = rx[0];
-+	*data = (*data << 8) | rx[1];
-+
-+	return ret;
-+}
-+
-+static int __devinit ad714x_i2c_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	int ret = 0;
-+	struct ad714x_chip *chip;
-+
-+	if (client->dev.platform_data == NULL) {
-+		dev_err(&client->dev,
-+			"platform data for ad714x doesn't exist\n");
-+		return -ENODEV;
-+	}
-+
-+	chip = kzalloc(sizeof(struct ad714x_chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
-+
-+	chip->bus = client;
-+	chip->read = ad714x_i2c_read;
-+	chip->write = ad714x_i2c_write;
-+	chip->hw = client->dev.platform_data;
-+	i2c_set_clientdata(client, chip);
-+
-+	/* common probe not related with spi/i2c */
-+	ret = ad714x_probe(chip);
-+	if (ret)
-+		kfree(chip);
-+
-+	return ret;
-+}
-+
-+static int __devexit ad714x_i2c_remove(struct i2c_client *client)
-+{
-+	struct ad714x_chip *chip = i2c_get_clientdata(client);
-+	ad714x_remove(chip);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id ad714x_id[] = {
-+	{ "ad714x_captouch", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ad714x_id);
-+
-+static struct i2c_driver ad714x_i2c_driver = {
-+	.driver = {
-+		.name = "ad714x_captouch",
-+	},
-+	.probe = ad714x_i2c_probe,
-+	.remove = __devexit_p(ad714x_i2c_remove),
-+	.suspend	= ad714x_suspend,
-+	.resume		= ad714x_resume,
-+	.id_table = ad714x_id,
-+};
-+
-+static int __init ad714x_init(void)
-+{
-+	return i2c_add_driver(&ad714x_i2c_driver);
-+}
-+
-+static void __exit ad714x_exit(void)
-+{
-+	i2c_del_driver(&ad714x_i2c_driver);
-+}
-+#endif
-+
-+module_init(ad714x_init);
-+module_exit(ad714x_exit);
-+
-+MODULE_DESCRIPTION("ad714x captouch driver");
-+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
++#include <linux/err.h>
++#include <linux/param.h>
++#include <linux/spi/spi.h>
++#include <linux/irq.h>
++#include <linux/delay.h>
++#include <linux/kthread.h>
++#include <asm/mrst_ipcdefs.h>
++
++MODULE_AUTHOR("Sreedhara Murthy. D.S, sreedhara.ds@intel.com");
++MODULE_DESCRIPTION("Intel Moorestown Resistive Touch Screen Driver");
 +MODULE_LICENSE("GPL");
--- 
-1.5.6.3
++
++/* PMIC Interrupt registers */
++#define PMIC_REG_ID1   0x00 /*PMIC ID1 register */
++
++/* PMIC Interrupt registers */
++#define PMIC_REG_INT   0x04 /*PMIC interrupt register */
++#define PMIC_REG_MINT  0x05 /*PMIC interrupt mask register */
++
++/* ADC Interrupt registers */
++#define PMIC_REG_ADCINT   0x5F /*ADC interrupt register */
++#define PMIC_REG_MADCINT  0x60 /*ADC interrupt mask register */
++
++/* ADC Control registers */
++#define PMIC_REG_ADCCNTL1    0x61 /*ADC control register */
++
++/* ADC Channel Selection registers */
++#define PMICADDR0     0xA4
++#define END_OF_CHANNEL 0x1F
++
++/* ADC Result register */
++#define PMIC_REG_ADCSNS0H   0x64
++
++/* ADC channels for touch screen */
++#define MRST_TS_CHAN10   0xA /* Touch screen X+ connection */
++#define MRST_TS_CHAN11   0xB /* Touch screen X- connection */
++#define MRST_TS_CHAN12   0xC /* Touch screen Y+ connection */
++#define MRST_TS_CHAN13   0xD /* Touch screen Y- connection */
++
++/* Touch screen coordinate constants */
++#define TOUCH_PRESSURE         5
++#define TOUCH_PRESSURE_FS      100
++
++#define XMOVE_LIMIT    5
++#define YMOVE_LIMIT    5
++#define XYMOVE_CNT     3
++
++#define MAX_10BIT      ((1<<10)-1)
++
++/* Touch screen channel BIAS constants */
++#define XBIAS          0x20
++#define YBIAS          0x40
++#define ZBIAS          0x80
++
++/* Touch screen coordinates */
++#define MIN_X          10
++#define MAX_X          1024
++#define MIN_Y          10
++#define MAX_Y          1024
++#define WAIT_ADC_COMPLETION 10
++
++/* PMIC ADC round robin delays */
++#define ADC_LOOP_DELAY0 0x0 /* Continuous loop */
++#define ADC_LOOP_DELAY1 0x1 /* 4.5  ms approximate */
++
++/* PMIC Vendor Identifiers */
++#define PMIC_VENDOR_FS  0 /* PMIC vendor FreeScale */
++#define PMIC_VENDOR_MAXIM 1 /* PMIC vendor MAXIM */
++#define PMIC_VENDOR_NEC 2 /* PMIC vendor NEC */
++#define MRSTOUCH_MAX_CHANNELS 32 /* Maximum ADC channels */
++
++/* Touch screen device structure */
++struct mrstouch_dev {
++       struct spi_device *spi; /* SPI device associated with touch screen =
+*/
++       struct input_dev *input; /* input device for touchscreen*/
++       char            phys[32]; /* Device name */
++       struct task_struct *pendet_thrd; /* PENDET interrupt handler */
++       struct semaphore lock; /* Sync between interrupt and PENDET handler=
+ */
++       bool            busy; /* Busy flag */
++       u16             asr; /* Address selection register */
++       int             irq;    /* Touch screen IRQ # */
++       uint            vendor;  /* PMIC vendor */
++       uint            rev;  /* PMIC revision */
++       u16             x;  /* X coordinate */
++       u16             y;  /* Y coordinate */
++       bool            pendown;  /* PEN position */
++       uint            xmc;  /* Xmove count */
++       uint            ymc;  /* Xmove count */
++} ;
++
++
++/* Global Pointer to Touch screen device */
++static struct mrstouch_dev *mrstouchdevp;
++
++/* Utility to read PMIC ID */
++static int mrstouch_pmic_id(uint *vendor, uint *rev)
++{
++       int err;
++       struct mrst_pmic_reg_data adc_data;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 1;
++       adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_ID1;
++
++       err =3D mrst_pmic_ioread(&adc_data);
++       if (err)
++               return -1;
++
++       *vendor =3D (adc_data.pmic_reg_data[0].value) & 0x7;
++       *rev =3D (adc_data.pmic_reg_data[0].value >> 3) & 0x7;
++
++       return 0;
++}
++
++/*
++ * Parse ADC channels to find end of the channel configured by other ADC u=
+ser
++ * NEC and MAXIM requires 4 channels and FreeScale needs 18 channels
++ */
++static int mrstouch_chan_parse(struct mrstouch_dev *tsdev)
++{
++       int err, i, j, chan, found;
++       struct mrst_pmic_reg_data pdata;
++
++       pdata.ioc =3D 1;
++
++       found =3D -1;
++       pdata.num_entries =3D 4;
++
++       for (i =3D 0; i < MRSTOUCH_MAX_CHANNELS; i++) {
++               if (found >=3D 0)
++                       break;
++
++               for (j =3D 0; j <=3D 3; j++)
++                       pdata.pmic_reg_data[j].register_address =3D PMICADD=
+R0+i;
++
++               err =3D mrst_pmic_ioread(&pdata);
++               if (err)
++                       return -1;
++
++               for (j =3D 0; j < pdata.num_entries; j++) {
++                       chan =3D pdata.pmic_reg_data[j].value;
++                       if (chan =3D=3D END_OF_CHANNEL) {
++                               found =3D i;
++                               break;
++                       }
++               }
++       }
++
++       if (found < 0)
++               return 0;
++
++       if (tsdev->vendor =3D=3D PMIC_VENDOR_FS) {
++               if (found && found > (MRSTOUCH_MAX_CHANNELS - 18))
++                       return -1;
++       } else {
++               if (found && found > (MRSTOUCH_MAX_CHANNELS - 4))
++                       return -1;
++       }
++       return found;
++}
++
++/* Utility to enable/disable pendet.
++ * pendet set to true enables PENDET interrupt
++ * pendet set to false disables PENDET interrupt
++ * Also clears RND mask bit
++*/
++static void pendet_enable(bool pendet)
++{
++       u8 adccntrl1 =3D 0;
++       u8 pendet_enabled =3D 0;
++       int retry =3D 0;
++       struct mrst_pmic_reg_data adc_data;
++
++       adc_data.ioc =3D 1;
++
++       adc_data.num_entries =3D 1;
++       adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_ADCCNTL1;
++       mrst_pmic_ioread(&adc_data);
++       adccntrl1 =3D adc_data.pmic_reg_data[0].value;
++
++       if (pendet)
++               adccntrl1 |=3D 0x20; /* Enable pendet */
++       else
++               adccntrl1 &=3D 0xDF; /* Disable pendet */
++
++       adc_data.num_entries =3D 2;
++       adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_MADCINT;
++       adc_data.pmic_reg_data[0].value =3D 0x0;
++       adc_data.pmic_reg_data[1].register_address =3D PMIC_REG_ADCCNTL1;
++       adc_data.pmic_reg_data[1].value =3D adccntrl1;
++       mrst_pmic_iowrite(&adc_data);
++
++       if (!pendet)
++               return;
++
++
++       /*
++        * Sometimes even after mrst_pmic_iowrite success
++        * the PMIC register value is not updated. Retry few iterations
++        * to enable pendet.
++       */
++       adc_data.num_entries =3D 1;
++       adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_ADCCNTL1;
++       mrst_pmic_ioread(&adc_data);
++       pendet_enabled =3D (adc_data.pmic_reg_data[0].value >> 5) & 0x01;
++
++       retry =3D 0;
++       while (!pendet_enabled) {
++               retry++;
++               msleep(10);
++               adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_ADC=
+CNTL1;
++               adc_data.pmic_reg_data[0].value =3D adccntrl1;
++               mrst_pmic_iowrite(&adc_data);
++
++               adc_data.pmic_reg_data[0].register_address =3D PMIC_REG_ADC=
+CNTL1;
++               mrst_pmic_ioread(&adc_data);
++               pendet_enabled =3D (adc_data.pmic_reg_data[0].value >> 5) &=
+ 0x01;
++               if (retry >=3D 10) {
++                       printk(KERN_ERR "Touch screen disabled\n");
++                       break;
++               }
++       }
++}
++
++
++/* To read PMIC ADC touch screen result
++ * Reads ADC storage registers for higher 7 and lower 3 bits
++ * converts the two readings to single value and turns off gain bit
++ */
++static int mrstouch_ts_chan_read(u16 offset, u16 chan, u16 *vp, u16 *vm)
++{
++       int err, count;
++       u16 result;
++       struct mrst_pmic_reg_data       adc_data;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 4;
++
++       result =3D PMIC_REG_ADCSNS0H + offset;
++
++       if (chan =3D=3D MRST_TS_CHAN12)
++               result +=3D 4;
++
++       for (count =3D 0; count <=3D 3; count++)
++               adc_data.pmic_reg_data[count].register_address =3D result++=
+;
++
++       err =3D mrst_pmic_ioread(&adc_data);
++       if (err)
++               return -1;
++
++       *vp =3D adc_data.pmic_reg_data[0].value << 3; /* Higher 7 bits */
++       *vp |=3D adc_data.pmic_reg_data[1].value & 0x7; /* Lower 3 bits */
++       *vp &=3D 0x3FF;
++
++       *vm =3D adc_data.pmic_reg_data[2].value << 3; /* Higher 7 bits */
++       *vm |=3D adc_data.pmic_reg_data[3].value & 0x7; /* Lower 3 bits */
++       *vm &=3D 0x3FF;
++
++       return 0;
++}
++
++/* To configure touch screen channels
++ * Writes touch screen channels to ADC address selection registers
++ */
++static int mrstouch_ts_chan_set(uint offset)
++{
++       int err, count;
++       u16 chan;
++       struct mrst_pmic_reg_data       adc_data;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 5;
++
++       chan =3D PMICADDR0 + offset;
++       for (count =3D 0; count <=3D 3; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D MRST_TS_CHAN10 + co=
+unt;
++       }
++       adc_data.pmic_reg_data[count].register_address =3D chan;
++       adc_data.pmic_reg_data[count].value =3D END_OF_CHANNEL;
++
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               return -1;
++
++       return 0;
++}
++
++/* Initialize ADC */
++static int mrstouch_adc_init(struct mrstouch_dev *tsdev)
++{
++       int err, start;
++       struct mrst_pmic_mod_reg_data adc_data;
++
++       err =3D mrstouch_pmic_id(&tsdev->vendor, &tsdev->rev);
++       if (err) {
++               printk(KERN_ERR "Error in reading PMIC Id");
++               return err;
++       }
++
++       start =3D mrstouch_chan_parse(tsdev);
++       if (start =3D=3D -1) {
++               printk(KERN_ERR "Error in parse channels");
++               return start;
++       }
++
++       tsdev->asr =3D start;
++
++       /* ADC power on, start, enable PENDET and set loop delay
++        * ADC loop delay is set to 4.5 ms approximately
++        * Loop delay more than this results in jitter in adc readings
++        * Setting loop delay to 0 (continous loop) in MAXIM stops PENDET
++        * interrupt generation sometimes.
++        */
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 2;
++       adc_data.pmic_mod_reg_data[0].register_address =3D PMIC_REG_ADCCNTL=
+1;
++       adc_data.pmic_mod_reg_data[0].bit_map =3D 0xE7;
++
++       adc_data.pmic_mod_reg_data[1].register_address =3D PMIC_REG_MADCINT=
+;
++       adc_data.pmic_mod_reg_data[1].bit_map =3D 0x03;
++
++       if (tsdev->vendor =3D=3D PMIC_VENDOR_FS) {
++               adc_data.pmic_mod_reg_data[0].value =3D 0xE0 | ADC_LOOP_DEL=
+AY0;
++               adc_data.pmic_mod_reg_data[1].value =3D 0x5;
++       } else {
++               /* NEC and MAXIm not consistent with loop delay 0 */
++               adc_data.pmic_mod_reg_data[0].value =3D 0xE0 | ADC_LOOP_DEL=
+AY1;
++               adc_data.pmic_mod_reg_data[1].value =3D 0x0;
++
++               /* configure touch screen channels */
++               err =3D mrstouch_ts_chan_set(tsdev->asr);
++               if (err)
++                       return err;
++       }
++
++       err =3D mrst_pmic_ioread_modify(&adc_data);
++
++       return err;
++}
++
++/* Reports x,y coordinates to event subsystem */
++static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u=
+16 z)
++{
++       int xdiff, ydiff;
++       bool moving =3D false;
++
++       if (tsdev->pendown && z <=3D TOUCH_PRESSURE) {
++               /* Pen removed, report button release */
++               dev_dbg(&tsdev->spi->dev, "BTN REL(%d)", z);
++               input_report_key(tsdev->input, BTN_TOUCH, 0);
++               tsdev->pendown =3D false;
++
++               tsdev->xmc =3D 0;
++               tsdev->ymc =3D 0;
++               return;
++       }
++
++       xdiff =3D abs(x - tsdev->x);
++       ydiff =3D abs(y - tsdev->y);
++
++       if (xdiff > XMOVE_LIMIT)
++               tsdev->xmc++; /* Increment X move count */
++       if (ydiff > YMOVE_LIMIT)
++               tsdev->ymc++; /* Increment Y move count */
++
++       /*
++       if x and y values changes for XYMOVE_CNT readings it is considered
++       as stylus is moving. This is required to differentiate between styl=
+us
++       movement and jitter
++       */
++       if (tsdev->xmc > XYMOVE_CNT || tsdev->ymc > XYMOVE_CNT)
++               moving =3D true; /* Stylus is moving */
++
++       if (x < MIN_X || x > MAX_X || y < MIN_Y || y > MAX_Y) {
++               /* Spurious values, release button if touched and return */
++               if (tsdev->pendown) {
++                       dev_dbg(&tsdev->spi->dev, "BTN REL(%d)", z);
++                       input_report_key(tsdev->input, BTN_TOUCH, 0);
++                       tsdev->pendown =3D false;
++                       tsdev->xmc =3D 0;
++                       tsdev->ymc =3D 0;
++               }
++               return;
++       } else if (!moving && (xdiff <=3D XMOVE_LIMIT || ydiff <=3D YMOVE_L=
+IMIT))
++               /*
++               ADC readings are differ by small variations in alternate
++               readings. Multiple ADC readings and averaging results in
++               slow response. All ADC readings fall within move limit are
++               considered as value of previous reading. This minimizes sma=
+ll
++               observable jitter in mouse pointer when stylus at fixed pos=
+ition
++               */
++               return;
++       else {
++               /* save x and y values */
++               tsdev->x =3D x;
++               tsdev->y =3D y;
++       }
++
++       input_report_abs(tsdev->input, ABS_X, x);
++       input_report_abs(tsdev->input, ABS_Y, y);
++       input_sync(tsdev->input);
++
++       if (!tsdev->pendown && z > TOUCH_PRESSURE) {
++               /* Pen touched, report button touch */
++               dev_dbg(&tsdev->spi->dev, "BTN TCH(%d, %d, %d)", x, y, z);
++               input_report_key(tsdev->input, BTN_TOUCH, 1);
++               tsdev->pendown =3D true;
++       }
++}
++
++
++/* Utility to start ADC, used by freescale handler */
++static int pendet_mask(uint mask)
++{
++       int err =3D 0;
++       struct mrst_pmic_mod_reg_data adc_data;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 1;
++       adc_data.pmic_mod_reg_data[1].register_address =3D PMIC_REG_MADCINT=
+;
++       adc_data.pmic_mod_reg_data[1].bit_map =3D 0x02;
++       adc_data.pmic_mod_reg_data[1].value =3D mask;
++
++       err =3D mrst_pmic_ioread_modify(&adc_data);
++
++       return err;
++}
++
++/* Utility to read ADC, used by freescale handler */
++static int mrstouch_pmic_fs_adc_read(struct mrstouch_dev *tsdev)
++{
++       int err;
++       u16 x, y, z, result;
++       struct mrst_pmic_reg_data adc_data;
++
++       result =3D PMIC_REG_ADCSNS0H + tsdev->asr;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 4;
++       adc_data.pmic_reg_data[0].register_address =3D result + 4;
++       adc_data.pmic_reg_data[1].register_address =3D result + 5;
++       adc_data.pmic_reg_data[2].register_address =3D result + 16;
++       adc_data.pmic_reg_data[3].register_address =3D result + 17;
++
++       err =3D mrst_pmic_ioread(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       x =3D adc_data.pmic_reg_data[0].value << 3; /* Higher 7 bits */
++       x |=3D adc_data.pmic_reg_data[1].value & 0x7; /* Lower 3 bits */
++       x &=3D 0x3FF;
++
++       y =3D adc_data.pmic_reg_data[2].value << 3; /* Higher 7 bits */
++       y |=3D adc_data.pmic_reg_data[3].value & 0x7; /* Lower 3 bits */
++       y &=3D 0x3FF;
++
++       /* Read Z value */
++       adc_data.num_entries =3D 2;
++       adc_data.pmic_reg_data[0].register_address =3D result + 28;
++       adc_data.pmic_reg_data[1].register_address =3D result + 29;
++
++       err =3D mrst_pmic_ioread(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       z =3D adc_data.pmic_reg_data[0].value << 3; /* Higher 7 bits */
++       z |=3D adc_data.pmic_reg_data[1].value & 0x7; /* Lower 3 bits */
++       z &=3D 0x3FF;
++
++       dev_dbg(&tsdev->spi->dev, "X: %d, Y: %d, Z: %d", x, y, z);
++
++       if (z >=3D TOUCH_PRESSURE_FS) { /* Pen Removed */
++               mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE - 1);
++               return TOUCH_PRESSURE - 1;
++       } else { /* Pen Touched */
++               mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE + 1);
++               return TOUCH_PRESSURE + 1;
++       }
++
++       return 0;
++
++ipc_error:
++       printk(KERN_ERR "IPC Error: %s", __func__);
++       return -1;
++}
++
++/* To handle free scale pmic pendet interrupt */
++static int pmic0_pendet(void *data)
++{
++       int err, count;
++       u16 chan;
++       unsigned int touched;
++       struct mrst_pmic_reg_data adc_data;
++       struct mrstouch_dev *tsdev =3D (struct mrstouch_dev *)data;
++
++       chan =3D PMICADDR0 + tsdev->asr;
++
++       adc_data.ioc =3D 1;
++       /* Set X BIAS */
++       adc_data.num_entries =3D 5;
++       for (count =3D 0; count <=3D 3; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x2A;
++       }
++       adc_data.pmic_reg_data[count].register_address =3D chan++; /* Dummy=
+ */
++       adc_data.pmic_reg_data[count].value =3D 0;
++
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /* Set Y BIAS */
++       adc_data.num_entries =3D 5;
++       for (count =3D 0; count <=3D 3; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x4A;
++       }
++       adc_data.pmic_reg_data[count].register_address =3D chan++; /* Dummy=
+ */
++       adc_data.pmic_reg_data[count].value =3D 0;
++
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /* Set Z BIAS */
++       chan +=3D 2;
++       adc_data.num_entries =3D 4;
++       for (count =3D 0; count <=3D 3; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x8A;
++       }
++
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /*Read touch screen channels till pen removed
++       * Freescale reports constant value of z for all points
++       * z is high when screen is not touched and low when touched
++       * Map high z value to not touched and low z value to pen touched
++       */
++       touched =3D mrstouch_pmic_fs_adc_read(tsdev);
++       while (touched > TOUCH_PRESSURE) {
++               touched =3D mrstouch_pmic_fs_adc_read(tsdev);
++               msleep(WAIT_ADC_COMPLETION);
++       }
++
++       /* Clear all TS channels */
++       chan =3D PMICADDR0 + tsdev->asr;
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 5;
++       for (count =3D 0; count <=3D 4; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x0;
++       }
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       for (count =3D 0; count <=3D 4; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x0;
++       }
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       chan +=3D 2;
++       for (count =3D 0; count <=3D 4; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D 0x0;
++       }
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               goto ipc_error;
++
++       return 0;
++
++ipc_error:
++       printk(KERN_ERR "IPC Error: %s", __func__);
++       return -1;
++}
++
++
++/* To enable X, Y and Z bias values
++ * Enables YPYM for X channels and XPXM for Y channels
++ */
++static int mrstouch_ts_bias_set(uint offset, uint bias)
++{
++       int err, count;
++       u16 chan, start;
++       struct mrst_pmic_reg_data adc_data;
++
++       chan =3D PMICADDR0 + offset;
++       start =3D MRST_TS_CHAN10;
++
++       adc_data.ioc =3D 1;
++       adc_data.num_entries =3D 4;
++
++       for (count =3D 0; count <=3D 3; count++) {
++               adc_data.pmic_reg_data[count].register_address =3D chan++;
++               adc_data.pmic_reg_data[count].value =3D bias | (start + cou=
+nt);
++       }
++
++       err =3D mrst_pmic_iowrite(&adc_data);
++       if (err)
++               return -1;
++
++       return 0;
++}
++
++/* To read touch screen channel values */
++static int mrstouch_adc_read(struct mrstouch_dev *tsdev)
++{
++       int err;
++       u16 xp, xm, yp, ym, zp, zm;
++
++       /* configure Y bias for X channels */
++       err =3D mrstouch_ts_bias_set(tsdev->asr, YBIAS);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /* read x+ and x- channels */
++       err =3D mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN10, &xp, &xm)=
+;
++       if (err)
++               goto ipc_error;
++
++       /* configure x bias for y channels */
++       err =3D mrstouch_ts_bias_set(tsdev->asr, XBIAS);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /* read y+ and y- channels */
++       err =3D mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN12, &yp, &ym)=
+;
++       if (err)
++               goto ipc_error;
++
++       /* configure z bias for x and y channels */
++       err =3D mrstouch_ts_bias_set(tsdev->asr, ZBIAS);
++       if (err)
++               goto ipc_error;
++
++       msleep(WAIT_ADC_COMPLETION);
++
++       /* read z+ and z- channels */
++       err =3D mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN10, &zp, &zm)=
+;
++       if (err)
++               goto ipc_error;
++
++#if defined(MRSTOUCH_PRINT_XYZP)
++       printk(KERN_INFO "X+: %d, Y+: %d, Z+: %d\n", xp, yp, zp);
++#endif
++
++#if defined(MRSTOUCH_PRINT_XYZP)
++       printk(KERN_INFO "X-: %d, Y-: %d, Z-: %d\n", xm, ym, zm);
++#endif
++       if (xm < MIN_X || xm > MAX_X || ym < MIN_Y || ym > MAX_Y)
++               return TOUCH_PRESSURE - 1;
++
++       mrstouch_report_xy(tsdev, xp, yp, zp); /* report x and y to eventX =
+*/
++
++       return zp;
++
++ipc_error:
++       printk(KERN_ERR "IPC Error: %s", __func__);
++       return -1;
++}
++
++/* PENDET interrupt handler function for NEC and MAXIM */
++static void pmic12_pendet(void *data)
++{
++       unsigned int touched;
++       struct mrstouch_dev *tsdev =3D (struct mrstouch_dev *)data;
++
++       /* read touch screen channels till pen removed */
++       touched =3D mrstouch_adc_read(tsdev);
++       while (touched > TOUCH_PRESSURE) {
++               touched =3D mrstouch_adc_read(tsdev);
++               msleep(WAIT_ADC_COMPLETION);
++       }
++}
++
++/* Handler to process PENDET interrupt */
++int mrstouch_pendet(void *data)
++{
++       struct mrstouch_dev *tsdev =3D (struct mrstouch_dev *)data;
++
++       while (1) {
++               down(&tsdev->lock); /* Wait for PENDET interrupt */
++
++               if (tsdev->busy)
++                       return 0;
++
++               tsdev->busy =3D true;
++
++               if (tsdev->vendor =3D=3D PMIC_VENDOR_NEC ||
++                       tsdev->vendor =3D=3D PMIC_VENDOR_MAXIM) {
++                       /* PENDET must be disabled in NEC before reading AD=
+C */
++                       pendet_enable(false); /* Disbale PENDET */
++                       pmic12_pendet(tsdev);
++                       pendet_enable(true); /*Enable PENDET */
++               } else if (tsdev->vendor =3D=3D PMIC_VENDOR_FS) {
++                       pendet_mask(0); /* Disable PENDET */
++                       pmic0_pendet(tsdev);
++                       pendet_mask(1); /* Enable PENDET */
++               } else
++                       printk(KERN_ERR "Unknown PMIC, Not supported\n");
++
++               tsdev->busy =3D false;
++       }
++
++       return 0;
++}
++
++/* PENDET interrupt handler */
++static irqreturn_t pendet_intr_handler(int irq, void *handle)
++{
++       struct mrstouch_dev *tsdev =3D (struct mrstouch_dev *)handle;
++       up(&tsdev->lock);
++
++       return IRQ_HANDLED;
++}
++
++/* Intializes input device and registers with input subsystem */
++static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device=
+ *spi)
++{
++       int err =3D 0;
++
++       tsdev->input =3D input_allocate_device();
++       if (!tsdev->input) {
++               dev_err(&tsdev->spi->dev, "%s", "Input dev allocation faile=
+d");
++               return -ENOMEM;
++       }
++
++       tsdev->input->name =3D "mrst_touchscreen";
++       snprintf(tsdev->phys, sizeof(tsdev->phys),
++                       "%s/input0", dev_name(&spi->dev));
++       tsdev->input->phys =3D tsdev->phys;
++       tsdev->input->dev.parent =3D &spi->dev;
++
++       tsdev->input->id.vendor =3D tsdev->vendor;
++       tsdev->input->id.version =3D tsdev->rev;
++
++       tsdev->input->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++       tsdev->input->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
++
++       input_set_abs_params(tsdev->input, ABS_X, MIN_X, MIN_Y, 0, 0);
++       input_set_abs_params(tsdev->input, ABS_Y, MIN_X, MIN_Y, 0, 0);
++
++       err =3D input_register_device(tsdev->input);
++       if (err) {
++               dev_err(&tsdev->spi->dev, "%s", "Input dev register failed"=
+);
++               input_free_device(tsdev->input);
++               return err;
++       }
++
++       dev_dbg(&tsdev->spi->dev, "%s", "mrstouch initialized");
++
++       return 0;
++
++}
++
++/* Probe function for touch screen driver */
++static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
++{
++       int err;
++       unsigned int myirq;
++       struct mrstouch_dev *tsdev;
++
++       myirq =3D mrstouch_spi->irq;
++
++       if (!mrstouch_spi->irq) {
++               dev_err(&mrstouch_spi->dev, "%s(%d)", "No IRQ", myirq);
++               return -EINVAL;
++       }
++
++       tsdev =3D kzalloc(sizeof(struct mrstouch_dev), GFP_KERNEL);
++       if (!tsdev) {
++               dev_err(&tsdev->spi->dev, "%s", "ERROR: Memory failure");
++               return -ENOMEM;
++       }
++
++       tsdev->irq =3D myirq;
++
++       err =3D ts_input_dev_init(tsdev, mrstouch_spi);
++       if (err) {
++               dev_err(&tsdev->spi->dev, "%s", "ts_input_dev_init failed")=
+;
++               kfree(tsdev);
++               return err;
++       }
++
++       err =3D mrstouch_adc_init(tsdev);
++       if (err) {
++               dev_err(&tsdev->spi->dev, "%s", "ADC init failed");
++               goto mrstouch_error;
++       }
++
++       dev_set_drvdata(&mrstouch_spi->dev, tsdev);
++       tsdev->spi =3D mrstouch_spi;
++
++       sema_init(&tsdev->lock, 1);
++       down(&tsdev->lock);
++
++       tsdev->pendet_thrd =3D kthread_run(mrstouch_pendet,
++                                       (void *)tsdev, "pendet handler");
++       if (IS_ERR(tsdev->pendet_thrd)) {
++               dev_err(&tsdev->spi->dev, "kthread_run failed \n");
++               goto mrstouch_error;
++       }
++
++       dev_dbg(&tsdev->spi->dev, "Requesting IRQ-%d", myirq);
++       err =3D request_irq(myirq, pendet_intr_handler,
++                               0, "mrstouch", tsdev);
++       if (err) {
++               dev_err(&tsdev->spi->dev, "IRQ Request Failed - %d", err);
++               goto mrstouch_error;
++       }
++
++       dev_dbg(&tsdev->spi->dev, "%s", "Driver initialized");
++
++       return 0;
++
++ mrstouch_error:
++       input_unregister_device(tsdev->input);
++       kfree(tsdev);
++       return -1;
++}
++
++static __devexit int mrstouch_remove(struct spi_device *spi)
++{
++       free_irq(mrstouchdevp->irq, mrstouchdevp);
++       input_unregister_device(mrstouchdevp->input);
++       kfree(mrstouchdevp);
++       return 0;
++}
++
++static struct spi_driver mrstouch_driver =3D {
++       .driver =3D {
++               .name   =3D "pmic_touch",
++               .bus    =3D &spi_bus_type,
++               .owner  =3D THIS_MODULE,
++       },
++       .probe          =3D mrstouch_probe,
++       .remove         =3D __devexit_p(mrstouch_remove),
++};
++
++static int __init mrstouch_module_init(void)
++{
++       return spi_register_driver(&mrstouch_driver);
++}
++
++static void __exit mrstouch_module_exit(void)
++{
++       spi_unregister_driver(&mrstouch_driver);
++}
++
++module_init(mrstouch_module_init);
++module_exit(mrstouch_module_exit);
+--
+1.5.4.5
 
+--_002_0AE3E14D83C76F4994657326177D1FF9631330FFbgsmsx501garcor_
+Content-Type: application/octet-stream;
+	name="0001-Resistive-touch-screen-driver-for-Intel-Moorestown-p.patch"
+Content-Description: 0001-Resistive-touch-screen-driver-for-Intel-Moorestown-p.patch
+Content-Disposition: attachment;
+	filename="0001-Resistive-touch-screen-driver-for-Intel-Moorestown-p.patch";
+	size=27351; creation-date="Wed, 02 Sep 2009 10:49:06 GMT";
+	modification-date="Wed, 02 Sep 2009 10:49:06 GMT"
+Content-Transfer-Encoding: base64
+
+RnJvbSBhZDAzMjUyMWNlODY2MDJmZDgzZjMxMzg3OGIyNWM4ZmFkYjY2YjA5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQ0KRnJvbTogU3JlZWRoYXJhIERTIDxzcmVlZGhhcmEuZHNAaW50ZWwuY29t
+Pg0KRGF0ZTogV2VkLCAyIFNlcCAyMDA5IDEwOjQ0OjE5ICswNTMwDQpTdWJqZWN0OiBbUEFUQ0hd
+IFJlc2lzdGl2ZSB0b3VjaCBzY3JlZW4gZHJpdmVyIGZvciBJbnRlbCBNb29yZXN0b3duIHBsYXRm
+b3JtDQogRHJpdmVyIHdvcmtzIHdpdGggTkVDLCBNQVhJTSBhbmQgRnJlZVNjYWxlIFBNSUNzDQog
+VGVzdGVkIHdpdGggbW9ibGluIG1yc3RvdWNoIFhvcmcgdG91Y2hzY3JlZW4gZHJpdmVyDQoNCglt
+b2RpZmllZDogICBLY29uZmlnDQoJbW9kaWZpZWQ6ICAgTWFrZWZpbGUNCgluZXcgZmlsZTogICBt
+cnN0b3VjaC5jDQoNClNpZ25lZC1vZmYtYnk6IFNyZWVkaGFyYSBEUyA8c3JlZWRoYXJhLmRzQGlu
+dGVsLmNvbT4NCi0tLQ0KIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZyAgICB8ICAg
+IDkgKw0KIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vTWFrZWZpbGUgICB8ICAgIDEgKw0KIGRy
+aXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vbXJzdG91Y2guYyB8ICA4OTYgKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKw0KIDMgZmlsZXMgY2hhbmdlZCwgOTA2IGluc2VydGlvbnMoKyks
+IDAgZGVsZXRpb25zKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvaW5wdXQvdG91Y2hz
+Y3JlZW4vbXJzdG91Y2guYw0KDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVl
+bi9LY29uZmlnIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9LY29uZmlnDQppbmRleCA3MmUy
+NzEyLi4wZmEzMWU5IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9LY29u
+ZmlnDQorKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcNCkBAIC00OTgsNCAr
+NDk4LDEzIEBAIGNvbmZpZyBUT1VDSFNDUkVFTl9XOTBYOTAwDQogCSAgVG8gY29tcGlsZSB0aGlz
+IGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlDQogCSAgbW9kdWxlIHdpbGwg
+YmUgY2FsbGVkIHc5MHA5MTBfdHMuDQogDQorY29uZmlnIFRPVUNIU0NSRUVOX01SU1RPVUNIDQor
+CXRyaXN0YXRlICJJbnRlbCBNb29yZXN0b3duIFJlc2lzdGl2ZSB0b3VjaHNjcmVlbiINCisJZGVw
+ZW5kcyBvbiBMQU5HV0VMTF9JUEMgJiYgU1BJX01SU1QNCisJZGVmYXVsdCB5DQorCWhlbHANCisJ
+ICBTYXkgWSBoZXJlIGlmIHlvdSBoYXZlIGEgSW50ZWwgTW9vcnN0b3duIHBsYXRmb3JtDQorDQor
+CSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhl
+DQorCSAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIG1yc3RvdWNoLg0KIGVuZGlmDQpkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9NYWtlZmlsZSBiL2RyaXZlcnMvaW5wdXQvdG91
+Y2hzY3JlZW4vTWFrZWZpbGUNCmluZGV4IDNlMWM1ZTAuLjliNjdjMTcgMTAwNjQ0DQotLS0gYS9k
+cml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL01ha2VmaWxlDQorKysgYi9kcml2ZXJzL2lucHV0L3Rv
+dWNoc2NyZWVuL01ha2VmaWxlDQpAQCAtNDAsMyArNDAsNCBAQCBvYmotJChDT05GSUdfVE9VQ0hT
+Q1JFRU5fV005N1hYX0FUTUVMKQkrPSBhdG1lbC13bTk3eHgubw0KIG9iai0kKENPTkZJR19UT1VD
+SFNDUkVFTl9XTTk3WFhfTUFJTlNUT05FKQkrPSBtYWluc3RvbmUtd205N3h4Lm8NCiBvYmotJChD
+T05GSUdfVE9VQ0hTQ1JFRU5fV005N1hYX1pZTE9OSVRFKQkrPSB6eWxvbml0ZS13bTk3eHgubw0K
+IG9iai0kKENPTkZJR19UT1VDSFNDUkVFTl9XOTBYOTAwKQkrPSB3OTBwOTEwX3RzLm8NCitvYmot
+JChDT05GSUdfVE9VQ0hTQ1JFRU5fTVJTVE9VQ0gpICAgICs9IG1yc3RvdWNoLm8NCmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL21yc3RvdWNoLmMgYi9kcml2ZXJzL2lucHV0
+L3RvdWNoc2NyZWVuL21yc3RvdWNoLmMNCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQppbmRleCAwMDAw
+MDAwLi4wYTUwZTg3DQotLS0gL2Rldi9udWxsDQorKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2Ny
+ZWVuL21yc3RvdWNoLmMNCkBAIC0wLDAgKzEsODk2IEBADQorLyoNCisgKiBtcnN0b3VjaC5jIC0g
+SW50ZWwgTW9vcmVzdG93biBSZXNpc3RpdmUgVG91Y2ggU2NyZWVuIERyaXZlcg0KKyAqDQorICog
+Q29weXJpZ2h0IChDKSAyMDA4IEludGVsIENvcnANCisgKg0KKyAqIH5+fn5+fn5+fn5+fn5+fn5+
+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
+DQorICoNCisgKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3Ry
+aWJ1dGUgaXQgYW5kL29yIG1vZGlmeQ0KKyAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05V
+IEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5DQorICogdGhlIEZyZWUgU29m
+dHdhcmUgRm91bmRhdGlvbjsgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLg0KKyAqDQorICogVGhp
+cyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2Vm
+dWwsIGJ1dA0KKyAqIFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxp
+ZWQgd2FycmFudHkgb2YNCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJU
+SUNVTEFSIFBVUlBPU0UuCVNlZSB0aGUgR05VDQorICogR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBm
+b3IgbW9yZSBkZXRhaWxzLg0KKyAqDQorICogWW91IHNob3VsZCBoYXZlIHJlY2VpdmVkIGEgY29w
+eSBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYWxvbmcNCisgKiB3aXRoIHRoaXMg
+cHJvZ3JhbTsgaWZub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24sIElu
+Yy4sDQorICogNTkgVGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEgMDIxMTEtMTMw
+NyBVU0EuDQorICoNCisgKiBRdWVzdGlvbnMvQ29tbWVudHMvQnVnIGZpeGVzIHRvIFNyZWVkaGFy
+YSAoc3JlZWRoYXJhLmRzQGludGVsLmNvbSkNCisgKiB+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fg0KKyAqLw0K
+KyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCisjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KKyNp
+bmNsdWRlIDxsaW51eC9pbnB1dC5oPg0KKyNpbmNsdWRlIDxsaW51eC9pbnRlcnJ1cHQuaD4NCisj
+aW5jbHVkZSA8bGludXgvZXJyLmg+DQorI2luY2x1ZGUgPGxpbnV4L3BhcmFtLmg+DQorI2luY2x1
+ZGUgPGxpbnV4L3NwaS9zcGkuaD4NCisjaW5jbHVkZSA8bGludXgvaXJxLmg+DQorI2luY2x1ZGUg
+PGxpbnV4L2RlbGF5Lmg+DQorI2luY2x1ZGUgPGxpbnV4L2t0aHJlYWQuaD4NCisjaW5jbHVkZSA8
+YXNtL21yc3RfaXBjZGVmcy5oPg0KKw0KK01PRFVMRV9BVVRIT1IoIlNyZWVkaGFyYSBNdXJ0aHku
+IEQuUywgc3JlZWRoYXJhLmRzQGludGVsLmNvbSIpOw0KK01PRFVMRV9ERVNDUklQVElPTigiSW50
+ZWwgTW9vcmVzdG93biBSZXNpc3RpdmUgVG91Y2ggU2NyZWVuIERyaXZlciIpOw0KK01PRFVMRV9M
+SUNFTlNFKCJHUEwiKTsNCisNCisvKiBQTUlDIEludGVycnVwdCByZWdpc3RlcnMgKi8NCisjZGVm
+aW5lIFBNSUNfUkVHX0lEMSAgIDB4MDAgLypQTUlDIElEMSByZWdpc3RlciAqLw0KKw0KKy8qIFBN
+SUMgSW50ZXJydXB0IHJlZ2lzdGVycyAqLw0KKyNkZWZpbmUgUE1JQ19SRUdfSU5UICAgMHgwNCAv
+KlBNSUMgaW50ZXJydXB0IHJlZ2lzdGVyICovDQorI2RlZmluZSBQTUlDX1JFR19NSU5UICAweDA1
+IC8qUE1JQyBpbnRlcnJ1cHQgbWFzayByZWdpc3RlciAqLw0KKw0KKy8qIEFEQyBJbnRlcnJ1cHQg
+cmVnaXN0ZXJzICovDQorI2RlZmluZSBQTUlDX1JFR19BRENJTlQgICAweDVGIC8qQURDIGludGVy
+cnVwdCByZWdpc3RlciAqLw0KKyNkZWZpbmUgUE1JQ19SRUdfTUFEQ0lOVCAgMHg2MCAvKkFEQyBp
+bnRlcnJ1cHQgbWFzayByZWdpc3RlciAqLw0KKw0KKy8qIEFEQyBDb250cm9sIHJlZ2lzdGVycyAq
+Lw0KKyNkZWZpbmUgUE1JQ19SRUdfQURDQ05UTDEgICAgMHg2MSAvKkFEQyBjb250cm9sIHJlZ2lz
+dGVyICovDQorDQorLyogQURDIENoYW5uZWwgU2VsZWN0aW9uIHJlZ2lzdGVycyAqLw0KKyNkZWZp
+bmUgUE1JQ0FERFIwICAgICAweEE0DQorI2RlZmluZSBFTkRfT0ZfQ0hBTk5FTCAweDFGDQorDQor
+LyogQURDIFJlc3VsdCByZWdpc3RlciAqLw0KKyNkZWZpbmUgUE1JQ19SRUdfQURDU05TMEggICAw
+eDY0DQorDQorLyogQURDIGNoYW5uZWxzIGZvciB0b3VjaCBzY3JlZW4gKi8NCisjZGVmaW5lIE1S
+U1RfVFNfQ0hBTjEwICAgMHhBIC8qIFRvdWNoIHNjcmVlbiBYKyBjb25uZWN0aW9uICovDQorI2Rl
+ZmluZSBNUlNUX1RTX0NIQU4xMSAgIDB4QiAvKiBUb3VjaCBzY3JlZW4gWC0gY29ubmVjdGlvbiAq
+Lw0KKyNkZWZpbmUgTVJTVF9UU19DSEFOMTIgICAweEMgLyogVG91Y2ggc2NyZWVuIFkrIGNvbm5l
+Y3Rpb24gKi8NCisjZGVmaW5lIE1SU1RfVFNfQ0hBTjEzICAgMHhEIC8qIFRvdWNoIHNjcmVlbiBZ
+LSBjb25uZWN0aW9uICovDQorDQorLyogVG91Y2ggc2NyZWVuIGNvb3JkaW5hdGUgY29uc3RhbnRz
+ICovDQorI2RlZmluZSBUT1VDSF9QUkVTU1VSRSAgIAk1DQorI2RlZmluZSBUT1VDSF9QUkVTU1VS
+RV9GUwkxMDANCisNCisjZGVmaW5lIFhNT1ZFX0xJTUlUCTUNCisjZGVmaW5lIFlNT1ZFX0xJTUlU
+CTUNCisjZGVmaW5lIFhZTU9WRV9DTlQJMw0KKw0KKyNkZWZpbmUgTUFYXzEwQklUCSgoMTw8MTAp
+LTEpDQorDQorLyogVG91Y2ggc2NyZWVuIGNoYW5uZWwgQklBUyBjb25zdGFudHMgKi8NCisjZGVm
+aW5lIFhCSUFTCQkweDIwDQorI2RlZmluZSBZQklBUwkJMHg0MA0KKyNkZWZpbmUgWkJJQVMJCTB4
+ODANCisNCisvKiBUb3VjaCBzY3JlZW4gY29vcmRpbmF0ZXMgKi8NCisjZGVmaW5lIE1JTl9YCQkx
+MA0KKyNkZWZpbmUgTUFYX1gJCTEwMjQNCisjZGVmaW5lIE1JTl9ZCQkxMA0KKyNkZWZpbmUgTUFY
+X1kJCTEwMjQNCisjZGVmaW5lIFdBSVRfQURDX0NPTVBMRVRJT04gMTANCisNCisvKiBQTUlDIEFE
+QyByb3VuZCByb2JpbiBkZWxheXMgKi8NCisjZGVmaW5lIEFEQ19MT09QX0RFTEFZMCAweDAgLyog
+Q29udGludW91cyBsb29wICovDQorI2RlZmluZSBBRENfTE9PUF9ERUxBWTEgMHgxIC8qIDQuNSAg
+bXMgYXBwcm94aW1hdGUgKi8NCisNCisvKiBQTUlDIFZlbmRvciBJZGVudGlmaWVycyAqLw0KKyNk
+ZWZpbmUgUE1JQ19WRU5ET1JfRlMgIDAgLyogUE1JQyB2ZW5kb3IgRnJlZVNjYWxlICovDQorI2Rl
+ZmluZSBQTUlDX1ZFTkRPUl9NQVhJTSAxIC8qIFBNSUMgdmVuZG9yIE1BWElNICovDQorI2RlZmlu
+ZSBQTUlDX1ZFTkRPUl9ORUMgMiAvKiBQTUlDIHZlbmRvciBORUMgKi8NCisjZGVmaW5lIE1SU1RP
+VUNIX01BWF9DSEFOTkVMUyAzMiAvKiBNYXhpbXVtIEFEQyBjaGFubmVscyAqLw0KKw0KKy8qIFRv
+dWNoIHNjcmVlbiBkZXZpY2Ugc3RydWN0dXJlICovDQorc3RydWN0IG1yc3RvdWNoX2RldiB7DQor
+CXN0cnVjdCBzcGlfZGV2aWNlICpzcGk7IC8qIFNQSSBkZXZpY2UgYXNzb2NpYXRlZCB3aXRoIHRv
+dWNoIHNjcmVlbiAqLw0KKwlzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dDsgLyogaW5wdXQgZGV2aWNl
+IGZvciB0b3VjaHNjcmVlbiovDQorCWNoYXIgCQlwaHlzWzMyXTsgLyogRGV2aWNlIG5hbWUgKi8N
+CisJc3RydWN0IHRhc2tfc3RydWN0ICpwZW5kZXRfdGhyZDsgLyogUEVOREVUIGludGVycnVwdCBo
+YW5kbGVyICovDQorCXN0cnVjdCBzZW1hcGhvcmUgbG9jazsgLyogU3luYyBiZXR3ZWVuIGludGVy
+cnVwdCBhbmQgUEVOREVUIGhhbmRsZXIgKi8NCisJYm9vbAkJYnVzeTsgLyogQnVzeSBmbGFnICov
+DQorCXUxNiAgICAgICAgICAgICBhc3I7IC8qIEFkZHJlc3Mgc2VsZWN0aW9uIHJlZ2lzdGVyICov
+DQorCWludCAgICAgICAgICAgICBpcnE7ICAgIC8qIFRvdWNoIHNjcmVlbiBJUlEgIyAqLw0KKwl1
+aW50CQl2ZW5kb3I7ICAvKiBQTUlDIHZlbmRvciAqLw0KKwl1aW50CQlyZXY7ICAvKiBQTUlDIHJl
+dmlzaW9uICovDQorCXUxNgkJeDsgIC8qIFggY29vcmRpbmF0ZSAqLw0KKwl1MTYJCXk7ICAvKiBZ
+IGNvb3JkaW5hdGUgKi8NCisJYm9vbAkJcGVuZG93bjsgIC8qIFBFTiBwb3NpdGlvbiAqLw0KKwl1
+aW50CQl4bWM7ICAvKiBYbW92ZSBjb3VudCAqLw0KKwl1aW50CQl5bWM7ICAvKiBYbW92ZSBjb3Vu
+dCAqLw0KK30gOw0KKw0KKw0KKy8qIEdsb2JhbCBQb2ludGVyIHRvIFRvdWNoIHNjcmVlbiBkZXZp
+Y2UgKi8NCitzdGF0aWMgc3RydWN0IG1yc3RvdWNoX2RldiAqbXJzdG91Y2hkZXZwOw0KKw0KKy8q
+IFV0aWxpdHkgdG8gcmVhZCBQTUlDIElEICovDQorc3RhdGljIGludCBtcnN0b3VjaF9wbWljX2lk
+KHVpbnQgKnZlbmRvciwgdWludCAqcmV2KQ0KK3sNCisJaW50IGVycjsNCisJc3RydWN0IG1yc3Rf
+cG1pY19yZWdfZGF0YSBhZGNfZGF0YTsNCisNCisJYWRjX2RhdGEuaW9jID0gMTsNCisJYWRjX2Rh
+dGEubnVtX2VudHJpZXMgPSAxOw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnJlZ2lzdGVy
+X2FkZHJlc3MgPSBQTUlDX1JFR19JRDE7DQorDQorCWVyciA9IG1yc3RfcG1pY19pb3JlYWQoJmFk
+Y19kYXRhKTsNCisJaWYgKGVycikNCisJCXJldHVybiAtMTsNCisNCisJKnZlbmRvciA9IChhZGNf
+ZGF0YS5wbWljX3JlZ19kYXRhWzBdLnZhbHVlKSAmIDB4NzsNCisJKnJldiA9IChhZGNfZGF0YS5w
+bWljX3JlZ19kYXRhWzBdLnZhbHVlID4+IDMpICYgMHg3Ow0KKw0KKwlyZXR1cm4gMDsNCit9DQor
+DQorLyoNCisgKiBQYXJzZSBBREMgY2hhbm5lbHMgdG8gZmluZCBlbmQgb2YgdGhlIGNoYW5uZWwg
+Y29uZmlndXJlZCBieSBvdGhlciBBREMgdXNlcg0KKyAqIE5FQyBhbmQgTUFYSU0gcmVxdWlyZXMg
+NCBjaGFubmVscyBhbmQgRnJlZVNjYWxlIG5lZWRzIDE4IGNoYW5uZWxzDQorICovDQorc3RhdGlj
+IGludCBtcnN0b3VjaF9jaGFuX3BhcnNlKHN0cnVjdCBtcnN0b3VjaF9kZXYgKnRzZGV2KQ0KK3sN
+CisJaW50IGVyciwgaSwgaiwgY2hhbiwgZm91bmQ7DQorCXN0cnVjdCBtcnN0X3BtaWNfcmVnX2Rh
+dGEgcGRhdGE7DQorDQorCXBkYXRhLmlvYyA9IDE7DQorDQorCWZvdW5kID0gLTE7DQorCXBkYXRh
+Lm51bV9lbnRyaWVzID0gNDsNCisNCisJZm9yIChpID0gMDsgaSA8IE1SU1RPVUNIX01BWF9DSEFO
+TkVMUzsgaSsrKSB7DQorCQlpZiAoZm91bmQgPj0gMCkNCisJCQlicmVhazsNCisNCisJCWZvciAo
+aiA9IDA7IGogPD0gMzsgaisrKQ0KKwkJCXBkYXRhLnBtaWNfcmVnX2RhdGFbal0ucmVnaXN0ZXJf
+YWRkcmVzcyA9IFBNSUNBRERSMCtpOw0KKw0KKwkJZXJyID0gbXJzdF9wbWljX2lvcmVhZCgmcGRh
+dGEpOw0KKwkJaWYgKGVycikNCisJCQlyZXR1cm4gLTE7DQorDQorCQlmb3IgKGogPSAwOyBqIDwg
+cGRhdGEubnVtX2VudHJpZXM7IGorKykgew0KKwkJCWNoYW4gPSBwZGF0YS5wbWljX3JlZ19kYXRh
+W2pdLnZhbHVlOw0KKwkJCWlmIChjaGFuID09IEVORF9PRl9DSEFOTkVMKSB7DQorCQkJCWZvdW5k
+ID0gaTsNCisJCQkJYnJlYWs7DQorCQkJfQ0KKwkJfQ0KKwl9DQorDQorCWlmIChmb3VuZCA8IDAp
+DQorCQlyZXR1cm4gMDsNCisNCisJaWYgKHRzZGV2LT52ZW5kb3IgPT0gUE1JQ19WRU5ET1JfRlMp
+IHsNCisJCWlmIChmb3VuZCAmJiBmb3VuZCA+IChNUlNUT1VDSF9NQVhfQ0hBTk5FTFMgLSAxOCkp
+DQorCQkJcmV0dXJuIC0xOw0KKwl9IGVsc2Ugew0KKwkJaWYgKGZvdW5kICYmIGZvdW5kID4gKE1S
+U1RPVUNIX01BWF9DSEFOTkVMUyAtIDQpKQ0KKwkJCXJldHVybiAtMTsNCisJfQ0KKwlyZXR1cm4g
+Zm91bmQ7DQorfQ0KKw0KKy8qIFV0aWxpdHkgdG8gZW5hYmxlL2Rpc2FibGUgcGVuZGV0Lg0KKyAq
+IHBlbmRldCBzZXQgdG8gdHJ1ZSBlbmFibGVzIFBFTkRFVCBpbnRlcnJ1cHQNCisgKiBwZW5kZXQg
+c2V0IHRvIGZhbHNlIGRpc2FibGVzIFBFTkRFVCBpbnRlcnJ1cHQNCisgKiBBbHNvIGNsZWFycyBS
+TkQgbWFzayBiaXQNCisqLw0KK3N0YXRpYyB2b2lkIHBlbmRldF9lbmFibGUoYm9vbCBwZW5kZXQp
+DQorew0KKwl1OCBhZGNjbnRybDEgPSAwOw0KKwl1OCBwZW5kZXRfZW5hYmxlZCA9IDA7DQorCWlu
+dCByZXRyeSA9IDA7DQorCXN0cnVjdCBtcnN0X3BtaWNfcmVnX2RhdGEgYWRjX2RhdGE7DQorDQor
+CWFkY19kYXRhLmlvYyA9IDE7DQorDQorCWFkY19kYXRhLm51bV9lbnRyaWVzID0gMTsNCisJYWRj
+X2RhdGEucG1pY19yZWdfZGF0YVswXS5yZWdpc3Rlcl9hZGRyZXNzID0gUE1JQ19SRUdfQURDQ05U
+TDE7DQorCW1yc3RfcG1pY19pb3JlYWQoJmFkY19kYXRhKTsNCisJYWRjY250cmwxID0gYWRjX2Rh
+dGEucG1pY19yZWdfZGF0YVswXS52YWx1ZTsNCisNCisJaWYgKHBlbmRldCkNCisJCWFkY2NudHJs
+MSB8PSAweDIwOyAvKiBFbmFibGUgcGVuZGV0ICovDQorCWVsc2UNCisJCWFkY2NudHJsMSAmPSAw
+eERGOyAvKiBEaXNhYmxlIHBlbmRldCAqLw0KKw0KKwlhZGNfZGF0YS5udW1fZW50cmllcyA9IDI7
+DQorCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMF0ucmVnaXN0ZXJfYWRkcmVzcyA9IFBNSUNfUkVH
+X01BRENJTlQ7DQorCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMF0udmFsdWUgPSAweDA7DQorCWFk
+Y19kYXRhLnBtaWNfcmVnX2RhdGFbMV0ucmVnaXN0ZXJfYWRkcmVzcyA9IFBNSUNfUkVHX0FEQ0NO
+VEwxOw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzFdLnZhbHVlID0gYWRjY250cmwxOw0KKwlt
+cnN0X3BtaWNfaW93cml0ZSgmYWRjX2RhdGEpOw0KKw0KKwlpZiAoIXBlbmRldCkNCisJCXJldHVy
+bjsNCisNCisNCisJLyoNCisJICogU29tZXRpbWVzIGV2ZW4gYWZ0ZXIgbXJzdF9wbWljX2lvd3Jp
+dGUgc3VjY2Vzcw0KKwkgKiB0aGUgUE1JQyByZWdpc3RlciB2YWx1ZSBpcyBub3QgdXBkYXRlZC4g
+UmV0cnkgZmV3IGl0ZXJhdGlvbnMNCisJICogdG8gZW5hYmxlIHBlbmRldC4NCisJKi8NCisJYWRj
+X2RhdGEubnVtX2VudHJpZXMgPSAxOw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnJlZ2lz
+dGVyX2FkZHJlc3MgPSBQTUlDX1JFR19BRENDTlRMMTsNCisJbXJzdF9wbWljX2lvcmVhZCgmYWRj
+X2RhdGEpOw0KKwlwZW5kZXRfZW5hYmxlZCA9IChhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnZh
+bHVlID4+IDUpICYgMHgwMTsNCisNCisJcmV0cnkgPSAwOw0KKwl3aGlsZSAoIXBlbmRldF9lbmFi
+bGVkKSB7DQorCQlyZXRyeSsrOw0KKwkJbXNsZWVwKDEwKTsNCisJCWFkY19kYXRhLnBtaWNfcmVn
+X2RhdGFbMF0ucmVnaXN0ZXJfYWRkcmVzcyA9IFBNSUNfUkVHX0FEQ0NOVEwxOw0KKwkJYWRjX2Rh
+dGEucG1pY19yZWdfZGF0YVswXS52YWx1ZSA9IGFkY2NudHJsMTsNCisJCW1yc3RfcG1pY19pb3dy
+aXRlKCZhZGNfZGF0YSk7DQorDQorCQlhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnJlZ2lzdGVy
+X2FkZHJlc3MgPSBQTUlDX1JFR19BRENDTlRMMTsNCisJCW1yc3RfcG1pY19pb3JlYWQoJmFkY19k
+YXRhKTsNCisJCXBlbmRldF9lbmFibGVkID0gKGFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMF0udmFs
+dWUgPj4gNSkgJiAweDAxOw0KKwkJaWYgKHJldHJ5ID49IDEwKSB7DQorCQkJcHJpbnRrKEtFUk5f
+RVJSICJUb3VjaCBzY3JlZW4gZGlzYWJsZWRcbiIpOw0KKwkJCWJyZWFrOw0KKwkJfQ0KKwl9DQor
+fQ0KKw0KKw0KKy8qIFRvIHJlYWQgUE1JQyBBREMgdG91Y2ggc2NyZWVuIHJlc3VsdA0KKyAqIFJl
+YWRzIEFEQyBzdG9yYWdlIHJlZ2lzdGVycyBmb3IgaGlnaGVyIDcgYW5kIGxvd2VyIDMgYml0cw0K
+KyAqIGNvbnZlcnRzIHRoZSB0d28gcmVhZGluZ3MgdG8gc2luZ2xlIHZhbHVlIGFuZCB0dXJucyBv
+ZmYgZ2FpbiBiaXQNCisgKi8NCitzdGF0aWMgaW50IG1yc3RvdWNoX3RzX2NoYW5fcmVhZCh1MTYg
+b2Zmc2V0LCB1MTYgY2hhbiwgdTE2ICp2cCwgdTE2ICp2bSkNCit7DQorCWludCBlcnIsIGNvdW50
+Ow0KKwl1MTYgcmVzdWx0Ow0KKwlzdHJ1Y3QgbXJzdF9wbWljX3JlZ19kYXRhCWFkY19kYXRhOw0K
+Kw0KKwlhZGNfZGF0YS5pb2MgPSAxOw0KKwlhZGNfZGF0YS5udW1fZW50cmllcyA9IDQ7DQorDQor
+CXJlc3VsdCA9IFBNSUNfUkVHX0FEQ1NOUzBIICsgb2Zmc2V0Ow0KKw0KKwlpZiAoY2hhbiA9PSBN
+UlNUX1RTX0NIQU4xMikNCisJCXJlc3VsdCArPSA0Ow0KKw0KKwlmb3IgKGNvdW50ID0gMDsgY291
+bnQgPD0gMzsgY291bnQrKykNCisJCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFbY291bnRdLnJlZ2lz
+dGVyX2FkZHJlc3MgPSByZXN1bHQrKzsNCisNCisJZXJyID0gbXJzdF9wbWljX2lvcmVhZCgmYWRj
+X2RhdGEpOw0KKwlpZiAoZXJyKQ0KKwkJcmV0dXJuIC0xOw0KKw0KKwkqdnAgPSBhZGNfZGF0YS5w
+bWljX3JlZ19kYXRhWzBdLnZhbHVlIDw8IDM7IC8qIEhpZ2hlciA3IGJpdHMgKi8NCisJKnZwIHw9
+IGFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMV0udmFsdWUgJiAweDc7IC8qIExvd2VyIDMgYml0cyAq
+Lw0KKwkqdnAgJj0gMHgzRkY7DQorDQorCSp2bSA9IGFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMl0u
+dmFsdWUgPDwgMzsgLyogSGlnaGVyIDcgYml0cyAqLw0KKwkqdm0gfD0gYWRjX2RhdGEucG1pY19y
+ZWdfZGF0YVszXS52YWx1ZSAmIDB4NzsgLyogTG93ZXIgMyBiaXRzICovDQorCSp2bSAmPSAweDNG
+RjsNCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KKy8qIFRvIGNvbmZpZ3VyZSB0b3VjaCBzY3JlZW4g
+Y2hhbm5lbHMNCisgKiBXcml0ZXMgdG91Y2ggc2NyZWVuIGNoYW5uZWxzIHRvIEFEQyBhZGRyZXNz
+IHNlbGVjdGlvbiByZWdpc3RlcnMNCisgKi8NCitzdGF0aWMgaW50IG1yc3RvdWNoX3RzX2NoYW5f
+c2V0KHVpbnQgb2Zmc2V0KQ0KK3sNCisJaW50IGVyciwgY291bnQ7DQorCXUxNiBjaGFuOw0KKwlz
+dHJ1Y3QgbXJzdF9wbWljX3JlZ19kYXRhCWFkY19kYXRhOw0KKw0KKwlhZGNfZGF0YS5pb2MgPSAx
+Ow0KKwlhZGNfZGF0YS5udW1fZW50cmllcyA9IDU7DQorDQorCWNoYW4gPSBQTUlDQUREUjAgKyBv
+ZmZzZXQ7DQorCWZvciAoY291bnQgPSAwOyBjb3VudCA8PSAzOyBjb3VudCsrKSB7DQorCQlhZGNf
+ZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS5yZWdpc3Rlcl9hZGRyZXNzID0gY2hhbisrOw0KKwkJ
+YWRjX2RhdGEucG1pY19yZWdfZGF0YVtjb3VudF0udmFsdWUgPSBNUlNUX1RTX0NIQU4xMCArIGNv
+dW50Ow0KKwl9DQorCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFbY291bnRdLnJlZ2lzdGVyX2FkZHJl
+c3MgPSBjaGFuOw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS52YWx1ZSA9IEVORF9P
+Rl9DSEFOTkVMOw0KKw0KKwllcnIgPSBtcnN0X3BtaWNfaW93cml0ZSgmYWRjX2RhdGEpOw0KKwlp
+ZiAoZXJyKQ0KKwkJcmV0dXJuIC0xOw0KKw0KKwlyZXR1cm4gMDsNCit9DQorDQorLyogSW5pdGlh
+bGl6ZSBBREMgKi8NCitzdGF0aWMgaW50IG1yc3RvdWNoX2FkY19pbml0KHN0cnVjdCBtcnN0b3Vj
+aF9kZXYgKnRzZGV2KQ0KK3sNCisJaW50IGVyciwgc3RhcnQ7DQorCXN0cnVjdCBtcnN0X3BtaWNf
+bW9kX3JlZ19kYXRhIGFkY19kYXRhOw0KKw0KKwllcnIgPSBtcnN0b3VjaF9wbWljX2lkKCZ0c2Rl
+di0+dmVuZG9yLCAmdHNkZXYtPnJldik7DQorCWlmIChlcnIpIHsNCisJCXByaW50ayhLRVJOX0VS
+UiAiRXJyb3IgaW4gcmVhZGluZyBQTUlDIElkIik7DQorCQlyZXR1cm4gZXJyOw0KKwl9DQorDQor
+CXN0YXJ0ID0gbXJzdG91Y2hfY2hhbl9wYXJzZSh0c2Rldik7DQorCWlmIChzdGFydCA9PSAtMSkg
+ew0KKwkJcHJpbnRrKEtFUk5fRVJSICJFcnJvciBpbiBwYXJzZSBjaGFubmVscyIpOw0KKwkJcmV0
+dXJuIHN0YXJ0Ow0KKwl9DQorDQorCXRzZGV2LT5hc3IgPSBzdGFydDsNCisNCisJLyogQURDIHBv
+d2VyIG9uLCBzdGFydCwgZW5hYmxlIFBFTkRFVCBhbmQgc2V0IGxvb3AgZGVsYXkNCisJICogQURD
+IGxvb3AgZGVsYXkgaXMgc2V0IHRvIDQuNSBtcyBhcHByb3hpbWF0ZWx5DQorCSAqIExvb3AgZGVs
+YXkgbW9yZSB0aGFuIHRoaXMgcmVzdWx0cyBpbiBqaXR0ZXIgaW4gYWRjIHJlYWRpbmdzDQorCSAq
+IFNldHRpbmcgbG9vcCBkZWxheSB0byAwIChjb250aW5vdXMgbG9vcCkgaW4gTUFYSU0gc3RvcHMg
+UEVOREVUDQorCSAqIGludGVycnVwdCBnZW5lcmF0aW9uIHNvbWV0aW1lcy4NCisJICovDQorCWFk
+Y19kYXRhLmlvYyA9IDE7DQorCWFkY19kYXRhLm51bV9lbnRyaWVzID0gMjsNCisJYWRjX2RhdGEu
+cG1pY19tb2RfcmVnX2RhdGFbMF0ucmVnaXN0ZXJfYWRkcmVzcyA9IFBNSUNfUkVHX0FEQ0NOVEwx
+Ow0KKwlhZGNfZGF0YS5wbWljX21vZF9yZWdfZGF0YVswXS5iaXRfbWFwID0gMHhFNzsNCisNCisJ
+YWRjX2RhdGEucG1pY19tb2RfcmVnX2RhdGFbMV0ucmVnaXN0ZXJfYWRkcmVzcyA9IFBNSUNfUkVH
+X01BRENJTlQ7DQorCWFkY19kYXRhLnBtaWNfbW9kX3JlZ19kYXRhWzFdLmJpdF9tYXAgPSAweDAz
+Ow0KKw0KKwlpZiAodHNkZXYtPnZlbmRvciA9PSBQTUlDX1ZFTkRPUl9GUykgew0KKwkJYWRjX2Rh
+dGEucG1pY19tb2RfcmVnX2RhdGFbMF0udmFsdWUgPSAweEUwIHwgQURDX0xPT1BfREVMQVkwOw0K
+KwkJYWRjX2RhdGEucG1pY19tb2RfcmVnX2RhdGFbMV0udmFsdWUgPSAweDU7DQorCX0gZWxzZSB7
+DQorCQkvKiBORUMgYW5kIE1BWEltIG5vdCBjb25zaXN0ZW50IHdpdGggbG9vcCBkZWxheSAwICov
+DQorCQlhZGNfZGF0YS5wbWljX21vZF9yZWdfZGF0YVswXS52YWx1ZSA9IDB4RTAgfCBBRENfTE9P
+UF9ERUxBWTE7DQorCQlhZGNfZGF0YS5wbWljX21vZF9yZWdfZGF0YVsxXS52YWx1ZSA9IDB4MDsN
+CisNCisJCS8qIGNvbmZpZ3VyZSB0b3VjaCBzY3JlZW4gY2hhbm5lbHMgKi8NCisJCWVyciA9IG1y
+c3RvdWNoX3RzX2NoYW5fc2V0KHRzZGV2LT5hc3IpOw0KKwkJaWYgKGVycikNCisJCQlyZXR1cm4g
+ZXJyOw0KKwl9DQorDQorCWVyciA9IG1yc3RfcG1pY19pb3JlYWRfbW9kaWZ5KCZhZGNfZGF0YSk7
+DQorDQorCXJldHVybiBlcnI7DQorfQ0KKw0KKy8qIFJlcG9ydHMgeCx5IGNvb3JkaW5hdGVzIHRv
+IGV2ZW50IHN1YnN5c3RlbSAqLw0KK3N0YXRpYyB2b2lkIG1yc3RvdWNoX3JlcG9ydF94eShzdHJ1
+Y3QgbXJzdG91Y2hfZGV2ICp0c2RldiwgdTE2IHgsIHUxNiB5LCB1MTYgeikNCit7DQorCWludCB4
+ZGlmZiwgeWRpZmY7DQorCWJvb2wgbW92aW5nID0gZmFsc2U7DQorDQorCWlmICh0c2Rldi0+cGVu
+ZG93biAmJiB6IDw9IFRPVUNIX1BSRVNTVVJFKSB7DQorCQkvKiBQZW4gcmVtb3ZlZCwgcmVwb3J0
+IGJ1dHRvbiByZWxlYXNlICovDQorCQlkZXZfZGJnKCZ0c2Rldi0+c3BpLT5kZXYsICJCVE4gUkVM
+KCVkKSIsIHopOw0KKwkJaW5wdXRfcmVwb3J0X2tleSh0c2Rldi0+aW5wdXQsIEJUTl9UT1VDSCwg
+MCk7DQorCQl0c2Rldi0+cGVuZG93biA9IGZhbHNlOw0KKw0KKwkJdHNkZXYtPnhtYyA9IDA7DQor
+CQl0c2Rldi0+eW1jID0gMDsNCisJCXJldHVybjsNCisJfQ0KKw0KKwl4ZGlmZiA9IGFicyh4IC0g
+dHNkZXYtPngpOw0KKwl5ZGlmZiA9IGFicyh5IC0gdHNkZXYtPnkpOw0KKw0KKwlpZiAoeGRpZmYg
+PiBYTU9WRV9MSU1JVCkNCisJCXRzZGV2LT54bWMrKzsgLyogSW5jcmVtZW50IFggbW92ZSBjb3Vu
+dCAqLw0KKwlpZiAoeWRpZmYgPiBZTU9WRV9MSU1JVCkNCisJCXRzZGV2LT55bWMrKzsgLyogSW5j
+cmVtZW50IFkgbW92ZSBjb3VudCAqLw0KKw0KKwkvKg0KKwlpZiB4IGFuZCB5IHZhbHVlcyBjaGFu
+Z2VzIGZvciBYWU1PVkVfQ05UIHJlYWRpbmdzIGl0IGlzIGNvbnNpZGVyZWQNCisJYXMgc3R5bHVz
+IGlzIG1vdmluZy4gVGhpcyBpcyByZXF1aXJlZCB0byBkaWZmZXJlbnRpYXRlIGJldHdlZW4gc3R5
+bHVzDQorCW1vdmVtZW50IGFuZCBqaXR0ZXINCisJKi8NCisJaWYgKHRzZGV2LT54bWMgPiBYWU1P
+VkVfQ05UIHx8IHRzZGV2LT55bWMgPiBYWU1PVkVfQ05UKQ0KKwkJbW92aW5nID0gdHJ1ZTsgLyog
+U3R5bHVzIGlzIG1vdmluZyAqLw0KKw0KKwlpZiAoeCA8IE1JTl9YIHx8IHggPiBNQVhfWCB8fCB5
+IDwgTUlOX1kgfHwgeSA+IE1BWF9ZKSB7DQorCQkvKiBTcHVyaW91cyB2YWx1ZXMsIHJlbGVhc2Ug
+YnV0dG9uIGlmIHRvdWNoZWQgYW5kIHJldHVybiAqLw0KKwkJaWYgKHRzZGV2LT5wZW5kb3duKSB7
+DQorCQkJZGV2X2RiZygmdHNkZXYtPnNwaS0+ZGV2LCAiQlROIFJFTCglZCkiLCB6KTsNCisJCQlp
+bnB1dF9yZXBvcnRfa2V5KHRzZGV2LT5pbnB1dCwgQlROX1RPVUNILCAwKTsNCisJCQl0c2Rldi0+
+cGVuZG93biA9IGZhbHNlOw0KKwkJCXRzZGV2LT54bWMgPSAwOw0KKwkJCXRzZGV2LT55bWMgPSAw
+Ow0KKwkJfQ0KKwkJcmV0dXJuOw0KKwl9IGVsc2UgaWYgKCFtb3ZpbmcgJiYgKHhkaWZmIDw9IFhN
+T1ZFX0xJTUlUIHx8IHlkaWZmIDw9IFlNT1ZFX0xJTUlUKSkNCisJCS8qDQorCQlBREMgcmVhZGlu
+Z3MgYXJlIGRpZmZlciBieSBzbWFsbCB2YXJpYXRpb25zIGluIGFsdGVybmF0ZQ0KKwkJcmVhZGlu
+Z3MuIE11bHRpcGxlIEFEQyByZWFkaW5ncyBhbmQgYXZlcmFnaW5nIHJlc3VsdHMgaW4NCisJCXNs
+b3cgcmVzcG9uc2UuIEFsbCBBREMgcmVhZGluZ3MgZmFsbCB3aXRoaW4gbW92ZSBsaW1pdCBhcmUN
+CisJCWNvbnNpZGVyZWQgYXMgdmFsdWUgb2YgcHJldmlvdXMgcmVhZGluZy4gVGhpcyBtaW5pbWl6
+ZXMgc21hbGwNCisJCW9ic2VydmFibGUgaml0dGVyIGluIG1vdXNlIHBvaW50ZXIgd2hlbiBzdHls
+dXMgYXQgZml4ZWQgcG9zaXRpb24NCisJCSovDQorCQlyZXR1cm47DQorCWVsc2Ugew0KKwkJLyog
+c2F2ZSB4IGFuZCB5IHZhbHVlcyAqLw0KKwkJdHNkZXYtPnggPSB4Ow0KKwkJdHNkZXYtPnkgPSB5
+Ow0KKwl9DQorDQorCWlucHV0X3JlcG9ydF9hYnModHNkZXYtPmlucHV0LCBBQlNfWCwgeCk7DQor
+CWlucHV0X3JlcG9ydF9hYnModHNkZXYtPmlucHV0LCBBQlNfWSwgeSk7DQorCWlucHV0X3N5bmMo
+dHNkZXYtPmlucHV0KTsNCisNCisJaWYgKCF0c2Rldi0+cGVuZG93biAmJiB6ID4gVE9VQ0hfUFJF
+U1NVUkUpIHsNCisJCS8qIFBlbiB0b3VjaGVkLCByZXBvcnQgYnV0dG9uIHRvdWNoICovDQorCQlk
+ZXZfZGJnKCZ0c2Rldi0+c3BpLT5kZXYsICJCVE4gVENIKCVkLCAlZCwgJWQpIiwgeCwgeSwgeik7
+DQorCQlpbnB1dF9yZXBvcnRfa2V5KHRzZGV2LT5pbnB1dCwgQlROX1RPVUNILCAxKTsNCisJCXRz
+ZGV2LT5wZW5kb3duID0gdHJ1ZTsNCisJfQ0KK30NCisNCisNCisvKiBVdGlsaXR5IHRvIHN0YXJ0
+IEFEQywgdXNlZCBieSBmcmVlc2NhbGUgaGFuZGxlciAqLw0KK3N0YXRpYyBpbnQgcGVuZGV0X21h
+c2sodWludCBtYXNrKQ0KK3sNCisJaW50IGVyciA9IDA7DQorCXN0cnVjdCBtcnN0X3BtaWNfbW9k
+X3JlZ19kYXRhIGFkY19kYXRhOw0KKw0KKwlhZGNfZGF0YS5pb2MgPSAxOw0KKwlhZGNfZGF0YS5u
+dW1fZW50cmllcyA9IDE7DQorCWFkY19kYXRhLnBtaWNfbW9kX3JlZ19kYXRhWzFdLnJlZ2lzdGVy
+X2FkZHJlc3MgPSBQTUlDX1JFR19NQURDSU5UOw0KKwlhZGNfZGF0YS5wbWljX21vZF9yZWdfZGF0
+YVsxXS5iaXRfbWFwID0gMHgwMjsNCisJYWRjX2RhdGEucG1pY19tb2RfcmVnX2RhdGFbMV0udmFs
+dWUgPSBtYXNrOw0KKw0KKwllcnIgPSBtcnN0X3BtaWNfaW9yZWFkX21vZGlmeSgmYWRjX2RhdGEp
+Ow0KKw0KKwlyZXR1cm4gZXJyOw0KK30NCisNCisvKiBVdGlsaXR5IHRvIHJlYWQgQURDLCB1c2Vk
+IGJ5IGZyZWVzY2FsZSBoYW5kbGVyICovDQorc3RhdGljIGludCBtcnN0b3VjaF9wbWljX2ZzX2Fk
+Y19yZWFkKHN0cnVjdCBtcnN0b3VjaF9kZXYgKnRzZGV2KQ0KK3sNCisJaW50IGVycjsNCisJdTE2
+IHgsIHksIHosIHJlc3VsdDsNCisJc3RydWN0IG1yc3RfcG1pY19yZWdfZGF0YSBhZGNfZGF0YTsN
+CisNCisJcmVzdWx0ID0gUE1JQ19SRUdfQURDU05TMEggKyB0c2Rldi0+YXNyOw0KKw0KKwlhZGNf
+ZGF0YS5pb2MgPSAxOw0KKwlhZGNfZGF0YS5udW1fZW50cmllcyA9IDQ7DQorCWFkY19kYXRhLnBt
+aWNfcmVnX2RhdGFbMF0ucmVnaXN0ZXJfYWRkcmVzcyA9IHJlc3VsdCArIDQ7DQorCWFkY19kYXRh
+LnBtaWNfcmVnX2RhdGFbMV0ucmVnaXN0ZXJfYWRkcmVzcyA9IHJlc3VsdCArIDU7DQorCWFkY19k
+YXRhLnBtaWNfcmVnX2RhdGFbMl0ucmVnaXN0ZXJfYWRkcmVzcyA9IHJlc3VsdCArIDE2Ow0KKwlh
+ZGNfZGF0YS5wbWljX3JlZ19kYXRhWzNdLnJlZ2lzdGVyX2FkZHJlc3MgPSByZXN1bHQgKyAxNzsN
+CisNCisJZXJyID0gbXJzdF9wbWljX2lvcmVhZCgmYWRjX2RhdGEpOw0KKwlpZiAoZXJyKQ0KKwkJ
+Z290byBpcGNfZXJyb3I7DQorDQorCXggPSBhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnZhbHVl
+IDw8IDM7IC8qIEhpZ2hlciA3IGJpdHMgKi8NCisJeCB8PSBhZGNfZGF0YS5wbWljX3JlZ19kYXRh
+WzFdLnZhbHVlICYgMHg3OyAvKiBMb3dlciAzIGJpdHMgKi8NCisJeCAmPSAweDNGRjsNCisNCisJ
+eSA9IGFkY19kYXRhLnBtaWNfcmVnX2RhdGFbMl0udmFsdWUgPDwgMzsgLyogSGlnaGVyIDcgYml0
+cyAqLw0KKwl5IHw9IGFkY19kYXRhLnBtaWNfcmVnX2RhdGFbM10udmFsdWUgJiAweDc7IC8qIExv
+d2VyIDMgYml0cyAqLw0KKwl5ICY9IDB4M0ZGOw0KKw0KKwkvKiBSZWFkIFogdmFsdWUgKi8NCisJ
+YWRjX2RhdGEubnVtX2VudHJpZXMgPSAyOw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhWzBdLnJl
+Z2lzdGVyX2FkZHJlc3MgPSByZXN1bHQgKyAyODsNCisJYWRjX2RhdGEucG1pY19yZWdfZGF0YVsx
+XS5yZWdpc3Rlcl9hZGRyZXNzID0gcmVzdWx0ICsgMjk7DQorDQorCWVyciA9IG1yc3RfcG1pY19p
+b3JlYWQoJmFkY19kYXRhKTsNCisJaWYgKGVycikNCisJCWdvdG8gaXBjX2Vycm9yOw0KKw0KKwl6
+ID0gYWRjX2RhdGEucG1pY19yZWdfZGF0YVswXS52YWx1ZSA8PCAzOyAvKiBIaWdoZXIgNyBiaXRz
+ICovDQorCXogfD0gYWRjX2RhdGEucG1pY19yZWdfZGF0YVsxXS52YWx1ZSAmIDB4NzsgLyogTG93
+ZXIgMyBiaXRzICovDQorCXogJj0gMHgzRkY7DQorDQorCWRldl9kYmcoJnRzZGV2LT5zcGktPmRl
+diwgIlg6ICVkLCBZOiAlZCwgWjogJWQiLCB4LCB5LCB6KTsNCisNCisJaWYgKHogPj0gVE9VQ0hf
+UFJFU1NVUkVfRlMpIHsgLyogUGVuIFJlbW92ZWQgKi8NCisJCW1yc3RvdWNoX3JlcG9ydF94eSh0
+c2RldiwgeCwgeSwgVE9VQ0hfUFJFU1NVUkUgLSAxKTsNCisJCXJldHVybiBUT1VDSF9QUkVTU1VS
+RSAtIDE7DQorCX0gZWxzZSB7IC8qIFBlbiBUb3VjaGVkICovDQorCQltcnN0b3VjaF9yZXBvcnRf
+eHkodHNkZXYsIHgsIHksIFRPVUNIX1BSRVNTVVJFICsgMSk7DQorCQlyZXR1cm4gVE9VQ0hfUFJF
+U1NVUkUgKyAxOw0KKwl9DQorDQorCXJldHVybiAwOw0KKw0KK2lwY19lcnJvcjoNCisJcHJpbnRr
+KEtFUk5fRVJSICJJUEMgRXJyb3I6ICVzIiwgX19mdW5jX18pOw0KKwlyZXR1cm4gLTE7DQorfQ0K
+Kw0KKy8qIFRvIGhhbmRsZSBmcmVlIHNjYWxlIHBtaWMgcGVuZGV0IGludGVycnVwdCAqLw0KK3N0
+YXRpYyBpbnQgcG1pYzBfcGVuZGV0KHZvaWQgKmRhdGEpDQorew0KKwlpbnQgZXJyLCBjb3VudDsN
+CisJdTE2IGNoYW47DQorCXVuc2lnbmVkIGludCB0b3VjaGVkOw0KKwlzdHJ1Y3QgbXJzdF9wbWlj
+X3JlZ19kYXRhIGFkY19kYXRhOw0KKwlzdHJ1Y3QgbXJzdG91Y2hfZGV2ICp0c2RldiA9IChzdHJ1
+Y3QgbXJzdG91Y2hfZGV2ICopZGF0YTsNCisNCisJY2hhbiA9IFBNSUNBRERSMCArIHRzZGV2LT5h
+c3I7DQorDQorCWFkY19kYXRhLmlvYyA9IDE7DQorCS8qIFNldCBYIEJJQVMgKi8NCisJYWRjX2Rh
+dGEubnVtX2VudHJpZXMgPSA1Ow0KKwlmb3IgKGNvdW50ID0gMDsgY291bnQgPD0gMzsgY291bnQr
+Kykgew0KKwkJYWRjX2RhdGEucG1pY19yZWdfZGF0YVtjb3VudF0ucmVnaXN0ZXJfYWRkcmVzcyA9
+IGNoYW4rKzsNCisJCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFbY291bnRdLnZhbHVlID0gMHgyQTsN
+CisJfQ0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS5yZWdpc3Rlcl9hZGRyZXNzID0g
+Y2hhbisrOyAvKiBEdW1teSAqLw0KKwlhZGNfZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS52YWx1
+ZSA9IDA7DQorDQorCWVyciA9IG1yc3RfcG1pY19pb3dyaXRlKCZhZGNfZGF0YSk7DQorCWlmIChl
+cnIpDQorCQlnb3RvIGlwY19lcnJvcjsNCisNCisJbXNsZWVwKFdBSVRfQURDX0NPTVBMRVRJT04p
+Ow0KKw0KKwkvKiBTZXQgWSBCSUFTICovDQorCWFkY19kYXRhLm51bV9lbnRyaWVzID0gNTsNCisJ
+Zm9yIChjb3VudCA9IDA7IGNvdW50IDw9IDM7IGNvdW50KyspIHsNCisJCWFkY19kYXRhLnBtaWNf
+cmVnX2RhdGFbY291bnRdLnJlZ2lzdGVyX2FkZHJlc3MgPSBjaGFuKys7DQorCQlhZGNfZGF0YS5w
+bWljX3JlZ19kYXRhW2NvdW50XS52YWx1ZSA9IDB4NEE7DQorCX0NCisJYWRjX2RhdGEucG1pY19y
+ZWdfZGF0YVtjb3VudF0ucmVnaXN0ZXJfYWRkcmVzcyA9IGNoYW4rKzsgLyogRHVtbXkgKi8NCisJ
+YWRjX2RhdGEucG1pY19yZWdfZGF0YVtjb3VudF0udmFsdWUgPSAwOw0KKw0KKwllcnIgPSBtcnN0
+X3BtaWNfaW93cml0ZSgmYWRjX2RhdGEpOw0KKwlpZiAoZXJyKQ0KKwkJZ290byBpcGNfZXJyb3I7
+DQorDQorCW1zbGVlcChXQUlUX0FEQ19DT01QTEVUSU9OKTsNCisNCisJLyogU2V0IFogQklBUyAq
+Lw0KKwljaGFuICs9IDI7DQorCWFkY19kYXRhLm51bV9lbnRyaWVzID0gNDsNCisJZm9yIChjb3Vu
+dCA9IDA7IGNvdW50IDw9IDM7IGNvdW50KyspIHsNCisJCWFkY19kYXRhLnBtaWNfcmVnX2RhdGFb
+Y291bnRdLnJlZ2lzdGVyX2FkZHJlc3MgPSBjaGFuKys7DQorCQlhZGNfZGF0YS5wbWljX3JlZ19k
+YXRhW2NvdW50XS52YWx1ZSA9IDB4OEE7DQorCX0NCisNCisJZXJyID0gbXJzdF9wbWljX2lvd3Jp
+dGUoJmFkY19kYXRhKTsNCisJaWYgKGVycikNCisJCWdvdG8gaXBjX2Vycm9yOw0KKw0KKwltc2xl
+ZXAoV0FJVF9BRENfQ09NUExFVElPTik7DQorDQorCS8qUmVhZCB0b3VjaCBzY3JlZW4gY2hhbm5l
+bHMgdGlsbCBwZW4gcmVtb3ZlZA0KKwkqIEZyZWVzY2FsZSByZXBvcnRzIGNvbnN0YW50IHZhbHVl
+IG9mIHogZm9yIGFsbCBwb2ludHMNCisJKiB6IGlzIGhpZ2ggd2hlbiBzY3JlZW4gaXMgbm90IHRv
+dWNoZWQgYW5kIGxvdyB3aGVuIHRvdWNoZWQNCisJKiBNYXAgaGlnaCB6IHZhbHVlIHRvIG5vdCB0
+b3VjaGVkIGFuZCBsb3cgeiB2YWx1ZSB0byBwZW4gdG91Y2hlZA0KKwkqLw0KKwl0b3VjaGVkID0g
+bXJzdG91Y2hfcG1pY19mc19hZGNfcmVhZCh0c2Rldik7DQorCXdoaWxlICh0b3VjaGVkID4gVE9V
+Q0hfUFJFU1NVUkUpIHsNCisJCXRvdWNoZWQgPSBtcnN0b3VjaF9wbWljX2ZzX2FkY19yZWFkKHRz
+ZGV2KTsNCisJCW1zbGVlcChXQUlUX0FEQ19DT01QTEVUSU9OKTsNCisJfQ0KKw0KKwkvKiBDbGVh
+ciBhbGwgVFMgY2hhbm5lbHMgKi8NCisJY2hhbiA9IFBNSUNBRERSMCArIHRzZGV2LT5hc3I7DQor
+CWFkY19kYXRhLmlvYyA9IDE7DQorCWFkY19kYXRhLm51bV9lbnRyaWVzID0gNTsNCisJZm9yIChj
+b3VudCA9IDA7IGNvdW50IDw9IDQ7IGNvdW50KyspIHsNCisJCWFkY19kYXRhLnBtaWNfcmVnX2Rh
+dGFbY291bnRdLnJlZ2lzdGVyX2FkZHJlc3MgPSBjaGFuKys7DQorCQlhZGNfZGF0YS5wbWljX3Jl
+Z19kYXRhW2NvdW50XS52YWx1ZSA9IDB4MDsNCisJfQ0KKwllcnIgPSBtcnN0X3BtaWNfaW93cml0
+ZSgmYWRjX2RhdGEpOw0KKwlpZiAoZXJyKQ0KKwkJZ290byBpcGNfZXJyb3I7DQorDQorCWZvciAo
+Y291bnQgPSAwOyBjb3VudCA8PSA0OyBjb3VudCsrKSB7DQorCQlhZGNfZGF0YS5wbWljX3JlZ19k
+YXRhW2NvdW50XS5yZWdpc3Rlcl9hZGRyZXNzID0gY2hhbisrOw0KKwkJYWRjX2RhdGEucG1pY19y
+ZWdfZGF0YVtjb3VudF0udmFsdWUgPSAweDA7DQorCX0NCisJZXJyID0gbXJzdF9wbWljX2lvd3Jp
+dGUoJmFkY19kYXRhKTsNCisJaWYgKGVycikNCisJCWdvdG8gaXBjX2Vycm9yOw0KKw0KKwljaGFu
+ICs9IDI7DQorCWZvciAoY291bnQgPSAwOyBjb3VudCA8PSA0OyBjb3VudCsrKSB7DQorCQlhZGNf
+ZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS5yZWdpc3Rlcl9hZGRyZXNzID0gY2hhbisrOw0KKwkJ
+YWRjX2RhdGEucG1pY19yZWdfZGF0YVtjb3VudF0udmFsdWUgPSAweDA7DQorCX0NCisJZXJyID0g
+bXJzdF9wbWljX2lvd3JpdGUoJmFkY19kYXRhKTsNCisJaWYgKGVycikNCisJCWdvdG8gaXBjX2Vy
+cm9yOw0KKw0KKwlyZXR1cm4gMDsNCisNCitpcGNfZXJyb3I6DQorCXByaW50ayhLRVJOX0VSUiAi
+SVBDIEVycm9yOiAlcyIsIF9fZnVuY19fKTsNCisJcmV0dXJuIC0xOw0KK30NCisNCisNCisvKiBU
+byBlbmFibGUgWCwgWSBhbmQgWiBiaWFzIHZhbHVlcw0KKyAqIEVuYWJsZXMgWVBZTSBmb3IgWCBj
+aGFubmVscyBhbmQgWFBYTSBmb3IgWSBjaGFubmVscw0KKyAqLw0KK3N0YXRpYyBpbnQgbXJzdG91
+Y2hfdHNfYmlhc19zZXQodWludCBvZmZzZXQsIHVpbnQgYmlhcykNCit7DQorCWludCBlcnIsIGNv
+dW50Ow0KKwl1MTYgY2hhbiwgc3RhcnQ7DQorCXN0cnVjdCBtcnN0X3BtaWNfcmVnX2RhdGEgYWRj
+X2RhdGE7DQorDQorCWNoYW4gPSBQTUlDQUREUjAgKyBvZmZzZXQ7DQorCXN0YXJ0ID0gTVJTVF9U
+U19DSEFOMTA7DQorDQorCWFkY19kYXRhLmlvYyA9IDE7DQorCWFkY19kYXRhLm51bV9lbnRyaWVz
+ID0gNDsNCisNCisJZm9yIChjb3VudCA9IDA7IGNvdW50IDw9IDM7IGNvdW50KyspIHsNCisJCWFk
+Y19kYXRhLnBtaWNfcmVnX2RhdGFbY291bnRdLnJlZ2lzdGVyX2FkZHJlc3MgPSBjaGFuKys7DQor
+CQlhZGNfZGF0YS5wbWljX3JlZ19kYXRhW2NvdW50XS52YWx1ZSA9IGJpYXMgfCAoc3RhcnQgKyBj
+b3VudCk7DQorCX0NCisNCisJZXJyID0gbXJzdF9wbWljX2lvd3JpdGUoJmFkY19kYXRhKTsNCisJ
+aWYgKGVycikNCisJCXJldHVybiAtMTsNCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KKy8qIFRvIHJl
+YWQgdG91Y2ggc2NyZWVuIGNoYW5uZWwgdmFsdWVzICovDQorc3RhdGljIGludCBtcnN0b3VjaF9h
+ZGNfcmVhZChzdHJ1Y3QgbXJzdG91Y2hfZGV2ICp0c2RldikNCit7DQorCWludCBlcnI7DQorCXUx
+NiB4cCwgeG0sIHlwLCB5bSwgenAsIHptOw0KKw0KKwkvKiBjb25maWd1cmUgWSBiaWFzIGZvciBY
+IGNoYW5uZWxzICovDQorCWVyciA9IG1yc3RvdWNoX3RzX2JpYXNfc2V0KHRzZGV2LT5hc3IsIFlC
+SUFTKTsNCisJaWYgKGVycikNCisJCWdvdG8gaXBjX2Vycm9yOw0KKw0KKwltc2xlZXAoV0FJVF9B
+RENfQ09NUExFVElPTik7DQorDQorCS8qIHJlYWQgeCsgYW5kIHgtIGNoYW5uZWxzICovDQorCWVy
+ciA9IG1yc3RvdWNoX3RzX2NoYW5fcmVhZCh0c2Rldi0+YXNyLCBNUlNUX1RTX0NIQU4xMCwgJnhw
+LCAmeG0pOw0KKwlpZiAoZXJyKQ0KKwkJZ290byBpcGNfZXJyb3I7DQorDQorCS8qIGNvbmZpZ3Vy
+ZSB4IGJpYXMgZm9yIHkgY2hhbm5lbHMgKi8NCisJZXJyID0gbXJzdG91Y2hfdHNfYmlhc19zZXQo
+dHNkZXYtPmFzciwgWEJJQVMpOw0KKwlpZiAoZXJyKQ0KKwkJZ290byBpcGNfZXJyb3I7DQorDQor
+CW1zbGVlcChXQUlUX0FEQ19DT01QTEVUSU9OKTsNCisNCisJLyogcmVhZCB5KyBhbmQgeS0gY2hh
+bm5lbHMgKi8NCisJZXJyID0gbXJzdG91Y2hfdHNfY2hhbl9yZWFkKHRzZGV2LT5hc3IsIE1SU1Rf
+VFNfQ0hBTjEyLCAmeXAsICZ5bSk7DQorCWlmIChlcnIpDQorCQlnb3RvIGlwY19lcnJvcjsNCisN
+CisJLyogY29uZmlndXJlIHogYmlhcyBmb3IgeCBhbmQgeSBjaGFubmVscyAqLw0KKwllcnIgPSBt
+cnN0b3VjaF90c19iaWFzX3NldCh0c2Rldi0+YXNyLCBaQklBUyk7DQorCWlmIChlcnIpDQorCQln
+b3RvIGlwY19lcnJvcjsNCisNCisJbXNsZWVwKFdBSVRfQURDX0NPTVBMRVRJT04pOw0KKw0KKwkv
+KiByZWFkIHorIGFuZCB6LSBjaGFubmVscyAqLw0KKwllcnIgPSBtcnN0b3VjaF90c19jaGFuX3Jl
+YWQodHNkZXYtPmFzciwgTVJTVF9UU19DSEFOMTAsICZ6cCwgJnptKTsNCisJaWYgKGVycikNCisJ
+CWdvdG8gaXBjX2Vycm9yOw0KKw0KKyNpZiBkZWZpbmVkKE1SU1RPVUNIX1BSSU5UX1hZWlApDQor
+CXByaW50ayhLRVJOX0lORk8gIlgrOiAlZCwgWSs6ICVkLCBaKzogJWRcbiIsIHhwLCB5cCwgenAp
+Ow0KKyNlbmRpZg0KKw0KKyNpZiBkZWZpbmVkKE1SU1RPVUNIX1BSSU5UX1hZWlApDQorCXByaW50
+ayhLRVJOX0lORk8gIlgtOiAlZCwgWS06ICVkLCBaLTogJWRcbiIsIHhtLCB5bSwgem0pOw0KKyNl
+bmRpZg0KKwlpZiAoeG0gPCBNSU5fWCB8fCB4bSA+IE1BWF9YIHx8IHltIDwgTUlOX1kgfHwgeW0g
+PiBNQVhfWSkNCisJCXJldHVybiBUT1VDSF9QUkVTU1VSRSAtIDE7DQorDQorCW1yc3RvdWNoX3Jl
+cG9ydF94eSh0c2RldiwgeHAsIHlwLCB6cCk7IC8qIHJlcG9ydCB4IGFuZCB5IHRvIGV2ZW50WCAq
+Lw0KKw0KKwlyZXR1cm4genA7DQorDQoraXBjX2Vycm9yOg0KKwlwcmludGsoS0VSTl9FUlIgIklQ
+QyBFcnJvcjogJXMiLCBfX2Z1bmNfXyk7DQorCXJldHVybiAtMTsNCit9DQorDQorLyogUEVOREVU
+IGludGVycnVwdCBoYW5kbGVyIGZ1bmN0aW9uIGZvciBORUMgYW5kIE1BWElNICovDQorc3RhdGlj
+IHZvaWQgcG1pYzEyX3BlbmRldCh2b2lkICpkYXRhKQ0KK3sNCisJdW5zaWduZWQgaW50IHRvdWNo
+ZWQ7DQorCXN0cnVjdCBtcnN0b3VjaF9kZXYgKnRzZGV2ID0gKHN0cnVjdCBtcnN0b3VjaF9kZXYg
+KilkYXRhOw0KKw0KKwkvKiByZWFkIHRvdWNoIHNjcmVlbiBjaGFubmVscyB0aWxsIHBlbiByZW1v
+dmVkICovDQorCXRvdWNoZWQgPSBtcnN0b3VjaF9hZGNfcmVhZCh0c2Rldik7DQorCXdoaWxlICh0
+b3VjaGVkID4gVE9VQ0hfUFJFU1NVUkUpIHsNCisJCXRvdWNoZWQgPSBtcnN0b3VjaF9hZGNfcmVh
+ZCh0c2Rldik7DQorCQltc2xlZXAoV0FJVF9BRENfQ09NUExFVElPTik7DQorCX0NCit9DQorDQor
+LyogSGFuZGxlciB0byBwcm9jZXNzIFBFTkRFVCBpbnRlcnJ1cHQgKi8NCitpbnQgbXJzdG91Y2hf
+cGVuZGV0KHZvaWQgKmRhdGEpDQorew0KKwlzdHJ1Y3QgbXJzdG91Y2hfZGV2ICp0c2RldiA9IChz
+dHJ1Y3QgbXJzdG91Y2hfZGV2ICopZGF0YTsNCisNCisJd2hpbGUgKDEpIHsNCisJCWRvd24oJnRz
+ZGV2LT5sb2NrKTsgLyogV2FpdCBmb3IgUEVOREVUIGludGVycnVwdCAqLw0KKw0KKwkJaWYgKHRz
+ZGV2LT5idXN5KQ0KKwkJCXJldHVybiAwOw0KKw0KKwkJdHNkZXYtPmJ1c3kgPSB0cnVlOw0KKw0K
+KwkJaWYgKHRzZGV2LT52ZW5kb3IgPT0gUE1JQ19WRU5ET1JfTkVDIHx8DQorCQkJdHNkZXYtPnZl
+bmRvciA9PSBQTUlDX1ZFTkRPUl9NQVhJTSkgew0KKwkJCS8qIFBFTkRFVCBtdXN0IGJlIGRpc2Fi
+bGVkIGluIE5FQyBiZWZvcmUgcmVhZGluZyBBREMgKi8NCisJCQlwZW5kZXRfZW5hYmxlKGZhbHNl
+KTsgLyogRGlzYmFsZSBQRU5ERVQgKi8NCisJCQlwbWljMTJfcGVuZGV0KHRzZGV2KTsNCisJCQlw
+ZW5kZXRfZW5hYmxlKHRydWUpOyAvKkVuYWJsZSBQRU5ERVQgKi8NCisJCX0gZWxzZSBpZiAodHNk
+ZXYtPnZlbmRvciA9PSBQTUlDX1ZFTkRPUl9GUykgew0KKwkJCXBlbmRldF9tYXNrKDApOyAvKiBE
+aXNhYmxlIFBFTkRFVCAqLw0KKwkJCXBtaWMwX3BlbmRldCh0c2Rldik7DQorCQkJcGVuZGV0X21h
+c2soMSk7IC8qIEVuYWJsZSBQRU5ERVQgKi8NCisJCX0gZWxzZQ0KKwkJCXByaW50ayhLRVJOX0VS
+UiAiVW5rbm93biBQTUlDLCBOb3Qgc3VwcG9ydGVkXG4iKTsNCisNCisJCXRzZGV2LT5idXN5ID0g
+ZmFsc2U7DQorCX0NCisNCisJcmV0dXJuIDA7DQorfQ0KKw0KKy8qIFBFTkRFVCBpbnRlcnJ1cHQg
+aGFuZGxlciAqLw0KK3N0YXRpYyBpcnFyZXR1cm5fdCBwZW5kZXRfaW50cl9oYW5kbGVyKGludCBp
+cnEsIHZvaWQgKmhhbmRsZSkNCit7DQorCXN0cnVjdCBtcnN0b3VjaF9kZXYgKnRzZGV2ID0gKHN0
+cnVjdCBtcnN0b3VjaF9kZXYgKiloYW5kbGU7DQorCXVwKCZ0c2Rldi0+bG9jayk7DQorDQorCXJl
+dHVybiBJUlFfSEFORExFRDsNCit9DQorDQorLyogSW50aWFsaXplcyBpbnB1dCBkZXZpY2UgYW5k
+IHJlZ2lzdGVycyB3aXRoIGlucHV0IHN1YnN5c3RlbSAqLw0KK3N0YXRpYyBpbnQgdHNfaW5wdXRf
+ZGV2X2luaXQoc3RydWN0IG1yc3RvdWNoX2RldiAqdHNkZXYsIHN0cnVjdCBzcGlfZGV2aWNlICpz
+cGkpDQorew0KKwlpbnQgZXJyID0gMDsNCisNCisJdHNkZXYtPmlucHV0ID0gaW5wdXRfYWxsb2Nh
+dGVfZGV2aWNlKCk7DQorCWlmICghdHNkZXYtPmlucHV0KSB7DQorCQlkZXZfZXJyKCZ0c2Rldi0+
+c3BpLT5kZXYsICIlcyIsICJJbnB1dCBkZXYgYWxsb2NhdGlvbiBmYWlsZWQiKTsNCisJCXJldHVy
+biAtRU5PTUVNOw0KKwl9DQorDQorCXRzZGV2LT5pbnB1dC0+bmFtZSA9ICJtcnN0X3RvdWNoc2Ny
+ZWVuIjsNCisJc25wcmludGYodHNkZXYtPnBoeXMsIHNpemVvZih0c2Rldi0+cGh5cyksDQorCQkJ
+IiVzL2lucHV0MCIsIGRldl9uYW1lKCZzcGktPmRldikpOw0KKwl0c2Rldi0+aW5wdXQtPnBoeXMg
+PSB0c2Rldi0+cGh5czsNCisJdHNkZXYtPmlucHV0LT5kZXYucGFyZW50ID0gJnNwaS0+ZGV2Ow0K
+Kw0KKwl0c2Rldi0+aW5wdXQtPmlkLnZlbmRvciA9IHRzZGV2LT52ZW5kb3I7DQorCXRzZGV2LT5p
+bnB1dC0+aWQudmVyc2lvbiA9IHRzZGV2LT5yZXY7DQorDQorCXRzZGV2LT5pbnB1dC0+ZXZiaXRb
+MF0gPSBCSVRfTUFTSyhFVl9LRVkpIHwgQklUX01BU0soRVZfQUJTKTsNCisJdHNkZXYtPmlucHV0
+LT5rZXliaXRbQklUX1dPUkQoQlROX1RPVUNIKV0gPSBCSVRfTUFTSyhCVE5fVE9VQ0gpOw0KKw0K
+KwlpbnB1dF9zZXRfYWJzX3BhcmFtcyh0c2Rldi0+aW5wdXQsIEFCU19YLCBNSU5fWCwgTUlOX1ks
+IDAsIDApOw0KKwlpbnB1dF9zZXRfYWJzX3BhcmFtcyh0c2Rldi0+aW5wdXQsIEFCU19ZLCBNSU5f
+WCwgTUlOX1ksIDAsIDApOw0KKw0KKwllcnIgPSBpbnB1dF9yZWdpc3Rlcl9kZXZpY2UodHNkZXYt
+PmlucHV0KTsNCisJaWYgKGVycikgew0KKwkJZGV2X2VycigmdHNkZXYtPnNwaS0+ZGV2LCAiJXMi
+LCAiSW5wdXQgZGV2IHJlZ2lzdGVyIGZhaWxlZCIpOw0KKwkJaW5wdXRfZnJlZV9kZXZpY2UodHNk
+ZXYtPmlucHV0KTsNCisJCXJldHVybiBlcnI7DQorCX0NCisNCisJZGV2X2RiZygmdHNkZXYtPnNw
+aS0+ZGV2LCAiJXMiLCAibXJzdG91Y2ggaW5pdGlhbGl6ZWQiKTsNCisNCisJcmV0dXJuIDA7DQor
+DQorfQ0KKw0KKy8qIFByb2JlIGZ1bmN0aW9uIGZvciB0b3VjaCBzY3JlZW4gZHJpdmVyICovDQor
+c3RhdGljIGludCBfX2RldmluaXQgbXJzdG91Y2hfcHJvYmUoc3RydWN0IHNwaV9kZXZpY2UgKm1y
+c3RvdWNoX3NwaSkNCit7DQorCWludCBlcnI7DQorCXVuc2lnbmVkIGludCBteWlycTsNCisJc3Ry
+dWN0IG1yc3RvdWNoX2RldiAqdHNkZXY7DQorDQorCW15aXJxID0gbXJzdG91Y2hfc3BpLT5pcnE7
+DQorDQorCWlmICghbXJzdG91Y2hfc3BpLT5pcnEpIHsNCisJCWRldl9lcnIoJm1yc3RvdWNoX3Nw
+aS0+ZGV2LCAiJXMoJWQpIiwgIk5vIElSUSIsIG15aXJxKTsNCisJCXJldHVybiAtRUlOVkFMOw0K
+Kwl9DQorDQorCXRzZGV2ID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IG1yc3RvdWNoX2RldiksIEdG
+UF9LRVJORUwpOw0KKwlpZiAoIXRzZGV2KSB7DQorCQlkZXZfZXJyKCZ0c2Rldi0+c3BpLT5kZXYs
+ICIlcyIsICJFUlJPUjogTWVtb3J5IGZhaWx1cmUiKTsNCisJCXJldHVybiAtRU5PTUVNOw0KKwl9
+DQorDQorCXRzZGV2LT5pcnEgPSBteWlycTsNCisNCisJZXJyID0gdHNfaW5wdXRfZGV2X2luaXQo
+dHNkZXYsIG1yc3RvdWNoX3NwaSk7DQorCWlmIChlcnIpIHsNCisJCWRldl9lcnIoJnRzZGV2LT5z
+cGktPmRldiwgIiVzIiwgInRzX2lucHV0X2Rldl9pbml0IGZhaWxlZCIpOw0KKwkJa2ZyZWUodHNk
+ZXYpOw0KKwkJcmV0dXJuIGVycjsNCisJfQ0KKw0KKwllcnIgPSBtcnN0b3VjaF9hZGNfaW5pdCh0
+c2Rldik7DQorCWlmIChlcnIpIHsNCisJCWRldl9lcnIoJnRzZGV2LT5zcGktPmRldiwgIiVzIiwg
+IkFEQyBpbml0IGZhaWxlZCIpOw0KKwkJZ290byBtcnN0b3VjaF9lcnJvcjsNCisJfQ0KKw0KKwlk
+ZXZfc2V0X2RydmRhdGEoJm1yc3RvdWNoX3NwaS0+ZGV2LCB0c2Rldik7DQorCXRzZGV2LT5zcGkg
+PSBtcnN0b3VjaF9zcGk7DQorDQorCXNlbWFfaW5pdCgmdHNkZXYtPmxvY2ssIDEpOw0KKwlkb3du
+KCZ0c2Rldi0+bG9jayk7DQorDQorCXRzZGV2LT5wZW5kZXRfdGhyZCA9IGt0aHJlYWRfcnVuKG1y
+c3RvdWNoX3BlbmRldCwNCisJCQkJCSh2b2lkICopdHNkZXYsICJwZW5kZXQgaGFuZGxlciIpOw0K
+KwlpZiAoSVNfRVJSKHRzZGV2LT5wZW5kZXRfdGhyZCkpIHsNCisJCWRldl9lcnIoJnRzZGV2LT5z
+cGktPmRldiwgImt0aHJlYWRfcnVuIGZhaWxlZCBcbiIpOw0KKwkJZ290byBtcnN0b3VjaF9lcnJv
+cjsNCisJfQ0KKw0KKwlkZXZfZGJnKCZ0c2Rldi0+c3BpLT5kZXYsICJSZXF1ZXN0aW5nIElSUS0l
+ZCIsIG15aXJxKTsNCisJZXJyID0gcmVxdWVzdF9pcnEobXlpcnEsIHBlbmRldF9pbnRyX2hhbmRs
+ZXIsDQorCQkJCTAsICJtcnN0b3VjaCIsIHRzZGV2KTsNCisJaWYgKGVycikgew0KKwkJZGV2X2Vy
+cigmdHNkZXYtPnNwaS0+ZGV2LCAiSVJRIFJlcXVlc3QgRmFpbGVkIC0gJWQiLCBlcnIpOw0KKwkJ
+Z290byBtcnN0b3VjaF9lcnJvcjsNCisJfQ0KKw0KKwlkZXZfZGJnKCZ0c2Rldi0+c3BpLT5kZXYs
+ICIlcyIsICJEcml2ZXIgaW5pdGlhbGl6ZWQiKTsNCisNCisJcmV0dXJuIDA7DQorDQorIG1yc3Rv
+dWNoX2Vycm9yOg0KKwlpbnB1dF91bnJlZ2lzdGVyX2RldmljZSh0c2Rldi0+aW5wdXQpOw0KKwlr
+ZnJlZSh0c2Rldik7DQorCXJldHVybiAtMTsNCit9DQorDQorc3RhdGljIF9fZGV2ZXhpdCBpbnQg
+bXJzdG91Y2hfcmVtb3ZlKHN0cnVjdCBzcGlfZGV2aWNlICpzcGkpDQorew0KKwlmcmVlX2lycSht
+cnN0b3VjaGRldnAtPmlycSwgbXJzdG91Y2hkZXZwKTsNCisJaW5wdXRfdW5yZWdpc3Rlcl9kZXZp
+Y2UobXJzdG91Y2hkZXZwLT5pbnB1dCk7DQorCWtmcmVlKG1yc3RvdWNoZGV2cCk7DQorCXJldHVy
+biAwOw0KK30NCisNCitzdGF0aWMgc3RydWN0IHNwaV9kcml2ZXIgbXJzdG91Y2hfZHJpdmVyID0g
+ew0KKwkuZHJpdmVyID0gew0KKwkJLm5hbWUgICA9ICJwbWljX3RvdWNoIiwNCisJCS5idXMgICAg
+PSAmc3BpX2J1c190eXBlLA0KKwkJLm93bmVyICA9IFRISVNfTU9EVUxFLA0KKwl9LA0KKwkucHJv
+YmUgICAgICAgICAgPSBtcnN0b3VjaF9wcm9iZSwNCisJLnJlbW92ZSAgICAgICAgID0gX19kZXZl
+eGl0X3AobXJzdG91Y2hfcmVtb3ZlKSwNCit9Ow0KKw0KK3N0YXRpYyBpbnQgX19pbml0IG1yc3Rv
+dWNoX21vZHVsZV9pbml0KHZvaWQpDQorew0KKwlyZXR1cm4gc3BpX3JlZ2lzdGVyX2RyaXZlcigm
+bXJzdG91Y2hfZHJpdmVyKTsNCit9DQorDQorc3RhdGljIHZvaWQgX19leGl0IG1yc3RvdWNoX21v
+ZHVsZV9leGl0KHZvaWQpDQorew0KKwlzcGlfdW5yZWdpc3Rlcl9kcml2ZXIoJm1yc3RvdWNoX2Ry
+aXZlcik7DQorfQ0KKw0KK21vZHVsZV9pbml0KG1yc3RvdWNoX21vZHVsZV9pbml0KTsNCittb2R1
+bGVfZXhpdChtcnN0b3VjaF9tb2R1bGVfZXhpdCk7DQotLSANCjEuNS40LjUNCg0K
+
+--_002_0AE3E14D83C76F4994657326177D1FF9631330FFbgsmsx501garcor_--

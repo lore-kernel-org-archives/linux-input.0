@@ -1,37 +1,40 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [RFC] Infrared Keycode standardization
-Date: Mon, 31 Aug 2009 02:47:41 -0300
-Message-ID: <20090831024741.69fe587b@pedra.chehab.org>
-References: <20090827045710.2d8a7010@pedra.chehab.org>
-	<20090827183636.GG26702@sci.fi>
-	<20090827185853.0aa2de76@pedra.chehab.org>
-	<829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com>
-	<20090828004628.06f34d12@pedra.chehab.org>
-	<20090828041459.67c1499a@pedra.chehab.org>
-	<alpine.LRH.1.10.0908281150120.10085@pub6.ifh.de>
-	<20090828093042.3cf3c770@pedra.chehab.org>
-	<20090829154528.74cd98da@pedra.chehab.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Add support for Rotronic silver/white handset
+	in cm109 driver
+Date: Mon, 31 Aug 2009 18:37:38 -0700
+Message-ID: <20090901021017.26A96526EA5@mailhub.coreip.homeip.net>
+References: <4A9ACD69.5030501@unixsol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20090829154528.74cd98da@pedra.chehab.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Patrick Boettcher <pboettcher@kernellabs.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, Devin Heitmueller <dheitmueller@kernellabs.com>, Ville =?ISO-8859-1?B?U3lyauRs5A==?= <syrjala@sci.fi>, Linux Input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f175.google.com ([209.85.222.175]:59000 "EHLO
+	mail-pz0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751971AbZIABhn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 Aug 2009 21:37:43 -0400
+Content-Disposition: inline
+In-Reply-To: <4A9ACD69.5030501@unixsol.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Georgi Chorbadzhiyski <gf@unixsol.org>
+Cc: Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Em Sat, 29 Aug 2009 15:45:28 -0300
-Mauro Carvalho Chehab <mchehab@infradead.org> escreveu:
+Hi Georgi,
 
-> Ok, I've did several changes on both V4L and dvb-usb IR implementations. They
-> scancode tables are now implemented at the same way, at:
-> 	http://linuxtv.org/hg/~mchehab/IR
+On Sun, Aug 30, 2009 at 10:05:13PM +0300, Georgi Chorbadzhiyski wrote:
+> The following patch adds support for yet another keymap in
+> cm109 driver. Rotronic silver/white is USB "Skype" handset
+> sold in Bulgaria and Serbia (according to Google). With this
+> cheap stuff a picture is the only way to identify what you've
+> got, so here is one:
+>    http://www.reset.bg/catalog/images/skyphoneusbbelihcek.jpg
+> 
 
-Ok, I've also updated the V4L2 API spec with the default keyboard mapping on
-the above URL. If nobody complains, I'll update our development tree with the
-above changes likely today (Aug, 31) night, and prepare the changesets to be
-added at linux-next.
+While there is nothing wrong with the patch I am hesitant to apply it.
+Any chance we could push it onto HAL or maybe have your application to
+load appropriate keymap? I know we can't do it automatically because
+vendor and product IDs are the same for all these devices... It's just
+putting every keymap into the kernel is not sustainable.
 
-Cheers,
-Mauro
+-- 
+Dmitry

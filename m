@@ -1,47 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Infrared Keycode standardization
-Date: Mon, 31 Aug 2009 18:38:08 -0700
-Message-ID: <20090901021047.3E0D2526EA5@mailhub.coreip.homeip.net>
-References: <20090827045710.2d8a7010@pedra.chehab.org> <20090827183636.GG26702@sci.fi> <20090827185853.0aa2de76@pedra.chehab.org> <829197380908271506i251b47caoe8c08d483e78e938@mail.gmail.com> <20090828004628.06f34d12@pedra.chehab.org> <20090828041459.67c1499a@pedra.chehab.org> <alpine.LRH.1.10.0908281150120.10085@pub6.ifh.de> <20090828093042.3cf3c770@pedra.chehab.org> <20090829154528.74cd98da@pedra.chehab.org> <20090831024741.69fe587b@pedra.chehab.org>
+From: Barry Song <21cnbao@gmail.com>
+Subject: [PATCH 0/2] add ad714x captouch sensor input driver
+Date: Tue, 1 Sep 2009 11:55:28 +0800
+Message-ID: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f175.google.com ([209.85.222.175]:59000 "EHLO
-	mail-pz0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752687AbZIABiJ (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:18697 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751312AbZIADyJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Aug 2009 21:38:09 -0400
-Content-Disposition: inline
-In-Reply-To: <20090831024741.69fe587b@pedra.chehab.org>
+	Mon, 31 Aug 2009 23:54:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Patrick Boettcher <pboettcher@kernellabs.com>, Linux Media Mailing List <linux-media@vger.kernel.org>, Devin Heitmueller <dheitmueller@kernellabs.com>, Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>, Linux Input <linux-input@vger.kernel.org>
+To: dbrownell@users.sourceforge.net, dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Barry Song <21cnbao@gmail.com>
 
-Mauro,
+Dmitry/David,
+The following two patches add the analog devices captouch sensor ad714x(AD7142/AD7147)
+driver.
 
-On Mon, Aug 31, 2009 at 02:47:41AM -0300, Mauro Carvalho Chehab wrote:
-> Em Sat, 29 Aug 2009 15:45:28 -0300
-> Mauro Carvalho Chehab <mchehab@infradead.org> escreveu:
-> 
-> > Ok, I've did several changes on both V4L and dvb-usb IR implementations. They
-> > scancode tables are now implemented at the same way, at:
-> > 	http://linuxtv.org/hg/~mchehab/IR
-> 
-> Ok, I've also updated the V4L2 API spec with the default keyboard mapping on
-> the above URL. If nobody complains, I'll update our development tree with the
-> above changes likely today (Aug, 31) night, and prepare the changesets to be
-> added at linux-next.
-> 
+AD7142 and AD7147 are integrated capacitance-to-digital converters (CDCs) with on-chip 
+environmental calibration for use in systems requiring a novel user input method. 
+The AD7142 and AD7147 can interface to external capacitance sensors implementing 
+functions such as capacitive buttons, scrollwheels, sliders, touchpads and so on.
 
-I see that you changed from KEY_KP* to KEY_*, unfortunately this change
-will break users who have digits in upper register. KEY_KP* were not
-perfect either since they are affected by NumLock state. I would
-recommend moving to KEY_NUMERIC_* which should be unaffected by either
-register, shift state or NumLock state.
+David,
+The patch[1/2] adds a file with platform_data definition for AD714x in include/linux/spi,
+which describes the components layout on special target boards and need be filled in 
+arch/mach.
 
-Of course there is an issue of them being absent from most keymaps; but
-nothing is perfect in thsi world ;)
+Dmitry,
+The patch[2/2] adds a file in drivers/input/misc and changes Kconfig&Makefile, fulfilling
+the algorithms and state machines for the related buttons/sliders/scrollwheels/touchpads
+defined in platform_data. So the driver becomes be independent of special target boards.
 
--- 
-Dmitry
+The patch[2/2] depends on patch[1/2] for compiling and work.
+
+Thanks
+Barry

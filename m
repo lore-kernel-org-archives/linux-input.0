@@ -1,43 +1,47 @@
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Subject: Re: [PATCH] input: Add support for Rotronic silver/white handset
- in cm109 driver
-Date: Tue, 01 Sep 2009 11:32:23 +0300
-Message-ID: <4A9CDC17.8060207@unixsol.org>
-References: <4A9ACD69.5030501@unixsol.org> <20090901021017.26A96526EA5@mailhub.coreip.homeip.net>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [Uclinux-dist-devel] [PATCH 1/2] add ad714x platform_data
+	definition
+Date: Tue, 1 Sep 2009 14:41:03 -0400
+Message-ID: <8bd0f97a0909011141p144a927cg39e6bf0313165a8@mail.gmail.com>
+References: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>
+	<1251777330-16994-2-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.unixsol.org ([193.110.159.2]:40498 "EHLO ns.unixsol.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752013AbZIAIcW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Sep 2009 04:32:22 -0400
-In-Reply-To: <20090901021017.26A96526EA5@mailhub.coreip.homeip.net>
+Received: from mail-yw0-f188.google.com ([209.85.211.188]:43866 "EHLO
+	mail-yw0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751856AbZIASlX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Sep 2009 14:41:23 -0400
+Received: by ywh26 with SMTP id 26so323757ywh.5
+        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2009 11:41:25 -0700 (PDT)
+In-Reply-To: <1251777330-16994-2-git-send-email-21cnbao@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Barry Song <21cnbao@gmail.com>
+Cc: dbrownell@users.sourceforge.net, dmitry.torokhov@gmail.com, dtor@mail.ru, spi-devel-general@lists.sourceforge.net, uclinux-dist-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-Dmitry Torokhov scribbled:
-> Hi Georgi,
-> 
-> On Sun, Aug 30, 2009 at 10:05:13PM +0300, Georgi Chorbadzhiyski wrote:
->> The following patch adds support for yet another keymap in
->> cm109 driver. Rotronic silver/white is USB "Skype" handset
->> sold in Bulgaria and Serbia (according to Google). With this
->> cheap stuff a picture is the only way to identify what you've
->> got, so here is one:
->>    http://www.reset.bg/catalog/images/skyphoneusbbelihcek.jpg
->>
-> 
-> While there is nothing wrong with the patch I am hesitant to apply it.
-> Any chance we could push it onto HAL or maybe have your application to
-> load appropriate keymap? I know we can't do it automatically because
-> vendor and product IDs are the same for all these devices... It's just
-> putting every keymap into the kernel is not sustainable.
+On Mon, Aug 31, 2009 at 23:55, Barry Song<21cnbao@gmail.com> wrote:
+> --- /dev/null
+> +++ b/include/linux/spi/ad714x.h
+> @@ -0,0 +1,60 @@
+> +/*
+> + * include/linux/ad714x.h
+> + *
+> + * AD714x is very flexible, it can be used as buttons, scrollwheel,
+> + * slider, touchpad at the same time. That depends on the boards.
+> + * The platform_data for the device's "struct device" holds this
+> + * information.
+> + */
 
-Sure, no problem.
+missing lines:
+ * Copyright 2009 Analog Devices Inc.
+ *
+ * Licensed under the GPL-2 or later.
 
--- 
-Georgi Chorbadzhiyski
-http://georgi.unixsol.org/
+> +#ifndef AD714X_HW_H
+> +#define AD714X_HW_H
+
+header files should not be using an unprefixed name space (even if
+it's an uncommon define name), and the name really should match the
+header.  i.e. __LINUX_SPI_AD714X_H__
+-mike

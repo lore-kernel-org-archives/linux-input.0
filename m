@@ -1,15 +1,15 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH 0/2] add ad714x
-	captouch sensor input driver
-Date: Tue, 1 Sep 2009 18:52:57 -0700
-Message-ID: <200909011852.57712.david-b@pacbell.net>
+Subject: Re: [PATCH 1/2] add ad714x platform_data
+	definition
+Date: Tue, 1 Sep 2009 18:57:37 -0700
+Message-ID: <200909011857.37755.david-b@pacbell.net>
 References: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>
-	<8bd0f97a0909011146t210cbacbx6b0fa323242ac3d3@mail.gmail.com>
+	<1251777330-16994-2-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <8bd0f97a0909011146t210cbacbx6b0fa323242ac3d3-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1251777330-16994-2-git-send-email-21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
 	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
@@ -19,25 +19,49 @@ List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@pu
 List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
 	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
 Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 01 September 2009, Mike Frysinger wrote:
-> i dont think this needs to split merged between David's spi and
-> Dmitry's input tree. =A0would make more sense to me to merge it as one
-> patchset via Dmitry's input tree.
+On Monday 31 August 2009, Barry Song wrote:
+> --- /dev/null
+> +++ b/include/linux/spi/ad714x.h
 
-Right; one driver should usually be one patch.
+Doesn't belong under SPI since this is also used by the
+I2C version of the chip.  Likely include/linux/input/*h
+is best.
 
 
----------------------------------------------------------------------------=
----
-Let Crystal Reports handle the reporting - Free Crystal Reports 2008 30-Day =
+> @@ -0,0 +1,60 @@
+> +/*
+> + * include/linux/ad714x.h
 
-trial. Simplify your report design, integration and deployment - and focus =
-on =
+Never include the directories.  And the coding style says
+this should have a twitter-sized description of the driver
+in that line, like
 
-what you do best, core application coding. Discover what's new with =
+   * ad714x.h -- platform data for capacitance sensor driver
 
+It's good policy to include a brief GPL statement at the top
+of every source file too, including a Copyright (C) you.
+
+
+> + *
+> + * AD714x is very flexible, it can be used as buttons, scrollwheel,
+> + * slider, touchpad at the same time. That depends on the boards.
+> + * The platform_data for the device's "struct device" holds this
+> + * information.
+> + */
+> +
+> +
+> +#ifndef AD714X_HW_H
+> +#define AD714X_HW_H
+
+As noted:  __LINUX_INPUT_AD714X_H is the style to use here.
+
+
+------------------------------------------------------------------------------
+Let Crystal Reports handle the reporting - Free Crystal Reports 2008 30-Day 
+trial. Simplify your report design, integration and deployment - and focus on 
+what you do best, core application coding. Discover what's new with 
 Crystal Reports now.  http://p.sf.net/sfu/bobj-july

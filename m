@@ -1,16 +1,15 @@
 From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH 2/2] add ad714x
-	input driver for button/scrollwhell/slider/touchpad
-Date: Tue, 1 Sep 2009 19:04:59 -0700
-Message-ID: <200909011905.00270.david-b@pacbell.net>
+Subject: Re: [Uclinux-dist-devel] [PATCH 0/2] add ad714x
+	captouch sensor input driver
+Date: Tue, 1 Sep 2009 18:52:57 -0700
+Message-ID: <200909011852.57712.david-b@pacbell.net>
 References: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>
-	<1251777330-16994-3-git-send-email-21cnbao@gmail.com>
-	<8bd0f97a0909011230r50cb532ep46db64d65cbb49e5@mail.gmail.com>
+	<8bd0f97a0909011146t210cbacbx6b0fa323242ac3d3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <8bd0f97a0909011230r50cb532ep46db64d65cbb49e5-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <8bd0f97a0909011146t210cbacbx6b0fa323242ac3d3-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
 	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
@@ -25,22 +24,11 @@ Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dbrownell-Rn4VEauK+AKRv
 List-Id: linux-input@vger.kernel.org
 
 On Tuesday 01 September 2009, Mike Frysinger wrote:
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D request_threaded_irq(ad714x->bus-=
->irq, ad714x_interrupt,
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ad714x_in=
-terrupt_thread, IRQF_TRIGGER_FALLING,
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "ad714x_c=
-aptouch", ad714x);
+> i dont think this needs to split merged between David's spi and
+> Dmitry's input tree. =A0would make more sense to me to merge it as one
+> patchset via Dmitry's input tree.
 
-IRQF_SHARED is worth including; and TRIGGER_FALLING is not good
-to hard-wire, maybe it gets inverted or hooked up to an IRQ
-controller which only supports level triggers.  Best to have
-the trigger mode come from the platform data.
-
-Of course, if it's a level triggered IRQ then it clearly can't
-be IRQF_SHARED since someone will need to mask it off at the IRQ
-controller before exiting the hardirq handler, and unmask it
-before exiting the threaded handler.
+Right; one driver should usually be one patch.
 
 
 ---------------------------------------------------------------------------=

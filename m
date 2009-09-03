@@ -1,36 +1,47 @@
-From: Bill Gatliff <bgat@billgatliff.com>
-Subject: Re: [spi-devel-general] [PATCH 1/2] add ad714x platform_data definition
-Date: Wed, 02 Sep 2009 07:16:25 -0500
-Message-ID: <4A9E6219.8030301@billgatliff.com>
-References: <1251777330-16994-1-git-send-email-21cnbao@gmail.com>	<1251777330-16994-2-git-send-email-21cnbao@gmail.com> <200909011857.37755.david-b@pacbell.net>
+From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
+Subject: [PATCH] Input - keyboard: fix theoretical race on vt switch
+Date: Thu, 03 Sep 2009 17:04:57 +0100
+Message-ID: <4A9FE929.8030804@tuffmail.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f188.google.com ([209.85.211.188]:45837 "EHLO
-	mail-yw0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751050AbZIBMQM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Sep 2009 08:16:12 -0400
-Received: by ywh26 with SMTP id 26so1178446ywh.5
-        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2009 05:16:14 -0700 (PDT)
-In-Reply-To: <200909011857.37755.david-b@pacbell.net>
+Received: from mail-fx0-f217.google.com ([209.85.220.217]:46801 "EHLO
+	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754566AbZICQE7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Sep 2009 12:04:59 -0400
+Received: by fxm17 with SMTP id 17so44171fxm.37
+        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2009 09:05:00 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Barry Song <21cnbao@gmail.com>, dbrownell@users.sourceforge.net, dtor@mail.ru, dmitry.torokhov@gmail.com, spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org
+To: linux-input@vger.kernel.org
 
-David Brownell wrote:
-> It's good policy to include a brief GPL statement at the top
-> of every source file too, including a Copyright (C) you.
->   
+Switching virtual consoles could change fg_console between
 
-I think "good policy" is probably understating things a bit.  :)
+	vc = vc_cons[fg_console].d
+and
+	kbd = kbd_table + fg_console
 
+Replace the second instance of fg_console with vc->vc_num.
 
+Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
+---
+ drivers/char/keyboard.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-b.g.
-
+diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+index 737be95..4b564c5 100644
+--- a/drivers/char/keyboard.c
++++ b/drivers/char/keyboard.c
+@@ -1157,7 +1157,7 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
+ 		tty->driver_data = vc;
+ 	}
+ 
+-	kbd = kbd_table + fg_console;
++	kbd = kbd_table + vc->vc_num;
+ 
+ 	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
+ 		sysrq_alt = down ? keycode : 0;
 -- 
-Bill Gatliff
-bgat@billgatliff.com
+1.6.3.2
 

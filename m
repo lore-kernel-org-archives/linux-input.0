@@ -1,42 +1,123 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.31-rc8
-Date: Thu, 3 Sep 2009 22:05:24 -0700
-Message-ID: <20090904053822.CCA13526EA5@mailhub.coreip.homeip.net>
+Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
+Date: Thu, 3 Sep 2009 22:18:41 -0700
+Message-ID: <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net>
+References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey> <200906231106.37460.dmitry.torokhov@gmail.com> <20090628140452.GA15816@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752375AbZIDFF2@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f177.google.com ([209.85.216.177]:45645 "EHLO
+	mail-px0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755489AbZIDFSo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Sep 2009 01:18:44 -0400
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20090628140452.GA15816@gallifrey>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+On Sun, Jun 28, 2009 at 03:04:52PM +0100, Dr. David Alan Gilbert wrote:
+> * Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
+> > On Tuesday 23 June 2009 11:58:15 Dr. David Alan Gilbert wrote:
+> 
+> <snip>
+>  
+> > > Yep; I'm OK with the i8042.noaux from my point of view, but it's a
+> > > bit worrying that this used to work fine.  There's obviously been
+> > > a change somewhere since 2.6.18 (and as I remember from the dmesg
+> > > the keyboard and aux ports are being initialised in different orders).
+> > > (Actually I say obviously since 2.6.18 - but the 2.6.18 I tried
+> > > I think I only used the debian version - I should go back and
+> > > see if I can do a vanilla one), but this box has been running
+> > > Linux since the time it was originally bought with loads of distros
+> > > and clean kernels years ago.
+> > >
+> > > While this machine is old, the motherboard was a pretty common one
+> > > at the time.
+> > >
+> > 
+> > Any chance I could get dmesg with i8042.debug with 2.6.18? There was
+> > quite a large change back then when we got rid of the polling timer
+> > in i8042.
+> 
+> Apologies for the delay; attached is the dmesg from the Debian 2.6.18
+> in which keyboard works as previously described.
+> 
 
-Please pull from:
+Sorry for taking so long to respond. The only vidible difference beween
+the old and the new way is that we don't "close" serio ports anymore if
+we fail to detect a mouse/keyboard.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Could you please try the patch below and tell me if it helps?
 
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Dave Andrews (1):
-      Input: atkbd - add Compaq Presario R4000-series repeat quirk
-
-Dmitry Torokhov (1):
-      Input: i8042 - add Acer Aspire 5536 to the nomux list
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/atkbd.c        |   35 +++++++++++++++++++++++++++++++++
- drivers/input/serio/i8042-x86ia64io.h |    8 +++++++
- 2 files changed, 43 insertions(+), 0 deletions(-)
-
+Thanks!
 -- 
 Dmitry
+
+Input: i8042 - try disabling and re-enabling AUX port at close
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Ever since we switched from having a polling timer to registering IRQ
+handlers for both keyboard and AUX ports at the driver registration
+time, on certain boxes probing for a mouse results in keyboard
+stopping working. The only real difference between old and new way is
+that before we disabled ports after unsuccessful probe whereas now we
+leave them as is. Try to emulate the old behavior by disabling and
+immediately re-enabling AUX port when corresponding serio port is
+being closed.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/serio/i8042.c |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index b53a015..a55ad99 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -264,6 +264,33 @@ static int i8042_aux_write(struct serio *serio, unsigned char c)
+ 					I8042_CMD_MUX_SEND + port->mux);
+ }
+ 
++
++/*
++ * i8042_aux_close attempts to clear AUX port state by disabling
++ * and then re-enabling it.
++ */
++
++static void i8042_aux_close(struct serio *serio)
++{
++	i8042_ctr &= ~I8042_CTR_AUXINT;
++	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
++		printk(KERN_WARNING
++			"i8042.c: Can't write CTR while closing AUX port.\n");
++	udelay(50);
++
++	i8042_ctr &= ~I8042_CTR_AUXDIS;
++	i8042_ctr |= I8042_CTR_AUXINT;
++	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
++		printk(KERN_ERR
++			"i8042.c: Can't reactivate AUX port.\n");
++
++	/*
++	 * See if there is any data appeared while we were messing with
++	 * port state.
++	 */
++	i8042_interrupt(0, NULL);
++}
++
+ /*
+  * i8042_start() is called by serio core when port is about to finish
+  * registering. It will mark port as existing so i8042_interrupt can
+@@ -1051,6 +1078,7 @@ static int __devinit i8042_create_aux_port(int idx)
+ 	serio->write		= i8042_aux_write;
+ 	serio->start		= i8042_start;
+ 	serio->stop		= i8042_stop;
++	serio->close		= i8042_aux_close;
+ 	serio->port_data	= port;
+ 	serio->dev.parent	= &i8042_platform_device->dev;
+ 	if (idx < 0) {

@@ -1,71 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: A few changes to pxa27x_keypad
-Date: Fri, 4 Sep 2009 01:17:55 -0700
-Message-ID: <20090904085054.0FFCC526EA5@mailhub.coreip.homeip.net>
-References: <20090721080845.GD10168@dtor-d630.eng.vmware.com> <4A659C28.3040305@compulab.co.il> <20090723063044.GD2782@dtor-d630.eng.vmware.com> <20090723072802.GB3997@dtor-d630.eng.vmware.com> <20090723073625.GC3997@dtor-d630.eng.vmware.com> <20090904055259.5D44C526EA5@mailhub.coreip.homeip.net> <f17812d70909040045j688f1ae8la7b67e0acc813f9d@mail.gmail.com>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: Re: (matrix_keypad driver) Re: qi_lb60_keypad driver question?
+Date: Fri, 04 Sep 2009 19:38:09 +0800
+Message-ID: <4AA0FC21.5090701@gmail.com>
+References: <4A819D39.2040006@qi-hardware.com> <20090812024620.E4E10526EC9@mailhub.coreip.homeip.net> <4A9AA392.4060301@gmail.com> <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f190.google.com ([209.85.222.190]:62590 "EHLO
-	mail-pz0-f190.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756596AbZIDITL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Sep 2009 04:19:11 -0400
-Received: by pzk28 with SMTP id 28so621112pzk.27
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2009 01:19:14 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <f17812d70909040045j688f1ae8la7b67e0acc813f9d@mail.gmail.com>
+Received: from mail-px0-f177.google.com ([209.85.216.177]:55034 "EHLO
+	mail-px0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754209AbZIDLiT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Sep 2009 07:38:19 -0400
+Received: by pxi7 with SMTP id 7so683497pxi.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2009 04:38:21 -0700 (PDT)
+In-Reply-To: <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Mike Rapoport <mike@compulab.co.il>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Fri, Sep 04, 2009 at 03:45:42PM +0800, Eric Miao wrote:
-> On Fri, Sep 4, 2009 at 1:20 PM, Dmitry
-> Torokhov<dmitry.torokhov@gmail.com> wrote:
-> > On Thu, Jul 23, 2009 at 12:36:25AM -0700, Dmitry Torokhov wrote:
-> >> On Thu, Jul 23, 2009 at 12:28:02AM -0700, Dmitry Torokhov wrote:
-> >> > On Wed, Jul 22, 2009 at 11:30:44PM -0700, Dmitry Torokhov wrote:
-> >> > > On Tue, Jul 21, 2009 at 01:44:56PM +0300, Mike Rapoport wrote:
-> >> > > > Hi Dmitry,
-> >> > > >
-> >> > > > Dmitry Torokhov wrote:
-> >> > > > > Hi Eric,
-> >> > > > >
-> >> > > > > I made a few adjustments to the pxa27x_keypad driver and was wondering
-> >> > > > > if you would be able to give it a sping and check if I broke it or not.
-> >> > > >
-> >> > > > Apparently not :)
-> >> > > > Tested-by: Mike Rapoport <mike@compulab.co.il>
-> >> > > >
-> >> > >
-> >> > > Cool, thanks for testing. I have another one for you then ;)
-> >> > >
-> >> > > TIA!
-> >> > >
-> >> >
-> >> > Umm.. this one is hopefully better...
-> >> >
-> >>
-> >> And another one implementing keymap manipulation.
-> >>
-> >
-> > *ping* Any chance you could try this one out for me? Pretty please...
-> >
+Hi Dmitry
+sorry for the late reply. 
+thanks for the info.
+I will try to work on the console driver since our device don't have X.
+
+will send report when I have any progress. 
+
+Best Regards
+Xiangfu
+
+
+
+
+Dmitry Torokhov wrote:
+> Hi,
 > 
-> Hi Dmitry,
+> On Mon, Aug 31, 2009 at 12:06:42AM +0800, Xiangfu Liu wrote:
+>> Hi
+>> now the keypad in Ben NanoNote[1] is work.  problem is I don't know
+>> how to write the special assemble key of matrix_key driver. some kind
+>> of 'SHIFT', like the red key in [2].  when I press the 'RED UP POINT'
+>> + 'W' = '@'
+>>
 > 
-> Mike has already tested this, 
-
-Ah, my bad then... I understood that he only tested dev_pm_ops
-conversion (the first patch) and not both.
-
-> and I tested this again on my Littleton/pxa3xx,
-> it works pretty good, and the change looks quite OK, so if you need my Ack,
-> here it goes:
+> Historically our KEY_* definitions did not include defines for symbols
+> like '@' because they do not have a dedicated key but rather being
+> produced as a combination of a primary key + modifier; the mapping is
+> done either in console driver or in X.
 > 
-> Acked-by: Eric Miao <eric.y.miao@gmail.com>
+> Looking at the picture of the device that you provided it appears that
+> your device does not have a dedicated '@' key so it should work in the
+> same fashion as above.
+> 
 
-Thank you, much appreciated.
 
 -- 
-Dmitry
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com

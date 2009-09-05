@@ -1,103 +1,135 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 03/03] [INPUT][KEYBOARD] Add new keypad driver for s3c
- series SoCs
-Date: Sat, 5 Sep 2009 17:17:03 +0100
-Message-ID: <20090905161703.GB10326@sirena.org.uk>
-References: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com>
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
+Date: Sun, 6 Sep 2009 00:51:59 +0100
+Message-ID: <20090905235159.GA23660@gallifrey>
+References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey> <200906231106.37460.dmitry.torokhov@gmail.com> <20090628140452.GA15816@gallifrey> <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:35516 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752155AbZIEQRH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2009 12:17:07 -0400
+Received: from mx.treblig.org ([80.68.94.177]:40493 "EHLO mx.treblig.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751896AbZIEXMa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Sep 2009 19:12:30 -0400
 Content-Disposition: inline
-In-Reply-To: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com>
+In-Reply-To: <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>
-Cc: linux-input@vger.kernel.org, laforge@gnumonks.org, ben-linux@fluff.org, =?utf-8?B?6rmA6rK97J28L0FQ6rCc67Cc7YyAKFNZUy5MU0kpL0UzKOyCrOybkCkv7IK8?= =?utf-8?B?7ISx7KCE7J6Q?= <ki0351.kim@samsung.com>, =?utf-8?B?J+q5gOq1reynhC9BUOqwnOuwnO2MgChTWVMuTFNJKS9FNSjssYXsnoQpLw==?= =?utf-8?B?7IK87ISx7KCE7J6QJw==?= <kgene.kim@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, Sep 05, 2009 at 10:55:24PM +0900, =EC=96=91=EC=A7=84=EC=84=B1 w=
-rote:
+* Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
+> On Sun, Jun 28, 2009 at 03:04:52PM +0100, Dr. David Alan Gilbert wrote:
+> > * Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
+> > > On Tuesday 23 June 2009 11:58:15 Dr. David Alan Gilbert wrote:
+> > 
+> > <snip>
+> >  
+> > > > Yep; I'm OK with the i8042.noaux from my point of view, but it's a
+> > > > bit worrying that this used to work fine.  There's obviously been
+> > > > a change somewhere since 2.6.18 (and as I remember from the dmesg
+> > > > the keyboard and aux ports are being initialised in different orders).
+> > > > (Actually I say obviously since 2.6.18 - but the 2.6.18 I tried
+> > > > I think I only used the debian version - I should go back and
+> > > > see if I can do a vanilla one), but this box has been running
+> > > > Linux since the time it was originally bought with loads of distros
+> > > > and clean kernels years ago.
+> > > >
+> > > > While this machine is old, the motherboard was a pretty common one
+> > > > at the time.
+> > > >
+> > > 
+> > > Any chance I could get dmesg with i8042.debug with 2.6.18? There was
+> > > quite a large change back then when we got rid of the polling timer
+> > > in i8042.
+> > 
+> > Apologies for the delay; attached is the dmesg from the Debian 2.6.18
+> > in which keyboard works as previously described.
+> > 
+> 
+> Sorry for taking so long to respond. The only vidible difference beween
+> the old and the new way is that we don't "close" serio ports anymore if
+> we fail to detect a mouse/keyboard.
+> 
+> Could you please try the patch below and tell me if it helps?
 
-> +static void s3c_keypad_timer_handler(unsigned long data)
-> +{
+Yes that fixes it - thank you!
+(Tested on 2.6.31-rc8, having first checked rc8 on it's own was still broken)
 
-> +	if (keymask_low | keymask_high) {
-> +		mod_timer(&keypad->timer, jiffies + HZ / 10);
-> +	} else {
-> +		cfg =3D readl(keypad->regs + S3C_KEYIFCON);
-> +		cfg &=3D ~S3C_KEYIF_CON_MASK_ALL;
-> +		cfg |=3D (S3C_KEYIF_INT_F_EN | S3C_KEYIF_INT_R_EN |
-> +				S3C_KEYIF_DF_EN | S3C_KEYIF_FC_EN);
-> +		writel(cfg, keypad->regs + S3C_KEYIFCON);
+Dave
+
+> 
+> Thanks!
+> -- 
+> Dmitry
+> 
+> Input: i8042 - try disabling and re-enabling AUX port at close
+> 
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Ever since we switched from having a polling timer to registering IRQ
+> handlers for both keyboard and AUX ports at the driver registration
+> time, on certain boxes probing for a mouse results in keyboard
+> stopping working. The only real difference between old and new way is
+> that before we disabled ports after unsuccessful probe whereas now we
+> leave them as is. Try to emulate the old behavior by disabling and
+> immediately re-enabling AUX port when corresponding serio port is
+> being closed.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/serio/i8042.c |   28 ++++++++++++++++++++++++++++
+>  1 files changed, 28 insertions(+), 0 deletions(-)
+> 
+> 
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index b53a015..a55ad99 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -264,6 +264,33 @@ static int i8042_aux_write(struct serio *serio, unsigned char c)
+>  					I8042_CMD_MUX_SEND + port->mux);
+>  }
+>  
 > +
-> +		keypad->timer_enabled =3D 0;
-
-This looks racy - we first enable the interrupts and then change the
-variable that flags the timer as enabled.  Potentially the interrupt
-could fire between these two operations, meaning that it would see the
-timer as disabled.
-
-> +static irqreturn_t s3c_keypad_irq(int irq, void *dev_id)
+> +/*
+> + * i8042_aux_close attempts to clear AUX port state by disabling
+> + * and then re-enabling it.
+> + */
+> +
+> +static void i8042_aux_close(struct serio *serio)
 > +{
-
-> +	keypad->timer.expires =3D jiffies + (HZ / 100);
-> +	if (keypad->timer_enabled) {
-> +		mod_timer(&keypad->timer, keypad->timer.expires);
-> +	} else {
-> +		add_timer(&keypad->timer);
-> +		keypad->timer_enabled =3D 1;
-> +	}
-
-The driver should be able to avoid the above issue by just calling
-mod_timer() unconditionally here - if mod_timer() is called on an
-inactive timer then it will activate it for you.  This would also avoid
-modifying the timer expiry while the timer is active, which I'm not
-convinced is safe.  This would mean that the driver wouldn't need to
-remember if the timer was enabled.
-
-> +#define res_size(res)	((res)->end - (res)->start + 1)
-
-There's resource_size() for this.
-
-> +	/* Register the input device */
-> +	error =3D input_register_device(input);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		goto err_reg_input;
-> +	}
-
-This is called after your interrupt handler is registerd.  Are you sure
-that the interrupt handler can safely run before this happens - it look=
-s=20
-
-> +	device_init_wakeup(&pdev->dev, 1);
-> +	dev_info(&pdev->dev, "Samsung Keypad Interface driver\n");
-
-I'd drop this dev_info().
-
-> +static int __devexit s3c_keypad_remove(struct platform_device *pdev)
-> +{
-
-I can't see anything here or elsewhere which stops the timer you're
-using to poll the keypad.  This means that the timer may still be
-running if someone is pressing a key when the driver is removed.  I
-believe the same issue applies over suspend and resume.
-
-> +static struct platform_driver s3c_keypad_driver =3D {
-> +	.probe		=3D s3c_keypad_probe,
-> +	.remove		=3D s3c_keypad_remove,
-> +	.suspend	=3D s3c_keypad_suspend,
-> +	.resume		=3D s3c_keypad_resume,
-
-The driver should be using dev_pm_ops rather than the suspend and resum=
-e
-methods of the struct platform_driver.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	i8042_ctr &= ~I8042_CTR_AUXINT;
+> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
+> +		printk(KERN_WARNING
+> +			"i8042.c: Can't write CTR while closing AUX port.\n");
+> +	udelay(50);
+> +
+> +	i8042_ctr &= ~I8042_CTR_AUXDIS;
+> +	i8042_ctr |= I8042_CTR_AUXINT;
+> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
+> +		printk(KERN_ERR
+> +			"i8042.c: Can't reactivate AUX port.\n");
+> +
+> +	/*
+> +	 * See if there is any data appeared while we were messing with
+> +	 * port state.
+> +	 */
+> +	i8042_interrupt(0, NULL);
+> +}
+> +
+>  /*
+>   * i8042_start() is called by serio core when port is about to finish
+>   * registering. It will mark port as existing so i8042_interrupt can
+> @@ -1051,6 +1078,7 @@ static int __devinit i8042_create_aux_port(int idx)
+>  	serio->write		= i8042_aux_write;
+>  	serio->start		= i8042_start;
+>  	serio->stop		= i8042_stop;
+> +	serio->close		= i8042_aux_close;
+>  	serio->port_data	= port;
+>  	serio->dev.parent	= &i8042_platform_device->dev;
+>  	if (idx < 0) {
+-- 
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

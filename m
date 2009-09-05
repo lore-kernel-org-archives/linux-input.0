@@ -1,50 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input - keyboard: fix theoretical race on vt switch
-Date: Sat, 5 Sep 2009 00:09:17 -0700
-Message-ID: <20090905074222.122C8526EC9@mailhub.coreip.homeip.net>
-References: <4A9FE929.8030804@tuffmail.co.uk>
+From: =?UTF-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>
+Subject: [PATCH 02/03] [INPUT][KEYBOARD] Makefile support for s3c matrix keypad
+Date: Sat, 05 Sep 2009 22:54:44 +0900
+Message-ID: <00af01ca2e30$6c647030$452d5090$%yang@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f194.google.com ([209.85.216.194]:42019 "EHLO
-	mail-px0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750986AbZIEHJU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2009 03:09:20 -0400
-Received: by pxi32 with SMTP id 32so1377611pxi.25
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2009 00:09:22 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4A9FE929.8030804@tuffmail.co.uk>
+Received: from mailout5.samsung.com ([203.254.224.35]:36579 "EHLO
+	mailout5.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751795AbZIEOCK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2009 10:02:10 -0400
+Received: from epmmp1 (mailout5.samsung.com [203.254.224.35])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KPI00JL23UYTI@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Sat, 05 Sep 2009 22:52:11 +0900 (KST)
+Received: from JSGOODMAIN ([12.23.109.106])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KPI008P23UY1A@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Sat, 05 Sep 2009 22:52:10 +0900 (KST)
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: laforge@gnumonks.org, ben-linux@fluff.org, =?UTF-8?B?6rmA6rK97J28L0FQ6rCc67Cc7YyAKFNZUy5MU0kpL0UzKOyCrOybkCkv?= =?UTF-8?B?7IK87ISx7KCE7J6Q?= <ki0351.kim@samsung.com>, =?UTF-8?B?J+q5gOq1reynhC9BUOqwnOuwnO2MgChTWVMuTFNJKS9FNSjssYXsnoQp?= =?UTF-8?B?L+yCvOyEseyghOyekCc=?= <kgene.kim@samsung.com>
 
-On Thu, Sep 03, 2009 at 05:04:57PM +0100, Alan Jenkins wrote:
-> Switching virtual consoles could change fg_console between
-> 
-> 	vc = vc_cons[fg_console].d
-> and
-> 	kbd = kbd_table + fg_console
-> 
-> Replace the second instance of fg_console with vc->vc_num.
-> 
-> Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
-> ---
->  drivers/char/keyboard.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-> index 737be95..4b564c5 100644
-> --- a/drivers/char/keyboard.c
-> +++ b/drivers/char/keyboard.c
-> @@ -1157,7 +1157,7 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
->  		tty->driver_data = vc;
->  	}
->  
-> -	kbd = kbd_table + fg_console;
-> +	kbd = kbd_table + vc->vc_num;
+This patch supports to compile of s3c matrix keypad driver.
 
-Hmm, I see more such cases there...
+Signed-off-by: Jinsung Yang <jsgood.yang@samsung.com>
+Signed-off-by: Kyeongil Kim <ki0351.kim@samsung.com>
+---
+ drivers/input/keyboard/Makefile |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index b5b5eae..21331b8 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -31,3 +31,4 @@ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+ obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+ obj-$(CONFIG_KEYBOARD_TOSA)		+= tosakbd.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
++obj-$(CONFIG_KEYBOARD_S3C)		+= s3c-keypad.o
 -- 
-Dmitry
+1.6.2.5
+

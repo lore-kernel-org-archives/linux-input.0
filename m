@@ -1,88 +1,51 @@
-From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
-Subject: [PATCHv2] Input - keyboard: fix theoretical race on vt switch
-Date: Sat, 05 Sep 2009 15:16:34 +0100
-Message-ID: <4AA272C2.5070908@tuffmail.co.uk>
-References: <4A9FE929.8030804@tuffmail.co.uk> <20090905074222.122C8526EC9@mailhub.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 01/03] [INPUT][KEYBOARD] Kconfig support for s3c matrix
+ keypad
+Date: Sat, 5 Sep 2009 16:56:43 +0100
+Message-ID: <20090905155642.GA10326@sirena.org.uk>
+References: <00b001ca2e30$6c79ccf0$456d66d0$%yang@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback-out2.mxes.net ([216.86.168.191]:52645 "EHLO
-	fallback-in2.mxes.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751196AbZIEO0l (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2009 10:26:41 -0400
-Received: from mxout-08.mxes.net (mxout-08.mxes.net [216.86.168.183])
-	by fallback-in1.mxes.net (Postfix) with ESMTP id 509982FDC0B
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2009 10:17:41 -0400 (EDT)
-In-Reply-To: <20090905074222.122C8526EC9@mailhub.coreip.homeip.net>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:53831 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752155AbZIEP4s (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Sep 2009 11:56:48 -0400
+Content-Disposition: inline
+In-Reply-To: <00b001ca2e30$6c79ccf0$456d66d0$%yang@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?utf-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>
+Cc: linux-input@vger.kernel.org, laforge@gnumonks.org, ben-linux@fluff.org, =?utf-8?B?6rmA6rK97J28L0FQ6rCc67Cc7YyAKFNZUy5MU0kpL0UzKOyCrOybkCkv7IK8?= =?utf-8?B?7ISx7KCE7J6Q?= <ki0351.kim@samsung.com>, =?utf-8?B?J+q5gOq1reynhC9BUOqwnOuwnO2MgChTWVMuTFNJKS9FNSjssYXsnoQpLw==?= =?utf-8?B?7IK87ISx7KCE7J6QJw==?= <kgene.kim@samsung.com>
 
-Dmitry Torokhov wrote:
-> On Thu, Sep 03, 2009 at 05:04:57PM +0100, Alan Jenkins wrote:
->>
->>  
->> -	kbd = kbd_table + fg_console;
->> +	kbd = kbd_table + vc->vc_num;
->>     
->
-> Hmm, I see more such cases there...
->
->   
+On Sat, Sep 05, 2009 at 10:54:44PM +0900, =EC=96=91=EC=A7=84=EC=84=B1 w=
+rote:
+> This patch supports to select configuration for s3c matrix keypad.
 
-Oops, sorry.  I think there's only one more case, it's just
-embarrassingly close to the other one.
+> Signed-off-by: Jinsung Yang <jsgood.yang@samsung.com>
+> Signed-off-by: Kyeongil Kim <ki0351.kim@samsung.com>
 
-Regards
-Alan
+A relatively technical point but you should always try to order your
+patch series so that the kernel always builds, even with the patch
+series partly applied.  This means that if you've split out the build
+system changes that should be the last patch in the series.
 
----
+Doing this is useful when people use tools such as 'git bisect' which
+walk through history and also means that it's possible to do things lik=
+e
+partially apply the series (for example, if you get a situation where
+the earlier patches are all OK but there's some issues that need to be
+resolved in the later ones).
 
->From e02f5d1cd72bc0344654872278f7f8313bc9325e Mon Sep 17 00:00:00 2001
-From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
-Date: Sun, 30 Aug 2009 17:40:40 +0100
-Subject: [PATCHv2] Input - keyboard: close race on vt-switch
-
-A VT switch can theoretically change fg_console between
-
-	vc = vc_cons[fg_console].d
-and
-	kbd = kbd_table + fg_console
-
-Fix it by replacing the second fg_console with vc->vc_num.
-
-Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
----
- drivers/char/keyboard.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 737be95..747683f 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1136,7 +1136,7 @@ static int emulate_raw(struct vc_data *vc, unsigned int keycode, unsigned char u
- static void kbd_rawcode(unsigned char data)
- {
- 	struct vc_data *vc = vc_cons[fg_console].d;
--	kbd = kbd_table + fg_console;
-+	kbd = kbd_table + vc->vc_num;
- 	if (kbd->kbdmode == VC_RAW)
- 		put_queue(vc, data);
- }
-@@ -1157,7 +1157,7 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
- 		tty->driver_data = vc;
- 	}
- 
--	kbd = kbd_table + fg_console;
-+	kbd = kbd_table + vc->vc_num;
- 
- 	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
- 		sysrq_alt = down ? keycode : 0;
--- 
-1.5.4.3
-
-
-
-
+It'd probably also help to combine more of your changes together - in
+general it's better if patches achieve some goal in a self-contained
+fashion.  This normally makes things easier to review.  Things like
+doing the build system separately are normally there in order to split =
+a
+very large driver into managable chunks.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,135 +1,71 @@
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Sun, 6 Sep 2009 00:51:59 +0100
-Message-ID: <20090905235159.GA23660@gallifrey>
-References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey> <200906231106.37460.dmitry.torokhov@gmail.com> <20090628140452.GA15816@gallifrey> <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: Re: (matrix_keypad driver) Re: qi_lb60_keypad driver question?
+Date: Mon, 07 Sep 2009 10:50:04 +0800
+Message-ID: <4AA474DC.9010509@gmail.com>
+References: <4A819D39.2040006@qi-hardware.com> <20090812024620.E4E10526EC9@mailhub.coreip.homeip.net> <4A9AA392.4060301@gmail.com> <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx.treblig.org ([80.68.94.177]:40493 "EHLO mx.treblig.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751896AbZIEXMa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Sep 2009 19:12:30 -0400
-Content-Disposition: inline
-In-Reply-To: <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net>
+Received: from mail-px0-f184.google.com ([209.85.216.184]:47048 "EHLO
+	mail-px0-f184.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758528AbZIGCuL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Sep 2009 22:50:11 -0400
+Received: by pxi14 with SMTP id 14so2147343pxi.19
+        for <linux-input@vger.kernel.org>; Sun, 06 Sep 2009 19:50:13 -0700 (PDT)
+In-Reply-To: <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, "Hard- and Software Development, Kernel, Distribution, Roadmap" <developer@lists.qi-hardware.com>
 
-* Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
-> On Sun, Jun 28, 2009 at 03:04:52PM +0100, Dr. David Alan Gilbert wrote:
-> > * Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
-> > > On Tuesday 23 June 2009 11:58:15 Dr. David Alan Gilbert wrote:
-> > 
-> > <snip>
-> >  
-> > > > Yep; I'm OK with the i8042.noaux from my point of view, but it's a
-> > > > bit worrying that this used to work fine.  There's obviously been
-> > > > a change somewhere since 2.6.18 (and as I remember from the dmesg
-> > > > the keyboard and aux ports are being initialised in different orders).
-> > > > (Actually I say obviously since 2.6.18 - but the 2.6.18 I tried
-> > > > I think I only used the debian version - I should go back and
-> > > > see if I can do a vanilla one), but this box has been running
-> > > > Linux since the time it was originally bought with loads of distros
-> > > > and clean kernels years ago.
-> > > >
-> > > > While this machine is old, the motherboard was a pretty common one
-> > > > at the time.
-> > > >
-> > > 
-> > > Any chance I could get dmesg with i8042.debug with 2.6.18? There was
-> > > quite a large change back then when we got rid of the polling timer
-> > > in i8042.
-> > 
-> > Apologies for the delay; attached is the dmesg from the Debian 2.6.18
-> > in which keyboard works as previously described.
-> > 
+Hi Dmitry
+Dmitry Torokhov wrote:
+> Hi,
+> Historically our KEY_* definitions did not include defines for symbols
+> like '@' because they do not have a dedicated key but rather being
+> produced as a combination of a primary key + modifier; the mapping is
+> done either in console driver or in X.
 > 
-> Sorry for taking so long to respond. The only vidible difference beween
-> the old and the new way is that we don't "close" serio ports anymore if
-> we fail to detect a mouse/keyboard.
+> Looking at the picture of the device that you provided it appears that
+> your device does not have a dedicated '@' key so it should work in the
+> same fashion as above.
 > 
-> Could you please try the patch below and tell me if it helps?
 
-Yes that fixes it - thank you!
-(Tested on 2.6.31-rc8, having first checked rc8 on it's own was still broken)
+since we don't have X now. I google about this. I don't know how to 
+modify the console driver. can you tell me which file I need look 
+into? thanks.
 
-Dave
+I found an another method. we use busybox in rootfs. the busybox have 
+command [dumpkmap] [loadkmap] [showkey],
 
-> 
-> Thanks!
-> -- 
-> Dmitry
-> 
-> Input: i8042 - try disabling and re-enabling AUX port at close
-> 
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Ever since we switched from having a polling timer to registering IRQ
-> handlers for both keyboard and AUX ports at the driver registration
-> time, on certain boxes probing for a mouse results in keyboard
-> stopping working. The only real difference between old and new way is
-> that before we disabled ports after unsuccessful probe whereas now we
-> leave them as is. Try to emulate the old behavior by disabling and
-> immediately re-enabling AUX port when corresponding serio port is
-> being closed.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/serio/i8042.c |   28 ++++++++++++++++++++++++++++
->  1 files changed, 28 insertions(+), 0 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index b53a015..a55ad99 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -264,6 +264,33 @@ static int i8042_aux_write(struct serio *serio, unsigned char c)
->  					I8042_CMD_MUX_SEND + port->mux);
->  }
->  
-> +
-> +/*
-> + * i8042_aux_close attempts to clear AUX port state by disabling
-> + * and then re-enabling it.
-> + */
-> +
-> +static void i8042_aux_close(struct serio *serio)
-> +{
-> +	i8042_ctr &= ~I8042_CTR_AUXINT;
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> +		printk(KERN_WARNING
-> +			"i8042.c: Can't write CTR while closing AUX port.\n");
-> +	udelay(50);
-> +
-> +	i8042_ctr &= ~I8042_CTR_AUXDIS;
-> +	i8042_ctr |= I8042_CTR_AUXINT;
-> +	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> +		printk(KERN_ERR
-> +			"i8042.c: Can't reactivate AUX port.\n");
-> +
-> +	/*
-> +	 * See if there is any data appeared while we were messing with
-> +	 * port state.
-> +	 */
-> +	i8042_interrupt(0, NULL);
-> +}
-> +
->  /*
->   * i8042_start() is called by serio core when port is about to finish
->   * registering. It will mark port as existing so i8042_interrupt can
-> @@ -1051,6 +1078,7 @@ static int __devinit i8042_create_aux_port(int idx)
->  	serio->write		= i8042_aux_write;
->  	serio->start		= i8042_start;
->  	serio->stop		= i8042_stop;
-> +	serio->close		= i8042_aux_close;
->  	serio->port_data	= port;
->  	serio->dev.parent	= &i8042_platform_device->dev;
->  	if (idx < 0) {
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+-----------
+in host system run :
+/usr/bin/dumpkeys > normal_keymap
+/usr/bin/loadkeys funky_mini_keyboard_keymap
+/usr/bin/busybox dumpkmap > funky_mini_keyboard_keymap.bin
+/usr/bin/loadkeys normal_keymap
+
+then in target system run
+"loadkmap funky_mini_keyboard_keymap.bin"
+-----------
+
+in our device have a two special keys
+[RED UP POINT] keycode is 94
+[QI] keycode is 93
+
+the loadkeys alwasy like:
+compose '|' 's' to '$' 
+
+how to write the keycode to the loadkeys file.
+
+I just found this method yesterday. not test yet.
+anyone have experience on this?
+
+thanks for advice
+
+--
+Best Regards
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com

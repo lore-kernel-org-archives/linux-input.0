@@ -1,564 +1,150 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 03/03] [INPUT][KEYBOARD] Add new keypad driver for s3c
-	series SoCs
-Date: Mon, 7 Sep 2009 01:00:46 -0700
-Message-ID: <20090907083404.36D65526EC9@mailhub.coreip.homeip.net>
-References: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com>
+From: Harald Welte <laforge@gnumonks.org>
+Subject: Fragmentation of Samsung SoC code (was INPUT][KEYBOARD] Add new
+	keypad driver for s3c series SoCs)
+Date: Mon, 7 Sep 2009 17:02:02 +0900
+Message-ID: <20090907080202.GW3962@prithivi.gnumonks.org>
+References: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com> <9c9fda240909062025h6400686ema7b5c64937168fbc@mail.gmail.com> <20090907062658.GS3962@prithivi.gnumonks.org> <9c9fda240909062359s1629f7a4p65717ad07dcc22ca@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f192.google.com ([209.85.222.192]:44731 "EHLO
-	mail-pz0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751859AbZIGIAt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2009 04:00:49 -0400
-Received: by pzk30 with SMTP id 30so858018pzk.21
-        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2009 01:00:52 -0700 (PDT)
+Received: from ganesha.gnumonks.org ([213.95.27.120]:46130 "EHLO
+	ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751959AbZIGIJ6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2009 04:09:58 -0400
 Content-Disposition: inline
-In-Reply-To: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com>
+In-Reply-To: <9c9fda240909062359s1629f7a4p65717ad07dcc22ca@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>
-Cc: linux-input@vger.kernel.org, laforge@gnumonks.org, ben-linux@fluff.org, =?utf-8?B?6rmA6rK97J28L0FQ6rCc67Cc7YyAKFNZUy5MU0kpL0UzKOyCrOybkCkv7IK8?= =?utf-8?B?7ISx7KCE7J6Q?= <ki0351.kim@samsung.com>, =?utf-8?B?J+q5gOq1reynhC9BUOqwnOuwnO2MgChTWVMuTFNJKS9FNSjssYXsnoQpLw==?= =?utf-8?B?7IK87ISx7KCE7J6QJw==?= <kgene.kim@samsung.com>
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: =?utf-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>, linux-input@vger.kernel.org, ben-linux@fluff.org, =?utf-8?B?6rmA6rK97J28L0FQ6rCc67Cc7YyAL0UzL+yCvOyEseyghOyekA==?= <ki0351.kim@samsung.com>, =?utf-8?B?6rmA6rWt7KeEL0FQ6rCc67Cc7YyAL0U1L+yCvOyEseyghOyekA==?= <kgene.kim@samsung.com>
 
-Hi,
+Hi Kyungmin,
 
-On Sat, Sep 05, 2009 at 10:55:24PM +0900, =EC=96=91=EC=A7=84=EC=84=B1 w=
-rote:
-> This keypad driver supports Samsung s3c based SoCs such as s3c6410.
-> This driver is written with input device compatibles.
+On Mon, Sep 07, 2009 at 03:59:41PM +0900, Kyungmin Park wrote:
+> > System LSI's kernel tree is on git.kernel.org and updated every nig=
+ht, so you
+> > (or other interested parties) can stay up-to-date with what is happ=
+ening. =A0If
+> > you base your work on top of System LSI's tree, you would always fo=
+llow their
+> > work. =A0System LSI's tree is what is scheduled to be submitted to =
+mainline.
 >=20
-> Signed-off-by: Jinsung Yang <jsgood.yang@samsung.com>
-> Signed-off-by: Kyeongil Kim <ki0351.kim@samsung.com>
-> ---
->  drivers/input/keyboard/s3c-keypad.c |  468 +++++++++++++++++++++++++=
-++++++++++
->  1 files changed, 468 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/s3c-keypad.c
+> Even though it's working at Samsung SoCs. but it's not mean it fits
+> the mainline kernel.  It's based on SMDK board and focused on SMDK.
+>
+> I mean it's not generic. Some codes are hard-coded and don't call
+> proper frameworks APIs. especially clocks
+
+Yes, I agree wity you.  Some customers of those SoCs who use Linux also=
+ agree :)
+
+This is why the System LSI team needs your input based on your experien=
+ce!
+
+They will merge your patches if you send them!  They will learn as much=
+ from
+you, as they are from me when I provide feedback.
+
+> >> I will post the our works.
+> >
+> > I'm not sure if two different Samsung departments posting competing=
+ drivers to
+> > the mainline mailing lists will really help. =A0You need to define =
+which group
+> > will be the 'master' inside Samsung (the logical choice would be Sy=
+stem LSI).
 >=20
-> diff --git a/drivers/input/keyboard/s3c-keypad.c b/drivers/input/keyb=
-oard/s3c-keypad.c
-> new file mode 100644
-> index 0000000..73b9a90
-> --- /dev/null
-> +++ b/drivers/input/keyboard/s3c-keypad.c
-> @@ -0,0 +1,468 @@
-> +/*
-> + * linux/drivers/input/keyboard/s3c_keypad.c
-> + *
-> + * Driver for Samsung SoC matrix keypad controller.
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/input.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/clk.h>
-> +#include <linux/delay.h>
-> +#include <linux/io.h>
-> +
-> +#include <mach/hardware.h>
-> +#include <asm/irq.h>
-> +
-> +#include <plat/keypad.h>
-> +#include <plat/regs-keypad.h>
-> +
-> +#undef DEBUG
-> +
-> +static const unsigned char s3c_keycode[] =3D {
-> +	1, 2, KEY_1, KEY_Q, KEY_A, 6, 7, KEY_LEFT,
-> +	9, 10, KEY_2, KEY_W, KEY_S, KEY_Z, KEY_RIGHT, 16,
-> +	17, 18, KEY_3, KEY_E, KEY_D, KEY_X, 23, KEY_UP,
-> +	25, 26, KEY_4, KEY_R, KEY_F, KEY_C, 31, 32,
-> +	33, KEY_O, KEY_5, KEY_T, KEY_G, KEY_V, KEY_DOWN, KEY_BACKSPACE,
-> +	KEY_P, KEY_0, KEY_6, KEY_Y, KEY_H, KEY_SPACE, 47, 48,
-> +	KEY_M, KEY_L, KEY_7, KEY_U, KEY_J, KEY_N, 55, KEY_ENTER,
-> +	KEY_LEFTSHIFT, KEY_9, KEY_8, KEY_I, KEY_K, KEY_B, 63, KEY_COMMA,
-> +};
+> It's simple. give a choice to customers if there are two versions. yo=
+u
+> think it's some duplicated works it's better to others.
 
-Please use KEY_* consistently. Also make it unsigned short, some KEY_*
-defines afre greater than 255.
+Don't you think it is weird to see two different Samsung groups duplica=
+ting
+each others work, creating fragmentation and confusion?  Each driver wi=
+ll have
+its own bugs and or problems, and right now neither your driver nor Sys=
+tem
+LSI's driver is in mainline.
 
-> +
-> +struct s3c_keypad {
-> +	struct s3c_platform_keypad *pdata;
-> +	unsigned char keycodes[ARRAY_SIZE(s3c_keycode)];
-> +	struct input_dev *dev;
-> +	struct timer_list timer;
-> +	void __iomem *regs;
-> +	struct clk *clk;
-> +	int irq;
-> +	int timer_enabled;
-> +	unsigned int prevmask_low;
-> +	unsigned int prevmask_high;
-> +	unsigned int keyifcon;
-> +	unsigned int keyiffc;
-> +};
-> +
-> +static int s3c_keypad_scan(struct s3c_keypad *keypad, u32 *keymask_l=
-ow,
-> +				u32 *keymask_high)
-> +{
-> +	struct s3c_platform_keypad *pdata =3D keypad->pdata;
-> +	int i, j =3D 0;
-> +	u32 cval, rval, cfg;
-> +
-> +	for (i =3D 0; i < pdata->nr_cols; i++) {
-> +		cval =3D readl(keypad->regs + S3C_KEYIFCOL);
-> +		cval |=3D S3C_KEYIF_COL_DMASK;
-> +		cval &=3D ~(1 << i);
-> +		writel(cval, keypad->regs + S3C_KEYIFCOL);
-> +		udelay(pdata->delay);
-> +
-> +		rval =3D ~(readl(keypad->regs + S3C_KEYIFROW)) &
-> +			S3C_KEYIF_ROW_DMASK;
-> +
-> +		if ((i * pdata->nr_rows) < pdata->max_masks)
-> +			*keymask_low |=3D (rval << (i * pdata->nr_rows));
-> +		else {
-> +			*keymask_high |=3D (rval << (j * pdata->nr_rows));
-> +			j++;
-> +		}
-> +	}
-> +
-> +	cfg =3D readl(keypad->regs + S3C_KEYIFCOL);
-> +	cfg &=3D ~S3C_KEYIF_COL_MASK_ALL;
-> +	writel(cfg, keypad->regs + S3C_KEYIFCOL);
-> +
-> +	return 0;
-> +}
-> +
-> +static void s3c_keypad_timer_handler(unsigned long data)
-> +{
-> +	struct s3c_keypad *keypad =3D (struct s3c_keypad *)data;
-> +	struct s3c_platform_keypad *pdata =3D keypad->pdata;
-> +	struct input_dev *input =3D keypad->dev;
-> +	u32 keymask_low =3D 0, keymask_high =3D 0;
-> +	u32 press_mask_low, press_mask_high;
-> +	u32 release_mask_low, release_mask_high, code, cfg;
-> +	int i;
-> +
-> +	s3c_keypad_scan(keypad, &keymask_low, &keymask_high);
-> +
-> +	if (keymask_low !=3D keypad->prevmask_low) {
-> +		press_mask_low =3D ((keymask_low ^ keypad->prevmask_low) &
-> +					keymask_low);
-> +		release_mask_low =3D ((keymask_low ^ keypad->prevmask_low) &
-> +					keypad->prevmask_low);
-> +
-> +		i =3D 0;
-> +		while (press_mask_low) {
-> +			if (press_mask_low & 1) {
-> +				code =3D keypad->keycodes[i];
-> +				input_report_key(input, code, 1);
-> +				dev_dbg(&input->dev, "low pressed: %d\n", i);
-> +			}
-> +			press_mask_low >>=3D 1;
-> +			i++;
-> +		}
-> +
-> +		i =3D 0;
-> +		while (release_mask_low) {
-> +			if (release_mask_low & 1) {
-> +				code =3D keypad->keycodes[i];
-> +				input_report_key(input, code, 0);
-> +				dev_dbg(&input->dev, "low released : %d\n", i);
-> +			}
-> +			release_mask_low >>=3D 1;
-> +			i++;
-> +		}
-> +		keypad->prevmask_low =3D keymask_low;
-> +	}
-> +
-> +	if (keymask_high !=3D keypad->prevmask_high) {
-> +		press_mask_high =3D ((keymask_high ^ keypad->prevmask_high) &
-> +					keymask_high);
-> +		release_mask_high =3D ((keymask_high ^ keypad->prevmask_high) &
-> +					keypad->prevmask_high);
-> +
-> +		i =3D 0;
-> +		while (press_mask_high) {
-> +			if (press_mask_high & 1) {
-> +				code =3D keypad->keycodes[i + pdata->max_masks];
-> +				input_report_key(input, code, 1);
-> +				dev_dbg(&input->dev, "high pressed: %d %d\n",
-> +					keypad->keycodes[i + pdata->max_masks],
-> +					i);
-> +			}
-> +			press_mask_high >>=3D 1;
-> +			i++;
-> +		}
-> +
-> +		i =3D 0;
-> +		while (release_mask_high) {
-> +			if (release_mask_high & 1) {
-> +				code =3D keypad->keycodes[i + pdata->max_masks];
-> +				input_report_key(input, code, 0);
-> +				dev_dbg(&input->dev, "high released: %d\n",
-> +					keypad->keycodes[i + pdata->max_masks]);
-> +			}
-> +			release_mask_high >>=3D 1;
-> +			i++;
-> +		}
-> +		keypad->prevmask_high =3D keymask_high;
-> +	}
-> +
-> +	if (keymask_low | keymask_high) {
-> +		mod_timer(&keypad->timer, jiffies + HZ / 10);
-> +	} else {
-> +		cfg =3D readl(keypad->regs + S3C_KEYIFCON);
-> +		cfg &=3D ~S3C_KEYIF_CON_MASK_ALL;
-> +		cfg |=3D (S3C_KEYIF_INT_F_EN | S3C_KEYIF_INT_R_EN |
-> +				S3C_KEYIF_DF_EN | S3C_KEYIF_FC_EN);
-> +		writel(cfg, keypad->regs + S3C_KEYIFCON);
-> +
-> +		keypad->timer_enabled =3D 0;
-> +	}
-> +}
-> +
-> +static irqreturn_t s3c_keypad_irq(int irq, void *dev_id)
-> +{
-> +	struct s3c_keypad *keypad =3D dev_id;
-> +	u32 cfg;
-> +
-> +	/* disable keypad interrupt and schedule for keypad timer handler *=
-/
-> +	cfg =3D readl(keypad->regs + S3C_KEYIFCON);
-> +	cfg &=3D ~(S3C_KEYIF_INT_F_EN | S3C_KEYIF_INT_R_EN);
-> +	writel(cfg, keypad->regs + S3C_KEYIFCON);
-> +
-> +	keypad->timer.expires =3D jiffies + (HZ / 100);
-> +	if (keypad->timer_enabled) {
-> +		mod_timer(&keypad->timer, keypad->timer.expires);
-> +	} else {
-> +		add_timer(&keypad->timer);
-> +		keypad->timer_enabled =3D 1;
+So rather than continue to try to compete with each other, you need to =
+work
+together.  If you think your code is superior, why not submit your code=
+ as
+patches to System LSI, or even ask System LSI if you can either
 
-Just use mod_timer unconditionally. Also, do you always need debounce?
+1) get commit access to system lsi's git tree=20
+or
+2) send pull requests to system LSI and ask them to pull from your tree=
+=2E
 
-> +	}
-> +
-> +	/* clear the keypad interrupt status */
-> +	writel(S3C_KEYIF_STSCLR_CLEAR, keypad->regs + S3C_KEYIFSTSCLR);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int s3c_keypad_open(struct input_dev *dev)
-> +{
-> +	struct s3c_keypad *keypad =3D input_get_drvdata(dev);
-> +	u32 cfg;
-> +
-> +	clk_enable(keypad->clk);
-> +
-> +	/* init keypad h/w block */
-> +	cfg =3D readl(keypad->regs + S3C_KEYIFCON);
-> +	cfg &=3D ~S3C_KEYIF_CON_MASK_ALL;
-> +	cfg |=3D (S3C_KEYIF_INT_F_EN | S3C_KEYIF_INT_R_EN |
-> +			S3C_KEYIF_DF_EN | S3C_KEYIF_FC_EN);
-> +	writel(cfg, keypad->regs + S3C_KEYIFCON);
-> +
-> +	cfg =3D readl(keypad->regs + S3C_KEYIFFC);
-> +	cfg |=3D 0x1;
-> +	writel(cfg, keypad->regs + S3C_KEYIFFC);
-> +
-> +	cfg =3D readl(keypad->regs + S3C_KEYIFCOL);
-> +	cfg &=3D ~S3C_KEYIF_COL_MASK_ALL;
-> +	writel(cfg, keypad->regs + S3C_KEYIFCOL);
-> +
+Everyone has limited resources.  System LSI, your team, anyone in the
+community.
 
---->
-> +	/* Scan timer init */
-> +	init_timer(&keypad->timer);
-> +	keypad->timer.function =3D s3c_keypad_timer_handler;
-> +	keypad->timer.data =3D (unsigned long)keypad;
-> +	keypad->timer.expires =3D jiffies + (HZ / 10);
-<---
+The point is that everyone needs to work together.  There needs to be a=
+ clear
+definition of the process, i.e. who will work on what, based on which t=
+ree.
+Hwo will submit what mainline, and who will maintain which driver after=
+ it has
+been merged in mainline..
 
-This should go into probe. I think we have setup_timer() as well.
+The fragmentation between many different trees with each their own set =
+of
+drivers (let's say so far: Ben dooks / mainline, your code, System LSI'=
+s code)
+is creating a complexity and maintenance nightmare that nobody can deal=
+ with
+in the long term.
 
-> +
-> +	if (keypad->timer_enabled) {
-> +		mod_timer(&keypad->timer, keypad->timer.expires);
-> +	} else {
-> +		add_timer(&keypad->timer);
-> +		keypad->timer_enabled =3D 1;
-> +	}
+I understand that System LSI was probably the root cause of this proble=
+m
+due to their lack of understanding of this process.  But this has chang=
+ed
+now.
 
-Why do we do this here?
+It is not "they" vs. "you" vs. "us", it is all of us together.  There i=
+s too
+much work to be done.  There is 6400,6410,6440,6430,6442,c100,c110 and =
+more
+products lining up in the future.  Many drivers spanning various subsys=
+tems.
+Only if the resources are put together this task can be finished in any
+reasonable amount of time.
 
-> +
-> +	return 0;
-> +}
-> +
-> +static void s3c_keypad_close(struct input_dev *dev)
-> +{
-> +	struct s3c_keypad *keypad =3D input_get_drvdata(dev);
-> +
-> +	clk_disable(keypad->clk);
-> +}
-> +
-> +#define res_size(res)	((res)->end - (res)->start + 1)
-> +
-> +static int __devinit s3c_keypad_probe(struct platform_device *pdev)
-> +{
-> +	struct s3c_platform_keypad *pdata;
-> +	struct s3c_keypad *keypad;
-> +	struct input_dev *input;
-> +	struct resource *res;
-> +	int irq, error, i;
-> +
-> +	pdata =3D pdev->dev.platform_data;
-> +	if (pdata =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "no platform data\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	keypad =3D kzalloc(sizeof(struct s3c_keypad), GFP_KERNEL);
-> +	if (keypad =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "failed to allocate driver data\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	keypad->pdata =3D pdata;
-> +	memcpy(keypad->keycodes, s3c_keycode, sizeof(keypad->keycodes));
-> +
-> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (res =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "failed to get I/O memory\n");
-> +		error =3D -ENXIO;
-> +		goto err_get_io;
-> +	}
-> +
-> +	res =3D request_mem_region(res->start, res_size(res), pdev->name);
-> +	if (res =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "failed to request I/O memory\n");
-> +		error =3D -EBUSY;
-> +		goto err_get_io;
-> +	}
-> +
-> +	keypad->regs =3D ioremap(res->start, res_size(res));
-> +	if (keypad->regs =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-> +		error =3D -ENXIO;
-> +		goto err_map_io;
-> +	}
-> +
-> +	keypad->clk =3D clk_get(&pdev->dev, "keypad");
-> +	if (IS_ERR(keypad->clk)) {
-> +		dev_err(&pdev->dev, "failed to get keypad clock\n");
-> +		error =3D PTR_ERR(keypad->clk);
-> +		goto err_clk;
-> +	}
-> +
-> +	/* Create and register the input driver. */
-> +	input =3D input_allocate_device();
-> +	if (!input) {
-> +		dev_err(&pdev->dev, "failed to allocate input device\n");
-> +		error =3D -ENOMEM;
-> +		goto err_alloc_input;
-> +	}
-> +
-> +	input->name =3D pdev->name;
-> +	input->id.bustype =3D BUS_HOST;
-> +	input->open =3D s3c_keypad_open;
-> +	input->close =3D s3c_keypad_close;
-> +	input->dev.parent =3D &pdev->dev;
-> +	input->keycode =3D (void *)keypad->keycodes;
+The Linux-aware customer wants to grab one tree (preferrably mainline)
+that has all the drivers/features for all SoCs.  He doesn't want to loo=
+k
+at 5 different trees, test them, select what he wants and then manually=
+ go
+merging bits and pieces from each of them.
 
-Why cast?
+> I don't hope just push their codes to mainline with these discussion.
 
-> +	input->keycodesize =3D sizeof(keypad->keycodes[0]);
-> +	input->keycodemax =3D ARRAY_SIZE(keypad->keycodes);
-> +
-> +	keypad->dev =3D input;
-> +
-> +	input_set_drvdata(input, keypad);
-> +
-> +	__set_bit(EV_KEY, input->evbit);
-> +	__set_bit(EV_REP, input->evbit);
-> +
-> +	for (i =3D 0; i < pdata->max_keys; i++) {
-> +		keypad->keycodes[i] =3D s3c_keycode[i];
-> +		if (keypad->keycodes[i] <=3D 0)
-> +			continue;
+Sorry, I don't understand what you're saying here.
 
-Don't check, just do "__clear_bit(KEY_RESERVED. input_keybit);" after
-the loop.
+System LSI is pushing their code for mainline, one patch at a time, lik=
+e
+we are seeing with this keypad driver right now.  This will generate fe=
+edback
+by the community (including you).  System LSI then incorporates that fe=
+edback
+and re-submit an updated version of the driver - just like any other pe=
+rson
+who submits code to Linux mainline.
 
-> +
-> +		__set_bit(keypad->keycodes[i] & KEY_MAX, input->keybit);
-> +	}
-> +
-> +	irq =3D platform_get_irq(pdev, 0);
-> +	if (irq < 0) {
-> +		dev_err(&pdev->dev, "failed to get keypad irq\n");
-> +		error =3D -ENXIO;
-> +		goto err_get_irq;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, keypad);
-> +
-> +	error =3D request_irq(irq, s3c_keypad_irq, IRQF_DISABLED,
-> +			    pdev->name, keypad);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to request IRQ\n");
-> +		goto err_req_irq;
-> +	}
-> +
-> +	keypad->irq =3D irq;
-> +
-> +	/* Register the input device */
-> +	error =3D input_register_device(input);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "failed to register input device\n");
-> +		goto err_reg_input;
-> +	}
-> +
-> +	device_init_wakeup(&pdev->dev, 1);
-> +	dev_info(&pdev->dev, "Samsung Keypad Interface driver\n");
-> +
-> +	return 0;
-> +
-> +err_reg_input:
-> +	free_irq(irq, pdev);
-> +
-> +err_req_irq:
-> +	platform_set_drvdata(pdev, NULL);
-> +
-> +err_get_irq:
-> +	input_free_device(input);
-> +
-> +err_alloc_input:
-> +	clk_put(keypad->clk);
-> +
-> +err_clk:
-> +	iounmap(keypad->regs);
-> +
-> +err_map_io:
-> +	release_mem_region(res->start, res_size(res));
-> +
-> +err_get_io:
-> +	kfree(keypad);
-> +
-> +	return error;
-> +}
-> +
-> +static int __devexit s3c_keypad_remove(struct platform_device *pdev)
-> +{
-> +	struct s3c_keypad *keypad =3D platform_get_drvdata(pdev);
-> +	struct resource *res;
-> +
-> +	free_irq(keypad->irq, pdev);
-> +
-> +	clk_disable(keypad->clk);
-
-CLock should already be disabled by ->close().
-
-> +	clk_put(keypad->clk);
-> +
-> +	input_unregister_device(keypad->dev);
-> +	input_free_device(keypad->dev);
-
-Don't call input_free_device after input_unregister_device().
-
-> +
-> +	iounmap(keypad->regs);
-> +
-> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	release_mem_region(res->start, res_size(res));
-> +
-> +	platform_set_drvdata(pdev, NULL);
-> +	kfree(keypad);
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int s3c_keypad_suspend(struct platform_device *dev, pm_messag=
-e_t state)
-> +{
-> +	struct s3c_keypad *keypad =3D platform_get_drvdata(pdev);
-> +
-> +	keypad->keyifcon =3D readl(keypad->regs + S3C_KEYIFCON);
-> +	keypad->keyiffc =3D readl(keypad->regs + S3C_KEYIFFC);
-> +
-> +	disable_irq(IRQ_KEYPAD);
-> +	clk_disable(keypad->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static int s3c_keypad_resume(struct platform_device *dev)
-> +{
-> +	struct s3c_keypad *keypad =3D platform_get_drvdata(pdev);
-> +
-> +	clk_enable(keypad->clock);
-> +
-> +	writel(keypad->keyifcon, keypad->regs + S3C_KEYIFCON);
-> +	writel(keypad->keyiffc, keypad->regs + S3C_KEYIFFC);
-> +
-> +	enable_irq(IRQ_KEYPAD);
-> +
-> +	return 0;
-> +}
-> +#else
-> +#define s3c_keypad_suspend NULL
-> +#define s3c_keypad_resume  NULL
-> +#endif /* CONFIG_PM */
-> +
-> +static struct platform_driver s3c_keypad_driver =3D {
-> +	.probe		=3D s3c_keypad_probe,
-> +	.remove		=3D s3c_keypad_remove,
-> +	.suspend	=3D s3c_keypad_suspend,
-> +	.resume		=3D s3c_keypad_resume,
-
-dev_pm_ops please.
-
-> +	.driver		=3D {
-> +		.owner	=3D THIS_MODULE,
-> +		.name	=3D "s3c-keypad",
-> +	},
-> +};
-> +
-> +static int __init s3c_keypad_init(void)
-> +{
-> +	return platform_driver_register(&s3c_keypad_driver);
-> +}
-> +
-> +static void __exit s3c_keypad_exit(void)
-> +{
-> +	platform_driver_unregister(&s3c_keypad_driver);
-> +}
-> +
-> +module_init(s3c_keypad_init);
-> +module_exit(s3c_keypad_exit);
-> +
-> +MODULE_AUTHOR("Kyeongil, Kim <ki0351.kim@samsung.com>");
-> +MODULE_AUTHOR("Jinsung, Yang <jsgood.yang@samsung.com>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_DESCRIPTION("Keypad interface for Samsung SoC");
-> +
-> --=20
-> 1.6.2.5
->=20
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+Regards,
 --=20
-Dmitry
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks=
+=2Eorg/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch=
+=2E A6)
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

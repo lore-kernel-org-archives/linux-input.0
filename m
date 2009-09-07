@@ -1,182 +1,326 @@
-From: Kyungmin Park <kmpark@infradead.org>
-Subject: Re: Fragmentation of Samsung SoC code (was INPUT][KEYBOARD] Add new
-	keypad driver for s3c series SoCs)
-Date: Mon, 7 Sep 2009 17:32:08 +0900
-Message-ID: <9c9fda240909070132u64df987cydd5cfacec989819@mail.gmail.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH 03/03] [INPUT][KEYBOARD] Add new keypad driver for s3c
+ series SoCs
+Date: Mon, 07 Sep 2009 17:40:44 +0900
+Message-ID: <4AA4C70C.8040505@samsung.com>
 References: <00b101ca2e30$84135d90$8c3a18b0$%yang@samsung.com>
-	 <9c9fda240909062025h6400686ema7b5c64937168fbc@mail.gmail.com>
-	 <20090907062658.GS3962@prithivi.gnumonks.org>
-	 <9c9fda240909062359s1629f7a4p65717ad07dcc22ca@mail.gmail.com>
-	 <20090907080202.GW3962@prithivi.gnumonks.org>
+ <4AA49C53.3030400@samsung.com>
+ <20090907082157.36C90526EC9@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f195.google.com ([209.85.212.195]:42700 "EHLO
-	mail-vw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751789AbZIGIcH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2009 04:32:07 -0400
-Received: by vws33 with SMTP id 33so1677531vws.33
-        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2009 01:32:08 -0700 (PDT)
-In-Reply-To: <20090907080202.GW3962@prithivi.gnumonks.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:48677 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752106AbZIGIlA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Sep 2009 04:41:00 -0400
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KPL003WVERWHR@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 07 Sep 2009 17:40:45 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KPL00FMUERW7D@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 07 Sep 2009 17:40:44 +0900 (KST)
+In-reply-to: <20090907082157.36C90526EC9@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Harald Welte <laforge@gnumonks.org>
-Cc: =?UTF-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>, linux-input@vger.kernel.org, ben-linux@fluff.org, =?EUC-KR?B?seiw5sDPL0FQsLO538bAL0UzL7vvvLrA/MDa?= <ki0351.kim@samsung.com>, =?EUC-KR?B?seixucH4L0FQsLO538bAL0U1L7vvvLrA/MDa?= <kgene.kim@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?7JaR7KeE7ISx?= <jsgood.yang@samsung.com>, linux-input@vger.kernel.org, laforge@gnumonks.org, ben-linux@fluff.org, =?UTF-8?B?Iuq5gOqyveydvC9BUOqwnOuwnO2MgChTWVMuTFNJKS9FMyjsgqzsm5ApL+yCvOyEsQ==?= =?UTF-8?B?7KCE7J6QIg==?= <ki0351.kim@samsung.com>, =?UTF-8?B?IifquYDqta3sp4Q=?= =?UTF-8?B?L0FQ6rCc67Cc7YyAKFNZUy5MU0kpL0U1KOyxheyehCkv7IK87ISx7KCE7J6QJyI=?= <kgene.kim@samsung.com>, kyungmin.park@samsung.com, jh80.chung@samsung.com
 
-2009/9/7 Harald Welte <laforge@gnumonks.org>:
-> Hi Kyungmin,
->
-> On Mon, Sep 07, 2009 at 03:59:41PM +0900, Kyungmin Park wrote:
->> > System LSI's kernel tree is on git.kernel.org and updated every ni=
-ght, so you
->> > (or other interested parties) can stay up-to-date with what is hap=
-pening. =A0If
->> > you base your work on top of System LSI's tree, you would always f=
-ollow their
->> > work. =A0System LSI's tree is what is scheduled to be submitted to=
- mainline.
->>
->> Even though it's working at Samsung SoCs. but it's not mean it fits
->> the mainline kernel. =A0It's based on SMDK board and focused on SMDK=
-=2E
->>
->> I mean it's not generic. Some codes are hard-coded and don't call
->> proper frameworks APIs. especially clocks
->
-> Yes, I agree wity you. =A0Some customers of those SoCs who use Linux =
-also agree :)
->
-> This is why the System LSI team needs your input based on your experi=
-ence!
->
-> They will merge your patches if you send them! =A0They will learn as =
-much from
-> you, as they are from me when I provide feedback.
+Hi,
 
-It's already sent by Joonyoung,
+On 9/7/2009 4:48 PM, Dmitry Torokhov wrote:
+> Hi Joonyoung,
+> 
+> On Mon, Sep 07, 2009 at 02:38:27PM +0900, Joonyoung Shim wrote:
+>> +
+>> +static irqreturn_t samsung_kp_interrupt(int irq, void *dev_id)
+>> +{
+>> +	struct samsung_keypad *keypad = dev_id;
+>> +
+>> +	if (!work_pending(&keypad->work.work)) {
+>> +		disable_irq_nosync(keypad->irq);
+>> +		atomic_inc(&keypad->irq_disable);
+>> +		schedule_delayed_work(&keypad->work, msecs_to_jiffies(10));
+> 
+> Why do you need to have the delayed work? Can't we query the touchpad
+> state immediately? Or are you trying to implement debounce logic?
 
->
->> >> I will post the our works.
->> >
->> > I'm not sure if two different Samsung departments posting competin=
-g drivers to
->> > the mainline mailing lists will really help. =A0You need to define=
- which group
->> > will be the 'master' inside Samsung (the logical choice would be S=
-ystem LSI).
->>
->> It's simple. give a choice to customers if there are two versions. y=
-ou
->> think it's some duplicated works it's better to others.
->
-> Don't you think it is weird to see two different Samsung groups dupli=
-cating
-> each others work, creating fragmentation and confusion? =A0Each drive=
-r will have
-> its own bugs and or problems, and right now neither your driver nor S=
-ystem
-> LSI's driver is in mainline.
->
-> So rather than continue to try to compete with each other, you need t=
-o work
-> together. =A0If you think your code is superior, why not submit your =
-code as
-> patches to System LSI, or even ask System LSI if you can either
+Yes, debounce logic. Actually this is enough only the schedule_work. I'm 
+not sure about the debounce yet. If use the debounce logic, i think the
+delay time should be moved into platform data.
 
-It's because we don't get same base code. LSI works on s3c6410, but we
-s3c6410, s5pc100 and s5pc110.
-we trying to post the patches related with s3c6410 but it takes long
-time to merge to Ben's git.
-at that we start the s5pc1xx series works.
+> Also, the driver seems to be using the edge-triggered interrupts;
+> do you really need to disable IRQ until you scan the keypad?
+> 
 
-Anyway. please let me know which the next patch. touchscreen? or others=
-?
+Yes, if the interrupt isn't disabled, when press keypad, many interrupt
+occur.
 
-Than we can compare the devices sources and discuss internally and then=
- post it.
+> 
+>> +	}
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int __devinit samsung_kp_probe(struct platform_device *pdev)
+>> +{
+>> +	const struct samsung_keypad_platdata *pdata;
+>> +	struct samsung_keypad *keypad;
+>> +	struct resource *res;
+>> +	struct input_dev *input_dev;
+>> +	unsigned short *keycodes;
+>> +	unsigned int max_keymap_size;
+>> +	unsigned int val;
+>> +	int i;
+>> +	int ret;
+>> +
+>> +	pdata = pdev->dev.platform_data;
+>> +	if (!pdata) {
+>> +		dev_err(&pdev->dev, "no platform data defined\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	if ((pdata->num_rows <= 0) || (pdata->num_rows > SAMSUNG_MAX_ROWS))
+>> +		return -EINVAL;
+>> +
+>> +	if ((pdata->num_cols <= 0) || (pdata->num_cols > SAMSUNG_MAX_COLS))
+>> +		return -EINVAL;
+>> +
+>> +	/* initialize the gpio */
+>> +	if (pdata->cfg_gpio)
+>> +		pdata->cfg_gpio(pdata->num_rows, pdata->num_cols);
+>> +
+>> +	max_keymap_size = pdata->num_rows * pdata->num_cols;
+>> +	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+>> +	keycodes = devm_kzalloc(&pdev->dev,
+>> +			max_keymap_size * sizeof(*keycodes), GFP_KERNEL);
+>> +	input_dev = input_allocate_device();
+>> +	if (!keypad || !keycodes || !input_dev)
+>> +		return -ENOMEM;
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	if (!res) {
+>> +		ret = -ENODEV;
+>> +		goto err_free_mem;
+>> +	}
+>> +
+>> +	keypad->base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+>> +	if (!keypad->base) {
+>> +		ret = -EBUSY;
+>> +		goto err_free_mem;
+>> +	}
+>> +
+>> +	if (pdata->clock) {
+>> +		keypad->clk = clk_get(&pdev->dev, pdata->clock);
+>> +		if (IS_ERR(keypad->clk)) {
+>> +			dev_err(&pdev->dev, "failed to get keypad clk\n");
+>> +			ret = PTR_ERR(keypad->clk);
+>> +			goto err_unmap_base;
+>> +		}
+>> +		clk_enable(keypad->clk);
+>> +	}
+>> +
+>> +	keypad->input_dev = input_dev;
+>> +	keypad->keycodes = keycodes;
+>> +	keypad->num_cols = pdata->num_cols;
+>> +	INIT_DELAYED_WORK(&keypad->work, samsung_kp_scan);
+>> +
+>> +	/* enable interrupt and debouncing filter and wakeup bit */
+>> +	val = SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN | SAMSUNG_DF_EN |
+>> +		SAMSUNG_WAKEUPEN;
+>> +	writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +
+>> +	keypad->irq = platform_get_irq(pdev, 0);
+>> +	if (keypad->irq < 0) {
+>> +		ret = keypad->irq;
+>> +		goto err_disable_clk;
+>> +	}
+>> +
+>> +	ret = devm_request_irq(&pdev->dev, keypad->irq,
+>> +			samsung_kp_interrupt,
+>> +			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+>> +			dev_name(&pdev->dev), keypad);
+>> +
+>> +	if (ret)
+>> +		goto err_disable_clk;
+>> +
+>> +	input_dev->name		= pdev->name;
+>> +	input_dev->id.bustype	= BUS_HOST;
+>> +	input_dev->dev.parent	= &pdev->dev;
+>> +	input_dev->evbit[0]	= BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
+>> +
+>> +	input_dev->keycode	= keycodes;
+>> +	input_dev->keycodesize	= sizeof(*keycodes);
+>> +	input_dev->keycodemax	= max_keymap_size;
+>> +
+>> +	for (i = 0; i < pdata->keymap_size; i++) {
+>> +		unsigned int key = pdata->keymap[i];
+>> +		unsigned int row = KEY_ROW(key);
+>> +		unsigned int col = KEY_COL(key);
+>> +		unsigned short code = KEY_VAL(key);
+>> +		unsigned int index = row * keypad->num_cols + col;
+>> +
+>> +		keycodes[index] = code;
+>> +		set_bit(code, input_dev->keybit);
+>> +	}
+>> +
+>> +	ret = input_register_device(keypad->input_dev);
+>> +	if (ret)
+>> +		goto err_free_irq;
+>> +
+>> +	device_init_wakeup(&pdev->dev, 1);
+>> +
+>> +	platform_set_drvdata(pdev, keypad);
+>> +
+>> +	return 0;
+>> +
+>> +err_free_irq:
+>> +	devm_free_irq(&pdev->dev, keypad->irq, keypad);
+> 
+> 
+> If you are using devres why do you release resources manually?
+> 
 
->
-> 1) get commit access to system lsi's git tree
-> or
-> 2) send pull requests to system LSI and ask them to pull from your tr=
-ee.
->
-> Everyone has limited resources. =A0System LSI, your team, anyone in t=
-he
-> community.
->
-> The point is that everyone needs to work together. =A0There needs to =
-be a clear
-> definition of the process, i.e. who will work on what, based on which=
- tree.
-> Hwo will submit what mainline, and who will maintain which driver aft=
-er it has
-> been merged in mainline..
->
-> The fragmentation between many different trees with each their own se=
-t of
-> drivers (let's say so far: Ben dooks / mainline, your code, System LS=
-I's code)
-> is creating a complexity and maintenance nightmare that nobody can de=
-al with
-> in the long term.
->
-> I understand that System LSI was probably the root cause of this prob=
-lem
-> due to their lack of understanding of this process. =A0But this has c=
-hanged
-> now.
->
-> It is not "they" vs. "you" vs. "us", it is all of us together. =A0The=
-re is too
-> much work to be done. =A0There is 6400,6410,6440,6430,6442,c100,c110 =
-and more
-> products lining up in the future. =A0Many drivers spanning various su=
-bsystems.
-> Only if the resources are put together this task can be finished in a=
-ny
-> reasonable amount of time.
+I wonder the irq is released automatically if we don't use devm_free_irq
+here.
 
-That's reason to send our codes. Now you focus on the s3c6410 but we
-already know the s5pc1xx series.
-Please consider it at this work. why does it work twice.
+>> +err_disable_clk:
+>> +	if (keypad->clk) {
+>> +		clk_disable(keypad->clk);
+>> +		clk_put(keypad->clk);
+>> +	}
+>> +err_unmap_base:
+>> +	devm_iounmap(&pdev->dev, keypad->base);
+>> +err_free_mem:
+>> +	input_free_device(input_dev);
+>> +	devm_kfree(&pdev->dev, keycodes);
+>> +	devm_kfree(&pdev->dev, keypad);
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static int __devexit samsung_kp_remove(struct platform_device *pdev)
+>> +{
+>> +	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
+>> +
+>> +	devm_free_irq(&pdev->dev, keypad->irq, keypad);
+>> +	cancel_delayed_work_sync(&keypad->work);
+> 
+> Since you need tight control of the ordering between freeing IRQ and
+> canceling the work you probably should not be using devres for IRQ
+> allocation.
+> 
 
->
-> The Linux-aware customer wants to grab one tree (preferrably mainline=
-)
-> that has all the drivers/features for all SoCs. =A0He doesn't want to=
- look
-> at 5 different trees, test them, select what he wants and then manual=
-ly go
-> merging bits and pieces from each of them.
->
->> I don't hope just push their codes to mainline with these discussion=
-=2E
->
+Hmm, i'm not sure about this, but i can change it not to use devres for
+IRQ allocation.
 
-with -> without
+>> +
+>> +	/*
+>> +	 * If work indeed has been cancelled, disable_irq() will have been left
+>> +	 * unbalanced from samsung_kp_interrupt().
+>> +	 */
+>> +	while (atomic_dec_return(&keypad->irq_disable) >= 0)
+>> +		enable_irq(keypad->irq);
+>> +
+>> +	platform_set_drvdata(pdev, NULL);
+>> +	input_unregister_device(keypad->input_dev);
+>> +
+>> +	if (keypad->clk) {
+>> +		clk_disable(keypad->clk);
+>> +		clk_put(keypad->clk);
+>> +	}
+>> +
+>> +	devm_iounmap(&pdev->dev, keypad->base);
+>> +	devm_kfree(&pdev->dev, keypad->keycodes);
+>> +	devm_kfree(&pdev->dev, keypad);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_PM
+>> +static int samsung_kp_suspend(struct platform_device *pdev, pm_message_t state)
+>> +{
+>> +	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
+>> +
+>> +	disable_irq(keypad->irq);
+>> +	enable_irq_wake(keypad->irq);
+>> +
+>> +	if (keypad->clk)
+>> +		clk_disable(keypad->clk);
+> 
+> This should probaly gop into ->close() method.
+> 
 
-> Sorry, I don't understand what you're saying here.
->
-> System LSI is pushing their code for mainline, one patch at a time, l=
-ike
-> we are seeing with this keypad driver right now. =A0This will generat=
-e feedback
-> by the community (including you). =A0System LSI then incorporates tha=
-t feedback
-> and re-submit an updated version of the driver - just like any other =
-person
-> who submits code to Linux mainline.
->
+This driver doesn't use open() and close method. Why should move into
+->close()?
 
-I think no problem to send several patch or drivers parallel. If so we
-can get more feedbacks.
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int samsung_kp_resume(struct platform_device *pdev)
+>> +{
+>> +	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
+>> +	unsigned int val;
+>> +
+>> +	if (keypad->clk)
+>> +		clk_enable(keypad->clk);
+>> +
+>> +	/* enable interrupt and debouncing filter and wakeup bit */
+>> +	val = SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN | SAMSUNG_DF_EN |
+>> +		SAMSUNG_WAKEUPEN;
+>> +	writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +
+>> +	disable_irq_wake(keypad->irq);
+>> +	enable_irq(keypad->irq);
+>> +
+>> +	return 0;
+>> +}
+>> +#else
+>> +#define samsung_kp_suspend	NULL
+>> +#define samsung_kp_resume	NULL
+>> +#endif
+>> +
+>> +static struct platform_driver samsung_kp_driver = {
+>> +	.probe		= samsung_kp_probe,
+>> +	.remove		= __devexit_p(samsung_kp_remove),
+>> +	.suspend	= samsung_kp_suspend,
+>> +	.resume		= samsung_kp_resume,
+> 
+> Please switch to dev_pm_ops.
+> 
 
-Thank you,
-Kyungmin Park
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OK.
+
+>> +	.driver		= {
+>> +		.name	= "samsung-keypad",
+>> +		.owner	= THIS_MODULE,
+>> +	},
+>> +};
+>> +
+>> +static int __init samsung_kp_init(void)
+>> +{
+>> +	return platform_driver_register(&samsung_kp_driver);
+>> +}
+>> +
+>> +static void __exit samsung_kp_exit(void)
+>> +{
+>> +	platform_driver_unregister(&samsung_kp_driver);
+>> +}
+>> +
+>> +module_init(samsung_kp_init);
+>> +module_exit(samsung_kp_exit);
+>> +
+>> +MODULE_DESCRIPTION("Samsung keypad driver");
+>> +MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
+>> +MODULE_AUTHOR("Jaehoon Chung <jh80.chung@samsung.com>");
+>> +MODULE_LICENSE("GPL");
+>> -- 
+>> 1.6.0.4
+> 
+
+Thanks for review.
+

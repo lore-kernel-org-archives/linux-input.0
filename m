@@ -1,59 +1,42 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH v2]add analog devices AD714X
-	captouch input driver
-Date: Tue, 8 Sep 2009 11:49:28 -0700
-Message-ID: <200909081149.28942.david-b@pacbell.net>
-References: <1252401564-5291-1-git-send-email-21cnbao@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: linux kernel HID problem with Saitek X52 Pro Flight System
+Date: Tue, 8 Sep 2009 13:49:06 -0700
+Message-ID: <20090908212238.19CFB526EC9@mailhub.coreip.homeip.net>
+References: <bfb1bb1f0909061357m4006a61co1c1b4dfa483b947b@mail.gmail.com> <alpine.LNX.2.00.0909071731120.23856@wotan.suse.de> <bfb1bb1f0909071047h1a4cbc3dx175f89ecedc3555d@mail.gmail.com> <alpine.LNX.2.00.0909081931360.23856@wotan.suse.de> <bfb1bb1f0909081304y708b037bw1c82288d6457c254@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <1252401564-5291-1-git-send-email-21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f177.google.com ([209.85.216.177]:41061 "EHLO
+	mail-px0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751168AbZIHUtN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2009 16:49:13 -0400
+Received: by pxi7 with SMTP id 7so3622593pxi.1
+        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2009 13:49:15 -0700 (PDT)
 Content-Disposition: inline
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <bfb1bb1f0909081304y708b037bw1c82288d6457c254@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sergey Kolesnikov <rockingdemon@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Tim Cole <tim.cole@canonical.com>, Tim Gardner <tim.gardner@canonical.com>, Amit Kucheria <amit.kucheria@canonical.com>, Stefan Bader <stefan.bader@canonical.com>
 
-On Tuesday 08 September 2009, Barry Song wrote:
-> +static int __init ad714x_init(void)
-> +{
-> +#if (defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE)) && \
-> +=A0=A0=A0=A0=A0=A0=A0!(defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE))
-> +=A0=A0=A0=A0=A0=A0=A0return spi_register_driver(&ad714x_spi_driver);
-> +#endif
-> +
-> +#if (defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)) =A0&& \
-> +=A0=A0=A0=A0=A0=A0=A0!(defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE))
-> +=A0=A0=A0=A0=A0=A0=A0return i2c_add_driver(&ad714x_i2c_driver);
-> +#endif
-> +
-> +#if (defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE)) && \
-> +=A0=A0=A0=A0=A0=A0=A0(defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE))
-> +=A0=A0=A0=A0=A0=A0=A0int ret =3D 0;
-> +=A0=A0=A0=A0=A0=A0=A0ret =3D spi_register_driver(&ad714x_spi_driver);
-> +=A0=A0=A0=A0=A0=A0=A0if (ret)
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err;
-> +=A0=A0=A0=A0=A0=A0=A0ret =3D i2c_add_driver(&ad714x_i2c_driver);
-> +=A0=A0=A0=A0=A0=A0=A0if (ret)
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0spi_unregister_driver(&ad71=
-4x_spi_driver);
-> +err:
-> +=A0=A0=A0=A0=A0=A0=A0return ret;
-> +#endif
-> +}
+On Wed, Sep 09, 2009 at 12:04:44AM +0400, Sergey Kolesnikov wrote:
+> 2009/9/8 Jiri Kosina <jkosina@suse.cz>
+> 
+> >
+> > Sergey, I believe that reverting commit d07a9cba6b (you can do so using
+> > git revert d07a9cba6b) will fix your joystick, is that correct?
+> >
+> >
+> Yes, reverting this commit helps.
+> I've tried jstest and succeeded to change the state of each available
+> button/axis.
+> 
+> May be there is another way to distinguish between such joysticks and
+> digitizers?
+> 
 
-Ugly and error prone.
-You should have only one block of code not four ...
+No, Saitek should not used digitizer's buttons, the same way it should
+not use standard keyboard keys (KEY_A, KEY_B, etc).
 
-Absolutely the cleanest solution adds inlined NOP stubs
-for I2C and SPI driver register/unregister calls, and
-gets rid of all that #ifdeffery; there are other solutions.
+-- 
+Dmitry

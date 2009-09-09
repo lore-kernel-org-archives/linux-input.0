@@ -1,11 +1,11 @@
 From: jsgood.yang@samsung.com
-Subject: [PATCH 4/4] [ARM][S3C] Add support keypad platform data
-Date: Wed,  9 Sep 2009 20:11:44 +0900
-Message-ID: <1252494704-17895-1-git-send-email-jsgood.yang@samsung.com>
+Subject: [PATCH 3/4] [ARM][S3C] Add definition for keypad register
+Date: Wed,  9 Sep 2009 20:11:38 +0900
+Message-ID: <1252494698-17862-1-git-send-email-jsgood.yang@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ganesha.gnumonks.org ([213.95.27.120]:40177 "EHLO
+Received: from ganesha.gnumonks.org ([213.95.27.120]:40176 "EHLO
 	ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752503AbZIILRf (ORCPT
+	with ESMTP id S1752664AbZIILRf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2009 07:17:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -14,105 +14,72 @@ Cc: Jinsung Yang <jsgood.yang@samsung.com>, Kyeongil Kim <ki0351.kim@samsung.com
 
 From: Jinsung Yang <jsgood.yang@samsung.com>
 
-This patch contains smdk6410 keypad platform data which includes
-smdk6410 evalutation QWERTY keyboard map and gpio configuration
-function.
+This patch introduce keypad registers and fields for Samsung keypad
+interface driver.
 
 Signed-off-by: Jinsung Yang <jsgood.yang@samsung.com>
 Signed-off-by: Kyeongil Kim <ki0351.kim@samsung.com>
 ---
- arch/arm/mach-s3c6410/mach-smdk6410.c |   50 +++++++++++++++++++++++++++++++++
+ arch/arm/plat-s3c/include/plat/regs-keypad.h |   50 ++++++++++++++++++++++++++
  1 files changed, 50 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/plat-s3c/include/plat/regs-keypad.h
 
-diff --git a/arch/arm/mach-s3c6410/mach-smdk6410.c b/arch/arm/mach-s3c6410/mach-smdk6410.c
-index bc9a7de..8fb3116 100644
---- a/arch/arm/mach-s3c6410/mach-smdk6410.c
-+++ b/arch/arm/mach-s3c6410/mach-smdk6410.c
-@@ -25,6 +25,7 @@
- #include <linux/gpio.h>
- #include <linux/delay.h>
- #include <linux/smsc911x.h>
-+#include <linux/input.h>
- 
- #ifdef CONFIG_SMDK6410_WM1190_EV1
- #include <linux/mfd/wm8350/core.h>
-@@ -50,6 +51,7 @@
- #include <plat/regs-sys.h>
- #include <plat/iic.h>
- #include <plat/fb.h>
-+#include <plat/keypad.h>
- #include <plat/gpio-cfg.h>
- 
- #include <plat/s3c6410.h>
-@@ -184,6 +186,7 @@ static struct platform_device *smdk6410_devices[] __initdata = {
- 	&s3c_device_fb,
- 	&s3c_device_usb,
- 	&s3c_device_usb_hsotg,
-+	&s3c_device_keypad,
- 	&smdk6410_lcd_powerdev,
- 
- 	&smdk6410_smsc911x,
-@@ -337,6 +340,50 @@ static struct i2c_board_info i2c_devs1[] __initdata = {
- 	{ I2C_BOARD_INFO("24c128", 0x57), },	/* Samsung S524AD0XD1 */
- };
- 
-+static unsigned short smdk6410_keycode[] = {
-+	KEY_RESERVED, KEY_RESERVED, KEY_1, KEY_Q, KEY_A, KEY_RESERVED,
-+	KEY_RESERVED, KEY_LEFT, KEY_RESERVED, KEY_RESERVED, KEY_2, KEY_W,
-+	KEY_S, KEY_Z, KEY_RIGHT, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_3, KEY_E, KEY_D, KEY_X, KEY_RESERVED, KEY_UP, KEY_RESERVED,
-+	KEY_RESERVED, KEY_4, KEY_R, KEY_F, KEY_C, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_O, KEY_5, KEY_T, KEY_G, KEY_V, KEY_DOWN,
-+	KEY_BACKSPACE, KEY_P, KEY_0, KEY_6, KEY_Y, KEY_H, KEY_SPACE,
-+	KEY_RESERVED, KEY_RESERVED, KEY_M, KEY_L, KEY_7, KEY_U, KEY_J, KEY_N,
-+	KEY_RESERVED, KEY_ENTER, KEY_LEFTSHIFT, KEY_9, KEY_8, KEY_I, KEY_K,
-+	KEY_B, KEY_RESERVED, KEY_COMMA,
-+};
+diff --git a/arch/arm/plat-s3c/include/plat/regs-keypad.h b/arch/arm/plat-s3c/include/plat/regs-keypad.h
+new file mode 100644
+index 0000000..24bd66e
+--- /dev/null
++++ b/arch/arm/plat-s3c/include/plat/regs-keypad.h
+@@ -0,0 +1,50 @@
++/* linux/arch/arm/plat-s3c/include/plat/regs-keypad.h
++ *
++ * S3C Key Interface register definitions
++ *
++ * Kim Kyoungil, Copyright (c) 2006-2009 Samsung Electronics
++ *      http://www.samsungsemi.com/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
 +
-+static struct s3c_platform_keypad keypad_data __initdata = {
-+	.nr_rows = 8,
-+	.nr_cols = 8,
-+	.max_keys = 64,
-+	.max_masks = 32,
-+	.delay = 50,
-+	.keymap = smdk6410_keycode,
-+};
 +
-+static void s3c_keypad_cfg_gpio(int rows, int columns)
-+{
-+	unsigned int gpio;
-+	unsigned int end;
++#ifndef __ASM_ARCH_REGS_KEYPAD_H
++#define __ASM_ARCH_REGS_KEYPAD_H
 +
-+	end = S3C64XX_GPK(8 + rows);
++/*
++ * Keypad Interface
++ */
++#define S3C_KEYPADREG(x)	(x)
 +
-+	/* Set all the necessary GPK pins to special-function 0 */
-+	for (gpio = S3C64XX_GPK(8); gpio < end; gpio++) {
-+		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
-+		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
-+	}
++/* KEYIF registers */
++#define S3C_KEYIFCON		S3C_KEYPADREG(0x00)
++#define S3C_KEYIFSTSCLR		S3C_KEYPADREG(0x04)
++#define S3C_KEYIFCOL		S3C_KEYPADREG(0x08)
++#define S3C_KEYIFROW		S3C_KEYPADREG(0x0C)
++#define S3C_KEYIFFC		S3C_KEYPADREG(0x10)
 +
-+	end = S3C64XX_GPL(0 + columns);
++/* KEYIFCON fields */
++#define S3C_KEYIF_INT_F_EN	(1 << 0) /*falling edge(key-pressed) interuppt enable*/
++#define S3C_KEYIF_INT_R_EN	(1 << 1) /*rising edge(key-released) interuppt enable*/
++#define S3C_KEYIF_DF_EN		(1 << 2) /*debouncing filter enable*/
++#define S3C_KEYIF_FC_EN		(1 << 3) /*filter clock enable*/
++#define S3C_KEYIF_CON_MASK_ALL	(0x1f)
 +
-+	/* Set all the necessary GPK pins to special-function 0 */
-+	for (gpio = S3C64XX_GPL(0); gpio < end; gpio++) {
-+		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
-+		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
-+	}
-+}
++/* KEYIFSTSCLR fields */
++#define S3C_KEYIF_STSCLR_CLEAR	(0xffff)
 +
- static void __init smdk6410_map_io(void)
- {
- 	u32 tmp;
-@@ -371,6 +418,9 @@ static void __init smdk6410_machine_init(void)
- 	i2c_register_board_info(0, i2c_devs0, ARRAY_SIZE(i2c_devs0));
- 	i2c_register_board_info(1, i2c_devs1, ARRAY_SIZE(i2c_devs1));
- 
-+	s3c_keypad_set_platdata(&keypad_data);
-+	s3c_keypad_cfg_gpio(keypad_data.nr_rows, keypad_data.nr_cols);
++/* KEYIFCOL fields */
++#define S3C_KEYIF_COL_DMASK	(0xff)
++#define S3C_KEYIF_COL_MASK_ALL	(0xffff)
 +
- 	platform_add_devices(smdk6410_devices, ARRAY_SIZE(smdk6410_devices));
- }
- 
++/* KEYIFROW fields */
++#define S3C_KEYIF_ROW_DMASK	(0xff)
++
++/* KEYIFFC fields */
++#define S3C_KEYIF_FILTER_VAL	(1)
++
++#endif /* __ASM_ARCH_REGS_KEYPAD_H */
++
 -- 
 1.6.2.5
 

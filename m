@@ -1,37 +1,76 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2]add analog devices AD714X
-	captouch input driver
-Date: Wed, 9 Sep 2009 02:08:45 -0400
-Message-ID: <8bd0f97a0909082308y636684dbka0b65af4ed658c7b@mail.gmail.com>
-References: <1252401564-5291-1-git-send-email-21cnbao@gmail.com>
+From: "Song, Barry" <Barry.Song@analog.com>
+Subject: RE: [Uclinux-dist-devel] [PATCH v2]add analog devices AD714Xcaptouch input driver
+Date: Wed, 9 Sep 2009 15:15:51 +0800
+Message-ID: <0F1B54C89D5F954D8535DB252AF412FA04B4C3BE@chinexm1.ad.analog.com>
+References: <1252401564-5291-1-git-send-email-21cnbao@gmail.com> <200909081149.28942.david-b@pacbell.net> <0F1B54C89D5F954D8535DB252AF412FA04B11725@chinexm1.ad.analog.com> <200909081929.57935.david-b@pacbell.net> <0F1B54C89D5F954D8535DB252AF412FA04B118A5@chinexm1.ad.analog.com> <8bd0f97a0909082305q632a4b30y3be36ce54ce9d509@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <1252401564-5291-1-git-send-email-21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:2601 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751445AbZIIHQe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2009 03:16:34 -0400
+Content-Class: urn:content-classes:message
+In-Reply-To: <8bd0f97a0909082305q632a4b30y3be36ce54ce9d509@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: David Brownell <david-b@pacbell.net>, dmitry.torokhov@gmail.com, uclinux-dist-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-T24gVHVlLCBTZXAgOCwgMjAwOSBhdCAwNToxOSwgQmFycnkgU29uZyB3cm90ZToKPiArY29uZmln
-IElOUFVUX0FENzE0WAo+ICsgwqAgwqAgwqAgdHJpc3RhdGUgIkFuYWxvZyBEZXZpY2VzIEFENzE0
-WCBDYXBhY2l0YW5jZSBUb3VjaCBTZW5zb3IiCj4gKyDCoCDCoCDCoCBkZXBlbmRzIG9uIFNQSSB8
-fCBJMkMKPiArIMKgIMKgIMKgIGhlbHAKPiArIMKgIMKgIMKgIMKgIFNheSBZIGhlcmUgaWYgeW91
-IHdhbnQgdG8gc3VwcG9ydCBhbiBBRDcxNFggdG91Y2ggc2Vuc29yLgo+ICsKPiArIMKgIMKgIMKg
-IMKgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRo
-ZQo+ICsgwqAgwqAgwqAgwqAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIGFkNzE0WC4KCmNhcGl0YWwg
-WCBpbiBkZWZpbmUvY29uZmlnIGlzIE9LLCBidXQgdGhlIGRlc2MgYW5kIHVzZXIgb3V0cHV0IHNo
-b3VsZApyZWFsbHkgYmUgbG93ZXIgY2FzZS4gIHBsdXMgdGhlIG1vZHVsZSB3b250IGJlIG5hbWVk
-ICJhZDcxNFgiLCBpdCdsbApiZSAiYWQ3MTR4Ii4KLW1pa2UKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVWNsaW51eC1kaXN0LWRldmVsIG1haWxpbmcgbGlz
-dApVY2xpbnV4LWRpc3QtZGV2ZWxAYmxhY2tmaW4udWNsaW51eC5vcmcKaHR0cHM6Ly9ibGFja2Zp
-bi51Y2xpbnV4Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3VjbGludXgtZGlzdC1kZXZlbA==
+=20
+
+>-----Original Message-----
+>From: Mike Frysinger [mailto:vapier.adi@gmail.com]=20
+>Sent: Wednesday, September 09, 2009 2:06 PM
+>To: Song, Barry
+>Cc: David Brownell; dmitry.torokhov@gmail.com;=20
+>uclinux-dist-devel@blackfin.uclinux.org; linux-input@vger.kernel.org
+>Subject: Re: [Uclinux-dist-devel] [PATCH v2]add analog devices=20
+>AD714Xcaptouch input driver
+>
+>On Tue, Sep 8, 2009 at 23:33, Song, Barry wrote:
+>> +static inline int ad714x_spi_register_driver(struct=20
+>spi_driver *spi_drv)
+>> +{
+>> + =A0 =A0 =A0 return spi_register_driver(spi_drv);
+>> +}
+>> +
+>> +static inline void ad714x_spi_unregister_driver(struct=20
+>spi_driver *spi_drv)
+>> +{
+>> + =A0 =A0 =A0 spi_unregister_driver(spi_drv);
+>> +}
+>> +
+>> +#else
+>> +#define ad714x_spi_register_driver(p) 0
+>> +#define ad714x_spi_unregister_driver(p)
+>> =A0#endif
+>
+>i dont think you need the ifdef protection that far up.  what about
+>using the ifdef in this one place:
+>static inline int ad714x_spi_register_driver(struct spi_driver=20
+>*spi_drv)
+>{
+>#if defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE)
+>    return spi_register_driver(spi_drv);
+>#else
+>    return 0;
+>#endif
+>}
+>
+>then i imagine you can have all the other pieces always enabled.  gcc
+>will see that everything is marked static and not used, so it'll cull
+>things.
+In fact, I have tried to do like this before changing like I sent in th=
+e last mail. In fact, it will get compiling error if I always enable al=
+l spi and i2c functions without a #ifdef protection.
+So since there are far #ifdef, I think it shoud be better to place rela=
+ted codes to existed #ifdef.
+>-mike
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

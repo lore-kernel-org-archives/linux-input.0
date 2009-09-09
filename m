@@ -1,61 +1,45 @@
-From: "Song, Barry" <Barry.Song@analog.com>
-Subject: RE: [Uclinux-dist-devel] [PATCH v2]add analog devices AD714Xcaptouch input driver
-Date: Wed, 9 Sep 2009 15:20:15 +0800
-Message-ID: <0F1B54C89D5F954D8535DB252AF412FA04B4C3CE@chinexm1.ad.analog.com>
-References: <1252401564-5291-1-git-send-email-21cnbao@gmail.com> <8bd0f97a0909082308y636684dbka0b65af4ed658c7b@mail.gmail.com>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: Re: (matrix_keypad driver) Re: qi_lb60_keypad driver question?
+Date: Wed, 09 Sep 2009 15:35:21 +0800
+Message-ID: <4AA75AB9.60406@gmail.com>
+References: <4A819D39.2040006@qi-hardware.com> <20090812024620.E4E10526EC9@mailhub.coreip.homeip.net> <4A9AA392.4060301@gmail.com> <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:36871 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751637AbZIIHUh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2009 03:20:37 -0400
-Content-Class: urn:content-classes:message
-In-Reply-To: <8bd0f97a0909082308y636684dbka0b65af4ed658c7b@mail.gmail.com>
+Received: from mail-pz0-f201.google.com ([209.85.222.201]:42372 "EHLO
+	mail-pz0-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752060AbZIIHf3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Sep 2009 03:35:29 -0400
+Received: by pzk39 with SMTP id 39so3869867pzk.15
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2009 00:35:32 -0700 (PDT)
+In-Reply-To: <20090901021034.6117F526EA5@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>, Barry Song <21cnbao@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, dbrownell@users.sourceforge.net, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-=20
+Dmitry Torokhov wrote:
+> Hi,
+> 
+> On Mon, Aug 31, 2009 at 12:06:42AM +0800, Xiangfu Liu wrote:
+>> Hi
+>> now the keypad in Ben NanoNote[1] is work.  problem is I don't know
+>> how to write the special assemble key of matrix_key driver. some kind
+>> of 'SHIFT', like the red key in [2].  when I press the 'RED UP POINT'
+>> + 'W' = '@'
+>>
+> 
+> Historically our KEY_* definitions did not include defines for symbols
+> like '@' because they do not have a dedicated key but rather being
+> produced as a combination of a primary key + modifier; the mapping is
+> done either in console driver or in X.
+> 
+thanks Dmitry.
+can you point me which file I need look into,
+I am newbie in kernel. 
 
->-----Original Message-----
->From: uclinux-dist-devel-bounces@blackfin.uclinux.org=20
->[mailto:uclinux-dist-devel-bounces@blackfin.uclinux.org] On=20
->Behalf Of Mike Frysinger
->Sent: Wednesday, September 09, 2009 2:09 PM
->To: Barry Song
->Cc: uclinux-dist-devel@blackfin.uclinux.org;=20
->dbrownell@users.sourceforge.net; linux-input@vger.kernel.org
->Subject: Re: [Uclinux-dist-devel] [PATCH v2]add analog devices=20
->AD714Xcaptouch input driver
->
->On Tue, Sep 8, 2009 at 05:19, Barry Song wrote:
->> +config INPUT_AD714X
->> + =A0 =A0 =A0 tristate "Analog Devices AD714X Capacitance Touch Sens=
-or"
->> + =A0 =A0 =A0 depends on SPI || I2C
->> + =A0 =A0 =A0 help
->> + =A0 =A0 =A0 =A0 Say Y here if you want to support an AD714X touch =
-sensor.
->> +
->> + =A0 =A0 =A0 =A0 To compile this driver as a module, choose M here:=
- the
->> + =A0 =A0 =A0 =A0 module will be called ad714X.
->
->capital X in define/config is OK, but the desc and user output should
->really be lower case.  plus the module wont be named "ad714X", it'll
->be "ad714x".
-=46ixed
->-mike
->_______________________________________________
->Uclinux-dist-devel mailing list
->Uclinux-dist-devel@blackfin.uclinux.org
->https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com

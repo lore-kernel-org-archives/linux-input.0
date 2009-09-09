@@ -1,182 +1,132 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Tue, 8 Sep 2009 18:53:49 -0700
-Message-ID: <20090909022718.A177E526EC9@mailhub.coreip.homeip.net>
-References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey> <200906231106.37460.dmitry.torokhov@gmail.com> <20090628140452.GA15816@gallifrey> <20090904055139.4BEAB526EA5@mailhub.coreip.homeip.net> <20090905235159.GA23660@gallifrey> <20090908064542.CDF50526EC9@mailhub.coreip.homeip.net>
+From: "Song, Barry" <Barry.Song@analog.com>
+Subject: RE: [Uclinux-dist-devel] [PATCH v2]add analog devices AD714Xcaptouch input driver
+Date: Wed, 9 Sep 2009 10:11:06 +0800
+Message-ID: <0F1B54C89D5F954D8535DB252AF412FA04B11725@chinexm1.ad.analog.com>
+References: <1252401564-5291-1-git-send-email-21cnbao@gmail.com> <200909081149.28942.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.221.181]:43833 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751473AbZIIBxy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2009 21:53:54 -0400
-Content-Disposition: inline
-In-Reply-To: <20090908064542.CDF50526EC9@mailhub.coreip.homeip.net>
+Received: from nwd2mail10.analog.com ([137.71.25.55]:41609 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751304AbZIICLK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Sep 2009 22:11:10 -0400
+Content-Class: urn:content-classes:message
+In-Reply-To: <200909081149.28942.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>, Barry Song <21cnbao@gmail.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
 
-On Mon, Sep 07, 2009 at 11:12:19PM -0700, Dmitry Torokhov wrote:
-> On Sun, Sep 06, 2009 at 12:51:59AM +0100, Dr. David Alan Gilbert wrote:
-> > * Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
-> > > On Sun, Jun 28, 2009 at 03:04:52PM +0100, Dr. David Alan Gilbert wrote:
-> > > > * Dmitry Torokhov (dmitry.torokhov@gmail.com) wrote:
-> > > > > On Tuesday 23 June 2009 11:58:15 Dr. David Alan Gilbert wrote:
-> > > > 
-> > > > <snip>
-> > > >  
-> > > > > > Yep; I'm OK with the i8042.noaux from my point of view, but it's a
-> > > > > > bit worrying that this used to work fine.  There's obviously been
-> > > > > > a change somewhere since 2.6.18 (and as I remember from the dmesg
-> > > > > > the keyboard and aux ports are being initialised in different orders).
-> > > > > > (Actually I say obviously since 2.6.18 - but the 2.6.18 I tried
-> > > > > > I think I only used the debian version - I should go back and
-> > > > > > see if I can do a vanilla one), but this box has been running
-> > > > > > Linux since the time it was originally bought with loads of distros
-> > > > > > and clean kernels years ago.
-> > > > > >
-> > > > > > While this machine is old, the motherboard was a pretty common one
-> > > > > > at the time.
-> > > > > >
-> > > > > 
-> > > > > Any chance I could get dmesg with i8042.debug with 2.6.18? There was
-> > > > > quite a large change back then when we got rid of the polling timer
-> > > > > in i8042.
-> > > > 
-> > > > Apologies for the delay; attached is the dmesg from the Debian 2.6.18
-> > > > in which keyboard works as previously described.
-> > > > 
-> > > 
-> > > Sorry for taking so long to respond. The only vidible difference beween
-> > > the old and the new way is that we don't "close" serio ports anymore if
-> > > we fail to detect a mouse/keyboard.
-> > > 
-> > > Could you please try the patch below and tell me if it helps?
-> > 
-> > Yes that fixes it - thank you!
-> > (Tested on 2.6.31-rc8, having first checked rc8 on it's own was still broken)
-> > 
-> 
-> That is great news! Would you mind testing a slightly modifued version
-> of the patch and if it still works I will get it applied.
-> 
-> Thanks!
-> 
+=20
 
-Bah, that one was completely screwed up, please try this one instead.
+>-----Original Message-----
+>From: uclinux-dist-devel-bounces@blackfin.uclinux.org=20
+>[mailto:uclinux-dist-devel-bounces@blackfin.uclinux.org] On=20
+>Behalf Of David Brownell
+>Sent: Wednesday, September 09, 2009 2:49 AM
+>To: Barry Song
+>Cc: uclinux-dist-devel@blackfin.uclinux.org;=20
+>linux-input@vger.kernel.org
+>Subject: Re: [Uclinux-dist-devel] [PATCH v2]add analog devices=20
+>AD714Xcaptouch input driver
+>
+>On Tuesday 08 September 2009, Barry Song wrote:
+>> +static int __init ad714x_init(void)
+>> +{
+>> +#if (defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE)) && \
+>> +=A0=A0=A0=A0=A0=A0=A0!(defined(CONFIG_I2C) || defined(CONFIG_I2C_MO=
+DULE))
+>> +=A0=A0=A0=A0=A0=A0=A0return spi_register_driver(&ad714x_spi_driver)=
+;
+>> +#endif
+>> +
+>> +#if (defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)) =A0&& \
+>> +=A0=A0=A0=A0=A0=A0=A0!(defined(CONFIG_SPI) || defined(CONFIG_SPI_MO=
+DULE))
+>> +=A0=A0=A0=A0=A0=A0=A0return i2c_add_driver(&ad714x_i2c_driver);
+>> +#endif
+>> +
+>> +#if (defined(CONFIG_SPI) || defined(CONFIG_SPI_MODULE)) && \
+>> +=A0=A0=A0=A0=A0=A0=A0(defined(CONFIG_I2C) || defined(CONFIG_I2C_MOD=
+ULE))
+>> +=A0=A0=A0=A0=A0=A0=A0int ret =3D 0;
+>> +=A0=A0=A0=A0=A0=A0=A0ret =3D spi_register_driver(&ad714x_spi_driver=
+);
+>> +=A0=A0=A0=A0=A0=A0=A0if (ret)
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err;
+>> +=A0=A0=A0=A0=A0=A0=A0ret =3D i2c_add_driver(&ad714x_i2c_driver);
+>> +=A0=A0=A0=A0=A0=A0=A0if (ret)
+>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0spi_unregister_driver(=
+&ad714x_spi_driver);
+>> +err:
+>> +=A0=A0=A0=A0=A0=A0=A0return ret;
+>> +#endif
+>> +}
+>
+>Ugly and error prone.
+>You should have only one block of code not four ...
+>
+>Absolutely the cleanest solution adds inlined NOP stubs
+>for I2C and SPI driver register/unregister calls, and
+>gets rid of all that #ifdeffery; there are other solutions.
+>
+The aim is that the module can work at:
+1. only spi bus enabled (probe spi devices)
+2. only i2c bus enabled (probe i2c devices)
+3. both spi and i2c bus enabled. (probe both i2c/spi devices)
+So the module depends on SPI || I2C not SPI && I2C. I used the  #ifdeff=
+ery to avoid compiling error due to symbols losing of I2C or SPI while =
+kernel configuration doesn't enable both SPI and I2C. If kernel only en=
+ables one of the two buses, the driver only probes the enabled bus.
 
-Thanks!
+I don't know what the exact meaning of "inlined NOP stubs", do you mean=
+ things like the following?
+#if (defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE))
+=2E..
+static struct i2c_driver ad714x_i2c_driver =3D {
+        .driver =3D {
+                .name =3D "ad714x_captouch",
+        },  =20
+        .probe    =3D ad714x_i2c_probe,
+        .remove   =3D __devexit_p(ad714x_i2c_remove),
+        .suspend  =3D ad714x_i2c_suspend,
+        .resume   =3D ad714x_i2c_resume,
+        .id_table =3D ad714x_id,
+};
 
--- 
-Dmitry
+static inline int ad714x_i2c_add_driver(struct i2c_driver *i2c_drv)
+{
+        return i2c_add_driver(i2c_drv);
+}
+#else
+static inline int ad714x_i2c_add_driver(struct i2c_driver *i2c_drv)
+{
+        return 0;
+}
+#define ad714x_i2c_driver NULL
+#endif
 
-Input: i8042 - try disabling and re-enabling AUX port at close
+static int __init ad714x_init(void)
+{
+	...
+	ad714x_i2c_add_driver(&ad714x_i2c_driver);
+	...
+}
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Then ad714x_init can use a unified ad714x_i2c_add_driver, ad714x_spi_re=
+gister_driver to avoid #ifdeffery used?
+It seems that doesn't make the codes more pretty?
 
-Ever since we switched from having a polling timer to registering IRQ
-handlers for both keyboard and AUX ports at the driver registration
-time, on certain boxes probing for a mouse results in keyboard
-stopping working. The only real difference between old and new way is
-that before we disabled ports after unsuccessful probe whereas now we
-leave them as is. Try to emulate the old behavior by disabling and
-immediately re-enabling AUX and KBD ports when corresponding serio
-port is being closed.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/serio/i8042.c |   50 ++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 49 insertions(+), 1 deletions(-)
-
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index b53a015..8aaf8fc 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -264,6 +264,49 @@ static int i8042_aux_write(struct serio *serio, unsigned char c)
- 					I8042_CMD_MUX_SEND + port->mux);
- }
- 
-+
-+/*
-+ * i8042_aux_close attempts to clear AUX or KBD port state by disabling
-+ * and then re-enabling it.
-+ */
-+
-+static void i8042_port_close(struct serio *serio)
-+{
-+	int irq_bit;
-+	int disable_bit;
-+	const char *port_name;
-+
-+	if (serio == i8042_ports[I8042_AUX_PORT_NO].serio) {
-+		irq_bit = I8042_CTR_AUXINT;
-+		disable_bit = I8042_CTR_AUXDIS;
-+		port_name = "AUX";
-+	} else {
-+		irq_bit = I8042_CTR_KBDINT;
-+		disable_bit = I8042_CTR_KBDDIS;
-+		port_name = "KBD";
-+	}
-+
-+	i8042_ctr &= ~irq_bit;
-+	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-+		printk(KERN_WARNING
-+			"i8042.c: Can't write CTR while closing %s port.\n",
-+			port_name);
-+
-+	udelay(50);
-+
-+	i8042_ctr &= ~disable_bit;
-+	i8042_ctr |= irq_bit;
-+	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-+		printk(KERN_ERR "i8042.c: Can't reactivate %s port.\n",
-+			port_name);
-+
-+	/*
-+	 * See if there is any data appeared while we were messing with
-+	 * port state.
-+	 */
-+	i8042_interrupt(0, NULL);
-+}
-+
- /*
-  * i8042_start() is called by serio core when port is about to finish
-  * registering. It will mark port as existing so i8042_interrupt can
-@@ -393,7 +436,7 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
- }
- 
- /*
-- * i8042_enable_kbd_port enables keybaord port on chip
-+ * i8042_enable_kbd_port enables keyboard port on chip
-  */
- 
- static int i8042_enable_kbd_port(void)
-@@ -841,6 +884,9 @@ static void i8042_controller_reset(void)
- 	i8042_ctr |= I8042_CTR_KBDDIS | I8042_CTR_AUXDIS;
- 	i8042_ctr &= ~(I8042_CTR_KBDINT | I8042_CTR_AUXINT);
- 
-+	if (i8042_command(&i8042_initial_ctr, I8042_CMD_CTL_WCTR))
-+		printk(KERN_WARNING "i8042.c: Can't write CTR while resetting.\n");
-+
- /*
-  * Disable MUX mode if present.
-  */
-@@ -1026,6 +1072,7 @@ static int __devinit i8042_create_kbd_port(void)
- 	serio->write		= i8042_dumbkbd ? NULL : i8042_kbd_write;
- 	serio->start		= i8042_start;
- 	serio->stop		= i8042_stop;
-+	serio->close		= i8042_port_close;
- 	serio->port_data	= port;
- 	serio->dev.parent	= &i8042_platform_device->dev;
- 	strlcpy(serio->name, "i8042 KBD port", sizeof(serio->name));
-@@ -1056,6 +1103,7 @@ static int __devinit i8042_create_aux_port(int idx)
- 	if (idx < 0) {
- 		strlcpy(serio->name, "i8042 AUX port", sizeof(serio->name));
- 		strlcpy(serio->phys, I8042_AUX_PHYS_DESC, sizeof(serio->phys));
-+		serio->close = i8042_port_close;
- 	} else {
- 		snprintf(serio->name, sizeof(serio->name), "i8042 AUX%d port", idx);
- 		snprintf(serio->phys, sizeof(serio->phys), I8042_MUX_PHYS_DESC, idx + 1);
+>
+>
+>_______________________________________________
+>Uclinux-dist-devel mailing list
+>Uclinux-dist-devel@blackfin.uclinux.org
+>https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

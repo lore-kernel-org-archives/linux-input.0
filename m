@@ -1,32 +1,79 @@
-From: Max Sivkov <maxsivkov@gmail.com>
-Subject: input subsystem question
-Date: Thu, 10 Sep 2009 08:20:02 +0000 (UTC)
-Message-ID: <loom.20090910T101706-918@post.gmane.org>
+From: Andreas Mohr <andi@lisas.de>
+Subject: 2.6.31-rc6 (yeah, I know...): weird tty / X.org state currently
+Date: Thu, 10 Sep 2009 12:31:26 +0200
+Message-ID: <20090910103126.GA17742@rhlx01.hs-esslingen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lo.gmane.org ([80.91.229.12]:51080 "EHLO lo.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755245AbZIJIZD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Sep 2009 04:25:03 -0400
-Received: from list by lo.gmane.org with local (Exim 4.50)
-	id 1Mlexi-0006cL-WE
-	for linux-input@vger.kernel.org; Thu, 10 Sep 2009 10:25:03 +0200
-Received: from 212.26.144.104 ([212.26.144.104])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2009 10:25:02 +0200
-Received: from maxsivkov by 212.26.144.104 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2009 10:25:02 +0200
+Received: from rhlx01.hs-esslingen.de ([129.143.116.10]:33317 "EHLO
+	rhlx01.hs-esslingen.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755472AbZIJKbZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Sep 2009 06:31:25 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 
-Hello!
-I have a question about using of the input subsystem.
-Is there any way to filter input messages from a device (keyboard). I.e. I need
-to have ability to pass some messages from the device, and block others.
-Could community point me to the right place where I can find how to do that?
+Hello all,
 
+forgive me for posting about such an ancient version,
+but I'm facing very weird control key state issues here
+(or would they be related to the recent tty layer issues?)
+that I deem to be worth posting about.
+
+Yesterday I had a full lockup of my keyboard in X.org.
+(note that this might be related to very ugly block layer lockups,
+in worst-case scenarios even mouse cursor stuck up to a whole _minute_
+in case of heavier traffic on this el-cheapo PATA SSD).
+
+[ # CONFIG_EXT3_DEFAULTS_TO_ORDERED is not set ]
+
+And somehow I have a hunch that these unusual and very large latencies
+may have played a role in suddenly having the keyboard lock up completely
+in X.org.
+Nothing helped, neither changing display device configuration (this
+did help in other environments!), nor fiddling with KDE accessibility
+abominations, nor fiddling with keyboard / mouse settings in KDE
+systemsettings.
+X.org keyboard stayed stuck solidly, only going down to other ttys worked
+just fine.
+
+But the kicker happened when I restarted kdm to restore my keyboard!
+While this worked, in the new session I observed _very_ strange
+behaviour:
+
+In konsole, normal letters and control key combinations (Ctrl-l vs. l)
+worked absolutely fine, but typing such normal things as Alt-Left or Alt-F2 or
+Alt-F4 went down to ttys(!!). IOW, the kernel's control key status was stuck
+but not stuck.
+Once in a text tty, the control key status was sane _as well_, IOW no
+Ctrl-l behaviour when simply typing an l.
+
+Possibly the kernel's control key state got stuck in a weird state,
+perhaps due to some input layer race conditions or so.
+
+Or is it X.org's input handling which is responsible for Ctrl-Alt-F1
+etc. combos? I wouldn't think so...
+
+Ah wait, probably it's not any control key state mismatch, but there's
+probably simply a "any graphical tty additionally has a Ctrl-key
+requirement to lock against tty changes" flag which is BROKEN (disabled)
+in the case of my currently running(!) GUI tty session.
+(go fetch any bug analysis while they're hot! ;)
+
+Aspire One netbook, u9.04, 2.6.31-rc6 (not upgradeable at this instant).
+
+00:02.1 Display controller: Intel Corporation Mobile 945GM/GMS/GME,
+943/940GML Express Integrated Graphics Controller (rev 03)
+
+ii  xserver-xorg-input-evdev                   1:2.1.1-1ubuntu4		X.Org X server -- evdev input driver
+ii  xserver-xorg-input-kbd                     1:1.3.1-2ubuntu1		X.Org X server -- keyboard input driver
+ii  xserver-xorg-input-mouse                   1:1.4.0-1 X.Org		X server -- mouse input driver
+ii  xserver-xorg-input-synaptics               0.99.3-2ubuntu4		Synaptics TouchPad driver for X.Org/XFree86 server
+ii  xserver-xorg                               1:7.4~5ubuntu18		the X.Org X server
+
+Thanks,
+
+Andreas Mohr

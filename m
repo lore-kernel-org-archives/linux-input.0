@@ -1,295 +1,75 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [Uclinux-dist-devel] [PATCH v3] add analog devices AD714Xcaptouchinput driver
-Date: Fri, 11 Sep 2009 14:28:18 +0100
-Message-ID: <8A42379416420646B9BFAC9682273B6D0DC3BE1B@limkexm3.ad.analog.com>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com> <8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: How to handle laptop with Elantech touchpad that chokes on current
+ driver configuration values?
+Date: Fri, 11 Sep 2009 15:25:30 +0200
+Message-ID: <20090911132530.GA2708@adopmeer.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:53523 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750714AbZIKN2p convert rfc822-to-8bit (ORCPT
+Received: from smtp-out2.tiscali.nl ([195.241.79.177]:48554 "EHLO
+	smtp-out2.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751399AbZIKNjv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Sep 2009 09:28:45 -0400
-Content-Class: urn:content-classes:message
-In-Reply-To: <8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	Fri, 11 Sep 2009 09:39:51 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>, Barry Song <21cnbao@gmail.com>, dmitry.torokhov@gmail.com
-Cc: David Brownell <david-b@pacbell.net>, uclinux-dist-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
-On Friday 11 September 2009, Hennerich, Michael wrote:
->On Friday 11 September 2009, Song, Barry wrote:
->+static int __init ad714x_init(void)
->+{
->+
->+	int ret = 0;
->+	ret = ad714x_spi_register_driver(&ad714x_spi_driver);
->+	if (ret)
->+		goto err;
->+	ret = ad714x_i2c_add_driver(&ad714x_i2c_driver);
->+	if (ret)
->+		ad714x_spi_unregister_driver(&ad714x_spi_driver);
->+err:
->+	return ret;
->+}
->+
->+static void __exit ad714x_exit(void)
->+{
->+	ad714x_spi_unregister_driver(&ad714x_spi_driver);
->+	ad714x_i2c_del_driver(&ad714x_i2c_driver);
->+}
->
->This doesn't make much sense!
->Assuming we have two AD714x in a system. One connected by SPI the other
->by I2C.
->Why would I remove the SPI one in case the other I2C fails, or not even
->try the SPI one if the I2C fails?
->
->Who says that a driver can't have two module_init()?
->
->Use two entry points and let them individually return its status.
->
->Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
->
->Index: drivers/input/misc/ad714x.c
->
->===================================================================
->
->--- drivers/input/misc/ad714x.c (revision 7296)
->
->+++ drivers/input/misc/ad714x.c (working copy)
->
->@@ -1479,19 +1479,18 @@
->
->        .resume         = ad714x_spi_resume,
->
-> };
->
->
->
->-static inline int ad714x_spi_register_driver(struct spi_driver
->*spi_drv)
->+static inline int ad714x_spi_init(struct spi_driver *spi_drv)
->
-> {
->
->        return spi_register_driver(spi_drv);
->
-> }
->
->
->
->-static inline void ad714x_spi_unregister_driver(struct spi_driver
->*spi_drv)
->+static inline void ad714x_spi_exit(struct spi_driver *spi_drv)
->
-> {
->
->        spi_unregister_driver(spi_drv);
->
-> }
->
->
->
->-#else
->
->-#define ad714x_spi_register_driver(p) 0
->
->-#define ad714x_spi_unregister_driver(p)
->
->+module_init(ad714x_spi_init);
->
->+module_exit(ad714x_spi_exit);
->
-> #endif
->
->
->
-> #if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
->
->@@ -1609,44 +1608,20 @@
->
->        .id_table = ad714x_id,
->
-> };
->
->
->
->-static inline int ad714x_i2c_add_driver(struct i2c_driver *i2c_drv)
->
->+static __init int ad714x_i2c_init(struct i2c_driver *i2c_drv)
->
-> {
->
->        return i2c_add_driver(i2c_drv);
-> }
->
->-static inline void ad714x_i2c_del_driver(struct i2c_driver *i2c_drv)
->+static __init void ad714x_i2c_exit(struct i2c_driver *i2c_drv)
-> {
->        i2c_del_driver(i2c_drv);
-> }
->
->-#else
->-#define ad714x_i2c_add_driver(p) 0
->-#define ad714x_i2c_del_driver(p)
->+module_init(ad714x_i2c_init);
->+module_exit(ad714x_i2c_exit);
-> #endif
->
->-static int __init ad714x_init(void)
->-{
->-
->-       int ret = 0;
->-       ret = ad714x_spi_register_driver(&ad714x_spi_driver);
->-       if (ret)
->-               goto err;
->-       ret = ad714x_i2c_add_driver(&ad714x_i2c_driver);
->-       if (ret)
->-               ad714x_spi_unregister_driver(&ad714x_spi_driver);
->-err:
->-       return ret;
->-}
->-
->-static void __exit ad714x_exit(void)
->-{
->-       ad714x_spi_unregister_driver(&ad714x_spi_driver);
->-       ad714x_i2c_del_driver(&ad714x_i2c_driver);
->-}
->-
->-module_init(ad714x_init);
->-module_exit(ad714x_exit);
->-
-> MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor
->Driver");
-> MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
-> MODULE_LICENSE("GPL");
+Recently I debugged a problem for a user where the Elantech touchpad of his
+laptop chokes on the configuration values that the current kernel driver is
+using. After sending a conflicting value the PS/2 controller freezes and
+doesn't accept any subsequent bytes.
 
-Sorry for the noise - wrong patch attached.
-This one should work better... 
+The current configuration values for hardware version 2 (EeePC style) come
+from the touchpad driver in the original Xandros Linux distribution for the
+EeePC. And until now I haven't heard of problems with them. They look like
+this:
 
-Index: drivers/input/misc/ad714x.c
+   etd->reg_10 = 0x54;
+   etd->reg_11 = 0x88;
+   etd->reg_21 = 0x60;
 
-===================================================================
+Some time ago I received the updated touchpad driver that is used in the
+Dell mini Ubuntu distribution. Here the values are changed to be the same as
+most of the Windows driver are using. Notice the difference in register 0x11
+and how they dropped configuring register 0x21:
 
---- drivers/input/misc/ad714x.c (revision 7296)
+   etd->reg_10 = 0x54;
+   etd->reg_11 = 0x8a;
 
-+++ drivers/input/misc/ad714x.c (working copy)
+However for the laptop of the user mentioned above the values of his Windows
+driver are like this:
 
-@@ -1479,19 +1479,18 @@
+   etd->reg_10 = 0x64;
+   etd->reg_11 = 0x8a;
 
-        .resume         = ad714x_spi_resume,
+Notice the different values for registers 0x10 and 0x11 in comparison with
+the current kernel driver. Also the registers _must_ be configured like
+this. Using the current kernel driver values for either one of the registers
+makes the touchpad freeze up.
 
- };
+Remember that there isn't any publicly available documentation for the
+hardware, so these configuration values are "black magic numbers" and the
+only source of them is snooping what Windows drivers do or the source of
+drivers in dedicated Linux distributions that happen to come my way.
 
- 
+In all cases this is about touchpads with a firmware version reply of 0x02,
+0x00, 0x30. So even though the touchpad in this users laptops seems to be
+the same as in the EeePC it really requires different values to be
+configured.
 
--static inline int ad714x_spi_register_driver(struct spi_driver
-*spi_drv)                              
-+static __init int ad714x_spi_init(void)
+My question now is what is a prudent way to go forward?
 
- {
+Is it OK that add a DMI check to the kernel driver that matches this users
+laptop and dynamically adjust the configuration values?
 
--       return spi_register_driver(spi_drv);
+And how about the common case? Do we keep the values in the driver as they
+are, or do we update them to the revised numbers as learned from the Ubuntu
+driver?
 
-+       return spi_register_driver(&ad714x_spi_driver);
+What are your thoughts on this?
 
- }
 
- 
-
--static inline void ad714x_spi_unregister_driver(struct spi_driver
-*spi_drv)                           
-+static __init void ad714x_spi_exit(void)
-
- {
-
--       spi_unregister_driver(spi_drv);
-
-+       spi_unregister_driver(&ad714x_spi_driver);
-
- }
-
- 
-
--#else
-
--#define ad714x_spi_register_driver(p) 0
-
--#define ad714x_spi_unregister_driver(p)
-
-+module_init(ad714x_spi_init);
-
-+module_exit(ad714x_spi_exit);
-
- #endif
-
- 
-
- #if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
-
-@@ -1609,44 +1608,20 @@
-
-        .id_table = ad714x_id,
-
- };
-
- 
-
--static inline int ad714x_i2c_add_driver(struct i2c_driver *i2c_drv)
-
-+static __init int ad714x_i2c_init(void)
-
- {
-
--       return i2c_add_driver(i2c_drv);
-
-+       return i2c_add_driver(&ad714x_i2c_driver);
-
- }
-
--static inline void ad714x_i2c_del_driver(struct i2c_driver *i2c_drv)
-+static __init void ad714x_i2c_exit(void)
- {
--       i2c_del_driver(i2c_drv);
-+       i2c_del_driver(&ad714x_i2c_driver);
- }
-
--#else
--#define ad714x_i2c_add_driver(p) 0
--#define ad714x_i2c_del_driver(p)
-+module_init(ad714x_i2c_init);
-+module_exit(ad714x_i2c_exit);
- #endif
-
--static int __init ad714x_init(void)
--{
--
--       int ret = 0;
--       ret = ad714x_spi_register_driver(&ad714x_spi_driver);
--       if (ret)
--               goto err;
--       ret = ad714x_i2c_add_driver(&ad714x_i2c_driver);
--       if (ret)
--               ad714x_spi_unregister_driver(&ad714x_spi_driver);
--err:
--       return ret;
--}
--
--static void __exit ad714x_exit(void)
--{
--       ad714x_spi_unregister_driver(&ad714x_spi_driver);
--       ad714x_i2c_del_driver(&ad714x_i2c_driver);
--}
--
--module_init(ad714x_init);
--module_exit(ad714x_exit);
--
- MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor
-Driver");
- MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
- MODULE_LICENSE("GPL");
-
+Arjan

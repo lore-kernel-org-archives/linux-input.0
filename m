@@ -1,61 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
-Date: Thu, 10 Sep 2009 22:13:00 -0700
-Message-ID: <20090911051259.GC23210@core.coreip.homeip.net>
-References: <1252603292-20830-1-git-send-email-mjg@redhat.com>
+Subject: [PATCH 0/2] Input filters
+Date: Thu, 10 Sep 2009 22:28:18 -0700
+Message-ID: <20090911052720.26911.67943.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f189.google.com ([209.85.216.189]:50681 "EHLO
-	mail-px0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751207AbZIKFSp (ORCPT
+Received: from mail-pz0-f184.google.com ([209.85.222.184]:48865 "EHLO
+	mail-pz0-f184.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752595AbZIKF2S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Sep 2009 01:18:45 -0400
-Content-Disposition: inline
-In-Reply-To: <1252603292-20830-1-git-send-email-mjg@redhat.com>
+	Fri, 11 Sep 2009 01:28:18 -0400
+Received: by pzk14 with SMTP id 14so651216pzk.1
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2009 22:28:21 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-wireless@vger.kernel.org, marcel@holtmann.org
+To: linux-input@vger.kernel.org
+Cc: mjg@redhat.com
 
-On Thu, Sep 10, 2009 at 06:21:31PM +0100, Matthew Garrett wrote:
-> Most laptops have keys that are intended to toggle all device state, not
-> just wifi. These are currently generally mapped to KEY_WLAN. As a result,
-> rfkill will only kill or enable wifi in response to the key press. This
-> confuses users and can make it difficult for them to enable bluetooth
-> and wwan devices.
-> 
-> This patch adds a new keycode, KEY_RFKILL_ALL. It indicates that the
+Hi,
 
-The new name in description does not match the code...
+The following 2 patches implement a limited version of input filters
+which allow suppressing certain events from reaching regular input
+handlers/user space.
 
-> system should toggle the state of all rfkillable devices.
+The name inspired by the recent patch from Matthew, although
+implementation and intended usage quite different - Matthew needs to
+filter non-input (battery, wlan, AC adapter state) from the raw data
+stream emitted by i8042 whereas input filters are supposed to filter
+(and maybe replace) _input_ events, most likely without regard as to
+which device emitted them.
 
-Hmm, rfkill changes usually go through net tree so unless they want me
-to push it though I'll just ACK the new keycode.
-
-> 
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
-
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
-
-> ---
->  include/linux/input.h |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 8b3bc3e..20a622e 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -595,6 +595,8 @@ struct input_absinfo {
->  #define KEY_NUMERIC_STAR	0x20a
->  #define KEY_NUMERIC_POUND	0x20b
->  
-> +#define KEY_RFKILL		0x20c /* Key that controls all radios */
-> +
->  /* We avoid low common keys in module aliases so they don't get huge. */
->  #define KEY_MIN_INTERESTING	KEY_MUTE
->  #define KEY_MAX			0x2ff
+The first (and quite possible only) user of the filter facility is
+Mac mouse button emulation which user to be hacked into the keyboard
+driver. The setup worked until keyboard was the sole source of key
+events but now that X is switching to evdev (which is completely
+ignorant of mac emulation) user space started getting the original
+key presses along with the emulated buttons. Input filters solve the
+issue while encapsulating everything in drivers/macintosh and
+removing dependencies between mac_hid, keyboard and evdev.
 
 -- 
 Dmitry

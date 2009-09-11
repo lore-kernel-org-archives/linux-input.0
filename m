@@ -1,37 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] UBUNTU: [Upstream] Input: Add keyboard quirk for
-	Samsung R59P/R60P/R61P laptops
-Date: Thu, 10 Sep 2009 22:13:12 -0700
-Message-ID: <20090911051312.GD23210@core.coreip.homeip.net>
-References: <1252488035-20118-1-git-send-email-keng-yu.lin@canonical.com>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Thu, 10 Sep 2009 22:13:00 -0700
+Message-ID: <20090911051259.GC23210@core.coreip.homeip.net>
+References: <1252603292-20830-1-git-send-email-mjg@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f184.google.com ([209.85.222.184]:51139 "EHLO
-	mail-pz0-f184.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751120AbZIKFNN (ORCPT
+Received: from mail-px0-f189.google.com ([209.85.216.189]:50681 "EHLO
+	mail-px0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751207AbZIKFSp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Sep 2009 01:13:13 -0400
+	Fri, 11 Sep 2009 01:18:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1252488035-20118-1-git-send-email-keng-yu.lin@canonical.com>
+In-Reply-To: <1252603292-20830-1-git-send-email-mjg@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Keng-Yu Lin <keng-yu.lin@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Matthew Garrett <mjg@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-wireless@vger.kernel.org, marcel@holtmann.org
 
-Hi Keng-Yu,
-
-On Wed, Sep 09, 2009 at 05:20:35PM +0800, Keng-Yu Lin wrote:
-> OriginalAuthor: Moiseev Vladimir <cdb@linkycat.com>, Alexander Huhlaev <sancheolz@gmail.com>
-> BugLink: http://bugs.launchpad.net/bugs/253874
+On Thu, Sep 10, 2009 at 06:21:31PM +0100, Matthew Garrett wrote:
+> Most laptops have keys that are intended to toggle all device state, not
+> just wifi. These are currently generally mapped to KEY_WLAN. As a result,
+> rfkill will only kill or enable wifi in response to the key press. This
+> confuses users and can make it difficult for them to enable bluetooth
+> and wwan devices.
 > 
-> Add quirk for Samsung R59P/R60P/R61P to make the hotkeys work
+> This patch adds a new keycode, KEY_RFKILL_ALL. It indicates that the
+
+The new name in description does not match the code...
+
+> system should toggle the state of all rfkillable devices.
+
+Hmm, rfkill changes usually go through net tree so unless they want me
+to push it though I'll just ACK the new keycode.
+
 > 
+> Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-I will not be accepting any more patches adding the force-release quirks
-to atkbd, in .32 there will be a way to adjust the bitmap through sysfs.
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
-Thanks.
+> ---
+>  include/linux/input.h |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 8b3bc3e..20a622e 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -595,6 +595,8 @@ struct input_absinfo {
+>  #define KEY_NUMERIC_STAR	0x20a
+>  #define KEY_NUMERIC_POUND	0x20b
+>  
+> +#define KEY_RFKILL		0x20c /* Key that controls all radios */
+> +
+>  /* We avoid low common keys in module aliases so they don't get huge. */
+>  #define KEY_MIN_INTERESTING	KEY_MUTE
+>  #define KEY_MAX			0x2ff
 
 -- 
 Dmitry

@@ -1,71 +1,38 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH] Input: ad7879: add support for AD7889
-Date: Mon, 14 Sep 2009 18:19:32 -0400
-Message-ID: <1252966772-27645-1-git-send-email-vapier@gentoo.org>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757444AbZINWTc@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Input: ad7879: add support for
+	AD7889
+Date: Mon, 14 Sep 2009 16:09:18 -0700
+Message-ID: <20090914230918.GA31662@core.coreip.homeip.net>
+References: <1252966772-27645-1-git-send-email-vapier@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1252966772-27645-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+On Mon, Sep 14, 2009 at 06:19:32PM -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> 
+> The AD7889 is a new part but 100% software compatible with the AD7879, so
+> add it to the id_table and help text.
+> 
+> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
 
-The AD7889 is a new part but 100% software compatible with the AD7879, so
-add it to the id_table and help text.
+Applied, thank you Mike.
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
- drivers/input/touchscreen/Kconfig  |    6 +++---
- drivers/input/touchscreen/ad7879.c |    6 ++++--
- 2 files changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 72e2712..be5e9f6 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -48,8 +48,8 @@ config TOUCHSCREEN_AD7879_I2C
- 	select TOUCHSCREEN_AD7879
- 	help
- 	  Say Y here if you have a touchscreen interface using the
--	  AD7879-1 controller, and your board-specific initialization
--	  code includes that in its table of I2C devices.
-+	  AD7879-1/AD7889-1 controller, and your board-specific
-+	  initialization code includes that in its table of I2C devices.
- 
- 	  If unsure, say N (but it's safe to say "Y").
- 
-@@ -62,7 +62,7 @@ config TOUCHSCREEN_AD7879_SPI
- 	select TOUCHSCREEN_AD7879
- 	help
- 	  Say Y here if you have a touchscreen interface using the
--	  AD7879 controller, and your board-specific initialization
-+	  AD7879/AD7889 controller, and your board-specific initialization
- 	  code includes that in its table of SPI devices.
- 
- 	  If unsure, say N (but it's safe to say "Y").
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index 5d8a703..8064641 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -1,7 +1,8 @@
- /*
-- * Copyright (C) 2008 Michael Hennerich, Analog Devices Inc.
-+ * Copyright (C) 2008-2009 Michael Hennerich, Analog Devices Inc.
-  *
-- * Description:	AD7879 based touchscreen, and GPIO driver (I2C/SPI Interface)
-+ * Description:	AD7879/AD7889 based touchscreen, and GPIO driver
-+ *		(I2C/SPI Interface)
-  *
-  * Bugs:        Enter bugs at http://blackfin.uclinux.org/
-  *
-@@ -747,6 +748,7 @@ static int __devexit ad7879_remove(struct i2c_client *client)
- 
- static const struct i2c_device_id ad7879_id[] = {
- 	{ "ad7879", 0 },
-+	{ "ad7889", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, ad7879_id);
 -- 
-1.6.4.2
+Dmitry

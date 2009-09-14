@@ -1,29 +1,54 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH v2] input/keyboard: new OpenCores Keyboard Controller
- driver
-Date: Mon, 14 Sep 2009 00:25:29 -0700
-Message-ID: <1252913129.4400.247.camel@Joe-Laptop.home>
-References: <1252894678-26929-1-git-send-email-vapier@gentoo.org>
-	 <1252911864-19233-1-git-send-email-vapier@gentoo.org>
+From: Xiangfu Liu <xiangfu@qi-hardware.com>
+Subject: keyboard driver
+Date: Mon, 14 Sep 2009 16:05:30 +0800
+Message-ID: <4AADF94A.3040800@qi-hardware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.perches.com ([173.55.12.10]:1150 "EHLO mail.perches.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751193AbZINHZ0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 03:25:26 -0400
-In-Reply-To: <1252911864-19233-1-git-send-email-vapier@gentoo.org>
+Received: from mail-yw0-f174.google.com ([209.85.211.174]:45245 "EHLO
+	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752996AbZINIFb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2009 04:05:31 -0400
+Received: by ywh4 with SMTP id 4so3928808ywh.5
+        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2009 01:05:33 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <cooloney@kernel.org>
+To: "Hard- and Software Development, Kernel, Distribution, Roadmap" <developer@lists.qi-hardware.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 2009-09-14 at 03:04 -0400, Mike Frysinger wrote:
-> From: Javier Herrero <jherrero@hvsistemas.es>
-> +#define pr_fmt(fmt) DRV_NAME ": " fmt
+Hi
 
-perhaps:
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+some problem need fix in keyboard driver
+like:
+
+a	w	u
+|	|	|
+|	s	j
+|	|	|
+Shift	Alt	Ctrl
+
+press	=	output
+1. [Shift] + [w] = W
+2. [Shift] + [u] = U
+3. a = a
+-----------
+1. [Shift] + [a] = a
+2. a = A
+3. a = a
+-----------
+
+so problem is: if the keys and modifier in same column it's will not 
+correct generate the keys at the first time.
+
+any one have some idea on this?
+[1] is the diff. [2] is the keypad picture.
+
+seems if I want make the [Fn] keys work
+I must look into the driver code. because there is only [SHIFT]
+[CONTROL] [ALTGR] three modifier keys.
 
 
+[1] http://projects.qi-hardware.com/index.php/p/openwrt-xburst/source/commit/1035dea0049c584b82d60643d0c4f56881e97866/
+[2] http://downloads.qi-hardware.com/hardware/mechanical/ben/2009_08_26/keyboard_problem_2.JPG

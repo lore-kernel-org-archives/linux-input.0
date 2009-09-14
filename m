@@ -1,73 +1,85 @@
-From: Jaswinder Singh Rajput <jaswinder@kernel.org>
-Subject: Re: [PATCH] Input: bcm5974.c initialize raw_w, raw_x and raw_y
- before it get used
-Date: Mon, 14 Sep 2009 14:30:53 +0530
-Message-ID: <1252918853.3123.5.camel@ht.satnam>
-References: <1252775770.3687.7.camel@ht.satnam>
-	 <4AAC2DBE.9040303@bitmath.org> <1252830690.3440.5.camel@ht.satnam>
-	 <4AACD9E9.4000702@bitmath.org>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] HAPTIC: add HAPTIC class
+Date: Mon, 14 Sep 2009 16:05:52 +0530
+Message-ID: <5d5443650909140335h6a81c684h2846c5365e144425@mail.gmail.com>
+References: <4AA62BFF.2050703@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hera.kernel.org ([140.211.167.34]:43140 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755279AbZINJBC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 05:01:02 -0400
-In-Reply-To: <4AACD9E9.4000702@bitmath.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754950AbZINKf5@vger.kernel.org>
+In-Reply-To: <4AA62BFF.2050703@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kmpark@infradead.org, dg77.kim@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
-Hello Henrik,
+Hi Kyungmin Park,
 
-On Sun, 2009-09-13 at 13:39 +0200, Henrik Rydberg wrote:
-> Jaswinder Singh Rajput wrote:
-> > On Sun, 2009-09-13 at 01:24 +0200, Henrik Rydberg wrote:
-> >> Jaswinder Singh Rajput wrote:
-> >>> raw_w, raw_x and raw_y is used uninitialized for !raw_n
-> >> Thanks for the heads up, but actually not, since !raw_n also implies
-> >> !(ptest > PRESSURE_LOW).
-> >>
-> > 
-> > Then can we move 'if (ptest > PRESSURE_LOW && origin)' stuff to 'if
-> > (raw_n)'. If not then my patch is correct.
-> 
-> Yes, that's it, thanks. So this patch ought to solve the warning cleanly:
+> +
+> +static ssize_t haptic_value_store(struct device *dev,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct device_attribute *attr, const ch=
+ar *buf, size_t size)
+> +{
+> + =A0 =A0 =A0 struct haptic_classdev *haptic_cdev =3D dev_get_drvdata=
+(dev);
+> + =A0 =A0 =A0 ssize_t ret =3D -EINVAL;
+> + =A0 =A0 =A0 char *after;
+> + =A0 =A0 =A0 unsigned long state =3D simple_strtoul(buf, &after, 10)=
+;
 
-hmm, even then there is room for improvement and save some cpu cycles :
+s/simple_strtoul/strict_strtoul. code looks clean, but let's scan it
+through scripts/checkpatch.pl.
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 2d8fc0b..21ea2e3 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -316,8 +316,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 	const struct bcm5974_config *c = &dev->cfg;
- 	const struct tp_finger *f;
- 	struct input_dev *input = dev->input;
--	int raw_p, raw_w, raw_x, raw_y, raw_n;
--	int ptest = 0, origin = 0, ibt = 0, nmin = 0, nmax = 0;
-+	int raw_n, ibt = 0, nmin = 0, nmax = 0;
- 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
- 
- 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
-@@ -329,6 +328,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 
- 	/* always track the first finger; when detached, start over */
- 	if (raw_n) {
-+		int raw_p, raw_w, raw_x, raw_y;
-+		int ptest, origin;
-+
- 		raw_p = raw2int(f->force_major);
- 		raw_w = raw2int(f->size_major);
- 		raw_x = raw2int(f->abs_x);
+> diff --git a/drivers/haptic/haptic.h b/drivers/haptic/haptic.h
+> new file mode 100644
+> index 0000000..888aaa3
+> --- /dev/null
+> +++ b/drivers/haptic/haptic.h
+> @@ -0,0 +1,35 @@
+> +/*
+> + * =A0Haptic Core
+> + *
+> + * =A0Copyright (C) 2008 Samsung Electronics
+> + * =A0Kyungmin Park <kyungmin.park@samsung.com>
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + */
+> +
+> +#ifndef __HAPTIC_H_INCLUDED
+> +#define __HAPTIC_H_INCLUDED
+> +
+> +#include <linux/device.h>
+> +#include <linux/rwsem.h>
+> +#include <linux/haptic.h>
+> +
+> +static inline void haptic_set_value(struct haptic_classdev *haptic_c=
+dev,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 enum haptic_value value)
+> +{
+> + =A0 =A0 =A0 if (value > HAPTIC_FULL)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 value =3D HAPTIC_FULL;
+> + =A0 =A0 =A0 haptic_cdev->value =3D value;
+> + =A0 =A0 =A0 if (!(haptic_cdev->flags & HAPTIC_SUSPENDED))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 haptic_cdev->set(haptic_cdev, value);
+> +}
+> +
+> +static inline int haptic_get_value(struct haptic_classdev *haptic_cd=
+ev)
+> +{
+> + =A0 =A0 =A0 return haptic_cdev->value;
+> +}
+
+You had mentioned in Kconfig help text that haptics set/get APIs can
+be accessed from kernel drivers too, I am not able to understand that
+from this code.
 
 
-And by changing little bit programming logic you can also reduce
-variable count and save some more cpu cycles.
-
-Thanks,
---
-JSR
-
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

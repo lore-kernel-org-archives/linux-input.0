@@ -1,231 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.32-rc0
-Date: Sun, 13 Sep 2009 21:24:44 -0700
-Message-ID: <20090914042444.GA21967@core.coreip.homeip.net>
+Subject: Re: [PATCH] Input: bcm5974.c initialize raw_w, raw_x and raw_y
+	before it get used
+Date: Sun, 13 Sep 2009 21:37:14 -0700
+Message-ID: <20090914043714.GB11854@core.coreip.homeip.net>
+References: <1252775770.3687.7.camel@ht.satnam> <4AAC2DBE.9040303@bitmath.org> <1252830690.3440.5.camel@ht.satnam> <4AACD9E9.4000702@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:36161 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750753AbZINEYq (ORCPT
+Received: from mail-pz0-f184.google.com ([209.85.222.184]:45371 "EHLO
+	mail-pz0-f184.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1749667AbZINEhQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 00:24:46 -0400
+	Mon, 14 Sep 2009 00:37:16 -0400
+Received: by pzk14 with SMTP id 14so2322380pzk.1
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2009 21:37:20 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <4AACD9E9.4000702@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Jaswinder Singh Rajput <jaswinder@kernel.org>, linux-input@vger.kernel.org
 
-Hi Linus,
+On Sun, Sep 13, 2009 at 01:39:21PM +0200, Henrik Rydberg wrote:
+> Jaswinder Singh Rajput wrote:
+> > On Sun, 2009-09-13 at 01:24 +0200, Henrik Rydberg wrote:
+> >> Jaswinder Singh Rajput wrote:
+> >>> raw_w, raw_x and raw_y is used uninitialized for !raw_n
+> >> Thanks for the heads up, but actually not, since !raw_n also implies
+> >> !(ptest > PRESSURE_LOW).
+> >>
+> > 
+> > Then can we move 'if (ptest > PRESSURE_LOW && origin)' stuff to 'if
+> > (raw_n)'. If not then my patch is correct.
+> 
+> Yes, that's it, thanks. So this patch ought to solve the warning cleanly:
+> 
 
-Please pull from:
+Yes, I like this one much better, applied.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> >>
+> >>
+> >> I wonder how many cpu cycles in the world are spent making compilers happy.
+> >>
+> > 
+> > It is not compiler mistake it is programming/logic mistakes. We should
+> > be thankful to compiler to pointing mistakes made by us.
+> 
 
-to receive updates for the input subsystem.
+Except in cases when the compiler is wrong...
 
-Changelog:
----------
+> The uninitialized-variable warnings have certainly proved their value many times
+> over. I was merely reflecting over the fact that the enclosing space of all such
+> errors could be made smaller by deduction at compile time.
+> 
 
-Corbin Simpson (1):
-      Input: xpad - add USB ID for the drumkit controller from Rock Ban=
-d
-
-Daniel Mack (1):
-      Input: eeti_ts - allow active high irq lines
-
-David Brownell (2):
-      Input: dm355evm_keys - use threaded IRQs
-      Input: add twl4030_keypad driver
-
-Dmitry Torokhov (26):
-      Input: sh_keysc - allow modifying keymap from userspace
-      Input: pxa27x_keypad - remove extra clk_disable
-      Driver Core: Make PM operations a const pointer
-      Input: i8042 - switch to using dev_pm_ops
-      Input: serio - switch to using dev_pm_ops
-      Input: pxa27x_keypad - switch to using dev_pm_ops
-      Input: tsc2007 - properly shut off interrupts/delayed work
-      Input: tsc2007 - make get_pendown_state platform callback optiona=
-l
-      Input: serio - don't use serio->write() directly
-      Input: wistron_btns - switch to using dev_pm_ops
-      Input: hil_kbd - switch to use completion instead of semaphore
-      Input: hil_kbd - prepare for merging with hil_ptr
-      Input: combine hil_kbd and hil_ptr drivers
-      Input: w90p910_keypad - adjust to use definitions from matrix_key=
-pad.h
-      Input: psmouse - allow defining read-only attributes
-      Input: matrix-keypad - add function to build device keymap
-      Input: atkbd - allow setting force-release bitmap via sysfs
-      Input: wacom_w8001 - simplify querying logic
-      Input: i8042 - bypass AUX IRQ delivery test on laptops
-      Input: sunkbd - fix formatting
-      Input: pxa27x_keypad - allow modifying keymap from userspace
-      Input: i8042 - try disabling and re-enabling AUX port at close
-      Input: i8042 - use boolean type where it makes sense
-      Input: i8042 - use platform_driver_probe
-      Input: psmouse - use boolean type
-      Input: wistron_btns - add keymap for AOpen 1557
-
-=46lorian Echtler (1):
-      Input: usbtouchscreen - add support for e2i touchscreen controlle=
-r
-
-Hans J. Koch (1):
-      Input: ucb1400_ts - fix a misleading function name
-
-Henrik Rydberg (1):
-      Input: bcm5974 - silence uninitialized variables warnings
-
-Jim Persson (1):
-      Input: usbtouchscreen - support for JASTEC/DigiTech DTR-02U USB t=
-ouch controllers
-
-Julia Lawall (2):
-      Input: use resource_size when allocating resources
-      Input: w90p910_keypad - move a dereference below a NULL test
-
-Marek Vasut (2):
-      Input: wm97xx - add Palm support to Mainstone accelerated touch
-      Input: wm97xx - add possibility to control the GPIO_STATUS shift
-
-Michael Hennerich (1):
-      Input: add Blackfin rotary input driver
-
-Mike Frysinger (1):
-      Input: bf54x-keys - convert printk() to dev_*()
-
-Mike Rapoport (1):
-      Input: gpio_keys - swtich to dev_pm_ops
-
-Paul Fox (1):
-      Input: hgpk - forced recalibration for the OLPC touchpad
-
-Richard R=F6jfors (4):
-      Input: tsc2007 - remove HR timer
-      Input: tsc2007 - make init/exit platform hw callbacks optional
-      Input: tsc2007 - do not read coordinates during probe
-      Input: tsc2007 - check if I2C communication works during probe
-
-Roel Kluin (1):
-      Input: tosakbd - fix cleaning up KEY_STROBEs after error
-
-Stephen Kitt (1):
-      Input: joydev - validate axis/button maps before clobbering curre=
-nt ones
-
-Tai-hwa Liang (1):
-      Input: add new driver for Sentelic Finger Sensing Pad
-
-Wan ZongShun (3):
-      Input: w90p910_ts - use clk API
-      Input: add keypad driver for w90p910
-      Input: w90p910_keypad - rename driver name to match platform
-
-
-Diffstat:
---------
-
- Documentation/input/sentelic.txt                   |  475 +++++++++++
- arch/arm/mach-pxa/include/mach/pxa27x_keypad.h     |    7 +-
- .../arm/mach-w90x900/include/mach/w90p910_keypad.h |   15 +
- arch/blackfin/include/asm/bfin_rotary.h            |   39 +
- drivers/base/platform.c                            |    2 +-
- drivers/base/power/main.c                          |    8 +-
- drivers/input/joydev.c                             |  106 ++-
- drivers/input/joystick/xpad.c                      |    2 +
- drivers/input/keyboard/Kconfig                     |   26 +-
- drivers/input/keyboard/Makefile                    |    2 +
- drivers/input/keyboard/atkbd.c                     |   43 +-
- drivers/input/keyboard/bf54x-keys.c                |   26 +-
- drivers/input/keyboard/gpio_keys.c                 |   19 +-
- drivers/input/keyboard/hil_kbd.c                   |  607 +++++++++---=
---
- drivers/input/keyboard/lkkbd.c                     |   62 +-
- drivers/input/keyboard/matrix_keypad.c             |   15 +-
- drivers/input/keyboard/pxa27x_keypad.c             |  217 +++---
- drivers/input/keyboard/sh_keysc.c                  |   22 +-
- drivers/input/keyboard/sunkbd.c                    |  142 ++--
- drivers/input/keyboard/tosakbd.c                   |   18 +-
- drivers/input/keyboard/twl4030_keypad.c            |  480 +++++++++++
- drivers/input/keyboard/w90p910_keypad.c            |  281 +++++++
- drivers/input/misc/Kconfig                         |   10 +
- drivers/input/misc/Makefile                        |    1 +
- drivers/input/misc/bfin_rotary.c                   |  283 +++++++
- drivers/input/misc/cobalt_btns.c                   |    2 +-
- drivers/input/misc/dm355evm_keys.c                 |   42 +-
- drivers/input/misc/wistron_btns.c                  |   84 ++-
- drivers/input/mouse/Kconfig                        |   16 +-
- drivers/input/mouse/Makefile                       |    2 +-
- drivers/input/mouse/alps.c                         |   20 +-
- drivers/input/mouse/alps.h                         |    4 +-
- drivers/input/mouse/bcm5974.c                      |   31 +-
- drivers/input/mouse/elantech.c                     |    2 +-
- drivers/input/mouse/elantech.h                     |    4 +-
- drivers/input/mouse/hgpk.c                         |   61 ++-
- drivers/input/mouse/hgpk.h                         |    6 +-
- drivers/input/mouse/hil_ptr.c                      |  447 ----------
- drivers/input/mouse/lifebook.c                     |    8 +-
- drivers/input/mouse/lifebook.h                     |    4 +-
- drivers/input/mouse/logips2pp.c                    |   41 +-
- drivers/input/mouse/logips2pp.h                    |    4 +-
- drivers/input/mouse/psmouse-base.c                 |  113 ++-
- drivers/input/mouse/psmouse.h                      |   30 +-
- drivers/input/mouse/sentelic.c                     |  867 ++++++++++++=
-++++++++
- drivers/input/mouse/sentelic.h                     |   98 +++
- drivers/input/mouse/synaptics.c                    |   34 +-
- drivers/input/mouse/synaptics.h                    |    2 +-
- drivers/input/mouse/touchkit_ps2.c                 |    4 +-
- drivers/input/mouse/touchkit_ps2.h                 |    4 +-
- drivers/input/mouse/trackpoint.c                   |    2 +-
- drivers/input/mouse/trackpoint.h                   |    4 +-
- drivers/input/mouse/vsxxxaa.c                      |    8 +-
- drivers/input/serio/at32psif.c                     |    2 +-
- drivers/input/serio/i8042-x86ia64io.h              |   71 ++-
- drivers/input/serio/i8042.c                        |  242 ++++---
- drivers/input/serio/libps2.c                       |   15 +-
- drivers/input/serio/serio.c                        |   23 +-
- drivers/input/touchscreen/Kconfig                  |   16 +-
- drivers/input/touchscreen/atmel_tsadcc.c           |    8 +-
- drivers/input/touchscreen/eeti_ts.c                |   22 +-
- drivers/input/touchscreen/h3600_ts_input.c         |    9 +-
- drivers/input/touchscreen/mainstone-wm97xx.c       |   53 +-
- drivers/input/touchscreen/tsc2007.c                |  264 +++---
- drivers/input/touchscreen/ucb1400_ts.c             |    5 +-
- drivers/input/touchscreen/usbtouchscreen.c         |   81 ++
- drivers/input/touchscreen/w90p910_ts.c             |   34 +-
- drivers/input/touchscreen/wacom_w8001.c            |  121 +--
- drivers/input/touchscreen/wm97xx-core.c            |    6 +-
- drivers/pci/pci-driver.c                           |   16 +-
- include/linux/device.h                             |    9 +-
- include/linux/i2c/twl4030.h                        |   19 +-
- include/linux/input/eeti_ts.h                      |    9 +
- include/linux/input/matrix_keypad.h                |   32 +
- include/linux/libps2.h                             |    1 +
- include/linux/serio.h                              |    2 -
- include/linux/wm97xx.h                             |    7 +
- 77 files changed, 4347 insertions(+), 1572 deletions(-)
- create mode 100644 Documentation/input/sentelic.txt
- create mode 100644 arch/arm/mach-w90x900/include/mach/w90p910_keypad.h
- create mode 100644 arch/blackfin/include/asm/bfin_rotary.h
- create mode 100644 drivers/input/keyboard/twl4030_keypad.c
- create mode 100644 drivers/input/keyboard/w90p910_keypad.c
- create mode 100644 drivers/input/misc/bfin_rotary.c
- delete mode 100644 drivers/input/mouse/hil_ptr.c
- create mode 100644 drivers/input/mouse/sentelic.c
- create mode 100644 drivers/input/mouse/sentelic.h
- create mode 100644 include/linux/input/eeti_ts.h
-
---=20
+-- 
 Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

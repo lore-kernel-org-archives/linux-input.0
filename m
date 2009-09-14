@@ -1,116 +1,43 @@
-From: John Ogness <john.ogness@linutronix.de>
-Subject: [PATCH] macintosh/hid: keycode-mapping for left click
-Date: Mon, 14 Sep 2009 22:33:20 +0200
-Message-ID: <80pr9tz2pb.fsf@merkur.tec.linutronix.de>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH 0/3] Generic suspend/resume for input devices
+Date: Tue, 15 Sep 2009 00:11:46 +0200
+Message-ID: <200909150011.46690.rjw@sisk.pl>
+References: <20090911054210.27150.93405.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:53916 "EHLO www.tglx.de"
+Received: from ogre.sisk.pl ([217.79.144.158]:55604 "EHLO ogre.sisk.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753255AbZINUd4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 16:33:56 -0400
+	id S1755116AbZINWKo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2009 18:10:44 -0400
+In-Reply-To: <20090911054210.27150.93405.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: Franz.Sirl-kernel@lauterbach.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+
+On Friday 11 September 2009, Dmitry Torokhov wrote:
+> Hi,
 
 Hi,
 
-This patch adds support for mapping the left mouse button to a
-keycode. The driver already mapped the middle and right buttons.
+Sorry for the delayed response.
 
-Since the single mouse-button on my Apple laptop broke, I figured the
-driver might as well support all three buttons. Now I can keep using my
-laptop without problems.
+> The following patches implement generic suspend and resume for
+> input devices. As part of the suspend sequence input core will
+> turn off leds and bell (if they were active) and upon resume the
+> state of the leds, sound effects and repeat rate/delay will be
+> restored without requiring and special handling in individual
+> drivers.
+> 
+> The change required some additional locking in i8042/libps2 and
+> while I don't particularly like it the positive thing is that
+> the change should allow switching serio to the asynchronous
+> suspend and resume, i8042 should be able to handle it now.
 
-The patch is against 2.6.31.
+FWIW, the patches look good to me, thanks for taking care of this!
 
-John Ogness
-
-(I do not belong to either linux-input or linux-kernel mailing lists, so
-please reply directly. Thanks.)
-
-
-Signed off by: <john.ogness@linutronix.de>
----
- drivers/macintosh/mac_hid.c |   24 ++++++++++++++++++++----
- include/linux/sysctl.h      |    3 ++-
- kernel/sysctl_check.c       |    1 +
- 3 files changed, 23 insertions(+), 5 deletions(-)
-Index: linux-2.6.31/drivers/macintosh/mac_hid.c
-===================================================================
---- linux-2.6.31.orig/drivers/macintosh/mac_hid.c
-+++ linux-2.6.31/drivers/macintosh/mac_hid.c
-@@ -19,6 +19,7 @@
- static struct input_dev *emumousebtn;
- static int emumousebtn_input_register(void);
- static int mouse_emulate_buttons;
-+static int mouse_button1_keycode;			/* no default */
- static int mouse_button2_keycode = KEY_RIGHTCTRL;	/* right control key */
- static int mouse_button3_keycode = KEY_RIGHTALT;	/* right option key */
- static int mouse_last_keycode;
-@@ -35,6 +36,14 @@ static ctl_table mac_hid_files[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- 	{
-+		.ctl_name	= DEV_MAC_HID_MOUSE_BUTTON1_KEYCODE,
-+		.procname	= "mouse_button1_keycode",
-+		.data		= &mouse_button1_keycode,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
- 		.ctl_name	= DEV_MAC_HID_MOUSE_BUTTON2_KEYCODE,
- 		.procname	= "mouse_button2_keycode",
- 		.data		= &mouse_button2_keycode,
-@@ -87,12 +96,19 @@ int mac_hid_mouse_emulate_buttons(int ca
- 	case 1:
- 		/* Called from keyboard.c */
- 		if (mouse_emulate_buttons
--		    && (keycode == mouse_button2_keycode
-+		    && ((keycode == mouse_button1_keycode
-+			 && mouse_button1_keycode)
-+			|| keycode == mouse_button2_keycode
- 			|| keycode == mouse_button3_keycode)) {
- 			if (mouse_emulate_buttons == 1) {
--				input_report_key(emumousebtn,
--						 keycode == mouse_button2_keycode ? BTN_MIDDLE : BTN_RIGHT,
--						 down);
-+				unsigned int code;
-+				if (keycode == mouse_button1_keycode)
-+					code = BTN_LEFT;
-+				else if (keycode == mouse_button2_keycode)
-+					code = BTN_MIDDLE;
-+				else
-+					code = BTN_RIGHT;
-+				input_report_key(emumousebtn, code, down);
- 				input_sync(emumousebtn);
- 				return 1;
- 			}
-Index: linux-2.6.31/include/linux/sysctl.h
-===================================================================
---- linux-2.6.31.orig/include/linux/sysctl.h
-+++ linux-2.6.31/include/linux/sysctl.h
-@@ -916,7 +916,8 @@ enum {
- 	DEV_MAC_HID_MOUSE_BUTTON_EMULATION=3,
- 	DEV_MAC_HID_MOUSE_BUTTON2_KEYCODE=4,
- 	DEV_MAC_HID_MOUSE_BUTTON3_KEYCODE=5,
--	DEV_MAC_HID_ADB_MOUSE_SENDS_KEYCODES=6
-+	DEV_MAC_HID_ADB_MOUSE_SENDS_KEYCODES=6,
-+	DEV_MAC_HID_MOUSE_BUTTON1_KEYCODE=7,
- };
- 
- /* /proc/sys/dev/scsi */
-Index: linux-2.6.31/kernel/sysctl_check.c
-===================================================================
---- linux-2.6.31.orig/kernel/sysctl_check.c
-+++ linux-2.6.31/kernel/sysctl_check.c
-@@ -816,6 +816,7 @@ static const struct trans_ctl_table tran
- 	/* DEV_MAC_HID_KEYBOARD_SENDS_LINUX_KEYCODES unused */
- 	/* DEV_MAC_HID_KEYBOARD_LOCK_KEYCODES unused */
- 	{ DEV_MAC_HID_MOUSE_BUTTON_EMULATION,	"mouse_button_emulation" },
-+	{ DEV_MAC_HID_MOUSE_BUTTON1_KEYCODE,	"mouse_button1_keycode" },
- 	{ DEV_MAC_HID_MOUSE_BUTTON2_KEYCODE,	"mouse_button2_keycode" },
- 	{ DEV_MAC_HID_MOUSE_BUTTON3_KEYCODE,	"mouse_button3_keycode" },
- 	/* DEV_MAC_HID_ADB_MOUSE_SENDS_KEYCODES unused */
+Best,
+Rafael

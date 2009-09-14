@@ -1,81 +1,56 @@
-From: Javier Herrero <jherrero@hvsistemas.es>
-Subject: Re: [PATCH v3] input/keyboard: new OpenCores Keyboard Controller
- 	driver
-Date: Mon, 14 Sep 2009 20:18:48 +0200
-Message-ID: <4AAE8908.1000104@hvsistemas.es>
-References: <1252911864-19233-1-git-send-email-vapier@gentoo.org> 	<1252950003-9451-1-git-send-email-vapier@gentoo.org> <200909141049.50705.dmitry.torokhov@gmail.com> <8bd0f97a0909141102l5fa309f4ua1bedd0f1ac99295@mail.gmail.com>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH v2 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Mon, 14 Sep 2009 11:45:47 -0700
+Message-ID: <200909141145.48252.david-b@pacbell.net>
+References: <1252951959-31015-1-git-send-email-miguel.aguilar@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933075AbZINSZf@vger.kernel.org>
-In-Reply-To: <8bd0f97a0909141102l5fa309f4ua1bedd0f1ac99295@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bryan Wu <cooloney@kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp104.sbc.mail.gq1.yahoo.com ([67.195.15.63]:26057 "HELO
+	smtp104.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755353AbZINSpr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2009 14:45:47 -0400
+In-Reply-To: <1252951959-31015-1-git-send-email-miguel.aguilar@ridgerun.com>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: davinci-linux-open-source@linux.davincidsp.com
+Cc: miguel.aguilar@ridgerun.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
 
-Hello,
+On Monday 14 September 2009, miguel.aguilar@ridgerun.com wrote:
+> +=A0=A0=A0=A0=A0=A0=A0dm365_kp =3D kzalloc(sizeof *dm365_kp, GFP_KERN=
+EL);
+> +=A0=A0=A0=A0=A0=A0=A0key_dev =3D input_allocate_device();
+> +
+> +=A0=A0=A0=A0=A0=A0=A0if (!dm365_kp || !key_dev) {
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0dev_dbg(dev, "Could not=
+ allocate input device\n");
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -ENOMEM;
+> +=A0=A0=A0=A0=A0=A0=A0}
 
-It has a bit long since last time I touched the driver, so I should als=
-o=20
-try to refresh my memory about it :). I suppose that you're right in th=
-e=20
-double allocation issue (I took another keyboard driver as a starting=20
-point and probably the double allocation was already there...), so feel=
-=20
-free to introduce the change and I will test it as soon as I can.
+Can still leak the kzalloc'ed data...
 
-About the exact scancode - key mapping, the reason is that since the=20
-=46PGA opencores device already implements a translation table, I found=
-=20
-that another translation table sounded a bit redundant.
 
-Best regards,
+> +=A0=A0=A0=A0=A0=A0=A0dm365_kp->irq =3D platform_get_irq(pdev, 0);
+> +=A0=A0=A0=A0=A0=A0=A0if (dm365_kp->irq <=3D 0) {
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0dev_dbg(dev, "%s: No DM=
+365 Keypad irq\n", pdev->name);
+> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto fail1;
+> +=A0=A0=A0=A0=A0=A0=A0}
 
-Javier
+Still discards the true fault codes here and later ...
 
-Mike Frysinger escribi=C3=B3:
-> On Mon, Sep 14, 2009 at 13:49, Dmitry Torokhov wrote:
->> On Monday 14 September 2009 10:40:03 am Mike Frysinger wrote:
->>> +struct opencores_kbd {
->>> +     struct input_dev *input;
->>> +     struct resource *addr_res;
->>> +     struct resource *irq_res;
->>> +     unsigned short *keycode;
->>> +};
->> Why do we allocate keycode table separately form the main structure?
->
-> the double alloc looked a little funny, but i didnt dive deep into th=
-e
-> details.  but as you point this out, it seems to make sense to me.
-> any problems with that change Javier ?
->
-> i.e. we do:
-> struct ... { ... unsigned short keycode[NUM_KEYS]; }
-> rather than doing two calls to kmalloc
->
->> I think I still have some reservations with the notion that we can j=
-ust
->> have exact "scancode" - KEY_* mapping and hardware producers will ad=
-just
->> the hardware to follow the deriver but I guess it's OK...
->
-> considering this is a piece of "hardware" implemented in FPGAs, i
-> think it's ok too.  if someone really needs more flexibility, then
-> they're free to extend the driver and submit a patch :).
-> -mike
->
->
 
---=20
------------------------------------------------------------------------=
--
-Javier Herrero                            EMAIL: jherrero@hvsistemas.co=
-m
-HV Sistemas S.L.                          PHONE:         +34 949 336 80=
-6
-Los Charcones, 17A                        FAX:           +34 949 336 79=
-2
-19170 El Casar - Guadalajara - Spain      WEB: http://www.hvsistemas.co=
-m
+> +=A0=A0=A0=A0=A0=A0=A0printk(KERN_INFO "DaVinci DM365 Keypad Driver\n=
+");
+
+Nicer not to have such banners; a dev_info() in probe() is
+better and won't show on boards where this driver isn't used.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

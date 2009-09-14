@@ -1,85 +1,240 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] HAPTIC: add HAPTIC class
-Date: Mon, 14 Sep 2009 16:05:52 +0530
-Message-ID: <5d5443650909140335h6a81c684h2846c5365e144425@mail.gmail.com>
-References: <4AA62BFF.2050703@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754950AbZINKf5@vger.kernel.org>
-In-Reply-To: <4AA62BFF.2050703@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kmpark@infradead.org, dg77.kim@samsung.com
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: [PATCH v3] input/keyboard: new OpenCores Keyboard Controller driver
+Date: Mon, 14 Sep 2009 13:40:03 -0400
+Message-ID: <1252950003-9451-1-git-send-email-vapier@gentoo.org>
+References: <1252911864-19233-1-git-send-email-vapier@gentoo.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.gentoo.org ([140.211.166.183]:57711 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750749AbZINRkB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2009 13:40:01 -0400
+In-Reply-To: <1252911864-19233-1-git-send-email-vapier@gentoo.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <cooloney@kernel.org>
 
-Hi Kyungmin Park,
+From: Javier Herrero <jherrero@hvsistemas.es>
 
-> +
-> +static ssize_t haptic_value_store(struct device *dev,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct device_attribute *attr, const ch=
-ar *buf, size_t size)
-> +{
-> + =A0 =A0 =A0 struct haptic_classdev *haptic_cdev =3D dev_get_drvdata=
-(dev);
-> + =A0 =A0 =A0 ssize_t ret =3D -EINVAL;
-> + =A0 =A0 =A0 char *after;
-> + =A0 =A0 =A0 unsigned long state =3D simple_strtoul(buf, &after, 10)=
-;
+Driver for the keyboard hardware documented here:
+	http://www.opencores.org/project,keyboardcontroller
 
-s/simple_strtoul/strict_strtoul. code looks clean, but let's scan it
-through scripts/checkpatch.pl.
+Signed-off-by: Javier Herrero <jherrero@hvsistemas.es>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+v3
+	- use KBUILD_MODNAME pointed out by Joe Perches
 
-> diff --git a/drivers/haptic/haptic.h b/drivers/haptic/haptic.h
-> new file mode 100644
-> index 0000000..888aaa3
-> --- /dev/null
-> +++ b/drivers/haptic/haptic.h
-> @@ -0,0 +1,35 @@
-> +/*
-> + * =A0Haptic Core
-> + *
-> + * =A0Copyright (C) 2008 Samsung Electronics
-> + * =A0Kyungmin Park <kyungmin.park@samsung.com>
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + */
-> +
-> +#ifndef __HAPTIC_H_INCLUDED
-> +#define __HAPTIC_H_INCLUDED
-> +
-> +#include <linux/device.h>
-> +#include <linux/rwsem.h>
-> +#include <linux/haptic.h>
-> +
-> +static inline void haptic_set_value(struct haptic_classdev *haptic_c=
-dev,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 enum haptic_value value)
-> +{
-> + =A0 =A0 =A0 if (value > HAPTIC_FULL)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 value =3D HAPTIC_FULL;
-> + =A0 =A0 =A0 haptic_cdev->value =3D value;
-> + =A0 =A0 =A0 if (!(haptic_cdev->flags & HAPTIC_SUSPENDED))
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 haptic_cdev->set(haptic_cdev, value);
-> +}
-> +
-> +static inline int haptic_get_value(struct haptic_classdev *haptic_cd=
-ev)
-> +{
-> + =A0 =A0 =A0 return haptic_cdev->value;
-> +}
+ drivers/input/keyboard/Kconfig         |    9 ++
+ drivers/input/keyboard/Makefile        |    1 +
+ drivers/input/keyboard/opencores-kbd.c |  165 ++++++++++++++++++++++++++++++++
+ 3 files changed, 175 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/opencores-kbd.c
 
-You had mentioned in Kconfig help text that haptics set/get APIs can
-be accessed from kernel drivers too, I am not able to understand that
-from this code.
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index a6b989a..f0f4852 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -310,6 +310,15 @@ config KEYBOARD_SUNKBD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sunkbd.
+ 
++config KEYBOARD_OPENCORES
++	tristate "OpenCores Keyboard Controller"
++	help
++	  Say Y here if you want to use the OpenCores Keyboard Controller
++	  http://www.opencores.org/project,keyboardcontroller
++
++	  To compile this driver as a module, choose M here; the
++	  module will be called opencores-kbd.
++
+ config KEYBOARD_SH_KEYSC
+ 	tristate "SuperH KEYSC keypad support"
+ 	depends on SUPERH
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index b5b5eae..d333bc6 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -23,6 +23,7 @@ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
++obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+ obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
+ obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
+ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
+new file mode 100644
+index 0000000..be74ebb
+--- /dev/null
++++ b/drivers/input/keyboard/opencores-kbd.c
+@@ -0,0 +1,165 @@
++/*
++ * OpenCores Keyboard Controller Driver
++ * http://www.opencores.org/project,keyboardcontroller
++ *
++ * Copyright 2007-2009 HV Sistemas S.L.
++ *
++ * Licensed under the GPL-2 or later.
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/ioport.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++#define NUM_KEYS 128
++
++struct opencores_kbd {
++	struct input_dev *input;
++	struct resource *addr_res;
++	struct resource *irq_res;
++	unsigned short *keycode;
++};
++
++static irqreturn_t opencores_kbd_isr(int irq, void *dev_id)
++{
++	unsigned char c;
++	struct platform_device *pdev = dev_id;
++	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
++	struct input_dev *input = opencores_kbd->input;
++
++	c = readb((void *)opencores_kbd->addr_res->start);
++	input_report_key(input, c & 0x7f, c & 0x80 ? 0 : 1);
++	input_sync(input);
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit opencores_kbd_probe(struct platform_device *pdev)
++{
++	struct input_dev *input;
++	struct opencores_kbd *opencores_kbd;
++	struct resource *addr_res, *irq_res;
++	int i, error;
++
++	addr_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	irq_res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (addr_res == NULL || irq_res == NULL) {
++		pr_err("missing board resources\n");
++		return -ENOENT;
++	}
++
++	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
++	if (!opencores_kbd)
++		return -ENOMEM;
++
++	opencores_kbd->keycode = kmalloc(NUM_KEYS * sizeof(unsigned short), GFP_KERNEL);
++	if (!opencores_kbd->keycode) {
++		error = -ENOMEM;
++		goto err_mem;
++	}
++	opencores_kbd->addr_res = addr_res;
++	opencores_kbd->irq_res = irq_res;
++	platform_set_drvdata(pdev, opencores_kbd);
++
++	input = input_allocate_device();
++	if (!input) {
++		error = -ENOMEM;
++		goto err_in_alloc;
++	}
++
++	opencores_kbd->input = input;
++
++	input->name = pdev->name;
++	input->phys = "opencores-kbd/input0";
++	input->dev.parent = &pdev->dev;
++
++	input_set_drvdata(input, opencores_kbd);
++
++	input->id.bustype = BUS_HOST;
++	input->id.vendor = 0x0001;
++	input->id.product = 0x0001;
++	input->id.version = 0x0100;
++
++	input->keycodesize = sizeof(*opencores_kbd->keycode);
++	input->keycodemax = NUM_KEYS;
++	input->keycode = opencores_kbd->keycode;
++
++	__set_bit(EV_KEY, input->evbit);
++
++	for (i = 0; i < input->keycodemax; i++) {
++		opencores_kbd->keycode[i] = i;
++		__set_bit(opencores_kbd->keycode[i] & KEY_MAX, input->keybit);
++	}
++	__clear_bit(KEY_RESERVED, input->keybit);
++
++	error = input_register_device(input);
++	if (error) {
++		pr_err("unable to register input device\n");
++		goto err_in_reg;
++	}
++
++	error = request_irq(irq_res->start, &opencores_kbd_isr, IRQF_TRIGGER_RISING, pdev->name, pdev);
++	if (error) {
++		pr_err("unable to claim irq %d\n", irq_res->start);
++		goto err_irq;
++	}
++
++	return 0;
++
++ err_irq:
++	input_unregister_device(input);
++ err_in_reg:
++	input_free_device(input);
++ err_in_alloc:
++	kfree(opencores_kbd->keycode);
++ err_mem:
++	kfree(opencores_kbd);
++	platform_set_drvdata(pdev, NULL);
++
++	return error;
++}
++
++static int __devexit opencores_kbd_remove(struct platform_device *pdev)
++{
++	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
++
++	free_irq(opencores_kbd->irq_res->start, pdev);
++
++	input_unregister_device(opencores_kbd->input);
++
++	kfree(opencores_kbd->keycode);
++	kfree(opencores_kbd);
++	platform_set_drvdata(pdev, NULL);
++
++	return 0;
++}
++
++static struct platform_driver opencores_kbd_device_driver = {
++	.probe    = opencores_kbd_probe,
++	.remove   = __devexit_p(opencores_kbd_remove),
++	.driver   = {
++		.name = KBUILD_MODNAME,
++	},
++};
++
++static int __init opencores_kbd_init(void)
++{
++	return platform_driver_register(&opencores_kbd_device_driver);
++}
++module_init(opencores_kbd_init);
++
++static void __exit opencores_kbd_exit(void)
++{
++	platform_driver_unregister(&opencores_kbd_device_driver);
++}
++module_exit(opencores_kbd_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Javier Herrero <jherrero@hvsistemas.es>");
++MODULE_DESCRIPTION("Keyboard driver for OpenCores Keyboard Controller");
+-- 
+1.6.4.2
 
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni

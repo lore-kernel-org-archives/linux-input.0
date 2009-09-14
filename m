@@ -1,71 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: input subsystem question
-Date: Mon, 14 Sep 2009 01:21:48 -0700
-Message-ID: <20090914082148.GD11854@core.coreip.homeip.net>
-References: <loom.20090910T101706-918@post.gmane.org> <20090910165628.CA47F526EC9@mailhub.coreip.homeip.net> <loom.20090910T195819-563@post.gmane.org>
+From: Jaswinder Singh Rajput <jaswinder@kernel.org>
+Subject: Re: [PATCH] Input: bcm5974.c initialize raw_w, raw_x and raw_y
+ before it get used
+Date: Mon, 14 Sep 2009 14:30:53 +0530
+Message-ID: <1252918853.3123.5.camel@ht.satnam>
+References: <1252775770.3687.7.camel@ht.satnam>
+	 <4AAC2DBE.9040303@bitmath.org> <1252830690.3440.5.camel@ht.satnam>
+	 <4AACD9E9.4000702@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f172.google.com ([209.85.221.172]:44096 "EHLO
-	mail-qy0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750891AbZINIVt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 04:21:49 -0400
-Received: by qyk2 with SMTP id 2so2228035qyk.21
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2009 01:21:52 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <loom.20090910T195819-563@post.gmane.org>
+Received: from hera.kernel.org ([140.211.167.34]:43140 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755279AbZINJBC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Sep 2009 05:01:02 -0400
+In-Reply-To: <4AACD9E9.4000702@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Max Sivkov <maxsivkov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
-On Thu, Sep 10, 2009 at 06:15:18PM +0000, Max Sivkov wrote:
-> Dmitry Torokhov <dmitry.torokhov <at> gmail.com> writes:
-> 
-> > 
-> > Hi Max,
-> > 
-> > On Thursday 10 September 2009 01:20:02 am Max Sivkov wrote:
-> > > Hello!
-> > > I have a question about using of the input subsystem.
-> > > Is there any way to filter input messages from a device (keyboard). I.e. I
-> > > need to have ability to pass some messages from the device, and block
-> > > others. Could community point me to the right place where I can find how to
-> > > do that?
-> > 
-> > There are different options, we'd need more context...
-> > 
-> 
-> 
-> Dmitry,
-> 
-> Thanks for the response.
-> 
-> Driver/user mode daemon should get scancodes (events) from the input device
-> (keyboard), detect particular scancodes and put them to the internal buffer to
-> send to the user space later time.
-> 
-> I'm stucked here, because after getting event from the input subsystem I will
-> need to remove the event from the input queue. 
-> As I understood events mechanism is useful if one needs to gather input event's
-> (keylogger) w/o modifying input queue.
-> 
-> Currently my driver for 2.6.x kernels is based on a atkbd driver with some
-> modifications, but this method has one big disadvantage: when input subsystem
-> developers change something in the input subsystem I have to do the annoying job
-> once again (take atkbd.c, add my functionality, rebuild kernel, etc, etc).
-> 
+Hello Henrik,
 
-If you want to work on keycode level (KEY_* definitions) then you could
-use a user-space program that "grabs" input device, filters out the
-events it is interested in and injects events that it has no interested
-in back into kernel via uinput.
+On Sun, 2009-09-13 at 13:39 +0200, Henrik Rydberg wrote:
+> Jaswinder Singh Rajput wrote:
+> > On Sun, 2009-09-13 at 01:24 +0200, Henrik Rydberg wrote:
+> >> Jaswinder Singh Rajput wrote:
+> >>> raw_w, raw_x and raw_y is used uninitialized for !raw_n
+> >> Thanks for the heads up, but actually not, since !raw_n also implies
+> >> !(ptest > PRESSURE_LOW).
+> >>
+> > 
+> > Then can we move 'if (ptest > PRESSURE_LOW && origin)' stuff to 'if
+> > (raw_n)'. If not then my patch is correct.
+> 
+> Yes, that's it, thanks. So this patch ought to solve the warning cleanly:
 
-If you want to work with AT keyboard scancodes and intercept them before
-they reach atkbd driver - then we currently don't have such an option
-although one is desired since some laptop vendors like to inject
-non-keyboard data into keyboard stream.
+hmm, even then there is room for improvement and save some cpu cycles :
 
--- 
-Dmitry
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 2d8fc0b..21ea2e3 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -316,8 +316,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+-	int raw_p, raw_w, raw_x, raw_y, raw_n;
+-	int ptest = 0, origin = 0, ibt = 0, nmin = 0, nmax = 0;
++	int raw_n, ibt = 0, nmin = 0, nmax = 0;
+ 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
+ 
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+@@ -329,6 +328,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 
+ 	/* always track the first finger; when detached, start over */
+ 	if (raw_n) {
++		int raw_p, raw_w, raw_x, raw_y;
++		int ptest, origin;
++
+ 		raw_p = raw2int(f->force_major);
+ 		raw_w = raw2int(f->size_major);
+ 		raw_x = raw2int(f->abs_x);
+
+
+And by changing little bit programming logic you can also reduce
+variable count and save some more cpu cycles.
+
+Thanks,
+--
+JSR
+

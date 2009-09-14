@@ -1,198 +1,81 @@
-From: miguel.aguilar@ridgerun.com
-Subject: [PATCH v2 2/2] Davinci: DM365: Enable keypad support for DM365 EVM
-Date: Mon, 14 Sep 2009 12:13:01 -0600
-Message-ID: <1252951981-31046-1-git-send-email-miguel.aguilar@ridgerun.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.navvo.net ([74.208.67.6]:46609 "EHLO mail.navvo.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932559AbZINSNG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Sep 2009 14:13:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Javier Herrero <jherrero@hvsistemas.es>
+Subject: Re: [PATCH v3] input/keyboard: new OpenCores Keyboard Controller
+ 	driver
+Date: Mon, 14 Sep 2009 20:18:48 +0200
+Message-ID: <4AAE8908.1000104@hvsistemas.es>
+References: <1252911864-19233-1-git-send-email-vapier@gentoo.org> 	<1252950003-9451-1-git-send-email-vapier@gentoo.org> <200909141049.50705.dmitry.torokhov@gmail.com> <8bd0f97a0909141102l5fa309f4ua1bedd0f1ac99295@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933075AbZINSZf@vger.kernel.org>
+In-Reply-To: <8bd0f97a0909141102l5fa309f4ua1bedd0f1ac99295@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bryan Wu <cooloney@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: nsnehaprabha@ti.com, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org
-Cc: todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com, Miguel Aguilar <miguel.aguilar@ridgerun.com>
 
-From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Hello,
 
-The general structures are defined at DM365 SoC file and the specific
-platform data structure for the EVM is defined defined at board file.
+It has a bit long since last time I touched the driver, so I should als=
+o=20
+try to refresh my memory about it :). I suppose that you're right in th=
+e=20
+double allocation issue (I took another keyboard driver as a starting=20
+point and probably the double allocation was already there...), so feel=
+=20
+free to introduce the change and I will test it as soon as I can.
 
-This patch was tested on a DM365 EVM rev c.
+About the exact scancode - key mapping, the reason is that since the=20
+=46PGA opencores device already implements a translation table, I found=
+=20
+that another translation table sounded a bit redundant.
 
-Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
----
- arch/arm/configs/davinci_all_defconfig     |    1 +
- arch/arm/mach-davinci/board-dm365-evm.c    |   50 ++++++++++++++++++++++++++++
- arch/arm/mach-davinci/dm365.c              |   31 +++++++++++++++++
- arch/arm/mach-davinci/include/mach/dm365.h |    5 +++
- 4 files changed, 87 insertions(+), 0 deletions(-)
+Best regards,
 
-diff --git a/arch/arm/configs/davinci_all_defconfig b/arch/arm/configs/davinci_all_defconfig
-index ec63c15..e994c83 100644
---- a/arch/arm/configs/davinci_all_defconfig
-+++ b/arch/arm/configs/davinci_all_defconfig
-@@ -763,6 +763,7 @@ CONFIG_KEYBOARD_GPIO=y
- # CONFIG_KEYBOARD_STOWAWAY is not set
- # CONFIG_KEYBOARD_SUNKBD is not set
- CONFIG_KEYBOARD_XTKBD=m
-+CONFIG_KEYBOARD_DAVINCI_DM365=m
- # CONFIG_INPUT_MOUSE is not set
- # CONFIG_INPUT_JOYSTICK is not set
- # CONFIG_INPUT_TABLET is not set
-diff --git a/arch/arm/mach-davinci/board-dm365-evm.c b/arch/arm/mach-davinci/board-dm365-evm.c
-index f6adf79..c3de5ad 100644
---- a/arch/arm/mach-davinci/board-dm365-evm.c
-+++ b/arch/arm/mach-davinci/board-dm365-evm.c
-@@ -38,6 +38,7 @@
- #include <mach/common.h>
- #include <mach/mmc.h>
- #include <mach/nand.h>
-+#include <mach/keypad.h>
- 
- 
- static inline int have_imager(void)
-@@ -192,6 +193,53 @@ static struct davinci_i2c_platform_data i2c_pdata = {
- 	.bus_delay	= 0	/* usec */,
- };
- 
-+/* Masks for the various keys on the DM365 EVM */
-+#define KEY_DM365_KEY2		0
-+#define KEY_DM365_LEFT		1
-+#define KEY_DM365_EXIT		2
-+#define KEY_DM365_DOWN		3
-+#define KEY_DM365_ENTER		4
-+#define KEY_DM365_UP		5
-+#define KEY_DM365_KEY1		6
-+#define KEY_DM365_RIGHT		7
-+#define KEY_DM365_MENU		8
-+#define KEY_DM365_REC		9
-+#define KEY_DM365_REW		10
-+#define KEY_DM365_SKIPMINUS	11
-+#define KEY_DM365_STOP		12
-+#define KEY_DM365_FF		13
-+#define KEY_DM365_SKIPPLUL	14
-+#define KEY_DM365_PLAYPAUSE	15
-+
-+static int dm365evm_keymap[] = {
-+	KEY_DM365_KEY2,
-+	KEY_DM365_LEFT,
-+	KEY_DM365_EXIT,
-+	KEY_DM365_DOWN,
-+	KEY_DM365_ENTER,
-+	KEY_DM365_UP,
-+	KEY_DM365_KEY1,
-+	KEY_DM365_RIGHT,
-+	KEY_DM365_MENU,
-+	KEY_DM365_REC,
-+	KEY_DM365_REW,
-+	KEY_DM365_SKIPMINUS,
-+	KEY_DM365_STOP,
-+	KEY_DM365_FF,
-+	KEY_DM365_SKIPPLUL,
-+	KEY_DM365_PLAYPAUSE,
-+	0
-+};
-+
-+static struct davinci_kp_platform_data dm365evm_kp_data = {
-+	.keymap		= dm365evm_keymap,
-+	.keymapsize	= ARRAY_SIZE(dm365evm_keymap),
-+	.rep		= 1,
-+	/* Scan period = strobe + interval */
-+	.strobe		= 0x5,
-+	.interval	= 0x2,
-+};
-+
- static int cpld_mmc_get_cd(int module)
- {
- 	if (!cpld)
-@@ -476,6 +524,8 @@ static __init void dm365_evm_init(void)
- 
- 	/* maybe setup mmc1/etc ... _after_ mmc0 */
- 	evm_init_cpld();
-+
-+	dm365_init_kp(&dm365evm_kp_data);
- }
- 
- static __init void dm365_evm_irq_init(void)
-diff --git a/arch/arm/mach-davinci/dm365.c b/arch/arm/mach-davinci/dm365.c
-index 6c948b1..8b02e25 100644
---- a/arch/arm/mach-davinci/dm365.c
-+++ b/arch/arm/mach-davinci/dm365.c
-@@ -32,6 +32,7 @@
- #include <mach/time.h>
- #include <mach/serial.h>
- #include <mach/common.h>
-+#include <mach/keypad.h>
- 
- #include "clock.h"
- #include "mux.h"
-@@ -822,6 +823,29 @@ static struct map_desc dm365_io_desc[] = {
- 	},
- };
- 
-+static struct resource kp_resources[] = {
-+	{
-+		/* registers */
-+		.start = DM365_KEYSCAN_BASE,
-+		.end = DM365_KEYSCAN_BASE + SZ_1K - 1,
-+		.flags = IORESOURCE_MEM,
-+	},
-+	{
-+		/* interrupt */
-+		.start = IRQ_DM365_KEYINT,
-+		.end = IRQ_DM365_KEYINT,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
-+static struct platform_device dm365_kp_device = {
-+	.name		= "dm365_keypad",
-+	.id		= 0,
-+	.num_resources	= ARRAY_SIZE(kp_resources),
-+	.resource	= kp_resources,
-+};
-+
-+
- /* Contents of JTAG ID register used to identify exact cpu type */
- static struct davinci_id dm365_ids[] = {
- 	{
-@@ -907,6 +931,13 @@ static struct davinci_soc_info davinci_soc_info_dm365 = {
- 	.sram_len		= SZ_32K,
- };
- 
-+void __init dm365_init_kp(struct davinci_kp_platform_data *pdata)
-+{
-+       davinci_cfg_reg(DM365_KEYPAD);
-+	dm365_kp_device.dev.platform_data = pdata;
-+	platform_device_register(&dm365_kp_device);
-+}
-+
- void __init dm365_init(void)
- {
- 	davinci_common_init(&davinci_soc_info_dm365);
-diff --git a/arch/arm/mach-davinci/include/mach/dm365.h b/arch/arm/mach-davinci/include/mach/dm365.h
-index 09db434..cbd00dc 100644
---- a/arch/arm/mach-davinci/include/mach/dm365.h
-+++ b/arch/arm/mach-davinci/include/mach/dm365.h
-@@ -16,6 +16,7 @@
- #include <linux/platform_device.h>
- #include <mach/hardware.h>
- #include <mach/emac.h>
-+#include <mach/keypad.h>
- 
- #define DM365_EMAC_BASE			(0x01D07000)
- #define DM365_EMAC_CNTRL_OFFSET		(0x0000)
-@@ -24,6 +25,10 @@
- #define DM365_EMAC_MDIO_OFFSET		(0x4000)
- #define DM365_EMAC_CNTRL_RAM_SIZE	(0x2000)
- 
-+/* Base of keypad register bank */
-+#define DM365_KEYSCAN_BASE		(0x01C69400)
-+
- void __init dm365_init(void);
-+void __init dm365_init_kp(struct davinci_kp_platform_data *pdata);
- 
- #endif /* __ASM_ARCH_DM365_H */
--- 
-1.6.0.4
+Javier
 
+Mike Frysinger escribi=C3=B3:
+> On Mon, Sep 14, 2009 at 13:49, Dmitry Torokhov wrote:
+>> On Monday 14 September 2009 10:40:03 am Mike Frysinger wrote:
+>>> +struct opencores_kbd {
+>>> +     struct input_dev *input;
+>>> +     struct resource *addr_res;
+>>> +     struct resource *irq_res;
+>>> +     unsigned short *keycode;
+>>> +};
+>> Why do we allocate keycode table separately form the main structure?
+>
+> the double alloc looked a little funny, but i didnt dive deep into th=
+e
+> details.  but as you point this out, it seems to make sense to me.
+> any problems with that change Javier ?
+>
+> i.e. we do:
+> struct ... { ... unsigned short keycode[NUM_KEYS]; }
+> rather than doing two calls to kmalloc
+>
+>> I think I still have some reservations with the notion that we can j=
+ust
+>> have exact "scancode" - KEY_* mapping and hardware producers will ad=
+just
+>> the hardware to follow the deriver but I guess it's OK...
+>
+> considering this is a piece of "hardware" implemented in FPGAs, i
+> think it's ok too.  if someone really needs more flexibility, then
+> they're free to extend the driver and submit a patch :).
+> -mike
+>
+>
+
+--=20
+-----------------------------------------------------------------------=
+-
+Javier Herrero                            EMAIL: jherrero@hvsistemas.co=
+m
+HV Sistemas S.L.                          PHONE:         +34 949 336 80=
+6
+Los Charcones, 17A                        FAX:           +34 949 336 79=
+2
+19170 El Casar - Guadalajara - Spain      WEB: http://www.hvsistemas.co=
+m

@@ -1,50 +1,77 @@
 From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] input/keyboard: new OpenCores Keyboard Controller
-	driver
-Date: Tue, 15 Sep 2009 12:39:04 -0400
-Message-ID: <8bd0f97a0909150939u1cd7787dw412b733d168e27d6@mail.gmail.com>
-References: <1252911864-19233-1-git-send-email-vapier@gentoo.org>
-	<1252950003-9451-1-git-send-email-vapier@gentoo.org> <200909141049.50705.dmitry.torokhov@gmail.com>
-	<8bd0f97a0909141102l5fa309f4ua1bedd0f1ac99295@mail.gmail.com>
-	<4AAE8908.1000104@hvsistemas.es> <20090915055224.GD1132@core.coreip.homeip.net>
-	<8bd0f97a0909150416j444999e4sfcb6ad77146a97d7@mail.gmail.com>
-	<20090915162349.GA29241@core.coreip.homeip.net>
+Subject: Re: [PATCH] input/keyboard: add ADP5588 QWERTY I2C Keyboard Input
+	device driver
+Date: Tue, 15 Sep 2009 12:46:14 -0400
+Message-ID: <8bd0f97a0909150946t65c445ddo6741c2a472c1738c@mail.gmail.com>
+References: <1252966719-27557-1-git-send-email-vapier@gentoo.org>
+	<20090915062050.GB10232@core.coreip.homeip.net> <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
+	<20090915162655.GB29241@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f174.google.com ([209.85.211.174]:57896 "EHLO
+Received: from mail-yw0-f174.google.com ([209.85.211.174]:46769 "EHLO
 	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754629AbZIOQjV (ORCPT
+	with ESMTP id S1753817AbZIOQqb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 12:39:21 -0400
-In-Reply-To: <20090915162349.GA29241@core.coreip.homeip.net>
+	Tue, 15 Sep 2009 12:46:31 -0400
+In-Reply-To: <20090915162655.GB29241@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Javier Herrero <jherrero@hvsistemas.es>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Bryan Wu <cooloney@kernel.org>
+Cc: Robin Getz <rgetz@blackfin.uclinux.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Tue, Sep 15, 2009 at 12:23, Dmitry Torokhov wrote:
-> On Tue, Sep 15, 2009 at 07:16:25AM -0400, Mike Frysinger wrote:
->> On Tue, Sep 15, 2009 at 01:52, Dmitry Torokhov wrote:
->> > OK, below is what I have now... One concern though - don't we need to do
->> > request_mem_region/ioremap for the addr_res?
+On Tue, Sep 15, 2009 at 12:26, Dmitry Torokhov wrote:
+> On Tue, Sep 15, 2009 at 07:19:14AM -0400, Mike Frysinger wrote:
+>> On Tue, Sep 15, 2009 at 02:20, Dmitry Torokhov wrote:
+>> > On Mon, Sep 14, 2009 at 06:18:39PM -0400, Mike Frysinger wrote:
+>> >> +static int __devexit adp5588_remove(struct i2c_client *client)
+>> >> +{
+>> >> + =C2=A0 =C2=A0 struct adp5588_kpad *kpad =3D dev_get_drvdata(&cl=
+ient->dev);
+>> >> +
+>> >> + =C2=A0 =C2=A0 adp5588_write(client, CFG, 0);
+>> >> + =C2=A0 =C2=A0 free_irq(client->irq, kpad);
+>> >
+>> > cancel_work_sync() is missing. Could you try the updated version b=
+elow?
 >>
->> i think so ... these operations are nops on a Blackfin CPU which is
->> probably why it "just works".
+>> i dont think i have any adp5588 hardware. =C2=A0Robin: do we have an=
+y in
+>> Norwood ? =C2=A0otherwise, it'll have to wait for Michael to get bac=
+k to
+>> double check.
+>>
+>> > BTW, maybe you shoudl convert to threaded IRQs here?
+>>
+>> yes, after your suggestion for the previous driver, we've been looki=
+ng
+>> at all our input drivers to convert to threaded IRQs. =C2=A0do we ne=
+ed to
+>> convert all of them before acceptance, or can we merge now and post =
+an
+>> updated patch after ?
 >
-> Surely request_mem_region is not a nop? I think even if uoremap is a nop
-> we need to convert the driver since it does not have to be on a
-> Blackfin, does it?
+> It really depends on the driver. If there is a race between IRQ and t=
+he
+> WQ in the driver I will request you to fix it one way or another befo=
+re
+> accepting the driver (and quite often using threaded IRQ gets rid of =
+the
+> race). In the cases like this particular driver though I am not even
+> convinced that we need threaded IRQ. The driver is not expected to
+> generate lots of events rapidly so using keventd as it does now is
+> probably the best solution.
 
-i wasnt suggesting we not add these calls.  i was just stating why
-they hadnt already been added -- things work fine on a Blackfin system
-w/out ioremap calls because we're a no-mmu system.
+i dont think there is a race here as we only use the IRQ to schedule
+the WQ; we dont read/pass info between the two.
 
->> the input layer can handle input even if it's not registered ?
->
-> The device can survive input events as soon as it was allocated with
-> input_allocate_device() but of course the event will not get anywhere.
-> This is a property that I intend to keep since it is very convenient.
-
-that's fine, i was just curious
+at any rate, i noticed that this driver isnt the final one.  i spent
+some time cleaning it up a bit more (style, messages, dev_pm_ops), so
+i'll merge your changes and mine and post another one.
 -mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

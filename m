@@ -1,75 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Using EV_MSC or extending KEY_*
-Date: Tue, 15 Sep 2009 20:46:42 -0700
-Message-ID: <20090916034642.GC2756@core.coreip.homeip.net>
-References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu> <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com> <20090915183406.GA5696@core.coreip.homeip.net> <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+From: Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH] input/keyboard: add ADP5588 QWERTY I2C Keyboard Input
+	device driver
+Date: Wed, 16 Sep 2009 11:49:32 +0800
+Message-ID: <3c17e3570909152049nd801aeds3915e5889d6181f0@mail.gmail.com>
+References: <1252966719-27557-1-git-send-email-vapier@gentoo.org>
+	<20090915062050.GB10232@core.coreip.homeip.net> <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
+	<20090915162655.GB29241@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:60289 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750868AbZIPDqr (ORCPT
+Received: from mail-yx0-f171.google.com ([209.85.210.171]:56344 "EHLO
+	mail-yx0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751045AbZIPDts convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 23:46:47 -0400
-Content-Disposition: inline
-In-Reply-To: <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+	Tue, 15 Sep 2009 23:49:48 -0400
+In-Reply-To: <20090915162655.GB29241@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Robin Getz <rgetz@blackfin.uclinux.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Tue, Sep 15, 2009 at 01:05:57PM -0600, Rick L. Vinyard, Jr. wrote:
-> Dmitry Torokhov wrote:
-> > On Tue, Sep 15, 2009 at 10:41:30PM +0530, Trilok Soni wrote:
-> >> Adding linux-input.
-> >>
-> >> On Tue, Sep 15, 2009 at 9:49 PM, Rick L. Vinyard, Jr.
-> >> <rvinyard@cs.nmsu.edu> wrote:
-> >> > On the Logitech G13 there are a set of 10 special keys at the top of
-> >> the
-> >> > device.
-> >> >
-> >> > I've written the driver so that it maintains a map from the general
-> >> keys
-> >> > (G1-G22) to Linux' input subsystem keys.
-> >> >
-> >> > The map can be changed on the fly, allowing multiple keymaps to be
-> >> loaded.
-> >> >
-> >> > As a side note I haven't provided for this functionality (multiple
-> >> > keymaps) in the driver since this can be maintained from userspace,
-> >> but it
-> >> > does need to know about the currently loaded keymap so that when the
-> >> raw
-> >> > HID events are parsed the appropriate EV_KEY events can be input.
-> >> >
-> >> > I could set it up so that the special keys also map to a KEY_* code.
-> >> > However, I'd prefer to set things up so that any G1-G22 key can be
-> >> mapped
-> >> > to any input subsystem KEY_* code and not reserve a set of 10 from the
-> >> > current KEY_* codes for the 10 special keys.
-> >> >
-> >> > One way I was thinking of approaching this was to generate EV_MSC type
-> >> > events (with a MSC_RAW code) using the value to indicate the state
-> >> > (pressed/released) and special key.
-> >
-> > Doesn't HID already generate EV_MSC/MSC_SCAN for exactly this purpose
-> > so userspace knows what keys can be remapped? You may initially map all
-> > keys you don't know the usage to KEY_UNKNOWN.
-> 
-> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
-> the user to map a key, which would be useful for the G1-G22 keys and
-> perhaps 5 of the 10 special keys. But, that's not the behavior I want for
-> the M1, M2, M3, MR and backlight keys.
-> 
-> Somehow they need to be distinct from any existing KEY_* codes or not have
-> a code at all... i.e. only emitting the raw misc events.
-> 
-> Perhaps the BTN_MISC codes are better suited for these keys?
-> 
-
-I am sorry, I don't follow... why would yo not want to assign a standard
-code to the M* keys?
-
--- 
-Dmitry
+On Wed, Sep 16, 2009 at 12:26 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Sep 15, 2009 at 07:19:14AM -0400, Mike Frysinger wrote:
+>> On Tue, Sep 15, 2009 at 02:20, Dmitry Torokhov wrote:
+>> > On Mon, Sep 14, 2009 at 06:18:39PM -0400, Mike Frysinger wrote:
+>> >> +static int __devexit adp5588_remove(struct i2c_client *client)
+>> >> +{
+>> >> + =C2=A0 =C2=A0 struct adp5588_kpad *kpad =3D dev_get_drvdata(&cl=
+ient->dev);
+>> >> +
+>> >> + =C2=A0 =C2=A0 adp5588_write(client, CFG, 0);
+>> >> + =C2=A0 =C2=A0 free_irq(client->irq, kpad);
+>> >
+>> > cancel_work_sync() is missing. Could you try the updated version b=
+elow?
+>>
+>> i dont think i have any adp5588 hardware. =C2=A0Robin: do we have an=
+y in
+>> Norwood ? =C2=A0otherwise, it'll have to wait for Michael to get bac=
+k to
+>> double check.
+>>
+>> > BTW, maybe you shoudl convert to threaded IRQs here?
+>>
+>> yes, after your suggestion for the previous driver, we've been looki=
+ng
+>> at all our input drivers to convert to threaded IRQs. =C2=A0do we ne=
+ed to
+>> convert all of them before acceptance, or can we merge now and post =
+an
+>> updated patch after ?
+>
+> It really depends on the driver. If there is a race between IRQ and t=
+he
+> WQ in the driver I will request you to fix it one way or another befo=
+re
+> accepting the driver (and quite often using threaded IRQ gets rid of =
+the
+> race). In the cases like this particular driver though I am not even
+> convinced that we need threaded IRQ. The driver is not expected to
+> generate lots of events rapidly so using keventd as it does now is
+> probably the best solution.
+Even though CONFIG_GENERIC_HARDIRQS is almost always "y", in case
+CONFIG_GENERIC_HARDIRQS is "n" not "y", threaded_irq will become
+original irq, drivers will not work. So is it necessary to check the
+dependence of GENERIC_HARDIRQS while using threaded_irq?
+>
+> --
+> Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.ht=
+ml
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

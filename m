@@ -1,62 +1,48 @@
-From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Subject: Re: Using EV_MSC or extending KEY_*
-Date: Wed, 16 Sep 2009 15:27:27 -0600
-Message-ID: <478a4bd7c3e55ea219f5c808f5c571e1.squirrel@intranet.cs.nmsu.edu>
-References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
-    <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
-    <20090915183406.GA5696@core.coreip.homeip.net>
-    <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
-    <20090916021922.GA1627@khazad-dum.debian.net>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v4] Input: add touchscreen driver for MELFAS MCS-5000
+ controller
+Date: Thu, 17 Sep 2009 08:53:24 +0900
+Message-ID: <4AB17A74.7080609@samsung.com>
+References: <4AB07B5E.7040501@samsung.com>
+ <20090916060017.GG2756@core.coreip.homeip.net> <4AB08383.9080107@samsung.com>
+ <4AB088CF.7080002@samsung.com> <20090916072702.GH2756@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.nmsu.edu ([128.123.64.3]:54875 "EHLO mail.cs.nmsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760129AbZIPV11 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2009 17:27:27 -0400
-In-Reply-To: <20090916021922.GA1627@khazad-dum.debian.net>
+Received: from mailout3.samsung.com ([203.254.224.33]:38179 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755435AbZIPXx3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Sep 2009 19:53:29 -0400
+Received: from epmmp2 (mailout3.samsung.com [203.254.224.33])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KQ3009X2912WI@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 17 Sep 2009 08:53:26 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KQ3006YT910RY@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 17 Sep 2009 08:53:24 +0900 (KST)
+In-reply-to: <20090916072702.GH2756@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
 
-Henrique de Moraes Holschuh wrote:
-> On Tue, 15 Sep 2009, Rick L. Vinyard, Jr. wrote:
->> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
->> the user to map a key, which would be useful for the G1-G22 keys and
->> perhaps 5 of the 10 special keys. But, that's not the behavior I want
->> for
->> the M1, M2, M3, MR and backlight keys.
->
-> Why?
->
->> Somehow they need to be distinct from any existing KEY_* codes or not
->> have
->> a code at all... i.e. only emitting the raw misc events.
->
-> Use KEY_RESERVED for them and in your driver, special case it to not
-> output
-> EV_KEY events for KEY_RESERVED, but still output the EV_MSC/MSC_SCAN.
+On 9/16/2009 4:27 PM, Dmitry Torokhov wrote:
+> On Wed, Sep 16, 2009 at 03:42:23PM +0900, Joonyoung Shim wrote:
+>> Hi, Dmitry.
+>>
+>> I send the patch v5. This is the patch fixed from v4 feedback, and i
+>> added a copyright in header file.
+>>
+> 
+> Looks good, thanks. It will be included in my next pull request.
+> 
 
-That's how I ended up writing it.
+Thanks.
 
-> This allows userspace to reprogram them to normal keys (or even to
-> KEY_UNKNOWN) if it wants.
->
->> Perhaps the BTN_MISC codes are better suited for these keys?
->
-> That could work too, but are these generic buttons?
-
-Yes. There is a bank of 6 buttons across the top (just beneath the LCD
-display). Their purpose is application specific, but their physical
-location provides an opportunity for UI's to use them in correlation with
-the displayed LCD image... i.e. as an option selector, mode changer, etc.
-
-The four M* keys are just beneath the bank of buttons.
-
----
-
-Rick
-
-
+However, i saw a commit for MCS-5000 on for-linux branch of your git 
+repository, and the driver was a old thing, maybe patch v3. Please apply 
+the patch v5 posted yesterday.

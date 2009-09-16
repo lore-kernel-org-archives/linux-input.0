@@ -1,49 +1,44 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: Using EV_MSC or extending KEY_*
-Date: Tue, 15 Sep 2009 23:19:22 -0300
-Message-ID: <20090916021922.GA1627@khazad-dum.debian.net>
-References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
- <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
- <20090915183406.GA5696@core.coreip.homeip.net>
- <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4] input/keyboard: new OpenCores Keyboard Controller
+	driver
+Date: Tue, 15 Sep 2009 20:45:55 -0700
+Message-ID: <20090916034555.GA2756@core.coreip.homeip.net>
+References: <20090915055224.GD1132@core.coreip.homeip.net> <1253066440-25555-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:49414 "EHLO
-	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752850AbZIPCTW (ORCPT
+Received: from mail-qy0-f172.google.com ([209.85.221.172]:36675 "EHLO
+	mail-qy0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750742AbZIPDp5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 22:19:22 -0400
+	Tue, 15 Sep 2009 23:45:57 -0400
 Content-Disposition: inline
-In-Reply-To: <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+In-Reply-To: <1253066440-25555-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <cooloney@kernel.org>
 
-On Tue, 15 Sep 2009, Rick L. Vinyard, Jr. wrote:
-> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
-> the user to map a key, which would be useful for the G1-G22 keys and
-> perhaps 5 of the 10 special keys. But, that's not the behavior I want for
-> the M1, M2, M3, MR and backlight keys.
+Hi Mike,
 
-Why?
+On Tue, Sep 15, 2009 at 10:00:40PM -0400, Mike Frysinger wrote:
+> +
+> +static int __devexit opencores_kbd_remove(struct platform_device *pdev)
+> +{
+> +	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
+> +
+> +	free_irq(opencores_kbd->irq, opencores_kbd);
+> +
+> +	input_unregister_device(opencores_kbd->input);
+> +	kfree(opencores_kbd);
 
-> Somehow they need to be distinct from any existing KEY_* codes or not have
-> a code at all... i.e. only emitting the raw misc events.
-
-Use KEY_RESERVED for them and in your driver, special case it to not output
-EV_KEY events for KEY_RESERVED, but still output the EV_MSC/MSC_SCAN.
-
-This allows userspace to reprogram them to normal keys (or even to
-KEY_UNKNOWN) if it wants.
-
-> Perhaps the BTN_MISC codes are better suited for these keys?
-
-That could work too, but are these generic buttons?
+You need to do iounmap and free the memory region here as well.
+> +
+> +	platform_set_drvdata(pdev, NULL);
+> +
+> +	return 0;
+> +}
+> +
 
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Dmitry

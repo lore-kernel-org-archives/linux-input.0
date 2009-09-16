@@ -1,251 +1,49 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH v4] input/keyboard: new OpenCores Keyboard Controller driver
-Date: Tue, 15 Sep 2009 22:00:40 -0400
-Message-ID: <1253066440-25555-1-git-send-email-vapier@gentoo.org>
-References: <20090915055224.GD1132@core.coreip.homeip.net>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: Using EV_MSC or extending KEY_*
+Date: Tue, 15 Sep 2009 23:19:22 -0300
+Message-ID: <20090916021922.GA1627@khazad-dum.debian.net>
+References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
+ <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
+ <20090915183406.GA5696@core.coreip.homeip.net>
+ <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:50976 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752889AbZIPCAk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 22:00:40 -0400
-In-Reply-To: <20090915055224.GD1132@core.coreip.homeip.net>
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:49414 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752850AbZIPCTW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Sep 2009 22:19:22 -0400
+Content-Disposition: inline
+In-Reply-To: <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <cooloney@kernel.org>, Dmitry Torokhov <dtor@mail.ru>
+To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-From: Javier Herrero <jherrero@hvsistemas.es>
+On Tue, 15 Sep 2009, Rick L. Vinyard, Jr. wrote:
+> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
+> the user to map a key, which would be useful for the G1-G22 keys and
+> perhaps 5 of the 10 special keys. But, that's not the behavior I want for
+> the M1, M2, M3, MR and backlight keys.
 
-Driver for the keyboard hardware documented here:
-	http://www.opencores.org/project,keyboardcontroller
+Why?
 
-Signed-off-by: Javier Herrero <jherrero@hvsistemas.es>
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-v4
-	- add request_mem_region/ioremap
+> Somehow they need to be distinct from any existing KEY_* codes or not have
+> a code at all... i.e. only emitting the raw misc events.
 
- drivers/input/keyboard/Kconfig         |    9 ++
- drivers/input/keyboard/Makefile        |    1 +
- drivers/input/keyboard/opencores-kbd.c |  175 ++++++++++++++++++++++++++++++++
- 3 files changed, 185 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/opencores-kbd.c
+Use KEY_RESERVED for them and in your driver, special case it to not output
+EV_KEY events for KEY_RESERVED, but still output the EV_MSC/MSC_SCAN.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 3525c19..e363077 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -311,6 +311,15 @@ config KEYBOARD_SUNKBD
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sunkbd.
- 
-+config KEYBOARD_OPENCORES
-+	tristate "OpenCores Keyboard Controller"
-+	help
-+	  Say Y here if you want to use the OpenCores Keyboard Controller
-+	  http://www.opencores.org/project,keyboardcontroller
-+
-+	  To compile this driver as a module, choose M here; the
-+	  module will be called opencores-kbd.
-+
- config KEYBOARD_SH_KEYSC
- 	tristate "SuperH KEYSC keypad support"
- 	depends on SUPERH
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 8a7a22b..ab35ac3 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
- obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
-+obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
- obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
- obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
-new file mode 100644
-index 0000000..3b9dd87
---- /dev/null
-+++ b/drivers/input/keyboard/opencores-kbd.c
-@@ -0,0 +1,175 @@
-+/*
-+ * OpenCores Keyboard Controller Driver
-+ * http://www.opencores.org/project,keyboardcontroller
-+ *
-+ * Copyright 2007-2009 HV Sistemas S.L.
-+ *
-+ * Licensed under the GPL-2 or later.
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/ioport.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+struct opencores_kbd {
-+	struct input_dev *input;
-+	void __iomem *addr;
-+	int irq;
-+	unsigned short keycodes[128];
-+};
-+
-+static irqreturn_t opencores_kbd_isr(int irq, void *dev_id)
-+{
-+	struct opencores_kbd *opencores_kbd = dev_id;
-+	struct input_dev *input = opencores_kbd->input;
-+	unsigned char c;
-+
-+	c = readb(opencores_kbd->addr);
-+	input_report_key(input, c & 0x7f, c & 0x80 ? 0 : 1);
-+	input_sync(input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit opencores_kbd_probe(struct platform_device *pdev)
-+{
-+	struct input_dev *input;
-+	struct opencores_kbd *opencores_kbd;
-+	struct resource *res;
-+	int irq, i, error;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "missing board memory resource\n");
-+		return -EINVAL;
-+	}
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "missing board IRQ resource\n");
-+		return -EINVAL;
-+	}
-+
-+	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
-+	input = input_allocate_device();
-+	if (!opencores_kbd || !input) {
-+		dev_err(&pdev->dev, "failed to allocate device structures\n");
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	res = request_mem_region(res->start, resource_size(res), pdev->name);
-+	if (!res) {
-+		dev_err(&pdev->dev, "failed to request I/O memory\n");
-+		error = -EBUSY;
-+		goto err_free_mem;
-+	}
-+
-+	opencores_kbd->addr = ioremap(res->start, resource_size(res));
-+	if (!opencores_kbd->addr) {
-+		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-+		error = -ENXIO;
-+		goto err_rel_mem;
-+	}
-+
-+	opencores_kbd->input = input;
-+	opencores_kbd->irq = irq;
-+
-+	input->name = pdev->name;
-+	input->phys = "opencores-kbd/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input_set_drvdata(input, opencores_kbd);
-+
-+	input->id.bustype = BUS_HOST;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x0001;
-+	input->id.version = 0x0100;
-+
-+	input->keycode = opencores_kbd->keycodes;
-+	input->keycodesize = sizeof(opencores_kbd->keycodes[0]);
-+	input->keycodemax = ARRAY_SIZE(opencores_kbd->keycodes);
-+
-+	__set_bit(EV_KEY, input->evbit);
-+
-+	for (i = 0; i < ARRAY_SIZE(opencores_kbd->keycodes); i++) {
-+		/*
-+		 * OpenCores controller happens to have scancodes match
-+		 * our KEY_* definitions.
-+		 */
-+		opencores_kbd->keycodes[i] = i;
-+		__set_bit(opencores_kbd->keycodes[i], input->keybit);
-+	}
-+	__clear_bit(KEY_RESERVED, input->keybit);
-+
-+	error = request_irq(irq, &opencores_kbd_isr,
-+			    IRQF_TRIGGER_RISING, pdev->name, opencores_kbd);
-+	if (error) {
-+		dev_err(&pdev->dev, "unable to claim irq %d\n", irq);
-+		goto err_unmap_mem;
-+	}
-+
-+	error = input_register_device(input);
-+	if (error) {
-+		dev_err(&pdev->dev, "unable to register input device\n");
-+		goto err_free_irq;
-+	}
-+
-+	platform_set_drvdata(pdev, opencores_kbd);
-+
-+	return 0;
-+
-+ err_free_irq:
-+	free_irq(irq, opencores_kbd);
-+ err_unmap_mem:
-+	iounmap(opencores_kbd->addr);
-+ err_rel_mem:
-+	release_mem_region(res->start, resource_size(res));
-+ err_free_mem:
-+	input_free_device(input);
-+	kfree(opencores_kbd);
-+
-+	return error;
-+}
-+
-+static int __devexit opencores_kbd_remove(struct platform_device *pdev)
-+{
-+	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
-+
-+	free_irq(opencores_kbd->irq, opencores_kbd);
-+
-+	input_unregister_device(opencores_kbd->input);
-+	kfree(opencores_kbd);
-+
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver opencores_kbd_device_driver = {
-+	.probe    = opencores_kbd_probe,
-+	.remove   = __devexit_p(opencores_kbd_remove),
-+	.driver   = {
-+		.name = "opencores-kbd",
-+	},
-+};
-+
-+static int __init opencores_kbd_init(void)
-+{
-+	return platform_driver_register(&opencores_kbd_device_driver);
-+}
-+module_init(opencores_kbd_init);
-+
-+static void __exit opencores_kbd_exit(void)
-+{
-+	platform_driver_unregister(&opencores_kbd_device_driver);
-+}
-+module_exit(opencores_kbd_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Javier Herrero <jherrero@hvsistemas.es>");
-+MODULE_DESCRIPTION("Keyboard driver for OpenCores Keyboard Controller");
+This allows userspace to reprogram them to normal keys (or even to
+KEY_UNKNOWN) if it wants.
+
+> Perhaps the BTN_MISC codes are better suited for these keys?
+
+That could work too, but are these generic buttons?
+
 -- 
-1.6.5.rc1
-
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

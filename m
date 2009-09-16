@@ -1,47 +1,103 @@
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [PATCH] input/keyboard: add ADP5588 QWERTY I2C Keyboard Input device driver
-Date: Wed, 16 Sep 2009 17:07:34 -0400
-Message-ID: <200909161707.34804.rgetz@blackfin.uclinux.org>
-References: <1252966719-27557-1-git-send-email-vapier@gentoo.org> <20090915062050.GB10232@core.coreip.homeip.net> <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Subject: Re: Using EV_MSC or extending KEY_*
+Date: Wed, 16 Sep 2009 15:27:11 -0600
+Message-ID: <2c0ac825ebe78da99328b896faae04a2.squirrel@intranet.cs.nmsu.edu>
+References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
+    <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
+    <20090915183406.GA5696@core.coreip.homeip.net>
+    <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+    <20090916034642.GC2756@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:44925 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760083AbZIPVEL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2009 17:04:11 -0400
-In-Reply-To: <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
-Content-Disposition: inline
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:54844 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760048AbZIPV1I (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Sep 2009 17:27:08 -0400
+In-Reply-To: <20090916034642.GC2756@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, "Hennerich, Michael" <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Tue 15 Sep 2009 07:19, Mike Frysinger pondered:
-> On Tue, Sep 15, 2009 at 02:20, Dmitry Torokhov wrote:
-> > On Mon, Sep 14, 2009 at 06:18:39PM -0400, Mike Frysinger wrote:
-> >> +static int __devexit adp5588_remove(struct i2c_client *client)
-> >> +{
-> >> + =C2=A0 =C2=A0 struct adp5588_kpad *kpad =3D dev_get_drvdata(&cli=
-ent->dev);
-> >> +
-> >> + =C2=A0 =C2=A0 adp5588_write(client, CFG, 0);
-> >> + =C2=A0 =C2=A0 free_irq(client->irq, kpad);
-> >
-> > cancel_work_sync() is missing. Could you try the updated version be=
-low?
->=20
-> i dont think i have any adp5588 hardware.  Robin: do we have any in
-> Norwood?  otherwise, it'll have to wait for Michael to get back to
-> double check.
+Dmitry Torokhov wrote:
+> On Tue, Sep 15, 2009 at 01:05:57PM -0600, Rick L. Vinyard, Jr. wrote:
+>> Dmitry Torokhov wrote:
+>> > On Tue, Sep 15, 2009 at 10:41:30PM +0530, Trilok Soni wrote:
+>> >> Adding linux-input.
+>> >>
+>> >> On Tue, Sep 15, 2009 at 9:49 PM, Rick L. Vinyard, Jr.
+>> >> <rvinyard@cs.nmsu.edu> wrote:
+>> >> > On the Logitech G13 there are a set of 10 special keys at the top
+>> of
+>> >> the
+>> >> > device.
+>> >> >
+>> >> > I've written the driver so that it maintains a map from the general
+>> >> keys
+>> >> > (G1-G22) to Linux' input subsystem keys.
+>> >> >
+>> >> > The map can be changed on the fly, allowing multiple keymaps to be
+>> >> loaded.
+>> >> >
+>> >> > As a side note I haven't provided for this functionality (multiple
+>> >> > keymaps) in the driver since this can be maintained from userspace,
+>> >> but it
+>> >> > does need to know about the currently loaded keymap so that when
+>> the
+>> >> raw
+>> >> > HID events are parsed the appropriate EV_KEY events can be input.
+>> >> >
+>> >> > I could set it up so that the special keys also map to a KEY_*
+>> code.
+>> >> > However, I'd prefer to set things up so that any G1-G22 key can be
+>> >> mapped
+>> >> > to any input subsystem KEY_* code and not reserve a set of 10 from
+>> the
+>> >> > current KEY_* codes for the 10 special keys.
+>> >> >
+>> >> > One way I was thinking of approaching this was to generate EV_MSC
+>> type
+>> >> > events (with a MSC_RAW code) using the value to indicate the state
+>> >> > (pressed/released) and special key.
+>> >
+>> > Doesn't HID already generate EV_MSC/MSC_SCAN for exactly this purpose
+>> > so userspace knows what keys can be remapped? You may initially map
+>> all
+>> > keys you don't know the usage to KEY_UNKNOWN.
+>>
+>> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
+>> the user to map a key, which would be useful for the G1-G22 keys and
+>> perhaps 5 of the 10 special keys. But, that's not the behavior I want
+>> for
+>> the M1, M2, M3, MR and backlight keys.
+>>
+>> Somehow they need to be distinct from any existing KEY_* codes or not
+>> have
+>> a code at all... i.e. only emitting the raw misc events.
+>>
+>> Perhaps the BTN_MISC codes are better suited for these keys?
+>>
+>
+> I am sorry, I don't follow... why would yo not want to assign a standard
+> code to the M* keys?
+>
+> --
+> Dmitry
 
-I think Michael has the only hardware at the moment.
+The M* keys are intended to provide a quick way to switch between key
+mappings, with each mode having their own user-defined mappings.
 
-He will be back on Monday.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So, if it is intended for the user to potentially program any of the G*
+keys to anything within the set of existing keys (KEY_*, BTN_*) then the
+M* keys need something outside that set to signal their events.
+
+That's why I was thinking that EV_MSC/MSC_RAW could encode both the key
+and the state (Pressed/Released) outside the set of existing keys.
+
+---
+
+Rick
+
+

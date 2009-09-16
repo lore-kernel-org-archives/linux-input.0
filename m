@@ -1,79 +1,45 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
-Date: Wed, 16 Sep 2009 22:41:25 +0400
-Message-ID: <bc64b4640909161141j3dfae8c8ncc02d0fe8c95ee07@mail.gmail.com>
-References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
-	 <20090916162853.GA4970@core.coreip.homeip.net>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH] input/keyboard: add ADP5588 QWERTY I2C Keyboard Input device driver
+Date: Wed, 16 Sep 2009 17:07:34 -0400
+Message-ID: <200909161707.34804.rgetz@blackfin.uclinux.org>
+References: <1252966719-27557-1-git-send-email-vapier@gentoo.org> <20090915062050.GB10232@core.coreip.homeip.net> <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f186.google.com ([209.85.211.186]:64232 "EHLO
-	mail-yw0-f186.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758893AbZIPSlX convert rfc822-to-8bit (ORCPT
+Received: from nwd2mail10.analog.com ([137.71.25.55]:44925 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760083AbZIPVEL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2009 14:41:23 -0400
-Received: by ywh16 with SMTP id 16so7937744ywh.13
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2009 11:41:25 -0700 (PDT)
-In-Reply-To: <20090916162853.GA4970@core.coreip.homeip.net>
+	Wed, 16 Sep 2009 17:04:11 -0400
+In-Reply-To: <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, "Hennerich, Michael" <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Wed, Sep 16, 2009 at 8:28 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Sep 16, 2009 at 07:03:18PM +0400, Dmitry Eremin-Solenikov wro=
-te:
->> There is nothing that disallows gpio-keys to share it's IRQ line
->> w/ other drivers. Make it use IRQF_SHARED in request_irq().
->>
->> An example of other driver with which I'd like to share IRQ line
->> for GPIO buttons is ledtrig-gpio.
->>
->> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->> ---
->> =A0drivers/input/keyboard/gpio_keys.c | =A0 =A01 +
->> =A01 files changed, 1 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyb=
-oard/gpio_keys.c
->> index efed0c9..9fc2fab 100644
->> --- a/drivers/input/keyboard/gpio_keys.c
->> +++ b/drivers/input/keyboard/gpio_keys.c
->> @@ -147,6 +147,7 @@ static int __devinit gpio_keys_probe(struct plat=
-form_device *pdev)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->>
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D request_irq(irq, gpio_keys_isr=
-,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 IR=
-QF_SHARED |
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-button->desc ? button->desc : "gpio_keys",
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-bdata);
->
-> How will you determine which device generated the interrupt? Because =
-you
-> can't return IRQ_HANDLED unconditionally and expect both devices work
-> reliably.
+On Tue 15 Sep 2009 07:19, Mike Frysinger pondered:
+> On Tue, Sep 15, 2009 at 02:20, Dmitry Torokhov wrote:
+> > On Mon, Sep 14, 2009 at 06:18:39PM -0400, Mike Frysinger wrote:
+> >> +static int __devexit adp5588_remove(struct i2c_client *client)
+> >> +{
+> >> + =C2=A0 =C2=A0 struct adp5588_kpad *kpad =3D dev_get_drvdata(&cli=
+ent->dev);
+> >> +
+> >> + =C2=A0 =C2=A0 adp5588_write(client, CFG, 0);
+> >> + =C2=A0 =C2=A0 free_irq(client->irq, kpad);
+> >
+> > cancel_work_sync() is missing. Could you try the updated version be=
+low?
+>=20
+> i dont think i have any adp5588 hardware.  Robin: do we have any in
+> Norwood?  otherwise, it'll have to wait for Michael to get back to
+> double check.
 
-It's a single device (gpio pin). However I'd like to be able to attach
-several handlers to it.
-E.g. one isr is gpio-keys (for reporting event to userspace), another
-isr will be from
-ledtrig-gpio (controlling the LED). Another can be some kind of
-battery driver, etc.
+I think Michael has the only hardware at the moment.
 
-All these drivers will provide different kinds of response for single G=
-PIO pin.
-
---=20
-With best wishes
-Dmitry
+He will be back on Monday.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

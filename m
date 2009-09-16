@@ -1,84 +1,36 @@
-From: Barry Song <21cnbao@gmail.com>
-Subject: Re: [PATCH] input/keyboard: add ADP5588 QWERTY I2C Keyboard Input
-	device driver
-Date: Wed, 16 Sep 2009 11:49:32 +0800
-Message-ID: <3c17e3570909152049nd801aeds3915e5889d6181f0@mail.gmail.com>
-References: <1252966719-27557-1-git-send-email-vapier@gentoo.org>
-	<20090915062050.GB10232@core.coreip.homeip.net> <8bd0f97a0909150419p1048bfe9j243fa30a0581b198@mail.gmail.com>
-	<20090915162655.GB29241@core.coreip.homeip.net>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [PATCH v4] input/keyboard: new OpenCores Keyboard Controller
+	driver
+Date: Tue, 15 Sep 2009 23:57:32 -0400
+Message-ID: <8bd0f97a0909152057v2049371aif4118691d56165c8@mail.gmail.com>
+References: <20090915055224.GD1132@core.coreip.homeip.net>
+	<1253066440-25555-1-git-send-email-vapier@gentoo.org> <20090916034555.GA2756@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f171.google.com ([209.85.210.171]:56344 "EHLO
-	mail-yx0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751045AbZIPDts convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 23:49:48 -0400
-In-Reply-To: <20090915162655.GB29241@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753206AbZIPD5u@vger.kernel.org>
+In-Reply-To: <20090916034555.GA2756@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Robin Getz <rgetz@blackfin.uclinux.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <cooloney@kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 16, 2009 at 12:26 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Sep 15, 2009 at 07:19:14AM -0400, Mike Frysinger wrote:
->> On Tue, Sep 15, 2009 at 02:20, Dmitry Torokhov wrote:
->> > On Mon, Sep 14, 2009 at 06:18:39PM -0400, Mike Frysinger wrote:
->> >> +static int __devexit adp5588_remove(struct i2c_client *client)
->> >> +{
->> >> + =C2=A0 =C2=A0 struct adp5588_kpad *kpad =3D dev_get_drvdata(&cl=
-ient->dev);
->> >> +
->> >> + =C2=A0 =C2=A0 adp5588_write(client, CFG, 0);
->> >> + =C2=A0 =C2=A0 free_irq(client->irq, kpad);
->> >
->> > cancel_work_sync() is missing. Could you try the updated version b=
-elow?
->>
->> i dont think i have any adp5588 hardware. =C2=A0Robin: do we have an=
-y in
->> Norwood ? =C2=A0otherwise, it'll have to wait for Michael to get bac=
-k to
->> double check.
->>
->> > BTW, maybe you shoudl convert to threaded IRQs here?
->>
->> yes, after your suggestion for the previous driver, we've been looki=
-ng
->> at all our input drivers to convert to threaded IRQs. =C2=A0do we ne=
-ed to
->> convert all of them before acceptance, or can we merge now and post =
-an
->> updated patch after ?
+On Tue, Sep 15, 2009 at 23:45, Dmitry Torokhov wrote:
+> On Tue, Sep 15, 2009 at 10:00:40PM -0400, Mike Frysinger wrote:
+>> +
+>> +static int __devexit opencores_kbd_remove(struct platform_device *p=
+dev)
+>> +{
+>> + =C2=A0 =C2=A0 struct opencores_kbd *opencores_kbd =3D platform_get=
+_drvdata(pdev);
+>> +
+>> + =C2=A0 =C2=A0 free_irq(opencores_kbd->irq, opencores_kbd);
+>> +
+>> + =C2=A0 =C2=A0 input_unregister_device(opencores_kbd->input);
+>> + =C2=A0 =C2=A0 kfree(opencores_kbd);
 >
-> It really depends on the driver. If there is a race between IRQ and t=
-he
-> WQ in the driver I will request you to fix it one way or another befo=
-re
-> accepting the driver (and quite often using threaded IRQ gets rid of =
-the
-> race). In the cases like this particular driver though I am not even
-> convinced that we need threaded IRQ. The driver is not expected to
-> generate lots of events rapidly so using keventd as it does now is
-> probably the best solution.
-Even though CONFIG_GENERIC_HARDIRQS is almost always "y", in case
-CONFIG_GENERIC_HARDIRQS is "n" not "y", threaded_irq will become
-original irq, drivers will not work. So is it necessary to check the
-dependence of GENERIC_HARDIRQS while using threaded_irq?
->
-> --
-> Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.ht=
-ml
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> You need to do iounmap and free the memory region here as well.
+
+ugh, i remembered i would have to do this while writing the initial
+code, but forgot while double checking the different error paths
+-mike

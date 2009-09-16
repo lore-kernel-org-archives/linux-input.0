@@ -1,86 +1,75 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Samsung R510
-Date: Tue, 15 Sep 2009 20:46:09 -0700
-Message-ID: <20090916034609.GB2756@core.coreip.homeip.net>
-References: <f3f71ab90909110117t4d9de95cv2f71b42f2a9a7992@mail.gmail.com> <f3f71ab90909151403o688c31aew9bca512302d616d@mail.gmail.com>
+Subject: Re: Using EV_MSC or extending KEY_*
+Date: Tue, 15 Sep 2009 20:46:42 -0700
+Message-ID: <20090916034642.GC2756@core.coreip.homeip.net>
+References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu> <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com> <20090915183406.GA5696@core.coreip.homeip.net> <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f172.google.com ([209.85.221.172]:36675 "EHLO
-	mail-qy0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751513AbZIPDqJ (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.25]:60289 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750868AbZIPDqr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Sep 2009 23:46:09 -0400
-Received: by mail-qy0-f172.google.com with SMTP id 2so3749051qyk.21
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2009 20:46:13 -0700 (PDT)
+	Tue, 15 Sep 2009 23:46:47 -0400
 Content-Disposition: inline
-In-Reply-To: <f3f71ab90909151403o688c31aew9bca512302d616d@mail.gmail.com>
+In-Reply-To: <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Lothian <mike@fireburn.co.uk>
-Cc: linux-input@vger.kernel.org
+To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Cc: Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Mike,
+On Tue, Sep 15, 2009 at 01:05:57PM -0600, Rick L. Vinyard, Jr. wrote:
+> Dmitry Torokhov wrote:
+> > On Tue, Sep 15, 2009 at 10:41:30PM +0530, Trilok Soni wrote:
+> >> Adding linux-input.
+> >>
+> >> On Tue, Sep 15, 2009 at 9:49 PM, Rick L. Vinyard, Jr.
+> >> <rvinyard@cs.nmsu.edu> wrote:
+> >> > On the Logitech G13 there are a set of 10 special keys at the top of
+> >> the
+> >> > device.
+> >> >
+> >> > I've written the driver so that it maintains a map from the general
+> >> keys
+> >> > (G1-G22) to Linux' input subsystem keys.
+> >> >
+> >> > The map can be changed on the fly, allowing multiple keymaps to be
+> >> loaded.
+> >> >
+> >> > As a side note I haven't provided for this functionality (multiple
+> >> > keymaps) in the driver since this can be maintained from userspace,
+> >> but it
+> >> > does need to know about the currently loaded keymap so that when the
+> >> raw
+> >> > HID events are parsed the appropriate EV_KEY events can be input.
+> >> >
+> >> > I could set it up so that the special keys also map to a KEY_* code.
+> >> > However, I'd prefer to set things up so that any G1-G22 key can be
+> >> mapped
+> >> > to any input subsystem KEY_* code and not reserve a set of 10 from the
+> >> > current KEY_* codes for the 10 special keys.
+> >> >
+> >> > One way I was thinking of approaching this was to generate EV_MSC type
+> >> > events (with a MSC_RAW code) using the value to indicate the state
+> >> > (pressed/released) and special key.
+> >
+> > Doesn't HID already generate EV_MSC/MSC_SCAN for exactly this purpose
+> > so userspace knows what keys can be remapped? You may initially map all
+> > keys you don't know the usage to KEY_UNKNOWN.
+> 
+> As I understand it the EV_MSC/MSC_SCAN is used to trigger a prompting of
+> the user to map a key, which would be useful for the G1-G22 keys and
+> perhaps 5 of the 10 special keys. But, that's not the behavior I want for
+> the M1, M2, M3, MR and backlight keys.
+> 
+> Somehow they need to be distinct from any existing KEY_* codes or not have
+> a code at all... i.e. only emitting the raw misc events.
+> 
+> Perhaps the BTN_MISC codes are better suited for these keys?
+> 
 
-On Tue, Sep 15, 2009 at 10:03:25PM +0100, Mike Lothian wrote:
-> 2009/9/11 Mike Lothian <mike@fireburn.co.uk>:
-> > Hi
-> >
-> > Please could the following patch be added to the kernel
-> >
-> > diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboar=
-d/atkbd.c
-> > index 95fe045..592623e 100644
-> > --- a/drivers/input/keyboard/atkbd.c
-> > +++ b/drivers/input/keyboard/atkbd.c
-> > @@ -1572,6 +1572,16 @@ static struct dmi_system_id
-> > atkbd_dmi_quirk_table[] __initdata =3D {
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.callback =3D atkbd_setup_forced_rel=
-ease,
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.driver_data =3D atkbd_samsung_force=
-d_release_keys,
-> > =A0 =A0 =A0 =A0},
-> > + =A0 =A0 =A0 =A0{
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.ident =3D "Samsung R510/P510",
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.matches =3D {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0DMI_MATCH(DMI_SYS_=
-VENDOR, "SAMSUNG
-> > ELECTRONICS CO., LTD."),
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0DMI_MATCH(DMI_PROD=
-UCT_NAME, "R510/P510"),
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0},
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.callback =3D atkbd_setup_forced_r=
-elease,
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.driver_data =3D atkbd_samsung_for=
-ced_release_keys,
-> > + =A0 =A0 =A0 =A0},
-> > +
-> > =A0 =A0 =A0 =A0{
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.ident =3D "Fujitsu Amilo PA 1510",
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.matches =3D {
-> >
-> > This fixes the forced release keys for me
-> >
-> > Thanks
-> >
-> > Mike
-> >
-> > PS I'm not subscribed to this list so please CC me
-> >
->=20
-> Ping is this the correct list?
+I am sorry, I don't follow... why would yo not want to assign a standard
+code to the M* keys?
 
-This is correct list. However atkbd has just been adjusted to allow
-manipulating the force release bitmap from userspace (via sysfs) so no
-more patches will be accepted in the kernel. We will rely on UDEV/HAL t=
-o
-take care of setting it up properly.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

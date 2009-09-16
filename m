@@ -1,53 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
-Date: Wed, 16 Sep 2009 09:28:54 -0700
-Message-ID: <20090916162853.GA4970@core.coreip.homeip.net>
-References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
+Subject: Re: Fn + [KEYS] question
+Date: Wed, 16 Sep 2009 09:33:05 -0700
+Message-ID: <20090916163305.GB4970@core.coreip.homeip.net>
+References: <4AB0929D.4030007@gmail.com> <20090916073207.GI2756@core.coreip.homeip.net> <4AB09717.6040704@gmail.com> <20090916080607.GJ2756@core.coreip.homeip.net> <4AB0AEF6.7020103@gmail.com> <4AB0F9B1.90606@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f219.google.com ([209.85.218.219]:53492 "EHLO
-	mail-bw0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759607AbZIPQ27 (ORCPT
+Received: from mail-fx0-f217.google.com ([209.85.220.217]:58883 "EHLO
+	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753882AbZIPQdJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2009 12:28:59 -0400
-Received: by bwz19 with SMTP id 19so3619936bwz.37
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2009 09:29:01 -0700 (PDT)
+	Wed, 16 Sep 2009 12:33:09 -0400
+Received: by fxm17 with SMTP id 17so2408188fxm.37
+        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2009 09:33:12 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
+In-Reply-To: <4AB0F9B1.90606@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+To: Xiangfu Liu <xiangfu.z@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Wed, Sep 16, 2009 at 07:03:18PM +0400, Dmitry Eremin-Solenikov wrote:
-> There is nothing that disallows gpio-keys to share it's IRQ line
-> w/ other drivers. Make it use IRQF_SHARED in request_irq().
+On Wed, Sep 16, 2009 at 10:44:01PM +0800, Xiangfu Liu wrote:
+> Xiangfu Liu wrote:
+> > Hi Dmitry
+> > 
+> >>>  thanks for the reply.
+> >>> see [1], I change the [Red arrow] key to [ALTGR] then I can easy change the 
+> >>> defkeymap.map. make all the red keys work.
+> >>>
+> >>> but for the [Blue Fn] key. I don't know how to make it work in keymap?
+> >>> there is [SHIFT] [CONTROL] [SHIFT] [ALTGR] four modifier keys.
+> >>> all used. so I can not may the [Fn] to those four modifier keys.
+> >>>
+> >>> can I make the leftAlt and rightAlt generate different keys?
+> >>> like:
+> >>>  LeftAlt + 'U' = Alt + 'U'
+> >>>  RightAlt + 'U' = '7'
+> >>>
+> >> Keyboard driver supports 9 modifiers total, you should be able use one
+> >> of these for your numeric buttons.
+> >>
+> > 
+> > oh. can you give me some tips on the other modifiers.
+> > how to define them? 
+> > can I just change the defkeymap.map file?
+> > or I must change the source code?
+> > 
+> Hi Dmitry I found this[1] in the 'man keymaps', three are 9 modifiers.
+> but the in defkaymap.map, there is alwasy like:
 > 
-> An example of other driver with which I'd like to share IRQ line
-> for GPIO buttons is ledtrig-gpio.
+> control keycode  53 = Delete
 > 
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> there is no ctrll in the defkeymap.map.
+> how to implement this?
+>
+> ShiftL + u = U
+> ShiflR + u = 7
 > 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index efed0c9..9fc2fab 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -147,6 +147,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  		}
->  
->  		error = request_irq(irq, gpio_keys_isr,
-> +				    IRQF_SHARED |
->  				    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
->  				    button->desc ? button->desc : "gpio_keys",
->  				    bdata);
 
-How will you determine which device generated the interrupt? Because you
-can't return IRQ_HANDLED unconditionally and expect both devices work
-reliably.
+The same as with AltGr you need to do
+
+keycode XX = CtrlR
+
+and then
+
+keycode YY = u
+shift keycode YY = U
+ctrlr keycode YY = seven
+
+Let me know if this works.
 
 -- 
 Dmitry

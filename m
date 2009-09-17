@@ -1,12 +1,12 @@
 From: miguel.aguilar@ridgerun.com
-Subject: [PATCH 2/2] Davinci: DM365: Enable keypad support for DM365 EVM
-Date: Thu, 17 Sep 2009 14:06:57 -0600
-Message-ID: <1253218017-11579-1-git-send-email-miguel.aguilar@ridgerun.com>
+Subject: [PATCH v3 2/2] Davinci: DM365: Enable keypad support for DM365 EVM
+Date: Thu, 17 Sep 2009 14:07:40 -0600
+Message-ID: <1253218060-11604-1-git-send-email-miguel.aguilar@ridgerun.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.navvo.net ([74.208.67.6]:51141 "EHLO mail.navvo.net"
+Received: from mail.navvo.net ([74.208.67.6]:53424 "EHLO mail.navvo.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751730AbZIQUHC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2009 16:07:02 -0400
+	id S1752321AbZIQUHo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2009 16:07:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: nsnehaprabha@ti.com, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org

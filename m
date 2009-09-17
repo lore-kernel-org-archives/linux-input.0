@@ -1,86 +1,42 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: Re: Fn + [KEYS] question
-Date: Thu, 17 Sep 2009 10:31:56 +0800
-Message-ID: <4AB19F9C.3080707@gmail.com>
-References: <4AB0929D.4030007@gmail.com> <20090916163305.GB4970@core.coreip.homeip.net> <4AB11F49.6060308@gmail.com> <200909161040.20085.dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Alessandro Guido <ag@alessandroguido.name>
+Subject: [PATCH] Remove duplicate Kconfig entry for HID_PANTHERLORD
+Date: Thu, 17 Sep 2009 14:38:10 +0200
+Message-ID: <1253191090-23675-1-git-send-email-ag@alessandroguido.name>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f182.google.com ([209.85.210.182]:38683 "EHLO
-	mail-yx0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753882AbZIQCb5 (ORCPT
+Received: from mail-fx0-f217.google.com ([209.85.220.217]:46357 "EHLO
+	mail-fx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752698AbZIQMiL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Sep 2009 22:31:57 -0400
-Received: by yxe12 with SMTP id 12so20662yxe.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2009 19:32:00 -0700 (PDT)
-In-Reply-To: <200909161040.20085.dmitry.torokhov@gmail.com>
+	Thu, 17 Sep 2009 08:38:11 -0400
+Received: by fxm17 with SMTP id 17so2940863fxm.37
+        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2009 05:38:13 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Alessandro Guido <ag@alessandroguido.name>
 
-Dmitry Torokhov wrote:
-> On Wednesday 16 September 2009 10:24:25 am Xiangfu Liu wrote:
->> Dmitry Torokhov wrote:
->>> On Wed, Sep 16, 2009 at 10:44:01PM +0800, Xiangfu Liu wrote:
->>>> Xiangfu Liu wrote:
->>>>> Hi Dmitry
->>>>>
->>>>>>>  thanks for the reply.
->>>>>>> see [1], I change the [Red arrow] key to [ALTGR] then I can easy
->>>>>>> change the defkeymap.map. make all the red keys work.
->>>>>>>
->>>>>>> but for the [Blue Fn] key. I don't know how to make it work in
->>>>>>> keymap? there is [SHIFT] [CONTROL] [SHIFT] [ALTGR] four modifier
->>>>>>> keys. all used. so I can not may the [Fn] to those four modifier
->>>>>>> keys.
->>>>>>>
->>>>>>> can I make the leftAlt and rightAlt generate different keys?
->>>>>>> like:
->>>>>>>  LeftAlt + 'U' = Alt + 'U'
->>>>>>>  RightAlt + 'U' = '7'
->>>>>> Keyboard driver supports 9 modifiers total, you should be able use one
->>>>>> of these for your numeric buttons.
->>>>> oh. can you give me some tips on the other modifiers.
->>>>> how to define them?
->>>>> can I just change the defkeymap.map file?
->>>>> or I must change the source code?
->>>> Hi Dmitry I found this[1] in the 'man keymaps', three are 9 modifiers.
->>>> but the in defkaymap.map, there is alwasy like:
->>>>
->>>> control keycode  53 = Delete
->>>>
->>>> there is no ctrll in the defkeymap.map.
->>>> how to implement this?
->>>>
->>>> ShiftL + u = U
->>>> ShiflR + u = 7
->>> The same as with AltGr you need to do
->>>
->>> keycode XX = CtrlR
->>>
->>> and then
->>>
->>> keycode YY = u
->>> shift keycode YY = U
->>> ctrlr keycode YY = seven
->> Hi Dmitry
->> thanks for the reply. I test this, it's not work.
->> ----------
->> $ loadkeys -m defkeymap.map > defkeymap.c && rm defkeymap.o
->> loadkeys: defkeymap.map:71: adding map 64 violates explicit keymaps line
-> 
-> You need to fix this ^^^^ first.
-> 
-the line 71 is the "ctrlr ....", so I think the defkeymap.map not support 
-the "ctrlr".
+---
+ drivers/hid/Kconfig |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
 
-
-
-
-
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 111afbe..24d90ea 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -205,13 +205,6 @@ config HID_NTRIG
+ 	Support for N-Trig touch screen.
+ 
+ config HID_PANTHERLORD
+-	tristate "Pantherlord devices support" if EMBEDDED
+-	depends on USB_HID
+-	default !EMBEDDED
+-	---help---
+-	Support for PantherLord/GreenAsia based device support.
+-
+-config HID_PANTHERLORD
+ 	tristate "Pantherlord support" if EMBEDDED
+ 	depends on USB_HID
+ 	default !EMBEDDED
 -- 
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
+1.6.5.rc1
+

@@ -1,65 +1,40 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: Using EV_MSC or extending KEY_*
-Date: Thu, 17 Sep 2009 14:57:07 -0300
-Message-ID: <20090917175707.GB789@khazad-dum.debian.net>
-References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
- <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
- <20090915183406.GA5696@core.coreip.homeip.net>
- <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
- <20090916034642.GC2756@core.coreip.homeip.net>
- <2c0ac825ebe78da99328b896faae04a2.squirrel@intranet.cs.nmsu.edu>
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Subject: Re: [PATCH v2 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Thu, 17 Sep 2009 22:01:01 +0400
+Message-ID: <4AB2795D.2060900@ru.mvista.com>
+References: <1252951959-31015-1-git-send-email-miguel.aguilar@ridgerun.com>	<200909141145.48252.david-b@pacbell.net> <4AB276BF.9000807@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:48993 "EHLO
-	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755430AbZIQR5H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Sep 2009 13:57:07 -0400
-Content-Disposition: inline
-In-Reply-To: <2c0ac825ebe78da99328b896faae04a2.squirrel@intranet.cs.nmsu.edu>
+Received: from h155.mvista.com ([63.81.120.155]:13256 "EHLO imap.sh.mvista.com"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758877AbZIQR6h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Sep 2009 13:58:37 -0400
+In-Reply-To: <4AB276BF.9000807@ridgerun.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Cc: David Brownell <david-b@pacbell.net>, davinci-linux-open-source@linux.davincidsp.com, clark.becker@ridgerun.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com
 
-On Wed, 16 Sep 2009, Rick L. Vinyard, Jr. wrote:
-> The M* keys are intended to provide a quick way to switch between key
-> mappings, with each mode having their own user-defined mappings.
+Hello.
 
-What I'd do in this case would be this:
+Miguel Aguilar wrote:
 
-1. Initially have the M* level-shift keys assigned KEY_RESERVED
+> David,
 
-2. Have a big enough keymap to map all keys in all M*-level shift states
-possible.
+    Though I'm not David, I'll reply... :-)
 
-Eg:
-   START OF KEYMAP
-   M* keys
-   1st set of G* keys
-   2nd set of G* keys
-   3rd set of G* keys...
-   ...
-   last set of G* keys
-   END OF KEYMAP
+> What are the proper error codes when platform_get_resource,
 
-3. Have the driver special-process M* level-shift keys *as long as they are
-still set to KEY_RESERVED* to select which part of the keymap is used to
-translate the other keys.  Note that this likely means pressing a M* key
-would be transparent to userspace in this case, i.e. no events would be
-issued when a M* key is doing a level shift.
+    -ENODEV.
 
-So, you'd be able to set all mappings you want in the driver, and the M*
-keys would do what they're expected to do without any userland help at all,
-but you'd still be able to program the M* keys to be normal keys if you
-want.
+> request_mem_region
 
-Of course, this assumes you don't do chording on multiple M* keys to end up
-with a huge number of keymaps :p
+    -EBUSY.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+> and ioremap functions fail?.
+
+    -ENOMEM.
+
+WBR, Sergei

@@ -1,188 +1,392 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: make the CtrlR and CtrlL modifier output different keys
-Date: Fri, 18 Sep 2009 13:13:17 +0800
-Message-ID: <4AB316ED.80005@gmail.com>
+From: "Nori, Sekhar" <nsekhar@ti.com>
+Subject: RE: [PATCH v3 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Fri, 18 Sep 2009 11:05:19 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301DD916A60@dbde02.ent.ti.com>
+References: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------040508050000060103070403"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f175.google.com ([209.85.211.175]:54772 "EHLO
-	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750786AbZIRFNY (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:59411 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751598AbZIRFfp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 01:13:24 -0400
-Received: by ywh5 with SMTP id 5so906017ywh.4
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2009 22:13:28 -0700 (PDT)
+	Fri, 18 Sep 2009 01:35:45 -0400
+In-Reply-To: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: "miguel.aguilar@ridgerun.com" <miguel.aguilar@ridgerun.com>, "Narnakaje, Snehaprabha" <nsnehaprabha@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-sour>
+Cc: "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>
 
-This is a multi-part message in MIME format.
---------------040508050000060103070403
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Fri, Sep 18, 2009 at 01:36:36, miguel.aguilar@ridgerun.com wrote:
+> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+>
+> Adds the driver for enabling keypad support on DM365 platform.
+>
+> This driver was tested on DM365 EVM rev c.
+>
+> Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> ---
 
-Hi.
+[...]
 
-I want make the CtrlR and CtrlL output different keys.
-like:
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index a6b989a..08ed7d4 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -361,4 +361,10 @@ config KEYBOARD_XTKBD
+>         To compile this driver as a module, choose M here: the
+>         module will be called xtkbd.
+>
+> +config KEYBOARD_DAVINCI_DM365
 
-CtrlR + U = 7
-CtrlR + U = Control + U.
+How about calling it just KEYBOARD_DAVINCI in honor of this
+being the first DaVinci keypad driver in drivers/input/keyboard?
+Also, in the hope that this will get reused on a future DaVinci.
 
-so I　modify the keyboard.c code. attach is the code.
+Unless, there is something that makes it really DM365 specific..
 
-give me some feedback about this patch.
-thanks.
+> +     tristate "TI DaVinci DM365 Keypad"
+> +     depends on ARCH_DAVINCI_DM365
+> +     help
+> +      Supports the keypad module on the DM365
+> +
+>  endif
 
+[...]
 
--- 
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
+> diff --git a/drivers/input/keyboard/davinci_dm365_keypad.c b/drivers/input/keyboard/davinci_dm365_keypad.c
+> new file mode 100644
+> index 0000000..5db8eed
+> --- /dev/null
+> +++ b/drivers/input/keyboard/davinci_dm365_keypad.c
+> @@ -0,0 +1,331 @@
+> +/*
+> + * DaVinci DM365 Keypad Driver
+> + *
+> + * Copyright (C) 2009 Texas Instruments, Inc
+> + *
+> + * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> + *
+> + * Intial Code: Sandeep Paulraj <s-paulraj@ti.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + */
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/types.h>
+> +#include <linux/input.h>
+> +#include <linux/kernel.h>
+> +#include <linux/delay.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/errno.h>
+> +
+> +#include <asm/irq.h>
+> +
+> +#include <mach/hardware.h>
+> +#include <mach/irqs.h>
+> +#include <mach/keypad.h>
+> +
+> +/* Keypad registers */
+> +#define DM365_KEYPAD_KEYCTRL         0x0000
 
---------------040508050000060103070403
-Content-Type: text/x-patch;
- name="510-Fn-modifier-keys-work.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="510-Fn-modifier-keys-work.patch"
+There are many places in the driver (functions, macros) which
+probably can just be called DAVINCI_ instead of DM365_
 
-diff --git a/arch/mips/jz4740/platform.c b/arch/mips/jz4740/platform.c
-index 5859589..ddd7d3f 100644
---- a/arch/mips/jz4740/platform.c
-+++ b/arch/mips/jz4740/platform.c
-@@ -242,11 +242,11 @@ static struct platform_device jz_nand_device = {
-  * don't define this. the keyboard and keyboard both work
-  */
- 
--#define KEY_QI_QI		KEY_F13
--#define KEY_QI_UPRED	KEY_RIGHTCTRL
-+#define KEY_QI_QI	KEY_RIGHTCTRL
-+#define KEY_QI_UPRED	KEY_RIGHTSHIFT
- #define KEY_QI_VOLUP	KEY_F15
- #define KEY_QI_VOLDOWN	KEY_F16
--#define KEY_QI_FN	KEY_F17
-+#define KEY_QI_FN	KEY_RIGHTCTRL
- 
- static const uint32_t qi_lb60_keymap[] = {
- 	KEY(0, 0, KEY_F1),	/* S2 */
-diff --git a/drivers/char/defkeymap.map b/drivers/char/defkeymap.map
-index 25d05b4..497cfc2 100644
---- a/drivers/char/defkeymap.map
-+++ b/drivers/char/defkeymap.map
-@@ -113,9 +113,9 @@ keycode  43 = backslash        bar
- 	control keycode  43 = Control_backslash
- 	alt     keycode  43 = Meta_backslash  
- keycode  44 = z               
--	altgr   keycode  43 = nine
-+	altgr   keycode  44 = nine
- keycode  45 = x               
--	altgr   keycode  43 = zero
-+	altgr   keycode  45 = zero
- keycode  46 = c
- 	altgr   keycode  46 = Hex_C   
- keycode  47 = v               
-@@ -133,7 +133,7 @@ keycode  52 = period           greater
- keycode  53 = slash            question        
- 	control keycode  53 = Delete          
- 	alt     keycode  53 = Meta_slash      
--keycode  54 = Shift           
-+keycode  54 = AltGr
- keycode  55 = KP_Multiply     
- keycode  56 = Alt             
- keycode  57 = space            space           
-@@ -240,7 +240,7 @@ keycode  93 =
- keycode  94 =
- keycode  95 =
- keycode  96 = KP_Enter        
--keycode  97 = AltGr
-+keycode  97 = Control
- keycode  98 = KP_Divide       
- keycode  99 = Control_backslash
- 	control keycode  99 = Control_backslash
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 737be95..4cdd9ac 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -121,6 +121,8 @@ struct vt_spawn_console vt_spawn_con = {
- 	.sig  = 0,
- };
- 
-+static int ctrlr = 0;
-+
- /*
-  * Variables exported for vt.c
-  */
-@@ -1133,6 +1135,60 @@ static int emulate_raw(struct vc_data *vc, unsigned int keycode, unsigned char u
- }
- #endif
- 
-+static int qi_keymap(int keysym, int keycode, int up_flag)
-+{
-+	int ret;
-+	ret = keysym;
-+
-+	if (up_flag && keycode == KEY_RIGHTCTRL) {
-+		ctrlr = 0;
-+		return ret;
-+	}
-+
-+	if (ctrlr) {
-+		switch (keycode) {
-+		case KEY_SLASH:	/* 0 */
-+			ret = 61488;
-+			break;
-+		case KEY_N:	/* 1 */
-+			ret = 61489;
-+			break;
-+		case KEY_M:	/* 2 */
-+			ret = 61490;
-+			break;
-+		case KEY_B:	/* 3 */
-+			ret = 61491;
-+			break;
-+		case KEY_J:	/* 4 */
-+			ret = 61492;
-+			break;
-+		case KEY_K:	/* 5 */
-+			ret = 61493;
-+			break;
-+		case KEY_L:	/* 6 */
-+			ret = 61494;
-+			break;
-+		case KEY_U:	/* 7 */
-+			ret = 61495;
-+			break;
-+		case KEY_I:	/* 8 */
-+			ret = 61496;
-+			break;
-+		case KEY_O:	/* 9 */
-+			ret = 61497;
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+
-+	if (keycode == KEY_RIGHTCTRL) {
-+		ctrlr = 1;
-+	}
-+
-+	return ret;
-+}
-+
- static void kbd_rawcode(unsigned char data)
- {
- 	struct vc_data *vc = vc_cons[fg_console].d;
-@@ -1284,6 +1340,8 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
- 	if (raw_mode && type != KT_SPEC && type != KT_SHIFT)
- 		return;
- 
-+	keysym = qi_keymap(keysym, keycode, !down);
-+
- 	(*k_handler[type])(vc, keysym & 0xff, !down);
- 
- 	param.ledstate = kbd->ledflagstate;
+> +#define DM365_KEYPAD_INTENA          0x0004
+> +#define DM365_KEYPAD_INTFLAG         0x0008
+> +#define DM365_KEYPAD_INTCLR          0x000c
+> +#define DM365_KEYPAD_STRBWIDTH               0x0010
+> +#define DM365_KEYPAD_INTERVAL                0x0014
+> +#define DM365_KEYPAD_CONTTIME                0x0018
+> +#define DM365_KEYPAD_CURRENTST               0x001c
+> +#define DM365_KEYPAD_PREVSTATE               0x0020
+> +#define DM365_KEYPAD_EMUCTRL         0x0024
+> +#define DM365_KEYPAD_IODFTCTRL               0x002c
+> +
+> +/* Key Control Register (KEYCTRL) */
+> +#define DM365_KEYPAD_KEYEN           0x00000001
+> +#define DM365_KEYPAD_PREVMODE                0x00000002
+> +#define DM365_KEYPAD_CHATOFF         0x00000004
+> +#define DM365_KEYPAD_AUTODET         0x00000008
+> +#define DM365_KEYPAD_SCANMODE                0x00000010
+> +#define DM365_KEYPAD_OUTTYPE         0x00000020
+> +#define DM365_KEYPAD_4X4             0x00000040
+> +
+> +/* Masks for the interrupts */
+> +#define DM365_KEYPAD_INT_CONT                0x00000008
+> +#define DM365_KEYPAD_INT_OFF         0x00000004
+> +#define DM365_KEYPAD_INT_ON          0x00000002
+> +#define DM365_KEYPAD_INT_CHANGE              0x00000001
+> +#define DM365_KEYPAD_INT_ALL         0x0000000f
+> +
+> +struct davinci_kp {
+> +     struct input_dev                *input;
+> +     struct davinci_kp_platform_data *pdata;
+> +     int                             irq;
+> +     void __iomem                    *base;
+> +     resource_size_t                 pbase;
+> +     size_t                          base_size;
+> +};
+> +
+> +static void dm365_kp_write(struct davinci_kp *dm365_kp, u32 val, u32 addr)
+> +{
+> +     u32 base = (u32)dm365_kp->base;
+> +
+> +     __raw_writel(val,(u32 *)(base + addr));
+> +}
+> +
+> +static u32 dm365_kp_read(struct davinci_kp *dm365_kp, u32 addr)
+> +{
+> +     u32 base = (u32)dm365_kp->base;
+> +
+> +     return __raw_readl((u32 *)(base + addr));
+> +}
+> +
+> +/* Initializing the kp Module */
+> +static void dm365_kp_initialize(struct davinci_kp *dm365_kp)
+> +{
+> +     u32 strobe = dm365_kp->pdata->strobe;
+> +     u32 interval = dm365_kp->pdata->interval;
+> +
+> +     /* Enable all interrupts */
+> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_INT_ALL, DM365_KEYPAD_INTENA);
+> +
+> +     /* Clear interrupts if any */
+> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_INT_ALL, DM365_KEYPAD_INTCLR);
+> +
+> +     /* Setup the scan period = strobe + interval */
+> +     dm365_kp_write(dm365_kp, strobe, DM365_KEYPAD_STRBWIDTH);
+> +     dm365_kp_write(dm365_kp, interval, DM365_KEYPAD_INTERVAL);
+> +     dm365_kp_write(dm365_kp, 0x01, DM365_KEYPAD_CONTTIME);
+> +
+> +     /* Enable Keyscan module and enable */
+> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_AUTODET | DM365_KEYPAD_KEYEN,
+> +                     DM365_KEYPAD_KEYCTRL);
+> +}
+> +
+> +static irqreturn_t dm365_kp_interrupt(int irq, void *dev_id)
+> +{
+> +     int i;
+> +     u32 prev_status, new_status, changed;
+> +     int keycode = KEY_UNKNOWN;
+> +     struct davinci_kp *dm365_kp = dev_id;
+> +     int *keymap = dm365_kp->pdata->keymap;
+> +     u32 keymapsize = dm365_kp->pdata->keymapsize;
+> +     struct device *dev = &dm365_kp->input->dev;
+> +
+> +     /* Disable interrupt */
+> +     dm365_kp_write(dm365_kp, 0x0, DM365_KEYPAD_INTENA);
+> +
+> +     /* Reading previous and new status of the keypad */
+> +     prev_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_PREVSTATE);
+> +     new_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_CURRENTST);
+> +
+> +     changed = prev_status ^ new_status;
+> +
+> +     for (i = 0; i < keymapsize; i++) {
+> +             if ((changed >> i) & 0x1) {
 
---------------040508050000060103070403--
+Using ffs(changed) will probably lead to a faster ISR, especially
+because only one key would have changed in most cases.
+
+> +                     keycode = keymap[i];
+> +                     if((new_status >> i) & 0x1) {
+> +                             /* Report release */
+> +                             input_report_key(dm365_kp->input, keycode, 0);
+> +                             input_sync(dm365_kp->input);
+> +                             dev_dbg(dev, "dm365_keypad: key %d released\n",
+> +                                             keycode);
+> +                     } else {
+> +                             /* Report press */
+> +                             input_report_key(dm365_kp->input, keycode, 1);
+> +                             input_sync(dm365_kp->input);
+> +                             dev_dbg(dev, "dm365_keypad: key %d pressed\n",
+> +                                             keycode);
+> +                     }
+> +             }
+> +     }
+> +
+> +     /* Clearing interrupt */
+> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_INT_ALL, DM365_KEYPAD_INTCLR);
+> +
+> +     /* Enable interrupts */
+> +     dm365_kp_write(dm365_kp, 0x1, DM365_KEYPAD_INTENA);
+> +
+> +     return IRQ_HANDLED;
+> +}
+> +
+> +/*
+> + * Registers keypad device with input sub system and configures
+> + * DM365 keypad registers
+> + */
+> +static int dm365_kp_probe(struct platform_device *pdev)
+
+This should be __init function.
+
+> +{
+> +     struct davinci_kp *dm365_kp;
+> +     struct input_dev *key_dev;
+> +     struct resource *res, *mem;
+> +     int ret, i;
+> +     struct device * dev = &pdev->dev;
+> +     struct davinci_kp_platform_data *pdata = pdev->dev.platform_data;
+> +
+> +     dev_info(dev, "DaVinci DM365 Keypad Driver\n");
+> +
+> +     if (!pdata->keymap) {
+> +             dev_dbg(dev, "%s: No keymap from pdata\n", pdev->name);
+> +             return -EINVAL;
+> +     }
+> +
+> +     dm365_kp = kzalloc(sizeof *dm365_kp, GFP_KERNEL);
+> +     if(!dm365_kp) {
+> +             dev_dbg(dev, "%s: Could not allocate memory for private data\n",
+> +                     pdev->name);
+> +             return -ENOMEM;
+> +     }
+> +
+> +     key_dev = input_allocate_device();
+> +     if (!key_dev) {
+> +             dev_dbg(dev, "%s: Could not allocate input device\n",
+> +                     pdev->name);
+> +             ret = -ENOMEM;
+> +             goto fail1;
+> +     }
+> +
+> +     platform_set_drvdata(pdev, dm365_kp);
+> +
+> +     dm365_kp->input = key_dev;
+> +
+> +     dm365_kp->irq = platform_get_irq(pdev, 0);
+> +     if (dm365_kp->irq <= 0) {
+> +             dev_err(dev, "%s: No DM365 Keypad irq\n", pdev->name);
+> +             ret = dm365_kp->irq;
+
+Probe will return success when dm365_kp->irq is 0, but you actually
+want a failure.
+
+> +             goto fail2;
+> +     }
+> +
+
+[...]
+
+> +     key_dev->name = "dm365_keypad";
+> +     key_dev->phys = "dm365_keypad/input0";
+...
+> +     key_dev->id.vendor = 0x0001;
+> +     key_dev->id.product = 0x0365;
+
+These initializations seem to make the driver's use on future SoCs
+a little uncomfortable..
+
+> +     key_dev->id.version = 0x0001;
+> +     key_dev->keycode = dm365_kp->pdata->keymap;
+> +     key_dev->keycodesize = sizeof(unsigned int);
+> +     key_dev->keycodemax = dm365_kp->pdata->keymapsize;
+> +
+> +     ret = input_register_device(dm365_kp->input);
+> +     if (ret < 0) {
+> +             dev_err(dev, "%s: Unable to register DaVinci DM365 keypad device\n",
+
+Can avoid hard coding "DM365" in error messages too...
+
+> +                     pdev->name);
+> +             goto fail4;
+> +     }
+> +
+> +     ret = request_irq(dm365_kp->irq, dm365_kp_interrupt, IRQF_DISABLED,
+> +                         "dm365_keypad", dm365_kp);
+> +     if (ret < 0) {
+> +             dev_err(dev, "%s: Unable to register DaVinci DM365 keypad Interrupt\n",
+> +                     pdev->name);
+> +             goto fail5;
+> +     }
+> +
+> +     dm365_kp_initialize(dm365_kp);
+> +
+> +     return 0;
+> +fail5:
+> +     input_unregister_device(dm365_kp->input);
+> +     key_dev = NULL;
+> +fail4:
+> +     iounmap(dm365_kp->base);
+> +fail3:
+> +     release_mem_region(dm365_kp->pbase, dm365_kp->base_size);
+> +fail2:
+> +     input_free_device(key_dev);
+> +fail1:
+> +     kfree(dm365_kp);
+> +
+> +     return ret;
+> +}
+> +
+> +static int __exit dm365_kp_remove(struct platform_device *pdev)
+> +{
+> +     struct davinci_kp *dm365_kp = platform_get_drvdata(pdev);
+> +
+> +     free_irq(dm365_kp->irq, dm365_kp);
+> +
+> +     iounmap(dm365_kp->base);
+> +     release_mem_region(dm365_kp->pbase, dm365_kp->base_size);
+> +
+> +     platform_set_drvdata(pdev, NULL);
+> +
+> +     input_unregister_device(dm365_kp->input);
+
+It would be nice to see the remove happen in reverse order of probe,
+ie. unregister device first and unmap memory later.
+
+> +
+> +     kfree(dm365_kp);
+> +
+> +     return 0;
+> +}
+> +
+> +static struct platform_driver dm365_kp_driver = {
+> +     .driver = {
+> +                     .name = "dm365_keypad",
+> +                     .owner = THIS_MODULE,
+> +             },
+> +     .remove = __exit_p(dm365_kp_remove),
+> +};
+> +
+> +static int __init dm365_kp_init(void)
+> +{
+> +
+> +
+
+Extra lines here.
+
+> +     return platform_driver_probe(&dm365_kp_driver, dm365_kp_probe);
+> +}
+> +module_init(dm365_kp_init);
+> +
+> +static void __exit dm365_kp_exit(void)
+> +{
+> +     platform_driver_unregister(&dm365_kp_driver);
+> +}
+> +module_exit(dm365_kp_exit);
+> +
+> +MODULE_AUTHOR("Miguel Aguilar");
+> +MODULE_DESCRIPTION("Texas Instruments DaVinci DM365 EVM Keypad Driver");
+
+The driver is definitely not specific to the EVM.
+
+Thanks,
+Sekhar

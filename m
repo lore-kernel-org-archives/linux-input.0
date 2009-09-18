@@ -1,75 +1,73 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: Re: =?UTF-8?B?W8KwXSBbwqhdIFvigqxdICB0aHJlZSBjaGFyYWN0ZXJzIGluIGs=?=
- =?UTF-8?B?ZXlib2FyZC4=?=
-Date: Fri, 18 Sep 2009 15:11:52 +0800
-Message-ID: <4AB332B8.9080908@gmail.com>
-References: <4AB3159D.6050404@gmail.com> <20090918061752.GF18668@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Tobias Klauser <tklauser@distanz.ch>
+Subject: [PATCH] Input: pxa27x_keypad - Use resource_size
+Date: Fri, 18 Sep 2009 09:13:41 +0200
+Message-ID: <1253258021-7817-1-git-send-email-tklauser@distanz.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f179.google.com ([209.85.222.179]:57526 "EHLO
-	mail-pz0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750950AbZIRHLz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 03:11:55 -0400
-Received: by pzk9 with SMTP id 9so13171pzk.33
-        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2009 00:11:58 -0700 (PDT)
-In-Reply-To: <20090918061752.GF18668@core.coreip.homeip.net>
+Received: from mx2.zhaw.ch ([160.85.104.51]:49074 "EHLO mx2.zhaw.ch"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750930AbZIRHNj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Sep 2009 03:13:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>, linux-input@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>
 
-Dmitry Torokhov wrote:
-> On Fri, Sep 18, 2009 at 01:07:41PM +0800, Xiangfu Liu wrote:
->> Hi
->>   I want make those three characters work in keyboard.
->> I=E3=80=80change the defkeymap.map like[1].=20
->> but it's not work. Since I am a Chinese. never use the
->> euro keyboard. give me some tips.
->>
->>
->> thanks.
->>
->> [1]=20
->>
->> part of defkeymap.map:
->> keycode  30 =3D a
->>         altgr   keycode  30 =3D F100
->> keycode  31 =3D s
->>         altgr   keycode  31 =3D F101
->> keycode  32 =3D d
->>         altgr   keycode  32 =3D F102
->> ...
->=20
-> Use unicode notation:
->=20
-> altgr   keycode  30 =3D U+nnnn
->=20
-> where nnnn is UTF-8 code.
->=20
-it's work now. the value is form [1]
-a:=E2=82=AC
-s:=C2=A8
-d:=C2=B0 =20
+Use resource size from linux/ioport.h instead of the private macro
+res_size.
 
- keycode  30 =3D a
-+       altgr   keycode  30 =3D U+00B0
- keycode  31 =3D s              =20
-+       altgr   keycode  31 =3D U+00A8
- keycode  32 =3D d
-+       altgr   keycode  32 =3D U+20AC
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+---
+ drivers/input/keyboard/pxa27x_keypad.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
 
-[1] http://slayeroffice.com/tools/unicode_lookup/
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 0d2fc64..911cebc 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -425,8 +425,6 @@ static int pxa27x_keypad_resume(struct platform_device *pdev)
+ #define pxa27x_keypad_resume	NULL
+ #endif
+ 
+-#define res_size(res)	((res)->end - (res)->start + 1)
+-
+ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
+ {
+ 	struct pxa27x_keypad *keypad;
+@@ -461,14 +459,14 @@ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
+ 		goto failed_free;
+ 	}
+ 
+-	res = request_mem_region(res->start, res_size(res), pdev->name);
++	res = request_mem_region(res->start, resource_size(res), pdev->name);
+ 	if (res == NULL) {
+ 		dev_err(&pdev->dev, "failed to request I/O memory\n");
+ 		error = -EBUSY;
+ 		goto failed_free;
+ 	}
+ 
+-	keypad->mmio_base = ioremap(res->start, res_size(res));
++	keypad->mmio_base = ioremap(res->start, resource_size(res));
+ 	if (keypad->mmio_base == NULL) {
+ 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
+ 		error = -ENXIO;
+@@ -540,7 +538,7 @@ failed_put_clk:
+ failed_free_io:
+ 	iounmap(keypad->mmio_base);
+ failed_free_mem:
+-	release_mem_region(res->start, res_size(res));
++	release_mem_region(res->start, resource_size(res));
+ failed_free:
+ 	kfree(keypad);
+ 	return error;
+@@ -562,7 +560,7 @@ static int __devexit pxa27x_keypad_remove(struct platform_device *pdev)
+ 	iounmap(keypad->mmio_base);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	release_mem_region(res->start, res_size(res));
++	release_mem_region(res->start, resource_size(res));
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 	kfree(keypad);
+-- 
+1.6.0.4
 
-Best Regards
---=20
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

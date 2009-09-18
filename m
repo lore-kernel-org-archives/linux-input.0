@@ -1,91 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Fn + [KEYS] question
-Date: Thu, 17 Sep 2009 23:49:45 -0700
-Message-ID: <20090918064945.GH18668@core.coreip.homeip.net>
-References: <4AB0929D.4030007@gmail.com> <20090916163305.GB4970@core.coreip.homeip.net> <4AB11F49.6060308@gmail.com> <200909161040.20085.dmitry.torokhov@gmail.com> <4AB19F9C.3080707@gmail.com> <20090918054529.GC18668@core.coreip.homeip.net> <4AB32C81.9040708@gmail.com>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: Re: =?UTF-8?B?W8KwXSBbwqhdIFvigqxdICB0aHJlZSBjaGFyYWN0ZXJzIGluIGs=?=
+ =?UTF-8?B?ZXlib2FyZC4=?=
+Date: Fri, 18 Sep 2009 15:11:52 +0800
+Message-ID: <4AB332B8.9080908@gmail.com>
+References: <4AB3159D.6050404@gmail.com> <20090918061752.GF18668@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f175.google.com ([209.85.211.175]:64010 "EHLO
-	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751023AbZIRGtq (ORCPT
+Received: from mail-pz0-f179.google.com ([209.85.222.179]:57526 "EHLO
+	mail-pz0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750950AbZIRHLz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 02:49:46 -0400
-Received: by ywh5 with SMTP id 5so956407ywh.4
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2009 23:49:49 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4AB32C81.9040708@gmail.com>
+	Fri, 18 Sep 2009 03:11:55 -0400
+Received: by pzk9 with SMTP id 9so13171pzk.33
+        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2009 00:11:58 -0700 (PDT)
+In-Reply-To: <20090918061752.GF18668@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xiangfu Liu <xiangfu.z@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Fri, Sep 18, 2009 at 02:45:21PM +0800, Xiangfu Liu wrote:
-> Dmitry Torokhov wrote:
-> > On Thu, Sep 17, 2009 at 10:31:56AM +0800, Xiangfu Liu wrote:
-> >> Dmitry Torokhov wrote:
-> >>> On Wednesday 16 September 2009 10:24:25 am Xiangfu Liu wrote:
-> >>>> Dmitry Torokhov wrote:
-> >>>>> On Wed, Sep 16, 2009 at 10:44:01PM +0800, Xiangfu Liu wrote:
-> >>>>>> Xiangfu Liu wrote:
-> >>>>>>> Hi Dmitry
-> >>>>>>>
-> >>>>>>>>>  thanks for the reply.
-> >>>>>>>>> see [1], I change the [Red arrow] key to [ALTGR] then I can easy
-> >>>>>>>>> change the defkeymap.map. make all the red keys work.
-> >>>>>>>>>
-> >>>>>>>>> but for the [Blue Fn] key. I don't know how to make it work in
-> >>>>>>>>> keymap? there is [SHIFT] [CONTROL] [SHIFT] [ALTGR] four modifier
-> >>>>>>>>> keys. all used. so I can not may the [Fn] to those four modifier
-> >>>>>>>>> keys.
-> >>>>>>>>>
-> >>>>>>>>> can I make the leftAlt and rightAlt generate different keys?
-> >>>>>>>>> like:
-> >>>>>>>>>  LeftAlt + 'U' = Alt + 'U'
-> >>>>>>>>>  RightAlt + 'U' = '7'
-> >>>>>>>> Keyboard driver supports 9 modifiers total, you should be able use one
-> >>>>>>>> of these for your numeric buttons.
-> >>>>>>> oh. can you give me some tips on the other modifiers.
-> >>>>>>> how to define them?
-> >>>>>>> can I just change the defkeymap.map file?
-> >>>>>>> or I must change the source code?
-> >>>>>> Hi Dmitry I found this[1] in the 'man keymaps', three are 9 modifiers.
-> >>>>>> but the in defkaymap.map, there is alwasy like:
-> >>>>>>
-> >>>>>> control keycode  53 = Delete
-> >>>>>>
-> >>>>>> there is no ctrll in the defkeymap.map.
-> >>>>>> how to implement this?
-> >>>>>>
-> >>>>>> ShiftL + u = U
-> >>>>>> ShiflR + u = 7
-> >>>>> The same as with AltGr you need to do
-> >>>>>
-> >>>>> keycode XX = CtrlR
-> >>>>>
-> >>>>> and then
-> >>>>>
-> >>>>> keycode YY = u
-> >>>>> shift keycode YY = U
-> >>>>> ctrlr keycode YY = seven
-> >>>> Hi Dmitry
-> >>>> thanks for the reply. I test this, it's not work.
-> >>>> ----------
-> >>>> $ loadkeys -m defkeymap.map > defkeymap.c && rm defkeymap.o
-> >>>> loadkeys: defkeymap.map:71: adding map 64 violates explicit keymaps line
-> >>> You need to fix this ^^^^ first.
-> >>>
-> >> the line 71 is the "ctrlr ....", so I think the defkeymap.map not support 
-> >> the "ctrlr".
-> >>
-> > 
-> > Please look at the very beginning of the file where there is "keymaps"
-> > statement - you need to enable keymap 64.
-> > 
-> Hi Dmitry.
-> very thanks. it's work now.
+Dmitry Torokhov wrote:
+> On Fri, Sep 18, 2009 at 01:07:41PM +0800, Xiangfu Liu wrote:
+>> Hi
+>>   I want make those three characters work in keyboard.
+>> I=E3=80=80change the defkeymap.map like[1].=20
+>> but it's not work. Since I am a Chinese. never use the
+>> euro keyboard. give me some tips.
+>>
+>>
+>> thanks.
+>>
+>> [1]=20
+>>
+>> part of defkeymap.map:
+>> keycode  30 =3D a
+>>         altgr   keycode  30 =3D F100
+>> keycode  31 =3D s
+>>         altgr   keycode  31 =3D F101
+>> keycode  32 =3D d
+>>         altgr   keycode  32 =3D F102
+>> ...
+>=20
+> Use unicode notation:
+>=20
+> altgr   keycode  30 =3D U+nnnn
+>=20
+> where nnnn is UTF-8 code.
+>=20
+it's work now. the value is form [1]
+a:=E2=82=AC
+s:=C2=A8
+d:=C2=B0 =20
 
-Great! I am glad to hear you were able to work this out.
+ keycode  30 =3D a
++       altgr   keycode  30 =3D U+00B0
+ keycode  31 =3D s              =20
++       altgr   keycode  31 =3D U+00A8
+ keycode  32 =3D d
++       altgr   keycode  32 =3D U+20AC
 
--- 
-Dmitry
+[1] http://slayeroffice.com/tools/unicode_lookup/
+
+Best Regards
+--=20
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

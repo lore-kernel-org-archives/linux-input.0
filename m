@@ -1,88 +1,95 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
-Date: Fri, 18 Sep 2009 15:44:41 +0400
-Message-ID: <bc64b4640909180444v46f49175ob215ffc43e3d109@mail.gmail.com>
-References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
-	 <20090916162853.GA4970@core.coreip.homeip.net>
-	 <bc64b4640909161141j3dfae8c8ncc02d0fe8c95ee07@mail.gmail.com>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: Using EV_MSC or extending KEY_*
+Date: Fri, 18 Sep 2009 10:56:01 -0300
+Message-ID: <20090918135601.GA25109@khazad-dum.debian.net>
+References: <aac07123ee2b14a0ac25d1652dbe0780.squirrel@intranet.cs.nmsu.edu>
+ <5d5443650909151011k4b21a6d0n28ac6142c3d7161d@mail.gmail.com>
+ <20090915183406.GA5696@core.coreip.homeip.net>
+ <0debc76f26fe85e28adf642396233928.squirrel@intranet.cs.nmsu.edu>
+ <20090916034642.GC2756@core.coreip.homeip.net>
+ <2c0ac825ebe78da99328b896faae04a2.squirrel@intranet.cs.nmsu.edu>
+ <20090917175707.GB789@khazad-dum.debian.net>
+ <20090918064627.GG18668@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f175.google.com ([209.85.211.175]:49784 "EHLO
-	mail-yw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753899AbZIRLoi convert rfc822-to-8bit (ORCPT
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:53833 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751559AbZIRN4C (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 07:44:38 -0400
-Received: by ywh5 with SMTP id 5so1121151ywh.4
-        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2009 04:44:41 -0700 (PDT)
-In-Reply-To: <bc64b4640909161141j3dfae8c8ncc02d0fe8c95ee07@mail.gmail.com>
+	Fri, 18 Sep 2009 09:56:02 -0400
+Content-Disposition: inline
+In-Reply-To: <20090918064627.GG18668@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>, Trilok Soni <soni.trilok@gmail.com>, Linux USB <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Sep 16, 2009 at 10:41 PM, Dmitry Eremin-Solenikov
-<dbaryshkov@gmail.com> wrote:
-> On Wed, Sep 16, 2009 at 8:28 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Wed, Sep 16, 2009 at 07:03:18PM +0400, Dmitry Eremin-Solenikov wr=
-ote:
->>> There is nothing that disallows gpio-keys to share it's IRQ line
->>> w/ other drivers. Make it use IRQF_SHARED in request_irq().
->>>
->>> An example of other driver with which I'd like to share IRQ line
->>> for GPIO buttons is ledtrig-gpio.
->>>
->>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->>> ---
->>> =A0drivers/input/keyboard/gpio_keys.c | =A0 =A01 +
->>> =A01 files changed, 1 insertions(+), 0 deletions(-)
->>>
->>> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/key=
-board/gpio_keys.c
->>> index efed0c9..9fc2fab 100644
->>> --- a/drivers/input/keyboard/gpio_keys.c
->>> +++ b/drivers/input/keyboard/gpio_keys.c
->>> @@ -147,6 +147,7 @@ static int __devinit gpio_keys_probe(struct pla=
-tform_device *pdev)
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
->>>
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D request_irq(irq, gpio_keys_is=
-r,
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 I=
-RQF_SHARED |
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- button->desc ? button->desc : "gpio_keys",
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- bdata);
->>
->> How will you determine which device generated the interrupt? Because=
- you
->> can't return IRQ_HANDLED unconditionally and expect both devices wor=
-k
->> reliably.
->
-> It's a single device (gpio pin). However I'd like to be able to attac=
-h
-> several handlers to it.
-> E.g. one isr is gpio-keys (for reporting event to userspace), another
-> isr will be from
-> ledtrig-gpio (controlling the LED). Another can be some kind of
-> battery driver, etc.
->
-> All these drivers will provide different kinds of response for single=
- GPIO pin.
+On Thu, 17 Sep 2009, Dmitry Torokhov wrote:
+> On Thu, Sep 17, 2009 at 02:57:07PM -0300, Henrique de Moraes Holschuh wrote:
+> > On Wed, 16 Sep 2009, Rick L. Vinyard, Jr. wrote:
+> > > The M* keys are intended to provide a quick way to switch between key
+> > > mappings, with each mode having their own user-defined mappings.
+> > 
+> > What I'd do in this case would be this:
+> > 
+> > 1. Initially have the M* level-shift keys assigned KEY_RESERVED
+> > 
+> > 2. Have a big enough keymap to map all keys in all M*-level shift states
+> > possible.
+> > 
+> > Eg:
+> >    START OF KEYMAP
+> >    M* keys
+> >    1st set of G* keys
+> >    2nd set of G* keys
+> >    3rd set of G* keys...
+> >    ...
+> >    last set of G* keys
+> >    END OF KEYMAP
+> > 
+> > 3. Have the driver special-process M* level-shift keys *as long as they are
+> > still set to KEY_RESERVED* to select which part of the keymap is used to
+> > translate the other keys.  Note that this likely means pressing a M* key
+> > would be transparent to userspace in this case, i.e. no events would be
+> > issued when a M* key is doing a level shift.
+> > 
+> > So, you'd be able to set all mappings you want in the driver, and the M*
+> > keys would do what they're expected to do without any userland help at all,
+> > but you'd still be able to program the M* keys to be normal keys if you
+> > want.
+> > 
+> > Of course, this assumes you don't do chording on multiple M* keys to end up
+> > with a huge number of keymaps :p
+> 
+> Actually I think that the device should just emit KEY_PROG1..KEY_PROG4
+> for the M keys and have userspace daemon load alternate keymaps on the
+> fly in resaponse to KEY_PROGx. The device is just a set of completely
+> generic buttons... User will have to tell the kernel what to map them
+> to.
 
-So, what about this patch?
+It would work, but it is a big trip through userspace.  If quickly pressing
+M#+G# is a common use pattern (and it will be, for gaming), i.e. you often
+want to access quickly a function on one level then another on a different
+level, asking userspace to upload a new keymap to switch levels at every M#
+press is going to be way too racy.
 
---=20
-With best wishes
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If it is to be used like that, I'd advocate either doing the entire
+map-switching thing in kernel space, or doing the entire mapping in
+userspace.  In the later case, you don't issue KEY_* in the kernel driver,
+you just issue MSC_SCAN events, and the userspace driver should open the
+input device in exclusive mode, do its magic, and use uinput to generate
+translated events (KEY_*, and even BTN_*, etc).
+
+I understand the current version allows for an all-userspace enhanced driver
+if one sets the entire keymap to KEY_RESERVED, since it will issue MSC_SCAN
+events for all keys (if it doesn't, I suggest doing so).  That might indeed
+be the best option if one doesn't want a more complex kernel driver.  And
+one could still use the device in degraded mode by not loading the userspace
+driver, and uploading a regular keymap to it.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

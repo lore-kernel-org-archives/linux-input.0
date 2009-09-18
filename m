@@ -1,73 +1,49 @@
-From: Tobias Klauser <tklauser@distanz.ch>
-Subject: [PATCH] Input: pxa27x_keypad - Use resource_size
-Date: Fri, 18 Sep 2009 09:13:41 +0200
-Message-ID: <1253258021-7817-1-git-send-email-tklauser@distanz.ch>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: Ben_Nanonote keyboard driver bug
+Date: Fri, 18 Sep 2009 15:43:22 +0800
+Message-ID: <4AB33A1A.7090508@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.zhaw.ch ([160.85.104.51]:49074 "EHLO mx2.zhaw.ch"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750930AbZIRHNj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 03:13:39 -0400
+Received: from mail-px0-f194.google.com ([209.85.216.194]:50600 "EHLO
+	mail-px0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750741AbZIRHn2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Sep 2009 03:43:28 -0400
+Received: by pxi32 with SMTP id 32so607406pxi.4
+        for <linux-input@vger.kernel.org>; Fri, 18 Sep 2009 00:43:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>, linux-input@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>
+To: "Hard- and Software Development, Kernel, Distribution, Roadmap" <developer@lists.qi-hardware.com>
+Cc: linux-input@vger.kernel.org
 
-Use resource size from linux/ioport.h instead of the private macro
-res_size.
+Hi 
 
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
----
- drivers/input/keyboard/pxa27x_keypad.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+with Dmitry's help, our keyboard is work.
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index 0d2fc64..911cebc 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -425,8 +425,6 @@ static int pxa27x_keypad_resume(struct platform_device *pdev)
- #define pxa27x_keypad_resume	NULL
- #endif
- 
--#define res_size(res)	((res)->end - (res)->start + 1)
--
- static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
- {
- 	struct pxa27x_keypad *keypad;
-@@ -461,14 +459,14 @@ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
- 		goto failed_free;
- 	}
- 
--	res = request_mem_region(res->start, res_size(res), pdev->name);
-+	res = request_mem_region(res->start, resource_size(res), pdev->name);
- 	if (res == NULL) {
- 		dev_err(&pdev->dev, "failed to request I/O memory\n");
- 		error = -EBUSY;
- 		goto failed_free;
- 	}
- 
--	keypad->mmio_base = ioremap(res->start, res_size(res));
-+	keypad->mmio_base = ioremap(res->start, resource_size(res));
- 	if (keypad->mmio_base == NULL) {
- 		dev_err(&pdev->dev, "failed to remap I/O memory\n");
- 		error = -ENXIO;
-@@ -540,7 +538,7 @@ failed_put_clk:
- failed_free_io:
- 	iounmap(keypad->mmio_base);
- failed_free_mem:
--	release_mem_region(res->start, res_size(res));
-+	release_mem_region(res->start, resource_size(res));
- failed_free:
- 	kfree(keypad);
- 	return error;
-@@ -562,7 +560,7 @@ static int __devexit pxa27x_keypad_remove(struct platform_device *pdev)
- 	iounmap(keypad->mmio_base);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(res->start, res_size(res));
-+	release_mem_region(res->start, resource_size(res));
- 
- 	platform_set_drvdata(pdev, NULL);
- 	kfree(keypad);
+we use the matrix_keypad.c driver. I found a problem.
+for example. the keypad is like this: (part of keypad)  
+GPIO    GPIO    GPIO
+|       |       |  
+a_______w_______u_____GPIO
+|	|	|
+|_______s_______j_____GPIO
+|	|	|
+Shift___Alt_____Ctrl__GPIO
+
+first time press [Shift] + [a] it's output [a] not the [A]
+second time press [Shift] + [a] it's output [A]. correct.
+then all work fine.  but when I release the [Shift]. and press [a]
+it's will also output big [A]. but if the midifier and character not 
+in same column GPIO. it will work fine. 
+
+other modifier all like this. same GPIO will cause problem.
+
+I should look into the matrix_keypad.c to fix this, right?
+
+Best Regards
 -- 
-1.6.0.4
-
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com

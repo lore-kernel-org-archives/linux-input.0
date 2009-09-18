@@ -1,45 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Input: add touchscreen driver for MELFAS MCS-5000
-	controller
-Date: Thu, 17 Sep 2009 22:36:27 -0700
-Message-ID: <20090918053627.GA18668@core.coreip.homeip.net>
-References: <4AB07B5E.7040501@samsung.com> <20090916060017.GG2756@core.coreip.homeip.net> <4AB08383.9080107@samsung.com> <4AB088CF.7080002@samsung.com> <20090916072702.GH2756@core.coreip.homeip.net> <4AB17A74.7080609@samsung.com>
+Subject: Re: [PATCH v3] input/keyboard: add ADP5588 QWERTY I2C Keyboard
+	Input device driver
+Date: Thu, 17 Sep 2009 22:42:39 -0700
+Message-ID: <20090918054239.GB18668@core.coreip.homeip.net>
+References: <20090916050236.GF2756@core.coreip.homeip.net> <1253125231-17902-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f199.google.com ([209.85.210.199]:50893 "EHLO
+Received: from mail-yx0-f199.google.com ([209.85.210.199]:44809 "EHLO
 	mail-yx0-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751834AbZIRFga (ORCPT
+	with ESMTP id S1751220AbZIRFml (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Sep 2009 01:36:30 -0400
-Received: by yxe37 with SMTP id 37so589290yxe.33
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2009 22:36:34 -0700 (PDT)
+	Fri, 18 Sep 2009 01:42:41 -0400
 Content-Disposition: inline
-In-Reply-To: <4AB17A74.7080609@samsung.com>
+In-Reply-To: <1253125231-17902-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Thu, Sep 17, 2009 at 08:53:24AM +0900, Joonyoung Shim wrote:
-> On 9/16/2009 4:27 PM, Dmitry Torokhov wrote:
-> > On Wed, Sep 16, 2009 at 03:42:23PM +0900, Joonyoung Shim wrote:
-> >> Hi, Dmitry.
-> >>
-> >> I send the patch v5. This is the patch fixed from v4 feedback, and i
-> >> added a copyright in header file.
-> >>
-> > 
-> > Looks good, thanks. It will be included in my next pull request.
-> > 
+On Wed, Sep 16, 2009 at 02:20:31PM -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
 > 
-> Thanks.
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Signed-off-by: Bryan Wu <cooloney@kernel.org>
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> ---
+> v3
+> 	- cache delay workaround calculation
+> 	- rebase on latest mainline
 > 
-> However, i saw a commit for MCS-5000 on for-linux branch of your git 
-> repository, and the driver was a old thing, maybe patch v3. Please apply 
-> the patch v5 posted yesterday.
 
-Hm, not sure what happened, will fix in a moment...
+Applied, thanks Michael.
 
 -- 
 Dmitry

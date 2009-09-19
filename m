@@ -1,36 +1,54 @@
-From: Sebastian Frei <dr.nop@gmx.net>
-Subject: [PATCH] wistron_btns.c: Add DMI entry for Medion WIM2030 laptop
-Date: Sat, 19 Sep 2009 12:43:09 +0200
-Message-ID: <200909191243.09243.dr.nop@gmx.net>
+From: Daniel Walker <dwalker@fifo99.com>
+Subject: Re: [PATCH] wistron_btns.c: Add DMI entry for Medion WIM2030 laptop
+Date: Sat, 19 Sep 2009 06:26:50 -0700
+Message-ID: <1253366810.6699.56.camel@desktop>
+References: <200909191243.09243.dr.nop@gmx.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932172AbZISKnb@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mitr@volny.cz
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fifo99.com ([67.223.236.141]:38449 "EHLO fifo99.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753231AbZISN0q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Sep 2009 09:26:46 -0400
+In-Reply-To: <200909191243.09243.dr.nop@gmx.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Frei <dr.nop@gmx.net>
+Cc: mitr@volny.cz, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-This patch adds a DMI entry for the Medion WIM2030 laptop.
+On Sat, 2009-09-19 at 12:43 +0200, Sebastian Frei wrote:
+> This patch adds a DMI entry for the Medion WIM2030 laptop.
+> 
+> Signed-off-by: Sebastian Frei <dr.nop@gmx.net>
+> 
+> --- linux-2.6.31.orig/drivers/input/misc/wistron_btns.c
+> +++ linux-2.6.31/drivers/input/misc/wistron_btns.c
+> @@ -669,6 +669,15 @@
+>         },
+>         {
+>                 .callback = dmi_matched,
+> +               .ident = "Medion MD 42200",
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
+> +                       DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2030"),
+> +               },
+> +               .driver_data = keymap_fs_amilo_pro_v2000
+> +       },
+> +       {
+> +               .callback = dmi_matched,
+>                 .ident = "Fujitsu N3510",
+>                 .matches = {
+>                         DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
 
-Signed-off-by: Sebastian Frei <dr.nop@gmx.net>
+Form email below (your the second person to do this today),
 
---- linux-2.6.31.orig/drivers/input/misc/wistron_btns.c
-+++ linux-2.6.31/drivers/input/misc/wistron_btns.c
-@@ -669,6 +669,15 @@
-        },
-        {
-                .callback = dmi_matched,
-+               .ident = "Medion MD 42200",
-+               .matches = {
-+                       DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
-+                       DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2030"),
-+               },
-+               .driver_data = keymap_fs_amilo_pro_v2000
-+       },
-+       {
-+               .callback = dmi_matched,
-                .ident = "Fujitsu N3510",
-                .matches = {
-                        DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+Your patch is whitespace damaged .. All the tabs have been removed from
+your code, and the context code in the patch. That usually means the
+patch can't be applied .. It can happen when you X copy&paste the patch
+into an email. If your using quilt you can use "quilt mail" , or have
+your mailer "insert text file" instead of copy&paste.
+
+Daniel
+
+

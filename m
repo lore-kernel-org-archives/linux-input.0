@@ -1,79 +1,84 @@
-From: Sebastian Frei <dr.nop@gmx.net>
-Subject: Re: [PATCH] wistron_btns.c: Add DMI entry for Medion WIM2030 laptop
-Date: Sat, 19 Sep 2009 16:55:54 +0200
-Message-ID: <200909191655.54654.dr.nop@gmx.net>
-References: <200909191243.09243.dr.nop@gmx.net> <1253366810.6699.56.camel@desktop>
+From: Krzysztof Helt <krzysztof.h1@wp.pl>
+Subject: hid-core: fix lockdep in hid_input_report() v2
+Date: Sun, 20 Sep 2009 08:41:40 +0200
+Message-ID: <20090920084140.5287559e.krzysztof.h1@wp.pl>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:46806 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752130AbZISO4P (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Sep 2009 10:56:15 -0400
-In-Reply-To: <1253366810.6699.56.camel@desktop>
+Received: from smtp.wp.pl ([212.77.101.1]:41243 "EHLO mx1.wp.pl"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751619AbZITG0P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Sep 2009 02:26:15 -0400
+Received: from 93-181-133-4.as.kn.pl (HELO krzysio.net) (krzysztof.h1@[93.181.133.4])
+          (envelope-sender <krzysztof.h1@wp.pl>)
+          by smtp.wp.pl (WP-SMTPD) with SMTP
+          for <linux-input@vger.kernel.org>; 20 Sep 2009 08:26:10 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mitr@volny.cz
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Am Samstag, 19. September 2009 15:26:50 schrieb Daniel Walker:
-> On Sat, 2009-09-19 at 12:43 +0200, Sebastian Frei wrote:
-> > This patch adds a DMI entry for the Medion WIM2030 laptop.
-> >
-> > Signed-off-by: Sebastian Frei <dr.nop@gmx.net>
-> >
-> > --- linux-2.6.31.orig/drivers/input/misc/wistron_btns.c
-> > +++ linux-2.6.31/drivers/input/misc/wistron_btns.c
-> > @@ -669,6 +669,15 @@
-> >         },
-> >         {
-> >                 .callback = dmi_matched,
-> > +               .ident = "Medion MD 42200",
-> > +               .matches = {
-> > +                       DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
-> > +                       DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2030"),
-> > +               },
-> > +               .driver_data = keymap_fs_amilo_pro_v2000
-> > +       },
-> > +       {
-> > +               .callback = dmi_matched,
-> >                 .ident = "Fujitsu N3510",
-> >                 .matches = {
-> >                         DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-> 
-> Form email below (your the second person to do this today),
-> 
-> Your patch is whitespace damaged .. All the tabs have been removed from
-> your code, and the context code in the patch. That usually means the
-> patch can't be applied .. It can happen when you X copy&paste the patch
-> into an email. If your using quilt you can use "quilt mail" , or have
-> your mailer "insert text file" instead of copy&paste.
-> 
-> Daniel
-> 
-Next try, this time with tab stops:
+From: Krzysztof Helt <krzysztof.h1@wp.pl>
 
-Signed-off-by: Sebastian Frei <dr.nop@gmx.net>
+There is a lockdep warning in the hid_input_report() due to kmalloc(.,GFP_KERNEL) 
+allocation of a temporary buffer.
+Change hid_input_report() call inside the hid_ctrl() after Jiri Slaby's advice. This 
+converts kmalloc() call into kmalloc(.,GFP_ATOMIC).
 
---- linux-2.6.31/drivers/input/misc/wistron_btns.c.orig	2008-09-12 
-20:47:24.000000000 +0200
-+++ linux-2.6.31/drivers/input/misc/wistron_btns.c	2008-03-13 
-22:18:02.000000000 +0100
-@@ -669,6 +669,15 @@
- 	},
- 	{
- 		.callback = dmi_matched,
-+		.ident = "Medion MD 42200",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Medion"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "WIM 2030"),
-+		},
-+		.driver_data = keymap_fs_amilo_pro_v2000
-+	},
-+	{
-+		.callback = dmi_matched,
- 		.ident = "Fujitsu N3510",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+The lockdep trace is:
+
+WARNING: at kernel/lockdep.c:2457 lockdep_trace_alloc+0xca/0xd0()
+Hardware name: Product Name
+Modules linked in: usbhid(+) hid uhci_hcd ne2k_pci via_agp 8390 i2c_via
+Pid: 0, comm: swapper Not tainted 2.6.31 #74
+Call Trace:
+ [<c0243b8a>] ? lockdep_trace_alloc+0xca/0xd0
+ [<c0221d1c>] warn_slowpath_common+0x7c/0xa0
+ [<c0243b8a>] ? lockdep_trace_alloc+0xca/0xd0
+ [<c0221d55>] warn_slowpath_null+0x15/0x20
+ [<c0243b8a>] lockdep_trace_alloc+0xca/0xd0
+ [<c027d2c8>] kmem_cache_alloc+0x28/0x100
+ [<cc9359ef>] ? hid_input_report+0x6f/0x220 [hid]
+ [<cc9359ef>] hid_input_report+0x6f/0x220 [hid]
+ [<cc94cabf>] hid_ctrl+0x7f/0x180 [usbhid]
+ [<c03b28b1>] usb_hcd_giveback_urb+0x41/0xa0
+ [<cc91a3fc>] uhci_giveback_urb+0x8c/0x280 [uhci_hcd]
+ [<c0279853>] ? dma_pool_free+0xd3/0x120
+ [<cc919848>] ? uhci_free_td+0x58/0xa0 [uhci_hcd]
+ [<cc91ac01>] uhci_scan_schedule+0x301/0x910 [uhci_hcd]
+ [<cc91cac4>] uhci_irq+0x94/0x940 [uhci_hcd]
+ [<c0245c43>] ? __lock_acquire+0x433/0xab0
+ [<c0206246>] ? mask_and_ack_8259A+0x66/0x100
+ [<c03b494b>] usb_hcd_irq+0x6b/0x90
+ [<c0255e7d>] handle_IRQ_event+0x2d/0xc0
+ [<c0257e85>] handle_level_irq+0x65/0xe0
+ [<c0204c74>] handle_irq+0x34/0x60
+ [<c0204bc9>] do_IRQ+0x39/0xb0
+ [<c024365c>] ? trace_hardirqs_on_caller+0x12c/0x180
+ [<c020328e>] common_interrupt+0x2e/0x40
+ [<c0208d48>] ? default_idle+0x38/0x50
+ [<c02108df>] apm_cpu_idle+0x10f/0x290
+ [<c0201b11>] cpu_idle+0x21/0x40
+ [<c045892d>] rest_init+0x4d/0x60
+ [<c0575815>] start_kernel+0x235/0x280
+ [<c05751f0>] ? unknown_bootoption+0x0/0x210
+ [<c057503f>] __init_begin+0x3f/0x50
+
+Signed-off-by: Krzysztof Helt <krzysztof.h1@wp.pl>
+---
+This lockdep is in the current git tree.
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 1b0e07a..ab2869d 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -455,7 +455,7 @@ static void hid_ctrl(struct urb *urb)
+ 		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_IN)
+ 			hid_input_report(urb->context,
+ 				usbhid->ctrl[usbhid->ctrltail].report->type,
+-				urb->transfer_buffer, urb->actual_length, 0);
++				urb->transfer_buffer, urb->actual_length, 1);
+ 		break;
+ 	case -ESHUTDOWN:	/* unplug */
+ 		unplug = 1;

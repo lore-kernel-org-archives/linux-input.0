@@ -1,56 +1,55 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH] input/keyboard: new driver for
- ADP5520 MFD PMICs
-Date: Mon, 21 Sep 2009 11:23:46 -0700
-Message-ID: <20090921112346.12832b27.akpm@linux-foundation.org>
-References: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
-	<20090919233044.8361a912.akpm@linux-foundation.org>
-	<8bd0f97a0909201540t25dd2337o15ebe63a2a9ca4ec@mail.gmail.com>
-	<20090920210451.60ad1b1f.akpm@linux-foundation.org>
-	<8bd0f97a0909210640q3ead3467gcccac227a9088d76@mail.gmail.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: 2.6.31-0.1-default-07068-g43c1266 lockdep warning and scheduling while atomic BUG
+Date: Mon, 21 Sep 2009 22:04:49 +0200
+Message-ID: <200909212204.50047.oliver@neukum.org>
+References: <1253560490.2934.42.camel@localhost> <4AB7D9B8.6000501@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753120AbZIUSYj@vger.kernel.org>
-In-Reply-To: <8bd0f97a0909210640q3ead3467gcccac227a9088d76@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out002.kontent.com ([81.88.40.216]:36832 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753518AbZIUUDJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Sep 2009 16:03:09 -0400
+In-Reply-To: <4AB7D9B8.6000501@gmail.com>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henk Martijn <h.h.martijn@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
 
-On Mon, 21 Sep 2009 09:40:46 -0400 Mike Frysinger <vapier.adi@gmail.com> wrote:
+Am Montag, 21. September 2009 21:53:28 schrieb Henk Martijn:
+> This is a i7 based DELL and current git throws the following warning and
+> bug at me during boot:
 
-> On Mon, Sep 21, 2009 at 00:04, Andrew Morton wrote:
-> > On Sun, 20 Sep 2009 18:40:41 -0400 Mike Frysinger wrote:
-> >> On Sun, Sep 20, 2009 at 02:30, Andrew Morton wrote:
-> >> > On Thu, 17 Sep 2009 14:24:10 -0400 Mike Frysinger wrote:
-> >> >> +struct adp5520_keys {
-> >> >> + __ __ struct input_dev *input;
-> >> >> + __ __ struct notifier_block notifier;
-> >> >> + __ __ struct device *master;
-> >> >> + __ __ unsigned short keycode[ADP5520_KEYMAPSIZE];
-> >> >
-> >> > Where is ADP5520_KEYMAPSIZE defined?
-> >>
-> >> all these things are in the common mfd adp5520 patch. __it introduces a
-> >> common adp5520 header.
-> >
-> > err, what common MFD patch? __There was nothing in either the changelog
-> > nor the patch title which indicated that this patch had a dependency on
-> > other patches. __This makes things harder for mergers and reviewers,
-> > especially when the patchset hits multiple subsystems, maintained by
-> > multiple developers.
-> >
-> > Probably the best way to handle this sort of thing is to present it as a
-> > sequence-numbered patch series with well-chosen cc's and an overall
-> > description of the dependencies and perhaps the merge plan in [patch
-> > 0/n].
-> 
-> the MFD patch has been sent to the MFD guy already for review.  being
-> an MFD means it touches like 4 or 5 different subsystems.  but the
-> only dependency is on the MFD core.
+Please try this patch
 
-What you said has nothing to do with what I said.
+	Regards
+		Oliver
 
-As the patch was presented, Dmitry or I could well have merged it only
-to find out that it doesn't compile.
+--
+
+commit ca5c4a1397d1a1c0d1074f4d8922630fdd732780
+Author: Oliver Neukum <oliver@neukum.org>
+Date:   Mon Sep 21 22:02:01 2009 +0200
+
+    hid:usbhid: fix wrong use of GFP_KERNEL
+    
+    hid_input_report() must be told it is called in interrupt context
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 1b0e07a..ab2869d 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -455,7 +455,7 @@ static void hid_ctrl(struct urb *urb)
+ 		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_IN)
+ 			hid_input_report(urb->context,
+ 				usbhid->ctrl[usbhid->ctrltail].report->type,
+-				urb->transfer_buffer, urb->actual_length, 0);
++				urb->transfer_buffer, urb->actual_length, 1);
+ 		break;
+ 	case -ESHUTDOWN:	/* unplug */
+ 		unplug = 1;
+

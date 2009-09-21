@@ -1,54 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] input/keyboard: add
-	ADP5588	QWERTY I2C Keyboard Input device driver
-Date: Mon, 21 Sep 2009 09:55:18 -0700
-Message-ID: <20090921165517.GA5260@core.coreip.homeip.net>
-References: <20090915062050.GB10232@core.coreip.homeip.net>
-	<1253062178-18196-1-git-send-email-vapier@gentoo.org>
-	<20090916050236.GF2756@core.coreip.homeip.net>
-	<8bd0f97a0909210945s5e3d9613pa7a72271ec6b47bc@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [Uclinux-dist-devel] [PATCH] input/keyboard: new driver for
+ ADP5520 MFD PMICs
+Date: Mon, 21 Sep 2009 11:23:46 -0700
+Message-ID: <20090921112346.12832b27.akpm@linux-foundation.org>
+References: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
+	<20090919233044.8361a912.akpm@linux-foundation.org>
+	<8bd0f97a0909201540t25dd2337o15ebe63a2a9ca4ec@mail.gmail.com>
+	<20090920210451.60ad1b1f.akpm@linux-foundation.org>
+	<8bd0f97a0909210640q3ead3467gcccac227a9088d76@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <8bd0f97a0909210945s5e3d9613pa7a72271ec6b47bc-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753120AbZIUSYj@vger.kernel.org>
+In-Reply-To: <8bd0f97a0909210640q3ead3467gcccac227a9088d76@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 21, 2009 at 12:45:02PM -0400, Mike Frysinger wrote:
-> On Wed, Sep 16, 2009 at 01:02, Dmitry Torokhov wrote:
-> > On Tue, Sep 15, 2009 at 08:49:38PM -0400, Mike Frysinger wrote:
-> >> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Mon, 21 Sep 2009 09:40:46 -0400 Mike Frysinger <vapier.adi@gmail.com> wrote:
+
+> On Mon, Sep 21, 2009 at 00:04, Andrew Morton wrote:
+> > On Sun, 20 Sep 2009 18:40:41 -0400 Mike Frysinger wrote:
+> >> On Sun, Sep 20, 2009 at 02:30, Andrew Morton wrote:
+> >> > On Thu, 17 Sep 2009 14:24:10 -0400 Mike Frysinger wrote:
+> >> >> +struct adp5520_keys {
+> >> >> + __ __ struct input_dev *input;
+> >> >> + __ __ struct notifier_block notifier;
+> >> >> + __ __ struct device *master;
+> >> >> + __ __ unsigned short keycode[ADP5520_KEYMAPSIZE];
+> >> >
+> >> > Where is ADP5520_KEYMAPSIZE defined?
 > >>
-> >> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> >> Signed-off-by: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> >> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-> >> Signed-off-by: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
-> >> ---
-> >> v2
-> >> =A0 =A0 =A0 - merge my and Dmitry's clean up fixes
-> >>
+> >> all these things are in the common mfd adp5520 patch. __it introduces a
+> >> common adp5520 header.
 > >
-> > Looks good, I'd also like to add this instead of recalcularing delay
-> > every time:
-> =
+> > err, what common MFD patch? __There was nothing in either the changelog
+> > nor the patch title which indicated that this patch had a dependency on
+> > other patches. __This makes things harder for mergers and reviewers,
+> > especially when the patchset hits multiple subsystems, maintained by
+> > multiple developers.
+> >
+> > Probably the best way to handle this sort of thing is to present it as a
+> > sequence-numbered patch series with well-chosen cc's and an overall
+> > description of the dependencies and perhaps the merge plan in [patch
+> > 0/n].
+> 
+> the MFD patch has been sent to the MFD guy already for review.  being
+> an MFD means it touches like 4 or 5 different subsystems.  but the
+> only dependency is on the MFD core.
 
-> this should continue to work fine with cpu scaling right ?
+What you said has nothing to do with what I said.
 
-Jiffy value depends only on HZ, not on current cpu frequency so should
-be OK I think.
-
--- =
-
-Dmitry
+As the patch was presented, Dmitry or I could well have merged it only
+to find out that it doesn't compile.

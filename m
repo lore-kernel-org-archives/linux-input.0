@@ -1,43 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: RE: [PATCH] input/keyboard: new driver for ADP5520 MFD PMICs
-Date: Tue, 22 Sep 2009 09:56:11 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0909220954360.17028@wotan.suse.de>
-References: <1253211850-29309-1-git-send-email-vapier@gentoo.org> <20090922055954.GB9658@core.coreip.homeip.net> <alpine.LRH.2.00.0909220933090.27145@twin.jikos.cz> <8A42379416420646B9BFAC9682273B6D0DFAD237@limkexm3.ad.analog.com>
+From: Raphael Derosso Pereira <raphaelpereira@gmail.com>
+Subject: Re: [PATCH] Atmel AT42QT2160 sensor chip input driver
+Date: Tue, 22 Sep 2009 08:41:36 -0300
+Message-ID: <f20381800909220441l57e7b636qdb96f6528505c7c2@mail.gmail.com>
+References: <f20381800908201315s7cd4cfc1g57c8799218415b8d@mail.gmail.com>
+	 <20090915042612.GB1132@core.coreip.homeip.net>
+	 <f20381800909210835h66d695f2i10d95c3ed040efe7@mail.gmail.com>
+	 <20090922055252.GA9658@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58542 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753327AbZIVH4I (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2009 03:56:08 -0400
-In-Reply-To: <8A42379416420646B9BFAC9682273B6D0DFAD237@limkexm3.ad.analog.com>
+Received: from mail-yx0-f199.google.com ([209.85.210.199]:55406 "EHLO
+	mail-yx0-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755860AbZIVLlc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Sep 2009 07:41:32 -0400
+Received: by yxe37 with SMTP id 37so4127445yxe.33
+        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2009 04:41:36 -0700 (PDT)
+In-Reply-To: <20090922055252.GA9658@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Bryan Wu <cooloney@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 22 Sep 2009, Hennerich, Michael wrote:
+Hello,
 
-> >It actually doesn't seem to be the same condition (KP_INT vs. KR_INT), 
-> >but it's difficult to say, as these constants are apparently added in 
-> >some other patch I have no idea about.
-> 
-> KP Key-Press versus Key-Release 
-> 
-> >And the same for other constants used in the code ... the patch seems to
-> >be quite incomplete.
-> 
-> The missing constants are in include/linux/mfd/adp5520.h
-> 
-> This file was sent in a different patch, adding support for the Multi Function Device Core 
-> (drivers/mfd/adp5520.c)
+2009/9/22 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Raphael,
+>
+>
+> I don't think we need a Kconfig entry for debugging. A person who wan=
+ts
+> to debug such driver can easily turn on debugging manually.
 
-The dependency on another patch should be either at least expressed in the 
-patch Changelog, or even better send the patches as series with proper 
-numbering, so that the dependency is obvious.
+Ok.
 
-Thanks,
+>
+> We normally try to allocate all necessary resources in probe() so tha=
+t
+> if device is bound to a driver it should work unless it is broken. Si=
+nce
+> there is no way to shut off IRQs while IRQ handler is registered it d=
+oes
+> not make sense to have open and close if we allocate IRQ in probe().
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Agreed.
+
+>
+> Please take a look at the latest version that I have in 'for-linus'
+> branch in my tree on kernel.org and shout if you see something wrong.
+
+How am I supposed to do that?
+
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+
+
+
+--=20
+Raphael Derosso Pereira
+Engenheiro de Computa=E7=E3o
+msn: rderossopereira@hotmail.com
+Skype: rderossopereira
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

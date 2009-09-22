@@ -1,161 +1,326 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Atmel AT42QT2160 sensor chip input driver
-Date: Mon, 21 Sep 2009 22:52:52 -0700
-Message-ID: <20090922055252.GA9658@core.coreip.homeip.net>
-References: <f20381800908201315s7cd4cfc1g57c8799218415b8d@mail.gmail.com> <20090915042612.GB1132@core.coreip.homeip.net> <f20381800909210835h66d695f2i10d95c3ed040efe7@mail.gmail.com>
+Subject: Re: [PATCH] input/keyboard: new driver for ADP5520 MFD PMICs
+Date: Mon, 21 Sep 2009 22:59:54 -0700
+Message-ID: <20090922055954.GB9658@core.coreip.homeip.net>
+References: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.240]:57093 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753785AbZIVFwz (ORCPT
+Received: from mail-yw0-f194.google.com ([209.85.211.194]:55240 "EHLO
+	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750953AbZIVF74 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2009 01:52:55 -0400
-Received: by an-out-0708.google.com with SMTP id d40so4781107and.1
-        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2009 22:52:58 -0700 (PDT)
+	Tue, 22 Sep 2009 01:59:56 -0400
 Content-Disposition: inline
-In-Reply-To: <f20381800909210835h66d695f2i10d95c3ed040efe7@mail.gmail.com>
+In-Reply-To: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raphael Derosso Pereira <raphaelpereira@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-Hi Raphael,
+Hi Mike,
 
-On Mon, Sep 21, 2009 at 12:35:21PM -0300, Raphael Derosso Pereira wrote=
-:
-> Hello Dimitry,
->=20
-> 2009/9/15 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> >
-> > This version is much better, thank you very much for making the cha=
-nges
-> > I requested.
->=20
-> You're very welcomed, let's see this version I'm sending now!
->=20
-> >
-> >> +
-> >> +#define QT2160_CMD_CHIPID =A0 =A0(00)
-> >> +#define QT2160_CMD_CODEVER =A0 (01)
-> >> +#define QT2160_CMD_GSTAT =A0 =A0 (02)
-> >> +#define QT2160_CMD_KEYS3 =A0 =A0 (03)
-> >> +#define QT2160_CMD_KEYS4 =A0 =A0 (04)
-> >> +#define QT2160_CMD_SLIDE =A0 =A0 (05)
-> >> +#define QT2160_CMD_GPIOS =A0 =A0 (06)
-> >> +#define QT2160_CMD_SUBVER =A0 =A0(07)
-> >> +#define QT2160_CMD_CALIBRATE (10)
-> >
-> > I am a bit concerned about this chunk. The first 8 commands are wri=
-tten
-> > as octal while the last (calibrate) as decimal. Is this intentional=
-?
->=20
-> You are right. There's no need to declare them as octal.
->=20
-> >
-> > I also made a few more changes. Could you please trythe patch below=
- and
-> > if everything is still working I will apply to my tree.
->=20
-> As I had already made other modifications, I added your changes into
-> my code, correct a bug you inserted (qt2160_read must return the
-> variable value and not 0 at the end), and I'm sending a patch against
-> 2.6.31. Hope you don't mind.
->=20
-> --
->=20
-> From: Raphael Derosso Pereira <raphaelpereira@gmail.com>
->=20
-> Input: AT42QT2160
->=20
-> Inclusion of input->open and input->close plus Dmitry fixups plus oth=
-er cleanups
-> needed after checking code.
->=20
-> Signed-off-by: Raphael Derosso Pereira <raphaelpereira@gmail.com>
-> --
-> diff -pruN linux-2.6.31_orig/drivers/input/keyboard/Kconfig
-> linux-2.6.31_rp/drivers/input/keyboard/Kconfig
-> --- linux-2.6.31_orig/drivers/input/keyboard/Kconfig	2009-09-09
-> 19:13:59.000000000 -0300
-> +++ linux-2.6.31_rp/drivers/input/keyboard/Kconfig	2009-09-21
-> 12:09:49.000000000 -0300
-> @@ -361,4 +361,22 @@ config KEYBOARD_XTKBD
+On Thu, Sep 17, 2009 at 02:24:10PM -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> 
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Signed-off-by: Bryan Wu <cooloney@kernel.org>
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> ---
+>  drivers/input/keyboard/Kconfig        |   10 ++
+>  drivers/input/keyboard/Makefile       |    1 +
+>  drivers/input/keyboard/adp5520-keys.c |  219 +++++++++++++++++++++++++++++++++
+>  3 files changed, 230 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/keyboard/adp5520-keys.c
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index e0bfcd7..53c9561 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -392,4 +392,14 @@ config KEYBOARD_ADP5588
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called xtkbd.
->=20
-> +config QT2160
-> +	tristate "Atmel AT42QT2160 Touch Sensor Chip"
-> +	depends on EXPERIMENTAL
-> +	select I2C
+>  	  module will be called adp5588-keys.
+>  
+> +config KEYBOARD_ADP5520
+> +	tristate "Keypad Support for ADP5520 PMIC"
+> +	depends on PMIC_ADP5520
 > +	help
-> +	  If you say yes here you get support for Atmel AT42QT2160 Touch
-> +	  Sensor chip as a keyboard input.
+> +	  This option enables support for the keypad scan matrix
+> +	  on Analog Devices ADP5520 PMICs.
 > +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called qt2160.
+> +	  To compile this driver as a module, choose M here: the module will
+> +	  be called adp5520-keys.
 > +
-> +config QT2160_DEBUG
-> +	bool "AT42QT2160 Debug Messages"
-> +	depends on QT2160
-> +	help
-> +	  Generates lots of debug from driver to help show what is going
-> +	  on under the hoods.
-
-I don't think we need a Kconfig entry for debugging. A person who wants
-to debug such driver can easily turn on debugging manually.
-
+>  endif
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 72082a4..c541489 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -5,6 +5,7 @@
+>  # Each configuration option enables a list of files.
+>  
+>  obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
+> +obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
+>  obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
+>  obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+>  obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
+> diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
+> new file mode 100644
+> index 0000000..cc2e1ed
+> --- /dev/null
+> +++ b/drivers/input/keyboard/adp5520-keys.c
+> @@ -0,0 +1,219 @@
+> +/*
+> + * Keypad driver for Analog Devices ADP5520 MFD PMICs
+> + *
+> + * Copyright 2009 Analog Devices Inc.
+> + *
+> + * Licensed under the GPL-2 or later.
+> + */
 > +
-> +static int qt2160_open(struct input_dev *dev)
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input.h>
+> +#include <linux/mfd/adp5520.h>
+> +
+> +struct adp5520_keys {
+> +	struct input_dev *input;
+> +	struct notifier_block notifier;
+> +	struct device *master;
+> +	unsigned short keycode[ADP5520_KEYMAPSIZE];
+> +};
+> +
+> +static void adp5520_keys_report_event(struct adp5520_keys *dev,
+> +					unsigned short keymask, int value)
 > +{
-> +	int error;
-> +	struct qt2160_data *qt2160;
-> +	struct i2c_client *client;
+> +	int i;
 > +
-> +	qt2160 =3D input_get_drvdata(dev);
-> +	client =3D qt2160->client;
+> +	for (i = 0; i < ADP5520_MAXKEYS; i++)
+> +		if (keymask & (1 << i))
+> +			input_report_key(dev->input, dev->keycode[i], value);
 > +
-> +	/* Calibrate device */
-> +	error =3D qt2160_write(client, QT2160_CMD_CALIBRATE, 1);
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +			"failed to calibrate device\n");
-> +		return error;
+> +	input_sync(dev->input);
+> +}
+> +
+> +static int adp5520_keys_notifier(struct notifier_block *nb,
+> +				 unsigned long event, void *data)
+> +{
+> +	struct adp5520_keys *dev;
+> +	uint8_t reg_val_low, reg_val_high;
+> +	unsigned short keymask;
+> +
+> +	dev = container_of(nb, struct adp5520_keys, notifier);
+> +
+> +	if (event & KP_INT) {
+> +		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
+> +		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
+> +
+> +		keymask = (reg_val_high << 8) | reg_val_low;
+> +		/* Read twice to clear */
+> +		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
+> +		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
+> +		keymask |= (reg_val_high << 8) | reg_val_low;
+> +		adp5520_keys_report_event(dev, keymask, 1);
 > +	}
 > +
-> +	/* Initialize IRQ structure */
-> +	schedule_delayed_work(&qt2160->dwork, QT2160_CYCLE_INTERVAL);
+> +	if (event & KR_INT) {
+
+Why do you check the same condition twice?
+
+> +		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
+> +		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
 > +
-> +	if (client->irq) {
-> +		error =3D request_irq(client->irq, qt2160_irq,
-> +			(IRQF_TRIGGER_FALLING), "qt2160", qt2160);
-> +
-> +		if (error) {
-> +			dev_err(&client->dev,
-> +				"failed to allocate irq %d\n", client->irq);
-> +			return error;
-> +		}
+> +		keymask = (reg_val_high << 8) | reg_val_low;
+> +		/* Read twice to clear */
+> +		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
+> +		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
+> +		keymask |= (reg_val_high << 8) | reg_val_low;
+> +		adp5520_keys_report_event(dev, keymask, 0);
 > +	}
 > +
+> +	return 0;
+> +}
+> +
+> +static int __devinit adp5520_keys_probe(struct platform_device *pdev)
+> +{
+> +	struct adp5520_keys_platfrom_data *pdata = pdev->dev.platform_data;
+> +	struct input_dev *input;
+> +	struct adp5520_keys *dev;
+> +	int ret, i;
+> +	unsigned char en_mask, ctl_mask = 0;
+> +
+> +	if (pdev->id != ID_ADP5520) {
+> +		dev_err(&pdev->dev, "only ADP5520 supports Keypad\n");
+> +		return -EFAULT;
 
-We normally try to allocate all necessary resources in probe() so that
-if device is bound to a driver it should work unless it is broken. Sinc=
-e
-there is no way to shut off IRQs while IRQ handler is registered it doe=
-s
-not make sense to have open and close if we allocate IRQ in probe().
+-ENODEV
 
-Please take a look at the latest version that I have in 'for-linus'
-branch in my tree on kernel.org and shout if you see something wrong.
+> +	}
+> +
+> +	if (pdata == NULL) {
+> +		dev_err(&pdev->dev, "missing platform data\n");
+> +		return -ENODEV;
+
+-EINVAL
+
+> +	}
+> +
+> +	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
+> +		return -ENODEV;
+> +
+
+-EINVAL
+
+> +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+> +	if (dev == NULL) {
+> +		dev_err(&pdev->dev, "failed to alloc memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		ret = -ENOMEM;
+> +		goto err;
+> +	}
+> +
+> +	dev->master = pdev->dev.parent;
+> +	dev->input = input;
+> +
+> +	input->name = pdev->name;
+> +	input->phys = "adp5520-keys/input0";
+> +	input->dev.parent = &pdev->dev;
+> +
+> +	input_set_drvdata(input, dev);
+> +
+> +	input->id.bustype = BUS_I2C;
+> +	input->id.vendor = 0x0001;
+> +	input->id.product = 0x5520;
+> +	input->id.version = 0x0001;
+> +
+> +	input->keycodesize = sizeof(unsigned short);
+
+sizeof(dev->keycode[0]) is safer.
+
+> +	input->keycodemax = pdata->keymapsize;
+> +	input->keycode = dev->keycode;
+> +
+> +	memcpy(dev->keycode, pdata->keymap,
+> +		pdata->keymapsize * input->keycodesize);
+> +
+> +	/* setup input device */
+> +	__set_bit(EV_KEY, input->evbit);
+> +
+> +	if (pdata->repeat)
+> +		__set_bit(EV_REP, input->evbit);
+> +
+> +	for (i = 0; i < input->keycodemax; i++)
+> +		__set_bit(dev->keycode[i] & KEY_MAX, input->keybit);
+
+Not sure if we need "& KEY_MAX"...
+
+> +	__clear_bit(KEY_RESERVED, input->keybit);
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "unable to register input device\n");
+> +		input_free_device(input);
+
+Please either out-of-line error handling or inline, but not both.
+
+> +		goto err;
+> +	}
+> +
+> +	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
+> +
+> +	ret = adp5520_set_bits(dev->master, GPIO_CFG_1, en_mask);
+> +
+> +	if (en_mask & COL_C3)
+> +		ctl_mask |= C3_MODE;
+> +
+> +	if (en_mask & ROW_R3)
+> +		ctl_mask |= R3_MODE;
+> +
+> +	if (ctl_mask)
+> +		ret |= adp5520_set_bits(dev->master, LED_CONTROL,
+> +			ctl_mask);
+> +
+> +	ret |= adp5520_set_bits(dev->master, GPIO_PULLUP,
+> +		pdata->rows_en_mask);
+> +
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to write\n");
+> +		goto err1;
+
+What are the chances that ret hs proper errno value here?
+
+> +	}
+> +
+> +	dev->notifier.notifier_call = adp5520_keys_notifier;
+> +	ret = adp5520_register_notifier(dev->master, &dev->notifier,
+> +			KP_IEN | KR_IEN);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register notifier\n");
+> +		goto err1;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, dev);
+> +	return 0;
+> +
+> +err1:
+> +	input_unregister_device(input);
+> +err:
+> +	kfree(dev);
+> +	return ret;
+> +}
+> +
+> +static int __devexit adp5520_keys_remove(struct platform_device *pdev)
+> +{
+> +	struct adp5520_keys *dev;
+> +	dev = platform_get_drvdata(pdev);
+
+Combine in one line?
+
+> +
+> +	adp5520_unregister_notifier(dev->master, &dev->notifier,
+> +				KP_IEN | KR_IEN);
+> +
+> +	input_unregister_device(dev->input);
+> +	kfree(dev);
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver adp5520_keys_driver = {
+> +	.driver	= {
+> +		.name	= "adp5520-keys",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +	.probe		= adp5520_keys_probe,
+> +	.remove		= __devexit_p(adp5520_keys_remove),
+> +};
+> +
+> +static int __init adp5520_keys_init(void)
+> +{
+> +	return platform_driver_register(&adp5520_keys_driver);
+> +}
+> +module_init(adp5520_keys_init);
+> +
+> +static void __exit adp5520_keys_exit(void)
+> +{
+> +	platform_driver_unregister(&adp5520_keys_driver);
+> +}
+> +module_exit(adp5520_keys_exit);
+> +
+> +MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+> +MODULE_DESCRIPTION("Keys ADP5520 Driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:adp5520-keys");
+> -- 
+> 1.6.5.rc1
+> 
 
 Thanks.
 
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,92 +1,222 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
-Date: Tue, 22 Sep 2009 09:42:06 -0700
-Message-ID: <20090922164206.GB22639@core.coreip.homeip.net>
-References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com> <20090916162853.GA4970@core.coreip.homeip.net> <bc64b4640909161141j3dfae8c8ncc02d0fe8c95ee07@mail.gmail.com> <bc64b4640909180444v46f49175ob215ffc43e3d109@mail.gmail.com>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH v3 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Tue, 22 Sep 2009 10:37:35 -0700
+Message-ID: <871vlyev8g.fsf@deeprootsystems.com>
+References: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59301DD916A60@dbde02.ent.ti.com>
+	<4AB39A00.8080405@ridgerun.com>
+	<B85A65D85D7EB246BE421B3FB0FBB59301DD991DD8@dbde02.ent.ti.com>
+	<4AB8D89D.6050409@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f187.google.com ([209.85.222.187]:46739 "EHLO
-	mail-pz0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751480AbZIVQmH (ORCPT
+Received: from mail-px0-f171.google.com ([209.85.216.171]:54027 "EHLO
+	mail-px0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754401AbZIVRhe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2009 12:42:07 -0400
-Received: by mail-pz0-f187.google.com with SMTP id 17so265823pzk.1
-        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2009 09:42:10 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <bc64b4640909180444v46f49175ob215ffc43e3d109@mail.gmail.com>
+	Tue, 22 Sep 2009 13:37:34 -0400
+Received: by pxi1 with SMTP id 1so3443032pxi.1
+        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2009 10:37:38 -0700 (PDT)
+In-Reply-To: <4AB8D89D.6050409@ridgerun.com> (Miguel Aguilar's message of "Tue\, 22 Sep 2009 08\:01\:01 -0600")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Cc: "Nori, Sekhar" <nsekhar@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
 
-On Fri, Sep 18, 2009 at 03:44:41PM +0400, Dmitry Eremin-Solenikov wrote=
-:
-> On Wed, Sep 16, 2009 at 10:41 PM, Dmitry Eremin-Solenikov
-> <dbaryshkov@gmail.com> wrote:
-> > On Wed, Sep 16, 2009 at 8:28 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >> On Wed, Sep 16, 2009 at 07:03:18PM +0400, Dmitry Eremin-Solenikov =
-wrote:
-> >>> There is nothing that disallows gpio-keys to share it's IRQ line
-> >>> w/ other drivers. Make it use IRQF_SHARED in request_irq().
-> >>>
-> >>> An example of other driver with which I'd like to share IRQ line
-> >>> for GPIO buttons is ledtrig-gpio.
-> >>>
-> >>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-> >>> ---
-> >>> =A0drivers/input/keyboard/gpio_keys.c | =A0 =A01 +
-> >>> =A01 files changed, 1 insertions(+), 0 deletions(-)
-> >>>
-> >>> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/k=
-eyboard/gpio_keys.c
-> >>> index efed0c9..9fc2fab 100644
-> >>> --- a/drivers/input/keyboard/gpio_keys.c
-> >>> +++ b/drivers/input/keyboard/gpio_keys.c
-> >>> @@ -147,6 +147,7 @@ static int __devinit gpio_keys_probe(struct p=
-latform_device *pdev)
-> >>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
-> >>>
-> >>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D request_irq(irq, gpio_keys_=
-isr,
-> >>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- IRQF_SHARED |
-> >>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-> >>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- button->desc ? button->desc : "gpio_keys",
-> >>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- bdata);
-> >>
-> >> How will you determine which device generated the interrupt? Becau=
-se you
-> >> can't return IRQ_HANDLED unconditionally and expect both devices w=
-ork
-> >> reliably.
-> >
-> > It's a single device (gpio pin). However I'd like to be able to att=
-ach
-> > several handlers to it.
-> > E.g. one isr is gpio-keys (for reporting event to userspace), anoth=
-er
-> > isr will be from
-> > ledtrig-gpio (controlling the LED). Another can be some kind of
-> > battery driver, etc.
-> >
-> > All these drivers will provide different kinds of response for sing=
-le GPIO pin.
->=20
-> So, what about this patch?
->=20
+Miguel Aguilar <miguel.aguilar@ridgerun.com> writes:
 
-OK, will apply.
+> Sekhar,
+>
+> If you and Sneha agree I will write driver in terms of davinci instead of dm365.
+>
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I add a vote the davinci* naming instead of dm365*.
+
+Kevin
+
+> Thanks,
+>
+> Miguel Aguilar
+>
+> Nori, Sekhar wrote:
+>> On Fri, Sep 18, 2009 at 20:02:32, Miguel Aguilar wrote:
+>>> Sekhar,
+>>>
+>>> See the comments below.
+>>>
+>>> Nori, Sekhar wrote:
+>>>> On Fri, Sep 18, 2009 at 01:36:36, miguel.aguilar@ridgerun.com wrote:
+>>
+>> [...]
+>>
+>>>>> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+>>>>> index a6b989a..08ed7d4 100644
+>>>>> --- a/drivers/input/keyboard/Kconfig
+>>>>> +++ b/drivers/input/keyboard/Kconfig
+>>>>> @@ -361,4 +361,10 @@ config KEYBOARD_XTKBD
+>>>>>         To compile this driver as a module, choose M here: the
+>>>>>         module will be called xtkbd.
+>>>>>
+>>>>> +config KEYBOARD_DAVINCI_DM365
+>>>> How about calling it just KEYBOARD_DAVINCI in honor of this
+>>>> being the first DaVinci keypad driver in drivers/input/keyboard?
+>>>> Also, in the hope that this will get reused on a future DaVinci.
+>>>>
+>>>> Unless, there is something that makes it really DM365 specific..
+>>> [MA] It is better keep it specific since that symbols refers to a driver which
+>>> is DM365 specific at the moment.
+>>
+>> Okay. There is no device which reuses the keyscan module at
+>> present, but there has been a lot of IP reuse in the DaVinci
+>> family before (emac, mmc/sd, i2c, spi etc.).
+>>
+>>>>> +     tristate "TI DaVinci DM365 Keypad"
+>>>>> +     depends on ARCH_DAVINCI_DM365
+>>>>> +     help
+>>>>> +      Supports the keypad module on the DM365
+>>>>> +
+>>>>>  endif
+>>>> [...]
+>>>>
+>>>>> diff --git a/drivers/input/keyboard/davinci_dm365_keypad.c b/drivers/input/keyboard/davinci_dm365_keypad.c
+>>>>> new file mode 100644
+>>>>> index 0000000..5db8eed
+>>>>> --- /dev/null
+>>>>> +++ b/drivers/input/keyboard/davinci_dm365_keypad.c
+>>>>> @@ -0,0 +1,331 @@
+>>>>> +/*
+>>>>> + * DaVinci DM365 Keypad Driver
+>>>>> + *
+>>>>> + * Copyright (C) 2009 Texas Instruments, Inc
+>>>>> + *
+>>>>> + * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+>>>>> + *
+>>>>> + * Intial Code: Sandeep Paulraj <s-paulraj@ti.com>
+>>>>> + *
+>>>>> + * This program is free software; you can redistribute it and/or modify
+>>>>> + * it under the terms of the GNU General Public License as published by
+>>>>> + * the Free Software Foundation; either version 2 of the License, or
+>>>>> + * (at your option) any later version.
+>>>>> + *
+>>>>> + * This program is distributed in the hope that it will be useful,
+>>>>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>>>>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>>>>> + * GNU General Public License for more details.
+>>>>> + *
+>>>>> + * You should have received a copy of the GNU General Public License
+>>>>> + * along with this program; if not, write to the Free Software
+>>>>> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+>>>>> + */
+>>>>> +#include <linux/module.h>
+>>>>> +#include <linux/init.h>
+>>>>> +#include <linux/interrupt.h>
+>>>>> +#include <linux/types.h>
+>>>>> +#include <linux/input.h>
+>>>>> +#include <linux/kernel.h>
+>>>>> +#include <linux/delay.h>
+>>>>> +#include <linux/platform_device.h>
+>>>>> +#include <linux/errno.h>
+>>>>> +
+>>>>> +#include <asm/irq.h>
+>>>>> +
+>>>>> +#include <mach/hardware.h>
+>>>>> +#include <mach/irqs.h>
+>>>>> +#include <mach/keypad.h>
+>>>>> +
+>>>>> +/* Keypad registers */
+>>>>> +#define DM365_KEYPAD_KEYCTRL         0x0000
+>>>> There are many places in the driver (functions, macros) which
+>>>> probably can just be called DAVINCI_ instead of DM365_
+>>> [MA]Again, these are DM365 specific definitions, If your proposal is to make
+>>> this driver generic to Davinci instead of DM365 specific, I should get rid of
+>>> all dm365 labels, messages, function names, etc in this driver, even the
+>>> driver's name should be davinci_keypad instead of dm365_keypad, so in that sense
+>>> not only the macros and the config symbol should be changed; but for doing that
+>>> we are assuming that future chips of the Davinci family will include the same
+>>> keypad module, so they would be compatible among them to use the same driver.
+>>
+>> Yes, typically attempt is made to reuse the IP as-is.
+>> Slight changes in the IPs re-used have previously been
+>> taken care use a "version" field coming from the platform
+>> data.
+>>
+>> The product number population below seems to be a bigger
+>> sore than the variable/macro/Kconfig naming.
+>>
+>>>>> +static irqreturn_t dm365_kp_interrupt(int irq, void *dev_id)
+>>>>> +{
+>>>>> +     int i;
+>>>>> +     u32 prev_status, new_status, changed;
+>>>>> +     int keycode = KEY_UNKNOWN;
+>>>>> +     struct davinci_kp *dm365_kp = dev_id;
+>>>>> +     int *keymap = dm365_kp->pdata->keymap;
+>>>>> +     u32 keymapsize = dm365_kp->pdata->keymapsize;
+>>>>> +     struct device *dev = &dm365_kp->input->dev;
+>>>>> +
+>>>>> +     /* Disable interrupt */
+>>>>> +     dm365_kp_write(dm365_kp, 0x0, DM365_KEYPAD_INTENA);
+>>>>> +
+>>>>> +     /* Reading previous and new status of the keypad */
+>>>>> +     prev_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_PREVSTATE);
+>>>>> +     new_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_CURRENTST);
+>>>>> +
+>>>>> +     changed = prev_status ^ new_status;
+>>>>> +
+>>>>> +     for (i = 0; i < keymapsize; i++) {
+>>>>> +             if ((changed >> i) & 0x1) {
+>>>> Using ffs(changed) will probably lead to a faster ISR, especially
+>>>> because only one key would have changed in most cases.
+>>> [MA] OK, I will try ffs.
+>>>>> +                     keycode = keymap[i];
+>>>>> +                     if((new_status >> i) & 0x1) {
+>>>>> +                             /* Report release */
+>>>>> +                             input_report_key(dm365_kp->input, keycode, 0);
+>>>>> +                             input_sync(dm365_kp->input);
+>>>>> +                             dev_dbg(dev, "dm365_keypad: key %d released\n",
+>>>>> +                                             keycode);
+>>>>> +                     } else {
+>>>>> +                             /* Report press */
+>>>>> +                             input_report_key(dm365_kp->input, keycode, 1);
+>>>>> +                             input_sync(dm365_kp->input);
+>>>>> +                             dev_dbg(dev, "dm365_keypad: key %d pressed\n",
+>>>>> +                                             keycode);
+>>>>> +                     }
+>>>>> +             }
+>>>>> +     }
+>>>>> +
+>>>>> +     /* Clearing interrupt */
+>>>>> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_INT_ALL, DM365_KEYPAD_INTCLR);
+>>>>> +
+>>>>> +     /* Enable interrupts */
+>>>>> +     dm365_kp_write(dm365_kp, 0x1, DM365_KEYPAD_INTENA);
+>>>>> +
+>>>>> +     return IRQ_HANDLED;
+>>
+>> I missed this before, if the loop above turns up nothing,
+>> then the IRQ was not handled. IRQ_NONE will be a better return
+>> in that case.
+>
+>>
+>> [...]
+>>
+>>>>> +     dm365_kp->irq = platform_get_irq(pdev, 0);
+>>>>> +     if (dm365_kp->irq <= 0) {
+>>>>> +             dev_err(dev, "%s: No DM365 Keypad irq\n", pdev->name);
+>>>>> +             ret = dm365_kp->irq;
+>>>> Probe will return success when dm365_kp->irq is 0, but you actually
+>>>> want a failure.
+>>> [MA] What is the proper error code for this case?.
+>>
+>> platform_get_irq() returns an error which should be propagated. The
+>> question is: Why is 0 not a valid IRQ number for keyscan module?
+>>
+>> Thanks,
+>> Sekhar
+>>
+>
+>
+>
+> _______________________________________________
+> Davinci-linux-open-source mailing list
+> Davinci-linux-open-source@linux.davincidsp.com
+> http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source

@@ -1,326 +1,203 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/keyboard: new driver for ADP5520 MFD PMICs
-Date: Mon, 21 Sep 2009 22:59:54 -0700
-Message-ID: <20090922055954.GB9658@core.coreip.homeip.net>
-References: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
+From: "Nori, Sekhar" <nsekhar@ti.com>
+Subject: RE: [PATCH v3 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Tue, 22 Sep 2009 12:35:29 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301DD991DD8@dbde02.ent.ti.com>
+References: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301DD916A60@dbde02.ent.ti.com>
+ <4AB39A00.8080405@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f194.google.com ([209.85.211.194]:55240 "EHLO
-	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750953AbZIVF74 (ORCPT
+Received: from bear.ext.ti.com ([192.94.94.41]:53418 "EHLO bear.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755264AbZIVHFm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2009 01:59:56 -0400
-Content-Disposition: inline
-In-Reply-To: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
+	Tue, 22 Sep 2009 03:05:42 -0400
+In-Reply-To: <4AB39A00.8080405@ridgerun.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Cc: "Narnakaje, Snehaprabha" <nsnehaprabha@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>
 
-Hi Mike,
+On Fri, Sep 18, 2009 at 20:02:32, Miguel Aguilar wrote:
+> Sekhar,
+>
+> See the comments below.
+>
+> Nori, Sekhar wrote:
+> > On Fri, Sep 18, 2009 at 01:36:36, miguel.aguilar@ridgerun.com wrote:
 
-On Thu, Sep 17, 2009 at 02:24:10PM -0400, Mike Frysinger wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
-> 
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> ---
->  drivers/input/keyboard/Kconfig        |   10 ++
->  drivers/input/keyboard/Makefile       |    1 +
->  drivers/input/keyboard/adp5520-keys.c |  219 +++++++++++++++++++++++++++++++++
->  3 files changed, 230 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/adp5520-keys.c
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index e0bfcd7..53c9561 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -392,4 +392,14 @@ config KEYBOARD_ADP5588
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called adp5588-keys.
->  
-> +config KEYBOARD_ADP5520
-> +	tristate "Keypad Support for ADP5520 PMIC"
-> +	depends on PMIC_ADP5520
-> +	help
-> +	  This option enables support for the keypad scan matrix
-> +	  on Analog Devices ADP5520 PMICs.
-> +
-> +	  To compile this driver as a module, choose M here: the module will
-> +	  be called adp5520-keys.
-> +
->  endif
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 72082a4..c541489 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -5,6 +5,7 @@
->  # Each configuration option enables a list of files.
->  
->  obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
-> +obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
->  obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
->  obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
->  obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
-> diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
-> new file mode 100644
-> index 0000000..cc2e1ed
-> --- /dev/null
-> +++ b/drivers/input/keyboard/adp5520-keys.c
-> @@ -0,0 +1,219 @@
-> +/*
-> + * Keypad driver for Analog Devices ADP5520 MFD PMICs
-> + *
-> + * Copyright 2009 Analog Devices Inc.
-> + *
-> + * Licensed under the GPL-2 or later.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/input.h>
-> +#include <linux/mfd/adp5520.h>
-> +
-> +struct adp5520_keys {
-> +	struct input_dev *input;
-> +	struct notifier_block notifier;
-> +	struct device *master;
-> +	unsigned short keycode[ADP5520_KEYMAPSIZE];
-> +};
-> +
-> +static void adp5520_keys_report_event(struct adp5520_keys *dev,
-> +					unsigned short keymask, int value)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < ADP5520_MAXKEYS; i++)
-> +		if (keymask & (1 << i))
-> +			input_report_key(dev->input, dev->keycode[i], value);
-> +
-> +	input_sync(dev->input);
-> +}
-> +
-> +static int adp5520_keys_notifier(struct notifier_block *nb,
-> +				 unsigned long event, void *data)
-> +{
-> +	struct adp5520_keys *dev;
-> +	uint8_t reg_val_low, reg_val_high;
-> +	unsigned short keymask;
-> +
-> +	dev = container_of(nb, struct adp5520_keys, notifier);
-> +
-> +	if (event & KP_INT) {
-> +		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
-> +		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
-> +
-> +		keymask = (reg_val_high << 8) | reg_val_low;
-> +		/* Read twice to clear */
-> +		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
-> +		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
-> +		keymask |= (reg_val_high << 8) | reg_val_low;
-> +		adp5520_keys_report_event(dev, keymask, 1);
-> +	}
-> +
-> +	if (event & KR_INT) {
+[...]
 
-Why do you check the same condition twice?
+> >> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> >> index a6b989a..08ed7d4 100644
+> >> --- a/drivers/input/keyboard/Kconfig
+> >> +++ b/drivers/input/keyboard/Kconfig
+> >> @@ -361,4 +361,10 @@ config KEYBOARD_XTKBD
+> >>         To compile this driver as a module, choose M here: the
+> >>         module will be called xtkbd.
+> >>
+> >> +config KEYBOARD_DAVINCI_DM365
+> >
+> > How about calling it just KEYBOARD_DAVINCI in honor of this
+> > being the first DaVinci keypad driver in drivers/input/keyboard?
+> > Also, in the hope that this will get reused on a future DaVinci.
+> >
+> > Unless, there is something that makes it really DM365 specific..
+> [MA] It is better keep it specific since that symbols refers to a driver which
+> is DM365 specific at the moment.
 
-> +		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
-> +		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
-> +
-> +		keymask = (reg_val_high << 8) | reg_val_low;
-> +		/* Read twice to clear */
-> +		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
-> +		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
-> +		keymask |= (reg_val_high << 8) | reg_val_low;
-> +		adp5520_keys_report_event(dev, keymask, 0);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int __devinit adp5520_keys_probe(struct platform_device *pdev)
-> +{
-> +	struct adp5520_keys_platfrom_data *pdata = pdev->dev.platform_data;
-> +	struct input_dev *input;
-> +	struct adp5520_keys *dev;
-> +	int ret, i;
-> +	unsigned char en_mask, ctl_mask = 0;
-> +
-> +	if (pdev->id != ID_ADP5520) {
-> +		dev_err(&pdev->dev, "only ADP5520 supports Keypad\n");
-> +		return -EFAULT;
+Okay. There is no device which reuses the keyscan module at
+present, but there has been a lot of IP reuse in the DaVinci
+family before (emac, mmc/sd, i2c, spi etc.).
 
--ENODEV
+> >
+> >> +     tristate "TI DaVinci DM365 Keypad"
+> >> +     depends on ARCH_DAVINCI_DM365
+> >> +     help
+> >> +      Supports the keypad module on the DM365
+> >> +
+> >>  endif
+> >
+> > [...]
+> >
+> >> diff --git a/drivers/input/keyboard/davinci_dm365_keypad.c b/drivers/input/keyboard/davinci_dm365_keypad.c
+> >> new file mode 100644
+> >> index 0000000..5db8eed
+> >> --- /dev/null
+> >> +++ b/drivers/input/keyboard/davinci_dm365_keypad.c
+> >> @@ -0,0 +1,331 @@
+> >> +/*
+> >> + * DaVinci DM365 Keypad Driver
+> >> + *
+> >> + * Copyright (C) 2009 Texas Instruments, Inc
+> >> + *
+> >> + * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> >> + *
+> >> + * Intial Code: Sandeep Paulraj <s-paulraj@ti.com>
+> >> + *
+> >> + * This program is free software; you can redistribute it and/or modify
+> >> + * it under the terms of the GNU General Public License as published by
+> >> + * the Free Software Foundation; either version 2 of the License, or
+> >> + * (at your option) any later version.
+> >> + *
+> >> + * This program is distributed in the hope that it will be useful,
+> >> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> >> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> >> + * GNU General Public License for more details.
+> >> + *
+> >> + * You should have received a copy of the GNU General Public License
+> >> + * along with this program; if not, write to the Free Software
+> >> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> >> + */
+> >> +#include <linux/module.h>
+> >> +#include <linux/init.h>
+> >> +#include <linux/interrupt.h>
+> >> +#include <linux/types.h>
+> >> +#include <linux/input.h>
+> >> +#include <linux/kernel.h>
+> >> +#include <linux/delay.h>
+> >> +#include <linux/platform_device.h>
+> >> +#include <linux/errno.h>
+> >> +
+> >> +#include <asm/irq.h>
+> >> +
+> >> +#include <mach/hardware.h>
+> >> +#include <mach/irqs.h>
+> >> +#include <mach/keypad.h>
+> >> +
+> >> +/* Keypad registers */
+> >> +#define DM365_KEYPAD_KEYCTRL         0x0000
+> >
+> > There are many places in the driver (functions, macros) which
+> > probably can just be called DAVINCI_ instead of DM365_
+> [MA]Again, these are DM365 specific definitions, If your proposal is to make
+> this driver generic to Davinci instead of DM365 specific, I should get rid of
+> all dm365 labels, messages, function names, etc in this driver, even the
+> driver's name should be davinci_keypad instead of dm365_keypad, so in that sense
+> not only the macros and the config symbol should be changed; but for doing that
+> we are assuming that future chips of the Davinci family will include the same
+> keypad module, so they would be compatible among them to use the same driver.
 
-> +	}
-> +
-> +	if (pdata == NULL) {
-> +		dev_err(&pdev->dev, "missing platform data\n");
-> +		return -ENODEV;
+Yes, typically attempt is made to reuse the IP as-is.
+Slight changes in the IPs re-used have previously been
+taken care use a "version" field coming from the platform
+data.
 
--EINVAL
+The product number population below seems to be a bigger
+sore than the variable/macro/Kconfig naming.
 
-> +	}
-> +
-> +	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
-> +		return -ENODEV;
-> +
+> >> +static irqreturn_t dm365_kp_interrupt(int irq, void *dev_id)
+> >> +{
+> >> +     int i;
+> >> +     u32 prev_status, new_status, changed;
+> >> +     int keycode = KEY_UNKNOWN;
+> >> +     struct davinci_kp *dm365_kp = dev_id;
+> >> +     int *keymap = dm365_kp->pdata->keymap;
+> >> +     u32 keymapsize = dm365_kp->pdata->keymapsize;
+> >> +     struct device *dev = &dm365_kp->input->dev;
+> >> +
+> >> +     /* Disable interrupt */
+> >> +     dm365_kp_write(dm365_kp, 0x0, DM365_KEYPAD_INTENA);
+> >> +
+> >> +     /* Reading previous and new status of the keypad */
+> >> +     prev_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_PREVSTATE);
+> >> +     new_status = dm365_kp_read(dm365_kp, DM365_KEYPAD_CURRENTST);
+> >> +
+> >> +     changed = prev_status ^ new_status;
+> >> +
+> >> +     for (i = 0; i < keymapsize; i++) {
+> >> +             if ((changed >> i) & 0x1) {
+> >
+> > Using ffs(changed) will probably lead to a faster ISR, especially
+> > because only one key would have changed in most cases.
+> [MA] OK, I will try ffs.
+> >
+> >> +                     keycode = keymap[i];
+> >> +                     if((new_status >> i) & 0x1) {
+> >> +                             /* Report release */
+> >> +                             input_report_key(dm365_kp->input, keycode, 0);
+> >> +                             input_sync(dm365_kp->input);
+> >> +                             dev_dbg(dev, "dm365_keypad: key %d released\n",
+> >> +                                             keycode);
+> >> +                     } else {
+> >> +                             /* Report press */
+> >> +                             input_report_key(dm365_kp->input, keycode, 1);
+> >> +                             input_sync(dm365_kp->input);
+> >> +                             dev_dbg(dev, "dm365_keypad: key %d pressed\n",
+> >> +                                             keycode);
+> >> +                     }
+> >> +             }
+> >> +     }
+> >> +
+> >> +     /* Clearing interrupt */
+> >> +     dm365_kp_write(dm365_kp, DM365_KEYPAD_INT_ALL, DM365_KEYPAD_INTCLR);
+> >> +
+> >> +     /* Enable interrupts */
+> >> +     dm365_kp_write(dm365_kp, 0x1, DM365_KEYPAD_INTENA);
+> >> +
+> >> +     return IRQ_HANDLED;
 
--EINVAL
+I missed this before, if the loop above turns up nothing,
+then the IRQ was not handled. IRQ_NONE will be a better return
+in that case.
 
-> +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-> +	if (dev == NULL) {
-> +		dev_err(&pdev->dev, "failed to alloc memory\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	input = input_allocate_device();
-> +	if (!input) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	dev->master = pdev->dev.parent;
-> +	dev->input = input;
-> +
-> +	input->name = pdev->name;
-> +	input->phys = "adp5520-keys/input0";
-> +	input->dev.parent = &pdev->dev;
-> +
-> +	input_set_drvdata(input, dev);
-> +
-> +	input->id.bustype = BUS_I2C;
-> +	input->id.vendor = 0x0001;
-> +	input->id.product = 0x5520;
-> +	input->id.version = 0x0001;
-> +
-> +	input->keycodesize = sizeof(unsigned short);
+[...]
 
-sizeof(dev->keycode[0]) is safer.
+> >> +     dm365_kp->irq = platform_get_irq(pdev, 0);
+> >> +     if (dm365_kp->irq <= 0) {
+> >> +             dev_err(dev, "%s: No DM365 Keypad irq\n", pdev->name);
+> >> +             ret = dm365_kp->irq;
+> >
+> > Probe will return success when dm365_kp->irq is 0, but you actually
+> > want a failure.
+> [MA] What is the proper error code for this case?.
 
-> +	input->keycodemax = pdata->keymapsize;
-> +	input->keycode = dev->keycode;
-> +
-> +	memcpy(dev->keycode, pdata->keymap,
-> +		pdata->keymapsize * input->keycodesize);
-> +
-> +	/* setup input device */
-> +	__set_bit(EV_KEY, input->evbit);
-> +
-> +	if (pdata->repeat)
-> +		__set_bit(EV_REP, input->evbit);
-> +
-> +	for (i = 0; i < input->keycodemax; i++)
-> +		__set_bit(dev->keycode[i] & KEY_MAX, input->keybit);
+platform_get_irq() returns an error which should be propagated. The
+question is: Why is 0 not a valid IRQ number for keyscan module?
 
-Not sure if we need "& KEY_MAX"...
+Thanks,
+Sekhar
 
-> +	__clear_bit(KEY_RESERVED, input->keybit);
-> +
-> +	ret = input_register_device(input);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "unable to register input device\n");
-> +		input_free_device(input);
-
-Please either out-of-line error handling or inline, but not both.
-
-> +		goto err;
-> +	}
-> +
-> +	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
-> +
-> +	ret = adp5520_set_bits(dev->master, GPIO_CFG_1, en_mask);
-> +
-> +	if (en_mask & COL_C3)
-> +		ctl_mask |= C3_MODE;
-> +
-> +	if (en_mask & ROW_R3)
-> +		ctl_mask |= R3_MODE;
-> +
-> +	if (ctl_mask)
-> +		ret |= adp5520_set_bits(dev->master, LED_CONTROL,
-> +			ctl_mask);
-> +
-> +	ret |= adp5520_set_bits(dev->master, GPIO_PULLUP,
-> +		pdata->rows_en_mask);
-> +
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to write\n");
-> +		goto err1;
-
-What are the chances that ret hs proper errno value here?
-
-> +	}
-> +
-> +	dev->notifier.notifier_call = adp5520_keys_notifier;
-> +	ret = adp5520_register_notifier(dev->master, &dev->notifier,
-> +			KP_IEN | KR_IEN);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to register notifier\n");
-> +		goto err1;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, dev);
-> +	return 0;
-> +
-> +err1:
-> +	input_unregister_device(input);
-> +err:
-> +	kfree(dev);
-> +	return ret;
-> +}
-> +
-> +static int __devexit adp5520_keys_remove(struct platform_device *pdev)
-> +{
-> +	struct adp5520_keys *dev;
-> +	dev = platform_get_drvdata(pdev);
-
-Combine in one line?
-
-> +
-> +	adp5520_unregister_notifier(dev->master, &dev->notifier,
-> +				KP_IEN | KR_IEN);
-> +
-> +	input_unregister_device(dev->input);
-> +	kfree(dev);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver adp5520_keys_driver = {
-> +	.driver	= {
-> +		.name	= "adp5520-keys",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +	.probe		= adp5520_keys_probe,
-> +	.remove		= __devexit_p(adp5520_keys_remove),
-> +};
-> +
-> +static int __init adp5520_keys_init(void)
-> +{
-> +	return platform_driver_register(&adp5520_keys_driver);
-> +}
-> +module_init(adp5520_keys_init);
-> +
-> +static void __exit adp5520_keys_exit(void)
-> +{
-> +	platform_driver_unregister(&adp5520_keys_driver);
-> +}
-> +module_exit(adp5520_keys_exit);
-> +
-> +MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
-> +MODULE_DESCRIPTION("Keys ADP5520 Driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:adp5520-keys");
-> -- 
-> 1.6.5.rc1
-> 
-
-Thanks.
-
--- 
-Dmitry

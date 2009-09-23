@@ -1,41 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input/keyboard: new driver for ADP5520 MFD PMICs
-Date: Tue, 22 Sep 2009 23:28:09 -0700
-Message-ID: <20090923062808.GD1458@core.coreip.homeip.net>
-References: <1253211850-29309-1-git-send-email-vapier@gentoo.org> <1253682916-27387-1-git-send-email-vapier@gentoo.org>
+Subject: Re: Ben_Nanonote keyboard driver bug
+Date: Tue, 22 Sep 2009 23:37:26 -0700
+Message-ID: <200909222337.26608.dmitry.torokhov@gmail.com>
+References: <4AB33A1A.7090508@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f199.google.com ([209.85.210.199]:49876 "EHLO
-	mail-yx0-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753786AbZIWG2J (ORCPT
+Received: from mail-yw0-f174.google.com ([209.85.211.174]:54708 "EHLO
+	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753786AbZIWGh0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2009 02:28:09 -0400
-Content-Disposition: inline
-In-Reply-To: <1253682916-27387-1-git-send-email-vapier@gentoo.org>
+	Wed, 23 Sep 2009 02:37:26 -0400
+Received: by ywh4 with SMTP id 4so557766ywh.33
+        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2009 23:37:30 -0700 (PDT)
+In-Reply-To: <4AB33A1A.7090508@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier@gentoo.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+To: Xiangfu Liu <xiangfu.z@gmail.com>
+Cc: "Hard- and Software Development, Kernel, Distribution, Roadmap" <developer@lists.qi-hardware.com>, linux-input@vger.kernel.org
 
-On Wed, Sep 23, 2009 at 01:15:16AM -0400, Mike Frysinger wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
+On Friday 18 September 2009 12:43:22 am Xiangfu Liu wrote:
+> Hi
 > 
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> ---
-> this patch requires:
-> 	[PATCH] mfd: ADP5520 Multifunction LCD Backlight and Keypad Input Device Driver
+> with Dmitry's help, our keyboard is work.
 > 
-> v2
-> 	- address feedback from Dmitry
+> we use the matrix_keypad.c driver. I found a problem.
+> for example. the keypad is like this: (part of keypad)
+> GPIO    GPIO    GPIO
+> 
+> a_______w_______u_____GPIO
+> 
+> |_______s_______j_____GPIO
+> 
+> Shift___Alt_____Ctrl__GPIO
+> 
+> first time press [Shift] + [a] it's output [a] not the [A]
+> second time press [Shift] + [a] it's output [A]. correct.
+> then all work fine.  but when I release the [Shift]. and press [a]
+> it's will also output big [A]. but if the midifier and character not
+> in same column GPIO. it will work fine.
+> 
+> other modifier all like this. same GPIO will cause problem.
+> 
+> I should look into the matrix_keypad.c to fix this, right?
 > 
 
-Looks good. I assume you want it to be merged with the rest of ADP5520
-patches, so:
-
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+It would be interesting to see what events are being reported by either evbug 
+module or evtest utility.
 
 -- 
 Dmitry

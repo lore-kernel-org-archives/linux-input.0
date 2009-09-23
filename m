@@ -1,59 +1,51 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: Re: Ben_Nanonote keyboard driver bug
-Date: Wed, 23 Sep 2009 15:13:06 +0800
-Message-ID: <4AB9CA82.5000302@gmail.com>
-References: <4AB33A1A.7090508@gmail.com> <200909222337.26608.dmitry.torokhov@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Current git: no keyboard when booting in verbose mode
+Date: Wed, 23 Sep 2009 11:09:55 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0909231108100.27145@twin.jikos.cz>
+References: <6041d2000909221754n2ee1982xe08f938a35358c00@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f194.google.com ([209.85.216.194]:32872 "EHLO
-	mail-px0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754214AbZIWHNK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2009 03:13:10 -0400
-Received: by pxi32 with SMTP id 32so408140pxi.4
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2009 00:13:14 -0700 (PDT)
-In-Reply-To: <200909222337.26608.dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752716AbZIWJJz@vger.kernel.org>
+In-Reply-To: <6041d2000909221754n2ee1982xe08f938a35358c00@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Marc Dionne <marc.c.dionne@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Hard- and Software Development, Kernel, Distribution, Roadmap" <developer@lists.qi-hardware.com>, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Friday 18 September 2009 12:43:22 am Xiangfu Liu wrote:
->> Hi
->>
->> with Dmitry's help, our keyboard is work.
->>
->> we use the matrix_keypad.c driver. I found a problem.
->> for example. the keypad is like this: (part of keypad)
->> GPIO    GPIO    GPIO
->>
->> a_______w_______u_____GPIO
->>
->> |_______s_______j_____GPIO
->>
->> Shift___Alt_____Ctrl__GPIO
->>
->> first time press [Shift] + [a] it's output [a] not the [A]
->> second time press [Shift] + [a] it's output [A]. correct.
->> then all work fine.  but when I release the [Shift]. and press [a]
->> it's will also output big [A]. but if the midifier and character not
->> in same column GPIO. it will work fine.
->>
->> other modifier all like this. same GPIO will cause problem.
->>
->> I should look into the matrix_keypad.c to fix this, right?
->>
+
+[ adding some CCs ]
+
+On Tue, 22 Sep 2009, Marc Dionne wrote:
+
+> I'm having issues with the current kernel in git, and wondering if this 
+> will ring a bell for anyone. The main symptom is that on most boots the 
+> keyboard is not detected - the system gets to the console login prompt 
+> but input is not recognized.  Sometimes (rarely) the keyboard will be ok 
+> at the console, but the keyboard and mouse are non functional once in X. 
+
+Are both keyboard and mouse in question PS/2?
+
+> Other times the system will hang before getting to the console login 
+> prompt.
 > 
-> It would be interesting to see what events are being reported by either evbug 
-> module or evtest utility.
+> I made a few attempts to bisect this but with no success - I assume
+> that I'm led astray at some point by a bad kernel that happens to boot
+> normally a few times.
 > 
-Hi Dmitry. I will try to look into the evbug or evtest. 
-will send email when I have progress.
+> Things to note:
+> - The problem only occurs in verbose mode - if I boot with "quiet"
+>   everything is fine
+> - 2.6.31 has no issues on the same machine
+> - On a failed boot with no keyboard, this line is missing from dmesg:
+>     AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input2
+
+Could you please provide output from kernel booted with 'i8042.debug' from 
+the failing case?
+
+> - Otherwise there are no obvious differences with dmesg from a successful boot.
+> 
+> config is attached
 
 -- 
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,294 +1,57 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH v2] input/keyboard: new driver for ADP5520 MFD PMICs
-Date: Wed, 23 Sep 2009 01:15:16 -0400
-Message-ID: <1253682916-27387-1-git-send-email-vapier@gentoo.org>
-References: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
+From: "Nori, Sekhar" <nsekhar@ti.com>
+Subject: RE: [PATCH v3 1/2] Input: Add DaVinci DM365 Keypad support
+Date: Wed, 23 Sep 2009 11:50:02 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301DDA2CC8D@dbde02.ent.ti.com>
+References: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301DD916A60@dbde02.ent.ti.com>
+ <4AB39A00.8080405@ridgerun.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301DD991DD8@dbde02.ent.ti.com>
+ <4AB8D89D.6050409@ridgerun.com> <871vlyev8g.fsf@deeprootsystems.com>
+ <20090923034627.GA1458@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:34861 "EHLO smtp.gentoo.org"
+Received: from bear.ext.ti.com ([192.94.94.41]:47708 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751593AbZIWFPP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2009 01:15:15 -0400
-In-Reply-To: <1253211850-29309-1-git-send-email-vapier@gentoo.org>
+	id S1752740AbZIWGUR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Sep 2009 02:20:17 -0400
+In-Reply-To: <20090923034627.GA1458@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin Hilman <khilman@deeprootsystems.com>
+Cc: Miguel Aguilar <miguel.aguilar@ridgerun.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+On Wed, Sep 23, 2009 at 09:16:27, Dmitry Torokhov wrote:
+> On Tue, Sep 22, 2009 at 10:37:35AM -0700, Kevin Hilman wrote:
+> > Miguel Aguilar <miguel.aguilar@ridgerun.com> writes:
+> >
+> > > Sekhar,
+> > >
+> > > If you and Sneha agree I will write driver in terms of davinci instead of dm365.
+> > >
+> >
+> > I add a vote the davinci* naming instead of dm365*.
+> >
+>
+> Can you guarantee that this will be the only keypad implementation for
+> davinci?
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
-this patch requires:
-	[PATCH] mfd: ADP5520 Multifunction LCD Backlight and Keypad Input Device Driver
+No. That cannot be guaranteed. Surely there will be attempt to reuse
+this before inventing new. A new implementation will be a probably be
+a new driver (named after what the new implementation is called).
 
-v2
-	- address feedback from Dmitry
+So, I guess it is better to call this driver "davinci-keyscan" after
+what the IP has been called (http://focus.ti.com/lit/ug/sprufi8/sprufi8.pdf).
 
- drivers/input/keyboard/Kconfig        |   10 ++
- drivers/input/keyboard/Makefile       |    1 +
- drivers/input/keyboard/adp5520-keys.c |  220 +++++++++++++++++++++++++++++++++
- 3 files changed, 231 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/adp5520-keys.c
+> If not then I'd say using base model number and updating
+> Kconfig text is fine.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index e0bfcd7..53c9561 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -392,4 +392,14 @@ config KEYBOARD_ADP5588
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called adp5588-keys.
- 
-+config KEYBOARD_ADP5520
-+	tristate "Keypad Support for ADP5520 PMIC"
-+	depends on PMIC_ADP5520
-+	help
-+	  This option enables support for the keypad scan matrix
-+	  on Analog Devices ADP5520 PMICs.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called adp5520-keys.
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 72082a4..c541489 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
-+obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
- obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
- obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
-diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
-new file mode 100644
-index 0000000..1860d30
---- /dev/null
-+++ b/drivers/input/keyboard/adp5520-keys.c
-@@ -0,0 +1,220 @@
-+/*
-+ * Keypad driver for Analog Devices ADP5520 MFD PMICs
-+ *
-+ * Copyright 2009 Analog Devices Inc.
-+ *
-+ * Licensed under the GPL-2 or later.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/mfd/adp5520.h>
-+
-+struct adp5520_keys {
-+	struct input_dev *input;
-+	struct notifier_block notifier;
-+	struct device *master;
-+	unsigned short keycode[ADP5520_KEYMAPSIZE];
-+};
-+
-+static void adp5520_keys_report_event(struct adp5520_keys *dev,
-+					unsigned short keymask, int value)
-+{
-+	int i;
-+
-+	for (i = 0; i < ADP5520_MAXKEYS; i++)
-+		if (keymask & (1 << i))
-+			input_report_key(dev->input, dev->keycode[i], value);
-+
-+	input_sync(dev->input);
-+}
-+
-+static int adp5520_keys_notifier(struct notifier_block *nb,
-+				 unsigned long event, void *data)
-+{
-+	struct adp5520_keys *dev;
-+	uint8_t reg_val_low, reg_val_high;
-+	unsigned short keymask;
-+
-+	dev = container_of(nb, struct adp5520_keys, notifier);
-+
-+	if (event & KP_INT) {
-+		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
-+		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
-+
-+		keymask = (reg_val_high << 8) | reg_val_low;
-+		/* Read twice to clear */
-+		adp5520_read(dev->master, KP_INT_STAT_1, &reg_val_low);
-+		adp5520_read(dev->master, KP_INT_STAT_2, &reg_val_high);
-+		keymask |= (reg_val_high << 8) | reg_val_low;
-+		adp5520_keys_report_event(dev, keymask, 1);
-+	}
-+
-+	if (event & KR_INT) {
-+		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
-+		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
-+
-+		keymask = (reg_val_high << 8) | reg_val_low;
-+		/* Read twice to clear */
-+		adp5520_read(dev->master, KR_INT_STAT_1, &reg_val_low);
-+		adp5520_read(dev->master, KR_INT_STAT_2, &reg_val_high);
-+		keymask |= (reg_val_high << 8) | reg_val_low;
-+		adp5520_keys_report_event(dev, keymask, 0);
-+	}
-+
-+	return 0;
-+}
-+
-+static int __devinit adp5520_keys_probe(struct platform_device *pdev)
-+{
-+	struct adp5520_keys_platfrom_data *pdata = pdev->dev.platform_data;
-+	struct input_dev *input;
-+	struct adp5520_keys *dev;
-+	int ret, i;
-+	unsigned char en_mask, ctl_mask = 0;
-+
-+	if (pdev->id != ID_ADP5520) {
-+		dev_err(&pdev->dev, "only ADP5520 supports Keypad\n");
-+		return -EINVAL;
-+	}
-+
-+	if (pdata == NULL) {
-+		dev_err(&pdev->dev, "missing platform data\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
-+		return -EINVAL;
-+
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
-+	if (dev == NULL) {
-+		dev_err(&pdev->dev, "failed to alloc memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	input = input_allocate_device();
-+	if (!input) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	dev->master = pdev->dev.parent;
-+	dev->input = input;
-+
-+	input->name = pdev->name;
-+	input->phys = "adp5520-keys/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input_set_drvdata(input, dev);
-+
-+	input->id.bustype = BUS_I2C;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x5520;
-+	input->id.version = 0x0001;
-+
-+	input->keycodesize = sizeof(dev->keycode[0]);
-+	input->keycodemax = pdata->keymapsize;
-+	input->keycode = dev->keycode;
-+
-+	memcpy(dev->keycode, pdata->keymap,
-+		pdata->keymapsize * input->keycodesize);
-+
-+	/* setup input device */
-+	__set_bit(EV_KEY, input->evbit);
-+
-+	if (pdata->repeat)
-+		__set_bit(EV_REP, input->evbit);
-+
-+	for (i = 0; i < input->keycodemax; i++)
-+		__set_bit(dev->keycode[i], input->keybit);
-+	__clear_bit(KEY_RESERVED, input->keybit);
-+
-+	ret = input_register_device(input);
-+	if (ret) {
-+		dev_err(&pdev->dev, "unable to register input device\n");
-+		goto err;
-+	}
-+
-+	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
-+
-+	ret = adp5520_set_bits(dev->master, GPIO_CFG_1, en_mask);
-+
-+	if (en_mask & COL_C3)
-+		ctl_mask |= C3_MODE;
-+
-+	if (en_mask & ROW_R3)
-+		ctl_mask |= R3_MODE;
-+
-+	if (ctl_mask)
-+		ret |= adp5520_set_bits(dev->master, LED_CONTROL,
-+			ctl_mask);
-+
-+	ret |= adp5520_set_bits(dev->master, GPIO_PULLUP,
-+		pdata->rows_en_mask);
-+
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to write\n");
-+		ret = -EIO;
-+		goto err1;
-+	}
-+
-+	dev->notifier.notifier_call = adp5520_keys_notifier;
-+	ret = adp5520_register_notifier(dev->master, &dev->notifier,
-+			KP_IEN | KR_IEN);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register notifier\n");
-+		goto err1;
-+	}
-+
-+	platform_set_drvdata(pdev, dev);
-+	return 0;
-+
-+err1:
-+	input_unregister_device(input);
-+	input = NULL;
-+err:
-+	input_free_device(input);
-+	kfree(dev);
-+	return ret;
-+}
-+
-+static int __devexit adp5520_keys_remove(struct platform_device *pdev)
-+{
-+	struct adp5520_keys *dev = platform_get_drvdata(pdev);
-+
-+	adp5520_unregister_notifier(dev->master, &dev->notifier,
-+				KP_IEN | KR_IEN);
-+
-+	input_unregister_device(dev->input);
-+	kfree(dev);
-+	return 0;
-+}
-+
-+static struct platform_driver adp5520_keys_driver = {
-+	.driver	= {
-+		.name	= "adp5520-keys",
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= adp5520_keys_probe,
-+	.remove		= __devexit_p(adp5520_keys_remove),
-+};
-+
-+static int __init adp5520_keys_init(void)
-+{
-+	return platform_driver_register(&adp5520_keys_driver);
-+}
-+module_init(adp5520_keys_init);
-+
-+static void __exit adp5520_keys_exit(void)
-+{
-+	platform_driver_unregister(&adp5520_keys_driver);
-+}
-+module_exit(adp5520_keys_exit);
-+
-+MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
-+MODULE_DESCRIPTION("Keys ADP5520 Driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:adp5520-keys");
--- 
-1.6.5.rc1
+But hope the other way is okay too. Miguel has already submitted a new
+patch using davinci naming.
+
+Thanks,
+Sekhar
 

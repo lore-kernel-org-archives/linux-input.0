@@ -1,497 +1,97 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: DaVinci Keypad Driver
-Date: Tue, 22 Sep 2009 20:46:43 -0700
-Message-ID: <20090923034643.GB1458@core.coreip.homeip.net>
-References: <1253654850-11983-1-git-send-email-miguel.aguilar@ridgerun.com>
+Subject: [git pull] Input updates for 2.6.32-rc0
+Date: Tue, 22 Sep 2009 21:05:43 -0700
+Message-ID: <20090923040543.GC1458@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:63068 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751202AbZIWDqo (ORCPT
+Received: from mail-px0-f194.google.com ([209.85.216.194]:38220 "EHLO
+	mail-px0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750872AbZIWEFp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Sep 2009 23:46:44 -0400
-Received: by qw-out-2122.google.com with SMTP id 5so141939qwd.37
-        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2009 20:46:48 -0700 (PDT)
+	Wed, 23 Sep 2009 00:05:45 -0400
 Content-Disposition: inline
-In-Reply-To: <1253654850-11983-1-git-send-email-miguel.aguilar@ridgerun.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: miguel.aguilar@ridgerun.com
-Cc: nsnehaprabha@ti.com, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Miguel,
+Hi Linus,
 
-On Tue, Sep 22, 2009 at 03:27:30PM -0600, miguel.aguilar@ridgerun.com wrote:
-> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> 
-> Adds the driver for enabling keypad support for DaVinci platforms.
-> 
-> DM365 is the only platform that uses this driver at the moment.
-> 
-> This driver was tested on DM365 EVM rev C.
-> 
-> Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> ---
->  arch/arm/configs/davinci_all_defconfig      |    1 +
->  arch/arm/mach-davinci/include/mach/keypad.h |   35 +++
->  drivers/input/keyboard/Kconfig              |    7 +
->  drivers/input/keyboard/Makefile             |    1 +
->  drivers/input/keyboard/davinci_keypad.c     |  319 +++++++++++++++++++++++++++
->  5 files changed, 363 insertions(+), 0 deletions(-)
->  create mode 100644 arch/arm/mach-davinci/include/mach/keypad.h
->  create mode 100644 drivers/input/keyboard/davinci_keypad.c
-> 
-> diff --git a/arch/arm/configs/davinci_all_defconfig b/arch/arm/configs/davinci_all_defconfig
-> index ec63c15..e994c83 100644
-> --- a/arch/arm/configs/davinci_all_defconfig
-> +++ b/arch/arm/configs/davinci_all_defconfig
-> @@ -763,6 +763,7 @@ CONFIG_KEYBOARD_GPIO=y
->  # CONFIG_KEYBOARD_STOWAWAY is not set
->  # CONFIG_KEYBOARD_SUNKBD is not set
->  CONFIG_KEYBOARD_XTKBD=m
-> +CONFIG_KEYBOARD_DAVINCI_DM365=m
->  # CONFIG_INPUT_MOUSE is not set
->  # CONFIG_INPUT_JOYSTICK is not set
->  # CONFIG_INPUT_TABLET is not set
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive 2nd round of updates for the input subsystem. You will get a
+few new input drivers for embedded platforms and generic suspend/resume
+for input devices.
+
+Changelog:
+---------
+
+Dmitry Torokhov (6):
+      Input: libps2 - additional locking for i8042 ports
+      Input: add generic suspend and resume for input devices
+      Input: atkbd - rely on input core to restore state on resume
+      Input: synaptics_i2c - switch to using __cancel_delayed_work()
+      Input: dm355evm_keys - remove dm355evm_keys_hardirq
+      Input: max7359 - use threaded IRQs
+
+Javier Herrero (1):
+      Input: add driver for OpenCores Keyboard Controller
+
+Joonyoung Shim (1):
+      Input: add touchscreen driver for MELFAS MCS-5000 controller
+
+Kim Kyuwon (1):
+      Input: add driver for Maxim MAX7359 key switch controller
+
+Michael Hennerich (2):
+      Input: ad7879 - add support for AD7889
+      Input: add driver for ADP5588 QWERTY I2C Keypad
+
+Raphael Derosso Pereira (1):
+      Input: add driver for Atmel AT42QT2160 Sensor Chip
 
 
-If you want to merge the driver through input tree the defconfig chunk
-has to go elsewhere.
+Diffstat:
+--------
 
-> diff --git a/arch/arm/mach-davinci/include/mach/keypad.h b/arch/arm/mach-davinci/include/mach/keypad.h
-> new file mode 100644
-> index 0000000..922d20e
-> --- /dev/null
-> +++ b/arch/arm/mach-davinci/include/mach/keypad.h
-> @@ -0,0 +1,35 @@
-> +/*
-> + * Copyright (C) 2009 Texas Instruments, Inc
-> + *
-> + * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + */
-> +
-> +#ifndef DAVINCI_KEYPAD_H
-> +#define DAVINCI_KEYPAD_H
-> +
-> +#include <linux/io.h>
-> +
-> +struct davinci_kp_platform_data {
-> +	int	*keymap;
-> +	u32	keymapsize;
-> +	u32	rep:1;
-> +	u32	strobe;
-> +	u32	interval;
-> +};
-> +
-> +#endif
-> +
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index a6b989a..b6b9517 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -361,4 +361,11 @@ config KEYBOARD_XTKBD
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called xtkbd.
->  
-> +config KEYBOARD_DAVINCI
-> +	tristate "TI DaVinci Keypad"
-> +	depends on ARCH_DAVINCI_DM365
-> +	help
-> +	  Say Y to enable keypad module support for the TI DaVinci
-> +	  platforms (DM365)
-> +
-
-"To compile this driver as a module..."
-
->  endif
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index b5b5eae..0b0274e 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -31,3 +31,4 @@ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
->  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
->  obj-$(CONFIG_KEYBOARD_TOSA)		+= tosakbd.o
->  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
-> +obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keypad.o
-> diff --git a/drivers/input/keyboard/davinci_keypad.c b/drivers/input/keyboard/davinci_keypad.c
-> new file mode 100644
-> index 0000000..6f0e793
-> --- /dev/null
-> +++ b/drivers/input/keyboard/davinci_keypad.c
-> @@ -0,0 +1,319 @@
-> +/*
-> + * DaVinci Keypad Driver for TI platforms
-> + *
-> + * Copyright (C) 2009 Texas Instruments, Inc
-> + *
-> + * Author: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> + *
-> + * Intial Code: Sandeep Paulraj <s-paulraj@ti.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + */
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/types.h>
-> +#include <linux/input.h>
-> +#include <linux/kernel.h>
-> +#include <linux/delay.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/errno.h>
-> +
-> +#include <asm/irq.h>
-> +
-> +#include <mach/hardware.h>
-> +#include <mach/irqs.h>
-> +#include <mach/keypad.h>
-> +
-> +/* Keypad registers */
-> +#define DAVINCI_KEYPAD_KEYCTRL		0x0000
-> +#define DAVINCI_KEYPAD_INTENA		0x0004
-> +#define DAVINCI_KEYPAD_INTFLAG		0x0008
-> +#define DAVINCI_KEYPAD_INTCLR		0x000c
-> +#define DAVINCI_KEYPAD_STRBWIDTH	0x0010
-> +#define DAVINCI_KEYPAD_INTERVAL		0x0014
-> +#define DAVINCI_KEYPAD_CONTTIME		0x0018
-> +#define DAVINCI_KEYPAD_CURRENTST	0x001c
-> +#define DAVINCI_KEYPAD_PREVSTATE	0x0020
-> +#define DAVINCI_KEYPAD_EMUCTRL		0x0024
-> +#define DAVINCI_KEYPAD_IODFTCTRL	0x002c
-> +
-> +/* Key Control Register (KEYCTRL) */
-> +#define DAVINCI_KEYPAD_KEYEN		0x00000001
-> +#define DAVINCI_KEYPAD_PREVMODE		0x00000002
-> +#define DAVINCI_KEYPAD_CHATOFF		0x00000004
-> +#define DAVINCI_KEYPAD_AUTODET		0x00000008
-> +#define DAVINCI_KEYPAD_SCANMODE		0x00000010
-> +#define DAVINCI_KEYPAD_OUTTYPE		0x00000020
-> +#define DAVINCI_KEYPAD_4X4		0x00000040
-> +
-> +/* Masks for the interrupts */
-> +#define DAVINCI_KEYPAD_INT_CONT		0x00000008
-> +#define DAVINCI_KEYPAD_INT_OFF		0x00000004
-> +#define DAVINCI_KEYPAD_INT_ON		0x00000002
-> +#define DAVINCI_KEYPAD_INT_CHANGE	0x00000001
-> +#define DAVINCI_KEYPAD_INT_ALL		0x0000000f
-> +
-> +struct davinci_kp {
-> +	struct input_dev		*input;
-> +	struct davinci_kp_platform_data	*pdata;
-> +	int				irq;
-> +	void __iomem			*base;
-> +	resource_size_t			pbase;
-> +	size_t				base_size;
-> +};
-> +
-> +static void davinci_kp_write(struct davinci_kp *davinci_kp, u32 val, u32 addr)
-> +{
-> +	u32 base = (u32)davinci_kp->base;
-> +
-> +	__raw_writel(val,(u32 *)(base + addr));
-> +}
-> +
-> +static u32 davinci_kp_read(struct davinci_kp *davinci_kp, u32 addr)
-> +{
-> +	u32 base = (u32)davinci_kp->base;
-> +
-> +	return __raw_readl((u32 *)(base + addr));
-> +}
-> +
-> +/* Initializing the kp Module */
-> +static void davinci_kp_initialize(struct davinci_kp *davinci_kp)
-> +{
-> +	u32 strobe = davinci_kp->pdata->strobe;
-> +	u32 interval = davinci_kp->pdata->interval;
-> +
-> +	/* Enable all interrupts */
-> +	davinci_kp_write(davinci_kp, DAVINCI_KEYPAD_INT_ALL, DAVINCI_KEYPAD_INTENA);
-> +
-> +	/* Clear interrupts if any */
-> +	davinci_kp_write(davinci_kp, DAVINCI_KEYPAD_INT_ALL, DAVINCI_KEYPAD_INTCLR);
-> +
-> +	/* Setup the scan period = strobe + interval */
-> +	davinci_kp_write(davinci_kp, strobe, DAVINCI_KEYPAD_STRBWIDTH);
-> +	davinci_kp_write(davinci_kp, interval, DAVINCI_KEYPAD_INTERVAL);
-> +	davinci_kp_write(davinci_kp, 0x01, DAVINCI_KEYPAD_CONTTIME);
-> +
-> +	/* Enable Keyscan module and enable */
-> +	davinci_kp_write(davinci_kp, DAVINCI_KEYPAD_AUTODET | DAVINCI_KEYPAD_KEYEN,
-> +			DAVINCI_KEYPAD_KEYCTRL);
-> +}
-> +
-> +static irqreturn_t davinci_kp_interrupt(int irq, void *dev_id)
-> +{
-> +	struct davinci_kp *davinci_kp = dev_id;
-> +	struct device *dev = &davinci_kp->input->dev;
-> +	int *keymap = davinci_kp->pdata->keymap;
-> +		u32 prev_status, new_status, changed, position;
-> +	int keycode = KEY_UNKNOWN;
-> +	int ret = IRQ_NONE;
-> +
-> +	/* Disable interrupt */
-> +	davinci_kp_write(davinci_kp, 0x0, DAVINCI_KEYPAD_INTENA);
-> +
-> +	/* Reading previous and new status of the keypad */
-> +	prev_status = davinci_kp_read(davinci_kp, DAVINCI_KEYPAD_PREVSTATE);
-> +	new_status = davinci_kp_read(davinci_kp, DAVINCI_KEYPAD_CURRENTST);
-> +
-> +	changed = prev_status ^ new_status;
-> +	position = ffs(changed) - 1;
-> +
-> +	if (changed) {
-
-Can there be several buttons that change status at once?
-
-> +		keycode = keymap[position];
-> +		if((new_status >> position) & 0x1) {
-
-bool release = (new_status >> position) & 0x1;
-input_report_key(davinci_kp->input, keycode, !release);
-dev_dbg(dev, "davinci_keypad: key %d %s\n",
-	keycode, release ? "released" : "pressed");
-
-is shorter.
-
-> +			/* Report release */
-> +			dev_dbg(dev, "davinci_keypad: key %d released\n",
-> +				    keycode);
-> +			input_report_key(davinci_kp->input, keycode, 0);
-> +		} else {
-> +			/* Report press */
-> +			dev_dbg(dev, "davinci_keypad: key %d pressed\n",
-> +				    keycode);
-> +			input_report_key(davinci_kp->input, keycode, 1);
-> +		}
-> +		input_sync(davinci_kp->input);
-> +		ret = IRQ_HANDLED;
-> +	}
-> +
-> +	/* Clearing interrupt */
-> +	davinci_kp_write(davinci_kp, DAVINCI_KEYPAD_INT_ALL, DAVINCI_KEYPAD_INTCLR);
-
-You return IRQ_HANDLED only if keypad state changed but clear interrupt
-regardless. This is suspicious.
-
-> +
-> +	/* Enable interrupts */
-> +	davinci_kp_write(davinci_kp, 0x1, DAVINCI_KEYPAD_INTENA);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __init davinci_kp_probe(struct platform_device *pdev)
-> +{
-> +	struct davinci_kp *davinci_kp;
-> +	struct input_dev *key_dev;
-> +	struct resource *res, *mem;
-> +	int ret, i;
-> +	struct device * dev = &pdev->dev;
-> +	struct davinci_kp_platform_data *pdata = pdev->dev.platform_data;
-> +
-> +	dev_info(dev, "DaVinci Keypad Driver\n");
-> +
-> +	if (!pdata->keymap) {
-> +		dev_dbg(dev, "no keymap from pdata\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	davinci_kp = kzalloc(sizeof *davinci_kp, GFP_KERNEL);
-> +	if(!davinci_kp) {
-> +		dev_dbg(dev, "could not allocate memory for private data\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	key_dev = input_allocate_device();
-> +	if (!key_dev) {
-> +		dev_dbg(dev, "could not allocate input device\n");
-> +		ret = -ENOMEM;
-> +		goto fail1;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, davinci_kp);
-> +
-> +	davinci_kp->input = key_dev;
-> +
-> +	davinci_kp->irq = platform_get_irq(pdev, 0);
-> +	if (davinci_kp->irq < 0) {
-> +		dev_err(dev, "no keypad irq\n");
-> +		ret = davinci_kp->irq;
-> +		goto fail2;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(dev, "no mem resource\n");
-> +		ret = -ENODEV;
-
--EINVAL I'd say.
-
-> +		goto fail2;
-> +	}
-> +
-> +	davinci_kp->pbase = res->start;
-> +	davinci_kp->base_size = resource_size(res);
-> +
-> +	mem = request_mem_region(davinci_kp->pbase, davinci_kp->base_size, pdev->name);
-> +	if (!mem) {
-> +		dev_err(dev, "KEYSCAN registers at %08x are not free\n",
-> +			davinci_kp->pbase);
-> +		ret = -EBUSY;
-> +		goto fail2;
-> +	}
-> +
-> +	davinci_kp->base = ioremap(davinci_kp->pbase, davinci_kp->base_size);
-> +	if (!davinci_kp->base) {
-> +		dev_err(dev, "can't ioremap MEM resource.\n");
-> +		ret = -ENOMEM;
-> +		goto fail3;
-> +	}
-> +
-> +	/* Enable auto repeat feature of Linux input subsystem */
-> +	if (pdata->rep)
-> +		__set_bit(EV_REP, key_dev->evbit);
-> +
-> +	/* Setup input device */
-> +	__set_bit(EV_KEY, key_dev->evbit);
-> +
-> +	/* Setup the keymap */
-> +	davinci_kp->pdata = pdata;
-> +
-> +	for (i = 0; i < davinci_kp->pdata->keymapsize; i++)
-> +		__set_bit(davinci_kp->pdata->keymap[i], key_dev->keybit);
-> +
-> +	key_dev->name = "davinci_keypad";
-> +	key_dev->phys = "davinci_keypad/input0";
-> +	key_dev->dev.parent = &pdev->dev;
-> +	key_dev->id.bustype = BUS_HOST;
-> +	key_dev->id.vendor = 0x0001;
-> +	key_dev->id.product = 0x0001;
-> +	key_dev->id.version = 0x0001;
-> +	key_dev->keycode = davinci_kp->pdata->keymap;
-
-Please kopy keymap into the davinci_kp stucture and use it so that
-platform data is never changed and can be declared const.
-
-> +	key_dev->keycodesize = sizeof(unsigned int);
-
-sizeof(davinci_kp->keymap[0]) is safer. Plus make it unsigned short.
-
-> +	key_dev->keycodemax = davinci_kp->pdata->keymapsize;
-> +
-> +	ret = input_register_device(davinci_kp->input);
-> +	if (ret < 0) {
-> +		dev_err(dev, "unable to register DaVinci keypad device\n");
-> +		goto fail4;
-> +	}
-> +
-> +	ret = request_irq(davinci_kp->irq, davinci_kp_interrupt, IRQF_DISABLED,
-> +                         "davinci_keypad", davinci_kp);
-> +	if (ret < 0) {
-> +		dev_err(dev, "unable to register DaVinci keypad Interrupt\n");
-> +		goto fail5;
-> +	}
-> +
-> +	davinci_kp_initialize(davinci_kp);
-> +
-> +	return 0;
-> +fail5:
-> +	input_unregister_device(davinci_kp->input);
-> +	key_dev = NULL;
-> +fail4:
-> +	iounmap(davinci_kp->base);
-> +fail3:
-> +	release_mem_region(davinci_kp->pbase, davinci_kp->base_size);
-> +fail2:
-> +	input_free_device(key_dev);
-> +fail1:
-> +	kfree(davinci_kp);
-> +
-> +	return ret;
-> +}
-> +
-> +static int __exit davinci_kp_remove(struct platform_device *pdev)
-
-__devexit?
-
-> +{
-> +	struct davinci_kp *davinci_kp = platform_get_drvdata(pdev);
-> +
-> +	free_irq(davinci_kp->irq, davinci_kp);
-> +
-> +	input_unregister_device(davinci_kp->input);
-> +
-> +	iounmap(davinci_kp->base);
-> +	release_mem_region(davinci_kp->pbase, davinci_kp->base_size);
-> +
-> +	platform_set_drvdata(pdev, NULL);
-> +
-> +	kfree(davinci_kp);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver davinci_kp_driver = {
-> +	.driver = {
-> +			.name = "davinci_keypad",
-> +			.owner = THIS_MODULE,
-> +		},
-> +	.remove = __exit_p(davinci_kp_remove),
-
-__devexit_p(). I think you can still unbind the device even if you use
-platform_driver_probe.
-
-> +};
-> +
-> +static int __init davinci_kp_init(void)
-> +{
-> +	return platform_driver_probe(&davinci_kp_driver, davinci_kp_probe);
-> +}
-> +module_init(davinci_kp_init);
-> +
-> +static void __exit davinci_kp_exit(void)
-> +{
-> +	platform_driver_unregister(&davinci_kp_driver);
-> +}
-> +module_exit(davinci_kp_exit);
-> +
-> +MODULE_AUTHOR("Miguel Aguilar");
-> +MODULE_DESCRIPTION("Texas Instruments DaVinci Keypad Driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 1.6.0.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/input/input.c                   |   64 +++++-
+ drivers/input/keyboard/Kconfig          |   40 +++
+ drivers/input/keyboard/Makefile         |    4 +
+ drivers/input/keyboard/adp5588-keys.c   |  361 ++++++++++++++++++++++++++++
+ drivers/input/keyboard/atkbd.c          |   25 --
+ drivers/input/keyboard/max7359_keypad.c |  330 +++++++++++++++++++++++++
+ drivers/input/keyboard/opencores-kbd.c  |  180 ++++++++++++++
+ drivers/input/keyboard/qt2160.c         |  397 +++++++++++++++++++++++++++++++
+ drivers/input/misc/dm355evm_keys.c      |   26 +--
+ drivers/input/mouse/sentelic.c          |   18 +-
+ drivers/input/mouse/synaptics_i2c.c     |   51 +++--
+ drivers/input/serio/i8042.c             |   41 ++++
+ drivers/input/serio/libps2.c            |   28 ++-
+ drivers/input/touchscreen/Kconfig       |   17 +-
+ drivers/input/touchscreen/Makefile      |    1 +
+ drivers/input/touchscreen/ad7879.c      |    6 +-
+ drivers/input/touchscreen/mcs5000_ts.c  |  318 +++++++++++++++++++++++++
+ drivers/leds/leds-clevo-mail.c          |    8 +
+ drivers/platform/x86/acer-wmi.c         |    2 +
+ include/linux/i2c/adp5588.h             |   92 +++++++
+ include/linux/i2c/mcs5000_ts.h          |   24 ++
+ include/linux/i8042.h                   |   30 +++
+ include/linux/input.h                   |    2 +-
+ include/linux/libps2.h                  |    2 +
+ 24 files changed, 1987 insertions(+), 80 deletions(-)
+ create mode 100644 drivers/input/keyboard/adp5588-keys.c
+ create mode 100644 drivers/input/keyboard/max7359_keypad.c
+ create mode 100644 drivers/input/keyboard/opencores-kbd.c
+ create mode 100644 drivers/input/keyboard/qt2160.c
+ create mode 100644 drivers/input/touchscreen/mcs5000_ts.c
+ create mode 100644 include/linux/i2c/adp5588.h
+ create mode 100644 include/linux/i2c/mcs5000_ts.h
 
 -- 
 Dmitry
+

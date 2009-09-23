@@ -1,57 +1,41 @@
-From: "Nori, Sekhar" <nsekhar@ti.com>
-Subject: RE: [PATCH v3 1/2] Input: Add DaVinci DM365 Keypad support
-Date: Wed, 23 Sep 2009 11:50:02 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301DDA2CC8D@dbde02.ent.ti.com>
-References: <1253217996-11548-1-git-send-email-miguel.aguilar@ridgerun.com>
- <B85A65D85D7EB246BE421B3FB0FBB59301DD916A60@dbde02.ent.ti.com>
- <4AB39A00.8080405@ridgerun.com>
- <B85A65D85D7EB246BE421B3FB0FBB59301DD991DD8@dbde02.ent.ti.com>
- <4AB8D89D.6050409@ridgerun.com> <871vlyev8g.fsf@deeprootsystems.com>
- <20090923034627.GA1458@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input/keyboard: new driver for ADP5520 MFD PMICs
+Date: Tue, 22 Sep 2009 23:28:09 -0700
+Message-ID: <20090923062808.GD1458@core.coreip.homeip.net>
+References: <1253211850-29309-1-git-send-email-vapier@gentoo.org> <1253682916-27387-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:47708 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752740AbZIWGUR convert rfc822-to-8bit (ORCPT
+Received: from mail-yx0-f199.google.com ([209.85.210.199]:49876 "EHLO
+	mail-yx0-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753786AbZIWG2J (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Sep 2009 02:20:17 -0400
-In-Reply-To: <20090923034627.GA1458@core.coreip.homeip.net>
-Content-Language: en-US
+	Wed, 23 Sep 2009 02:28:09 -0400
+Content-Disposition: inline
+In-Reply-To: <1253682916-27387-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kevin Hilman <khilman@deeprootsystems.com>
-Cc: Miguel Aguilar <miguel.aguilar@ridgerun.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Wed, Sep 23, 2009 at 09:16:27, Dmitry Torokhov wrote:
-> On Tue, Sep 22, 2009 at 10:37:35AM -0700, Kevin Hilman wrote:
-> > Miguel Aguilar <miguel.aguilar@ridgerun.com> writes:
-> >
-> > > Sekhar,
-> > >
-> > > If you and Sneha agree I will write driver in terms of davinci instead of dm365.
-> > >
-> >
-> > I add a vote the davinci* naming instead of dm365*.
-> >
->
-> Can you guarantee that this will be the only keypad implementation for
-> davinci?
+On Wed, Sep 23, 2009 at 01:15:16AM -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> 
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Signed-off-by: Bryan Wu <cooloney@kernel.org>
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> ---
+> this patch requires:
+> 	[PATCH] mfd: ADP5520 Multifunction LCD Backlight and Keypad Input Device Driver
+> 
+> v2
+> 	- address feedback from Dmitry
+> 
 
-No. That cannot be guaranteed. Surely there will be attempt to reuse
-this before inventing new. A new implementation will be a probably be
-a new driver (named after what the new implementation is called).
+Looks good. I assume you want it to be merged with the rest of ADP5520
+patches, so:
 
-So, I guess it is better to call this driver "davinci-keyscan" after
-what the IP has been called (http://focus.ti.com/lit/ug/sprufi8/sprufi8.pdf).
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
-> If not then I'd say using base model number and updating
-> Kconfig text is fine.
-
-But hope the other way is okay too. Miguel has already submitted a new
-patch using davinci naming.
-
-Thanks,
-Sekhar
-
+-- 
+Dmitry

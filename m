@@ -1,46 +1,29 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
-Date: Thu, 24 Sep 2009 11:39:01 +0200 (CEST)
-Message-ID: <alpine.LSU.2.00.0909241137300.9280@wotan.suse.de>
-References: <200908062247.29254.lamarque@gmail.com> <200909152144.37847.lamarque@gmail.com> <alpine.LSU.2.00.0909221733290.10090@wotan.suse.de> <200909221319.45013.lamarque@gmail.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: private ioctls in input driver
+Date: Thu, 24 Sep 2009 17:21:09 +0530
+Message-ID: <5d5443650909240451s17165707x6d3c7d3cf3228287@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-437161954-1253785142=:9280"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:40241 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751634AbZIXJi6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Sep 2009 05:38:58 -0400
-In-Reply-To: <200909221319.45013.lamarque@gmail.com>
+Received: from qw-out-2122.google.com ([74.125.92.24]:20062 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752144AbZIXLvF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Sep 2009 07:51:05 -0400
+Received: by qw-out-2122.google.com with SMTP id 5so569469qwd.37
+        for <linux-input@vger.kernel.org>; Thu, 24 Sep 2009 04:51:09 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lamarque Vieira Souza <lamarque@gmail.com>
-Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
+To: linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi Dmitry,
 
---168427776-437161954-1253785142=:9280
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-
-On Tue, 22 Sep 2009, Lamarque Vieira Souza wrote:
-
-> Em Terça-feira 22 Setembro 2009, Jiri Kosina escreveu:
-> > Hi,
-> > 
-> > could you please resend your patch? It has either been lost somewhere on
-> > the way, or in the dark depths of my inbox, so I am not really sure which
-> > one you are referring to, sorry.
-> 
-> Marks Acer Bluetooth Optical Rechargeable Mouse from Ferrari 4005 notebook to 
-> be ignored by hid core. This change makes hid core to use input session 
-> instead of hid session with that mouse. With hid session the mouse cursor 
-> moves too laggy, using input session corrects this problem.
-
-Is this wonky behavior of this mouse regression from older kernels, or has 
-the mouse been misbehaving in HID mode all the time?
+Is there any way of creating private ioctls in the input driver? I see
+that all the input framework handled
+by the framework itself and there is no way to call private ioctls if
+it doesn't match the standard ones.
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
---168427776-437161954-1253785142=:9280--
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

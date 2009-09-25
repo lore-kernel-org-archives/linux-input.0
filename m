@@ -1,51 +1,51 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: private ioctls in input driver
-Date: Fri, 25 Sep 2009 14:21:40 +0530
-Message-ID: <5d5443650909250151h55b0eeefx7ce91f32bb287e3b@mail.gmail.com>
-References: <5d5443650909240451s17165707x6d3c7d3cf3228287@mail.gmail.com>
-	 <20090925040204.GD416@core.coreip.homeip.net>
+From: Christopher Friedt <chrisfriedt@gmail.com>
+Subject: keypad input method question
+Date: Fri, 25 Sep 2009 15:01:37 +0200
+Message-ID: <3ea34a000909250601n5127dd2bt6a84aab7a93c26ed@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.221.174]:47782 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752859AbZIYIvh (ORCPT
+Received: from mail-yw0-f174.google.com ([209.85.211.174]:36677 "EHLO
+	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752654AbZIYNBd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Sep 2009 04:51:37 -0400
-Received: by qyk4 with SMTP id 4so1871881qyk.33
-        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2009 01:51:40 -0700 (PDT)
-In-Reply-To: <20090925040204.GD416@core.coreip.homeip.net>
+	Fri, 25 Sep 2009 09:01:33 -0400
+Received: by ywh4 with SMTP id 4so2829956ywh.33
+        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2009 06:01:37 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi folks,
 
-On Fri, Sep 25, 2009 at 9:32 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Trilok,
->
-> On Thu, Sep 24, 2009 at 05:21:09PM +0530, Trilok Soni wrote:
->> Hi Dmitry,
->>
->> Is there any way of creating private ioctls in the input driver? I see
->> that all the input framework handled
->> by the framework itself and there is no way to call private ioctls if
->> it doesn't match the standard ones.
->>
->
-> You are right, event devices only allow standard ioctl. What kind of
-> ictl are you considering? Normally device-specific controls are done via
-> sysfs attached to the parent device (see atkbd, psmouse, etc).
+Recently, I ported Linux to a previously unsupported device (it uses
+pxa270 processer, so most of the work was already done), and I had a
+couple of issues that I hope you could help me with.
 
-sysfs might good for purpose when you can associate one file per
-value, so for more data we can't simply create one file per the data.
-Say five fingers touch data (I know we have MT_* support but here it
-is just for example) , say id, x, y, z etc., per finger, then we can't
-create one file for each of them.
+1) I wrote a new 'multi-function' driver for the STMPE2401 gpio
+expander, which also has a keypad controller, 3 pwm channels, and a
+rotator input, and I would appreciate it if a couple of people could
+review it for me so that it could be submitted upstream. So far, only
+the keypad function is implemented because my device doesn't use the
+others. However, I've already coded in most of the structure for the
+other device functions but they just return -ENOSYS on probe. I'm sure
+that someone with sufficient experience could probably look at my
+driver and give me a few tips on how to improve it before submission.
+Which leads me to my next question...
 
--- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+2) currently the input is a bit complicated - there are a couple of
+different modifier keys, and I'm not really sure where to start to
+have userspace handle the scancode-keycode mapping. Right now it's
+done in kernel mode in a small callback function. Can somebody point
+me in the right direction? It would be nice if the keypad worked at
+the console and also in X or other graphical environments. Currently
+I'm trying to get it to work in Android, which just uses the typical
+event interface for key-remapping.
+
+I suppose one way to do it would be to have the kernel dynamically
+switch based on if the event device is open... still it's a bit
+confusing. Any tips?
+
+Regards,
+
+Chris

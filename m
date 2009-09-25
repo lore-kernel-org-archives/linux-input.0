@@ -1,51 +1,69 @@
-From: Christopher Friedt <chrisfriedt@gmail.com>
-Subject: keypad input method question
-Date: Fri, 25 Sep 2009 15:01:37 +0200
-Message-ID: <3ea34a000909250601n5127dd2bt6a84aab7a93c26ed@mail.gmail.com>
+From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Subject: Re: [PATCH 2/3] Davinci: DM365: Enable DaVinci Key Scan support	for
+ DM365 EVM
+Date: Fri, 25 Sep 2009 08:09:52 -0600
+Message-ID: <4ABCCF30.2090802@ridgerun.com>
+References: <1253811240-21437-1-git-send-email-miguel.aguilar@ridgerun.com> <20090925040146.GB416@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f174.google.com ([209.85.211.174]:36677 "EHLO
-	mail-yw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752654AbZIYNBd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Sep 2009 09:01:33 -0400
-Received: by ywh4 with SMTP id 4so2829956ywh.33
-        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2009 06:01:37 -0700 (PDT)
+Received: from mail.navvo.net ([74.208.67.6]:48079 "EHLO mail.navvo.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751858AbZIYOJ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Sep 2009 10:09:56 -0400
+In-Reply-To: <20090925040146.GB416@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nsnehaprabha@ti.com, davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
 
-Hi folks,
+Dmitry Torokhov wrote:
+> On Thu, Sep 24, 2009 at 10:54:00AM -0600, miguel.aguilar@ridgerun.com wrote:
+>>  
+>> +/* Masks for the various keys on the DM365 EVM */
+>> +#define KEY_DM365_KEY2		0
+>> +#define KEY_DM365_LEFT		1
+>> +#define KEY_DM365_EXIT		2
+>> +#define KEY_DM365_DOWN		3
+>> +#define KEY_DM365_ENTER		4
+>> +#define KEY_DM365_UP		5
+>> +#define KEY_DM365_KEY1		6
+>> +#define KEY_DM365_RIGHT		7
+>> +#define KEY_DM365_MENU		8
+>> +#define KEY_DM365_REC		9
+>> +#define KEY_DM365_REW		10
+>> +#define KEY_DM365_SKIPMINUS	11
+>> +#define KEY_DM365_STOP		12
+>> +#define KEY_DM365_FF		13
+>> +#define KEY_DM365_SKIPPLUL	14
+>> +#define KEY_DM365_PLAYPAUSE	15
+>> +
+>> +#ifdef CONFIG_KEYBOARD_DAVINCI
+>> +static unsigned short dm365evm_keymap[] = {
+>> +	KEY_DM365_KEY2,
+>> +	KEY_DM365_LEFT,
+>> +	KEY_DM365_EXIT,
+>> +	KEY_DM365_DOWN,
+>> +	KEY_DM365_ENTER,
+>> +	KEY_DM365_UP,
+>> +	KEY_DM365_KEY1,
+>> +	KEY_DM365_RIGHT,
+>> +	KEY_DM365_MENU,
+>> +	KEY_DM365_REC,
+>> +	KEY_DM365_REW,
+>> +	KEY_DM365_SKIPMINUS,
+>> +	KEY_DM365_STOP,
+>> +	KEY_DM365_FF,
+>> +	KEY_DM365_SKIPPLUL,
+>> +	KEY_DM365_PLAYPAUSE,
+> 
+> These are not standard key codes, why don't you use the ones defined in
+> linux/input.h?
+> 
 
-Recently, I ported Linux to a previously unsupported device (it uses
-pxa270 processer, so most of the work was already done), and I had a
-couple of issues that I hope you could help me with.
-
-1) I wrote a new 'multi-function' driver for the STMPE2401 gpio
-expander, which also has a keypad controller, 3 pwm channels, and a
-rotator input, and I would appreciate it if a couple of people could
-review it for me so that it could be submitted upstream. So far, only
-the keypad function is implemented because my device doesn't use the
-others. However, I've already coded in most of the structure for the
-other device functions but they just return -ENOSYS on probe. I'm sure
-that someone with sufficient experience could probably look at my
-driver and give me a few tips on how to improve it before submission.
-Which leads me to my next question...
-
-2) currently the input is a bit complicated - there are a couple of
-different modifier keys, and I'm not really sure where to start to
-have userspace handle the scancode-keycode mapping. Right now it's
-done in kernel mode in a small callback function. Can somebody point
-me in the right direction? It would be nice if the keypad worked at
-the console and also in X or other graphical environments. Currently
-I'm trying to get it to work in Android, which just uses the typical
-event interface for key-remapping.
-
-I suppose one way to do it would be to have the kernel dynamically
-switch based on if the event device is open... still it's a bit
-confusing. Any tips?
-
-Regards,
-
-Chris
+These keys make sense for the DM365 EVM, they are defined in the board specific 
+file which is the proper way to do that. Using the standard keys would be 
+confusing for identifying the real key names defined in the board itself. Is it 
+really necessary to use the standard keys?, if not lets keep the board specific 
+names.

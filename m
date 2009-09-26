@@ -1,66 +1,31 @@
-From: Miguel Aguilar <miguel.aguilar-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/3] Input: DaVinci Key Scan Driver
-Date: Fri, 25 Sep 2009 08:45:31 -0600
-Message-ID: <4ABCD78B.5050605@ridgerun.com>
-References: <1253811202-21407-1-git-send-email-miguel.aguilar@ridgerun.com>	<B85A65D85D7EB246BE421B3FB0FBB59301DDAB3271@dbde02.ent.ti.com>	<4ABCD1E8.5000200@ridgerun.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59301DDAB36C3@dbde02.ent.ti.com>
-	<0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0@dlee01.ent.ti.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 1/4] [INPUT][KEYBOARD] Samsung keypad driver support
+Date: Sat, 26 Sep 2009 11:54:47 +0200
+Message-ID: <20090926095447.GC1331@ucw.cz>
+References: <1252494663-17624-1-git-send-email-jsgood.yang@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0-bGftbgMkZa+IQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.omap.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: "Paulraj, Sandeep" <s-paulraj-l0cyMroinI0@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "clark.becker-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org" <clark.becker-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "santiago.nunez-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org" <santiago.nunez-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>, "todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org" <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:35607 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751693AbZIZJyu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Sep 2009 05:54:50 -0400
+Content-Disposition: inline
+In-Reply-To: <1252494663-17624-1-git-send-email-jsgood.yang@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jsgood.yang@samsung.com
+Cc: dmitry.torokhov@gmail.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Kyeongil Kim <ki0351.kim@samsung.com>
 
-
->>>>> +     /* Enable Keyscan module and enable */
->>>>> +     davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET |
->> DAVINCI_KEYSCAN_KEYEN,
->>>>> +                     DAVINCI_KEYSCAN_KEYCTRL);
->>>> We seem to be hardcoded to the 4x4 matrix type here.
->>>> Some DM365 boards could use 5x3 matrix.
->>>>
->>>> Thanks,
->>>> Sekhar
->>>>
->>> [MA] I will add a platform option for matrix type to choose 4x4 or 5x3
->> matrix.
->>> What do think about this?
->>>
->> Sounds good. I am not sure if any other piece of code
->> needs to change though.
-> The strobe and interval have to change.  Afcourse that change comes into the picture only when the mode is changed from 4x4 to 5x3.
-> I can see that there are options given for this in board specific code.
->> Thanks,
->> Sekhar
+On Wed 2009-09-09 20:11:03, jsgood.yang@samsung.com wrote:
+> From: Jinsung Yang <jsgood.yang@samsung.com>
 > 
-> Thanks,
-> Sandeep
-> 
+> Add support for Samsung matrix keypad driver
 
-struct davinci_ks_platform_data {
-	unsigned short	*keymap;
-	u32		keymapsize;
-	u32		rep:1;
-	u32		strobe;
-	u32		interval;
-+	u32		matrix_type;
-};
+Could generic matrix keyboard driver be used instead?
+							Pavel
 
-I will add something like this, so from the board specific code you can define 
-strobe, interval and matrix type.
-
-Thanks,
-
-Miguel Aguilar
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

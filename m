@@ -1,68 +1,78 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: private ioctls in input driver
-Date: Mon, 28 Sep 2009 22:35:17 +0530
-Message-ID: <5d5443650909281005u37503ab0rc6b62effe73f8046@mail.gmail.com>
-References: <5d5443650909240451s17165707x6d3c7d3cf3228287@mail.gmail.com>
-	 <20090925040204.GD416@core.coreip.homeip.net>
-	 <5d5443650909250151h55b0eeefx7ce91f32bb287e3b@mail.gmail.com>
-	 <20090928170200.GA21455@core.coreip.homeip.net>
+From: "Paulraj, Sandeep" <s-paulraj@ti.com>
+Subject: RE: [PATCH 1/3] Input: DaVinci Key Scan Driver
+Date: Mon, 28 Sep 2009 12:06:58 -0500
+Message-ID: <0554BEF07D437848AF01B9C9B5F0BC5D92D13959@dlee01.ent.ti.com>
+References: <1253811202-21407-1-git-send-email-miguel.aguilar@ridgerun.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301DDAB3271@dbde02.ent.ti.com>
+ <4ABCD1E8.5000200@ridgerun.com>
+ <B85A65D85D7EB246BE421B3FB0FBB59301DDAB36C3@dbde02.ent.ti.com>
+ <0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0@dlee01.ent.ti.com>
+ <4ABCD78B.5050605@ridgerun.com>
+ <20090928170231.GD21455@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:34921 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752115AbZI1RFO (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:54524 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751992AbZI1RHH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2009 13:05:14 -0400
-Received: by qw-out-2122.google.com with SMTP id 5so1614549qwd.37
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2009 10:05:18 -0700 (PDT)
-In-Reply-To: <20090928170200.GA21455@core.coreip.homeip.net>
+	Mon, 28 Sep 2009 13:07:07 -0400
+In-Reply-To: <20090928170231.GD21455@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Cc: "Nori, Sekhar" <nsekhar@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
 
-Hi Dmitry,
 
-On Mon, Sep 28, 2009 at 10:32 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Sep 25, 2009 at 02:21:40PM +0530, Trilok Soni wrote:
->> Hi Dmitry,
->>
->> On Fri, Sep 25, 2009 at 9:32 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > Hi Trilok,
->> >
->> > On Thu, Sep 24, 2009 at 05:21:09PM +0530, Trilok Soni wrote:
->> >> Hi Dmitry,
->> >>
->> >> Is there any way of creating private ioctls in the input driver? I see
->> >> that all the input framework handled
->> >> by the framework itself and there is no way to call private ioctls if
->> >> it doesn't match the standard ones.
->> >>
->> >
->> > You are right, event devices only allow standard ioctl. What kind of
->> > ictl are you considering? Normally device-specific controls are done via
->> > sysfs attached to the parent device (see atkbd, psmouse, etc).
->>
->> sysfs might good for purpose when you can associate one file per
->> value, so for more data we can't simply create one file per the data.
->> Say five fingers touch data (I know we have MT_* support but here it
->> is just for example) , say id, x, y, z etc., per finger, then we can't
->> create one file for each of them.
->
-> Maybe use configfs if sysfs is not suitable? I am not sure.
->
-> I would like to not-have driver-specific ioctls in evdev/input core but
-> rather keep them with device/driver itself. Input core should only have
-> stuff that makes sense for multiple devices.
 
-I mean on the similar line only, we won't add any driver-specific
-ioctls in evdev/input core, but just transfer their control to resp.
-device/driver itself, may be similar in the line of how v4l2 does.
+> 
+> On Fri, Sep 25, 2009 at 08:45:31AM -0600, Miguel Aguilar wrote:
+> >
+> >>>>>> +     /* Enable Keyscan module and enable */
+> >>>>>> +     davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET |
+> >>> DAVINCI_KEYSCAN_KEYEN,
+> >>>>>> +                     DAVINCI_KEYSCAN_KEYCTRL);
+> >>>>> We seem to be hardcoded to the 4x4 matrix type here.
+> >>>>> Some DM365 boards could use 5x3 matrix.
+> >>>>>
+> >>>>> Thanks,
+> >>>>> Sekhar
+> >>>>>
+> >>>> [MA] I will add a platform option for matrix type to choose 4x4 or
+> 5x3
+> >>> matrix.
+> >>>> What do think about this?
+> >>>>
+> >>> Sounds good. I am not sure if any other piece of code
+> >>> needs to change though.
+> >> The strobe and interval have to change.  Afcourse that change comes
+> into the picture only when the mode is changed from 4x4 to 5x3.
+> >> I can see that there are options given for this in board specific code.
+> >>> Thanks,
+> >>> Sekhar
+> >>
+> >> Thanks,
+> >> Sandeep
+> >>
+> >
+> > struct davinci_ks_platform_data {
+> > 	unsigned short	*keymap;
+> > 	u32		keymapsize;
+> > 	u32		rep:1;
+> > 	u32		strobe;
+> > 	u32		interval;
+> > +	u32		matrix_type;
+> > };
+> >
+> > I will add something like this, so from the board specific code you can
+> > define strobe, interval and matrix type.
+> 
+> Make it enum at least. BTW, is it possible to add u8 rows, cols instead
+> and be able to handle more matrix variations?
+The IP can handle only 4x4 or 5x3.
+> 
+> --
+> Dmitry
 
--- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni

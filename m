@@ -1,75 +1,87 @@
-From: "Paulraj, Sandeep" <s-paulraj@ti.com>
-Subject: RE: [PATCH 1/3] Input: DaVinci Key Scan Driver
-Date: Mon, 28 Sep 2009 12:14:47 -0500
-Message-ID: <0554BEF07D437848AF01B9C9B5F0BC5D92D139A6@dlee01.ent.ti.com>
-References: <1253811202-21407-1-git-send-email-miguel.aguilar@ridgerun.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59301DDAB3271@dbde02.ent.ti.com>
-	<4ABCD1E8.5000200@ridgerun.com>
- <B85A65D85D7EB246BE421B3FB0FBB59301DDAB36C3@dbde02.ent.ti.com>
- <0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0@dlee01.ent.ti.com>
- <4ABCD78B.5050605@ridgerun.com>
+From: Christopher Friedt <chrisfriedt@gmail.com>
+Subject: Re: keypad input method question
+Date: Mon, 28 Sep 2009 21:42:55 +0200
+Message-ID: <3ea34a000909281242h5b7702cbt8005b100f58bee9c@mail.gmail.com>
+References: <3ea34a000909250601n5127dd2bt6a84aab7a93c26ed@mail.gmail.com>
+	 <20090928170240.GE21455@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:35499 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752149AbZI1RO6 convert rfc822-to-8bit (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.244]:17232 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752850AbZI1Tmx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2009 13:14:58 -0400
-In-Reply-To: <4ABCD78B.5050605@ridgerun.com>
-Content-Language: en-US
+	Mon, 28 Sep 2009 15:42:53 -0400
+Received: by an-out-0708.google.com with SMTP id d40so5139497and.1
+        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2009 12:42:57 -0700 (PDT)
+In-Reply-To: <20090928170240.GE21455@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-Cc: "Nori, Sekhar" <nsekhar@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
+To: linux-input@vger.kernel.org
 
+Hi Dimitry,
 
+Thanks for the reply!
 
-> 
-> >>>>> +     /* Enable Keyscan module and enable */
-> >>>>> +     davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET |
-> >> DAVINCI_KEYSCAN_KEYEN,
-> >>>>> +                     DAVINCI_KEYSCAN_KEYCTRL);
-> >>>> We seem to be hardcoded to the 4x4 matrix type here.
-> >>>> Some DM365 boards could use 5x3 matrix.
-> >>>>
-> >>>> Thanks,
-> >>>> Sekhar
-> >>>>
-> >>> [MA] I will add a platform option for matrix type to choose 4x4 or 5x3
-> >> matrix.
-> >>> What do think about this?
-> >>>
-> >> Sounds good. I am not sure if any other piece of code
-> >> needs to change though.
-> > The strobe and interval have to change.  Afcourse that change comes into
-> the picture only when the mode is changed from 4x4 to 5x3.
-> > I can see that there are options given for this in board specific code.
-> >> Thanks,
-> >> Sekhar
-> >
-> > Thanks,
-> > Sandeep
-> >
-> 
-> struct davinci_ks_platform_data {
-> 	unsigned short	*keymap;
-> 	u32		keymapsize;
-> 	u32		rep:1;
-Don't think you need u32
-> 	u32		strobe;
-Strobe can be maximum 8 bits.
-> 	u32		interval;
-Interval can be maximum 8 bits.
-> +	u32		matrix_type;
-> };
-> 
-> I will add something like this, so from the board specific code you can
-> define
-> strobe, interval and matrix type.
-> 
-> Thanks,
-> 
-> Miguel Aguilar
+On Mon, Sep 28, 2009 at 7:02 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Just post in on the mailing list (and mark that it is for initial
+> review).
 
+My patch is here [1]. There are some obvious sections to remove - for
+one, declaring a massive static array of string <-> register
+combinations that I was using to debug before I discovered i2c-dev /
+i2c-utils. I also need to properly unregister the input device when
+rmmod is called, and cancel any pending work. It was giving me a
+kernel panic when I tried that before, so I just commented that part
+out (very bad, i know), so every time the module is inserted it
+creates a new input device without entirely removing the previous one.
+Also, because I'm using bitmaps for the actual pin configuration, it
+might make it tricky for big-endian systems.
+
+Regarding the keypad complexity ...
+
+> ... nothing stops userspace from accessing
+> the device through both inetrfaces (evdev and legacy one) at the same
+> time.
+>
+> It would be curious to see what kind of keypad you have.
+
+There is an image of the keypad here [2]. The alpha key cycles through
+3 states: 0=numbers, 1=lowercase, 2=uppercase. The keys also respond
+to multi-tap, so hitting the '2' key twice would result in 'b' when
+alpha=1. The way I implemented multi-tap was to use a state machine &
+timer, and send a backspace followed by the next logical key, if the
+timer had not expired first. Aside from the alpha key, there's also
+the 'fn' modifier key, which would generate e.g. pageup when fn, then
+up, were pressed. I currently also don't support holding buttons down,
+simply because it's a bit clumsy with small keypads like this. All of
+the modifier keys work on a sequential basis, not a combinatorial
+basis.
+
+This keypad driver can obviously be done in userspace just as well as
+kernel space, but would require a special driver in that case too...
+unless you can suggest some magical keycode-scanning method. I did
+think about using alpha-states to encode numlock & capslock, so in
+that case there might only be one actual modifier key. Also, it's
+possible to have a userspace driver change the keycode-mapping for
+multi-tap and issue backspaces as appropriate... so that is one
+possibility for a keycode-scanning method, but again, I'm not really
+sure where to start with that for X ... or Android (yet). It works
+fine in X and on the console right now, but I think I'll need to
+implement a userspace driver for Android because the lack of a
+keycode-scanning feature makes webkit crash.
+
+Of course, it's only _my_ keypad that is so complicated - the
+complexity of the keypad is entirely independent from the stmpe2401
+driver. The device is capable of reporting 2 simultaneous button
+presses, or 3 if dedicated keys are also used, but I'm currently only
+reporting one at a time with the initial driver, just to make life
+easier.
+
+Please feel free to give me as much constructive criticism as you wish :)
+
+C
+
+[1] http://virta.visibleassets.com/~cfriedt/cl/kernel/stmpe2401-20090923.patch
+[2] http://virta.visibleassets.com/~cfriedt/cl/keypad-28.jpg

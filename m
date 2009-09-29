@@ -1,410 +1,683 @@
-From: Jernej Turnsek <jernej.turnsek@gmail.com>
-Subject: [PATCH] Touchscreen driver for the DTS413
-Date: Tue, 29 Sep 2009 14:14:25 +0200
-Message-ID: <a57e67db0909290514r3097a97dtbb82e28a5176ac64@mail.gmail.com>
-References: <a57e67db0909280023q7d352f22ge5b5343dc0c79c65@mail.gmail.com>
-	 <4AC1DAA4.4090508@simtec.co.uk>
-	 <a57e67db0909290500k52bcd1faj28903a22cd2c91a5@mail.gmail.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: Re: [PATCH] cmpc_acpi: Added support for Classmate PC ACPI devices.
+Date: Tue, 29 Sep 2009 11:16:19 -0300
+Message-ID: <20090929141618.GD18847@vespa.holoscopio.com>
+References: <1254188280-29155-1-git-send-email-cascardo@holoscopio.com> <9b2b86520909290220g6b5f6beal6337b17f1bdd339@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.27]:62645 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752235AbZI2MOX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2009 08:14:23 -0400
-Received: by ey-out-2122.google.com with SMTP id 4so261930eyf.19
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2009 05:14:25 -0700 (PDT)
-In-Reply-To: <a57e67db0909290500k52bcd1faj28903a22cd2c91a5@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J5MfuwkIyy7RmF4Q"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752806AbZI2OQY@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <9b2b86520909290220g6b5f6beal6337b17f1bdd339@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Jenkins <sourcejedi.lkml@googlemail.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, don@syst.com.br, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, dtor@mail.ru, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-
----------- Forwarded message ----------
-=46rom: Jernej Turnsek <jernej.turnsek@gmail.com>
-Date: Tue, Sep 29, 2009 at 2:00 PM
-Subject: Re: [PATCH] Touchscreen driver for the DTS413
-To: Ben Dooks <ben@simtec.co.uk>
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@atrey.karlin.mff.=
-cuni.cz
 
 
-Hi,
+--J5MfuwkIyy7RmF4Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-corrected version of the DT413 driver doesn't include bit fields
-anymore, instead it is using shifting method. Also some comments are
-added in kernel doc format.
-I would like to thank to Ben Dooks for making some suggestions.
+On Tue, Sep 29, 2009 at 10:20:44AM +0100, Alan Jenkins wrote:
+> On 9/29/09, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com> wrote:
+> > This add supports for devices like keyboard, backlight, tablet and
+> > accelerometer.
+> >
+> > This work is supported by International Syst S/A.
+> >
+> > Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+>=20
+> Hi!
+>=20
+> In general this driver was a pleasure to read.  It looks like you have
+> a nice and clean ACPI interface to work with.  I haven't seen anything
+> quite like the cmpc_{add,remove}_acpi_notify_device() functions
+> before, but they make a lot of sense here.
+>=20
+> But I do have a few comments :-).
+>=20
+> The "-laptop" naming convention is more informative than "-acpi".
+> Perhaps this driver should be called "classmate-laptop".  I would keep
+> the cmpc_ prefix in the source code though.
+>=20
+> More comments inline.
+>=20
 
-DTS413 is capable of so much more than this driver is supporting, thus
-one can feel free to make upgrades.
+Hello, Allan.
 
+Thanks for the feedback. I am considering an investigation whether we
+have lots of other ACPI input devices that could share some code like
+{add,remove}_acpi_notify_device. Regarding the driver naming, I will
+send a second version with it and other modifications considering your
+feedback and that of other people too.
 
-Simple DTS413 Touchscreen driver.
+I will also ask for some explicit feedback and add linux-input and
+Dmitry to the loop.
 
-Signed-off-by: Jernej Turnsek <jernej.turnsek@gmail.com>
+> > +/*
+> > + * Generic input device code.
+> > + */
+> > +
+> > +typedef void (*input_device_init)(struct input_dev *dev);
+> > +
+> > +static int cmpc_add_acpi_notify_device(struct acpi_device *acpi, char
+> > *name,
+> > +				       acpi_notify_handler handler,
+> > +				       input_device_init idev_init)
+> > +{
+> > +	struct input_dev *inputdev;
+> > +	acpi_status status;
+> > +	int error;
+> > +	inputdev =3D input_allocate_device();
+> > +	if (!inputdev) {
+> > +		error =3D -ENOMEM;
+> > +		goto out;
+> > +	}
+> > +	inputdev->name =3D name;
+> > +	inputdev->dev.parent =3D &acpi->dev;
+> > +	idev_init(inputdev);
+> > +	error =3D input_register_device(inputdev);
+> > +	if (error)
+> > +		goto err_reg;
+> > +	dev_set_drvdata(&acpi->dev, inputdev);
+> > +	status =3D acpi_install_notify_handler(acpi->handle, ACPI_DEVICE_NOTI=
+FY,
+> > +					     handler, inputdev);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		error =3D -ENODEV;
+> > +		goto err_acpi;
+> > +	}
+> > +	return 0;
+> > +err_acpi:
+> > +	input_unregister_device(inputdev);
+> > +err_reg:
+> > +	input_free_device(inputdev);
+> > +out:
+> > +	return error;
+> > +}
+> > +
+> > +static int cmpc_remove_acpi_notify_device(struct acpi_device *acpi,
+> > +					  acpi_notify_handler handler)
+> > +{
+> > +	struct input_dev *inputdev;
+> > +	acpi_status status;
+> > +	status =3D acpi_remove_notify_handler(acpi->handle, ACPI_DEVICE_NOTIF=
+Y,
+> > +					    handler);
+> > +	inputdev =3D dev_get_drvdata(&acpi->dev);
+> > +	input_unregister_device(inputdev);
+> > +	input_free_device(inputdev);
+>=20
+> Dmitry the input maintainer says "input_free_device() should not be
+> called after input_unregister_device()." (This also applies to the
+> error handling in add_acpi_notify_device()).
+>=20
 
-diff --git a/drivers/input/touchscreen/Kconfig
-b/drivers/input/touchscreen/Kconfig
-index ab02d72..b2403f5 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -510,6 +510,17 @@ config TOUCHSCREEN_W90X900
-=A0 =A0 =A0 =A0 =A0To compile this driver as a module, choose M here: t=
-he
-=A0 =A0 =A0 =A0 =A0module will be called w90p910_ts.
+That's right. My mistake here. And I've hit this mistake before.
+input_free_device calls put_device (through input_put_device) and
+input_unregister_device calls device_unregister, which also calls
+put_device.
 
-+config TOUCHSCREEN_DTS413
-+ =A0 =A0 =A0 tristate "DTS413 based touchscreens"
-+ =A0 =A0 =A0 depends on I2C
-+ =A0 =A0 =A0 help
-+ =A0 =A0 =A0 =A0 Say Y here if you have a DTS413 based touchscreen.
-+
-+ =A0 =A0 =A0 =A0 If unsure, say N.
-+
-+ =A0 =A0 =A0 =A0 To compile this driver as a module, choose M here: th=
-e
-+ =A0 =A0 =A0 =A0 module will be called dts413.
-+
-=A0config TOUCHSCREEN_PCAP
-=A0 =A0 =A0 =A0tristate "Motorola PCAP touchscreen"
-=A0 =A0 =A0 =A0depends on EZX_PCAP
-diff --git a/drivers/input/touchscreen/Makefile
-b/drivers/input/touchscreen/Makefile
-index 4599bf7..be7315b 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -40,4 +40,6 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ATMEL) =A0 =A0 =A0 =A0=
-+=3D
-atmel-wm97xx.o
-=A0obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE) =A0 =A0 +=3D mainstone-wm=
-97xx.o
-=A0obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE) =A0 =A0 =A0+=3D zylonite-w=
-m97xx.o
-=A0obj-$(CONFIG_TOUCHSCREEN_W90X900) =A0 =A0 =A0+=3D w90p910_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_DTS413) =A0 =A0 =A0 +=3D dts413.o
-=A0obj-$(CONFIG_TOUCHSCREEN_PCAP) =A0 =A0 =A0 =A0 +=3D pcap_ts.o
-+
-diff --git a/drivers/input/touchscreen/dts413.c
-b/drivers/input/touchscreen/dts413.c
-new file mode 100644
-index 0000000..ff3be9b
---- /dev/null
-+++ b/drivers/input/touchscreen/dts413.c
-@@ -0,0 +1,286 @@
-+/*
-+ * drivers/input/touchscreen/dts413.c
-+ *
-+ * Copyright (c) 2009 Iskraemeco d.d.
-+ * =A0 =A0 Jernej Turnsek <jernej.turnsek@iskraemeco.si>
-+ *
-+ * Using code from:
-+ * =A0- migor_ts.c
-+ * Copyright (c) 2008 Magnus Damm
-+ * Copyright (c) 2007 Ujjwal Pande <ujjwal@kenati.com>,
-+ * =A0Kenati Technologies Pvt Ltd.
-+ *
-+ * =A0This program is free software; you can redistribute it and/or mo=
-dify
-+ * =A0it under the terms of the GNU General Public License version 2 a=
-s
-+ * =A0published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/i2c.h>
-+#include <linux/timer.h>
-+#include <linux/workqueue.h>
-+
-+
-+#define =A0 =A0 =A0 =A0MAX_11BIT =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((1 << 11=
-) - 1)
-+
-+#define EVENT_PENDOWN =A01
-+#define EVENT_PENUP =A0 =A0 =A0 =A0 =A0 =A00
-+
-+/**
-+ * struct dts413 - device structure
-+ * @client: the i2c client,
-+ * @input: the input device,
-+ * @work: workqueue,
-+ * @irq: irq number.
-+ *
-+ * Structure for holding the internal context of a driver.
-+ */
-+struct dts413 {
-+ =A0 =A0 =A0 struct i2c_client *client;
-+ =A0 =A0 =A0 struct input_dev *input;
-+ =A0 =A0 =A0 struct work_struct work;
-+ =A0 =A0 =A0 int irq;
-+};
-+
-+/**
-+ * dts413_poscheck() - function for position checking
-+ * @work: workqueue.
-+ *
-+ * DTS413 report packet:
-+ * =A0 =A0 =A0 =A0MSB =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-LSB
-+ * BYTE1:| 1 | R | R | R | R | R | R | S |
-+ * BYTE2:| 0 | 0 | 0 | 0 |A10| A9| A8| A7|
-+ * BYTE3:| 0 | A6| A5| A4| A3| A2| A1| A0|
-+ * BYTE4:| 0 | 0 | 0 | 0 |B10| B9| B8| B7|
-+ * BYTE5:| 0 | B6| B5| B4| B3| B2| B1| B0|
-+ * BYTE6:| 0 | P6| P5| P4| P3| P2| P1| P0|
-+ *
-+ * S - status
-+ * A10-A0 - 11 bits of 1st direction raw data
-+ * B10-B0 - 11 bits of 2st direction raw data
-+ * P6-P0 - 7 bits of finger pressure
-+ * Please be aware that A nad B just represent 2 resolution directions
-+ * of the touch panel. The reported coordinates are (0~2047,0-2047),
-+ * the bottom left is (0,0).
-+ */
-+static void dts413_poscheck(struct work_struct *work)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D container_of(work,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 struct dts413,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 work);
-+ =A0 =A0 =A0 unsigned short xpos, ypos;
-+ =A0 =A0 =A0 u_int8_t event, speed;
-+ =A0 =A0 =A0 u_int8_t buf[6];
-+
-+ =A0 =A0 =A0 memset(buf, 0, sizeof(buf));
-+
-+ =A0 =A0 =A0 /* now do page read */
-+ =A0 =A0 =A0 if (i2c_master_recv(priv->client, buf, sizeof(buf)) !=3D =
-sizeof(buf)) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&priv->client->dev, "Unable to re=
-ad i2c page\n");
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
-+ =A0 =A0 =A0 }
-+
-+ =A0 =A0 =A0 event =3D (buf[0] & 0x01) ? 1 : 0;
-+ =A0 =A0 =A0 xpos =3D (unsigned short)(buf[2] & 0x7f) |
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((unsigned short)(buf[1] =
-& 0x0f) << 7);
-+ =A0 =A0 =A0 ypos =3D (unsigned short)(buf[4] & 0x7f) |
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ((unsigned short)(buf[3] =
-& 0x0f) << 7);
-+ =A0 =A0 =A0 speed =3D (buf[5] & 0x7f);
-+
-+ =A0 =A0 =A0 if (event =3D=3D EVENT_PENDOWN) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(priv->input, BTN_TOUCH, =
-1);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(priv->input, ABS_X, xpos=
-);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(priv->input, ABS_Y, 2048=
- - ypos);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(priv->input, ABS_PRESSUR=
-E, 1);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_sync(priv->input);
-+ =A0 =A0 =A0 } else if (event =3D=3D EVENT_PENUP) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(priv->input, BTN_TOUCH, =
-0);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(priv->input, ABS_PRESSUR=
-E, 0);
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_sync(priv->input);
-+ =A0 =A0 =A0 }
-+ out:
-+ =A0 =A0 =A0 enable_irq(priv->irq);
-+}
-+
-+/**
-+ * dts413_isr() - interrupt service routine
-+ * @irg: irq number.
-+ * @dev_id: dts413 device.
-+ *
-+ * The touch screen controller chip is hooked up to the cpu
-+ * using i2c and a single interrupt line. The interrupt line
-+ * is pulled low whenever someone taps the screen. To deassert
-+ * the interrupt line we need to acknowledge the interrupt by
-+ * communicating with the controller over the slow i2c bus.
-+ *
-+ * We can't acknowledge from interrupt context since the i2c
-+ * bus controller may sleep, so we just disable the interrupt
-+ * here and handle the acknowledge using delayed work.
-+ */
-+static irqreturn_t dts413_isr(int irq, void *dev_id)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D dev_id;
-+
-+ =A0 =A0 =A0 disable_irq_nosync(irq);
-+ =A0 =A0 =A0 schedule_work(&priv->work);
-+
-+ =A0 =A0 =A0 return IRQ_HANDLED;
-+}
-+
-+static int dts413_open(struct input_dev *dev)
-+{
-+ =A0 =A0 =A0 return 0;
-+}
-+
-+static void dts413_close(struct input_dev *dev)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D input_get_drvdata(dev);
-+
-+ =A0 =A0 =A0 disable_irq(priv->irq);
-+
-+ =A0 =A0 =A0 cancel_work_sync(&priv->work);
-+
-+ =A0 =A0 =A0 enable_irq(priv->irq);
-+}
-+
-+static int dts413_probe(struct i2c_client *client,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 const struct i2c_device_i=
-d *idp)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv;
-+ =A0 =A0 =A0 struct input_dev *input;
-+ =A0 =A0 =A0 int error;
-+
-+ =A0 =A0 =A0 priv =3D kzalloc(sizeof(*priv), GFP_KERNEL);
-+ =A0 =A0 =A0 if (!priv) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&client->dev, "failed to allocate=
- driver data\n");
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -ENOMEM;
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err0;
-+ =A0 =A0 =A0 }
-+
-+ =A0 =A0 =A0 dev_set_drvdata(&client->dev, priv);
-+
-+ =A0 =A0 =A0 input =3D input_allocate_device();
-+ =A0 =A0 =A0 if (!input) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&client->dev, "Failed to allocate=
- input device.\n");
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 error =3D -ENOMEM;
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err1;
-+ =A0 =A0 =A0 }
-+
-+ =A0 =A0 =A0 input->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+ =A0 =A0 =A0 input->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH=
-);
-+
-+ =A0 =A0 =A0 input_set_abs_params(input, ABS_X, 0, MAX_11BIT, 0, 0);
-+ =A0 =A0 =A0 input_set_abs_params(input, ABS_Y, 0, MAX_11BIT, 0, 0);
-+ =A0 =A0 =A0 input_set_abs_params(input, ABS_PRESSURE, 0, 0, 0, 0);
-+
-+ =A0 =A0 =A0 input->name =3D client->name;
-+ =A0 =A0 =A0 input->id.bustype =3D BUS_I2C;
-+ =A0 =A0 =A0 input->dev.parent =3D &client->dev;
-+
-+ =A0 =A0 =A0 input->open =3D dts413_open;
-+ =A0 =A0 =A0 input->close =3D dts413_close;
-+
-+ =A0 =A0 =A0 input_set_drvdata(input, priv);
-+
-+ =A0 =A0 =A0 priv->client =3D client;
-+ =A0 =A0 =A0 priv->input =3D input;
-+ =A0 =A0 =A0 INIT_WORK(&priv->work, dts413_poscheck);
-+ =A0 =A0 =A0 priv->irq =3D client->irq;
-+
-+ =A0 =A0 =A0 error =3D input_register_device(input);
-+ =A0 =A0 =A0 if (error)
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err1;
-+
-+ =A0 =A0 =A0 error =3D request_irq(priv->irq, dts413_isr,
-IRQF_TRIGGER_FALLING/*IRQF_TRIGGER_LOW*/,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 client->name, pri=
-v);
-+ =A0 =A0 =A0 if (error) {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&client->dev, "Unable to request =
-touchscreen IRQ.\n");
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err2;
-+ =A0 =A0 =A0 }
-+
-+ =A0 =A0 =A0 device_init_wakeup(&client->dev, 1);
-+ =A0 =A0 =A0 return 0;
-+
-+ err2:
-+ =A0 =A0 =A0 input_unregister_device(input);
-+ =A0 =A0 =A0 input =3D NULL; /* so we dont try to free it below */
-+ err1:
-+ =A0 =A0 =A0 input_free_device(input);
-+ =A0 =A0 =A0 kfree(priv);
-+ err0:
-+ =A0 =A0 =A0 dev_set_drvdata(&client->dev, NULL);
-+ =A0 =A0 =A0 return error;
-+}
-+
-+static int dts413_remove(struct i2c_client *client)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D dev_get_drvdata(&client->dev);
-+
-+ =A0 =A0 =A0 free_irq(priv->irq, priv);
-+ =A0 =A0 =A0 input_unregister_device(priv->input);
-+ =A0 =A0 =A0 kfree(priv);
-+
-+ =A0 =A0 =A0 dev_set_drvdata(&client->dev, NULL);
-+
-+ =A0 =A0 =A0 return 0;
-+}
-+
-+static int dts413_suspend(struct i2c_client *client, pm_message_t mesg=
-)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D dev_get_drvdata(&client->dev);
-+
-+ =A0 =A0 =A0 if (device_may_wakeup(&client->dev))
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 enable_irq_wake(priv->irq);
-+
-+ =A0 =A0 =A0 return 0;
-+}
-+
-+static int dts413_resume(struct i2c_client *client)
-+{
-+ =A0 =A0 =A0 struct dts413 *priv =3D dev_get_drvdata(&client->dev);
-+
-+ =A0 =A0 =A0 if (device_may_wakeup(&client->dev))
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_wake(priv->irq);
-+
-+ =A0 =A0 =A0 return 0;
-+}
-+
-+static struct i2c_device_id dts413_idtable[] =3D {
-+ =A0 =A0 =A0 { "dts413", 0 },
-+ =A0 =A0 =A0 { }
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, dts413_idtable);
-+
-+static struct i2c_driver dts413_driver =3D {
-+ =A0 =A0 =A0 .driver =3D {
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 .owner =A0=3D THIS_MODULE,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 .name =A0 =3D "dts413"
-+ =A0 =A0 =A0 },
-+ =A0 =A0 =A0 .id_table =A0 =A0 =A0 =3D dts413_idtable,
-+ =A0 =A0 =A0 .probe =A0 =A0 =A0 =A0 =A0=3D dts413_probe,
-+ =A0 =A0 =A0 .remove =A0 =A0 =A0 =A0 =3D __devexit_p(dts413_remove),
-+ =A0 =A0 =A0 .suspend =3D dts413_suspend,
-+ =A0 =A0 =A0 .resume =3D dts413_resume,
-+};
-+
-+static int __init dts413_init(void)
-+{
-+ =A0 =A0 =A0 return i2c_add_driver(&dts413_driver);
-+}
-+
-+static void __exit dts413_exit(void)
-+{
-+ =A0 =A0 =A0 i2c_del_driver(&dts413_driver);
-+}
-+
-+module_init(dts413_init);
-+module_exit(dts413_exit);
-+
-+MODULE_AUTHOR("Jernej Turnsek <jernej.turnsek@iskraemeco.si>");
-+MODULE_DESCRIPTION("DTS413 Touch Screen Controller driver");
-+MODULE_LICENSE("GPL");
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > +	return 0;
+> > +}
+> > +
+> > +
+> > +/*
+> > + * Accelerometer code.
+> > + */
+> > +
+> > +static acpi_status cmpc_start_accel(acpi_handle handle)
+> > +{
+> > +	union acpi_object param[2];
+> > +	struct acpi_object_list input;
+> > +	acpi_status status;
+> > +	param[0].type =3D ACPI_TYPE_INTEGER;
+> > +	param[0].integer.value =3D 0x3;
+> > +	param[1].type =3D ACPI_TYPE_INTEGER;
+> > +	input.count =3D 2;
+> > +	input.pointer =3D param;
+> > +	status =3D acpi_evaluate_object(handle, "ACMD", &input, NULL);
+> > +	return status;
+> > +}
+> > +
+> > +static acpi_status cmpc_stop_accel(acpi_handle handle)
+> > +{
+> > +	union acpi_object param[2];
+> > +	struct acpi_object_list input;
+> > +	acpi_status status;
+> > +	param[0].type =3D ACPI_TYPE_INTEGER;
+> > +	param[0].integer.value =3D 0x4;
+> > +	param[1].type =3D ACPI_TYPE_INTEGER;
+> > +	input.count =3D 2;
+> > +	input.pointer =3D param;
+> > +	status =3D acpi_evaluate_object(handle, "ACMD", &input, NULL);
+> > +	return status;
+> > +}
+> > +
+> > +static acpi_status cmpc_accel_set_sense(acpi_handle handle, int val)
+> > +{
+> > +	union acpi_object param[2];
+> > +	struct acpi_object_list input;
+> > +	param[0].type =3D ACPI_TYPE_INTEGER;
+> > +	param[0].integer.value =3D 0x02;
+> > +	param[1].type =3D ACPI_TYPE_INTEGER;
+> > +	param[1].integer.value =3D val;
+> > +	input.count =3D 2;
+> > +	input.pointer =3D param;
+> > +	return acpi_evaluate_object(handle, "ACMD", &input, NULL);
+> > +}
+> > +
+> > +static acpi_status cmpc_get_accel(acpi_handle handle,
+> > +				  unsigned char *x,
+> > +				  unsigned char *y,
+> > +				  unsigned char *z)
+> > +{
+> > +	union acpi_object param[2];
+> > +	struct acpi_object_list input;
+> > +	struct acpi_buffer output =3D { ACPI_ALLOCATE_BUFFER, 0 };
+> > +	unsigned char *locs;
+> > +	acpi_status status;
+> > +	param[0].type =3D ACPI_TYPE_INTEGER;
+> > +	param[0].integer.value =3D 0x01;
+> > +	param[1].type =3D ACPI_TYPE_INTEGER;
+> > +	input.count =3D 2;
+> > +	input.pointer =3D param;
+> > +	status =3D acpi_evaluate_object(handle, "ACMD", &input, &output);
+> > +	if (ACPI_SUCCESS(status)) {
+> > +		union acpi_object *obj;
+> > +		obj =3D output.pointer;
+> > +		locs =3D obj->buffer.pointer;
+> > +		*x =3D locs[0];
+> > +		*y =3D locs[1];
+> > +		*z =3D locs[2];
+> > +		kfree(output.pointer);
+> > +	}
+> > +	return status;
+> > +}
+> > +
+> > +static void cmpc_accel_handler(acpi_handle handle, u32 event, void *ct=
+x)
+> > +{
+> > +	struct input_dev *inputdev =3D ctx;
+> > +	acpi_status status;
+> > +	unsigned char x, y, z;
+> > +	if (event =3D=3D 0x81) {
+> > +		status =3D cmpc_get_accel(handle, &x, &y, &z);
+> > +		if (ACPI_SUCCESS(status)) {
+> > +			input_report_abs(inputdev, ABS_X, x);
+> > +			input_report_abs(inputdev, ABS_Y, y);
+> > +			input_report_abs(inputdev, ABS_Z, z);
+> > +			input_sync(inputdev);
+> > +		}
+> > +	}
+> > +}
+> > +
+> > +static ssize_t cmpc_accel_sense_store(struct device *dev,
+> > +				      struct device_attribute *attr,
+> > +				      const char *buf, size_t count)
+> > +{
+> > +	struct acpi_device *acpi;
+> > +	int sense;
+> > +	acpi =3D to_acpi_device(dev);
+> > +	if (sscanf(buf, "%d", &sense) <=3D 0)
+> > +		return -EINVAL;
+> > +	cmpc_accel_set_sense(acpi->handle, sense);
+> > +	return strnlen(buf, count);
+> > +}
+> > +
+> > +struct device_attribute cmpc_accel_sense_attr =3D {
+> > +	.attr =3D { .name =3D "sense", .mode =3D 0220 },
+> > +	.store =3D cmpc_accel_sense_store
+> > +};
+>=20
+> What does this do?  What range of values can it take?  Is it a common
+> attribute for input devices, or does it need specific documentation?
+>=20
+> Would it make sense for the driver to initialize it to a default
+> value, so that we would always know what the current value is, and
+> provide a .show() method as well?
+>=20
+
+This changes the accelerometer device sensitivity. I will take a look at
+the ACPI tables to get a range. If very much sensitive, the device will
+generate too much ACPI notifications, even when the classmate PC is no a
+table and there seems to be no movement. If not very much sensitive, you
+must throw it spinning into the air to get anything.  :-)
+
+I will pick a default value, although I think we could let it to
+userspace, but a sensible default value will not hurt here. As far as I
+know, there is no ACPI method to do get_sense, but we can mirror the
+last value written and provide a .show.
+
+What do you recommend as a documentation? Something at
+Documentation/ABI/testing/, perhaps? I don't know if there are any other
+devices with something similar, but I would not be surprised if there
+are some of them.
+
+> > +
+> > +static int cmpc_accel_open(struct input_dev *input)
+> > +{
+> > +	struct acpi_device *acpi;
+> > +	acpi =3D to_acpi_device(input->dev.parent);
+> > +	if (ACPI_SUCCESS(cmpc_start_accel(acpi->handle)))
+> > +		return 0;
+> > +	return -EIO;
+> > +}
+> > +
+> > +static void cmpc_accel_close(struct input_dev *input)
+> > +{
+> > +	struct acpi_device *acpi;
+> > +	acpi =3D to_acpi_device(input->dev.parent);
+> > +	cmpc_stop_accel(acpi->handle);
+> > +}
+> > +
+> > +static void cmpc_accel_idev_init(struct input_dev *inputdev)
+> > +{
+> > +	set_bit(EV_ABS, inputdev->evbit);
+> > +	input_set_abs_params(inputdev, ABS_X, 0, 255, 8, 0);
+> > +	input_set_abs_params(inputdev, ABS_Y, 0, 255, 8, 0);
+> > +	input_set_abs_params(inputdev, ABS_Z, 0, 255, 8, 0);
+
+Any hints on how to pick up values for this calibration? Any testing
+procedure or anything?
+
+> > +	inputdev->open =3D cmpc_accel_open;
+> > +	inputdev->close =3D cmpc_accel_close;
+> > +}
+> > +
+> > +static int cmpc_accel_add(struct acpi_device *acpi)
+> > +{
+> > +	int error;
+> > +	error =3D device_create_file(&acpi->dev, &cmpc_accel_sense_attr);
+> > +	if (error)
+> > +		return error;
+> > +	return cmpc_add_acpi_notify_device(acpi, "cmpc_accel",
+> > +					   cmpc_accel_handler,
+> > +					   cmpc_accel_idev_init);
+> > +}
+> > +
+> > +static int cmpc_accel_remove(struct acpi_device *acpi, int type)
+> > +{
+> > +	device_remove_file(&acpi->dev, &cmpc_accel_sense_attr);
+> > +	return cmpc_remove_acpi_notify_device(acpi, cmpc_accel_handler);
+> > +}
+> > +
+> > +static const struct acpi_device_id cmpc_accel_device_ids[] =3D {
+> > +	{"ACCE0000", 0},
+> > +	{"", 0}
+> > +};
+> > +MODULE_DEVICE_TABLE(acpi, cmpc_accel_device_ids);
+> > +
+> > +static struct acpi_driver cmpc_accel_acpi_driver =3D {
+> > +	.name =3D "cmpc_accel",
+> > +	.class =3D "cmpc_accel",
+> > +	.ids =3D cmpc_accel_device_ids,
+> > +	.ops =3D {
+> > +		.add =3D cmpc_accel_add,
+> > +		.remove =3D cmpc_accel_remove
+> > +	}
+>=20
+> Could you please set
+>=20
+> 	.owner =3D THIS_MODULE,
+>=20
+> on all the acpi drivers?  It will provide data in
+> /sys/module/cmpc_acpi/drivers and
+> /sys/bus/acpi/drivers/<driver>/module.  It seems to be forgotten
+> knowledge, but I'm trying to revive it :-).
+>=20
+
+Consider it done. Although I think this could be done automatically
+someday.
+
+> > +};
+> > +
+> > +static bool cmpc_accel_driver_registered;
+> > +
+> > +
+> > +/*
+> > + * Tablet mode code.
+> > + */
+> > +static acpi_status cmpc_get_tablet(acpi_handle handle,
+> > +				   unsigned long long *value)
+> > +{
+> > +	union acpi_object param;
+> > +	struct acpi_object_list input;
+> > +	unsigned long long output;
+> > +	acpi_status status;
+> > +	param.type =3D ACPI_TYPE_INTEGER;
+> > +	param.integer.value =3D 0x01;
+> > +	input.count =3D 1;
+> > +	input.pointer =3D &param;
+> > +	status =3D acpi_evaluate_integer(handle, "TCMD", &input, &output);
+> > +	if (ACPI_SUCCESS(status))
+> > +		*value =3D output;
+> > +	return status;
+> > +}
+> > +
+> > +static void cmpc_tablet_handler(acpi_handle handle, u32 event, void *c=
+tx)
+> > +{
+> > +	unsigned long long val =3D 0;
+> > +	struct input_dev *inputdev =3D ctx;
+> > +	if (event =3D=3D 0x81) {
+> > +		if (ACPI_SUCCESS(cmpc_get_tablet(handle, &val)))
+> > +			input_report_switch(inputdev, SW_TABLET_MODE, !val);
+> > +	}
+> > +}
+> > +
+> > +static void cmpc_tablet_idev_init(struct input_dev *inputdev)
+> > +{
+> > +	set_bit(EV_SW, inputdev->evbit);
+> > +	set_bit(SW_TABLET_MODE, inputdev->swbit);
+>=20
+> Don't you need to initialize the switch value here?
+>=20
+
+No, input_allocate_device does kzalloc. Otherwise, this would apply to
+the other bitmaps as well.
+
+> Also, have you tested this with changing the switch value while
+> suspended?  I _think_ you need to update the switch state on resume.
+> This is purely from looking at other acpi drivers and their evolution;
+> I don't have any practical experience with input drivers.
+>=20
+
+Interesting point. I will do the testing.
+
+> > +}
+> > +
+> > +static int cmpc_tablet_add(struct acpi_device *acpi)
+> > +{
+> > +	return cmpc_add_acpi_notify_device(acpi, "cmpc_tablet",
+> > +					   cmpc_tablet_handler,
+> > +					   cmpc_tablet_idev_init);
+> > +}
+> > +
+> > +static int cmpc_tablet_remove(struct acpi_device *acpi, int type)
+> > +{
+> > +	return cmpc_remove_acpi_notify_device(acpi, cmpc_tablet_handler);
+> > +}
+> > +
+> > +static const struct acpi_device_id cmpc_tablet_device_ids[] =3D {
+> > +	{"TBLT0000", 0},
+> > +	{"", 0}
+> > +};
+> > +MODULE_DEVICE_TABLE(acpi, cmpc_tablet_device_ids);
+> > +
+> > +static struct acpi_driver cmpc_tablet_acpi_driver =3D {
+> > +	.name =3D "cmpc_tablet",
+> > +	.class =3D "cmpc_tablet",
+> > +	.ids =3D cmpc_tablet_device_ids,
+> > +	.ops =3D {
+> > +		.add =3D cmpc_tablet_add,
+> > +		.remove =3D cmpc_tablet_remove
+> > +	}
+> > +};
+> > +
+> > +static bool cmpc_tablet_driver_registered;
+> > +
+> > +
+> > +/*
+> > + * Backlight code.
+> > + */
+> > +
+> > +static acpi_status cmpc_get_brightness(acpi_handle handle,
+> > +				       unsigned long long *value)
+> > +{
+> > +	union acpi_object param;
+> > +	struct acpi_object_list input;
+> > +	unsigned long long output;
+> > +	acpi_status status;
+> > +	param.type =3D ACPI_TYPE_INTEGER;
+> > +	param.integer.value =3D 0xC0;
+> > +	input.count =3D 1;
+> > +	input.pointer =3D &param;
+> > +	status =3D acpi_evaluate_integer(handle, "GRDI", &input, &output);
+> > +	if (ACPI_SUCCESS(status))
+> > +		*value =3D output;
+> > +	return status;
+> > +}
+> > +
+> > +static acpi_status cmpc_set_brightness(acpi_handle handle,
+> > +				       unsigned long long value)
+> > +{
+> > +	union acpi_object param[2];
+> > +	struct acpi_object_list input;
+> > +	acpi_status status;
+> > +	unsigned long long output;
+> > +	param[0].type =3D ACPI_TYPE_INTEGER;
+> > +	param[0].integer.value =3D 0xC0;
+> > +	param[1].type =3D ACPI_TYPE_INTEGER;
+> > +	param[1].integer.value =3D value;
+> > +	input.count =3D 2;
+> > +	input.pointer =3D param;
+> > +	status =3D acpi_evaluate_integer(handle, "GWRI", &input, &output);
+> > +	return status;
+> > +}
+> > +
+> > +static int cmpc_bl_get_brightness(struct backlight_device *bd)
+> > +{
+> > +	acpi_status status;
+> > +	acpi_handle handle;
+> > +	unsigned long long brightness;
+> > +	handle =3D bl_get_data(bd);
+> > +	status =3D cmpc_get_brightness(handle, &brightness);
+> > +	if (ACPI_SUCCESS(status))
+> > +		return brightness;
+> > +	else
+> > +		return -1;
+> > +}
+> > +
+> > +static int cmpc_bl_update_status(struct backlight_device *bd)
+> > +{
+> > +	acpi_status status;
+> > +	acpi_handle handle;
+> > +	handle =3D bl_get_data(bd);
+> > +	status =3D cmpc_set_brightness(handle, bd->props.brightness);
+> > +	if (ACPI_SUCCESS(status))
+> > +		return 0;
+> > +	else
+> > +		return -1;
+> > +}
+> > +
+> > +static struct backlight_ops cmpc_bl_ops =3D {
+> > +	.get_brightness =3D cmpc_bl_get_brightness,
+> > +	.update_status =3D cmpc_bl_update_status
+> > +};
+> > +
+> > +static int cmpc_bl_add(struct acpi_device *acpi)
+> > +{
+> > +	struct backlight_device *bd;
+> > +	bd =3D backlight_device_register("cmpc_bl", &acpi->dev,
+> > +				       acpi->handle, &cmpc_bl_ops);
+> > +	bd->props.max_brightness =3D 7;
+> > +	dev_set_drvdata(&acpi->dev, bd);
+> > +	return 0;
+> > +}
+> > +
+> > +static int cmpc_bl_remove(struct acpi_device *acpi, int type)
+> > +{
+> > +	struct backlight_device *bd;
+> > +	bd =3D dev_get_drvdata(&acpi->dev);
+> > +	backlight_device_unregister(bd);
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct acpi_device_id cmpc_device_ids[] =3D {
+> > +	{"IPML200", 0},
+> > +	{"", 0}
+> > +};
+> > +MODULE_DEVICE_TABLE(acpi, cmpc_device_ids);
+> > +
+> > +static struct acpi_driver cmpc_bl_acpi_driver =3D {
+> > +	.name =3D "cmpc",
+> > +	.class =3D "cmpc",
+> > +	.ids =3D cmpc_device_ids,
+> > +	.ops =3D {
+> > +		.add =3D cmpc_bl_add,
+> > +		.remove =3D cmpc_bl_remove
+> > +	}
+> > +};
+> > +
+> > +static bool cmpc_bl_driver_registered;
+> > +
+> > +
+> > +/*
+> > + * Extra keys code.
+> > + */
+> > +static int cmpc_keys_codes[] =3D {
+> > +	KEY_UNKNOWN,
+> > +	KEY_WLAN,
+> > +	KEY_SWITCHVIDEOMODE,
+>=20
+> > +	KEY_BRIGHTNESSDOWN,
+> > +	KEY_BRIGHTNESSUP,
+>=20
+> Please confirm that the brightness keys do not directly affect the
+> backlight, and these key events are a signal for userspace to adjust
+> the backlight itself.
+>=20
+
+AFAIK, they don't. We even had to write a simple userspace daemon that
+would change the backlight values through sysfs when receiving an input
+event.
+
+> If they _do_ affect the backlight, you should call the newly added
+> backlight_force_update() when they are pressed, and it will generate a
+> uevent on the backlight device.  (I guess you will have to add an ugly
+> global variable for the backlight device, sorry about that).  In this
+> case you should ideally avoid generating _input_ events for brightness
+> keys.
+>=20
+> Currently userspace is expected to handle annoying devices which
+> generate KEY_BRIGHTNESS* while directly changing the brightness.  But
+> requires a racy hack, so you should definitely try to avoid this for
+> new devices.  It will encourage userspace to implement support for the
+> backlight device uevents :-).
+>=20
+> > +	KEY_VENDOR,
+
+This key is at the side of the LCD panel, not on the keyboard proper and
+it has the drawing of a house. Any suggestions besides using KEY_VENDOR?
+
+> > +	KEY_MAX
+> > +};
+> > +
+> > +static void cmpc_keys_handler(acpi_handle handle, u32 event, void *ctx)
+> > +{
+> > +	struct input_dev *inputdev;
+> > +	int code =3D KEY_MAX;
+> > +	if ((event & 0x0F) < ARRAY_SIZE(cmpc_keys_codes))
+> > +		code =3D cmpc_keys_codes[event & 0x0F];
+> > +	inputdev =3D ctx;
+> > +	input_report_key(inputdev, code, !(event & 0x10));
+> > +}
+> > +
+> > +static void cmpc_keys_idev_init(struct input_dev *inputdev)
+> > +{
+> > +	int i;
+> > +	set_bit(EV_KEY, inputdev->evbit);
+> > +	for (i =3D 0; cmpc_keys_codes[i] !=3D KEY_MAX; i++)
+> > +		set_bit(cmpc_keys_codes[i], inputdev->keybit);
+> > +}
+> > +
+> > +static int cmpc_keys_add(struct acpi_device *acpi)
+> > +{
+> > +	return cmpc_add_acpi_notify_device(acpi, "cmpc_keys",
+> > +					   cmpc_keys_handler,
+> > +					   cmpc_keys_idev_init);
+> > +}
+> > +
+> > +static int cmpc_keys_remove(struct acpi_device *acpi, int type)
+> > +{
+> > +	return cmpc_remove_acpi_notify_device(acpi, cmpc_keys_handler);
+> > +}
+> > +
+> > +static const struct acpi_device_id cmpc_keys_device_ids[] =3D {
+> > +	{"FnBT0000", 0},
+> > +	{"", 0}
+> > +};
+> > +MODULE_DEVICE_TABLE(acpi, cmpc_keys_device_ids);
+> > +
+> > +static struct acpi_driver cmpc_keys_acpi_driver =3D {
+> > +	.name =3D "cmpc_keys",
+> > +	.class =3D "cmpc_keys",
+> > +	.ids =3D cmpc_keys_device_ids,
+> > +	.ops =3D {
+> > +		.add =3D cmpc_keys_add,
+> > +		.remove =3D cmpc_keys_remove
+> > +	}
+> > +};
+> > +
+> > +static bool cmpc_keys_driver_registered;
+> > +
+> > +
+> > +/*
+> > + * General init/exit code.
+> > + */
+> > +
+> > +static int cmpc_init(void)
+> > +{
+> > +	int result;
+> > +	result =3D acpi_bus_register_driver(&cmpc_keys_acpi_driver);
+> > +	cmpc_keys_driver_registered =3D !!result;
+> > +	result =3D acpi_bus_register_driver(&cmpc_bl_acpi_driver);
+> > +	cmpc_bl_driver_registered =3D !!result;
+> > +	result =3D acpi_bus_register_driver(&cmpc_tablet_acpi_driver);
+> > +	cmpc_tablet_driver_registered =3D !!result;
+> > +	result =3D acpi_bus_register_driver(&cmpc_accel_acpi_driver);
+> > +	cmpc_accel_driver_registered =3D !!result;
+>=20
+> These _registered flags are not necessary.  Registration doesn't fail
+> if the hardware doesn't exist.  It only fails if acpi=3Doff, or on
+> -ENOMEM.  It would be reasonable to fail loading the module if one of
+> the drivers fails to register.
+>=20
+
+OK. I had some doubts when writing it this way. I will rewrite it.
+
+> > +	/*
+> > +	 * Not every CMPC has every ACPI device supported here. So always ret=
+urn
+> > +	 * success.
+> > +	 */
+> > +	return 0;
+> > +}
+> > +
+> > +static void cmpc_exit(void)
+> > +{
+> > +	if (cmpc_accel_driver_registered)
+> > +		acpi_bus_unregister_driver(&cmpc_accel_acpi_driver);
+> > +	if (cmpc_tablet_driver_registered)
+> > +		acpi_bus_unregister_driver(&cmpc_tablet_acpi_driver);
+> > +	if (cmpc_bl_driver_registered)
+> > +		acpi_bus_unregister_driver(&cmpc_bl_acpi_driver);
+> > +	if (cmpc_keys_driver_registered)
+> > +		acpi_bus_unregister_driver(&cmpc_keys_acpi_driver);
+> > +}
+> > +
+> > +module_init(cmpc_init);
+> > +module_exit(cmpc_exit);
+> > --
+> > 1.6.3.3
+
+Regards,
+Thadeu Cascardo.
+
+--J5MfuwkIyy7RmF4Q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkrCFrIACgkQyTpryRcqtS27zQCfWHw0xSHKefYqPFPrbGiqGSYB
+T5YAoJDBEi7ZR9rUQ1s/w8ezvmdZvFFe
+=iCGI
+-----END PGP SIGNATURE-----
+
+--J5MfuwkIyy7RmF4Q--

@@ -1,84 +1,105 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: private ioctls in input driver
-Date: Mon, 28 Sep 2009 20:37:11 -0700
-Message-ID: <20090929033711.GA14451@core.coreip.homeip.net>
-References: <5d5443650909240451s17165707x6d3c7d3cf3228287@mail.gmail.com> <20090925040204.GD416@core.coreip.homeip.net> <5d5443650909250151h55b0eeefx7ce91f32bb287e3b@mail.gmail.com> <20090928170200.GA21455@core.coreip.homeip.net> <5d5443650909281005u37503ab0rc6b62effe73f8046@mail.gmail.com> <3c17e3570909281950q3a391cb6ld33ec69af765549d@mail.gmail.com>
+From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Subject: Re: keypad input method question
+Date: Tue, 29 Sep 2009 11:30:24 +0200
+Message-ID: <20090929113024.6f006e25.kristoffer.ericson@gmail.com>
+References: <3ea34a000909250601n5127dd2bt6a84aab7a93c26ed@mail.gmail.com>
+	<20090928170240.GE21455@core.coreip.homeip.net>
+	<3ea34a000909281242h5b7702cbt8005b100f58bee9c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.221.174]:43534 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753201AbZI2DhM (ORCPT
+Received: from mail-bw0-f210.google.com ([209.85.218.210]:38934 "EHLO
+	mail-bw0-f210.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753817AbZI2J1p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Sep 2009 23:37:12 -0400
-Received: by qyk4 with SMTP id 4so3765260qyk.33
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2009 20:37:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <3c17e3570909281950q3a391cb6ld33ec69af765549d@mail.gmail.com>
+	Tue, 29 Sep 2009 05:27:45 -0400
+Received: by bwz6 with SMTP id 6so1848364bwz.37
+        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2009 02:27:47 -0700 (PDT)
+In-Reply-To: <3ea34a000909281242h5b7702cbt8005b100f58bee9c@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Barry Song <21cnbao@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org
+To: Christopher Friedt <chrisfriedt@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Sep 29, 2009 at 10:50:15AM +0800, Barry Song wrote:
-> On Tue, Sep 29, 2009 at 1:05 AM, Trilok Soni <soni.trilok@gmail.com> wrote:
-> >
-> > Hi Dmitry,
-> >
-> > On Mon, Sep 28, 2009 at 10:32 PM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > On Fri, Sep 25, 2009 at 02:21:40PM +0530, Trilok Soni wrote:
-> > >> Hi Dmitry,
-> > >>
-> > >> On Fri, Sep 25, 2009 at 9:32 AM, Dmitry Torokhov
-> > >> <dmitry.torokhov@gmail.com> wrote:
-> > >> > Hi Trilok,
-> > >> >
-> > >> > On Thu, Sep 24, 2009 at 05:21:09PM +0530, Trilok Soni wrote:
-> > >> >> Hi Dmitry,
-> > >> >>
-> > >> >> Is there any way of creating private ioctls in the input driver? I see
-> > >> >> that all the input framework handled
-> > >> >> by the framework itself and there is no way to call private ioctls if
-> > >> >> it doesn't match the standard ones.
-> > >> >>
-> > >> >
-> > >> > You are right, event devices only allow standard ioctl. What kind of
-> > >> > ictl are you considering? Normally device-specific controls are done via
-> > >> > sysfs attached to the parent device (see atkbd, psmouse, etc).
-> > >>
-> > >> sysfs might good for purpose when you can associate one file per
-> > >> value, so for more data we can't simply create one file per the data.
-> > >> Say five fingers touch data (I know we have MT_* support but here it
-> > >> is just for example) , say id, x, y, z etc., per finger, then we can't
-> > >> create one file for each of them.
-> > >
-> > > Maybe use configfs if sysfs is not suitable? I am not sure.
-> > >
-> > > I would like to not-have driver-specific ioctls in evdev/input core but
-> > > rather keep them with device/driver itself. Input core should only have
-> > > stuff that makes sense for multiple devices.
-> >
-> > I mean on the similar line only, we won't add any driver-specific
-> > ioctls in evdev/input core, but just transfer their control to resp.
-> > device/driver itself, may be similar in the line of how v4l2 does.
-> Sometimes, we really have this kind of requirement. Now there are more
-> and more kinds of input devices. Some devices have special controls
-> which should not belong to generic input layer. How about add a case
-> item in  evdev_do_ioctl() to handle these commands and call drivers'
-> ioctl directly?
+On Mon, 28 Sep 2009 21:42:55 +0200
+Christopher Friedt <chrisfriedt@gmail.com> wrote:
+
+> Hi Dimitry,
 > 
+> Thanks for the reply!
 
-This is exactly what I don't want to have in the input layer. These
-device-specific knobs belong with the hardware device. Take a look at
-psmouse and all it's protocol drivers and AT keyboard and so forth. They
-allow adjusting device-specific behavior via device-specific sysfs
-entries.
+Please resend with patch inside email (pasted) since its alot easier
+to comment on code that way.
 
-Ioctls in evdev are fine if they are generic enough to not be tied to
-particular device. And as usual with ioctls we need to be very careful
-with 32/64 bit, endianness and accessibility (sysfs does not require any
-additional tools).
+> 
+> On Mon, Sep 28, 2009 at 7:02 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Just post in on the mailing list (and mark that it is for initial
+> > review).
+> 
+> My patch is here [1]. There are some obvious sections to remove - for
+> one, declaring a massive static array of string <-> register
+> combinations that I was using to debug before I discovered i2c-dev /
+> i2c-utils. I also need to properly unregister the input device when
+> rmmod is called, and cancel any pending work. It was giving me a
+> kernel panic when I tried that before, so I just commented that part
+> out (very bad, i know), so every time the module is inserted it
+> creates a new input device without entirely removing the previous one.
+> Also, because I'm using bitmaps for the actual pin configuration, it
+> might make it tricky for big-endian systems.
+> 
+> Regarding the keypad complexity ...
+> 
+> > ... nothing stops userspace from accessing
+> > the device through both inetrfaces (evdev and legacy one) at the same
+> > time.
+> >
+> > It would be curious to see what kind of keypad you have.
+> 
+> There is an image of the keypad here [2]. The alpha key cycles through
+> 3 states: 0=numbers, 1=lowercase, 2=uppercase. The keys also respond
+> to multi-tap, so hitting the '2' key twice would result in 'b' when
+> alpha=1. The way I implemented multi-tap was to use a state machine &
+> timer, and send a backspace followed by the next logical key, if the
+> timer had not expired first. Aside from the alpha key, there's also
+> the 'fn' modifier key, which would generate e.g. pageup when fn, then
+> up, were pressed. I currently also don't support holding buttons down,
+> simply because it's a bit clumsy with small keypads like this. All of
+> the modifier keys work on a sequential basis, not a combinatorial
+> basis.
+> 
+> This keypad driver can obviously be done in userspace just as well as
+> kernel space, but would require a special driver in that case too...
+> unless you can suggest some magical keycode-scanning method. I did
+> think about using alpha-states to encode numlock & capslock, so in
+> that case there might only be one actual modifier key. Also, it's
+> possible to have a userspace driver change the keycode-mapping for
+> multi-tap and issue backspaces as appropriate... so that is one
+> possibility for a keycode-scanning method, but again, I'm not really
+> sure where to start with that for X ... or Android (yet). It works
+> fine in X and on the console right now, but I think I'll need to
+> implement a userspace driver for Android because the lack of a
+> keycode-scanning feature makes webkit crash.
+> 
+> Of course, it's only _my_ keypad that is so complicated - the
+> complexity of the keypad is entirely independent from the stmpe2401
+> driver. The device is capable of reporting 2 simultaneous button
+> presses, or 3 if dedicated keys are also used, but I'm currently only
+> reporting one at a time with the initial driver, just to make life
+> easier.
+> 
+> Please feel free to give me as much constructive criticism as you wish :)
+> 
+> C
+> 
+> [1] http://virta.visibleassets.com/~cfriedt/cl/kernel/stmpe2401-20090923.patch
+> [2] http://virta.visibleassets.com/~cfriedt/cl/keypad-28.jpg
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 
 -- 
-Dmitry
+Kristoffer Ericson <kristoffer.ericson@gmail.com>

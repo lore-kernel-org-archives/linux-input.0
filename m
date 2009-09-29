@@ -1,82 +1,110 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH 1/3] Input: DaVinci Key Scan Driver
-Date: Tue, 29 Sep 2009 14:24:40 -0700
-Message-ID: <87iqf1v3zb.fsf@deeprootsystems.com>
-References: <1253811202-21407-1-git-send-email-miguel.aguilar@ridgerun.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59301DDAB3271@dbde02.ent.ti.com>
-	<4ABCD1E8.5000200@ridgerun.com>
-	<B85A65D85D7EB246BE421B3FB0FBB59301DDAB36C3@dbde02.ent.ti.com>
-	<0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0@dlee01.ent.ti.com>
-	<4ABCD78B.5050605@ridgerun.com>
-	<20090928170231.GD21455@core.coreip.homeip.net>
-	<0554BEF07D437848AF01B9C9B5F0BC5D92D13959@dlee01.ent.ti.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: hid-core: fix lockdep in hid_input_report() v2
+Date: Tue, 29 Sep 2009 15:03:12 -0700
+Message-ID: <20090929150312.59614446.akpm@linux-foundation.org>
+References: <20090920084140.5287559e.krzysztof.h1@wp.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f191.google.com ([209.85.222.191]:62951 "EHLO
-	mail-pz0-f191.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752562AbZI2VYi (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:46108 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752039AbZI2WDj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Sep 2009 17:24:38 -0400
-Received: by pzk29 with SMTP id 29so3736702pzk.33
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2009 14:24:42 -0700 (PDT)
-In-Reply-To: <0554BEF07D437848AF01B9C9B5F0BC5D92D13959@dlee01.ent.ti.com> (Sandeep Paulraj's message of "Mon\, 28 Sep 2009 12\:06\:58 -0500")
+	Tue, 29 Sep 2009 18:03:39 -0400
+In-Reply-To: <20090920084140.5287559e.krzysztof.h1@wp.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Paulraj, Sandeep" <s-paulraj@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Miguel Aguilar <miguel.aguilar@ridgerun.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
+To: Krzysztof Helt <krzysztof.h1@wp.pl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-"Paulraj, Sandeep" <s-paulraj@ti.com> writes:
+On Sun, 20 Sep 2009 08:41:40 +0200
+Krzysztof Helt <krzysztof.h1@wp.pl> wrote:
 
->> 
->> On Fri, Sep 25, 2009 at 08:45:31AM -0600, Miguel Aguilar wrote:
->> >
->> >>>>>> +     /* Enable Keyscan module and enable */
->> >>>>>> +     davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET |
->> >>> DAVINCI_KEYSCAN_KEYEN,
->> >>>>>> +                     DAVINCI_KEYSCAN_KEYCTRL);
->> >>>>> We seem to be hardcoded to the 4x4 matrix type here.
->> >>>>> Some DM365 boards could use 5x3 matrix.
->> >>>>>
->> >>>>> Thanks,
->> >>>>> Sekhar
->> >>>>>
->> >>>> [MA] I will add a platform option for matrix type to choose 4x4 or
->> 5x3
->> >>> matrix.
->> >>>> What do think about this?
->> >>>>
->> >>> Sounds good. I am not sure if any other piece of code
->> >>> needs to change though.
->> >> The strobe and interval have to change.  Afcourse that change comes
->> into the picture only when the mode is changed from 4x4 to 5x3.
->> >> I can see that there are options given for this in board specific code.
->> >>> Thanks,
->> >>> Sekhar
->> >>
->> >> Thanks,
->> >> Sandeep
->> >>
->> >
->> > struct davinci_ks_platform_data {
->> > 	unsigned short	*keymap;
->> > 	u32		keymapsize;
->> > 	u32		rep:1;
->> > 	u32		strobe;
->> > 	u32		interval;
->> > +	u32		matrix_type;
->> > };
->> >
->> > I will add something like this, so from the board specific code you can
->> > define strobe, interval and matrix type.
->> 
->> Make it enum at least. BTW, is it possible to add u8 rows, cols instead
->> and be able to handle more matrix variations?
->
-> The IP can handle only 4x4 or 5x3.
->
+> From: Krzysztof Helt <krzysztof.h1@wp.pl>
+> 
+> There is a lockdep warning in the hid_input_report() due to kmalloc(.,GFP_KERNEL) 
+> allocation of a temporary buffer.
+> Change hid_input_report() call inside the hid_ctrl() after Jiri Slaby's advice. This 
+> converts kmalloc() call into kmalloc(.,GFP_ATOMIC).
+> 
+> The lockdep trace is:
+> 
+> WARNING: at kernel/lockdep.c:2457 lockdep_trace_alloc+0xca/0xd0()
+> Hardware name: Product Name
+> Modules linked in: usbhid(+) hid uhci_hcd ne2k_pci via_agp 8390 i2c_via
+> Pid: 0, comm: swapper Not tainted 2.6.31 #74
+> Call Trace:
+>  [<c0243b8a>] ? lockdep_trace_alloc+0xca/0xd0
+>  [<c0221d1c>] warn_slowpath_common+0x7c/0xa0
+>  [<c0243b8a>] ? lockdep_trace_alloc+0xca/0xd0
+>  [<c0221d55>] warn_slowpath_null+0x15/0x20
+>  [<c0243b8a>] lockdep_trace_alloc+0xca/0xd0
+>  [<c027d2c8>] kmem_cache_alloc+0x28/0x100
+>  [<cc9359ef>] ? hid_input_report+0x6f/0x220 [hid]
+>  [<cc9359ef>] hid_input_report+0x6f/0x220 [hid]
+>  [<cc94cabf>] hid_ctrl+0x7f/0x180 [usbhid]
+>  [<c03b28b1>] usb_hcd_giveback_urb+0x41/0xa0
+>  [<cc91a3fc>] uhci_giveback_urb+0x8c/0x280 [uhci_hcd]
+>  [<c0279853>] ? dma_pool_free+0xd3/0x120
+>  [<cc919848>] ? uhci_free_td+0x58/0xa0 [uhci_hcd]
+>  [<cc91ac01>] uhci_scan_schedule+0x301/0x910 [uhci_hcd]
+>  [<cc91cac4>] uhci_irq+0x94/0x940 [uhci_hcd]
+>  [<c0245c43>] ? __lock_acquire+0x433/0xab0
+>  [<c0206246>] ? mask_and_ack_8259A+0x66/0x100
+>  [<c03b494b>] usb_hcd_irq+0x6b/0x90
+>  [<c0255e7d>] handle_IRQ_event+0x2d/0xc0
+>  [<c0257e85>] handle_level_irq+0x65/0xe0
+>  [<c0204c74>] handle_irq+0x34/0x60
+>  [<c0204bc9>] do_IRQ+0x39/0xb0
+>  [<c024365c>] ? trace_hardirqs_on_caller+0x12c/0x180
+>  [<c020328e>] common_interrupt+0x2e/0x40
+>  [<c0208d48>] ? default_idle+0x38/0x50
+>  [<c02108df>] apm_cpu_idle+0x10f/0x290
+>  [<c0201b11>] cpu_idle+0x21/0x40
+>  [<c045892d>] rest_init+0x4d/0x60
+>  [<c0575815>] start_kernel+0x235/0x280
+>  [<c05751f0>] ? unknown_bootoption+0x0/0x210
+>  [<c057503f>] __init_begin+0x3f/0x50
+> 
 
-Even so, the rows, cols approach is more readable IMO.
+In my 2.6.31 tree, kernel/lockdep.c:2457 is in the middle of a #define
+and the changelog is missing lots of info so I have no hope of
+understanding what's going on here.
 
-Kevin
 
+> ---
+> This lockdep is in the current git tree.
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 1b0e07a..ab2869d 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -455,7 +455,7 @@ static void hid_ctrl(struct urb *urb)
+>  		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_IN)
+>  			hid_input_report(urb->context,
+>  				usbhid->ctrl[usbhid->ctrltail].report->type,
+> -				urb->transfer_buffer, urb->actual_length, 0);
+> +				urb->transfer_buffer, urb->actual_length, 1);
+>  		break;
+>  	case -ESHUTDOWN:	/* unplug */
+>  		unplug = 1;
+
+um, OK, we're clearly inside spinlock here.
+
+<starts chasing through the HID code>
+
+Why does hid_input_field() use hard-coded GFP_ATOMIC even when
+interrupt=0?
+
+OK, I got down to
+
+	if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt && hid->hiddev_hid_event)
+		hid->hiddev_hid_event(hid, field, usage, value);
+
+in hid_process_event() and gave up.  I can't actually find anywhere
+where the `interrupt' arg to hid_input_report() would cause that code
+to do something non-atomic when interrupt==0.  The code all seems a bit
+smelly.
+
+I don't understand this patch.  Can we have a better changelog please?

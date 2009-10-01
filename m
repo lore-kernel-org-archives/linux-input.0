@@ -1,43 +1,46 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: [PATCH] rotary_encoder: fix relative axis support
-Date: Wed, 30 Sep 2009 20:33:26 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901D42CBE@mi8nycmail19.Mi8.com>
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 05/34] move grover_remove to .devexit.text
+Date: Thu,  1 Oct 2009 10:28:09 +0200
+Message-ID: <1254385718-14254-5-git-send-email-u.kleine-koenig@pengutronix.de>
+References: <20091001082607.GA2181@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og104.obsmtp.com ([64.18.1.187]:56434 "HELO
-	exprod6og104.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755210AbZJAAka convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Sep 2009 20:40:30 -0400
-Content-class: urn:content-classes:message
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932169AbZJAI26@vger.kernel.org>
+In-Reply-To: <20091001082607.GA2181@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dtor@mail.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Daniel Mack <daniel@caiaq.de>
 
-When the rotart_encoder driver is used to report relative axis
-information the "steps" in the platform data could be missing
-since it's not relevant.
+The function grover_remove is used only wrapped by __devexit_p so defin=
+e
+it using __devexit.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Daniel Mack <daniel@caiaq.de>
-
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 ---
+ drivers/input/misc/sparcspkr.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index c806fbf..3b9f588 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -106,8 +106,8 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
- 	struct input_dev *input;
- 	int err;
- 
--	if (!pdata || !pdata->steps) {
--		dev_err(&pdev->dev, "invalid platform data\n");
-+	if (!pdata) {
-+		dev_err(&pdev->dev, "missing platform data\n");
- 		return -ENOENT;
- 	}
-  
+diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcs=
+pkr.c
+index 5399dd2..b064419 100644
+--- a/drivers/input/misc/sparcspkr.c
++++ b/drivers/input/misc/sparcspkr.c
+@@ -308,7 +308,7 @@ out_err:
+ 	return err;
+ }
+=20
+-static int grover_remove(struct of_device *op)
++static int __devexit grover_remove(struct of_device *op)
+ {
+ 	struct sparcspkr_state *state =3D dev_get_drvdata(&op->dev);
+ 	struct grover_beep_info *info =3D &state->u.grover;
+--=20
+1.6.4.3

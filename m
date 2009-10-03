@@ -1,40 +1,44 @@
 From: xiangfu liu <xiangfu.z@gmail.com>
-Subject: (unknown)
-Date: Sat, 3 Oct 2009 23:02:27 +0800
-Message-ID: <bc65a8d50910030802l12197538u774d707c33d9ceac@mail.gmail.com>
+Subject: how to make KEY_POWER work in terminal system
+Date: Sat, 3 Oct 2009 23:13:39 +0800
+Message-ID: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=00163616403d4064390475092bb5
+Content-Type: multipart/mixed; boundary=0016e64608544a9efd047509533f
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f176.google.com ([209.85.211.176]:63204 "EHLO
-	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751163AbZJCPDF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2009 11:03:05 -0400
-Received: by ywh6 with SMTP id 6so1309584ywh.4
-        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2009 08:02:27 -0700 (PDT)
-Subject: 
+Received: from mail-gx0-f212.google.com ([209.85.217.212]:47053 "EHLO
+	mail-gx0-f212.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755965AbZJCPOR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2009 11:14:17 -0400
+Received: by gxk4 with SMTP id 4so2449840gxk.8
+        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2009 08:13:39 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: xiangfu@qi-hardware.com
 
---00163616403d4064390475092bb5
+--0016e64608544a9efd047509533f
 Content-Type: text/plain; charset=ISO-8859-1
 
-Hi
+sorry forget the subject. send again
 
-I try to write gpio-keys driver a POWER button. attach is the patch.
-but when I press or hold the button. the system not poweroff. do nothing.
+On 10/3/09, xiangfu liu <xiangfu.z@gmail.com> wrote:
+> Hi
+>
+> I try to write gpio-keys driver a POWER button. attach is the patch.
+> but when I press or hold the button. the system not poweroff. do nothing.
+>
+> I have change the KEY_POWER to KEY_A. then I press the button again.
+> the terminal ouptu 'a' , it works. but why KEY_POWER?
+>
+> give me some tips
+>
+> thanks for help
+>
+> Best Regards
+> Xiangfu
+>
 
-I have change the KEY_POWER to KEY_A. then I press the button again.
-the terminal ouptu 'a' , it works. but why KEY_POWER?
-
-give me some tips
-
-thanks for help
-
-Best Regards
-Xiangfu
-
---00163616403d4064390475092bb5
+--0016e64608544a9efd047509533f
 Content-Type: text/x-diff; charset=US-ASCII; name="power-button.patch"
 Content-Disposition: attachment; filename="power-button.patch"
 Content-Transfer-Encoding: base64
@@ -80,4 +84,4 @@ ZSwKQEAgLTUwNiw2ICs1MzIsNyBAQCBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSAqanpf
 cGxhdGZvcm1fZGV2aWNlc1tdIF9faW5pdGRhdGEgPSB7CiAJJmp6X2NvZGVjX2RldmljZSwKIAkm
 anpfcnRjX2RldmljZSwKIAkmYmF0dF9ncGlvX2RldmljZSwKKwkmcWlfbGI2MF9ncGlvX2tleXMs
 CiB9OwogCiBzdGF0aWMgaW50IF9faW5pdCBqel9wbGF0Zm9ybV9pbml0KHZvaWQpCg==
---00163616403d4064390475092bb5--
+--0016e64608544a9efd047509533f--

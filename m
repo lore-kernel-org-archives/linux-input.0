@@ -1,54 +1,83 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] cmpc_acpi: Added support for Classmate PC ACPI devices.
-Date: Thu, 1 Oct 2009 09:38:57 -0700
-Message-ID: <20091001163857.GB22320@core.coreip.homeip.net>
-References: <1254188280-29155-1-git-send-email-cascardo@holoscopio.com> <9b2b86520909290220g6b5f6beal6337b17f1bdd339@mail.gmail.com> <20090929141618.GD18847@vespa.holoscopio.com> <9b2b86520909290941g6295ba36i907dfda62b968529@mail.gmail.com>
+From: xiangfu liu <xiangfu.z@gmail.com>
+Subject: (unknown)
+Date: Sat, 3 Oct 2009 23:02:27 +0800
+Message-ID: <bc65a8d50910030802l12197538u774d707c33d9ceac@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9b2b86520909290941g6295ba36i907dfda62b968529@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Alan Jenkins <sourcejedi.lkml@googlemail.com>
-Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-kernel@vger.kernel.org, len.brown@intel.com, don@syst.com.br, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: multipart/mixed; boundary=00163616403d4064390475092bb5
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f176.google.com ([209.85.211.176]:63204 "EHLO
+	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751163AbZJCPDF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2009 11:03:05 -0400
+Received: by ywh6 with SMTP id 6so1309584ywh.4
+        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2009 08:02:27 -0700 (PDT)
+Subject: 
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, Sep 29, 2009 at 05:41:42PM +0100, Alan Jenkins wrote:
-> On 9/29/09, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com> wrote:
-> 
-> >> > +static void cmpc_tablet_idev_init(struct input_dev *inputdev)
-> >> > +{
-> >> > +	set_bit(EV_SW, inputdev->evbit);
-> >> > +	set_bit(SW_TABLET_MODE, inputdev->swbit);
-> >>
-> >> Don't you need to initialize the switch value here?
-> >>
-> >
-> > No, input_allocate_device does kzalloc. Otherwise, this would apply to
-> > the other bitmaps as well.
-> 
-> The other bitmaps aren't for switches though.  Here's what prompted
-> this comment - a snippet from the old (2.6.29) version of
-> Documentation/rfkill.txt:
-> 
-> "2. Input device switches (sources of EV_SW events) DO store their current state
-> (so you *must* initialize it by issuing a gratuitous input layer event on
-> driver start-up and also when resuming from sleep), and that state CAN be
-> queried from userspace through IOCTLs."
-> 
+--00163616403d4064390475092bb5
+Content-Type: text/plain; charset=ISO-8859-1
 
-There is a mixup betweeb capabilieies and state bitmasks. In init you
-set up the capabilitis bits and you don't need to clear bitmaps. This is
-true for everything - keys/buttons, switches, relatixe/absolute axis,
-everything.
+Hi
 
-Now switches do naturally have a certain state. Unlke keys (which are
-assumed to be normally in released state) switch can be on or off. So
-the driver has (if it can) query the switch state (hardware state) and
-issue appropriate input_event() to bring internal state of the device in
-sync with the state of the hardware. The same on resume - the switch may
-be altered while the box was asleep to upon resume we need to do the
-same.
+I try to write gpio-keys driver a POWER button. attach is the patch.
+but when I press or hold the button. the system not poweroff. do nothing.
 
--- 
-Dmitry
+I have change the KEY_POWER to KEY_A. then I press the button again.
+the terminal ouptu 'a' , it works. but why KEY_POWER?
+
+give me some tips
+
+thanks for help
+
+Best Regards
+Xiangfu
+
+--00163616403d4064390475092bb5
+Content-Type: text/x-diff; charset=US-ASCII; name="power-button.patch"
+Content-Disposition: attachment; filename="power-button.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: file0
+
+ZGlmZiAtLWdpdCBhL2FyY2gvbWlwcy9pbmNsdWRlL2FzbS9tYWNoLWp6NDc0MC9ib2FyZC1xaV9s
+YjYwLmggYi9hcmNoL21pcHMvaW5jbHVkZS9hc20vbWFjaC1qejQ3NDAvYm9hcmQtcWlfbGI2MC5o
+CmluZGV4IDJjMzI2MGYuLmFhNDYxYmQgMTAwNjQ0Ci0tLSBhL2FyY2gvbWlwcy9pbmNsdWRlL2Fz
+bS9tYWNoLWp6NDc0MC9ib2FyZC1xaV9sYjYwLmgKKysrIGIvYXJjaC9taXBzL2luY2x1ZGUvYXNt
+L21hY2gtano0NzQwL2JvYXJkLXFpX2xiNjAuaApAQCAtMzUsNiArMzUsNyBAQAogI2RlZmluZSBH
+UElPX0xDRF9DUyAgICAgICAgICAgICBKWl9HUElPX1BPUlRDKDIxKQogI2RlZmluZSBHUElPX0RJ
+U1BfT0ZGX04gICAgICAgICBKWl9HUElPX1BPUlREKDIxKQogI2RlZmluZSBHUElPX1BXTSAgICAg
+ICAgICAgICAgICBKWl9HUElPX1BPUlREKDI3KQorI2RlZmluZSBHUElPX1dBS0VVUF9OICAgICAg
+ICAgICBKWl9HUElPX1BPUlREKDI5KQogCiAjZGVmaW5lIEdQSU9fQU1QX0VOICAgICAgICAgICAg
+IEpaX0dQSU9fUE9SVEQoNCkKIApkaWZmIC0tZ2l0IGEvYXJjaC9taXBzL2p6NDc0MC9ib2FyZC1x
+aV9sYjYwLmMgYi9hcmNoL21pcHMvano0NzQwL2JvYXJkLXFpX2xiNjAuYwppbmRleCAxMjdmYWQ4
+Li5jNmVmNjBjIDEwMDY0NAotLS0gYS9hcmNoL21pcHMvano0NzQwL2JvYXJkLXFpX2xiNjAuYwor
+KysgYi9hcmNoL21pcHMvano0NzQwL2JvYXJkLXFpX2xiNjAuYwpAQCAtOTcsNiArOTcsNyBAQCBz
+dGF0aWMgdm9pZCBfX2luaXQgYm9hcmRfZ3Bpb19zZXR1cCh2b2lkKQogCiAJX19ncGlvX2FzX2lu
+cHV0KEdQSU9fRENfREVURV9OKTsKIAlfX2dwaW9fYXNfaW5wdXQoR1BJT19DSEFSR19TVEFUX04p
+OworCV9fZ3Bpb19hc19pbnB1dChHUElPX1dBS0VVUF9OKTsKIH0KIAogdm9pZCBfX2luaXQganpf
+Ym9hcmRfc2V0dXAodm9pZCkKZGlmZiAtLWdpdCBhL2FyY2gvbWlwcy9qejQ3NDAvcGxhdGZvcm0u
+YyBiL2FyY2gvbWlwcy9qejQ3NDAvcGxhdGZvcm0uYwppbmRleCBkYzdhODMyLi4xNmEwMDA4IDEw
+MDY0NAotLS0gYS9hcmNoL21pcHMvano0NzQwL3BsYXRmb3JtLmMKKysrIGIvYXJjaC9taXBzL2p6
+NDc0MC9wbGF0Zm9ybS5jCkBAIC0yMSw2ICsyMSw4IEBACiAjaW5jbHVkZSA8bGludXgvc3BpL3Nw
+aV9ncGlvLmg+CiAjaW5jbHVkZSA8bGludXgvcG93ZXJfc3VwcGx5Lmg+CiAjaW5jbHVkZSA8bGlu
+dXgvano0NzQwX2JhdHQuaD4KKyNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgorI2luY2x1ZGUgPGxp
+bnV4L2dwaW9fa2V5cy5oPgogCiAjaW5jbHVkZSA8YXNtL2p6c29jLmg+CiAjaW5jbHVkZSA8YXNt
+L2dwaW8uaD4KQEAgLTQ5Miw2ICs0OTQsMzAgQEAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZp
+Y2UgYmF0dF9ncGlvX2RldmljZSA9IHsKIAl9LAogfTsKIAorLyogR1BJTyBLZXk6IHBvd2VyICov
+CitzdGF0aWMgY29uc3Qgc3RydWN0IGdwaW9fa2V5c19idXR0b24gcWlfbGI2MF9ncGlvX2tleXNf
+YnV0dG9uc1tdID0geworCVswXSA9IHsKKwkJLmNvZGUJCT0gS0VZX1BPV0VSLAorCQkuZ3BpbwkJ
+PSBHUElPX1dBS0VVUF9OLAorCQkuYWN0aXZlX2xvdwk9IDEsCisJCS5kZXNjCQk9ICJwb3dlciBi
+dXR0b24iLAorCX0sCit9OworCitzdGF0aWMgY29uc3Qgc3RydWN0IGdwaW9fa2V5c19wbGF0Zm9y
+bV9kYXRhIHFpX2xiNjBfZ3Bpb19rZXlzX2RhdGEgPSB7CisJLm5idXR0b25zID0JQVJSQVlfU0la
+RShxaV9sYjYwX2dwaW9fa2V5c19idXR0b25zKSwKKwkuYnV0dG9ucyA9CXFpX2xiNjBfZ3Bpb19r
+ZXlzX2J1dHRvbnMsCit9OworCitzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSBxaV9sYjYw
+X2dwaW9fa2V5cyA9IHsKKwkubmFtZSA9CSJncGlvLWtleXMiLAorCS5pZCA9CQktMSwKKwkuZGV2
+ID0geworCQkucGxhdGZvcm1fZGF0YSA9ICh2b2lkICopICZxaV9sYjYwX2dwaW9fa2V5c19kYXRh
+LAorCX0KK307CisKKwogLyogQWxsICovCiBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSAq
+anpfcGxhdGZvcm1fZGV2aWNlc1tdIF9faW5pdGRhdGEgPSB7CiAJJmp6X3VzYl9vaGNpX2Rldmlj
+ZSwKQEAgLTUwNiw2ICs1MzIsNyBAQCBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSAqanpf
+cGxhdGZvcm1fZGV2aWNlc1tdIF9faW5pdGRhdGEgPSB7CiAJJmp6X2NvZGVjX2RldmljZSwKIAkm
+anpfcnRjX2RldmljZSwKIAkmYmF0dF9ncGlvX2RldmljZSwKKwkmcWlfbGI2MF9ncGlvX2tleXMs
+CiB9OwogCiBzdGF0aWMgaW50IF9faW5pdCBqel9wbGF0Zm9ybV9pbml0KHZvaWQpCg==
+--00163616403d4064390475092bb5--

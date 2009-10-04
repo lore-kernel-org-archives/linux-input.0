@@ -1,66 +1,58 @@
-From: xiangfu liu <xiangfu.z@gmail.com>
-Subject: Re: how to make KEY_POWER work in terminal system
-Date: Sun, 4 Oct 2009 00:42:07 +0800
-Message-ID: <bc65a8d50910030942hecf96b2hc06ff18f786a1cc@mail.gmail.com>
-References: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com>
+From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] Input: ad7879: pass up error codes
+	from probe functions
+Date: Sun,  4 Oct 2009 01:22:05 -0400
+Message-ID: <1254633725-20479-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f199.google.com ([209.85.210.199]:48019 "EHLO
-	mail-yx0-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751746AbZJCQmq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Oct 2009 12:42:46 -0400
-Received: by yxe37 with SMTP id 37so1965635yxe.33
-        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2009 09:42:09 -0700 (PDT)
-In-Reply-To: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-kernel message:
-[    1.240000] input: gpio-keys as /devices/platform/gpio-keys/input/input0
-[    1.250000] input: matrix-keypad as /devices/platform/matrix-keypad/input/in1
+From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-no /dev/event/inputX device
-but there is
-/sys/devices/platform/gpio-keys/input/input0
-the uevent is :
-PRODUCT=19/1/1/100
-NAME="gpio-keys"
-PHYS="gpio-keys/input0"
-EV==3
-KEY==100000 0 0 0
-MODALIAS=input:b0019v0001p0001e0100-e0,1,k74,ramlsfw
+If the sub-probe functions fail, we need to pass up the error code to the
+higher levels from the probe function.  We currently always return 0 even
+if there was an error so higher levels don't report problems.
 
-from /proc/interrupts
-181:         87     GPIO Bank D  Power
+Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+---
+ drivers/input/touchscreen/ad7879.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-when I press the button nothing happen. device not poweroff.
-
-we have a metrix-keypad in out device. all keys work find.
-so I try to map the "F1" to KEY_POWER. then I press the "F1" device not pwoeroff
-
-On 10/3/09, xiangfu liu <xiangfu.z@gmail.com> wrote:
-> sorry forget the subject. send again
->
-> On 10/3/09, xiangfu liu <xiangfu.z@gmail.com> wrote:
->> Hi
->>
->> I try to write gpio-keys driver a POWER button. attach is the patch.
->> but when I press or hold the button. the system not poweroff. do nothing.
->>
->> I have change the KEY_POWER to KEY_A. then I press the button again.
->> the terminal ouptu 'a' , it works. but why KEY_POWER?
->>
->> give me some tips
->>
->> thanks for help
->>
->> Best Regards
->> Xiangfu
->>
->
-
-
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index f06332c..c21e6d3 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -645,7 +645,7 @@ static int __devinit ad7879_probe(struct spi_device *spi)
+ 		kfree(ts);
+ 	}
+ 
+-	return 0;
++	return error;
+ }
+ 
+ static int __devexit ad7879_remove(struct spi_device *spi)
+@@ -732,7 +732,7 @@ static int __devinit ad7879_probe(struct i2c_client *client,
+ 		kfree(ts);
+ 	}
+ 
+-	return 0;
++	return error;
+ }
+ 
+ static int __devexit ad7879_remove(struct i2c_client *client)
 -- 
-Blog: http://www.openmobilefree.net
+1.6.5.rc2

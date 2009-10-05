@@ -1,30 +1,77 @@
-From: Pavel Revak <palo@bielyvlk.sk>
-Subject: ucb1400 and mouse emulation
-Date: Mon, 5 Oct 2009 14:34:09 +0200
-Message-ID: <b0ba3e300910050534o75668f63y3ee0bd4c1c713fd8@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] Input: DaVinci Key Scan Driver
+Date: Mon, 5 Oct 2009 10:54:28 -0700
+Message-ID: <20091005175428.GB18588@core.coreip.homeip.net>
+References: <1253811202-21407-1-git-send-email-miguel.aguilar@ridgerun.com> <B85A65D85D7EB246BE421B3FB0FBB59301DDAB3271@dbde02.ent.ti.com> <4ABCD1E8.5000200@ridgerun.com> <B85A65D85D7EB246BE421B3FB0FBB59301DDAB36C3@dbde02.ent.ti.com> <0554BEF07D437848AF01B9C9B5F0BC5D92C8EBC0@dlee01.ent.ti.com> <4ABCD78B.5050605@ridgerun.com> <20090928170231.GD21455@core.coreip.homeip.net> <0554BEF07D437848AF01B9C9B5F0BC5D92D13959@dlee01.ent.ti.com> <87iqf1v3zb.fsf@deeprootsystems.com> <4AC35FC8.9010108@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f212.google.com ([209.85.217.212]:49236 "EHLO
-	mail-gx0-f212.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753746AbZJEMfW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2009 08:35:22 -0400
-Received: by gxk4 with SMTP id 4so3741283gxk.8
-        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2009 05:34:10 -0700 (PDT)
+Received: from mail-fx0-f227.google.com ([209.85.220.227]:64117 "EHLO
+	mail-fx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754243AbZJERzT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Oct 2009 13:55:19 -0400
+Received: by fxm27 with SMTP id 27so3072215fxm.17
+        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2009 10:54:41 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4AC35FC8.9010108@ridgerun.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Cc: Kevin Hilman <khilman@deeprootsystems.com>, "Paulraj, Sandeep" <s-paulraj@ti.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
 
-Hello, I upgraded to new kernel 2.6.31 (from 2.6.29) and I use
-touchscreen with ucb1400 through library "tslib" which has own
-calibration. from 2.6.30+ kernels this touchscreen emulate a mouse
-(with out tslib) but is uncalibrated. My application use SDL with
-framebuffer (no X server) and read mouse and touchscreen
-simultaneously. But now it is unusable whne I use touchscreen, because
-I read now touch screen as generic mouse (uncalibrated) and as tslib
-(calibrated) at same time . Exist any way to calibrate touchscreen
-without X server or tslib for sdl applications (this is preferred to
-me) ? or can I disable mouse emulation from touchscreen and use only
-tslib for sdl apps ?
+On Wed, Sep 30, 2009 at 07:40:24AM -0600, Miguel Aguilar wrote:
+> Kevin Hilman wrote:
+>> "Paulraj, Sandeep" <s-paulraj@ti.com> writes:
+>>
+>>>> On Fri, Sep 25, 2009 at 08:45:31AM -0600, Miguel Aguilar wrote:
+>>>>>>>>>> +     /* Enable Keyscan module and enable */
+>>>>>>>>>> +     davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET |
+>>>>>>> DAVINCI_KEYSCAN_KEYEN,
+>>>>>>>>>> +                     DAVINCI_KEYSCAN_KEYCTRL);
+>>>>>>>>> We seem to be hardcoded to the 4x4 matrix type here.
+>>>>>>>>> Some DM365 boards could use 5x3 matrix.
+>>>>>>>>>
+>>>>>>>>> Thanks,
+>>>>>>>>> Sekhar
+>>>>>>>>>
+>>>>>>>> [MA] I will add a platform option for matrix type to choose 4x4 or
+>>>> 5x3
+>>>>>>> matrix.
+>>>>>>>> What do think about this?
+>>>>>>>>
+>>>>>>> Sounds good. I am not sure if any other piece of code
+>>>>>>> needs to change though.
+>>>>>> The strobe and interval have to change.  Afcourse that change comes
+>>>> into the picture only when the mode is changed from 4x4 to 5x3.
+>>>>>> I can see that there are options given for this in board specific code.
+>>>>>>> Thanks,
+>>>>>>> Sekhar
+>>>>>> Thanks,
+>>>>>> Sandeep
+>>>>>>
+>>>>> struct davinci_ks_platform_data {
+>>>>> 	unsigned short	*keymap;
+>>>>> 	u32		keymapsize;
+>>>>> 	u32		rep:1;
+>>>>> 	u32		strobe;
+>>>>> 	u32		interval;
+>>>>> +	u32		matrix_type;
+>>>>> };
+>>>>>
+>>>>> I will add something like this, so from the board specific code you can
+>>>>> define strobe, interval and matrix type.
+>>>> Make it enum at least. BTW, is it possible to add u8 rows, cols instead
+>>>> and be able to handle more matrix variations?
+>>> The IP can handle only 4x4 or 5x3.
+>>>
+>>
+>> Even so, the rows, cols approach is more readable IMO.
+>>
+> The key sacan mode is set just by one bit 4X4 or 5X3, Is it really 
+> necessary use rows and cols in this case?
 
-Thanks, Palo.
+No, if the hardware only has 2 modes (switchable by a single bit or
+something like that) then an enum is more clear IMO.
+
+-- 
+Dmitry

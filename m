@@ -1,58 +1,53 @@
-From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] Input: ad7879: pass up error codes
-	from probe functions
-Date: Sun,  4 Oct 2009 01:22:05 -0400
-Message-ID: <1254633725-20479-1-git-send-email-vapier@gentoo.org>
+From: Anssi Hannula <anssi.hannula@iki.fi>
+Subject: [patch] xpad: add BigBen Interactive XBOX 360 Controller
+Date: Mon, 05 Oct 2009 12:12:03 +0300
+Message-ID: <4AC9B863.6000100@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mta-out.inet.fi ([195.156.147.13]:54193 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932318AbZJEJMq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Oct 2009 05:12:46 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux input list <linux-input@vger.kernel.org>, Thomas Gruber <kerneldev@tuxpower.org>
 
-From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: Thomas Gruber <kerneldev@tuxpower.org>
 
-If the sub-probe functions fail, we need to pass up the error code to the
-higher levels from the probe function.  We currently always return 0 even
-if there was an error so higher levels don't report problems.
+Add BigBen Interactive XBOX 360 Controller (146b:0601) to xpad driver.
 
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Thomas Gruber <kerneldev@tuxpower.org>
+Signed-off-by: Anssi Hannula <anssi.hannula@iki.fi>
+
 ---
- drivers/input/touchscreen/ad7879.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/joystick/xpad.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index f06332c..c21e6d3 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -645,7 +645,7 @@ static int __devinit ad7879_probe(struct spi_device *spi)
- 		kfree(ts);
- 	}
- 
--	return 0;
-+	return error;
- }
- 
- static int __devexit ad7879_remove(struct spi_device *spi)
-@@ -732,7 +732,7 @@ static int __devinit ad7879_probe(struct i2c_client *client,
- 		kfree(ts);
- 	}
- 
--	return 0;
-+	return error;
- }
- 
- static int __devexit ad7879_remove(struct i2c_client *client)
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 2388cf5..79e3edc 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -143,6 +143,7 @@ static const struct xpad_device {
+ 	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
++	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+ 	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+@@ -209,6 +210,7 @@ static struct usb_device_id xpad_table [] = {
+ 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
++	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1bad),		/* Rock Band Drums */
+ 	{ }
+ };
+
+
 -- 
-1.6.5.rc2
+Anssi Hannula
+

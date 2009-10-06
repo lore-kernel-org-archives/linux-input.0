@@ -1,39 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: ad7879: pass up error codes
-	from probe functions
-Date: Mon, 5 Oct 2009 22:06:16 -0700
-Message-ID: <20091006050616.GD27881@core.coreip.homeip.net>
-References: <1254633725-20479-1-git-send-email-vapier@gentoo.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
+	matrix-keypad related?
+Date: Mon, 5 Oct 2009 22:06:50 -0700
+Message-ID: <20091006050649.GH27881@core.coreip.homeip.net>
+References: <20090930200746.GA1384@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1254633725-20479-1-git-send-email-vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20090930200746.GA1384@ucw.cz>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: thommycheck@gmail.com, dbaryshkov@gmail.com, Cyril Hrubis <metan@ucw.cz>, arminlitzel@web.de, kernel list <linux-kernel@vger.kernel.org>, Dirk@Opfer-Online.de, utx@penguin.cz, lenz@cs.wisc.edu, rpurdie@rpsys.net, omegamoon@gmail.com, linux-input@vger.kernel.org, eric.y.miao@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Oct 04, 2009 at 01:22:05AM -0400, Mike Frysinger wrote:
-> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> 
-> If the sub-probe functions fail, we need to pass up the error code to the
-> higher levels from the probe function.  We currently always return 0 even
-> if there was an error so higher levels don't report problems.
-> 
-> Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Hi Pavel,
 
-Applied, thannk you Michael.
+On Wed, Sep 30, 2009 at 10:07:46PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> It complains about unbalanced irq 113 wake disable. That one belongs
+> to matrix-keypad...
+
+I guess some of enable_irq_wake()s fail on your box. Do you see it if
+you apply the patch below?
+
+Thanks.
 
 -- 
 Dmitry
+
+
+Input: matrix-keypad - report errors from enable_irq_wake()
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/keyboard/matrix_keypad.c |   21 ++++++++++++++++++---
+ 1 files changed, 18 insertions(+), 3 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index 91cfe51..488171c 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -218,14 +218,29 @@ static int matrix_keypad_suspend(struct platform_device *pdev, pm_message_t stat
+ 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+ 	int i;
++	int err;
+ 
+ 	matrix_keypad_stop(keypad->input_dev);
+ 
+-	if (device_may_wakeup(&pdev->dev))
+-		for (i = 0; i < pdata->num_row_gpios; i++)
+-			enable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
++	if (device_may_wakeup(&pdev->dev)) {
++		for (i = 0; i < pdata->num_row_gpios; i++) {
++			err = enable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
++			if (err) {
++				dev_err(&pdev->dev,
++					"Failed to setup GPIO %d as "
++					"wakeup source, err: %d\n",
++					pdata->row_gpios[i], err);
++				goto err_out;
++			}
++		}
++	}
+ 
+ 	return 0;
++
++ err_out:
++	while (--i >= 0)
++		disable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
++	return err;
+ }
+ 
+ static int matrix_keypad_resume(struct platform_device *pdev)

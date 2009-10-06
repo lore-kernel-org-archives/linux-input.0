@@ -1,52 +1,47 @@
-From: Pavel Revak <palo@bielyvlk.sk>
-Subject: Re: ucb1400 and mouse emulation
-Date: Tue, 6 Oct 2009 15:41:17 +0200
-Message-ID: <b0ba3e300910060641x47c9d24as97d1b7e3c293a6d8@mail.gmail.com>
-References: <b0ba3e300910050534o75668f63y3ee0bd4c1c713fd8@mail.gmail.com>
-	 <20091006050624.GE27881@core.coreip.homeip.net>
+From: Peter Urbanec <vger.kernel.org.input@urbanec.net>
+Subject: Issues detecting i8042 AUX port
+Date: Wed, 07 Oct 2009 01:24:58 +1100
+Message-ID: <4ACB533A.7080001@urbanec.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f173.google.com ([209.85.211.173]:34553 "EHLO
-	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757394AbZJFNsT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Oct 2009 09:48:19 -0400
-Received: by ywh3 with SMTP id 3so3959947ywh.22
-        for <linux-input@vger.kernel.org>; Tue, 06 Oct 2009 06:47:42 -0700 (PDT)
-In-Reply-To: <20091006050624.GE27881@core.coreip.homeip.net>
+Received: from pecan2.exetel.com.au ([220.233.0.70]:52474 "EHLO
+	pecan2.exetel.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932763AbZJFOpT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Oct 2009 10:45:19 -0400
+Received: from 243.118.70.115.static.exetel.com.au ([115.70.118.243] helo=gw.urbanec.net)
+	by pecan2.exetel.com.au with esmtp (Exim 4.68)
+	(envelope-from <vger.kernel.org.input@urbanec.net>)
+	id 1MvAyI-0003hQ-LS
+	for linux-input@vger.kernel.org; Wed, 07 Oct 2009 01:24:58 +1100
+Received: from black.urbanec.net ([192.168.42.11])
+	by gw.urbanec.net with esmtpsa (TLS1.0:DHE_RSA_AES_256_CBC_SHA1:32)
+	(Exim 4.69)
+	(envelope-from <vger.kernel.org.input@urbanec.net>)
+	id 1MvAyI-0001IN-Fz
+	for linux-input@vger.kernel.org; Wed, 07 Oct 2009 01:24:58 +1100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, Oct 6, 2009 at 7:06 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> Hi Pavel
->
-> On Mon, Oct 05, 2009 at 02:34:09PM +0200, Pavel Revak wrote:
->> Hello, I upgraded to new kernel 2.6.31 (from 2.6.29) and I use
->> touchscreen with ucb1400 through library "tslib" which has own
->> calibration. from 2.6.30+ kernels this touchscreen emulate a mouse
->> (with out tslib) but is uncalibrated.
->
-> This should not have changed, mousedev emulation was there for ages.
+I have come across an issue that appears to be either timing sensitive
+or possibly a race condition when it comes to detecting i8042 AUX port.
 
-ah yes, but after this patch:
- http://article.gmane.org/gmane.linux.kernel.commits.head/191681
-mouse emulation works in my application.
+The full story is at http://bugs.gentoo.org/show_bug.cgi?id=287019
+including attachments that contain the results of dmesg output with
+i8042.debug turned on.
 
->> My application use SDL with
->> framebuffer (no X server) and read mouse and touchscreen
->> simultaneously. But now it is unusable whne I use touchscreen, because
->> I read now touch screen as generic mouse (uncalibrated) and as tslib
->> (calibrated) at same time . Exist any way to calibrate touchscreen
->> without X server or tslib for sdl applications (this is preferred to
->> me) ? or can I disable mouse emulation from touchscreen and use only
->> tslib for sdl apps ?
->>
->
-> The application has to decide what interface it wishes to use (mousedev
-> or evdev) and read from that interface only.
+In a nutshell, I can run the same kernel on the same hardware and on
+some boots the AUX port will not be detected and on other boots it will
+come up fine. So far the only suspicion I have is that the
+initialisation of USB ports and/or SATA disks may cause some kind of
+delay that interferes with the i8042 detection of the AUX port.
 
-OK, thanks
-Palo.
+It was suggested that I try adding my machine's DMI information to the
+noloop exception table. I do not believe that doing so makes much sense,
+since this is an intermittent problem, not an outright inability to
+raise the AUX IRQ.
+
+Any ideas?
+

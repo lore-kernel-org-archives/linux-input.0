@@ -1,37 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Touchscreen driver for the DTS413
-Date: Tue, 6 Oct 2009 21:36:13 -0700
-Message-ID: <20091007043613.GD10204@core.coreip.homeip.net>
-References: <a57e67db0909280023q7d352f22ge5b5343dc0c79c65@mail.gmail.com> <4AC1DAA4.4090508@simtec.co.uk> <a57e67db0909290500k52bcd1faj28903a22cd2c91a5@mail.gmail.com> <a57e67db0909290514r3097a97dtbb82e28a5176ac64@mail.gmail.com> <20091006050640.GG27881@core.coreip.homeip.net> <a57e67db0910060044g53ffd8a2s6db14c305bbf91df@mail.gmail.com>
+Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
+	matrix-keypad related?
+Date: Tue, 6 Oct 2009 21:36:04 -0700
+Message-ID: <20091007043603.GC10204@core.coreip.homeip.net>
+References: <20090930200746.GA1384@ucw.cz>
+	<20091006050649.GH27881@core.coreip.homeip.net>
+	<20091006075816.GA1362@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f217.google.com ([209.85.219.217]:55981 "EHLO
-	mail-ew0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751026AbZJGEgb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2009 00:36:31 -0400
-Received: by mail-ew0-f217.google.com with SMTP id 17so217414ewy.39
-        for <linux-input@vger.kernel.org>; Tue, 06 Oct 2009 21:36:19 -0700 (PDT)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <a57e67db0910060044g53ffd8a2s6db14c305bbf91df@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20091006075816.GA1362@ucw.cz>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, thommycheck@gmail.com, dbaryshkov@gmail.com, Cyril Hrubis <metan@ucw.cz>, arminlitzel@web.de, kernel list <linux-kernel@vger.kernel.org>, Dirk@Opfer-Online.de, utx@penguin.cz, lenz@cs.wisc.edu, rpurdie@rpsys.net, omegamoon@gmail.com, linux-input@vger.kernel.org, eric.y.miao@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
-To: Jernej Turnsek <jernej.turnsek@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Tue, Oct 06, 2009 at 09:44:03AM +0200, Jernej Turnsek wrote:
-> Hi,
+On Tue, Oct 06, 2009 at 09:58:17AM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> I would like to thank you for taking time to review DTS413 driver, but
-> I am a little bit confused here. Regarding the comments I just
-> followed a Ben Dooks suggestions, but I agree that internal functions
-> shouldn't be commented in kernel doc style. Other thing is
-> ABS_PRESSURE reporting. At first I thought that this is not
-> neccessary, but when using driver with the Kdrive tiny X server
-> (Xfbdev), it won't work. Xfbdev gives me Segmentation Fault.
+> On Mon 2009-10-05 22:06:50, Dmitry Torokhov wrote:
+> > On Wed, Sep 30, 2009 at 10:07:46PM +0200, Pavel Machek wrote:
+> > > 
+> > > It complains about unbalanced irq 113 wake disable. That one belongs
+> > > to matrix-keypad...
+> > 
+> > I guess some of enable_irq_wake()s fail on your box. Do you see it if
+> > you apply the patch below?
+> 
+> I'll do short test. But... if you are right, your patch will just make
+> your machine refuse to suspend... right?
+> 
+> Ungood.
 
-That would be the issue with Xfbdev. There are plentry of touchscreen
-driers in the kernel that do not report pressure.
+It was just a debug patch.
+
+> 
+> Actually, it seems to break suspend (returns  -EINVAL while refusing
+> to suspend), warnings are still there, and keyboard is dead after
+> failed suspend... double plus ungood.
+> 
+> Aha, so warning is solved: the one in the log is from gpio_buttons.
+> 
+
+OK, so it looks like your box refuses to set up one of the GPIOs as a
+wakeup source... Hmm, either your box is wrong ;) or matrix_keypad
+driver needs to maintain a separate list of wakeup GPIOs.
 
 -- 
 Dmitry

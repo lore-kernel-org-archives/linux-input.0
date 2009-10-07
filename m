@@ -1,49 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/6] Haptic: Add haptic maintainer
-Date: Wed, 7 Oct 2009 09:34:17 -0700
-Message-ID: <20091007163416.GB12053@core.coreip.homeip.net>
-References: <20091007061805.GA7592@july> <5d5443650910070006s1aae5fecmec9f6a24a2e272c5@mail.gmail.com>
+Subject: Re: [PATCH 2/6] Haptic: Documentation for haptic class
+Date: Wed, 7 Oct 2009 09:49:44 -0700
+Message-ID: <20091007164944.GC12053@core.coreip.homeip.net>
+References: <20091007061754.GA7588@july>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759574AbZJGQfF@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f227.google.com ([209.85.220.227]:43174 "EHLO
+	mail-fx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933571AbZJGQud (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2009 12:50:33 -0400
 Content-Disposition: inline
-In-Reply-To: <5d5443650910070006s1aae5fecmec9f6a24a2e272c5@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20091007061754.GA7588@july>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com
 
-On Wed, Oct 07, 2009 at 12:36:47PM +0530, Trilok Soni wrote:
-> On Wed, Oct 7, 2009 at 11:48 AM, Kyungmin Park
-> <kyungmin.park@samsung.com> wrote:
-> > Add me to haptic class maintainer
-> >
-> > Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> > ---
-> > =A0MAINTAINERS | =A0 =A07 +++++++
-> > =A01 files changed, 7 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 09a2028..906b603 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -2287,6 +2287,13 @@ F: =A0 =A0 =A0 Documentation/isdn/README.gig=
-aset
-> > =A0F: =A0 =A0 drivers/isdn/gigaset/
-> > =A0F: =A0 =A0 include/linux/gigaset_dev.h
-> >
-> > +HAPTIC SUBSYSTEM
-> > +M: =A0 =A0 Kyungmin Park <kyungmin.park@samsung.com>
-> > +L: =A0 =A0 linux-input@vger.kernel.org
->=20
-> Dmitry,
->=20
-> Are you OK if we use linux-input for haptics class patches? OR else w=
-e
-> will just use linux-kernel.
+On Wed, Oct 07, 2009 at 03:17:54PM +0900, Kyungmin Park wrote:
+> Describe the haptic class and how to use
+> 
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
+>  Documentation/haptic-class.txt |   20 ++++++++++++++++++++
+>  1 files changed, 20 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/haptic-class.txt
+> 
+> diff --git a/Documentation/haptic-class.txt b/Documentation/haptic-class.txt
+> new file mode 100644
+> index 0000000..6bee82a
+> --- /dev/null
+> +++ b/Documentation/haptic-class.txt
+> @@ -0,0 +1,20 @@
+> +
+> +Haptic handling under Linux
+> +========================
+> +
+> +In its simplest form, the haptic class just allows control of Haptics from
+> +userspace. Haptic appears in /sys/class/haptic/. The maximum level of the
+> +haptic is defined in max_level file.
+> +
+> +To use simple. it provides the oneshot mode. Give millisecond time to this
+> +property. It working at given time with pre-defined level.
+> +Of course, you can adjust the level by setting level property
 
-Sure, I don't have any issues with haptics using linux-input.
+"The interface is pretty simple - it provides oneshot mode where user
+can specify duration of the effect (in milliseconds) and desired level":
 
---=20
+> +
+> +# echo ${millisecond} > /sys/class/haptic/<device>/oneshot
+> +
+> +# echo ${level} > /sys/class/haptic/<device>/level
+> +
+> +Also you can enable/disable by setting enable property
+> +
+
+"You can also enable or disable haptics devices by manipulating 'enable'
+attribute:"
+
+> +# echo 1 > /sys/class/haptic/<device>/level	-> Enable
+					^^^^^^ enable
+> +# echo 0 > /sys/class/haptic/<device>/level	-> Disable
+					^^^^^^
+
+-- 
 Dmitry

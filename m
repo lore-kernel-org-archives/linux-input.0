@@ -1,17 +1,19 @@
-From: Eric Miao <eric.y.miao@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
 	matrix-keypad related?
-Date: Wed, 7 Oct 2009 22:42:08 +0800
-Message-ID: <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
+Date: Wed, 7 Oct 2009 09:33:28 -0700
+Message-ID: <20091007163327.GA12053@core.coreip.homeip.net>
 References: <20090930200746.GA1384@ucw.cz>
 	<20091006050649.GH27881@core.coreip.homeip.net>
 	<20091006075816.GA1362@ucw.cz>
 	<20091007043603.GC10204@core.coreip.homeip.net>
+	<f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20091007043603.GC10204@core.coreip.homeip.net>
+Content-Disposition: inline
+In-Reply-To: <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,36 +23,57 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: linux-arm-kernel-bounces@lists.infradead.org
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Eric Miao <eric.y.miao@gmail.com>
 Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, thommycheck@gmail.com, dbaryshkov@gmail.com, Cyril Hrubis <metan@ucw.cz>, arminlitzel@web.de, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, utx@penguin.cz, lenz@cs.wisc.edu, rpurdie@rpsys.net, omegamoon@gmail.com, Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gV2VkLCBPY3QgNywgMjAwOSBhdCAxMjozNiBQTSwgRG1pdHJ5IFRvcm9raG92CjxkbWl0cnku
-dG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToKPiBPbiBUdWUsIE9jdCAwNiwgMjAwOSBhdCAwOTo1
-ODoxN0FNICswMjAwLCBQYXZlbCBNYWNoZWsgd3JvdGU6Cj4+IEhpIQo+Pgo+PiBPbiBNb24gMjAw
-OS0xMC0wNSAyMjowNjo1MCwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOgo+PiA+IE9uIFdlZCwgU2Vw
-IDMwLCAyMDA5IGF0IDEwOjA3OjQ2UE0gKzAyMDAsIFBhdmVsIE1hY2hlayB3cm90ZToKPj4gPiA+
-Cj4+ID4gPiBJdCBjb21wbGFpbnMgYWJvdXQgdW5iYWxhbmNlZCBpcnEgMTEzIHdha2UgZGlzYWJs
-ZS4gVGhhdCBvbmUgYmVsb25ncwo+PiA+ID4gdG8gbWF0cml4LWtleXBhZC4uLgo+PiA+Cj4+ID4g
-SSBndWVzcyBzb21lIG9mIGVuYWJsZV9pcnFfd2FrZSgpcyBmYWlsIG9uIHlvdXIgYm94LiBEbyB5
-b3Ugc2VlIGl0IGlmCj4+ID4geW91IGFwcGx5IHRoZSBwYXRjaCBiZWxvdz8KPj4KPj4gSSdsbCBk
-byBzaG9ydCB0ZXN0LiBCdXQuLi4gaWYgeW91IGFyZSByaWdodCwgeW91ciBwYXRjaCB3aWxsIGp1
-c3QgbWFrZQo+PiB5b3VyIG1hY2hpbmUgcmVmdXNlIHRvIHN1c3BlbmQuLi4gcmlnaHQ/Cj4+Cj4+
-IFVuZ29vZC4KPgo+IEl0IHdhcyBqdXN0IGEgZGVidWcgcGF0Y2guCj4KPj4KPj4gQWN0dWFsbHks
-IGl0IHNlZW1zIHRvIGJyZWFrIHN1c3BlbmQgKHJldHVybnMgwqAtRUlOVkFMIHdoaWxlIHJlZnVz
-aW5nCj4+IHRvIHN1c3BlbmQpLCB3YXJuaW5ncyBhcmUgc3RpbGwgdGhlcmUsIGFuZCBrZXlib2Fy
-ZCBpcyBkZWFkIGFmdGVyCj4+IGZhaWxlZCBzdXNwZW5kLi4uIGRvdWJsZSBwbHVzIHVuZ29vZC4K
-Pj4KPj4gQWhhLCBzbyB3YXJuaW5nIGlzIHNvbHZlZDogdGhlIG9uZSBpbiB0aGUgbG9nIGlzIGZy
-b20gZ3Bpb19idXR0b25zLgo+Pgo+Cj4gT0ssIHNvIGl0IGxvb2tzIGxpa2UgeW91ciBib3ggcmVm
-dXNlcyB0byBzZXQgdXAgb25lIG9mIHRoZSBHUElPcyBhcyBhCj4gd2FrZXVwIHNvdXJjZS4uLiBI
-bW0sIGVpdGhlciB5b3VyIGJveCBpcyB3cm9uZyA7KSBvciBtYXRyaXhfa2V5cGFkCj4gZHJpdmVy
-IG5lZWRzIHRvIG1haW50YWluIGEgc2VwYXJhdGUgbGlzdCBvZiB3YWtldXAgR1BJT3MuCj4KClRo
-aXMgaXMgZHVlIHRvIHRoZSBuYXR1cmUgb2YgUFhBIHByb2Nlc3Nvciwgd2hlcmUgbm90IGV2ZXJ5
-IEdQSU8gY2FuCmJlIGNvbmZpZ3VyZWQgYXMgYSB3YWtldXAgc291cmNlLiBNbW0uLi4uIHdlIGNh
-biBlaXRoZXIgcmV0dXJuIGEKcHNldWRvIHZhbHVlIGluZGljYXRpbmcgc2V0dGluZyB3YWtldXAg
-b24gdGhhdCBHUElPIGlzIE9LICh3aGljaApkb2Vzbid0IHNvdW5kIGxpa2UgYSBnb29kIGlkZWEp
-LCBvciB3ZSBjYW4ganVzdCBpZ25vcmUgdGhlIGZhaWx1cmUgb2YKZW5hYmxlX2lycV93YWtlKCkg
-aW4gbWF0cml4X2tleXBhZD8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxA
-bGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+On Wed, Oct 07, 2009 at 10:42:08PM +0800, Eric Miao wrote:
+> On Wed, Oct 7, 2009 at 12:36 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Tue, Oct 06, 2009 at 09:58:17AM +0200, Pavel Machek wrote:
+> >> Hi!
+> >>
+> >> On Mon 2009-10-05 22:06:50, Dmitry Torokhov wrote:
+> >> > On Wed, Sep 30, 2009 at 10:07:46PM +0200, Pavel Machek wrote:
+> >> > >
+> >> > > It complains about unbalanced irq 113 wake disable. That one belon=
+gs
+> >> > > to matrix-keypad...
+> >> >
+> >> > I guess some of enable_irq_wake()s fail on your box. Do you see it if
+> >> > you apply the patch below?
+> >>
+> >> I'll do short test. But... if you are right, your patch will just make
+> >> your machine refuse to suspend... right?
+> >>
+> >> Ungood.
+> >
+> > It was just a debug patch.
+> >
+> >>
+> >> Actually, it seems to break suspend (returns =A0-EINVAL while refusing
+> >> to suspend), warnings are still there, and keyboard is dead after
+> >> failed suspend... double plus ungood.
+> >>
+> >> Aha, so warning is solved: the one in the log is from gpio_buttons.
+> >>
+> >
+> > OK, so it looks like your box refuses to set up one of the GPIOs as a
+> > wakeup source... Hmm, either your box is wrong ;) or matrix_keypad
+> > driver needs to maintain a separate list of wakeup GPIOs.
+> >
+> =
+
+> This is due to the nature of PXA processor, where not every GPIO can
+> be configured as a wakeup source. Mmm.... we can either return a
+> pseudo value indicating setting wakeup on that GPIO is OK (which
+> doesn't sound like a good idea), or we can just ignore the failure of
+> enable_irq_wake() in matrix_keypad?
+
+We ignore the failure right now in the mainline but that causes stack
+traces on resume as we trying to disable not enabled wakeup GPIOs. That
+was original Pavel's complaint.
+
+-- =
+
+Dmitry

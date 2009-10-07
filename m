@@ -1,57 +1,56 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH 4/6] Haptic: add haptic configuration
-Date: Wed, 7 Oct 2009 12:38:42 +0530
-Message-ID: <5d5443650910070008w5520890die68747bf5f0a9f13@mail.gmail.com>
-References: <20091007061814.GA7596@july>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
+	matrix-keypad related?
+Date: Wed, 7 Oct 2009 22:42:08 +0800
+Message-ID: <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
+References: <20090930200746.GA1384@ucw.cz>
+	<20091006050649.GH27881@core.coreip.homeip.net>
+	<20091006075816.GA1362@ucw.cz>
+	<20091007043603.GC10204@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758493AbZJGHJV@vger.kernel.org>
-In-Reply-To: <20091007061814.GA7596@july>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20091007043603.GC10204@core.coreip.homeip.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, thommycheck@gmail.com, dbaryshkov@gmail.com, Cyril Hrubis <metan@ucw.cz>, arminlitzel@web.de, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, utx@penguin.cz, lenz@cs.wisc.edu, rpurdie@rpsys.net, omegamoon@gmail.com, Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Kyungmin,
-
-On Wed, Oct 7, 2009 at 11:48 AM, Kyungmin Park
-<kyungmin.park@samsung.com> wrote:
-> haptic class support
->
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
-> =A0drivers/Kconfig =A0| =A0 =A02 ++
-> =A0drivers/Makefile | =A0 =A01 +
-> =A02 files changed, 3 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/Kconfig b/drivers/Kconfig
-> index 48bbdbe..a44348e 100644
-> --- a/drivers/Kconfig
-> +++ b/drivers/Kconfig
-> @@ -90,6 +90,8 @@ source "drivers/memstick/Kconfig"
->
-> =A0source "drivers/leds/Kconfig"
->
-> +source "drivers/haptic/Kconfig"
-> +
-> =A0source "drivers/accessibility/Kconfig"
->
-> =A0source "drivers/infiniband/Kconfig"
-> diff --git a/drivers/Makefile b/drivers/Makefile
-> index 6ee53c7..ee6f438 100644
-> --- a/drivers/Makefile
-> +++ b/drivers/Makefile
-> @@ -94,6 +94,7 @@ obj-y =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- +=3D idle/
-> =A0obj-$(CONFIG_MMC) =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D mmc/
-> =A0obj-$(CONFIG_MEMSTICK) =A0 =A0 =A0 =A0 +=3D memstick/
-> =A0obj-$(CONFIG_NEW_LEDS) =A0 =A0 =A0 =A0 +=3D leds/
-> +obj-$(CONFIG_HAPTCI) =A0 =A0 =A0 =A0 =A0 +=3D haptic/
-
-s/CONFIG_HAPTCI/CONFIG_HAPTIC :)
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+T24gV2VkLCBPY3QgNywgMjAwOSBhdCAxMjozNiBQTSwgRG1pdHJ5IFRvcm9raG92CjxkbWl0cnku
+dG9yb2tob3ZAZ21haWwuY29tPiB3cm90ZToKPiBPbiBUdWUsIE9jdCAwNiwgMjAwOSBhdCAwOTo1
+ODoxN0FNICswMjAwLCBQYXZlbCBNYWNoZWsgd3JvdGU6Cj4+IEhpIQo+Pgo+PiBPbiBNb24gMjAw
+OS0xMC0wNSAyMjowNjo1MCwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOgo+PiA+IE9uIFdlZCwgU2Vw
+IDMwLCAyMDA5IGF0IDEwOjA3OjQ2UE0gKzAyMDAsIFBhdmVsIE1hY2hlayB3cm90ZToKPj4gPiA+
+Cj4+ID4gPiBJdCBjb21wbGFpbnMgYWJvdXQgdW5iYWxhbmNlZCBpcnEgMTEzIHdha2UgZGlzYWJs
+ZS4gVGhhdCBvbmUgYmVsb25ncwo+PiA+ID4gdG8gbWF0cml4LWtleXBhZC4uLgo+PiA+Cj4+ID4g
+SSBndWVzcyBzb21lIG9mIGVuYWJsZV9pcnFfd2FrZSgpcyBmYWlsIG9uIHlvdXIgYm94LiBEbyB5
+b3Ugc2VlIGl0IGlmCj4+ID4geW91IGFwcGx5IHRoZSBwYXRjaCBiZWxvdz8KPj4KPj4gSSdsbCBk
+byBzaG9ydCB0ZXN0LiBCdXQuLi4gaWYgeW91IGFyZSByaWdodCwgeW91ciBwYXRjaCB3aWxsIGp1
+c3QgbWFrZQo+PiB5b3VyIG1hY2hpbmUgcmVmdXNlIHRvIHN1c3BlbmQuLi4gcmlnaHQ/Cj4+Cj4+
+IFVuZ29vZC4KPgo+IEl0IHdhcyBqdXN0IGEgZGVidWcgcGF0Y2guCj4KPj4KPj4gQWN0dWFsbHks
+IGl0IHNlZW1zIHRvIGJyZWFrIHN1c3BlbmQgKHJldHVybnMgwqAtRUlOVkFMIHdoaWxlIHJlZnVz
+aW5nCj4+IHRvIHN1c3BlbmQpLCB3YXJuaW5ncyBhcmUgc3RpbGwgdGhlcmUsIGFuZCBrZXlib2Fy
+ZCBpcyBkZWFkIGFmdGVyCj4+IGZhaWxlZCBzdXNwZW5kLi4uIGRvdWJsZSBwbHVzIHVuZ29vZC4K
+Pj4KPj4gQWhhLCBzbyB3YXJuaW5nIGlzIHNvbHZlZDogdGhlIG9uZSBpbiB0aGUgbG9nIGlzIGZy
+b20gZ3Bpb19idXR0b25zLgo+Pgo+Cj4gT0ssIHNvIGl0IGxvb2tzIGxpa2UgeW91ciBib3ggcmVm
+dXNlcyB0byBzZXQgdXAgb25lIG9mIHRoZSBHUElPcyBhcyBhCj4gd2FrZXVwIHNvdXJjZS4uLiBI
+bW0sIGVpdGhlciB5b3VyIGJveCBpcyB3cm9uZyA7KSBvciBtYXRyaXhfa2V5cGFkCj4gZHJpdmVy
+IG5lZWRzIHRvIG1haW50YWluIGEgc2VwYXJhdGUgbGlzdCBvZiB3YWtldXAgR1BJT3MuCj4KClRo
+aXMgaXMgZHVlIHRvIHRoZSBuYXR1cmUgb2YgUFhBIHByb2Nlc3Nvciwgd2hlcmUgbm90IGV2ZXJ5
+IEdQSU8gY2FuCmJlIGNvbmZpZ3VyZWQgYXMgYSB3YWtldXAgc291cmNlLiBNbW0uLi4uIHdlIGNh
+biBlaXRoZXIgcmV0dXJuIGEKcHNldWRvIHZhbHVlIGluZGljYXRpbmcgc2V0dGluZyB3YWtldXAg
+b24gdGhhdCBHUElPIGlzIE9LICh3aGljaApkb2Vzbid0IHNvdW5kIGxpa2UgYSBnb29kIGlkZWEp
+LCBvciB3ZSBjYW4ganVzdCBpZ25vcmUgdGhlIGZhaWx1cmUgb2YKZW5hYmxlX2lycV93YWtlKCkg
+aW4gbWF0cml4X2tleXBhZD8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxA
+bGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK

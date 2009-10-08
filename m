@@ -1,44 +1,53 @@
-From: xiangfu liu <xiangfu.z@gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E5=9B=9E=E5=A4=8D=3A_Re=3A_how_to_make_KEY=5FPOWER_work_in_termin?=
-	=?UTF-8?Q?al_system?=
-Date: Thu, 8 Oct 2009 11:46:30 +0800
-Message-ID: <bc65a8d50910072046j109dc0d9j8b7c92f9efe1c0fb@mail.gmail.com>
-References: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com>
-	 <bc65a8d50910030942hecf96b2hc06ff18f786a1cc@mail.gmail.com>
-	 <20091006050633.GF27881@core.coreip.homeip.net>
-	 <bc65a8d50910062032u1ab5d215xb37737b197bb7d46@mail.gmail.com>
-	 <bc65a8d50910062033j5c2f86c4s2a17cb21cf16a7f7@mail.gmail.com>
-	 <20091007043526.GA10204@core.coreip.homeip.net>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: ads7846 touchscreen: fix pressure
+Date: Thu, 8 Oct 2009 10:39:39 +0530
+Message-ID: <5d5443650910072209t63e3fa9dvff7ab2fee7bb2f88@mail.gmail.com>
+References: <20091006195413.GA1469@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f212.google.com ([209.85.217.212]:43074 "EHLO
-	mail-gx0-f212.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750832AbZJHDrI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Oct 2009 23:47:08 -0400
-Received: by gxk4 with SMTP id 4so6603606gxk.8
-        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2009 20:46:31 -0700 (PDT)
-In-Reply-To: <20091007043526.GA10204@core.coreip.homeip.net>
+Received: from mail-qy0-f194.google.com ([209.85.221.194]:42886 "EHLO
+	mail-qy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751768AbZJHFKQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Oct 2009 01:10:16 -0400
+In-Reply-To: <20091006195413.GA1469@ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: dtor@mail.ru, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 
-thanks Dmitry
- I will try to write deamon.
+Hi Pavel,
 
-On 10/7/09, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Wed, Oct 07, 2009 at 11:33:47AM +0800, xiangfu liu wrote:
->> thanks for reply
->> so i must write userspace daemon. right?
->>
+On Wed, Oct 7, 2009 at 1:24 AM, Pavel Machek <pavel@ucw.cz> wrote:
 >
-> Yes.
+> On Zaurus, pressure is reported inverted -- the lighter the pressure,
+> the bigger numerical value. This should fix it.
 >
-> --
-> Dmitry
+> Signed-off-by: Pavel Machek <pavel@ucw.cz>
 >
+> --- linux-rc/drivers/input.ofic/touchscreen/ads7846.c =A0 2009-10-06 =
+13:49:56.000000000 +0200
+> +++ linux-rc/drivers/input/touchscreen/ads7846.c =A0 =A0 =A0 =A02009-=
+10-06 21:18:25.000000000 +0200
+> @@ -608,12 +609,12 @@
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_X, x);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_abs(input, ABS_Y, y);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, R=
+t);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_abs(input, ABS_PRESSURE, t=
+s->pressure_max-Rt);
 
+but same behavior is seen by others using this chip on different
+boards? If not, this has to be done through platform data.
 
--- 
-Blog: http://www.openmobilefree.net
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

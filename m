@@ -1,41 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 1/2] Input: DaVinci Keypad Driver
-Date: Fri, 9 Oct 2009 10:21:57 -0700
-Message-ID: <20091009172156.GG1092@core.coreip.homeip.net>
-References: <1254772537-30836-1-git-send-email-miguel.aguilar@ridgerun.com> <4ACF6DBA.8080307@ridgerun.com> <20091009172011.GF1092@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: Poll rate change and closing indication to polled input device
+Date: Fri, 9 Oct 2009 19:10:12 +0100
+Message-ID: <20091009181012.GA21731@sirena.org.uk>
+References: <1255089779.28243.24.camel@4fid08082>
+ <20091009121201.GE5082@sirena.org.uk>
+ <20091009162717.GC1092@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.154]:16669 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761208AbZJIRWO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 13:22:14 -0400
-Received: by fg-out-1718.google.com with SMTP id 22so2272821fge.1
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2009 10:22:03 -0700 (PDT)
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:33700 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932914AbZJISKv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 14:10:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20091009172011.GF1092@core.coreip.homeip.net>
+In-Reply-To: <20091009162717.GC1092@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-Cc: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Onkalo Samu <samu.p.onkalo@nokia.com>, linux-input@vger.kernel.org
 
-On Fri, Oct 09, 2009 at 10:20:12AM -0700, Dmitry Torokhov wrote:
-> Hi Miguel,
-> 
-> On Fri, Oct 09, 2009 at 11:07:06AM -0600, Miguel Aguilar wrote:
-> > Dmitry,
-> >
-> > This v4 address all the comments that have been done to this patch, Is it 
-> > ready to be pushed?
-> >
-> 
-> For some reason  can't find the v4 submission in my inbox nor in
-> linux-input, could you please resend it - my scripts don't like quoted
-> quoted quoted patches.
-> 
+On Fri, Oct 09, 2009 at 09:27:18AM -0700, Dmitry Torokhov wrote:
+> On Fri, Oct 09, 2009 at 01:12:02PM +0100, Mark Brown wrote:
 
-Ah, I see you are trying to use linux-input-owner@vger.kernel.org but
-the proper address is linux-input@vger.kernel.org.
+> > It'd be really good to have this control exposed to user space in a
+> > standard fashion.
 
--- 
-Dmitry
+> I'll take the patches.
+
+Yes, I was planning on doing some - I've got a touchscreen driver to do
+soon and was hoping to have time to look at this while working on that
+driver.
+
+> >  Other devices that generate constant data rates like
+> > touchscreens could also benefit from it, changing their output rate
+> > depending on the needs of user space to give a power saving.
+
+> Not sure if this belongs to the input core as such. It seems that what
+> you want here is dynamic power-management which works on the level below
+> input core (individual devices on particular buses).
+
+It definitely needs to be implemented in the drivers but they need to
+present an interface to userspace which seems best placed in the core to
+factor out code and help make sure that the interface is standardised.

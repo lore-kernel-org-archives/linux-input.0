@@ -1,17 +1,17 @@
 From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH 4/6] Haptic: add haptic configuration (v2)
-Date: Fri, 9 Oct 2009 14:59:19 +0530
-Message-ID: <5d5443650910090229mb3baf06we208c07200003f77@mail.gmail.com>
-References: <20091009085847.GA24918@july>
+Subject: Re: [PATCH 2/6] Haptic: Documentation for haptic class (v2)
+Date: Fri, 9 Oct 2009 14:59:59 +0530
+Message-ID: <5d5443650910090229t6787c762qbcf854c970e117fa@mail.gmail.com>
+References: <20091009090120.GA24935@july>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:34886 "EHLO
+Received: from qw-out-2122.google.com ([74.125.92.27]:64680 "EHLO
 	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754856AbZJIJa0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 05:30:26 -0400
-In-Reply-To: <20091009085847.GA24918@july>
+	with ESMTP id S1760343AbZJIJbG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 05:31:06 -0400
+In-Reply-To: <20091009090120.GA24935@july>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Kyungmin Park <kyungmin.park@samsung.com>
@@ -19,49 +19,57 @@ Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 Hi Kyungmin,
 
-On Fri, Oct 9, 2009 at 2:28 PM, Kyungmin Park <kyungmin.park@samsung.co=
+On Fri, Oct 9, 2009 at 2:31 PM, Kyungmin Park <kyungmin.park@samsung.co=
 m> wrote:
-> haptic class support
+> Describe the haptic class and how to use
 >
 > Changelog v1:
-> =A0 =A0 =A0 =A0Fix typo
+> =A0 =A0 =A0 =A0Apply comments and feedbacks
 >
 > Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 > ---
-> =A0drivers/Kconfig =A0| =A0 =A02 ++
-> =A0drivers/Makefile | =A0 =A01 +
-> =A02 files changed, 3 insertions(+), 0 deletions(-)
+> =A0Documentation/haptic-class.txt | =A0 20 ++++++++++++++++++++
+> =A01 files changed, 20 insertions(+), 0 deletions(-)
+> =A0create mode 100644 Documentation/haptic-class.txt
 >
-> diff --git a/drivers/Kconfig b/drivers/Kconfig
-> index 48bbdbe..a44348e 100644
-> --- a/drivers/Kconfig
-> +++ b/drivers/Kconfig
-> @@ -90,6 +90,8 @@ source "drivers/memstick/Kconfig"
->
-> =A0source "drivers/leds/Kconfig"
->
-> +source "drivers/haptic/Kconfig"
+> diff --git a/Documentation/haptic-class.txt b/Documentation/haptic-cl=
+ass.txt
+> new file mode 100644
+> index 0000000..6bee82a
+> --- /dev/null
+> +++ b/Documentation/haptic-class.txt
+> @@ -0,0 +1,20 @@
 > +
-> =A0source "drivers/accessibility/Kconfig"
+> +Haptic handling under Linux
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+> +
+> +In its simplest form, the haptic class just allows control of Haptic=
+s from
+> +userspace. Haptic appears in /sys/class/haptic/. The maximum level o=
+f the
+> +haptic is defined in max_level file.
+> +
+> +The interface is pretty simple - it provides oneshot mode where user
+> +can specify duration of the effect (in milliseconds) and desired lev=
+el
+> +Of course, you can adjust the level by setting level property
+> +
+> +# echo ${millisecond} > /sys/class/haptic/<device>/oneshot
+> +
+> +# echo ${level} > /sys/class/haptic/<device>/level
+> +
+> +You can also enable or disable haptics devices by manipulating 'enab=
+le' attribute:
+> +
+> +# echo 1 > /sys/class/haptic/<device>/enable =A0 -> Enable
+> +# echo 0 > /sys/class/haptic/<device>/enable =A0 -> Disable
+> --
+> 1.5.3.3
 >
-> =A0source "drivers/infiniband/Kconfig"
-> diff --git a/drivers/Makefile b/drivers/Makefile
-> index 6ee53c7..ee6f438 100644
-> --- a/drivers/Makefile
-> +++ b/drivers/Makefile
-> @@ -94,6 +94,7 @@ obj-y =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- +=3D idle/
-> =A0obj-$(CONFIG_MMC) =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D mmc/
-> =A0obj-$(CONFIG_MEMSTICK) =A0 =A0 =A0 =A0 +=3D memstick/
-> =A0obj-$(CONFIG_NEW_LEDS) =A0 =A0 =A0 =A0 +=3D leds/
-> +obj-$(CONFIG_HAPTIC) =A0 =A0 =A0 =A0 =A0 +=3D haptic/
-> =A0obj-$(CONFIG_INFINIBAND) =A0 =A0 =A0 +=3D infiniband/
-> =A0obj-$(CONFIG_SGI_SN) =A0 =A0 =A0 =A0 =A0 +=3D sn/
-> =A0obj-y =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D firm=
-ware/
+>
 
 Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
-
 
 --=20
 ---Trilok Soni

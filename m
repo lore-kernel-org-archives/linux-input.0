@@ -1,15 +1,16 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 Subject: Re: [PATCH v3] add analog devices AD714X
-	captouchinput driver
-Date: Fri, 9 Oct 2009 04:56:26 -0400
-Message-ID: <8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+ captouchinput driver
+Date: Fri, 09 Oct 2009 10:03:27 +0100
+Message-ID: <1255079007.8362.70.camel@macbook.infradead.org>
 References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
 	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <8A42379416420646B9BFAC9682273B6D0DC3BD95-pcKY8lWzTjquVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
+In-Reply-To: <8bd0f97a0910090156g2a8fba58r4085422f3a79c892-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
 	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
@@ -19,49 +20,22 @@ List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-deve
 	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
 Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCBTZXAgMTEsIDIwMDkgYXQgMDk6MTksIEhlbm5lcmljaCwgTWljaGFlbCB3cm90ZToK
-PiBPbiBGcmlkYXkgMTEgU2VwdGVtYmVyIDIwMDksIFNvbmcsIEJhcnJ5IHdyb3RlOgo+ICtzdGF0
-aWMgaW50IF9faW5pdCBhZDcxNHhfaW5pdCh2b2lkKQo+ICt7Cj4gKwo+ICsgwqAgwqAgwqAgaW50
-IHJldCA9IDA7Cj4gKyDCoCDCoCDCoCByZXQgPSBhZDcxNHhfc3BpX3JlZ2lzdGVyX2RyaXZlcigm
-YWQ3MTR4X3NwaV9kcml2ZXIpOwo+ICsgwqAgwqAgwqAgaWYgKHJldCkKPiArIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIGdvdG8gZXJyOwo+ICsgwqAgwqAgwqAgcmV0ID0gYWQ3MTR4X2kyY19hZGRfZHJp
-dmVyKCZhZDcxNHhfaTJjX2RyaXZlcik7Cj4gKyDCoCDCoCDCoCBpZiAocmV0KQo+ICsgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgYWQ3MTR4X3NwaV91bnJlZ2lzdGVyX2RyaXZlcigmYWQ3MTR4X3NwaV9k
-cml2ZXIpOwo+ICtlcnI6Cj4gKyDCoCDCoCDCoCByZXR1cm4gcmV0Owo+ICt9Cj4gKwo+ICtzdGF0
-aWMgdm9pZCBfX2V4aXQgYWQ3MTR4X2V4aXQodm9pZCkKPiArewo+ICsgwqAgwqAgwqAgYWQ3MTR4
-X3NwaV91bnJlZ2lzdGVyX2RyaXZlcigmYWQ3MTR4X3NwaV9kcml2ZXIpOwo+ICsgwqAgwqAgwqAg
-YWQ3MTR4X2kyY19kZWxfZHJpdmVyKCZhZDcxNHhfaTJjX2RyaXZlcik7Cj4gK30KPgo+IFRoaXMg
-ZG9lc24ndCBtYWtlIG11Y2ggc2Vuc2UhCj4gQXNzdW1pbmcgd2UgaGF2ZSB0d28gQUQ3MTR4IGlu
-IGEgc3lzdGVtLiBPbmUgY29ubmVjdGVkIGJ5IFNQSSB0aGUgb3RoZXIKPiBieSBJMkMuCj4gV2h5
-IHdvdWxkIEkgcmVtb3ZlIHRoZSBTUEkgb25lIGluIGNhc2UgdGhlIG90aGVyIEkyQyBmYWlscywg
-b3Igbm90IGV2ZW4KPiB0cnkgdGhlIFNQSSBvbmUgaWYgdGhlIEkyQyBmYWlscz8KCmlzIHRoaXMg
-YSByZWFsaXN0aWMgcHJvYmxlbSA/ICB3ZSBhcmVudCB0YWxraW5nIGFib3V0IGZhaWx1cmUgdG8g
-cHJvYmUKdGhlIGRldmljZSwgd2UncmUgdGFsa2luZyBhYm91dCBmYWlsdXJlIHRvIHJlZ2lzdGVy
-IHRoZSBkcml2ZXIgYXMKYXZhaWxhYmxlLiAgaS5lLiB0aGUgb25seSB3YXkgdGhlIG1vZHVsZV9p
-bml0IHN0ZXAgc2hvdWxkIGZhaWwgaXMgaWYKaTJjX2FkZF9kcml2ZXIoKSBvciBzcGlfcmVnaXN0
-ZXJfZHJpdmVyKCkgZmFpbHMuICBhbmQgaWYgZWl0aGVyIG9mCnRob3NlIGZhaWwsIGl0J3MgbW9z
-dCBsaWtlbHkgYSBwcmV0dHkgYmFkIHNpdHVhdGlvbi4KCmZhaWx1cmUgdG8gcHJvYmUvZGV0ZWN0
-L3RhbGsgdG8gdGhlIGRldmljZSBhcmUgYSBkaWZmZXJlbnQgaXNzdWUgYW5kIGEKcHJvYmxlbSB3
-aXRoIG9uZSBpbnRlcmZhY2Ugd2lsbCBub3QgYWZmZWN0IHRoZSBvdGhlci4KCj4gV2hvIHNheXMg
-dGhhdCBhIGRyaXZlciBjYW4ndCBoYXZlIHR3byBtb2R1bGVfaW5pdCgpPwoKTXIuIEMgQ29kZSBz
-YXlzIGl0IHdvbnQgd29yay4gIGlmIGFkNzE0eCBpcyBidWlsdCBhcyBhIG1vZHVsZSBhbmQgYm90
-aApJMkMgYW5kIFNQSSBzdXBwb3J0IGFyZSBlbmFibGVkLCB3ZSBnZXQ6CmRyaXZlcnMvaW5wdXQv
-bWlzYy9hZDcxNHguYzoxNjIxOiBlcnJvcjogcmVkZWZpbml0aW9uIG9mIOKAmF9faW5pdHRlc3Ti
-gJkKZHJpdmVycy9pbnB1dC9taXNjL2FkNzE0eC5jOjE0OTI6IGVycm9yOiBwcmV2aW91cyBkZWZp
-bml0aW9uIG9mCuKAmF9faW5pdHRlc3TigJkgd2FzIGhlcmUKCnRoZXNlIGxpbmVzIGNvcnJlc3Bv
-bmQgdG8gdGhlIG1vZHVsZV9pbml0KCkgbWFjcm8KCmxpbnV4L2luaXQuaCBzYXlzOgovKiBFYWNo
-IG1vZHVsZSBtdXN0IHVzZSBvbmUgbW9kdWxlX2luaXQoKS4gKi8KI2RlZmluZSBtb2R1bGVfaW5p
-dChpbml0Zm4pICAgICAgICAgICAgICAgICBcCiAgICBzdGF0aWMgaW5saW5lIGluaXRjYWxsX3Qg
-X19pbml0dGVzdCh2b2lkKSAgICAgICBcCiAgICB7IHJldHVybiBpbml0Zm47IH0gICAgICAgICAg
-ICAgICAgICBcCiAgICBpbnQgaW5pdF9tb2R1bGUodm9pZCkgX19hdHRyaWJ1dGVfXygoYWxpYXMo
-I2luaXRmbikpKTsKCmFuZCBpbmRlZWQsIHRoZSBlcnJvciBtYWtlcyBzZW5zZSAtLSB5b3UgY2Fu
-dCBoYXZlIG11bHRpcGxlIGZ1bmN0aW9ucwpuYW1lZCB0aGUgc2FtZSB0aGluZyAoaW4gdGhpcyBj
-YXNlLCB3ZSdkIGhhdmUgdHdvIF9faW5pdHRlc3QoKSBhbmQgdHdvCmluaXRfbW9kdWxlKCkpCi1t
-aWtlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClVjbGlu
-dXgtZGlzdC1kZXZlbCBtYWlsaW5nIGxpc3QKVWNsaW51eC1kaXN0LWRldmVsQGJsYWNrZmluLnVj
-bGludXgub3JnCmh0dHBzOi8vYmxhY2tmaW4udWNsaW51eC5vcmcvbWFpbG1hbi9saXN0aW5mby91
-Y2xpbnV4LWRpc3QtZGV2ZWw=
+On Fri, 2009-10-09 at 04:56 -0400, Mike Frysinger wrote:
+> 
+> > Who says that a driver can't have two module_init()?
+> 
+> Mr. C Code says it wont work. 
+
+It could be fixed -- it works when the module is built-in; it could be
+made to work in the way way when it's a module.
+
+How did I get subscribed to this list, anyway?
+
+-- 
+David Woodhouse                            Open Source Technology Centre
+David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org                              Intel Corporation

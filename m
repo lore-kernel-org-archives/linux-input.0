@@ -1,44 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices
-	AD714X	captouchinput driver
-Date: Fri, 9 Oct 2009 09:22:20 -0700
-Message-ID: <20091009162219.GB1092@core.coreip.homeip.net>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
-	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Poll rate change and closing indication to polled input device
+Date: Fri, 9 Oct 2009 09:27:18 -0700
+Message-ID: <20091009162717.GC1092@core.coreip.homeip.net>
+References: <1255089779.28243.24.camel@4fid08082> <20091009121201.GE5082@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.153]:17619 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933591AbZJIQ3N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 12:29:13 -0400
+Received: by fg-out-1718.google.com with SMTP id 22so2255801fge.1
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2009 09:27:25 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20091009121201.GE5082@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Onkalo Samu <samu.p.onkalo@nokia.com>, linux-input@vger.kernel.org
 
-On Fri, Oct 09, 2009 at 06:11:45AM -0400, Mike Frysinger wrote:
-> On Fri, Oct 9, 2009 at 05:18, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > we could have three modules here: ad714x, ad714x-i2c, ad714x-spi
+On Fri, Oct 09, 2009 at 01:12:02PM +0100, Mark Brown wrote:
+> On Fri, Oct 09, 2009 at 03:02:59PM +0300, Onkalo Samu wrote:
 > 
-> are you ok with this approach Dmitry ?  this way people can
-> load/unload a specific bus without affecting the core or the other
-> bus, and errors with loading one bus type wouldnt affect loading of
-> the other.
+> > I would like to change the polling rate of the polled input device
+> > on the fly depending on the use case. One possible way is to directly
+> > modify poll_interval from my driver. However, I would like to introduce
+> > functions which can be used to set / get polling rate like 
+> 
+> > input_polled_device_set_rate(...)
+> 
+> > input_polled_device_get_rate(...)
+> 
+> > Another missing thing is an indication when the polled device is closed.
+> > This can be used to turn off the HW which is not used anymore.
+> 
 
-Yes, I think this is the most clean way.
+The reason that this is missing is because polled devices are expected
+to be extremely dumb. Since even many interrupt-driven devices can't be
+shut off I did not expect that polled devices would need it.
+
+> > What do you think, is it ok to introduce these additions to the polled
+> > input device?
+> 
+> It'd be really good to have this control exposed to user space in a
+> standard fashion.
+
+I'll take the patches.
+
+>  Other devices that generate constant data rates like
+> touchscreens could also benefit from it, changing their output rate
+> depending on the needs of user space to give a power saving.
+
+Not sure if this belongs to the input core as such. It seems that what
+you want here is dynamic power-management which works on the level below
+input core (individual devices on particular buses).
 
 -- 
 Dmitry

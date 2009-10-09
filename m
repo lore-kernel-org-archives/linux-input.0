@@ -1,82 +1,37 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH 2/6] Haptic: Documentation for haptic class (v2)
-Date: Fri, 9 Oct 2009 14:59:59 +0530
-Message-ID: <5d5443650910090229t6787c762qbcf854c970e117fa@mail.gmail.com>
-References: <20091009090120.GA24935@july>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Fri, 9 Oct 2009 06:11:45 -0400
+Message-ID: <8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:64680 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760343AbZJIJbG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 05:31:06 -0400
-In-Reply-To: <20091009090120.GA24935@july>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Kyungmin,
+On Fri, Oct 9, 2009 at 05:18, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> we could have three modules here: ad714x, ad714x-i2c, ad714x-spi
 
-On Fri, Oct 9, 2009 at 2:31 PM, Kyungmin Park <kyungmin.park@samsung.co=
-m> wrote:
-> Describe the haptic class and how to use
->
-> Changelog v1:
-> =A0 =A0 =A0 =A0Apply comments and feedbacks
->
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
-> =A0Documentation/haptic-class.txt | =A0 20 ++++++++++++++++++++
-> =A01 files changed, 20 insertions(+), 0 deletions(-)
-> =A0create mode 100644 Documentation/haptic-class.txt
->
-> diff --git a/Documentation/haptic-class.txt b/Documentation/haptic-cl=
-ass.txt
-> new file mode 100644
-> index 0000000..6bee82a
-> --- /dev/null
-> +++ b/Documentation/haptic-class.txt
-> @@ -0,0 +1,20 @@
-> +
-> +Haptic handling under Linux
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-> +
-> +In its simplest form, the haptic class just allows control of Haptic=
-s from
-> +userspace. Haptic appears in /sys/class/haptic/. The maximum level o=
-f the
-> +haptic is defined in max_level file.
-> +
-> +The interface is pretty simple - it provides oneshot mode where user
-> +can specify duration of the effect (in milliseconds) and desired lev=
-el
-> +Of course, you can adjust the level by setting level property
-> +
-> +# echo ${millisecond} > /sys/class/haptic/<device>/oneshot
-> +
-> +# echo ${level} > /sys/class/haptic/<device>/level
-> +
-> +You can also enable or disable haptics devices by manipulating 'enab=
-le' attribute:
-> +
-> +# echo 1 > /sys/class/haptic/<device>/enable =A0 -> Enable
-> +# echo 0 > /sys/class/haptic/<device>/enable =A0 -> Disable
-> --
-> 1.5.3.3
->
->
-
-Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+are you ok with this approach Dmitry ?  this way people can
+load/unload a specific bus without affecting the core or the other
+bus, and errors with loading one bus type wouldnt affect loading of
+the other.
+-mike

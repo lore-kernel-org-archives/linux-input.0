@@ -1,74 +1,67 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH 5/6] haptic: Samsung SoCs PWM controlled haptic support
-Date: Fri, 9 Oct 2009 14:02:57 +0530
-Message-ID: <5d5443650910090132x5712b027j5d75d10821de5cfd@mail.gmail.com>
-References: <20091007061822.GA7602@july>
-	 <5d5443650910081128l58f45148m87735185a0094c31@mail.gmail.com>
-	 <4ACE3124.4060109@billgatliff.com>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Fri, 9 Oct 2009 04:56:26 -0400
+Message-ID: <8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758446AbZJIIeJ@vger.kernel.org>
-In-Reply-To: <4ACE3124.4060109@billgatliff.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8A42379416420646B9BFAC9682273B6D0DC3BD95-pcKY8lWzTjquVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Bill,
-
-On Fri, Oct 9, 2009 at 12:06 AM, Bill Gatliff <bgat@billgatliff.com> wr=
-ote:
-> Trilok Soni wrote:
->>
->> Adding Bill Gatliff.
->>
->> Hi Kyungmin,
->>
->> Most of the driver looks fine. I have only one generic comment, but
->> not for this driver:
->>
->> - Someone should really work on getting PWM framework (may be the on=
-e
->> written by Bill Gatliff) into the kernel, because
->> =A0if we don't do this and if new PWM controller provides it's own A=
-PIs
->> then we can't leverage the chips using them, like the
->> =A0case here for ISA1000 and ISA1200. These chips are using the pwm
->> APIs exported by Samsung PWM controller, but it would
->> =A0be painful to integrate other PWM controller if that has slightly
->> little different API due to its nature.
->>
->> =A0So, it would be better to get one generic PWM framework mainline =
-in
->> the kernel.
->>
->
-> I can repost for review, if you like.
->
-> The only objection I received last time, IIRC, was that I proffered i=
-t as a
-> "generic" API but only provided support for a couple of AT91 parts. =A0=
-I
-> haven't had much time to add other support, so I haven't pushed for
-> inclusion.
->
-> I would be happy to coordinate the development/migration of support t=
-o the
-> API. =A0I can still do the AT91 parts and probably PXA, maybe
-> OMAP3430/Beagleboard. =A0But I would need others to help me with the =
-rest.
-
-Two drivers are OK to begin with and for mainline. It is expected that
-framework author may not have all parts with him to demonstrate a
-thumbrule of atleast three driver per framework in-order to make it
-mainline to test most the framework logic.
-
-If mainline authors doesn't agree still, we can still target this
-through drivers\stagic area through Greg KH. Please post your
-refreshed version.
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+T24gRnJpLCBTZXAgMTEsIDIwMDkgYXQgMDk6MTksIEhlbm5lcmljaCwgTWljaGFlbCB3cm90ZToK
+PiBPbiBGcmlkYXkgMTEgU2VwdGVtYmVyIDIwMDksIFNvbmcsIEJhcnJ5IHdyb3RlOgo+ICtzdGF0
+aWMgaW50IF9faW5pdCBhZDcxNHhfaW5pdCh2b2lkKQo+ICt7Cj4gKwo+ICsgwqAgwqAgwqAgaW50
+IHJldCA9IDA7Cj4gKyDCoCDCoCDCoCByZXQgPSBhZDcxNHhfc3BpX3JlZ2lzdGVyX2RyaXZlcigm
+YWQ3MTR4X3NwaV9kcml2ZXIpOwo+ICsgwqAgwqAgwqAgaWYgKHJldCkKPiArIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGdvdG8gZXJyOwo+ICsgwqAgwqAgwqAgcmV0ID0gYWQ3MTR4X2kyY19hZGRfZHJp
+dmVyKCZhZDcxNHhfaTJjX2RyaXZlcik7Cj4gKyDCoCDCoCDCoCBpZiAocmV0KQo+ICsgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgYWQ3MTR4X3NwaV91bnJlZ2lzdGVyX2RyaXZlcigmYWQ3MTR4X3NwaV9k
+cml2ZXIpOwo+ICtlcnI6Cj4gKyDCoCDCoCDCoCByZXR1cm4gcmV0Owo+ICt9Cj4gKwo+ICtzdGF0
+aWMgdm9pZCBfX2V4aXQgYWQ3MTR4X2V4aXQodm9pZCkKPiArewo+ICsgwqAgwqAgwqAgYWQ3MTR4
+X3NwaV91bnJlZ2lzdGVyX2RyaXZlcigmYWQ3MTR4X3NwaV9kcml2ZXIpOwo+ICsgwqAgwqAgwqAg
+YWQ3MTR4X2kyY19kZWxfZHJpdmVyKCZhZDcxNHhfaTJjX2RyaXZlcik7Cj4gK30KPgo+IFRoaXMg
+ZG9lc24ndCBtYWtlIG11Y2ggc2Vuc2UhCj4gQXNzdW1pbmcgd2UgaGF2ZSB0d28gQUQ3MTR4IGlu
+IGEgc3lzdGVtLiBPbmUgY29ubmVjdGVkIGJ5IFNQSSB0aGUgb3RoZXIKPiBieSBJMkMuCj4gV2h5
+IHdvdWxkIEkgcmVtb3ZlIHRoZSBTUEkgb25lIGluIGNhc2UgdGhlIG90aGVyIEkyQyBmYWlscywg
+b3Igbm90IGV2ZW4KPiB0cnkgdGhlIFNQSSBvbmUgaWYgdGhlIEkyQyBmYWlscz8KCmlzIHRoaXMg
+YSByZWFsaXN0aWMgcHJvYmxlbSA/ICB3ZSBhcmVudCB0YWxraW5nIGFib3V0IGZhaWx1cmUgdG8g
+cHJvYmUKdGhlIGRldmljZSwgd2UncmUgdGFsa2luZyBhYm91dCBmYWlsdXJlIHRvIHJlZ2lzdGVy
+IHRoZSBkcml2ZXIgYXMKYXZhaWxhYmxlLiAgaS5lLiB0aGUgb25seSB3YXkgdGhlIG1vZHVsZV9p
+bml0IHN0ZXAgc2hvdWxkIGZhaWwgaXMgaWYKaTJjX2FkZF9kcml2ZXIoKSBvciBzcGlfcmVnaXN0
+ZXJfZHJpdmVyKCkgZmFpbHMuICBhbmQgaWYgZWl0aGVyIG9mCnRob3NlIGZhaWwsIGl0J3MgbW9z
+dCBsaWtlbHkgYSBwcmV0dHkgYmFkIHNpdHVhdGlvbi4KCmZhaWx1cmUgdG8gcHJvYmUvZGV0ZWN0
+L3RhbGsgdG8gdGhlIGRldmljZSBhcmUgYSBkaWZmZXJlbnQgaXNzdWUgYW5kIGEKcHJvYmxlbSB3
+aXRoIG9uZSBpbnRlcmZhY2Ugd2lsbCBub3QgYWZmZWN0IHRoZSBvdGhlci4KCj4gV2hvIHNheXMg
+dGhhdCBhIGRyaXZlciBjYW4ndCBoYXZlIHR3byBtb2R1bGVfaW5pdCgpPwoKTXIuIEMgQ29kZSBz
+YXlzIGl0IHdvbnQgd29yay4gIGlmIGFkNzE0eCBpcyBidWlsdCBhcyBhIG1vZHVsZSBhbmQgYm90
+aApJMkMgYW5kIFNQSSBzdXBwb3J0IGFyZSBlbmFibGVkLCB3ZSBnZXQ6CmRyaXZlcnMvaW5wdXQv
+bWlzYy9hZDcxNHguYzoxNjIxOiBlcnJvcjogcmVkZWZpbml0aW9uIG9mIOKAmF9faW5pdHRlc3Ti
+gJkKZHJpdmVycy9pbnB1dC9taXNjL2FkNzE0eC5jOjE0OTI6IGVycm9yOiBwcmV2aW91cyBkZWZp
+bml0aW9uIG9mCuKAmF9faW5pdHRlc3TigJkgd2FzIGhlcmUKCnRoZXNlIGxpbmVzIGNvcnJlc3Bv
+bmQgdG8gdGhlIG1vZHVsZV9pbml0KCkgbWFjcm8KCmxpbnV4L2luaXQuaCBzYXlzOgovKiBFYWNo
+IG1vZHVsZSBtdXN0IHVzZSBvbmUgbW9kdWxlX2luaXQoKS4gKi8KI2RlZmluZSBtb2R1bGVfaW5p
+dChpbml0Zm4pICAgICAgICAgICAgICAgICBcCiAgICBzdGF0aWMgaW5saW5lIGluaXRjYWxsX3Qg
+X19pbml0dGVzdCh2b2lkKSAgICAgICBcCiAgICB7IHJldHVybiBpbml0Zm47IH0gICAgICAgICAg
+ICAgICAgICBcCiAgICBpbnQgaW5pdF9tb2R1bGUodm9pZCkgX19hdHRyaWJ1dGVfXygoYWxpYXMo
+I2luaXRmbikpKTsKCmFuZCBpbmRlZWQsIHRoZSBlcnJvciBtYWtlcyBzZW5zZSAtLSB5b3UgY2Fu
+dCBoYXZlIG11bHRpcGxlIGZ1bmN0aW9ucwpuYW1lZCB0aGUgc2FtZSB0aGluZyAoaW4gdGhpcyBj
+YXNlLCB3ZSdkIGhhdmUgdHdvIF9faW5pdHRlc3QoKSBhbmQgdHdvCmluaXRfbW9kdWxlKCkpCi1t
+aWtlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClVjbGlu
+dXgtZGlzdC1kZXZlbCBtYWlsaW5nIGxpc3QKVWNsaW51eC1kaXN0LWRldmVsQGJsYWNrZmluLnVj
+bGludXgub3JnCmh0dHBzOi8vYmxhY2tmaW4udWNsaW51eC5vcmcvbWFpbG1hbi9saXN0aW5mby91
+Y2xpbnV4LWRpc3QtZGV2ZWw=

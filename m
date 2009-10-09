@@ -1,32 +1,43 @@
-From: Bill Gatliff <bgat@billgatliff.com>
-Subject: Re: [PATCH 5/6] haptic: Samsung SoCs PWM controlled haptic support
-Date: Fri, 09 Oct 2009 15:41:52 -0500
-Message-ID: <4ACFA010.6090803@billgatliff.com>
-References: <20091007061822.GA7602@july>	 <5d5443650910081128l58f45148m87735185a0094c31@mail.gmail.com>	 <4ACE3124.4060109@billgatliff.com> <5d5443650910090132x5712b027j5d75d10821de5cfd@mail.gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+ captouchinput driver
+Date: Fri, 9 Oct 2009 23:33:52 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0910092331040.12171@twin.jikos.cz>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f227.google.com ([209.85.220.227]:55337 "EHLO
-	mail-fx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757477AbZJIUnJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 16:43:09 -0400
-In-Reply-To: <5d5443650910090132x5712b027j5d75d10821de5cfd@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org
 
-Trilok Soni wrote:
-> Please post your refreshed version.
->   
+On Fri, 9 Oct 2009, Mike Frysinger wrote:
 
-Ok.  I'll try to rebase it to the latest over the weekend.
+> > How did I get subscribed to this list, anyway?
+> 
+> i think i might have accidentally added you to the subscribed list
+> while processing moderation requests when i meant to add you to just
+> the approved list.  i'll fix it up of course, sorry about that.
 
-
-b.g.
+BTW you should rather check your processess, this happened to me a few 
+weeks ago as well -- I had to unsubscribe manually after sending some 
+message to uclinux list and getting automatically subscribed afterwards.
 
 -- 
-Bill Gatliff
-bgat@billgatliff.com
-
+Jiri Kosina
+SUSE Labs, Novell Inc.

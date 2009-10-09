@@ -1,87 +1,67 @@
-From: Kyungmin Park <kmpark@infradead.org>
-Subject: Re: [PATCH 5/6] haptic: Samsung SoCs PWM controlled haptic support
-Date: Fri, 9 Oct 2009 08:51:56 +0900
-Message-ID: <9c9fda240910081651n7c30bcd1y931ee1d58198e2c3@mail.gmail.com>
-References: <20091007061822.GA7602@july>
-	 <5d5443650910081128l58f45148m87735185a0094c31@mail.gmail.com>
-	 <4ACE3124.4060109@billgatliff.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.32-rc3
+Date: Thu, 8 Oct 2009 21:33:07 -0700
+Message-ID: <20091009043307.GB26462@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760151AbZJHXwf@vger.kernel.org>
-In-Reply-To: <4ACE3124.4060109@billgatliff.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752183AbZJIEdv@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bill Gatliff <bgat@billgatliff.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Hi Linus,
 
-I agree use the generic PWM framework. But it's not support on Samsung =
-SoCs yet.
+Please pull from:
 
-I also wrote the OMAP driver. Of course it uses the OMAP specific PWM d=
-rivers.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I think after full integration of PWM frameworks as GPIO does, It will
-be replace with new PWM frameworks.
+to receive updates for the input subsystem.
 
-Thank you,
-Kyungmin Park
+Changelog:
+---------
+
+Amit Kucheria (1):
+      Input: fix rx51 board keymap
+
+Dmitry Torokhov (2):
+      Input: libps2 - fix dependancy on i8042
+      Input: i8042 - print debug data when testing AUX IRQ delivery
+
+H Hartley Sweeten (1):
+      Input: rotary_encoder - fix relative axis support
+
+Michael Hennerich (1):
+      Input: ad7879 - pass up error codes from probe functions
+
+Sebastian Frei (1):
+      Input: wistron_btns - add DMI entry for Medion WIM2030 laptop
+
+Thomas Gruber (1):
+      Input: xpad - add BigBen Interactive XBOX 360 Controller
+
+Uwe Kleine-K=F6nig (1):
+      Input: sparkspkr - move remove() functions to .devexit.text
 
 
-On Fri, Oct 9, 2009 at 3:36 AM, Bill Gatliff <bgat@billgatliff.com> wro=
-te:
-> Trilok Soni wrote:
->>
->> Adding Bill Gatliff.
->>
->> Hi Kyungmin,
->>
->> Most of the driver looks fine. I have only one generic comment, but
->> not for this driver:
->>
->> - Someone should really work on getting PWM framework (may be the on=
-e
->> written by Bill Gatliff) into the kernel, because
->> =A0if we don't do this and if new PWM controller provides it's own A=
-PIs
->> then we can't leverage the chips using them, like the
->> =A0case here for ISA1000 and ISA1200. These chips are using the pwm
->> APIs exported by Samsung PWM controller, but it would
->> =A0be painful to integrate other PWM controller if that has slightly
->> little different API due to its nature.
->>
->> =A0So, it would be better to get one generic PWM framework mainline =
-in
->> the kernel.
->>
->
-> I can repost for review, if you like.
->
-> The only objection I received last time, IIRC, was that I proffered i=
-t as a
-> "generic" API but only provided support for a couple of AT91 parts. =A0=
-I
-> haven't had much time to add other support, so I haven't pushed for
-> inclusion.
->
-> I would be happy to coordinate the development/migration of support t=
-o the
-> API. =A0I can still do the AT91 parts and probably PXA, maybe
-> OMAP3430/Beagleboard. =A0But I would need others to help me with the =
-rest.
->
-> b.g.
->
-> --
-> Bill Gatliff
-> bgat@billgatliff.com
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
+Diffstat:
+--------
+
+ arch/arm/mach-omap2/board-rx51-peripherals.c |   78 +++++++++++++-----=
+--------
+ drivers/input/joystick/xpad.c                |    2 +
+ drivers/input/misc/rotary_encoder.c          |    4 +-
+ drivers/input/misc/sparcspkr.c               |    4 +-
+ drivers/input/misc/wistron_btns.c            |    9 +++
+ drivers/input/serio/Kconfig                  |   13 ++--
+ drivers/input/serio/i8042.c                  |    3 +
+ drivers/input/touchscreen/ad7879.c           |    4 +-
+ include/linux/i2c/twl4030.h                  |    6 +-
+ 9 files changed, 69 insertions(+), 54 deletions(-)
+
+--=20
+Dmitry

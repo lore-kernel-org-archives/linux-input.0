@@ -1,47 +1,74 @@
-From: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices AD714X
- captouchinput driver
-Date: Fri, 09 Oct 2009 10:20:51 +0100
-Message-ID: <1255080051.8362.71.camel@macbook.infradead.org>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH 4/6] Haptic: add haptic configuration (v2)
+Date: Fri, 9 Oct 2009 14:59:19 +0530
+Message-ID: <5d5443650910090229mb3baf06we208c07200003f77@mail.gmail.com>
+References: <20091009085847.GA24918@july>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from qw-out-2122.google.com ([74.125.92.25]:34886 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754856AbZJIJa0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Oct 2009 05:30:26 -0400
+In-Reply-To: <20091009085847.GA24918@july>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, 2009-10-09 at 05:18 -0400, Mike Frysinger wrote:
-> personally, i think catering to this highly unlikely edge case is time
-> that could be spent on other much more realistic cases
+Hi Kyungmin,
 
-Yeah, you're probably right.
+On Fri, Oct 9, 2009 at 2:28 PM, Kyungmin Park <kyungmin.park@samsung.co=
+m> wrote:
+> haptic class support
+>
+> Changelog v1:
+> =A0 =A0 =A0 =A0Fix typo
+>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
+> =A0drivers/Kconfig =A0| =A0 =A02 ++
+> =A0drivers/Makefile | =A0 =A01 +
+> =A02 files changed, 3 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/Kconfig b/drivers/Kconfig
+> index 48bbdbe..a44348e 100644
+> --- a/drivers/Kconfig
+> +++ b/drivers/Kconfig
+> @@ -90,6 +90,8 @@ source "drivers/memstick/Kconfig"
+>
+> =A0source "drivers/leds/Kconfig"
+>
+> +source "drivers/haptic/Kconfig"
+> +
+> =A0source "drivers/accessibility/Kconfig"
+>
+> =A0source "drivers/infiniband/Kconfig"
+> diff --git a/drivers/Makefile b/drivers/Makefile
+> index 6ee53c7..ee6f438 100644
+> --- a/drivers/Makefile
+> +++ b/drivers/Makefile
+> @@ -94,6 +94,7 @@ obj-y =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ +=3D idle/
+> =A0obj-$(CONFIG_MMC) =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D mmc/
+> =A0obj-$(CONFIG_MEMSTICK) =A0 =A0 =A0 =A0 +=3D memstick/
+> =A0obj-$(CONFIG_NEW_LEDS) =A0 =A0 =A0 =A0 +=3D leds/
+> +obj-$(CONFIG_HAPTIC) =A0 =A0 =A0 =A0 =A0 +=3D haptic/
+> =A0obj-$(CONFIG_INFINIBAND) =A0 =A0 =A0 +=3D infiniband/
+> =A0obj-$(CONFIG_SGI_SN) =A0 =A0 =A0 =A0 =A0 +=3D sn/
+> =A0obj-y =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D firm=
+ware/
 
-> > How did I get subscribed to this list, anyway?
-> 
-> i think i might have accidentally added you to the subscribed list
-> while processing moderation requests when i meant to add you to just
-> the approved list.  i'll fix it up of course, sorry about that. 
+Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
 
-No problem. It's just that it's arriving in my INBOX rather than a
-list-specific folder. I'll fix that; no need to unsubscribe me.
 
--- 
-David Woodhouse                            Open Source Technology Centre
-David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org                              Intel Corporation
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,90 +1,309 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices AD714X
-	captouchinput driver
-Date: Sat, 10 Oct 2009 10:24:40 +0800
-Message-ID: <3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
-	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
-	<20091009162219.GB1092@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: New driver for Altera PS/2 controller
+Date: Fri, 9 Oct 2009 21:56:03 -0700
+Message-ID: <20091010045603.GA9914@core.coreip.homeip.net>
+References: <1254985152-32407-1-git-send-email-thomas@wytron.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20091009162219.GB1092-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752042AbZJJE4s@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1254985152-32407-1-git-send-email-thomas@wytron.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thomas Chou <thomas@wytron.com.tw>
+Cc: linux-input@vger.kernel.org, Nios2 development list <nios2-dev@sopc.et.ntust.edu.tw>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gU2F0LCBPY3QgMTAsIDIwMDkgYXQgMTI6MjIgQU0sIERtaXRyeSBUb3Jva2hvdgo8ZG1pdHJ5
-LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6Cj4gT24gRnJpLCBPY3QgMDksIDIwMDkgYXQgMDY6
-MTE6NDVBTSAtMDQwMCwgTWlrZSBGcnlzaW5nZXIgd3JvdGU6Cj4+IE9uIEZyaSwgT2N0IDksIDIw
-MDkgYXQgMDU6MTgsIE1pa2UgRnJ5c2luZ2VyIDx2YXBpZXIuYWRpQGdtYWlsLmNvbT4gd3JvdGU6
-Cj4+ID4gd2UgY291bGQgaGF2ZSB0aHJlZSBtb2R1bGVzIGhlcmU6IGFkNzE0eCwgYWQ3MTR4LWky
-YywgYWQ3MTR4LXNwaQo+Pgo+PiBhcmUgeW91IG9rIHdpdGggdGhpcyBhcHByb2FjaCBEbWl0cnkg
-PyDCoHRoaXMgd2F5IHBlb3BsZSBjYW4KPj4gbG9hZC91bmxvYWQgYSBzcGVjaWZpYyBidXMgd2l0
-aG91dCBhZmZlY3RpbmcgdGhlIGNvcmUgb3IgdGhlIG90aGVyCj4+IGJ1cywgYW5kIGVycm9ycyB3
-aXRoIGxvYWRpbmcgb25lIGJ1cyB0eXBlIHdvdWxkbnQgYWZmZWN0IGxvYWRpbmcgb2YKPj4gdGhl
-IG90aGVyLgo+Cj4gWWVzLCBJIHRoaW5rIHRoaXMgaXMgdGhlIG1vc3QgY2xlYW4gd2F5LgpUaGF0
-IHdpbGwgZGVjcmVhc2UgdGhlIGNvaGVzaW9uIGFuZCBpbmNyZWFzZSBjb3VwbGluZy4gSXQncyB0
-ZWRpb3VzCmZvciBvbmUgZHJpdmVyIHdpdGggc2luZ2xlIGZlYXR1cmUgdG8gaGF2ZSB0aHJlZSBt
-b2R1bGVzLiBUbyBmdWxmaWxsCnRoYXQsIGFkNzE0eCBuZWVkIHRvIGV4cG9zZSBkYXRhIHN0cnVj
-dHVyZXMgYW5kIGV4cG9ydCBzeW1ib2xzIHRvCmFkNzE0eC1pMmMgYW5kIGFkNzE0eC1zcGkuIEJ1
-dCB0aG9zZSBkYXRhIHN0cnVjdHVyZXMgYW5kIHN5bWJvbHMgYXJlCm1vcmUgbGlrZSBsb2NhbCBz
-dHVmZi4gQW5kIEkyQyBhbmQgU1BJIGFyZSBqdXN0IGJvdHRvbSBsZXZlbApjb21tdW5pY2F0aW9u
-IHdheXMsIHRoZXkgc2hvdWxkIGJlIHRoZSBib3R0b20gbGV2ZWwgb2YgYWQ3MTR4LCBidXQKYWZ0
-ZXIgc3BsaXR0aW5nIHRvIDMgbW9kdWxlcywgaXQgc2VlbXMgdGhleSBiZWNvbWUgdGhlIHRvcCBs
-ZXZlbCBvZgphZDcxNHguCkhvdyBhYm91dCB3ZSBzdGlsbCBoYXZlIG9uZSBtb2R1bGUsIGJ1dCBs
-ZXQgdXNlcnMgdG8gc2VsZWN0IHdoaWNoIGJ1cwpzaG91bGQgYmUgcHJvYmVkIGFjY29yZGluZyB0
-byB0aGVpciBib2FyZHMuCgpjb25maWcgSU5QVVRfQUQ3MTRYCiAgICAgICAgdHJpc3RhdGUgIkFu
-YWxvZyBEZXZpY2VzIEFENzE0Mi83MTQ3IENhcGFjaXRhbmNlIFRvdWNoIFNlbnNvciIKICAgICAg
-ICBoZWxwCiAgICAgICAgICBTYXkgWSBoZXJlIGlmIHlvdSB3YW50IHRvIHN1cHBvcnQgYW4gQUQ3
-MTQyLzcxNDcgdG91Y2ggc2Vuc29yLgoKICAgICAgICAgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIg
-YXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQogICAgICAgICAgbW9kdWxlIHdpbGwgYmUg
-Y2FsbGVkIGFkNzE0eC4KCmlmIElOUFVUX0FENzE0WAoKY29uZmlnIEFENzE0WF9TQ0FOX1NQSQog
-ICAgICAgIGJvb2wgInNjYW4gQUQ3MTQyLzcxNDcgZGV2aWNlcyBvbiBTUEkgYnVzIgogICAgICAg
-IGRlZmF1bHQgeQogICAgICAgIHNlbGVjdCBTUEkKICAgICAgICAtLS1oZWxwLS0tCiAgICAgICAg
-ICBTYXkgWSBoZXJlIGlmIHlvdSBoYXZlIEFENzE0Mi9BRDcxNDcgaG9va2VkIG9uIFNQSSBidXMu
-CiAgICAgICAgICBJZiB1bnN1cmUsIHNheSBOLgoKCmNvbmZpZyBBRDcxNFhfU0NBTl9JMkMKICAg
-ICAgICBib29sICJzY2FuIEFENzE0Mi83MTQ3IGRldmljZXMgb24gSTJDIGJ1cyIKICAgICAgICBk
-ZWZhdWx0IHkKICAgICAgICBzZWxlY3QgSTJDCiAgICAgICAgLS0taGVscC0tLQogICAgICAgICAg
-U2F5IFkgaGVyZSBpZiB5b3UgaGF2ZSBBRDcxNDIvQUQ3MTQ3IGhvb2tlZCBvbiBJMkMgYnVzLgog
-ICAgICAgICAgSWYgdW5zdXJlLCBzYXkgTi4KCmVuZGlmCgpXaGlsZSBBRDcxNFhfU0NBTl9TUEkg
-b3IgQUQ3MTRYX1NDQU5fSTJDIGlzIHNlbGVjdGVkLCB3ZSBsZXQKY29ycmVzcG9uZGluZyBjb2Rl
-cyBjb21waWxlZC4gIEFuZCB3ZSB1c2UgdmFyaWFibGVzIHRvIG1haW50YWluIHRoZQpyZWdpc3Rl
-cnMgb2YgU1BJL0kyQyB0byBwZXJtaXQgdGhlIG90aGVyIG9uZSB3b3JraW5nIGV2ZW4gYWZ0ZXIg
-b25lCmZhaWxzIHRvIHJlZ2lzdGVyLgoKc3RhdGljIGludCBzcGlfc3RhID0gLTEsIGkyY19zdGEg
-PSAtMTsKCnN0YXRpYyBfX2luaXQgaW50IGFkNzE0eF9pbml0KHZvaWQpCnsKI2lmIGRlZmluZWQo
-Q09ORklHX0FENzE0WF9TQ0FOX1NQSSkKICAgICAgICBzcGlfc3RhID0gc3BpX3JlZ2lzdGVyX2Ry
-aXZlcigmYWQ3MTR4X3NwaV9kcml2ZXIpOwojZW5kaWYKCiNpZiBkZWZpbmVkKENPTkZJR19BRDcx
-NFhfU0NBTl9JMkMpCiAgICAgICAgaTJjX3N0YSA9IGkyY19hZGRfZHJpdmVyKCZhZDcxNHhfaTJj
-X2RyaXZlcik7CiNlbmRpZgoKICAgICAgICAvKiBJZiBhbnlvbmUgb2Ygc3BpIGFuZCBpMmMgaW5p
-dCBzdWNjZXNzZnVsbHksIHdlIHBlcm1pdCBpdCB0byB3b3JrICovCiAgICAgICAgaWYgKChzcGlf
-c3RhICYmIGkyY19zdGEpID09IDApCiAgICAgICAgICAgICAgICByZXR1cm4gMDsKICAgICAgICBl
-bHNlCiAgICAgICAgICAgICAgICByZXR1cm4gLUVOT0RFVjsKfQoKc3RhdGljIF9faW5pdCB2b2lk
-IGFkNzE0eF9leGl0KHZvaWQpCnsKI2lmIGRlZmluZWQoQ09ORklHX0FENzE0WF9TQ0FOX1NQSSkK
-ICAgICAgICBpZiAoIXNwaV9zdGEpCiAgICAgICAgICAgICAgICBzcGlfdW5yZWdpc3Rlcl9kcml2
-ZXIoJmFkNzE0eF9zcGlfZHJpdmVyKTsKI2VuZGlmCgojaWYgZGVmaW5lZChDT05GSUdfQUQ3MTRY
-X1NDQU5fSTJDKQogICAgICAgIGlmICghaTJjX3N0YSkKICAgICAgICAgICAgICAgIGkyY19kZWxf
-ZHJpdmVyKCZhZDcxNHhfaTJjX2RyaXZlcik7CiNlbmRpZgp9Cm1vZHVsZV9pbml0KGFkNzE0eF9p
-bml0KTsKbW9kdWxlX2V4aXQoYWQ3MTR4X2V4aXQpOwoKPgo+IC0tCj4gRG1pdHJ5Cj4gX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPiBVY2xpbnV4LWRpc3Qt
-ZGV2ZWwgbWFpbGluZyBsaXN0Cj4gVWNsaW51eC1kaXN0LWRldmVsQGJsYWNrZmluLnVjbGludXgu
-b3JnCj4gaHR0cHM6Ly9ibGFja2Zpbi51Y2xpbnV4Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3VjbGlu
-dXgtZGlzdC1kZXZlbAo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClVjbGludXgtZGlzdC1kZXZlbCBtYWlsaW5nIGxpc3QKVWNsaW51eC1kaXN0LWRldmVs
-QGJsYWNrZmluLnVjbGludXgub3JnCmh0dHBzOi8vYmxhY2tmaW4udWNsaW51eC5vcmcvbWFpbG1h
-bi9saXN0aW5mby91Y2xpbnV4LWRpc3QtZGV2ZWw=
+Hi Thomas,
+
+On Thu, Oct 08, 2009 at 02:59:12PM +0800, Thomas Chou wrote:
+> This patch adds a new SERIO driver to support the Altera University
+> Program PS/2 controller.
+> 
+
+Thank you for the patch, it looks like it is reasonable written although
+it should do request_mem_region for the IO memory region it tries to
+remap and also IO addresses should not be cast to unsigned int but
+rather 'void __iomem *'. I also don;t see the reason for it to depend on
+EMBEDDED since the things that depend on EMBEDDED are usually features
+that are used almost by everyone and only in case of embedded arch you
+may want to turn them off to save some memory.
+
+I also prefer even static functions to have the driver name as their
+prefix - this way if I see a backtrace I know exactly which module is
+involved.
+
+I made a small patch on top of yours, please give it a try and if it did
+not break anything then I will fold it all together and queue for
+2.6.33.
+
+Thanks!
+
+-- 
+Dmitry
+
+
+Input: altera_ps2 - miscellaneous fixes
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/serio/Kconfig      |    1 
+ drivers/input/serio/altera_ps2.c |  139 +++++++++++++++++++++-----------------
+ 2 files changed, 77 insertions(+), 63 deletions(-)
+
+
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index b3a6c1a..7e319d6 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -203,7 +203,6 @@ config SERIO_XILINX_XPS_PS2
+ 
+ config SERIO_ALTERA_PS2
+ 	tristate "Altera UP PS/2 controller"
+-	depends on EMBEDDED
+ 	help
+ 	  Say Y here if you have Altera University Program PS/2 ports.
+ 
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index 6a7ef09..f479ea5 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -22,9 +22,9 @@
+ #define DRV_NAME "altera_ps2"
+ 
+ struct ps2if {
+-	struct serio		*io;
+-	struct platform_device	*dev;
+-	unsigned base;
++	struct serio *io;
++	struct resource *iomem_res;
++	void __iomem *base;
+ 	unsigned irq;
+ };
+ 
+@@ -32,7 +32,7 @@ struct ps2if {
+  * Read all bytes waiting in the PS2 port.  There should be
+  * at the most one, but we loop for safety.
+  */
+-static irqreturn_t ps2_rxint(int irq, void *dev_id)
++static irqreturn_t altera_ps2_rxint(int irq, void *dev_id)
+ {
+ 	struct ps2if *ps2if = dev_id;
+ 	unsigned int status;
+@@ -42,13 +42,14 @@ static irqreturn_t ps2_rxint(int irq, void *dev_id)
+ 		serio_interrupt(ps2if->io, status & 0xff, 0);
+ 		handled = IRQ_HANDLED;
+ 	}
++
+ 	return handled;
+ }
+ 
+ /*
+  * Write a byte to the PS2 port.
+  */
+-static int ps2_write(struct serio *io, unsigned char val)
++static int altera_ps2_write(struct serio *io, unsigned char val)
+ {
+ 	struct ps2if *ps2if = io->port_data;
+ 
+@@ -56,100 +57,114 @@ static int ps2_write(struct serio *io, unsigned char val)
+ 	return 0;
+ }
+ 
+-static int ps2_open(struct serio *io)
++static int altera_ps2_open(struct serio *io)
+ {
+ 	struct ps2if *ps2if = io->port_data;
+-	int ret;
+-
+-	ret = request_irq(ps2if->irq, ps2_rxint, 0,
+-			  DRV_NAME, ps2if);
+-	if (ret) {
+-		printk(KERN_ERR DRV_NAME ": could not allocate IRQ%d: %d\n",
+-			ps2if->irq, ret);
+-		return ret;
+-	}
++
++	/* clear fifo */
++	while (readl(ps2if->base) & 0xffff0000)
++		/* empty */;
++
+ 	writel(1, ps2if->base + 4); /* enable rx irq */
+ 	return 0;
+ }
+ 
+-static void ps2_close(struct serio *io)
++static void altera_ps2_close(struct serio *io)
+ {
+ 	struct ps2if *ps2if = io->port_data;
+ 
+ 	writel(0, ps2if->base); /* disable rx irq */
+-	free_irq(ps2if->irq, ps2if);
+ }
+ 
+ /*
+  * Add one device to this driver.
+  */
+-static int ps2_probe(struct platform_device *dev)
++static int altera_ps2_probe(struct platform_device *pdev)
+ {
+ 	struct ps2if *ps2if;
+ 	struct serio *serio;
+-	struct resource *res;
+-	int ret;
++	int error;
+ 
+ 	ps2if = kzalloc(sizeof(struct ps2if), GFP_KERNEL);
+ 	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+ 	if (!ps2if || !serio) {
+-		ret = -ENOMEM;
+-		goto free;
++		error = -ENOMEM;
++		goto err_free_mem;
+ 	}
+ 
+ 	serio->id.type		= SERIO_8042;
+-	serio->write		= ps2_write;
+-	serio->open		= ps2_open;
+-	serio->close		= ps2_close;
+-	strlcpy(serio->name, dev_name(&dev->dev), sizeof(serio->name));
+-	strlcpy(serio->phys, dev_name(&dev->dev), sizeof(serio->phys));
++	serio->write		= altera_ps2_write;
++	serio->open		= altera_ps2_open;
++	serio->close		= altera_ps2_close;
++	strlcpy(serio->name, dev_name(&pdev->dev), sizeof(serio->name));
++	strlcpy(serio->phys, dev_name(&pdev->dev), sizeof(serio->phys));
+ 	serio->port_data	= ps2if;
+-	serio->dev.parent	= &dev->dev;
++	serio->dev.parent	= &pdev->dev;
+ 	ps2if->io		= serio;
+-	ps2if->dev		= dev;
+-	platform_set_drvdata(dev, ps2if);
+ 
+-	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		ret = -ENOENT;
+-		goto free;
++	ps2if->iomem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (ps2if->iomem_res == NULL) {
++		error = -ENOENT;
++		goto err_free_mem;
+ 	}
+-	ps2if->irq  = platform_get_irq(dev, 0);
++
++	ps2if->irq  = platform_get_irq(pdev, 0);
+ 	if (ps2if->irq < 0) {
+-		ret = -ENXIO;
+-		goto free;
++		error = -ENXIO;
++		goto err_free_mem;
++	}
++
++	if (!request_mem_region(ps2if->iomem_res->start,
++				resource_size(ps2if->iomem_res), pdev->name)) {
++		error = -EBUSY;
++		goto err_free_mem;
+ 	}
+-	ps2if->base = (unsigned) ioremap(res->start,
+-					 (res->end - res->start) + 1);
++
++	ps2if->base = ioremap(ps2if->iomem_res->start,
++			      resource_size(ps2if->iomem_res));
+ 	if (!ps2if->base) {
+-		ret = -ENOMEM;
+-		goto free;
++		error = -ENOMEM;
++		goto err_free_res;
+ 	}
+-	printk(KERN_INFO DRV_NAME ": base %08x irq %d\n",
+-	       ps2if->base, ps2if->irq);
+-	/* clear fifo */
+-	while (readl(ps2if->base) & 0xffff0000)
+-		;
++
++	error = request_irq(ps2if->irq, altera_ps2_rxint, 0, pdev->name, ps2if);
++	if (error) {
++		dev_err(&pdev->dev, "could not allocate IRQ %d: %d\n",
++			ps2if->irq, error);
++		goto err_unmap;
++	}
++
++	dev_info(&pdev->dev, "base %p, irq %d\n", ps2if->base, ps2if->irq);
++
+ 	serio_register_port(ps2if->io);
++	platform_set_drvdata(pdev, ps2if);
++
+ 	return 0;
+ 
+- free:
+-	platform_set_drvdata(dev, NULL);
++ err_unmap:
++	iounmap(ps2if->base);
++ err_free_res:
++	release_mem_region(ps2if->iomem_res->start,
++			   resource_size(ps2if->iomem_res));
++ err_free_mem:
+ 	kfree(ps2if);
+ 	kfree(serio);
+-	return ret;
++	return error;
+ }
+ 
+ /*
+  * Remove one device from this driver.
+  */
+-static int ps2_remove(struct platform_device *dev)
++static int altera_ps2_remove(struct platform_device *pdev)
+ {
+-	struct ps2if *ps2if = platform_get_drvdata(dev);
++	struct ps2if *ps2if = platform_get_drvdata(pdev);
+ 
+-	platform_set_drvdata(dev, NULL);
++	platform_set_drvdata(pdev, NULL);
+ 	serio_unregister_port(ps2if->io);
+-	iounmap((void *)ps2if->base);
++	free_irq(ps2if->irq, ps2if);
++	iounmap(ps2if->base);
++	release_mem_region(ps2if->iomem_res->start,
++			   resource_size(ps2if->iomem_res));
+ 	kfree(ps2if);
+ 
+ 	return 0;
+@@ -158,26 +173,26 @@ static int ps2_remove(struct platform_device *dev)
+ /*
+  * Our device driver structure
+  */
+-static struct platform_driver ps2_driver = {
+-	.probe		= ps2_probe,
+-	.remove		= ps2_remove,
++static struct platform_driver altera_ps2_driver = {
++	.probe		= altera_ps2_probe,
++	.remove		= altera_ps2_remove,
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 	},
+ };
+ 
+-static int __init ps2_init(void)
++static int __init altera_ps2_init(void)
+ {
+-	return platform_driver_register(&ps2_driver);
++	return platform_driver_register(&altera_ps2_driver);
+ }
+ 
+-static void __exit ps2_exit(void)
++static void __exit altera_ps2_exit(void)
+ {
+-	platform_driver_unregister(&ps2_driver);
++	platform_driver_unregister(&altera_ps2_driver);
+ }
+ 
+-module_init(ps2_init);
+-module_exit(ps2_exit);
++module_init(altera_ps2_init);
++module_exit(altera_ps2_exit);
+ 
+ MODULE_DESCRIPTION("Altera University Program PS2 controller driver");
+ MODULE_AUTHOR("Thomas Chou <thomas@wytron.com.tw>");

@@ -1,56 +1,68 @@
-From: Thomas Chou <thomas@wytron.com.tw>
-Subject: Re: [PATCH] input: New driver for Altera PS/2 controller
-Date: Sat, 10 Oct 2009 18:24:16 +0800
-Message-ID: <4AD060D0.7090502@wytron.com.tw>
-References: <1254985152-32407-1-git-send-email-thomas@wytron.com.tw> <20091010045603.GA9914@core.coreip.homeip.net>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Sat, 10 Oct 2009 16:38:22 -0400
+Message-ID: <8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
+	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+	<20091009162219.GB1092@core.coreip.homeip.net>
+	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from msr12.hinet.net ([168.95.4.112]:62859 "EHLO msr12.hinet.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750805AbZJJKWw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Oct 2009 06:22:52 -0400
-In-Reply-To: <20091010045603.GA9914@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <3c17e3570910091924p68a248e6q3dd2640acc17c90d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Nios2 development list <nios2-dev@sopc.et.ntust.edu.tw>, linux-kernel@vger.kernel.org
 
-On 10/10/2009 12:56 PM, Dmitry Torokhov wrote:
-> Hi Thomas,
->
-> On Thu, Oct 08, 2009 at 02:59:12PM +0800, Thomas Chou wrote:
->    
->> This patch adds a new SERIO driver to support the Altera University
->> Program PS/2 controller.
->>
->>      
-> Thank you for the patch, it looks like it is reasonable written although
-> it should do request_mem_region for the IO memory region it tries to
-> remap and also IO addresses should not be cast to unsigned int but
-> rather 'void __iomem *'. I also don;t see the reason for it to depend on
-> EMBEDDED since the things that depend on EMBEDDED are usually features
-> that are used almost by everyone and only in case of embedded arch you
-> may want to turn them off to save some memory.
->
-> I also prefer even static functions to have the driver name as their
-> prefix - this way if I see a backtrace I know exactly which module is
-> involved.
->
-> I made a small patch on top of yours, please give it a try and if it did
-> not break anything then I will fold it all together and queue for
-> 2.6.33.
->
-> Thanks!
->
->    
-Hi Dmitry,
-
-Thank you very much for your help. I have tested the updated driver with 
-PS/2 keyboard and mouse on boards. They all worked well.
-
-Cheers,
-Thomas
-
-
+T24gRnJpLCBPY3QgOSwgMjAwOSBhdCAyMjoyNCwgQmFycnkgU29uZyB3cm90ZToKPiBPbiBTYXQs
+IE9jdCAxMCwgMjAwOSBhdCAxMjoyMiBBTSwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOgo+PiBPbiBG
+cmksIE9jdCAwOSwgMjAwOSBhdCAwNjoxMTo0NUFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3cm90
+ZToKPj4+IE9uIEZyaSwgT2N0IDksIDIwMDkgYXQgMDU6MTgsIE1pa2UgRnJ5c2luZ2VyIDx2YXBp
+ZXIuYWRpQGdtYWlsLmNvbT4gd3JvdGU6Cj4+PiA+IHdlIGNvdWxkIGhhdmUgdGhyZWUgbW9kdWxl
+cyBoZXJlOiBhZDcxNHgsIGFkNzE0eC1pMmMsIGFkNzE0eC1zcGkKPj4+Cj4+PiBhcmUgeW91IG9r
+IHdpdGggdGhpcyBhcHByb2FjaCBEbWl0cnkgPyDCoHRoaXMgd2F5IHBlb3BsZSBjYW4KPj4+IGxv
+YWQvdW5sb2FkIGEgc3BlY2lmaWMgYnVzIHdpdGhvdXQgYWZmZWN0aW5nIHRoZSBjb3JlIG9yIHRo
+ZSBvdGhlcgo+Pj4gYnVzLCBhbmQgZXJyb3JzIHdpdGggbG9hZGluZyBvbmUgYnVzIHR5cGUgd291
+bGRudCBhZmZlY3QgbG9hZGluZyBvZgo+Pj4gdGhlIG90aGVyLgo+Pgo+PiBZZXMsIEkgdGhpbmsg
+dGhpcyBpcyB0aGUgbW9zdCBjbGVhbiB3YXkuCj4KPiBUaGF0IHdpbGwgZGVjcmVhc2UgdGhlIGNv
+aGVzaW9uIGFuZCBpbmNyZWFzZSBjb3VwbGluZy4gSXQncyB0ZWRpb3VzCj4gZm9yIG9uZSBkcml2
+ZXIgd2l0aCBzaW5nbGUgZmVhdHVyZSB0byBoYXZlIHRocmVlIG1vZHVsZXMuIFRvIGZ1bGZpbGwK
+PiB0aGF0LCBhZDcxNHggbmVlZCB0byBleHBvc2UgZGF0YSBzdHJ1Y3R1cmVzIGFuZCBleHBvcnQg
+c3ltYm9scyB0bwo+IGFkNzE0eC1pMmMgYW5kIGFkNzE0eC1zcGkuIEJ1dCB0aG9zZSBkYXRhIHN0
+cnVjdHVyZXMgYW5kIHN5bWJvbHMgYXJlCj4gbW9yZSBsaWtlIGxvY2FsIHN0dWZmLiBBbmQgSTJD
+IGFuZCBTUEkgYXJlIGp1c3QgYm90dG9tIGxldmVsCj4gY29tbXVuaWNhdGlvbiB3YXlzLCB0aGV5
+IHNob3VsZCBiZSB0aGUgYm90dG9tIGxldmVsIG9mIGFkNzE0eCwgYnV0Cj4gYWZ0ZXIgc3BsaXR0
+aW5nIHRvIDMgbW9kdWxlcywgaXQgc2VlbXMgdGhleSBiZWNvbWUgdGhlIHRvcCBsZXZlbCBvZgo+
+IGFkNzE0eC4KCnRoZXJlIHNob3VsZCBhbHJlYWR5IGJlIGEgY2xlYXIgc3BsaXQgYmV0d2VlbiB0
+aGUgYnVzIGFuZCB0aGUgZHJpdmVyCmNvcmUsIG90aGVyd2lzZSBjcmFwIGlzIGJlaW5nIGR1cGxp
+Y2F0ZWQgYmV0d2VlbiB0aGUgdHdvIGludGVyZmFjZXMuCmkganVzdCB0ZXN0ZWQgc3BsaXR0aW5n
+IHRoaW5ncyBhbmQgZWFjaCBidXMgY29kZSBuZWVkcyB0byBrbm93IHZlcnkKZmV3IHRoaW5nczoK
+IC0gcHJvYmUvcmVtb3ZlIGZvciBpbml0aWFsaXphdGlvbgogLSBlbmFibGUvZGlzYWJsZSBmb3Ig
+cG0KCnRoZSBvbmx5IGRvd25zaWRlIGkgc2VlIGhlcmUgaXMgdGhhdCB3ZSBoYXZlIHRvIHJlbW92
+ZQpfX2RldmluaXQvX19kZXZleGl0IG1hcmtpbmdzIGZyb20gdGhlIGNvbW1vbiBwcm9iZS9yZW1v
+dmUgZnVuY3Rpb25zCmFuZCB0aG9zZSB3ZWlnaCBhIGhlZnR5IDI0MDYvMjE4IGJ5dGVzIGEgcGll
+Y2UuCgo+IEhvdyBhYm91dCB3ZSBzdGlsbCBoYXZlIG9uZSBtb2R1bGUsIGJ1dCBsZXQgdXNlcnMg
+dG8gc2VsZWN0IHdoaWNoIGJ1cwo+IHNob3VsZCBiZSBwcm9iZWQgYWNjb3JkaW5nIHRvIHRoZWly
+IGJvYXJkcy4KCndlIGRvIHRoYXQgbm93IGluIGFkNzg3OSBhbmQgaXQncyBhIGJhZCBpZGVhIC0t
+IHRoZSBzaXR1YXRpb24gaXMgd29yc2UKdGhhbiB3aGF0IHdlIGhhdmUgbm93IHdpdGggdGhlIGFk
+NzE0eCBhcyBpdCBtZWFucyB3ZSBjYW50IGhhdmUKbXVsdGlwbGUgZGV2aWNlcyBvbiBkaWZmZXJl
+bnQgYnVzc2VzLgotbWlrZQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpVY2xpbnV4LWRpc3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZl
+bEBibGFja2Zpbi51Y2xpbnV4Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxt
+YW4vbGlzdGluZm8vdWNsaW51eC1kaXN0LWRldmVs

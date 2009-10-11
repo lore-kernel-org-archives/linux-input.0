@@ -1,33 +1,47 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] Haptic class support (v2)
-Date: Sun, 11 Oct 2009 11:05:49 +0200
-Message-ID: <20091011090549.GE1414@ucw.cz>
-References: <20091006074533.GA28889@july>
+From: "Carlos R. Mafra" <crmafra2@gmail.com>
+Subject: [bisected regression] Touchpad "paste" stops working after suspend
+	to RAM
+Date: Sun, 11 Oct 2009 18:21:55 +0200
+Message-ID: <20091011162155.GA4260@Pilar.aei.mpg.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756069AbZJKJGh@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756448AbZJKQta@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20091006074533.GA28889@july>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue 2009-10-06 16:45:33, Kyungmin Park wrote:
-> This patch includes two haptic devices, isa1000 and isa1200
-> ISA1000 is gpio based haptic, but isa1200 is based on I2C
-> Both are working on Samsung SoCs and tested.
-> 
-> To enable the haptic, echo 1 > /sys/class/haptic/${name}/enable
-> You can adjust the level by echo ${level} > /sys/class/haptic/${name}/enable
-> or
-> With oneshot feature, echo ${msec time} > /sys/class/haptic/${name}/oneshot
+Using the latest 2.6.32-rc3+ kernel, the "paste" operation via the 
+touchpad of my Vaio laptop does not work after suspend to RAM.
 
-New device classes should certainly be documented in Documentation/.
+It works flawlessly before s2ram; I select the text with the touchpad
+and tap quickly its right corner to paste the selected text.
+After a plain 'echo mem > /sys/power/state' the "paste" does not work.
 
-For example... is level 0-100? Is it valid to change level while
-'oneshot' is running? Does oneshot use last level set?
+I bisected it to commit ffd0db97196c1057f09c2ab42dd5b30e94e511d9 ("Input: 
+add generic suspend and resume for input devices").
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+I haven't tested if reverting it from mainline fixes the issue, but 
+from the patch description I guess that bisection landed correctly
+on the culprit.
+
+I have a recent dmesg from my laptop here: 
+
+http://www.aei.mpg.de/~crmafra/dmesg-2.6.32-rc3-wifi.txt
+
+(the wifi warnings there are related to another issue, and the touchpad
+problem happens independently of those warnings).
+
+I can test patches and provide more info if necessary.
+
+
+PS: Due to some HAL configuration issue I have this line in my .bashrc
+
+synclient RTCornerButton=2
+
+which makes the right corner region capable of pasting. When the
+kernel is "good", it comes back from resume and I don't need to
+run this command again for the 'paste' operation to work. When
+the kernel is "bad" running this command has no effect and 
+"paste" does not work in any way.

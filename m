@@ -1,39 +1,33 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Sat, 10 Oct 2009 20:00:29 -0700
-Message-ID: <20091011030029.GA6526@suse.de>
-References: <4AD120F2.3020606@tremplin-utc.net>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Haptic class support (v2)
+Date: Sun, 11 Oct 2009 11:05:49 +0200
+Message-ID: <20091011090549.GE1414@ucw.cz>
+References: <20091006074533.GA28889@july>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37456 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754369AbZJKDBL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Oct 2009 23:01:11 -0400
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756069AbZJKJGh@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4AD120F2.3020606@tremplin-utc.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20091006074533.GA28889@july>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg KH <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
-To: ?ric Piel <Eric.Piel@tremplin-utc.net>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Sun, Oct 11, 2009 at 02:04:02AM +0200, ?ric Piel wrote:
-> Hello,
->
-> After a suspend, I used to do this (to get the PS2 keyboard working again), 
-> and it used to work fine:
-> echo -n "i8042" > /sys/bus/platform/drivers/i8042/unbind ; sleep 1 ; echo 
-> -n "i8042" > /sys/bus/platform/drivers/i8042/bind
->
-> Unfortunately since 2.6.32-rc1, the unbind works fine, but the bind returns 
-> a "no such device" error now (and the binding is not done). After that, 
-> additional unbinds also report the error. I think 2.6.31 worked fine. Any 
-> idea what's going wrong?
+On Tue 2009-10-06 16:45:33, Kyungmin Park wrote:
+> This patch includes two haptic devices, isa1000 and isa1200
+> ISA1000 is gpio based haptic, but isa1200 is based on I2C
+> Both are working on Samsung SoCs and tested.
+> 
+> To enable the haptic, echo 1 > /sys/class/haptic/${name}/enable
+> You can adjust the level by echo ${level} > /sys/class/haptic/${name}/enable
+> or
+> With oneshot feature, echo ${msec time} > /sys/class/haptic/${name}/oneshot
 
-Odd.  Any chance you can run 'git bisect' to figure out which patch
-might have caused it?
+New device classes should certainly be documented in Documentation/.
 
-thanks,
+For example... is level 0-100? Is it valid to change level while
+'oneshot' is running? Does oneshot use last level set?
 
-greg k-h
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

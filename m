@@ -1,34 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Polled input device: Add closing indication
-Date: Mon, 12 Oct 2009 01:54:42 -0700
-Message-ID: <200910120154.42432.dmitry.torokhov@gmail.com>
-References: <1255334981-24118-1-git-send-email-samu.p.onkalo@nokia.com> <1255334981-24118-2-git-send-email-samu.p.onkalo@nokia.com>
+Subject: Re: [bisected regression] Touchpad "paste" stops working after
+	suspend to RAM
+Date: Mon, 12 Oct 2009 02:02:24 -0700
+Message-ID: <20091012090224.GB7403@core.coreip.homeip.net>
+References: <20091011162155.GA4260@Pilar.aei.mpg.de> <20091011180134.GA5197@core.coreip.homeip.net> <20091011193100.GA4410@Pilar.aei.mpg.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:21707 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755009AbZJLIzy (ORCPT
+Received: from mail-qy0-f172.google.com ([209.85.221.172]:52622 "EHLO
+	mail-qy0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754736AbZJLJDH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 04:55:54 -0400
-Received: by qw-out-2122.google.com with SMTP id 9so509798qwb.37
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2009 01:54:46 -0700 (PDT)
-In-Reply-To: <1255334981-24118-2-git-send-email-samu.p.onkalo@nokia.com>
+	Mon, 12 Oct 2009 05:03:07 -0400
+Content-Disposition: inline
+In-Reply-To: <20091011193100.GA4410@Pilar.aei.mpg.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: linux-input@vger.kernel.org
+To: "Carlos R. Mafra" <crmafra2@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
 
-Hi Samu,
+On Sun, Oct 11, 2009 at 09:31:00PM +0200, Carlos R. Mafra wrote:
+> On Sun 11.Oct'09 at 11:01:34 -0700, Dmitry Torokhov wrote:
+> > Hi Carols,
+> > 
+> > On Sun, Oct 11, 2009 at 06:21:55PM +0200, Carlos R. Mafra wrote:
+> > > Using the latest 2.6.32-rc3+ kernel, the "paste" operation via the 
+> > > touchpad of my Vaio laptop does not work after suspend to RAM.
+> > > 
+> > > It works flawlessly before s2ram; I select the text with the touchpad
+> > > and tap quickly its right corner to paste the selected text.
+> > > After a plain 'echo mem > /sys/power/state' the "paste" does not work.
+> > > 
+> > > I bisected it to commit ffd0db97196c1057f09c2ab42dd5b30e94e511d9 ("Input: 
+> > > add generic suspend and resume for input devices").
+> > > 
+> > > I haven't tested if reverting it from mainline fixes the issue, but 
+> > > from the patch description I guess that bisection landed correctly
+> > > on the culprit.
+> > > 
+> > 
+> > Please verify that this is the real offending commit by reverting it - I
+> > am surprised that it would give any trouble since it is supposed to
+> > restore LED state and repeat rate and therefore should only be affecting
+> > keyboards.
+> 
+> Reverting it fixes the issue, I've just tested it now.
+> 
+> [ I had to edit the resulting drivers/input/input.c because it did not 
+>   revert cleanly. ]
 
-On Monday 12 October 2009 01:09:41 am Samu Onkalo wrote:
-> When closing polled input device, call optional closing method
-> to make it possible to turn off the HW.
+Carols, I see in the dmesg you supplied earlier ALPS was redetected
+successfully, so I guess the problem is that your synclient quirk did
+not run after resume. The best way to handle it would be adding a HAL
+rule, something like this:
 
-What about open? How do you re-enable the device if it was closed and
-then reopened?
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<deviceinfo version="0.2">
+        <device>
+                <match key="input.x11_driver" contains="synaptics">
+                        <merge key="input.x11_options.SHMConfig" type="string">On</merge>
+                </match>
+        </device>
+</deviceinfo>
+
+You'd need to add add the corner tapping command.
+
+Still, I am curious to know why we can't simply reinitialize ALPS from
+the get go, could you please send me a dmesg of resume done with
+i8042.debug? Thanks!
 
 -- 
 Dmitry

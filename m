@@ -1,69 +1,43 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
- anymore
-Date: Mon, 12 Oct 2009 12:58:08 -0700
-Message-ID: <20091012195808.GA10684@suse.de>
-References: <4AD120F2.3020606@tremplin-utc.net>
- <20091011030029.GA6526@suse.de>
- <200910112135.29384.dmitry.torokhov@gmail.com>
- <4AD31709.4000103@tremplin-utc.net>
- <20091012154846.GB7996@core.coreip.homeip.net>
- <20091012173551.GC10557@suse.de>
- <20091012183313.GC8345@core.coreip.homeip.net>
- <20091012185417.GA30342@suse.de>
- <20091012192046.GD8345@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35167 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758114AbZJLUZt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 16:25:49 -0400
-Content-Disposition: inline
-In-Reply-To: <20091012192046.GD8345@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: bcm5974: retract efi-broken suspend_resume
+Date: Tue, 13 Oct 2009 00:23:42 +0200
+Message-ID: <1255386223-4109-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758578AbZJLW0L@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 12, 2009 at 12:20:46PM -0700, Dmitry Torokhov wrote:
-> On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
-> > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
-> > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
-> > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
-> > > > > > So at least, unbind should fail as well as bind.
-> > > > > >
-> > > > > 
-> > > > > That would be Greg's domain s it is driver core decision whether to
-> > > > > allow unbinding platform devices registered with
-> > > > > platform_driver_probe().
-> > > > 
-> > > > No, I do not see why that should not be allowed.
-> > > > 
-> > > 
-> > > Because once you did unbind the device you are stuck (unless the driver
-> > > is compiled as a module, but then you could just unload the module
-> > > instead of unbinding). Disallowing unbind would allow discarding not
-> > > only __devinit but __devexit sections when driver is built in which
-> > > would make ebedded people happy[^Hier].
-> > 
-> > Yeah, good point.
-> > 
-> > Does anyone do bind/unbind with platform devices today?
-> > 
-> 
-> Greg, meet Eric ;)
+With the recent system-wide improvements on suspend/resume and EFI
+booting the suspend_resume method of the bcm5974 has broken. When
+waking up from the S3 state on the MacBookAir, the trackpad is found
+in a yet unknown state, unable to switch to the proper multitouch
+mode.  The result is a frozen touchpad, and a flood of errors of the
+kind
 
-Heh, yes, I mean for a "useful" thing :)
+bcm5974: bad trackpad package, length: 8.
 
-Eric is trying to do this to resolve a bug in the driver, not a thing
-that is "normally" done for platform devices.
+This patch retracts the reset_resume method altogether, falling back
+on the generic unbind/rebind functionality of the usb layer until
+further investigations can be made as how to reset the device when
+booting from efi.
 
-> Although I'd really want to fix the resume issue so it works out of the
-> box without needing to bind/unbind or reload i8042.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-I agree.
-
-thanks,
-
-greg k-h
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 2d8fc0b..79e182a 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -760,7 +760,6 @@ static struct usb_driver bcm5974_driver = {
+ 	.disconnect		= bcm5974_disconnect,
+ 	.suspend		= bcm5974_suspend,
+ 	.resume			= bcm5974_resume,
+-	.reset_resume		= bcm5974_resume,
+ 	.id_table		= bcm5974_table,
+ 	.supports_autosuspend	= 1,
+ };
+-- 
+1.6.3.3

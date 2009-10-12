@@ -1,48 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Greg KH <gregkh@suse.de>
 Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Mon, 12 Oct 2009 12:20:46 -0700
-Message-ID: <20091012192046.GD8345@core.coreip.homeip.net>
-References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net> <20091012173551.GC10557@suse.de> <20091012183313.GC8345@core.coreip.homeip.net> <20091012185417.GA30342@suse.de>
+ anymore
+Date: Mon, 12 Oct 2009 12:58:08 -0700
+Message-ID: <20091012195808.GA10684@suse.de>
+References: <4AD120F2.3020606@tremplin-utc.net>
+ <20091011030029.GA6526@suse.de>
+ <200910112135.29384.dmitry.torokhov@gmail.com>
+ <4AD31709.4000103@tremplin-utc.net>
+ <20091012154846.GB7996@core.coreip.homeip.net>
+ <20091012173551.GC10557@suse.de>
+ <20091012183313.GC8345@core.coreip.homeip.net>
+ <20091012185417.GA30342@suse.de>
+ <20091012192046.GD8345@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933160AbZJLTVi@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:35167 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758114AbZJLUZt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2009 16:25:49 -0400
 Content-Disposition: inline
-In-Reply-To: <20091012185417.GA30342@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
-Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+In-Reply-To: <20091012192046.GD8345@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
-> On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
-> > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
-> > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
-> > > > > So at least, unbind should fail as well as bind.
-> > > > >
+On Mon, Oct 12, 2009 at 12:20:46PM -0700, Dmitry Torokhov wrote:
+> On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
+> > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
+> > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
+> > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > > > > > So at least, unbind should fail as well as bind.
+> > > > > >
+> > > > > 
+> > > > > That would be Greg's domain s it is driver core decision whether to
+> > > > > allow unbinding platform devices registered with
+> > > > > platform_driver_probe().
 > > > > 
-> > > > That would be Greg's domain s it is driver core decision whether to
-> > > > allow unbinding platform devices registered with
-> > > > platform_driver_probe().
+> > > > No, I do not see why that should not be allowed.
+> > > > 
 > > > 
-> > > No, I do not see why that should not be allowed.
-> > > 
+> > > Because once you did unbind the device you are stuck (unless the driver
+> > > is compiled as a module, but then you could just unload the module
+> > > instead of unbinding). Disallowing unbind would allow discarding not
+> > > only __devinit but __devexit sections when driver is built in which
+> > > would make ebedded people happy[^Hier].
 > > 
-> > Because once you did unbind the device you are stuck (unless the driver
-> > is compiled as a module, but then you could just unload the module
-> > instead of unbinding). Disallowing unbind would allow discarding not
-> > only __devinit but __devexit sections when driver is built in which
-> > would make ebedded people happy[^Hier].
+> > Yeah, good point.
+> > 
+> > Does anyone do bind/unbind with platform devices today?
+> > 
 > 
-> Yeah, good point.
-> 
-> Does anyone do bind/unbind with platform devices today?
-> 
+> Greg, meet Eric ;)
 
-Greg, meet Eric ;)
+Heh, yes, I mean for a "useful" thing :)
 
-Although I'd really want to fix the resume issue so it works out of the
-box without needing to bind/unbind or reload i8042.
+Eric is trying to do this to resolve a bug in the driver, not a thing
+that is "normally" done for platform devices.
 
--- 
-Dmitry
+> Although I'd really want to fix the resume issue so it works out of the
+> box without needing to bind/unbind or reload i8042.
+
+I agree.
+
+thanks,
+
+greg k-h

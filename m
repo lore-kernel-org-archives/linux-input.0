@@ -1,48 +1,46 @@
-From: "Carlos R. Mafra" <crmafra2@gmail.com>
-Subject: Re: [bisected regression] Touchpad "paste" stops working after
-	suspend to RAM
-Date: Sun, 11 Oct 2009 21:31:00 +0200
-Message-ID: <20091011193100.GA4410@Pilar.aei.mpg.de>
-References: <20091011162155.GA4260@Pilar.aei.mpg.de> <20091011180134.GA5197@core.coreip.homeip.net>
+From: Kyungmin Park <kmpark@infradead.org>
+Subject: Re: [PATCH] Haptic class support (v2)
+Date: Mon, 12 Oct 2009 09:32:28 +0900
+Message-ID: <9c9fda240910111732x262a9510rf3dd862aa16d0bdf@mail.gmail.com>
+References: <20091006074533.GA28889@july> <20091011090549.GE1414@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ox1.aei.mpg.de ([194.94.224.6]:59623 "EHLO ox1.aei.mpg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751182AbZJKTc4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Oct 2009 15:32:56 -0400
-Content-Disposition: inline
-In-Reply-To: <20091011180134.GA5197@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751861AbZJLAdI@vger.kernel.org>
+In-Reply-To: <20091011090549.GE1414@ucw.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg KH <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
 
-On Sun 11.Oct'09 at 11:01:34 -0700, Dmitry Torokhov wrote:
-> Hi Carols,
-> 
-> On Sun, Oct 11, 2009 at 06:21:55PM +0200, Carlos R. Mafra wrote:
-> > Using the latest 2.6.32-rc3+ kernel, the "paste" operation via the 
-> > touchpad of my Vaio laptop does not work after suspend to RAM.
-> > 
-> > It works flawlessly before s2ram; I select the text with the touchpad
-> > and tap quickly its right corner to paste the selected text.
-> > After a plain 'echo mem > /sys/power/state' the "paste" does not work.
-> > 
-> > I bisected it to commit ffd0db97196c1057f09c2ab42dd5b30e94e511d9 ("Input: 
-> > add generic suspend and resume for input devices").
-> > 
-> > I haven't tested if reverting it from mainline fixes the issue, but 
-> > from the patch description I guess that bisection landed correctly
-> > on the culprit.
-> > 
-> 
-> Please verify that this is the real offending commit by reverting it - I
-> am surprised that it would give any trouble since it is supposed to
-> restore LED state and repeat rate and therefore should only be affecting
-> keyboards.
+On Sun, Oct 11, 2009 at 6:05 PM, Pavel Machek <pavel@ucw.cz> wrote:
+> On Tue 2009-10-06 16:45:33, Kyungmin Park wrote:
+>> This patch includes two haptic devices, isa1000 and isa1200
+>> ISA1000 is gpio based haptic, but isa1200 is based on I2C
+>> Both are working on Samsung SoCs and tested.
+>>
+>> To enable the haptic, echo 1 > /sys/class/haptic/${name}/enable
+>> You can adjust the level by echo ${level} > /sys/class/haptic/${name}/enable
+>> or
+>> With oneshot feature, echo ${msec time} > /sys/class/haptic/${name}/oneshot
+>
+> New device classes should certainly be documented in Documentation/.
+>
+> For example... is level 0-100?
 
-Reverting it fixes the issue, I've just tested it now.
+Basically. range from 0 to 255. also each device can set max level in
+case of isa1000 it's 6.
 
-[ I had to edit the resulting drivers/input/input.c because it did not 
-  revert cleanly. ]
+>  Is it valid to change level while 'oneshot' is running?
+
+we usually use it under 1 sec. but I think it's possible to change it
+but not tried.
+
+>  Does oneshot use last level set?
+
+Right. it used last set value.
+
+If you don't mind to update these at Documentation please wait until
+commit first patches merged.
+
+Thank you,
+Kyungmin Park

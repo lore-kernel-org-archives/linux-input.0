@@ -1,34 +1,48 @@
-From: Bill Gatliff <bgat@billgatliff.com>
-Subject: RFC: Proposed PWM device API
-Date: Mon, 12 Oct 2009 14:22:28 -0500
-Message-ID: <4AD381F4.5080801@billgatliff.com>
-References: <20091007061822.GA7602@july>	 <5d5443650910081128l58f45148m87735185a0094c31@mail.gmail.com>	 <4ACE3124.4060109@billgatliff.com> <5d5443650910090132x5712b027j5d75d10821de5cfd@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
+	anymore
+Date: Mon, 12 Oct 2009 12:20:46 -0700
+Message-ID: <20091012192046.GD8345@core.coreip.homeip.net>
+References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net> <20091012173551.GC10557@suse.de> <20091012183313.GC8345@core.coreip.homeip.net> <20091012185417.GA30342@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:56465 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933084AbZJLTWj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 15:22:39 -0400
-In-Reply-To: <5d5443650910090132x5712b027j5d75d10821de5cfd@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933160AbZJLTVi@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091012185417.GA30342@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org
 
-Guys:
+On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
+> On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
+> > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
+> > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > > > > So at least, unbind should fail as well as bind.
+> > > > >
+> > > > 
+> > > > That would be Greg's domain s it is driver core decision whether to
+> > > > allow unbinding platform devices registered with
+> > > > platform_driver_probe().
+> > > 
+> > > No, I do not see why that should not be allowed.
+> > > 
+> > 
+> > Because once you did unbind the device you are stuck (unless the driver
+> > is compiled as a module, but then you could just unload the module
+> > instead of unbinding). Disallowing unbind would allow discarding not
+> > only __devinit but __devexit sections when driver is built in which
+> > would make ebedded people happy[^Hier].
+> 
+> Yeah, good point.
+> 
+> Does anyone do bind/unbind with platform devices today?
+> 
 
+Greg, meet Eric ;)
 
-git://git.billgatliff.com/pwm.git
-
-See Documentation/pwm.txt
-
-
-b.g.
+Although I'd really want to fix the resume issue so it works out of the
+box without needing to bind/unbind or reload i8042.
 
 -- 
-Bill Gatliff
-bgat@billgatliff.com
-
+Dmitry

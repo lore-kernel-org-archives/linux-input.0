@@ -1,54 +1,70 @@
-From: =?ISO-8859-1?Q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work	anymore
-Date: Mon, 12 Oct 2009 18:48:31 +0200
-Message-ID: <4AD35DDF.4010904@tremplin-utc.net>
-References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Mon, 12 Oct 2009 13:08:23 -0400
+Message-ID: <8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
+	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+	<20091009162219.GB1092@core.coreip.homeip.net>
+	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
+	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:5040 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932561AbZJLQtM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 12:49:12 -0400
-In-Reply-To: <20091012154846.GB7996@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8bd0f97a0910101338y46cb227hdc6d83c3c6622a21-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Op 12-10-09 17:48, Dmitry Torokhov schreef:
-> On Mon, Oct 12, 2009 at 01:46:17PM +0200, =C9ric Piel wrote:
->>> Eric, do you still need to fiddle with i8042 to get your keyboard w=
-orking with=20
->>> 2.6.32-rc3? We need to make sure that resube works without users ne=
-eding to=20
->>> mess with bind/unbind.
->> Yes, the keyboard doesn't work after the first resume from ram (the
->> later resumes do work). I haven't tried any special option to the i8=
-042
->> driver. This is on a HP 2510, in 64 bits.
->=20
-> Could you please try and let me know if unloading at suspend and
-> reloading after resume atkbd and/or psmouse drivers and leaving i8042
-> alone "fixes" the issue?
->=20
-I've just tried adding i8042.reset to the boot command line, and it
-doesn't help (still no keyboard after resume). That's actually a bit
-surprising because I saw on some forum that in general it helped for th=
-e
-HP laptops. Is there a way to be sure the command was understood by the
-driver? I see nothing confirming in dmesg.
-
-My atkbd and psmouse drivers were built-in, so I'm currently recompilin=
-g
-the kernel with them as module and will let you know tomorrow.
-
-See you,
-Eric
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gU2F0LCBPY3QgMTAsIDIwMDkgYXQgMTY6MzgsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+IE9u
+IEZyaSwgT2N0IDksIDIwMDkgYXQgMjI6MjQsIEJhcnJ5IFNvbmcgd3JvdGU6Cj4+IE9uIFNhdCwg
+T2N0IDEwLCAyMDA5IGF0IDEyOjIyIEFNLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4+PiBPbiBG
+cmksIE9jdCAwOSwgMjAwOSBhdCAwNjoxMTo0NUFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3cm90
+ZToKPj4+PiBPbiBGcmksIE9jdCA5LCAyMDA5IGF0IDA1OjE4LCBNaWtlIEZyeXNpbmdlciA8dmFw
+aWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+Pj4+ID4gd2UgY291bGQgaGF2ZSB0aHJlZSBtb2R1
+bGVzIGhlcmU6IGFkNzE0eCwgYWQ3MTR4LWkyYywgYWQ3MTR4LXNwaQo+Pj4+Cj4+Pj4gYXJlIHlv
+dSBvayB3aXRoIHRoaXMgYXBwcm9hY2ggRG1pdHJ5ID8gwqB0aGlzIHdheSBwZW9wbGUgY2FuCj4+
+Pj4gbG9hZC91bmxvYWQgYSBzcGVjaWZpYyBidXMgd2l0aG91dCBhZmZlY3RpbmcgdGhlIGNvcmUg
+b3IgdGhlIG90aGVyCj4+Pj4gYnVzLCBhbmQgZXJyb3JzIHdpdGggbG9hZGluZyBvbmUgYnVzIHR5
+cGUgd291bGRudCBhZmZlY3QgbG9hZGluZyBvZgo+Pj4+IHRoZSBvdGhlci4KPj4+Cj4+PiBZZXMs
+IEkgdGhpbmsgdGhpcyBpcyB0aGUgbW9zdCBjbGVhbiB3YXkuCj4+Cj4+IFRoYXQgd2lsbCBkZWNy
+ZWFzZSB0aGUgY29oZXNpb24gYW5kIGluY3JlYXNlIGNvdXBsaW5nLiBJdCdzIHRlZGlvdXMKPj4g
+Zm9yIG9uZSBkcml2ZXIgd2l0aCBzaW5nbGUgZmVhdHVyZSB0byBoYXZlIHRocmVlIG1vZHVsZXMu
+IFRvIGZ1bGZpbGwKPj4gdGhhdCwgYWQ3MTR4IG5lZWQgdG8gZXhwb3NlIGRhdGEgc3RydWN0dXJl
+cyBhbmQgZXhwb3J0IHN5bWJvbHMgdG8KPj4gYWQ3MTR4LWkyYyBhbmQgYWQ3MTR4LXNwaS4gQnV0
+IHRob3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgc3ltYm9scyBhcmUKPj4gbW9yZSBsaWtlIGxvY2Fs
+IHN0dWZmLiBBbmQgSTJDIGFuZCBTUEkgYXJlIGp1c3QgYm90dG9tIGxldmVsCj4+IGNvbW11bmlj
+YXRpb24gd2F5cywgdGhleSBzaG91bGQgYmUgdGhlIGJvdHRvbSBsZXZlbCBvZiBhZDcxNHgsIGJ1
+dAo+PiBhZnRlciBzcGxpdHRpbmcgdG8gMyBtb2R1bGVzLCBpdCBzZWVtcyB0aGV5IGJlY29tZSB0
+aGUgdG9wIGxldmVsIG9mCj4+IGFkNzE0eC4KPgo+IHRoZXJlIHNob3VsZCBhbHJlYWR5IGJlIGEg
+Y2xlYXIgc3BsaXQgYmV0d2VlbiB0aGUgYnVzIGFuZCB0aGUgZHJpdmVyCj4gY29yZSwgb3RoZXJ3
+aXNlIGNyYXAgaXMgYmVpbmcgZHVwbGljYXRlZCBiZXR3ZWVuIHRoZSB0d28gaW50ZXJmYWNlcy4K
+PiBpIGp1c3QgdGVzdGVkIHNwbGl0dGluZyB0aGluZ3MgYW5kIGVhY2ggYnVzIGNvZGUgbmVlZHMg
+dG8ga25vdyB2ZXJ5Cj4gZmV3IHRoaW5nczoKPiDCoC0gcHJvYmUvcmVtb3ZlIGZvciBpbml0aWFs
+aXphdGlvbgo+IMKgLSBlbmFibGUvZGlzYWJsZSBmb3IgcG0KPgo+IHRoZSBvbmx5IGRvd25zaWRl
+IGkgc2VlIGhlcmUgaXMgdGhhdCB3ZSBoYXZlIHRvIHJlbW92ZQo+IF9fZGV2aW5pdC9fX2RldmV4
+aXQgbWFya2luZ3MgZnJvbSB0aGUgY29tbW9uIHByb2JlL3JlbW92ZSBmdW5jdGlvbnMKPiBhbmQg
+dGhvc2Ugd2VpZ2ggYSBoZWZ0eSAyNDA2LzIxOCBieXRlcyBhIHBpZWNlLgoKaSBzcGVudCB0aW1l
+IHBhY2tpbmcgY29tbW9uIHN0dWZmIGluIHRoZSBwcm9iZSBjb2RlIGFuZCBjdXQgaXQgZG93biBi
+eQp+MWssIHNvIGknbSBmaW5lIHdpdGggdGhpcyBsaXR0bGUgYml0IG9mIG92ZXJoZWFkLgoKQmFy
+cnk6IGNhbiB5b3UgdGVzdCBvdXQgdGhlIGxhdGVzdCBhZDcxNHggZHJpdmVyIGFuZCBtYWtlIHN1
+cmUgaSBkaWRudApzY3JldyBhbnl0aGluZyB1cCA/ICBpIGRvbnQgaGF2ZSBhbnkgaGFyZHdhcmUg
+dG8gYWN0dWFsbHkgdGVzdCB0aGVzZQpndXlzIG91dCAuLi4KLW1pa2UKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVWNsaW51eC1kaXN0LWRldmVsIG1haWxp
+bmcgbGlzdApVY2xpbnV4LWRpc3QtZGV2ZWxAYmxhY2tmaW4udWNsaW51eC5vcmcKaHR0cHM6Ly9i
+bGFja2Zpbi51Y2xpbnV4Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3VjbGludXgtZGlzdC1kZXZlbA==

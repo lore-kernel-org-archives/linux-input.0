@@ -1,43 +1,115 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: bcm5974: retract efi-broken suspend_resume
-Date: Tue, 13 Oct 2009 00:23:42 +0200
-Message-ID: <1255386223-4109-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758578AbZJLW0L@vger.kernel.org>
+Subject: [PATCH] input: bcm5974: report ABS_MT events
+Date: Tue, 13 Oct 2009 00:23:43 +0200
+Message-ID: <1255386223-4109-2-git-send-email-rydberg@euromail.se>
+References: <1255386223-4109-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933500AbZJLW1y@vger.kernel.org>
+In-Reply-To: <1255386223-4109-1-git-send-email-rydberg@euromail.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-With the recent system-wide improvements on suspend/resume and EFI
-booting the suspend_resume method of the bcm5974 has broken. When
-waking up from the S3 state on the MacBookAir, the trackpad is found
-in a yet unknown state, unable to switch to the proper multitouch
-mode.  The result is a frozen touchpad, and a flood of errors of the
-kind
-
-bcm5974: bad trackpad package, length: 8.
-
-This patch retracts the reset_resume method altogether, falling back
-on the generic unbind/rebind functionality of the usb layer until
-further investigations can be made as how to reset the device when
-booting from efi.
+This patch makes bcm5974 report raw multi-touch (MT) data in the form
+of ABS_MT events. The module parameter (nomt) may be used to turn off
+the effect of this patch.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/input/mouse/bcm5974.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/input/mouse/bcm5974.c |   53 ++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 52 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 2d8fc0b..79e182a 100644
+index a700422..9c360ac 100644
 --- a/drivers/input/mouse/bcm5974.c
 +++ b/drivers/input/mouse/bcm5974.c
-@@ -760,7 +760,6 @@ static struct usb_driver bcm5974_driver = {
- 	.disconnect		= bcm5974_disconnect,
- 	.suspend		= bcm5974_suspend,
- 	.resume			= bcm5974_resume,
--	.reset_resume		= bcm5974_resume,
- 	.id_table		= bcm5974_table,
- 	.supports_autosuspend	= 1,
- };
+@@ -96,6 +96,10 @@ static int debug = 1;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "Activate debugging output");
+ 
++static int nomt;
++module_param(nomt, int, 0644);
++MODULE_PARM_DESC(nomt, "Disable multitouch (MT) events");
++
+ /* button data structure */
+ struct bt_data {
+ 	u8 unknown1;		/* constant */
+@@ -139,6 +143,7 @@ struct tp_finger {
+ /* trackpad finger data size, empirically at least ten fingers */
+ #define SIZEOF_FINGER		sizeof(struct tp_finger)
+ #define SIZEOF_ALL_FINGERS	(16 * SIZEOF_FINGER)
++#define MAX_FINGER_ORIENTATION	16384
+ 
+ /* device-specific parameters */
+ struct bcm5974_param {
+@@ -284,6 +289,28 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 	input_set_abs_params(input_dev, ABS_Y,
+ 				0, cfg->y.dim, cfg->y.fuzz, 0);
+ 
++	if (!nomt) {
++		/* finger touch area */
++		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
++				     cfg->w.devmin, cfg->w.devmax, 0, 0);
++		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
++				     cfg->w.devmin, cfg->w.devmax, 0, 0);
++		/* finger approach area */
++		input_set_abs_params(input_dev, ABS_MT_WIDTH_MAJOR,
++				     cfg->w.devmin, cfg->w.devmax, 0, 0);
++		input_set_abs_params(input_dev, ABS_MT_WIDTH_MINOR,
++				     cfg->w.devmin, cfg->w.devmax, 0, 0);
++		/* finger orientation */
++		input_set_abs_params(input_dev, ABS_MT_ORIENTATION,
++				     -MAX_FINGER_ORIENTATION,
++				     MAX_FINGER_ORIENTATION, 0, 0);
++		/* finger position */
++		input_set_abs_params(input_dev, ABS_MT_POSITION_X,
++				     cfg->x.devmin, cfg->x.devmax, 0, 0);
++		input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
++				     cfg->y.devmin, cfg->y.devmax, 0, 0);
++	}
++
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+@@ -316,7 +343,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+-	int raw_p, raw_w, raw_x, raw_y, raw_n;
++	int raw_p, raw_w, raw_x, raw_y, raw_n, i;
+ 	int ptest, origin, ibt = 0, nmin = 0, nmax = 0;
+ 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
+ 
+@@ -329,6 +356,30 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 
+ 	/* always track the first finger; when detached, start over */
+ 	if (raw_n) {
++
++		/* report raw trackpad data */
++		if (!nomt) {
++			for (i = 0; i < raw_n; i++) {
++				int y = c->y.devmin + c->y.devmax;
++				input_report_abs(input, ABS_MT_TOUCH_MAJOR,
++						 raw2int(f[i].force_major));
++				input_report_abs(input, ABS_MT_TOUCH_MINOR,
++						 raw2int(f[i].force_minor));
++				input_report_abs(input, ABS_MT_WIDTH_MAJOR,
++						 raw2int(f[i].size_major));
++				input_report_abs(input, ABS_MT_WIDTH_MINOR,
++						 raw2int(f[i].size_minor));
++				input_report_abs(input, ABS_MT_ORIENTATION,
++						 MAX_FINGER_ORIENTATION -
++						 raw2int(f[i].orientation));
++				input_report_abs(input, ABS_MT_POSITION_X,
++						 raw2int(f[i].abs_x));
++				input_report_abs(input, ABS_MT_POSITION_Y,
++						 y - raw2int(f[i].abs_y));
++				input_mt_sync(input);
++			}
++		}
++
+ 		raw_p = raw2int(f->force_major);
+ 		raw_w = raw2int(f->size_major);
+ 		raw_x = raw2int(f->abs_x);
 -- 
 1.6.3.3

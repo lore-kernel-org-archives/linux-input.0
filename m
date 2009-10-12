@@ -1,31 +1,64 @@
-From: "Carlos R. Mafra" <crmafra2@gmail.com>
-Subject: Re: [bisected regression] Touchpad "paste" stops working after
-	suspend to RAM
-Date: Mon, 12 Oct 2009 12:09:29 +0200
-Message-ID: <20091012100929.GA4402@Pilar.aei.mpg.de>
-References: <20091011162155.GA4260@Pilar.aei.mpg.de> <20091011180134.GA5197@core.coreip.homeip.net> <20091011193100.GA4410@Pilar.aei.mpg.de> <20091012090224.GB7403@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work anymore
+Date: Mon, 12 Oct 2009 13:46:17 +0200
+Message-ID: <4AD31709.4000103@tremplin-utc.net>
+References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ox1.aei.mpg.de ([194.94.224.6]:44975 "EHLO ox1.aei.mpg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754706AbZJLKLY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 06:11:24 -0400
-Content-Disposition: inline
-In-Reply-To: <20091012090224.GB7403@core.coreip.homeip.net>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:29172 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756035AbZJLLq4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2009 07:46:56 -0400
+In-Reply-To: <200910112135.29384.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
+Cc: Greg KH <gregkh@suse.de>, Dmitry Torokhov <dtor@insightbb.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon 12.Oct'09 at  2:02:24 -0700, Dmitry Torokhov wrote:
-> Still, I am curious to know why we can't simply reinitialize ALPS from
-> the get go, could you please send me a dmesg of resume done with
-> i8042.debug? Thanks!
+Op 12-10-09 06:35, Dmitry Torokhov schreef:
+> On Saturday 10 October 2009 08:00:29 pm Greg KH wrote:
+>> On Sun, Oct 11, 2009 at 02:04:02AM +0200, ?ric Piel wrote:
+>>> Hello,
+>>>
+>>> After a suspend, I used to do this (to get the PS2 keyboard working
+>>> again), and it used to work fine:
+>>> echo -n "i8042" > /sys/bus/platform/drivers/i8042/unbind ; sleep 1 ; echo
+>>> -n "i8042" > /sys/bus/platform/drivers/i8042/bind
+>>>
+>>> Unfortunately since 2.6.32-rc1, the unbind works fine, but the bind
+>>> returns a "no such device" error now (and the binding is not done). After
+>>> that, additional unbinds also report the error. I think 2.6.31 worked
+>>> fine. Any idea what's going wrong?
+>> Odd.  Any chance you can run 'git bisect' to figure out which patch
+>> might have caused it?
+> 
+> I8042 has been converted to use platform_driver_probe() - we are creating 
+> platform device and platform driver together, there is no chance that some 
+> other device might be driven by i8042 driver.
+I haven't finished bisecting, but indeed, the problem seemed to converge
+toward this patch.
 
-The dmesg was too big, so I uploaded the ~5000 lines worth of syslog
-from 2.6.32-rc4 with i8042.debug info with a suspend to RAM to
 
-http://www.aei.mpg.de/~crmafra/syslog-i8042.debug.txt
+> Eric, do you still need to fiddle with i8042 to get your keyboard working with 
+> 2.6.32-rc3? We need to make sure that resube works without users needing to 
+> mess with bind/unbind.
+Yes, the keyboard doesn't work after the first resume from ram (the
+later resumes do work). I haven't tried any special option to the i8042
+driver. This is on a HP 2510, in 64 bits.
 
-I hope this helps!
+Indeed, it would be great to fix this root problem! Is there any bug
+report opened to work on this?
+
+However, currently the first problem is that unbind works, while bind
+doesn't. Which means anyone doing an unbind will have keyboard and mouse
+lost until the next reboot. That's rather bad because it has been
+recommended for a long time to have this kind of script at resume:
+http://intertrusion.com/files/hp-s2ram.patch
+http://en.opensuse.org/Pm-utils
+
+So at least, unbind should fail as well as bind.
+
+Eric

@@ -1,90 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Mon, 12 Oct 2009 08:48:46 -0700
-Message-ID: <20091012154846.GB7996@core.coreip.homeip.net>
-References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net>
+Subject: Re: [PATCH 1/1] Polled input device: Add closing indication
+Date: Mon, 12 Oct 2009 09:16:44 -0700
+Message-ID: <20091012161644.GC7996@core.coreip.homeip.net>
+References: <1255334981-24118-1-git-send-email-samu.p.onkalo@nokia.com> <1255334981-24118-2-git-send-email-samu.p.onkalo@nokia.com> <200910120154.42432.dmitry.torokhov@gmail.com> <62697B07E9803846BC582181BD6FB6B812F6933BBA@NOK-EUMSG-02.mgdnok.nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932665AbZJLPtf@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f210.google.com ([209.85.218.210]:48200 "EHLO
+	mail-bw0-f210.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932760AbZJLQRb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2009 12:17:31 -0400
+Received: by bwz6 with SMTP id 6so3228026bwz.37
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2009 09:16:54 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4AD31709.4000103@tremplin-utc.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+In-Reply-To: <62697B07E9803846BC582181BD6FB6B812F6933BBA@NOK-EUMSG-02.mgdnok.nokia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: samu.p.onkalo@nokia.com
+Cc: linux-input@vger.kernel.org
 
-On Mon, Oct 12, 2009 at 01:46:17PM +0200, =C9ric Piel wrote:
-> Op 12-10-09 06:35, Dmitry Torokhov schreef:
-> > On Saturday 10 October 2009 08:00:29 pm Greg KH wrote:
-> >> On Sun, Oct 11, 2009 at 02:04:02AM +0200, ?ric Piel wrote:
-> >>> Hello,
-> >>>
-> >>> After a suspend, I used to do this (to get the PS2 keyboard worki=
-ng
-> >>> again), and it used to work fine:
-> >>> echo -n "i8042" > /sys/bus/platform/drivers/i8042/unbind ; sleep =
-1 ; echo
-> >>> -n "i8042" > /sys/bus/platform/drivers/i8042/bind
-> >>>
-> >>> Unfortunately since 2.6.32-rc1, the unbind works fine, but the bi=
-nd
-> >>> returns a "no such device" error now (and the binding is not done=
-). After
-> >>> that, additional unbinds also report the error. I think 2.6.31 wo=
-rked
-> >>> fine. Any idea what's going wrong?
-> >> Odd.  Any chance you can run 'git bisect' to figure out which patc=
-h
-> >> might have caused it?
-> >=20
-> > I8042 has been converted to use platform_driver_probe() - we are cr=
-eating=20
-> > platform device and platform driver together, there is no chance th=
-at some=20
-> > other device might be driven by i8042 driver.
-> I haven't finished bisecting, but indeed, the problem seemed to conve=
-rge
-> toward this patch.
->=20
->=20
-> > Eric, do you still need to fiddle with i8042 to get your keyboard w=
-orking with=20
-> > 2.6.32-rc3? We need to make sure that resube works without users ne=
-eding to=20
-> > mess with bind/unbind.
-> Yes, the keyboard doesn't work after the first resume from ram (the
-> later resumes do work). I haven't tried any special option to the i80=
-42
-> driver. This is on a HP 2510, in 64 bits.
+On Mon, Oct 12, 2009 at 11:23:57AM +0200, samu.p.onkalo@nokia.com wrote:
+> >
+> >Hi Samu,
+> >
+> >On Monday 12 October 2009 01:09:41 am Samu Onkalo wrote:
+> >> When closing polled input device, call optional closing 
+> >method to make 
+> >> it possible to turn off the HW.
+> >
+> >What about open? How do you re-enable the device if it was 
+> >closed and then reopened?
+> >
+> 
+> flush is called when the device is reopened. Is it ok to use that?
+> 
 
-Could you please try and let me know if unloading at suspend and
-reloading after resume atkbd and/or psmouse drivers and leaving i8042
-alone "fixes" the issue?
+No, please have open() method that is called when you open the device.
 
->=20
-> Indeed, it would be great to fix this root problem! Is there any bug
-> report opened to work on this?
->=20
-> However, currently the first problem is that unbind works, while bind
-> doesn't. Which means anyone doing an unbind will have keyboard and mo=
-use
-> lost until the next reboot. That's rather bad because it has been
-> recommended for a long time to have this kind of script at resume:
-> http://intertrusion.com/files/hp-s2ram.patch
-> http://en.opensuse.org/Pm-utils
-
-*ahem* putting it sonewgere on the web does not really make it
-"recommended" ;)
-
->=20
-> So at least, unbind should fail as well as bind.
->
-
-That would be Greg's domain s it is driver core decision whether to
-allow unbinding platform devices registered with
-platform_driver_probe().
-
---=20
+-- 
 Dmitry

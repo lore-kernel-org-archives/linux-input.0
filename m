@@ -1,137 +1,33 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
-Date: Mon, 12 Oct 2009 19:09:50 +0200
-Message-ID: <877hv0y1wh.fsf@tac.ki.iif.hu>
-References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
-	<20090916162853.GA4970@core.coreip.homeip.net>
-	<87hbuvggfl.fsf@tac.ki.iif.hu>
-	<20090922164136.GA22639@core.coreip.homeip.net>
-	<87fxae3ile.fsf@tac.ki.iif.hu>
-	<20090928170301.GG21455@core.coreip.homeip.net>
-	<87fxa3xleg.fsf@tac.ki.iif.hu>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
+ anymore
+Date: Mon, 12 Oct 2009 10:35:51 -0700
+Message-ID: <20091012173551.GC10557@suse.de>
+References: <4AD120F2.3020606@tremplin-utc.net>
+ <20091011030029.GA6526@suse.de>
+ <200910112135.29384.dmitry.torokhov@gmail.com>
+ <4AD31709.4000103@tremplin-utc.net>
+ <20091012154846.GB7996@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:36038 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750963AbZJLRK1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 13:10:27 -0400
-In-Reply-To: <87fxa3xleg.fsf@tac.ki.iif.hu> (Ferenc Wagner's message of "Thu,
-	01 Oct 2009 16:02:15 +0200")
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933019AbZJLR6r@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091012154846.GB7996@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-=46erenc Wagner <wferi@niif.hu> writes:
+On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > So at least, unbind should fail as well as bind.
+> >
+> 
+> That would be Greg's domain s it is driver core decision whether to
+> allow unbinding platform devices registered with
+> platform_driver_probe().
 
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
->
->> On Tue, Sep 22, 2009 at 09:06:05PM +0200, Ferenc Wagner wrote:
->>
->>> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
->>>=20
->>>> On Tue, Sep 22, 2009 at 05:14:22PM +0200, Ferenc Wagner wrote:
->>>>
->>>>>     The gpio_get_value function may sleep, so it should not be
->>>>>     called in a timer function.
+No, I do not see why that should not be allowed.
 
-So is drivers/staging/dream/gpio_input.c in error, too?
+thanks,
 
->>>>> But I don't see why it could sleep, is that really the case?
->>>>
->>>> There are things like i2c gpio extenders that require access to
->>>> slow buses and can sleep.
->>>
->>> Please read my other reply in this thread before the following.
->>> All this seems to mean that using level triggered interrupts on
->>> such devices is impossible, unless we find a way to acknowledge the
->>> interrupt without GPIO access.
->>
->> You probably want to look into threaded interrupt handlers and
->> IRQF_ONESHOT. These can't be shared though, so it looks like you
->> need nested IRQ handlers infrastructure.
->
-> This sounds like a job for the irqchip setup code, if I understand
-> http://lkml.org/lkml/2009/8/15/133 correctly, that is, no driver
-> business.  Doesn't that apply only when the irqchip itself is on a
-> slow bus?  I find IRQF_ONESHOT more relevant, and sharing such a beas=
-t
-> would be possible in principle, although a little complicated, as
-> http://lkml.org/lkml/2009/8/15/131 asserts.  But still, how would the
-> somewhat more latency-sensitive serial port on the same interrupt lin=
-e
-> tolerate its interrupt staying masked for a considerable period?  Eve=
-n
-> if there was no hardware which shared interrupts between slow and fas=
-t
-> devices (which I hope), a driver blindly using oneshot interrupts
-> would unnecessarily add the scheduling delay to the masked period
-> instead of acknowledging and unmasking the line from hardirq context.
-> Please correct me if I got these wrong.
->
-> On the other hand, querying gpio_cansleep could be used to avoid this=
-,
-> and I can't conceive how the IRQ core could find out and do what's
-> best for the driver in such cases.
->
->>> But level triggering is needed for sharing.
->>
->> I believe that both level and edge-triggered interrupts can be share=
-d.
->
-> Sure, but all parties must agree on the trigger type, and level
-> triggering seems to be the norm (I've read
-> http://lkml.org/lkml/1998/8/7/30 on the unreliability of shared edge
-> triggered interrupts, but I don't buy Linus' argument, because the
-> system should keep asking the devices until none of them needs
-> servicing -- ineffective, but reliable).  Anyway, in my (and therefor=
-e
-> the most important) case the serial console grabs the interrupt first=
-,
-> and although it's willing to share it, it uses level triggering, so
-> I've got no choice.
->
->>>>> Also, commit 57ffe9d539e0eb741bb9ca8f2834d210e70ee2e3 removed the
->>>>> possibility of telling apart different keys, so that should be
->>>>> reverted during the process.  I already asked Uwe Kleine-K=C3=B6n=
-ig
->>>>> about the whys, but didn't get a reply.
->>>>
->>>> I don't see why you say that... You request IRQ per button and you=
- get
->>>> that button structure as argument in the interrupt handler.
->>>=20
->>> In practice, several buttons often share a single IRQ line, possibl=
-y
->>> even with other hardware, like the serial port in my case (as
->>> described in my other reply).  So generally you need the full platf=
-orm
->>> data for all GPIO buttons in the handler, to find out which generat=
-ed
->>> the interrupt.
->>
->> Your interrupt handler will get called for every button on that IRQ =
-line
->> and you can query button state I think.
->
-> Well, yes, if I register the handler once for each button.  Is that
-> really preferable?  It didn't occur to me as the current code does no=
-t
-> use shared interrupts, so it's out of question.  Sigh, the generic
-> GPIO interface is already rather inefficient, accessing only a single
-> bit per call (cf. the first block comment in tosakbd.c)...
-> Or did I get you wrong again?
-
-I'd much appreciate some education on the above points as well, if
-your time permits.
---=20
-Thanks,
-=46eri.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+greg k-h

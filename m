@@ -1,70 +1,137 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices AD714X
-	captouchinput driver
-Date: Mon, 12 Oct 2009 13:08:23 -0400
-Message-ID: <8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
-	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
-	<20091009162219.GB1092@core.coreip.homeip.net>
-	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
-	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [PATCH] input: make gpio-keys use IRQF_SHARED
+Date: Mon, 12 Oct 2009 19:09:50 +0200
+Message-ID: <877hv0y1wh.fsf@tac.ki.iif.hu>
+References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com>
+	<20090916162853.GA4970@core.coreip.homeip.net>
+	<87hbuvggfl.fsf@tac.ki.iif.hu>
+	<20090922164136.GA22639@core.coreip.homeip.net>
+	<87fxae3ile.fsf@tac.ki.iif.hu>
+	<20090928170301.GG21455@core.coreip.homeip.net>
+	<87fxa3xleg.fsf@tac.ki.iif.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <8bd0f97a0910101338y46cb227hdc6d83c3c6622a21-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from tac.ki.iif.hu ([193.6.222.43]:36038 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750963AbZJLRK1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2009 13:10:27 -0400
+In-Reply-To: <87fxa3xleg.fsf@tac.ki.iif.hu> (Ferenc Wagner's message of "Thu,
+	01 Oct 2009 16:02:15 +0200")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-T24gU2F0LCBPY3QgMTAsIDIwMDkgYXQgMTY6MzgsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+IE9u
-IEZyaSwgT2N0IDksIDIwMDkgYXQgMjI6MjQsIEJhcnJ5IFNvbmcgd3JvdGU6Cj4+IE9uIFNhdCwg
-T2N0IDEwLCAyMDA5IGF0IDEyOjIyIEFNLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4+PiBPbiBG
-cmksIE9jdCAwOSwgMjAwOSBhdCAwNjoxMTo0NUFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3cm90
-ZToKPj4+PiBPbiBGcmksIE9jdCA5LCAyMDA5IGF0IDA1OjE4LCBNaWtlIEZyeXNpbmdlciA8dmFw
-aWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+Pj4+ID4gd2UgY291bGQgaGF2ZSB0aHJlZSBtb2R1
-bGVzIGhlcmU6IGFkNzE0eCwgYWQ3MTR4LWkyYywgYWQ3MTR4LXNwaQo+Pj4+Cj4+Pj4gYXJlIHlv
-dSBvayB3aXRoIHRoaXMgYXBwcm9hY2ggRG1pdHJ5ID8gwqB0aGlzIHdheSBwZW9wbGUgY2FuCj4+
-Pj4gbG9hZC91bmxvYWQgYSBzcGVjaWZpYyBidXMgd2l0aG91dCBhZmZlY3RpbmcgdGhlIGNvcmUg
-b3IgdGhlIG90aGVyCj4+Pj4gYnVzLCBhbmQgZXJyb3JzIHdpdGggbG9hZGluZyBvbmUgYnVzIHR5
-cGUgd291bGRudCBhZmZlY3QgbG9hZGluZyBvZgo+Pj4+IHRoZSBvdGhlci4KPj4+Cj4+PiBZZXMs
-IEkgdGhpbmsgdGhpcyBpcyB0aGUgbW9zdCBjbGVhbiB3YXkuCj4+Cj4+IFRoYXQgd2lsbCBkZWNy
-ZWFzZSB0aGUgY29oZXNpb24gYW5kIGluY3JlYXNlIGNvdXBsaW5nLiBJdCdzIHRlZGlvdXMKPj4g
-Zm9yIG9uZSBkcml2ZXIgd2l0aCBzaW5nbGUgZmVhdHVyZSB0byBoYXZlIHRocmVlIG1vZHVsZXMu
-IFRvIGZ1bGZpbGwKPj4gdGhhdCwgYWQ3MTR4IG5lZWQgdG8gZXhwb3NlIGRhdGEgc3RydWN0dXJl
-cyBhbmQgZXhwb3J0IHN5bWJvbHMgdG8KPj4gYWQ3MTR4LWkyYyBhbmQgYWQ3MTR4LXNwaS4gQnV0
-IHRob3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgc3ltYm9scyBhcmUKPj4gbW9yZSBsaWtlIGxvY2Fs
-IHN0dWZmLiBBbmQgSTJDIGFuZCBTUEkgYXJlIGp1c3QgYm90dG9tIGxldmVsCj4+IGNvbW11bmlj
-YXRpb24gd2F5cywgdGhleSBzaG91bGQgYmUgdGhlIGJvdHRvbSBsZXZlbCBvZiBhZDcxNHgsIGJ1
-dAo+PiBhZnRlciBzcGxpdHRpbmcgdG8gMyBtb2R1bGVzLCBpdCBzZWVtcyB0aGV5IGJlY29tZSB0
-aGUgdG9wIGxldmVsIG9mCj4+IGFkNzE0eC4KPgo+IHRoZXJlIHNob3VsZCBhbHJlYWR5IGJlIGEg
-Y2xlYXIgc3BsaXQgYmV0d2VlbiB0aGUgYnVzIGFuZCB0aGUgZHJpdmVyCj4gY29yZSwgb3RoZXJ3
-aXNlIGNyYXAgaXMgYmVpbmcgZHVwbGljYXRlZCBiZXR3ZWVuIHRoZSB0d28gaW50ZXJmYWNlcy4K
-PiBpIGp1c3QgdGVzdGVkIHNwbGl0dGluZyB0aGluZ3MgYW5kIGVhY2ggYnVzIGNvZGUgbmVlZHMg
-dG8ga25vdyB2ZXJ5Cj4gZmV3IHRoaW5nczoKPiDCoC0gcHJvYmUvcmVtb3ZlIGZvciBpbml0aWFs
-aXphdGlvbgo+IMKgLSBlbmFibGUvZGlzYWJsZSBmb3IgcG0KPgo+IHRoZSBvbmx5IGRvd25zaWRl
-IGkgc2VlIGhlcmUgaXMgdGhhdCB3ZSBoYXZlIHRvIHJlbW92ZQo+IF9fZGV2aW5pdC9fX2RldmV4
-aXQgbWFya2luZ3MgZnJvbSB0aGUgY29tbW9uIHByb2JlL3JlbW92ZSBmdW5jdGlvbnMKPiBhbmQg
-dGhvc2Ugd2VpZ2ggYSBoZWZ0eSAyNDA2LzIxOCBieXRlcyBhIHBpZWNlLgoKaSBzcGVudCB0aW1l
-IHBhY2tpbmcgY29tbW9uIHN0dWZmIGluIHRoZSBwcm9iZSBjb2RlIGFuZCBjdXQgaXQgZG93biBi
-eQp+MWssIHNvIGknbSBmaW5lIHdpdGggdGhpcyBsaXR0bGUgYml0IG9mIG92ZXJoZWFkLgoKQmFy
-cnk6IGNhbiB5b3UgdGVzdCBvdXQgdGhlIGxhdGVzdCBhZDcxNHggZHJpdmVyIGFuZCBtYWtlIHN1
-cmUgaSBkaWRudApzY3JldyBhbnl0aGluZyB1cCA/ICBpIGRvbnQgaGF2ZSBhbnkgaGFyZHdhcmUg
-dG8gYWN0dWFsbHkgdGVzdCB0aGVzZQpndXlzIG91dCAuLi4KLW1pa2UKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVWNsaW51eC1kaXN0LWRldmVsIG1haWxp
-bmcgbGlzdApVY2xpbnV4LWRpc3QtZGV2ZWxAYmxhY2tmaW4udWNsaW51eC5vcmcKaHR0cHM6Ly9i
-bGFja2Zpbi51Y2xpbnV4Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3VjbGludXgtZGlzdC1kZXZlbA==
+=46erenc Wagner <wferi@niif.hu> writes:
+
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+>
+>> On Tue, Sep 22, 2009 at 09:06:05PM +0200, Ferenc Wagner wrote:
+>>
+>>> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+>>>=20
+>>>> On Tue, Sep 22, 2009 at 05:14:22PM +0200, Ferenc Wagner wrote:
+>>>>
+>>>>>     The gpio_get_value function may sleep, so it should not be
+>>>>>     called in a timer function.
+
+So is drivers/staging/dream/gpio_input.c in error, too?
+
+>>>>> But I don't see why it could sleep, is that really the case?
+>>>>
+>>>> There are things like i2c gpio extenders that require access to
+>>>> slow buses and can sleep.
+>>>
+>>> Please read my other reply in this thread before the following.
+>>> All this seems to mean that using level triggered interrupts on
+>>> such devices is impossible, unless we find a way to acknowledge the
+>>> interrupt without GPIO access.
+>>
+>> You probably want to look into threaded interrupt handlers and
+>> IRQF_ONESHOT. These can't be shared though, so it looks like you
+>> need nested IRQ handlers infrastructure.
+>
+> This sounds like a job for the irqchip setup code, if I understand
+> http://lkml.org/lkml/2009/8/15/133 correctly, that is, no driver
+> business.  Doesn't that apply only when the irqchip itself is on a
+> slow bus?  I find IRQF_ONESHOT more relevant, and sharing such a beas=
+t
+> would be possible in principle, although a little complicated, as
+> http://lkml.org/lkml/2009/8/15/131 asserts.  But still, how would the
+> somewhat more latency-sensitive serial port on the same interrupt lin=
+e
+> tolerate its interrupt staying masked for a considerable period?  Eve=
+n
+> if there was no hardware which shared interrupts between slow and fas=
+t
+> devices (which I hope), a driver blindly using oneshot interrupts
+> would unnecessarily add the scheduling delay to the masked period
+> instead of acknowledging and unmasking the line from hardirq context.
+> Please correct me if I got these wrong.
+>
+> On the other hand, querying gpio_cansleep could be used to avoid this=
+,
+> and I can't conceive how the IRQ core could find out and do what's
+> best for the driver in such cases.
+>
+>>> But level triggering is needed for sharing.
+>>
+>> I believe that both level and edge-triggered interrupts can be share=
+d.
+>
+> Sure, but all parties must agree on the trigger type, and level
+> triggering seems to be the norm (I've read
+> http://lkml.org/lkml/1998/8/7/30 on the unreliability of shared edge
+> triggered interrupts, but I don't buy Linus' argument, because the
+> system should keep asking the devices until none of them needs
+> servicing -- ineffective, but reliable).  Anyway, in my (and therefor=
+e
+> the most important) case the serial console grabs the interrupt first=
+,
+> and although it's willing to share it, it uses level triggering, so
+> I've got no choice.
+>
+>>>>> Also, commit 57ffe9d539e0eb741bb9ca8f2834d210e70ee2e3 removed the
+>>>>> possibility of telling apart different keys, so that should be
+>>>>> reverted during the process.  I already asked Uwe Kleine-K=C3=B6n=
+ig
+>>>>> about the whys, but didn't get a reply.
+>>>>
+>>>> I don't see why you say that... You request IRQ per button and you=
+ get
+>>>> that button structure as argument in the interrupt handler.
+>>>=20
+>>> In practice, several buttons often share a single IRQ line, possibl=
+y
+>>> even with other hardware, like the serial port in my case (as
+>>> described in my other reply).  So generally you need the full platf=
+orm
+>>> data for all GPIO buttons in the handler, to find out which generat=
+ed
+>>> the interrupt.
+>>
+>> Your interrupt handler will get called for every button on that IRQ =
+line
+>> and you can query button state I think.
+>
+> Well, yes, if I register the handler once for each button.  Is that
+> really preferable?  It didn't occur to me as the current code does no=
+t
+> use shared interrupts, so it's out of question.  Sigh, the generic
+> GPIO interface is already rather inefficient, accessing only a single
+> bit per call (cf. the first block comment in tosakbd.c)...
+> Or did I get you wrong again?
+
+I'd much appreciate some education on the above points as well, if
+your time permits.
+--=20
+Thanks,
+=46eri.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

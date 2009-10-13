@@ -1,59 +1,48 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] Haptic class support (v2)
-Date: Tue, 13 Oct 2009 13:05:52 +0200
-Message-ID: <20091013110552.GD31984@elf.ucw.cz>
-References: <20091006074533.GA28889@july>
- <20091011090549.GE1414@ucw.cz>
- <9c9fda240910111732x262a9510rf3dd862aa16d0bdf@mail.gmail.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH 1/6] Haptic: add haptic class
+Date: Tue, 13 Oct 2009 16:43:43 +0530
+Message-ID: <5d5443650910130413t6ecd3d54p214d8f80972ed128@mail.gmail.com>
+References: <20091007061701.GA7567@july>
+	 <359ed6810910130335m45919d6ala921d4cbfa5a341a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759429AbZJMLGi@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9c9fda240910111732x262a9510rf3dd862aa16d0bdf@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f186.google.com ([209.85.221.186]:54958 "EHLO
+	mail-qy0-f186.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751277AbZJMLOV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Oct 2009 07:14:21 -0400
+In-Reply-To: <359ed6810910130335m45919d6ala921d4cbfa5a341a@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon 2009-10-12 09:32:28, Kyungmin Park wrote:
-> On Sun, Oct 11, 2009 at 6:05 PM, Pavel Machek <pavel@ucw.cz> wrote:
-> > On Tue 2009-10-06 16:45:33, Kyungmin Park wrote:
-> >> This patch includes two haptic devices, isa1000 and isa1200
-> >> ISA1000 is gpio based haptic, but isa1200 is based on I2C
-> >> Both are working on Samsung SoCs and tested.
-> >>
-> >> To enable the haptic, echo 1 > /sys/class/haptic/${name}/enable
-> >> You can adjust the level by echo ${level} > /sys/class/haptic/${name}/enable
-> >> or
-> >> With oneshot feature, echo ${msec time} > /sys/class/haptic/${name}/oneshot
-> >
-> > New device classes should certainly be documented in Documentation/.
-> >
-> > For example... is level 0-100?
-> 
-> Basically. range from 0 to 255. also each device can set max level in
-> case of isa1000 it's 6.
+Hi Kyungmin, Dmitry,
 
-How will userspace know the range?
+On Tue, Oct 13, 2009 at 4:05 PM, Jani Nikula
+<ext-jani.1.nikula@nokia.com> wrote:
+> On Wed, Oct 7, 2009 at 09:17, Kyungmin Park <kyungmin.park@samsung.com> wrote:
+>> New haptic class support.
+>> This class handles the haptic devices.
+>
+> I'm wondering why a haptic class is needed when there is force
+> feedback support. Admittedly, I don't know the force feedback
+> implementation too well, but could someone please enlighten me on
+> this? Am I missing something here?
+>
+> I see haptics as simple force feedback, just with (usually) small
+> force and short duration. There are devices out there doing haptics
+> using vibra motors, which I think would be limited if implemented
+> using this haptics class driver. Would it be somehow problematic
+> interfacing with the simple haptic hardware using the force feedback
+> API?
 
-> >  Is it valid to change level while 'oneshot' is running?
-> 
-> we usually use it under 1 sec. but I think it's possible to change it
-> but not tried.
+Please share your inputs on ff_device usage instead of haptics class.
+I think Dmitry could add some points here as I don't see much users of
+ff_device and I don't see any embedded device (like mobile) using it.
 
-You are specifying interface here. You have to decide if it is valid
-or not, then document it.
-
-> >  Does oneshot use last level set?
-> 
-> Right. it used last set value.
-> 
-> If you don't mind to update these at Documentation please wait until
-> commit first patches merged.
-
-I'd expect your reply to be merged into the Documentation, and that to
-be merged with the rest of the patches...
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

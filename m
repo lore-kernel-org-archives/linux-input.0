@@ -1,75 +1,148 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices AD714X
-	captouchinput driver
-Date: Tue, 13 Oct 2009 11:05:13 +0800
-Message-ID: <3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2@mail.gmail.com>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
-	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
-	<20091009162219.GB1092@core.coreip.homeip.net>
-	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
-	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
-	<8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
+	anymore
+Date: Mon, 12 Oct 2009 20:17:41 -0700
+Message-ID: <20091013031741.GB2887@core.coreip.homeip.net>
+References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net> <20091012173551.GC10557@suse.de> <20091012183313.GC8345@core.coreip.homeip.net> <20091012185417.GA30342@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <8bd0f97a0910121008l1563803bu766e7d0868254a9f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ew0-f208.google.com ([209.85.219.208]:59954 "EHLO
+	mail-ew0-f208.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751010AbZJMDS1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Oct 2009 23:18:27 -0400
+Content-Disposition: inline
+In-Reply-To: <20091012185417.GA30342@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg KH <gregkh@suse.de>
+Cc: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-T24gVHVlLCBPY3QgMTMsIDIwMDkgYXQgMTowOCBBTSwgTWlrZSBGcnlzaW5nZXIgPHZhcGllci5h
-ZGlAZ21haWwuY29tPiB3cm90ZToKPiBPbiBTYXQsIE9jdCAxMCwgMjAwOSBhdCAxNjozOCwgTWlr
-ZSBGcnlzaW5nZXIgd3JvdGU6Cj4+IE9uIEZyaSwgT2N0IDksIDIwMDkgYXQgMjI6MjQsIEJhcnJ5
-IFNvbmcgd3JvdGU6Cj4+PiBPbiBTYXQsIE9jdCAxMCwgMjAwOSBhdCAxMjoyMiBBTSwgRG1pdHJ5
-IFRvcm9raG92IHdyb3RlOgo+Pj4+IE9uIEZyaSwgT2N0IDA5LCAyMDA5IGF0IDA2OjExOjQ1QU0g
-LTA0MDAsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+Pj4+PiBPbiBGcmksIE9jdCA5LCAyMDA5IGF0
-IDA1OjE4LCBNaWtlIEZyeXNpbmdlciA8dmFwaWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+Pj4+
-PiA+IHdlIGNvdWxkIGhhdmUgdGhyZWUgbW9kdWxlcyBoZXJlOiBhZDcxNHgsIGFkNzE0eC1pMmMs
-IGFkNzE0eC1zcGkKPj4+Pj4KPj4+Pj4gYXJlIHlvdSBvayB3aXRoIHRoaXMgYXBwcm9hY2ggRG1p
-dHJ5ID8gwqB0aGlzIHdheSBwZW9wbGUgY2FuCj4+Pj4+IGxvYWQvdW5sb2FkIGEgc3BlY2lmaWMg
-YnVzIHdpdGhvdXQgYWZmZWN0aW5nIHRoZSBjb3JlIG9yIHRoZSBvdGhlcgo+Pj4+PiBidXMsIGFu
-ZCBlcnJvcnMgd2l0aCBsb2FkaW5nIG9uZSBidXMgdHlwZSB3b3VsZG50IGFmZmVjdCBsb2FkaW5n
-IG9mCj4+Pj4+IHRoZSBvdGhlci4KPj4+Pgo+Pj4+IFllcywgSSB0aGluayB0aGlzIGlzIHRoZSBt
-b3N0IGNsZWFuIHdheS4KPj4+Cj4+PiBUaGF0IHdpbGwgZGVjcmVhc2UgdGhlIGNvaGVzaW9uIGFu
-ZCBpbmNyZWFzZSBjb3VwbGluZy4gSXQncyB0ZWRpb3VzCj4+PiBmb3Igb25lIGRyaXZlciB3aXRo
-IHNpbmdsZSBmZWF0dXJlIHRvIGhhdmUgdGhyZWUgbW9kdWxlcy4gVG8gZnVsZmlsbAo+Pj4gdGhh
-dCwgYWQ3MTR4IG5lZWQgdG8gZXhwb3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgZXhwb3J0IHN5bWJv
-bHMgdG8KPj4+IGFkNzE0eC1pMmMgYW5kIGFkNzE0eC1zcGkuIEJ1dCB0aG9zZSBkYXRhIHN0cnVj
-dHVyZXMgYW5kIHN5bWJvbHMgYXJlCj4+PiBtb3JlIGxpa2UgbG9jYWwgc3R1ZmYuIEFuZCBJMkMg
-YW5kIFNQSSBhcmUganVzdCBib3R0b20gbGV2ZWwKPj4+IGNvbW11bmljYXRpb24gd2F5cywgdGhl
-eSBzaG91bGQgYmUgdGhlIGJvdHRvbSBsZXZlbCBvZiBhZDcxNHgsIGJ1dAo+Pj4gYWZ0ZXIgc3Bs
-aXR0aW5nIHRvIDMgbW9kdWxlcywgaXQgc2VlbXMgdGhleSBiZWNvbWUgdGhlIHRvcCBsZXZlbCBv
-Zgo+Pj4gYWQ3MTR4Lgo+Pgo+PiB0aGVyZSBzaG91bGQgYWxyZWFkeSBiZSBhIGNsZWFyIHNwbGl0
-IGJldHdlZW4gdGhlIGJ1cyBhbmQgdGhlIGRyaXZlcgo+PiBjb3JlLCBvdGhlcndpc2UgY3JhcCBp
-cyBiZWluZyBkdXBsaWNhdGVkIGJldHdlZW4gdGhlIHR3byBpbnRlcmZhY2VzLgo+PiBpIGp1c3Qg
-dGVzdGVkIHNwbGl0dGluZyB0aGluZ3MgYW5kIGVhY2ggYnVzIGNvZGUgbmVlZHMgdG8ga25vdyB2
-ZXJ5Cj4+IGZldyB0aGluZ3M6Cj4+IMKgLSBwcm9iZS9yZW1vdmUgZm9yIGluaXRpYWxpemF0aW9u
-Cj4+IMKgLSBlbmFibGUvZGlzYWJsZSBmb3IgcG0KPj4KPj4gdGhlIG9ubHkgZG93bnNpZGUgaSBz
-ZWUgaGVyZSBpcyB0aGF0IHdlIGhhdmUgdG8gcmVtb3ZlCj4+IF9fZGV2aW5pdC9fX2RldmV4aXQg
-bWFya2luZ3MgZnJvbSB0aGUgY29tbW9uIHByb2JlL3JlbW92ZSBmdW5jdGlvbnMKPj4gYW5kIHRo
-b3NlIHdlaWdoIGEgaGVmdHkgMjQwNi8yMTggYnl0ZXMgYSBwaWVjZS4KPgo+IGkgc3BlbnQgdGlt
-ZSBwYWNraW5nIGNvbW1vbiBzdHVmZiBpbiB0aGUgcHJvYmUgY29kZSBhbmQgY3V0IGl0IGRvd24g
-YnkKPiB+MWssIHNvIGknbSBmaW5lIHdpdGggdGhpcyBsaXR0bGUgYml0IG9mIG92ZXJoZWFkLgo+
-Cj4gQmFycnk6IGNhbiB5b3UgdGVzdCBvdXQgdGhlIGxhdGVzdCBhZDcxNHggZHJpdmVyIGFuZCBt
-YWtlIHN1cmUgaSBkaWRudAo+IHNjcmV3IGFueXRoaW5nIHVwID8gwqBpIGRvbnQgaGF2ZSBhbnkg
-aGFyZHdhcmUgdG8gYWN0dWFsbHkgdGVzdCB0aGVzZQo+IGd1eXMgb3V0IC4uLgpJdCBjYW4ndCB3
-b3JrIG5vdy4gSSB3aWxsIGZpZ3VyZSBvdXQgdGhlIHByb2JsZW1zIGFuZCBmaXggaXQuCj4gLW1p
-a2UKPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xp
-bnV4LWRpc3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51
-Y2xpbnV4Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8v
-dWNsaW51eC1kaXN0LWRldmVs
+On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
+> On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
+> > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
+> > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > > > > So at least, unbind should fail as well as bind.
+> > > > >
+> > > > 
+> > > > That would be Greg's domain s it is driver core decision whether to
+> > > > allow unbinding platform devices registered with
+> > > > platform_driver_probe().
+> > > 
+> > > No, I do not see why that should not be allowed.
+> > > 
+> > 
+> > Because once you did unbind the device you are stuck (unless the driver
+> > is compiled as a module, but then you could just unload the module
+> > instead of unbinding). Disallowing unbind would allow discarding not
+> > only __devinit but __devexit sections when driver is built in which
+> > would make ebedded people happy[^Hier].
+> 
+> Yeah, good point.
+> 
+> Does anyone do bind/unbind with platform devices today?
+> 
+> If not, a patch changing this would be welcome.
+> 
+
+How about this one?
+
+-- 
+Dmitry
+
+
+Driver core: allow certain drivers prohibit bind/unbind via sysfs
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Platform drivers registered via platform_driver_probe() can be bound
+to devices only once, upon registration, because discard their probe()
+routines to save memory. Unbinding the driver through sysfs 'unbind'
+leaves the device stranded and confuses users so let's not create
+bind and unbind attributes for such drivers.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/base/bus.c      |   17 +++++++++++------
+ drivers/base/platform.c |    6 +++++-
+ include/linux/device.h  |    4 +++-
+ 3 files changed, 19 insertions(+), 8 deletions(-)
+
+
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index 973bf2a..63c143e 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -689,15 +689,19 @@ int bus_add_driver(struct device_driver *drv)
+ 		printk(KERN_ERR "%s: driver_add_attrs(%s) failed\n",
+ 			__func__, drv->name);
+ 	}
+-	error = add_bind_files(drv);
+-	if (error) {
+-		/* Ditto */
+-		printk(KERN_ERR "%s: add_bind_files(%s) failed\n",
+-			__func__, drv->name);
++
++	if (!drv->suppress_bind_attrs) {
++		error = add_bind_files(drv);
++		if (error) {
++			/* Ditto */
++			printk(KERN_ERR "%s: add_bind_files(%s) failed\n",
++				__func__, drv->name);
++		}
+ 	}
+ 
+ 	kobject_uevent(&priv->kobj, KOBJ_ADD);
+ 	return 0;
++
+ out_unregister:
+ 	kfree(drv->p);
+ 	drv->p = NULL;
+@@ -720,7 +724,8 @@ void bus_remove_driver(struct device_driver *drv)
+ 	if (!drv->bus)
+ 		return;
+ 
+-	remove_bind_files(drv);
++	if (!drv->suppress_bind_attrs)
++		remove_bind_files(drv);
+ 	driver_remove_attrs(drv->bus, drv);
+ 	driver_remove_file(drv, &driver_attr_uevent);
+ 	klist_remove(&drv->p->knode_bus);
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index ed156a1..4fa954b 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -521,11 +521,15 @@ int __init_or_module platform_driver_probe(struct platform_driver *drv,
+ {
+ 	int retval, code;
+ 
++	/* make sure driver won't have bind/unbind attributes */
++	drv->driver.suppress_bind_attrs = true;
++
+ 	/* temporary section violation during probe() */
+ 	drv->probe = probe;
+ 	retval = code = platform_driver_register(drv);
+ 
+-	/* Fixup that section violation, being paranoid about code scanning
++	/*
++	 * Fixup that section violation, being paranoid about code scanning
+ 	 * the list of drivers in order to probe new devices.  Check to see
+ 	 * if the probe was successful, and make sure any forced probes of
+ 	 * new devices fail.
+diff --git a/include/linux/device.h b/include/linux/device.h
+index aca31bf..2ea3e49 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -124,7 +124,9 @@ struct device_driver {
+ 	struct bus_type		*bus;
+ 
+ 	struct module		*owner;
+-	const char 		*mod_name;	/* used for built-in modules */
++	const char		*mod_name;	/* used for built-in modules */
++
++	bool suppress_bind_attrs;	/* disables bind/unbind via sysfs */
+ 
+ 	int (*probe) (struct device *dev);
+ 	int (*remove) (struct device *dev);

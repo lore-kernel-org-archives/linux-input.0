@@ -1,68 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 1/2] Input: DaVinci Keypad Driver
-Date: Tue, 13 Oct 2009 09:55:24 -0700
-Message-ID: <20091013165524.GA21593@core.coreip.homeip.net>
-References: <1255109225-6833-1-git-send-email-miguel.aguilar@ridgerun.com> <20091013054644.GF2887@core.coreip.homeip.net> <BD79186B4FD85F4B8E60E381CAEE190901DB800C@mi8nycmail19.Mi8.com>
+From: Xiangfu Liu <xiangfu.z@gmail.com>
+Subject: french accents in keyboard
+Date: Wed, 14 Oct 2009 00:56:02 +0800
+Message-ID: <4AD4B122.4010007@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:63750 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760556AbZJMQ4F (ORCPT
+Received: from gv-out-0910.google.com ([216.239.58.189]:22021 "EHLO
+	gv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753248AbZJMQ55 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 12:56:05 -0400
-Received: by pzk26 with SMTP id 26so9143599pzk.4
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 09:55:29 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901DB800C@mi8nycmail19.Mi8.com>
+	Tue, 13 Oct 2009 12:57:57 -0400
+Received: by gv-out-0910.google.com with SMTP id r4so84003gve.37
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 09:56:09 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: miguel.aguilar@ridgerun.com, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
+To: linux-input@vger.kernel.org
 
-On Tue, Oct 13, 2009 at 12:21:47PM -0400, H Hartley Sweeten wrote:
-> On Monday, October 12, 2009 10:47 PM, Dmitry Torokhov wrote:
-> > Hi Miguel,
-> > 
-> > On Fri, Oct 09, 2009 at 11:27:05AM -0600, miguel.aguilar@ridgerun.com wrote:
-> >> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> >> 
-> >> Adds the driver for enabling keypad support for DaVinci platforms.
-> >> 
-> >> DM365 is the only platform that uses this driver at the moment.
-> >> 
-> >
-> > Looks pretty good, I have one question:
-> >
-> >> +static void davinci_ks_write(struct davinci_ks *davinci_ks, u32 val, u32 addr)
-> >> +{
-> >> +	u32 base = (u32)davinci_ks->base;
-> >> +
-> >> +	__raw_writel(val,(u32 *)(base + addr));
-> >> +}
-> >
-> > Do you really need these casts? I'd think that bare __raw_writel would
-> > work just fine.
-> 
-> The address for __raw_{write/read}* should be void __iomem *, davinci_ks->base
-> should already be the correct type due to ioremap().
-> 
-> You can probably just change the whole thing to:
-> 
-> +static void davinci_ks_write(struct davinci_ks *davinci_ks, u32 val, u32 addr)
-> +{
-> +	__raw_writel(val, davinci_ks->base + addr);
-> +}
-> +
-> +static u32 davinci_ks_read(struct davinci_ks *davinci_ks, u32 addr)
-> +{
-> +	return __raw_readl(davinci_ks->base + addr);
-> +}
-> 
+Hi
 
-Better yet, use __raw_readl() and __raw_writel() directly - there is no
-need for wrappers that just rename existig functions not adding any
-additional functionality.
+you can see the green circle at http://www.openmobilefree.net/other/file/keyboard_problem_2.JPG
+
+those are two accents used in French and some other languages,
+they can appear above any vowel (a,e,i,o,u) and sometimes even y
+
+can someone told me what is the UNICODE of those two accents.
+or how to use in keyboard like those keys.
+I am a Chinese never use those keys.
+
+thanks for help
+
 
 -- 
-Dmitry
+Xiangfu Liu
+Email: xiangfu at qi-hardware dot com
+Web: http://www.qi-hardware.com

@@ -1,77 +1,320 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] add analog devices AD714X
-	captouchinput driver
-Date: Tue, 13 Oct 2009 12:26:06 +0800
-Message-ID: <3c17e3570910122126l6e85f936s78b4edeffb1a614e@mail.gmail.com>
-References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
-	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
-	<1255079007.8362.70.camel@macbook.infradead.org>
-	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
-	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
-	<20091009162219.GB1092@core.coreip.homeip.net>
-	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
-	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
-	<8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
-	<3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 1/2] Input: DaVinci Keypad Driver
+Date: Mon, 12 Oct 2009 22:46:44 -0700
+Message-ID: <20091013054644.GF2887@core.coreip.homeip.net>
+References: <1255109225-6833-1-git-send-email-miguel.aguilar@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
-	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from qw-out-2122.google.com ([74.125.92.26]:9914 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932389AbZJMFr4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Oct 2009 01:47:56 -0400
+Received: by qw-out-2122.google.com with SMTP id 9so778789qwb.37
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2009 22:46:49 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1255109225-6833-1-git-send-email-miguel.aguilar@ridgerun.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: miguel.aguilar@ridgerun.com
+Cc: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
 
-T24gVHVlLCBPY3QgMTMsIDIwMDkgYXQgMTE6MDUgQU0sIEJhcnJ5IFNvbmcgPDIxY25iYW9AZ21h
-aWwuY29tPiB3cm90ZToKPiBPbiBUdWUsIE9jdCAxMywgMjAwOSBhdCAxOjA4IEFNLCBNaWtlIEZy
-eXNpbmdlciA8dmFwaWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+PiBPbiBTYXQsIE9jdCAxMCwg
-MjAwOSBhdCAxNjozOCwgTWlrZSBGcnlzaW5nZXIgd3JvdGU6Cj4+PiBPbiBGcmksIE9jdCA5LCAy
-MDA5IGF0IDIyOjI0LCBCYXJyeSBTb25nIHdyb3RlOgo+Pj4+IE9uIFNhdCwgT2N0IDEwLCAyMDA5
-IGF0IDEyOjIyIEFNLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4+Pj4+IE9uIEZyaSwgT2N0IDA5
-LCAyMDA5IGF0IDA2OjExOjQ1QU0gLTA0MDAsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+Pj4+Pj4g
-T24gRnJpLCBPY3QgOSwgMjAwOSBhdCAwNToxOCwgTWlrZSBGcnlzaW5nZXIgPHZhcGllci5hZGlA
-Z21haWwuY29tPiB3cm90ZToKPj4+Pj4+ID4gd2UgY291bGQgaGF2ZSB0aHJlZSBtb2R1bGVzIGhl
-cmU6IGFkNzE0eCwgYWQ3MTR4LWkyYywgYWQ3MTR4LXNwaQo+Pj4+Pj4KPj4+Pj4+IGFyZSB5b3Ug
-b2sgd2l0aCB0aGlzIGFwcHJvYWNoIERtaXRyeSA/IMKgdGhpcyB3YXkgcGVvcGxlIGNhbgo+Pj4+
-Pj4gbG9hZC91bmxvYWQgYSBzcGVjaWZpYyBidXMgd2l0aG91dCBhZmZlY3RpbmcgdGhlIGNvcmUg
-b3IgdGhlIG90aGVyCj4+Pj4+PiBidXMsIGFuZCBlcnJvcnMgd2l0aCBsb2FkaW5nIG9uZSBidXMg
-dHlwZSB3b3VsZG50IGFmZmVjdCBsb2FkaW5nIG9mCj4+Pj4+PiB0aGUgb3RoZXIuCj4+Pj4+Cj4+
-Pj4+IFllcywgSSB0aGluayB0aGlzIGlzIHRoZSBtb3N0IGNsZWFuIHdheS4KPj4+Pgo+Pj4+IFRo
-YXQgd2lsbCBkZWNyZWFzZSB0aGUgY29oZXNpb24gYW5kIGluY3JlYXNlIGNvdXBsaW5nLiBJdCdz
-IHRlZGlvdXMKPj4+PiBmb3Igb25lIGRyaXZlciB3aXRoIHNpbmdsZSBmZWF0dXJlIHRvIGhhdmUg
-dGhyZWUgbW9kdWxlcy4gVG8gZnVsZmlsbAo+Pj4+IHRoYXQsIGFkNzE0eCBuZWVkIHRvIGV4cG9z
-ZSBkYXRhIHN0cnVjdHVyZXMgYW5kIGV4cG9ydCBzeW1ib2xzIHRvCj4+Pj4gYWQ3MTR4LWkyYyBh
-bmQgYWQ3MTR4LXNwaS4gQnV0IHRob3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgc3ltYm9scyBhcmUK
-Pj4+PiBtb3JlIGxpa2UgbG9jYWwgc3R1ZmYuIEFuZCBJMkMgYW5kIFNQSSBhcmUganVzdCBib3R0
-b20gbGV2ZWwKPj4+PiBjb21tdW5pY2F0aW9uIHdheXMsIHRoZXkgc2hvdWxkIGJlIHRoZSBib3R0
-b20gbGV2ZWwgb2YgYWQ3MTR4LCBidXQKPj4+PiBhZnRlciBzcGxpdHRpbmcgdG8gMyBtb2R1bGVz
-LCBpdCBzZWVtcyB0aGV5IGJlY29tZSB0aGUgdG9wIGxldmVsIG9mCj4+Pj4gYWQ3MTR4Lgo+Pj4K
-Pj4+IHRoZXJlIHNob3VsZCBhbHJlYWR5IGJlIGEgY2xlYXIgc3BsaXQgYmV0d2VlbiB0aGUgYnVz
-IGFuZCB0aGUgZHJpdmVyCj4+PiBjb3JlLCBvdGhlcndpc2UgY3JhcCBpcyBiZWluZyBkdXBsaWNh
-dGVkIGJldHdlZW4gdGhlIHR3byBpbnRlcmZhY2VzLgo+Pj4gaSBqdXN0IHRlc3RlZCBzcGxpdHRp
-bmcgdGhpbmdzIGFuZCBlYWNoIGJ1cyBjb2RlIG5lZWRzIHRvIGtub3cgdmVyeQo+Pj4gZmV3IHRo
-aW5nczoKPj4+IMKgLSBwcm9iZS9yZW1vdmUgZm9yIGluaXRpYWxpemF0aW9uCj4+PiDCoC0gZW5h
-YmxlL2Rpc2FibGUgZm9yIHBtCj4+Pgo+Pj4gdGhlIG9ubHkgZG93bnNpZGUgaSBzZWUgaGVyZSBp
-cyB0aGF0IHdlIGhhdmUgdG8gcmVtb3ZlCj4+PiBfX2RldmluaXQvX19kZXZleGl0IG1hcmtpbmdz
-IGZyb20gdGhlIGNvbW1vbiBwcm9iZS9yZW1vdmUgZnVuY3Rpb25zCj4+PiBhbmQgdGhvc2Ugd2Vp
-Z2ggYSBoZWZ0eSAyNDA2LzIxOCBieXRlcyBhIHBpZWNlLgo+Pgo+PiBpIHNwZW50IHRpbWUgcGFj
-a2luZyBjb21tb24gc3R1ZmYgaW4gdGhlIHByb2JlIGNvZGUgYW5kIGN1dCBpdCBkb3duIGJ5Cj4+
-IH4xaywgc28gaSdtIGZpbmUgd2l0aCB0aGlzIGxpdHRsZSBiaXQgb2Ygb3ZlcmhlYWQuCj4+Cj4+
-IEJhcnJ5OiBjYW4geW91IHRlc3Qgb3V0IHRoZSBsYXRlc3QgYWQ3MTR4IGRyaXZlciBhbmQgbWFr
-ZSBzdXJlIGkgZGlkbnQKPj4gc2NyZXcgYW55dGhpbmcgdXAgPyDCoGkgZG9udCBoYXZlIGFueSBo
-YXJkd2FyZSB0byBhY3R1YWxseSB0ZXN0IHRoZXNlCj4+IGd1eXMgb3V0IC4uLgo+IEl0IGNhbid0
-IHdvcmsgbm93LiBJIHdpbGwgZmlndXJlIG91dCB0aGUgcHJvYmxlbXMgYW5kIGZpeCBpdC4KRG9u
-ZS4KPj4gLW1pa2UKPj4KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpVY2xpbnV4LWRpc3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZl
-bEBibGFja2Zpbi51Y2xpbnV4Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxt
-YW4vbGlzdGluZm8vdWNsaW51eC1kaXN0LWRldmVs
+Hi Miguel,
+
+On Fri, Oct 09, 2009 at 11:27:05AM -0600, miguel.aguilar@ridgerun.com wrote:
+> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> 
+> Adds the driver for enabling keypad support for DaVinci platforms.
+> 
+> DM365 is the only platform that uses this driver at the moment.
+> 
+
+Looks pretty good, I have one question:
+
+> +static void davinci_ks_write(struct davinci_ks *davinci_ks, u32 val, u32 addr)
+> +{
+> +	u32 base = (u32)davinci_ks->base;
+> +
+> +	__raw_writel(val,(u32 *)(base + addr));
+> +}
+
+Do you really need these casts? I'd think that bare __raw_writel would
+work just fine.
+
+> +
+> +static u32 davinci_ks_read(struct davinci_ks *davinci_ks, u32 addr)
+> +{
+> +	u32 base = (u32)davinci_ks->base;
+> +
+> +	return __raw_readl((u32 *)(base + addr));
+> +}
+
+Could you also please try the patch below and let me know if it breaks
+things. Also iof you coulr run sparse over the driver that would be
+nice.
+
+Thanks!
+
+-- 
+Dmitry
+
+
+Input: davinci_keyscan - miscellaneous fixes
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/keyboard/davinci_keyscan.c |  107 +++++++++++++++++-------------
+ 1 files changed, 60 insertions(+), 47 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+index 7b7424b..b80f078 100644
+--- a/drivers/input/keyboard/davinci_keyscan.c
++++ b/drivers/input/keyboard/davinci_keyscan.c
+@@ -79,7 +79,7 @@ static void davinci_ks_write(struct davinci_ks *davinci_ks, u32 val, u32 addr)
+ {
+ 	u32 base = (u32)davinci_ks->base;
+ 
+-	__raw_writel(val,(u32 *)(base + addr));
++	__raw_writel(val, (u32 *)(base + addr));
+ }
+ 
+ static u32 davinci_ks_read(struct davinci_ks *davinci_ks, u32 addr)
+@@ -90,33 +90,46 @@ static u32 davinci_ks_read(struct davinci_ks *davinci_ks, u32 addr)
+ }
+ 
+ /* Initializing the kp Module */
+-static int davinci_ks_initialize(struct davinci_ks *davinci_ks)
++static int __init davinci_ks_initialize(struct davinci_ks *davinci_ks)
+ {
+ 	struct device *dev = &davinci_ks->input->dev;
+-	u8 strobe = davinci_ks->pdata->strobe;
+-	u8 interval = davinci_ks->pdata->interval;
+-	u8 matrix_type = davinci_ks->pdata->matrix_type;
++	struct davinci_ks_platform_data *pdata = davinci_ks->pdata;
++	u32 matrix_ctrl;
+ 
+ 	/* Enable all interrupts */
+-	davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_INT_ALL, DAVINCI_KEYSCAN_INTENA);
++	davinci_ks_write(davinci_ks,
++			 DAVINCI_KEYSCAN_INT_ALL, DAVINCI_KEYSCAN_INTENA);
+ 
+ 	/* Clear interrupts if any */
+-	davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_INT_ALL, DAVINCI_KEYSCAN_INTCLR);
++	davinci_ks_write(davinci_ks,
++			 DAVINCI_KEYSCAN_INT_ALL, DAVINCI_KEYSCAN_INTCLR);
+ 
+ 	/* Setup the scan period = strobe + interval */
+-	davinci_ks_write(davinci_ks, strobe, DAVINCI_KEYSCAN_STRBWIDTH);
+-	davinci_ks_write(davinci_ks, interval, DAVINCI_KEYSCAN_INTERVAL);
++	davinci_ks_write(davinci_ks,
++			 pdata->strobe, DAVINCI_KEYSCAN_STRBWIDTH);
++	davinci_ks_write(davinci_ks,
++			 pdata->interval, DAVINCI_KEYSCAN_INTERVAL);
+ 	davinci_ks_write(davinci_ks, 0x01, DAVINCI_KEYSCAN_CONTTIME);
+ 
+ 	/* Define matrix type */
+-	if ((matrix_type != 0) && (matrix_type != 1)) {
++	switch (pdata->matrix_type) {
++	case DAVINCI_KEYSCAN_MATRIX_4X4:
++		matrix_ctrl = 0;
++		break;
++
++	case DAVINCI_KEYSCAN_MATRIX_5X3:
++		matrix_ctrl = (1 << 6);
++		break;
++
++	default:
+ 		dev_err(dev->parent, "wrong matrix type\n");
+ 		return -EINVAL;
+ 	}
+ 
+ 	/* Enable key scan module and set matrix type */
+-	davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_AUTODET | DAVINCI_KEYSCAN_KEYEN
+-			    | (matrix_type << 6), DAVINCI_KEYSCAN_KEYCTRL);
++	davinci_ks_write(davinci_ks,
++		DAVINCI_KEYSCAN_AUTODET | DAVINCI_KEYSCAN_KEYEN | matrix_ctrl,
++		DAVINCI_KEYSCAN_KEYCTRL);
+ 
+ 	return 0;
+ }
+@@ -140,26 +153,25 @@ static irqreturn_t davinci_ks_interrupt(int irq, void *dev_id)
+ 	new_status = davinci_ks_read(davinci_ks, DAVINCI_KEYSCAN_CURRENTST);
+ 
+ 	changed = prev_status ^ new_status;
+-
+-	if(changed) {
++	if (changed) {
+ 		/*
+-		 * It goes go through all bits in changed to ensure
++		 * It goes through all bits in 'changed' to ensure
+ 		 * that no key changes are being missed
+ 		 */
+-		for(i = 0 ; i < keymapsize; i++) {
+-			if((changed>>i) & 0x1) {
++		for (i = 0 ; i < keymapsize; i++) {
++			if ((changed >> i) & 0x1) {
+ 				keycode = keymap[i];
+ 				release = (new_status >> i) & 0x1;
+ 				dev_dbg(dev->parent, "key %d %s\n", keycode,
+-					    release ? "released" : "pressed");
++					release ? "released" : "pressed");
+ 				input_report_key(davinci_ks->input, keycode,
+-						    !release);
++						 !release);
+ 				input_sync(davinci_ks->input);
+ 			}
+ 		}
+ 		/* Clearing interrupt */
+ 		davinci_ks_write(davinci_ks, DAVINCI_KEYSCAN_INT_ALL,
+-				    DAVINCI_KEYSCAN_INTCLR);
++				 DAVINCI_KEYSCAN_INTCLR);
+ 	}
+ 
+ 	/* Enable interrupts */
+@@ -173,9 +185,9 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	struct davinci_ks *davinci_ks;
+ 	struct input_dev *key_dev;
+ 	struct resource *res, *mem;
+-	struct device * dev = &pdev->dev;
++	struct device *dev = &pdev->dev;
+ 	struct davinci_ks_platform_data *pdata = pdev->dev.platform_data;
+-	int ret, i;
++	int error, i;
+ 
+ 	if (!pdata->keymap) {
+ 		dev_dbg(dev, "no keymap from pdata\n");
+@@ -184,54 +196,53 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 
+ 	davinci_ks = kzalloc(sizeof(struct davinci_ks) +
+ 		sizeof(unsigned short) * pdata->keymapsize, GFP_KERNEL);
+-	if(!davinci_ks) {
++	if (!davinci_ks) {
+ 		dev_dbg(dev, "could not allocate memory for private data\n");
+ 		return -ENOMEM;
+ 	}
+ 
+ 	memcpy(davinci_ks->keymap, pdata->keymap,
+-		    sizeof(unsigned short) * pdata->keymapsize);
++		sizeof(unsigned short) * pdata->keymapsize);
+ 
+ 	key_dev = input_allocate_device();
+ 	if (!key_dev) {
+ 		dev_dbg(dev, "could not allocate input device\n");
+-		ret = -ENOMEM;
++		error = -ENOMEM;
+ 		goto fail1;
+ 	}
+ 
+-	platform_set_drvdata(pdev, davinci_ks);
+-
+ 	davinci_ks->input = key_dev;
+ 
+ 	davinci_ks->irq = platform_get_irq(pdev, 0);
+ 	if (davinci_ks->irq < 0) {
+ 		dev_err(dev, "no key scan irq\n");
+-		ret = davinci_ks->irq;
++		error = davinci_ks->irq;
+ 		goto fail2;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+ 		dev_err(dev, "no mem resource\n");
+-		ret = -EINVAL;
++		error = -EINVAL;
+ 		goto fail2;
+ 	}
+ 
+ 	davinci_ks->pbase = res->start;
+ 	davinci_ks->base_size = resource_size(res);
+ 
+-	mem = request_mem_region(davinci_ks->pbase, davinci_ks->base_size, pdev->name);
++	mem = request_mem_region(davinci_ks->pbase, davinci_ks->base_size,
++				 pdev->name);
+ 	if (!mem) {
+ 		dev_err(dev, "key scan registers at %08x are not free\n",
+ 			davinci_ks->pbase);
+-		ret = -EBUSY;
++		error = -EBUSY;
+ 		goto fail2;
+ 	}
+ 
+ 	davinci_ks->base = ioremap(davinci_ks->pbase, davinci_ks->base_size);
+ 	if (!davinci_ks->base) {
+ 		dev_err(dev, "can't ioremap MEM resource.\n");
+-		ret = -ENOMEM;
++		error = -ENOMEM;
+ 		goto fail3;
+ 	}
+ 
+@@ -259,27 +270,30 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	key_dev->keycodesize = sizeof(davinci_ks->keymap[0]);
+ 	key_dev->keycodemax = davinci_ks->pdata->keymapsize;
+ 
+-	ret = input_register_device(davinci_ks->input);
+-	if (ret < 0) {
++	error = input_register_device(davinci_ks->input);
++	if (error < 0) {
+ 		dev_err(dev, "unable to register davinci key scan device\n");
+ 		goto fail4;
+ 	}
+ 
+-	ret = request_irq(davinci_ks->irq, davinci_ks_interrupt, IRQF_DISABLED,
+-                         "davinci_keyscan", davinci_ks);
+-	if (ret < 0) {
++	error = request_irq(davinci_ks->irq, davinci_ks_interrupt,
++			    IRQF_DISABLED, pdev->name, davinci_ks);
++	if (error < 0) {
+ 		dev_err(dev, "unable to register davinci key scan interrupt\n");
+ 		goto fail5;
+ 	}
+ 
+-	ret = davinci_ks_initialize(davinci_ks);
+-	if (ret < 0) {
++	error = davinci_ks_initialize(davinci_ks);
++	if (error < 0) {
+ 		dev_err(dev, "unable to initialize davinci key scan device\n");
+-		goto fail5;
++		goto fail6;
+ 	}
+ 
++	platform_set_drvdata(pdev, davinci_ks);
+ 	return 0;
+ 
++fail6:
++	free_irq(davinci_ks->irq);
+ fail5:
+ 	input_unregister_device(davinci_ks->input);
+ 	key_dev = NULL;
+@@ -291,8 +305,7 @@ fail2:
+ 	input_free_device(key_dev);
+ fail1:
+ 	kfree(davinci_ks);
+-
+-	return ret;
++	return error;
+ }
+ 
+ static int __devexit davinci_ks_remove(struct platform_device *pdev)
+@@ -314,11 +327,11 @@ static int __devexit davinci_ks_remove(struct platform_device *pdev)
+ }
+ 
+ static struct platform_driver davinci_ks_driver = {
+-	.driver = {
+-			.name = "davinci_keyscan",
+-			.owner = THIS_MODULE,
+-		},
+-	.remove = __devexit_p(davinci_ks_remove),
++	.driver	= {
++		.name	= "davinci_keyscan",
++		.owner	= THIS_MODULE,
++	},
++	.remove	= __devexit_p(davinci_ks_remove),
+ };
+ 
+ static int __init davinci_ks_init(void)

@@ -1,37 +1,62 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: french accents in keyboard
-Date: Wed, 14 Oct 2009 00:56:02 +0800
-Message-ID: <4AD4B122.4010007@gmail.com>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH] Haptic class support (v2)
+Date: Tue, 13 Oct 2009 18:45:48 +0200
+Message-ID: <ac3eb2510910130945w2e87d84bjfa3291989d85375b@mail.gmail.com>
+References: <20091006074533.GA28889@july>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gv-out-0910.google.com ([216.239.58.189]:22021 "EHLO
-	gv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753248AbZJMQ55 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 12:57:57 -0400
-Received: by gv-out-0910.google.com with SMTP id r4so84003gve.37
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 09:56:09 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760482AbZJMQrR@vger.kernel.org>
+In-Reply-To: <20091006074533.GA28889@july>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg Kroah-Hartmann <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi
+On Tue, Oct 6, 2009 at 09:45, Kyungmin Park <kmpark@infradead.org> wrot=
+e:
 
-you can see the green circle at http://www.openmobilefree.net/other/file/keyboard_problem_2.JPG
+> +/**
+> + * haptic_classdev_register - register a new object of haptic_classd=
+ev class.
+> + * @dev: The device to register.
+> + * @haptic_cdev: the haptic_classdev structure for this device.
+> + */
+> +int haptic_classdev_register(struct device *parent,
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 struct haptic_classdev *haptic_cdev=
+)
+> +{
+> + =C2=A0 =C2=A0 =C2=A0 int ret;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 haptic_cdev->dev =3D device_create(haptic_clas=
+s, parent, 0,
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 haptic_cdev, "%s", haptic_cdev->nam=
+e);
+> + =C2=A0 =C2=A0 =C2=A0 if (IS_ERR(haptic_cdev->dev))
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return PTR_ERR(hap=
+tic_cdev->dev);
+> +
+> + =C2=A0 =C2=A0 =C2=A0 /* register the attributes */
+> + =C2=A0 =C2=A0 =C2=A0 ret =3D class_create_file(haptic_class, &class=
+_attr_enable);
+> + =C2=A0 =C2=A0 =C2=A0 if (ret) {
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 printk(KERN_ERR "%=
+s: class_create_file(enable) failed\n",
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__func__);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return ret;
+> + =C2=A0 =C2=A0 =C2=A0 }
 
-those are two accents used in French and some other languages,
-they can appear above any vowel (a,e,i,o,u) and sometimes even y
+As mentioned in an earlier mail, this needs some explanation. What are
+you doing here? Creating a device below a class, and then add a bunch
+of attributes to the class itself, instead of the device you created?
 
-can someone told me what is the UNICODE of those two accents.
-or how to use in keyboard like those keys.
-I am a Chinese never use those keys.
+All calls to class_create_file() need to go, we can not allow any new
+users of this broken interface. As mentioned, if you need
+subsystem-wide attributes you need to use a bus and not a class,
+classes are flat and can not handle such things properly.
 
-thanks for help
-
-
--- 
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
+Thanks,
+Kay

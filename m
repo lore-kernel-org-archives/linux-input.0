@@ -1,74 +1,70 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: ads7846 touchscreen: fix pressure
-Date: Tue, 13 Oct 2009 15:29:12 +0200
-Message-ID: <20091013132911.GA5909@ucw.cz>
-References: <20091006195413.GA1469@ucw.cz> <5d5443650910072209t63e3fa9dvff7ab2fee7bb2f88@mail.gmail.com> <20091008092433.GA26837@elf.ucw.cz> <20091009163506.GE1092@core.coreip.homeip.net> <20091009202250.GA2040@elf.ucw.cz>
+From: iceberg <strakh@ispras.ru>
+Subject: [BUG] ati_remote2.c: possible mutex_lock without mutex_unlock
+Date: Tue, 13 Oct 2009 17:52:07 +0000
+Message-ID: <1255456327.22233.0@pamir>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42611 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759849AbZJMNaC (ORCPT
+Received: from smtp.ispras.ru ([83.149.198.201]:56492 "EHLO smtp.ispras.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759716AbZJMNtz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 09:30:02 -0400
+	Tue, 13 Oct 2009 09:49:55 -0400
 Content-Disposition: inline
-In-Reply-To: <20091009202250.GA2040@elf.ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, mroth@nessie.de, bn@niasdigital.com, eric.miao@marvell.com
-Cc: Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Linux Kernlel Mailing List <linux-kernel@vger.kernel.org>, linux-input@
 
-On Fri 2009-10-09 22:22:51, Pavel Machek wrote:
-> On Fri 2009-10-09 09:35:07, Dmitry Torokhov wrote:
-> > On Thu, Oct 08, 2009 at 11:24:33AM +0200, Pavel Machek wrote:
-> > > On Thu 2009-10-08 10:39:39, Trilok Soni wrote:
-> > > > Hi Pavel,
-> > > > 
-> > > > On Wed, Oct 7, 2009 at 1:24 AM, Pavel Machek <pavel@ucw.cz> wrote:
-> > > > >
-> > > > > On Zaurus, pressure is reported inverted -- the lighter the pressure,
-> > > > > the bigger numerical value. This should fix it.
-> > > > >
-> > > > > Signed-off-by: Pavel Machek <pavel@ucw.cz>
-> > > > >
-> > > > > --- linux-rc/drivers/input.ofic/touchscreen/ads7846.c ? 2009-10-06 13:49:56.000000000 +0200
-> > > > > +++ linux-rc/drivers/input/touchscreen/ads7846.c ? ? ? ?2009-10-06 21:18:25.000000000 +0200
-> > > > > @@ -608,12 +609,12 @@
-> > > > >
-> > > > > ? ? ? ? ? ? ? ?input_report_abs(input, ABS_X, x);
-> > > > > ? ? ? ? ? ? ? ?input_report_abs(input, ABS_Y, y);
-> > > > > - ? ? ? ? ? ? ? input_report_abs(input, ABS_PRESSURE, Rt);
-> > > > > + ? ? ? ? ? ? ? input_report_abs(input, ABS_PRESSURE, ts->pressure_max-Rt);
-> > > > 
-> > > > but same behavior is seen by others using this chip on different
-> > > > boards? If not, this has to be done through platform data.
-> > > 
-> > > Well, I'd expect the chip to behave in similar way on all
-> > > platforms. Of course, it would be good if someone with different hw
-> > > tested it, but I do not have that hw...
-> > > 
-> > > So I guess the best way is to make it go in early and see how it does
-> > > in testing....
-> > 
-> > No, this is not how it works. Please do
-> > 
-> > 	git log -- drivers/input/touchscreen/ads7846.c
-> > 
-> > and try to check with people who were working on this driver. I somehow
-> > doubt that they'd overlook such obvious issue as inverted pressure
-> > readings.
-> 
-> Well, it was certainly not obvious to the one who switched zaurus to
-> ads7846, thus causing regression.
-> 
-> Anyway, people, can you please test ads7846, to see if it has normal
-> or inverted pressure readings? I could only find 3 people contributing
-> to ads7846 in last year or so, and Eric was one of them... 
+	KERNEL_VERSION: 2.6.31
+	DESCRIBE:
 
-So... what is the plan here? Can we just make the fix go in? ...it
-seems noone will test it otherwise.
+	In driver ./drivers/input/input.c possible call to mutex_lock 
+from function input_devices_seq_start without mutex_unlock.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	After calling input_devices_seq_start we can't know whether 
+mutex was locked or not. 
+Case 1. If mutex_lock_interruptible was not 
+locked due to interrupt then input_devices_seq_start returns NULL. 
+Case 2. If mutex was successfuly locked but seq_list_start returned 
+NULL then input_devices_seq_start returns NULL too. 
+The last case occurs if seq_list_start is called with pos>size of 
+input_dev_list or pos<0.
+
+Hence, after calling input_devices_seq_start we can not simply check 
+that result is not NULL and call input_devices_seq_stop function 
+which unlocks the mutex. Because in case 2 the mutex will stay locked.
+void * ret = input_devices_seq_start(...);
+if(ret!=NULL) {
+	//mutex is acquired for sure
+	input_devices_seq_stop(...);//unlocks the mutex
+} else {
+	//mutex may be acquired or not
+}
+
+ 783 static void *input_devices_seq_start(struct seq_file *seq, loff_t 
+*pos)
+ 784{
+ 785        if (mutex_lock_interruptible(&input_mutex))
+ 786                return NULL;
+ 787
+ 788        return seq_list_start(&input_dev_list, *pos);
+ 789}
+
+ 663struct list_head *seq_list_start(struct list_head *head, loff_t 
+pos)
+ 664{
+ 665        struct list_head *lh;
+ 666
+ 667        list_for_each(lh, head)
+ 668                if (pos-- == 0)
+ 669                        return lh;
+ 670
+ 671        return NULL;
+ 672}
+ 673
+ 674EXPORT_SYMBOL(seq_list_start);
+ 675
+
+Found by: Linux Driver Verification project
+

@@ -1,41 +1,74 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: Re: =?ISO-8859-1?Q?=3F=3F=3A_Re=3A_how_to_make_KEY=5FP?=
- =?ISO-8859-1?Q?OWER_work_in_terminal_system?=
-Date: Tue, 13 Oct 2009 21:08:18 +0800
-Message-ID: <4AD47BC2.1070605@gmail.com>
-References: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com> <bc65a8d50910030942hecf96b2hc06ff18f786a1cc@mail.gmail.com> <20091006050633.GF27881@core.coreip.homeip.net> <bc65a8d50910062032u1ab5d215xb37737b197bb7d46@mail.gmail.com> <bc65a8d50910062033j5c2f86c4s2a17cb21cf16a7f7@mail.gmail.com> <20091007043526.GA10204@core.coreip.homeip.net>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: ads7846 touchscreen: fix pressure
+Date: Tue, 13 Oct 2009 15:29:12 +0200
+Message-ID: <20091013132911.GA5909@ucw.cz>
+References: <20091006195413.GA1469@ucw.cz> <5d5443650910072209t63e3fa9dvff7ab2fee7bb2f88@mail.gmail.com> <20091008092433.GA26837@elf.ucw.cz> <20091009163506.GE1092@core.coreip.homeip.net> <20091009202250.GA2040@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.27]:50770 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751456AbZJMNJi (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42611 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759849AbZJMNaC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 09:09:38 -0400
-Received: by ey-out-2122.google.com with SMTP id 4so2127405eyf.19
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 06:08:31 -0700 (PDT)
-In-Reply-To: <20091007043526.GA10204@core.coreip.homeip.net>
+	Tue, 13 Oct 2009 09:30:02 -0400
+Content-Disposition: inline
+In-Reply-To: <20091009202250.GA2040@elf.ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, mroth@nessie.de, bn@niasdigital.com, eric.miao@marvell.com
+Cc: Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 
-Dmitry Torokhov wrote:
-> On Wed, Oct 07, 2009 at 11:33:47AM +0800, xiangfu liu wrote:
->> thanks for reply
->> so i must write userspace daemon. right?
->>
+On Fri 2009-10-09 22:22:51, Pavel Machek wrote:
+> On Fri 2009-10-09 09:35:07, Dmitry Torokhov wrote:
+> > On Thu, Oct 08, 2009 at 11:24:33AM +0200, Pavel Machek wrote:
+> > > On Thu 2009-10-08 10:39:39, Trilok Soni wrote:
+> > > > Hi Pavel,
+> > > > 
+> > > > On Wed, Oct 7, 2009 at 1:24 AM, Pavel Machek <pavel@ucw.cz> wrote:
+> > > > >
+> > > > > On Zaurus, pressure is reported inverted -- the lighter the pressure,
+> > > > > the bigger numerical value. This should fix it.
+> > > > >
+> > > > > Signed-off-by: Pavel Machek <pavel@ucw.cz>
+> > > > >
+> > > > > --- linux-rc/drivers/input.ofic/touchscreen/ads7846.c ? 2009-10-06 13:49:56.000000000 +0200
+> > > > > +++ linux-rc/drivers/input/touchscreen/ads7846.c ? ? ? ?2009-10-06 21:18:25.000000000 +0200
+> > > > > @@ -608,12 +609,12 @@
+> > > > >
+> > > > > ? ? ? ? ? ? ? ?input_report_abs(input, ABS_X, x);
+> > > > > ? ? ? ? ? ? ? ?input_report_abs(input, ABS_Y, y);
+> > > > > - ? ? ? ? ? ? ? input_report_abs(input, ABS_PRESSURE, Rt);
+> > > > > + ? ? ? ? ? ? ? input_report_abs(input, ABS_PRESSURE, ts->pressure_max-Rt);
+> > > > 
+> > > > but same behavior is seen by others using this chip on different
+> > > > boards? If not, this has to be done through platform data.
+> > > 
+> > > Well, I'd expect the chip to behave in similar way on all
+> > > platforms. Of course, it would be good if someone with different hw
+> > > tested it, but I do not have that hw...
+> > > 
+> > > So I guess the best way is to make it go in early and see how it does
+> > > in testing....
+> > 
+> > No, this is not how it works. Please do
+> > 
+> > 	git log -- drivers/input/touchscreen/ads7846.c
+> > 
+> > and try to check with people who were working on this driver. I somehow
+> > doubt that they'd overlook such obvious issue as inverted pressure
+> > readings.
 > 
-> Yes.
+> Well, it was certainly not obvious to the one who switched zaurus to
+> ads7846, thus causing regression.
 > 
-Hi Dmitry.
-can you give me some tips on write the daemon.
-have no idea on it. 
+> Anyway, people, can you please test ads7846, to see if it has normal
+> or inverted pressure readings? I could only find 3 people contributing
+> to ads7846 in last year or so, and Eric was one of them... 
 
-thanks for help
+So... what is the plan here? Can we just make the fix go in? ...it
+seems noone will test it otherwise.
 
+									Pavel
 -- 
-Xiangfu Liu
-Email: xiangfu at qi-hardware dot com
-Web: http://www.qi-hardware.com
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

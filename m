@@ -1,60 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: bcm5974: report ABS_MT events
-Date: Mon, 12 Oct 2009 23:12:20 -0700
-Message-ID: <20091013061220.GI2887@core.coreip.homeip.net>
-References: <1255386223-4109-1-git-send-email-rydberg@euromail.se> <1255386223-4109-2-git-send-email-rydberg@euromail.se> <20091012154528.6830da60.akpm@linux-foundation.org> <4AD3B6E2.9020703@euromail.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCH 1/1] Polled input device: add device open and close methods
+Date: Tue, 13 Oct 2009 09:24:48 +0300
+Message-ID: <1255415088-31845-2-git-send-email-samu.p.onkalo@nokia.com>
+References: <1255415088-31845-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:56379 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756945AbZJMGNc (ORCPT
+Received: from smtp.nokia.com ([192.100.105.134]:30674 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758917AbZJMG0c (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 02:13:32 -0400
-Content-Disposition: inline
-In-Reply-To: <4AD3B6E2.9020703@euromail.se>
+	Tue, 13 Oct 2009 02:26:32 -0400
+In-Reply-To: <1255415088-31845-1-git-send-email-samu.p.onkalo@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-On Tue, Oct 13, 2009 at 01:08:18AM +0200, Henrik Rydberg wrote:
-> Andrew Morton wrote:
-> > On Tue, 13 Oct 2009 00:23:43 +0200
-> > "Henrik Rydberg" <rydberg@euromail.se> wrote:
-> > 
-> >> This patch makes bcm5974 report raw multi-touch (MT) data in the form
-> >> of ABS_MT events. The module parameter (nomt) may be used to turn off
-> >> the effect of this patch.
-> >>
-> > 
-> > Why do we need a module parameter to disable the newly-added feature?
-> 
-> All MT events bypass the input filtering and gets sent directly to the X driver.
-> Although it works as intended, without visible side effects, the stream of
-> events is rather large, and since the bypassing is completely new behavior, I
-> felt compelled to provide an option to turn it all off. Perhaps it is just me
-> being paranoid.
-> 
+Optional open and close methods for preparing and closing
+the device.
 
-What is the expected rate of the events when user touches the pad with
-2-3 fingers? Could you giove me estimate?
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+---
+ drivers/input/input-polldev.c |    6 ++++++
+ include/linux/input-polldev.h |    2 ++
+ 2 files changed, 8 insertions(+), 0 deletions(-)
 
-> > 
-> > IMO, your first patch ("input: bcm5974: retract efi-broken
-> > suspend_resume") is 2.6.32 material whereas this one is 2.6.33
-> > material?
-> > 
-> > This assumes that the two patches can be safely separated in this
-> > manner, which does appear to be the case.
-> > 
-> 
-> I was imagining both for 2.6.33; the efi booting is just beginning to work, and
-> since no distro is using it fully so far the problem currently only hits the
-> adventure-seekers anyways.
-
-I'd wait then - it works fine in non-efi mode and maybe by the time EFI
-is ready reset_resume will start working as well.
-
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index 0d3ce7a..0ad788b 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -80,6 +80,9 @@ static int input_open_polled_device(struct input_dev *input)
+ 	if (error)
+ 		return error;
+ 
++	if (dev->open)
++		dev->open(dev);
++
+ 	if (dev->flush)
+ 		dev->flush(dev);
+ 
+@@ -95,6 +98,9 @@ static void input_close_polled_device(struct input_dev *input)
+ 
+ 	cancel_delayed_work_sync(&dev->work);
+ 	input_polldev_stop_workqueue();
++
++	if (dev->close)
++		dev->close(dev);
+ }
+ 
+ /**
+diff --git a/include/linux/input-polldev.h b/include/linux/input-polldev.h
+index 597a007..ba266c1 100644
+--- a/include/linux/input-polldev.h
++++ b/include/linux/input-polldev.h
+@@ -30,6 +30,8 @@
+ struct input_polled_dev {
+ 	void *private;
+ 
++	void (*open)(struct input_polled_dev *dev);
++	void (*close)(struct input_polled_dev *dev);
+ 	void (*flush)(struct input_polled_dev *dev);
+ 	void (*poll)(struct input_polled_dev *dev);
+ 	unsigned int poll_interval; /* msec */
 -- 
-Dmitry
+1.5.6.3
+

@@ -1,171 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [bisected regression] Touchpad "paste" stops working after
-	suspend to RAM
-Date: Mon, 12 Oct 2009 20:24:14 -0700
-Message-ID: <20091013032414.GC2887@core.coreip.homeip.net>
-References: <20091011162155.GA4260@Pilar.aei.mpg.de> <20091011180134.GA5197@core.coreip.homeip.net> <20091011193100.GA4410@Pilar.aei.mpg.de> <20091012090224.GB7403@core.coreip.homeip.net> <20091012100929.GA4402@Pilar.aei.mpg.de>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Tue, 13 Oct 2009 12:26:06 +0800
+Message-ID: <3c17e3570910122126l6e85f936s78b4edeffb1a614e@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
+	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+	<20091009162219.GB1092@core.coreip.homeip.net>
+	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
+	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
+	<8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
+	<3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758912AbZJMDZc@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20091012100929.GA4402@Pilar.aei.mpg.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Carlos R. Mafra" <crmafra2@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 12, 2009 at 12:09:29PM +0200, Carlos R. Mafra wrote:
-> On Mon 12.Oct'09 at  2:02:24 -0700, Dmitry Torokhov wrote:
-> > Still, I am curious to know why we can't simply reinitialize ALPS from
-> > the get go, could you please send me a dmesg of resume done with
-> > i8042.debug? Thanks!
-> 
-> The dmesg was too big, so I uploaded the ~5000 lines worth of syslog
-> from 2.6.32-rc4 with i8042.debug info with a suspend to RAM to
-> 
-> http://www.aei.mpg.de/~crmafra/syslog-i8042.debug.txt
-> 
-> I hope this helps!
-
-Could you please try this patch and let me know if it helps. Anotehr
-i8042.dmesg would be much appreciated.
-
--- 
-Dmitry
-
-
-Input: psmouse - retry reset command if first one fails
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Sometimes mice are not ready for a command and respond with 0xfe;
-failure to reset mouse can lead to losing the device to let's try
-harder and repeat the command after delay.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/psmouse-base.c |   13 ++++++++++++-
- drivers/input/serio/libps2.c       |   31 +++++++++++++++++--------------
- 2 files changed, 29 insertions(+), 15 deletions(-)
-
-
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 690aed9..52ad50f 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -395,8 +395,19 @@ int psmouse_sliced_command(struct psmouse *psmouse, unsigned char command)
- int psmouse_reset(struct psmouse *psmouse)
- {
- 	unsigned char param[2];
-+	int error;
-+
-+	error = ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_RESET_BAT);
-+	if (error == -EAGAIN) {
-+		/*
-+		 * Controller requested us to resend the command.
-+		 */
-+		msleep(100);
-+		error = ps2_command(&psmouse->ps2dev,
-+				    param, PSMOUSE_CMD_RESET_BAT);
-+	}
- 
--	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_RESET_BAT))
-+	if (error)
- 		return -1;
- 
- 	if (param[0] != PSMOUSE_RET_BAT && param[1] != PSMOUSE_RET_ID)
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index f3876ac..5201b0c 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -39,7 +39,7 @@ MODULE_LICENSE("GPL");
- int ps2_sendbyte(struct ps2dev *ps2dev, unsigned char byte, int timeout)
- {
- 	serio_pause_rx(ps2dev->serio);
--	ps2dev->nak = 1;
-+	ps2dev->nak = ETIME;
- 	ps2dev->flags |= PS2_FLAG_ACK;
- 	serio_continue_rx(ps2dev->serio);
- 
-@@ -187,17 +187,17 @@ int __ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command)
- 	int timeout;
- 	int send = (command >> 12) & 0xf;
- 	int receive = (command >> 8) & 0xf;
--	int rc = -1;
-+	int rc;
- 	int i;
- 
- 	if (receive > sizeof(ps2dev->cmdbuf)) {
- 		WARN_ON(1);
--		return -1;
-+		return -EINVAL;
- 	}
- 
- 	if (send && !param) {
- 		WARN_ON(1);
--		return -1;
-+		return -EINVAL;
- 	}
- 
- 	serio_pause_rx(ps2dev->serio);
-@@ -213,13 +213,16 @@ int __ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command)
- 	 * ACKing the reset command, and so it can take a long
- 	 * time before the ACK arrrives.
- 	 */
--	if (ps2_sendbyte(ps2dev, command & 0xff,
--			 command == PS2_CMD_RESET_BAT ? 1000 : 200))
-+	rc = ps2_sendbyte(ps2dev, command & 0xff,
-+			  command == PS2_CMD_RESET_BAT ? 1000 : 200);
-+	if (rc)
- 		goto out;
- 
--	for (i = 0; i < send; i++)
--		if (ps2_sendbyte(ps2dev, param[i], 200))
-+	for (i = 0; i < send; i++) {
-+		rc = ps2_sendbyte(ps2dev, param[i], 200);
-+		if (rc)
- 			goto out;
-+	}
- 
- 	/*
- 	 * The reset command takes a long time to execute.
-@@ -240,10 +243,10 @@ int __ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command)
- 		for (i = 0; i < receive; i++)
- 			param[i] = ps2dev->cmdbuf[(receive - 1) - i];
- 
--	if (ps2dev->cmdcnt && (command != PS2_CMD_RESET_BAT || ps2dev->cmdcnt != 1))
-+	if (ps2dev->cmdcnt && (command != PS2_CMD_RESET_BAT || ps2dev->cmdcnt != 1)) {
-+		rc = ETIME;
- 		goto out;
--
--	rc = 0;
-+	}
- 
-  out:
- 	serio_pause_rx(ps2dev->serio);
-@@ -293,13 +296,13 @@ int ps2_handle_ack(struct ps2dev *ps2dev, unsigned char data)
- 
- 		case PS2_RET_NAK:
- 			ps2dev->flags |= PS2_FLAG_NAK;
--			ps2dev->nak = PS2_RET_NAK;
-+			ps2dev->nak = EAGAIN;
- 			break;
- 
- 		case PS2_RET_ERR:
- 			if (ps2dev->flags & PS2_FLAG_NAK) {
- 				ps2dev->flags &= ~PS2_FLAG_NAK;
--				ps2dev->nak = PS2_RET_ERR;
-+				ps2dev->nak = EIO;
- 				break;
- 			}
- 
-@@ -365,7 +368,7 @@ EXPORT_SYMBOL(ps2_handle_response);
- void ps2_cmd_aborted(struct ps2dev *ps2dev)
- {
- 	if (ps2dev->flags & PS2_FLAG_ACK)
--		ps2dev->nak = 1;
-+		ps2dev->nak = EIO;
- 
- 	if (ps2dev->flags & (PS2_FLAG_ACK | PS2_FLAG_CMD))
- 		wake_up(&ps2dev->wait);
+T24gVHVlLCBPY3QgMTMsIDIwMDkgYXQgMTE6MDUgQU0sIEJhcnJ5IFNvbmcgPDIxY25iYW9AZ21h
+aWwuY29tPiB3cm90ZToKPiBPbiBUdWUsIE9jdCAxMywgMjAwOSBhdCAxOjA4IEFNLCBNaWtlIEZy
+eXNpbmdlciA8dmFwaWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+PiBPbiBTYXQsIE9jdCAxMCwg
+MjAwOSBhdCAxNjozOCwgTWlrZSBGcnlzaW5nZXIgd3JvdGU6Cj4+PiBPbiBGcmksIE9jdCA5LCAy
+MDA5IGF0IDIyOjI0LCBCYXJyeSBTb25nIHdyb3RlOgo+Pj4+IE9uIFNhdCwgT2N0IDEwLCAyMDA5
+IGF0IDEyOjIyIEFNLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4+Pj4+IE9uIEZyaSwgT2N0IDA5
+LCAyMDA5IGF0IDA2OjExOjQ1QU0gLTA0MDAsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+Pj4+Pj4g
+T24gRnJpLCBPY3QgOSwgMjAwOSBhdCAwNToxOCwgTWlrZSBGcnlzaW5nZXIgPHZhcGllci5hZGlA
+Z21haWwuY29tPiB3cm90ZToKPj4+Pj4+ID4gd2UgY291bGQgaGF2ZSB0aHJlZSBtb2R1bGVzIGhl
+cmU6IGFkNzE0eCwgYWQ3MTR4LWkyYywgYWQ3MTR4LXNwaQo+Pj4+Pj4KPj4+Pj4+IGFyZSB5b3Ug
+b2sgd2l0aCB0aGlzIGFwcHJvYWNoIERtaXRyeSA/IMKgdGhpcyB3YXkgcGVvcGxlIGNhbgo+Pj4+
+Pj4gbG9hZC91bmxvYWQgYSBzcGVjaWZpYyBidXMgd2l0aG91dCBhZmZlY3RpbmcgdGhlIGNvcmUg
+b3IgdGhlIG90aGVyCj4+Pj4+PiBidXMsIGFuZCBlcnJvcnMgd2l0aCBsb2FkaW5nIG9uZSBidXMg
+dHlwZSB3b3VsZG50IGFmZmVjdCBsb2FkaW5nIG9mCj4+Pj4+PiB0aGUgb3RoZXIuCj4+Pj4+Cj4+
+Pj4+IFllcywgSSB0aGluayB0aGlzIGlzIHRoZSBtb3N0IGNsZWFuIHdheS4KPj4+Pgo+Pj4+IFRo
+YXQgd2lsbCBkZWNyZWFzZSB0aGUgY29oZXNpb24gYW5kIGluY3JlYXNlIGNvdXBsaW5nLiBJdCdz
+IHRlZGlvdXMKPj4+PiBmb3Igb25lIGRyaXZlciB3aXRoIHNpbmdsZSBmZWF0dXJlIHRvIGhhdmUg
+dGhyZWUgbW9kdWxlcy4gVG8gZnVsZmlsbAo+Pj4+IHRoYXQsIGFkNzE0eCBuZWVkIHRvIGV4cG9z
+ZSBkYXRhIHN0cnVjdHVyZXMgYW5kIGV4cG9ydCBzeW1ib2xzIHRvCj4+Pj4gYWQ3MTR4LWkyYyBh
+bmQgYWQ3MTR4LXNwaS4gQnV0IHRob3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgc3ltYm9scyBhcmUK
+Pj4+PiBtb3JlIGxpa2UgbG9jYWwgc3R1ZmYuIEFuZCBJMkMgYW5kIFNQSSBhcmUganVzdCBib3R0
+b20gbGV2ZWwKPj4+PiBjb21tdW5pY2F0aW9uIHdheXMsIHRoZXkgc2hvdWxkIGJlIHRoZSBib3R0
+b20gbGV2ZWwgb2YgYWQ3MTR4LCBidXQKPj4+PiBhZnRlciBzcGxpdHRpbmcgdG8gMyBtb2R1bGVz
+LCBpdCBzZWVtcyB0aGV5IGJlY29tZSB0aGUgdG9wIGxldmVsIG9mCj4+Pj4gYWQ3MTR4Lgo+Pj4K
+Pj4+IHRoZXJlIHNob3VsZCBhbHJlYWR5IGJlIGEgY2xlYXIgc3BsaXQgYmV0d2VlbiB0aGUgYnVz
+IGFuZCB0aGUgZHJpdmVyCj4+PiBjb3JlLCBvdGhlcndpc2UgY3JhcCBpcyBiZWluZyBkdXBsaWNh
+dGVkIGJldHdlZW4gdGhlIHR3byBpbnRlcmZhY2VzLgo+Pj4gaSBqdXN0IHRlc3RlZCBzcGxpdHRp
+bmcgdGhpbmdzIGFuZCBlYWNoIGJ1cyBjb2RlIG5lZWRzIHRvIGtub3cgdmVyeQo+Pj4gZmV3IHRo
+aW5nczoKPj4+IMKgLSBwcm9iZS9yZW1vdmUgZm9yIGluaXRpYWxpemF0aW9uCj4+PiDCoC0gZW5h
+YmxlL2Rpc2FibGUgZm9yIHBtCj4+Pgo+Pj4gdGhlIG9ubHkgZG93bnNpZGUgaSBzZWUgaGVyZSBp
+cyB0aGF0IHdlIGhhdmUgdG8gcmVtb3ZlCj4+PiBfX2RldmluaXQvX19kZXZleGl0IG1hcmtpbmdz
+IGZyb20gdGhlIGNvbW1vbiBwcm9iZS9yZW1vdmUgZnVuY3Rpb25zCj4+PiBhbmQgdGhvc2Ugd2Vp
+Z2ggYSBoZWZ0eSAyNDA2LzIxOCBieXRlcyBhIHBpZWNlLgo+Pgo+PiBpIHNwZW50IHRpbWUgcGFj
+a2luZyBjb21tb24gc3R1ZmYgaW4gdGhlIHByb2JlIGNvZGUgYW5kIGN1dCBpdCBkb3duIGJ5Cj4+
+IH4xaywgc28gaSdtIGZpbmUgd2l0aCB0aGlzIGxpdHRsZSBiaXQgb2Ygb3ZlcmhlYWQuCj4+Cj4+
+IEJhcnJ5OiBjYW4geW91IHRlc3Qgb3V0IHRoZSBsYXRlc3QgYWQ3MTR4IGRyaXZlciBhbmQgbWFr
+ZSBzdXJlIGkgZGlkbnQKPj4gc2NyZXcgYW55dGhpbmcgdXAgPyDCoGkgZG9udCBoYXZlIGFueSBo
+YXJkd2FyZSB0byBhY3R1YWxseSB0ZXN0IHRoZXNlCj4+IGd1eXMgb3V0IC4uLgo+IEl0IGNhbid0
+IHdvcmsgbm93LiBJIHdpbGwgZmlndXJlIG91dCB0aGUgcHJvYmxlbXMgYW5kIGZpeCBpdC4KRG9u
+ZS4KPj4gLW1pa2UKPj4KPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpVY2xpbnV4LWRpc3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZl
+bEBibGFja2Zpbi51Y2xpbnV4Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxt
+YW4vbGlzdGluZm8vdWNsaW51eC1kaXN0LWRldmVs

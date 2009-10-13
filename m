@@ -1,47 +1,35 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: Poll rate change and closing indication to polled input device
-Date: Tue, 13 Oct 2009 10:19:54 +0100
-Message-ID: <20091013091953.GA25856@rakim.wolfsonmicro.main>
-References: <1255089779.28243.24.camel@4fid08082>
- <20091009121201.GE5082@sirena.org.uk>
- <20091009162717.GC1092@core.coreip.homeip.net>
- <20091009181012.GA21731@sirena.org.uk>
- <20091013010841.GB21626@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work	anymore
+Date: Tue, 13 Oct 2009 11:52:19 +0200
+Message-ID: <4AD44DD3.4070508@tremplin-utc.net>
+References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:56569 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754992AbZJMJUb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 05:20:31 -0400
-Content-Disposition: inline
-In-Reply-To: <20091013010841.GB21626@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759248AbZJMJxK@vger.kernel.org>
+In-Reply-To: <20091012154846.GB7996@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Onkalo Samu <samu.p.onkalo@nokia.com>, linux-input@vger.kernel.org
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 12, 2009 at 06:08:42PM -0700, Dmitry Torokhov wrote:
-> On Fri, Oct 09, 2009 at 07:10:12PM +0100, Mark Brown wrote:
+Op 12-10-09 17:48, Dmitry Torokhov schreef:
+> On Mon, Oct 12, 2009 at 01:46:17PM +0200, =C9ric Piel wrote:
+>>> Eric, do you still need to fiddle with i8042 to get your keyboard w=
+orking with=20
+>>> 2.6.32-rc3? We need to make sure that resube works without users ne=
+eding to=20
+>>> mess with bind/unbind.
+>> Yes, the keyboard doesn't work after the first resume from ram (the
+>> later resumes do work). I haven't tried any special option to the i8=
+042
+>> driver. This is on a HP 2510, in 64 bits.
+>=20
+> Could you please try and let me know if unloading at suspend and
+> reloading after resume atkbd and/or psmouse drivers and leaving i8042
+> alone "fixes" the issue?
+>=20
+Unloading the modules before suspend and reloading them after works
+around the issue, indeed.
 
-> > It definitely needs to be implemented in the drivers but they need to
-> > present an interface to userspace which seems best placed in the core to
-> > factor out code and help make sure that the interface is standardised.
-
-> It seems to me that this kind of functionality belongs to PM core.
-> Userspace probably does not really care about output rate and other
-> details but rather wants to putsome devices into a low power mode in
-> general.
-
-That's useful as well and having this doesn't preclude other forms of
-runtime power management but there is also value in this kind of
-subsystem specific control too.  
-
-In the case of touchscreens we should be able to get some useful
-information out of userspace - applications like handwriting recognition
-will want 150-200 samples/second but for something like a finger
-operated menu 10-20 samples/second will be enough.  This should result
-in a win, especially bearing in mind that each point is going to
-translate into a wakeup for the application layer, and also reduces the
-amount of manual tuning that might be required.
+Eric

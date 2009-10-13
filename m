@@ -1,70 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC][PATCH] Input: support the specified input device number
-Date: Mon, 12 Oct 2009 19:36:47 -0700
-Message-ID: <20091013023646.GD21626@core.coreip.homeip.net>
-References: <4ACD4A4B.3080200@samsung.com> <20091009162951.GD1092@core.coreip.homeip.net> <9c9fda240910121850t4ec8ee96i7517d6a0f0526ae5@mail.gmail.com>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] add analog devices AD714X
+	captouchinput driver
+Date: Tue, 13 Oct 2009 11:05:13 +0800
+Message-ID: <3c17e3570910122005j16c5e0fcgc542172ca9c4a0d2@mail.gmail.com>
+References: <1252652006-5270-1-git-send-email-21cnbao@gmail.com>
+	<8A42379416420646B9BFAC9682273B6D0DC3BD95@limkexm3.ad.analog.com>
+	<8bd0f97a0910090156g2a8fba58r4085422f3a79c892@mail.gmail.com>
+	<1255079007.8362.70.camel@macbook.infradead.org>
+	<8bd0f97a0910090218j6a2aa6aaq497fba3f04d7b19f@mail.gmail.com>
+	<8bd0f97a0910090311t5f5167c8r336afaa6f790e1a9@mail.gmail.com>
+	<20091009162219.GB1092@core.coreip.homeip.net>
+	<3c17e3570910091924p68a248e6q3dd2640acc17c90d@mail.gmail.com>
+	<8bd0f97a0910101338y46cb227hdc6d83c3c6622a21@mail.gmail.com>
+	<8bd0f97a0910121008l1563803bu766e7d0868254a9f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f208.google.com ([209.85.219.208]:43812 "EHLO
-	mail-ew0-f208.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758760AbZJMChb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Oct 2009 22:37:31 -0400
-Received: by ewy4 with SMTP id 4so2988694ewy.37
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2009 19:36:53 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <9c9fda240910121850t4ec8ee96i7517d6a0f0526ae5@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <8bd0f97a0910121008l1563803bu766e7d0868254a9f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Hennerich,
+	Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org
 
-On Tue, Oct 13, 2009 at 10:50:16AM +0900, Kyungmin Park wrote:
-> Hi,
-> 
-> On Sat, Oct 10, 2009 at 1:29 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Joonyoung,
-> >
-> > On Thu, Oct 08, 2009 at 11:11:23AM +0900, Joonyoung Shim wrote:
-> >> Currently, the input device number is decided by order of driver probe.
-> >> But we need the specified input device number regardless of order of
-> >> driver probe because the platform or the middleware tends to access
-> >> using fixed device node of the input devices.
-> >>
-> >> This patch supports to use the specified input device number when the
-> >> input device is registered. If the input device number bigger than zero
-> >> is registered before by other input device, returns error.
-> >>
-> >
-> > No, I don't think this is a good solution. You can have persistent
-> > device nodes without hadrcoding it into the driver. See how UDEV creates
-> > 'by-id' and 'by-path' links.
-> >
-> 
-> Please let me know how to use udev at input device.
-> 
-> At our system,
-> input0: h/w keypad
-> input1: gpio key
-> input2: touchscreen
-> input3: jack or others
-> 
-> but in previous system, we always set the touchscreen as input1. Right
-> we can modify it but it's not easy.
-> With this patch we always set touchscreen as input1.
-> 
-> How can we do this?
-> 
-> FYI: when launch the X, we set the tsdevice as input1 and keyboard as input0.
-> 
-
-Do you have udev running? On Fedora there is a rule here:
-
-/lib/udev/rules.d/60-persistent-input.rules
-
-that handles everythign and creates 'by-id' and 'by-path' symlinks.
-
--- 
-Dmitry
+T24gVHVlLCBPY3QgMTMsIDIwMDkgYXQgMTowOCBBTSwgTWlrZSBGcnlzaW5nZXIgPHZhcGllci5h
+ZGlAZ21haWwuY29tPiB3cm90ZToKPiBPbiBTYXQsIE9jdCAxMCwgMjAwOSBhdCAxNjozOCwgTWlr
+ZSBGcnlzaW5nZXIgd3JvdGU6Cj4+IE9uIEZyaSwgT2N0IDksIDIwMDkgYXQgMjI6MjQsIEJhcnJ5
+IFNvbmcgd3JvdGU6Cj4+PiBPbiBTYXQsIE9jdCAxMCwgMjAwOSBhdCAxMjoyMiBBTSwgRG1pdHJ5
+IFRvcm9raG92IHdyb3RlOgo+Pj4+IE9uIEZyaSwgT2N0IDA5LCAyMDA5IGF0IDA2OjExOjQ1QU0g
+LTA0MDAsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOgo+Pj4+PiBPbiBGcmksIE9jdCA5LCAyMDA5IGF0
+IDA1OjE4LCBNaWtlIEZyeXNpbmdlciA8dmFwaWVyLmFkaUBnbWFpbC5jb20+IHdyb3RlOgo+Pj4+
+PiA+IHdlIGNvdWxkIGhhdmUgdGhyZWUgbW9kdWxlcyBoZXJlOiBhZDcxNHgsIGFkNzE0eC1pMmMs
+IGFkNzE0eC1zcGkKPj4+Pj4KPj4+Pj4gYXJlIHlvdSBvayB3aXRoIHRoaXMgYXBwcm9hY2ggRG1p
+dHJ5ID8gwqB0aGlzIHdheSBwZW9wbGUgY2FuCj4+Pj4+IGxvYWQvdW5sb2FkIGEgc3BlY2lmaWMg
+YnVzIHdpdGhvdXQgYWZmZWN0aW5nIHRoZSBjb3JlIG9yIHRoZSBvdGhlcgo+Pj4+PiBidXMsIGFu
+ZCBlcnJvcnMgd2l0aCBsb2FkaW5nIG9uZSBidXMgdHlwZSB3b3VsZG50IGFmZmVjdCBsb2FkaW5n
+IG9mCj4+Pj4+IHRoZSBvdGhlci4KPj4+Pgo+Pj4+IFllcywgSSB0aGluayB0aGlzIGlzIHRoZSBt
+b3N0IGNsZWFuIHdheS4KPj4+Cj4+PiBUaGF0IHdpbGwgZGVjcmVhc2UgdGhlIGNvaGVzaW9uIGFu
+ZCBpbmNyZWFzZSBjb3VwbGluZy4gSXQncyB0ZWRpb3VzCj4+PiBmb3Igb25lIGRyaXZlciB3aXRo
+IHNpbmdsZSBmZWF0dXJlIHRvIGhhdmUgdGhyZWUgbW9kdWxlcy4gVG8gZnVsZmlsbAo+Pj4gdGhh
+dCwgYWQ3MTR4IG5lZWQgdG8gZXhwb3NlIGRhdGEgc3RydWN0dXJlcyBhbmQgZXhwb3J0IHN5bWJv
+bHMgdG8KPj4+IGFkNzE0eC1pMmMgYW5kIGFkNzE0eC1zcGkuIEJ1dCB0aG9zZSBkYXRhIHN0cnVj
+dHVyZXMgYW5kIHN5bWJvbHMgYXJlCj4+PiBtb3JlIGxpa2UgbG9jYWwgc3R1ZmYuIEFuZCBJMkMg
+YW5kIFNQSSBhcmUganVzdCBib3R0b20gbGV2ZWwKPj4+IGNvbW11bmljYXRpb24gd2F5cywgdGhl
+eSBzaG91bGQgYmUgdGhlIGJvdHRvbSBsZXZlbCBvZiBhZDcxNHgsIGJ1dAo+Pj4gYWZ0ZXIgc3Bs
+aXR0aW5nIHRvIDMgbW9kdWxlcywgaXQgc2VlbXMgdGhleSBiZWNvbWUgdGhlIHRvcCBsZXZlbCBv
+Zgo+Pj4gYWQ3MTR4Lgo+Pgo+PiB0aGVyZSBzaG91bGQgYWxyZWFkeSBiZSBhIGNsZWFyIHNwbGl0
+IGJldHdlZW4gdGhlIGJ1cyBhbmQgdGhlIGRyaXZlcgo+PiBjb3JlLCBvdGhlcndpc2UgY3JhcCBp
+cyBiZWluZyBkdXBsaWNhdGVkIGJldHdlZW4gdGhlIHR3byBpbnRlcmZhY2VzLgo+PiBpIGp1c3Qg
+dGVzdGVkIHNwbGl0dGluZyB0aGluZ3MgYW5kIGVhY2ggYnVzIGNvZGUgbmVlZHMgdG8ga25vdyB2
+ZXJ5Cj4+IGZldyB0aGluZ3M6Cj4+IMKgLSBwcm9iZS9yZW1vdmUgZm9yIGluaXRpYWxpemF0aW9u
+Cj4+IMKgLSBlbmFibGUvZGlzYWJsZSBmb3IgcG0KPj4KPj4gdGhlIG9ubHkgZG93bnNpZGUgaSBz
+ZWUgaGVyZSBpcyB0aGF0IHdlIGhhdmUgdG8gcmVtb3ZlCj4+IF9fZGV2aW5pdC9fX2RldmV4aXQg
+bWFya2luZ3MgZnJvbSB0aGUgY29tbW9uIHByb2JlL3JlbW92ZSBmdW5jdGlvbnMKPj4gYW5kIHRo
+b3NlIHdlaWdoIGEgaGVmdHkgMjQwNi8yMTggYnl0ZXMgYSBwaWVjZS4KPgo+IGkgc3BlbnQgdGlt
+ZSBwYWNraW5nIGNvbW1vbiBzdHVmZiBpbiB0aGUgcHJvYmUgY29kZSBhbmQgY3V0IGl0IGRvd24g
+YnkKPiB+MWssIHNvIGknbSBmaW5lIHdpdGggdGhpcyBsaXR0bGUgYml0IG9mIG92ZXJoZWFkLgo+
+Cj4gQmFycnk6IGNhbiB5b3UgdGVzdCBvdXQgdGhlIGxhdGVzdCBhZDcxNHggZHJpdmVyIGFuZCBt
+YWtlIHN1cmUgaSBkaWRudAo+IHNjcmV3IGFueXRoaW5nIHVwID8gwqBpIGRvbnQgaGF2ZSBhbnkg
+aGFyZHdhcmUgdG8gYWN0dWFsbHkgdGVzdCB0aGVzZQo+IGd1eXMgb3V0IC4uLgpJdCBjYW4ndCB3
+b3JrIG5vdy4gSSB3aWxsIGZpZ3VyZSBvdXQgdGhlIHByb2JsZW1zIGFuZCBmaXggaXQuCj4gLW1p
+a2UKPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xp
+bnV4LWRpc3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51
+Y2xpbnV4Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8v
+dWNsaW51eC1kaXN0LWRldmVs

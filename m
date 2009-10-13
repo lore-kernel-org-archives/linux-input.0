@@ -1,32 +1,59 @@
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Subject: Re: [PATCH 1/6] Haptic: add haptic class
-Date: Tue, 13 Oct 2009 13:35:47 +0300
-Message-ID: <359ed6810910130335m45919d6ala921d4cbfa5a341a@mail.gmail.com>
-References: <20091007061701.GA7567@july>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Haptic class support (v2)
+Date: Tue, 13 Oct 2009 13:05:52 +0200
+Message-ID: <20091013110552.GD31984@elf.ucw.cz>
+References: <20091006074533.GA28889@july>
+ <20091011090549.GE1414@ucw.cz>
+ <9c9fda240910111732x262a9510rf3dd862aa16d0bdf@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759421AbZJMKg5@vger.kernel.org>
-In-Reply-To: <20091007061701.GA7567@july>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759429AbZJMLGi@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <9c9fda240910111732x262a9510rf3dd862aa16d0bdf@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, Greg KH <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 7, 2009 at 09:17, Kyungmin Park <kyungmin.park@samsung.com> wrote:
-> New haptic class support.
-> This class handles the haptic devices.
+On Mon 2009-10-12 09:32:28, Kyungmin Park wrote:
+> On Sun, Oct 11, 2009 at 6:05 PM, Pavel Machek <pavel@ucw.cz> wrote:
+> > On Tue 2009-10-06 16:45:33, Kyungmin Park wrote:
+> >> This patch includes two haptic devices, isa1000 and isa1200
+> >> ISA1000 is gpio based haptic, but isa1200 is based on I2C
+> >> Both are working on Samsung SoCs and tested.
+> >>
+> >> To enable the haptic, echo 1 > /sys/class/haptic/${name}/enable
+> >> You can adjust the level by echo ${level} > /sys/class/haptic/${name}/enable
+> >> or
+> >> With oneshot feature, echo ${msec time} > /sys/class/haptic/${name}/oneshot
+> >
+> > New device classes should certainly be documented in Documentation/.
+> >
+> > For example... is level 0-100?
+> 
+> Basically. range from 0 to 255. also each device can set max level in
+> case of isa1000 it's 6.
 
-I'm wondering why a haptic class is needed when there is force
-feedback support. Admittedly, I don't know the force feedback
-implementation too well, but could someone please enlighten me on
-this? Am I missing something here?
+How will userspace know the range?
 
-I see haptics as simple force feedback, just with (usually) small
-force and short duration. There are devices out there doing haptics
-using vibra motors, which I think would be limited if implemented
-using this haptics class driver. Would it be somehow problematic
-interfacing with the simple haptic hardware using the force feedback
-API?
+> >  Is it valid to change level while 'oneshot' is running?
+> 
+> we usually use it under 1 sec. but I think it's possible to change it
+> but not tried.
 
-BR,
-Jani.
+You are specifying interface here. You have to decide if it is valid
+or not, then document it.
+
+> >  Does oneshot use last level set?
+> 
+> Right. it used last set value.
+> 
+> If you don't mind to update these at Documentation please wait until
+> commit first patches merged.
+
+I'd expect your reply to be merged into the Documentation, and that to
+be merged with the rest of the patches...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

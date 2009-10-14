@@ -1,48 +1,208 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ??: Re: how to make KEY_POWER work in terminal system
-Date: Tue, 13 Oct 2009 23:12:14 -0700
-Message-ID: <20091014061214.GA24535@core.coreip.homeip.net>
-References: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com> <bc65a8d50910030942hecf96b2hc06ff18f786a1cc@mail.gmail.com> <20091006050633.GF27881@core.coreip.homeip.net> <bc65a8d50910062032u1ab5d215xb37737b197bb7d46@mail.gmail.com> <bc65a8d50910062033j5c2f86c4s2a17cb21cf16a7f7@mail.gmail.com> <20091007043526.GA10204@core.coreip.homeip.net> <4AD47BC2.1070605@gmail.com>
+Subject: Re: [BUG] ati_remote2.c: possible mutex_lock without mutex_unlock
+Date: Tue, 13 Oct 2009 23:29:02 -0700
+Message-ID: <20091014062902.GA2971@core.coreip.homeip.net>
+References: <1255456327.22233.0@pamir> <alpine.LSU.2.00.0910131736571.8582@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f186.google.com ([209.85.221.186]:56094 "EHLO
-	mail-qy0-f186.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751079AbZJNGMz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2009 02:12:55 -0400
-Received: by qyk16 with SMTP id 16so3883074qyk.15
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 23:12:18 -0700 (PDT)
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755343AbZJNGaT@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4AD47BC2.1070605@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <alpine.LSU.2.00.0910131736571.8582@wotan.suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: iceberg <strakh@ispras.ru>, Vojtech Pavlik <vojtech@suse.cz>, Linux Kernlel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xiangfu Liu <xiangfu.z@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-On Tue, Oct 13, 2009 at 09:08:18PM +0800, Xiangfu Liu wrote:
-> Dmitry Torokhov wrote:
-> > On Wed, Oct 07, 2009 at 11:33:47AM +0800, xiangfu liu wrote:
-> >> thanks for reply
-> >> so i must write userspace daemon. right?
-> >>
+Hi Jiri,
+
+On Tue, Oct 13, 2009 at 05:43:44PM +0200, Jiri Kosina wrote:
+> On Tue, 13 Oct 2009, iceberg wrote:
+> 
+> > 	In driver ./drivers/input/input.c possible call to mutex_lock from 
+> > function input_devices_seq_start without mutex_unlock.
 > > 
-> > Yes.
-> > 
-> Hi Dmitry.
-> can you give me some tips on write the daemon.
-> have no idea on it. 
+> > 	After calling input_devices_seq_start we can't know whether 
+> > mutex was locked or not. 
+> 
+> > Case 1. If mutex_lock_interruptible was not locked due to interrupt then 
+> > input_devices_seq_start returns NULL.
+> > Case 2. If mutex was successfuly locked but seq_list_start returned NULL 
+> > then input_devices_seq_start returns NULL too. The last case occurs if 
+> > seq_list_start is called with pos>size of input_dev_list or pos<0.
+> > Hence, after calling input_devices_seq_start we can not simply check 
+> > that result is not NULL and call input_devices_seq_stop function 
+> > which unlocks the mutex. Because in case 2 the mutex will stay locked.
+> > void * ret = input_devices_seq_start(...);
+> > if(ret!=NULL) {
+> > 	//mutex is acquired for sure
+> > 	input_devices_seq_stop(...);//unlocks the mutex
+> > } else {
+> > 	//mutex may be acquired or not
+> > }
+> 
+> Plus, we should return EAGAIN rather than failing silently when 
+> input_handlers_seq_start() has been interrupted by signal, right?
+> 
+> Dmitry, how about the fix below?
 > 
 
-Xiangfu,
+Umm, I don't like assuming that EAGAIN can only mean that
+mutex_lock_interruptible() failed, seq_file core may theoretically return
+-EAGAIN too. In fact, looking through seq_file.c traverse() does return
+-EAGAIN in certain cases...
 
-I don't think you want to write a demon from scratch really. I don't
-know your platform/framework but I would expect you are using some
-kind of HAL daemon/layer that handles power mamagement and other system
-functions. That framework should handle powering off as well.
+Plus input_devices_seq_start() needs the same treatment (you fixed
+input_handlers_seq_start() only).
 
-But this is somewhat off-topic for the linux-input mailing list which
-deals with the _kernel_ issues.
+HOw about this one instead?
 
 -- 
 Dmitry
+
+
+Input: fix locking issue in /proc/bus/input/ handlers
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+input_devices_seq_start() uses mutex_lock_interruptible() to acquire
+the input_mutex, but doesn't properly handle the situation when the
+call fails (for example due to interrupt). Instead of returning NULL
+(which indicates that there is no more data) we should return
+ERR_PTR()-encoded error.
+
+We also need explicit flag indicating whether input_mutex was acquired
+since input_devices_seq_stop() is called whether input_devices_seq_start()
+was successful or not.
+
+The same applies to input_handlers_seq_start().
+
+Reported-by: iceberg <strakh@ispras.ru>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/input.c |   65 ++++++++++++++++++++++++++++++++++++-------------
+ 1 files changed, 48 insertions(+), 17 deletions(-)
+
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index c6f88eb..cc763c9 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -782,10 +782,29 @@ static unsigned int input_proc_devices_poll(struct file *file, poll_table *wait)
+ 	return 0;
+ }
+ 
++union input_seq_state {
++	struct {
++		unsigned short pos;
++		bool mutex_acquired;
++	};
++	void *p;
++};
++
+ static void *input_devices_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	if (mutex_lock_interruptible(&input_mutex))
+-		return NULL;
++	union input_seq_state *state = (union input_seq_state *)&seq->private;
++	int error;
++
++	/* We need to fit into seq->private pointer */
++	BUILD_BUG_ON(sizeof(union input_seq_state) != sizeof(seq->private));
++
++	error = mutex_lock_interruptible(&input_mutex);
++	if (error) {
++		state->mutex_acquired = false;
++		return ERR_PTR(error);
++	}
++
++	state->mutex_acquired = true;
+ 
+ 	return seq_list_start(&input_dev_list, *pos);
+ }
+@@ -795,9 +814,12 @@ static void *input_devices_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ 	return seq_list_next(v, &input_dev_list, pos);
+ }
+ 
+-static void input_devices_seq_stop(struct seq_file *seq, void *v)
++static void input_seq_stop(struct seq_file *seq, void *v)
+ {
+-	mutex_unlock(&input_mutex);
++	union input_seq_state *state = (union input_seq_state *)&seq->private;
++
++	if (state->mutex_acquired)
++		mutex_unlock(&input_mutex);
+ }
+ 
+ static void input_seq_print_bitmap(struct seq_file *seq, const char *name,
+@@ -861,7 +883,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
+ static const struct seq_operations input_devices_seq_ops = {
+ 	.start	= input_devices_seq_start,
+ 	.next	= input_devices_seq_next,
+-	.stop	= input_devices_seq_stop,
++	.stop	= input_seq_stop,
+ 	.show	= input_devices_seq_show,
+ };
+ 
+@@ -881,40 +903,49 @@ static const struct file_operations input_devices_fileops = {
+ 
+ static void *input_handlers_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+-	if (mutex_lock_interruptible(&input_mutex))
+-		return NULL;
++	union input_seq_state *state = (union input_seq_state *)&seq->private;
++	int error;
++
++	/* We need to fit into seq->private pointer */
++	BUILD_BUG_ON(sizeof(union input_seq_state) != sizeof(seq->private));
++
++	error = mutex_lock_interruptible(&input_mutex);
++	if (error) {
++		state->mutex_acquired = false;
++		return ERR_PTR(error);
++	}
++
++	state->mutex_acquired = true;
++	state->pos = *pos;
+ 
+-	seq->private = (void *)(unsigned long)*pos;
+ 	return seq_list_start(&input_handler_list, *pos);
+ }
+ 
+ static void *input_handlers_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
+-	seq->private = (void *)(unsigned long)(*pos + 1);
+-	return seq_list_next(v, &input_handler_list, pos);
+-}
++	union input_seq_state *state = (union input_seq_state *)&seq->private;
+ 
+-static void input_handlers_seq_stop(struct seq_file *seq, void *v)
+-{
+-	mutex_unlock(&input_mutex);
++	state->pos = *pos + 1;
++	return seq_list_next(v, &input_handler_list, pos);
+ }
+ 
+ static int input_handlers_seq_show(struct seq_file *seq, void *v)
+ {
+ 	struct input_handler *handler = container_of(v, struct input_handler, node);
++	union input_seq_state *state = (union input_seq_state *)&seq->private;
+ 
+-	seq_printf(seq, "N: Number=%ld Name=%s",
+-		   (unsigned long)seq->private, handler->name);
++	seq_printf(seq, "N: Number=%u Name=%s", state->pos, handler->name);
+ 	if (handler->fops)
+ 		seq_printf(seq, " Minor=%d", handler->minor);
+ 	seq_putc(seq, '\n');
+ 
+ 	return 0;
+ }
++
+ static const struct seq_operations input_handlers_seq_ops = {
+ 	.start	= input_handlers_seq_start,
+ 	.next	= input_handlers_seq_next,
+-	.stop	= input_handlers_seq_stop,
++	.stop	= input_seq_stop,
+ 	.show	= input_handlers_seq_show,
+ };
+ 

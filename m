@@ -1,56 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work anymore
-Date: Tue, 13 Oct 2009 19:05:05 -0700
-Message-ID: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com>
-Mime-Version: 1.0 (iPhone Mail 7C144)
-Content-Type: text/plain; charset=utf-8;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.155]:55966 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759333AbZJNCHC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Oct 2009 22:07:02 -0400
-Sender: linux-input-owner@vger.kernel.org
+Subject: Re: [bisected regression] Touchpad "paste" stops working after
+	suspend to RAM
+Date: Tue, 13 Oct 2009 19:30:08 -0700
+Message-ID: <20091014023008.GA29672@core.coreip.homeip.net>
+References: <20091013032414.GC2887@core.coreip.homeip.net> <20091013121109.GB4619@Pilar.aei.mpg.de> <20091013182643.GC21593@core.coreip.homeip.net> <20091013190819.GA7555@Pilar.aei.mpg.de> <20091013194654.GD21593@core.coreip.homeip.net> <20091013202459.GE21593@core.coreip.homeip.net> <20091013231641.GA4404@Pilar.aei.mpg.de> <20091013235607.GA28819@core.coreip.homeip.net> <20091013235701.GB28819@core.coreip.homeip.net> <20091014005131.GA4371@Pilar.aei.mpg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760036AbZJNCa4@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091014005131.GA4371@Pilar.aei.mpg.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Carlos R. Mafra" <crmafra2@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?=C3=89ric_Piel?= <eric.piel@tremplin-utc.net>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Oct 13, 2009 at 11:52:19AM +0200, =C3=89ric Piel wrote:
-> Op 12-10-09 17:48, Dmitry Torokhov schreef:
->> On Mon, Oct 12, 2009 at 01:46:17PM +0200, =C3=89ric Piel wrote:
->>>> Eric, do you still need to fiddle with i8042 to get your keyboard =
-=20
->>>> working with
->>>> 2.6.32-rc3? We need to make sure that resube works without users =20
->>>> needing to
->>>> mess with bind/unbind.
->>> Yes, the keyboard doesn't work after the first resume from ram (the
->>> later resumes do work). I haven't tried any special option to the =20
->>> i8042
->>> driver. This is on a HP 2510, in 64 bits.
->>
->> Could you please try and let me know if unloading at suspend and
->> reloading after resume atkbd and/or psmouse drivers and leaving i804=
-2
->> alone "fixes" the issue?
->>
-> Unloading the modules before suspend and reloading them after works
-> around the issue, indeed.
->
+On Wed, Oct 14, 2009 at 02:51:31AM +0200, Carlos R. Mafra wrote:
+> On Tue 13.Oct'09 at 16:57:01 -0700, Dmitry Torokhov wrote:
+> > On Tue, Oct 13, 2009 at 04:56:08PM -0700, Dmitry Torokhov wrote:
+> > > On Wed, Oct 14, 2009 at 01:16:41AM +0200, Carlos R. Mafra wrote:
+> > > > [restoring Cc: list]
+> > > > 
+> > > > On Tue 13.Oct'09 at 13:24:59 -0700, Dmitry Torokhov wrote:
+> > > > >
+> > > > > Could you please try this patch (again if you could post dmesg that
+> > > > > would be great). Thank you!
+> > > > 
+> > > > The patch quoted below also fixes the problem. I attached the
+> > > > syslog with i8042.debug (with a s2ram in the middle) to the
+> > > > bugzilla: 
+> > > > 
+> > > > http://bugzilla.kernel.org/show_bug.cgi?id=14392
+> > > > 
+> > > 
+> > > Still not quite happy, although it is better. I don't understand why
+> > > your box likes to reply on AUX port when command is sent via keyboard
+> > > port.
+> > > 
+> > > Could you please try booting with atkbd.reset (I assume keyboard is
+> > > built in) and send me yet another dmesg.
+> > > 
+> > 
+> > Oh, yes, keep the last patch applied. Thanks!
+> 
+> I uploaded the dmesg with atkbd.reset (and i8042.debug too, btw)
+> to the bugzilla.
+> 
 
-Do both of them need to be reloaded? Or only one (my guess psmouse) is
-enough. Hmm, this is HP laptop so it most likely has Synaptics touchpad=
-=2E
-I wonder what happens if you force it to bare PS/2 protocol (or maybe
-Intellimouse)... Try adding "option psmouse proto=3Dimps" and
-"option psmouse proto=3Dbare" and suspend/resume.
+Hmm, this is messed up... For some reason your box insists on replying
+to reset commands from AUX port, no matter what device we trying to
+reset. Does your box (Vaio, right?) has external PS/2 ports? I don't
+believe Vaios have docking stations... Also, could you please boot with
+i8042.nomux and send me yet another dmesg and dmidecode too.
 
---=20
+Thanks for your patience.
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

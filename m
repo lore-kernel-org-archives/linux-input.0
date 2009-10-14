@@ -1,58 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [bisected regression] Touchpad "paste" stops working after
-	suspend to RAM
-Date: Tue, 13 Oct 2009 19:30:08 -0700
-Message-ID: <20091014023008.GA29672@core.coreip.homeip.net>
-References: <20091013032414.GC2887@core.coreip.homeip.net> <20091013121109.GB4619@Pilar.aei.mpg.de> <20091013182643.GC21593@core.coreip.homeip.net> <20091013190819.GA7555@Pilar.aei.mpg.de> <20091013194654.GD21593@core.coreip.homeip.net> <20091013202459.GE21593@core.coreip.homeip.net> <20091013231641.GA4404@Pilar.aei.mpg.de> <20091013235607.GA28819@core.coreip.homeip.net> <20091013235701.GB28819@core.coreip.homeip.net> <20091014005131.GA4371@Pilar.aei.mpg.de>
+Subject: Re: [regression] 2.6.30 leaking keys on console switch
+Date: Tue, 13 Oct 2009 21:58:51 -0700
+Message-ID: <20091014045851.GA32413@core.coreip.homeip.net>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760036AbZJNCa4@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753394AbZJNE7f@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20091014005131.GA4371@Pilar.aei.mpg.de>
+In-Reply-To: <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Carlos R. Mafra" <crmafra2@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 14, 2009 at 02:51:31AM +0200, Carlos R. Mafra wrote:
-> On Tue 13.Oct'09 at 16:57:01 -0700, Dmitry Torokhov wrote:
-> > On Tue, Oct 13, 2009 at 04:56:08PM -0700, Dmitry Torokhov wrote:
-> > > On Wed, Oct 14, 2009 at 01:16:41AM +0200, Carlos R. Mafra wrote:
-> > > > [restoring Cc: list]
+[ressurecting old thread...]
+
+On Wed, Jul 08, 2009 at 01:20:23PM +0200, Jiri Kosina wrote:
+> On Tue, 7 Jul 2009, Dmitry Torokhov wrote:
+> 
+> > > > One new issue I see in 2.6.30 (I think I saw it in some rc*s) too is 
+> > > > that console switch often leaks the Fkey of the console switch into the 
+> > > > target console.
 > > > > 
-> > > > On Tue 13.Oct'09 at 13:24:59 -0700, Dmitry Torokhov wrote:
-> > > > >
-> > > > > Could you please try this patch (again if you could post dmesg that
-> > > > > would be great). Thank you!
+> > > > The symptome is that e.g. firefox if it was active and you're switching
+> > > > into X displays its help screen (F1 = help). It happens on non X 
+> > > > consoles too, but of course the symptoms are different here.
 > > > > 
-> > > > The patch quoted below also fixes the problem. I attached the
-> > > > syslog with i8042.debug (with a s2ram in the middle) to the
-> > > > bugzilla: 
+> > > > That's a regression against 2.6.29; I don't remember it in .29
 > > > > 
-> > > > http://bugzilla.kernel.org/show_bug.cgi?id=14392
-> > > > 
+> > > > Haven't investigated code.
 > > > 
-> > > Still not quite happy, although it is better. I don't understand why
-> > > your box likes to reply on AUX port when command is sent via keyboard
-> > > port.
-> > > 
-> > > Could you please try booting with atkbd.reset (I assume keyboard is
-> > > built in) and send me yet another dmesg.
-> > > 
+> > > Are you seeing with a specific keyboard type(s), or is this a general 
+> > > problem? Could you confirm whether it is specific either 
+> > > to PS2 or USB keyboards only, or it does happen for both?
 > > 
-> > Oh, yes, keep the last patch applied. Thanks!
+> > Can't think of any input chnages in this timeftrame that would cause
+> > such effect. Maybe TTY changes?
 > 
-> I uploaded the dmesg with atkbd.reset (and i8042.debug too, btw)
-> to the bugzilla.
+> For completness, Andi sent me the following evtest output off-list 
+> yesterday. The LeftAlt being autorepeated at time 1246964430.448470 is a 
+> little bit suspicious, as it is preceeded by release ... I don't see how 
+> this could be causing the behavior Andi is observing though.
+> 
+> I am not able to reproduce the problem myself.
 > 
 
-Hmm, this is messed up... For some reason your box insists on replying
-to reset commands from AUX port, no matter what device we trying to
-reset. Does your box (Vaio, right?) has external PS/2 ports? I don't
-believe Vaios have docking stations... Also, could you please boot with
-i8042.nomux and send me yet another dmesg and dmidecode too.
+...
 
-Thanks for your patience.
+> Event: time 1246964431.804460, -------------- Report Sync ------------
+> Event: time 1246964431.828598, type 4 (Misc), code 4 (ScanCode), value 70040
+> Event: time 1246964431.828602, type 1 (Key), code 65 (F7), value 1
+> Event: time 1246964431.828604, -------------- Report Sync ------------
+> Event: time 1246964431.832468, type 17 (LED), code 0 (NumLock), value 0
+> Event: time 1246964431.832470, -------------- Report Sync ------------
+> Event: time 1246964431.988595, type 4 (Misc), code 4 (ScanCode), value 700e0
+> Event: time 1246964431.988601, type 1 (Key), code 29 (LeftControl), value 0
+> Event: time 1246964431.988603, type 4 (Misc), code 4 (ScanCode), value 700e2
+> Event: time 1246964431.988605, type 1 (Key), code 56 (LeftAlt), value 0
+> Event: time 1246964431.988608, type 4 (Misc), code 4 (ScanCode), value 70040
+> Event: time 1246964431.988610, type 1 (Key), code 65 (F7), value 0
+> Event: time 1246964431.988611, -------------- Report Sync ------------
+
+Btw, what kind of keyboard is this? I was playing today but I could not
+get my USB keyboards to report release of more than 1 key per report....
 
 -- 
 Dmitry

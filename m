@@ -1,68 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Tue, 13 Oct 2009 21:58:51 -0700
-Message-ID: <20091014045851.GA32413@core.coreip.homeip.net>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de>
+Subject: Re: ??: Re: how to make KEY_POWER work in terminal system
+Date: Tue, 13 Oct 2009 23:12:14 -0700
+Message-ID: <20091014061214.GA24535@core.coreip.homeip.net>
+References: <bc65a8d50910030813y26138fbet402bdfb3f8321af8@mail.gmail.com> <bc65a8d50910030942hecf96b2hc06ff18f786a1cc@mail.gmail.com> <20091006050633.GF27881@core.coreip.homeip.net> <bc65a8d50910062032u1ab5d215xb37737b197bb7d46@mail.gmail.com> <bc65a8d50910062033j5c2f86c4s2a17cb21cf16a7f7@mail.gmail.com> <20091007043526.GA10204@core.coreip.homeip.net> <4AD47BC2.1070605@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753394AbZJNE7f@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f186.google.com ([209.85.221.186]:56094 "EHLO
+	mail-qy0-f186.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751079AbZJNGMz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Oct 2009 02:12:55 -0400
+Received: by qyk16 with SMTP id 16so3883074qyk.15
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2009 23:12:18 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4AD47BC2.1070605@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Xiangfu Liu <xiangfu.z@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-[ressurecting old thread...]
-
-On Wed, Jul 08, 2009 at 01:20:23PM +0200, Jiri Kosina wrote:
-> On Tue, 7 Jul 2009, Dmitry Torokhov wrote:
-> 
-> > > > One new issue I see in 2.6.30 (I think I saw it in some rc*s) too is 
-> > > > that console switch often leaks the Fkey of the console switch into the 
-> > > > target console.
-> > > > 
-> > > > The symptome is that e.g. firefox if it was active and you're switching
-> > > > into X displays its help screen (F1 = help). It happens on non X 
-> > > > consoles too, but of course the symptoms are different here.
-> > > > 
-> > > > That's a regression against 2.6.29; I don't remember it in .29
-> > > > 
-> > > > Haven't investigated code.
-> > > 
-> > > Are you seeing with a specific keyboard type(s), or is this a general 
-> > > problem? Could you confirm whether it is specific either 
-> > > to PS2 or USB keyboards only, or it does happen for both?
+On Tue, Oct 13, 2009 at 09:08:18PM +0800, Xiangfu Liu wrote:
+> Dmitry Torokhov wrote:
+> > On Wed, Oct 07, 2009 at 11:33:47AM +0800, xiangfu liu wrote:
+> >> thanks for reply
+> >> so i must write userspace daemon. right?
+> >>
 > > 
-> > Can't think of any input chnages in this timeftrame that would cause
-> > such effect. Maybe TTY changes?
-> 
-> For completness, Andi sent me the following evtest output off-list 
-> yesterday. The LeftAlt being autorepeated at time 1246964430.448470 is a 
-> little bit suspicious, as it is preceeded by release ... I don't see how 
-> this could be causing the behavior Andi is observing though.
-> 
-> I am not able to reproduce the problem myself.
+> > Yes.
+> > 
+> Hi Dmitry.
+> can you give me some tips on write the daemon.
+> have no idea on it. 
 > 
 
-...
+Xiangfu,
 
-> Event: time 1246964431.804460, -------------- Report Sync ------------
-> Event: time 1246964431.828598, type 4 (Misc), code 4 (ScanCode), value 70040
-> Event: time 1246964431.828602, type 1 (Key), code 65 (F7), value 1
-> Event: time 1246964431.828604, -------------- Report Sync ------------
-> Event: time 1246964431.832468, type 17 (LED), code 0 (NumLock), value 0
-> Event: time 1246964431.832470, -------------- Report Sync ------------
-> Event: time 1246964431.988595, type 4 (Misc), code 4 (ScanCode), value 700e0
-> Event: time 1246964431.988601, type 1 (Key), code 29 (LeftControl), value 0
-> Event: time 1246964431.988603, type 4 (Misc), code 4 (ScanCode), value 700e2
-> Event: time 1246964431.988605, type 1 (Key), code 56 (LeftAlt), value 0
-> Event: time 1246964431.988608, type 4 (Misc), code 4 (ScanCode), value 70040
-> Event: time 1246964431.988610, type 1 (Key), code 65 (F7), value 0
-> Event: time 1246964431.988611, -------------- Report Sync ------------
+I don't think you want to write a demon from scratch really. I don't
+know your platform/framework but I would expect you are using some
+kind of HAL daemon/layer that handles power mamagement and other system
+functions. That framework should handle powering off as well.
 
-Btw, what kind of keyboard is this? I was playing today but I could not
-get my USB keyboards to report release of more than 1 key per report....
+But this is somewhat off-topic for the linux-input mailing list which
+deals with the _kernel_ issues.
 
 -- 
 Dmitry

@@ -1,48 +1,25 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG] ati_remote2.c: possible mutex_lock without mutex_unlock
-Date: Wed, 14 Oct 2009 09:16:31 +0200 (CEST)
-Message-ID: <alpine.LSU.2.00.0910140915440.8582@wotan.suse.de>
-References: <1255456327.22233.0@pamir> <alpine.LSU.2.00.0910131736571.8582@wotan.suse.de> <20091014062902.GA2971@core.coreip.homeip.net> <alpine.LSU.2.00.0910140906280.8582@wotan.suse.de> <20091014071428.GA5318@core.coreip.homeip.net>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: [regression] 2.6.30 leaking keys on console switch
+Date: Wed, 14 Oct 2009 09:19:50 +0200
+Message-ID: <20091014071950.GF23248@one.firstfloor.org>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de> <20091014045851.GA32413@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33721 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754145AbZJNHRI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Oct 2009 03:17:08 -0400
-In-Reply-To: <20091014071428.GA5318@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756806AbZJNHU3@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091014045851.GA32413@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: iceberg <strakh@ispras.ru>, Vojtech Pavlik <vojtech@suse.cz>, Linux Kernlel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, 14 Oct 2009, Dmitry Torokhov wrote:
+> Btw, what kind of keyboard is this? I was playing today but I could not
+> get my USB keyboards to report release of more than 1 key per report....
 
-> > > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > 
-> > > input_devices_seq_start() uses mutex_lock_interruptible() to acquire
-> > > the input_mutex, but doesn't properly handle the situation when the
-> > > call fails (for example due to interrupt). Instead of returning NULL
-> > > (which indicates that there is no more data) we should return
-> > > ERR_PTR()-encoded error.
-> > > 
-> > > We also need explicit flag indicating whether input_mutex was acquired
-> > > since input_devices_seq_stop() is called whether input_devices_seq_start()
-> > > was successful or not.
-> > > 
-> > > The same applies to input_handlers_seq_start().
-> > > 
-> > > Reported-by: iceberg <strakh@ispras.ru>
-> > > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > 
-> > Yup, looks OK to me.
-> 
-> Putting you as "Reviewed-by.." then, OK?
+The log was with a PS/2<->USB adapter, with a PS/2 keyboard connected
+to a USB port through it.
 
-Sure, feel free to do that.
-
-Thanks,
+-Andi
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+ak@linux.intel.com -- Speaking for myself only.

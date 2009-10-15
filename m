@@ -1,119 +1,84 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [opensuse-kernel] Re: Fwd: OBS HEAD kernel-desktop
-Date: Thu, 15 Oct 2009 02:19:36 -0400
-Message-ID: <4AD6BEF8.6040308@seas.upenn.edu>
-References: <4AD5DEF5.9020401@suse.com> <20091014205745.GC5623@suse.de> <alpine.LSU.2.00.0910142342190.8582@wotan.suse.de> <200910150547.30061.webmaster@geomaticien.com>
+From: "Carlos R. Mafra" <crmafra2@gmail.com>
+Subject: Re: [bisected regression] Touchpad "paste" stops working after
+	suspend to RAM
+Date: Thu, 15 Oct 2009 13:08:59 +0200
+Message-ID: <20091015110859.GA4713@Pilar.aei.mpg.de>
+References: <20091013190819.GA7555@Pilar.aei.mpg.de> <20091013194654.GD21593@core.coreip.homeip.net> <20091013202459.GE21593@core.coreip.homeip.net> <20091013231641.GA4404@Pilar.aei.mpg.de> <20091013235607.GA28819@core.coreip.homeip.net> <20091013235701.GB28819@core.coreip.homeip.net> <20091014005131.GA4371@Pilar.aei.mpg.de> <20091014023008.GA29672@core.coreip.homeip.net> <20091014111325.GA4586@Pilar.aei.mpg.de> <20091015004451.GA2872@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:35056 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753067AbZJOGeI (ORCPT
+Received: from mail-fx0-f227.google.com ([209.85.220.227]:44524 "EHLO
+	mail-fx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757601AbZJOLK6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Oct 2009 02:34:08 -0400
-In-Reply-To: <200910150547.30061.webmaster@geomaticien.com>
+	Thu, 15 Oct 2009 07:10:58 -0400
+Content-Disposition: inline
+In-Reply-To: <20091015004451.GA2872@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: webmaster@geomaticien.com
-Cc: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed 14.Oct'09 at 17:44:52 -0700, Dmitry Torokhov wrote:
+> Ok, so here is hopefullt the last patch, it automatically disables MUX
+> mode on your Vaio since it is broken (you still need the previous patch
+> that changes atkbd since - there are 2 diffrent issues). I'd appreciate
+> if you could test it 
 
-Daniel FAIVRE wrote:
-> Jiri :  CONFIG_HID_*=m is THE solution !!! Please commit it as soon as 
-> possible !!! ;-)
+I tested the patch below on top of the atkbd patch, and paste still
+works after s2ram
+
+> - if it works then you should see mention of only 2
+> serio ports in your dmesg and not 5.
+
+And now I see this in the dmesg
+
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+mice: PS/2 mouse device common for all mice
+
+so your patch did what you said it would.
+
+Thanks Dmitry!
+
+
+> Input: i8042 - add Sony Vaio VGN-FZ240E to the nomux list
 > 
->> On Wed, 14 Oct 2009, Greg KH wrote:
->>>> There's a problem with builtin hid-ntrig in kernel-desktop : the
->>>> hid-ntrig is
->>>> NOT working (stylus button do NOT work) : it would be a great idea NOT
->>>> to embed hid-ntrig in the kernel, and to include it only as a module,
->>>> until developments evolutes enough to get a correct basic support.
->>>>
->>>> Actually, there's no way to get it work except recompiling the whole
->>>> kernel without builtin hid-ntrig ...
->>> So just pick one hid device as a module?  Sure, I don't object to doing
->>> that if it fixes problems for people.
->>>
->>> What specific config option should be changed?
->> Apparently we are having CONFIG_HID_*=y for -desktop flavour. I think it
->> might be good idea to change it back to =m, to be in sync with other
->> flavours, vanilla defaults, etc.
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > 
-> Yes !!! That's the best idea : as a workaround, i recompiled a kernel with 
->  CONFIG_HID_*=m
+> On this model, when KBD is in active multiplexing mode, acknowledgements
+> to reset and get ID commands issued on KBD port sometimes are delivered
+> to AUX3 port (touchpad) which messes up device detection. Legacy KBC
+> mode works fine and since there are no external PS/2 ports on this laptop
+> and no support for docking station we can safely disable active MUX mode.
 > 
->> Daniel, could you please report the problems you are having with hid-ntrig
->> upstream? That would mean sending the description of the misbehavior of
->> the driver to
->>
->> 	Rafi Rubin <rafi@seas.upenn.edu>
->> 	Stephane Chatty <chatty@enac.fr>
->> 	Jiri Kosina <jkosina@suse.cz>
->> 	linux-input@vger.kernel.org
->>
->> Thanks,
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
 > 
-> n-trig is known NOT to work with opensuse 11.1, due to missing support in 
-> 2.6.27 kernel.
-> A workaround could be installing a new kernel from HEAD. Unfortunately, with 
-> 2.6.31 kernel from openSuSE HEAD repository, the stylus button do NOT work.
-> (wacdump report stylus button click as a left mouseclick)
-> Some peoples suggest patches for kernels > 2.6.30
-> Rafi suggested a patch here : http://ofb.net/~rafi/latitude_xt.html
-> Will it fix the stylus button issue ? Nevertheless, a python script available 
-> on several Ubuntu forums show that the button is working properly, BUT remain 
-> unavailable for linuxwacom (which need to be patched too just to enable 1b96 
-> vendor and 0x01 and 0x02 devices). 
-
-The break in the stylus buttons was the result of minor mistake added with the conversion to a multitouch driver.  Jiri already
-passed my most recent patches up to Linus, and I can confirm the fix is in HEAD.  I think its been in there since before 2.6.32-rc1.
-
-My apologies for missing the bug with in the previous version, I really should have caught it immediately.  The error really was
-just masking out the stylus button events during initialization, so quite easy to fix.
-
-My website has no further patches for the kernel driver for the tablet at this time.
-
-I did send in the patch to the linuxwacom project, but as of yet it has not been accepted.  The patch adds two things:
-the resolution and adds the ntrig id to a predicate which otherwise rejects all non-wacom devices.  The resolution is not strictly
-necessary since the run-time configuration provides sufficient options.  As for the manufacturer limiting, that was added only after
-the initial ntrig patches to the kernel.  Given the circumstances it seems likely that the specific blocking is intentional.  While
-I understand why they might prefer to limit the support of that driver, it works very well with my digitizer and I expect to
-continue using it and supporting the id patch.  Thank you Ping for such a nice driver, it has been quite helpful.
-
-
-Multitouch on the ntrig is another question.  It might just be a matter of initialization with the current firmware.  Stephane has
-used multitouch with older firmwares (without extra init), but with those versions he was not able to use the stylus.
-
-> I will test patched hid-ntrig.ko tomorrow, with a recompiled kernel, and 
-> different patches.
-
-You might want to just grab the hid-ntrig.c file from HEAD:
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plain;f=drivers/hid/hid-ntrig.c;hb=HEAD
-
-> Nevertheless, I'm interested to contribute both for solving these issue and 
-> for improving opensuse/linux tabletPC computing.
+>  drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
+>  1 files changed, 11 insertions(+), 0 deletions(-)
 > 
-> Under linux, we still lack some cool features available on windows, and that 
-> is a serious disability to promote our favourite OS on tabletPCs :
-> - right-click on delayed touch / stylus pressure, with visual feedback (may be 
-> possible with improved linuxwacom / xorg configuration, except for visual 
-> feedback ? I saw some xorg.conf with things like "longtouch" ... for evtouch 
-> driver ;-/ )
-> - multitouch (many things to do, from low-level drivers to KDE integration !)
-
-I'd also like to see something that shows feedback without interfering.  I suspect the xtest extension might be a good place to
-start looking.
-
-
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkrWvvgACgkQwuRiAT9o608Q8QCgjBaCulVWzvpWrId05I0U7FyZ
-Fq8AoPQPlygv/LhRYTuhe4ROnL94ErXs
-=1oMY
------END PGP SIGNATURE-----
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 77ff205..a537925 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -327,6 +327,17 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+>  		},
+>  	},
+>  	{
+> +		/*
+> +		 * Reset and GET ID commands issued via KBD port are
+> +		 * sometimes being delivered to AUX3.
+> +		 */
+> +		.ident = "Sony Vaio FZ-240E",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-FZ240E"),
+> +		},
+> +	},
+> +	{
+>  		.ident = "Amoi M636/A737",
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "Amoi Electronics CO.,LTD."),

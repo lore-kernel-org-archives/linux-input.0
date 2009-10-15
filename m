@@ -1,117 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Thu, 15 Oct 2009 14:59:45 -0700
-Message-ID: <20091015215944.GA9845@core.coreip.homeip.net>
-References: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com> <4AD75AC0.6020705@tremplin-utc.net> <20091015181336.GB8544@core.coreip.homeip.net> <4AD778C7.4070707@tremplin-utc.net> <20091015195136.GD8544@core.coreip.homeip.net> <4AD7953B.5040506@tremplin-utc.net>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <Eric.Piel@tremplin-utc.net>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work	anymore
+Date: Fri, 16 Oct 2009 00:44:42 +0200
+Message-ID: <4AD7A5DA.2060309@tremplin-utc.net>
+References: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com> <4AD75AC0.6020705@tremplin-utc.net> <20091015181336.GB8544@core.coreip.homeip.net> <4AD778C7.4070707@tremplin-utc.net> <20091015195136.GD8544@core.coreip.homeip.net> <4AD7953B.5040506@tremplin-utc.net> <20091015215944.GA9845@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:43010 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758315AbZJOWAd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Oct 2009 18:00:33 -0400
-Content-Disposition: inline
-In-Reply-To: <4AD7953B.5040506@tremplin-utc.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <Eric.Piel@tremplin-utc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763208AbZJOWpb@vger.kernel.org>
+In-Reply-To: <20091015215944.GA9845@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 15, 2009 at 11:33:47PM +0200, =C9ric Piel wrote:
-> Op 15-10-09 21:51, Dmitry Torokhov schreef:
->>
->> No, not the debug.. Just the lines looking like this:
->>
->> input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio=
-0/input/input3
-> Ah! This I have! Here is how it looks like at boot:
-> Sep 21 14:02:58 dutifh klogd: PNP: PS/2 Controller [PNP0303:C29C,PNP0=
-f13:C29D] at 0x60,0x64 irq 1,12
-> Sep 21 14:02:58 dutifh klogd: i8042.c: Detected active multiplexing c=
-ontroller, rev 1.1.
-> Sep 21 14:02:58 dutifh klogd: serio: i8042 KBD port at 0x60,0x64 irq =
-1
-> Sep 21 14:02:58 dutifh klogd: serio: i8042 AUX0 port at 0x60,0x64 irq=
- 12
-> Sep 21 14:02:58 dutifh klogd: serio: i8042 AUX1 port at 0x60,0x64 irq=
- 12
-> Sep 21 14:02:58 dutifh klogd: serio: i8042 AUX2 port at 0x60,0x64 irq=
- 12
-> Sep 21 14:02:58 dutifh klogd: serio: i8042 AUX3 port at 0x60,0x64 irq=
- 12
-> Sep 21 14:02:58 dutifh klogd: mice: PS/2 mouse device common for all =
-mice
-> Sep 21 14:02:58 dutifh klogd: rtc_cmos 00:06: RTC can wake from S4
-> Sep 21 14:02:58 dutifh klogd: rtc_cmos 00:06: rtc core: registered rt=
-c_cmos as rtc0
-> Sep 21 14:02:58 dutifh klogd: rtc0: alarms up to one month, y3k, 114 =
-bytes nvram, hpet irqs
-> Sep 21 14:02:58 dutifh klogd: cpuidle: using governor ladder
-> Sep 21 14:02:58 dutifh klogd: cpuidle: using governor menu
-> Sep 21 14:02:58 dutifh klogd: TCP cubic registered
-> Sep 21 14:02:58 dutifh klogd: input: AT Translated Set 2 keyboard as =
-/devices/platform/i8042/serio0/input/input0
-> :
-> Sep 21 14:02:58 dutifh klogd: Synaptics Touchpad, model: 1, fw: 6.3, =
-id: 0x1a0b1, caps: 0xa04713/0x200000
-> Sep 21 14:02:58 dutifh klogd: input: SynPS/2 Synaptics TouchPad as /d=
-evices/platform/i8042/serio4/input/input2
+Op 15-10-09 23:59, Dmitry Torokhov schreef:
+
+> Hm, this is wierd... In the dmesg you sent me in the previous mail I see:
 >
+> input: AT Raw Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
 >
-> And then after an unbind/bind trick:
-> Sep 22 14:15:24 dutifh klogd: i8042.c: Detected active multiplexing c=
-ontroller, rev 1.1.
-> Sep 22 14:15:24 dutifh klogd: serio: i8042 KBD port at 0x60,0x64 irq =
-1
-> Sep 22 14:15:24 dutifh klogd: serio: i8042 AUX0 port at 0x60,0x64 irq=
- 12
-> Sep 22 14:15:24 dutifh klogd: serio: i8042 AUX1 port at 0x60,0x64 irq=
- 12
-> Sep 22 14:15:24 dutifh klogd: serio: i8042 AUX2 port at 0x60,0x64 irq=
- 12
-> Sep 22 14:15:24 dutifh klogd: serio: i8042 AUX3 port at 0x60,0x64 irq=
- 12
-> Sep 22 14:15:24 dutifh klogd: input: AT Translated Set 2 keyboard as =
-/devices/platform/i8042/serio5/input/input12
-> Sep 22 14:15:25 dutifh pulseaudio[3737]: sap.c: sendmsg() failed: Ong=
-eldig argument
-> Sep 22 14:15:25 dutifh klogd: input: PS/2 Generic Mouse as /devices/p=
-latform/i8042/serio6/input/input13
-> Sep 22 14:15:26 dutifh klogd: Synaptics Touchpad, model: 1, fw: 6.3, =
-id: 0x1a0b1, caps: 0xa04713/0x200000
-> Sep 22 14:15:26 dutifh klogd: input: SynPS/2 Synaptics TouchPad as /d=
-evices/platform/i8042/serio9/input/input14
+> So it looks like sometimes it is in raw and sometimes it is in
+> translated mode. The i8042.reset might be affecting it.
+Indeed, since there is i8042.reset, it's "Raw" instead of "Translated".
+
+> Also, are you
+> using BIOS password at resume by any chance?
+No, I just press the power button to resume and nothing else.
+
 >
-> (pasting only the parts which seem relevant)
->
+> I guess we'll have to wait till you get back to the box and then I want
+> fresh debug dmesgs (after poweroff) of older (with bind/unbind) and latest
+> kernels, going through boot, 1st (make sure to type qwerty) and 2nd
+> resume (qwerty again). Make sure you don't have any other i8042 or atkbd
+> switches besides i8042.debug.
+Ok, I'll.
 
-Hm, this is wierd... In the dmesg you sent me in the previous mail I se=
-e:
-
-input: AT Raw Set 2 keyboard as /devices/platform/i8042/serio0/input/in=
-put4
-
-So it looks like sometimes it is in raw and sometimes it is in
-translated mode. The i8042.reset might be affecting it. Also, are you
-using BIOS password at resume by any chance?
-
-I guess we'll have to wait till you get back to the box and then I want
-fresh debug dmesgs (after poweroff) of older (with bind/unbind) and lat=
-est
-kernels, going through boot, 1st (make sure to type qwerty) and 2nd
-resume (qwerty again). Make sure you don't have any other i8042 or atkb=
-d
-switches besides i8042.debug.
-
-Thanks!
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Eric

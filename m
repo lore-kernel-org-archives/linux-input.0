@@ -1,99 +1,162 @@
-From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2] input/misc: new ADXL345/346
-	driver
-Date: Fri, 16 Oct 2009 10:06:23 +0100
-Message-ID: <8A42379416420646B9BFAC9682273B6D0E5EA7BC@limkexm3.ad.analog.com>
-References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
-	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
-	<20091016043627.GC11582@core.coreip.homeip.net>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: [PATCH] leds-alix2: add support for button connected to J15
+Date: Fri, 16 Oct 2009 15:03:15 +0200
+Message-ID: <20091016130315.GT28832@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Content-Class: urn:content-classes:message
-In-Reply-To: <20091016043627.GC11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759235AbZJPND7@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
->> +	if (int_stat & SINGLE_TAP) {
->> +		if (tap_stat & TAP_X_SRC)
->> +			adxl34x_report_key_single(ac->input,
->> +						  pdata->ev_code_tap_x);
->> +		if (tap_stat & TAP_Y_SRC)
->> +			adxl34x_report_key_single(ac->input,
->> +						  pdata->ev_code_tap_y);
->> +		if (tap_stat & TAP_Z_SRC)
->> +			adxl34x_report_key_single(ac->input,
->> +						  pdata->ev_code_tap_z);
->> +	}
->> +
->> +	if (int_stat & DOUBLE_TAP) {
->> +		if (tap_stat & TAP_X_SRC)
->> +			adxl34x_report_key_double(ac->input,
->> +						  pdata->ev_code_tap_x);
->> +		if (tap_stat & TAP_Y_SRC)
->> +			adxl34x_report_key_double(ac->input,
->> +						  pdata->ev_code_tap_y);
->> +		if (tap_stat & TAP_Z_SRC)
->> +			adxl34x_report_key_double(ac->input,
->> +						  pdata->ev_code_tap_z);
->> +	}
->
->Hmm.. this generates loads of syncs... how about having tap codes in an
->array and do:
->
->void send_key_events(ac, pdata, status, press)
->{
->	for (i = 0; i < num, i++) {
->		if (status & (1 << i))
->			input_report_key(ac->input,
->					 pdata->ev_code_tap[i], press);
->	}
->}
->
->void do_tap(ac, pdata, status)
->{
->	send_key_events(ac, pdata, int_stat, true);
->	input_sync(ac->input);
->	send_key_events(ac, pdata, int_stat, false);
->}
->
->And you'd do:
->
->	if (int_stat & (SINGLE_TAP|DOUBLE_TAP) {
->		do_tap(ac, pdata, status);
->
->		if (int_stat & DOUBLE_TAP)
->			do_tap(ac, pdata, status);
->	}
->
->?
+for a project I was working on, we used the J15 connector of the ALIX.2D
+board (which is connected to a GPIO of the CS5536 Geode companion chip)
+for an external button switch.
 
-That's a great idea - Thanks!
+I thought it might be worth sharing this piece of code, so others can do
+the same.
 
->> +void adxl34x_disable(struct adxl34x *ac)
->> +{
->> +	mutex_lock(&ac->mutex);
->> +	if (!ac->disabled && ac->opened) {
->> +		ac->disabled = 1;
->> +		cancel_work_sync(&ac->work);
->
->If you actually cancel the work before it runs you will leave interrupt
->disabled for good. You need to check the return core and re-enable
->interrupt if needed.
+There is, however, a small hardware modification is necessary as the pin
+is also shared as buzzer output. I noted that in the Kconfig entry.
 
-Good catch - will fix it.
+The patch should go thru Richard's led-2.6.git as it depends on another
+one that has been queued there already.
 
--Michael
+Thanks,
+Daniel
+
+>From fd5915cf86c659eac67a8c0ea4379a78efbe2231 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@caiaq.de>
+Date: Tue, 13 Oct 2009 12:42:52 +0800
+Subject: [PATCH] leds-alix2: add support for button connected to J15
+
+The ALIX2 boards have one GPIO pin which is reachable at connector J15.
+One possible application for this feature is to connect a button which
+closes the two pins.
+
+This patch adds support to query these button and export its state via
+an input device.
+
+Signed-off-by: Daniel Mack <daniel@caiaq.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-input@vger.kernel.org
+Cc: Constantin Baranov <const@mimas.ru>
+---
+ drivers/leds/Kconfig      |   14 ++++++++++++
+ drivers/leds/leds-alix2.c |   50 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 64 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index e4f599f..7e57bba 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -77,6 +77,20 @@ config LEDS_ALIX2
+ 	  This option enables support for the PCEngines ALIX.2 and ALIX.3 LEDs.
+ 	  You have to set leds-alix2.force=1 for boards with Award BIOS.
+ 
++config LEDS_ALIX2_BUTTON
++	bool "Input device support for button on ALIX boards"
++	depends on LEDS_ALIX2 && INPUT
++	select INPUT_POLLDEV
++	help
++	  This option enables support for a button connected to J15 of ALIX
++	  boards.
++	  
++	  Note that for this feature to work, there is need for a minor
++	  modification to the hardware. R1 needs to be removed, and R4 needs
++	  to be places as 100KOhms pull-up.
++	  
++	  Only select that option if you modified your ALIX board like this.
++
+ config LEDS_H1940
+ 	tristate "LED Support for iPAQ H1940 device"
+ 	depends on LEDS_CLASS && ARCH_H1940
+diff --git a/drivers/leds/leds-alix2.c b/drivers/leds/leds-alix2.c
+index f59ffad..e41b252 100644
+--- a/drivers/leds/leds-alix2.c
++++ b/drivers/leds/leds-alix2.c
+@@ -12,6 +12,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/string.h>
+ #include <linux/pci.h>
++#include <linux/input-polldev.h>
+ 
+ static int force = 0;
+ module_param(force, bool, 0444);
+@@ -29,6 +30,12 @@ static struct pci_device_id divil_pci[] = {
+ };
+ MODULE_DEVICE_TABLE(pci, divil_pci);
+ 
++#ifdef CONFIG_LEDS_ALIX2_BUTTON
++static struct input_polled_dev *ipdev;
++static int alix_button_last;
++#define POLL_INTERVAL_DEFAULT 250
++#endif
++
+ struct alix_led {
+ 	struct led_classdev cdev;
+ 	unsigned short port;
+@@ -78,6 +85,20 @@ static struct alix_led alix_leds[] = {
+ 	},
+ };
+ 
++#ifdef CONFIG_LEDS_ALIX2_BUTTON
++static void alix_button_poll(struct input_polled_dev *ipdev)
++{
++	unsigned int val = !(inl(gpio_base + 0x30) & (1 << 1));
++
++	if (val == alix_button_last)
++		return;
++
++	input_report_key(ipdev->input, BTN_MISC, val);
++	input_sync(ipdev->input);
++	alix_button_last = val;
++}
++#endif
++
+ static int __init alix_led_probe(struct platform_device *pdev)
+ {
+ 	int i;
+@@ -89,6 +110,35 @@ static int __init alix_led_probe(struct platform_device *pdev)
+ 		if (ret < 0)
+ 			goto fail;
+ 	}
++
++#ifdef CONFIG_LEDS_ALIX2_BUTTON
++	/* enable button input */
++	outl(1 << 1, gpio_base + 0x20);
++
++	/* enable pullup on input pin */
++	outl(1 << 1, gpio_base + 0x18);
++
++	alix_button_last = 0;
++	ipdev = input_allocate_polled_device();
++	if (!ipdev)
++		goto fail;
++
++	ipdev->poll = alix_button_poll;
++	ipdev->poll_interval = POLL_INTERVAL_DEFAULT;
++	ipdev->input->name = "ALIX2 button";
++	ipdev->input->phys = "alix2/input0";
++	ipdev->input->id.bustype = BUS_HOST;
++
++	set_bit(EV_KEY, ipdev->input->evbit);
++        ipdev->input->keybit[BIT_WORD(BTN_MISC)] = BIT_MASK(BTN_MISC);
++
++	ret = input_register_polled_device(ipdev);
++	if (ret) {
++		input_free_polled_device(ipdev);
++		goto fail;
++	}
++#endif
++
+ 	return 0;
+ 
+ fail:
+-- 
+1.6.0.4

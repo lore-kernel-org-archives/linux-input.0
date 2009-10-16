@@ -1,53 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Thu, 15 Oct 2009 21:59:24 -0700
-Message-ID: <20091016045924.GD11582@core.coreip.homeip.net>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de> <20090713040528.GH10819@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907130906140.10476@wotan.suse.de> <20090713082527.GA26638@basil.fritz.box> <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de> <20090716092406.GC8046@one.firstfloor.org>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] input/misc: new ADXL345/346
+	driver
+Date: Fri, 16 Oct 2009 01:39:49 -0400
+Message-ID: <8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
+References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
+	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
+	<20091016043627.GC11582@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f179.google.com ([209.85.216.179]:43570 "EHLO
-	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751070AbZJPFAH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Oct 2009 01:00:07 -0400
-Content-Disposition: inline
-In-Reply-To: <20090716092406.GC8046@one.firstfloor.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20091016043627.GC11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
 
-On Thu, Jul 16, 2009 at 11:24:06AM +0200, Andi Kleen wrote:
-> > Andi, are you absolutely sure that this appeared between .29 and .30 for 
-> > you?
-> 
-> I only noticed it after the .30 update at least.
-> 
-> > And if so, is there any chance you could try bisecting it?
-> 
-> Ok.
-> 
-> > 
-> > (*) have been on virtual desktop where firefox was running, switched to 
-> > console using Ctrl-Alt-F1, and switched back to X using F7. Firefox then 
-> > popped up some dialog about configuring some feature that is triggered by 
-> > pressing F7/AltF7, or whatever. Is that what you are seeing?
-> 
-> Yes, I typically see it with the help screen. It also happens with
-> other applications, not just firefox.
-> 
-
-I don't really see the issue here, except for maybe X being stupid - it
-seems that it processes release events as press+release in cases when it
-did not see the press event.
-
-Start up xev, switch to text console and then back to X (don't release
-the CTRL+ALT+Fx combo). Let X switch fully and then release the combo.
-Observe the 2 events reported by xev for Fx key. You may try running
-evtest in other window and observe that there are no down events at the
-time of 2 xev events, only autorepeats and release event (and
-autorepeats are ignored by X who does it's own software autorepeat).
-
--- 
-Dmitry
+T24gRnJpLCBPY3QgMTYsIDIwMDkgYXQgMDA6MzYsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiBP
+biBXZWQsIE9jdCAxNCwgMjAwOSBhdCAwNjo1NDo0MEFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
+cm90ZToKPj4gKy8qIFN0dWIgZnVuY3Rpb25zIHNvIHdlIGNhbiBsb2FkL3VubG9hZCB0aGUgbW9k
+dWxlICovCj4+ICtzdGF0aWMgX19pbml0IGludCBhZHhsMzR4X2luaXQodm9pZCkKPj4gK3sKPj4g
+KyAgICAgcmV0dXJuIDA7Cj4+ICt9Cj4+ICttb2R1bGVfaW5pdChhZHhsMzR4X2luaXQpOwo+PiAr
+Cj4+ICtzdGF0aWMgX19leGl0IHZvaWQgYWR4bDM0eF9leGl0KHZvaWQpCj4+ICt7Cj4+ICt9Cj4+
+ICttb2R1bGVfZXhpdChhZHhsMzR4X2V4aXQpOwo+Cj4gSHVoPwo+Cj4gW3Jvb3RAZHRvci1kNjMw
+IH5dIyBtb2Rwcm9iZSBpbnB1dF9wb2xsZGV2Cj4gW3Jvb3RAZHRvci1kNjMwIH5dIyBsc21vZCB8
+IGdyZXAgaW5wdXQKPiBpbnB1dF9wb2xsZGV2IMKgIMKgIMKgIMKgIMKgIDI5OTYgwqAwCj4gdWlu
+cHV0IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgNzM1MyDCoDAKPiBbcm9vdEBkdG9yLWQ2MzAg
+fl0jIHJtbW9kIGlucHV0X3BvbGxkZXYKPiBbcm9vdEBkdG9yLWQ2MzAgfl0jIGxzbW9kIHwgZ3Jl
+cCBpbnB1dAo+IHVpbnB1dCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoDczNTMgwqAwCj4gW3Jv
+b3RAZHRvci1kNjMwIH5dIyBncmVwIC1jIG1vZHVsZV9leGl0IH5kdG9yL2tlcm5lbC93b3JrL2Ry
+aXZlcnMvaW5wdXQvaW5wdXQtcG9sbGRldi5jCj4gMAo+IFtyb290QGR0b3ItZDYzMCB+XSMKCnlv
+dXIgb3V0cHV0IGRvZXNudCB0ZWxsIHRoZSB3aG9sZSBzdG9yeS4gIHRoZSB0cmljayBpcyB0aGF0
+IGlmIHlvdQpkZWNsYXJlIGEgbW9kdWxlX2luaXQoKSBidXQgbm8gbW9kdWxlX2V4aXQoKSwgdGhl
+IGtlcm5lbCB3b250IGxldCB5b3UKdW5sb2FkIGl0LiAgaSB0aG91Z2h0IGl0IHdhcyBhIG1hdHRl
+ciBvZiBubyBtb2R1bGVfZXhpdCgpLCBub3QgYW4KdW5iYWxhbmNlZCBwYWlyLgoKaSdsbCBzZW5k
+IGFuIHVwZGF0ZWQgYWQ3MTR4IGRyaXZlciB0b28gc2luY2UgaXQgZG9lcyB0aGUgc2FtZSB0aGlu
+Zy4KCj4+ICtzdHJ1Y3QgZGV2aWNlOwo+PiArc3RydWN0IGFkeGwzNHg7Cj4+ICt0eXBlZGVmIGlu
+dCAoYWR4bDM0eF9yZWFkX3QpIChzdHJ1Y3QgZGV2aWNlICosIHVuc2lnbmVkIGNoYXIpOwo+PiAr
+dHlwZWRlZiBpbnQgKGFkeGwzNHhfcmVhZF9ibG9ja190KSAoc3RydWN0IGRldmljZSAqLCB1bnNp
+Z25lZCBjaGFyLCBpbnQsIHVuc2lnbmVkIGNoYXIgKik7Cj4+ICt0eXBlZGVmIGludCAoYWR4bDM0
+eF93cml0ZV90KSAoc3RydWN0IGRldmljZSAqLCB1bnNpZ25lZCBjaGFyLCB1bnNpZ25lZCBjaGFy
+KTsKPj4gKwo+PiArdm9pZCBhZHhsMzR4X2Rpc2FibGUoc3RydWN0IGFkeGwzNHggKmFjKTsKPj4g
+K3ZvaWQgYWR4bDM0eF9lbmFibGUoc3RydWN0IGFkeGwzNHggKmFjKTsKPj4gK2ludCBhZHhsMzR4
+X3Byb2JlKHN0cnVjdCBhZHhsMzR4ICoqcGFjLCBzdHJ1Y3QgZGV2aWNlICpkZXYsIHUxNiBidXNf
+dHlwZSwKPj4gKyDCoCDCoCBpbnQgaXJxLCBpbnQgZmlmb19kZWxheV9kZWZhdWx0LCBhZHhsMzR4
+X3JlYWRfdCByZWFkLAo+PiArIMKgIMKgIGFkeGwzNHhfcmVhZF9ibG9ja190IHJlYWRfYmxvY2ss
+IGFkeGwzNHhfd3JpdGVfdCB3cml0ZSk7Cj4KPiBUb28gbWFueSBhcmd1bWVudHMuLi4gSSB0aGlu
+ayBjcmVhdGluZyAic3RydWN0IGFkeGwzNHhfb3BzIiBpcyBjYWxsZWQKPiBmb3IuCgpndWVzcyBp
+IHNob3VsZCBkbyB0aGUgc2FtZSB3aXRoIHRoZSBhZDcxNHggZHJpdmVyID8KCj4+IC0tLSAvZGV2
+L251bGwKPj4gKysrIGIvaW5jbHVkZS9saW51eC9pbnB1dC9hZHhsMzR4LmgKPgo+IFRhYnMgJiBz
+cGFjZXMuCgppIHdlbnQgdGhyb3VnaCBhbGwgb2YgdGhlIGRyaXZlciBjb2RlIGJ1dCBpIGd1ZXNz
+IGkgZm9yZ290IHRvIGNoZWNrIHRoZSBoZWFkZXIKCj4gUHV0IHRoaXMgaW4geW91ciAudmltcmM6
+Cgp3ZWxsLCBub25lIG9mIHVzIHVzZSB2aW0sIHNvIGRvZXNudCByZWFsbHkgbWF0dGVyIDspCi1t
+aWtlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClVjbGlu
+dXgtZGlzdC1kZXZlbCBtYWlsaW5nIGxpc3QKVWNsaW51eC1kaXN0LWRldmVsQGJsYWNrZmluLnVj
+bGludXgub3JnCmh0dHBzOi8vYmxhY2tmaW4udWNsaW51eC5vcmcvbWFpbG1hbi9saXN0aW5mby91
+Y2xpbnV4LWRpc3QtZGV2ZWw=

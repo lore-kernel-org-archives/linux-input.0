@@ -1,39 +1,60 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] input/misc: new ADXL345/346
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [Uclinux-dist-devel] [PATCH v2] input/misc: new ADXL345/346
 	driver
-Date: Fri, 16 Oct 2009 01:53:34 -0400
-Message-ID: <8bd0f97a0910152253k2cc6f084q644115e7aa47542@mail.gmail.com>
+Date: Fri, 16 Oct 2009 02:57:15 -0400
+Message-ID: <8bd0f97a0910152357i38a483c0h97ff516c7c43a717@mail.gmail.com>
 References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
-	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
-	<20091016043627.GC11582@core.coreip.homeip.net>
+	<1255517680-30733-1-git-send-email-vapier@gentoo.org> <20091016043627.GC11582@core.coreip.homeip.net>
 	<8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
-	<20091016054414.GE11582@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20091016054414.GE11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f202.google.com ([209.85.211.202]:33696 "EHLO
+	mail-yw0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751164AbZJPG6L convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Oct 2009 02:58:11 -0400
+Received: by ywh40 with SMTP id 40so408904ywh.33
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2009 23:57:35 -0700 (PDT)
+In-Reply-To: <8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Luotao Fu <l.fu@pengutronix.de>, Barry Song <barry.song@analog.com>, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Chris Verges <chrisv@cyberswitching.com>
 
-On Fri, Oct 16, 2009 at 01:44, Dmitry Torokhov wrote:
-> On Fri, Oct 16, 2009 at 01:39:49AM -0400, Mike Frysinger wrote:
->> On Fri, Oct 16, 2009 at 00:36, Dmitry Torokhov wrote:
->> > Put this in your .vimrc:
+On Fri, Oct 16, 2009 at 01:39, Mike Frysinger wrote:
+> On Fri, Oct 16, 2009 at 00:36, Dmitry Torokhov wrote:
+>> On Wed, Oct 14, 2009 at 06:54:40AM -0400, Mike Frysinger wrote:
+>>> +struct device;
+>>> +struct adxl34x;
+>>> +typedef int (adxl34x_read_t) (struct device *, unsigned char);
+>>> +typedef int (adxl34x_read_block_t) (struct device *, unsigned char=
+, int, unsigned char *);
+>>> +typedef int (adxl34x_write_t) (struct device *, unsigned char, uns=
+igned char);
+>>> +
+>>> +void adxl34x_disable(struct adxl34x *ac);
+>>> +void adxl34x_enable(struct adxl34x *ac);
+>>> +int adxl34x_probe(struct adxl34x **pac, struct device *dev, u16 bu=
+s_type,
+>>> + =C2=A0 =C2=A0 int irq, int fifo_delay_default, adxl34x_read_t rea=
+d,
+>>> + =C2=A0 =C2=A0 adxl34x_read_block_t read_block, adxl34x_write_t wr=
+ite);
 >>
->> well, none of us use vim, so doesnt really matter ;)
+>> Too many arguments... I think creating "struct adxl34x_ops" is calle=
+d
+>> for.
 >
-> Time to switch? ;)
+> guess i should do the same with the ad714x driver ?
 
-i dont recall my `nano` failing me yet in this regard, so not for me
+although looking at it, it'd only combine 4 args into 1 (so there'd be
+5 instead of 8).  i'd still have to pass the rest in as they're
+instance-specific.  guess you still want the change though ?
 -mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

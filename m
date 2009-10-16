@@ -1,38 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] input/misc: new
-	ADXL345/346	driver
-Date: Thu, 15 Oct 2009 22:44:14 -0700
-Message-ID: <20091016054414.GE11582@core.coreip.homeip.net>
-References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
-	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
-	<20091016043627.GC11582@core.coreip.homeip.net>
-	<8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [regression] 2.6.30 leaking keys on console switch
+Date: Thu, 15 Oct 2009 22:41:55 -0700
+Message-ID: <4AD807A3.6060508@zytor.com>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de> <20091014045851.GA32413@core.coreip.homeip.net> <20091014071950.GF23248@one.firstfloor.org> <20091014073927.GB5318@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <8bd0f97a0910152239v3c889a95rd9b100e3e7204e98-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753209AbZJPFnB@vger.kernel.org>
+In-Reply-To: <20091014073927.GB5318@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andi Kleen <andi@firstfloor.org>, Jiri Kosina <jkosina@suse.cz>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 16, 2009 at 01:39:49AM -0400, Mike Frysinger wrote:
-> On Fri, Oct 16, 2009 at 00:36, Dmitry Torokhov wrote:
-> > Put this in your .vimrc:
+On 10/14/2009 12:39 AM, Dmitry Torokhov wrote:
+> On Wed, Oct 14, 2009 at 09:19:50AM +0200, Andi Kleen wrote:
+>>> Btw, what kind of keyboard is this? I was playing today but I could not
+>>> get my USB keyboards to report release of more than 1 key per report....
+>>
+>> The log was with a PS/2<->USB adapter, with a PS/2 keyboard connected
+>> to a USB port through it.
+>>
 > 
-> well, none of us use vim, so doesnt really matter ;)
+> Hmm, I don't think I have one of those... It is curious beast - we have
+> software autorepeat for HID but PS/2 keyboards do autorepeat
+> themselves... What will combination do?
+> 
 
-Time to switch? ;)
+Autorepeat on PS/2 keyboards is a mode setting.  I would guess the HID
+adapter would turn it off if it is halfway sane.
+
+	-hpa
 
 -- 
-Dmitry
+H. Peter Anvin, Intel Open Source Technology Center
+I work for Intel.  I don't speak on their behalf.

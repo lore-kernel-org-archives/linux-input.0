@@ -1,19 +1,17 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Subject: Re: [PATCH v2] input/misc: new ADXL345/346
 	driver
-Date: Fri, 16 Oct 2009 04:20:06 -0400
-Message-ID: <8bd0f97a0910160120x7d25f649v169dd319842f75d2@mail.gmail.com>
+Date: Fri, 16 Oct 2009 10:06:23 +0100
+Message-ID: <8A42379416420646B9BFAC9682273B6D0E5EA7BC@limkexm3.ad.analog.com>
 References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
 	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
 	<20091016043627.GC11582@core.coreip.homeip.net>
-	<8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
-	<8bd0f97a0910152357i38a483c0h97ff516c7c43a717@mail.gmail.com>
-	<20091016072216.GH11582@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20091016072216.GH11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <20091016043627.GC11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
 List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
 	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
@@ -23,40 +21,79 @@ List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-deve
 	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
 Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCBPY3QgMTYsIDIwMDkgYXQgMDM6MjIsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiBP
-biBGcmksIE9jdCAxNiwgMjAwOSBhdCAwMjo1NzoxNUFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
-cm90ZToKPj4gT24gRnJpLCBPY3QgMTYsIDIwMDkgYXQgMDE6MzksIE1pa2UgRnJ5c2luZ2VyIHdy
-b3RlOgo+PiA+IE9uIEZyaSwgT2N0IDE2LCAyMDA5IGF0IDAwOjM2LCBEbWl0cnkgVG9yb2tob3Yg
-d3JvdGU6Cj4+ID4+IE9uIFdlZCwgT2N0IDE0LCAyMDA5IGF0IDA2OjU0OjQwQU0gLTA0MDAsIE1p
-a2UgRnJ5c2luZ2VyIHdyb3RlOgo+PiA+Pj4gK3N0cnVjdCBkZXZpY2U7Cj4+ID4+PiArc3RydWN0
-IGFkeGwzNHg7Cj4+ID4+PiArdHlwZWRlZiBpbnQgKGFkeGwzNHhfcmVhZF90KSAoc3RydWN0IGRl
-dmljZSAqLCB1bnNpZ25lZCBjaGFyKTsKPj4gPj4+ICt0eXBlZGVmIGludCAoYWR4bDM0eF9yZWFk
-X2Jsb2NrX3QpIChzdHJ1Y3QgZGV2aWNlICosIHVuc2lnbmVkIGNoYXIsIGludCwgdW5zaWduZWQg
-Y2hhciAqKTsKPj4gPj4+ICt0eXBlZGVmIGludCAoYWR4bDM0eF93cml0ZV90KSAoc3RydWN0IGRl
-dmljZSAqLCB1bnNpZ25lZCBjaGFyLCB1bnNpZ25lZCBjaGFyKTsKPj4gPj4+ICsKPj4gPj4+ICt2
-b2lkIGFkeGwzNHhfZGlzYWJsZShzdHJ1Y3QgYWR4bDM0eCAqYWMpOwo+PiA+Pj4gK3ZvaWQgYWR4
-bDM0eF9lbmFibGUoc3RydWN0IGFkeGwzNHggKmFjKTsKPj4gPj4+ICtpbnQgYWR4bDM0eF9wcm9i
-ZShzdHJ1Y3QgYWR4bDM0eCAqKnBhYywgc3RydWN0IGRldmljZSAqZGV2LCB1MTYgYnVzX3R5cGUs
-Cj4+ID4+PiArIMKgIMKgIGludCBpcnEsIGludCBmaWZvX2RlbGF5X2RlZmF1bHQsIGFkeGwzNHhf
-cmVhZF90IHJlYWQsCj4+ID4+PiArIMKgIMKgIGFkeGwzNHhfcmVhZF9ibG9ja190IHJlYWRfYmxv
-Y2ssIGFkeGwzNHhfd3JpdGVfdCB3cml0ZSk7Cj4+ID4+Cj4+ID4+IFRvbyBtYW55IGFyZ3VtZW50
-cy4uLiBJIHRoaW5rIGNyZWF0aW5nICJzdHJ1Y3QgYWR4bDM0eF9vcHMiIGlzIGNhbGxlZAo+PiA+
-PiBmb3IuCj4+ID4KPj4gPiBndWVzcyBpIHNob3VsZCBkbyB0aGUgc2FtZSB3aXRoIHRoZSBhZDcx
-NHggZHJpdmVyID8KPj4KPj4gYWx0aG91Z2ggbG9va2luZyBhdCBpdCwgaXQnZCBvbmx5IGNvbWJp
-bmUgNCBhcmdzIGludG8gMSAoc28gdGhlcmUnZCBiZQo+PiA1IGluc3RlYWQgb2YgOCkuIMKgaSdk
-IHN0aWxsIGhhdmUgdG8gcGFzcyB0aGUgcmVzdCBpbiBhcyB0aGV5J3JlCj4+IGluc3RhbmNlLXNw
-ZWNpZmljLiDCoGd1ZXNzIHlvdSBzdGlsbCB3YW50IHRoZSBjaGFuZ2UgdGhvdWdoID8KPgo+IFll
-cywgcGxlYXNlLiBJIHN0aWxsIHRoaW5rIGl0IHdvdWxkIGJlIGNsZWFuZXIgdGhpcyB3YXkuCgpp
-IGNvbnZlcnRlZCB0aGUgYnVzIHBpZWNlcyB0byBhIHN0cnVjdCB0aGVuOgorc3RydWN0IGFkeGwz
-NHhfYnVzX29wcyB7CisJdTE2IGJ1c3R5cGU7CisJYWR4bDM0eF9yZWFkX3QgKnJlYWQ7CisJYWR4
-bDM0eF9yZWFkX2Jsb2NrX3QgKnJlYWRfYmxvY2s7CisJYWR4bDM0eF93cml0ZV90ICp3cml0ZTsK
-K307CgppJ2xsIGxlYXZlIHRoZSByZXN0IG9mIHlvdXIgZmVlZGJhY2sgdG8gYmUgYWRkcmVzc2Vk
-IGJ5IE1pY2hhZWwgc2luY2UKaGUgaGFzIGFjdHVhbCBoYXJkd2FyZSB0byB0ZXN0IHdpdGggKGFu
-ZCBoZSB3cm90ZS91bmRlcnN0YW5kcyB0aGUKZHJpdmVyKQotbWlrZQpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xpbnV4LWRpc3QtZGV2ZWwgbWFpbGlu
-ZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51Y2xpbnV4Lm9yZwpodHRwczovL2Js
-YWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8vdWNsaW51eC1kaXN0LWRldmVs
+Hi Dmitry,
+
+>> +	if (int_stat & SINGLE_TAP) {
+>> +		if (tap_stat & TAP_X_SRC)
+>> +			adxl34x_report_key_single(ac->input,
+>> +						  pdata->ev_code_tap_x);
+>> +		if (tap_stat & TAP_Y_SRC)
+>> +			adxl34x_report_key_single(ac->input,
+>> +						  pdata->ev_code_tap_y);
+>> +		if (tap_stat & TAP_Z_SRC)
+>> +			adxl34x_report_key_single(ac->input,
+>> +						  pdata->ev_code_tap_z);
+>> +	}
+>> +
+>> +	if (int_stat & DOUBLE_TAP) {
+>> +		if (tap_stat & TAP_X_SRC)
+>> +			adxl34x_report_key_double(ac->input,
+>> +						  pdata->ev_code_tap_x);
+>> +		if (tap_stat & TAP_Y_SRC)
+>> +			adxl34x_report_key_double(ac->input,
+>> +						  pdata->ev_code_tap_y);
+>> +		if (tap_stat & TAP_Z_SRC)
+>> +			adxl34x_report_key_double(ac->input,
+>> +						  pdata->ev_code_tap_z);
+>> +	}
+>
+>Hmm.. this generates loads of syncs... how about having tap codes in an
+>array and do:
+>
+>void send_key_events(ac, pdata, status, press)
+>{
+>	for (i = 0; i < num, i++) {
+>		if (status & (1 << i))
+>			input_report_key(ac->input,
+>					 pdata->ev_code_tap[i], press);
+>	}
+>}
+>
+>void do_tap(ac, pdata, status)
+>{
+>	send_key_events(ac, pdata, int_stat, true);
+>	input_sync(ac->input);
+>	send_key_events(ac, pdata, int_stat, false);
+>}
+>
+>And you'd do:
+>
+>	if (int_stat & (SINGLE_TAP|DOUBLE_TAP) {
+>		do_tap(ac, pdata, status);
+>
+>		if (int_stat & DOUBLE_TAP)
+>			do_tap(ac, pdata, status);
+>	}
+>
+>?
+
+That's a great idea - Thanks!
+
+>> +void adxl34x_disable(struct adxl34x *ac)
+>> +{
+>> +	mutex_lock(&ac->mutex);
+>> +	if (!ac->disabled && ac->opened) {
+>> +		ac->disabled = 1;
+>> +		cancel_work_sync(&ac->work);
+>
+>If you actually cancel the work before it runs you will leave interrupt
+>disabled for good. You need to check the return core and re-enable
+>interrupt if needed.
+
+Good catch - will fix it.
+
+-Michael

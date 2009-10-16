@@ -1,55 +1,146 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [Bugme-new] [Bug 14421] New: CH Products joystick detected but not functional
-Date: Fri, 16 Oct 2009 23:31:37 +0200
-Message-ID: <200910162331.37533.oliver@neukum.org>
-References: <bug-14421-10286@http.bugzilla.kernel.org/> <20091016142009.ab63e171.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20091016142009.ab63e171.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bugzilla-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, bugme-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Subject: [PATCH 2/2] Input: atkbd - remove duplicated release key list quirks for some machines
+Date: Fri, 16 Oct 2009 19:18:15 -0300
+Message-ID: <1255731495-27552-2-git-send-email-herton@mandriva.com.br>
+References: <1255731495-27552-1-git-send-email-herton@mandriva.com.br>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from perninha.conectiva.com.br ([200.140.247.100]:59466 "EHLO
+	perninha.conectiva.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750771AbZJPWlf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Oct 2009 18:41:35 -0400
+In-Reply-To: <1255731495-27552-1-git-send-email-herton@mandriva.com.br>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Herton Ronaldo Krzesinski <herton@mandriva.com.br>
 
-Am Freitag, 16. Oktober 2009 23:20:09 schrieb Andrew Morton:
-> > Plugged joystick in and kernel detects device (from /var/log/messag=
-es):
-> > =A0 kernel: usb 3-6: new low speed USB device using ohci_hcd and ad=
-dress 3
-> > =A0 kernel: usb 3-6: New USB device found, idVendor=3D068e, idProdu=
-ct=3D00d3
-> > =A0 kernel: usb 3-6: New USB device strings: Mfr=3D1, Product=3D2,
-> > SerialNumber=3D0 kernel: usb 3-6: Product: CH OEM 3 AXIS 5 BUTTON J=
-OYSTICK
-> > =A0 kernel: usb 3-6: Manufacturer: CH PRODUCTS
-> > =A0 kernel: usb 3-6: configuration #1 chosen from 1 choice
-> > =A0 kernel: input: CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK as
-> > /devices/pci0000:00/0000:00:02.0/usb3/3-6/3-6:1.0/input/input8
-> > =A0 kernel: generic-usb 0003:068E:00D3.0004: input,hidraw3: USB HID=
- v1.00
-> > Joystick [CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK] on
-> > usb-0000:00:02.0-6/input0
-> >
-> > HAL also detects the device (from lshal): attached as hal.txt
-> >
-> > Functionality was checked for under jstest, jscal, KDE 4 joystick s=
-ection
-> > in System Settings, and by cat-ing the device. =A0In all tests the =
-axis
-> > values did not change, and the button states did not change when jo=
-ystick
-> > manipulated
+Some machines share same key list for volume up/down release key quirks,
+use only one key list.
 
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+---
+ drivers/input/keyboard/atkbd.c |   51 +++++++++++-----------------------------
+ 1 files changed, 14 insertions(+), 37 deletions(-)
 
-Do you see traffic with usbmon as you move the stick or press buttons?
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 296f1fd..bddc55a 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -852,29 +852,6 @@ static unsigned int atkbd_hp_forced_release_keys[] = {
+ };
+ 
+ /*
+- * Inventec system with broken key release on volume keys
+- */
+-static unsigned int atkbd_inventec_forced_release_keys[] = {
+-	0xae, 0xb0, -1U
+-};
+-
+-/*
+- * Perform fixup for HP Pavilion ZV6100 laptop that doesn't generate release
+- * for its volume buttons
+- */
+-static unsigned int atkbd_hp_zv6100_forced_release_keys[] = {
+-	0xae, 0xb0, -1U
+-};
+-
+-/*
+- * Perform fixup for HP (Compaq) Presario R4000 R4100 R4200 that don't generate
+- * release for their volume buttons
+- */
+-static unsigned int atkbd_hp_r4000_forced_release_keys[] = {
+-	0xae, 0xb0, -1U
+-};
+-
+-/*
+  * Samsung NC10,NC20 with Fn+F? key release not working
+  */
+ static unsigned int atkbd_samsung_forced_release_keys[] = {
+@@ -882,14 +859,6 @@ static unsigned int atkbd_samsung_forced_release_keys[] = {
+ };
+ 
+ /*
+- * The volume up and volume down special keys on a Fujitsu Amilo PA 1510 laptop
+- * do not generate release events so we have to do it ourselves.
+- */
+-static unsigned int atkbd_amilo_pa1510_forced_release_keys[] = {
+-	0xb0, 0xae, -1U
+-};
+-
+-/*
+  * Amilo Pi 3525 key release for Fn+Volume keys not working
+  */
+ static unsigned int atkbd_amilo_pi3525_forced_release_keys[] = {
+@@ -904,6 +873,14 @@ static unsigned int atkbd_amilo_xi3650_forced_release_keys[] = {
+ };
+ 
+ /*
++ * Many notebooks don't send key release event for volume up/down
++ * keys, with key list below common among them
++ */
++static unsigned int atkbd_volume_forced_release_keys[] = {
++	0xae, 0xb0, -1U
++};
++
++/*
+  * Many notebooks don't send key release event for volume up/down/mute
+  * keys, with key list below common among them
+  */
+@@ -1549,7 +1526,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion ZV6100"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_hp_zv6100_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "HP Presario R4000",
+@@ -1558,7 +1535,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4000"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_hp_r4000_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "HP Presario R4100",
+@@ -1567,7 +1544,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4100"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_hp_r4000_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "HP Presario R4200",
+@@ -1576,7 +1553,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Presario R4200"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_hp_r4000_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "Inventec Symphony",
+@@ -1585,7 +1562,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "SYMPHONY 6.0/7.0"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_inventec_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "Samsung NC10",
+@@ -1621,7 +1598,7 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
+ 		},
+ 		.callback = atkbd_setup_forced_release,
+-		.driver_data = atkbd_amilo_pa1510_forced_release_keys,
++		.driver_data = atkbd_volume_forced_release_keys,
+ 	},
+ 	{
+ 		.ident = "Fujitsu Amilo Pi 3525",
+-- 
+1.6.4.4
 
-	Regards
-		Oliver
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

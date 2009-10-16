@@ -1,64 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Uclinux-dist-devel] [PATCH v2] input/misc: new ADXL345/346
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] input/misc: new ADXL345/346
 	driver
-Date: Fri, 16 Oct 2009 00:22:16 -0700
-Message-ID: <20091016072216.GH11582@core.coreip.homeip.net>
-References: <1255516029-30023-1-git-send-email-vapier@gentoo.org> <1255517680-30733-1-git-send-email-vapier@gentoo.org> <20091016043627.GC11582@core.coreip.homeip.net> <8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com> <8bd0f97a0910152357i38a483c0h97ff516c7c43a717@mail.gmail.com>
+Date: Fri, 16 Oct 2009 04:20:06 -0400
+Message-ID: <8bd0f97a0910160120x7d25f649v169dd319842f75d2@mail.gmail.com>
+References: <1255516029-30023-1-git-send-email-vapier@gentoo.org>
+	<1255517680-30733-1-git-send-email-vapier@gentoo.org>
+	<20091016043627.GC11582@core.coreip.homeip.net>
+	<8bd0f97a0910152239v3c889a95rd9b100e3e7204e98@mail.gmail.com>
+	<8bd0f97a0910152357i38a483c0h97ff516c7c43a717@mail.gmail.com>
+	<20091016072216.GH11582@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f179.google.com ([209.85.216.179]:39165 "EHLO
-	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756125AbZJPHWz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Oct 2009 03:22:55 -0400
-Received: by pxi9 with SMTP id 9so217890pxi.4
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2009 00:22:19 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <8bd0f97a0910152357i38a483c0h97ff516c7c43a717@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20091016072216.GH11582-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Luotao Fu <l.fu@pengutronix.de>, Barry Song <barry.song@analog.com>, linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Chris Verges <chrisv@cyberswitching.com>
 
-On Fri, Oct 16, 2009 at 02:57:15AM -0400, Mike Frysinger wrote:
-> On Fri, Oct 16, 2009 at 01:39, Mike Frysinger wrote:
-> > On Fri, Oct 16, 2009 at 00:36, Dmitry Torokhov wrote:
-> >> On Wed, Oct 14, 2009 at 06:54:40AM -0400, Mike Frysinger wrote:
-> >>> +struct device;
-> >>> +struct adxl34x;
-> >>> +typedef int (adxl34x_read_t) (struct device *, unsigned char);
-> >>> +typedef int (adxl34x_read_block_t) (struct device *, unsigned ch=
-ar, int, unsigned char *);
-> >>> +typedef int (adxl34x_write_t) (struct device *, unsigned char, u=
-nsigned char);
-> >>> +
-> >>> +void adxl34x_disable(struct adxl34x *ac);
-> >>> +void adxl34x_enable(struct adxl34x *ac);
-> >>> +int adxl34x_probe(struct adxl34x **pac, struct device *dev, u16 =
-bus_type,
-> >>> + =A0 =A0 int irq, int fifo_delay_default, adxl34x_read_t read,
-> >>> + =A0 =A0 adxl34x_read_block_t read_block, adxl34x_write_t write)=
-;
-> >>
-> >> Too many arguments... I think creating "struct adxl34x_ops" is cal=
-led
-> >> for.
-> >
-> > guess i should do the same with the ad714x driver ?
->=20
-> although looking at it, it'd only combine 4 args into 1 (so there'd b=
-e
-> 5 instead of 8).  i'd still have to pass the rest in as they're
-> instance-specific.  guess you still want the change though ?
-
-Yes, please. I still think it would be cleaner this way.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gRnJpLCBPY3QgMTYsIDIwMDkgYXQgMDM6MjIsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiBP
+biBGcmksIE9jdCAxNiwgMjAwOSBhdCAwMjo1NzoxNUFNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
+cm90ZToKPj4gT24gRnJpLCBPY3QgMTYsIDIwMDkgYXQgMDE6MzksIE1pa2UgRnJ5c2luZ2VyIHdy
+b3RlOgo+PiA+IE9uIEZyaSwgT2N0IDE2LCAyMDA5IGF0IDAwOjM2LCBEbWl0cnkgVG9yb2tob3Yg
+d3JvdGU6Cj4+ID4+IE9uIFdlZCwgT2N0IDE0LCAyMDA5IGF0IDA2OjU0OjQwQU0gLTA0MDAsIE1p
+a2UgRnJ5c2luZ2VyIHdyb3RlOgo+PiA+Pj4gK3N0cnVjdCBkZXZpY2U7Cj4+ID4+PiArc3RydWN0
+IGFkeGwzNHg7Cj4+ID4+PiArdHlwZWRlZiBpbnQgKGFkeGwzNHhfcmVhZF90KSAoc3RydWN0IGRl
+dmljZSAqLCB1bnNpZ25lZCBjaGFyKTsKPj4gPj4+ICt0eXBlZGVmIGludCAoYWR4bDM0eF9yZWFk
+X2Jsb2NrX3QpIChzdHJ1Y3QgZGV2aWNlICosIHVuc2lnbmVkIGNoYXIsIGludCwgdW5zaWduZWQg
+Y2hhciAqKTsKPj4gPj4+ICt0eXBlZGVmIGludCAoYWR4bDM0eF93cml0ZV90KSAoc3RydWN0IGRl
+dmljZSAqLCB1bnNpZ25lZCBjaGFyLCB1bnNpZ25lZCBjaGFyKTsKPj4gPj4+ICsKPj4gPj4+ICt2
+b2lkIGFkeGwzNHhfZGlzYWJsZShzdHJ1Y3QgYWR4bDM0eCAqYWMpOwo+PiA+Pj4gK3ZvaWQgYWR4
+bDM0eF9lbmFibGUoc3RydWN0IGFkeGwzNHggKmFjKTsKPj4gPj4+ICtpbnQgYWR4bDM0eF9wcm9i
+ZShzdHJ1Y3QgYWR4bDM0eCAqKnBhYywgc3RydWN0IGRldmljZSAqZGV2LCB1MTYgYnVzX3R5cGUs
+Cj4+ID4+PiArIMKgIMKgIGludCBpcnEsIGludCBmaWZvX2RlbGF5X2RlZmF1bHQsIGFkeGwzNHhf
+cmVhZF90IHJlYWQsCj4+ID4+PiArIMKgIMKgIGFkeGwzNHhfcmVhZF9ibG9ja190IHJlYWRfYmxv
+Y2ssIGFkeGwzNHhfd3JpdGVfdCB3cml0ZSk7Cj4+ID4+Cj4+ID4+IFRvbyBtYW55IGFyZ3VtZW50
+cy4uLiBJIHRoaW5rIGNyZWF0aW5nICJzdHJ1Y3QgYWR4bDM0eF9vcHMiIGlzIGNhbGxlZAo+PiA+
+PiBmb3IuCj4+ID4KPj4gPiBndWVzcyBpIHNob3VsZCBkbyB0aGUgc2FtZSB3aXRoIHRoZSBhZDcx
+NHggZHJpdmVyID8KPj4KPj4gYWx0aG91Z2ggbG9va2luZyBhdCBpdCwgaXQnZCBvbmx5IGNvbWJp
+bmUgNCBhcmdzIGludG8gMSAoc28gdGhlcmUnZCBiZQo+PiA1IGluc3RlYWQgb2YgOCkuIMKgaSdk
+IHN0aWxsIGhhdmUgdG8gcGFzcyB0aGUgcmVzdCBpbiBhcyB0aGV5J3JlCj4+IGluc3RhbmNlLXNw
+ZWNpZmljLiDCoGd1ZXNzIHlvdSBzdGlsbCB3YW50IHRoZSBjaGFuZ2UgdGhvdWdoID8KPgo+IFll
+cywgcGxlYXNlLiBJIHN0aWxsIHRoaW5rIGl0IHdvdWxkIGJlIGNsZWFuZXIgdGhpcyB3YXkuCgpp
+IGNvbnZlcnRlZCB0aGUgYnVzIHBpZWNlcyB0byBhIHN0cnVjdCB0aGVuOgorc3RydWN0IGFkeGwz
+NHhfYnVzX29wcyB7CisJdTE2IGJ1c3R5cGU7CisJYWR4bDM0eF9yZWFkX3QgKnJlYWQ7CisJYWR4
+bDM0eF9yZWFkX2Jsb2NrX3QgKnJlYWRfYmxvY2s7CisJYWR4bDM0eF93cml0ZV90ICp3cml0ZTsK
+K307CgppJ2xsIGxlYXZlIHRoZSByZXN0IG9mIHlvdXIgZmVlZGJhY2sgdG8gYmUgYWRkcmVzc2Vk
+IGJ5IE1pY2hhZWwgc2luY2UKaGUgaGFzIGFjdHVhbCBoYXJkd2FyZSB0byB0ZXN0IHdpdGggKGFu
+ZCBoZSB3cm90ZS91bmRlcnN0YW5kcyB0aGUKZHJpdmVyKQotbWlrZQpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xpbnV4LWRpc3QtZGV2ZWwgbWFpbGlu
+ZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51Y2xpbnV4Lm9yZwpodHRwczovL2Js
+YWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8vdWNsaW51eC1kaXN0LWRldmVs

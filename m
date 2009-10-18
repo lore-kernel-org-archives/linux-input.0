@@ -1,66 +1,41 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Sun, 18 Oct 2009 01:02:38 -0700
-Message-ID: <20091018080238.GA13810@suse.de>
-References: <4AD120F2.3020606@tremplin-utc.net> <20091011030029.GA6526@suse.de> <200910112135.29384.dmitry.torokhov@gmail.com> <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net> <20091012173551.GC10557@suse.de> <20091012183313.GC8345@core.coreip.homeip.net> <20091012185417.GA30342@suse.de> <20091013031741.GB2887@core.coreip.homeip.net> <20091018075127.GH3935@core.coreip.homeip.net>
+From: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
+Date: Sun, 18 Oct 2009 11:56:52 +0100
+Message-ID: <1255863412.27878.136.camel@ted>
+References: <20091016130315.GT28832@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45362 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752368AbZJRICg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 Oct 2009 04:02:36 -0400
-Content-Disposition: inline
-In-Reply-To: <20091018075127.GH3935@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753394AbZJRK5M@vger.kernel.org>
+In-Reply-To: <20091016130315.GT28832@buzzloop.caiaq.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ?ric Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Sun, Oct 18, 2009 at 12:51:27AM -0700, Dmitry Torokhov wrote:
-> On Mon, Oct 12, 2009 at 08:17:41PM -0700, Dmitry Torokhov wrote:
-> > On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
-> > > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
-> > > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
-> > > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
-> > > > > > > So at least, unbind should fail as well as bind.
-> > > > > > >
-> > > > > > 
-> > > > > > That would be Greg's domain s it is driver core decision whether to
-> > > > > > allow unbinding platform devices registered with
-> > > > > > platform_driver_probe().
-> > > > > 
-> > > > > No, I do not see why that should not be allowed.
-> > > > > 
-> > > > 
-> > > > Because once you did unbind the device you are stuck (unless the driver
-> > > > is compiled as a module, but then you could just unload the module
-> > > > instead of unbinding). Disallowing unbind would allow discarding not
-> > > > only __devinit but __devexit sections when driver is built in which
-> > > > would make ebedded people happy[^Hier].
-> > > 
-> > > Yeah, good point.
-> > > 
-> > > Does anyone do bind/unbind with platform devices today?
-> > > 
-> > > If not, a patch changing this would be welcome.
-> > > 
-> > 
-> > How about this one?
-> > 
+Hi,
+
+On Fri, 2009-10-16 at 15:03 +0200, Daniel Mack wrote:
+> for a project I was working on, we used the J15 connector of the ALIX.2D
+> board (which is connected to a GPIO of the CS5536 Geode companion chip)
+> for an external button switch.
 > 
-> *ping* We need to resolve this, otherwise everyone who likes to rebind
-> i8042 in couse of STR/STD will be in trouble.
+> I thought it might be worth sharing this piece of code, so others can do
+> the same.
+> 
+> There is, however, a small hardware modification is necessary as the pin
+> is also shared as buzzer output. I noted that in the Kconfig entry.
+> 
+> The patch should go thru Richard's led-2.6.git as it depends on another
+> one that has been queued there already.
 
-Sorry, am in Tokyo right now.
+How common is this modification? I'm just trying to get a feel for the
+number of users out there of this feature...
 
-I like this patch, and will queue it up, but it's too late for .32, it
-will have to wait for .33.
+Cheers,
 
-I'll hope to get my patch queue flushed out after I return in about 10
-days.
+Richard
 
-thanks,
-
-greg k-h
+-- 
+Richard Purdie
+Intel Open Source Technology Centre

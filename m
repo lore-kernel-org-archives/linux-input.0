@@ -1,80 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
-Date: Sun, 18 Oct 2009 00:27:39 -0700
-Message-ID: <20091018072738.GF3935@core.coreip.homeip.net>
-References: <20091016130315.GT28832@buzzloop.caiaq.de>
+Subject: [git pull] Input updates for 2.6.32-rc3
+Date: Sun, 18 Oct 2009 00:49:10 -0700
+Message-ID: <20091018074909.GG3935@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752633AbZJRH1m@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:41184 "EHLO
+	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752647AbZJRHtI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 Oct 2009 03:49:08 -0400
 Content-Disposition: inline
-In-Reply-To: <20091016130315.GT28832@buzzloop.caiaq.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Daniel,
+Hi Linus,
 
-On Fri, Oct 16, 2009 at 03:03:15PM +0200, Daniel Mack wrote:
->  
-> +#ifdef CONFIG_LEDS_ALIX2_BUTTON
-> +static void alix_button_poll(struct input_polled_dev *ipdev)
-> +{
-> +	unsigned int val = !(inl(gpio_base + 0x30) & (1 << 1));
-> +
-> +	if (val == alix_button_last)
-> +		return;
+Please pull from:
 
-You can probably let input core filter out duplicate events...
-> +
-> +	input_report_key(ipdev->input, BTN_MISC, val);
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-BTN_MISC is expected to be used by joysticks or poniting devices, I'd
-recomment KEY_PROG1 for a key.
+to receive updates for the input subsystem.
 
-> +	input_sync(ipdev->input);
-> +	alix_button_last = val;
-> +}
-> +#endif
-> +
->  static int __init alix_led_probe(struct platform_device *pdev)
->  {
->  	int i;
-> @@ -89,6 +110,35 @@ static int __init alix_led_probe(struct platform_device *pdev)
->  		if (ret < 0)
->  			goto fail;
->  	}
-> +
-> +#ifdef CONFIG_LEDS_ALIX2_BUTTON
-> +	/* enable button input */
-> +	outl(1 << 1, gpio_base + 0x20);
-> +
-> +	/* enable pullup on input pin */
-> +	outl(1 << 1, gpio_base + 0x18);
-> +
-> +	alix_button_last = 0;
-> +	ipdev = input_allocate_polled_device();
-> +	if (!ipdev)
-> +		goto fail;
-> +
-> +	ipdev->poll = alix_button_poll;
-> +	ipdev->poll_interval = POLL_INTERVAL_DEFAULT;
-> +	ipdev->input->name = "ALIX2 button";
-> +	ipdev->input->phys = "alix2/input0";
-> +	ipdev->input->id.bustype = BUS_HOST;
-> +
-> +	set_bit(EV_KEY, ipdev->input->evbit);
-> +        ipdev->input->keybit[BIT_WORD(BTN_MISC)] = BIT_MASK(BTN_MISC);
-> +
-> +	ret = input_register_polled_device(ipdev);
-> +	if (ret) {
-> +		input_free_polled_device(ipdev);
-> +		goto fail;
-> +	}
-> +#endif
+Changelog:
+---------
 
-Fells like you want to make it a function (and a stub if not
-configured)...
+Dmitry Torokhov (7):
+      Input: synaptics - add another Protege M300 to rate blacklist
+      Input: i8042 - make pnp_data_busted variable boolean instead of int
+      Input: atkbd - restore resetting LED state at startup
+      Input: atkbd - postpone restoring LED/repeat rate at resume
+      Input: fix locking issue in /proc/bus/input/ handlers
+      Input: i8042 - add Sony Vaio VGN-FZ240E to the nomux list
+      Input: logips2pp - model 73 is actually TrackMan FX
+
+Herton Ronaldo Krzesinski (1):
+      Input: atkbd - consolidate force release quirks for volume keys
+
+Roel Kluin (1):
+      Input: hp_sdc_rtc - fix test in hp_sdc_rtc_read_rt()
+
+
+Diffstat:
+--------
+
+ drivers/input/input.c                 |   65 ++++++++++++++++------
+ drivers/input/keyboard/atkbd.c        |   96 +++++++++++++++++++--------------
+ drivers/input/misc/hp_sdc_rtc.c       |    2 +-
+ drivers/input/mouse/logips2pp.c       |    2 +-
+ drivers/input/mouse/synaptics.c       |   10 ++++
+ drivers/input/serio/i8042-x86ia64io.h |   13 ++++-
+ 6 files changed, 127 insertions(+), 61 deletions(-)
 
 -- 
 Dmitry
+

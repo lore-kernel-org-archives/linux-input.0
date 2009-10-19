@@ -1,44 +1,27 @@
-From: Keith Rutkowski <rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org>
+From: Keith Rutkowski <rutkowski@signatureresearchinc.com>
 Subject: Re: [Bugme-new] [Bug 14421] New: CH Products joystick detected but
  not functional
-Date: Mon, 19 Oct 2009 09:08:11 -0400
-Message-ID: <4ADC64BB.2040209@signatureresearchinc.com>
-References: <200910162331.37533.oliver@neukum.org>
+Date: Mon, 19 Oct 2009 09:55:49 -0400
+Message-ID: <4ADC6FE5.2000706@signatureresearchinc.com>
+References: <200910191526.30825.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200910162331.37533.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bugzilla-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, bugme-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mta21.charter.net ([216.33.127.81]:55607 "EHLO
+	mta21.charter.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756156AbZJSNz5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Oct 2009 09:55:57 -0400
+In-Reply-To: <200910191526.30825.oliver@neukum.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org
 
-On 10/16/2009 05:31 PM, Oliver Neukum wrote:
-> Am Freitag, 16. Oktober 2009 23:20:09 schrieb Andrew Morton:
->    
->>> Plugged joystick in and kernel detects device (from /var/log/messages):
->>>    kernel: usb 3-6: new low speed USB device using ohci_hcd and address 3
->>>    kernel: usb 3-6: New USB device found, idVendor=068e, idProduct=00d3
->>>    kernel: usb 3-6: New USB device strings: Mfr=1, Product=2,
->>> SerialNumber=0 kernel: usb 3-6: Product: CH OEM 3 AXIS 5 BUTTON JOYSTICK
->>>    kernel: usb 3-6: Manufacturer: CH PRODUCTS
->>>    kernel: usb 3-6: configuration #1 chosen from 1 choice
->>>    kernel: input: CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK as
->>> /devices/pci0000:00/0000:00:02.0/usb3/3-6/3-6:1.0/input/input8
->>>    kernel: generic-usb 0003:068E:00D3.0004: input,hidraw3: USB HID v1.00
->>> Joystick [CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK] on
->>> usb-0000:00:02.0-6/input0
->>>
->>> HAL also detects the device (from lshal): attached as hal.txt
->>>
->>> Functionality was checked for under jstest, jscal, KDE 4 joystick section
->>> in System Settings, and by cat-ing the device.  In all tests the axis
->>> values did not change, and the button states did not change when joystick
->>> manipulated
->>>        
->
-> Do you see traffic with usbmon as you move the stick or press buttons?
+On 10/19/2009 09:26 AM, Oliver Neukum wrote:
+> Did you see the patches which added a quirk for your device,
+> if I am not mistaken?
 >
 > 	Regards
 > 		Oliver
@@ -46,11 +29,38 @@ On 10/16/2009 05:31 PM, Oliver Neukum wrote:
 > .
 >
 >    
+I have not found any patches for this specific device.  It is an 
+industrial class joystick, so probably not as common as the CH Products 
+consumer class joysticks.
 
-No traffic was shown from usbmon other than the connect/disconnect stuff.
+However, this patch seems to address a similar issue with other more 
+common CH Products joysticks:
 
-- Keith
+commit efee69d7e0f1ddfec97549eee0a8b63750eb67f7
+Author: Alan Stern<stern@rowland.harvard.edu>
+Date:   Wed May 6 15:48:49 2009 -0400
 
+     HID: add NOGET quirk for devices from CH Products
+
+     commit b820aabf6cb987fd03d85b0b5f599685051e0426 upstream.
+
+     This patch (as1240) adds the NOGET quirk for three devices from CH
+     Products: the Pro pedals, the Combatstick joystick, and the Flight-Sim
+     yoke.  Without these quirks, the devices haven't worked for many
+     kernel releases.  Sometimes replugging them after boot-up would get
+     them to work and sometimes they wouldn't work at all.
+
+     Signed-off-by: Alan Stern<stern@rowland.harvard.edu>
+     Reported-by: Sean Hildebrand<silverwraithii@gmail.com>
+     Reported-by: Sid Boyce<sboyce@blueyonder.co.uk>
+     Tested-by: Sean Hildebrand<silverwraithii@gmail.com>
+     Tested-by: Sid Boyce<sboyce@blueyonder.co.uk>
+     Signed-off-by: Jiri Kosina<jkosina@suse.cz>
+     Signed-off-by: Greg Kroah-Hartman<gregkh@suse.de>
+
+
+Thanks,
+Keith
 
 -- 
 
@@ -60,11 +70,7 @@ Software Engineer
 Signature Research, Inc
 www.signatureresearchinc.com
 
-Email: rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org
+Email: rutkowski@signatureresearchinc.com
 Phone: (906) 337-3360
 Fax:   (906) 337-0023
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

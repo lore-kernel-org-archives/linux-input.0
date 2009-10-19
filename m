@@ -1,42 +1,41 @@
-From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-Subject: Re: [PATCH v6 1/2] Input: DaVinci Keypad Driver
-Date: Mon, 19 Oct 2009 08:16:03 -0600
-Message-ID: <4ADC74A3.8020907@ridgerun.com>
-References: <1255463784-31553-1-git-send-email-miguel.aguilar@ridgerun.com> <4AD87971.4080609@ridgerun.com> <20091018072235.GE3935@core.coreip.homeip.net>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [Bugme-new] [Bug 14421] New: CH Products joystick detected but not functional
+Date: Mon, 19 Oct 2009 16:34:08 +0200
+Message-ID: <200910191634.09047.oliver@neukum.org>
+References: <200910191526.30825.oliver@neukum.org> <4ADC6FE5.2000706@signatureresearchinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.navvo.net ([74.208.67.6]:43633 "EHLO mail.navvo.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756265AbZJSOQH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Oct 2009 10:16:07 -0400
-In-Reply-To: <20091018072235.GE3935@core.coreip.homeip.net>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:43276 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753410AbZJSOcK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Oct 2009 10:32:10 -0400
+In-Reply-To: <4ADC6FE5.2000706@signatureresearchinc.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, Kevin Hilman <khilman@deeprootsystems.com>
+To: Keith Rutkowski <rutkowski@signatureresearchinc.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org
 
-Hi Kevin,
+Am Montag, 19. Oktober 2009 15:55:49 schrieb Keith Rutkowski:
+> I have not found any patches for this specific device. =A0It is an
+> industrial class joystick, so probably not as common as the CH Produc=
+ts
+> consumer class joysticks.
+>
+> However, this patch seems to address a similar issue with other more
+> common CH Products joysticks:
 
-Can you take a look in this patch series, in order to push it into Davinci 
-mainline?, mainly on the second patch of the series which is DM365 EVM specific.
+Yes, that's the patch. Could you try to also add your device to the bla=
+cklist?
 
-Thanks,
+	Regards
+		Oliver
 
-Miguel Aguilar
-Dmitry Torokhov wrote:
-> Hi Miguel,
-> 
-> On Fri, Oct 16, 2009 at 07:47:29AM -0600, Miguel Aguilar wrote:
->> Dmitry,
->>
->> Is this version 6 ready to be pushed?
->>
-> 
-> It is in my 'next' branch scheduled for .33 merge window.
-> 
-> Thank you.
-> 
-
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

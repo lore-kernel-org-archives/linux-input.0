@@ -1,58 +1,70 @@
-From: Shine Liu <shinel@foxmail.com>
-Subject: Re: [PATCH] input/touchscreen: add S3C24XX SoC touchscreen input
- driver
-Date: Mon, 19 Oct 2009 21:31:51 +0800
-Message-ID: <1255959111.3708.32.camel@sl>
-References: <mailman.4020.1255949705.2256.linux-arm-kernel@lists.infradead.org>
-	 <4ADC4D4D.5020508@gmail.com>
+From: Keith Rutkowski <rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org>
+Subject: Re: [Bugme-new] [Bug 14421] New: CH Products joystick detected but
+ not functional
+Date: Mon, 19 Oct 2009 09:08:11 -0400
+Message-ID: <4ADC64BB.2040209@signatureresearchinc.com>
+References: <200910162331.37533.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpbg72.qq.com ([119.147.10.231]:46918 "HELO smtpbg72.qq.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752492AbZJSNct (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Oct 2009 09:32:49 -0400
-In-Reply-To: <4ADC4D4D.5020508@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200910162331.37533.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bugzilla-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, bugme-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Cc: linux-input@vger.kernel.org, dtor@mail.ru, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org, Nelson Castillo <arhuaco@freaks-unidos.net>, linux@arm.linux.org.uk
 
-On Mon, 2009-10-19 at 13:28 +0200, Maurus Cuelenaere wrote:
+On 10/16/2009 05:31 PM, Oliver Neukum wrote:
+> Am Freitag, 16. Oktober 2009 23:20:09 schrieb Andrew Morton:
+>    
+>>> Plugged joystick in and kernel detects device (from /var/log/messages):
+>>>    kernel: usb 3-6: new low speed USB device using ohci_hcd and address 3
+>>>    kernel: usb 3-6: New USB device found, idVendor=068e, idProduct=00d3
+>>>    kernel: usb 3-6: New USB device strings: Mfr=1, Product=2,
+>>> SerialNumber=0 kernel: usb 3-6: Product: CH OEM 3 AXIS 5 BUTTON JOYSTICK
+>>>    kernel: usb 3-6: Manufacturer: CH PRODUCTS
+>>>    kernel: usb 3-6: configuration #1 chosen from 1 choice
+>>>    kernel: input: CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK as
+>>> /devices/pci0000:00/0000:00:02.0/usb3/3-6/3-6:1.0/input/input8
+>>>    kernel: generic-usb 0003:068E:00D3.0004: input,hidraw3: USB HID v1.00
+>>> Joystick [CH PRODUCTS CH OEM 3 AXIS 5 BUTTON JOYSTICK] on
+>>> usb-0000:00:02.0-6/input0
+>>>
+>>> HAL also detects the device (from lshal): attached as hal.txt
+>>>
+>>> Functionality was checked for under jstest, jscal, KDE 4 joystick section
+>>> in System Settings, and by cat-ing the device.  In all tests the axis
+>>> values did not change, and the button states did not change when joystick
+>>> manipulated
+>>>        
+>
+> Do you see traffic with usbmon as you move the stick or press buttons?
+>
+> 	Regards
+> 		Oliver
+>
+> .
+>
+>    
 
-> Do you know that there's another patch (at Openmoko) created by Nelson 
-> Castillo that does the same, but also has support for kernel-space 
-> touchscreen filters? (I think [1] is his latest version)
-> I don't know how your patch performs, but according to [2] the filters 
-> should help a lot avoiding jitter etc.
-> 
-> I'm not sure whether Nelson has submitted his patches for mainline 
-> review yet and what the status is on the kernel filters, but IMHO doing 
-> some filtering in kernel space (see the "Why are we doing filtering in 
-> kernel space?" part of [2]) which results in a "cleaner" output is 
-> preferred over reporting possible "jittery" data.
+No traffic was shown from usbmon other than the connect/disconnect stuff.
 
-Yes, I do,  because part of my patch comes from source code of openmoko
-project. I've also noticed there's 4 touchscreen filters in the openmoko
-project used by s3c24xx touchscreen driver.
-
-I think there should be a s3c24xx touchscreen driver in the mailine, but
-I haven't found anyone submitted a s3c24xx touchscreen driver for the
-mainline. So I wrote the driver myself and refered the openmoko
-implementation.
-
-I didn't use the kernel-space touchscreen filters, because I found tslib
-is able to meet the common requirement.
-
-I have read the mail of Russell King. I think we may add the s3c24xx ts
-driver first, and the kernel-space touchscreen filters can be added
-later if most of us think it is valuable or usefull. After all, I don't
-think there is anyone like the mailine without s3c24xx ts driver
-support.
+- Keith
 
 
-Cheers,
+-- 
 
-Shine Liu
+Keith Rutkowski
+Software Engineer
 
+Signature Research, Inc
+www.signatureresearchinc.com
+
+Email: rutkowski-T1p9dGDnAHDoS6w7zS32OEtZW7PLQM7H@public.gmane.org
+Phone: (906) 337-3360
+Fax:   (906) 337-0023
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

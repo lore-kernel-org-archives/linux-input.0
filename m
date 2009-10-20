@@ -1,126 +1,122 @@
 From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH v5] input/misc: add Analog Devices AD714x captouch input driver
-Date: Tue, 20 Oct 2009 04:37:44 -0400
-Message-ID: <1256027864-26126-1-git-send-email-vapier@gentoo.org>
-References: <1255413730-24902-1-git-send-email-vapier@gentoo.org>
+Subject: [PATCH v3] input/misc: new ADXL345/346 driver
+Date: Tue, 20 Oct 2009 04:40:39 -0400
+Message-ID: <1256028039-15044-1-git-send-email-vapier@gentoo.org>
+References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:37890 "EHLO smtp.gentoo.org"
+Received: from smtp.gentoo.org ([140.211.166.183]:38321 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751308AbZJTIho (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Oct 2009 04:37:44 -0400
-In-Reply-To: <1255413730-24902-1-git-send-email-vapier@gentoo.org>
+	id S1751112AbZJTIkh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Oct 2009 04:40:37 -0400
+In-Reply-To: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Bryan Wu <cooloney@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, Barry Song <21cnbao@gmail.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, Barry Song <barry.song@analog.com>
 
-From: Bryan Wu <cooloney@kernel.org>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-AD7142 and AD7147 are integrated capacitance-to-digital converters
-(CDCs) with on-chip environmental calibration for use in systems
-requiring a novel user input method. The AD7142 and AD7147 can interface
-to external capacitance sensors implementing functions such as buttons,
-scrollwheels, sliders, touchpads and so on.
+This is a driver for the ADXL345/346 Three-Axis Digital Accelerometers.
 
-The chips don't restrict the specific usage. Depending on the hardware
-connection, one special target board can include one or several these
-components. The platform_data for the device's "struct device" holds
-these information. The data-struct defined in head file descript the
-hardware feature of button/scrollwheel/slider/touchpad components on
-target boards, which need be filled in the arch/mach-/.
-
-As the result, the driver is independent of boards. It gets the
-components layout from the platform_data, registers related devices,
-fullfills the algorithms and state machines for these components and
-report related input events to up level.
-
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
 Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Barry Song <21cnbao@gmail.com>
+Signed-off-by: Chris Verges <chrisv@cyberswitching.com>
+Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+Signed-off-by: Barry Song <barry.song@analog.com>
 Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
-v5
-	- remove dummy module entry points
+v3
+	- drop useless module entry points
+	- rewrite input handling based on Dmitry's input
+	- tweak broken whitespace
+	- fixup types
+	- use an ops struct for bus->core init
 
- drivers/input/misc/Kconfig      |   30 +
- drivers/input/misc/Makefile     |    3 +
- drivers/input/misc/ad714x-i2c.c |  134 ++++
- drivers/input/misc/ad714x-spi.c |   96 +++
- drivers/input/misc/ad714x.c     | 1305 +++++++++++++++++++++++++++++++++++++++
- drivers/input/misc/ad714x.h     |   25 +
- include/linux/input.h           |    1 +
- include/linux/input/ad714x.h    |   63 ++
- 8 files changed, 1657 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/ad714x-i2c.c
- create mode 100644 drivers/input/misc/ad714x-spi.c
- create mode 100644 drivers/input/misc/ad714x.c
- create mode 100644 drivers/input/misc/ad714x.h
- create mode 100644 include/linux/input/ad714x.h
+ drivers/input/misc/Kconfig       |   37 ++
+ drivers/input/misc/Makefile      |    3 +
+ drivers/input/misc/adxl34x-i2c.c |  140 +++++++
+ drivers/input/misc/adxl34x-spi.c |  131 ++++++
+ drivers/input/misc/adxl34x.c     |  858 ++++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/adxl34x.h     |   32 ++
+ include/linux/input/adxl34x.h    |  293 +++++++++++++
+ 7 files changed, 1494 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/adxl34x-i2c.c
+ create mode 100644 drivers/input/misc/adxl34x-spi.c
+ create mode 100644 drivers/input/misc/adxl34x.c
+ create mode 100644 drivers/input/misc/adxl34x.h
+ create mode 100644 include/linux/input/adxl34x.h
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 02f4f8f..fc4b0b9 100644
+index 02f4f8f..9e1e42f 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -316,4 +316,34 @@ config INPUT_PCAP
+@@ -316,4 +316,41 @@ config INPUT_PCAP
  	  To compile this driver as a module, choose M here: the
  	  module will be called pcap_keys.
  
-+config INPUT_AD714X
-+	tristate "Analog Devices AD714x Capacitance Touch Sensor"
++config INPUT_ADXL34X
++	tristate "Analog Devices ADXL34x Three-Axis Digital Accelerometer"
++	default n
 +	help
-+	  Say Y here if you want to support an AD7142/AD7147 touch sensor.
++	  Say Y here if you have a Accelerometer interface using the
++	  ADXL345/6 controller, and your board-specific initialization
++	  code includes that in its table of devices.
 +
-+	  You should select a bus connection too.
++	  This driver can use either I2C or SPI communication to the
++	  ADXL345/6 controller.  Select the appropriate method for
++	  your system.
++
++	  If unsure, say N (but it's safe to say "Y").
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called ad714x.
++	  module will be called adxl34x.
 +
-+config INPUT_AD714X_I2C
++config INPUT_ADXL34X_I2C
 +	tristate "support I2C bus connection"
-+	depends on INPUT_AD714X && I2C
++	depends on INPUT_ADXL34X && I2C
 +	default y
 +	help
-+	  Say Y here if you have AD7142/AD7147 hooked to an I2C bus.
++	  Say Y here if you have ADXL345/6 hooked to an I2C bus.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called ad714x-i2c.
++	  module will be called adxl34x-i2c.
 +
-+config INPUT_AD714X_SPI
++config INPUT_ADXL34X_SPI
 +	tristate "support SPI bus connection"
-+	depends on INPUT_AD714X && SPI
++	depends on INPUT_ADXL34X && SPI
 +	default y
 +	help
-+	  Say Y here if you have AD7142/AD7147 hooked to a SPI bus.
++	  Say Y here if you have ADXL345/6 hooked to a SPI bus.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called ad714x-spi.
++	  module will be called adxl34x-spi.
 +
  endif
 diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index a8b8485..16db64a 100644
+index a8b8485..c39629e 100644
 --- a/drivers/input/misc/Makefile
 +++ b/drivers/input/misc/Makefile
 @@ -4,6 +4,9 @@
  
  # Each configuration option enables a list of files.
  
-+obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
-+obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
-+obj-$(CONFIG_INPUT_AD714X_SPI)		+= ad714x-spi.o
++obj-$(CONFIG_INPUT_ADXL34X)		+= adxl34x.o
++obj-$(CONFIG_INPUT_ADXL34X_I2C)		+= adxl34x-i2c.o
++obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
  obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
  obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
-diff --git a/drivers/input/misc/ad714x-i2c.c b/drivers/input/misc/ad714x-i2c.c
+diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
 new file mode 100644
-index 0000000..596c199
+index 0000000..b595c0a
 --- /dev/null
-+++ b/drivers/input/misc/ad714x-i2c.c
-@@ -0,0 +1,134 @@
++++ b/drivers/input/misc/adxl34x-i2c.c
+@@ -0,0 +1,140 @@
 +/*
-+ * AD714X CapTouch Programmable Controller driver (I2C bus)
++ * ADLX345/346 Three-Axis Digital Accelerometers (I2C Interface)
 + *
-+ * Copyright 2009 Analog Devices Inc.
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
 + * Licensed under the GPL-2 or later.
 + */
 +
@@ -128,1652 +124,1470 @@ index 0000000..596c199
 +#include <linux/i2c.h>
 +#include <linux/module.h>
 +#include <linux/types.h>
-+#include "ad714x.h"
++#include "adxl34x.h"
++
++static int adxl34x_smbus_read(struct device *dev, unsigned char reg)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	return i2c_smbus_read_byte_data(client, reg);
++}
++
++static int adxl34x_smbus_write(struct device *dev,
++			       unsigned char reg, unsigned char val)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	return i2c_smbus_write_byte_data(client, reg, val);
++}
++
++static int adxl34x_smbus_read_block(struct device *dev,
++				    unsigned char reg, int count,
++				    unsigned char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	return i2c_smbus_read_i2c_block_data(client, reg, count, buf);
++}
++
++static int adxl34x_i2c_read_block(struct device *dev,
++				  unsigned char reg, int count,
++				  unsigned char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret;
++
++	ret = i2c_master_send(client, &reg, 1);
++	if (ret < 0)
++		return ret;
++	ret = i2c_master_recv(client, buf, count);
++	if (ret < 0)
++		return ret;
++	if (ret != count)
++		return -EIO;
++
++	return 0;
++}
++
++static int __devinit adxl34x_i2c_probe(struct i2c_client *client,
++				       const struct i2c_device_id *id)
++{
++	struct adxl34x_bus_ops bops;
++	struct adxl34x *ac;
++	int error;
++
++	error = i2c_check_functionality(client->adapter,
++			I2C_FUNC_SMBUS_BYTE_DATA);
++	if (!error) {
++		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
++		return -EIO;
++	}
++
++	bops.bustype = BUS_I2C;
++	bops.write = adxl34x_smbus_write;
++	bops.read = adxl34x_smbus_read;
++	if (i2c_check_functionality(client->adapter,
++	    I2C_FUNC_SMBUS_READ_I2C_BLOCK))
++		bops.read_block = adxl34x_smbus_read_block;
++	else
++		bops.read_block = adxl34x_i2c_read_block;
++
++	error = adxl34x_probe(&ac, &client->dev, client->irq, 0, &bops);
++	i2c_set_clientdata(client, ac);
++
++	return error;
++}
++
++static int __devexit adxl34x_i2c_remove(struct i2c_client *client)
++{
++	return adxl34x_remove(i2c_get_clientdata(client));
++}
 +
 +#ifdef CONFIG_PM
-+static int ad714x_i2c_suspend(struct i2c_client *client, pm_message_t message)
++static int adxl34x_suspend(struct i2c_client *client, pm_message_t message)
 +{
-+	return ad714x_disable(i2c_get_clientdata(client));
++	adxl34x_disable(i2c_get_clientdata(client));
++	return 0;
 +}
 +
-+static int ad714x_i2c_resume(struct i2c_client *client)
++static int adxl34x_resume(struct i2c_client *client)
 +{
-+	return ad714x_enable(i2c_get_clientdata(client));
++	adxl34x_enable(i2c_get_clientdata(client));
++	return 0;
 +}
 +#else
-+# define ad714x_i2c_suspend NULL
-+# define ad714x_i2c_resume  NULL
++# define adxl34x_suspend NULL
++# define adxl34x_resume  NULL
 +#endif
 +
-+static int ad714x_i2c_write(struct device *dev, unsigned short reg,
-+		unsigned short data)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret = 0;
-+	u8 *_reg = (u8 *)&reg;
-+	u8 *_data = (u8 *)&data;
-+
-+	u8 tx[4] = {
-+		_reg[1],
-+		_reg[0],
-+		_data[1],
-+		_data[0]
-+	};
-+
-+	ret = i2c_master_send(client, tx, 4);
-+	if (ret < 0)
-+		dev_err(&client->dev, "I2C write error\n");
-+
-+	return ret;
-+}
-+
-+static int ad714x_i2c_read(struct device *dev, unsigned short reg,
-+		unsigned short *data)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int ret = 0;
-+	u8 *_reg = (u8 *)&reg;
-+	u8 *_data = (u8 *)data;
-+
-+	u8 tx[2] = {
-+		_reg[1],
-+		_reg[0]
-+	};
-+	u8 rx[2];
-+
-+	ret = i2c_master_send(client, tx, 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C read error\n");
-+		return ret;
-+	}
-+
-+	ret = i2c_master_recv(client, rx, 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C read error\n");
-+		return ret;
-+	}
-+
-+	_data[0] = rx[1];
-+	_data[1] = rx[0];
-+
-+	return ret;
-+}
-+
-+static int __devinit ad714x_i2c_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	int ret = 0;
-+	struct ad714x_chip *chip = NULL;
-+
-+	ret = ad714x_probe(&chip, &client->dev, BUS_I2C, client->irq,
-+		ad714x_i2c_read, ad714x_i2c_write);
-+	i2c_set_clientdata(client, chip);
-+
-+	return ret;
-+}
-+
-+static int __devexit ad714x_i2c_remove(struct i2c_client *client)
-+{
-+	return ad714x_remove(i2c_get_clientdata(client));
-+}
-+
-+static const struct i2c_device_id ad714x_id[] = {
-+	{ "ad7142_captouch", 0 },
-+	{ "ad7147_captouch", 0 },
++static const struct i2c_device_id adxl34x_id[] = {
++	{ "adxl34x", 0 },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(i2c, ad714x_id);
 +
-+static struct i2c_driver ad714x_i2c_driver = {
++MODULE_DEVICE_TABLE(i2c, adxl34x_id);
++
++static struct i2c_driver adxl34x_driver = {
 +	.driver = {
-+		.name = "ad714x_captouch",
++		.name = "adxl34x",
++		.owner = THIS_MODULE,
 +	},
-+	.probe    = ad714x_i2c_probe,
-+	.remove   = __devexit_p(ad714x_i2c_remove),
-+	.suspend  = ad714x_i2c_suspend,
-+	.resume	  = ad714x_i2c_resume,
-+	.id_table = ad714x_id,
++	.probe    = adxl34x_i2c_probe,
++	.remove   = __devexit_p(adxl34x_i2c_remove),
++	.suspend  = adxl34x_suspend,
++	.resume   = adxl34x_resume,
++	.id_table = adxl34x_id,
 +};
 +
-+static __init int ad714x_i2c_init(void)
++static int __init adxl34x_i2c_init(void)
 +{
-+	return i2c_add_driver(&ad714x_i2c_driver);
++	return i2c_add_driver(&adxl34x_driver);
 +}
-+module_init(ad714x_i2c_init);
++module_init(adxl34x_i2c_init);
 +
-+static __exit void ad714x_i2c_exit(void)
++static void __exit adxl34x_i2c_exit(void)
 +{
-+	i2c_del_driver(&ad714x_i2c_driver);
++	i2c_del_driver(&adxl34x_driver);
 +}
-+module_exit(ad714x_i2c_exit);
++module_exit(adxl34x_i2c_exit);
 +
-+MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor I2C Bus Driver");
-+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer I2C Bus Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/input/misc/ad714x-spi.c b/drivers/input/misc/ad714x-spi.c
+diff --git a/drivers/input/misc/adxl34x-spi.c b/drivers/input/misc/adxl34x-spi.c
 new file mode 100644
-index 0000000..2cea1e4
+index 0000000..9fb2577
 --- /dev/null
-+++ b/drivers/input/misc/ad714x-spi.c
-@@ -0,0 +1,96 @@
++++ b/drivers/input/misc/adxl34x-spi.c
+@@ -0,0 +1,131 @@
 +/*
-+ * AD714X CapTouch Programmable Controller driver (SPI bus)
++ * ADLX345/346 Three-Axis Digital Accelerometers (SPI Interface)
 + *
-+ * Copyright 2009 Analog Devices Inc.
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
 + * Licensed under the GPL-2 or later.
 + */
 +
-+#include <linux/input.h>	/* BUS_I2C */
++#include <linux/input.h>	/* BUS_SPI */
 +#include <linux/module.h>
 +#include <linux/spi/spi.h>
 +#include <linux/types.h>
-+#include "ad714x.h"
++#include "adxl34x.h"
 +
-+#define AD714x_SPI_CMD_PREFIX      0xE000   /* bits 15:11 */
-+#define AD714x_SPI_READ            BIT(10)
++#define MAX_SPI_FREQ_HZ		5000000
++#define MAX_FREQ_NO_FIFODELAY	1500000
++#define ADXL34X_CMD_MULTB	(1 << 6)
++#define ADXL34X_CMD_READ	(1 << 7)
++#define ADXL34X_WRITECMD(reg)	(reg & 0x3F)
++#define ADXL34X_READCMD(reg)	(ADXL34X_CMD_READ | (reg & 0x3F))
++#define ADXL34X_READMB_CMD(reg) (ADXL34X_CMD_READ | ADXL34X_CMD_MULTB \
++					| (reg & 0x3F))
++
++static int adxl34x_spi_read(struct device *dev, unsigned char reg)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char cmd;
++
++	cmd = ADXL34X_READCMD(reg);
++
++	return spi_w8r8(spi, cmd);
++}
++
++static int adxl34x_spi_write(struct device *dev,
++			     unsigned char reg, unsigned char val)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[2];
++
++	buf[0] = ADXL34X_WRITECMD(reg);
++	buf[1] = val;
++
++	return spi_write(spi, buf, sizeof(buf));
++}
++
++static int adxl34x_spi_read_block(struct device *dev,
++				  unsigned char reg, int count,
++				  unsigned char *buf)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	ssize_t status;
++
++	reg = ADXL34X_READMB_CMD(reg);
++	status = spi_write_then_read(spi, &reg, 1, buf, count);
++
++	return (status < 0) ? status : 0;
++}
++
++static int __devinit adxl34x_spi_probe(struct spi_device *spi)
++{
++	struct adxl34x_bus_ops bops;
++	struct adxl34x *ac;
++	int error;
++
++	/* don't exceed max specified SPI CLK frequency */
++	if (spi->max_speed_hz > MAX_SPI_FREQ_HZ) {
++		dev_err(&spi->dev, "SPI CLK %d Hz too fast\n", spi->max_speed_hz);
++		return -EINVAL;
++	}
++
++	bops.bustype = BUS_SPI;
++	bops.write = adxl34x_spi_write;
++	bops.read = adxl34x_spi_read;
++	bops.read_block = adxl34x_spi_read_block;
++	error = adxl34x_probe(&ac, &spi->dev, spi->irq,
++		spi->max_speed_hz > MAX_FREQ_NO_FIFODELAY, &bops);
++	spi_set_drvdata(spi, ac);
++
++	return error;
++}
++
++static int __devexit adxl34x_spi_remove(struct spi_device *spi)
++{
++	return adxl34x_remove(dev_get_drvdata(&spi->dev));
++}
 +
 +#ifdef CONFIG_PM
-+static int ad714x_spi_suspend(struct spi_device *spi, pm_message_t message)
++static int adxl34x_suspend(struct spi_device *spi, pm_message_t message)
 +{
-+	return ad714x_disable(spi_get_drvdata(spi));
++	adxl34x_disable(spi_get_drvdata(spi));
++	return 0;
 +}
 +
-+static int ad714x_spi_resume(struct spi_device *spi)
++static int adxl34x_resume(struct spi_device *spi)
 +{
-+	return ad714x_enable(spi_get_drvdata(spi));
++	adxl34x_enable(spi_get_drvdata(spi));
++	return 0;
 +}
 +#else
-+# define ad714x_spi_suspend NULL
-+# define ad714x_spi_resume  NULL
++# define adxl34x_suspend NULL
++# define adxl34x_resume  NULL
 +#endif
 +
-+static int ad714x_spi_read(struct device *dev, unsigned short reg,
-+		unsigned short *data)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	unsigned short tx = AD714x_SPI_CMD_PREFIX | AD714x_SPI_READ | reg;
-+
-+	return spi_write_then_read(spi, (u8 *)&tx, 2, (u8 *)data, 2);
-+}
-+
-+static int ad714x_spi_write(struct device *dev, unsigned short reg,
-+		unsigned short data)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	unsigned short tx[2] = {
-+		AD714x_SPI_CMD_PREFIX | reg,
-+		data
-+	};
-+
-+	return spi_write(spi, (u8 *)tx, 4);
-+}
-+
-+static int __devinit ad714x_spi_probe(struct spi_device *spi)
-+{
-+	int ret;
-+	struct ad714x_chip *chip = NULL;
-+
-+	ret = ad714x_probe(&chip, &spi->dev, BUS_SPI, spi->irq,
-+		ad714x_spi_read, ad714x_spi_write);
-+	spi_set_drvdata(spi, chip);
-+
-+	return ret;
-+}
-+
-+static int __devexit ad714x_spi_remove(struct spi_device *spi)
-+{
-+	return ad714x_remove(spi_get_drvdata(spi));
-+}
-+
-+static struct spi_driver ad714x_spi_driver = {
++static struct spi_driver adxl34x_driver = {
 +	.driver = {
-+		.name	= "ad714x_captouch",
-+		.owner	= THIS_MODULE,
++		.name = "adxl34x",
++		.bus = &spi_bus_type,
++		.owner = THIS_MODULE,
 +	},
-+	.probe		= ad714x_spi_probe,
-+	.remove		= __devexit_p(ad714x_spi_remove),
-+	.suspend	= ad714x_spi_suspend,
-+	.resume		= ad714x_spi_resume,
++	.probe   = adxl34x_spi_probe,
++	.remove  = __devexit_p(adxl34x_spi_remove),
++	.suspend = adxl34x_suspend,
++	.resume  = adxl34x_resume,
 +};
 +
-+static __init int ad714x_spi_init(void)
++static int __init adxl34x_spi_init(void)
 +{
-+	return spi_register_driver(&ad714x_spi_driver);
++	return spi_register_driver(&adxl34x_driver);
 +}
-+module_init(ad714x_spi_init);
++module_init(adxl34x_spi_init);
 +
-+static __exit void ad714x_spi_exit(void)
++static void __exit adxl34x_spi_exit(void)
 +{
-+	spi_unregister_driver(&ad714x_spi_driver);
++	spi_unregister_driver(&adxl34x_driver);
 +}
-+module_exit(ad714x_spi_exit);
++module_exit(adxl34x_spi_exit);
 +
-+MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor SPI Bus Driver");
-+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer SPI Bus Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/input/misc/ad714x.c b/drivers/input/misc/ad714x.c
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
 new file mode 100644
-index 0000000..d22509d
+index 0000000..c67bb17
 --- /dev/null
-+++ b/drivers/input/misc/ad714x.c
-@@ -0,0 +1,1305 @@
++++ b/drivers/input/misc/adxl34x.c
+@@ -0,0 +1,858 @@
 +/*
-+ * AD714X CapTouch Programmable Controller driver
++ * ADXL345/346 Three-Axis Digital Accelerometers
 + *
-+ * Copyright 2009 Analog Devices Inc.
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
 + * Licensed under the GPL-2 or later.
 + */
 +
 +#include <linux/device.h>
 +#include <linux/init.h>
++#include <linux/delay.h>
 +#include <linux/input.h>
 +#include <linux/interrupt.h>
-+#include <linux/input/ad714x.h>
-+#include "ad714x.h"
++#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/workqueue.h>
++#include <linux/spi/spi.h>
++#include <linux/i2c.h>
 +
-+#define AD714X_PWR_CTRL           0x0
-+#define AD714X_STG_CAL_EN_REG     0x1
-+#define AD714X_AMB_COMP_CTRL0_REG 0x2
-+#define AD714X_PARTID_REG         0x17
-+#define AD7147_PARTID             0x1470
-+#define AD7142_PARTID             0xE620
-+#define AD714X_STAGECFG_REG       0x80
-+#define AD714X_SYSCFG_REG         0x0
++#include <linux/input/adxl34x.h>
 +
-+#define STG_LOW_INT_EN_REG     0x5
-+#define STG_HIGH_INT_EN_REG    0x6
-+#define STG_COM_INT_EN_REG     0x7
-+#define STG_LOW_INT_STA_REG    0x8
-+#define STG_HIGH_INT_STA_REG   0x9
-+#define STG_COM_INT_STA_REG    0xA
++#include "adxl34x.h"
 +
-+#define CDC_RESULT_S0          0xB
-+#define CDC_RESULT_S1          0xC
-+#define CDC_RESULT_S2          0xD
-+#define CDC_RESULT_S3          0xE
-+#define CDC_RESULT_S4          0xF
-+#define CDC_RESULT_S5          0x10
-+#define CDC_RESULT_S6          0x11
-+#define CDC_RESULT_S7          0x12
-+#define CDC_RESULT_S8          0x13
-+#define CDC_RESULT_S9          0x14
-+#define CDC_RESULT_S10         0x15
-+#define CDC_RESULT_S11         0x16
++/* ADXL345/6 Register Map */
++#define DEVID		0x00	/* R   Device ID */
++#define THRESH_TAP	0x1D	/* R/W Tap threshold */
++#define OFSX		0x1E	/* R/W X-axis offset */
++#define OFSY		0x1F	/* R/W Y-axis offset */
++#define OFSZ		0x20	/* R/W Z-axis offset */
++#define DUR		0x21	/* R/W Tap duration */
++#define LATENT		0x22	/* R/W Tap latency */
++#define WINDOW		0x23	/* R/W Tap window */
++#define THRESH_ACT	0x24	/* R/W Activity threshold */
++#define THRESH_INACT	0x25	/* R/W Inactivity threshold */
++#define TIME_INACT	0x26	/* R/W Inactivity time */
++#define ACT_INACT_CTL	0x27	/* R/W Axis enable control for activity and */
++				/* inactivity detection */
++#define THRESH_FF	0x28	/* R/W Free-fall threshold */
++#define TIME_FF		0x29	/* R/W Free-fall time */
++#define TAP_AXES	0x2A	/* R/W Axis control for tap/double tap */
++#define ACT_TAP_STATUS	0x2B	/* R   Source of tap/double tap */
++#define BW_RATE		0x2C	/* R/W Data rate and power mode control */
++#define POWER_CTL	0x2D	/* R/W Power saving features control */
++#define INT_ENABLE	0x2E	/* R/W Interrupt enable control */
++#define INT_MAP		0x2F	/* R/W Interrupt mapping control */
++#define INT_SOURCE	0x30	/* R   Source of interrupts */
++#define DATA_FORMAT	0x31	/* R/W Data format control */
++#define DATAX0		0x32	/* R   X-Axis Data 0 */
++#define DATAX1		0x33	/* R   X-Axis Data 1 */
++#define DATAY0		0x34	/* R   Y-Axis Data 0 */
++#define DATAY1		0x35	/* R   Y-Axis Data 1 */
++#define DATAZ0		0x36	/* R   Z-Axis Data 0 */
++#define DATAZ1		0x37	/* R   Z-Axis Data 1 */
++#define FIFO_CTL	0x38	/* R/W FIFO control */
++#define FIFO_STATUS	0x39	/* R   FIFO status */
++#define TAP_SIGN	0x3A	/* R   Sign and source for tap/double tap */
++/* Orientation ADXL346 only */
++#define ORIENT_CONF	0x3B	/* R/W Orientation configuration */
++#define ORIENT		0x3C	/* R   Orientation status */
 +
-+#define STAGE0_AMBIENT		0xF1
-+#define STAGE1_AMBIENT		0x115
-+#define STAGE2_AMBIENT		0x139
-+#define STAGE3_AMBIENT		0x15D
-+#define STAGE4_AMBIENT		0x181
-+#define STAGE5_AMBIENT		0x1A5
-+#define STAGE6_AMBIENT		0x1C9
-+#define STAGE7_AMBIENT		0x1ED
-+#define STAGE8_AMBIENT		0x211
-+#define STAGE9_AMBIENT		0x234
-+#define STAGE10_AMBIENT		0x259
-+#define STAGE11_AMBIENT		0x27D
++/* DEVIDs */
++#define ID_ADXL345	0xE5
++#define ID_ADXL346	0xE6
 +
-+#define PER_STAGE_REG_NUM      36
-+#define STAGE_NUM              12
-+#define STAGE_CFGREG_NUM       8
-+#define SYS_CFGREG_NUM         8
++/* INT_ENABLE/INT_MAP/INT_SOURCE Bits */
++#define DATA_READY	(1 << 7)
++#define SINGLE_TAP	(1 << 6)
++#define DOUBLE_TAP	(1 << 5)
++#define ACTIVITY	(1 << 4)
++#define INACTIVITY	(1 << 3)
++#define FREE_FALL	(1 << 2)
++#define WATERMARK	(1 << 1)
++#define OVERRUN		(1 << 0)
++
++/* ACT_INACT_CONTROL Bits */
++#define ACT_ACDC	(1 << 7)
++#define ACT_X_EN	(1 << 6)
++#define ACT_Y_EN	(1 << 5)
++#define ACT_Z_EN	(1 << 4)
++#define INACT_ACDC	(1 << 3)
++#define INACT_X_EN	(1 << 2)
++#define INACT_Y_EN	(1 << 1)
++#define INACT_Z_EN	(1 << 0)
++
++/* TAP_AXES Bits */
++#define SUPPRESS	(1 << 3)
++#define TAP_X_EN	(1 << 2)
++#define TAP_Y_EN	(1 << 1)
++#define TAP_Z_EN	(1 << 0)
++
++/* ACT_TAP_STATUS Bits */
++#define ACT_X_SRC	(1 << 6)
++#define ACT_Y_SRC	(1 << 5)
++#define ACT_Z_SRC	(1 << 4)
++#define ASLEEP		(1 << 3)
++#define TAP_X_SRC	(1 << 2)
++#define TAP_Y_SRC	(1 << 1)
++#define TAP_Z_SRC	(1 << 0)
++
++/* BW_RATE Bits */
++#define LOW_POWER	(1 << 4)
++#define RATE(x)		((x) & 0xF)
++
++/* POWER_CTL Bits */
++#define PCTL_LINK	(1 << 5)
++#define PCTL_AUTO_SLEEP (1 << 4)
++#define PCTL_MEASURE	(1 << 3)
++#define PCTL_SLEEP	(1 << 2)
++#define PCTL_WAKEUP(x)	((x) & 0x3)
++
++/* DATA_FORMAT Bits */
++#define SELF_TEST	(1 << 7)
++#define SPI		(1 << 6)
++#define INT_INVERT	(1 << 5)
++#define FULL_RES	(1 << 3)
++#define JUSTIFY		(1 << 2)
++#define RANGE(x)	((x) & 0x3)
++#define RANGE_PM_2g	0
++#define RANGE_PM_4g	1
++#define RANGE_PM_8g	2
++#define RANGE_PM_16g	3
 +
 +/*
-+ * driver information which will be used to maintain the software flow
++ * Maximum value our axis may get in full res mode for the input device
++ * (signed 13 bits)
 + */
-+typedef enum {IDLE, JITTER, ACTIVE, SPACE} ad714x_device_state;
++#define ADXL_FULLRES_MAX_VAL 4096
 +
-+struct ad714x_slider_drv {
-+	int highest_stage;
-+	int abs_pos;
-+	int flt_pos;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_wheel_drv {
-+	int abs_pos;
-+	int flt_pos;
-+	int pre_mean_value;
-+	int pre_highest_stage;
-+	int pre_mean_value_no_offset;
-+	int mean_value;
-+	int mean_value_no_offset;
-+	int pos_offset;
-+	int pos_ratio;
-+	int highest_stage;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_touchpad_drv {
-+	int x_highest_stage;
-+	int x_flt_pos;
-+	int x_abs_pos;
-+	int y_highest_stage;
-+	int y_flt_pos;
-+	int y_abs_pos;
-+	int left_ep;
-+	int left_ep_val;
-+	int right_ep;
-+	int right_ep_val;
-+	int top_ep;
-+	int top_ep_val;
-+	int bottom_ep;
-+	int bottom_ep_val;
-+	ad714x_device_state state;
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_button_drv {
-+	ad714x_device_state state;
-+	/* Unlike slider/wheel/touchpad, all buttons point to
-+	 * same input_dev instance
-+	 */
-+	struct input_dev *input;
-+};
-+
-+struct ad714x_driver_data {
-+	struct ad714x_slider_drv *slider;
-+	struct ad714x_wheel_drv *wheel;
-+	struct ad714x_touchpad_drv *touchpad;
-+	struct ad714x_button_drv *button;
-+};
-+
-+/* information to integrate all things which will be private data
-+ * of spi/i2c device
++/*
++ * Maximum value our axis may get in fixed res mode for the input device
++ * (signed 10 bits)
 + */
-+struct ad714x_chip {
-+	unsigned short h_state;
-+	unsigned short l_state;
-+	unsigned short c_state;
-+	unsigned short adc_reg[STAGE_NUM];
-+	unsigned short amb_reg[STAGE_NUM];
-+	unsigned short sensor_val[STAGE_NUM];
++#define ADXL_FIXEDRES_MAX_VAL 512
 +
-+	struct ad714x_platform_data *hw;
-+	struct ad714x_driver_data *sw;
++/* FIFO_CTL Bits */
++#define FIFO_MODE(x)	(((x) & 0x3) << 6)
++#define FIFO_BYPASS	0
++#define FIFO_FIFO	1
++#define FIFO_STREAM	2
++#define FIFO_TRIGGER	3
++#define TRIGGER		(1 << 5)
++#define SAMPLES(x)	((x) & 0x1F)
 +
-+	int irq;
++/* FIFO_STATUS Bits */
++#define FIFO_TRIG	(1 << 7)
++#define ENTRIES(x)	((x) & 0x3F)
++
++/* TAP_SIGN Bits ADXL346 only */
++#define XSIGN		(1 << 6)
++#define YSIGN		(1 << 5)
++#define ZSIGN		(1 << 4)
++#define XTAP		(1 << 3)
++#define YTAP		(1 << 2)
++#define ZTAP		(1 << 1)
++
++/* ORIENT_CONF ADXL346 only */
++#define ORIENT_DEADZONE(x)	(((x) & 0x7) << 4)
++#define ORIENT_DIVISOR(x)	((x) & 0x7)
++
++/* ORIENT ADXL346 only */
++#define ADXL346_2D_VALID		(1 << 6)
++#define ADXL346_2D_ORIENT(x)		(((x) & 0x3) >> 4)
++#define ADXL346_3D_VALID		(1 << 3)
++#define ADXL346_3D_ORIENT(x)		((x) & 0x7)
++#define ADXL346_2D_PORTRAIT_POS		0	/* +X */
++#define ADXL346_2D_PORTRAIT_NEG		1	/* -X */
++#define ADXL346_2D_LANDSCAPE_POS	2	/* +Y */
++#define ADXL346_2D_LANDSCAPE_NEG	3	/* -Y */
++
++#define ADXL346_3D_FRONT		3	/* +X */
++#define ADXL346_3D_BACK			4	/* -X */
++#define ADXL346_3D_RIGHT		2	/* +Y */
++#define ADXL346_3D_LEFT			5	/* -Y */
++#define ADXL346_3D_TOP			1	/* +Z */
++#define ADXL346_3D_BOTTOM		6	/* -Z */
++
++#undef ADXL_DEBUG
++
++#define ADXL_X_AXIS			0
++#define ADXL_Y_AXIS			1
++#define ADXL_Z_AXIS			2
++
++#define AC_READ(ac, reg)	((ac)->read((ac)->dev, reg))
++#define AC_WRITE(ac, reg, val)	((ac)->write((ac)->dev, reg, val))
++
++struct axis_triple {
++	int x;
++	int y;
++	int z;
++};
++
++struct adxl34x {
 +	struct device *dev;
-+	ad714x_read_t *read;
-+	ad714x_write_t *write;
++	int irq;
++	struct input_dev *input;
++	struct work_struct work;
++	struct mutex mutex;	/* reentrant protection for struct */
++	struct adxl34x_platform_data pdata;
++	struct axis_triple swcal;
++	struct axis_triple hwcal;
++	struct axis_triple saved;
++	char phys[32];
++	unsigned disabled:1;	/* P: mutex */
++	unsigned opened:1;	/* P: mutex */
++	unsigned fifo_delay:1;
++	unsigned model;
++	unsigned int_mask;
 +
-+	struct mutex mutex;
-+
-+	unsigned product;
-+	unsigned version;
++	adxl34x_read_t *read;
++	adxl34x_read_block_t *read_block;
++	adxl34x_write_t *write;
 +};
 +
-+static void ad714x_use_com_int(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
++static const struct adxl34x_platform_data adxl34x_default_init = {
++	.tap_threshold = 35,
++	.tap_duration = 3,
++	.tap_latency = 20,
++	.tap_window = 20,
++	.tap_axis_control = ADXL_TAP_X_EN | ADXL_TAP_Y_EN | ADXL_TAP_Z_EN,
++	.act_axis_control = 0xFF,
++	.activity_threshold = 6,
++	.inactivity_threshold = 4,
++	.inactivity_time = 3,
++	.free_fall_threshold = 8,
++	.free_fall_time = 0x20,
++	.data_rate = 8,
++	.data_range = ADXL_FULL_RES,
++
++	.ev_type = EV_ABS,
++	.ev_code_x = ABS_X,	/* EV_REL */
++	.ev_code_y = ABS_Y,	/* EV_REL */
++	.ev_code_z = ABS_Z,	/* EV_REL */
++
++	.ev_code_tap = {BTN_TOUCH, BTN_TOUCH, BTN_TOUCH}, /* EV_KEY {x,y,z} */
++	.power_mode = ADXL_AUTO_SLEEP | ADXL_LINK,
++	.fifo_mode = FIFO_STREAM,
++	.watermark = 0,
++};
++
++static void adxl34x_get_triple(struct adxl34x *ac, struct axis_triple *axis)
 +{
-+	unsigned short data;
-+	unsigned short mask;
++	short buf[3];
 +
-+	mask = ((1 << (end_stage + 1)) - 1) - (1 << start_stage);
++	ac->read_block(ac->dev, DATAX0, DATAZ1 - DATAX0 + 1,
++		       (unsigned char *)buf);
 +
-+	ad714x->read(ad714x->dev, STG_COM_INT_EN_REG, &data);
-+	data |= 1 << start_stage;
-+	ad714x->write(ad714x->dev, STG_COM_INT_EN_REG, data);
++	mutex_lock(&ac->mutex);
++	ac->saved.x = (s16) le16_to_cpu(buf[0]);
++	axis->x = ac->saved.x;
 +
-+	ad714x->read(ad714x->dev, STG_HIGH_INT_EN_REG, &data);
-+	data &= ~mask;
-+	ad714x->write(ad714x->dev, STG_HIGH_INT_EN_REG, data);
++	ac->saved.y = (s16) le16_to_cpu(buf[1]);
++	axis->y = ac->saved.y;
++
++	ac->saved.z = (s16) le16_to_cpu(buf[2]);
++	axis->z = ac->saved.z;
++	mutex_unlock(&ac->mutex);
 +}
 +
-+static void ad714x_use_thr_int(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
++static void adxl34x_service_ev_fifo(struct adxl34x *ac)
 +{
-+	unsigned short data;
-+	unsigned short mask;
++	struct adxl34x_platform_data *pdata = &ac->pdata;
++	struct axis_triple axis;
 +
-+	mask = ((1 << (end_stage + 1)) - 1) - (1 << start_stage);
++	adxl34x_get_triple(ac, &axis);
 +
-+	ad714x->read(ad714x->dev, STG_COM_INT_EN_REG, &data);
-+	data &= ~(1 << start_stage);
-+	ad714x->write(ad714x->dev, STG_COM_INT_EN_REG, data);
-+
-+	ad714x->read(ad714x->dev, STG_HIGH_INT_EN_REG, &data);
-+	data |= mask;
-+	ad714x->write(ad714x->dev, STG_HIGH_INT_EN_REG, data);
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_x,
++		    axis.x - ac->swcal.x);
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_y,
++		    axis.y - ac->swcal.y);
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_z,
++		    axis.z - ac->swcal.z);
 +}
 +
-+static int ad714x_cal_highest_stage(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage)
++static void adxl34x_report_key_single(struct input_dev *input, int key)
 +{
-+	int max_res = 0;
-+	int max_idx = 0;
++	input_report_key(input, key, true);
++	input_sync(input);
++	input_report_key(input, key, false);
++}
++
++static void adxl34x_send_key_events(struct adxl34x *ac,
++		struct adxl34x_platform_data *pdata, int status, int press)
++{
 +	int i;
 +
-+	for (i = start_stage; i <= end_stage; i++) {
-+		if (ad714x->sensor_val[i] > max_res) {
-+			max_res = ad714x->sensor_val[i];
-+			max_idx = i;
-+		}
-+	}
-+
-+	return max_idx;
-+}
-+
-+static int ad714x_cal_abs_pos(struct ad714x_chip *ad714x, int start_stage,
-+		int end_stage, int highest_stage, int max_coord)
-+{
-+	int a_param, b_param;
-+
-+	if (highest_stage == start_stage) {
-+		a_param = ad714x->sensor_val[start_stage + 1];
-+		b_param = ad714x->sensor_val[start_stage] +
-+			ad714x->sensor_val[start_stage + 1];
-+	} else if (highest_stage == end_stage) {
-+		a_param = ad714x->sensor_val[end_stage] *
-+			(end_stage - start_stage) +
-+			ad714x->sensor_val[end_stage - 1] *
-+			(end_stage - start_stage - 1);
-+		b_param = ad714x->sensor_val[end_stage] +
-+			ad714x->sensor_val[end_stage - 1];
-+	} else {
-+		a_param = ad714x->sensor_val[highest_stage] *
-+			(highest_stage - start_stage) +
-+			ad714x->sensor_val[highest_stage - 1] *
-+			(highest_stage - start_stage - 1) +
-+			ad714x->sensor_val[highest_stage + 1] *
-+			(highest_stage - start_stage + 1);
-+		b_param = ad714x->sensor_val[highest_stage] +
-+			ad714x->sensor_val[highest_stage - 1] +
-+			ad714x->sensor_val[highest_stage + 1];
-+	}
-+
-+	return (max_coord / (end_stage - start_stage)) * a_param / b_param;
-+}
-+
-+
-+/* One button can connect to multi positive and negative of CDCs
-+ * Multi-buttons can connect to same positive/negative of one CDC
-+ */
-+static void ad714x_button_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_button_plat *hw = &ad714x->hw->button[idx];
-+	struct ad714x_button_drv *sw = &ad714x->sw->button[idx];
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (((ad714x->h_state & hw->h_mask) == hw->h_mask) &&
-+			((ad714x->l_state & hw->l_mask) == hw->l_mask)) {
-+			dev_dbg(ad714x->dev, "button %d touched\n", idx);
-+			input_report_key(sw->input, hw->keycode, 1);
-+			input_sync(sw->input);
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (((ad714x->h_state & hw->h_mask) != hw->h_mask) ||
-+			((ad714x->l_state & hw->l_mask) != hw->l_mask)) {
-+			dev_dbg(ad714x->dev, "button %d released\n", idx);
-+			input_report_key(sw->input, hw->keycode, 0);
-+			input_sync(sw->input);
-+			sw->state = IDLE;
-+		}
-+		break;
-+	default:
-+		break;
++	for (i = ADXL_X_AXIS; i <= ADXL_Z_AXIS; i++) {
++		if (status & (1 << (ADXL_Z_AXIS - i)))
++			input_report_key(ac->input,
++					 pdata->ev_code_tap[i], press);
 +	}
 +}
 +
-+/* The response of a sensor is defined by the absolute number of codes
-+ * between the current CDC value and the ambient value.
-+ */
-+void ad714x_slider_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
++static void adxl34x_do_tap(struct adxl34x *ac,
++		struct adxl34x_platform_data *pdata, int status)
 +{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	int i;
-+
-+	for (i = hw->start_stage; i <= hw->end_stage; i++) {
-+		ad714x->read(ad714x->dev, CDC_RESULT_S0 + i,
-+			&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->dev,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+
-+		ad714x->sensor_val[i] = abs(ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i]);
-+	}
++	adxl34x_send_key_events(ac, pdata, status, true);
++	input_sync(ac->input);
++	adxl34x_send_key_events(ac, pdata, status, false);
 +}
 +
-+void ad714x_slider_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
++static void adxl34x_work(struct work_struct *work)
 +{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
++	struct adxl34x *ac = container_of(work, struct adxl34x, work);
++	struct adxl34x_platform_data *pdata = &ac->pdata;
++	int int_stat, tap_stat, samples;
 +
-+	sw->highest_stage = ad714x_cal_highest_stage(ad714x, hw->start_stage,
-+			hw->end_stage);
++	/*
++	 * ACT_TAP_STATUS should be read before clearing the interrupt
++	 * Avoid reading ACT_TAP_STATUS in case TAP detection is disabled
++	 */
 +
-+	dev_dbg(ad714x->dev, "slider %d highest_stage:%d\n", idx,
-+		sw->highest_stage);
-+}
-+
-+/* The formulae are very straight forward. It uses the sensor with the
-+ * highest response and the 2 adjacent ones.
-+ * When Sensor 0 has the highest response, only sensor 0 and sensor 1
-+ * are used in the calculations. Similarly when the last sensor has the
-+ * highest response, only the last sensor and the second last sensors
-+ * are used in the calculations.
-+ *
-+ * For i= idx_of_peak_Sensor-1 to i= idx_of_peak_Sensor+1
-+ *         v += Sensor response(i)*i
-+ *         w += Sensor response(i)
-+ * POS=(Number_of_Positions_Wanted/(Number_of_Sensors_Used-1)) *(v/w)
-+ */
-+void ad714x_slider_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+
-+	sw->abs_pos = ad714x_cal_abs_pos(ad714x, hw->start_stage, hw->end_stage,
-+		sw->highest_stage, hw->max_coord);
-+
-+	dev_dbg(ad714x->dev, "slider %d absolute position:%d\n", idx,
-+		sw->abs_pos);
-+}
-+
-+/*
-+ * To minimise the Impact of the noise on the algorithm, ADI developed a
-+ * routine that filters the CDC results after they have been read by the
-+ * host processor.
-+ * The filter used is an Infinite Input Response(IIR) filter implemented
-+ * in firmware and attenuates the noise on the CDC results after they've
-+ * been read by the host processor.
-+ * Filtered_CDC_result = (Filtered_CDC_result * (10 - Coefficient) +
-+ * 				Latest_CDC_result * Coefficient)/10
-+ */
-+void ad714x_slider_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+
-+	sw->flt_pos = (sw->flt_pos * (10 - 4) +
-+			sw->abs_pos * 4)/10;
-+
-+	dev_dbg(ad714x->dev, "slider %d filter position:%d\n", idx,
-+		sw->flt_pos);
-+}
-+
-+static void ad714x_slider_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	ad714x_use_com_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void ad714x_slider_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	ad714x_use_thr_int(ad714x, hw->start_stage, hw->end_stage);
-+}
-+
-+static void ad714x_slider_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_slider_plat *hw = &ad714x->hw->slider[idx];
-+	struct ad714x_slider_drv *sw = &ad714x->sw->slider[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
-+
-+	mask = ((1 << (hw->end_stage + 1)) - 1) - ((1 << hw->start_stage) - 1);
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714X
-+			 * continuously generates hardware interrupts.
-+			 */
-+			ad714x_slider_use_com_int(ad714x, idx);
-+			dev_dbg(ad714x->dev, "slider %d touched\n", idx);
-+		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask) {
-+			ad714x_slider_cal_sensor_val(ad714x, idx);
-+			ad714x_slider_cal_highest_stage(ad714x, idx);
-+			ad714x_slider_cal_abs_pos(ad714x, idx);
-+			sw->flt_pos = sw->abs_pos;
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				ad714x_slider_cal_sensor_val(ad714x, idx);
-+				ad714x_slider_cal_highest_stage(ad714x, idx);
-+				ad714x_slider_cal_abs_pos(ad714x, idx);
-+				ad714x_slider_cal_flt_pos(ad714x, idx);
-+
-+				input_report_abs(sw->input, ABS_X, sw->flt_pos);
-+				input_report_key(sw->input, BTN_TOUCH, 1);
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				ad714x_slider_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_key(sw->input, BTN_TOUCH, 0);
-+				dev_dbg(ad714x->dev, "slider %d released\n",
-+					idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+/* When the scroll wheel is activated, we compute the absolute position based
-+ * on the sensor values. To calculate the position, we first determine the
-+ * sensor that has the greatest response among the 8 sensors that constitutes
-+ * the scrollwheel. Then we determined the 2 sensors on either sides of the
-+ * sensor with the highest response and we apply weights to these sensors.
-+ */
-+static void ad714x_wheel_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+
-+	sw->pre_highest_stage = sw->highest_stage;
-+	sw->highest_stage = ad714x_cal_highest_stage(ad714x, hw->start_stage,
-+			hw->end_stage);
-+
-+	dev_dbg(ad714x->dev, "wheel %d highest_stage:%d\n", idx,
-+		sw->highest_stage);
-+}
-+
-+static void ad714x_wheel_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	int i;
-+
-+	for (i = hw->start_stage; i <= hw->end_stage; i++) {
-+		ad714x->read(ad714x->dev, CDC_RESULT_S0 + i,
-+			&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->dev,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
-+			ad714x->sensor_val[i] = ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i];
-+		else
-+			ad714x->sensor_val[i] = 0;
-+	}
-+}
-+
-+/* When the scroll wheel is activated, we compute the absolute position based
-+ * on the sensor values. To calculate the position, we first determine the
-+ * sensor that has the greatest response among the 8 sensors that constitutes
-+ * the scrollwheel. Then we determined the 2 sensors on either sides of the
-+ * sensor with the highest response and we apply weights to these sensors. The
-+ * result of this computation gives us the mean value which defined by the
-+ * following formula:
-+ * For i= second_before_highest_stage to i= second_after_highest_stage
-+ *         v += Sensor response(i)*WEIGHT*(i+3)
-+ *         w += Sensor response(i)
-+ * Mean_Value=v/w
-+ * pos_on_scrollwheel = (Mean_Value - position_offset) / position_ratio
-+ *
-+ */
-+
-+#define WEIGHT_FACTOR 30
-+/* This constant prevents the "PositionOffset" from reaching a big value */
-+#define OFFSET_POSITION_CLAMP	120
-+static void ad714x_wheel_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	int stage_num = hw->end_stage - hw->start_stage + 1;
-+	int second_before, first_before, highest, first_after, second_after;
-+	int a_param, b_param;
-+
-+	/* Calculate Mean value */
-+
-+	second_before = (sw->highest_stage + stage_num - 2) % stage_num;
-+	first_before = (sw->highest_stage + stage_num - 1) % stage_num;
-+	highest = sw->highest_stage;
-+	first_after = (sw->highest_stage + stage_num + 1) % stage_num;
-+	second_after = (sw->highest_stage + stage_num + 2) % stage_num;
-+
-+	if (((sw->highest_stage - hw->start_stage) > 1) &&
-+			((hw->end_stage - sw->highest_stage) > 1)) {
-+		a_param = ad714x->sensor_val[second_before] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_before] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[highest] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_after] *
-+			(first_after - hw->start_stage + 3) +
-+			ad714x->sensor_val[second_after] *
-+			(second_after - hw->start_stage + 3);
-+	} else {
-+		a_param = ad714x->sensor_val[second_before] *
-+			(second_before - hw->start_stage + 1) +
-+			ad714x->sensor_val[first_before] *
-+			(second_before - hw->start_stage + 2) +
-+			ad714x->sensor_val[highest] *
-+			(second_before - hw->start_stage + 3) +
-+			ad714x->sensor_val[first_after] *
-+			(first_after - hw->start_stage + 4) +
-+			ad714x->sensor_val[second_after] *
-+			(second_after - hw->start_stage + 5);
-+	}
-+	a_param *= WEIGHT_FACTOR;
-+
-+	b_param = ad714x->sensor_val[second_before] +
-+		ad714x->sensor_val[first_before] +
-+		ad714x->sensor_val[highest] +
-+		ad714x->sensor_val[first_after] +
-+		ad714x->sensor_val[second_after];
-+
-+	sw->pre_mean_value = sw->mean_value;
-+	sw->mean_value = a_param / b_param;
-+
-+	/* Calculate the offset */
-+
-+	if ((sw->pre_highest_stage == hw->end_stage) &&
-+			(sw->highest_stage == hw->start_stage))
-+		sw->pos_offset = sw->mean_value;
-+	else if ((sw->pre_highest_stage == hw->start_stage) &&
-+			(sw->highest_stage == hw->end_stage))
-+		sw->pos_offset = sw->pre_mean_value;
-+	if (sw->pos_offset > OFFSET_POSITION_CLAMP)
-+		sw->pos_offset = OFFSET_POSITION_CLAMP;
-+
-+	/* Calculate the mean value without the offset */
-+
-+	sw->pre_mean_value_no_offset = sw->mean_value_no_offset;
-+	sw->mean_value_no_offset = sw->mean_value - sw->pos_offset;
-+	if (sw->mean_value_no_offset < 0)
-+		sw->mean_value_no_offset = 0;
-+
-+	/* Calculate ratio to scale down to NUMBER_OF_WANTED_POSITIONS */
-+
-+	if ((sw->pre_highest_stage == hw->end_stage) &&
-+			(sw->highest_stage == hw->start_stage))
-+		sw->pos_ratio = (sw->pre_mean_value_no_offset * 100) /
-+			hw->max_coord;
-+	else if ((sw->pre_highest_stage == hw->start_stage) &&
-+			(sw->highest_stage == hw->end_stage))
-+		sw->pos_ratio = (sw->mean_value_no_offset * 100) /
-+			hw->max_coord;
-+	sw->abs_pos = (sw->mean_value_no_offset * 100) / sw->pos_ratio;
-+	if (sw->abs_pos > hw->max_coord)
-+		sw->abs_pos = hw->max_coord;
-+}
-+
-+static void ad714x_wheel_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	if (((sw->pre_highest_stage == hw->end_stage) &&
-+				(sw->highest_stage == hw->start_stage)) ||
-+			((sw->pre_highest_stage == hw->start_stage) &&
-+			 (sw->highest_stage == hw->end_stage)))
-+		sw->flt_pos = sw->abs_pos;
++	if (pdata->tap_axis_control & (TAP_X_EN | TAP_Y_EN | TAP_Z_EN))
++		tap_stat = AC_READ(ac, ACT_TAP_STATUS);
 +	else
-+		sw->flt_pos = ((sw->flt_pos * 30) + (sw->abs_pos * 71)) / 100;
++		tap_stat = 0;
 +
-+	if (sw->flt_pos > hw->max_coord)
-+		sw->flt_pos = hw->max_coord;
-+}
++	int_stat = AC_READ(ac, INT_SOURCE);
 +
-+static void ad714x_wheel_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	ad714x_use_com_int(ad714x, hw->start_stage, hw->end_stage);
-+}
++	if (int_stat & FREE_FALL)
++		adxl34x_report_key_single(ac->input, pdata->ev_code_ff);
 +
-+static void ad714x_wheel_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	ad714x_use_thr_int(ad714x, hw->start_stage, hw->end_stage);
-+}
++	if (int_stat & OVERRUN)
++		dev_dbg(ac->dev, "OVERRUN\n");
 +
-+static void ad714x_wheel_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_wheel_plat *hw = &ad714x->hw->wheel[idx];
-+	struct ad714x_wheel_drv *sw = &ad714x->sw->wheel[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
++	if (int_stat & (SINGLE_TAP | DOUBLE_TAP)) {
++		adxl34x_do_tap(ac, pdata, tap_stat);
 +
-+	mask = ((1 << (hw->end_stage + 1)) - 1) - ((1 << hw->start_stage) - 1);
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714X
-+			 * continuously generates hardware interrupts.
-+			 */
-+			ad714x_wheel_use_com_int(ad714x, idx);
-+			dev_dbg(ad714x->dev, "wheel %d touched\n", idx);
-+		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask)	{
-+			ad714x_wheel_cal_sensor_val(ad714x, idx);
-+			ad714x_wheel_cal_highest_stage(ad714x, idx);
-+			ad714x_wheel_cal_abs_pos(ad714x, idx);
-+			sw->flt_pos = sw->abs_pos;
-+			sw->state = ACTIVE;
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				ad714x_wheel_cal_sensor_val(ad714x, idx);
-+				ad714x_wheel_cal_highest_stage(ad714x, idx);
-+				ad714x_wheel_cal_abs_pos(ad714x, idx);
-+				ad714x_wheel_cal_flt_pos(ad714x, idx);
-+
-+				input_report_abs(sw->input, ABS_WHEEL,
-+					sw->abs_pos);
-+				input_report_key(sw->input, BTN_TOUCH, 1);
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				ad714x_wheel_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_key(sw->input, BTN_TOUCH, 0);
-+
-+				dev_dbg(ad714x->dev, "wheel %d released\n",
-+					idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
++		if (int_stat & DOUBLE_TAP)
++			adxl34x_do_tap(ac, pdata, tap_stat);
 +	}
-+}
 +
-+static void touchpad_cal_sensor_val(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	int i;
++	if (pdata->ev_code_act_inactivity) {
++		if (int_stat & ACTIVITY)
++			input_report_key(ac->input,
++					 pdata->ev_code_act_inactivity, 1);
++		if (int_stat & INACTIVITY)
++			input_report_key(ac->input,
++					 pdata->ev_code_act_inactivity, 0);
++	}
 +
-+	for (i = hw->x_start_stage; i <= hw->x_end_stage; i++) {
-+		ad714x->read(ad714x->dev, CDC_RESULT_S0 + i,
-+				&ad714x->adc_reg[i]);
-+		ad714x->read(ad714x->dev,
-+				STAGE0_AMBIENT + i * PER_STAGE_REG_NUM,
-+				&ad714x->amb_reg[i]);
-+		if (ad714x->adc_reg[i] > ad714x->amb_reg[i])
-+			ad714x->sensor_val[i] = ad714x->adc_reg[i] -
-+				ad714x->amb_reg[i];
++	if (int_stat & (DATA_READY | WATERMARK)) {
++
++		if (pdata->fifo_mode)
++			samples = ENTRIES(AC_READ(ac, FIFO_STATUS)) + 1;
 +		else
-+			ad714x->sensor_val[i] = 0;
-+	}
-+}
++			samples = 1;
 +
-+static void touchpad_cal_highest_stage(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_highest_stage = ad714x_cal_highest_stage(ad714x,
-+		hw->x_start_stage, hw->x_end_stage);
-+	sw->y_highest_stage = ad714x_cal_highest_stage(ad714x,
-+		hw->y_start_stage, hw->y_end_stage);
-+
-+	dev_dbg(ad714x->dev,
-+		"touchpad %d x_highest_stage:%d, y_highest_stage:%d\n",
-+		idx, sw->x_highest_stage, sw->y_highest_stage);
-+}
-+
-+/* If 2 fingers are touching the sensor then 2 peaks can be observed in the
-+ * distribution.
-+ * The arithmetic doesn't support to get absolute coordinates for multi-touch
-+ * yet.
-+ */
-+static int touchpad_check_second_peak(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+	int i;
-+
-+	for (i = hw->x_start_stage; i < sw->x_highest_stage; i++) {
-+		if ((ad714x->sensor_val[i] - ad714x->sensor_val[i + 1])
-+			> (ad714x->sensor_val[i + 1] / 10))
-+			return 1;
-+	}
-+
-+	for (i = sw->x_highest_stage; i < hw->x_end_stage; i++) {
-+		if ((ad714x->sensor_val[i + 1] - ad714x->sensor_val[i])
-+			> (ad714x->sensor_val[i] / 10))
-+			return 1;
-+	}
-+
-+	for (i = hw->y_start_stage; i < sw->y_highest_stage; i++) {
-+		if ((ad714x->sensor_val[i] - ad714x->sensor_val[i + 1])
-+			> (ad714x->sensor_val[i + 1] / 10))
-+			return 1;
-+	}
-+
-+	for (i = sw->y_highest_stage; i < hw->y_end_stage; i++) {
-+		if ((ad714x->sensor_val[i + 1] - ad714x->sensor_val[i])
-+			> (ad714x->sensor_val[i] / 10))
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* If only one finger is used to activate the touch pad then only 1 peak will be
-+ * registered in the distribution. This peak and the 2 adjacent sensors will be
-+ * used in the calculation of the absolute position. This will prevent hand
-+ * shadows to affect the absolute position calculation.
-+ */
-+static void touchpad_cal_abs_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_abs_pos = ad714x_cal_abs_pos(ad714x, hw->x_start_stage,
-+			hw->x_end_stage, sw->x_highest_stage, hw->x_max_coord);
-+	sw->y_abs_pos = ad714x_cal_abs_pos(ad714x, hw->y_start_stage,
-+			hw->y_end_stage, sw->y_highest_stage, hw->y_max_coord);
-+
-+	dev_dbg(ad714x->dev, "touchpad %d absolute position:(%d, %d)\n", idx,
-+			sw->x_abs_pos, sw->y_abs_pos);
-+}
-+
-+static void touchpad_cal_flt_pos(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+
-+	sw->x_flt_pos = (sw->x_flt_pos * (10 - 4) +
-+			sw->x_abs_pos * 4)/10;
-+	sw->y_flt_pos = (sw->y_flt_pos * (10 - 4) +
-+			sw->y_abs_pos * 4)/10;
-+
-+	dev_dbg(ad714x->dev, "touchpad %d filter position:(%d, %d)\n",
-+			idx, sw->x_flt_pos, sw->y_flt_pos);
-+}
-+
-+/* To prevent distortion from showing in the absolute position, it is
-+ * necessary to detect the end points. When endpoints are detected, the
-+ * driver stops updating the status variables with absolute positions.
-+ * End points are detected on the 4 edges of the touchpad sensor. The
-+ * method to detect them is the same for all 4.
-+ * To detect the end points, the firmware computes the difference in
-+ * percent between the sensor on the edge and the adjacent one. The
-+ * difference is calculated in percent in order to make the end point
-+ * detection independent of the pressure.
-+ */
-+
-+#define LEFT_END_POINT_DETECTION_LEVEL                  550
-+#define RIGHT_END_POINT_DETECTION_LEVEL                 750
-+#define LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL         850
-+#define TOP_END_POINT_DETECTION_LEVEL                   550
-+#define BOTTOM_END_POINT_DETECTION_LEVEL                950
-+#define TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL         700
-+static int touchpad_check_endpoint(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw  = &ad714x->sw->touchpad[idx];
-+	int percent_sensor_diff;
-+
-+	/* left endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->x_start_stage] -
-+			ad714x->sensor_val[hw->x_start_stage + 1]) * 100 /
-+			ad714x->sensor_val[hw->x_start_stage + 1];
-+	if (!sw->left_ep) {
-+		if (percent_sensor_diff >= LEFT_END_POINT_DETECTION_LEVEL)  {
-+			sw->left_ep = 1;
-+			sw->left_ep_val =
-+				ad714x->sensor_val[hw->x_start_stage + 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < LEFT_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->x_start_stage + 1] >
-+		LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL + sw->left_ep_val))
-+			sw->left_ep = 0;
-+	}
-+
-+	/* right endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->x_end_stage] -
-+			ad714x->sensor_val[hw->x_end_stage - 1]) * 100 /
-+			ad714x->sensor_val[hw->x_end_stage - 1];
-+	if (!sw->right_ep) {
-+		if (percent_sensor_diff >= RIGHT_END_POINT_DETECTION_LEVEL)  {
-+			sw->right_ep = 1;
-+			sw->right_ep_val =
-+				ad714x->sensor_val[hw->x_end_stage - 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < RIGHT_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->x_end_stage - 1] >
-+		LEFT_RIGHT_END_POINT_DEAVTIVALION_LEVEL + sw->right_ep_val))
-+			sw->right_ep = 0;
-+	}
-+
-+	/* top endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->y_start_stage] -
-+			ad714x->sensor_val[hw->y_start_stage + 1]) * 100 /
-+			ad714x->sensor_val[hw->y_start_stage + 1];
-+	if (!sw->top_ep) {
-+		if (percent_sensor_diff >= TOP_END_POINT_DETECTION_LEVEL)  {
-+			sw->top_ep = 1;
-+			sw->top_ep_val =
-+				ad714x->sensor_val[hw->y_start_stage + 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < TOP_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->y_start_stage + 1] >
-+		TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL + sw->top_ep_val))
-+			sw->top_ep = 0;
-+	}
-+
-+	/* bottom endpoint detect */
-+	percent_sensor_diff = (ad714x->sensor_val[hw->y_end_stage] -
-+		ad714x->sensor_val[hw->y_end_stage - 1]) * 100 /
-+		ad714x->sensor_val[hw->y_end_stage - 1];
-+	if (!sw->bottom_ep) {
-+		if (percent_sensor_diff >= BOTTOM_END_POINT_DETECTION_LEVEL)  {
-+			sw->bottom_ep = 1;
-+			sw->bottom_ep_val =
-+				ad714x->sensor_val[hw->y_end_stage - 1];
-+		}
-+	} else {
-+		if ((percent_sensor_diff < BOTTOM_END_POINT_DETECTION_LEVEL) &&
-+		(ad714x->sensor_val[hw->y_end_stage - 1] >
-+		 TOP_BOTTOM_END_POINT_DEAVTIVALION_LEVEL + sw->bottom_ep_val))
-+			sw->bottom_ep = 0;
-+	}
-+
-+	return sw->left_ep || sw->right_ep || sw->top_ep || sw->bottom_ep;
-+}
-+
-+static void touchpad_use_com_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	ad714x_use_com_int(ad714x, hw->x_start_stage, hw->x_end_stage);
-+}
-+
-+static void touchpad_use_thr_int(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	ad714x_use_thr_int(ad714x, hw->x_start_stage, hw->x_end_stage);
-+	ad714x_use_thr_int(ad714x, hw->y_start_stage, hw->y_end_stage);
-+}
-+
-+static void ad714x_touchpad_state_machine(struct ad714x_chip *ad714x, int idx)
-+{
-+	struct ad714x_touchpad_plat *hw = &ad714x->hw->touchpad[idx];
-+	struct ad714x_touchpad_drv *sw = &ad714x->sw->touchpad[idx];
-+	unsigned short h_state, c_state;
-+	unsigned short mask;
-+
-+	mask = (((1 << (hw->x_end_stage + 1)) - 1) -
-+		((1 << hw->x_start_stage) - 1)) +
-+		(((1 << (hw->y_end_stage + 1)) - 1) -
-+		((1 << hw->y_start_stage) - 1));
-+
-+	h_state = ad714x->h_state & mask;
-+	c_state = ad714x->c_state & mask;
-+
-+	switch (sw->state) {
-+	case IDLE:
-+		if (h_state) {
-+			sw->state = JITTER;
-+			/* In End of Conversion interrupt mode, the AD714X
-+			 * continuously generates hardware interrupts.
++		for (; samples > 0; samples--) {
++			adxl34x_service_ev_fifo(ac);
++			/*
++			 * To ensure that the FIFO has
++			 * completely popped, there must be at least 5 us between
++			 * the end of reading the data registers, signified by the
++			 * transition to register 0x38 from 0x37 or the CS pin
++			 * going high, and the start of new reads of the FIFO or
++			 * reading the FIFO_STATUS register. For SPI operation at
++			 * 1.5 MHz or lower, the register addressing portion of the
++			 * transmission is sufficient delay to ensure the FIFO has
++			 * completely popped. It is necessary for SPI operation
++			 * greater than 1.5 MHz to de-assert the CS pin to ensure a
++			 * total of 5 us, which is at most 3.4 us at 5 MHz
++			 * operation.
 +			 */
-+			touchpad_use_com_int(ad714x, idx);
-+			dev_dbg(ad714x->dev, "touchpad %d touched\n", idx);
++			if (ac->fifo_delay && (samples > 1))
++				udelay(3);
 +		}
-+		break;
-+	case JITTER:
-+		if (c_state == mask) {
-+			touchpad_cal_sensor_val(ad714x, idx);
-+			touchpad_cal_highest_stage(ad714x, idx);
-+			if ((!touchpad_check_second_peak(ad714x, idx)) &&
-+				(!touchpad_check_endpoint(ad714x, idx))) {
-+				dev_dbg(ad714x->dev,
-+					"touchpad%d, 2 fingers or endpoint\n",
-+					idx);
-+				touchpad_cal_abs_pos(ad714x, idx);
-+				sw->x_flt_pos = sw->x_abs_pos;
-+				sw->y_flt_pos = sw->y_abs_pos;
-+				sw->state = ACTIVE;
-+			}
-+		}
-+		break;
-+	case ACTIVE:
-+		if (c_state == mask) {
-+			if (h_state) {
-+				touchpad_cal_sensor_val(ad714x, idx);
-+				touchpad_cal_highest_stage(ad714x, idx);
-+				if ((!touchpad_check_second_peak(ad714x, idx))
-+				  && (!touchpad_check_endpoint(ad714x, idx))) {
-+					touchpad_cal_abs_pos(ad714x, idx);
-+					touchpad_cal_flt_pos(ad714x, idx);
-+					input_report_abs(sw->input, ABS_X,
-+						sw->x_flt_pos);
-+					input_report_abs(sw->input, ABS_Y,
-+						sw->y_flt_pos);
-+					input_report_key(sw->input, BTN_TOUCH,
-+						1);
-+				}
-+			} else {
-+				/* When the user lifts off the sensor, configure
-+				 * the AD714X back to threshold interrupt mode.
-+				 */
-+				touchpad_use_thr_int(ad714x, idx);
-+				sw->state = IDLE;
-+				input_report_key(sw->input, BTN_TOUCH, 0);
-+				dev_dbg(ad714x->dev, "touchpad %d released\n",
-+					idx);
-+			}
-+			input_sync(sw->input);
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+static int ad714x_hw_detect(struct ad714x_chip *ad714x)
-+{
-+	unsigned short data;
-+
-+	ad714x->read(ad714x->dev, AD714X_PARTID_REG, &data);
-+	switch (data & 0xFFF0) {
-+	case AD7147_PARTID:
-+		ad714x->product = 0x7147;
-+		ad714x->version = data & 0xF;
-+		dev_info(ad714x->dev, "found AD7147 captouch, rev:%d\n",
-+				ad714x->version);
-+		return 0;
-+	case AD7142_PARTID:
-+		ad714x->product = 0x7142;
-+		ad714x->version = data & 0xF;
-+		dev_info(ad714x->dev, "found AD7142 captouch, rev:%d\n",
-+				ad714x->version);
-+		return 0;
-+	default:
-+		dev_err(ad714x->dev,
-+			"fail to detect AD714X captouch, read ID is %04x\n",
-+			data);
-+		return -ENODEV;
-+	}
-+}
-+
-+static void ad714x_hw_init(struct ad714x_chip *ad714x)
-+{
-+	int i, j;
-+	unsigned short reg_base;
-+	unsigned short data;
-+
-+	/* configuration CDC and interrupts*/
-+
-+	for (i = 0; i < STAGE_NUM; i++) {
-+		reg_base = AD714X_STAGECFG_REG + i * STAGE_CFGREG_NUM;
-+		for (j = 0; j < STAGE_CFGREG_NUM; j++)
-+			ad714x->write(ad714x->dev, reg_base + j,
-+					ad714x->hw->stage_cfg_reg[i][j]);
 +	}
 +
-+	for (i = 0; i < SYS_CFGREG_NUM; i++)
-+		ad714x->write(ad714x->dev, AD714X_SYSCFG_REG + i,
-+			ad714x->hw->sys_cfg_reg[i]);
-+	for (i = 0; i < SYS_CFGREG_NUM; i++)
-+		ad714x->read(ad714x->dev, AD714X_SYSCFG_REG + i,
-+			&data);
-+
-+	ad714x->write(ad714x->dev, AD714X_STG_CAL_EN_REG, 0xFFF);
-+
-+	/* clear all interrupts */
-+	ad714x->read(ad714x->dev, STG_LOW_INT_STA_REG, &data);
-+	ad714x->read(ad714x->dev, STG_HIGH_INT_STA_REG, &data);
-+	ad714x->read(ad714x->dev, STG_COM_INT_STA_REG, &data);
++	input_sync(ac->input);
++	enable_irq(ac->irq);
 +}
 +
-+static irqreturn_t ad714x_interrupt_thread(int irq, void *data)
++static irqreturn_t adxl34x_irq(int irq, void *handle)
 +{
-+	struct ad714x_chip *ad714x = data;
-+	int i;
++	struct adxl34x *ac = handle;
 +
-+	mutex_lock(&ad714x->mutex);
-+
-+	ad714x->read(ad714x->dev, STG_LOW_INT_STA_REG, &ad714x->l_state);
-+	ad714x->read(ad714x->dev, STG_HIGH_INT_STA_REG, &ad714x->h_state);
-+	ad714x->read(ad714x->dev, STG_COM_INT_STA_REG, &ad714x->c_state);
-+
-+	for (i = 0; i < ad714x->hw->button_num; i++)
-+		ad714x_button_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->slider_num; i++)
-+		ad714x_slider_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->wheel_num; i++)
-+		ad714x_wheel_state_machine(ad714x, i);
-+	for (i = 0; i < ad714x->hw->touchpad_num; i++)
-+		ad714x_touchpad_state_machine(ad714x, i);
-+
-+	mutex_unlock(&ad714x->mutex);
++	disable_irq_nosync(irq);
++	schedule_work(&ac->work);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+static irqreturn_t ad714x_interrupt(int irq, void *data)
++void adxl34x_disable(struct adxl34x *ac)
 +{
-+	return IRQ_WAKE_THREAD;
++	mutex_lock(&ac->mutex);
++	if (!ac->disabled && ac->opened) {
++		ac->disabled = 1;
++		/* Balance interrupts disables/enables */
++		if (cancel_work_sync(&ac->work))
++			enable_irq(ac->irq);
++		/*
++		 * A '0' places the ADXL34x into standby mode
++		 * with minimum power consumption.
++		 */
++		AC_WRITE(ac, POWER_CTL, 0);
++	}
++	mutex_unlock(&ac->mutex);
++}
++EXPORT_SYMBOL_GPL(adxl34x_disable);
++
++void adxl34x_enable(struct adxl34x *ac)
++{
++	mutex_lock(&ac->mutex);
++	if (ac->disabled && ac->opened) {
++		AC_WRITE(ac, POWER_CTL, ac->pdata.power_mode | PCTL_MEASURE);
++		ac->disabled = 0;
++	}
++	mutex_unlock(&ac->mutex);
++}
++EXPORT_SYMBOL_GPL(adxl34x_enable);
++
++static ssize_t adxl34x_disable_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", ac->disabled);
 +}
 +
-+#define MAX_DEVICE_NUM 8
-+int ad714x_probe(struct ad714x_chip **pad714x, struct device *dev,
-+	u16 bus_type, int irq, ad714x_read_t read, ad714x_write_t write)
++static ssize_t adxl34x_disable_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
-+	int ret, i, alloc_idx;
-+	struct input_dev *input[MAX_DEVICE_NUM];
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
 +
-+	struct ad714x_platform_data *plat_data;
-+	struct ad714x_chip *ad714x;
-+	void *drv_mem;
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
 +
-+	struct ad714x_button_drv *bt_drv;
-+	struct ad714x_slider_drv *sd_drv;
-+	struct ad714x_wheel_drv *wl_drv;
-+	struct ad714x_touchpad_drv *tp_drv;
++	if (val)
++		adxl34x_disable(ac);
++	else
++		adxl34x_enable(ac);
 +
-+	plat_data = dev->platform_data;
-+	if (dev->platform_data == NULL) {
-+		dev_err(dev, "platform data for ad714x doesn't exist\n");
++	return count;
++}
++
++static DEVICE_ATTR(disable, 0664, adxl34x_disable_show, adxl34x_disable_store);
++
++static ssize_t adxl34x_calibrate_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++	count = sprintf(buf, "%d,%d,%d\n", ac->hwcal.x * 4 + ac->swcal.x,
++			ac->hwcal.y * 4 + ac->swcal.y,
++			ac->hwcal.z * 4 + ac->swcal.z);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static ssize_t adxl34x_calibrate_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	/*
++	 * Hardware offset calibration has a resolution of 15.6 mg/LSB.
++	 * We use HW calibration and handle the remaining bits in SW. (4mg/LSB)
++	 */
++
++	mutex_lock(&ac->mutex);
++	ac->hwcal.x -= (ac->saved.x / 4);
++	ac->swcal.x = ac->saved.x % 4;
++
++	ac->hwcal.y -= (ac->saved.y / 4);
++	ac->swcal.y = ac->saved.y % 4;
++
++	ac->hwcal.z -= (ac->saved.z / 4);
++	ac->swcal.z = ac->saved.z % 4;
++
++	AC_WRITE(ac, OFSX, (s8) ac->hwcal.x);
++	AC_WRITE(ac, OFSY, (s8) ac->hwcal.y);
++	AC_WRITE(ac, OFSZ, (s8) ac->hwcal.z);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(calibrate, 0664, adxl34x_calibrate_show,
++		   adxl34x_calibrate_store);
++
++static ssize_t adxl34x_rate_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++	count = sprintf(buf, "%u\n", RATE(ac->pdata.data_rate));
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static ssize_t adxl34x_rate_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	mutex_lock(&ac->mutex);
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
++
++	ac->pdata.data_rate = RATE(val);
++
++	AC_WRITE(ac, BW_RATE, ac->pdata.data_rate |
++		 (ac->pdata.low_power_mode ? LOW_POWER : 0));
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(rate, 0664, adxl34x_rate_show, adxl34x_rate_store);
++
++static ssize_t adxl34x_autosleep_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++	count = sprintf(buf, "%u\n", ac->pdata.power_mode &
++		(PCTL_AUTO_SLEEP | PCTL_LINK) ? 1 : 0);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static ssize_t adxl34x_autosleep_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	mutex_lock(&ac->mutex);
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
++
++	if (val)
++		ac->pdata.power_mode |= (PCTL_AUTO_SLEEP | PCTL_LINK);
++	else
++		ac->pdata.power_mode &= ~(PCTL_AUTO_SLEEP | PCTL_LINK);
++
++	if (!ac->disabled && ac->opened)
++		AC_WRITE(ac, POWER_CTL, ac->pdata.power_mode | PCTL_MEASURE);
++
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(autosleep, 0664, adxl34x_autosleep_show,
++		   adxl34x_autosleep_store);
++
++static ssize_t adxl34x_position_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++
++	count = sprintf(buf, "(%d, %d, %d)\n",
++			ac->saved.x, ac->saved.y, ac->saved.z);
++
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(position, 0444, adxl34x_position_show, NULL);
++
++#ifdef ADXL_DEBUG
++static ssize_t adxl34x_write_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	/*
++	 * This allows basic ADXL register write access for debug purposes.
++	 */
++	mutex_lock(&ac->mutex);
++	error = strict_strtoul(buf, 16, &val);
++	if (error)
++		return error;
++
++	AC_WRITE(ac, val >> 8, val & 0xFF);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(write, 0664, NULL, adxl34x_write_store);
++#endif
++
++static struct attribute *adxl34x_attributes[] = {
++	&dev_attr_disable.attr,
++	&dev_attr_calibrate.attr,
++	&dev_attr_rate.attr,
++	&dev_attr_autosleep.attr,
++	&dev_attr_position.attr,
++#ifdef ADXL_DEBUG
++	&dev_attr_write.attr,
++#endif
++	NULL
++};
++
++static const struct attribute_group adxl34x_attr_group = {
++	.attrs = adxl34x_attributes,
++};
++
++static int adxl34x_input_open(struct input_dev *input)
++{
++	struct adxl34x *ac = input_get_drvdata(input);
++
++	mutex_lock(&ac->mutex);
++	ac->opened = 1;
++	mutex_unlock(&ac->mutex);
++
++	adxl34x_enable(ac);
++
++	return 0;
++}
++
++static void adxl34x_input_close(struct input_dev *input)
++{
++	struct adxl34x *ac = input_get_drvdata(input);
++
++	adxl34x_disable(ac);
++
++	mutex_lock(&ac->mutex);
++	ac->opened = 0;
++	mutex_unlock(&ac->mutex);
++}
++
++int adxl34x_probe(struct adxl34x **pac, struct device *dev, int irq,
++	int fifo_delay_default, const struct adxl34x_bus_ops *bops)
++{
++	struct adxl34x *ac;
++	struct input_dev *input_dev;
++	struct adxl34x_platform_data *pdata;
++	int err, range;
++	unsigned char revid;
++
++	if (!irq) {
++		dev_err(dev, "no IRQ?\n");
 +		return -ENODEV;
 +	}
 +
-+	*pad714x = ad714x = kzalloc(sizeof(*ad714x) + sizeof(*ad714x->sw) +
-+			sizeof(*sd_drv) * plat_data->slider_num +
-+			sizeof(*wl_drv) * plat_data->wheel_num +
-+			sizeof(*tp_drv) * plat_data->touchpad_num +
-+			sizeof(*bt_drv) * plat_data->button_num, GFP_KERNEL);
-+	if (!ad714x)
++	*pac = ac = kzalloc(sizeof(*ac), GFP_KERNEL);
++	if (!ac)
 +		return -ENOMEM;
-+	ad714x->hw = plat_data;
++	ac->fifo_delay = fifo_delay_default;
 +
-+	drv_mem = ad714x + 1;
-+	ad714x->sw = drv_mem;
-+	drv_mem += sizeof(*ad714x->sw);
-+	ad714x->sw->slider = sd_drv = drv_mem;
-+	drv_mem += sizeof(*sd_drv) * ad714x->hw->slider_num;
-+	ad714x->sw->wheel = wl_drv = drv_mem;
-+	drv_mem += sizeof(*wl_drv) * ad714x->hw->wheel_num;
-+	ad714x->sw->touchpad = tp_drv = drv_mem;
-+	drv_mem += sizeof(*tp_drv) * ad714x->hw->touchpad_num;
-+	ad714x->sw->button = bt_drv = drv_mem;
-+	drv_mem += sizeof(*bt_drv) * ad714x->hw->button_num;
++	pdata = dev->platform_data;
++	if (!pdata) {
++		dev_dbg(dev,
++			"No platfrom data: Using default initialization\n");
++		pdata = (struct adxl34x_platform_data *)&adxl34x_default_init;
++	}
++	memcpy(&ac->pdata, pdata, sizeof(*pdata));
++	pdata = &ac->pdata;
 +
-+	ad714x->read = read;
-+	ad714x->write = write;
-+	ad714x->irq = irq;
-+	ad714x->dev = dev;
++	input_dev = input_allocate_device();
++	if (!input_dev)
++		return -ENOMEM;
 +
-+	ret = ad714x_hw_detect(ad714x);
-+	if (ret)
-+		goto det_err;
++	ac->input = input_dev;
++	ac->disabled = 1;
++	ac->dev = dev;
++	ac->irq = irq;
++	ac->write = bops->write;
++	ac->read = bops->read;
++	ac->read_block = bops->read_block;
 +
-+	/* initilize and request sw/hw resources */
++	INIT_WORK(&ac->work, adxl34x_work);
++	mutex_init(&ac->mutex);
 +
-+	ad714x_hw_init(ad714x);
-+	mutex_init(&ad714x->mutex);
++	input_dev->name = "ADXL34x accelerometer";
++	revid = ac->read(dev, DEVID);
 +
-+	if (ad714x->irq > 0) {
-+		ret = request_threaded_irq(ad714x->irq, ad714x_interrupt,
-+				ad714x_interrupt_thread, IRQF_TRIGGER_FALLING,
-+				"ad714x_captouch", ad714x);
-+		if (ret) {
-+			dev_err(dev, "can't allocate irq %d\n",
-+					ad714x->irq);
-+			goto fail_irq;
-+		}
++	switch (revid) {
++	case ID_ADXL345:
++		ac->model = 345;
++		break;
++	case ID_ADXL346:
++		ac->model = 346;
++		break;
++	default:
++		dev_err(dev, "Failed to probe %s\n", input_dev->name);
++		err = -ENODEV;
++		goto err_free_mem;
++	}
++
++	snprintf(ac->phys, sizeof(ac->phys), "%s/input0", dev_name(dev));
++
++	input_dev->phys = ac->phys;
++	input_dev->dev.parent = dev;
++	input_dev->id.product = ac->model;
++	input_dev->id.bustype = bops->bustype;
++	input_dev->open = adxl34x_input_open;
++	input_dev->close = adxl34x_input_close;
++
++	input_set_drvdata(input_dev, ac);
++
++	__set_bit(ac->pdata.ev_type, input_dev->evbit);
++
++	if (ac->pdata.ev_type == EV_REL) {
++		__set_bit(REL_X, input_dev->relbit);
++		__set_bit(REL_Y, input_dev->relbit);
++		__set_bit(REL_Z, input_dev->relbit);
 +	} else {
-+		dev_err(dev, "IRQ not configured!\n");
-+		ret = -EINVAL;
-+		goto det_err;
++		/* EV_ABS */
++		__set_bit(ABS_X, input_dev->absbit);
++		__set_bit(ABS_Y, input_dev->absbit);
++		__set_bit(ABS_Z, input_dev->absbit);
++
++		if (pdata->data_range & FULL_RES)
++			range = ADXL_FULLRES_MAX_VAL;	/* Signed 13-bit */
++		else
++			range = ADXL_FIXEDRES_MAX_VAL;	/* Signed 10-bit */
++
++		input_set_abs_params(input_dev, ABS_X, -range, range, 3, 3);
++		input_set_abs_params(input_dev, ABS_Y, -range, range, 3, 3);
++		input_set_abs_params(input_dev, ABS_Z, -range, range, 3, 3);
 +	}
 +
-+	/*
-+	 * Allocate and register AD714X input device
-+	 */
-+	alloc_idx = 0;
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(pdata->ev_code_tap[ADXL_X_AXIS], input_dev->keybit);
++	__set_bit(pdata->ev_code_tap[ADXL_Y_AXIS], input_dev->keybit);
++	__set_bit(pdata->ev_code_tap[ADXL_Z_AXIS], input_dev->keybit);
 +
-+	/* a slider uses one input_dev instance */
-+	if (ad714x->hw->slider_num > 0) {
-+		struct ad714x_slider_plat *sd_plat = ad714x->hw->slider;
-+
-+		for (i = 0; i < ad714x->hw->slider_num; i++) {
-+			sd_drv[i].input = input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
-+
-+			__set_bit(EV_ABS, input[alloc_idx]->evbit);
-+			__set_bit(EV_KEY, input[alloc_idx]->evbit);
-+			__set_bit(ABS_X, input[alloc_idx]->absbit);
-+			__set_bit(BTN_TOUCH, input[alloc_idx]->keybit);
-+			input_set_abs_params(input[alloc_idx], ABS_X, 0,
-+					sd_plat->max_coord, 0, 0);
-+
-+			input[alloc_idx]->id.bustype = bus_type;
-+			input[alloc_idx]->id.product = ad714x->product;
-+			input[alloc_idx]->id.version = ad714x->version;
-+
-+			ret = input_register_device(input[alloc_idx]);
-+			if (ret)
-+				goto fail_alloc_reg;
-+
-+			alloc_idx++;
-+		}
++	if (pdata->ev_code_ff) {
++		ac->int_mask = FREE_FALL;
++		__set_bit(pdata->ev_code_ff, input_dev->keybit);
 +	}
 +
-+	/* a wheel uses one input_dev instance */
-+	if (ad714x->hw->wheel_num > 0) {
-+		struct ad714x_wheel_plat *wl_plat = ad714x->hw->wheel;
++	if (pdata->ev_code_act_inactivity)
++		__set_bit(pdata->ev_code_act_inactivity, input_dev->keybit);
 +
-+		for (i = 0; i < ad714x->hw->wheel_num; i++) {
-+			wl_drv[i].input = input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
++	ac->int_mask |= ACTIVITY | INACTIVITY;
 +
-+			__set_bit(EV_KEY, input[alloc_idx]->evbit);
-+			__set_bit(EV_ABS, input[alloc_idx]->evbit);
-+			__set_bit(ABS_WHEEL, input[alloc_idx]->absbit);
-+			__set_bit(BTN_TOUCH, input[alloc_idx]->keybit);
-+			input_set_abs_params(input[alloc_idx], ABS_WHEEL, 0,
-+					wl_plat->max_coord, 0, 0);
-+
-+			input[alloc_idx]->id.bustype = bus_type;
-+			input[alloc_idx]->id.product = ad714x->product;
-+			input[alloc_idx]->id.version = ad714x->version;
-+
-+			ret = input_register_device(input[alloc_idx]);
-+			if (ret)
-+				goto fail_alloc_reg;
-+
-+			alloc_idx++;
-+		}
++	if (pdata->watermark) {
++		ac->int_mask |= WATERMARK;
++		if (!FIFO_MODE(pdata->fifo_mode))
++			pdata->fifo_mode |= FIFO_STREAM;
++	} else {
++		ac->int_mask |= DATA_READY;
 +	}
 +
-+	/* a touchpad uses one input_dev instance */
-+	if (ad714x->hw->touchpad_num > 0) {
-+		struct ad714x_touchpad_plat *tp_plat = ad714x->hw->touchpad;
++	if (pdata->tap_axis_control & (TAP_X_EN | TAP_Y_EN | TAP_Z_EN))
++		ac->int_mask |= SINGLE_TAP | DOUBLE_TAP;
 +
-+		for (i = 0; i < ad714x->hw->touchpad_num; i++) {
-+			tp_drv[i].input = input[alloc_idx] = input_allocate_device();
-+			if (!input[alloc_idx]) {
-+				ret = -ENOMEM;
-+				goto fail_alloc_reg;
-+			}
++	if (FIFO_MODE(pdata->fifo_mode) == FIFO_BYPASS)
++		ac->fifo_delay = 0;
 +
-+			__set_bit(EV_ABS, input[alloc_idx]->evbit);
-+			__set_bit(EV_KEY, input[alloc_idx]->evbit);
-+			__set_bit(ABS_X, input[alloc_idx]->absbit);
-+			__set_bit(ABS_Y, input[alloc_idx]->absbit);
-+			__set_bit(BTN_TOUCH, input[alloc_idx]->keybit);
-+			input_set_abs_params(input[alloc_idx], ABS_X, 0,
-+					tp_plat->x_max_coord, 0, 0);
-+			input_set_abs_params(input[alloc_idx], ABS_Y, 0,
-+					tp_plat->y_max_coord, 0, 0);
++	ac->write(dev, POWER_CTL, 0);
 +
-+			input[alloc_idx]->id.bustype = bus_type;
-+			input[alloc_idx]->id.product = ad714x->product;
-+			input[alloc_idx]->id.version = ad714x->version;
-+
-+			ret = input_register_device(input[alloc_idx]);
-+			if (ret)
-+				goto fail_alloc_reg;
-+
-+			alloc_idx++;
-+		}
++	err = request_irq(ac->irq, adxl34x_irq,
++			  IRQF_TRIGGER_HIGH, dev_name(dev), ac);
++	if (err) {
++		dev_err(dev, "irq %d busy?\n", ac->irq);
++		goto err_free_mem;
 +	}
 +
-+	/* all buttons use one input node */
-+	if (ad714x->hw->button_num > 0) {
-+		struct ad714x_button_plat *bt_plat = ad714x->hw->button;
++	err = sysfs_create_group(&dev->kobj, &adxl34x_attr_group);
++	if (err)
++		goto err_free_irq;
 +
-+		input[alloc_idx] = input_allocate_device();
-+		if (!input[alloc_idx]) {
-+			ret = -ENOMEM;
-+			goto fail_alloc_reg;
-+		}
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_remove_attr;
 +
-+		__set_bit(EV_KEY, input[alloc_idx]->evbit);
-+		for (i = 0; i < ad714x->hw->button_num; i++) {
-+			bt_drv[i].input = input[alloc_idx];
-+			__set_bit(bt_plat[i].keycode, input[alloc_idx]->keybit);
-+		}
++	AC_WRITE(ac, THRESH_TAP, pdata->tap_threshold);
++	AC_WRITE(ac, OFSX, pdata->x_axis_offset);
++	ac->hwcal.x = pdata->x_axis_offset;
++	AC_WRITE(ac, OFSY, pdata->y_axis_offset);
++	ac->hwcal.y = pdata->y_axis_offset;
++	AC_WRITE(ac, OFSZ, pdata->z_axis_offset);
++	ac->hwcal.z = pdata->z_axis_offset;
++	AC_WRITE(ac, THRESH_TAP, pdata->tap_threshold);
++	AC_WRITE(ac, DUR, pdata->tap_duration);
++	AC_WRITE(ac, LATENT, pdata->tap_latency);
++	AC_WRITE(ac, WINDOW, pdata->tap_window);
++	AC_WRITE(ac, THRESH_ACT, pdata->activity_threshold);
++	AC_WRITE(ac, THRESH_INACT, pdata->inactivity_threshold);
++	AC_WRITE(ac, TIME_INACT, pdata->inactivity_time);
++	AC_WRITE(ac, THRESH_FF, pdata->free_fall_threshold);
++	AC_WRITE(ac, TIME_FF, pdata->free_fall_time);
++	AC_WRITE(ac, TAP_AXES, pdata->tap_axis_control);
++	AC_WRITE(ac, ACT_INACT_CTL, pdata->act_axis_control);
++	AC_WRITE(ac, BW_RATE, RATE(ac->pdata.data_rate) |
++		 (pdata->low_power_mode ? LOW_POWER : 0));
++	AC_WRITE(ac, DATA_FORMAT, pdata->data_range);
++	AC_WRITE(ac, FIFO_CTL, FIFO_MODE(pdata->fifo_mode) |
++			SAMPLES(pdata->watermark));
 +
-+		input[alloc_idx]->id.bustype = bus_type;
-+		input[alloc_idx]->id.product = ad714x->product;
-+		input[alloc_idx]->id.version = ad714x->version;
++	if (pdata->use_int2)
++		/* Map all INTs to INT2 */
++		AC_WRITE(ac, INT_MAP, ac->int_mask | OVERRUN);
++	else
++		/* Map all INTs to INT1 */
++		AC_WRITE(ac, INT_MAP, 0);
 +
-+		ret = input_register_device(input[alloc_idx]);
-+		if (ret)
-+			goto fail_alloc_reg;
++	AC_WRITE(ac, INT_ENABLE, ac->int_mask | OVERRUN);
 +
-+		alloc_idx++;
-+	}
++	pdata->power_mode &= (PCTL_AUTO_SLEEP | PCTL_LINK);
 +
++	dev_info(dev, "ADXL%d accelerometer, irq %d\n",
++		 ac->model, ac->irq);
 +
 +	return 0;
 +
-+ fail_alloc_reg:
-+	dev_err(dev, "failed to setup AD714x input device %i\n", alloc_idx);
-+	for (i = 0; i < alloc_idx - 1; i++)
-+		input_unregister_device(input[i]);
-+	input_free_device(input[alloc_idx]);
++ err_remove_attr:
++	sysfs_remove_group(&dev->kobj, &adxl34x_attr_group);
++ err_free_irq:
++	free_irq(ac->irq, ac);
++ err_free_mem:
++	input_free_device(input_dev);
 +
-+	free_irq(ad714x->irq, ad714x);
-+ fail_irq:
-+ det_err:
-+	kfree(ad714x);
-+	return ret;
++	return err;
 +}
-+EXPORT_SYMBOL(ad714x_probe);
++EXPORT_SYMBOL_GPL(adxl34x_probe);
 +
-+int ad714x_remove(struct ad714x_chip *ad714x)
++int adxl34x_remove(struct adxl34x *ac)
 +{
-+	int i;
-+
-+	/* unregister and free all input devices */
-+
-+	for (i = 0; i < ad714x->hw->slider_num; i++)
-+		input_unregister_device(ad714x->sw->slider[i].input);
-+
-+	for (i = 0; i < ad714x->hw->wheel_num; i++)
-+		input_unregister_device(ad714x->sw->wheel[i].input);
-+
-+	for (i = 0; i < ad714x->hw->touchpad_num; i++)
-+		input_unregister_device(ad714x->sw->touchpad[i].input);
-+
-+	if (ad714x->hw->button_num)
-+		input_unregister_device(ad714x->sw->button[0].input);
-+
-+	free_irq(ad714x->irq, ad714x);
-+
-+	kfree(ad714x);
++	adxl34x_disable(ac);
++	sysfs_remove_group(&ac->dev->kobj, &adxl34x_attr_group);
++	free_irq(ac->irq, ac);
++	input_unregister_device(ac->input);
++	dev_dbg(ac->dev, "unregistered accelerometer\n");
++	kfree(ac);
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL(ad714x_remove);
++EXPORT_SYMBOL_GPL(adxl34x_remove);
 +
-+#ifdef CONFIG_PM
-+int ad714x_disable(struct ad714x_chip *ad714x)
-+{
-+	unsigned short data;
-+
-+	dev_dbg(ad714x->dev, "%s enter\n", __func__);
-+
-+	mutex_lock(&ad714x->mutex);
-+
-+	data = ad714x->hw->sys_cfg_reg[AD714X_PWR_CTRL] | 0x3;
-+	ad714x->write(ad714x->dev, AD714X_PWR_CTRL, data);
-+
-+	mutex_unlock(&ad714x->mutex);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ad714x_disable);
-+
-+int ad714x_enable(struct ad714x_chip *ad714x)
-+{
-+	unsigned short data;
-+
-+	dev_dbg(ad714x->dev, "%s enter\n", __func__);
-+
-+	mutex_lock(&ad714x->mutex);
-+
-+	/* resume to non-shutdown mode */
-+
-+	ad714x->write(ad714x->dev, AD714X_PWR_CTRL,
-+			ad714x->hw->sys_cfg_reg[AD714X_PWR_CTRL]);
-+
-+	/* make sure the interrupt output line is not low level after resume,
-+	 * otherwise we will get no chance to enter falling-edge irq again
-+	 */
-+
-+	ad714x->read(ad714x->dev, STG_LOW_INT_STA_REG, &data);
-+	ad714x->read(ad714x->dev, STG_HIGH_INT_STA_REG, &data);
-+	ad714x->read(ad714x->dev, STG_COM_INT_STA_REG, &data);
-+
-+	mutex_unlock(&ad714x->mutex);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ad714x_enable);
-+#endif
-+
-+MODULE_DESCRIPTION("Analog Devices AD714X Capacitance Touch Sensor Driver");
-+MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/drivers/input/misc/ad714x.h b/drivers/input/misc/ad714x.h
+diff --git a/drivers/input/misc/adxl34x.h b/drivers/input/misc/adxl34x.h
 new file mode 100644
-index 0000000..3fc5a16
+index 0000000..3e7fe91
 --- /dev/null
-+++ b/drivers/input/misc/ad714x.h
-@@ -0,0 +1,25 @@
++++ b/drivers/input/misc/adxl34x.h
+@@ -0,0 +1,32 @@
 +/*
-+ * AD714X CapTouch Programmable Controller driver (bus interfaces)
++ * ADXL345/346 Three-Axis Digital Accelerometers (I2C/SPI Interface)
 + *
-+ * Copyright 2009 Analog Devices Inc.
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
 + * Licensed under the GPL-2 or later.
 + */
 +
-+#ifndef _AD714X_H_
-+#define _AD714X_H_
-+
-+#include <linux/types.h>
++#ifndef _ADXL34X_H_
++#define _ADXL34X_H_
 +
 +struct device;
-+struct ad714x_chip;
-+typedef int (ad714x_read_t) (struct device *, unsigned short, unsigned short *);
-+typedef int (ad714x_write_t) (struct device *, unsigned short, unsigned short);
++struct adxl34x;
++typedef int (adxl34x_read_t) (struct device *, unsigned char);
++typedef int (adxl34x_read_block_t) (struct device *, unsigned char, int, unsigned char *);
++typedef int (adxl34x_write_t) (struct device *, unsigned char, unsigned char);
 +
-+int ad714x_disable(struct ad714x_chip *ad714x);
-+int ad714x_enable(struct ad714x_chip *ad714x);
-+int ad714x_probe(struct ad714x_chip **pad714x, struct device *dev,
-+	u16 bus_type, int irq, ad714x_read_t read, ad714x_write_t write);
-+int ad714x_remove(struct ad714x_chip *ad714x);
++struct adxl34x_bus_ops {
++	u16 bustype;
++	adxl34x_read_t *read;
++	adxl34x_read_block_t *read_block;
++	adxl34x_write_t *write;
++};
++
++void adxl34x_disable(struct adxl34x *ac);
++void adxl34x_enable(struct adxl34x *ac);
++int adxl34x_probe(struct adxl34x **pac, struct device *dev, int irq,
++	int fifo_delay_default, const struct adxl34x_bus_ops *bops);
++int adxl34x_remove(struct adxl34x *ac);
 +
 +#endif
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 0ccfc30..8b38cfa 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -756,6 +756,7 @@ struct input_absinfo {
- #define BUS_HOST		0x19
- #define BUS_GSC			0x1A
- #define BUS_ATARI		0x1B
-+#define BUS_SPI			0x1C
- 
- /*
-  * MT_TOOL types
-diff --git a/include/linux/input/ad714x.h b/include/linux/input/ad714x.h
+diff --git a/include/linux/input/adxl34x.h b/include/linux/input/adxl34x.h
 new file mode 100644
-index 0000000..0cbe5e8
+index 0000000..7121182
 --- /dev/null
-+++ b/include/linux/input/ad714x.h
-@@ -0,0 +1,63 @@
++++ b/include/linux/input/adxl34x.h
+@@ -0,0 +1,293 @@
 +/*
-+ * include/linux/input/ad714x.h
++ * include/linux/input/adxl34x.h
 + *
-+ * AD714x is very flexible, it can be used as buttons, scrollwheel,
-+ * slider, touchpad at the same time. That depends on the boards.
-+ * The platform_data for the device's "struct device" holds this
-+ * information.
++ * Digital Accelerometer characteristics are highly application specific
++ * and may vary between boards and models. The platform_data for the
++ * device's "struct device" holds this information.
 + *
 + * Copyright 2009 Analog Devices Inc.
 + *
 + * Licensed under the GPL-2 or later.
 + */
 +
-+#ifndef __LINUX_INPUT_AD714X_H__
-+#define __LINUX_INPUT_AD714X_H__
++#ifndef __LINUX_INPUT_ADXL34X_H__
++#define __LINUX_INPUT_ADXL34X_H__
 +
-+#define STAGE_NUM              12
-+#define STAGE_CFGREG_NUM       8
-+#define SYS_CFGREG_NUM         8
++struct adxl34x_platform_data {
 +
-+/* board information which need be initialized in arch/mach... */
-+struct ad714x_slider_plat {
-+	int start_stage;
-+	int end_stage;
-+	int max_coord;
++	/*
++	 * X,Y,Z Axis Offset:
++	 * offer user offset adjustments in twoscompliment
++	 * form with a scale factor of 15.6 mg/LSB (i.e. 0x7F = +2 g)
++	 */
++
++	s8 x_axis_offset;
++	s8 y_axis_offset;
++	s8 z_axis_offset;
++
++	/*
++	 * TAP_X/Y/Z Enable: Setting TAP_X, Y, or Z Enable enables X,
++	 * Y, or Z participation in Tap detection. A '0' excludes the
++	 * selected axis from participation in Tap detection.
++	 * Setting the SUPPRESS bit suppresses Double Tap detection if
++	 * acceleration greater than tap_threshold is present between
++	 * taps.
++	 */
++
++#define ADXL_SUPPRESS	(1 << 3)
++#define ADXL_TAP_X_EN	(1 << 2)
++#define ADXL_TAP_Y_EN	(1 << 1)
++#define ADXL_TAP_Z_EN	(1 << 0)
++
++	u8 tap_axis_control;
++
++	/*
++	 * tap_threshold:
++	 * holds the threshold value for tap detection/interrupts.
++	 * The data format is unsigned. The scale factor is 62.5 mg/LSB
++	 * (i.e. 0xFF = +16 g). A zero value may result in undesirable
++	 * behavior if Tap/Double Tap is enabled.
++	 */
++
++	u8 tap_threshold;
++
++	/*
++	 * tap_duration:
++	 * is an unsigned time value representing the maximum
++	 * time that an event must be above the tap_threshold threshold
++	 * to qualify as a tap event. The scale factor is 625 us/LSB. A zero
++	 * value will prevent Tap/Double Tap functions from working.
++	 */
++
++	u8 tap_duration;
++
++	/*
++	 * tap_latency:
++	 * is an unsigned time value representing the wait time
++	 * from the detection of a tap event to the opening of the time
++	 * window tap_window for a possible second tap event. The scale
++	 * factor is 1.25 ms/LSB. A zero value will disable the Double Tap
++	 * function.
++	 */
++
++	u8 tap_latency;
++
++	/*
++	 * tap_window:
++	 * is an unsigned time value representing the amount
++	 * of time after the expiration of tap_latency during which a second
++	 * tap can begin. The scale factor is 1.25 ms/LSB. A zero value will
++	 * disable the Double Tap function.
++	 */
++
++	u8 tap_window;
++
++	/*
++	 * act_axis_control:
++	 * X/Y/Z Enable: A '1' enables X, Y, or Z participation in activity
++	 * or inactivity detection. A '0' excludes the selected axis from
++	 * participation. If all of the axes are excluded, the function is
++	 * disabled.
++	 * AC/DC: A '0' = DC coupled operation and a '1' = AC coupled
++	 * operation. In DC coupled operation, the current acceleration is
++	 * compared with activity_threshold and inactivity_threshold directly
++	 * to determine whether activity or inactivity is detected. In AC
++	 * coupled operation for activity detection, the acceleration value
++	 * at the start of activity detection is taken as a reference value.
++	 * New samples of acceleration are then compared to this
++	 * reference value and if the magnitude of the difference exceeds
++	 * activity_threshold the device will trigger an activity interrupt. In
++	 * AC coupled operation for inactivity detection, a reference value
++	 * is used again for comparison and is updated whenever the
++	 * device exceeds the inactivity threshold. Once the reference
++	 * value is selected, the device compares the magnitude of the
++	 * difference between the reference value and the current
++	 * acceleration with inactivity_threshold. If the difference is below
++	 * inactivity_threshold for a total of inactivity_time, the device is
++	 * considered inactive and the inactivity interrupt is triggered.
++	 */
++
++#define ADXL_ACT_ACDC		(1 << 7)
++#define ADXL_ACT_X_EN		(1 << 6)
++#define ADXL_ACT_Y_EN		(1 << 5)
++#define ADXL_ACT_Z_EN		(1 << 4)
++#define ADXL_INACT_ACDC		(1 << 3)
++#define ADXL_INACT_X_EN		(1 << 2)
++#define ADXL_INACT_Y_EN		(1 << 1)
++#define ADXL_INACT_Z_EN		(1 << 0)
++
++	u8 act_axis_control;
++
++	/*
++	 * activity_threshold:
++	 * holds the threshold value for activity detection.
++	 * The data format is unsigned. The scale factor is
++	 * 62.5 mg/LSB. A zero value may result in undesirable behavior if
++	 * Activity interrupt is enabled.
++	 */
++
++	u8 activity_threshold;
++
++	/*
++	 * inactivity_threshold:
++	 * holds the threshold value for inactivity
++	 * detection. The data format is unsigned. The scale
++	 * factor is 62.5 mg/LSB. A zero value may result in undesirable
++	 * behavior if Inactivity interrupt is enabled.
++	 */
++
++	u8 inactivity_threshold;
++
++	/*
++	 * inactivity_time:
++	 * is an unsigned time value representing the
++	 * amount of time that acceleration must be below the value in
++	 * inactivity_threshold for inactivity to be declared. The scale factor
++	 * is 1 second/LSB. Unlike the other interrupt functions, which
++	 * operate on unfiltered data, the inactivity function operates on the
++	 * filtered output data. At least one output sample must be
++	 * generated for the inactivity interrupt to be triggered. This will
++	 * result in the function appearing un-responsive if the
++	 * inactivity_time register is set with a value less than the time
++	 * constant of the Output Data Rate. A zero value will result in an
++	 * interrupt when the output data is below inactivity_threshold.
++	 */
++
++	u8 inactivity_time;
++
++	/*
++	 * free_fall_threshold:
++	 * holds the threshold value for Free-Fall detection.
++	 * The data format is unsigned. The root-sum-square(RSS) value
++	 * of all axes is calculated and compared to the value in
++	 * free_fall_threshold to determine if a free fall event may be
++	 * occurring.  The scale factor is 62.5 mg/LSB. A zero value may
++	 * result in undesirable behavior if Free-Fall interrupt is
++	 * enabled. Values between 300 and 600 mg (0x05 to 0x09) are
++	 * recommended.
++	 */
++
++	u8 free_fall_threshold;
++
++	/*
++	 * free_fall_time:
++	 * is an unsigned time value representing the minimum
++	 * time that the RSS value of all axes must be less than
++	 * free_fall_threshold to generate a Free-Fall interrupt. The
++	 * scale factor is 5 ms/LSB. A zero value may result in
++	 * undesirable behavior if Free-Fall interrupt is enabled.
++	 * Values between 100 to 350 ms (0x14 to 0x46) are recommended.
++	 */
++
++	u8 free_fall_time;
++
++	/*
++	 * data_rate:
++	 * Selects device bandwidth and output data rate.
++	 * RATE = 3200 Hz / (2^(15 - x)). Default value is 0x0A, or 100 Hz
++	 * Output Data Rate. An Output Data Rate should be selected that
++	 * is appropriate for the communication protocol and frequency
++	 * selected. Selecting too high of an Output Data Rate with a low
++	 * communication speed will result in samples being discarded.
++	 */
++
++	u8 data_rate;
++
++	/*
++	 * data_range:
++	 * FULL_RES: When this bit is set with the device is
++	 * in Full-Resolution Mode, where the output resolution increases
++	 * with RANGE to maintain a 4 mg/LSB scale factor. When this
++	 * bit is cleared the device is in 10-bit Mode and RANGE determine the
++	 * maximum g-Range and scale factor.
++	 */
++
++#define ADXL_FULL_RES		(1 << 3)
++#define ADXL_RANGE_PM_2g	0
++#define ADXL_RANGE_PM_4g	1
++#define ADXL_RANGE_PM_8g	2
++#define ADXL_RANGE_PM_16g	3
++
++	u8 data_range;
++
++	/*
++	 * low_power_mode:
++	 * A '0' = Normal operation and a '1' = Reduced
++	 * power operation with somewhat higher noise.
++	 */
++
++	u8 low_power_mode;
++
++	/*
++	 * power_mode:
++	 * LINK: A '1' with both the activity and inactivity functions
++	 * enabled will delay the start of the activity function until
++	 * inactivity is detected. Once activity is detected, inactivity
++	 * detection will begin and prevent the detection of activity. This
++	 * bit serially links the activity and inactivity functions. When '0'
++	 * the inactivity and activity functions are concurrent. Additional
++	 * information can be found in the Application section under Link
++	 * Mode.
++	 * AUTO_SLEEP: A '1' sets the ADXL34x to switch to Sleep Mode
++	 * when inactivity (acceleration has been below inactivity_threshold
++	 * for at least inactivity_time) is detected and the LINK bit is set.
++	 * A '0' disables automatic switching to Sleep Mode. See SLEEP
++	 * for further description.
++	 */
++
++#define ADXL_LINK	(1 << 5)
++#define ADXL_AUTO_SLEEP	(1 << 4)
++
++	u8 power_mode;
++
++	/*
++	 * fifo_mode:
++	 * BYPASS The FIFO is bypassed
++	 * FIFO   FIFO collects up to 32 values then stops collecting data
++	 * STREAM FIFO holds the last 32 data values. Once full, the FIFO's
++	 *        oldest data is lost as it is replaced with newer data
++	 *
++	 * DEFAULT should be ADXL_FIFO_STREAM
++	 */
++
++#define ADXL_FIFO_BYPASS	0
++#define ADXL_FIFO_FIFO		1
++#define ADXL_FIFO_STREAM	2
++
++	u8 fifo_mode;
++
++	/*
++	 * watermark:
++	 * The Watermark feature can be used to reduce the interrupt load
++	 * of the system. The FIFO fills up to the value stored in watermark
++	 * [1..32] and then generates an interrupt.
++	 * A '0' disables the watermark feature.
++	 */
++
++	u8 watermark;
++
++	u32 ev_type;	/* EV_ABS or EV_REL */
++
++	u32 ev_code_x;	/* ABS_X,Y,Z or REL_X,Y,Z */
++	u32 ev_code_y;	/* ABS_X,Y,Z or REL_X,Y,Z */
++	u32 ev_code_z;	/* ABS_X,Y,Z or REL_X,Y,Z */
++
++	/*
++	 * A valid BTN or KEY Code; use tap_axis_control to disable
++	 * event reporting
++	 */
++
++	u32 ev_code_tap[3];	/* EV_KEY {X-Axis, Y-Axis, Z-Axis} */
++
++	/*
++	 * A valid BTN or KEY Code for Free-Fall or Activity enables
++	 * input event reporting. A '0' disables the Free-Fall or
++	 * Activity reporting.
++	 */
++
++	u32 ev_code_ff;	/* EV_KEY */
++	u32 ev_code_act_inactivity;	/* EV_KEY */
++
++	u8 use_int2;
 +};
-+
-+struct ad714x_wheel_plat {
-+	int start_stage;
-+	int end_stage;
-+	int max_coord;
-+};
-+
-+struct ad714x_touchpad_plat {
-+	int x_start_stage;
-+	int x_end_stage;
-+	int x_max_coord;
-+
-+	int y_start_stage;
-+	int y_end_stage;
-+	int y_max_coord;
-+};
-+
-+struct ad714x_button_plat {
-+	int keycode;
-+	unsigned short l_mask;
-+	unsigned short h_mask;
-+};
-+
-+struct ad714x_platform_data {
-+	int slider_num;
-+	int wheel_num;
-+	int touchpad_num;
-+	int button_num;
-+	struct ad714x_slider_plat *slider;
-+	struct ad714x_wheel_plat *wheel;
-+	struct ad714x_touchpad_plat *touchpad;
-+	struct ad714x_button_plat *button;
-+	unsigned short stage_cfg_reg[STAGE_NUM][STAGE_CFGREG_NUM];
-+	unsigned short sys_cfg_reg[SYS_CFGREG_NUM];
-+};
-+
 +#endif
 -- 
 1.6.5.1

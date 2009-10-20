@@ -1,54 +1,127 @@
-From: "Chris Verges" <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3] input/misc: new ADXL345/346
-	driver
-Date: Tue, 20 Oct 2009 11:46:08 -0700
-Message-ID: <68FBE0F3CE97264395875AC1C468F22C1CA0D8@mail03.cyberswitching.local>
-References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
-	<1256028039-15044-1-git-send-email-vapier@gentoo.org>
+From: Jamie Lentin <jamie@lentin.co.uk>
+Subject: Re: [REPOST] [PATCH] Add support for OQO 01+ multimedia keys (fwd)
+Date: Tue, 20 Oct 2009 21:12:38 +0100 (BST)
+Message-ID: <alpine.DEB.2.00.0910202110360.11516@bunsen.wrottesley.wormnet.eu>
+References: <alpine.DEB.1.10.0906302300290.9420@woodchuck.wormnet.eu> <20091020013859.GD24370@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-Content-class: urn:content-classes:message
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Barry Song <barry.song-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from chipmunk.wormnet.eu ([195.195.131.226]:36534 "EHLO
+	chipmunk.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752664AbZJTUWB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Oct 2009 16:22:01 -0400
+In-Reply-To: <20091020013859.GD24370@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Mike and Michael,
+On Mon, 19 Oct 2009, Dmitry Torokhov wrote:
 
->+config INPUT_ADXL34X
->+config INPUT_ADXL34X_I2C
->+config INPUT_ADXL34X_SPI
+> On Tue, Jun 30, 2009 at 11:06:49PM +0100, Jamie Lentin wrote:
+>> Apologies for reposting, but it'd be nice to get something along these
+>> lines merged.  If there's suggestions of other things I could try, or
+>> you'd prefer a patch to make the "up" and "down" keycodes auto-release,
+>> please let me know.
+>>
+>
+> I am sorry, I completely missed your patch and just now was going
+> through my inbox and saw it...
 
-Should the INPUT_ADXL34X option be auto-selected when the _I2C or _SPI
-counterparts are selected?  Something like:
+Not to worry---so long as the patch wasn't so offensive you couldn't bring
+yourself to reply :)
 
-config HAVE_INPUT_ADXL34X
+> Could you please tell me if OQO has external PS/2 port?
 
-config INPUT_ADXL34X
-	depends on HAVE_INPUT_ADXL34X
+No, it has a PS/2 trackpoint and gravity mouse (easter-egg mode where the
+firmware turns accelerometer input into mouse) built-in, but I doubt
+they'll provide much useful info.
 
-config INPUT_ADXL34X_I2C
-	bool "..."
-	depends on I2C
-	select HAVE_INPUT_ADXL34X
+> And also if you could give me the raw data stream from these keys
+> (reported with i8042.debug) that would be grand.
 
-config INPUT_ADXL34X_SPI
-	bool "..."
-	depends on SPI_MASTER
-	select HAVE_INPUT_ADXL34X
+Using a vanilla linux-2.6.31.1, this is the output from both i8042.debug
+and evtest when holding keys momentarily.  NB: I've applied a map to
+change the "multimedia" keycodes to be something useful, but that's
+probably not relevant.  Every other key works as you'd expect.
 
-The end user would only see the INPUT_ADXL34X_SPI and INPUT_ADXL34X_I2C
-options, with the common INPUT_ADXL34X option being automagically
-selected due to the reverse dependencies.
+# Video -- down/up separate keys
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85408]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85478]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85487]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85496]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85505]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85513]
+drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, 0, 1) [85518]
+drivers/input/serio/i8042.c: 66 <- i8042 (interrupt, 0, 1) [85518]
+Event: time 1256067968.926933, type 4 (Misc), code 4 (ScanCode), value 66
+Event: time 1256067968.927715, type 1 (Key), code 227 (?), value 2
+Event: time 1256067968.927848, -------------- Report Sync ------------
+Event: time 1256067969.110362, type 4 (Misc), code 4 (ScanCode), value e6
+Event: time 1256067969.110613, type 1 (Key), code 360 (Vendor), value 2
+Event: time 1256067969.110704, -------------- Report Sync ------------
 
-Chris
+# Mute -- down/up separate keys
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94782]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94852]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94861]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94870]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94878]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94887]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94896]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94907]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94916]
+drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, 0, 1) [94920]
+drivers/input/serio/i8042.c: 65 <- i8042 (interrupt, 0, 1) [94920]
+Event: time 1256068003.897484, type 4 (Misc), code 4 (ScanCode), value 65
+Event: time 1256068003.897784, type 1 (Key), code 113 (Mute), value 2
+Event: time 1256068003.897877, -------------- Report Sync ------------
+Event: time 1256068003.906448, type 4 (Misc), code 4 (ScanCode), value e5
+Event: time 1256068003.906745, type 1 (Key), code 360 (Vendor), value 2
+Event: time 1256068003.906860, -------------- Report Sync ------------
+
+# WiFi -- down/up separate keys
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100145]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100215]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100223]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100232]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100241]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100250]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100258]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100269]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100278]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100287]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100296]
+drivers/input/serio/i8042.c: e0 <- i8042 (interrupt, 0, 1) [100304]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 0, 1) [100304]
+Event: time 1256068069.298454, type 4 (Misc), code 4 (ScanCode), value 64
+Event: time 1256068069.298664, type 1 (Key), code 226 (Media), value 2
+Event: time 1256068069.298756, -------------- Report Sync ------------
+Event: time 1256068069.509059, type 4 (Misc), code 4 (ScanCode), value e4
+Event: time 1256068069.509274, type 1 (Key), code 360 (Vendor), value 2
+Event: time 1256068069.509370, -------------- Report Sync ------------
+
+> Plus, who is the keyboard identified
+> in dmesg? Is it "AT Translated Set 2" or 'AT Raw set 2"?
+
+PNP: PS/2 Controller [PNP0303:KBC,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+mice: PS/2 mouse device common for all mice
+input: PC Speaker as /devices/platform/pcspkr/input/input0
+input: AT Translated Set 2 keyboard as 
+/devices/platform/i8042/serio0/input/input1
+
+[ An entire (albeit old) log here:
+http://jamie.lentin.co.uk/hardware/oqo_01plus/dmesg.txt ]
+
+I did try forcing the keyboard into raw set 2 and set 3, however it seemed
+to ignore the command---keypresses were still sent as translated set 2,
+and Linux couldn't interpret the keypresses anymore since it was
+expecting raw.  I've lost the notes on how I did this and the resulting 
+dumps, but can try again if it's interesting.
+
+>
+> Thanks!
+>

@@ -1,59 +1,204 @@
-From: Andy Green <andy@warmcat.com>
-Subject: Re: [PATCH] input/touchscreen: add S3C24XX SoC touchscreen input
-	driver
-Date: Tue, 20 Oct 2009 11:09:07 +0100
-Message-ID: <4ADD8C43.5060205@warmcat.com>
-References: <mailman.4020.1255949705.2256.linux-arm-kernel@lists.infradead.org>	<4ADC4D4D.5020508@gmail.com>	<20091019120744.GB7412@n2100.arm.linux.org.uk>
-	<2accc2ff0910192121t27387b90t9cfd5a5252aa00cc@mail.gmail.com>
-	<20091020073946.GB723@n2100.arm.linux.org.uk>
-	<2accc2ff0910200121g4f2c0839l96c7d99e4f4de47a@mail.gmail.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
+Date: Tue, 20 Oct 2009 12:13:57 +0200
+Message-ID: <20091020101357.GR28832@buzzloop.caiaq.de>
+References: <20091016130315.GT28832@buzzloop.caiaq.de>
+ <20091018072738.GF3935@core.coreip.homeip.net>
+ <20091019073728.GC28832@buzzloop.caiaq.de>
+ <20091020013852.GC24370@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <2accc2ff0910200121g4f2c0839l96c7d99e4f4de47a@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: arhuaco@freaks-unidos.net
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, dtor@mail.ru, Shine Liu <shinel@foxmail.com>, dmitry.torokhov@gmail.com, Maurus Cuelenaere <mcuelenaere@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751313AbZJTKOA@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091020013852.GC24370@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
 List-Id: linux-input@vger.kernel.org
 
-On 10/20/09 09:21, Somebody in the thread at some point said:
+Hi Dmitry,
 
-> We have problems when we don't have much pressure and in this case
-> there is a lot of noise and the events that are reported by the driver
-> are actually noise. This noise would be more common at pen-down before
-> the adc readings settle and at pen-up.
+On Mon, Oct 19, 2009 at 06:38:53PM -0700, Dmitry Torokhov wrote:
+> On Mon, Oct 19, 2009 at 09:37:28AM +0200, Daniel Mack wrote:
+> > +#else
+> > +#define alix_button_register() (0)
+> > +#endif
+> > +
+> >  static int __init alix_led_probe(struct platform_device *pdev)
+> >  {
+> >  	int i;
+> > @@ -89,6 +139,11 @@ static int __init alix_led_probe(struct platform_device *pdev)
+> >  		if (ret < 0)
+> >  			goto fail;
+> >  	}
+> > +
+> > +	ret = alix_button_register();
+> > +	if (ret) 
+> > +		goto fail;
+> > +
+> >  	return 0;
+> >  
+> >  fail:
+> > @@ -103,6 +158,10 @@ static int alix_led_remove(struct platform_device *pdev)
+> >  
+> >  	for (i = 0; i < ARRAY_SIZE(alix_leds); i++)
+> >  		led_classdev_unregister(&alix_leds[i].cdev);
+> > +	
+> > +	if (ipdev)
+> > +		input_unregister_polled_device(ipdev);
+> > +	
+> 
+> 
+> I think it will bomb on !CONFIG_LEDS_ALIX2_BUTTON... You need
+> alix_button_register() and a dummy wrapper for it as well.
 
-Hi Nelson -
+There is one actually - lazyly implemented as #define in this case. But
+you're right, it does bomb, but due to an undefined reference to ipdev
+in alix_led_remove(). Below is a new patch the finally works fine for
+both configs.
 
-Just a FYI, on the board I have been working on there is a capacitive 
-sensor, AD7174.  I wrote a driver for it which again uses the in-kernel 
-median filter (the original Openmoko version I wrote chopped out at the 
-moment) heavily and with really excellent results.  The median filters 
-are pretty much like magic for certain common kinds of noise.
+Daniel
 
-However, I just drop the median filter code into my tree in 
-drivers/input/misc at the moment.  What would be really a good result I 
-think is if the filters turned up in ./lib in an easily reusable way.
 
-I think maybe it's a mistake to focus on the in-kernel filters being 
-good for a particular touchscreen technology or even specifically 
-touchscreens.  I am sure other drivers doing something completely 
-different with noisy instantaneously sampled data, that won't fit into 
-tslib worldview at all, can also benefit from being able to clean up 
-data in a standardized way before passing it down as an input event or 
-back to the device or whatever.  And once that's possible, touchscreen 
-drivers of any sort have the standardized option to use it too if they 
-have a reason.
+>From f3ed2eb2a123a2d2ff1fd587d1ff1076893ae148 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@caiaq.de>
+Date: Tue, 13 Oct 2009 12:42:52 +0800
+Subject: [PATCH] leds-alix2: add support for button connected to J15
 
-Just a thought, good luck :-)
+The ALIX2 boards have one GPIO pin which is reachable at connector J15.
+One possible application for this feature is to connect a button which
+closes the two pins.
 
--Andy
+This patch adds support to query these button and export its state via
+an input device.
+
+Signed-off-by: Daniel Mack <daniel@caiaq.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-input@vger.kernel.org
+Cc: Constantin Baranov <const@mimas.ru>
+---
+ drivers/leds/Kconfig      |   14 ++++++++++
+ drivers/leds/leds-alix2.c |   61 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 75 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index e4f599f..2faba0a 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -77,6 +77,20 @@ config LEDS_ALIX2
+ 	  This option enables support for the PCEngines ALIX.2 and ALIX.3 LEDs.
+ 	  You have to set leds-alix2.force=1 for boards with Award BIOS.
+ 
++config LEDS_ALIX2_BUTTON
++	bool "Input device support for button on ALIX boards"
++	depends on LEDS_ALIX2 && INPUT
++	select INPUT_POLLDEV
++	help
++	  This option enables support for a button connected to J15 of ALIX
++	  boards.
++	  
++	  Note that for this feature to work, there is need for a minor
++	  modification to the hardware: R1 needs to be removed, and R4 needs
++	  to be placed as 100 KOhms pull-up.
++	  
++	  Only select that option if you modified your ALIX board like this.
++
+ config LEDS_H1940
+ 	tristate "LED Support for iPAQ H1940 device"
+ 	depends on LEDS_CLASS && ARCH_H1940
+diff --git a/drivers/leds/leds-alix2.c b/drivers/leds/leds-alix2.c
+index f59ffad..6ef6362 100644
+--- a/drivers/leds/leds-alix2.c
++++ b/drivers/leds/leds-alix2.c
+@@ -12,6 +12,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/string.h>
+ #include <linux/pci.h>
++#include <linux/input-polldev.h>
+ 
+ static int force = 0;
+ module_param(force, bool, 0444);
+@@ -78,6 +79,55 @@ static struct alix_led alix_leds[] = {
+ 	},
+ };
+ 
++#ifdef CONFIG_LEDS_ALIX2_BUTTON
++
++#define POLL_INTERVAL_DEFAULT 250
++static struct input_polled_dev *ipdev;
++
++static void alix_button_poll(struct input_polled_dev *ipdev)
++{
++	unsigned int val = !(inl(gpio_base + 0x30) & (1 << 1));
++
++	input_report_key(ipdev->input, KEY_PROG1, val);
++	input_sync(ipdev->input);
++}
++
++static int alix_button_register(void)
++{
++	int ret;
++
++	/* enable button input */
++	outl(1 << 1, gpio_base + 0x20);
++
++	/* enable pullup on input pin */
++	outl(1 << 1, gpio_base + 0x18);
++
++	ipdev = input_allocate_polled_device();
++	if (!ipdev)
++		return -ENOMEM;
++
++	ipdev->poll = alix_button_poll;
++	ipdev->poll_interval = POLL_INTERVAL_DEFAULT;
++	ipdev->input->name = "ALIX2 button";
++	ipdev->input->phys = "alix2/input0";
++	ipdev->input->id.bustype = BUS_HOST;
++
++	set_bit(EV_KEY, ipdev->input->evbit);
++	ipdev->input->keybit[BIT_WORD(KEY_PROG1)] = BIT_MASK(KEY_PROG1);
++
++	ret = input_register_polled_device(ipdev);
++	
++	if (ret) {
++		input_free_polled_device(ipdev);
++		ipdev = NULL;
++	}
++
++	return ret;
++}
++#else
++#define alix_button_register() (0)
++#endif
++
+ static int __init alix_led_probe(struct platform_device *pdev)
+ {
+ 	int i;
+@@ -89,6 +139,11 @@ static int __init alix_led_probe(struct platform_device *pdev)
+ 		if (ret < 0)
+ 			goto fail;
+ 	}
++
++	ret = alix_button_register();
++	if (ret) 
++		goto fail;
++
+ 	return 0;
+ 
+ fail:
+@@ -103,6 +158,12 @@ static int alix_led_remove(struct platform_device *pdev)
+ 
+ 	for (i = 0; i < ARRAY_SIZE(alix_leds); i++)
+ 		led_classdev_unregister(&alix_leds[i].cdev);
++
++#ifdef CONFIG_LEDS_ALIX2_BUTTON
++	if (ipdev)
++		input_unregister_polled_device(ipdev);
++#endif
++
+ 	return 0;
+ }
+ 
+-- 
+1.6.0.4

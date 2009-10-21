@@ -1,85 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not
- =?iso-8859-15?q?work=09anymore?=
-Date: Wed, 21 Oct 2009 13:20:16 -0700
-Message-ID: <200910211320.16339.dmitry.torokhov@gmail.com>
-References: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com> <20091015215944.GA9845@core.coreip.homeip.net> <4ADF6237.9070004@tremplin-utc.net>
+From: Constantin Baranov <const@mimas.ru>
+Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
+Date: Thu, 22 Oct 2009 01:21:21 +0500
+Message-ID: <20091022012121.5b35ff22.const@mimas.ru>
+References: <20091016130315.GT28832@buzzloop.caiaq.de>
+	<20091018072738.GF3935@core.coreip.homeip.net>
+	<20091019073728.GC28832@buzzloop.caiaq.de>
+	<20091020013852.GC24370@core.coreip.homeip.net>
+	<20091020101357.GR28832@buzzloop.caiaq.de>
+	<20091021043553.GA378@core.coreip.homeip.net>
+	<20091021193347.GL14091@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:43735 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753151AbZJUUUS convert rfc822-to-8bit (ORCPT
+Received: from ey-out-2122.google.com ([74.125.78.25]:13100 "EHLO
+	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753233AbZJUUVW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Oct 2009 16:20:18 -0400
-In-Reply-To: <4ADF6237.9070004@tremplin-utc.net>
+	Wed, 21 Oct 2009 16:21:22 -0400
+In-Reply-To: <20091021193347.GL14091@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-15?q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wednesday 21 October 2009 12:34:15 pm =C9ric Piel wrote:
-> Op 15-10-09 23:59, Dmitry Torokhov schreef:
-> > Hm, this is wierd... In the dmesg you sent me in the previous mail =
-I see:
-> >
-> > input: AT Raw Set 2 keyboard as
-> > /devices/platform/i8042/serio0/input/input4
-> >
-> > So it looks like sometimes it is in raw and sometimes it is in
-> > translated mode. The i8042.reset might be affecting it. Also, are y=
-ou
-> > using BIOS password at resume by any chance?
-> >
-> > I guess we'll have to wait till you get back to the box and then I =
-want
-> > fresh debug dmesgs (after poweroff) of older (with bind/unbind) and
-> > latest kernels, going through boot, 1st (make sure to type qwerty) =
-and
-> > 2nd resume (qwerty again). Make sure you don't have any other i8042=
- or
-> > atkbd switches besides i8042.debug.
->=20
-> Hello,
-> Back with some results :-)
->=20
-> Attached is a (bzip-compressed) log [1] of a 2.6.30 kernel started wi=
-th
-> i8042.debug (nothing else important).
->=20
-> The log contains 4 suspend-resumes (look for "Back to C"):
-> * from the console, using "echo mem > /sys/power/state", keyboard fin=
-e
-> * from the console, using "pm-suspend" (aka "all the nasty stuff done=
- by
-> the distro"), keyboard fine
-> * from X, using "echo mem > /sys/power/state", keyboard gone
-> * a unbind-bind cycle, keyboard back
-> * from X, using "echo mem > /sys/power/state", keyboard fine
->=20
->=20
-> What I realised during this experiment, is that the keyboard goes awa=
-y
-> after the first suspend-resume _in X_. Each time, I typed on the
-> keyboard "qwerty" (and almost nothing else).
->=20
-> Do you see what goes wrong in resuming the keyboard?
->=20
+Hi, Daniel!
 
-Nothing, as far as I can tell... I see you typing "qwerty"... Does the=20
-keyboard work in console (let's say if you boot in run level 3 to take =
-X out=20
-of the picture)? Could you please try compiling evbug module - it will =
-show if=20
-keyboard events are propagated through input core. Also, whta driver ar=
-e you=20
-using in X? Legacy keyboard or evdev?
+I wonder why do you integrate the input driver into the leds driver. They
+should be separated. Or at least the complex driver should be moved to the
+"X86 Platform Specific Device Drivers" and renamed to some like "PC Engines
+ALIX Extras". I personally would prefer the separation way.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Also ALIX.2 documentation describes the "Mode switch" driven by GPIO which is a
+small button on front side of a board. I guessed your driver is not for this
+button. If so, would it be better to provide the mode switch as KEY_PROG1 and
+the J15 connected button as KEY_PROG2 at once?
+
+Cheers,
+Constantin
+
+> From 66953e5dda7bbbc22b92541ed3a6020773c62140 Mon Sep 17 00:00:00 2001
+> From: Daniel Mack <daniel@caiaq.de>
+> Date: Tue, 13 Oct 2009 12:42:52 +0800
+> Subject: [PATCH] leds-alix2: add support for button connected to J15
+> 
+> The ALIX2 boards have one GPIO pin which is reachable at connector J15.
+> One possible application for this feature is to connect a button which
+> closes the two pins.
+> 
+> This patch adds support to query these button and export its state via
+> an input device.
+> 
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Richard Purdie <rpurdie@rpsys.net>
+> Cc: linux-input@vger.kernel.org
+> Cc: Constantin Baranov <const@mimas.ru>

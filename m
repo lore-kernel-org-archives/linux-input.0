@@ -1,61 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input/misc: new ADXL345/346 driver
-Date: Tue, 20 Oct 2009 20:14:23 -0700
-Message-ID: <332DEBB9-8211-471F-9525-109E43B9C1CC@gmail.com>
-Mime-Version: 1.0 (iPhone Mail 7C144)
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
+Date: Tue, 20 Oct 2009 21:35:53 -0700
+Message-ID: <20091021043553.GA378@core.coreip.homeip.net>
+References: <20091016130315.GT28832@buzzloop.caiaq.de> <20091018072738.GF3935@core.coreip.homeip.net> <20091019073728.GC28832@buzzloop.caiaq.de> <20091020013852.GC24370@core.coreip.homeip.net> <20091020101357.GR28832@buzzloop.caiaq.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:53580 "EHLO
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:33638 "EHLO
 	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751687AbZJUDO2 (ORCPT
+	with ESMTP id S1750954AbZJUEfy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Oct 2009 23:14:28 -0400
-Received: by pzk26 with SMTP id 26so4527877pzk.4
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2009 20:14:33 -0700 (PDT)
+	Wed, 21 Oct 2009 00:35:54 -0400
+Content-Disposition: inline
+In-Reply-To: <20091020101357.GR28832@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Verges <chrisv@cyberswitching.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, Michael Hennerich <michael.hennerich@analog.com>, Luotao Fu <l.fu@pengutronix.de>, Barry Song <barry.song@analog.com>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
 
-Hi Chris,
+Hi Daniel,
 
-On Tue, Oct 20, 2009 at 11:46:08AM -0700, Chris Verges wrote:
-> Hi Mike and Michael,
->
->> +config INPUT_ADXL34X
->> +config INPUT_ADXL34X_I2C
->> +config INPUT_ADXL34X_SPI
->
-> Should the INPUT_ADXL34X option be auto-selected when the _I2C or _SPI
-> counterparts are selected?  Something like:
->
-> config HAVE_INPUT_ADXL34X
->
-> config INPUT_ADXL34X
->    depends on HAVE_INPUT_ADXL34X
->
-> config INPUT_ADXL34X_I2C
->    bool "..."
->    depends on I2C
->    select HAVE_INPUT_ADXL34X
->
-> config INPUT_ADXL34X_SPI
->    bool "..."
->    depends on SPI_MASTER
->    select HAVE_INPUT_ADXL34X
->
-> The end user would only see the INPUT_ADXL34X_SPI and  
-> INPUT_ADXL34X_I2C
-> options, with the common INPUT_ADXL34X option being automagically
-> selected due to the reverse dependencies.
->
+On Tue, Oct 20, 2009 at 12:13:57PM +0200, Daniel Mack wrote:
+> +
+> +	ret = input_register_polled_device(ipdev);
+> +	
+> +	if (ret) {
+> +		input_free_polled_device(ipdev);
+> +		ipdev = NULL;
+> +	}
+> +
+> +	return ret;
+> +}
 
-I don't see any problem with the original patch when user selects chip
-support and then presented with choice of buses.
+Ah, don't be lazy ;)
+
+static void alix_button_unregister(void)
+{
+	if (ipdev) {
+		input_unregister_polled_device(ipdev);
+		/* Yes, polled devices need to be freed */
+		input_free_polled_device(ipdev);
+		ipdev = NULL;
+	}
+}
+
+> +#else
+> +#define alix_button_register() (0)
+
+static inline int alix_button_register(void) { return 0; }
+static inline void alix_button_unregister(void) { }
+
+So you get typechecking (if any).
+
+> +#endif
+> +
+>  static int __init alix_led_probe(struct platform_device *pdev)
+>  {
+>  	int i;
+> @@ -89,6 +139,11 @@ static int __init alix_led_probe(struct platform_device *pdev)
+>  		if (ret < 0)
+>  			goto fail;
+>  	}
+> +
+> +	ret = alix_button_register();
+> +	if (ret) 
+> +		goto fail;
+> +
+>  	return 0;
+>  
+>  fail:
+> @@ -103,6 +158,12 @@ static int alix_led_remove(struct platform_device *pdev)
+>  
+>  	for (i = 0; i < ARRAY_SIZE(alix_leds); i++)
+>  		led_classdev_unregister(&alix_leds[i].cdev);
+> +
+> +#ifdef CONFIG_LEDS_ALIX2_BUTTON
+> +	if (ipdev)
+> +		input_unregister_polled_device(ipdev);
+> +#endif
+
+	alix_button_unregister();
+
+> +
+>  	return 0;
+>  }
+>  
 
 -- 
 Dmitry

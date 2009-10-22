@@ -1,37 +1,37 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
-Date: Thu, 22 Oct 2009 12:29:38 +0200
-Message-ID: <20091022102937.GA3981@ucw.cz>
-References: <20091016130315.GT28832@buzzloop.caiaq.de> <1255863412.27878.136.camel@ted> <20091019071621.GZ28832@buzzloop.caiaq.de>
+From: =?ISO-8859-15?Q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not  work anymore
+Date: Thu, 22 Oct 2009 18:10:52 +0200
+Message-ID: <4AE0840C.8070801@tremplin-utc.net>
+References: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com> <20091015215944.GA9845@core.coreip.homeip.net> <4ADF6237.9070004@tremplin-utc.net> <200910211320.16339.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755418AbZJVMOn@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20091019071621.GZ28832@buzzloop.caiaq.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Constantin Baranov <const@mimas.ru>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:26609 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753179AbZJVQKw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 22 Oct 2009 12:10:52 -0400
+In-Reply-To: <200910211320.16339.dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi!
-
-> > > for a project I was working on, we used the J15 connector of the ALIX.2D
-> > > board (which is connected to a GPIO of the CS5536 Geode companion chip)
-> > > for an external button switch.
-...
-> Hmm, hard to say. One can either use that IO as output to control a
-> buzzer (which isn't placed on the board, but there are solder pads for
-> it), as output for other purpose or as input.
+Op 21-10-09 22:20, Dmitry Torokhov schreef:
 > 
-> Don't know what other people use it for, though, but we needed an
-> external button in our case and use this IO pin for that purpose.
-> 
-> Anyway - I don't insist in that patch to be taken. The idea was more to
-> share it so others won't have to hack the same thing.
+> Nothing, as far as I can tell... I see you typing "qwerty"... Does the 
+> keyboard work in console (let's say if you boot in run level 3 to take X out 
+> of the picture)? Could you please try compiling evbug module - it will show if 
+> keyboard events are propagated through input core. Also, whta driver are you 
+> using in X? Legacy keyboard or evdev?
+In the console (in init 3), I haven't managed to reproduce it. In xorg,
+the keyboard input uses evdev. Now I've just tried "evtest
+/dev/input/event4", when the keyboard doesn't work... and I see the key
+presses!
 
-So its gpio pin... if you teach gpio framework about it, you should be
-able to just use gpio_button driver to handle it, no?
+So I guess it rules out a bug in the kernel, and I have to talk with the
+people from Xorg, right?
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Thanks,
+Eric

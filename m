@@ -1,54 +1,102 @@
-From: Constantin Baranov <const@mimas.ru>
-Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
-Date: Thu, 22 Oct 2009 03:09:09 +0500
-Message-ID: <20091022030909.742b3ba1.const@mimas.ru>
-References: <20091016130315.GT28832@buzzloop.caiaq.de>
-	<20091018072738.GF3935@core.coreip.homeip.net>
-	<20091019073728.GC28832@buzzloop.caiaq.de>
-	<20091020013852.GC24370@core.coreip.homeip.net>
-	<20091020101357.GR28832@buzzloop.caiaq.de>
-	<20091021043553.GA378@core.coreip.homeip.net>
-	<20091021193347.GL14091@buzzloop.caiaq.de>
-	<20091022012121.5b35ff22.const@mimas.ru>
-	<20091021204158.GN14091@buzzloop.caiaq.de>
-	<20091022023928.2a8afea8.const@mimas.ru>
+From: Harald Dunkel <harald.dunkel@t-online.de>
+Subject: Chesen ps/2 usb adapter: fourth mouse button not working
+Date: Thu, 22 Oct 2009 07:00:15 +0200
+Message-ID: <4ADFE6DF.9080108@t-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.27]:13732 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754937AbZJUWJK (ORCPT
+Received: from mailout01.t-online.de ([194.25.134.80]:37846 "EHLO
+	mailout01.t-online.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751994AbZJVFAP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Oct 2009 18:09:10 -0400
-In-Reply-To: <20091022023928.2a8afea8.const@mimas.ru>
+	Thu, 22 Oct 2009 01:00:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Thu, 22 Oct 2009 02:39:28 +0500 Constantin Baranov <const@mimas.ru> wrote:
-> On Wed, 21 Oct 2009 22:41:58 +0200 Daniel Mack <daniel@caiaq.de> wrote:
-> > On Thu, Oct 22, 2009 at 01:21:21AM +0500, Constantin Baranov wrote:
-> > > I wonder why do you integrate the input driver into the leds driver. They
-> > > should be separated. Or at least the complex driver should be moved to the
-> > > "X86 Platform Specific Device Drivers" and renamed to some like "PC Engines
-> > > ALIX Extras". I personally would prefer the separation way.
-> > 
-> > I would as well, yes. And I was of course considerating this when I
-> > hacked these lines. However, the major part of the LED driver and what
-> > it currently shares with the button implementation is the BIOS detection
-> > code which is so ugly that I didn't want to duplicate it ;) That would,
-> > however, be the only option if you wanted to split the drivers up. Or
-> > do you have any better idea?
-> 
-> We may introduce new ALIX2 extended platform (module in arch/x86/kernel).
-> In the init function it shall perform detection. The module shall export
-> the is_alix2() function which shall be called from init functions of drivers.
-> Also the cs5535_gpio driver could be reused for gpio access (the previous
-> patch for leds-alix2 is copy&paste from cs5535_gpio).
+Hi folks,
 
-Moreover, the cs5535_gpio driver itself could be reworked and ported to
-the gpiolib. This goes far from initial task (button support) indeed :)
+I've got a Logitech Trackman FX connected to my PC via a
+Chesen ps/2 usb adapter for mouse and keyboard. Problem: The
+fourth mouse button doesn't trigger any events. This means
+that I cannot enable scroll wheel emulation in the X mouse
+driver, for example. It is a severe restriction.
 
-Constantin
+I had opened a bug report for the Xorg mouse driver, but a low
+level test program running outside of X showed that this
+seems to be a problem in the kernel.
+
+Kernel is 2.6.31.4. The same Trackman FX works fine connected
+to a PC with a "real" ps/2 port (using the same kernel, of
+course).
+
+
+It would be very nice if this could be fixed. Of course I would
+be glad to help.
+
+
+Many thanx
+
+Harri
+=====================================================================
+% cat /proc/bus/input/devices
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+S: Sysfs=/devices/platform/i8042/serio0/input/input0
+U: Uniq=
+H: Handlers=kbd event0
+B: EV=120013
+B: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=0a81 Product=0205 Version=0110
+N: Name="CHESEN PS2 to USB Converter"
+P: Phys=usb-0000:00:1a.2-2/input0
+S: Sysfs=/devices/pci0000:00/0000:00:1a.2/usb5/5-2/5-2:1.0/input/input1
+U: Uniq=
+H: Handlers=kbd event1
+B: EV=120013
+B: KEY=1000000000007 ff980000000007ff febeffdfffefffff fffffffffffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=0a81 Product=0205 Version=0110
+N: Name="CHESEN PS2 to USB Converter"
+P: Phys=usb-0000:00:1a.2-2/input1
+S: Sysfs=/devices/pci0000:00/0000:00:1a.2/usb5/5-2/5-2:1.1/input/input2
+U: Uniq=
+H: Handlers=kbd mouse0 event2
+B: EV=17
+B: KEY=1f001f 2020000 3878d801d001 1e000000000000 0
+B: REL=103
+B: MSC=10
+
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=LNXPWRBN/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input3
+U: Uniq=
+H: Handlers=kbd event3
+B: EV=3
+B: KEY=10000000000000 0
+
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=PNP0C0C/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/device:00/PNP0C0C:00/input/input4
+U: Uniq=
+H: Handlers=kbd event4
+B: EV=3
+B: KEY=10000000000000 0
+
+I: Bus=0010 Vendor=001f Product=0001 Version=0100
+N: Name="PC Speaker"
+P: Phys=isa0061/input0
+S: Sysfs=/devices/platform/pcspkr/input/input5
+U: Uniq=
+H: Handlers=kbd event5
+B: EV=40001
+B: SND=6

@@ -1,52 +1,55 @@
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Subject: [RFC PATCH 1/1] Input: add new keycodes useful in mobile devices
-Date: Thu, 22 Oct 2009 12:32:20 +0300
-Message-ID: <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com>
-References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:30227 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754528AbZJVJcc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Oct 2009 05:32:32 -0400
-In-Reply-To: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
-In-Reply-To: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
-References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] leds-alix2: add support for button connected to J15
+Date: Thu, 22 Oct 2009 12:11:03 +0200
+Message-ID: <20091022101103.GR14091@buzzloop.caiaq.de>
+References: <20091018072738.GF3935@core.coreip.homeip.net>
+ <20091019073728.GC28832@buzzloop.caiaq.de>
+ <20091020013852.GC24370@core.coreip.homeip.net>
+ <20091020101357.GR28832@buzzloop.caiaq.de>
+ <20091021043553.GA378@core.coreip.homeip.net>
+ <20091021193347.GL14091@buzzloop.caiaq.de>
+ <20091022012121.5b35ff22.const@mimas.ru>
+ <20091021204158.GN14091@buzzloop.caiaq.de>
+ <20091022023928.2a8afea8.const@mimas.ru>
+ <20091022030909.742b3ba1.const@mimas.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753195AbZJVKLL@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091022030909.742b3ba1.const@mimas.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Constantin Baranov <const@mimas.ru>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, ext-jani.1.nikula@nokia.com
 
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+On Thu, Oct 22, 2009 at 03:09:09AM +0500, Constantin Baranov wrote:
+> On Thu, 22 Oct 2009 02:39:28 +0500 Constantin Baranov <const@mimas.ru> wrote:
+> > On Wed, 21 Oct 2009 22:41:58 +0200 Daniel Mack <daniel@caiaq.de> wrote:
+> > > On Thu, Oct 22, 2009 at 01:21:21AM +0500, Constantin Baranov wrote:
+> > > > I wonder why do you integrate the input driver into the leds driver. They
+> > > > should be separated. Or at least the complex driver should be moved to the
+> > > > "X86 Platform Specific Device Drivers" and renamed to some like "PC Engines
+> > > > ALIX Extras". I personally would prefer the separation way.
+> > > 
+> > > I would as well, yes. And I was of course considerating this when I
+> > > hacked these lines. However, the major part of the LED driver and what
+> > > it currently shares with the button implementation is the BIOS detection
+> > > code which is so ugly that I didn't want to duplicate it ;) That would,
+> > > however, be the only option if you wanted to split the drivers up. Or
+> > > do you have any better idea?
+> > 
+> > We may introduce new ALIX2 extended platform (module in arch/x86/kernel).
+> > In the init function it shall perform detection. The module shall export
+> > the is_alix2() function which shall be called from init functions of drivers.
+> > Also the cs5535_gpio driver could be reused for gpio access (the previous
+> > patch for leds-alix2 is copy&paste from cs5535_gpio).
+> 
+> Moreover, the cs5535_gpio driver itself could be reworked and ported to
+> the gpiolib. This goes far from initial task (button support) indeed :)
 
-Signed-off-by: Jani Nikula <ext-jani.1.nikula@nokia.com>
----
- include/linux/input.h |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+Indeed, agreed to all points, that would be the sane way to do it.
+However, I won't have time to care for that soon. So the best thing to
+do for now is drop the patch and leave it in the mail archives. And wait
+untils eventually cares to do ir right :)
 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 0ccfc30..3c246b1 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -595,6 +595,8 @@ struct input_absinfo {
- #define KEY_NUMERIC_STAR	0x20a
- #define KEY_NUMERIC_POUND	0x20b
- 
-+#define KEY_CAMERA_FOCUS	0x210
-+
- /* We avoid low common keys in module aliases so they don't get huge. */
- #define KEY_MIN_INTERESTING	KEY_MUTE
- #define KEY_MAX			0x2ff
-@@ -677,6 +679,9 @@ struct input_absinfo {
- #define SW_LINEOUT_INSERT	0x06  /* set = inserted */
- #define SW_JACK_PHYSICAL_INSERT 0x07  /* set = mechanical switch set */
- #define SW_VIDEOOUT_INSERT	0x08  /* set = inserted */
-+#define SW_CAMERA_LENSE_COVER	0x09  /* set = lense covered */
-+#define SW_KEYPAD_SLIDE		0x0a  /* set = keypad slide out */
-+#define SW_PROXIMITY		0x0b  /* set = proximity sensor covered */
- #define SW_MAX			0x0f
- #define SW_CNT			(SW_MAX+1)
- 
--- 
-1.6.3.2
-
+Daniel

@@ -1,68 +1,186 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 1/1] Input: add new keycodes useful in mobile
-	devices
-Date: Fri, 23 Oct 2009 00:13:15 -0700
-Message-ID: <20091023071315.GA3986@core.coreip.homeip.net>
-References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com> <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com>
+From: =?ISO-8859-1?Q?=C9ric_Piel?= <eric.piel@tremplin-utc.net>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not  work	anymore
+Date: Fri, 23 Oct 2009 10:08:41 +0200
+Message-ID: <4AE16489.4030008@tremplin-utc.net>
+References: <928C125D-D36B-47C9-A549-3EE502C9EC73@gmail.com> <20091015215944.GA9845@core.coreip.homeip.net> <4ADF6237.9070004@tremplin-utc.net> <200910211320.16339.dmitry.torokhov@gmail.com> <4AE0840C.8070801@tremplin-utc.net> <20091022162202.GA18031@core.coreip.homeip.net> <4AE09AFF.805@tremplin-utc.net> <20091022181915.GB18031@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+ boundary="------------080706070705030007070108"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:34028 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750841AbZJWHNQ (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:28135 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751038AbZJWIIo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Oct 2009 03:13:16 -0400
-Received: by pwj9 with SMTP id 9so28892pwj.21
-        for <linux-input@vger.kernel.org>; Fri, 23 Oct 2009 00:13:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com>
+	Fri, 23 Oct 2009 04:08:44 -0400
+In-Reply-To: <20091022181915.GB18031@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Jani,
+This is a multi-part message in MIME format.
+--------------080706070705030007070108
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-On Thu, Oct 22, 2009 at 12:32:20PM +0300, Jani Nikula wrote:
-> From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Op 22-10-09 20:19, Dmitry Torokhov schreef:
+> On Thu, Oct 22, 2009 at 07:48:47PM +0200, Éric Piel wrote:
+>> I don't think so: xorg 1.6.5, with xinput-evdev 2.2.5. They are both  
+>> latest or second latest stable versions.
+>>
+>> In the log I see this:
+>> (--) SynPS/2 Synaptics TouchPad: touchpad found
+>> (II) PS/2 Generic Mouse: Device reopened after 1 attempts.
+>> (EE) AT Translated Set 2 keyboard: device key_bitmask has changed
+>> (EE) AT Translated Set 2 keyboard: Device has changed - disabling.
+>>
+>> Quite a few people seem to have the same problem.
 > 
-> Signed-off-by: Jani Nikula <ext-jani.1.nikula@nokia.com>
-> ---
->  include/linux/input.h |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
+> The bitmask should not be changing on it's own... Any chance you could
+> save contents or /proc/bus/input/devices before suspend and after resume
+> (when X decides to ditch the keyboard) and diff them?
 > 
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 0ccfc30..3c246b1 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -595,6 +595,8 @@ struct input_absinfo {
->  #define KEY_NUMERIC_STAR	0x20a
->  #define KEY_NUMERIC_POUND	0x20b
->  
-> +#define KEY_CAMERA_FOCUS	0x210
+Hello,
+I've just tried this: before and after is exactly the same (attached is
+a copy of it).
 
-I believe that this has already been discussed and I am OK with adding
-such keycode, as long and there are in-kernel users.
+> Also, are you using 64 bit userspace?
+Yes, all 64 bits.
 
-> +
->  /* We avoid low common keys in module aliases so they don't get huge. */
->  #define KEY_MIN_INTERESTING	KEY_MUTE
->  #define KEY_MAX			0x2ff
-> @@ -677,6 +679,9 @@ struct input_absinfo {
->  #define SW_LINEOUT_INSERT	0x06  /* set = inserted */
->  #define SW_JACK_PHYSICAL_INSERT 0x07  /* set = mechanical switch set */
->  #define SW_VIDEOOUT_INSERT	0x08  /* set = inserted */
-> +#define SW_CAMERA_LENSE_COVER	0x09  /* set = lense covered */
-> +#define SW_KEYPAD_SLIDE		0x0a  /* set = keypad slide out */
-> +#define SW_PROXIMITY		0x0b  /* set = proximity sensor covered */
+Eric
 
-Don't quite like the name for this one, any alternatives?
+--------------080706070705030007070108
+Content-Type: text/plain;
+ name="input-devices-before.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="input-devices-before.txt"
 
->  #define SW_MAX			0x0f
->  #define SW_CNT			(SW_MAX+1)
->  
+I: Bus=0019 Vendor=0000 Product=0003 Version=0000
+N: Name="Sleep Button"
+P: Phys=PNP0C0E/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0E:00/input/input0
+U: Uniq=
+H: Handlers=kbd event0 evbug 
+B: EV=3
+B: KEY=4000 0 0
 
-Thanks.
+I: Bus=0019 Vendor=0000 Product=0005 Version=0000
+N: Name="Lid Switch"
+P: Phys=PNP0C0D/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0D:00/input/input1
+U: Uniq=
+H: Handlers=event1 evbug 
+B: EV=21
+B: SW=1
 
--- 
-Dmitry
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=LNXPWRBN/button/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXPWRBN:00/input/input2
+U: Uniq=
+H: Handlers=kbd event2 evbug 
+B: EV=3
+B: KEY=10000000000000 0
+
+I: Bus=0019 Vendor=0000 Product=0006 Version=0000
+N: Name="Video Bus"
+P: Phys=LNXVIDEO/video/input0
+S: Sysfs=/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/LNXVIDEO:00/input/input3
+U: Uniq=
+H: Handlers=kbd event3 evbug 
+B: EV=3
+B: KEY=3f000b00000000 0 0 0
+
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+S: Sysfs=/devices/platform/i8042/serio0/input/input4
+U: Uniq=
+H: Handlers=kbd event4 evbug rfkill 
+B: EV=120013
+B: KEY=20 0 0 30400f02100000 17803878f800d401 feffffdfffefffff ffffffffffffffff
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=413c Product=2003 Version=0110
+N: Name="Dell Dell USB Keyboard"
+P: Phys=usb-0000:00:1d.7-6.2/input0
+S: Sysfs=/devices/pci0000:00/0000:00:1d.7/usb2/2-6/2-6.2/2-6.2:1.0/input/input5
+U: Uniq=
+H: Handlers=kbd event5 evbug 
+B: EV=120013
+B: KEY=1000000000007 ff9f207ac14057ff febeffdfffefffff fffffffffffffffe
+B: MSC=10
+B: LED=7
+
+I: Bus=0003 Vendor=046d Product=c018 Version=0111
+N: Name="Logitech USB Optical Mouse"
+P: Phys=usb-0000:00:1d.7-6.1.2/input0
+S: Sysfs=/devices/pci0000:00/0000:00:1d.7/usb2/2-6/2-6.1/2-6.1.2/2-6.1.2:1.0/input/input6
+U: Uniq=
+H: Handlers=mouse0 event6 evbug 
+B: EV=17
+B: KEY=70000 0 0 0 0
+B: REL=103
+B: MSC=10
+
+I: Bus=0019 Vendor=0000 Product=0000 Version=0000
+N: Name="ST LIS3LV02DL Accelerometer"
+P: Phys=lis3lv02d/input0
+S: Sysfs=/devices/platform/lis3lv02d/input/input7
+U: Uniq=
+H: Handlers=event7 evbug js0 
+B: EV=9
+B: ABS=7
+
+I: Bus=0019 Vendor=0000 Product=0000 Version=0000
+N: Name="HP WMI hotkeys"
+P: Phys=wmi/input0
+S: Sysfs=/devices/virtual/input/input8
+U: Uniq=
+H: Handlers=kbd event8 evbug 
+B: EV=23
+B: KEY=4000000000 0 700000000 100400 0 0
+B: SW=22
+
+I: Bus=0010 Vendor=001f Product=0001 Version=0100
+N: Name="PC Speaker"
+P: Phys=isa0061/input0
+S: Sysfs=/devices/platform/pcspkr/input/input9
+U: Uniq=
+H: Handlers=kbd event9 evbug 
+B: EV=40001
+B: SND=6
+
+I: Bus=0001 Vendor=11d4 Product=1981 Version=0001
+N: Name="HDA Digital PCBeep"
+P: Phys=card0/codec#0/beep0
+S: Sysfs=/devices/pci0000:00/0000:00:1b.0/input/input10
+U: Uniq=
+H: Handlers=kbd event10 evbug 
+B: EV=40001
+B: SND=6
+
+I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+N: Name="PS/2 Generic Mouse"
+P: Phys=isa0060/serio1/input0
+S: Sysfs=/devices/platform/i8042/serio1/input/input11
+U: Uniq=
+H: Handlers=mouse1 event11 evbug 
+B: EV=7
+B: KEY=70000 0 0 0 0
+B: REL=3
+
+I: Bus=0011 Vendor=0002 Product=0007 Version=01b1
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio4/input0
+S: Sysfs=/devices/platform/i8042/serio4/input/input12
+U: Uniq=
+H: Handlers=mouse2 event12 evbug 
+B: EV=b
+B: KEY=6420 70000 0 0 0 0
+B: ABS=11000003
+
+
+--------------080706070705030007070108--

@@ -1,247 +1,151 @@
-From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
-Subject: [RFC PATCH 1/1] Input: gpio-keys: export gpio key information through sysfs
-Date: Fri, 23 Oct 2009 15:15:46 +0300
-Message-ID: <937a56e01181bef04c6661dc61032c1d08269cfa.1256298993.git.ext-mika.1.westerberg@nokia.com>
-References: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not  work
+	anymore
+Date: Fri, 23 Oct 2009 09:31:13 -0700
+Message-ID: <20091023163113.GA7707@core.coreip.homeip.net>
+References: <20091015215944.GA9845@core.coreip.homeip.net> <4ADF6237.9070004@tremplin-utc.net> <200910211320.16339.dmitry.torokhov@gmail.com> <4AE0840C.8070801@tremplin-utc.net> <20091022162202.GA18031@core.coreip.homeip.net> <4AE09AFF.805@tremplin-utc.net> <20091022181915.GB18031@core.coreip.homeip.net> <4AE16489.4030008@tremplin-utc.net> <20091023085824.GA7199@core.coreip.homeip.net> <4AE17586.9020009@tremplin-utc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:61964 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751685AbZJWMTs (ORCPT
+Received: from mail-fx0-f218.google.com ([209.85.220.218]:57574 "EHLO
+	mail-fx0-f218.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752456AbZJWQbU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Oct 2009 08:19:48 -0400
-In-Reply-To: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com>
-In-Reply-To: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com>
-References: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com>
+	Fri, 23 Oct 2009 12:31:20 -0400
+Content-Disposition: inline
+In-Reply-To: <4AE17586.9020009@tremplin-utc.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?=C9ric?= Piel <eric.piel@tremplin-utc.net>
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
+On Fri, Oct 23, 2009 at 11:21:10AM +0200, =C9ric Piel wrote:
+> Op 23-10-09 10:58, Dmitry Torokhov schreef:
+> > On Fri, Oct 23, 2009 at 10:08:41AM +0200, =C9ric Piel wrote:
+> >> Op 22-10-09 20:19, Dmitry Torokhov schreef:
+> >>> On Thu, Oct 22, 2009 at 07:48:47PM +0200, =C9ric Piel wrote:
+> >>>> I don't think so: xorg 1.6.5, with xinput-evdev 2.2.5. They are =
+both =20
+> >>>> latest or second latest stable versions.
+> >>>>
+> >>>> In the log I see this:
+> >>>> (--) SynPS/2 Synaptics TouchPad: touchpad found
+> >>>> (II) PS/2 Generic Mouse: Device reopened after 1 attempts.
+> >>>> (EE) AT Translated Set 2 keyboard: device key_bitmask has change=
+d
+> >>>> (EE) AT Translated Set 2 keyboard: Device has changed - disablin=
+g.
+> >>>>
+> >>>> Quite a few people seem to have the same problem.
+> >>> The bitmask should not be changing on it's own... Any chance you =
+could
+> >>> save contents or /proc/bus/input/devices before suspend and after=
+ resume
+> >>> (when X decides to ditch the keyboard) and diff them?
+> >>>
+> >> Hello,
+> >> I've just tried this: before and after is exactly the same (attach=
+ed is
+> >> a copy of it).
+> >>
+> >=20
+> > What about before X starts? Can you please boot into console, kill
+> > hal and udev to make sure they don't mess up with the keymap and, a=
+fter
+> > doing
+> >=20
+> > 	echo -n rescan > /sys/bus/serio/devices/serio0/drvctl
+> >=20
+> > which should completely reinitialize keyboard and compare
+> > /proc/bus/input/devices again? If it is still the same then there m=
+ust
+> > be a silly bug in X's evdev...
+> Ok, I'll reboot later and try. In the mean time, I've just tried this=
+ on
+> my non-working keyboard, and it resurrected it :-)
 
-In some embedded devices gpio lines are used as keys/buttons
-through input layer and gpio-keys.  It is, however, impossible
-to disable gpio lines separately from waking up the cpu.  For
-example when device is locked we don't want accidental camera
-button press to cause the device to wakeup just to notice that
-it should continue sleeping.
+Yes, it would - "rescan" causes input device teardown and creationa new
+one. This causes a hotplug event that is processed by X and it adds a
+new device in place of the old one that it decided to disable (due to
+keys change).
 
-This patch exports gpio-keys through sysfs and allows userland
-to control whether single gpio line should wakeup the cpu or not.
+> Even more
+> interestingly, the key bitmap has changed.
+>=20
 
-Sysfs interface is accessible via:
+Right, your init scripts/UDEV/HAL whatever adjust keymap to match your
+laptop.
 
-	/sys/class/input/gpio-keys/input/input0/gpio-key.N/
+> Before:
+> I: Bus=3D0011 Vendor=3D0001 Product=3D0001 Version=3Dab41
+> N: Name=3D"AT Translated Set 2 keyboard"
+> P: Phys=3Disa0060/serio0/input0
+> S: Sysfs=3D/devices/platform/i8042/serio0/input/input4
+> U: Uniq=3D
+> H: Hadlers=3Dkbd event4 evbug rfkill
+> B: EV=3D120013
+> B: KEY=3D20 0 0 30400f02100000 17803878f800d401 feffffdfffefffff
+> ffffffffffffffff
+> B: MSC=3D10
+> B: LED=3D7
+>=20
+> After:
+> I: Bus=3D0011 Vendor=3D0001 Product=3D0001 Version=3Dab41
+> N: Name=3D"AT Translated Set 2 keyboard"
+> P: Phys=3Disa0060/serio0/input0
+> S: Sysfs=3D/devices/platform/i8042/serio0/input/input15
+> U: Uniq=3D
+> H: Handlers=3Dkbd event4 evbug
 
-Following attributes are exported per gpio key:
 
-	/code    ... input event code (ro)
-	/type    ... input event type (ro)
-	/desc    ... description of the button (ro)
-	/disable ... enable/disable gpio line (rw)
+Yep, note that the previous instance had rfkill bound, that means the
+device had KEY_WLAN or KEY_BLUETOOTH in it's keymap but this one does
+not. None of these key codes are in in-kernel keymaps for atkbd; they
+were added afterwards.
 
-Userspace should be able to find out what key to disable/enable
-by investigating {code, type, desc} tuple.
+Now, all depends on when this adjustment happens... In your case it
+looks like X server starts before the keymap is adjusted, so on first
+resume the keymaps are different and it disables the device.
 
-Signed-off-by: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
----
- drivers/input/keyboard/gpio_keys.c |  162 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 162 insertions(+), 0 deletions(-)
+> B: EV=3D120013
+> B: KEY=3D20000 20000000020 0 0 500f02100003 3803078f900d401
+> feffffdfffefffff ffffffffffffffff
+> B: MSC=3D10
+> B: LED=3D7
+>=20
+> Was this expected?
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index a88aff3..76e7c5c 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -31,6 +31,8 @@ struct gpio_button_data {
- 	struct input_dev *input;
- 	struct timer_list timer;
- 	struct work_struct work;
-+	struct device *dev;	/* device used to export button to sysfs */
-+	bool disable;		/* is this gpio button disabled */
- };
- 
- struct gpio_keys_drvdata {
-@@ -38,6 +40,159 @@ struct gpio_keys_drvdata {
- 	struct gpio_button_data data[0];
- };
- 
-+/*
-+ * gpio-keys sysfs interface
-+ *
-+ * Following interface is export to userspace through
-+ * sysfs.  This interface can be used to enable/disable
-+ * single GPIO lines from generating events.
-+ *
-+ * /sys/class/input/gpio-keys/input/input0/gpio-key.N/
-+ * 	/code	 ... input event code (ro)
-+ *	/type	 ... input event type (ro)
-+ *	/desc	 ... description of the button (ro)
-+ *	/disable ... enable/disable gpio line from
-+ *	             generating events (rw)
-+ *
-+ * Userspace program can enumerate these keys and based
-+ * on {code,type,desc} tuple disable or enable the line
-+ * depending on the system state.
-+ */
-+
-+static ssize_t gpio_keys_code_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	const struct gpio_button_data *bdata = dev_get_drvdata(dev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", bdata->button->code);
-+}
-+
-+static DEVICE_ATTR(code, S_IRUGO, gpio_keys_code_show, NULL);
-+
-+static ssize_t gpio_keys_type_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	const struct gpio_button_data *bdata = dev_get_drvdata(dev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", bdata->button->type);
-+}
-+
-+static DEVICE_ATTR(type, S_IRUGO, gpio_keys_type_show, NULL);
-+
-+static ssize_t gpio_keys_desc_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	const struct gpio_button_data *bdata = dev_get_drvdata(dev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%s\n", bdata->button->desc);
-+}
-+
-+static DEVICE_ATTR(desc, S_IRUGO, gpio_keys_desc_show, NULL);
-+
-+static ssize_t gpio_keys_disable_show(struct device *dev,
-+	struct device_attribute *attr, char *buf)
-+{
-+	const struct gpio_button_data *bdata = dev_get_drvdata(dev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", (int)bdata->disable);
-+}
-+
-+static ssize_t gpio_keys_disable_store(struct device *dev,
-+	struct device_attribute *attr, const char *buf, size_t size)
-+{
-+	struct gpio_button_data *bdata = dev_get_drvdata(dev);
-+	int val;
-+
-+	if (sscanf(buf, "%d", &val) != 1)
-+		return -EINVAL;
-+
-+	val = !!val;
-+	if (bdata->disable == val)
-+		return size;
-+
-+	if (val) {
-+		disable_irq(gpio_to_irq(bdata->button->gpio));
-+	} else {
-+		enable_irq(gpio_to_irq(bdata->button->gpio));
-+	}
-+
-+	bdata->disable = val;
-+	return size;
-+}
-+
-+static DEVICE_ATTR(disable, S_IWUSR | S_IRUGO,
-+	gpio_keys_disable_show, gpio_keys_disable_store);
-+
-+static struct attribute *gpio_keys_attrs[] = {
-+	&dev_attr_code.attr,
-+	&dev_attr_type.attr,
-+	&dev_attr_desc.attr,
-+	&dev_attr_disable.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group gpio_keys_attr_group = {
-+	.attrs = gpio_keys_attrs,
-+};
-+
-+static void gpio_keys_unexport(struct platform_device *pdev)
-+{
-+	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-+	int i;
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_button_data *bdata = &ddata->data[i];
-+
-+		if (bdata->dev != NULL) {
-+			sysfs_remove_group(&bdata->dev->kobj,
-+				&gpio_keys_attr_group);
-+			device_unregister(bdata->dev);
-+			bdata->dev = NULL;
-+		}
-+	}
-+}
-+
-+static int gpio_keys_export(struct platform_device *pdev)
-+{
-+	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-+	struct input_dev *input = ddata->input;
-+	int i, error = 0;
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_button_data *bdata = &ddata->data[i];
-+		struct device *dev;
-+
-+		/*
-+		 * We create one "device" per gpio line that is used
-+		 * as input gpio key device.
-+		 */
-+		dev = device_create(input->dev.class, &input->dev,
-+			MKDEV(0, 0), bdata, "gpio-key.%d", i);
-+		if (dev == NULL) {
-+			error = -ENOMEM;
-+			break;
-+		}
-+
-+		error = sysfs_create_group(&dev->kobj, &gpio_keys_attr_group);
-+		if (error != 0) {
-+			device_unregister(dev);
-+			break;
-+		}
-+
-+		bdata->disable = false;
-+		bdata->dev = dev;
-+	}
-+
-+	if (error != 0) {
-+		/* something failed, clean up all entries */
-+		gpio_keys_unexport(pdev);
-+	}
-+
-+	return error;
-+}
-+
- static void gpio_keys_report_event(struct work_struct *work)
- {
- 	struct gpio_button_data *bdata =
-@@ -170,6 +325,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		goto fail2;
- 	}
- 
-+	error = gpio_keys_export(pdev);
-+	if (error) {
-+		pr_warning("gpio-keys: Unable to export gpio-keys to sysfs, "
-+			" error %d", error);
-+	}
-+
- 	device_init_wakeup(&pdev->dev, wakeup);
- 
- 	return 0;
-@@ -199,6 +360,7 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
- 	int i;
- 
- 	device_init_wakeup(&pdev->dev, 0);
-+	gpio_keys_unexport(pdev);
- 
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
--- 
-1.5.6.5
+So yes, kind of expected for laptops.
 
+>=20
+> > But regardless, X policy of comparing
+> > keybit is stupid - they don't kill the device if I change keymap wh=
+ile
+> > in X, why do they do that on resume? Or when I change the limits on
+> > absolute axis... Oh well.
+> With respect to this bug, I have opened a bug report for xorg:
+> https://bugs.freedesktop.org/show_bug.cgi?id=3D24687
+> Indeed, evdev tend to disable for plenty of different reason the
+> keyboard (cf src/evdev.c: EvdevCacheCompare()). The source code is no=
+t
+> very clear why they do this, but somehow I was under the impression t=
+hat
+> it was to avoid using twice the same device (with slightly different
+> properties).
+
+I can see them not wanting to use the same device if it changed form
+keyboard to a mouse (think USB) but differnces in keymaps should be lef=
+t
+alone I think. As for duplicates, they could just check sysfs path to s=
+ee
+if they are dealing with the same device or not. Input code does not
+re-use 'inputX', X will be monotonically increasing.
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

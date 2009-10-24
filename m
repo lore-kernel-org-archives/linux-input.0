@@ -1,56 +1,52 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Fri, 23 Oct 2009 22:29:07 +0200
-Message-ID: <20091023202906.GD27185@elf.ucw.cz>
-References: <87eiss7uhb.fsf@basil.nowhere.org>
- <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de>
- <20090708065325.GE3309@dtor-d630.eng.vmware.com>
- <alpine.LNX.2.00.0907081317000.27327@wotan.suse.de>
- <20091014045851.GA32413@core.coreip.homeip.net>
- <20091014071950.GF23248@one.firstfloor.org>
- <20091014073927.GB5318@core.coreip.homeip.net>
- <20091019213836.GD1482@ucw.cz>
- <20091021081529.GA1070@core.coreip.homeip.net>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [lm-sensors] TSC2003 application
+Date: Sun, 25 Oct 2009 00:26:08 +0530
+Message-ID: <5d5443650910241156k393d5093l4add89a3a7de980b@mail.gmail.com>
+References: <13bd74410910210406p18682e43nb28d330d80660f43@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751556AbZJWU3K@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20091021081529.GA1070@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andi Kleen <andi@firstfloor.org>, Jiri Kosina <jkosina@suse.cz>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f174.google.com ([209.85.221.174]:43361 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751834AbZJXS4E convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 24 Oct 2009 14:56:04 -0400
+In-Reply-To: <13bd74410910210406p18682e43nb28d330d80660f43@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: kirthika varadarajan <kirthikaiitm@gmail.com>
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On Wed 2009-10-21 01:15:30, Dmitry Torokhov wrote:
-> On Mon, Oct 19, 2009 at 11:38:36PM +0200, Pavel Machek wrote:
-> > On Wed 2009-10-14 00:39:28, Dmitry Torokhov wrote:
-> > > On Wed, Oct 14, 2009 at 09:19:50AM +0200, Andi Kleen wrote:
-> > > > > Btw, what kind of keyboard is this? I was playing today but I could not
-> > > > > get my USB keyboards to report release of more than 1 key per report....
-> > > > 
-> > > > The log was with a PS/2<->USB adapter, with a PS/2 keyboard connected
-> > > > to a USB port through it.
-> > > > 
-> > > 
-> > > Hmm, I don't think I have one of those... It is curious beast - we have
-> > > software autorepeat for HID but PS/2 keyboards do autorepeat
-> > > themselves... What will combination do?
-> > 
-> > I always wondered how that's supposed to work... on loaded system. As
-> > linux is not realtime system, it can't, afaict.
-> 
-> What exactly requires realtime? Surely not autorepeat...
+Hi Krithika,
 
-Well, ps/2 does not provide timestamps, neither does USB AFAICT. So if
-you hit say interrupt latency, you'll repeat keys one too many times
-or something.
+On Wed, Oct 21, 2009 at 4:36 PM, kirthika varadarajan
+<kirthikaiitm@gmail.com> wrote:
+> Hi,
+> =A0I found the driver for TSC2003 in web=A0for =A0Linux 2.6.12 .
+> =A0I am using the driver.
+> =A0How can i access the touch values in application.
+> I2C communication in driver is ok.
+>
+> When ever i access from application I2C write fails.
+>
+> Suggest me if there is any sample application for Touch using I2C
 
-[But if X does autorepeat in software, that's even worse. That means
-that scheduling latency can cause autorepeat glitches, and that's
-probably what I'm seeing here. And I haaaaaaaaaaaaaaate when my
-tyyyyyyping goes like this just because I have background load.]
+Adding linux-input and linux-kernel ML and removing lm-sensors mailing =
+list.
 
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+TSC2007 driver in latest kernel can be used for TSC2003 chip too. They
+are similar chips. You can also find discussion on linux-input ML
+archives. Just pass correct i2c board info from your board files if
+using ARM like architecture based machine.
+
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

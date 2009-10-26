@@ -1,41 +1,85 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Patch to fix Volume keys on AMILO 1848+u (Kernel 2.6.32-rc5)
-Date: Mon, 26 Oct 2009 09:31:16 -0700
-Message-ID: <20091026163115.GA5636@core.coreip.homeip.net>
-References: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
+ anymore
+Date: Mon, 26 Oct 2009 13:59:53 -0700
+Message-ID: <20091026205953.GB11665@suse.de>
+References: <200910112135.29384.dmitry.torokhov@gmail.com>
+ <4AD31709.4000103@tremplin-utc.net>
+ <20091012154846.GB7996@core.coreip.homeip.net>
+ <20091012173551.GC10557@suse.de>
+ <20091012183313.GC8345@core.coreip.homeip.net>
+ <20091012185417.GA30342@suse.de>
+ <20091013031741.GB2887@core.coreip.homeip.net>
+ <20091018075127.GH3935@core.coreip.homeip.net>
+ <20091018080238.GA13810@suse.de>
+ <20091023020150.GA26723@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:38238 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752059AbZJZQbQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2009 12:31:16 -0400
-Received: by pzk26 with SMTP id 26so7510826pzk.4
-        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2009 09:31:21 -0700 (PDT)
+Received: from cantor.suse.de ([195.135.220.2]:48823 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752002AbZJZVRv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Oct 2009 17:17:51 -0400
 Content-Disposition: inline
-In-Reply-To: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
+In-Reply-To: <20091023020150.GA26723@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pascal Bach <pascal.bach@nextrem.ch>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: ?ric Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Pascal,
+On Thu, Oct 22, 2009 at 07:01:50PM -0700, Dmitry Torokhov wrote:
+> On Sun, Oct 18, 2009 at 01:02:38AM -0700, Greg KH wrote:
+> > On Sun, Oct 18, 2009 at 12:51:27AM -0700, Dmitry Torokhov wrote:
+> > > On Mon, Oct 12, 2009 at 08:17:41PM -0700, Dmitry Torokhov wrote:
+> > > > On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
+> > > > > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
+> > > > > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
+> > > > > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > > > > > > > > So at least, unbind should fail as well as bind.
+> > > > > > > > >
+> > > > > > > > 
+> > > > > > > > That would be Greg's domain s it is driver core decision whether to
+> > > > > > > > allow unbinding platform devices registered with
+> > > > > > > > platform_driver_probe().
+> > > > > > > 
+> > > > > > > No, I do not see why that should not be allowed.
+> > > > > > > 
+> > > > > > 
+> > > > > > Because once you did unbind the device you are stuck (unless the driver
+> > > > > > is compiled as a module, but then you could just unload the module
+> > > > > > instead of unbinding). Disallowing unbind would allow discarding not
+> > > > > > only __devinit but __devexit sections when driver is built in which
+> > > > > > would make ebedded people happy[^Hier].
+> > > > > 
+> > > > > Yeah, good point.
+> > > > > 
+> > > > > Does anyone do bind/unbind with platform devices today?
+> > > > > 
+> > > > > If not, a patch changing this would be welcome.
+> > > > > 
+> > > > 
+> > > > How about this one?
+> > > > 
+> > > 
+> > > *ping* We need to resolve this, otherwise everyone who likes to rebind
+> > > i8042 in couse of STR/STD will be in trouble.
+> > 
+> > Sorry, am in Tokyo right now.
+> > 
+> > I like this patch, and will queue it up, but it's too late for .32, it
+> > will have to wait for .33.
+> > 
+> 
+> Greg,
+> 
+> I hope you will reconsider. The patch is extremely small but without it
+> I am afraid many people whose distributions blindly rebind i8042 on
+> suspend/resume will lose their keyboards and mice now that i8042 uses
+> platform_driver_probe()...
 
-On Mon, Oct 26, 2009 at 11:35:04AM +0100, Pascal Bach wrote:
-> The Fn+F7 and Fn+F8 Keys to change the Volume don't work as the don't  
-> send a key release event.
->
-> The patch I appended adds the Amilo 1848+u to the special handling list 
-> of the atkbd.c driver.
->
+What distros do something like that automatically?  And this patch will
+not solve that problem, just forbid it from happening, right?
 
-Thank you for the patch, however since atkbd now allows controlling the
-force release bitmap from userspace (via sysfs) I have stopped accepting
-kernel quirks and instead ask people to rely on HAL/DeviceKit or some
-other userspace solution.
+thanks,
 
-Thanks.
-
--- 
-Dmitry
+greg k-h

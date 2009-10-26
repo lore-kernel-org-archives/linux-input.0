@@ -1,54 +1,41 @@
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Subject: Re: [RFC PATCH 1/1] Input: add new keycodes useful in mobile
-	devices
-Date: Mon, 26 Oct 2009 16:43:35 +0200
-Message-ID: <1256568215.10718.271.camel@jani-desktop>
-References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
-	 <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com>
-	 <20091023071315.GA3986@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Patch to fix Volume keys on AMILO 1848+u (Kernel 2.6.32-rc5)
+Date: Mon, 26 Oct 2009 09:31:16 -0700
+Message-ID: <20091026163115.GA5636@core.coreip.homeip.net>
+References: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.105.134]:52217 "EHLO
-	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751711AbZJZOoQ (ORCPT
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:38238 "EHLO
+	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752059AbZJZQbQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2009 10:44:16 -0400
-In-Reply-To: <20091023071315.GA3986@core.coreip.homeip.net>
+	Mon, 26 Oct 2009 12:31:16 -0400
+Received: by pzk26 with SMTP id 26so7510826pzk.4
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2009 09:31:21 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Pascal Bach <pascal.bach@nextrem.ch>
+Cc: linux-input@vger.kernel.org
 
-Hi Dmitry -
+Hi Pascal,
 
-On Fri, 2009-10-23 at 09:13 +0200, ext Dmitry Torokhov wrote:
-> Hi Jani,
-> 
-> On Thu, Oct 22, 2009 at 12:32:20PM +0300, Jani Nikula wrote:
+On Mon, Oct 26, 2009 at 11:35:04AM +0100, Pascal Bach wrote:
+> The Fn+F7 and Fn+F8 Keys to change the Volume don't work as the don't  
+> send a key release event.
+>
+> The patch I appended adds the Amilo 1848+u to the special handling list 
+> of the atkbd.c driver.
+>
 
-> > +#define SW_PROXIMITY		0x0b  /* set = proximity sensor covered */
-> 
-> Don't quite like the name for this one, any alternatives?
+Thank you for the patch, however since atkbd now allows controlling the
+force release bitmap from userspace (via sysfs) I have stopped accepting
+kernel quirks and instead ask people to rely on HAL/DeviceKit or some
+other userspace solution.
 
-SW_PROXIMITY is admittedly pretty vague, but I don't quite know how
-specific you'd like it to be. The main idea is to indicate that the
-device is covered, for example because it's in your pocket or near your
-ear, so the UI should probably adapt to the situation (for example
-disable touchscreen and display on some devices). Someone might also use
-it as a "button" you don't have to touch.
+Thanks.
 
-How about one of these?
-
-SW_FRONT_COVERED
-SW_FRONT_PROXIMITY
-SW_DISPLAY_COVERED
-SW_DISPLAY_PROXIMITY
-SW_EARPIECE_MODE (too specific IMHO)
-
-
-BR,
-Jani.
-
-
+-- 
+Dmitry

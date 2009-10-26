@@ -1,82 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not  work
-	anymore
-Date: Sun, 25 Oct 2009 12:07:26 -0700
-Message-ID: <20091025190726.GA20932@core.coreip.homeip.net>
-References: <200910211320.16339.dmitry.torokhov@gmail.com> <4AE0840C.8070801@tremplin-utc.net> <20091022162202.GA18031@core.coreip.homeip.net> <4AE09AFF.805@tremplin-utc.net> <20091022181915.GB18031@core.coreip.homeip.net> <4AE16489.4030008@tremplin-utc.net> <20091023085824.GA7199@core.coreip.homeip.net> <4AE17586.9020009@tremplin-utc.net> <20091023163113.GA7707@core.coreip.homeip.net> <4AE43AB7.8070601@tremplin-utc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Pascal Bach <pascal.bach@nextrem.ch>
+Subject: Patch to fix Volume keys on AMILO 1848+u (Kernel 2.6.32-rc5)
+Date: Mon, 26 Oct 2009 11:35:04 +0100
+Message-ID: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
+Mime-Version: 1.0 (Apple Message framework v1076)
+Content-Type: text/plain; charset=us-ascii; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f179.google.com ([209.85.216.179]:62282 "EHLO
-	mail-px0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751444AbZJYTH1 (ORCPT
+Received: from mxout004.mail.hostpoint.ch ([217.26.49.183]:49427 "EHLO
+	mxout004.mail.hostpoint.ch" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755570AbZJZLEj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Oct 2009 15:07:27 -0400
-Content-Disposition: inline
-In-Reply-To: <4AE43AB7.8070601@tremplin-utc.net>
+	Mon, 26 Oct 2009 07:04:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <Eric.Piel@tremplin-utc.net>
-Cc: Greg KH <gregkh@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sun, Oct 25, 2009 at 12:47:03PM +0100, =C9ric Piel wrote:
-> Op 23-10-09 18:31, Dmitry Torokhov schreef:
->>
->> Right, your init scripts/UDEV/HAL whatever adjust keymap to match yo=
-ur
->> laptop.
-> :
->> Now, all depends on when this adjustment happens... In your case it
->> looks like X server starts before the keymap is adjusted, so on firs=
-t
->> resume the keymaps are different and it disables the device.
-> Ok, now I catch it. It's actually my own written script, which is =20
-> executed at init a bit after X starts. It does a couple of =20
-> "setkeycodes". So now the scenario is very clear: X starts, init scri=
-pt =20
-> do setkeycodes, resume/suspend, X detect a difference in keymaps and =
-=20
-> disable the device.
+The Fn+F7 and Fn+F8 Keys to change the Volume don't work as the don't  
+send a key release event.
 
-Yep.
+The patch I appended adds the Amilo 1848+u to the special handling  
+list of the atkbd.c driver.
 
-OK, so X's evdev is still too paranoid but now we know the whole pictur=
-e
-and for my part I declare kernel is free from blame ;)
+The patch is for 2.6.32-rc5.
 
->
-> BTW, I haven't really found info about this: what does setkeycodes? I=
-t =20
-> does not work on a specific device, but still it changes keymap of so=
-me =20
-> specific devices. Does it change only the current devices which have =
-=20
-> keys?
+--- atkbd.c.orig	2009-10-26 11:23:07.000000000 +0100
++++ atkbd.c	2009-10-26 11:24:03.000000000 +0100
+@@ -901,6 +901,13 @@ static unsigned int atkbd_amilo_pi3525_f
+  };
 
-setkeycodes issues KDSETKEYCODE which goes through all devices bound to
-the "kbd" input handler and sets keycode for the specified scan code fo=
-r
-all devices that support that scancode.
+  /*
++ * Amilo Si 1848 key release for Fn+Volume keys not working
++ */
++static unsigned int atkbd_amilo_si1848_forced_release_keys[] = {
++	0xa0, 0xae, 0xb0, -1U
++};
++
++/*
+   * Amilo Xi 3650 key release for light touch bar not working
+   */
+  static unsigned int atkbd_amilo_xi3650_forced_release_keys[] = {
+@@ -1637,6 +1644,15 @@ static struct dmi_system_id atkbd_dmi_qu
+  		.driver_data = atkbd_volume_forced_release_keys,
+  	},
+  	{
++		.ident = "Fujitsu Amilo Si 1848+u",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Si 1848+u"),
++		},
++		.callback = atkbd_setup_forced_release,
++		.driver_data = atkbd_amilo_si1848_forced_release_keys,
++	},
++	{
+  		.ident = "Fujitsu Amilo Pi 3525",
+  		.matches = {
+  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
 
-> Whenever a new input device appears, all the setkeycodes should be =20
-> re-executed?
->
-
-It is recommended to adjust individual devices and HAL has facilities t=
-o
-do that (although now that they deprecating HAL I am not sure what the
-replacement is). Anyway, for HAL look into:
-
-	/usr/share/hal/fdi/information/10freedesktop/*-keymap-*.fdi
-
-The nice thing here is that keymaps are re-applied if device gets
-disconnected and rediscovered for one reason or another.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

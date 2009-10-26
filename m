@@ -1,87 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Greg KH <gregkh@suse.de>
 Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
-	anymore
-Date: Mon, 26 Oct 2009 14:34:50 -0700
-Message-ID: <20091026213450.GA19119@core.coreip.homeip.net>
-References: <4AD31709.4000103@tremplin-utc.net> <20091012154846.GB7996@core.coreip.homeip.net> <20091012173551.GC10557@suse.de> <20091012183313.GC8345@core.coreip.homeip.net> <20091012185417.GA30342@suse.de> <20091013031741.GB2887@core.coreip.homeip.net> <20091018075127.GH3935@core.coreip.homeip.net> <20091018080238.GA13810@suse.de> <20091023020150.GA26723@core.coreip.homeip.net> <20091026205953.GB11665@suse.de>
+ anymore
+Date: Mon, 26 Oct 2009 16:59:08 -0700
+Message-ID: <20091026235908.GA12974@suse.de>
+References: <20091012154846.GB7996@core.coreip.homeip.net>
+ <20091012173551.GC10557@suse.de>
+ <20091012183313.GC8345@core.coreip.homeip.net>
+ <20091012185417.GA30342@suse.de>
+ <20091013031741.GB2887@core.coreip.homeip.net>
+ <20091018075127.GH3935@core.coreip.homeip.net>
+ <20091018080238.GA13810@suse.de>
+ <20091023020150.GA26723@core.coreip.homeip.net>
+ <20091026205953.GB11665@suse.de>
+ <20091026213450.GA19119@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753958AbZJZVex@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755489AbZJ0ACF@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20091026205953.GB11665@suse.de>
+In-Reply-To: <20091026213450.GA19119@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@suse.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: ?ric Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 26, 2009 at 01:59:53PM -0700, Greg KH wrote:
-> On Thu, Oct 22, 2009 at 07:01:50PM -0700, Dmitry Torokhov wrote:
-> > On Sun, Oct 18, 2009 at 01:02:38AM -0700, Greg KH wrote:
-> > > On Sun, Oct 18, 2009 at 12:51:27AM -0700, Dmitry Torokhov wrote:
-> > > > On Mon, Oct 12, 2009 at 08:17:41PM -0700, Dmitry Torokhov wrote:
-> > > > > On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
-> > > > > > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
-> > > > > > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
-> > > > > > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
-> > > > > > > > > > So at least, unbind should fail as well as bind.
-> > > > > > > > > >
+On Mon, Oct 26, 2009 at 02:34:50PM -0700, Dmitry Torokhov wrote:
+> On Mon, Oct 26, 2009 at 01:59:53PM -0700, Greg KH wrote:
+> > On Thu, Oct 22, 2009 at 07:01:50PM -0700, Dmitry Torokhov wrote:
+> > > On Sun, Oct 18, 2009 at 01:02:38AM -0700, Greg KH wrote:
+> > > > On Sun, Oct 18, 2009 at 12:51:27AM -0700, Dmitry Torokhov wrote:
+> > > > > On Mon, Oct 12, 2009 at 08:17:41PM -0700, Dmitry Torokhov wrote:
+> > > > > > On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
+> > > > > > > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
+> > > > > > > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
+> > > > > > > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
+> > > > > > > > > > > So at least, unbind should fail as well as bind.
+> > > > > > > > > > >
+> > > > > > > > > > 
+> > > > > > > > > > That would be Greg's domain s it is driver core decision whether to
+> > > > > > > > > > allow unbinding platform devices registered with
+> > > > > > > > > > platform_driver_probe().
 > > > > > > > > > 
-> > > > > > > > > That would be Greg's domain s it is driver core decision whether to
-> > > > > > > > > allow unbinding platform devices registered with
-> > > > > > > > > platform_driver_probe().
+> > > > > > > > > No, I do not see why that should not be allowed.
+> > > > > > > > > 
 > > > > > > > > 
-> > > > > > > > No, I do not see why that should not be allowed.
-> > > > > > > > 
+> > > > > > > > Because once you did unbind the device you are stuck (unless the driver
+> > > > > > > > is compiled as a module, but then you could just unload the module
+> > > > > > > > instead of unbinding). Disallowing unbind would allow discarding not
+> > > > > > > > only __devinit but __devexit sections when driver is built in which
+> > > > > > > > would make ebedded people happy[^Hier].
 > > > > > > > 
-> > > > > > > Because once you did unbind the device you are stuck (unless the driver
-> > > > > > > is compiled as a module, but then you could just unload the module
-> > > > > > > instead of unbinding). Disallowing unbind would allow discarding not
-> > > > > > > only __devinit but __devexit sections when driver is built in which
-> > > > > > > would make ebedded people happy[^Hier].
+> > > > > > > Yeah, good point.
+> > > > > > > 
+> > > > > > > Does anyone do bind/unbind with platform devices today?
+> > > > > > > 
+> > > > > > > If not, a patch changing this would be welcome.
+> > > > > > > 
 > > > > > > 
-> > > > > > Yeah, good point.
-> > > > > > 
-> > > > > > Does anyone do bind/unbind with platform devices today?
-> > > > > > 
-> > > > > > If not, a patch changing this would be welcome.
+> > > > > > How about this one?
 > > > > > > 
 > > > > > 
-> > > > > How about this one?
-> > > > > 
+> > > > > *ping* We need to resolve this, otherwise everyone who likes to rebind
+> > > > > i8042 in couse of STR/STD will be in trouble.
 > > > > 
-> > > > *ping* We need to resolve this, otherwise everyone who likes to rebind
-> > > > i8042 in couse of STR/STD will be in trouble.
+> > > > Sorry, am in Tokyo right now.
+> > > > 
+> > > > I like this patch, and will queue it up, but it's too late for .32, it
+> > > > will have to wait for .33.
+> > > > 
 > > > 
-> > > Sorry, am in Tokyo right now.
+> > > Greg,
 > > > 
-> > > I like this patch, and will queue it up, but it's too late for .32, it
-> > > will have to wait for .33.
-> > > 
+> > > I hope you will reconsider. The patch is extremely small but without it
+> > > I am afraid many people whose distributions blindly rebind i8042 on
+> > > suspend/resume will lose their keyboards and mice now that i8042 uses
+> > > platform_driver_probe()...
 > > 
-> > Greg,
+> > What distros do something like that automatically? 
+> 
+> It looks SUSE recommends to do so in one of the Wikis.. There certainly
+> lots of recommendations to do so in case of keyboard resume troubles all
+> over the forums (Ubunto, Gentoo, other random ones).
+> 
+> > And this patch will
+> > not solve that problem, just forbid it from happening, right?
 > > 
-> > I hope you will reconsider. The patch is extremely small but without it
-> > I am afraid many people whose distributions blindly rebind i8042 on
-> > suspend/resume will lose their keyboards and mice now that i8042 uses
-> > platform_driver_probe()...
 > 
-> What distros do something like that automatically? 
-
-It looks SUSE recommends to do so in one of the Wikis.. There certainly
-lots of recommendations to do so in case of keyboard resume troubles all
-over the forums (Ubunto, Gentoo, other random ones).
-
-> And this patch will
-> not solve that problem, just forbid it from happening, right?
+> It will prevent unbind from happening so that users who have suspend and
+> resume working properly but who have bind/unbind in their suspend/resume
+> scripts regardless will not run into trouble.
 > 
+> This still leaves users whose suspend/resume don't work by default but I
+> would rather fix their boxes properly instead of relying on that
+> workaround.
 
-It will prevent unbind from happening so that users who have suspend and
-resume working properly but who have bind/unbind in their suspend/resume
-scripts regardless will not run into trouble.
+Ok, fair enough, I'll queue it up for .32.
 
-This still leaves users whose suspend/resume don't work by default but I
-would rather fix their boxes properly instead of relying on that
-workaround.
+thanks,
 
--- 
-Dmitry
+greg k-h

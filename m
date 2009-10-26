@@ -1,59 +1,54 @@
-From: Pascal Bach <pascal.bach@nextrem.ch>
-Subject: Patch to fix Volume keys on AMILO 1848+u (Kernel 2.6.32-rc5)
-Date: Mon, 26 Oct 2009 11:35:04 +0100
-Message-ID: <AAD0C341-7536-4D53-86B4-C9ADCEB6A407@nextrem.ch>
-Mime-Version: 1.0 (Apple Message framework v1076)
-Content-Type: text/plain; charset=us-ascii; format=flowed; delsp=yes
+From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Subject: Re: [RFC PATCH 1/1] Input: add new keycodes useful in mobile
+	devices
+Date: Mon, 26 Oct 2009 16:43:35 +0200
+Message-ID: <1256568215.10718.271.camel@jani-desktop>
+References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com>
+	 <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com>
+	 <20091023071315.GA3986@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxout004.mail.hostpoint.ch ([217.26.49.183]:49427 "EHLO
-	mxout004.mail.hostpoint.ch" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755570AbZJZLEj (ORCPT
+Received: from smtp.nokia.com ([192.100.105.134]:52217 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751711AbZJZOoQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Oct 2009 07:04:39 -0400
+	Mon, 26 Oct 2009 10:44:16 -0400
+In-Reply-To: <20091023071315.GA3986@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-The Fn+F7 and Fn+F8 Keys to change the Volume don't work as the don't  
-send a key release event.
+Hi Dmitry -
 
-The patch I appended adds the Amilo 1848+u to the special handling  
-list of the atkbd.c driver.
+On Fri, 2009-10-23 at 09:13 +0200, ext Dmitry Torokhov wrote:
+> Hi Jani,
+> 
+> On Thu, Oct 22, 2009 at 12:32:20PM +0300, Jani Nikula wrote:
 
-The patch is for 2.6.32-rc5.
+> > +#define SW_PROXIMITY		0x0b  /* set = proximity sensor covered */
+> 
+> Don't quite like the name for this one, any alternatives?
 
---- atkbd.c.orig	2009-10-26 11:23:07.000000000 +0100
-+++ atkbd.c	2009-10-26 11:24:03.000000000 +0100
-@@ -901,6 +901,13 @@ static unsigned int atkbd_amilo_pi3525_f
-  };
+SW_PROXIMITY is admittedly pretty vague, but I don't quite know how
+specific you'd like it to be. The main idea is to indicate that the
+device is covered, for example because it's in your pocket or near your
+ear, so the UI should probably adapt to the situation (for example
+disable touchscreen and display on some devices). Someone might also use
+it as a "button" you don't have to touch.
 
-  /*
-+ * Amilo Si 1848 key release for Fn+Volume keys not working
-+ */
-+static unsigned int atkbd_amilo_si1848_forced_release_keys[] = {
-+	0xa0, 0xae, 0xb0, -1U
-+};
-+
-+/*
-   * Amilo Xi 3650 key release for light touch bar not working
-   */
-  static unsigned int atkbd_amilo_xi3650_forced_release_keys[] = {
-@@ -1637,6 +1644,15 @@ static struct dmi_system_id atkbd_dmi_qu
-  		.driver_data = atkbd_volume_forced_release_keys,
-  	},
-  	{
-+		.ident = "Fujitsu Amilo Si 1848+u",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Si 1848+u"),
-+		},
-+		.callback = atkbd_setup_forced_release,
-+		.driver_data = atkbd_amilo_si1848_forced_release_keys,
-+	},
-+	{
-  		.ident = "Fujitsu Amilo Pi 3525",
-  		.matches = {
-  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
+How about one of these?
+
+SW_FRONT_COVERED
+SW_FRONT_PROXIMITY
+SW_DISPLAY_COVERED
+SW_DISPLAY_PROXIMITY
+SW_EARPIECE_MODE (too specific IMHO)
+
+
+BR,
+Jani.
+
 

@@ -1,100 +1,55 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [REGRESSION] "bind" a device to a driver doesn't not work
- anymore
-Date: Mon, 26 Oct 2009 16:59:08 -0700
-Message-ID: <20091026235908.GA12974@suse.de>
-References: <20091012154846.GB7996@core.coreip.homeip.net>
- <20091012173551.GC10557@suse.de>
- <20091012183313.GC8345@core.coreip.homeip.net>
- <20091012185417.GA30342@suse.de>
- <20091013031741.GB2887@core.coreip.homeip.net>
- <20091018075127.GH3935@core.coreip.homeip.net>
- <20091018080238.GA13810@suse.de>
- <20091023020150.GA26723@core.coreip.homeip.net>
- <20091026205953.GB11665@suse.de>
- <20091026213450.GA19119@core.coreip.homeip.net>
+From: Dave Young <hidave.darkstar@gmail.com>
+Subject: [PATCH][RFC] input: remove bios I8042_CTR_XLATE check to make
+	keyboard usable
+Date: Tue, 27 Oct 2009 13:34:04 +0800
+Message-ID: <20091027053404.GA2241@darkstar.vlan7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755489AbZJ0ACF@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:38674 "EHLO
+	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753236AbZJ0Fek (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Oct 2009 01:34:40 -0400
 Content-Disposition: inline
-In-Reply-To: <20091026213450.GA19119@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ?ric Piel <eric.piel@tremplin-utc.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Oct 26, 2009 at 02:34:50PM -0700, Dmitry Torokhov wrote:
-> On Mon, Oct 26, 2009 at 01:59:53PM -0700, Greg KH wrote:
-> > On Thu, Oct 22, 2009 at 07:01:50PM -0700, Dmitry Torokhov wrote:
-> > > On Sun, Oct 18, 2009 at 01:02:38AM -0700, Greg KH wrote:
-> > > > On Sun, Oct 18, 2009 at 12:51:27AM -0700, Dmitry Torokhov wrote:
-> > > > > On Mon, Oct 12, 2009 at 08:17:41PM -0700, Dmitry Torokhov wrote:
-> > > > > > On Mon, Oct 12, 2009 at 11:54:17AM -0700, Greg KH wrote:
-> > > > > > > On Mon, Oct 12, 2009 at 11:33:13AM -0700, Dmitry Torokhov wrote:
-> > > > > > > > On Mon, Oct 12, 2009 at 10:35:51AM -0700, Greg KH wrote:
-> > > > > > > > > On Mon, Oct 12, 2009 at 08:48:46AM -0700, Dmitry Torokhov wrote:
-> > > > > > > > > > > So at least, unbind should fail as well as bind.
-> > > > > > > > > > >
-> > > > > > > > > > 
-> > > > > > > > > > That would be Greg's domain s it is driver core decision whether to
-> > > > > > > > > > allow unbinding platform devices registered with
-> > > > > > > > > > platform_driver_probe().
-> > > > > > > > > 
-> > > > > > > > > No, I do not see why that should not be allowed.
-> > > > > > > > > 
-> > > > > > > > 
-> > > > > > > > Because once you did unbind the device you are stuck (unless the driver
-> > > > > > > > is compiled as a module, but then you could just unload the module
-> > > > > > > > instead of unbinding). Disallowing unbind would allow discarding not
-> > > > > > > > only __devinit but __devexit sections when driver is built in which
-> > > > > > > > would make ebedded people happy[^Hier].
-> > > > > > > 
-> > > > > > > Yeah, good point.
-> > > > > > > 
-> > > > > > > Does anyone do bind/unbind with platform devices today?
-> > > > > > > 
-> > > > > > > If not, a patch changing this would be welcome.
-> > > > > > > 
-> > > > > > 
-> > > > > > How about this one?
-> > > > > > 
-> > > > > 
-> > > > > *ping* We need to resolve this, otherwise everyone who likes to rebind
-> > > > > i8042 in couse of STR/STD will be in trouble.
-> > > > 
-> > > > Sorry, am in Tokyo right now.
-> > > > 
-> > > > I like this patch, and will queue it up, but it's too late for .32, it
-> > > > will have to wait for .33.
-> > > > 
-> > > 
-> > > Greg,
-> > > 
-> > > I hope you will reconsider. The patch is extremely small but without it
-> > > I am afraid many people whose distributions blindly rebind i8042 on
-> > > suspend/resume will lose their keyboards and mice now that i8042 uses
-> > > platform_driver_probe()...
-> > 
-> > What distros do something like that automatically? 
-> 
-> It looks SUSE recommends to do so in one of the Wikis.. There certainly
-> lots of recommendations to do so in case of keyboard resume troubles all
-> over the forums (Ubunto, Gentoo, other random ones).
-> 
-> > And this patch will
-> > not solve that problem, just forbid it from happening, right?
-> > 
-> 
-> It will prevent unbind from happening so that users who have suspend and
-> resume working properly but who have bind/unbind in their suspend/resume
-> scripts regardless will not run into trouble.
-> 
-> This still leaves users whose suspend/resume don't work by default but I
-> would rather fix their boxes properly instead of relying on that
-> workaround.
 
-Ok, fair enough, I'll queue it up for .32.
+Pressing somekey at early booting phase cause keyboard to be not usable
+(The hardware is DELL latitude e5400):
 
-thanks,
+atkbd.c: Unknown key pressed (raw set 2, code 0xd3 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
+atkbd.c: Unknown key pressed (raw set 2, code 0x1d3 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
 
-greg k-h
+i8042.c set i8042_direct to true when the controller init. But the result
+is keyboard not usable, The only option is press the power button to shutdown. 
+
+So here remove the bios check to fix it.
+
+Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
+---
+ drivers/input/serio/i8042.c |    8 --------
+ 1 file changed, 8 deletions(-)
+
+--- linux-2.6.orig/drivers/input/serio/i8042.c	2009-10-13 08:57:07.000000000 +0800
++++ linux-2.6/drivers/input/serio/i8042.c	2009-10-27 13:15:13.000000000 +0800
+@@ -869,14 +869,6 @@ static int i8042_controller_init(void)
+ 	spin_unlock_irqrestore(&i8042_lock, flags);
+ 
+ /*
+- * If the chip is configured into nontranslated mode by the BIOS, don't
+- * bother enabling translating and be happy.
+- */
+-
+-	if (~i8042_ctr & I8042_CTR_XLATE)
+-		i8042_direct = true;
+-
+-/*
+  * Set nontranslated mode for the kbd interface if requested by an option.
+  * After this the kbd interface becomes a simple serial in/out, like the aux
+  * interface is. We don't do this by default, since it can confuse notebook

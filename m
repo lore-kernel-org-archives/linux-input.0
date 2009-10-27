@@ -1,55 +1,193 @@
-From: Dave Young <hidave.darkstar@gmail.com>
-Subject: [PATCH][RFC] input: remove bios I8042_CTR_XLATE check to make
-	keyboard usable
-Date: Tue, 27 Oct 2009 13:34:04 +0800
-Message-ID: <20091027053404.GA2241@darkstar.vlan7>
+From: James Mastros <james@mastros.biz>
+Subject: [rfc] xbox360 Big-button controller support for xpad.c
+Date: Tue, 27 Oct 2009 11:26:51 +0000
+Message-ID: <abc933c50910270426l5091227cw9f261099b9c62109@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary=001636283c406aea7c0476e8f44d
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:38674 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753236AbZJ0Fek (ORCPT
+Received: from mail-gx0-f216.google.com ([209.85.217.216]:45730 "EHLO
+	mail-gx0-f216.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753640AbZJ0L0s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Oct 2009 01:34:40 -0400
-Content-Disposition: inline
+	Tue, 27 Oct 2009 07:26:48 -0400
+Received: by gxk8 with SMTP id 8so858154gxk.1
+        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2009 04:26:53 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+--001636283c406aea7c0476e8f44d
+Content-Type: text/plain; charset=UTF-8
 
-Pressing somekey at early booting phase cause keyboard to be not usable
-(The hardware is DELL latitude e5400):
+Hello, all,
 
-atkbd.c: Unknown key pressed (raw set 2, code 0xd3 on isa0060/serio0).
-atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
-atkbd.c: Unknown key pressed (raw set 2, code 0x1d3 on isa0060/serio0).
-atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
+The attached (RFC!) patch adds support for the xbox 360 big-button
+controllers to xpad.c.  These seem to be a set of four large CIR
+remote controls, with a USB receiver that speaks a modified version of
+the normal xbox360 usb remote protocol.
 
-i8042.c set i8042_direct to true when the controller init. But the result
-is keyboard not usable, The only option is press the power button to shutdown. 
+http://en.wikipedia.org/wiki/Xbox_360_accessories#Big_Button_Pad has a
+decent image.  You can get a set for about 12GBP, including a game
+disk for Scene It (which I haven't even removed the shrink-wrap for,
+since I don't actually own a 360).  The reverse-engeneering work is
+original here, but it's not terribly complicated -- each input packet
+is the constant bytes 0x00 05, followed by a single byte controller
+number (0..3), and the button status in two bytes.
 
-So here remove the bios check to fix it.
+There are, however, a few complications that I'd like advice on:
 
-Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
----
- drivers/input/serio/i8042.c |    8 --------
- 1 file changed, 8 deletions(-)
+1. Like most CIR sorts of thing, it never gives an all-buttons-off
+report, and will give multiple reports for the same combinations of
+buttons.
 
---- linux-2.6.orig/drivers/input/serio/i8042.c	2009-10-13 08:57:07.000000000 +0800
-+++ linux-2.6/drivers/input/serio/i8042.c	2009-10-27 13:15:13.000000000 +0800
-@@ -869,14 +869,6 @@ static int i8042_controller_init(void)
- 	spin_unlock_irqrestore(&i8042_lock, flags);
- 
- /*
-- * If the chip is configured into nontranslated mode by the BIOS, don't
-- * bother enabling translating and be happy.
-- */
--
--	if (~i8042_ctr & I8042_CTR_XLATE)
--		i8042_direct = true;
--
--/*
-  * Set nontranslated mode for the kbd interface if requested by an option.
-  * After this the kbd interface becomes a simple serial in/out, like the aux
-  * interface is. We don't do this by default, since it can confuse notebook
+The buttons are all non-overlaping bitmaps, and I see no reason,
+other then the physical impossibility of pressing the left and right
+buttons at the same time without removing parts of the controller, for
+multiple button-presses not to work.
+
+That means that a naive implementation will never generate key-up
+events.  Currently, each of the native repeats generates a key down
+followed by a key-up, which isn't really ideal either.  Ideally, it'd
+create a key-down when the first report happens, and then create a
+key-up when a report with a different set comes in, or the next
+expected repeat fails to happen.
+
+I did find some code that I could copy-and-paste to implement that in
+drivers/input/misc/winbond-cir.c - wbcir_keyup, but it feels to me
+like it should be somewhere generic / libraryish.  Is it there,
+somewhere I couldn't find it, or should I just copy-and-paste?
+
+2. Another niggle is that the current code simply ignores the "which
+controller is this report for" field, so userspace can't tell which of
+the four controllers is pressing the button.
+
+This rather mucks up both the origional point, and my use-case, where
+each controller (which is a different colour so you can tell them
+apart) belongs to a different user.  The right way to do that is to
+present them to the input layer as four different devices each of
+which has the same set of buttons, but that'd require, I think, some
+fairly large changes to the xpad.c infrastructure.
+
+Does the wisdom of the list think I should just abandon xpad.c, and
+split this off into it's own driver?  I'm not sure how well that'd
+mesh with the way detection is done, but then again, I'm not really
+sure how detection is done generally.
+
+  Thank you for your advice,
+  -=- James Mastros
+
+--001636283c406aea7c0476e8f44d
+Content-Type: application/octet-stream; name="xbox360bb-1.diff"
+Content-Disposition: attachment; filename="xbox360bb-1.diff"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g1akmj6n0
+
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5jIGIvZHJpdmVycy9pbnB1
+dC9qb3lzdGljay94cGFkLmMKaW5kZXggNzllM2VkYy4uMTdlNzFlMiAxMDA2NDQKLS0tIGEvZHJp
+dmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMKKysrIGIvZHJpdmVycy9pbnB1dC9qb3lzdGljay94
+cGFkLmMKQEAgLTk0LDYgKzk0LDcgQEAKICNkZWZpbmUgWFRZUEVfWEJPWDM2MCAgICAgMQogI2Rl
+ZmluZSBYVFlQRV9YQk9YMzYwVyAgICAyCiAjZGVmaW5lIFhUWVBFX1VOS05PV04gICAgIDMKKyNk
+ZWZpbmUgWFRZUEVfWEJPWDM2MEJCICAgNAogCiBzdGF0aWMgaW50IGRwYWRfdG9fYnV0dG9uczsK
+IG1vZHVsZV9wYXJhbShkcGFkX3RvX2J1dHRvbnMsIGJvb2wsIFNfSVJVR08pOwpAQCAtMTQ3LDYg
+KzE0OCw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgeHBhZF9kZXZpY2UgewogCXsgMHgwNDVlLCAw
+eDAyOGUsICJNaWNyb3NvZnQgWC1Cb3ggMzYwIHBhZCIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBF
+X1hCT1gzNjAgfSwKIAl7IDB4MWJhZCwgMHgwMDAzLCAiSGFybW9uaXggUm9jayBCYW5kIERydW1r
+aXQiLCBNQVBfRFBBRF9UT19CVVRUT05TLCBYVFlQRV9YQk9YMzYwIH0sCiAJeyAweGZmZmYsIDB4
+ZmZmZiwgIkNoaW5lc2UtbWFkZSBYYm94IENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBY
+VFlQRV9YQk9YIH0sCisJeyAweDA0NWUsIDB4MDJhMCwgIk1pY3Jvc29mdCBYLUJveCAzNjAgQmln
+IEJ1dHRvbiBJUiByZWNpZXZlciIsIE1BUF9EUEFEX1RPX0JVVFRPTlMsIFhUWVBFX1hCT1gzNjBC
+QiB9LAogCXsgMHgwMDAwLCAweDAwMDAsICJHZW5lcmljIFgtQm94IHBhZCIsIE1BUF9EUEFEX1VO
+S05PV04sIFhUWVBFX1VOS05PV04gfQogfTsKIApAQCAtMTkyLDcgKzE5NCw5IEBAIHN0YXRpYyBj
+b25zdCBzaWduZWQgc2hvcnQgeHBhZF9hYnNfcGFkW10gPSB7CiAvKiBYYm94IDM2MCBoYXMgYSB2
+ZW5kb3Itc3BlY2lmaWMgY2xhc3MsIHNvIHdlIGNhbm5vdCBtYXRjaCBpdCB3aXRoIG9ubHkKICAq
+IFVTQl9JTlRFUkZBQ0VfSU5GTyAoYWxzbyBzcGVjaWZpY2FsbHkgcmVmdXNlZCBieSBVU0Igc3Vi
+c3lzdGVtKSwgc28gd2UKICAqIG1hdGNoIGFnYWluc3QgdmVuZG9yIGlkIGFzIHdlbGwuIFdpcmVk
+IFhib3ggMzYwIGRldmljZXMgaGF2ZSBwcm90b2NvbCAxLAotICogd2lyZWxlc3MgY29udHJvbGxl
+cnMgaGF2ZSBwcm90b2NvbCAxMjkuICovCisgKiB3aXJlbGVzcyBjb250cm9sbGVycyBoYXZlIHBy
+b3RvY29sIDEyOSwgYW5kIGJpZyBidXR0b24gY29udHJvbGxlcnMKKyAqIGhhdmUgcHJvdG9jb2wg
+NC4KKyAqLwogI2RlZmluZSBYUEFEX1hCT1gzNjBfVkVORE9SX1BST1RPQ09MKHZlbmQscHIpIFwK
+IAkubWF0Y2hfZmxhZ3MgPSBVU0JfREVWSUNFX0lEX01BVENIX1ZFTkRPUiB8IFVTQl9ERVZJQ0Vf
+SURfTUFUQ0hfSU5UX0lORk8sIFwKIAkuaWRWZW5kb3IgPSAodmVuZCksIFwKQEAgLTIwMSw3ICsy
+MDUsOCBAQCBzdGF0aWMgY29uc3Qgc2lnbmVkIHNob3J0IHhwYWRfYWJzX3BhZFtdID0gewogCS5i
+SW50ZXJmYWNlUHJvdG9jb2wgPSAocHIpCiAjZGVmaW5lIFhQQURfWEJPWDM2MF9WRU5ET1IodmVu
+ZCkgXAogCXsgWFBBRF9YQk9YMzYwX1ZFTkRPUl9QUk9UT0NPTCh2ZW5kLDEpIH0sIFwKLQl7IFhQ
+QURfWEJPWDM2MF9WRU5ET1JfUFJPVE9DT0wodmVuZCwxMjkpIH0KKwl7IFhQQURfWEJPWDM2MF9W
+RU5ET1JfUFJPVE9DT0wodmVuZCwxMjkpIH0sCVwKKwl7IFhQQURfWEJPWDM2MF9WRU5ET1JfUFJP
+VE9DT0wodmVuZCw0KSB9CiAKIHN0YXRpYyBzdHJ1Y3QgdXNiX2RldmljZV9pZCB4cGFkX3RhYmxl
+IFtdID0gewogCXsgVVNCX0lOVEVSRkFDRV9JTkZPKCdYJywgJ0InLCAwKSB9LAkvKiBYLUJveCBV
+U0ItSUYgbm90IGFwcHJvdmVkIGNsYXNzICovCkBAIC00MDcsNiArNDEyLDk4IEBAIHN0YXRpYyB2
+b2lkIHhwYWQzNjB3X3Byb2Nlc3NfcGFja2V0KHN0cnVjdCB1c2JfeHBhZCAqeHBhZCwgdTE2IGNt
+ZCwgdW5zaWduZWQgY2hhCiAJeHBhZDM2MF9wcm9jZXNzX3BhY2tldCh4cGFkLCBjbWQsICZkYXRh
+WzRdKTsKIH0KIAorLyogeHBhZDM2MGJiX21vbWVudGFyeV9wcmVzcworICoKKyAqIEp1c3QgYSBs
+aXR0bGUgdXRpbGl0eSByb3V0aW5lLCB0byBtb21lbnRhcmlseSBwcmVzcyBhIGJ1dHRvbi4KKyAq
+Lworc3RhdGljIHZvaWQgeHBhZDM2MGJiX21vbWVudGFyeV9wcmVzcyhzdHJ1Y3QgaW5wdXRfZGV2
+ICpkZXYsIGludCBidXR0b24sIGludCB2YWwpIHsKKwlpbnB1dF9yZXBvcnRfa2V5KGRldiwgYnV0
+dG9uLCB2YWwpOworCWlmICh2YWwpIHsKKwkJaW5wdXRfcmVwb3J0X2tleShkZXYsIGJ1dHRvbiwg
+MCk7CisJfQorfQorCisvKiAKKyAqIHhwYWQzNjBiYl9wcm9jZXNzX3BhY2tldAorICoKKyAqIENv
+bXBsZXRlcyBhIHJlcXVlc3QgYnkgY29udmVydGluZyB0aGUgZGF0YSBpbnRvIGV2ZW50cyBmb3Ig
+dGhlCisgKiBpbnB1dCBzdWJzeXN0ZW0uICBJdCBpcyBhIHZlcnNpb24gZm9yIHRoZSB4Ym94IDM2
+MCBiaWctYnV0dG9uCisgKiBjb250cm9sbGVyLCBhcyBzaGlwcGVkIHdpdGggdGhlIFNjZW5lIEl0
+IHNlcmllcyBvZiBnYW1lcy4KKyAqCisgKiBUaGlzIGlzIG9yaWdpbmFsIHJldmVyc2UtZW5nZW5l
+ZXJpbmcgd29yay4KKyAqLworCitzdGF0aWMgdm9pZCB4cGFkMzYwYmJfcHJvY2Vzc19wYWNrZXQo
+c3RydWN0IHVzYl94cGFkICp4cGFkLAorCQkJCSAgICAgdTE2IGNtZCwgdW5zaWduZWQgY2hhciAq
+ZGF0YSkgeworCXN0cnVjdCBpbnB1dF9kZXYgKmRldiA9IHhwYWQtPmRldjsKKwkKKwlwcmludGso
+ImNtZD0lZCwgZGF0YT0leCAleCAleCAleCAleFxuIiwgY21kLCAKKwkgICAgICAgZGF0YVswXSwg
+ZGF0YVsxXSwgZGF0YVsyXSwgZGF0YVszXSwgZGF0YVs0XSk7CisJLyogUHJvdG9jb2wgaXMgYXMg
+Zm9sbG93czoKKwkgKiBjbWQ9MCwgZGF0YT0wIDUgY3QgYWIgY2QKKwkgKiAwIGFuZCA1IHNlZW0g
+dG8gYmUgY29uc3RhbnQuICBJdCBtaWdodCBzcGVjaWZ5IHRoZSBsZW5ndGgKKwkgKiBvZiB0aGUg
+cmVwb3J0LgorCSAqIGN0IHNwZWNpZmllcyB3aGF0IGNvbnRyb2xsZXIsIDA9Z3JlZW4sIDE9cmVk
+LCAyPWJsdWUsIDM9eWVsbG93CisJICogYWIgaXMgc2VydmVyYWwga2V5cyBmb3IgdGhhdCBjb250
+cm9sbGVyOgorICAgICAgICAgKiAweDAxOiB1cC4KKwkgKiAweDAyOiBkb3duLgorCSAqIDB4MDQ6
+IGxlZnQuCisJICogMHgwODogcmlnaHQuCisJICogMHgxMDogc3RhcnQuCisJICogMHgyMDogYmFj
+ay4KKwkgKiBjZCBpcyBzZXZlcmFsIG1vcmU6CisJICogMHgwODogY2VudHJlIChidXp6ZXIpCisJ
+ICogMHgwNDogYmlnIHggKGxvZ28sIG1vZGUpCisJICogMHgxMDogQQorCSAqIDB4MjA6IEIKKwkg
+KiAweDQwOiBYCisJICogMHg4MDogWQorCSAqIAorCSAqIC4uLmFuZCB0aGF0J3MgYWxsIHRoZSBi
+dXR0b25zIHRoZXJlIGFyZS4KKwkgKiAKKwkgKiBPbmx5IHByZXNzZXMgYXJlIHJlcG9ydGVkLCBu
+b3QgcmVsZWFzZXMgLS0gdGhhdCBpcywgdGhlcmUKKwkgKiB3aWxsIG5ldmVyIGJlIGEgcmVwb3J0
+IHdpdGggYWxsIHplcm9lcy4gIE9UT0gsIGl0IHdpbGwKKwkgKiByZXBvcnQgbXVsdGlwbGUgdGlt
+ZXMgaWYgeW91IGhvbGQgZG93biBhIGJ1dHRvbi4gIElkZWFsbHksCisJICogd2UnZCBoYXZlIHNv
+bWUgc29ydCBvZiB0aW1lb3V0IG1lY2hhbmlzbSBzdWNoIHRoYXQgd2UKKwkgKiBub3RpY2UgdGhh
+dCB0aGUgbmV4dCByZXBlYXQgZXZlbnQgZG9lc24ndCBoYXBwZW4sIGFuZCB0aHVzCisJICogdGhl
+IGtleSBtdXN0IGhhdmUgYmVlbiByZWxlYXNlZCAob3Igd2Ugd2VudCBvdXQgb2YgcmFuZ2UpLgor
+CSAqIEluc3RlYWQsIGZvciBub3csIHdlIGp1c3QgcmVwb3J0IGV2ZXJ5dGhpbmcgYXMgYSBwcmVz
+cworCSAqIGZvbGxvd2VkIGltbWVkaWF0ZWx5IGJ5IGEgcmVsZWFzZSwgYW5kIGxldCB0aGUgbmF0
+aXZlCisJICogcmVwZWF0IHJlcGVhdC4KKwkgKi8KKworCS8qIFRoZSBjb2RlIGJlbG93IGRvZXNu
+J3QgYWxsb3cgdXNlcnNwYWNlIHRvIHRlbGwgd2hpY2gKKwkgKiBjb250cm9sZXIgaXMgYmVpbmcg
+dXNlZC4gIEZJWE1FISAqLworCQorCS8qIGRwYWQgYXMgZm91ciBidXR0b25zLi4uICovCisJeHBh
+ZDM2MGJiX21vbWVudGFyeV9wcmVzcyhkZXYsIEJUTl9MRUZULCAgZGF0YVszXSAmIDB4MDQpOwor
+CXhwYWQzNjBiYl9tb21lbnRhcnlfcHJlc3MoZGV2LCBCVE5fUklHSFQsIGRhdGFbM10gJiAweDA4
+KTsKKwl4cGFkMzYwYmJfbW9tZW50YXJ5X3ByZXNzKGRldiwgQlROXzAsICAgICBkYXRhWzNdICYg
+MHgwMSk7IC8qIHVwICovCisJeHBhZDM2MGJiX21vbWVudGFyeV9wcmVzcyhkZXYsIEJUTl8xLCAg
+ICAgZGF0YVszXSAmIDB4MDIpOyAvKiBkb3duICovCisJCisJLyogVGhpcyBpcyB0aGUgb25seSBi
+dXR0b24gdGhhdCBpcyByYXRoZXIgbm92ZWwgdnMgdGhlIG5vcm1hbAorCSAqIGNvbnRyb2xsZXIu
+ICBUaGUgY29yc3BvbmRpbmcgYml0IGZvciB0aGUgbm9ybWFsIGNvbnRyb2xsZXJzCisJICogaXNu
+J3QgdXNlZCwgYXMgZmFyIGFzIEkgY2FuIHNlZS4gIEl0J3MgbGlrZSB0aGUgdGh1bWIKKwkgKiBi
+dXR0b25zLCBzbyBjYWxsIGl0IHRoZSByaWdodCBvbmUsIHJhbmRvbWx5LgorCSAqIChOb3JtYWxs
+eSB0aGUgdGh1bWIgYnV0dG9uIGdvZXMgd2l0aCBhbiBhbmFsb2cgc3RpY2ssIG5vdCBhIGRwYWQu
+KQorCSAqLworCXhwYWQzNjBiYl9tb21lbnRhcnlfcHJlc3MoZGV2LCBCVE5fVEhVTUJSLCAgICBk
+YXRhWzRdICYgMHgwOCk7CisKKwkvKiBzdGFydC9iYWNrIGJ1dHRvbnMgKi8KKwl4cGFkMzYwYmJf
+bW9tZW50YXJ5X3ByZXNzKGRldiwgQlROX1NUQVJULCBkYXRhWzNdICYgMHgxMCk7CisJeHBhZDM2
+MGJiX21vbWVudGFyeV9wcmVzcyhkZXYsIEJUTl9CQUNLLCAgZGF0YVszXSAmIDB4MjApOworCisJ
+LyogYnV0dG9ucyBBLEIsWCxZLFRMLFRSIGFuZCBNT0RFICovCisJeHBhZDM2MGJiX21vbWVudGFy
+eV9wcmVzcyhkZXYsIEJUTl9BLAkgZGF0YVs0XSAmIDB4MTApOworCXhwYWQzNjBiYl9tb21lbnRh
+cnlfcHJlc3MoZGV2LCBCVE5fQiwJIGRhdGFbNF0gJiAweDIwKTsKKwl4cGFkMzYwYmJfbW9tZW50
+YXJ5X3ByZXNzKGRldiwgQlROX1gsCSBkYXRhWzRdICYgMHg0MCk7CisJeHBhZDM2MGJiX21vbWVu
+dGFyeV9wcmVzcyhkZXYsIEJUTl9ZLAkgZGF0YVs0XSAmIDB4ODApOworCXhwYWQzNjBiYl9tb21l
+bnRhcnlfcHJlc3MoZGV2LCBCVE5fTU9ERSwgZGF0YVs0XSAmIDB4MDQpOworCisJCisJaW5wdXRf
+c3luYyhkZXYpOworfQorCiBzdGF0aWMgdm9pZCB4cGFkX2lycV9pbihzdHJ1Y3QgdXJiICp1cmIp
+CiB7CiAJc3RydWN0IHVzYl94cGFkICp4cGFkID0gdXJiLT5jb250ZXh0OwpAQCAtNDM4LDYgKzUz
+NSw5IEBAIHN0YXRpYyB2b2lkIHhwYWRfaXJxX2luKHN0cnVjdCB1cmIgKnVyYikKIAljYXNlIFhU
+WVBFX1hCT1gzNjBXOgogCQl4cGFkMzYwd19wcm9jZXNzX3BhY2tldCh4cGFkLCAwLCB4cGFkLT5p
+ZGF0YSk7CiAJCWJyZWFrOworCWNhc2UgWFRZUEVfWEJPWDM2MEJCOgorCQl4cGFkMzYwYmJfcHJv
+Y2Vzc19wYWNrZXQoeHBhZCwgMCwgeHBhZC0+aWRhdGEpOworCQlicmVhazsKIAlkZWZhdWx0Ogog
+CQl4cGFkX3Byb2Nlc3NfcGFja2V0KHhwYWQsIDAsIHhwYWQtPmlkYXRhKTsKIAl9CkBAIC03Mjgs
+NiArODI4LDExIEBAIHN0YXRpYyBpbnQgeHBhZF9wcm9iZShzdHJ1Y3QgdXNiX2ludGVyZmFjZSAq
+aW50ZiwgY29uc3Qgc3RydWN0IHVzYl9kZXZpY2VfaWQgKmlkCiAJaW50IGk7CiAJaW50IGVycm9y
+ID0gLUVOT01FTTsKIAorCXByaW50aygieHBhZF9wcm9iZSB2ZW5kb3I9MHgleCwgcHJvZHVjdD0w
+eCV4XG4iLCAKKwkgICAgICAgbGUxNl90b19jcHUodWRldi0+ZGVzY3JpcHRvci5pZFZlbmRvciks
+CisJICAgICAgIGxlMTZfdG9fY3B1KHVkZXYtPmRlc2NyaXB0b3IuaWRQcm9kdWN0KQorCQkpOwor
+CiAJZm9yIChpID0gMDsgeHBhZF9kZXZpY2VbaV0uaWRWZW5kb3I7IGkrKykgewogCQlpZiAoKGxl
+MTZfdG9fY3B1KHVkZXYtPmRlc2NyaXB0b3IuaWRWZW5kb3IpID09IHhwYWRfZGV2aWNlW2ldLmlk
+VmVuZG9yKSAmJgogCQkgICAgKGxlMTZfdG9fY3B1KHVkZXYtPmRlc2NyaXB0b3IuaWRQcm9kdWN0
+KSA9PSB4cGFkX2RldmljZVtpXS5pZFByb2R1Y3QpKQo=
+--001636283c406aea7c0476e8f44d--

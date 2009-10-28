@@ -1,57 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC PATCH 1/1] Input: add new keycodes useful in mobile
-	devices
-Date: Tue, 27 Oct 2009 09:20:40 -0700
-Message-ID: <20091027162040.GB22541@core.coreip.homeip.net>
-References: <cover.1256200562.git.ext-jani.1.nikula@nokia.com> <72a6deb76f693b5e50dbfe150154e7a4724d0568.1256200562.git.ext-jani.1.nikula@nokia.com> <20091023071315.GA3986@core.coreip.homeip.net> <1256568215.10718.271.camel@jani-desktop>
+Subject: Re: [PATCH][RFC] input: remove bios I8042_CTR_XLATE check to make
+	keyboard usable
+Date: Tue, 27 Oct 2009 22:43:10 -0700
+Message-ID: <20091028054309.GA2368@core.coreip.homeip.net>
+References: <20091027053404.GA2241@darkstar.vlan7>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:34127 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755895AbZJ0QUk (ORCPT
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:55630 "EHLO
+	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754300AbZJ1FnJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Oct 2009 12:20:40 -0400
-Received: by pwj9 with SMTP id 9so187841pwj.21
-        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2009 09:20:45 -0700 (PDT)
+	Wed, 28 Oct 2009 01:43:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1256568215.10718.271.camel@jani-desktop>
+In-Reply-To: <20091027053404.GA2241@darkstar.vlan7>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dave Young <hidave.darkstar@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Vojtech Pavlik <vojtech@suse.cz>
 
-On Mon, Oct 26, 2009 at 04:43:35PM +0200, Jani Nikula wrote:
-> Hi Dmitry -
+Hi Dave,
+
+On Tue, Oct 27, 2009 at 01:34:04PM +0800, Dave Young wrote:
 > 
-> On Fri, 2009-10-23 at 09:13 +0200, ext Dmitry Torokhov wrote:
-> > Hi Jani,
-> > 
-> > On Thu, Oct 22, 2009 at 12:32:20PM +0300, Jani Nikula wrote:
+> Pressing somekey at early booting phase cause keyboard to be not usable
+> (The hardware is DELL latitude e5400):
 > 
-> > > +#define SW_PROXIMITY		0x0b  /* set = proximity sensor covered */
-> > 
-> > Don't quite like the name for this one, any alternatives?
+> atkbd.c: Unknown key pressed (raw set 2, code 0xd3 on isa0060/serio0).
+> atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
+> atkbd.c: Unknown key pressed (raw set 2, code 0x1d3 on isa0060/serio0).
+> atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
 > 
-> SW_PROXIMITY is admittedly pretty vague, but I don't quite know how
-> specific you'd like it to be. The main idea is to indicate that the
-> device is covered, for example because it's in your pocket or near your
-> ear, so the UI should probably adapt to the situation (for example
-> disable touchscreen and display on some devices). Someone might also use
-> it as a "button" you don't have to touch.
+> i8042.c set i8042_direct to true when the controller init. But the result
+> is keyboard not usable, The only option is press the power button to shutdown. 
 > 
-> How about one of these?
-> 
-> SW_FRONT_COVERED
-> SW_FRONT_PROXIMITY
-> SW_DISPLAY_COVERED
-> SW_DISPLAY_PROXIMITY
-> SW_EARPIECE_MODE (too specific IMHO)
+> So here remove the bios check to fix it.
 > 
 
-Actually I like the "earpiece mode" because it describes the intended
-use. Another option I think would be SW_HOLSTER_MODE. Proximity made me
-think alll kinds of things but not the "phone in a pocket" scenario...
+I would be a little hesitant to force translation by default on all
+architectures, although it may make sense on x86...
+
+Vojtech, you wrote the thing, do you see any issues with forcing
+translation? I think most of the x86 boxes work in translated mode and
+the only time it is in raw is when BIOS screwed up initialization.
+
+> Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
+> ---
+>  drivers/input/serio/i8042.c |    8 --------
+>  1 file changed, 8 deletions(-)
+> 
+> --- linux-2.6.orig/drivers/input/serio/i8042.c	2009-10-13 08:57:07.000000000 +0800
+> +++ linux-2.6/drivers/input/serio/i8042.c	2009-10-27 13:15:13.000000000 +0800
+> @@ -869,14 +869,6 @@ static int i8042_controller_init(void)
+>  	spin_unlock_irqrestore(&i8042_lock, flags);
+>  
+>  /*
+> - * If the chip is configured into nontranslated mode by the BIOS, don't
+> - * bother enabling translating and be happy.
+> - */
+> -
+> -	if (~i8042_ctr & I8042_CTR_XLATE)
+> -		i8042_direct = true;
+> -
+> -/*
+>   * Set nontranslated mode for the kbd interface if requested by an option.
+>   * After this the kbd interface becomes a simple serial in/out, like the aux
+>   * interface is. We don't do this by default, since it can confuse notebook
 
 -- 
 Dmitry

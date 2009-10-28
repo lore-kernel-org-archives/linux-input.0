@@ -1,71 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH][RFC] input: remove bios I8042_CTR_XLATE check to make
-	keyboard usable
-Date: Tue, 27 Oct 2009 22:43:10 -0700
-Message-ID: <20091028054309.GA2368@core.coreip.homeip.net>
-References: <20091027053404.GA2241@darkstar.vlan7>
+Subject: Re: [RFC PATCH 1/1] Input: gpio-keys: export gpio key information
+	through sysfs
+Date: Tue, 27 Oct 2009 22:43:17 -0700
+Message-ID: <20091028054317.GB2368@core.coreip.homeip.net>
+References: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com> <937a56e01181bef04c6661dc61032c1d08269cfa.1256298993.git.ext-mika.1.westerberg@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:55630 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754300AbZJ1FnJ (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:57780 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756744AbZJ1FnQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Oct 2009 01:43:09 -0400
+	Wed, 28 Oct 2009 01:43:16 -0400
+Received: by pwj9 with SMTP id 9so601236pwj.21
+        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2009 22:43:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20091027053404.GA2241@darkstar.vlan7>
+In-Reply-To: <937a56e01181bef04c6661dc61032c1d08269cfa.1256298993.git.ext-mika.1.westerberg@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dave Young <hidave.darkstar@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Vojtech Pavlik <vojtech@suse.cz>
+To: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Dave,
+Hi Mika,
 
-On Tue, Oct 27, 2009 at 01:34:04PM +0800, Dave Young wrote:
+On Fri, Oct 23, 2009 at 03:15:46PM +0300, Mika Westerberg wrote:
+> From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
 > 
-> Pressing somekey at early booting phase cause keyboard to be not usable
-> (The hardware is DELL latitude e5400):
+> In some embedded devices gpio lines are used as keys/buttons
+> through input layer and gpio-keys.  It is, however, impossible
+> to disable gpio lines separately from waking up the cpu.  For
+> example when device is locked we don't want accidental camera
+> button press to cause the device to wakeup just to notice that
+> it should continue sleeping.
 > 
-> atkbd.c: Unknown key pressed (raw set 2, code 0xd3 on isa0060/serio0).
-> atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
-> atkbd.c: Unknown key pressed (raw set 2, code 0x1d3 on isa0060/serio0).
-> atkbd.c: Use 'setkeycodes e053 <keycode>' to make it known.
+> This patch exports gpio-keys through sysfs and allows userland
+> to control whether single gpio line should wakeup the cpu or not.
 > 
-> i8042.c set i8042_direct to true when the controller init. But the result
-> is keyboard not usable, The only option is press the power button to shutdown. 
+> Sysfs interface is accessible via:
 > 
-> So here remove the bios check to fix it.
+> 	/sys/class/input/gpio-keys/input/input0/gpio-key.N/
+> 
+> Following attributes are exported per gpio key:
+> 
+> 	/code    ... input event code (ro)
+> 	/type    ... input event type (ro)
+> 	/desc    ... description of the button (ro)
+> 	/disable ... enable/disable gpio line (rw)
+> 
+> Userspace should be able to find out what key to disable/enable
+> by investigating {code, type, desc} tuple.
 > 
 
-I would be a little hesitant to force translation by default on all
-architectures, although it may make sense on x86...
-
-Vojtech, you wrote the thing, do you see any issues with forcing
-translation? I think most of the x86 boxes work in translated mode and
-the only time it is in raw is when BIOS screwed up initialization.
-
-> Signed-off-by: Dave Young <hidave.darkstar@gmail.com>
-> ---
->  drivers/input/serio/i8042.c |    8 --------
->  1 file changed, 8 deletions(-)
-> 
-> --- linux-2.6.orig/drivers/input/serio/i8042.c	2009-10-13 08:57:07.000000000 +0800
-> +++ linux-2.6/drivers/input/serio/i8042.c	2009-10-27 13:15:13.000000000 +0800
-> @@ -869,14 +869,6 @@ static int i8042_controller_init(void)
->  	spin_unlock_irqrestore(&i8042_lock, flags);
->  
->  /*
-> - * If the chip is configured into nontranslated mode by the BIOS, don't
-> - * bother enabling translating and be happy.
-> - */
-> -
-> -	if (~i8042_ctr & I8042_CTR_XLATE)
-> -		i8042_direct = true;
-> -
-> -/*
->   * Set nontranslated mode for the kbd interface if requested by an option.
->   * After this the kbd interface becomes a simple serial in/out, like the aux
->   * interface is. We don't do this by default, since it can confuse notebook
+I think registering a full-blown device for every key is way too much,
+given that most consumers of gpio-keys driver are embedded... Besides, I
+don't think this should be driven from userspace. Board (platform) code
+should know what GPIO make sense as wake up sources for the particular
+device and should set up platform data accordingly.
 
 -- 
 Dmitry

@@ -1,69 +1,51 @@
-From: Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>
-Subject: Re: [PATCH 2/8] param: use ops in struct kernel_param, rather than get and set fns directly
-Date: Fri, 30 Oct 2009 21:43:39 +1030
-Message-ID: <200910302143.40268.rusty@rustcorp.com.au>
-References: <20091022142337.EC4A85362F@mx1.suse.de> <s5hvdhxyyl7.wl%tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <s5hvdhxyyl7.wl%tiwai-l3A5Bk7waGM@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-nfs-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Takashi Iwai <tiwai-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Rubini <rubini-JCs+bAQazDroPXhRcRtihA@public.gmane.org>, Michal Januszewski <spock-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, Trond Myklebust <Trond.Myklebust-HgOvQuBEEgTQT0dZR+AlfA@public.gmane.org>, "J. Bruce Fields" <bfields-uC3wQj2KruNg9hUCZPvPmw@public.gmane.org>, Neil Brown <neilb-l3A5Bk7waGM@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Subject: [PATCH 0/3] new input keycodes, gpio-keys for RX-51
+Date: Fri, 30 Oct 2009 15:38:25 +0200
+Message-ID: <cover.1256907278.git.ext-jani.1.nikula@nokia.com>
+References: <20091027162040.GB22541@core.coreip.homeip.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.nokia.com ([192.100.105.134]:57300 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757214AbZJ3Nif (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Oct 2009 09:38:35 -0400
+In-Reply-To: <20091027162040.GB22541@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: tony@atomide.com, dmitry.torokhov@gmail.com
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org, ext-jani.1.nikula@nokia.com
 
-On Fri, 30 Oct 2009 08:48:12 pm Takashi Iwai wrote:
-> At Fri, 23 Oct 2009 00:51:28 +1030,
-> Rusty Russell wrote:
-> > 
-> > This is more kernel-ish, saves some space, and also allows us to
-> > expand the ops without breaking all the callers who are happy for the
-> > new members to be NULL.
-> > 
-> > The few places which defined their own param types are changed to the
-> > new scheme.
-> > 
-> > Since we're touching them anyway, we change get and set to take a
-> > const struct kernel_param (which they were, and will be again).
-> > 
-> > To reduce churn, module_param_call creates the ops struct so the callers
-> > don't have to change (and casts the functions to reduce warnings).
-> > The modern version which takes an ops struct is called module_param_cb.
-> 
-> This is nice, as it also reduces the size of struct kernel_param, so
-> each parameter uses less footprint (who cares, though?) :)
-> 
-> But, just wondering whether we still need to export get/set
-> functions.  They can be called from ops now, so if any, it can be
-> defined even as an inlinefunction or a macro.
+Hi Dmitry and Tony -
 
-My thought too, so I tried that, but many are still used like so:
+These patches expose some RX-51 input GPIO lines to user space through
+gpio-keys, and introduce a few new relevant keycodes.
 
-	module_param_call(foo, set_foo, param_get_uint, NULL, 0644);
+Dmitry, I hope you don't think I'm being too stubborn, but I'd prefer
+SW_FRONT_PROXIMITY over SW_EARPIECE_MODE. IMHO front proximity
+activation describes better what has actually occured; earpiece mode
+is just one use case for that. The front proximity sensor can be
+activated by for example shoving the device in pocket or placing it
+upside down on a surface (an actual use case with accelerometer) in
+addition to holding the device against your ear. And I know of at
+least one game that uses the said proximity sensor as fire
+button. Anyway, in the end it's your call, and I can change it if
+necessary.
 
-They can all be replaced in time with something like:
-	static int param_get_foo(char *buffer, const struct kernel_param *kp)
-	{
-		return param_ops_uint.get(buffer, kp);
-	}
-
-But it'll take a transition period.
-
-Thanks!
-Rusty.
+These have been tested with RX-51, vanilla linux-omap, minimal console
+and evtest.
 
 
+BR,
+Jani.
 
-> 
-> 
-> thanks,
-> 
-> Takashi
-> 
---
-To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Jani Nikula (3):
+  Input: add new keycodes useful in mobile devices
+  ARM OMAP3: RX-51 board: add initialization of gpio keys
+  ARM OMAP3: rx51_defconfig: enable support for gpio keys
+
+ arch/arm/configs/rx51_defconfig  |    2 +-
+ arch/arm/mach-omap2/board-rx51.c |   84 ++++++++++++++++++++++++++++++++++++++
+ include/linux/input.h            |    5 ++
+ 3 files changed, 90 insertions(+), 1 deletions(-)
+

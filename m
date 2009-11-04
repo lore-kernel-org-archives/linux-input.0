@@ -1,153 +1,767 @@
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Subject: [PATCH v2 2/2] ARM OMAP3: RX-51 board: add initialization of gpio keys
-Date: Wed,  4 Nov 2009 17:13:58 +0200
-Message-ID: <369a0c7adf29df9ed677aa545f053ec8e4d5b186.1257345114.git.ext-jani.1.nikula@nokia.com>
-References: <cover.1256907278.git.ext-jani.1.nikula@nokia.com>
- <cover.1257345114.git.ext-jani.1.nikula@nokia.com>
- <b85619d1e1ada6e4defc722479e57d809fd3614e.1257345114.git.ext-jani.1.nikula@nokia.com>
+From: Robert Gerlach <khnz@gmx.de>
+Subject: [PATCH v2] driver for the "Fujitsu Tablet PC Buttons" device
+Date: Wed, 4 Nov 2009 19:28:38 +0100
+Message-ID: <200911041928.38275.khnz@gmx.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:20934 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755803AbZKDPO1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2009 10:14:27 -0500
-In-Reply-To: <b85619d1e1ada6e4defc722479e57d809fd3614e.1257345114.git.ext-jani.1.nikula@nokia.com>
-In-Reply-To: <cover.1257345114.git.ext-jani.1.nikula@nokia.com>
-References: <cover.1257345114.git.ext-jani.1.nikula@nokia.com>
+Received: from mail.gmx.net ([213.165.64.20]:42103 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1757580AbZKDS2m (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Nov 2009 13:28:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: tony@atomide.com, dmitry.torokhov@gmail.com
-Cc: james@mastros.biz, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, ext-jani.1.nikula@nokia.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+This is a driver for the tablet buttons and the tablet mode switch of  
+many Fujitsu tablet PCs. The driver is based on reverse-engineering of  
+the Windows driver, I have no specification for this device. 
 
-Initialize some of the RX-51 input GPIO lines as gpio keys. Enable gpio
-keys as a module in rx51_defconfig.
+v2: small cleanup requested by GregKH
 
-Signed-off-by: Jani Nikula <ext-jani.1.nikula@nokia.com>
+thanks,
+  Robert
+
+
+Signed-off-by: Robert Gerlach <khnz@gmx.de>
+
 ---
- arch/arm/configs/rx51_defconfig              |    2 +-
- arch/arm/mach-omap2/board-rx51-peripherals.c |   82 ++++++++++++++++++++++++++
- 2 files changed, 83 insertions(+), 1 deletions(-)
 
-diff --git a/arch/arm/configs/rx51_defconfig b/arch/arm/configs/rx51_defconfig
-index e7e3133..1559734 100644
---- a/arch/arm/configs/rx51_defconfig
-+++ b/arch/arm/configs/rx51_defconfig
-@@ -784,7 +784,7 @@ CONFIG_INPUT_KEYBOARD=y
- # CONFIG_KEYBOARD_XTKBD is not set
- # CONFIG_KEYBOARD_NEWTON is not set
- # CONFIG_KEYBOARD_STOWAWAY is not set
--# CONFIG_KEYBOARD_GPIO is not set
-+CONFIG_KEYBOARD_GPIO=m
- # CONFIG_INPUT_MOUSE is not set
- # CONFIG_INPUT_JOYSTICK is not set
- # CONFIG_INPUT_TABLET is not set
-diff --git a/arch/arm/mach-omap2/board-rx51-peripherals.c b/arch/arm/mach-omap2/board-rx51-peripherals.c
-index cf4583a..fb5988c 100644
---- a/arch/arm/mach-omap2/board-rx51-peripherals.c
-+++ b/arch/arm/mach-omap2/board-rx51-peripherals.c
-@@ -20,6 +20,7 @@
- #include <linux/delay.h>
- #include <linux/regulator/machine.h>
- #include <linux/gpio.h>
-+#include <linux/gpio_keys.h>
- #include <linux/mmc/host.h>
+ drivers/input/misc/Kconfig    |   11
+ drivers/input/misc/Makefile   |    1
+ drivers/input/misc/fsc_btns.c |  680 
+++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 692 insertions(+)
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 6cff5ac..cb32a5b 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -54,6 +54,17 @@ config INPUT_APANEL
+ 	 To compile this driver as a module, choose M here: the module will
+ 	 be called apanel.
  
- #include <plat/mcspi.h>
-@@ -36,6 +37,86 @@
- #define SYSTEM_REV_B_USES_VAUX3	0x1699
- #define SYSTEM_REV_S_USES_VAUX3 0x8
++config INPUT_FSC_BTNS
++	tristate "Fujitsu tablet PCs buttons"
++	depends on X86
++	help
++	 Say Y here for support of the tablet buttons and the display
++	 orientation switch, used on many Fujitsu tablet PCs (like
++	 Stylistic ST5xxx, Lifebook P1xxx and Lifebook T-Series).
++
++	 To compile this driver as a module, choose M here: the module will
++	 be called fsc_btns.
++
+ config INPUT_IXP4XX_BEEPER
+ 	tristate "IXP4XX Beeper support"
+ 	depends on ARCH_IXP4XX
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index c7e4449..f2e872b 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -5,6 +5,7 @@
+ # Each configuration option enables a list of files.
  
-+#if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
+ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
++obj-$(CONFIG_INPUT_FSC_BTNS)		+= fsc_btns.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+ obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
+diff --git a/drivers/input/misc/fsc_btns.c b/drivers/input/misc/fsc_btns.c
+new file mode 100644
+index 0000000..a9a76e3
+--- /dev/null
++++ b/drivers/input/misc/fsc_btns.c
+@@ -0,0 +1,680 @@
++/* driver for FSC tablet PC buttons
++ *
++ * Copyright (C) 2006-2009 Robert Gerlach <khnz@users.sourceforge.net>
++ * Copyright (C) 2005-2006 Jan Rychter <jan@rychter.com>
++ *
++ * You can redistribute and/or modify this program under the terms of the
++ * GNU General Public License version 2 as published by the Free Software
++ * Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
++ * Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 59 Temple Place Suite 330, Boston, MA 02111-1307, USA.
++ */
 +
-+#define RX51_GPIO_CAMERA_LENS_COVER	110
-+#define RX51_GPIO_CAMERA_FOCUS		68
-+#define RX51_GPIO_CAMERA_CAPTURE	69
-+#define RX51_GPIO_KEYPAD_SLIDE		71
-+#define RX51_GPIO_LOCK_BUTTON		113
-+#define RX51_GPIO_PROXIMITY		89
++#define REPEAT_RATE 16
++#define REPEAT_DELAY 700
++#define STICKY_TIMEOUT 1400	/* msec */
 +
-+#define RX51_GPIO_DEBOUNCE_TIMEOUT	10
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/version.h>
++#include <linux/dmi.h>
++#include <linux/bitops.h>
++#include <linux/io.h>
++#include <linux/ioport.h>
++#include <linux/acpi.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/time.h>
++#include <linux/timer.h>
++#include <linux/delay.h>
++#include <linux/jiffies.h>
 +
-+static struct gpio_keys_button rx51_gpio_keys[] = {
-+	{
-+		.desc			= "Camera Lens Cover",
-+		.type			= EV_SW,
-+		.code			= SW_CAMERA_LENS_COVER,
-+		.gpio			= RX51_GPIO_CAMERA_LENS_COVER,
-+		.active_low		= 1,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
-+	}, {
-+		.desc			= "Camera Focus",
-+		.type			= EV_KEY,
-+		.code			= KEY_CAMERA_FOCUS,
-+		.gpio			= RX51_GPIO_CAMERA_FOCUS,
-+		.active_low		= 1,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
-+	}, {
-+		.desc			= "Camera Capture",
-+		.type			= EV_KEY,
-+		.code			= KEY_CAMERA,
-+		.gpio			= RX51_GPIO_CAMERA_CAPTURE,
-+		.active_low		= 1,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
-+	}, {
-+		.desc			= "Lock Button",
-+		.type			= EV_KEY,
-+		.code			= KEY_SCREENLOCK,
-+		.gpio			= RX51_GPIO_LOCK_BUTTON,
-+		.active_low		= 1,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
-+	}, {
-+		.desc			= "Keypad Slide",
-+		.type			= EV_SW,
-+		.code			= SW_KEYPAD_SLIDE,
-+		.gpio			= RX51_GPIO_KEYPAD_SLIDE,
-+		.active_low		= 1,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
-+	}, {
-+		.desc			= "Proximity Sensor",
-+		.type			= EV_SW,
-+		.code			= SW_FRONT_PROXIMITY,
-+		.gpio			= RX51_GPIO_PROXIMITY,
-+		.active_low		= 0,
-+		.debounce_interval	= RX51_GPIO_DEBOUNCE_TIMEOUT,
++#define MODULENAME "fsc_btns"
++
++MODULE_AUTHOR("Robert Gerlach <khnz@users.sourceforge.net>");
++MODULE_DESCRIPTION("Fujitsu Siemens tablet button driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION("2.1.0");
++
++static const struct acpi_device_id fscbtns_ids[] = {
++	{ .id = "FUJ02BD" },
++	{ .id = "FUJ02BF" },
++	{ .id = "" }
++};
++MODULE_DEVICE_TABLE(acpi, fscbtns_ids);
++
++struct fscbtns_config {
++	int invert_orientation_bit;
++	unsigned int keymap[16];
++};
++
++static struct fscbtns_config config_Lifebook_Tseries __initdata = {
++	.invert_orientation_bit = 1,
++	.keymap = {
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_SCROLLDOWN,
++		KEY_SCROLLUP,
++		KEY_DIRECTION,
++		KEY_LEFTCTRL,
++		KEY_BRIGHTNESSUP,
++		KEY_BRIGHTNESSDOWN,
++		KEY_BRIGHTNESS_ZERO,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_LEFTALT
 +	}
 +};
 +
-+static struct gpio_keys_platform_data rx51_gpio_keys_data = {
-+	.buttons	= rx51_gpio_keys,
-+	.nbuttons	= ARRAY_SIZE(rx51_gpio_keys),
++static struct fscbtns_config config_Lifebook_U810 __initdata = {
++	.invert_orientation_bit = 1,
++	.keymap = {
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_PROG1,
++		KEY_PROG2,
++		KEY_DIRECTION,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_UP,
++		KEY_DOWN,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_FN,
++		KEY_SLEEP
++	}
 +};
 +
-+static struct platform_device rx51_gpio_keys_device = {
-+	.name	= "gpio-keys",
-+	.id	= -1,
-+	.dev	= {
-+		.platform_data	= &rx51_gpio_keys_data,
++static struct fscbtns_config config_Stylistic_Tseries __initdata = {
++	.invert_orientation_bit = 0,
++	.keymap = {
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_PRINT,
++		KEY_BACKSPACE,
++		KEY_SPACE,
++		KEY_ENTER,
++		KEY_BRIGHTNESSUP,
++		KEY_BRIGHTNESSDOWN,
++		KEY_DOWN,
++		KEY_UP,
++		KEY_SCROLLUP,
++		KEY_SCROLLDOWN,
++		KEY_FN
++	}
++};
++
++static struct fscbtns_config config_Stylistic_ST5xxx __initdata = {
++	.invert_orientation_bit = 0,
++	.keymap = {
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_RESERVED,
++		KEY_MAIL,
++		KEY_DIRECTION,
++		KEY_ESC,
++		KEY_ENTER,
++		KEY_BRIGHTNESSUP,
++		KEY_BRIGHTNESSDOWN,
++		KEY_DOWN,
++		KEY_UP,
++		KEY_SCROLLUP,
++		KEY_SCROLLDOWN,
++		KEY_FN,
++		KEY_LEFTALT
++	}
++};
++
++static const unsigned long modification_mask[BITS_TO_LONGS(KEY_MAX)] = {
++		[BIT_WORD(KEY_LEFTSHIFT)]	= BIT_MASK(KEY_LEFTSHIFT),
++		[BIT_WORD(KEY_RIGHTSHIFT)]	= BIT_MASK(KEY_RIGHTSHIFT),
++		[BIT_WORD(KEY_LEFTCTRL)]	= BIT_MASK(KEY_LEFTCTRL),
++		[BIT_WORD(KEY_RIGHTCTRL)]	= BIT_MASK(KEY_RIGHTCTRL),
++		[BIT_WORD(KEY_LEFTALT)]		= BIT_MASK(KEY_LEFTALT),
++		[BIT_WORD(KEY_RIGHTALT)]	= BIT_MASK(KEY_RIGHTALT),
++		[BIT_WORD(KEY_LEFTMETA)]	= BIT_MASK(KEY_LEFTMETA),
++		[BIT_WORD(KEY_RIGHTMETA)]	= BIT_MASK(KEY_RIGHTMETA),
++		[BIT_WORD(KEY_COMPOSE)]		= BIT_MASK(KEY_COMPOSE),
++		[BIT_WORD(KEY_LEFTALT)]		= BIT_MASK(KEY_LEFTALT),
++		[BIT_WORD(KEY_FN)]		= BIT_MASK(KEY_FN)};
++
++static struct {						/* fscbtns_t */
++	struct platform_device *pdev;
++	struct input_dev *idev_b;		/* tablet buttons */
++	struct input_dev *idev_s;		/* orientation switch */
++	struct timer_list timer;		/* timer for sicky keys */
++
++	unsigned int interrupt;
++	unsigned int address;
++	struct fscbtns_config config;
++
++	int orientation;
++} fscbtns;
++
++
++/*** HELPER 
+*******************************************************************/
++
++static inline u8 fscbtns_ack(void)
++{
++	return inb(fscbtns.address+2);
++}
++
++static inline u8 fscbtns_status(void)
++{
++	return inb(fscbtns.address+6);
++}
++
++static inline u8 fscbtns_read_register(const u8 addr)
++{
++	outb(addr, fscbtns.address);
++	return inb(fscbtns.address+4);
++}
++
++static inline void fscbtns_use_config(struct fscbtns_config *config)
++{
++	memcpy(&fscbtns.config, config, sizeof(struct fscbtns_config));
++}
++
++
++/*** INPUT 
+********************************************************************/
++
++static int __devinit input_fscbtns_setup_buttons(struct device *dev)
++{
++	struct input_dev *idev;
++	int error;
++	int x;
++
++	idev = input_allocate_device();
++	if (!idev)
++		return -ENOMEM;
++
++	idev->dev.parent = dev;
++	idev->phys = "fsc/input0";
++	idev->name = "fsc tablet buttons";
++	idev->id.bustype = BUS_HOST;
++	idev->id.vendor  = 0x1734;
++	idev->id.product = 0x0001;
++	idev->id.version = 0x0101;
++
++	idev->keycode = fscbtns.config.keymap;
++	idev->keycodesize = sizeof(unsigned int);
++	idev->keycodemax = sizeof(fscbtns.config.keymap) / idev->keycodesize;
++
++	set_bit(EV_REP, idev->evbit);
++	set_bit(EV_KEY, idev->evbit);
++
++	for (x = 0; x < idev->keycodemax; x++)
++		if (((unsigned int *)idev->keycode)[x])
++			set_bit(((unsigned int *)idev->keycode)[x],
++					idev->keybit);
++
++	set_bit(EV_MSC, idev->evbit);
++	set_bit(MSC_SCAN, idev->mscbit);
++
++	error = input_register_device(idev);
++	if (error) {
++		input_free_device(idev);
++		return error;
++	}
++
++	idev->rep[REP_DELAY]  = REPEAT_DELAY;
++	idev->rep[REP_PERIOD] = 1000 / REPEAT_RATE;
++
++	fscbtns.idev_b = idev;
++	return 0;
++}
++
++static int __devinit input_fscbtns_setup_switch(struct device *dev)
++{
++	struct input_dev *idev;
++	int error;
++
++	idev = input_allocate_device();
++	if (!idev)
++		return -ENOMEM;
++
++	idev->dev.parent = dev;
++	idev->phys = "fsc/input1";
++	idev->name = "fsc tablet switch";
++	idev->id.bustype = BUS_HOST;
++	idev->id.vendor  = 0x1734;
++	idev->id.product = 0x0002;
++	idev->id.version = 0x0101;
++
++	set_bit(EV_SW, idev->evbit);
++	set_bit(SW_TABLET_MODE, idev->swbit);
++
++	error = input_register_device(idev);
++	if (error) {
++		input_free_device(idev);
++		return error;
++	}
++
++	fscbtns.idev_s = idev;
++	return 0;
++}
++
++static void input_fscbtns_remove(void)
++{
++	if (fscbtns.idev_b)
++		input_unregister_device(fscbtns.idev_b);
++	if (fscbtns.idev_s)
++		input_unregister_device(fscbtns.idev_s);
++}
++
++static void fscbtns_report_orientation(void)
++{
++	int orientation = fscbtns_read_register(0xdd);
++
++	if (orientation & 0x02) {
++		orientation ^= fscbtns.config.invert_orientation_bit;
++		orientation &= 0x01;
++
++		if (orientation != fscbtns.orientation) {
++			input_report_switch(fscbtns.idev_s, SW_TABLET_MODE,
++					fscbtns.orientation = orientation);
++			input_sync(fscbtns.idev_s);
++		}
++	}
++}
++
++static void fscbtns_sticky_timeout(unsigned long keycode)
++{
++	input_report_key(fscbtns.idev_b, keycode, 0);
++	input_sync(fscbtns.idev_b);
++	fscbtns.timer.data = 0;
++}
++
++static inline int fscbtns_sticky_report_key(unsigned int keycode, int 
+pressed)
++{
++	if (pressed) {
++		del_timer(&fscbtns.timer);
++		fscbtns.timer.expires = jiffies + (STICKY_TIMEOUT*HZ)/1000;
++
++		if (fscbtns.timer.data == keycode) {
++			input_report_key(fscbtns.idev_b, keycode, 0);
++			input_sync(fscbtns.idev_b);
++		}
++
++		return 0;
++	}
++
++	if ((fscbtns.timer.data) && (fscbtns.timer.data != keycode)) {
++		input_report_key(fscbtns.idev_b, keycode, 0);
++		input_sync(fscbtns.idev_b);
++		input_report_key(fscbtns.idev_b, fscbtns.timer.data, 0);
++		fscbtns.timer.data = 0;
++		return 1;
++	}
++
++	if (test_bit(keycode, modification_mask) &&
++			(fscbtns.timer.expires > jiffies)) {
++		fscbtns.timer.data = keycode;
++		fscbtns.timer.function = fscbtns_sticky_timeout;
++		add_timer(&fscbtns.timer);
++		return 1;
++	}
++
++	return 0;
++}
++
++static void fscbtns_report_key(unsigned int kmindex, int pressed)
++{
++	unsigned int keycode = fscbtns.config.keymap[kmindex];
++	if (keycode == KEY_RESERVED)
++		return;
++
++	if (pressed)
++		input_event(fscbtns.idev_b, EV_MSC, MSC_SCAN, kmindex);
++
++	if (fscbtns_sticky_report_key(keycode, pressed))
++		return;
++
++	input_report_key(fscbtns.idev_b, keycode, pressed);
++	input_sync(fscbtns.idev_b);
++}
++
++static void fscbtns_event(void)
++{
++	unsigned long keymask;
++	unsigned long changed;
++	static unsigned long prev_keymask;
++
++	fscbtns_report_orientation();
++
++	keymask  = fscbtns_read_register(0xde);
++	keymask |= fscbtns_read_register(0xdf) << 8;
++	keymask ^= 0xffff;
++
++	changed = keymask ^ prev_keymask;
++
++	if (changed) {
++		int x = 0;
++		int pressed = !!(keymask & changed);
++
++		/* save current state and filter not changed bits */
++		prev_keymask = keymask;
++
++		/* get number of changed bit */
++		while (!test_bit(x, &changed))
++			x++;
++
++		fscbtns_report_key(x, pressed);
++	}
++}
++
++
++/*** INTERRUPT 
+****************************************************************/
++
++static void fscbtns_isr_do(struct work_struct *work)
++{
++	fscbtns_event();
++	fscbtns_ack();
++}
++
++static DECLARE_WORK(isr_wq, fscbtns_isr_do);
++
++static irqreturn_t fscbtns_isr(int irq, void *dev_id)
++{
++	if (!(fscbtns_status() & 0x01))
++		return IRQ_NONE;
++
++	schedule_work(&isr_wq);
++	return IRQ_HANDLED;
++}
++
++
++/*** DEVICE 
+*******************************************************************/
++
++static int fscbtns_busywait(void)
++{
++	int timeout_counter = 100;
++
++	while (fscbtns_status() & 0x02 && --timeout_counter)
++		msleep(10);
++
++	return !timeout_counter;
++}
++
++static void fscbtns_reset(void)
++{
++	fscbtns_ack();
++	if (fscbtns_busywait())
++		printk(KERN_WARNING MODULENAME ": timeout, reset needed!\n");
++}
++
++static int __devinit fscbtns_probe(struct platform_device *pdev)
++{
++	int error;
++
++	error = input_fscbtns_setup_buttons(&pdev->dev);
++	if (error)
++		goto err_input;
++
++	error = input_fscbtns_setup_switch(&pdev->dev);
++	if (error)
++		goto err_input;
++
++	if (!request_region(fscbtns.address, 8, MODULENAME)) {
++		printk(KERN_ERR MODULENAME ": region 0x%04x busy\n",
++				fscbtns.address);
++		error = -EBUSY;
++		goto err_input;
++	}
++
++	fscbtns_reset();
++
++	fscbtns_report_orientation();
++	input_sync(fscbtns.idev_b);
++
++	error = request_irq(fscbtns.interrupt, fscbtns_isr,
++			IRQF_SHARED, MODULENAME, fscbtns_isr);
++	if (error) {
++		printk(KERN_ERR MODULENAME ": unable to get irq %d\n",
++				fscbtns.interrupt);
++		goto err_io;
++	}
++
++	return 0;
++
++err_io:
++	release_region(fscbtns.address, 8);
++err_input:
++	input_fscbtns_remove();
++	return error;
++}
++
++static int __devexit fscbtns_remove(struct platform_device *pdev)
++{
++	free_irq(fscbtns.interrupt, fscbtns_isr);
++	release_region(fscbtns.address, 8);
++	input_fscbtns_remove();
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int fscbtns_resume(struct platform_device *pdev)
++{
++	fscbtns_reset();
++#if 0 /* because Xorg Bug #9623 */
++	fscbtns_report_orientation();
++#endif
++	return 0;
++}
++#endif
++
++static struct platform_driver fscbtns_platform_driver = {
++	.driver		= {
++		.name	= MODULENAME,
++		.owner	= THIS_MODULE,
 +	},
++	.probe		= fscbtns_probe,
++	.remove		= __devexit_p(fscbtns_remove),
++#ifdef CONFIG_PM
++	.resume		= fscbtns_resume,
++#endif
 +};
 +
-+static void __init rx51_add_gpio_keys(void)
-+{
-+	platform_device_register(&rx51_gpio_keys_device);
-+}
-+#else
-+static void __init rx51_add_gpio_keys(void)
-+{
-+}
-+#endif /* CONFIG_KEYBOARD_GPIO || CONFIG_KEYBOARD_GPIO_MODULE */
 +
- static int board_keymap[] = {
- 	KEY(0, 0, KEY_Q),
- 	KEY(0, 1, KEY_O),
-@@ -541,5 +622,6 @@ void __init rx51_peripherals_init(void)
- 	rx51_i2c_init();
- 	board_onenand_init();
- 	board_smc91x_init();
-+	rx51_add_gpio_keys();
- }
- 
--- 
-1.6.5.2
-
++/*** ACPI 
+*********************************************************************/
++
++static acpi_status fscbtns_walk_resources(struct acpi_resource *res, void 
+*data)
++{
++	switch (res->type) {
++	case ACPI_RESOURCE_TYPE_IRQ:
++		fscbtns.interrupt = res->data.irq.interrupts[0];
++		return AE_OK;
++
++	case ACPI_RESOURCE_TYPE_IO:
++		fscbtns.address = res->data.io.minimum;
++		return AE_OK;
++
++	case ACPI_RESOURCE_TYPE_END_TAG:
++		if (fscbtns.interrupt && fscbtns.address)
++			return AE_OK;
++		else
++			return AE_NOT_FOUND;
++
++	default:
++		return AE_ERROR;
++	}
++}
++
++static int acpi_fscbtns_add(struct acpi_device *adev)
++{
++	acpi_status status;
++
++	if (!adev)
++		return -EINVAL;
++
++	status = acpi_walk_resources(adev->handle, METHOD_NAME__CRS,
++			fscbtns_walk_resources, NULL);
++	if (ACPI_FAILURE(status))
++		return -ENODEV;
++
++	return 0;
++}
++
++static struct acpi_driver acpi_fscbtns_driver = {
++	.name  = MODULENAME,
++	.class = "hotkey",
++	.ids   = fscbtns_ids,
++	.ops   = {
++		.add    = acpi_fscbtns_add
++	}
++};
++
++
++/*** DMI 
+**********************************************************************/
++
++static int __init fscbtns_dmi_matched(const struct dmi_system_id *dmi)
++{
++	printk(KERN_INFO MODULENAME ": found: %s\n", dmi->ident);
++	fscbtns_use_config(dmi->driver_data);
++	return 1;
++}
++
++static struct dmi_system_id dmi_ids[] __initdata = {
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu Siemens P/T Series",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK")
++		},
++		.driver_data = &config_Lifebook_Tseries
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu Lifebook T Series",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook T")
++		},
++		.driver_data = &config_Lifebook_Tseries
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu Siemens Stylistic T Series",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Stylistic T")
++		},
++		.driver_data = &config_Stylistic_Tseries
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu LifeBook U810",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook U810")
++		},
++		.driver_data = &config_Lifebook_U810
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu Siemens Stylistic ST5xxx Series",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "STYLISTIC ST5")
++		},
++		.driver_data = &config_Stylistic_ST5xxx
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Fujitsu Siemens Stylistic ST5xxx Series",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Stylistic ST5")
++		},
++		.driver_data = &config_Stylistic_ST5xxx
++	},
++	{
++		.callback = fscbtns_dmi_matched,
++		.ident = "Unknown (using defaults)",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, ""),
++			DMI_MATCH(DMI_PRODUCT_NAME, "")
++		},
++		.driver_data = &config_Lifebook_Tseries
++	},
++	{ NULL }
++};
++
++
++/*** MODULE 
+*******************************************************************/
++
++static int __init fscbtns_module_init(void)
++{
++	int error;
++
++	dmi_check_system(dmi_ids);
++
++	error = acpi_bus_register_driver(&acpi_fscbtns_driver);
++	if (ACPI_FAILURE(error))
++		return -EINVAL;
++
++	if (!fscbtns.interrupt || !fscbtns.address)
++		return -ENODEV;
++
++	init_timer(&fscbtns.timer);
++
++	error = platform_driver_register(&fscbtns_platform_driver);
++	if (error)
++		goto err;
++
++	fscbtns.pdev = platform_device_alloc(MODULENAME, -1);
++	if (!fscbtns.pdev) {
++		error = -ENOMEM;
++		goto err_pdrv;
++	}
++
++	error = platform_device_add(fscbtns.pdev);
++	if (error)
++		goto err_pdev;
++
++	return 0;
++
++err_pdev:
++	platform_device_put(fscbtns.pdev);
++err_pdrv:
++	platform_driver_unregister(&fscbtns_platform_driver);
++err:
++	acpi_bus_unregister_driver(&acpi_fscbtns_driver);
++
++	del_timer_sync(&fscbtns.timer);
++
++	return error;
++}
++
++static void __exit fscbtns_module_exit(void)
++{
++	platform_device_unregister(fscbtns.pdev);
++	platform_driver_unregister(&fscbtns_platform_driver);
++	acpi_bus_unregister_driver(&acpi_fscbtns_driver);
++
++	del_timer_sync(&fscbtns.timer);
++}
++
++module_init(fscbtns_module_init);
++module_exit(fscbtns_module_exit);

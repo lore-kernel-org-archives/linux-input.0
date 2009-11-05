@@ -1,25 +1,27 @@
 From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [PATCH 0/3 v2] linux infrared remote control drivers
-Date: Wed, 4 Nov 2009 22:28:26 -0500
-Message-ID: <2958557D-F4C1-43AC-B004-7C18C5632CC0@wilsonet.com>
-References: <200910200956.33391.jarod@redhat.com> <C5A8E7EC-81D6-49AA-A65F-9F5D3DED1690@wilsonet.com> <1257379629.3074.13.camel@palomino.walls.org>
+Date: Wed, 4 Nov 2009 22:41:12 -0500
+Message-ID: <FC2F0E81-776F-4A97-88FC-1F246BC2E5DF@wilsonet.com>
+References: <200910200956.33391.jarod@redhat.com> <C5A8E7EC-81D6-49AA-A65F-9F5D3DED1690@wilsonet.com> <20091104223136.62cfc791@pedra.chehab.org>
 Mime-Version: 1.0 (Apple Message framework v1076)
 Content-Type: text/plain; charset=us-ascii; format=flowed; delsp=yes
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:36213
+Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:43516
 	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751193AbZKED20 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2009 22:28:26 -0500
-In-Reply-To: <1257379629.3074.13.camel@palomino.walls.org>
+	with ESMTP id S1751365AbZKEDlW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Nov 2009 22:41:22 -0500
+In-Reply-To: <20091104223136.62cfc791@pedra.chehab.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
 Cc: Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Nov 4, 2009, at 7:07 PM, Andy Walls wrote:
+On Nov 4, 2009, at 7:31 PM, Mauro Carvalho Chehab wrote:
 
-> On Wed, 2009-11-04 at 17:56 -0500, Jarod Wilson wrote:
+> Em Wed, 4 Nov 2009 17:56:31 -0500
+> Jarod Wilson <jarod@wilsonet.com> escreveu:
+>
 >> On Oct 20, 2009, at 9:56 AM, Jarod Wilson wrote:
 >>
 >>> This here is a second go at submitting linux infrared remote control
@@ -33,22 +35,31 @@ On Nov 4, 2009, at 7:07 PM, Andy Walls wrote:
 >> Hm. Submitting this while the vast majority of people who might  
 >> review
 >> it were at the Japan Linux Symposium seems like it might have been a
->> bad idea. Or does no feedback mean its all good and ready to be
+>> bad idea.
+>
+> True :) Such long trips generally affects the week before (to finish  
+> some
+> pending stuff before traveling) and the week after, where we have a  
+> big
+> backlog to handle.
+>
+>> Or does no feedback mean its all good and ready to be
 >> merged? ;)
 >
-> Silence is concurrence. :)
->
-> Actually I will note, that lirc_dev.h uses kfifo:
->
-> http://git.wilsonet.com/linux-2.6-lirc.git/?a=blob_plain;f=drivers/input/lirc/lirc_dev.h;hb=f47f5e852d08f174c303d0ed53649733190014f7
->
-> but it least it appear to be nicely wrappered in that file. Moving  
-> to a
-> new kfifo implementation should be fairly easy, if the kfifo change
-> makes it in first.
+> They are on my queue. I was handling a long pile of patches for the  
+> existing
+> drivers during last week. I intend to send the fixes upstream during  
+> this week,
+> and then going to analyze the lirc patches.
 
-Yeah, been keeping an eye on your own kfifo usage discussion w/lirc's  
-usage in mind... Thank you for blazing that trail. ;)
+I'd heard as much, but figured I should go ahead with the fishing  
+expedition just the same to see if we couldn't hook anyone else too...
+
+> It would be wonderful to get also some feedback from the event/input  
+> people.
+
+Yeah, I think that's probably the folks who really have the final say  
+on this, as we're ultimately (mostly) input devices.
 
 -- 
 Jarod Wilson

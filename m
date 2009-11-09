@@ -1,38 +1,192 @@
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
-	gamepad
-Date: Mon, 9 Nov 2009 15:00:20 +0300
-Message-ID: <78f5d6bf0911090400n1bee3396x1cbd9b4722f87942@mail.gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
-	<4A03756C.6020703@gmail.com> <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
-	<4A2A5D8E.1050309@gmail.com> <78f5d6bf0906082202g359afbcwd8bd58a451f9d034@mail.gmail.com>
-	<20090609140949.78d4448a@dxy.sh.intel.com> <78f5d6bf0906110238w6f90331ex3cf8c0fdd44f3354@mail.gmail.com>
-	<78f5d6bf0906111311p37620e53scc5ed8a695b5be94@mail.gmail.com>
-	<78f5d6bf0907091041o3f8b712cxdc674c9c553a9f4@mail.gmail.com>
-	<4A562FC1.60809@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCH 1/1] Input polldev: Sysfs interface for setting of polling interval
+Date: Mon,  9 Nov 2009 15:03:03 +0200
+Message-ID: <1257771783-31210-2-git-send-email-samu.p.onkalo@nokia.com>
+References: <1257771783-31210-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f221.google.com ([209.85.220.221]:33931 "EHLO
-	mail-fx0-f221.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754831AbZKIMAg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2009 07:00:36 -0500
-Received: by fxm21 with SMTP id 21so133219fxm.21
-        for <linux-input@vger.kernel.org>; Mon, 09 Nov 2009 04:00:41 -0800 (PST)
-In-Reply-To: <4A562FC1.60809@gmail.com>
+Received: from smtp.nokia.com ([192.100.105.134]:48074 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754664AbZKINDJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2009 08:03:09 -0500
+In-Reply-To: <1257771783-31210-1-git-send-email-samu.p.onkalo@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-I found, what caused kernel crash: accessing urb data in call to
-dev_warn(), because pointer usbhid->urbctrl (or urbout) is NULL.
-Also, found several bugreports, telling that usb_unlink_urb() is
-deprecated and usb_kill_urb() should be used. Second one used in other
-places of hid-core.c, so I changed usb_unlink_urb() call to
-usb_kill_urb().
-Now kernel doesn't crash, and device gets stuck again.
+Sysfs entry for reading and setting of the polling interval.
+If the interval is set to 0, polling is stopped. Polling
+is restarted when interval is changed to non-zero.
 
-Here is how hid_urb_timeout() looks now: http://paste.org.ru/index.pl?zcx5t1
-And there is also part of kern.log, which I got:
-http://paste.org.ru/index.pl?iyeyg7
+Minimum and maximum limit for interval can be set while setting up the
+device.
+
+Interval can be adjusted even if the input device is not currently open.
+
+applicable to Dmitry Torokhov's input-tree->next
+(git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git->next)
+
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+---
+ drivers/input/input-polldev.c |   86 +++++++++++++++++++++++++++++++++++++++--
+ include/linux/input-polldev.h |    3 +
+ 2 files changed, 85 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index 910220c..5d7fffd 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -46,10 +46,12 @@ static int input_polldev_start_workqueue(void)
+ 	return retval;
+ }
+ 
+-static void input_polldev_stop_workqueue(void)
++static void input_polldev_stop_workqueue(struct input_polled_dev *dev)
+ {
+ 	mutex_lock(&polldev_mutex);
+ 
++	cancel_delayed_work_sync(&dev->work);
++
+ 	if (!--polldev_users)
+ 		destroy_workqueue(polldev_wq);
+ 
+@@ -83,6 +85,8 @@ static int input_open_polled_device(struct input_dev *input)
+ 	if (dev->open)
+ 		dev->open(dev);
+ 
++	dev->is_opened = 1;
++
+ 	queue_delayed_work(polldev_wq, &dev->work,
+ 			   msecs_to_jiffies(dev->poll_interval));
+ 
+@@ -93,13 +97,72 @@ static void input_close_polled_device(struct input_dev *input)
+ {
+ 	struct input_polled_dev *dev = input_get_drvdata(input);
+ 
+-	cancel_delayed_work_sync(&dev->work);
+-	input_polldev_stop_workqueue();
++	dev->is_opened = 0;
++	input_polldev_stop_workqueue(dev);
+ 
+ 	if (dev->close)
+ 		dev->close(dev);
+ }
+ 
++/* SYSFS interface */
++
++static ssize_t input_polldev_get_interval(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct input_polled_dev *polldev = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", polldev->poll_interval);
++}
++
++static ssize_t input_polldev_set_interval(struct device *dev,
++				struct device_attribute *attr, const char *buf,
++				size_t count)
++{
++	struct input_polled_dev *polldev = dev_get_drvdata(dev);
++	unsigned long delay;
++	unsigned long interval;
++
++	if (strict_strtoul(buf, 0, &interval))
++		return -EINVAL;
++
++	if (interval < polldev->poll_interval_min)
++		return -EINVAL;
++
++	if (interval > polldev->poll_interval_max)
++		return -EINVAL;
++
++	mutex_lock(&polldev_mutex);
++
++	polldev->poll_interval = interval;
++
++	if (polldev->is_opened) {
++		if (polldev->poll_interval > 0) {
++			delay = msecs_to_jiffies(polldev->poll_interval);
++			if (delay >= HZ)
++				delay = round_jiffies_relative(delay);
++
++			queue_delayed_work(polldev_wq, &polldev->work, delay);
++		} else {
++			cancel_delayed_work_sync(&polldev->work);
++		}
++	}
++	mutex_unlock(&polldev_mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(interval, S_IRUGO | S_IWUSR, input_polldev_get_interval,
++						input_polldev_set_interval);
++
++static struct attribute *sysfs_attrs[] = {
++	&dev_attr_interval.attr,
++	NULL
++};
++
++static struct attribute_group input_polldev_attribute_group = {
++	.attrs = sysfs_attrs
++};
++
+ /**
+  * input_allocate_polled_device - allocated memory polled device
+  *
+@@ -153,15 +216,27 @@ EXPORT_SYMBOL(input_free_polled_device);
+ int input_register_polled_device(struct input_polled_dev *dev)
+ {
+ 	struct input_dev *input = dev->input;
++	int error;
+ 
+ 	input_set_drvdata(input, dev);
+ 	INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
+ 	if (!dev->poll_interval)
+ 		dev->poll_interval = 500;
++	if (!dev->poll_interval_max)
++		dev->poll_interval_max = dev->poll_interval;
+ 	input->open = input_open_polled_device;
+ 	input->close = input_close_polled_device;
+ 
+-	return input_register_device(input);
++	error = input_register_device(input);
++	if (error < 0)
++		goto fail;
++
++	error = sysfs_create_group(&input->dev.kobj,
++				   &input_polldev_attribute_group);
++	if (error < 0)
++		input_unregister_device(input);
++fail:
++	return error;
+ }
+ EXPORT_SYMBOL(input_register_polled_device);
+ 
+@@ -177,6 +252,9 @@ EXPORT_SYMBOL(input_register_polled_device);
+  */
+ void input_unregister_polled_device(struct input_polled_dev *dev)
+ {
++	sysfs_remove_group(&dev->input->dev.kobj,
++			   &input_polldev_attribute_group);
++
+ 	input_unregister_device(dev->input);
+ 	dev->input = NULL;
+ }
+diff --git a/include/linux/input-polldev.h b/include/linux/input-polldev.h
+index 5c0ec68..f2b1e03 100644
+--- a/include/linux/input-polldev.h
++++ b/include/linux/input-polldev.h
+@@ -36,6 +36,9 @@ struct input_polled_dev {
+ 	void (*close)(struct input_polled_dev *dev);
+ 	void (*poll)(struct input_polled_dev *dev);
+ 	unsigned int poll_interval; /* msec */
++	unsigned int poll_interval_max; /* msec */
++	unsigned int poll_interval_min; /* msec */
++	int is_opened;
+ 
+ 	struct input_dev *input;
+ 	struct delayed_work work;
+-- 
+1.5.6.3
+

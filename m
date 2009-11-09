@@ -1,28 +1,54 @@
-From: Samu Onkalo <samu.p.onkalo@nokia.com>
-Subject: [PATCH 0/1] Polled input device: sysfs control for polling rate
-Date: Mon,  9 Nov 2009 15:03:02 +0200
-Message-ID: <1257771783-31210-1-git-send-email-samu.p.onkalo@nokia.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.105.134]:48070 "EHLO
-	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752118AbZKINDJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Nov 2009 08:03:09 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Subject: Re: [PATCH v2 2/2] omap: RX-51: enable tsc2005
+Date: Mon, 09 Nov 2009 15:29:30 +0200
+Message-ID: <4AF8193A.70505@nokia.com>
+References: <1257340982-22814-1-git-send-email-aaro.koskinen@nokia.com>	<1257340982-22814-2-git-send-email-aaro.koskinen@nokia.com> <87d43ufih0.fsf@purkki.valot.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <87d43ufih0.fsf@purkki.valot.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: ext Kalle Valo <kalle.valo@iki.fi>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "tony@atomide.com" <tony@atomide.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-Provide possibility to control polling rate from userspace.
-When polled device is used for example for sensors, it might be
-handy to adjust polling rate according to sensor use. It is also possible
-to stop polling without closing the device. When the pollig is stopped and
-device is still open, it is still possible to send events from device to
-userspace if some special situation occurs.
+Hi,
 
-Samu Onkalo (1):
-  Input polldev: Sysfs interface for setting of polling interval
+ext Kalle Valo wrote:
+> Aaro Koskinen <aaro.koskinen@nokia.com> writes:
+> 
+>> Enable tsc2005 touchscreen driver on the RX-51 board.
+>>
+>> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+>> ---
+>>
+>> The patch is for 2.6.32-rc6.
+> 
+> [...]
+> 
+>> +static struct spi_board_info rx51_peripherals_spi_board_info[] = {
+>> +	[0] = {
+>> +		.modalias		= "tsc2005",
+>> +		.bus_num		= 1,
+>> +		.chip_select		= 0,
+>> +		.irq			= OMAP_GPIO_IRQ(RX51_TSC2005_IRQ_GPIO),
+>> +		.max_speed_hz		= 6000000,
+>> +		.controller_data	= &tsc2005_mcspi_config,
+>> +		.platform_data		= &tsc2005_config,
+>> +	},
+>> +};
+> 
+> I sent a wl1251 patch which adds spi_board_info and conflicts with
+> this patch:
+> 
+> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg17604.html
+> 
+> How do we handle this?
 
- drivers/input/input-polldev.c |   86 +++++++++++++++++++++++++++++++++++++++--
- include/linux/input-polldev.h |    3 +
- 2 files changed, 85 insertions(+), 4 deletions(-)
+I can resend/rebase this patch once the wl1251 patch is integrated.
 
+BTW, check the comment from Tommi Rantala - spi_board_info can be marked
+with __initdata.
+
+A.

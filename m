@@ -1,34 +1,57 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
-Date: Tue, 10 Nov 2009 13:43:30 +0000
-Message-ID: <20091110134329.GB30911@sirena.org.uk>
-References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com> <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH 1/1] Input: gpio-keys: export gpio key information
+	through sysfs
+Date: Tue, 10 Nov 2009 09:19:45 -0800
+Message-ID: <20091110171945.GA15263@core.coreip.homeip.net>
+References: <cover.1256298993.git.ext-mika.1.westerberg@nokia.com> <937a56e01181bef04c6661dc61032c1d08269cfa.1256298993.git.ext-mika.1.westerberg@nokia.com> <20091028054317.GB2368@core.coreip.homeip.net> <20091028105001.GB26199@esdhcp04058.research.nokia.com> <20091104090628.GG31062@gw.healthdatacare.com> <1257326759.21596.92.camel@localhost> <20091106075220.GC11311@core.coreip.homeip.net> <1257779344.21596.502.camel@localhost> <20091109171834.GA30386@core.coreip.homeip.net> <1257851059.21596.725.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:33915 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755737AbZKJNn0 (ORCPT
+Received: from mail-px0-f173.google.com ([209.85.216.173]:62460 "EHLO
+	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751121AbZKJRTs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Nov 2009 08:43:26 -0500
+	Tue, 10 Nov 2009 12:19:48 -0500
+Received: by pxi3 with SMTP id 3so169217pxi.22
+        for <linux-input@vger.kernel.org>; Tue, 10 Nov 2009 09:19:54 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
+In-Reply-To: <1257851059.21596.725.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samu Onkalo <samu.p.onkalo@nokia.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Artem Bityutskiy <dedekind1@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Nov 10, 2009 at 10:24:08AM +0200, Samu Onkalo wrote:
-> Sysfs interface for disabling and enabling keypad HW and
-> PM management functions added to twl4030 keypad driver.
+On Tue, Nov 10, 2009 at 01:04:19PM +0200, Artem Bityutskiy wrote:
+> On Mon, 2009-11-09 at 09:18 -0800, Dmitry Torokhov wrote:
+> > 
+> > I am not sure at what level these attributes must be created. While the
+> > easiest way is indeed per-input device attribute (for that particular
+> > driver) the functionality does not really have anything to do with
+> > input... I'd probably prefer having this attribute elsewhere, maybe
+> > we should extend /sys/class/gpio/gpioN for these purposes?
+> > 
+> > > * could you please give an example of how would I switch off, say, the
+> > >   SW_CAMERA_LENS_COVER gpio by the keycode.
+> > 
+> > If the code lies in your driver then it is easy (the driver knows the
+> > mapping); otherwsie you'll have to go with GPIO number.
+> 
+> GPIO numbers are bad for us. We want to work with keycodes, and this is
+> input subsystem after all. We do not want to do any perversions like
+> making our user-space figuring out gpio numbers by the keycodes. This is
+> simply wrong and bad interface.
+> 
+> We want to have a simple way for the application to disable any key by
+> key code. This should be as simple as calling one single
+> "enable/disable" ioctl for /dev/input/event2. I do not see how this
+> could be done nicely with sysfs, still.
+> 
 
-Might be nice to have the longer explanation in your cover letter in the
-patch description...
+I understand the appeal of working with the keycodes but what you are
+asking is not simply ignoring certain keypresses (that is easy, just
+ignore corresponding events in userspace), you want to prevent system
+from waking up. In other words you want to "control PM layer through
+input layer" and I believe this is wrong.
 
-> Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
-
-Shouldn't this be done via the existing device wakeup API?  That also
-presents a sysfs control (power/wakeup IIRC).  The driver calls
-device_init_wakeup() to flag support for this at startup then checks
-device_may_wakeup() when suspending and configures the hardware
-appropriately.
+-- 
+Dmitry

@@ -1,86 +1,93 @@
-From: Onkalo Samu <samu.p.onkalo@nokia.com>
-Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
-Date: Wed, 11 Nov 2009 11:57:36 +0200
-Message-ID: <1257933456.3507.42.camel@4fid08082>
-References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com>
-	 <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
-	 <20091110134329.GB30911@sirena.org.uk>
-	 <20091110172637.GB15263@core.coreip.homeip.net>
-Reply-To: samu.p.onkalo@nokia.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH 1/1] Input: gpio-keys: export gpio key information
+	through sysfs
+Date: Wed, 11 Nov 2009 01:59:56 -0800
+Message-ID: <20091111095956.GB3654@core.coreip.homeip.net>
+References: <20091104090628.GG31062@gw.healthdatacare.com> <1257326759.21596.92.camel@localhost> <20091106075220.GC11311@core.coreip.homeip.net> <1257779344.21596.502.camel@localhost> <20091109171834.GA30386@core.coreip.homeip.net> <1257851059.21596.725.camel@localhost> <20091110171945.GA15263@core.coreip.homeip.net> <1257922211.21596.823.camel@localhost> <20091111081949.GB22141@core.coreip.homeip.net> <1257929573.21596.960.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:19878 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756518AbZKKJ5i (ORCPT
+Received: from mail-px0-f177.google.com ([209.85.216.177]:61616 "EHLO
+	mail-px0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753380AbZKKJ7z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Nov 2009 04:57:38 -0500
-In-Reply-To: <20091110172637.GB15263@core.coreip.homeip.net>
+	Wed, 11 Nov 2009 04:59:55 -0500
+Received: by pxi7 with SMTP id 7so674844pxi.17
+        for <linux-input@vger.kernel.org>; Wed, 11 Nov 2009 02:00:01 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1257929573.21596.960.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Artem Bityutskiy <dedekind1@gmail.com>
+Cc: Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, 2009-11-10 at 18:26 +0100, ext Dmitry Torokhov wrote:
-> On Tue, Nov 10, 2009 at 01:43:30PM +0000, Mark Brown wrote:
-> > On Tue, Nov 10, 2009 at 10:24:08AM +0200, Samu Onkalo wrote:
-> > > Sysfs interface for disabling and enabling keypad HW and
-> > > PM management functions added to twl4030 keypad driver.
-> > 
-> > Might be nice to have the longer explanation in your cover letter in the
-> > patch description...
+On Wed, Nov 11, 2009 at 10:52:53AM +0200, Artem Bityutskiy wrote:
+> Sorry Dmitry, I'm new to the input subsystem, may be this is why I still
+> do not see any problem with introducing a nice and useful ioctl?
 
-Definitely true. Thanks for advice.
+There are several reasons:
 
-> > 
-> > > Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
-> > 
-> > Shouldn't this be done via the existing device wakeup API?  That also
-> > presents a sysfs control (power/wakeup IIRC).  The driver calls
-> > device_init_wakeup() to flag support for this at startup then checks
-> > device_may_wakeup() when suspending and configures the hardware
-> > appropriately.
+- ioctls are not useful from scripts
+- 32/64 bit comapt issues
+- currently there islimited number of ioctls in input core, they are all
+  concentrated in joydev and evdev, almost all of them work on all
+  devices, verifying locking is easy
+
 > 
-> It seems that Samu's patch is a bit different - it completely disables
-> the keypad. But I wonder if it needs the special attribute or the same
-> can be simply achieved by simply closing event device when it is not
-> needed. Or maybe unbinding driver through sysfs.
+> On Wed, 2009-11-11 at 00:19 -0800, Dmitry Torokhov wrote:
+> > > > I understand the appeal of working with the keycodes but what you are
+> > > > asking is not simply ignoring certain keypresses (that is easy, just
+> > > > ignore corresponding events in userspace), you want to prevent system
+> > > > from waking up. In other words you want to "control PM layer through
+> > > > input layer" and I believe this is wrong.
+> > > 
+> > > Err, this is really about disabling keys. 
+> > 
+> > If you want to stop delivery of certain keycodes to userspace then OK,
+> > an option to subscrbe to certain events only instead of getting all
+> > events from the device. But again, it will only work for that particular
+> > user only, not everyone.
+> 
+> Yes, this will work for some particular input devices only, those which
+> support the keys masking. What is wrong with this? We have the '-ENOTTY'
+> error code, which for ioctl's means "ioctl is not supported".
+> 
+> But no one prevents us from making this work for _every_ input device by
+> implementing a default ioctl handler in evdev.c, if needed. This handler
+> can mask certain keys in SW.
+> 
+> IOW:
+>    1. if my HW supports HW key masking, the evdev ioctl calls my
+>       handler, which is implemented in my driver.
+>    2. if my HW does not support this, the evdev ioctl masks the keys in
+>       SW.
+> 
+> We are interested in 1. And if later someone needs 2., he/she can very
+> easily implement that. But for now we can just return -ENOTTY (or
+> -EINVAL, which seems to be used in the input subsystem).
 
-Yes, purpose is to provide keylock feature which totally disables the
-keymatrix. This way system is not even aware that some key was pressed.
-It also helps to save power since unnecessary interrupts are not
-received.
+And #2 is what I think input layer should provide. Something that
+works for all devices and is isolated (one client does not affect
+others).
 
-It seems that several userspace programs are reading the device. I have
-no idea how to get all the users to close the device when keylock is
-needed. Could be quite big number of changes to here and there in
-userspace side.
+> 
+> > > If we think about this in an
+> > > abstract way, you have an input device with many keys. And the device's
+> > > HW allows you to disable any of it's keys. When you disable the key, the
+> > > input device ignores it and does not generate any interrupt for it.
+> > 
+> > And the reason you want to stop interrupts?
+> 
+> The reason is that I want simply mute certain keys. This is the only
+> reason.
+> 
+> Now the question is _how_ I want to mute the key. My HW supports muting,
+> so I want to mute it in HW level, just because it is much better and
+> more efficient. Just because in this case I will not have any interrupt
+> and my device will wake up less.
 
-A master switch in sysfs would be quite simple way to control the
-keylock. Decision can be done in one place and all the users of the
-device are locked or unlocked. 
+And the reason you care about number of wake ups is not saving power by
+any chance?
 
-I'm not familiar with bind / unbind. I tried to play with this.
-It seems that I managed to unbind the driver since the /dev/input/eventx
-disappeared. Similarly bind restored the device node. Userspace
-program which tried to access device node was not happy at all after
-unbind.
-
-> Overall it seems that every input device used in embedded has it's own
-> way of disabling itself, we need a generic solution... Maybe
-> userspace-controlled PM is the answer).
-
-That is something which should be somehow handled. Depending on what is
-happening at the userspace, there can be different needs for input
-devices. Current way will be a mess since every driver has its own
-tricks to save power. But power saving is really needed for embedded
-devices.
-
-Regards,
-Samu
-
-
-
-
-
+-- 
+Dmitry

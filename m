@@ -1,106 +1,119 @@
-From: Mikko Vinni <mmvinni@yahoo.com>
-Subject: Re: keyboard leds not restored after s2ram in 2.6.32-rc6-00166-g799dd75
-Date: Wed, 11 Nov 2009 12:05:42 -0800 (PST)
-Message-ID: <800885.42568.qm@web58401.mail.re3.yahoo.com>
-References: <761296.29412.qm@web58402.mail.re3.yahoo.com> <20091111095218.GA3654@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757294AbZKKUFm@vger.kernel.org>
-In-Reply-To: <20091111095218.GA3654@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: chudson@kionix.com
+Subject: [RFC PATCH v3 2/3] mach-omap2:kxte9 accelerometer support for OMAP ZoomII
+Date: Wed, 11 Nov 2009 15:26:18 -0500
+Message-ID: <1257971179-28225-2-git-send-email-chudson@kionix.com>
+References: <1257971179-28225-1-git-send-email-chudson@kionix.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from barracuda.kionix.com ([205.232.90.213]:36817 "EHLO
+	mail.kionix.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757161AbZKKUZ4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Nov 2009 15:25:56 -0500
+In-Reply-To: <1257971179-28225-1-git-send-email-chudson@kionix.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Chris Hudson <chudson@kionix.com>
 
-Hi,
+From: Chris Hudson <chudson@kionix.com>
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This patch alters board-zoom2.c to add platform data initialization, gpio 
+configuration, and i2c-2 bus initialization in support of the kxte9 
+accelerometer on the OMAP ZoomII platform.
 
-> > my laptop shows the caps lock and scroll lock leds as being on after s2ram
-> > (and resume), even though they are off. If I press the caps lock key, the caps
-> > lock led stays on, the num lock led turns off, and the screen unlock screen
-> > warns about the caps lock being on.
-> > 
-> 
-> Thank you for the report. Could youplease tell me if the patch below
-> fixes the problem?
+Signed-off-by: Chris Hudson <chudson@kionix.com>
+---
+ arch/arm/mach-omap2/board-zoom2.c |   58 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 58 insertions(+), 0 deletions(-)
 
-Yes, it does. Thanks, now my HP-dv5 is happy.
+diff --git a/arch/arm/mach-omap2/board-zoom2.c b/arch/arm/mach-omap2/board-zoom2.c
+index 4ad9b94..6a42c18 100644
+--- a/arch/arm/mach-omap2/board-zoom2.c
++++ b/arch/arm/mach-omap2/board-zoom2.c
+@@ -27,6 +27,47 @@
+ #include "mmc-twl4030.h"
+ #include "sdram-micron-mt46h32m32lf-6.h"
+ 
++#ifdef CONFIG_INPUT_KXTE9
++/* KIONIX KXTE9 Digital Tri-axis Accelerometer */
++#include <plat/mux.h>
++#include <linux/kxte9.h>
++#define ZOOM2_KIONIX_INT_GPIO	156
++
++static void __init zoom2_kionix_init(void)
++{
++	omap_cfg_reg(Y21_34XX_GPIO156);
++	if (gpio_request(ZOOM2_KIONIX_INT_GPIO, "kionix_irq") < 0) {
++		printk(KERN_ERR "kionix error retrieving GPIO\n");
++		return;
++	}
++	gpio_direction_input(ZOOM2_KIONIX_INT_GPIO);
++}
++
++static struct kxte9_platform_data zoom2_kxte9_data = {
++	.min_interval	= 25,
++	.poll_interval	= 200,
++
++	.axis_map_x	= 0,
++	.axis_map_y	= 1,
++	.axis_map_z	= 2,
++
++	.negate_x	= 0,
++	.negate_y	= 0,
++	.negate_z	= 0,
++
++	.ctrl_reg1_init		= TPE | WUFE | B2SE,
++	.engine_odr_init	= OB2S10 | OWUF40,
++	.int_ctrl_init		= KXTE9_IEN | KXTE9_IEA,
++	.tilt_timer_init	= 0x03,
++	.wuf_timer_init		= 0x01,
++	.b2s_timer_init		= 0x01,
++	.wuf_thresh_init	= 0x20,
++	.b2s_thresh_init	= 0x60,
++
++	.gpio = ZOOM2_KIONIX_INT_GPIO,
++};
++#endif
++
+ /* Zoom2 has Qwerty keyboard*/
+ static int board_keymap[] = {
+ 	KEY(0, 0, KEY_E),
+@@ -256,11 +297,25 @@ static struct i2c_board_info __initdata zoom2_i2c_boardinfo[] = {
+ 	},
+ };
+ 
++#ifdef CONFIG_INPUT_KXTE9
++static struct i2c_board_info __initdata zoom2_i2c_bus2info[] = {
++	{
++		I2C_BOARD_INFO("kxte9", KXTE9_I2C_ADDR),
++		.platform_data = &zoom2_kxte9_data,
++	},
++};
++#endif
++
+ static int __init omap_i2c_init(void)
+ {
+ 	omap_register_i2c_bus(1, 2600, zoom2_i2c_boardinfo,
+ 			ARRAY_SIZE(zoom2_i2c_boardinfo));
++#ifndef CONFIG_INPUT_KXTE9
+ 	omap_register_i2c_bus(2, 400, NULL, 0);
++#else
++	omap_register_i2c_bus(2, 400, zoom2_i2c_bus2info,
++			ARRAY_SIZE(zoom2_i2c_bus2info));
++#endif
+ 	omap_register_i2c_bus(3, 400, NULL, 0);
+ 	return 0;
+ }
+@@ -269,6 +324,9 @@ extern int __init omap_zoom2_debugboard_init(void);
+ 
+ static void __init omap_zoom2_init(void)
+ {
++#ifdef CONFIG_INPUT_KXTE9
++	zoom2_kionix_init();
++#endif
+ 	omap_i2c_init();
+ 	omap_serial_init();
+ 	omap_zoom2_debugboard_init();
+-- 
+1.5.4.3
 
-I did some tests suspending with the caps lock actually on, and it seems that
-in that case the user might still be confused (caps lock is on but led is off).
-At least on this machine this patch doesn't affect this theoretical problem
-either way (2.6.31 behaves similarly), so it is ok.
-
-
-Mikko
-
-
-> 
-> Thanks!
-> 
-> -- 
-> Dmitry
-> 
-> 
-> Input: force LED reset on resume
-> 
-> From: Dmitry Torokhov 
-> 
-> We should be sending EV_LED event down to drivers upon resume even in cases
-> when in-kernel state of the LED is off since device could come up with some
-> leds turned on.
-> 
-> Reported-by: Mikko Vinni 
-> Signed-off-by: Dmitry Torokhov 
-> ---
-> 
-> drivers/input/input.c |   29 ++++++++++++++++++-----------
-> 1 files changed, 18 insertions(+), 11 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 61069b2..77b6efe 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -1298,17 +1298,24 @@ static int input_dev_uevent(struct device *device, 
-> struct kobj_uevent_env *env)
->     return 0;
-> }
-> 
-> -#define INPUT_DO_TOGGLE(dev, type, bits, on)            \
-> -    do {                            \
-> -        int i;                        \
-> -        if (!test_bit(EV_##type, dev->evbit))        \
-> -            break;                    \
-> -        for (i = 0; i < type##_MAX; i++) {        \
-> -            if (!test_bit(i, dev->bits##bit) ||    \
-> -                !test_bit(i, dev->bits))        \
-> -                continue;            \
-> -            dev->event(dev, EV_##type, i, on);    \
-> -        }                        \
-> +#define INPUT_DO_TOGGLE(dev, type, bits, on)                \
-> +    do {                                \
-> +        int i;                            \
-> +        bool active;                        \
-> +                                    \
-> +        if (!test_bit(EV_##type, dev->evbit))            \
-> +            break;                        \
-> +                                    \
-> +        for (i = 0; i < type##_MAX; i++) {            \
-> +            if (!test_bit(i, dev->bits##bit))        \
-> +                continue;                \
-> +                                    \
-> +            active = test_bit(i, dev->bits);        \
-> +            if (!active && !on)                \
-> +                continue;                \
-> +                                    \
-> +            dev->event(dev, EV_##type, i, on ? active : 0);    \
-> +        }                            \
->     } while (0)
-> 
-> #ifdef CONFIG_PM
-
-
-
-      

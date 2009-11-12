@@ -1,71 +1,42 @@
-From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
-Subject: Re: [RFC PATCH 2/2] Input: gpio-keys: implemented support for
-	enabling/disabling gpios
-Date: Thu, 12 Nov 2009 08:23:26 +0200
-Message-ID: <20091112062326.GB3955@esdhcp04058.research.nokia.com>
-References: <1257929573.21596.960.camel@localhost> <cover.1257931659.git.ext-mika.1.westerberg@nokia.com> <ac11b18d9fbb22ca88b61d73bc1e47e0068e9a86.1257931659.git.ext-mika.1.westerberg@nokia.com> <cover.1257931659.git.ext-mika.1.westerberg@nokia.com> <9b012ed801479acf5d4cbdf29292fdfc937d5e07.1257931659.git.ext-mika.1.westerberg@nokia.com> <873a4li0ul.fsf@tac.ki.iif.hu> <20091111145206.GA3955@esdhcp04058.research.nokia.com> <20091111170849.GA10663@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:25679 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750959AbZKLG2I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Nov 2009 01:28:08 -0500
-Content-Disposition: inline
-In-Reply-To: <20091111170849.GA10663@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [RFC PATCH 0/1] Driver for ami305 magnetometer
+Date: Thu, 12 Nov 2009 09:44:25 +0200
+Message-ID: <1258011866-25972-1-git-send-email-samu.p.onkalo@nokia.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751743AbZKLHp1@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Cc: Samu Onkalo <samu.p.onkalo@nokia.com>
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ext Ferenc Wagner <wferi@niif.hu>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Nov 11, 2009 at 06:08:49PM +0100, ext Dmitry Torokhov wrote:
-> On Wed, Nov 11, 2009 at 04:52:06PM +0200, Mika Westerberg wrote:
-> > On Wed, Nov 11, 2009 at 03:37:38PM +0100, ext Ferenc Wagner wrote:
-> > > Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
-> > > 
-> > > > +	for (i = 0; i < pdata->nbuttons; i++) {
-> > > > +		struct gpio_keys_button *button = &pdata->buttons[i];
-> > > > +		struct gpio_button_data *bdata = &ddata->data[i];
-> > > > +
-> > > > +		if (button->code == st->code && button->type == st->type) {
-> > > > +			switch (st->state) {
-> > > > +			case EVENT_STATE_DISABLE:
-> > > > +				if (bdata->state == EVENT_STATE_ENABLE) {
-> > > > +					bdata->state = EVENT_STATE_DISABLE;
-> > > > +					/*
-> > > > +					 * Disable physical irq line.  This is
-> > > > +					 * enough also for keeping device from
-> > > > +					 * waking up during sleep so no need
-> > > > +					 * to change wakeup flags for this irq.
-> > > > +					 */
-> > > > +					disable_irq(gpio_to_irq(button->gpio));
-> > > 
-> > > Hi Mika,
-> > > 
-> > > Did you consider what would happen when several GPIO buttons share a
-> > > single IRQ?  The current code does not support this (it uses IRQF_SHARED
-> > > for a different reason), but this is very much possible: see for example
-> > > http://thread.gmane.org/gmane.linux.kernel.input/8775 for a related
-> > > thread which unfortunately died off without conclusion (but the patch
-> > > went in).
-> > 
-> > Good point!  I didn't consider that at all. 
-> > 
-> > Maybe we disable irq only when it is not shared with anything else (even
-> > with other GPIO button) and otherwise return -EINVAL or something like
-> > that?
-> > 
-> 
-> How could a driver know if it is [going to] share irq with another
-> driver. Dmitry's (the other one ;) ) patch was needed because he wanted
-> to share IRQ with another device entirely.
+This patch provides driver for two sw compatible 3 axis magnetometer chips
+(AMI305 / AK8974). 
+Driver provides coordinates as polled input device.
+Chip can provide interrupt when the measurement result is ready, but
+this feature is not used. Instead, new measurement is started at polling
+event frequency. This method allows more flexible measurement interval.
+Activity level at kernel side is about the same in both interrupt and polling
+based methods. Furhtermore, this eliminate need to use interrupt line at HW
+level. 
 
-Ah, it seems that there is no such API in the kernel :(
+Chip is powered on when the polled device is opened and powered down when the
+device is closed. Axes can be remapped via platform data. 
 
-How about specifying whether some GPIO button allows sharing of the IRQ
-in board files (e.g amend gpio_keys_button struct)? Then we can disable
-only those GPIO buttons where IRQ line is not shared.
+sysfs interface:
+selftest - Perform chip specific selftest as specified by manufacturer
+active - returns chip power state: ON or OFF
+fuzz - adjust input system "fuzziness" parameter
 
-Thanks,
-MW
+Patch is applicable to Dmitry Torokhov's input tree - next branch. 
+This tree was selected since patch requires a change to polled
+input device which is allready in that tree (open / close methods).
+
+Samu Onkalo (1):
+  AMI305 magnetometer driver
+
+ drivers/misc/Kconfig       |   11 +
+ drivers/misc/Makefile      |    1 +
+ drivers/misc/ami305.c      |  644 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/ami305.h |   22 ++
+ 4 files changed, 678 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/ami305.c
+ create mode 100644 include/linux/i2c/ami305.h

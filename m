@@ -1,64 +1,37 @@
-From: Chris Hudson <chudson@kionix.com>
-Subject: Re: [RFC PATCH v3 1/3] input:misc:driver support for Kionix kxte9
- accelerometer
-Date: Thu, 12 Nov 2009 09:33:06 -0500
-Message-ID: <4AFC1CA2.7070206@kionix.com>
-References: <1257971179-28225-1-git-send-email-chudson@kionix.com> <FCCFB4CDC6E5564B9182F639FC35608702FA5CBB36@dbde02.ent.ti.com> <4AFB21D2.2000007@kionix.com> <FCCFB4CDC6E5564B9182F639FC35608702FA5CBB4E@dbde02.ent.ti.com>
+From: Sebastian Kapfer <sebastian_kapfer@gmx.net>
+Subject: Re: [PATCH] Alps dualpoint touchpads losing sync
+Date: Thu, 12 Nov 2009 19:40:08 +0100
+Message-ID: <1258051208.20822.26.camel@sardelle.necksus.de>
+References: <1257812423.6508.22.camel@sardelle.necksus.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <FCCFB4CDC6E5564B9182F639FC35608702FA5CBB4E@dbde02.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Pandita, Vikram" <vikram.pandita@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.gmx.net ([213.165.64.20]:42194 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1752648AbZKLSkH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Nov 2009 13:40:07 -0500
+In-Reply-To: <1257812423.6508.22.camel@sardelle.necksus.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Pandita, Vikram wrote:
->> -----Original Message-----
->> From: Chris Hudson [mailto:chudson@kionix.com]
->>
->> Pandita, Vikram wrote:
->>     
->>> Chris
->>>       
-> <snip>
->   
->>> Any way to test these features of accelerometer with your set of 3 patches applied?
->>>
->>> Say with a busybox filesystem or poky?
->>>
->>>       
->> Sure, I've been using busybox with the ZoomII and testing the hardware
->> throughout the development process.  You'll need to attach a KXTE9 to
->>     
->
-> I thought the accelerometer was a built-in feature of zoom2?
-> Can you give reference of details of KXTE9 module? Is it to be plugged in to come connector on zoom2?
->   
-There are two accelerometers built into the OMAP ZoomII: a MEMSIC and a 
-Bosch.(1)  From what I've seen, they don't seem to be initialized in any 
-stardard kernel configuration for this platform.
+On Di, 2009-11-10 at 01:20 +0100, Sebastian Kapfer wrote:
+> >>From d53bf419ca1b035cd6db4a29e9f96190eca676b2 Mon Sep 17 00:00:00 2001
+> From: Sebastian Kapfer <sebastian_kapfer@gmx.net>
+> Date: Tue, 10 Nov 2009 00:51:42 +0100
+> Subject: [PATCH] Alps dualpoint touchpads losing sync
 
-To work with the KXTE9, I used a 200-pin connecter(2) mounted to the J43 
-expansion header, which is under the camera cover on the ZoomII. 
+Hi,
 
-The KXTE9 product specification is available here: 
-http://www.kionix.com/accelerometers/accelerometer-KXTE9.html
+a few other users tried the patch in the mean time with success.  There
+may still be a minor glitch to sort out, but I still think it should be
+committed ASAP because currently the driver is just broken for
+Dualpoints.
 
-(1)https://gforge.ti.com/gf/project/omapzoom/wiki/?pagename=WhatIsZoom2
-(2)http://search.digikey.com/scripts/DkSearch/dksus.dll?lang=en&site=US&WT.z_homepage_link=hp_go_button&KeyWords=sam8019-nd&x=0&y=0
+(See https://bugs.launchpad.net/ubuntu/+source/linux/+bug/296610  )
 
->   
->> the i2c-2 bus, vdd, iovdd, ground, and gpio156 on the J43 header if
->> using a ZoomII.  I can give you the exact pins I'm using if you would like.
->> Thank you,
->> Chris
->>     
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
->   
+-- 
+Best Regards,  | Hi! I'm a .signature virus. Copy me into
+ Sebastian     | your ~/.signature to help me spread!
+

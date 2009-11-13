@@ -1,53 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.32-rc7
-Date: Thu, 12 Nov 2009 23:36:47 -0800
-Message-ID: <20091113073647.GA7783@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: miguel.aguilar@ridgerun.com
+Subject: [PATCH 1/2] Input: Add device_enable handler to DaVinci Keyscan platform data
+Date: Fri, 13 Nov 2009 11:19:30 -0600
+Message-ID: <1258132770-23292-1-git-send-email-miguel.aguilar@ridgerun.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f180.google.com ([209.85.216.180]:50431 "EHLO
-	mail-px0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754124AbZKMHgq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Nov 2009 02:36:46 -0500
-Content-Disposition: inline
+Received: from mail.navvo.net ([74.208.67.6]:39375 "EHLO mail.navvo.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756450AbZKMRT2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Nov 2009 12:19:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org
+Cc: todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com, Miguel Aguilar <miguel.aguilar@ridgerun.com>
 
-Hi Linus,
+From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
 
-Please pull from:
+Add a function pointer in the platform data of the DaVinci Keyscan driver
+called device_enabled, in order to perform board specific actions when
+the device is initialized, like setup the PINMUX configuration.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+---
+ arch/arm/mach-davinci/include/mach/keyscan.h |    1 +
+ drivers/input/keyboard/davinci_keyscan.c     |    3 +++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Dmitry Torokhov (3):
-      Input: fix locking in memoryless force-feedback devices
-      Input: force LED reset on resume
-      Input: atkbd - restore LED state at reconnect
-
-Takashi Iwai (1):
-      Input: psmouse - remove unneeded '\n' from psmouse.proto parameter
-
-Diffstat:
---------
-
- drivers/input/ff-core.c            |   20 +++++++++++---------
- drivers/input/ff-memless.c         |   26 +++++++++++---------------
- drivers/input/input.c              |   29 ++++++++++++++++++-----------
- drivers/input/keyboard/atkbd.c     |   13 +++++++++++++
- drivers/input/mouse/psmouse-base.c |    2 +-
- include/linux/input.h              |    4 ++++
- 6 files changed, 58 insertions(+), 36 deletions(-)
-
+diff --git a/arch/arm/mach-davinci/include/mach/keyscan.h b/arch/arm/mach-davinci/include/mach/keyscan.h
+index b4e21a2..2ca5741 100644
+--- a/arch/arm/mach-davinci/include/mach/keyscan.h
++++ b/arch/arm/mach-davinci/include/mach/keyscan.h
+@@ -29,6 +29,7 @@ enum davinci_matrix_types {
+ };
+ 
+ struct davinci_ks_platform_data {
++	void		(*device_enable)(struct device *dev);
+ 	unsigned short	*keymap;
+ 	u32		keymapsize;
+ 	u8		rep:1;
+diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+index 6e52d85..b50c40a 100644
+--- a/drivers/input/keyboard/davinci_keyscan.c
++++ b/drivers/input/keyboard/davinci_keyscan.c
+@@ -174,6 +174,9 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	struct davinci_ks_platform_data *pdata = pdev->dev.platform_data;
+ 	int error, i;
+ 
++	if (pdata->device_enable)
++		pdata->device_enable(dev);
++
+ 	if (!pdata->keymap) {
+ 		dev_dbg(dev, "no keymap from pdata\n");
+ 		return -EINVAL;
 -- 
-Dmitry
+1.6.0.4
 

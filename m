@@ -1,87 +1,54 @@
-From: miguel.aguilar@ridgerun.com
-Subject: [PATCH v2 2/2] DaVinci: DM365: Add the device_enable for the DaVinci Keyscan
-Date: Fri, 13 Nov 2009 13:44:23 -0600
-Message-ID: <1258141463-24937-1-git-send-email-miguel.aguilar@ridgerun.com>
+From: "Stefan Lippers-Hollmann" <s.L-H@gmx.de>
+Subject: Re: [PATCH 2/3 v2] lirc driver for Windows MCE IR transceivers
+Date: Fri, 13 Nov 2009 21:43:55 +0100
+Message-ID: <200911132143.59064.s.L-H@gmx.de>
+References: <200910200956.33391.jarod@redhat.com> <200910201000.00372.jarod@redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.navvo.net ([74.208.67.6]:51656 "EHLO mail.navvo.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757186AbZKMToT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Nov 2009 14:44:19 -0500
+Received: from mail.gmx.net ([213.165.64.20]:34957 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1757495AbZKMUnz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Nov 2009 15:43:55 -0500
+In-Reply-To: <200910201000.00372.jarod@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org
-Cc: todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com, Miguel Aguilar <miguel.aguilar@ridgerun.com>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Hi
 
-Adds the device_enable function to the DaVinci Keyscan platform data
-to setup the PINMUX configuration.
+Thank you for trying to get lirc mainline. Hoping that no real complaints 
+against it arise, what about submitting the tree to linux-next, so it gets 
+more testing exposure before the merge window opens for 2.6.33?
 
-It also removes #ifdef from the DM365 EVM board in order to load it
-properly as a module.
+On Friday 13 November 2009, Jarod Wilson wrote:
+> lirc driver for Windows Media Center Ed. IR transceivers
+[...]
+> Index: b/drivers/input/lirc/Kconfig
+> ===================================================================
+> --- a/drivers/input/lirc/Kconfig
+> +++ b/drivers/input/lirc/Kconfig
+> @@ -11,6 +11,10 @@ menuconfig INPUT_LIRC
+>  
+>  if INPUT_LIRC
+>  
+> -# Device-specific drivers go here
+> +config LIRC_MCEUSB
+> +	tristate "Windows Media Center Ed. USB IR Transceiver"
+> +	depends on LIRC_DEV && USB
 
-Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
----
- arch/arm/mach-davinci/board-dm365-evm.c |   11 ++++++-----
- arch/arm/mach-davinci/dm365.c           |    1 -
- 2 files changed, 6 insertions(+), 6 deletions(-)
+You have obviously renamed LIRC_DEV to INPUT_LIRC just before the 
+submission, but missed to do so for the individual drivers which still 
+depend on LIRC_DEV and are therefore not selectable; the same applies to
+[PATCH 3/3 v2] lirc driver for SoundGraph iMON IR receivers and displays.
 
-diff --git a/arch/arm/mach-davinci/board-dm365-evm.c b/arch/arm/mach-davinci/board-dm365-evm.c
-index 8d23972..5c2636c 100644
---- a/arch/arm/mach-davinci/board-dm365-evm.c
-+++ b/arch/arm/mach-davinci/board-dm365-evm.c
-@@ -195,7 +195,11 @@ static struct davinci_i2c_platform_data i2c_pdata = {
- 	.bus_delay	= 0	/* usec */,
- };
- 
--#ifdef CONFIG_KEYBOARD_DAVINCI
-+static int dm365evm_keyscan_enable(struct device *dev)
-+{
-+	return davinci_cfg_reg(DM365_KEYSCAN);
-+}
-+
- static unsigned short dm365evm_keymap[] = {
- 	KEY_KP2,
- 	KEY_LEFT,
-@@ -217,6 +221,7 @@ static unsigned short dm365evm_keymap[] = {
- };
- 
- static struct davinci_ks_platform_data dm365evm_ks_data = {
-+	.device_enable	= dm365evm_keyscan_enable,
- 	.keymap		= dm365evm_keymap,
- 	.keymapsize	= ARRAY_SIZE(dm365evm_keymap),
- 	.rep		= 1,
-@@ -225,7 +230,6 @@ static struct davinci_ks_platform_data dm365evm_ks_data = {
- 	.interval	= 0x2,
- 	.matrix_type	= DAVINCI_KEYSCAN_MATRIX_4X4,
- };
--#endif
- 
- static int cpld_mmc_get_cd(int module)
- {
-@@ -514,10 +518,7 @@ static __init void dm365_evm_init(void)
- 
- 	dm365_init_asp(&dm365_evm_snd_data);
- 	dm365_init_rtc();
--
--#ifdef CONFIG_KEYBOARD_DAVINCI
- 	dm365_init_ks(&dm365evm_ks_data);
--#endif
- }
- 
- static __init void dm365_evm_irq_init(void)
-diff --git a/arch/arm/mach-davinci/dm365.c b/arch/arm/mach-davinci/dm365.c
-index 2ec619e..f53735c 100644
---- a/arch/arm/mach-davinci/dm365.c
-+++ b/arch/arm/mach-davinci/dm365.c
-@@ -993,7 +993,6 @@ void __init dm365_init_asp(struct snd_platform_data *pdata)
- 
- void __init dm365_init_ks(struct davinci_ks_platform_data *pdata)
- {
--	davinci_cfg_reg(DM365_KEYSCAN);
- 	dm365_ks_device.dev.platform_data = pdata;
- 	platform_device_register(&dm365_ks_device);
- }
--- 
-1.6.0.4
+> +	help
+> +	  Driver for Windows Media Center Ed. USB IR Transceivers
+>  
+>  endif
 
+Regards
+	Stefan Lippers-Hollmann

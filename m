@@ -1,39 +1,49 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 2/2] rfkill: Add support for KEY_RFKILL
-Date: Fri, 13 Nov 2009 06:33:57 +0100
-Message-ID: <1258090437.3299.4.camel@violet>
+From: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Fri, 13 Nov 2009 06:34:26 +0100
+Message-ID: <1258090466.3299.6.camel@violet>
 References: <1252603292-20830-1-git-send-email-mjg@redhat.com>
-	 <1252603292-20830-2-git-send-email-mjg@redhat.com>
+	 <20090911051259.GC23210@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:51959 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750913AbZKMFdy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Nov 2009 00:33:54 -0500
-In-Reply-To: <1252603292-20830-2-git-send-email-mjg@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090911051259.GC23210-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Matthew Garrett <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-wireless@vger.kernel.org
 
 Hi Matthew,
 
-> Add support for handling KEY_RFKILL in the rfkill input module. This
-> simply toggles the state of all rfkill devices. The comment in rfkill.h
-> is also updated to reflect that RFKILL_TYPE_ALL may be used inside the
-> kernel.
+> > Most laptops have keys that are intended to toggle all device state, not
+> > just wifi. These are currently generally mapped to KEY_WLAN. As a result,
+> > rfkill will only kill or enable wifi in response to the key press. This
+> > confuses users and can make it difficult for them to enable bluetooth
+> > and wwan devices.
+> > 
+> > This patch adds a new keycode, KEY_RFKILL_ALL. It indicates that the
 > 
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> The new name in description does not match the code...
+> 
+> > system should toggle the state of all rfkillable devices.
+> 
+> Hmm, rfkill changes usually go through net tree so unless they want me
+> to push it though I'll just ACK the new keycode.
+> 
+> > 
+> > Signed-off-by: Matthew Garrett <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> 
+> Acked-by: Dmitry Torokhov <dtor-JGs/UdohzUI@public.gmane.org>
 
-looks good and seems to got lost somehow.
-
-Acked-by: Marcel Holtmann <marcel@holtmann.org>
+Acked-by: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
 
 Regards
 
 Marcel
 
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

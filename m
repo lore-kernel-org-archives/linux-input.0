@@ -1,81 +1,293 @@
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Three buttons reported on two-button touchpad
-Date: Sat, 14 Nov 2009 15:51:10 +0300
-Message-ID: <200911141551.14263.arvidjaar@mail.ru>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Three buttons reported on two-button touchpad
+Date: Sat, 14 Nov 2009 22:20:36 -0800
+Message-ID: <20091115062036.GA9844@core.coreip.homeip.net>
+References: <200911141551.14263.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1855912.F8eKTYv1IE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback3.mail.ru ([94.100.176.58]:53688 "EHLO
-	fallback3.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751353AbZKNMvv (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:36232 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751202AbZKOGUg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Nov 2009 07:51:51 -0500
+	Sun, 15 Nov 2009 01:20:36 -0500
+Content-Disposition: inline
+In-Reply-To: <200911141551.14263.arvidjaar@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---nextPart1855912.F8eKTYv1IE
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Hi Andrey,
 
-Kernel 2.6.31.x
+On Sat, Nov 14, 2009 at 03:51:10PM +0300, Andrey Borzenkov wrote:
+> Kernel 2.6.31.x
+> 
+> dmesg:
+> Synaptics Touchpad, model: 1, fw: 6.3, id: 0x1c0b1, caps: 0xa04751/0x0
+> 
+> but /proc/bus/input/devices:
+> 
+> I: Bus=0011 Vendor=0002 Product=0007 Version=01b1
+> N: Name="SynPS/2 Synaptics TouchPad"
+> P: Phys=isa0060/serio1/input0
+> S: Sysfs=/devices/platform/i8042/serio1/input/input15
+> U: Uniq=
+> H: Handlers=mouse1 event2
+> B: EV=b
+> B: KEY=420 70000 0 0 0 0
+> B: ABS=11000003
+> 
+> So even when capabilities clear say only 2 buttons, driver claims there 
+> are 3 of them.
+> 
+> The reason most likely is initialization sequence. 
+> psmouse_switch_protocol() unconditionally sets supported buttons:
+> 
+>         input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
+>         input_dev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
+>                 BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
+>         input_dev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+> 
+> before even starting hardware detection and knowing real capabilities. 
+> Detection for specific hardware won't change it (possibly only extend).
 
-dmesg:
-Synaptics Touchpad, model: 1, fw: 6.3, id: 0x1c0b1, caps: 0xa04751/0x0
+Some of them do.
 
-but /proc/bus/input/devices:
+> 
+> Is it OK to move button bits setting into ps2bare_detect()? This seems 
+> to agree with comments in psmouse_extensions() as well:
+> 
+> /*
+>  * Okay, all failed, we have a standard mouse here. The number of the 
+> buttons
+>  * is still a question, though. We assume 3.
+>  */
+> 
+> All other detection routines seem to be setting those bits already.
 
-I: Bus=3D0011 Vendor=3D0002 Product=3D0007 Version=3D01b1
-N: Name=3D"SynPS/2 Synaptics TouchPad"
-P: Phys=3Disa0060/serio1/input0
-S: Sysfs=3D/devices/platform/i8042/serio1/input/input15
-U: Uniq=3D
-H: Handlers=3Dmouse1 event2
-B: EV=3Db
-B: KEY=3D420 70000 0 0 0 0
-B: ABS=3D11000003
+Not all of them but yes, I think we should to this. DOes th patch below
+work for you?
 
-So even when capabilities clear say only 2 buttons, driver claims there=20
-are 3 of them.
+-- 
+Dmitry
 
-The reason most likely is initialization sequence.=20
-psmouse_switch_protocol() unconditionally sets supported buttons:
+Input: psmouse - rework setting up BTN_MIDDLE capability
 
-        input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
-        input_dev->keybit[BIT_WORD(BTN_MOUSE)] =3D BIT_MASK(BTN_LEFT) |
-                BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
-        input_dev->relbit[0] =3D BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+Do not start protocol detection assuming that middle mouse is present,
+instead let individual protocols explicitely set this capability.
+This fixes issue with Synaptics Touchpads pretending that they have
+middle button when hardware clearly reports otherwise.
 
-before even starting hardware detection and knowing real capabilities.=20
-Detection for specific hardware won't change it (possibly only extend).
+Reported-by: Andrey Borzenkov <arvidjaar@mail.ru>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Is it OK to move button bits setting into ps2bare_detect()? This seems=20
-to agree with comments in psmouse_extensions() as well:
+ drivers/input/mouse/hgpk.c         |   13 ------------
+ drivers/input/mouse/logips2pp.c    |    4 ++--
+ drivers/input/mouse/psmouse-base.c |   38 ++++++++++++++++++++++++++----------
+ drivers/input/mouse/sentelic.c     |    1 +
+ drivers/input/mouse/trackpoint.c   |   13 ++++++++----
+ 5 files changed, 38 insertions(+), 31 deletions(-)
 
-/*
- * Okay, all failed, we have a standard mouse here. The number of the=20
-buttons
- * is still a question, though. We assume 3.
- */
 
-All other detection routines seem to be setting those bits already.
-
---nextPart1855912.F8eKTYv1IE
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEUEABECAAYFAkr+p74ACgkQR6LMutpd94w3twCYjjvW30+2AlKT5ULtivr+Vowl
-4gCfUT6vyIpnWmdOSLhVrd/LzVcVIg4=
-=PzVJ
------END PGP SIGNATURE-----
-
---nextPart1855912.F8eKTYv1IE--
+diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+index de1e553..b146237 100644
+--- a/drivers/input/mouse/hgpk.c
++++ b/drivers/input/mouse/hgpk.c
+@@ -430,19 +430,6 @@ static int hgpk_register(struct psmouse *psmouse)
+ 	struct input_dev *dev = psmouse->dev;
+ 	int err;
+ 
+-	/* unset the things that psmouse-base sets which we don't have */
+-	__clear_bit(BTN_MIDDLE, dev->keybit);
+-
+-	/* set the things we do have */
+-	__set_bit(EV_KEY, dev->evbit);
+-	__set_bit(EV_REL, dev->evbit);
+-
+-	__set_bit(REL_X, dev->relbit);
+-	__set_bit(REL_Y, dev->relbit);
+-
+-	__set_bit(BTN_LEFT, dev->keybit);
+-	__set_bit(BTN_RIGHT, dev->keybit);
+-
+ 	/* register handlers */
+ 	psmouse->protocol_handler = hgpk_process_byte;
+ 	psmouse->poll = hgpk_poll;
+diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
+index ab5dc5f..543c240 100644
+--- a/drivers/input/mouse/logips2pp.c
++++ b/drivers/input/mouse/logips2pp.c
+@@ -404,8 +404,8 @@ int ps2pp_init(struct psmouse *psmouse, bool set_properties)
+ 			}
+ 		}
+ 
+-		if (buttons < 3)
+-			__clear_bit(BTN_MIDDLE, psmouse->dev->keybit);
++		if (buttons >= 3)
++			__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 
+ 		if (model_info)
+ 			ps2pp_set_model_properties(psmouse, model_info, use_ps2pp);
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 5bd6484..560d647 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -425,6 +425,7 @@ static int genius_detect(struct psmouse *psmouse, bool set_properties)
+ 		return -1;
+ 
+ 	if (set_properties) {
++		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 		__set_bit(BTN_EXTRA, psmouse->dev->keybit);
+ 		__set_bit(BTN_SIDE, psmouse->dev->keybit);
+ 		__set_bit(REL_WHEEL, psmouse->dev->relbit);
+@@ -460,8 +461,10 @@ static int intellimouse_detect(struct psmouse *psmouse, bool set_properties)
+ 		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 		__set_bit(REL_WHEEL, psmouse->dev->relbit);
+ 
+-		if (!psmouse->vendor) psmouse->vendor = "Generic";
+-		if (!psmouse->name) psmouse->name = "Wheel Mouse";
++		if (!psmouse->vendor)
++			psmouse->vendor = "Generic";
++		if (!psmouse->name)
++			psmouse->name = "Wheel Mouse";
+ 		psmouse->pktsize = 4;
+ 	}
+ 
+@@ -504,8 +507,10 @@ static int im_explorer_detect(struct psmouse *psmouse, bool set_properties)
+ 		__set_bit(BTN_SIDE, psmouse->dev->keybit);
+ 		__set_bit(BTN_EXTRA, psmouse->dev->keybit);
+ 
+-		if (!psmouse->vendor) psmouse->vendor = "Generic";
+-		if (!psmouse->name) psmouse->name = "Explorer Mouse";
++		if (!psmouse->vendor)
++			psmouse->vendor = "Generic";
++		if (!psmouse->name)
++			psmouse->name = "Explorer Mouse";
+ 		psmouse->pktsize = 4;
+ 	}
+ 
+@@ -536,6 +541,7 @@ static int thinking_detect(struct psmouse *psmouse, bool set_properties)
+ 		return -1;
+ 
+ 	if (set_properties) {
++		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 		__set_bit(BTN_EXTRA, psmouse->dev->keybit);
+ 
+ 		psmouse->vendor = "Kensington";
+@@ -551,8 +557,16 @@ static int thinking_detect(struct psmouse *psmouse, bool set_properties)
+ static int ps2bare_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	if (set_properties) {
+-		if (!psmouse->vendor) psmouse->vendor = "Generic";
+-		if (!psmouse->name) psmouse->name = "Mouse";
++		if (!psmouse->vendor)
++			psmouse->vendor = "Generic";
++		if (!psmouse->name)
++			psmouse->name = "Mouse";
++
++/*
++ * We have no way of figuring true number of buttons so let's
++ * assume that the device has 3.
++ */
++		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 	}
+ 
+ 	return 0;
+@@ -567,6 +581,8 @@ static int cortron_detect(struct psmouse *psmouse, bool set_properties)
+ 	if (set_properties) {
+ 		psmouse->vendor = "Cortron";
+ 		psmouse->name = "PS/2 Trackball";
++
++		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 		__set_bit(BTN_SIDE, psmouse->dev->keybit);
+ 	}
+ 
+@@ -1184,15 +1200,16 @@ static void psmouse_disconnect(struct serio *serio)
+ 	mutex_unlock(&psmouse_mutex);
+ }
+ 
+-static int psmouse_switch_protocol(struct psmouse *psmouse, const struct psmouse_protocol *proto)
++static int psmouse_switch_protocol(struct psmouse *psmouse,
++				   const struct psmouse_protocol *proto)
+ {
+ 	struct input_dev *input_dev = psmouse->dev;
+ 
+ 	input_dev->dev.parent = &psmouse->ps2dev.serio->dev;
+ 
+ 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
+-	input_dev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
+-		BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
++	input_dev->keybit[BIT_WORD(BTN_MOUSE)] =
++				BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_RIGHT);
+ 	input_dev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+ 
+ 	psmouse->set_rate = psmouse_set_rate;
+@@ -1209,8 +1226,7 @@ static int psmouse_switch_protocol(struct psmouse *psmouse, const struct psmouse
+ 			return -1;
+ 
+ 		psmouse->type = proto->type;
+-	}
+-	else
++	} else
+ 		psmouse->type = psmouse_extensions(psmouse,
+ 						   psmouse_max_proto, true);
+ 
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index f84cbd9..77b9fd0 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -836,6 +836,7 @@ int fsp_init(struct psmouse *psmouse)
+ 	priv->flags |= FSPDRV_FLAG_EN_OPC;
+ 
+ 	/* Set up various supported input event bits */
++	__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+ 	__set_bit(BTN_BACK, psmouse->dev->keybit);
+ 	__set_bit(BTN_FORWARD, psmouse->dev->keybit);
+ 	__set_bit(REL_WHEEL, psmouse->dev->relbit);
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index e354362..63d4a67 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -284,7 +284,6 @@ static int trackpoint_reconnect(struct psmouse *psmouse)
+ 
+ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ {
+-	struct trackpoint_data *priv;
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	unsigned char firmware_id;
+ 	unsigned char button_info;
+@@ -301,8 +300,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 		button_info = 0;
+ 	}
+ 
+-	psmouse->private = priv = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+-	if (!priv)
++	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
++	if (!psmouse->private)
+ 		return -1;
+ 
+ 	psmouse->vendor = "IBM";
+@@ -311,7 +310,10 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 	psmouse->reconnect = trackpoint_reconnect;
+ 	psmouse->disconnect = trackpoint_disconnect;
+ 
+-	trackpoint_defaults(priv);
++	if ((button_info & 0x0f) >= 3)
++		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
++
++	trackpoint_defaults(psmouse->private);
+ 	trackpoint_sync(psmouse);
+ 
+ 	error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
+@@ -319,7 +321,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 		printk(KERN_ERR
+ 			"trackpoint.c: failed to create sysfs attributes, error: %d\n",
+ 			error);
+-		kfree(priv);
++		kfree(psmouse->private);
++		psmouse->private = NULL;
+ 		return -1;
+ 	}
+ 

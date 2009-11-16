@@ -1,46 +1,54 @@
-From: Johannes Stezenbach <js@sig21.net>
-Subject: [PATCH] input: atkbd - add forced release kays quirk for Samsung
- N130
-Date: Mon, 16 Nov 2009 18:18:14 +0100
-Message-ID: <20091116171814.GA26183@sig21.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: fix wrong synaptics detection in
+	psmouse_extensions()
+Date: Mon, 16 Nov 2009 11:53:32 -0800
+Message-ID: <20091116195332.GD24026@core.coreip.homeip.net>
+References: <alpine.LSU.2.00.0911161245570.15039@wotan.suse.de> <20091116170151.GA24026@core.coreip.homeip.net> <alpine.LSU.2.00.0911161806580.15039@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bar.sig21.net ([80.81.252.164]:55558 "EHLO bar.sig21.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753684AbZKPRSS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Nov 2009 12:18:18 -0500
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753852AbZKPTxh@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <alpine.LSU.2.00.0911161806580.15039@wotan.suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Samsung N130 has the same function key quirks as the NC10.
+On Mon, Nov 16, 2009 at 06:12:39PM +0100, Jiri Kosina wrote:
+> 
+> [ fixed linux-input CC which I have typoed previously ]
+> 
+> On Mon, 16 Nov 2009, Dmitry Torokhov wrote:
+> 
+> > On Mon, Nov 16, 2009 at 12:51:30PM +0100, Jiri Kosina wrote:
+> > > Commit b7802c5c1ea ("Input: psmouse - use boolean type") caused the 
+> > > synaptics_hardware variable to be completely useless, as it is constantly 
+> > > set to 'true' throughout the whole psmouse_extensions(). This was caused 
+> > > by the following hunk in the commit in question
+> > > 
+> > > 	-       int synaptics_hardware = 0;
+> > > 	+       bool synaptics_hardware = true;
+> > > 
+> > > which is wrong. Fix that up.
+> > 
+> > Hmm, not sure what I was thinnking at that time but it is obviously I
+> > should have stayed away form tehe keyboard...
+> > 
+> > Applied, thank you Jiri.
+> 
+> I guess you will be pushing that one to .32 still, right? 
 
-Signed-off-by: Johannes Stezenbach <js@sig21.net>
----
-It would be nice if this could go into 2.6.32.  It might also be
-suitable for stable.
+Yes, I will try to get it in .32
 
+> I think it's 
+> quite crucial fix, so if it doesn't make it in time for .32 (I am not sure 
+> whether Linus will be doing next -rc or not), it should go to -stable for 
+> .32 right away.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 4452eab..ad2dc7d 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -1646,6 +1646,15 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
- 		.driver_data = atkbd_samsung_forced_release_keys,
- 	},
- 	{
-+		.ident = "Samsung N130",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "N130"),
-+		},
-+		.callback = atkbd_setup_forced_release,
-+		.driver_data = atkbd_samsung_forced_release_keys,
-+	},
-+	{
- 		.ident = "Samsung SQ45S70S",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
+Actually it is not that critical, it will only cause us to do an
+unnecessary full reset when every protocol detection failed and we
+resort to the bare PS/2 protocol. Still  the fix is tiny so might as
+well do stable if it misses release.
+
+-- 
+Dmitry

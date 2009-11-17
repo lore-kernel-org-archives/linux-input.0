@@ -1,39 +1,39 @@
-From: Johannes Stezenbach <js@sig21.net>
-Subject: Re: [PATCH] input: atkbd - add forced release kays quirk for
- Samsung N130
-Date: Mon, 16 Nov 2009 22:34:25 +0100
-Message-ID: <20091116213425.GA2128@sig21.net>
-References: <20091116171814.GA26183@sig21.net>
- <20091116195443.GE24026@core.coreip.homeip.net>
+From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Bug #14626] oops on boot starting udev
+Date: Mon, 16 Nov 2009 17:14:55 -0800
+Message-ID: <20091117011455.GA7977@kroah.com>
+References: <GUZt44bIwCE.A.vLF.pSdALB@chimera>
+ <xXQGFmujPl.A.fpF.zSdALB@chimera>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754242AbZKPVeJ@vger.kernel.org>
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20091116195443.GE24026@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <xXQGFmujPl.A.fpF.zSdALB@chimera>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kernel Testers List <kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Soeren Sonnenburg <sonne-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On Mon, Nov 16, 2009 at 11:54:43AM -0800, Dmitry Torokhov wrote:
-> On Mon, Nov 16, 2009 at 06:18:14PM +0100, Johannes Stezenbach wrote:
-> > Samsung N130 has the same function key quirks as the NC10.
-> > 
-> > Signed-off-by: Johannes Stezenbach <js@sig21.net>
-> > ---
-> > It would be nice if this could go into 2.6.32.  It might also be
-> > suitable for stable.
+On Mon, Nov 16, 2009 at 11:37:48PM +0100, Rafael J. Wysocki wrote:
+> This message has been generated automatically as a part of a report
+> of recent regressions.
 > 
-> 2.6.32 will allow manipulating force release quirk from userspace
-> (sysfs) so I stopped accepting in-kernel quirks like this one.
+> The following bug entry is on the current list of known regressions
+> from 2.6.31.  Please verify if it still should be listed and let me know
+> (either way).
+> 
+> 
+> Bug-Entry	: http://bugzilla.kernel.org/show_bug.cgi?id=14626
+> Subject		: oops on boot starting udev
+> Submitter	: Soeren Sonnenburg <sonne-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
+> Date		: 2009-11-14 10:16 (3 days old)
+> References	: http://marc.info/?l=linux-kernel&m=125819380206800&w=4
 
-OK, makes sense.  Will this be put in udev along with
-the keymap setup for the function keys?  If yes, is
-there already an example how to do it correctly so 
-I can submit a patch to add the N130 support there?
+This looks like an input core problem, as the evdev module was just
+loaded and died.
 
+Any input developers have any ideas?
 
-Thanks
-Johannes
+thanks,
+
+greg k-h

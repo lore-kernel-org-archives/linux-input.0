@@ -1,54 +1,53 @@
-From: Soeren Sonnenburg <sonne@debian.org>
-Subject: Re: [Bug #14626] oops on boot starting udev
-Date: Tue, 17 Nov 2009 03:59:03 +0100
-Message-ID: <1258426743.9883.53.camel@no>
-References: <GUZt44bIwCE.A.vLF.pSdALB@chimera>
-	 <xXQGFmujPl.A.fpF.zSdALB@chimera> <20091117011455.GA7977@kroah.com>
-	 <20091117020451.GA27967@core.coreip.homeip.net>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: A question about touchscreen absmax value
+Date: Tue, 17 Nov 2009 12:00:08 +0900
+Message-ID: <4B0211B8.4020508@samsung.com>
+References: <4B00B08E.2030905@samsung.com>
+ <20091116171202.GC24026@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753402AbZKQC7G@vger.kernel.org>
-In-Reply-To: <20091117020451.GA27967@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <greg@kroah.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Testers List <kernel-testers@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout5.samsung.com ([203.254.224.35]:50575 "EHLO
+	mailout5.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752530AbZKQDAD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Nov 2009 22:00:03 -0500
+Received: from epmmp2 (mailout5.samsung.com [203.254.224.35])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KT800EZYGC7AE@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 17 Nov 2009 12:00:08 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KT80057TGC7MV@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 17 Nov 2009 12:00:07 +0900 (KST)
+In-reply-to: <20091116171202.GC24026@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 2009-11-16 at 18:04 -0800, Dmitry Torokhov wrote:
-> On Mon, Nov 16, 2009 at 05:14:55PM -0800, Greg KH wrote:
-> > On Mon, Nov 16, 2009 at 11:37:48PM +0100, Rafael J. Wysocki wrote:
-> > > This message has been generated automatically as a part of a report
-> > > of recent regressions.
-> > > 
-> > > The following bug entry is on the current list of known regressions
-> > > from 2.6.31.  Please verify if it still should be listed and let me know
-> > > (either way).
-> > > 
-> > > 
-> > > Bug-Entry	: http://bugzilla.kernel.org/show_bug.cgi?id=14626
-> > > Subject		: oops on boot starting udev
-> > > Submitter	: Soeren Sonnenburg <sonne@debian.org>
-> > > Date		: 2009-11-14 10:16 (3 days old)
-> > > References	: http://marc.info/?l=linux-kernel&m=125819380206800&w=4
-> > 
-> > This looks like an input core problem, as the evdev module was just
-> > loaded and died.
-> > 
-> > Any input developers have any ideas?
-> > 
+On 11/17/2009 2:12 AM, Dmitry Torokhov wrote:
+> Hi Joonyoung,
 > 
+> On Mon, Nov 16, 2009 at 10:53:18AM +0900, Joonyoung Shim wrote:
+>> Hi, all.
+>>
+>> I have a question about touchscreen resolution. My touchscreen device
+>> can report the position from 0 to 1023 of x and y coordinates, so i
+>> setted the absmax of input device to 1023. BTW, i only can get from 0 to 
+>> 479 x position and to 799 y position because the LCD resolution of the
+>> target is 480 x 800. I wonder which value is setted to the absmax - 479
+>> and 799 or 1023.
 > 
-> Hmm, evdev does:
-> 
-> 	dev_set_name(&evdev->dev, "event%d", minor);
-> 
-> Not sure how it can go wrong...
+> I believe driver should, by default, set absmin and absmax to match the
+> limits of the hardware/protocol. In your case it would be 1023. The
+> driver may choose to accept additional infromation from platform data, if
+> present, you can also adjust absmin/absmax etc via ioctl durng the
+> bootup sequence.
 
-Anything I should/could do to narrow it down a bit (apart from
-bisecting?).
+Hmm, i get the resolution information from platform data, so i can 
+set absmax values from platform data. Is it ok?
 
-Soeren
--- 
-For the one fact about the future of which we can be certain is that it
-will be utterly fantastic. -- Arthur C. Clarke, 1962
+Thanks for reply.

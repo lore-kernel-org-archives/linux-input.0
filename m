@@ -1,116 +1,48 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: [PATCH 3/4] at91/input: platform parameters for atmel_tsadcc in at91sam9rlek
-Date: Wed, 18 Nov 2009 15:12:14 +0100
-Message-ID: <453bec224c36844e26c6a79b312336549cf131ef.1258553002.git.nicolas.ferre@atmel.com>
-References: <693b9933de6fe9eb7e4401ca56a8f9ab6a966666.1258553002.git.nicolas.ferre@atmel.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756999AbZKRNHe@vger.kernel.org>
-In-Reply-To: <693b9933de6fe9eb7e4401ca56a8f9ab6a966666.1258553002.git.nicolas.ferre@atmel.com>
-In-Reply-To: <693b9933de6fe9eb7e4401ca56a8f9ab6a966666.1258553002.git.nicolas.ferre@atmel.com>
-References: <693b9933de6fe9eb7e4401ca56a8f9ab6a966666.1258553002.git.nicolas.ferre@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dtor@mail.ru, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, avictor.za@gmail.com
-Cc: linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@atmel.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] hx4700: fix hx4700 touchscreen pressure values
+Date: Wed, 18 Nov 2009 18:28:49 +0100
+Message-ID: <20091118172849.GD25150@elf.ucw.cz>
+References: <E1NAYJo-00016g-PW@pih-relay04.plus.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40013 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757921AbZKRR3g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Nov 2009 12:29:36 -0500
+Content-Disposition: inline
+In-Reply-To: <E1NAYJo-00016g-PW@pih-relay04.plus.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Parsons <lost.distance@yahoo.com>, dtor@mail.ru, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu, linux-kernel@vger.kernel.org, Dirk@Opfer-Online.de, arminlitzel@web.de, metan@ucw.cz, thommycheck@gmail.com, linux-arm-kernel@lists.infradead.org, dbaryshkov@gmail.com, omegamoon@gmail.com, eric.y.miao@gmail.com, utx@penguin.cz
 
-Setup platform parameters in at91sam9rl-ek board to be passed to atmel_tsadcc
-touchscreen.
+On Wed 2009-11-18 00:22:41, Paul Parsons wrote:
+> > Does pressure actually work as expected -- that is not inverted?
+> > Because I need this patch on spitz...  but it may break your
+> > machine...
+> 
+> You are right, the pressure values were being inverted on my hx4700.
+> Pressing hard generates somewhat lower Rt values than pressing lightly.
+> 
+> Since typical hx4700 Rt values are close to (pressure_max/2) anyway,
+> the inverted and non-inverted values were not very different.
+> For example:
+> 
+> Rt      ts->pressure_max-Rt
+> 599     425
+> 562     462
+> 588     436
+> 570     454
+> 
+> So by all means submit your ads7846.c patch; it will not break hx4700.
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
----
- arch/arm/mach-at91/at91sam9rl_devices.c |   10 ++++++++--
- arch/arm/mach-at91/board-sam9rlek.c     |   12 +++++++++++-
- arch/arm/mach-at91/include/mach/board.h |    7 ++++++-
- 3 files changed, 25 insertions(+), 4 deletions(-)
+Dmitry, those pressure values are reverted on more than one machine,
+and we do not have anyone reporting it works ok for them. Can we
+perhaps just.... fix it?
+								Pavel
 
-diff --git a/arch/arm/mach-at91/at91sam9rl_devices.c b/arch/arm/mach-at91/at91sam9rl_devices.c
-index d345f54..53aaa94 100644
---- a/arch/arm/mach-at91/at91sam9rl_devices.c
-+++ b/arch/arm/mach-at91/at91sam9rl_devices.c
-@@ -622,6 +622,7 @@ static void __init at91_add_device_tc(void) { }
- 
- #if defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC) || defined(CONFIG_TOUCHSCREEN_ATMEL_TSADCC_MODULE)
- static u64 tsadcc_dmamask = DMA_BIT_MASK(32);
-+static struct at91_tsadcc_data tsadcc_data;
- 
- static struct resource tsadcc_resources[] = {
- 	[0] = {
-@@ -642,22 +643,27 @@ static struct platform_device at91sam9rl_tsadcc_device = {
- 	.dev		= {
- 				.dma_mask		= &tsadcc_dmamask,
- 				.coherent_dma_mask	= DMA_BIT_MASK(32),
-+				.platform_data		= &tsadcc_data,
- 	},
- 	.resource	= tsadcc_resources,
- 	.num_resources	= ARRAY_SIZE(tsadcc_resources),
- };
- 
--void __init at91_add_device_tsadcc(void)
-+void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data)
- {
-+	if (!data)
-+		return;
-+
- 	at91_set_A_periph(AT91_PIN_PA17, 0);	/* AD0_XR */
- 	at91_set_A_periph(AT91_PIN_PA18, 0);	/* AD1_XL */
- 	at91_set_A_periph(AT91_PIN_PA19, 0);	/* AD2_YT */
- 	at91_set_A_periph(AT91_PIN_PA20, 0);	/* AD3_TB */
- 
-+	tsadcc_data = *data;
- 	platform_device_register(&at91sam9rl_tsadcc_device);
- }
- #else
--void __init at91_add_device_tsadcc(void) {}
-+void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
- #endif
- 
- 
-diff --git a/arch/arm/mach-at91/board-sam9rlek.c b/arch/arm/mach-at91/board-sam9rlek.c
-index bd28e98..7ac20f3 100644
---- a/arch/arm/mach-at91/board-sam9rlek.c
-+++ b/arch/arm/mach-at91/board-sam9rlek.c
-@@ -243,6 +243,16 @@ static struct gpio_led ek_leds[] = {
- 
- 
- /*
-+ * Touchscreen
-+ */
-+static struct at91_tsadcc_data ek_tsadcc_data = {
-+	.adc_clock		= 1000000,
-+	.pendet_debounce	= 0x0f,
-+	.ts_sample_hold_time	= 0x03,
-+};
-+
-+
-+/*
-  * GPIO Buttons
-  */
- #if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
-@@ -310,7 +320,7 @@ static void __init ek_board_init(void)
- 	/* AC97 */
- 	at91_add_device_ac97(&ek_ac97_data);
- 	/* Touch Screen Controller */
--	at91_add_device_tsadcc();
-+	at91_add_device_tsadcc(&ek_tsadcc_data);
- 	/* LEDs */
- 	at91_gpio_leds(ek_leds, ARRAY_SIZE(ek_leds));
- 	/* Push Buttons */
-diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
-index 2f4fced..6f1579f 100644
---- a/arch/arm/mach-at91/include/mach/board.h
-+++ b/arch/arm/mach-at91/include/mach/board.h
-@@ -186,7 +186,12 @@ extern void __init at91_add_device_ac97(struct ac97c_platform_data *data);
- extern void __init at91_add_device_isi(void);
- 
-  /* Touchscreen Controller */
--extern void __init at91_add_device_tsadcc(void);
-+struct at91_tsadcc_data {
-+	unsigned int    adc_clock;
-+	u8		pendet_debounce;
-+	u8		ts_sample_hold_time;
-+};
-+extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
- 
- /* CAN */
- struct at91_can_data {
 -- 
-1.5.6.5
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

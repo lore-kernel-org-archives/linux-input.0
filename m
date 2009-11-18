@@ -1,33 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 1/3] wistron_btns.c: add DMI entry for Medion WIM2030
-	laptop
-Date: Tue, 17 Nov 2009 16:35:12 -0800
-Message-ID: <20091118003512.GA21924@core.coreip.homeip.net>
-References: <200911172244.nAHMis7K032249@imap1.linux-foundation.org>
+Subject: Re: [PATCH] input: atkbd - add forced release kays quirk for
+	Samsung N130
+Date: Tue, 17 Nov 2009 21:16:05 -0800
+Message-ID: <20091118051605.GA31480@core.coreip.homeip.net>
+References: <20091116171814.GA26183@sig21.net> <20091116195443.GE24026@core.coreip.homeip.net> <20091116213425.GA2128@sig21.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:48797 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756311AbZKRAfN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Nov 2009 19:35:13 -0500
-Received: by pwi3 with SMTP id 3so337933pwi.21
-        for <linux-input@vger.kernel.org>; Tue, 17 Nov 2009 16:35:19 -0800 (PST)
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752501AbZKRFQK@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <200911172244.nAHMis7K032249@imap1.linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20091116213425.GA2128@sig21.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Johannes Stezenbach <js@sig21.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, dr.nop@gmx.net
 
-On Tue, Nov 17, 2009 at 02:44:54PM -0800, akpm@linux-foundation.org wrote:
-> From: Sebastian Frei <dr.nop@gmx.net>
+On Mon, Nov 16, 2009 at 10:34:25PM +0100, Johannes Stezenbach wrote:
+> Hi Dmitry,
 > 
-> This patch adds a DMI entry for the Medion WIM2030 laptop.
+> On Mon, Nov 16, 2009 at 11:54:43AM -0800, Dmitry Torokhov wrote:
+> > On Mon, Nov 16, 2009 at 06:18:14PM +0100, Johannes Stezenbach wrote:
+> > > Samsung N130 has the same function key quirks as the NC10.
+> > > 
+> > > Signed-off-by: Johannes Stezenbach <js@sig21.net>
+> > > ---
+> > > It would be nice if this could go into 2.6.32.  It might also be
+> > > suitable for stable.
+> > 
+> > 2.6.32 will allow manipulating force release quirk from userspace
+> > (sysfs) so I stopped accepting in-kernel quirks like this one.
 > 
+> OK, makes sense.  Will this be put in udev along with
+> the keymap setup for the function keys? 
 
-Andrew, this one is in mainline already, please drop.
+I think that is the best place to put it, yes.
+
+> If yes, is
+> there already an example how to do it correctly so 
+> I can submit a patch to add the N130 support there?
+
+No, but you can be the first and pave the road ;)
 
 -- 
 Dmitry

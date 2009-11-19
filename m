@@ -1,649 +1,663 @@
-From: Gregoire Gentil <gregoire@gentil.com>
-Subject: [PATCH 5/8] AI TB: HID file for Always Innovating OMAP3-based
- Touch Book keyboard
-Date: Wed, 18 Nov 2009 18:57:54 -0800
-Message-ID: <1258599474.8001.36.camel@gregoire-laptop>
-References: <1258228079.16065.17.camel@runt>
-	 <1258345850.9089.21.camel@gregoire-laptop>
-Reply-To: gregoire@gentil.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from
+	Arnaud Patard.
+Date: Wed, 18 Nov 2009 18:59:30 -0800
+Message-ID: <20091119025930.GA20172@core.coreip.homeip.net>
+References: <20091118232939.201290297@fluff.org.uk> <20091118232948.063635416@fluff.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-kay6tHXYGCxDdbxdzlz4"
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1258345850.9089.21.camel@gregoire-laptop>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Tim Yamin <plasmaroo@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091118232948.063635416@fluff.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Ben Dooks <ben@simtec.co.uk>
+Cc: linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Linux Team <linux@simtec.co.uk>
 List-Id: linux-input@vger.kernel.org
 
+Hi Ben,
 
---=-kay6tHXYGCxDdbxdzlz4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Wed, Nov 18, 2009 at 11:29:40PM +0000, Ben Dooks wrote:
+> From: Arnaud Patard <arnaud.patard@rtp-net.org>
+>=20
+> S3C24XX touchscreen driver, originally written by Arnaud Patard and
+> other contributors. This driver is the version from the Simtec Electr=
+onics
+> tree, and as such is the best place to start and thus proposed to be
+> merged into the linux input system.
+>=20
 
-Signed-off-by: Gregoire Gentil <gregoire@gentil.com>
----
-drivers/hid/hid-alwaysinnovating.c |  262
-++++++++++++++++++++++++++++++++++++
-1 files changed, 262 insertions(+), 0 deletions(-)
-create mode 100644 drivers/hid/hid-alwaysinnovating.c
+Thank you for the patch. First thing first - do we have an agreement
+from all Samsung folks and other interested parties that _this_ is the
+driver? Because it's like 3rd implementation that came across...
 
-diff --git a/drivers/hid/hid-alwaysinnovating.c
-b/drivers/hid/hid-alwaysinnovating.c
-new file mode 100644
-index 0000000..a7bb0fd
---- /dev/null
-+++ b/drivers/hid/hid-alwaysinnovating.c
-@@ -0,0 +1,262 @@
-+/*
-+ *  USB HID quirks support for the Always Innovating Touch Book
-+ *  Code borrowed from hid-apple.c
-+ *
-+ *  Copyright (c) 2009 Gregoire Gentil <gregoire@gentil.com>
-+ *  Copyright (c) 2009 Tim Yamin <plasm@roo.me.uk>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-it
-+ * under the terms of the GNU General Public License as published by
-the Free
-+ * Software Foundation; either version 2 of the License, or (at your
-option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+
-+struct touchbook_sc {
-+ unsigned long quirks;
-+ unsigned int  fn_on;
-+ DECLARE_BITMAP(pressed_fn, KEY_CNT);
-+};
-+
-+struct touchbook_key_translation {
-+ u16 from;
-+ u16 to;
-+ u8 flags;
-+};
-+
-+static struct touchbook_key_translation touchbook_fn_keys[] = {
-+ { KEY_F6, KEY_BRIGHTNESSDOWN },
-+ { KEY_F7, KEY_BRIGHTNESSUP },
-+
-+ { KEY_F8, KEY_MUTE },
-+ { KEY_F9, KEY_VOLUMEDOWN },
-+ { KEY_F10, KEY_VOLUMEUP },
-+
-+ { KEY_UP, KEY_PAGEUP },
-+ { KEY_DOWN, KEY_PAGEDOWN },
-+ { }
-+};
-+
-+extern unsigned long touchbook_revision;
-+unsigned long swap_key;
-+
-+static struct touchbook_key_translation *touchbook_find_translation(
-+ struct touchbook_key_translation *table, u16 from)
-+{
-+ struct touchbook_key_translation *trans;
-+
-+ /* Look for the translation */
-+ for (trans = table; trans->from; trans++)
-+ if (trans->from == from)
-+ return trans;
-+
-+ return NULL;
-+}
-+
-+static int touchbook_event(struct hid_device *hid, struct hid_field
-*field,
-+ struct hid_usage *usage, __s32 value)
-+{
-+ int do_translate;
-+
-+ struct input_dev *input = field->hidinput->input;
-+ struct touchbook_sc *asc = hid_get_drvdata(hid);
-+ struct touchbook_key_translation *trans;
-+
-+ if (swap_key && usage->code == KEY_RIGHTSHIFT) {
-+ input_event(input, usage->type, KEY_END, value);
-+ return 1;
-+ }
-+
-+ if (swap_key && usage->code == KEY_END) {
-+ input_event(input, usage->type, KEY_RIGHTSHIFT, value);
-+ return 1;
-+ }
-+
-+ if (usage->code == KEY_POWER) {
-+ asc->fn_on = !!value;
-+ input_event(input, usage->type, usage->code, value);
-+ return 1;
-+ }
-+
-+ trans = touchbook_find_translation(touchbook_fn_keys, usage->code);
-+ if (trans) {
-+ if (test_bit(usage->code, asc->pressed_fn))
-+ do_translate = 1;
-+ else
-+ do_translate = asc->fn_on;
-+
-+ if (do_translate) {
-+ if (value)
-+ set_bit(usage->code, asc->pressed_fn);
-+ else
-+ clear_bit(usage->code, asc->pressed_fn);
-+
-+ input_event(input, usage->type, trans->to,
-+ value);
-+
-+ return 1;
-+ }
-+ }
-+
-+ return 0;
-+}
-+
-+static int touchbook_input_mapping(struct hid_device *hdev,
-+ struct hid_input *hi,
-+ struct hid_field *field, struct hid_usage *usage,
-+ unsigned long **bit, int *max)
-+{
-+ struct touchbook_key_translation *trans;
-+
-+ /* Enable all other keys */
-+ for (trans = touchbook_fn_keys; trans->from; trans++)
-+ set_bit(trans->to, hi->input->keybit);
-+
-+ return 0;
-+}
-+
-+static ssize_t show_swap_key(struct device *dev,
-+ struct device_attribute *attr, char *buf)
-+{
-+ return snprintf(buf, PAGE_SIZE, "%lu\n", swap_key);
-+}
-+
-+static ssize_t store_swap_key(struct device *dev,
-+ struct device_attribute *attr,
-+ const char *buf, size_t count)
-+{
-+ strict_strtoul(buf, 10, &swap_key);
-+
-+ if (swap_key != 0 && swap_key != 1) {
-+ swap_key = 0;
-+ return -EINVAL;
-+ }
-+
-+ return count;
-+}
-+
-+static struct device_attribute touchbook_hid_attrs[] = {
-+ __ATTR(swap_key, S_IRUGO | S_IWUGO, show_swap_key, store_swap_key),
-+};
-+
-+int touchbook_create_sysfs(struct hid_device *hdev)
-+{
-+ int i;
-+ int r;
-+
-+ for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++) {
-+ r = device_create_file(&hdev->dev,
-+ &touchbook_hid_attrs[i]);
-+
-+ if (r) {
-+ dev_err(&hdev->dev, "failed to create sysfs file\n");
-+ return r;
-+ }
-+ }
-+
-+ return 0;
-+}
-+
-+void touchbook_remove_sysfs(struct hid_device *hdev)
-+{
-+ int i;
-+
-+ for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++)
-+ device_remove_file(&hdev->dev,
-+ &touchbook_hid_attrs[i]);
-+}
-+
-+static int touchbook_probe(struct hid_device *hdev,
-+ const struct hid_device_id *id)
-+{
-+ unsigned long quirks = id->driver_data;
-+ struct touchbook_sc *asc;
-+ unsigned int connect_mask = HID_CONNECT_DEFAULT;
-+ int ret;
-+
-+ asc = kzalloc(sizeof(*asc), GFP_KERNEL);
-+ if (asc == NULL) {
-+ dev_err(&hdev->dev, "can't alloc touchbook descriptor\n");
-+ return -ENOMEM;
-+ }
-+
-+ asc->quirks = quirks;
-+ hid_set_drvdata(hdev, asc);
-+
-+ ret = hid_parse(hdev);
-+ if (ret) {
-+ dev_err(&hdev->dev, "parse failed\n");
-+ goto err_free;
-+ }
-+
-+ ret = touchbook_create_sysfs(hdev);
-+ if (ret) {
-+ dev_err(&hdev->dev, "failed to create sysfs entries\n");
-+ goto err_free;
-+ }
-+
-+ swap_key = (touchbook_revision >= 4) ? 1 : 0;
-+
-+ ret = hid_hw_start(hdev, connect_mask);
-+ if (ret) {
-+ dev_err(&hdev->dev, "hw start failed\n");
-+ goto err_free;
-+ }
-+
-+ return 0;
-+err_free:
-+ kfree(asc);
-+ return ret;
-+}
-+
-+static void touchbook_remove(struct hid_device *hdev)
-+{
-+ hid_hw_stop(hdev);
-+ kfree(hid_get_drvdata(hdev));
-+ touchbook_remove_sysfs(hdev);
-+}
-+
-+static const struct hid_device_id touchbook_devices[] = {
-+ { HID_USB_DEVICE(USB_VENDOR_ID_ALWAYSINNOVATING,
-+ USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK) },
-+ { }
-+};
-+
-+MODULE_DEVICE_TABLE(hid, touchbook_devices);
-+
-+static struct hid_driver touchbook_driver = {
-+ .name = "touchbook",
-+ .id_table = touchbook_devices,
-+ .probe = touchbook_probe,
-+ .remove = touchbook_remove,
-+ .event = touchbook_event,
-+ .input_mapping = touchbook_input_mapping,
-+};
-+
-+static int touchbook_init(void)
-+{
-+ int ret;
-+
-+ ret = hid_register_driver(&touchbook_driver);
-+ if (ret)
-+ printk(KERN_ERR "can't register touchbook driver\n");
-+
-+ return ret;
-+}
-+
-+static void touchbook_exit(void)
-+{
-+ hid_unregister_driver(&touchbook_driver);
-+}
-+
-+module_init(touchbook_init);
-+module_exit(touchbook_exit);
-+MODULE_LICENSE("GPL");
--- 
-1.6.0.4
+> The driver has had substantial testing as well as a number of tidying
+> up passes done by Ben Dooks, as noted:
+>=20
+> - added kernel-doc comments to most of the routines
+> - removed old code from pre adc framework days
+> - updated device probe code to use platform id list matching
+> - cleaned up debug, since printk() now has timestamp feature
+> - ensure code uses dev_() reporting macros where necessary
+>=20
+> Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+> Signed-off-by: Simtec Linux Team <linux@simtec.co.uk>
+> Signed-off-by: Ben Dooks <ben@simtec.co.uk>
+>=20
+> ---
+>  drivers/input/touchscreen/Kconfig      |   18 +
+>  drivers/input/touchscreen/Makefile     |    1=20
+>  drivers/input/touchscreen/s3c2410_ts.c |  464 ++++++++++++++++++++++=
++++++++++++
+>  3 files changed, 483 insertions(+)
+>=20
+>=20
+> Index: b/drivers/input/touchscreen/Kconfig
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/drivers/input/touchscreen/Kconfig	2009-11-09 22:28:23.000000000=
+ +0000
+> +++ b/drivers/input/touchscreen/Kconfig	2009-11-10 10:38:44.000000000=
+ +0000
+> @@ -133,6 +133,24 @@ config TOUCHSCREEN_FUJITSU
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called fujitsu-ts.
+> =20
+> +config TOUCHSCREEN_S3C2410
+> +	tristate "Samsung S3C2410 touchscreen input driver"
+> +	depends on ARCH_S3C2410 && INPUT && INPUT_TOUCHSCREEN
 
+INPUT && INPUT_TOUCHSCREEN are superfluous.
 
+> +	select SERIO
 
---=-kay6tHXYGCxDdbxdzlz4
-Content-Disposition: attachment; filename*0=0005-HID-file-for-Always-Innovating-OMAP3-based-Touch-Boo.pat; filename*1=ch
-Content-Type: text/x-patch; name="0005-HID-file-for-Always-Innovating-OMAP3-based-Touch-Boo.patch"; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+I don't think you need SERIO
 
->From 436ef715c4c097b0a9577d3eddefeb6220ecebeb Mon Sep 17 00:00:00 2001
-From: Gregoire Gentil <gregoire@gentil.com>
-Date: Wed, 18 Nov 2009 18:33:15 -0800
-Subject: [PATCH] HID file for Always Innovating OMAP3-based Touch Book keyboard
+> +	help
+> +	  Say Y here if you have the s3c2410 touchscreen.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called s3c2410_ts.
+> +
+> +config TOUCHSCREEN_S3C2410_DEBUG
+> +	boolean "Samsung S3C2410 touchscreen debug messages"
+> +	depends on TOUCHSCREEN_S3C2410
+> +	help
+> +	  Select this if you want debug messages
 
+Where is this used?
 
-Signed-off-by: Gregoire Gentil <gregoire@gentil.com>
----
- drivers/hid/hid-alwaysinnovating.c |  262 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 262 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-alwaysinnovating.c
+> +
+>  config TOUCHSCREEN_GUNZE
+>  	tristate "Gunze AHL-51S touchscreen"
+>  	select SERIO
+> Index: b/drivers/input/touchscreen/Makefile
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- a/drivers/input/touchscreen/Makefile	2009-11-09 22:28:23.00000000=
+0 +0000
+> +++ b/drivers/input/touchscreen/Makefile	2009-11-10 10:38:44.00000000=
+0 +0000
+> @@ -26,6 +26,7 @@ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+=3D jorn
+>  obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+=3D htcpen.o
+>  obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+=3D usbtouchscreen.o
+>  obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+=3D penmount.o
+> +obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+=3D s3c2410_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+=3D touchit213.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+=3D touchright.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+=3D touchwin.o
+> Index: b/drivers/input/touchscreen/s3c2410_ts.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ b/drivers/input/touchscreen/s3c2410_ts.c	2009-11-10 10:47:38.0000=
+00000 +0000
+> @@ -0,0 +1,464 @@
+> +/* drivers/input/touchscreen/s3c2410_ts.c
+> + *
+> + * Samsung S3C24XX touchscreen driver
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the term of the GNU General Public License as published =
+by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-13=
+07 USA
+> + *
+> + * Copyright 2004 Arnaud Patard <arnaud.patard@rtp-net.org>
+> + * Copyright 2008 Ben Dooks <ben-linux@fluff.org>
+> + * Copyright 2009 Simtec Electronics <linux@simtec.co.uk>
+> + *
+> + * Additional work by Herbert P=F6tzl <herbert@13thfloor.at> and
+> + * Harald Welte <laforge@openmoko.org>
+> + */
+> +
+> +#include <linux/errno.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/gpio.h>
+> +#include <linux/input.h>
+> +#include <linux/init.h>
+> +#include <linux/serio.h>
 
-diff --git a/drivers/hid/hid-alwaysinnovating.c b/drivers/hid/hid-alwaysinnovating.c
-new file mode 100644
-index 0000000..a7bb0fd
---- /dev/null
-+++ b/drivers/hid/hid-alwaysinnovating.c
-@@ -0,0 +1,262 @@
-+/*
-+ *  USB HID quirks support for the Always Innovating Touch Book
-+ *  Code borrowed from hid-apple.c
-+ *
-+ *  Copyright (c) 2009 Gregoire Gentil <gregoire@gentil.com>
-+ *  Copyright (c) 2009 Tim Yamin <plasm@roo.me.uk>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+
-+struct touchbook_sc {
-+	unsigned long quirks;
-+	unsigned int  fn_on;
-+	DECLARE_BITMAP(pressed_fn, KEY_CNT);
-+};
-+
-+struct touchbook_key_translation {
-+	u16 from;
-+	u16 to;
-+	u8 flags;
-+};
-+
-+static struct touchbook_key_translation touchbook_fn_keys[] = {
-+	{ KEY_F6,	KEY_BRIGHTNESSDOWN },
-+	{ KEY_F7,	KEY_BRIGHTNESSUP },
-+
-+	{ KEY_F8,	KEY_MUTE },
-+	{ KEY_F9,	KEY_VOLUMEDOWN },
-+	{ KEY_F10,	KEY_VOLUMEUP },
-+
-+	{ KEY_UP,	KEY_PAGEUP },
-+	{ KEY_DOWN,	KEY_PAGEDOWN },
-+	{ }
-+};
-+
-+extern unsigned long touchbook_revision;
-+unsigned long swap_key;
-+
-+static struct touchbook_key_translation *touchbook_find_translation(
-+		struct touchbook_key_translation *table, u16 from)
-+{
-+	struct touchbook_key_translation *trans;
-+
-+	/* Look for the translation */
-+	for (trans = table; trans->from; trans++)
-+		if (trans->from == from)
-+			return trans;
-+
-+	return NULL;
-+}
-+
-+static int touchbook_event(struct hid_device *hid, struct hid_field *field,
-+		struct hid_usage *usage, __s32 value)
-+{
-+	int do_translate;
-+
-+	struct input_dev *input = field->hidinput->input;
-+	struct touchbook_sc *asc = hid_get_drvdata(hid);
-+	struct touchbook_key_translation *trans;
-+
-+	if (swap_key && usage->code == KEY_RIGHTSHIFT) {
-+		input_event(input, usage->type, KEY_END, value);
-+		return 1;
-+	}
-+
-+	if (swap_key && usage->code == KEY_END) {
-+		input_event(input, usage->type, KEY_RIGHTSHIFT, value);
-+		return 1;
-+	}
-+
-+	if (usage->code == KEY_POWER) {
-+		asc->fn_on = !!value;
-+		input_event(input, usage->type, usage->code, value);
-+		return 1;
-+	}
-+
-+	trans = touchbook_find_translation(touchbook_fn_keys, usage->code);
-+	if (trans) {
-+		if (test_bit(usage->code, asc->pressed_fn))
-+			do_translate = 1;
-+		else
-+			do_translate = asc->fn_on;
-+
-+		if (do_translate) {
-+			if (value)
-+				set_bit(usage->code, asc->pressed_fn);
-+			else
-+				clear_bit(usage->code, asc->pressed_fn);
-+
-+			input_event(input, usage->type, trans->to,
-+					value);
-+
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int touchbook_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	struct touchbook_key_translation *trans;
-+
-+	/* Enable all other keys */
-+	for (trans = touchbook_fn_keys; trans->from; trans++)
-+		set_bit(trans->to, hi->input->keybit);
-+
-+	return 0;
-+}
-+
-+static ssize_t show_swap_key(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%lu\n", swap_key);
-+}
-+
-+static ssize_t store_swap_key(struct device *dev,
-+		struct device_attribute *attr,
-+		const char *buf, size_t count)
-+{
-+	 strict_strtoul(buf, 10, &swap_key);
-+
-+	if (swap_key != 0 && swap_key != 1) {
-+		swap_key = 0;
-+		return -EINVAL;
-+	}
-+
-+	return count;
-+}
-+
-+static struct device_attribute touchbook_hid_attrs[] = {
-+	__ATTR(swap_key, S_IRUGO | S_IWUGO, show_swap_key, store_swap_key),
-+};
-+
-+int touchbook_create_sysfs(struct hid_device *hdev)
-+{
-+	int i;
-+	int r;
-+
-+	for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++) {
-+		r = device_create_file(&hdev->dev,
-+				&touchbook_hid_attrs[i]);
-+
-+		if (r) {
-+			dev_err(&hdev->dev, "failed to create sysfs file\n");
-+			return r;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+void touchbook_remove_sysfs(struct hid_device *hdev)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++)
-+		device_remove_file(&hdev->dev,
-+					&touchbook_hid_attrs[i]);
-+}
-+
-+static int touchbook_probe(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	unsigned long quirks = id->driver_data;
-+	struct touchbook_sc *asc;
-+	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-+	int ret;
-+
-+	asc = kzalloc(sizeof(*asc), GFP_KERNEL);
-+	if (asc == NULL) {
-+		dev_err(&hdev->dev, "can't alloc touchbook descriptor\n");
-+		return -ENOMEM;
-+	}
-+
-+	asc->quirks = quirks;
-+	hid_set_drvdata(hdev, asc);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		dev_err(&hdev->dev, "parse failed\n");
-+		goto err_free;
-+	}
-+
-+	ret = touchbook_create_sysfs(hdev);
-+	if (ret) {
-+		dev_err(&hdev->dev, "failed to create sysfs entries\n");
-+		goto err_free;
-+	}
-+
-+	swap_key = (touchbook_revision >= 4) ? 1 : 0;
-+
-+	ret = hid_hw_start(hdev, connect_mask);
-+	if (ret) {
-+		dev_err(&hdev->dev, "hw start failed\n");
-+		goto err_free;
-+	}
-+
-+	return 0;
-+err_free:
-+	kfree(asc);
-+	return ret;
-+}
-+
-+static void touchbook_remove(struct hid_device *hdev)
-+{
-+	hid_hw_stop(hdev);
-+	kfree(hid_get_drvdata(hdev));
-+	touchbook_remove_sysfs(hdev);
-+}
-+
-+static const struct hid_device_id touchbook_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ALWAYSINNOVATING,
-+		USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK) },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(hid, touchbook_devices);
-+
-+static struct hid_driver touchbook_driver = {
-+	.name = "touchbook",
-+	.id_table = touchbook_devices,
-+	.probe = touchbook_probe,
-+	.remove = touchbook_remove,
-+	.event = touchbook_event,
-+	.input_mapping = touchbook_input_mapping,
-+};
-+
-+static int touchbook_init(void)
-+{
-+	int ret;
-+
-+	ret = hid_register_driver(&touchbook_driver);
-+	if (ret)
-+		printk(KERN_ERR "can't register touchbook driver\n");
-+
-+	return ret;
-+}
-+
-+static void touchbook_exit(void)
-+{
-+	hid_unregister_driver(&touchbook_driver);
-+}
-+
-+module_init(touchbook_init);
-+module_exit(touchbook_exit);
-+MODULE_LICENSE("GPL");
--- 
-1.6.0.4
+No serio in sight.
 
+> +#include <linux/delay.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +
+> +#include <plat/adc.h>
+> +#include <plat/regs-adc.h>
+> +
+> +#include <mach/regs-gpio.h>
+> +#include <mach/ts.h>
+> +
+> +/* For ts.dev.id.version */
+> +#define S3C2410TSVERSION	0x0101
+> +
+> +#define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC_=
+XY_PST(0))
+> +
+> +#define INT_DOWN	(0)
+> +#define INT_UP		(1 << 8)
+> +
+> +#define WAIT4INT	(S3C2410_ADCTSC_YM_SEN | \
+> +			 S3C2410_ADCTSC_YP_SEN | \
+> +			 S3C2410_ADCTSC_XP_SEN | \
+> +			 S3C2410_ADCTSC_XY_PST(3))
+> +
+> +#define AUTOPST		(S3C2410_ADCTSC_YM_SEN | \
+> +			 S3C2410_ADCTSC_YP_SEN | \
+> +			 S3C2410_ADCTSC_XP_SEN | \
+> +			 S3C2410_ADCTSC_AUTO_PST | \
+> +			 S3C2410_ADCTSC_XY_PST(0))
+> +
+> +#define DEBUG_LVL    KERN_DEBUG
 
---=-kay6tHXYGCxDdbxdzlz4
-Content-Disposition: attachment; filename*0=0005-HID-file-for-Always-Innovating-OMAP3-based-Touch-Boo.pat; filename*1=ch.zip
-Content-Type: application/zip; name*0=0005-HID-file-for-Always-Innovating-OMAP3-based-Touch-Boo.patch.z; name*1=ip
-Content-Transfer-Encoding: base64
+Don't seem to be used.
 
-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
+> +
+> +static char *s3c2410ts_name =3D "s3c2410 TouchScreen";
+> +
+> +/* Per-touchscreen data. */
+> +
+> +/**
+> + * struct s3c2410ts - driver touchscreen state.
+> + * @client: The ADC client we registered with the core driver.
+> + * @dev: The device we are bound to.
+> + * @input: The input device we registered with the input subsystem.
+> + * @clock: The clock for the adc.
+> + * @io: Pointer to the IO base.
+> + * @xp: The accumulated X position data.
+> + * @yp: The accumulated Y position data.
+> + * @irq_tc: The interrupt number for pen up/down interrupt
+> + * @count: The number of samples collected.
+> + * @shift: The log2 of the maximum count to read in one go.
+> + */
 
+These sructures are driver-internal and so don't need to be kernel-doc-=
+ed.
+Same goes for the driver-private functions.
 
---=-kay6tHXYGCxDdbxdzlz4--
+> +struct s3c2410ts {
+> +	struct s3c_adc_client *client;
+> +	struct device *dev;
+> +	struct input_dev *input;
+> +	struct clk *clock;
+> +	void __iomem *io;
+> +	unsigned long xp;
+> +	unsigned long yp;
+> +	int irq_tc;
+> +	int count;
+> +	int shift;
+> +};
+> +
+> +static struct s3c2410ts ts;
+> +
+> +/**
+> + * s3c2410_ts_connect - configure gpio for s3c2410 systems
+> + *
+> + * Configure the GPIO for the S3C2410 system, where we have external=
+ FETs
+> + * connected to the device (later systems such as the S3C2440 integr=
+ate
+> + * these into the device).
+> +*/
+> +static inline void s3c2410_ts_connect(void)
+> +{
+> +	s3c2410_gpio_cfgpin(S3C2410_GPG(12), S3C2410_GPG12_XMON);
+> +	s3c2410_gpio_cfgpin(S3C2410_GPG(13), S3C2410_GPG13_nXPON);
+> +	s3c2410_gpio_cfgpin(S3C2410_GPG(14), S3C2410_GPG14_YMON);
+> +	s3c2410_gpio_cfgpin(S3C2410_GPG(15), S3C2410_GPG15_nYPON);
 
+No gpiolib? Also, should it be in the driver or maybe in the platform
+code?
+
+> +}
+> +
+> +/**
+> + * get_down - return the down state of the pen
+> + * @data0: The data read from ADCDAT0 register.
+> + * @data1: The data read from ADCDAT1 register.
+> + *
+> + * Return non-zero if both readings show that the pen is down.
+> + */
+> +static inline int get_down(unsigned long data0, unsigned long data1)
+
+bool?
+
+> +{
+> +	/* returns true if both data values show stylus down */
+> +	return (!(data0 & S3C2410_ADCDAT0_UPDOWN) &&
+> +		!(data1 & S3C2410_ADCDAT0_UPDOWN));
+> +}
+> +
+> +static void touch_timer_fire(unsigned long data)
+> +{
+> +	unsigned long data0;
+> +	unsigned long data1;
+> +	int down;
+
+bool?
+
+> +
+> +	data0 =3D readl(ts.io + S3C2410_ADCDAT0);
+> +	data1 =3D readl(ts.io + S3C2410_ADCDAT1);
+> +
+> +	down =3D get_down(data0, data1);
+> +
+> +	if (ts.count =3D=3D (1<<ts.shift)) {
+
+Syyle: x << y
+
+> +		ts.xp >>=3D ts.shift;
+> +		ts.yp >>=3D ts.shift;
+> +
+> +		dev_dbg(ts.dev, "%s: X=3D%lu, Y=3D%lu, count=3D%d\n",
+> +			__func__, ts.xp, ts.yp, ts.count);
+> +
+> +		input_report_abs(ts.input, ABS_X, ts.xp);
+> +		input_report_abs(ts.input, ABS_Y, ts.yp);
+> +
+> +		input_report_key(ts.input, BTN_TOUCH, 1);
+> +		input_report_abs(ts.input, ABS_PRESSURE, 1);
+
+No fake pressure events please, BTN_TOUCH should be enough.
+
+> +		input_sync(ts.input);
+> +
+> +		ts.xp =3D 0;
+> +		ts.yp =3D 0;
+> +		ts.count =3D 0;
+> +	}
+> +
+> +	if (down) {
+> +		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+> +	} else {
+> +		ts.count =3D 0;
+> +
+> +		input_report_key(ts.input, BTN_TOUCH, 0);
+> +		input_report_abs(ts.input, ABS_PRESSURE, 0);
+> +		input_sync(ts.input);
+> +
+> +		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+> +	}
+> +}
+> +
+> +static struct timer_list touch_timer =3D TIMER_INITIALIZER(touch_tim=
+er_fire, 0, 0);
+
+static DEFINE_TIMER(...);
+
+> +
+> +/**
+> + * stylus_irq - touchscreen stylus event interrupt
+> + * @irq: The interrupt number
+> + * @dev_id: The device ID.
+> + *
+> + * Called when the IRQ_TC is fired for a pen up or down event.
+> + */
+> +static irqreturn_t stylus_irq(int irq, void *dev_id)
+> +{
+> +	unsigned long data0;
+> +	unsigned long data1;
+> +	int down;
+> +
+> +	data0 =3D readl(ts.io + S3C2410_ADCDAT0);
+> +	data1 =3D readl(ts.io + S3C2410_ADCDAT1);
+> +
+> +	down =3D get_down(data0, data1);
+> +
+> +	/* TODO we should never get an interrupt with down set while
+> +	 * the timer is running, but maybe we ought to verify that the
+> +	 * timer isn't running anyways. */
+> +
+> +	if (down)
+> +		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+> +	else
+> +		dev_info(ts.dev, "%s: count=3D%d\n", __func__, ts.count);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/**
+> + * s3c24xx_ts_conversion - ADC conversion callback
+> + * @client: The client that was registered with the ADC core.
+> + * @data0: The reading from ADCDAT0.
+> + * @data1: The reading from ADCDAT1.
+> + * @left: The number of samples left.
+> + *
+> + * Called when a conversion has finished.
+> + */
+> +static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
+> +				  unsigned data0, unsigned data1,
+> +				  unsigned *left)
+> +{
+> +	dev_dbg(ts.dev, "%s: %d,%d\n", __func__, data0, data1);
+> +
+> +	ts.xp +=3D data0;
+> +	ts.yp +=3D data1;
+> +
+> +	ts.count++;
+> +
+> +	/* From tests, it seems that it is unlikely to get a pen-up
+> +	 * event during the conversion process which means we can
+> +	 * ignore any pen-up events with less than the requisite
+> +	 * count done.
+> +	 *
+> +	 * In several thousand conversions, no pen-ups where detected
+> +	 * before count completed.
+> +	 */
+> +}
+> +
+> +/**
+> + * s3c24xx_ts_select - ADC selection callback.
+> + * @client: The client that was registered with the ADC core.
+> + * @select: The reason for select.
+> + *
+> + * Called when the ADC core selects (or deslects) us as a client.
+> + */
+> +static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigne=
+d select)
+> +{
+> +	if (select) {
+> +		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
+> +		       ts.io + S3C2410_ADCTSC);
+> +	} else {
+> +		mod_timer(&touch_timer, jiffies+1);
+> +		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
+> +	}
+> +}
+> +
+> +/**
+> + * s3c2410ts_probe - device core probe entry point
+> + * @pdev: The device we are being bound to.
+> + *
+> + * Initialise, find and allocate any resources we need to run and th=
+en
+> + * register with the ADC and input systems.
+> + */
+> +static int __init s3c2410ts_probe(struct platform_device *pdev)
+
+__devinit or switch to platform_driver_probe().
+
+> +{
+> +	struct s3c2410_ts_mach_info *info;
+> +	struct device *dev =3D &pdev->dev;
+> +	struct input_dev *input_dev;
+> +	struct resource *res;
+> +	int ret =3D -EINVAL;
+
+Can we call it "error" (since that's what you use it for).
+> +
+> +	/* Initialise input stuff */
+> +	memset(&ts, 0, sizeof(struct s3c2410ts));
+> +
+> +	ts.dev =3D dev;
+> +
+> +	info =3D pdev->dev.platform_data;
+> +	if (!info) {
+> +		dev_err(dev, "no platform data, cannot attach\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	dev_dbg(dev, "initialising touchscreen\n");
+> +
+> +	ts.clock =3D clk_get(dev, "adc");
+> +	if (IS_ERR(ts.clock)) {
+> +		dev_err(dev, "cannot get adc clock source\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	clk_enable(ts.clock);
+> +	dev_dbg(dev, "got and enabled clocks\n");
+> +
+> +	ts.irq_tc =3D ret =3D platform_get_irq(pdev, 0);
+> +	if (ret < 0) {
+> +		dev_err(dev, "no resource for interrupt\n");
+> +		goto err_clk;
+> +	}
+> +
+> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(dev, "no resource for registers\n");
+> +		ret =3D -ENOENT;
+> +		goto err_clk;
+> +	}
+> +
+
+request_mem_region() here?
+
+> +	ts.io =3D ioremap(res->start, resource_size(res));
+> +	if (ts.io =3D=3D NULL) {
+> +		dev_err(dev, "cannot map registers\n");
+> +		ret =3D -ENOMEM;
+> +		goto err_clk;
+> +	}
+> +
+> +	/* Configure the touchscreen external FETs on the S3C2410 */
+> +	if (!platform_get_device_id(pdev)->driver_data)
+> +		s3c2410_ts_connect();
+> +
+> +	ts.client =3D s3c_adc_register(pdev, s3c24xx_ts_select,
+> +				     s3c24xx_ts_conversion, 1);
+> +	if (IS_ERR(ts.client)) {
+> +		dev_err(dev, "failed to register adc client\n");
+> +		ret =3D PTR_ERR(ts.client);
+> +		goto err_iomap;
+> +	}
+> +
+> +	/* Initialise registers */
+> +	if ((info->delay & 0xffff) > 0)
+> +		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+> +
+> +	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+> +
+> +	input_dev =3D input_allocate_device();
+> +	if (!input_dev) {
+> +		dev_err(dev, "Unable to allocate the input device !!\n");
+> +		ret =3D -ENOMEM;
+> +		goto err_iomap;
+> +	}
+> +
+> +	ts.input =3D input_dev;
+> +	ts.input->evbit[0] =3D BIT_MASK(EV_SYN) | BIT_MASK(EV_KEY) | BIT_MA=
+SK(EV_ABS);
+
+No need setting EV_SYN explicitely.
+
+> +	ts.input->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
+> +	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
+> +	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
+> +	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
+
+Drop ABS_PRESSURE.
+
+> +
+> +	ts.input->name =3D s3c2410ts_name;
+> +	ts.input->id.bustype =3D BUS_HOST;
+> +	ts.input->id.vendor =3D 0xDEAD;
+> +	ts.input->id.product =3D 0xBEEF;
+> +	ts.input->id.version =3D S3C2410TSVERSION;
+> +
+> +	ts.shift =3D info->oversampling_shift;
+> +
+> +	if (request_irq(ts.irq_tc, stylus_irq, IRQF_DISABLED,
+> +			"s3c2410_ts_pen", ts.input)) {
+> +		dev_err(dev, "cannot get TC interrupt\n");
+> +		ret =3D -EIO;
+
+Don't mangle what request_irq returned.
+
+> +		goto err_inputdev;
+> +	}
+> +
+> +	dev_info(dev, "driver attached, registering input device\n");
+> +
+> +	/* All went ok, so register to the input system */
+> +	ret =3D input_register_device(ts.input);
+> +	if (ret < 0) {
+> +		dev_err(dev, "failed to register input device\n");
+> +		ret =3D -EIO;
+> +		goto err_tcirq;
+> +	}
+> +
+> +	return 0;
+> +
+> + err_tcirq:
+> +	free_irq(ts.irq_tc, ts.input);
+
+del_timer_sync().
+
+> + err_inputdev:
+> +	input_unregister_device(ts.input);
+> + err_iomap:
+> +	iounmap(ts.io);
+> + err_clk:
+> +	clk_put(ts.clock);
+> +	return ret;
+> +}
+> +
+> +/**
+> + * s3c2410ts_remove - device core removal entry point
+> + * @pdev: The device we are being removed from.
+> + *
+> + * Free up our state ready to be removed.
+> + */
+> +static int s3c2410ts_remove(struct platform_device *pdev)
+> +{
+> +	free_irq(ts.irq_tc, ts.input);
+
+del_timer_sync().
+
+> +
+> +	clk_disable(ts.clock);
+> +	clk_put(ts.clock);
+> +
+> +	input_unregister_device(ts.input);
+> +	iounmap(ts.io);
+
+release_mem_region()
+
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int s3c2410ts_suspend(struct platform_device *pdev, pm_messag=
+e_t state)
+> +{
+> +	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
+> +	disable_irq(ts.irq_tc);
+> +	clk_disable(ts.clock);
+> +
+> +	return 0;
+> +}
+> +
+> +static int s3c2410ts_resume(struct platform_device *pdev)
+> +{
+> +	struct s3c2410_ts_mach_info *info =3D pdev->dev.platform_data;
+> +
+> +	clk_enable(ts.clock);
+> +
+> +	/* Initialise registers */
+> +	if ((info->delay & 0xffff) > 0)
+> +		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+> +
+> +	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+> +
+> +	return 0;
+> +}
+> +
+> +#else
+> +#define s3c2410ts_suspend NULL
+> +#define s3c2410ts_resume  NULL
+> +#endif
+> +
+> +static struct platform_device_id s3cts_driver_ids[] =3D {
+> +	{ "s3c2410-ts", 0 },
+> +	{ "s3c2440-ts", 1 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(platform, s3cts_driver_ids);
+> +
+> +static struct platform_driver s3c_ts_driver =3D {
+> +	.driver         =3D {
+> +		.name   =3D "s3c24xx-ts",
+> +		.owner  =3D THIS_MODULE,
+> +	},
+> +	.id_table	=3D s3cts_driver_ids,
+> +	.probe		=3D s3c2410ts_probe,
+> +	.remove		=3D s3c2410ts_remove,
+
+__devexit_p()
+
+> +	.suspend	=3D s3c2410ts_suspend,
+> +	.resume		=3D s3c2410ts_resume,
+
+Switch to pm_ops.
+
+> +};
+> +
+> +static int __init s3c2410ts_init(void)
+> +{
+> +	return platform_driver_register(&s3c_ts_driver);
+> +}
+> +
+> +static void __exit s3c2410ts_exit(void)
+> +{
+> +	platform_driver_unregister(&s3c_ts_driver);
+> +}
+> +
+> +module_init(s3c2410ts_init);
+> +module_exit(s3c2410ts_exit);
+> +
+> +MODULE_AUTHOR("Arnaud Patard <arnaud.patard@rtp-net.org>, "
+> +	      "Ben Dooks <ben@simtec.co.uk>, "
+> +	      "Simtec Electronics <linux@simtec.co.uk>");
+> +MODULE_DESCRIPTION("S3C24XX Touchscreen driver");
+> +MODULE_LICENSE("GPL v2");
+>=20
+
+Thanks!
+
+--=20
+Dmitry

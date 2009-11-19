@@ -1,49 +1,97 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from Arnaud Patard.
-Date: Thu, 19 Nov 2009 10:04:10 +0200
-Message-ID: <200911191004.16315.anarsoul@gmail.com>
-References: <20091118232939.201290297@fluff.org.uk> <20091118232948.063635416@fluff.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart14824763.EWBjEhg6hX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+From: Daniel Drake <dsd@laptop.org>
+Subject: [PATCH] Input: psmouse - Fix a synaptics protocol detection mistake
+Date: Thu, 19 Nov 2009 10:05:48 +0000 (GMT)
+Message-ID: <20091119100548.D29239D404F@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f221.google.com ([209.85.220.221]:54304 "EHLO
-	mail-fx0-f221.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752823AbZKSIEg (ORCPT
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:32652 "EHLO
+	mtaout03-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753055AbZKSKFp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2009 03:04:36 -0500
-In-Reply-To: <20091118232948.063635416@fluff.org.uk>
+	Thu, 19 Nov 2009 05:05:45 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Ben Dooks <ben@simtec.co.uk>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Linux Team <linux@simtec.co.uk>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, devel@lists.laptop.org
 
---nextPart14824763.EWBjEhg6hX
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: base64
+For configurations where synaptics hardware is present but the synaptics
+extensions support is not compiled in, the mouse is reprobed and a new
+device is allocated on every suspend/resume.
 
-0JIg0YHQvtC+0LHRidC10L3QuNC4INC+0YIgMTkg0L3QvtGP0LHRgNGPIDIwMDkgMToyOTo0MCDQ
-sNCy0YLQvtGAIEJlbiBEb29rcyDQvdCw0L/QuNGB0LDQuzoKPHNraXBwZWQ+Cj4gKwkvKiBJbml0
-aWFsaXNlIHJlZ2lzdGVycyAqLwo+ICsJaWYgKChpbmZvLT5kZWxheSAmIDB4ZmZmZikgPiAwKQo+
-ICsJCXdyaXRlbChpbmZvLT5kZWxheSAmIDB4ZmZmZiwgdHMuaW8gKyBTM0MyNDEwX0FEQ0RMWSk7
-CgpBcyBmb3IgbWUsIGl0J3Mgbm90IE9LIHRvIG1vZGl0eSBBREMtcmVsYXRlZCByZWdpc3RlcnMg
-aW4gdG91Y2hzY3JlZW4gZHJpdmVyLCAKYWRjIGRyaXZlciBzaG91bGQgYmUgbW9kaWZpZWQgdG8g
-c3VwcG9ydCBkZWxheS4KClJlZ2FyZHMKVmFzaWx5Cg==
+During probe, psmouse_switch_protocol() calls psmouse_extensions() with
+set_properties=1. This calls the dummy synaptics_init() which returns an
+error code, instructing us not to use the synaptics extensions.
 
---nextPart14824763.EWBjEhg6hX
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+During resume, psmouse_reconnect() calls psmouse_extensions() with
+set_properties=0. This caused PSMOUSE_SYNAPTICS to be returned as the
+supported extensions, and as this is a different result from earlier it
+then causes psmouse_reconnect() to fail and a full reprobe happens.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+Fix this by tweaking the set_properties=0 codepath in psmouse_extensions()
+to be more careful about offering PSMOUSE_SYNAPTICS extensions.
 
-iEYEABECAAYFAksE+/oACgkQRM6pQpltKE4wwgCfaNlQTgZeMVCCe99MY28UT5Vy
-lMYAoI7E81mlkl6spn9gXxkhg9TZ9lJ/
-=ylpF
------END PGP SIGNATURE-----
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+---
+ drivers/input/mouse/psmouse-base.c |    6 +++++-
+ drivers/input/mouse/synaptics.c    |   10 ++++++++++
+ drivers/input/mouse/synaptics.h    |    1 +
+ 3 files changed, 16 insertions(+), 1 deletions(-)
 
---nextPart14824763.EWBjEhg6hX--
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index b407b35..85f052a 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -610,8 +610,12 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 		synaptics_hardware = 1;
+ 
+ 		if (max_proto > PSMOUSE_IMEX) {
+-			if (!set_properties || synaptics_init(psmouse) == 0)
++			/* be careful to only offer the synaptics protocol for use when
++			 * the support is available */
++			if (synaptics_supported() &&
++					(!set_properties || synaptics_init(psmouse) == 0))
+ 				return PSMOUSE_SYNAPTICS;
++
+ /*
+  * Some Synaptics touchpads can emulate extended protocols (like IMPS/2).
+  * Unfortunately Logitech/Genius probes confuse some firmware versions so
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index c65e245..e0ed951 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -738,6 +738,11 @@ int synaptics_init(struct psmouse *psmouse)
+ 	return -1;
+ }
+ 
++int synaptics_supported(void)
++{
++	return 1;
++}
++
+ #else /* CONFIG_MOUSE_PS2_SYNAPTICS */
+ 
+ int synaptics_init(struct psmouse *psmouse)
+@@ -745,5 +750,10 @@ int synaptics_init(struct psmouse *psmouse)
+ 	return -ENOSYS;
+ }
+ 
++int synaptics_supported(void)
++{
++	return 0;
++}
++
+ #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
+ 
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 3023821..f85e644 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -108,5 +108,6 @@ struct synaptics_data {
+ int synaptics_detect(struct psmouse *psmouse, int set_properties);
+ int synaptics_init(struct psmouse *psmouse);
+ void synaptics_reset(struct psmouse *psmouse);
++int synaptics_supported(void);
+ 
+ #endif /* _SYNAPTICS_H */
+-- 
+1.6.2.5
+

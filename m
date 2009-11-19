@@ -1,168 +1,210 @@
-From: Ramax Lo <ramaxlo@gmail.com>
-Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from Arnaud
-	Patard.
-Date: Thu, 19 Nov 2009 09:45:01 +0800
-Message-ID: <901c91090911181745n43e2ede4g559b06a993cc322f@mail.gmail.com>
-References: <20091118232939.201290297@fluff.org.uk>
-	 <20091118232948.063635416@fluff.org.uk>
+From: Gregoire Gentil <gregoire@gentil.com>
+Subject: [PATCH 4/8] AI TB: Driver for Always Innovating OMAP3-based Touch
+ Book keyboard
+Date: Wed, 18 Nov 2009 18:57:49 -0800
+Message-ID: <1258599469.8001.35.camel@gregoire-laptop>
+References: <1258228079.16065.17.camel@runt>
+	 <1258345850.9089.21.camel@gregoire-laptop>
+Reply-To: gregoire@gentil.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20091118232948.063635416@fluff.org.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Ben Dooks <ben@simtec.co.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Arnaud Patard <arnaud.patard@rtp-net.org>, linux-arm-kernel@lists.infradead.org, Simtec Linux Team <linux@simtec.co.uk>
+Content-Type: multipart/mixed; boundary="=-z66cAISFxWfZelgVeFhI"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f202.google.com ([209.85.211.202]:49092 "EHLO
+	mail-yw0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757969AbZKSC5r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Nov 2009 21:57:47 -0500
+In-Reply-To: <1258345850.9089.21.camel@gregoire-laptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Tim Yamin <plasmaroo@gmail.com>
 
-2009/11/19 Ben Dooks <ben@simtec.co.uk>:
-<snip>
-> +static int __init s3c2410ts_probe(struct platform_device *pdev)
-> +{
-> +	struct s3c2410_ts_mach_info *info;
-> +	struct device *dev = &pdev->dev;
-> +	struct input_dev *input_dev;
-> +	struct resource *res;
-> +	int ret = -EINVAL;
-> +
-> +	/* Initialise input stuff */
-> +	memset(&ts, 0, sizeof(struct s3c2410ts));
-> +
-> +	ts.dev = dev;
-> +
-> +	info = pdev->dev.platform_data;
-> +	if (!info) {
-> +		dev_err(dev, "no platform data, cannot attach\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	dev_dbg(dev, "initialising touchscreen\n");
-> +
-> +	ts.clock = clk_get(dev, "adc");
-> +	if (IS_ERR(ts.clock)) {
-> +		dev_err(dev, "cannot get adc clock source\n");
-> +		return -ENOENT;
-> +	}
-> +
-> +	clk_enable(ts.clock);
-> +	dev_dbg(dev, "got and enabled clocks\n");
-> +
-> +	ts.irq_tc = ret = platform_get_irq(pdev, 0);
-> +	if (ret < 0) {
-> +		dev_err(dev, "no resource for interrupt\n");
-> +		goto err_clk;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(dev, "no resource for registers\n");
-> +		ret = -ENOENT;
-> +		goto err_clk;
-> +	}
-> +
-> +	ts.io = ioremap(res->start, resource_size(res));
-> +	if (ts.io == NULL) {
-> +		dev_err(dev, "cannot map registers\n");
-> +		ret = -ENOMEM;
-> +		goto err_clk;
-> +	}
-> +
-> +	/* Configure the touchscreen external FETs on the S3C2410 */
-> +	if (!platform_get_device_id(pdev)->driver_data)
-> +		s3c2410_ts_connect();
-> +
-> +	ts.client = s3c_adc_register(pdev, s3c24xx_ts_select,
-> +				     s3c24xx_ts_conversion, 1);
-> +	if (IS_ERR(ts.client)) {
-> +		dev_err(dev, "failed to register adc client\n");
-> +		ret = PTR_ERR(ts.client);
-> +		goto err_iomap;
-> +	}
-> +
-> +	/* Initialise registers */
-> +	if ((info->delay & 0xffff) > 0)
-> +		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
-> +
-> +	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
-> +
-> +	input_dev = input_allocate_device();
-> +	if (!input_dev) {
-> +		dev_err(dev, "Unable to allocate the input device !!\n");
-> +		ret = -ENOMEM;
-> +		goto err_iomap;
-> +	}
-> +
-> +	ts.input = input_dev;
-> +	ts.input->evbit[0] = BIT_MASK(EV_SYN) | BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
-> +	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
-> +	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
-> +
-> +	ts.input->name = s3c2410ts_name;
-> +	ts.input->id.bustype = BUS_HOST;
-> +	ts.input->id.vendor = 0xDEAD;
-> +	ts.input->id.product = 0xBEEF;
-> +	ts.input->id.version = S3C2410TSVERSION;
-> +
-> +	ts.shift = info->oversampling_shift;
-> +
-> +	if (request_irq(ts.irq_tc, stylus_irq, IRQF_DISABLED,
-> +			"s3c2410_ts_pen", ts.input)) {
-> +		dev_err(dev, "cannot get TC interrupt\n");
-> +		ret = -EIO;
-> +		goto err_inputdev;
-> +	}
-> +
-> +	dev_info(dev, "driver attached, registering input device\n");
-> +
-> +	/* All went ok, so register to the input system */
-> +	ret = input_register_device(ts.input);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to register input device\n");
-> +		ret = -EIO;
-> +		goto err_tcirq;
-> +	}
-> +
-> +	return 0;
-> +
-> + err_tcirq:
-> +	free_irq(ts.irq_tc, ts.input);
-> + err_inputdev:
-> +	input_unregister_device(ts.input);
-> + err_iomap:
-> +	iounmap(ts.io);
 
-Isn't s3c_adc_release() needed for freeing unused adc client?
+--=-z66cAISFxWfZelgVeFhI
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> + err_clk:
-> +	clk_put(ts.clock);
-> +	return ret;
-> +}
-> +
-> +/**
-> + * s3c2410ts_remove - device core removal entry point
-> + * @pdev: The device we are being removed from.
-> + *
-> + * Free up our state ready to be removed.
-> + */
-> +static int s3c2410ts_remove(struct platform_device *pdev)
-> +{
-> +	free_irq(ts.irq_tc, ts.input);
-> +
-> +	clk_disable(ts.clock);
-> +	clk_put(ts.clock);
-> +
-> +	input_unregister_device(ts.input);
-> +	iounmap(ts.io);
+Signed-off-by: Gregoire Gentil <gregoire@gentil.com>
+---
+drivers/hid/Kconfig    |    7 +++++++
+drivers/hid/Makefile   |    1 +
+drivers/hid/hid-core.c |    1 +
+drivers/hid/hid-ids.h  |    3 +++
+4 files changed, 12 insertions(+), 0 deletions(-)
 
-The same reason.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 24d90ea..b56ddc5 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -62,6 +62,13 @@ config HID_A4TECH
+---help---
+Support for A4 tech X5 and WOP-35 / Trust 450L mice.
 
-> +
-> +	return 0;
-> +}
++config HID_ALWAYSINNOVATING
++ tristate "Always Innovating" if EMBEDDED
++ depends on USB_HID
++ default !EMBEDDED
++ ---help---
++ Support for Always Innovating Touch Book.
++
+config HID_APPLE
+tristate "Apple" if EMBEDDED
+depends on (USB_HID || BT_HIDP)
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0de2dff..b6a2860 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -20,6 +20,7 @@ ifdef CONFIG_LOGIRUMBLEPAD2_FF
+endif
 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->
+obj-$(CONFIG_HID_A4TECH) += hid-a4tech.o
++obj-$(CONFIG_HID_ALWAYSINNOVATING) += hid-alwaysinnovating.o
+obj-$(CONFIG_HID_APPLE) += hid-apple.o
+obj-$(CONFIG_HID_BELKIN) += hid-belkin.o
+obj-$(CONFIG_HID_CHERRY) += hid-cherry.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 7d05c4b..2bb62c3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1252,6 +1252,7 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
+static const struct hid_device_id hid_blacklist[] = {
+{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
++ { HID_USB_DEVICE(USB_VENDOR_ID_ALWAYSINNOVATING,
+USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
+USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index adbef5d..ebf53f7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -54,6 +54,9 @@
+#define USB_VENDOR_ID_ALPS 0x0433
+#define USB_DEVICE_ID_IBM_GAMEPAD 0x1101
+
++#define USB_VENDOR_ID_ALWAYSINNOVATING 0xa110
++#define USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK 0x0002
++
+#define USB_VENDOR_ID_APPLE 0x05ac
+#define USB_DEVICE_ID_APPLE_MIGHTYMOUSE 0x0304
+#define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI 0x020e
+-- 
+1.6.0.4
+
+
+
+--=-z66cAISFxWfZelgVeFhI
+Content-Disposition: attachment; filename="0004-Driver-for-Always-Innovating-OMAP3-based-Touch-Bo.patch"
+Content-Type: text/x-patch; name="0004-Driver-for-Always-Innovating-OMAP3-based-Touch-Bo.patch"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+>From 0eaf7bd7a3ece14751708728ebcb25dab588c172 Mon Sep 17 00:00:00 2001
+From: Gregoire Gentil <gregoire@gentil.com>
+Date: Wed, 18 Nov 2009 18:32:15 -0800
+Subject: [PATCH] Driver for Always Innovating OMAP3-based Touch Book keyboard
+
+
+Signed-off-by: Gregoire Gentil <gregoire@gentil.com>
+---
+ drivers/hid/Kconfig    |    7 +++++++
+ drivers/hid/Makefile   |    1 +
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-ids.h  |    3 +++
+ 4 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 24d90ea..b56ddc5 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -62,6 +62,13 @@ config HID_A4TECH
+ 	---help---
+ 	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+ 
++config HID_ALWAYSINNOVATING
++	tristate "Always Innovating" if EMBEDDED
++	depends on USB_HID
++	default !EMBEDDED
++	---help---
++	Support for Always Innovating Touch Book.
++
+ config HID_APPLE
+ 	tristate "Apple" if EMBEDDED
+ 	depends on (USB_HID || BT_HIDP)
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0de2dff..b6a2860 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -20,6 +20,7 @@ ifdef CONFIG_LOGIRUMBLEPAD2_FF
+ endif
+ 
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
++obj-$(CONFIG_HID_ALWAYSINNOVATING)	+= hid-alwaysinnovating.o
+ obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 7d05c4b..2bb62c3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1252,6 +1252,7 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
+ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ALWAYSINNOVATING, USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index adbef5d..ebf53f7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -54,6 +54,9 @@
+ #define USB_VENDOR_ID_ALPS		0x0433
+ #define USB_DEVICE_ID_IBM_GAMEPAD	0x1101
+ 
++#define USB_VENDOR_ID_ALWAYSINNOVATING		0xa110
++#define USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK	0x0002
++
+ #define USB_VENDOR_ID_APPLE		0x05ac
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI	0x020e
+-- 
+1.6.0.4
+
+
+--=-z66cAISFxWfZelgVeFhI
+Content-Disposition: attachment; filename*0=0004-Driver-for-Always-Innovating-OMAP3-based-Touch-Bo.patch.; filename*1=zip
+Content-Type: application/zip; name="0004-Driver-for-Always-Innovating-OMAP3-based-Touch-Bo.patch.zip"
+Content-Transfer-Encoding: base64
+
+UEsDBBQAAAAIADaVcjthXWw6EgQAAFMKAAA8ABUAMDAwNC1Ecml2ZXItZm9yLUFsd2F5cy1Jbm5v
+dmF0aW5nLU9NQVAzLWJhc2VkLVRvdWNoLUJvLnBhdGNoVVQJAANnsARLc7AES1V4BADoA+gDpVZr
+b+I4FP2Mf8Xd2f1QRJM6L6Dszmp4BBoVSAShD41GURI74ClNUBI6U033v68dWB4FupUagUmuzz2+
+9jl26KbJI2DqR7WA1HyNhlTRa4ZSw/WaWqdBGKgG8QOjXg+VmgqDJIYxXYBSA4wbxQdUjBXU5TQN
+6KV0mrCUQo/GOZvDX9N14Mu0CMhh8vg36vg5bcAtJeeg1GGYPAmKS37f0NSGYoCE6xij8TL4TsO8
+AV+dptu++gadlD3RFKIkheb8h/+cgRXHyZOfs3gK9qDpaFLgZ5SAmyzDGbSS5AEe6HOQ+ClBCI3Z
+NKZESqJICp7fW6okSQhIMXB2MWPk4jpM4ohNgV8voqlBZXXtwwb+A43YnP4HU+AVgH+lMEmpHL4B
+YCSTZ2sGDYpBdBC0GYQzP54WK6gCizOa5iyJs7NK+RwwEDqnq2epjBBhUQSSNGU5+BfH5hIciyIW
+E/oTVJ1ccnfIcmBUCQkNUDCu6rpYmONsiJd5gvHLF5Cq6nkVKrxVNODP6wqurI7X1F2zfYWgxKln
+dL4olr40Xi4WSZqvVNchp1zZOwP8mMCt7UiaARfgpsssB93AfXhkIZURoMoucf+2eT+2hkP7pula
+wx6qlPKUZTl3IXw6cNInYBGYg5bZ6ZgdDiV0QWOSATf+ZNzyOGERjPzlPIffdoA7ZVf2yz4w69ag
+MuKa7tbqOH2TT3unwMViTveLgt2iztZVwcsLtFxx55RPS77xZXA0vBYdE6qSKOKiV321XsWnRd8k
+Hqq+6RKyq1jIztuaUJ1FfAGhbQ+7Vs/r2z1rNBm0+qbT7Khet4uAz41FXEVIgu/SH2dr4NYk5VLl
+M4gN4uvCEHKCKofIV6pvcwo52EYNnn1kHKFDubTJESIcBbbM/rU13JAHdP7A4qPI9pU5Gt1vkOGM
+pukzR57UaueICE50rPWqEWyEeiDLahBU1VA7rddO6qFiO51CM0U1is1a/Ba6mXeOPXK98f2gZfe9
+ntM/4ykeYRl3cMzP6vKfCIRtWSg8zfdklqfLMIcCRZ/43vQYKZ6CuR8+zLnHv36Dz/CLW/pX4X9h
+5o55Y7XNwtc35rBjj7yN8OewBWyj3m3b0VRnUoZ/zj/IdGd4GBudgqnyv0yvLHbA+arfc+0JH6Nl
+29fvLFW48IBVBL2me+NZI24vd2T3P8y2YdI/TDWwelfu/cCejM2C6017r15why4s4mtz+ySgkUFk
+mQaRoUW1t829yjzu7VWfsLahC2Pz9pLbGsHv/DhiMYXX8jrjUgn/xLqm7WO2c7ZaA6/XHIijiyMV
+hf8T4i+fU3z7dhDcPk/Zx7/LPqIqjFXx8jgxltCiKN7ww1PFHwgm8BrW38Z37cnQbVpDrzkcWyJD
+xZSLAUiRqzKWdYT+BVBLAQIXAxQAAAAIADaVcjthXWw6EgQAAFMKAAA8AA0AAAAAAAEAAACkgQAA
+AAAwMDA0LURyaXZlci1mb3ItQWx3YXlzLUlubm92YXRpbmctT01BUDMtYmFzZWQtVG91Y2gtQm8u
+cGF0Y2hVVAUAA2ewBEtVeAAAUEsFBgAAAAABAAEAdwAAAIEEAAAAAA==
+
+
+--=-z66cAISFxWfZelgVeFhI--
+

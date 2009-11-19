@@ -1,294 +1,57 @@
-From: Gregoire Gentil <gregoire@gentil.com>
-Subject: [PATCH 5/8] HID file for Always Innovating OMAP3-based Touch Book keyboard
-Date: Thu, 19 Nov 2009 09:18:08 -0800
-Message-ID: <1258651091-31727-6-git-send-email-gregoire@gentil.com>
-References: <1258651091-31727-1-git-send-email-gregoire@gentil.com>
- <1258651091-31727-2-git-send-email-gregoire@gentil.com>
- <1258651091-31727-3-git-send-email-gregoire@gentil.com>
- <1258651091-31727-4-git-send-email-gregoire@gentil.com>
- <1258651091-31727-5-git-send-email-gregoire@gentil.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1258651091-31727-5-git-send-email-gregoire@gentil.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: Gregoire Gentil <gregoire@gentil.com>, Tony Lindgren <tony@atomide.com>, Tim Yamin <plasmaroo@gmail.com>, linux-input@vger.kernel.org
+From: Ben Dooks <ben@simtec.co.uk>
+Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from	Arnaud
+  Patard.
+Date: Thu, 19 Nov 2009 17:48:24 +0000
+Message-ID: <4B0584E8.3040800@simtec.co.uk>
+References: <20091118232939.201290297@fluff.org.uk>	<20091118232948.063635416@fluff.org.uk>	<20091119025930.GA20172@core.coreip.homeip.net>	<4B052D50.2070002@simtec.co.uk>	<20091119135236.GB5535@digital-scurf.org> <20091119170321.GB15647@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20091119170321.GB15647@core.coreip.homeip.net>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Silverstone <dsilvers@simtec.co.uk>, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Simtec Linux Team <linux@simtec.co.uk>, Arnaud Patard <arnaud.patard@rtp-net.org>
 List-Id: linux-input@vger.kernel.org
 
+Dmitry Torokhov wrote:
+> On Thu, Nov 19, 2009 at 01:52:36PM +0000, Daniel Silverstone wrote:
+>> On Thu, Nov 19, 2009 at 11:34:40AM +0000, Ben Dooks wrote:
+>>>>> +		input_report_key(ts.input, BTN_TOUCH, 1);
+>>>>> +		input_report_abs(ts.input, ABS_PRESSURE, 1);
+>>>> No fake pressure events please, BTN_TOUCH should be enough.
+>>> I'd have to check, IIRC tslib needs these to function properly.
+>> Indeed it does -- otherwise it won't work.  Yes you could try going around and
+>> patching TSLIB but so many people use it that it is principle-of-least-surprise
+>> to produce pressure events.
+>>
+>>>>> +	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+>>>>> +	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
+>>>>> +	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
+>>>>> +	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
+>>>> Drop ABS_PRESSURE.
+>>> ok, see above.
+>> The same applies here -- claim ABS_PRESSURE or tslib won't operate with the
+>> touchscreen.
+>>
+>> While it is tempting to be 100% exactly correct to what the hardware reports
+>> (which is only TOUCH not PRESSURE) it is preferable to work with the software
+>> which the majority of people use -- namely tslib.
+>>
+>> I would strongly argue against removing the ABS_PRESSURE stuff personally,
+>> despite it being essentially a lie.
 
-Signed-off-by: Gregoire Gentil <gregoire@gentil.com>
----
- drivers/hid/hid-alwaysinnovating.c |  262 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 262 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-alwaysinnovating.c
+ok, i'll remove it and anyone who can't be bothered to update their
+tslib can hack in their own solution if they really care about it.
 
-diff --git a/drivers/hid/hid-alwaysinnovating.c b/drivers/hid/hid-alwaysinnovating.c
-new file mode 100644
-index 0000000..a7bb0fd
---- /dev/null
-+++ b/drivers/hid/hid-alwaysinnovating.c
-@@ -0,0 +1,262 @@
-+/*
-+ *  USB HID quirks support for the Always Innovating Touch Book
-+ *  Code borrowed from hid-apple.c
-+ *
-+ *  Copyright (c) 2009 Gregoire Gentil <gregoire@gentil.com>
-+ *  Copyright (c) 2009 Tim Yamin <plasm@roo.me.uk>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+
-+struct touchbook_sc {
-+	unsigned long quirks;
-+	unsigned int  fn_on;
-+	DECLARE_BITMAP(pressed_fn, KEY_CNT);
-+};
-+
-+struct touchbook_key_translation {
-+	u16 from;
-+	u16 to;
-+	u8 flags;
-+};
-+
-+static struct touchbook_key_translation touchbook_fn_keys[] = {
-+	{ KEY_F6,	KEY_BRIGHTNESSDOWN },
-+	{ KEY_F7,	KEY_BRIGHTNESSUP },
-+
-+	{ KEY_F8,	KEY_MUTE },
-+	{ KEY_F9,	KEY_VOLUMEDOWN },
-+	{ KEY_F10,	KEY_VOLUMEUP },
-+
-+	{ KEY_UP,	KEY_PAGEUP },
-+	{ KEY_DOWN,	KEY_PAGEDOWN },
-+	{ }
-+};
-+
-+extern unsigned long touchbook_revision;
-+unsigned long swap_key;
-+
-+static struct touchbook_key_translation *touchbook_find_translation(
-+		struct touchbook_key_translation *table, u16 from)
-+{
-+	struct touchbook_key_translation *trans;
-+
-+	/* Look for the translation */
-+	for (trans = table; trans->from; trans++)
-+		if (trans->from == from)
-+			return trans;
-+
-+	return NULL;
-+}
-+
-+static int touchbook_event(struct hid_device *hid, struct hid_field *field,
-+		struct hid_usage *usage, __s32 value)
-+{
-+	int do_translate;
-+
-+	struct input_dev *input = field->hidinput->input;
-+	struct touchbook_sc *asc = hid_get_drvdata(hid);
-+	struct touchbook_key_translation *trans;
-+
-+	if (swap_key && usage->code == KEY_RIGHTSHIFT) {
-+		input_event(input, usage->type, KEY_END, value);
-+		return 1;
-+	}
-+
-+	if (swap_key && usage->code == KEY_END) {
-+		input_event(input, usage->type, KEY_RIGHTSHIFT, value);
-+		return 1;
-+	}
-+
-+	if (usage->code == KEY_POWER) {
-+		asc->fn_on = !!value;
-+		input_event(input, usage->type, usage->code, value);
-+		return 1;
-+	}
-+
-+	trans = touchbook_find_translation(touchbook_fn_keys, usage->code);
-+	if (trans) {
-+		if (test_bit(usage->code, asc->pressed_fn))
-+			do_translate = 1;
-+		else
-+			do_translate = asc->fn_on;
-+
-+		if (do_translate) {
-+			if (value)
-+				set_bit(usage->code, asc->pressed_fn);
-+			else
-+				clear_bit(usage->code, asc->pressed_fn);
-+
-+			input_event(input, usage->type, trans->to,
-+					value);
-+
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int touchbook_input_mapping(struct hid_device *hdev,
-+		struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	struct touchbook_key_translation *trans;
-+
-+	/* Enable all other keys */
-+	for (trans = touchbook_fn_keys; trans->from; trans++)
-+		set_bit(trans->to, hi->input->keybit);
-+
-+	return 0;
-+}
-+
-+static ssize_t show_swap_key(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, "%lu\n", swap_key);
-+}
-+
-+static ssize_t store_swap_key(struct device *dev,
-+		struct device_attribute *attr,
-+		const char *buf, size_t count)
-+{
-+	 strict_strtoul(buf, 10, &swap_key);
-+
-+	if (swap_key != 0 && swap_key != 1) {
-+		swap_key = 0;
-+		return -EINVAL;
-+	}
-+
-+	return count;
-+}
-+
-+static struct device_attribute touchbook_hid_attrs[] = {
-+	__ATTR(swap_key, S_IRUGO | S_IWUGO, show_swap_key, store_swap_key),
-+};
-+
-+int touchbook_create_sysfs(struct hid_device *hdev)
-+{
-+	int i;
-+	int r;
-+
-+	for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++) {
-+		r = device_create_file(&hdev->dev,
-+				&touchbook_hid_attrs[i]);
-+
-+		if (r) {
-+			dev_err(&hdev->dev, "failed to create sysfs file\n");
-+			return r;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+void touchbook_remove_sysfs(struct hid_device *hdev)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(touchbook_hid_attrs); i++)
-+		device_remove_file(&hdev->dev,
-+					&touchbook_hid_attrs[i]);
-+}
-+
-+static int touchbook_probe(struct hid_device *hdev,
-+		const struct hid_device_id *id)
-+{
-+	unsigned long quirks = id->driver_data;
-+	struct touchbook_sc *asc;
-+	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-+	int ret;
-+
-+	asc = kzalloc(sizeof(*asc), GFP_KERNEL);
-+	if (asc == NULL) {
-+		dev_err(&hdev->dev, "can't alloc touchbook descriptor\n");
-+		return -ENOMEM;
-+	}
-+
-+	asc->quirks = quirks;
-+	hid_set_drvdata(hdev, asc);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		dev_err(&hdev->dev, "parse failed\n");
-+		goto err_free;
-+	}
-+
-+	ret = touchbook_create_sysfs(hdev);
-+	if (ret) {
-+		dev_err(&hdev->dev, "failed to create sysfs entries\n");
-+		goto err_free;
-+	}
-+
-+	swap_key = (touchbook_revision >= 4) ? 1 : 0;
-+
-+	ret = hid_hw_start(hdev, connect_mask);
-+	if (ret) {
-+		dev_err(&hdev->dev, "hw start failed\n");
-+		goto err_free;
-+	}
-+
-+	return 0;
-+err_free:
-+	kfree(asc);
-+	return ret;
-+}
-+
-+static void touchbook_remove(struct hid_device *hdev)
-+{
-+	hid_hw_stop(hdev);
-+	kfree(hid_get_drvdata(hdev));
-+	touchbook_remove_sysfs(hdev);
-+}
-+
-+static const struct hid_device_id touchbook_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ALWAYSINNOVATING,
-+		USB_DEVICE_ID_ALWAYSINNOVATING_TOUCH_BOOK) },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(hid, touchbook_devices);
-+
-+static struct hid_driver touchbook_driver = {
-+	.name = "touchbook",
-+	.id_table = touchbook_devices,
-+	.probe = touchbook_probe,
-+	.remove = touchbook_remove,
-+	.event = touchbook_event,
-+	.input_mapping = touchbook_input_mapping,
-+};
-+
-+static int touchbook_init(void)
-+{
-+	int ret;
-+
-+	ret = hid_register_driver(&touchbook_driver);
-+	if (ret)
-+		printk(KERN_ERR "can't register touchbook driver\n");
-+
-+	return ret;
-+}
-+
-+static void touchbook_exit(void)
-+{
-+	hid_unregister_driver(&touchbook_driver);
-+}
-+
-+module_init(touchbook_init);
-+module_exit(touchbook_exit);
-+MODULE_LICENSE("GPL");
--- 
-1.6.0.4
+> And I would strongly argue that you just need to update your tslib,
+> especially given the fact that this issue was dealt with there about a
+> year ago.  And if you really need that fix to be in released (read
+> 'tagged') version of tslib - please speak to its maintainer.
 
+> Why everyone thinks that it is a good idea to pile workarounds for
+> software issues in the kernel but updating the other parts of software
+> stack is a big no-no?
+
+it can be much more difficult to update a userland than to hack the
+kernel...

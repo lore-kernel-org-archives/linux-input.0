@@ -1,57 +1,77 @@
-From: Ben Dooks <ben@simtec.co.uk>
-Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from	Arnaud
-  Patard.
-Date: Thu, 19 Nov 2009 17:48:24 +0000
-Message-ID: <4B0584E8.3040800@simtec.co.uk>
-References: <20091118232939.201290297@fluff.org.uk>	<20091118232948.063635416@fluff.org.uk>	<20091119025930.GA20172@core.coreip.homeip.net>	<4B052D50.2070002@simtec.co.uk>	<20091119135236.GB5535@digital-scurf.org> <20091119170321.GB15647@core.coreip.homeip.net>
+From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci	Keyscan
+ platform data
+Date: Thu, 19 Nov 2009 11:54:35 -0600
+Message-ID: <4B05865B.7060303@ridgerun.com>
+References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com> <20091119025946.GC20172@core.coreip.homeip.net> <4B057315.5070302@ridgerun.com> <20091119165509.GA15647@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20091119170321.GB15647@core.coreip.homeip.net>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Daniel Silverstone <dsilvers@simtec.co.uk>, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Simtec Linux Team <linux@simtec.co.uk>, Arnaud Patard <arnaud.patard@rtp-net.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.navvo.net ([74.208.67.6]:52899 "EHLO mail.navvo.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753458AbZKSRyg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2009 12:54:36 -0500
+In-Reply-To: <20091119165509.GA15647@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
 
 Dmitry Torokhov wrote:
-> On Thu, Nov 19, 2009 at 01:52:36PM +0000, Daniel Silverstone wrote:
->> On Thu, Nov 19, 2009 at 11:34:40AM +0000, Ben Dooks wrote:
->>>>> +		input_report_key(ts.input, BTN_TOUCH, 1);
->>>>> +		input_report_abs(ts.input, ABS_PRESSURE, 1);
->>>> No fake pressure events please, BTN_TOUCH should be enough.
->>> I'd have to check, IIRC tslib needs these to function properly.
->> Indeed it does -- otherwise it won't work.  Yes you could try going around and
->> patching TSLIB but so many people use it that it is principle-of-least-surprise
->> to produce pressure events.
+> On Thu, Nov 19, 2009 at 10:32:21AM -0600, Miguel Aguilar wrote:
+>> Hi Dmitry,
 >>
->>>>> +	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
->>>>> +	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
->>>>> +	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
->>>>> +	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
->>>> Drop ABS_PRESSURE.
->>> ok, see above.
->> The same applies here -- claim ABS_PRESSURE or tslib won't operate with the
->> touchscreen.
+>>>>  +	if (pdata->device_enable) {
+>>>> +		error = pdata->device_enable(dev);
+>>>> +		if (error < 0) {
+>>>> +			dev_dbg(dev, "device enable function failed\n");
+>>>> +			return error;
+>>>> +		}
+>>>> +	}
+>>>> +
+>>> Hi Miguel,
+>>>
+>>> Does this need to live in the driver? Why can't platform code do this
+>>> for us?
+>>>
+>>> Thanks.
+>>>
+>> The reason to invoke the device_enable function in the driver is because 
+>> in the testing process of the key scan driver a issue was found when the 
+>> key scan is built as a module.
 >>
->> While it is tempting to be 100% exactly correct to what the hardware reports
->> (which is only TOUCH not PRESSURE) it is preferable to work with the software
->> which the majority of people use -- namely tslib.
+>> There is a specific PINMUX configuration that only should be set if the 
+>> key scan driver is loaded in the kernel to avoid pin conflicts. So when 
+>> the key scan is built as a module the board file (or platform code) 
+>> doesn't know if the key scan is loaded or not, so that's why the driver 
+>> is the one who must invoke the device_enable function in the probe 
+>> function.
 >>
->> I would strongly argue against removing the ABS_PRESSURE stuff personally,
->> despite it being essentially a lie.
+> 
+> I see... What happens if PINMUX is set but there isn't a driver? Also,
+> what happens when you unload the module? Don't you need a similar call
+> to disable PINMUX configuration?
+> 
 
-ok, i'll remove it and anyone who can't be bothered to update their
-tslib can hack in their own solution if they really care about it.
+Dmitry,
 
-> And I would strongly argue that you just need to update your tslib,
-> especially given the fact that this issue was dealt with there about a
-> year ago.  And if you really need that fix to be in released (read
-> 'tagged') version of tslib - please speak to its maintainer.
+If PINMUX is set and there isn't the driver, the PINMUX configuration can 
+overwrite the PINMUX configuration needed by other drivers which actually are 
+loaded. This situation happens in the DM365 EVM, because the hardware design 
+there are hardware modules that can't coexist, so handling the PINMUX 
+configuration calling a function pointer is a safe way to ensure that the PINMUX 
+is set only when the module is loaded.
 
-> Why everyone thinks that it is a good idea to pile workarounds for
-> software issues in the kernel but updating the other parts of software
-> stack is a big no-no?
+Disable PINMUX configuration doesn't make sense, because there isn't a thing 
+such disable PINMUX configuration, there are a lot of possible PINMUX 
+combinations, and there is no combination that means disable, and also change 
+the PINMUX configuration to a different state would be risky.
 
-it can be much more difficult to update a userland than to hack the
-kernel...
+Is the responsibility of the platform code or of the driver in the 
+initialization, like in the case of the key scan, to set the needed PINMUX 
+configuration for running the module properly.
+
+Thanks,
+Miguel Aguilar
+

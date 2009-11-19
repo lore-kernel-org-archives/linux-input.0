@@ -1,104 +1,40 @@
-From: Shine Liu <shinel@foxmail.com>
+From: Harald Welte <laforge@gnumonks.org>
 Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from
  Arnaud Patard.
-Date: Thu, 19 Nov 2009 13:46:55 +0800
-Message-ID: <1258609615.2676.31.camel@shinel>
+Date: Thu, 19 Nov 2009 06:47:57 +0100
+Message-ID: <20091119054757.GE13105@prithivi.gnumonks.org>
 References: <20091118232939.201290297@fluff.org.uk>
-	 <20091118232948.063635416@fluff.org.uk>
-Reply-To: shinel@foxmail.com
+ <20091118232948.063635416@fluff.org.uk>
+ <20091119025930.GA20172@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpbg72.qq.com ([119.147.10.231]:38011 "HELO smtpbg72.qq.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751298AbZKSFrk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2009 00:47:40 -0500
-In-Reply-To: <20091118232948.063635416@fluff.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091119025930.GA20172@core.coreip.homeip.net>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ben Dooks <ben@simtec.co.uk>, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Linux Team <linux@simtec.co.uk>
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben@simtec.co.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Arnaud Patard <arnaud.patard@rtp-net.org>, Simtec Linux Team <linux@simtec.co.uk>
 
-Hi,Ben
+hi Dmitry,
 
-Besides Dmitry's comments,
+On Wed, Nov 18, 2009 at 06:59:30PM -0800, Dmitry Torokhov wrote:
 
-On Wed, 2009-11-18 at 23:29 +0000, Ben Dooks wrote:
+> Thank you for the patch. First thing first - do we have an agreement
+> from all Samsung folks and other interested parties that _this_ is the
+> driver? Because it's like 3rd implementation that came across...
 
-> +config TOUCHSCREEN_S3C2410
-> +       tristate "Samsung S3C2410 touchscreen input driver"
-> +       depends on ARCH_S3C2410 && INPUT && INPUT_TOUCHSCREEN
-> +       select SERIO
-> +       help
-> +         Say Y here if you have the s3c2410 touchscreen.
-> +
-> +         If unsure, say N.
-> +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called s3c2410_ts.
+I think it is important we finally merge _a_ driver, giving users a useful
+touchscreen after many, many years of delay.  Whoever has issues with that
+driver should simply address those issues and propose incremental patches to
+it.
 
-S3C24XX_ADC should be added to the depends.
+This is speaking with both my former Openmoko "hat" as well as considering
+what is most important for Samsung System LSI.
 
-> +#include <linux/slab.h>
-
-I think this is not really needed because kernel.h is included already.
-
-
-> +
-> +	ts.clock = clk_get(dev, "adc");
-> +	if (IS_ERR(ts.clock)) {
-> +		dev_err(dev, "cannot get adc clock source\n");
-> +		return -ENOENT;
-> +	}
-> +
-> +	clk_enable(ts.clock);
-> +	dev_dbg(dev, "got and enabled clocks\n");
-
-Well, we take 2410_ts as s3c adc client, so these work has been done in
-s3c_adc_probe function of arch/arm/plat-s3c24xx.c
-
-This should be duplicated.
-
-And "#include <linux/clk.h>" is not needed because we don't use these
-APIs
-
-
-> + err_clk:
-> +       clk_put(ts.clock);
-> +       return ret;
-> +}
-
-Above reason and also for those "goto err_clk;"
-
-> );
-> +
-> +	clk_disable(ts.clock);
-> +	clk_put(ts.clock);
-
-Same as above
-
-> +
-> +#ifdef CONFIG_PM
-> +static int s3c2410ts_suspend(struct platform_device *pdev, pm_message_t state)
-> +{
-> +	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
-> +	disable_irq(ts.irq_tc);
-
-Same as above
-
-> +
-> +static int s3c2410ts_resume(struct platform_device *pdev)
-> +{
-> +	struct s3c2410_ts_mach_info *info = pdev->dev.platform_data;
-> +
-> +	clk_enable(ts.clock);
-
-Same as above
-
-
-Cheers,
-
-Shine
-
-
+Regards,
+-- 
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+============================================================================
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)

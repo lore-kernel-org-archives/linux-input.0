@@ -1,70 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Bug #14626] oops on boot starting udev
-Date: Wed, 18 Nov 2009 18:59:38 -0800
-Message-ID: <20091119025938.GB20172@core.coreip.homeip.net>
-References: <GUZt44bIwCE.A.vLF.pSdALB@chimera> <xXQGFmujPl.A.fpF.zSdALB@chimera> <20091117011455.GA7977@kroah.com> <20091117020451.GA27967@core.coreip.homeip.net> <1258426743.9883.53.camel@no> <20091117040104.GA5792@core.coreip.homeip.net> <1258430807.12721.12.camel@no>
+Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
+	Keyscan platform data
+Date: Wed, 18 Nov 2009 18:59:46 -0800
+Message-ID: <20091119025946.GC20172@core.coreip.homeip.net>
+References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:65459 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758052AbZKSC7h (ORCPT
+Received: from mail-px0-f180.google.com ([209.85.216.180]:50628 "EHLO
+	mail-px0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932347AbZKSC7n (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Nov 2009 21:59:37 -0500
+	Wed, 18 Nov 2009 21:59:43 -0500
+Received: by pxi10 with SMTP id 10so1290803pxi.33
+        for <linux-input@vger.kernel.org>; Wed, 18 Nov 2009 18:59:49 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1258430807.12721.12.camel@no>
+In-Reply-To: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Soeren Sonnenburg <sonne@debian.org>
-Cc: Greg KH <greg@kroah.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Testers List <kernel-testers@vger.kernel.org>
+To: miguel.aguilar@ridgerun.com
+Cc: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
 
-On Tue, Nov 17, 2009 at 05:06:47AM +0100, Soeren Sonnenburg wrote:
-> On Mon, 2009-11-16 at 20:01 -0800, Dmitry Torokhov wrote:
-> > On Tue, Nov 17, 2009 at 03:59:03AM +0100, Soeren Sonnenburg wrote:
-> > > On Mon, 2009-11-16 at 18:04 -0800, Dmitry Torokhov wrote:
-> > > > On Mon, Nov 16, 2009 at 05:14:55PM -0800, Greg KH wrote:
-> > > > > On Mon, Nov 16, 2009 at 11:37:48PM +0100, Rafael J. Wysocki wrote:
-> > > > > > This message has been generated automatically as a part of a report
-> > > > > > of recent regressions.
-> > > > > > 
-> > > > > > The following bug entry is on the current list of known regressions
-> > > > > > from 2.6.31.  Please verify if it still should be listed and let me know
-> > > > > > (either way).
-> > > > > > 
-> > > > > > 
-> > > > > > Bug-Entry	: http://bugzilla.kernel.org/show_bug.cgi?id=14626
-> > > > > > Subject		: oops on boot starting udev
-> > > > > > Submitter	: Soeren Sonnenburg <sonne@debian.org>
-> > > > > > Date		: 2009-11-14 10:16 (3 days old)
-> > > > > > References	: http://marc.info/?l=linux-kernel&m=125819380206800&w=4
-> > > > > 
-> > > > > This looks like an input core problem, as the evdev module was just
-> > > > > loaded and died.
-> > > > > 
-> > > > > Any input developers have any ideas?
-> > > > > 
-> > > > 
-> > > > 
-> > > > Hmm, evdev does:
-> > > > 
-> > > > 	dev_set_name(&evdev->dev, "event%d", minor);
-> > > > 
-> > > > Not sure how it can go wrong...
-> > > 
-> > > Anything I should/could do to narrow it down a bit (apart from
-> > > bisecting?).
-> > > 
-> > 
-> > Umm, I looked through the changes between -rc6 and 7 but nothing jumped
-> > out at me... You don't happen to have any local changes in your tree?
+On Fri, Nov 13, 2009 at 01:43:54PM -0600, miguel.aguilar@ridgerun.com wrote:
+> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
 > 
-> Well only the mouse button #1 emulation - though I don't see what could
-> go wrong there.
+> Add a function pointer in the platform data of the DaVinci Keyscan driver
+> called device_enabled, in order to perform board specific actions when
+> the device is initialized, like setup the PINMUX configuration.
 > 
+> Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> ---
+>  arch/arm/mach-davinci/include/mach/keyscan.h |    1 +
+>  drivers/input/keyboard/davinci_keyscan.c     |    8 ++++++++
+>  2 files changed, 9 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/arm/mach-davinci/include/mach/keyscan.h b/arch/arm/mach-davinci/include/mach/keyscan.h
+> index b4e21a2..7a560e0 100644
+> --- a/arch/arm/mach-davinci/include/mach/keyscan.h
+> +++ b/arch/arm/mach-davinci/include/mach/keyscan.h
+> @@ -29,6 +29,7 @@ enum davinci_matrix_types {
+>  };
+>  
+>  struct davinci_ks_platform_data {
+> +	int		(*device_enable)(struct device *dev);
+>  	unsigned short	*keymap;
+>  	u32		keymapsize;
+>  	u8		rep:1;
+> diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+> index 6e52d85..d410d7a 100644
+> --- a/drivers/input/keyboard/davinci_keyscan.c
+> +++ b/drivers/input/keyboard/davinci_keyscan.c
+> @@ -174,6 +174,14 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+>  	struct davinci_ks_platform_data *pdata = pdev->dev.platform_data;
+>  	int error, i;
+>  
+> +	if (pdata->device_enable) {
+> +		error = pdata->device_enable(dev);
+> +		if (error < 0) {
+> +			dev_dbg(dev, "device enable function failed\n");
+> +			return error;
+> +		}
+> +	}
+> +
 
-I have been looking through the changes and I really don't see anything
-suspicious. I am also not hittign this oops on any of my boxes. Any
-chance you could bisect?
+Hi Miguel,
+
+Does this need to live in the driver? Why can't platform code do this
+for us?
 
 Thanks.
 

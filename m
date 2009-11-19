@@ -1,114 +1,53 @@
-From: hvaibhav@ti.com
-Subject: [PATCH 3/3] AM3517: Add support for TSC2004 driver
-Date: Thu, 19 Nov 2009 20:17:07 +0530
-Message-ID: <1258642027-2520-1-git-send-email-hvaibhav@ti.com>
-References: <hvaibhav@ti.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <hvaibhav@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, Vaibhav Hiremath <hvaibhav@ti.com>
+From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci	Keyscan
+ platform data
+Date: Thu, 19 Nov 2009 10:32:21 -0600
+Message-ID: <4B057315.5070302@ridgerun.com>
+References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com> <20091119025946.GC20172@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.navvo.net ([74.208.67.6]:33341 "EHLO mail.navvo.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752490AbZKSQcW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2009 11:32:22 -0500
+In-Reply-To: <20091119025946.GC20172@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, todd.fischer@ridgerun.com, diego.dompe@ridgerun.com, clark.becker@ridgerun.com, santiago.nunez@ridgerun.com
 
-From: Vaibhav Hiremath <hvaibhav@ti.com>
+Hi Dmitry,
 
+>>  
+>> +	if (pdata->device_enable) {
+>> +		error = pdata->device_enable(dev);
+>> +		if (error < 0) {
+>> +			dev_dbg(dev, "device enable function failed\n");
+>> +			return error;
+>> +		}
+>> +	}
+>> +
+> 
+> Hi Miguel,
+> 
+> Does this need to live in the driver? Why can't platform code do this
+> for us?
+> 
+> Thanks.
+> 
 
-Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
----
- arch/arm/mach-omap2/board-am3517evm.c |   62 +++++++++++++++++++++++++++++++++
- 1 files changed, 62 insertions(+), 0 deletions(-)
+The reason to invoke the device_enable function in the driver is because in the 
+testing process of the key scan driver a issue was found when the key scan is 
+built as a module.
 
-diff --git a/arch/arm/mach-omap2/board-am3517evm.c b/arch/arm/mach-omap2/board-am3517evm.c
-index 415a13d..ae47b51 100644
---- a/arch/arm/mach-omap2/board-am3517evm.c
-+++ b/arch/arm/mach-omap2/board-am3517evm.c
-@@ -20,6 +20,8 @@
- #include <linux/init.h>
- #include <linux/platform_device.h>
- #include <linux/gpio.h>
-+#include <linux/irq.h>
-+#include <linux/i2c/tsc2004.h>
- 
- #include <mach/hardware.h>
- #include <asm/mach-types.h>
-@@ -27,10 +29,64 @@
- #include <asm/mach/map.h>
- 
- #include <plat/board.h>
-+#include <plat/mux.h>
- #include <plat/common.h>
- #include <plat/usb.h>
- 
- /*
-+ * TSC 2004 Support
-+ */
-+#define	GPIO_TSC2004_IRQ	65
-+
-+static int tsc2004_init_irq(void)
-+{
-+	int ret = 0;
-+
-+	ret = gpio_request(GPIO_TSC2004_IRQ, "tsc2004-irq");
-+	if (ret < 0) {
-+		printk(KERN_WARNING "failed to request GPIO#%d: %d\n",
-+				GPIO_TSC2004_IRQ, ret);
-+		return ret;
-+	}
-+
-+	if (gpio_direction_input(GPIO_TSC2004_IRQ)) {
-+		printk(KERN_WARNING "GPIO#%d cannot be configured as "
-+				"input\n", GPIO_TSC2004_IRQ);
-+		return -ENXIO;
-+	}
-+
-+	omap_set_gpio_debounce(GPIO_TSC2004_IRQ, 1);
-+	omap_set_gpio_debounce_time(GPIO_TSC2004_IRQ, 0xa);
-+	return ret;
-+}
-+
-+static void tsc2004_exit_irq(void)
-+{
-+	gpio_free(GPIO_TSC2004_IRQ);
-+}
-+
-+static int tsc2004_get_irq_level(void)
-+{
-+	return gpio_get_value(GPIO_TSC2004_IRQ) ? 0 : 1;
-+}
-+
-+struct tsc2004_platform_data am3517evm_tsc2004data = {
-+	.model = 2004,
-+	.x_plate_ohms = 180,
-+	.get_pendown_state = tsc2004_get_irq_level,
-+	.init_platform_hw = tsc2004_init_irq,
-+	.exit_platform_hw = tsc2004_exit_irq,
-+};
-+
-+static struct i2c_board_info __initdata am3517evm_tsc_i2c_boardinfo[] = {
-+	{
-+		I2C_BOARD_INFO("tsc2004", 0x4B),
-+		.type		= "tsc2004",
-+		.platform_data	= &am3517evm_tsc2004data,
-+	},
-+};
-+
-+/*
-  * Board initialization
-  */
- static struct omap_board_config_kernel am3517_evm_config[] __initdata = {
-@@ -67,6 +123,12 @@ static void __init am3517_evm_init(void)
- 
- 	omap_serial_init();
- 	usb_ehci_init(&ehci_pdata);
-+
-+	/* TSC 2004 */
-+	omap_cfg_reg(U1_34XX_GPIO65);
-+	am3517evm_tsc_i2c_boardinfo[0].irq = gpio_to_irq(GPIO_TSC2004_IRQ);
-+	i2c_register_board_info(1, am3517evm_tsc_i2c_boardinfo,
-+				ARRAY_SIZE(am3517evm_tsc_i2c_boardinfo));
- }
- 
- static void __init am3517_evm_map_io(void)
--- 
-1.6.2.4
+There is a specific PINMUX configuration that only should be set if the key scan 
+driver is loaded in the kernel to avoid pin conflicts. So when the key scan is 
+built as a module the board file (or platform code) doesn't know if the key scan 
+is loaded or not, so that's why the driver is the one who must invoke the 
+device_enable function in the probe function.
 
+Thanks,
+
+Miguel Aguilar

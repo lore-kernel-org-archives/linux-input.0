@@ -1,38 +1,44 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH 1/4] input: atmel_tsadcc: touchscreen rework setting	capabilities
-Date: Thu, 19 Nov 2009 11:47:39 +0100
-Message-ID: <4B05224B.8050403@atmel.com>
-References: <693b9933de6fe9eb7e4401ca56a8f9ab6a966666.1258553002.git.nicolas.ferre@atmel.com> <20091118173033.GA4385@core.coreip.homeip.net>
+From: Ben Dooks <ben@simtec.co.uk>
+Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from	Arnaud
+ Patard.
+Date: Thu, 19 Nov 2009 12:06:11 +0000
+Message-ID: <4B0534B3.20907@simtec.co.uk>
+References: <20091118232939.201290297@fluff.org.uk>	<20091118232948.063635416@fluff.org.uk>	<1258609615.2676.31.camel@shinel> <20091119103717.GC15460@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757435AbZKSKry@vger.kernel.org>
-In-Reply-To: <20091118173033.GA4385@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, avictor.za@gmail.com
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hull.simtec.co.uk ([78.105.113.97]:44901 "EHLO ben-laptop"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750715AbZKSLCd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Nov 2009 06:02:33 -0500
+In-Reply-To: <20091119103717.GC15460@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Shine Liu <shinel@foxmail.com>, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, Arnaud Patard <arnaud.patard@rtp-net.org>, linux-input@vger.kernel.org, Simtec Linux Team <linux@simtec.co.uk>, linux-arm-kernel@lists.infradead.org
 
-Dmitry Torokhov :
-> Hi Nicolas,
+Mark Brown wrote:
+> On Thu, Nov 19, 2009 at 01:46:55PM +0800, Shine Liu wrote:
+>> On Wed, 2009-11-18 at 23:29 +0000, Ben Dooks wrote:
 > 
-> On Wed, Nov 18, 2009 at 03:12:12PM +0100, Nicolas Ferre wrote:
->> Tiny patch for setting capabilities using input API function.
->>
->> Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+>>> +config TOUCHSCREEN_S3C2410
+>>> +       tristate "Samsung S3C2410 touchscreen input driver"
+>>> +       depends on ARCH_S3C2410 && INPUT && INPUT_TOUCHSCREEN
+>>> +       select SERIO
+>>> +       help
+>>> +         Say Y here if you have the s3c2410 touchscreen.
+>>> +
+>>> +         If unsure, say N.
+>>> +
+>>> +         To compile this driver as a module, choose M here: the
+>>> +         module will be called s3c2410_ts.
 > 
-> All looks good. Since the series span platform and input subtrees how do
-> you want to merge it?
+>> S3C24XX_ADC should be added to the depends.
+> 
+> It's probably more friendly to select rather than depend on it to avoid
+> the option being hidden.
 
-I propose that you merge the whole series using the input path.
+I prefer the 'select S3C24XX_ADC' and have the symbol available.
 
-I had the acknowledgment from Andrew Victor offline. So, could you
-please add on patches #3 & #4:
-
-Acked-by: Andrew Victor <linux@maxim.org.za>
-
-Thanks a lot.
-
-Best regards,
--- 
-Nicolas Ferre
+Will update the patch.

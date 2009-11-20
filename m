@@ -1,126 +1,503 @@
-From: Sebastian Kapfer <sebastian_kapfer@gmx.net>
-Subject: Re: [PATCH] 9-byte Alps, revisited
-Date: Fri, 20 Nov 2009 01:55:21 +0100
-Message-ID: <1258678521.5044.565.camel@sardelle.necksus.de>
-References: <1258314158.9416.16.camel@sardelle.necksus.de>
-	 <20091118090009.GA2983@core.coreip.homeip.net>
-	 <1258675669.5044.540.camel@sardelle.necksus.de>
-	 <20091120003433.GA21522@core.coreip.homeip.net>
+From: =?UTF-8?B?TsOpbWV0aCBNw6FydG9u?= <nm127@freemail.hu>
+Subject: Re: [RFC, PATCH 1/2] gspca: add input support for interrupt endpoints
+Date: Fri, 20 Nov 2009 08:14:10 +0100
+Message-ID: <4B0641C2.1050200@freemail.hu>
+References: <4B04F7E0.1090803@freemail.hu> <4B05074B.1030407@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:55983 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1753962AbZKTAzR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Nov 2009 19:55:17 -0500
-In-Reply-To: <20091120003433.GA21522@core.coreip.homeip.net>
+Received: from mail01d.mail.t-online.hu ([84.2.42.6]:65526 "EHLO
+	mail01d.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754158AbZKTHOL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Nov 2009 02:14:11 -0500
+In-Reply-To: <4B05074B.1030407@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input ML <linux-input@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Cc: Jean-Francois Moine <moinejf@free.fr>, V4L Mailing List <linux-media@vger.kernel.org>
 
+Hi,
+Hans de Goede wrote:
+> Hi M=C3=A1rton,
+>=20
+> On 11/19/2009 08:46 AM, N=C3=A9meth M=C3=A1rton wrote:
+>> Add helper functions for interrupt endpoint based input handling.
+> First of all many many thanks for doing this!
 
-Hi Dmitry!
+You are welcome :-) . My goal is to just make my webcam working properl=
+y...
 
-> > thank you for your reply.  It is much cleaner now!  I had to make a few
-> > changes though:
-> > 
-> > 1. As posted, the rearranged patch doesn't work properly.
-> 
-> Kinda expected that ;) That's why I asked to try it out.
+>> maybe a new configuration option should be also introduced?
+>=20
+> I'm personally not a big fan of adding more configuration options,
+> what should be done instead is make the compilation dependent on the
+> CONFIG_INPUT kernel config option, I see no reason not to enable this
+> when CONFIG_INPUT is enabled.
 
-Well, how should you test it :-)
+I added dependency on CONFIG_INPUT.
 
-> > 3. The hardware is very broken:  Touchpad and trackpoint share button
-> > state.  This means that you can trigger this sequence of events:
-> > 
-> > 	<user presses button on trackpoint>
-> > 	3byte:  left down  --> reported to "dev2"
-> > 	<user moves pointer with touchpad>
-> > 	6byte:  left down  --> reported to "dev"
-> > 	<user releases button on trackpoint>
-> > 	3byte:  left up    --> reported to "dev2"
-> > 
-> > The result is that dev has a stuck mouse button, and in X11 the mouse
-> > button stays down.  That's why I explicitly cloned button events to both
-> > devices in my first patch. 
-> > 
-> > However, this created a different problem:  If the user hammered at the
-> > mouse button very quickly, the events would be processed out of order,
-> > e.g.
-> > 
-> > 	touch_press touch_release stick_press stick_release
-> > 
-> > instead of
-> > 
-> > 	touch_press stick_press touch_release stick_release
-> > 
-> > As a result of this, a double click was detected in X11.
-> > 
-> > I have added logic that assigns each button down event to only one of
-> > the devices, and also avoids hanging buttons.  This is activated by a
-> > new flag.
-> > 
-> 
-> How about we just don't report button presses on the device representing
-> the stick? This is how Synaptics touchpads with pass-through ports work
-> (all buttons belong to the touchpad) and it seems to be working very well.
+> Some other remarks, you are using:
+> printk(KERN_DEBUG
+> In various places, please use
+> PDEBUG(D_FOO
+> instead so that the output can be controlled using the gspca module's
+> debug parameter.
 
-We could do that -- however, one of my testers said he liked it that on
-his Synaptics, he could assign some different function to the Trackpoint
-middle button than to the touchpad middle button (no idea, really).
+I created a PDEBUG_INPUT() for this otherwise there is a circular depen=
+dency
+between gspca_main and gspca_input because of the variable gspca_debug.
 
-Obviously, it's not 100% possible to tell the two apart, but for all
-practical purposes, it should be OK.  The button is always reported on
-the device where the button is first pressed.
+> And in gspca_input_connect() you are setting name to "pac7302", this
+> needs to be generalized somehow,
 
-> There is another patch that clears BTN_MIDDLE on the ones that have 4
-> directional button so input core will deliver either one or the other to
-> the clients.
+I use now gspca_dev->sd_desc->name.
 
-Ah ok.  So these things have a four-direction button instead of the
-middle mouse button then.
+> and also you are not setting the
+> input device's parent there, I think we need to fix that too
+> (although I'm not sure what it should be set to).
 
-> > 5. There remains a slight conceptual problem.  The distinction between
-> > 6-byte and 9-byte packets is not possible only looking at the first 6
-> > bytes.  (This is a protocoll issue.  We have scrutinized every bit now,
-> > the protocol just seems to be broken in this regard.)
-> > 
-> > This means that if the user triggers a 6-byte message while holding all
-> > three buttons down (e.g. hold buttons and move pointer via touchpad), we
-> > run into de-sync.
-> > 
-> > We can't solve this without knowing the message size in the driver.  I
-> > have no idea if we can somehow get this info out of the PS/2 layer.
-> > Dmitry, do you have any insight into this?
-> 
-> I had another version of the patch that looked at the 7th byte before
-> deciding if it was standard or interleaved packet instead of using
-> ALPS_PS2_INTERLEAVD flag but I decided it was too complex. If the device
-> in E6x00 indeed has 3 buttons then I can ressurect it.
+I don't know what to use there, maybe somebody on the linux-input
+mailing list could tell.
 
-Even with the seventh byte, we can't be totally sure.  The protocol is
-just nuts.  And waiting for the seventh byte causes the code in
-psmouse-base.c to force desync.  So this is not really an option, too.
+Also, I am not sure about setting of input_dev->id.version.
 
-I have no clue how PS/2 works internally and if there is some sort of
-message separator mechanism.  I would hope that Alps' original Windows
-driver does not resort to timing for telling packets apart...
+Unfortunately I still get the following error when I start streaming,
+stop streaming or unplug the device:
 
-> > 
-> > I still vote strongly for applying the patch, since this is a mostly
-> > cosmetic problem that never occurs in practical work whereas in the
-> > current state my touchpad is unusable.
-> >
-> 
-> Hmm, it is too late for .32 but maybe we can respin it for stable oncde
-> we hammer out the functionality.
+[ 6876.780726] uhci_hcd 0000:00:10.1: dma_pool_free buffer-32, de0ad168=
+/1e0ad168 (bad dma)
 
-I'd volunteer for any changes required, although I'm not really sure
-what they are.  The patch should almost completely apply to the stable
-kernel, too?
+Please find the new version of this patch later in this mail.
 
--- 
-Best Regards,  | Hi! I'm a .signature virus. Copy me into
- Sebastian     | your ~/.signature to help me spread!
+Regards,
 
+	M=C3=A1rton N=C3=A9meth
+---
+=46rom: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
+
+Add helper functions for interrupt endpoint based input handling.
+
+Signed-off-by: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
+---
+diff -r abfdd03b800d linux/drivers/media/video/gspca/Makefile
+--- a/linux/drivers/media/video/gspca/Makefile	Thu Nov 19 10:34:21 2009=
+ +0100
++++ b/linux/drivers/media/video/gspca/Makefile	Fri Nov 20 07:56:22 2009=
+ +0100
+@@ -1,4 +1,7 @@
+ obj-$(CONFIG_USB_GSPCA)          +=3D gspca_main.o
++ifeq ($(CONFIG_INPUT),y)
++    obj-$(CONFIG_USB_GSPCA)          +=3D gspca_input.o
++endif
+ obj-$(CONFIG_USB_GSPCA_CONEX)    +=3D gspca_conex.o
+ obj-$(CONFIG_USB_GSPCA_ETOMS)    +=3D gspca_etoms.o
+ obj-$(CONFIG_USB_GSPCA_FINEPIX)  +=3D gspca_finepix.o
+@@ -30,6 +33,7 @@
+ obj-$(CONFIG_USB_GSPCA_ZC3XX)    +=3D gspca_zc3xx.o
+
+ gspca_main-objs     :=3D gspca.o
++gspca_input-objs    :=3D input.o
+ gspca_conex-objs    :=3D conex.o
+ gspca_etoms-objs    :=3D etoms.o
+ gspca_finepix-objs  :=3D finepix.o
+diff -r abfdd03b800d linux/drivers/media/video/gspca/gspca.c
+--- a/linux/drivers/media/video/gspca/gspca.c	Thu Nov 19 10:34:21 2009 =
++0100
++++ b/linux/drivers/media/video/gspca/gspca.c	Fri Nov 20 07:56:22 2009 =
++0100
+@@ -40,6 +40,9 @@
+ #include <media/v4l2-ioctl.h>
+
+ #include "gspca.h"
++
++#include <linux/input.h>
++#include "input.h"
+
+ /* global values */
+ #define DEF_NURBS 3		/* default number of URBs */
+@@ -499,11 +502,13 @@
+ 			i, ep->desc.bEndpointAddress);
+ 	gspca_dev->alt =3D i;		/* memorize the current alt setting */
+ 	if (gspca_dev->nbalt > 1) {
++		gspca_input_destroy_urb(gspca_dev);
+ 		ret =3D usb_set_interface(gspca_dev->dev, gspca_dev->iface, i);
+ 		if (ret < 0) {
+ 			err("set alt %d err %d", i, ret);
+-			return NULL;
++			ep =3D NULL;
+ 		}
++		gspca_input_create_urb(gspca_dev);
+ 	}
+ 	return ep;
+ }
+@@ -707,7 +712,9 @@
+ 		if (gspca_dev->sd_desc->stopN)
+ 			gspca_dev->sd_desc->stopN(gspca_dev);
+ 		destroy_urbs(gspca_dev);
++		gspca_input_destroy_urb(gspca_dev);
+ 		gspca_set_alt0(gspca_dev);
++		gspca_input_create_urb(gspca_dev);
+ 	}
+
+ 	/* always call stop0 to free the subdriver's resources */
+@@ -2088,6 +2095,11 @@
+
+ 	usb_set_intfdata(intf, gspca_dev);
+ 	PDEBUG(D_PROBE, "/dev/video%d created", gspca_dev->vdev.num);
++
++	ret =3D gspca_input_connect(gspca_dev, id);
++	if (0 <=3D ret)
++		ret =3D gspca_input_create_urb(gspca_dev);
++
+ 	return 0;
+ out:
+ 	kfree(gspca_dev->usb_buf);
+@@ -2105,6 +2117,7 @@
+ void gspca_disconnect(struct usb_interface *intf)
+ {
+ 	struct gspca_dev *gspca_dev =3D usb_get_intfdata(intf);
++	struct input_dev *input_dev;
+
+ 	PDEBUG(D_PROBE, "/dev/video%d disconnect", gspca_dev->vdev.num);
+ 	mutex_lock(&gspca_dev->usb_lock);
+@@ -2113,6 +2126,13 @@
+ 	if (gspca_dev->streaming) {
+ 		destroy_urbs(gspca_dev);
+ 		wake_up_interruptible(&gspca_dev->wq);
++	}
++
++	gspca_input_destroy_urb(gspca_dev);
++	input_dev =3D gspca_dev->input_dev;
++	if (input_dev) {
++		gspca_dev->input_dev =3D NULL;
++		input_unregister_device(input_dev);
+ 	}
+
+ 	/* the device is freed at exit of this function */
+@@ -2140,6 +2160,7 @@
+ 	if (gspca_dev->sd_desc->stopN)
+ 		gspca_dev->sd_desc->stopN(gspca_dev);
+ 	destroy_urbs(gspca_dev);
++	gspca_input_destroy_urb(gspca_dev);
+ 	gspca_set_alt0(gspca_dev);
+ 	if (gspca_dev->sd_desc->stop0)
+ 		gspca_dev->sd_desc->stop0(gspca_dev);
+@@ -2153,6 +2174,7 @@
+
+ 	gspca_dev->frozen =3D 0;
+ 	gspca_dev->sd_desc->init(gspca_dev);
++	gspca_input_create_urb(gspca_dev);
+ 	if (gspca_dev->streaming)
+ 		return gspca_init_transfer(gspca_dev);
+ 	return 0;
+diff -r abfdd03b800d linux/drivers/media/video/gspca/gspca.h
+--- a/linux/drivers/media/video/gspca/gspca.h	Thu Nov 19 10:34:21 2009 =
++0100
++++ b/linux/drivers/media/video/gspca/gspca.h	Fri Nov 20 07:56:22 2009 =
++0100
+@@ -81,6 +81,9 @@
+ typedef void (*cam_pkt_op) (struct gspca_dev *gspca_dev,
+ 				u8 *data,
+ 				int len);
++typedef int (*cam_int_pkt_op) (struct gspca_dev *gspca_dev,
++				u8 *data,
++				int len);
+
+ struct ctrl {
+ 	struct v4l2_queryctrl qctrl;
+@@ -116,6 +119,9 @@
+ 	cam_reg_op get_register;
+ #endif
+ 	cam_ident_op get_chip_ident;
++#ifdef CONFIG_INPUT
++	cam_int_pkt_op int_pkt_scan;
++#endif
+ };
+
+ /* packet types when moving from iso buf to frame buf */
+@@ -138,6 +144,9 @@
+ 	struct module *module;		/* subdriver handling the device */
+ 	struct usb_device *dev;
+ 	struct file *capt_file;		/* file doing video capture */
++#ifdef CONFIG_INPUT
++	struct input_dev *input_dev;
++#endif
+
+ 	struct cam cam;				/* device information */
+ 	const struct sd_desc *sd_desc;		/* subdriver description */
+@@ -147,6 +156,9 @@
+ #define USB_BUF_SZ 64
+ 	__u8 *usb_buf;				/* buffer for USB exchanges */
+ 	struct urb *urb[MAX_NURBS];
++#ifdef CONFIG_INPUT
++	struct urb *int_urb;
++#endif
+
+ 	__u8 *frbuf;				/* buffer for nframes */
+ 	struct gspca_frame frame[GSPCA_MAX_FRAMES];
+diff -r abfdd03b800d linux/drivers/media/video/gspca/input.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/linux/drivers/media/video/gspca/input.c	Fri Nov 20 07:56:22 2009 =
++0100
+@@ -0,0 +1,197 @@
++/*
++ * Input handling for gspca USB camera drivers
++ *
++ * Copyright (C) 2009 M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he
++ * Free Software Foundation; either version 2 of the License, or (at y=
+our
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT=
+ABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Li=
+cense
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundat=
+ion,
++ * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#define MODULE_NAME "gspca_input"
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/input.h>
++
++#include "gspca.h"
++#include "input.h"
++
++MODULE_AUTHOR("M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>");
++MODULE_DESCRIPTION("GSPCA USB Camera Input Driver");
++MODULE_LICENSE("GPL");
++
++#define DRIVER_VERSION_NUMBER	KERNEL_VERSION(0, 0, 1)
++
++#ifdef GSPCA_DEBUG
++int gspca_input_debug =3D D_ERR | D_PROBE;
++module_param_named(debug, gspca_input_debug, int, 0644);
++MODULE_PARM_DESC(debug,
++		"Debug (bit) 0x01:error 0x02:probe 0x04:config"
++		" 0x08:stream 0x10:frame 0x20:packet 0x40:USBin 0x80:USBout"
++		" 0x0100: v4l2");
++#define PDEBUG_INPUT(level, fmt, args...) \
++	do {\
++		if (gspca_input_debug & (level)) \
++			printk(KERN_INFO MODULE_NAME ": " fmt "\n", ## args); \
++	} while (0)
++#else
++#define PDEBUG_INPUT(level, fmt, args...)
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
++static void int_irq(struct urb *urb, struct pt_regs *regs)
++#else
++static void int_irq(struct urb *urb)
++#endif
++{
++	struct gspca_dev *gspca_dev =3D (struct gspca_dev *) urb->context;
++	int ret;
++
++	if (urb->status =3D=3D 0) {
++		if (gspca_dev->sd_desc->int_pkt_scan(gspca_dev,
++		    urb->transfer_buffer, urb->actual_length) < 0) {
++			PDEBUG_INPUT(D_ERR, "Unknown packet received");
++		}
++
++		ret =3D usb_submit_urb(urb, GFP_ATOMIC);
++		if (ret < 0)
++			PDEBUG_INPUT(D_ERR, "Resubmit URB failed with error %i", ret);
++	}
++}
++
++int gspca_input_connect(struct gspca_dev *gspca_dev, const struct usb_=
+device_id *id)
++{
++	struct input_dev *input_dev;
++	int err =3D 0;
++
++	gspca_dev->input_dev =3D NULL;
++	if (gspca_dev->sd_desc->int_pkt_scan)  {
++		input_dev =3D input_allocate_device();
++		if (!input_dev)
++			return -ENOMEM;
++
++		input_dev->name =3D gspca_dev->sd_desc->name;
++		//input_dev->phys =3D "camera";
++		input_dev->id.bustype =3D BUS_USB;
++		input_dev->id.vendor =3D le16_to_cpu(id->idVendor);
++		input_dev->id.product =3D le16_to_cpu(id->idProduct);
++		input_dev->id.version =3D le16_to_cpu(id->bcdDevice_hi);
++		//input_dev->id.version =3D le16_to_cpu(id->bcdDevice_lo);
++
++		input_dev->evbit[0] =3D BIT_MASK(EV_KEY);
++		input_dev->keybit[BIT_WORD(KEY_CAMERA)] =3D BIT_MASK(KEY_CAMERA);
++		//input_dev->dev.parent =3D ;
++
++		err =3D input_register_device(input_dev);
++		if (err) {
++			PDEBUG_INPUT(D_ERR, "Input device registration failed with error %i=
+", err);
++			input_dev->dev.parent =3D NULL;
++			input_free_device(input_dev);
++		} else {
++			gspca_dev->input_dev =3D input_dev;
++		}
++	}
++
++	return err;
++}
++EXPORT_SYMBOL(gspca_input_connect);
++
++int gspca_input_create_urb(struct gspca_dev *gspca_dev)
++{
++	int ret =3D -EINVAL;
++	struct usb_interface *intf;
++	struct usb_host_interface *intf_desc;
++	struct usb_endpoint_descriptor *ep;
++	int i;
++	struct urb *urb;
++	void* buffer =3D NULL;
++	unsigned int buffer_len;
++	int interval;
++	struct usb_device *dev;
++
++	if (gspca_dev->sd_desc->int_pkt_scan)  {
++		intf =3D usb_ifnum_to_if(gspca_dev->dev, gspca_dev->iface);
++		intf_desc =3D intf->cur_altsetting;
++		for (i =3D 0; i < intf_desc->desc.bNumEndpoints; i++) {
++			ep =3D &intf_desc->endpoint[i].desc;
++			if ((ep->bEndpointAddress & USB_DIR_IN) &&
++			    ((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				=3D=3D USB_ENDPOINT_XFER_INT)) {
++
++				buffer_len =3D ep->wMaxPacketSize;
++				interval =3D ep->bInterval;
++				PDEBUG_INPUT(D_PROBE, "found int in endpoint: 0x%x, buffer_len=3D%=
+u, interval=3D%u",
++					ep->bEndpointAddress, buffer_len, interval);
++
++				dev =3D gspca_dev->dev;
++				gspca_dev->int_urb =3D NULL;
++
++				buffer =3D kmalloc(ep->wMaxPacketSize, GFP_KERNEL);
++				if (buffer)
++					urb =3D usb_alloc_urb(0, GFP_KERNEL);
++				else {
++					PDEBUG_INPUT(D_ERR, "buffer allocation failed\n");
++					kfree(buffer);
++					urb =3D NULL;
++				}
++				if (buffer && urb) {
++					usb_fill_int_urb(urb, dev,
++						usb_rcvintpipe(dev, ep->bEndpointAddress),
++						buffer, buffer_len,
++						int_irq, (void*)gspca_dev, interval);
++					gspca_dev->int_urb =3D urb;
++					ret =3D usb_submit_urb(urb, GFP_KERNEL);
++					if (ret < 0)
++						PDEBUG_INPUT(D_ERR, "submit URB failed with error %i", ret);
++				} else
++					PDEBUG_INPUT(D_ERR, "URB allocation failed");
++			}
++		}
++	}
++	return ret;
++}
++EXPORT_SYMBOL(gspca_input_create_urb);
++
++void gspca_input_destroy_urb(struct gspca_dev *gspca_dev)
++{
++	struct urb *urb;
++
++	urb =3D gspca_dev->int_urb;
++	if (urb) {
++		gspca_dev->int_urb =3D NULL;
++		usb_kill_urb(urb);
++		usb_buffer_free(gspca_dev->dev,
++				urb->transfer_buffer_length,
++				urb->transfer_buffer,
++				urb->transfer_dma);
++		usb_free_urb(urb);
++	}
++}
++EXPORT_SYMBOL(gspca_input_destroy_urb);
++
++static int __init gspca_input_init(void)
++{
++	info("v%d.%d.%d registered",
++		(DRIVER_VERSION_NUMBER >> 16) & 0xff,
++		(DRIVER_VERSION_NUMBER >> 8) & 0xff,
++		DRIVER_VERSION_NUMBER & 0xff);
++	return 0;
++}
++static void __exit gspca_input_exit(void)
++{
++	info("deregistered");
++}
++
++module_init(gspca_input_init);
++module_exit(gspca_input_exit);
+diff -r abfdd03b800d linux/drivers/media/video/gspca/input.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/linux/drivers/media/video/gspca/input.h	Fri Nov 20 07:56:22 2009 =
++0100
+@@ -0,0 +1,36 @@
++/*
++ * Input handling for gspca USB camera drivers
++ *
++ * Copyright (C) 2009 M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he
++ * Free Software Foundation; either version 2 of the License, or (at y=
+our
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT=
+ABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Li=
+cense
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundat=
+ion,
++ * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifndef GSPCA_INPUT_H
++#define GSPCA_INPUT_H
++
++#include "gspca.h"
++
++#ifdef CONFIG_INPUT
++int gspca_input_connect(struct gspca_dev *gspca_dev, const struct usb_=
+device_id *id);
++int gspca_input_create_urb(struct gspca_dev *gspca_dev);
++void gspca_input_destroy_urb(struct gspca_dev *gspca_dev);
++#else
++#define gspca_input_connect(gspca_dev, id)	0
++#define gspca_input_create_urb(gspca_dev)	0
++#define gspca_input_destroy_urb(gspca_dev)
++#endif
++
++#endif
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,44 +1,37 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: ads7846 touchscreen: fix pressure
-Date: Fri, 20 Nov 2009 19:22:39 +0100
-Message-ID: <20091120182238.GA1344@ucw.cz>
+Subject: Re: [PATCH] hx4700: fix hx4700 touchscreen pressure values
+Date: Fri, 20 Nov 2009 19:24:05 +0100
+Message-ID: <20091120182405.GA1378@ucw.cz>
+References: <E1NAYJo-00016g-PW@pih-relay04.plus.net> <20091118172849.GD25150@elf.ucw.cz> <20091118173934.GA4458@core.coreip.homeip.net> <20091118174649.GB4458@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:34881 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:35113 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752284AbZKTSW4 (ORCPT
+	with ESMTP id S1752286AbZKTSYL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Nov 2009 13:22:56 -0500
+	Fri, 20 Nov 2009 13:24:11 -0500
 Content-Disposition: inline
+In-Reply-To: <20091118174649.GB4458@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Paul Parsons <lost.distance@yahoo.com>, linux-input@vger.kernel.org, rpurdie@rpsys.net, lenz@cs.wisc.edu, linux-kernel@vger.kernel.org, Dirk@Opfer-Online.de, arminlitzel@web.de, metan@ucw.cz, thommycheck@gmail.com, linux-arm-kernel@lists.infradead.org, dbaryshkov@gmail.com, omegamoon@gmail.com, eric.y.miao@gmail.com, utx@penguin.cz
 
 
-On Zaurus, pressure is reported inverted -- the lighter the pressure,
-the bigger numerical value. This should fix it.
+> > > Dmitry, those pressure values are reverted on more than one machine,
+> > > and we do not have anyone reporting it works ok for them. Can we
+> > > perhaps just.... fix it?
+> > 
+> > OK, so we have 4 instances where pressure is inverted and nobody wants
+> > to come out with a non-inverted example... I'll queue for .33 then - .32
+> > it too close to the release.
+> > 
+> 
+> Btw, could you send me the latest version of your patch please?
 
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
-
---- linux-rc/drivers/input.ofic/touchscreen/ads7846.c	2009-10-06 13:49:56.000000000 +0200
-+++ linux-rc/drivers/input/touchscreen/ads7846.c	2009-10-06 21:18:25.000000000 +0200
-@@ -608,12 +609,12 @@
- 
- 		input_report_abs(input, ABS_X, x);
- 		input_report_abs(input, ABS_Y, y);
--		input_report_abs(input, ABS_PRESSURE, Rt);
-+		input_report_abs(input, ABS_PRESSURE, ts->pressure_max-Rt);
- 
- 		input_sync(input);
- #ifdef VERBOSE
- 		dev_dbg(&ts->spi->dev, "%4d/%4d/%4d\n", x, y, Rt);
- #endif
- 	}
- 
- 	hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_PERIOD),
-
+Yep, resent in separate mail.
+								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

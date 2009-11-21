@@ -1,151 +1,518 @@
-From: "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [SOLVED] kernel module loading does not work with binutils-gold
- (was Re: [Bug #14626] oops on boot starting udev)
-Date: Sat, 21 Nov 2009 02:29:13 -0800
-Message-ID: <4B07C0F9.4060702@gmail.com>
-References: <GUZt44bIwCE.A.vLF.pSdALB@chimera>	 <xXQGFmujPl.A.fpF.zSdALB@chimera> <20091117011455.GA7977@kroah.com>	 <20091117020451.GA27967@core.coreip.homeip.net>	 <1258426743.9883.53.camel@no>	 <20091117040104.GA5792@core.coreip.homeip.net>	 <1258430807.12721.12.camel@no>	 <20091119025938.GB20172@core.coreip.homeip.net>	 <1258793809.4814.4.camel@no> <1258796110.6842.10.camel@no>	 <4B07B9BA.2070607@gmail.com> <1258798113.6842.16.camel@no>
+From: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: Re: [RFC, PATCH 1/2] gspca: add input support for interrupt endpoints
+Date: Sat, 21 Nov 2009 12:16:37 +0100
+Message-ID: <4B07CC15.9010005@freemail.hu>
+References: <4B04F7E0.1090803@freemail.hu> <4B05074B.1030407@redhat.com> <4B0641C2.1050200@freemail.hu> <20091120101951.720e5703@tele>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1258798113.6842.16.camel@no>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Soeren Sonnenburg <sonne-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kernel Testers List <kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail01a.mail.t-online.hu ([84.2.40.6]:61746 "EHLO
+	mail01a.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752775AbZKULQo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Nov 2009 06:16:44 -0500
+In-Reply-To: <20091120101951.720e5703@tele>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jean-Francois Moine <moinejf@free.fr>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, V4L Mailing List <linux-media@vger.kernel.org>
 
-Soeren Sonnenburg wrote:
-> On Sat, 2009-11-21 at 01:58 -0800, Justin P. Mattock wrote:
->    
->> Soeren Sonnenburg wrote:
->>      
->>> On Sat, 2009-11-21 at 09:56 +0100, Soeren Sonnenburg wrote:
->>>
->>>        
->>>> On Wed, 2009-11-18 at 18:59 -0800, Dmitry Torokhov wrote:
->>>>
->>>>          
->>>>> On Tue, Nov 17, 2009 at 05:06:47AM +0100, Soeren Sonnenburg wrote:
->>>>>
->>>>>            
->>>>>> On Mon, 2009-11-16 at 20:01 -0800, Dmitry Torokhov wrote:
->>>>>>
->>>>>>              
->>>>>>> On Tue, Nov 17, 2009 at 03:59:03AM +0100, Soeren Sonnenburg wrote:
->>>>>>>
->>>>>>>                
->>>>>>>> On Mon, 2009-11-16 at 18:04 -0800, Dmitry Torokhov wrote:
->>>>>>>>
->>>>>>>>                  
->>>>>>>>> On Mon, Nov 16, 2009 at 05:14:55PM -0800, Greg KH wrote:
->>>>>>>>>
->>>>>>>>>                    
->>>>>>>>>> On Mon, Nov 16, 2009 at 11:37:48PM +0100, Rafael J. Wysocki wrote:
->>>>>>>>>>
->>>>>>>>>>                      
->>>>>>>>>>> This message has been generated automatically as a part of a report
->>>>>>>>>>> of recent regressions.
->>>>>>>>>>>
->>>>>>>>>>> The following bug entry is on the current list of known regressions
->>>>>>>>>>> from 2.6.31.  Please verify if it still should be listed and let me know
->>>>>>>>>>> (either way).
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> Bug-Entry	: http://bugzilla.kernel.org/show_bug.cgi?id=14626
->>>>>>>>>>> Subject		: oops on boot starting udev
->>>>>>>>>>> Submitter	: Soeren Sonnenburg<sonne-8fiUuRrzOP0dnm+yROfE0A@public.gmane.org>
->>>>>>>>>>> Date		: 2009-11-14 10:16 (3 days old)
->>>>>>>>>>> References	: http://marc.info/?l=linux-kernel&m=125819380206800&w=4
->>>>>>>>>>>
->>>>>>>>>>>                        
->>>>>>>>>> This looks like an input core problem, as the evdev module was just
->>>>>>>>>> loaded and died.
->>>>>>>>>>
->>>>>>>>>> Any input developers have any ideas?
->>>>>>>>>>
->>>>>>>>>>
->>>>>>>>>>                      
->>>>>>>>> Hmm, evdev does:
->>>>>>>>>
->>>>>>>>> 	dev_set_name(&evdev->dev, "event%d", minor);
->>>>>>>>>
->>>>>>>>> Not sure how it can go wrong...
->>>>>>>>>
->>>>>>>>>                    
->>>>>>>> Anything I should/could do to narrow it down a bit (apart from
->>>>>>>> bisecting?).
->>>>>>>>
->>>>>>>>
->>>>>>>>                  
->>>>>>> Umm, I looked through the changes between -rc6 and 7 but nothing jumped
->>>>>>> out at me... You don't happen to have any local changes in your tree?
->>>>>>>
->>>>>>>                
->>>>>> Well only the mouse button #1 emulation - though I don't see what could
->>>>>> go wrong there.
->>>>>>
->>>>>>
->>>>>>              
->>>>> I have been looking through the changes and I really don't see anything
->>>>> suspicious. I am also not hittign this oops on any of my boxes. Any
->>>>> chance you could bisect?
->>>>>
->>>>> Thanks.
->>>>>
->>>>>            
->>>> Alright so I tried to do a bisect when I noticed that building a knwon
->>>> to work -rc5 did no longer work either. Thought it might be a gcc
->>>> problem (gcc-4.3 here) so upgraded to 4.4 - same thing.
->>>> Then I recognized that it crashes on loading basically *any* module,
->>>> tried tun and applesmc. Attaching the crashes...
->>>>
->>>> I am starting to run out of ideas...
->>>>
->>>>          
->>> OK, I've found the culprit: binutils-gold
->>>
->>> I build all kernels upto and including -rc6 with the old binutils and
->>> since then have upgraded to binutils gold 2.20-4 which - in contrast to
->>> the old binutils - uses --no-add-needed per default.
->>>
->>> So I suspect it triggers an error(?) in the way how the kernel links
->>> modules: It is now required to provide all needed libraries to the
->>> linker when building the modules. I guess this problem could be worked
->>> around by adding --add-needed to the LDFLAGS_MODULE ...
->>>
->>> Soeren
->>>
->>>        
->> tough to say... some how your hitting
->>    __wait_status during your initial boot.
+Hi,
+
+first of all: Hans and Jef, thank you for your helping guidance with
+this patchset.
+
+Jean-Francois Moine wrote:
+> Hi,
+> On Fri, 20 Nov 2009 08:14:10 +0100
+> N=E9meth M=E1rton <nm127@freemail.hu> wrote:
+>> Hans de Goede wrote:
+> 	[snip]
+>>> I'm personally not a big fan of adding more configuration options,
+>>> what should be done instead is make the compilation dependent on th=
+e
+>>> CONFIG_INPUT kernel config option, I see no reason not to enable
+>>> this when CONFIG_INPUT is enabled. =20
+>> I added dependency on CONFIG_INPUT.
+>=20
+> The option USB_GSPCA_SN9C20X_EVDEV should be removed too.
+
+This one is a bit difficult for me because I don't have access
+to device like that thus I would not be able to test the changes.
+
+>>> Some other remarks, you are using:
+>>> printk(KERN_DEBUG
+>>> In various places, please use
+>>> PDEBUG(D_FOO
+>>> instead so that the output can be controlled using the gspca
+>>> module's debug parameter. =20
+>> I created a PDEBUG_INPUT() for this otherwise there is a circular
+>> dependency between gspca_main and gspca_input because of the variabl=
+e
+>> gspca_debug.
+>=20
+> That is because you created a separate module.
+>=20
+>>> And in gspca_input_connect() you are setting name to "pac7302", thi=
+s
+>>> needs to be generalized somehow, =20
+>> I use now gspca_dev->sd_desc->name.
+>=20
+> OK for me.
+>=20
+>>> and also you are not setting the
+>>> input device's parent there, I think we need to fix that too
+>>> (although I'm not sure what it should be set to). =20
+>> I don't know what to use there, maybe somebody on the linux-input
+>> mailing list could tell.
+>=20
+> sn9c20x sets it to &gspca_dev->dev->dev.
+>=20
+>> Also, I am not sure about setting of input_dev->id.version.
+>=20
+> It seems it can be EV_VERSION only.
+
+The right solution is to use usb_to_input_id() from linux/usb/input.h ,
+I think.
+
+>> Unfortunately I still get the following error when I start streaming=
+,
+>> stop streaming or unplug the device:
 >>
->> by looking at the comment(in applesmc.c):
->> __wait_status - Wait up to 32ms for the status port to get a certain value
->>    * (masked with 0x0f), returning zero if the value is obtained.
->>
->> maybe your hitting a different value because of binutls.
->>      
->
-> It could be anything missing...
->
->    
->> (keep in mind I have the latest binutils running on the macbook,
->> but nothing switched to gold during compilation time)
->>      
->
-> Note that everything works fine with the old binutils here too.You will
-> need binutils gold to see the problem and it is described here too
->
-> http://wiki.debian.org/qa.debian.org/FTBFS#A2009-11-02Packagesfailingbecausebinutils-gold.2BAC8-indirectlinking
->
-> Soeren
->    
-Well I'd like to go into building
-gcc with the switch of: --disable-multilib
-but I cant because of the whole "gold factor"
+>> [ 6876.780726] uhci_hcd 0000:00:10.1: dma_pool_free buffer-32,
+>> de0ad168/1e0ad168 (bad dma)
+>=20
+> As there is no 'break' in gspca_input_create_urb(), many URBs are
+> created.
 
-maybe somebody else with this knowledge of(gold) gcc etc...
-can assist you because I have no knowledge of that .
-(I'll have to try building a system this way one day);
+I added 'break' in the loop, which makes no real difference because
+my device have only one interrupt in endpoint. The error message is
+printed when the usb_buffer_free() is called in gspca_input_destroy_urb=
+():
 
-Justin P. Mattock
+[ 6362.113264] gspca_input: Freeing buffer
+[ 6362.113284] uhci_hcd 0000:00:1d.1: dma_pool_free buffer-32, f5ada948=
+/35ada948 (bad dma)
+[ 6362.113296] gspca_input: Freeing URB
+
+>> Please find the new version of this patch later in this mail.
+>=20
+> Here are some other remarks:
+>=20
+> - As the input functions are called from the gspca main only, and as
+>   they cannot be used by other drivers, there is no need to have a
+>   separate module.
+
+The input.c is now part of the gspca_main.ko.
+
+> - Almost all other webcams who have buttons ask for polling. So, the
+>   'int_urb' should be pac7302 dependent (in 'struct sd' and not in
+>   'struct gspca_dev').
+
+I have the problem with this point that 'int_urb' has to be accessed by
+gspca_main. This means that the 'int_urb' cannot be pac7302 dependent, =
+I
+think.
+
+I ran checkpatch.pl to eliminate coding style problems.
+
+Regards,
+
+	M=E1rton N=E9meth
+---
+=46rom: M=E1rton N=E9meth <nm127@freemail.hu>
+
+Add helper functions for interrupt endpoint based input handling.
+
+Signed-off-by: M=E1rton N=E9meth <nm127@freemail.hu>
+---
+
+diff -r abfdd03b800d linux/drivers/media/video/gspca/Makefile
+--- a/linux/drivers/media/video/gspca/Makefile	Thu Nov 19 10:34:21 2009=
+ +0100
++++ b/linux/drivers/media/video/gspca/Makefile	Sat Nov 21 13:02:41 2009=
+ +0100
+@@ -30,6 +30,9 @@
+ obj-$(CONFIG_USB_GSPCA_ZC3XX)    +=3D gspca_zc3xx.o
+
+ gspca_main-objs     :=3D gspca.o
++ifeq ($(CONFIG_INPUT),y)
++    gspca_main-objs +=3D input.o
++endif
+ gspca_conex-objs    :=3D conex.o
+ gspca_etoms-objs    :=3D etoms.o
+ gspca_finepix-objs  :=3D finepix.o
+diff -r abfdd03b800d linux/drivers/media/video/gspca/gspca.c
+--- a/linux/drivers/media/video/gspca/gspca.c	Thu Nov 19 10:34:21 2009 =
++0100
++++ b/linux/drivers/media/video/gspca/gspca.c	Sat Nov 21 13:02:41 2009 =
++0100
+@@ -41,6 +41,9 @@
+
+ #include "gspca.h"
+
++#include <linux/input.h>
++#include "input.h"
++
+ /* global values */
+ #define DEF_NURBS 3		/* default number of URBs */
+ #if DEF_NURBS > MAX_NURBS
+@@ -499,11 +502,13 @@
+ 			i, ep->desc.bEndpointAddress);
+ 	gspca_dev->alt =3D i;		/* memorize the current alt setting */
+ 	if (gspca_dev->nbalt > 1) {
++		gspca_input_destroy_urb(gspca_dev);
+ 		ret =3D usb_set_interface(gspca_dev->dev, gspca_dev->iface, i);
+ 		if (ret < 0) {
+ 			err("set alt %d err %d", i, ret);
+-			return NULL;
++			ep =3D NULL;
+ 		}
++		gspca_input_create_urb(gspca_dev);
+ 	}
+ 	return ep;
+ }
+@@ -707,7 +712,9 @@
+ 		if (gspca_dev->sd_desc->stopN)
+ 			gspca_dev->sd_desc->stopN(gspca_dev);
+ 		destroy_urbs(gspca_dev);
++		gspca_input_destroy_urb(gspca_dev);
+ 		gspca_set_alt0(gspca_dev);
++		gspca_input_create_urb(gspca_dev);
+ 	}
+
+ 	/* always call stop0 to free the subdriver's resources */
+@@ -2088,6 +2095,11 @@
+
+ 	usb_set_intfdata(intf, gspca_dev);
+ 	PDEBUG(D_PROBE, "/dev/video%d created", gspca_dev->vdev.num);
++
++	ret =3D gspca_input_connect(gspca_dev);
++	if (0 <=3D ret)
++		ret =3D gspca_input_create_urb(gspca_dev);
++
+ 	return 0;
+ out:
+ 	kfree(gspca_dev->usb_buf);
+@@ -2105,6 +2117,7 @@
+ void gspca_disconnect(struct usb_interface *intf)
+ {
+ 	struct gspca_dev *gspca_dev =3D usb_get_intfdata(intf);
++	struct input_dev *input_dev;
+
+ 	PDEBUG(D_PROBE, "/dev/video%d disconnect", gspca_dev->vdev.num);
+ 	mutex_lock(&gspca_dev->usb_lock);
+@@ -2115,6 +2128,13 @@
+ 		wake_up_interruptible(&gspca_dev->wq);
+ 	}
+
++	gspca_input_destroy_urb(gspca_dev);
++	input_dev =3D gspca_dev->input_dev;
++	if (input_dev) {
++		gspca_dev->input_dev =3D NULL;
++		input_unregister_device(input_dev);
++	}
++
+ 	/* the device is freed at exit of this function */
+ 	gspca_dev->dev =3D NULL;
+ 	mutex_unlock(&gspca_dev->usb_lock);
+@@ -2140,6 +2160,7 @@
+ 	if (gspca_dev->sd_desc->stopN)
+ 		gspca_dev->sd_desc->stopN(gspca_dev);
+ 	destroy_urbs(gspca_dev);
++	gspca_input_destroy_urb(gspca_dev);
+ 	gspca_set_alt0(gspca_dev);
+ 	if (gspca_dev->sd_desc->stop0)
+ 		gspca_dev->sd_desc->stop0(gspca_dev);
+@@ -2153,6 +2174,7 @@
+
+ 	gspca_dev->frozen =3D 0;
+ 	gspca_dev->sd_desc->init(gspca_dev);
++	gspca_input_create_urb(gspca_dev);
+ 	if (gspca_dev->streaming)
+ 		return gspca_init_transfer(gspca_dev);
+ 	return 0;
+diff -r abfdd03b800d linux/drivers/media/video/gspca/gspca.h
+--- a/linux/drivers/media/video/gspca/gspca.h	Thu Nov 19 10:34:21 2009 =
++0100
++++ b/linux/drivers/media/video/gspca/gspca.h	Sat Nov 21 13:02:41 2009 =
++0100
+@@ -81,6 +81,9 @@
+ typedef void (*cam_pkt_op) (struct gspca_dev *gspca_dev,
+ 				u8 *data,
+ 				int len);
++typedef int (*cam_int_pkt_op) (struct gspca_dev *gspca_dev,
++				u8 *data,
++				int len);
+
+ struct ctrl {
+ 	struct v4l2_queryctrl qctrl;
+@@ -116,6 +119,9 @@
+ 	cam_reg_op get_register;
+ #endif
+ 	cam_ident_op get_chip_ident;
++#ifdef CONFIG_INPUT
++	cam_int_pkt_op int_pkt_scan;
++#endif
+ };
+
+ /* packet types when moving from iso buf to frame buf */
+@@ -138,6 +144,10 @@
+ 	struct module *module;		/* subdriver handling the device */
+ 	struct usb_device *dev;
+ 	struct file *capt_file;		/* file doing video capture */
++#ifdef CONFIG_INPUT
++	struct input_dev *input_dev;
++	char phys[64];			/* physical device path */
++#endif
+
+ 	struct cam cam;				/* device information */
+ 	const struct sd_desc *sd_desc;		/* subdriver description */
+@@ -147,6 +157,9 @@
+ #define USB_BUF_SZ 64
+ 	__u8 *usb_buf;				/* buffer for USB exchanges */
+ 	struct urb *urb[MAX_NURBS];
++#ifdef CONFIG_INPUT
++	struct urb *int_urb;
++#endif
+
+ 	__u8 *frbuf;				/* buffer for nframes */
+ 	struct gspca_frame frame[GSPCA_MAX_FRAMES];
+diff -r abfdd03b800d linux/drivers/media/video/gspca/input.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/linux/drivers/media/video/gspca/input.c	Sat Nov 21 13:02:41 2009 =
++0100
+@@ -0,0 +1,174 @@
++/*
++ * Input handling for gspca USB camera drivers
++ *
++ * Copyright (C) 2009 M=E1rton N=E9meth <nm127@freemail.hu>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he
++ * Free Software Foundation; either version 2 of the License, or (at y=
+our
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT=
+ABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Li=
+cense
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundat=
+ion,
++ * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/input.h>
++#include <linux/usb/input.h>
++
++#include "gspca.h"
++#include "input.h"
++
++#define MODULE_NAME "gspca_input"
++
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
++static void int_irq(struct urb *urb, struct pt_regs *regs)
++#else
++static void int_irq(struct urb *urb)
++#endif
++{
++	struct gspca_dev *gspca_dev =3D (struct gspca_dev *) urb->context;
++	int ret;
++
++	if (urb->status =3D=3D 0) {
++		if (gspca_dev->sd_desc->int_pkt_scan(gspca_dev,
++		    urb->transfer_buffer, urb->actual_length) < 0) {
++			PDEBUG(D_ERR, "Unknown packet received");
++		}
++
++		ret =3D usb_submit_urb(urb, GFP_ATOMIC);
++		if (ret < 0)
++			PDEBUG(D_ERR, "Resubmit URB failed with error %i", ret);
++	}
++}
++
++int gspca_input_connect(struct gspca_dev *dev)
++{
++	struct input_dev *input_dev;
++	int err =3D 0;
++
++	dev->input_dev =3D NULL;
++	if (dev->sd_desc->int_pkt_scan)  {
++		input_dev =3D input_allocate_device();
++		if (!input_dev)
++			return -ENOMEM;
++
++		usb_make_path(dev->dev, dev->phys, sizeof(dev->phys));
++		strlcat(dev->phys, "/input0", sizeof(dev->phys));
++
++		input_dev->name =3D dev->sd_desc->name;
++		input_dev->phys =3D dev->phys;
++
++		usb_to_input_id(dev->dev, &input_dev->id);
++
++		input_dev->evbit[0] =3D BIT_MASK(EV_KEY);
++		input_dev->keybit[BIT_WORD(KEY_CAMERA)] =3D BIT_MASK(KEY_CAMERA);
++		input_dev->dev.parent =3D &dev->dev->dev;
++
++		err =3D input_register_device(input_dev);
++		if (err) {
++			PDEBUG(D_ERR, "Input device registration failed "
++				"with error %i", err);
++			input_dev->dev.parent =3D NULL;
++			input_free_device(input_dev);
++		} else {
++			dev->input_dev =3D input_dev;
++		}
++	} else
++		err =3D -EINVAL;
++
++	return err;
++}
++EXPORT_SYMBOL(gspca_input_connect);
++
++static int alloc_and_submit_int_urb(struct gspca_dev *gspca_dev,
++			  struct usb_endpoint_descriptor *ep)
++{
++	unsigned int buffer_len;
++	int interval;
++	struct urb *urb;
++	struct usb_device *dev;
++	void *buffer =3D NULL;
++	int ret =3D -EINVAL;
++
++	buffer_len =3D ep->wMaxPacketSize;
++	interval =3D ep->bInterval;
++	PDEBUG(D_PROBE, "found int in endpoint: 0x%x, "
++		"buffer_len=3D%u, interval=3D%u",
++		ep->bEndpointAddress, buffer_len, interval);
++
++	dev =3D gspca_dev->dev;
++	gspca_dev->int_urb =3D NULL;
++
++	buffer =3D kmalloc(ep->wMaxPacketSize, GFP_KERNEL);
++	if (buffer)
++		urb =3D usb_alloc_urb(0, GFP_KERNEL);
++	else {
++		PDEBUG(D_ERR, "buffer allocation failed\n");
++		kfree(buffer);
++		urb =3D NULL;
++	}
++	if (buffer && urb) {
++		usb_fill_int_urb(urb, dev,
++			usb_rcvintpipe(dev, ep->bEndpointAddress),
++			buffer, buffer_len,
++			int_irq, (void *)gspca_dev, interval);
++		gspca_dev->int_urb =3D urb;
++		ret =3D usb_submit_urb(urb, GFP_KERNEL);
++		if (ret < 0)
++			PDEBUG(D_ERR, "submit URB failed with error %i", ret);
++	} else
++		PDEBUG(D_ERR, "URB allocation failed");
++	return ret;
++}
++
++int gspca_input_create_urb(struct gspca_dev *gspca_dev)
++{
++	int ret =3D -EINVAL;
++	struct usb_interface *intf;
++	struct usb_host_interface *intf_desc;
++	struct usb_endpoint_descriptor *ep;
++	int i;
++
++	if (gspca_dev->sd_desc->int_pkt_scan)  {
++		intf =3D usb_ifnum_to_if(gspca_dev->dev, gspca_dev->iface);
++		intf_desc =3D intf->cur_altsetting;
++		for (i =3D 0; i < intf_desc->desc.bNumEndpoints; i++) {
++			ep =3D &intf_desc->endpoint[i].desc;
++			if ((ep->bEndpointAddress & USB_DIR_IN) &&
++			    ((ep->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK)
++				=3D=3D USB_ENDPOINT_XFER_INT)) {
++
++				ret =3D alloc_and_submit_int_urb(gspca_dev, ep);
++				break;
++			}
++		}
++	}
++	return ret;
++}
++EXPORT_SYMBOL(gspca_input_create_urb);
++
++void gspca_input_destroy_urb(struct gspca_dev *gspca_dev)
++{
++	struct urb *urb;
++
++	urb =3D gspca_dev->int_urb;
++	if (urb) {
++		gspca_dev->int_urb =3D NULL;
++		usb_kill_urb(urb);
++		PDEBUG(D_PROBE, "Freeing buffer");
++		usb_buffer_free(gspca_dev->dev,
++				urb->transfer_buffer_length,
++				urb->transfer_buffer,
++				urb->transfer_dma);
++		PDEBUG(D_PROBE, "Freeing URB");
++		usb_free_urb(urb);
++	}
++}
++EXPORT_SYMBOL(gspca_input_destroy_urb);
+diff -r abfdd03b800d linux/drivers/media/video/gspca/input.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/linux/drivers/media/video/gspca/input.h	Sat Nov 21 13:02:41 2009 =
++0100
+@@ -0,0 +1,36 @@
++/*
++ * Input handling for gspca USB camera drivers
++ *
++ * Copyright (C) 2009 M=E1rton N=E9meth <nm127@freemail.hu>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he
++ * Free Software Foundation; either version 2 of the License, or (at y=
+our
++ * option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT=
+ABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public Li=
+cense
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundat=
+ion,
++ * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#ifndef GSPCA_INPUT_H
++#define GSPCA_INPUT_H
++
++#include "gspca.h"
++
++#ifdef CONFIG_INPUT
++int gspca_input_connect(struct gspca_dev *gspca_dev);
++int gspca_input_create_urb(struct gspca_dev *gspca_dev);
++void gspca_input_destroy_urb(struct gspca_dev *gspca_dev);
++#else
++#define gspca_input_connect(gspca_dev)		0
++#define gspca_input_create_urb(gspca_dev)	0
++#define gspca_input_destroy_urb(gspca_dev)
++#endif
++
++#endif
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

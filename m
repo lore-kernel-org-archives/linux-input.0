@@ -1,69 +1,119 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify
-	exact irq flags
-Date: Mon, 23 Nov 2009 09:24:52 -0800
-Message-ID: <20091123172451.GD17813@core.coreip.homeip.net>
-References: <20091120084054.GC3009@core.coreip.homeip.net> <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com> <87y6lxchwf.fsf@tac.ki.iif.hu>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 15:29:00 -0200
+Message-ID: <4B0AC65C.806@redhat.com>
+References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:51786 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752262AbZKWRYw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 12:24:52 -0500
-Received: by pwi3 with SMTP id 3so3552613pwi.21
-        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2009 09:24:58 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <87y6lxchwf.fsf@tac.ki.iif.hu>
+Received: from mx1.redhat.com ([209.132.183.28]:39061 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751558AbZKWR3J (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 12:29:09 -0500
+In-Reply-To: <m36391tjj3.fsf@intrepid.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Mika Westerberg <ext-mika.1.westerberg@nokia.com>, linux-input@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Mon, Nov 23, 2009 at 05:42:08PM +0100, Ferenc Wagner wrote:
-> Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
+Krzysztof Halasa wrote:
+> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 > 
-> > Added new field to struct gpio_keys_button: irqflags which can
-> > be used to specify exact irqflags the platform wants. If not specified,
-> > it defaults to: IRQF_SHARED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING.
-> >
-> > --- a/drivers/input/keyboard/gpio_keys.c
-> > +++ b/drivers/input/keyboard/gpio_keys.c
-> > @@ -106,10 +107,14 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
-> >  		goto fail3;
-> >  	}
-> >  
-> > -	error = request_irq(irq, gpio_keys_isr,
-> > -			    IRQF_SHARED |
-> > -			    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-> > -			    desc, bdata);
-> > +	if (button->irqflags == 0) {
-> > +		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-> > +			   IRQF_SHARED;
-> > +	} else {
-> > +		irqflags = button->irqflags;
-> > +	}
-> > +
-> > +	error = request_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
-> >  	if (error) {
-> >  		dev_err(dev, "Unable to claim irq %d; error %d\n",
-> >  			irq, error);
+>> Event input has the advantage that the keystrokes will provide an unique
+>> representation that is independent of the device.
 > 
-> Hi Mika,
-> 
-> linux/interrupt.h says:
-> 
->     When requesting an interrupt without specifying a IRQF_TRIGGER, the
->     setting should be assumed to be "as already configured", which may
->     be as per machine or firmware initialisation. 
-> 
-> So I'm not sure it's a good idea to exclude 0 from the possible irqflag
-> values.
+> This can hardly work as the only means, the remotes have different keys,
+> the user almost always has to provide customized key<>function mapping.
 
-Hmm... OTOH we can't just require the new irq flags to be always
-specified, that would break all current users. Do we need a flag
-indicating that the button will be using custom IRQ flags?
+Key mapping can be easily changed via input interface, as noticed by others.
 
--- 
-Dmitry
+>> Considering the common case
+>> where the lirc driver will be associated with a media input device, the
+>> IR type can be detected automatically on kernel. However, advanced users may
+>> opt to use other IR types than what's provided with the device they
+>> bought.
+> 
+> I think most users would want to do that, though I don't have hard
+> numbers of course. Why use a number of RCs simultaneously while one will
+> do?
+
+If you're building a dedicated hardware to act as a MCE, it makes sense to
+use just one IR to control your TV and your hardware, but the common usage
+is to add a TV board or stick to your desktop to see TV. For this,
+the standard IR fits well.
+
+>> It should also be noticed that not all the already-existing IR drivers
+>> on kernel can provide a lirc interface, since several devices have
+>> their own IR decoding chips inside the hardware.
+> 
+> Right. I think they shouldn't use lirc interface, so it doesn't matter.
+
+If you see patch 3/3, of the lirc submission series, you'll notice a driver
+that has hardware decoding, but, due to lirc interface, the driver generates
+pseudo pulse/space code for it to work via lirc interface.
+
+It is very bad to have two interfaces for the same thing, because people
+may do things like that.
+
+Also, there are some cases where the same V4L driver can receive IR scancodes
+directly for one board, while for others, it needs to get pulse/space decoding.
+
+So, it makes sense to have an uniform way for doing it.
+
+>> 2) create a lirc kernel API, and have a layer there to decode IR
+>> protocols and output them via the already existing input layer. In
+>> this case, all we need to do, in terms of API, is to add a way to set
+>> the IR protocol that will be decoded, and to enumberate the
+>> capabilities. The lirc API, will be an in-kernel API to communicate
+>> with the devices that don't have IR protocols decoding capabilities
+>> inside the hardware.
+> 
+> I think this makes a lot of sense.
+> But: we don't need a database of RC codes in the kernel (that's a lot of
+> data, the user has to select the RC in use anyway so he/she can simply
+> provide mapping e.g. RC5<>keycode).
+
+This is an interesting discussion. We currently have lots of such tables in
+kernel, but it can be a good idea to have it loaded by udev during boot time.
+
+> We do need RCx etc. protocols implementation in the kernel for the input
+> layer.
+
+Yes. We already have this. See bttv, saa7134 and cx88 for several of such
+protocol decoding. 
+
+> "lirc" interface: should we be sending time+on/off data to userspace, or
+> the RC5 etc. should be implemented in the kernel? There is (?) only
+> a handful of RC protocols, implementing them in the kernel and passing
+> only information such as proto+group+code+press/release etc. should be
+> more efficient.
+> 
+> Perhaps the raw RCx data could be sent over the input layer as well?
+> Something like the raw keyboard codes maybe?
+> 
+> We need to handle more than one RC at a time, of course.
+
+Are you meaning that we should do more than one RC per input event interface?
+If so, why do you think we need to handle more than one IR protocol at the same time?
+I think this will just make the driver more complex without need. Also, I'm
+not sure if this would work well for all protocols.
+
+>> So, the basic question that should be decided is: should we create a new
+>> userspace API for raw IR pulse/space
+> 
+> I think so, doing the RCx proto handling in the kernel (but without
+> RCx raw code <> key mapping in this case due to multiple controllers
+> etc.). Though it could probably use the input layer as well(?).
+
+Since the key mapping table can be changed anytime, I don't see this as an issue.
+If we are doing protocol handling in kernel, we just need to add some extensions
+to the existing input event API to properly handle the IR protocol type.
+
+> I think we shouldn't at this time worry about IR transmitters.
+
+Agreed. We can postpone this discussion after solving the IR receivers
+
+Cheers,
+Mauro.

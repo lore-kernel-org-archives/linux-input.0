@@ -1,63 +1,63 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
-Date: Mon, 23 Nov 2009 17:42:08 +0100
-Message-ID: <87y6lxchwf.fsf@tac.ki.iif.hu>
-References: <20091120084054.GC3009@core.coreip.homeip.net>
-	<cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
-	<cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
-	<8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com>
+From: James Mastros <james@mastros.biz>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 16:53:00 +0000
+Message-ID: <abc933c50911230853o1caab007te9ac07dbbbd6e191@mail.gmail.com>
+References: <200910200956.33391.jarod@redhat.com>
+	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	 <829197380911230720k233c3c86t659180d1413aa0dd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:36399 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753561AbZKWQmR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 11:42:17 -0500
-In-Reply-To: <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com>
-	(Mika Westerberg's message of "Mon, 23 Nov 2009 14:39:39 +0200")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <829197380911230720k233c3c86t659180d1413aa0dd@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Devin Heitmueller <dheitmueller@kernellabs.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
+2009/11/23 Devin Heitmueller <dheitmueller@kernellabs.com>:
+> Just bear in mind that with the current in-kernel code, users do *not
+> * have to manually select the RC code to use if they are using the
+> default remote that shipped with the product.
+This could still happen, if LIRC checks the identifiers of the
+reciving device, and has a database that tells it mappings between
+those devices and the remote controls that shipped with them.
+However, it occours to me that the IR circumstances map pretty well to
+what happens with ps/2 and serial devices now:
 
-> Added new field to struct gpio_keys_button: irqflags which can
-> be used to specify exact irqflags the platform wants. If not specified,
-> it defaults to: IRQF_SHARED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING.
->
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -106,10 +107,14 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
->  		goto fail3;
->  	}
->  
-> -	error = request_irq(irq, gpio_keys_isr,
-> -			    IRQF_SHARED |
-> -			    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-> -			    desc, bdata);
-> +	if (button->irqflags == 0) {
-> +		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-> +			   IRQF_SHARED;
-> +	} else {
-> +		irqflags = button->irqflags;
-> +	}
-> +
-> +	error = request_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
->  	if (error) {
->  		dev_err(dev, "Unable to claim irq %d; error %d\n",
->  			irq, error);
+1: There are a variety of drivers for serio computer-side hardware,
+each of which speaks the serio interface to the next-higher level.
+These corrospond to the drivers for IR recievers.
+2: There's a raw serio interface, for those wishing to do strange things.
+3: There's also a variety of things that take data, using the kernel
+serio API, and decode it into input events -- the ps2 keyboard driver,
+the basic mouse driver, the advanced mice drivers.  This is where the
+interface falls down a little bit -- the ps2 keyboard driver is the
+closest analogue to what I'm suggesting.  The ps2 keyboard driver
+creates scancode events, which map nicely to what the keyboard is
+sending -- these are, for ex, rc5 codes.  It will also produce
+key-up/key-down events, if it has a keymap loaded.  (This is the
+difference with a ps2 keyboard -- a ps2 keyboard gets a map assigned
+to it at boottime, so it works out-of-box.  This isn't really possible
+with an IR remote -- though perhaps rc5 is standarized enough, I don't
+think other protocols neccessarly are.)
 
-Hi Mika,
+Userspace would have to load a keymap; those don't really belong in
+kernel code.  Of course, userspace could look at the device
+identifiers to pick a reasonable default keymap if it's not configured
+to load another, solving the out-of-box experince.
 
-linux/interrupt.h says:
+Why is this such a contentious point?  I can understand wanting to
+keep uncommon decoding algos out of the kernel, and keymaps, but at
+the same time, they are currently there, in multiple drivers, and
+while colesing them into a single place each makes sense, I'm not
+convinced that moving them out completely makes all that much sense.
+Having an explicit layer between the raw pulse/space layer and the
+decoders means that usespace can hook in there, and create scancode
+events, if it wishes to, but for the majority of remotes that use just
+a couple of encoding schemes, the code can stay in the kernel.  Of
+course, devices that do the decoding in hardware would not implement
+the raw interface, but simply create the scancode/keycode events.
 
-    When requesting an interrupt without specifying a IRQF_TRIGGER, the
-    setting should be assumed to be "as already configured", which may
-    be as per machine or firmware initialisation. 
-
-So I'm not sure it's a good idea to exclude 0 from the possible irqflag
-values.
--- 
-Regards,
-Feri.
+   -=- James Mastros

@@ -1,36 +1,30 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
+From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 21:51:31 +0100
-Message-ID: <m3r5rpq818.fsf@intrepid.localdomain>
-References: <200910200956.33391.jarod@redhat.com>
-	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<20091123173726.GE17813@core.coreip.homeip.net>
+Date: 23 Nov 2009 22:11:00 +0100
+Message-ID: <BDRae8rZjFB@christoph>
+References: <m36391tjj3.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20091123173726.GE17813@core.coreip.homeip.net> (Dmitry
-	Torokhov's message of "Mon, 23 Nov 2009 09:37:27 -0800")
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from moutng.kundenserver.de ([212.227.126.186]:51808 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756327AbZKWVMb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 16:12:31 -0500
+In-Reply-To: <m36391tjj3.fsf@intrepid.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: khc@pm.waw.pl
+Cc: dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+Czesc Krzysztof,
 
-> Curreently the "scan" codes in the input layer serve just to help users
-> to map whatever the device emits into a proper input event code so that
-> the rest of userspace would not have to care and would work with all
-> types of devices (USB, PS/2, etc).
->
-> I would not want to get to the point where the raw codes are used as a
-> primary data source.
+on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
+[...]
+> I think we shouldn't at this time worry about IR transmitters.
 
-The "key" interface is not flexible enough at present.
+Sorry, but I have to disagree strongly.
+Any interface without transmitter support would be absolutely unacceptable  
+for many LIRC users, including myself.
 
-> Again, I would prefer to keep EV_KEY/KEY_* as the primary event type for
-> keys and buttons on all devices.
-
-Primary, I think so.
--- 
-Krzysztof Halasa
+Christoph

@@ -1,95 +1,82 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [RFC] Should we create a raw input interface for IR's ? - Was: Re:
- [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 10:36:15 -0200
-Message-ID: <4B0A81BF.4090203@redhat.com>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
+Subject: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
+Date: Mon, 23 Nov 2009 14:39:39 +0200
+Message-ID: <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com>
+References: <20091120084054.GC3009@core.coreip.homeip.net>
+ <cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:61191 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757448AbZKWMgS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 07:36:18 -0500
-In-Reply-To: <4B0A765F.7010204@redhat.com>
+Received: from smtp.nokia.com ([192.100.122.230]:19061 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757184AbZKWMoK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 07:44:10 -0500
+In-Reply-To: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
+In-Reply-To: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
+References: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Mauro Carvalho Chehab wrote:
+Added new field to struct gpio_keys_button: irqflags which can
+be used to specify exact irqflags the platform wants. If not specified,
+it defaults to: IRQF_SHARED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING.
 
-> Jarod Wilson wrote:
-> 1) As I said before, this code adds a new input API. So, you should
-> get input people's ack about it. It seems fine for me;
+Signed-off-by: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   13 +++++++++----
+ include/linux/gpio_keys.h          |    7 +++++++
+ 2 files changed, 16 insertions(+), 4 deletions(-)
 
->> Index: b/drivers/input/lirc/lirc.h
->> ===================================================================
->> --- /dev/null
->> +++ b/drivers/input/lirc/lirc.h
-> 
-> Hmm... as you're defining the kernel userspace interface, it would
-> be better to put the header under include/linux.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 8941a8b..6ed5a18 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -78,6 +78,7 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
+ 					 struct gpio_keys_button *button)
+ {
+ 	char *desc = button->desc ? button->desc : "gpio_keys";
++	unsigned long irqflags;
+ 	int irq, error;
+ 
+ 	setup_timer(&bdata->timer, gpio_keys_timer, (unsigned long)bdata);
+@@ -106,10 +107,14 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
+ 		goto fail3;
+ 	}
+ 
+-	error = request_irq(irq, gpio_keys_isr,
+-			    IRQF_SHARED |
+-			    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-			    desc, bdata);
++	if (button->irqflags == 0) {
++		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
++			   IRQF_SHARED;
++	} else {
++		irqflags = button->irqflags;
++	}
++
++	error = request_irq(irq, gpio_keys_isr, irqflags, desc, bdata);
+ 	if (error) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+ 			irq, error);
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 1289fa7..387b980 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -10,6 +10,13 @@ struct gpio_keys_button {
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
+ 	int debounce_interval;	/* debounce ticks interval in msecs */
++	/*
++	 * Exact irqflags this button wants.
++	 *
++	 * If left unset, defaults to:
++	 * IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING | IRQF_SHARED
++	 */
++	unsigned long irqflags;
+ };
+ 
+ struct gpio_keys_platform_data {
+-- 
+1.5.6.5
 
-It seems that I ran away from one important discussion here...
-
-In fact, it seemed better to start a thread to discuss the API issues in
-separate, an then adequate the code to do whatever decided.
-
--
-
-The way the out-of-tree lirc driver works is by outputing (and inputing)
-a raw sequence of pulses and spaces that have several different IR protocols,
-like NEC, RC4, RC5, RC6 and pulse-distance protocols. On the other hand,
-the current Input event interface (and the IR drivers at V4L/DVB code) does
-is to have in-kernel code that converts those sequences or pulse/space into
-a keystroke representation, outputing it to userspace.
-
-To make things a little more complicated, it is also possible for some devices
-to output IR codes. Let's first discuss the IR input case. IMO, whatever we define
-for input, we should do also for output.
-
-There's some advantages and disadvantages of both strategies, being the most
-notable ones:
-
-Raw pulse/space allows reception of IR's from all different variations of
-the IR protocols. However:
-	it means a more complex setup at userspace, since the user must 
-use a daemon to decode IR code;
-	user must inform the IR type and the kernel driver that will receive
-those keystrokes.
-
-Event input has the advantage that the keystrokes will provide an unique
-representation that is independent of the device. Considering the common case
-where the lirc driver will be associated with a media input device, the
-IR type can be detected automatically on kernel. However, advanced users may
-opt to use other IR types than what's provided with the device they bought.
-
-It should also be noticed that not all the already-existing IR drivers on kernel can
-provide a lirc interface, since several devices have their own IR decoding chips
-inside the hardware. On some cases, the hardware can be programmed to receive more
-than one IR protocol type, where on others, the manufacturer provides IR decoding
-capabilities only for the protocol they decided to provide together with their
-hardware.
-
-IMO, there are two different approaches that can be taken:
-
-1) Just add lirc API as-is and let's have two different ways to get IR events
-on kernel, and have two different API's for IR;
-
-2) create a lirc kernel API, and have a layer there to decode IR protocols and
-output them via the already existing input layer. In this case, all we need to do,
-in terms of API, is to add a way to set the IR protocol that will be decoded, 
-and to enumberate the capabilities. The lirc API, will be an in-kernel API to
-communicate with the devices that don't have IR protocols decoding capabilities
-inside the hardware.
-
-So, the basic question that should be decided is: should we create a new
-userspace API for raw IR pulse/space or it would be better to standardize it
-to always use the existing input layer?
-
-Comments?
-
-Cheers,
-Mauro

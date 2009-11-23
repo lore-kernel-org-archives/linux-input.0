@@ -1,58 +1,80 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 21:23:30 +0100
-Message-ID: <m34oolrnwd.fsf@intrepid.localdomain>
+Date: Mon, 23 Nov 2009 21:41:11 +0100
+Message-ID: <m3zl6dq8ig.fsf@intrepid.localdomain>
 References: <200910200956.33391.jarod@redhat.com>
 	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
 	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<4B0AB60B.2030006@s5r6.in-berlin.de> <4B0AC8C9.6080504@redhat.com>
+	<4B0AC65C.806@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:33326 "EHLO khc.piap.pl"
+Received: from khc.piap.pl ([195.187.100.11]:58579 "EHLO khc.piap.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756094AbZKWUX1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 15:23:27 -0500
-In-Reply-To: <4B0AC8C9.6080504@redhat.com> (Mauro Carvalho Chehab's message of
-	"Mon, 23 Nov 2009 15:39:21 -0200")
+	id S1756001AbZKWUlH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 15:41:07 -0500
+In-Reply-To: <4B0AC65C.806@redhat.com> (Mauro Carvalho Chehab's message of
+	"Mon, 23 Nov 2009 15:29:00 -0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
 Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 
->> (This is no recommendation for lirc.  I have no idea whether a
->> pulse/space -> scancode -> keycode translation would be practical
->> there.)
+> If you see patch 3/3, of the lirc submission series, you'll notice a driver
+> that has hardware decoding, but, due to lirc interface, the driver generates
+> pseudo pulse/space code for it to work via lirc interface.
 
-It would, but not exactly in the present shape.
+IOW the driver generates artificial pulse code for lircd?
+I think - pure bloat. lircd can get events from input layer without
+problems. Perhaps I misunderstood?
 
-> For example, there are several bttv and saa7134 devices that polls (or receive
-> IRQ interrupts) to detect pulses (and the absense of them) in order to create
-> a pulse/space code. The conversion from pulse/space to scancode is done inside
-> the driver, with the help of some generic routines and based on the protocol
-> specifications.
+> It is very bad to have two interfaces for the same thing, because people
+> may do things like that.
 
-Right. There are currently several problems (I'm quite familiar with
-saa713x RC5 code): the one that it barely works and is not implemented
-for most such "GPIO/IRQ-driven" cards (as of 2.6.29 or so). This could
-be fixed, I even have a working though quick&dirty patch. Another: the
-RC5 allows for groups and codes within groups. The mapping can only use
-one group, and there can only be one mapping. These design limitations
-mean it's unusable in many cases.
+I think having a "raw" scan code interface + the key code "cooked" mode
+is beneficial. For remotes lacking the raw interface only the latter
+could be used.
 
-> Those devices where the decoding is done by software can support any
-> IR protocols.
+> Also, there are some cases where the same V4L driver can receive IR scancodes
+> directly for one board, while for others, it needs to get pulse/space
+> decoding.
 
-Yes, and there can be multiple remote controllers, and multiple code
-groups within a remote.
+Sure.
 
-> This can be solved by adding a few ioctls to enumerate the supported
-> protocols and to select the one(s) that will be handled by the kernel
-> driver.
+> This is an interesting discussion. We currently have lots of such tables in
+> kernel, but it can be a good idea to have it loaded by udev during
+> boot time.
 
-The driver may have to handle many protocols simultaneously. This is not
-a problem from a technical POV.
+Sure.
+
+> Are you meaning that we should do more than one RC per input event
+> interface?
+
+I think so. Why not?
+
+For example, one of my remotes generates codes from at least two RC5
+groups (in only one "mode"). Currently a remote is limited to only one
+RC5 group.
+
+I think the mapping should be: key = proto + group + raw code, while
+key2 could be different_proto + different group (if any) + another code.
+
+> If so, why do you think we need to handle more than one IR protocol at
+> the same time?
+
+Why not?
+There are X-in-1 remotes on the market for years. They can "speak" many
+protocols at once. One may want to have a protocol to handle DVD apps
+while another for DVB etc.
+And someone may want to use several different remotes, why not?
+Personally I use two different remotes (both set to speak RC5 but what
+if I couldn't set the protocol?). Sure, it requires a bit of hackery
+(not with pulse code and lircd).
+
+> I think this will just make the driver more complex without need.
+
+Not much more, and there is a need.
 -- 
 Krzysztof Halasa

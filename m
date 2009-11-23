@@ -1,247 +1,71 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 09:47:43 -0200
-Message-ID: <4B0A765F.7010204@redhat.com>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com>
+From: Onkalo Samu <samu.p.onkalo@nokia.com>
+Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
+Date: Mon, 23 Nov 2009 14:05:55 +0200
+Message-ID: <1258977955.5272.37.camel@4fid08082>
+References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com>
+	 <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
+	 <20091110134329.GB30911@sirena.org.uk>
+	 <20091110172637.GB15263@core.coreip.homeip.net>
+	 <1257933456.3507.42.camel@4fid08082>
+	 <20091111100837.GA6263@rakim.wolfsonmicro.main>
+Reply-To: samu.p.onkalo@nokia.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49588 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756489AbZKWLrs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 06:47:48 -0500
-In-Reply-To: <200910200958.50574.jarod@redhat.com>
+Received: from smtp.nokia.com ([192.100.122.230]:48352 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757206AbZKWMGE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 07:06:04 -0500
+In-Reply-To: <20091111100837.GA6263@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: ext Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Jarod,
-
-Jarod Wilson wrote:
-> Core Linux Infrared Remote Control driver and infrastructure
+On Wed, 2009-11-11 at 11:08 +0100, ext Mark Brown wrote:
+> On Wed, Nov 11, 2009 at 11:57:36AM +0200, Onkalo Samu wrote:
+> > On Tue, 2009-11-10 at 18:26 +0100, ext Dmitry Torokhov wrote:
 > 
-> -Add Kconfig and Makefile bits
-> -Add device driver interface and headers
+> > > It seems that Samu's patch is a bit different - it completely disables
+> > > the keypad. But I wonder if it needs the special attribute or the same
+> > > can be simply achieved by simply closing event device when it is not
+> > > needed. Or maybe unbinding driver through sysfs.
 > 
-> The initial Kconfig and Makefile bits were done by Mario Limonciello for
-> the Ubuntu kernel, but have been tweaked a bit since then. Any errors are
-> probably my doing.
+> > Yes, purpose is to provide keylock feature which totally disables the
+> > keymatrix. This way system is not even aware that some key was pressed.
+> > It also helps to save power since unnecessary interrupts are not
+> > received.
 > 
-> Changes from prior submission:
-> - Now uses dev_dbg instead of its own dprintk
-> - Dynamic device numbers used
-> - sleep_on() ripped out in favor of wake bits
-> - Kconfig text improved and simplified
-> - All inline keywords removed where possible
-> - Obfuscating #defines and wrapper functions removed
-> - We call 'em lirc drivers now instead of lirc plugins
+> OK, that's not what your patch description sounded like - it was talking
+> specifically about preventing resume so I thought it was focused on
+> suspend and resume.
+> 
+> > It seems that several userspace programs are reading the device. I have
+> > no idea how to get all the users to close the device when keylock is
+> > needed. Could be quite big number of changes to here and there in
+> > userspace side.
+> 
+> This sounds like something that should have a generic API for - keylock
+> functionality is a very common feature.
 
-Sorry to not analyze the code before. -ETOOBUSY here...
+Hi
 
-Some generic comments first:
+I agree that patch description was much too short and inaccurate.
+Description must be updated to cover changes better and to tell clearly
+that purpose is to provide master switch for disabling keypad HW without
+closing all users of the device.
 
-1) As I said before, this code adds a new input API. So, you should
-get input people's ack about it. It seems fine for me;
+I'm wondering if the implementation is otherwise ok?
+twl4030 keypad is more or less connected to omap based systems and this
+kind of disabling and enabling feature is clearly targetted to embedded
+systems. One more generic way could be to add ioctl to evdev driver
+which calls chip-specific driver for disabling / enabling the keypad.
+It is then up to chip specific driver to setup necessary callback
+functions which makes actual job. Does this sound bad?
 
-2) It would be really cool if you could submit a patch for DocBook as
-well, in order to describe the API. IMO, the better is to put it together
-with media infrastructure docbook, since, although it is possible to use
-lirc code with other hardware (and were originally designed for it), the
-current wider usage is together with V4L/DVB devices. The Docbooks are
-at kernel Documentation/DocBook/ directory. Also, we have a copy of it
-at our development tree (http://linuxtv.org/hg/v4l-dvb) at media-specs/
-directory.
+-Samu
 
-3) In general, the code looks sane for me. I have just a few small sugestions
-for improvements:
 
-> Index: b/drivers/input/lirc/lirc.h
-> ===================================================================
-> --- /dev/null
-> +++ b/drivers/input/lirc/lirc.h
 
-Hmm... as you're defining the kernel userspace interface, it would
-be better to put the header under include/linux.
-
-> +#define LIRC_GET_FEATURES              _IOR('i', 0x00000000, unsigned long)
-> +
-> +#define LIRC_GET_SEND_MODE             _IOR('i', 0x00000001, unsigned long)
-> +#define LIRC_GET_REC_MODE              _IOR('i', 0x00000002, unsigned long)
-> +#define LIRC_GET_SEND_CARRIER          _IOR('i', 0x00000003, unsigned int)
-> +#define LIRC_GET_REC_CARRIER           _IOR('i', 0x00000004, unsigned int)
-> +#define LIRC_GET_SEND_DUTY_CYCLE       _IOR('i', 0x00000005, unsigned int)
-> +#define LIRC_GET_REC_DUTY_CYCLE        _IOR('i', 0x00000006, unsigned int)
-> +#define LIRC_GET_REC_RESOLUTION        _IOR('i', 0x00000007, unsigned int)
-> +
-> +/* code length in bits, currently only for LIRC_MODE_LIRCCODE */
-> +#define LIRC_GET_LENGTH                _IOR('i', 0x0000000f, unsigned long)
-> +
-> +#define LIRC_SET_SEND_MODE             _IOW('i', 0x00000011, unsigned long)
-> +#define LIRC_SET_REC_MODE              _IOW('i', 0x00000012, unsigned long)
-> +/* Note: these can reset the according pulse_width */
-> +#define LIRC_SET_SEND_CARRIER          _IOW('i', 0x00000013, unsigned int)
-> +#define LIRC_SET_REC_CARRIER           _IOW('i', 0x00000014, unsigned int)
-> +#define LIRC_SET_SEND_DUTY_CYCLE       _IOW('i', 0x00000015, unsigned int)
-> +#define LIRC_SET_REC_DUTY_CYCLE        _IOW('i', 0x00000016, unsigned int)
-> +#define LIRC_SET_TRANSMITTER_MASK      _IOW('i', 0x00000017, unsigned int)
-> +
-
-Hmm... unsigned int/unsigned long are not portable between different architectures.
-It would be better to use instead __u16/__u32/__u64. This way, you won't need
-a 32 bits compat layer.
-
-> +
-> +int lirc_register_driver(struct lirc_driver *d)
-> +{
-> +	struct irctl *ir;
-> +	int minor;
-> +	int bytes_in_key;
-> +	unsigned int chunk_size;
-> +	unsigned int buffer_size;
-> +	int err;
-> +
-> +	if (!d) {
-> +		printk(KERN_ERR "lirc_dev: lirc_register_driver: "
-> +		       "driver pointer must be not NULL!\n");
-> +		err = -EBADRQC;
-> +		goto out;
-> +	}
-> +
-> +	if (MAX_IRCTL_DEVICES <= d->minor) {
-> +		dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +			"\"minor\" must be between 0 and %d (%d)!\n",
-> +			MAX_IRCTL_DEVICES-1, d->minor);
-> +		err = -EBADRQC;
-> +		goto out;
-> +	}
-> +
-> +	if (1 > d->code_length || (BUFLEN * 8) < d->code_length) {
-> +		dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +			"code length in bits for minor (%d) "
-> +			"must be less than %d!\n",
-> +			d->minor, BUFLEN * 8);
-> +		err = -EBADRQC;
-> +		goto out;
-> +	}
-> +
-> +	dev_dbg(d->dev, "lirc_dev: lirc_register_driver: sample_rate: %d\n",
-> +		d->sample_rate);
-> +	if (d->sample_rate) {
-> +		if (2 > d->sample_rate || HZ < d->sample_rate) {
-> +			dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +				"sample_rate must be between 2 and %d!\n", HZ);
-> +			err = -EBADRQC;
-> +			goto out;
-> +		}
-> +		if (!d->add_to_buf) {
-> +			dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +				"add_to_buf cannot be NULL when "
-> +				"sample_rate is set\n");
-> +			err = -EBADRQC;
-> +			goto out;
-> +		}
-> +	} else if (!(d->fops && d->fops->read) && !d->rbuf) {
-> +		dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +			"fops->read and rbuf cannot all be NULL!\n");
-> +		err = -EBADRQC;
-> +		goto out;
-> +	} else if (!d->rbuf) {
-> +		if (!(d->fops && d->fops->read && d->fops->poll &&
-> +		      d->fops->ioctl)) {
-> +			dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +				"neither read, poll nor ioctl can be NULL!\n");
-> +			err = -EBADRQC;
-> +			goto out;
-> +		}
-> +	}
-> +
-> +	mutex_lock(&lirc_dev_lock);
-> +
-> +	minor = d->minor;
-> +
-> +	if (minor < 0) {
-> +		/* find first free slot for driver */
-> +		for (minor = 0; minor < MAX_IRCTL_DEVICES; minor++)
-> +			if (!irctls[minor])
-> +				break;
-> +		if (MAX_IRCTL_DEVICES == minor) {
-> +			dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +				"no free slots for drivers!\n");
-> +			err = -ENOMEM;
-> +			goto out_lock;
-> +		}
-> +	} else if (irctls[minor]) {
-> +		dev_err(d->dev, "lirc_dev: lirc_register_driver: "
-> +			"minor (%d) just registered!\n", minor);
-> +		err = -EBUSY;
-> +		goto out_lock;
-> +	}
-> +
-> +	ir = kzalloc(sizeof(struct irctl), GFP_KERNEL);
-> +	if (!ir) {
-> +		err = -ENOMEM;
-> +		goto out_lock;
-> +	}
-> +	init_irctl(ir);
-> +	irctls[minor] = ir;
-> +	d->minor = minor;
-> +
-> +	if (d->sample_rate) {
-> +		ir->jiffies_to_wait = HZ / d->sample_rate;
-> +	} else {
-> +		/* it means - wait for external event in task queue */
-> +		ir->jiffies_to_wait = 0;
-> +	}
-> +
-> +	/* some safety check 8-) */
-> +	d->name[sizeof(d->name)-1] = '\0';
-> +
-> +	bytes_in_key = BITS_TO_LONGS(d->code_length) +
-> +			(d->code_length % 8 ? 1 : 0);
-> +	buffer_size = d->buffer_size ? d->buffer_size : BUFLEN / bytes_in_key;
-> +	chunk_size  = d->chunk_size  ? d->chunk_size  : bytes_in_key;
-> +
-> +	if (d->rbuf) {
-> +		ir->buf = d->rbuf;
-> +	} else {
-> +		ir->buf = kmalloc(sizeof(struct lirc_buffer), GFP_KERNEL);
-
-For security reasons, wouldn't be better to use kzalloc here?
-
-> +#ifdef CONFIG_COMPAT
-> +#define LIRC_GET_FEATURES_COMPAT32     _IOR('i', 0x00000000, __u32)
-> +
-> +#define LIRC_GET_SEND_MODE_COMPAT32    _IOR('i', 0x00000001, __u32)
-> +#define LIRC_GET_REC_MODE_COMPAT32     _IOR('i', 0x00000002, __u32)
-> +
-> +#define LIRC_GET_LENGTH_COMPAT32       _IOR('i', 0x0000000f, __u32)
-> +
-> +#define LIRC_SET_SEND_MODE_COMPAT32    _IOW('i', 0x00000011, __u32)
-> +#define LIRC_SET_REC_MODE_COMPAT32     _IOW('i', 0x00000012, __u32)
-
-You wouldn't need those code, if you declare the ioctl's as __u32 at the
-first place.
-
-Also, the compat layer is needed not only for x86_64, but some other architectures
-like sparc64 needs it, since userspace is 32 bits and kernelspace is 64 bits.
-
-With V4L ioctls, we needed to do some adjustments for sparc, since the sizes there
-are different for other types as well. Unfortunately, I can't remember what were
-the difference (maybe int size?).
-
-So, IMO, it would be a way better if you just declare everything using __u16/__u32/__u64
-at the original ioctl definition and just remove all compat code.
-
-> +EXPORT_SYMBOL(lirc_register_driver);
-> +EXPORT_SYMBOL(lirc_unregister_driver);
-> +EXPORT_SYMBOL(lirc_dev_fop_close);
-> +EXPORT_SYMBOL(lirc_dev_fop_poll);
-> +EXPORT_SYMBOL(lirc_dev_fop_ioctl);
-> +EXPORT_SYMBOL(lirc_dev_fop_compat_ioctl);
-> +EXPORT_SYMBOL(lirc_dev_fop_read);
-> +EXPORT_SYMBOL(lirc_get_pdata);
-> +EXPORT_SYMBOL(lirc_dev_fop_write);
-
-I would declare everything as EXPORT_SYMBOL_GPL instead.

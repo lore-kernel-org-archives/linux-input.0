@@ -1,83 +1,73 @@
-From: "Hiremath, Vaibhav" <hvaibhav@ti.com>
-Subject: RE: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver support
-Date: Mon, 23 Nov 2009 15:45:09 +0530
-Message-ID: <19F8576C6E063C45BE387C64729E739404370D7395@dbde02.ent.ti.com>
-References: <hvaibhav@ti.com>
- <1258642000-2271-1-git-send-email-hvaibhav@ti.com>
- <20091120170220.GA16447@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCH] input-polldev: Poll interval setting can cause polling with zero interval
+Date: Mon, 23 Nov 2009 13:21:44 +0200
+Message-ID: <1258975304-4751-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:35028 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756749AbZKWKPM convert rfc822-to-8bit (ORCPT
+Received: from smtp.nokia.com ([192.100.122.233]:51947 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753791AbZKWLWG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 05:15:12 -0500
-In-Reply-To: <20091120170220.GA16447@core.coreip.homeip.net>
-Content-Language: en-US
+	Mon, 23 Nov 2009 06:22:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Friday, November 20, 2009 10:32 PM
-> To: Hiremath, Vaibhav
-> Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
-> Subject: Re: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver
-> support
-> 
-> Hi Vaibhav,
-> 
-> On Thu, Nov 19, 2009 at 08:16:40PM +0530, hvaibhav@ti.com wrote:
-> > From: Vaibhav Hiremath <hvaibhav@ti.com>
-> >
-> > Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
-> 
-> 
-> If I do:
-> 
-> sed 's/2004/2007/g' drivers/input/touchscreen/tsc2004.c | diff -u
-> drivers/input/touchscreen/tsc2007.c -
-> 
-> the diff is miniscule so why can't TSC2004 support be simply added
-> to
-> TSC2007 driver?
-[Hiremath, Vaibhav] The driver which I submitted is the basic version, there is lot which required to be added here for complete support of TSC2004 features. I tried to summarize it (in short) here - 
+If the poll interval is set to 0 via new sysfs entry and device
+is opened after that, polling is started with interval 0. This causes
+huge CPU load. Same happens if the rate was 0 when the device
+was closed and then reopened.
 
-	- TSC2004 supports register based control, whereas TSC2007 is command based control.
-	- TSC2004 supports 2 different modes of operation, whereas there is nothing like this in TSc2007
-	- There are lots of configuration options TSC2004 provides.
+Applies to input-tree next branch
 
-Again there are differences like command/address formats 
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+---
+ drivers/input/input-polldev.c |   17 ++++++++---------
+ 1 files changed, 8 insertions(+), 9 deletions(-)
 
-TSC2004 -
----------- 
-BIT 	NAME 		DESCRIPTION
-D7 			Control Byte ID 1
-D6-D3 C3-C0		Converter function select		
-D2 	M 		1: 12 Bit 0: 10 bit
-D1 SWRST		Software Reset.
-D0 STS 		Stop bit for all converter functions.
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index 3187427..2d2c626 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -59,12 +59,13 @@ static void input_polldev_stop_workqueue(void)
+ static void input_polldev_queue_work(struct input_polled_dev *dev)
+ {
+ 	unsigned long delay;
++	if (dev->poll_interval > 0) {
++		delay = msecs_to_jiffies(dev->poll_interval);
++		if (delay >= HZ)
++			delay = round_jiffies_relative(delay);
  
-TSC2007 - 
----------
-BIT 	NAME 		DESCRIPTION
-D7-D4 C3-C0 	All Converter Function Select bits
-D3-D2 PD1-PD0	Power down bit control
-D1 	M 		1: 8-bit 0: 12 bit
-D0 	X Don't care.
-
-
-So in my opinion we must not try to merge drivers for these two devices. I hope this information clears all the confusion.
-
-Thanks,
-Vaibhav
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+-	delay = msecs_to_jiffies(dev->poll_interval);
+-	if (delay >= HZ)
+-		delay = round_jiffies_relative(delay);
+-
+-	queue_delayed_work(polldev_wq, &dev->work, delay);
++		queue_delayed_work(polldev_wq, &dev->work, delay);
++	}
+ }
+ 
+ static void input_polled_device_work(struct work_struct *work)
+@@ -88,8 +89,7 @@ static int input_open_polled_device(struct input_dev *input)
+ 	if (dev->open)
+ 		dev->open(dev);
+ 
+-	queue_delayed_work(polldev_wq, &dev->work,
+-			   msecs_to_jiffies(dev->poll_interval));
++	input_polldev_queue_work(dev);
+ 
+ 	return 0;
+ }
+@@ -138,8 +138,7 @@ static ssize_t input_polldev_set_poll(struct device *dev,
+ 
+ 	if (input->users) {
+ 		cancel_delayed_work_sync(&polldev->work);
+-		if (polldev->poll_interval > 0)
+-			input_polldev_queue_work(polldev);
++		input_polldev_queue_work(polldev);
+ 	}
+ 
+ 	mutex_unlock(&input->mutex);
+-- 
+1.6.0.4
 

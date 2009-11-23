@@ -1,40 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch]race between disconnect and open in usbtouchscreen
-Date: Mon, 23 Nov 2009 09:21:33 -0800
-Message-ID: <20091123172133.GA17813@core.coreip.homeip.net>
-References: <200911202213.47916.oliver@neukum.org> <20091120212259.GC16447@core.coreip.homeip.net> <200911202249.56591.oliver@neukum.org>
+Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
+Date: Mon, 23 Nov 2009 09:21:53 -0800
+Message-ID: <20091123172153.GC17813@core.coreip.homeip.net>
+References: <20091123143952.590982333@fluff.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:51656 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751505AbZKWRVe (ORCPT
+Received: from mail-px0-f204.google.com ([209.85.216.204]:34487 "EHLO
+	mail-px0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752674AbZKWRVx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 12:21:34 -0500
+	Mon, 23 Nov 2009 12:21:53 -0500
+Received: by pxi42 with SMTP id 42so3442865pxi.5
+        for <linux-input@vger.kernel.org>; Mon, 23 Nov 2009 09:21:59 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <200911202249.56591.oliver@neukum.org>
+In-Reply-To: <20091123143952.590982333@fluff.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Ondrej Zary <linux@rainbow-software.org>, Jiri Kosina <jkosina@suse.cz>, Daniel Ritz <daniel.ritz@gmx.ch>
+To: Ben Dooks <ben@simtec.co.uk>
+Cc: linux-input@vger.kernel.org, daniel.ritz@gmx.ch, ddstreet@ieee.org, floe@butterbrot.org, jim-linux@nurd.se, Daniel Silverstone <dsilvers@simtec.co.uk>, Vincent Sanders <vince@simtec.co.uk>, Simtec Linux Team <linux@simtec.co.uk>
 
-On Fri, Nov 20, 2009 at 10:49:56PM +0100, Oliver Neukum wrote:
-> Am Freitag, 20. November 2009 22:22:59 schrieb Dmitry Torokhov:
-> > Hi Oliver,
-> > 
-> > On Fri, Nov 20, 2009 at 10:13:47PM +0100, Oliver Neukum wrote:
-> > > Hi,
-> > >
-> > > an open() between killing the urb and unregistering the device
-> > > can lead to IO to a disconnected device.
-> > 
-> > usbtouch_close() calls usb_kill_urb() so there is no race.
-> > usb_kill_urb() simply not needed in usbtouch_disconnect().
+On Mon, Nov 23, 2009 at 02:39:52PM +0000, Ben Dooks wrote:
+> From: Daniel Silverstone <dsilvers@simtec.co.uk>
 > 
-> Then it needs to go.
+> Zytronic USB-attached capacitive touchscreen support within
+> the generic USB touchscreen driver.
 > 
 
-Applied, thank you Oliver.
+HHm, I already promised Daniel to merge this one... I wonder how I
+managed to lose it. Anyways, changed 'irq_always' to be a bool and
+it should be in 'next' branch now.
 
 -- 
 Dmitry

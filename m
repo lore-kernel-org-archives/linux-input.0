@@ -1,45 +1,58 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 21:14:08 +0100
-Message-ID: <m38wdxrobz.fsf@intrepid.localdomain>
+Date: Mon, 23 Nov 2009 21:23:30 +0100
+Message-ID: <m34oolrnwd.fsf@intrepid.localdomain>
 References: <200910200956.33391.jarod@redhat.com>
 	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
 	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<829197380911230720k233c3c86t659180d1413aa0dd@mail.gmail.com>
-	<abc933c50911230905g60e2071bpbee9318817d56fb5@mail.gmail.com>
-	<4B0ACB70.9090707@redhat.com>
+	<4B0AB60B.2030006@s5r6.in-berlin.de> <4B0AC8C9.6080504@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:51369 "EHLO khc.piap.pl"
+Received: from khc.piap.pl ([195.187.100.11]:33326 "EHLO khc.piap.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755388AbZKWUOF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 15:14:05 -0500
-In-Reply-To: <4B0ACB70.9090707@redhat.com> (Mauro Carvalho Chehab's message of
-	"Mon, 23 Nov 2009 15:50:40 -0200")
+	id S1756094AbZKWUX1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 15:23:27 -0500
+In-Reply-To: <4B0AC8C9.6080504@redhat.com> (Mauro Carvalho Chehab's message of
+	"Mon, 23 Nov 2009 15:39:21 -0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: James Mastros <james@mastros.biz>, Devin Heitmueller <dheitmueller@kernellabs.com>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
 Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 
-> True, but this means that everyone with an IR will need to use lirc.
+>> (This is no recommendation for lirc.  I have no idea whether a
+>> pulse/space -> scancode -> keycode translation would be practical
+>> there.)
 
-I think that if the input layer (instead of raw code) is used, a utility
-which only sets the mapping(s) would suffice. I.e. no daemon.
+It would, but not exactly in the present shape.
 
-> /me thinks that, whatever decided with those lirc drivers, this should
-> be applied also to the existing V4L/DVB drivers.
+> For example, there are several bttv and saa7134 devices that polls (or receive
+> IRQ interrupts) to detect pulses (and the absense of them) in order to create
+> a pulse/space code. The conversion from pulse/space to scancode is done inside
+> the driver, with the help of some generic routines and based on the protocol
+> specifications.
 
-Certainly.
+Right. There are currently several problems (I'm quite familiar with
+saa713x RC5 code): the one that it barely works and is not implemented
+for most such "GPIO/IRQ-driven" cards (as of 2.6.29 or so). This could
+be fixed, I even have a working though quick&dirty patch. Another: the
+RC5 allows for groups and codes within groups. The mapping can only use
+one group, and there can only be one mapping. These design limitations
+mean it's unusable in many cases.
 
-> IMO, it would be better to load the tables at the boot time (or at the
-> corresponding hotplug event, for USB devices).
+> Those devices where the decoding is done by software can support any
+> IR protocols.
 
-Sure (unless the "raw code" interface is in use).
+Yes, and there can be multiple remote controllers, and multiple code
+groups within a remote.
 
-Though maybe the raw code interface should be done in a simple library
-instead of requiring the daemon.
+> This can be solved by adding a few ioctls to enumerate the supported
+> protocols and to select the one(s) that will be handled by the kernel
+> driver.
+
+The driver may have to handle many protocols simultaneously. This is not
+a problem from a technical POV.
 -- 
 Krzysztof Halasa

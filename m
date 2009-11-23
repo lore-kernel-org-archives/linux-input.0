@@ -1,198 +1,596 @@
 From: Ben Dooks <ben@simtec.co.uk>
-Subject: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Mon, 23 Nov 2009 14:39:52 +0000
-Message-ID: <20091123143952.590982333@fluff.org.uk>
+Subject: TOUCHSCREEN: S3C24XX touchscreen driver from Arnaud Patard.
+Date: Mon, 23 Nov 2009 15:05:57 +0000
+Message-ID: <20091123150556.908236267@fluff.org.uk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aeryn.fluff.org.uk ([87.194.8.8]:39575 "EHLO
+Received: from aeryn.fluff.org.uk ([87.194.8.8]:35127 "EHLO
 	kira.home.fluff.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753351AbZKWOkY (ORCPT
+	with ESMTP id S1755324AbZKWPGE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 09:40:24 -0500
-Content-Disposition: inline; filename=new-zytronic.patch
+	Mon, 23 Nov 2009 10:06:04 -0500
+Content-Disposition: inline; filename=thirdparty/inprogress/s3c24xx-touchscreen.patch
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, daniel.ritz@gmx.ch, ddstreet@ieee.org, floe@butterbrot.org, jim-linux@nurd.se, Daniel Silverstone <dsilvers@simtec.co.uk>, Vincent Sanders <vince@simtec.co.uk>, Simtec Linux Team <linux@simtec.co.uk>
+Cc: dmitry.torokhov@gmail.com, arnaud.patard@rtp-net.org, Simtec Linux Team <linux@simtec.co.uk>
 
-From: Daniel Silverstone <dsilvers@simtec.co.uk>
+=46rom: Arnaud Patard <arnaud.patard@rtp-net.org>
 
-Zytronic USB-attached capacitive touchscreen support within
-the generic USB touchscreen driver.
+S3C24XX touchscreen driver, originally written by Arnaud Patard and
+other contributors. This driver is the version from the Simtec Electron=
+ics
+tree, and as such is the best place to start and thus proposed to be
+merged into the linux input system.
 
-Signed-off-by: Daniel Silverstone <dsilvers@simtec.co.uk>
-Signed-off-by: Vincent Sanders <vince@simtec.co.uk>
+The driver has had substantial testing as well as a number of tidying
+up passes done by Ben Dooks, as noted:
+
+- added kernel-doc comments to most of the routines
+- removed old code from pre adc framework days
+- updated device probe code to use platform id list matching
+- cleaned up debug, since printk() now has timestamp feature
+- ensure code uses dev_() reporting macros where necessary
+- remove ABS_PRESSURE reporting, tslib can be fixed
+- ensure timer is removed on driver exit
+- move to using dev_pmops for power management
+
+Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+Signed-off-by: Ben Dooks <ben@simtec.co.uk>
 Signed-off-by: Simtec Linux Team <linux@simtec.co.uk>
 
 ---
- drivers/input/touchscreen/Kconfig          |    6 ++
- drivers/input/touchscreen/usbtouchscreen.c |   72 +++++++++++++++++++++++++++--
- 2 files changed, 75 insertions(+), 3 deletions(-)
+
+The following issues are yet to be resolved:
+
+1) The usage of the clk_api() to get the clock for the ADC. The clock
+   should really be managed by the core adc layer but we have yet to
+   add any guarantees about keeping the clock enabled to allow the
+   touchscreen to function when it is registered.
+
+2) Currently the only registers that the touchscreen driver touches are
+   the ones specifically for the touchscreen, but this stil involves th=
+e
+   mapping of the ADC block the core driver has already mapped for itse=
+lf.
+
+   We could look at adding an API to allow the touchscreen driver to ta=
+lk
+   to the registers via the core ADC driver, or just move the necessary
+   functionality into the core driver.
+
+Since these issues require synchronisation with the core ADC driver
+which is scheduled to undergo some arch changes and moves it is better
+to get this merged and then do the necessary updates post merge.
+
+
+ drivers/input/touchscreen/Kconfig      |   12=20
+ drivers/input/touchscreen/Makefile     |    1=20
+ drivers/input/touchscreen/s3c2410_ts.c |  454 ++++++++++++++++++++++++=
++++++++++
+ 3 files changed, 467 insertions(+)
+
 
 Index: b/drivers/input/touchscreen/Kconfig
-===================================================================
---- a/drivers/input/touchscreen/Kconfig	2009-11-23 22:29:31.000000000 +0000
-+++ b/drivers/input/touchscreen/Kconfig	2009-11-23 22:29:31.000000000 +0000
-@@ -437,6 +437,7 @@ config TOUCHSCREEN_USB_COMPOSITE
- 	  - IdealTEK URTC1000
- 	  - GoTop Super_Q2/GogoPen/PenPower tablets
- 	  - JASTEC USB Touch Controller/DigiTech DTR-02U
-+	  - Zytronic controllers
- 
- 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
- 	  a usage description and the required user-space stuff.
-@@ -509,6 +510,11 @@ config TOUCHSCREEN_USB_E2I
- 	bool "e2i Touchscreen controller (e.g. from Mimo 740)"
- 	depends on TOUCHSCREEN_USB_COMPOSITE
- 
-+config TOUCHSCREEN_USB_ZYTRONIC
-+	default y
-+	bool "Zytronic controller" if EMBEDDED
-+	depends on TOUCHSCREEN_USB_COMPOSITE
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/drivers/input/touchscreen/Kconfig	2009-11-23 22:27:35.000000000 +=
+0000
++++ b/drivers/input/touchscreen/Kconfig	2009-11-23 23:01:25.000000000 +=
+0000
+@@ -133,6 +133,18 @@ config TOUCHSCREEN_FUJITSU
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called fujitsu-ts.
+=20
++config TOUCHSCREEN_S3C2410
++	tristate "Samsung S3C2410 touchscreen input driver"
++	depends on ARCH_S3C2410
++	select S3C24XX_ADC
++	help
++	  Say Y here if you have the s3c2410 touchscreen.
 +
- config TOUCHSCREEN_TOUCHIT213
- 	tristate "Sahara TouchIT-213 touchscreen"
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called s3c2410_ts.
++
+ config TOUCHSCREEN_GUNZE
+ 	tristate "Gunze AHL-51S touchscreen"
  	select SERIO
-Index: b/drivers/input/touchscreen/usbtouchscreen.c
-===================================================================
---- a/drivers/input/touchscreen/usbtouchscreen.c	2009-11-23 22:25:02.000000000 +0000
-+++ b/drivers/input/touchscreen/usbtouchscreen.c	2009-11-23 22:29:31.000000000 +0000
-@@ -14,6 +14,7 @@
-  *  - General Touch
-  *  - GoTop Super_Q2/GogoPen/PenPower tablets
-  *  - JASTEC USB touch controller/DigiTech DTR-02U
-+ *  - Zytronic capacitive touchscreen
-  *
-  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
-  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
-@@ -73,6 +74,14 @@ struct usbtouch_device_info {
- 	int min_press, max_press;
- 	int rept_size;
- 
-+	/* Always service the USB devices irq not just when the input device is
-+	 * open. This is useful when devices have a watchdog which prevents us
-+	 * from periodically polling the device. Leave this unset unless your
-+	 * touchscreen device requires it, as it does consume more of the USB
-+	 * bandwidth.
-+	 */
-+	int irq_always;
-+
- 	void (*process_pkt) (struct usbtouch_usb *usbtouch, unsigned char *pkt, int len);
- 
- 	/*
-@@ -121,6 +130,7 @@ enum {
- 	DEVTYPE_GOTOP,
- 	DEVTYPE_JASTEC,
- 	DEVTYPE_E2I,
-+	DEVTYPE_ZYTRONIC,
- };
- 
- #define USB_DEVICE_HID_CLASS(vend, prod) \
-@@ -201,6 +211,11 @@ static struct usb_device_id usbtouch_dev
- #ifdef CONFIG_TOUCHSCREEN_USB_E2I
- 	{USB_DEVICE(0x1ac7, 0x0001), .driver_info = DEVTYPE_E2I},
- #endif
-+
-+#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
-+	{USB_DEVICE(0x14c8, 0x0003), .driver_info = DEVTYPE_ZYTRONIC},
-+#endif
-+
- 	{}
- };
- 
-@@ -621,6 +636,39 @@ static int jastec_read_data(struct usbto
- }
- #endif
- 
-+/*****************************************************************************
-+ * Zytronic Part
+Index: b/drivers/input/touchscreen/Makefile
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- a/drivers/input/touchscreen/Makefile	2009-11-23 22:27:35.000000000 =
++0000
++++ b/drivers/input/touchscreen/Makefile	2009-11-23 23:01:25.000000000 =
++0000
+@@ -26,6 +26,7 @@ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+=3D jorn
+ obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+=3D htcpen.o
+ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+=3D usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+=3D penmount.o
++obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+=3D s3c2410_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+=3D touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+=3D touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+=3D touchwin.o
+Index: b/drivers/input/touchscreen/s3c2410_ts.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ b/drivers/input/touchscreen/s3c2410_ts.c	2009-11-23 23:00:36.000000=
+000 +0000
+@@ -0,0 +1,454 @@
++/* drivers/input/touchscreen/s3c2410_ts.c
++ *
++ * Samsung S3C24XX touchscreen driver
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the term of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307=
+ USA
++ *
++ * Copyright 2004 Arnaud Patard <arnaud.patard@rtp-net.org>
++ * Copyright 2008 Ben Dooks <ben-linux@fluff.org>
++ * Copyright 2009 Simtec Electronics <linux@simtec.co.uk>
++ *
++ * Additional work by Herbert P=C3=B6tzl <herbert@13thfloor.at> and
++ * Harald Welte <laforge@openmoko.org>
 + */
-+#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
-+static int zytronic_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/gpio.h>
++#include <linux/input.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/clk.h>
++#include <linux/io.h>
++
++#include <plat/adc.h>
++#include <plat/regs-adc.h>
++
++#include <mach/regs-gpio.h>
++#include <mach/ts.h>
++
++#define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC_XY=
+_PST(0))
++
++#define INT_DOWN	(0)
++#define INT_UP		(1 << 8)
++
++#define WAIT4INT	(S3C2410_ADCTSC_YM_SEN | \
++			 S3C2410_ADCTSC_YP_SEN | \
++			 S3C2410_ADCTSC_XP_SEN | \
++			 S3C2410_ADCTSC_XY_PST(3))
++
++#define AUTOPST		(S3C2410_ADCTSC_YM_SEN | \
++			 S3C2410_ADCTSC_YP_SEN | \
++			 S3C2410_ADCTSC_XP_SEN | \
++			 S3C2410_ADCTSC_AUTO_PST | \
++			 S3C2410_ADCTSC_XY_PST(0))
++
++/* Per-touchscreen data. */
++
++/**
++ * struct s3c2410ts - driver touchscreen state.
++ * @client: The ADC client we registered with the core driver.
++ * @dev: The device we are bound to.
++ * @input: The input device we registered with the input subsystem.
++ * @clock: The clock for the adc.
++ * @io: Pointer to the IO base.
++ * @xp: The accumulated X position data.
++ * @yp: The accumulated Y position data.
++ * @irq_tc: The interrupt number for pen up/down interrupt
++ * @count: The number of samples collected.
++ * @shift: The log2 of the maximum count to read in one go.
++ */
++struct s3c2410ts {
++	struct s3c_adc_client *client;
++	struct device *dev;
++	struct input_dev *input;
++	struct clk *clock;
++	void __iomem *io;
++	unsigned long xp;
++	unsigned long yp;
++	int irq_tc;
++	int count;
++	int shift;
++};
++
++static struct s3c2410ts ts;
++
++/**
++ * s3c2410_ts_connect - configure gpio for s3c2410 systems
++ *
++ * Configure the GPIO for the S3C2410 system, where we have external F=
+ETs
++ * connected to the device (later systems such as the S3C2440 integrat=
+e
++ * these into the device).
++*/
++static inline void s3c2410_ts_connect(void)
 +{
-+	switch (pkt[0]) {
-+	case 0x3A: /* command response */
-+		dbg("%s: Command response %d", __func__, pkt[1]);
-+		break;
++	s3c2410_gpio_cfgpin(S3C2410_GPG(12), S3C2410_GPG12_XMON);
++	s3c2410_gpio_cfgpin(S3C2410_GPG(13), S3C2410_GPG13_nXPON);
++	s3c2410_gpio_cfgpin(S3C2410_GPG(14), S3C2410_GPG14_YMON);
++	s3c2410_gpio_cfgpin(S3C2410_GPG(15), S3C2410_GPG15_nYPON);
++}
 +
-+	case 0xC0: /* down */
-+		dev->x = (pkt[1] & 0x7f) | ((pkt[2] & 0x07) << 7);
-+		dev->y = (pkt[3] & 0x7f) | ((pkt[4] & 0x07) << 7);
-+		dev->touch = 1;
-+		dbg("%s: down %d,%d", __func__, dev->x, dev->y);
-+		return 1;
++/**
++ * get_down - return the down state of the pen
++ * @data0: The data read from ADCDAT0 register.
++ * @data1: The data read from ADCDAT1 register.
++ *
++ * Return non-zero if both readings show that the pen is down.
++ */
++static inline bool get_down(unsigned long data0, unsigned long data1)
++{
++	/* returns true if both data values show stylus down */
++	return (!(data0 & S3C2410_ADCDAT0_UPDOWN) &&
++		!(data1 & S3C2410_ADCDAT0_UPDOWN));
++}
 +
-+	case 0x80: /* up */
-+		dev->x = (pkt[1] & 0x7f) | ((pkt[2] & 0x07) << 7);
-+		dev->y = (pkt[3] & 0x7f) | ((pkt[4] & 0x07) << 7);
-+		dev->touch = 0;
-+		dbg("%s: up %d,%d", __func__, dev->x, dev->y);
-+		return 1;
++static void touch_timer_fire(unsigned long data)
++{
++	unsigned long data0;
++	unsigned long data1;
++	bool down;
 +
-+	default:
-+		dbg("%s: Unknown return %d", __func__, pkt[0]);
-+		break;
++	data0 =3D readl(ts.io + S3C2410_ADCDAT0);
++	data1 =3D readl(ts.io + S3C2410_ADCDAT1);
++
++	down =3D get_down(data0, data1);
++
++	if (ts.count =3D=3D (1 << ts.shift)) {
++		ts.xp >>=3D ts.shift;
++		ts.yp >>=3D ts.shift;
++
++		dev_dbg(ts.dev, "%s: X=3D%lu, Y=3D%lu, count=3D%d\n",
++			__func__, ts.xp, ts.yp, ts.count);
++
++		input_report_abs(ts.input, ABS_X, ts.xp);
++		input_report_abs(ts.input, ABS_Y, ts.yp);
++
++		input_report_key(ts.input, BTN_TOUCH, 1);
++		input_sync(ts.input);
++
++		ts.xp =3D 0;
++		ts.yp =3D 0;
++		ts.count =3D 0;
++	}
++
++	if (down) {
++		s3c_adc_start(ts.client, 0, 1 << ts.shift);
++	} else {
++		ts.count =3D 0;
++
++		input_report_key(ts.input, BTN_TOUCH, 0);
++		input_sync(ts.input);
++
++		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
++	}
++}
++
++static DEFINE_TIMER(touch_timer, touch_timer_fire, 0, 0);
++
++/**
++ * stylus_irq - touchscreen stylus event interrupt
++ * @irq: The interrupt number
++ * @dev_id: The device ID.
++ *
++ * Called when the IRQ_TC is fired for a pen up or down event.
++ */
++static irqreturn_t stylus_irq(int irq, void *dev_id)
++{
++	unsigned long data0;
++	unsigned long data1;
++	bool down;
++
++	data0 =3D readl(ts.io + S3C2410_ADCDAT0);
++	data1 =3D readl(ts.io + S3C2410_ADCDAT1);
++
++	down =3D get_down(data0, data1);
++
++	/* TODO we should never get an interrupt with down set while
++	 * the timer is running, but maybe we ought to verify that the
++	 * timer isn't running anyways. */
++
++	if (down)
++		s3c_adc_start(ts.client, 0, 1 << ts.shift);
++	else
++		dev_info(ts.dev, "%s: count=3D%d\n", __func__, ts.count);
++
++	return IRQ_HANDLED;
++}
++
++/**
++ * s3c24xx_ts_conversion - ADC conversion callback
++ * @client: The client that was registered with the ADC core.
++ * @data0: The reading from ADCDAT0.
++ * @data1: The reading from ADCDAT1.
++ * @left: The number of samples left.
++ *
++ * Called when a conversion has finished.
++ */
++static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
++				  unsigned data0, unsigned data1,
++				  unsigned *left)
++{
++	dev_dbg(ts.dev, "%s: %d,%d\n", __func__, data0, data1);
++
++	ts.xp +=3D data0;
++	ts.yp +=3D data1;
++
++	ts.count++;
++
++	/* From tests, it seems that it is unlikely to get a pen-up
++	 * event during the conversion process which means we can
++	 * ignore any pen-up events with less than the requisite
++	 * count done.
++	 *
++	 * In several thousand conversions, no pen-ups where detected
++	 * before count completed.
++	 */
++}
++
++/**
++ * s3c24xx_ts_select - ADC selection callback.
++ * @client: The client that was registered with the ADC core.
++ * @select: The reason for select.
++ *
++ * Called when the ADC core selects (or deslects) us as a client.
++ */
++static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned =
+select)
++{
++	if (select) {
++		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
++		       ts.io + S3C2410_ADCTSC);
++	} else {
++		mod_timer(&touch_timer, jiffies+1);
++		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
++	}
++}
++
++/**
++ * s3c2410ts_probe - device core probe entry point
++ * @pdev: The device we are being bound to.
++ *
++ * Initialise, find and allocate any resources we need to run and then
++ * register with the ADC and input systems.
++ */
++static int __devinit s3c2410ts_probe(struct platform_device *pdev)
++{
++	struct s3c2410_ts_mach_info *info;
++	struct device *dev =3D &pdev->dev;
++	struct input_dev *input_dev;
++	struct resource *res;
++	int ret =3D -EINVAL;
++
++	/* Initialise input stuff */
++	memset(&ts, 0, sizeof(struct s3c2410ts));
++
++	ts.dev =3D dev;
++
++	info =3D pdev->dev.platform_data;
++	if (!info) {
++		dev_err(dev, "no platform data, cannot attach\n");
++		return -EINVAL;
++	}
++
++	dev_dbg(dev, "initialising touchscreen\n");
++
++	ts.clock =3D clk_get(dev, "adc");
++	if (IS_ERR(ts.clock)) {
++		dev_err(dev, "cannot get adc clock source\n");
++		return -ENOENT;
++	}
++
++	clk_enable(ts.clock);
++	dev_dbg(dev, "got and enabled clocks\n");
++
++	ts.irq_tc =3D ret =3D platform_get_irq(pdev, 0);
++	if (ret < 0) {
++		dev_err(dev, "no resource for interrupt\n");
++		goto err_clk;
++	}
++
++	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		dev_err(dev, "no resource for registers\n");
++		ret =3D -ENOENT;
++		goto err_clk;
++	}
++
++	ts.io =3D ioremap(res->start, resource_size(res));
++	if (ts.io =3D=3D NULL) {
++		dev_err(dev, "cannot map registers\n");
++		ret =3D -ENOMEM;
++		goto err_clk;
++	}
++
++	/* Configure the touchscreen external FETs on the S3C2410 */
++	if (!platform_get_device_id(pdev)->driver_data)
++		s3c2410_ts_connect();
++
++	ts.client =3D s3c_adc_register(pdev, s3c24xx_ts_select,
++				     s3c24xx_ts_conversion, 1);
++	if (IS_ERR(ts.client)) {
++		dev_err(dev, "failed to register adc client\n");
++		ret =3D PTR_ERR(ts.client);
++		goto err_iomap;
++	}
++
++	/* Initialise registers */
++	if ((info->delay & 0xffff) > 0)
++		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
++
++	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
++
++	input_dev =3D input_allocate_device();
++	if (!input_dev) {
++		dev_err(dev, "Unable to allocate the input device !!\n");
++		ret =3D -ENOMEM;
++		goto err_iomap;
++	}
++
++	ts.input =3D input_dev;
++	ts.input->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	ts.input->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
++	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
++
++	ts.input->name =3D "S3C24XX TouchScreen";
++	ts.input->id.bustype =3D BUS_HOST;
++	ts.input->id.vendor =3D 0xDEAD;
++	ts.input->id.product =3D 0xBEEF;
++	ts.input->id.version =3D 0x0102;
++
++	ts.shift =3D info->oversampling_shift;
++
++	ret =3D request_irq(ts.irq_tc, stylus_irq, IRQF_DISABLED,
++			  "s3c2410_ts_pen", ts.input);
++	if (ret) {
++		dev_err(dev, "cannot get TC interrupt\n");
++		goto err_inputdev;
++	}
++
++	dev_info(dev, "driver attached, registering input device\n");
++
++	/* All went ok, so register to the input system */
++	ret =3D input_register_device(ts.input);
++	if (ret < 0) {
++		dev_err(dev, "failed to register input device\n");
++		ret =3D -EIO;
++		goto err_tcirq;
 +	}
 +
 +	return 0;
++
++ err_tcirq:
++	free_irq(ts.irq_tc, ts.input);
++ err_inputdev:
++	input_unregister_device(ts.input);
++ err_iomap:
++	iounmap(ts.io);
++ err_clk:
++	del_timer_sync(&touch_timer);
++	clk_put(ts.clock);
++	return ret;
 +}
-+#endif
- 
- /*****************************************************************************
-  * the different device descriptors
-@@ -783,6 +831,18 @@ static struct usbtouch_device_info usbto
- 		.read_data	= e2i_read_data,
- 	},
- #endif
 +
-+#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
-+	[DEVTYPE_ZYTRONIC] = {
-+		.min_xc		= 0x0,
-+		.max_xc		= 0x03ff,
-+		.min_yc		= 0x0,
-+		.max_yc		= 0x03ff,
-+		.rept_size	= 5,
-+		.read_data	= zytronic_read_data,
-+		.irq_always     = 1,
++/**
++ * s3c2410ts_remove - device core removal entry point
++ * @pdev: The device we are being removed from.
++ *
++ * Free up our state ready to be removed.
++ */
++static int s3c2410ts_remove(struct platform_device *pdev)
++{
++	free_irq(ts.irq_tc, ts.input);
++	del_timer_sync(&touch_timer);
++
++	clk_disable(ts.clock);
++	clk_put(ts.clock);
++
++	input_unregister_device(ts.input);
++	iounmap(ts.io);
++
++	return 0;
++}
++
++static int s3c2410ts_suspend(struct device *dev)
++{
++	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
++	disable_irq(ts.irq_tc);
++	clk_disable(ts.clock);
++
++	return 0;
++}
++
++static int s3c2410ts_resume(struct device *dev)
++{
++	struct platform_device *pdev =3D to_platform_device(dev);
++	struct s3c2410_ts_mach_info *info =3D pdev->dev.platform_data;
++
++	clk_enable(ts.clock);
++
++	/* Initialise registers */
++	if ((info->delay & 0xffff) > 0)
++		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
++
++	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
++
++	return 0;
++}
++
++static struct dev_pm_ops s3c_ts_pmops =3D {
++	.suspend	=3D s3c2410ts_suspend,
++	.resume		=3D s3c2410ts_resume,
++};
++
++static struct platform_device_id s3cts_driver_ids[] =3D {
++	{ "s3c2410-ts", 0 },
++	{ "s3c2440-ts", 1 },
++	{ }
++};
++MODULE_DEVICE_TABLE(platform, s3cts_driver_ids);
++
++static struct platform_driver s3c_ts_driver =3D {
++	.driver         =3D {
++		.name   =3D "s3c24xx-ts",
++		.owner  =3D THIS_MODULE,
++		.pm	=3D &s3c_ts_pmops,
 +	},
-+#endif
- };
- 
- 
-@@ -933,8 +993,10 @@ static int usbtouch_open(struct input_de
- 
- 	usbtouch->irq->dev = usbtouch->udev;
- 
--	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
--		return -EIO;
-+	if (!usbtouch->type->irq_always) {
-+		if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
-+		  return -EIO;
-+	}
- 
- 	return 0;
- }
-@@ -943,7 +1005,8 @@ static void usbtouch_close(struct input_
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
- 
--	usb_kill_urb(usbtouch->irq);
-+	if (!usbtouch->type->irq_always)
-+		usb_kill_urb(usbtouch->irq);
- }
- 
- 
-@@ -1066,6 +1129,9 @@ static int usbtouch_probe(struct usb_int
- 
- 	usb_set_intfdata(intf, usbtouch);
- 
-+	if (usbtouch->type->irq_always)
-+		usb_submit_urb(usbtouch->irq, GFP_KERNEL);
++	.id_table	=3D s3cts_driver_ids,
++	.probe		=3D s3c2410ts_probe,
++	.remove		=3D __devexit_p(s3c2410ts_remove),
++};
 +
- 	return 0;
- 
- out_free_buffers:
++static int __init s3c2410ts_init(void)
++{
++	return platform_driver_register(&s3c_ts_driver);
++}
++
++static void __exit s3c2410ts_exit(void)
++{
++	platform_driver_unregister(&s3c_ts_driver);
++}
++
++module_init(s3c2410ts_init);
++module_exit(s3c2410ts_exit);
++
++MODULE_AUTHOR("Arnaud Patard <arnaud.patard@rtp-net.org>, "
++	      "Ben Dooks <ben@simtec.co.uk>, "
++	      "Simtec Electronics <linux@simtec.co.uk>");
++MODULE_DESCRIPTION("S3C24XX Touchscreen driver");
++MODULE_LICENSE("GPL v2");
 
--- 
+--=20
 Ben (ben@fluff.org, http://www.fluff.org/)
 
   'a smiley only costs 4 bytes'
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

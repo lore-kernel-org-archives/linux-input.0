@@ -1,92 +1,198 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 15:14:56 +0100
-Message-ID: <m36391tjj3.fsf@intrepid.localdomain>
-References: <200910200956.33391.jarod@redhat.com>
-	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	<4B0A81BF.4090203@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ben Dooks <ben@simtec.co.uk>
+Subject: usbtouchscreen: Add support for Zytronic capacitive touchscreen
+Date: Mon, 23 Nov 2009 14:39:52 +0000
+Message-ID: <20091123143952.590982333@fluff.org.uk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:49307 "EHLO khc.piap.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753150AbZKWOOy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 09:14:54 -0500
-In-Reply-To: <4B0A81BF.4090203@redhat.com> (Mauro Carvalho Chehab's message of
-	"Mon, 23 Nov 2009 10:36:15 -0200")
+Received: from aeryn.fluff.org.uk ([87.194.8.8]:39575 "EHLO
+	kira.home.fluff.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753351AbZKWOkY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 09:40:24 -0500
+Content-Disposition: inline; filename=new-zytronic.patch
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, daniel.ritz@gmx.ch, ddstreet@ieee.org, floe@butterbrot.org, jim-linux@nurd.se, Daniel Silverstone <dsilvers@simtec.co.uk>, Vincent Sanders <vince@simtec.co.uk>, Simtec Linux Team <linux@simtec.co.uk>
 
-Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+From: Daniel Silverstone <dsilvers@simtec.co.uk>
 
-> Event input has the advantage that the keystrokes will provide an unique
-> representation that is independent of the device.
+Zytronic USB-attached capacitive touchscreen support within
+the generic USB touchscreen driver.
 
-This can hardly work as the only means, the remotes have different keys,
-the user almost always has to provide customized key<>function mapping.
+Signed-off-by: Daniel Silverstone <dsilvers@simtec.co.uk>
+Signed-off-by: Vincent Sanders <vince@simtec.co.uk>
+Signed-off-by: Simtec Linux Team <linux@simtec.co.uk>
 
-> Considering the common case
-> where the lirc driver will be associated with a media input device, the
-> IR type can be detected automatically on kernel. However, advanced users may
-> opt to use other IR types than what's provided with the device they
-> bought.
+---
+ drivers/input/touchscreen/Kconfig          |    6 ++
+ drivers/input/touchscreen/usbtouchscreen.c |   72 +++++++++++++++++++++++++++--
+ 2 files changed, 75 insertions(+), 3 deletions(-)
 
-I think most users would want to do that, though I don't have hard
-numbers of course. Why use a number of RCs simultaneously while one will
-do?
+Index: b/drivers/input/touchscreen/Kconfig
+===================================================================
+--- a/drivers/input/touchscreen/Kconfig	2009-11-23 22:29:31.000000000 +0000
++++ b/drivers/input/touchscreen/Kconfig	2009-11-23 22:29:31.000000000 +0000
+@@ -437,6 +437,7 @@ config TOUCHSCREEN_USB_COMPOSITE
+ 	  - IdealTEK URTC1000
+ 	  - GoTop Super_Q2/GogoPen/PenPower tablets
+ 	  - JASTEC USB Touch Controller/DigiTech DTR-02U
++	  - Zytronic controllers
+ 
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -509,6 +510,11 @@ config TOUCHSCREEN_USB_E2I
+ 	bool "e2i Touchscreen controller (e.g. from Mimo 740)"
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
++config TOUCHSCREEN_USB_ZYTRONIC
++	default y
++	bool "Zytronic controller" if EMBEDDED
++	depends on TOUCHSCREEN_USB_COMPOSITE
++
+ config TOUCHSCREEN_TOUCHIT213
+ 	tristate "Sahara TouchIT-213 touchscreen"
+ 	select SERIO
+Index: b/drivers/input/touchscreen/usbtouchscreen.c
+===================================================================
+--- a/drivers/input/touchscreen/usbtouchscreen.c	2009-11-23 22:25:02.000000000 +0000
++++ b/drivers/input/touchscreen/usbtouchscreen.c	2009-11-23 22:29:31.000000000 +0000
+@@ -14,6 +14,7 @@
+  *  - General Touch
+  *  - GoTop Super_Q2/GogoPen/PenPower tablets
+  *  - JASTEC USB touch controller/DigiTech DTR-02U
++ *  - Zytronic capacitive touchscreen
+  *
+  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
+  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
+@@ -73,6 +74,14 @@ struct usbtouch_device_info {
+ 	int min_press, max_press;
+ 	int rept_size;
+ 
++	/* Always service the USB devices irq not just when the input device is
++	 * open. This is useful when devices have a watchdog which prevents us
++	 * from periodically polling the device. Leave this unset unless your
++	 * touchscreen device requires it, as it does consume more of the USB
++	 * bandwidth.
++	 */
++	int irq_always;
++
+ 	void (*process_pkt) (struct usbtouch_usb *usbtouch, unsigned char *pkt, int len);
+ 
+ 	/*
+@@ -121,6 +130,7 @@ enum {
+ 	DEVTYPE_GOTOP,
+ 	DEVTYPE_JASTEC,
+ 	DEVTYPE_E2I,
++	DEVTYPE_ZYTRONIC,
+ };
+ 
+ #define USB_DEVICE_HID_CLASS(vend, prod) \
+@@ -201,6 +211,11 @@ static struct usb_device_id usbtouch_dev
+ #ifdef CONFIG_TOUCHSCREEN_USB_E2I
+ 	{USB_DEVICE(0x1ac7, 0x0001), .driver_info = DEVTYPE_E2I},
+ #endif
++
++#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
++	{USB_DEVICE(0x14c8, 0x0003), .driver_info = DEVTYPE_ZYTRONIC},
++#endif
++
+ 	{}
+ };
+ 
+@@ -621,6 +636,39 @@ static int jastec_read_data(struct usbto
+ }
+ #endif
+ 
++/*****************************************************************************
++ * Zytronic Part
++ */
++#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
++static int zytronic_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++{
++	switch (pkt[0]) {
++	case 0x3A: /* command response */
++		dbg("%s: Command response %d", __func__, pkt[1]);
++		break;
++
++	case 0xC0: /* down */
++		dev->x = (pkt[1] & 0x7f) | ((pkt[2] & 0x07) << 7);
++		dev->y = (pkt[3] & 0x7f) | ((pkt[4] & 0x07) << 7);
++		dev->touch = 1;
++		dbg("%s: down %d,%d", __func__, dev->x, dev->y);
++		return 1;
++
++	case 0x80: /* up */
++		dev->x = (pkt[1] & 0x7f) | ((pkt[2] & 0x07) << 7);
++		dev->y = (pkt[3] & 0x7f) | ((pkt[4] & 0x07) << 7);
++		dev->touch = 0;
++		dbg("%s: up %d,%d", __func__, dev->x, dev->y);
++		return 1;
++
++	default:
++		dbg("%s: Unknown return %d", __func__, pkt[0]);
++		break;
++	}
++
++	return 0;
++}
++#endif
+ 
+ /*****************************************************************************
+  * the different device descriptors
+@@ -783,6 +831,18 @@ static struct usbtouch_device_info usbto
+ 		.read_data	= e2i_read_data,
+ 	},
+ #endif
++
++#ifdef CONFIG_TOUCHSCREEN_USB_ZYTRONIC
++	[DEVTYPE_ZYTRONIC] = {
++		.min_xc		= 0x0,
++		.max_xc		= 0x03ff,
++		.min_yc		= 0x0,
++		.max_yc		= 0x03ff,
++		.rept_size	= 5,
++		.read_data	= zytronic_read_data,
++		.irq_always     = 1,
++	},
++#endif
+ };
+ 
+ 
+@@ -933,8 +993,10 @@ static int usbtouch_open(struct input_de
+ 
+ 	usbtouch->irq->dev = usbtouch->udev;
+ 
+-	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
+-		return -EIO;
++	if (!usbtouch->type->irq_always) {
++		if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
++		  return -EIO;
++	}
+ 
+ 	return 0;
+ }
+@@ -943,7 +1005,8 @@ static void usbtouch_close(struct input_
+ {
+ 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
+ 
+-	usb_kill_urb(usbtouch->irq);
++	if (!usbtouch->type->irq_always)
++		usb_kill_urb(usbtouch->irq);
+ }
+ 
+ 
+@@ -1066,6 +1129,9 @@ static int usbtouch_probe(struct usb_int
+ 
+ 	usb_set_intfdata(intf, usbtouch);
+ 
++	if (usbtouch->type->irq_always)
++		usb_submit_urb(usbtouch->irq, GFP_KERNEL);
++
+ 	return 0;
+ 
+ out_free_buffers:
 
-> It should also be noticed that not all the already-existing IR drivers
-> on kernel can provide a lirc interface, since several devices have
-> their own IR decoding chips inside the hardware.
-
-Right. I think they shouldn't use lirc interface, so it doesn't matter.
-
-> 2) create a lirc kernel API, and have a layer there to decode IR
-> protocols and output them via the already existing input layer. In
-> this case, all we need to do, in terms of API, is to add a way to set
-> the IR protocol that will be decoded, and to enumberate the
-> capabilities. The lirc API, will be an in-kernel API to communicate
-> with the devices that don't have IR protocols decoding capabilities
-> inside the hardware.
-
-I think this makes a lot of sense.
-But: we don't need a database of RC codes in the kernel (that's a lot of
-data, the user has to select the RC in use anyway so he/she can simply
-provide mapping e.g. RC5<>keycode).
-
-We do need RCx etc. protocols implementation in the kernel for the input
-layer.
-
-"lirc" interface: should we be sending time+on/off data to userspace, or
-the RC5 etc. should be implemented in the kernel? There is (?) only
-a handful of RC protocols, implementing them in the kernel and passing
-only information such as proto+group+code+press/release etc. should be
-more efficient.
-
-Perhaps the raw RCx data could be sent over the input layer as well?
-Something like the raw keyboard codes maybe?
-
-We need to handle more than one RC at a time, of course.
-
-> So, the basic question that should be decided is: should we create a new
-> userspace API for raw IR pulse/space
-
-I think so, doing the RCx proto handling in the kernel (but without
-RCx raw code <> key mapping in this case due to multiple controllers
-etc.). Though it could probably use the input layer as well(?).
-
-> or it would be better to standardize it
-> to always use the existing input layer?
-
-I'd optionally provide a keyboard-alike input layer interface, with
-mappings (proto + raw code <> key) provided by userspace program.
-This should also work with multiple remotes.
-
-Then the existing drivers (such as saa713x with GPIO+IRQ-driven IR
-receiver (IR signal on/off generating IRQ)) should be converted.
-
-I think we shouldn't at this time worry about IR transmitters.
 -- 
-Krzysztof Halasa
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

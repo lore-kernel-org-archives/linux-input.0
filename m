@@ -1,63 +1,73 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 15:39:21 -0200
-Message-ID: <4B0AC8C9.6080504@redhat.com>
-References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <4B0AB60B.2030006@s5r6.in-berlin.de>
+ 	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 15:50:40 -0200
+Message-ID: <4B0ACB70.9090707@redhat.com>
+References: <200910200956.33391.jarod@redhat.com>	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>	 <829197380911230720k233c3c86t659180d1413aa0dd@mail.gmail.com> <abc933c50911230905g60e2071bpbee9318817d56fb5@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40882 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:11608 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752287AbZKWRjp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 12:39:45 -0500
-In-Reply-To: <4B0AB60B.2030006@s5r6.in-berlin.de>
+	id S1753793AbZKWRuw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 12:50:52 -0500
+In-Reply-To: <abc933c50911230905g60e2071bpbee9318817d56fb5@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: James Mastros <james@mastros.biz>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Stefan Richter wrote:
-> Krzysztof Halasa wrote:
->> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
->>
->>> Event input has the advantage that the keystrokes will provide an unique
->>> representation that is independent of the device.
->> This can hardly work as the only means, the remotes have different keys,
->> the user almost always has to provide customized key<>function mapping.
+James Mastros wrote:
+> 2009/11/23 Devin Heitmueller <dheitmueller@kernellabs.com>:
+>> Just bear in mind that with the current in-kernel code, users do *not
+>> * have to manually select the RC code to use if they are using the
+>> default remote that shipped with the product.
+> This could still happen, if LIRC checks the identifiers of the
+> reciving device, and has a database that tells it mappings between
+> those devices and the remote controls that shipped with them.
+
+True, but this means that everyone with an IR will need to use lirc.
+
+/me thinks that, whatever decided with those lirc drivers, this should be applied also to the existing V4L/DVB drivers.
+
+IMO, it would be better to load the tables at the boot time (or at the 
+corresponding hotplug event, for USB devices).
+
+> However, it occours to me that the IR circumstances map pretty well to
+> what happens with ps/2 and serial devices now:
 > 
-> Modern input drivers in the mainline kernel have a scancode-to-keycode
-> translation table (or equivalent) which can be overwritten by userspace.
-> The mechanism to do that is the EVIOCSKEYCODE ioctl.
+> 1: There are a variety of drivers for serio computer-side hardware,
+> each of which speaks the serio interface to the next-higher level.
+> These corrospond to the drivers for IR recievers.
+> 2: There's a raw serio interface, for those wishing to do strange things.
+> 3: There's also a variety of things that take data, using the kernel
+> serio API, and decode it into input events -- the ps2 keyboard driver,
+> the basic mouse driver, the advanced mice drivers. 
 
-This mechanism is already used by all V4L drivers and several DVB drivers.
+Seems an interesting model.
 
-> (This is no recommendation for lirc.  I have no idea whether a
-> pulse/space -> scancode -> keycode translation would be practical there.)
+> This is where the
+> interface falls down a little bit -- the ps2 keyboard driver is the
+> closest analogue to what I'm suggesting.  The ps2 keyboard driver
+> creates scancode events, which map nicely to what the keyboard is
+> sending -- these are, for ex, rc5 codes.  It will also produce
+> key-up/key-down events, if it has a keymap loaded.  (This is the
+> difference with a ps2 keyboard -- a ps2 keyboard gets a map assigned
+> to it at boottime, so it works out-of-box.  This isn't really possible
+> with an IR remote -- though perhaps rc5 is standarized enough, I don't
+> think other protocols neccessarly are.)
 
-pulse/space -> scancode translation is already done by several existing drivers.
+Even with RC5, there are some vendors that implement it differently on his
+IR (for example, using VCR and/or TV group for the keys).
 
-For example, there are several bttv and saa7134 devices that polls (or receive
-IRQ interrupts) to detect pulses (and the absense of them) in order to create
-a pulse/space code. The conversion from pulse/space to scancode is done inside
-the driver, with the help of some generic routines and based on the protocol
-specifications.
+> Userspace would have to load a keymap; those don't really belong in
+> kernel code.  Of course, userspace could look at the device
+> identifiers to pick a reasonable default keymap if it's not configured
+> to load another, solving the out-of-box experince.
 
-The conversion from the scancode to a keycode is done based on in-kernel keycode
-tables that can be changed from userspace with EVIOCSKEYCODE ioctl.
-
-I can't see any technical reason why not doing the same for the lirc drivers,
-except for one issue:
-
-Those devices where the decoding is done by software can support any IR protocols.
-So, it is possible to buy a device with a NEC IR, and use a RC5 IR to control it.
-
-However, currently, there's no way to inform the kernel to use a different algorithm
-to translate the kernel.
-
-This can be solved by adding a few ioctls to enumerate the supported protocols and
-to select the one(s) that will be handled by the kernel driver.
+I like this idea. We currently have hundreds of IR keymaps already in kernel.
+It seems good to remove from kernel and let udev load those.
 
 Cheers,
-Mauro
+Mauro.

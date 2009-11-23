@@ -1,8 +1,8 @@
 From: James Mastros <james@mastros.biz>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
 	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 16:53:00 +0000
-Message-ID: <abc933c50911230853o1caab007te9ac07dbbbd6e191@mail.gmail.com>
+Date: Mon, 23 Nov 2009 17:05:53 +0000
+Message-ID: <abc933c50911230905g60e2071bpbee9318817d56fb5@mail.gmail.com>
 References: <200910200956.33391.jarod@redhat.com>
 	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
 	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
@@ -48,16 +48,4 @@ kernel code.  Of course, userspace could look at the device
 identifiers to pick a reasonable default keymap if it's not configured
 to load another, solving the out-of-box experince.
 
-Why is this such a contentious point?  I can understand wanting to
-keep uncommon decoding algos out of the kernel, and keymaps, but at
-the same time, they are currently there, in multiple drivers, and
-while colesing them into a single place each makes sense, I'm not
-convinced that moving them out completely makes all that much sense.
-Having an explicit layer between the raw pulse/space layer and the
-decoders means that usespace can hook in there, and create scancode
-events, if it wishes to, but for the majority of remotes that use just
-a couple of encoding schemes, the code can stay in the kernel.  Of
-course, devices that do the decoding in hardware would not implement
-the raw interface, but simply create the scancode/keycode events.
-
-   -=- James Mastros
+    -=- James Mastros

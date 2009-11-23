@@ -1,45 +1,92 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
-Date: Mon, 23 Nov 2009 13:54:36 +0000
-Message-ID: <20091123135435.GG24326@rakim.wolfsonmicro.main>
-References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com>
- <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
- <20091110134329.GB30911@sirena.org.uk>
- <20091110172637.GB15263@core.coreip.homeip.net>
- <1257933456.3507.42.camel@4fid08082>
- <20091111100837.GA6263@rakim.wolfsonmicro.main>
- <1258977955.5272.37.camel@4fid08082>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 15:14:56 +0100
+Message-ID: <m36391tjj3.fsf@intrepid.localdomain>
+References: <200910200956.33391.jarod@redhat.com>
+	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	<4B0A81BF.4090203@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35316 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751738AbZKWNya (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 08:54:30 -0500
-Content-Disposition: inline
-In-Reply-To: <1258977955.5272.37.camel@4fid08082>
+Received: from khc.piap.pl ([195.187.100.11]:49307 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753150AbZKWOOy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 09:14:54 -0500
+In-Reply-To: <4B0A81BF.4090203@redhat.com> (Mauro Carvalho Chehab's message of
+	"Mon, 23 Nov 2009 10:36:15 -0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Onkalo Samu <samu.p.onkalo@nokia.com>
-Cc: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Mon, Nov 23, 2009 at 02:05:55PM +0200, Onkalo Samu wrote:
+Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 
-> twl4030 keypad is more or less connected to omap based systems and this
-> kind of disabling and enabling feature is clearly targetted to embedded
+> Event input has the advantage that the keystrokes will provide an unique
+> representation that is independent of the device.
 
-There's rather a lot of embedded systems and off the shelf application
-stacks for them so having an interface that isn't driver-specific is
-also useful for them.
+This can hardly work as the only means, the remotes have different keys,
+the user almost always has to provide customized key<>function mapping.
 
-> systems. One more generic way could be to add ioctl to evdev driver
-> which calls chip-specific driver for disabling / enabling the keypad.
-> It is then up to chip specific driver to setup necessary callback
-> functions which makes actual job. Does this sound bad?
+> Considering the common case
+> where the lirc driver will be associated with a media input device, the
+> IR type can be detected automatically on kernel. However, advanced users may
+> opt to use other IR types than what's provided with the device they
+> bought.
 
-Something along these lines which makes the user space interface part of
-the common code, enabled if driver provides functions to implement the
-behaviour does seem like a good approach.
+I think most users would want to do that, though I don't have hard
+numbers of course. Why use a number of RCs simultaneously while one will
+do?
 
-sysfs might be easier to use than an ioctl(), though.
+> It should also be noticed that not all the already-existing IR drivers
+> on kernel can provide a lirc interface, since several devices have
+> their own IR decoding chips inside the hardware.
+
+Right. I think they shouldn't use lirc interface, so it doesn't matter.
+
+> 2) create a lirc kernel API, and have a layer there to decode IR
+> protocols and output them via the already existing input layer. In
+> this case, all we need to do, in terms of API, is to add a way to set
+> the IR protocol that will be decoded, and to enumberate the
+> capabilities. The lirc API, will be an in-kernel API to communicate
+> with the devices that don't have IR protocols decoding capabilities
+> inside the hardware.
+
+I think this makes a lot of sense.
+But: we don't need a database of RC codes in the kernel (that's a lot of
+data, the user has to select the RC in use anyway so he/she can simply
+provide mapping e.g. RC5<>keycode).
+
+We do need RCx etc. protocols implementation in the kernel for the input
+layer.
+
+"lirc" interface: should we be sending time+on/off data to userspace, or
+the RC5 etc. should be implemented in the kernel? There is (?) only
+a handful of RC protocols, implementing them in the kernel and passing
+only information such as proto+group+code+press/release etc. should be
+more efficient.
+
+Perhaps the raw RCx data could be sent over the input layer as well?
+Something like the raw keyboard codes maybe?
+
+We need to handle more than one RC at a time, of course.
+
+> So, the basic question that should be decided is: should we create a new
+> userspace API for raw IR pulse/space
+
+I think so, doing the RCx proto handling in the kernel (but without
+RCx raw code <> key mapping in this case due to multiple controllers
+etc.). Though it could probably use the input layer as well(?).
+
+> or it would be better to standardize it
+> to always use the existing input layer?
+
+I'd optionally provide a keyboard-alike input layer interface, with
+mappings (proto + raw code <> key) provided by userspace program.
+This should also work with multiple remotes.
+
+Then the existing drivers (such as saa713x with GPIO+IRQ-driven IR
+receiver (IR signal on/off generating IRQ)) should be converted.
+
+I think we shouldn't at this time worry about IR transmitters.
+-- 
+Krzysztof Halasa

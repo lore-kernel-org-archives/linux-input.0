@@ -1,57 +1,45 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 3/3 v2] lirc driver for SoundGraph iMON IR receivers and
- displays
-Date: Mon, 23 Nov 2009 10:58:56 -0200
-Message-ID: <4B0A8710.9060104@redhat.com>
-References: <200910200956.33391.jarod@redhat.com> <200910201000.57536.jarod@redhat.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
+Date: Mon, 23 Nov 2009 13:54:36 +0000
+Message-ID: <20091123135435.GG24326@rakim.wolfsonmicro.main>
+References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com>
+ <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
+ <20091110134329.GB30911@sirena.org.uk>
+ <20091110172637.GB15263@core.coreip.homeip.net>
+ <1257933456.3507.42.camel@4fid08082>
+ <20091111100837.GA6263@rakim.wolfsonmicro.main>
+ <1258977955.5272.37.camel@4fid08082>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <200910201000.57536.jarod@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35316 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751738AbZKWNya (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 08:54:30 -0500
+Content-Disposition: inline
+In-Reply-To: <1258977955.5272.37.camel@4fid08082>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Onkalo Samu <samu.p.onkalo@nokia.com>
+Cc: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Jarod Wilson wrote:
-> lirc driver for SoundGraph iMON IR receivers and displays
-> 
-> Successfully tested with multiple devices with and without displays.
-> 
+On Mon, Nov 23, 2009 at 02:05:55PM +0200, Onkalo Samu wrote:
 
+> twl4030 keypad is more or less connected to omap based systems and this
+> kind of disabling and enabling feature is clearly targetted to embedded
 
-> +static struct usb_device_id imon_usb_id_table[] = {
-> +	/* TriGem iMON (IR only) -- TG_iMON.inf */
-> +	{ USB_DEVICE(0x0aa8, 0x8001) },
-...
+There's rather a lot of embedded systems and off the shelf application
+stacks for them so having an interface that isn't driver-specific is
+also useful for them.
 
-Another set of USB vendor ID's... this time, vendors weren't described. The
-same comment I did on patch 2/3 applies here... IMO, we should really try
-to create a global list of vendors/devices on kernel. Of course this is not
-a non-go issue, as it is already present on several other USB drivers.
+> systems. One more generic way could be to add ioctl to evdev driver
+> which calls chip-specific driver for disabling / enabling the keypad.
+> It is then up to chip specific driver to setup necessary callback
+> functions which makes actual job. Does this sound bad?
 
-> +
-> +	/*
-> +	 * Translate received data to pulse and space lengths.
-> +	 * Received data is active low, i.e. pulses are 0 and
-> +	 * spaces are 1.
-> +	 *
-> +	 * My original algorithm was essentially similar to
-> +	 * Changwoo Ryu's with the exception that he switched
-> +	 * the incoming bits to active high and also fed an
-> +	 * initial space to LIRC at the start of a new sequence
-> +	 * if the previous bit was a pulse.
-> +	 *
-> +	 * I've decided to adopt his algorithm.
-> +	 */
-> +
+Something along these lines which makes the user space interface part of
+the common code, enabled if driver provides functions to implement the
+behaviour does seem like a good approach.
 
-Before digging into all code details, am I wrong or this device has the
-pulse/space decoding inside the chip?
-
-In this case, we shouldn't really be converting their IR keystroke events into
-a pseudo set of pulse/space marks, but use the standard events interface.
-
-Cheers,
-Mauro.
+sysfs might be easier to use than an ioctl(), though.

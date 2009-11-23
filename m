@@ -1,30 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] do not overwrite the first part of phys string
-Date: Mon, 23 Nov 2009 17:11:13 +0100 (CET)
-Message-ID: <alpine.LSU.2.00.0911231710390.6953@wotan.suse.de>
-References: <4B079CE0.60604@freemail.hu> <20091123160841.GA3491@core.coreip.homeip.net>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 17:19:23 +0100
+Message-ID: <4B0AB60B.2030006@s5r6.in-berlin.de>
+References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755719AbZKWQLK@vger.kernel.org>
-In-Reply-To: <20091123160841.GA3491@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-15?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hp3.statik.tu-cottbus.de ([141.43.120.68]:54324 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755219AbZKWQTv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 11:19:51 -0500
+In-Reply-To: <m36391tjj3.fsf@intrepid.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Mon, 23 Nov 2009, Dmitry Torokhov wrote:
+Krzysztof Halasa wrote:
+> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+> 
+>> Event input has the advantage that the keystrokes will provide an unique
+>> representation that is independent of the device.
+> 
+> This can hardly work as the only means, the remotes have different keys,
+> the user almost always has to provide customized key<>function mapping.
 
-> Do you want to split out usbkbd section or do you want me to pick up
-> everything?
+Modern input drivers in the mainline kernel have a scancode-to-keycode
+translation table (or equivalent) which can be overwritten by userspace.
+The mechanism to do that is the EVIOCSKEYCODE ioctl.
 
-Please go ahead with everything.
-
-	Acked-by: Jiri Kosina <jkosina@suse.cz>
-
-for that part, FWIW.
-
-Thanks,
-
+(This is no recommendation for lirc.  I have no idea whether a
+pulse/space -> scancode -> keycode translation would be practical there.)
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Stefan Richter
+-=====-==--= =-== =-===
+http://arcgraph.de/sr/

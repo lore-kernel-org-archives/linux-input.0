@@ -1,75 +1,50 @@
 From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 19:53:57 -0500
-Message-ID: <1259024037.3871.36.camel@palomino.walls.org>
-References: <BDRae8rZjFB@christoph>
+Date: Mon, 23 Nov 2009 20:14:35 -0500
+Message-ID: <1259025275.3871.55.camel@palomino.walls.org>
+References: <BDRae8rZjFB@christoph>  <m3einork1o.fsf@intrepid.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <BDRae8rZjFB@christoph>
-Sender: linux-media-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.radix.net ([207.192.128.31]:46693 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757579AbZKXBPp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Nov 2009 20:15:45 -0500
+In-Reply-To: <m3einork1o.fsf@intrepid.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
-> Czesc Krzysztof,
+On Mon, 2009-11-23 at 22:46 +0100, Krzysztof Halasa wrote:
+> lirc@bartelmus.de (Christoph Bartelmus) writes:
 > 
-> on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
-> [...]
-> > I think we shouldn't at this time worry about IR transmitters.
+> >> I think we shouldn't at this time worry about IR transmitters.
+> >
+> > Sorry, but I have to disagree strongly.
+> > Any interface without transmitter support would be absolutely unacceptable
+> > for many LIRC users, including myself.
 > 
-> Sorry, but I have to disagree strongly.
-> Any interface without transmitter support would be absolutely unacceptable  
-> for many LIRC users, including myself.
+> I don't say don't use a transmitter.
+> I say the transmitter is not an input device, they are completely
+> independent functions. I can't see any reason to try and fit both in the
+> same interface - can you?
 
-I agree with Christoph.  
+The underlying hardware need not be completely independent.
 
-Is it that the input subsystem is better developed and seen as a
-leverage point for development and thus an "easier" place to get results
-earlier?  If so, then one should definitely deal with transmitters early
-in the design, as that is where the most unknowns lie.
+For example, the CX2584[0123], CX2388[578], CX23418, and CX2310[012]
+chips have IR hardware that shares a common timing source, interrupt
+line, interrupt status register, etc, between IR Rx and Tx.  They can
+also do things like loopback of Tx to Rx.
 
-With the end of analog TV, people will have STBs feeding analog only
-video cards.  Being able to change the channel on the STB with an IR
-transmitter controlled by applications like MythTV is essential.
-
-
-And on some different notes:
-
-I generally don't understand the LIRC aversion I perceive in this thread
-(maybe I just have a skewed perception).  Aside for a video card's
-default remote setup, the suggestions so far don't strike me as any
-simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
-already works for both transmit and receive and has existing support in
-applications such as MythTV and mplayer.
-
-I believe Jarod's intent is to have the LIRC components, that need to be
-in kernel modules, moved into kernel mainline to avoid the headaches of
-out of kernel driver maintenance.  I'm not sure it is time well spent
-for developers, or end users, to develop yet another IR receive
-implementation in addition to the ones we suffer with now.
-
-
-I would also note that RC-6 Mode 6A, used by most MCE remotes, was
-developed by Philips, but Microsoft has some sort of licensing interest
-in it and it is almost surely encumbered somwhow:
-
-http://download.microsoft.com/download/9/8/f/98f3fe47-dfc3-4e74-92a3-088782200fe7/TWEN05007_WinHEC05.ppt
-
-"Microsoft recommends the Microsoft-Philips IR protocol (based on RC6)
-              * You can become a licensee at no charge to you
-[...]
-  * How to license RC6
-      * Contact RemoteMC @ microsoft.com for license agreement"
-
-
-I would much rather that RC-6 be handled as much as possible in user
-space than in the kernel.  LIRC userspace components already handle it,
-IIRC.
-
+That said, an underlying hardware implementation can be split up to user
+space with separate interfaces Tx and Rx.  The underlying driver module
+would have to manage the dependencies.  I would guess that would be
+easier for driver modules, if the userspace interfaces were designed
+with such combined IR Tx/Rx hardware in mind.
 
 Regards,
-Andy "LIRC Fan-Boy" Walls
+Andy
+

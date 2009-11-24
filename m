@@ -1,40 +1,61 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: Sat, 28 Nov 2009 18:40:30 +0100
-Message-ID: <m3638uy2cx.fsf@intrepid.localdomain>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
-	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	<m3aay6y2m1.fsf@intrepid.localdomain>
-	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Tue, 24 Nov 2009 23:23:57 +0000 (UTC)
+Message-ID: <loom.20091125T002338-652@post.gmane.org>
+References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:55302 "EHLO khc.piap.pl"
+Received: from lo.gmane.org ([80.91.229.12]:59608 "EHLO lo.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752756AbZK1Rk1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2009 12:40:27 -0500
-In-Reply-To: <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	(Jon Smirl's message of "Sat, 28 Nov 2009 12:37:40 -0500")
+	id S1752347AbZK1SAC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Nov 2009 13:00:02 -0500
+Received: from list by lo.gmane.org with local (Exim 4.50)
+	id 1NERaY-0000pP-6m
+	for linux-input@vger.kernel.org; Sat, 28 Nov 2009 19:00:06 +0100
+Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2009 19:00:06 +0100
+Received: from castet.matthieu by cac94-1-81-57-151-96.fbx.proxad.net with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2009 19:00:06 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+To: linux-input@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> writes:
-
->> 1. Merging the lirc drivers. The only stable thing needed is lirc
->> =C2=A0 interface.
 >
-> Doing that locks in a user space API that needs to be supported
-> forever. We need to think this API through before locking it in.
+Hi,
 
-Sure, that's why I wrote about the need for it to be "stable".
---=20
-Krzysztof Halasa
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+this remind me
+http://thread.gmane.org/gmane.linux.drivers.video-input-infrastructure/584/focus=585
+thread.
+
+
+
+
+Mauro Carvalho Chehab <mchehab <at> redhat.com> writes:
+
+
+> So, the basic question that should be decided is: should we create a new
+> userspace API for raw IR pulse/space or it would be better to standardize it
+> to always use the existing input layer?
+>
+To me the old ttpci approach was great :
+- the kernel does the IR pulse translation to input layer. In the current kernel
+there code duplication, it is done in many driver (with different way) [1].
+A new subdriver should take as input the decoded remote address, data and toggle
+and output a key in input layer
+- userspace need to configure IR pulse type (RC5, ...), remote address, keymap.
+But the kernel can have some default config for the hardware. Keymap are stored
+in userspace.
+
+
+
+Matthieu
+
+[1] for example there not way to specify remote remote address to use.
+"ir->addr" hardcoded in bttv, saa7134. em28xx doesn't use the decoded
+rc_address, ...
+

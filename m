@@ -1,50 +1,49 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 24 Nov 2009 08:32:40 -0500
-Message-ID: <6D934408-B713-49B6-A197-46CE663455AC@wilsonet.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:46894
-	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932858AbZKXNcv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 24 Nov 2009 08:32:51 -0500
-In-Reply-To: <1259024037.3871.36.camel@palomino.walls.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Anisse Astier <anisse@astier.eu>
+Subject: [PATCH] Input: i8042 - add Dell Vostro 1520 and 1720 to the reset
+ list
+Date: Tue, 24 Nov 2009 15:12:50 +0100
+Message-ID: <20091124151250.03e185d1@destiny.ordissimo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933006AbZKXOOF@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Nov 23, 2009, at 7:53 PM, Andy Walls wrote:
+These laptops may have i8042 in a bad state at very first boot or if you plug
+in a non-Dell power supply.
+Thus this patch is needed for proper keyboard and touchpad function.
 
-> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
-...
-> I generally don't understand the LIRC aversion I perceive in this thread
-> (maybe I just have a skewed perception).  Aside for a video card's
-> default remote setup, the suggestions so far don't strike me as any
-> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
-> already works for both transmit and receive and has existing support in
-> applications such as MythTV and mplayer.
+Signed-off-by: Anisse Astier <anisse@astier.eu>
+---
+ drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+), 0 deletions(-)
 
-There's one gripe I agree with, and that is that its still not plug-n-play. Something where udev auto-loads a sane default remote config for say, mceusb transceivers, and the stock mce remote Just Works would be nice, but auto-config is mostly out the window the second you involve transmitters and universal remotes anyway. But outside of that, I think objections are largely philosophical -- in a nutshell, the kernel has an input layer, remotes are input devices, and lirc doesn't conform to input layer standards. I do understand that argument, I just don't currently agree that all IR must go through the input layer before the drivers are acceptable for upstream -- especially since lircd can reinject decoded key presses into the input layer via uinput.
-
-> I believe Jarod's intent is to have the LIRC components, that need to be
-> in kernel modules, moved into kernel mainline to avoid the headaches of
-> out of kernel driver maintenance.  I'm not sure it is time well spent
-> for developers, or end users, to develop yet another IR receive
-> implementation in addition to the ones we suffer with now.
-
-Yeah, a fairly relevant factor in all this is that, despite not being in the linux kernel source tree proper-like, the lirc drivers and lirc have been in use for many years by lots of users. The likes of Fedora, Debian, Ubuntu, SUSE, Mandriva, etc. have all been shipping lirc drivers for years now. While lirc certainly isn't perfect (its not always the easiest thing for users to set up), it has actually proven itself pretty robust and useful in the field, once set up. The bulk of breakage in lirc I've personally had to deal with has mostly come in the form of kernel interface changes, which would definitely be mitigated by not having to maintain the drivers out-of-tree any longer.
-
-Now, I'm all for "improving" things and integrating better with the input subsystem, but what I don't really want to do is break compatibility with the existing setups on thousands (and thousands?) of MythTV boxes around the globe. The lirc userspace can be pretty nimble. If we can come up with a shiny new way that raw IR can be passed out through an input device, I'm pretty sure lirc userspace can be adapted to handle that. If a new input-layer-based transmit interface is developed, we can take advantage of that too. But there's already a very mature lirc interface for doing all of this. So why not start with adding things more or less as they exist right now and evolve the drivers into an idealized form? Getting *something* into the kernel in the first place is a huge step in that direct
- ion.
-
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index a537925..7d1cebc 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -447,6 +447,20 @@ static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "N10"),
+ 		},
+ 	},
++	{
++		.ident = "Dell Vostro 1520",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1520"),
++		},
++	},
++	{
++		.ident = "Dell Vostro 1720",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 1720"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
-Jarod Wilson
-jarod@wilsonet.com
-
-
-
+1.6.5.2

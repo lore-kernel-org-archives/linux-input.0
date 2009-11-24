@@ -1,36 +1,75 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 23 Nov 2009 23:53:08 +0100
-Message-ID: <m31vjorgyz.fsf@intrepid.localdomain>
-References: <BDRae8rZjFB@christoph> <m3einork1o.fsf@intrepid.localdomain>
-	<829197380911231354y764e01b7hc0c5721b3ebf1f26@mail.gmail.com>
-	<m36390rhzp.fsf@intrepid.localdomain>
-	<829197380911231437v909a111rcc2967af3e4fffa2@mail.gmail.com>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 23 Nov 2009 19:53:57 -0500
+Message-ID: <1259024037.3871.36.camel@palomino.walls.org>
+References: <BDRae8rZjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:33120 "EHLO khc.piap.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756021AbZKWWxF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Nov 2009 17:53:05 -0500
-In-Reply-To: <829197380911231437v909a111rcc2967af3e4fffa2@mail.gmail.com>
-	(Devin Heitmueller's message of "Mon, 23 Nov 2009 17:37:00 -0500")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <BDRae8rZjFB@christoph>
+Sender: linux-media-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Devin Heitmueller <dheitmueller@kernellabs.com> writes:
+On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
+> Czesc Krzysztof,
+> 
+> on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
+> [...]
+> > I think we shouldn't at this time worry about IR transmitters.
+> 
+> Sorry, but I have to disagree strongly.
+> Any interface without transmitter support would be absolutely unacceptable  
+> for many LIRC users, including myself.
 
-> For example, you might want the IR receiver to be listening for codes
-> using the "Universal Remote Control XYZ" profile and the IR
-> transmitter pretending to be "Cable Company Remote Control ABC" when
-> blasting IR codes to the cable box.  Ideally, there would be a single
-> shared database of the definitions of the remote controls, regardless
-> of whether you are IR receiving or transmitting.
+I agree with Christoph.  
 
-Well, with different receivers, the maps must certainly be different.
-There can be single database in the userspace but the kernel must be
-uploaded the relevant info only.
--- 
-Krzysztof Halasa
+Is it that the input subsystem is better developed and seen as a
+leverage point for development and thus an "easier" place to get results
+earlier?  If so, then one should definitely deal with transmitters early
+in the design, as that is where the most unknowns lie.
+
+With the end of analog TV, people will have STBs feeding analog only
+video cards.  Being able to change the channel on the STB with an IR
+transmitter controlled by applications like MythTV is essential.
+
+
+And on some different notes:
+
+I generally don't understand the LIRC aversion I perceive in this thread
+(maybe I just have a skewed perception).  Aside for a video card's
+default remote setup, the suggestions so far don't strike me as any
+simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
+already works for both transmit and receive and has existing support in
+applications such as MythTV and mplayer.
+
+I believe Jarod's intent is to have the LIRC components, that need to be
+in kernel modules, moved into kernel mainline to avoid the headaches of
+out of kernel driver maintenance.  I'm not sure it is time well spent
+for developers, or end users, to develop yet another IR receive
+implementation in addition to the ones we suffer with now.
+
+
+I would also note that RC-6 Mode 6A, used by most MCE remotes, was
+developed by Philips, but Microsoft has some sort of licensing interest
+in it and it is almost surely encumbered somwhow:
+
+http://download.microsoft.com/download/9/8/f/98f3fe47-dfc3-4e74-92a3-088782200fe7/TWEN05007_WinHEC05.ppt
+
+"Microsoft recommends the Microsoft-Philips IR protocol (based on RC6)
+              * You can become a licensee at no charge to you
+[...]
+  * How to license RC6
+      * Contact RemoteMC @ microsoft.com for license agreement"
+
+
+I would much rather that RC-6 be handled as much as possible in user
+space than in the kernel.  LIRC userspace components already handle it,
+IIRC.
+
+
+Regards,
+Andy "LIRC Fan-Boy" Walls

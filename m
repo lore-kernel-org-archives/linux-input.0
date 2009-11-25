@@ -1,36 +1,38 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Wed, 25 Nov 2009 21:47:48 +0100
-Message-ID: <m3ws1e49hn.fsf@intrepid.localdomain>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ?
+Date: Wed, 25 Nov 2009 21:49:28 +0100
+Message-ID: <m3skc249ev.fsf@intrepid.localdomain>
 References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
 	<E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
 	<829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
+	<E88E119C-BB86-4F01-8C2C-E514AC6BA5E2@wilsonet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:37129 "EHLO khc.piap.pl"
+Received: from khc.piap.pl ([195.187.100.11]:52066 "EHLO khc.piap.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759819AbZKYUrp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 15:47:45 -0500
-In-Reply-To: <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
-	(Devin Heitmueller's message of "Wed, 25 Nov 2009 13:20:21 -0500")
+	id S933459AbZKYUtX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 15:49:23 -0500
+In-Reply-To: <E88E119C-BB86-4F01-8C2C-E514AC6BA5E2@wilsonet.com> (Jarod
+	Wilson's message of "Wed, 25 Nov 2009 13:43:24 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Devin Heitmueller <dheitmueller@kernellabs.com> writes:
+Jarod Wilson <jarod@wilsonet.com> writes:
 
-> The other key thing I don't think we have given much thought to is the
-> fact that in many tuners, the hardware does RC decoding and just
-> returns NEC/RC5/RC6 codes.  And in many of those cases, the hardware
-> has to be configured to know what format to receive.  We probably need
-> some kernel API such that the hardware can tell lirc what formats are
-> supported, and another API call to tell the hardware which mode to
-> operate in.
+> Well, we've got a number of IOCTLs already, could extend those.
+> (Although its been suggested elsewhere that we replace the IOCTLs with
+> sysfs knobs).
 
-For such cases, I wouldn't bother with lirc mode. Input layer + key
-mapping with ioctl (probably improved), and lircd can grab events from
-input layer if needed.
+Not sure if sysfs would be fast enough.
+
+> A simple sysfs attr that contains the name of the default config file
+> for the bundled remote of a given receiver would seem simple enough to
+> implement.
+
+A model name maybe. Though there is this mapping thing which I think
+need ioctl().
 -- 
 Krzysztof Halasa

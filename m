@@ -1,54 +1,94 @@
-From: Sean Young <sean@mess.org>
-Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 21:32:46 +0000
-Message-ID: <20091125213246.GA44831@atlantis.8hz.com>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <1259105571.28219.20.camel@maxim-laptop> <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net> <1259155734.4875.23.camel@maxim-laptop>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: [rft]basic power management methods for usbtouch
+Date: Wed, 25 Nov 2009 22:55:13 +0100
+Message-ID: <200911252255.13060.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935029AbZKYVj7@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1259155734.4875.23.camel@maxim-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: Trent Piepho <xyzzy@speakeasy.org>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: daniel.ritz-OI3hZJvNYWs@public.gmane.org, Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 25, 2009 at 03:28:54PM +0200, Maxim Levitsky wrote:
-> On Tue, 2009-11-24 at 19:32 -0800, Trent Piepho wrote: 
-> > On Wed, 25 Nov 2009, Maxim Levitsky wrote:
-> > > Its not the case.
-> > > There are many protocols, I know that by experimenting with my universal
-> > > remote. There are many receivers, and all have different accuracy.
-> > > Most remotes aren't designed to be used with PC, thus user has to invent
-> > > mapping between buttons and actions.
-> > > Its is not possible to identify remotes accurately, many remotes send
-> > > just a 8 bit integer that specifies the 'model' thus many remotes can
-> > > share it.
-> > 
-> > The signal recevied by the ir receiver contains glitches.  Depending on the
-> > receiver there can be quite a few.  It is also not trivial to turn the raw
-> > signal sent by the remote into a digital value, even if you know what to
-> > expect.  It takes digital signal processing techniques to turn the messy
-> > sequence of inaccurate mark and space lengths into a best guess at what
-> > digital code the remote sent.
-> Exactly
-> 
-> > 
-> > It's like turning raw VBI data into decoded ASCII teletext from a simulated
-> > keyboard device, all in the kernel.
-> You hit a nail on the head with this one.
+Hi,
 
-Absolutely. There are a number of use cases when you want access to the 
-space-pulse (i.e. IR) information. For debugging purposes; support for 
-non-standard remotes. Being able to do a precise recording of IR activity
-so you can replay without parsing. One could even imagine IR being used 
-for completely different purposes than "key strokes", so the kernel
-should not enforce this "policy".
+this is supposed to implement the basic power management methods
+for usbtouchscreen. Please test.
 
-In the past I've spent time dissecting the IR output of a strange remote, 
-I would hate to think this would not be possible due to mad kernel 
-interfaces which cater just for drooling in front of the telly with
-your *new* remote.
+	Regards
+		Oliver
 
+--
 
-Sean
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 68ece58..28e30af 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -946,6 +946,52 @@ static void usbtouch_close(struct input_dev *input)
+ 	usb_kill_urb(usbtouch->irq);
+ }
+ 
++static int usbtouch_suspend
++(struct usb_interface *intf, pm_message_t message)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++	
++	usb_kill_urb(usbtouch->irq);
++	return 0;
++}
++
++static int usbtouch_resume(struct usb_interface *intf)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++	struct input_dev *input = usbtouch->input;
++	int result = 0;
++	
++	mutex_lock(&input->mutex);
++	if (input->users)
++		result = usb_submit_urb(usbtouch->irq, GFP_NOIO);
++	mutex_unlock(&input->mutex);
++	return result;
++}
++
++static int usbtouch_reset_resume(struct usb_interface *intf)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++	struct input_dev *input = usbtouch->input;
++	int err = 0;
++	
++	/* reinit the device */
++	if (usbtouch->type->init) {
++		err = usbtouch->type->init(usbtouch);
++		if (err) {
++			dbg("%s - type->init() failed, err: %d",
++			    __func__, err);
++			return err;
++		}
++	}
++
++	/* restart IO if needed */
++	mutex_lock(&input->mutex);
++	if (input->users)
++		err = usb_submit_urb(usbtouch->irq, GFP_NOIO);
++	mutex_unlock(&input->mutex);
++	
++	return err;
++}
+ 
+ static void usbtouch_free_buffers(struct usb_device *udev,
+ 				  struct usbtouch_usb *usbtouch)
+@@ -1100,6 +1146,9 @@ static struct usb_driver usbtouch_driver = {
+ 	.name		= "usbtouchscreen",
+ 	.probe		= usbtouch_probe,
+ 	.disconnect	= usbtouch_disconnect,
++	.suspend	= usbtouch_suspend,
++	.resume		= usbtouch_resume,
++	.reset_resume	= usbtouch_reset_resume,
+ 	.id_table	= usbtouch_devices,
+ };
+ 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,52 +1,48 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 18:18:38 +0100
-Message-ID: <m34ooi7cb5.fsf@intrepid.localdomain>
-References: <200910200956.33391.jarod@redhat.com>
-	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<20091123173726.GE17813@core.coreip.homeip.net>
-	<4B0B6321.3050001@wilsonet.com>
-	<1259105571.28219.20.camel@maxim-laptop>
-	<Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: 25 Nov 2009 18:20:00 +0100
+Message-ID: <BDZb9P9ZjFB@christoph>
+References: <m3fx827dgi.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:34672 "EHLO khc.piap.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933761AbZKYRSe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 12:18:34 -0500
-In-Reply-To: <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net> (Trent
-	Piepho's message of "Tue, 24 Nov 2009 19:32:42 -0800 (PST)")
+Received: from moutng.kundenserver.de ([212.227.17.9]:55436 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932340AbZKYRXN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 12:23:13 -0500
+In-Reply-To: <m3fx827dgi.fsf@intrepid.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: khc@pm.waw.pl
+Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Trent Piepho <xyzzy@speakeasy.org> writes:
+Hi,
 
-> The signal recevied by the ir receiver contains glitches.  Depending on the
-> receiver there can be quite a few.  It is also not trivial to turn the raw
-> signal sent by the remote into a digital value, even if you know what to
-> expect.  It takes digital signal processing techniques to turn the messy
-> sequence of inaccurate mark and space lengths into a best guess at what
-> digital code the remote sent.
+on 25 Nov 09 at 17:53, Krzysztof Halasa wrote:
+> Jarod Wilson <jarod@wilsonet.com> writes:
+[...]
+>> nimble. If we can come up with a shiny new way that raw IR can be
+>> passed out through an input device, I'm pretty sure lirc userspace can
+>> be adapted to handle that.
 
-This is of course true. Except that most receivers do that in hardware,
-the receiver/demodular chip such as TSOP1838 does it.
-If you receive with a phototransistor or a photodiode feeding some sort
-of ADC device (not a very smart design), sure - you have to do this
-yourself.
+As Trent already pointed out, adding support for raw IR through an input  
+device would require a new interface too. You just put the label "input  
+device" on it. This does not make much sense for me.
 
-I have never heard of such receiver, though.
+> Lirc can already handle input layer. Since both ways require userspace
+> changes,
 
-> One thing that could be done, unless it has changed much since I wrote it
-> 10+ years ago, is to take the mark/space protocol the ir device uses and sent
-> that data to lircd via the input layer.  It would be less efficient, but
-> would avoid another kernel interface.  Of course the input layer to lircd
-> interface would be somewhat different than other input devices, so
-> it's not entirely correct to say another interface is avoided.
+I'm not sure what two ways you are talking about. With the patches posted  
+by Jarod, nothing has to be changed in userspace.
+Everything works, no code needs to be written and tested, everybody is  
+happy.
 
-IOW, it would be worse, wouldn't it?
--- 
-Krzysztof Halasa
+We had exactly the same discussion around one year ago. I've seen no new  
+arguements in the current discussion and nobody came up with this shiny  
+new way of integrating LIRC into the input layer since last year. Maybe  
+it's about time to just accept that the LIRC interface is the way to go.
+
+Can we finally get the patch integrated, please?
+
+Christoph

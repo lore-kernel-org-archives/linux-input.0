@@ -1,79 +1,177 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 15:28:54 +0200
-Message-ID: <1259155734.4875.23.camel@maxim-laptop>
-References: <200910200956.33391.jarod@redhat.com>
-	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	 <20091123173726.GE17813@core.coreip.homeip.net>
-	 <4B0B6321.3050001@wilsonet.com> <1259105571.28219.20.camel@maxim-laptop>
-	 <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+From: Onkalo Samu <samu.p.onkalo@nokia.com>
+Subject: Re: [PATCH 1/1] TWL4030 keypad: keypad lock / unlock
+Date: Wed, 25 Nov 2009 16:22:17 +0200
+Message-ID: <1259158937.9055.6.camel@4fid08082>
+References: <1257841448-12757-1-git-send-email-samu.p.onkalo@nokia.com>
+	 <1257841448-12757-2-git-send-email-samu.p.onkalo@nokia.com>
+	 <20091110134329.GB30911@sirena.org.uk>
+	 <20091110172637.GB15263@core.coreip.homeip.net>
+	 <1257933456.3507.42.camel@4fid08082>
+	 <20091111100837.GA6263@rakim.wolfsonmicro.main>
+	 <1258977955.5272.37.camel@4fid08082>
+	 <20091123135435.GG24326@rakim.wolfsonmicro.main>
+Reply-To: samu.p.onkalo@nokia.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:34830 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964930AbZKYN2y (ORCPT
+Received: from smtp.nokia.com ([192.100.105.134]:37575 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934703AbZKYOWd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 08:28:54 -0500
-In-Reply-To: <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+	Wed, 25 Nov 2009 09:22:33 -0500
+In-Reply-To: <20091123135435.GG24326@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: ext Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, 2009-11-24 at 19:32 -0800, Trent Piepho wrote: 
-> On Wed, 25 Nov 2009, Maxim Levitsky wrote:
-> >
-> > Its not the case.
-> > There are many protocols, I know that by experimenting with my universal
-> > remote. There are many receivers, and all have different accuracy.
-> > Most remotes aren't designed to be used with PC, thus user has to invent
-> > mapping between buttons and actions.
-> > Its is not possible to identify remotes accurately, many remotes send
-> > just a 8 bit integer that specifies the 'model' thus many remotes can
-> > share it.
+On Mon, 2009-11-23 at 14:54 +0100, ext Mark Brown wrote:
+> On Mon, Nov 23, 2009 at 02:05:55PM +0200, Onkalo Samu wrote:
 > 
-> The signal recevied by the ir receiver contains glitches.  Depending on the
-> receiver there can be quite a few.  It is also not trivial to turn the raw
-> signal sent by the remote into a digital value, even if you know what to
-> expect.  It takes digital signal processing techniques to turn the messy
-> sequence of inaccurate mark and space lengths into a best guess at what
-> digital code the remote sent.
-Exactly
-
+> > twl4030 keypad is more or less connected to omap based systems and this
+> > kind of disabling and enabling feature is clearly targetted to embedded
 > 
-> It's like turning raw VBI data into decoded ASCII teletext from a simulated
-> keyboard device, all in the kernel.
-You hit a nail on the head with this one.
-
-
+> There's rather a lot of embedded systems and off the shelf application
+> stacks for them so having an interface that isn't driver-specific is
+> also useful for them.
 > 
-> > Kernel job is to take the information from device and present it to
-> > userspace using uniform format, that is kernel does 1:1 translating, but
-> > doesn't parse the data.
-
+> > systems. One more generic way could be to add ioctl to evdev driver
+> > which calls chip-specific driver for disabling / enabling the keypad.
+> > It is then up to chip specific driver to setup necessary callback
+> > functions which makes actual job. Does this sound bad?
 > 
-> One thing that could be done, unless it has changed much since I wrote it
-> 10+ years ago, is to take the mark/space protocol the ir device uses and sent
-> that data to lircd via the input layer.  It would be less efficient, but
-> would avoid another kernel interface.  Of course the input layer to lircd
-> interface would be somewhat different than other input devices, so
-> it's not entirely correct to say another interface is avoided.
-I agree with this one, but it is very optional.
+> Something along these lines which makes the user space interface part of
+> the common code, enabled if driver provides functions to implement the
+> behaviour does seem like a good approach.
+> 
+> sysfs might be easier to use than an ioctl(), though.
 
-I also want to add that lirc can and does behave just like an input
-device. 
-It sends the parsed events using uinput, so your remote appears just
-like a keyboard.
-It can even act like a mouse, and btw I use that feature, and it works
-just fine.
+Something like that:
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index cc763c9..94824a4 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1305,6 +1305,49 @@ static int input_dev_uevent(struct device
+*device, struct kobj_uevent_env *env)
+ 		}						\
+ 	} while (0)
+ 
++/* SYSFS */
++static ssize_t input_dev_get_disable(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct input_dev *input_dev = to_input_dev(dev);
++	return sprintf(buf, "%u\n", input_dev->disabled);
++}
++
++static ssize_t input_dev_set_disable(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	struct input_dev *input_dev = to_input_dev(dev);
++	long i = 0;
++	int ret;
++
++	if (!(input_dev->disable && input_dev->enable))
++		return 0;
++
++	ret = strict_strtoul(buf, 0, &i);
++	if (ret)
++		return -EINVAL;
++	i = !!i;
++
++	mutex_lock(&input_dev->mutex);
++	if (input_dev->disabled == i) {
++		mutex_unlock(&input_dev->mutex);
++		return count;
++	}
++	input_dev->disabled = i;
+
+should this be a counter or boolean? Or should this be in driver itself
+and not in input system.
+
++
++	if (i)
++		input_dev->disable(input_dev);
++	else
++		input_dev->enable(input_dev);
++
++	mutex_unlock(&input_dev->mutex);
++	return count;
++}
++
++static DEVICE_ATTR(disable, S_IRUGO | S_IWUSR, input_dev_get_disable,
++		input_dev_set_disable);
++
+ #ifdef CONFIG_PM
+ static void input_dev_reset(struct input_dev *dev, bool activate)
+ {
+@@ -1539,6 +1582,13 @@ int input_register_device(struct input_dev *dev)
+ 		return error;
+ 	}
+ 
++	error = device_create_file(&dev->dev, &dev_attr_disable);
++	if (error < 0) {
++		device_del(&dev->dev);
++		mutex_unlock(&input_mutex);
++		return error;
++	}
++
+ 	list_add_tail(&dev->node, &input_dev_list);
+ 
+ 	list_for_each_entry(handler, &input_handler_list, node)
+@@ -1578,6 +1628,8 @@ void input_unregister_device(struct input_dev
+*dev)
+ 
+ 	mutex_unlock(&input_mutex);
+ 
++	device_remove_file(&dev->dev, &dev_attr_disable);
++
+ 	device_unregister(&dev->dev);
+ }
+ EXPORT_SYMBOL(input_unregister_device);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 0ccfc30..e6e1098 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1048,6 +1048,11 @@ struct ff_effect {
+  *	or EV_SND. The device is expected to carry out the requested
+  *	action (turn on a LED, play sound, etc.) The call is protected
+  *	by @event_lock and must not sleep
++ * @enable: method is called when user wants to enable driver which was
++ *	disabled using disable-method (optional).
++ * @disable: method is called when user wants to temporarily disable
+the
++ *	driver (example: tell keyboard driver to disable scanning at
++ *	HW level) (optional).
+  * @grab: input handle that currently has the device grabbed (via
+  *	EVIOCGRAB ioctl). When a handle grabs a device it becomes sole
+  *	recipient for all input events coming from the device
+@@ -1116,6 +1121,8 @@ struct input_dev {
+ 	void (*close)(struct input_dev *dev);
+ 	int (*flush)(struct input_dev *dev, struct file *file);
+ 	int (*event)(struct input_dev *dev, unsigned int type, unsigned int
+code, int value);
++	int (*enable)(struct input_dev *dev);
++	int (*disable)(struct input_dev *dev);
+ 
+ 	struct input_handle *grab;
+ 
+@@ -1124,6 +1131,7 @@ struct input_dev {
+ 
+ 	unsigned int users;
+ 	bool going_away;
++	bool disabled;
+ 
+ 	struct device dev;
+ 
+
+TWL4030 driver just setup the pointers to HW control functions.
+
+-Samu
+ 
 
 
-So lets put lirc into the kernel finally?
-
-Best regards,
-Maxim Levitsky
 
 

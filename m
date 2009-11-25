@@ -1,53 +1,79 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: [PATCH] input_ gpio_keys: scan gpio state at probe time
-Date: Wed, 25 Nov 2009 11:53:36 +0100
-Message-ID: <1259146416-6713-1-git-send-email-daniel@caiaq.de>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: IR raw input is not sutable for input system
+Date: Wed, 25 Nov 2009 15:28:54 +0200
+Message-ID: <1259155734.4875.23.camel@maxim-laptop>
+References: <200910200956.33391.jarod@redhat.com>
+	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	 <20091123173726.GE17813@core.coreip.homeip.net>
+	 <4B0B6321.3050001@wilsonet.com> <1259105571.28219.20.camel@maxim-laptop>
+	 <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:58368 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934121AbZKYKxk (ORCPT
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:34830 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964930AbZKYN2y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 05:53:40 -0500
+	Wed, 25 Nov 2009 08:28:54 -0500
+In-Reply-To: <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Daniel Mack <daniel@caiaq.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jani Nikula <ext-jani.1.nikula@nokia.com>, Mike Rapoport <mike@compulab.co.il>
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-gpio_keys.c registers interrupts at both edges of all given gpio lines
-and updates the input device when they change. However, the driver fails
-to check the current line state at probe time.
+On Tue, 2009-11-24 at 19:32 -0800, Trent Piepho wrote: 
+> On Wed, 25 Nov 2009, Maxim Levitsky wrote:
+> >
+> > Its not the case.
+> > There are many protocols, I know that by experimenting with my universal
+> > remote. There are many receivers, and all have different accuracy.
+> > Most remotes aren't designed to be used with PC, thus user has to invent
+> > mapping between buttons and actions.
+> > Its is not possible to identify remotes accurately, many remotes send
+> > just a 8 bit integer that specifies the 'model' thus many remotes can
+> > share it.
+> 
+> The signal recevied by the ir receiver contains glitches.  Depending on the
+> receiver there can be quite a few.  It is also not trivial to turn the raw
+> signal sent by the remote into a digital value, even if you know what to
+> expect.  It takes digital signal processing techniques to turn the messy
+> sequence of inaccurate mark and space lengths into a best guess at what
+> digital code the remote sent.
+Exactly
 
-Signed-off-by: Daniel Mack <daniel@caiaq.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Cc: Mike Rapoport <mike@compulab.co.il>
----
- drivers/input/keyboard/gpio_keys.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+> 
+> It's like turning raw VBI data into decoded ASCII teletext from a simulated
+> keyboard device, all in the kernel.
+You hit a nail on the head with this one.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 77d1309..cb5f862 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -171,6 +171,18 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		goto fail2;
- 	}
- 
-+	/* get current state of buttons */
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_keys_button *button = &pdata->buttons[i];
-+		int state = !!gpio_get_value(button->gpio) ^ button->active_low;
-+
-+		if (state) {
-+			unsigned int type = button->type ?: EV_KEY;
-+			input_event(input, type, button->code, !!state);
-+			input_sync(input);
-+		}
-+	}
-+
- 	device_init_wakeup(&pdev->dev, wakeup);
- 
- 	return 0;
--- 
-1.6.5.2
+
+> 
+> > Kernel job is to take the information from device and present it to
+> > userspace using uniform format, that is kernel does 1:1 translating, but
+> > doesn't parse the data.
+
+> 
+> One thing that could be done, unless it has changed much since I wrote it
+> 10+ years ago, is to take the mark/space protocol the ir device uses and sent
+> that data to lircd via the input layer.  It would be less efficient, but
+> would avoid another kernel interface.  Of course the input layer to lircd
+> interface would be somewhat different than other input devices, so
+> it's not entirely correct to say another interface is avoided.
+I agree with this one, but it is very optional.
+
+I also want to add that lirc can and does behave just like an input
+device. 
+It sends the parsed events using uinput, so your remote appears just
+like a keyboard.
+It can even act like a mouse, and btw I use that feature, and it works
+just fine.
+
+
+So lets put lirc into the kernel finally?
+
+Best regards,
+Maxim Levitsky
+
 

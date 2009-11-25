@@ -1,48 +1,81 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: IR raw input is not sutable for input system
-Date: Thu, 26 Nov 2009 00:52:02 +0200
-Message-ID: <1259189522.15916.1.camel@maxim-laptop>
-References: <200910200956.33391.jarod@redhat.com>
-	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	 <20091123173726.GE17813@core.coreip.homeip.net>
-	 <4B0B6321.3050001@wilsonet.com> <1259105571.28219.20.camel@maxim-laptop>
-	 <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
-	 <1259155734.4875.23.camel@maxim-laptop>
-	 <20091125213246.GA44831@atlantis.8hz.com>
-	 <m3d43644q6.fsf@intrepid.localdomain>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 00:22:21 +0100
+Message-ID: <4B0DBC2D.1010603@redhat.com>
+References: <BDZbPXRZjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.152]:27243 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964951AbZKYWwB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 17:52:01 -0500
-In-Reply-To: <m3d43644q6.fsf@intrepid.localdomain>
+Received: from mx1.redhat.com ([209.132.183.28]:5521 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758914AbZKYXWd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 18:22:33 -0500
+In-Reply-To: <BDZbPXRZjFB@christoph>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Sean Young <sean@mess.org>, Trent Piepho <xyzzy@speakeasy.org>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: awalls@radix.net, dheitmueller@kernellabs.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Wed, 2009-11-25 at 23:30 +0100, Krzysztof Halasa wrote: 
-> Sean Young <sean@mess.org> writes:
-> 
-> > Absolutely. There are a number of use cases when you want access to the 
-> > space-pulse (i.e. IR) information.
-> 
-> I think nobody proposes otherwise (except for devices which can't pass
-> this info).
+>> (1) ir code (say rc5) ->  keycode conversion looses information.
+>>
+>> I think this can easily be addressed by adding a IR event type to the
+>> input layer, which could look like this:
+>>
+>>     input_event->type  = EV_IR
+>>     input_event->code  = IR_RC5
+>>     input_event->value =<rc5 value>
+>>
+>> In case the 32bit value is too small we might want send two events
+>> instead, with ->code being set to IR_<code>_1 and IR_<code>_2
+>>
+>> Advantages:
+>>     * Applications (including lircd) can get access to the unmodified
+>>       rc5/rc6/... codes.
+>
+> Unfortunately with most hardware decoders the code that you get is only
+> remotely related to the actual code sent. Most RC-5 decoders strip off
+> start bits.
 
-I think we were taking about such devices.
+I would include only the actual data bits in the payload anyway.
 
-I have no objection that devices that *do* decode the protocol, they
-should be handled inside kernel.
+> Toggle-bits are thrown away. NEC decoders usually don't pass
+> through the address part.
 
-But devices that send raw pulse/space data should be handled in lirc
-that will feed the data back to the kernel via uinput.
+Too bad.  But information which isn't provided by the hardware can't be 
+passed up anyway, no matter what kernel/userspace interface is used. 
+Gone is gone.
 
-Best regards,
-Maxim Levitsky
+> There is no common standard which bit is sent first, LSB or MSB.
+
+Input layer would have to define a bit order.  And drivers which get it 
+the other way from the hardware have to convert.  Or maybe signal the 
+order and the input core then will convert if needed.
+
+> Checksums are thrown away.
+
+Don't include them.
+
+> To sum it up: I don't think this information will be useful at all for
+> lircd or anyone else.
+
+Why not?  With RC5 remotes applications can get the device address bits 
+for example, which right now are simply get lost in the ir code -> 
+keycode conversion step.
+
+> Actually lircd does not even know anything about
+> actual protocols. We only distinguish between certain protocol types, like
+> Manchester encoded, space encoded, pulse encoded etc. Everything else like
+> the actual timing is fully configurable.
+
+I know that lircd does matching instead of decoding, which allows to 
+handle unknown encodings.  Thats why I think there will always be cases 
+which only lircd will be able to handle (using raw samples).
+
+That doesn't make attempts to actually decode the IR samples a useless 
+exercise though ;)
+
+cheers,
+   Gerd
 

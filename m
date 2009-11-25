@@ -1,89 +1,52 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 18:12:44 +0100
-Message-ID: <m38wdu7ckz.fsf@intrepid.localdomain>
+Date: Wed, 25 Nov 2009 18:18:38 +0100
+Message-ID: <m34ooi7cb5.fsf@intrepid.localdomain>
 References: <200910200956.33391.jarod@redhat.com>
 	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
 	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
 	<20091123173726.GE17813@core.coreip.homeip.net>
 	<4B0B6321.3050001@wilsonet.com>
 	<1259105571.28219.20.camel@maxim-laptop>
+	<Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1259105571.28219.20.camel@maxim-laptop> (Maxim Levitsky's
-	message of "Wed, 25 Nov 2009 01:32:51 +0200")
-Sender: linux-media-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from khc.piap.pl ([195.187.100.11]:34672 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933761AbZKYRSe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 12:18:34 -0500
+In-Reply-To: <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net> (Trent
+	Piepho's message of "Tue, 24 Nov 2009 19:32:42 -0800 (PST)")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Maxim Levitsky <maximlevitsky@gmail.com> writes:
+Trent Piepho <xyzzy@speakeasy.org> writes:
 
-> There are many protocols,
+> The signal recevied by the ir receiver contains glitches.  Depending on the
+> receiver there can be quite a few.  It is also not trivial to turn the raw
+> signal sent by the remote into a digital value, even if you know what to
+> expect.  It takes digital signal processing techniques to turn the messy
+> sequence of inaccurate mark and space lengths into a best guess at what
+> digital code the remote sent.
 
-Few of them really popular.
+This is of course true. Except that most receivers do that in hardware,
+the receiver/demodular chip such as TSOP1838 does it.
+If you receive with a phototransistor or a photodiode feeding some sort
+of ADC device (not a very smart design), sure - you have to do this
+yourself.
 
-> There are many receivers, and all have different accuracy.
+I have never heard of such receiver, though.
 
-Receivers? Accuracy? What do you mean exactly?
+> One thing that could be done, unless it has changed much since I wrote it
+> 10+ years ago, is to take the mark/space protocol the ir device uses and sent
+> that data to lircd via the input layer.  It would be less efficient, but
+> would avoid another kernel interface.  Of course the input layer to lircd
+> interface would be somewhat different than other input devices, so
+> it's not entirely correct to say another interface is avoided.
 
-> Most remotes aren't designed to be used with PC, thus user has to invent
-> mapping between buttons and actions.
-
-Of course. You can't change that. Being designed to be used with PC is
-not relevant.
-
-> Its is not possible to identify remotes accurately, many remotes send
-> just a 8 bit integer that specifies the 'model' thus many remotes can
-> share it.
-
-I have never seen a remote that sends "model" number.
-But I admit I only used few universal (including programmable) and few
-simple bundled remotes.
-
-> Some don't send anything.
-
-How do they communicate with the receiver?
-
-> There are some weird remotes that send whole packet of data will all
-> kind of states.
-
-Of course. This is called "encoding".
-
-> Think about it, video capture device is also an input device, a scanner
-> is an input device too, sound card can work as input device too.
-
-But their primary function isn't passing keystrokes, is it?
-
-> Kernel job is to take the information from device and present it to
-> userspace using uniform format, that is kernel does 1:1 translating, but
-> doesn't parse the data.
-
-Why do you think so?
-This is less efficient, and more complicated. And would require
-incompatible changes to drivers already in the kernel. Keyword:
-"regression".
-
-> lirc is well capable to decode it, and its not hard to add
-> auto-detection based on existing configuration drivers, so IR devices
-> will work with absolutely no configuration.
-
-Really? You don't know what you're talking about. Forget this idea,
-there is absolutely no way to use this without prior configuration. You
-can get as far as suggesting default "bundled" model, if there was
-something bundled with the receiver of course.
-
-> Then as soon as you press a key, lirc can scan its config database, and
-> find a config file to use.
-
-Forget it.
-
-> Also don't forget that there are pure userspace drivers. They won't have
-> access to in-kernel decoder so they will still have to parse protocols,
-> so will have code duplication, and will still need lirc thus.
-
-This is not a problem. BTW I have nothing against lirc. It can get
-keystrokes from input layer. That's the way I use it in fact.
+IOW, it would be worse, wouldn't it?
 -- 
 Krzysztof Halasa

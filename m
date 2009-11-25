@@ -1,32 +1,62 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 23:30:41 +0100
-Message-ID: <m3d43644q6.fsf@intrepid.localdomain>
-References: <200910200956.33391.jarod@redhat.com>
-	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<20091123173726.GE17813@core.coreip.homeip.net>
-	<4B0B6321.3050001@wilsonet.com>
-	<1259105571.28219.20.camel@maxim-laptop>
-	<Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
-	<1259155734.4875.23.camel@maxim-laptop>
-	<20091125213246.GA44831@atlantis.8hz.com>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: 25 Nov 2009 23:31:00 +0100
+Message-ID: <BDZbPXRZjFB@christoph>
+References: <4B0DA885.7010601@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20091125213246.GA44831@atlantis.8hz.com> (Sean Young's message
-	of "Wed, 25 Nov 2009 21:32:46 +0000")
-Sender: linux-media-owner@vger.kernel.org
-To: Sean Young <sean@mess.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Trent Piepho <xyzzy@speakeasy.org>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from moutng.kundenserver.de ([212.227.126.186]:53350 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933735AbZKYWdY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 17:33:24 -0500
+In-Reply-To: <4B0DA885.7010601@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: kraxel@redhat.com
+Cc: awalls@radix.net, dheitmueller@kernellabs.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Sean Young <sean@mess.org> writes:
+Hi Gerd,
 
-> Absolutely. There are a number of use cases when you want access to the 
-> space-pulse (i.e. IR) information.
+on 25 Nov 09 at 22:58, Gerd Hoffmann wrote:
+[...]
+> (1) ir code (say rc5) -> keycode conversion looses information.
+>
+> I think this can easily be addressed by adding a IR event type to the
+> input layer, which could look like this:
+>
+>    input_event->type  = EV_IR
+>    input_event->code  = IR_RC5
+>    input_event->value = <rc5 value>
+>
+> In case the 32bit value is too small we might want send two events
+> instead, with ->code being set to IR_<code>_1 and IR_<code>_2
+>
+> Advantages:
+>    * Applications (including lircd) can get access to the unmodified
+>      rc5/rc6/... codes.
 
-I think nobody proposes otherwise (except for devices which can't pass
-this info).
--- 
-Krzysztof Halasa
+Unfortunately with most hardware decoders the code that you get is only  
+remotely related to the actual code sent. Most RC-5 decoders strip off  
+start bits. Toggle-bits are thrown away. NEC decoders usually don't pass  
+through the address part. Some even generate some pseudo-random code  
+(Irman). There is no common standard which bit is sent first, LSB or MSB.  
+Checksums are thrown away.
+To sum it up: I don't think this information will be useful at all for  
+lircd or anyone else. Actually lircd does not even know anything about  
+actual protocols. We only distinguish between certain protocol types, like  
+Manchester encoded, space encoded, pulse encoded etc. Everything else like  
+the actual timing is fully configurable.
+
+[...]
+> If we keep the lirc interface for raw samples anyway, then we can keep
+> it for sending too, problem solved ;)  How does sending hardware work
+> btw?  Do they all accept just raw samples?  Or does some hardware also
+> accept ir-codes?
+
+Usually raw samples in some form. I've never seen any device that would  
+accept just ir-codes. UIRT2 devices have some more advanced modes but also  
+accept raw samples.
+
+Christoph

@@ -1,45 +1,58 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Wed, 25 Nov 2009 13:07:06 -0500
-Message-ID: <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+From: Devin Heitmueller <dheitmueller@kernellabs.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Wed, 25 Nov 2009 13:20:21 -0500
+Message-ID: <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
 References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934927AbZKYSH1@vger.kernel.org>
-In-Reply-To: <m3skc25wpx.fsf@intrepid.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+	 <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:44757 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759013AbZKYSUR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 13:20:17 -0500
+In-Reply-To: <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Nov 25, 2009, at 12:40 PM, Krzysztof Halasa wrote:
+On Wed, Nov 25, 2009 at 1:07 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
+> Took me a minute to figure out exactly what you were talking about. You're referring to the current in-kernel decoding done on an ad-hoc basis for assorted remotes bundled with capture devices, correct?
+>
+> Admittedly, unifying those and the lirc driven devices hasn't really been on my radar.
 
-> lirc@bartelmus.de (Christoph Bartelmus) writes:
-> 
->> I'm not sure what two ways you are talking about. With the patches posted  
->> by Jarod, nothing has to be changed in userspace.
->> Everything works, no code needs to be written and tested, everybody is  
->> happy.
-> 
-> The existing drivers use input layer. Do you want part of the tree to
-> use existing lirc interface while the other part uses their own
-> in-kernel (badly broken for example) code to do precisely the same
-> thing?
+This is one of the key use cases I would be very concerned with.  For
+many users who have bought tuner products, the bundled remotes work
+"out-of-the-box", regardless of whether lircd is installed.  I have no
+objection so much as to saying "well, you have to install the lircd
+service now", but there needs to be a way for the driver to
+automatically tell lirc what the default remote control should be, to
+avoid a regression in functionality.  We cannot go from a mode where
+it worked automatically to a mode where now inexperienced users now
+have to deal with the guts of getting lircd properly configured.
 
-Took me a minute to figure out exactly what you were talking about. You're referring to the current in-kernel decoding done on an ad-hoc basis for assorted remotes bundled with capture devices, correct?
+If such an interface were available, I would see to it that at least
+all the devices I have added RC support for will continue to work
+(converting the in-kernel RC profiles to lirc RC profiles as needed
+and doing the associations with the driver).
 
-Admittedly, unifying those and the lirc driven devices hasn't really been on my radar.
+The other key thing I don't think we have given much thought to is the
+fact that in many tuners, the hardware does RC decoding and just
+returns NEC/RC5/RC6 codes.  And in many of those cases, the hardware
+has to be configured to know what format to receive.  We probably need
+some kernel API such that the hardware can tell lirc what formats are
+supported, and another API call to tell the hardware which mode to
+operate in.
 
-> We can have a good code for both, or we can end up with "badly broken"
-> media drivers and incompatible, suboptimal existing lirc interface
-> (though most probably much better in terms of quality, especially after
-> Jarod's work).
+This is why I think we really should put together a list of use cases,
+so that we can see how any given proposal addresses those use cases.
+I offered to do such, but nobody seemed really interested in this.
 
-Well, is there any reason most of those drivers with currently-in-kernel-but-badly-broken decoding can't be converted to use the lirc interface if its merged into the kernel? And/or, everything could converge on a new in-kernel decoding infra that wasn't badly broken. Sure, there may be two separate ways of doing essentially the same thing for a while, but meh. The lirc way works NOW for an incredibly wide variety of receivers, transmitters, IR protocols, etc.
-
-I do concur that Just Works decoding for bundled remotes w/o having to configure anything would be nice, and one way to go about doing that certainly is via in-kernel IR decoding. But at the same time, the second you want to use something other than a bundled remote, things fall down, and having to do a bunch of setkeycode ops seems less optimal than simply dropping an appropriate lircd.conf in place.
+Devin
 
 -- 
-Jarod Wilson
-jarod@wilsonet.com
+Devin J. Heitmueller - Kernel Labs
+http://www.kernellabs.com

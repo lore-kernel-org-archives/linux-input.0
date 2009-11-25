@@ -1,72 +1,44 @@
 From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Wed, 25 Nov 2009 12:44:26 -0500
-Message-ID: <4BFB11CF-1835-4AFA-BDC6-F42288A9A6F4@wilsonet.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <6D934408-B713-49B6-A197-46CE663455AC@wilsonet.com> <m3fx827dgi.fsf@intrepid.localdomain>
+Date: Wed, 25 Nov 2009 13:07:06 -0500
+Message-ID: <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
 Mime-Version: 1.0 (Apple Message framework v1077)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <m3fx827dgi.fsf@intrepid.localdomain>
-Sender: linux-media-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S934927AbZKYSH1@vger.kernel.org>
+In-Reply-To: <m3skc25wpx.fsf@intrepid.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Nov 25, 2009, at 11:53 AM, Krzysztof Halasa wrote:
+On Nov 25, 2009, at 12:40 PM, Krzysztof Halasa wrote:
 
-> Jarod Wilson <jarod@wilsonet.com> writes:
-...
->> Now, I'm all for "improving" things and integrating better with the
->> input subsystem, but what I don't really want to do is break
->> compatibility with the existing setups on thousands (and thousands?)
->> of MythTV boxes around the globe. The lirc userspace can be pretty
->> nimble. If we can come up with a shiny new way that raw IR can be
->> passed out through an input device, I'm pretty sure lirc userspace can
->> be adapted to handle that.
+> lirc@bartelmus.de (Christoph Bartelmus) writes:
 > 
-> Lirc can already handle input layer. Since both ways require userspace
-> changes, why not do it the right way the first time? Most of the code
-> is already written.
-
-There's obviously still some debate as to what "the right way" is. :)
-
-And the matter of someone having the time to write the rest of the code that would be needed.
-
->> If a new input-layer-based transmit interface is developed, we can
->> take advantage of that too. But there's already a very mature lirc
->> interface for doing all of this. So why not start with adding things
->> more or less as they exist right now and evolve the drivers into an
->> idealized form? Getting *something* into the kernel in the first place
->> is a huge step in that direction.
+>> I'm not sure what two ways you are talking about. With the patches posted  
+>> by Jarod, nothing has to be changed in userspace.
+>> Everything works, no code needs to be written and tested, everybody is  
+>> happy.
 > 
-> What I see as potentially problematic is breaking compatibility multiple
-> times.
+> The existing drivers use input layer. Do you want part of the tree to
+> use existing lirc interface while the other part uses their own
+> in-kernel (badly broken for example) code to do precisely the same
+> thing?
 
-Ah, but the approach I'd take to converting to in-kernel decoding[*] would be this:
+Took me a minute to figure out exactly what you were talking about. You're referring to the current in-kernel decoding done on an ad-hoc basis for assorted remotes bundled with capture devices, correct?
 
-1) bring drivers in in their current state
-   - users keep using lirc as they always have
+Admittedly, unifying those and the lirc driven devices hasn't really been on my radar.
 
-2) add in-kernel decoding infra that feeds input layer
+> We can have a good code for both, or we can end up with "badly broken"
+> media drivers and incompatible, suboptimal existing lirc interface
+> (though most probably much better in terms of quality, especially after
+> Jarod's work).
 
-3) add option to use in-kernel decoding to existing lirc drivers
-   - users can keep using lirc as they always have
-   - users can optionally try out in-kernel decoding via a modparam
+Well, is there any reason most of those drivers with currently-in-kernel-but-badly-broken decoding can't be converted to use the lirc interface if its merged into the kernel? And/or, everything could converge on a new in-kernel decoding infra that wasn't badly broken. Sure, there may be two separate ways of doing essentially the same thing for a while, but meh. The lirc way works NOW for an incredibly wide variety of receivers, transmitters, IR protocols, etc.
 
-4) switch the default mode from lirc decode to kernel decode for each lirc driver
-   - modparam can be used to continue using lirc interface instead
-
-5) assuming users aren't coming at us with pitchforks, because things don't actually work reliably with in-kernel decoding, deprecate the lirc interface in driver
-
-6) remove lirc interface from driver, its now a pure input device
-
-This would all be on a per-lirc-driver basis, and if/when all decoding could be reliably done in-kernel, and/or there was a way other than the lirc interface to pass raw IR signals out to userspace, the lirc interface could be removed entirely.
-
-And we still need to consider IR transmitters as well. Those are handled quite well through the lirc interface, and I've not seen any concrete code (or even fully fleshed out ideas) on how IR transmit could be handled in this in-kernel decoding world.
-
-
-[*] assuming, of course, that it was actually agreed upon that in-kernel decoding was the right way, the only way, all others will be shot on sight. ;)
+I do concur that Just Works decoding for bundled remotes w/o having to configure anything would be nice, and one way to go about doing that certainly is via in-kernel IR decoding. But at the same time, the second you want to use something other than a bundled remote, things fall down, and having to do a bunch of setkeycode ops seems less optimal than simply dropping an appropriate lircd.conf in place.
 
 -- 
 Jarod Wilson

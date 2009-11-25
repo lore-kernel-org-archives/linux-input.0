@@ -1,30 +1,32 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: need data about usb touchscreens
-Date: Wed, 25 Nov 2009 23:06:05 +0100
-Message-ID: <200911252306.05470.oliver@neukum.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: IR raw input is not sutable for input system
+Date: Wed, 25 Nov 2009 23:30:41 +0100
+Message-ID: <m3d43644q6.fsf@intrepid.localdomain>
+References: <200910200956.33391.jarod@redhat.com>
+	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	<20091123173726.GE17813@core.coreip.homeip.net>
+	<4B0B6321.3050001@wilsonet.com>
+	<1259105571.28219.20.camel@maxim-laptop>
+	<Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+	<1259155734.4875.23.camel@maxim-laptop>
+	<20091125213246.GA44831@atlantis.8hz.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:60716 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932618AbZKYWGB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 17:06:01 -0500
-Received: from vanamonde.localnet (p549A1FC7.dip0.t-ipconnect.de [84.154.31.199])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	(Authenticated sender: neukum_org@smtp-out003.kontent.com)
-	by smtp-out003.kontent.com (Postfix) with ESMTPSA id E5CF24000494
-	for <linux-input@vger.kernel.org>; Wed, 25 Nov 2009 23:06:06 +0100 (CET)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20091125213246.GA44831@atlantis.8hz.com> (Sean Young's message
+	of "Wed, 25 Nov 2009 21:32:46 +0000")
+Sender: linux-media-owner@vger.kernel.org
+To: Sean Young <sean@mess.org>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Trent Piepho <xyzzy@speakeasy.org>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
+Sean Young <sean@mess.org> writes:
 
-please send me "lsusb -v" for your touchscreens.
+> Absolutely. There are a number of use cases when you want access to the 
+> space-pulse (i.e. IR) information.
 
-	TIA
-		Oliver
+I think nobody proposes otherwise (except for devices which can't pass
+this info).
+-- 
+Krzysztof Halasa

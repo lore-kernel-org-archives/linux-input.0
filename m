@@ -1,130 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input_ gpio_keys: scan gpio state at probe time
-Date: Wed, 25 Nov 2009 19:46:13 -0800
-Message-ID: <20091126034612.GA23244@core.coreip.homeip.net>
-References: <1259146416-6713-1-git-send-email-daniel@caiaq.de>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Wed, 25 Nov 2009 22:50:00 -0500
+Message-ID: <1259207400.3060.62.camel@palomino.walls.org>
+References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
+	 <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+	 <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:43150 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758054AbZKZDqM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 22:46:12 -0500
-Received: by pzk1 with SMTP id 1so259876pzk.33
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2009 19:46:18 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1259146416-6713-1-git-send-email-daniel@caiaq.de>
+Received: from mail1.radix.net ([207.192.128.31]:35876 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758263AbZKZDvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 22:51:08 -0500
+In-Reply-To: <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: linux-input@vger.kernel.org, Jani Nikula <ext-jani.1.nikula@nokia.com>, Mike Rapoport <mike@compulab.co.il>
+To: Devin Heitmueller <dheitmueller@kernellabs.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Wed, Nov 25, 2009 at 11:53:36AM +0100, Daniel Mack wrote:
-> gpio_keys.c registers interrupts at both edges of all given gpio lines
-> and updates the input device when they change. However, the driver fails
-> to check the current line state at probe time.
+On Wed, 2009-11-25 at 13:20 -0500, Devin Heitmueller wrote:
+> On Wed, Nov 25, 2009 at 1:07 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
+> > Took me a minute to figure out exactly what you were talking about. You're referring to the current in-kernel decoding done on an ad-hoc basis for assorted remotes bundled with capture devices, correct?
+> >
+> > Admittedly, unifying those and the lirc driven devices hasn't really been on my radar.
 > 
+> This is one of the key use cases I would be very concerned with.  For
+> many users who have bought tuner products, the bundled remotes work
+> "out-of-the-box", regardless of whether lircd is installed.  I have no
+> objection so much as to saying "well, you have to install the lircd
+> service now", but there needs to be a way for the driver to
+> automatically tell lirc what the default remote control should be, to
+> avoid a regression in functionality.  We cannot go from a mode where
+> it worked automatically to a mode where now inexperienced users now
+> have to deal with the guts of getting lircd properly configured.
+> 
+> If such an interface were available, I would see to it that at least
+> all the devices I have added RC support for will continue to work
+> (converting the in-kernel RC profiles to lirc RC profiles as needed
+> and doing the associations with the driver).
+> 
+> The other key thing I don't think we have given much thought to is the
+> fact that in many tuners, the hardware does RC decoding and just
+> returns NEC/RC5/RC6 codes.  And in many of those cases, the hardware
+> has to be configured to know what format to receive.  We probably need
+> some kernel API such that the hardware can tell lirc what formats are
+> supported, and another API call to tell the hardware which mode to
+> operate in.
 
-Should not matter for keys really, but is important for swicthes. I
-guess we need to also do this at resume. Does the following still work?
+Please think about how we would need to augment the v4l_subdev_ir_ops:
 
-Thanks.
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l246
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l305
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l27
 
--- 
-Dmitry
-
-
-Input: gpio_keys - scan gpio state at probe time
-
-From: Daniel Mack <daniel@caiaq.de>
-
-Signed-off-by: Daniel Mack <daniel@caiaq.de>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/keyboard/gpio_keys.c |   36 +++++++++++++++++++++++++-----------
- 1 files changed, 25 insertions(+), 11 deletions(-)
+I think encapsulation of the various IR devices under V4L-DVB into
+v4l_subdevices can facilitate your suggestions.
 
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 8941a8b..1aff3b7 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -37,10 +37,8 @@ struct gpio_keys_drvdata {
- 	struct gpio_button_data data[0];
- };
- 
--static void gpio_keys_report_event(struct work_struct *work)
-+static void gpio_keys_report_event(struct gpio_button_data *bdata)
- {
--	struct gpio_button_data *bdata =
--		container_of(work, struct gpio_button_data, work);
- 	struct gpio_keys_button *button = bdata->button;
- 	struct input_dev *input = bdata->input;
- 	unsigned int type = button->type ?: EV_KEY;
-@@ -50,6 +48,14 @@ static void gpio_keys_report_event(struct work_struct *work)
- 	input_sync(input);
- }
- 
-+static void gpio_keys_work_func(struct work_struct *work)
-+{
-+	struct gpio_button_data *bdata =
-+		container_of(work, struct gpio_button_data, work);
-+
-+	gpio_keys_report_event(bdata);
-+}
-+
- static void gpio_keys_timer(unsigned long _data)
- {
- 	struct gpio_button_data *data = (struct gpio_button_data *)_data;
-@@ -81,7 +87,7 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
- 	int irq, error;
- 
- 	setup_timer(&bdata->timer, gpio_keys_timer, (unsigned long)bdata);
--	INIT_WORK(&bdata->work, gpio_keys_report_event);
-+	INIT_WORK(&bdata->work, gpio_keys_work_func);
- 
- 	error = gpio_request(button->gpio, desc);
- 	if (error < 0) {
-@@ -185,6 +191,11 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		goto fail2;
- 	}
- 
-+	/* get current state of buttons */
-+	for (i = 0; i < pdata->nbuttons; i++)
-+		gpio_keys_report_event(&ddata->data[i]);
-+	input_sync(input);
-+
- 	device_init_wakeup(&pdev->dev, wakeup);
- 
- 	return 0;
-@@ -253,18 +264,21 @@ static int gpio_keys_suspend(struct device *dev)
- static int gpio_keys_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	int i;
- 
--	if (device_may_wakeup(&pdev->dev)) {
--		for (i = 0; i < pdata->nbuttons; i++) {
--			struct gpio_keys_button *button = &pdata->buttons[i];
--			if (button->wakeup) {
--				int irq = gpio_to_irq(button->gpio);
--				disable_irq_wake(irq);
--			}
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+
-+		struct gpio_keys_button *button = &pdata->buttons[i];
-+		if (button->wakeup && device_may_wakeup(&pdev->dev)) {
-+			int irq = gpio_to_irq(button->gpio);
-+			disable_irq_wake(irq);
- 		}
-+
-+		gpio_keys_report_event(&ddata->data[i]);
- 	}
-+	input_sync(ddata->input);
- 
- 	return 0;
- }
+The CX23888 IR subdevice code configures itself to a single default
+setup for Tx and Rx:
+
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/drivers/media/video/cx23885/cx23888-ir.c#l1192
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/drivers/media/video/cx23885/cx23888-ir.c#l1211
+
+but there isn't a reason V4L2 IR subdevices couldn't configure to a per
+"product" defaults based on information about the detected card from the
+main bridge driver code.
+
+Regards,
+Andy
+
+> This is why I think we really should put together a list of use cases,
+> so that we can see how any given proposal addresses those use cases.
+> I offered to do such, but nobody seemed really interested in this.
+> 
+> Devin
+
+

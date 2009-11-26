@@ -1,37 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: IR raw input is not sutable for input system
-Date: Wed, 25 Nov 2009 21:41:35 -0800
-Message-ID: <20091126054135.GG23244@core.coreip.homeip.net>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <1259105571.28219.20.camel@maxim-laptop> <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Wed, 25 Nov 2009 21:49:38 -0800
+Message-ID: <20091126054938.GH23244@core.coreip.homeip.net>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:61657 "EHLO
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:64925 "EHLO
 	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751296AbZKZFle (ORCPT
+	with ESMTP id S1753081AbZKZFtg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 00:41:34 -0500
+	Thu, 26 Nov 2009 00:49:36 -0500
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0911241918390.30284@shell2.speakeasy.net>
+In-Reply-To: <1259024037.3871.36.camel@palomino.walls.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Andy Walls <awalls@radix.net>
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Tue, Nov 24, 2009 at 07:32:42PM -0800, Trent Piepho wrote:
+On Mon, Nov 23, 2009 at 07:53:57PM -0500, Andy Walls wrote:
+> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
+> > Czesc Krzysztof,
+> > 
+> > on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
+> > [...]
+> > > I think we shouldn't at this time worry about IR transmitters.
+> > 
+> > Sorry, but I have to disagree strongly.
+> > Any interface without transmitter support would be absolutely unacceptable  
+> > for many LIRC users, including myself.
 > 
-> One thing that could be done, unless it has changed much since I wrote it
-> 10+ years ago, is to take the mark/space protocol the ir device uses and sent
-> that data to lircd via the input layer.  It would be less efficient, but
-> would avoid another kernel interface.  Of course the input layer to lircd
-> interface would be somewhat different than other input devices, so
-> it's not entirely correct to say another interface is avoided.
+> I agree with Christoph.  
+> 
+> Is it that the input subsystem is better developed and seen as a
+> leverage point for development and thus an "easier" place to get results
+> earlier?  If so, then one should definitely deal with transmitters early
+> in the design, as that is where the most unknowns lie.
+> 
+> With the end of analog TV, people will have STBs feeding analog only
+> video cards.  Being able to change the channel on the STB with an IR
+> transmitter controlled by applications like MythTV is essential.
+> 
+> 
+> And on some different notes:
+> 
+> I generally don't understand the LIRC aversion I perceive in this thread
+> (maybe I just have a skewed perception).  Aside for a video card's
+> default remote setup, the suggestions so far don't strike me as any
+> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
+> already works for both transmit and receive and has existing support in
+> applications such as MythTV and mplayer.
 
-No, it would still be completely new interface that just happened to use
-input layer as transport. An ordinary program that would just want to
-react to play. pause, forward, etc buttons would have no idea what to do
-with the data so you'd still need a very specialized library to deal
-with the data.
+Is it that LIRC supports MythTV and mplayer or MythTV and mplayer are
+forced to support lirc because the remores are not available through
+other means? I believe it is the latter and applications writers would
+be happy to reduce number of ways they get button data.
+
+I don't think there is LIRC aversion per se. We are just trying to
+decide whether multiple interfaces for the same data is needed. And
+I don't think that we will completely reject userspace components. Just
+as input subsystem allows for userspace drivers I do not think why we
+can't have the same for the LIRC. But I do think that the primary
+interface for regular userspace consumers (read mplayer and MythTV and
+the likes) should be input event interface (EV_KEY/KEY_*).
 
 -- 
 Dmitry

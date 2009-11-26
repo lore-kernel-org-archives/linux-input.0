@@ -1,43 +1,49 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 16:55:23 -0200
-Message-ID: <4B0ECF1B.1090103@redhat.com>
-References: <BDcbizrJjFB@christoph> <4B0EABF8.9000902@redhat.com> <m3r5rlupcb.fsf@intrepid.localdomain>
+Date: Thu, 26 Nov 2009 17:06:03 -0200
+Message-ID: <4B0ED19B.9030409@redhat.com>
+References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>	<4B0AB60B.2030006@s5r6.in-berlin.de> <4B0AC8C9.6080504@redhat.com>	<m34oolrnwd.fsf@intrepid.localdomain> <4B0E71B6.4080808@redhat.com> <m3my29up3y.fsf@intrepid.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <m3r5rlupcb.fsf@intrepid.localdomain>
-Sender: linux-media-owner@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60844 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752153AbZKZTGV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 14:06:21 -0500
+In-Reply-To: <m3my29up3y.fsf@intrepid.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
 Krzysztof Halasa wrote:
 > Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 > 
->> 1) the developer that adds the hardware also adds the IR code. He has
->> the hardware and the IR for testing, so it means a faster development
->> cycle than waiting for someone else with the same hardware and IR to
->> recode it on some other place. You should remember that not all
->> developers use lirc;
+>> Technically, it is not hard to port this solution to the other
+>> drivers, but the issue is that we don't have all those IR's to know
+>> what is the complete scancode that each key produces. So, the hardest
+>> part is to find a way for doing it without causing regressions, and to
+>> find a group of people that will help testing the new way.
 > 
-> It's fine, but please - no keymaps in the kernel (except for fixed
-> receivers, i.e. the ones which can only work with their own dedicated
-> remote, and which don't pass RC5/etc. code).
-> 
-> The existing keymaps (those which can be used with lirc) have to be
-> moved to userspace as well.
+> We don't want to "port it" to other drivers. We need to have a common
+> module which does all RCx decoding. The individual drivers should be as
+> simple as possible, something that I outlined in a previous mail.
 
-The removal of the existing keymaps from kernel depends on having an application
-to be called from udev to load the proper keymaps when a device is probed.
+With the current 7bits mask applied to almost all devices, it is probably not very
+useful for those who want to use generic IRs. We really need to port the solution
+we've done on dvb-usb to the other drivers, allowing them to have the entire
+scancode at the tables while keep supporting table replacement. 
 
-After having it for a while, we should deprecate the in-kernel keymaps
-and move them to userspace.
+The issue is that we currently have only 7bits of the scan codes produced by the IR's.
+So, we need to re-generate the keycode tables for each IR after the changes got applied.
 
-I also think that it is important to remove the 7 bits limitation from all drivers
-and re-generate the keymaps, since they'll change after it.
+With respect to a common module, unfortunately most of the work should be done on
+each driver, since the code that communicates with the hardware is specific to each
+device. There is a common code (at ir-common.ko) with helper decoding routines.
 
-cheers,
+Please feel free to send us contributions to improve the current code.
+
+Cheers,
 Mauro.

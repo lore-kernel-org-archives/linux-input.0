@@ -1,41 +1,57 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 11:17:49 -0200
-Message-ID: <4B0E7FFD.10908@redhat.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org>
+Date: Thu, 26 Nov 2009 08:22:13 -0500
+Message-ID: <1259241733.3062.44.camel@palomino.walls.org>
+References: <200910200956.33391.jarod@redhat.com>
+	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	 <4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
+	 <4B0E765C.2080806@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760542AbZKZNSF@vger.kernel.org>
-In-Reply-To: <1259024037.3871.36.camel@palomino.walls.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.radix.net ([207.192.128.31]:44448 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751350AbZKZNXR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 08:23:17 -0500
+In-Reply-To: <4B0E765C.2080806@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Andy Walls wrote:
+On Thu, 2009-11-26 at 10:36 -0200, Mauro Carvalho Chehab wrote:
+> Krzysztof Halasa wrote:
+> > Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 
-> I generally don't understand the LIRC aversion I perceive in this thread
-> (maybe I just have a skewed perception). 
 
-> Regards,
-> Andy "LIRC Fan-Boy" Walls
+> PS.: For those following those discussions that want to know more about
+> IR protocols, a good reference is at:
+> 	http://www.sbprojects.com/knowledge/ir/ir.htm
+> 
+> Unfortunately, it doesn't describe RC6 mode 6.
 
-This is not a lirc love or hate thread. We're simply discussing the better
-API's for IR, from the technical standpoint, considering that some users 
-may want to use lirc and some users may want to have their IR working 
-out-of-the-box.
+RC-6 Mode 0 and Mode 6A is briefly describe here:
 
-By not using lirc, users will loose the advantages of having lircd, like clicking
-on a button and calling automatically the DVD player application, but this means
-that their device with the shipped IR will work without needing to do any setup.
+http://www.picbasic.nl/frameload_uk.htm?http://www.picbasic.nl/rc5-rc6_transceiver_uk.htm
 
-Whatever we do, both kind of usages should be possible, since there are demand
-for both.
+That page is slightly wrong, as there is some data coded in the header
+such as the RC-6 Mode.
 
-Also, the decision should consider that the existing drivers will need to
-support the new way without causing regressions.
+This page is an older version of the sbprojects.com RC-6 page, before
+the information on RC-6 Mode 6A was removed:
 
-Cheers,
-Mauro.
+http://slycontrol.ru/scr/kb/rc6.htm
+
+
+My personal opinion is that, for non-technical reasons, RC-6 Mode 6A
+decoding should not be included in the kernel.  That's why I didn't do
+it for the HVR-1850/CX23888.
+
+
+Regards,
+Andy
+
+

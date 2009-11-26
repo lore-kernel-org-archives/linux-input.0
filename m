@@ -1,96 +1,71 @@
 From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 01:16:01 -0500
-Message-ID: <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <20091126053109.GE23244@core.coreip.homeip.net>
+Date: Thu, 26 Nov 2009 01:23:50 -0500
+Message-ID: <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <20091126054938.GH23244@core.coreip.homeip.net>
 Mime-Version: 1.0 (Apple Message framework v1077)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:37537
-	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752715AbZKZGQA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 01:16:00 -0500
-In-Reply-To: <20091126053109.GE23244@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20091126054938.GH23244@core.coreip.homeip.net>
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Cc: Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+List-Id: linux-input@vger.kernel.org
 
-On Nov 26, 2009, at 12:31 AM, Dmitry Torokhov wrote:
+On Nov 26, 2009, at 12:49 AM, Dmitry Torokhov wrote:
 
-> On Mon, Nov 23, 2009 at 11:37:53PM -0500, Jarod Wilson wrote:
->> On 11/23/2009 12:37 PM, Dmitry Torokhov wrote:
->>> On Mon, Nov 23, 2009 at 03:14:56PM +0100, Krzysztof Halasa wrote:
->>>> Mauro Carvalho Chehab<mchehab@redhat.com>  writes:
->>>> 
->>>>> Event input has the advantage that the keystrokes will provide an unique
->>>>> representation that is independent of the device.
->>>> 
->>>> This can hardly work as the only means, the remotes have different keys,
->>>> the user almost always has to provide customized key<>function mapping.
->>>> 
+> On Mon, Nov 23, 2009 at 07:53:57PM -0500, Andy Walls wrote:
+>> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
+>>> Czesc Krzysztof,
 >>> 
->>> Is it true? I would expect the remotes to have most of the keys to have
->>> well-defined meanings (unless it is one of the programmable remotes)...
+>>> on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
+>>> [...]
+>>>> I think we shouldn't at this time worry about IR transmitters.
+>>> 
+>>> Sorry, but I have to disagree strongly.
+>>> Any interface without transmitter support would be absolutely unacceptable  
+>>> for many LIRC users, including myself.
 >> 
->> Its the cases like programmable universal remotes that really throw  
->> things for a loop. That, and people wanting to use random remote X that  
->> came with the amp or tv or set top box, with IR receiver Y.
-> 
-> Right, but still the keys usually do have the well-defined meaning,
-
-Except when they don't. I have two very similar remotes, one that was bundled with a system from CaptiveWorks, and one that was bundled with an Antec Veris IR/LCD (SoundGraph iMON rebrand). Outside of the Antec remote having a mouse pad instead of up/down/left/right/enter, they have an identical layout, and the keys in the same locations on the remotes send the same IR signal. But the button names vary a LOT between the two. So on the DVD key on the Antec and the MUTE key on the CW send the same signal. Same with Audio vs. Eject, TV vs. History, etc. Moral of the story is that not all IR protocols spell things out particularly well for what a given code should actually mean.
-
-> teh
-> issue is in mapping raw code to the appropriate keycode. This can be
-> done either by lirc config file (when lirc is used) or by some other
-> means.
-
-The desire to map a button press to multiple keystrokes isn't uncommon either, though I presume that's doable within the input layer context too.
-
->> ...
->>>> We need to handle more than one RC at a time, of course.
->>>> 
->>>>> So, the basic question that should be decided is: should we create a new
->>>>> userspace API for raw IR pulse/space
->>>> 
->>>> I think so, doing the RCx proto handling in the kernel (but without
->>>> RCx raw code<>  key mapping in this case due to multiple controllers
->>>> etc.). Though it could probably use the input layer as well(?).
->>>> 
->>> 
->>> I think if the data is used to do the primary protocol decoding then it
->>> should be a separate interface that is processed by someone and then fed
->>> into input subsystem (either in-kernel or through uinput).
->>> 
->>> Again, I would prefer to keep EV_KEY/KEY_* as the primary event type for
->>> keys and buttons on all devices.
+>> I agree with Christoph.  
 >> 
->> Current lircd actually inter-operates with the input subsystem quite  
->> well for any and all supported remotes if their keys are mapped in their  
->> respective lircd.conf file using standard input subsystem key names, and  
->> the lirc daemon started with the --uinput param. lircd decodes the raw  
->> IR, finds the mapping in its config, and happily passes it along to 
->> uinput.
+>> Is it that the input subsystem is better developed and seen as a
+>> leverage point for development and thus an "easier" place to get results
+>> earlier?  If so, then one should definitely deal with transmitters early
+>> in the design, as that is where the most unknowns lie.
+>> 
+>> With the end of analog TV, people will have STBs feeding analog only
+>> video cards.  Being able to change the channel on the STB with an IR
+>> transmitter controlled by applications like MythTV is essential.
+>> 
+>> 
+>> And on some different notes:
+>> 
+>> I generally don't understand the LIRC aversion I perceive in this thread
+>> (maybe I just have a skewed perception).  Aside for a video card's
+>> default remote setup, the suggestions so far don't strike me as any
+>> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
+>> already works for both transmit and receive and has existing support in
+>> applications such as MythTV and mplayer.
 > 
-> Right.
-> 
-> I guess the question is what is the interface we want the regular
-> userspace (i.e. not lircd) to use. Right now programs has to use 2
-> intercfaces - one lirc for dealing with remotes that are not using
-> the standard event interface and evdev for remotes using it as well
-> as the rest of the input devices.
+> Is it that LIRC supports MythTV and mplayer or MythTV and mplayer are
+> forced to support lirc because the remores are not available through
+> other means? I believe it is the latter and applications writers would
+> be happy to reduce number of ways they get button data.
 
->From the mythtv perspective, using the input layer could yield a better out-of-the-box experience -- users don't have to set up an lircrc mapping that converts key names as specified in lircd.conf into commands (key strokes, actually) that mythtv understands. For example, a button labeled "Play" in lircd.conf has to be mapped to 'p' in ~/.lircrc for mythtv to do the right thing with it. If everything came through the input layer, be that natively or via lircd's uinput reinjection, there would be no need to do that extra mapping step, mythtv would simply handle a KEY_PLAY event. So at worst, one manual mapping to do -- IR signal to standard button name in lircd.conf -- instead of two. But the lircrc approach does also allow more flexibility, in that you can only have a certain app respond t
- o a certain key, if so desired, and remap a key to a different function (KEY_RED, KEY_GREEN, KEY_BLUE, KEY_YELLOW -- what should their default functionality be? I know some users map a pair of those to mythtv's "skip to next commflag point" and "skip to prior commflag point").
+Well, when mythtv was started, I don't know that there were many input layer remotes around... lirc was definitely around though. serial receivers and transmitters, both supported by lirc_serial, were the most frequently used devices outside of plain old keyboards. The lirc support in mythtv actually relies on mapping remote button names as defined in lircd.conf to keyboard key strokes. As mentioned elsewhere in this beast of a thread, mythtv doesn't currently support things like KEY_PLAY, KEY_VOLUMEUP, KEY_CHANNELUP, etc. just yet, but I intend on fixing that...
 
-Unfortunately, mythtv currently doesn't handle KEY_PLAY, KEY_VOLUMEUP, etc., etc. at all right now, it operates purely on keys commonly found on a standard keyboard. Remedying that is on my TODO list for the next release, if I can carve out the time.
+> I don't think there is LIRC aversion per se. We are just trying to
+> decide whether multiple interfaces for the same data is needed. And
+> I don't think that we will completely reject userspace components. Just
+> as input subsystem allows for userspace drivers I do not think why we
+> can't have the same for the LIRC. But I do think that the primary
+> interface for regular userspace consumers (read mplayer and MythTV and
+> the likes) should be input event interface (EV_KEY/KEY_*).
+
+Works for me.
+
 
 -- 
 Jarod Wilson
 jarod@wilsonet.com
-
-
-

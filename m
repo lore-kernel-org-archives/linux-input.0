@@ -1,30 +1,70 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ?
-Date: Thu, 26 Nov 2009 15:28:09 -0800
-Message-ID: <20091126232809.GE6936@core.coreip.homeip.net>
-References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain> <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com> <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com> <E88E119C-BB86-4F01-8C2C-E514AC6BA5E2@wilsonet.com> <m3skc249ev.fsf@intrepid.localdomain> <20091126055302.GI23244@core.coreip.homeip.net> <m37htduo3i.fsf@intrepid.localdomain>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 15:45:17 -0800
+Message-ID: <20091126234517.GF6936@core.coreip.homeip.net>
+References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain> <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com> <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com> <4B0DA885.7010601@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753450AbZKZX2O@vger.kernel.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <m37htduo3i.fsf@intrepid.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+In-Reply-To: <4B0DA885.7010601@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Nov 26, 2009 at 07:40:01PM +0100, Krzysztof Halasa wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> 
-> > Why would sysfs write be slower than ioctl?
-> 
-> Sysfs is generally one-value, one-file. open, read/write, close.
-> ioctl() OTOH does everything (e.g. a whole key table) in one syscall.
+On Wed, Nov 25, 2009 at 10:58:29PM +0100, Gerd Hoffmann wrote:
+>
+> (1) ir code (say rc5) -> keycode conversion looses information.
+>
+> I think this can easily be addressed by adding a IR event type to the  
+> input layer, which could look like this:
+>
+>   input_event->type  = EV_IR
+>   input_event->code  = IR_RC5
+>   input_event->value = <rc5 value>
+>
+> In case the 32bit value is too small we might want send two events  
+> instead, with ->code being set to IR_<code>_1 and IR_<code>_2
+>
+> Advantages:
+>   * Applications (including lircd) can get access to the unmodified
+>     rc5/rc6/... codes.
+>   * All the ir-code -> keycode mapping magic can be handled by the
+>     core input layer then.  All the driver needs to do is to pass on
+>     the information which keymap should be loaded by default (for the
+>     bundled remote if any).  The configuration can happen in userspace
+>     (sysfs attribute + udev + small utility in tools/ir/).
+>   * lirc drivers which get ir codes from the hardware can be converted
+>     to pure input layer drivers without regressions.  lircd is not
+>     required any more.
+>
 
-There are binary sysfs attributes. For ioctl you also need to open and
-close the device. Plus, how often do you expect to perform this
-operation? Don't you think you are trying to optimize something that
-does not have any real performavnce impact here?
- 
+I think we need to separate 2 kinds of applications since they have
+different requirements as far as interface goes:
+
+1. "Reguilar" user-space applications interested in receiving keystrokes
+from user and reacting to them. Movie players, CD players, MythTV-like
+applications and so on. Those, to my understanding, are not concerned
+with the fine details of RC5, RC6, NEC and so forth protocol decoding
+and just want to know when to start playing, when to stop and when to
+revind. That class of applications is best served by current input layer
+since it unifies data coming from IR, keyboards, button devices and so
+forth.
+
+2. "System" applications that are interested in protocol decoding. Those
+need interface best suited for IR and nothing else. This protocol is
+appears is better kept separate from the evdev input protocol. In case
+where we rely solely on such userspace application(s) to perform protocol
+decoding we should route input events back to kernel through uinput for
+consumption by "class 1" applications.
+
+
+We use this approach for PS/2 (serio allows binding either psmouse/atkbd
+or serio_raw to provide alternate interfaces depending on the users
+need), USB hid allows raw access as well, maybe we should follow the
+suit here.
+
 -- 
 Dmitry

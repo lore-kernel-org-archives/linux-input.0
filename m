@@ -1,57 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 00:08:04 -0800
-Message-ID: <20091126080804.GA28352@core.coreip.homeip.net>
-References: <4BFB11CF-1835-4AFA-BDC6-F42288A9A6F4@wilsonet.com> <BDcbizrJjFB@christoph>
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 09:39:00 +0100
+Message-ID: <4B0E3EA4.7000003@redhat.com>
+References: <BDcbfiXJjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759442AbZKZIIG@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <BDcbizrJjFB@christoph>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: jarod@wilsonet.com, awalls@radix.net, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:59926 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753365AbZKZIjW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 03:39:22 -0500
+In-Reply-To: <BDcbfiXJjFB@christoph>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: awalls@radix.net, dheitmueller@kernellabs.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Thu, Nov 26, 2009 at 09:01:00AM +0100, Christoph Bartelmus wrote:
-> Hi,
-> 
-> on 25 Nov 09 at 12:44, Jarod Wilson wrote:
+On 11/26/09 08:28, Christoph Bartelmus wrote:
+> Hi Gerd,
+>
+> on 26 Nov 09 at 00:22, Gerd Hoffmann wrote:
 > [...]
-> > Ah, but the approach I'd take to converting to in-kernel decoding[*] would
-> > be this:
+>>> To sum it up: I don't think this information will be useful at all for
+>>> lircd or anyone else.
 > [...]
-> > [*] assuming, of course, that it was actually agreed upon that in-kernel
-> > decoding was the right way, the only way, all others will be shot on sight.
-> 
-> I'm happy to see that the discussion is getting along.
-> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just  
-> because I'm not familiar at all with input layer toolset.
-> 
-> 1. For sure in-kernel decoding will require some assistance from userspace  
-> to load the mapping from IR codes to keys. So, if there needs to be a tool  
-> in userspace that does some kind of autodetection, why not have a tool  
-> that does some autodetection and autoconfigures lircd for the current  
-> device. Lots of code duplication in kernel saved. What's the actual  
-> benefit of in-kernel decoding?
+>> I know that lircd does matching instead of decoding, which allows to
+>> handle unknown encodings.  Thats why I think there will always be cases
+>> which only lircd will be able to handle (using raw samples).
+>>
+>> That doesn't make attempts to actually decode the IR samples a useless
+>> exercise though ;)
+>
+> Well, in my opinion it is kind of useless. I don't see any use case or any
+> demand for passing this kind of information to userspace, at least in the
+> LIRC context.
+> If there's no demand, why bother?
 
-Why are you mixing configuration and decoding? Configuration I expect
-will be done with the help of userspace. Udev is probably the best
-place.
+There have been complains about this getting lost somewhere in this 
+thread, so it looks like there are people which do care.
 
-> 
-> 2. What would be the format of the key map? lircd.conf files already exist  
-> for a lot of remote controls. Will we have a second incompatible format to  
-> map the keys in-kernel? Where are the tools that create the key maps for  
-> new remotes?
-> 
-
-Same as the keymaps for the other input devices I'd expect.
-
-> Maybe someone can shed some light on this.
-> 
-> Christoph
-
--- 
-Dmitry
+cheers,
+   Gerd

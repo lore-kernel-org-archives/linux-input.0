@@ -1,36 +1,77 @@
-From: Jon Smirl <jonsmirl@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 11:03:25 -0500
-Message-ID: <9e4733910911260803q6f5cd6c0g5006e84f7733dc85@mail.gmail.com>
-References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
-	 <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
-	 <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
-	 <4B0DA885.7010601@redhat.com> <4B0E9493.1090200@redhat.com>
-	 <9e4733910911260748v454d3b0bvcc6bfc86823cdd39@mail.gmail.com>
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 14:07:40 -0200
+Message-ID: <4B0EA7CC.9070309@redhat.com>
+References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <20091126053109.GE23244@core.coreip.homeip.net> <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:39695 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751574AbZKZQDX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 11:03:23 -0500
-In-Reply-To: <9e4733910911260748v454d3b0bvcc6bfc86823cdd39@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-BTW, we used to have device specific user space interfaces for mouse
-and keyboard. These caused all sort of problems. A lot of work went
-into unifying them under evdev.  It will be years until the old,
-messed up interfaces can be totally removed.
+Jarod Wilson wrote:
 
-I'm not in favor of repeating the problems with a device specific user
-space interface for IR. I believe all new input devices should
-implement the evdev framework.
+>> I guess the question is what is the interface we want the regular
+>> userspace (i.e. not lircd) to use. Right now programs has to use 2
+>> intercfaces - one lirc for dealing with remotes that are not using
+>> the standard event interface and evdev for remotes using it as well
+>> as the rest of the input devices.
+> 
+> From the mythtv perspective, using the input layer could yield a better
+> out-of-the-box experience -- users don't have to set up an lircrc mapping
+> that converts key names as specified in lircd.conf into commands 
+> (key strokes, actually) that mythtv understands. For example, a button labeled "Play"
+> in lircd.conf has to be mapped to 'p' in ~/.lircrc for mythtv to do the right 
+> thing with it. If everything came through the input layer, be that natively
+> or via lircd's uinput reinjection, there would be no need to do that extra 
+> mapping step, mythtv would simply handle a KEY_PLAY event. So at worst, 
+> one manual mapping to do -- IR signal to standard button name in lircd.conf -- 
+> instead of two. But the lircrc approach does also allow more flexibility, 
+> in that you can only have a certain app respond to a certain key, if so desired, 
+> and remap a key to a different function (KEY_RED, KEY_GREEN, KEY_BLUE, KEY_YELLOW
+>  -- what should their default functionality be? I know some users map a pair
+> of those to mythtv's "skip to next commflag point" and "skip to prior commflag point").
+> 
+> Unfortunately, mythtv currently doesn't handle KEY_PLAY, KEY_VOLUMEUP, etc., etc. at 
+> all right now, it operates purely on keys commonly found on a standard keyboard.
+> Remedying that is on my TODO list for the next release, if I can carve out the time.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+This discussion is a little OT from the API discussions, since it affects both out-of-the
+box IR reception via input layer and lirc.
+
+All media applications should be capable of handling the corresponding KEY_PLAY, KEY_VOLUMEUP ...
+keys without needing to do anything else than just handling the corresponding keycode.
+You shouldn't need to start a daemon or doing anything else for this to work out-of-the-box.
+
+They currently don't do it due to historic reasons (it is easier to let something else
+remap KEY_PLAY into 'p' than to add the proper code there).
+
+When using non-hot-pluggable devices where you're building a dedicated MCE hardware (this 
+is the common case of MythTV setups), things are not that bad, since, once you set your
+hardware, it is done.
+
+However, by looking on the number of different new devices, it seems that the most common 
+type of devices are the TV USB sticks. As they are hot pluggable, eventually users may 
+have more than one hardware and they expect that the IR layer will work equally on
+all your devices.
+
+The proper way for supporting it is to have a common application-agnostic keycode to indicate
+the received events. For example, all IR's should produce KEY_CHANNELUP/KEY_CHANNELDOWN events
+for changing the channels. Also, on a perfect world, lirc should send this event to the
+multimedia application that handles TV when such key is pressed, instead of converting into
+some other keycode. This prevents future problems if, for some reason, the application needs to
+do something else with that key, or if the key has a different meaning on some different contexts.
+
+For example, on some applications, KEY_UP/KEY_DOWN can mean to change a channel, but those keys
+are also used for menu navigation. However, KEY_CHANNELUP has a clear unique meaning: to change a channel. 
+The expected behavior, from users perspective, is to mimic a TV box, where if you press channel UP
+any open menu will be closed and the channel will be changed, but pressing UP key will
+navigate at the menu. Well, if you map KEY_CHANNELUP as KEY_UP, you'll produce a different behavior.
+
+Cheers,
+Mauro.

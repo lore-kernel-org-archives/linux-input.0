@@ -1,48 +1,57 @@
-From: lirc@bartelmus.de (Christoph Bartelmus)
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: 26 Nov 2009 09:01:00 +0100
-Message-ID: <BDcbizrJjFB@christoph>
-References: <4BFB11CF-1835-4AFA-BDC6-F42288A9A6F4@wilsonet.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 00:08:04 -0800
+Message-ID: <20091126080804.GA28352@core.coreip.homeip.net>
+References: <4BFB11CF-1835-4AFA-BDC6-F42288A9A6F4@wilsonet.com> <BDcbizrJjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:51940 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759320AbZKZIDu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 03:03:50 -0500
-In-Reply-To: <4BFB11CF-1835-4AFA-BDC6-F42288A9A6F4@wilsonet.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759442AbZKZIIG@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <BDcbizrJjFB@christoph>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: jarod@wilsonet.com, awalls@radix.net, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: jarod@wilsonet.com
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Hi,
+On Thu, Nov 26, 2009 at 09:01:00AM +0100, Christoph Bartelmus wrote:
+> Hi,
+> 
+> on 25 Nov 09 at 12:44, Jarod Wilson wrote:
+> [...]
+> > Ah, but the approach I'd take to converting to in-kernel decoding[*] would
+> > be this:
+> [...]
+> > [*] assuming, of course, that it was actually agreed upon that in-kernel
+> > decoding was the right way, the only way, all others will be shot on sight.
+> 
+> I'm happy to see that the discussion is getting along.
+> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just  
+> because I'm not familiar at all with input layer toolset.
+> 
+> 1. For sure in-kernel decoding will require some assistance from userspace  
+> to load the mapping from IR codes to keys. So, if there needs to be a tool  
+> in userspace that does some kind of autodetection, why not have a tool  
+> that does some autodetection and autoconfigures lircd for the current  
+> device. Lots of code duplication in kernel saved. What's the actual  
+> benefit of in-kernel decoding?
 
-on 25 Nov 09 at 12:44, Jarod Wilson wrote:
-[...]
-> Ah, but the approach I'd take to converting to in-kernel decoding[*] would
-> be this:
-[...]
-> [*] assuming, of course, that it was actually agreed upon that in-kernel
-> decoding was the right way, the only way, all others will be shot on sight.
+Why are you mixing configuration and decoding? Configuration I expect
+will be done with the help of userspace. Udev is probably the best
+place.
 
-I'm happy to see that the discussion is getting along.
-But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just  
-because I'm not familiar at all with input layer toolset.
+> 
+> 2. What would be the format of the key map? lircd.conf files already exist  
+> for a lot of remote controls. Will we have a second incompatible format to  
+> map the keys in-kernel? Where are the tools that create the key maps for  
+> new remotes?
+> 
 
-1. For sure in-kernel decoding will require some assistance from userspace  
-to load the mapping from IR codes to keys. So, if there needs to be a tool  
-in userspace that does some kind of autodetection, why not have a tool  
-that does some autodetection and autoconfigures lircd for the current  
-device. Lots of code duplication in kernel saved. What's the actual  
-benefit of in-kernel decoding?
+Same as the keymaps for the other input devices I'd expect.
 
-2. What would be the format of the key map? lircd.conf files already exist  
-for a lot of remote controls. Will we have a second incompatible format to  
-map the keys in-kernel? Where are the tools that create the key maps for  
-new remotes?
+> Maybe someone can shed some light on this.
+> 
+> Christoph
 
-Maybe someone can shed some light on this.
-
-Christoph
+-- 
+Dmitry

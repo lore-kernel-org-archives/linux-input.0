@@ -1,121 +1,39 @@
-From: Andy Walls <awalls@radix.net>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 14:43:34 -0500
-Message-ID: <1259264614.1781.47.camel@localhost>
-References: <BDRae8rZjFB@christoph>
-	 <1259024037.3871.36.camel@palomino.walls.org>
-	 <m3k4xe7dtz.fsf@intrepid.localdomain>  <4B0E8B32.3020509@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 21:28:14 +0100
+Message-ID: <m3tywhrpy9.fsf@intrepid.localdomain>
+References: <BDcbizrJjFB@christoph> <4B0EABF8.9000902@redhat.com>
+	<m3r5rlupcb.fsf@intrepid.localdomain> <4B0ECF1B.1090103@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:51081 "EHLO mail1.radix.net"
+Received: from khc.piap.pl ([195.187.100.11]:56765 "EHLO khc.piap.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750919AbZKZToT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 14:44:19 -0500
-In-Reply-To: <4B0E8B32.3020509@redhat.com>
+	id S1751662AbZKZU2L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 15:28:11 -0500
+In-Reply-To: <4B0ECF1B.1090103@redhat.com> (Mauro Carvalho Chehab's message of
+	"Thu, 26 Nov 2009 16:55:23 -0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, 2009-11-26 at 12:05 -0200, Mauro Carvalho Chehab wrote:
-> Krzysztof Halasa wrote:
-> > Andy Walls <awalls@radix.net> writes:
-> > 
-> >> I would also note that RC-6 Mode 6A, used by most MCE remotes, was
-> >> developed by Philips, but Microsoft has some sort of licensing interest
-> >> in it and it is almost surely encumbered somwhow:
-> > 
-> > I don't know about legal problems in some countries but from the
-> > technical POV handling the protocol in the kernel is more efficient
-> > or (/and) simpler.
-> 
-> A software licensing from Microsoft won't apply to Linux kernel, so I'm
-> assuming that you're referring to some patent that they could be filled
-> about RC6 mode 6A.
-> 
-> I don't know if is there any US patent pending about it (AFAIK, only US
-> accepts software patents), but there are some prior-art for IR key
-> decoding. So, I don't see what "innovation" RC6 would be adding. 
-> If it is some new way to transmit waves, the patent issues
-> aren't related to software, and the device manufacturer had already handled
-> it when they made their devices.
+Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+
+> The removal of the existing keymaps from kernel depends on having an
+> application
+> to be called from udev to load the proper keymaps when a device is probed.
 >
->  If it is just a new keytable, this issue 
-> could be easily solved by loading the keytable via userspace.
-> 
-> Also, assuming that you can use the driver only with a hardware that comes
-> with a licensed software, the user has already the license for using it.
-> 
-> Do you have any details on what patents they are claiming?
+> After having it for a while, we should deprecate the in-kernel keymaps
+> and move them to userspace.
 
-The US Philips RC-6 patent is US Patent 5,877,702
+Sounds like a plan.
 
-http://www.google.com/patents?vid=USPAT5877702
+> I also think that it is important to remove the 7 bits limitation from
+> all drivers
+> and re-generate the keymaps, since they'll change after it.
 
-Click on download PDF to get a copy of the whole patent.
-
-I am not a lawyer.  Philips claims' all appear to tie to a transmitter
-or receiver as part of a system, but most of the claims are about
-information and bit positions and lengths.
-
-
-I don't know for sure what Microsoft claims to be licensing.  I think it
-is the protocol itself:
-
-http://www.microsoft.com/presspass/Press/2002/Apr02/04-16FreestylePhilipsPR.mspx
-
-"Under the terms of the agreement, Microsoft and Philips will license to
-OEMs an IR protocol based on Philips proprietary RC6 IR technology. The
-patented and globally adopted solution minimizes interference from other
-remote-control devices in the household. Use of this established
-protocol will help ensure uniform development of Windows infrared
-remote-control products, which include infrared remote-control units and
-remote-control receivers..."
-
-http://download.microsoft.com/download/9/8/f/98f3fe47-dfc3-4e74-92a3-088782200fe7/TWEN05007_WinHEC05.ppt
-
-See Slide 5, which has the bullet: "How to License RC6"
-
-Since the content of the information field in RC-6 Mode 6A is left up to
-OEMs, I would not be surprised by bogus "innovations" in OEM patents
-about RC-6 Mode 6A contents.  I would not be at all surprised by
-something like "a bit to indicate a toggled remote key press in the
-information field" since RC-6's T bits for mode 6 indicate Mode 6A or
-Mode 6B and not toggles.
-
-
-IMO, given
-
-a. the dearth of public information about RC-6, indicating someone
-thinks it's their trade secret or intellectual property
-
-b. Microsoft claiming to license something related to the MCE remote
-protocols (which are obviously RC-6 Mode 6A),
-
-c. my inability to draw a "clear, bright line" that RC-6 Mode 6A
-encoding and decoding, as needed by MCE remotes, implemented in software
-doesn't violate anyone's government granted rights to exclusivity.
-
-I think it's much better to implement software RC-6 Mode 6A encoding and
-decoding in user space, doing only the minimum needed to get the
-hardware setup and going in the kernel.  
-
-Encoding/decoding of RC-6 by microcontrollers with firmware doesn't
-worry me. 
-
-
-Maybe I'm being too conservative here, but I have a personal interest in
-keeping Linux free and unencumbered even in the US which, I cannot deny,
-has a patent system that is screwed up.
-
-Regards,
-Andy
-
-> Cheers,
-> Mauro.
-
-
-
+I think the existing space/mark media drivers need to be reworked
+completely.
+-- 
+Krzysztof Halasa

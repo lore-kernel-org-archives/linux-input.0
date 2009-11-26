@@ -1,67 +1,32 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 12:32:37 -0500
-Message-ID: <4B0EBBB5.5090303@wilsonet.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <6D934408-B713-49B6-A197-46CE663455AC@wilsonet.com> <4B0E889C.9060405@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 18:46:38 +0100
+Message-ID: <m31vjlw54x.fsf@intrepid.localdomain>
+References: <200910200956.33391.jarod@redhat.com>
+	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	<20091123173726.GE17813@core.coreip.homeip.net>
+	<m3r5rpq818.fsf@intrepid.localdomain>
+	<20091126052155.GD23244@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:41354
-	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760031AbZKZR1j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 12:27:39 -0500
-In-Reply-To: <4B0E889C.9060405@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751976AbZKZRqg@vger.kernel.org>
+In-Reply-To: <20091126052155.GD23244@core.coreip.homeip.net> (Dmitry
+	Torokhov's message of "Wed, 25 Nov 2009 21:21:55 -0800")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On 11/26/2009 08:54 AM, Mauro Carvalho Chehab wrote:
-> Jarod Wilson wrote:
->> On Nov 23, 2009, at 7:53 PM, Andy Walls wrote:
->>
->>> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
->> ...
->>> I generally don't understand the LIRC aversion I perceive in this thread
->>> (maybe I just have a skewed perception).  Aside for a video card's
->>> default remote setup, the suggestions so far don't strike me as any
->>> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
->>> already works for both transmit and receive and has existing support in
->>> applications such as MythTV and mplayer.
->>
->> There's one gripe I agree with, and that is that its still not plug-n-play.
->> Something where udev auto-loads a sane default remote config for say,
->> mceusb transceivers, and the stock mce remote Just Works would be nice,
->> but auto-config is mostly out the window the second you involve transmitters
->> and universal remotes anyway.
->
-> For several devices, an udev rule that auto-loads a sane default keymap does work.
-> Of course, this won't cover 100% of the usages, and I lirc is a very good way
-> of covering the holes.
->
->> But outside of that, I think objections are largely philosophical --
->> in a nutshell, the kernel has an input layer, remotes are input devices,
->> and lirc doesn't conform to input layer standards.
->
-> Yes. I think this is mainly the issue.
->
-> The other issue is how to migrate the existing drivers to a new API without
-> causing regressions. If we decide that IR's that receive raw pulse/code
-> should use the raw input interface, this means that a large task force will be
-> needed to convert the existing drivers to use it.
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 
-Aversion to regression is definitely a major concern. And why I'm liking 
-the idea of a hybrid approach, at least initially.
+> In what way the key interface is unsufficient for delivering button
+> events?
 
-> What do you think of adding lirc at staging while we discuss/improve the API's and lircd
-> support for the input event interface? Do you think this would work?
+At present: 128 different keys only (RC5: one group). One remote per
+device only.
 
-Sure, I don't see why not. And I've got another dozen or so drivers to 
-follow those first three... :)
-
+The protocol itself doesn't have the above limitations, but has others,
+with are acceptable for key input.
 -- 
-Jarod Wilson
-jarod@wilsonet.com
+Krzysztof Halasa

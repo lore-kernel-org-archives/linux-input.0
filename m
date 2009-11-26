@@ -1,32 +1,52 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 19:18:09 +0100
-Message-ID: <m3my29up3y.fsf@intrepid.localdomain>
+Date: Thu, 26 Nov 2009 19:24:30 +0100
+Message-ID: <m3iqcxuotd.fsf@intrepid.localdomain>
 References: <200910200956.33391.jarod@redhat.com>
 	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
 	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<4B0AB60B.2030006@s5r6.in-berlin.de> <4B0AC8C9.6080504@redhat.com>
-	<m34oolrnwd.fsf@intrepid.localdomain> <4B0E71B6.4080808@redhat.com>
+	<4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
+	<4B0E765C.2080806@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751555AbZKZSSJ@vger.kernel.org>
-In-Reply-To: <4B0E71B6.4080808@redhat.com> (Mauro Carvalho Chehab's message of
-	"Thu, 26 Nov 2009 10:16:54 -0200")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from khc.piap.pl ([195.187.100.11]:48400 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750791AbZKZSY1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 13:24:27 -0500
+In-Reply-To: <4B0E765C.2080806@redhat.com> (Mauro Carvalho Chehab's message of
+	"Thu, 26 Nov 2009 10:36:44 -0200")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
 Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 
-> Technically, it is not hard to port this solution to the other
-> drivers, but the issue is that we don't have all those IR's to know
-> what is the complete scancode that each key produces. So, the hardest
-> part is to find a way for doing it without causing regressions, and to
-> find a group of people that will help testing the new way.
+> The issue I see is to support at the same time NEC and RC5 protocols. While
+> this may work with some devices, for others, the hardware won't allow.
 
-We don't want to "port it" to other drivers. We need to have a common
-module which does all RCx decoding. The individual drivers should be as
-simple as possible, something that I outlined in a previous mail.
+Sure. We can handle it for the "simple" devices at least.
+
+>> I think the mapping should be: key = proto + group + raw code, while
+>> key2 could be different_proto + different group (if any) + another code.
+>
+> This may work for protocols up to RC5, that uses either 8 or 16 bits.
+> However, RC6 mode 6 codes can be 32 bits, and we have "only" 32 bits
+> for a scancode. So, we don't have spare bits to represent a protocol, 
+> if we consider RC6 mode 6 codes as well.
+
+I don't see this limitation. The number of bits should depend on the
+protocol.
+
+> See above. Also, several protocols have a way to check if a keystroke were
+> properly received. When handling just one protocol, we can use this to double
+> check the key. However, on a multiprotocol mode, we'll need to disable this
+> feature.
+
+I don't think so. We can pass the space/mark data to all (configured,
+i.e. with active mapping) protocol handlers at once. Should a check
+fail, we ignore the data. Perhaps another protocol will make some sense
+out of it.
 -- 
 Krzysztof Halasa

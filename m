@@ -1,44 +1,46 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 10:14:14 +0100
-Message-ID: <4B0E46E6.4030006@redhat.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <20091126054938.GH23244@core.coreip.homeip.net> <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: [PATCH] Input: i8042 - add Dell Vostro 1520 and 1720 to the
+ reset list
+Date: Thu, 26 Nov 2009 11:05:00 +0100
+Message-ID: <20091126110500.735461ac@destiny.ordissimo>
+References: <20091124151250.03e185d1@destiny.ordissimo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:55295 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752030AbZKZKGF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 05:06:05 -0500
+In-Reply-To: <20091124151250.03e185d1@destiny.ordissimo>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 11/26/09 07:23, Jarod Wilson wrote:
-> Well, when mythtv was started, I don't know that there were many
-> input layer remotes around... lirc was definitely around though.
+Hi Dmitry,
 
-lirc predates the input layer IR drivers by years, maybe even the input 
-layer itself.
+Sorry for the badly threaded reply, I wasn't subscribed to the list and
+didn't ask explicitely to be Cc-ed.
 
-The main reason for the input layer IR drivers appearing was lirc not 
-being mainline.  A in-kernel driver (bttv in that case) which depends on 
-a out-of-tree subsystem for IR support was simply a pain in the ass for 
-both maintainer (/me back then) and users.
+>On Wed, 25 Nov 2009 12:17:37 -0800, Dmitry Torokhov wrote:
+>Could youplease explain in more detail what the "bad state" is.
+>And what exactly do you mean by "first boot"? Cold boot? The very
+>first boot after assembling? Something else?
 
-At least for IR hardware which allows access to the raw samples it 
-certainly makes sense to support lirc, additional to the current (or 
-improved) input layer support.
+By bad state I mean that neither touchpad nor keyboard are working. They
+are both unresponsive. You can fix this by adding i8042.reset on the
+kernel command line, or removing the battery and waiting long enough.
+By very first boot I mean when the laptops are received from Dell and
+booted in Linux.
 
-> The lirc support in mythtv actually relies on mapping remote button
-> names as defined in lircd.conf to keyboard key strokes. As mentioned
-> elsewhere in this beast of a thread, mythtv doesn't currently support
-> things like KEY_PLAY, KEY_VOLUMEUP, KEY_CHANNELUP, etc. just yet, but
-> I intend on fixing that...
+If you cold boot with a working non-Dell power supply (with same
+electrical characteristics), you can reproduce the "first boot" bug as
+much as you want, and laptops won't work unless you remove the battery
+and wait long enough OR add i8042.reset on the cmdline.
 
-lircd can handle the input layer as input as well, so you actually can 
-remap things via lircd even for pure input layer drivers.  mythtv 
-handling KEY_VOLUMEUP directly would be more elegant though.
+Regards,
 
-cheers,
-   Gerd
+--
+Anisse

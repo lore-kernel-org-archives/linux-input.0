@@ -1,81 +1,50 @@
-From: Andy Walls <awalls@radix.net>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Wed, 25 Nov 2009 22:50:00 -0500
-Message-ID: <1259207400.3060.62.camel@palomino.walls.org>
-References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
-	 <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
-	 <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Query last reported event state
+Date: Wed, 25 Nov 2009 19:51:42 -0800
+Message-ID: <20091126035142.GB23244@core.coreip.homeip.net>
+References: <20091124173356.GB14091@buzzloop.caiaq.de> <20091124195729.GB27249@gw.healthdatacare.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:35876 "EHLO mail1.radix.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758263AbZKZDvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 22:51:08 -0500
-In-Reply-To: <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:34003 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758291AbZKZDvk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 22:51:40 -0500
+Received: by pwi3 with SMTP id 3so246493pwi.21
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2009 19:51:46 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20091124195729.GB27249@gw.healthdatacare.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Mika Westerberg <mika.westerberg@iki.fi>
+Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
 
-On Wed, 2009-11-25 at 13:20 -0500, Devin Heitmueller wrote:
-> On Wed, Nov 25, 2009 at 1:07 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
-> > Took me a minute to figure out exactly what you were talking about. You're referring to the current in-kernel decoding done on an ad-hoc basis for assorted remotes bundled with capture devices, correct?
-> >
-> > Admittedly, unifying those and the lirc driven devices hasn't really been on my radar.
+On Tue, Nov 24, 2009 at 09:57:29PM +0200, Mika Westerberg wrote:
+> Hi Daniel,
 > 
-> This is one of the key use cases I would be very concerned with.  For
-> many users who have bought tuner products, the bundled remotes work
-> "out-of-the-box", regardless of whether lircd is installed.  I have no
-> objection so much as to saying "well, you have to install the lircd
-> service now", but there needs to be a way for the driver to
-> automatically tell lirc what the default remote control should be, to
-> avoid a regression in functionality.  We cannot go from a mode where
-> it worked automatically to a mode where now inexperienced users now
-> have to deal with the guts of getting lircd properly configured.
+> On Tue, Nov 24, 2009 at 06:33:56PM +0100, Daniel Mack wrote:
+> > Hi,
+> > 
+> > is there a way to query the last state an input device reported,
+> > preferably even for a special key mask? When a button is pressed and a
+> > userspace application is started, it should be able to figure out the
+> > current state, especially because those GPIO signals are likely
+> > connected to other peripherals to report arbitrary events in the system.
+> > Is there any such framework for that purpose?
 > 
-> If such an interface were available, I would see to it that at least
-> all the devices I have added RC support for will continue to work
-> (converting the in-kernel RC profiles to lirc RC profiles as needed
-> and doing the associations with the driver).
+> Not sure whether this helps, but you can look <linux/input.h> and
+> check what ioctl()s it provides for this purpose. At least there
+> seems to be:
+> 	EVIOCGKEY - get global keystate
+> 	EVIOCGSW - get all switch states
+> 	EVIOCGBIT - get event bits
 > 
-> The other key thing I don't think we have given much thought to is the
-> fact that in many tuners, the hardware does RC decoding and just
-> returns NEC/RC5/RC6 codes.  And in many of those cases, the hardware
-> has to be configured to know what format to receive.  We probably need
-> some kernel API such that the hardware can tell lirc what formats are
-> supported, and another API call to tell the hardware which mode to
-> operate in.
+> Maybe you can use some of these to query current status of input events.
 
-Please think about how we would need to augment the v4l_subdev_ir_ops:
+This is correct. The first 2 ioctls are there so userspace can get the
+current state of input device. The last ioctl is to query capabilities,
+not the state though.
 
-http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l246
-http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l305
-http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/include/media/v4l2-subdev.h#l27
-
-I think encapsulation of the various IR devices under V4L-DVB into
-v4l_subdevices can facilitate your suggestions.
-
-
-The CX23888 IR subdevice code configures itself to a single default
-setup for Tx and Rx:
-
-http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/drivers/media/video/cx23885/cx23888-ir.c#l1192
-http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/drivers/media/video/cx23885/cx23888-ir.c#l1211
-
-but there isn't a reason V4L2 IR subdevices couldn't configure to a per
-"product" defaults based on information about the detected card from the
-main bridge driver code.
-
-Regards,
-Andy
-
-> This is why I think we really should put together a list of use cases,
-> so that we can see how any given proposal addresses those use cases.
-> I offered to do such, but nobody seemed really interested in this.
-> 
-> Devin
-
-
+-- 
+Dmitry

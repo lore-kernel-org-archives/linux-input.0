@@ -1,65 +1,121 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 17:08:40 -0200
-Message-ID: <4B0ED238.6060306@redhat.com>
-References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>	<4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>	<4B0E765C.2080806@redhat.com> <m3iqcxuotd.fsf@intrepid.localdomain>
+Date: Thu, 26 Nov 2009 14:43:34 -0500
+Message-ID: <1259264614.1781.47.camel@localhost>
+References: <BDRae8rZjFB@christoph>
+	 <1259024037.3871.36.camel@palomino.walls.org>
+	 <m3k4xe7dtz.fsf@intrepid.localdomain>  <4B0E8B32.3020509@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:13477 "EHLO mx1.redhat.com"
+Received: from mail1.radix.net ([207.192.128.31]:51081 "EHLO mail1.radix.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752188AbZKZTIq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 14:08:46 -0500
-In-Reply-To: <m3iqcxuotd.fsf@intrepid.localdomain>
+	id S1750919AbZKZToT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 14:44:19 -0500
+In-Reply-To: <4B0E8B32.3020509@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Krzysztof Halasa wrote:
-> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+On Thu, 2009-11-26 at 12:05 -0200, Mauro Carvalho Chehab wrote:
+> Krzysztof Halasa wrote:
+> > Andy Walls <awalls@radix.net> writes:
+> > 
+> >> I would also note that RC-6 Mode 6A, used by most MCE remotes, was
+> >> developed by Philips, but Microsoft has some sort of licensing interest
+> >> in it and it is almost surely encumbered somwhow:
+> > 
+> > I don't know about legal problems in some countries but from the
+> > technical POV handling the protocol in the kernel is more efficient
+> > or (/and) simpler.
 > 
->> The issue I see is to support at the same time NEC and RC5 protocols. While
->> this may work with some devices, for others, the hardware won't allow.
+> A software licensing from Microsoft won't apply to Linux kernel, so I'm
+> assuming that you're referring to some patent that they could be filled
+> about RC6 mode 6A.
 > 
-> Sure. We can handle it for the "simple" devices at least.
+> I don't know if is there any US patent pending about it (AFAIK, only US
+> accepts software patents), but there are some prior-art for IR key
+> decoding. So, I don't see what "innovation" RC6 would be adding. 
+> If it is some new way to transmit waves, the patent issues
+> aren't related to software, and the device manufacturer had already handled
+> it when they made their devices.
+>
+>  If it is just a new keytable, this issue 
+> could be easily solved by loading the keytable via userspace.
 > 
->>> I think the mapping should be: key = proto + group + raw code, while
->>> key2 could be different_proto + different group (if any) + another code.
->> This may work for protocols up to RC5, that uses either 8 or 16 bits.
->> However, RC6 mode 6 codes can be 32 bits, and we have "only" 32 bits
->> for a scancode. So, we don't have spare bits to represent a protocol, 
->> if we consider RC6 mode 6 codes as well.
+> Also, assuming that you can use the driver only with a hardware that comes
+> with a licensed software, the user has already the license for using it.
 > 
-> I don't see this limitation. The number of bits should depend on the
-> protocol.
+> Do you have any details on what patents they are claiming?
 
-see include/linux/input.h:
+The US Philips RC-6 patent is US Patent 5,877,702
 
-struct input_event {
-        struct timeval time;
-        __u16 type;
-        __u16 code;
-        __s32 value;
-};
+http://www.google.com/patents?vid=USPAT5877702
 
-extending the value to more than 32 bits require some changes at the input layer,
-probably breaking kernel API.
+Click on download PDF to get a copy of the whole patent.
 
-> 
->> See above. Also, several protocols have a way to check if a keystroke were
->> properly received. When handling just one protocol, we can use this to double
->> check the key. However, on a multiprotocol mode, we'll need to disable this
->> feature.
-> 
-> I don't think so. We can pass the space/mark data to all (configured,
-> i.e. with active mapping) protocol handlers at once. Should a check
-> fail, we ignore the data. Perhaps another protocol will make some sense
-> out of it.
+I am not a lawyer.  Philips claims' all appear to tie to a transmitter
+or receiver as part of a system, but most of the claims are about
+information and bit positions and lengths.
 
-What happens if it succeeds on two protocol handlers?
 
-Cheers,
-Mauro.
+I don't know for sure what Microsoft claims to be licensing.  I think it
+is the protocol itself:
+
+http://www.microsoft.com/presspass/Press/2002/Apr02/04-16FreestylePhilipsPR.mspx
+
+"Under the terms of the agreement, Microsoft and Philips will license to
+OEMs an IR protocol based on Philips proprietary RC6 IR technology. The
+patented and globally adopted solution minimizes interference from other
+remote-control devices in the household. Use of this established
+protocol will help ensure uniform development of Windows infrared
+remote-control products, which include infrared remote-control units and
+remote-control receivers..."
+
+http://download.microsoft.com/download/9/8/f/98f3fe47-dfc3-4e74-92a3-088782200fe7/TWEN05007_WinHEC05.ppt
+
+See Slide 5, which has the bullet: "How to License RC6"
+
+Since the content of the information field in RC-6 Mode 6A is left up to
+OEMs, I would not be surprised by bogus "innovations" in OEM patents
+about RC-6 Mode 6A contents.  I would not be at all surprised by
+something like "a bit to indicate a toggled remote key press in the
+information field" since RC-6's T bits for mode 6 indicate Mode 6A or
+Mode 6B and not toggles.
+
+
+IMO, given
+
+a. the dearth of public information about RC-6, indicating someone
+thinks it's their trade secret or intellectual property
+
+b. Microsoft claiming to license something related to the MCE remote
+protocols (which are obviously RC-6 Mode 6A),
+
+c. my inability to draw a "clear, bright line" that RC-6 Mode 6A
+encoding and decoding, as needed by MCE remotes, implemented in software
+doesn't violate anyone's government granted rights to exclusivity.
+
+I think it's much better to implement software RC-6 Mode 6A encoding and
+decoding in user space, doing only the minimum needed to get the
+hardware setup and going in the kernel.  
+
+Encoding/decoding of RC-6 by microcontrollers with firmware doesn't
+worry me. 
+
+
+Maybe I'm being too conservative here, but I have a personal interest in
+keeping Linux free and unencumbered even in the US which, I cannot deny,
+has a patent system that is screwed up.
+
+Regards,
+Andy
+
+> Cheers,
+> Mauro.
+
+
+

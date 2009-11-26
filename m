@@ -1,92 +1,98 @@
-From: Andy Walls <awalls@radix.net>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 07:28:20 -0500
-Message-ID: <1259238500.3062.10.camel@palomino.walls.org>
-References: <BDRae8rZjFB@christoph>
-	 <1259024037.3871.36.camel@palomino.walls.org>
-	 <20091126054938.GH23244@core.coreip.homeip.net>
-	 <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com>
+Date: Thu, 26 Nov 2009 10:36:44 -0200
+Message-ID: <4B0E765C.2080806@redhat.com>
+References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>	<4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:43410 "EHLO mail1.radix.net"
+Received: from mx1.redhat.com ([209.132.183.28]:4831 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759054AbZKZMaa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 07:30:30 -0500
-In-Reply-To: <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com>
+	id S1760395AbZKZMgv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 07:36:51 -0500
+In-Reply-To: <m3zl6dq8ig.fsf@intrepid.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Thu, 2009-11-26 at 01:23 -0500, Jarod Wilson wrote:
-> On Nov 26, 2009, at 12:49 AM, Dmitry Torokhov wrote:
+Krzysztof Halasa wrote:
+> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 > 
-> > On Mon, Nov 23, 2009 at 07:53:57PM -0500, Andy Walls wrote:
-> >> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
-> >>> Czesc Krzysztof,
-> >>> 
-> >>> on 23 Nov 09 at 15:14, Krzysztof Halasa wrote:
-> >>> [...]
-> >>>> I think we shouldn't at this time worry about IR transmitters.
-> >>> 
-> >>> Sorry, but I have to disagree strongly.
-> >>> Any interface without transmitter support would be absolutely unacceptable  
-> >>> for many LIRC users, including myself.
-> >> 
-> >> I agree with Christoph.  
-> >> 
-> >> Is it that the input subsystem is better developed and seen as a
-> >> leverage point for development and thus an "easier" place to get results
-> >> earlier?  If so, then one should definitely deal with transmitters early
-> >> in the design, as that is where the most unknowns lie.
-> >> 
-> >> With the end of analog TV, people will have STBs feeding analog only
-> >> video cards.  Being able to change the channel on the STB with an IR
-> >> transmitter controlled by applications like MythTV is essential.
-> >> 
-> >> 
-> >> And on some different notes:
-> >> 
-> >> I generally don't understand the LIRC aversion I perceive in this thread
-> >> (maybe I just have a skewed perception).  Aside for a video card's
-> >> default remote setup, the suggestions so far don't strike me as any
-> >> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
-> >> already works for both transmit and receive and has existing support in
-> >> applications such as MythTV and mplayer.
-> > 
-> > Is it that LIRC supports MythTV and mplayer or MythTV and mplayer are
-> > forced to support lirc because the remores are not available through
-> > other means? I believe it is the latter and applications writers would
-> > be happy to reduce number of ways they get button data.
+>> If you see patch 3/3, of the lirc submission series, you'll notice a driver
+>> that has hardware decoding, but, due to lirc interface, the driver generates
+>> pseudo pulse/space code for it to work via lirc interface.
 > 
-> Well, when mythtv was started, I don't know that there were many input layer remotes around... lirc was definitely around though. serial receivers and transmitters, both supported by lirc_serial, were the most frequently used devices outside of plain old keyboards. The lirc support in mythtv actually relies on mapping remote button names as defined in lircd.conf to keyboard key strokes. As mentioned elsewhere in this beast of a thread, mythtv doesn't currently support things like KEY_PLAY, KEY_VOLUMEUP, KEY_CHANNELUP, etc. just yet, but I intend on fixing that...
+> IOW the driver generates artificial pulse code for lircd?
+> I think - pure bloat. lircd can get events from input layer without
+> problems. Perhaps I misunderstood?
+
+lircd supports input layer interface. Yet, patch 3/3 exports both devices
+that support only pulse/space raw mode and devices that generate scan
+codes via the raw mode interface. It does it by generating artificial
+pulse codes.
 > 
-> > I don't think there is LIRC aversion per se. We are just trying to
-> > decide whether multiple interfaces for the same data is needed. And
-> > I don't think that we will completely reject userspace components. Just
-> > as input subsystem allows for userspace drivers I do not think why we
-> > can't have the same for the LIRC. But I do think that the primary
-> > interface for regular userspace consumers (read mplayer and MythTV and
-> > the likes) should be input event interface (EV_KEY/KEY_*).
+>> It is very bad to have two interfaces for the same thing, because people
+>> may do things like that.
 > 
-> Works for me.
+> I think having a "raw" scan code interface + the key code "cooked" mode
+> is beneficial. For remotes lacking the raw interface only the latter
+> could be used.
 
-Even though two interfaces is a bit of "extra" work, I'm not averse to
-Gerd's suggestions of a dual implementation: input layer for the simple,
-common use case, and lirc type interface for more sophisticated usage.
+It sounds an interesting idea.
 
-One thing I would like to be provided by the input layer is automatic
-key-up after a specified time.  Remote protocols send an initial button
-press and then after a certain amount of time (~115 ms for RC-5) send a
-repeated code or repeat sequence, if the button is still pressed.
-Currently, most of the V4L-DVB drivers have some code to perform a
-timeout just to send the key-up event.  That's a good bit of redundant
-code for key-up timeouts that I suspect makes sense for the input layer
-to handle.
+>> Are you meaning that we should do more than one RC per input event
+>> interface?
+> 
+> I think so. Why not?
+> 
+> For example, one of my remotes generates codes from at least two RC5
+> groups (in only one "mode"). Currently a remote is limited to only one
+> RC5 group.
 
-Regards,
-Andy
+Yet, both are RC5. This can already be handled by the input layer.
+See dvb-usb implementation.
 
+The issue I see is to support at the same time NEC and RC5 protocols. While
+this may work with some devices, for others, the hardware won't allow.
+
+> 
+> I think the mapping should be: key = proto + group + raw code, while
+> key2 could be different_proto + different group (if any) + another code.
+
+This may work for protocols up to RC5, that uses either 8 or 16 bits.
+However, RC6 mode 6 codes can be 32 bits, and we have "only" 32 bits
+for a scancode. So, we don't have spare bits to represent a protocol, 
+if we consider RC6 mode 6 codes as well.
+
+>> If so, why do you think we need to handle more than one IR protocol at
+>> the same time?
+> 
+> Why not?
+> There are X-in-1 remotes on the market for years. They can "speak" many
+> protocols at once. One may want to have a protocol to handle DVD apps
+> while another for DVB etc.
+> And someone may want to use several different remotes, why not?
+> Personally I use two different remotes (both set to speak RC5 but what
+> if I couldn't set the protocol?). Sure, it requires a bit of hackery
+> (not with pulse code and lircd).
+> 
+>> I think this will just make the driver more complex without need.
+> 
+> Not much more, and there is a need.
+
+See above. Also, several protocols have a way to check if a keystroke were
+properly received. When handling just one protocol, we can use this to double
+check the key. However, on a multiprotocol mode, we'll need to disable this
+feature.
+
+PS.: For those following those discussions that want to know more about
+IR protocols, a good reference is at:
+	http://www.sbprojects.com/knowledge/ir/ir.htm
+
+Unfortunately, it doesn't describe RC6 mode 6.
+
+Cheers,
+Mauro.

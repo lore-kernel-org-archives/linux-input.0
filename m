@@ -1,189 +1,147 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] [loongson] yeeloong2f: add platform specific support
-Date: Wed, 25 Nov 2009 20:10:47 -0800
-Message-ID: <20091126041047.GC23244@core.coreip.homeip.net>
-References: <9ef5a0038ec5e9b584be8c960693c434a323620a.1258803311.git.wuzhangjin@gmail.com> <9ef5a0038ec5e9b584be8c960693c434a323620a.1258803311.git.wuzhangjin@gmail.com>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Wed, 25 Nov 2009 23:26:02 -0500
+Message-ID: <1259209562.3060.92.camel@palomino.walls.org>
+References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
+	 <E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+	 <829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
+	 <4B0DA885.7010601@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-laptop-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9ef5a0038ec5e9b584be8c960693c434a323620a.1258803311.git.wuzhangjin@gmail.com>
-Sender: linux-laptop-owner@vger.kernel.org
-To: Wu Zhangjin <wuzhangjin@gmail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Richard Purdie <rpurdie@rpsys.net>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-laptop@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, sfr@linuxcare.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.radix.net ([207.192.128.31]:36277 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758484AbZKZE1K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 23:27:10 -0500
+In-Reply-To: <4B0DA885.7010601@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Hi Wu,
+On Wed, 2009-11-25 at 22:58 +0100, Gerd Hoffmann wrote:
+> On 11/25/09 19:20, Devin Heitmueller wrote:
+> > On Wed, Nov 25, 2009 at 1:07 PM, Jarod Wilson<jarod@wilsonet.com>
+> > wrote:
+> >> Took me a minute to figure out exactly what you were talking
+> >> about. You're referring to the current in-kernel decoding done on
+> >> an ad-hoc basis for assorted remotes bundled with capture devices,
+> >> correct?
+> >>
+> >> Admittedly, unifying those and the lirc driven devices hasn't
+> >> really been on my radar.
+> 
+> I think at the end of the day we'll want to have all IR drivers use the
+> same interface.  The way the current in-kernel input layer drivers work
+> obviously isn't perfect too, so we *must* consider both worlds to get a
+> good solution for long-term ...
+> 
+> > This is one of the key use cases I would be very concerned with. For
+> > many users who have bought tuner products, the bundled remotes work
+> > "out-of-the-box", regardless of whether lircd is installed.
+> 
+> I bet this simply isn't going to change.
+> 
+> > I have no objection so much as to saying "well, you have to install
+> > the lircd service now", but there needs to be a way for the driver to
+> >  automatically tell lirc what the default remote control should be,
+> > to avoid a regression in functionality.
+> 
+> *Requiring* lircd for the current in-kernel drivers doesn't make sense
+> at all.  Allowing lircd being used so it can do some more advanced stuff 
+> makes sense though.
+> 
+> > This is why I think we really should put together a list of use
+> > cases, so that we can see how any given proposal addresses those use
+> > cases. I offered to do such, but nobody seemed really interested in
+> > this.
+> 
+> Lets have a look at the problems the current input layer bits have 
+> compared to lirc:
+> 
+> 
+> (1) ir code (say rc5) -> keycode conversion looses information.
+> 
+> I think this can easily be addressed by adding a IR event type to the 
+> input layer, which could look like this:
+> 
+>    input_event->type  = EV_IR
+>    input_event->code  = IR_RC5
+>    input_event->value = <rc5 value>
+> 
+> In case the 32bit value is too small we might want send two events 
+> instead, with ->code being set to IR_<code>_1 and IR_<code>_2
 
-Overall impression - several drivers crammed into one module, I wonder
-if it could be split somewhat. Some input-related concerns below.
+RC-6 Mode 6A can be up to 67 bits:
 
-On Sat, Nov 21, 2009 at 08:08:40PM +0800, Wu Zhangjin wrote:
-> +
-> +/* hotkey input subdriver */
-> +
-> +static struct input_dev *yeeloong_hotkey_dev;
-> +static int event, status;
-> +
-> +struct key_entry {
-> +	char type;		/* See KE_* below */
-> +	int event;		/* event from SCI */
-> +	u16 keycode;		/* KEY_* or SW_* */
-> +};
-> +
-> +enum { KE_KEY, KE_SW, KE_END };
+http://www.picbasic.nl/frameload_uk.htm?http://www.picbasic.nl/rc5-rc6_transceiver_uk.htm
 
-I am going to post the sparse keymap library shortly, this driver could
-use it too...
+(This page is slightly wrong, there is some data coded in the header
+such as the RC-6 Mode, but I can't remeber if it's biphase or not.)
 
-> +
-> +static struct key_entry yeeloong_keymap[] = {
-> +	{KE_SW, EVENT_LID, SW_LID},
-> +	/* SW_VIDEOOUT_INSERT? not included in hald-addon-input! */
-> +	{KE_KEY, EVENT_CRT_DETECT, KEY_PROG1},
-> +	/* Seems battery subdriver should report it */
-> +	{KE_KEY, EVENT_OVERTEMP, KEY_PROG2},
+> Advantages:
+>    * Applications (including lircd) can get access to the unmodified
+>      rc5/rc6/... codes.
+>    * All the ir-code -> keycode mapping magic can be handled by the
+>      core input layer then.  All the driver needs to do is to pass on
+>      the information which keymap should be loaded by default (for the
+>      bundled remote if any).  The configuration can happen in userspace
+>      (sysfs attribute + udev + small utility in tools/ir/).
+>    * lirc drivers which get ir codes from the hardware can be converted
+>      to pure input layer drivers without regressions.  lircd is not
+>      required any more.
+> 
+> (2) input layer doesn't give access to the raw samples.
+> 
+> Not sure how to deal with that best.  Passing them through the input 
+> layer would certainly be possible to hack up.  But what would be the 
+> point?  The input layer wouldn't do any processing on them.  It wouldn't 
+> buy us much.  So we might want to simply stick with todays lirc 
+> interface for the raw samples.
+> 
+> Drivers which support both ir codes (be it by hardware or by in-kernel 
+> decoding) and raw samples would register two devices then, one input 
+> device and one lirc device.  It would probably a good idea to stop 
+> sending events to the input layer as soon as someone (most likely lircd) 
+> opens the lirc device to avoid keystrokes showing up twice.
+> 
+> By default the in-kernel bits will be at work, but optionally you can 
+> have lircd grab the raw samples and do fancy advanced decoding.
 
-Does not seem to be an input event?
+(2a) Input layer doesn't help with raw samples:
 
-> +	/*{KE_KEY, EVENT_AC_BAT, KEY_BATTERY},*/
-> +	{KE_KEY, EVENT_CAMERA, KEY_CAMERA},	/* Fn + ESC */
-> +	{KE_KEY, EVENT_SLEEP, KEY_SLEEP},	/* Fn + F1 */
-> +	/* Seems not clear? not included in hald-addon-input! */
-> +	{KE_KEY, EVENT_BLACK_SCREEN, KEY_PROG3},	/* Fn + F2 */
+So now what about devices that don't produce codes at all, but simply
+pulse width measurements?  Where's the infrastrucutre to perform low
+pass filtering to get rid of glitches and to perform oversampling to
+deal with pulse jitter, so that adding a new IR device isn't a pain
+incurred per driver?
 
-Do you mean "lock screen"?
+I was quite dismayed at how much I had to reimplement here, just for
+RC-5 for the sake of the input layer and having a remote "Just Work":
 
-> +	{KE_KEY, EVENT_DISPLAY_TOGGLE, KEY_SWITCHVIDEOMODE},	/* Fn + F3 */
-> +	{KE_KEY, EVENT_AUDIO_MUTE, KEY_MUTE},	/* Fn + F4 */
-> +	{KE_KEY, EVENT_WLAN, KEY_WLAN},	/* Fn + F5 */
-> +	{KE_KEY, EVENT_DISPLAY_BRIGHTNESS, KEY_BRIGHTNESSUP},	/* Fn + up */
-> +	{KE_KEY, EVENT_DISPLAY_BRIGHTNESS, KEY_BRIGHTNESSDOWN},	/* Fn + down */
-> +	{KE_KEY, EVENT_AUDIO_VOLUME, KEY_VOLUMEUP},	/* Fn + right */
-> +	{KE_KEY, EVENT_AUDIO_VOLUME, KEY_VOLUMEDOWN},	/* Fn + left */
-> +	{KE_END, 0}
-> +};
-> +
+http://linuxtv.org/hg/v4l-dvb/file/74ad936bcca2/linux/drivers/media/video/cx23885/cx23885-input.c
 
-...
+lirc does all that stuff in spades.
 
-> +
-> +static ssize_t
-> +ignore_store(struct device *dev,
-> +	     struct device_attribute *attr, const char *buf, size_t count)
-> +{
-> +	return count;
-> +}
-> +
-> +static ssize_t
-> +show_hotkeystate(struct device *dev, struct device_attribute *attr, char *buf)
-> +{
-> +	return sprintf(buf, "%d %d\n", event, status);
-> +}
-> +
-> +static DEVICE_ATTR(state, 0444, show_hotkeystate, ignore_store);
 
-Why do you need "ignore_store" and not just use NULL? Also why do you
-need to export the state at all?
+> (3) input layer doesn't allow transmitting IR codes.
+> 
+> If we keep the lirc interface for raw samples anyway, then we can keep 
+> it for sending too, problem solved ;)  How does sending hardware work 
+> btw?  Do they all accept just raw samples?  Or does some hardware also 
+> accept ir-codes?
 
-> +
-> +static struct attribute *hotkey_attributes[] = {
-> +	&dev_attr_state.attr,
-> +	NULL
-> +};
-> +
-> +static struct attribute_group hotkey_attribute_group = {
-> +	.attrs = hotkey_attributes
-> +};
-> +
-> +static int camera_set(int status)
-> +{
-> +	int value;
-> +	static int camera_status;
-> +
-> +	if (status == 2)
-> +		/* resume the old camera status */
-> +		camera_set(camera_status);
-> +	else if (status == 3) {
-> +		/* revert the camera status */
-> +		value = ec_read(REG_CAMERA_CONTROL);
-> +		ec_write(REG_CAMERA_CONTROL, value | (1 << 1));
-> +	} else {/* status == 0 or status == 1 */
-> +		status = !!status;
-> +		camera_status = ec_read(REG_CAMERA_STATUS);
-> +		if (status != camera_status)
-> +			camera_set(3);
-> +	}
-> +	return ec_read(REG_CAMERA_STATUS);
-> +}
-> +
-> +#define I8042_STATUS_REG	0x64
-> +#define I8042_DATA_REG		0x60
-> +#define i8042_read_status() inb(I8042_STATUS_REG)
-> +#define i8042_read_data() inb(I8042_DATA_REG)
-> +#define I8042_STR_OBF		0x01
-> +#define I8042_BUFFER_SIZE	16
-> +
-> +static void i8042_flush(void)
-> +{
-> +	int i;
-> +
-> +	while ((i8042_read_status() & I8042_STR_OBF)
-> +		&& (i < I8042_BUFFER_SIZE)) {
-> +		udelay(50);
-> +		i8042_read_data();
-> +		i++;
-> +	}
-> +}
-> +
-> +static int yeeloong_hotkey_init(struct device *dev)
-> +{
-> +	int ret;
-> +	struct key_entry *key;
-> +
-> +	/* flush the buffer of keyboard */
-> +	i8042_flush();
+The Conexant chips' integrated IR Tx hardware expects a series of pulse
+widths and a flag for mark or space with each width.
 
-Why??? Why does this driver tries to touch stuff that does not belong to
-it?
+I'd have to research other implementations.
 
-> +
-> +	/* setup the system control interface */
-> +	setup_sci();
+Regards,
+Andy
 
-No failures?
+> cheers,
+>    Gerd
 
-> +
-> +	yeeloong_hotkey_dev = input_allocate_device();
-> +
-> +	if (!yeeloong_hotkey_dev)
-> +		return -ENOMEM;
 
-Error unwinding?
-
-> +
-> +	yeeloong_hotkey_dev->name = "HotKeys";
-> +	yeeloong_hotkey_dev->phys = "button/input0";
-> +	yeeloong_hotkey_dev->id.bustype = BUS_HOST;
-> +	yeeloong_hotkey_dev->dev.parent = dev;
-> +
-> +	for (key = yeeloong_keymap; key->type != KE_END; key++) {
-> +		switch (key->type) {
-> +		case KE_KEY:
-> +			set_bit(EV_KEY, yeeloong_hotkey_dev->evbit);
-> +			set_bit(key->keycode, yeeloong_hotkey_dev->keybit);
-> +			break;
-> +		case KE_SW:
-> +			set_bit(EV_SW, yeeloong_hotkey_dev->evbit);
-> +			set_bit(key->keycode, yeeloong_hotkey_dev->swbit);
-> +			break;
-> +		}
-> +	}
-> +
-> +	ret = input_register_device(yeeloong_hotkey_dev);
-> +	if (ret) {
-> +		input_free_device(yeeloong_hotkey_dev);
-> +		return ret;
-> +	}
--- 
-Dmitry

@@ -1,72 +1,89 @@
-From: =?iso-8859-1?Q?Nicolas_L=E9veill=E9?= <knos@free.fr>
-Subject: Re: [PATCH 1/3] (uu.6cd36bd9ef57) joystick/xpad.c -- Support HORI RAP.EX/MadCatz Fightpad
-Date: Thu, 26 Nov 2009 11:27:58 +0100
-Message-ID: <75261F2D-4244-4587-9B17-98322189DDCD@free.fr>
-References: <4B08FC8A.6030404@free.fr> <20091126060443.GJ23244@core.coreip.homeip.net>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5-g21.free.fr ([212.27.42.5]:46266 "EHLO smtp5-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754795AbZKZK2B convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 05:28:01 -0500
-In-Reply-To: <20091126060443.GJ23244@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 10:16:54 -0200
+Message-ID: <4B0E71B6.4080808@redhat.com>
+References: <200910200956.33391.jarod@redhat.com>	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>	<4B0AB60B.2030006@s5r6.in-berlin.de> <4B0AC8C9.6080504@redhat.com> <m34oolrnwd.fsf@intrepid.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760334AbZKZMRQ@vger.kernel.org>
+In-Reply-To: <m34oolrnwd.fsf@intrepid.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Hi, thanks for the feedback.
+Krzysztof Halasa wrote:
+> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+> 
+>>> (This is no recommendation for lirc.  I have no idea whether a
+>>> pulse/space -> scancode -> keycode translation would be practical
+>>> there.)
+> 
+> It would, but not exactly in the present shape.
+> 
+>> For example, there are several bttv and saa7134 devices that polls (or receive
+>> IRQ interrupts) to detect pulses (and the absense of them) in order to create
+>> a pulse/space code. The conversion from pulse/space to scancode is done inside
+>> the driver, with the help of some generic routines and based on the protocol
+>> specifications.
+> 
+> Right. There are currently several problems (I'm quite familiar with
+> saa713x RC5 code): the one that it barely works and is not implemented
+> for most such "GPIO/IRQ-driven" cards (as of 2.6.29 or so). This could
+> be fixed, I even have a working though quick&dirty patch. Another: the
+> RC5 allows for groups and codes within groups. The mapping can only use
+> one group, and there can only be one mapping. These design limitations
+> mean it's unusable in many cases.
 
-I'll soon resend the first two patches as properly formatted ones. (git=
- format-patch this time)
+This is a current limitation, since the saa713x code converts the RC5 code into a 7bits
+scancode, by applying a mask. One of the reasons for that conversion is that the two 
+ioctls that allows reading/changing the keycode table (EVIOCSKEYCODE and EVIOCGKEYCODE)
+were implemented via a table with a fixed size of 128 entries.
 
-About the third one adding a "trigger_mapping" option:
+We already have an implementation at the dvb-usb driver that uses a table without
+such limits, where the IR scancode is completely stored there. So, you can create
+any arbitrary scancode <--> keycode table there.
 
-When reusing the dpad_mapping field to add new options to it are you th=
-inking about turning it into a numerical constant that goes 0-1-2-3  fo=
-r all mapping combinations?=20
+Technically, it is not hard to port this solution to the other drivers, but the issue
+is that we don't have all those IR's to know what is the complete scancode that
+each key produces. So, the hardest part is to find a way for doing it without
+causing regressions, and to find a group of people that will help testing the new way.
 
-It does not needlessly break user space's configuration scripts, howeve=
-r the name and semantics of the option are more complicated.
+Maybe one alternative would be to add a modprobe parameter at the converted drivers
+to allow them to work with the old behavior, after their migration.
 
-In particular the semantics of the existing dpad_mapping option is a bi=
-t strange already, since it only act on "unknown" devices / do not act =
-on known devices.=20
+>> Those devices where the decoding is done by software can support any
+>> IR protocols.
+> 
+> Yes, and there can be multiple remote controllers, and multiple code
+> groups within a remote.
+> 
+>> This can be solved by adding a few ioctls to enumerate the supported
+>> protocols and to select the one(s) that will be handled by the kernel
+>> driver.
+> 
+> The driver may have to handle many protocols simultaneously. This is not
+> a problem from a technical POV.
 
-Which I'm not sure works anyway? My devices only started to work when I=
- registered their vendor and product id.=20
+There are 3 different situations:
+	1) hardware where you can support multiple protocols at the same time;
+	2) hardware that supports one programmable protocol;
+	3) hardware that support just one (or a limited set) of protocols.
 
-Why not allow overriding mappings of a known device?
+In general, (1) applies only to those devices that outputs a raw pulse/space code,
+where they just connect the IR sensor to a generic I/O pin and let the software
+to decode the code. This is the case of most of cheapest devices. Yet, you can
+find some cheap devices with low-cost micro-controllers with a dedicated firmware
+on its ROM, doing (2).
+
+The most commonly found hardware, in general have a chip to decode IR pulse/space
+sequences, converting it on a scancode and implementing (3).
+
+That's said, a raw input interface, only fits on case (1). On the other hand, the
+existing input API works for all types of IR. However, we need to add the ioctls
+to allow protocol selection, to better handle (1) and (3).
 
 Cheers,
-Nicolas
-
-On 2009-11-26, at 07:04 , Dmitry Torokhov wrote:
-
-> Hi Nicolas,
->=20
-> On Sun, Nov 22, 2009 at 09:55:38AM +0100, Nicolas L=E9veill=E9 wrote:
->> Part one of three patches against latest head of
->> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->>=20
->=20
-> It looks like your mailer wrapped the mails so the patches won't appl=
-y.
-> Please resend. Also, instead of creating a new field maybe chnage
-> dpad_mapping to be a bitmap of options?
->=20
-> Thanks.
->=20
-> --=20
-> Dmitry
->=20
->=20
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Mauro.

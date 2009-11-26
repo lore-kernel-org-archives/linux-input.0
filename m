@@ -1,51 +1,28 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
+From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 21:33:01 +0100
-Message-ID: <m3pr75rpqa.fsf@intrepid.localdomain>
-References: <200910200956.33391.jarod@redhat.com>
-	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	<4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
-	<4B0E765C.2080806@redhat.com> <m3iqcxuotd.fsf@intrepid.localdomain>
-	<4B0ED238.6060306@redhat.com>
+Date: 26 Nov 2009 21:37:00 +0100
+Message-ID: <BDcc3mfojFB@christoph>
+References: <4B0E765C.2080806@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752777AbZKZUc7@vger.kernel.org>
-In-Reply-To: <4B0ED238.6060306@redhat.com> (Mauro Carvalho Chehab's message of
-	"Thu, 26 Nov 2009 17:08:40 -0200")
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752796AbZKZUoU@vger.kernel.org>
+In-Reply-To: <4B0E765C.2080806@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: mchehab@redhat.com
+Cc: dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+Hi Mauro,
 
-> see include/linux/input.h:
->
-> struct input_event {
->         struct timeval time;
->         __u16 type;
->         __u16 code;
->         __s32 value;
-> };
->
-> extending the value to more than 32 bits require some changes at the
-> input layer, probably breaking kernel API.
+on 26 Nov 09 at 10:36, Mauro Carvalho Chehab wrote:
+[...]
+> lircd supports input layer interface. Yet, patch 3/3 exports both devices
+> that support only pulse/space raw mode and devices that generate scan
+> codes via the raw mode interface. It does it by generating artificial
+> pulse codes.
 
-Yeah, but that's a "key" space, not "raw code" space.
-Keys via input and raw codes via lirc and there is no problem.
+Nonsense! There's no generation of artificial pulse codes in the drivers.
+The LIRC interface includes ways to pass decoded IR codes of arbitrary  
+length to userspace.
 
-The mapping tables for input layer need to have variable code widths,
-depending on the protocol, sure.
-
->> I don't think so. We can pass the space/mark data to all (configured,
->> i.e. with active mapping) protocol handlers at once. Should a check
->> fail, we ignore the data. Perhaps another protocol will make some sense
->> out of it.
->
-> What happens if it succeeds on two protocol handlers?
-
-We signal both and hope it isn't self-destruct button.
-We can't fix it no matter how hard we try.
--- 
-Krzysztof Halasa
+Christoph

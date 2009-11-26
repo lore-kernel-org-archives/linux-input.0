@@ -1,57 +1,67 @@
-From: Andy Walls <awalls@radix.net>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 08:22:13 -0500
-Message-ID: <1259241733.3062.44.camel@palomino.walls.org>
-References: <200910200956.33391.jarod@redhat.com>
-	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
-	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	 <4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
-	 <4B0E765C.2080806@redhat.com>
+Date: Thu, 26 Nov 2009 11:25:28 -0200
+Message-ID: <4B0E81C8.7050203@redhat.com>
+References: <BDRae8rZjFB@christoph>  <m3einork1o.fsf@intrepid.localdomain> <1259025275.3871.55.camel@palomino.walls.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:44448 "EHLO mail1.radix.net"
+Received: from mx1.redhat.com ([209.132.183.28]:51936 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751350AbZKZNXR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 08:23:17 -0500
-In-Reply-To: <4B0E765C.2080806@redhat.com>
+	id S1753901AbZKZNZ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 08:25:56 -0500
+In-Reply-To: <1259025275.3871.55.camel@palomino.walls.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Andy Walls <awalls@radix.net>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, 2009-11-26 at 10:36 -0200, Mauro Carvalho Chehab wrote:
-> Krzysztof Halasa wrote:
-> > Mauro Carvalho Chehab <mchehab@redhat.com> writes:
-
-
-> PS.: For those following those discussions that want to know more about
-> IR protocols, a good reference is at:
-> 	http://www.sbprojects.com/knowledge/ir/ir.htm
+Andy Walls wrote:
+> On Mon, 2009-11-23 at 22:46 +0100, Krzysztof Halasa wrote:
+>> lirc@bartelmus.de (Christoph Bartelmus) writes:
+>>
+>>>> I think we shouldn't at this time worry about IR transmitters.
+>>> Sorry, but I have to disagree strongly.
+>>> Any interface without transmitter support would be absolutely unacceptable
+>>> for many LIRC users, including myself.
+>> I don't say don't use a transmitter.
+>> I say the transmitter is not an input device, they are completely
+>> independent functions. I can't see any reason to try and fit both in the
+>> same interface - can you?
 > 
-> Unfortunately, it doesn't describe RC6 mode 6.
+> The underlying hardware need not be completely independent.
+> 
+> For example, the CX2584[0123], CX2388[578], CX23418, and CX2310[012]
+> chips have IR hardware that shares a common timing source, interrupt
+> line, interrupt status register, etc, between IR Rx and Tx.  They can
+> also do things like loopback of Tx to Rx.
+> 
+> That said, an underlying hardware implementation can be split up to user
+> space with separate interfaces Tx and Rx.  The underlying driver module
+> would have to manage the dependencies.  I would guess that would be
+> easier for driver modules, if the userspace interfaces were designed
+> with such combined IR Tx/Rx hardware in mind.
 
-RC-6 Mode 0 and Mode 6A is briefly describe here:
+True, but, in the case of Rx, there are already API's for it. Tx case is
+simpler, as we don't have any API for it yet.
 
-http://www.picbasic.nl/frameload_uk.htm?http://www.picbasic.nl/rc5-rc6_transceiver_uk.htm
+I'm not sure if all the existing hardware for TX currently supports only
+raw pulse/code sequencies, but I still think that, even on the Tx case, 
+it is better to send scancodes to the driver, and let it do the conversion
+to raw pulse/code, if the hardware requires pulse/code instead of scancodes. 
 
-That page is slightly wrong, as there is some data coded in the header
-such as the RC-6 Mode.
+However, as we have green field,
+I would add the protocol explicitly for each scancode to be transmitted, like:
 
-This page is an older version of the sbprojects.com RC-6 page, before
-the information on RC-6 Mode 6A was removed:
+struct ir_tx {
+	enum ir_protocol proto;
+	u32 scancode;
+};
 
-http://slycontrol.ru/scr/kb/rc6.htm
+Eventually, we might have a protocol "raw" and some extra field to allow passing
+a raw pulse/code sequence instead of a scancode.
 
-
-My personal opinion is that, for non-technical reasons, RC-6 Mode 6A
-decoding should not be included in the kernel.  That's why I didn't do
-it for the HVR-1850/CX23888.
-
-
-Regards,
-Andy
-
-
+Cheers,
+Mauro.

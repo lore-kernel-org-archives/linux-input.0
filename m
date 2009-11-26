@@ -1,62 +1,66 @@
 From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 12:15:07 -0500
-Message-ID: <4B0EB79B.5090406@wilsonet.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <20091126054938.GH23244@core.coreip.homeip.net> <6619F77F-446F-47ED-B9F5-6CFC00E3EA49@wilsonet.com> <4B0E46E6.4030006@redhat.com>
+Date: Thu, 26 Nov 2009 12:32:37 -0500
+Message-ID: <4B0EBBB5.5090303@wilsonet.com>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <6D934408-B713-49B6-A197-46CE663455AC@wilsonet.com> <4B0E889C.9060405@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:46502
+Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:41354
 	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755424AbZKZRJ6 (ORCPT
+	with ESMTP id S1760031AbZKZR1j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 12:09:58 -0500
-In-Reply-To: <4B0E46E6.4030006@redhat.com>
+	Thu, 26 Nov 2009 12:27:39 -0500
+In-Reply-To: <4B0E889C.9060405@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On 11/26/2009 04:14 AM, Gerd Hoffmann wrote:
-> On 11/26/09 07:23, Jarod Wilson wrote:
->> Well, when mythtv was started, I don't know that there were many
->> input layer remotes around... lirc was definitely around though.
+On 11/26/2009 08:54 AM, Mauro Carvalho Chehab wrote:
+> Jarod Wilson wrote:
+>> On Nov 23, 2009, at 7:53 PM, Andy Walls wrote:
+>>
+>>> On Mon, 2009-11-23 at 22:11 +0100, Christoph Bartelmus wrote:
+>> ...
+>>> I generally don't understand the LIRC aversion I perceive in this thread
+>>> (maybe I just have a skewed perception).  Aside for a video card's
+>>> default remote setup, the suggestions so far don't strike me as any
+>>> simpler for the end user than LIRC -- maybe I'm just used to LIRC.  LIRC
+>>> already works for both transmit and receive and has existing support in
+>>> applications such as MythTV and mplayer.
+>>
+>> There's one gripe I agree with, and that is that its still not plug-n-play.
+>> Something where udev auto-loads a sane default remote config for say,
+>> mceusb transceivers, and the stock mce remote Just Works would be nice,
+>> but auto-config is mostly out the window the second you involve transmitters
+>> and universal remotes anyway.
 >
-> lirc predates the input layer IR drivers by years, maybe even the input
-> layer itself.
-
-That was my guess, but I didn't have a timeline in front of me. :)
-
-> The main reason for the input layer IR drivers appearing was lirc not
-> being mainline. A in-kernel driver (bttv in that case) which depends on
-> a out-of-tree subsystem for IR support was simply a pain in the ass for
-> both maintainer (/me back then) and users.
+> For several devices, an udev rule that auto-loads a sane default keymap does work.
+> Of course, this won't cover 100% of the usages, and I lirc is a very good way
+> of covering the holes.
 >
-> At least for IR hardware which allows access to the raw samples it
-> certainly makes sense to support lirc, additional to the current (or
-> improved) input layer support.
-
-I'm liking the idea of a hybrid approach, where IR devices can support 
-both lirc and input device interfaces. I think its the most 
-regression-proof for end-users, if done correctly, which is one of my 
-biggest concerns.
-
->> The lirc support in mythtv actually relies on mapping remote button
->> names as defined in lircd.conf to keyboard key strokes. As mentioned
->> elsewhere in this beast of a thread, mythtv doesn't currently support
->> things like KEY_PLAY, KEY_VOLUMEUP, KEY_CHANNELUP, etc. just yet, but
->> I intend on fixing that...
+>> But outside of that, I think objections are largely philosophical --
+>> in a nutshell, the kernel has an input layer, remotes are input devices,
+>> and lirc doesn't conform to input layer standards.
 >
-> lircd can handle the input layer as input as well, so you actually can
-> remap things via lircd even for pure input layer drivers. mythtv
-> handling KEY_VOLUMEUP directly would be more elegant though.
+> Yes. I think this is mainly the issue.
+>
+> The other issue is how to migrate the existing drivers to a new API without
+> causing regressions. If we decide that IR's that receive raw pulse/code
+> should use the raw input interface, this means that a large task force will be
+> needed to convert the existing drivers to use it.
 
-Yeah, no, I know lircd can attach to an input device. But even if you do 
-that, you have to have a mapping that converts KEY_VOLUMEUP as captured 
-by lircd into (iirc) right-bracket (]) for mythtv to actually consume 
-it. Directly handling definitely needs to be added to mythtv.
+Aversion to regression is definitely a major concern. And why I'm liking 
+the idea of a hybrid approach, at least initially.
+
+> What do you think of adding lirc at staging while we discuss/improve the API's and lircd
+> support for the input event interface? Do you think this would work?
+
+Sure, I don't see why not. And I've got another dozen or so drivers to 
+follow those first three... :)
 
 -- 
 Jarod Wilson

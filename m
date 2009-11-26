@@ -1,42 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify
-	exact irq flags
-Date: Wed, 25 Nov 2009 22:35:07 -0800
-Message-ID: <20091126063506.GM23244@core.coreip.homeip.net>
-References: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com> <87y6lxchwf.fsf@tac.ki.iif.hu> <20091123172451.GD17813@core.coreip.homeip.net> <87tywlcbyr.fsf@tac.ki.iif.hu> <20091124063711.GL17675@esdhcp04058.research.nokia.com> <87my2cp4h6.fsf@tac.ki.iif.hu> <20091124170249.GQ17675@esdhcp04058.research.nokia.com> <87k4xfojhb.fsf@tac.ki.iif.hu>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: 26 Nov 2009 08:28:00 +0100
+Message-ID: <BDcbfiXJjFB@christoph>
+References: <4B0DBC2D.1010603@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f180.google.com ([209.85.216.180]:52720 "EHLO
-	mail-px0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932574AbZKZGfG (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.10]:58704 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759227AbZKZIDa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 01:35:06 -0500
-Received: by pxi10 with SMTP id 10so344161pxi.33
-        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2009 22:35:12 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <87k4xfojhb.fsf@tac.ki.iif.hu>
+	Thu, 26 Nov 2009 03:03:30 -0500
+In-Reply-To: <4B0DBC2D.1010603@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Mika Westerberg <ext-mika.1.westerberg@nokia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: kraxel@redhat.com
+Cc: awalls@radix.net, dheitmueller@kernellabs.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Tue, Nov 24, 2009 at 07:39:28PM +0100, Ferenc Wagner wrote:
-> Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
-> 
-> >
-> > So I'll try to implement this gpio-keys muting so that it allows
-> > also multiple buttons to share single IRQ line.
-> 
-> Thanks.  But you'd better wait for Dmitry's response, because I'm by no
-> means authoritative in this business.
+Hi Gerd,
 
-I would not refuse a reasonable patch as long as there is a use case for
-it. The only think is that I would prefer to keep compatibility with the
-current format of the platform data, otherwise we will screw up embedded
-guys that are currently using the driver. But if compatibility results
-in too ugly code then I reserve the right to invoke "out of tree drivers
-- don't care" card ;)
+on 26 Nov 09 at 00:22, Gerd Hoffmann wrote:
+[...]
+>> To sum it up: I don't think this information will be useful at all for
+>> lircd or anyone else.
+[...]
+> I know that lircd does matching instead of decoding, which allows to
+> handle unknown encodings.  Thats why I think there will always be cases
+> which only lircd will be able to handle (using raw samples).
+>
+> That doesn't make attempts to actually decode the IR samples a useless
+> exercise though ;)
 
--- 
-Dmitry
+Well, in my opinion it is kind of useless. I don't see any use case or any  
+demand for passing this kind of information to userspace, at least in the  
+LIRC context.
+If there's no demand, why bother?
+
+Christoph

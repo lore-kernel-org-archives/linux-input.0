@@ -1,52 +1,46 @@
 From: Trent Piepho <xyzzy@speakeasy.org>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 14:59:50 -0800 (PST)
-Message-ID: <Pine.LNX.4.58.0911261450590.30284@shell2.speakeasy.net>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com>
- <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com>
- <m36391tjj3.fsf@intrepid.localdomain> <4B0AC65C.806@redhat.com>
- <m3zl6dq8ig.fsf@intrepid.localdomain> <4B0E765C.2080806@redhat.com>
- <m3iqcxuotd.fsf@intrepid.localdomain> <4B0ED238.6060306@redhat.com>
+Date: Thu, 26 Nov 2009 15:09:58 -0800 (PST)
+Message-ID: <Pine.LNX.4.58.0911261505120.30284@shell2.speakeasy.net>
+References: <BDcc3mfojFB@christoph> <4B0EEC21.9010001@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:33028 "EHLO
-	mail1.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753216AbZKZW7p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 17:59:45 -0500
-In-Reply-To: <4B0ED238.6060306@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4B0EEC21.9010001@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+List-Id: linux-input@vger.kernel.org
 
 On Thu, 26 Nov 2009, Mauro Carvalho Chehab wrote:
-> >> See above. Also, several protocols have a way to check if a keystroke were
-> >> properly received. When handling just one protocol, we can use this to double
-> >> check the key. However, on a multiprotocol mode, we'll need to disable this
-> >> feature.
+> >> lircd supports input layer interface. Yet, patch 3/3 exports both devices
+> >> that support only pulse/space raw mode and devices that generate scan
+> >> codes via the raw mode interface. It does it by generating artificial
+> >> pulse codes.
 > >
-> > I don't think so. We can pass the space/mark data to all (configured,
-> > i.e. with active mapping) protocol handlers at once. Should a check
-> > fail, we ignore the data. Perhaps another protocol will make some sense
-> > out of it.
+> > Nonsense! There's no generation of artificial pulse codes in the drivers.
+> > The LIRC interface includes ways to pass decoded IR codes of arbitrary
+> > length to userspace.
 >
-> What happens if it succeeds on two protocol handlers?
+> I might have got wrong then a comment in the middle of the
+> imon_incoming_packet() of the SoundGraph iMON IR patch:
+>
+> +	/*
+> +	 * Translate received data to pulse and space lengths.
+> +	 * Received data is active low, i.e. pulses are 0 and
+> +	 * spaces are 1.
 
-Then you use the protocol that fits best.  For instance decoding with one
-protocol might produce a scancode that isn't assigned to any key, while
-another protocol produces an assigned scancode.  Clearly then the latter is
-most likely to be correct.  It also possible to have a space/mark length
-that is within the allowable tolerances for one remote, but is even closer
-another remote.  You don't want to just find *a* match, you want to find
-the *best* match.
+I'm not sure about this specific code, but what is likely
+going on here is the waveform is being RLE encoding.
 
-The in kernel code in v4l is very simple in that it is only designed to
-work with one procotol and one remote.  Once you have multiple remotes of
-any type things become much more complicted.  Keep in mind that remotes
-that aren't even intended to be used with the computer but are used in the
-same room will still be received by the receiver.  It's not enough to
-decode the signals you expect to receive, you must also not get confused by
-random signals destined for somewhere else.
+For example, a cx88 receiver has two ways of being connected (without
+using an external decoder chip).  One generates an IRQ on each
+edge of the signal.  The time between IRQs gives mark/space lengths
+which is what lirc expects.  This is how a simple serial port receiver
+works too.
+
+Another connections effectivly samples the waveform one bit deep at IIRC
+4kHz.  I think that's what the code you are looking at gets.  The code
+extracts the edges from the waveform and returns the time between them.  In
+effect one is run length encoding a sequence of bits.

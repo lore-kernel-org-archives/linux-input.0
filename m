@@ -1,81 +1,36 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 00:22:21 +0100
-Message-ID: <4B0DBC2D.1010603@redhat.com>
-References: <BDZbPXRZjFB@christoph>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: ads7846 touchscreen: fix pressure
+Date: Wed, 25 Nov 2009 18:10:40 -0800
+Message-ID: <20091126021040.GA23079@core.coreip.homeip.net>
+References: <20091120182238.GA1344@ucw.cz> <20091120182528.GB16447@core.coreip.homeip.net> <20091120185058.GA1472@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:5521 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758914AbZKYXWd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Nov 2009 18:22:33 -0500
-In-Reply-To: <BDZbPXRZjFB@christoph>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:40110 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752549AbZKZCKk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Nov 2009 21:10:40 -0500
+Content-Disposition: inline
+In-Reply-To: <20091120185058.GA1472@ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: awalls@radix.net, dheitmueller@kernellabs.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 
->> (1) ir code (say rc5) ->  keycode conversion looses information.
->>
->> I think this can easily be addressed by adding a IR event type to the
->> input layer, which could look like this:
->>
->>     input_event->type  = EV_IR
->>     input_event->code  = IR_RC5
->>     input_event->value =<rc5 value>
->>
->> In case the 32bit value is too small we might want send two events
->> instead, with ->code being set to IR_<code>_1 and IR_<code>_2
->>
->> Advantages:
->>     * Applications (including lircd) can get access to the unmodified
->>       rc5/rc6/... codes.
->
-> Unfortunately with most hardware decoders the code that you get is only
-> remotely related to the actual code sent. Most RC-5 decoders strip off
-> start bits.
+On Fri, Nov 20, 2009 at 07:50:58PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > On Zaurus, pressure is reported inverted -- the lighter the pressure,
+> > > the bigger numerical value. This should fix it.
+> > > 
+> > 
+> > Thanks. Didn't you also have a bigger cleanup patch for ads7846?
+> 
+> Yes, I did, but I wanted to avoid risk for collision. So pick one...
+> 
 
-I would include only the actual data bits in the payload anyway.
+Thanks. I ended up picking both...
 
-> Toggle-bits are thrown away. NEC decoders usually don't pass
-> through the address part.
-
-Too bad.  But information which isn't provided by the hardware can't be 
-passed up anyway, no matter what kernel/userspace interface is used. 
-Gone is gone.
-
-> There is no common standard which bit is sent first, LSB or MSB.
-
-Input layer would have to define a bit order.  And drivers which get it 
-the other way from the hardware have to convert.  Or maybe signal the 
-order and the input core then will convert if needed.
-
-> Checksums are thrown away.
-
-Don't include them.
-
-> To sum it up: I don't think this information will be useful at all for
-> lircd or anyone else.
-
-Why not?  With RC5 remotes applications can get the device address bits 
-for example, which right now are simply get lost in the ir code -> 
-keycode conversion step.
-
-> Actually lircd does not even know anything about
-> actual protocols. We only distinguish between certain protocol types, like
-> Manchester encoded, space encoded, pulse encoded etc. Everything else like
-> the actual timing is fully configurable.
-
-I know that lircd does matching instead of decoding, which allows to 
-handle unknown encodings.  Thats why I think there will always be cases 
-which only lircd will be able to handle (using raw samples).
-
-That doesn't make attempts to actually decode the IR samples a useless 
-exercise though ;)
-
-cheers,
-   Gerd
-
+-- 
+Dmitry

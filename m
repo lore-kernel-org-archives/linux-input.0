@@ -1,122 +1,42 @@
-From: Wu Zhangjin <wuzhangjin@gmail.com>
-Subject: Re: [PATCH v2] [loongson] yeeloong2f: add platform specific support
-Date: Thu, 26 Nov 2009 14:26:44 +0800
-Message-ID: <1259216804.4989.54.camel@falcon.domain.org>
-References: <9ef5a0038ec5e9b584be8c960693c434a323620a.1258803311.git.wuzhangjin@gmail.com>
-	 <9ef5a0038ec5e9b584be8c960693c434a323620a.1258803311.git.wuzhangjin@gmail.com>
-	 <20091126041047.GC23244@core.coreip.homeip.net>
-	 <1259215215.4989.38.camel@falcon.domain.org>
-	 <20091126060854.GK23244@core.coreip.homeip.net>
-Reply-To: wuzhangjin@gmail.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify
+	exact irq flags
+Date: Wed, 25 Nov 2009 22:35:07 -0800
+Message-ID: <20091126063506.GM23244@core.coreip.homeip.net>
+References: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com> <87y6lxchwf.fsf@tac.ki.iif.hu> <20091123172451.GD17813@core.coreip.homeip.net> <87tywlcbyr.fsf@tac.ki.iif.hu> <20091124063711.GL17675@esdhcp04058.research.nokia.com> <87my2cp4h6.fsf@tac.ki.iif.hu> <20091124170249.GQ17675@esdhcp04058.research.nokia.com> <87k4xfojhb.fsf@tac.ki.iif.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:34079 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755188AbZKZG06 (ORCPT
+Received: from mail-px0-f180.google.com ([209.85.216.180]:52720 "EHLO
+	mail-px0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932574AbZKZGfG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 01:26:58 -0500
-In-Reply-To: <20091126060854.GK23244@core.coreip.homeip.net>
+	Thu, 26 Nov 2009 01:35:06 -0500
+Received: by pxi10 with SMTP id 10so344161pxi.33
+        for <linux-input@vger.kernel.org>; Wed, 25 Nov 2009 22:35:12 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <87k4xfojhb.fsf@tac.ki.iif.hu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Richard Purdie <rpurdie@rpsys.net>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-laptop@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, sfr@linuxcare.com, linux-kernel@vger.kernel.org
+To: Ferenc Wagner <wferi@niif.hu>
+Cc: Mika Westerberg <ext-mika.1.westerberg@nokia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, 2009-11-25 at 22:08 -0800, Dmitry Torokhov wrote:
-[...]
-> > > > +	/* SW_VIDEOOUT_INSERT? not included in hald-addon-input! */
-> > > > +	{KE_KEY, EVENT_CRT_DETECT, KEY_PROG1},
-> > 
-> > any available event for reporting the inserted CRT in hald-addon-input?
+On Tue, Nov 24, 2009 at 07:39:28PM +0100, Ferenc Wagner wrote:
+> Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
 > 
-> Hmm.. not really. Again, does not seem to be related to input subsystem
-> but video one.
-
-It's time to remove it from keymap now, I have done some job in the
-video_output subdriver for this event ;)
-
-> > > > +	/* Seems battery subdriver should report it */
-> > > > +	{KE_KEY, EVENT_OVERTEMP, KEY_PROG2},
-> > > 
-> > > Does not seem to be an input event?
-> > > 
-> > 
-> > It is not an input event, Will remove it from the keymap table.
-> >  
-> > BTW: how can we handle this stuff(overtemp...)? lm-sensors? Perhaps
-> > temp1_max_alarm or temp1_crit_alarm?
-> > 
+> >
+> > So I'll try to implement this gpio-keys muting so that it allows
+> > also multiple buttons to share single IRQ line.
 > 
-> Not really sure... HWMON list is a good place to ask I think.
+> Thanks.  But you'd better wait for Dmitry's response, because I'm by no
+> means authoritative in this business.
 
-okay, will split the hwmon driver out and send it to lm-sensors mailing
-list.
+I would not refuse a reasonable patch as long as there is a use case for
+it. The only think is that I would prefer to keep compatibility with the
+current format of the platform data, otherwise we will screw up embedded
+guys that are currently using the driver. But if compatibility results
+in too ugly code then I reserve the right to invoke "out of tree drivers
+- don't care" card ;)
 
-> 
-> > > > +	/*{KE_KEY, EVENT_AC_BAT, KEY_BATTERY},*/
-> > > > +	{KE_KEY, EVENT_CAMERA, KEY_CAMERA},	/* Fn + ESC */
-> > > > +	{KE_KEY, EVENT_SLEEP, KEY_SLEEP},	/* Fn + F1 */
-> > > > +	/* Seems not clear? not included in hald-addon-input! */
-> > > > +	{KE_KEY, EVENT_BLACK_SCREEN, KEY_PROG3},	/* Fn + F2 */
-> > > 
-> > > Do you mean "lock screen"?
-> > 
-> > not lock, close the backlight of the display, any available event here?
-> 
-> What is it then? A switch that turns off backlight? What is the expected
-> reaction to it?
-> 
-
-Yes, a switch for turning off/on the backlight, seems no need to report
-this key to the users, will remove it too.
-
-> > > > +	if (!yeeloong_hotkey_dev)
-> > > > +		return -ENOMEM;
-> > > 
-> > > Error unwinding?
-> > 
-> > Sorry, not clear what do you mean here?
-> 
-> If you just return you will have the SCI stuff that you did a few lines
-> above installed... I am concerned whether it is a good idea.
-> 
-
-get it, thanks!
-
-I have checked the return value in the module init function:
-
-[...]
-
-yeeloong_init()
-{
-	[...]
-        ret = yeeloong_hotkey_init(&yeeloong_pdev->dev);
-        if (ret) {
-                yeeloong_hotkey_exit();
-                printk(KERN_INFO "Fail init yeeloong hotkey driver.\n");
-                return ret;
-        }
-	[...]
-
-}
-
-[...]
-
-static void yeeloong_hotkey_exit(void)
-{
-        /* free irq */
-        remove_irq(SCI_IRQ_NUM, &sci_irqaction);
-	 ...
-}
-
-but as a standalone driver, It's better to do something as following:
-
-if (!yeeloong_hotkey_dev) {
-	yeeloong_hotkey_exit();
-	return -ENOMEM;
-}
-
-Thanks & Regards!
-	Wu Zhangjin
-
+-- 
+Dmitry

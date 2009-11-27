@@ -1,58 +1,69 @@
-From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
-Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify
-	exact irq flags
-Date: Fri, 27 Nov 2009 12:54:08 +0200
-Message-ID: <20091127105408.GV17675@esdhcp04058.research.nokia.com>
-References: <cover.1258976669.git.ext-mika.1.westerberg@nokia.com> <8237c9a4afd1fa883120b5793fcd91a970d2ffb7.1258976669.git.ext-mika.1.westerberg@nokia.com> <87y6lxchwf.fsf@tac.ki.iif.hu> <20091123172451.GD17813@core.coreip.homeip.net> <87tywlcbyr.fsf@tac.ki.iif.hu> <20091124063711.GL17675@esdhcp04058.research.nokia.com> <87my2cp4h6.fsf@tac.ki.iif.hu> <20091124170249.GQ17675@esdhcp04058.research.nokia.com> <87k4xfojhb.fsf@tac.ki.iif.hu> <20091126063506.GM23244@core.coreip.homeip.net>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Fri, 27 Nov 2009 10:33:27 -0500
+Message-ID: <9e4733910911270733j1abbb1ddi962c8a46c9aabe48@mail.gmail.com>
+References: <9e4733910911262106r553bb28brb5bef07dee3aae3b@mail.gmail.com>
+	 <BDgcSm3ZjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:57642 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750871AbZK0K6v (ORCPT
+Received: from mail-qy0-f192.google.com ([209.85.221.192]:65249 "EHLO
+	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750742AbZK0PdV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2009 05:58:51 -0500
-Content-Disposition: inline
-In-Reply-To: <20091126063506.GM23244@core.coreip.homeip.net>
+	Fri, 27 Nov 2009 10:33:21 -0500
+In-Reply-To: <BDgcSm3ZjFB@christoph>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ferenc Wagner <wferi@niif.hu>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Thu, Nov 26, 2009 at 07:35:07AM +0100, ext Dmitry Torokhov wrote:
-> On Tue, Nov 24, 2009 at 07:39:28PM +0100, Ferenc Wagner wrote:
-> > Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
-> > 
-> > >
-> > > So I'll try to implement this gpio-keys muting so that it allows
-> > > also multiple buttons to share single IRQ line.
-> > 
-> > Thanks.  But you'd better wait for Dmitry's response, because I'm by no
-> > means authoritative in this business.
-> 
-> I would not refuse a reasonable patch as long as there is a use case for
-> it. The only think is that I would prefer to keep compatibility with the
-> current format of the platform data, otherwise we will screw up embedded
-> guys that are currently using the driver. But if compatibility results
-> in too ugly code then I reserve the right to invoke "out of tree drivers
-> - don't care" card ;)
+On Fri, Nov 27, 2009 at 2:33 AM, Christoph Bartelmus <lirc@bartelmus.de=
+> wrote:
+> Hi Jon,
+>
+> on 27 Nov 09 at 00:06, Jon Smirl wrote:
+> [...]
+>> code for the fun of it, I have no commercial interest in IR. I was
+>> annoyed with how LIRC handled Sony remotes on my home system.
+>
+> Can you elaborate on this?
+> I'm not aware of any issue with Sony remotes.
 
-How about if we just add one field to struct gpio_keys_button?
-	...
-	bool can_disable;
+irrecord can't figure out that Sony remotes transmit multiple
+protocols so it reverts to raw mode. When trying to figure that out I
+started working on the concept of running simultaneous state machines
+to decode the pulse timings.  I also had an embedded system with an IR
+receiver hooked to a timer input pin.  I started off with a
+implementation that ran multiple Sony protocol decoders and used the
+input from the timer pin. I know now that I could use irrecord
+individually for each group of keys on the Sony remote and then glue
+the flies together. But that's the path that caused me to write the
+code.
 
-Then gpio_keys uses this field when it decides what irqflags it
-is going to pass to request_irq() (we don't allow platform data
-to pass exact flags). So in case of can_disable is set, we don't
-pass IRQF_SHARED to request_irq().
+Also throw into pot that I had previously had some very bad
+experiences trying to deal with the old mouse and kbd device inside of
+the X server. I was aware that evdev was designed to fix all of those
+problems. That made me want a fully evdev based design.
 
-When support for sharing single IRQ between multiple buttons arrives
-this field is still valid and we just need to take care of disable IRQ
-line only when all buttons that share it, are disabled.
+>
+> Christoph
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-media=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
 
-This won't break existing users of gpio_keys and allows future
-extension to support case of multiple buttons sharing single
-IRQ line, right?
 
-Thanks,
-MW
+
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

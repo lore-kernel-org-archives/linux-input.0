@@ -1,113 +1,56 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Fri, 27 Nov 2009 14:21:13 -0500
-Message-ID: <9e4733910911271121j452aa796j543f1fc3f6de7028@mail.gmail.com>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Fri, 27 Nov 2009 22:49:37 +0100
+Message-ID: <4B104971.4020800@s5r6.in-berlin.de>
 References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
-	 <BDgcsm11qgB@lirc>
-	 <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com>
-	 <874oof6b9u.fsf@tac.ki.iif.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <874oof6b9u.fsf@tac.ki.iif.hu>
-Sender: linux-media-owner@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, christoph@bartelmus.de, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from einhorn.in-berlin.de ([192.109.42.8]:37948 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750956AbZK0VuL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Nov 2009 16:50:11 -0500
+In-Reply-To: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Fri, Nov 27, 2009 at 2:03 PM, Ferenc Wagner <wferi@niif.hu> wrote:
-> Jon Smirl <jonsmirl@gmail.com> writes:
->
->> On Fri, Nov 27, 2009 at 12:29 PM, Christoph Bartelmus <lirc@bartelmu=
-s.de> wrote:
->>
->>>> Maybe we decide to take the existing LIRC system as is and not
->>>> integrate it into the input subsystem. But I think there is a wind=
-ow
->>>> here to update the LIRC design to use the latest kernel features.
->>>
->>> If it ain't broke, don't fix it. =A0[...]
->>>
->>> We already agreed last year that we can include an interface in
->>> lirc_dev that feeds the signal data to an in-kernel decoder if noon=
-e
->>> from userspace reads it. =A0[...]
->>>
->>> I also understand that people want to avoid dependency on external
->>> userspace tools. All I can tell you is that the lirc tools already =
-do
->>> support everything you need for IR control. And as it includes a lo=
-t of
->>> drivers that are implemented in userspace already, LIRC will just c=
-ontinue
->>> to do it's work even when there is an alternative in-kernel.
->>
->> Christoph, take what you know from all of the years of working on LI=
-RC
->> and design the perfect in-kernel system.
->
-> Hi,
->
-> I'm reading this thread with great interest. =A0Thank you (plural) fo=
-r the
-> very informative conversation, I think I learnt a lot. =A0But now I
-> somehow lost the point, please correct me if the following is wrong.
->
-> It looks like having lirc_dev (or a similar raw interface) is a must.
-> It could be disguised as an input device, or changed in various ways,
-> but is it worth the effort? =A0As I understand Christoph, he does not=
- want
-> to do so, because he finds it wasted work, and also there's already a
-> *single* user space daemon using it and doing everything users could
-> want. =A0Except for plug&play.
+Jon Smirl wrote:
+> 3) No special tools - use mkdir, echo, cat, shell scripts to build maps
 
-The high level summary:
+>From the POV of a distributor, there is always a special tool required.
+Whether it is implemented in bash, Python, or C doesn't make a
+difference to him.
 
-LIRC has developed it's own way of doing things. It has its own device
-protocol, user space daemon, tools, etc. No one is denying that all of
-that works.
+For an enduser whose distributor doesn't package that tool, it also
+doesn't matter whether it is bash or Python.  (C is awkward because it
+needs to be run through gcc first.)  A Pyton tool can operate the
+existing EVIOCSKEYCODE interface just as well as a C tool.
 
-The alternative is to rework IR to use standard kernel interfaces
-(evdev, sysfs, configfs), standard user space tools (udev, ls, mkdir,
-cat) and make the daemon optional.
+Your mkdir/ echo/ cat programs would still just this:  Programs.  Sure,
+these programs would be interpreted by an interpreter which is installed
+everywhere, and the data they operate on is in a clear text format.  The
+downside is that these programs do not exist yet.
 
-Since IR hasn't been added to the kernel yet we are still free to
-design the user space API before locking it in stone for the next
-twenty years.
+> 5) Direct multi-app support - no daemon
 
+Think of lircd (when it feeds into uinput) as of a userspace driver
+rather than a daemon.  The huge benefit of a userspace driver is that it
+can load configuration files.
 
-This is an architectural debate, not a debate on specific features.
+Multi-app support is provided by evdev of course.
 
+> What are other goals for this subsystem?
 
->
-> On the other hand, a one-liner could make in-kernel decoding possible=
-,
-> so those who haven't got lircd running could have plug&play easily, i=
-f
-> somebody writes the necessary in-kernel decoders to feed the input
-> subsystem (which lircd also does, through uinput).
->
-> But even if you can't find anybody at the moment to write those, this=
- is
-> still good stuff (I don't know about the code), which is hurt by bein=
-g
-> developed out of kernel. =A0Is there any reason to keep this so?
-> Admittedly, I don't know why /dev/mouse is evil, maybe I'd understand=
- if
+  - Minimal development cost; reduced maintenance cost relative
+    the to status quo.
 
-/dev/mouse is evil because it is possible to read partial mouse
-messages. evdev fixes things so that you only get complete messages.
-
-> somebody pointed me to some reading.
-> --
-> Thanks,
-> Feri.
->
-
-
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
+  - No regressions would be best.
+-- 
+Stefan Richter
+-=====-==--= =-== ==-==
+http://arcgraph.de/sr/

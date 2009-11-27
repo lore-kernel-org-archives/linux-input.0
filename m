@@ -1,109 +1,119 @@
-From: Andy Walls <awalls@radix.net>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Fri, 27 Nov 2009 11:57:50 -0500
-Message-ID: <1259341070.3062.34.camel@palomino.walls.org>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: 27 Nov 2009 18:29:00 +0100
+Message-ID: <BDgcsm11qgB@lirc>
 References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:37394 "EHLO mail1.radix.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751006AbZK0RAE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2009 12:00:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752161AbZK0RbT@vger.kernel.org>
 In-Reply-To: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: jonsmirl@gmail.com
+Cc: awalls@radix.net, christoph@bartelmus.de, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Fri, 2009-11-27 at 10:57 -0500, Jon Smirl wrote:
-> On Fri, Nov 27, 2009 at 2:45 AM, Christoph Bartelmus
-> <christoph@bartelmus.de> wrote:
+Hi Jon,
 
-> > So the plan is to have two ways of using IR in the future which are
-> > incompatible to each other, the feature-set of one being a subset of the
-> > other?
-> 
+on 27 Nov 09 at 10:57, Jon Smirl wrote:
+[...]
+>>>> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's
+>>>> just because I'm not familiar at all with input layer toolset.
+>> [...]
+>>> I hope it helps for you to better understand how this works.
+>>
+>> So the plan is to have two ways of using IR in the future which are
+>> incompatible to each other, the feature-set of one being a subset of the
+>> other?
+
 > Take advantage of the fact that we don't have a twenty year old legacy
 > API already in the kernel. Design an IR API that uses current kernel
 > systems. Christoph, ignore the code I wrote and make a design proposal
 > that addresses these goals...
-
-Jon,
-
-It's good to have clear, sensible goals.  I'd also like to have
-concurrence on what are driving requirements vs. nice-to-have's and also
-on priorities.
-
-
+>
 > 1) Unified input in Linux using evdev. IR is on equal footing with
 > mouse and keyboard.
 
-Sounds fine.  I think some of the discussion so far indicates the devil
-may be in the details.  I understand the driving requirement is to avoid
-user(?) problems experienced in the past with PS/2 keyboards, etc.
+Full support given with LIRC by using uinput.
 
+> 2) plug and play for basic systems - you only need an external app for
+> scripting
 
-> 2) plug and play for basic systems - you only need an external app for scripting
+LIRC is lacking in plug and play support. But it wouldn't be very  
+difficult to add some that works for all basic systems.
+As I'm favouring a solution outside of the kernel, of course I can't offer  
+you a solution which works without userspace tools.
 
-I concur.  Users needing hardware to "Just Work" is *the* driving
-requirment for in kernel IR from the discussion.  I would only say that
-you may not need any application for the default configuration on basic
-systems.
+> 3) No special tools - use mkdir, echo, cat, shell scripts to build
+> maps
 
-
-> 3) No special tools - use mkdir, echo, cat, shell scripts to build maps
-
-Sounds fine.  I also was a user who used setkeys, loadkeys, et. al. once
-years ago, and can't remeber for the life of me why I had to do so or
-how they work anymore.
-
+A user friendly GUI tool to configure the mapping of the remote buttons is  
+essential for good user experience. I hope noone here considers that users  
+learn command line or bash to configure their remotes.
 
 > 4) Use of modern Linux features like sysfs, configfs and udev.
 
-I'm not sure this is strictly driven by anything; it's an implementation
-decision stated in advance.  One uses features, if one needs them.
-
+LIRC uses sysfs where appropriate. I have no problem using modern  
+interfaces where it makes sense. But I won't change working and well  
+tested interfaces just because it's possible to implement the same thing a  
+different way. The interface is efficient and small. I don't see how it  
+could gain much by the mentioned featues.
+Tell me what exactly you don't like about the LIRC interface and we can  
+work on it.
 
 > 5) Direct multi-app support - no daemon
 
-I understand the rationale for this to really be a desire for minimal
-userspace components.  If you think/know that the input system can
-multiplex or multicast events in a sane way for applications, then I
-suppose it's feasible.
-
-I don't hear users asking for minimal userspace components, as their
-dsitribution packaging system usually handles this for them.  I suspect
-this is mostly driven by kernel developers or embedded systems
-developers.
-
+lircd is multi-app. I want to be in userspace, so I need a daemon.
 
 > 6) Hide timing data from user as much as possible.
 
-I do not strictly agree with this.  I understand this goal is to
-insulate users from the low level details of IR protocols.  I think that
-hinders users' ability to solve or diagnose problems on their own.  Some
-people like details and flexible control.  I think users being able to
-report about timing data of unknown remotes or protocols has value as
-well.
-
+Nobody is manually writing lircd.conf files. Of course you don't want the  
+user to know anything about the technical details unless you really want  
+to get your hands dirty.
 
 > What are other goals for this subsystem?
+>
+> Maybe we decide to take the existing LIRC system as is and not
+> integrate it into the input subsystem. But I think there is a window
+> here to update the LIRC design to use the latest kernel features.
 
-7. Support IR transmit by applications.
+If it ain't broke, don't fix it.
 
-8. Support IR transmit without using special applications - just cat,
-mkdir, shell, etc.
-(Following your lead here.)
+I'm also not against using the input layer where it makes sense.
 
-9. For flexible IR transmit hardware, the one IR transmitter should be
-capable of sending codes to STBs with different protocols or keymaps
-(not at the same time of course).
+For devices that do the decoding in hardware, the only thing that I don't  
+like about the current kernel implementation is the fact that there are  
+mapping tables in the kernel source. I'm not aware of any tools that let  
+you change them without writing some keymaps manually.
 
+I'm also not against in-kernel decoding in general. We already agreed last  
+year that we can include an interface in lirc_dev that feeds the signal  
+data to an in-kernel decoder if noone from userspace reads it. That's  
+close to an one line change in lirc_dev. You won't have to change a single  
+device driver for this. I think there also was common understanding that  
+there will be cases where in-kernel decoding will not be possible for  
+esoteric protocols and that there needs to be an interface to deliver the  
+raw data to userspace.
 
+My point just is that it took LIRC a very long time until the most common  
+protocols have been fully supported, with all the toggle bits, toggle  
+masks, repeat codes, sequences, headers, differing gap values, etc. Or  
+take a look at crappy hardware like the Igor Cesko's USB IR Receiver. This  
+device cripples the incoming signal except RC-5 because it has a limited  
+buffer size. LIRC happily accepts the data because it does not make any  
+assumptions on the protocol or bit length. With the approach that you  
+suggested for the in-kernel decoder, this device simply will not work for  
+anything but RC-5. The devil is in all the details. If we decide to do the  
+decoding in-kernel, how long do you think this solution will need to  
+become really stable and mainline? Currently I don't even see any  
+consensus on the interface yet. But maybe you will prove me wrong and it's  
+just that easy to get it all working.
+I also understand that people want to avoid dependency on external  
+userspace tools. All I can tell you is that the lirc tools already do  
+support everything you need for IR control. And as it includes a lot of  
+drivers that are implemented in userspace already, LIRC will just continue  
+to do it's work even when there is an alternative in-kernel.
+If LIRC is being rejected I don't have a real problem with this either,  
+but we finally need a decision because for me this is definitely the last  
+attempt to get this into the kernel.
 
-Regards,
-Andy
-
+Christoph

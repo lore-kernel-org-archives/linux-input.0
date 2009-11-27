@@ -1,100 +1,103 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [IR-RFC PATCH v4 0/6] In-kernel IR support using evdev
-Date: Thu, 26 Nov 2009 22:58:59 -0500
-Message-ID: <9e4733910911261958w2911f69dk4ab747b4bf12461@mail.gmail.com>
-References: <20091127013217.7671.32355.stgit@terra>
-	 <4B0F43B3.4090804@wilsonet.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Thu, 26 Nov 2009 20:30:23 -0800
+Message-ID: <20091127043023.GJ6936@core.coreip.homeip.net>
+References: <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <20091126053109.GE23244@core.coreip.homeip.net> <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com> <20091126232311.GD6936@core.coreip.homeip.net> <4B0F3963.8040701@wilsonet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:38463 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751510AbZK0D67 (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:63288 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752167AbZK0EaW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Nov 2009 22:58:59 -0500
-In-Reply-To: <4B0F43B3.4090804@wilsonet.com>
+	Thu, 26 Nov 2009 23:30:22 -0500
+Content-Disposition: inline
+In-Reply-To: <4B0F3963.8040701@wilsonet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jarod Wilson <jarod@wilsonet.com>
-Cc: linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Thu, Nov 26, 2009 at 10:12 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
->> Raw mode. There are three sysfs attributes - ir_raw, ir_carrier,
->> ir_xmitter. Read from ir_raw to get the raw timing data from the IR
->> device. Set carrier and active xmitters and then copy raw data to
->> ir_raw to send. These attributes may be better on a debug switch. You
->> would use raw mode when decoding a new protocol. After you figure out
->> the new protocol, write an in-kernel encoder/decoder for it.
+On Thu, Nov 26, 2009 at 09:28:51PM -0500, Jarod Wilson wrote:
+> On 11/26/2009 06:23 PM, Dmitry Torokhov wrote:
+>> On Thu, Nov 26, 2009 at 01:16:01AM -0500, Jarod Wilson wrote:
+>>> On Nov 26, 2009, at 12:31 AM, Dmitry Torokhov wrote:
+>>>
+>>>> On Mon, Nov 23, 2009 at 11:37:53PM -0500, Jarod Wilson wrote:
+>>>>> On 11/23/2009 12:37 PM, Dmitry Torokhov wrote:
+>>>>>> On Mon, Nov 23, 2009 at 03:14:56PM +0100, Krzysztof Halasa wrote:
+>>>>>>> Mauro Carvalho Chehab<mchehab@redhat.com>   writes:
+>>>>>>>
+>>>>>>>> Event input has the advantage that the keystrokes will provide an unique
+>>>>>>>> representation that is independent of the device.
+>>>>>>>
+>>>>>>> This can hardly work as the only means, the remotes have different keys,
+>>>>>>> the user almost always has to provide customized key<>function mapping.
+>>>>>>>
+>>>>>>
+>>>>>> Is it true? I would expect the remotes to have most of the keys to have
+>>>>>> well-defined meanings (unless it is one of the programmable remotes)...
+>>>>>
+>>>>> Its the cases like programmable universal remotes that really throw
+>>>>> things for a loop. That, and people wanting to use random remote X that
+>>>>> came with the amp or tv or set top box, with IR receiver Y.
+>>>>
+>>>> Right, but still the keys usually do have the well-defined meaning,
+>>>
+>>> Except when they don't. I have two very similar remotes, one that was bundled with a system from CaptiveWorks, and one that was bundled with an Antec Veris IR/LCD (SoundGraph iMON rebrand). Outside of the Antec remote having a mouse pad instead of up/down/left/right/enter, they have an identical layout, and the keys in the same locations on the remotes send the same IR signal. But the button names vary a LOT between the two. So on the DVD key on the Antec and the MUTE key on the CW send the same signal. Same with Audio vs. Eject, TV vs. History, etc. Moral of the story is that not all IR protocols spell things out particularly well for what a given code should actually mean.
+>>
+>> I guess we are talking about different things. While the 2 remotes may
+>> use different protocols to communicate
 >
-> Also neglected to recall there was raw IR data access too. However, a few
-> things... One, this is, in some sense, cheating, as its not an input layer
-> interface being used. :) Granted though, it *is* an existing kernel
-> interface being used, instead of adding a new one. Two, there's no userspace
-> to do anything with it at this time. I mean, sure, in theory, writing it
-> wouldn't be that hard, but we can already do the same thing using the lirc
-> interface, and already have userspace code for it. I think users need/desire
-> to use raw IR modes may be more prevalent that most people think.
-
-I would view raw mode as a developer interface which would be used to
-implement a new protocol decode engine.  There is an assumption in my
-design that all IR timings can be decoded/constructed by a protocol
-engine.  Sure we may end up with 40 protocol engines, but they are
-only about 50 lines of code. You could put each engine into a loadable
-module if you want.
-
-You see raw data used a lot with Sony remotes. Sony remotes mix
-multiple protocols in a single remote. The irrecord program does not
-understand these mixed protocols and generates a raw mode config file.
-The mixed protocols don't bother the protocol state machine system.
-This happens with other mixed protocol remotes too.
-
-> Two drivers are supplied. mceusb2 implements send and receive support
->> for the Microsoft USB IR dongle.
+> The remotes use the exact same protocol. Their respective bundled  
+> receivers however, do translate key presses differently. Perhaps this is  
+> a bad example though, because both of these remotes came with receivers  
+> that do onboard decoding. But there's nothing stopping me from wanting  
+> to use either of these remotes with an mceusb IR transceiver.
 >
-> I'd be game to try hacking up the lirc_mceusb driver (which has, since your
-> work was done, merged mce v1 and v2 transceiver support) to support both
-> your in-kernel interface and the lirc interface as an example of the hybrid
-> approach I'm thinking of.
+>> and may use the same codes to
+>> mean different things they buttons have well-defined meaning and we
+>> could map that to input keycodes. Then what is left is to load the
+>> proper mapping for particular device into the kernel.
 >
->> Code is only lightly tested. Encoders and decoders have not been
->> written for all protocols. Repeat is not handled for any protocol. I'm
->> looking for help. There are 15 more existing LIRC drivers.
+> In this case, its not the device, but the remote, that we need a  
+> different mapping for.
+
+I would say that the remote is the device, not the receiver...
+
 >
-> And there's the hangup for me. The lirc drivers and interface have been
-> pretty heavily battle-tested over years and years in the field. And there
-> are those 15 more drivers that already work with the lirc interface. I'm
-> woefully short on time to work on any porting myself, and about to get even
-> shorter with some new responsibilities at work requiring even more of my
-> attention.
+>> This can be done
+>> either automatically (when we know the mapping) or with the help of the
+>> user (owner of the system).
 >
-> If we go with a hybrid approach, all those existing drivers can be brought
-> in supporting just the lirc interface initially, and have in-kernel decode
-> support added as folks have time to work on them, if it actually makes sense
-> for those devices.
+> Yep, that'd work. Just trying to illustrate that the same code doesn't  
+> always mean anywhere near the same thing from one remote to another.
+
+We have the same scenatio with atkbd and various laptops - the
+"extended" keys may use the same scancodes for different keys and we use
+DMI data to load the proper keymap. Obviously in case if IRC we won't be
+using DMI but something else.
+
 >
-> Just trying to find a happy middle ground that minimizes regressions for
-> users *and* gives us maximum flexibility.
+>>>> teh
+>>>> issue is in mapping raw code to the appropriate keycode. This can be
+>>>> done either by lirc config file (when lirc is used) or by some other
+>>>> means.
+>>>
+>>> The desire to map a button press to multiple keystrokes isn't uncommon either, though I presume that's doable within the input layer context too.
+>>
+>> No, at present we expect 1:1 button->event mapping leaving macro
+>> expansion (i.e. KEY_PROG1 ->  "do some multi-step sequence" to
+>> userspace).
+>
+> Hm. So ctrl-x, alt-tab, etc. would have to be faked in userspace  
+> somehow. Bummer.
+>
 
-You are going to have to choose. Recreate the problems of type
-specific devices like /dev/mouse and /dev/kbd that evdev was created
-to fix, or skip those type specific devices and go straight to evdev.
-We've known for years the /dev/mouse was badly broken. How many more
-years is it going to be before it can be removed? /dev/lirc has the
-same type of problems that /dev/mouse has. The only reason that
-/dev/lirc works now is because there is a single app that uses it.
-
-Also, implementing a new evdev based system in the kernel in no way
-breaks existing lirc installations. Just don't load the new
-implementation and everything works exactly the same way as before.
-
-I'd go the evdev only route for in-kernel and leave existing lirc out
-of tree. Existing lirc will continue to work. This is probably the
-most stable strategy, even more so than a hybrid approach. The
-in-kernel implementation will then be free to evolve without the
-constraint of legacy APIs. As people become happy with it they can
-switch over.
-
+What is Ctrl-x? Alt-tab? This are application-specific binding and of
+course kernel does not emit these. If there is a distinct action that
+needs to be signalled then there [normally] is a keycode for it.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Dmitry

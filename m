@@ -1,69 +1,67 @@
 From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Fri, 27 Nov 2009 10:33:27 -0500
-Message-ID: <9e4733910911270733j1abbb1ddi962c8a46c9aabe48@mail.gmail.com>
-References: <9e4733910911262106r553bb28brb5bef07dee3aae3b@mail.gmail.com>
-	 <BDgcSm3ZjFB@christoph>
+Subject: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Fri, 27 Nov 2009 10:57:59 -0500
+Message-ID: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:65249 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750742AbZK0PdV convert rfc822-to-8bit (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.24]:63275 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752040AbZK0P5y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2009 10:33:21 -0500
-In-Reply-To: <BDgcSm3ZjFB@christoph>
+	Fri, 27 Nov 2009 10:57:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Christoph Bartelmus <christoph@bartelmus.de>
+Cc: jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Fri, Nov 27, 2009 at 2:33 AM, Christoph Bartelmus <lirc@bartelmus.de=
-> wrote:
-> Hi Jon,
+On Fri, Nov 27, 2009 at 2:45 AM, Christoph Bartelmus
+<christoph@bartelmus.de> wrote:
+> Hi Mauro,
 >
-> on 27 Nov 09 at 00:06, Jon Smirl wrote:
+> on 26 Nov 09 at 14:25, Mauro Carvalho Chehab wrote:
+>> Christoph Bartelmus wrote:
 > [...]
->> code for the fun of it, I have no commercial interest in IR. I was
->> annoyed with how LIRC handled Sony remotes on my home system.
+>>> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just
+>>> because I'm not familiar at all with input layer toolset.
+> [...]
+>> I hope it helps for you to better understand how this works.
 >
-> Can you elaborate on this?
-> I'm not aware of any issue with Sony remotes.
+> So the plan is to have two ways of using IR in the future which are
+> incompatible to each other, the feature-set of one being a subset of the
+> other?
 
-irrecord can't figure out that Sony remotes transmit multiple
-protocols so it reverts to raw mode. When trying to figure that out I
-started working on the concept of running simultaneous state machines
-to decode the pulse timings.  I also had an embedded system with an IR
-receiver hooked to a timer input pin.  I started off with a
-implementation that ran multiple Sony protocol decoders and used the
-input from the timer pin. I know now that I could use irrecord
-individually for each group of keys on the Sony remote and then glue
-the flies together. But that's the path that caused me to write the
-code.
+Take advantage of the fact that we don't have a twenty year old legacy
+API already in the kernel. Design an IR API that uses current kernel
+systems. Christoph, ignore the code I wrote and make a design proposal
+that addresses these goals...
 
-Also throw into pot that I had previously had some very bad
-experiences trying to deal with the old mouse and kbd device inside of
-the X server. I was aware that evdev was designed to fix all of those
-problems. That made me want a fully evdev based design.
+1) Unified input in Linux using evdev. IR is on equal footing with
+mouse and keyboard.
+2) plug and play for basic systems - you only need an external app for scripting
+3) No special tools - use mkdir, echo, cat, shell scripts to build maps
+4) Use of modern Linux features like sysfs, configfs and udev.
+5) Direct multi-app support - no daemon
+6) Hide timing data from user as much as possible.
+
+What are other goals for this subsystem?
+
+Maybe we decide to take the existing LIRC system as is and not
+integrate it into the input subsystem. But I think there is a window
+here to update the LIRC design to use the latest kernel features. We
+don't want to build another /dev/mouse and have to rip it out in five
+years.
 
 >
-> Christoph
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+> When designing the key mapping in the kernel you should be aware that
+> there are remotes out there that send a sequence of scan codes for some
+> buttons, e.g.
+> http://lirc.sourceforge.net/remotes/pioneer/CU-VSX159
+
+This is good input.
 
 
-
---=20
+-- 
 Jon Smirl
 jonsmirl@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

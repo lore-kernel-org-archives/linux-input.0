@@ -1,45 +1,50 @@
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [IR-RFC PATCH v4 0/6] In-kernel IR support using evdev
-Date: Fri, 27 Nov 2009 08:22:09 +0100
-Message-ID: <4B0F7E21.3020703@s5r6.in-berlin.de>
-References: <20091127013217.7671.32355.stgit@terra> <4B0F43B3.4090804@wilsonet.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch 1/1] TOUCHSCREEN: S3C24XX touchscreen driver from
+	Arnaud Patard.
+Date: Fri, 27 Nov 2009 08:31:04 +0100
+Message-ID: <20091127073103.GA1405@ucw.cz>
+References: <20091118232939.201290297@fluff.org.uk> <20091118232948.063635416@fluff.org.uk> <20091119025930.GA20172@core.coreip.homeip.net> <4B052D50.2070002@simtec.co.uk> <20091119171423.GD15647@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from einhorn.in-berlin.de ([192.109.42.8]:57048 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750729AbZK0HWI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2009 02:22:08 -0500
-In-Reply-To: <4B0F43B3.4090804@wilsonet.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091119171423.GD15647@core.coreip.homeip.net>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ben Dooks <ben@simtec.co.uk>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Simtec Linux Team <linux@simtec.co.uk>, Arnaud Patard <arnaud.patard@rtp-net.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Jarod Wilson wrote:
-> On 11/26/2009 08:34 PM, Jon Smirl wrote:
->> Raw mode. There are three sysfs attributes - ir_raw, ir_carrier,
->> ir_xmitter. Read from ir_raw to get the raw timing data from the IR
->> device. Set carrier and active xmitters and then copy raw data to
->> ir_raw to send. These attributes may be better on a debug switch. You
->> would use raw mode when decoding a new protocol. After you figure out
->> the new protocol, write an in-kernel encoder/decoder for it.
+Hi!
+
+> >>> +/* Per-touchscreen data. */
+> >>> +
+> >>> +/**
+> >>> + * struct s3c2410ts - driver touchscreen state.
+> >>> + * @client: The ADC client we registered with the core driver.
+> >>> + * @dev: The device we are bound to.
+> >>> + * @input: The input device we registered with the input subsystem.
+> >>> + * @clock: The clock for the adc.
+> >>> + * @io: Pointer to the IO base.
+> >>> + * @xp: The accumulated X position data.
+> >>> + * @yp: The accumulated Y position data.
+> >>> + * @irq_tc: The interrupt number for pen up/down interrupt
+> >>> + * @count: The number of samples collected.
+> >>> + * @shift: The log2 of the maximum count to read in one go.
+> >>> + */
+> >>
+> >> These sructures are driver-internal and so don't need to be kernel-doc-ed.
+> >> Same goes for the driver-private functions.
+> >
+> > I like having the documentation, and I would much prefer to leave it
+> > in as useful.
 > 
-> Also neglected to recall there was raw IR data access too. However, a
-> few things... One, this is, in some sense, cheating, as its not an input
-> layer interface being used. :) Granted though, it *is* an existing
-> kernel interface being used, instead of adding a new one. Two, there's
-> no userspace to do anything with it at this time.
+> Ah, I wasn't requiesting to remove the documentation, I was just saying
+> that since these data structures and fucntions are driver-provate they
+> don't need to use kernel-doc style.
 
-No; it is a new interface, just using an existing mechanism (sysfs). Not
-all of sysfs in itself is an interface really; rather there is a number
-of interfaces which are implemented by means of sysfs.
+Well.. consistent style of documentation is nice, be it driver-private
+or public stuff.
 
-sysfs is primarily meant for simple textual attributes though, not for
-I/O streams.
 -- 
-Stefan Richter
--=====-==--= =-== ==-==
-http://arcgraph.de/sr/
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

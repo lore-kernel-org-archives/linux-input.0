@@ -1,33 +1,60 @@
 From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Fri, 27 Nov 2009 01:37:01 +0100
-Message-ID: <m3zl68refm.fsf@intrepid.localdomain>
-References: <200910200958.50574.jarod@redhat.com>
-	<4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com>
-	<m36391tjj3.fsf@intrepid.localdomain>
-	<20091123173726.GE17813@core.coreip.homeip.net>
-	<m3r5rpq818.fsf@intrepid.localdomain>
-	<20091126052155.GD23244@core.coreip.homeip.net>
-	<m31vjlw54x.fsf@intrepid.localdomain>
-	<1F6BE32B-13EE-4FB4-96AD-D4526F435777@gmail.com>
-	<m3d434su2o.fsf@intrepid.localdomain>
-	<20091127002645.GH6936@core.coreip.homeip.net>
+Date: Fri, 27 Nov 2009 01:45:14 +0100
+Message-ID: <m3vdgwre1x.fsf@intrepid.localdomain>
+References: <200910200956.33391.jarod@redhat.com>
+	<200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	<4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	<4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
+	<4B0E765C.2080806@redhat.com> <m3iqcxuotd.fsf@intrepid.localdomain>
+	<4B0ED238.6060306@redhat.com>
+	<Pine.LNX.4.58.0911261450590.30284@shell2.speakeasy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752922AbZK0Ag6@vger.kernel.org>
-In-Reply-To: <20091127002645.GH6936@core.coreip.homeip.net> (Dmitry Torokhov's
-	message of "Thu, 26 Nov 2009 16:26:45 -0800")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mario Limonciello <superm1@ubuntu.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from khc.piap.pl ([195.187.100.11]:44686 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751141AbZK0ApO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Nov 2009 19:45:14 -0500
+In-Reply-To: <Pine.LNX.4.58.0911261450590.30284@shell2.speakeasy.net> (Trent
+	Piepho's message of "Thu, 26 Nov 2009 14:59:50 -0800 (PST)")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+Trent Piepho <xyzzy@speakeasy.org> writes:
 
-> There is nothing in input layer that precludes you from creating
-> multiple input devices per *whatever*.
+> Then you use the protocol that fits best.  For instance decoding with one
+> protocol might produce a scancode that isn't assigned to any key, while
+> another protocol produces an assigned scancode.  Clearly then the latter is
+> most likely to be correct.
 
-Of course. I though it was obvious I mean present situation with the
-media drivers but I can see now it was far from being obvious.
+Right.
+
+> It also possible to have a space/mark length
+> that is within the allowable tolerances for one remote, but is even closer
+> another remote.  You don't want to just find *a* match, you want to find
+> the *best* match.
+
+That won't work, the decoders don't calculate quality. And even if they
+did, if you have two remotes generating the same e.g. RC5 code, you
+won't be able to differentiate between them. Your TV etc. won't do that
+either.
+
+> The in kernel code in v4l is very simple in that it is only designed to
+> work with one procotol and one remote.  Once you have multiple remotes of
+> any type things become much more complicted.
+
+If you're using them at once, sure :-)
+
+> Keep in mind that remotes
+> that aren't even intended to be used with the computer but are used in the
+> same room will still be received by the receiver.  It's not enough to
+> decode the signals you expect to receive, you must also not get confused by
+> random signals destined for somewhere else.
+
+This is usually not a problem. My experience is the decoding is very
+reliable.
 -- 
 Krzysztof Halasa

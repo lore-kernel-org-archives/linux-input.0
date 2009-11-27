@@ -1,58 +1,45 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Fri, 27 Nov 2009 00:06:52 -0500
-Message-ID: <9e4733910911262106r553bb28brb5bef07dee3aae3b@mail.gmail.com>
-References: <4B0A765F.7010204@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
-	 <20091123173726.GE17813@core.coreip.homeip.net>
-	 <4B0B6321.3050001@wilsonet.com>
-	 <20091126053109.GE23244@core.coreip.homeip.net>
-	 <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com>
-	 <20091126232311.GD6936@core.coreip.homeip.net>
-	 <4B0F3963.8040701@wilsonet.com>
-	 <9e4733910911261908l122263c3x68854e8a00334eae@mail.gmail.com>
-	 <20091127043318.GK6936@core.coreip.homeip.net>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [IR-RFC PATCH v4 0/6] In-kernel IR support using evdev
+Date: Fri, 27 Nov 2009 08:22:09 +0100
+Message-ID: <4B0F7E21.3020703@s5r6.in-berlin.de>
+References: <20091127013217.7671.32355.stgit@terra> <4B0F43B3.4090804@wilsonet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20091127043318.GK6936@core.coreip.homeip.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from einhorn.in-berlin.de ([192.109.42.8]:57048 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750729AbZK0HWI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Nov 2009 02:22:08 -0500
+In-Reply-To: <4B0F43B3.4090804@wilsonet.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Nov 26, 2009 at 11:33 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> In the code I posted there is one evdev device for each configured
->> remote. Mapped single keycodes are presented on these devices for ea=
-ch
->> IR burst. There is no device for the IR receiver. =A0A LIRC type pro=
-cess
->> could watch these devices and then execute scripts based on the
->> keycodes reported.
->>
-=2E..
->
-> Maybe we should revisit Jon's patchset as well. Regretfully I did not
-> have time to do that when it was submitted the last time.
+Jarod Wilson wrote:
+> On 11/26/2009 08:34 PM, Jon Smirl wrote:
+>> Raw mode. There are three sysfs attributes - ir_raw, ir_carrier,
+>> ir_xmitter. Read from ir_raw to get the raw timing data from the IR
+>> device. Set carrier and active xmitters and then copy raw data to
+>> ir_raw to send. These attributes may be better on a debug switch. You
+>> would use raw mode when decoding a new protocol. After you figure out
+>> the new protocol, write an in-kernel encoder/decoder for it.
+> 
+> Also neglected to recall there was raw IR data access too. However, a
+> few things... One, this is, in some sense, cheating, as its not an input
+> layer interface being used. :) Granted though, it *is* an existing
+> kernel interface being used, instead of adding a new one. Two, there's
+> no userspace to do anything with it at this time.
 
-Consider my patch set a technology demo starting point. It shows a
-modern architecture for integrating IR into evdev.  Use the input from
-everyone else to turn these concepts into a real design. I wrote the
-code for the fun of it, I have no commercial interest in IR. I was
-annoyed with how LIRC handled Sony remotes on my home system.
+No; it is a new interface, just using an existing mechanism (sysfs). Not
+all of sysfs in itself is an interface really; rather there is a number
+of interfaces which are implemented by means of sysfs.
 
-The design is a clean slate implementation of IR for the kernel. No
-attempt was made at legacy compatibility. I was familiar with evdev vs
-/dev/mouse problems from my work on the X server. Because of working
-on X I've also always hated keymaps (that's what drove the configfs
-design).
-
-I wish one of the set top box or TV manufacturers would step up and
-own this.  They are the ones that would benefit the most. Jarod would
-probably be open to some consulting, right?
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
+sysfs is primarily meant for simple textual attributes though, not for
+I/O streams.
+-- 
+Stefan Richter
+-=====-==--= =-== ==-==
+http://arcgraph.de/sr/

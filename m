@@ -1,60 +1,84 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+From: Jarod Wilson <jarod@wilsonet.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
  Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 23:45:52 -0200
-Message-ID: <4B0F2F50.5050102@redhat.com>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <6D934408-B713-49B6-A197-46CE663455AC@wilsonet.com> <4B0E889C.9060405@redhat.com> <4B0EBBB5.5090303@wilsonet.com> <4B0EBF99.1070404@redhat.com> <20091126235057.GG6936@core.coreip.homeip.net>
+Date: Thu, 26 Nov 2009 21:28:51 -0500
+Message-ID: <4B0F3963.8040701@wilsonet.com>
+References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <20091126053109.GE23244@core.coreip.homeip.net> <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com> <20091126232311.GD6936@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752732AbZK0Bqd@vger.kernel.org>
-In-Reply-To: <20091126235057.GG6936@core.coreip.homeip.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753683AbZK0CXo@vger.kernel.org>
+In-Reply-To: <20091126232311.GD6936@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Thu, Nov 26, 2009 at 03:49:13PM -0200, Mauro Carvalho Chehab wrote:
->> Dmitry,
+On 11/26/2009 06:23 PM, Dmitry Torokhov wrote:
+> On Thu, Nov 26, 2009 at 01:16:01AM -0500, Jarod Wilson wrote:
+>> On Nov 26, 2009, at 12:31 AM, Dmitry Torokhov wrote:
 >>
->> While lirc is basically a series of input drivers, considering that they have lots
->> in common with the input drivers at V4L/DVB and that we'll need to work on
->> some glue to merge both, do you mind if I add the lirc drivers at drivers/staging from
->> my trees? 
+>>> On Mon, Nov 23, 2009 at 11:37:53PM -0500, Jarod Wilson wrote:
+>>>> On 11/23/2009 12:37 PM, Dmitry Torokhov wrote:
+>>>>> On Mon, Nov 23, 2009 at 03:14:56PM +0100, Krzysztof Halasa wrote:
+>>>>>> Mauro Carvalho Chehab<mchehab@redhat.com>   writes:
+>>>>>>
+>>>>>>> Event input has the advantage that the keystrokes will provide an unique
+>>>>>>> representation that is independent of the device.
+>>>>>>
+>>>>>> This can hardly work as the only means, the remotes have different keys,
+>>>>>> the user almost always has to provide customized key<>function mapping.
+>>>>>>
+>>>>>
+>>>>> Is it true? I would expect the remotes to have most of the keys to have
+>>>>> well-defined meanings (unless it is one of the programmable remotes)...
+>>>>
+>>>> Its the cases like programmable universal remotes that really throw
+>>>> things for a loop. That, and people wanting to use random remote X that
+>>>> came with the amp or tv or set top box, with IR receiver Y.
+>>>
+>>> Right, but still the keys usually do have the well-defined meaning,
 >>
-> 
-> Mauro,
-> 
-> I would not mind if you will be pushing it to staging, however I am not
-> sure we have an agreement on what exactly the interface that we will be
-> using. I would hate to get something in that will need to be reworked
-> again.
+>> Except when they don't. I have two very similar remotes, one that was bundled with a system from CaptiveWorks, and one that was bundled with an Antec Veris IR/LCD (SoundGraph iMON rebrand). Outside of the Antec remote having a mouse pad instead of up/down/left/right/enter, they have an identical layout, and the keys in the same locations on the remotes send the same IR signal. But the button names vary a LOT between the two. So on the DVD key on the Antec and the MUTE key on the CW send the same signal. Same with Audio vs. Eject, TV vs. History, etc. Moral of the story is that not all IR protocols spell things out particularly well for what a given code should actually mean.
+>
+> I guess we are talking about different things. While the 2 remotes may
+> use different protocols to communicate
 
-I understand your concerns.
+The remotes use the exact same protocol. Their respective bundled 
+receivers however, do translate key presses differently. Perhaps this is 
+a bad example though, because both of these remotes came with receivers 
+that do onboard decoding. But there's nothing stopping me from wanting 
+to use either of these remotes with an mceusb IR transceiver.
 
-IMHO, we should be really careful with API's when migrating from staging to the
-right place, but I'm not that much concerned with staging. We already have several 
-drivers there with bad behaviors and even with some API's there that will go to /dev/null.
+> and may use the same codes to
+> mean different things they buttons have well-defined meaning and we
+> could map that to input keycodes. Then what is left is to load the
+> proper mapping for particular device into the kernel.
 
-For example there's a V4L2 driver there (staging/go7007) that has their own private
-API to handle compressed streams. I won't ack moving it from staging while
-it has their own private extensions for something that are part of V4L2 API.
+In this case, its not the device, but the remote, that we need a 
+different mapping for.
 
-Also, staging drivers without progress for a few kernel cycles will be moved to /dev/null,
-so I don't see much sense of denying a driver to go there.
+> This can be done
+> either automatically (when we know the mapping) or with the help of the
+> user (owner of the system).
 
-Anyway, I'll add it there only when you feel comfortable about that and send us your ack.
+Yep, that'd work. Just trying to illustrate that the same code doesn't 
+always mean anywhere near the same thing from one remote to another.
 
--
+>>> teh
+>>> issue is in mapping raw code to the appropriate keycode. This can be
+>>> done either by lirc config file (when lirc is used) or by some other
+>>> means.
+>>
+>> The desire to map a button press to multiple keystrokes isn't uncommon either, though I presume that's doable within the input layer context too.
+>
+> No, at present we expect 1:1 button->event mapping leaving macro
+> expansion (i.e. KEY_PROG1 ->  "do some multi-step sequence" to
+> userspace).
 
->From what I heard on the comments, I think we have already a consensus of some points:
-	1) all IR's should implement the standard evdev interface;
-	2) IR's with raw interfaces will implement a raw pulse/space IR interface. 
-The proposal is to use lirc API interface for raw pulse/code TX and RX.
+Hm. So ctrl-x, alt-tab, etc. would have to be faked in userspace 
+somehow. Bummer.
 
-Do you think we'll need to better detail the IR raw interface API before accepting 
-the patches for staging? If so, what level of details do you want?
-
-Cheers,
-Mauro.
+-- 
+Jarod Wilson
+jarod@wilsonet.com

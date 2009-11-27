@@ -1,37 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 16:26:45 -0800
-Message-ID: <20091127002645.GH6936@core.coreip.homeip.net>
-References: <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <m3r5rpq818.fsf@intrepid.localdomain> <20091126052155.GD23244@core.coreip.homeip.net> <m31vjlw54x.fsf@intrepid.localdomain> <1F6BE32B-13EE-4FB4-96AD-D4526F435777@gmail.com> <m3d434su2o.fsf@intrepid.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ?
+Date: Fri, 27 Nov 2009 01:28:36 +0100
+Message-ID: <m34oogste3.fsf@intrepid.localdomain>
+References: <BDZb9P9ZjFB@christoph> <m3skc25wpx.fsf@intrepid.localdomain>
+	<E6F196CB-8F9E-4618-9283-F8F67D1D3EAF@wilsonet.com>
+	<829197380911251020y6f330f15mba32920ac63e97d3@mail.gmail.com>
+	<E88E119C-BB86-4F01-8C2C-E514AC6BA5E2@wilsonet.com>
+	<m3skc249ev.fsf@intrepid.localdomain>
+	<20091126055302.GI23244@core.coreip.homeip.net>
+	<m37htduo3i.fsf@intrepid.localdomain>
+	<20091126232809.GE6936@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <m3d434su2o.fsf@intrepid.localdomain>
-Sender: linux-media-owner@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mario Limonciello <superm1@ubuntu.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753555AbZK0A2f@vger.kernel.org>
+In-Reply-To: <20091126232809.GE6936@core.coreip.homeip.net> (Dmitry Torokhov's
+	message of "Thu, 26 Nov 2009 15:28:09 -0800")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 27, 2009 at 01:13:51AM +0100, Krzysztof Halasa wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> 
-> >> One remote per
-> >> device only.
-> >
-> > Why would you want more? One physical device usually corresponds to a
-> > logical device. If you have 2 remotes create 2 devices.
-> 
-> I meant "per receiver device".
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 
-There is nothing in input layer that precludes you from creating
-multiple input devices per *whatever*. Please, when you are talking
-about limitations, specify whether those limitations are applicable to
-the input layer, the current implementation of IR in DVB or something
-else.
+> There are binary sysfs attributes.
 
-Thanks.
+Aren't they to be used for things like ROMs and EEPROMs exclusively?
 
+> For ioctl you also need to open and
+> close the device.
+
+Sure, but I do it once.
+
+> Plus, how often do you expect to perform this
+> operation? Don't you think you are trying to optimize something that
+> does not have any real performavnce impact here?
+
+Maybe, anyway it will have to work before it's included in the kernel,
+so I don't worry too much about it. Perhaps we should then merge the
+lirc patches so both driver sets can be improved?
 -- 
-Dmitry
+Krzysztof Halasa

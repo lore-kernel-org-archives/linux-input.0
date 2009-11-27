@@ -1,84 +1,69 @@
-From: Jarod Wilson <jarod@wilsonet.com>
+From: hermann pitton <hermann-pitton@arcor.de>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Thu, 26 Nov 2009 21:28:51 -0500
-Message-ID: <4B0F3963.8040701@wilsonet.com>
-References: <200910200956.33391.jarod@redhat.com> <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com> <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain> <20091123173726.GE17813@core.coreip.homeip.net> <4B0B6321.3050001@wilsonet.com> <20091126053109.GE23244@core.coreip.homeip.net> <A910E742-51B5-45E0-AD80-B9AE0728D9FB@wilsonet.com> <20091126232311.GD6936@core.coreip.homeip.net>
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Fri, 27 Nov 2009 03:50:13 +0100
+Message-ID: <1259290213.3253.11.camel@pc07.localdom.local>
+References: <200910200956.33391.jarod@redhat.com>
+	 <200910200958.50574.jarod@redhat.com> <4B0A765F.7010204@redhat.com>
+	 <4B0A81BF.4090203@redhat.com> <m36391tjj3.fsf@intrepid.localdomain>
+	 <4B0AC65C.806@redhat.com> <m3zl6dq8ig.fsf@intrepid.localdomain>
+	 <4B0E765C.2080806@redhat.com> <m3iqcxuotd.fsf@intrepid.localdomain>
+	 <4B0ED238.6060306@redhat.com>
+	 <Pine.LNX.4.58.0911261450590.30284@shell2.speakeasy.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753683AbZK0CXo@vger.kernel.org>
-In-Reply-To: <20091126232311.GD6936@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0911261450590.30284@shell2.speakeasy.net>
+Sender: linux-media-owner@vger.kernel.org
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Jarod Wilson <jarod@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Mario Limonciello <superm1@ubuntu.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Janne Grunau <j@jannau.net>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
 
-On 11/26/2009 06:23 PM, Dmitry Torokhov wrote:
-> On Thu, Nov 26, 2009 at 01:16:01AM -0500, Jarod Wilson wrote:
->> On Nov 26, 2009, at 12:31 AM, Dmitry Torokhov wrote:
->>
->>> On Mon, Nov 23, 2009 at 11:37:53PM -0500, Jarod Wilson wrote:
->>>> On 11/23/2009 12:37 PM, Dmitry Torokhov wrote:
->>>>> On Mon, Nov 23, 2009 at 03:14:56PM +0100, Krzysztof Halasa wrote:
->>>>>> Mauro Carvalho Chehab<mchehab@redhat.com>   writes:
->>>>>>
->>>>>>> Event input has the advantage that the keystrokes will provide an unique
->>>>>>> representation that is independent of the device.
->>>>>>
->>>>>> This can hardly work as the only means, the remotes have different keys,
->>>>>> the user almost always has to provide customized key<>function mapping.
->>>>>>
->>>>>
->>>>> Is it true? I would expect the remotes to have most of the keys to have
->>>>> well-defined meanings (unless it is one of the programmable remotes)...
->>>>
->>>> Its the cases like programmable universal remotes that really throw
->>>> things for a loop. That, and people wanting to use random remote X that
->>>> came with the amp or tv or set top box, with IR receiver Y.
->>>
->>> Right, but still the keys usually do have the well-defined meaning,
->>
->> Except when they don't. I have two very similar remotes, one that was bundled with a system from CaptiveWorks, and one that was bundled with an Antec Veris IR/LCD (SoundGraph iMON rebrand). Outside of the Antec remote having a mouse pad instead of up/down/left/right/enter, they have an identical layout, and the keys in the same locations on the remotes send the same IR signal. But the button names vary a LOT between the two. So on the DVD key on the Antec and the MUTE key on the CW send the same signal. Same with Audio vs. Eject, TV vs. History, etc. Moral of the story is that not all IR protocols spell things out particularly well for what a given code should actually mean.
->
-> I guess we are talking about different things. While the 2 remotes may
-> use different protocols to communicate
 
-The remotes use the exact same protocol. Their respective bundled 
-receivers however, do translate key presses differently. Perhaps this is 
-a bad example though, because both of these remotes came with receivers 
-that do onboard decoding. But there's nothing stopping me from wanting 
-to use either of these remotes with an mceusb IR transceiver.
+Am Donnerstag, den 26.11.2009, 14:59 -0800 schrieb Trent Piepho:
+> On Thu, 26 Nov 2009, Mauro Carvalho Chehab wrote:
+> > >> See above. Also, several protocols have a way to check if a keystroke were
+> > >> properly received. When handling just one protocol, we can use this to double
+> > >> check the key. However, on a multiprotocol mode, we'll need to disable this
+> > >> feature.
+> > >
+> > > I don't think so. We can pass the space/mark data to all (configured,
+> > > i.e. with active mapping) protocol handlers at once. Should a check
+> > > fail, we ignore the data. Perhaps another protocol will make some sense
+> > > out of it.
+> >
+> > What happens if it succeeds on two protocol handlers?
+> 
+> Then you use the protocol that fits best.  For instance decoding with one
+> protocol might produce a scancode that isn't assigned to any key, while
+> another protocol produces an assigned scancode.  Clearly then the latter is
+> most likely to be correct.  It also possible to have a space/mark length
+> that is within the allowable tolerances for one remote, but is even closer
+> another remote.  You don't want to just find *a* match, you want to find
+> the *best* match.
+> 
+> The in kernel code in v4l is very simple in that it is only designed to
+> work with one procotol and one remote.  Once you have multiple remotes of
+> any type things become much more complicted.  Keep in mind that remotes
+> that aren't even intended to be used with the computer but are used in the
+> same room will still be received by the receiver.  It's not enough to
+> decode the signals you expect to receive, you must also not get confused by
+> random signals destined for somewhere else.
 
-> and may use the same codes to
-> mean different things they buttons have well-defined meaning and we
-> could map that to input keycodes. Then what is left is to load the
-> proper mapping for particular device into the kernel.
+Giving some random living room these days, likely open to the kids
+rooms, you have to take that into account.
 
-In this case, its not the device, but the remote, that we need a 
-different mapping for.
+Another point, if decoding from IRQs generated by the remote, there is
+flawed hardware around, needing to poll IRQs in some timely manner to
+get it to something at all.
 
-> This can be done
-> either automatically (when we know the mapping) or with the help of the
-> user (owner of the system).
+This will break such remotes. Never seen?
 
-Yep, that'd work. Just trying to illustrate that the same code doesn't 
-always mean anywhere near the same thing from one remote to another.
+For me the first priority is, that existing remotes are not broken.
 
->>> teh
->>> issue is in mapping raw code to the appropriate keycode. This can be
->>> done either by lirc config file (when lirc is used) or by some other
->>> means.
->>
->> The desire to map a button press to multiple keystrokes isn't uncommon either, though I presume that's doable within the input layer context too.
->
-> No, at present we expect 1:1 button->event mapping leaving macro
-> expansion (i.e. KEY_PROG1 ->  "do some multi-step sequence" to
-> userspace).
+Don't tell you have done a nice job just now, but are unfortunately in
+need of testers ... 
 
-Hm. So ctrl-x, alt-tab, etc. would have to be faked in userspace 
-somehow. Bummer.
-
--- 
-Jarod Wilson
-jarod@wilsonet.com
+Cheers,
+Hermann

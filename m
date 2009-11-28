@@ -1,33 +1,28 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR system?
-Date: Fri, 27 Nov 2009 17:34:44 -0800
-Message-ID: <20091128013443.GL6936@core.coreip.homeip.net>
-References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com> <BDgcsm11qgB@lirc> <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com> <874oof6b9u.fsf@tac.ki.iif.hu> <9e4733910911271121j452aa796j543f1fc3f6de7028@mail.gmail.com>
+Subject: Re: [PATCH] sh: Move KEYSC header file
+Date: Fri, 27 Nov 2009 17:43:06 -0800
+Message-ID: <20091128014306.GM6936@core.coreip.homeip.net>
+References: <20091127073224.19786.60477.sendpatchset@rxone.opensource.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753854AbZK1BfH@vger.kernel.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <9e4733910911271121j452aa796j543f1fc3f6de7028@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Ferenc Wagner <wferi@niif.hu>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, christoph@bartelmus.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+In-Reply-To: <20091127073224.19786.60477.sendpatchset@rxone.opensource.se>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-sh@vger.kernel.org, lethal@linux-sh.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 27, 2009 at 02:21:13PM -0500, Jon Smirl wrote:
-> On Fri, Nov 27, 2009 at 2:03 PM, Ferenc Wagner <wferi@niif.hu> wrote:
-> > Admittedly, I don't know why /dev/mouse is evil, maybe I'd understand if
+On Fri, Nov 27, 2009 at 04:32:24PM +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm@opensource.se>
 > 
-> /dev/mouse is evil because it is possible to read partial mouse
-> messages. evdev fixes things so that you only get complete messages.
+> This patch moves the KEYSC header file from the
+> SuperH specific asm directory to a place where
+> it can be shared by multiple architectures.
 > 
+> Signed-off-by: Magnus Damm <damm@opensource.se>
 
-For me the main evil of /dev/mouse (and other multuiplexing interfaces)
-is that it is impossible to remove one of the streams from the
-multiplexed stream without affecting other users. And so are born
-various "grab" schemes where we declare one application _the
-application_ and let it "grab" the device.. which breaks when there are
-other applications also interested in the same data stream.
+No oobjections on my part...
 
 -- 
 Dmitry

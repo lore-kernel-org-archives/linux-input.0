@@ -1,94 +1,71 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Sat, 28 Nov 2009 03:08:21 +0200
-Message-ID: <1259370501.11155.14.camel@maxim-laptop>
-References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
-	 <4B104971.4020800@s5r6.in-berlin.de>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: gpio_get_value in atomic context (was: make gpio-keys use  IRQF_SHARED)
+Date: Fri, 27 Nov 2009 17:08:01 -0800
+Message-ID: <200911271708.01727.david-b@pacbell.net>
+References: <1253113398-22751-1-git-send-email-dbaryshkov@gmail.com> <87eip6jkzr.fsf_-_@tac.ki.iif.hu> <d6200be20910140440t2357cb4fx5f7aeba0d4b15943@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f227.google.com ([209.85.218.227]:48011 "EHLO
-	mail-bw0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752753AbZK1BIX (ORCPT
+Received: from smtp106.sbc.mail.gq1.yahoo.com ([67.195.14.109]:22477 "HELO
+	smtp106.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752365AbZK1BOg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Nov 2009 20:08:23 -0500
-In-Reply-To: <4B104971.4020800@s5r6.in-berlin.de>
+	Fri, 27 Nov 2009 20:14:36 -0500
+In-Reply-To: <d6200be20910140440t2357cb4fx5f7aeba0d4b15943@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Arve =?iso-8859-1?q?Hj=F8nnev=E5g?= <arve@android.com>
+Cc: Ferenc Wagner <wferi@niif.hu>, linux-input@vger.kernel.org
 
-On Fri, 2009-11-27 at 22:49 +0100, Stefan Richter wrote: 
-> Jon Smirl wrote:
-> > 3) No special tools - use mkdir, echo, cat, shell scripts to build maps
-> 
-> From the POV of a distributor, there is always a special tool required.
-> Whether it is implemented in bash, Python, or C doesn't make a
-> difference to him.
-> 
-> For an enduser whose distributor doesn't package that tool, it also
-> doesn't matter whether it is bash or Python.  (C is awkward because it
-> needs to be run through gcc first.)  A Pyton tool can operate the
-> existing EVIOCSKEYCODE interface just as well as a C tool.
-> 
-> Your mkdir/ echo/ cat programs would still just this:  Programs.  Sure,
-> these programs would be interpreted by an interpreter which is installed
-> everywhere, and the data they operate on is in a clear text format.  The
-> downside is that these programs do not exist yet.
-> 
-> > 5) Direct multi-app support - no daemon
-> 
-> Think of lircd (when it feeds into uinput) as of a userspace driver
-> rather than a daemon.  The huge benefit of a userspace driver is that it
-> can load configuration files.
-And bear in mind the fact that only handful of lirc drivers are in
-kernel.
-Many drivers are pure userspace and live in  the lirc daemon itself.
-These drivers ether will have to be reimplemented in kernel (huge job)
-Or we will have a lot of duplication, because same remote can be used
-with kernel or userspace drivers.
+On Wednesday 14 October 2009, Arve Hj=F8nnev=E5g wrote:
+> 2009/10/14 Ferenc Wagner <wferi@niif.hu>:
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> >
+> >> On Mon, Oct 12, 2009 at 07:09:50PM +0200, Ferenc Wagner wrote:
+> >>
+> >>> =A0 =A0 The gpio_get_value function may sleep, so it should not b=
+e
+> >>> =A0 =A0 called in a timer function.
+> >>>
+> >>> So is drivers/staging/dream/gpio_input.c in error, too?
+> >>
+> >> I guess so. Initially gpio method did not sleep but that has
+> >> changed.
+> >
+> > Let's make Arve aware of this then (even though it may not affect
+> > Android in practice).
+>=20
+> If gpio_get_value may sleep, then what is gpio_get_value_cansleep for=
+?
 
-Look at daemons subdirectory of lircd to get the idea of how many such
-drivers exist.
+To tell if this is one of the GPIOs for which it may sleep.
+
+Whether the GPIO is atomic vs cansleep is an attribute of the
+GPIO itself, not the routine it's called with.
 
 
-Btw, for _some_ user space drivers its not possible to re implement them
-in kernel, like driver that reads input from a sound card, which I can
-say is nice very cheap way to have a receiver.
+> The gpio documentation claims gpio_get_value and gpio_set_value are
+> safe to use from interrupt context, but a call to gpio_cansleep is
+> probably needed in probe.
+
+They're safe to use there ... if that GPIO is safe.  Yes, make sure
+you know the answer before you call gpio_get_value() instead of
+the always-safe gpio_get_value_cansleep().
 
 
-I want to repeat the correct way of doing things:
+> The matrix driver also need to change the direction of the gpio from
+> the timer, so it would be useful to have a standard way to check if
+> this is allowed as well.
 
-1 - all drivers that do all processing in hardware, will use input
-system. 
+If gpio_{set,get}_value() can sleep, so can gpio_direction_*().
 
-2 - all drivers that decode protocol will use ether lirc, to keep
-configuration in one place.
+- Dave
 
-3 - all drivers that send pulse/space will use lirc.
 
-lirc will process the data, convert it to input events and feed them
-back to kernel.
-
-Please note, and note again.
-We aren't taking about two interfaces for userspace!
-Everybody agree that userspace programs will only recieve input events.
-The point is that we give an exception for one program that yes is just
-a userspace driver to recieve the raw data, process it, and feed it
-back.
-
-Also same program (lircd) could receive data from other sources, and
-convert that to input events.
-
-Whats wrong with that?
-
-If we add in-kernel decoding, we still will end up with two different
-decoding, one in kernel and one in lirc.
-
-Could we finally end this discussion and move forward?
-
-Best regards,
-Maxim Levitsky
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

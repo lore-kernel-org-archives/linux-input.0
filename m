@@ -1,40 +1,111 @@
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Sat, 28 Nov 2009 21:34:05 +0100
-Message-ID: <4B11893D.5070209@s5r6.in-berlin.de>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <4B116954.5050706@s5r6.in-berlin.de>	 <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>	 <4B117DEA.3030400@s5r6.in-berlin.de> <9e4733910911281208t23c938a2l7537e248e1eda4ae@mail.gmail.com> <4B11881B.7000204@s5r6.in-berlin.de>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Sat, 28 Nov 2009 15:46:01 -0500
+Message-ID: <9e4733910911281246r65670e1free76e98ff4a23822@mail.gmail.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	 <4B116954.5050706@s5r6.in-berlin.de>
+	 <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>
+	 <4B117DEA.3030400@s5r6.in-berlin.de>
+	 <9e4733910911281208t23c938a2l7537e248e1eda4ae@mail.gmail.com>
+	 <4B11881B.7000204@s5r6.in-berlin.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from einhorn.in-berlin.de ([192.109.42.8]:49043 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753561AbZK1Uec (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.27]:38735 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751737AbZK1UqA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2009 15:34:32 -0500
+	Sat, 28 Nov 2009 15:46:00 -0500
 In-Reply-To: <4B11881B.7000204@s5r6.in-berlin.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, superm1@ubuntu.com
 
-Stefan Richter wrote:
+On Sat, Nov 28, 2009 at 3:29 PM, Stefan Richter
+<stefanr@s5r6.in-berlin.de> wrote:
 > Jon Smirl wrote:
+>> On Sat, Nov 28, 2009 at 2:45 PM, Stefan Richter
+>> <stefanr@s5r6.in-berlin.de> wrote:
+>>> Jon Smirl wrote:
+>>>> Also, how do you create the devices for each remote? You would nee=
+d to
+>>>> create these devices before being able to do EVIOCSKEYCODE to them=
+=2E
+>>> The input subsystem creates devices on behalf of input drivers. =A0=
+(Kernel
+>>> drivers, that is. =A0Userspace drivers are per se not affected.)
+>>
 >> We have one IR receiver device and multiple remotes. How does the
->> input system know how many devices to create corresponding to how many
+>> input system know how many devices to create corresponding to how ma=
+ny
 >> remotes you have?
-> 
+>
 > If several remotes are to be used on the same receiver, then they
-> necessarily need to generate different scancodes, don't they?  Otherwise
+> necessarily need to generate different scancodes, don't they? =A0Othe=
+rwise
 > the input driver wouldn't be able to route their events to the
-> respective subdevice.  But if they do generate different scancodes,
-> there is no need to create subdevices just for EVIOCSKEYCODE's sake. (It
-> might still be desirable to have subdevices for other reasons perhaps.)
+> respective subdevice. =A0But if they do generate different scancodes,
+> there is no need to create subdevices just for EVIOCSKEYCODE's sake. =
+(It
+> might still be desirable to have subdevices for other reasons perhaps=
+=2E)
 
-PS, forgot to add:  If there is a real need to initiate device creation
-from userspace, then ioctl is not the way to go.
--- 
-Stefan Richter
--=====-==--= =-== ===--
-http://arcgraph.de/sr/
+Multiple remotes will have duplicate buttons (1, 2 ,3, power, mute,
+etc) these should get mapped into the standard keycodes. You need to
+devices to key things straight.
+
+Push button 1 on Remote A. That should generate a KP_1 on the evdev
+interface for that remote.
+Push button 1 on Remote B. That should generate a KP_1 on the evdev
+interface for that remote.
+
+Scenario for this - a mutifunction remote that is controlling two
+different devices/apps. In one mode the 1 might be a channel number,
+in the other mode it might be a telephone number.
+
+The user may chose to make button 1 on both remote A/B map to KP_1 on
+a single interface.
+
+Scenario for this - I want to use two different remotes to control a
+single device.
+
+---------------------
+
+I handled that in configds like this:
+/configfs - mount the basic configfs
+/configfs/remotes (created by loading IR support)
+mkdir /configfs/remotes/remote_A  - this causes the input subdevice to
+be created, the name of it appears in the created directory.
+
+--- this entry really shouldn't be called "remote" it should be named
+"application" . Then you build map entries under it for the keycodes
+the app knows about. Nothing prevents you from adding entries that map
+both Remote_A_1 and Remote_B_1 to KP_1.
+
+-- it's not sufficient to support a single application. I might be
+running mythtv, a voip phone, home automation, etc all using a remote.
+ By switching modes on a multifunction remote I can switch apps.
+
+mkdir /configfs/remotes/remote_A/... - now build the mapping entires.
+
+
+> --
+> Stefan Richter
+> -=3D=3D=3D=3D=3D-=3D=3D--=3D =3D-=3D=3D =3D=3D=3D--
+> http://arcgraph.de/sr/
+>
+
+
+
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

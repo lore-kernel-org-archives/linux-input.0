@@ -1,46 +1,51 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Sat, 28 Nov 2009 12:06:48 -0500
-Message-ID: <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR 	system?
+Date: Sat, 28 Nov 2009 18:21:42 +0100
+Message-ID: <m3einiy389.fsf@intrepid.localdomain>
+References: <BDkdITRHqgB@lirc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f194.google.com ([209.85.221.194]:46299 "EHLO
-	mail-qy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751785AbZK1RGm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2009 12:06:42 -0500
-In-Reply-To: <BDkdITRHqgB@lirc>
+Received: from khc.piap.pl ([195.187.100.11]:46356 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752839AbZK1RVj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Nov 2009 12:21:39 -0500
+In-Reply-To: <BDkdITRHqgB@lirc> (Christoph Bartelmus's message of "28 Nov 2009
+	17:47:00 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: khc@pm.waw.pl, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Sat, Nov 28, 2009 at 11:47 AM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
-> @Maxim: I think Mauro is right. We need to find an approach that makes
-> everybody happy. We should take the time now to discuss all the
-> possibilities and choose the best solution. LIRC has lived so long outside
-> the kernel, that we can wait another couple of weeks/months until we
-> agreed on something which will be a stable API hopefully for many years to
-> come.
+lirc@bartelmus.de (Christoph Bartelmus) writes:
 
-Please do this. That's why I started this thread off with goals for
-the implementation. After we settle on a set of goals we can move on
-to how to implement those goals.  The end result is almost certainly
-going to combine aspects from all of the various proposals and the
-LIRC code base is likely to be the largest contributor.
+> Nobody here doubts that you can implement a working RC-5 decoder. It's  
+> really easy. I'll give you an example why Maxim thinks that the generic  
+> LIRC approach has advantages:
 
-There are two very basic things that we need to reach consensus on first.
+But surely not when compared to an in-kernel decoder _and_ the one in
+lircd? :-)
 
-1) Unification with mouse/keyboard in evdev - put IR on equal footing.
-2) Specific tools (xmodmap, setkeycodes, etc or the LIRC ones) or
-generic tools (ls, mkdir, echo) for configuration
+> Look at the Streamzap remote (I think Jarod submitted the lirc_streamzap  
+> driver in his patchset):
+> http://lirc.sourceforge.net/remotes/streamzap/PC_Remote
+>
+> This remote uses RC-5. But some of the developers must have thought that  
+> it may be a smart idea to use 14 bits instead the standard 13 bits for  
+> this remote. In LIRC you won't care, because this is configurable and  
+> irrecord will figure it out automatically for you. In the proposed kernel  
+> decoders I have seen until now, you will have to treat this case specially  
+> in the decoder because you expect 13 bits for RC-5, not 14.
 
-Once consensus is reached in those two areas everything else should be
-much easier.
+Well, the 14-bit RC5 is de-facto standard for some time now. One of the
+start bits, inverted, now functions as the MSB of the command code.
+13-bit receiver implementations (at least these aimed at "foreign"
+remotes) are obsolete.
 
+> Well, it can be done. But you'll have to add another IR protocol define  
+> for RC-5_14, which will become very ugly with many non-standard protocol  
+> variations.
+
+No, the 14-bit version is designed to be backward compatible.
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Krzysztof Halasa

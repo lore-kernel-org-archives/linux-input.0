@@ -1,54 +1,75 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Sat, 28 Nov 2009 14:32:46 -0500
-Message-ID: <9e4733910911281132m5d0cce31t5544c5a6361813bd@mail.gmail.com>
-References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
-	 <1259370501.11155.14.camel@maxim-laptop>
-	 <m37hta28w9.fsf@intrepid.localdomain>
-	 <1259419368.18747.0.camel@maxim-laptop>
-	 <m3zl66y8mo.fsf@intrepid.localdomain>
-	 <1259422559.18747.6.camel@maxim-laptop>
-	 <9e4733910911280845y5cf06836l1640e9fc8b1740cf@mail.gmail.com>
-	 <1259433959.3658.0.camel@maxim-laptop>
-	 <9e4733910911281056s77e9bc8frd9200a81ebab8d7e@mail.gmail.com>
-	 <4B117A4C.1070304@s5r6.in-berlin.de>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Sat, 28 Nov 2009 20:45:46 +0100
+Message-ID: <4B117DEA.3030400@s5r6.in-berlin.de>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <4B116954.5050706@s5r6.in-berlin.de> <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4B117A4C.1070304@s5r6.in-berlin.de>
-Sender: linux-media-owner@vger.kernel.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from einhorn.in-berlin.de ([192.109.42.8]:48647 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751904AbZK1TqL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Nov 2009 14:46:11 -0500
+In-Reply-To: <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, superm1@ubuntu.com
 
-On Sat, Nov 28, 2009 at 2:30 PM, Stefan Richter
-<stefanr@s5r6.in-berlin.de> wrote:
-> Jon Smirl wrote:
->> If these drivers are for specific USB devices it is straight forward
->> to turn them into kernel based drivers. If we are going for plug and
->> play this needs to happen. All USB device drivers can be implemented
->> in user space, but that doesn't mean you want to do that. Putting
->> device drivers in the kernel subjects them to code inspection, they
->> get shipped everywhere, they autoload when the device is inserted,
->> they participate in suspend/resume, etc.
->
-> Huh? =A0Userspace implementations /can/ be code-reviewed (but they ca=
-n't
-> crash your machine), they /can/ be and are shipped everywhere, they /=
-do/
-> auto-load when the device is inserted. =A0And if there should be an i=
-ssue
-> with power management (is there any?), then improve the ABI and libus=
-b
-> can surely be improved. =A0I don't see why a device with a userspace
-> driver cannot be included in power management.
+Jon Smirl wrote:
+> On Sat, Nov 28, 2009 at 1:17 PM, Stefan Richter
+> <stefanr@s5r6.in-berlin.de> wrote:
+>> Jon Smirl wrote:
+>>> There are two very basic things that we need to reach consensus on first.
+>>>
+>>> 1) Unification with mouse/keyboard in evdev - put IR on equal footing.
+>>> 2) Specific tools (xmodmap, setkeycodes, etc or the LIRC ones) or
+>>> generic tools (ls, mkdir, echo) for configuration
+>> About 2:  If at all, there only needs to be a decision about pulse/space
+>> to scancode converter configuration.  In contrast, scancode to keycode
+>> converter configuration is already solved; the interface is
+>> EVIOCSKEYCODE.  If you find the EVIOCSKEYCODE interface lacking, extend
+>> it or submit an alternative --- but this does not affect LIRC and
+>> whether to merge it in any way.
+> 
+> EVIOCSKEYCODE is lacking, first parameter is an INT. Some decoded IR
+> codes are over 32b. Christoph posted an example that needs 128b. This
+> is a problem with ioctls, they change size depending on platform and
+> endianess.
 
-If you want a micro-kernel there are plenty to pick from. Linux has
-chosen not to be a micro-kernel. The Linux model is device drivers in
-the kernel.
+No, they do not "change size depending on platform and endianess" if
+basic rules are observed.  Defining compatible ioctls is not rocket
+science.  Sure, "int" should not be used in ioctl arguments or other
+binary interfaces.
 
---=20
-Jon Smirl
-jonsmirl@gmail.com
+(I never said EVIOCSKEYCODE was not lacking, I only said it exists
+already.  When you talk about better scancode-to-keycode converter
+configuration, then you are talking about EVIOCSKEYCODE, not about LIRC
+or a hypothetic replacement of LIRC.  Ergo, the decision about whether
+to merge LIRC or not is not blocked by this configuration interface issue.)
+
+> Also, how do you create the devices for each remote? You would need to
+> create these devices before being able to do EVIOCSKEYCODE to them.
+
+The input subsystem creates devices on behalf of input drivers.  (Kernel
+drivers, that is.  Userspace drivers are per se not affected.)
+
+>> PS:  Drop your "specific vs. generic tools" terminology already.  Your
+>> configfs based proposal requires "specific" tools as well, it's just
+>> that they can be implemented in bash, among else.
+> 
+> The shell commands are the most generic tools in Unix.
+
+The shell scripts are still special-purpose programs.
+
+> udev already knows how to run shell scripts.
+[...]
+
+Udev can run any kind of program, compiled or interpreted.
+-- 
+Stefan Richter
+-=====-==--= =-== ===--
+http://arcgraph.de/sr/

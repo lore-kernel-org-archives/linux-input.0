@@ -1,43 +1,85 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Sat, 28 Nov 2009 17:18:34 -0500
-Message-ID: <9e4733910911281418s702489e5t418eab5623c2af98@mail.gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Sat, 28 Nov 2009 18:26:55 -0500
+Message-ID: <1259450815.3137.19.camel@palomino.walls.org>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
 	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	 <4B116954.5050706@s5r6.in-berlin.de>
-	 <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>
-	 <4B117DEA.3030400@s5r6.in-berlin.de>
-	 <9e4733910911281208t23c938a2l7537e248e1eda4ae@mail.gmail.com>
-	 <4B11881B.7000204@s5r6.in-berlin.de>
-	 <9e4733910911281246r65670e1free76e98ff4a23822@mail.gmail.com>
-	 <4B119A36.8020903@s5r6.in-berlin.de>
-	 <9e4733910911281410i75bf19b7xa4dfd6ad1dc1b748@mail.gmail.com>
+	 <m3aay6y2m1.fsf@intrepid.localdomain>
+	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f194.google.com ([209.85.221.194]:56801 "EHLO
-	mail-qy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751894AbZK1WS2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Nov 2009 17:18:28 -0500
-In-Reply-To: <9e4733910911281410i75bf19b7xa4dfd6ad1dc1b748@mail.gmail.com>
+Received: from mail1.radix.net ([207.192.128.31]:59994 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752473AbZK1X2h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Nov 2009 18:28:37 -0500
+In-Reply-To: <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, superm1@ubuntu.com
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-I'm looking at a Sony multi-function remote right now. It has five
-devices and forty keys. Each of the five devices can transmit 0-9,
-power, volume, etc. It transmits 5*40 = 200 unique scancodes.
+Jon,
 
-I want the five devices to correspond to five apps. What's the plan
-for splitting those 200 scancodes into the five apps?
+On Sat, 2009-11-28 at 12:37 -0500, Jon Smirl wrote:
+> On Sat, Nov 28, 2009 at 12:35 PM, Krzysztof Halasa <khc@pm.waw.pl> wrote:
+> > Jon Smirl <jonsmirl@gmail.com> writes:
+> >
+> >> There are two very basic things that we need to reach consensus on first.
+> >>
+> >> 1) Unification with mouse/keyboard in evdev - put IR on equal footing.
 
-I did it by creating five evdev devices each mapping 40 scancodes.
-That's lets me reuse KP_1 for each of the five apps.
+The only thing this buys for the user is remote/products bundles that
+work out of the box.  That can only be a solution for the 80% case.
+
+I don't hear users crying out "Please integrate IR with the input
+system".  I do hear users say "I want my remote to work", and "How can I
+make my remote work?".  Users are not specifically asking for this
+integration of IR and the input system - a technical nuance.  If such a
+tecnical desire-ment drives excessive rework, I doubt anyone will care
+enough about IR to follow through to make a complete system.
+
+What does "equal footing" mean as an incentive anyway?  The opportunity
+to reimplement *everything* that exists for IR already over again in
+kernel-space for the sake of developer technical desires?  That's just a
+lot of work for "not invented here" syndrome.  IR transceivers are
+arguably superior to keyboards and mice anyway because they can transmit
+data too.
 
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> >> 2) Specific tools (xmodmap, setkeycodes, etc or the LIRC ones) or
+> >> generic tools (ls, mkdir, echo) for configuration
+> >
+> > I think we can do this gradually:
+> > 1. Merging the lirc drivers. The only stable thing needed is lirc
+> >   interface.
+> 
+> Doing that locks in a user space API that needs to be supported
+> forever. We need to think this API through before locking it in.
+
+No one get things right the first time - No one.
+
+Most designs are iterated with prototypes in the commercial world.
+Prototypes keep costs low so you can throw it away easily and try a new
+approach, if the current approach is not panning out
+
+Only governements try to get everything right on the first go.  It takes
+them too long and the end product is usually still hosed.
+
+Whatever gets developed won't be locked in for 20 years, that's absurd.
+Technology moves on 6 month to two year cycles.  Linux changes ABIs too.
+V4L transitioned from V4L1 to V4L2 and that's happened in less than 20
+years for a much more complex set of devices with a more varied set of
+userspace apps.
+
+Regards,
+Andy
+
+> > 2. Changing IR input layer interface ("media" drivers and adding to lirc
+> >   drivers).
+> > --
+> > Krzysztof Halasa
+
+

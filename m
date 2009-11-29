@@ -1,41 +1,35 @@
-From: lirc@bartelmus.de (Christoph Bartelmus)
+From: Krzysztof Halasa <khc@pm.waw.pl>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 29 Nov 2009 20:49:00 +0100
-Message-ID: <BDodzfumqgB@lirc>
-References: <9e4733910911291116r66dda6dap591d1b0f322f9663@mail.gmail.com>
+Date: Sun, 29 Nov 2009 21:27:58 +0100
+Message-ID: <m3ocml6ppt.fsf@intrepid.localdomain>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	<m3aay6y2m1.fsf@intrepid.localdomain>
+	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	<1259450815.3137.19.camel@palomino.walls.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.10]:56081 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752298AbZK2TuF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 14:50:05 -0500
-In-Reply-To: <9e4733910911291116r66dda6dap591d1b0f322f9663@mail.gmail.com>
+Received: from khc.piap.pl ([195.187.100.11]:36183 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752873AbZK2U1z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 15:27:55 -0500
+In-Reply-To: <1259450815.3137.19.camel@palomino.walls.org> (Andy Walls's
+	message of "Sat, 28 Nov 2009 18:26:55 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jonsmirl@gmail.com
-Cc: alan@lxorguk.ukuu.org.uk, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, ray-lk@madrabbit.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+To: Andy Walls <awalls@radix.net>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-Hi,
+1. Do we agree that a lirc (-style) kernel-user interface is needed at
+   least?
 
-on 29 Nov 09 at 14:16, Jon Smirl wrote:
-> On Sun, Nov 29, 2009 at 2:04 PM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>> Jon is asking for an architecture discussion, y'know, with use cases.
-[...]
-> So we're just back to the status quo of last year which is to do
-> nothing except some minor clean up.
->
-> We'll be back here again next year repeating this until IR gets
-> redesigned into something fairly invisible like keyboard and mouse
-> drivers.
+2. Is there any problem with lirc kernel-user interface?
 
-Last year everyone complained that LIRC does not support evdev - so I  
-added support for evdev.
+If the answer for #1 is "yes" and for #2 is "no" then perhaps we merge
+the Jarod's lirc patches (at least the core) so at least the
+non-controversial part is done?
 
-This year everyone complains that LIRC is not plug'n'play - we'll fix that  
-'til next year.
-
-There's progress. ;-)
-
-Christoph
+Doing so doesn't block improving input layer IR interface, does it?
+-- 
+Krzysztof Halasa

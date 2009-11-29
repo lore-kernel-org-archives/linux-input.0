@@ -1,42 +1,101 @@
 From: Jon Smirl <jonsmirl@gmail.com>
 Subject: Re: [IR-RFC PATCH v4 2/6] Core IR module
-Date: Sun, 29 Nov 2009 12:37:36 -0500
-Message-ID: <9e4733910911290937v7795da49q613c172b2cc9d13c@mail.gmail.com>
+Date: Sun, 29 Nov 2009 12:41:22 -0500
+Message-ID: <9e4733910911290941o761a4dfhf4168e573c6b6e89@mail.gmail.com>
 References: <20091127013217.7671.32355.stgit@terra>
 	 <20091127013423.7671.36546.stgit@terra>
-	 <20091129171437.GA4993@kroah.com>
+	 <20091129171726.GB4993@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f194.google.com ([209.85.221.194]:39655 "EHLO
-	mail-qy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751724AbZK2Rhb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 12:37:31 -0500
-In-Reply-To: <20091129171437.GA4993@kroah.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20091129171726.GB4993@kroah.com>
+Sender: linux-media-owner@vger.kernel.org
 To: Greg KH <greg@kroah.com>
 Cc: linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Sun, Nov 29, 2009 at 12:14 PM, Greg KH <greg@kroah.com> wrote:
-> On Thu, Nov 26, 2009 at 08:34:23PM -0500, Jon Smirl wrote:
->> Changes to core input subsystem to allow send and receive of IR messages. Encode and decode state machines are provided for common IR porotocols such as Sony, JVC, NEC, Philips, etc.
->>
->> Received IR messages generate event in the input queue.
->> IR messages are sent using an input IOCTL.
+On Sun, Nov 29, 2009 at 12:17 PM, Greg KH <greg@kroah.com> wrote:
+>> +static ssize_t ir_raw_show(struct device *dev,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct =
+device_attribute *attr, char *buf)
+>> +{
+>> + =A0 =A0 struct input_dev *input_dev =3D to_input_dev(dev);
+>> + =A0 =A0 unsigned int i, count =3D 0;
+>> +
+>> + =A0 =A0 for (i =3D input_dev->ir->raw.tail; i !=3D input_dev->ir->=
+raw.head; ) {
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 count +=3D snprintf(&buf[count], PAGE_SIZE=
+ - 1, "%i\n", input_dev->ir->raw.buffer[i++]);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (i > ARRAY_SIZE(input_dev->ir->raw.buff=
+er))
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i =3D 0;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (count >=3D PAGE_SIZE - 1) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_dev->ir->raw.tail =3D=
+ i;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PAGE_SIZE - 1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 }
+>> + =A0 =A0 }
+>> + =A0 =A0 input_dev->ir->raw.tail =3D i;
+>> + =A0 =A0 return count;
+>> +}
 >
-> As you are creating new sysfs files here, please document them in
-> Documentation/ABI/
+> This looks like it violates the "one value per sysfs file" rule that =
+we
+> have. =A0What exactly are you outputting here? =A0It does not look li=
+ke this
+> belongs in sysfs at all.
 
-This code is not going to get merged as is. It's just a starting point
-to get a discussion started about designing an IR subsystem. I expect
-the final design will look a lot different.
+It should be on a debug switch or maybe a debug device. If the rest of
+the system is working right you shouldn't need this data.
 
-I'm trying to demonstrate that IR is an input device and that it can
-be supported by the Linux input subsystem without the need to create a
-special IR device.
+>
+>> +static ssize_t ir_raw_store(struct device *dev,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct=
+ device_attribute *attr,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 const =
+char *buf,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 size_t=
+ count)
+>> +{
+>> + =A0 =A0 struct ir_device *ir =3D to_input_dev(dev)->ir;
+>> + =A0 =A0 long delta;
+>> + =A0 =A0 int i =3D count;
+>> + =A0 =A0 int first =3D 0;
+>> +
+>> + =A0 =A0 if (!ir->xmit)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 return count;
+>> + =A0 =A0 ir->send.count =3D 0;
+>> +
+>> + =A0 =A0 while (i > 0) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 i -=3D strict_strtoul(&buf[i], i, &delta);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 while ((buf[i] !=3D '\n') && (i > 0))
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i--;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 i--;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 /* skip leading zeros */
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if ((delta > 0) && !first)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> +
+>> + =A0 =A0 =A0 =A0 =A0 =A0 ir->send.buffer[ir->send.count++] =3D abs(=
+delta);
+>> + =A0 =A0 }
+>> +
+>> + =A0 =A0 ir->xmit(ir->private, ir->send.buffer, ir->send.count, ir-=
+>raw.carrier, ir->raw.xmitter);
+>> +
+>> + =A0 =A0 return count;
+>> +}
+>
+> What type of data are you expecting here? =A0More than one value?
+>
+> thanks,
+>
+> greg k-h
+>
 
--- 
+
+
+--=20
 Jon Smirl
 jonsmirl@gmail.com

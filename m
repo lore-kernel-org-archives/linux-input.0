@@ -1,101 +1,34 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [IR-RFC PATCH v4 2/6] Core IR module
-Date: Sun, 29 Nov 2009 12:41:22 -0500
-Message-ID: <9e4733910911290941o761a4dfhf4168e573c6b6e89@mail.gmail.com>
-References: <20091127013217.7671.32355.stgit@terra>
-	 <20091127013423.7671.36546.stgit@terra>
-	 <20091129171726.GB4993@kroah.com>
+From: Ray Lee <ray-lk@madrabbit.org>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Sun, 29 Nov 2009 09:49:51 -0800
+Message-ID: <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	<m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	<1259469121.3125.28.camel@palomino.walls.org> <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	<1259515703.3284.11.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20091129171726.GB4993@kroah.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f171.google.com ([209.85.223.171]:64192 "EHLO
+	mail-iw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751654AbZK2RuF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 12:50:05 -0500
+In-Reply-To: <1259515703.3284.11.camel@maxim-laptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andy Walls <awalls@radix.net>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Sun, Nov 29, 2009 at 12:17 PM, Greg KH <greg@kroah.com> wrote:
->> +static ssize_t ir_raw_show(struct device *dev,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct =
-device_attribute *attr, char *buf)
->> +{
->> + =A0 =A0 struct input_dev *input_dev =3D to_input_dev(dev);
->> + =A0 =A0 unsigned int i, count =3D 0;
->> +
->> + =A0 =A0 for (i =3D input_dev->ir->raw.tail; i !=3D input_dev->ir->=
-raw.head; ) {
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 count +=3D snprintf(&buf[count], PAGE_SIZE=
- - 1, "%i\n", input_dev->ir->raw.buffer[i++]);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (i > ARRAY_SIZE(input_dev->ir->raw.buff=
-er))
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i =3D 0;
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (count >=3D PAGE_SIZE - 1) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_dev->ir->raw.tail =3D=
- i;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return PAGE_SIZE - 1;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> + =A0 =A0 }
->> + =A0 =A0 input_dev->ir->raw.tail =3D i;
->> + =A0 =A0 return count;
->> +}
->
-> This looks like it violates the "one value per sysfs file" rule that =
-we
-> have. =A0What exactly are you outputting here? =A0It does not look li=
-ke this
-> belongs in sysfs at all.
+On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+> This has zero advantages besides good developer feeling that "My system
+> has one less daemon..."
 
-It should be on a debug switch or maybe a debug device. If the rest of
-the system is working right you shouldn't need this data.
+Surely it's clear that having an unnecessary daemon is introducing
+another point of failure? Reducing complexity is not just its own
+reward in a 'Developer Feel Good' way.
 
->
->> +static ssize_t ir_raw_store(struct device *dev,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 struct=
- device_attribute *attr,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 const =
-char *buf,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 size_t=
- count)
->> +{
->> + =A0 =A0 struct ir_device *ir =3D to_input_dev(dev)->ir;
->> + =A0 =A0 long delta;
->> + =A0 =A0 int i =3D count;
->> + =A0 =A0 int first =3D 0;
->> +
->> + =A0 =A0 if (!ir->xmit)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return count;
->> + =A0 =A0 ir->send.count =3D 0;
->> +
->> + =A0 =A0 while (i > 0) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 i -=3D strict_strtoul(&buf[i], i, &delta);
->> + =A0 =A0 =A0 =A0 =A0 =A0 while ((buf[i] !=3D '\n') && (i > 0))
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i--;
->> + =A0 =A0 =A0 =A0 =A0 =A0 i--;
->> + =A0 =A0 =A0 =A0 =A0 =A0 /* skip leading zeros */
->> + =A0 =A0 =A0 =A0 =A0 =A0 if ((delta > 0) && !first)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
->> +
->> + =A0 =A0 =A0 =A0 =A0 =A0 ir->send.buffer[ir->send.count++] =3D abs(=
-delta);
->> + =A0 =A0 }
->> +
->> + =A0 =A0 ir->xmit(ir->private, ir->send.buffer, ir->send.count, ir-=
->raw.carrier, ir->raw.xmitter);
->> +
->> + =A0 =A0 return count;
->> +}
->
-> What type of data are you expecting here? =A0More than one value?
->
-> thanks,
->
-> greg k-h
->
-
-
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
+If decoding can *only* be sanely handled in user-space, that's one
+thing. If it can be handled in kernel, then that would be better.

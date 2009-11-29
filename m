@@ -1,44 +1,57 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
-Date: Sun, 29 Nov 2009 23:58:44 +0100
-Message-ID: <87hbsd2b17.fsf@tac.ki.iif.hu>
-References: <Pine.LNX.4.44L0.0911291103070.3165-100000@netrider.rowland.org>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Sun, 29 Nov 2009 18:35:32 -0500
+Message-ID: <1259537732.5231.11.camel@palomino.walls.org>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	 <m3aay6y2m1.fsf@intrepid.localdomain>
+	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	 <1259469121.3125.28.camel@palomino.walls.org>
+	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	 <1259515703.3284.11.camel@maxim-laptop>
+	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:33607 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750956AbZK2W6z (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 17:58:55 -0500
-In-Reply-To: <Pine.LNX.4.44L0.0911291103070.3165-100000@netrider.rowland.org>
-	(Alan Stern's message of "Sun, 29 Nov 2009 11:04:57 -0500 (EST)")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752463AbZK2XhV@vger.kernel.org>
+In-Reply-To: <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Alan Stern <stern@rowland.harvard.edu> writes:
+On Sun, 2009-11-29 at 09:49 -0800, Ray Lee wrote:
+> On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+> > This has zero advantages besides good developer feeling that "My system
+> > has one less daemon..."
+> 
+> Surely it's clear that having an unnecessary daemon is introducing
+> another point of failure?
 
-> On Sun, 29 Nov 2009, Ferenc Wagner wrote:
->
->> I thought we'd better ask our friends over at linux-pm, if they've got
->> some interface for this task.  To summarize: an embedded application
->> wants to go into a "locked" state, where some input devices (gpio keys
->> in this case) are "muted", ie. they don't even generate interrupts to
->> minimize power consumption.  This could be solved by adding a new
->> interface to gpio-keys, but the problem seems more general, so I wonder
->> if something like the USB selective runtime suspend is already available
->> (or preferable to develop) for such tasks.
->
-> See Documentation/power/runtime_pm.txt.  I don't know to what extent 
-> the input layer has implemented any runtime PM.
+A failure in a userspace IR daemon is worst case loss of IR
+functionality.
 
-Hi Alan,
+A failure in kernel space can oops or panic the machine.
 
-Looks like it wasn't a bright idea from me to mention runtime suspend
-above.  We are looking from something else: some way to forcefully put a
-device to "sleep" even thogh it's open (used), because we don't want to
-receive input from it but want to save power instead.
--- 
+> Reducing complexity is not just its own
+> reward in a 'Developer Feel Good' way.
+
+No complexity is being reduced here.  It's being shoved from one side of
+a fence to another.  A bad part about the proposed move is that in user
+space, user address space is fairly isolated from other applications and
+separate from kernel space.  Partitioning reduces complexity and the
+impact of failures.  Moving things into kernel space just adds more to
+the pile of code; it should have a good reason for being there.
+
+
+> If decoding can *only* be sanely handled in user-space, that's one
+> thing. If it can be handled in kernel, then that would be better.
+
+Why does the address space in which decoding is performed make the
+decoding process better or worse?  The in kernel infrastructre and
+restrictions add constraints to a decoding implementation.  Userspace is
+much more flexible.
+
 Regards,
-Feri.
+Andy

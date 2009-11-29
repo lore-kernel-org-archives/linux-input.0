@@ -1,45 +1,75 @@
-From: Artur Skawina <art.08.09@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR system?
-Date: Sun, 29 Nov 2009 22:59:30 +0100
-Message-ID: <4B12EEC2.3030207@gmail.com>
-References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com> <200911291317.03612.mike@mtgambier.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: Sun, 29 Nov 2009 14:48:11 -0800
+Message-ID: <E50C6702-FDCB-4473-813D-53A87064BAF7@gmail.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc> <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com> <m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com> <1259450815.3137.19.camel@palomino.walls.org> <m3ocml6ppt.fsf@intrepid.localdomain> <9e4733910911291244p364b328fm3a76ded4e4cd8603@mail.gmail.com> <83224BA3-A5FF-4525-BF20-16A60F865C0A@gmail.com> <9e4733910911291347x4c4cac73h8c64223d0de563e4@mail.gmail.com>
+Mime-Version: 1.0 (iPhone Mail 7C144)
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed;
+	delsp=yes
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.155]:1849 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753025AbZK2V71 (ORCPT
+Received: from mail-px0-f173.google.com ([209.85.216.173]:39821 "EHLO
+	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752624AbZK2Wsb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 16:59:27 -0500
-In-Reply-To: <200911291317.03612.mike@mtgambier.net>
+	Sun, 29 Nov 2009 17:48:31 -0500
+In-Reply-To: <9e4733910911291347x4c4cac73h8c64223d0de563e4@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mike@mtgambier.net
-Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, "j@jannau.net" <j@jannau.net>, "jarod@redhat.com" <jarod@redhat.com>, "jarod@wilsonet.com" <jarod@wilsonet.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "maximlevitsky@gmail.com" <maximlevitsky@gmail.com>, "mchehab@redhat.com" <mchehab@redhat.com>, "stefanr@s5r6.in-berlin.de" <stefanr@s5r6.in-berlin.de>, "superm1@ubuntu.com" <superm1@ubuntu.com>
 
-Mike Lampard wrote:
-> an example I have a VDR instance running in the background on my desktop 
-> machine outputting to a TV in another room via a pci mpeg decoder - I 
-> certainly don't want the VDR remote control interacting with my X11 desktop in 
-> any way unless I go out of my way to set it up to do so, nor do I want it 
-> interacting with other applications (such as MPD piping music around the 
-> house) that are controlled via other remotes in other rooms unless specified.
-> 
-> Setting this up with Lircd was easy, how would a kernel-based proposal handle 
-> this?
+On Nov 29, 2009, at 1:47 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
 
-eg
+> On Sun, Nov 29, 2009 at 4:29 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Nov 29, 2009, at 12:44 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
+>>
+>>> On Sun, Nov 29, 2009 at 3:27 PM, Krzysztof Halasa <khc@pm.waw.pl>  
+>>> wrote:
+>>>>
+>>>> 1. Do we agree that a lirc (-style) kernel-user interface is  
+>>>> needed at
+>>>>  least?
+>>>>
+>>>> 2. Is there any problem with lirc kernel-user interface?
+>>>
+>>> Can you consider sending the raw IR data as a new evdev message type
+>>> instead of creating a new device protocol?
+>>
+>> No, I think it would be wrong. Such events are ill-suited for  
+>> consumption by
+>> regular applications and would introduce the "looping" interface I  
+>> described
+>> in my other email.
+>
+> Regular applications are going to ignore these messages. The only
+> consumer for them is the LIRC daemon. Which is just going to process
+> them and re-inject the events back into evdev again in a different
+> form.
+>
+> IR is an input device, what make it so special that it needs to by
+> pass this subsystem and implement its own private communications
+> scheme?
 
-EV="/dev/input/"$( cd "/sys/class/input" &&
-   ( grep -l 'X10' event*/device/name || grep -l 'X10' event*/device/manufacturer ) |
-   sed -e 's,/.*,,' )
+So are HID devices (both USB and BT), PS/2 and so on. You are not  
+arguing for sending unprocessed data from these devices through evdev.
 
-./vdr [...] -P "remote -i $EV"
+>
+>>> evdev protects the messages in a transaction to stop incomplete
+>>> messages from being read.
+>>
+>> If such property is desired we can add it to the new lirc-like  
+>> interface,
+>> can't we?
+>
+> Why do you want to redesign evdev instead of using it?
+>
 
-This is how it has worked for years, so there's no reason it wouldn't work w/ any
-future scheme. The remote buttons normally arrive as normal kbd keys; once an app
-grabs the input device corresponding to a remote, it receives the events exclusively.
+I just said why in my previous email: looping is a mark of badly  
+designed interface.
 
-artur
+-- 
+Dmitry

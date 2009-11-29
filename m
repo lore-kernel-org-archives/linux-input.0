@@ -1,63 +1,91 @@
-From: Ray Lee <ray-lk@madrabbit.org>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Sun, 29 Nov 2009 10:52:45 -0800
-Message-ID: <2c0942db0911291052n6e9dd116x943ee636bcf548b9@mail.gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Sun, 29 Nov 2009 19:00:59 +0000
+Message-ID: <20091129190059.02c2a0ff@lxorguk.ukuu.org.uk>
+References: <m3r5riy7py.fsf@intrepid.localdomain>
+	<BDkdITRHqgB@lirc>
 	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	<m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	<1259469121.3125.28.camel@palomino.walls.org> <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-	<1259515703.3284.11.camel@maxim-laptop> <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
-	<20091129181316.7850f33c@lxorguk.ukuu.org.uk>
+	<m3aay6y2m1.fsf@intrepid.localdomain>
+	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	<1259469121.3125.28.camel@palomino.walls.org>
+	<20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	<9e4733910911291019l27e5fea2x3db268311842b17@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f171.google.com ([209.85.223.171]:54511 "EHLO
-	mail-iw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751217AbZK2SxA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 13:53:00 -0500
-In-Reply-To: <20091129181316.7850f33c@lxorguk.ukuu.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <9e4733910911291019l27e5fea2x3db268311842b17@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andy Walls <awalls@radix.net>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Andy Walls <awalls@radix.net>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Sun, Nov 29, 2009 at 10:13 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> If decoding can *only* be sanely handled in user-space, that's one
->> thing. If it can be handled in kernel, then that would be better.
->
-> Why ?
->
-> I can compute fast fourier transforms in the kernel but that doesn't make
-> it better than doing it in user space.
+> Half of the drivers are in user space and there are two different
+> classes of kernel driver - LIRC and V4L.
 
-Of course not.
 
-> I can write web servers in the kernel and the same applies.
+> A lot of the hardware doesn't identify itself.
+> There are two types of IR data in use - pulse timing and decoded protocol.
+> 
+> IR is an input device. We have a nice evdev input subsystem and it has
+> been demonstrated that IR can work with it.
 
-I'm not so young as to not recall Tux. That was again a bad idea, for
-the same reason. It introduced unnecessary complexity. Enabling
-userspace to be able to service web requests faster improved all
-user-space code. Yay.
+Evdev allows userspace to feed events into the kernel.
 
-The question is which solution is more complex, the current one that
-requires userspace to be an active participant in the decoding, so
-that we can handle bare diodes hooked up to a sound-card, or having
-the kernel do decode for the sane devices and providing some fall-back
-for broken hardware. The former has the advantage of being flexible at
-the cost of increased fragility and surface area for security, and
-latency in responding to events, the latter has the problem of
-requiring two different decoding paths to be maintained, at least if
-you want to support odd-ball hardware.
+> Everybody keeps complaining that they want IR to "just work".
+> Consolidating all of this (under 50K of code)  driver support in the
+> kernel is the way to make it "just work".
 
-Jon is asking for an architecture discussion, y'know, with use cases.
-Maxim seems to be saying it's obvious that what we have today works
-fine. Except it doesn't appear that we have a consensus that
-everything is fine, nor an obvious winner for how to reduce the
-complexity here and keep the kernel in a happy, maintainable state for
-the long haul.
+We have things called "Libraries" that unlike kernel code run out of a
+secure context, can be paged and shared by applications dynamically.
 
-Who knows, perhaps I misunderstood the dozens of messages up-thread --
-wouldn't be the first time, in which case I'll shut up and let you get
-back to work.
+Also the data rate of IR controllers puts it into the realm where the
+kernel doesn't need to be involved, in fact you could turn them into
+evdev events via user space quite acceptably, or even into meaningful
+actions and onto dbus.
+
+> For example. Some IR devices only record pulse timing data. There are
+> various protocols - RC5, RC6, etc for turning these pulse timing into
+> a decode IR command. This is about 20K of code. Does it really make
+> sense to create a device, push this data out into user space, decode
+> it there, then inject the results back into the kernel (uinput) for
+> further processing by the input subsystem?
+
+Does it really make sense to put big chunks of protocol decoding crap for
+an interface which runs at about 1 character per second on a good day
+into the kernel ? Does it really make sense ot move 50K of code from user
+context to kernel context where it must meet strict security
+requirements, be extensively audited and cannot be paged. For embedded
+users will also have to be highly modular so no unused bits are loaded.
+
+> This decoding is getting done in user space because half of the IR
+> drivers are in user space. But the other half of them aren't in user
+> space and that set can't work in user space.  Most of the user space
+> drivers can be pushed into the kernel where they'll automatically load
+> when the device is detected.
+
+So you proposed to write another ton of new drivers in kernel space for
+these only devices supported by user space, portably and to test and
+submit them all. If you can't persuade the maintainera of all those
+drivers to do so you don't appear to have a credible proposal.
+
+> attaching an IR diode to the mic input of your sound card really a
+> device or is it a hack that should be dealt with in user space?
+
+It's a device. There is no divide between "hack" and "device", as anyone
+who ever worked on the Mac68K can assure you ;)
+
+> Another type is IR hardware that toggles the DTR output of a serial
+> port at 40Khz to make a signal. Same thing is done with parallel
+> ports. Those force the system into a bit-banging timing loop for
+> 1/10th second.
+
+We have people who run wireless like that, people who ran SCSI and IDE
+like that. In the embedded world its the norm. If you sell 100,000
+devices then saving that part, wiring and board space is often the right
+choice. That kind of stuff needs doing in user space not kernel.
+
+You stated the real problem at the start - devices don't identify
+themselves well. That doesn't seem to be a kernel problem other than for
+kernel drivers perhaps exposing more information on themselves via sysfs.

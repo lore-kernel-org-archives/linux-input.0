@@ -1,49 +1,79 @@
-From: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH v5 8/8] Loongson: YeeLoong: add hotkey driver
-Date: Sun, 29 Nov 2009 07:29:48 +0000
-Message-ID: <20091129072948.GA15146@linux-mips.org>
-References: <cover.1259414649.git.wuzhangjin@gmail.com>
- <739db9c7b5bab429d0df5a7c68f301aa12f1402d.1259414649.git.wuzhangjin@gmail.com>
- <20091129053527.GU6936@core.coreip.homeip.net>
- <1259473802.2577.6.camel@falcon.domain.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [IR-RFC PATCH v4 0/6] In-kernel IR support using evdev
+Date: Sat, 28 Nov 2009 23:34:34 -0800
+Message-ID: <20091129073434.GX6936@core.coreip.homeip.net>
+References: <20091127013217.7671.32355.stgit@terra> <4B0F43B3.4090804@wilsonet.com> <9e4733910911261958w2911f69dk4ab747b4bf12461@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mips-bounce@linux-mips.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1259473802.2577.6.camel@falcon.domain.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Wu Zhangjin <wuzhangjin@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-mips@linux-mips.org, zhangfx@lemote.com, yanh@lemote.com, huhb@lemote.com, linux-input@vger.kernel.org
+In-Reply-To: <9e4733910911261958w2911f69dk4ab747b4bf12461@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Nov 29, 2009 at 01:50:02PM +0800, Wu Zhangjin wrote:
-
-> On Sat, 2009-11-28 at 21:35 -0800, Dmitry Torokhov wrote:
-> > On Sat, Nov 28, 2009 at 09:44:41PM +0800, Wu Zhangjin wrote:
-> > >  
-> > > +config YEELOONG_HOTKEY
-> > > +	tristate "Hotkey Driver"
-> > > +	depends on YEELOONG_VO
-> > > +	select INPUT
-> > 
-> > I think this should be depend, not select. 
+On Thu, Nov 26, 2009 at 10:58:59PM -0500, Jon Smirl wrote:
+> >
+> >> Code is only lightly tested. Encoders and decoders have not been
+> >> written for all protocols. Repeat is not handled for any protocol. I'm
+> >> looking for help. There are 15 more existing LIRC drivers.
+> >
+> > And there's the hangup for me. The lirc drivers and interface have been
+> > pretty heavily battle-tested over years and years in the field. And there
+> > are those 15 more drivers that already work with the lirc interface. I'm
+> > woefully short on time to work on any porting myself, and about to get even
+> > shorter with some new responsibilities at work requiring even more of my
+> > attention.
+> >
+> > If we go with a hybrid approach, all those existing drivers can be brought
+> > in supporting just the lirc interface initially, and have in-kernel decode
+> > support added as folks have time to work on them, if it actually makes sense
+> > for those devices.
+> >
+> > Just trying to find a happy middle ground that minimizes regressions for
+> > users *and* gives us maximum flexibility.
 > 
-> Hmm, okay, will replace it by depend later ;)
+> You are going to have to choose. Recreate the problems of type
+> specific devices like /dev/mouse and /dev/kbd that evdev was created
+> to fix, or skip those type specific devices and go straight to evdev.
+> We've known for years the /dev/mouse was badly broken. How many more
+> years is it going to be before it can be removed? /dev/lirc has the
+> same type of problems that /dev/mouse has. The only reason that
+> /dev/lirc works now is because there is a single app that uses it.
 > 
-> > 
-> > > +	select INPUT_EVDEV
-> > > +	select SUSPEND
-> > 
-> > Does it break without SUSPEND?
+
+Pardon my ignorance here but it does not seem that /dev/lirc actually
+multiplexes data stream from different receivers but rather creates a
+device per receiver... Multiplexing is the main issue with /dev/mouse
+for me.
+
+What are the other issues with LIRC interface _for lircd-type applications_
+do we see? I see for example that it is not 32/64 bit clean so that is
+somethign that we may consider re-evaluating before just acceptig it
+into kernel. Is there anything else?
+
+> Also, implementing a new evdev based system in the kernel in no way
+> breaks existing lirc installations. Just don't load the new
+> implementation and everything works exactly the same way as before.
 > 
-> not break, but I just want to select something for users, so, they will
-> have no need to care about which extra option is needed.
+> I'd go the evdev only route for in-kernel and leave existing lirc out
+> of tree. Existing lirc will continue to work. This is probably the
+> most stable strategy, even more so than a hybrid approach. The
+> in-kernel implementation will then be free to evolve without the
+> constraint of legacy APIs. As people become happy with it they can
+> switch over.
+> 
 
-We use  select extensively on MIPS but select is dangerous and you stepped
-into its trap.  When SUSPEND is enabled by a user in
-kernel/power/Kconfig it can only be choosen if PM is enabled.  By
-"select SUSPEND" this dependency so now it is possible to have a kernel
-where SUSPEND is enabled without PM which won't work.
+If by evdev-based system you mean adding EV_IR event to the input core I
+think it would be a mistake. Such data (EV_IR/IR_XXX) will have to be read
+from an event device, processed (probably in userspace) and re-injected
+back through uinput as (EV_KEY/KEY_XXX) for consumption again. Such
+looping interface would be a mistake IMHO.
 
-  Ralf
+Still, the end result of the transformation should be EV_KEY/KEY_XXX
+delivered on one of the event devices (preferrably one per remote, not
+one per receiver), I believe everyone agrees on that.
+
+-- 
+Dmitry

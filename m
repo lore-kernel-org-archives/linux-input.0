@@ -1,49 +1,40 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Sun, 29 Nov 2009 19:04:35 +0000
-Message-ID: <20091129190435.6500ac84@lxorguk.ukuu.org.uk>
-References: <m3r5riy7py.fsf@intrepid.localdomain>
-	<BDkdITRHqgB@lirc>
-	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	<m3aay6y2m1.fsf@intrepid.localdomain>
-	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	<1259469121.3125.28.camel@palomino.walls.org>
-	<20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-	<1259515703.3284.11.camel@maxim-laptop>
-	<2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
-	<20091129181316.7850f33c@lxorguk.ukuu.org.uk>
-	<2c0942db0911291052n6e9dd116x943ee636bcf548b9@mail.gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [IR-RFC PATCH v4 2/6] Core IR module
+Date: Sun, 29 Nov 2009 11:09:30 -0800
+Message-ID: <20091129190930.GA6171@kroah.com>
+References: <20091127013217.7671.32355.stgit@terra> <20091127013423.7671.36546.stgit@terra> <20091129171437.GA4993@kroah.com> <9e4733910911290937v7795da49q613c172b2cc9d13c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:44543 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752743AbZK2TC7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 14:02:59 -0500
-In-Reply-To: <2c0942db0911291052n6e9dd116x943ee636bcf548b9@mail.gmail.com>
+Received: from kroah.org ([198.145.64.141]:56930 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752491AbZK2TLn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 14:11:43 -0500
+Content-Disposition: inline
+In-Reply-To: <9e4733910911290937v7795da49q613c172b2cc9d13c@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Andy Walls <awalls@radix.net>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: linux-media@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-> Jon is asking for an architecture discussion, y'know, with use cases.
-> Maxim seems to be saying it's obvious that what we have today works
-> fine. Except it doesn't appear that we have a consensus that
-> everything is fine, nor an obvious winner for how to reduce the
-> complexity here and keep the kernel in a happy, maintainable state for
-> the long haul.
+On Sun, Nov 29, 2009 at 12:37:36PM -0500, Jon Smirl wrote:
+> On Sun, Nov 29, 2009 at 12:14 PM, Greg KH <greg@kroah.com> wrote:
+> > On Thu, Nov 26, 2009 at 08:34:23PM -0500, Jon Smirl wrote:
+> >> Changes to core input subsystem to allow send and receive of IR messages. Encode and decode state machines are provided for common IR porotocols such as Sony, JVC, NEC, Philips, etc.
+> >>
+> >> Received IR messages generate event in the input queue.
+> >> IR messages are sent using an input IOCTL.
+> >
+> > As you are creating new sysfs files here, please document them in
+> > Documentation/ABI/
+> 
+> This code is not going to get merged as is. It's just a starting point
+> to get a discussion started about designing an IR subsystem. I expect
+> the final design will look a lot different.
 
-The important point is that this is not an A or B discussion. There are
-lots of ways to tackle it that are neither. If you look at things like
-complex video format handling it is done in user space but with an
-infrastructure to handle it.
+Then show the design by adding the documentation for new sysfs files, to
+make it easier to understand by everyone please.
 
-I don't believe putting it in the kernel is the alternative to the
-current setup. Cleaning up the way what we have today is presented to
-applications is perfectly possible without a whole new pile of kernel
-crap, because evdev was designed sensibly in the first place to allow
-userspace added events.
+thanks,
 
+greg k-h

@@ -1,46 +1,97 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: usbtouchscreen - add support for ET&T TC5UH
-	touchscreen controller
-Date: Sat, 28 Nov 2009 21:30:21 -0800
-Message-ID: <20091129053020.GT6936@core.coreip.homeip.net>
-References: <1259405677-9416-1-git-send-email-ynezz@true.cz>
+From: Mike Lampard <mike@mtgambier.net>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR system?
+Date: Sun, 29 Nov 2009 16:01:53 +1030
+Message-ID: <200911291601.53368.mike@mtgambier.net>
+References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com> <200911291317.03612.mike@mtgambier.net> <20091129045549.GQ6936@core.coreip.homeip.net>
+Reply-To: mike@mtgambier.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f188.google.com ([209.85.210.188]:52745 "EHLO
-	mail-yx0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751083AbZK2FaU (ORCPT
+Received: from outbound-mail03.westnet.com.au ([203.10.1.244]:15863 "EHLO
+	outbound-mail03.westnet.com.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751525AbZK2FcZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 00:30:20 -0500
-Received: by yxe26 with SMTP id 26so2243570yxe.4
-        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2009 21:30:26 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1259405677-9416-1-git-send-email-ynezz@true.cz>
+	Sun, 29 Nov 2009 00:32:25 -0500
+In-Reply-To: <20091129045549.GQ6936@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@novell.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Hi Petr,
+On Sun, 29 Nov 2009 03:25:49 pm Dmitry Torokhov wrote:
+> On Sun, Nov 29, 2009 at 01:17:03PM +1030, Mike Lampard wrote:
+> > On Sat, 28 Nov 2009 02:27:59 am Jon Smirl wrote:
+> > > On Fri, Nov 27, 2009 at 2:45 AM, Christoph Bartelmus
+> > >
+> > > <christoph@bartelmus.de> wrote:
+> > > > Hi Mauro,
+> > > >
+> > > > on 26 Nov 09 at 14:25, Mauro Carvalho Chehab wrote:
+> > > >> Christoph Bartelmus wrote:
+> > > >
+> > > > [...]
+> > > >
+> > > >>> But I'm still a bit hesitant about the in-kernel decoding. Maybe
+> > > >>> it's just because I'm not familiar at all with input layer toolset.
+> > > >
+> > > > [...]
+> > > >
+> > > >> I hope it helps for you to better understand how this works.
+> > > >
+> > > > So the plan is to have two ways of using IR in the future which are
+> > > > incompatible to each other, the feature-set of one being a subset of
+> > > > the other?
+> > >
+> > > Take advantage of the fact that we don't have a twenty year old legacy
+> > > API already in the kernel. Design an IR API that uses current kernel
+> > > systems. Christoph, ignore the code I wrote and make a design proposal
+> > > that addresses these goals...
+> > >
+> > > 1) Unified input in Linux using evdev. IR is on equal footing with
+> > > mouse and keyboard.
+> >
+> > I think this a case where automating setup can be over-emphasised (in the
+> > remote-as-keyboard case).
+> >
+> > Apologies in advance if I've misunderstood the idea of utilising the
+> > 'input subsystem' for IR.  If the plan is to offer dedicated IR events
+> > via a yet-to- be-announced input event subsystem and to optionally
+> > disallow acting as a keyboard via a module option or similar then please
+> > ignore the following.
+> >
+> > Whilst having remotes come through the input subsystem might be 'the
+> > correct thing' from a purely technical standpoint, as an end-user I find
+> > the use-case for remotes completely different in one key aspect: 
+> > Keyboards and mice are generally foreground-app input devices, whereas
+> > remotes are often controlling daemons sitting in the background piping
+> > media through dedicated devices.  As an example I have a VDR instance
+> > running in the background on my desktop machine outputting to a TV in
+> > another room via a pci mpeg decoder - I certainly don't want the VDR
+> > remote control interacting with my X11 desktop in any way unless I go out
+> > of my way to set it up to do so, nor do I want it interacting with other
+> > applications (such as MPD piping music around the house) that are
+> > controlled via other remotes in other rooms unless specified.
+> >
+> > Setting this up with Lircd was easy, how would a kernel-based proposal
+> > handle this?
+> 
+> Why would that be different really? On my keyboard there is a key for
+> e-mail application (and many others) - what HID calls Application Launch
+> keys IIRC. There also application control keys and system control keys,
+> KEY_COFFEE aka KEY_SCREENLOCK. Those are not to be consumed by
+> foreground application but by daemons/session-wide application.
+> 
+In my real-world examples above, both VDR and MPD are started at system start 
+and are not associated with any user-initiated sessions (X login etc) - they 
+are not X11 clients.  Their only input is via Lircd.  Conversely todays 
+Xserver (if I read my logfiles correctly) consumes all input event devices by 
+default, turning them into keypresses for its client apps.  This is exactly 
+the wrong behaviour for my use-case.  In order to ensure that my daemons 
+receive their input I must first ensure that X doesn't receive those events - 
+assuming this is possible it still complicates matters further than they are 
+today (I'd need a simple way of automatically differentiating between remote 
+devices and keyboard devices) .
 
-On Sat, Nov 28, 2009 at 11:54:37AM +0100, Petr =C5=A0tetiar wrote:
-> This patch adds support for the ET&T TC5UH 5-wire USB touchscreen con=
-troller.
-> More info at http://www.etandt.com.tw/board_solution.html
-
-Hmm, this looks like Panjit protocol, just report size is different, 5
-vs. 8...
-
-The link abouve mentions HID compliance? Does it not wok properly with
-HID driver? Do we need to blacklist it in HID?
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Mike

@@ -1,56 +1,91 @@
-From: lirc@bartelmus.de (Christoph Bartelmus)
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 29 Nov 2009 13:01:00 +0100
-Message-ID: <BDodiKlXqgB@lirc>
-References: <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
+Date: Sun, 29 Nov 2009 13:26:17 +0100
+Message-ID: <87skbx34ba.fsf@tac.ki.iif.hu>
+References: <87y6lxchwf.fsf@tac.ki.iif.hu>
+	<20091123172451.GD17813@core.coreip.homeip.net>
+	<87tywlcbyr.fsf@tac.ki.iif.hu>
+	<20091124063711.GL17675@esdhcp04058.research.nokia.com>
+	<87my2cp4h6.fsf@tac.ki.iif.hu>
+	<20091124170249.GQ17675@esdhcp04058.research.nokia.com>
+	<87k4xfojhb.fsf@tac.ki.iif.hu>
+	<20091126063506.GM23244@core.coreip.homeip.net>
+	<20091127105408.GV17675@esdhcp04058.research.nokia.com>
+	<87tywe4zf3.fsf@tac.ki.iif.hu>
+	<20091128132742.GC27249@gw.healthdatacare.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.8]:64694 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752102AbZK2MHB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 07:07:01 -0500
-In-Reply-To: <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com>
+Received: from tac.ki.iif.hu ([193.6.222.43]:60277 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754113AbZK2M0Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 07:26:16 -0500
+In-Reply-To: <20091128132742.GC27249@gw.healthdatacare.com> (Mika Westerberg's
+	message of "Sat, 28 Nov 2009 15:27:42 +0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jonsmirl@gmail.com
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc@bartelmus.de, mchehab@redhat.com, superm1@ubuntu.com
+To: linux-pm@lists.linux-foundation.org
+Cc: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mika Westerberg <mika.westerberg@iki.fi>
 
-Hi Jon,
+Mika Westerberg <mika.westerberg@iki.fi> writes:
 
-on 27 Nov 09 at 12:49, Jon Smirl wrote:
-[...]
-> Christoph, take what you know from all of the years of working on LIRC
-> and design the perfect in-kernel system. This is the big chance to
-> redesign IR support and get rid of any past mistakes. Incorporate any
-> useful chunks of code and knowledge from the existing LIRC into the
-> new design. Drop legacy APIs, get rid of daemons, etc. You can do this
-> redesign in parallel with existing LIRC. Everyone can continue using
-> the existing code while the new scheme is being built. Think of it as
-> LIRC 2.0. You can lead this design effort, you're the most experience
-> developer in the IR area.
+> On Sat, Nov 28, 2009 at 01:16:48PM +0100, Ferenc Wagner wrote:
+>
+>> Mika Westerberg <ext-mika.1.westerberg@nokia.com> writes:
+>> 
+>>> How about if we just add one field to struct gpio_keys_button?
+>>> 	...
+>>> 	bool can_disable;
+>>>
+>>> Then gpio_keys uses this field when it decides what irqflags it
+>>> is going to pass to request_irq() (we don't allow platform data
+>>> to pass exact flags). So in case of can_disable is set, we don't
+>>> pass IRQF_SHARED to request_irq().
+>>>
+>>> When support for sharing single IRQ between multiple buttons arrives
+>>> this field is still valid and we just need to take care of disable IRQ
+>>> line only when all buttons that share it, are disabled.
+>>>
+>>> This won't break existing users of gpio_keys and allows future
+>>> extension to support case of multiple buttons sharing single
+>>> IRQ line, right?
+>> 
+>> Please don't shoot me, but I've got a different idea: what if we leave
+>> this whole business to the generic kernel interrupt handling routines?
+>> It would be as easy as requesting the IRQ on device open (I guess the
+>> input layer can relay the open event down here) and freeing it on close.
+>> The IRQ could stat shared all the time, and the kernel would
+>> automatically disable it when all handlers are unregistered.  All this
+>> means no need to extend the platform data, no need for a separate sysfs
+>> interface, and still the application would have complete control of its
+>> wakeup sources by opening/closing them as needed.  What do you think?
+>
+> Yeah, that would be nice. But it won't work for us :(
+>
+> This is because the actual input device might be open for several
+> applications. Then we have single process which controls state of
+> the device. Now if, for example the device is locked by user, this
+> process just disables those buttons which are not allowed to wake
+> up the device and blanks the screen.
+>
+> So the input device is still open but we just prevent GPIO lines
+> from generating any interrupts while the device is locked. There
+> are other use-cases also where different buttons are
+> disabled/enabled.
 
-This is a very difficult thing for me to do. I must admit that I'm very  
-biased.
-Because lircd is the only userspace application that uses the LIRC kernel  
-interface, we never had any problems changing the interface when needed.
-I can't say there's much legacy stuff inside. I'm quite happy with the  
-interface.
-The other thing is that I can't really move the decoder from userspace to  
-kernel because there are way too many userspace drivers that do require a  
-userspace decoder. LIRC also is running on FreeBSD, MacOS and even Cygwin.  
-So letting the userspace drivers take advantage of a potential Linux in- 
-kernel decoder is not an option for me either.
-I'm having my 'LIRC maintainer' hat on mostly during this discussion and I  
-do understand that from Linux kernel perspective things look different.
+Hi,
 
-> Take advantage of this window to make a
-> design that is fully integrated with Linux - put IR on equal footing
-> with the keyboard and mouse as it should be.
+I thought we'd better ask our friends over at linux-pm, if they've got
+some interface for this task.  To summarize: an embedded application
+wants to go into a "locked" state, where some input devices (gpio keys
+in this case) are "muted", ie. they don't even generate interrupts to
+minimize power consumption.  This could be solved by adding a new
+interface to gpio-keys, but the problem seems more general, so I wonder
+if something like the USB selective runtime suspend is already available
+(or preferable to develop) for such tasks.
 
-That's a question that I have not answered for myself concludingly.
-Is a remote control really on exactly the same level as a keyboard or  
-mouse?
-
-Christoph
+(I hope I got the summary right; Mika will provide the missing bits if I
+didn't.) 
+-- 
+Thanks,
+Feri.

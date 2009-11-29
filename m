@@ -1,75 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: Sun, 29 Nov 2009 14:48:11 -0800
-Message-ID: <E50C6702-FDCB-4473-813D-53A87064BAF7@gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc> <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com> <m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com> <1259450815.3137.19.camel@palomino.walls.org> <m3ocml6ppt.fsf@intrepid.localdomain> <9e4733910911291244p364b328fm3a76ded4e4cd8603@mail.gmail.com> <83224BA3-A5FF-4525-BF20-16A60F865C0A@gmail.com> <9e4733910911291347x4c4cac73h8c64223d0de563e4@mail.gmail.com>
-Mime-Version: 1.0 (iPhone Mail 7C144)
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Content-Transfer-Encoding: 7bit
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
+Date: Sun, 29 Nov 2009 23:58:44 +0100
+Message-ID: <87hbsd2b17.fsf@tac.ki.iif.hu>
+References: <Pine.LNX.4.44L0.0911291103070.3165-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f173.google.com ([209.85.216.173]:39821 "EHLO
-	mail-px0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752624AbZK2Wsb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 29 Nov 2009 17:48:31 -0500
-In-Reply-To: <9e4733910911291347x4c4cac73h8c64223d0de563e4@mail.gmail.com>
+Received: from tac.ki.iif.hu ([193.6.222.43]:33607 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750956AbZK2W6z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 17:58:55 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0911291103070.3165-100000@netrider.rowland.org>
+	(Alan Stern's message of "Sun, 29 Nov 2009 11:04:57 -0500 (EST)")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Andy Walls <awalls@radix.net>, Christoph Bartelmus <lirc@bartelmus.de>, "j@jannau.net" <j@jannau.net>, "jarod@redhat.com" <jarod@redhat.com>, "jarod@wilsonet.com" <jarod@wilsonet.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "maximlevitsky@gmail.com" <maximlevitsky@gmail.com>, "mchehab@redhat.com" <mchehab@redhat.com>, "stefanr@s5r6.in-berlin.de" <stefanr@s5r6.in-berlin.de>, "superm1@ubuntu.com" <superm1@ubuntu.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, ext Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Nov 29, 2009, at 1:47 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
+Alan Stern <stern@rowland.harvard.edu> writes:
 
-> On Sun, Nov 29, 2009 at 4:29 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Nov 29, 2009, at 12:44 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
->>
->>> On Sun, Nov 29, 2009 at 3:27 PM, Krzysztof Halasa <khc@pm.waw.pl>  
->>> wrote:
->>>>
->>>> 1. Do we agree that a lirc (-style) kernel-user interface is  
->>>> needed at
->>>>  least?
->>>>
->>>> 2. Is there any problem with lirc kernel-user interface?
->>>
->>> Can you consider sending the raw IR data as a new evdev message type
->>> instead of creating a new device protocol?
->>
->> No, I think it would be wrong. Such events are ill-suited for  
->> consumption by
->> regular applications and would introduce the "looping" interface I  
->> described
->> in my other email.
+> On Sun, 29 Nov 2009, Ferenc Wagner wrote:
 >
-> Regular applications are going to ignore these messages. The only
-> consumer for them is the LIRC daemon. Which is just going to process
-> them and re-inject the events back into evdev again in a different
-> form.
+>> I thought we'd better ask our friends over at linux-pm, if they've got
+>> some interface for this task.  To summarize: an embedded application
+>> wants to go into a "locked" state, where some input devices (gpio keys
+>> in this case) are "muted", ie. they don't even generate interrupts to
+>> minimize power consumption.  This could be solved by adding a new
+>> interface to gpio-keys, but the problem seems more general, so I wonder
+>> if something like the USB selective runtime suspend is already available
+>> (or preferable to develop) for such tasks.
 >
-> IR is an input device, what make it so special that it needs to by
-> pass this subsystem and implement its own private communications
-> scheme?
+> See Documentation/power/runtime_pm.txt.  I don't know to what extent 
+> the input layer has implemented any runtime PM.
 
-So are HID devices (both USB and BT), PS/2 and so on. You are not  
-arguing for sending unprocessed data from these devices through evdev.
+Hi Alan,
 
->
->>> evdev protects the messages in a transaction to stop incomplete
->>> messages from being read.
->>
->> If such property is desired we can add it to the new lirc-like  
->> interface,
->> can't we?
->
-> Why do you want to redesign evdev instead of using it?
->
-
-I just said why in my previous email: looping is a mark of badly  
-designed interface.
-
+Looks like it wasn't a bright idea from me to mention runtime suspend
+above.  We are looking from something else: some way to forcefully put a
+device to "sleep" even thogh it's open (used), because we don't want to
+receive input from it but want to save power instead.
 -- 
-Dmitry
+Regards,
+Feri.

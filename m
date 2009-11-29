@@ -1,34 +1,38 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Sun, 29 Nov 2009 12:40:11 +0000
-Message-ID: <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-References: <m3r5riy7py.fsf@intrepid.localdomain>
-	<BDkdITRHqgB@lirc>
-	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	<m3aay6y2m1.fsf@intrepid.localdomain>
-	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	<1259469121.3125.28.camel@palomino.walls.org>
+ IR 	system?
+Date: Sun, 29 Nov 2009 14:01:41 -0200
+Message-ID: <4B129AE5.2020004@redhat.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <4B116954.5050706@s5r6.in-berlin.de>	 <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com>	 <4B117DEA.3030400@s5r6.in-berlin.de>	 <9e4733910911281208t23c938a2l7537e248e1eda4ae@mail.gmail.com>	 <4B11881B.7000204@s5r6.in-berlin.de>	 <9e4733910911281246r65670e1free76e98ff4a23822@mail.gmail.com>	 <4B119A36.8020903@s5r6.in-berlin.de>	 <9e4733910911281410i75bf19b7xa4dfd6ad1dc1b748@mail.gmail.com> <9e4733910911281418s702489e5t418eab5623c2af98@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1259469121.3125.28.camel@palomino.walls.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752186AbZK2QCN@vger.kernel.org>
+In-Reply-To: <9e4733910911281418s702489e5t418eab5623c2af98@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-> BTW, circa 1995 my serial mouse "Just Worked" in Linux.  Sometime around
+Jon Smirl wrote:
+> I'm looking at a Sony multi-function remote right now. It has five
+> devices and forty keys. Each of the five devices can transmit 0-9,
+> power, volume, etc. It transmits 5*40 = 200 unique scancodes.
+> 
+> I want the five devices to correspond to five apps. What's the plan
+> for splitting those 200 scancodes into the five apps?
+> 
+> I did it by creating five evdev devices each mapping 40 scancodes.
+> That's lets me reuse KP_1 for each of the five apps.
+> 
+> 
 
-Correct X11 just talked to the serial ports. In fact that is still the
-way to configure it if you want any sanity in life.
+In this case, the evdev interface won't solve the issue alone. Some sort
+of userspace tool will need to identify what application is expecting that
+code and redirect it to that application.
 
-> and serial connected IRs.  It's also too convenient to access USB IR
-> hardware from existing userspace drivers to bother porting into the
-> kernel.
+IMO, the biggest LIRC benefit over a pure evdev interface, from user's perspective,
+is that it can redirect a keycode to a specific application.
 
-Userspace needs a way to identify IR hardware and to interface with it
-using the right protocol. It's not clear the kernel needs to provide
-anything more than minimal hardware interfaces in most case - be that
-serial, libusb, ...
+Yet, I don't see why your configfs proposal will solve this issue, as userspace
+will keep receiving duplicated KET_

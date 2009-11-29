@@ -1,39 +1,56 @@
 From: lirc@bartelmus.de (Christoph Bartelmus)
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR 	system?
-Date: 29 Nov 2009 12:07:00 +0100
-Message-ID: <BDodZBYXqgB@lirc>
-References: <m3einiy389.fsf@intrepid.localdomain>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: 29 Nov 2009 13:01:00 +0100
+Message-ID: <BDodiKlXqgB@lirc>
+References: <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754377AbZK2MH0@vger.kernel.org>
-In-Reply-To: <m3einiy389.fsf@intrepid.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khc@pm.waw.pl
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from moutng.kundenserver.de ([212.227.17.8]:64694 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752102AbZK2MHB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 07:07:01 -0500
+In-Reply-To: <9e4733910911270949s3e8b5ba9qfe5025d490ad0cfa@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jonsmirl@gmail.com
+Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc@bartelmus.de, mchehab@redhat.com, superm1@ubuntu.com
 
-Hi Krzysztof,
+Hi Jon,
 
-on 28 Nov 09 at 18:21, Krzysztof Halasa wrote:
+on 27 Nov 09 at 12:49, Jon Smirl wrote:
 [...]
->> This remote uses RC-5. But some of the developers must have thought that
->> it may be a smart idea to use 14 bits instead the standard 13 bits for
->> this remote. In LIRC you won't care, because this is configurable and
->> irrecord will figure it out automatically for you. In the proposed kernel
->> decoders I have seen until now, you will have to treat this case specially
->> in the decoder because you expect 13 bits for RC-5, not 14.
+> Christoph, take what you know from all of the years of working on LIRC
+> and design the perfect in-kernel system. This is the big chance to
+> redesign IR support and get rid of any past mistakes. Incorporate any
+> useful chunks of code and knowledge from the existing LIRC into the
+> new design. Drop legacy APIs, get rid of daemons, etc. You can do this
+> redesign in parallel with existing LIRC. Everyone can continue using
+> the existing code while the new scheme is being built. Think of it as
+> LIRC 2.0. You can lead this design effort, you're the most experience
+> developer in the IR area.
 
-> Well, the 14-bit RC5 is de-facto standard for some time now. One of the
-> start bits, inverted, now functions as the MSB of the command code.
-> 13-bit receiver implementations (at least these aimed at "foreign"
-> remotes) are obsolete.
+This is a very difficult thing for me to do. I must admit that I'm very  
+biased.
+Because lircd is the only userspace application that uses the LIRC kernel  
+interface, we never had any problems changing the interface when needed.
+I can't say there's much legacy stuff inside. I'm quite happy with the  
+interface.
+The other thing is that I can't really move the decoder from userspace to  
+kernel because there are way too many userspace drivers that do require a  
+userspace decoder. LIRC also is running on FreeBSD, MacOS and even Cygwin.  
+So letting the userspace drivers take advantage of a potential Linux in- 
+kernel decoder is not an option for me either.
+I'm having my 'LIRC maintainer' hat on mostly during this discussion and I  
+do understand that from Linux kernel perspective things look different.
 
-Ah, sorry. I didn't mean the extension of the command code by inverting  
-one of the start bits.
+> Take advantage of this window to make a
+> design that is fully integrated with Linux - put IR on equal footing
+> with the keyboard and mouse as it should be.
 
-The Streamzap really uses one more bit.
-In the LIRC world the RC5 start bit which is fixed to "1" is not counted  
-as individual bit. So translated to your notation, the Streamzap uses 15  
-bits, not 14 like the extended RC-5 or 13 like the original RC-5...
+That's a question that I have not answered for myself concludingly.
+Is a remote control really on exactly the same level as a keyboard or  
+mouse?
 
 Christoph

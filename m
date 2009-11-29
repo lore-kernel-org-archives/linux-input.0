@@ -1,32 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR system?
-Date: Sat, 28 Nov 2009 20:59:25 -0800
-Message-ID: <20091129045925.GS6936@core.coreip.homeip.net>
-References: <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com> <4B116954.5050706@s5r6.in-berlin.de> <9e4733910911281058i1b28f33bh64c724a89dcb8cf5@mail.gmail.com> <4B117DEA.3030400@s5r6.in-berlin.de> <9e4733910911281208t23c938a2l7537e248e1eda4ae@mail.gmail.com> <4B11881B.7000204@s5r6.in-berlin.de> <9e4733910911281246r65670e1free76e98ff4a23822@mail.gmail.com> <4B119A36.8020903@s5r6.in-berlin.de> <9e4733910911281410i75bf19b7xa4dfd6ad1dc1b748@mail.gmail.com> <9e4733910911281418s702489e5t418eab5623c2af98@mail.gmail.com>
+Subject: Re: [PATCH] Input: usbtouchscreen - add support for ET&T TC5UH
+	touchscreen controller
+Date: Sat, 28 Nov 2009 21:30:21 -0800
+Message-ID: <20091129053020.GT6936@core.coreip.homeip.net>
+References: <1259405677-9416-1-git-send-email-ynezz@true.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f188.google.com ([209.85.210.188]:52745 "EHLO
+	mail-yx0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751083AbZK2FaU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 00:30:20 -0500
+Received: by yxe26 with SMTP id 26so2243570yxe.4
+        for <linux-input@vger.kernel.org>; Sat, 28 Nov 2009 21:30:26 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <9e4733910911281418s702489e5t418eab5623c2af98@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, Christoph Bartelmus <lirc@bartelmus.de>, khc@pm.waw.pl, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, superm1@ubuntu.com
+In-Reply-To: <1259405677-9416-1-git-send-email-ynezz@true.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@novell.com>
 
-On Sat, Nov 28, 2009 at 05:18:34PM -0500, Jon Smirl wrote:
-> I'm looking at a Sony multi-function remote right now. It has five
-> devices and forty keys. Each of the five devices can transmit 0-9,
-> power, volume, etc. It transmits 5*40 = 200 unique scancodes.
-> 
-> I want the five devices to correspond to five apps. What's the plan
-> for splitting those 200 scancodes into the five apps?
-> 
-> I did it by creating five evdev devices each mapping 40 scancodes.
-> That's lets me reuse KP_1 for each of the five apps.
-> 
+Hi Petr,
 
-KEY_NUMERIC_1 please (which should not be affected by numlock state).
+On Sat, Nov 28, 2009 at 11:54:37AM +0100, Petr =C5=A0tetiar wrote:
+> This patch adds support for the ET&T TC5UH 5-wire USB touchscreen con=
+troller.
+> More info at http://www.etandt.com.tw/board_solution.html
 
--- 
+Hmm, this looks like Panjit protocol, just report size is different, 5
+vs. 8...
+
+The link abouve mentions HID compliance? Does it not wok properly with
+HID driver? Do we need to blacklist it in HID?
+
+Thanks.
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

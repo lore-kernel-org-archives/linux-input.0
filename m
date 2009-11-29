@@ -1,81 +1,63 @@
-From: Jon Smirl <jonsmirl@gmail.com>
+From: Ray Lee <ray-lk@madrabbit.org>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
 	system?
-Date: Sun, 29 Nov 2009 13:19:10 -0500
-Message-ID: <9e4733910911291019l27e5fea2x3db268311842b17@mail.gmail.com>
+Date: Sun, 29 Nov 2009 10:52:45 -0800
+Message-ID: <2c0942db0911291052n6e9dd116x943ee636bcf548b9@mail.gmail.com>
 References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
-	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	 <m3aay6y2m1.fsf@intrepid.localdomain>
-	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	 <1259469121.3125.28.camel@palomino.walls.org>
-	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	<m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	<1259469121.3125.28.camel@palomino.walls.org> <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	<1259515703.3284.11.camel@maxim-laptop> <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
+	<20091129181316.7850f33c@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-Sender: linux-media-owner@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andy Walls <awalls@radix.net>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f171.google.com ([209.85.223.171]:54511 "EHLO
+	mail-iw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751217AbZK2SxA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 13:53:00 -0500
+In-Reply-To: <20091129181316.7850f33c@lxorguk.ukuu.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Andy Walls <awalls@radix.net>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Sun, Nov 29, 2009 at 7:40 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wr=
-ote:
->> BTW, circa 1995 my serial mouse "Just Worked" in Linux. =A0Sometime =
-around
+On Sun, Nov 29, 2009 at 10:13 AM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> If decoding can *only* be sanely handled in user-space, that's one
+>> thing. If it can be handled in kernel, then that would be better.
 >
-> Correct X11 just talked to the serial ports. In fact that is still th=
-e
-> way to configure it if you want any sanity in life.
+> Why ?
 >
->> and serial connected IRs. =A0It's also too convenient to access USB =
-IR
->> hardware from existing userspace drivers to bother porting into the
->> kernel.
->
-> Userspace needs a way to identify IR hardware and to interface with i=
-t
-> using the right protocol. It's not clear the kernel needs to provide
-> anything more than minimal hardware interfaces in most case - be that
-> serial, libusb, ...
+> I can compute fast fourier transforms in the kernel but that doesn't make
+> it better than doing it in user space.
 
-That's a description of the current system and it is driver chaos.
+Of course not.
 
-Half of the drivers are in user space and there are two different
-classes of kernel driver - LIRC and V4L.
-A lot of the hardware doesn't identify itself.
-There are two types of IR data in use - pulse timing and decoded protoc=
-ol.
+> I can write web servers in the kernel and the same applies.
 
-IR is an input device. We have a nice evdev input subsystem and it has
-been demonstrated that IR can work with it.
+I'm not so young as to not recall Tux. That was again a bad idea, for
+the same reason. It introduced unnecessary complexity. Enabling
+userspace to be able to service web requests faster improved all
+user-space code. Yay.
 
-Everybody keeps complaining that they want IR to "just work".
-Consolidating all of this (under 50K of code)  driver support in the
-kernel is the way to make it "just work".
+The question is which solution is more complex, the current one that
+requires userspace to be an active participant in the decoding, so
+that we can handle bare diodes hooked up to a sound-card, or having
+the kernel do decode for the sane devices and providing some fall-back
+for broken hardware. The former has the advantage of being flexible at
+the cost of increased fragility and surface area for security, and
+latency in responding to events, the latter has the problem of
+requiring two different decoding paths to be maintained, at least if
+you want to support odd-ball hardware.
 
-=46or example. Some IR devices only record pulse timing data. There are
-various protocols - RC5, RC6, etc for turning these pulse timing into
-a decode IR command. This is about 20K of code. Does it really make
-sense to create a device, push this data out into user space, decode
-it there, then inject the results back into the kernel (uinput) for
-further processing by the input subsystem?
+Jon is asking for an architecture discussion, y'know, with use cases.
+Maxim seems to be saying it's obvious that what we have today works
+fine. Except it doesn't appear that we have a consensus that
+everything is fine, nor an obvious winner for how to reduce the
+complexity here and keep the kernel in a happy, maintainable state for
+the long haul.
 
-This decoding is getting done in user space because half of the IR
-drivers are in user space. But the other half of them aren't in user
-space and that set can't work in user space.  Most of the user space
-drivers can be pushed into the kernel where they'll automatically load
-when the device is detected.
-
-Some of the drivers can't be moved like the IR over ALSA. But is
-attaching an IR diode to the mic input of your sound card really a
-device or is it a hack that should be dealt with in user space?
-Another type is IR hardware that toggles the DTR output of a serial
-port at 40Khz to make a signal. Same thing is done with parallel
-ports. Those force the system into a bit-banging timing loop for
-1/10th second.
-
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
+Who knows, perhaps I misunderstood the dozens of messages up-thread --
+wouldn't be the first time, in which case I'll shut up and let you get
+back to work.

@@ -1,78 +1,59 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Mon, 30 Nov 2009 08:41:37 -0200
-Message-ID: <4B13A161.7050405@redhat.com>
-References: <BDodiKlXqgB@lirc>
+Date: Mon, 30 Nov 2009 09:56:42 -0200
+Message-ID: <4B13B2FA.4050600@redhat.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <m3aay6y2m1.fsf@intrepid.localdomain>	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	 <1259469121.3125.28.camel@palomino.walls.org>	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>	 <1259515703.3284.11.camel@maxim-laptop>	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com> <1259537732.5231.11.camel@palomino.walls.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <BDodiKlXqgB@lirc>
-Sender: linux-media-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: jonsmirl@gmail.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:31006 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751217AbZK3L5L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Nov 2009 06:57:11 -0500
+In-Reply-To: <1259537732.5231.11.camel@palomino.walls.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Walls <awalls@radix.net>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-Christoph Bartelmus wrote:
-> Hi Jon,
+Andy Walls wrote:
+> On Sun, 2009-11-29 at 09:49 -0800, Ray Lee wrote:
+>> On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+>>> This has zero advantages besides good developer feeling that "My system
+>>> has one less daemon..."
+>> Surely it's clear that having an unnecessary daemon is introducing
+>> another point of failure?
 > 
-> on 27 Nov 09 at 12:49, Jon Smirl wrote:
-> [...]
->> Christoph, take what you know from all of the years of working on LIRC
->> and design the perfect in-kernel system. This is the big chance to
->> redesign IR support and get rid of any past mistakes. Incorporate any
->> useful chunks of code and knowledge from the existing LIRC into the
->> new design. Drop legacy APIs, get rid of daemons, etc. You can do this
->> redesign in parallel with existing LIRC. Everyone can continue using
->> the existing code while the new scheme is being built. Think of it as
->> LIRC 2.0. You can lead this design effort, you're the most experience
->> developer in the IR area.
+> A failure in a userspace IR daemon is worst case loss of IR
+> functionality.
 > 
-> This is a very difficult thing for me to do. I must admit that I'm very  
-> biased.
-> Because lircd is the only userspace application that uses the LIRC kernel  
-> interface, we never had any problems changing the interface when needed.
-> I can't say there's much legacy stuff inside. I'm quite happy with the  
-> interface.
+> A failure in kernel space can oops or panic the machine.
 
-It makes sense currently, but, once added at kernel, you won't be able
-to change it again, without huge efforts. So, if the interface has any 
-trouble, we need to correct it before adding at the kernel. You should
-remember that a kernel driver shouldn't be bound to an specific userspace
-application. So, the same kernel interface should work with all lircd's
-starting from the version where the interface was added. In other words,
-it should be possible to use let's say a 5 year-old lirc with a brand 
-new kernel.
+If IR is the only interface between the user and the system (like in a TV
+or a Set Top Box), both will give you the same practical result: the system
+will be broken, if you got a crash at the IR driver.
 
-Also, some non lirc applications may arise, using the same kernel interface.
-So, the API stability needs to be kept.
+> Userspace is much more flexible.
 
-> The other thing is that I can't really move the decoder from userspace to  
-> kernel because there are way too many userspace drivers that do require a  
-> userspace decoder. LIRC also is running on FreeBSD, MacOS and even Cygwin.  
-> So letting the userspace drivers take advantage of a potential Linux in- 
-> kernel decoder is not an option for me either.
+Why? The flexibility about the same on both kernelspace and userspace,
+except for the boot time.
 
-You can take advantage of a in-kernel decoder. Instead of receiving raw
-pulse/space, you'll be receiving keystrokes (or scancodes).
+A kernelspace input device driver can start working since boot time.
+On the other hand, an userspace device driver will be available only 
+after mounting the filesystems and starting the deamons 
+(e. g. after running inittab). 
 
-Probably, it doesn't make sense to port every single IR protocol decoder
-to kernel. We need there support for the protocols that come with the IR shipped
-with the devices (I think that currently we have RC5, RC4, NEC and pulse-distance), 
-and the most used procolos at the universal IR's (RC5 may be enough?).
+So, you cannot catch a key that would be affecting the boot 
+(for example to ask the kernel to run a different runlevel or entering
+on some administrative mode).
 
->> Take advantage of this window to make a
->> design that is fully integrated with Linux - put IR on equal footing
->> with the keyboard and mouse as it should be.
-> 
-> That's a question that I have not answered for myself concludingly.
-> Is a remote control really on exactly the same level as a keyboard or  
-> mouse?
-
-On some devices like STB and TV sets (most of modern LCD/Plasma TV's run Linux),
-they are at the same level. I'd say that the same applies to PC's that
-the user has dedicated to work as an MCE.
+After the boot, and providing that the kernel has the proper
+API's, a pure userspace driver can behave just like a kernelspace
+driver and vice-versa. The only difference may be in terms of device
+transfer rate (not relevant for input devices) and latency.
 
 Cheers,
 Mauro.
+

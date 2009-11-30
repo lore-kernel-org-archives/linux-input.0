@@ -1,62 +1,78 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Mon, 30 Nov 2009 07:57:53 -0200
-Message-ID: <4B139721.5030808@redhat.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain>	<BDkdITRHqgB@lirc>	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	<m3aay6y2m1.fsf@intrepid.localdomain>	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	<1259469121.3125.28.camel@palomino.walls.org>	<20091129124011.4d8a6080@lxorguk.ukuu.org.uk>	<9e4733910911291019l27e5fea2x3db268311842b17@mail.gmail.com> <20091129190059.02c2a0ff@lxorguk.ukuu.org.uk>
+Date: Mon, 30 Nov 2009 08:41:37 -0200
+Message-ID: <4B13A161.7050405@redhat.com>
+References: <BDodiKlXqgB@lirc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753869AbZK3J7x@vger.kernel.org>
-In-Reply-To: <20091129190059.02c2a0ff@lxorguk.ukuu.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Andy Walls <awalls@radix.net>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <BDodiKlXqgB@lirc>
+Sender: linux-media-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: jonsmirl@gmail.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Alan,
+Christoph Bartelmus wrote:
+> Hi Jon,
+> 
+> on 27 Nov 09 at 12:49, Jon Smirl wrote:
+> [...]
+>> Christoph, take what you know from all of the years of working on LIRC
+>> and design the perfect in-kernel system. This is the big chance to
+>> redesign IR support and get rid of any past mistakes. Incorporate any
+>> useful chunks of code and knowledge from the existing LIRC into the
+>> new design. Drop legacy APIs, get rid of daemons, etc. You can do this
+>> redesign in parallel with existing LIRC. Everyone can continue using
+>> the existing code while the new scheme is being built. Think of it as
+>> LIRC 2.0. You can lead this design effort, you're the most experience
+>> developer in the IR area.
+> 
+> This is a very difficult thing for me to do. I must admit that I'm very  
+> biased.
+> Because lircd is the only userspace application that uses the LIRC kernel  
+> interface, we never had any problems changing the interface when needed.
+> I can't say there's much legacy stuff inside. I'm quite happy with the  
+> interface.
 
-Alan Cox wrote:
+It makes sense currently, but, once added at kernel, you won't be able
+to change it again, without huge efforts. So, if the interface has any 
+trouble, we need to correct it before adding at the kernel. You should
+remember that a kernel driver shouldn't be bound to an specific userspace
+application. So, the same kernel interface should work with all lircd's
+starting from the version where the interface was added. In other words,
+it should be possible to use let's say a 5 year-old lirc with a brand 
+new kernel.
 
-> Does it really make sense to put big chunks of protocol decoding crap for
-> an interface which runs at about 1 character per second on a good day
-> into the kernel ? Does it really make sense ot move 50K of code from user
-> context to kernel context where it must meet strict security
-> requirements, be extensively audited and cannot be paged. For embedded
-> users will also have to be highly modular so no unused bits are loaded.
+Also, some non lirc applications may arise, using the same kernel interface.
+So, the API stability needs to be kept.
 
-The same logic would apply to mouse, keyboards and serial consoles. 
-It is possible to move everything to userspace. 
+> The other thing is that I can't really move the decoder from userspace to  
+> kernel because there are way too many userspace drivers that do require a  
+> userspace decoder. LIRC also is running on FreeBSD, MacOS and even Cygwin.  
+> So letting the userspace drivers take advantage of a potential Linux in- 
+> kernel decoder is not an option for me either.
 
-However, there are some reassons for they to be in kernelspace:
-	- you may need them during boot time;
-	- they are mandatory to allow the users interaction;
-	- you need low latency.
+You can take advantage of a in-kernel decoder. Instead of receiving raw
+pulse/space, you'll be receiving keystrokes (or scancodes).
 
-The same arguments apply to IR, especially on embedded devices: some devices,
-like TVs, Set Top TV boxes and IPTV Set Top Boxes have IR as their primary
-input device.
+Probably, it doesn't make sense to port every single IR protocol decoder
+to kernel. We need there support for the protocols that come with the IR shipped
+with the devices (I think that currently we have RC5, RC4, NEC and pulse-distance), 
+and the most used procolos at the universal IR's (RC5 may be enough?).
 
-Also, as changing a digital TV or an IP TV channel requires to discard the current
-MPEG stream and getting a newer one, and it requires a large time until you'll
-be able to output something to the user, one of the needs is to handle IR keystrokes
-(especially channel up/down) as fast as possible, to try to minimize the discomfort
-of changing a channel.
+>> Take advantage of this window to make a
+>> design that is fully integrated with Linux - put IR on equal footing
+>> with the keyboard and mouse as it should be.
+> 
+> That's a question that I have not answered for myself concludingly.
+> Is a remote control really on exactly the same level as a keyboard or  
+> mouse?
 
-Using an approach where you'll send a raw event to userspace, process there and return
-back to kernel will increase the latency and can only be done after when loading
-the SYSV runlevel stuff.
-
-On the other hand, we already have IR decoding in-kernel. Most of the code are
-at:
-	drivers/media/common/ir-functions.c
-
-But there are also some other decoders at bttv, saa7134 and cx88 drivers.
-
-In the case of drivers/media stuff, there common case is that the drivers have
-support for both space/pulse decoding and in-hardware decoding. On both cases,
-the scancode is converted to a keystroke via evdev. IMHO, we shouldn't really
-consider dropping those decoders from kernel.
+On some devices like STB and TV sets (most of modern LCD/Plasma TV's run Linux),
+they are at the same level. I'd say that the same applies to PC's that
+the user has dedicated to work as an MCE.
 
 Cheers,
-Mauro. 
+Mauro.

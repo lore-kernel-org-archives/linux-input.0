@@ -1,87 +1,46 @@
-From: Wu Zhangjin <wuzhangjin@gmail.com>
-Subject: Re: [PATCH v5 8/8] Loongson: YeeLoong: add hotkey driver
-Date: Mon, 30 Nov 2009 13:18:15 +0800
-Message-ID: <1259558295.5516.5.camel@falcon.domain.org>
-References: <cover.1259414649.git.wuzhangjin@gmail.com>
-	 <739db9c7b5bab429d0df5a7c68f301aa12f1402d.1259414649.git.wuzhangjin@gmail.com>
-Reply-To: wuzhangjin@gmail.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.32-rc8
+Date: Sun, 29 Nov 2009 23:17:53 -0800
+Message-ID: <20091130071753.GA10295@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f188.google.com ([209.85.216.188]:55906 "EHLO
-	mail-px0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750763AbZK3FSh (ORCPT
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:61951 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751077AbZK3HRu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2009 00:18:37 -0500
-Received: by pxi26 with SMTP id 26so2303816pxi.21
-        for <linux-input@vger.kernel.org>; Sun, 29 Nov 2009 21:18:43 -0800 (PST)
-In-Reply-To: <739db9c7b5bab429d0df5a7c68f301aa12f1402d.1259414649.git.wuzhangjin@gmail.com>
+	Mon, 30 Nov 2009 02:17:50 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-mips@linux-mips.org, zhangfx@lemote.com, yanh@lemote.com, huhb@lemote.com, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, 2009-11-28 at 21:44 +0800, Wu Zhangjin wrote:
-[...]
-> +
-> +static int camera_handler(int status)
-> +{
-> +	int value;
-> +	static int camera_status;
-> +
-> +	status = !!status;
-> +	camera_status = ec_read(REG_CAMERA_STATUS);
-> +	if (status != camera_status) {
-> +		value = ec_read(REG_CAMERA_CONTROL);
-> +		ec_write(REG_CAMERA_CONTROL, value | (1 << 1));
-> +	}
-> +	return ec_read(REG_CAMERA_STATUS);
-> +}
+Hi Linus,
 
-The above stuff is very awful, the camera event work as a switch, so
-this is enough:
+Please pull from:
 
-static int camera_handler(int status)
-{
-	int value;
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-	value = ec_read(REG_CAMERA_CONTROL);
-	ec_write(REG_CAMERA_CONTROL, value | (1 << 1));
+to receive updates for the input subsystem. The only change is the way
+we build keysyms that are used by braille keyboards. Without this fix
+they simply don't work, other keyboards should not be affected.
 
-	return status;
-}
+Changelog:
+---------
 
-[...]
-> +/*
-> + * SCI(system control interrupt) main interrupt routine
-> + *
-> + * We will do the query and get event number together so the interrupt routine
-> + * should be longer than 120us now at least 3ms elpase for it.
-> + */
-> +static irqreturn_t sci_irq_handler(int irq, void *dev_id)
-> +{
-> +	int ret;
-> +
-> +	if (SCI_IRQ_NUM != irq)
-> +		return IRQ_NONE;
-> +
-> +	/* Query the event number */
-> +	ret = ec_query_event_num();
-> +	if (ret < 0)
-> +		return IRQ_NONE;
-> +
-> +	event = ec_get_event_num();
-> +	if (event < 0)
-> +		return IRQ_NONE;
-> +
-> +	if ((event != 0x00) && (event != 0xff)) {
+Samuel Thibault (1):
+      Input: keyboard - fix braille keyboard keysym generation
 
-It's better to use somethig else:
 
-if (event >= EVENT_START && event <= EVENT_END) {
-....
+Diffstat:
+--------
 
-Best Regards,
-	Wu Zhangjin
+ drivers/char/keyboard.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+-- 
+Dmitry
 

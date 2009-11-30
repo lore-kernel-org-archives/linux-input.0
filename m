@@ -1,57 +1,61 @@
 From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Sun, 29 Nov 2009 18:35:32 -0500
-Message-ID: <1259537732.5231.11.camel@palomino.walls.org>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
-	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	 <m3aay6y2m1.fsf@intrepid.localdomain>
-	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	 <1259469121.3125.28.camel@palomino.walls.org>
-	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-	 <1259515703.3284.11.camel@maxim-laptop>
-	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
+Date: Sun, 29 Nov 2009 19:05:30 -0500
+Message-ID: <1259539530.5231.36.camel@palomino.walls.org>
+References: <BDodzfumqgB@lirc>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752463AbZK2XhV@vger.kernel.org>
-In-Reply-To: <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <BDodzfumqgB@lirc>
+Sender: linux-media-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: jonsmirl@gmail.com, alan@lxorguk.ukuu.org.uk, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, ray-lk@madrabbit.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 2009-11-29 at 09:49 -0800, Ray Lee wrote:
-> On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> > This has zero advantages besides good developer feeling that "My system
-> > has one less daemon..."
+On Sun, 2009-11-29 at 20:49 +0100, Christoph Bartelmus wrote:
+> Hi,
 > 
-> Surely it's clear that having an unnecessary daemon is introducing
-> another point of failure?
+> on 29 Nov 09 at 14:16, Jon Smirl wrote:
+> > On Sun, Nov 29, 2009 at 2:04 PM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >>> Jon is asking for an architecture discussion, y'know, with use cases.
+> [...]
+> > So we're just back to the status quo of last year which is to do
+> > nothing except some minor clean up.
+> >
+> > We'll be back here again next year repeating this until IR gets
+> > redesigned into something fairly invisible like keyboard and mouse
+> > drivers.
+> 
+> Last year everyone complained that LIRC does not support evdev - so I  
+> added support for evdev.
+> 
+> This year everyone complains that LIRC is not plug'n'play - we'll fix that  
+> 'til next year.
 
-A failure in a userspace IR daemon is worst case loss of IR
-functionality.
+V4L-DVB is also making progress on the enumeration front.  At least for
+V4L devices a new media controller device node will be able to enumerate
+all devices associated with a video card (or embedded system or SoC).
+>From one device node, an app should be able to discover all video, alsa,
+dvb, and framebuffer device nodes on a video card, find out about
+entities on the card, and set up the reconfigurable connections between
+entities on the card.  One should be able to discover subdevices on
+cards like IR controllers.
 
-A failure in kernel space can oops or panic the machine.
-
-> Reducing complexity is not just its own
-> reward in a 'Developer Feel Good' way.
-
-No complexity is being reduced here.  It's being shoved from one side of
-a fence to another.  A bad part about the proposed move is that in user
-space, user address space is fairly isolated from other applications and
-separate from kernel space.  Partitioning reduces complexity and the
-impact of failures.  Moving things into kernel space just adds more to
-the pile of code; it should have a good reason for being there.
+The RFC before the mini-summit at the 2009 LPC is here:
+http://lwn.net/Articles/352623/
 
 
-> If decoding can *only* be sanely handled in user-space, that's one
-> thing. If it can be handled in kernel, then that would be better.
-
-Why does the address space in which decoding is performed make the
-decoding process better or worse?  The in kernel infrastructre and
-restrictions add constraints to a decoding implementation.  Userspace is
-much more flexible.
+The V4L media controller entity discover mechanism won't completely
+solve the general discovery problem for IR.   It will be one way to
+discover IR devices associated with V4L supported peripherals.  I assume
+discovering USB IR-only devices by USB Id is not a problem.  That leaves
+serial port, parallel port and sound jack connected devices as the
+difficult ones to "discover". 
 
 Regards,
 Andy
+
+> Christoph
+> --

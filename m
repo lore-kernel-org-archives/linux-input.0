@@ -1,69 +1,102 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
+From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Mon, 30 Nov 2009 10:34:06 -0200
-Message-ID: <4B13BBBE.3010101@redhat.com>
-References: <BDodf9W1qgB@lirc>
+Date: Mon, 30 Nov 2009 07:57:32 -0500
+Message-ID: <1259585852.3093.31.camel@palomino.walls.org>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	 <m3aay6y2m1.fsf@intrepid.localdomain>
+	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	 <1259469121.3125.28.camel@palomino.walls.org>
+	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
+	 <1259515703.3284.11.camel@maxim-laptop>
+	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
+	 <1259537732.5231.11.camel@palomino.walls.org> <4B13B2FA.4050600@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <BDodf9W1qgB@lirc>
-Sender: linux-media-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.radix.net ([207.192.128.31]:56832 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752106AbZK3M7X (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Nov 2009 07:59:23 -0500
+In-Reply-To: <4B13B2FA.4050600@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-Christoph Bartelmus wrote:
-> Hi Mauro,
+On Mon, 2009-11-30 at 09:56 -0200, Mauro Carvalho Chehab wrote:
+> Andy Walls wrote:
+> > On Sun, 2009-11-29 at 09:49 -0800, Ray Lee wrote:
+> >> On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+> >>> This has zero advantages besides good developer feeling that "My system
+> >>> has one less daemon..."
+> >> Surely it's clear that having an unnecessary daemon is introducing
+> >> another point of failure?
+> > 
+> > A failure in a userspace IR daemon is worst case loss of IR
+> > functionality.
+> > 
+> > A failure in kernel space can oops or panic the machine.
 > 
-> I just don't want to change a working interface just because it could be  
-> also implemented in a different way, but having no other visible advantage  
-> than using more recent kernel features.
+> If IR is the only interface between the user and the system (like in a TV
+> or a Set Top Box), both will give you the same practical result: the system
+> will be broken, if you got a crash at the IR driver.
 
-I agree. The main reasons to review the interface is:
-	1) to avoid any overlaps (if are there any) with the evdev interface;
-	2) to have it stable enough to be used, without changes, for a long
-	   time.
+Yes, true.  I had forgotten about the embedded space.
 
->> I haven't seen such limitations on his proposal. We currently have in-kernel
->> decoders for NEC, pulse-distance, RC4 protocols, and some variants. If
->> non-RC5 decoders are missing, we need for sure to add them.
+Nonetheless I'd still rather debug a problem with a dead process in
+userspace than an oops or panic (not that an end user cares) and avoid
+the risk of filesystem corruption.
+
+> Userspace is much more flexible.
 > 
-> That was not my point. If you point a NEC remote at the Igor USB device,  
-> you won't be able to use a NEC decoder because the device will swallow  
-> half of the bits. LIRC won't care unless the resulting scancodes are  
-> identical.
+> Why? The flexibility about the same on both kernelspace and userspace,
+> except for the boot time.
 
-If the difference is just the bits order, and assuming that we use a standard
-NEC decoder, a (kernel) driver will simply provide a different scancode for
-that device, and the keymap table will be different, but it will still work
-(an can still be plug and play).
+I suppose my best answer to that is question back to you: Why does udev
+run in userspace versus a kernel thread?
 
-In this specific case, we can opt to simply don't add any special hack for
-Igor USB at the driver, but to leting the userspace tool to invert the bits
-order when loading the keymap for that device.
 
->> Providing that we agree on what we'll do, I don't see why not
->> adding it on staging for 2.6.33 and targeting to have
->> everything done for 2.6.34 or 2.6.35.
+My personal thoughts on why user space is more flexible:
+
+1. You have all of *NIX available to you to use as tools to achieve your
+requirements.
+
+2. You are not constrained to use C.
+
+3. You can link in libraries with functions that are not available in
+the kernel.  (udev has libudev IIRC to handle complexities)
+
+4. Reading a configuration file or other file from the filesystem is
+trivial - file access from usespace is easy.
+
+5. You don't have to be concerned about the running context (am I
+allowed to sleep here or not?).
+
+
+
+
+
+
+> A kernelspace input device driver can start working since boot time.
+> On the other hand, an userspace device driver will be available only 
+> after mounting the filesystems and starting the deamons 
+> (e. g. after running inittab). 
 > 
-> The problem that I see here is just that even when we have very talented  
-> people working on this, that put together all resources, we won't be able  
-> to cover all the corner cases with all the different receivers and remote  
-> control protocols out there. It will still require lots of fine-tuning  
-> which was done in LIRC over the years.
+> So, you cannot catch a key that would be affecting the boot 
+> (for example to ask the kernel to run a different runlevel or entering
+> on some administrative mode).
 
-True, but even if we want to merge lirc drivers "as-is", the drivers will
-still need changes, due to kernel CodingStyle, due to the usage of some API's
-that may be deprecated, due to some breakage with non-Intel architectures, due
-to some bugs that kernel hackers may discover, etc. 
+Right.  That's another requirement that makes sense, if we're talking
+about systems that don't have any other keyboard handy to the user.
 
-Also, there will be the needs for integrating with V4L/DVB code that may
-also require some changes.
+So are we optimizing for the embedded/STB and HTPC with no keyboard use
+case, or the desktop or HTPC with a keyboard for maintencance?
 
-So, the drivers will still be different than what you currently have
-and they may still need some fine-tuning after the merge.
 
-Cheers,
-Mauro
+Regards,
+Andy
+
+

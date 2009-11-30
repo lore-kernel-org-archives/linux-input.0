@@ -1,77 +1,62 @@
-From: Artur Skawina <art.08.09@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Mon, 30 Nov 2009 10:58:00 +0100
-Message-ID: <4B139728.5070803@gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc> 	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com> 	<m3aay6y2m1.fsf@intrepid.localdomain> <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com> 	<1259469121.3125.28.camel@palomino.walls.org> <20091129124011.4d8a6080@lxorguk.ukuu.org.uk> 	<1259515703.3284.11.camel@maxim-laptop> <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com> 	<1259537732.5231.11.camel@palomino.walls.org> <2c0942db0911291815r7cf93287k78acb8ddb13a7920@mail.gmail.com>
+ IR  system?
+Date: Mon, 30 Nov 2009 07:57:53 -0200
+Message-ID: <4B139721.5030808@redhat.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain>	<BDkdITRHqgB@lirc>	<9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	<m3aay6y2m1.fsf@intrepid.localdomain>	<9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	<1259469121.3125.28.camel@palomino.walls.org>	<20091129124011.4d8a6080@lxorguk.ukuu.org.uk>	<9e4733910911291019l27e5fea2x3db268311842b17@mail.gmail.com> <20091129190059.02c2a0ff@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f215.google.com ([209.85.219.215]:62591 "EHLO
-	mail-ew0-f215.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753258AbZK3J55 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2009 04:57:57 -0500
-In-Reply-To: <2c0942db0911291815r7cf93287k78acb8ddb13a7920@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753869AbZK3J7x@vger.kernel.org>
+In-Reply-To: <20091129190059.02c2a0ff@lxorguk.ukuu.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Andy Walls <awalls@radix.net>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Ray Lee <ray-lk@madrabbit.org>, Andy Walls <awalls@radix.net>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-Ray Lee wrote:
-> On Sun, Nov 29, 2009 at 3:35 PM, Andy Walls <awalls@radix.net> wrote:
->>> If decoding can *only* be sanely handled in user-space, that's one
->>> thing. If it can be handled in kernel, then that would be better.
->> Why does the address space in which decoding is performed make the
->> decoding process better or worse?  The in kernel infrastructre and
->> restrictions add constraints to a decoding implementation.  Userspace is
->> much more flexible.
-> 
-> In which case I look forward to seeing your patches to move
-> drivers/hid/ to userspace. Please cc: me so I can enjoy the ensuing
-> festival.
+Hi Alan,
 
-Umm, this thread is really about several independent issues
+Alan Cox wrote:
 
-- Event delivery
-  There's an existing input system that works, there's no need to
-  reinvent the wheel; all remote events (usually key presses, but
-  there are also wheels/touchpads/joysticks/etc, which don't necessarily
-  map to buttons) should eventually arrive through it. Whether there's a
-  userspace component somewhere on the receiver->/dev/input path doesn't
-  change anything.
+> Does it really make sense to put big chunks of protocol decoding crap for
+> an interface which runs at about 1 character per second on a good day
+> into the kernel ? Does it really make sense ot move 50K of code from user
+> context to kernel context where it must meet strict security
+> requirements, be extensively audited and cannot be paged. For embedded
+> users will also have to be highly modular so no unused bits are loaded.
 
-- Acquisition
-  If it isn't interrupt-driven it should to be in userspace. ADC falls
-  into this category, but also various bitbanging approaches and probably
-  also many serial port (ab)uses where the decoding isn't trivial.
-  (Receivers that require accurate timestamps could be one exception)
+The same logic would apply to mouse, keyboards and serial consoles. 
+It is possible to move everything to userspace. 
 
-- Decoding
-  There is "decoding" and there is "translation". With hw receivers
-  (such as usb ir/rf dongles and HID devices mentioned above) you often
-  only need to translate or map events sent by the hw to the correct input
-  event and that's it. This can easily be done in-kernel (modulo complex
-  remote/key mappings, maybe).
-  Decoding analog input (even if it's only timing) is a different story.
-  Would you want to worry about somebody with an IR transmitter (think
-  phone/pda/laptop, but it could also be a modded remote) crashing your
-  machine, just because the in-kernel decoder didn't handle some weird
-  data? Or somebody leaving a small device around, which over time lead to
-  OOM, cause the kernel decoder kept leaking memory?
-  The bandwidth requirements for a remote are minimal, say <=20 events/s,
-  and the max latency in the 100ms range would still be ok, so two, or six,
-  context switches per key pressed shouldn't be a problem.
+However, there are some reassons for they to be in kernelspace:
+	- you may need them during boot time;
+	- they are mandatory to allow the users interaction;
+	- you need low latency.
 
-- Configuration
-  This isn't actually as simple as it looks at first. If you want to support
-  multiple remotes (and you do), complex mappings (eg one->many or sequence->one),
-  multiple modes etc then going through a userspace mapper is probably better.
-  I looked briefly at Jon's configfs i/f and it seems it could handle the
-  multiple-physical-remotes-with-one-receiver-and-multiple-independent-devices
-  case, but being able to grab the receiver, process the data in userspace and
-  reinject it back would still be needed for some setups.
+The same arguments apply to IR, especially on embedded devices: some devices,
+like TVs, Set Top TV boxes and IPTV Set Top Boxes have IR as their primary
+input device.
 
-artur
-  
+Also, as changing a digital TV or an IP TV channel requires to discard the current
+MPEG stream and getting a newer one, and it requires a large time until you'll
+be able to output something to the user, one of the needs is to handle IR keystrokes
+(especially channel up/down) as fast as possible, to try to minimize the discomfort
+of changing a channel.
+
+Using an approach where you'll send a raw event to userspace, process there and return
+back to kernel will increase the latency and can only be done after when loading
+the SYSV runlevel stuff.
+
+On the other hand, we already have IR decoding in-kernel. Most of the code are
+at:
+	drivers/media/common/ir-functions.c
+
+But there are also some other decoders at bttv, saa7134 and cx88 drivers.
+
+In the case of drivers/media stuff, there common case is that the drivers have
+support for both space/pulse decoding and in-hardware decoding. On both cases,
+the scancode is converted to a keystroke via evdev. IMHO, we shouldn't really
+consider dropping those decoders from kernel.
+
+Cheers,
+Mauro. 

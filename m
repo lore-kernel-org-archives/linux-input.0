@@ -1,59 +1,77 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Mon, 30 Nov 2009 09:56:42 -0200
-Message-ID: <4B13B2FA.4050600@redhat.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <m3aay6y2m1.fsf@intrepid.localdomain>	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	 <1259469121.3125.28.camel@palomino.walls.org>	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>	 <1259515703.3284.11.camel@maxim-laptop>	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com> <1259537732.5231.11.camel@palomino.walls.org>
+ IR 	system?
+Date: Mon, 30 Nov 2009 10:13:46 -0200
+Message-ID: <4B13B6FA.40005@redhat.com>
+References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:31006 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:4424 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751217AbZK3L5L (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2009 06:57:11 -0500
-In-Reply-To: <1259537732.5231.11.camel@palomino.walls.org>
+	id S1751994AbZK3MN5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Nov 2009 07:13:57 -0500
+In-Reply-To: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Ray Lee <ray-lk@madrabbit.org>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Andy Walls wrote:
-> On Sun, 2009-11-29 at 09:49 -0800, Ray Lee wrote:
->> On Sun, Nov 29, 2009 at 9:28 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
->>> This has zero advantages besides good developer feeling that "My system
->>> has one less daemon..."
->> Surely it's clear that having an unnecessary daemon is introducing
->> another point of failure?
+Jon Smirl wrote:
+> On Fri, Nov 27, 2009 at 2:45 AM, Christoph Bartelmus
+> <christoph@bartelmus.de> wrote:
+>> Hi Mauro,
+>>
+>> on 26 Nov 09 at 14:25, Mauro Carvalho Chehab wrote:
+>>> Christoph Bartelmus wrote:
+>> [...]
+>>>> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just
+>>>> because I'm not familiar at all with input layer toolset.
+>> [...]
+>>> I hope it helps for you to better understand how this works.
+>> So the plan is to have two ways of using IR in the future which are
+>> incompatible to each other, the feature-set of one being a subset of the
+>> other?
 > 
-> A failure in a userspace IR daemon is worst case loss of IR
-> functionality.
+> Take advantage of the fact that we don't have a twenty year old legacy
+> API already in the kernel. Design an IR API that uses current kernel
+> systems. Christoph, ignore the code I wrote and make a design proposal
+> that addresses these goals...
 > 
-> A failure in kernel space can oops or panic the machine.
+> 1) Unified input in Linux using evdev. IR is on equal footing with
+> mouse and keyboard.
 
-If IR is the only interface between the user and the system (like in a TV
-or a Set Top Box), both will give you the same practical result: the system
-will be broken, if you got a crash at the IR driver.
+This makes sense to me. Yet, I think that, on some specific cases, we'll
+need a raw interface.
 
-> Userspace is much more flexible.
+> 2) plug and play for basic systems - you only need an external app for scripting
 
-Why? The flexibility about the same on both kernelspace and userspace,
-except for the boot time.
+Yes.
 
-A kernelspace input device driver can start working since boot time.
-On the other hand, an userspace device driver will be available only 
-after mounting the filesystems and starting the deamons 
-(e. g. after running inittab). 
+> 3) No special tools - use mkdir, echo, cat, shell scripts to build maps
 
-So, you cannot catch a key that would be affecting the boot 
-(for example to ask the kernel to run a different runlevel or entering
-on some administrative mode).
+I don't think this is relevant. As we already have ioctls for building maps, and
+while all in-kernel drivers can handle scancodes with up to 32 bits, I don't see
+any reason to use anything different than what's currently available.
 
-After the boot, and providing that the kernel has the proper
-API's, a pure userspace driver can behave just like a kernelspace
-driver and vice-versa. The only difference may be in terms of device
-transfer rate (not relevant for input devices) and latency.
+> 4) Use of modern Linux features like sysfs, configfs and udev.
+
+sysfs/udev is a need for hot-plugging. I wouldn't use configfs for it. There aren't
+many places using it and afaik some distros are not compiling their kernels with
+configfs enabled. Also, as we have already ioctl's for keycode maps, I think
+we shouldn't be migrating to controlfs.
+
+> 5) Direct multi-app support - no daemon
+
+For multi-app support usage like your example (e. g. different IR keys mapped into
+the same evdev keycode and sent to different applications), I think we should need
+a daemon for handling it.
+
+> 6) Hide timing data from user as much as possible.
+
+I agree. Porting the IRQ/gpio pollings to userspace on a system with a high workload
+may mean that the keycode will be badly interpreted.
 
 Cheers,
 Mauro.
-

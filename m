@@ -1,77 +1,69 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Mon, 30 Nov 2009 10:13:46 -0200
-Message-ID: <4B13B6FA.40005@redhat.com>
-References: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
+ IR  system?
+Date: Mon, 30 Nov 2009 10:34:06 -0200
+Message-ID: <4B13BBBE.3010101@redhat.com>
+References: <BDodf9W1qgB@lirc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:4424 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751994AbZK3MN5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Nov 2009 07:13:57 -0500
-In-Reply-To: <9e4733910911270757j648e39ecl7487b7e6c43db828@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <BDodf9W1qgB@lirc>
+Sender: linux-media-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Bartelmus <christoph@bartelmus.de>, jarod@wilsonet.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Jon Smirl wrote:
-> On Fri, Nov 27, 2009 at 2:45 AM, Christoph Bartelmus
-> <christoph@bartelmus.de> wrote:
->> Hi Mauro,
->>
->> on 26 Nov 09 at 14:25, Mauro Carvalho Chehab wrote:
->>> Christoph Bartelmus wrote:
->> [...]
->>>> But I'm still a bit hesitant about the in-kernel decoding. Maybe it's just
->>>> because I'm not familiar at all with input layer toolset.
->> [...]
->>> I hope it helps for you to better understand how this works.
->> So the plan is to have two ways of using IR in the future which are
->> incompatible to each other, the feature-set of one being a subset of the
->> other?
+Christoph Bartelmus wrote:
+> Hi Mauro,
 > 
-> Take advantage of the fact that we don't have a twenty year old legacy
-> API already in the kernel. Design an IR API that uses current kernel
-> systems. Christoph, ignore the code I wrote and make a design proposal
-> that addresses these goals...
+> I just don't want to change a working interface just because it could be  
+> also implemented in a different way, but having no other visible advantage  
+> than using more recent kernel features.
+
+I agree. The main reasons to review the interface is:
+	1) to avoid any overlaps (if are there any) with the evdev interface;
+	2) to have it stable enough to be used, without changes, for a long
+	   time.
+
+>> I haven't seen such limitations on his proposal. We currently have in-kernel
+>> decoders for NEC, pulse-distance, RC4 protocols, and some variants. If
+>> non-RC5 decoders are missing, we need for sure to add them.
 > 
-> 1) Unified input in Linux using evdev. IR is on equal footing with
-> mouse and keyboard.
+> That was not my point. If you point a NEC remote at the Igor USB device,  
+> you won't be able to use a NEC decoder because the device will swallow  
+> half of the bits. LIRC won't care unless the resulting scancodes are  
+> identical.
 
-This makes sense to me. Yet, I think that, on some specific cases, we'll
-need a raw interface.
+If the difference is just the bits order, and assuming that we use a standard
+NEC decoder, a (kernel) driver will simply provide a different scancode for
+that device, and the keymap table will be different, but it will still work
+(an can still be plug and play).
 
-> 2) plug and play for basic systems - you only need an external app for scripting
+In this specific case, we can opt to simply don't add any special hack for
+Igor USB at the driver, but to leting the userspace tool to invert the bits
+order when loading the keymap for that device.
 
-Yes.
+>> Providing that we agree on what we'll do, I don't see why not
+>> adding it on staging for 2.6.33 and targeting to have
+>> everything done for 2.6.34 or 2.6.35.
+> 
+> The problem that I see here is just that even when we have very talented  
+> people working on this, that put together all resources, we won't be able  
+> to cover all the corner cases with all the different receivers and remote  
+> control protocols out there. It will still require lots of fine-tuning  
+> which was done in LIRC over the years.
 
-> 3) No special tools - use mkdir, echo, cat, shell scripts to build maps
+True, but even if we want to merge lirc drivers "as-is", the drivers will
+still need changes, due to kernel CodingStyle, due to the usage of some API's
+that may be deprecated, due to some breakage with non-Intel architectures, due
+to some bugs that kernel hackers may discover, etc. 
 
-I don't think this is relevant. As we already have ioctls for building maps, and
-while all in-kernel drivers can handle scancodes with up to 32 bits, I don't see
-any reason to use anything different than what's currently available.
+Also, there will be the needs for integrating with V4L/DVB code that may
+also require some changes.
 
-> 4) Use of modern Linux features like sysfs, configfs and udev.
-
-sysfs/udev is a need for hot-plugging. I wouldn't use configfs for it. There aren't
-many places using it and afaik some distros are not compiling their kernels with
-configfs enabled. Also, as we have already ioctl's for keycode maps, I think
-we shouldn't be migrating to controlfs.
-
-> 5) Direct multi-app support - no daemon
-
-For multi-app support usage like your example (e. g. different IR keys mapped into
-the same evdev keycode and sent to different applications), I think we should need
-a daemon for handling it.
-
-> 6) Hide timing data from user as much as possible.
-
-I agree. Porting the IRQ/gpio pollings to userspace on a system with a high workload
-may mean that the keycode will be badly interpreted.
+So, the drivers will still be different than what you currently have
+and they may still need some fine-tuning after the merge.
 
 Cheers,
-Mauro.
+Mauro

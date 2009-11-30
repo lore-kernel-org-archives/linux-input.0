@@ -1,61 +1,104 @@
 From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Sun, 29 Nov 2009 19:05:30 -0500
-Message-ID: <1259539530.5231.36.camel@palomino.walls.org>
-References: <BDodzfumqgB@lirc>
+Date: Sun, 29 Nov 2009 19:48:17 -0500
+Message-ID: <1259542097.5231.78.camel@palomino.walls.org>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	 <m3aay6y2m1.fsf@intrepid.localdomain>
+	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	 <1259450815.3137.19.camel@palomino.walls.org>
+	 <m3ocml6ppt.fsf@intrepid.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <BDodzfumqgB@lirc>
-Sender: linux-media-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: jonsmirl@gmail.com, alan@lxorguk.ukuu.org.uk, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, ray-lk@madrabbit.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.radix.net ([207.192.128.31]:45677 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751748AbZK3At6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 29 Nov 2009 19:49:58 -0500
+In-Reply-To: <m3ocml6ppt.fsf@intrepid.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Sun, 2009-11-29 at 20:49 +0100, Christoph Bartelmus wrote:
-> Hi,
+On Sun, 2009-11-29 at 21:27 +0100, Krzysztof Halasa wrote:
+> 1. Do we agree that a lirc (-style) kernel-user interface is needed at
+>    least?
+
+Yes.  Honestly, I'm just waiting on lirc_dev for the IR devices I work
+with.  With that I can get those new devices supported for both IR Rx
+and Tx right now.  I was holding off building a lirc_v4l module to see
+if lirc_dev makes it in kernel.
+
+However, because of the desire by V4L supporters wanting IR to just work
+for remotes bundled with video capture cards, I have already added:
+
+1. cx23885-input.c support with RC-5, and soon NEC support, in kernel.
+
+2. new configurations for ir-kbd-i2c.c, due to IR hardware on some cx18
+and ivtv supported cards. 
+
+So at least IR Rx works for the cheap bundled remote.  I still think
+input subsystem will never be able to rpovide a feature complete
+interface though.  I don't mind putting enough work in for the "Just
+works" part with the bundled remote with -input, but not more.
+
+
+> 2. Is there any problem with lirc kernel-user interface?
+
+Here's my list
+
+1. Unused transmit mode defines/enums.  It's not a big deal really, but
+I had a hard time figuring out the differences between CODE, MODE2,
+PULSE since some are not well documented and some of those are not even
+used for Tx.
+
+2. The LIRC ioctls() wanting to change one parameter at a time will
+cause me some thought/work.  It would be better, I think, if LIRC would
+do a get/set of all the parameters in one go.
+
+That's what I do internally here:
+
+http://linuxtv.org/hg/v4l-dvb/file/e0cd9a337600/linux/include/media/v4l2-subdev.h#l283
+http://linuxtv.org/hg/v4l-dvb/file/e0cd9a337600/linux/drivers/media/video/cx23885/cx23888-ir.c#l746
+http://linuxtv.org/hg/v4l-dvb/file/e0cd9a337600/linux/drivers/media/video/cx23885/cx23885-input.c#l269
+
+The idea is that you set up the IR hardware infrequently and spend most
+of the time letting it run.  I'd have to think, if setting up the
+hardware one parameter at a time may have it operating in a strange
+mode, until the sequence of configuration ioctl() is complete.
+
+I was planning on a lirc_v4l module aggregating all the lirc_dev ioctl
+requests somehow to possibly avoid that potential problem.
+
+Maybe an additional ioctl() from LIRC userspace and lirc_dev saying it
+was done with the current IR device configuration sequence would be
+another way to mitigate the problem for me.
+
+
+
+
+> If the answer for #1 is "yes" and for #2 is "no" then perhaps we merge
+> the Jarod's lirc patches (at least the core) so at least the
+> non-controversial part is done?
 > 
-> on 29 Nov 09 at 14:16, Jon Smirl wrote:
-> > On Sun, Nov 29, 2009 at 2:04 PM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >>> Jon is asking for an architecture discussion, y'know, with use cases.
-> [...]
-> > So we're just back to the status quo of last year which is to do
-> > nothing except some minor clean up.
-> >
-> > We'll be back here again next year repeating this until IR gets
-> > redesigned into something fairly invisible like keyboard and mouse
-> > drivers.
-> 
-> Last year everyone complained that LIRC does not support evdev - so I  
-> added support for evdev.
-> 
-> This year everyone complains that LIRC is not plug'n'play - we'll fix that  
-> 'til next year.
+> Doing so doesn't block improving input layer IR interface, does it?
 
-V4L-DVB is also making progress on the enumeration front.  At least for
-V4L devices a new media controller device node will be able to enumerate
-all devices associated with a video card (or embedded system or SoC).
->From one device node, an app should be able to discover all video, alsa,
-dvb, and framebuffer device nodes on a video card, find out about
-entities on the card, and set up the reconfigurable connections between
-entities on the card.  One should be able to discover subdevices on
-cards like IR controllers.
+It never has AFAICT.
 
-The RFC before the mini-summit at the 2009 LPC is here:
-http://lwn.net/Articles/352623/
+A current related problem is that i2c based devices can only be bound to
+only one of ir-kbd-i2c *or* lirc_i2c *or* lirc_zilog at any one time.
+Currently it is somewhat up to the bridge driver which binding is
+preferred.  Discussion about this for the pvrusb2 module had the biggest
+email churn IIRC.
 
-
-The V4L media controller entity discover mechanism won't completely
-solve the general discovery problem for IR.   It will be one way to
-discover IR devices associated with V4L supported peripherals.  I assume
-discovering USB IR-only devices by USB Id is not a problem.  That leaves
-serial port, parallel port and sound jack connected devices as the
-difficult ones to "discover". 
+This will be a general problem to fix for all the V4L-DVB drivers where
+both LIRC and input can handle the device. A reasonable default
+assumption  *may* be that the user who bothers to configure LIRC wants
+LIRC to override handling by input.  That's a detail though...
 
 Regards,
 Andy
 
-> Christoph
-> --

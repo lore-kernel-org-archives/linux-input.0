@@ -1,65 +1,72 @@
-From: kevin granade <kevin.granade@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Mon, 30 Nov 2009 10:14:19 -0600
-Message-ID: <7004b08e0911300814tb474f96s42ec56ca2e43cf7a@mail.gmail.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain>
-	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	 <1259469121.3125.28.camel@palomino.walls.org>
-	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>
-	 <1259515703.3284.11.camel@maxim-laptop>
-	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>
-	 <1259537732.5231.11.camel@palomino.walls.org>
-	 <4B13B2FA.4050600@redhat.com>
-	 <1259585852.3093.31.camel@palomino.walls.org>
-	 <4B13C799.4060906@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Mon, 30 Nov 2009 14:19:01 -0200
+Message-ID: <4B13F075.2090806@redhat.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <m3aay6y2m1.fsf@intrepid.localdomain>	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	 <1259469121.3125.28.camel@palomino.walls.org>	 <20091129124011.4d8a6080@lxorguk.ukuu.org.uk>	 <1259515703.3284.11.camel@maxim-laptop>	 <2c0942db0911290949p89ae64bjc3c7501c2de6930c@mail.gmail.com>	 <1259537732.5231.11.camel@palomino.walls.org> <4B13B2FA.4050600@redhat.com> <1259585852.3093.31.camel@palomino.walls.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753080AbZK3QOR@vger.kernel.org>
-In-Reply-To: <4B13C799.4060906@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Ray Lee <ray-lk@madrabbit.org>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:26257 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752720AbZK3QTa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Nov 2009 11:19:30 -0500
+In-Reply-To: <1259585852.3093.31.camel@palomino.walls.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Walls <awalls@radix.net>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Maxim Levitsky <maximlevitsky@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 
-On Mon, Nov 30, 2009 at 7:24 AM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
+Andy Walls wrote:
 
-> After the boot, a device can open the raw API, disabling any in-kerne=
-l
-> decoding/handling and handle IR directly. Alternatively, an udev rule
-> can load a different keymap based on some config written on a file.
+> Nonetheless I'd still rather debug a problem with a dead process in
+> userspace than an oops or panic (not that an end user cares) and avoid
+> the risk of filesystem corruption.
 
-This idea of the in-kernel decoding being disabled when the raw API is
-opened worries me.  What guarantees that the following scenario will
-not happen?
+Considering my experience adding in-kernel support for IR's, I'd say that
+in general, a driver does some things:
 
-User uses apps which retrieve the decoded IR messages from the kernel.
-User installs an app which decodes messages via the raw API (not lirc).
-User's other applications no longer receive IR messages.
+1) it polls or waits IRQ's for an IR event. On raw IR devices, the read value
+means a mark or a space;
+2) it counts the timings between each pulse, and pulse/space duration;
+3) it runs a protocol decoding logic that, based on pulse/space duration, one
+   scancode is produced;
+4) it does a table lookup to convert the scancode into the corresponding keycode;
+5) it generates an evdev event.
 
-I know the assumption has been that "only lirc will use the raw API",
-but this seems like a poor assumption for an API design to me.
+Steps 2 and 3 happen only when the device doesn't have hardware decoding capabilities.
+For devices with hardware decoding, the polling/IRQ process already retrieves a scancode.
 
-A related question, what is an application developer who wishes to
-decode the raw IR signal (for whatever reason) to do?  Are they
-*required* to implement full decoding and feed all the messages back
-to the kernel so they don't break other applications?
+Based on my experience, I can say that, from the above logic, the one
+where you're more likely to generate an OOPS is at the first one, 
+where you need to do the proper memory barriers for example to avoid
+unregistering an IR while you're in the middle of an IRQ or pull handling.
+In the case of IRQ, you'll also need to take care to not sleep, since you're
+in interrupt mode.
 
-=46or clarity, I'm not arguing for a particular approach, I'm not fully
-able to follow the discussion on this issue, but this one issue
-bothered me.
+If you're outputing raw pulse/space to userspace (a lirc-like raw interface), 
+you'll still need to do steps (1) and (2) in kernel, and doing a logic close
+to (5) to output an event to userspace.
 
-Thank you for your time,
-Kevin
+So, the basic difference is that you won't run the decoder (3) nor do a table lookup (4).
 
-> Cheers,
-> Mauro.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
+The logic for (4) is trivial (a simple a table lookup). If you do a mistake
+there, the bug will likely arise at the development time. Also, if you're not able
+to write a proper code to get a value from a table, you shouldn't be trying
+to write a driver anyway.
+
+The logic for (3) is as simple as identifying the length of a pulse and the length of
+the spaces. Depending on the length, it will produce a zero or one. Pure integer math.
+The only risk of such logic is if you try to divide by zero. Except of that, this type
+of code shouldn't cause any OOPS or panic.
+
+Also, for (3) and (4), it is very easy to write it first on userspace (if you feel
+more comfortable on doing so) and, after doing enough testing, add the same code to
+kernelspace.
+
+Cheers,
+Mauro.
+
+
+

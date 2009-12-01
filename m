@@ -1,44 +1,54 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Tue, 01 Dec 2009 11:20:19 +0100
-Message-ID: <4B14EDE3.5050201@redhat.com>
-References: <BDodf9W1qgB@lirc>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [Bugme-new] [Bug 13411] New: Barscanner (USB HID Keyboard)
+ stopped functioning in kernels >= 2.6.28
+Date: Tue, 1 Dec 2009 11:40:55 +0100 (CET)
+Message-ID: <alpine.LSU.2.00.0912011138510.1106@wotan.suse.de>
+References: <bug-13411-10286@http.bugzilla.kernel.org/> <20090601202509.87f57ef9.akpm@linux-foundation.org> <alpine.LRH.2.00.0906021148140.29471@twin.jikos.cz> <200911282251.28780.bugzilla.kernel.org@starbase12.cjb.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32207 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753902AbZLAKUa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2009 05:20:30 -0500
-In-Reply-To: <BDodf9W1qgB@lirc>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200911282251.28780.bugzilla.kernel.org-Dy4KJ/v5nlEVgfBnK23ub6xOck334EZe@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guido Dorssers <bugzilla.kernel.org-Dy4KJ/v5nlEVgfBnK23ub6xOck334EZe@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bugzilla-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, bugme-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org, Remi Cattiau <remi-O/wO+J8fF4JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: mchehab@redhat.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-   Hi,
+On Sat, 28 Nov 2009, Guido Dorssers wrote:
 
->> The point is that for simple usage, like an user plugging his new USB stick
->> he just bought, he should be able to use the shipped IR without needing to
->> configure anything or manually calling any daemon. This currently works
->> with the existing drivers and it is a feature that needs to be kept.
->
-> Admittedly, LIRC is way behind when it comes to plug'n'play.
+> > The problem apparently [1] is, that the vendor has been super-creative and
+> > assigned the same combination of idVendor/idProduct to completely
+> > different devices. Oh well.
+> > 
+> > Remi, could you please check your device against the lsusb data provided
+> > in bugzilla to check whether there is any possibility to distinguish these
+> > devices, so that we could put some ugly check in place probably?
+> > 
+> > Thanks.
+> > 
+> > [1] http://lkml.org/lkml/2009/2/10/434
+> > 
+> 
+> Hi all,
+>  
+> A belated thanks for having pointed me into the right direction to get my 
+> barcodescanner operational. However, as a thought since the bug is still 
+> present, why not solve it with something as simple as making the blacklisting 
+> user-configurable instead of blacklisting valid HID devices on purpose?
 
-Should not be that hard to fixup.
+Hi,
 
-When moving the keytable loading from kernel to userspace the kernel 
-drivers have to inform userspace anyway what kind of hardware the IR 
-device is, so udev can figure what keytable it should load.  A sysfs 
-attribute is the way to go here I think.
+actually, my current plan is to remove the blacklist entry for this 
+combination of VID/PID completely, and let the user decide and unbind the 
+driver via sysfs eventually, if needed (maybe together with warning in 
+dmesg).
 
-lirc drivers can do the same, and lircd can startup with a reasonable 
-(default) configuration.
+As the vendor apparently messed up horribly, as far as I understand, I 
+don't really see another option.
 
-Of course evdev and lirc subsytems/drivers should agree on which 
-attributes should be defined and how they are filled.
-
-cheers,
-   Gerd
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

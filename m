@@ -1,92 +1,144 @@
-From: Steve Chen <schen@mvista.com>
-Subject: RE: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
-	Keyscan platform data
-Date: Tue, 01 Dec 2009 11:08:10 -0600
-Message-ID: <1259687290.3120.128.camel@linux-1lbu>
-References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
-	 <20091119025946.GC20172@core.coreip.homeip.net>
-	 <4B057315.5070302@ridgerun.com>
-	 <20091119165509.GA15647@core.coreip.homeip.net>
-	 <4B05865B.7060303@ridgerun.com>
-	 <20091119203321.GF15647@core.coreip.homeip.net>
-	 <4B05B1B3.4050201@ridgerun.com>
-	 <7A436F7769CA33409C6B44B358BFFF0C012B4387B4@dlee02.ent.ti.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Tue, 01 Dec 2009 15:03:16 -0200
+Message-ID: <4B154C54.5090906@redhat.com>
+References: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com>	 <1259682428.18599.10.camel@maxim-laptop> <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hu47.mvista.com ([206.112.117.47]:35476 "HELO
-	gateway-1237.mvista.com" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with SMTP id S1754314AbZLAQ7M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2009 11:59:12 -0500
-In-Reply-To: <7A436F7769CA33409C6B44B358BFFF0C012B4387B4@dlee02.ent.ti.com>
+Received: from mx1.redhat.com ([209.132.183.28]:64543 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750999AbZLARDo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Dec 2009 12:03:44 -0500
+In-Reply-To: <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Narnakaje, Snehaprabha" <nsnehaprabha@ti.com>
-Cc: Miguel Aguilar <miguel.aguilar@ridgerun.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "clark.becker@ridgerun.com" <clark.becker@ridgerun.com>, "santiago.nunez@ridgerun.com" <santiago.nunez@ridgerun.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "todd.fischer@ridgerun.com" <todd.fischer@ridgerun.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Thu, 2009-11-19 at 15:33 -0600, Narnakaje, Snehaprabha wrote:
-> [...]
-> 
-> > > How do you ensure that only one of these drivers is loaded at a time?
-> > > Or is the set of supported devices is board-specific (in which case the
-> > > board code should have an idea how to properly set the configuration for
-> > > the devices that are supported on that board)?
-> > The DM365 EVM has other device that can't coexist with key scan, so this
-> > is a
-> > particular situation. There no way to ensure that one of this modules is
-> > loaded
-> > at time, but using device_enable handler is a proper way to ensure that a
-> > driver
-> > will be loaded properly, the board code can't assume which driver is going
-> > to be
-> > loaded.
-> > 
-> > I think Sneha, can bring you more details about this particular
-> case.
-> 
-> Ideally PINMUX settings and any other EVM/board related
-> initializations should be done in the board-setup files, when the
-> platform_data for the driver is registered. Our PINMUX configuration
-> APIs do not really have resource management capabilities to remember
-> what drivers/peripherals have taken the resource/bits.
-> 
-> As Miguel mentioned, we have PINMUX conflict between Keyscan lines and
-> the EMIF address lines used by CPLD. PINMUX2 register can only select
-> one of configurations. CPLD is required for the video capture driver
-> which should be enabled all the time in a system. So Miguel in his
-> initial patch called the keyscan_init function within the #ifdef
-> CONFIG_KEYSCAN construct. The keyscan_init function handled the PINMUX
-> configuration for keyscan and also registered the platform_device. The
-> general guideline in the board-setup files is that we should always
-> let platform_device registered. The driver is enabled/disabled anyway
-> using the CONFIG option.
-> 
-> The default configuration for the board does not enable Keyscan. One
-> can test/use kescyan driver by enabling the CONFIG option, but CPLD
-> (video capture input selection, to be specific) configuration will not
-> be available. I would say, it is a limitation in the board/EVM design.
-> Other board designs can have CPLD use different address lines, in
-> which case the CONFIG option can be enabled in the default
-> configuration.
-> 
-> Thanks
-> Sneha
-> 
+Hi Jon,
 
-During DA830/OMAP-L137 development in MVL 5, automatic pinmux detection
-was added.  This allows pinmux configuration to change dynamically as
-modules are loaded/unloaded.  When pinmux conflict is detected, driver
-load would fail and the user is notified via error message with the
-exact pins that caused the failure.
+Jon Smirl wrote:
+> On Tue, Dec 1, 2009 at 10:47 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+>> On Tue, 2009-12-01 at 10:08 -0500, Jon Smirl wrote:
+>>> While reading all of these IR threads another way of handling IR
+>>> occurred to me that pretty much eliminates the need for LIRC and
+>>> configuration files in default cases. The best way to make everything
+>>> "just work" is to eliminate it.
+>>>
+>>> The first observation is that the IR profile of various devices are
+>>> well known. Most devices profiles are in the published One-for-All
+>>> database. These device profiles consist of vendor/device/command
+>>> triplets. There is one triplet for each command like play, pause, 1,
+>>> 2, 3, power, etc.
+>>>
+>>> The second observation is that universal remotes know how to generate
+>>> commands for all of the common devices.
+>>>
+>>> Let's define evdev messages for IR than contain vendor/device/command
+>>> triplets. I already posted code for doing that in my original patch
+>>> set. These messages are generated from in-kernel code.
+>>>
+>>> Now add a small amount of code to MythTV, etc to act on these evdev
+>>> messages. Default MythTV, etc to respond to the IR commands for a
+>>> common DVR device. Program your universal remote to send the commands
+>>> for this device. You're done. Everything will "just work" - no LIRC,
+>>> no irrecord, no config files, no command mapping, etc.
+>> You are making one  big wrong assumption that everyone that has a remote
+>> uses mythtv, and only it.
+>>
+>> Many users including me, use the remote just like a keyboard, or even
+>> like a mouse.
+> 
+> So let's try and figure out a "just works" scheme for doing this. What
+> I'm trying to do is to get everyone to step back and think about this
+> problem instead of rushing head long into merging LIRC as is. irrecord
+> is not something a non-technical user can easily handle.
+> 
+> A basic scheme that can be used to eliminate configuration is to take
+> well known IR device profiles and emulate them in Linux.  So pick
+> another well known device to emulate (call it A) and map it to
+> mouse/keyboard events.  Mapping vendor/device/command codes for a
+> couple devices to mouse/keyboard events is a tiny amount of data and
+> can be done in-kernel.
+> 
+> This case could also be made to "just work". Set your universal remote
+> to device A. Commands from for device A will arrive and be mapped into
+> generic keyboard/mouse commands.
+> 
+> There are probably other solutions to making IR work without needing
+> irrecord and configuration. What would be some other possibilities?
+> 
+> Also consider the long term strategy of defining standard device
+> profiles and getting them into the IR database. Make an IR profile for
+> mouse/keyboard. After this gets into the database a universal remote
+> can be set to this profile which will be a better match than emulating
+> another device.
 
-The pinmux conflict detection was tied to the clock interface, and the
-patch was rejected by the community for that reason.  If you think it
-would be helpful, you are welcome to look at the MVL Pro 5.0 code and
-the patch submitted in the DaVinci mailing list archive.
+This is basically the way the current in-kernel IR drivers work. The
+driver converts scancodes (device address/command sequence) into
+an evdev standard code.
 
-Regards,
+Just taking an example from the dibcom0700 driver (as the same driver 
+supports several different RC5 and NEC codes at the same time), 
+the kernel table has several keycodes added there, all working
+at the same time. Providing that the scancodes won't overlap, you can
+map two different scancodes (from different IR's) to return the same
+keycode (table is not complete - I just got a few common keycodes):
 
-Steve
+# SCAN Key_code
+#
+0xeb13 KEY_RIGHT
+0x1e17 KEY_RIGHT
+0x1d17 KEY_RIGHT
+0x860f KEY_RIGHT
 
+0xeb11 KEY_LEFT
+0x1e16 KEY_LEFT
+0x1d16 KEY_LEFT
+0x860e KEY_LEFT
+
+0x0703 KEY_VOLUMEUP
+0xeb1c KEY_VOLUMEUP
+0x1e10 KEY_VOLUMEUP
+0x037d KEY_VOLUMEUP
+0x1d10 KEY_VOLUMEUP
+0x8610 KEY_VOLUMEUP
+0x7a12 KEY_VOLUMEUP
+
+0x0709 KEY_VOLUMEDOWN
+0xeb1e KEY_VOLUMEDOWN
+0x1e11 KEY_VOLUMEDOWN
+0x017d KEY_VOLUMEDOWN
+0x1d11 KEY_VOLUMEDOWN
+0x860c KEY_VOLUMEDOWN
+0x7a13 KEY_VOLUMEDOWN
+
+0x0706 KEY_CHANNELUP
+0xeb1b KEY_CHANNELUP
+0x1e20 KEY_CHANNELUP
+0x0242 KEY_CHANNELUP
+0x1d20 KEY_CHANNELUP
+0x860d KEY_CHANNELUP
+0x7a10 KEY_CHANNELUP
+
+0x070c KEY_CHANNELDOWN
+0xeb1f KEY_CHANNELDOWN
+0x1e21 KEY_CHANNELDOWN
+0x007d KEY_CHANNELDOWN
+0x1d21 KEY_CHANNELDOWN
+0x8619 KEY_CHANNELDOWN
+0x7a11 KEY_CHANNELDOWN
+
+It should be noticed, however, that some devices may be provided with a shipped
+IR with a different keytable where the keycodes may overlap with this table.
+
+So, what we can do is to have a "default" keycode table mapping several
+different IR's there to be used by drivers that are shipped with an IR
+that can be fully mapped by the default table. However, for devices
+with scancodes that overlaps with the default table, we'll need a separate
+table.
+
+Cheers,
+Mauro.

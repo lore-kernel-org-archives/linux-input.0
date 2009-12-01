@@ -1,44 +1,46 @@
-From: Mika Westerberg <ext-mika.1.westerberg@nokia.com>
-Subject: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Tue,  1 Dec 2009 15:53:45 +0200
-Message-ID: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:58860 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751821AbZLAN6p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 08:58:45 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Tue, 01 Dec 2009 15:02:18 +0100
+Message-ID: <4B1521EA.6050306@redhat.com>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <m3aay6y2m1.fsf@intrepid.localdomain>	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	 <1259450815.3137.19.camel@palomino.walls.org>	 <m3ocml6ppt.fsf@intrepid.localdomain>	 <1259542097.5231.78.camel@palomino.walls.org> <4B14F3EA.4090000@redhat.com> <1259668143.3100.18.camel@palomino.walls.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752934AbZLAODH@vger.kernel.org>
+In-Reply-To: <1259668143.3100.18.camel@palomino.walls.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Walls <awalls@radix.net>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On 12/01/09 12:49, Andy Walls wrote:
+> On Tue, 2009-12-01 at 11:46 +0100, Gerd Hoffmann wrote:
+>> Once lirc_dev is merged you can easily fix this:  You'll have *one*
+>> driver which supports *both* evdev and lirc interfaces.  If lircd opens
+>> the lirc interface raw data will be sent there, keystrokes come in via
+>> uinput.  Otherwise keystrokes are send directly via evdev.  Problem solved.
+>
+> This will be kind of strange for lirc_zilog (aka lirc_pvr150).  It
+> supports IR transmit on the PVR-150, HVR-1600, and HD-PVR.  I don't know
+> if transmit is raw pulse timings, but I'm sure the unit provides codes
+> on receive.  Occasionally blocks of "boot data" need to be programmed
+> into the transmitter side.  I suspect lirc_zilog will likely need
+> rework....
 
-This is third version of the series. Purpose of this patch is to allow
-userland to disable GPIO buttons interrupting the CPU. There is now sysfs
-interface that can be used to control the buttons by key code or by switch
-code.
+Well, for IR *output* it doesn't make sense to disable evdev.  One more 
+reason which indicates it probaably is better to introduce a ioctl to 
+disable evdev reporting.  lircd will probably turn it off, especially 
+when sending data to uevent.  debug tools might not, likewise apps 
+sending IR.
 
-I merged those previous 2 patches as one. This is because it made little
-sense of having separate patch for adding the 'can_disable' field.
+>>   so killing the in-kernel IR limits to make ir-kbd-i2c
+>                    ^^^^^^^^^^^^^^^^^^^
+>>        being on par with lirc_i2c might be more useful in this case.
+>
+> I didn't quite understand that.  Can you provide a little more info?
 
-Changes in v3:
-	- merged previous 2 patches into one
-	- buttons have 'can_disable' field instead of irqflags field
+Such as throwing away the address part of rc5 codes ...
 
-Tested with RX-51.
-
-Thanks,
-MW
-
----
-
-Mika Westerberg (1):
-  Input: gpio-keys - added support for disabling gpios through sysfs
-
- Documentation/ABI/testing/sysfs-platform-gpio-keys |   44 +++
- drivers/input/keyboard/gpio_keys.c                 |  318 +++++++++++++++++++-
- include/linux/gpio_keys.h                          |    1 +
- 3 files changed, 352 insertions(+), 11 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-platform-gpio-keys
-
+cheers,
+   Gerd

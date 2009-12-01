@@ -1,73 +1,65 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: Tue, 1 Dec 2009 09:32:42 -0500
-Message-ID: <119343FC-A4FF-456A-8709-36ED941AC9C3@wilsonet.com>
-References: <BDodf9W1qgB@lirc> <4B13BBBE.3010101@redhat.com> <4B14E747.9060208@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: [RFC v2] Another approach to IR
+Date: Tue, 1 Dec 2009 10:08:59 -0500
+Message-ID: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:35409
-	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752667AbZLAOco convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 09:32:44 -0500
-In-Reply-To: <4B14E747.9060208@redhat.com>
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:64185 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750849AbZLAPIy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 10:08:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@
 
-On Dec 1, 2009, at 4:52 AM, Gerd Hoffmann wrote:
+While reading all of these IR threads another way of handling IR
+occurred to me that pretty much eliminates the need for LIRC and
+configuration files in default cases. The best way to make everything
+"just work" is to eliminate it.
 
-> On 11/30/09 13:34, Mauro Carvalho Chehab wrote:
->> Christoph Bartelmus wrote:
->>> Hi Mauro,
->>> 
->>> I just don't want to change a working interface just because it could be
->>> also implemented in a different way, but having no other visible advantage
->>> than using more recent kernel features.
->> 
->> I agree. The main reasons to review the interface is:
->> 	1) to avoid any overlaps (if are there any) with the evdev interface;
-> 
-> Use lirc for raw samples.
-> Use evdev for decoded data.
+The first observation is that the IR profile of various devices are
+well known. Most devices profiles are in the published One-for-All
+database. These device profiles consist of vendor/device/command
+triplets. There is one triplet for each command like play, pause, 1,
+2, 3, power, etc.
 
-This is the approach I'm pretty well settled on wanting to take myself.
+The second observation is that universal remotes know how to generate
+commands for all of the common devices.
 
-> Hardware/drivers which can handle both can support both interfaces.
+Let's define evdev messages for IR than contain vendor/device/command
+triplets. I already posted code for doing that in my original patch
+set. These messages are generated from in-kernel code.
 
-Exactly.
+Now add a small amount of code to MythTV, etc to act on these evdev
+messages. Default MythTV, etc to respond to the IR commands for a
+common DVR device. Program your universal remote to send the commands
+for this device. You're done. Everything will "just work" - no LIRC,
+no irrecord, no config files, no command mapping, etc.
 
-> IMHO it makes no sense at all to squeeze raw samples through the input layer.  It looks more like a serial line than a input device.  In fact you can homebrew a receiver and connect it to the serial port, which was quite common in pre-usb-ir-receiver times.
-> 
->> 	2) to have it stable enough to be used, without changes, for a long
->> 	   time.
-> 
-> It isn't like lirc is a new interface.  It has been used in practice for years.  I don't think API stability is a problem here.
+Of course there are details involved in making this work. MythTV will
+have to have a config option to allow it to emulate several different
+DVR devices so that you can pick one that you don't own. It should
+also have choices for emulating the common devices defined for the
+remotes included with various Linux video board like the Hauppauge
+remote.
 
-Yeah, in the ~3 years I've been maintaining lirc patches for the Fedora kernels, only once has something happened where new userspace could no longer talk to old kernelspace. The majority of the work has been keeping things running as kernel interfaces change -- the 2.6.31 i2c changes are still biting us, as some capture card devices lagged behind a bit on converting to the new i2c scheme, making it impossible for lirc_i2c and/or lirc_zilog to bind (and ir-kbd-i2c, for that matter).
+For apps that haven't been modified you will have to run a daemon
+which will capture vendor/device/command evdev events and convert them
+into keystroke commands than work the menus. You'll need a config file
+for this and have to write scripts. Instead I'd just go modify the app
+the respond to the IR events, it is easy to do.
 
->> True, but even if we want to merge lirc drivers "as-is", the drivers will
->> still need changes, due to kernel CodingStyle, due to the usage of some API's
->> that may be deprecated, due to some breakage with non-Intel architectures, due
->> to some bugs that kernel hackers may discover, etc.
-> 
-> I assumed this did happen in already in preparation of this submission?
+Long run, we define a MythTV IR profile, mplayer profile, etc and get
+these into the IR database for universal remotes. Now MythTV can stop
+emulating another vendor's device.
 
-Yes. There may still be a bit of work to do here, but there was a crew of us about a year, year and a half ago, that did a major sweep through all the lirc drivers, reformatting things so that we were at least mostly checkpatch-clean. The original lirc patches I put into the Fedora Core 6 kernel had several thousand lines of warnings and errors, while with the current lirc patches in Fedora 12, I get:
-
-total: 1 errors, 12 warnings, 15987 lines checked
-
-The error is new, hadn't seen that one before, going to fix it now... :) The warnings are almost all the same thing, "WARNING: struct file_operations should normally be const", need to fix that too, though we actually do edit the lirc_fops on a per-device basis right now, so they can't be const...
-
-Okay, the error and one of the warnings are gone from my local tree, now its all just the above.
-
-But yeah, for the most part, I think the coding style and formatting of the lirc drivers *does* look like kernel code these days, minor fixages suggested in Mauro's review aside. I submitted only a 3-part series (lirc_dev, lirc_mceusb and lirc_imon) to keep from overwhelming anyone (myself included) with too much code at once, and went with the two device drivers that I've personally done the most work on and have several devices driven by (which includes the IR parts I've been using in my "production" MythTV setup for years now).
+For the default MythTV case no external support will need to be
+installed if the protocol decode engines are in the kernel. The raw
+data will come in, run through the engines, and pop out as evdev
+messages with a vendor/device/command triplet. Devices that decode in
+hardware will just send vendor/device/command triplets.
 
 -- 
-Jarod Wilson
-jarod@wilsonet.com
-
-
-
+Jon Smirl
+jonsmirl@gmail.com

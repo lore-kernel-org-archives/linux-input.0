@@ -1,77 +1,93 @@
-From: Jon Smirl <jonsmirl@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC v2] Another approach to IR
-Date: Tue, 1 Dec 2009 13:19:02 -0500
-Message-ID: <9e4733910912011019n798c7552i6f9b16f9e8e90c58@mail.gmail.com>
-References: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com>
-	 <1259682428.18599.10.camel@maxim-laptop>
-	 <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>
-	 <4B154C54.5090906@redhat.com>
+Date: Tue, 01 Dec 2009 17:00:40 -0200
+Message-ID: <4B1567D8.7080007@redhat.com>
+References: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com> <1259682428.18599.10.camel@maxim-laptop> <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com> <4B154C54.5090906@redhat.com> <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com> <4B155288.1060509@redhat.com> <20091201175400.GA19259@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:59679 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752302AbZLASS4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 13:18:56 -0500
-In-Reply-To: <4B154C54.5090906@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:47274 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751320AbZLATBN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Dec 2009 14:01:13 -0500
+In-Reply-To: <20091201175400.GA19259@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Jon Smirl <jonsmirl@gmail.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Tue, Dec 1, 2009 at 12:03 PM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
-> Hi Jon,
-> So, what we can do is to have a "default" keycode table mapping several
-> different IR's there to be used by drivers that are shipped with an IR
-> that can be fully mapped by the default table. However, for devices
-> with scancodes that overlaps with the default table, we'll need a separate
-> table.
+Dmitry Torokhov wrote:
+> On Tue, Dec 01, 2009 at 03:29:44PM -0200, Mauro Carvalho Chehab wrote:
+>> For sure we need to add an EVIOSETPROTO ioctl to allow the driver 
+>> to change the protocol in runtime.
+>>
+> 
+> Mauro,
+> 
+> I think this kind of confuguration belongs to lirc device space,
+> not input/evdev. This is the same as protocol selection for psmouse
+> module: while it is normally auto-detected we have sysfs attribute to
+> force one or another and it is tied to serio device, not input
+> device.
 
-The goal is to try and design a set of zero config defaults that can
-work for 90% of users.
+Dmitry,
 
-LIRC merges two different things, basic IR driver support and
-application scripting for non-IR aware apps. Application scripting for
-unaware apps is always going to happen in user space and it will
-always need to be manually configured.  But scripting should be
-optional.
+This has nothing to do with the raw interface nor with lirc. This problem 
+happens with the evdev interface and already affects the in-kernel drivers.
 
-I'm looking at the driver half and I'd like to explore how zero config
-support can be built for IR aware apps. Of course we don't have any IR
-aware apps today because no kernel IR event types have been defined
-yet. It is better to simply make the apps IR aware and have them
-process IR events from evdev (in other words forget about the configs
-code it was a poor man's scripting scheme).
+In this case, psmouse is not a good example. With a mouse, when a movement
+occurs, you'll receive some data from its port. So, a software can autodetect
+the protocol. The same principle can be used also with a raw pulse/space
+interface, where software can autodetect the protocol.
 
-For mouse/keyboard support something parallel to USB HID is needed. A
-couple of common device profiles would be mapped to keyboard/mouse
-events by default. That should support 90% of users. The other 10% can
-use a set keys IOCTL to change the mappings.
+However, with hardware decoded IR's, when the hardware detects a code
+from the wrong protocol, it simply discards the unknown protocol code 
+without any advice. So, there's no way to autodetect. 
 
-A couple of use cases:
-  insert MSMCE IR device
-  kernel automatically loads all drivers
-  IR events appear in evdev as vendor/device/command triplets
+You need to set the right protocol before enabling the hardware decoder,
+or no scan code will be produced at all.
 
-  apt-get mythtv
-  set universal remote to xmit DVR commands
-  everything just works
+Also, the same hardware can work with more than one protocol, on several cases,
+but the list is generally limited to a few different protocols. So, a way
+to enumerate what protocols are supported by the hardware is needed.
 
-  set universal remote to xmit device A commands
-  device A commands mapped to keyboard/mouse movements
-  everything just works
+Let me give you a practical example: I have here a a Pixelview SBTVD USB stick,
+for ISDB-T digital TV standard.
 
-For these default cases you just have to read enough docs to know what
-device to set your universal remote to.
+Pixelview provides a very inexpensive and limited NEC protocol-based IR, with a dozen
+of keys. 
 
-The scenario I'd like to achieve
-   install TV app
-   install audio app
-   install home automation app
-   use multi-function remote to control in parallel with zero config
-other than setting three devices into the remote.
+However, the hardware of the stick has the same components that are also present
+on similar devices made by other manufacturers, with are shipped with different IR's,
+running different protocols.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+The same hardware design is also used with other models that work with DVB or ATSC
+video standards.
+
+For example, the same dib0700 driver supports this ISDB-T device and, for example,
+a Hauppauge Nova-T DVB stick, that used a Hauppauge Grey IR, based on RC5 protocol.
+
+Due to the lack of an evdev API call to select the IR protocol, an ugly modprobe 
+parameter is provided to select the protocol at module boot time.
+
+So, if people want to use the original NEC protocol-based IR, they need to do:
+	modprobe dvb_usb_dib0700 dvb_usb_dib0700_ir_proto=0
+
+But, if they want to use a decent IR, even having the keycodes for the RC5
+remotes there, the driver needs to be reloaded with a different parameter, to
+change the hardware to use a different decoder.
+
+This is not an isolated case of this driver. The same problem happens will all other
+in-kernel drivers at drivers/media.
+
+Due to the lack of an API for it, each driver has their own way to handle the
+protocols, but basically, on almost all drivers, even supporting different protocols,
+the driver limits the usage of just the protocol provided by the shipped remote.
+
+To solve this, we really need to extend evdev API to do 3 things: enumberate the
+supported protocols, get the current protocol(s), and select the protocol(s) that
+will be used by a newer table.
+
+Cheers,
+Mauro.

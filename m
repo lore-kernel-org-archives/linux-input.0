@@ -1,39 +1,62 @@
 From: Andy Walls <awalls@radix.net>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Tue, 01 Dec 2009 06:38:00 -0500
-Message-ID: <1259667480.3100.10.camel@palomino.walls.org>
-References: <BE3edeNXqgB@lirc>
+Date: Tue, 01 Dec 2009 06:49:03 -0500
+Message-ID: <1259668143.3100.18.camel@palomino.walls.org>
+References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
+	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
+	 <m3aay6y2m1.fsf@intrepid.localdomain>
+	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
+	 <1259450815.3137.19.camel@palomino.walls.org>
+	 <m3ocml6ppt.fsf@intrepid.localdomain>
+	 <1259542097.5231.78.camel@palomino.walls.org> <4B14F3EA.4090000@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753532AbZLALj5@vger.kernel.org>
-In-Reply-To: <BE3edeNXqgB@lirc>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: jonsmirl@gmail.com, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com, superm1@ubuntu.com
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4B14F3EA.4090000@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2009-12-01 at 08:45 +0100, Christoph Bartelmus wrote:
-> Hi Jon,
+On Tue, 2009-12-01 at 11:46 +0100, Gerd Hoffmann wrote:
+> Hi,
 > 
-> on 30 Nov 09 at 16:35, Jon Smirl wrote:
-
-
-> Currently I would tend to an approach like this:
-> - raw interface to userspace using LIRC
-> - fixed set of in-kernel decoders that can handle bundled remotes
+> > A current related problem is that i2c based devices can only be bound to
+> > only one of ir-kbd-i2c *or* lirc_i2c *or* lirc_zilog at any one time.
+> > Currently it is somewhat up to the bridge driver which binding is
+> > preferred.  Discussion about this for the pvrusb2 module had the biggest
+> > email churn IIRC.
 > 
-> That would allow zero configuration for simple use cases and full  
-> flexibility for more advanced use cases.
+> Once lirc_dev is merged you can easily fix this:  You'll have *one* 
+> driver which supports *both* evdev and lirc interfaces.  If lircd opens 
+> the lirc interface raw data will be sent there, keystrokes come in via 
+> uinput.  Otherwise keystrokes are send directly via evdev.  Problem solved.
+
+This will be kind of strange for lirc_zilog (aka lirc_pvr150).  It
+supports IR transmit on the PVR-150, HVR-1600, and HD-PVR.  I don't know
+if transmit is raw pulse timings, but I'm sure the unit provides codes
+on receive.  Occasionally blocks of "boot data" need to be programmed
+into the transmitter side.  I suspect lirc_zilog will likely need
+rework....
+
+
+> cheers,
+>    Gerd
 > 
-> Christoph
+> PS:  Not sure this actually makes sense for the i2c case, as far I know
+>       these do decoding in hardware and don't provide access to the raw
+>       samples,
 
-I'd also prefer that approach.
+True.
 
-That probably comes as no surprise, but I may not be able to keep
-following/kibitzing in this thread. Christoph's statement sums up my
-preference.
+>  so killing the in-kernel IR limits to make ir-kbd-i2c
+                  ^^^^^^^^^^^^^^^^^^^ 
+>       being on par with lirc_i2c might be more useful in this case.
 
-Regards,
+I didn't quite understand that.  Can you provide a little more info?
+
+
+Thanks,
 Andy

@@ -1,41 +1,85 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Tue, 01 Dec 2009 11:46:02 +0100
-Message-ID: <4B14F3EA.4090000@redhat.com>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>	 <m3aay6y2m1.fsf@intrepid.localdomain>	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>	 <1259450815.3137.19.camel@palomino.walls.org>	 <m3ocml6ppt.fsf@intrepid.localdomain> <1259542097.5231.78.camel@palomino.walls.org>
+From: =?ISO-8859-1?Q?R=E9mi_Cattiau?= <remi@cattiau.com>
+Subject: Re: [Bugme-new] [Bug 13411] New: Barscanner (USB HID Keyboard) stopped
+ functioning in kernels >= 2.6.28
+Date: Tue, 01 Dec 2009 12:08:15 +0100
+Message-ID: <4B14F91F.7080200@cattiau.com>
+References: <bug-13411-10286@http.bugzilla.kernel.org/> <20090601202509.87f57ef9.akpm@linux-foundation.org> <alpine.LRH.2.00.0906021148140.29471@twin.jikos.cz> <200911282251.28780.bugzilla.kernel.org@starbase12.cjb.net> <alpine.LSU.2.00.0912011138510.1106@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:26082 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753244AbZLAKqe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2009 05:46:34 -0500
-In-Reply-To: <1259542097.5231.78.camel@palomino.walls.org>
+Received: from sd-5685.dedibox.fr ([88.191.36.166]:35933 "EHLO
+	sd-5685.dedibox.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751793AbZLALhQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 06:37:16 -0500
+In-Reply-To: <alpine.LSU.2.00.0912011138510.1106@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Guido Dorssers <bugzilla.kernel.org@starbase12.cjb.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, bugzilla-daemon@bugzilla.kernel.org, bugme-daemon@bugzilla.kernel.org
 
-   Hi,
+I'll be @ home in 10 hours i'll check but it seems very ugly from those=
+s=20
+manufacturers. We may find a official list from some authorities about=20
+that no ?
 
-> A current related problem is that i2c based devices can only be bound to
-> only one of ir-kbd-i2c *or* lirc_i2c *or* lirc_zilog at any one time.
-> Currently it is somewhat up to the bridge driver which binding is
-> preferred.  Discussion about this for the pvrusb2 module had the biggest
-> email churn IIRC.
+R=E9mi
 
-Once lirc_dev is merged you can easily fix this:  You'll have *one* 
-driver which supports *both* evdev and lirc interfaces.  If lircd opens 
-the lirc interface raw data will be sent there, keystrokes come in via 
-uinput.  Otherwise keystrokes are send directly via evdev.  Problem solved.
+Le 01/12/2009 11:40, Jiri Kosina a =E9crit :
+> On Sat, 28 Nov 2009, Guido Dorssers wrote:
+>
+>   =20
+>>> The problem apparently [1] is, that the vendor has been super-creat=
+ive and
+>>> assigned the same combination of idVendor/idProduct to completely
+>>> different devices. Oh well.
+>>>
+>>> Remi, could you please check your device against the lsusb data pro=
+vided
+>>> in bugzilla to check whether there is any possibility to distinguis=
+h these
+>>> devices, so that we could put some ugly check in place probably?
+>>>
+>>> Thanks.
+>>>
+>>> [1] http://lkml.org/lkml/2009/2/10/434
+>>>
+>>>       =20
+>> Hi all,
+>>
+>> A belated thanks for having pointed me into the right direction to g=
+et my
+>> barcodescanner operational. However, as a thought since the bug is s=
+till
+>> present, why not solve it with something as simple as making the bla=
+cklisting
+>> user-configurable instead of blacklisting valid HID devices on purpo=
+se?
+>>     =20
+> Hi,
+>
+> actually, my current plan is to remove the blacklist entry for this
+> combination of VID/PID completely, and let the user decide and unbind=
+ the
+> driver via sysfs eventually, if needed (maybe together with warning i=
+n
+> dmesg).
+>
+> As the vendor apparently messed up horribly, as far as I understand, =
+I
+> don't really see another option.
+>
+>   =20
 
-cheers,
-   Gerd
 
-PS:  Not sure this actually makes sense for the i2c case, as far I know
-      these do decoding in hardware and don't provide access to the raw
-      samples, so killing the in-kernel IR limits to make ir-kbd-i2c
-      being on par with lirc_i2c might be more useful in this case.
+--=20
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,32 +1,64 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
- specify exact irq flags
-Date: Tue, 1 Dec 2009 10:11:50 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0912011011390.2983-100000@iolanthe.rowland.org>
-References: <873a3v2eij.fsf@tac.ki.iif.hu>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Tue, 01 Dec 2009 16:28:23 +0100
+Message-ID: <4B153617.8070608@redhat.com>
+References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:34362 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753567AbZLAPLp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 10:11:45 -0500
-In-Reply-To: <873a3v2eij.fsf@tac.ki.iif.hu>
+Received: from mx1.redhat.com ([209.132.183.28]:1522 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753570AbZLAP3E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Dec 2009 10:29:04 -0500
+In-Reply-To: <4B1524DD.3080708@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Tue, 1 Dec 2009, Ferenc Wagner wrote:
+   Hi,
 
-> Alan Stern <stern@rowland.harvard.edu> writes:
-> 
-> > Runtime PM is not well suited for this purpose.
-> 
-> So the question is: is there some other PM framework which would be a
-> good fit for this "forced manual selective suspend" use case?
+> The big issue here is: how do we document that "EM28xxHVR950-00" is the Hauppauge Grey IR that
+> is shipped with their newer devices.
+ >
+> A third approach would be to identify, instead, the Remote Controller directly. So, we would
+> add a sysfs field like ir_type.
 
-None that I know of.
+I'd pick a more descriptive name like 'bundled_remote'.
+Maybe an additional attribute could say which protocol the bundled 
+remote speaks (rc5, ...), so userspace could do something sensible by 
+default even if it has no data about the bundled remote.
 
-Alan Stern
+> There are two issues here:
+> 	1) What's the name for this IR? We'll need to invent names for the existing IR's, as
+> those devices don't have a known brand name;
 
+Name them by the hardware they are bundled with should work reasonable well.
+
+> 	2) there are cases where the same device is provided with two or more different IR
+> types. If we identify the board type instead of the IR type, userspace can better handle
+> it, by providing a list of the possibilities.
+
+We also could also provide a list of possible remotes directly via sysfs 
+instead of expecting userspace know which remotes can come bundled with 
+which board.
+
+> No matter how we map, we'll still need to document it somehow to userspace. What would be
+> the better? A header file? A set of keymaps from the default IR's that will be added
+> on some directory at the Linux tree? A Documentation/IR ?
+
+I'd suggest tools/ir/ (map loader intended to be called by udev) and the 
+maps being files in the linux source tree (next to the drivers?).  The 
+maps probably should be installed on some standard location (pretty much 
+like firmware).
+
+> Anyway, we shouldn't postpone lirc drivers addition due to that. There are still lots of work
+> to do before we'll be able to split the tables from the kernel drivers.
+
+Indeed.  The sysfs bits are future work for both lirc and evdev drivers. 
+  There is no reason to make the lirc merge wait for it.
+
+cheers,
+   Gerd

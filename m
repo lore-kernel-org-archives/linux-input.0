@@ -1,57 +1,28 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Tue, 01 Dec 2009 10:52:07 +0100
-Message-ID: <4B14E747.9060208@redhat.com>
-References: <BDodf9W1qgB@lirc> <4B13BBBE.3010101@redhat.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to specify exact irq flags
+Date: Tue, 01 Dec 2009 11:08:04 +0100
+Message-ID: <873a3v2eij.fsf@tac.ki.iif.hu>
+References: <Pine.LNX.4.44L0.0911301658240.4478-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47639 "EHLO mx1.redhat.com"
+Received: from tac.ki.iif.hu ([193.6.222.43]:40840 "EHLO tac.ki.iif.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753735AbZLAJwb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2009 04:52:31 -0500
-In-Reply-To: <4B13BBBE.3010101@redhat.com>
+	id S1753851AbZLAKIF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Dec 2009 05:08:05 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0911301658240.4478-100000@iolanthe.rowland.org>
+	(Alan Stern's message of "Mon, 30 Nov 2009 16:59:41 -0500 (EST)")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 11/30/09 13:34, Mauro Carvalho Chehab wrote:
-> Christoph Bartelmus wrote:
->> Hi Mauro,
->>
->> I just don't want to change a working interface just because it could be
->> also implemented in a different way, but having no other visible advantage
->> than using more recent kernel features.
->
-> I agree. The main reasons to review the interface is:
-> 	1) to avoid any overlaps (if are there any) with the evdev interface;
+Alan Stern <stern@rowland.harvard.edu> writes:
 
-Use lirc for raw samples.
-Use evdev for decoded data.
+> Runtime PM is not well suited for this purpose.
 
-Hardware/drivers which can handle both can support both interfaces.
-
-IMHO it makes no sense at all to squeeze raw samples through the input 
-layer.  It looks more like a serial line than a input device.  In fact 
-you can homebrew a receiver and connect it to the serial port, which was 
-quite common in pre-usb-ir-receiver times.
-
-> 	2) to have it stable enough to be used, without changes, for a long
-> 	   time.
-
-It isn't like lirc is a new interface.  It has been used in practice for 
-years.  I don't think API stability is a problem here.
-
-> True, but even if we want to merge lirc drivers "as-is", the drivers will
-> still need changes, due to kernel CodingStyle, due to the usage of some API's
-> that may be deprecated, due to some breakage with non-Intel architectures, due
-> to some bugs that kernel hackers may discover, etc.
-
-I assumed this did happen in already in preparation of this submission?
-
-cheers,
-   Gerd
-
+So the question is: is there some other PM framework which would be a
+good fit for this "forced manual selective suspend" use case?
+-- 
+Thanks,
+Feri.

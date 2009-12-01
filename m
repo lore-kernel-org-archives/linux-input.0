@@ -1,65 +1,32 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: [RFC v2] Another approach to IR
-Date: Tue, 1 Dec 2009 10:08:59 -0500
-Message-ID: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+ specify exact irq flags
+Date: Tue, 1 Dec 2009 10:11:50 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0912011011390.2983-100000@iolanthe.rowland.org>
+References: <873a3v2eij.fsf@tac.ki.iif.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:64185 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750849AbZLAPIy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 10:08:54 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:34362 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753567AbZLAPLp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Dec 2009 10:11:45 -0500
+In-Reply-To: <873a3v2eij.fsf@tac.ki.iif.hu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@
+To: Ferenc Wagner <wferi@niif.hu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-While reading all of these IR threads another way of handling IR
-occurred to me that pretty much eliminates the need for LIRC and
-configuration files in default cases. The best way to make everything
-"just work" is to eliminate it.
+On Tue, 1 Dec 2009, Ferenc Wagner wrote:
 
-The first observation is that the IR profile of various devices are
-well known. Most devices profiles are in the published One-for-All
-database. These device profiles consist of vendor/device/command
-triplets. There is one triplet for each command like play, pause, 1,
-2, 3, power, etc.
+> Alan Stern <stern@rowland.harvard.edu> writes:
+> 
+> > Runtime PM is not well suited for this purpose.
+> 
+> So the question is: is there some other PM framework which would be a
+> good fit for this "forced manual selective suspend" use case?
 
-The second observation is that universal remotes know how to generate
-commands for all of the common devices.
+None that I know of.
 
-Let's define evdev messages for IR than contain vendor/device/command
-triplets. I already posted code for doing that in my original patch
-set. These messages are generated from in-kernel code.
+Alan Stern
 
-Now add a small amount of code to MythTV, etc to act on these evdev
-messages. Default MythTV, etc to respond to the IR commands for a
-common DVR device. Program your universal remote to send the commands
-for this device. You're done. Everything will "just work" - no LIRC,
-no irrecord, no config files, no command mapping, etc.
-
-Of course there are details involved in making this work. MythTV will
-have to have a config option to allow it to emulate several different
-DVR devices so that you can pick one that you don't own. It should
-also have choices for emulating the common devices defined for the
-remotes included with various Linux video board like the Hauppauge
-remote.
-
-For apps that haven't been modified you will have to run a daemon
-which will capture vendor/device/command evdev events and convert them
-into keystroke commands than work the menus. You'll need a config file
-for this and have to write scripts. Instead I'd just go modify the app
-the respond to the IR events, it is easy to do.
-
-Long run, we define a MythTV IR profile, mplayer profile, etc and get
-these into the IR database for universal remotes. Now MythTV can stop
-emulating another vendor's device.
-
-For the default MythTV case no external support will need to be
-installed if the protocol decode engines are in the kernel. The raw
-data will come in, run through the engines, and pop out as evdev
-messages with a vendor/device/command triplet. Devices that decode in
-hardware will just send vendor/device/command triplets.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

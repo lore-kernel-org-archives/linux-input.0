@@ -1,62 +1,68 @@
-From: Andy Walls <awalls@radix.net>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR  system?
-Date: Tue, 01 Dec 2009 06:49:03 -0500
-Message-ID: <1259668143.3100.18.camel@palomino.walls.org>
-References: <m3r5riy7py.fsf@intrepid.localdomain> <BDkdITRHqgB@lirc>
-	 <9e4733910911280906if1191a1jd3d055e8b781e45c@mail.gmail.com>
-	 <m3aay6y2m1.fsf@intrepid.localdomain>
-	 <9e4733910911280937k37551b38g90f4a60b73665853@mail.gmail.com>
-	 <1259450815.3137.19.camel@palomino.walls.org>
-	 <m3ocml6ppt.fsf@intrepid.localdomain>
-	 <1259542097.5231.78.camel@palomino.walls.org> <4B14F3EA.4090000@redhat.com>
+Date: Tue, 01 Dec 2009 11:11:54 -0200
+Message-ID: <4B15161A.80101@redhat.com>
+References: <BDodf9W1qgB@lirc> <4B13BBBE.3010101@redhat.com> <4B14E747.9060208@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4B14F3EA.4090000@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754100AbZLANMJ@vger.kernel.org>
+In-Reply-To: <4B14E747.9060208@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, maximlevitsky@gmail.com, mchehab@redhat.com, stefanr@s5r6.in-berlin.de, superm1@ubuntu.com
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2009-12-01 at 11:46 +0100, Gerd Hoffmann wrote:
-> Hi,
+Gerd Hoffmann wrote:
+> On 11/30/09 13:34, Mauro Carvalho Chehab wrote:
+>> Christoph Bartelmus wrote:
+>>> Hi Mauro,
+>>>
+>>> I just don't want to change a working interface just because it could be
+>>> also implemented in a different way, but having no other visible
+>>> advantage
+>>> than using more recent kernel features.
+>>
+>> I agree. The main reasons to review the interface is:
+>>     1) to avoid any overlaps (if are there any) with the evdev interface;
 > 
-> > A current related problem is that i2c based devices can only be bound to
-> > only one of ir-kbd-i2c *or* lirc_i2c *or* lirc_zilog at any one time.
-> > Currently it is somewhat up to the bridge driver which binding is
-> > preferred.  Discussion about this for the pvrusb2 module had the biggest
-> > email churn IIRC.
+> Use lirc for raw samples.
+> Use evdev for decoded data.
 > 
-> Once lirc_dev is merged you can easily fix this:  You'll have *one* 
-> driver which supports *both* evdev and lirc interfaces.  If lircd opens 
-> the lirc interface raw data will be sent there, keystrokes come in via 
-> uinput.  Otherwise keystrokes are send directly via evdev.  Problem solved.
+> Hardware/drivers which can handle both can support both interfaces.
+> IMHO it makes no sense at all to squeeze raw samples through the input
+> layer.  It looks more like a serial line than a input device.  In fact
+> you can homebrew a receiver and connect it to the serial port, which was
+> quite common in pre-usb-ir-receiver times.
 
-This will be kind of strange for lirc_zilog (aka lirc_pvr150).  It
-supports IR transmit on the PVR-150, HVR-1600, and HD-PVR.  I don't know
-if transmit is raw pulse timings, but I'm sure the unit provides codes
-on receive.  Occasionally blocks of "boot data" need to be programmed
-into the transmitter side.  I suspect lirc_zilog will likely need
-rework....
-
-
-> cheers,
->    Gerd
+I agree. 
 > 
-> PS:  Not sure this actually makes sense for the i2c case, as far I know
->       these do decoding in hardware and don't provide access to the raw
->       samples,
+>>     2) to have it stable enough to be used, without changes, for a long
+>>        time.
+> 
+> It isn't like lirc is a new interface.  It has been used in practice for
+> years.  I don't think API stability is a problem here.
 
-True.
+You're probably right here, but, as, currently, changing the API is not a problem,
+I don't doubt that the API has changed during those years (I haven't followed
+lirc API, so this is just an educated guess).
 
->  so killing the in-kernel IR limits to make ir-kbd-i2c
-                  ^^^^^^^^^^^^^^^^^^^ 
->       being on par with lirc_i2c might be more useful in this case.
+So, all I'm saying is that we should do a final review considering API stability
+before merging it, eventually considering to add a few reserved fields there, if
+we suspect that we might need more space for some reason.
 
-I didn't quite understand that.  Can you provide a little more info?
+>> True, but even if we want to merge lirc drivers "as-is", the drivers will
+>> still need changes, due to kernel CodingStyle, due to the usage of
+>> some API's
+>> that may be deprecated, due to some breakage with non-Intel
+>> architectures, due
+>> to some bugs that kernel hackers may discover, etc.
+> 
+> I assumed this did happen in already in preparation of this submission?
 
+Yes, for just a few drivers that went on the first series of patches (on Jerod's
+proposal, only 2 drivers were submitted).
 
-Thanks,
-Andy
+Cheers,
+Mauro.

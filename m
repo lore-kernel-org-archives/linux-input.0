@@ -1,55 +1,59 @@
-From: Patrick Boettcher <pboettcher@kernellabs.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC v2] Another approach to IR
-Date: Tue, 1 Dec 2009 18:35:23 +0100 (CET)
-Message-ID: <alpine.LRH.2.00.0912011833070.11226@pub6.ifh.de>
-References: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com>  <1259682428.18599.10.camel@maxim-laptop>  <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>  <4B154C54.5090906@redhat.com>
- <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com>
+Date: Tue, 01 Dec 2009 15:37:03 -0200
+Message-ID: <4B15543F.1000604@redhat.com>
+References: <9e4733910912010708u1064e2c6mbc08a01293c3e7fd@mail.gmail.com> <1259682428.18599.10.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from znsun1.ifh.de ([141.34.1.16]:43256 "EHLO znsun1.ifh.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752828AbZLARf0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Dec 2009 12:35:26 -0500
-In-Reply-To: <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754173AbZLARhc@vger.kernel.org>
+In-Reply-To: <1259682428.18599.10.camel@maxim-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Devin Heitmueller <dheitmueller@kernellabs.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-Hi,
-On Tue, 1 Dec 2009, Devin Heitmueller wrote:
+Maxim Levitsky wrote:
+> On Tue, 2009-12-01 at 10:08 -0500, Jon Smirl wrote: 
+>> While reading all of these IR threads another way of handling IR
+>> occurred to me that pretty much eliminates the need for LIRC and
+>> configuration files in default cases. The best way to make everything
+>> "just work" is to eliminate it.
+>>
+>> The first observation is that the IR profile of various devices are
+>> well known. Most devices profiles are in the published One-for-All
+>> database. These device profiles consist of vendor/device/command
+>> triplets. There is one triplet for each command like play, pause, 1,
+>> 2, 3, power, etc.
+>>
+>> The second observation is that universal remotes know how to generate
+>> commands for all of the common devices.
+>>
+>> Let's define evdev messages for IR than contain vendor/device/command
+>> triplets. I already posted code for doing that in my original patch
+>> set. These messages are generated from in-kernel code.
+>>
+>> Now add a small amount of code to MythTV, etc to act on these evdev
+>> messages. Default MythTV, etc to respond to the IR commands for a
+>> common DVR device. Program your universal remote to send the commands
+>> for this device. You're done. Everything will "just work" - no LIRC,
+>> no irrecord, no config files, no command mapping, etc.
+> You are making one  big wrong assumption that everyone that has a remote
+> uses mythtv, and only it.
+> 
+> Many users including me, use the remote just like a keyboard, or even
+> like a mouse.
 
-> On Tue, Dec 1, 2009 at 12:03 PM, Mauro Carvalho Chehab
-> <mchehab@redhat.com> wrote:
->> Just taking an example from the dibcom0700 driver (as the same driver
->> supports several different RC5 and NEC codes at the same time),
->> the kernel table has several keycodes added there, all working
->> at the same time. Providing that the scancodes won't overlap, you can
->> map two different scancodes (from different IR's) to return the same
->> keycode (table is not complete - I just got a few common keycodes):
->
-> Mauro,
->
-> Just to be clear, the dib0700 does not actually support receiving RC5
-> or NEC codes at the same time.  You have to tell the chip which mode
-> to operate in, via a REQUEST_SET_RC to the firmware (see
-> dib0700_core.c:405).  The em28xx works the same way (you have to tell
-> it what type of IR format to receive).
->
-> The fact that the driver currently uses the same lookup table for both
-> types of remote controls however, was perhaps not the best design
-> choice.  It really should be separated out, and merged with the
-> regular ir-functions.c.  I just never got around to it.
++1. 
 
-I did not follow all the discussion, still I have a comment:
+I also use the remote as a keyboard replacement. I used an IR like
+that for a long time while teaching, using a standard USB video board,
+as a way to remotely control my notebook.
 
-I will soon work on a device where it is the driver who is doing the 
-decoding of the IR-frames. It is (maybe, I'm still missing some pieces to 
-be sure) possible to receive different protocols at the same time with 
-this hardware.
+Well, now I have an USB IR for this usage, using HID, that emulates
+both keyboard and mouse. In fact, the application didn't change. 
+I'm just using the standard USB class for HID, instead of using
+vendor class to generate the same kind of evdev events ;)
 
---
-
-Patrick 
-http://www.kernellabs.com/
+Cheers,
+Mauro.

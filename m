@@ -1,7 +1,8 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/8] Input: hp-wmi - switch to using sparse keymap library
-Date: Wed, 02 Dec 2009 01:24:25 -0800
-Message-ID: <20091202092425.30409.85617.stgit@localhost.localdomain>
+Subject: [PATCH 5/8] Input: eeepc-laptop - switch to using sparse keymap
+	library
+Date: Wed, 02 Dec 2009 01:24:31 -0800
+Message-ID: <20091202092430.30409.85129.stgit@localhost.localdomain>
 References: <20091202091056.30409.50455.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -9,8 +10,8 @@ Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-px0-f188.google.com ([209.85.216.188]:42964 "EHLO
 	mail-px0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753667AbZLBJYV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 04:24:21 -0500
+	with ESMTP id S1753284AbZLBJY1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 04:24:27 -0500
 In-Reply-To: <20091202091056.30409.50455.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -20,92 +21,111 @@ Cc: linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Herton Ronaldo Krze
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig  |    1 
- drivers/platform/x86/hp-wmi.c |  142 ++++++++++++-----------------------------
- 2 files changed, 44 insertions(+), 99 deletions(-)
+ drivers/platform/x86/Kconfig        |    1 
+ drivers/platform/x86/eeepc-laptop.c |  153 +++++++++++------------------------
+ 2 files changed, 49 insertions(+), 105 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 1f10bf4..18b66fd 100644
+index 18b66fd..ae9c976 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -137,6 +137,7 @@ config HP_WMI
- 	depends on ACPI_WMI
- 	depends on INPUT
- 	depends on RFKILL || RFKILL = n
+@@ -336,6 +336,7 @@ config EEEPC_LAPTOP
+ 	depends on HOTPLUG_PCI
+ 	select BACKLIGHT_CLASS_DEVICE
+ 	select HWMON
 +	select INPUT_SPARSEKMAP
- 	help
- 	 Say Y here if you want to support WMI-based hotkeys on HP laptops and
- 	 to read data from WMI such as docking or ambient light sensor state.
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index c284217..8868610 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/types.h>
+ 	---help---
+ 	  This driver supports the Fn-Fx keys on Eee PC laptops.
+ 
+diff --git a/drivers/platform/x86/eeepc-laptop.c b/drivers/platform/x86/eeepc-laptop.c
+index 4226e53..009c70b 100644
+--- a/drivers/platform/x86/eeepc-laptop.c
++++ b/drivers/platform/x86/eeepc-laptop.c
+@@ -31,6 +31,7 @@
+ #include <acpi/acpi_bus.h>
+ #include <linux/uaccess.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
- #include <acpi/acpi_drivers.h>
- #include <linux/platform_device.h>
- #include <linux/acpi.h>
-@@ -69,21 +70,13 @@ struct bios_return {
- 	u32 value;
- };
+ #include <linux/rfkill.h>
+ #include <linux/pci.h>
+ #include <linux/pci_hotplug.h>
+@@ -169,31 +170,23 @@ static struct platform_driver platform_driver = {
+ 
+ static struct platform_device *platform_device;
  
 -struct key_entry {
--	char type;		/* See KE_* below */
--	u16 code;
+-	char type;
+-	u8 code;
 -	u16 keycode;
 -};
 -
 -enum { KE_KEY, KE_END };
 -
--static struct key_entry hp_wmi_keymap[] = {
--	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
--	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
--	{KE_KEY, 0x20e6, KEY_PROG1},
--	{KE_KEY, 0x2142, KEY_MEDIA},
--	{KE_KEY, 0x213b, KEY_INFO},
--	{KE_KEY, 0x231b, KEY_HELP},
-+static const struct key_entry hp_wmi_keymap[] = {
-+	{KE_KEY, 0x02, {KEY_BRIGHTNESSUP}},
-+	{KE_KEY, 0x03, {KEY_BRIGHTNESSDOWN}},
-+	{KE_KEY, 0x20e6, {KEY_PROG1}},
-+	{KE_KEY, 0x2142, {KEY_MEDIA}},
-+	{KE_KEY, 0x213b, {KEY_INFO}},
-+	{KE_KEY, 0x231b, {KEY_HELP}},
- 	{KE_END, 0}
+-static struct key_entry eeepc_keymap[] = {
++static const struct key_entry eeepc_keymap[] = {
+ 	/* Sleep already handled via generic ACPI code */
+-	{KE_KEY, 0x10, KEY_WLAN },
+-	{KE_KEY, 0x11, KEY_WLAN },
+-	{KE_KEY, 0x12, KEY_PROG1 },
+-	{KE_KEY, 0x13, KEY_MUTE },
+-	{KE_KEY, 0x14, KEY_VOLUMEDOWN },
+-	{KE_KEY, 0x15, KEY_VOLUMEUP },
+-	{KE_KEY, 0x1a, KEY_COFFEE },
+-	{KE_KEY, 0x1b, KEY_ZOOM },
+-	{KE_KEY, 0x1c, KEY_PROG2 },
+-	{KE_KEY, 0x1d, KEY_PROG3 },
+-	{KE_KEY, NOTIFY_BRN_MIN,     KEY_BRIGHTNESSDOWN },
+-	{KE_KEY, NOTIFY_BRN_MIN + 2, KEY_BRIGHTNESSUP },
+-	{KE_KEY, 0x30, KEY_SWITCHVIDEOMODE },
+-	{KE_KEY, 0x31, KEY_SWITCHVIDEOMODE },
+-	{KE_KEY, 0x32, KEY_SWITCHVIDEOMODE },
++	{KE_KEY, 0x10, { KEY_WLAN } },
++	{KE_KEY, 0x11, { KEY_WLAN } },
++	{KE_KEY, 0x12, { KEY_PROG1 } },
++	{KE_KEY, 0x13, { KEY_MUTE } },
++	{KE_KEY, 0x14, { KEY_VOLUMEDOWN } },
++	{KE_KEY, 0x15, { KEY_VOLUMEUP } },
++	{KE_KEY, 0x1a, { KEY_COFFEE } },
++	{KE_KEY, 0x1b, { KEY_ZOOM } },
++	{KE_KEY, 0x1c, { KEY_PROG2 } },
++	{KE_KEY, 0x1d, { KEY_PROG3 } },
++	{KE_KEY, NOTIFY_BRN_MIN,     { KEY_BRIGHTNESSDOWN } },
++	{KE_KEY, NOTIFY_BRN_MIN + 2, { KEY_BRIGHTNESSUP } },
++	{KE_KEY, 0x30, { KEY_SWITCHVIDEOMODE } },
++	{KE_KEY, 0x31, { KEY_SWITCHVIDEOMODE } },
++	{KE_KEY, 0x32, { KEY_SWITCHVIDEOMODE } },
+ 	{KE_END, 0},
  };
  
-@@ -274,61 +267,6 @@ static DEVICE_ATTR(als, S_IRUGO | S_IWUSR, show_als, set_als);
- static DEVICE_ATTR(dock, S_IRUGO, show_dock, NULL);
- static DEVICE_ATTR(tablet, S_IRUGO, show_tablet, NULL);
- 
--static struct key_entry *hp_wmi_get_entry_by_scancode(int code)
+@@ -509,61 +502,6 @@ static struct attribute_group platform_attribute_group = {
+ /*
+  * Hotkey functions
+  */
+-static struct key_entry *eepc_get_entry_by_scancode(int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = hp_wmi_keymap; key->type != KE_END; key++)
+-	for (key = eeepc_keymap; key->type != KE_END; key++)
 -		if (code == key->code)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static struct key_entry *hp_wmi_get_entry_by_keycode(int keycode)
+-static struct key_entry *eepc_get_entry_by_keycode(int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = hp_wmi_keymap; key->type != KE_END; key++)
--		if (key->type == KE_KEY && keycode == key->keycode)
+-	for (key = eeepc_keymap; key->type != KE_END; key++)
+-		if (code == key->keycode && key->type == KE_KEY)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static int hp_wmi_getkeycode(struct input_dev *dev, int scancode, int *keycode)
+-static int eeepc_getkeycode(struct input_dev *dev, int scancode, int *keycode)
 -{
--	struct key_entry *key = hp_wmi_get_entry_by_scancode(scancode);
+-	struct key_entry *key = eepc_get_entry_by_scancode(scancode);
 -
 -	if (key && key->type == KE_KEY) {
 -		*keycode = key->keycode;
@@ -115,7 +135,7 @@ index c284217..8868610 100644
 -	return -EINVAL;
 -}
 -
--static int hp_wmi_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-static int eeepc_setkeycode(struct input_dev *dev, int scancode, int keycode)
 -{
 -	struct key_entry *key;
 -	int old_keycode;
@@ -123,12 +143,12 @@ index c284217..8868610 100644
 -	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	key = hp_wmi_get_entry_by_scancode(scancode);
+-	key = eepc_get_entry_by_scancode(scancode);
 -	if (key && key->type == KE_KEY) {
 -		old_keycode = key->keycode;
 -		key->keycode = keycode;
 -		set_bit(keycode, dev->keybit);
--		if (!hp_wmi_get_entry_by_keycode(old_keycode))
+-		if (!eepc_get_entry_by_keycode(old_keycode))
 -			clear_bit(old_keycode, dev->keybit);
 -		return 0;
 -	}
@@ -136,117 +156,100 @@ index c284217..8868610 100644
 -	return -EINVAL;
 -}
 -
- static void hp_wmi_notify(u32 value, void *context)
+ static void cmsg_quirk(int cm, const char *name)
  {
- 	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
-@@ -344,7 +282,8 @@ static void hp_wmi_notify(u32 value, void *context)
- 		if (eventcode == 0x4)
- 			eventcode = hp_wmi_perform_query(HPWMI_HOTKEY_QUERY, 0,
- 							 0);
--		key = hp_wmi_get_entry_by_scancode(eventcode);
-+		key = sparse_keymap_entry_from_scancode(hp_wmi_input_dev,
-+							eventcode);
+ 	int dummy;
+@@ -698,7 +636,7 @@ static void eeepc_rfkill_notify(acpi_handle handle, u32 event, void *data)
+ 
+ static void eeepc_hotk_notify(struct acpi_device *device, u32 event)
+ {
+-	static struct key_entry *key;
++	struct key_entry *key;
+ 	u16 count;
+ 	int brn = -ENODEV;
+ 
+@@ -729,7 +667,7 @@ static void eeepc_hotk_notify(struct acpi_device *device, u32 event)
+ 			else
+ 				event = NOTIFY_BRN_MIN + 1; /* ... unchanged */
+ 		}
+-		key = eepc_get_entry_by_scancode(event);
++		key = sparse_keymap_entry_from_scancode(ehotk->inputdev, event);
  		if (key) {
  			switch (key->type) {
  			case KE_KEY:
-@@ -381,7 +320,6 @@ static void hp_wmi_notify(u32 value, void *context)
+@@ -1017,8 +955,10 @@ static void eeepc_rfkill_exit(void)
  
- static int __init hp_wmi_input_setup(void)
+ static void eeepc_input_exit(void)
  {
--	struct key_entry *key;
- 	int err;
- 
- 	hp_wmi_input_dev = input_allocate_device();
-@@ -389,21 +327,14 @@ static int __init hp_wmi_input_setup(void)
- 	hp_wmi_input_dev->name = "HP WMI hotkeys";
- 	hp_wmi_input_dev->phys = "wmi/input0";
- 	hp_wmi_input_dev->id.bustype = BUS_HOST;
--	hp_wmi_input_dev->getkeycode = hp_wmi_getkeycode;
--	hp_wmi_input_dev->setkeycode = hp_wmi_setkeycode;
--
--	for (key = hp_wmi_keymap; key->type != KE_END; key++) {
--		switch (key->type) {
--		case KE_KEY:
--			set_bit(EV_KEY, hp_wmi_input_dev->evbit);
--			set_bit(key->keycode, hp_wmi_input_dev->keybit);
--			break;
--		}
--	}
- 
--	set_bit(EV_SW, hp_wmi_input_dev->evbit);
--	set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
--	set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
-+	__set_bit(EV_SW, hp_wmi_input_dev->evbit);
-+	__set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
-+	__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
-+
-+	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
-+	if (err)
-+		goto err_free_dev;
- 
- 	/* Set initial hardware state */
- 	input_report_switch(hp_wmi_input_dev, SW_DOCK, hp_wmi_dock_state());
-@@ -411,14 +342,29 @@ static int __init hp_wmi_input_setup(void)
- 			    hp_wmi_tablet_state());
- 	input_sync(hp_wmi_input_dev);
- 
--	err = input_register_device(hp_wmi_input_dev);
-+	err = wmi_install_notify_handler(HPWMI_EVENT_GUID, hp_wmi_notify, NULL);
-+	if (err)
-+		goto err_free_keymap;
- 
--	if (err) {
--		input_free_device(hp_wmi_input_dev);
--		return err;
--	}
-+	err = input_register_device(hp_wmi_input_dev);
-+	if (err)
-+		goto err_uninstall_notifier;
- 
- 	return 0;
-+
-+ err_uninstall_notifier:
-+	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-+ err_free_keymap:
-+	sparse_keymap_free(hp_wmi_input_dev);
-+ err_free_dev:
-+	input_free_device(hp_wmi_input_dev);
-+	return err;
-+}
-+
-+static void __exit hp_wmi_input_destroy(void)
-+{
-+	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-+	input_unregister_device(hp_wmi_input_dev);
+-	if (ehotk->inputdev)
++	if (ehotk->inputdev) {
++		sparse_keymap_free(ehotk->inputdev);
+ 		input_unregister_device(ehotk->inputdev);
++	}
  }
  
- static void cleanup_sysfs(struct platform_device *device)
-@@ -541,10 +487,9 @@ static int __init hp_wmi_init(void)
- 	int err;
+ static void eeepc_hwmon_exit(void)
+@@ -1158,36 +1098,39 @@ static int eeepc_hwmon_init(struct device *dev)
  
- 	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
--		err = wmi_install_notify_handler(HPWMI_EVENT_GUID,
--						 hp_wmi_notify, NULL);
--		if (!err)
--			hp_wmi_input_setup();
-+		err = hp_wmi_input_setup();
-+		if (err)
-+			return err;
- 	}
- 
- 	if (wmi_has_guid(HPWMI_BIOS_GUID)) {
-@@ -564,10 +509,9 @@ static int __init hp_wmi_init(void)
- 
- static void __exit hp_wmi_exit(void)
+ static int eeepc_input_init(struct device *dev)
  {
--	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
--		wmi_remove_notify_handler(HPWMI_EVENT_GUID);
--		input_unregister_device(hp_wmi_input_dev);
--	}
-+	if (wmi_has_guid(HPWMI_EVENT_GUID))
-+		hp_wmi_input_destroy();
+-	const struct key_entry *key;
+-	int result;
++	struct input_dev *input;
++	int error;
+ 
+-	ehotk->inputdev = input_allocate_device();
+-	if (!ehotk->inputdev) {
++	input = input_allocate_device();
++	if (!input) {
+ 		pr_info("Unable to allocate input device\n");
+ 		return -ENOMEM;
+ 	}
+-	ehotk->inputdev->name = "Asus EeePC extra buttons";
+-	ehotk->inputdev->dev.parent = dev;
+-	ehotk->inputdev->phys = EEEPC_HOTK_FILE "/input0";
+-	ehotk->inputdev->id.bustype = BUS_HOST;
+-	ehotk->inputdev->getkeycode = eeepc_getkeycode;
+-	ehotk->inputdev->setkeycode = eeepc_setkeycode;
+-
+-	for (key = eeepc_keymap; key->type != KE_END; key++) {
+-		switch (key->type) {
+-		case KE_KEY:
+-			set_bit(EV_KEY, ehotk->inputdev->evbit);
+-			set_bit(key->keycode, ehotk->inputdev->keybit);
+-			break;
+-		}
++	input->name = "Asus EeePC extra buttons";
++	input->dev.parent = dev;
++	input->phys = EEEPC_HOTK_FILE "/input0";
++	input->id.bustype = BUS_HOST;
 +
- 	if (hp_wmi_platform_dev) {
- 		platform_device_del(hp_wmi_platform_dev);
- 		platform_driver_unregister(&hp_wmi_driver);
++	error = sparse_keymap_setup(input, eeepc_keymap, NULL);
++	if (error) {
++		pr_err("Unable to setup input device keymap\n");
++		goto err_free_dev;
+ 	}
+-	result = input_register_device(ehotk->inputdev);
+-	if (result) {
+-		pr_info("Unable to register input device\n");
+-		input_free_device(ehotk->inputdev);
+-		return result;
++
++	error = input_register_device(input);
++	if (error) {
++		pr_err("Unable to register input device\n");
++		goto err_free_keymap;
+ 	}
++
++	ehotk->inputdev = input;
+ 	return 0;
++
++ err_free_keymap:
++	sparse_keymap_free(input);
++ err_free_dev:
++	input_free_device(input);
++	return error;
+ }
+ 
+ static int __devinit eeepc_hotk_add(struct acpi_device *device)
 

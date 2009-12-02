@@ -1,315 +1,315 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Wed, 2 Dec 2009 13:57:37 -0500
-Message-ID: <9e4733910912021057s3e4ec06an906e3fb0d32aa301@mail.gmail.com>
-References: <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com>
-	 <20091201175400.GA19259@core.coreip.homeip.net>
-	 <4B1567D8.7080007@redhat.com>
-	 <20091201201158.GA20335@core.coreip.homeip.net>
-	 <4B15852D.4050505@redhat.com>
-	 <20091202093803.GA8656@core.coreip.homeip.net>
-	 <4B16614A.3000208@redhat.com>
-	 <20091202171059.GC17839@core.coreip.homeip.net>
-	 <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
-	 <20091202182329.GA20530@core.coreip.homeip.net>
+From: Anisse Astier <anisse@astier.eu>
+Subject: [RFC PATCH 1/2] Input: add msi-wmi driver to support hotkeys in
+ =?UTF-8?B?TVNJwqBXaW5kdG9w?= AE1900-WT
+Date: Wed, 2 Dec 2009 19:26:03 +0100
+Message-ID: <20091202192603.3e1de98a@destiny.ordissimo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:49618 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754646AbZLBTDL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 14:03:11 -0500
-In-Reply-To: <20091202182329.GA20530@core.coreip.homeip.net>
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:52786 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752305AbZLBTV3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 14:21:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+To: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+Cc: Len Brown <lenb@kernel.org>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, Dec 2, 2009 at 1:23 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Dec 02, 2009 at 12:30:29PM -0500, Jon Smirl wrote:
->> On Wed, Dec 2, 2009 at 12:10 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > On Wed, Dec 02, 2009 at 10:44:58AM -0200, Mauro Carvalho Chehab wr=
-ote:
->> >> Dmitry Torokhov wrote:
->> >> > On Tue, Dec 01, 2009 at 07:05:49PM -0200, Mauro Carvalho Chehab=
- wrote:
->> >> >> Dmitry Torokhov wrote:
->> >> >>> On Tue, Dec 01, 2009 at 05:00:40PM -0200, Mauro Carvalho Cheh=
-ab wrote:
->> >> >>>> Dmitry Torokhov wrote:
->> >> >>>>> On Tue, Dec 01, 2009 at 03:29:44PM -0200, Mauro Carvalho Ch=
-ehab wrote:
->> >> >>>>>> For sure we need to add an EVIOSETPROTO ioctl to allow the=
- driver
->> >> >>>>>> to change the protocol in runtime.
->> >> >>>>>>
->> >> >>>>> Mauro,
->> >> >>>>>
->> >> >>>>> I think this kind of confuguration belongs to lirc device s=
-pace,
->> >> >>>>> not input/evdev. This is the same as protocol selection for=
- psmouse
->> >> >>>>> module: while it is normally auto-detected we have sysfs at=
-tribute to
->> >> >>>>> force one or another and it is tied to serio device, not in=
-put
->> >> >>>>> device.
->> >> >>>> Dmitry,
->> >> >>>>
->> >> >>>> This has nothing to do with the raw interface nor with lirc.=
- This problem
->> >> >>>> happens with the evdev interface and already affects the in-=
-kernel drivers.
->> >> >>>>
->> >> >>>> In this case, psmouse is not a good example. With a mouse, w=
-hen a movement
->> >> >>>> occurs, you'll receive some data from its port. So, a softwa=
-re can autodetect
->> >> >>>> the protocol. The same principle can be used also with a raw=
- pulse/space
->> >> >>>> interface, where software can autodetect the protocol.
->> >> >>> Or, in certain cases, it can not.
->> >> >>>
->> >> >>> [... skipped rationale for adding a way to control protocol (=
-with which
->> >> >>> I agree) ...]
->> >> >>>
->> >> >>>> To solve this, we really need to extend evdev API to do 3 th=
-ings: enumberate the
->> >> >>>> supported protocols, get the current protocol(s), and select=
- the protocol(s) that
->> >> >>>> will be used by a newer table.
->> >> >>>>
->> >> >>> And here we start disagreeing. My preference would be for add=
-ing this
->> >> >>> API on lirc device level (i.e. /syc/class/lirc/lircX/blah nam=
-espace),
->> >> >>> since it only applicable to IR, not to input devices in gener=
-al.
->> >> >>>
->> >> >>> Once you selected proper protocol(s) and maybe instantiated s=
-everal
->> >> >>> input devices then udev (by examining input device capabiliti=
-es and
->> >> >>> optionally looking up at the parent device properties) would =
-use
->> >> >>> input evdev API to load proper keymap. Because translation of
->> >> >>> driver-specific codes into standard key definitions is in the=
- input
->> >> >>> realm. Reading these driver-specific codes from hardware is o=
-utside of
->> >> >>> input layer domain.
->> >> >>>
->> >> >>> Just as psmouse ability to specify protocol is not shoved int=
-o evdev;
->> >> >>> just as atkbd quirks (force release key list and other driver=
--specific
->> >> >>> options) are not in evdev either; we should not overload evde=
-v interface
->> >> >>> with IR-specific items.
->> >> >> I'm not against mapping those features as sysfs atributes, but=
- they don't belong
->> >> >> to lirc, as far as I understand. From all we've discussed, we'=
-ll create a lirc
->> >> >> interface to allow the direct usage of raw IO. However, IR pro=
-tocol is a property
->> >> >> that is not related to raw IO mode but, instead, to evdev mode=
+
+Signed-off-by: Anisse Astier <anisse@astier.eu>
+---
+Hi,
+
+This driver (intiated by=20
+http://sysmic.org/dotclear2/index.php?post/2009/06/02/83-msi-wmi-suppor=
+t) is
+aimed at supporting WMI based hotkeys on MSI=C2=A0Windtop all-in-one AE=
+1900-WT.
+
+This patch contains both WMI and DMI auto loading. Once Mathew Garrett'=
+s
+patch for wmi autoloading is upstream (now in acpi-test), DMI auto load=
+ing
+could (should?) be removed.
+
+Also, Dmitry is in the process of factoring code for sparse keymaps. Th=
+e=20
+second patch adds support its sparse keymap lib, removing a lot of code=
 =2E
->> >> >>
->> >> >
->> >> > Why would protocol relate to evdev node? Evdev does not really =
-care what
->> >> > how the fact that a certain button was pressed was communicated=
- to it.
->> >> > It may be deliveretd through PS/2 port, or maybe it was Bluetoo=
-th HID,
->> >> > or USB HID or USB boot protocol or some custom protocol, or RC-=
-5, NEC or
->> >> > some custom IR protocol. It makes no difference _whatsoever_ to=
- evdev
->> >> > nor any users of evdev care about protocol used by underlying h=
-ardware
->> >> > device to transmit the data.
->> >> >
->> >> >> We might add a /sys/class/IR and add IR specific stuff there, =
-but it seems
->> >> >> overkill to me and will hide the fact that those parameters ar=
-e part of the evdev
->> >> >> interface.
->> >> >>
->> >> >> So, I would just add the IR sysfs parameters at the /sys/class=
-/input, if
->> >> >> the device is an IR (or create it is /sys/class/input/IR).
->> >> >>
->> >> >> I agree that the code to implement the IR specific sysfs param=
-eter should be kept
->> >> >> oustide input core, as they're specific to IR implementations.
->> >> >>
->> >> >> Would this work for you?
->> >> >
->> >> > I am seeing a little bit differently structured subsystem for I=
-R at the
->> >> > moment. I think we should do something like this:
->> >> >
->> >> > - receivers create /sys/class/lirc devices. These devices provi=
-de API
->> >> > =A0 with a ring buffer (fifo) for the raw data stream coming fr=
-om (and to)
->> >> > =A0 them.
->> >>
->> >> The raw interface applies only to the devices that doesn't have a=
- hardware decoder
->> >> (something between 40%-60% of the currently supported devices).
->> >
->> > 50% is quite a number I think. But if driver does not allow access=
- to
->> > the raw stream - it will refuse binding to lirc_dev interface.
->> >
->> >>
->> >> > - we allow registering several data interfaces/decoders that ca=
-n be bound
->> >> > =A0 (manually or maybe automatically) to lirc devices. lirc dev=
-ices may
->> >> > =A0 provide hints as to which interface(s) better suited for ha=
-ndling the
->> >> > =A0 data coming form particular receiver. Several interfaces ma=
-y be bound
->> >> > =A0 to one device at a time.
->> >> > - one of the interfaces is interface implementing current lirc_=
-dev
->> >> > - other interfaces may be in-kernel RC-5 decoder or other decod=
-ers.
->> >> > =A0 decoders will create instances of input devices
->> >>
->> >> I don't see why having more than one interface, especially for de=
-vices with
->> >> hardware decoders.
->> >>
->> >> On IR remote receivers, internally, there's just one interface pe=
-r hardware.
->> >>
->> >> Considering the hardware decoding case, why to artificially creat=
-e other
->> >> interfaces that can't be used simultaneously? No current hardware
->> >> decoders can do that (or, at least, no current implementation all=
-ows).
->> >> We're foreseen some cases where we'll have that (like Patrick's d=
-ib0700 driver),
->> >> but for now, it is not possible to offer more than one interface =
-to userspace.
->> >> Creating an arbitrary number of artificial interfaces just to pas=
-s a parameter
->> >> to the driver (the protocol), really seems overkill to me.
->> >
->> > We need to cater to the future cases as well. I don't want to rede=
-sign
->> > it in 2 years. But for devices that have only hardware decoders I
->> > suppose we can short-curcuit "interfaces" and have a library-like =
-module
->> > creating input devices directly.
->> >
->> >>
->> >> In the case of the cheap devices with just raw interfaces, runnin=
-g in-kernel
->> >> decoders, while it will work if you create one interface per prot=
-ocol
->> >> per IR receiver, this also seems overkill. Why to do that? It sou=
-nds that it will
->> >> just create additional complexity at the kernelspace and at the u=
-serspace, since
->> >> now userspace programs will need to open more than one device to =
-receive the
->> >> keycodes.
->> >
->> > _Yes_!!! You open as many event devices as there are devices you a=
-re
->> > interested in receiving data from. Multiplexing devices are bad, b=
-ad,
->> > bad. Witness /dev/input/mouse and all the attempts at working arou=
-nd the
->> > fact that if you have a special driver for one of your devices you
->> > receive events from the same device through 2 interfaces and all k=
-ind of
->> > "grab", "super-grab", "smart-grab" schemes are born.
->> >
->> >>
->> >> > (for each remote/substream that they can recognize).
->> >>
->> >> I'm assuming that, by remote, you're referring to a remote receiv=
-er (and not to
->> >> the remote itself), right?
->> >
->> > If we could separate by remote transmitter that would be the best =
-I
->> > think, but I understand that it is rarely possible?
->>
->> The code I posted using configfs did that. Instead of making apps IR
->> aware it mapped the vendor/device/command triplets into standard Lin=
-ux
->> keycodes. =A0Each remote was its own evdev device.
->>
->
-> That is what I liked about the patchset.
 
-Some major use cases:
-using IR as a keyboard replacement, controlling X and apps with it in
-via mouse and keyboard emulation.
-using IR to control a headless embedded device possibly running
-multiple apps - like audio and home automation (my app)
-IR during boot when it is the only input device the box has.
-multifunction remote controlling several apps
-using several different remotes to control a single app
+These patches are based on linux-input tree, and have been tested on th=
+e
+hardware with and without the sparse keymap patch.
 
-Using irrecord to train a headless embedded system is impossible.
-irrecord is also beyond the capabilities of non-technical users. So
-I'd like to see a scheme that eliminates it in 90% of cases. So far
-the only solution I've come up with is having a few predefined maps
-built in.
+ drivers/platform/x86/Kconfig   |   11 ++
+ drivers/platform/x86/Makefile  |    1 +
+ drivers/platform/x86/msi-wmi.c |  212 ++++++++++++++++++++++++++++++++=
+++++++++
+ 3 files changed, 224 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/platform/x86/msi-wmi.c
 
->
->> That scheme could be made to "just work" by building in a couple of
->> mapping tables. The driver would pre-populate configfs entries for a
->> some standard IR devices. Set the remote for Motorala DVR. Default
->> Myth to look for the evdev device associated with Motorola DVR. The
->> built-in mapping table would then map from pulse timing to Linux
->> keycodes.
->>
->> If everyone hates configfs the same mapping can be done via the set
->> keys IOCTL and making changes to the user space apps like loadkeys.
->>
->
-> It is not the hate of configfs per se, but rather concern that config=
-fs
-> takes too much resources and is not normally enabled.
-
-It adds about 35K on 64b x86. 30K on 32b powerpc. If it gets turned on
-by default other subsystems might start using it too. I work on an
-embedded system. These arguments about non-swapable vs swapable are
-pointless. Embedded systems don't have swap devices.
-
-Of course config can be eliminated by modifying the setkeys IOCTL and
-user space tools. It will require some more mods to input to allow
-multiple maps monitoring the input stream and splitting them onto
-multiple evdev devices. This is an equally valid way of building the
-maps.
-
-The code I posted is just demo code. It is clearly not in shape to be
-merged. Its purpose was to spark a design discussion around creating a
-good long-term architecture for IR.
-
-One feature I never got around to was making unknown IR button presses
-create entries in the configfs tree. A GUI program could use inotify
-on the directory to monitor these new entries.  Now Myth could have a
-display of commands it supported, push the IR button to create an
-icon, then drop the icon onto the command. Export a script that udev
-will use to populate the configfs.
-
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfi=
+g
+index 1b27e4d..fe142af 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -441,4 +441,15 @@ config ACPI_TOSHIBA
+=20
+ 	  If you have a legacy free Toshiba laptop (such as the Libretto L1
+ 	  series), say Y.
++
++config MSI_WMI
++	tristate "MSI WMI extras"
++	depends on ACPI_WMI
++	depends on INPUT
++	---help---
++	 Say Y here if you want to support WMI-based hotkeys on MSI all-in-on=
+e
++	 WindTop AE1900-WT.
++
++	 To compile this driver as a module, choose M here: the module will
++	 be called msi-wmi.
+ endif # X86_PLATFORM_DEVICES
+diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makef=
+ile
+index d1c1621..22a0c78 100644
+--- a/drivers/platform/x86/Makefile
++++ b/drivers/platform/x86/Makefile
+@@ -21,3 +21,4 @@ obj-$(CONFIG_ACPI_WMI)		+=3D wmi.o
+ obj-$(CONFIG_ACPI_ASUS)		+=3D asus_acpi.o
+ obj-$(CONFIG_TOPSTAR_LAPTOP)	+=3D topstar-laptop.o
+ obj-$(CONFIG_ACPI_TOSHIBA)	+=3D toshiba_acpi.o
++obj-$(CONFIG_MSI_WMI)		+=3D msi-wmi.o
+diff --git a/drivers/platform/x86/msi-wmi.c b/drivers/platform/x86/msi-=
+wmi.c
+new file mode 100644
+index 0000000..fb6d5bd
+--- /dev/null
++++ b/drivers/platform/x86/msi-wmi.c
+@@ -0,0 +1,212 @@
++/*
++ * MSI WMI hotkeys
++ *
++ * Copyright (C) 2009 J=C3=A9r=C3=B4me Pouiller <jezz@sysmic.org>
++ *
++ * Portions based on hp-wmi.c:
++ * Copyright (C) 2008 Red Hat <mjg@redhat.com>
++ *
++ * Portions based on wistron_btns.c:
++ * Copyright (C) 2005 Miloslav Trmac <mitr@volny.cz>
++ * Copyright (C) 2005 Bernhard Rosenkraenzer <bero@arklinux.org>
++ * Copyright (C) 2005 Dmitry Torokhov <dtor@mail.ru>
++ *
++ *  This program is free software; you can redistribute it and/or modi=
+fy
++ *  it under the terms of the GNU General Public License as published =
+by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-13=
+07  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/input.h>
++#include <linux/acpi.h>
++#include <linux/jiffies.h>
++
++#define MSIWMI_EVENT_GUID "b6f3eef2-3d2f-49dc-9de3-85bce18c62f2"
++
++struct key_entry {
++	u16 code;
++	u16 keycode;
++};
++
++static struct key_entry msi_wmi_keymap[] =3D {
++	/*Brightness keys should be used for a backlight driver*/
++	{208, KEY_BRIGHTNESSUP},
++	{209, KEY_BRIGHTNESSDOWN},
++	{210, KEY_VOLUMEUP},
++	{211, KEY_VOLUMEDOWN},
++	{0}
++};
++
++static struct input_dev *msi_wmi_input_dev;
++static unsigned long long msi_wmi_time_last_press;
++static unsigned pression_timeout =3D 10;
++
++static struct key_entry *msi_wmi_get_entry_by_scancode(int code)
++{
++	struct key_entry *key;
++
++	for (key =3D msi_wmi_keymap; key->code; key++)
++		if (code =3D=3D key->code)
++			return key;
++
++	return NULL;
++}
++
++static struct key_entry *msi_wmi_get_entry_by_keycode(int keycode)
++{
++	struct key_entry *key;
++
++	for (key =3D msi_wmi_keymap; key->code; key++)
++		if (keycode =3D=3D key->keycode)
++			return key;
++
++	return NULL;
++}
++
++static void msi_wmi_notify(u32 value, void *context)
++{
++	struct acpi_buffer response =3D { ACPI_ALLOCATE_BUFFER, NULL };
++	static struct key_entry *key;
++	union acpi_object *obj;
++
++	acpi_status ret;
++	ret =3D wmi_get_event_data(value, &response);
++	obj =3D (union acpi_object *)response.pointer;
++
++	if (!obj || obj->type !=3D ACPI_TYPE_INTEGER) {
++		printk(KERN_INFO "MSI WMI: Unknown response received\n");
++		return;
++	}
++
++	if (jiffies_to_msecs(get_jiffies_64() - msi_wmi_time_last_press)
++			> pression_timeout) {
++		printk(KERN_DEBUG
++				"MSI WMI: event correctly received: %llu\n",
++				obj->integer.value);
++		msi_wmi_time_last_press =3D get_jiffies_64();
++		key =3D msi_wmi_get_entry_by_scancode(obj->integer.value);
++		input_report_key(msi_wmi_input_dev, key->keycode, 1);
++		input_sync(msi_wmi_input_dev);
++		input_report_key(msi_wmi_input_dev, key->keycode, 0);
++		input_sync(msi_wmi_input_dev);
++	}
++}
++
++static int msi_wmi_getkeycode(struct input_dev *dev, int scancode, int=
+ *keycode)
++{
++	struct key_entry *key =3D msi_wmi_get_entry_by_scancode(scancode);
++
++	if (key && key->code) {
++		*keycode =3D key->keycode;
++		return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int msi_wmi_setkeycode(struct input_dev *dev, int scancode, int=
+ keycode)
++{
++	struct key_entry *key;
++	int old_keycode;
++
++	if (keycode < 0 || keycode > KEY_MAX)
++		return -EINVAL;
++
++	key =3D msi_wmi_get_entry_by_scancode(scancode);
++	if (key && key->code) {
++		old_keycode =3D key->keycode;
++		key->keycode =3D keycode;
++		set_bit(keycode, dev->keybit);
++		if (!msi_wmi_get_entry_by_keycode(old_keycode))
++			clear_bit(old_keycode, dev->keybit);
++		return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int __init msi_wmi_input_setup(void)
++{
++	struct key_entry *key;
++	int err;
++
++	msi_wmi_input_dev =3D input_allocate_device();
++
++	msi_wmi_input_dev->name =3D "MSI WMI hotkeys";
++	msi_wmi_input_dev->phys =3D "wmi/input0";
++	msi_wmi_input_dev->id.bustype =3D BUS_HOST;
++	msi_wmi_input_dev->getkeycode =3D msi_wmi_getkeycode;
++	msi_wmi_input_dev->setkeycode =3D msi_wmi_setkeycode;
++
++	for (key =3D msi_wmi_keymap; key->code; key++) {
++		set_bit(EV_KEY, msi_wmi_input_dev->evbit);
++		set_bit(key->keycode, msi_wmi_input_dev->keybit);
++	}
++
++	err =3D input_register_device(msi_wmi_input_dev);
++
++	if (err)
++		input_free_device(msi_wmi_input_dev);
++
++	return err;
++}
++
++static int __init msi_wmi_init(void)
++{
++	int err;
++
++	msi_wmi_time_last_press =3D get_jiffies_64();
++	if (!wmi_has_guid(MSIWMI_EVENT_GUID)) {
++		printk(KERN_ERR
++		       "This machine doesn't have MSI-hotkeys through WMI\n");
++		goto load_error;
++	}
++	err =3D wmi_install_notify_handler(MSIWMI_EVENT_GUID,
++					 msi_wmi_notify, NULL);
++	if (err) {
++		printk(KERN_ERR
++		       "MSI WMI: Error while installing notify handler\n");
++		goto load_error;
++	}
++
++	msi_wmi_input_setup();
++
++	return 0;
++load_error:
++	return -ENODEV;
++}
++
++static void __exit msi_wmi_exit(void)
++{
++	if (wmi_has_guid(MSIWMI_EVENT_GUID)) {
++		wmi_remove_notify_handler(MSIWMI_EVENT_GUID);
++		input_unregister_device(msi_wmi_input_dev);
++	}
++}
++
++module_init(msi_wmi_init);
++module_exit(msi_wmi_exit);
++module_param(pression_timeout, uint, 0);
++
++MODULE_AUTHOR("J=C3=A9r=C3=B4me Pouiller <jezz@sysmic.org>");
++MODULE_AUTHOR("Michael Bouchaud <michael@substantiel.fr");
++MODULE_AUTHOR("Anisse Astier <anisse@astier.eu");
++MODULE_DESCRIPTION("MSI all-in-one WMI hotkeys driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("wmi:" MSIWMI_EVENT_GUID);
++/*This one is useless if there is wmi-autoloading*/
++MODULE_ALIAS("dmi:bvnMICRO-STARINTERNATIONALCO.,LTD:*:svnMICRO-STARINT=
+ERNATIO"
++	     "NALCO.,LTD:pnMS-6638:*:rnMS-7438:*:cvnMICRO-STARINTERNATIONALCO=
+=2E"
++	     ",LTD:*");
++MODULE_PARM_DESC(pression_timeout,
++		 "How much time interrupts are ignored between each pression");
 --=20
-Jon Smirl
-jonsmirl@gmail.com
+1.6.5.3
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

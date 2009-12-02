@@ -1,38 +1,76 @@
-From: Trent Piepho <xyzzy@speakeasy.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC v2] Another approach to IR
-Date: Wed, 2 Dec 2009 13:12:18 -0800 (PST)
-Message-ID: <Pine.LNX.4.58.0912021300270.4729@shell2.speakeasy.net>
-References: <4B15852D.4050505@redhat.com> <20091202093803.GA8656@core.coreip.homeip.net>
- <4B16614A.3000208@redhat.com> <20091202171059.GC17839@core.coreip.homeip.net>
- <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
- <4B16BE6A.7000601@redhat.com> <20091202195634.GB22689@core.coreip.homeip.net>
- <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
- <20091202201404.GD22689@core.coreip.homeip.net> <434927DD-0E66-4D0E-B705-022B7FCCCDB0@wilsonet.com>
- <20091202204811.GE22689@core.coreip.homeip.net> <B8514BFF-DB1B-4475-9E6D-E2A567A998FA@wilsonet.com>
+Date: Wed, 02 Dec 2009 19:13:35 -0200
+Message-ID: <4B16D87F.7080701@redhat.com>
+References: <4B15852D.4050505@redhat.com> <20091202093803.GA8656@core.coreip.homeip.net> <4B16614A.3000208@redhat.com> <20091202171059.GC17839@core.coreip.homeip.net> <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com> <4B16BE6A.7000601@redhat.com> <20091202195634.GB22689@core.coreip.homeip.net> <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com> <20091202201404.GD22689@core.coreip.homeip.net> <4B16CCD7.20601@redhat.com> <20091202205323.GF22689@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <B8514BFF-DB1B-4475-9E6D-E2A567A998FA@wilsonet.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:19585 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753800AbZLBVON (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Dec 2009 16:14:13 -0500
+In-Reply-To: <20091202205323.GF22689@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Wed, 2 Dec 2009, Jarod Wilson wrote:
-> >>
-> >> My main point is that each of these devices has device ID that can be determined without having to first do some protocol analysis and table lookups to figure out which "device" some random IR input is actually coming from.
-> >>
-> >
-> > Heh, right back at ya ;) The fact that you need to do some more work
-> > to separate 2 physical devices does not mean it should not be done.
->
-> No, but it means added complexity inside the kernel. I'm questioning whether the added complexity is worth it, when I doubt the vast majority of users would take advantage of it, and it can already be done in userspace. Although... Damn. The userspace approach would only work if the device were passing raw IR to userspace, so in the in-kernel decoding case, yeah, I guess you'd need separate input devices for each remote to use them independently. Meh. Doubt I'd ever use it, but I guess I'll concede that it makes some sense to do the extra work.
+Dmitry Torokhov wrote:
+> On Wed, Dec 02, 2009 at 06:23:51PM -0200, Mauro Carvalho Chehab wrote:
+>> Dmitry Torokhov wrote:
+>>> On Wed, Dec 02, 2009 at 03:04:30PM -0500, Jarod Wilson wrote:
+>>>> On Dec 2, 2009, at 2:56 PM, Dmitry Torokhov wrote:
+>>>>> Now I understand that if 2 remotes send completely identical signals we
+>>>>> won't be able to separete them, but in cases when we can I think we
+>>>>> should.
+>>>> I don't have a problem with that, if its a truly desired feature. But
+>>>> for the most part, I don't see the point. Generally, you go from
+>>>> having multiple remotes, one per device (where "device" is your TV,
+>>>> amplifier, set top box, htpc, etc), to having a single universal
+>>>> remote that controls all of those devices. But for each device (IR
+>>>> receiver), *one* IR command set. The desire to use multiple distinct
+>>>> remotes with a single IR receiver doesn't make sense to me. Perhaps
+>>>> I'm just not creative enough in my use of IR. :)
+>>> Didn't Jon posted his example whith programmable remote pretending to be
+>>> several separate remotes (depending on the mode of operation) so that
+>>> several devices/applications can be controlled without interfering with
+>>> each other?
+>>>
+>> From what I understood, he is using the same physical remote, but creating different
+>> IR groups of keys on it, each group meant to be used by a different application.
+>>
+>> For such usage, some software will need to filter the scancode group and send
+>> them only for a certain application. This can be done easily by using lirc,
+>> purely in userspace.
+>>
+>> Another alternative (that will also work for multimedia keys on a keyboard) is
+>> to add a filtering subsystem at evdev that will send certain events for just certain
+>> PID's.
+> 
+> They are the same key events (Lets's say KEY_PLAY) but one is supposed
+> to affect CD player while another DVD player application. Evdev will not
+> be able to distinguish them but if we had 2 separate devices then
+> applications could read from the one thet user assigned to them.
 
-You just need to send a tuple that contrains the keycode plus some kind of
-id for the remote it came from.  That's what I did for lirc, it decodes the
-sparc/mark into a remote id and key code tuple.  It's certainly a common
-thing to want.  Anyone who has existing remotes and components that use
-them would want it.  You don't want your computer turning off when you push
-the power button on the DVD player's remote, do you?
+This is clear, but the point is that the two distinguish scancodes can 
+(and, in practice, will) be generated by the same IR. For example, my Satellite IR
+produces two different sets of codes. if you press <SAT>, all keys you press after
+that will have the "sat" address. If you press <TV>, they'll get a different address.
 
-Each host connected to a network interface doesn't get its own device.
+So, the needed feature is not to really distinguish two different IR's, but to allow
+to create groups of scancodes that will be directed to a distinct interface.
+
+I won't object about such interface, but the default should be to have just one interface
+and having all conversion applied to that interface.
+
+Maybe we can have a separate module for IR evdev filtering to fulfill this need.
+
+Basically, such module will get the events from one input interface and create an
+arbitrary number of evdev devices, and will apply different scancode->keycode tables
+for each different interfaces. I don't see why to limit the input interface to be IR. It
+can eventually be any input interface (bluetooth, keyboard, PS/3 control, Wii control, ...). 
+
+Cheers,
+Mauro.

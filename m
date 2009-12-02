@@ -1,45 +1,58 @@
-From: Jarod Wilson <jarod@wilsonet.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC v2] Another approach to IR
-Date: Wed, 2 Dec 2009 16:28:51 -0500
-Message-ID: <582D7897-47F8-44B6-959F-510790EAEA79@wilsonet.com>
-References: <4B15852D.4050505@redhat.com> <20091202093803.GA8656@core.coreip.homeip.net> <4B16614A.3000208@redhat.com> <20091202171059.GC17839@core.coreip.homeip.net> <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com> <4B16BE6A.7000601@redhat.com> <20091202195634.GB22689@core.coreip.homeip.net> <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com> <20091202201404.GD22689@core.coreip.homeip.net> <434927DD-0E66-4D0E-B705-022B7FCCCDB0@wilsonet.com> <20091202204811.GE22689@core.coreip.homeip.net> <B8514BFF-DB1B-4475-9E6D-E2A567A998FA@wilsonet.com> <Pine.LNX.4.58.0912021300270.4729@shell2.speakeasy.net>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0912021300270.4729@shell2.speakeasy.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+Date: Wed, 02 Dec 2009 19:40:19 -0200
+Message-ID: <4B16DEC3.2070105@redhat.com>
+References: <4B15852D.4050505@redhat.com> <20091202093803.GA8656@core.coreip.homeip.net> <4B16614A.3000208@redhat.com> <20091202171059.GC17839@core.coreip.homeip.net> <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com> <4B16BE6A.7000601@redhat.com> <20091202195634.GB22689@core.coreip.homeip.net> <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com> <20091202201404.GD22689@core.coreip.homeip.net> <434927DD-0E66-4D0E-B705-022B7FCCCDB0@wilsonet.com> <20091202204811.GE22689@core.coreip.homeip.net> <B8514BFF-DB1B-4475-9E6D-E2A567A998FA@wilsonet.com> <Pine.LNX.4.58.0912021300270.4729@shell2.speakeasy.net> <582D7897-47F8-44B6-959F-510790EAEA79@wilsonet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37804 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754536AbZLBVlV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Dec 2009 16:41:21 -0500
+In-Reply-To: <582D7897-47F8-44B6-959F-510790EAEA79@wilsonet.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Trent Piepho <xyzzy@speakeasy.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Dec 2, 2009, at 4:12 PM, Trent Piepho wrote:
-
-> On Wed, 2 Dec 2009, Jarod Wilson wrote:
->>>> 
->>>> My main point is that each of these devices has device ID that can be determined without having to first do some protocol analysis and table lookups to figure out which "device" some random IR input is actually coming from.
->>>> 
->>> 
->>> Heh, right back at ya ;) The fact that you need to do some more work
->>> to separate 2 physical devices does not mean it should not be done.
->> 
->> No, but it means added complexity inside the kernel. I'm questioning whether the added complexity is worth it, when I doubt the vast majority of users would take advantage of it, and it can already be done in userspace. Although... Damn. The userspace approach would only work if the device were passing raw IR to userspace, so in the in-kernel decoding case, yeah, I guess you'd need separate input devices for each remote to use them independently. Meh. Doubt I'd ever use it, but I guess I'll concede that it makes some sense to do the extra work.
+Jarod Wilson wrote:
+> On Dec 2, 2009, at 4:12 PM, Trent Piepho wrote:
 > 
-> You just need to send a tuple that contrains the keycode plus some kind of
-> id for the remote it came from.  That's what I did for lirc, it decodes the
-> sparc/mark into a remote id and key code tuple.  It's certainly a common
-> thing to want.  Anyone who has existing remotes and components that use
-> them would want it.
+>> On Wed, 2 Dec 2009, Jarod Wilson wrote:
+>>>>> My main point is that each of these devices has device ID that can be determined without having to first do some protocol analysis and table lookups to figure out which "device" some random IR input is actually coming from.
+>>>>>
+>>>> Heh, right back at ya ;) The fact that you need to do some more work
+>>>> to separate 2 physical devices does not mean it should not be done.
+>>> No, but it means added complexity inside the kernel. I'm questioning whether the added complexity is worth it, when I doubt the vast majority of users would take advantage of it, and it can already be done in userspace. Although... Damn. The userspace approach would only work if the device were passing raw IR to userspace, so in the in-kernel decoding case, yeah, I guess you'd need separate input devices for each remote to use them independently. Meh. Doubt I'd ever use it, but I guess I'll concede that it makes some sense to do the extra work.
+>> You just need to send a tuple that contrains the keycode plus some kind of
+>> id for the remote it came from.  That's what I did for lirc, it decodes the
+>> sparc/mark into a remote id and key code tuple.  It's certainly a common
+>> thing to want.  Anyone who has existing remotes and components that use
+>> them would want it.
+> 
+> What for, exactly?
+> 
+>> You don't want your computer turning off when you push
+>> the power button on the DVD player's remote, do you?
+> 
+> No, I don't.
 
-What for, exactly?
+In this specific case, IMO, the default keytables should map the power button to KEY_POWER2.
+> 
+> Perhaps we should clarify something here. Are we intending to auto-create 
+> a new input device for every IR command set we see arrive at the IR receiver? 
+> I've been assuming we're not going to willy-nilly just auto-create a new device
+> for every IR signal we happen to catch passing by. The receiver should only 
+> be passing along input events for the codeset/remote I've told it to listen
+> for (which by default, is the codes for the receiver's bundled remote).
 
-> You don't want your computer turning off when you push
-> the power button on the DVD player's remote, do you?
+Yes, but several bundled IR's have a power button. By default, it doesn't make sense
+to use it to turn the machine off, so KEY_POWER2 is a good option.
 
-No, I don't.
+> Otherwise, yeah, I'm going to wind up with my htpc powering off when
+> I hit the button on my harmony remote that is supposed to turn off my tv and amp.
 
-Perhaps we should clarify something here. Are we intending to auto-create a new input device for every IR command set we see arrive at the IR receiver? I've been assuming we're not going to willy-nilly just auto-create a new device for every IR signal we happen to catch passing by. The receiver should only be passing along input events for the codeset/remote I've told it to listen for (which by default, is the codes for the receiver's bundled remote). Otherwise, yeah, I'm going to wind up with my htpc powering off when I hit the button on my harmony remote that is supposed to turn off my tv and amp.
-
--- 
-Jarod Wilson
-jarod@wilsonet.com
+Cheers,
+Mauro.

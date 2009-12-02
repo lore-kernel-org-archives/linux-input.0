@@ -1,49 +1,80 @@
-From: Jarod Wilson <jarod@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC v2] Another approach to IR
-Date: Wed, 02 Dec 2009 14:22:18 -0500
-Message-ID: <4B16BE6A.7000601@redhat.com>
-References: <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>	 <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com>	 <4B155288.1060509@redhat.com>	 <20091201175400.GA19259@core.coreip.homeip.net>	 <4B1567D8.7080007@redhat.com>	 <20091201201158.GA20335@core.coreip.homeip.net>	 <4B15852D.4050505@redhat.com>	 <20091202093803.GA8656@core.coreip.homeip.net>	 <4B16614A.3000208@redhat.com>	 <20091202171059.GC17839@core.coreip.homeip.net> <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
+Date: Wed, 02 Dec 2009 17:33:34 -0200
+Message-ID: <4B16C10E.6040907@redhat.com>
+References: <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com> <4B154C54.5090906@redhat.com> <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com> <4B155288.1060509@redhat.com> <20091201175400.GA19259@core.coreip.homeip.net> <4B1567D8.7080007@redhat.com> <20091201201158.GA20335@core.coreip.homeip.net> <4B15852D.4050505@redhat.com> <20091202093803.GA8656@core.coreip.homeip.net> <4B16614A.3000208@redhat.com> <20091202171059.GC17839@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755258AbZLBTXN@vger.kernel.org>
-In-Reply-To: <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:3961 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753016AbZLBTeO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Dec 2009 14:34:14 -0500
+In-Reply-To: <20091202171059.GC17839@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Devin Heitmueller <dheitmueller@kernellabs.com>, Jon Smirl <jonsmirl@gmail.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On 12/2/09 12:30 PM, Jon Smirl wrote:
->>>> (for each remote/substream that they can recognize).
->>> >>
->>> >>  I'm assuming that, by remote, you're referring to a remote receiver (and not to
->>> >>  the remote itself), right?
->> >
->> >  If we could separate by remote transmitter that would be the best I
->> >  think, but I understand that it is rarely possible?
- >
-> The code I posted using configfs did that. Instead of making apps IR
-> aware it mapped the vendor/device/command triplets into standard Linux
-> keycodes.  Each remote was its own evdev device.
+Dmitry Torokhov wrote:
+>> The raw interface applies only to the devices that doesn't have a hardware decoder
+>> (something between 40%-60% of the currently supported devices).
+> 
+> 50% is quite a number I think. But if driver does not allow access to
+> the raw stream - it will refuse binding to lirc_dev interface.
 
-Note, of course, that you can only do that iff each remote uses distinct 
-triplets. A good portion of mythtv users use a universal of some sort, 
-programmed to emulate another remote, such as the mce remote bundled 
-with mceusb transceivers, or the imon remote bundled with most imon 
-receivers. I do just that myself.
+Ok.
 
-Personally, I've always considered the driver/interface to be the 
-receiver, not the remote. The lirc drivers operate at the receiver 
-level, anyway, and the distinction between different remotes is made by 
-the lirc daemon.
+> We need to cater to the future cases as well. I don't want to redesign
+> it in 2 years. But for devices that have only hardware decoders I
+> suppose we can short-curcuit "interfaces" and have a library-like module
+> creating input devices directly.
 
-> For IR to "just work" the irrecord training process needs be
-> eliminated for 90% of users.
+We really need only one interface for those devices. However, protocol selection
+is needed, as it is associated with the scantable on those devices.
+a sysfs entry would solve this issue.
 
-Pretty sure that's already the case. I have upwards of 20 remotes and 15 
-receivers. I've had to run irrecord maybe two times in five years to get 
-any of them working. The existing lirc remote database is fairly extensive.
+Also, we need a better schema to cleanup the keycode table. Currently, the only way 
+I'm aware is to run a loop from 0 to 65535 associating a scancode to KEY_UNKNOWN or
+to KEY_RESERVED.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+>> In the case of the cheap devices with just raw interfaces, running in-kernel
+>> decoders, while it will work if you create one interface per protocol
+>> per IR receiver, this also seems overkill. Why to do that? It sounds that it will
+>> just create additional complexity at the kernelspace and at the userspace, since
+>> now userspace programs will need to open more than one device to receive the
+>> keycodes.
+> 
+> _Yes_!!! You open as many event devices as there are devices you are
+> interested in receiving data from. Multiplexing devices are bad, bad,
+> bad. Witness /dev/input/mouse and all the attempts at working around the
+> fact that if you have a special driver for one of your devices you
+> receive events from the same device through 2 interfaces and all kind of
+> "grab", "super-grab", "smart-grab" schemes are born.
+
+The only device that the driver can actually see is the IR receiver. There's no way to
+know if there is only one physical IR sending signals to it or several different models,
+especially if we consider that programmable IR's can be able even to generate more than one
+protocol at the same time, and can emulate other IR types.
+
+You might create some artificial schema to try to deal with different IR's being received
+at the same IR receiver, but, IMHO, this will just add a complex abstraction layer.
+
+Also, this won't give any real gain, as either both IR's will generate the same scancodes (and you can't distinguish what IR generated that code), or the scancode is different, and you
+can handle it differently.
+
+>>> (for each remote/substream that they can recognize).
+>> I'm assuming that, by remote, you're referring to a remote receiver (and not to 
+>> the remote itself), right?
+> 
+> If we could separate by remote transmitter that would be the best I
+> think, but I understand that it is rarely possible?
+
+IMHO, the better is to use a separate interface for the IR transmitters,
+on the devices that support this feature. There are only a few devices
+I'm aware of that are able to transmit IR codes.
+
+Cheers,
+Mauro.
+

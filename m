@@ -1,140 +1,173 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/8] Input: wistron_btns - switch to using sparse keymap
-	library
-Date: Wed, 02 Dec 2009 01:24:14 -0800
-Message-ID: <20091202092414.30409.77870.stgit@localhost.localdomain>
+Subject: [PATCH 3/8] Input: dell-wmi - switch to using sparse keymap library
+Date: Wed, 02 Dec 2009 01:24:19 -0800
+Message-ID: <20091202092419.30409.17350.stgit@localhost.localdomain>
 References: <20091202091056.30409.50455.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f188.google.com ([209.85.216.188]:42964 "EHLO
-	mail-px0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753575AbZLBJYK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 04:24:10 -0500
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:34662 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753618AbZLBJYQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 04:24:16 -0500
 In-Reply-To: <20091202091056.30409.50455.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>
 
-The keymap manipulation code was split into a library module,
-so let's make us of it.
-
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/misc/Kconfig        |    1 
- drivers/input/misc/wistron_btns.c |  150 ++++++++++---------------------------
- 2 files changed, 42 insertions(+), 109 deletions(-)
+ drivers/platform/x86/Kconfig    |    1 
+ drivers/platform/x86/dell-wmi.c |  186 +++++++++++++--------------------------
+ 2 files changed, 61 insertions(+), 126 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index a9bb254..d25ecbb 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -80,6 +80,7 @@ config INPUT_WISTRON_BTNS
- 	tristate "x86 Wistron laptop button interface"
- 	depends on X86 && !X86_64
- 	select INPUT_POLLDEV
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 55ca39d..1f10bf4 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -88,6 +88,7 @@ config DELL_WMI
+ 	tristate "Dell WMI extras"
+ 	depends on ACPI_WMI
+ 	depends on INPUT
 +	select INPUT_SPARSEKMAP
- 	select NEW_LEDS
- 	select LEDS_CLASS
- 	select CHECK_SIGNATURE
-diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
-index 00eb9d6..6a36ffa 100644
---- a/drivers/input/misc/wistron_btns.c
-+++ b/drivers/input/misc/wistron_btns.c
-@@ -21,6 +21,7 @@
- #include <linux/dmi.h>
- #include <linux/init.h>
- #include <linux/input-polldev.h>
-+#include <linux/input/sparse-keymap.h>
- #include <linux/interrupt.h>
- #include <linux/jiffies.h>
- #include <linux/kernel.h>
-@@ -224,19 +225,8 @@ static void bios_set_state(u8 subsys, int enable)
+ 	---help---
+ 	  Say Y here if you want to support WMI-based hotkeys on Dell laptops.
  
- /* Hardware database */
+diff --git a/drivers/platform/x86/dell-wmi.c b/drivers/platform/x86/dell-wmi.c
+index 0f900cc..5f4a0e6 100644
+--- a/drivers/platform/x86/dell-wmi.c
++++ b/drivers/platform/x86/dell-wmi.c
+@@ -28,6 +28,7 @@
+ #include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/input.h>
++#include <linux/input/sparse-keymap.h>
+ #include <acpi/acpi_drivers.h>
+ #include <linux/acpi.h>
+ #include <linux/string.h>
+@@ -40,13 +41,7 @@ MODULE_LICENSE("GPL");
+ 
+ MODULE_ALIAS("wmi:"DELL_EVENT_GUID);
  
 -struct key_entry {
 -	char type;		/* See KE_* below */
--	u8 code;
--	union {
--		u16 keycode;		/* For KE_KEY */
--		struct {		/* For KE_SW */
--			u8 code;
--			u8 value;
--		} sw;
--	};
+-	u16 code;
+-	u16 keycode;
 -};
 -
--enum { KE_END, KE_KEY, KE_SW, KE_WIFI, KE_BLUETOOTH };
-+#define KE_WIFI		(KE_LAST + 1)
-+#define KE_BLUETOOTH	(KE_LAST + 2)
+-enum { KE_KEY, KE_SW, KE_IGNORE, KE_END };
++#define KE_IGNORE	(KE_LAST + 1)
  
- #define FE_MAIL_LED 0x01
- #define FE_WIFI_LED 0x02
-@@ -1128,31 +1118,10 @@ static inline void wistron_led_resume(void)
- 		led_classdev_resume(&wistron_wifi_led);
- }
+ /*
+  * Certain keys are flagged as KE_IGNORE. All of these are either
+@@ -54,105 +49,50 @@ enum { KE_KEY, KE_SW, KE_IGNORE, KE_END };
+  * via the keyboard controller so should not be sent again.
+  */
  
--static struct key_entry *wistron_get_entry_by_scancode(int code)
+-static struct key_entry dell_wmi_keymap[] = {
+-	{KE_KEY, 0xe045, KEY_PROG1},
+-	{KE_KEY, 0xe009, KEY_EJECTCD},
++static const struct key_entry dell_wmi_keymap[] = {
++	{KE_KEY, 0xe045, {KEY_PROG1}},
++	{KE_KEY, 0xe009, {KEY_EJECTCD}},
+ 
+ 	/* These also contain the brightness level at offset 6 */
+-	{KE_KEY, 0xe006, KEY_BRIGHTNESSUP},
+-	{KE_KEY, 0xe005, KEY_BRIGHTNESSDOWN},
++	{KE_KEY, 0xe006, {KEY_BRIGHTNESSUP}},
++	{KE_KEY, 0xe005, {KEY_BRIGHTNESSDOWN}},
+ 
+ 	/* Battery health status button */
+-	{KE_KEY, 0xe007, KEY_BATTERY},
++	{KE_KEY, 0xe007, {KEY_BATTERY}},
+ 
+ 	/* This is actually for all radios. Although physically a
+ 	 * switch, the notification does not provide an indication of
+ 	 * state and so it should be reported as a key */
+-	{KE_KEY, 0xe008, KEY_WLAN},
++	{KE_KEY, 0xe008, {KEY_WLAN}},
+ 
+ 	/* The next device is at offset 6, the active devices are at
+ 	   offset 8 and the attached devices at offset 10 */
+-	{KE_KEY, 0xe00b, KEY_DISPLAYTOGGLE},
++	{KE_KEY, 0xe00b, {KEY_DISPLAYTOGGLE}},
+ 
+-	{KE_IGNORE, 0xe00c, KEY_KBDILLUMTOGGLE},
++	{KE_IGNORE, 0xe00c, {KEY_KBDILLUMTOGGLE}},
+ 
+ 	/* BIOS error detected */
+-	{KE_IGNORE, 0xe00d, KEY_RESERVED},
++	{KE_IGNORE, 0xe00d, {KEY_RESERVED}},
+ 
+ 	/* Wifi Catcher */
+-	{KE_KEY, 0xe011, KEY_PROG2},
++	{KE_KEY, 0xe011, {KEY_PROG2}},
+ 
+ 	/* Ambient light sensor toggle */
+-	{KE_IGNORE, 0xe013, KEY_RESERVED},
+-
+-	{KE_IGNORE, 0xe020, KEY_MUTE},
+-	{KE_IGNORE, 0xe02e, KEY_VOLUMEDOWN},
+-	{KE_IGNORE, 0xe030, KEY_VOLUMEUP},
+-	{KE_IGNORE, 0xe033, KEY_KBDILLUMUP},
+-	{KE_IGNORE, 0xe034, KEY_KBDILLUMDOWN},
+-	{KE_IGNORE, 0xe03a, KEY_CAPSLOCK},
+-	{KE_IGNORE, 0xe045, KEY_NUMLOCK},
+-	{KE_IGNORE, 0xe046, KEY_SCROLLLOCK},
++	{KE_IGNORE, 0xe013, {KEY_RESERVED}},
++
++	{KE_IGNORE, 0xe020, {KEY_MUTE}},
++	{KE_IGNORE, 0xe02e, {KEY_VOLUMEDOWN}},
++	{KE_IGNORE, 0xe030, {KEY_VOLUMEUP}},
++	{KE_IGNORE, 0xe033, {KEY_KBDILLUMUP}},
++	{KE_IGNORE, 0xe034, {KEY_KBDILLUMDOWN}},
++	{KE_IGNORE, 0xe03a, {KEY_CAPSLOCK}},
++	{KE_IGNORE, 0xe045, {KEY_NUMLOCK}},
++	{KE_IGNORE, 0xe046, {KEY_SCROLLLOCK}},
+ 	{KE_END, 0}
+ };
+ 
+ static struct input_dev *dell_wmi_input_dev;
+ 
+-static struct key_entry *dell_wmi_get_entry_by_scancode(int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = keymap; key->type != KE_END; key++)
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++)
 -		if (code == key->code)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static struct key_entry *wistron_get_entry_by_keycode(int keycode)
+-static struct key_entry *dell_wmi_get_entry_by_keycode(int keycode)
 -{
 -	struct key_entry *key;
 -
--	for (key = keymap; key->type != KE_END; key++)
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++)
 -		if (key->type == KE_KEY && keycode == key->keycode)
 -			return key;
 -
 -	return NULL;
 -}
 -
- static void handle_key(u8 code)
- {
--	const struct key_entry *key = wistron_get_entry_by_scancode(code);
-+	const struct key_entry *key =
-+		sparse_keymap_entry_from_scancode(wistron_idev->input, code);
- 
- 	if (key) {
- 		switch (key->type) {
-@@ -1220,42 +1189,39 @@ static void wistron_poll(struct input_polled_dev *dev)
- 		dev->poll_interval = POLL_INTERVAL_DEFAULT;
- }
- 
--static int wistron_getkeycode(struct input_dev *dev, int scancode, int *keycode)
-+static int __devinit wistron_setup_keymap(struct input_dev *dev,
-+					  struct key_entry *entry)
- {
--	const struct key_entry *key = wistron_get_entry_by_scancode(scancode);
+-static int dell_wmi_getkeycode(struct input_dev *dev, int scancode,
+-			       int *keycode)
+-{
+-	struct key_entry *key = dell_wmi_get_entry_by_scancode(scancode);
 -
 -	if (key && key->type == KE_KEY) {
 -		*keycode = key->keycode;
 -		return 0;
 -	}
-+	switch (entry->type) {
- 
+-
 -	return -EINVAL;
 -}
-+	/* if wifi or bluetooth are not available, create normal keys */
-+	case KE_WIFI:
-+		if (!have_wifi) {
-+			entry->type = KE_KEY;
-+			entry->keycode = KEY_WLAN;
-+		}
-+		break;
- 
--static int wistron_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-
+-static int dell_wmi_setkeycode(struct input_dev *dev, int scancode, int keycode)
 -{
 -	struct key_entry *key;
 -	int old_keycode;
@@ -142,113 +175,140 @@ index 00eb9d6..6a36ffa 100644
 -	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	key = wistron_get_entry_by_scancode(scancode);
+-	key = dell_wmi_get_entry_by_scancode(scancode);
 -	if (key && key->type == KE_KEY) {
 -		old_keycode = key->keycode;
 -		key->keycode = keycode;
 -		set_bit(keycode, dev->keybit);
--		if (!wistron_get_entry_by_keycode(old_keycode))
+-		if (!dell_wmi_get_entry_by_keycode(old_keycode))
 -			clear_bit(old_keycode, dev->keybit);
 -		return 0;
-+	case KE_BLUETOOTH:
-+		if (!have_bluetooth) {
-+			entry->type = KE_KEY;
-+			entry->keycode = KEY_BLUETOOTH;
-+		}
-+		break;
-+
-+	case KE_END:
-+		if (entry->code & FE_UNTESTED)
-+			printk(KERN_WARNING "Untested laptop multimedia keys, "
-+				"please report success or failure to "
-+				"eric.piel@tremplin-utc.net\n");
-+		break;
- 	}
- 
+-	}
 -	return -EINVAL;
-+	return 0;
- }
+-}
+-
+ static void dell_wmi_notify(u32 value, void *context)
+ {
+ 	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
+@@ -170,7 +110,8 @@ static void dell_wmi_notify(u32 value, void *context)
+ 		 *  additional information, so mask them off for the
+ 		 *  scancode lookup
+ 		 */
+-		key = dell_wmi_get_entry_by_scancode(buffer[1] & 0xFFFF);
++		key = sparse_keymap_entry_from_scancode(dell_wmi_input_dev,
++							buffer[1] & 0xFFFF);
+ 		if (key) {
+ 			input_report_key(dell_wmi_input_dev, key->keycode, 1);
+ 			input_sync(dell_wmi_input_dev);
+@@ -184,41 +125,37 @@ static void dell_wmi_notify(u32 value, void *context)
  
- static int __devinit setup_input_dev(void)
+ static int __init dell_wmi_input_setup(void)
  {
 -	struct key_entry *key;
- 	struct input_dev *input_dev;
- 	int error;
+ 	int err;
  
-@@ -1273,56 +1239,21 @@ static int __devinit setup_input_dev(void)
- 	input_dev->id.bustype = BUS_HOST;
- 	input_dev->dev.parent = &wistron_device->dev;
- 
--	input_dev->getkeycode = wistron_getkeycode;
--	input_dev->setkeycode = wistron_setkeycode;
+ 	dell_wmi_input_dev = input_allocate_device();
 -
--	for (key = keymap; key->type != KE_END; key++) {
+ 	if (!dell_wmi_input_dev)
+ 		return -ENOMEM;
+ 
+ 	dell_wmi_input_dev->name = "Dell WMI hotkeys";
+ 	dell_wmi_input_dev->phys = "wmi/input0";
+ 	dell_wmi_input_dev->id.bustype = BUS_HOST;
+-	dell_wmi_input_dev->getkeycode = dell_wmi_getkeycode;
+-	dell_wmi_input_dev->setkeycode = dell_wmi_setkeycode;
+-
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++) {
 -		switch (key->type) {
--			case KE_KEY:
--				set_bit(EV_KEY, input_dev->evbit);
--				set_bit(key->keycode, input_dev->keybit);
--				break;
--
--			case KE_SW:
--				set_bit(EV_SW, input_dev->evbit);
--				set_bit(key->sw.code, input_dev->swbit);
--				break;
--
--			/* if wifi or bluetooth are not available, create normal keys */
--			case KE_WIFI:
--				if (!have_wifi) {
--					key->type = KE_KEY;
--					key->keycode = KEY_WLAN;
--					key--;
--				}
--				break;
--
--			case KE_BLUETOOTH:
--				if (!have_bluetooth) {
--					key->type = KE_KEY;
--					key->keycode = KEY_BLUETOOTH;
--					key--;
--				}
--				break;
--
--			default:
--				break;
+-		case KE_KEY:
+-			set_bit(EV_KEY, dell_wmi_input_dev->evbit);
+-			set_bit(key->keycode, dell_wmi_input_dev->keybit);
+-			break;
+-		case KE_SW:
+-			set_bit(EV_SW, dell_wmi_input_dev->evbit);
+-			set_bit(key->keycode, dell_wmi_input_dev->swbit);
+-			break;
 -		}
 -	}
--
--	/* reads information flags on KE_END */
--	if (key->code & FE_UNTESTED)
--		printk(KERN_WARNING "Untested laptop multimedia keys, "
--			"please report success or failure to eric.piel"
--			"@tremplin-utc.net\n");
-+	error = sparse_keymap_setup(input_dev, keymap, wistron_setup_keymap);
-+	if (error)
+ 
+-	err = input_register_device(dell_wmi_input_dev);
++	err = sparse_keymap_setup(dell_wmi_input_dev, dell_wmi_keymap, NULL);
++	if (err)
 +		goto err_free_dev;
  
- 	error = input_register_polled_device(wistron_idev);
--	if (error) {
--		input_free_polled_device(wistron_idev);
--		return error;
+-	if (err) {
+-		input_free_device(dell_wmi_input_dev);
+-		return err;
 -	}
-+	if (error)
++	err = input_register_device(dell_wmi_input_dev);
++	if (err)
 +		goto err_free_keymap;
  
  	return 0;
 +
 + err_free_keymap:
-+	sparse_keymap_free(input_dev);
++	sparse_keymap_free(dell_wmi_input_dev);
 + err_free_dev:
-+	input_free_polled_device(wistron_idev);
-+	return error;
++	input_free_device(dell_wmi_input_dev);
++	return err;
++}
++
++static void dell_wmi_input_destroy(void)
++{
++	sparse_keymap_free(dell_wmi_input_dev);
++	input_unregister_device(dell_wmi_input_dev);
  }
  
- /* Driver core */
-@@ -1371,6 +1302,7 @@ static int __devexit wistron_remove(struct platform_device *dev)
- {
- 	wistron_led_remove();
- 	input_unregister_polled_device(wistron_idev);
-+	sparse_keymap_free(wistron_idev->input);
- 	input_free_polled_device(wistron_idev);
- 	bios_detach();
+ static int __init dell_wmi_init(void)
+@@ -226,33 +163,30 @@ static int __init dell_wmi_init(void)
+ 	int err;
  
+ 	if (wmi_has_guid(DELL_EVENT_GUID)) {
+-		err = dell_wmi_input_setup();
+-
+-		if (err)
+-			return err;
++		printk(KERN_WARNING "dell-wmi: No known WMI GUID found\n");
++		return -ENODEV;
++	}
+ 
+-		err = wmi_install_notify_handler(DELL_EVENT_GUID,
+-						 dell_wmi_notify, NULL);
+-		if (err) {
+-			input_unregister_device(dell_wmi_input_dev);
+-			printk(KERN_ERR "dell-wmi: Unable to register"
+-			       " notify handler - %d\n", err);
+-			return err;
+-		}
++	err = dell_wmi_input_setup();
++	if (err)
++		return err;
+ 
+-	} else
+-		printk(KERN_WARNING "dell-wmi: No known WMI GUID found\n");
++	err = wmi_install_notify_handler(DELL_EVENT_GUID,
++					 dell_wmi_notify, NULL);
++	if (err) {
++		dell_wmi_input_destroy();
++		printk(KERN_ERR "dell-wmi: Unable to register"
++		       " notify handler - %d\n", err);
++		return err;
++	}
+ 
+ 	return 0;
+ }
++module_init(dell_wmi_init);
+ 
+ static void __exit dell_wmi_exit(void)
+ {
+-	if (wmi_has_guid(DELL_EVENT_GUID)) {
+-		wmi_remove_notify_handler(DELL_EVENT_GUID);
+-		input_unregister_device(dell_wmi_input_dev);
+-	}
++	wmi_remove_notify_handler(DELL_EVENT_GUID);
++	dell_wmi_input_destroy();
+ }
+-
+-module_init(dell_wmi_init);
+ module_exit(dell_wmi_exit);
 

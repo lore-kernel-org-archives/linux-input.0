@@ -1,121 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
-	matrix-keypad related?
-Date: Wed, 2 Dec 2009 19:17:09 -0800
-Message-ID: <20091203031709.GE9121@core.coreip.homeip.net>
-References: <20090930200746.GA1384@ucw.cz> <20091006050649.GH27881@core.coreip.homeip.net> <20091006075816.GA1362@ucw.cz> <20091007043603.GC10204@core.coreip.homeip.net> <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com> <20091007163327.GA12053@core.coreip.homeip.net> <20091007211225.GB17805@elf.ucw.cz>
-Mime-Version: 1.0
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Wed, 2 Dec 2009 23:13:47 -0500
+Message-ID: <5FED031C-C24B-4F82-9621-EB1C8A5B928B@wilsonet.com>
+References: <4B155288.1060509@redhat.com>  <20091201201158.GA20335@core.coreip.homeip.net> <4B15852D.4050505@redhat.com>  <20091202093803.GA8656@core.coreip.homeip.net> <4B16614A.3000208@redhat.com>  <20091202171059.GC17839@core.coreip.homeip.net> <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>  <4B16BE6A.7000601@redhat.com>  <20091202195634.GB22689@core.coreip.homeip.net> <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com> <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com> <Pine.LNX.4.58.0912021827120.4729@shell2.speakeasy.net>
+Mime-Version: 1.0 (Apple Message framework v1077)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:49793 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752914AbZLCDRI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 22:17:08 -0500
-Content-Disposition: inline
-In-Reply-To: <20091007211225.GB17805@elf.ucw.cz>
+Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:50877
+	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752115AbZLCEN5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 23:13:57 -0500
+In-Reply-To: <Pine.LNX.4.58.0912021827120.4729@shell2.speakeasy.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Eric Miao <eric.y.miao@gmail.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, linux-input@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Trent Piepho <xyzzy@speakeasy.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Wed, Oct 07, 2009 at 11:12:26PM +0200, Pavel Machek wrote:
+On Dec 2, 2009, at 9:48 PM, Trent Piepho wrote:
+...
+>>>> Now I understand that if 2 remotes send completely identical signals we
+>>>> won't be able to separate them, but in cases when we can I think we
+>>>> should.
+>>> 
+>>> I don't have a problem with that, if its a truly desired feature.  But
+>>> for the most part, I don't see the point.  Generally, you go from
+>>> having multiple remotes, one per device (where "device" is your TV,
+>>> amplifier, set top box, htpc, etc), to having a single universal remote
+>>> that controls all of those devices.  But for each device (IR receiver),
+>>> *one* IR command set.  The desire to use multiple distinct remotes with
+>>> a single IR receiver doesn't make sense to me.  Perhaps I'm just not
+>>> creative enough in my use of IR.  :)
 > 
-> > > > OK, so it looks like your box refuses to set up one of the GPIOs as a
-> > > > wakeup source... Hmm, either your box is wrong ;) or matrix_keypad
-> > > > driver needs to maintain a separate list of wakeup GPIOs.
-> > > >
-> > > 
-> > > This is due to the nature of PXA processor, where not every GPIO can
-> > > be configured as a wakeup source. Mmm.... we can either return a
-> > > pseudo value indicating setting wakeup on that GPIO is OK (which
-> > > doesn't sound like a good idea), or we can just ignore the failure of
-> > > enable_irq_wake() in matrix_keypad?
-> > 
-> > We ignore the failure right now in the mainline but that causes stack
-> > traces on resume as we trying to disable not enabled wakeup GPIOs. That
-> > was original Pavel's complaint.
+> Most universal remotes I'm familiar with emulate multiple remotes.  I.e.
+> my tv remote generates one set of scancodes for the numeric keys.  The DVD
+> remote generates a different set.  The amplifier remote in "tv mode"
+> generates the same codes as the tv remote, and in "dvd mode" the same codes
+> as the dvd remote.  From the perspective of the IR receiver there is no
+> difference between having both the DVD and TV remotes, or using the
+> aplifier remote to control both devices.
+
+Okay, in the above scenario, you've still got a single input device...
+
+> Now, my aplifier remote has a number of modes.  Some control devices I
+> have, like "vcr mode", and there is nothing I can do about that.  Some,
+> like "md mode" don't control devices I have.  That means they are free to
+> do things on the computer.  Someone else with the same remote (or any
+> number of remotes that use the same protocol and scancodes) might have
+> different devices.
 > 
-> Yep...
-> 
-> I'd say that BUG() simply should not trigger if wakeup can not be
-> enabled/disabled for particular source...?
+> So I want my computer to do stuff when I push "JVC MD #xx" keys, but ignore
+> "JVC VCR #yyy" yets.  Someone with an MD player and not a VCR would want to
+> opposite.  Rather than force everyone to create custom keymaps, it's much
+> easier if we can use the standard keymaps from a database of common remotes
+> and simply tell mythtv to only use remote #xxx or not to use remote #yyy.
 
-Pavel,
+Sure, but the key is that this can't be done automagically. The IR driver has no way of knowing that user A wants JVC MD keys handled and JVC VCR keys ignored, and user B wants vice versa, while user C wants both ignored, etc. This is somewhat tangential to whether or not there's a separate input device per "remote" though. You can use multiple remotes/protocols with a single input device or lirc device already (if the hardware doesn't have to be put explicitly into a mode to listen for that proto, of course, but then its a hardware decoding device feeding a single input device anyway, so...).
 
-Could you please try the patch below and let me know if it fixes the
-problem for you?
+> It sounds like you're thinking of a receiver that came bundled with a
+> remote and that's it.  Not someone with a number of remotes that came with
+> different pieces of AV gear that they want to use with their computer.
 
-Thanks.
+No, I just pick *one* remote and use it for everything, not schizophrenically hopping from one remote to another, expecting them all the be able to control everything. :) Its a hell of a lot easier to find buttons w/o looking at the remote if you always use the same one for everything, for one.
+
+Anyway, I think I'm talking myself in circles. Supporting multiple remotes via multiple input devices (or even via a single input device) isn't at all interesting to me for my own use, but if there really is demand for such support (and it appears there is), then fine, lets do it.
 
 -- 
-Dmitry
-
-Input: matrix-keypad - handle cases when GPIOs can't be wakeup sources
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/keyboard/matrix_keypad.c |   29 ++++++++++++++++++++++-------
- 1 files changed, 22 insertions(+), 7 deletions(-)
+Jarod Wilson
+jarod@wilsonet.com
 
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 91cfe51..a1152ba 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -29,11 +29,13 @@ struct matrix_keypad {
- 	unsigned short *keycodes;
- 	unsigned int row_shift;
- 
-+	DECLARE_BITMAP(disabled_gpios, MATRIX_MAX_ROWS);
-+
- 	uint32_t last_key_state[MATRIX_MAX_COLS];
- 	struct delayed_work work;
-+	spinlock_t lock;
- 	bool scan_pending;
- 	bool stopped;
--	spinlock_t lock;
- };
- 
- /*
-@@ -221,9 +223,16 @@ static int matrix_keypad_suspend(struct platform_device *pdev, pm_message_t stat
- 
- 	matrix_keypad_stop(keypad->input_dev);
- 
--	if (device_may_wakeup(&pdev->dev))
--		for (i = 0; i < pdata->num_row_gpios; i++)
--			enable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
-+	if (device_may_wakeup(&pdev->dev)) {
-+		for (i = 0; i < pdata->num_row_gpios; i++) {
-+			if (!test_bit(i, keypad->disabled_gpios)) {
-+				unsigned int gpio = pdata->row_gpios[i];
-+
-+				if (enable_irq_wake(gpio_to_irq(gpio)) == 0)
-+					__set_bit(i, keypad->disabled_gpios);
-+			}
-+		}
-+	}
- 
- 	return 0;
- }
-@@ -234,9 +243,15 @@ static int matrix_keypad_resume(struct platform_device *pdev)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	if (device_may_wakeup(&pdev->dev))
--		for (i = 0; i < pdata->num_row_gpios; i++)
--			disable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
-+	if (device_may_wakeup(&pdev->dev)) {
-+		for (i = 0; i < pdata->num_row_gpios; i++) {
-+			if (test_and_clear_bit(i, keypad->disabled_gpios)) {
-+				unsigned int gpio = pdata->row_gpios[i];
-+
-+				disable_irq_wake(gpio_to_irq(gpio));
-+			}
-+		}
-+	}
- 
- 	matrix_keypad_start(keypad->input_dev);
- 
+

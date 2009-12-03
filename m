@@ -1,93 +1,92 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Thu, 03 Dec 2009 19:10:04 -0200
-Message-ID: <4B18292C.6070303@redhat.com>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] Input: matrix-keypad - switch to using dev_pm_ops
+Date: Thu, 3 Dec 2009 22:43:36 +0100
+Message-ID: <200912032243.36737.rjw@sisk.pl>
+References: <20091203061200.GG9121@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4B17AA6A.9060702@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ogre.sisk.pl ([217.79.144.158]:57261 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753456AbZLCVnE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 16:43:04 -0500
+In-Reply-To: <20091203061200.GG9121@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, linux-pm@lists.linux-foundation.org
 
-Gerd Hoffmann wrote:
+On Thursday 03 December 2009, Dmitry Torokhov wrote:
+> Input: matrix-keypad - switch to using dev_pm_ops
+> 
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-> One final pass over the lirc interface would be good, taking the chance
-> to fixup anything before the ABI is set in stone with the mainline
-> merge.  Things to look at:
-> 
->   (1) Make sure ioctl structs are 32/64 bit invariant.
->   (2) Maybe add some reserved fields to allow extending later
->       without breaking the ABI.
->   (3) Someone suggested a 'commit' ioctl which would activate
->       the parameters set in (multiple) previous ioctls.  Makes sense?
+Looks good.
 
-A better approach is to create an ioctl that can send a group of value/attribute pairs
-at the same time. We used this estrategy for V4L extended controls to do things like
-setting an mpeg encoder (were we need to adjust several parameters at the same time,
-and adding all of them on one struct would be hard, since you can't specify all
-of them sa the same time). The same strategy is also used by DVB API to allow it
-to use any arbitrary protocol. It was conceived to support DVB-S2.
+Thanks,
+Rafael
 
->   (4) Add a ioctl to enable/disable evdev event submission for
->       evdev/lirc hybrid drivers.
 
-Yes, all above makes sense.
+> ---
 > 
->> I'm still on the fence over what to do about lirc_imon. The driver
->> supports essentially 3 generations of devices. First-gen is very old
->> imon parts that don't do onboard decoding. Second-gen is the devices
->> that all got (insanely stupidly) tagged with the exact same usb
->> device ID (0x15c2:0xffdc), some of which have an attached VFD, some
->> with an attached LCD, some with neither, some that are actually RF
->> parts, but all (I think) of which do onboard decoding. Third-gen is
->> the latest stuff, which is all pretty sane, unique device IDs for
->> unique devices, onboard decoding, etc.
+>  drivers/input/keyboard/matrix_keypad.c |   17 ++++++++++-------
+>  1 files changed, 10 insertions(+), 7 deletions(-)
 > 
-> Do have second-gen and third-gen devices have a 'raw mode'?  If so, then
-> there should be a lirc interface for raw data access.
 > 
->> So the lirc_imon I submitted supports all device types, with the
->> onboard decode devices defaulting to operating as pure input devices,
->> but an option to pass hex values out via the lirc interface (which is
->> how they've historically been used -- the pure input stuff I hacked
->> together just a few weeks ago), to prevent functional setups from
->> being broken for those who prefer the lirc way.
-> 
-> Hmm.  I'd tend to limit the lirc interface to the 'raw samples' case.
-
-> Historically it has also been used to pass decoded data (i.e. rc5) from
-> devices with onboard decoding, but for that in-kernel mapping + input
-> layer really fits better.
-
-I agree.
-
-> 
->> What I'm debating is whether this should be split into two drivers,
->> one for the older devices that don't do onboard decoding (which would
->> use the lirc_dev interface) called 'lirc_imon' or 'lirc_imon_legacy',
->> and one that is a pure input driver, not unlike the ati_remote{,2}
->> drivers, with no lirc_dev dependency at all, probably called simply
->> 'imon'.
-> 
-> i.e. lirc_imon would support first+second gen, and imon third-gen
-> devices, without overlap?
-> 
->> But if I split it out, there may end up being a
->> fair amount of code duplication,
-> 
-> You could try to split common code into a third module used by the other
-> two.  Or have one module for all devices which is a evdev/lirc hybrid.
-> 
-Splitting it into a core driver and two different drivers for raw/non-raw
-device makes sense to me.
-
-An alternative would be to have just one module, but splitting the code into
-3 parts. This allows an easier understanding, IMHO.
-
-Cheers,
-Mauro.
+> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+> index a1152ba..d3c8b61 100644
+> --- a/drivers/input/keyboard/matrix_keypad.c
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -215,8 +215,9 @@ static void matrix_keypad_stop(struct input_dev *dev)
+>  }
+>  
+>  #ifdef CONFIG_PM
+> -static int matrix_keypad_suspend(struct platform_device *pdev, pm_message_t state)
+> +static int matrix_keypad_suspend(struct device *dev)
+>  {
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
+>  	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+>  	int i;
+> @@ -237,8 +238,9 @@ static int matrix_keypad_suspend(struct platform_device *pdev, pm_message_t stat
+>  	return 0;
+>  }
+>  
+> -static int matrix_keypad_resume(struct platform_device *pdev)
+> +static int matrix_keypad_resume(struct device *dev)
+>  {
+> +	struct platform_device *pdev = to_platform_device(dev);
+>  	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
+>  	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+>  	int i;
+> @@ -257,9 +259,9 @@ static int matrix_keypad_resume(struct platform_device *pdev)
+>  
+>  	return 0;
+>  }
+> -#else
+> -#define matrix_keypad_suspend	NULL
+> -#define matrix_keypad_resume	NULL
+> +
+> +static const SIMPLE_DEV_PM_OPS(matrix_keypad_pm_ops,
+> +				matrix_keypad_suspend, matrix_keypad_resume);
+>  #endif
+>  
+>  static int __devinit init_matrix_gpio(struct platform_device *pdev,
+> @@ -432,11 +434,12 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
+>  static struct platform_driver matrix_keypad_driver = {
+>  	.probe		= matrix_keypad_probe,
+>  	.remove		= __devexit_p(matrix_keypad_remove),
+> -	.suspend	= matrix_keypad_suspend,
+> -	.resume		= matrix_keypad_resume,
+>  	.driver		= {
+>  		.name	= "matrix-keypad",
+>  		.owner	= THIS_MODULE,
+> +#ifdef CONFIG_PM
+> +		.pm	= &matrix_keypad_pm_ops,
+> +#endif
+>  	},
+>  };

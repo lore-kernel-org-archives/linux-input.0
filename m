@@ -1,143 +1,62 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Thu, 3 Dec 2009 13:56:18 -0500
-Message-ID: <9e4733910912031056q5881da57o6d400e9e7e49eb0f@mail.gmail.com>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com>
-	 <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com>
-	 <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com>
-	 <4B17AA6A.9060702@redhat.com>
-	 <20091203175531.GB776@core.coreip.homeip.net>
+From: alhaz@xmission.com
+Subject: Re: [RFC v2] Another approach to IR
+Date: Thu, 03 Dec 2009 12:48:00 -0700
+Message-ID: <20091203124800.hkb2hbx0gk0o0s0s@webmail.xmission.com>
+References: <4B155288.1060509@redhat.com>
+	<20091201201158.GA20335@core.coreip.homeip.net>
+	<4B15852D.4050505@redhat.com>
+	<20091202093803.GA8656@core.coreip.homeip.net>
+	<4B16614A.3000208@redhat.com>
+	<20091202171059.GC17839@core.coreip.homeip.net>
+	<9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
+	<4B16BE6A.7000601@redhat.com>
+	<20091202195634.GB22689@core.coreip.homeip.net>
+	<2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
+	<9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:47091 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756578AbZLCS4O convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 13:56:14 -0500
-In-Reply-To: <20091203175531.GB776@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754892AbZLCTr6@vger.kernel.org>
+In-Reply-To: <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: lirc-list@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, Dec 3, 2009 at 12:55 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Dec 03, 2009 at 01:09:14PM +0100, Gerd Hoffmann wrote:
->> On 12/03/09 05:29, Jarod Wilson wrote:
->>> On Dec 1, 2009, at 10:28 AM, Gerd Hoffmann wrote:
->>>
->>>>> Anyway, we shouldn't postpone lirc drivers addition due to that.
->>>>> There are still lots of work to do before we'll be able to split
->>>>> the tables from the kernel drivers.
->>>>
->>>> Indeed. =A0The sysfs bits are future work for both lirc and evdev
->>>> drivers. =A0There is no reason to make the lirc merge wait for it.
->>>
->>> At this point, my plan is to try to finish cleaning up lirc_dev and
->>> lirc_mceusb at least over the weekend while at FUDCon up in Toronto=
-,
->>> and resubmit them next week.
+Quoting Jon Smirl <jonsmirl@gmail.com>:
+
+>>> Now I understand that if 2 remotes send completely identical signals we
+>>> won't be able to separate them, but in cases when we can I think we
+>>> should.
 >>
->> Good plan IMHO. =A0Having lirc_dev merged quickly allows in-kernel d=
-rivers
->> start supporting lirc.
->
-> No, please, wait just a minute. I know it is tempting to just merge
-> lirc_dev and start working, but can we first agree on the overall
-> subsystem structure before doing so. It is still quite inclear to me.
->
-> The open questions (for me at least):
+>> I don't have a problem with that, if its a truly desired feature.   
+>> But for the most part, I don't see the point. Generally, you go   
+>> from having multiple remotes, one per device (where "device" is   
+>> your TV, amplifier, set top box, htpc, etc), to having a single   
+>> universal remote that controls all of those devices. But for each   
+>> device (IR receiver), *one* IR command set. The desire to use   
+>> multiple distinct remotes with a single IR receiver doesn't make   
+>> sense to me. Perhaps I'm just not creative enough in my use of IR. :)
 
-Great list, good starting point for evaluating the design alternatives.
+ From a hobbiest's perspective there's likely rarely any reason to be  
+able to do the same thing with two different remotes that send  
+different signals, but i could see it come up - For example if you  
+wanted to have both a feature-rich,  busy/complicated remote but also  
+wanted to provide a simpler remote with a relatively small number of  
+large buttons on it for basic functions, as for children or people  
+with poor eyesight or poor motor control.
 
-Have the various use cases all been enumerated?
+ From a business perspective, I've worked for a company that sold  
+turn-key video training systems, and depending on the whims of our  
+so-called business partners and the desires of customers, there were  
+as many as three distinct remotes that might get shipped with the  
+training system, and they all sent different signals.
 
-> - do we create a new class infrastructure for all receivers or only f=
-or
-> =A0ones plugged into lirc_dev? Remember that classifying objects affe=
-cts
-> =A0how udev and friemds see them and may either help or hurt writing =
-PnP
-> =A0rules.
->
-> - do we intend to support in-kernel sotfware decoders? What is the
-> =A0structure? Do we organize them as a module to be used by driver
-> =A0directly or the driver "streams" the data to IR core and the core
-> =A0applies decoders (in the same fashion input events from drivers fl=
-ow
-> =A0into input core and then distributed to all bound interfaces for
-> =A0processing/conversion/transmission to userspace)?
->
-> - how do we control which decoder should handle particular
-> =A0receiver/remote? Is it driver's decision, decoder's decision, user=
-'s
-> =A0or all of the above?
->
-> - do we allow to have several decoders active at once for a receiver?
->
-> - who decides that we want to utilize lirc_dev? Driver's themselves, =
-IR
-> =A0core (looking at the driver/device "capabilities"), something else=
-?
-
-Is the lirc device protocol documented? The lirc device only allows a
-single app to read from it, it that ok? What about the problem the
-mouse driver had with reading partial messages in one read and by the
-time you came back around to read the second half the first read was
-overwritten? That led to the transactions in evdev.
-
->
-> - do we recognize and create input devices "on-fly" or require user
-> =A0intervention? Semantics for splitting into several input/event
-> =A0devices?
-
-Complete on-the-fly is not going to do what you want it to. For
-example Sony TVs use three variations of the Sony protocol in a single
-TV.
-
-A slick solution would have unknown IR events trigger a mapping
-definition app via udev. The mapping app would ask you to hit a few
-more keys until it locates the corresponding device profile in the IR
-database. Then it could write a script which will load create a new
-evdev device for this device and load the keycode map for it at boot.
-
-The big IR profile database from All-In-One is published. For this
-application you'd need to add entries mapping each IR code to a Linux
-keycode. This is the same problem you have with scancodes and various
-languages on keyboards. I'll bet the guys at http://www.openremote.org
-would help with this.
-
->
-> Could anyone please draw me a picture, starting with a "receiver"
-> piece of hardware. I am not concerned much with how exactly receiver =
-is
-> plugged into a particular subsystem (DVB/V4L etc) since it would be
-> _their_ implementation detail, but with the flow in/out of that
-> "receiver" device.
->
-> Now as far as input core goes I see very limited number of changes th=
-at
-> may be needed:
->
-> - Allow to extend size of "scancode" in EVIOC{S,G}KEYCODE if we are
-> =A0unable to limit ourselves to 32 bits (keeping compatibility of cou=
-rse)
->
-> - Maybe adding new ioctl to "zap" the keymap table
->
-> - Adding more key EV_KEY/KEY_* definitons, if needed
-
-Aren't EV_IR events needed so that an app for building keymaps can be w=
-ritten?
-Normal apps would not use EV_IR events.
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+That was a less than ideal situation, and if we had been really on top  
+of things we'd have just declined to use any of those remotes and  
+bought custom remotes from any of the numerous vendors that sell them  
+which would allow us to have one set of IR signals used by remotes  
+with different features - but for whatever reason that wasn't how  
+management decided to do things.

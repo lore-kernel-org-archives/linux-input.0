@@ -1,49 +1,42 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
-Date: Thu, 3 Dec 2009 08:54:22 -0200
-Message-ID: <20091203105422.GC32571@khazad-dum.debian.net>
-References: <1259826317-18809-25-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-26-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-27-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-28-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-29-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-30-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-31-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-32-git-send-email-corentincj@iksaif.net>
- <1259826317-18809-33-git-send-email-corentincj@iksaif.net>
- <20091203075404.GK9121@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCH] input: Enable / disable methods
+Date: Thu,  3 Dec 2009 12:58:18 +0200
+Message-ID: <1259837900-10803-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:43976 "EHLO
-	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752654AbZLCKyT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 05:54:19 -0500
-Content-Disposition: inline
-In-Reply-To: <20091203075404.GK9121@core.coreip.homeip.net>
+Received: from smtp.nokia.com ([192.100.122.233]:23343 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755965AbZLCK6f (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 05:58:35 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Corentin Chary <corentincj@iksaif.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-On Wed, 02 Dec 2009, Dmitry Torokhov wrote:
-> On Thu, Dec 03, 2009 at 08:45:16AM +0100, Corentin Chary wrote:
-> > This keycode could be used in a lot of platform specific drivers.
-> > For example, on Asus laptops, Fn+F2 allow to cycle trought wireless
-> > drivers (bt/wl: off/off, on/off, off/on, on/on).
-> > 
-> > Currently, these key are mapped to KEY_WLAN, and KEY_BLUETOOTH/KEY_WIMAX
-> > are rarely used.
-> 
-> Is there any application support for such cycling? IOW does anyone cares
-> to do such cycling?
+First patch adds a generic way for userspace to enable and
+disable an input device. Userspace interface is a sysfs entry.
+Device is enabled by writing '1' to enable entry and disabled by
+writing '0' to enabled entry. Current state can be read from the entry.
+Actual disabling happens via callback functions. If the device driver doesn't
+provide callback functions, write to sysfs entry returns an error code ENOSYS.
 
-Well, the default ThinkPad behaviour would be to cycle as well, and I'd use
-this new keycode if it becomes available.
+Purpose is to provide a generic way to force some input device to disabled
+or enabled state regardless of the number of the users of that input device.
+When disabling of the device happens in the driver level, it is possible
+to turn off the corresponfing HW block to prevent unwanted activity.
+For example system wide keypad locking feature can utilize this feature.
+When several user space programs keep the input device open, one
+user space program can set input device to disabled state. 
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Second patch utilizes new feature and adds HW level disable / enable feature
+to twl4030_keypad driver. Regardless of the number of users one control
+program can temporarily disable all keypad interrupts from the twl4030 keypad
+block. Keypad HW is also disabled during suspend mode.
+
+Samu Onkalo (2):
+  input: enable / disable methods with sysfs entry
+  input: twl4030_keypad enable / disable feature
+
+ drivers/input/input.c                   |   45 +++++++++
+ drivers/input/keyboard/twl4030_keypad.c |  153 ++++++++++++++++++++++++++-----
+ include/linux/input.h                   |    8 ++
+ 3 files changed, 183 insertions(+), 23 deletions(-)

@@ -1,64 +1,144 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Thu, 03 Dec 2009 19:18:03 +0100
-Message-ID: <m37ht33oro.fsf@intrepid.localdomain>
-References: <4B155288.1060509@redhat.com>
-	<20091202093803.GA8656@core.coreip.homeip.net>
-	<4B16614A.3000208@redhat.com>
-	<20091202171059.GC17839@core.coreip.homeip.net>
-	<9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
-	<4B16BE6A.7000601@redhat.com>
-	<20091202195634.GB22689@core.coreip.homeip.net>
-	<2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
-	<9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
-	<4B1720E6.3000802@redhat.com>
-	<9e4733910912022108j71d0c27fh75dacfa79dca7c22@mail.gmail.com>
-	<4B179C5A.2090504@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Thu, 3 Dec 2009 16:33:28 -0200
+Message-ID: <20091203163328.613699e5@pedra>
+References: <BDodf9W1qgB@lirc>
+	<4B14EDE3.5050201@redhat.com>
+	<4B1524DD.3080708@redhat.com>
+	<4B153617.8070608@redhat.com>
+	<A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com>
+	<4B17AA6A.9060702@redhat.com>
+	<20091203175531.GB776@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:57436 "EHLO khc.piap.pl"
+Received: from mx1.redhat.com ([209.132.183.28]:2976 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752001AbZLCSSA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 13:18:00 -0500
-In-Reply-To: <4B179C5A.2090504@redhat.com> (Mauro Carvalho Chehab's message of
-	"Thu, 03 Dec 2009 09:09:14 -0200")
+	id S1754354AbZLCSeS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 13:34:18 -0500
+In-Reply-To: <20091203175531.GB776@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+Let me draw my view:
 
-> Btw, looking at that code, while it is not impossible to split the 
-> IR pulse/space measures from the NEC decoder itself, and make it generic
-> to support other protocols, it is not a trivial task, and may result on
-> a less stable driver.
+Em Thu, 3 Dec 2009 09:55:31 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
 
-And it's not needed at all.
-Protocol decoders can be easily run in parallel, I've done it on saa713x
-and this is trivial at least there. Can do that when the lirc interface
-is available.
+> No, please, wait just a minute. I know it is tempting to just merge
+> lirc_dev and start working, but can we first agree on the overall
+> subsystem structure before doing so. It is still quite inclear to me.
+> 
+> The open questions (for me at least):
+> 
+> - do we create a new class infrastructure for all receivers or only for
+>   ones plugged into lirc_dev? Remember that classifying objects affects
+>   how udev and friemds see them and may either help or hurt writing PnP
+>   rules.
 
-> The advantage of the NEC decoding approach on saa7134 is that you know for
-> sure how much time it is required to get the entire code. So, the code 
-> can easily abort the reception of a bad code. The disadvantage is that 
-> only one protocol can be decoded at the same time.
+IMO, I would create it as /sys/class/input/IR (just like the /mice). I
+don't see why do we need to different lirc than no-lirc drivers in the
+case of sysfs class. As devices with raw input capabilities will have
+another dev to communicate, this means that we'll need a /lirc node
+there to point to lirc dev.
 
-This isn't a hard thing to fix.
+> 
+> - do we intend to support in-kernel sotfware decoders?
 
-> The same problem also happens with almost all in-kernel drivers: the decoders
-> for raw mode were constructed to work with just one pulse/space code at the
-> same time. A conversion into a generic code can happen, but it will require
-> several tests to be sure that they won't cause undesirable side-effects.
+Yes.
 
-IOW any such receiver has to be tested, sure.
+> - What is the structure? Do we organize them as a module to be used by driver
+>   directly or the driver "streams" the data to IR core and the core
+>   applies decoders (in the same fashion input events from drivers flow
+>   into input core and then distributed to all bound interfaces for
+>   processing/conversion/transmission to userspace)?
 
-> The advantage of hardware decoders is that you don't need to be polling the
-> IR serial port at a high rate, as you'll get directly the code. So, you'll
-> free the CPU to do something else.
+My plan is to expand ir-common.ko module and rename it to ir-core, to be 
+the IR core module for the evdev interface. I'm already working on it. 
+My idea for an architecture is that the lirc-core module will use 
+ir-common where the IR decoders will be, and the evdev interface.
 
-Which device requires polling the port?
-Most are IRQ-driven, aren't they?
+IMO, we should move them from /drivers/media/common to /drivers/input/ir.
+It makes sense to use kfifo to send the data to the in-kernel decoders.
+
+> - how do we control which decoder should handle particular
+>   receiver/remote? Is it driver's decision, decoder's decision, user's
+>   or all of the above?
+
+It should be all the above, since some hardware will only work with certain
+decoders (hardware limitation) or they may have already a raw mode->scancode
+legacy decoder. In the latter case, those decoders will be removed from
+the existing drivers, but this action will take some time.
+
+Some sysfs attributes are needed to specify a list of the supported protocols
+and the currently used one. I'll prepare a proposed patch for it, after we
+finish aligning the requirements.
+ 
+> - do we allow to have several decorers active at once for a receiver?
+
+Yes, as an optional requirement, since some hardware won't support it.
+
+> - who decides that we want to utilize lirc_dev? Driver's themselves, IR
+>   core (looking at the driver/device "capabilities"), something else?
+
+Drivers that support raw mode, should interface via lirc-core, that will,
+in turn use ir-core.
+
+Drivers that have in-hardware decode will directly use ir-core.
+
+> - do we recognize and create input devices "on-fly" or require user
+>   intervention? Semantics for splitting into several input/event
+>   devices?
+
+I don't have a strong opinion here. 
+
+I don't see any way for doing it, except with very few protocols that
+sends vendor IDs. I don't care if this feature can be used by the
+drivers/decoders that could support it.
+
+> Could anyone please draw me a picture, starting with a "receiver"
+> piece of hardware. I am not concerned much with how exactly receiver is
+> plugged into a particular subsystem (DVB/V4L etc) since it would be
+> _their_ implementation detail, but with the flow in/out of that
+> "receiver" device.
+
+Not sure if I got your idea. Basically, what I see is:
+
+	For device drivers that work in raw mode:
+[IR physical device] ==> [IR receiver driver]  ==> [lirc-core] ==> [decoder] ==> [ir-core] ==> [evdev]
+
+(eventually, we can merge decoder and ir-core into one module at the beginning,
+depending on the size of the decoders)
+
+	For device drivers that work only in evdev mode (those with hardware decoders):
+
+[IR physical device] ==> [IR receiver driver]  ==> [ir-core] ==> [evdev]
+
+> 
+> Now as far as input core goes I see very limited number of changes that
+> may be needed:
+> 
+> - Allow to extend size of "scancode" in EVIOC{S,G}KEYCODE if we are
+>   unable to limit ourselves to 32 bits (keeping compatibility of course)
+
+Yes, but the way EVIOC{S,G}KEYCODE currently works, it performs poorly when you have a
+table with 2^64 size. The table is very sparsed, but, as the key to get/set a code is
+the scancode, it is very hard to enumberate what are the actual entries there. The
+better is to use an index parameter for they, instead of using the scancode as such.
+
+> - Maybe adding new ioctl to "zap" the keymap table
+
+Yes, this is needed.
+
+> - Adding more key EV_KEY/KEY_* definitons, if needed
+
+Probably.
+
 -- 
-Krzysztof Halasa
+
+Cheers,
+Mauro

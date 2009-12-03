@@ -1,35 +1,126 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: Wed, 2 Dec 2009 23:29:39 -0500
-Message-ID: <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754965AbZLCE3v@vger.kernel.org>
-In-Reply-To: <4B153617.8070608@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Thu, 3 Dec 2009 00:08:13 -0500
+Message-ID: <9e4733910912022108j71d0c27fh75dacfa79dca7c22@mail.gmail.com>
+References: <4B155288.1060509@redhat.com>
+	 <20091202093803.GA8656@core.coreip.homeip.net>
+	 <4B16614A.3000208@redhat.com>
+	 <20091202171059.GC17839@core.coreip.homeip.net>
+	 <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
+	 <4B16BE6A.7000601@redhat.com>
+	 <20091202195634.GB22689@core.coreip.homeip.net>
+	 <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
+	 <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
+	 <4B1720E6.3000802@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f192.google.com ([209.85.221.192]:42821 "EHLO
+	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750757AbZLCFIK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 00:08:10 -0500
+In-Reply-To: <4B1720E6.3000802@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Dec 1, 2009, at 10:28 AM, Gerd Hoffmann wrote:
+On Wed, Dec 2, 2009 at 9:22 PM, Mauro Carvalho Chehab
+<mchehab@redhat.com> wrote:
+> Jon Smirl wrote:
+>> On Wed, Dec 2, 2009 at 3:04 PM, Jarod Wilson <jarod@wilsonet.com> wr=
+ote:
+>>> On Dec 2, 2009, at 2:56 PM, Dmitry Torokhov wrote:
+>>>
+>>>> On Wed, Dec 02, 2009 at 02:22:18PM -0500, Jarod Wilson wrote:
+>>>>> On 12/2/09 12:30 PM, Jon Smirl wrote:
+>>>>>>>>> (for each remote/substream that they can recognize).
+>>>>>>>>>> I'm assuming that, by remote, you're referring to a remote r=
+eceiver (and not to
+>>>>>>>>>> the remote itself), right?
+>>>>>>>> If we could separate by remote transmitter that would be the b=
+est I
+>>>>>>>> think, but I understand that it is rarely possible?
+>>>>>> The code I posted using configfs did that. Instead of making app=
+s IR
+>>>>>> aware it mapped the vendor/device/command triplets into standard=
+ Linux
+>>>>>> keycodes. =A0Each remote was its own evdev device.
+>>>>> Note, of course, that you can only do that iff each remote uses d=
+istinct
+>>>>> triplets. A good portion of mythtv users use a universal of some =
+sort,
+>>>>> programmed to emulate another remote, such as the mce remote bund=
+led
+>>>>> with mceusb transceivers, or the imon remote bundled with most im=
+on
+>>>>> receivers. I do just that myself.
+>>>>>
+>>>>> Personally, I've always considered the driver/interface to be the
+>>>>> receiver, not the remote. The lirc drivers operate at the receive=
+r
+>>>>> level, anyway, and the distinction between different remotes is m=
+ade by
+>>>>> the lirc daemon.
+>>>> The fact that lirc does it this way does not necessarily mean it i=
+s the
+>>>> most corerct way.
+>>> No, I know that, I'm just saying that's how I've always looked at i=
+t, and that's how lirc does it right now, not that it must be that way.
+>>>
+>>>> Do you expect all bluetooth input devices be presented
+>>>> as a single blob just because they happen to talk to the sane rece=
+iver
+>>>> in yoru laptop? Do you expect your USB mouse and keyboard be merge=
+d
+>>>> together just because they end up being serviced by the same host
+>>>> controller? If not why remotes should be any different?
+>>> A bluetooth remote has a specific device ID that the receiver has t=
+o pair with. Your usb mouse and keyboard each have specific device IDs.=
+ A usb IR *receiver* has a specific device ID, the remotes do not. So t=
+here's the major difference from your examples.
+>>
+>> Actually remotes do have an ID. They all transmit vendor/device pair=
+s
+>> which is exactly how USB works.
+>>
+>
+> Well, the description of NEC and RC5 protocol at http://www.sbproject=
+s.com/knowledge/ir/rc5.htm
+> doesn't mention any vendor/device pair, nor I'm able to get them with=
+ the IR hardware decoders
+> I have.
 
->> Anyway, we shouldn't postpone lirc drivers addition due to that. There are still lots of work
->> to do before we'll be able to split the tables from the kernel drivers.
-> 
-> Indeed.  The sysfs bits are future work for both lirc and evdev drivers.  There is no reason to make the lirc merge wait for it.
+Some of the protocols were not intended to be multi-vendor  - the
+vendor is implicit in the protocol encoding. You don't have to split
+the IR codes into vendor/device/command triplets. I just do that
+because it is convenient to think of them that way. It is equally
+valid to treat them as a 64b integers and use four bits of the int to
+encode the protocol.  It should really be a quad
+protocol/vendor/device/command and some of the fields may be missing.
+Bottom line, you are looking for unique codes how the fields are split
+up doesn't really matter.
 
-At this point, my plan is to try to finish cleaning up lirc_dev and lirc_mceusb at least over the weekend while at FUDCon up in Toronto, and resubmit them next week.
+A fixed protocol receiver is more of a challenge. You have to figure
+out how to make a universal remote transmit device codes for a device
+you don't already own that is also encoded in the protocol your
+hardware supports. There's nothing we can do about that problem in
+Linux, its a side effect of fixed protocol decode hardware. You're
+just going to have to start guessing devices in the remote until you
+find one that uses your fixed protocol and doesn't also activate the
+devices you own. We can put suggestions in the doc when working
+devices are discovered. With a universal receiver the problem is
+simpler, just pick a device you don't own - the encoding protocol
+doesn't matter. These are generic problems with IR that are the same
+no matter how things get implemented in Linux.
 
-I'm still on the fence over what to do about lirc_imon. The driver supports essentially 3 generations of devices. First-gen is very old imon parts that don't do onboard decoding. Second-gen is the devices that all got (insanely stupidly) tagged with the exact same usb device ID (0x15c2:0xffdc), some of which have an attached VFD, some with an attached LCD, some with neither, some that are actually RF parts, but all (I think) of which do onboard decoding. Third-gen is the latest stuff, which is all pretty sane, unique device IDs for unique devices, onboard decoding, etc.
 
-So the lirc_imon I submitted supports all device types, with the onboard decode devices defaulting to operating as pure input devices, but an option to pass hex values out via the lirc interface (which is how they've historically been used -- the pure input stuff I hacked together just a few weeks ago), to prevent functional setups from being broken for those who prefer the lirc way.
-
-What I'm debating is whether this should be split into two drivers, one for the older devices that don't do onboard decoding (which would use the lirc_dev interface) called 'lirc_imon' or 'lirc_imon_legacy', and one that is a pure input driver, not unlike the ati_remote{,2} drivers, with no lirc_dev dependency at all, probably called simply 'imon'. Could still be used with lirc via its devinput userspace driver, of course. But if I split it out, there may end up being a fair amount of code duplication, and the resulting lirc_imon wouldn't be as interesting to submit, and I wouldn't have any devices that worked with it, I've only got onboard decode devices... The new imon input driver would be a separate submission that is completely irrelevant to this whole discussion.
-
-So perhaps for round three, lirc_dev, lirc_mceusb and lirc_zilog, to make it more interesting...
-
--- 
-Jarod Wilson
-jarod@wilsonet.com
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,107 +1,94 @@
-From: Andy Walls <awalls@radix.net>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Thu, 03 Dec 2009 07:02:49 -0500
-Message-ID: <1259841769.3100.18.camel@palomino.walls.org>
-References: <9e4733910912010816q32e829a2uce180bfda69ef86d@mail.gmail.com>
-	 <4B154C54.5090906@redhat.com>
-	 <829197380912010909m59cb1078q5bd2e00af0368aaf@mail.gmail.com>
-	 <4B155288.1060509@redhat.com>
-	 <20091201175400.GA19259@core.coreip.homeip.net>
-	 <4B1567D8.7080007@redhat.com>
-	 <20091201201158.GA20335@core.coreip.homeip.net>
-	 <4B15852D.4050505@redhat.com>
-	 <20091202093803.GA8656@core.coreip.homeip.net>
-	 <4B16614A.3000208@redhat.com>
-	 <20091202171059.GC17839@core.coreip.homeip.net>
-	 <4B16C10E.6040907@redhat.com>
-	 <1CA77278-9B8E-4169-8F10-78764A35F64E@wilsonet.com>
-	 <1259802169.3085.10.camel@palomino.walls.org> <4B178C4D.1020007@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Thu, 03 Dec 2009 13:09:14 +0100
+Message-ID: <4B17AA6A.9060702@redhat.com>
+References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:36213 "EHLO mail1.radix.net"
+Received: from mx1.redhat.com ([209.132.183.28]:36337 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751750AbZLCMEd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 07:04:33 -0500
-In-Reply-To: <4B178C4D.1020007@redhat.com>
+	id S1753662AbZLCMJz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 07:09:55 -0500
+In-Reply-To: <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Jon Smirl <jonsmirl@gmail.com>, Maxim Levitsky <maximlevitsky@gmail.com>, j@jannau.net, jarod@redhat.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, 2009-12-03 at 08:00 -0200, Mauro Carvalho Chehab wrote:
-> Andy Walls wrote:
-> > On Wed, 2009-12-02 at 14:55 -0500, Jarod Wilson wrote:
-> >> On Dec 2, 2009, at 2:33 PM, Mauro Carvalho Chehab wrote:
+On 12/03/09 05:29, Jarod Wilson wrote:
+> On Dec 1, 2009, at 10:28 AM, Gerd Hoffmann wrote:
+>
+>>> Anyway, we shouldn't postpone lirc drivers addition due to that.
+>>> There are still lots of work to do before we'll be able to split
+>>> the tables from the kernel drivers.
+>>
+>> Indeed.  The sysfs bits are future work for both lirc and evdev
+>> drivers.  There is no reason to make the lirc merge wait for it.
+>
+> At this point, my plan is to try to finish cleaning up lirc_dev and
+> lirc_mceusb at least over the weekend while at FUDCon up in Toronto,
+> and resubmit them next week.
 
- 
-> > Both of those IR devices are/will be encapsulated in a v4l2_subdevice
-> > object internally.  I was going to write lirc_v4l glue between the
-> > v4l2_device/v4l2_subdev_ir_ops and lirc_dev.
-> > 
-> > As for the the I2C chips, I was going to go back and encapsulate those
-> > in the v4l2_subdevice object as well, so then my notional lirc_v4l could
-> > pick those up too.  The I2C subsystem only allows one binding to an I2C
-> > client address/name on a bus.  So without some new glue like a notional
-> > lirc_v4l, it *may* be hard to share between ir-kbd-i2c and lirc_i2c and
-> > lirc_zilog.
-> 
-> Maybe you're having a bad time because you may be trying to integrate lirc
-> at the wrong place.
+Good plan IMHO.  Having lirc_dev merged quickly allows in-kernel drivers 
+start supporting lirc.
 
-These were just ideas.  I haven't done *anything* yet. ;)
+One final pass over the lirc interface would be good, taking the chance 
+to fixup anything before the ABI is set in stone with the mainline 
+merge.  Things to look at:
 
+   (1) Make sure ioctl structs are 32/64 bit invariant.
+   (2) Maybe add some reserved fields to allow extending later
+       without breaking the ABI.
+   (3) Someone suggested a 'commit' ioctl which would activate
+       the parameters set in (multiple) previous ioctls.  Makes sense?
+   (4) Add a ioctl to enable/disable evdev event submission for
+       evdev/lirc hybrid drivers.
 
-> All devices at V4L tree including ir-kbd-i2c use ir-common.ko 
-> (at /drivers/media/common tree) module to communicate to IR's. 
-> I'm preparing some patches to extend this also to dvb-usb devices 
-> (that uses a close enough infrastructure). 
-> 
-> Also, most of the decoding code are there, in a form of helper routines.
-> 
-> As the idea is to provide lirc interface to all devices that can work with
-> raw pulse/space, the proper place is to write a subroutine there that, once
-> called, will make those pulse/space raw codes available to lirc and will
-> call the needed decoders to export them also to evdev.
-> 
-> The code at ir-common module was originally built to be used by V4L, but I'm
-> porting the code there to be generic enough to be a library that can be used
-> by other drivers. So, lirc_zilog and other lirc devices that will need to open
-> evdev interfaces after running a decoder can use them.
+> I'm still on the fence over what to do about lirc_imon. The driver
+> supports essentially 3 generations of devices. First-gen is very old
+> imon parts that don't do onboard decoding. Second-gen is the devices
+> that all got (insanely stupidly) tagged with the exact same usb
+> device ID (0x15c2:0xffdc), some of which have an attached VFD, some
+> with an attached LCD, some with neither, some that are actually RF
+> parts, but all (I think) of which do onboard decoding. Third-gen is
+> the latest stuff, which is all pretty sane, unique device IDs for
+> unique devices, onboard decoding, etc.
 
-I think I see what you are saying (I wish could see look at a whiteboard
-somewhere...).  Wherever we come through internally to split to 2
-different userspace interfaces is fine, if you've got a big picture plan
-you think is feasible.
+Do have second-gen and third-gen devices have a 'raw mode'?  If so, then 
+there should be a lirc interface for raw data access.
 
-That seems like a bit of perturbation to lirc_zilog and lirc_i2c.  My
-thought was that lirc_v4l using the standardized v4l2_subdev_ir_ops
-interface, and maybe some new calls associted with v4l2_device, could
-subsume/unify all the functionality of lirc_i2c, lirc_zilog, ...
-lirc_whatever.
+> So the lirc_imon I submitted supports all device types, with the
+> onboard decode devices defaulting to operating as pure input devices,
+> but an option to pass hex values out via the lirc interface (which is
+> how they've historically been used -- the pure input stuff I hacked
+> together just a few weeks ago), to prevent functional setups from
+> being broken for those who prefer the lirc way.
 
-Maybe that's just a poorly thought out dream though...
+Hmm.  I'd tend to limit the lirc interface to the 'raw samples' case.
 
+Historically it has also been used to pass decoded data (i.e. rc5) from 
+devices with onboard decoding, but for that in-kernel mapping + input 
+layer really fits better.
 
-> Due to that, we shouldn't add v4l2_subdevice there. Nothing prevents to create
-> a v4l2-ir-subdev glue if you want to see the IR's as subdevices, but this should
-> be implemented as a separate module.
+> What I'm debating is whether this should be split into two drivers,
+> one for the older devices that don't do onboard decoding (which would
+> use the lirc_dev interface) called 'lirc_imon' or 'lirc_imon_legacy',
+> and one that is a pure input driver, not unlike the ati_remote{,2}
+> drivers, with no lirc_dev dependency at all, probably called simply
+> 'imon'.
 
-The v4l_subdevice just abstracted the IR hardware into a nice (mental)
-box for me -- easier to keep hardware separate from software decoders
-and userspace interface logic.
+i.e. lirc_imon would support first+second gen, and imon third-gen 
+devices, without overlap?
 
-Also, since v4l2_subdevices may have per subdevice /dev nodes and
-the /dev/../mcN nodes providing a discovery mechanism due to the Meda
-Controller framework, wrapping things in v4l2_subdevice may be handy for
-development and debug.  Or ... as an additional operational interface to
-userspace. :D  *ducks and runs for cover*
+ > But if I split it out, there may end up being a
+> fair amount of code duplication,
 
-Regards,
-Andy
+You could try to split common code into a third module used by the other 
+two.  Or have one module for all devices which is a evdev/lirc hybrid.
 
-> Cheers,
-> Mauro.
-
+cheers,
+   Gerd
 

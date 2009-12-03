@@ -1,52 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Wed, 2 Dec 2009 22:26:41 -0800
-Message-ID: <20091203062641.GH9121@core.coreip.homeip.net>
-References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com> <20091203061912.GA5626@gw.healthdatacare.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:58826 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751156AbZLCG0j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 01:26:39 -0500
-Received: by pwi3 with SMTP id 3so832052pwi.21
-        for <linux-input@vger.kernel.org>; Wed, 02 Dec 2009 22:26:46 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20091203061912.GA5626@gw.healthdatacare.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Corentin Chary <corentincj@iksaif.net>
+Subject: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Thu,  3 Dec 2009 08:45:16 +0100
+Message-ID: <1259826317-18809-33-git-send-email-corentincj@iksaif.net>
+References: <1259826317-18809-1-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-2-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-3-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-4-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-5-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-6-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-7-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-8-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-9-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-10-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-11-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-12-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-13-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-14-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-15-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-16-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-17-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-18-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-19-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-20-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-21-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-22-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-23-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-24-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-25-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-26-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-27-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-28-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-29-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-30-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-31-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-32-git-send-email-corentincj@iksaif.net>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1259826317-18809-32-git-send-email-corentincj@iksaif.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Len Brown <lenb@kernel.org>
+Cc: linux-acpi@vger.kernel.org, Corentin Chary <corentincj@iksaif.net>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@iki.fi>
+
+This keycode could be used in a lot of platform specific drivers.
+For example, on Asus laptops, Fn+F2 allow to cycle trought wireless
+drivers (bt/wl: off/off, on/off, off/on, on/on).
+
+Currently, these key are mapped to KEY_WLAN, and KEY_BLUETOOTH/KEY_WIMAX
+are rarely used.
+
 Cc: linux-input@vger.kernel.org
+Signed-off-by: Corentin Chary <corentincj@iksaif.net>
+---
+ include/linux/input.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-On Thu, Dec 03, 2009 at 08:19:12AM +0200, Mika Westerberg wrote:
-> On Tue, Dec 01, 2009 at 03:53:45PM +0200, Mika Westerberg wrote:
-> >
-> > This is third version of the series. Purpose of this patch is to allow
-> > userland to disable GPIO buttons interrupting the CPU. There is now sysfs
-> > interface that can be used to control the buttons by key code or by switch
-> > code.
-> > 
-> > I merged those previous 2 patches as one. This is because it made little
-> > sense of having separate patch for adding the 'can_disable' field.
-> > 
-> > Changes in v3:
-> > 	- merged previous 2 patches into one
-> > 	- buttons have 'can_disable' field instead of irqflags field
-> > 
-> > Tested with RX-51.
-> 
-> Hi Dmitry,
-> 
-> Any comments on this? Is it OK to be applied or do I need to change
-> something.
-> 
-
-Hi Mika,
-
-SOrry, I am still pondering how to go about it. I am sure that the sysfs
-interface is proper, so at this point it is just implementation details
-that I am not quite sure yet...
-
+diff --git a/include/linux/input.h b/include/linux/input.h
+index c2b1a7d..c961908 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -376,6 +376,7 @@ struct input_absinfo {
+ #define KEY_DISPLAY_OFF		245	/* display device to off state */
+ 
+ #define KEY_WIMAX		246
++#define KEY_WIRELESS_CYCLE	247
+ 
+ /* Range 248 - 255 is reserved for special needs of AT keyboard driver */
+ 
 -- 
-Dmitry
+1.6.5.3
+

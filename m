@@ -1,73 +1,176 @@
-From: Trent Piepho <xyzzy@speakeasy.org>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Wed, 2 Dec 2009 18:48:24 -0800 (PST)
-Message-ID: <Pine.LNX.4.58.0912021827120.4729@shell2.speakeasy.net>
-References: <4B155288.1060509@redhat.com>  <20091201201158.GA20335@core.coreip.homeip.net>
-  <4B15852D.4050505@redhat.com>  <20091202093803.GA8656@core.coreip.homeip.net>
-  <4B16614A.3000208@redhat.com>  <20091202171059.GC17839@core.coreip.homeip.net>
-  <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
- <4B16BE6A.7000601@redhat.com>  <20091202195634.GB22689@core.coreip.homeip.net>
-  <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
- <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC PATCH 1/2] =?iso-8859-1?Q?Input?=
+	=?iso-8859-1?Q?=3A_add_msi-wmi_driver_to_support_hotkeys_in_MSI=A0Windto?=
+	=?iso-8859-1?Q?p?= AE1900-WT
+Date: Wed, 2 Dec 2009 19:11:28 -0800
+Message-ID: <20091203031128.GA9121@core.coreip.homeip.net>
+References: <20091202192603.3e1de98a@destiny.ordissimo>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:36944 "EHLO
-	mail4.sea5.speakeasy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754654AbZLCCsS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Dec 2009 21:48:18 -0500
-In-Reply-To: <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20091202192603.3e1de98a@destiny.ordissimo>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Anisse Astier <anisse@astier.eu>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Carlos Corbacho <carlos@strangeworlds.co.uk>
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Wed, 2 Dec 2009, Jon Smirl wrote:
-> > A bluetooth remote has a specific device ID that the receiver has to pair with. Your usb mouse and keyboard each have specific device IDs. A usb IR *receiver* has a specific device ID, the remotes do not. So there's the major difference from your examples.
->
-> Actually remotes do have an ID. They all transmit vendor/device pairs
-> which is exactly how USB works.
+Hi Anisse,
 
-*All* remotes?  That's a bold statement.  I'm sure there are some that
-only transmit 8 bits of so of scancode.  I think remotes are more like
-hosts on a network than usb or bluetooth devices.  Remotes do not join or
-leave a receiver, while things like usb devices do explictly join and leave
-the hub.
+On Wed, Dec 02, 2009 at 07:26:03PM +0100, Anisse Astier wrote:
+> +
+> +	if (jiffies_to_msecs(get_jiffies_64() - msi_wmi_time_last_press)
+> +			> pression_timeout) {
 
-> >> Now I understand that if 2 remotes send completely identical signals we
-> >> won't be able to separate them, but in cases when we can I think we
-> >> should.
-> >
-> > I don't have a problem with that, if its a truly desired feature.  But
-> > for the most part, I don't see the point.  Generally, you go from
-> > having multiple remotes, one per device (where "device" is your TV,
-> > amplifier, set top box, htpc, etc), to having a single universal remote
-> > that controls all of those devices.  But for each device (IR receiver),
-> > *one* IR command set.  The desire to use multiple distinct remotes with
-> > a single IR receiver doesn't make sense to me.  Perhaps I'm just not
-> > creative enough in my use of IR.  :)
+Why don't you use time_after() instead of manual computation?
 
-Most universal remotes I'm familiar with emulate multiple remotes.  I.e.
-my tv remote generates one set of scancodes for the numeric keys.  The DVD
-remote generates a different set.  The amplifier remote in "tv mode"
-generates the same codes as the tv remote, and in "dvd mode" the same codes
-as the dvd remote.  From the perspective of the IR receiver there is no
-difference between having both the DVD and TV remotes, or using the
-aplifier remote to control both devices.
+Also, what is the point of this? If you are trying to debounce the
+buttons this will not quite work. To do debouncing properly you need to
+store the value you just read and fire up a timer. When timer fires -
+that's the stable value.
 
-Now, my aplifier remote has a number of modes.  Some control devices I
-have, like "vcr mode", and there is nothing I can do about that.  Some,
-like "md mode" don't control devices I have.  That means they are free to
-do things on the computer.  Someone else with the same remote (or any
-number of remotes that use the same protocol and scancodes) might have
-different devices.
+> +		printk(KERN_DEBUG
+> +				"MSI WMI: event correctly received: %llu\n",
+> +				obj->integer.value);
 
-So I want my computer to do stuff when I push "JVC MD #xx" keys, but ignore
-"JVC VCR #yyy" yets.  Someone with an MD player and not a VCR would want to
-opposite.  Rather than force everyone to create custom keymaps, it's much
-easier if we can use the standard keymaps from a database of common remotes
-and simply tell mythtv to only use remote #xxx or not to use remote #yyy.
+This is way too noisy for the mainline kernel, pr_debug() perhaps?
 
-It sounds like you're thinking of a receiver that came bundled with a
-remote and that's it.  Not someone with a number of remotes that came with
-different pieces of AV gear that they want to use with their computer.
+> +		msi_wmi_time_last_press =3D get_jiffies_64();
+> +		key =3D msi_wmi_get_entry_by_scancode(obj->integer.value);
+> +		input_report_key(msi_wmi_input_dev, key->keycode, 1);
+> +		input_sync(msi_wmi_input_dev);
+> +		input_report_key(msi_wmi_input_dev, key->keycode, 0);
+> +		input_sync(msi_wmi_input_dev);
+> +	}
+> +}
+> +
+> +static int msi_wmi_getkeycode(struct input_dev *dev, int scancode, i=
+nt *keycode)
+> +{
+> +	struct key_entry *key =3D msi_wmi_get_entry_by_scancode(scancode);
+> +
+> +	if (key && key->code) {
+> +		*keycode =3D key->keycode;
+> +		return 0;
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int msi_wmi_setkeycode(struct input_dev *dev, int scancode, i=
+nt keycode)
+> +{
+> +	struct key_entry *key;
+> +	int old_keycode;
+> +
+> +	if (keycode < 0 || keycode > KEY_MAX)
+> +		return -EINVAL;
+> +
+> +	key =3D msi_wmi_get_entry_by_scancode(scancode);
+> +	if (key && key->code) {
+> +		old_keycode =3D key->keycode;
+> +		key->keycode =3D keycode;
+> +		set_bit(keycode, dev->keybit);
+> +		if (!msi_wmi_get_entry_by_keycode(old_keycode))
+> +			clear_bit(old_keycode, dev->keybit);
+> +		return 0;
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int __init msi_wmi_input_setup(void)
+> +{
+> +	struct key_entry *key;
+> +	int err;
+> +
+> +	msi_wmi_input_dev =3D input_allocate_device();
+> +
+> +	msi_wmi_input_dev->name =3D "MSI WMI hotkeys";
+> +	msi_wmi_input_dev->phys =3D "wmi/input0";
+> +	msi_wmi_input_dev->id.bustype =3D BUS_HOST;
+> +	msi_wmi_input_dev->getkeycode =3D msi_wmi_getkeycode;
+> +	msi_wmi_input_dev->setkeycode =3D msi_wmi_setkeycode;
+> +
+> +	for (key =3D msi_wmi_keymap; key->code; key++) {
+> +		set_bit(EV_KEY, msi_wmi_input_dev->evbit);
+> +		set_bit(key->keycode, msi_wmi_input_dev->keybit);
+> +	}
+> +
+> +	err =3D input_register_device(msi_wmi_input_dev);
+> +
+> +	if (err)
+> +		input_free_device(msi_wmi_input_dev);
+> +
+> +	return err;
+> +}
+> +
+> +static int __init msi_wmi_init(void)
+> +{
+> +	int err;
+> +
+> +	msi_wmi_time_last_press =3D get_jiffies_64();
+> +	if (!wmi_has_guid(MSIWMI_EVENT_GUID)) {
+> +		printk(KERN_ERR
+> +		       "This machine doesn't have MSI-hotkeys through WMI\n");
+> +		goto load_error;
+> +	}
+> +	err =3D wmi_install_notify_handler(MSIWMI_EVENT_GUID,
+> +					 msi_wmi_notify, NULL);
+> +	if (err) {
+> +		printk(KERN_ERR
+> +		       "MSI WMI: Error while installing notify handler\n");
+> +		goto load_error;
+> +	}
+> +
+> +	msi_wmi_input_setup();
+
+
+You need to handle errors returned by msi_wmi_input_setup() as well.
+
+> +
+> +	return 0;
+> +load_error:
+> +	return -ENODEV;
+> +}
+> +
+> +static void __exit msi_wmi_exit(void)
+> +{
+> +	if (wmi_has_guid(MSIWMI_EVENT_GUID)) {
+> +		wmi_remove_notify_handler(MSIWMI_EVENT_GUID);
+> +		input_unregister_device(msi_wmi_input_dev);
+> +	}
+> +}
+> +
+> +module_init(msi_wmi_init);
+> +module_exit(msi_wmi_exit);
+> +module_param(pression_timeout, uint, 0);
+> +
+> +MODULE_AUTHOR("J=E9r=F4me Pouiller <jezz@sysmic.org>");
+> +MODULE_AUTHOR("Michael Bouchaud <michael@substantiel.fr");
+> +MODULE_AUTHOR("Anisse Astier <anisse@astier.eu");
+> +MODULE_DESCRIPTION("MSI all-in-one WMI hotkeys driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("wmi:" MSIWMI_EVENT_GUID);
+> +/*This one is useless if there is wmi-autoloading*/
+> +MODULE_ALIAS("dmi:bvnMICRO-STARINTERNATIONALCO.,LTD:*:svnMICRO-STARI=
+NTERNATIO"
+> +	     "NALCO.,LTD:pnMS-6638:*:rnMS-7438:*:cvnMICRO-STARINTERNATIONAL=
+CO."
+> +	     ",LTD:*");
+> +MODULE_PARM_DESC(pression_timeout,
+> +		 "How much time interrupts are ignored between each pression");
+
+This is not the best option name:
+
+MODULE_PARM_DESC(debounce_interval,
+		 "Controls how long driver will wait for button to debounce");
+
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

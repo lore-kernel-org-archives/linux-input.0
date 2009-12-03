@@ -1,39 +1,28 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: Thu, 03 Dec 2009 18:31:20 +0100
-Message-ID: <m3k4x42cd3.fsf@intrepid.localdomain>
-References: <BE3edeNXqgB@lirc>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Thu, 3 Dec 2009 09:31:06 -0800
+Message-ID: <20091203173105.GA776@core.coreip.homeip.net>
+References: <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com> <4B16BE6A.7000601@redhat.com> <20091202195634.GB22689@core.coreip.homeip.net> <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com> <20091202201404.GD22689@core.coreip.homeip.net> <4B16CCD7.20601@redhat.com> <20091202205323.GF22689@core.coreip.homeip.net> <4B16D87F.7080701@redhat.com> <87tyw8ujsr.fsf@tac.ki.iif.hu> <4B17E874.5020003@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from khc.piap.pl ([195.187.100.11]:41278 "EHLO khc.piap.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753892AbZLCRbR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 12:31:17 -0500
-In-Reply-To: <BE3edeNXqgB@lirc> (Christoph Bartelmus's message of "01 Dec 2009
-	08:45:00 +0100")
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756138AbZLCRbI@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4B17E874.5020003@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Ferenc Wagner <wferi@niif.hu>, Jarod Wilson <jarod@wilsonet.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: jonsmirl@gmail.com, awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com, superm1@ubuntu.com
 
-lirc@bartelmus.de (Christoph Bartelmus) writes:
+On Thu, Dec 03, 2009 at 02:33:56PM -0200, Mauro Carvalho Chehab wrote:
+> Ferenc Wagner wrote:
+> > Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+> 
+> We should not forget that simple IR's don't have any key to select the address,
+> so the produced codes there will never have KEY_TV/KEY_DVD, etc.
 
-> Currently I would tend to an approach like this:
-> - raw interface to userspace using LIRC
-> - fixed set of in-kernel decoders that can handle bundled remotes
+Wait, wait, KEY_TV, KEY_DVD, KEY_TAPE - they should be used to select
+media inputs in a device/application. My receiver accepts codees like
+that.
 
-I'd modify it a bit:
-- raw interface to userspace using LIRC
-- fixed set of in-kernel decoders
-
-Longer term:
-
-Removing the key assignment tables from the kernel. Plug-and-play can be
-then achieved with udev. The only thing needed from the kernel is
-indicating the tuner/sensor type, udev can guess the bundled remote type.
-
-Porting the in-kernel drivers (such as ir-common) to LIRC interface
-(while not removing the input layer mode).
 -- 
-Krzysztof Halasa
+Dmitry

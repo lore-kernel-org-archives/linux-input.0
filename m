@@ -1,48 +1,45 @@
-From: lirc@bartelmus.de (Christoph Bartelmus)
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 03 Dec 2009 22:51:00 +0100
-Message-ID: <BEBfoS11qgB@lirc>
-References: <4B18292C.6070303@redhat.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Thu, 03 Dec 2009 16:53:54 -0500
+Message-ID: <4B183372.30104@redhat.com>
+References: <20091203194736.GM2970@sliepen.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:63961 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751405AbZLCVwp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 16:52:45 -0500
-In-Reply-To: <4B18292C.6070303@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:10377 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752585AbZLCVyC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 16:54:02 -0500
+In-Reply-To: <20091203194736.GM2970@sliepen.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mchehab@redhat.com
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Guus Sliepen <guus@sliepen.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, linux-input@vger.kernel.org
 
-Hi Mauro,
+On 12/3/09 2:47 PM, Guus Sliepen wrote:
+> Hello,
+>
+> Some years ago I wrote a tool called "inputlirc" that translates evdev events
+> into LIRC events, to allow remotes that then already used the input system to
+> work with LIRC.  At the time, lircd itself could do this, but you had to
+> "train" it to "decode" evdev bitstreams. Instead, inputlirc uses a fixed
+> mapping between evdev names and LIRC key names, so you don't need to train or
+> configure anything.
 
-on 03 Dec 09 at 19:10, Mauro Carvalho Chehab wrote:
-[...]
->>> So the lirc_imon I submitted supports all device types, with the
->>> onboard decode devices defaulting to operating as pure input devices,
->>> but an option to pass hex values out via the lirc interface (which is
->>> how they've historically been used -- the pure input stuff I hacked
->>> together just a few weeks ago), to prevent functional setups from
->>> being broken for those who prefer the lirc way.
->>
->> Hmm.  I'd tend to limit the lirc interface to the 'raw samples' case.
+No longer necessary, there's a proper devinput lircd userspace driver 
+that when paired with an lircd.conf (auto-generated based on 
+linux/input.h) Just Works.
 
->> Historically it has also been used to pass decoded data (i.e. rc5) from
->> devices with onboard decoding, but for that in-kernel mapping + input
->> layer really fits better.
+http://lirc.sourceforge.net/remotes/devinput/lircd.conf.devinput
 
-> I agree.
+> It seems that if you want to merge LIRC into the kernel, and have it generate
+> standard events,
 
-Consider passing the decoded data through lirc_dev.
-- there's a large user base already that uses this mode through lirc and  
-would be forced to switch to input layer if it disappears.
-- that way all IR drivers would consistently use lirc interface and all  
-PnP hooks could be implemented there in one place.
-- drivers like lirc_imon that have to support both raw and decoded mode,  
-currently have to implement both the lirc and the input interface.  
-Complexity could be reduced in such cases. But maybe this is necessary  
-anyway for lirc_imon that also includes mouse functionality. Jarod?
+It already can. If your button names in lircd.conf match button names in 
+input.h, lircd can reinject the key presses into the input subsystem via 
+uinput.
 
-Christoph
+-- 
+Jarod Wilson
+jarod@redhat.com

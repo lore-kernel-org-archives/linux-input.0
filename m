@@ -1,45 +1,50 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Thu, 03 Dec 2009 16:53:54 -0500
-Message-ID: <4B183372.30104@redhat.com>
-References: <20091203194736.GM2970@sliepen.org>
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
+Date: Fri, 04 Dec 2009 08:07:34 +1000
+Message-ID: <4B1836A6.405@redhat.com>
+References: <20091203050810.GA26595@barra.bne.redhat.com> <87zl60s17o.fsf@macbook.be.48ers.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:10377 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:55925 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752585AbZLCVyC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 16:54:02 -0500
-In-Reply-To: <20091203194736.GM2970@sliepen.org>
+	id S1752404AbZLCWI6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 17:08:58 -0500
+In-Reply-To: <87zl60s17o.fsf@macbook.be.48ers.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guus Sliepen <guus@sliepen.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, linux-input@vger.kernel.org
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 12/3/09 2:47 PM, Guus Sliepen wrote:
-> Hello,
+On 03/12/09 22:15, Peter Korsgaard wrote:
+>>>>>> "Peter" == Peter Hutterer<peter.hutterer@redhat.com>  writes:
 >
-> Some years ago I wrote a tool called "inputlirc" that translates evdev events
-> into LIRC events, to allow remotes that then already used the input system to
-> work with LIRC.  At the time, lircd itself could do this, but you had to
-> "train" it to "decode" evdev bitstreams. Instead, inputlirc uses a fixed
-> mapping between evdev names and LIRC key names, so you don't need to train or
-> configure anything.
+>   Peter>  These touchscreens are mounted onto HP TouchSmart and the Dell
+>   Peter>  Studio One 19. Without a quirk they report a wrong button set
+>   Peter>  and the x/y coordinates through ABS_Z/ABS_RX, confusing the
+>   Peter>  higher levels (most notably X.Org's evdev driver).
+>
+> What exactly does this fix? I've been using NW touchscreens for a while
+> and don't recall any issues (admittedly only used it with evtouch).
 
-No longer necessary, there's a proper devinput lircd userspace driver 
-that when paired with an lircd.conf (auto-generated based on 
-linux/input.h) Just Works.
+evtouch has the following code:
 
-http://lirc.sourceforge.net/remotes/devinput/lircd.conf.devinput
+         if ( (ev->code == ABS_X) || (ev->code == ABS_Z) ) {
+                 priv->raw_x = ev->value;
+                 pos_changed = 1;
+         }
 
-> It seems that if you want to merge LIRC into the kernel, and have it generate
-> standard events,
+         if ( (ev->code == ABS_Y) || (ev->code == ABS_RX) ) {
+                 priv->raw_y = ev->value;
+                 pos_changed = 1;
+         }
 
-It already can. If your button names in lircd.conf match button names in 
-input.h, lircd can reinject the key presses into the input subsystem via 
-uinput.
+it's a hack in userspace that works around wrong event reporting. So 
+yes, it works if you're using evtouch but if you want to use any other 
+driver that driver needs the same hack. treating Z as X and RX as Y 
+doesn't work too well for a generic driver such as evdev, which has to 
+deal with devices where RX is a valid axis.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+Cheers,
+   Peter

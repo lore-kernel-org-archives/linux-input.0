@@ -1,99 +1,46 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Thu, 03 Dec 2009 09:20:57 -0200
-Message-ID: <4B179F19.60108@redhat.com>
-References: <4B155288.1060509@redhat.com> <4B16614A.3000208@redhat.com>	 <20091202171059.GC17839@core.coreip.homeip.net>	 <9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>	 <4B16BE6A.7000601@redhat.com>	 <20091202195634.GB22689@core.coreip.homeip.net>	 <2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>	 <9e4733910912021620s7a2b09a8v88dd45eef38835a@mail.gmail.com>	 <Pine.LNX.4.58.0912021827120.4729@shell2.speakeasy.net>	 <5FED031C-C24B-4F82-9621-EB1C8A5B928B@wilsonet.com> <9e4733910912022118h28058f4dt2815c3da4f717b02@mail.gmail.com>
+From: Will Stephenson <wstephenson-RoXCvvDuEio@public.gmane.org>
+Subject: Re: [Kde-hardware-devel] [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Thu, 3 Dec 2009 12:23:04 +0100
+Message-ID: <200912031223.04419.wstephenson@kde.org>
+References: <1259826317-18809-28-git-send-email-corentincj@iksaif.net> <71cd59b00912030122n3d94236ajfa5e55c3b5a9efcd@mail.gmail.com> <1259833412.12843.7.camel@johannes.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43139 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753552AbZLCLVS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Dec 2009 06:21:18 -0500
-In-Reply-To: <9e4733910912022118h28058f4dt2815c3da4f717b02@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1259833412.12843.7.camel-YfaajirXv2244ywRPIzf9A@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: kde-hardware-devel-RoXCvvDuEio@public.gmane.org
+Cc: Johannes Berg <johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org>, Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dbus-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hal-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, networkmanager-list-rDKQcyrBJuzYtjvyW6yDsg@public.gmane.org, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Trent Piepho <xyzzy@speakeasy.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-Jon Smirl wrote:
-> On Wed, Dec 2, 2009 at 11:13 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
->> On Dec 2, 2009, at 9:48 PM, Trent Piepho wrote:
->> ...
->>>>>> Now I understand that if 2 remotes send completely identical signals we
->>>>>> won't be able to separate them, but in cases when we can I think we
->>>>>> should.
->>>>> I don't have a problem with that, if its a truly desired feature.  But
->>>>> for the most part, I don't see the point.  Generally, you go from
->>>>> having multiple remotes, one per device (where "device" is your TV,
->>>>> amplifier, set top box, htpc, etc), to having a single universal remote
->>>>> that controls all of those devices.  But for each device (IR receiver),
->>>>> *one* IR command set.  The desire to use multiple distinct remotes with
->>>>> a single IR receiver doesn't make sense to me.  Perhaps I'm just not
->>>>> creative enough in my use of IR.  :)
->>> Most universal remotes I'm familiar with emulate multiple remotes.  I.e.
->>> my tv remote generates one set of scancodes for the numeric keys.  The DVD
->>> remote generates a different set.  The amplifier remote in "tv mode"
->>> generates the same codes as the tv remote, and in "dvd mode" the same codes
->>> as the dvd remote.  From the perspective of the IR receiver there is no
->>> difference between having both the DVD and TV remotes, or using the
->>> aplifier remote to control both devices.
->> Okay, in the above scenario, you've still got a single input device...
->>
->>> Now, my aplifier remote has a number of modes.  Some control devices I
->>> have, like "vcr mode", and there is nothing I can do about that.  Some,
->>> like "md mode" don't control devices I have.  That means they are free to
->>> do things on the computer.  Someone else with the same remote (or any
->>> number of remotes that use the same protocol and scancodes) might have
->>> different devices.
->>>
->>> So I want my computer to do stuff when I push "JVC MD #xx" keys, but ignore
->>> "JVC VCR #yyy" yets.  Someone with an MD player and not a VCR would want to
->>> opposite.  Rather than force everyone to create custom keymaps, it's much
->>> easier if we can use the standard keymaps from a database of common remotes
->>> and simply tell mythtv to only use remote #xxx or not to use remote #yyy.
->> Sure, but the key is that this can't be done automagically. The IR driver has no way of knowing that user A wants JVC MD keys handled and JVC VCR keys ignored, and user B wants vice versa, while user C wants both ignored, etc. This is somewhat tangential to whether or not there's a separate input device per "remote" though. You can use multiple remotes/protocols with a single input device or lirc device already (if the hardware doesn't have to be put explicitly into a mode to listen for that proto, of course, but then its a hardware decoding device feeding a single input device anyway, so...).
->>
->>> It sounds like you're thinking of a receiver that came bundled with a
->>> remote and that's it.  Not someone with a number of remotes that came with
->>> different pieces of AV gear that they want to use with their computer.
->> No, I just pick *one* remote and use it for everything, not schizophrenically hopping from one remote to another, expecting them all the be able to control everything. :) Its a hell of a lot easier to find buttons w/o looking at the remote if you always use the same one for everything, for one.
->>
->> Anyway, I think I'm talking myself in circles. Supporting multiple remotes via multiple input devices (or even via a single input device) isn't at all interesting to me for my own use, but if there really is demand for such support (and it appears there is), then fine, lets do it.
+On Thursday 03 December 2009 10:43:32 Johannes Berg wrote:
+> On Thu, 2009-12-03 at 10:22 +0100, Corentin Chary wrote:
+> > Dear system infrastructure people,
+> > Do you think a KEY_WIRELESS_CYCLE key would have any application ?
 > 
-> Simple use case:
+> Not really.
 > 
-> You have a multifunction remote. Press the CABLE key - it sends out
-> commands that control the cable box, press the TV key - now the
-> commands control the TV, press CD - now the CD player, etc.
+> The naming of the key ultimately will not matter one bit, because it'll
+> be misnamed on most platforms anyway, unless we want to do DMI matching
+> or something to name the key. And even then, if there's a wifi key but
+> no bluetooth key, users may prefer to have the wifi key act as a cycle
+> key instead.
 > 
-> Now imagine a headless Linux box running a music server and a home
-> automation app. Press the CD key - commands get routed to the music
-> server, press the AUX key - commands get routed to the home automation
-> app.
-> 
-> This is accomplished by recognizing the device code part of the IR
-> signal and figuring out that there are two different device codes in
-> use. The commands of then routed to two evdev devices corresponding to
-> the two different device codes.
-> 
-> Using things like Alt-Tab to switch apps is impossible. There's no
-> screen to look at.
+> Therefore, this ought to all be policy in the rfkill daemon.
+> rfkill-input will be going away as soon as somebody writes a simple
+> daemon that allows doing such things, I really don't see us adding
+> support for a cycle key to the kernel code, and for the userspace code
+> it doesn't matter since users will configure it independent of the key
+> code anyway.
 
-This usecase makes sense to me.
+This sounds reasonable to me, as the wireless guy in the KDE camp.  I don't 
+want to have to handle these keypresses in a user session anyway - I prefer 
+that NetworkManager picks up on them and notifies the client of the state 
+change.
 
-With the risk of repeating myself, you don't have two physical remotes.
-The needed feature is a way to split one source of input events (that
-happens to be an infrared remote, but it could also be any other type of input
-device, like a bluetooth remote) into several different evdev interfaces,
-based on scancode groups. 
-
-Also, as you're thinking on 64 bits scancodes, this also means that the
-current evdev KABI and API will require changes to support bigger scancodes.
-
-Anyway, IMO, this subject should be handled as a different requirement than
-integrating the lirc drivers.
-
-Cheers,
-Mauro.
+Will
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,66 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/8] Input: hp-wmi - switch to using sparse keymap
-	library
-Date: Thu, 3 Dec 2009 02:03:38 -0800
-Message-ID: <20091203100338.GA32433@core.coreip.homeip.net>
-References: <20091202091056.30409.50455.stgit@localhost.localdomain> <20091202092425.30409.85617.stgit@localhost.localdomain> <20091203105811.06571039@destiny.ordissimo>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Thu, 3 Dec 2009 08:54:22 -0200
+Message-ID: <20091203105422.GC32571@khazad-dum.debian.net>
+References: <1259826317-18809-25-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-26-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-27-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-28-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-29-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-30-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-31-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-32-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-33-git-send-email-corentincj@iksaif.net>
+ <20091203075404.GK9121@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:43976 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752654AbZLCKyT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 05:54:19 -0500
 Content-Disposition: inline
-In-Reply-To: <20091203105811.06571039@destiny.ordissimo>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Anisse Astier <anisse@astier.eu>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>
+In-Reply-To: <20091203075404.GK9121@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Corentin Chary <corentincj@iksaif.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Dec 03, 2009 at 10:58:11AM +0100, Anisse Astier wrote:
-> Hi Dmitry,
+On Wed, 02 Dec 2009, Dmitry Torokhov wrote:
+> On Thu, Dec 03, 2009 at 08:45:16AM +0100, Corentin Chary wrote:
+> > This keycode could be used in a lot of platform specific drivers.
+> > For example, on Asus laptops, Fn+F2 allow to cycle trought wireless
+> > drivers (bt/wl: off/off, on/off, off/on, on/on).
+> > 
+> > Currently, these key are mapped to KEY_WLAN, and KEY_BLUETOOTH/KEY_WIMAX
+> > are rarely used.
 > 
-> On Wed, 02 Dec 2009 01:24:25 -0800, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote :
-> 
-> > diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-> > index c284217..8868610 100644
-> > --- a/drivers/platform/x86/hp-wmi.c
-> > +++ b/drivers/platform/x86/hp-wmi.c
-> > @@ -411,14 +342,29 @@ static int __init hp_wmi_input_setup(void)
-> >  			    hp_wmi_tablet_state());
-> >  	input_sync(hp_wmi_input_dev);
-> >  
-> > -	err = input_register_device(hp_wmi_input_dev);
-> > +	err = wmi_install_notify_handler(HPWMI_EVENT_GUID, hp_wmi_notify, NULL);
-> > +	if (err)
-> > +		goto err_free_keymap;
-> >  
-> > -	if (err) {
-> > -		input_free_device(hp_wmi_input_dev);
-> > -		return err;
-> > -	}
-> > +	err = input_register_device(hp_wmi_input_dev);
-> > +	if (err)
-> > +		goto err_uninstall_notifier;
-> >  
-> >  	return 0;
-> > +
-> > + err_uninstall_notifier:
-> > +	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-> > + err_free_keymap:
-> > +	(hp_wmi_input_dev);
-> > + err_free_dev:
-> > +	input_free_device(hp_wmi_input_dev);
-> > +	return err;
-> > +}
-> > +
-> > +static void __exit hp_wmi_input_destroy(void)
-> > +{
-> > +	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-> > +	input_unregister_device(hp_wmi_input_dev);
-> >  }
-> I'm not sure if you're calling sparse_keymap_free on the exit path.
-> 
+> Is there any application support for such cycling? IOW does anyone cares
+> to do such cycling?
 
-Guilty as charged ;)
+Well, the default ThinkPad behaviour would be to cycle as well, and I'd use
+this new keycode if it becomes available.
 
 -- 
-Dmitry
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

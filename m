@@ -1,89 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Thu, 3 Dec 2009 09:55:31 -0800
-Message-ID: <20091203175531.GB776@core.coreip.homeip.net>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC v2] Another approach to IR
+Date: Thu, 03 Dec 2009 19:06:02 +0100
+Message-ID: <m3bpig2ar9.fsf@intrepid.localdomain>
+References: <4B15852D.4050505@redhat.com>
+	<20091202093803.GA8656@core.coreip.homeip.net>
+	<4B16614A.3000208@redhat.com>
+	<20091202171059.GC17839@core.coreip.homeip.net>
+	<9e4733910912020930t3c9fe973k16fd353e916531a4@mail.gmail.com>
+	<4B16BE6A.7000601@redhat.com>
+	<20091202195634.GB22689@core.coreip.homeip.net>
+	<2D11378A-041C-4B56-91FF-3E62F5F19753@wilsonet.com>
+	<20091202201404.GD22689@core.coreip.homeip.net>
+	<434927DD-0E66-4D0E-B705-022B7FCCCDB0@wilsonet.com>
+	<20091202204811.GE22689@core.coreip.homeip.net>
+	<B8514BFF-DB1B-4475-9E6D-E2A567A998FA@wilsonet.com>
+	<Pine.LNX.4.58.0912021300270.4729@shell2.speakeasy.net>
+	<582D7897-47F8-44B6-959F-510790EAEA79@wilsonet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f184.google.com ([209.85.222.184]:50395 "EHLO
-	mail-pz0-f184.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755452AbZLCRzd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Dec 2009 12:55:33 -0500
-Content-Disposition: inline
-In-Reply-To: <4B17AA6A.9060702@redhat.com>
+Received: from khc.piap.pl ([195.187.100.11]:38401 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754100AbZLCSF7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Dec 2009 13:05:59 -0500
+In-Reply-To: <582D7897-47F8-44B6-959F-510790EAEA79@wilsonet.com> (Jarod
+	Wilson's message of "Wed, 2 Dec 2009 16:28:51 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Trent Piepho <xyzzy@speakeasy.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Devin Heitmueller <dheitmueller@kernellabs.com>, Maxim Levitsky <maximlevitsky@gmail.com>, awalls@radix.net, j@jannau.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, superm1@ubuntu.com, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Thu, Dec 03, 2009 at 01:09:14PM +0100, Gerd Hoffmann wrote:
-> On 12/03/09 05:29, Jarod Wilson wrote:
->> On Dec 1, 2009, at 10:28 AM, Gerd Hoffmann wrote:
->>
->>>> Anyway, we shouldn't postpone lirc drivers addition due to that.
->>>> There are still lots of work to do before we'll be able to split
->>>> the tables from the kernel drivers.
->>>
->>> Indeed.  The sysfs bits are future work for both lirc and evdev
->>> drivers.  There is no reason to make the lirc merge wait for it.
->>
->> At this point, my plan is to try to finish cleaning up lirc_dev and
->> lirc_mceusb at least over the weekend while at FUDCon up in Toronto,
->> and resubmit them next week.
->
-> Good plan IMHO.  Having lirc_dev merged quickly allows in-kernel drivers  
-> start supporting lirc.
+Jarod Wilson <jarod@wilsonet.com> writes:
 
-No, please, wait just a minute. I know it is tempting to just merge
-lirc_dev and start working, but can we first agree on the overall
-subsystem structure before doing so. It is still quite inclear to me.
+> Perhaps we should clarify something here. Are we intending to
+> auto-create a new input device for every IR command set we see arrive
+> at the IR receiver?
 
-The open questions (for me at least):
+We don't want this, and we aren't really able to do this, because we
+never know if two different scan codes are part of the same or different
+command set.
 
-- do we create a new class infrastructure for all receivers or only for
-  ones plugged into lirc_dev? Remember that classifying objects affects
-  how udev and friemds see them and may either help or hurt writing PnP
-  rules.
+Sharing the protocol and e.g. group code doesn't mean it's the same
+remote.
 
-- do we intend to support in-kernel sotfware decoders? What is the
-  structure? Do we organize them as a module to be used by driver
-  directly or the driver "streams" the data to IR core and the core
-  applies decoders (in the same fashion input events from drivers flow
-  into input core and then distributed to all bound interfaces for
-  processing/conversion/transmission to userspace)?
-
-- how do we control which decoder should handle particular
-  receiver/remote? Is it driver's decision, decoder's decision, user's
-  or all of the above?
-
-- do we allow to have several decorers active at once for a receiver?
-
-- who decides that we want to utilize lirc_dev? Driver's themselves, IR
-  core (looking at the driver/device "capabilities"), something else?
-
-- do we recognize and create input devices "on-fly" or require user
-  intervention? Semantics for splitting into several input/event
-  devices?
-
-Could anyone please draw me a picture, starting with a "receiver"
-piece of hardware. I am not concerned much with how exactly receiver is
-plugged into a particular subsystem (DVB/V4L etc) since it would be
-_their_ implementation detail, but with the flow in/out of that
-"receiver" device.
-
-Now as far as input core goes I see very limited number of changes that
-may be needed:
-
-- Allow to extend size of "scancode" in EVIOC{S,G}KEYCODE if we are
-  unable to limit ourselves to 32 bits (keeping compatibility of course)
-
-- Maybe adding new ioctl to "zap" the keymap table
-
-- Adding more key EV_KEY/KEY_* definitons, if needed
-
-Thanks.
-
+Different protocol doesn't mean it's a different remote and what's more
+important, doesn't mean the user wants it to be a different logical
+remote.
 -- 
-Dmitry
+Krzysztof Halasa

@@ -1,253 +1,284 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 8/9] Input: topstar-laptop - switch to using sparse keymap
+Subject: [PATCH 9/9] Input: panasonic-laptop - switch to using sparse keymap
 	library
-Date: Thu, 03 Dec 2009 22:12:36 -0800
-Message-ID: <20091204061236.28288.18526.stgit@localhost.localdomain>
+Date: Thu, 03 Dec 2009 22:12:41 -0800
+Message-ID: <20091204061241.28288.73256.stgit@localhost.localdomain>
 References: <20091204060701.28288.91430.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f226.google.com ([209.85.217.226]:54671 "EHLO
+	mail-gx0-f226.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751982AbZLDGMh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 01:12:37 -0500
 In-Reply-To: <20091204060701.28288.91430.stgit@localhost.localdomain>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>
 Cc: linux-acpi@vger.kernel.org, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>, Anisse Astier <anisse@astier.eu>
-List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig          |    1 
- drivers/platform/x86/topstar-laptop.c |  162 +++++++++++----------------------
- 2 files changed, 55 insertions(+), 108 deletions(-)
+ drivers/platform/x86/Kconfig            |    1 
+ drivers/platform/x86/panasonic-laptop.c |  165 +++++++++++--------------------
+ 2 files changed, 58 insertions(+), 108 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index e555d39..00e94b0 100644
+index 00e94b0..1b27e4d 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -405,6 +405,7 @@ config TOPSTAR_LAPTOP
- 	tristate "Topstar Laptop Extras"
- 	depends on ACPI
- 	depends on INPUT
+@@ -168,6 +168,7 @@ config PANASONIC_LAPTOP
+ 	tristate "Panasonic Laptop Extras"
+ 	depends on INPUT && ACPI
+ 	depends on BACKLIGHT_CLASS_DEVICE
 +	select INPUT_SPARSEKMAP
  	---help---
- 	  This driver adds support for hotkeys found on Topstar laptops.
- 
-diff --git a/drivers/platform/x86/topstar-laptop.c b/drivers/platform/x86/topstar-laptop.c
-index 02f3d4e..75a8b62 100644
---- a/drivers/platform/x86/topstar-laptop.c
-+++ b/drivers/platform/x86/topstar-laptop.c
-@@ -18,6 +18,7 @@
- #include <linux/init.h>
- #include <linux/acpi.h>
+ 	  This driver adds support for access to backlight control and hotkeys
+ 	  on Panasonic Let's Note laptops.
+diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
+index fe7cf01..85f1189 100644
+--- a/drivers/platform/x86/panasonic-laptop.c
++++ b/drivers/platform/x86/panasonic-laptop.c
+@@ -127,6 +127,7 @@
+ #include <acpi/acpi_bus.h>
+ #include <acpi/acpi_drivers.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
  
- #define ACPI_TOPSTAR_CLASS "topstar"
  
-@@ -25,52 +26,37 @@ struct topstar_hkey {
- 	struct input_dev *inputdev;
+ #ifndef ACPI_HOTKEY_COMPONENT
+@@ -199,30 +200,29 @@ static struct acpi_driver acpi_pcc_driver = {
+ 			},
  };
  
--struct tps_key_entry {
--	u8 code;
--	u16 keycode;
--};
--
--static struct tps_key_entry topstar_keymap[] = {
--	{ 0x80, KEY_BRIGHTNESSUP },
--	{ 0x81, KEY_BRIGHTNESSDOWN },
--	{ 0x83, KEY_VOLUMEUP },
--	{ 0x84, KEY_VOLUMEDOWN },
--	{ 0x85, KEY_MUTE },
--	{ 0x86, KEY_SWITCHVIDEOMODE },
--	{ 0x87, KEY_F13 }, /* touchpad enable/disable key */
--	{ 0x88, KEY_WLAN },
--	{ 0x8a, KEY_WWW },
--	{ 0x8b, KEY_MAIL },
--	{ 0x8c, KEY_MEDIA },
--	{ 0x96, KEY_F14 }, /* G key? */
--	{ }
--};
--
--static struct tps_key_entry *tps_get_key_by_scancode(int code)
--{
--	struct tps_key_entry *key;
--
--	for (key = topstar_keymap; key->code; key++)
--		if (code == key->code)
--			return key;
-+static const struct key_entry topstar_keymap[] = {
-+	{ KE_KEY, 0x80, { KEY_BRIGHTNESSUP } },
-+	{ KE_KEY, 0x81, { KEY_BRIGHTNESSDOWN } },
-+	{ KE_KEY, 0x83, { KEY_VOLUMEUP } },
-+	{ KE_KEY, 0x84, { KEY_VOLUMEDOWN } },
-+	{ KE_KEY, 0x85, { KEY_MUTE } },
-+	{ KE_KEY, 0x86, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x87, { KEY_F13 } }, /* touchpad enable/disable key */
-+	{ KE_KEY, 0x88, { KEY_WLAN } },
-+	{ KE_KEY, 0x8a, { KEY_WWW } },
-+	{ KE_KEY, 0x8b, { KEY_MAIL } },
-+	{ KE_KEY, 0x8c, { KEY_MEDIA } },
- 
--	return NULL;
--}
--
--static struct tps_key_entry *tps_get_key_by_keycode(int code)
--{
--	struct tps_key_entry *key;
-+	/* Known non hotkey events don't handled or that we don't care yet */
-+	{ KE_IGNORE, 0x8e, },
-+	{ KE_IGNORE, 0x8f, },
-+	{ KE_IGNORE, 0x90, },
- 
--	for (key = topstar_keymap; key->code; key++)
--		if (code == key->keycode)
--			return key;
-+	/*
-+	 * 'G key' generate two event codes, convert to only
-+	 * one event/key code for now, consider replacing by
-+	 * a switch (3G switch - SW_3G?)
-+	 */
-+	{ KE_KEY, 0x96, { KEY_F14 } },
-+	{ KE_KEY, 0x97, { KEY_F14 } },
- 
--	return NULL;
--}
+-#define KEYMAP_SIZE		11
+-static const int initial_keymap[KEYMAP_SIZE] = {
+-	/*  0 */ KEY_RESERVED,
+-	/*  1 */ KEY_BRIGHTNESSDOWN,
+-	/*  2 */ KEY_BRIGHTNESSUP,
+-	/*  3 */ KEY_DISPLAYTOGGLE,
+-	/*  4 */ KEY_MUTE,
+-	/*  5 */ KEY_VOLUMEDOWN,
+-	/*  6 */ KEY_VOLUMEUP,
+-	/*  7 */ KEY_SLEEP,
+-	/*  8 */ KEY_PROG1, /* Change CPU boost */
+-	/*  9 */ KEY_BATTERY,
+-	/* 10 */ KEY_SUSPEND,
++static const struct key_entry panasonic_keymap[] = {
++	{ KE_KEY, 0, { KEY_RESERVED } },
++	{ KE_KEY, 1, { KEY_BRIGHTNESSDOWN } },
++	{ KE_KEY, 2, { KEY_BRIGHTNESSUP } },
++	{ KE_KEY, 3, { KEY_DISPLAYTOGGLE } },
++	{ KE_KEY, 4, { KEY_MUTE } },
++	{ KE_KEY, 5, { KEY_VOLUMEDOWN } },
++	{ KE_KEY, 6, { KEY_VOLUMEUP } },
++	{ KE_KEY, 7, { KEY_SLEEP } },
++	{ KE_KEY, 8, { KEY_PROG1 } }, /* Change CPU boost */
++	{ KE_KEY, 9, { KEY_BATTERY } },
++	{ KE_KEY, 10, { KEY_SUSPEND } },
 +	{ KE_END, 0 }
-+};
+ };
  
- static void acpi_topstar_notify(struct acpi_device *device, u32 event)
- {
--	struct tps_key_entry *key;
- 	static bool dup_evnt[2];
- 	bool *dup;
- 	struct topstar_hkey *hkey = acpi_driver_data(device);
-@@ -85,27 +71,8 @@ static void acpi_topstar_notify(struct acpi_device *device, u32 event)
- 		*dup = true;
- 	}
+ struct pcc_acpi {
+ 	acpi_handle		handle;
+ 	unsigned long		num_sifr;
+ 	int			sticky_mode;
+-	u32 			*sinf;
++	u32			*sinf;
+ 	struct acpi_device	*device;
+ 	struct input_dev	*input_dev;
+ 	struct backlight_device	*backlight;
+-	int			keymap[KEYMAP_SIZE];
+ };
  
--	/*
--	 * 'G key' generate two event codes, convert to only
--	 * one event/key code for now (3G switch?)
--	 */
--	if (event == 0x97)
--		event = 0x96;
--
--	key = tps_get_key_by_scancode(event);
--	if (key) {
--		input_report_key(hkey->inputdev, key->keycode, 1);
--		input_sync(hkey->inputdev);
--		input_report_key(hkey->inputdev, key->keycode, 0);
--		input_sync(hkey->inputdev);
--		return;
--	}
--
--	/* Known non hotkey events don't handled or that we don't care yet */
--	if (event == 0x8e || event == 0x8f || event == 0x90)
--		return;
--
--	pr_info("unknown event = 0x%02x\n", event);
-+	if (!sparse_keymap_report_event(hkey->inputdev, event, 1, true))
-+		pr_info("unknown event = 0x%02x\n", event);
- }
+ struct pcc_keyinput {
+@@ -445,57 +445,10 @@ static struct attribute_group pcc_attr_group = {
  
- static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
-@@ -126,63 +93,41 @@ static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
- 	return 0;
- }
+ /* hotkey input device driver */
  
--static int topstar_getkeycode(struct input_dev *dev, int scancode, int *keycode)
+-static int pcc_getkeycode(struct input_dev *dev, int scancode, int *keycode)
 -{
--	struct tps_key_entry *key = tps_get_key_by_scancode(scancode);
+-	struct pcc_acpi *pcc = input_get_drvdata(dev);
 -
--	if (!key)
+-	if (scancode >= ARRAY_SIZE(pcc->keymap))
 -		return -EINVAL;
 -
--	*keycode = key->keycode;
+-	*keycode = pcc->keymap[scancode];
+-
 -	return 0;
 -}
 -
--static int topstar_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-static int keymap_get_by_keycode(struct pcc_acpi *pcc, int keycode)
 -{
--	struct tps_key_entry *key;
--	int old_keycode;
+-	int i;
+-
+-	for (i = 0; i < ARRAY_SIZE(pcc->keymap); i++) {
+-		if (pcc->keymap[i] == keycode)
+-			return i+1;
+-	}
+-
+-	return 0;
+-}
+-
+-static int pcc_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-{
+-	struct pcc_acpi *pcc = input_get_drvdata(dev);
+-	int oldkeycode;
+-
+-	if (scancode >= ARRAY_SIZE(pcc->keymap))
+-		return -EINVAL;
 -
 -	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	key = tps_get_key_by_scancode(scancode);
+-	oldkeycode = pcc->keymap[scancode];
+-	pcc->keymap[scancode] = keycode;
 -
--	if (!key)
--		return -EINVAL;
--
--	old_keycode = key->keycode;
--	key->keycode = keycode;
 -	set_bit(keycode, dev->keybit);
--	if (!tps_get_key_by_keycode(old_keycode))
--		clear_bit(old_keycode, dev->keybit);
+-
+-	if (!keymap_get_by_keycode(pcc, oldkeycode))
+-		clear_bit(oldkeycode, dev->keybit);
+-
 -	return 0;
 -}
 -
- static int acpi_topstar_init_hkey(struct topstar_hkey *hkey)
+ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
  {
--	struct tps_key_entry *key;
-+	struct input_dev *input;
-+	int error;
+ 	struct input_dev *hotk_input_dev = pcc->input_dev;
+ 	int rc;
+-	int key_code, hkey_num;
+ 	unsigned long long result;
  
--	hkey->inputdev = input_allocate_device();
--	if (!hkey->inputdev) {
-+	input = input_allocate_device();
-+	if (!input) {
- 		pr_err("Unable to allocate input device\n");
--		return -ENODEV;
-+		return -ENOMEM;
- 	}
--	hkey->inputdev->name = "Topstar Laptop extra buttons";
--	hkey->inputdev->phys = "topstar/input0";
--	hkey->inputdev->id.bustype = BUS_HOST;
--	hkey->inputdev->getkeycode = topstar_getkeycode;
--	hkey->inputdev->setkeycode = topstar_setkeycode;
--	for (key = topstar_keymap; key->code; key++) {
--		set_bit(EV_KEY, hkey->inputdev->evbit);
--		set_bit(key->keycode, hkey->inputdev->keybit);
-+
-+	input->name = "Topstar Laptop extra buttons";
-+	input->phys = "topstar/input0";
-+	input->id.bustype = BUS_HOST;
-+
-+	error = sparse_keymap_setup(input, topstar_keymap, NULL);
-+	if (error) {
-+		pr_err("Unable to setup input device keymap\n");
-+		goto err_free_dev;
- 	}
--	if (input_register_device(hkey->inputdev)) {
-+
-+	error = input_register_device(input);
-+	if (error) {
- 		pr_err("Unable to register input device\n");
--		input_free_device(hkey->inputdev);
--		return -ENODEV;
-+		goto err_free_keymap;
- 	}
+ 	rc = acpi_evaluate_integer(pcc->handle, METHOD_HKEY_QUERY,
+@@ -508,25 +461,10 @@ static void acpi_pcc_generate_keyinput(struct pcc_acpi *pcc)
  
-+	hkey->inputdev = input;
- 	return 0;
-+
-+ err_free_keymap:
-+	sparse_keymap_free(input);
-+ err_free_dev:
-+	input_free_device(input);
-+	return error;
+ 	acpi_bus_generate_proc_event(pcc->device, HKEY_NOTIFY, result);
+ 
+-	hkey_num = result & 0xf;
+-
+-	if (hkey_num < 0 || hkey_num >= ARRAY_SIZE(pcc->keymap)) {
++	if (!sparse_keymap_report_event(hotk_input_dev,
++					result & 0xf, result & 0x80, false))
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+-				  "hotkey number out of range: %d\n",
+-				  hkey_num));
+-		return;
+-	}
+-
+-	key_code = pcc->keymap[hkey_num];
+-
+-	if (key_code != KEY_RESERVED) {
+-		int pushed = (result & 0x80) ? TRUE : FALSE;
+-
+-		input_report_key(hotk_input_dev, key_code, pushed);
+-		input_sync(hotk_input_dev);
+-	}
+-
+-	return;
++				  "Unknown hotkey event: %d\n", result));
  }
  
- static int acpi_topstar_add(struct acpi_device *device)
-@@ -216,6 +161,7 @@ static int acpi_topstar_remove(struct acpi_device *device, int type)
+ static void acpi_pcc_hotkey_notify(struct acpi_device *device, u32 event)
+@@ -545,40 +483,55 @@ static void acpi_pcc_hotkey_notify(struct acpi_device *device, u32 event)
  
- 	acpi_topstar_fncx_switch(device, false);
+ static int acpi_pcc_init_input(struct pcc_acpi *pcc)
+ {
+-	int i, rc;
++	struct input_dev *input_dev;
++	int error;
  
-+	sparse_keymap_free(tps_hkey->inputdev);
- 	input_unregister_device(tps_hkey->inputdev);
- 	kfree(tps_hkey);
+-	pcc->input_dev = input_allocate_device();
+-	if (!pcc->input_dev) {
++	input_dev = input_allocate_device();
++	if (!input_dev) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+ 				  "Couldn't allocate input device for hotkey"));
+ 		return -ENOMEM;
+ 	}
  
+-	pcc->input_dev->evbit[0] = BIT(EV_KEY);
++	input_dev->name = ACPI_PCC_DRIVER_NAME;
++	input_dev->phys = ACPI_PCC_INPUT_PHYS;
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
+ 
+-	pcc->input_dev->name = ACPI_PCC_DRIVER_NAME;
+-	pcc->input_dev->phys = ACPI_PCC_INPUT_PHYS;
+-	pcc->input_dev->id.bustype = BUS_HOST;
+-	pcc->input_dev->id.vendor = 0x0001;
+-	pcc->input_dev->id.product = 0x0001;
+-	pcc->input_dev->id.version = 0x0100;
+-	pcc->input_dev->getkeycode = pcc_getkeycode;
+-	pcc->input_dev->setkeycode = pcc_setkeycode;
++	error = sparse_keymap_setup(input_dev, panasonic_keymap, NULL);
++	if (error) {
++		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
++				  "Unable to setup input device keymap\n"));
++		goto err_free_dev;
++	}
+ 
+-	/* load initial keymap */
+-	memcpy(pcc->keymap, initial_keymap, sizeof(pcc->keymap));
++	input_set_drvdata(input_dev, pcc);
+ 
+-	for (i = 0; i < ARRAY_SIZE(pcc->keymap); i++)
+-		__set_bit(pcc->keymap[i], pcc->input_dev->keybit);
+-	__clear_bit(KEY_RESERVED, pcc->input_dev->keybit);
++	error = input_register_device(input_dev);
++	if (error) {
++		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
++				  "Unable to register input device\n"));
++		goto err_free_keymap;
++	}
+ 
+-	input_set_drvdata(pcc->input_dev, pcc);
++	pcc->input_dev = input_dev;
++	return 0;
+ 
+-	rc = input_register_device(pcc->input_dev);
+-	if (rc < 0)
+-		input_free_device(pcc->input_dev);
++ err_free_keymap:
++	sparse_keymap_free(input_dev);
++ err_free_dev:
++	input_free_device(input_dev);
++	return error;
++}
+ 
+-	return rc;
++static void acpi_pcc_destroy_input(struct pcc_acpi *pcc)
++{
++	sparse_keymap_free(pcc->input_dev);
++	input_unregister_device(pcc->input_dev);
++	/* no need to input_free_device() since core input API refcount and
++	 * free()s the device */
+ }
+ 
+ /* kernel module interface */
+@@ -671,9 +624,7 @@ static int acpi_pcc_hotkey_add(struct acpi_device *device)
+ out_backlight:
+ 	backlight_device_unregister(pcc->backlight);
+ out_input:
+-	input_unregister_device(pcc->input_dev);
+-	/* no need to input_free_device() since core input API refcount and
+-	 * free()s the device */
++	acpi_pcc_destroy_input(pcc);
+ out_sinf:
+ 	kfree(pcc->sinf);
+ out_hotkey:
+@@ -710,9 +661,7 @@ static int acpi_pcc_hotkey_remove(struct acpi_device *device, int type)
+ 
+ 	backlight_device_unregister(pcc->backlight);
+ 
+-	input_unregister_device(pcc->input_dev);
+-	/* no need to input_free_device() since core input API refcount and
+-	 * free()s the device */
++	acpi_pcc_destroy_input(pcc);
+ 
+ 	kfree(pcc->sinf);
+ 	kfree(pcc);
 

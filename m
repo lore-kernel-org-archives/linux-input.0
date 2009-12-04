@@ -1,38 +1,84 @@
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: [PATCH] Input: Force Feedback core memory leak
-Date: Fri,  4 Dec 2009 15:05:14 +0200
-Message-ID: <1259931914-6228-2-git-send-email-ext-jari.vanhala@nokia.com>
-References: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
+Date: Fri, 04 Dec 2009 23:24:24 +1000
+Message-ID: <4B190D88.4090102@redhat.com>
+References: <20091203050810.GA26595@barra.bne.redhat.com>	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com> <871vjasxnm.fsf@macbook.be.48ers.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.105.134]:60134 "EHLO
-	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756285AbZLDNFP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 08:05:15 -0500
-In-Reply-To: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
+Received: from mx1.redhat.com ([209.132.183.28]:62869 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754082AbZLDNZi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Dec 2009 08:25:38 -0500
+In-Reply-To: <871vjasxnm.fsf@macbook.be.48ers.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, ext-jari.vanhala@nokia.com
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Effects is allocated, but not freed anywhere.
+On 04/12/09 22:59, Peter Korsgaard wrote:
+>>>>>> "Peter" == Peter Hutterer<peter.hutterer@redhat.com>  writes:
+>   Peter>  it's a hack in userspace that works around wrong event
+>   Peter>  reporting. So yes, it works if you're using evtouch but if you
+>   Peter>  want to use any other driver that driver needs the same
+>   Peter>  hack. treating Z as X and RX as Y doesn't work too well for a
+>   Peter>  generic driver such as evdev, which has to deal with devices
+>   Peter>  where RX is a valid axis.
+>
+> Hmm, I don't see it sending Z / RX:
+>
+> sudo evtest /dev/input/event12
+> Input driver version is 1.0.0
+> Input device ID: bus 0x3 vendor 0x1926 product 0x1 version 0x100
+> Input device name: "Nextwindow Touchscreen"
+> Supported events:
+>    Event type 0 (Sync)
+>    Event type 1 (Key)
+>      Event code 272 (LeftBtn)
+>      Event code 273 (RightBtn)
+>      Event code 274 (MiddleBtn)
+>    Event type 3 (Absolute)
+>      Event code 0 (X)
+>        Value      0
+>        Min        0
+>        Max    32767
+>      Event code 1 (Y)
+>        Value      0
+>        Min        0
+>        Max    32767
+>    Event type 4 (Misc)
+>      Event code 4 (ScanCode)
+> Testing ... (interrupt to exit)
 
-Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
----
- drivers/input/ff-core.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+with the quirk, the device exposes three /dev/input/event files, the 
+highest of which sends the actual events now (in X/Y). number two looks 
+like a mouse device (like yours), number three like a touchscreen 
+(BTN_TOUCH, etc.)
+without the quirk, I only get two devices, the second of which looks 
+like a mix of mouse/touchscreen and it sends ABS_Z/ABS_RX while ABS_X 
+and ABS_Y are mute. I can get you the full evtest blurb but not before 
+Monday, the screen is in the office.
 
-diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-index 3d7816c..d310a97 100644
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -367,6 +367,7 @@ void input_ff_destroy(struct input_dev *dev)
- 		if (dev->ff->destroy)
- 			dev->ff->destroy(dev->ff);
- 		kfree(dev->ff->private);
-+		kfree(dev->ff->effects);
- 		kfree(dev->ff);
- 		dev->ff = NULL;
- 	}
--- 
-1.6.3.3
+> sudo nwtool -u -i
+> Version:                2.91
+> Serial:                 233025
+> Model:                  1900
+> HW capabilities:        0x40
+> Rightclick delay:       1000 ms
+> Doubleclick time:       200 ms
+> Report mode:            1
+> Drag threshold:         500
+> Buzzer time:            40 ms
+> Buzzer tone:            40
+> Calibration key:        4
+> Calibration presses:    3
+
+where do I get nwtool from? google is unusually quiet about it.
+is it possible that you changed the report mode (or have it different to 
+me anyway) and that affects things?
+
+Cheers,
+   Peter
+
 

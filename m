@@ -1,53 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 6/9] Input: eeepc-laptop - switch to using sparse keymap
-	library
-Date: Thu, 03 Dec 2009 22:12:25 -0800
-Message-ID: <20091204061225.28288.88508.stgit@localhost.localdomain>
+Subject: [PATCH 7/9] Input: asus-laptop - switch to using sparse keymap library
+Date: Thu, 03 Dec 2009 22:12:30 -0800
+Message-ID: <20091204061230.28288.26159.stgit@localhost.localdomain>
 References: <20091204060701.28288.91430.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f187.google.com ([209.85.210.187]:55857 "EHLO
+	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751962AbZLDGM0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 01:12:26 -0500
 In-Reply-To: <20091204060701.28288.91430.stgit@localhost.localdomain>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>
 Cc: linux-acpi@vger.kernel.org, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>, Anisse Astier <anisse@astier.eu>
-List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig        |    1 
- drivers/platform/x86/eeepc-laptop.c |  170 +++++++++++------------------------
- 2 files changed, 52 insertions(+), 119 deletions(-)
+ drivers/platform/x86/Kconfig       |    1 
+ drivers/platform/x86/asus-laptop.c |  198 ++++++++++++------------------------
+ 2 files changed, 66 insertions(+), 133 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 18b66fd..ae9c976 100644
+index ae9c976..e555d39 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -336,6 +336,7 @@ config EEEPC_LAPTOP
- 	depends on HOTPLUG_PCI
+@@ -59,6 +59,7 @@ config ASUS_LAPTOP
+ 	select NEW_LEDS
  	select BACKLIGHT_CLASS_DEVICE
- 	select HWMON
+ 	depends on INPUT
 +	select INPUT_SPARSEKMAP
  	---help---
- 	  This driver supports the Fn-Fx keys on Eee PC laptops.
- 
-diff --git a/drivers/platform/x86/eeepc-laptop.c b/drivers/platform/x86/eeepc-laptop.c
-index 4226e53..c97305e 100644
---- a/drivers/platform/x86/eeepc-laptop.c
-+++ b/drivers/platform/x86/eeepc-laptop.c
-@@ -31,6 +31,7 @@
+ 	  This is the new Linux driver for Asus laptops. It may also support some
+ 	  MEDION, JVC or VICTOR laptops. It makes all the extra buttons generate
+diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
+index b39d2bb..7da59d8 100644
+--- a/drivers/platform/x86/asus-laptop.c
++++ b/drivers/platform/x86/asus-laptop.c
+@@ -49,6 +49,7 @@
  #include <acpi/acpi_bus.h>
- #include <linux/uaccess.h>
+ #include <asm/uaccess.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
- #include <linux/rfkill.h>
- #include <linux/pci.h>
- #include <linux/pci_hotplug.h>
-@@ -169,32 +170,25 @@ static struct platform_driver platform_driver = {
  
- static struct platform_device *platform_device;
+ #define ASUS_LAPTOP_VERSION "0.42"
+ 
+@@ -284,42 +285,34 @@ ASUS_LED(pled, "phone", 1);
+ ASUS_LED(gled, "gaming", 1);
+ ASUS_LED(kled, "kbd_backlight", 3);
  
 -struct key_entry {
 -	char type;
@@ -57,74 +60,94 @@ index 4226e53..c97305e 100644
 -
 -enum { KE_KEY, KE_END };
 -
--static struct key_entry eeepc_keymap[] = {
-+static const struct key_entry eeepc_keymap[] = {
- 	/* Sleep already handled via generic ACPI code */
--	{KE_KEY, 0x10, KEY_WLAN },
--	{KE_KEY, 0x11, KEY_WLAN },
--	{KE_KEY, 0x12, KEY_PROG1 },
--	{KE_KEY, 0x13, KEY_MUTE },
--	{KE_KEY, 0x14, KEY_VOLUMEDOWN },
--	{KE_KEY, 0x15, KEY_VOLUMEUP },
--	{KE_KEY, 0x1a, KEY_COFFEE },
--	{KE_KEY, 0x1b, KEY_ZOOM },
--	{KE_KEY, 0x1c, KEY_PROG2 },
--	{KE_KEY, 0x1d, KEY_PROG3 },
--	{KE_KEY, NOTIFY_BRN_MIN,     KEY_BRIGHTNESSDOWN },
--	{KE_KEY, NOTIFY_BRN_MIN + 2, KEY_BRIGHTNESSUP },
--	{KE_KEY, 0x30, KEY_SWITCHVIDEOMODE },
--	{KE_KEY, 0x31, KEY_SWITCHVIDEOMODE },
--	{KE_KEY, 0x32, KEY_SWITCHVIDEOMODE },
+-static struct key_entry asus_keymap[] = {
+-	{KE_KEY, 0x30, KEY_VOLUMEUP},
+-	{KE_KEY, 0x31, KEY_VOLUMEDOWN},
+-	{KE_KEY, 0x32, KEY_MUTE},
+-	{KE_KEY, 0x33, KEY_SWITCHVIDEOMODE},
+-	{KE_KEY, 0x34, KEY_SWITCHVIDEOMODE},
+-	{KE_KEY, 0x40, KEY_PREVIOUSSONG},
+-	{KE_KEY, 0x41, KEY_NEXTSONG},
+-	{KE_KEY, 0x43, KEY_STOPCD},
+-	{KE_KEY, 0x45, KEY_PLAYPAUSE},
+-	{KE_KEY, 0x4c, KEY_MEDIA},
+-	{KE_KEY, 0x50, KEY_EMAIL},
+-	{KE_KEY, 0x51, KEY_WWW},
+-	{KE_KEY, 0x55, KEY_CALC},
+-	{KE_KEY, 0x5C, KEY_SCREENLOCK},  /* Screenlock */
+-	{KE_KEY, 0x5D, KEY_WLAN},
+-	{KE_KEY, 0x5E, KEY_WLAN},
+-	{KE_KEY, 0x5F, KEY_WLAN},
+-	{KE_KEY, 0x60, KEY_SWITCHVIDEOMODE},
+-	{KE_KEY, 0x61, KEY_SWITCHVIDEOMODE},
+-	{KE_KEY, 0x6B, BTN_TOUCH}, /* Lock Mouse */
+-	{KE_KEY, 0x82, KEY_CAMERA},
+-	{KE_KEY, 0x8A, KEY_PROG1},
+-	{KE_KEY, 0x95, KEY_MEDIA},
+-	{KE_KEY, 0x99, KEY_PHONE},
+-	{KE_KEY, 0xc4, KEY_KBDILLUMUP},
+-	{KE_KEY, 0xc5, KEY_KBDILLUMDOWN},
 -	{KE_END, 0},
-+	{ KE_KEY, 0x10, { KEY_WLAN } },
-+	{ KE_KEY, 0x11, { KEY_WLAN } },
-+	{ KE_KEY, 0x12, { KEY_PROG1 } },
-+	{ KE_KEY, 0x13, { KEY_MUTE } },
-+	{ KE_KEY, 0x14, { KEY_VOLUMEDOWN } },
-+	{ KE_KEY, 0x15, { KEY_VOLUMEUP } },
-+	{ KE_KEY, 0x1a, { KEY_COFFEE } },
-+	{ KE_KEY, 0x1b, { KEY_ZOOM } },
-+	{ KE_KEY, 0x1c, { KEY_PROG2 } },
-+	{ KE_KEY, 0x1d, { KEY_PROG3 } },
-+	{ KE_KEY, NOTIFY_BRN_MIN,     { KEY_BRIGHTNESSDOWN } },
-+	{ KE_IGNORE, NOTIFY_BRN_MIN + 1, },
-+	{ KE_KEY, NOTIFY_BRN_MIN + 2, { KEY_BRIGHTNESSUP } },
-+	{ KE_KEY, 0x30, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x31, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x32, { KEY_SWITCHVIDEOMODE } },
++static const struct key_entry asus_keymap[] = {
++	{ KE_KEY, 0x30, { KEY_VOLUMEUP } },
++	{ KE_KEY, 0x31, { KEY_VOLUMEDOWN } },
++	{ KE_KEY, 0x32, { KEY_MUTE } },
++	{ KE_KEY, 0x33, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x34, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x40, { KEY_PREVIOUSSONG } },
++	{ KE_KEY, 0x41, { KEY_NEXTSONG } },
++	{ KE_KEY, 0x43, { KEY_STOPCD } },
++	{ KE_KEY, 0x45, { KEY_PLAYPAUSE } },
++	{ KE_KEY, 0x4c, { KEY_MEDIA } },
++	{ KE_KEY, 0x50, { KEY_EMAIL } },
++	{ KE_KEY, 0x51, { KEY_WWW } },
++	{ KE_KEY, 0x55, { KEY_CALC } },
++	{ KE_KEY, 0x5C, { KEY_SCREENLOCK } },  /* Screenlock */
++	{ KE_KEY, 0x5D, { KEY_WLAN } },
++	{ KE_KEY, 0x5E, { KEY_WLAN } },
++	{ KE_KEY, 0x5F, { KEY_WLAN } },
++	{ KE_KEY, 0x60, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x61, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x6B, { BTN_TOUCH } }, /* Lock Mouse */
++	{ KE_KEY, 0x82, { KEY_CAMERA } },
++	{ KE_KEY, 0x8A, { KEY_PROG1 } },
++	{ KE_KEY, 0x95, { KEY_MEDIA } },
++	{ KE_KEY, 0x99, { KEY_PHONE } },
++	{ KE_KEY, 0xc4, { KEY_KBDILLUMUP } },
++	{ KE_KEY, 0xc5, { KEY_KBDILLUMDOWN } },
 +	{ KE_END, 0},
  };
  
  /*
-@@ -509,61 +503,6 @@ static struct attribute_group platform_attribute_group = {
+@@ -866,64 +859,8 @@ static ssize_t store_gps(struct device *dev, struct device_attribute *attr,
  /*
   * Hotkey functions
   */
--static struct key_entry *eepc_get_entry_by_scancode(int code)
+-static struct key_entry *asus_get_entry_by_scancode(int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = eeepc_keymap; key->type != KE_END; key++)
+-	for (key = asus_keymap; key->type != KE_END; key++)
 -		if (code == key->code)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static struct key_entry *eepc_get_entry_by_keycode(int code)
+-static struct key_entry *asus_get_entry_by_keycode(int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = eeepc_keymap; key->type != KE_END; key++)
+-	for (key = asus_keymap; key->type != KE_END; key++)
 -		if (code == key->keycode && key->type == KE_KEY)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static int eeepc_getkeycode(struct input_dev *dev, int scancode, int *keycode)
+-static int asus_getkeycode(struct input_dev *dev, int scancode, int *keycode)
 -{
--	struct key_entry *key = eepc_get_entry_by_scancode(scancode);
+-	struct key_entry *key = asus_get_entry_by_scancode(scancode);
 -
 -	if (key && key->type == KE_KEY) {
 -		*keycode = key->keycode;
@@ -134,7 +157,7 @@ index 4226e53..c97305e 100644
 -	return -EINVAL;
 -}
 -
--static int eeepc_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-static int asus_setkeycode(struct input_dev *dev, int scancode, int keycode)
 -{
 -	struct key_entry *key;
 -	int old_keycode;
@@ -142,12 +165,12 @@ index 4226e53..c97305e 100644
 -	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	key = eepc_get_entry_by_scancode(scancode);
+-	key = asus_get_entry_by_scancode(scancode);
 -	if (key && key->type == KE_KEY) {
 -		old_keycode = key->keycode;
 -		key->keycode = keycode;
 -		set_bit(keycode, dev->keybit);
--		if (!eepc_get_entry_by_keycode(old_keycode))
+-		if (!asus_get_entry_by_keycode(old_keycode))
 -			clear_bit(old_keycode, dev->keybit);
 -		return 0;
 -	}
@@ -155,115 +178,121 @@ index 4226e53..c97305e 100644
 -	return -EINVAL;
 -}
 -
- static void cmsg_quirk(int cm, const char *name)
- {
- 	int dummy;
-@@ -698,9 +637,8 @@ static void eeepc_rfkill_notify(acpi_handle handle, u32 event, void *data)
- 
- static void eeepc_hotk_notify(struct acpi_device *device, u32 event)
+ static void asus_hotk_notify(struct acpi_device *device, u32 event)
  {
 -	static struct key_entry *key;
--	u16 count;
- 	int brn = -ENODEV;
-+	u16 count;
+ 	u16 count;
  
- 	if (!ehotk)
- 		return;
-@@ -729,19 +667,8 @@ static void eeepc_hotk_notify(struct acpi_device *device, u32 event)
- 			else
- 				event = NOTIFY_BRN_MIN + 1; /* ... unchanged */
- 		}
--		key = eepc_get_entry_by_scancode(event);
--		if (key) {
--			switch (key->type) {
--			case KE_KEY:
--				input_report_key(ehotk->inputdev, key->keycode,
--						 1);
--				input_sync(ehotk->inputdev);
--				input_report_key(ehotk->inputdev, key->keycode,
--						 0);
--				input_sync(ehotk->inputdev);
--				break;
--			}
+ 	/* TODO Find a better way to handle events count. */
+@@ -948,20 +885,8 @@ static void asus_hotk_notify(struct acpi_device *device, u32 event)
+ 					dev_name(&hotk->device->dev), event,
+ 					count);
+ 
+-	if (hotk->inputdev) {
+-		key = asus_get_entry_by_scancode(event);
+-		if (!key)
+-			return ;
+-
+-		switch (key->type) {
+-		case KE_KEY:
+-			input_report_key(hotk->inputdev, key->keycode, 1);
+-			input_sync(hotk->inputdev);
+-			input_report_key(hotk->inputdev, key->keycode, 0);
+-			input_sync(hotk->inputdev);
+-			break;
 -		}
-+
-+		sparse_keymap_report_event(ehotk->inputdev, event, 1, true);
- 	}
+-	}
++	if (hotk->inputdev)
++		sparse_keymap_report_event(hotk->inputdev, event, 1, true);
  }
  
-@@ -1017,8 +944,10 @@ static void eeepc_rfkill_exit(void)
+ #define ASUS_CREATE_DEVICE_ATTR(_name)					\
+@@ -1009,7 +934,7 @@ static struct platform_driver asuspf_driver = {
+ 	.driver = {
+ 		   .name = ASUS_HOTK_FILE,
+ 		   .owner = THIS_MODULE,
+-		   }
++	},
+ };
  
- static void eeepc_input_exit(void)
- {
--	if (ehotk->inputdev)
-+	if (ehotk->inputdev) {
-+		sparse_keymap_free(ehotk->inputdev);
- 		input_unregister_device(ehotk->inputdev);
-+	}
+ static struct platform_device *asuspf_device;
+@@ -1184,36 +1109,41 @@ static int asus_hotk_get_info(void)
+ 	return AE_OK;
  }
  
- static void eeepc_hwmon_exit(void)
-@@ -1158,36 +1087,39 @@ static int eeepc_hwmon_init(struct device *dev)
- 
- static int eeepc_input_init(struct device *dev)
+-static int asus_input_init(void)
++static int __init asus_input_init(void)
  {
 -	const struct key_entry *key;
 -	int result;
-+	struct input_dev *input;
++	struct input_dev *inputdev;
 +	int error;
  
--	ehotk->inputdev = input_allocate_device();
--	if (!ehotk->inputdev) {
-+	input = input_allocate_device();
-+	if (!input) {
- 		pr_info("Unable to allocate input device\n");
- 		return -ENOMEM;
+-	hotk->inputdev = input_allocate_device();
+-	if (!hotk->inputdev) {
+-		pr_info("Unable to allocate input device\n");
+-		return 0;
++	inputdev = input_allocate_device();
++	if (!inputdev) {
++		pr_err("Unable to allocate input device\n");
++		return -ENOMEM;
  	}
--	ehotk->inputdev->name = "Asus EeePC extra buttons";
--	ehotk->inputdev->dev.parent = dev;
--	ehotk->inputdev->phys = EEEPC_HOTK_FILE "/input0";
--	ehotk->inputdev->id.bustype = BUS_HOST;
--	ehotk->inputdev->getkeycode = eeepc_getkeycode;
--	ehotk->inputdev->setkeycode = eeepc_setkeycode;
+-	hotk->inputdev->name = "Asus Laptop extra buttons";
+-	hotk->inputdev->phys = ASUS_HOTK_FILE "/input0";
+-	hotk->inputdev->id.bustype = BUS_HOST;
+-	hotk->inputdev->getkeycode = asus_getkeycode;
+-	hotk->inputdev->setkeycode = asus_setkeycode;
 -
--	for (key = eeepc_keymap; key->type != KE_END; key++) {
+-	for (key = asus_keymap; key->type != KE_END; key++) {
 -		switch (key->type) {
 -		case KE_KEY:
--			set_bit(EV_KEY, ehotk->inputdev->evbit);
--			set_bit(key->keycode, ehotk->inputdev->keybit);
+-			set_bit(EV_KEY, hotk->inputdev->evbit);
+-			set_bit(key->keycode, hotk->inputdev->keybit);
 -			break;
 -		}
-+	input->name = "Asus EeePC extra buttons";
-+	input->dev.parent = dev;
-+	input->phys = EEEPC_HOTK_FILE "/input0";
-+	input->id.bustype = BUS_HOST;
 +
-+	error = sparse_keymap_setup(input, eeepc_keymap, NULL);
++	inputdev->name = "Asus Laptop extra buttons";
++	inputdev->phys = ASUS_HOTK_FILE "/input0";
++	inputdev->id.bustype = BUS_HOST;
++
++	error = sparse_keymap_setup(inputdev, asus_keymap, NULL);
 +	if (error) {
 +		pr_err("Unable to setup input device keymap\n");
 +		goto err_free_dev;
  	}
--	result = input_register_device(ehotk->inputdev);
+-	result = input_register_device(hotk->inputdev);
 -	if (result) {
 -		pr_info("Unable to register input device\n");
--		input_free_device(ehotk->inputdev);
--		return result;
+-		input_free_device(hotk->inputdev);
 +
-+	error = input_register_device(input);
++	error = input_register_device(inputdev);
 +	if (error) {
 +		pr_err("Unable to register input device\n");
 +		goto err_free_keymap;
  	}
+-	return result;
 +
-+	ehotk->inputdev = input;
- 	return 0;
++	hotk->inputdev = inputdev;
++	return 0;
 +
 + err_free_keymap:
-+	sparse_keymap_free(input);
++	sparse_keymap_free(inputdev);
 + err_free_dev:
-+	input_free_device(input);
++	input_free_device(inputdev);
 +	return error;
  }
  
- static int __devinit eeepc_hotk_add(struct acpi_device *device)
+ static int asus_hotk_check(void)
+@@ -1338,8 +1268,10 @@ static void asus_led_exit(void)
+ 
+ static void asus_input_exit(void)
+ {
+-	if (hotk->inputdev)
++	if (hotk->inputdev) {
++		sparse_keymap_free(hotk->inputdev);
+ 		input_unregister_device(hotk->inputdev);
++	}
+ }
+ 
+ static void __exit asus_laptop_exit(void)
 

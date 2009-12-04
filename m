@@ -1,146 +1,72 @@
-From: Thomas Renninger <trenn@suse.de>
-Subject: Re: [RFC PATCH 1/2] Input: add msi-wmi driver to support hotkeys in
- =?utf-8?q?MSI=C2=A0Windtop?= AE1900-WT
-Date: Fri, 4 Dec 2009 11:55:53 +0100
-Message-ID: <200912041155.54752.trenn@suse.de>
-References: <20091202192603.3e1de98a@destiny.ordissimo> <200912031749.08734.trenn@suse.de> <20091204111506.254dccef@destiny.ordissimo>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
+Date: Fri, 04 Dec 2009 13:59:09 +0100
+Message-ID: <871vjasxnm.fsf@macbook.be.48ers.dk>
+References: <20091203050810.GA26595@barra.bne.redhat.com>
+	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:46253 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753301AbZLDKzu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 05:55:50 -0500
-In-Reply-To: <20091204111506.254dccef@destiny.ordissimo>
-Content-Disposition: inline
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:62794 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755984AbZLDM7J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 07:59:09 -0500
+In-Reply-To: <4B1836A6.405@redhat.com> (Peter Hutterer's message of "Fri, 04
+	Dec 2009 08:07:34 +1000")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anisse Astier <anisse@astier.eu>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Peter Hutterer <peter.hutterer@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Friday 04 December 2009 11:15:06 Anisse Astier wrote:
-> Hi Thomas,
->=20
-> On Thu, 3 Dec 2009 17:49:07 +0100, Thomas Renninger <trenn@suse.de>
-> wrote :
->=20
-> > On Wednesday 02 December 2009 19:26:03 Anisse Astier wrote:
-> > >=20
-> > > Signed-off-by: Anisse Astier <anisse@astier.eu>
-> > > ---
-> > > Hi,
-> > >=20
-> > > This driver (intiated by=20
-> > > http://sysmic.org/dotclear2/index.php?post/2009/06/02/83-msi-wmi-=
-support) is
-> > > aimed at supporting WMI based hotkeys on MSI=C2=A0Windtop all-in-=
-one AE1900-WT.
-> > I've already submitted a driver together with some other fixes a mo=
-nth ago.
-> >=20
-> Indeed, I am sorry I didn't see it earlier. Did you write it from scr=
-atch
-> or base it on Jerome's patch?
-I wrote it from scratch.
-I started by taking over from hp-wmi, but later, beside of the key arra=
-y
-setup, most things changed...
-=20
-> > My driver not only registers an input device for backlight/volume u=
-p, down,
-> > but also registers a backlight driver for software based backlight =
-switching.
-> Indeed, and that's very nice!
-> >=20
-> > Not sure whether Len already submitted it to he's test branch, I ho=
-pe so:
-> > http://patchwork.kernel.org/patch/55944/
-> >=20
-> > Would be great if you can give it a try.
->=20
-> I gave it a try, it works great. Buttons works as expected, and the
-> backlight interface works as well. Now I have a few questions/comment=
-s:
->=20
-> > +static int backlight_map[] =3D { 0x00, 0x33, 0x66, 0x99, 0xCC, 0xF=
-=46 };
-> Why just 6 levels for backlight? Wasn't it possible to map the whole
-> range? Does it work the same way in windows?
-I got that from MSI people (one of the rare infos I got and that the
-irq storm is a "HW" bug/feature also showing up on Windows),
-they told me that's the values that should be used
-(and yes, probably it's the way Windows works then as well).
+>>>>> "Peter" == Peter Hutterer <peter.hutterer@redhat.com> writes:
 
-> > +#include <linux/kernel.h>
-> > +#include <linux/module.h>
-> > +#include <linux/init.h>
-> > +#include <linux/types.h>
-> > +#include <linux/input.h>
-> > +#include <acpi/acpi_drivers.h>
-> > +#include <linux/acpi.h>
-> > +#include <linux/string.h>
-> > +#include <linux/hrtimer.h>
-> > +#include <linux/backlight.h>
-> Do you need all these #includes? (e.g string.h)
->=20
-> > +#define dprintk(msg...)	do {			\
-> Isn't reimplementing some kind of dprintk a little outdated with
-> DYNAMIC_PRINTK now in kernel?
-Eh, DYNAMIC_PRINTK?
-grep DYNAMIC_PRINTK include/linux/ -r
-is empty...
+Hi,
 
-> > +	kfree(obj);
-> Good thing you're freeing the allocated acpi objects.
-:)
-Yep, I found that in hp-wmi when looking closer at it.
+ Peter> it's a hack in userspace that works around wrong event
+ Peter> reporting. So yes, it works if you're using evtouch but if you
+ Peter> want to use any other driver that driver needs the same
+ Peter> hack. treating Z as X and RX as Y doesn't work too well for a
+ Peter> generic driver such as evdev, which has to deal with devices
+ Peter> where RX is a valid axis.
 
-> > +			cur =3D ktime_get_real();
-> > +			/* Ignore event if the same event happened in a 50 ms
-> > +			   timeframe -> Key press may result in 10-20 GPEs */
-> > +			if (ktime_to_us(ktime_sub(cur, key->last_pressed))
-> > +			    < 1000 * 50) {
->=20
-> You're debouncing by computing the time difference instead of using
-> a kernel timer.
-Do you see a problem with above?
-You mean ktime_get_real() reads our the time via get getnstimeofday and
-accessing IO, while your get_jiffies_64() solution reads out a kernel v=
-ariable
-incremented via timer irq which is a better solution?
-While gettimeofday should be a fast TSC read on modern HW, I still have
-to agree.
+Hmm, I don't see it sending Z / RX:
 
-Testing this I saw ~5-25 IRQs per key hit, showing up in about a ~30ms
-time frame, therefore I took 50ms ignoring the same IRQ and it worked o=
-ut
-fine. Your last_time_pressed timeout of 10ms might be a bit too short..=
-=2E
+sudo evtest /dev/input/event12
+Input driver version is 1.0.0
+Input device ID: bus 0x3 vendor 0x1926 product 0x1 version 0x100
+Input device name: "Nextwindow Touchscreen"
+Supported events:
+  Event type 0 (Sync)
+  Event type 1 (Key)
+    Event code 272 (LeftBtn)
+    Event code 273 (RightBtn)
+    Event code 274 (MiddleBtn)
+  Event type 3 (Absolute)
+    Event code 0 (X)
+      Value      0
+      Min        0
+      Max    32767
+    Event code 1 (Y)
+      Value      0
+      Min        0
+      Max    32767
+  Event type 4 (Misc)
+    Event code 4 (ScanCode)
+Testing ... (interrupt to exit)
 
-Beside that (backlight) switching takes some time, but this should not
-be due to above "debouncing".
+sudo nwtool -u -i
+Version:                2.91
+Serial:                 233025
+Model:                  1900
+HW capabilities:        0x40
+Rightclick delay:       1000 ms
+Doubleclick time:       200 ms
+Report mode:            1
+Drag threshold:         500
+Buzzer time:            40 ms
+Buzzer tone:            40
+Calibration key:        4
+Calibration presses:    3
 
-> > +static int __init msi_wmi_init(void)
-> You're init method could use some gotos to remove code duplication. (=
-and
-> merge some init with input_setup.)
->=20
-> I would be happy to transform these comments into patches once I have=
- the
-> time, and if you don't mind.
-That would be great!
-
-> I could also adapt it for sparse keymaps as I did with the other driv=
-er
-> (would reduce code size).
-Cool.
-
-Thanks for the review,
-
-    Thomas
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Bye, Peter Korsgaard

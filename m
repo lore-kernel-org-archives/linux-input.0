@@ -1,283 +1,327 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/9] Input: dm355evm_kbd - switch to using sparse keymap
-	library
-Date: Thu, 03 Dec 2009 22:12:09 -0800
-Message-ID: <20091204061208.28288.16716.stgit@localhost.localdomain>
+Subject: [PATCH 4/9] Input: dell-wmi - switch to using sparse keymap library
+Date: Thu, 03 Dec 2009 22:12:14 -0800
+Message-ID: <20091204061214.28288.56252.stgit@localhost.localdomain>
 References: <20091204060701.28288.91430.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f187.google.com ([209.85.210.187]:55857 "EHLO
+	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751889AbZLDGMK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 01:12:10 -0500
 In-Reply-To: <20091204060701.28288.91430.stgit@localhost.localdomain>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>
 Cc: linux-acpi@vger.kernel.org, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>, Anisse Astier <anisse@astier.eu>
-List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/misc/Kconfig         |    1 
- drivers/input/misc/dm355evm_keys.c |  150 +++++++++++++-----------------------
- 2 files changed, 57 insertions(+), 94 deletions(-)
+ drivers/platform/x86/Kconfig    |    1 
+ drivers/platform/x86/dell-wmi.c |  199 ++++++++++++---------------------------
+ 2 files changed, 64 insertions(+), 136 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d25ecbb..16ec523 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -282,6 +282,7 @@ config INPUT_RB532_BUTTON
- config INPUT_DM355EVM
- 	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
- 	depends on MFD_DM355EVM_MSP
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 55ca39d..1f10bf4 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -88,6 +88,7 @@ config DELL_WMI
+ 	tristate "Dell WMI extras"
+ 	depends on ACPI_WMI
+ 	depends on INPUT
 +	select INPUT_SPARSEKMAP
- 	help
- 	  Supports the pushbuttons and IR remote used with
- 	  the DM355 EVM board.
-diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
-index f2b67dc..09a2815 100644
---- a/drivers/input/misc/dm355evm_keys.c
-+++ b/drivers/input/misc/dm355evm_keys.c
-@@ -11,6 +11,7 @@
- #include <linux/kernel.h>
+ 	---help---
+ 	  Say Y here if you want to support WMI-based hotkeys on Dell laptops.
+ 
+diff --git a/drivers/platform/x86/dell-wmi.c b/drivers/platform/x86/dell-wmi.c
+index 0f900cc..a35ec82 100644
+--- a/drivers/platform/x86/dell-wmi.c
++++ b/drivers/platform/x86/dell-wmi.c
+@@ -28,6 +28,7 @@
  #include <linux/init.h>
+ #include <linux/types.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
- #include <linux/platform_device.h>
- #include <linux/interrupt.h>
+ #include <acpi/acpi_drivers.h>
+ #include <linux/acpi.h>
+ #include <linux/string.h>
+@@ -40,123 +41,59 @@ MODULE_LICENSE("GPL");
  
-@@ -33,12 +34,8 @@ struct dm355evm_keys {
- 	int			irq;
- };
+ MODULE_ALIAS("wmi:"DELL_EVENT_GUID);
  
--/* These initial keycodes can be remapped by dm355evm_setkeycode(). */
--static struct {
--	u16	event;
--	u16	keycode;
--} dm355evm_keys[] = {
+-struct key_entry {
+-	char type;		/* See KE_* below */
+-	u16 code;
+-	u16 keycode;
+-};
 -
-+/* These initial keycodes can be remapped */
-+static const struct key_entry dm355evm_keys[] = {
- 	/*
- 	 * Pushbuttons on the EVM board ... note that the labels for these
- 	 * are SW10/SW11/etc on the PC board.  The left/right orientation
-@@ -47,11 +44,11 @@ static struct {
- 	 * is to the right.  (That is, rotate the board counter-clockwise
- 	 * by 90 degrees from the SW10/etc and "DM355 EVM" labels.)
- 	 */
--	{ 0x00d8, KEY_OK, },		/* SW12 */
--	{ 0x00b8, KEY_UP, },		/* SW13 */
--	{ 0x00e8, KEY_DOWN, },		/* SW11 */
--	{ 0x0078, KEY_LEFT, },		/* SW14 */
--	{ 0x00f0, KEY_RIGHT, },		/* SW10 */
-+	{ KE_KEY, 0x00d8, { KEY_OK } },		/* SW12 */
-+	{ KE_KEY, 0x00b8, { KEY_UP } },		/* SW13 */
-+	{ KE_KEY, 0x00e8, { KEY_DOWN } },	/* SW11 */
-+	{ KE_KEY, 0x0078, { KEY_LEFT } },	/* SW14 */
-+	{ KE_KEY, 0x00f0, { KEY_RIGHT } },	/* SW10 */
- 
- 	/*
- 	 * IR buttons ... codes assigned to match the universal remote
-@@ -65,35 +62,35 @@ static struct {
- 	 * RC5 codes are 14 bits, with two start bits (0x3 prefix)
- 	 * and a toggle bit (masked out below).
- 	 */
--	{ 0x300c, KEY_POWER, },		/* NOTE: docs omit this */
--	{ 0x3000, KEY_NUMERIC_0, },
--	{ 0x3001, KEY_NUMERIC_1, },
--	{ 0x3002, KEY_NUMERIC_2, },
--	{ 0x3003, KEY_NUMERIC_3, },
--	{ 0x3004, KEY_NUMERIC_4, },
--	{ 0x3005, KEY_NUMERIC_5, },
--	{ 0x3006, KEY_NUMERIC_6, },
--	{ 0x3007, KEY_NUMERIC_7, },
--	{ 0x3008, KEY_NUMERIC_8, },
--	{ 0x3009, KEY_NUMERIC_9, },
--	{ 0x3022, KEY_ENTER, },
--	{ 0x30ec, KEY_MODE, },		/* "tv/vcr/..." */
--	{ 0x300f, KEY_SELECT, },	/* "info" */
--	{ 0x3020, KEY_CHANNELUP, },	/* "up" */
--	{ 0x302e, KEY_MENU, },		/* "in/out" */
--	{ 0x3011, KEY_VOLUMEDOWN, },	/* "left" */
--	{ 0x300d, KEY_MUTE, },		/* "ok" */
--	{ 0x3010, KEY_VOLUMEUP, },	/* "right" */
--	{ 0x301e, KEY_SUBTITLE, },	/* "cc" */
--	{ 0x3021, KEY_CHANNELDOWN, },	/* "down" */
--	{ 0x3022, KEY_PREVIOUS, },
--	{ 0x3026, KEY_SLEEP, },
--	{ 0x3172, KEY_REWIND, },	/* NOTE: docs wrongly say 0x30ca */
--	{ 0x3175, KEY_PLAY, },
--	{ 0x3174, KEY_FASTFORWARD, },
--	{ 0x3177, KEY_RECORD, },
--	{ 0x3176, KEY_STOP, },
--	{ 0x3169, KEY_PAUSE, },
-+	{ KE_KEY, 0x300c, { KEY_POWER } },	/* NOTE: docs omit this */
-+	{ KE_KEY, 0x3000, { KEY_NUMERIC_0 } },
-+	{ KE_KEY, 0x3001, { KEY_NUMERIC_1 } },
-+	{ KE_KEY, 0x3002, { KEY_NUMERIC_2 } },
-+	{ KE_KEY, 0x3003, { KEY_NUMERIC_3 } },
-+	{ KE_KEY, 0x3004, { KEY_NUMERIC_4 } },
-+	{ KE_KEY, 0x3005, { KEY_NUMERIC_5 } },
-+	{ KE_KEY, 0x3006, { KEY_NUMERIC_6 } },
-+	{ KE_KEY, 0x3007, { KEY_NUMERIC_7 } },
-+	{ KE_KEY, 0x3008, { KEY_NUMERIC_8 } },
-+	{ KE_KEY, 0x3009, { KEY_NUMERIC_9 } },
-+	{ KE_KEY, 0x3022, { KEY_ENTER } },
-+	{ KE_KEY, 0x30ec, { KEY_MODE } },	/* "tv/vcr/..." */
-+	{ KE_KEY, 0x300f, { KEY_SELECT } },	/* "info" */
-+	{ KE_KEY, 0x3020, { KEY_CHANNELUP } },	/* "up" */
-+	{ KE_KEY, 0x302e, { KEY_MENU } },	/* "in/out" */
-+	{ KE_KEY, 0x3011, { KEY_VOLUMEDOWN } },	/* "left" */
-+	{ KE_KEY, 0x300d, { KEY_MUTE } },	/* "ok" */
-+	{ KE_KEY, 0x3010, { KEY_VOLUMEUP } },	/* "right" */
-+	{ KE_KEY, 0x301e, { KEY_SUBTITLE } },	/* "cc" */
-+	{ KE_KEY, 0x3021, { KEY_CHANNELDOWN } },/* "down" */
-+	{ KE_KEY, 0x3022, { KEY_PREVIOUS } },
-+	{ KE_KEY, 0x3026, { KEY_SLEEP } },
-+	{ KE_KEY, 0x3172, { KEY_REWIND } },	/* NOTE: docs wrongly say 0x30ca */
-+	{ KE_KEY, 0x3175, { KEY_PLAY } },
-+	{ KE_KEY, 0x3174, { KEY_FASTFORWARD } },
-+	{ KE_KEY, 0x3177, { KEY_RECORD } },
-+	{ KE_KEY, 0x3176, { KEY_STOP } },
-+	{ KE_KEY, 0x3169, { KEY_PAUSE } },
- };
- 
+-enum { KE_KEY, KE_SW, KE_IGNORE, KE_END };
+-
  /*
-@@ -105,19 +102,18 @@ static struct {
+  * Certain keys are flagged as KE_IGNORE. All of these are either
+  * notifications (rather than requests for change) or are also sent
+  * via the keyboard controller so should not be sent again.
   */
- static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
- {
--	struct dm355evm_keys	*keys = _keys;
--	int			status;
-+	static u16 last_event;
-+	struct dm355evm_keys *keys = _keys;
-+	struct key_entry *ke;
-+	unsigned int keycode;
-+	int status;
-+	u16 event;
  
- 	/* For simplicity we ignore INPUT_COUNT and just read
- 	 * events until we get the "queue empty" indicator.
- 	 * Reading INPUT_LOW decrements the count.
- 	 */
- 	for (;;) {
--		static u16	last_event;
--		u16		event;
--		int		keycode;
--		int		i;
+-static struct key_entry dell_wmi_keymap[] = {
+-	{KE_KEY, 0xe045, KEY_PROG1},
+-	{KE_KEY, 0xe009, KEY_EJECTCD},
++static const struct key_entry dell_wmi_keymap[] = {
++	{ KE_KEY, 0xe045, { KEY_PROG1 } },
++	{ KE_KEY, 0xe009, { KEY_EJECTCD } },
+ 
+ 	/* These also contain the brightness level at offset 6 */
+-	{KE_KEY, 0xe006, KEY_BRIGHTNESSUP},
+-	{KE_KEY, 0xe005, KEY_BRIGHTNESSDOWN},
++	{ KE_KEY, 0xe006, { KEY_BRIGHTNESSUP } },
++	{ KE_KEY, 0xe005, { KEY_BRIGHTNESSDOWN } },
+ 
+ 	/* Battery health status button */
+-	{KE_KEY, 0xe007, KEY_BATTERY},
++	{ KE_KEY, 0xe007, { KEY_BATTERY } },
+ 
+ 	/* This is actually for all radios. Although physically a
+ 	 * switch, the notification does not provide an indication of
+ 	 * state and so it should be reported as a key */
+-	{KE_KEY, 0xe008, KEY_WLAN},
++	{ KE_KEY, 0xe008, { KEY_WLAN } },
+ 
+ 	/* The next device is at offset 6, the active devices are at
+ 	   offset 8 and the attached devices at offset 10 */
+-	{KE_KEY, 0xe00b, KEY_DISPLAYTOGGLE},
++	{ KE_KEY, 0xe00b, { KEY_DISPLAYTOGGLE } },
+ 
+-	{KE_IGNORE, 0xe00c, KEY_KBDILLUMTOGGLE},
++	{ KE_IGNORE, 0xe00c, {KEY_KBDILLUMTOGGLE } },
+ 
+ 	/* BIOS error detected */
+-	{KE_IGNORE, 0xe00d, KEY_RESERVED},
++	{ KE_IGNORE, 0xe00d, { KEY_RESERVED } },
+ 
+ 	/* Wifi Catcher */
+-	{KE_KEY, 0xe011, KEY_PROG2},
++	{ KE_KEY, 0xe011, {KEY_PROG2 } },
+ 
+ 	/* Ambient light sensor toggle */
+-	{KE_IGNORE, 0xe013, KEY_RESERVED},
 -
- 		status = dm355evm_msp_read(DM355EVM_MSP_INPUT_HIGH);
- 		if (status < 0) {
- 			dev_dbg(keys->dev, "input high err %d\n",
-@@ -156,14 +152,9 @@ static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
- 		/* ignore the RC5 toggle bit */
- 		event &= ~0x0800;
+-	{KE_IGNORE, 0xe020, KEY_MUTE},
+-	{KE_IGNORE, 0xe02e, KEY_VOLUMEDOWN},
+-	{KE_IGNORE, 0xe030, KEY_VOLUMEUP},
+-	{KE_IGNORE, 0xe033, KEY_KBDILLUMUP},
+-	{KE_IGNORE, 0xe034, KEY_KBDILLUMDOWN},
+-	{KE_IGNORE, 0xe03a, KEY_CAPSLOCK},
+-	{KE_IGNORE, 0xe045, KEY_NUMLOCK},
+-	{KE_IGNORE, 0xe046, KEY_SCROLLLOCK},
+-	{KE_END, 0}
++	{ KE_IGNORE, 0xe013, { KEY_RESERVED } },
++
++	{ KE_IGNORE, 0xe020, { KEY_MUTE } },
++	{ KE_IGNORE, 0xe02e, { KEY_VOLUMEDOWN } },
++	{ KE_IGNORE, 0xe030, { KEY_VOLUMEUP } },
++	{ KE_IGNORE, 0xe033, { KEY_KBDILLUMUP } },
++	{ KE_IGNORE, 0xe034, { KEY_KBDILLUMDOWN } },
++	{ KE_IGNORE, 0xe03a, { KEY_CAPSLOCK } },
++	{ KE_IGNORE, 0xe045, { KEY_NUMLOCK } },
++	{ KE_IGNORE, 0xe046, { KEY_SCROLLLOCK } },
++	{ KE_END, 0}
+ };
  
--		/* find the key, or leave it as unknown */
--		keycode = KEY_UNKNOWN;
--		for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
--			if (dm355evm_keys[i].event != event)
--				continue;
--			keycode = dm355evm_keys[i].keycode;
--			break;
--		}
-+		/* find the key, or report it as unknown */
-+		ke = sparse_keymap_entry_from_scancode(keys->input, event);
-+		keycode = ke ? ke->keycode : KEY_UNKNOWN;
- 		dev_dbg(keys->dev,
- 			"input event 0x%04x--> keycode %d\n",
- 			event, keycode);
-@@ -174,36 +165,8 @@ static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
- 		input_report_key(keys->input, keycode, 0);
- 		input_sync(keys->input);
- 	}
--	return IRQ_HANDLED;
--}
+ static struct input_dev *dell_wmi_input_dev;
  
--static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
+-static struct key_entry *dell_wmi_get_entry_by_scancode(int code)
 -{
--	u16		old_keycode;
--	unsigned	i;
+-	struct key_entry *key;
 -
--	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
--		return -EINVAL;
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++)
+-		if (code == key->code)
+-			return key;
 -
--	old_keycode = dm355evm_keys[index].keycode;
--	dm355evm_keys[index].keycode = keycode;
--	set_bit(keycode, dev->keybit);
+-	return NULL;
+-}
 -
--	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
--		if (dm355evm_keys[index].keycode == old_keycode)
--			goto done;
+-static struct key_entry *dell_wmi_get_entry_by_keycode(int keycode)
+-{
+-	struct key_entry *key;
+-
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++)
+-		if (key->type == KE_KEY && keycode == key->keycode)
+-			return key;
+-
+-	return NULL;
+-}
+-
+-static int dell_wmi_getkeycode(struct input_dev *dev, int scancode,
+-			       int *keycode)
+-{
+-	struct key_entry *key = dell_wmi_get_entry_by_scancode(scancode);
+-
+-	if (key && key->type == KE_KEY) {
+-		*keycode = key->keycode;
+-		return 0;
 -	}
--	clear_bit(old_keycode, dev->keybit);
--done:
--	return 0;
+-
+-	return -EINVAL;
 -}
 -
--static int dm355evm_getkeycode(struct input_dev *dev, int index, int *keycode)
+-static int dell_wmi_setkeycode(struct input_dev *dev, int scancode, int keycode)
 -{
--	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
+-	struct key_entry *key;
+-	int old_keycode;
+-
+-	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	return dm355evm_keys[index].keycode;
-+	return IRQ_HANDLED;
+-	key = dell_wmi_get_entry_by_scancode(scancode);
+-	if (key && key->type == KE_KEY) {
+-		old_keycode = key->keycode;
+-		key->keycode = keycode;
+-		set_bit(keycode, dev->keybit);
+-		if (!dell_wmi_get_entry_by_keycode(old_keycode))
+-			clear_bit(old_keycode, dev->keybit);
+-		return 0;
+-	}
+-	return -EINVAL;
+-}
+-
+ static void dell_wmi_notify(u32 value, void *context)
+ {
+ 	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
+-	static struct key_entry *key;
+ 	union acpi_object *obj;
+ 
+ 	wmi_get_event_data(value, &response);
+@@ -170,55 +107,48 @@ static void dell_wmi_notify(u32 value, void *context)
+ 		 *  additional information, so mask them off for the
+ 		 *  scancode lookup
+ 		 */
+-		key = dell_wmi_get_entry_by_scancode(buffer[1] & 0xFFFF);
+-		if (key) {
+-			input_report_key(dell_wmi_input_dev, key->keycode, 1);
+-			input_sync(dell_wmi_input_dev);
+-			input_report_key(dell_wmi_input_dev, key->keycode, 0);
+-			input_sync(dell_wmi_input_dev);
+-		} else if (buffer[1] & 0xFFFF)
++		unsigned int code = buffer[1] & 0xFFFF;
++
++		if (!sparse_keymap_report_event(dell_wmi_input_dev,
++						code, 1, true))
+ 			printk(KERN_INFO "dell-wmi: Unknown key %x pressed\n",
+-			       buffer[1] & 0xFFFF);
++			       code);
+ 	}
  }
  
- /*----------------------------------------------------------------------*/
-@@ -213,7 +176,6 @@ static int __devinit dm355evm_keys_probe(struct platform_device *pdev)
- 	struct dm355evm_keys	*keys;
- 	struct input_dev	*input;
- 	int			status;
--	int			i;
+ static int __init dell_wmi_input_setup(void)
+ {
+-	struct key_entry *key;
+ 	int err;
  
- 	/* allocate instance struct and input dev */
- 	keys = kzalloc(sizeof *keys, GFP_KERNEL);
-@@ -242,31 +204,30 @@ static int __devinit dm355evm_keys_probe(struct platform_device *pdev)
- 	input->id.product = 0x0355;
- 	input->id.version = dm355evm_msp_read(DM355EVM_MSP_FIRMREV);
- 
--	input->evbit[0] = BIT(EV_KEY);
--	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
--		__set_bit(dm355evm_keys[i].keycode, input->keybit);
+ 	dell_wmi_input_dev = input_allocate_device();
 -
--	input->setkeycode = dm355evm_setkeycode;
--	input->getkeycode = dm355evm_getkeycode;
-+	status = sparse_keymap_setup(input, dm355evm_keys, NULL);
-+	if (status)
-+		goto fail1;
+ 	if (!dell_wmi_input_dev)
+ 		return -ENOMEM;
  
- 	/* REVISIT:  flush the event queue? */
+ 	dell_wmi_input_dev->name = "Dell WMI hotkeys";
+ 	dell_wmi_input_dev->phys = "wmi/input0";
+ 	dell_wmi_input_dev->id.bustype = BUS_HOST;
+-	dell_wmi_input_dev->getkeycode = dell_wmi_getkeycode;
+-	dell_wmi_input_dev->setkeycode = dell_wmi_setkeycode;
+-
+-	for (key = dell_wmi_keymap; key->type != KE_END; key++) {
+-		switch (key->type) {
+-		case KE_KEY:
+-			set_bit(EV_KEY, dell_wmi_input_dev->evbit);
+-			set_bit(key->keycode, dell_wmi_input_dev->keybit);
+-			break;
+-		case KE_SW:
+-			set_bit(EV_SW, dell_wmi_input_dev->evbit);
+-			set_bit(key->keycode, dell_wmi_input_dev->swbit);
+-			break;
+-		}
+-	}
  
- 	status = request_threaded_irq(keys->irq, NULL, dm355evm_keys_irq,
- 			IRQF_TRIGGER_FALLING, dev_name(&pdev->dev), keys);
- 	if (status < 0)
--		goto fail1;
-+		goto fail2;
+-	err = input_register_device(dell_wmi_input_dev);
++	err = sparse_keymap_setup(dell_wmi_input_dev, dell_wmi_keymap, NULL);
++	if (err)
++		goto err_free_dev;
  
- 	/* register */
- 	status = input_register_device(input);
- 	if (status < 0)
--		goto fail2;
-+		goto fail3;
- 
- 	platform_set_drvdata(pdev, keys);
+-	if (err) {
+-		input_free_device(dell_wmi_input_dev);
+-		return err;
+-	}
++	err = input_register_device(dell_wmi_input_dev);
++	if (err)
++		goto err_free_keymap;
  
  	return 0;
++
++ err_free_keymap:
++	sparse_keymap_free(dell_wmi_input_dev);
++ err_free_dev:
++	input_free_device(dell_wmi_input_dev);
++	return err;
++}
++
++static void dell_wmi_input_destroy(void)
++{
++	sparse_keymap_free(dell_wmi_input_dev);
++	input_unregister_device(dell_wmi_input_dev);
+ }
  
--fail2:
-+fail3:
- 	free_irq(keys->irq, keys);
-+fail2:
-+	sparse_keymap_free(input);
- fail1:
- 	input_free_device(input);
- 	kfree(keys);
-@@ -280,6 +241,7 @@ static int __devexit dm355evm_keys_remove(struct platform_device *pdev)
- 	struct dm355evm_keys	*keys = platform_get_drvdata(pdev);
+ static int __init dell_wmi_init(void)
+@@ -226,33 +156,30 @@ static int __init dell_wmi_init(void)
+ 	int err;
  
- 	free_irq(keys->irq, keys);
-+	sparse_keymap_free(keys->input);
- 	input_unregister_device(keys->input);
- 	kfree(keys);
+ 	if (wmi_has_guid(DELL_EVENT_GUID)) {
+-		err = dell_wmi_input_setup();
+-
+-		if (err)
+-			return err;
++		printk(KERN_WARNING "dell-wmi: No known WMI GUID found\n");
++		return -ENODEV;
++	}
  
+-		err = wmi_install_notify_handler(DELL_EVENT_GUID,
+-						 dell_wmi_notify, NULL);
+-		if (err) {
+-			input_unregister_device(dell_wmi_input_dev);
+-			printk(KERN_ERR "dell-wmi: Unable to register"
+-			       " notify handler - %d\n", err);
+-			return err;
+-		}
++	err = dell_wmi_input_setup();
++	if (err)
++		return err;
+ 
+-	} else
+-		printk(KERN_WARNING "dell-wmi: No known WMI GUID found\n");
++	err = wmi_install_notify_handler(DELL_EVENT_GUID,
++					 dell_wmi_notify, NULL);
++	if (err) {
++		dell_wmi_input_destroy();
++		printk(KERN_ERR "dell-wmi: Unable to register"
++		       " notify handler - %d\n", err);
++		return err;
++	}
+ 
+ 	return 0;
+ }
++module_init(dell_wmi_init);
+ 
+ static void __exit dell_wmi_exit(void)
+ {
+-	if (wmi_has_guid(DELL_EVENT_GUID)) {
+-		wmi_remove_notify_handler(DELL_EVENT_GUID);
+-		input_unregister_device(dell_wmi_input_dev);
+-	}
++	wmi_remove_notify_handler(DELL_EVENT_GUID);
++	dell_wmi_input_destroy();
+ }
+-
+-module_init(dell_wmi_init);
+ module_exit(dell_wmi_exit);
 

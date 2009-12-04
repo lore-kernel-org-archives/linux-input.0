@@ -1,200 +1,111 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Fri, 4 Dec 2009 02:06:42 -0800
-Message-ID: <20091204100642.GD22570@core.coreip.homeip.net>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com> <20091203175531.GB776@core.coreip.homeip.net> <20091203163328.613699e5@pedra>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: [RFC PATCH 1/2] Input: add msi-wmi driver to support hotkeys in
+  =?UTF-8?B?TVNJwqBXaW5kdG9w?= AE1900-WT
+Date: Fri, 4 Dec 2009 11:15:06 +0100
+Message-ID: <20091204111506.254dccef@destiny.ordissimo>
+References: <20091202192603.3e1de98a@destiny.ordissimo>
+	<200912031749.08734.trenn@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:45415 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753900AbZLDKGn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 05:06:43 -0500
-Content-Disposition: inline
-In-Reply-To: <20091203163328.613699e5@pedra>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <200912031749.08734.trenn@suse.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Thomas Renninger <trenn@suse.de>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, Dec 03, 2009 at 04:33:28PM -0200, Mauro Carvalho Chehab wrote:
-> Let me draw my view:
-> 
-> Em Thu, 3 Dec 2009 09:55:31 -0800
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
-> 
-> > No, please, wait just a minute. I know it is tempting to just merge
-> > lirc_dev and start working, but can we first agree on the overall
-> > subsystem structure before doing so. It is still quite inclear to me.
-> > 
-> > The open questions (for me at least):
-> > 
-> > - do we create a new class infrastructure for all receivers or only for
-> >   ones plugged into lirc_dev? Remember that classifying objects affects
-> >   how udev and friemds see them and may either help or hurt writing PnP
-> >   rules.
-> 
-> IMO, I would create it as /sys/class/input/IR (just like the /mice). I
+Hi Thomas,
 
-That will not work. Driver core does not support notion of subclasses,
-Greg and Kay insist on flat class namespace. Mice do not belong to a
-separate [sub]class, they all members of input class, with peculiar
-directory structure.
+On Thu, 3 Dec 2009 17:49:07 +0100, Thomas Renninger <trenn@suse.de>
+wrote :
 
-IRs however, I believe, deserve a full-fledged class (since they are in
-my view are parents to the input devices representing remotes). I would
-argus for the following sysfs hierarchy for the main device tree:
+> On Wednesday 02 December 2009 19:26:03 Anisse Astier wrote:
+> >=20
+> > Signed-off-by: Anisse Astier <anisse@astier.eu>
+> > ---
+> > Hi,
+> >=20
+> > This driver (intiated by=20
+> > http://sysmic.org/dotclear2/index.php?post/2009/06/02/83-msi-wmi-su=
+pport) is
+> > aimed at supporting WMI based hotkeys on MSI=C2=A0Windtop all-in-on=
+e AE1900-WT.
+> I've already submitted a driver together with some other fixes a mont=
+h ago.
+>=20
+Indeed, I am sorry I didn't see it earlier. Did you write it from scrat=
+ch
+or base it on Jerome's patch?
 
-/sys/devices/pcipci0000:00/../pci.../../irrcv0/input14/event16
-/sys/devices/pcipci0000:00/../usb.../../irrcv1/input15/event17
-					      /input16/event18
+> My driver not only registers an input device for backlight/volume up,=
+ down,
+> but also registers a backlight driver for software based backlight sw=
+itching.
+Indeed, and that's very nice!
+>=20
+> Not sure whether Len already submitted it to he's test branch, I hope=
+ so:
+> http://patchwork.kernel.org/patch/55944/
+>=20
+> Would be great if you can give it a try.
 
-And corresponding class:
+I gave it a try, it works great. Buttons works as expected, and the
+backlight interface works as well. Now I have a few questions/comments:
 
-/sys/class/irrcv/irrcv0
-                 irrcv1
+> +static int backlight_map[] =3D { 0x00, 0x33, 0x66, 0x99, 0xCC, 0xFF =
+};
+Why just 6 levels for backlight? Wasn't it possible to map the whole
+range? Does it work the same way in windows?
 
-and so on.
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/types.h>
+> +#include <linux/input.h>
+> +#include <acpi/acpi_drivers.h>
+> +#include <linux/acpi.h>
+> +#include <linux/string.h>
+> +#include <linux/hrtimer.h>
+> +#include <linux/backlight.h>
+Do you need all these #includes? (e.g string.h)
 
->
-> don't see why do we need to different lirc than no-lirc drivers in the
-> case of sysfs class.
+> +#define dprintk(msg...)	do {			\
+Isn't reimplementing some kind of dprintk a little outdated with
+DYNAMIC_PRINTK now in kernel?
 
-I do agree that _all_ infrared receivers should belong to this class,
-and not only ones utilizing lirc_dev.
-
-> As devices with raw input capabilities will have
-> another dev to communicate, this means that we'll need a /lirc node
-> there to point to lirc dev.
-> 
-> > 
-> > - do we intend to support in-kernel sotfware decoders?
-> 
-> Yes.
-> 
-
-Good.
-
-> > - What is the structure? Do we organize them as a module to be used by driver
-> >   directly or the driver "streams" the data to IR core and the core
-> >   applies decoders (in the same fashion input events from drivers flow
-> >   into input core and then distributed to all bound interfaces for
-> >   processing/conversion/transmission to userspace)?
-> 
-> My plan is to expand ir-common.ko module and rename it to ir-core, to be 
-> the IR core module for the evdev interface. I'm already working on it. 
-> My idea for an architecture is that the lirc-core module will use 
-> ir-common where the IR decoders will be, and the evdev interface.
->
-
-How related lirc-core to the current lirc code? If it is not the same
-maybe we should not call it lirc to avoid confusion.
-
- 
-> IMO, we should move them from /drivers/media/common to /drivers/input/ir.
-> It makes sense to use kfifo to send the data to the in-kernel decoders.
-> 
-
-OK.
-
-> > - how do we control which decoder should handle particular
-> >   receiver/remote? Is it driver's decision, decoder's decision, user's
-> >   or all of the above?
-> 
-> It should be all the above, since some hardware will only work with certain
-> decoders (hardware limitation) or they may have already a raw mode->scancode
-> legacy decoder. In the latter case, those decoders will be removed from
-> the existing drivers, but this action will take some time.
-> 
-> Some sysfs attributes are needed to specify a list of the supported protocols
-> and the currently used one. I'll prepare a proposed patch for it, after we
-> finish aligning the requirements.
->  
-> > - do we allow to have several decorers active at once for a receiver?
-> 
-> Yes, as an optional requirement, since some hardware won't support it.
-> 
-> > - who decides that we want to utilize lirc_dev? Driver's themselves, IR
-> >   core (looking at the driver/device "capabilities"), something else?
-> 
-> Drivers that support raw mode, should interface via lirc-core, that will,
-> in turn use ir-core.
-> 
-> Drivers that have in-hardware decode will directly use ir-core.
-> 
-> > - do we recognize and create input devices "on-fly" or require user
-> >   intervention? Semantics for splitting into several input/event
-> >   devices?
-> 
-> I don't have a strong opinion here. 
-> 
-> I don't see any way for doing it, except with very few protocols that
-> sends vendor IDs. I don't care if this feature can be used by the
-> drivers/decoders that could support it.
-> 
-> > Could anyone please draw me a picture, starting with a "receiver"
-> > piece of hardware. I am not concerned much with how exactly receiver is
-> > plugged into a particular subsystem (DVB/V4L etc) since it would be
-> > _their_ implementation detail, but with the flow in/out of that
-> > "receiver" device.
-> 
-> Not sure if I got your idea. Basically, what I see is:
-> 
-> 	For device drivers that work in raw mode:
-> [IR physical device] ==> [IR receiver driver]  ==> [lirc-core] ==> [decoder] ==> [ir-core] ==> [evdev]
-> 
-> (eventually, we can merge decoder and ir-core into one module at the beginning,
-> depending on the size of the decoders)
-> 
-> 	For device drivers that work only in evdev mode (those with hardware decoders):
-> 
-> [IR physical device] ==> [IR receiver driver]  ==> [ir-core] ==> [evdev]
->
-
-Maybe we are talking about the same things and it is just names that are
-confusing. I'd imagine something like this:
+> +	kfree(obj);
+Good thing you're freeing the allocated acpi objects.
 
 
-In-kernel decoding:
+> +			cur =3D ktime_get_real();
+> +			/* Ignore event if the same event happened in a 50 ms
+> +			   timeframe -> Key press may result in 10-20 GPEs */
+> +			if (ktime_to_us(ktime_sub(cur, key->last_pressed))
+> +			    < 1000 * 50) {
 
-[IR physical device] => [IR receiver driver] => [IR core] => [decoder] => [input core] => [evdev]
-							  => [decoder] => [input core] => [evdev]
+You're debouncing by computing the time difference instead of using
+a kernel timer.
 
-Hardware decoder:
-[IR physical device] => [IR receiver driver] => [IR core]
-					     => [input core] => [evdev]
+> +static int __init msi_wmi_init(void)
+You're init method could use some gotos to remove code duplication. (an=
+d
+merge some init with input_setup.)=09
 
-I.e we still register with IR core but driver communicates directly with input device.
 
-Userspace decoging:
-[IR physical device] => [IR receiver driver] => [IR core] => [lirc_dev] => [lircd] => [uinput] => [input core] => [evdev]
+I would be happy to transform these comments into patches once I have t=
+he
+time, and if you don't mind.
 
-Essentially lirc_dev becomes a special case of decoder that, instead of
-connecting inptu core and creating input devices passes the data to
-userspace.
+I could also adapt it for sparse keymaps as I did with the other driver
+(would reduce code size).
 
-I did not show the block that you call ir-core since I expect it to be more
-like a library rather than an object in overall structure.
 
- 
-> > 
-> > Now as far as input core goes I see very limited number of changes that
-> > may be needed:
-> > 
-> > - Allow to extend size of "scancode" in EVIOC{S,G}KEYCODE if we are
-> >   unable to limit ourselves to 32 bits (keeping compatibility of course)
-> 
-> Yes, but the way EVIOC{S,G}KEYCODE currently works, it performs poorly when you have a
-> table with 2^64 size. The table is very sparsed, but, as the key to get/set a code is
-> the scancode, it is very hard to enumberate what are the actual entries there. The
-> better is to use an index parameter for they, instead of using the scancode as such.
-> 
+Best Regards,
 
-evdev does not really care what you use as scancode. So nobody stops
-your driver to report index as a scancode and accept index from the
-ioctl. The true "scancode" will thus be competely hidden from userspace.
-In fact a few drivers do just that.
-
--- 
-Dmitry
+Anisse
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

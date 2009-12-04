@@ -1,298 +1,253 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 7/9] Input: asus-laptop - switch to using sparse keymap library
-Date: Thu, 03 Dec 2009 22:12:30 -0800
-Message-ID: <20091204061230.28288.26159.stgit@localhost.localdomain>
+Subject: [PATCH 8/9] Input: topstar-laptop - switch to using sparse keymap
+	library
+Date: Thu, 03 Dec 2009 22:12:36 -0800
+Message-ID: <20091204061236.28288.18526.stgit@localhost.localdomain>
 References: <20091204060701.28288.91430.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:55857 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751962AbZLDGM0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 01:12:26 -0500
+Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <20091204060701.28288.91430.stgit@localhost.localdomain>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>
 Cc: linux-acpi@vger.kernel.org, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>, Anisse Astier <anisse@astier.eu>
+List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig       |    1 
- drivers/platform/x86/asus-laptop.c |  198 ++++++++++++------------------------
- 2 files changed, 66 insertions(+), 133 deletions(-)
+ drivers/platform/x86/Kconfig          |    1 
+ drivers/platform/x86/topstar-laptop.c |  162 +++++++++++----------------------
+ 2 files changed, 55 insertions(+), 108 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index ae9c976..e555d39 100644
+index e555d39..00e94b0 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -59,6 +59,7 @@ config ASUS_LAPTOP
- 	select NEW_LEDS
- 	select BACKLIGHT_CLASS_DEVICE
+@@ -405,6 +405,7 @@ config TOPSTAR_LAPTOP
+ 	tristate "Topstar Laptop Extras"
+ 	depends on ACPI
  	depends on INPUT
 +	select INPUT_SPARSEKMAP
  	---help---
- 	  This is the new Linux driver for Asus laptops. It may also support some
- 	  MEDION, JVC or VICTOR laptops. It makes all the extra buttons generate
-diff --git a/drivers/platform/x86/asus-laptop.c b/drivers/platform/x86/asus-laptop.c
-index b39d2bb..7da59d8 100644
---- a/drivers/platform/x86/asus-laptop.c
-+++ b/drivers/platform/x86/asus-laptop.c
-@@ -49,6 +49,7 @@
- #include <acpi/acpi_bus.h>
- #include <asm/uaccess.h>
+ 	  This driver adds support for hotkeys found on Topstar laptops.
+ 
+diff --git a/drivers/platform/x86/topstar-laptop.c b/drivers/platform/x86/topstar-laptop.c
+index 02f3d4e..75a8b62 100644
+--- a/drivers/platform/x86/topstar-laptop.c
++++ b/drivers/platform/x86/topstar-laptop.c
+@@ -18,6 +18,7 @@
+ #include <linux/init.h>
+ #include <linux/acpi.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
  
- #define ASUS_LAPTOP_VERSION "0.42"
+ #define ACPI_TOPSTAR_CLASS "topstar"
  
-@@ -284,42 +285,34 @@ ASUS_LED(pled, "phone", 1);
- ASUS_LED(gled, "gaming", 1);
- ASUS_LED(kled, "kbd_backlight", 3);
+@@ -25,52 +26,37 @@ struct topstar_hkey {
+ 	struct input_dev *inputdev;
+ };
  
--struct key_entry {
--	char type;
+-struct tps_key_entry {
 -	u8 code;
 -	u16 keycode;
 -};
 -
--enum { KE_KEY, KE_END };
+-static struct tps_key_entry topstar_keymap[] = {
+-	{ 0x80, KEY_BRIGHTNESSUP },
+-	{ 0x81, KEY_BRIGHTNESSDOWN },
+-	{ 0x83, KEY_VOLUMEUP },
+-	{ 0x84, KEY_VOLUMEDOWN },
+-	{ 0x85, KEY_MUTE },
+-	{ 0x86, KEY_SWITCHVIDEOMODE },
+-	{ 0x87, KEY_F13 }, /* touchpad enable/disable key */
+-	{ 0x88, KEY_WLAN },
+-	{ 0x8a, KEY_WWW },
+-	{ 0x8b, KEY_MAIL },
+-	{ 0x8c, KEY_MEDIA },
+-	{ 0x96, KEY_F14 }, /* G key? */
+-	{ }
+-};
 -
--static struct key_entry asus_keymap[] = {
--	{KE_KEY, 0x30, KEY_VOLUMEUP},
--	{KE_KEY, 0x31, KEY_VOLUMEDOWN},
--	{KE_KEY, 0x32, KEY_MUTE},
--	{KE_KEY, 0x33, KEY_SWITCHVIDEOMODE},
--	{KE_KEY, 0x34, KEY_SWITCHVIDEOMODE},
--	{KE_KEY, 0x40, KEY_PREVIOUSSONG},
--	{KE_KEY, 0x41, KEY_NEXTSONG},
--	{KE_KEY, 0x43, KEY_STOPCD},
--	{KE_KEY, 0x45, KEY_PLAYPAUSE},
--	{KE_KEY, 0x4c, KEY_MEDIA},
--	{KE_KEY, 0x50, KEY_EMAIL},
--	{KE_KEY, 0x51, KEY_WWW},
--	{KE_KEY, 0x55, KEY_CALC},
--	{KE_KEY, 0x5C, KEY_SCREENLOCK},  /* Screenlock */
--	{KE_KEY, 0x5D, KEY_WLAN},
--	{KE_KEY, 0x5E, KEY_WLAN},
--	{KE_KEY, 0x5F, KEY_WLAN},
--	{KE_KEY, 0x60, KEY_SWITCHVIDEOMODE},
--	{KE_KEY, 0x61, KEY_SWITCHVIDEOMODE},
--	{KE_KEY, 0x6B, BTN_TOUCH}, /* Lock Mouse */
--	{KE_KEY, 0x82, KEY_CAMERA},
--	{KE_KEY, 0x8A, KEY_PROG1},
--	{KE_KEY, 0x95, KEY_MEDIA},
--	{KE_KEY, 0x99, KEY_PHONE},
--	{KE_KEY, 0xc4, KEY_KBDILLUMUP},
--	{KE_KEY, 0xc5, KEY_KBDILLUMDOWN},
--	{KE_END, 0},
-+static const struct key_entry asus_keymap[] = {
-+	{ KE_KEY, 0x30, { KEY_VOLUMEUP } },
-+	{ KE_KEY, 0x31, { KEY_VOLUMEDOWN } },
-+	{ KE_KEY, 0x32, { KEY_MUTE } },
-+	{ KE_KEY, 0x33, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x34, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x40, { KEY_PREVIOUSSONG } },
-+	{ KE_KEY, 0x41, { KEY_NEXTSONG } },
-+	{ KE_KEY, 0x43, { KEY_STOPCD } },
-+	{ KE_KEY, 0x45, { KEY_PLAYPAUSE } },
-+	{ KE_KEY, 0x4c, { KEY_MEDIA } },
-+	{ KE_KEY, 0x50, { KEY_EMAIL } },
-+	{ KE_KEY, 0x51, { KEY_WWW } },
-+	{ KE_KEY, 0x55, { KEY_CALC } },
-+	{ KE_KEY, 0x5C, { KEY_SCREENLOCK } },  /* Screenlock */
-+	{ KE_KEY, 0x5D, { KEY_WLAN } },
-+	{ KE_KEY, 0x5E, { KEY_WLAN } },
-+	{ KE_KEY, 0x5F, { KEY_WLAN } },
-+	{ KE_KEY, 0x60, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x61, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x6B, { BTN_TOUCH } }, /* Lock Mouse */
-+	{ KE_KEY, 0x82, { KEY_CAMERA } },
-+	{ KE_KEY, 0x8A, { KEY_PROG1 } },
-+	{ KE_KEY, 0x95, { KEY_MEDIA } },
-+	{ KE_KEY, 0x99, { KEY_PHONE } },
-+	{ KE_KEY, 0xc4, { KEY_KBDILLUMUP } },
-+	{ KE_KEY, 0xc5, { KEY_KBDILLUMDOWN } },
-+	{ KE_END, 0},
- };
- 
- /*
-@@ -866,64 +859,8 @@ static ssize_t store_gps(struct device *dev, struct device_attribute *attr,
- /*
-  * Hotkey functions
-  */
--static struct key_entry *asus_get_entry_by_scancode(int code)
+-static struct tps_key_entry *tps_get_key_by_scancode(int code)
 -{
--	struct key_entry *key;
+-	struct tps_key_entry *key;
 -
--	for (key = asus_keymap; key->type != KE_END; key++)
+-	for (key = topstar_keymap; key->code; key++)
 -		if (code == key->code)
 -			return key;
--
++static const struct key_entry topstar_keymap[] = {
++	{ KE_KEY, 0x80, { KEY_BRIGHTNESSUP } },
++	{ KE_KEY, 0x81, { KEY_BRIGHTNESSDOWN } },
++	{ KE_KEY, 0x83, { KEY_VOLUMEUP } },
++	{ KE_KEY, 0x84, { KEY_VOLUMEDOWN } },
++	{ KE_KEY, 0x85, { KEY_MUTE } },
++	{ KE_KEY, 0x86, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x87, { KEY_F13 } }, /* touchpad enable/disable key */
++	{ KE_KEY, 0x88, { KEY_WLAN } },
++	{ KE_KEY, 0x8a, { KEY_WWW } },
++	{ KE_KEY, 0x8b, { KEY_MAIL } },
++	{ KE_KEY, 0x8c, { KEY_MEDIA } },
+ 
 -	return NULL;
 -}
 -
--static struct key_entry *asus_get_entry_by_keycode(int code)
+-static struct tps_key_entry *tps_get_key_by_keycode(int code)
 -{
--	struct key_entry *key;
--
--	for (key = asus_keymap; key->type != KE_END; key++)
--		if (code == key->keycode && key->type == KE_KEY)
+-	struct tps_key_entry *key;
++	/* Known non hotkey events don't handled or that we don't care yet */
++	{ KE_IGNORE, 0x8e, },
++	{ KE_IGNORE, 0x8f, },
++	{ KE_IGNORE, 0x90, },
+ 
+-	for (key = topstar_keymap; key->code; key++)
+-		if (code == key->keycode)
 -			return key;
--
++	/*
++	 * 'G key' generate two event codes, convert to only
++	 * one event/key code for now, consider replacing by
++	 * a switch (3G switch - SW_3G?)
++	 */
++	{ KE_KEY, 0x96, { KEY_F14 } },
++	{ KE_KEY, 0x97, { KEY_F14 } },
+ 
 -	return NULL;
 -}
++	{ KE_END, 0 }
++};
+ 
+ static void acpi_topstar_notify(struct acpi_device *device, u32 event)
+ {
+-	struct tps_key_entry *key;
+ 	static bool dup_evnt[2];
+ 	bool *dup;
+ 	struct topstar_hkey *hkey = acpi_driver_data(device);
+@@ -85,27 +71,8 @@ static void acpi_topstar_notify(struct acpi_device *device, u32 event)
+ 		*dup = true;
+ 	}
+ 
+-	/*
+-	 * 'G key' generate two event codes, convert to only
+-	 * one event/key code for now (3G switch?)
+-	 */
+-	if (event == 0x97)
+-		event = 0x96;
 -
--static int asus_getkeycode(struct input_dev *dev, int scancode, int *keycode)
--{
--	struct key_entry *key = asus_get_entry_by_scancode(scancode);
--
--	if (key && key->type == KE_KEY) {
--		*keycode = key->keycode;
--		return 0;
+-	key = tps_get_key_by_scancode(event);
+-	if (key) {
+-		input_report_key(hkey->inputdev, key->keycode, 1);
+-		input_sync(hkey->inputdev);
+-		input_report_key(hkey->inputdev, key->keycode, 0);
+-		input_sync(hkey->inputdev);
+-		return;
 -	}
 -
--	return -EINVAL;
+-	/* Known non hotkey events don't handled or that we don't care yet */
+-	if (event == 0x8e || event == 0x8f || event == 0x90)
+-		return;
+-
+-	pr_info("unknown event = 0x%02x\n", event);
++	if (!sparse_keymap_report_event(hkey->inputdev, event, 1, true))
++		pr_info("unknown event = 0x%02x\n", event);
+ }
+ 
+ static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
+@@ -126,63 +93,41 @@ static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
+ 	return 0;
+ }
+ 
+-static int topstar_getkeycode(struct input_dev *dev, int scancode, int *keycode)
+-{
+-	struct tps_key_entry *key = tps_get_key_by_scancode(scancode);
+-
+-	if (!key)
+-		return -EINVAL;
+-
+-	*keycode = key->keycode;
+-	return 0;
 -}
 -
--static int asus_setkeycode(struct input_dev *dev, int scancode, int keycode)
+-static int topstar_setkeycode(struct input_dev *dev, int scancode, int keycode)
 -{
--	struct key_entry *key;
+-	struct tps_key_entry *key;
 -	int old_keycode;
 -
 -	if (keycode < 0 || keycode > KEY_MAX)
 -		return -EINVAL;
 -
--	key = asus_get_entry_by_scancode(scancode);
--	if (key && key->type == KE_KEY) {
--		old_keycode = key->keycode;
--		key->keycode = keycode;
--		set_bit(keycode, dev->keybit);
--		if (!asus_get_entry_by_keycode(old_keycode))
--			clear_bit(old_keycode, dev->keybit);
--		return 0;
--	}
+-	key = tps_get_key_by_scancode(scancode);
 -
--	return -EINVAL;
+-	if (!key)
+-		return -EINVAL;
+-
+-	old_keycode = key->keycode;
+-	key->keycode = keycode;
+-	set_bit(keycode, dev->keybit);
+-	if (!tps_get_key_by_keycode(old_keycode))
+-		clear_bit(old_keycode, dev->keybit);
+-	return 0;
 -}
 -
- static void asus_hotk_notify(struct acpi_device *device, u32 event)
+ static int acpi_topstar_init_hkey(struct topstar_hkey *hkey)
  {
--	static struct key_entry *key;
- 	u16 count;
- 
- 	/* TODO Find a better way to handle events count. */
-@@ -948,20 +885,8 @@ static void asus_hotk_notify(struct acpi_device *device, u32 event)
- 					dev_name(&hotk->device->dev), event,
- 					count);
- 
--	if (hotk->inputdev) {
--		key = asus_get_entry_by_scancode(event);
--		if (!key)
--			return ;
--
--		switch (key->type) {
--		case KE_KEY:
--			input_report_key(hotk->inputdev, key->keycode, 1);
--			input_sync(hotk->inputdev);
--			input_report_key(hotk->inputdev, key->keycode, 0);
--			input_sync(hotk->inputdev);
--			break;
--		}
--	}
-+	if (hotk->inputdev)
-+		sparse_keymap_report_event(hotk->inputdev, event, 1, true);
- }
- 
- #define ASUS_CREATE_DEVICE_ATTR(_name)					\
-@@ -1009,7 +934,7 @@ static struct platform_driver asuspf_driver = {
- 	.driver = {
- 		   .name = ASUS_HOTK_FILE,
- 		   .owner = THIS_MODULE,
--		   }
-+	},
- };
- 
- static struct platform_device *asuspf_device;
-@@ -1184,36 +1109,41 @@ static int asus_hotk_get_info(void)
- 	return AE_OK;
- }
- 
--static int asus_input_init(void)
-+static int __init asus_input_init(void)
- {
--	const struct key_entry *key;
--	int result;
-+	struct input_dev *inputdev;
+-	struct tps_key_entry *key;
++	struct input_dev *input;
 +	int error;
  
--	hotk->inputdev = input_allocate_device();
--	if (!hotk->inputdev) {
--		pr_info("Unable to allocate input device\n");
--		return 0;
-+	inputdev = input_allocate_device();
-+	if (!inputdev) {
-+		pr_err("Unable to allocate input device\n");
+-	hkey->inputdev = input_allocate_device();
+-	if (!hkey->inputdev) {
++	input = input_allocate_device();
++	if (!input) {
+ 		pr_err("Unable to allocate input device\n");
+-		return -ENODEV;
 +		return -ENOMEM;
  	}
--	hotk->inputdev->name = "Asus Laptop extra buttons";
--	hotk->inputdev->phys = ASUS_HOTK_FILE "/input0";
--	hotk->inputdev->id.bustype = BUS_HOST;
--	hotk->inputdev->getkeycode = asus_getkeycode;
--	hotk->inputdev->setkeycode = asus_setkeycode;
--
--	for (key = asus_keymap; key->type != KE_END; key++) {
--		switch (key->type) {
--		case KE_KEY:
--			set_bit(EV_KEY, hotk->inputdev->evbit);
--			set_bit(key->keycode, hotk->inputdev->keybit);
--			break;
--		}
+-	hkey->inputdev->name = "Topstar Laptop extra buttons";
+-	hkey->inputdev->phys = "topstar/input0";
+-	hkey->inputdev->id.bustype = BUS_HOST;
+-	hkey->inputdev->getkeycode = topstar_getkeycode;
+-	hkey->inputdev->setkeycode = topstar_setkeycode;
+-	for (key = topstar_keymap; key->code; key++) {
+-		set_bit(EV_KEY, hkey->inputdev->evbit);
+-		set_bit(key->keycode, hkey->inputdev->keybit);
 +
-+	inputdev->name = "Asus Laptop extra buttons";
-+	inputdev->phys = ASUS_HOTK_FILE "/input0";
-+	inputdev->id.bustype = BUS_HOST;
++	input->name = "Topstar Laptop extra buttons";
++	input->phys = "topstar/input0";
++	input->id.bustype = BUS_HOST;
 +
-+	error = sparse_keymap_setup(inputdev, asus_keymap, NULL);
++	error = sparse_keymap_setup(input, topstar_keymap, NULL);
 +	if (error) {
 +		pr_err("Unable to setup input device keymap\n");
 +		goto err_free_dev;
  	}
--	result = input_register_device(hotk->inputdev);
--	if (result) {
--		pr_info("Unable to register input device\n");
--		input_free_device(hotk->inputdev);
+-	if (input_register_device(hkey->inputdev)) {
 +
-+	error = input_register_device(inputdev);
++	error = input_register_device(input);
 +	if (error) {
-+		pr_err("Unable to register input device\n");
+ 		pr_err("Unable to register input device\n");
+-		input_free_device(hkey->inputdev);
+-		return -ENODEV;
 +		goto err_free_keymap;
  	}
--	return result;
-+
-+	hotk->inputdev = inputdev;
-+	return 0;
+ 
++	hkey->inputdev = input;
+ 	return 0;
 +
 + err_free_keymap:
-+	sparse_keymap_free(inputdev);
++	sparse_keymap_free(input);
 + err_free_dev:
-+	input_free_device(inputdev);
++	input_free_device(input);
 +	return error;
  }
  
- static int asus_hotk_check(void)
-@@ -1338,8 +1268,10 @@ static void asus_led_exit(void)
+ static int acpi_topstar_add(struct acpi_device *device)
+@@ -216,6 +161,7 @@ static int acpi_topstar_remove(struct acpi_device *device, int type)
  
- static void asus_input_exit(void)
- {
--	if (hotk->inputdev)
-+	if (hotk->inputdev) {
-+		sparse_keymap_free(hotk->inputdev);
- 		input_unregister_device(hotk->inputdev);
-+	}
- }
+ 	acpi_topstar_fncx_switch(device, false);
  
- static void __exit asus_laptop_exit(void)
++	sparse_keymap_free(tps_hkey->inputdev);
+ 	input_unregister_device(tps_hkey->inputdev);
+ 	kfree(tps_hkey);
+ 
 

@@ -1,72 +1,79 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
-Date: Fri, 04 Dec 2009 13:59:09 +0100
-Message-ID: <871vjasxnm.fsf@macbook.be.48ers.dk>
-References: <20091203050810.GA26595@barra.bne.redhat.com>
-	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jari Vanhala <ext-jari.vanhala@nokia.com>
+Subject: [PATCH] Input: Add direction to ff-memless
+Date: Fri,  4 Dec 2009 15:05:13 +0200
+Message-ID: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f219.google.com ([209.85.219.219]:62794 "EHLO
-	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755984AbZLDM7J (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 07:59:09 -0500
-In-Reply-To: <4B1836A6.405@redhat.com> (Peter Hutterer's message of "Fri, 04
-	Dec 2009 08:07:34 +1000")
+Received: from smtp.nokia.com ([192.100.122.233]:53923 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756297AbZLDNFP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 08:05:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, ext-jari.vanhala@nokia.com
 
->>>>> "Peter" == Peter Hutterer <peter.hutterer@redhat.com> writes:
+This adds simple direction calculation to effect
+combine. It's useful to decide motor direction for
+rumble (vibrator).
 
-Hi,
+Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
+---
+ drivers/input/ff-memless.c |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
 
- Peter> it's a hack in userspace that works around wrong event
- Peter> reporting. So yes, it works if you're using evtouch but if you
- Peter> want to use any other driver that driver needs the same
- Peter> hack. treating Z as X and RX as Y doesn't work too well for a
- Peter> generic driver such as evdev, which has to deal with devices
- Peter> where RX is a valid axis.
-
-Hmm, I don't see it sending Z / RX:
-
-sudo evtest /dev/input/event12
-Input driver version is 1.0.0
-Input device ID: bus 0x3 vendor 0x1926 product 0x1 version 0x100
-Input device name: "Nextwindow Touchscreen"
-Supported events:
-  Event type 0 (Sync)
-  Event type 1 (Key)
-    Event code 272 (LeftBtn)
-    Event code 273 (RightBtn)
-    Event code 274 (MiddleBtn)
-  Event type 3 (Absolute)
-    Event code 0 (X)
-      Value      0
-      Min        0
-      Max    32767
-    Event code 1 (Y)
-      Value      0
-      Min        0
-      Max    32767
-  Event type 4 (Misc)
-    Event code 4 (ScanCode)
-Testing ... (interrupt to exit)
-
-sudo nwtool -u -i
-Version:                2.91
-Serial:                 233025
-Model:                  1900
-HW capabilities:        0x40
-Rightclick delay:       1000 ms
-Doubleclick time:       200 ms
-Report mode:            1
-Drag threshold:         500
-Buzzer time:            40 ms
-Buzzer tone:            40
-Calibration key:        4
-Calibration presses:    3
-
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index 2d1415e..9af009a 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -221,6 +221,14 @@ static int get_compatible_type(struct ff_device *ff, int effect_type)
+ 	return 0;
+ }
+ 
++static unsigned int ml_calculate_direction(
++	unsigned int direction, unsigned int force,
++	unsigned int new_direction, unsigned int new_force)
++{
++	return ((u32)direction * force + new_direction * new_force) /
++		(force + new_force);
++}
++
+ /*
+  * Combine two effects and apply gain.
+  */
+@@ -255,6 +263,19 @@ static void ml_combine_effects(struct ff_effect *effect,
+ 	case FF_RUMBLE:
+ 		strong = new->u.rumble.strong_magnitude * gain / 0xffff;
+ 		weak = new->u.rumble.weak_magnitude * gain / 0xffff;
++
++		if (effect->u.rumble.strong_magnitude + strong)
++			effect->direction = ml_calculate_direction(
++				effect->direction,
++				effect->u.rumble.strong_magnitude,
++				new->direction, strong);
++		else if (effect->u.rumble.weak_magnitude + weak)
++			effect->direction = ml_calculate_direction(
++				effect->direction,
++				effect->u.rumble.weak_magnitude,
++				new->direction, weak);
++		else
++			effect->direction = 0;
+ 		effect->u.rumble.strong_magnitude =
+ 			min(strong + effect->u.rumble.strong_magnitude,
+ 			    0xffffU);
+@@ -269,6 +290,13 @@ static void ml_combine_effects(struct ff_effect *effect,
+ 		/* here we also scale it 0x7fff => 0xffff */
+ 		i = i * gain / 0x7fff;
+ 
++		if (effect->u.rumble.strong_magnitude + i)
++			effect->direction = ml_calculate_direction(
++				effect->direction,
++				effect->u.rumble.strong_magnitude,
++				new->direction, i);
++		else
++			effect->direction = 0;
+ 		effect->u.rumble.strong_magnitude =
+ 			min(i + effect->u.rumble.strong_magnitude, 0xffffU);
+ 		effect->u.rumble.weak_magnitude =
 -- 
-Bye, Peter Korsgaard
+1.6.3.3
+

@@ -1,79 +1,38 @@
 From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: [PATCH] Input: Add direction to ff-memless
-Date: Fri,  4 Dec 2009 15:05:13 +0200
-Message-ID: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
+Subject: [PATCH] Input: Force Feedback core memory leak
+Date: Fri,  4 Dec 2009 15:05:14 +0200
+Message-ID: <1259931914-6228-2-git-send-email-ext-jari.vanhala@nokia.com>
+References: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:53923 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756297AbZLDNFP (ORCPT
+Received: from smtp.nokia.com ([192.100.105.134]:60134 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756285AbZLDNFP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Dec 2009 08:05:15 -0500
+In-Reply-To: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, ext-jari.vanhala@nokia.com
 
-This adds simple direction calculation to effect
-combine. It's useful to decide motor direction for
-rumble (vibrator).
+Effects is allocated, but not freed anywhere.
 
 Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
 ---
- drivers/input/ff-memless.c |   28 ++++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+), 0 deletions(-)
+ drivers/input/ff-core.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index 2d1415e..9af009a 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -221,6 +221,14 @@ static int get_compatible_type(struct ff_device *ff, int effect_type)
- 	return 0;
- }
- 
-+static unsigned int ml_calculate_direction(
-+	unsigned int direction, unsigned int force,
-+	unsigned int new_direction, unsigned int new_force)
-+{
-+	return ((u32)direction * force + new_direction * new_force) /
-+		(force + new_force);
-+}
-+
- /*
-  * Combine two effects and apply gain.
-  */
-@@ -255,6 +263,19 @@ static void ml_combine_effects(struct ff_effect *effect,
- 	case FF_RUMBLE:
- 		strong = new->u.rumble.strong_magnitude * gain / 0xffff;
- 		weak = new->u.rumble.weak_magnitude * gain / 0xffff;
-+
-+		if (effect->u.rumble.strong_magnitude + strong)
-+			effect->direction = ml_calculate_direction(
-+				effect->direction,
-+				effect->u.rumble.strong_magnitude,
-+				new->direction, strong);
-+		else if (effect->u.rumble.weak_magnitude + weak)
-+			effect->direction = ml_calculate_direction(
-+				effect->direction,
-+				effect->u.rumble.weak_magnitude,
-+				new->direction, weak);
-+		else
-+			effect->direction = 0;
- 		effect->u.rumble.strong_magnitude =
- 			min(strong + effect->u.rumble.strong_magnitude,
- 			    0xffffU);
-@@ -269,6 +290,13 @@ static void ml_combine_effects(struct ff_effect *effect,
- 		/* here we also scale it 0x7fff => 0xffff */
- 		i = i * gain / 0x7fff;
- 
-+		if (effect->u.rumble.strong_magnitude + i)
-+			effect->direction = ml_calculate_direction(
-+				effect->direction,
-+				effect->u.rumble.strong_magnitude,
-+				new->direction, i);
-+		else
-+			effect->direction = 0;
- 		effect->u.rumble.strong_magnitude =
- 			min(i + effect->u.rumble.strong_magnitude, 0xffffU);
- 		effect->u.rumble.weak_magnitude =
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index 3d7816c..d310a97 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -367,6 +367,7 @@ void input_ff_destroy(struct input_dev *dev)
+ 		if (dev->ff->destroy)
+ 			dev->ff->destroy(dev->ff);
+ 		kfree(dev->ff->private);
++		kfree(dev->ff->effects);
+ 		kfree(dev->ff);
+ 		dev->ff = NULL;
+ 	}
 -- 
 1.6.3.3
 

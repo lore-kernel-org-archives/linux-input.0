@@ -1,59 +1,98 @@
-From: Guus Sliepen <guus@sliepen.org>
-Subject: Re: [RFC v2] Another approach to IR
-Date: Sat, 5 Dec 2009 12:23:53 +0100
-Message-ID: <20091205112353.GQ2970@sliepen.org>
-References: <20091203194736.GM2970@sliepen.org>
- <4B183372.30104@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vS2hnRoLMmJ4tslQ"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 234-166.surfsnel.dsl.internl.net ([145.99.166.234]:24429 "EHLO
-	sliepen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754131AbZLELXw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Dec 2009 06:23:52 -0500
-Content-Disposition: inline
-In-Reply-To: <4B183372.30104@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Cory Maccarrone <darkstar6262@gmail.com>
+Subject: [PATCH] Input: gpio-keys: Support for one-directional interrupts
+Date: Sat,  5 Dec 2009 14:38:14 -0800
+Message-ID: <1260052694-17223-1-git-send-email-darkstar6262@gmail.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+Cc: Cory Maccarrone <darkstar6262@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, linux-input@vger.kernel.org
 
+The current gpio-keys driver assumes that each given GPIO has
+the ability to respond to both rising and falling interrupts
+at the same time.  For some GPIOs on certain devices, the interrupt
+is only one-directional -- either rising or falling, depending on
+what's being listened for.  In particular, the HTC Herald keyboard
+slide switch interrupt must be switched from rising to falling and
+back on each event, otherwise only one transition will be detected.
 
---vS2hnRoLMmJ4tslQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This change adds a new entry to the gpio_keys_button structure to
+allow for this condition to be specified in board configurations.
+When set, the driver detects the current state of the GPIO and sets
+the direction of the interrupt accordingly.  Then, on each event,
+the interrupt direction is switched.
 
-On Thu, Dec 03, 2009 at 04:53:54PM -0500, Jarod Wilson wrote:
+Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   27 +++++++++++++++++++++++----
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 24 insertions(+), 4 deletions(-)
 
-> >Some years ago I wrote a tool called "inputlirc" that translates evdev e=
-vents
-> >into LIRC events,
-[...]
-> No longer necessary, there's a proper devinput lircd userspace
-> driver that when paired with an lircd.conf (auto-generated based on
-> linux/input.h) Just Works.
->=20
-> http://lirc.sourceforge.net/remotes/devinput/lircd.conf.devinput
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 77d1309..05c599a 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -45,7 +45,18 @@ static void gpio_keys_report_event(struct work_struct *work)
+ 	struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
+ 	unsigned int type = button->type ?: EV_KEY;
+-	int state = (gpio_get_value(button->gpio) ? 1 : 0) ^ button->active_low;
++	int state = gpio_get_value(button->gpio) ? 1 : 0;
++
++	/* If the hardware can't do both edges, set the appropriate
++	 * interrupt control */
++	if (button->not_both_edges) {
++		if (state)
++			set_irq_type(gpio_to_irq(button->gpio), IRQ_TYPE_EDGE_FALLING);
++		else
++			set_irq_type(gpio_to_irq(button->gpio), IRQ_TYPE_EDGE_RISING);
++	}
++
++	state ^= button->active_low;
+ 
+ 	input_event(input, type, button->code, !!state);
+ 	input_sync(input);
+@@ -79,7 +90,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct gpio_keys_drvdata *ddata;
+ 	struct input_dev *input;
+-	int i, error;
++	int i, error, trigger;
+ 	int wakeup = 0;
+ 
+ 	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
+@@ -146,9 +157,17 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 			goto fail2;
+ 		}
+ 
++		if (button->not_both_edges) {
++			if (gpio_get_value(button->gpio))
++				trigger = IRQF_TRIGGER_FALLING;
++			else
++				trigger = IRQF_TRIGGER_RISING;
++		} else {
++			trigger = IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING;
++		}
++
+ 		error = request_irq(irq, gpio_keys_isr,
+-				    IRQF_SHARED |
+-				    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++				    IRQF_SHARED | trigger,
+ 				    button->desc ? button->desc : "gpio_keys",
+ 				    bdata);
+ 		if (error) {
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 1289fa7..493426d 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -10,6 +10,7 @@ struct gpio_keys_button {
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
+ 	int debounce_interval;	/* debounce ticks interval in msecs */
++	int not_both_edges;	/* some hardware can't do interrupts on both edges */
+ };
+ 
+ struct gpio_keys_platform_data {
+-- 
+1.6.3.3
 
-Ah, great, I can retire inputlirc then.
-
---=20
-Met vriendelijke groet / with kind regards,
-      Guus Sliepen <guus@sliepen.org>
-
---vS2hnRoLMmJ4tslQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAksaQsgACgkQAxLow12M2nuDCwCff+HYrnpHNytDnZJyN74F67Fw
-LcEAoI08OIjUS3wZ8txvVndBDMF5KRcQ
-=WV5o
------END PGP SIGNATURE-----
-
---vS2hnRoLMmJ4tslQ--

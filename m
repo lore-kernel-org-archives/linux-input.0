@@ -1,61 +1,65 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: [RFC] HID and multitouch
-Date: Sun, 6 Dec 2009 11:58:18 +0100
-Message-ID: <95A5C232-DB80-4186-B473-0D2593E57691@enac.fr>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:44084 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933642AbZLFLGN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 06:06:13 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Sun, 06 Dec 2009 09:23:02 -0200
+Message-ID: <4B1B9416.809@redhat.com>
+References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com> <20091203175531.GB776@core.coreip.homeip.net> <20091203163328.613699e5@pedra> <20091204100642.GD22570@core.coreip.homeip.net> <20091204121234.5144836b@pedra> <20091206071450.GC14651@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933707AbZLFLXM@vger.kernel.org>
+In-Reply-To: <20091206071450.GC14651@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Rafi Rubin <rafi@seas.upenn.edu>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Dear Jiri,
+Dmitry Torokhov wrote:
+> On Fri, Dec 04, 2009 at 12:12:34PM -0200, Mauro Carvalho Chehab wrote:
+>>> How related lirc-core to the current lirc code? If it is not the same
+>>> maybe we should not call it lirc to avoid confusion.
+>> Just for better illustrate what I'm seeing, I broke the IR generic
+>> code into two components:
+>>
+>> 	lirc core - the module that receives raw pulse/space and creates
+>> 		    a device to receive raw API pulse/space events;
+>>
+>> 	IR core - the module that receives scancodes, convert them into
+>> 		  keycodes and send via evdev interface.
+>>
+>> We may change latter the nomenclature, but I'm seeing the core as two different
+>> modules, since there are cases where lirc core won't be used (those
+>> devices were there's no way to get pulse/space events).
+>>
+> 
+> OK, I think we are close but not exactly close. I believe that what you
+> call lirc core will be used always - it is the code that create3s class
+> devices, connectes decorers with the data streams, etc. I believe it
+> will be utilized even in case of devices using hardware decoders. That
+> is why we should probably stop calling it "lirc core" just tso we don't
+> confuse it with original lirc.
+> 
+> Then we have decoders and lirc_dev - which implements original lirc
+> interface (or maybe its modified version) and allows lircd to continue
+> working.
+> 
+> Lastly we have what you call IR core which is IR-to-input bridge of
+> sorts.
 
-over the last few months I have been working on HID quirks for a =20
-bunch of multitouch devices: NTrig, two flavours of Stantum devices, =20
-3M, Acer T230H. For each of these I have working code, which I should =20
-be able to submit real soon now.
+It seems to be just nomenclacure ;)
 
-However, people are asking me questions about why a specific driver =20
-is needed for each device. Answers are starting to emerge, and it =20
-looks like they might lead to some work on the Linux HID code itself:
+what I called "IR core" you called "lirc core"
+what I called "lirc core" you called "lirc_dev"
 
-- the one-to-one mapping between HID and evdev is stretched to its =20
-limits with these devices that have several times the same group of =20
-HID fields in the same event: an event is made of fingers, each =20
-finger is made of an X, a Y and a few other fields. We need a =20
-mechanism to emit SYN_MT_REPORT between fingers.
+What I called IR core is the one that will be used by every IR driver, handling
+sysfs, evdev's, calling decoders, etc.
 
-- furthermore, some fingers have to be discarded because they are =20
-placeholders with no valid data, and we know if to dump them only =20
-when they have been fully parsed. Therefore, we need a mechanism to =20
-cache finger data until the decision is made. Currently, the caching =20
-mechanism has to be device-dependent because the fields are not =20
-exactly the same and they come in a device-dependent order.
+I opted to use the nomenclature Lirc to the part of the IR subsystem that
+will create the Lirc interface.
 
-- for all these devices, it is very tempting to have a touchscreen =20
-emulation so as to use them with existing software (X.org, =20
-particularly). Rafi and I share the idea that this should be done by =20
-creating two evdev nodes: a backward-compatible touchscreen, and a =20
-multitouch one. Most of the corresponding code could be shared among =20
-drivers. However, the algorithm for producing the touchscreen events =20
-differs from one device to another and we need to support this.
+Currently, I almost finished the evdev part of the "IR core", using the current
+API to control the dynamic keycode allocation. It is already working fine with
+V4L drivers.
 
-
-Any opinions or suggestions?
-
-Cheers
-
-St=E9phane
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Mauro.

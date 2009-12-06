@@ -1,58 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Sat, 5 Dec 2009 23:14:50 -0800
-Message-ID: <20091206071450.GC14651@core.coreip.homeip.net>
-References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com> <20091203175531.GB776@core.coreip.homeip.net> <20091203163328.613699e5@pedra> <20091204100642.GD22570@core.coreip.homeip.net> <20091204121234.5144836b@pedra>
+Subject: Re: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Sat, 5 Dec 2009 23:17:52 -0800
+Message-ID: <20091206071751.GD14651@core.coreip.homeip.net>
+References: <1259826317-18809-27-git-send-email-corentincj@iksaif.net> <1259826317-18809-28-git-send-email-corentincj@iksaif.net> <1259826317-18809-29-git-send-email-corentincj@iksaif.net> <1259826317-18809-30-git-send-email-corentincj@iksaif.net> <1259826317-18809-31-git-send-email-corentincj@iksaif.net> <1259826317-18809-32-git-send-email-corentincj@iksaif.net> <1259826317-18809-33-git-send-email-corentincj@iksaif.net> <20091203075404.GK9121@core.coreip.homeip.net> <71cd59b00912030012r2f45f474u37c494ad281230cb@mail.gmail.com> <20091206065829.GI5340@wrars-comp.wrarsdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f171.google.com ([209.85.223.171]:38212 "EHLO
-	mail-iw0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932078AbZLFHOs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 02:14:48 -0500
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20091204121234.5144836b@pedra>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20091206065829.GI5340@wrars-comp.wrarsdomain>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andrey Rahmatullin <wrar@altlinux.org>
+Cc: Corentin Chary <corentin.chary@gmail.com>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Fri, Dec 04, 2009 at 12:12:34PM -0200, Mauro Carvalho Chehab wrote:
-> > >
-> > 
-> > How related lirc-core to the current lirc code? If it is not the same
-> > maybe we should not call it lirc to avoid confusion.
-> 
-> Just for better illustrate what I'm seeing, I broke the IR generic
-> code into two components:
-> 
-> 	lirc core - the module that receives raw pulse/space and creates
-> 		    a device to receive raw API pulse/space events;
-> 
-> 	IR core - the module that receives scancodes, convert them into
-> 		  keycodes and send via evdev interface.
-> 
-> We may change latter the nomenclature, but I'm seeing the core as two different
-> modules, since there are cases where lirc core won't be used (those
-> devices were there's no way to get pulse/space events).
+On Sun, Dec 06, 2009 at 11:58:29AM +0500, Andrey Rahmatullin wrote:
+> On Thu, Dec 03, 2009 at 09:12:52AM +0100, Corentin Chary wrote:
+> > >> This keycode could be used in a lot of platform specific drivers.
+> > >> For example, on Asus laptops, Fn+F2 allow to cycle trought wireless
+> > >> drivers (bt/wl: off/off, on/off, off/on, on/on).
+> > >>
+> > >> Currently, these key are mapped to KEY_WLAN, and KEY_BLUETOOTH/KEY_WIMAX
+> > >> are rarely used.
+> > > Is there any application support for such cycling? IOW does anyone cares
+> > > to do such cycling?
+> > On Asus laptops (both asus and eeepc) the Fn+F2 key cycle
+> > (bluetooth/wlan: on/on, on/off, off/on, off/off) on windows.
+> > On Linux, it only produces a KEY_WLAN keycode.
+> Default eee901's Xandros cycles and even shows an OSD with BT and WLAN
+> state images.
 > 
 
-OK, I think we are close but not exactly close. I believe that what you
-call lirc core will be used always - it is the code that create3s class
-devices, connectes decorers with the data streams, etc. I believe it
-will be utilized even in case of devices using hardware decoders. That
-is why we should probably stop calling it "lirc core" just tso we don't
-confuse it with original lirc.
+You are describing the visible result. Whether it is done as a custom
+policy to KEY_WLAN presses or utilizes a separate key definition - is
+not known.
 
-Then we have decoders and lirc_dev - which implements original lirc
-interface (or maybe its modified version) and allows lircd to continue
-working.
-
-Lastly we have what you call IR core which is IR-to-input bridge of
-sorts.
-
-Right?
+Anyway, we got the response form wireless developers and infrastructure
+people and thyy do not care about having a new defintion so I guess that
+settles it.
 
 -- 
 Dmitry

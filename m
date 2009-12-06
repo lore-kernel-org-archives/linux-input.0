@@ -1,92 +1,43 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Sun, 6 Dec 2009 11:38:55 -0500
-Message-ID: <9e4733910912060838j29f107cpd827e2d7b8a20c1c@mail.gmail.com>
-References: <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
-	 <BENh5lRHqgB@lirc>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: Sun, 06 Dec 2009 18:26:40 +0100
+Message-ID: <m3aaxw6mjz.fsf@intrepid.localdomain>
+References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc>
+	<9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
+	<1259977687.27969.18.camel@localhost>
+	<9e4733910912041945g14732dcfgbb2ef6437ef62bb6@mail.gmail.com>
+	<1260066624.3105.33.camel@palomino.walls.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:2812 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932753AbZLFQit convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 11:38:49 -0500
-In-Reply-To: <BENh5lRHqgB@lirc>
+Received: from khc.piap.pl ([195.187.100.11]:53474 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756650AbZLFR0h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 Dec 2009 12:26:37 -0500
+In-Reply-To: <1260066624.3105.33.camel@palomino.walls.org> (Andy Walls's
+	message of "Sat, 05 Dec 2009 21:30:24 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Andy Walls <awalls@radix.net>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-On Sun, Dec 6, 2009 at 7:12 AM, Christoph Bartelmus <lirc@bartelmus.de>=
- wrote:
-> Hi Jon,
+Andy Walls <awalls@radix.net> writes:
+
+> Yes, I agree.  I do not know what percentage of current Linux users are
+> technical vs non-technical, so I cannot gauge the current improtance.
 >
-> on 04 Dec 09 at 19:28, Jon Smirl wrote:
->>> BTW, I just came across a XMP remote that seems to generate 3x64 bi=
-t
->>> scan codes. Anyone here has docs on the XMP protocol?
->>
->> Assuming a general purpose receiver (not one with fixed hardware
->> decoding), is it important for Linux to receive IR signals from all
->> possible remotes no matter how old or obscure? Or is it acceptable t=
-o
-> [...]
->> Of course transmitting is a completely different problem, but we
->> haven't been talking about transmitting. I can see how we would need
->> to record any IR protocol in order to retransmit it. But that's in t=
-he
->> 5% of users world, not the 90% that want MythTV to "just work". =A0U=
-se
->> something like LIRC if you want to transmit.
->
-> I don't think anyone here is in the position to be able to tell what =
-is
-> 90% or 5%. Personally I use LIRC exclusively for transmit to my setto=
-p box
-> using an old and obscure RECS80 protocol.
-> No, I won't replace my setup just because it's old and obscure.
+> I can see the trend line though: as time goes by, the percentage of all
+> linux users that have a technical bent will only get smaller.
 
-There are two groups, technically oriented people who can handle
-messing around with IR protocols and everyone else.  I'm not proposing
-to remove any capabilities from the first group. Instead I'd like to
-see the creation of a "just works" option for the other group. We
-don't know the size of the everyone else group yet because that option
-doesn't exist. In general non-technical people way out number the
-technical ones in broad user bases. For example I had to use LIRC to
-get my remotes working, but I would have rather been in the everyone
-else group and not had to learn about IR.
+This IMHO shouldn't matter. If users can configure their keymaps for
+e.g. games with a graphical utility (and  they easily can), they can do
+the same with their remotes, at least with these using common sane
+protocols. The only thing needed is a good GUI utility. Ergo - it's not
+a kernel issue.
 
-> Cable companies tend to provide XMP based boxes to subscribers more o=
-ften
-> these days. Simply not supporting these setups is a no-go for me.
-
-I suspect what we categorize as "just works" will expand over time.
-The in-kernel support can start small and add protocols and maps over
-time. Support for XMP can start in LIRC and migrate into the kernel
-after we fully understand the protocol and know that enough people are
-using it to justify the effort of maintaining it in-kernel.  Adding
-in-kernel support for a protocol is not going to make LIRC disappear.
-
-The critical part is getting the initial design of the in-kernel IR
-system right. That design is very hard to change after it gets into
-everyone's systems and apps start depending on it. Writing up use
-cases, modular protocols, figuring out how many bits are needed in
-fields, how are maps written, can they be autoloaded, transmitting,
-etc, etc. These are the important things to be discussing. LIRC users
-obviously have a lot of knowledge in this area to contribute.
-
-PS - another area we need to be thinking about is radio remotes like
-the new RF4CE devices. The button presses from these remotes will come
-in on the 802.15.4 networking stack and need to get routed into the
-input subsystem somehow.
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The "default bundled", or PnP, won't work well in comparison to a GUI
+utility, I wouldn't worry about it too much (though adding it to udev
+and co is trivial and we should do it - even if not PnP but asking first
+about the actual remote used).
+-- 
+Krzysztof Halasa

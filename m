@@ -1,58 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
 	IR  system?
-Date: Sat, 5 Dec 2009 22:55:12 -0800
-Message-ID: <20091206065512.GA14651@core.coreip.homeip.net>
-References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc> <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com> <1260070593.3236.6.camel@pc07.localdom.local>
+Date: Sat, 5 Dec 2009 23:09:29 -0800
+Message-ID: <20091206070929.GB14651@core.coreip.homeip.net>
+References: <BDodf9W1qgB@lirc> <4B14EDE3.5050201@redhat.com> <4B1524DD.3080708@redhat.com> <4B153617.8070608@redhat.com> <A6D5FF84-2DB8-4543-ACCB-287305CA0739@wilsonet.com> <4B17AA6A.9060702@redhat.com> <20091203175531.GB776@core.coreip.homeip.net> <20091203163328.613699e5@pedra> <20091204100642.GD22570@core.coreip.homeip.net> <20091204121234.5144836b@pedra>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f187.google.com ([209.85.210.187]:53796 "EHLO
+	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753179AbZLFHJ2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 02:09:28 -0500
 Content-Disposition: inline
-In-Reply-To: <1260070593.3236.6.camel@pc07.localdom.local>
-Sender: linux-media-owner@vger.kernel.org
-To: hermann pitton <hermann-pitton@arcor.de>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+In-Reply-To: <20091204121234.5144836b@pedra>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jonsmirl@gmail.com, khc@pm.waw.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Hi,
-
-On Sun, Dec 06, 2009 at 04:36:33AM +0100, hermann pitton wrote:
-> Hi,
+On Fri, Dec 04, 2009 at 12:12:34PM -0200, Mauro Carvalho Chehab wrote:
+> Em Fri, 4 Dec 2009 02:06:42 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
 > 
-> Am Freitag, den 04.12.2009, 19:28 -0500 schrieb Jon Smirl:
-> > On Fri, Dec 4, 2009 at 6:01 PM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
-> > > BTW, I just came across a XMP remote that seems to generate 3x64 bit scan
-> > > codes. Anyone here has docs on the XMP protocol?
+> > > 
 > > 
-> > Assuming a general purpose receiver (not one with fixed hardware
-> > decoding), is it important for Linux to receive IR signals from all
-> > possible remotes no matter how old or obscure? Or is it acceptable to
-> > tell the user to throw away their dedicated remote and buy a universal
-> > multi-function one?  Universal multi-function remotes are $12 in my
-> > grocery store - I don't even have to go to an electronics store.
+> > evdev does not really care what you use as scancode. So nobody stops
+> > your driver to report index as a scancode and accept index from the
+> > ioctl. The true "scancode" will thus be competely hidden from userspace.
+> > In fact a few drivers do just that.
 > 
-> finally we have some point here, IMHO, that is not acceptable and I told
-> you previously not to bet on such. Start some poll and win it, and I'll
-> shut up :)
+> Let me better express here. It is all about how we'll expand the limits of those
+> ioctls to fulfill the needs.
+> 
+> The point is that we'll have, let's say something like to 50-500 scancode/keycode tuples
+> sparsely spread into a 2^64 scancode universe (assuming 64 bits - Not sure if is there any
+> IR protocol/code with a bigger scancode).
+> 
+> On such universe if we want to get all keycodes with the current ioctls for a scancode in
+> the range of 32 bits, we need to do something like:
+> 
+> u32 code;
+> int codes[2];
+> for (code = 0; code <= (unsigned u32) - 1; code++) {
+> 	codes[0] = (int)code;
+> 	if (!ioctl(fd, EVIOCGKEYCODE, codes))
+> 		printf("scancode 0x%08x = keycode 0x%08x\n", codes[0], codes[1]);
+> }
+> 
+> So, on the 32 bits case, we'll do about 4 billions calls to EVIOGKEYCODE ioctl to
+> read the complete scancode space, to get those 50-500 useful codes.
+>
+
+Right, currently there is no need to query all scancodes defined by
+device. Quite often drivers don't even know what scancodes device
+actually generates (ex AT keyboard).
+
+Could you describe in more detail how you are using this data?
+
+> 
+> Due to the current API limit, we don't have any way to use the full 64bits space for scancodes.
 > 
 
-Who would participate in the poll though?
+Can we probably reduce the "scancode" space? ARe all 64 bits in
+protocols used to represent keypresses or some are used for some kind of
+addressing?
 
-> To be frank, you are quite mad at this point, or deliver working other
-> remotes to __all__ for free.
+> if we use code[0] as an index, this means that we'll need to share the 32 bits on code[1]
+> for scancode/keycode. Even using an 32 bits integer for keycode, it is currently limited to:
+> 
+> #define KEY_MAX                 0x2ff
+> #define KEY_CNT                 (KEY_MAX+1)
+> 
+> So, we have 10 bits already used for keycode. This gives only 22 bits for scancodes, if we share
+> codes[1] for both keycode/scancode. By sharing the 32 bits, we'll need to be care to not extend
+> KEY_MAX to be bigger than 0x3ff, otherwise the keytable won't be able to represent all keys of the
+> key universe.
+> 
+> What is need for this case is that the arguments for get key/set key to be something like:
+> 
+> struct {
+> 	u16	index;
+> 	u64	scancode;
+> 	u32	keycode;
+> };
 > 
 
-I do not believe you are being realistic. Sometimes we just need to say
-that the device is a POS and is just not worth it. Remember, there is
-still "lirc hole" for the hard core people still using solder to produce
-something out of the spare electronic components that may be made to
-work (never mind that it causes the CPU constantly poll the device, not
-letting it sleep and wasting electricity as a result - just hypotetical
-example here).
+Hmm, so what is this index? I am confused...
 
-We still need to do cost-benefit analysis and decide whether supporting
-the exotic setups _in kernel_ makes sense if it encumbers implementation
-and causes issues to the other 95% people.
+Thanks.
 
 -- 
 Dmitry

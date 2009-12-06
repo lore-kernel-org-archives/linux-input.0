@@ -1,50 +1,58 @@
-From: hermann pitton <hermann-pitton@arcor.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
 	IR  system?
-Date: Sun, 06 Dec 2009 04:36:33 +0100
-Message-ID: <1260070593.3236.6.camel@pc07.localdom.local>
-References: <20091204220708.GD25669@core.coreip.homeip.net>
-	 <BEJgSGGXqgB@lirc>
-	 <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
+Date: Sat, 5 Dec 2009 22:55:12 -0800
+Message-ID: <20091206065512.GA14651@core.coreip.homeip.net>
+References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc> <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com> <1260070593.3236.6.camel@pc07.localdom.local>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-17.arcor-online.net ([151.189.21.57]:38504 "EHLO
-	mail-in-17.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758027AbZLFDis (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Dec 2009 22:38:48 -0500
-In-Reply-To: <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1260070593.3236.6.camel@pc07.localdom.local>
+Sender: linux-media-owner@vger.kernel.org
+To: hermann pitton <hermann-pitton@arcor.de>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
 Hi,
 
-Am Freitag, den 04.12.2009, 19:28 -0500 schrieb Jon Smirl:
-> On Fri, Dec 4, 2009 at 6:01 PM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
-> > BTW, I just came across a XMP remote that seems to generate 3x64 bit scan
-> > codes. Anyone here has docs on the XMP protocol?
+On Sun, Dec 06, 2009 at 04:36:33AM +0100, hermann pitton wrote:
+> Hi,
 > 
-> Assuming a general purpose receiver (not one with fixed hardware
-> decoding), is it important for Linux to receive IR signals from all
-> possible remotes no matter how old or obscure? Or is it acceptable to
-> tell the user to throw away their dedicated remote and buy a universal
-> multi-function one?  Universal multi-function remotes are $12 in my
-> grocery store - I don't even have to go to an electronics store.
+> Am Freitag, den 04.12.2009, 19:28 -0500 schrieb Jon Smirl:
+> > On Fri, Dec 4, 2009 at 6:01 PM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
+> > > BTW, I just came across a XMP remote that seems to generate 3x64 bit scan
+> > > codes. Anyone here has docs on the XMP protocol?
+> > 
+> > Assuming a general purpose receiver (not one with fixed hardware
+> > decoding), is it important for Linux to receive IR signals from all
+> > possible remotes no matter how old or obscure? Or is it acceptable to
+> > tell the user to throw away their dedicated remote and buy a universal
+> > multi-function one?  Universal multi-function remotes are $12 in my
+> > grocery store - I don't even have to go to an electronics store.
+> 
+> finally we have some point here, IMHO, that is not acceptable and I told
+> you previously not to bet on such. Start some poll and win it, and I'll
+> shut up :)
+> 
 
-finally we have some point here, IMHO, that is not acceptable and I told
-you previously not to bet on such. Start some poll and win it, and I'll
-shut up :)
+Who would participate in the poll though?
 
-To be frank, you are quite mad at this point, or deliver working other
-remotes to __all__ for free.
+> To be frank, you are quite mad at this point, or deliver working other
+> remotes to __all__ for free.
+> 
 
-Cheers,
-Hermann
+I do not believe you are being realistic. Sometimes we just need to say
+that the device is a POS and is just not worth it. Remember, there is
+still "lirc hole" for the hard core people still using solder to produce
+something out of the spare electronic components that may be made to
+work (never mind that it causes the CPU constantly poll the device, not
+letting it sleep and wasting electricity as a result - just hypotetical
+example here).
 
+We still need to do cost-benefit analysis and decide whether supporting
+the exotic setups _in kernel_ makes sense if it encumbers implementation
+and causes issues to the other 95% people.
 
-
-
+-- 
+Dmitry

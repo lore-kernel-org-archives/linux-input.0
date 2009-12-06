@@ -1,59 +1,42 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
-	specify exact irq flags
-Date: Sun, 6 Dec 2009 09:47:04 +0100
-Message-ID: <20091206084704.GC2766@ucw.cz>
-References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: Sun, 06 Dec 2009 21:34:26 +0100
+Message-ID: <m3skbn6dv1.fsf@intrepid.localdomain>
+References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc>
+	<9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
+	<1260070593.3236.6.camel@pc07.localdom.local>
+	<20091206065512.GA14651@core.coreip.homeip.net>
+	<4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>
+	<9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:45574 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757539AbZLFU0X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 15:26:23 -0500
-Content-Disposition: inline
-In-Reply-To: <87einfltp3.fsf@tac.ki.iif.hu>
+Received: from khc.piap.pl ([195.187.100.11]:34232 "EHLO khc.piap.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757824AbZLFUeX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 Dec 2009 15:34:23 -0500
+In-Reply-To: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	(Jon Smirl's message of "Sun, 6 Dec 2009 12:52:11 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ferenc Wagner <wferi@niif.hu>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Hi!
+Jon Smirl <jonsmirl@gmail.com> writes:
 
+>> Once again: how about agreement about the LIRC interface
+>> (kernel-userspace) and merging the actual LIRC code first? In-kernel
+>> decoding can wait a bit, it doesn't change any kernel-user interface.
+>
+> I'd like to see a semi-complete design for an in-kernel IR system
+> before anything is merged from any source.
 
-> But runtime-pm.txt says for example:
-> 
->     Generally, remote wake-up should be enabled for all input devices
->     put into a low power state at run time.
-> 
-> But in this case the requirement is to suppress input events from a
-> given device, effectively muting and putting it into low power state,
-> even though it's still open by some other parties.  Runtime PM, on the
-> other hand tries not to interfere with the normal usage of the device.
-> 
-> Later:
-> 
-> (3) ->runtime_idle() and ->runtime_suspend() can only be executed for a
->     device the usage counter of which is equal to zero _and_ [...]
-> 
-> which underlines the difference again: the usage counter (defined by
-> common sense) won't be zero in our case, because the device is
-> constantly kept open, while we want to mute it, putting it into a low
-> power state. 
-...
-> Actually, this could be implemented by the various users cooperating in
-> closing the device, letting it go to sleep automatically.  But this
-> requires strictly cooperating parties and is more complicated that
-> flipping some master switch of the device.  We're looking for this
-> master switch, before needlessly building our own.
+This is a way to nowhere, there is no logical dependency between LIRC
+and input layer IR.
 
-Please just close the device properly. I do not think we want 100
-different 'please mute keys A and G', 'please mute middle mouse button',
-... interfaces anywhere near mainline.
-
-Or just do it as local patch.
-
-									Pavel
+There is only one thing which needs attention before/when merging LIRC:
+the LIRC user-kernel interface. In-kernel "IR system" is irrelevant and,
+actually, making a correct IR core design without the LIRC merged can be
+only harder.
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Krzysztof Halasa

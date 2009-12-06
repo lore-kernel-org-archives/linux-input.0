@@ -1,37 +1,69 @@
 From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 06 Dec 2009 12:59:00 +0100
-Message-ID: <BENgzeZHqgB@lirc>
-References: <20091206065512.GA14651@core.coreip.homeip.net>
+Date: 06 Dec 2009 12:58:00 +0100
+Message-ID: <BENgwLGXqgB@lirc>
+References: <20091204231527.GA3682@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.171]:56041 "EHLO
+Received: from moutng.kundenserver.de ([212.227.126.186]:57475 "EHLO
 	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751663AbZLFMC0 (ORCPT
+	with ESMTP id S1751734AbZLFMC0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Sun, 6 Dec 2009 07:02:26 -0500
-In-Reply-To: <20091206065512.GA14651@core.coreip.homeip.net>
+In-Reply-To: <20091204231527.GA3682@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
-Cc: awalls@radix.net, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Cc: awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
 Hi Dmitry,
 
-on 05 Dec 09 at 22:55, Dmitry Torokhov wrote:
+on 04 Dec 09 at 15:15, Dmitry Torokhov wrote:
 [...]
-> I do not believe you are being realistic. Sometimes we just need to say
-> that the device is a POS and is just not worth it. Remember, there is
-> still "lirc hole" for the hard core people still using solder to produce
-> something out of the spare electronic components that may be made to
-> work (never mind that it causes the CPU constantly poll the device, not
-> letting it sleep and wasting electricity as a result - just hypotetical
-> example here).
+>>>>>> http://lirc.sourceforge.net/remotes/lg/6711A20015N
+>>>>>>
+>>>>>> This is an air-conditioner remote.
+>>>>>> The entries that you see in this config file are not really separate
+>>>>>> buttons. Instead the remote just sends the current settings for e.g.
+>>>>>> temperature encoded in the protocol when you press some up/down key.
+>>>>>> You really don't want to map all possible temperature settings to KEY_*
+>>>>>> events. For such cases it would be nice to have access at the raw scan
+>>>>>> codes from user space to do interpretation of the data.
+>>>>>> The default would still be to pass the data to the input layer, but it
+>>>>>> won't hurt to have the possibility to access the raw data somehow.
+>>>>
+>>>>> Interesting. IMHO, the better would be to add an evdev ioctl to return
+>>>>> the scancode for such cases, instead of returning the keycode.
+>>>>
+>>>> That means you would have to set up a pseudo keymap, so that you can get
+>>>> the key event which you could than react on with a ioctl. Or are you
+>>>> generating KEY_UNKNOWN for every scancode that is not mapped?
+>>>> What if different scan codes are mapped to the same key event? How do you
+>>>> retrieve the scan code for the key event?
+>>>> I don't think it can work this way.
+>>>>
+>>
+>>> EV_MSC/MSC_SCAN.
+>>
+>> How would I get the 64 bit scan codes that the iMON devices generate?
+>> How would I know that the scan code is 64 bit?
+>> input_event.value is __s32.
+>>
 
-The still seems to be is a persistent misconception that the home-brewn  
-receivers need polling or cause heavy CPU load. No they don't. All of them  
-are IRQ based.
-It's the commercial solutions like gpio based IR that need polling.
-For transmitters it's a different story, but you don't transmit 24h/7.
+> I suppose we could add MSC_SCAN_END event so that we can transmit
+> "scancodes" of arbitrary length. You'd get several MSC_SCAN followed by
+> MSC_SCAN_END marker. If you don't get MSC_SCAN_END assume the code is 32
+> bit.
+
+And I set a timeout to know that no MSC_SCAN_END will arrive? This is  
+broken design IMHO.
+
+Furthermore lircd needs to know the length of the scan code in bits, not  
+as a multiple of 32.
+
+> FWIW there is MSC_RAW as well.
+
+It took me some time to convice people that this is not the right way to  
+handle raw timing data.
 
 Christoph

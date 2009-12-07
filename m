@@ -1,30 +1,45 @@
-From: Anisse Astier <anisse@astier.eu>
-Subject: Re: [PATCH 1/9] Input: add generic support for sparse keymaps
-Date: Sun, 6 Dec 2009 23:57:28 +0100
-Message-ID: <38c9179b0912061457h465b895ftbc83071c30fbefc2@mail.gmail.com>
-References: <20091204060701.28288.91430.stgit@localhost.localdomain>
-	<20091204061158.28288.17664.stgit@localhost.localdomain>
+From: Sebastian Kapfer <sebastian_kapfer@gmx.net>
+Subject: Re: [alps] Timing patch, revised again :-)
+Date: Mon, 07 Dec 2009 01:27:49 +0100
+Message-ID: <1260145669.21632.15.camel@sardelle.necksus.de>
+References: <1259513695.32495.171.camel@sardelle.necksus.de>
+	 <20091204084902.GB22570@core.coreip.homeip.net>
+	 <1259963240.27307.213.camel@sardelle.necksus.de>
+	 <200912041549.48949.dmitry.torokhov@gmail.com>
+	 <1260129237.21632.7.camel@sardelle.necksus.de>
+	 <20091206200957.GA18820@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20091204061158.28288.17664.stgit@localhost.localdomain>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, Herton Ronaldo Krzesinski <herton@mandriva.com.br>, Harald Welte <laforge@gnumonks.org>, Corentin Chary <corentincj@iksaif.net>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Wu Zhangjin <wuzhangjin@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.gmx.net ([213.165.64.20]:39024 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S932814AbZLGA1p (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 Dec 2009 19:27:45 -0500
+In-Reply-To: <20091206200957.GA18820@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Input ML <linux-input@vger.kernel.org>
+
+On So, 2009-12-06 at 12:09 -0800, Dmitry Torokhov wrote:
+> On Sun, Dec 06, 2009 at 08:53:57PM +0100, Sebastian Kapfer wrote:
+> > > 
+> >[...] 
+> > Hmm I guess we could do something like this, but IMHO it makes the code
+> > needlessly arcane.  What would be the point?  Save 3 bytes of buffer?
+> > Deliver the mouse movement a microsecond earlier?
+> 
+> No, this allows us validate the data bytes as tehy come in and probably
+> detect desync right away and resync earlier.
 
 Hi Dmitry,
 
-On Fri, Dec 4, 2009 at 07:11, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> More and more devices choose to reimplement support for sparse keymaps
-> first introduced by wistron driver. Move it into a library module so it
-> can be easily used by interested parties.
->
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-Reviewed-by: Anisse Astier <anisse@astier.eu>
-
-Regards,
+note that the resync code is disabled anyway, and the hardware gets
+reset in that case, which means losing tens of milliseconds.  (I don't
+think we have desync problems left, at least for this particular hw.)
 
 -- 
-Anisse
+Best Regards,  | Hi! I'm a .signature virus. Copy me into
+ Sebastian     | your ~/.signature to help me spread!
+

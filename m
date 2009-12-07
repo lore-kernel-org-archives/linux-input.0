@@ -1,82 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Sun, 6 Dec 2009 23:51:00 -0800
-Message-ID: <20091207075100.GB24958@core.coreip.homeip.net>
-References: <20091204231527.GA3682@core.coreip.homeip.net> <BENgwLGXqgB@lirc>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Mon, 7 Dec 2009 09:47:49 -0200
+Message-ID: <20091207114749.GD20076@khazad-dum.debian.net>
+References: <1259826317-18809-30-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-31-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-32-git-send-email-corentincj@iksaif.net>
+ <1259826317-18809-33-git-send-email-corentincj@iksaif.net>
+ <20091203075404.GK9121@core.coreip.homeip.net>
+ <71cd59b00912030012r2f45f474u37c494ad281230cb@mail.gmail.com>
+ <20091206065829.GI5340@wrars-comp.wrarsdomain>
+ <20091206071751.GD14651@core.coreip.homeip.net>
+ <71cd59b00912060021w6b9c46fem5a4da45f29d370a@mail.gmail.com>
+ <20091206145415.GA16414@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:40076 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753202AbZLGHu6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 02:50:58 -0500
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:42420 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933740AbZLGLrp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Dec 2009 06:47:45 -0500
 Content-Disposition: inline
-In-Reply-To: <BENgwLGXqgB@lirc>
+In-Reply-To: <20091206145415.GA16414@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Corentin Chary <corentin.chary@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrey Rahmatullin <wrar@altlinux.org>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, Dec 06, 2009 at 12:58:00PM +0100, Christoph Bartelmus wrote:
-> Hi Dmitry,
+On Sun, 06 Dec 2009, Matthew Garrett wrote:
+> On Sun, Dec 06, 2009 at 09:21:12AM +0100, Corentin Chary wrote:
+> > Old xandros builds use the acpi event.
+> > New builds have switched to eeepc-laptop (based on my 2.6.30
+> > backport), so they may use an input event (KEY_WLAN).
 > 
-> on 04 Dec 09 at 15:15, Dmitry Torokhov wrote:
-> [...]
-> >>>>>> http://lirc.sourceforge.net/remotes/lg/6711A20015N
-> >>>>>>
-> >>>>>> This is an air-conditioner remote.
-> >>>>>> The entries that you see in this config file are not really separate
-> >>>>>> buttons. Instead the remote just sends the current settings for e.g.
-> >>>>>> temperature encoded in the protocol when you press some up/down key.
-> >>>>>> You really don't want to map all possible temperature settings to KEY_*
-> >>>>>> events. For such cases it would be nice to have access at the raw scan
-> >>>>>> codes from user space to do interpretation of the data.
-> >>>>>> The default would still be to pass the data to the input layer, but it
-> >>>>>> won't hurt to have the possibility to access the raw data somehow.
-> >>>>
-> >>>>> Interesting. IMHO, the better would be to add an evdev ioctl to return
-> >>>>> the scancode for such cases, instead of returning the keycode.
-> >>>>
-> >>>> That means you would have to set up a pseudo keymap, so that you can get
-> >>>> the key event which you could than react on with a ioctl. Or are you
-> >>>> generating KEY_UNKNOWN for every scancode that is not mapped?
-> >>>> What if different scan codes are mapped to the same key event? How do you
-> >>>> retrieve the scan code for the key event?
-> >>>> I don't think it can work this way.
-> >>>>
-> >>
-> >>> EV_MSC/MSC_SCAN.
-> >>
-> >> How would I get the 64 bit scan codes that the iMON devices generate?
-> >> How would I know that the scan code is 64 bit?
-> >> input_event.value is __s32.
-> >>
-> 
-> > I suppose we could add MSC_SCAN_END event so that we can transmit
-> > "scancodes" of arbitrary length. You'd get several MSC_SCAN followed by
-> > MSC_SCAN_END marker. If you don't get MSC_SCAN_END assume the code is 32
-> > bit.
-> 
-> And I set a timeout to know that no MSC_SCAN_END will arrive? This is  
-> broken design IMHO.
-> 
+> Yeah. We should probably change that to KEY_RFKILL once that lands.
 
-EV_SYN signals the end of state transmission.
+Depends on what is being done in userspace to the other KEY_(radio type).
 
-> Furthermore lircd needs to know the length of the scan code in bits, not  
-> as a multiple of 32.
+What I do know, is that I will miss a keycode that rfkills just my WLAN... I
+use that for power management, it is nice to have a key that is for WLAN
+only, and another that is for bluetooth-only...
 
-I really do not think that LIRCD is the type of application that should
-be using evdev interface, but rather other way around.
-
-> 
-> > FWIW there is MSC_RAW as well.
-> 
-> It took me some time to convice people that this is not the right way to  
-> handle raw timing data.
-> 
-> Christoph
+It is a pity KEY_RFKILL is arriving too late to avoid the loss of KEY_WLAN
+(or is it?)
 
 -- 
-Dmitry
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

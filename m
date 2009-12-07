@@ -1,89 +1,90 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
-Subject: Re: [PATCH] Input: Add direction to ff-memless
-Date: Mon, 07 Dec 2009 23:16:52 +0200
-Message-ID: <4B1D70C4.9000603@iki.fi>
-References: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+	IR  system?
+Date: Mon, 7 Dec 2009 13:38:11 -0800
+Message-ID: <20091207213811.GE998@core.coreip.homeip.net>
+References: <BEJgSGGXqgB@lirc> <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com> <1260070593.3236.6.camel@pc07.localdom.local> <20091206065512.GA14651@core.coreip.homeip.net> <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <m3skbn6dv1.fsf@intrepid.localdomain> <20091207184153.GD998@core.coreip.homeip.net> <m3my1u35t2.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saarni.dnainternet.net ([83.102.40.136]:56238 "EHLO
-	saarni.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S964987AbZLGV05 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 16:26:57 -0500
-In-Reply-To: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <m3my1u35t2.fsf@intrepid.localdomain>
+Sender: linux-media-owner@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Jari Vanhala wrote:
-> This adds simple direction calculation to effect
-> combine. It's useful to decide motor direction for
-> rumble (vibrator).
-
-Interesting. None of the existing rumble drivers use the direction
-field. I assume your device has two directions for the motor?
-
-I'm somewhat suspicious if the motor direction matters at all, but I
-guess it could.
-
-> Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
-> ---
->  drivers/input/ff-memless.c |   28 ++++++++++++++++++++++++++++
->  1 files changed, 28 insertions(+), 0 deletions(-)
+On Mon, Dec 07, 2009 at 09:08:57PM +0100, Krzysztof Halasa wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 > 
-> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-> index 2d1415e..9af009a 100644
-> --- a/drivers/input/ff-memless.c
-> +++ b/drivers/input/ff-memless.c
-> @@ -221,6 +221,14 @@ static int get_compatible_type(struct ff_device *ff, int effect_type)
->  	return 0;
->  }
->  
-> +static unsigned int ml_calculate_direction(
-> +	unsigned int direction, unsigned int force,
-> +	unsigned int new_direction, unsigned int new_force)
-> +{
-> +	return ((u32)direction * force + new_direction * new_force) /
-> +		(force + new_force);
-> +}
+> >> There is only one thing which needs attention before/when merging LIRC:
+> >> the LIRC user-kernel interface. In-kernel "IR system" is irrelevant and,
+> >> actually, making a correct IR core design without the LIRC merged can be
+> >> only harder.
+> >
+> > This sounds like "merge first, think later"...
+> 
+> I'd say "merge the sane agreed and stable things first and think later
+> about improvements".
+> 
+> > The question is why we need to merge lirc interface right now, before we
+> > agreed on the sybsystem architecture?
+> 
+> Because we need the features and we can't improve something which is
+> outside the kernel. What "subsystem architecture" do you want to
+> discuss? Unrelated (input layer) interface?
+>
 
-What if direction is 0xf000 and new_direction is 0x1000? The correct
-behaviour would be to use direction 0x0000 or so, but this code would
-return 0x8000 (assuming equal forces).
+No, the IR core responsible for registering receivers and decoders.
 
->  /*
->   * Combine two effects and apply gain.
->   */
-> @@ -255,6 +263,19 @@ static void ml_combine_effects(struct ff_effect *effect,
->  	case FF_RUMBLE:
->  		strong = new->u.rumble.strong_magnitude * gain / 0xffff;
->  		weak = new->u.rumble.weak_magnitude * gain / 0xffff;
-> +
-> +		if (effect->u.rumble.strong_magnitude + strong)
-> +			effect->direction = ml_calculate_direction(
-> +				effect->direction,
-> +				effect->u.rumble.strong_magnitude,
-> +				new->direction, strong);
-> +		else if (effect->u.rumble.weak_magnitude + weak)
-> +			effect->direction = ml_calculate_direction(
-> +				effect->direction,
-> +				effect->u.rumble.weak_magnitude,
-> +				new->direction, weak);
-> +		else
-> +			effect->direction = 0;
->  		effect->u.rumble.strong_magnitude =
->  			min(strong + effect->u.rumble.strong_magnitude,
->  			    0xffffU);
+> Those are simple things. The only part which needs to be stable is the
+> (in this case LIRC) kernel-user interface.
 
-Looks ok.
+For which some questions are still open. I believe Jon just oulined some
+of them.
 
-We could also additionally carry the effect of directions into magnitude
-when summing the force vectors, so that two equal-magnitude rumbles with
-opposite directions would cancel themselves out. I'd be slightly against
-that, though, as rumble doesn't really have clear directions anyway.
-(just mentioning this in case someone thinks we should do that)
+> 
+> > Noone _in kernel_ user lirc-dev
+> > yet and, looking at the way things are shaping, no drivers will be
+> > _directly_ using it after it is complete. So, even if we merge it right
+> > away, the code will have to be restructured and reworked.
+> 
+> Sure. We do this constantly to every part of the kernel.
+
+No we do not. We do not merge something that we expect to rework almost
+completely (no, not the lirc-style device userspace inetrface, although
+even it is not completely finalized I believe, but the rest of the
+subsystem).
+
+> 
+> > Unfortunately,
+> > just merging what Jarod posted, will introduce sysfs hierarchy which
+> > is userspace interface as well (although we not as good maintaining it
+> > at times) and will add more constraints on us.
+> 
+> Then perhaps it should be skipped, leaving only the things udev needs to
+> create /dev/ entries. They don't have to be particularly stable.
+> Perhaps it should go to the staging first. We can't work with the code
+> outside the kernel, staging has not such limitation.
+
+OK, say we add this to staging as is. What is next? Who will be using
+this code that is now in staging? Do we encougrage driver's writers to
+hook into it (given that we intend on redoing it soon)? Do something
+else?
+
+> 
+> > That is why I think we should go the other way around - introduce the
+> > core which receivers could plug into and decoder framework and once it
+> > is ready register lirc-dev as one of the available decoders.
+> 
+> That means all the work has to be kept and then merged "atomically",
+> it seems there is a lack of manpower for this.
+
+No, not at all. You merge core subsystem code, then start addig
+decoders... In the meantime driver-writers could start preparing their
+drivers to plug into it.
+
+In the mean time out-of-tree LIRC can be used by consumers undisturbed.
 
 -- 
-Anssi Hannula
+Dmitry

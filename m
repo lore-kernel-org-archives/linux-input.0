@@ -1,61 +1,52 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Mon, 07 Dec 2009 13:36:41 -0200
-Message-ID: <4B1D2109.9090108@redhat.com>
-References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc>	 <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>	 <1260070593.3236.6.camel@pc07.localdom.local>	 <20091206065512.GA14651@core.coreip.homeip.net>	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH 32/33] input: add KEY_WIRELESS_CYCLE
+Date: Mon, 7 Dec 2009 15:02:57 -0200
+Message-ID: <20091207170257.GB5785@khazad-dum.debian.net>
+References: <20091203075404.GK9121@core.coreip.homeip.net>
+ <71cd59b00912030012r2f45f474u37c494ad281230cb@mail.gmail.com>
+ <20091206065829.GI5340@wrars-comp.wrarsdomain>
+ <20091206071751.GD14651@core.coreip.homeip.net>
+ <71cd59b00912060021w6b9c46fem5a4da45f29d370a@mail.gmail.com>
+ <20091206145415.GA16414@srcf.ucam.org>
+ <20091207114749.GD20076@khazad-dum.debian.net>
+ <20091207125553.GA31448@srcf.ucam.org>
+ <20091207132334.GG20076@khazad-dum.debian.net>
+ <20091207142059.GA32617@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51143 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932685AbZLGPhB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 7 Dec 2009 10:37:01 -0500
-In-Reply-To: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:56162 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S935442AbZLGRCy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Dec 2009 12:02:54 -0500
+Content-Disposition: inline
+In-Reply-To: <20091207142059.GA32617@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Corentin Chary <corentin.chary@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrey Rahmatullin <wrar@altlinux.org>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 
-Jon Smirl wrote:
-> On Sun, Dec 6, 2009 at 12:48 PM, Krzysztof Halasa <khc@pm.waw.pl> wrote:
->> Once again: how about agreement about the LIRC interface
->> (kernel-userspace) and merging the actual LIRC code first? 
+On Mon, 07 Dec 2009, Matthew Garrett wrote:
+> > That's not what I got from this thread.  What I got was that KEY_WLAN would
+> > be overloaded with KEY_RFKILL semanthics, regardless of anything we did in
+> > the kernel side.
+> 
+> No.
 
-That's fine for me.
+Good.
 
->> In-kernel
->> decoding can wait a bit, it doesn't change any kernel-user interface.
+> > And, if what we call KEY_WLAN is actually supposed to be KEY_RFKILL, swap
+> > their definitions when adding KEY_RFKILL, so that USB HID devices will
+> > generate KEY_RFKILL instead of KEY_WLAN.
+> 
+> I don't think this is in HID?
 
-This may occur in parallel, but, as we've been discussing, there are
-still some needs there that will require kernel-user interfaces.
+I don't think it is.  I wrote that along the lines of "even if that were to
+happen, there is a way to fix things properly".
 
-> I'd like to see a semi-complete design for an in-kernel IR system
-> before anything is merged from any source.
-
-There are some tasks there that are independent of any API design.
-
-For example, I'm currently doing some cleanups and improvements 
-at the existing IR in-kernel code to create a common IR core that replaces
-the already existing feature of handling 7-bits scancode/keycode table to
-use the complete scancodes found at the current in-kernel drivers.
-
-This approach works for the current drivers, as none of them currently support
-any protocol that requires more than 16 bits for scancodes. However, the
-current EVIOGKEYCODE implementation won't scale with bigger scancode spaces.
-
-This code is written to be generic enough to be used by V4L, DVB and LIRC
-drivers. So, after having this work done, it should be easy to connect the lirc_dev
-to a decoder and to this core support. There are already some in-kernel decoders
-that can be used for some protocols, but the better is to review the decoders in
-the light of lirc. I expect that the lirc decoders will be in a better shape.
-
-While I'm here, I intend also to create the sysfs bits to create sys/class/irrcv,
-as already discussed and submit the patch here for discussions.
-
-Of course, after writing different API's to control the IR tables, we'll
-need to improve it, but this depends on the results of the architecture discussions.
-
-Cheers,
-Mauro
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

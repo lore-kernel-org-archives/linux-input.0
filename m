@@ -1,90 +1,87 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Mon, 7 Dec 2009 13:38:11 -0800
-Message-ID: <20091207213811.GE998@core.coreip.homeip.net>
-References: <BEJgSGGXqgB@lirc> <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com> <1260070593.3236.6.camel@pc07.localdom.local> <20091206065512.GA14651@core.coreip.homeip.net> <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <m3skbn6dv1.fsf@intrepid.localdomain> <20091207184153.GD998@core.coreip.homeip.net> <m3my1u35t2.fsf@intrepid.localdomain>
-Mime-Version: 1.0
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 7 Dec 2009 13:19:12 -0500
+Message-ID: <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <m3k4xe7dtz.fsf@intrepid.localdomain>  <4B0E8B32.3020509@redhat.com> <1259264614.1781.47.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v1077)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <m3my1u35t2.fsf@intrepid.localdomain>
+In-Reply-To: <1259264614.1781.47.camel@localhost>
 Sender: linux-media-owner@vger.kernel.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Andy Walls <awalls@radix.net>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Dec 07, 2009 at 09:08:57PM +0100, Krzysztof Halasa wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> 
-> >> There is only one thing which needs attention before/when merging LIRC:
-> >> the LIRC user-kernel interface. In-kernel "IR system" is irrelevant and,
-> >> actually, making a correct IR core design without the LIRC merged can be
-> >> only harder.
-> >
-> > This sounds like "merge first, think later"...
-> 
-> I'd say "merge the sane agreed and stable things first and think later
-> about improvements".
-> 
-> > The question is why we need to merge lirc interface right now, before we
-> > agreed on the sybsystem architecture?
-> 
-> Because we need the features and we can't improve something which is
-> outside the kernel. What "subsystem architecture" do you want to
-> discuss? Unrelated (input layer) interface?
->
+On Nov 26, 2009, at 2:43 PM, Andy Walls wrote:
 
-No, the IR core responsible for registering receivers and decoders.
-
-> Those are simple things. The only part which needs to be stable is the
-> (in this case LIRC) kernel-user interface.
-
-For which some questions are still open. I believe Jon just oulined some
-of them.
-
+> On Thu, 2009-11-26 at 12:05 -0200, Mauro Carvalho Chehab wrote:
+>> Krzysztof Halasa wrote:
+>>> Andy Walls <awalls@radix.net> writes:
+>>> 
+>>>> I would also note that RC-6 Mode 6A, used by most MCE remotes, was
+>>>> developed by Philips, but Microsoft has some sort of licensing interest
+>>>> in it and it is almost surely encumbered somwhow:
+>>> 
+>>> I don't know about legal problems in some countries but from the
+>>> technical POV handling the protocol in the kernel is more efficient
+>>> or (/and) simpler.
+>> 
+>> A software licensing from Microsoft won't apply to Linux kernel, so I'm
+>> assuming that you're referring to some patent that they could be filled
+>> about RC6 mode 6A.
+>> 
+>> I don't know if is there any US patent pending about it (AFAIK, only US
+>> accepts software patents), but there are some prior-art for IR key
+>> decoding. So, I don't see what "innovation" RC6 would be adding. 
+>> If it is some new way to transmit waves, the patent issues
+>> aren't related to software, and the device manufacturer had already handled
+>> it when they made their devices.
+>> 
+>> If it is just a new keytable, this issue 
+>> could be easily solved by loading the keytable via userspace.
+>> 
+>> Also, assuming that you can use the driver only with a hardware that comes
+>> with a licensed software, the user has already the license for using it.
+>> 
+>> Do you have any details on what patents they are claiming?
 > 
-> > Noone _in kernel_ user lirc-dev
-> > yet and, looking at the way things are shaping, no drivers will be
-> > _directly_ using it after it is complete. So, even if we merge it right
-> > away, the code will have to be restructured and reworked.
+> The US Philips RC-6 patent is US Patent 5,877,702
 > 
-> Sure. We do this constantly to every part of the kernel.
-
-No we do not. We do not merge something that we expect to rework almost
-completely (no, not the lirc-style device userspace inetrface, although
-even it is not completely finalized I believe, but the rest of the
-subsystem).
-
+> http://www.google.com/patents?vid=USPAT5877702
 > 
-> > Unfortunately,
-> > just merging what Jarod posted, will introduce sysfs hierarchy which
-> > is userspace interface as well (although we not as good maintaining it
-> > at times) and will add more constraints on us.
+> Click on download PDF to get a copy of the whole patent.
 > 
-> Then perhaps it should be skipped, leaving only the things udev needs to
-> create /dev/ entries. They don't have to be particularly stable.
-> Perhaps it should go to the staging first. We can't work with the code
-> outside the kernel, staging has not such limitation.
-
-OK, say we add this to staging as is. What is next? Who will be using
-this code that is now in staging? Do we encougrage driver's writers to
-hook into it (given that we intend on redoing it soon)? Do something
-else?
-
+> I am not a lawyer.  Philips claims' all appear to tie to a transmitter
+> or receiver as part of a system, but most of the claims are about
+> information and bit positions and lengths.
+...
+> IMO, given
 > 
-> > That is why I think we should go the other way around - introduce the
-> > core which receivers could plug into and decoder framework and once it
-> > is ready register lirc-dev as one of the available decoders.
+> a. the dearth of public information about RC-6, indicating someone
+> thinks it's their trade secret or intellectual property
 > 
-> That means all the work has to be kept and then merged "atomically",
-> it seems there is a lack of manpower for this.
+> b. Microsoft claiming to license something related to the MCE remote
+> protocols (which are obviously RC-6 Mode 6A),
+> 
+> c. my inability to draw a "clear, bright line" that RC-6 Mode 6A
+> encoding and decoding, as needed by MCE remotes, implemented in software
+> doesn't violate anyone's government granted rights to exclusivity.
+> 
+> I think it's much better to implement software RC-6 Mode 6A encoding and
+> decoding in user space, doing only the minimum needed to get the
+> hardware setup and going in the kernel.  
+> 
+> Encoding/decoding of RC-6 by microcontrollers with firmware doesn't
+> worry me. 
+> 
+> 
+> Maybe I'm being too conservative here, but I have a personal interest in
+> keeping Linux free and unencumbered even in the US which, I cannot deny,
+> has a patent system that is screwed up.
 
-No, not at all. You merge core subsystem code, then start addig
-decoders... In the meantime driver-writers could start preparing their
-drivers to plug into it.
-
-In the mean time out-of-tree LIRC can be used by consumers undisturbed.
+So I had one of the people who does all the license and patent audits for Fedora packages look at the Philips patent on RC-6. He's 100% positive that the patent *only* covers hardware, there should be no problem whatsoever writing a software decoder for RC-6.
 
 -- 
-Dmitry
+Jarod Wilson
+jarod@wilsonet.com

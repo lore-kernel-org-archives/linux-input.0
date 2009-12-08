@@ -1,37 +1,199 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH v2 2/2] DaVinci: DM365: Add the device_enable for the DaVinci Keyscan
-Date: Mon, 07 Dec 2009 16:26:15 -0800
-Message-ID: <87aaxu5n14.fsf@deeprootsystems.com>
-References: <1258141463-24937-1-git-send-email-miguel.aguilar@ridgerun.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Mon, 7 Dec 2009 19:28:13 -0500
+Message-ID: <9e4733910912071628x3f3eba82r4c964982f9d8c5a4@mail.gmail.com>
+References: <20091204220708.GD25669@core.coreip.homeip.net>
+	 <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
+	 <1260070593.3236.6.camel@pc07.localdom.local>
+	 <20091206065512.GA14651@core.coreip.homeip.net>
+	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>
+	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <m3skbn6dv1.fsf@intrepid.localdomain>
+	 <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>
+	 <4B1D934E.7030103@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:46328 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935725AbZLHA0M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 19:26:12 -0500
-Received: by yxe17 with SMTP id 17so4462285yxe.33
-        for <linux-input@vger.kernel.org>; Mon, 07 Dec 2009 16:26:18 -0800 (PST)
-In-Reply-To: <1258141463-24937-1-git-send-email-miguel.aguilar@ridgerun.com> (miguel aguilar's message of "Fri\, 13 Nov 2009 13\:44\:23 -0600")
+Received: from mail-qy0-f192.google.com ([209.85.221.192]:64480 "EHLO
+	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964883AbZLHA2I convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 19:28:08 -0500
+In-Reply-To: <4B1D934E.7030103@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: miguel.aguilar@ridgerun.com
-Cc: davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-<miguel.aguilar@ridgerun.com> writes:
-
-> From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+On Mon, Dec 7, 2009 at 6:44 PM, Mauro Carvalho Chehab
+<mchehab@redhat.com> wrote:
+> Let me add my view for those questions.
 >
-> Adds the device_enable function to the DaVinci Keyscan platform data
-> to setup the PINMUX configuration.
+> Jon Smirl wrote:
+>> On Sun, Dec 6, 2009 at 3:34 PM, Krzysztof Halasa <khc@pm.waw.pl> wro=
+te:
+>>> Jon Smirl <jonsmirl@gmail.com> writes:
+>>>
+>>>>> Once again: how about agreement about the LIRC interface
+>>>>> (kernel-userspace) and merging the actual LIRC code first? In-ker=
+nel
+>>>>> decoding can wait a bit, it doesn't change any kernel-user interf=
+ace.
+>>>> I'd like to see a semi-complete design for an in-kernel IR system
+>>>> before anything is merged from any source.
+>>> This is a way to nowhere, there is no logical dependency between LI=
+RC
+>>> and input layer IR.
+>>>
+>>> There is only one thing which needs attention before/when merging L=
+IRC:
+>>> the LIRC user-kernel interface. In-kernel "IR system" is irrelevant=
+ and,
+>>> actually, making a correct IR core design without the LIRC merged c=
+an be
+>>> only harder.
+>>
+>> Here's a few design review questions on the LIRC drivers that were p=
+osted....
+>>
+>> How is the pulse data going to be communicated to user space?
 >
-> It also removes #ifdef from the DM365 EVM board in order to load it
-> properly as a module.
+> lirc_dev will implement a revised version of the lirc API. I'm assumi=
+ng that
+> Jarod and Christoph will do this review, in order to be sure that it =
+is stable
+> enough for kernel inclusion (as proposed by Gerd).
 >
-> Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+>> Can the pulse data be reported via an existing interface without
+>> creating a new one?
+>
+> Raw pulse data should be reported only via lirc_dev, but it can be co=
+nverted
+> into a keycode and reported via evdev as well, via an existing interf=
+ace.
+>
+>> Where is the documentation for the protocol?
+>
+> I'm not sure what you're meaning here. I've started a doc about IR at=
+ the media
 
-This looks good to me.  Will queue when I hear whether driver change
-is queued.
+What is the format of the pulse stream data coming out of the lirc devi=
+ce?
 
-Kevin
+> docbook. This is currently inside the kernel Documents/DocBook. If yo=
+u want
+> to browse, it is also available as:
+>
+> =A0 =A0 =A0 =A0http://linuxtv.org/downloads/v4l-dvb-apis/ch17.html
+>
+> For sure we need to better document the IR's, and explain the API's t=
+here.
+>
+>> Is it a device interface or something else?
+>
+> lirc_dev should create a device interface.
+>
+>> What about capabilities of the receiver, what frequencies?
+>> If a receiver has multiple frequencies, how do you report what
+>> frequency the data came in on?
+>
+> IMO, via sysfs.
 
+Say you have a hardware device with two IR diodes, one at 38K and one
+at 56K. Both of these receivers can get pulses. How do we tell the
+user space app which frequency the pulses were received on? Seems to
+me like there has to be a header on the pulse data indicating the
+received carrier frequency. There is also baseband signaling. sysfs
+won't work for this because of the queuing latency.
+
+How is over-run signaled to the app? You'd get an over-run if the app
+is too slow at reading the data out of the FIFO. If you ignore
+over-run you'll be processing bad data because part of the message was
+lost. An over-run signal tell the abort to abort the signal and start
+over.
+
+>> What about multiple apps simultaneously using the pulse data?
+>
+> IMO, the better is to limit the raw interface to just one open.
+>
+>> How big is the receive queue?
+>
+> It should be big enough to receive at least one keycode event. Consid=
+ering that
+> the driver will use kfifo (IMO, it is a good strategy, especially sin=
+ce you
+> won't need any lock if just one open is allowed), it will require a p=
+ower of two size.
+
+How is end of a pulse train detected? timeout? without decoding the
+protocol there is no way to tell the end of signal other than timeout.
+
+>
+>> How does access work, root only or any user?
+>
+> IMO, it should be the same requirement as used by an input interface.
+>
+>> How are capabilities exposed, sysfs, etc?
+>
+> IMO, sysfs.
+>
+>> What is the interface for attaching an in-kernel decoder?
+>
+> IMO, it should use the kfifo for it. However, if we allow both raw da=
+ta and
+> in-kernel decoders to read data there, we'll need a spinlock to prote=
+ct the
+> kfifo.
+>
+>> If there is an in-kernel decoder should the pulse data stop being
+>> reported, partially stopped, something else?
+>
+> I don't have a strong opinion here, but, from the previous discussion=
+s, it
+> seems that people want it to be double-reported by default. If so, I =
+think
+> we need to implement a command at the raw interface to allow disablin=
+g the
+> in-kernel decoder, while the raw interface is kept open.
+
+Data could be sent to the in-kernel decoders first and then if they
+don't handle it, send it to user space.
+
+
+>
+>> What is the mechanism to make sure both system don't process the sam=
+e pulses?
+>
+> I don't see a good way to avoid it.
+>
+>> Does it work with poll, epoll, etc?
+>> What is the time standard for the data, where does it come from?
+>> How do you define the start and stop of sequences?
+>> Is receiving synchronous or queued?
+>> What about transmit, how do you get pulse data into the device?
+>> Transmitter frequencies?
+>> Multiple transmitters?
+>> Is transmitting synchronous or queued?
+>> How big is the transmit queue?
+>
+> I don't have a clear answer for those. I'll let those to LIRC develop=
+ers to answer.
+>
+>
+> Cheers,
+> Mauro
+>
+>
+>
+
+
+
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

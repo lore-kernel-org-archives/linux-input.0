@@ -1,78 +1,109 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci Keyscan platform data
-Date: Mon, 07 Dec 2009 17:05:03 -0800
-Message-ID: <877hsy46o0.fsf@deeprootsystems.com>
-References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
-	<87hbs25n38.fsf@deeprootsystems.com>
-	<20091208004832.GA9495@core.coreip.homeip.net>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Mon, 07 Dec 2009 21:42:22 -0500
+Message-ID: <1260240142.3086.14.camel@palomino.walls.org>
+References: <BDRae8rZjFB@christoph>
+	 <1259024037.3871.36.camel@palomino.walls.org>
+	 <m3k4xe7dtz.fsf@intrepid.localdomain>  <4B0E8B32.3020509@redhat.com>
+	 <1259264614.1781.47.camel@localhost>
+	 <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:34814 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935733AbZLHBE7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 20:04:59 -0500
-Received: by yxe17 with SMTP id 17so4488407yxe.33
-        for <linux-input@vger.kernel.org>; Mon, 07 Dec 2009 17:05:05 -0800 (PST)
-In-Reply-To: <20091208004832.GA9495@core.coreip.homeip.net> (Dmitry Torokhov's message of "Mon\, 7 Dec 2009 16\:48\:32 -0800")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, dmitry.torokhov@gmail.com, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: miguel.aguilar@ridgerun.com, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Mon, 2009-12-07 at 13:19 -0500, Jarod Wilson wrote:
+> On Nov 26, 2009, at 2:43 PM, Andy Walls wrote:
+> 
+> > On Thu, 2009-11-26 at 12:05 -0200, Mauro Carvalho Chehab wrote:
+> >> Krzysztof Halasa wrote:
+> >>> Andy Walls <awalls@radix.net> writes:
+> >>> 
+> >>>> I would also note that RC-6 Mode 6A, used by most MCE remotes, was
+> >>>> developed by Philips, but Microsoft has some sort of licensing interest
+> >>>> in it and it is almost surely encumbered somwhow:
+> >>> 
+> >>> I don't know about legal problems in some countries but from the
+> >>> technical POV handling the protocol in the kernel is more efficient
+> >>> or (/and) simpler.
+> >> 
+> >> A software licensing from Microsoft won't apply to Linux kernel, so I'm
+> >> assuming that you're referring to some patent that they could be filled
+> >> about RC6 mode 6A.
+> >> 
+> >> I don't know if is there any US patent pending about it (AFAIK, only US
+> >> accepts software patents), but there are some prior-art for IR key
+> >> decoding. So, I don't see what "innovation" RC6 would be adding. 
+> >> If it is some new way to transmit waves, the patent issues
+> >> aren't related to software, and the device manufacturer had already handled
+> >> it when they made their devices.
+> >> 
+> >> If it is just a new keytable, this issue 
+> >> could be easily solved by loading the keytable via userspace.
+> >> 
+> >> Also, assuming that you can use the driver only with a hardware that comes
+> >> with a licensed software, the user has already the license for using it.
+> >> 
+> >> Do you have any details on what patents they are claiming?
+> > 
+> > The US Philips RC-6 patent is US Patent 5,877,702
+> > 
+> > http://www.google.com/patents?vid=USPAT5877702
+> > 
+> > Click on download PDF to get a copy of the whole patent.
+> > 
+> > I am not a lawyer.  Philips claims' all appear to tie to a transmitter
+> > or receiver as part of a system, but most of the claims are about
+> > information and bit positions and lengths.
+> ...
+> > IMO, given
+> > 
+> > a. the dearth of public information about RC-6, indicating someone
+> > thinks it's their trade secret or intellectual property
+> > 
+> > b. Microsoft claiming to license something related to the MCE remote
+> > protocols (which are obviously RC-6 Mode 6A),
+> > 
+> > c. my inability to draw a "clear, bright line" that RC-6 Mode 6A
+> > encoding and decoding, as needed by MCE remotes, implemented in software
+> > doesn't violate anyone's government granted rights to exclusivity.
+> > 
+> > I think it's much better to implement software RC-6 Mode 6A encoding and
+> > decoding in user space, doing only the minimum needed to get the
+> > hardware setup and going in the kernel.  
+> > 
+> > Encoding/decoding of RC-6 by microcontrollers with firmware doesn't
+> > worry me. 
+> > 
+> > 
+> > Maybe I'm being too conservative here, but I have a personal interest in
+> > keeping Linux free and unencumbered even in the US which, I cannot deny,
+> > has a patent system that is screwed up.
+> 
+> So I had one of the people who does all the license and patent audits
+> for Fedora packages look at the Philips patent on RC-6. He's 100%
+> positive that the patent *only* covers hardware, there should be no
+> problem whatsoever writing a software decoder for RC-6.
 
-> On Mon, Dec 07, 2009 at 04:24:59PM -0800, Kevin Hilman wrote:
->> <miguel.aguilar@ridgerun.com> writes:
->> 
->> > From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
->> >
->> > Add a function pointer in the platform data of the DaVinci Keyscan driver
->> > called device_enabled, in order to perform board specific actions when
->> > the device is initialized, like setup the PINMUX configuration.
->> >
->> > Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
->> 
->> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
->> 
->> Dmitry,
->> 
->> Will you be queueing this driver (and this patch) for 2.6.34?  I
->> thought you had accepted the original driver, but I don't see it in
->> the master or next branch of your input tree at:
->> 
->>   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->
-> The driver is there, commit bc09dcadc1a3da87d58aa70ebc8e9441205be75c on
-> 'next' branch (I don't really use master branch).  It was committed back
-> in October, probably that's why you don't see it?
->
-> As far as the patch goes - I got an impression from email sent by
-> Steve that there are ways to do automatic PINMUX detection and thus
-> this patch was not needed.  Is this ture?
+OK.  Thanks for having some professionals take a look.  (I'm assuming
+that's the only patent.)
 
-The method Steve was referring to was done for MontaVista
-internal/product kernels but was rejected for upstream (by me) because
-of the way it was implemented (by tying mux settings to clock
-settings.)
+So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c before the
+end of the month.
 
-> If not I am stull unsure what happens if you unload the driver. How
-> do you restore the old configuration so that the device you took
-> over from can start working again? Maybe pinmux should be controlled
-> via sysfs attribute (in board code) so that user can switch on-fly
-> between the devices?
+I can setup the CX2388[58] hardware to look for both RC-5 and RC-6 with
+a common set of parameters, so I may be able to set up the decoders to
+handle decoding from two different remote types at once.  The HVR boards
+can ship with either type of remote AFAIK.
 
-The way we currently handle MUXing in davinci, you don't need to do
-anything after the driver unloads.  Any other user of these pins will
-mux them as needed.
+I wonder if I can flip the keytables on the fly or if I have to create
+two different input devices?
 
-If really necessary, we could do an equivalent 'device_disable' hook
-but there would be empty as it wouldn't be needed.
-
-So, speaking as maintainer of the DaVinci support, I'm in favor of this
-approach from Miguel.
-
-Thanks,
-
-
-Kevin
+Regards,
+Andy

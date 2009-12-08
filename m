@@ -1,39 +1,54 @@
 From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 08 Dec 2009 23:27:00 +0100
-Message-ID: <BEVi1jXHqgB@lirc>
-References: <20091207075100.GB24958@core.coreip.homeip.net>
+Date: 08 Dec 2009 23:25:00 +0100
+Message-ID: <BEVhz2BHqgB@lirc>
+References: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966780AbZLHWd6@vger.kernel.org>
-In-Reply-To: <20091207075100.GB24958@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: jonsmirl@gmail.com
+Cc: awalls@radix.net, dmitry.torokhov@gmail.com, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi Jon,
 
-on 06 Dec 09 at 23:51, Dmitry Torokhov wrote:
+on 08 Dec 09 at 08:34, Jon Smirl wrote:
 [...]
->>> I suppose we could add MSC_SCAN_END event so that we can transmit
->>> "scancodes" of arbitrary length. You'd get several MSC_SCAN followed by
->>> MSC_SCAN_END marker. If you don't get MSC_SCAN_END assume the code is 32
->>> bit.
->>
->> And I set a timeout to know that no MSC_SCAN_END will arrive? This is
->> broken design IMHO.
->>
+> The point of those design review questions was to illustrate that the
+> existing LIRC system is only partially designed. Subsystems need to be
+> fully designed before they get merged.
 
-> EV_SYN signals the end of state transmission.
+I'd say that a system that has proven itself in real world applications  
+for >10 years, does not deserve to be called partially designed.
 
->> Furthermore lircd needs to know the length of the scan code in bits, not
->> as a multiple of 32.
+> For example 36-40K and 56K IR signals are both in use. It is a simple
+> matter to design a receiver (or buy two receivers)  that would support
+> both these frequencies. But the current LIRC model only supports  a
+> single IR receiver. Adjusting it to support two receivers is going to
+> break the ABI.
 
-> I really do not think that LIRCD is the type of application that should
-> be using evdev interface, but rather other way around.
+Really? When we added support for multiple transmitters, we somehow  
+managed to do without breaking the ABI. Do I miss something?
 
-Well, all I'm asking is that lircd can keep using the LIRC interface for  
-getting the scan codes. ;-)
+Your example could even now be solved by using the LIRC_SET_REC_CARRIER  
+ioctl. The driver would have to choose the receiver that best fits the  
+requested frequency.
+
+[...]
+> We need to think about all of these use cases before designing the
+> ABI.  Only after we think we have a good ABI design should code start
+> being merged. Of course we may make mistakes and have to fix the ABI,
+> but there is nothing to be gained by merging the existing ABI if we
+> already know it has problems.
+
+The point is that we did not get up this morning and started to think  
+about how the LIRC interface should look like. That happened 10 years ago.
+
+I'm not saying that the interface is the nicest thing ever invented, but  
+it works and is extendable. If you see that something is missing please  
+bring it up.
 
 Christoph

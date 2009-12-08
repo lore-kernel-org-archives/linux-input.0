@@ -1,54 +1,116 @@
 From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
-Date: 08 Dec 2009 23:25:00 +0100
-Message-ID: <BEVhz2BHqgB@lirc>
-References: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
+Date: 08 Dec 2009 23:30:00 +0100
+Message-ID: <BEVi56a1qgB@lirc>
+References: <1260245456.3086.91.camel@palomino.walls.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: jonsmirl@gmail.com
-Cc: awalls@radix.net, dmitry.torokhov@gmail.com, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S966813AbZLHWeO@vger.kernel.org>
+In-Reply-To: <1260245456.3086.91.camel@palomino.walls.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: awalls@radix.net
+Cc: dmitry.torokhov@gmail.com, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Jon,
+Hi Andy,
 
-on 08 Dec 09 at 08:34, Jon Smirl wrote:
+on 07 Dec 09 at 23:10, Andy Walls wrote:
 [...]
-> The point of those design review questions was to illustrate that the
-> existing LIRC system is only partially designed. Subsystems need to be
-> fully designed before they get merged.
+> (Christoph can correct me if I get anything wrong.)
 
-I'd say that a system that has proven itself in real world applications  
-for >10 years, does not deserve to be called partially designed.
-
-> For example 36-40K and 56K IR signals are both in use. It is a simple
-> matter to design a receiver (or buy two receivers)  that would support
-> both these frequencies. But the current LIRC model only supports  a
-> single IR receiver. Adjusting it to support two receivers is going to
-> break the ABI.
-
-Really? When we added support for multiple transmitters, we somehow  
-managed to do without breaking the ABI. Do I miss something?
-
-Your example could even now be solved by using the LIRC_SET_REC_CARRIER  
-ioctl. The driver would have to choose the receiver that best fits the  
-requested frequency.
+Just a few additions.
 
 [...]
-> We need to think about all of these use cases before designing the
-> ABI.  Only after we think we have a good ABI design should code start
-> being merged. Of course we may make mistakes and have to fix the ABI,
-> but there is nothing to be gained by merging the existing ABI if we
-> already know it has problems.
+>> What is the time standard for the data, where does it come from?
 
-The point is that we did not get up this morning and started to think  
-about how the LIRC interface should look like. That happened 10 years ago.
+> I think it is usec, IIRC.
 
-I'm not saying that the interface is the nicest thing ever invented, but  
-it works and is extendable. If you see that something is missing please  
-bring it up.
+Yes, it is.
+
+> I know that the hardware I work with has sub 100 ns resolution,
+
+Highest IR carrier frequency I know is 500kHz. usec resolution is enough  
+even for raw modulated IR pulses. But you only look at the signal after it  
+has been demodulated by the IR chip, so higher resolution would be  
+overkill.
+
+[...]
+>> How do you define the start and stop of sequences?
+
+> For the end of Rx signalling:
+>
+> Well with the Conexant hardware I can set a maximum pulse (mark or
+> space) width, and the hardware will generate an Rx Timeout interrupt to
+> signal the end of Rx when a space ends up longer than that max pulse
+> width.  The hardware also puts a special marker in the hardware pulse
+> widht measurement FIFO (in band signalling essentially).
+>
+> I'm not sure anything like that gets communicated to userspace via
+> lirc_dev, and I'm too tired to doublecheck right now.
+
+There is no such thing in the protocol. Some devices cannot provide any  
+end of signal marker, so lircd handles this using timers.
+
+If there is some interest, the MODE2 protocol can be extended. We still  
+have 7 bits unused...
+
+> If you have determined the protocol you are after, it's easy to know
+> what the pulse count should be and what the max pulse width should be (+
+> slop for crappy hardware) so finding the end of an Rx isn't hard.  The
+> button repeats intervals are *very* large.  I've never seen a remote
+> rapid fire codes back to back.
+
+I did. There are some protocols that have a gap of only 6000 us between  
+signals. And the settop boxes are very picky about this. If you make it  
+too long, they won't accept the command.
+
+[...]
+>> Is transmitting synchronous or queued?
+
+> kfifo's IIRC.
+
+No, it's synchronous.
+
+>> How big is the transmit queue?
+
+No queue.
+
+[...]
+> My particular gripes about the current LIRC interface:
+>
+> 1. The one thing that I wish were documented better were the distinction
+> between LIRC_MODE_PULSE, LIRC_MODE_RAW, and LIRC_MODE2 modes of
+> operation.  I think I've figured it out, but I had to look at a lot of
+> LIRC drivers to do so.
+
+No driver uses RAW until now and lircd does not support it.
+PULSE is used on the transmit path, MODE2 on the receive path.
+There is no special reasoning for that, it's rather historic.
+MODE2 makes sense on the receive path because you can easily distinguish  
+between pulse/space.
+
+> 2. I have hardware where I can set max_pulse_width so I can optimize
+> pulse timer resolution and have the hardware time out rapidly on end of
+> RX.  I also have hardware where I can set a min_pulse_width to set a
+> hardware low-pass/glitch filter.  Currently LIRC doesn't have any way to
+> set these, but it would be nice to have.
+
+Should be really easy to add these. The actual values could be derived  
+from the config files easily.
+
+> In band signalling of a
+> hardware detected "end of Rx" may also make sense then too.
+
+See above.
+
+> 3. As I mentioned before, it would be nice if LIRC could set a batch of
+> parameters atomically somehow, instead of with a series of ioctl()s.  I
+> can work around this in kernel though.
+
+Is there any particular sequence that you are concerned about?
+Setting carrier frequency and then duty cycle is a bit problematic.
+Currently it's solved by resetting the duty cycle to 50% each time you  
+change the carrier frequency.
+But as the LIRC interface is "one user only", I don't see a real problem.
 
 Christoph

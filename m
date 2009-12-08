@@ -1,97 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
 	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 8 Dec 2009 09:16:52 -0800
-Message-ID: <20091208171651.GD14143@core.coreip.homeip.net>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com> <1259264614.1781.47.camel@localhost> <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com> <1260240142.3086.14.camel@palomino.walls.org> <20091208042210.GA11147@core.coreip.homeip.net> <1260275743.3094.6.camel@palomino.walls.org> <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
+Date: Tue, 8 Dec 2009 09:19:31 -0800
+Message-ID: <20091208171931.GE14143@core.coreip.homeip.net>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com> <1259264614.1781.47.camel@localhost> <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com> <1260240142.3086.14.camel@palomino.walls.org> <4B1E394A.1090807@redhat.com> <1260276412.3094.17.camel@palomino.walls.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f189.google.com ([209.85.216.189]:60334 "EHLO
-	mail-px0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S938105AbZLHRQw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 12:16:52 -0500
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:64309 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965011AbZLHRT2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 12:19:28 -0500
 Content-Disposition: inline
-In-Reply-To: <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
+In-Reply-To: <1260276412.3094.17.camel@palomino.walls.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Andy Walls <awalls@radix.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Andy Walls <awalls@radix.net>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Tue, Dec 08, 2009 at 07:52:02AM -0500, Jon Smirl wrote:
-> On Tue, Dec 8, 2009 at 7:35 AM, Andy Walls <awalls@radix.net> wrote:
-> > On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
-> >> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
-> >
-> >> > So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c befo=
-re the
-> >> > end of the month.
-> >> >
-> >> > I can setup the CX2388[58] hardware to look for both RC-5 and RC=
--6 with
-> >> > a common set of parameters, so I may be able to set up the decod=
-ers to
-> >> > handle decoding from two different remote types at once. =A0The =
-HVR boards
-> >> > can ship with either type of remote AFAIK.
-> >> >
-> >> > I wonder if I can flip the keytables on the fly or if I have to =
-create
-> >> > two different input devices?
-> >> >
-> >>
-> >> Can you distinguish between the 2 remotes (not receivers)?
-> >
-> > Yes. =A0RC-6 and RC-5 are different enough to distinguish between t=
-he two.
-> > (Honestly I could pile on more protocols that have similar pulse ti=
-me
-> > periods, but that's complexity for no good reason and I don't know =
-of a
-> > vendor that bundles 3 types of remotes per TV card.)
-> >
-> >
-> >> =A0Like I said,
-> >> I think the preferred way is to represent every remote that can be
-> >> distinguished from each other as a separate input device.
-> >
-> > OK. =A0With RC-5, NEC, and RC-6 at least there is also an address o=
-r
-> > system byte or word to distingish different remotes. =A0However cre=
-ating
-> > multiple input devices on the fly for detected remotes would be mad=
-ness
-> > - especially with a decoding error in the address bits.
->=20
-> I agree that creating devices on the fly has problems. Another
-> solution is to create one device for each map that is loaded. There
-> would be a couple built-in maps for bundled remotes - each would
-> create a device. Then the user could load more maps with each map
-> creating a device.
->=20
-> Incoming scancodes are matched against all of the loaded maps and a
-> keycode event is generated if a match occurs.
->=20
+On Tue, Dec 08, 2009 at 07:46:52AM -0500, Andy Walls wrote:
+> On Tue, 2009-12-08 at 09:32 -0200, Mauro Carvalho Chehab wrote:
+> > Andy Walls wrote:
+> > > On Mon, 2009-12-07 at 13:19 -0500, Jarod Wilson wrote:
+> 
+> > > So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c before the
+> > > end of the month.
+> > 
+> > Good! Please, try to design the decoder as an independent module that gets
+> > data from a kfifo and generate scancodes for the input API.
+> 
+> Hmmm.  Let me see how the protoype turns out keeping that design
+> objective in mind.  I've already got the current RC-5 and NEC decoding
+> state machines in cx23885-input a bit layered, but they are taking
+> advantage of specific events signaled by my v4l2_subdev implementation.
+> 
+> Strictly speaking the state machines don't have to.  All of the remote
+> protocols I have played with make framing pretty easy.
+> 
+> 
+> 
+> > > I can setup the CX2388[58] hardware to look for both RC-5 and RC-6 with
+> > > a common set of parameters, so I may be able to set up the decoders to
+> > > handle decoding from two different remote types at once.  The HVR boards
+> > > can ship with either type of remote AFAIK.
+> > > 
+> > > I wonder if I can flip the keytables on the fly or if I have to create
+> > > two different input devices?
+> > 
+> > IMO, the better is, by default, to open just one input device per IR receiver.
+> > >From what I understand from our discussions, if the user wants to filter IR
+> > commands into several input interfaces, some userspace interface will be 
+> > provided to allow the creation of other input interfaces for that purpose.
+> 
+> Hmm. That's not what I just thought I read from Dmitry....
+> 
 
-How many sancodes do we need to reliably recognize the device though? I
-am not sure users would want to press 5 random buttons in order to star=
-t
-using the remote, unless it happens exactly once and then we manage to
-store the data somewhere.
+I am a resonable guy ;) In cases when we can certainly say that there
+are 2 separate remotes (and we know characteristics somehow) we need to
+create 2 input devices. Otherwise we can't ;)
 
-> This illustrates why there should an EV_IR event which communicates
-> scancodes, without this event you can't see the scancodes that don't
-> match a map entry. A scancode would be first matched against the map,
-> then if there as no match an EV_IR event would be reported.
-
-Just report MSC_SCAN always. As I said elsewhere we can extend it to be
-multi-dword if needed (just need to agree on endianness).
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

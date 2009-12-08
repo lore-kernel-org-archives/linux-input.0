@@ -1,74 +1,77 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Tue, 8 Dec 2009 09:51:20 -0500
-Message-ID: <9e4733910912080651s30d600aay4c37f59e60e9c697@mail.gmail.com>
-References: <20091204220708.GD25669@core.coreip.homeip.net>
-	 <20091206065512.GA14651@core.coreip.homeip.net>
-	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>
-	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
-	 <m3skbn6dv1.fsf@intrepid.localdomain>
-	 <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>
-	 <4B1D934E.7030103@redhat.com> <m3hbs1vain.fsf@intrepid.localdomain>
-	 <4B1E5DA3.7000206@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Tue, 08 Dec 2009 12:56:53 -0200
+Message-ID: <4B1E6935.207@redhat.com>
+References: <20091204220708.GD25669@core.coreip.homeip.net>	 <20091206065512.GA14651@core.coreip.homeip.net>	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>	 <m3skbn6dv1.fsf@intrepid.localdomain>	 <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>	 <4B1D934E.7030103@redhat.com>	 <9e4733910912071628x3f3eba82r4c964982f9d8c5a4@mail.gmail.com>	 <4B1E35D6.6000602@redhat.com> <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4B1E5DA3.7000206@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36501 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755449AbZLHO5b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Dec 2009 09:57:31 -0500
+In-Reply-To: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Tue, Dec 8, 2009 at 9:07 AM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
-> Krzysztof Halasa wrote:
->> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+Jon Smirl wrote:
+> On Tue, Dec 8, 2009 at 6:17 AM, Mauro Carvalho Chehab
+> <mchehab@redhat.com> wrote:
+>> Jon Smirl wrote:
+>>> On Mon, Dec 7, 2009 at 6:44 PM, Mauro Carvalho Chehab
+>>> <mchehab@redhat.com> wrote:
+>>>>> Where is the documentation for the protocol?
+>>>> I'm not sure what you're meaning here. I've started a doc about IR at the media
+>>> What is the format of the pulse stream data coming out of the lirc device?
+>> AFAIK, it is at:
+>>        http://www.lirc.org/html/index.html
 >>
->>>> What is the interface for attaching an in-kernel decoder?
->>> IMO, it should use the kfifo for it. However, if we allow both raw =
-data and
->>> in-kernel decoders to read data there, we'll need a spinlock to pro=
-tect the
->>> kfifo.
+>> It would be nice to to add it to DocBook after integrating the API in kernel.
 >>
->> This may be an option, but I think we should be able to attach proto=
-col
->> decoders in parallel, directly to the IRQ handler. At least with RC-=
-5
->> (that's what I personally use) it means reliable decoding, no need f=
-or
->> any timeouts, the code is clean, fast (can be a part of hard IRQ
->> handler) and simple.
->>
->> The decoder needs something like
->> =A0 =A0 =A0 rc5_signal_change(ptr, space_or_mark, microseconds).
->>
->> At least mark->space or space->mark events must be reported. For bet=
-ter
->> reliability, both of them.
->
-> If you use a kfifo to store the event (space_or_mark, timestamp),
-> the IRQ handler can return immediately, and a separate kernel thread
-> can do the decode without needing to touch at the IRQ. It also helps =
-to
-> have a decoder independent of the kernel driver.
+> 
+> The point of those design review questions was to illustrate that the
+> existing LIRC system is only partially designed. 
 
-The first version of my code ran the decoders from the IRQ. That
-wasn't a good model for sharing decoders between drivers. So I
-switched to using a kernel thread. There is also the problem of
-handing decoded events off up the chain. You can't do that from IRQ
-context.
+Ah, ok.
 
-If I remember correctly the kernel thread would run approximately two
-times per IR message received. But sometimes it would only run once.
-It's a random function of the load on the system. The kernel thread
-empties the FIFO and sends the pulses in parallel to the decoders.
+> Subsystems need to be
+> fully designed before they get merged.
 
-Code for doing this is in the patches I posted. I wasn't aware of
-kfifo when I wrote them so I coded my own fifo.
+True.
+ 
+> For example 36-40K and 56K IR signals are both in use. It is a simple
+> matter to design a receiver (or buy two receivers)  that would support
+> both these frequencies. But the current LIRC model only supports  a
+> single IR receiver. Adjusting it to support two receivers is going to
+> break the ABI.
+> 
+> My choice would be to just tell the person with the 56K remote to just
+> buy a new 38K remote, but other people are against that choice. That
+> forces us into designing a system that can handle multiple receivers.
+> There is a parallel problem with baseband encoded IR signals.
+> 
+> We need to think about all of these use cases before designing the
+> ABI.  Only after we think we have a good ABI design should code start
+> being merged. Of course we may make mistakes and have to fix the ABI,
+> but there is nothing to be gained by merging the existing ABI if we
+> already know it has problems.
 
---=20
-Jon Smirl
-jonsmirl@gmail.com
+I have here machines with 3 or 4 IR receivers (well, in a matter of fact,
+I don't use all of them at the same time). Nothing stops someone to
+use all IR receivers at the same. 
+
+I've seen some interesting applications developed for students, where just
+one computer running Linux is splitted into 4 different consoles. Nothing
+stops that, on such usages, you may have 4 different IR transceivers working
+at the same time.
+
+In order to keep supporting the in-kernel drivers, we should create one lirc
+device per each IR transceiver.
+
+Cheers,
+Mauro.
+

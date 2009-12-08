@@ -1,149 +1,54 @@
-From: Jon Smirl <jonsmirl@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 8 Dec 2009 09:19:07 -0500
-Message-ID: <9e4733910912080619t36089c9bg5e54114844b9694a@mail.gmail.com>
-References: <BDRae8rZjFB@christoph> <4B0E8B32.3020509@redhat.com>
-	 <1259264614.1781.47.camel@localhost>
-	 <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
-	 <1260240142.3086.14.camel@palomino.walls.org>
-	 <20091208042210.GA11147@core.coreip.homeip.net>
-	 <1260275743.3094.6.camel@palomino.walls.org>
-	 <4B1E54FF.8060404@redhat.com>
-	 <9e4733910912080547j75c2c885o29664470ff5e2c6a@mail.gmail.com>
-	 <4B1E5BDF.7010202@redhat.com>
+ Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Tue, 08 Dec 2009 12:25:37 -0200
+Message-ID: <4B1E61E1.5070705@redhat.com>
+References: <BDRae8rZjFB@christoph>	<1259024037.3871.36.camel@palomino.walls.org>	<m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com>	<1259264614.1781.47.camel@localhost>	<6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>	<1260240142.3086.14.camel@palomino.walls.org>	<20091208042210.GA11147@core.coreip.homeip.net>	<4B1E3C1D.7070704@redhat.com> <m3vdghtuy1.fsf@intrepid.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:59076 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754587AbZLHOTB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 09:19:01 -0500
-In-Reply-To: <4B1E5BDF.7010202@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:35568 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755223AbZLHOZ7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Dec 2009 09:25:59 -0500
+In-Reply-To: <m3vdghtuy1.fsf@intrepid.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Walls <awalls@radix.net>, Jarod Wilson <jarod@wilsonet.com>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Tue, Dec 8, 2009 at 8:59 AM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
-> Jon Smirl wrote:
->> On Tue, Dec 8, 2009 at 8:30 AM, Mauro Carvalho Chehab
->> <mchehab@redhat.com> wrote:
->>> Andy Walls wrote:
->>>> On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
->>>>> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
->>>>>> So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c befo=
-re the
->>>>>> end of the month.
->>>>>>
->>>>>> I can setup the CX2388[58] hardware to look for both RC-5 and RC=
--6 with
->>>>>> a common set of parameters, so I may be able to set up the decod=
-ers to
->>>>>> handle decoding from two different remote types at once. =A0The =
-HVR boards
->>>>>> can ship with either type of remote AFAIK.
->>>>>>
->>>>>> I wonder if I can flip the keytables on the fly or if I have to =
-create
->>>>>> two different input devices?
->>>>>>
->>>>> Can you distinguish between the 2 remotes (not receivers)?
->>>> Yes. =A0RC-6 and RC-5 are different enough to distinguish between =
-the two.
->>>> (Honestly I could pile on more protocols that have similar pulse t=
-ime
->>>> periods, but that's complexity for no good reason and I don't know=
- of a
->>>> vendor that bundles 3 types of remotes per TV card.)
->>> You'll be distinguishing the protocol, not the remote. If I underst=
-ood
->>> Dmitry's question, he is asking if you can distinguish between two =
-different
->>> remotes that may, for example, be using both RC-5 or both RC-6 or o=
-ne RC-5
->>> and another RC-6.
->>
->> RC-5 and RC-6 both contain an address field. =A0My opinion is that
->> different addresses represent different devices and in general they
->> should appear on an input devices per address.
->
-> The same IR can produce two different addresses. The IR bundled with =
-my satellite
-> STB produces two different codes, depending if you previously pressed=
- <TV> or <SAT>
-> key (in fact, I think it can even produce different protocols for TV,=
- as it can
-> be configured to work with different TV sets).
+Krzysztof Halasa wrote:
+> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+>> IMO, the better is to have an API to allow creation of multiple interfaces
+>> per IR receiver, based on some scancode matching table and/or on some
+>> matching mask.
+> 
+> I think setting the keytables for each logical device would do.
 
-You have a multi-function remote. Multi-function remotes combine
-multiple single function remotes into a single device. All universal
-remotes I have seen are multi-function. They usually combine three to
-five single function remotes.
+Yes.
+> 
+> I.e. just have a way to create additional logical devices. Each can have
+> its own keytable. The decoders would send their output to all logical
+> remotes, trying to match the tables etc.
+> 
+>> It should be possible to use the filter API to match different IR's by
+>> vendor/product on protocols that supports it,
+> 
+> That would mean unnecessary limiting.
 
-Yours is a two function remote <TV> and <SAT>. When you push <TV> and
-<SAT> you are changing which single function remote is being emulated.
-That's why those keys don't send codes. When writing code you should
-think of this remote as being two indpendent virtual remotes, not a
-single one.
+If the mask is (unsigned)-1, it will not add any limit. This should be the default.
 
-Note that it is common for multfunction remotes to completely change
-IR protocol families when you switch which single function remote you
-are emulating. I have my universal set for a Sony TV , JVC DVD player
-and a Comcast STB. All three of those use different IR protocols.
+The advantage of the mask is that you can speedup the keycode decoding by not calling
+a seek routine in the cases where it doesn't make sense.
 
-By using maps containing the two different addresses for <TV> and
-<SAT> you can split these commands onto two different evdev devices.
+Also, the cost of scancode & scancode_mask is cheap enough, comparing with the 
+potential optimization gain of not seeking a data in a table that wouldn't match anyway.
 
-This model is complicated by the fact that some remotes that look like
-multi-function remotes aren't really multifunction. The remote bundled
-with the MS MCE receiver is one. That remote is a single function
-device even though it has function buttons for TV, Music, Pictures,
-etc.
+Also, the IR core may automatically generate such mask, by doing an "and" operation of all
+the scancodes at the table during table initialization/changes. If the mask is zero, it
+defaults to use a (unsigned) -1 mask.
 
+Cheers,
+Mauro.
 
->
->> However, I prefer a different scheme for splitting the signals apart=
-=2E
->> Load separate maps containing scancodes for each address. When the I=
-R
->> signals come in they are matched against the maps and a keycode is
->> generated when a match is found. Now there is no need to distinguish
->> between the remotes. It doesn't matter which remote generated the
->> signal.
->>
->> scancode RC5/12/1 - protocol, address, command tuplet. Map this to
->> KP_1 on interface 1.
->> scancode RC5/7/1 - protocol, address, command tuplet. Map this to KP=
-_1
->> on interface 2.
->>
->> Using the maps to split the commands out also fixes the problem with
->> Sony remotes which use multiple protocols to control a single device=
-=2E
->> scancode Sony12/12/1 - protocol, address, command tuplet. Map this t=
-o
->> power_on on interface 1.
->> scancode Sony15/12/1 - protocol, address, command tuplet. Map this t=
-o
->> KP_1 on interface 1.
->>
->
-> I agree.
->
-> Cheers,
-> Mauro.
->
-
-
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

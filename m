@@ -1,191 +1,46 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 8 Dec 2009 11:19:45 -0500
-Message-ID: <9e4733910912080819l2ffc88fes894d02dc8b834ef@mail.gmail.com>
-References: <BDRae8rZjFB@christoph>
-	 <1260240142.3086.14.camel@palomino.walls.org>
-	 <20091208042210.GA11147@core.coreip.homeip.net>
-	 <1260275743.3094.6.camel@palomino.walls.org>
-	 <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
-	 <4B1E5746.7010305@redhat.com>
-	 <9e4733910912080601s1a814720qd909e47ac09f91fc@mail.gmail.com>
-	 <4B1E5FAF.40201@redhat.com>
-	 <9e4733910912080631r6fd306c5tdfd56482583b9bf5@mail.gmail.com>
-	 <4B1E656F.3020507@redhat.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Tue, 08 Dec 2009 17:22:49 +0100
+Message-ID: <87ocm9wi3q.fsf@tac.ki.iif.hu>
+References: <BDRae8rZjFB@christoph> <4B0E8B32.3020509@redhat.com>
+	<1259264614.1781.47.camel@localhost>
+	<6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
+	<1260240142.3086.14.camel@palomino.walls.org>
+	<20091208042210.GA11147@core.coreip.homeip.net>
+	<1260275743.3094.6.camel@palomino.walls.org>
+	<4B1E54FF.8060404@redhat.com>
+	<9e4733910912080547j75c2c885o29664470ff5e2c6a@mail.gmail.com>
+	<4B1E5BDF.7010202@redhat.com>
+	<9e4733910912080619t36089c9bg5e54114844b9694a@mail.gmail.com>
+	<4B1E640B.6030705@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f192.google.com ([209.85.221.192]:43519 "EHLO
-	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932368AbZLHQTj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 11:19:39 -0500
-In-Reply-To: <4B1E656F.3020507@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4B1E640B.6030705@redhat.com> (Mauro Carvalho Chehab's message of
+	"Tue, 08 Dec 2009 12:34:51 -0200")
+Sender: linux-media-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Jon Smirl <jonsmirl@gmail.com>, Andy Walls <awalls@radix.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 8, 2009 at 9:40 AM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
+Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+
 > Jon Smirl wrote:
->> On Tue, Dec 8, 2009 at 9:16 AM, Mauro Carvalho Chehab
->> <mchehab@redhat.com> wrote:
->>> Jon Smirl wrote:
->>>> On Tue, Dec 8, 2009 at 8:40 AM, Mauro Carvalho Chehab
->>>> <mchehab@redhat.com> wrote:
->>>>> Jon Smirl wrote:
->>>>>> On Tue, Dec 8, 2009 at 7:35 AM, Andy Walls <awalls@radix.net> wr=
-ote:
->>>>>>> On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
->>>>>>>> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
->>>>>>>>> So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c b=
-efore the
->>>>>>>>> end of the month.
->>>>>>>>>
->>>>>>>>> I can setup the CX2388[58] hardware to look for both RC-5 and=
- RC-6 with
->>>>>>>>> a common set of parameters, so I may be able to set up the de=
-coders to
->>>>>>>>> handle decoding from two different remote types at once. =A0T=
-he HVR boards
->>>>>>>>> can ship with either type of remote AFAIK.
->>>>>>>>>
->>>>>>>>> I wonder if I can flip the keytables on the fly or if I have =
-to create
->>>>>>>>> two different input devices?
->>>>>>>>>
->>>>>>>> Can you distinguish between the 2 remotes (not receivers)?
->>>>>>> Yes. =A0RC-6 and RC-5 are different enough to distinguish betwe=
-en the two.
->>>>>>> (Honestly I could pile on more protocols that have similar puls=
-e time
->>>>>>> periods, but that's complexity for no good reason and I don't k=
-now of a
->>>>>>> vendor that bundles 3 types of remotes per TV card.)
->>>>>>>
->>>>>>>
->>>>>>>> =A0Like I said,
->>>>>>>> I think the preferred way is to represent every remote that ca=
-n be
->>>>>>>> distinguished from each other as a separate input device.
->>>>>>> OK. =A0With RC-5, NEC, and RC-6 at least there is also an addre=
-ss or
->>>>>>> system byte or word to distingish different remotes. =A0However=
- creating
->>>>>>> multiple input devices on the fly for detected remotes would be=
- madness
->>>>>>> - especially with a decoding error in the address bits.
->>>>>> I agree that creating devices on the fly has problems. Another
->>>>>> solution is to create one device for each map that is loaded. Th=
-ere
->>>>>> would be a couple built-in maps for bundled remotes - each would
->>>>>> create a device. Then the user could load more maps with each ma=
-p
->>>>>> creating a device.
->>>>> No, please. We currently have already 89 different keymaps in-ker=
-nel. Creating
->>>>> 89 different interfaces per IR receiver is not useful at all.
->>>>>
->>>>> IMO, the interfaces should be created as the keymaps are associat=
-ed
->>>>> to an specific IR receiver.
->>>> Each IR receiver device driver would have a built-in keymap for th=
-e
->>>> remote bundled with it. When you load the driver it will poke the
->>>> input system and install the map. Any additional keymaps would get
->>>> loaded from user space. You would load one keymap per input device=
-=2E
->>>>
->>>> You might have 89 maps in the kernel with each map being built int=
-o
->>>> the device driver for those 89 IR receivers. But you'll only own o=
-ne
->>>> or two of those devices so only one or two of the 89 maps will loa=
-d.
->>>> Building the map for the bundled receiver into the device driver i=
-s an
->>>> important part of achieving "just works".
->>>>
->>>> I suspect we'll have a 1,000 maps defined after ten years, most of
->>>> these maps will be loaded from user space. But you'll only have tw=
-o or
->>>> three loaded at any one time into your kernel. You need one map pe=
-r
->>>> input device created. These maps are tiny, less than 1KB.
->>>>
->>>> Having all of these maps is the price of allowing everyone to use =
-any
->>>> more that they please. If you force the use of universal remotes m=
-ost
->>>> of the maps can be eliminated.
->>> Makes sense. Yet, I would add an option at Kbuild to create a modul=
-e or not
->>> with the bundled IR keymaps.
->>>
->>> So, it should be possible to have all of them completely on userspa=
-ce or
->>> having them at kernelspace.
->>
->> Removing the maps for the bundled remotes from the receiver device
->> drivers will break "just works".
 >
-> No. This can be provided by an udev application that will load the ke=
-ytable
-> when the device is connected.
-
-Why do you want to pull the 1KB default mapping table out of the
-device driver __init section and more it to a udev script? Now we will
-have to maintain a parallel udev script for ever receiver's device
-driver.
-
-The purpose of putting this table into __init is to get rid of all
-these udev scripts in the default case.
-
+>> This model is complicated by the fact that some remotes that look
+>> like multi-function remotes aren't really multifunction. The remote
+>> bundled with the MS MCE receiver is one. That remote is a single
+>> function device even though it has function buttons for TV, Music,
+>> Pictures, etc.
 >
-> Of course before adding it into a module, we'll need to write such ap=
-p.
->
-> This will only affects the need of IR during boot time.
->
->> The map will be in an __init section
->> of the IR device driver. When it is fed into the input system a RAM
->> based structure will be created.
->
-> We can't use __init, since another device needing the keymap may be h=
-ot-plugged.
+> An unsolved question on my mind is how should we map such IR's? Should
+> we provide a way for them to emulate a multifunction IR (for example,
+> after pressing TV key, subsequent keystrokes would be directed to the
+> TV evdev device?), or should we let this up to some userspace app to
+> handle this case?
 
-You can handle that with __devinit
-
-
->> If you really want the 1KB memory
->> back, use sysfs to remove the default map. =A0An embedded system wil=
-l
->> have a bundled remote so it is going to want the map.
->
-> Yes, but it needs just one map, not all of them. The maps shouldn't b=
-e linked
-> into the drivers, as the same map is used by several different device=
-s on
-
-Link them or #include them, it doesn't make any difference.
-
-> different drivers. So, the option is to allow customizing the availab=
-le keymaps,
-> if CONFIG_EMBEDDED.
->
-> Cheers,
-> Mauro.
->
-
-
-
---=20
-Jon Smirl
-jonsmirl@gmail.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This case feels similar to that of Caps Lock, Num Lock and Scrool Lock,
+but I don't know if that scheme could be applied here.
+-- 
+Regards,
+Feri.

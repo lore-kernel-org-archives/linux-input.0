@@ -1,109 +1,97 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Tue, 8 Dec 2009 09:12:36 -0800
-Message-ID: <20091208171236.GC14143@core.coreip.homeip.net>
-References: <1260070593.3236.6.camel@pc07.localdom.local> <20091206065512.GA14651@core.coreip.homeip.net> <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <m3skbn6dv1.fsf@intrepid.localdomain> <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com> <4B1D934E.7030103@redhat.com> <20091208042340.GC11147@core.coreip.homeip.net> <4B1E3F7D.9070806@redhat.com>
+Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
+	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
+Date: Tue, 8 Dec 2009 09:16:52 -0800
+Message-ID: <20091208171651.GD14143@core.coreip.homeip.net>
+References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com> <1259264614.1781.47.camel@localhost> <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com> <1260240142.3086.14.camel@palomino.walls.org> <20091208042210.GA11147@core.coreip.homeip.net> <1260275743.3094.6.camel@palomino.walls.org> <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f189.google.com ([209.85.216.189]:60334 "EHLO
+	mail-px0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S938105AbZLHRQw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 12:16:52 -0500
 Content-Disposition: inline
-In-Reply-To: <4B1E3F7D.9070806@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+In-Reply-To: <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andy Walls <awalls@radix.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Tue, Dec 08, 2009 at 09:58:53AM -0200, Mauro Carvalho Chehab wrote:
-> Dmitry Torokhov wrote:
-> > On Mon, Dec 07, 2009 at 09:44:14PM -0200, Mauro Carvalho Chehab wrote:
-> 
-> >>> What about capabilities of the receiver, what frequencies?
-> >>> If a receiver has multiple frequencies, how do you report what
-> >>> frequency the data came in on?
-> >> IMO, via sysfs.
-> > 
-> > We probably need to think what exactly we report through sysfs siunce it
-> > is ABI of sorts.
-> 
-> Yes, sure.
-> 
-> Probably, the exact needs will popup only when we start to actually writing that
-> part of the core.
-> 
-> My intention for now is to just create a /sys/class/irrcv, with one node
-> per each IR receiver and adding a protocol enumeration/selection node
-> there, and add some capabilities for the in-kernel decoders and lirc_dev
-> to create new nodes under that class.
-> 
-> When the decoders/lirc_dev patches popup, we'll need to review those sysfs
-> API's.
->  
-> >>> What about multiple apps simultaneously using the pulse data?
-> >> IMO, the better is to limit the raw interface to just one open.
+On Tue, Dec 08, 2009 at 07:52:02AM -0500, Jon Smirl wrote:
+> On Tue, Dec 8, 2009 at 7:35 AM, Andy Walls <awalls@radix.net> wrote:
+> > On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
+> >> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
+> >
+> >> > So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c befo=
+re the
+> >> > end of the month.
+> >> >
+> >> > I can setup the CX2388[58] hardware to look for both RC-5 and RC=
+-6 with
+> >> > a common set of parameters, so I may be able to set up the decod=
+ers to
+> >> > handle decoding from two different remote types at once. =A0The =
+HVR boards
+> >> > can ship with either type of remote AFAIK.
+> >> >
+> >> > I wonder if I can flip the keytables on the fly or if I have to =
+create
+> >> > two different input devices?
+> >> >
 > >>
-> > 
-> > Why woudl we want to do this? Quite often there is a need for "observer"
-> > that maybe does not act on data but allows capturing it. Single-user
-> > inetrfaces are PITA. 
-> 
-> That should work fine as well, but I'm not sure how we'll detect overrun with
-> several kfifo readers.
-> 
+> >> Can you distinguish between the 2 remotes (not receivers)?
+> >
+> > Yes. =A0RC-6 and RC-5 are different enough to distinguish between t=
+he two.
+> > (Honestly I could pile on more protocols that have similar pulse ti=
+me
+> > periods, but that's complexity for no good reason and I don't know =
+of a
+> > vendor that bundles 3 types of remotes per TV card.)
+> >
+> >
+> >> =A0Like I said,
+> >> I think the preferred way is to represent every remote that can be
+> >> distinguished from each other as a separate input device.
+> >
+> > OK. =A0With RC-5, NEC, and RC-6 at least there is also an address o=
+r
+> > system byte or word to distingish different remotes. =A0However cre=
+ating
+> > multiple input devices on the fly for detected remotes would be mad=
+ness
+> > - especially with a decoding error in the address bits.
+>=20
+> I agree that creating devices on the fly has problems. Another
+> solution is to create one device for each map that is loaded. There
+> would be a couple built-in maps for bundled remotes - each would
+> create a device. Then the user could load more maps with each map
+> creating a device.
+>=20
+> Incoming scancodes are matched against all of the loaded maps and a
+> keycode event is generated if a match occurs.
+>=20
 
-Push the data into readers so they can do te decoding at their own pace.
-Some can do it in interrupt context, some will need workqueue/thread.
-They can also regilate the depth of the buffer, according to their
-needs.
+How many sancodes do we need to reliably recognize the device though? I
+am not sure users would want to press 5 random buttons in order to star=
+t
+using the remote, unless it happens exactly once and then we manage to
+store the data somewhere.
 
-> >>> How big is the receive queue?
-> >> It should be big enough to receive at least one keycode event. Considering that
-> >> the driver will use kfifo (IMO, it is a good strategy, especially since you
-> >> won't need any lock if just one open is allowed), it will require a power of two size.
-> >>
-> > 
-> > Would not it be wither driver- or protocol-specific?
-> 
-> Probably.
-> 
-> > 
-> >>> How does access work, root only or any user?
-> >> IMO, it should be the same requirement as used by an input interface.
-> >>
-> >>> How are capabilities exposed, sysfs, etc?
-> >> IMO, sysfs.
-> >>
-> >>> What is the interface for attaching an in-kernel decoder?
-> >> IMO, it should use the kfifo for it. However, if we allow both raw data and
-> >> in-kernel decoders to read data there, we'll need a spinlock to protect the
-> >> kfifo.
-> >>
-> > 
-> > I think Jon meant userspace interface for attaching particular decoder.
-> 
-> I don't think we need an userspace interface for the in-kernel decoders. All
-> it needs is to enable/disable the protocol decoders, imo via sysfs interface.
-> 
-> >>> If there is an in-kernel decoder should the pulse data stop being
-> >>> reported, partially stopped, something else?
-> >> I don't have a strong opinion here, but, from the previous discussions, it
-> >> seems that people want it to be double-reported by default. If so, I think
-> >> we need to implement a command at the raw interface to allow disabling the
-> >> in-kernel decoder, while the raw interface is kept open.
-> > 
-> > Why don't you simply let consumers decide where they will get their data?
-> 
-> How?
-> 
+> This illustrates why there should an EV_IR event which communicates
+> scancodes, without this event you can't see the scancodes that don't
+> match a map entry. A scancode would be first matched against the map,
+> then if there as no match an EV_IR event would be reported.
 
-You end up with N evdev devices. Let application (MythTV) say "I want to
-use /dev/input/event1" (well, it will need persistent udev rule, but
-that's a detail). Another application will chose another event node.
-User can decide she'd rather use lircd - and so configire applications
-to use event5. Any maybe turned off the in-kernel decoders if they are
-of no use and there is a concern that they consume too mcuh resoures.
+Just report MSC_SCAN always. As I said elsewhere we can extend it to be
+multi-dword if needed (just need to agree on endianness).
 
-Won't this work? 
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

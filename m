@@ -1,46 +1,67 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was: Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 08 Dec 2009 17:22:49 +0100
-Message-ID: <87ocm9wi3q.fsf@tac.ki.iif.hu>
-References: <BDRae8rZjFB@christoph> <4B0E8B32.3020509@redhat.com>
-	<1259264614.1781.47.camel@localhost>
-	<6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
-	<1260240142.3086.14.camel@palomino.walls.org>
-	<20091208042210.GA11147@core.coreip.homeip.net>
-	<1260275743.3094.6.camel@palomino.walls.org>
-	<4B1E54FF.8060404@redhat.com>
-	<9e4733910912080547j75c2c885o29664470ff5e2c6a@mail.gmail.com>
-	<4B1E5BDF.7010202@redhat.com>
-	<9e4733910912080619t36089c9bg5e54114844b9694a@mail.gmail.com>
-	<4B1E640B.6030705@redhat.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Tue, 8 Dec 2009 11:26:15 -0500
+Message-ID: <9e4733910912080826h53db3049j9a75d490bcaebbd9@mail.gmail.com>
+References: <20091204220708.GD25669@core.coreip.homeip.net>
+	 <m3638k6lju.fsf@intrepid.localdomain>
+	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <m3skbn6dv1.fsf@intrepid.localdomain>
+	 <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>
+	 <4B1D934E.7030103@redhat.com> <m3hbs1vain.fsf@intrepid.localdomain>
+	 <4B1E5DA3.7000206@redhat.com> <m3y6ldscut.fsf@intrepid.localdomain>
+	 <4B1E756D.2090908@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4B1E640B.6030705@redhat.com> (Mauro Carvalho Chehab's message of
-	"Tue, 08 Dec 2009 12:34:51 -0200")
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Andy Walls <awalls@radix.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from qw-out-2122.google.com ([74.125.92.27]:60518 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756027AbZLHQ0K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 11:26:10 -0500
+In-Reply-To: <4B1E756D.2090908@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Mauro Carvalho Chehab <mchehab@redhat.com> writes:
-
-> Jon Smirl wrote:
+On Tue, Dec 8, 2009 at 10:49 AM, Mauro Carvalho Chehab
+<mchehab@redhat.com> wrote:
+> Krzysztof Halasa wrote:
+>> Mauro Carvalho Chehab <mchehab@redhat.com> writes:
+>>
+>>> If you use a kfifo to store the event (space_or_mark, timestamp),
+>>> the IRQ handler can return immediately, and a separate kernel thread
+>>> can do the decode without needing to touch at the IRQ.
+>>
+>> But the decoding itself is a really simple thing, why complicate it?
+>> There is no need for the kernel thread if the handler is fast (and it
+>> is).
 >
->> This model is complicated by the fact that some remotes that look
->> like multi-function remotes aren't really multifunction. The remote
->> bundled with the MS MCE receiver is one. That remote is a single
->> function device even though it has function buttons for TV, Music,
->> Pictures, etc.
+> The decoding of just one protocol may be fast, but having several decoders
+> serialized (without kthreads, you're serializing the decoders) will possibly
+> not be that fast.
 >
-> An unsolved question on my mind is how should we map such IR's? Should
-> we provide a way for them to emulate a multifunction IR (for example,
-> after pressing TV key, subsequent keystrokes would be directed to the
-> TV evdev device?), or should we let this up to some userspace app to
-> handle this case?
+> Also, you don't need wake the decoders kthreads for every event, but wait
 
-This case feels similar to that of Caps Lock, Num Lock and Scrool Lock,
-but I don't know if that scheme could be applied here.
+Just wake the default kthread on each event. If you wake the default
+thread multiple times it is the same as waking it once.
+
+The default kthread doesn't schedule very fast. If you get 120 events
+and call wake 120 times, the thread is only going to visit your driver
+one or two times not 120 times.
+
+> for some number of events to happen before waking it. For example,
+> 16 pulse/space events correspond to 8 bits of data on most protocols,
+> so you can wake the kthread only after 16 events for really simple decoders,
+> or if a timeout event is detected. The number of events to wake may be customized
+> per decoder.
+>
+> Cheers,
+> Mauro.
+>
+
+
+
 -- 
-Regards,
-Feri.
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,77 +1,62 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Tue, 08 Dec 2009 12:56:53 -0200
-Message-ID: <4B1E6935.207@redhat.com>
-References: <20091204220708.GD25669@core.coreip.homeip.net>	 <20091206065512.GA14651@core.coreip.homeip.net>	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>	 <m3skbn6dv1.fsf@intrepid.localdomain>	 <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>	 <4B1D934E.7030103@redhat.com>	 <9e4733910912071628x3f3eba82r4c964982f9d8c5a4@mail.gmail.com>	 <4B1E35D6.6000602@redhat.com> <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR  system?
+Date: Tue, 08 Dec 2009 16:24:40 +0100
+Message-ID: <m37hsxtrnr.fsf@intrepid.localdomain>
+References: <BEJgSGGXqgB@lirc>
+	<9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
+	<1260070593.3236.6.camel@pc07.localdom.local>
+	<20091206065512.GA14651@core.coreip.homeip.net>
+	<4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>
+	<9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	<m3skbn6dv1.fsf@intrepid.localdomain>
+	<20091207184153.GD998@core.coreip.homeip.net>
+	<m3my1u35t2.fsf@intrepid.localdomain>
+	<20091207213811.GE998@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36501 "EHLO mx1.redhat.com"
+Received: from khc.piap.pl ([195.187.100.11]:57411 "EHLO khc.piap.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755449AbZLHO5b (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Dec 2009 09:57:31 -0500
-In-Reply-To: <9e4733910912080534m1fe8c5bakb9219c6a55f0bcaa@mail.gmail.com>
+	id S1756013AbZLHPYh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Dec 2009 10:24:37 -0500
+In-Reply-To: <20091207213811.GE998@core.coreip.homeip.net> (Dmitry Torokhov's
+	message of "Mon, 7 Dec 2009 13:38:11 -0800")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Jon Smirl wrote:
-> On Tue, Dec 8, 2009 at 6:17 AM, Mauro Carvalho Chehab
-> <mchehab@redhat.com> wrote:
->> Jon Smirl wrote:
->>> On Mon, Dec 7, 2009 at 6:44 PM, Mauro Carvalho Chehab
->>> <mchehab@redhat.com> wrote:
->>>>> Where is the documentation for the protocol?
->>>> I'm not sure what you're meaning here. I've started a doc about IR at the media
->>> What is the format of the pulse stream data coming out of the lirc device?
->> AFAIK, it is at:
->>        http://www.lirc.org/html/index.html
->>
->> It would be nice to to add it to DocBook after integrating the API in kernel.
->>
-> 
-> The point of those design review questions was to illustrate that the
-> existing LIRC system is only partially designed. 
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 
-Ah, ok.
+> No, the IR core responsible for registering receivers and decoders.
 
-> Subsystems need to be
-> fully designed before they get merged.
+Well. This makes me think now that LIRC can be just "another decoder".
 
-True.
- 
-> For example 36-40K and 56K IR signals are both in use. It is a simple
-> matter to design a receiver (or buy two receivers)  that would support
-> both these frequencies. But the current LIRC model only supports  a
-> single IR receiver. Adjusting it to support two receivers is going to
-> break the ABI.
-> 
-> My choice would be to just tell the person with the 56K remote to just
-> buy a new 38K remote, but other people are against that choice. That
-> forces us into designing a system that can handle multiple receivers.
-> There is a parallel problem with baseband encoded IR signals.
-> 
-> We need to think about all of these use cases before designing the
-> ABI.  Only after we think we have a good ABI design should code start
-> being merged. Of course we may make mistakes and have to fix the ABI,
-> but there is nothing to be gained by merging the existing ABI if we
-> already know it has problems.
+>> Those are simple things. The only part which needs to be stable is the
+>> (in this case LIRC) kernel-user interface.
+>
+> For which some questions are still open. I believe Jon just oulined some
+> of them.
 
-I have here machines with 3 or 4 IR receivers (well, in a matter of fact,
-I don't use all of them at the same time). Nothing stops someone to
-use all IR receivers at the same. 
+Those are rather "how does it work", not "let's change something because
+it's not optimal".
 
-I've seen some interesting applications developed for students, where just
-one computer running Linux is splitted into 4 different consoles. Nothing
-stops that, on such usages, you may have 4 different IR transceivers working
-at the same time.
+> No we do not. We do not merge something that we expect to rework almost
+> completely (no, not the lirc-style device userspace inetrface, although
+> even it is not completely finalized I believe, but the rest of the
+> subsystem).
 
-In order to keep supporting the in-kernel drivers, we should create one lirc
-device per each IR transceiver.
+I don't think we need to rework it almost completely. Perhaps we need to
+change a hook here or there.
 
-Cheers,
-Mauro.
+> No, not at all. You merge core subsystem code, then start addig
+> decoders...
 
+You must have at least one common decoder merged with the core code,
+otherwise you don't know if the core is adequate. And you have to have
+at least one common input device.
+
+But perhaps it is a workable idea after all, given the "another
+decoder".
+-- 
+Krzysztof Halasa

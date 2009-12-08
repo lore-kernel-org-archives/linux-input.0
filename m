@@ -1,114 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Mon, 7 Dec 2009 20:22:10 -0800
-Message-ID: <20091208042210.GA11147@core.coreip.homeip.net>
-References: <BDRae8rZjFB@christoph> <1259024037.3871.36.camel@palomino.walls.org> <m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com> <1259264614.1781.47.camel@localhost> <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com> <1260240142.3086.14.camel@palomino.walls.org>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+	specify exact irq flags
+Date: Mon, 7 Dec 2009 20:22:51 -0800
+Message-ID: <20091208042251.GB11147@core.coreip.homeip.net>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935269AbZLHEWO@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:57422 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934855AbZLHEWt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 23:22:49 -0500
+Received: by pwj9 with SMTP id 9so1370107pwj.21
+        for <linux-input@vger.kernel.org>; Mon, 07 Dec 2009 20:22:56 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1260240142.3086.14.camel@palomino.walls.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+In-Reply-To: <20091206084704.GC2766@ucw.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
-> On Mon, 2009-12-07 at 13:19 -0500, Jarod Wilson wrote:
-> > On Nov 26, 2009, at 2:43 PM, Andy Walls wrote:
+On Sun, Dec 06, 2009 at 09:47:04AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> 
+> > But runtime-pm.txt says for example:
 > > 
-> > > On Thu, 2009-11-26 at 12:05 -0200, Mauro Carvalho Chehab wrote:
-> > >> Krzysztof Halasa wrote:
-> > >>> Andy Walls <awalls@radix.net> writes:
-> > >>> 
-> > >>>> I would also note that RC-6 Mode 6A, used by most MCE remotes, was
-> > >>>> developed by Philips, but Microsoft has some sort of licensing interest
-> > >>>> in it and it is almost surely encumbered somwhow:
-> > >>> 
-> > >>> I don't know about legal problems in some countries but from the
-> > >>> technical POV handling the protocol in the kernel is more efficient
-> > >>> or (/and) simpler.
-> > >> 
-> > >> A software licensing from Microsoft won't apply to Linux kernel, so I'm
-> > >> assuming that you're referring to some patent that they could be filled
-> > >> about RC6 mode 6A.
-> > >> 
-> > >> I don't know if is there any US patent pending about it (AFAIK, only US
-> > >> accepts software patents), but there are some prior-art for IR key
-> > >> decoding. So, I don't see what "innovation" RC6 would be adding. 
-> > >> If it is some new way to transmit waves, the patent issues
-> > >> aren't related to software, and the device manufacturer had already handled
-> > >> it when they made their devices.
-> > >> 
-> > >> If it is just a new keytable, this issue 
-> > >> could be easily solved by loading the keytable via userspace.
-> > >> 
-> > >> Also, assuming that you can use the driver only with a hardware that comes
-> > >> with a licensed software, the user has already the license for using it.
-> > >> 
-> > >> Do you have any details on what patents they are claiming?
-> > > 
-> > > The US Philips RC-6 patent is US Patent 5,877,702
-> > > 
-> > > http://www.google.com/patents?vid=USPAT5877702
-> > > 
-> > > Click on download PDF to get a copy of the whole patent.
-> > > 
-> > > I am not a lawyer.  Philips claims' all appear to tie to a transmitter
-> > > or receiver as part of a system, but most of the claims are about
-> > > information and bit positions and lengths.
-> > ...
-> > > IMO, given
-> > > 
-> > > a. the dearth of public information about RC-6, indicating someone
-> > > thinks it's their trade secret or intellectual property
-> > > 
-> > > b. Microsoft claiming to license something related to the MCE remote
-> > > protocols (which are obviously RC-6 Mode 6A),
-> > > 
-> > > c. my inability to draw a "clear, bright line" that RC-6 Mode 6A
-> > > encoding and decoding, as needed by MCE remotes, implemented in software
-> > > doesn't violate anyone's government granted rights to exclusivity.
-> > > 
-> > > I think it's much better to implement software RC-6 Mode 6A encoding and
-> > > decoding in user space, doing only the minimum needed to get the
-> > > hardware setup and going in the kernel.  
-> > > 
-> > > Encoding/decoding of RC-6 by microcontrollers with firmware doesn't
-> > > worry me. 
-> > > 
-> > > 
-> > > Maybe I'm being too conservative here, but I have a personal interest in
-> > > keeping Linux free and unencumbered even in the US which, I cannot deny,
-> > > has a patent system that is screwed up.
+> >     Generally, remote wake-up should be enabled for all input devices
+> >     put into a low power state at run time.
 > > 
-> > So I had one of the people who does all the license and patent audits
-> > for Fedora packages look at the Philips patent on RC-6. He's 100%
-> > positive that the patent *only* covers hardware, there should be no
-> > problem whatsoever writing a software decoder for RC-6.
+> > But in this case the requirement is to suppress input events from a
+> > given device, effectively muting and putting it into low power state,
+> > even though it's still open by some other parties.  Runtime PM, on the
+> > other hand tries not to interfere with the normal usage of the device.
+> > 
+> > Later:
+> > 
+> > (3) ->runtime_idle() and ->runtime_suspend() can only be executed for a
+> >     device the usage counter of which is equal to zero _and_ [...]
+> > 
+> > which underlines the difference again: the usage counter (defined by
+> > common sense) won't be zero in our case, because the device is
+> > constantly kept open, while we want to mute it, putting it into a low
+> > power state. 
+> ...
+> > Actually, this could be implemented by the various users cooperating in
+> > closing the device, letting it go to sleep automatically.  But this
+> > requires strictly cooperating parties and is more complicated that
+> > flipping some master switch of the device.  We're looking for this
+> > master switch, before needlessly building our own.
 > 
-> OK.  Thanks for having some professionals take a look.  (I'm assuming
-> that's the only patent.)
-> 
-> So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c before the
-> end of the month.
-> 
-> I can setup the CX2388[58] hardware to look for both RC-5 and RC-6 with
-> a common set of parameters, so I may be able to set up the decoders to
-> handle decoding from two different remote types at once.  The HVR boards
-> can ship with either type of remote AFAIK.
-> 
-> I wonder if I can flip the keytables on the fly or if I have to create
-> two different input devices?
+> Please just close the device properly. I do not think we want 100
+> different 'please mute keys A and G', 'please mute middle mouse button',
+> ... interfaces anywhere near mainline.
 > 
 
-Can you distinguish between the 2 remotes (not receivers)? Like I said,
-I think the preferred way is to represent every remote that can be
-distinguished from each other as a separate input device. Applications
-expect to query device capabilities and expect them to stay somewhat
-stable (we do support keymap change but I don't think anyone expectes
-flip-flopping).
+I do not think it is practical to simply close the device, given that
+there may be several applications that have it open. I constantly see
+embedded guys adding custom knobs to the devices allowing them to shut
+off the device when not in use. Kind of runtame PM but user-initiated.
+
+I would really love to have it implemented in the driver core so the
+interface is the same for all drivers (that support this future).
+
+> Or just do it as local patch.
+
+I also see that gpio-keys is quite different in the sence that it can
+shut off buttons selectively. I fact, at the moment every button can be
+considered a separate device... But that would be too much overhead.
+
+They could probably split the keys into 2 groups (critical that should
+be always active) and not critical, that could be shut off, but I think
+they want teh flexibility of controlling this at runtime instead of
+doing it in board data.
 
 -- 
 Dmitry

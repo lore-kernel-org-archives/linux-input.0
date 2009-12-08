@@ -1,175 +1,102 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
- 	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 08 Dec 2009 14:27:02 -0200
-Message-ID: <4B1E7E56.80701@redhat.com>
-References: <BDRae8rZjFB@christoph>	 <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>	 <1260240142.3086.14.camel@palomino.walls.org>	 <20091208042210.GA11147@core.coreip.homeip.net>	 <1260275743.3094.6.camel@palomino.walls.org>	 <4B1E54FF.8060404@redhat.com>	 <9e4733910912080547j75c2c885o29664470ff5e2c6a@mail.gmail.com>	 <4B1E5BDF.7010202@redhat.com>	 <9e4733910912080619t36089c9bg5e54114844b9694a@mail.gmail.com>	 <4B1E640B.6030705@redhat.com> <9e4733910912080756j7e1fac32qc552c6514a307b7d@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+	IR  system?
+Date: Tue, 8 Dec 2009 09:04:12 -0800
+Message-ID: <20091208170412.GA14143@core.coreip.homeip.net>
+References: <1260070593.3236.6.camel@pc07.localdom.local> <20091206065512.GA14651@core.coreip.homeip.net> <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <m3skbn6dv1.fsf@intrepid.localdomain> <9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com> <4B1D934E.7030103@redhat.com> <9e4733910912071628x3f3eba82r4c964982f9d8c5a4@mail.gmail.com> <4B1E35D6.6000602@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <9e4733910912080756j7e1fac32qc552c6514a307b7d@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Andy Walls <awalls@radix.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S936082AbZLHRET@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4B1E35D6.6000602@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
 
-Jon Smirl wrote:
-> On Tue, Dec 8, 2009 at 9:34 AM, Mauro Carvalho Chehab
-> <mchehab@redhat.com> wrote:
->> Jon Smirl wrote:
->>> On Tue, Dec 8, 2009 at 8:59 AM, Mauro Carvalho Chehab
->>> <mchehab@redhat.com> wrote:
->>>> Jon Smirl wrote:
->>>>> On Tue, Dec 8, 2009 at 8:30 AM, Mauro Carvalho Chehab
->>>>> <mchehab@redhat.com> wrote:
->>>>>> Andy Walls wrote:
->>>>>>> On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
->>>>>>>> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
->>>>>>>>> So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c before the
->>>>>>>>> end of the month.
->>>>>>>>>
->>>>>>>>> I can setup the CX2388[58] hardware to look for both RC-5 and RC-6 with
->>>>>>>>> a common set of parameters, so I may be able to set up the decoders to
->>>>>>>>> handle decoding from two different remote types at once.  The HVR boards
->>>>>>>>> can ship with either type of remote AFAIK.
->>>>>>>>>
->>>>>>>>> I wonder if I can flip the keytables on the fly or if I have to create
->>>>>>>>> two different input devices?
->>>>>>>>>
->>>>>>>> Can you distinguish between the 2 remotes (not receivers)?
->>>>>>> Yes.  RC-6 and RC-5 are different enough to distinguish between the two.
->>>>>>> (Honestly I could pile on more protocols that have similar pulse time
->>>>>>> periods, but that's complexity for no good reason and I don't know of a
->>>>>>> vendor that bundles 3 types of remotes per TV card.)
->>>>>> You'll be distinguishing the protocol, not the remote. If I understood
->>>>>> Dmitry's question, he is asking if you can distinguish between two different
->>>>>> remotes that may, for example, be using both RC-5 or both RC-6 or one RC-5
->>>>>> and another RC-6.
->>>>> RC-5 and RC-6 both contain an address field.  My opinion is that
->>>>> different addresses represent different devices and in general they
->>>>> should appear on an input devices per address.
->>>> The same IR can produce two different addresses. The IR bundled with my satellite
->>>> STB produces two different codes, depending if you previously pressed <TV> or <SAT>
->>>> key (in fact, I think it can even produce different protocols for TV, as it can
->>>> be configured to work with different TV sets).
->>> You have a multi-function remote.
->> Yes.
->>
->>> That's why those keys don't send codes. When writing code you should
->>> think of this remote as being two indpendent virtual remotes, not a
->>> single one.
->> Not really. I may think on it as a single device and use the two groups
->> of functions to control two aspects at the same application.
->>
->> For example, I may map the <TV> group on kaffeine for DVB reception and the
->> <SAT> group for DVD (well, probably, in this case, I'll use an IR with
->> <TV> and <DVD> keys, instead ;) ).
->>
->>> By using maps containing the two different addresses for <TV> and
->>> <SAT> you can split these commands onto two different evdev devices.
->> True. I can do it, but I can opt to have both mapped as one evdev device as well.
->> This will basically depend on how I want to mount my environment.
->>
->>> This model is complicated by the fact that some remotes that look like
->>> multi-function remotes aren't really multifunction. The remote bundled
->>> with the MS MCE receiver is one. That remote is a single function
->>> device even though it has function buttons for TV, Music, Pictures,
->>> etc.
->> It is very common to have such remotes bundled with multimedia devices.
->>
->> An unsolved question on my mind is how should we map such IR's? Should we
->> provide a way for them to emulate a multifunction IR (for example, after pressing
->> TV key, subsequent keystrokes would be directed to the TV evdev device?), or
->> should we let this up to some userspace app to handle this case?
+On Tue, Dec 08, 2009 at 09:17:42AM -0200, Mauro Carvalho Chehab wrote:
+> Jon Smirl wrote:
+> > On Mon, Dec 7, 2009 at 6:44 PM, Mauro Carvalho Chehab
+> > <mchehab@redhat.com> wrote:
 > 
-> Splitting them into multiple devices requires remembering state and
-> scripting so it needs to be done in user space.
-
-It shouldn't be hard to do it in kernelspace, since you'll need to have
-one evdev interface associated with the IR anyway, but this will add
-some extra complexity at the scancode->keycode conversion, but I'm wandering
-if we should do it or not.
-
-Maybe the better is to not do it in kernelspace, to avoid adding there an
-extra complexity that can easily be done in userspace.
-
-> If the user wants to
-> control a radio app and a home automation app they need to choose.
-> Keep the bundled remote and do some non-trivial scripting or buy a
-> universal remote.
-
-Ok, but using the shipped IR even without a separate address group for
-different applications, and having it controlling radio app and tv app
-(not simultaneously) should not be hard, but I LIRC already covers such
-usecase, so maybe we don't need to worry about it.
-
-> Universal remotes make it much easier to achieve "just works".
-
-True.
-
-> The IR core can contain default universal profiles for various classes
-> of devices. Say Morotola_DVR and SciAtlanta_DVR. The core would check
-> if the receiver is cable of receiving these profiles before loading
-> them. There would be ten of these default universal profiles at most
-> and you can unload them from RAM if they aren't needed.
+> >>> Where is the documentation for the protocol?
+> >> I'm not sure what you're meaning here. I've started a doc about IR at the media
+> > 
+> > What is the format of the pulse stream data coming out of the lirc device?
 > 
-> Now Myth can have a menu with three remote choices:
->  Universal Morotola_DVR
->  Universal SciAtlanta_DVR
->  Bundled
+> AFAIK, it is at:
+> 	http://www.lirc.org/html/index.html
 > 
-> The Bundled choice came from the map built into the IR receiver's device driver.
-> The other two choices were loaded by the IR core after ensuring that
-> the hardware could receive from a universal remote.
+> It would be nice to to add it to DocBook after integrating the API in kernel.
 > 
-> The core would also load a couple of default radio profiles
->  Univeral SonyDR112_RADIO
->  Univeral OnkyoTX8255_RADIO
-> Same for automation and mouse/keyboard emulation.
+> >> docbook. This is currently inside the kernel Documents/DocBook. If you want
+> >> to browse, it is also available as:
+> >>
+> >>        http://linuxtv.org/downloads/v4l-dvb-apis/ch17.html
+> >>
+> >> For sure we need to better document the IR's, and explain the API's there.
+> >>
+> >>> Is it a device interface or something else?
+> >> lirc_dev should create a device interface.
+> >>
+> >>> What about capabilities of the receiver, what frequencies?
+> >>> If a receiver has multiple frequencies, how do you report what
+> >>> frequency the data came in on?
+> >> IMO, via sysfs.
+> > 
+> > Say you have a hardware device with two IR diodes, one at 38K and one
+> > at 56K. Both of these receivers can get pulses. How do we tell the
+> > user space app which frequency the pulses were received on? Seems to
+> > me like there has to be a header on the pulse data indicating the
+> > received carrier frequency. There is also baseband signaling. sysfs
+> > won't work for this because of the queuing latency.
+> 
+> Simply create two interfaces. One for each IR receiver. At sysfs, you'll
+> have /sys/class/irrcv/irrcv0 for the first one and /sys/class/irrcv/irrcv1.
 
-Agreed.
+Yes, please. Distinct hardware - distinct representation in the kernel.
+This is the most sane way.
 
-> Myth looks in sysfs and builds a menu containing DVR devices and all
-> bundled entries. First app to open the "Bundled" device gets to keep
-> it.
+...
+> >>
+> >>> What is the interface for attaching an in-kernel decoder?
+> >> IMO, it should use the kfifo for it. However, if we allow both raw data and
+> >> in-kernel decoders to read data there, we'll need a spinlock to protect the
+> >> kfifo.
 
-Myth (or other userspace apps) don't need to to that, since we've standardized
-the keycode actions (see the IR chapter of the media DocBook). It just
-needs to support the keycodes already defined, for the common case.
+Probably we should do what input layer does - the data is pushed into
+all handlers that are signed up for it and they can deal with it at
+their leisure.
 
-> These apps could take "just works" even farther. When they start up
-> they could listen on all three evdev devices:  Morotola_DVR,
-> SciAtlanta_DVR,   Bundled. And then if you find Myth responding to
-> unwanted commands you could disable the unwanted profiles by
-> deselecting them in the Myth UI.
+> >>
+> >>> If there is an in-kernel decoder should the pulse data stop being
+> >>> reported, partially stopped, something else?
+> >> I don't have a strong opinion here, but, from the previous discussions, it
+> >> seems that people want it to be double-reported by default. If so, I think
+> >> we need to implement a command at the raw interface to allow disabling the
+> >> in-kernel decoder, while the raw interface is kept open.
+> > 
+> > Data could be sent to the in-kernel decoders first and then if they
+> > don't handle it, send it to user space.
 
-I don't like the idea of automatically loading 3 different keycodes at the
-same time. You may have overlaps between different keycode tables. The
-better is to have some userspace GUI that will allow the user to select
-what keycode table(s) he want to be available, if he decides to not use the
-bundled IR.
+You do not know what userspace wants to do with the data. They may want
+to simply observe it, store or do something else. Since we do provide
+interface for such raw[ish] data we just need to transmit it to
+userpsace as long as there are users (i.e. interface is open).
 
-The same applies to applications: if you have 3 keymaps loaded, is because you
-want do do different things with the 3 keymaps (like using keymap 1 for kaffeine,
-keymap 2 for mplayer, keymap 3 for mythtv).
+> 
+> Hmm... like adding a delay if the raw userspace is open and, if the raw userspace
+> doesn't read all pulse data, it will send via in-kernel decoder instead? This can
+> work, but I'm not sure if this is the better way, and will require some logic to
+> synchronize lirc_dev and IR core modules. Also, doing it key by key will introduce
+> some delay.
+> 
+> If you're afraid of having the userspace app hanged and having no IR output, 
+> it would be simpler to just close the raw interface if an available data won't be
+> read after a bigger timeout (3 seconds? 5 seconds?).
 
-So, IR-aware applications should have a setup interface to specify what IR keycodes
-are relevant to that particular application, and how to associate an evdev interface
-to an specific group of functions (for applications that supports several different
-types of media, like MythTV and Kaffeine, where you'll end by having a "TV" keymap/evdev,
-a "Radio" keymap/evdev, a "CD/DVD" Keymap/evdev, etc).
+We can not foresee all use cases. Just let all parties signed up for the
+data get and process it, do not burden the core with heuristics.
 
-Btw, if we're doing that, IMO, we should have an string sysfs alias attribute,
-to allow associating the userspace application to an specific keymap alias 
-(like "radio", "tv", etc.).
-
-> All of this may seem complicated to build, but the purpose is to
-> create an environment where a non-technical user can get an IR remote
-> working without needing detailed knowledge about how IR protocols
-> work.
-
-IMO, this is an important requisite to fulfill.
-
-Cheers,
-Mauro.
+-- 
+Dmitry

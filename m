@@ -1,41 +1,40 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Tue, 08 Dec 2009 13:41:25 -0200
-Message-ID: <4B1E73A5.2040006@redhat.com>
-References: <BEJgSGGXqgB@lirc>	<9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>	<1260070593.3236.6.camel@pc07.localdom.local>	<20091206065512.GA14651@core.coreip.homeip.net>	<4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>	<9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>	<m3skbn6dv1.fsf@intrepid.localdomain>	<9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>	<4B1D934E.7030103@redhat.com>	<20091208042340.GC11147@core.coreip.homeip.net>	<4B1E3F7D.9070806@redhat.com> <m34oo1va2y.fsf@intrepid.localdomain>	<4B1E5EFA.4020801@redhat.com> <m33a3ltrjz.fsf@intrepid.localdomain>
+ IR 	system?
+Date: Tue, 08 Dec 2009 13:49:01 -0200
+Message-ID: <4B1E756D.2090908@redhat.com>
+References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc>	<9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>	<1260070593.3236.6.camel@pc07.localdom.local>	<20091206065512.GA14651@core.coreip.homeip.net>	<4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>	<9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>	<m3skbn6dv1.fsf@intrepid.localdomain>	<9e4733910912061323x22c618ccyf6edcee5b021cbe3@mail.gmail.com>	<4B1D934E.7030103@redhat.com> <m3hbs1vain.fsf@intrepid.localdomain>	<4B1E5DA3.7000206@redhat.com> <m3y6ldscut.fsf@intrepid.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:2829 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932119AbZLHPls (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Dec 2009 10:41:48 -0500
-In-Reply-To: <m33a3ltrjz.fsf@intrepid.localdomain>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <m3y6ldscut.fsf@intrepid.localdomain>
+Sender: linux-media-owner@vger.kernel.org
 To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jon Smirl <jonsmirl@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+List-Id: linux-input@vger.kernel.org
 
 Krzysztof Halasa wrote:
 > Mauro Carvalho Chehab <mchehab@redhat.com> writes:
 > 
->> The enable/disable protocol decoder enable/disable interface is needed anyway,
->> due to the needs for the hardware IR decoders
+>> If you use a kfifo to store the event (space_or_mark, timestamp), 
+>> the IRQ handler can return immediately, and a separate kernel thread 
+>> can do the decode without needing to touch at the IRQ.
 > 
-> Why do they need it exactly?
-> The key tables say all they need I hope?
+> But the decoding itself is a really simple thing, why complicate it?
+> There is no need for the kernel thread if the handler is fast (and it
+> is).
 
-You can't upload a key for an unsupported protocol. Also, provided
-that hardware decoders in general don't support decoding multiple
-protocols at the same time, it is needed to select what protocol it
-will be decoding.
+The decoding of just one protocol may be fast, but having several decoders
+serialized (without kthreads, you're serializing the decoders) will possibly
+not be that fast.
 
-So, userspace needs to:
-	- retrieve the list of the supported protocols;
-	- identify if a given IR is capable of multiple protocols;
-	- be able to select what protocol(s) decoder(s) will be enabled.
+Also, you don't need wake the decoders kthreads for every event, but wait
+for some number of events to happen before waking it. For example,
+16 pulse/space events correspond to 8 bits of data on most protocols, 
+so you can wake the kthread only after 16 events for really simple decoders,
+or if a timeout event is detected. The number of events to wake may be customized
+per decoder.
 
 Cheers,
 Mauro.

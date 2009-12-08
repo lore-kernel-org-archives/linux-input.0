@@ -1,113 +1,117 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Should we create a raw input interface for IR's ? - Was:
-	Re: [PATCH 1/3 v2] lirc core device driver infrastructure
-Date: Tue, 8 Dec 2009 07:52:02 -0500
-Message-ID: <9e4733910912080452p42efa794mb7fd608fa4fbad7c@mail.gmail.com>
-References: <BDRae8rZjFB@christoph>
-	 <1259024037.3871.36.camel@palomino.walls.org>
-	 <m3k4xe7dtz.fsf@intrepid.localdomain> <4B0E8B32.3020509@redhat.com>
-	 <1259264614.1781.47.camel@localhost>
-	 <6B4C84CD-F146-4B8B-A8BB-9963E0BA4C47@wilsonet.com>
-	 <1260240142.3086.14.camel@palomino.walls.org>
-	 <20091208042210.GA11147@core.coreip.homeip.net>
-	 <1260275743.3094.6.camel@palomino.walls.org>
+From: Artem Bityutskiy <dedekind1@gmail.com>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+ specify exact irq flags
+Date: Tue, 08 Dec 2009 15:03:30 +0200
+Message-ID: <1260277410.19669.84.camel@localhost>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org>
+	 <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz>
+	 <20091208042251.GB11147@core.coreip.homeip.net>
+Reply-To: dedekind1@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:60159 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754148AbZLHMvz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 07:51:55 -0500
-In-Reply-To: <1260275743.3094.6.camel@palomino.walls.org>
+Received: from smtp.nokia.com ([192.100.122.233]:65367 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754446AbZLHNEv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 08:04:51 -0500
+In-Reply-To: <20091208042251.GB11147@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Dec 8, 2009 at 7:35 AM, Andy Walls <awalls@radix.net> wrote:
-> On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
->> On Mon, Dec 07, 2009 at 09:42:22PM -0500, Andy Walls wrote:
->
->> > So I'll whip up an RC-6 Mode 6A decoder for cx23885-input.c before=
- the
->> > end of the month.
->> >
->> > I can setup the CX2388[58] hardware to look for both RC-5 and RC-6=
- with
->> > a common set of parameters, so I may be able to set up the decoder=
-s to
->> > handle decoding from two different remote types at once. =A0The HV=
-R boards
->> > can ship with either type of remote AFAIK.
->> >
->> > I wonder if I can flip the keytables on the fly or if I have to cr=
-eate
->> > two different input devices?
->> >
->>
->> Can you distinguish between the 2 remotes (not receivers)?
->
-> Yes. =A0RC-6 and RC-5 are different enough to distinguish between the=
- two.
-> (Honestly I could pile on more protocols that have similar pulse time
-> periods, but that's complexity for no good reason and I don't know of=
+On Mon, 2009-12-07 at 20:22 -0800, Dmitry Torokhov wrote:
+> On Sun, Dec 06, 2009 at 09:47:04AM +0100, Pavel Machek wrote:
+> > Hi!
+> >=20
+> >=20
+> > > But runtime-pm.txt says for example:
+> > >=20
+> > >     Generally, remote wake-up should be enabled for all input dev=
+ices
+> > >     put into a low power state at run time.
+> > >=20
+> > > But in this case the requirement is to suppress input events from=
  a
-> vendor that bundles 3 types of remotes per TV card.)
->
->
->> =A0Like I said,
->> I think the preferred way is to represent every remote that can be
->> distinguished from each other as a separate input device.
->
-> OK. =A0With RC-5, NEC, and RC-6 at least there is also an address or
-> system byte or word to distingish different remotes. =A0However creat=
-ing
-> multiple input devices on the fly for detected remotes would be madne=
-ss
-> - especially with a decoding error in the address bits.
-
-I agree that creating devices on the fly has problems. Another
-solution is to create one device for each map that is loaded. There
-would be a couple built-in maps for bundled remotes - each would
-create a device. Then the user could load more maps with each map
-creating a device.
-
-Incoming scancodes are matched against all of the loaded maps and a
-keycode event is generated if a match occurs.
-
-This illustrates why there should an EV_IR event which communicates
-scancodes, without this event you can't see the scancodes that don't
-match a map entry. A scancode would be first matched against the map,
-then if there as no match an EV_IR event would be reported.
-
-
->
-> Any one vendor usually picks one address for their bundled remote.
-> Hauppaugue uses address 0x1e for it's RC-5 remotes AFAICT.
->
->
->
->> =A0Applications
->> expect to query device capabilities and expect them to stay somewhat
->> stable (we do support keymap change but I don't think anyone expecte=
+> > > given device, effectively muting and putting it into low power st=
+ate,
+> > > even though it's still open by some other parties.  Runtime PM, o=
+n the
+> > > other hand tries not to interfere with the normal usage of the de=
+vice.
+> > >=20
+> > > Later:
+> > >=20
+> > > (3) ->runtime_idle() and ->runtime_suspend() can only be executed=
+ for a
+> > >     device the usage counter of which is equal to zero _and_ [...=
+]
+> > >=20
+> > > which underlines the difference again: the usage counter (defined=
+ by
+> > > common sense) won't be zero in our case, because the device is
+> > > constantly kept open, while we want to mute it, putting it into a=
+ low
+> > > power state.=20
+> > ...
+> > > Actually, this could be implemented by the various users cooperat=
+ing in
+> > > closing the device, letting it go to sleep automatically.  But th=
+is
+> > > requires strictly cooperating parties and is more complicated tha=
+t
+> > > flipping some master switch of the device.  We're looking for thi=
 s
->> flip-flopping).
->
-> OK.
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+> > > master switch, before needlessly building our own.
+> >=20
+> > Please just close the device properly. I do not think we want 100
+> > different 'please mute keys A and G', 'please mute middle mouse but=
+ton',
+> > ... interfaces anywhere near mainline.
+> >=20
+>=20
+> I do not think it is practical to simply close the device, given that
+> there may be several applications that have it open. I constantly see
+> embedded guys adding custom knobs to the devices allowing them to shu=
+t
+> off the device when not in use. Kind of runtame PM but user-initiated=
+=2E
+>=20
+> I would really love to have it implemented in the driver core so the
+> interface is the same for all drivers (that support this future).
+>=20
+> > Or just do it as local patch.
+>=20
+> I also see that gpio-keys is quite different in the sence that it can
+> shut off buttons selectively. I fact, at the moment every button can =
+be
+> considered a separate device... But that would be too much overhead.
+>=20
+> They could probably split the keys into 2 groups (critical that shoul=
+d
+> be always active) and not critical, that could be shut off, but I thi=
+nk
+> they want teh flexibility of controlling this at runtime instead of
+> doing it in board data.
 
+I suggested including this into the "abstract input device" model, but
+you refuse this. But I still think it is a good idea.
 
+Indeed, if we look at an input device as at something abstract which ha=
+s
+many keys, why we cannot assume that separate keys can be
+enabled/disabled? Just imagine you have a very advanced keybord :-) And
+we simply implement an ioctl which enables/disables a specific key. The
+generic layers just pass this ioctl down to the lower lever drivers. If
+the specific input device or driver support it - fine, if not - it
+returns -EINVAL or something like that.
 
 --=20
-Jon Smirl
-jonsmirl@gmail.com
+Best Regards,
+Artem Bityutskiy (=D0=90=D1=80=D1=82=D1=91=D0=BC =D0=91=D0=B8=D1=82=D1=8E=
+=D1=86=D0=BA=D0=B8=D0=B9)
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

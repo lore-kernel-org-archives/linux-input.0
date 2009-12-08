@@ -1,49 +1,59 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Mon, 7 Dec 2009 19:44:20 -0500
-Message-ID: <9e4733910912071644y234beebepd426f9f5760507ce@mail.gmail.com>
-References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc>
-	 <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com>
-	 <1260070593.3236.6.camel@pc07.localdom.local>
-	 <20091206065512.GA14651@core.coreip.homeip.net>
-	 <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain>
-	 <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
-	 <m3skbn6dv1.fsf@intrepid.localdomain>
-	 <20091207184153.GD998@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
+	Keyscan platform data
+Date: Mon, 7 Dec 2009 16:48:32 -0800
+Message-ID: <20091208004832.GA9495@core.coreip.homeip.net>
+References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com> <87hbs25n38.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S965295AbZLHAoS@vger.kernel.org>
-In-Reply-To: <20091207184153.GD998@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Mauro Carvalho Chehab <mchehab@redhat.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f191.google.com ([209.85.216.191]:64472 "EHLO
+	mail-px0-f191.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S965207AbZLHAsb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Dec 2009 19:48:31 -0500
+Received: by pxi29 with SMTP id 29so1341006pxi.1
+        for <linux-input@vger.kernel.org>; Mon, 07 Dec 2009 16:48:38 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <87hbs25n38.fsf@deeprootsystems.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: miguel.aguilar@ridgerun.com, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
 
-On Mon, Dec 7, 2009 at 1:41 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> That is why I think we should go the other way around - introduce the
-> core which receivers could plug into and decoder framework and once it
-> is ready register lirc-dev as one of the available decoders.
+On Mon, Dec 07, 2009 at 04:24:59PM -0800, Kevin Hilman wrote:
+> <miguel.aguilar@ridgerun.com> writes:
+> 
+> > From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> >
+> > Add a function pointer in the platform data of the DaVinci Keyscan driver
+> > called device_enabled, in order to perform board specific actions when
+> > the device is initialized, like setup the PINMUX configuration.
+> >
+> > Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> 
+> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+> 
+> Dmitry,
+> 
+> Will you be queueing this driver (and this patch) for 2.6.34?  I
+> thought you had accepted the original driver, but I don't see it in
+> the master or next branch of your input tree at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 
-The core needs to allow for RF remotes too.
+The driver is there, commit bc09dcadc1a3da87d58aa70ebc8e9441205be75c on
+'next' branch (I don't really use master branch).  It was committed back
+in October, probably that's why you don't see it?
 
--Bluetooth remotes are already in kernel somehow, I don't know how they work,
--RF4CE, the 802.15.4 stack has been recently merged, the remotes use a
-protocol on top of that. These remotes will hit the consumer market
-next year. Sony, Panasonic and other big names are behind this.
--Zwave, the Harmony remotes use Zwave. There is no Zwave support in
-the kernel that I am aware of. Zwave is proprietary.
+As far as the patch goes - I got an impression from email sent by Steve
+that there are ways to do automatic PINMUX detection and thus this patch
+was not needed. Is this ture? If not I am stull unsure what happens if
+you unload the driver. How do you restore the old configuration so that
+the device you took over from can start working again? Maybe pinmux
+should be controlled via sysfs attribute (in board code) so that user
+can switch on-fly between the devices?
 
-After these protocols are decoded you end up with scancodes. The
-scancodes need to get injected into input somehow and then flow
-through the mapping process. Decoding down to the scancodes probably
-happens over in the networking code.
-
-After an in-kernel IR decoder runs it needs to hand off the scancodes
-into the input subsystem. This same API can be used by the networking
-code to hand off RF scancodes.
+Thanks.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Dmitry

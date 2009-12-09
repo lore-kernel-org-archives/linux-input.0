@@ -1,110 +1,44 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH 2/2] dell-laptop: Update rfkill state on kill switch
-Date: Wed,  9 Dec 2009 13:33:29 -0500
-Message-ID: <1260383609-7681-2-git-send-email-mjg@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: Allow filtering of i8042 events
+Date: Wed, 9 Dec 2009 12:06:15 -0800
+Message-ID: <20091209200614.GA10138@core.coreip.homeip.net>
 References: <1260383609-7681-1-git-send-email-mjg@redhat.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:44505 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756814AbZLIUGP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 15:06:15 -0500
+Content-Disposition: inline
 In-Reply-To: <1260383609-7681-1-git-send-email-mjg@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, dtor@mail.ru, lenb@kernel.org, Matthew Garrett <mjg@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Matthew Garrett <mjg@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, lenb@kernel.org
 
-The rfkill interface on Dells only sends a notification that the switch
-has been changed via the keyboard controller. Add a filter so we can
-pick these notifications up and update the rfkill state appropriately.
+Hi Matthew,
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
----
- drivers/platform/x86/dell-laptop.c |   40 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 40 insertions(+), 0 deletions(-)
+On Wed, Dec 09, 2009 at 01:33:28PM -0500, Matthew Garrett wrote:
+> Some hardware (such as Dell laptops) signal a variety of events through the
+> i8042 controller, even if these don't map to keyboard events. Add support
+> for drivers to filter the i8042 event stream in order to respond to these
+> events and (if appropriate) block them from entering the input stream.
+> 
 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index 9061111..9dbec0f 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -22,6 +22,7 @@
- #include <linux/rfkill.h>
- #include <linux/power_supply.h>
- #include <linux/acpi.h>
-+#include <linux/i8042.h>
- #include "../../firmware/dcdbas.h"
- 
- #define BRIGHTNESS_TOKEN 0x7d
-@@ -206,6 +207,16 @@ static const struct rfkill_ops dell_rfkill_ops = {
- 	.query = dell_rfkill_query,
- };
- 
-+static void dell_rfkill_update(void)
-+{
-+	if (wifi_rfkill)
-+		dell_rfkill_query(wifi_rfkill, (void *)1);
-+	if (bluetooth_rfkill)
-+		dell_rfkill_query(bluetooth_rfkill, (void *)2);
-+	if (wwan_rfkill)
-+		dell_rfkill_query(wwan_rfkill, (void *)3);
-+}
-+
- static int dell_setup_rfkill(void)
- {
- 	struct calling_interface_buffer buffer;
-@@ -310,6 +321,26 @@ static struct backlight_ops dell_ops = {
- 	.update_status  = dell_send_intensity,
- };
- 
-+bool dell_laptop_i8042_filter(unsigned char data, unsigned int flags,
-+			      struct serio *port)
-+{
-+	static bool extended;
-+
-+	if (unlikely(data == 0xe0)) {
-+		extended = true;
-+		return false;
-+	} else if (unlikely(extended)) {
-+		switch (data) {
-+		case 0x8:
-+			dell_rfkill_update();
-+			break;
-+		}
-+		extended = false;
-+	}
-+
-+	return false;
-+}
-+
- static int __init dell_init(void)
- {
- 	struct calling_interface_buffer buffer;
-@@ -333,6 +364,13 @@ static int __init dell_init(void)
- 		goto out;
- 	}
- 
-+	ret = i8042_install_filter(I8042_KBD_PORT_NO, dell_laptop_i8042_filter);
-+	if (ret) {
-+		printk(KERN_WARNING
-+		       "dell-laptop: Unable to install key filter\n");
-+		goto out;
-+	}
-+
- #ifdef CONFIG_ACPI
- 	/* In the event of an ACPI backlight being available, don't
- 	 * register the platform controller.
-@@ -369,6 +407,7 @@ static int __init dell_init(void)
- 
- 	return 0;
- out:
-+	i8042_remove_filter(I8042_KBD_PORT_NO, dell_laptop_i8042_filter);
- 	if (wifi_rfkill)
- 		rfkill_unregister(wifi_rfkill);
- 	if (bluetooth_rfkill)
-@@ -381,6 +420,7 @@ out:
- 
- static void __exit dell_exit(void)
- {
-+	i8042_remove_filter(I8042_KBD_PORT_NO, dell_laptop_i8042_filter);
- 	backlight_device_unregister(dell_backlight_device);
- 	if (wifi_rfkill)
- 		rfkill_unregister(wifi_rfkill);
+This is certainly going in the direction I wanted but it looks like
+it is more complex than it needs to be. Why don't you just allow
+installing global filter for entire i8042 (pass the status register
+there along with data byte)? The data you are interested in goes kind of
+"ouside" KBD/AUX port abstraction anyway...  Plus currently you are not
+handling MUX case properly.
+
+Also I don't think you need to handle the case when we install the same
+filter twice? Just always return -EBUSY if there is a filter already and
+let drivers keep track of their own stuff and not register tehir filters
+twice.
+
+Thanks.
+
 -- 
-1.6.5.2
-
+Dmitry

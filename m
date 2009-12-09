@@ -1,65 +1,73 @@
-From: =?utf-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
-Subject: [PATCH] HID: blacklist ET&T TC5UH touchscreen controller
-Date: Wed,  9 Dec 2009 22:09:53 +0100
-Message-ID: <1260392993-8619-1-git-send-email-ynezz@true.cz>
-References: <20091130081011.GB10295@core.coreip.homeip.net>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: Please pull bjdooks' git tree
+Date: Wed, 9 Dec 2009 21:29:16 +0000
+Message-ID: <20091209212916.GA20296@fluff.org.uk>
+References: <E1NI9YG-0003dB-54@teyla.home.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=unknown-8bit
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ibawizard.net ([82.208.49.253]:60475 "EHLO
-	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753528AbZLIVJt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:09:49 -0500
-In-Reply-To: <20091130081011.GB10295@core.coreip.homeip.net>
+Received: from aeryn.fluff.org.uk ([87.194.8.8]:53713 "EHLO
+	kira.home.fluff.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750926AbZLIV3g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:29:36 -0500
+Content-Disposition: inline
+In-Reply-To: <E1NI9YG-0003dB-54@teyla.home.fluff.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@novell.com>, =?utf-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, linux-input@vger.kernel.org, dimitry.torokhov@gmail.com
 
-This patch adds ET&T TC5UH touchscreen controller to HID blacklist,
-because this device is handled by input/usbtouchscreen driver.
+On Tue, Dec 08, 2009 at 11:33:04PM +0000, Ben Dooks wrote:
+> The following changes since commit 6035ccd8e9e40bb654fbfdef325902ab53=
+1679a5:
+>   Linus Torvalds (1):
+>         Merge branch 'for-2.6.33' of git://git.kernel.dk/linux-2.6-bl=
+ock
 
-Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
----
- drivers/hid/hid-core.c |    1 +
- drivers/hid/hid-ids.h  |    3 +++
- 2 files changed, 4 insertions(+), 0 deletions(-)
+If it is not too late, then please replace this with the following
+pull request, which missed out a patch needed to define the necessary
+platform data and device definitions for the touchscreen driver.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 7d05c4b..a000bb7 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1296,6 +1296,7 @@ static const struct hid_device_id hid_blacklist[]=
- =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE=
-_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) =
-},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PS=
-X_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PC=
-S_ADAPTOR) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index adbef5d..3e76bd9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -164,6 +164,9 @@
- #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
- #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
-=20
-+#define USB_VENDOR_ID_ETT		0x0664
-+#define USB_DEVICE_ID_TC5UH		0x0309
-+
- #define USB_VENDOR_ID_EZKEY 		0x0518
- #define USB_DEVICE_ID_BTC_8193		0x0002
-=20
+The following changes since commit 6035ccd8e9e40bb654fbfdef325902ab5316=
+79a5:
+  Linus Torvalds (1):
+        Merge branch 'for-2.6.33' of git://git.kernel.dk/linux-2.6-bloc=
+k
+
+are available in the git repository at:
+
+  git://git.fluff.org/bjdooks/linux.git s3c24xx-updates2
+
+Arnaud Patard (1):
+      ARM: S3C24XX: touchscreen device definition
+
+Ben Dooks (1):
+      ARM: S3C24XX: Export s3c24xx_set_fiq for modules.
+
+Ramax Lo (1):
+      ARM: S3C24XX: DMA: Use valid index when accessing array
+
+Uwe Kleine-K=C3=B6nig (2):
+      ARM: S3C: move s3c_adc_remove to .devexit.text
+      ARM: S3C: move s3c_pwm_remove to .devexit.text
+
+ arch/arm/mach-s3c2410/include/mach/ts.h |   21 +++++++++++++++++++++
+ arch/arm/plat-s3c/include/plat/devs.h   |    1 +
+ arch/arm/plat-s3c/pwm.c                 |    2 +-
+ arch/arm/plat-s3c24xx/adc.c             |    2 +-
+ arch/arm/plat-s3c24xx/devs.c            |   18 ++++++++++++++++++
+ arch/arm/plat-s3c24xx/dma.c             |    6 ++++--
+ arch/arm/plat-s3c24xx/irq.c             |    2 ++
+ arch/arm/plat-s3c24xx/s3c244x.c         |    1 +
+ 8 files changed, 49 insertions(+), 4 deletions(-)
+ create mode 100644 arch/arm/mach-s3c2410/include/mach/ts.h
+
+
 --=20
-1.6.0.4
+Ben (ben@fluff.org, http://www.fluff.org/)
 
+  'a smiley only costs 4 bytes'
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

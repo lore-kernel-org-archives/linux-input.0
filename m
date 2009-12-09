@@ -1,36 +1,34 @@
-From: Jiri Kosina <jiri.kosina@novell.com>
-Subject: Re: [PATCH] Input: usbtouchscreen - add support for ET&T TC5UH
- touchscreen controller
-Date: Wed, 9 Dec 2009 11:20:23 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.0912091119520.3755@pobox.suse.cz>
-References: <1259405677-9416-1-git-send-email-ynezz@true.cz> <20091129053020.GT6936@core.coreip.homeip.net> <20091129113659.GB31105@ibawizard.net> <20091130081011.GB10295@core.coreip.homeip.net>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [PATCH] Input: gpio-keys: Support for one-directional interrupts
+Date: Wed, 09 Dec 2009 12:32:20 +0100
+Message-ID: <87fx7kgz7f.fsf@tac.ki.iif.hu>
+References: <1260052694-17223-1-git-send-email-darkstar6262@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20091130081011.GB10295@core.coreip.homeip.net>
+Received: from tac.ki.iif.hu ([193.6.222.43]:34198 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755089AbZLILcR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Dec 2009 06:32:17 -0500
+In-Reply-To: <1260052694-17223-1-git-send-email-darkstar6262@gmail.com> (Cory
+	Maccarrone's message of "Sat, 5 Dec 2009 14:38:14 -0800")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-15?Q?Petr_=A6tetiar?= <ynezz@true.cz>, linux-input@vger.kernel.org
+To: Cory Maccarrone <darkstar6262@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
 
-On Mon, 30 Nov 2009, Dmitry Torokhov wrote:
+Cory Maccarrone <darkstar6262@gmail.com> writes:
 
-> > > The link abouve mentions HID compliance? Does it not wok properly with
-> > > HID driver? Do we need to blacklist it in HID?
-> > 
-> > Thinking about it again, we maybe need to blacklist it in HID, because it
-> > can be picked up by hidraw driver.
-> > 
-> 
-> OK, I applied th epatch to the 'next' branch, please send the blacklist
-> patch to Jiri.
+> The current gpio-keys driver assumes that each given GPIO has
+> the ability to respond to both rising and falling interrupts
+> at the same time.  For some GPIOs on certain devices, the interrupt
+> is only one-directional -- either rising or falling, depending on
+> what's being listened for.  In particular, the HTC Herald keyboard
+> slide switch interrupt must be switched from rising to falling and
+> back on each event, otherwise only one transition will be detected.
 
-Petr, are you planning to send the blacklist entry patch?
-
-Thanks,
-
+Interesting.  Btw. I'd like to convert gpio-keys from edge-triggered to
+level-triggered interrupts.  Would that work for your hardware?
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
-
-
+Regards,
+Feri.

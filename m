@@ -1,105 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add Driver for Logitech Flight System G940
-Date: Tue, 8 Dec 2009 22:36:08 -0800
-Message-ID: <20091209063608.GA3278@core.coreip.homeip.net>
-References: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com>
+From: Artem Bityutskiy <dedekind1@gmail.com>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+ specify exact irq flags
+Date: Wed, 09 Dec 2009 09:31:00 +0200
+Message-ID: <1260343860.19669.1189.camel@localhost>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org>
+	 <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz>
+	 <20091208042251.GB11147@core.coreip.homeip.net>
+	 <1260277410.19669.84.camel@localhost>
+	 <20091208174218.GB14271@core.coreip.homeip.net>
+Reply-To: dedekind1@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:39199 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754994AbZLIGgF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 01:36:05 -0500
-Received: by pwj9 with SMTP id 9so2152131pwj.21
-        for <linux-input@vger.kernel.org>; Tue, 08 Dec 2009 22:36:12 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com>
+Received: from smtp.nokia.com ([192.100.122.233]:20722 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757199AbZLIHbj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 02:31:39 -0500
+In-Reply-To: <20091208174218.GB14271@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gary Stein <lordcnidarian@gmail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Gary,
+On Tue, 2009-12-08 at 09:42 -0800, Dmitry Torokhov wrote:
+> > > I also see that gpio-keys is quite different in the sence that it=
+ can
+> > > shut off buttons selectively. I fact, at the moment every button =
+can be
+> > > considered a separate device... But that would be too much overhe=
+ad.
+> > >=20
+> > > They could probably split the keys into 2 groups (critical that s=
+hould
+> > > be always active) and not critical, that could be shut off, but I=
+ think
+> > > they want teh flexibility of controlling this at runtime instead =
+of
+> > > doing it in board data.
+> >=20
+> > I suggested including this into the "abstract input device" model, =
+but
+> > you refuse this. But I still think it is a good idea.
+> >=20
+> > Indeed, if we look at an input device as at something abstract whic=
+h has
+> > many keys, why we cannot assume that separate keys can be
+> > enabled/disabled? Just imagine you have a very advanced keybord :-)=
+ And
+> > we simply implement an ioctl which enables/disables a specific key.=
+ The
+> > generic layers just pass this ioctl down to the lower lever drivers=
+=2E If
+> > the specific input device or driver support it - fine, if not - it
+> > returns -EINVAL or something like that.
+>=20
+> I refuse it because it will be supported by exactly 1 driver in the
+> kernel - gpio-keys. It is the only driver that allows shut half of th=
+e
+> "device" (because in reality it is a group of disjoint devices). It i=
+s
+> the only case when "muting" a button means that IRQ is shut off abnd
+> thus CPU can continue to sleep if that button is pressed. For all oth=
+er
+> devices that have 1 inettrupt per device, you still have to wake up,
+> because you don't know whether the button that generated event is
+> "important" or not.
 
-On Tue, Dec 08, 2009 at 05:39:09PM -0500, Gary Stein wrote:
-> This implements a new driver for the Logitech Flight System G940
-> http://www.logitech.com/index.cfm/gaming/joysticks/devices/5855&cl=us,en
-> 
-> It is a force feedback joystick with HOTAS, the input part is
-> supported through normal /dev/input/js0, however it appears the FF
-> USB-HID is not the same as in hid-lgff for the Force 3D Pro or G27/G25
-> Racing Wheels.
-> 
-> This patch is applied to 2.6.31 (the stable development branch at the
-> time).  I tried to follow the code style of the hid-lg2ff branch for
-> the changed up rumble of another logitech device and created a
-> hid-lg3ff.c
-> 
-> I then had to appropriately modify Kconfig so it was in menuconfig,
-> add the USB ID hid-ids and hid-core.c, change hid-lg to create a new
-> v3 lgff, and overload the function pointers for autocentering etc.
-> 
-> I have comments in the code to help explain what is happening, I
-> actually had to probe the USB-HID with a series of numbers to find
-> which fields provided what response, as I could not obtain
-> documentation from Logitech.
-> 
-> It appears that Logitech has expanded to a two-complement system with
-> 64 fields with 0 being the command, 1-4 being the X axis, and 31-24
-> being the Y axis.  I have seen online that in windows you can turn on
-> light (red and green) on the stick, but I have not figured those out
-> yet/should not be part of the FF device.
-> 
-> It supports the same form of FF_CONSTANT as any other joystick in
-> ff-memless.c.  Probably less appreciated is included in this patch, I
-> have made revisions to ff-memless to account for my specific
-> application.
-> 
+=46air enough.
 
-Thank you very much for your patch.
+> Now, there is a issue of waking up userspace task, additional schedul=
+ing
+> and keeping CPU running longer than necessary for "uninteresting" key=
+s.
+> This can be solved by implementing a subscription model which allows
+> filtering uninteresing events on a per-client basis at evdev level.
 
-> There was a signed/unsigned bug with gcc 4.4.2 producing invalid
-> values using a gain in 2.6.31 that was added recently in which I had
-> to add a int cast to fix.
-> 
+Right. And for gpio_keys, this would be dine on the driver level.
 
-I will apply this part of the fix separately.
+> This, if implemented properly, would work for _all_ input devices out
+> there. You were not interested into looking into it (because for your
+> particular and only device the otehr approach promises bigger savings=
+)
+> but I think we'll get there eventually.
 
-> And I added the ability to bypass the polar coordinate system used by
-> FF_CONSTANT to a Cartesian coordinate system directly by overloading
-> FF_RAMP.  This was done because (at least for the ff-memless drivers),
-> you have to do polar coordinate math to get a level and direction as a
-> 16 bit number, set with FF_CONSTANT which then calls fixp to convert
-> to Cartesian coordinates (x,y) which is then put in the FF_RAMP fields
-> and then fed to the HID.  I just created a way to set those FF_RAMP
-> fields of the input.h union that goes right to the joystick.  However,
-> it does support the normal way also.
-> 
-> This was done because I needed independent X,Y control and was losing
-> accuracy through the Cartesian to Polar to Cartesian process.  For the
-> driver I can remove this and resubmit if necessary.
-> 
+Well, we can (and have to, if this approach is taken) look into this in
+a sense of implementing our particular task in a way that it could be
+extended with this generic stuff. We might as well implement something
+generic, but may be not too comprehensive, feature-full, and well-teste=
+d
+(simply because we do not need it, so cannot prove usefulness on real
+applications).
 
-Unfortunately this requires application knowledge that this particular
-device overloaded the meaning of FF_RAMP which is not acceptable.
-Applications should expect the devices behave similarly as long as they
-signal in their capailities support for a particular FF effect.
+> And the third topic - shutting (or putting into low power) entire dev=
+ice
+> upon request from userspace. This again has much wider auditory than
+> gpio-keys, or input devices layer for that matter. We may want to do =
+so
+> for other types of devices as well. That is why the question when to
+> general PM list.
 
-If there is unacceptable loss of accuracy we need to consider fixing it
-while staying within limits of particular effect, in this case
-FF_CONSTANT.
+Yeah.
 
-There are also a few soding standard issues with the patch that would
-need to be resolved before it is accepted - we prefer C (not C++) style
-comments, the fragments of the code that are clearly experimental and
-not needed anymore should not be ocmmented out but rather removed,
-identation done with tabls, etc. Please try running scrips/checkpatch.pl
-and it should point out most of the issue.
+--=20
+Best Regards,
+Artem Bityutskiy (=D0=90=D1=80=D1=82=D1=91=D0=BC =D0=91=D0=B8=D1=82=D1=8E=
+=D1=86=D0=BA=D0=B8=D0=B9)
 
-Please also check your mailer - it line-wraps you mails which makes
-patches unappliable,
-
-Thank you.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

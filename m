@@ -1,135 +1,105 @@
-From: Andy Walls <awalls@radix.net>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR  system?
-Date: Tue, 08 Dec 2009 21:21:30 -0500
-Message-ID: <1260325290.3091.40.camel@palomino.walls.org>
-References: <BEVi56a1qgB@lirc>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Add Driver for Logitech Flight System G940
+Date: Tue, 8 Dec 2009 22:36:08 -0800
+Message-ID: <20091209063608.GA3278@core.coreip.homeip.net>
+References: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.radix.net ([207.192.128.31]:39969 "EHLO mail1.radix.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754843AbZLICXH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Dec 2009 21:23:07 -0500
-In-Reply-To: <BEVi56a1qgB@lirc>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:39199 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754994AbZLIGgF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 01:36:05 -0500
+Received: by pwj9 with SMTP id 9so2152131pwj.21
+        for <linux-input@vger.kernel.org>; Tue, 08 Dec 2009 22:36:12 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: dmitry.torokhov@gmail.com, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
+To: Gary Stein <lordcnidarian@gmail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-On Tue, 2009-12-08 at 23:30 +0100, Christoph Bartelmus wrote:
-> Hi Andy,
+Hi Gary,
+
+On Tue, Dec 08, 2009 at 05:39:09PM -0500, Gary Stein wrote:
+> This implements a new driver for the Logitech Flight System G940
+> http://www.logitech.com/index.cfm/gaming/joysticks/devices/5855&cl=us,en
 > 
-> on 07 Dec 09 at 23:10, Andy Walls wrote:
-> [...]
-> > (Christoph can correct me if I get anything wrong.)
+> It is a force feedback joystick with HOTAS, the input part is
+> supported through normal /dev/input/js0, however it appears the FF
+> USB-HID is not the same as in hid-lgff for the Force 3D Pro or G27/G25
+> Racing Wheels.
 > 
-> Just a few additions.
-
-Christoph,
-
-Thanks for the corrections and additions. :)
-
-> [...]
-
-> > I know that the hardware I work with has sub 100 ns resolution,
+> This patch is applied to 2.6.31 (the stable development branch at the
+> time).  I tried to follow the code style of the hid-lg2ff branch for
+> the changed up rumble of another logitech device and created a
+> hid-lg3ff.c
 > 
-> Highest IR carrier frequency I know is 500kHz. usec resolution is enough  
-> even for raw modulated IR pulses. But you only look at the signal after it  
-> has been demodulated by the IR chip, so higher resolution would be  
-> overkill.
-
-Yes, it's overkill.  It is more of a side effect of how I set up the
-hardware to uses as much of the bits in the pulse width measurement
-counter as possible for the longest expected valid measurment width.
-The LSB of the hardware pulse width measurement counter can convey a
-time change of as little as 74 ns depending on the setup of the Conexant
-integrated IR controller.
-
-
-> [...]
-> >> How do you define the start and stop of sequences?
+> I then had to appropriately modify Kconfig so it was in menuconfig,
+> add the USB ID hid-ids and hid-core.c, change hid-lg to create a new
+> v3 lgff, and overload the function pointers for autocentering etc.
 > 
-> > For the end of Rx signalling:
-> >
-> > Well with the Conexant hardware I can set a maximum pulse (mark or
-> > space) width, and the hardware will generate an Rx Timeout interrupt to
-> > signal the end of Rx when a space ends up longer than that max pulse
-> > width.  The hardware also puts a special marker in the hardware pulse
-> > widht measurement FIFO (in band signalling essentially).
-> >
-> > I'm not sure anything like that gets communicated to userspace via
-> > lirc_dev, and I'm too tired to doublecheck right now.
+> I have comments in the code to help explain what is happening, I
+> actually had to probe the USB-HID with a series of numbers to find
+> which fields provided what response, as I could not obtain
+> documentation from Logitech.
 > 
-> There is no such thing in the protocol. Some devices cannot provide any  
-> end of signal marker, so lircd handles this using timers.
+> It appears that Logitech has expanded to a two-complement system with
+> 64 fields with 0 being the command, 1-4 being the X axis, and 31-24
+> being the Y axis.  I have seen online that in windows you can turn on
+> light (red and green) on the stick, but I have not figured those out
+> yet/should not be part of the FF device.
 > 
-> If there is some interest, the MODE2 protocol can be extended. We still  
-> have 7 bits unused...
-
-As I thought about this more, I could just pass up a space the length of
-the pulse width measurment timeout from the kernel up to LIRC.  LIRC's
-decoders should know that the space is too long as well.  No changes
-needed - I think.
-
-
-
-
-> [...]
-> >> Is transmitting synchronous or queued?
+> It supports the same form of FF_CONSTANT as any other joystick in
+> ff-memless.c.  Probably less appreciated is included in this patch, I
+> have made revisions to ff-memless to account for my specific
+> application.
 > 
-> > kfifo's IIRC.
+
+Thank you very much for your patch.
+
+> There was a signed/unsigned bug with gcc 4.4.2 producing invalid
+> values using a gain in 2.6.31 that was added recently in which I had
+> to add a int cast to fix.
 > 
-> No, it's synchronous.
+
+I will apply this part of the fix separately.
+
+> And I added the ability to bypass the polar coordinate system used by
+> FF_CONSTANT to a Cartesian coordinate system directly by overloading
+> FF_RAMP.  This was done because (at least for the ff-memless drivers),
+> you have to do polar coordinate math to get a level and direction as a
+> 16 bit number, set with FF_CONSTANT which then calls fixp to convert
+> to Cartesian coordinates (x,y) which is then put in the FF_RAMP fields
+> and then fed to the HID.  I just created a way to set those FF_RAMP
+> fields of the input.h union that goes right to the joystick.  However,
+> it does support the normal way also.
 > 
-> >> How big is the transmit queue?
+> This was done because I needed independent X,Y control and was losing
+> accuracy through the Cartesian to Polar to Cartesian process.  For the
+> driver I can remove this and resubmit if necessary.
 > 
-> No queue.
 
-Oops, thanks for the correction.
+Unfortunately this requires application knowledge that this particular
+device overloaded the meaning of FF_RAMP which is not acceptable.
+Applications should expect the devices behave similarly as long as they
+signal in their capailities support for a particular FF effect.
 
+If there is unacceptable loss of accuracy we need to consider fixing it
+while staying within limits of particular effect, in this case
+FF_CONSTANT.
 
+There are also a few soding standard issues with the patch that would
+need to be resolved before it is accepted - we prefer C (not C++) style
+comments, the fragments of the code that are clearly experimental and
+not needed anymore should not be ocmmented out but rather removed,
+identation done with tabls, etc. Please try running scrips/checkpatch.pl
+and it should point out most of the issue.
 
-> [...]
-> > My particular gripes about the current LIRC interface:
+Please also check your mailer - it line-wraps you mails which makes
+patches unappliable,
 
-> > 2. I have hardware where I can set max_pulse_width so I can optimize
-> > pulse timer resolution and have the hardware time out rapidly on end of
-> > RX.  I also have hardware where I can set a min_pulse_width to set a
-> > hardware low-pass/glitch filter.  Currently LIRC doesn't have any way to
-> > set these, but it would be nice to have.
-> 
-> Should be really easy to add these. The actual values could be derived  
-> from the config files easily.
+Thank you.
 
-Good.  I thought it would be so.
-
-> > In band signalling of a
-> > hardware detected "end of Rx" may also make sense then too.
-> 
-> See above.
-> 
-> > 3. As I mentioned before, it would be nice if LIRC could set a batch of
-> > parameters atomically somehow, instead of with a series of ioctl()s.  I
-> > can work around this in kernel though.
-> 
-> Is there any particular sequence that you are concerned about?
-> Setting carrier frequency and then duty cycle is a bit problematic.
-> Currently it's solved by resetting the duty cycle to 50% each time you  
-> change the carrier frequency.
-> But as the LIRC interface is "one user only", I don't see a real problem.
-
-The case I worry about is enabling the IR Rx hardware without the low
-pass filter properly set up to be consistent with the minimum expected
-Rx pulse width and the desired Rx carrier window or maximum expected Rx
-pulse width.  The result could be a lot of useless interrupts from IR
-"glitch" measurements in bad ambient light conditions until all the
-parameters are consistent.
-
-Regards,
-Andy
-
-> Christoph
-
-
+-- 
+Dmitry

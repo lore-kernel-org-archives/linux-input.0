@@ -1,75 +1,63 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: Please pull bjdooks' git tree
-Date: Wed, 9 Dec 2009 21:29:16 +0000
-Message-ID: <20091209212916.GA20296@fluff.org.uk>
-References: <E1NI9YG-0003dB-54@teyla.home.fluff.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+	specify exact irq flags
+Date: Wed, 9 Dec 2009 13:48:42 -0800
+Message-ID: <20091209214841.GE10138@core.coreip.homeip.net>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz> <20091208042251.GB11147@core.coreip.homeip.net> <1260277410.19669.84.camel@localhost> <20091208174218.GB14271@core.coreip.homeip.net> <1260343860.19669.1189.camel@localhost> <20091209180345.GE4456@core.coreip.homeip.net> <20091209210816.GD3480@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aeryn.fluff.org.uk ([87.194.8.8]:53713 "EHLO
-	kira.home.fluff.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1750926AbZLIV3g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:29:36 -0500
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:63079 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756818AbZLIVsl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:48:41 -0500
+Received: by pzk1 with SMTP id 1so177305pzk.33
+        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 13:48:48 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <E1NI9YG-0003dB-54@teyla.home.fluff.org>
+In-Reply-To: <20091209210816.GD3480@elf.ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, linux-input@vger.kernel.org, dimitry.torokhov@gmail.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Artem Bityutskiy <dedekind1@gmail.com>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Dec 08, 2009 at 11:33:04PM +0000, Ben Dooks wrote:
-> The following changes since commit 6035ccd8e9e40bb654fbfdef325902ab53=
-1679a5:
->   Linus Torvalds (1):
->         Merge branch 'for-2.6.33' of git://git.kernel.dk/linux-2.6-bl=
-ock
+On Wed, Dec 09, 2009 at 10:08:16PM +0100, Pavel Machek wrote:
+> > > > I refuse it because it will be supported by exactly 1 driver in the
+> > > > kernel - gpio-keys. It is the only driver that allows shut half of the
+> > > > "device" (because in reality it is a group of disjoint devices). It is
+> > > > the only case when "muting" a button means that IRQ is shut off abnd
+> > > > thus CPU can continue to sleep if that button is pressed. For all other
+> > > > devices that have 1 inettrupt per device, you still have to wake up,
+> > > > because you don't know whether the button that generated event is
+> > > > "important" or not.
+> > > 
+> > > Fair enough.
+> > > 
+> > > > Now, there is a issue of waking up userspace task, additional scheduling
+> > > > and keeping CPU running longer than necessary for "uninteresting" keys.
+> > > > This can be solved by implementing a subscription model which allows
+> > > > filtering uninteresing events on a per-client basis at evdev level.
+> > > 
+> > > Right. And for gpio_keys, this would be dine on the driver level.
+> > 
+> > But the semantics are different - if done on driver level you'd be
+> > affecting _all_  consumers of the device; what I want to be done only
+> > affects owner of the file descriptor.
+> 
+> Well, if _all_ consumers decide to ignore some key, we should be able
+> to ignore it at driver level.
 
-If it is not too late, then please replace this with the following
-pull request, which missed out a patch needed to define the necessary
-platform data and device definitions for the touchscreen driver.
+The intesection of drivers allowing shut off individual buttons with
+all consumers agreeing on not using a key would be pretty miniscule.
 
-The following changes since commit 6035ccd8e9e40bb654fbfdef325902ab5316=
-79a5:
-  Linus Torvalds (1):
-        Merge branch 'for-2.6.33' of git://git.kernel.dk/linux-2.6-bloc=
-k
+> 
+> And actually it may make some sense -- I do not think disabling irq
+> during runtime is worth the effort, but disabling wakeup source and
+> getting rid of unneccessary wakeup when system is suspended is
+> probably worth it.
+> 
 
-are available in the git repository at:
+I don't believe Mika's patches touched wakeup in any way. So it has
+been strictly about wakig up processor to service that interrupt so far.
 
-  git://git.fluff.org/bjdooks/linux.git s3c24xx-updates2
-
-Arnaud Patard (1):
-      ARM: S3C24XX: touchscreen device definition
-
-Ben Dooks (1):
-      ARM: S3C24XX: Export s3c24xx_set_fiq for modules.
-
-Ramax Lo (1):
-      ARM: S3C24XX: DMA: Use valid index when accessing array
-
-Uwe Kleine-K=C3=B6nig (2):
-      ARM: S3C: move s3c_adc_remove to .devexit.text
-      ARM: S3C: move s3c_pwm_remove to .devexit.text
-
- arch/arm/mach-s3c2410/include/mach/ts.h |   21 +++++++++++++++++++++
- arch/arm/plat-s3c/include/plat/devs.h   |    1 +
- arch/arm/plat-s3c/pwm.c                 |    2 +-
- arch/arm/plat-s3c24xx/adc.c             |    2 +-
- arch/arm/plat-s3c24xx/devs.c            |   18 ++++++++++++++++++
- arch/arm/plat-s3c24xx/dma.c             |    6 ++++--
- arch/arm/plat-s3c24xx/irq.c             |    2 ++
- arch/arm/plat-s3c24xx/s3c244x.c         |    1 +
- 8 files changed, 49 insertions(+), 4 deletions(-)
- create mode 100644 arch/arm/mach-s3c2410/include/mach/ts.h
-
-
---=20
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

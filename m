@@ -1,50 +1,135 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
-Subject: Re: [PATCH] Input: Add direction to ff-memless
-Date: Wed, 09 Dec 2009 03:15:22 +0200
-Message-ID: <4B1EFA2A.6000403@iki.fi>
-References: <1259931914-6228-1-git-send-email-ext-jari.vanhala@nokia.com>	 <4B1D70C4.9000603@iki.fi> <1260263284.19783.1758.camel@tema>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Tue, 08 Dec 2009 21:21:30 -0500
+Message-ID: <1260325290.3091.40.camel@palomino.walls.org>
+References: <BEVi56a1qgB@lirc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saarni.dnainternet.net ([83.102.40.136]:51371 "EHLO
-	saarni.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967058AbZLIBPS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Dec 2009 20:15:18 -0500
-In-Reply-To: <1260263284.19783.1758.camel@tema>
+Received: from mail1.radix.net ([207.192.128.31]:39969 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754843AbZLICXH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Dec 2009 21:23:07 -0500
+In-Reply-To: <BEVi56a1qgB@lirc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext-jari.vanhala@nokia.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: dmitry.torokhov@gmail.com, hermann-pitton@arcor.de, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, jonsmirl@gmail.com, khc@pm.waw.pl, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com, superm1@ubuntu.com
 
-Jari Vanhala wrote:
-> On Mon, 2009-12-07 at 22:16 +0100, ext Anssi Hannula wrote:
->> Jari Vanhala wrote:
->>> +static unsigned int ml_calculate_direction(
->>> +	unsigned int direction, unsigned int force,
->>> +	unsigned int new_direction, unsigned int new_force)
->>> +{
->>> +	return ((u32)direction * force + new_direction * new_force) /
->>> +		(force + new_force);
->>> +}
->> What if direction is 0xf000 and new_direction is 0x1000? The correct
->> behaviour would be to use direction 0x0000 or so, but this code would
->> return 0x8000 (assuming equal forces).
+On Tue, 2009-12-08 at 23:30 +0100, Christoph Bartelmus wrote:
+> Hi Andy,
 > 
-> I know it's not perfect, but it's simple and gives good enough result.
-> And I just need to know which side of 0x8000 it is.
+> on 07 Dec 09 at 23:10, Andy Walls wrote:
+> [...]
+> > (Christoph can correct me if I get anything wrong.)
+> 
+> Just a few additions.
 
-Ah, I assumed the motor directions (forward, reverse) were mapped to
-up/down (180/0), not left/right.
+Christoph,
 
-Your way seems somewhat counter-intuitive, but it indeed makes
-ml_calculate_direction() simpler :) And as there are no other rumble
-drivers using the direction field, I guess the wrong results do not
-matter, then.
+Thanks for the corrections and additions. :)
 
-I think a comment should be added in ml_calculate_direction(), anyway,
-to make it clear that it only works correctly with motors with
-left/right directions only.
+> [...]
 
--- 
-Anssi Hannula
+> > I know that the hardware I work with has sub 100 ns resolution,
+> 
+> Highest IR carrier frequency I know is 500kHz. usec resolution is enough  
+> even for raw modulated IR pulses. But you only look at the signal after it  
+> has been demodulated by the IR chip, so higher resolution would be  
+> overkill.
+
+Yes, it's overkill.  It is more of a side effect of how I set up the
+hardware to uses as much of the bits in the pulse width measurement
+counter as possible for the longest expected valid measurment width.
+The LSB of the hardware pulse width measurement counter can convey a
+time change of as little as 74 ns depending on the setup of the Conexant
+integrated IR controller.
+
+
+> [...]
+> >> How do you define the start and stop of sequences?
+> 
+> > For the end of Rx signalling:
+> >
+> > Well with the Conexant hardware I can set a maximum pulse (mark or
+> > space) width, and the hardware will generate an Rx Timeout interrupt to
+> > signal the end of Rx when a space ends up longer than that max pulse
+> > width.  The hardware also puts a special marker in the hardware pulse
+> > widht measurement FIFO (in band signalling essentially).
+> >
+> > I'm not sure anything like that gets communicated to userspace via
+> > lirc_dev, and I'm too tired to doublecheck right now.
+> 
+> There is no such thing in the protocol. Some devices cannot provide any  
+> end of signal marker, so lircd handles this using timers.
+> 
+> If there is some interest, the MODE2 protocol can be extended. We still  
+> have 7 bits unused...
+
+As I thought about this more, I could just pass up a space the length of
+the pulse width measurment timeout from the kernel up to LIRC.  LIRC's
+decoders should know that the space is too long as well.  No changes
+needed - I think.
+
+
+
+
+> [...]
+> >> Is transmitting synchronous or queued?
+> 
+> > kfifo's IIRC.
+> 
+> No, it's synchronous.
+> 
+> >> How big is the transmit queue?
+> 
+> No queue.
+
+Oops, thanks for the correction.
+
+
+
+> [...]
+> > My particular gripes about the current LIRC interface:
+
+> > 2. I have hardware where I can set max_pulse_width so I can optimize
+> > pulse timer resolution and have the hardware time out rapidly on end of
+> > RX.  I also have hardware where I can set a min_pulse_width to set a
+> > hardware low-pass/glitch filter.  Currently LIRC doesn't have any way to
+> > set these, but it would be nice to have.
+> 
+> Should be really easy to add these. The actual values could be derived  
+> from the config files easily.
+
+Good.  I thought it would be so.
+
+> > In band signalling of a
+> > hardware detected "end of Rx" may also make sense then too.
+> 
+> See above.
+> 
+> > 3. As I mentioned before, it would be nice if LIRC could set a batch of
+> > parameters atomically somehow, instead of with a series of ioctl()s.  I
+> > can work around this in kernel though.
+> 
+> Is there any particular sequence that you are concerned about?
+> Setting carrier frequency and then duty cycle is a bit problematic.
+> Currently it's solved by resetting the duty cycle to 50% each time you  
+> change the carrier frequency.
+> But as the LIRC interface is "one user only", I don't see a real problem.
+
+The case I worry about is enabling the IR Rx hardware without the low
+pass filter properly set up to be consistent with the minimum expected
+Rx pulse width and the desired Rx carrier window or maximum expected Rx
+pulse width.  The result could be a lot of useless interrupts from IR
+"glitch" measurements in bad ambient light conditions until all the
+parameters are consistent.
+
+Regards,
+Andy
+
+> Christoph
+
+

@@ -1,63 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
-	specify exact irq flags
-Date: Wed, 9 Dec 2009 13:48:42 -0800
-Message-ID: <20091209214841.GE10138@core.coreip.homeip.net>
-References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz> <20091208042251.GB11147@core.coreip.homeip.net> <1260277410.19669.84.camel@localhost> <20091208174218.GB14271@core.coreip.homeip.net> <1260343860.19669.1189.camel@localhost> <20091209180345.GE4456@core.coreip.homeip.net> <20091209210816.GD3480@elf.ucw.cz>
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: [PATCH 1/2] Support for Stantum multitouch panel
+Date: Wed, 09 Dec 2009 22:49:03 +0100
+Message-ID: <20091209214903.D3A5D9520B@smtp.lii-enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:63079 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756818AbZLIVsl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:48:41 -0500
-Received: by pzk1 with SMTP id 1so177305pzk.33
-        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 13:48:48 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20091209210816.GD3480@elf.ucw.cz>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48561 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753815AbZLIV4N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:56:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Artem Bityutskiy <dedekind1@gmail.com>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On Wed, Dec 09, 2009 at 10:08:16PM +0100, Pavel Machek wrote:
-> > > > I refuse it because it will be supported by exactly 1 driver in the
-> > > > kernel - gpio-keys. It is the only driver that allows shut half of the
-> > > > "device" (because in reality it is a group of disjoint devices). It is
-> > > > the only case when "muting" a button means that IRQ is shut off abnd
-> > > > thus CPU can continue to sleep if that button is pressed. For all other
-> > > > devices that have 1 inettrupt per device, you still have to wake up,
-> > > > because you don't know whether the button that generated event is
-> > > > "important" or not.
-> > > 
-> > > Fair enough.
-> > > 
-> > > > Now, there is a issue of waking up userspace task, additional scheduling
-> > > > and keeping CPU running longer than necessary for "uninteresting" keys.
-> > > > This can be solved by implementing a subscription model which allows
-> > > > filtering uninteresing events on a per-client basis at evdev level.
-> > > 
-> > > Right. And for gpio_keys, this would be dine on the driver level.
-> > 
-> > But the semantics are different - if done on driver level you'd be
-> > affecting _all_  consumers of the device; what I want to be done only
-> > affects owner of the file descriptor.
-> 
-> Well, if _all_ consumers decide to ignore some key, we should be able
-> to ignore it at driver level.
+Extended IS_INPUT_APPLICATION to accept digitzers that are actual input devices (touchscreens, 
+light pens, touch pads, white boards)
 
-The intesection of drivers allowing shut off individual buttons with
-all consumers agreeing on not using a key would be pretty miniscule.
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
-> 
-> And actually it may make some sense -- I do not think disabling irq
-> during runtime is worth the effort, but disabling wakeup source and
-> getting rid of unneccessary wakeup when system is suspended is
-> probably worth it.
-> 
-
-I don't believe Mika's patches touched wakeup in any way. So it has
-been strictly about wakig up processor to service that interrupt so far.
-
--- 
-Dmitry
+diff -uprN a/include/linux/hid.h b/include/linux/hid.h
+--- a/include/linux/hid.h	2009-12-03 04:51:21.000000000 +0100
++++ b/include/linux/hid.h	2009-12-08 22:30:46.000000000 +0100
+@@ -662,7 +662,7 @@ struct hid_ll_driver {
+ 
+ /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+ /* We ignore a few input applications that are not widely used */
+-#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || (a == 0x000d0002))
++#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+ 
+ /* HID core API */
+ 

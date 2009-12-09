@@ -1,36 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Allow filtering of i8042 events
-Date: Wed, 9 Dec 2009 12:39:39 -0800
-Message-ID: <20091209203939.GC10138@core.coreip.homeip.net>
-References: <1260383609-7681-1-git-send-email-mjg@redhat.com> <20091209200614.GA10138@core.coreip.homeip.net> <20091209201620.GA25133@srcf.ucam.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+ specify exact irq flags
+Date: Wed, 9 Dec 2009 22:08:16 +0100
+Message-ID: <20091209210816.GD3480@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org>
+ <87einfltp3.fsf@tac.ki.iif.hu>
+ <20091206084704.GC2766@ucw.cz>
+ <20091208042251.GB11147@core.coreip.homeip.net>
+ <1260277410.19669.84.camel@localhost>
+ <20091208174218.GB14271@core.coreip.homeip.net>
+ <1260343860.19669.1189.camel@localhost>
+ <20091209180345.GE4456@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:57952 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757246AbZLIVIQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 16:08:16 -0500
 Content-Disposition: inline
-In-Reply-To: <20091209201620.GA25133@srcf.ucam.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, lenb@kernel.org
+In-Reply-To: <20091209180345.GE4456@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Artem Bityutskiy <dedekind1@gmail.com>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Dec 09, 2009 at 08:16:20PM +0000, Matthew Garrett wrote:
-> On Wed, Dec 09, 2009 at 12:06:15PM -0800, Dmitry Torokhov wrote:
+> > > I refuse it because it will be supported by exactly 1 driver in the
+> > > kernel - gpio-keys. It is the only driver that allows shut half of the
+> > > "device" (because in reality it is a group of disjoint devices). It is
+> > > the only case when "muting" a button means that IRQ is shut off abnd
+> > > thus CPU can continue to sleep if that button is pressed. For all other
+> > > devices that have 1 inettrupt per device, you still have to wake up,
+> > > because you don't know whether the button that generated event is
+> > > "important" or not.
+> > 
+> > Fair enough.
+> > 
+> > > Now, there is a issue of waking up userspace task, additional scheduling
+> > > and keeping CPU running longer than necessary for "uninteresting" keys.
+> > > This can be solved by implementing a subscription model which allows
+> > > filtering uninteresing events on a per-client basis at evdev level.
+> > 
+> > Right. And for gpio_keys, this would be dine on the driver level.
 > 
-> > This is certainly going in the direction I wanted but it looks like
-> > it is more complex than it needs to be. Why don't you just allow
-> > installing global filter for entire i8042 (pass the status register
-> > there along with data byte)? The data you are interested in goes kind of
-> > "ouside" KBD/AUX port abstraction anyway...  Plus currently you are not
-> > handling MUX case properly.
-> 
-> Wouldn't that require me to be able to process any conceivable mouse 
-> protocol as well?
+> But the semantics are different - if done on driver level you'd be
+> affecting _all_  consumers of the device; what I want to be done only
+> affects owner of the file descriptor.
 
-No, just have your filter function check STR to make sure the byte you got
-is not coming from AUX. Or we could say that filter only works for data
-pretending to be coming from KBD (because in reality the data we are
-trying to filter out comes only this way) and move the check into i8042
-itself.
+Well, if _all_ consumers decide to ignore some key, we should be able
+to ignore it at driver level.
 
+And actually it may make some sense -- I do not think disabling irq
+during runtime is worth the effort, but disabling wakeup source and
+getting rid of unneccessary wakeup when system is suspended is
+probably worth it.
+
+									Pavel
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,61 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio-keys: Support for one-directional
-	interrupts
-Date: Wed, 9 Dec 2009 09:58:31 -0800
-Message-ID: <20091209175831.GD4456@core.coreip.homeip.net>
-References: <1260052694-17223-1-git-send-email-darkstar6262@gmail.com> <87fx7kgz7f.fsf@tac.ki.iif.hu> <6cb013310912090815u396fd84chfab3c7bf4d5f4bc9@mail.gmail.com>
+Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
+	specify exact irq flags
+Date: Wed, 9 Dec 2009 10:03:45 -0800
+Message-ID: <20091209180345.GE4456@core.coreip.homeip.net>
+References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz> <20091208042251.GB11147@core.coreip.homeip.net> <1260277410.19669.84.camel@localhost> <20091208174218.GB14271@core.coreip.homeip.net> <1260343860.19669.1189.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:63116 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756290AbZLIR6e (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 12:58:34 -0500
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:38752 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755784AbZLISDv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 13:03:51 -0500
+Received: by pzk1 with SMTP id 1so29030pzk.33
+        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 10:03:58 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <6cb013310912090815u396fd84chfab3c7bf4d5f4bc9@mail.gmail.com>
+In-Reply-To: <1260343860.19669.1189.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cory Maccarrone <darkstar6262@gmail.com>
-Cc: Ferenc Wagner <wferi@niif.hu>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+To: Artem Bityutskiy <dedekind1@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Dec 09, 2009 at 08:15:26AM -0800, Cory Maccarrone wrote:
-> On Wed, Dec 9, 2009 at 3:32 AM, Ferenc Wagner <wferi@niif.hu> wrote:
-> > Cory Maccarrone <darkstar6262@gmail.com> writes:
-> >
-> > Interesting. =A0Btw. I'd like to convert gpio-keys from edge-trigge=
-red to
-> > level-triggered interrupts. =A0Would that work for your hardware?
->=20
-> I'm fairly certain it wouldn't.  Each of the interrupts on my hardwar=
-e
-> has a corresponding bit in a control register that determines if it's
-> rising or falling-edge triggered -- thus the need for my patch.  To
-> capture both directions, it's necessary to modify the control registe=
-r
-> when a falling edge is detected, so that the corresponding rising edg=
-e
-> can be collected afterward.
+On Wed, Dec 09, 2009 at 09:31:00AM +0200, Artem Bityutskiy wrote:
+> On Tue, 2009-12-08 at 09:42 -0800, Dmitry Torokhov wrote:
+> > > > I also see that gpio-keys is quite different in the sence that it can
+> > > > shut off buttons selectively. I fact, at the moment every button can be
+> > > > considered a separate device... But that would be too much overhead.
+> > > > 
+> > > > They could probably split the keys into 2 groups (critical that should
+> > > > be always active) and not critical, that could be shut off, but I think
+> > > > they want teh flexibility of controlling this at runtime instead of
+> > > > doing it in board data.
+> > > 
+> > > I suggested including this into the "abstract input device" model, but
+> > > you refuse this. But I still think it is a good idea.
+> > > 
+> > > Indeed, if we look at an input device as at something abstract which has
+> > > many keys, why we cannot assume that separate keys can be
+> > > enabled/disabled? Just imagine you have a very advanced keybord :-) And
+> > > we simply implement an ioctl which enables/disables a specific key. The
+> > > generic layers just pass this ioctl down to the lower lever drivers. If
+> > > the specific input device or driver support it - fine, if not - it
+> > > returns -EINVAL or something like that.
+> > 
+> > I refuse it because it will be supported by exactly 1 driver in the
+> > kernel - gpio-keys. It is the only driver that allows shut half of the
+> > "device" (because in reality it is a group of disjoint devices). It is
+> > the only case when "muting" a button means that IRQ is shut off abnd
+> > thus CPU can continue to sleep if that button is pressed. For all other
+> > devices that have 1 inettrupt per device, you still have to wake up,
+> > because you don't know whether the button that generated event is
+> > "important" or not.
+> 
+> Fair enough.
+> 
+> > Now, there is a issue of waking up userspace task, additional scheduling
+> > and keeping CPU running longer than necessary for "uninteresting" keys.
+> > This can be solved by implementing a subscription model which allows
+> > filtering uninteresing events on a per-client basis at evdev level.
+> 
+> Right. And for gpio_keys, this would be dine on the driver level.
 
-This kind of ugliness should be hidden in irqchip driver. See
-mfd/asic3.c for an example.
+But the semantics are different - if done on driver level you'd be
+affecting _all_  consumers of the device; what I want to be done only
+affects owner of the file descriptor.
 
-> May I ask why you're thinking of
-> converting to level-triggering?
->=20
-> Perhaps it would be better to provide an option in the platform_devic=
-e
-> structure to set edge- or level-triggering, similar to the change I'm
-> proposing for interrupts that can only signal one way at a time.
->=20
-
-Yes, we need a way fro platform code to specify desired interrupt flags
-but I don't believe we should be reconfiguring them on the fly.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,106 +1,99 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
-Date: Fri, 11 Dec 2009 09:21:43 +1000
-Message-ID: <20091210232143.GC13607@barra.bne.redhat.com>
-References: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
- <20091209231516.GF10138@core.coreip.homeip.net>
- <25E41E82-8D85-43DB-A47C-4F7FBDA0293F@enac.fr>
- <20091210182844.GC23717@core.coreip.homeip.net>
- <4B214BCA.5080403@seas.upenn.edu>
+From: Robert Schedel <r.schedel@yahoo.de>
+Subject: [PATCH] hid: Support 171 byte variant of Samsung USB IR receiver
+ (0419:0001)
+Date: Fri, 11 Dec 2009 00:37:11 +0100
+Message-ID: <4B218627.7050006@yahoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:42676 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752686AbZLJXjg (ORCPT
+Received: from smtp127.mail.ukl.yahoo.com ([77.238.184.58]:42147 "HELO
+	smtp127.mail.ukl.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755092AbZLJXou (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 18:39:36 -0500
-Content-Disposition: inline
-In-Reply-To: <4B214BCA.5080403@seas.upenn.edu>
+	Thu, 10 Dec 2009 18:44:50 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@cena.fr>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Dec 10, 2009 at 02:28:10PM -0500, Rafi Rubin wrote:
-> >> Actually, Rafi Rubin and I have started to discuss the idea of splitting 
-> >> this into two input nodes: a pure multitouch device and a pure single 
-> >> touch emulation. I'd like to have feedback on this idea too, even if I 
-> >> have no time to work on it yet.
-> > 
-> > If you create 2 devices basically supplying the same data then it will
-> > be harder for consumers to select between them and drivers. I.e. if
-> > single device transmits entire state then it is easy to write hotplug
-> > policy for say X server (using udev/hal) such as:
-> > 
-> > 	- this box always uses evdev for everything, or
-> > 	- devices with nultitouch capabilities use new multitouch
-> > 	  X driver, the rest use evdev.
-> > 
-> > This will be harder if there were 2 "copies" of multitouch devices
-> > because we'd have to be able to recognize "siblings" and ignore one or
-> > the other.
-> > 
-> > Does this make sense?
-> 
-> At the moment, the evdev and wacom drivers (the only two that I've used
-> for a digitizer), require specifying which device to use.  I
-> also have the memory (and I might just be miss-remembering) that the
-> synaptics driver finds an event dev on its own.  So as far as I see it a
-> single driver should be smart enough to select the device that it prefers.
+From: Robert Schedel <r.schedel@yahoo.de>
 
-synaptics does a simple 
-for device in /dev/input/eventX
-        open device
-        if device is a synaptics device
-                woohoo, found it
+Extends the existing Samsung USB IrDA (0419:0001) quirk with newly reported 171 byte variant. Refactors duplicate trace call into local helper function.
 
-if not found
-        write angry letter to editor
+Signed-off-by: Robert Schedel <r.schedel@yahoo.de>
 
+---
+ drivers/hid/hid-samsung.c |   25 +++++++++++++++++++------
+  1 file changed, 19 insertions(+), 6 deletions(-)
 
-That used to be common for those configured in the xorg.conf but these days
-HAL (udev, in the future) will provide the device file anyway.
-the same approach could be used for any driver, the problem with it is that
-you'd put the policy of which devices are ok to use into the driver and
-there are overlapping ranges (evdev can deal with most touchpads and tablets
-for example).
+Hello all,
 
-> If we're worried about a discovery tool identifying both devs and
-> assigning appropriate drivers to each, could we not just export names that
-> indicate they are in fact the same device and let the tools select which
-> to prefer?  It should be trivial for such tools
-> to select sanely.
-> 
-> 
-> That being said, I did at some point have a touchpad that was configured
-> such that I got events from both mice and an event dev, and it was really
-> annoying.
+the attached patch adds support for a new variant of a Samsung USB IR receiver with a 171 byte report descriptor. This variant seems to have a similar array min/max quirk as other variants added to hid-samsung before.
 
-by default, synaptics grabs the event device so you don't get the same
-event twice. evdev doesn't to avoid things like rfkill and the mac mouse
-button emulation breaking.
-we've tried hard to DTRT in most configurations but there are some corner
-cases where the only exit is fixing the user's configuration.
-e.g. if you set up evdev on the event device and synaptics on
-/dev/input/mice, then you can still get duplicate events.
+The original bug report for the new variant is available at the second half of this ticket page:
 
-> > If there is a concern about too many unused events reaching userspace -
-> > then we need to implement subscription model in evdev where consumer can
-> > specify list of events it is interested in and have input core deliver
-> > only those. I'll take patches ;)
-> 
-> While that sounds tempting, it also could introduce a bit of a hazard.
-> Programmer A masks out events he doesn't need, then programmer B starts
-> coding up support for more features and is confounded by the lack of
-> response, and yet a hexdump of the dev indicates the events are streaming.
+  https://bugs.launchpad.net/bugs/326986
 
-from most input driver's POV it's easier to just ignore events that can't be
-handled by the driver than to mask them out. Having them masked out can make
-some debugging paths harder. it also ensures that the drivers are more
-robust at dealing with unexpected events.
-So I don't really have a need for this feature in X, though I can see how
-others may find it useful.
+Patch applies to kernel 2.6.32.
 
-Cheers,
-  Peter
+Regards,
+Robert Schedel
+
+diff -rupN linux-2.6.32-orig/drivers/hid/hid-samsung.c linux-2.6.32/drivers/hid/hid-samsung.c
+--- linux-2.6.32-orig/drivers/hid/hid-samsung.c	2009-12-03 04:51:21.000000000 +0100
++++ linux-2.6.32/drivers/hid/hid-samsung.c	2009-12-10 23:20:07.633321274 +0100
+@@ -39,7 +39,17 @@
+  *
+  * 3. 135 byte report descriptor
+  * Report #4 has an array field with logical range 0..17 instead of 1..14.
++ *
++ * 4. 171 byte report descriptor
++ * Report #3 has an array field with logical range 0..1 instead of 1..3.
+  */
++static inline void samsung_dev_trace(struct hid_device *hdev,
++		unsigned int rsize)
++{
++	dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
++			"descriptor\n", rsize);
++}
++
+ static void samsung_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int rsize)
+ {
+@@ -47,8 +57,7 @@ static void samsung_report_fixup(struct 
+ 			rdesc[177] == 0x75 && rdesc[178] == 0x30 &&
+ 			rdesc[179] == 0x95 && rdesc[180] == 0x01 &&
+ 			rdesc[182] == 0x40) {
+-		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
+-				"descriptor\n", 184);
++		samsung_dev_trace(hdev, 184);
+ 		rdesc[176] = 0xff;
+ 		rdesc[178] = 0x08;
+ 		rdesc[180] = 0x06;
+@@ -56,17 +65,21 @@ static void samsung_report_fixup(struct 
+ 	} else
+ 	if (rsize == 203 && rdesc[192] == 0x15 && rdesc[193] == 0x0 &&
+ 			rdesc[194] == 0x25 && rdesc[195] == 0x12) {
+-		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
+-				"descriptor\n", 203);
++		samsung_dev_trace(hdev, 203);
+ 		rdesc[193] = 0x1;
+ 		rdesc[195] = 0xf;
+ 	} else
+ 	if (rsize == 135 && rdesc[124] == 0x15 && rdesc[125] == 0x0 &&
+ 			rdesc[126] == 0x25 && rdesc[127] == 0x11) {
+-		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
+-				"descriptor\n", 135);
++		samsung_dev_trace(hdev, 135);
+ 		rdesc[125] = 0x1;
+ 		rdesc[127] = 0xe;
++	} else
++	if (rsize == 171 && rdesc[160] == 0x15 && rdesc[161] == 0x0 &&
++			rdesc[162] == 0x25 && rdesc[163] == 0x01) {
++		samsung_dev_trace(hdev, 171);
++		rdesc[161] = 0x1;
++		rdesc[163] = 0x3;
+ 	}
+ }
+ 

@@ -1,57 +1,67 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [linux-pm] [PATCH v2 1/2] Input: gpio-keys - allow platform to
-	specify exact irq flags
-Date: Thu, 10 Dec 2009 11:13:10 +0100
-Message-ID: <20091210101310.GE2446@ucw.cz>
-References: <Pine.LNX.4.44L0.0911300956400.4478-100000@iolanthe.rowland.org> <87einfltp3.fsf@tac.ki.iif.hu> <20091206084704.GC2766@ucw.cz> <20091208042251.GB11147@core.coreip.homeip.net> <1260277410.19669.84.camel@localhost> <20091208174218.GB14271@core.coreip.homeip.net> <1260343860.19669.1189.camel@localhost> <20091209180345.GE4456@core.coreip.homeip.net> <20091209210816.GD3480@elf.ucw.cz> <20091209214841.GE10138@core.coreip.homeip.net>
+From: Jiri Kosina <jiri.kosina@novell.com>
+Subject: Re: [PATCH] HID: blacklist ET&T TC5UH touchscreen controller
+Date: Thu, 10 Dec 2009 12:18:17 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
+References: <20091130081011.GB10295@core.coreip.homeip.net> <1260392993-8619-1-git-send-email-ynezz@true.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:50565 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933594AbZLJKip (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 05:38:45 -0500
-Content-Disposition: inline
-In-Reply-To: <20091209214841.GE10138@core.coreip.homeip.net>
+In-Reply-To: <1260392993-8619-1-git-send-email-ynezz@true.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Artem Bityutskiy <dedekind1@gmail.com>, Ferenc Wagner <wferi@niif.hu>, Alan Stern <stern@rowland.harvard.edu>, linux-pm@lists.linux-foundation.org, Mika Westerberg <mika.westerberg@iki.fi>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: =?ISO-8859-15?Q?Petr_=A6tetiar?= <ynezz@true.cz>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi!
+On Wed, 9 Dec 2009, Petr =C5=A0tetiar wrote:
 
-> > > > > Now, there is a issue of waking up userspace task, additional scheduling
-> > > > > and keeping CPU running longer than necessary for "uninteresting" keys.
-> > > > > This can be solved by implementing a subscription model which allows
-> > > > > filtering uninteresing events on a per-client basis at evdev level.
-> > > > 
-> > > > Right. And for gpio_keys, this would be dine on the driver level.
-> > > 
-> > > But the semantics are different - if done on driver level you'd be
-> > > affecting _all_  consumers of the device; what I want to be done only
-> > > affects owner of the file descriptor.
-> > 
-> > Well, if _all_ consumers decide to ignore some key, we should be able
-> > to ignore it at driver level.
-> 
-> The intesection of drivers allowing shut off individual buttons with
-> all consumers agreeing on not using a key would be pretty miniscule.
+> This patch adds ET&T TC5UH touchscreen controller to HID blacklist,
+> because this device is handled by input/usbtouchscreen driver.
+>=20
+> Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
+> ---
+>  drivers/hid/hid-core.c |    1 +
+>  drivers/hid/hid-ids.h  |    3 +++
+>  2 files changed, 4 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 7d05c4b..a000bb7 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1296,6 +1296,7 @@ static const struct hid_device_id hid_blacklist=
+[] =3D {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCO=
+DE_2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE=
+) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
 
-Well; people want to do that on specialized hw/embedded sw. It could
-work there. 
+Hi Petr,
 
-> > And actually it may make some sense -- I do not think disabling irq
-> > during runtime is worth the effort, but disabling wakeup source and
-> > getting rid of unneccessary wakeup when system is suspended is
-> > probably worth it.
-> 
-> I don't believe Mika's patches touched wakeup in any way. So it has
-> been strictly about wakig up processor to service that interrupt so far.
+actually the entry should go into hid_ignore_list[], not hid_blacklist[=
+].
 
-I think it makes sense for wakeups; I doubt it makes sense for runtime
-- the power savings are just not big enough.
+hid_blacklist[] is for those drivers, for which there exists specialize=
+d=20
+driver on hid bus, different from generic HID driver.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+usbtouch is completely separate driver that has nothing to do with hid=20
+bus, therefore we want the whole hid subsystem to completely ignore the=
+=20
+device -- and that's what hid_ignore_list[] is for.
+
+I have fixed it up and applied to my tree.
+
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

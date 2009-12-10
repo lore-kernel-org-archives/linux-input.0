@@ -1,127 +1,106 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH 2/2] dell-laptop: Update rfkill state on kill switch
-Date: Thu, 10 Dec 2009 18:25:33 -0500
-Message-ID: <1260487533-4960-2-git-send-email-mjg@redhat.com>
-References: <20091209203939.GC10138@core.coreip.homeip.net>
- <1260487533-4960-1-git-send-email-mjg@redhat.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1260487533-4960-1-git-send-email-mjg@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, lenb@kernel.org, Matthew Garrett <mjg@redhat.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
+Date: Fri, 11 Dec 2009 09:21:43 +1000
+Message-ID: <20091210232143.GC13607@barra.bne.redhat.com>
+References: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
+ <20091209231516.GF10138@core.coreip.homeip.net>
+ <25E41E82-8D85-43DB-A47C-4F7FBDA0293F@enac.fr>
+ <20091210182844.GC23717@core.coreip.homeip.net>
+ <4B214BCA.5080403@seas.upenn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:42676 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752686AbZLJXjg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2009 18:39:36 -0500
+Content-Disposition: inline
+In-Reply-To: <4B214BCA.5080403@seas.upenn.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@cena.fr>
 
-The rfkill interface on Dells only sends a notification that the switch
-has been changed via the keyboard controller. Add a filter so we can
-pick these notifications up and update the rfkill state appropriately.
+On Thu, Dec 10, 2009 at 02:28:10PM -0500, Rafi Rubin wrote:
+> >> Actually, Rafi Rubin and I have started to discuss the idea of splitting 
+> >> this into two input nodes: a pure multitouch device and a pure single 
+> >> touch emulation. I'd like to have feedback on this idea too, even if I 
+> >> have no time to work on it yet.
+> > 
+> > If you create 2 devices basically supplying the same data then it will
+> > be harder for consumers to select between them and drivers. I.e. if
+> > single device transmits entire state then it is easy to write hotplug
+> > policy for say X server (using udev/hal) such as:
+> > 
+> > 	- this box always uses evdev for everything, or
+> > 	- devices with nultitouch capabilities use new multitouch
+> > 	  X driver, the rest use evdev.
+> > 
+> > This will be harder if there were 2 "copies" of multitouch devices
+> > because we'd have to be able to recognize "siblings" and ignore one or
+> > the other.
+> > 
+> > Does this make sense?
+> 
+> At the moment, the evdev and wacom drivers (the only two that I've used
+> for a digitizer), require specifying which device to use.  I
+> also have the memory (and I might just be miss-remembering) that the
+> synaptics driver finds an event dev on its own.  So as far as I see it a
+> single driver should be smart enough to select the device that it prefers.
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
----
- drivers/platform/x86/Kconfig       |    1 +
- drivers/platform/x86/dell-laptop.c |   43 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+), 0 deletions(-)
+synaptics does a simple 
+for device in /dev/input/eventX
+        open device
+        if device is a synaptics device
+                woohoo, found it
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 55ca39d..4d42e95 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -79,6 +79,7 @@ config DELL_LAPTOP
- 	depends on BACKLIGHT_CLASS_DEVICE
- 	depends on RFKILL || RFKILL = n
- 	depends on POWER_SUPPLY
-+	depends on SERIO_I8042
- 	default n
- 	---help---
- 	This driver adds support for rfkill and backlight control to Dell
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index 9061111..0071b56 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -22,6 +22,7 @@
- #include <linux/rfkill.h>
- #include <linux/power_supply.h>
- #include <linux/acpi.h>
-+#include <linux/i8042.h>
- #include "../../firmware/dcdbas.h"
- 
- #define BRIGHTNESS_TOKEN 0x7d
-@@ -206,6 +207,16 @@ static const struct rfkill_ops dell_rfkill_ops = {
- 	.query = dell_rfkill_query,
- };
- 
-+static void dell_rfkill_update(void)
-+{
-+	if (wifi_rfkill)
-+		dell_rfkill_query(wifi_rfkill, (void *)1);
-+	if (bluetooth_rfkill)
-+		dell_rfkill_query(bluetooth_rfkill, (void *)2);
-+	if (wwan_rfkill)
-+		dell_rfkill_query(wwan_rfkill, (void *)3);
-+}
-+
- static int dell_setup_rfkill(void)
- {
- 	struct calling_interface_buffer buffer;
-@@ -310,6 +321,29 @@ static struct backlight_ops dell_ops = {
- 	.update_status  = dell_send_intensity,
- };
- 
-+bool dell_laptop_i8042_filter(unsigned char data, unsigned char str,
-+			      struct serio *port)
-+{
-+	static bool extended;
-+
-+	if (str & 0x20)
-+		return false;
-+
-+	if (unlikely(data == 0xe0)) {
-+		extended = true;
-+		return false;
-+	} else if (unlikely(extended)) {
-+		switch (data) {
-+		case 0x8:
-+			dell_rfkill_update();
-+			break;
-+		}
-+		extended = false;
-+	}
-+
-+	return false;
-+}
-+
- static int __init dell_init(void)
- {
- 	struct calling_interface_buffer buffer;
-@@ -333,6 +367,13 @@ static int __init dell_init(void)
- 		goto out;
- 	}
- 
-+	ret = i8042_install_filter(dell_laptop_i8042_filter);
-+	if (ret) {
-+		printk(KERN_WARNING
-+		       "dell-laptop: Unable to install key filter\n");
-+		goto out;
-+	}
-+
- #ifdef CONFIG_ACPI
- 	/* In the event of an ACPI backlight being available, don't
- 	 * register the platform controller.
-@@ -369,6 +410,7 @@ static int __init dell_init(void)
- 
- 	return 0;
- out:
-+	i8042_remove_filter(dell_laptop_i8042_filter);
- 	if (wifi_rfkill)
- 		rfkill_unregister(wifi_rfkill);
- 	if (bluetooth_rfkill)
-@@ -381,6 +423,7 @@ out:
- 
- static void __exit dell_exit(void)
- {
-+	i8042_remove_filter(dell_laptop_i8042_filter);
- 	backlight_device_unregister(dell_backlight_device);
- 	if (wifi_rfkill)
- 		rfkill_unregister(wifi_rfkill);
--- 
-1.6.5.2
+if not found
+        write angry letter to editor
 
+
+That used to be common for those configured in the xorg.conf but these days
+HAL (udev, in the future) will provide the device file anyway.
+the same approach could be used for any driver, the problem with it is that
+you'd put the policy of which devices are ok to use into the driver and
+there are overlapping ranges (evdev can deal with most touchpads and tablets
+for example).
+
+> If we're worried about a discovery tool identifying both devs and
+> assigning appropriate drivers to each, could we not just export names that
+> indicate they are in fact the same device and let the tools select which
+> to prefer?  It should be trivial for such tools
+> to select sanely.
+> 
+> 
+> That being said, I did at some point have a touchpad that was configured
+> such that I got events from both mice and an event dev, and it was really
+> annoying.
+
+by default, synaptics grabs the event device so you don't get the same
+event twice. evdev doesn't to avoid things like rfkill and the mac mouse
+button emulation breaking.
+we've tried hard to DTRT in most configurations but there are some corner
+cases where the only exit is fixing the user's configuration.
+e.g. if you set up evdev on the event device and synaptics on
+/dev/input/mice, then you can still get duplicate events.
+
+> > If there is a concern about too many unused events reaching userspace -
+> > then we need to implement subscription model in evdev where consumer can
+> > specify list of events it is interested in and have input core deliver
+> > only those. I'll take patches ;)
+> 
+> While that sounds tempting, it also could introduce a bit of a hazard.
+> Programmer A masks out events he doesn't need, then programmer B starts
+> coding up support for more features and is confounded by the lack of
+> response, and yet a hexdump of the dev indicates the events are streaming.
+
+from most input driver's POV it's easier to just ignore events that can't be
+handled by the driver than to mask them out. Having them masked out can make
+some debugging paths harder. it also ensures that the drivers are more
+robust at dealing with unexpected events.
+So I don't really have a need for this feature in X, though I can see how
+others may find it useful.
+
+Cheers,
+  Peter

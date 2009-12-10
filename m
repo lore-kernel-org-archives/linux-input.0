@@ -1,47 +1,166 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] ep93xx_keypad.c: update driver to new core support
-Date: Wed, 9 Dec 2009 19:11:30 -0800
-Message-ID: <20091210031130.GG10138@core.coreip.homeip.net>
-References: <BD79186B4FD85F4B8E60E381CAEE190901FB0DB6@mi8nycmail19.Mi8.com>
+From: "Hiremath, Vaibhav" <hvaibhav@ti.com>
+Subject: RE: [PATCH V2] AM3517: Add support for TSC2004 driver
+Date: Thu, 10 Dec 2009 11:12:42 +0530
+Message-ID: <19F8576C6E063C45BE387C64729E73940437210986@dbde02.ent.ti.com>
+References: <hvaibhav@ti.com>
+ <1259212261-32528-1-git-send-email-hvaibhav@ti.com>
+ <19F8576C6E063C45BE387C64729E739404370D7AEB@dbde02.ent.ti.com>
+ <20091130173331.GS4348@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:39281 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758515AbZLJDL1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 22:11:27 -0500
-Received: by pzk1 with SMTP id 1so364543pzk.33
-        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 19:11:34 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901FB0DB6@mi8nycmail19.Mi8.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:58900 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760447AbZLJFmr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2009 00:42:47 -0500
+In-Reply-To: <20091130173331.GS4348@atomide.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: linux-input@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "dtor@mail.ru" <dtor@mail.ru>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Dec 09, 2009 at 05:20:53PM -0500, H Hartley Sweeten wrote:
-> ep93xx_keypad.c: update driver to new core support
-> 
-> This driver was merged before the ep93xx core support was added
-> for the keypad clock and acquiring/releasing the necessary gpio's.
-> Now that the proper support is in the ep93xx core this driver
-> needs to be updated to work correctly.
-> 
-> Summary of changes:
->   1) Remove some unused members from the platform data.
->   2) Remove the custom KEY macro and use the ones available in
->      <linux/input/matrix_keypad.h>
->   3) Remove the keypad_{readl/writel} macros and just use
->      __raw_{readl/writel} directly.
->   4) Update the clk_set_rate() call to work with the core support.
->   5) Cleanup the probe routine and remove some unneeded messages.
->   6) Use the ep93xx core functions to acquire and release the gpio's.
->   7) Fix the clk_get() call to get the keypad clock.
-> 
-> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
-Thank you Hartley. I will change 'enabled' to bool while we are at it
-and apply for the next pull.
+> -----Original Message-----
+> From: Tony Lindgren [mailto:tony@atomide.com]
+> Sent: Monday, November 30, 2009 11:04 PM
+> To: Hiremath, Vaibhav
+> Cc: linux-omap@vger.kernel.org
+> Subject: Re: [PATCH V2] AM3517: Add support for TSC2004 driver
+> 
+> * Hiremath, Vaibhav <hvaibhav@ti.com> [091125 21:13]:
+> >
+> > > -----Original Message-----
+> > > From: Hiremath, Vaibhav
+> > > Sent: Thursday, November 26, 2009 10:41 AM
+> > > To: linux-omap@vger.kernel.org
+> > > Cc: tony@atomide.com; Hiremath, Vaibhav
+> > > Subject: [PATCH V2] AM3517: Add support for TSC2004 driver
+> > >
+> > > From: Vaibhav Hiremath <hvaibhav@ti.com>
+> > >
+> > > Changes:
+> > > 	- Removed omap_cfg_reg()
+> > >
+> > > Reviewed-by: Tony Lindgren <tony@atomide.com>
+> > > Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+> > > ---
+> > >  arch/arm/mach-omap2/board-am3517evm.c |   61
+> > > +++++++++++++++++++++++++++++++++
+> > >  1 files changed, 61 insertions(+), 0 deletions(-)
+> > >
+> > > diff --git a/arch/arm/mach-omap2/board-am3517evm.c
+> b/arch/arm/mach-
+> > > omap2/board-am3517evm.c
+> > > index 415a13d..b183d93 100644
+> > > --- a/arch/arm/mach-omap2/board-am3517evm.c
+> > > +++ b/arch/arm/mach-omap2/board-am3517evm.c
+> > > @@ -20,6 +20,8 @@
+> > >  #include <linux/init.h>
+> > >  #include <linux/platform_device.h>
+> > >  #include <linux/gpio.h>
+> > > +#include <linux/irq.h>
+> > > +#include <linux/i2c/tsc2004.h>
+> > >
+> > >  #include <mach/hardware.h>
+> > >  #include <asm/mach-types.h>
+> > > @@ -27,10 +29,64 @@
+> > >  #include <asm/mach/map.h>
+> > >
+> > >  #include <plat/board.h>
+> > > +#include <plat/mux.h>
+> > >  #include <plat/common.h>
+> > >  #include <plat/usb.h>
+> > >
+> > >  /*
+> > > + * TSC 2004 Support
+> > > + */
+> > > +#define	GPIO_TSC2004_IRQ	65
+> > > +
+> > > +static int tsc2004_init_irq(void)
+> > > +{
+> > > +	int ret = 0;
+> > > +
+> > > +	ret = gpio_request(GPIO_TSC2004_IRQ, "tsc2004-irq");
+> > > +	if (ret < 0) {
+> > > +		printk(KERN_WARNING "failed to request GPIO#%d: %d\n",
+> > > +				GPIO_TSC2004_IRQ, ret);
+> > > +		return ret;
+> > > +	}
+> > > +
+> > > +	if (gpio_direction_input(GPIO_TSC2004_IRQ)) {
+> > > +		printk(KERN_WARNING "GPIO#%d cannot be configured as "
+> > > +				"input\n", GPIO_TSC2004_IRQ);
+> > > +		return -ENXIO;
+> > > +	}
+> > > +
+> > > +	omap_set_gpio_debounce(GPIO_TSC2004_IRQ, 1);
+> > > +	omap_set_gpio_debounce_time(GPIO_TSC2004_IRQ, 0xa);
+> > > +	return ret;
+> > > +}
+> > > +
+> > > +static void tsc2004_exit_irq(void)
+> > > +{
+> > > +	gpio_free(GPIO_TSC2004_IRQ);
+> > > +}
+> > > +
+> > > +static int tsc2004_get_irq_level(void)
+> > > +{
+> > > +	return gpio_get_value(GPIO_TSC2004_IRQ) ? 0 : 1;
+> > > +}
+> > > +
+> > > +struct tsc2004_platform_data am3517evm_tsc2004data = {
+> > > +	.model = 2004,
+> > > +	.x_plate_ohms = 180,
+> > > +	.get_pendown_state = tsc2004_get_irq_level,
+> > > +	.init_platform_hw = tsc2004_init_irq,
+> > > +	.exit_platform_hw = tsc2004_exit_irq,
+> > > +};
+> > > +
+> > > +static struct i2c_board_info __initdata
+> > > am3517evm_tsc_i2c_boardinfo[] = {
+> > > +	{
+> > > +		I2C_BOARD_INFO("tsc2004", 0x4B),
+> > > +		.type		= "tsc2004",
+> > > +		.platform_data	= &am3517evm_tsc2004data,
+> > > +	},
+> > > +};
+> > > +
+> > > +/*
+> > >   * Board initialization
+> > >   */
+> > >  static struct omap_board_config_kernel am3517_evm_config[]
+> > > __initdata = {
+> > > @@ -67,6 +123,11 @@ static void __init am3517_evm_init(void)
+> > >
+> > >  	omap_serial_init();
+> > >  	usb_ehci_init(&ehci_pdata);
+> > > +
+> > > +	/* TSC 2004 */
+> > > +	am3517evm_tsc_i2c_boardinfo[0].irq =
+> > > gpio_to_irq(GPIO_TSC2004_IRQ);
+> > > +	i2c_register_board_info(1, am3517evm_tsc_i2c_boardinfo,
+> > > +				ARRAY_SIZE(am3517evm_tsc_i2c_boardinfo));
+> > >  }
+> > >
+> > >  static void __init am3517_evm_map_io(void)
+> > [Hiremath, Vaibhav] Hi Tony,
+> >
+> > Since I haven't received any comments on driver code it should get
+> merged. But I am not sure what the procedure is for input subsystem
+> drivers? Is it happens through linux-omap or linux-input?
+> 
+> I'd rather see it merged via linux-input as that's where most
+> of the code is. The platform init code looks OK to me to merge
+> via linux-input too.
+> 
+[Hiremath, Vaibhav] Dmitry,
 
--- 
-Dmitry
+Can you please merge the TSC2004 driver patch? 
+
+Thanks,
+Vaibhav 
+
+> Tony

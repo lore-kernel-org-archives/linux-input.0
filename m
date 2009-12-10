@@ -1,41 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
-Date: Wed, 9 Dec 2009 15:15:17 -0800
-Message-ID: <20091209231516.GF10138@core.coreip.homeip.net>
-References: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
+Subject: Re: [PATCH] ep93xx_keypad.c: update driver to new core support
+Date: Wed, 9 Dec 2009 19:11:30 -0800
+Message-ID: <20091210031130.GG10138@core.coreip.homeip.net>
+References: <BD79186B4FD85F4B8E60E381CAEE190901FB0DB6@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:54357 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758517AbZLIXPQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 18:15:16 -0500
-Received: by pwj9 with SMTP id 9so2695136pwj.21
-        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 15:15:23 -0800 (PST)
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:39281 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758515AbZLJDL1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Dec 2009 22:11:27 -0500
+Received: by pzk1 with SMTP id 1so364543pzk.33
+        for <linux-input@vger.kernel.org>; Wed, 09 Dec 2009 19:11:34 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901FB0DB6@mi8nycmail19.Mi8.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephane Chatty <chatty@lii-enac.fr>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
 Cc: linux-input@vger.kernel.org
 
-Hi Stephane,
+On Wed, Dec 09, 2009 at 05:20:53PM -0500, H Hartley Sweeten wrote:
+> ep93xx_keypad.c: update driver to new core support
+> 
+> This driver was merged before the ep93xx core support was added
+> for the keypad clock and acquiring/releasing the necessary gpio's.
+> Now that the proper support is in the ep93xx core this driver
+> needs to be updated to work correctly.
+> 
+> Summary of changes:
+>   1) Remove some unused members from the platform data.
+>   2) Remove the custom KEY macro and use the ones available in
+>      <linux/input/matrix_keypad.h>
+>   3) Remove the keypad_{readl/writel} macros and just use
+>      __raw_{readl/writel} directly.
+>   4) Update the clk_set_rate() call to work with the core support.
+>   5) Cleanup the probe routine and remove some unneeded messages.
+>   6) Use the ep93xx core functions to acquire and release the gpio's.
+>   7) Fix the clk_get() call to get the keypad clock.
+> 
+> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
-On Wed, Dec 09, 2009 at 10:49:28PM +0100, Stephane Chatty wrote:
-> +
-> +	if (emulate_touchscreen) {
-> +		if (sd->first) {
-> +			if (!sd->activity) {
-> +				input_event(input, EV_KEY, BTN_TOUCH, 1);
-> +				sd->activity = 1;
-> +			}
-> +			input_event(input, EV_ABS, ABS_X, sd->x);
-> +			input_event(input, EV_ABS, ABS_Y, sd->y);
-> +		}
-> +	}
-
-Why are you doing the above conditionally? Just report it always - less
-setup required for the user.
+Thank you Hartley. I will change 'enabled' to bool while we are at it
+and apply for the next pull.
 
 -- 
 Dmitry

@@ -1,52 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add Driver for Logitech Flight System G940
-Date: Thu, 10 Dec 2009 10:12:45 -0800
-Message-ID: <20091210181245.GB23717@core.coreip.homeip.net>
-References: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com> <alpine.LNX.2.00.0912091416010.3755@pobox.suse.cz> <fce72f9b0912100947q2214c471r71f6cf6e81212cd2@mail.gmail.com>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: [PATCH 0/7] msi-wmi driver and cleanups
+Date: Thu, 10 Dec 2009 19:14:48 +0100
+Message-ID: <20091210191448.4af0baec@destiny.ordissimo>
+References: <1260451099-25620-1-git-send-email-anisse@astier.eu>
+	<20091210174749.GA23717@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:46847 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761059AbZLJSMr (ORCPT
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:51353 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761186AbZLJSRW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 13:12:47 -0500
-Received: by pwj9 with SMTP id 9so67333pwj.21
-        for <linux-input@vger.kernel.org>; Thu, 10 Dec 2009 10:12:53 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <fce72f9b0912100947q2214c471r71f6cf6e81212cd2@mail.gmail.com>
+	Thu, 10 Dec 2009 13:17:22 -0500
+In-Reply-To: <20091210174749.GA23717@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gary Stein <lordcnidarian@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>, Matthew Garrett <mjg59@srcf.ucam.org>, Thomas Renninger <trenn@suse.de>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Matt Chen <machen@novell.com>
 
-On Thu, Dec 10, 2009 at 12:47:06PM -0500, Gary Stein wrote:
-> Ok, I'll go through the coding issues, that checkpatch.pl was useful,
-> I was not positive on all of the coding standards, but with that
-> script I can setup my IDE properly to make sure everything works out
-> (like c99 comments and 80 char limits)
+Hi Dmitry,
+
+On Thu, 10 Dec 2009 09:47:50 -0800, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote :
+
 > 
-> The wrapping is whatever gmail wants to do in their web interface.
+> FWIW sparse keymap module is in mainline now. The last patch looks good
+> BTW.
 > 
 
-Yeah, gmail web interface is not suitable for patch exchange. However
-you can use conventional mailers (mutt for example) to send patches via
-gmail. And they say IMAP works OK with gmail as well. You can also send
-patch both inline (for commenting) and as an attachment (for applying)
-if you are forced to use web interface.
+Thanks for pointing this out, I'm not following mainline closely.
 
-> I wanted to do FF_CUSTOM (which appears in input.h) and I did try that
-> for awhile but in the end ff-memless didn't seem to pass everything
-> along even if I set it up in the flags, etc.
-> 
-> It would be more work, but is there any way to add a different
-> FF_CONSTANT through the union process?
-
-The problem with adding a new constant (and FF_CUSTOM really) is that
-only _your_ application and device will make use of it.
-
-Have you tried expanding the cosine table in fixp-arith.h to provide
-better granularity?
-
--- 
-Dmitry
+Anisse

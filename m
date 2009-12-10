@@ -1,176 +1,76 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
-Date: Thu, 10 Dec 2009 14:28:10 -0500
-Message-ID: <4B214BCA.5080403@seas.upenn.edu>
-References: <20091209214928.1E24D9520C@smtp.lii-enac.fr> <20091209231516.GF10138@core.coreip.homeip.net> <25E41E82-8D85-43DB-A47C-4F7FBDA0293F@enac.fr> <20091210182844.GC23717@core.coreip.homeip.net>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: [RFC][PATCH 0/5] omap1: Amstrad Delta: add support for external keyboard
+Date: Thu, 10 Dec 2009 20:58:40 +0100
+Message-ID: <200912102058.43892.jkrzyszt@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:60784 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761435AbZLJTmc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 14:42:32 -0500
-In-Reply-To: <20091210182844.GC23717@core.coreip.homeip.net>
+Received: from d1.icnet.pl ([212.160.220.21]:39137 "EHLO d1.icnet.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757349AbZLJT7h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2009 14:59:37 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@cena.fr>, Peter Hutterer <peter.hutterer@who-t.net>
+To: linux-omap@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This series of patches adds support for an external keyboard (called 
+mailboard) connected to the Amstrad Delta (E3) videophone.
 
-On 12/10/09 13:28, Dmitry Torokhov wrote:
-> On Thu, Dec 10, 2009 at 08:37:39AM +0100, St=E9phane Chatty wrote:
->>
->> Le 10 d=E9c. 09 =E0 00:15, Dmitry Torokhov a =E9crit :
->>
->>> Hi Stephane,
->>>
->>> On Wed, Dec 09, 2009 at 10:49:28PM +0100, Stephane Chatty wrote:
->>>> +
->>>> +	if (emulate_touchscreen) {
->>>> +		if (sd->first) {
->>>> +			if (!sd->activity) {
->>>> +				input_event(input, EV_KEY, BTN_TOUCH, 1);
->>>> +				sd->activity =3D 1;
->>>> +			}
->>>> +			input_event(input, EV_ABS, ABS_X, sd->x);
->>>> +			input_event(input, EV_ABS, ABS_Y, sd->y);
->>>> +		}
->>>> +	}
->>>
->>> Why are you doing the above conditionally? Just report it always - =
-=20
->>> less
->>> setup required for the user.
->>
->> As regards setup, the emulate_touchscreen parameter is 1 by default =
-so=20
->> that users don't have to care about it. But I felt compelled to have=
- this=20
->> parameter because the ongoing work on X.org suggests that there migh=
-t be=20
->> a problem in upper layers with having duplicate information flows. F=
-or=20
->> instant, if we associate a slave pointer (MPX terminology) to every=20
->> ABS_MT_X/ABS_MT_Y flow, the ABS_X/ABS_Y will come as an additional f=
-low=20
->> and we'll need to do something to ignore it. Benjamin, Peter, what d=
-o you=20
->> think?
->=20
-> I thought Henrik's idea was that driver should use either classic or
-> multitouch events from the data stream but not both. This way users
-> could either use old, non-multitouch-aware drivers or newer ones with=
-out
-> issues.
+The series is based on a patch by Matt Callow, created against
+linux-omap-2.6.19[1], initially submitted to the e3-hacking mailing list in
+April 2006[2].
 
-How far are we from decent user-space support for multi-touch devices? =
- If we can expect that to solidify in the near future,
-perhaps we'd be better off migrating away from conventional touchscreen=
-/single point digitizer behavior.
+Since the keyboard serial clock line is connected to a GPIO line, it generates
+interrupts every single bit received. In order to handle this correctly, the
+code makes use of a FIQ hardware feature. Since all MPU GPIO generated
+interrupts would be converted to FIQ, the handler must include support for all
+supported MPU GPIO connected devices: the keyboard, a modem and a hook switch.
 
->>
->> Also, some devices (especially the N-Trig) do not make it possible t=
-o =20
->> implement a single touch emulation because they have no finger track=
-ing=20
->> (IDs change over time, you never know which finger to use and the cu=
-rsor=20
->> would jump from one to the other randomly). Therefore, I did not fee=
-l=20
->> like creating a new "standard" behaviour that will be broken by such=
-=20
->> devices.
->=20
-> If driver can't support something then it smply won't provide such
-> events at all and users that require certain capability will simply
-> ignore devices that don't provide it.
+My modifications to the original patch include:
+- split into several patches,
+- refresh against a recent linux version,
+- a lot of cleanups, mainly to get rid of checkpatch reported issues,
+- add support for also handling interrupts generated by a GPIO line that the
+  recently added hook switch hangs off.
 
-In the case of the n-trig digitizer (with the latest firmware), single =
-touch emulation can be reproduced by a relatively simple
-tracking mechanism.  If we're talking about supporting dual mode driver=
-s, would there be much objection to the cost of computation
-in the kernel driver?
+Created and tested against linux-omap for-next,
+commit 82f1d8f22f2c65e70206e40a6f17688bf64a892c dated 2009-12-02.
 
->>
->> Actually, Rafi Rubin and I have started to discuss the idea of split=
-ting=20
->> this into two input nodes: a pure multitouch device and a pure singl=
-e=20
->> touch emulation. I'd like to have feedback on this idea too, even if=
- I=20
->> have no time to work on it yet.
->=20
-> If you create 2 devices basically supplying the same data then it wil=
-l
-> be harder for consumers to select between them and drivers. I.e. if
-> single device transmits entire state then it is easy to write hotplug
-> policy for say X server (using udev/hal) such as:
->=20
-> 	- this box always uses evdev for everything, or
-> 	- devices with nultitouch capabilities use new multitouch
-> 	  X driver, the rest use evdev.
->=20
-> This will be harder if there were 2 "copies" of multitouch devices
-> because we'd have to be able to recognize "siblings" and ignore one o=
-r
-> the other.
->=20
-> Does this make sense?
+Janusz Krzysztofik(5)
+	omap1: Amstrad Delta: add FIQ handler for serial keyboard port interrupt
+			processing
+	omap1: Amstrad Delta: add a handler for processing interrupts generated by
+			the FIQ routine
+	omap1: Amstrad Delta: use FIQ for processing MPU GPIO interrupts
+	input: serio: add support for Amstrad Delta serial keyboard port
+	omap1: Amstrad Delta: modify defconfig for external keyboard support
+	
+ arch/arm/configs/ams_delta_defconfig             |    2
+ arch/arm/mach-omap1/Kconfig                      |    8
+ arch/arm/mach-omap1/Makefile                     |    3
+ arch/arm/mach-omap1/ams-delta-fiq-handler.S      |  342 +++++++++++++++++++++++
+ arch/arm/mach-omap1/ams-delta-fiq.c              |  175 +++++++++++
+ arch/arm/mach-omap1/board-ams-delta.c            |    6
+ arch/arm/mach-omap1/include/mach/ams-delta-fiq.h |   56 +++
+ arch/arm/plat-omap/include/plat/irqs.h           |    4
+ drivers/input/serio/Kconfig                      |    9
+ drivers/input/serio/Makefile                     |    1
+ drivers/input/serio/ams_delta_keyboard.c         |  240 ++++++++++++++++
+ 11 files changed, 845 insertions(+), 1 deletion(-)
 
-At the moment, the evdev and wacom drivers (the only two that I've used=
- for a digitizer), require specifying which device to use.  I
-also have the memory (and I might just be miss-remembering) that the sy=
-naptics driver finds an event dev on its own.  So as far as I
-see it a single driver should be smart enough to select the device that=
- it prefers.
+[1] http://the.earth.li/pub/e3/2.6.19/ams-delta-keyboard.patch
+[2] http://www.earth.li/pipermail/e3-hacking/2006-April/000453.html
 
-If we're worried about a discovery tool identifying both devs and assig=
-ning appropriate drivers to each, could we not just export
-names that indicate they are in fact the same device and let the tools =
-select which to prefer?  It should be trivial for such tools
-to select sanely.
+---
 
+There is one minor issue that I have not dealt with yet: when built with
+CONFIG_OMAP_RESET_CLOCKS=y, the keyboard driver stops working. I have no idea
+how I could find which clock I should enable to get it working regardless of
+boot loader used. Any suggestions?
 
-That being said, I did at some point have a touchpad that was configure=
-d such that I got events from both mice and an event dev, and
-it was really annoying.
-
-> If there is a concern about too many unused events reaching userspace=
- -
-> then we need to implement subscription model in evdev where consumer =
-can
-> specify list of events it is interested in and have input core delive=
-r
-> only those. I'll take patches ;)
-
-While that sounds tempting, it also could introduce a bit of a hazard. =
- Programmer A masks out events he doesn't need, then
-programmer B starts coding up support for more features and is confound=
-ed by the lack of response, and yet a hexdump of the dev
-indicates the events are streaming.
-
-
-On that note, how does one convince the input or hid core to emit an ev=
-ent when the state hasn't actually changed?  I ran into that
-when I was trying to inject device swaps for interleaved streams of tou=
-ch and pen events.  Clearly I was attacking a symptom and
-ignoring the real problem, but I'm still curious.
-
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkshS8kACgkQwuRiAT9o60/G1ACgjYOiBoO4G/7aQqGM5I242+qL
-nqEAmQHITeJrjaWPNZltwh/pQZV5IjEj
-=3DX3Jl
------END PGP SIGNATURE-----
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Janusz

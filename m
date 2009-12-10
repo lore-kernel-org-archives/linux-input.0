@@ -1,67 +1,34 @@
-From: Jiri Kosina <jiri.kosina@novell.com>
+From: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
 Subject: Re: [PATCH] HID: blacklist ET&T TC5UH touchscreen controller
-Date: Thu, 10 Dec 2009 12:18:17 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
-References: <20091130081011.GB10295@core.coreip.homeip.net> <1260392993-8619-1-git-send-email-ynezz@true.cz>
+Date: Thu, 10 Dec 2009 12:38:16 +0100
+Message-ID: <20091210113816.GD18123@ibawizard.net>
+References: <20091130081011.GB10295@core.coreip.homeip.net> <1260392993-8619-1-git-send-email-ynezz@true.cz> <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
+Reply-To: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1260392993-8619-1-git-send-email-ynezz@true.cz>
+Received: from ibawizard.net ([82.208.49.253]:41536 "EHLO
+	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933999AbZLJLiN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Dec 2009 06:38:13 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Petr_=A6tetiar?= <ynezz@true.cz>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jiri.kosina@novell.com>
+Cc: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 9 Dec 2009, Petr =C5=A0tetiar wrote:
+Jiri Kosina <jiri.kosina@novell.com> [2009-12-10 12:18:17]:
 
-> This patch adds ET&T TC5UH touchscreen controller to HID blacklist,
-> because this device is handled by input/usbtouchscreen driver.
->=20
-> Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
-> ---
->  drivers/hid/hid-core.c |    1 +
->  drivers/hid/hid-ids.h  |    3 +++
->  2 files changed, 4 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 7d05c4b..a000bb7 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1296,6 +1296,7 @@ static const struct hid_device_id hid_blacklist=
-[] =3D {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCO=
-DE_2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE=
-) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+Hi,
 
-Hi Petr,
+> actually the entry should go into hid_ignore_list[], not hid_blacklist[].
 
-actually the entry should go into hid_ignore_list[], not hid_blacklist[=
-].
+d'oh. Ok.
 
-hid_blacklist[] is for those drivers, for which there exists specialize=
-d=20
-driver on hid bus, different from generic HID driver.
+> I have fixed it up and applied to my tree.
 
-usbtouch is completely separate driver that has nothing to do with hid=20
-bus, therefore we want the whole hid subsystem to completely ignore the=
-=20
-device -- and that's what hid_ignore_list[] is for.
+Thanks.
 
-I have fixed it up and applied to my tree.
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- ynezz

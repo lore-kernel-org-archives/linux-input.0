@@ -1,34 +1,51 @@
-From: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
-Subject: Re: [PATCH] HID: blacklist ET&T TC5UH touchscreen controller
-Date: Thu, 10 Dec 2009 12:38:16 +0100
-Message-ID: <20091210113816.GD18123@ibawizard.net>
-References: <20091130081011.GB10295@core.coreip.homeip.net> <1260392993-8619-1-git-send-email-ynezz@true.cz> <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
-Reply-To: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Anisse Astier <anisse@astier.eu>
+Subject: [PATCH 0/7] msi-wmi driver and cleanups
+Date: Thu, 10 Dec 2009 14:18:12 +0100
+Message-ID: <1260451099-25620-1-git-send-email-anisse@astier.eu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ibawizard.net ([82.208.49.253]:41536 "EHLO
-	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933999AbZLJLiN (ORCPT
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:42837 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758969AbZLJN1Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 06:38:13 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0912101216380.3755@pobox.suse.cz>
+	Thu, 10 Dec 2009 08:27:25 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jiri.kosina@novell.com>
-Cc: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Len Brown <lenb@kernel.org>, Matthew Garrett <mjg59@srcf.ucam.org>, Thomas Renninger <trenn@suse.de>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Matt Chen <machen@novell.com>, Anisse Astier <anisse@astier.eu>
 
-Jiri Kosina <jiri.kosina@novell.com> [2009-12-10 12:18:17]:
+This driver adds support for WMI-based hotkeys and backlight for some MSI 
+laptops and all-in-one computers.
 
-Hi,
+This driver was sent in the end of october by Thomas Renninger
+(cf http://patchwork.kernel.org/patch/55944/ ). I'm re-sending it as-is (I
+just added my Reviewed-by:); it is the first patch of this serie because 
+it doesn't look like it has been integrated yet in Len's ACPI tree.
 
-> actually the entry should go into hid_ignore_list[], not hid_blacklist[].
+Other patches are just a follow-up to my previous comments on this driver,
+that I would like to see merged for 2.6.33.
 
-d'oh. Ok.
+Please note that the last patch of this serie requires Dmitry's input next
+tree to have the sparse keymap library.
 
-> I have fixed it up and applied to my tree.
+Regards,
 
-Thanks.
+Anisse
 
--- ynezz
+
+Anisse Astier (6):
+  msi-wmi: remove useless includes
+  msi-wmi: rework init
+  msi-wmi: remove custom runtime debug implementation
+  msi-wmi: remove unused field 'instance' in key_entry structure
+  msi-wmi: replace one-condition switch-case with if statement
+  msi-wmi: switch to using input sparse keymap library
+
+Thomas Renninger (1):
+  X86 drivers: Introduce msi-wmi driver
+
+ drivers/platform/x86/Kconfig   |   11 ++
+ drivers/platform/x86/Makefile  |    1 +
+ drivers/platform/x86/msi-wmi.c |  286 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 298 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/platform/x86/msi-wmi.c
+

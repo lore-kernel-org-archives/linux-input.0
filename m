@@ -1,87 +1,44 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [RFC][PATCH 4/5] input: serio: add support for Amstrad Delta serial keyboard port
-Date: Fri, 11 Dec 2009 04:09:58 +0100
-Message-ID: <200912110410.00123.jkrzyszt@tis.icnet.pl>
-References: <D615D960-7E56-492A-9CA0-BA66CF3AAF9B@gmail.com>
+From: Cory Maccarrone <darkstar6262@gmail.com>
+Subject: Re: [PATCH] Input: gpio-keys: Support for one-directional interrupts
+Date: Thu, 10 Dec 2009 20:03:42 -0800
+Message-ID: <6cb013310912102003le5d960dy9f2c6fc2f3e3dcd1@mail.gmail.com>
+References: <1260052694-17223-1-git-send-email-darkstar6262@gmail.com>
+	<87fx7kgz7f.fsf@tac.ki.iif.hu> <6cb013310912090815u396fd84chfab3c7bf4d5f4bc9@mail.gmail.com>
+	<20091209175831.GD4456@core.coreip.homeip.net> <6cb013310912091403i3cb527caqa687487966bb232d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:36284 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754293AbZLKDK5 convert rfc822-to-8bit (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:55142 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755562AbZLKEDz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 22:10:57 -0500
-In-Reply-To: <D615D960-7E56-492A-9CA0-BA66CF3AAF9B@gmail.com>
-Content-Disposition: inline
+	Thu, 10 Dec 2009 23:03:55 -0500
+In-Reply-To: <6cb013310912091403i3cb527caqa687487966bb232d@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li
+Cc: Ferenc Wagner <wferi@niif.hu>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org
 
-=46riday 11 December 2009 03:36:58 Dmitry Torokhov napisa=C5=82(a):
-> On Thu, Dec 10, 2009 at 09:07:50PM +0100, Janusz Krzysztofik wrote:
-> > +
-> > +/*
-> > + * This table converts the amstrad mailboard scancodes to normal P=
-C-
-> > AT scancodes
-> > + * The diagram below shows the amstrad keyboard, with the raw
-> > scancodes
-> > + *
-> > + *   (70) (7A) (46) (7C) (77)   Amstrad     (72) (69) (1A) (2A)
-> > (1C) (15)
-> > + * [  71][1:74][2:73][3:6B][4:22][5:1B][6:1D][7:1E][8:79][9:7D]
-> > [0:75][  6C]
-> > + *  [Q:21][W:23][E:24][R:26][T:52][Y:5D][U:0D][I:0E][O:32][P:34]  =
-|
-> > return|
-> > + *   [A:31][S:33][D:35][F:36][G:29][H:5B][J:03][K:76][L:3A][@:3B]
-> >
-> > |   2C|
-> >
-> > + *  [  3C][Z:3D][X:4E][C:54][V:0B][B:05][N:41][M:42][.:43][  3E]
-> > [  55]
-> > + *  [  83][  06][  49][           4B         ][,:44][  16][  2E]
-> > [  09]
-> > + *
-> > + * These scancodes are then translated to AT scancodes using the
-> > following table
-> > + * The amstrad keyboard does not produce any extended scancodes,
-> > but we need to
-> > + * translate some amstrad scancodes to a AT extended scancode,
-> > hence the 16bit
-> > + * value for the translated scancode
-> > + *
->
-> No, please write a proper keyboard driver instead of creating this
-> Frankenstain monster. It is not a generic serio-style data source so =
-it
-> should not use serio, should reside in drivers/input/keyboard and cre=
-ate
-> input device by itself.
->
-> Thanks.
+On Wed, Dec 9, 2009 at 2:03 PM, Cory Maccarrone <darkstar6262@gmail.com=
+> wrote:
+> I'll take a look and see how possible that would be to do. =C2=A0Look=
+ing
+> through the code for OMAP1's GPIO IRQ handlers, there's a note that
+> OMAP1 only supports edge triggering, so if gpio-keys were to move
+> exclusively to that, itwould stop working with those boards. =C2=A0Bu=
+t, it
+> may be possible to do the trigger flip in the chip driver, which woul=
+d
+> make this patch unnecessary.
 
-Hi Dmitry,
+I've just submitted a patch to linux-omap for this against the
+gpio/irq handling code. It implements the ICR flip in there
+automatically whenever both RISING and FALLING edge are requested of
+one of these gpios.  With it, the patch I've submitted here is moot.
+We'll see if it gets accepted.
 
-Thanks for your opinion.
-
-Lack of support for Amstrad Delta external keybord is not a problem for=
- me,=20
-since I use the machine as an IP phone, not a network terminal. I just=20
-thought it would be nice for other users to have this old but perfectly=
-=20
-working driver integrated into the mainline. But if it is that bad as y=
-ou=20
-say, I have no problem with dropping it.
-
-I'll see if I'm able to create a proper driver myself when I find some =
-spare=20
-time.
-
-Thanks,
-Janusz
+- Cory
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

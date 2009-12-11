@@ -1,99 +1,122 @@
-From: Robert Schedel <r.schedel@yahoo.de>
-Subject: [PATCH] hid: Support 171 byte variant of Samsung USB IR receiver
- (0419:0001)
-Date: Fri, 11 Dec 2009 00:37:11 +0100
-Message-ID: <4B218627.7050006@yahoo.de>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
+Date: Fri, 11 Dec 2009 10:03:18 +1000
+Message-ID: <20091211000318.GE13607@barra.bne.redhat.com>
+References: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
+ <20091209231516.GF10138@core.coreip.homeip.net>
+ <25E41E82-8D85-43DB-A47C-4F7FBDA0293F@enac.fr>
+ <20091210182844.GC23717@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp127.mail.ukl.yahoo.com ([77.238.184.58]:42147 "HELO
-	smtp127.mail.ukl.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1755092AbZLJXou (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:40652 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760493AbZLKAEm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 18:44:50 -0500
+	Thu, 10 Dec 2009 19:04:42 -0500
+Content-Disposition: inline
+In-Reply-To: <20091210182844.GC23717@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>, Benjamin Tissoires <tissoire@cena.fr>
 
-From: Robert Schedel <r.schedel@yahoo.de>
+On Thu, Dec 10, 2009 at 10:28:44AM -0800, Dmitry Torokhov wrote:
+> On Thu, Dec 10, 2009 at 08:37:39AM +0100, St=E9phane Chatty wrote:
+> >
+> > Le 10 d=E9c. 09 =E0 00:15, Dmitry Torokhov a =E9crit :
+> >
+> >> Hi Stephane,
+> >>
+> >> On Wed, Dec 09, 2009 at 10:49:28PM +0100, Stephane Chatty wrote:
+> >>> +
+> >>> +	if (emulate_touchscreen) {
+> >>> +		if (sd->first) {
+> >>> +			if (!sd->activity) {
+> >>> +				input_event(input, EV_KEY, BTN_TOUCH, 1);
+> >>> +				sd->activity =3D 1;
+> >>> +			}
+> >>> +			input_event(input, EV_ABS, ABS_X, sd->x);
+> >>> +			input_event(input, EV_ABS, ABS_Y, sd->y);
+> >>> +		}
+> >>> +	}
+> >>
+> >> Why are you doing the above conditionally? Just report it always -=
+ =20
+> >> less
+> >> setup required for the user.
+> >
+> > As regards setup, the emulate_touchscreen parameter is 1 by default=
+ so=20
+> > that users don't have to care about it. But I felt compelled to hav=
+e this=20
+> > parameter because the ongoing work on X.org suggests that there mig=
+ht be=20
+> > a problem in upper layers with having duplicate information flows. =
+=46or=20
+> > instant, if we associate a slave pointer (MPX terminology) to every=
+=20
+> > ABS_MT_X/ABS_MT_Y flow, the ABS_X/ABS_Y will come as an additional =
+flow=20
+> > and we'll need to do something to ignore it. Benjamin, Peter, what =
+do you=20
+> > think?
+>=20
+> I thought Henrik's idea was that driver should use either classic or
+> multitouch events from the data stream but not both. This way users
+> could either use old, non-multitouch-aware drivers or newer ones with=
+out
+> issues.
 
-Extends the existing Samsung USB IrDA (0419:0001) quirk with newly reported 171 byte variant. Refactors duplicate trace call into local helper function.
+are we talking about kernel drivers or userspace drivers here?
 
-Signed-off-by: Robert Schedel <r.schedel@yahoo.de>
+not handling ABS_MT_X, ABS_MT_Y properly in evdev is a bug (well,
+not-yet-implemented feature) but if the kernel hands out both ABS_X and
+ABS_MT_X that makes it difficult to determine which event is a valid on=
+e and
+which one can be ignored.
 
----
- drivers/hid/hid-samsung.c |   25 +++++++++++++++++++------
-  1 file changed, 19 insertions(+), 6 deletions(-)
+> > Actually, Rafi Rubin and I have started to discuss the idea of spli=
+tting=20
+> > this into two input nodes: a pure multitouch device and a pure sing=
+le=20
+> > touch emulation. I'd like to have feedback on this idea too, even i=
+f I=20
+> > have no time to work on it yet.
+>=20
+> If you create 2 devices basically supplying the same data then it wil=
+l
+> be harder for consumers to select between them and drivers. I.e. if
+> single device transmits entire state then it is easy to write hotplug
+> policy for say X server (using udev/hal) such as:
+>=20
+> 	- this box always uses evdev for everything, or
+> 	- devices with nultitouch capabilities use new multitouch
+> 	  X driver, the rest use evdev.
+>=20
+> This will be harder if there were 2 "copies" of multitouch devices
+> because we'd have to be able to recognize "siblings" and ignore one o=
+r
+> the other.
 
-Hello all,
+not only that, but it's now quite easy to create devices as-needed with=
+in
+the X driver and control creation/deletion of these devices as required=
+ by
+underlying physical device. If the driver does that, it has knowledge o=
+f the
+other devices it created and thus better control of the features these
+provide.
 
-the attached patch adds support for a new variant of a Samsung USB IR receiver with a 171 byte report descriptor. This variant seems to have a similar array min/max quirk as other variants added to hid-samsung before.
+having multiple devices provided by the kernel removes this ability, yo=
+u'd
+have to manually link them together.
 
-The original bug report for the new variant is available at the second half of this ticket page:
-
-  https://bugs.launchpad.net/bugs/326986
-
-Patch applies to kernel 2.6.32.
-
-Regards,
-Robert Schedel
-
-diff -rupN linux-2.6.32-orig/drivers/hid/hid-samsung.c linux-2.6.32/drivers/hid/hid-samsung.c
---- linux-2.6.32-orig/drivers/hid/hid-samsung.c	2009-12-03 04:51:21.000000000 +0100
-+++ linux-2.6.32/drivers/hid/hid-samsung.c	2009-12-10 23:20:07.633321274 +0100
-@@ -39,7 +39,17 @@
-  *
-  * 3. 135 byte report descriptor
-  * Report #4 has an array field with logical range 0..17 instead of 1..14.
-+ *
-+ * 4. 171 byte report descriptor
-+ * Report #3 has an array field with logical range 0..1 instead of 1..3.
-  */
-+static inline void samsung_dev_trace(struct hid_device *hdev,
-+		unsigned int rsize)
-+{
-+	dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
-+			"descriptor\n", rsize);
-+}
-+
- static void samsung_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int rsize)
- {
-@@ -47,8 +57,7 @@ static void samsung_report_fixup(struct 
- 			rdesc[177] == 0x75 && rdesc[178] == 0x30 &&
- 			rdesc[179] == 0x95 && rdesc[180] == 0x01 &&
- 			rdesc[182] == 0x40) {
--		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
--				"descriptor\n", 184);
-+		samsung_dev_trace(hdev, 184);
- 		rdesc[176] = 0xff;
- 		rdesc[178] = 0x08;
- 		rdesc[180] = 0x06;
-@@ -56,17 +65,21 @@ static void samsung_report_fixup(struct 
- 	} else
- 	if (rsize == 203 && rdesc[192] == 0x15 && rdesc[193] == 0x0 &&
- 			rdesc[194] == 0x25 && rdesc[195] == 0x12) {
--		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
--				"descriptor\n", 203);
-+		samsung_dev_trace(hdev, 203);
- 		rdesc[193] = 0x1;
- 		rdesc[195] = 0xf;
- 	} else
- 	if (rsize == 135 && rdesc[124] == 0x15 && rdesc[125] == 0x0 &&
- 			rdesc[126] == 0x25 && rdesc[127] == 0x11) {
--		dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
--				"descriptor\n", 135);
-+		samsung_dev_trace(hdev, 135);
- 		rdesc[125] = 0x1;
- 		rdesc[127] = 0xe;
-+	} else
-+	if (rsize == 171 && rdesc[160] == 0x15 && rdesc[161] == 0x0 &&
-+			rdesc[162] == 0x25 && rdesc[163] == 0x01) {
-+		samsung_dev_trace(hdev, 171);
-+		rdesc[161] = 0x1;
-+		rdesc[163] = 0x3;
- 	}
- }
- 
+Cheers,
+  Peter
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

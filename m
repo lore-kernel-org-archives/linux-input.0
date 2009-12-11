@@ -1,70 +1,60 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
-Date: Fri, 11 Dec 2009 10:58:31 +1000
-Message-ID: <20091211005831.GI13607@barra.bne.redhat.com>
-References: <20091209214928.1E24D9520C@smtp.lii-enac.fr>
- <20091209231516.GF10138@core.coreip.homeip.net>
- <25E41E82-8D85-43DB-A47C-4F7FBDA0293F@enac.fr>
- <20091210182844.GC23717@core.coreip.homeip.net>
- <20091211000318.GE13607@barra.bne.redhat.com>
- <20091211001922.GF23717@core.coreip.homeip.net>
- <20091211003504.GF13607@barra.bne.redhat.com>
- <20091211004719.GG23717@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC][PATCH 4/5] input: serio: add support for Amstrad Delta serial keyboard port
+Date: Thu, 10 Dec 2009 18:36:58 -0800
+Message-ID: <D615D960-7E56-492A-9CA0-BA66CF3AAF9B@gmail.com>
+Mime-Version: 1.0 (iPhone Mail 7C144)
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed;
+	delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:62654 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761886AbZLKA7y (ORCPT
+Received: from mail-px0-f189.google.com ([209.85.216.189]:36830 "EHLO
+	mail-px0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762096AbZLKChG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Dec 2009 19:59:54 -0500
-Content-Disposition: inline
-In-Reply-To: <20091211004719.GG23717@core.coreip.homeip.net>
+	Thu, 10 Dec 2009 21:37:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?iso-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>, linux-input@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>, Benjamin Tissoires <tissoire@cena.fr>
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>
 
-On Thu, Dec 10, 2009 at 04:47:20PM -0800, Dmitry Torokhov wrote:
-> On Fri, Dec 11, 2009 at 10:35:04AM +1000, Peter Hutterer wrote:
-> > On Thu, Dec 10, 2009 at 04:19:22PM -0800, Dmitry Torokhov wrote:
-> > > > are we talking about kernel drivers or userspace drivers here?
-> > > > 
-> > > > not handling ABS_MT_X, ABS_MT_Y properly in evdev is a bug (well,
-> > > > not-yet-implemented feature) but if the kernel hands out both ABS_X and
-> > > > ABS_MT_X that makes it difficult to determine which event is a valid one and
-> > > > which one can be ignored.
-> > > > 
-> > > 
-> > > No, it is pretty simple - all events are valid, otherwise it is kernel
-> > > driver bug. Now, as userspace consumer, if you know how to handle
-> > > multitouch protocol then use it, ignore ABS_X/ABS_Y. Otherwise you'd be
-> > > dropping ABS_MT_* events and naturally handling ABS_X/ABS_Y.
-> > 
-> > Thanks, that's the answer I hoped for - if ABS_MT_X is available, we can
-> > ignore ABS_X.
-> > 
-> > The tricky part would have been if both were equally valid _at the same
-> > time_ but refer to different inputs. at which point you'd have to find out
-> > which one to map to which pointer axis, etc. We already have a problem with
-> > REL_X and ABS_X on the same device, adding the ABS_MT_X to that mess
-> > wouldn't have helped the situation.
-> 
-> What devices report both ABS_X and REL_X events?
+On Thu, Dec 10, 2009 at 09:07:50PM +0100, Janusz Krzysztofik wrote:
+> +
+> +/*
+> + * This table converts the amstrad mailboard scancodes to normal PC- 
+> AT scancodes
+> + * The diagram below shows the amstrad keyboard, with the raw  
+> scancodes
+> + *
+> + *   (70) (7A) (46) (7C) (77)   Amstrad     (72) (69) (1A) (2A)  
+> (1C) (15)
+> + * [  71][1:74][2:73][3:6B][4:22][5:1B][6:1D][7:1E][8:79][9:7D] 
+> [0:75][  6C]
+> + *  [Q:21][W:23][E:24][R:26][T:52][Y:5D][U:0D][I:0E][O:32][P:34]  | 
+> return|
+> + *   [A:31][S:33][D:35][F:36][G:29][H:5B][J:03][K:76][L:3A][@:3B]   
+> |   2C|
+> + *  [  3C][Z:3D][X:4E][C:54][V:0B][B:05][N:41][M:42][.:43][  3E] 
+> [  55]
+> + *  [  83][  06][  49][           4B         ][,:44][  16][  2E] 
+> [  09]
+> + *
+> + * These scancodes are then translated to AT scancodes using the  
+> following table
+> + * The amstrad keyboard does not produce any extended scancodes,  
+> but we need to
+> + * translate some amstrad scancodes to a AT extended scancode,  
+> hence the 16bit
+> + * value for the translated scancode
+> + *
 
-Xen Virtual Pointer
-AlpsPS/2 ALPS GlidePoint
-WALTOP International Corp. Slim Tablet
-MS Optical Desktop 2000
+No, please write a proper keyboard driver instead of creating this
+Frankenstain monster. It is not a generic serio-style data source so it
+should not use serio, should reside in drivers/input/keyboard and create
+input device by itself.
 
-are the ones I've got evtest outputs for and that I found in a 2 minute
-search. There's quite a few of them around, tablets, touchscreens and IIRC
-even some mice.
+Thanks.
 
-This is valid from the kernel's perspective and it makes sense too.
-The problem is solely within X where we're not flexible enough yet to switch
-between rel and abs after the initial setup. We end up ignoring one of the
-two axes depending on what the device is but there are always corner cases.
-
-Cheers,
-  Peter
+-- 
+Dmitry

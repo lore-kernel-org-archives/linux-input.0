@@ -1,155 +1,278 @@
-From: Alan Jenkins <sourcejedi.lkml@googlemail.com>
-Subject: Re: [PATCH 1/7] X86 drivers: Introduce msi-wmi driver
-Date: Sat, 12 Dec 2009 17:37:36 +0000
-Message-ID: <9b2b86520912120937i548b1158k50f517af7fd5ed21@mail.gmail.com>
-References: <1260451099-25620-1-git-send-email-anisse@astier.eu>
-	 <1260451099-25620-2-git-send-email-anisse@astier.eu>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Sun, 13 Dec 2009 10:14:50 -0200
+Message-ID: <4B24DABA.9040007@redhat.com>
+References: <20091204220708.GD25669@core.coreip.homeip.net> <BEJgSGGXqgB@lirc> <9e4733910912041628g5bedc9d2jbee3b0861aeb5511@mail.gmail.com> <1260070593.3236.6.camel@pc07.localdom.local> <20091206065512.GA14651@core.coreip.homeip.net> <4B1B99A5.2080903@redhat.com> <m3638k6lju.fsf@intrepid.localdomain> <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <m3skbn6dv1.fsf@intrepid.localdomain> <20091207184153.GD998@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1260451099-25620-2-git-send-email-anisse@astier.eu>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Anisse Astier <anisse@astier.eu>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Len Brown <lenb@kernel.org>, Matthew Garrett <mjg59@srcf.ucam.org>, Thomas Renninger <trenn@suse.de>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Matt Chen <machen@novell.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:45514 "HELO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1752911AbZLMMPh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Dec 2009 07:15:37 -0500
+In-Reply-To: <20091207184153.GD998@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jon Smirl <jonsmirl@gmail.com>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Hi Anisse
+Dmitry Torokhov wrote:
+> On Sun, Dec 06, 2009 at 09:34:26PM +0100, Krzysztof Halasa wrote:
+>> Jon Smirl <jonsmirl@gmail.com> writes:
+>>
+>>>> Once again: how about agreement about the LIRC interface
+>>>> (kernel-userspace) and merging the actual LIRC code first? In-kernel
+>>>> decoding can wait a bit, it doesn't change any kernel-user interface.
+>>> I'd like to see a semi-complete design for an in-kernel IR system
+>>> before anything is merged from any source.
+>> This is a way to nowhere, there is no logical dependency between LIRC
+>> and input layer IR.
+>>
+>> There is only one thing which needs attention before/when merging LIRC:
+>> the LIRC user-kernel interface. In-kernel "IR system" is irrelevant and,
+>> actually, making a correct IR core design without the LIRC merged can be
+>> only harder.
+> 
+> This sounds like "merge first, think later"...
+> 
+> The question is why we need to merge lirc interface right now, before we
+> agreed on the sybsystem architecture? Noone _in kernel_ user lirc-dev
+> yet and, looking at the way things are shaping, no drivers will be
+> _directly_ using it after it is complete. So, even if we merge it right
+> away, the code will have to be restructured and reworked. Unfortunately,
+> just merging what Jarod posted, will introduce sysfs hierarchy which
+> is userspace interface as well (although we not as good maintaining it
+> at times) and will add more constraints on us.
+> 
+> That is why I think we should go the other way around - introduce the
+> core which receivers could plug into and decoder framework and once it
+> is ready register lirc-dev as one of the available decoders.
+> 
 
-I think there are a few theoretical issues remaining in this driver
-(although I've not read your followup patches, I just checked the
-subject lines).
+I've committed already some IR restruct code on my linux-next -git tree:
 
-On 12/10/09, Anisse Astier <anisse@astier.eu> wrote:
-> +config MSI_WMI
-> +	tristate "MSI WMI extras"
-> +	depends on ACPI_WMI
-> +	depends on INPUT
+http://git.kernel.org/?p=linux/kernel/git/mchehab/linux-next.git
 
-I think this driver depends on BACKLIGHT_CLASS_DEVICE as well.
+The code there basically moves the input/evdev registering code and 
+scancode/keycode management code into a separate ir-core module.
 
-> +	help
-> +	 Say Y here if you want to support WMI-based hotkeys on MSI laptops.
-> +
-> +	 To compile this driver as a module, choose M here: the module will
-> +	 be called msi-wmi.
-> +
+To make my life easy, I've moved the code temporarily into drivers/media/IR.
+This way, it helps me to move V4L specific code outside ir-core and to later
+use it for DVB. After having it done, probably the better is to move it to
+be under /drivers or /drivers/input.
+
+The enclosed patch just adds a skeleton for the new sysfs class for remote
+controllers and registers an yet unused ir_protocol attribute, creating this
+tree:
+
+/sys/class/irrcv/
+|-- irrcv0
+|   |-- ir_protocol
+|   |-- power
+|   |   `-- wakeup
+|   |-- subsystem -> ../../irrcv
+|   `-- uevent
+`-- irrcv1
+    |-- ir_protocol
+    |-- power
+    |   `-- wakeup
+    |-- subsystem -> ../../irrcv
+    `-- uevent
+
+While writing the code, it occurred to me that calling it as "IR" is not the better way,
+since there's nothing on the code that is related to infra-red, but, instead, is
+is related to remote controller.
+
+So, if it is ok for everybudy, IMO, we should use, instead "rc" meaning remote controller,
+naming the core module as "rc-core", putting it into drivers/rc.
+
+Also, since the same rc chip can have a receiver and a transmitter, maybe we can create the
+class as:
+	/sys/class/rc
+		rcrcv0/
+		rcrcv1/
+		...
+		rctx0/
+		rctx1/
+		...
+
+Comments?
 
 
-> +static int bl_get(struct backlight_device *bd)
-> +{
-> +	int level, err, ret = 0;
-> +
-> +	/* Instance 1 is "get backlight", cmp with DSDT */
-> +	err = msi_wmi_query_block(1, &ret);
-> +	if (err)
-> +		printk(KERN_ERR DRV_PFX "Could not query backlight: %d\n", err);
+---
+ linux/drivers/media/IR/Makefile      |    2 
+ linux/drivers/media/IR/ir-keytable.c |   17 +++++-
+ linux/drivers/media/IR/ir-sysfs.c    |   94 +++++++++++++++++++++++++++++++++++
+ linux/include/media/ir-core.h        |   12 +++-
+ 4 files changed, 119 insertions(+), 6 deletions(-)
 
-It looks like we continue despite this error, and return 0?  I think
-an error code would be more appropriate.  It would definitely be
-better to use an explicit return statement here (and not set ret = 0
-beforehand).
-
-In reality the current backlight class doesn't support error codes...
-but I figure it's better to give userspace an obviously wrong number,
-rather than falsely claiming we know that the blacklight is set to 0.
-
-
-> +	dprintk("Get: Query block returned: %d\n", ret);
-> +	for (level = 0; level < ARRAY_SIZE(backlight_map); level++) {
-> +		if (backlight_map[level] == ret) {
-> +			dprintk("Current backlight level: 0x%X - index: %d\n",
-> +				backlight_map[level], level);
-> +			break;
-> +		}
-> +	}
-> +	if (level == ARRAY_SIZE(backlight_map)) {
-> +		printk(KERN_ERR DRV_PFX "get: Invalid brightness value: 0x%X\n",
-> +		       ret);
-> +		return -EINVAL;
-> +	}
-> +	return level;
-> +}
-
-> +static int bl_set_status(struct backlight_device *bd)
-> +{
-> +	int bright = bd->props.brightness;
-> +	if (bright >= ARRAY_SIZE(backlight_map) || bright < 0)
-> +		return -EINVAL;
-> +
-> +	/* Instance 0 is "set backlight" */
-> +	return msi_wmi_set_block(0, backlight_map[bright]);
-> +}
-> +
-> +static struct backlight_ops msi_backlight_ops = {
-> +	.get_brightness	= bl_get,
-> +	.update_status	= bl_set_status,
-> +};
-
-> +static void msi_wmi_notify(u32 value, void *context)
-> +{
-> +	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
-> +	static struct key_entry *key;
-> +	union acpi_object *obj;
-> +	ktime_t cur;
-> +
-> +	wmi_get_event_data(value, &response);
-> +
-> +	obj = (union acpi_object *)response.pointer;
-> +
-> +	if (obj && obj->type == ACPI_TYPE_INTEGER) {
-> +		int eventcode = obj->integer.value;
-> +		dprintk("Eventcode: 0x%x\n", eventcode);
-> +		key = msi_wmi_get_entry_by_scancode(eventcode);
-> +		if (key) {
-> +			cur = ktime_get_real();
-> +			/* Ignore event if the same event happened in a 50 ms
-> +			   timeframe -> Key press may result in 10-20 GPEs */
-> +			if (ktime_to_us(ktime_sub(cur, key->last_pressed))
-> +			    < 1000 * 50) {
-> +				dprintk("Suppressed key event 0x%X - "
-> +					"Last press was %lld us ago\n",
-> +					 key->code,
-> +					 ktime_to_us(ktime_sub(cur,
-> +						       key->last_pressed)));
-> +				return;
-> +			}
-> +			key->last_pressed = cur;
-> +
-> +			switch (key->type) {
-> +			case KE_KEY:
-> +				/* Brightness is served via acpi video driver */
-> +				if (!backlight &&
-> +				    (key->keycode == KEY_BRIGHTNESSUP ||
-> +				     key->keycode == KEY_BRIGHTNESSDOWN))
-> +					break;
-
-Given backlight == NULL, this will mysteriously prevent users from
-remapping the volume keys to use as a brightness control.  I think it
-would be better to check the original scancodes.
-
-Also, can you please confirm that the ACPI BIOS does _not_ change the
-brightness level in response to these keys?  If it does, the driver
-should really use backlight_force_update() instead of generating
-KEY_BRIGHTNESS* events.
-
-> +				dprintk("Send key: 0x%X - "
-> +					"Input layer keycode: %d\n", key->code,
-> +					 key->keycode);
-> +				input_report_key(msi_wmi_input_dev,
-> +						 key->keycode, 1);
-> +				input_sync(msi_wmi_input_dev);
-> +				input_report_key(msi_wmi_input_dev,
-> +						 key->keycode, 0);
-> +				input_sync(msi_wmi_input_dev);
-> +				break;
-> +			}
-> +		} else
-> +			printk(KERN_INFO "Unknown key pressed - %x\n",
-> +			       eventcode);
-> +	} else
-> +		printk(KERN_INFO DRV_PFX "Unknown event received\n");
-> +	kfree(response.pointer);
-> +}
-
-Regards
-Alan
+--- master.orig/linux/drivers/media/IR/Makefile
++++ master/linux/drivers/media/IR/Makefile
+@@ -1,5 +1,5 @@
+ ir-common-objs  := ir-functions.o ir-keymaps.o
+-ir-core-objs	:= ir-keytable.o
++ir-core-objs	:= ir-keytable.o ir-sysfs.o
+ 
+ obj-$(CONFIG_IR_CORE) += ir-core.o
+ obj-$(CONFIG_VIDEO_IR) += ir-common.o
+--- master.orig/linux/drivers/media/IR/ir-keytable.c
++++ master/linux/drivers/media/IR/ir-keytable.c
+@@ -448,12 +448,21 @@ int ir_input_register(struct input_dev *
+ 	input_set_drvdata(input_dev, ir_dev);
+ 
+ 	rc = input_register_device(input_dev);
++	if (rc < 0)
++		goto err;
++
++	rc = ir_register_class(input_dev);
+ 	if (rc < 0) {
+-		kfree(rc_tab->scan);
+-		kfree(ir_dev);
+-		input_set_drvdata(input_dev, NULL);
++		input_unregister_device(input_dev);
++		goto err;
+ 	}
+ 
++	return 0;
++
++err:
++	kfree(rc_tab->scan);
++	kfree(ir_dev);
++	input_set_drvdata(input_dev, NULL);
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(ir_input_register);
+@@ -473,6 +482,8 @@ void ir_input_unregister(struct input_de
+ 	kfree(rc_tab->scan);
+ 	rc_tab->scan = NULL;
+ 
++	ir_unregister_class(dev);
++
+ 	kfree(ir_dev);
+ 	input_unregister_device(dev);
+ }
+--- /dev/null
++++ master/linux/drivers/media/IR/ir-sysfs.c
+@@ -0,0 +1,94 @@
++/* ir-register.c - handle IR scancode->keycode tables
++ *
++ * Copyright (C) 2009 by Mauro Carvalho Chehab <mchehab@redhat.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation version 2 of the License.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ */
++
++#include <linux/input.h>
++#include <linux/device.h>
++#include <media/ir-core.h>
++
++#define IRRCV_NUM_DEVICES	256
++
++unsigned long ir_core_dev_number;
++
++static struct class *ir_input_class;
++
++static DEVICE_ATTR(ir_protocol, S_IRUGO | S_IWUSR, NULL, NULL);
++
++static struct attribute *ir_dev_attrs[] = {
++	&dev_attr_ir_protocol.attr,
++};
++
++int ir_register_class(struct input_dev *input_dev)
++{
++	int rc;
++	struct kobject *kobj;
++
++	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
++	int devno = find_first_zero_bit(&ir_core_dev_number,
++				        IRRCV_NUM_DEVICES);
++
++	if (unlikely(devno < 0))
++		return devno;
++
++	ir_dev->attr.attrs = ir_dev_attrs;
++	ir_dev->class_dev = device_create(ir_input_class, NULL,
++					  input_dev->dev.devt, ir_dev,
++					  "irrcv%d", devno);
++	kobj= &ir_dev->class_dev->kobj;
++
++	printk(KERN_WARNING "Creating IR device %s\n", kobject_name(kobj));
++	rc = sysfs_create_group(kobj, &ir_dev->attr);
++	if (unlikely (rc < 0)) {
++		device_destroy(ir_input_class, input_dev->dev.devt);
++		return -ENOMEM;
++	}
++
++	ir_dev->devno = devno;
++	set_bit(devno, &ir_core_dev_number);
++
++	return 0;
++};
++
++void ir_unregister_class(struct input_dev *input_dev)
++{
++	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
++	struct kobject *kobj;
++
++	clear_bit(ir_dev->devno, &ir_core_dev_number);
++
++	kobj= &ir_dev->class_dev->kobj;
++
++	sysfs_remove_group(kobj, &ir_dev->attr);
++	device_destroy(ir_input_class, input_dev->dev.devt);
++
++	kfree(ir_dev->attr.name);
++}
++
++static int __init ir_core_init(void)
++{
++	ir_input_class = class_create(THIS_MODULE, "irrcv");
++	if (IS_ERR(ir_input_class)) {
++		printk(KERN_ERR "ir_core: unable to register irrcv class\n");
++		return PTR_ERR(ir_input_class);
++	}
++
++	return 0;
++}
++
++static void __exit ir_core_exit(void)
++{
++	class_destroy(ir_input_class);
++}
++
++module_init(ir_core_init);
++module_exit(ir_core_exit);
+--- master.orig/linux/include/media/ir-core.h
++++ master/linux/include/media/ir-core.h
+@@ -42,8 +42,11 @@ struct ir_scancode_table {
+ };
+ 
+ struct ir_input_dev {
+-	struct input_dev		*dev;
+-	struct ir_scancode_table	rc_tab;
++	struct input_dev		*dev;		/* Input device*/
++	struct ir_scancode_table	rc_tab;		/* scan/key table */
++	unsigned long			devno;		/* device number */
++	struct attribute_group		attr;		/* IR attributes */
++	struct device			*class_dev;	/* virtual class dev */
+ };
+ 
+ /* Routines from ir-keytable.c */
+@@ -59,4 +62,9 @@ int ir_input_register(struct input_dev *
+ 		      struct ir_scancode_table *ir_codes);
+ void ir_input_unregister(struct input_dev *input_dev);
+ 
++/* Routines from ir-sysfs.c */
++
++int ir_register_class(struct input_dev *input_dev);
++void ir_unregister_class(struct input_dev *input_dev);
++
+ #endif

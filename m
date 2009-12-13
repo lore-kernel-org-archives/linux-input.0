@@ -1,53 +1,867 @@
-From: "Daniil V. Kolpakov" <dan@riga.lv>
-Subject: Re: evdev and Trust TB-5300 tablet: wrong axis labels
-Date: Sun, 13 Dec 2009 18:25:03 +0200
-Message-ID: <200912131825.03872.dan@riga.lv>
-References: <200912130058.46220.dan@riga.lv>
-	<6a12d2f30912121727w2fbc8d19k35b55da8fcb9ffe1@mail.gmail.com>
-Reply-To: "Daniil V. Kolpakov" <dan@riga.lv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="koi8-r"
-Content-Transfer-Encoding: base64
-Return-path: <xorg-bounces@lists.freedesktop.org>
-In-Reply-To: <6a12d2f30912121727w2fbc8d19k35b55da8fcb9ffe1@mail.gmail.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/xorg>
-List-Post: <mailto:xorg@lists.freedesktop.org>
-List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
-Sender: xorg-bounces@lists.freedesktop.org
-Errors-To: xorg-bounces@lists.freedesktop.org
-To: Matthew Helsley <matt.helsley@gmail.com>, xorg@lists.freedesktop.org
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+From: Cory Maccarrone <darkstar6262@gmail.com>
+Subject: [PATCH] Input: Add tsc2046 touchscreen driver
+Date: Sun, 13 Dec 2009 12:39:14 -0800
+Message-ID: <1260736754-374-1-git-send-email-darkstar6262@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:57825 "HELO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752899AbZLMUja (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Dec 2009 15:39:30 -0500
+Received: by pwj9 with SMTP id 9so1545747pwj.21
+        for <linux-input@vger.kernel.org>; Sun, 13 Dec 2009 12:39:29 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+Cc: Cory Maccarrone <darkstar6262@gmail.com>
 
-TWF0dGhldywgdGhhbmtzIGZvciB0aGUgaW5mbyEKCvcg08/Pwt3FzsnJIM/UIDEzIMTFy8HC0tEg
-MjAwOSBNYXR0aGV3IEhlbHNsZXkgzsHQydPBzChhKToKPiBXaGF0IGRvZXMgL3Byb2MvYnVzL2lu
-cHV0L2RldmljZXMgc2F5IGFib3V0IHlvdXIgdGFibGV0PyBJJ3ZlIGdvdCBhCj4gVUMtTE9HSUMg
-Ikdlbml1cyBQZW5za2V0Y2ggMTJ4OSIgd2hpY2ggaGFkIChhbmQgc3RpbGwgaGFzKSBzb21lIFVT
-Qgo+IHF1aXJrcy4gVGhlIHdvcnN0IHdhcyBpdCByZXBvcnRlZCB0aGUgWCBheGlzIGFzIHRoZSBa
-IGF4aXMuIEl0IHR1cm5lZAo+IG91dCB0aGF0IHRoZSBoaWQgZGVzY3JpcHRvciB3YXMgYmFkIGFu
-ZCB0aHVzIHRoZSBrZXJuZWwgaGlkIHBhcnNlciBnb3QKPiBjb25mdXNlZC4gU3BlY2lmeWluZyB0
-aGUgIk1VTFRJIiBxdWlyayBzZWVtZWQgdG8gZml4IHRoZSBheGlzCj4gbGFiZWxsaW5nIHByb2Js
-ZW0uIFlvdSBjYW4gdGVzdCBpdCBhbmQgb3RoZXIgcXVpcmtzIG91dCBieSB3cml0aW5nIHRvCj4g
-YSBzeXNmcyBmaWxlIC0tIHRob3VnaCBJJ20gbG9va2luZyBhbmQgY2FuJ3Qgc2VlbSB0byBmaW5k
-IGl0IG9uIG15Cj4gMi42LjMxIGRpc3RybyBrZXJuZWwgOiguCgovcHJvYy9idXMvaW5wdXQvZGV2
-aWNlcyBzYXlzIHByZXR0eSBtdWNoIHRoZSBzYW1lIGFzIGl0IGRvZXMgaW4geW91ciBjYXNlOgoK
-STogQnVzPTAwMDMgVmVuZG9yPTU1NDMgUHJvZHVjdD0wMDA0IFZlcnNpb249MDEwMApOOiBOYW1l
-PSJVQy1MT0dJQyBUYWJsZXQgV1A1NTQwVSIKUDogUGh5cz11c2ItMDAwMDowMzowMC4wLTIvaW5w
-dXQwClM6IApTeXNmcz0vZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6MDYuMC8wMDAwOjAzOjAw
-LjAvdXNiMS8xLTIvMS0yOjEuMC9pbnB1dC9pbnB1dDYKVTogVW5pcT0KSDogSGFuZGxlcnM9bW91
-c2UyIGV2ZW50NgpCOiBFVj0xZgpCOiBLRVk9YzAxIDNmMDAwMSAwIDAgMCAwCkI6IFJFTD0zMDMK
-QjogQUJTPTEwMDAwMGYKQjogTVNDPTEwCgpJIGNhbid0IGZpbmQgYW55IGluZm9ybWF0aW9uIG9u
-IGhvdyB0byBlbmFibGUgcXVpcmtzIHRocm91Z2ggc3lzZnMgKGFuZCB3aGVyZSAKdG8gZ2V0IGxp
-c3Qgb2YgYXZhaWxhYmxlIHF1aXJrcywgdG9vKS4gQ2FuIHlvdSBwb2ludCBtZSB0byBzb21lIGRv
-Y3VtZW50YXRpb24gCm9uIHRoaXMgc3ViamVjdD8KCi0tIApQbGVhc2UgYXZvaWQgc2VuZGluZyBt
-ZSBXb3JkIG9yIFBvd2VyUG9pbnQgYXR0YWNobWVudHMuClNlZSBodHRwOi8vd3d3LmdudS5vcmcv
-cGhpbG9zb3BoeS9uby13b3JkLWF0dGFjaG1lbnRzLmh0bWwKClN1cHBvcnQgb3BlbiBzdGFuZGFy
-ZHMhIFRha2UgYSBsb29rIGF0IHRoaXMgbmljZSBwcmVzZW50YXRpb246Cmh0dHA6Ly93d3cuZHdo
-ZWVsZXIuY29tL2Vzc2F5cy9vcGVuLXN0YW5kYXJkcy1zZWN1cml0eS5wZGYKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KeG9yZyBtYWlsaW5nIGxpc3QKeG9y
-Z0BsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3hvcmc=
+This change implements a new driver for the TSC2046-series
+touchscreen found on many HTC OMAP850-based smartphones.
+This driver differs from the ADS7846 in that it uses 16-bit
+commands instead of 8-bit, and does not include temerature
+or voltage sensing capabilities.
+
+This driver was submitted in May of 2007 to the linux-omap
+list at:
+
+http://linux.omap.com/pipermail/linux-omap-open-source/2007-May/009745.html
+
+This is a resubmit of this driver, with additions that allows
+the injection of pointercal parameters from tslib through
+/sys.  This was done for the Wing Linux project primarily to
+allow this touchscreen to work with Android, but it's useful for
+any userspace that doesn't support tslib calibration.  Pointercal
+use is optional -- it produces raw parameters unless the use_pointercal
+/sys file is set to 1.
+
+Though this driver was previously submitted to linux-omap, there
+is nothing omap-specific in this driver.
+
+Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig   |   14 +
+ drivers/input/touchscreen/Makefile  |    1 +
+ drivers/input/touchscreen/tsc2046.c |  740 +++++++++++++++++++++++++++++++++++
+ include/linux/input/tsc2046.h       |   26 ++
+ 4 files changed, 781 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/tsc2046.c
+ create mode 100644 include/linux/input/tsc2046.h
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 8cc453c..1f3273b 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -501,6 +501,20 @@ config TOUCHSCREEN_TOUCHIT213
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called touchit213.
+ 
++config TOUCHSCREEN_TSC2046
++	tristate "TSC2046 based touchscreens"
++	depends on SPI_MASTER
++	help
++	  Say Y here if you have a touchscreen interface using the
++	  TI TSC 2046 controller, and your board-specific initialization
++	  code includes that in its table of SPI devices.  Also make
++	  sure the proper SPI controller is selected.
++
++	  If unsure, say N (but it's safe to say "Y").
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called tsc2046.
++
+ config TOUCHSCREEN_TSC2007
+ 	tristate "TSC2007 based touchscreens"
+ 	depends on I2C
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 15fa62c..3c413f7 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -30,6 +30,7 @@ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
++obj-$(CONFIG_TOUCHSCREEN_TSC2046)	+= tsc2046.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+= wacom_w8001.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
+diff --git a/drivers/input/touchscreen/tsc2046.c b/drivers/input/touchscreen/tsc2046.c
+new file mode 100644
+index 0000000..e45d251
+--- /dev/null
++++ b/drivers/input/touchscreen/tsc2046.c
+@@ -0,0 +1,740 @@
++/*
++ * TSC2046 Touchscreen driver
++ *
++ * Author: Kevin Hilman, MontaVista Software, Inc. <source@mvista.com>
++ *
++ * Communication details from original TI driver
++ * Copyright (C) 2004-2005 Texas Instruments, Inc.
++ *
++ * Structure based heavily on TSC2301 driver
++ * Copyright (C) 2005-2006 Nokia Corporation
++ *
++ * 2007 (c) MontaVista Software, Inc. This file is licensed under
++ * the terms of the GNU General Public License version 2. This program
++ * is licensed "as is" without any warranty of any kind, whether express
++ * or implied.
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/spi/spi.h>
++#include <linux/gpio.h>
++
++#include <linux/input/tsc2046.h>
++
++/* TSC2046 commands */
++#define START_BYTE		0x8000
++#define X_CMDWD			0xd300
++#define Y_CMDWD			0x9300
++#define Z1_CMDWD		0xb300
++#define Z2_CMDWD		0xc300
++
++#define TSC2046_TS_SCAN_TIME	1
++#define MAX_12BIT		((1 << 12) - 1)
++
++#define MIN_ABS_X    528
++#define MAX_ABS_X    3760
++#define MIN_ABS_Y    624
++#define MAX_ABS_Y    3760
++
++/* The TSC2046 operates at a maximum speed of 2MHz */
++#define TSC2046_HZ	2000000
++
++#define CONV_DATA(d1, d2) \
++  (((d1 & 0x7f) << 5) | ((d2 >> 11) & 0x1f))
++
++/* Convenience macros for pointercal calibration calculation */
++#define PA ts->pointercal[0]
++#define PB ts->pointercal[1]
++#define PC ts->pointercal[2]
++#define PD ts->pointercal[3]
++#define PE ts->pointercal[4]
++#define PF ts->pointercal[5]
++#define PS ts->pointercal[6]
++
++struct tsc2046_ts {
++	struct input_dev	*idev;
++	char			phys[32];
++	struct timer_list	timer;
++	spinlock_t		lock;
++
++	struct spi_transfer	read_xfer[3];
++	struct spi_message	read_msg;
++	struct spi_message	enable_msg;
++	u16                     data[5];
++
++	u16			x;
++	u16			y;
++	u16			p;
++	u16			old_x;
++	u16			old_y;
++	u16			old_pressure;
++	int			sample_cnt;
++
++	int			ignore_last : 1;
++	u16			x_plate_ohm;
++	int			max_pressure;
++	int			touch_pressure;
++	int			pressure_limit;
++
++	int			pointercal[7];
++	u16			x_res;
++	u16			y_res;
++
++	u16			irq_enabled:1;
++	u16			pen_down:1;
++	u16			disabled:1;
++	u16			pending:1;
++	u16			use_pointercal:1;
++
++	s16			dav_gpio;
++	int			(*get_pendown_state)(void);
++	int			irq;
++};
++
++struct tsc2046 {
++	struct spi_device	*spi;
++	struct tsc2046_ts	*ts;
++};
++
++static const u16 tsc2046_ts_cmd_data[] = {
++	START_BYTE, X_CMDWD, Y_CMDWD, Z1_CMDWD, Z2_CMDWD,
++};
++
++static int tsc2046_device_suspended(struct device *dev)
++{
++	struct tsc2046 *tsc = dev_get_drvdata(dev);
++	return dev->power.power_state.event != PM_EVENT_ON || tsc->ts->disabled;
++}
++
++static void tsc2046_update_pen_state(struct tsc2046 *tsc, int x, int y, int pressure)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++
++	if (x <= ts->old_x - 4 || x >= ts->old_x + 4 ||
++	    y <= ts->old_y - 4 || y >= ts->old_y + 4 ||
++	    pressure <= ts->old_pressure - 4 || pressure >= ts->old_pressure + 4)
++	{
++		if (pressure) {
++			if (!ts->use_pointercal || (ts->use_pointercal &&
++			    x >= 0 &&
++			    x <= ts->x_res - 1 &&
++			    y >= 0 &&
++			    y <= ts->y_res - 1))
++			{
++				input_report_abs(ts->idev, ABS_X, x);
++				input_report_abs(ts->idev, ABS_Y, y);
++				input_report_abs(ts->idev, ABS_PRESSURE, 1);
++				input_report_key(ts->idev, BTN_TOUCH, 1);
++				ts->pen_down = 1;
++			} else {
++				input_report_abs(ts->idev, ABS_PRESSURE, 0);
++				input_report_key(ts->idev, BTN_TOUCH, 0);
++				ts->pen_down = 0;
++			}
++		} else {
++			input_report_abs(ts->idev, ABS_PRESSURE, 0);
++			input_report_key(ts->idev, BTN_TOUCH, 0);
++			ts->pen_down = 0;
++		}
++
++		ts->old_x = x;
++		ts->old_y = y;
++		ts->old_pressure = pressure;
++
++		input_sync(ts->idev);
++
++#ifdef VERBOSE
++		dev_dbg(&tsc->spi->dev, "x %4d y %4d p %4d\n", x, y, pressure);
++#endif
++	}
++}
++
++/*
++ * This procedure is called by the SPI framework after the coordinates
++ * have been read from TSC2046
++ */
++static void tsc2046_ts_rx(void *arg)
++{
++	struct tsc2046 *tsc = arg;
++	struct tsc2046_ts *ts = tsc->ts;
++	unsigned int x, y, z1, z2, pressure;
++	int xN, yN;
++
++	x  = CONV_DATA(ts->data[2], ts->data[3]);
++	y  = CONV_DATA(ts->data[1], ts->data[2]);
++	z1 = CONV_DATA(ts->data[3], ts->data[4]);
++	z2 = CONV_DATA(ts->data[4], 0);
++
++	if (z1) {
++		pressure = ts->x_plate_ohm * x;
++		pressure /= 4096;
++		pressure *= z2 - z1;
++		pressure /= z1;
++	} else
++		pressure = 0;
++
++	if (ts->use_pointercal) {
++		/* Transform pen state according to calibration parameters.  This
++		 * algorithm is the same used by tslib and Qt to do 7-value
++		 * screen transforms.  See:
++		 *
++		 * http://doc.trolltech.com/4.3/qwscalibratedmousehandler.html#transform
++		 */
++		xN = ((PA * x) + (PB * y) + PC) / PS;
++		yN = ((PD * x) + (PE * y) + PF) / PS;
++
++		x = (xN < 0) ? 0 : (xN > ts->x_res ? ts->x_res - 1 : (unsigned int)xN);
++		y = (yN < 0) ? 0 : (yN > ts->y_res ? ts->y_res - 1 : (unsigned int)yN);
++	}
++
++	/* If pressure value is above a preset limit (pen is barely
++	 * touching the screen) we can't trust the coordinate values.
++	 */
++	if (pressure < ts->pressure_limit && x < MAX_12BIT && y < MAX_12BIT) {
++		ts->pressure_limit = ts->max_pressure;
++		if (ts->ignore_last) {
++			if (ts->sample_cnt)
++				tsc2046_update_pen_state(tsc, ts->x, ts->y, ts->p);
++			ts->x = x;
++			ts->y = y;
++			ts->p = pressure;
++		} else
++			tsc2046_update_pen_state(tsc, x, y, pressure);
++		ts->sample_cnt++;
++	}
++
++	mod_timer(&ts->timer,
++		  jiffies + msecs_to_jiffies(TSC2046_TS_SCAN_TIME));
++}
++
++static int tsc2046_is_pen_down(struct tsc2046_ts *ts)
++{
++	return ts->pen_down;
++}
++
++static int tsc2046_get_pendown_state(struct tsc2046_ts *ts)
++{
++	if (ts->get_pendown_state)
++		return ts->get_pendown_state();
++
++	return !gpio_get_value(ts->dav_gpio);
++}
++
++/*
++ * Timer is called every TSC2046_TS_SCAN_TIME when the pen is down
++ */
++static void tsc2046_ts_timer(unsigned long arg)
++{
++	struct tsc2046 *tsc = (void *) arg;
++	struct tsc2046_ts *ts = tsc->ts;
++	unsigned long flags;
++	int ndav;
++	int r;
++
++	spin_lock_irqsave(&ts->lock, flags);
++	ndav = tsc2046_get_pendown_state(ts);
++	if (!ndav || tsc2046_device_suspended(&tsc->spi->dev)) {
++		/* Pen has been lifted */
++		if (!tsc2046_device_suspended(&tsc->spi->dev) &&
++		    !ts->irq_enabled)
++		{
++			ts->irq_enabled = 1;
++			enable_irq(ts->irq);
++		}
++		tsc2046_update_pen_state(tsc, 0, 0, 0);
++		ts->pending = 0;
++		spin_unlock_irqrestore(&ts->lock, flags);
++
++	} else {
++		ts->pen_down = 1;
++		spin_unlock_irqrestore(&ts->lock, flags);
++
++		r = spi_async(tsc->spi, &ts->read_msg);
++		if (r)
++			dev_err(&tsc->spi->dev, "ts: spi_async() failed");
++	}
++}
++
++/*
++ * This interrupt is called when pen is down and first coordinates are
++ * available. That is indicated by a falling edge on DEV line.  IRQ is
++ * disabled here because while the pen is down the coordinates are
++ * read by a timer.
++ */
++static irqreturn_t tsc2046_ts_irq_handler(int irq, void *dev_id)
++{
++	struct tsc2046 *tsc = dev_id;
++	struct tsc2046_ts *ts = tsc->ts;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ts->lock, flags);
++	if (ts->irq_enabled) {
++		ts->irq_enabled = 0;
++		disable_irq_nosync(ts->irq);
++		ts->pending = 1;
++		ts->pressure_limit = ts->touch_pressure;
++		ts->sample_cnt = 0;
++		mod_timer(&ts->timer,
++			  jiffies + msecs_to_jiffies(TSC2046_TS_SCAN_TIME));
++	}
++	spin_unlock_irqrestore(&ts->lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++/* Must be called with ts->lock held */
++static void tsc2046_ts_disable(struct tsc2046 *tsc)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++
++	if (ts->disabled)
++		return;
++
++	ts->disabled = 1;
++	if (!ts->pending) {
++		ts->irq_enabled = 0;
++		disable_irq(ts->irq);
++	} else {
++		while (ts->pending) {
++			spin_unlock_irq(&ts->lock);
++			msleep(1);
++			spin_lock_irq(&ts->lock);
++		}
++	}
++}
++
++static void tsc2046_ts_enable(struct tsc2046 *tsc)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++
++	if (!ts->disabled)
++		return;
++
++	ts->disabled = 0;
++	ts->irq_enabled = 1;
++	enable_irq(ts->irq);
++}
++
++#ifdef CONFIG_PM
++int tsc2046_ts_suspend(struct tsc2046 *tsc)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++
++	spin_lock_irq(&ts->lock);
++	tsc2046_ts_disable(tsc);
++	spin_unlock_irq(&ts->lock);
++
++	return 0;
++}
++
++void tsc2046_ts_resume(struct tsc2046 *tsc)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++
++	spin_lock_irq(&ts->lock);
++	tsc2046_ts_enable(tsc);
++	spin_unlock_irq(&ts->lock);
++}
++#endif
++
++static void tsc2046_ts_setup_spi_xfer(struct tsc2046 *tsc)
++{
++	struct tsc2046_ts *ts = tsc->ts;
++	struct spi_message *m = &ts->read_msg;
++	struct spi_transfer *x = &ts->read_xfer[1];
++
++	spi_message_init(m);
++
++	/* read and write data in one transaction */
++	x->tx_buf = &tsc2046_ts_cmd_data;
++	x->rx_buf = &ts->data;
++	x->len    = 10;
++	spi_message_add_tail(x, m);
++
++	/* send another START_BYTE to (re)enable pen interrupts */
++	x++;
++	x->tx_buf = &tsc2046_ts_cmd_data[0];
++	x->rx_buf = &ts->data;
++	x->len = 2;
++	spi_message_add_tail(x, m);
++
++	m->complete = tsc2046_ts_rx;
++	m->context = tsc;
++}
++
++/* Attribute functions */
++
++static ssize_t tsc2046_ts_use_pointercal_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++
++	return sprintf(buf, "%u\n", ts->use_pointercal);
++}
++
++static ssize_t tsc2046_ts_use_pointercal_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++	char *endp;
++	int i;
++
++	i = simple_strtoul(buf, &endp, 10);
++	spin_lock_irq(&ts->lock);
++
++	if (i)
++		ts->use_pointercal = 1;
++	else
++		ts->use_pointercal = 0;
++
++	spin_unlock_irq(&ts->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(use_pointercal, 0644, tsc2046_ts_use_pointercal_show, tsc2046_ts_use_pointercal_store);
++
++static ssize_t tsc2046_ts_pointercal_show(struct device *dev,
++		   struct device_attribute *attr, char *buf)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++
++	return sprintf(buf, "%d %d %d %d %d %d %d\n", PA, PB, PC, PD, PE, PF, PS);
++}
++
++static ssize_t tsc2046_ts_pointercal_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++	char *endp;
++	int i;
++	unsigned int index = 0, offset = 0;
++
++	spin_lock_irq(&ts->lock);
++
++	for (index = 0; index < 7; index++) {
++		/* Grab the numbers */
++		i = simple_strtol(buf + offset, &endp, 10);
++		ts->pointercal[index] = i;
++
++		/* Skip the space */
++		offset = endp - buf + 1;
++	}
++
++	spin_unlock_irq(&ts->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(pointercal, 0644, tsc2046_ts_pointercal_show, tsc2046_ts_pointercal_store);
++
++static ssize_t tsc2046_ts_screen_res_show(struct device *dev,
++		   struct device_attribute *attr, char *buf)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++
++	return sprintf(buf, "%u %u\n", ts->x_res, ts->y_res);
++}
++
++static ssize_t tsc2046_ts_screen_res_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++	char *endp;
++	unsigned int i, offset = 0;
++
++	spin_lock_irq(&ts->lock);
++
++	/* Grab the x res */
++	i = simple_strtoul(buf, &endp, 10);
++	ts->x_res = i;
++
++	/* Skip the space */
++	offset = endp - buf + 1;
++
++	/* Grab the y res */
++	i = simple_strtoul(buf + offset, &endp, 10);
++	ts->y_res = i;
++
++	/* Update the device parameters */
++	input_set_abs_params(ts->idev, ABS_X, 0, ts->x_res - 1, 0, 0);
++	input_set_abs_params(ts->idev, ABS_Y, 0, ts->y_res - 1, 0, 0);
++
++	spin_unlock_irq(&ts->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(screen_res, 0644, tsc2046_ts_screen_res_show, tsc2046_ts_screen_res_store);
++
++static ssize_t tsc2046_ts_pen_down_show(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
++{
++	struct tsc2046 *tsc = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", tsc2046_is_pen_down(tsc->ts));
++}
++
++static DEVICE_ATTR(pen_down, S_IRUGO, tsc2046_ts_pen_down_show, NULL);
++
++static ssize_t tsc2046_ts_disable_show(struct device *dev,
++				       struct device_attribute *attr, char *buf)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++
++	return sprintf(buf, "%u\n", ts->disabled);
++}
++
++static ssize_t tsc2046_ts_disable_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct tsc2046		*tsc = dev_get_drvdata(dev);
++	struct tsc2046_ts	*ts = tsc->ts;
++	char *endp;
++	int i;
++
++	i = simple_strtoul(buf, &endp, 10);
++	spin_lock_irq(&ts->lock);
++
++	if (i)
++		tsc2046_ts_disable(tsc);
++	else
++		tsc2046_ts_enable(tsc);
++
++	spin_unlock_irq(&ts->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(disable_ts, 0664, tsc2046_ts_disable_show,
++		   tsc2046_ts_disable_store);
++
++/* Init functions */
++
++static int __devinit tsc2046_probe(struct spi_device *spi)
++{
++	struct tsc2046			*tsc;
++	struct tsc2046_ts		*ts;
++	struct tsc2046_platform_data	*pdata = spi->dev.platform_data;
++	struct input_dev		*idev;
++	int r = -ENODEV;
++
++	dev_dbg(&spi->dev, "%s\n", __FUNCTION__);
++
++	if (!pdata) {
++		dev_dbg(&spi->dev, "no platform data?\n");
++		return -ENODEV;
++	}
++
++	tsc = kzalloc(sizeof(*tsc), GFP_KERNEL);
++	if (tsc == NULL)
++		return -ENOMEM;
++
++	dev_set_drvdata(&spi->dev, tsc);
++	tsc->spi = spi;
++	spi->dev.power.power_state = PMSG_ON;
++
++	spi->mode = SPI_MODE_1;
++	spi->bits_per_word = 16;
++
++	/* The max speed might've been defined by the board-specific
++	 * struct */
++	if (!spi->max_speed_hz)
++		spi->max_speed_hz = TSC2046_HZ;
++	spi_setup(spi);
++
++	if (spi->irq < 0) {
++		dev_err(&tsc->spi->dev, "need DAV IRQ/GPIO");
++		return -EINVAL;
++	}
++
++	if (!pdata->get_pendown_state && !gpio_is_valid(pdata->gpio_pendown)) {
++		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
++		return -EINVAL;
++	}
++
++	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
++	if (ts == NULL)
++		return -ENOMEM;
++	tsc->ts = ts;
++
++	if (pdata->get_pendown_state)
++		ts->get_pendown_state = pdata->get_pendown_state;
++	else {
++		ts->dav_gpio = pdata->gpio_pendown;
++		r = gpio_request(ts->dav_gpio, dev_name(&tsc->spi->dev));
++		if (r < 0) {
++			dev_err(&tsc->spi->dev, "unable to get DAV GPIO");
++			goto err1;
++		}
++		gpio_direction_input(ts->dav_gpio);
++	}
++
++	ts->irq = spi->irq;
++
++	init_timer(&ts->timer);
++	ts->timer.data = (unsigned long) tsc;
++	ts->timer.function = tsc2046_ts_timer;
++
++	spin_lock_init(&ts->lock);
++
++	ts->x_plate_ohm	= pdata->ts_x_plate_ohm ? : 280;
++	ts->max_pressure = pdata->ts_max_pressure ? : MAX_12BIT;
++	ts->touch_pressure = pdata->ts_touch_pressure ? : ts->max_pressure;
++	ts->ignore_last	= pdata->ts_ignore_last;
++
++	idev = input_allocate_device();
++	if (idev == NULL) {
++		r = -ENOMEM;
++		goto err2;
++	}
++	idev->name = "TSC2046 touchscreen";
++	snprintf(ts->phys, sizeof(ts->phys),
++		 "%s/input-ts", dev_name(&tsc->spi->dev));
++	idev->phys = ts->phys;
++
++	idev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
++	idev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE);
++	ts->idev = idev;
++
++	tsc2046_ts_setup_spi_xfer(tsc);
++
++	/* X and Y res default to 240x320 */
++	ts->x_res = pdata->ts_x_res ? : 240;
++	ts->y_res = pdata->ts_y_res ? : 320;
++
++	input_set_abs_params(idev, ABS_X, 0, ts->x_res - 1, 0, 0);
++	input_set_abs_params(idev, ABS_Y, 0, ts->y_res - 1, 0, 0);
++	input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
++
++	set_bit(BTN_TOUCH, idev->keybit);
++
++	r = request_irq(ts->irq, tsc2046_ts_irq_handler,
++			IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_FALLING,
++			"tsc2046-ts", tsc);
++	if (r < 0) {
++		dev_err(&tsc->spi->dev, "unable to get DAV IRQ");
++		goto err3;
++	}
++	set_irq_wake(ts->irq, 1);
++	ts->irq_enabled = 1;
++
++	/* Create the various driver attributes */
++	if (device_create_file(&tsc->spi->dev, &dev_attr_pen_down) < 0)
++		goto err4;
++	if (device_create_file(&tsc->spi->dev, &dev_attr_disable_ts) < 0)
++		goto err5;
++	if (device_create_file(&tsc->spi->dev, &dev_attr_use_pointercal) < 0)
++		goto err6;
++	if (device_create_file(&tsc->spi->dev, &dev_attr_pointercal) < 0)
++		goto err7;
++	if (device_create_file(&tsc->spi->dev, &dev_attr_screen_res) < 0)
++		goto err8;
++
++	r = input_register_device(idev);
++	if (r < 0) {
++		dev_err(&tsc->spi->dev, "can't register touchscreen device\n");
++		goto err9;
++	}
++
++	/* kick off a transaction to enable pen interrupts */
++	spi_async(tsc->spi, &ts->read_msg);
++
++	return 0;
++err9:
++	device_remove_file(&tsc->spi->dev, &dev_attr_screen_res);
++err8:
++	device_remove_file(&tsc->spi->dev, &dev_attr_pointercal);
++err7:
++	device_remove_file(&tsc->spi->dev, &dev_attr_use_pointercal);
++err6:
++	device_remove_file(&tsc->spi->dev, &dev_attr_disable_ts);
++err5:
++	device_remove_file(&tsc->spi->dev, &dev_attr_pen_down);
++err4:
++	free_irq(ts->irq, tsc);
++err3:
++	input_free_device(idev);
++err2:
++	if (ts->dav_gpio)
++		gpio_free(ts->dav_gpio);
++err1:
++	kfree(ts);
++	return r;
++}
++
++static int __devexit tsc2046_remove(struct spi_device *spi)
++{
++	struct tsc2046 *tsc = dev_get_drvdata(&spi->dev);
++	struct tsc2046_ts *ts = tsc->ts;
++	unsigned long flags;
++
++	dev_dbg(&tsc->spi->dev, "%s\n", __FUNCTION__);
++
++	spin_lock_irqsave(&ts->lock, flags);
++	tsc2046_ts_disable(tsc);
++	spin_unlock_irqrestore(&ts->lock, flags);
++
++	device_remove_file(&tsc->spi->dev, &dev_attr_disable_ts);
++	device_remove_file(&tsc->spi->dev, &dev_attr_pen_down);
++	device_remove_file(&tsc->spi->dev, &dev_attr_use_pointercal);
++	device_remove_file(&tsc->spi->dev, &dev_attr_pointercal);
++	device_remove_file(&tsc->spi->dev, &dev_attr_screen_res);
++
++	free_irq(ts->irq, tsc);
++	input_unregister_device(ts->idev);
++
++	if (ts->dav_gpio)
++		gpio_free(ts->dav_gpio);
++
++	kfree(ts);
++	kfree(tsc);
++
++	return 0;
++}
++
++static struct spi_driver tsc2046_driver = {
++	.driver = {
++		   .name = "tsc2046",
++		   .bus = &spi_bus_type,
++		   .owner = THIS_MODULE,
++	},
++	.probe = tsc2046_probe,
++	.remove = __devexit_p(tsc2046_remove),
++};
++
++static int __init tsc2046_init(void)
++{
++	printk(KERN_INFO "TSC2046 driver initializing\n");
++
++	return spi_register_driver(&tsc2046_driver);
++}
++
++static void __exit tsc2046_exit(void)
++{
++	spi_unregister_driver(&tsc2046_driver);
++}
++
++module_init(tsc2046_init);
++module_exit(tsc2046_exit);
++
++MODULE_AUTHOR("Kevin Hilman <khilman@mvista.com>");
++MODULE_LICENSE("GPL");
++
+diff --git a/include/linux/input/tsc2046.h b/include/linux/input/tsc2046.h
+new file mode 100644
+index 0000000..acb8fed
+--- /dev/null
++++ b/include/linux/input/tsc2046.h
+@@ -0,0 +1,26 @@
++#ifndef _LINUX_INPUT_TSC2046_H
++#define _LINUX_INPUT_TSC2046_H
++
++#include <linux/types.h>
++#include <linux/timer.h>
++
++struct tsc2046_platform_data {
++	int	(*get_pendown_state)(void);
++	int	gpio_pendown;
++	s16	gpio_debounce;
++	u16	ts_x_plate_ohm;
++	u32	ts_max_pressure;  /* Samples with bigger pressure value will
++				     be ignored, since the corresponding X, Y
++				     values are unreliable */
++	u32	ts_touch_pressure;/* Pressure limit until we report a
++				     touch event. After that we switch
++				     to ts_max_pressure. */
++	u32	ts_x_res;
++	u32	ts_y_res;
++	unsigned ts_ignore_last : 1;
++
++};
++
++#endif
++
++
+-- 
+1.6.3.3
+

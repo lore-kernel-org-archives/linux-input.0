@@ -1,40 +1,55 @@
 From: "Daniil V. Kolpakov" <dan@riga.lv>
 Subject: Re: evdev and Trust TB-5300 tablet: wrong axis labels
-Date: Sun, 13 Dec 2009 23:23:36 +0200
-Message-ID: <200912132323.36619.dan@riga.lv>
-References: <200912130058.46220.dan@riga.lv>
-	<6a12d2f30912121727w2fbc8d19k35b55da8fcb9ffe1@mail.gmail.com>
-	<200912131825.03872.dan@riga.lv>
+Date: Sun, 13 Dec 2009 23:36:27 +0200
+Message-ID: <200912132336.28284.dan@riga.lv>
+References: <200912130058.46220.dan@riga.lv> <200912131825.03872.dan@riga.lv> <200912132323.36619.dan@riga.lv>
 Reply-To: "Daniil V. Kolpakov" <dan@riga.lv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="koi8-r"
-Content-Transfer-Encoding: base64
-Return-path: <xorg-bounces@lists.freedesktop.org>
-In-Reply-To: <200912131825.03872.dan@riga.lv>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/xorg>
-List-Post: <mailto:xorg@lists.freedesktop.org>
-List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
-Sender: xorg-bounces@lists.freedesktop.org
-Errors-To: xorg-bounces@lists.freedesktop.org
+Content-Type: Text/Plain; charset=koi8-r
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dan.tet.rtu.lv ([217.195.52.165]:43216 "HELO dan.tet.rtu.lv"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1753308AbZLMVgb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Dec 2009 16:36:31 -0500
+In-Reply-To: <200912132323.36619.dan@riga.lv>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: xorg@lists.freedesktop.org, Matthew Helsley <matt.helsley@gmail.com>
 Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-9yDTz8/C3cXOyckgz9QgMTMgxMXLwcLS0SAyMDA5IERhbmlpbCBWLiBLb2xwYWtvdiDOwdDJ08HM
-KGEpOgo+IEkgY2FuJ3QgZmluZCBhbnkgaW5mb3JtYXRpb24gb24gaG93IHRvIGVuYWJsZSBxdWly
-a3MgdGhyb3VnaCBzeXNmcyAoYW5kCj4gIHdoZXJlICB0byBnZXQgbGlzdCBvZiBhdmFpbGFibGUg
-cXVpcmtzLCB0b28pLiBDYW4geW91IHBvaW50IG1lIHRvIHNvbWUKPiAgZG9jdW1lbnRhdGlvbiBv
-biB0aGlzIHN1YmplY3Q/CgpIbW0sIGl0IG11c3QgYmUgL3N5cy9tb2R1bGUvdXNiaGlkL3BhcmFt
-ZXRlcnMvcXVpcmtzIGZpbGUhIEJ1dCB3aGF0J3MgdGhlIApmb3JtYXQsIGFuZCBob3cgZG8gSSBr
-bm93IHRoZSB2YWx1ZXMgZm9yIGVuYWJsaW5nICJNVUxUSSIgcXVpcms/CgotLSAKUGxlYXNlIGF2
-b2lkIHNlbmRpbmcgbWUgV29yZCBvciBQb3dlclBvaW50IGF0dGFjaG1lbnRzLgpTZWUgaHR0cDov
-L3d3dy5nbnUub3JnL3BoaWxvc29waHkvbm8td29yZC1hdHRhY2htZW50cy5odG1sCgpTdXBwb3J0
-IG9wZW4gc3RhbmRhcmRzISBUYWtlIGEgbG9vayBhdCB0aGlzIG5pY2UgcHJlc2VudGF0aW9uOgpo
-dHRwOi8vd3d3LmR3aGVlbGVyLmNvbS9lc3NheXMvb3Blbi1zdGFuZGFyZHMtc2VjdXJpdHkucGRm
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnhvcmcgbWFp
-bGluZyBsaXN0CnhvcmdAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVz
-a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby94b3Jn
+=F7 =D3=CF=CF=C2=DD=C5=CE=C9=C9 =CF=D4 13 =C4=C5=CB=C1=C2=D2=D1 2009 Da=
+niil V. Kolpakov =CE=C1=D0=C9=D3=C1=CC(a):
+> =F7 =D3=CF=CF=C2=DD=C5=CE=C9=C9 =CF=D4 13 =C4=C5=CB=C1=C2=D2=D1 2009 =
+Daniil V. Kolpakov =CE=C1=D0=C9=D3=C1=CC(a):
+> > I can't find any information on how to enable quirks through sysfs =
+(and
+> >  where  to get list of available quirks, too). Can you point me to =
+some
+> >  documentation on this subject?
+>=20
+> Hmm, it must be /sys/module/usbhid/parameters/quirks file! But what's=
+ the
+> format, and how do I know the values for enabling "MULTI" quirk?
+>=20
+
+$ /sbin/modinfo usbhid | grep quirks
+parm:           quirks:Add/modify USB HID quirks by specifying =20
+quirks=3DvendorID:productID:quirks where vendorID, productID, and quirk=
+s are all=20
+in 0x-prefixed hex (array of charp)
+
+I guess reading usbhid source should drop some light on my question :)
+
+--=20
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.gnu.org/philosophy/no-word-attachments.html
+
+Support open standards! Take a look at this nice presentation:
+http://www.dwheeler.com/essays/open-standards-security.pdf
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

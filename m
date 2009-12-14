@@ -1,79 +1,84 @@
-From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Subject: Re: [PATCH] Logitech G13 driver (fixed cc list --- ignore others)
-Date: Mon, 14 Dec 2009 15:48:43 -0700
-Message-ID: <db910869762a655c288c762e82e83d3e.squirrel@intranet.cs.nmsu.edu>
-References: <200912142122.nBELMW7d001243@mustang.cs.nmsu.edu>
-    <20091214220220.GB2052@nokia.com>
+From: "Daniil V. Kolpakov" <dan@riga.lv>
+Subject: Re: evdev and Trust TB-5300 tablet: wrong axis labels
+Date: Tue, 15 Dec 2009 01:06:07 +0200
+Message-ID: <200912150106.07482.dan@riga.lv>
+References: <200912130058.46220.dan@riga.lv> <200912131825.03872.dan@riga.lv>
+	<6a12d2f30912131835taa8086dic17562bb71543a68@mail.gmail.com>
+Reply-To: "Daniil V. Kolpakov" <dan@riga.lv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758701AbZLNWtv@vger.kernel.org>
-In-Reply-To: <20091214220220.GB2052@nokia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: felipe.balbi@nokia.com
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "krzysztof.h1@wp.pl" <krzysztof.h1@wp.pl>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "oliver@neukum.org" <oliver@neukum.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "jkosina@suse.cz" <jkosina@suse.cz>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xorg-bounces@lists.freedesktop.org>
+In-Reply-To: <6a12d2f30912131835taa8086dic17562bb71543a68@mail.gmail.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/xorg>
+List-Post: <mailto:xorg@lists.freedesktop.org>
+List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
+Sender: xorg-bounces@lists.freedesktop.org
+Errors-To: xorg-bounces@lists.freedesktop.org
+To: Matthew Helsley <matt.helsley@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, xorg@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
 
-Hello,
-
-Felipe Balbi wrote:
-> On Mon, Dec 14, 2009 at 10:22:32PM +0100, ext Rick L. Vinyard Jr. wrote:
->>
->>Signed-off-by: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>
->
-> there are plenty of style mistakes in this patch. the body message
-> description which you put below should be above the signed-off-by line,
-
-Fixed in the new patch labelled 0.0.2
-
-> multi-lined comments are of the form:
->
-> /*
->   * multi lined comment
->   * goes here
->   */
->
-
-Fixed
-
-> remove the commented code like /* hid_debug = 0 */
->
-
-Removed
-
-> and some others.. please run your patch through scripts/checkpatch.pl
-> --strict and fix the errors and warnings reported.
->
-
-I ran it without the --strict option before. That's probably why I didn't
-catch it. It's clean now with --strict.
-
->>+static int __init g13_init(void)
->>+{
->>+       pr_debug("g13 HID driver loaded");
->
-> don't pr_debug() here.
->
-
-Removed
-
->>+       return hid_register_driver(&g13_driver);
->>+}
->>+
->>+static void __exit g13_exit(void)
->>+{
->>+       pr_debug("g13 HID driver unloaded");
->
-> nor here.
->
->>+       hid_unregister_driver(&g13_driver);
->>+}
-
-Removed
-
-Thanks for the input. Everything above is taken into account in v0.0.2 of
-the patch.
-
----
-
-Rick
+0JIg0YHQvtC+0LHRidC10L3QuNC4INC+0YIgMTQg0LTQtdC60LDQsdGA0Y8gMjAwOSBNYXR0aGV3
+IEhlbHNsZXkg0L3QsNC/0LjRgdCw0LsoYSk6ClsuLi5dCj4gTG9va3MgbGlrZSB0aGV5IG1heSBo
+YXZlIHJlLWJyYW5kZWQgdGhlICJHZW5pdXMgTW91c2VQZW4gNXg0IFRhYmxldCIKPiB0byB5b3Vy
+ICJUcnVzdCBUQi01MzAwIi4KWy4uLl0KPiBJZiB5b3Ugc2VhcmNoIGZvciAiR2VuaXVzIE1vdXNl
+UGVuIDV4NCBUYWJsZXQiIG9yIHNvbWV0aGluZyBsaWtlIGl0Cj4gdGhlbiBwZXJoYXBzIHlvdSds
+bCBmaW5kIG1vcmUgaWRlYXMgZm9yIGZpeGluZyB5b3VyIHRhYmxldC4KCk5vdGhpbmcgaW50ZXJl
+c3Rpbmcg4oCUIG1vc3RseSBJIGdldCBob3d0b3Mgb24gaW5zdGFsbGluZyBzb21lIChwcm9wcmll
+dGFyeT8pIApkcml2ZXIgY2FsbGVkICJ3aXphcmRwZW4iLCBhbmQgdXN1YWxseSB3aXRoIHhvcmcu
+Y29uZiBpbnN0ZWFkIG9mIEhBTCBydWxlcy4KCkkndmUgdHJpZWQgZW5hYmxpbmcgIk1VTFRJX0lO
+UFVUIiBxdWlyaywgYXMgeW91J3ZlIHN1Z2dlc3RlZDoKCltyb290QHNoaW5lc3Rhcjp+XSQgbW9k
+cHJvYmUgLXIgdXNiaGlkCltyb290QHNoaW5lc3Rhcjp+XSQgbW9kcHJvYmUgdXNiaGlkICJxdWly
+a3M9MHg1NTQzOjB4MDAwNDoweDAwNDAiCgpJdCAic3BsaXR0ZWQiIHRoZSB0YWJsZXQgdG8gdGhy
+ZWUgZGV2aWNlcywgYXMgaW4geW91ciBjYXNlOgoKSTogQnVzPTAwMDMgVmVuZG9yPTU1NDMgUHJv
+ZHVjdD0wMDA0IFZlcnNpb249MDEwMApOOiBOYW1lPSJVQy1MT0dJQyBUYWJsZXQgV1A1NTQwVSIK
+UDogUGh5cz11c2ItMDAwMDowMzowMC4wLTIvaW5wdXQwClM6IApTeXNmcz0vZGV2aWNlcy9wY2kw
+MDAwOjAwLzAwMDA6MDA6MDYuMC8wMDAwOjAzOjAwLjAvdXNiMS8xLTIvMS0yOjEuMC9pbnB1dC9p
+bnB1dDE1ClU6IFVuaXE9Ckg6IEhhbmRsZXJzPW1vdXNlMiBldmVudDYKQjogRVY9MWIKQjogS0VZ
+PWMwMSAxIDAgMCAwIDAKQjogQUJTPTEwMDAwMDMKQjogTVNDPTEwCgpJOiBCdXM9MDAwMyBWZW5k
+b3I9NTU0MyBQcm9kdWN0PTAwMDQgVmVyc2lvbj0wMTAwCk46IE5hbWU9IlVDLUxPR0lDIFRhYmxl
+dCBXUDU1NDBVIgpQOiBQaHlzPXVzYi0wMDAwOjAzOjAwLjAtMi9pbnB1dDAKUzogClN5c2ZzPS9k
+ZXZpY2VzL3BjaTAwMDA6MDAvMDAwMDowMDowNi4wLzAwMDA6MDM6MDAuMC91c2IxLzEtMi8xLTI6
+MS4wL2lucHV0L2lucHV0MTYKVTogVW5pcT0KSDogSGFuZGxlcnM9bW91c2UzIGV2ZW50NwpCOiBF
+Vj0xNwpCOiBLRVk9NzAwMDAgMCAwIDAgMApCOiBSRUw9MzAzCkI6IE1TQz0xMAoKSTogQnVzPTAw
+MDMgVmVuZG9yPTU1NDMgUHJvZHVjdD0wMDA0IFZlcnNpb249MDEwMApOOiBOYW1lPSJVQy1MT0dJ
+QyBUYWJsZXQgV1A1NTQwVSIKUDogUGh5cz11c2ItMDAwMDowMzowMC4wLTIvaW5wdXQwClM6IApT
+eXNmcz0vZGV2aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6MDYuMC8wMDAwOjAzOjAwLjAvdXNiMS8x
+LTIvMS0yOjEuMC9pbnB1dC9pbnB1dDE3ClU6IFVuaXE9Ckg6IEhhbmRsZXJzPW1vdXNlNCBldmVu
+dDgKQjogRVY9MWIKQjogS0VZPTQwMCA3MDAwMCAwIDAgMCAwCkI6IEFCUz0xMDAwMDAzCkI6IE1T
+Qz0xMAoKQnV0IHhpbnB1dCBvbmx5IGdldHMgdHdvIG9mIHRoZW0uIFRoZXkgZG9uJ3Qgc2VuZCBl
+dmVudHMgKHhpbnB1dCB0ZXN0IHNob3dzIAp0aGlzKS4gQnV0LCBsb29raW5nIGF0IFhvcmcuMC5s
+b2cgbm93LCBJIHNlZSB0aGF0IHRoZSBmaXJzdCBkZXZpY2UgaXMgaG9va2VkIApieSBzeW5hcHRp
+Y3MgZHJpdmVyIHdoaWNoIGNhbm5vdCBpbml0IGJlY2F1c2UgaGFyZHdhcmUgaXMgdW5zdXBwb3J0
+ZWQuIEkga25vdyAKd2h5LCBJJ3ZlIHNlZW4gb3ZlcnJpZGluZyBydWxlcyBpbiBoYWwgY29uZmln
+LiBJJ2xsIHRyeSB0byByZWNvbmZpZ3VyZSBpdCB0byAKdXNlIGV2ZGV2IGRyaXZlci4KClsuLi5d
+Cj4gcm9vdEBsb2NhbGhvc3Q6IH4vIyBlY2hvICc2LTI6MS4wJyA+IC9zeXMvYnVzL3VzYi9kcml2
+ZXJzL3VzYmhpZC91bmJpbmQKPiByb290QGxvY2FsaG9zdDogfi8jIGxzdXNiIC12dnYgLWQgJzU1
+NDM6MDA0MicKPiBCdXMgMDA2IERldmljZSAwMDI6IElEIDU1NDM6MDA0MiBVQy1Mb2dpYyBUZWNo
+bm9sb2d5IENvcnAuIEdlbml1cwo+IFBlblNrZXRjaCAxMng5IFRhYmxldAo+IERldmljZSBEZXNj
+cmlwdG9yOgo+ICAgYkxlbmd0aCAgICAgICAgICAgICAgICAxOApbLi4uXQo+ICAgICAgIGlJbnRl
+cmZhY2UgICAgICAgICAgICAgIDIgVGFibGV0IFBGMTIwOQo+ICAgICAgICoqIFVOUkVDT0dOSVpF
+RDogIDA5IDIxIDAwIDAxIDAwIDAxIDIyIGVhIDAwCj4gICAgICAgRW5kcG9pbnQgRGVzY3JpcHRv
+cjoKWy4uLl0KPiAKPiBBcHBhcmVudGx5IGl0IHNob3VsZCBoYXZlIG91dHB1dCBhIHNlY3Rpb24g
+ZW50aXRsZWQ6ICJISUQgRGV2aWNlCj4gRGVzY3JpcHRvcjoiIGFuZCBpbnN0ZWFkIEkgZ290ICIq
+KiBVTlJFQ09HTklaRUQ6ICAwOSAyMSAwMCAwMSAwMCAwMSAyMgo+IGVhIDAwIi4gRG8geW91IGdl
+dCB0aGUgc2FtZT8KCk5vLCBhZnRlciB1bmJpbmRpbmcgSSd2ZSBnb3QgdGhlIGRlc2NyaXB0b3Ig
+ZnVsbHkgZGVjb2RlZC4gQnV0IEknbSBhZnJhaWQgaXQgCmRvZXNuJ3QgaGVscCBtZS4uLgoKPiBG
+b3IgbWUsIGJlaW5nIHVuZmFtaWxpYXIgd2l0aCB0aGUgZGV0YWlscyBvZiB0aGUgVVNCLCBISUQs
+IGFuZCBrZXJuZWwKPiBpbnB1dCBzdWJzeXN0ZW1zIChub3QgdG8gbWVudGlvbiB0aGUgc3RhbmRh
+cmRzKSwgdGhlIHRpbnkgYW1vdW50IG9mCj4gd29yayBJIG1hbmFnZWQgdG8gYWNjb21wbGlzaCB0
+byBnZXQgbWluaW1hbCBzdXBwb3J0IG9mIG15IHRhYmxldCB3YXMKPiBzdGlsbCBxdWl0ZSBhIGxl
+YXJuaW5nIGV4cGVyaWVuY2UuCgpJIGRpZG4ndCBnZXQgbWluZSB0byB3b3JrIHlldCwgYnV0IHRo
+ZSBsZWFybmluZyBleHBlcmllbmNlIGlzIGhlcmUsIHRvbyA6KQoKLS0gClBsZWFzZSBhdm9pZCBz
+ZW5kaW5nIG1lIFdvcmQgb3IgUG93ZXJQb2ludCBhdHRhY2htZW50cy4KU2VlIGh0dHA6Ly93d3cu
+Z251Lm9yZy9waGlsb3NvcGh5L25vLXdvcmQtYXR0YWNobWVudHMuaHRtbAoKU3VwcG9ydCBvcGVu
+IHN0YW5kYXJkcyEgVGFrZSBhIGxvb2sgYXQgdGhpcyBuaWNlIHByZXNlbnRhdGlvbjoKaHR0cDov
+L3d3dy5kd2hlZWxlci5jb20vZXNzYXlzL29wZW4tc3RhbmRhcmRzLXNlY3VyaXR5LnBkZgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwp4b3JnIG1haWxpbmcg
+bGlzdAp4b3JnQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwOi8vbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnL21haWxtYW4vbGlzdGluZm8veG9yZw==

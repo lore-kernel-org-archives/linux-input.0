@@ -1,18 +1,22 @@
-From: "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
+From: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
 Subject: [PATCH] Logitech G13 driver
-Date: Mon, 14 Dec 2009 14:18:09 -0700
-Message-ID: <200912142118.nBELI9bU001205@mustang.cs.nmsu.edu>
+Date: Mon, 14 Dec 2009 14:20:54 -0700
+Message-ID: <200912142120.nBELKsbg001216@mustang.cs.nmsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: krzysztof.h1-5tc4TXWwyLM@public.gmane.org, Helt-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, Krzysztof-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Morton-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, Andrew-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org, Neukum-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, Oliver-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, Kosina-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org, Jiri-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:34278 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756787AbZLNVVL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Dec 2009 16:21:11 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz
 
 
-Signed-off-by: Rick L. Vinyard, Jr <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
+Signed-off-by: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>
 ---
 
 This is a driver for the Logitech G13 gamepad, and contains three
@@ -176,7 +180,7 @@ index 0000000..c699138
 @@ -0,0 +1,1497 @@
 +/***************************************************************************
 + *   Copyright (C) 2009 by Rick L. Vinyard, Jr.                            *
-+ *   rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org                                                  *
++ *   rvinyard@cs.nmsu.edu                                                  *
 + *                                                                         *
 + *   This program is free software: you can redistribute it and/or modify  *
 + *   it under the terms of the GNU General Public License as published by  *
@@ -1669,7 +1673,7 @@ index 0000000..c699138
 +module_init(g13_init);
 +module_exit(g13_exit);
 +MODULE_DESCRIPTION("Logitech G13 HID Driver");
-+MODULE_AUTHOR("Rick L Vinyard Jr (rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org)");
++MODULE_AUTHOR("Rick L Vinyard Jr (rvinyard@cs.nmsu.edu)");
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
 index 3839340..f3e27d3 100644
@@ -1683,7 +1687,3 @@ index 3839340..f3e27d3 100644
  #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
  #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
  #define USB_DEVICE_ID_LOGITECH_WHEEL	0xc294
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

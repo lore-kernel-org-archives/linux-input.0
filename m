@@ -1,19 +1,15 @@
 From: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
-Subject: [PATCH] Logitech G13 driver
-Date: Mon, 14 Dec 2009 14:20:54 -0700
-Message-ID: <200912142120.nBELKsbg001216@mustang.cs.nmsu.edu>
+Subject: [PATCH] Logitech G13 driver (fixed cc list --- ignore others)
+Date: Mon, 14 Dec 2009 14:22:32 -0700
+Message-ID: <200912142122.nBELMW7d001243@mustang.cs.nmsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.nmsu.edu ([128.123.64.3]:34278 "EHLO mail.cs.nmsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756787AbZLNVVL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Dec 2009 16:21:11 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757890AbZLNVWp@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz
+List-Id: linux-input@vger.kernel.org
 
 
 Signed-off-by: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>

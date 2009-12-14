@@ -1,63 +1,415 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [RFC][PATCH 4/5] input: serio: add support for
-	Amstrad Delta serial keyboard port
-Date: Mon, 14 Dec 2009 01:11:34 +0100
-Message-ID: <200912140111.36458.jkrzyszt@tis.icnet.pl>
-References: <D615D960-7E56-492A-9CA0-BA66CF3AAF9B@gmail.com>
-	<200912122134.08795.jkrzyszt@tis.icnet.pl>
-	<20091212232003.GA16760@core.coreip.homeip.net>
-Reply-To: Discussion of the Amstrad E3 emailer hardware/software
-	<e3-hacking@earth.li>
+From: Matthew Helsley <matt.helsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: evdev and Trust TB-5300 tablet: wrong axis labels
+Date: Sun, 13 Dec 2009 18:35:03 -0800
+Message-ID: <6a12d2f30912131835taa8086dic17562bb71543a68@mail.gmail.com>
+References: <200912130058.46220.dan@riga.lv>
+	 <6a12d2f30912121727w2fbc8d19k35b55da8fcb9ffe1@mail.gmail.com>
+	 <200912131825.03872.dan@riga.lv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <e3-hacking-bounces@earth.li>
-In-Reply-To: <20091212232003.GA16760@core.coreip.homeip.net>
-Content-Disposition: inline
-List-Unsubscribe: <http://www.earth.li/cgi-bin/mailman/options/e3-hacking>,
-	<mailto:e3-hacking-request@earth.li?subject=unsubscribe>
-List-Archive: <http://www.earth.li/pipermail/e3-hacking>
-List-Post: <mailto:e3-hacking@earth.li>
-List-Help: <mailto:e3-hacking-request@earth.li?subject=help>
-List-Subscribe: <http://www.earth.li/cgi-bin/mailman/listinfo/e3-hacking>,
-	<mailto:e3-hacking-request@earth.li?subject=subscribe>
-Sender: e3-hacking-bounces@earth.li
-Errors-To: e3-hacking-bounces@earth.li
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: multipart/mixed; boundary=0016364eeba8e9df89047aa71ec1
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200912131825.03872.dan-A/X3QuVk8WQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Daniil V. Kolpakov" <dan-A/X3QuVk8WQ@public.gmane.org>
+Cc: xorg-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgRG1pdHJ5LAoKU3VuZGF5IDEzIERlY2VtYmVyIDIwMDkgMDA6MjA6MDMgRG1pdHJ5IFRvcm9r
-aG92IG5hcGlzYcWCKGEpOgo+Cj4gYXRrYmQgaXMgc3VwcG9zZWQgdG8gc3VwcG9ydCBQUy8yIGRl
-dmljZXMgc3BlYWtpbmcgQVQga2V5Ym9hcmQgcHJvdG9jb2wuCj4gV2UgYWxzbyBkbyBzdXBwb3J0
-IHN1Y2ggZGV2aWNlcyBiZWhpbmQgZHVtYiBjb250cm9sbGVycyB0aGF0IGRvIG5vdAo+IGFsbG93
-IHF1ZXJ5aW5nIHRoZSBkZXZpY2UgYnV0IHdlIGV4cGVjdCB0aG9zZSB0byBhdCBsZWFzdCBwcm9k
-dWNlIHRoZQo+IHN0YW5kYXJkIHNjYW5jb2Rlcy4KCkFzIGZhciBhcyBJIGNhbiB1bmRlcnN0YW5k
-LCB1c2luZyB0aGUgYXRrYmQgZHJpdmVyIGlzIG5vdCBhIGdvb2QgaWRlYSBpbiB0aGlzIApjYXNl
-IGJlY2F1c2Ugb2YgdGhlIGtleWJvYXJkIG5vdCBwcm9kdWNpbmcgc3RhbmRhcmQgc2NhbmNvZGVz
-LCBjb3JyZWN0PwoKSXNuJ3QgdGhlIGhwcHMyYXRrYmQuaCBwcm92aWRlZCBrZXljb2RlIHRhYmxl
-IGFuIGFscmVhZHkgc3VwcG9ydGVkIHdheSBvZiAKaW50cm9kdWNpbmcgZXhjZXB0aW9ucyB0byB0
-aGlzIHN0YW5kYXJkIHNjYW5jb2RlcyByZXF1aXJlbWVudD8gV2h5IGNvdWxkbid0IAp0aGlzIG1l
-dGhvZCBiZSByZXVzZWQgaGVyZT8KCldoYXQgSSBhbSBhZnJhaWQgb2YgaXMgaWYgdGhlIGRyaXZl
-ciBzdXBwb3NlZCB0byBiZSBjcmVhdGVkIGluc3RlYWQgd291bGRuJ3QgCnJlcXVpcmUgcmVpcGxl
-bWVudGluZyBtb3N0IG9mIHRoZSBhdGtiZCBjb2RlLgoKPiBJIHdvdWxkIG5lZWQgdG8ga25vdyBh
-IGJpdCBtb3JlIGFib3V0IHRoZSBnYW1lcGFkLCBidXQgc28gZmFyIEkgc3RpbGwKPiB0aGluayB0
-aGF0IGN1cnJlbnQgYXR0ZW1wb3Qgb2YgY3JlYXRpbmcgaW50ZXJtZWRpYXRlIHNlcmlvIG1vZHVs
-ZSB3aGljaAo+IGFsbG93cyB0byB1c2UgYXRrYmQgZHJpdmVyIGlzIG5vdCB0aGUgcHJvcGVyIHNv
-bHV0aW9uLgoKSSBtb2RpZmllZCB0aGUgc2VyaW8gZHJpdmVyIHRvIHNlbmQgZXhhY3RseSB3aGF0
-IGl0IGdldHMgZnJvbSB0aGUgYnVmZmVyIGFuZCAKZXhhbWluZWQgaXRzIG91dHB1dCB3aXRoIHNl
-cmlvX3Jhdy4gVGhlIGdhbWVwYWQgKGNhbiBiZSBjb25uZWN0ZWQgCnNpbXVsdGFuZW91c2x5KSBh
-cHBlYXJlZCB0byBzZW5kIGV4YWN0bHkgdGhlIHNhbWUgc2NhbmNvZGVzIGFzIHRoZSBrZXlib2Fy
-ZCAKZGlkLiBJIGNvdWxkbid0IHNlZSBob3cgdGhvc2UgbWlnaHQgYmUgZGVzdGluZ3Vpc2hlZCB3
-aGV0aGVyIGNvbWluZyBmcm9tIHRoZSAKa2V5Ym9yZCBvciBmcm9tIHRoZSBnYW1lcGFkLiBUaHVz
-LCBoYW5kbGluZyB0aGVtIGJvdGggdG9nZXRoZXIgYXMgYSBzaW5nbGUgCmRldmljZSB3b3VsZCBw
-cm9iYWJseSBiZSB0aGUgb25seSBvcHRpb24gaGVyZS4KCldpdGggYm90aCBkZXZpY2VzIGNvbm5l
-Y3RlZCBhbmQga2V5cyBwcmVzc2VkIHNpbXVsdGFuZW91c2x5LCBlcnJvcnMgb2NjdXJlIGF0IAp0
-aGUgbG93ZXN0IGxldmVsOiBwYXJpdHkgY2hlY2sgZmFpbGVkLCBpbnZhbGlkIHN0b3AgYml0LCBl
-dGMuIEkgZG9uJ3QgdGhpbmsgCml0IHdvdWxkIGJlIHBvc3NpYmxlIHRvIGRvIGFueXRoaW5nIGFi
-b3V0IHRoaXMuIEJ1dCB0aGlzIGFsc28gbWVhbnMgdGhhdCAKdHJ5aW5nIHRvIHF1ZXJ5IHRoZW0g
-aW4gb3JkZXIgdG8gZ2V0IGEgc2Vuc2libGUgcmVzcG9uc2Ugd291bGQgcHJvYmFibHkgYmUgCm5v
-dCByZWxpYWJsZS4KCkFueSB0aG91Z2h0cz8KClRoYW5rcywKSmFudXN6CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwplMy1oYWNraW5nIG1haWxpbmcgbGlz
-dAplMy1oYWNraW5nQGVhcnRoLmxpCmh0dHA6Ly93d3cuZWFydGgubGkvY2dpLWJpbi9tYWlsbWFu
-L2xpc3RpbmZvL2UzLWhhY2tpbmcK
+--0016364eeba8e9df89047aa71ec1
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: quoted-printable
+
+2009/12/13 Daniil V. Kolpakov <dan-A/X3QuVk8WQ@public.gmane.org>:
+> Matthew, thanks for the info!
+
+You're quite welcome!
+
+> =F7 =D3=CF=CF=C2=DD=C5=CE=C9=C9 =CF=D4 13 =C4=C5=CB=C1=C2=D2=D1 2009 Matt=
+hew Helsley =CE=C1=D0=C9=D3=C1=CC(a):
+>> What does /proc/bus/input/devices say about your tablet? I've got a
+>> UC-LOGIC "Genius Pensketch 12x9" which had (and still has) some USB
+>> quirks. The worst was it reported the X axis as the Z axis. It turned
+>> out that the hid descriptor was bad and thus the kernel hid parser got
+>> confused. Specifying the "MULTI" quirk seemed to fix the axis
+>> labelling problem. You can test it and other quirks out by writing to
+>> a sysfs file -- though I'm looking and can't seem to find it on my
+>> 2.6.31 distro kernel :(.
+>
+> /proc/bus/input/devices says pretty much the same as it does in your case=
+:
+>
+> I: Bus=3D0003 Vendor=3D5543 Product=3D0004 Version=3D0100
+> N: Name=3D"UC-LOGIC Tablet WP5540U"
+
+Looks like they may have re-branded the "Genius MousePen 5x4 Tablet"
+to your "Trust TB-5300". Here's the usb.ids section which suggests
+that:
+
+5543  UC-Logic Technology Corp.
+        0002  SuperPen WP3325U Tablet
+        0003  Genius MousePen 4x3 Tablet/Aquila L1 Tablet
+        0004  Genius MousePen 5x4 Tablet
+        0005  Genius MousePen 8x6 Tablet
+        0041  Genius PenSketch 6x8 Tablet
+        0042  Genius PenSketch 12x9 Tablet
+
+If you search for "Genius MousePen 5x4 Tablet" or something like it
+then perhaps you'll find more ideas for fixing your tablet. Of course
+this could be misleading -- I believe there are examples of vendors
+re-using USB vendor:product pairs for different products.
+
+> P: Phys=3Dusb-0000:03:00.0-2/input0
+> S:
+> Sysfs=3D/devices/pci0000:00/0000:00:06.0/0000:03:00.0/usb1/1-2/1-2:1.0/in=
+put/input6
+> U: Uniq=3D
+> H: Handlers=3Dmouse2 event6
+
+To decode the following you can use /usr/include/linux/input.h
+(assuming you have a libc devel package installed. I've decoded it
+below:
+
+> B: EV=3D1f
+> B: KEY=3Dc01 3f0001 0 0 0 0
+> B: REL=3D303
+
+This is: 001100000011
+which says it reports REL_MISC, REL_WHEEL, REL_Y, and REL_X events.
+
+> B: ABS=3D100000f
+
+This one says it reports ABS_X, ABS_Y, ABS_Z, ABS_RX and ABS_PRESSURE.
+
+So, as you can see, the evdev driver properly decoded what the kernel
+told it about the device. It seems like the events produced by the
+kernel are wrong because the hid descriptor is probably broken.
+Incidentally, you can get a copy of that too.
+This isn't what I used -- it looks even more helpful:
+
+    http://old.nabble.com/How-to-dump-HID-report-descriptor-under-Linux-td1=
+9609562.html
+
+With the example, decoded HID descriptor printed here:
+    http://old.nabble.com/Re%3A-How-to-dump-HID-report-descriptor-under-Lin=
+ux-p20159409.html
+
+Which suggests (running as root user):
+
+user@localhost: ~/$ less /proc/bus/input/devices
+  ...
+  I: Bus=3D0003 Vendor=3D5543 Product=3D0042 Version=3D0100
+                                ^^^^^              ^^^^
+  N: Name=3D"    Tablet PF1209"
+  P: Phys=3Dusb-0000:00:1d.1-2/input0
+  S: Sysfs=3D/devices/pci0000:00/0000:00:1d.1/usb6/6-2/6-2:1.0/input/input1=
+0
+
+       ^^^^^^^
+  ...
+root@localhost: ~/# echo '6-2:1.0' > /sys/bus/usb/drivers/usbhid/unbind
+root@localhost: ~/# lsusb -vvv -d '5543:0042'
+Bus 006 Device 002: ID 5543:0042 UC-Logic Technology Corp. Genius
+PenSketch 12x9 Tablet
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x5543 UC-Logic Technology Corp.
+  idProduct          0x0042 Genius PenSketch 12x9 Tablet
+  bcdDevice            0.00
+  iManufacturer           1
+  iProduct                2 Tablet PF1209
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           34
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              2 Tablet PF1209
+      ** UNRECOGNIZED:  09 21 00 01 00 01 22 ea 00
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
+
+
+Apparently it should have output a section entitled: "HID Device
+Descriptor:" and instead I got "** UNRECOGNIZED:  09 21 00 01 00 01 22
+ea 00". Do you get the same?
+
+I recompiled my kernel to enable HID debugging which, I think, dumped
+the raw table as a series of hexadecimal values. I decoded it to the
+attached file using some utility I've long since forgotten. Manual
+decoding requires reading the USB, HID, and HID Usage Tables standards
+:(. I did some rudimentary hand decoding of my own which suggested the
+table was broken but I can't recall the details.
+
+For me, being unfamiliar with the details of the USB, HID, and kernel
+input subsystems (not to mention the standards), the tiny amount of
+work I managed to accomplish to get minimal support of my tablet was
+still quite a learning experience.
+
+Cheers,
+    -Matt Helsley
+
+--0016364eeba8e9df89047aa71ec1
+Content-Type: application/octet-stream; name="tablet.hid_reports"
+Content-Disposition: attachment; filename="tablet.hid_reports"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g36mm5fu0
+
+WzB4MDAwMF0gMHgwNSAweDBkICh2YWx1ZTogMHhkIC8gMTMpCiAgYlNpemUgPSAxIGJ5dGUocykK
+ICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlIHBhZ2UpCgpbMHgw
+MDAyXSAweDA5IDB4MDIgKHZhbHVlOiAweDIgLyAyKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5
+cGUgPSAweDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlKQoKWzB4MDAwNF0gMHhhMSAw
+eDAxICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMCAo
+TWFpbikKICBiVGFnICA9IDB4MGEgKENvbGxlY3Rpb24pIChBcHBsaWNhdGlvbikKClsweDAwMDZd
+IDB4ODUgMHgwNyAodmFsdWU6IDB4NyAvIDcpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9
+IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDggKFJlcG9ydCBJRCkKClsweDAwMDhdIDB4MDkg
+MHgyMCAodmFsdWU6IDB4MjAgLyAzMikKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgw
+MiAoTG9jYWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSkKClsweDAwMGFdIDB4YTEgMHgwMCAodmFs
+dWU6IDB4MCAvIDApCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAg
+YlRhZyAgPSAweDBhIChDb2xsZWN0aW9uKSAoUGh5c2ljYWwpCgpbMHgwMDBjXSAweDA5IDB4NDIg
+KHZhbHVlOiAweDQyIC8gNjYpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExv
+Y2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDBlXSAweDA5IDB4NDQgKHZhbHVlOiAw
+eDQ0IC8gNjgpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJU
+YWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDEwXSAweDA5IDB4NDUgKHZhbHVlOiAweDQ1IC8gNjkp
+CiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgw
+MCAoVXNhZ2UpCgpbMHgwMDEyXSAweDE1IDB4MDAgKHZhbHVlOiAweDAgLyAwKQogIGJTaXplID0g
+MSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAxIChMb2dpY2Fs
+IE1pbmltdW0pCgpbMHgwMDE0XSAweDI1IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0g
+MSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAyIChMb2dpY2Fs
+IE1heGltdW0pCgpbMHgwMDE2XSAweDc1IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0g
+MSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA3IChSZXBvcnQg
+U2l6ZSkKClsweDAwMThdIDB4OTUgMHgwMyAodmFsdWU6IDB4MyAvIDMpCiAgYlNpemUgPSAxIGJ5
+dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDkgKFJlcG9ydCBDb3Vu
+dCkKClsweDAwMWFdIDB4ODEgMHgwMiAodmFsdWU6IDB4MiAvIDIpCiAgYlNpemUgPSAxIGJ5dGUo
+cykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4IChJbnB1dCkKClsweDAwMWNd
+IDB4OTUgMHgwMyAodmFsdWU6IDB4MyAvIDMpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9
+IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDkgKFJlcG9ydCBDb3VudCkKClsweDAwMWVdIDB4
+ODEgMHgwMyAodmFsdWU6IDB4MyAvIDMpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4
+MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4IChJbnB1dCkKClsweDAwMjBdIDB4MDkgMHgzMiAodmFs
+dWU6IDB4MzIgLyA1MCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMiAoTG9jYWwp
+CiAgYlRhZyAgPSAweDAwIChVc2FnZSkKClsweDAwMjJdIDB4OTUgMHgwMSAodmFsdWU6IDB4MSAv
+IDEpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9
+IDB4MDkgKFJlcG9ydCBDb3VudCkKClsweDAwMjRdIDB4ODEgMHgwMiAodmFsdWU6IDB4MiAvIDIp
+CiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4
+IChJbnB1dCkKClsweDAwMjZdIDB4OTUgMHgwMSAodmFsdWU6IDB4MSAvIDEpCiAgYlNpemUgPSAx
+IGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDkgKFJlcG9ydCBD
+b3VudCkKClsweDAwMjhdIDB4ODEgMHgwMyAodmFsdWU6IDB4MyAvIDMpCiAgYlNpemUgPSAxIGJ5
+dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4IChJbnB1dCkKClsweDAw
+MmFdIDB4MDUgMHgwMSAodmFsdWU6IDB4MSAvIDEpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlw
+ZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlIHBhZ2UpCgpbMHgwMDJjXSAw
+eDA5IDB4MzAgKHZhbHVlOiAweDMwIC8gNDgpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9
+IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDJlXSAweDc1IDB4MTAg
+KHZhbHVlOiAweDEwIC8gMTYpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEds
+b2JhbCkKICBiVGFnICA9IDB4MDcgKFJlcG9ydCBTaXplKQoKWzB4MDAzMF0gMHg5NSAweDAxICh2
+YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFs
+KQogIGJUYWcgID0gMHgwOSAoUmVwb3J0IENvdW50KQoKWzB4MDAzMl0gMHhhNAogIGJTaXplID0g
+MCBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDBhIChQdXNoKQoK
+WzB4MDAzM10gMHg1NSAweDBkICh2YWx1ZTogMHhkIC8gMTMpCiAgYlNpemUgPSAxIGJ5dGUocykK
+ICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDUgKFVuaXQgRXhwb25lbnQpCgpb
+MHgwMDM1XSAweDY1IDB4MzMgKHZhbHVlOiAweDMzIC8gNTEpCiAgYlNpemUgPSAxIGJ5dGUocykK
+ICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDYgKFVuaXQpCgpbMHgwMDM3XSAw
+eDM1IDB4MDAgKHZhbHVlOiAweDAgLyAwKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAw
+eDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAzIChQaHlzaWNhbCBNaW5pbXVtKQoKWzB4MDAzOV0g
+MHg0NiAweGUwIDB4MmUgKHZhbHVlOiAweDJlZTAgLyAxMjAwMCkKICBiU2l6ZSA9IDIgYnl0ZShz
+KQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwNCAoUGh5c2ljYWwgTWF4aW11
+bSkKClsweDAwM2NdIDB4MjYgMHhjMCAweDVkICh2YWx1ZTogMHg1ZGMwIC8gMjQwMDApCiAgYlNp
+emUgPSAyIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDIgKExv
+Z2ljYWwgTWF4aW11bSkKClsweDAwM2ZdIDB4ODEgMHgwMiAodmFsdWU6IDB4MiAvIDIpCiAgYlNp
+emUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4IChJbnB1
+dCkKClsweDAwNDFdIDB4MDkgMHgzMSAodmFsdWU6IDB4MzEgLyA0OSkKICBiU2l6ZSA9IDEgYnl0
+ZShzKQogIGJUeXBlID0gMHgwMiAoTG9jYWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSkKClsweDAw
+NDNdIDB4NDYgMHgyOCAweDIzICh2YWx1ZTogMHgyMzI4IC8gOTAwMCkKICBiU2l6ZSA9IDIgYnl0
+ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwNCAoUGh5c2ljYWwgTWF4
+aW11bSkKClsweDAwNDZdIDB4MjYgMHg1MCAweDQ2ICh2YWx1ZTogMHg0NjUwIC8gMTgwMDApCiAg
+YlNpemUgPSAyIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDIg
+KExvZ2ljYWwgTWF4aW11bSkKClsweDAwNDldIDB4ODEgMHgwMiAodmFsdWU6IDB4MiAvIDIpCiAg
+YlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4IChJ
+bnB1dCkKClsweDAwNGJdIDB4YjQKICBiU2l6ZSA9IDAgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAo
+R2xvYmFsKQogIGJUYWcgID0gMHgwYiAoUG9wKQoKWzB4MDA0Y10gMHgwNSAweDBkICh2YWx1ZTog
+MHhkIC8gMTMpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBi
+VGFnICA9IDB4MDAgKFVzYWdlIHBhZ2UpCgpbMHgwMDRlXSAweDA5IDB4MzAgKHZhbHVlOiAweDMw
+IC8gNDgpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJUYWcg
+ID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDUwXSAweDI2IDB4ZmYgMHgwMyAodmFsdWU6IDB4M2ZmIC8g
+MTAyMykKICBiU2l6ZSA9IDIgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcg
+ID0gMHgwMiAoTG9naWNhbCBNYXhpbXVtKQoKWzB4MDA1M10gMHg4MSAweDAyICh2YWx1ZTogMHgy
+IC8gMikKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMCAoTWFpbikKICBiVGFnICA9
+IDB4MDggKElucHV0KQoKWzB4MDA1NV0gMHg3NSAweDEwICh2YWx1ZTogMHgxMCAvIDE2KQogIGJT
+aXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA3IChS
+ZXBvcnQgU2l6ZSkKClsweDAwNTddIDB4YzAKICBiU2l6ZSA9IDAgYnl0ZShzKQogIGJUeXBlID0g
+MHgwMCAoTWFpbikKICBiVGFnICA9IDB4MGMgKEVuZCBDb2xsZWN0aW9uKQoKWzB4MDA1OF0gMHhj
+MAogIGJTaXplID0gMCBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChNYWluKQogIGJUYWcgID0gMHgw
+YyAoRW5kIENvbGxlY3Rpb24pCgpbMHgwMDU5XSAweDA1IDB4MDEgKHZhbHVlOiAweDEgLyAxKQog
+IGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAw
+IChVc2FnZSBwYWdlKQoKWzB4MDA1Yl0gMHgwOSAweDAyICh2YWx1ZTogMHgyIC8gMikKICBiU2l6
+ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMiAoTG9jYWwpCiAgYlRhZyAgPSAweDAwIChVc2Fn
+ZSkKClsweDAwNWRdIDB4YTEgMHgwMSAodmFsdWU6IDB4MSAvIDEpCiAgYlNpemUgPSAxIGJ5dGUo
+cykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDBhIChDb2xsZWN0aW9uKSAoQXBw
+bGljYXRpb24pCgpbMHgwMDVmXSAweDg1IDB4MDggKHZhbHVlOiAweDggLyA4KQogIGJTaXplID0g
+MSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA4IChSZXBvcnQg
+SUQpCgpbMHgwMDYxXSAweDA5IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRl
+KHMpCiAgYlR5cGUgPSAweDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlKQoKWzB4MDA2
+M10gMHhhMSAweDAwICh2YWx1ZTogMHgwIC8gMCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBl
+ID0gMHgwMCAoTWFpbikKICBiVGFnICA9IDB4MGEgKENvbGxlY3Rpb24pIChQaHlzaWNhbCkKClsw
+eDAwNjVdIDB4MDUgMHgwOSAodmFsdWU6IDB4OSAvIDkpCiAgYlNpemUgPSAxIGJ5dGUocykKICBi
+VHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlIHBhZ2UpCgpbMHgwMDY3
+XSAweDE5IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUg
+PSAweDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDEgKFVzYWdlIE1pbmltdW0pCgpbMHgwMDY5XSAw
+eDI5IDB4MDMgKHZhbHVlOiAweDMgLyAzKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAw
+eDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDIgKFVzYWdlIE1heGltdW0pCgpbMHgwMDZiXSAweDE1
+IDB4MDAgKHZhbHVlOiAweDAgLyAwKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAx
+IChHbG9iYWwpCiAgYlRhZyAgPSAweDAxIChMb2dpY2FsIE1pbmltdW0pCgpbMHgwMDZkXSAweDI1
+IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAx
+IChHbG9iYWwpCiAgYlRhZyAgPSAweDAyIChMb2dpY2FsIE1heGltdW0pCgpbMHgwMDZmXSAweDk1
+IDB4MDMgKHZhbHVlOiAweDMgLyAzKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAx
+IChHbG9iYWwpCiAgYlRhZyAgPSAweDA5IChSZXBvcnQgQ291bnQpCgpbMHgwMDcxXSAweDc1IDB4
+MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChH
+bG9iYWwpCiAgYlRhZyAgPSAweDA3IChSZXBvcnQgU2l6ZSkKClsweDAwNzNdIDB4ODEgMHgwMiAo
+dmFsdWU6IDB4MiAvIDIpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4p
+CiAgYlRhZyAgPSAweDA4IChJbnB1dCkKClsweDAwNzVdIDB4OTUgMHgwNSAodmFsdWU6IDB4NSAv
+IDUpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9
+IDB4MDkgKFJlcG9ydCBDb3VudCkKClsweDAwNzddIDB4ODEgMHgwMSAodmFsdWU6IDB4MSAvIDEp
+CiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDA4
+IChJbnB1dCkKClsweDAwNzldIDB4MDUgMHgwMSAodmFsdWU6IDB4MSAvIDEpCiAgYlNpemUgPSAx
+IGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlIHBh
+Z2UpCgpbMHgwMDdiXSAweDA5IDB4MzAgKHZhbHVlOiAweDMwIC8gNDgpCiAgYlNpemUgPSAxIGJ5
+dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgw
+MDdkXSAweDA5IDB4MzEgKHZhbHVlOiAweDMxIC8gNDkpCiAgYlNpemUgPSAxIGJ5dGUocykKICBi
+VHlwZSA9IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDdmXSAweDA5
+IDB4MzggKHZhbHVlOiAweDM4IC8gNTYpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4
+MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMDgxXSAweDA5IDB4MDAgKHZh
+bHVlOiAweDAgLyAwKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAyIChMb2NhbCkK
+ICBiVGFnICA9IDB4MDAgKFVzYWdlKQoKWzB4MDA4M10gMHgxNSAweDgxICh2YWx1ZTogMHg4MSAv
+IDEyOSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcg
+ID0gMHgwMSAoTG9naWNhbCBNaW5pbXVtKQoKWzB4MDA4NV0gMHgyNSAweDdmICh2YWx1ZTogMHg3
+ZiAvIDEyNykKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJU
+YWcgID0gMHgwMiAoTG9naWNhbCBNYXhpbXVtKQoKWzB4MDA4N10gMHg3NSAweDA4ICh2YWx1ZTog
+MHg4IC8gOCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJU
+YWcgID0gMHgwNyAoUmVwb3J0IFNpemUpCgpbMHgwMDg5XSAweDk1IDB4MDQgKHZhbHVlOiAweDQg
+LyA0KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAg
+PSAweDA5IChSZXBvcnQgQ291bnQpCgpbMHgwMDhiXSAweDgxIDB4MDYgKHZhbHVlOiAweDYgLyA2
+KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChNYWluKQogIGJUYWcgID0gMHgw
+OCAoSW5wdXQpCgpbMHgwMDhkXSAweGMwCiAgYlNpemUgPSAwIGJ5dGUocykKICBiVHlwZSA9IDB4
+MDAgKE1haW4pCiAgYlRhZyAgPSAweDBjIChFbmQgQ29sbGVjdGlvbikKClsweDAwOGVdIDB4YzAK
+ICBiU2l6ZSA9IDAgYnl0ZShzKQogIGJUeXBlID0gMHgwMCAoTWFpbikKICBiVGFnICA9IDB4MGMg
+KEVuZCBDb2xsZWN0aW9uKQoKWzB4MDA4Zl0gMHgwNSAweDAxICh2YWx1ZTogMHgxIC8gMSkKICBi
+U2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwMCAo
+VXNhZ2UgcGFnZSkKClsweDAwOTFdIDB4MDkgMHgwMiAodmFsdWU6IDB4MiAvIDIpCiAgYlNpemUg
+PSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2Up
+CgpbMHgwMDkzXSAweGExIDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRlKHMp
+CiAgYlR5cGUgPSAweDAwIChNYWluKQogIGJUYWcgID0gMHgwYSAoQ29sbGVjdGlvbikgKEFwcGxp
+Y2F0aW9uKQoKWzB4MDA5NV0gMHg4NSAweDA5ICh2YWx1ZTogMHg5IC8gOSkKICBiU2l6ZSA9IDEg
+Ynl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwOCAoUmVwb3J0IElE
+KQoKWzB4MDA5N10gMHgwOSAweDAxICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShz
+KQogIGJUeXBlID0gMHgwMiAoTG9jYWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSkKClsweDAwOTld
+IDB4YTEgMHgwMCAodmFsdWU6IDB4MCAvIDApCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9
+IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDBhIChDb2xsZWN0aW9uKSAoUGh5c2ljYWwpCgpbMHgw
+MDliXSAweDA1IDB4MDkgKHZhbHVlOiAweDkgLyA5KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5
+cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSBwYWdlKQoKWzB4MDA5ZF0g
+MHgxOSAweDAxICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0g
+MHgwMiAoTG9jYWwpCiAgYlRhZyAgPSAweDAxIChVc2FnZSBNaW5pbXVtKQoKWzB4MDA5Zl0gMHgy
+OSAweDAzICh2YWx1ZTogMHgzIC8gMykKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgw
+MiAoTG9jYWwpCiAgYlRhZyAgPSAweDAyIChVc2FnZSBNYXhpbXVtKQoKWzB4MDBhMV0gMHgxNSAw
+eDAwICh2YWx1ZTogMHgwIC8gMCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAo
+R2xvYmFsKQogIGJUYWcgID0gMHgwMSAoTG9naWNhbCBNaW5pbXVtKQoKWzB4MDBhM10gMHgyNSAw
+eDAxICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAo
+R2xvYmFsKQogIGJUYWcgID0gMHgwMiAoTG9naWNhbCBNYXhpbXVtKQoKWzB4MDBhNV0gMHg5NSAw
+eDAzICh2YWx1ZTogMHgzIC8gMykKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAo
+R2xvYmFsKQogIGJUYWcgID0gMHgwOSAoUmVwb3J0IENvdW50KQoKWzB4MDBhN10gMHg3NSAweDAx
+ICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAoR2xv
+YmFsKQogIGJUYWcgID0gMHgwNyAoUmVwb3J0IFNpemUpCgpbMHgwMGE5XSAweDgxIDB4MDIgKHZh
+bHVlOiAweDIgLyAyKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChNYWluKQog
+IGJUYWcgID0gMHgwOCAoSW5wdXQpCgpbMHgwMGFiXSAweDk1IDB4MDUgKHZhbHVlOiAweDUgLyA1
+KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAw
+eDA5IChSZXBvcnQgQ291bnQpCgpbMHgwMGFkXSAweDgxIDB4MDEgKHZhbHVlOiAweDEgLyAxKQog
+IGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChNYWluKQogIGJUYWcgID0gMHgwOCAo
+SW5wdXQpCgpbMHgwMGFmXSAweDA1IDB4MDEgKHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBi
+eXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSBwYWdl
+KQoKWzB4MDBiMV0gMHgwOSAweDMwICh2YWx1ZTogMHgzMCAvIDQ4KQogIGJTaXplID0gMSBieXRl
+KHMpCiAgYlR5cGUgPSAweDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlKQoKWzB4MDBi
+M10gMHgwOSAweDMxICh2YWx1ZTogMHgzMSAvIDQ5KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5
+cGUgPSAweDAyIChMb2NhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlKQoKWzB4MDBiNV0gMHgxNSAw
+eDAwICh2YWx1ZTogMHgwIC8gMCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMSAo
+R2xvYmFsKQogIGJUYWcgID0gMHgwMSAoTG9naWNhbCBNaW5pbXVtKQoKWzB4MDBiN10gMHgyNiAw
+eGZmIDB4N2YgKHZhbHVlOiAweDdmZmYgLyAzMjc2NykKICBiU2l6ZSA9IDIgYnl0ZShzKQogIGJU
+eXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwMiAoTG9naWNhbCBNYXhpbXVtKQoKWzB4
+MDBiYV0gMHgzNSAweDAwICh2YWx1ZTogMHgwIC8gMCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJU
+eXBlID0gMHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwMyAoUGh5c2ljYWwgTWluaW11bSkKClsw
+eDAwYmNdIDB4NDYgMHhmZiAweDdmICh2YWx1ZTogMHg3ZmZmIC8gMzI3NjcpCiAgYlNpemUgPSAy
+IGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDQgKFBoeXNpY2Fs
+IE1heGltdW0pCgpbMHgwMGJmXSAweDk1IDB4MDIgKHZhbHVlOiAweDIgLyAyKQogIGJTaXplID0g
+MSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA5IChSZXBvcnQg
+Q291bnQpCgpbMHgwMGMxXSAweDc1IDB4MTAgKHZhbHVlOiAweDEwIC8gMTYpCiAgYlNpemUgPSAx
+IGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDcgKFJlcG9ydCBT
+aXplKQoKWzB4MDBjM10gMHg4MSAweDAyICh2YWx1ZTogMHgyIC8gMikKICBiU2l6ZSA9IDEgYnl0
+ZShzKQogIGJUeXBlID0gMHgwMCAoTWFpbikKICBiVGFnICA9IDB4MDggKElucHV0KQoKWzB4MDBj
+NV0gMHgwNSAweDBkICh2YWx1ZTogMHhkIC8gMTMpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlw
+ZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDAgKFVzYWdlIHBhZ2UpCgpbMHgwMGM3XSAw
+eDA5IDB4MzAgKHZhbHVlOiAweDMwIC8gNDgpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9
+IDB4MDIgKExvY2FsKQogIGJUYWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMGM5XSAweDI2IDB4ZmYg
+MHgwMyAodmFsdWU6IDB4M2ZmIC8gMTAyMykKICBiU2l6ZSA9IDIgYnl0ZShzKQogIGJUeXBlID0g
+MHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwMiAoTG9naWNhbCBNYXhpbXVtKQoKWzB4MDBjY10g
+MHg5NSAweDAxICh2YWx1ZTogMHgxIC8gMSkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0g
+MHgwMSAoR2xvYmFsKQogIGJUYWcgID0gMHgwOSAoUmVwb3J0IENvdW50KQoKWzB4MDBjZV0gMHg3
+NSAweDEwICh2YWx1ZTogMHgxMCAvIDE2KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAw
+eDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA3IChSZXBvcnQgU2l6ZSkKClsweDAwZDBdIDB4ODEg
+MHgwMiAodmFsdWU6IDB4MiAvIDIpCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAg
+KE1haW4pCiAgYlRhZyAgPSAweDA4IChJbnB1dCkKClsweDAwZDJdIDB4YzAKICBiU2l6ZSA9IDAg
+Ynl0ZShzKQogIGJUeXBlID0gMHgwMCAoTWFpbikKICBiVGFnICA9IDB4MGMgKEVuZCBDb2xsZWN0
+aW9uKQoKWzB4MDBkM10gMHhjMAogIGJTaXplID0gMCBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChN
+YWluKQogIGJUYWcgID0gMHgwYyAoRW5kIENvbGxlY3Rpb24pCgpbMHgwMGQ0XSAweDA1IDB4MDEg
+KHZhbHVlOiAweDEgLyAxKQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9i
+YWwpCiAgYlRhZyAgPSAweDAwIChVc2FnZSBwYWdlKQoKWzB4MDBkNl0gMHgwOSAweDAwICh2YWx1
+ZTogMHgwIC8gMCkKICBiU2l6ZSA9IDEgYnl0ZShzKQogIGJUeXBlID0gMHgwMiAoTG9jYWwpCiAg
+YlRhZyAgPSAweDAwIChVc2FnZSkKClsweDAwZDhdIDB4YTEgMHgwMSAodmFsdWU6IDB4MSAvIDEp
+CiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDBh
+IChDb2xsZWN0aW9uKSAoQXBwbGljYXRpb24pCgpbMHgwMGRhXSAweDg1IDB4MDQgKHZhbHVlOiAw
+eDQgLyA0KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRh
+ZyAgPSAweDA4IChSZXBvcnQgSUQpCgpbMHgwMGRjXSAweDE1IDB4MDAgKHZhbHVlOiAweDAgLyAw
+KQogIGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAw
+eDAxIChMb2dpY2FsIE1pbmltdW0pCgpbMHgwMGRlXSAweDI2IDB4ZmYgMHgwMCAodmFsdWU6IDB4
+ZmYgLyAyNTUpCiAgYlNpemUgPSAyIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBi
+VGFnICA9IDB4MDIgKExvZ2ljYWwgTWF4aW11bSkKClsweDAwZTFdIDB4MDkgMHgwMCAodmFsdWU6
+IDB4MCAvIDApCiAgYlNpemUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDIgKExvY2FsKQogIGJU
+YWcgID0gMHgwMCAoVXNhZ2UpCgpbMHgwMGUzXSAweDc1IDB4MDggKHZhbHVlOiAweDggLyA4KQog
+IGJTaXplID0gMSBieXRlKHMpCiAgYlR5cGUgPSAweDAxIChHbG9iYWwpCiAgYlRhZyAgPSAweDA3
+IChSZXBvcnQgU2l6ZSkKClsweDAwZTVdIDB4OTUgMHgwMyAodmFsdWU6IDB4MyAvIDMpCiAgYlNp
+emUgPSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDEgKEdsb2JhbCkKICBiVGFnICA9IDB4MDkgKFJl
+cG9ydCBDb3VudCkKClsweDAwZTddIDB4YjEgMHgwMiAodmFsdWU6IDB4MiAvIDIpCiAgYlNpemUg
+PSAxIGJ5dGUocykKICBiVHlwZSA9IDB4MDAgKE1haW4pCiAgYlRhZyAgPSAweDBiIChGZWF0dXJl
+KQoKWzB4MDBlOV0gMHhjMAogIGJTaXplID0gMCBieXRlKHMpCiAgYlR5cGUgPSAweDAwIChNYWlu
+KQogIGJUYWcgID0gMHgwYyAoRW5kIENvbGxlY3Rpb24pCgpkb25lCg==
+--0016364eeba8e9df89047aa71ec1--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

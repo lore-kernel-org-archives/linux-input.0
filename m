@@ -1,130 +1,50 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] input_ gpio_keys: scan gpio state at probe time
-Date: Mon, 14 Dec 2009 11:10:55 +0800
-Message-ID: <20091214031054.GX28375@buzzloop.caiaq.de>
-References: <1259146416-6713-1-git-send-email-daniel@caiaq.de>
- <20091126034612.GA23244@core.coreip.homeip.net>
+From: Matt Hsu <matt@0xlab.org>
+Subject: Re: Duplicated driver for LIS302-like device.
+Date: Mon, 14 Dec 2009 11:29:18 +0800
+Message-ID: <4B25B10E.1010409@0xlab.org>
+References: <4B21B40B.2010007@0xlab.org> <4B2241D0.3050504@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:56617 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932152AbZLNDLK (ORCPT
+Received: from mail-yx0-f187.google.com ([209.85.210.187]:61353 "EHLO
+	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752029AbZLND3h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Dec 2009 22:11:10 -0500
-Content-Disposition: inline
-In-Reply-To: <20091126034612.GA23244@core.coreip.homeip.net>
+	Sun, 13 Dec 2009 22:29:37 -0500
+Received: by yxe17 with SMTP id 17so2292282yxe.33
+        for <linux-input@vger.kernel.org>; Sun, 13 Dec 2009 19:29:34 -0800 (PST)
+In-Reply-To: <4B2241D0.3050504@cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jani Nikula <ext-jani.1.nikula@nokia.com>, Mike Rapoport <mike@compulab.co.il>
+To: Jonathan Cameron <jic23@cam.ac.uk>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Samu Onkalo <samu.p.onkalo@nokia.com>, Eric Piel <eric.piel@tremplin-utc.net>, "Trisal, Kalhan" <kalhan.trisal@intel.com>, LM Sensors <lm-sensors@lm-sensors.org>
 
-On Wed, Nov 25, 2009 at 07:46:13PM -0800, Dmitry Torokhov wrote:
-> On Wed, Nov 25, 2009 at 11:53:36AM +0100, Daniel Mack wrote:
-> > gpio_keys.c registers interrupts at both edges of all given gpio lines
-> > and updates the input device when they change. However, the driver fails
-> > to check the current line state at probe time.
-> > 
-> 
-> Should not matter for keys really, but is important for swicthes. I
-> guess we need to also do this at resume. Does the following still work?
+Jonathan Cameron wrote:
+> Hi Matt
+>   
+> Gah, Not again!  So far we have had two patch sets implementing just
+> this.  Looking at the latest from Samu, Eric's patch has been sent on
+> to Andrew Morton for the current merge window (and is listed as being in
+> his mm tree).  May even have merged since I last pulled mainline.
+>
+> You have my sympathies as the whole duplicating work thing happens to
+> us all from time to time.  The answer is as ever, post early and post
+> often to the relevant mailing lists. (though of course hardly anyone
+> actually keeps to this!)
+>   
+    Hi Jonathan,
 
-Sorry for the long delay on this. I could finally test this patch and it
-works fine, key states are reported correctly after resume.
+    Thanks for your information.
+    Previously, I only went through input subsystem instead of lm-sensors.
+    And now the upstream driver seems to be implemented and merged. I 
+will cherry pick them into 0xlab kernel repository.
 
-Thanks,
-Daniel
+    Cheers,
+    Matt
+> I've cc'd in everyone I know has an interest in this driver for any
+> thing else they might want to add.
+>
+> Jonathan
+>   
 
-> Input: gpio_keys - scan gpio state at probe time
-> 
-> From: Daniel Mack <daniel@caiaq.de>
-> 
-> Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/keyboard/gpio_keys.c |   36 +++++++++++++++++++++++++-----------
->  1 files changed, 25 insertions(+), 11 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 8941a8b..1aff3b7 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -37,10 +37,8 @@ struct gpio_keys_drvdata {
->  	struct gpio_button_data data[0];
->  };
->  
-> -static void gpio_keys_report_event(struct work_struct *work)
-> +static void gpio_keys_report_event(struct gpio_button_data *bdata)
->  {
-> -	struct gpio_button_data *bdata =
-> -		container_of(work, struct gpio_button_data, work);
->  	struct gpio_keys_button *button = bdata->button;
->  	struct input_dev *input = bdata->input;
->  	unsigned int type = button->type ?: EV_KEY;
-> @@ -50,6 +48,14 @@ static void gpio_keys_report_event(struct work_struct *work)
->  	input_sync(input);
->  }
->  
-> +static void gpio_keys_work_func(struct work_struct *work)
-> +{
-> +	struct gpio_button_data *bdata =
-> +		container_of(work, struct gpio_button_data, work);
-> +
-> +	gpio_keys_report_event(bdata);
-> +}
-> +
->  static void gpio_keys_timer(unsigned long _data)
->  {
->  	struct gpio_button_data *data = (struct gpio_button_data *)_data;
-> @@ -81,7 +87,7 @@ static int __devinit gpio_keys_setup_key(struct device *dev,
->  	int irq, error;
->  
->  	setup_timer(&bdata->timer, gpio_keys_timer, (unsigned long)bdata);
-> -	INIT_WORK(&bdata->work, gpio_keys_report_event);
-> +	INIT_WORK(&bdata->work, gpio_keys_work_func);
->  
->  	error = gpio_request(button->gpio, desc);
->  	if (error < 0) {
-> @@ -185,6 +191,11 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  		goto fail2;
->  	}
->  
-> +	/* get current state of buttons */
-> +	for (i = 0; i < pdata->nbuttons; i++)
-> +		gpio_keys_report_event(&ddata->data[i]);
-> +	input_sync(input);
-> +
->  	device_init_wakeup(&pdev->dev, wakeup);
->  
->  	return 0;
-> @@ -253,18 +264,21 @@ static int gpio_keys_suspend(struct device *dev)
->  static int gpio_keys_resume(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
-> +	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
->  	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
->  	int i;
->  
-> -	if (device_may_wakeup(&pdev->dev)) {
-> -		for (i = 0; i < pdata->nbuttons; i++) {
-> -			struct gpio_keys_button *button = &pdata->buttons[i];
-> -			if (button->wakeup) {
-> -				int irq = gpio_to_irq(button->gpio);
-> -				disable_irq_wake(irq);
-> -			}
-> +	for (i = 0; i < pdata->nbuttons; i++) {
-> +
-> +		struct gpio_keys_button *button = &pdata->buttons[i];
-> +		if (button->wakeup && device_may_wakeup(&pdev->dev)) {
-> +			int irq = gpio_to_irq(button->gpio);
-> +			disable_irq_wake(irq);
->  		}
-> +
-> +		gpio_keys_report_event(&ddata->data[i]);
->  	}
-> +	input_sync(ddata->input);
->  
->  	return 0;
->  }

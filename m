@@ -1,59 +1,32 @@
-From: Stefan Bader <stefan.bader@canonical.com>
-Subject: Re: linux kernel HID problem with Saitek X52 Pro Flight System
-Date: Mon, 14 Dec 2009 11:31:46 +0100
-Message-ID: <4B261412.6090409@canonical.com>
-References: <alpine.LNX.2.00.0909071731120.23856@wotan.suse.de> <bfb1bb1f0909071047h1a4cbc3dx175f89ecedc3555d@mail.gmail.com> <alpine.LNX.2.00.0909081931360.23856@wotan.suse.de> <bfb1bb1f0909081304y708b037bw1c82288d6457c254@mail.gmail.com> <alpine.LNX.2.00.0909090041410.23856@wotan.suse.de> <4B21308F.5070304@canonical.com> <1260541128.3656.6.camel@bede> <4B225601.3080002@canonical.com> <1260572529.3656.12.camel@bede> <4B22F952.6070001@iki.fi> <20091212044425.GA2956@core.coreip.homeip.net>
+From: Alan Jenkins <sourcejedi.lkml@googlemail.com>
+Subject: Re: [PATCH 1/7] X86 drivers: Introduce msi-wmi driver
+Date: Mon, 14 Dec 2009 11:31:32 +0000
+Message-ID: <9b2b86520912140331xd1a9cf5j721341d43a690b89@mail.gmail.com>
+References: <1260451099-25620-1-git-send-email-anisse@astier.eu>
+	 <1260451099-25620-2-git-send-email-anisse@astier.eu>
+	 <9b2b86520912120937i548b1158k50f517af7fd5ed21@mail.gmail.com>
+	 <20091214105533.6634312b@destiny.ordissimo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:58455 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750806AbZLNKbv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Dec 2009 05:31:51 -0500
-In-Reply-To: <20091212044425.GA2956@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20091214105533.6634312b@destiny.ordissimo>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Anisse Astier <anisse@astier.eu>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Len Brown <lenb@kernel.org>, Matthew Garrett <mjg59@srcf.ucam.org>, Thomas Renninger <trenn@suse.de>, Carlos Corbacho <carlos@strangeworlds.co.uk>, Matt Chen <machen@novell.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Anssi Hannula <anssi.hannula@iki.fi>, Tim Cole <tim.cole@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sergey Kolesnikov <rockingdemon@gmail.com>, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Sat, Dec 12, 2009 at 04:00:50AM +0200, Anssi Hannula wrote:
->> Tim Cole wrote:
->>> On Fri, 2009-12-11 at 15:24 +0100, Stefan Bader wrote:
->>>> The problem moved though. For the older kernels it was the tablets that
->>>> were incorrectly detected as joysticks. But that patch of you went upstream
->>>> and now it is the one joystick model that does not work.
->>>> In our tree we reverted the patch in Jaunty, but with Karmic we have the other
->>>> behavior. So in essence, someone is always complaining. :-P
->>> I know what you mean, but well -- ideally we want to converge on the
->>> correct behavior.  Otherwise we'll just keep spinning and things stay
->>> broken.
->>>
->>> To my view, blacklisting a joystick which (wrongly) reports itself as a
->>> digitizer tablet is an improvement over creating broken joystick devices
->>> for anything that reports itself as a tablet.  From that position we can
->>> fix the problem with the single device reporting the wrong device type
->>> and then everyone can be happy.
->> As far as I understood, we do not yet know why the joystick gets
->> assigned digitizer keys, as the HID debug information requested has not
->> been provided. We do not know for sure what the joystick itself reports
->> or whether it is wrong or not.
->>
-> 
-> Well, the thing is reported ot have 39 buttons... HID simply starts at
-> BTN_TRIGGER and goes form there.
-> 
-> 39 buttons.. sheesh.. maybe we need to reclassify it as a keyboard and
-> be done with it ;)
-> 
+On 12/14/09, Anisse Astier <anisse@astier.eu> wrote:
+> Hi,
+>
+> This should fix the last issues. It applies at the end of the patch serie,
+> (not
+> on top of the patch you reviewed), but it should be pretty similar.
 
-This might be an overly naive approach (or call it thinking loudly)...
-It would probably break a lot of stuff when the JOYSTICK/TRIGGER block
-moved to the 0x210 region, but would it be a solution to have a block
-of additional joystick buttons there and check on assigning buttons to
-a joystick, whether it traverses over to GAMEPAD and in that case skip
-to the additional block?
+Yes, that looks good.
 
--Stefan
+> Should I resend all the patches? Set up a git tree somewhere to pull from?
+
+Try just resending this last patch with a subject line "[PATCH 8/7]".
+
+Thanks
+Alan

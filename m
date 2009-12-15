@@ -1,61 +1,64 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: Re: [PATCH][input] add Honeywell hmc5843 3-Axis Magnetometer
-	(digital compass)  driver.
-Date: Tue, 15 Dec 2009 16:23:03 +0200
-Message-ID: <20091215142303.GC24799@bicker>
-References: <200912102250.12853.sfking@fdwdc.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [RFC] HID and multitouch
+Date: Tue, 15 Dec 2009 10:16:11 -0500
+Message-ID: <4B27A83B.5000709@seas.upenn.edu>
+References: <95A5C232-DB80-4186-B473-0D2593E57691@enac.fr> <alpine.LNX.2.00.0912151500160.3755@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f227.google.com ([209.85.218.227]:48790 "EHLO
-	mail-bw0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760360AbZLOOXA (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:46473 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752536AbZLOPQ3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2009 09:23:00 -0500
-Content-Disposition: inline
-In-Reply-To: <200912102250.12853.sfking@fdwdc.com>
+	Tue, 15 Dec 2009 10:16:29 -0500
+In-Reply-To: <alpine.LNX.2.00.0912151500160.3755@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steven King <sfking@fdwdc.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Thu, Dec 10, 2009 at 10:50:12PM -0800, Steven King wrote:
-> +static void hmc5843_poll(struct input_polled_dev *ipdev)
-> +{
-> +	struct hmc5843 *hmc5843 =3D ipdev->private;
-> +	int x, y, z;
-> +
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  CC      drivers/input/misc/hmc5843.o
-drivers/input/misc/hmc5843.c: In function =E2=80=98hmc5843_poll=E2=80=99=
-:
-drivers/input/misc/hmc5843.c:312: warning: =E2=80=98x=E2=80=99 may be u=
-sed uninitialized in this function
-drivers/input/misc/hmc5843.c:312: warning: =E2=80=98y=E2=80=99 may be u=
-sed uninitialized in this function
-drivers/input/misc/hmc5843.c:312: warning: =E2=80=98z=E2=80=99 may be u=
-sed uninitialized in this function
+>> - furthermore, some fingers have to be discarded because they are 
+>> placeholders with no valid data, and we know if to dump them only when 
+>> they have been fully parsed. Therefore, we need a mechanism to cache 
+>> finger data until the decision is made. Currently, the caching mechanism 
+>> has to be device-dependent because the fields are not exactly the same 
+>> and they come in a device-dependent order.
+> 
+> What kind of caching is required here? Is there any upper bound 
+> approximation on the amount of data that need to be cached?
+> 
+> Would simple infrastructure, introducing linked list of [usage, value] 
+> tuples, together with "flush()" method, that will again only call 
+> hidinput_hid_event multiple times, be enough to be common for all drivers 
+> needing this?
+
+I can only answer for the ntrig.  To get a correct output of active fingers, we'd have to cache a total of twice the maximum number
+of fingers.  The first copy is for the previous state and the second is for the current to check if id's have shifted.
+
+On the upshot, all fingers seem to be transmitted on every input event.  So we don't have to stall input events for longer than the
+io and processing time to perform such a correction.
 
 
-> +	mutex_lock(&hmc5843->lock);
-> +	if (!hmc5843_read_xyz(hmc5843, &x, &y, &z)) {
-> +		input_report_abs(ipdev->input, ABS_X, x);
-> +		input_report_abs(ipdev->input, ABS_Y, y);
-> +		input_report_abs(ipdev->input, ABS_Z, z);
-> +		input_sync(ipdev->input);
-> +	}
-> +	mutex_unlock(&hmc5843->lock);
-> +}
-> +
+My impression is that most or all of the other devices perform finger tracking in which case they need to buffer at most just the
+maximum number of fingers, though if using dynamic structures, might be able to shrink that to the current max contact id (max id of
+active inputs).  It sounds like the devices are sending full data, when they just want to transmit a sparse array.
 
-Some versions of gcc may not complain, but could you suppress
-the warnings anyway?
 
-regards,
-dan carpenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'm not sure there's a significant benefit to a dynamic data structure for holding the incoming points.  I don't think any of these
+devices are capable of reporting more than 5 or 10 points.  With the current firmware, the ntrig only reports 4+pen, though it
+reports them as 6 points (id 4 is always transmitted and always 0, and 5 is the pen).  Anyway, we're talking small arrays with just
+a little state in each cell.
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAksnqDkACgkQwuRiAT9o60/zCwCfY/eoK2Ys7tBFDg0ITUuJ12WS
+iE8AoNhBd+7jeXDK5ViKasbL9icdMcTh
+=1Tdr
+-----END PGP SIGNATURE-----

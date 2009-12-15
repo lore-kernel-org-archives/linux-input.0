@@ -1,64 +1,69 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Tue, 15 Dec 2009 16:38:14 -0500
-Message-ID: <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
-References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
-	 <4B24DABA.9040007@redhat.com> <20091215115011.GB1385@ucw.cz>
-	 <4B279017.3080303@redhat.com> <20091215195859.GI24406@elf.ucw.cz>
-	 <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
-	 <20091215201933.GK24406@elf.ucw.cz>
-	 <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
-	 <20091215203300.GL24406@elf.ucw.cz>
-	 <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Alps Dualpoint, Interleaved packets
+Date: Tue, 15 Dec 2009 14:49:59 -0800
+Message-ID: <20091215224959.GD21995@core.coreip.homeip.net>
+References: <1259513695.32495.171.camel@sardelle.necksus.de> <20091204084902.GB22570@core.coreip.homeip.net> <1259963240.27307.213.camel@sardelle.necksus.de> <1260742145.9901.18.camel@sardelle.necksus.de> <20091215064224.GB12669@core.coreip.homeip.net> <1260910893.6294.26.camel@sardelle.necksus.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933752AbZLOViT@vger.kernel.org>
-In-Reply-To: <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.216.174]:43079 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754932AbZLOWuL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Dec 2009 17:50:11 -0500
+Received: by pxi4 with SMTP id 4so253702pxi.33
+        for <linux-input@vger.kernel.org>; Tue, 15 Dec 2009 14:50:09 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1260910893.6294.26.camel@sardelle.necksus.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Kapfer <sebastian_kapfer@gmx.net>
+Cc: Linux Input ML <linux-input@vger.kernel.org>
 
-On Tue, Dec 15, 2009 at 3:45 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On Tue, Dec 15, 2009 at 3:33 PM, Pavel Machek <pavel@ucw.cz> wrote:
->> Untrue. Like ethernets and wifis, bluetooth devices have unique
->> addresses. Communication is bidirectional.
+Hi Sebastian,
 
-I read a little about how Bluetooth remotes work. Correct me if I get
-things wrong....
+On Tue, Dec 15, 2009 at 10:01:33PM +0100, Sebastian Kapfer wrote:
+> 
+> Hi Dmitry,
+> 
+> I really hate to say, but I can still desync it.
+> 
+> [1240043.147596] alps.c: handle cf
+> [1240043.148778] alps.c: handle 14
+> [1240043.150043] alps.c: handle 1a
+> [1240043.157696] alps.c: handle 5f
+> [1240043.158851] alps.c: handle c
+> [1240043.160044] alps.c: handle 29
+> [1240043.163885] alps.c: handle 2f
+> [1240043.165051] alps.c: handle 0
+> [1240043.166213] alps.c: handle ff
+> [1240043.166218] alps.c: refusing packet[5] = ff
+> [1240043.166221] 
+> [1240043.166227] psmouse.c: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 6
+> 
+> In short, it's a 6-byte followed by a 3-byte; we mistakenly process it
+> as a interleaved PS/2 (oh well), and, while the final bytes come in,
+> happen upon high bits set in the PS/2 packet.  In a way, this is correct
+> behaviour, because we _are_ processing the data incorrectly...  In my
+> last patch, this went unnoticed because I didn't check for the high bit
+> in bytes 7,8,9.
+>
 
-They create pairings between the remote and the device. Each of these
-pairings is assigned a device type. Multiple devices in the same room
-are handled by the remote remembering the pairings and sending
-directed packets instead of broadcast. That lets you have two TVs in
-the same room.
+*sigh* Yes, unfortunately in both cases we report incorrect data to
+userspace... Unfortunately I don't see any way to fix that; not unless
+somebody (ALPS?) tells us a bit more about protocol... But it is likely
+that this as good as it gets even for them.
 
-Bluetooth devices need to advertise what profiles they support. So on
-the Linux box you'd run a command to load the Bluetooth profile for
-TV. This command would create an evdev subdevice, load the Bluetooth
-keymap for TV, and tell the networking stack to advertise TV support.
-Next you initiate the pairing from the Bluetooth remote and pick the
-Linux box. This causes a pairing established exchange which tells the
-Linux box to make the pairing persistent.
+The good thing is that it shoudl not trigger during nrmal usage (I doubt
+many people work the device with both hands).
 
-I believe the Bluetooth remote profile is handled in user space by the
-BlueZ stack. BlueZ should be aware of the remote pairings. When it
-decodes a button press it would need to inject the scancode into the
-correct evdev subdevice. Evdev would translate it in the keymap and
-create the keyevent. This is the same mechanism LIRC is using.
+> For all practical purposes (i.e. not pressing three buttons and fumbling
+> with both pointers at the same time), the patch works very well.
+> 
+> In particular, no double clicks.  :-)
+> 
 
-
-At a more general level we're missing a way for something like Myth to
-declare that it is a DVR device. Myth should load, say I'm a DVR, and
-then the remote control subsystem should automatically create a
-Bluetooth DVR profile, load an IR profile for Motorola DVR on a
-universal remote if the box has Bluetooth, IR or 802.15.4.
-
-The whole concept of a remote control subsystem seems like it needs
-more design work done. We keep coming up with big areas that no one
-has thought about.
+OK, then I will apply it and send it on. Thank you for all your efforts.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Dmitry

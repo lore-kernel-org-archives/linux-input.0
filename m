@@ -1,111 +1,64 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR system?
-Date: Tue, 15 Dec 2009 22:05:14 +0100
-Message-ID: <20091215210514.GO24406@elf.ucw.cz>
-References: <20091207184153.GD998@core.coreip.homeip.net>
- <4B24DABA.9040007@redhat.com>
- <20091215115011.GB1385@ucw.cz>
- <4B279017.3080303@redhat.com>
- <20091215195859.GI24406@elf.ucw.cz>
- <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
- <20091215201933.GK24406@elf.ucw.cz>
- <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
- <20091215203300.GL24406@elf.ucw.cz>
- <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Tue, 15 Dec 2009 16:38:14 -0500
+Message-ID: <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <4B24DABA.9040007@redhat.com> <20091215115011.GB1385@ucw.cz>
+	 <4B279017.3080303@redhat.com> <20091215195859.GI24406@elf.ucw.cz>
+	 <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
+	 <20091215201933.GK24406@elf.ucw.cz>
+	 <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
+	 <20091215203300.GL24406@elf.ucw.cz>
+	 <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46480 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755069AbZLOVFW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2009 16:05:22 -0500
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933752AbZLOViT@vger.kernel.org>
 In-Reply-To: <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
 Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+List-Id: linux-input@vger.kernel.org
 
-On Tue 2009-12-15 15:45:14, Jon Smirl wrote:
+On Tue, Dec 15, 2009 at 3:45 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
 > On Tue, Dec 15, 2009 at 3:33 PM, Pavel Machek <pavel@ucw.cz> wrote:
-> > On Tue 2009-12-15 15:29:51, Jon Smirl wrote:
-> >> On Tue, Dec 15, 2009 at 3:19 PM, Pavel Machek <pavel@ucw.cz> wrote=
-:
-> >> > On Tue 2009-12-15 15:14:02, Jon Smirl wrote:
-> >> >> On Tue, Dec 15, 2009 at 2:58 PM, Pavel Machek <pavel@ucw.cz> wr=
-ote:
-> >> >> > Hi!
-> >> >> >
-> >> >> >> =A0 =A0 =A0 (11) if none is against renaming IR as RC, I'll =
-do it on a next patch;
-> >> >> >
-> >> >> > Call it irc -- infrared remote control. Bluetooth remote cont=
-rols will
-> >> >> > have very different characteristics.
-> >> >>
-> >> >> How are they different after the scancode is extracted from the
-> >> >> network packet? The scancode still needs to be passed to the in=
-put
-> >> >> system, go through a keymap, and end up on an evdev device.
-> >> >>
-> >> >> I would expect the code for extracting the scancode to live in =
-the
-> >> >> networking stack, but after it is recovered the networking code=
- would
-> >> >> use the same API as IR to submit it to input.
-> >> >
-> >> > For one thing, =A0bluetooth (etc) has concept of devices (and re=
-liable
-> >> > transfer). If you have two same bluetooth remotes, you can tell =
-them
-> >> > apart, unlike IR.
-> >>
-> >> IR has the same concept of devices. That's what those codes you en=
-ter
-> >> into a universal remote do - they set the device.
-> >
-> > They set the device _model_.
-> >
-> >> There are three classes of remotes..
-> >> Fixed function - the device is hardwired
-> >> Universal - you can change the device
-> >> Multi-function - a universal that can be multiple devices - TV, ca=
-ble,
-> >> audio, etc
-> >>
-> >> If you set two Bluetooth remotes both to the same device you can't
-> >> tell them apart either.
-> >
-> > Untrue. Like ethernets and wifis, bluetooth devices have unique
-> > addresses. Communication is bidirectional.
->=20
-> I agree with that, but the 802.15.4 remote control software I've
-> worked with ignores the MAC address. You set your remote to send code=
-s
-> for a specific device.  The mac address of the remote is ignored so
-> that any remote can control the device.  You don't need to pair
-> 802.15.4 remotes like Bluetooth devices need to be paired.
->=20
-> I haven't played around with a Bluetooth remote. Nothing I own can
-> send the signals.  How can a Bluetooth remote control multiple device=
-s
-> in the same room if it needs to be paired?
+>> Untrue. Like ethernets and wifis, bluetooth devices have unique
+>> addresses. Communication is bidirectional.
 
-I'd guess that bluetooth remote would be very similar to bluetooth
-keyboard, and present itself in a very similar way.
+I read a little about how Bluetooth remotes work. Correct me if I get
+things wrong....
 
-I still believe infrared is different -- it is essentially light with
-very little protocol above.=20
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
-/blog.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+They create pairings between the remote and the device. Each of these
+pairings is assigned a device type. Multiple devices in the same room
+are handled by the remote remembering the pairings and sending
+directed packets instead of broadcast. That lets you have two TVs in
+the same room.
+
+Bluetooth devices need to advertise what profiles they support. So on
+the Linux box you'd run a command to load the Bluetooth profile for
+TV. This command would create an evdev subdevice, load the Bluetooth
+keymap for TV, and tell the networking stack to advertise TV support.
+Next you initiate the pairing from the Bluetooth remote and pick the
+Linux box. This causes a pairing established exchange which tells the
+Linux box to make the pairing persistent.
+
+I believe the Bluetooth remote profile is handled in user space by the
+BlueZ stack. BlueZ should be aware of the remote pairings. When it
+decodes a button press it would need to inject the scancode into the
+correct evdev subdevice. Evdev would translate it in the keymap and
+create the keyevent. This is the same mechanism LIRC is using.
+
+
+At a more general level we're missing a way for something like Myth to
+declare that it is a DVR device. Myth should load, say I'm a DVR, and
+then the remote control subsystem should automatically create a
+Bluetooth DVR profile, load an IR profile for Motorola DVR on a
+universal remote if the box has Bluetooth, IR or 802.15.4.
+
+The whole concept of a remote control subsystem seems like it needs
+more design work done. We keep coming up with big areas that no one
+has thought about.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

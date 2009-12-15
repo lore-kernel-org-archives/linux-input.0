@@ -1,78 +1,79 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: evdev and Trust TB-5300 tablet: wrong axis labels
-Date: Tue, 15 Dec 2009 09:46:52 +1000
-Message-ID: <20091214234652.GB23029@barra.redhat.com>
-References: <200912130058.46220.dan@riga.lv> <200912131825.03872.dan@riga.lv>
-	<6a12d2f30912131835taa8086dic17562bb71543a68@mail.gmail.com>
-	<200912150106.07482.dan@riga.lv>
+From: Alex Chiang <achiang@hp.com>
+Subject: Re: synaptics touchpad doesn't click
+Date: Mon, 14 Dec 2009 20:41:27 -0700
+Message-ID: <20091215034127.GC587@ldl.fc.hp.com>
+References: <20091214014828.GA28402@ldl.fc.hp.com> <20091214173450.GB2373@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xorg-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from g4t0017.houston.hp.com ([15.201.24.20]:10772 "EHLO
+	g4t0017.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753069AbZLODl2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Dec 2009 22:41:28 -0500
 Content-Disposition: inline
-In-Reply-To: <200912150106.07482.dan@riga.lv>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/xorg>
-List-Post: <mailto:xorg@lists.freedesktop.org>
-List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
-Sender: xorg-bounces@lists.freedesktop.org
-Errors-To: xorg-bounces@lists.freedesktop.org
-To: "Daniil V. Kolpakov" <dan@riga.lv>
-Cc: linux-input@vger.kernel.org, Matthew Helsley <matt.helsley@gmail.com>, linux-usb@vger.kernel.org, xorg@lists.freedesktop.org
+In-Reply-To: <20091214173450.GB2373@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, tiwai@suse.de
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-T24gVHVlLCBEZWMgMTUsIDIwMDkgYXQgMDE6MDY6MDdBTSArMDIwMCwgRGFuaWlsIFYuIEtvbHBh
-a292IHdyb3RlOgo+INCSINGB0L7QvtCx0YnQtdC90LjQuCDQvtGCIDE0INC00LXQutCw0LHRgNGP
-IDIwMDkgTWF0dGhldyBIZWxzbGV5INC90LDQv9C40YHQsNC7KGEpOgo+IFsuLi5dCj4gPiBMb29r
-cyBsaWtlIHRoZXkgbWF5IGhhdmUgcmUtYnJhbmRlZCB0aGUgIkdlbml1cyBNb3VzZVBlbiA1eDQg
-VGFibGV0Igo+ID4gdG8geW91ciAiVHJ1c3QgVEItNTMwMCIuCj4gWy4uLl0KPiA+IElmIHlvdSBz
-ZWFyY2ggZm9yICJHZW5pdXMgTW91c2VQZW4gNXg0IFRhYmxldCIgb3Igc29tZXRoaW5nIGxpa2Ug
-aXQKPiA+IHRoZW4gcGVyaGFwcyB5b3UnbGwgZmluZCBtb3JlIGlkZWFzIGZvciBmaXhpbmcgeW91
-ciB0YWJsZXQuCj4gCj4gTm90aGluZyBpbnRlcmVzdGluZyDigJQgbW9zdGx5IEkgZ2V0IGhvd3Rv
-cyBvbiBpbnN0YWxsaW5nIHNvbWUgKHByb3ByaWV0YXJ5PykgCj4gZHJpdmVyIGNhbGxlZCAid2l6
-YXJkcGVuIiwgYW5kIHVzdWFsbHkgd2l0aCB4b3JnLmNvbmYgaW5zdGVhZCBvZiBIQUwgcnVsZXMu
-Cj4gCj4gSSd2ZSB0cmllZCBlbmFibGluZyAiTVVMVElfSU5QVVQiIHF1aXJrLCBhcyB5b3UndmUg
-c3VnZ2VzdGVkOgo+IAo+IFtyb290QHNoaW5lc3Rhcjp+XSQgbW9kcHJvYmUgLXIgdXNiaGlkCj4g
-W3Jvb3RAc2hpbmVzdGFyOn5dJCBtb2Rwcm9iZSB1c2JoaWQgInF1aXJrcz0weDU1NDM6MHgwMDA0
-OjB4MDA0MCIKPiAKPiBJdCAic3BsaXR0ZWQiIHRoZSB0YWJsZXQgdG8gdGhyZWUgZGV2aWNlcywg
-YXMgaW4geW91ciBjYXNlOgo+IAo+IEk6IEJ1cz0wMDAzIFZlbmRvcj01NTQzIFByb2R1Y3Q9MDAw
-NCBWZXJzaW9uPTAxMDAKPiBOOiBOYW1lPSJVQy1MT0dJQyBUYWJsZXQgV1A1NTQwVSIKPiBQOiBQ
-aHlzPXVzYi0wMDAwOjAzOjAwLjAtMi9pbnB1dDAKPiBTOiAKPiBTeXNmcz0vZGV2aWNlcy9wY2kw
-MDAwOjAwLzAwMDA6MDA6MDYuMC8wMDAwOjAzOjAwLjAvdXNiMS8xLTIvMS0yOjEuMC9pbnB1dC9p
-bnB1dDE1Cj4gVTogVW5pcT0KPiBIOiBIYW5kbGVycz1tb3VzZTIgZXZlbnQ2Cj4gQjogRVY9MWIK
-PiBCOiBLRVk9YzAxIDEgMCAwIDAgMAo+IEI6IEFCUz0xMDAwMDAzCj4gQjogTVNDPTEwCj4gCj4g
-STogQnVzPTAwMDMgVmVuZG9yPTU1NDMgUHJvZHVjdD0wMDA0IFZlcnNpb249MDEwMAo+IE46IE5h
-bWU9IlVDLUxPR0lDIFRhYmxldCBXUDU1NDBVIgo+IFA6IFBoeXM9dXNiLTAwMDA6MDM6MDAuMC0y
-L2lucHV0MAo+IFM6IAo+IFN5c2ZzPS9kZXZpY2VzL3BjaTAwMDA6MDAvMDAwMDowMDowNi4wLzAw
-MDA6MDM6MDAuMC91c2IxLzEtMi8xLTI6MS4wL2lucHV0L2lucHV0MTYKPiBVOiBVbmlxPQo+IEg6
-IEhhbmRsZXJzPW1vdXNlMyBldmVudDcKPiBCOiBFVj0xNwo+IEI6IEtFWT03MDAwMCAwIDAgMCAw
-Cj4gQjogUkVMPTMwMwo+IEI6IE1TQz0xMAo+IAo+IEk6IEJ1cz0wMDAzIFZlbmRvcj01NTQzIFBy
-b2R1Y3Q9MDAwNCBWZXJzaW9uPTAxMDAKPiBOOiBOYW1lPSJVQy1MT0dJQyBUYWJsZXQgV1A1NTQw
-VSIKPiBQOiBQaHlzPXVzYi0wMDAwOjAzOjAwLjAtMi9pbnB1dDAKPiBTOiAKPiBTeXNmcz0vZGV2
-aWNlcy9wY2kwMDAwOjAwLzAwMDA6MDA6MDYuMC8wMDAwOjAzOjAwLjAvdXNiMS8xLTIvMS0yOjEu
-MC9pbnB1dC9pbnB1dDE3Cj4gVTogVW5pcT0KPiBIOiBIYW5kbGVycz1tb3VzZTQgZXZlbnQ4Cj4g
-QjogRVY9MWIKPiBCOiBLRVk9NDAwIDcwMDAwIDAgMCAwIDAKPiBCOiBBQlM9MTAwMDAwMwo+IEI6
-IE1TQz0xMAo+IAo+IEJ1dCB4aW5wdXQgb25seSBnZXRzIHR3byBvZiB0aGVtLiBUaGV5IGRvbid0
-IHNlbmQgZXZlbnRzICh4aW5wdXQgdGVzdCBzaG93cyAKPiB0aGlzKS4gQnV0LCBsb29raW5nIGF0
-IFhvcmcuMC5sb2cgbm93LCBJIHNlZSB0aGF0IHRoZSBmaXJzdCBkZXZpY2UgaXMgaG9va2VkIAo+
-IGJ5IHN5bmFwdGljcyBkcml2ZXIgd2hpY2ggY2Fubm90IGluaXQgYmVjYXVzZSBoYXJkd2FyZSBp
-cyB1bnN1cHBvcnRlZC4gSSBrbm93IAo+IHdoeSwgSSd2ZSBzZWVuIG92ZXJyaWRpbmcgcnVsZXMg
-aW4gaGFsIGNvbmZpZy4gSSdsbCB0cnkgdG8gcmVjb25maWd1cmUgaXQgdG8gCj4gdXNlIGV2ZGV2
-IGRyaXZlci4KCnN5bmFwdGljcyBraWNrcyBpbiBhZnRlciB0aGUgY2F0Y2hhbGwgZXZkZXYgY29u
-ZmlndXJhdGlvbiBhbmQgb3ZlcndyaXRlcyBpdC4KdGhlIHJlYXNvbiB3aHkgaXQgb3ZlcnJpZGVz
-IGZvciB0aGlzIGRldmljZSBpcyB0aGF0IGFueXRoaW5nIHdpdGggYWJzb2x1dGUKeC95IGNvb3Jk
-aW5hdGVzIGFuZCBidXR0b25zIGFyZSBsYWJlbGxlZCBhcyB0b3VjaHBhZHMgYnkgSEFMIGFuZCB0
-aGUgZGVmYXVsdApjb25maWd1cmF0aW9ucyB0aGVuIGhvb2sgb250byB0aGlzIGxhYmVsLgoKZWFz
-aWVzdCB3b3JrYXJvdW5kIGlzIHRvIGRyb3AgaW4geW91ciBjdXN0b20gY29uZmlndXJhdGlvbiBp
-bnRvCi9ldGMvaGFsL2ZkaS9wb2xpY2llcy8gYW5kIChpZiB5b3UgYWxyZWFkeSBoYXZlIGFub3Ro
-ZXIgb25lIHRoZXJlKSBtYWtlIHN1cmUKdGhhdCBpdCdzIGxvYWRlZCBsYXN0LiAgSEFMIHVzZXMg
-YWxwaGFzb3J0IHdoZW4gcmVhZGluZyB0aGUgZGlyZWN0b3JpZXMuCgp0aGUgbWF0Y2ggcnVsZSBu
-ZWVkZWQgaXMgc29tZXRoaW5nIGxpa2UgdGhpczoKCjxtYXRjaCBrZXk9ImlucHV0LnByb2R1Y3Qi
-IGNvbnRhaW5zPSJVLUxPR0lDIj4KICAgICAgIDxtZXJnZSBrZXk9ImlucHV0LngxMV9kcml2ZXIi
-IHR5cGU9InN0cmluZyI+ZXZkZXY8L21lcmdlPgo8L21hdGNoPgoKQ2hlZXJzLAogIFBldGVyCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCnhvcmcgbWFpbGlu
-ZyBsaXN0CnhvcmdAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHA6Ly9saXN0cy5mcmVlZGVza3Rv
-cC5vcmcvbWFpbG1hbi9saXN0aW5mby94b3Jn
+Hi Dmitry, Takashi,
+
+* Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Alex,
+> 
+> On Sun, Dec 13, 2009 at 06:48:28PM -0700, Alex Chiang wrote:
+> > Hi Dmitry,
+> > 
+> > I just got a shiny new piece of hardware (HP Envy 15) with a
+> > Synaptics touchpad, and I can't seem to make the touchpad work
+> > correctly.  In this version of the touchpad, there are actually
+> > two physical buttons underneath the pad. In essence, this is a
+> > touchpad that you can click too.
+> > 
+> > I can't get the clicking to work. Of course, I can tap to click,
+> > but lacking access to the physical buttons means that I can't
+> > right-click.
+> > 
+> > Currently, I'm not sure if this is a driver issue or perhaps
+> > something higher up the stack, perhaps in X or maybe pilot error.
+> > ;)
+> > 
+> > Distro is Ubuntu Karmic, kernel is latest upstream last pulled on
+> > 13 Dec.
+> > 
+> > Would like some pointers on how to get started debugging.
+> > 
+> > Thanks,
+> > /ac
+> > 
+> > dmesg snip:
+> >  Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+> >  brd: module loaded
+> >  loop: module loaded
+> >  input: Macintosh mouse button emulation as /devices/virtual/input/input3
+> >  [...]
+> >  Synaptics Touchpad, model: 1, fw: 7.4, id: 0x1e0b1, caps: 0xd04771/0xe40000
+> >  input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input10
+> > 
+> 
+> Hmm, that's the new Synaptics "clickpad"... Takashi Iwai just posted a
+> coupleof patches for it on the input mailing list.
+
+I can't respond to that thread directly because I'm not a
+subscriber and can't find the message-id, so just responding
+here.
+
+Thanks, I did grab Takashi's patches and verify that they work
+for me. I tested the separated patches, not the v2 combined
+patch, although it doesn't make any difference based on visual
+inspection of v2.
+
+If you want, you can add my:
+
+Tested-by: Alex Chiang <achiang@hp.com>
+
+Thanks!
+/ac
+

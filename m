@@ -1,58 +1,99 @@
-From: Mika Westerberg <mika.westerberg@iki.fi>
-Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Tue, 15 Dec 2009 09:05:07 +0200
-Message-ID: <20091215070507.GD25613@gw.healthdatacare.com>
-References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com> <20091203061912.GA5626@gw.healthdatacare.com> <20091203062641.GH9121@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: synaptics touchpad doesn't click
+Date: Mon, 14 Dec 2009 23:33:58 -0800
+Message-ID: <20091215073358.GC12669@core.coreip.homeip.net>
+References: <20091214014828.GA28402@ldl.fc.hp.com> <20091214173450.GB2373@core.coreip.homeip.net> <20091215034127.GC587@ldl.fc.hp.com> <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f221.google.com ([209.85.220.221]:47818 "EHLO
-	mail-fx0-f221.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751207AbZLOHFN (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.216.174]:35484 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756987AbZLOHeF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2009 02:05:13 -0500
-Received: by fxm21 with SMTP id 21so4069930fxm.21
-        for <linux-input@vger.kernel.org>; Mon, 14 Dec 2009 23:05:11 -0800 (PST)
+	Tue, 15 Dec 2009 02:34:05 -0500
 Content-Disposition: inline
-In-Reply-To: <20091203062641.GH9121@core.coreip.homeip.net>
+In-Reply-To: <s5h1viwn3ig.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Alex Chiang <achiang@hp.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Dec 02, 2009 at 10:26:41PM -0800, Dmitry Torokhov wrote:
-> On Thu, Dec 03, 2009 at 08:19:12AM +0200, Mika Westerberg wrote:
-> > On Tue, Dec 01, 2009 at 03:53:45PM +0200, Mika Westerberg wrote:
-> > >
-> > > This is third version of the series. Purpose of this patch is to allow
-> > > userland to disable GPIO buttons interrupting the CPU. There is now sysfs
-> > > interface that can be used to control the buttons by key code or by switch
-> > > code.
-> > > 
-> > > I merged those previous 2 patches as one. This is because it made little
-> > > sense of having separate patch for adding the 'can_disable' field.
-> > > 
-> > > Changes in v3:
-> > > 	- merged previous 2 patches into one
-> > > 	- buttons have 'can_disable' field instead of irqflags field
-> > > 
-> > > Tested with RX-51.
+On Tue, Dec 15, 2009 at 07:40:55AM +0100, Takashi Iwai wrote:
+> At Mon, 14 Dec 2009 22:26:28 -0800,
+> Dmitry Torokhov wrote:
 > > 
-> > Hi Dmitry,
+> > [1  <text/plain; us-ascii (7bit)>]
+> > Hi Alex,
 > > 
-> > Any comments on this? Is it OK to be applied or do I need to change
-> > something.
+> > On Mon, Dec 14, 2009 at 08:41:27PM -0700, Alex Chiang wrote:
+> > > 
+> > > Thanks, I did grab Takashi's patches and verify that they work
+> > > for me. I tested the separated patches, not the v2 combined
+> > > patch, although it doesn't make any difference based on visual
+> > > inspection of v2.
+> > > 
+> > > If you want, you can add my:
+> > > 
+> > > Tested-by: Alex Chiang <achiang@hp.com>
 > > 
+> > Thank you very much for testing, however could you please try a slightly
+> > different patch below (I did not quite like that the original patch
+> > mangled device's capability field and how it was reusing 'middle' field
+> > for different things)? It should apply on top of patch that
+> > I am attaching. I hope I did not screw it up too much,
 > 
-> Hi Mika,
+> I can't test the patch right now since I'm at home, but I'm afraid
+> it's a bit different behavior.  Namely,
 > 
-> SOrry, I am still pondering how to go about it. I am sure that the sysfs
-> interface is proper, so at this point it is just implementation details
-> that I am not quite sure yet...
+> > @@ -330,20 +339,52 @@ static void synaptics_parse_new_hw(unsigned char buf[],
+> >  				   struct synaptics_data *priv,
+> >  				   struct synaptics_hw_state *hw)
+> >  {
+> > -	hw->x = (((buf[3] & 0x10) << 8) | ((buf[1] & 0x0f) << 8) | buf[4]);
+> > -	hw->y = (((buf[3] & 0x20) << 7) | ((buf[1] & 0xf0) << 4) | buf[5]);
+> > +	int x = (((buf[3] & 0x10) << 8) | ((buf[1] & 0x0f) << 8) | buf[4]);
+> > +	int y = (((buf[3] & 0x20) << 7) | ((buf[1] & 0xf0) << 4) | buf[5]);
+> >  
+> >  	hw->z = buf[2];
+> >  	hw->w = (((buf[0] & 0x30) >> 2) |
+> >  		 ((buf[0] & 0x04) >> 1) |
+> >  		 ((buf[3] & 0x04) >> 2));
+> >  
+> > -	hw->left  = buf[0] & 0x01;
+> > -	hw->right = buf[0] & 0x02;
+> > +	if (SYN_CAP_CLICKPAD(priv->ext_cap)) {
+> > +		int click = (buf[0] ^ buf[3]) & 0x01;
+> > +
+> > +		if (click && y < YMIN_NOMINAL) {
+> > +			/*
+> > +			 * User pressed in ClickZone; report new button
+> > +			 * state but use old coordinates and don't report
+> > +			 * any pressure to prevent pointer movement.
+> > +			 */
+> > +			hw->left = x < CLICKPAD_LEFT_BTN_X;
+> > +			hw->right = x > CLICKPAD_RIGHT_BTN_X;
+> > +			hw->middle = x >= CLICKPAD_LEFT_BTN_X &&
+> > +				     x <= CLICKPAD_RIGHT_BTN_X;
+> > +			hw->z = 0;
+> > +
+> > +		} else {
+> > +			/*
+> > +			 * Finger is outside of the ClickZone - report
+> > +			 * current coordinates.
+> > +			 */
+> > +			hw->x = x;
+> > +			hw->y = y;
+> > +
+> > +			if (!click)
+> > +				hw->left = hw->right = hw->middle = 0;
+> > +		}
+> 
+> Here, when you touch outside the button area, left/right/middle are
+> always zero because hw was initialized.  So the above code gives the
+> click "released" state outside the button area.
+> 
 
-Hi Dmitry,
+No, I got rid of resetting hw state to 0.
 
-Have you decided yet what to do with these patches?
-
-Thanks,
-MW
+-- 
+Dmitry

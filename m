@@ -1,51 +1,83 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Add Driver for Logitech Flight System G940
-Date: Tue, 15 Dec 2009 14:53:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.0912151451060.3755@pobox.suse.cz>
-References: <fce72f9b0912081439ia797224xf05ed93771b5203d@mail.gmail.com>  <alpine.LNX.2.00.0912091416010.3755@pobox.suse.cz> <fce72f9b0912101237x5f38300bxcd0fbb815ad5ea9c@mail.gmail.com>
+Subject: Re: [RFC] HID and multitouch
+Date: Tue, 15 Dec 2009 15:05:28 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.0912151500160.3755@pobox.suse.cz>
+References: <95A5C232-DB80-4186-B473-0D2593E57691@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:33284 "EHLO mx1.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:34198 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760201AbZLONx1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2009 08:53:27 -0500
-In-Reply-To: <fce72f9b0912101237x5f38300bxcd0fbb815ad5ea9c@mail.gmail.com>
+	id S1760292AbZLOOFa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Dec 2009 09:05:30 -0500
+In-Reply-To: <95A5C232-DB80-4186-B473-0D2593E57691@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gary Stein <lordcnidarian@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: linux-input@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Thu, 10 Dec 2009, Gary Stein wrote:
+On Sun, 6 Dec 2009, St=E9phane Chatty wrote:
 
-> This is a cleaned up and updated driver for the G940.  I followed most 
-> of the checkpatch notes except for some of the 80 column stuff, the 
-> sections of where most of that code is hid-core.c also doesn't seem to 
-> care about it.
+> over the last few months I have been working on HID quirks for a bunc=
+h=20
+> of multitouch devices: NTrig, two flavours of Stantum devices, 3M, Ac=
+er=20
+> T230H. For each of these I have working code, which I should be able =
+to=20
+> submit real soon now.
 
-Yup, that's OK, thanks.
+Hi St=E9phane,
 
-Please also fix up a few comments on various places which are wrongly 
-intended, such as
+that's an excellent news, thanks!
 
-> +       /* maxusage should be 63, maximum fields
-> +               likely a better way to ensure this data is clean */
+> However, people are asking me questions about why a specific driver i=
+s=20
+> needed for each device. Answers are starting to emerge, and it looks=20
+> like they might lead to some work on the Linux HID code itself:
+>=20
+> - the one-to-one mapping between HID and evdev is stretched to its=20
+> limits with these devices that have several times the same group of H=
+ID=20
+> fields in the same event: an event is made of fingers, each finger is=
+=20
+> made of an X, a Y and a few other fields. We need a mechanism to emit=
+=20
+> SYN_MT_REPORT between fingers.
 
-which should rather be in a format more similar to
+This should be rather striaghtforward, right? I don't see any principal=
+=20
+issue here. If you provide such patch, I will happuly merge it.
 
-	/* 
-	 * first comment line
-	 * second comment line
-	 */
+Introducing wrapper around hidinput_hid_event() which drivers for=20
+multitouch devices will be using should be sufficient, shouldn't it?
 
-> However, also in this code is the (int) cast fix that I send before to 
-> linux-kernel in ff-memless.  Without this, my driver or the normal 
-> logitech driver for other sticks seems to work for me.
+> - furthermore, some fingers have to be discarded because they are=20
+> placeholders with no valid data, and we know if to dump them only whe=
+n=20
+> they have been fully parsed. Therefore, we need a mechanism to cache=20
+> finger data until the decision is made. Currently, the caching mechan=
+ism=20
+> has to be device-dependent because the fields are not exactly the sam=
+e=20
+> and they come in a device-dependent order.
 
-Dmitry, will you pick that one up for your tree? 
+What kind of caching is required here? Is there any upper bound=20
+approximation on the amount of data that need to be cached?
+
+Would simple infrastructure, introducing linked list of [usage, value]=20
+tuples, together with "flush()" method, that will again only call=20
+hidinput_hid_event multiple times, be enough to be common for all drive=
+rs=20
+needing this?
 
 Thanks,
 
--- 
+--=20
 Jiri Kosina
 SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

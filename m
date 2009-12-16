@@ -1,131 +1,102 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: synaptics touchpad doesn't click
-Date: Tue, 15 Dec 2009 18:59:34 -0800
-Message-ID: <20091216025934.GA2699@core.coreip.homeip.net>
-References: <20091214014828.GA28402@ldl.fc.hp.com> <20091214173450.GB2373@core.coreip.homeip.net> <20091215034127.GC587@ldl.fc.hp.com> <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de> <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com>
+Subject: [git pull] Input updates for 2.6.33-rc0
+Date: Tue, 15 Dec 2009 22:47:06 -0800
+Message-ID: <20091216064706.GC2699@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:54818 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756230AbZLPC7k (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.216.174]:35604 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753928AbZLPGrM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Dec 2009 21:59:40 -0500
+	Wed, 16 Dec 2009 01:47:12 -0500
 Content-Disposition: inline
-In-Reply-To: <20091216010506.GA26367@ldl.fc.hp.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alex Chiang <achiang@hp.com>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Dec 15, 2009 at 06:05:06PM -0700, Alex Chiang wrote:
-> * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> >
-> > The updated patch is below.
-> > 
-> > -- 
-> > Dmitry
-> 
-> Should I test this one or wait one more iteration to address
-> Takashi's last comments?
-> 
+Hi Linus,
 
-Actually I think we took the wrong direction with the original patch and
-we should do what other buttonless devices (bcm5974) do: report touchpad
-click as left button and have Synaptics X driver provide enhanced
-support. This way we can have both modes (ClickZones and ClickButtons)
-and users will get to chose (provided that someone takes time to add
-that support to Synaptics driver of course ;) ).
+Please pull from:
 
-Could you tell me if the below works for you?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive second round of updates for the input subsystem. It contains
+update to wacom driver, new ALPS protocol so that touchpads in Dell
+Latitudes E6x00 series will finally work properly and not loose sync,
+a new touchscreen driver and bunch of smaller fixes.
+
+Changelog:
+---------
+
+Dmitry Torokhov (12):
+      Input: serio - set owner in driver structures
+      Input: hil-mlc - use del_timer_sync() when unloading the driver
+      Input: altera_ps2 - add annotations to probe and remove methods
+      Input: gscps2 - fix probe() and remove() annotations
+      Input: ambakmi - annotate probe() and remove() methods
+      Input: sa1111ps2 - annotate probe() and remove() methods
+      Input: document use of input_event() function
+      Input: ALPS - do not set REL_X/REL_Y capabilities on the touchpad
+      Input: i8042 - fix locking in interrupt routine
+      Input: i8042 - add Gigabyte M1022M to the noloop list
+      Input: at32psif - do not sleep in atomic context
+      Input: keyboard - don't override beep with a bell
+
+H Hartley Sweeten (1):
+      Input: ep93xx_keypad - update driver to new core support
+
+Matthew Garrett (1):
+      Input: i8042 - allow installing platform filters for incoming data
+
+Ping Cheng (5):
+      Input: wacom - ensure the device is initialized properly upon resume
+      Input: wacom - add defines for packet lengths of various devices
+      Input: wacom - add support for new LCD tablets
+      Input: wacom - add defines for data packet report IDs
+      Input: wacom - separate pen from express keys on Graphire
+
+Roel Kluin (1):
+      Input: altera_ps2 - fix test of unsigned in altera_ps2_probe()
+
+Sascha Hauer (1):
+      Input: add mc13783 touchscreen driver
+
+Sebastian Kapfer (1):
+      Input: ALPS - add interleaved protocol support (Dell E6x00 series)
+
+
+Diffstat:
+--------
+
+ arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h |   11 +-
+ drivers/char/keyboard.c                           |   10 +-
+ drivers/input/input.c                             |   10 +-
+ drivers/input/keyboard/ep93xx_keypad.c            |  150 +++------
+ drivers/input/mouse/alps.c                        |  265 +++++++++++++--
+ drivers/input/mouse/alps.h                        |    1 +
+ drivers/input/serio/altera_ps2.c                  |   15 +-
+ drivers/input/serio/ambakmi.c                     |    9 +-
+ drivers/input/serio/at32psif.c                    |    3 +-
+ drivers/input/serio/gscps2.c                      |    6 +-
+ drivers/input/serio/hil_mlc.c                     |    8 +-
+ drivers/input/serio/i8042-x86ia64io.h             |    8 +
+ drivers/input/serio/i8042.c                       |   88 +++++-
+ drivers/input/serio/sa1111ps2.c                   |   10 +-
+ drivers/input/tablet/wacom.h                      |   11 +-
+ drivers/input/tablet/wacom_sys.c                  |  231 +++++++++----
+ drivers/input/tablet/wacom_wac.c                  |  368 +++++++++++++--------
+ drivers/input/tablet/wacom_wac.h                  |   29 ++-
+ drivers/input/touchscreen/Kconfig                 |   12 +
+ drivers/input/touchscreen/Makefile                |    1 +
+ drivers/input/touchscreen/mc13783_ts.c            |  258 +++++++++++++++
+ include/linux/i8042.h                             |   18 +-
+ 22 files changed, 1137 insertions(+), 385 deletions(-)
+ create mode 100644 drivers/input/touchscreen/mc13783_ts.c
 
 -- 
 Dmitry
 
-
-Input: synaptics - add support for ClickPad devices
-
-From: Takashi Iwai <tiwai@suse.de>
-
-The new device is a button-less "clickable" touchpad, it does not have
-physical left, right nor middle buttons. Instead the entire touchpad
-area can be "clicked" and such click is signalled the same way middle
-button state is signalled on touchpads that have SYN_CAP_MIDDLE_BUTTON
-capability.
-
-The driver will reporting touchpad clicks as primary button (BTN_LEFT)
-events, the same way driver for bcm5974 handles buttonless touchpads on
-MacBooks, allowing limited support for legacy software. Enhanced support,
-including "ClickButtons" and "ClickZone" modes to emulate right and
-middle nuttons, is left to userspace components.
-
-The device will not signal BTN_RIGHT event and will remove it from the
-capability list. Since all Synaptics devices up until now had both left
-and right buttons present the absence of BTN_RIGHT capability can be
-used to identify ClickPad devices.
-
-Due to the fact that there is no known capability bits for ClickPads we
-are forced to match on product ID.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/synaptics.c |   21 ++++++++++++++++-----
- drivers/input/mouse/synaptics.h |    2 ++
- 2 files changed, 18 insertions(+), 5 deletions(-)
-
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 7047558..633b975 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -338,12 +338,16 @@ static void synaptics_parse_new_hw(unsigned char buf[],
- 		((buf[0] & 0x04) >> 1) |
- 		((buf[3] & 0x04) >> 2);
- 
--	hw->left  = buf[0] & 0x01;
--	hw->right = buf[0] & 0x02;
-+	if (SYN_CAP_CLICKPAD(priv->ext_cap)) {
-+		hw->left = (buf[0] ^ buf[3]) & 0x01;
-+	} else {
-+		hw->left  = buf[0] & 0x01;
-+		hw->right = buf[0] & 0x02;
- 
--	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities)) {
--		hw->middle = (buf[0] ^ buf[3]) & 0x01;
--		hw->scroll = hw->w == 2 ? (signed char)buf[1] : 0;
-+		if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities)) {
-+			hw->middle = (buf[0] ^ buf[3]) & 0x01;
-+			hw->scroll = hw->w == 2 ? (signed char)buf[1] : 0;
-+		}
- 	}
- 
- 	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
-@@ -592,6 +596,13 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 	__clear_bit(REL_X, dev->relbit);
- 	__clear_bit(REL_Y, dev->relbit);
- 
-+	/*
-+	 * ClickPads are buttonless devices. We report the touchpad clicks
-+	 * as BTN_LEFT but there is no BTN_RIGHT or BTN_MIDDLE.
-+	 */
-+	if (SYN_CAP_CLICKPAD(priv->ext_cap))
-+		__clear_bit(BTN_RIGHT, dev->keybit);
-+
- 	dev->absres[ABS_X] = priv->x_res;
- 	dev->absres[ABS_Y] = priv->y_res;
- }
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 838e7f2..343dfc0 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -48,6 +48,8 @@
- #define SYN_CAP_VALID(c)		((((c) & 0x00ff00) >> 8) == 0x47)
- #define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
- #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
-+#define SYN_CAP_PRODUCT_ID(ec)          (((ec) & 0xff0000) >> 16)
-+#define SYN_CAP_CLICKPAD(ec)            (SYN_CAP_PRODUCT_ID(ec) == 0xe4)
- 
- /* synaptics modes query bits */
- #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))

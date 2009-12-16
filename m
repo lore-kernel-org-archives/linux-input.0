@@ -1,103 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Alex Chiang <achiang@hp.com>
 Subject: Re: synaptics touchpad doesn't click
-Date: Wed, 16 Dec 2009 09:24:45 -0800
-Message-ID: <20091216172445.GA6800@core.coreip.homeip.net>
-References: <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com> <20091216025934.GA2699@core.coreip.homeip.net> <s5hk4wn5s4x.wl%tiwai@suse.de> <20091216065652.GE2699@core.coreip.homeip.net> <s5heimv5r20.wl%tiwai@suse.de> <20091216082316.GH2699@core.coreip.homeip.net> <s5hzl5j46rw.wl%tiwai@suse.de>
+Date: Wed, 16 Dec 2009 10:31:59 -0700
+Message-ID: <20091216173159.GA26757@ldl.fc.hp.com>
+References: <20091215034127.GC587@ldl.fc.hp.com> <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de> <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com> <20091216025934.GA2699@core.coreip.homeip.net> <20091216065200.GC20352@ldl.fc.hp.com> <20091216070343.GF2699@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762598AbZLPRZI@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from g4t0015.houston.hp.com ([15.201.24.18]:23537 "EHLO
+	g4t0015.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762536AbZLPRcA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Dec 2009 12:32:00 -0500
 Content-Disposition: inline
-In-Reply-To: <s5hzl5j46rw.wl%tiwai@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Alex Chiang <achiang@hp.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+In-Reply-To: <20091216070343.GF2699@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Dec 16, 2009 at 10:17:39AM +0100, Takashi Iwai wrote:
-> At Wed, 16 Dec 2009 00:23:16 -0800,
-> Dmitry Torokhov wrote:
-> > 
-> > On Wed, Dec 16, 2009 at 08:14:15AM +0100, Takashi Iwai wrote:
-> > > At Tue, 15 Dec 2009 22:56:53 -0800,
-> > > Dmitry Torokhov wrote:
-> > > > 
-> > > > On Wed, Dec 16, 2009 at 07:50:54AM +0100, Takashi Iwai wrote:
-> > > > > At Tue, 15 Dec 2009 18:59:34 -0800,
-> > > > > Dmitry Torokhov wrote:
-> > > > > > 
-> > > > > > On Tue, Dec 15, 2009 at 06:05:06PM -0700, Alex Chiang wrote:
-> > > > > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > > > > > > >
-> > > > > > > > The updated patch is below.
-> > > > > > > > 
-> > > > > > > > -- 
-> > > > > > > > Dmitry
-> > > > > > > 
-> > > > > > > Should I test this one or wait one more iteration to address
-> > > > > > > Takashi's last comments?
-> > > > > > > 
-> > > > > > 
-> > > > > > Actually I think we took the wrong direction with the original patch and
-> > > > > > we should do what other buttonless devices (bcm5974) do: report touchpad
-> > > > > > click as left button and have Synaptics X driver provide enhanced
-> > > > > > support. This way we can have both modes (ClickZones and ClickButtons)
-> > > > > > and users will get to chose (provided that someone takes time to add
-> > > > > > that support to Synaptics driver of course ;) ).
+* Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Tue, Dec 15, 2009 at 11:52:00PM -0700, Alex Chiang wrote:
+> > * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > > On Tue, Dec 15, 2009 at 06:05:06PM -0700, Alex Chiang wrote:
+> > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> > > > >
+> > > > > The updated patch is below.
 > > > > > 
-> > > > > My concern is, still, how would you identify this device.  Will you
-> > > > > extend also some ioctls to expose caps and extcaps?  Otherwise it's
-> > > > > difficult to identify this device automatically from the user-space.
-> > > > > 
+> > > > > -- 
+> > > > > Dmitry
 > > > > 
-> > > > No.. Synaptics without right button == ClickPad.
+> > > > Should I test this one or wait one more iteration to address
+> > > > Takashi's last comments?
+> > > > 
 > > > 
-> > > So, is there only Clickpad device that has a single button?
-> > > No other option?
+> > > Actually I think we took the wrong direction with the original patch and
+> > > we should do what other buttonless devices (bcm5974) do: report touchpad
+> > > click as left button and have Synaptics X driver provide enhanced
+> > > support. This way we can have both modes (ClickZones and ClickButtons)
+> > > and users will get to chose (provided that someone takes time to add
+> > > that support to Synaptics driver of course ;) ).
 > > > 
+> > > Could you tell me if the below works for you?
 > > 
-> > I have not seen any other Synaptics devices using less than 2 buttons.
+> > Left clicks work. Right/middle do not (as expected, I guess).
 > > 
-> > > > > The user-space can know that it's button-less, yes.  But, how can it
-> > > > > know whether the device should be emulated via ClickZone?
-> > > > > We can use a driver option to x11 synaptics driver for that, as I
-> > > > > already sent you another patch.  However, the driver option is
-> > > > > nowadays not preferred because xorg.conf is being dead on new
-> > > > > systems...
-> > > > 
-> > > > Driver still takes options, from UDEV/HAL. We could pick one behavior
-> > > > by default and ovverride, by box vendor/model (DMI).
-> > > > 
-> > > > > 
-> > > > > Or maybe HAL (or whatever upcoming one) can check the vendor/product
-> > > > > id of the machine (not the device) to provide the information.  OTOH
-> > > > > this will also need frequent updates.
-> > > > 
-> > > > Hopefully vendors won;t be flip/flopping between ClickZone and
-> > > > ClickButtons too much. Still option is better than hardcoding ClickZone
-> > > > for everyone.
-> > > 
-> > > Yeah, I agree that hard-coding isn't good, and that's why I first
-> > > posted separated patches.  OTOH, the kernel-side hack makes the device
-> > > working *as is* even without changing anything else.
-> > >
-> > 
-> > For "ClickZone" - yes, but not all users would want this I guess and not
-> > all laptops will have that zone marked. Pushing it off to userspace
-> > gives more flexibility, including the ability to change zone size, etc.
+> > I liked the behaviour of Takashi's patch a little better wrt what
+> > happens when you try to click/drag, because he disabled movement
+> > in the click area.
 > 
-> As mentioned, I agree basically for the user-space implementation for
-> a long term solution.  My point is that the kernel hack can be
-> regarded as a quick hack for a short term while you have no patch yet
-> for the user-space driver.  It'll take time until the user-space
-> update will be deployed in many distros while people tend to update
-> only the kernel.
+> Are the clicks register only in that special area? Reading Synaptics
+> product description it sounds like entire surface should be clickable.
 
-I strongly disagree here. The fact that some users are more likely to
-update kernel than userspace bits is immaterial, besides such users can
-easily patch their kernels with out-of-tree patches. Additionally kernel
-patch would prevent writing proper userspace support because userspace
-will not be able to reconstruct full device state (you are filtering out
-some events).
+Well, maybe in theory the entire surface is clickable.
 
--- 
-Dmitry
+My observation is that the physical design resembles a lever on a
+fulcrum though, with the fulcrum at the edge near the keyboard.
+
+Pressing the click zone is mechanically nice, since you are away
+from the fulcrum. Moving "up" towards the keyboard, there seems
+to be much less mechanical advantage, and the surface doesn't
+seem so clicky.
+
+But really, I was talking about what Takashi mentioned in a later
+mail, namely that trying to actually click with the click zone in
+a precise manner is difficult because as you press the surface
+down, the touch pad registers some movement, and moves the
+pointer away from the area you're trying to click.
+
+Fitts would have a fit. ;)
+
+/ac
+

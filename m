@@ -1,90 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: synaptics touchpad doesn't click
-Date: Wed, 16 Dec 2009 00:23:16 -0800
-Message-ID: <20091216082316.GH2699@core.coreip.homeip.net>
-References: <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de> <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com> <20091216025934.GA2699@core.coreip.homeip.net> <s5hk4wn5s4x.wl%tiwai@suse.de> <20091216065652.GE2699@core.coreip.homeip.net> <s5heimv5r20.wl%tiwai@suse.de>
+Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
+Date: Wed, 16 Dec 2009 00:25:28 -0800
+Message-ID: <20091216082528.GI2699@core.coreip.homeip.net>
+References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com> <20091203061912.GA5626@gw.healthdatacare.com> <20091203062641.GH9121@core.coreip.homeip.net> <20091215070507.GD25613@gw.healthdatacare.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.216.174]:64423 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751230AbZLPIXW (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:43285 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934788AbZLPIZe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2009 03:23:22 -0500
+	Wed, 16 Dec 2009 03:25:34 -0500
+Received: by pwj9 with SMTP id 9so486666pwj.21
+        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2009 00:25:33 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <s5heimv5r20.wl%tiwai@suse.de>
+In-Reply-To: <20091215070507.GD25613@gw.healthdatacare.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Alex Chiang <achiang@hp.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@iki.fi>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Dec 16, 2009 at 08:14:15AM +0100, Takashi Iwai wrote:
-> At Tue, 15 Dec 2009 22:56:53 -0800,
-> Dmitry Torokhov wrote:
-> > 
-> > On Wed, Dec 16, 2009 at 07:50:54AM +0100, Takashi Iwai wrote:
-> > > At Tue, 15 Dec 2009 18:59:34 -0800,
-> > > Dmitry Torokhov wrote:
+On Tue, Dec 15, 2009 at 09:05:07AM +0200, Mika Westerberg wrote:
+> On Wed, Dec 02, 2009 at 10:26:41PM -0800, Dmitry Torokhov wrote:
+> > On Thu, Dec 03, 2009 at 08:19:12AM +0200, Mika Westerberg wrote:
+> > > On Tue, Dec 01, 2009 at 03:53:45PM +0200, Mika Westerberg wrote:
+> > > >
+> > > > This is third version of the series. Purpose of this patch is to allow
+> > > > userland to disable GPIO buttons interrupting the CPU. There is now sysfs
+> > > > interface that can be used to control the buttons by key code or by switch
+> > > > code.
 > > > > 
-> > > > On Tue, Dec 15, 2009 at 06:05:06PM -0700, Alex Chiang wrote:
-> > > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > > > > >
-> > > > > > The updated patch is below.
-> > > > > > 
-> > > > > > -- 
-> > > > > > Dmitry
-> > > > > 
-> > > > > Should I test this one or wait one more iteration to address
-> > > > > Takashi's last comments?
-> > > > > 
+> > > > I merged those previous 2 patches as one. This is because it made little
+> > > > sense of having separate patch for adding the 'can_disable' field.
 > > > > 
-> > > > Actually I think we took the wrong direction with the original patch and
-> > > > we should do what other buttonless devices (bcm5974) do: report touchpad
-> > > > click as left button and have Synaptics X driver provide enhanced
-> > > > support. This way we can have both modes (ClickZones and ClickButtons)
-> > > > and users will get to chose (provided that someone takes time to add
-> > > > that support to Synaptics driver of course ;) ).
+> > > > Changes in v3:
+> > > > 	- merged previous 2 patches into one
+> > > > 	- buttons have 'can_disable' field instead of irqflags field
+> > > > 
+> > > > Tested with RX-51.
 > > > 
-> > > My concern is, still, how would you identify this device.  Will you
-> > > extend also some ioctls to expose caps and extcaps?  Otherwise it's
-> > > difficult to identify this device automatically from the user-space.
+> > > Hi Dmitry,
+> > > 
+> > > Any comments on this? Is it OK to be applied or do I need to change
+> > > something.
 > > > 
 > > 
-> > No.. Synaptics without right button == ClickPad.
+> > Hi Mika,
+> > 
+> > SOrry, I am still pondering how to go about it. I am sure that the sysfs
+> > interface is proper, so at this point it is just implementation details
+> > that I am not quite sure yet...
 > 
-> So, is there only Clickpad device that has a single button?
-> No other option?
+> Hi Dmitry,
+> 
+> Have you decided yet what to do with these patches?
 > 
 
-I have not seen any other Synaptics devices using less than 2 buttons.
+Hi Mika,
 
-> > > The user-space can know that it's button-less, yes.  But, how can it
-> > > know whether the device should be emulated via ClickZone?
-> > > We can use a driver option to x11 synaptics driver for that, as I
-> > > already sent you another patch.  However, the driver option is
-> > > nowadays not preferred because xorg.conf is being dead on new
-> > > systems...
-> > 
-> > Driver still takes options, from UDEV/HAL. We could pick one behavior
-> > by default and ovverride, by box vendor/model (DMI).
-> > 
-> > > 
-> > > Or maybe HAL (or whatever upcoming one) can check the vendor/product
-> > > id of the machine (not the device) to provide the information.  OTOH
-> > > this will also need frequent updates.
-> > 
-> > Hopefully vendors won;t be flip/flopping between ClickZone and
-> > ClickButtons too much. Still option is better than hardcoding ClickZone
-> > for everyone.
-> 
-> Yeah, I agree that hard-coding isn't good, and that's why I first
-> posted separated patches.  OTOH, the kernel-side hack makes the device
-> working *as is* even without changing anything else.
->
-
-For "ClickZone" - yes, but not all users would want this I guess and not
-all laptops will have that zone marked. Pushing it off to userspace
-gives more flexibility, including the ability to change zone size, etc.
+Sorry, not yet, have been busy with some other stuff ;(
 
 -- 
 Dmitry

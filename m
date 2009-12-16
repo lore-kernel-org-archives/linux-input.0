@@ -1,27 +1,25 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: synaptics touchpad doesn't click
-Date: Tue, 15 Dec 2009 22:56:53 -0800
-Message-ID: <20091216065652.GE2699@core.coreip.homeip.net>
-References: <20091214173450.GB2373@core.coreip.homeip.net> <20091215034127.GC587@ldl.fc.hp.com> <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de> <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com> <20091216025934.GA2699@core.coreip.homeip.net> <s5hk4wn5s4x.wl%tiwai@suse.de>
+Date: Tue, 15 Dec 2009 23:03:43 -0800
+Message-ID: <20091216070343.GF2699@core.coreip.homeip.net>
+References: <20091214173450.GB2373@core.coreip.homeip.net> <20091215034127.GC587@ldl.fc.hp.com> <20091215062628.GA12669@core.coreip.homeip.net> <s5h1viwn3ig.wl%tiwai@suse.de> <20091215073358.GC12669@core.coreip.homeip.net> <s5hvdg8lm5q.wl%tiwai@suse.de> <20091215082518.GD12669@core.coreip.homeip.net> <20091216010506.GA26367@ldl.fc.hp.com> <20091216025934.GA2699@core.coreip.homeip.net> <20091216065200.GC20352@ldl.fc.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.216.174]:33757 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932187AbZLPG45 (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:51296 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754242AbZLPHDs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2009 01:56:57 -0500
+	Wed, 16 Dec 2009 02:03:48 -0500
 Content-Disposition: inline
-In-Reply-To: <s5hk4wn5s4x.wl%tiwai@suse.de>
+In-Reply-To: <20091216065200.GC20352@ldl.fc.hp.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Alex Chiang <achiang@hp.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Alex Chiang <achiang@hp.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Wed, Dec 16, 2009 at 07:50:54AM +0100, Takashi Iwai wrote:
-> At Tue, 15 Dec 2009 18:59:34 -0800,
-> Dmitry Torokhov wrote:
-> > 
+On Tue, Dec 15, 2009 at 11:52:00PM -0700, Alex Chiang wrote:
+> * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
 > > On Tue, Dec 15, 2009 at 06:05:06PM -0700, Alex Chiang wrote:
 > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com>:
 > > > >
@@ -40,32 +38,22 @@ On Wed, Dec 16, 2009 at 07:50:54AM +0100, Takashi Iwai wrote:
 > > support. This way we can have both modes (ClickZones and ClickButtons)
 > > and users will get to chose (provided that someone takes time to add
 > > that support to Synaptics driver of course ;) ).
+> > 
+> > Could you tell me if the below works for you?
 > 
-> My concern is, still, how would you identify this device.  Will you
-> extend also some ioctls to expose caps and extcaps?  Otherwise it's
-> difficult to identify this device automatically from the user-space.
+> Left clicks work. Right/middle do not (as expected, I guess).
 > 
+> I liked the behaviour of Takashi's patch a little better wrt what
+> happens when you try to click/drag, because he disabled movement
+> in the click area.
 
-No.. Synaptics without right button == ClickPad.
+Are the clicks register only in that special area? Reading Synaptics
+product description it sounds like entire surface should be clickable.
 
-> The user-space can know that it's button-less, yes.  But, how can it
-> know whether the device should be emulated via ClickZone?
-> We can use a driver option to x11 synaptics driver for that, as I
-> already sent you another patch.  However, the driver option is
-> nowadays not preferred because xorg.conf is being dead on new
-> systems...
-
-Driver still takes options, from UDEV/HAL. We could pick one behavior
-by default and ovverride, by box vendor/model (DMI).
-
+> My vodka consumption is minimal and I don't have the shakes, but
+> I found it difficult to precisely hit the edge of a window and
+> click / drag to resize...
 > 
-> Or maybe HAL (or whatever upcoming one) can check the vendor/product
-> id of the machine (not the device) to provide the information.  OTOH
-> this will also need frequent updates.
-
-Hopefully vendors won;t be flip/flopping between ClickZone and
-ClickButtons too much. Still option is better than hardcoding ClickZone
-for everyone.
 
 -- 
 Dmitry

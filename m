@@ -1,48 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input_ gpio_keys: scan gpio state at probe time
-Date: Wed, 16 Dec 2009 17:16:45 -0800
-Message-ID: <20091217011645.GE6800@core.coreip.homeip.net>
-References: <1259146416-6713-1-git-send-email-daniel@caiaq.de> <20091126034612.GA23244@core.coreip.homeip.net> <20091214031054.GX28375@buzzloop.caiaq.de> <20091214043117.GC16760@core.coreip.homeip.net> <20091217010548.GA28375@buzzloop.caiaq.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: linux kernel HID problem with Saitek X52 Pro Flight System
+Date: Thu, 17 Dec 2009 02:29:55 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.0912170229340.3755@pobox.suse.cz>
+References: <alpine.LNX.2.00.0909081931360.23856@wotan.suse.de> <bfb1bb1f0909081304y708b037bw1c82288d6457c254@mail.gmail.com> <alpine.LNX.2.00.0909090041410.23856@wotan.suse.de> <4B21308F.5070304@canonical.com> <1260541128.3656.6.camel@bede>
+ <4B225601.3080002@canonical.com> <1260572529.3656.12.camel@bede> <4B22F952.6070001@iki.fi> <20091212044425.GA2956@core.coreip.homeip.net> <4B261412.6090409@canonical.com> <20091214173631.GC2373@core.coreip.homeip.net> <alpine.LNX.2.00.0912151357210.3755@pobox.suse.cz>
+ <4B278C67.5050505@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:62931 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934490AbZLQBQy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Dec 2009 20:16:54 -0500
-Received: by pwj9 with SMTP id 9so990623pwj.21
-        for <linux-input@vger.kernel.org>; Wed, 16 Dec 2009 17:16:54 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20091217010548.GA28375@buzzloop.caiaq.de>
+Received: from cantor.suse.de ([195.135.220.2]:52890 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935971AbZLQB34 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Dec 2009 20:29:56 -0500
+In-Reply-To: <4B278C67.5050505@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: linux-input@vger.kernel.org, Jani Nikula <ext-jani.1.nikula@nokia.com>, Mike Rapoport <mike@compulab.co.il>
+To: Stefan Bader <stefan.bader@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anssi Hannula <anssi.hannula@iki.fi>, Tim Cole <tim.cole@canonical.com>, Sergey Kolesnikov <rockingdemon@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Dec 17, 2009 at 09:05:49AM +0800, Daniel Mack wrote:
-> On Sun, Dec 13, 2009 at 08:31:17PM -0800, Dmitry Torokhov wrote:
-> > On Mon, Dec 14, 2009 at 11:10:55AM +0800, Daniel Mack wrote:
-> > > On Wed, Nov 25, 2009 at 07:46:13PM -0800, Dmitry Torokhov wrote:
-> > > > On Wed, Nov 25, 2009 at 11:53:36AM +0100, Daniel Mack wrote:
-> > > > > gpio_keys.c registers interrupts at both edges of all given gpio lines
-> > > > > and updates the input device when they change. However, the driver fails
-> > > > > to check the current line state at probe time.
-> > > > > 
-> > > > 
-> > > > Should not matter for keys really, but is important for swicthes. I
-> > > > guess we need to also do this at resume. Does the following still work?
-> > > 
-> > > Sorry for the long delay on this. I could finally test this patch and it
-> > > works fine, key states are reported correctly after resume.
-> > > 
+On Tue, 15 Dec 2009, Stefan Bader wrote:
+
+> >>> This might be an overly naive approach (or call it thinking loudly)... 
+> >>> It would probably break a lot of stuff when the JOYSTICK/TRIGGER block 
+> >>> moved to the 0x210 region, but would it be a solution to have a block 
+> >>> of additional joystick buttons there and check on assigning buttons to 
+> >>> a joystick, whether it traverses over to GAMEPAD and in that case skip 
+> >>> to the additional block?
+> >> That's what we have to do I guess... I wonder how many keycodes will we
+> >> need so we won't have to split the region again? Will they come up with
+> >> 70 buttons next time?
 > > 
-> > Thanks Daniel.
+> > Yup, I am not able to come up with anything more clever either.
+> > 
+> > I can do that easily ... any suggestions for button names? :)
+> > 
+> #define BTN_TRIGGER_HAPPY01	0x210
+> ...
+> #define BTN_TRIGGER_HAPPY40	0x238
 > 
-> Will this still make it to 2.6.33?
-> 
+> :-P Assuming 40 additional buttons should be crazy enough (but I know
+> this has been said before about other things).
 
-It is already there.
+Dmitry, do you have any preference here yourself?
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

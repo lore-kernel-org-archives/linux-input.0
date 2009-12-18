@@ -1,86 +1,104 @@
-From: Peter Hutterer <peter.hutterer@redhat.com>
-Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
-Date: Fri, 18 Dec 2009 15:02:06 +1000
-Message-ID: <4B2B0CCE.2020406@redhat.com>
-References: <20091203050810.GA26595@barra.bne.redhat.com>	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com>	<871vjasxnm.fsf@macbook.be.48ers.dk> <4B190D88.4090102@redhat.com>	<87ws12rh5j.fsf@macbook.be.48ers.dk> <4B1C96C4.5080709@redhat.com> <87hbs0mqju.fsf@macbook.be.48ers.dk>
+From: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
+Subject: Re: Linux Force Feedback for Saitek Cyborg Evo Force
+Date: Fri, 18 Dec 2009 09:59:42 +0100
+Message-ID: <4B2B447E.80808@physik.uni-muenchen.de>
+References: <4B26B824.8010403@physik.uni-muenchen.de> <alpine.LNX.2.00.0912151403440.3755@pobox.suse.cz> <4B2ABC62.2030600@physik.uni-muenchen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:15884 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750763AbZLRFDa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Dec 2009 00:03:30 -0500
-In-Reply-To: <87hbs0mqju.fsf@macbook.be.48ers.dk>
+Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:44371 "EHLO
+	mail.physik.uni-muenchen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751889AbZLRI7p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Dec 2009 03:59:45 -0500
+In-Reply-To: <4B2ABC62.2030600@physik.uni-muenchen.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Korsgaard <jacmet@sunsite.dk>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On 09/12/09 19:42, Peter Korsgaard wrote:
->   Peter>  [root@touchie sbin]# ./nwtool -u -i
->   Peter>  Version:		2.99
->   Peter>  Serial:			617241
->   Peter>  Model:			1901
->   Peter>  HW capabilities:	0x40
->   Peter>  Rightclick delay:	1000 ms
->   Peter>  Doubleclick time:	200 ms
->   Peter>  Report mode:		4
->   Peter>  Drag threshold:		500
->   Peter>  Buzzer time:		40 ms
->   Peter>  Buzzer tone:		40
->   Peter>  Calibration key:	4
->   Peter>  Calibration presses:	3
->
-> Hmm, what is report mode 4? Some kind of multi touch mode?
->
-> What do you see if you install the Nextwindow USB config tool under
-> Windows (unfortunately doesn't work under Wine) and look in the mouse
-> tab? I guess you have a 4th option here.
->
-> I see this:  http://peter.korsgaard.com/nw.png
+Hi,
 
-argh. now you made me use vista! ;)
+...it worked in the jscalibrator, but in the game I noticed that the
+axis ranges (as given by the HID driver, which also works for non-ff
+mode) are different to the iforce ones:
+x/y is from 0 (top, left, rudder left) to 4096 (bottom right) or 255
+(rudder right), and throttle is from 255 (no throttle) to 0 (full)
 
-Installed version 2.8 today, it offers three modes in his interface: 
-None, HID Mouse and "USB Digitiser". The last one was selected when I 
-started into Vista. There's an extra checkbox "Multi-Touch reporting" 
-that was not ticked.
-
-The different combinations and the reporting mode output of nwtool:
-USB Digitizer - multi-touch not ticked: reporting mode 4
-USB Digitizer - multi-touch ticked: reporting mode 3
-USB HID Mouse - multi-touch not ticked: reporting mode 1
-USB HID Mouse - multi-touch ticked: reporting mode 9
-None - multi-touch not ticked: reporting mode 0
-None - multi-touch ticked: reporting mode 8
-
-For reporting mode 4 and 3, the events are Z/Rx + touch
-For reporting mode 1 and 9, the events are ABS_X/Y and left button
-For reporting mode 0 and 8, no events are sent (unsurprisingly)
-
-So it seems the only difference between our two models is the default 
-reporting mode - assuming that 4 is the default, we've had this thing 
-for a year without doing much with it but it could well be that someone 
-set it earlier or one of the HP Touchsmart software pieces changed it.
-
->   >>  It's probably offtopic here, but we can move the discussion to the X
->   >>  list if you prefer - Last time I asked there I didn't get any reply
->   >>  though:
->   >>
->   >>  http://article.gmane.org/gmane.comp.freedesktop.xorg/40071/
->
->   Peter>  Ask louder :) I think I remember your email but it got flooded out of
->   Peter>  my inbox. In general there should be some method to do that though I
->   Peter>  need to check the implementation.
->
-> OK, great - Let me know what you find. I did hack something up with
-> evtouch, but would like to move to evdev instead.
-> I'm willing to work on getting evdev to handle multi screen touchscreen
-> setups better if needed, I just need a bit of guidance on how it should
-> be handled.
-
-replying to your email right now.
+In iforce the x-range is from -1920 to 1920, so 256 steps less than the
+saitek range...
+This is a bit more difficult to fit into the driver framework, because
+the ranges are set in the initialization routine in iforce-main.c.
+I'll put an if() in there for starters.
 
 Cheers,
-   Peter
+Johannes
+
+
+Johannes Ebke wrote:
+> Hi Jiri,
+> 
+> I have looked into the problems some more, and have found that the cause
+> of the crash was a change I made because I misunderstood the code
+> (LO(cmd) is the number of bytes in in the message, and is not
+> transferred on USB - i had removed it from the message...)
+> 
+> First, the changes in the normal input, the joystick axis+buttons message:
+> * Prefix is 0x06 instead of 0x01 (joystick) or 0x03 (gamepad)
+> * Throttle is not inverted (data[4] instead of 255-data[4])
+> * Rudder is present and unsigned (not signed, as in iforce)
+> 
+> I have attached a patch that I think fixes this (it works for me :)
+> Since saitek uses a different protocol byte, this can be done without
+> adding per-device flags to the driver.
+> 
+> It also adds a button map btn_saitek_cyborg that switches button 1&2 to
+> make the button number the same as printed on the device, and
+> abs_saitek_cyborg for a joystick with rudder but only one hat.
+> 
+> The fftest effects seem to work, but some are feeble and feel strange -
+> I suspect there are some subtle changes, for example I am quite sure
+> that the Saitek uses signed (twos complement) numbers for effect
+> strength (this could perhaps explain the 'strange' behavior for 0x80
+> byte values in the current code)...
+> 
+> Cheers,
+> Johannes
+> 
+> 
+> Jiri Kosina wrote:
+>> On Mon, 14 Dec 2009, Johannes Ebke wrote:
+>>
+>>> I own a Saitek Cyborg Evo Force which works fine with the HID driver on
+>>> Linux. However, i could not find a force feedback driver for it, and
+>>> just adding the USB id and spec to the IForce driver does not work (and
+>>> crashes the kernel)
+>> Hi Johannes,
+>>
+>> thanks for your e-mail. I hope you don't mind adding a few relevant CCs.
+>>
+>> First, kernel crashing means that we are probably lacking some error 
+>> handling in the iforce driver, which we should add if possible. Could you 
+>> please post the oops message preceeding the crash?
+>>
+>>> After that, I have reverse-engineered the protocol using usb snoops from 
+>>> a kvm virtual machine with XP on it. Using libusb, I have verified that 
+>>> I understand the protocol, and it actually looks quite similar to the 
+>>> iforce protocol (no wonder, it just implements the DirectInput interface 
+>>> in hardware)
+>> Good job, thanks a lot for doing this.
+>>
+>>> My question: Would it make sense to adapt the iforce modules to include 
+>>> this slightly modified protocol (other initialization strings, other 
+>>> magic bytes) or would it be better to copy & modify?
+>> It really depends how much different the protocols really are. iforce 
+>> driver currently doesn't support any per-device flags which would allow 
+>> for introducing slight differences between individual models.
+>>
+>> Maybe it would help if you could just summarize the most important 
+>> differences to iforce protocol, so that we could see what aproach would be 
+>> the best.
+>>
+>> Thanks,
+>>

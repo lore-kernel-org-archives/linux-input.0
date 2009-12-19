@@ -1,58 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] AT32AP700X PS/2 controller (PSIF): remove msleep call
-	from atomic context
-Date: Sat, 19 Dec 2009 11:51:22 -0800
-Message-ID: <20091219195121.GA4073@core.coreip.homeip.net>
-References: <4B24EB45.2020708@pajkc.eu> <20091214044937.GD16760@core.coreip.homeip.net> <20091214083016.35d00091@hcegtvedt.norway.atmel.com> <4B2CBFBC.2000500@pajkc.eu>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
+Date: Sat, 19 Dec 2009 23:05:53 +0100
+Message-ID: <87638239ha.fsf@macbook.be.48ers.dk>
+References: <20091203050810.GA26595@barra.bne.redhat.com>
+	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com>
+	<871vjasxnm.fsf@macbook.be.48ers.dk> <4B190D88.4090102@redhat.com>
+	<87ws12rh5j.fsf@macbook.be.48ers.dk> <4B1C96C4.5080709@redhat.com>
+	<87hbs0mqju.fsf@macbook.be.48ers.dk> <4B2B0CCE.2020406@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f171.google.com ([209.85.222.171]:40149 "EHLO
-	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753188AbZLSTv3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Dec 2009 14:51:29 -0500
-Received: by pzk1 with SMTP id 1so2949976pzk.33
-        for <linux-input@vger.kernel.org>; Sat, 19 Dec 2009 11:51:28 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <4B2CBFBC.2000500@pajkc.eu>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4B2B0CCE.2020406-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> (Peter Hutterer's message of "Fri,
+	18 Dec 2009 15:02:06 +1000")
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Hutterer <peter.hutterer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Marjan Fojkar <marjan@pajkc.eu>
-Cc: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>, linux-input@vger.kernel.org, kernel@avr32linux.org
 
-On Sat, Dec 19, 2009 at 12:57:48PM +0100, Marjan Fojkar wrote:
-> Hans-Christian Egtvedt wrote:
-> > On Sun, 13 Dec 2009 20:49:37 -0800
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > 
-> >> Hi Martin,
-> >>
-> >> On Sun, Dec 13, 2009 at 02:25:25PM +0100, Marjan Fojkar wrote:
-> >>> From: Marjan Fojkar <marjan@pajkc.eu>
-> >>>
-> >>> The patch removes msleep call from atomic context. To achieve that, the driver
-> >>> PSIF leaves atomic context before the call in order to enable interrupts to be
-> >>> performed safely. When the call is done, the driver jumps back to atomic context.
-> >>>
-> >> Yes, msleep is not allowed in atomic context, however serio's write()
-> >> method is supposed to be callable from atomic context so msleep is not
-> >> available there period. I scanned the datasheet quickly and did not see
-> >> any restriction on the frequency of reading status register so I think
-> >> we should do what i8042 driver does - udelay(50).
-> >>
-> > 
-> > Sure udelay(50) will work fine, you can poll the registers as fast as
-> > you would like. Only disadvantage with udelay is that it will block all
-> > other threads. But I would guess that most of the times a character
-> > should be sent to the peripheral, the hardware will be ready since the
-> > speed is quite low bandwidth.
-> > 
-> 
-> So, the final conclusion is udelay(50), I presume? :)
-> 
+>>>>> "Peter" == Peter Hutterer <peter.hutterer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> writes:
 
-Yep, it is upstream now.
+Hi,
+
+ >> I see this:  http://peter.korsgaard.com/nw.png
+
+ Peter> argh. now you made me use vista! ;)
+
+Sorry, I promise it won't happen again ;)
+
+ Peter> For reporting mode 4 and 3, the events are Z/Rx + touch
+ Peter> For reporting mode 1 and 9, the events are ABS_X/Y and left button
+ Peter> For reporting mode 0 and 8, no events are sent (unsurprisingly)
+
+ Peter> So it seems the only difference between our two models is the default
+ Peter> reporting mode - assuming that 4 is the default, we've had this thing
+ Peter> for a year without doing much with it but it could well be that
+ Peter> someone set it earlier or one of the HP Touchsmart software pieces
+ Peter> changed it.
+
+Ok, thanks for checking it all out! Just to be completely sure, the
+quirk doesn't cause any problems in mode 1/9, right?
+
+ >> I'm willing to work on getting evdev to handle multi screen touchscreen
+ >> setups better if needed, I just need a bit of guidance on how it should
+ >> be handled.
+
+ Peter> replying to your email right now.
+
+Thanks.
 
 -- 
-Dmitry
+Bye, Peter Korsgaard
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,39 +1,65 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] HID: add multi-input quirk for NextWindow Touchscreen.
-Date: Mon, 21 Dec 2009 08:16:11 +0100
-Message-ID: <873a3423wk.fsf@macbook.be.48ers.dk>
-References: <20091203050810.GA26595@barra.bne.redhat.com>
-	<87zl60s17o.fsf@macbook.be.48ers.dk> <4B1836A6.405@redhat.com>
-	<871vjasxnm.fsf@macbook.be.48ers.dk> <4B190D88.4090102@redhat.com>
-	<87ws12rh5j.fsf@macbook.be.48ers.dk> <4B1C96C4.5080709@redhat.com>
-	<87hbs0mqju.fsf@macbook.be.48ers.dk> <4B2B0CCE.2020406@redhat.com>
-	<87638239ha.fsf@macbook.be.48ers.dk> <4B2EB7E1.7090506@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: serio - do not mark kseriod freezable anymore
+Date: Sun, 20 Dec 2009 23:33:38 -0800
+Message-ID: <20091221073338.GA3234@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.25]:50982 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751296AbZLUHQR (ORCPT
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:43053 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751605AbZLUHdn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 02:16:17 -0500
-In-Reply-To: <4B2EB7E1.7090506@redhat.com> (Peter Hutterer's message of "Mon,
-	21 Dec 2009 09:48:49 +1000")
+	Mon, 21 Dec 2009 02:33:43 -0500
+Received: by pwj9 with SMTP id 9so3023124pwj.21
+        for <linux-input@vger.kernel.org>; Sun, 20 Dec 2009 23:33:42 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>
 
->>>>> "Peter" == Peter Hutterer <peter.hutterer@redhat.com> writes:
+We used to make kseriod freezable to prevent unnecessary attempts at
+resuming keyboard and mouse before taking hibernation image when suspend
+and hibernation were sharing PM operations. Now that they are separated
+and we don't risk resuming during 'thaw' we don't need to freeze kseriod
+anymore. This will allow us to start resetting mouse and keyboard a bit
+earlier, before rest of the userspace comes back up.
 
-Hi,
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
- >> Ok, thanks for checking it all out! Just to be completely sure, the
- >> quirk doesn't cause any problems in mode 1/9, right?
+ drivers/input/serio/serio.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
 
- Peter> no, the evtest output looks the same with and without the quirk,
- Peter> including right button emulation on long press, etc.
 
-Perfect, thanks!
-
--- 
-Bye, Peter Korsgaard
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 0236f0d..e0f3018 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -284,13 +284,7 @@ static void serio_handle_event(void)
+ 
+ 	mutex_lock(&serio_mutex);
+ 
+-	/*
+-	 * Note that we handle only one event here to give swsusp
+-	 * a chance to freeze kseriod thread. Serio events should
+-	 * be pretty rare so we are not concerned about taking
+-	 * performance hit.
+-	 */
+-	if ((event = serio_get_event())) {
++	while ((event = serio_get_event())) {
+ 
+ 		switch (event->type) {
+ 			case SERIO_REGISTER_PORT:
+@@ -380,10 +374,9 @@ static struct serio *serio_get_pending_child(struct serio *parent)
+ 
+ static int serio_thread(void *nothing)
+ {
+-	set_freezable();
+ 	do {
+ 		serio_handle_event();
+-		wait_event_freezable(serio_wait,
++		wait_event_interruptible(serio_wait,
+ 			kthread_should_stop() || !list_empty(&serio_event_list));
+ 	} while (!kthread_should_stop());
+ 

@@ -1,65 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: serio - do not mark kseriod freezable anymore
-Date: Sun, 20 Dec 2009 23:33:38 -0800
-Message-ID: <20091221073338.GA3234@core.coreip.homeip.net>
+Subject: Re: Linux Force Feedback for Saitek Cyborg Evo Force
+Date: Sun, 20 Dec 2009 23:44:19 -0800
+Message-ID: <20091221074419.GD3234@core.coreip.homeip.net>
+References: <4B26B824.8010403@physik.uni-muenchen.de> <alpine.LNX.2.00.0912151403440.3755@pobox.suse.cz> <4B2ABC62.2030600@physik.uni-muenchen.de> <alpine.LNX.2.00.0912181150240.3755@pobox.suse.cz> <20091218175046.GB23450@core.coreip.homeip.net> <4B2D6377.1020703@physik.uni-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:43053 "EHLO
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:60344 "EHLO
 	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751605AbZLUHdn (ORCPT
+	with ESMTP id S1750821AbZLUHoZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 02:33:43 -0500
-Received: by pwj9 with SMTP id 9so3023124pwj.21
-        for <linux-input@vger.kernel.org>; Sun, 20 Dec 2009 23:33:42 -0800 (PST)
+	Mon, 21 Dec 2009 02:44:25 -0500
+Received: by pwj9 with SMTP id 9so3027094pwj.21
+        for <linux-input@vger.kernel.org>; Sun, 20 Dec 2009 23:44:24 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <4B2D6377.1020703@physik.uni-muenchen.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-We used to make kseriod freezable to prevent unnecessary attempts at
-resuming keyboard and mouse before taking hibernation image when suspend
-and hibernation were sharing PM operations. Now that they are separated
-and we don't risk resuming during 'thaw' we don't need to freeze kseriod
-anymore. This will allow us to start resetting mouse and keyboard a bit
-earlier, before rest of the userspace comes back up.
+On Sun, Dec 20, 2009 at 12:36:23AM +0100, Johannes Ebke wrote:
+> Hi,
+> 
+> It seems that the force feedback works well, I have ported the force
+> feedback for my favorite game to linux now, and it works well.
+> 
+> What does not work is updating effects - there just nothing happens, and
+> the old event is played. I have circumvented this by
+> deleting/re-uploading the effect, but this should probably been made to
+> work. Does it work well with other hardware?
+> 
+> Thirdly, I have re-discovered one kernel oops that occurs if the
+> joystick is unplugged if some process still has the event device open.
+> Steps to reproduce:
+> * plug joystick in
+> * fftest /dev/input/eventXX
+> * unplug joystick
+> 
+> (kern.log extract attached)
+> 
+> Sometimes this just gives an oops, sometimes it escalates into a kernel
+> panic.
+> 
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+Hmm, it looks like iforce unbinding is completely busted:
 
- drivers/input/serio/serio.c |   11 ++---------
- 1 files changed, 2 insertions(+), 9 deletions(-)
+static void iforce_usb_disconnect(struct usb_interface *intf)
+{
+        struct iforce *iforce = usb_get_intfdata(intf);
+        int open = 0; /* FIXME! iforce->dev.handle->open; */
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        usb_set_intfdata(intf, NULL);
+        if (iforce) {
+                iforce->usbdev = NULL;
+                input_unregister_device(iforce->dev);
+
+                if (!open) {
+                        iforce_delete_device(iforce);
+                        kfree(iforce);
+                }
+        }
+}
 
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 0236f0d..e0f3018 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -284,13 +284,7 @@ static void serio_handle_event(void)
- 
- 	mutex_lock(&serio_mutex);
- 
--	/*
--	 * Note that we handle only one event here to give swsusp
--	 * a chance to freeze kseriod thread. Serio events should
--	 * be pretty rare so we are not concerned about taking
--	 * performance hit.
--	 */
--	if ((event = serio_get_event())) {
-+	while ((event = serio_get_event())) {
- 
- 		switch (event->type) {
- 			case SERIO_REGISTER_PORT:
-@@ -380,10 +374,9 @@ static struct serio *serio_get_pending_child(struct serio *parent)
- 
- static int serio_thread(void *nothing)
- {
--	set_freezable();
- 	do {
- 		serio_handle_event();
--		wait_event_freezable(serio_wait,
-+		wait_event_interruptible(serio_wait,
- 			kthread_should_stop() || !list_empty(&serio_event_list));
- 	} while (!kthread_should_stop());
- 
+Any chance you could fix that FIXME ;) ?
+
+-- 
+Dmitry

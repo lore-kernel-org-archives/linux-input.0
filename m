@@ -1,36 +1,43 @@
-From: Peter Palfrader <weasel@debian.org>
-Subject: Re: 2.6.32.1: BUG and panic: unable to handle kernel NULL pointer dereference at 000000000000001f
-Date: Tue, 22 Dec 2009 20:01:43 +0100
-Message-ID: <20091222190143.GO13850@anguilla.noreply.org>
-References: <20091215162736.GS13850@anguilla.noreply.org> <871vindxkv.fsf@basil.nowhere.org> <20091222183354.GM13850@anguilla.noreply.org> <20091222184215.GJ10314@basil.fritz.box>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] Support for 3M multitouch panel
+Date: Tue, 22 Dec 2009 20:27:39 +0100
+Message-ID: <48B39262-E923-4047-8DC4-5E21E666887D@enac.fr>
+References: <20091211101258.CD35D951F5@smtp.lii-enac-fr>  <20091211124226.GD17995@ibawizard.net>  <20091211141038.0CBD8951F5@smtp.lii-enac.fr>  <20091211223622.GA3067@core.coreip.homeip.net>  <694242AB-D4DC-470D-916D-9ADB2B798FBA@enac.fr> <20091222185628.GA28392@core.coreip.homeip.net>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from anguilla.debian.or.at ([86.59.21.37]:55481 "EHLO
-	anguilla.debian.or.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754310AbZLVTBo (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:45210 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754170AbZLVT1p convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Dec 2009 14:01:44 -0500
-Content-Disposition: inline
-In-Reply-To: <20091222184215.GJ10314@basil.fritz.box>
+	Tue, 22 Dec 2009 14:27:45 -0500
+In-Reply-To: <20091222185628.GA28392@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: linux-kernel@vger.kernel.org, DSA <debian-admin@lists.debian.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: ynezz@true.cz, linux-input@vger.kernel.org
 
-On Tue, 22 Dec 2009, Andi Kleen wrote:
 
-> > This is a static kernel - no module support.  Anyway, I also tried
-> > without CONFIG_USB_HID (which pulls in all the other HID_* things) but
-> > no luck.
-> 
-> Try a make distclean + rebuild anyways.
+Le 22 d=E9c. 09 =E0 19:56, Dmitry Torokhov a =E9crit :
+>
+> I meant "read-modify-write" is worse.
+>
+> To modify a bitfiled the processor has to fetch data from memory (or
+> cache if it is in cache) perform a logical operation on it, and store
+> it back in teh memory. With boolean occupying 1 byte, on most
+> architectures (older alphas is one exception I know of) var=3Dtrue =20
+> can be
+> done by simple store, no need for "read-modify" part.
 
-I usually do.  make-kpkg doesn't really like building from dirty
-directories all that much.
+OK. I had not realized this. My processor architecture courses were =20
+too long ago.
 
--- 
-                           |  .''`.  ** Debian GNU/Linux **
-      Peter Palfrader      | : :' :      The  universal
- http://www.palfrader.org/ | `. `'      Operating System
-                           |   `-    http://www.debian.org/
+St.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

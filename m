@@ -1,16 +1,16 @@
 From: akpm@linux-foundation.org
-Subject: [patch 6/8] usbtouchscreen: fix NEXIO ACK and USB disconnect
-Date: Mon, 21 Dec 2009 16:23:04 -0800
-Message-ID: <200912220023.nBM0N4nH005053@imap1.linux-foundation.org>
+Subject: [patch 7/8] usbtouchscreen: don't send interrupt urbs to bulk endpoints
+Date: Mon, 21 Dec 2009 16:23:05 -0800
+Message-ID: <200912220023.nBM0N5Jc005061@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:60810 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:41852 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752430AbZLVAXl (ORCPT
+	by vger.kernel.org with ESMTP id S1752438AbZLVAXm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 19:23:41 -0500
+	Mon, 21 Dec 2009 19:23:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
@@ -18,7 +18,8 @@ Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-softwa
 
 From: Ondrej Zary <linux@rainbow-software.org>
 
-Fix sending ACK urbs and oops on USB disconnecting NEXIO touchscreen.
+Don't send interrupt urbs to bulk endpoints.
+This fixes EHCI corruption after rmmod with NEXIO touchscreen.
 
 Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -31,40 +32,28 @@ Cc: Oliver Neukum <oliver@neukum.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/touchscreen/usbtouchscreen.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-nexio-ack-and-usb-disconnect drivers/input/touchscreen/usbtouchscreen.c
---- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-nexio-ack-and-usb-disconnect
+diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-dont-send-interrupt-urbs-to-bulk-endpoints drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-dont-send-interrupt-urbs-to-bulk-endpoints
 +++ a/drivers/input/touchscreen/usbtouchscreen.c
-@@ -728,6 +728,10 @@ struct nexio_touch_packet {
- static unsigned char nexio_ack_pkt[2] = { 0xaa, 0x02 };
- static unsigned char nexio_init_pkt[4] = { 0x82, 0x04, 0x0a, 0x0f };
+@@ -1375,10 +1375,16 @@ static int usbtouch_probe(struct usb_int
+ 		input_set_abs_params(input_dev, ABS_PRESSURE, type->min_press,
+ 		                     type->max_press, 0, 0);
  
-+static void nexio_ack_complete(struct urb *urb)
-+{
-+}
-+
- static int nexio_init(struct usbtouch_usb *usbtouch)
- {
- 	struct usb_device *dev = interface_to_usbdev(usbtouch->interface);
-@@ -811,8 +815,8 @@ static int nexio_init(struct usbtouch_us
- 		goto err_ack_buf;
- 	}
- 	usb_fill_bulk_urb(priv->ack, dev, usb_sndbulkpipe(dev, output_ep),
--			  priv->ack_buf, sizeof(priv->ack_buf), NULL,
--			  usbtouch);
-+			  priv->ack_buf, sizeof(nexio_ack_pkt),
-+			  nexio_ack_complete, usbtouch);
- 	ret = 0;
- 	goto out_buf;
- err_ack_buf:
-@@ -1227,6 +1231,7 @@ static void usbtouch_irq(struct urb *urb
- 	case -ECONNRESET:
- 	case -ENOENT:
- 	case -ESHUTDOWN:
-+	case -EPIPE:
- 		/* this urb is terminated, clean up */
- 		dbg("%s - urb shutting down with status: %d",
- 		    __func__, urb->status);
+-	usb_fill_int_urb(usbtouch->irq, udev,
++	if (usb_endpoint_type(endpoint) == USB_ENDPOINT_XFER_INT)
++		usb_fill_int_urb(usbtouch->irq, udev,
+ 			 usb_rcvintpipe(udev, endpoint->bEndpointAddress),
+ 			 usbtouch->data, type->rept_size,
+ 			 usbtouch_irq, usbtouch, endpoint->bInterval);
++	else
++		usb_fill_bulk_urb(usbtouch->irq, udev,
++			 usb_rcvbulkpipe(udev, endpoint->bEndpointAddress),
++			 usbtouch->data, type->rept_size,
++			 usbtouch_irq, usbtouch);
+ 
+ 	usbtouch->irq->dev = udev;
+ 	usbtouch->irq->transfer_dma = usbtouch->data_dma;
 _

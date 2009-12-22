@@ -1,91 +1,66 @@
-From: akpm@linux-foundation.org
-Subject: [patch 8/8] usbtouchscreen: fix leaks and check return value of usb_submit_urb()
-Date: Mon, 21 Dec 2009 16:23:06 -0800
-Message-ID: <200912220023.nBM0N69n005064@imap1.linux-foundation.org>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: 2.6.32.1: BUG and panic: unable to handle kernel NULL pointer dereference at 000000000000001f
+Date: Tue, 22 Dec 2009 13:04:16 +0100
+Message-ID: <871vindxkv.fsf@basil.nowhere.org>
+References: <20091215162736.GS13850@anguilla.noreply.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:35060 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752446AbZLVAXm (ORCPT
+Received: from one.firstfloor.org ([213.235.205.2]:34342 "EHLO
+	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750711AbZLVMER (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 19:23:42 -0500
+	Tue, 22 Dec 2009 07:04:17 -0500
+In-Reply-To: <20091215162736.GS13850@anguilla.noreply.org> (Peter Palfrader's message of "Tue, 15 Dec 2009 17:27:37 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-software.org, daniel.ritz@gmx.ch, ddstreet@ieee.org, dmitry.torokhov@gmail.com, floe@butterbrot.org, greg@kroah.com, jim-linux@nurd.se, oliver@neukum.org
+To: linux-kernel@vger.kernel.org
+Cc: DSA <debian-admin@lists.debian.org>, linux-input@vger.kernel.org
 
-From: Ondrej Zary <linux@rainbow-software.org>
+Peter Palfrader <weasel@debian.org> writes:
 
-Fix urb and priv leaks in error paths of initialization and NEXIO ack_buf
-leak.
 
-Also check usb_submit_urb() return value.
+> [    5.304749] BUG: unable to handle kernel NULL pointer dereference at 000000000000001f
+> ..
+> [    5.308739] Call Trace:
+> [    5.308739]  [<ffffffff810c3840>] kstrdup+0x40/0x70
+> [    5.308739]  [<ffffffff81150d77>] sysfs_new_dirent+0xf7/0x110
+> [    5.308739]  [<ffffffff8115121d>] create_dir+0x3d/0xc0
+> [    5.308739]  [<ffffffff81090af1>] ? autoremove_wake_function+0x11/0x40
+> [    5.308739]  [<ffffffff811512d4>] sysfs_create_dir+0x34/0x50
+> [    5.308739]  [<ffffffff8138e7ea>] ? kobject_get+0x1a/0x30
+> [    5.308739]  [<ffffffff8138e961>] kobject_add_internal+0xe1/0x1e0
+> [    5.308739]  [<ffffffff8138eb78>] kobject_add_varg+0x38/0x60
+> [    5.308739]  [<ffffffff8138ec15>] kobject_init_and_add+0x75/0x90
+> [    5.308739]  [<ffffffff81150560>] ? sysfs_ilookup_test+0x0/0x20
+> [    5.308739]  [<ffffffff8115082d>] ? sysfs_find_dirent+0x2d/0x40
+> [    5.308739]  [<ffffffff81150ec1>] ? sysfs_addrm_finish+0x21/0x250
+> [    5.308739]  [<ffffffff8138e7ea>] ? kobject_get+0x1a/0x30
+> [    5.308739]  [<ffffffff810e6fe4>] ? kmem_cache_alloc+0x84/0xc0
+> [    5.308739]  [<ffffffff814238d4>] bus_add_driver+0x94/0x260
+> [    5.308739]  [<ffffffff81424ed9>] driver_register+0x79/0x160
+> [    5.308739]  [<ffffffff815a28a3>] __hid_register_driver+0x43/0x80
+> [    5.308739]  [<ffffffff81a3d7ff>] ? gyration_init+0x0/0x1b
+> [    5.308739]  [<ffffffff81a3d818>] gyration_init+0x19/0x1b
 
-Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jim Persson <jim-linux@nurd.se>
-Cc: Florian Echtler <floe@butterbrot.org>
-Cc: Dan Streetman <ddstreet@ieee.org>
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: Greg KH <greg@kroah.com>
-Cc: Oliver Neukum <oliver@neukum.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Seems to be caused by the "gyration driver" whatever that is. Do you
+have such a USB device?  
 
- drivers/input/touchscreen/usbtouchscreen.c |   21 +++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+It could be some module mismatch, it looks suspicious
+and from a quick look the gyration driver does nothing bad 
+in that init path. Try a make clean and remove/rebuild/reinstall all the modules
+on the target system.
 
-diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-leaks-and-check-return-value-of-usb_submit_urb drivers/input/touchscreen/usbtouchscreen.c
---- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-leaks-and-check-return-value-of-usb_submit_urb
-+++ a/drivers/input/touchscreen/usbtouchscreen.c
-@@ -834,6 +834,7 @@ static void nexio_exit(struct usbtouch_u
- 
- 	usb_kill_urb(priv->ack);
- 	usb_free_urb(priv->ack);
-+	kfree(priv->ack_buf);
- 	kfree(priv);
- }
- 
-@@ -1395,23 +1396,35 @@ static int usbtouch_probe(struct usb_int
- 		err = type->init(usbtouch);
- 		if (err) {
- 			dbg("%s - type->init() failed, err: %d", __func__, err);
--			goto out_free_buffers;
-+			goto out_free_urb;
- 		}
- 	}
- 
- 	err = input_register_device(usbtouch->input);
- 	if (err) {
- 		dbg("%s - input_register_device failed, err: %d", __func__, err);
--		goto out_free_buffers;
-+		goto out_exit;
- 	}
- 
- 	usb_set_intfdata(intf, usbtouch);
- 
--	if (usbtouch->type->irq_always)
--		usb_submit_urb(usbtouch->irq, GFP_KERNEL);
-+	if (usbtouch->type->irq_always) {
-+		err = usb_submit_urb(usbtouch->irq, GFP_KERNEL);
-+		if (err) {
-+			err("%s - usb_submit_urb failed with result: %d",
-+			    __func__, err);
-+			input_unregister_device(usbtouch->input);
-+			goto out_exit;
-+		}
-+	}
- 
- 	return 0;
- 
-+out_exit:
-+	if (type->exit)
-+		type->exit(usbtouch);
-+out_free_urb:
-+	usb_free_urb(usbtouch->irq);
- out_free_buffers:
- 	usbtouch_free_buffers(udev, usbtouch);
- out_free:
-_
+If that doesn't help perhaps disable CONFIG_HID_GYRATION,
+but from your other oops something more seems to be broken anyways.
+
+> [    5.308739]  [<ffffffff81009048>] do_one_initcall+0x38/0x1a0
+> [    5.308739]  [<ffffffff81a0e6b5>] kernel_init+0x172/0x1ca
+> [    5.308739]  [<ffffffff81036a0a>] child_rip+0xa/0x20
+> [    5.308739]  [<ffffffff81a0e543>] ? kernel_init+0x0/0x1ca
+> [    5.308739]  [<ffffffff81036a00>] ? child_rip+0x0/0x20
+
+-Andi
+
+-- 
+ak@linux.intel.com -- Speaking for myself only.

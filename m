@@ -1,51 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: linux kernel HID problem with Saitek X52 Pro Flight System
-Date: Tue, 22 Dec 2009 14:31:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.0912221430500.3755@pobox.suse.cz>
-References: <1260572529.3656.12.camel@bede> <4B22F952.6070001@iki.fi> <20091212044425.GA2956@core.coreip.homeip.net> <4B261412.6090409@canonical.com> <20091214173631.GC2373@core.coreip.homeip.net> <alpine.LNX.2.00.0912151357210.3755@pobox.suse.cz>
- <4B278C67.5050505@canonical.com> <alpine.LNX.2.00.0912170229340.3755@pobox.suse.cz> <20091217013831.GF6800@core.coreip.homeip.net> <alpine.LNX.2.00.0912181609310.3755@pobox.suse.cz> <20091218174905.GA23450@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] Support for 3M multitouch panel
+Date: Tue, 22 Dec 2009 19:00:49 +0100
+Message-ID: <694242AB-D4DC-470D-916D-9ADB2B798FBA@enac.fr>
+References: <20091211101258.CD35D951F5@smtp.lii-enac-fr> <20091211124226.GD17995@ibawizard.net> <20091211141038.0CBD8951F5@smtp.lii-enac.fr> <20091211223622.GA3067@core.coreip.homeip.net>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:37876 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752893AbZLVNbu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Dec 2009 08:31:50 -0500
-In-Reply-To: <20091218174905.GA23450@core.coreip.homeip.net>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:43235 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751138AbZLVSBE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Dec 2009 13:01:04 -0500
+In-Reply-To: <20091211223622.GA3067@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stefan Bader <stefan.bader@canonical.com>, Anssi Hannula <anssi.hannula@iki.fi>, Tim Cole <tim.cole@canonical.com>, Sergey Kolesnikov <rockingdemon@gmail.com>, linux-input@vger.kernel.org
+Cc: ynezz@true.cz, linux-input@vger.kernel.org
 
-On Fri, 18 Dec 2009, Dmitry Torokhov wrote:
+Hi Dmitry,
 
-> > > > > #define BTN_TRIGGER_HAPPY01	0x210
-> > > > > ...
-> > > > > #define BTN_TRIGGER_HAPPY40	0x238
-> > > > > 
-> > > > > :-P Assuming 40 additional buttons should be crazy enough (but I know
-> > > > > this has been said before about other things).
-> > > > 
-> > > > Dmitry, do you have any preference here yourself?
-> > > 
-> > > "Trigger happy" sounds fine.
-> > 
-> > OK, so how about something along the lines below?
-> 
-> How about we move trigger happy further towards the 0x2ff limit?
+I am working on the 3M driver and taking your comments into account  
+(and applying them to the Stantum driver as well) but I have an  
+question on the comment below:
 
-Sure, no problem. Just tell me the range you'd be comfortable with, and 
-I'll apply a patch using that range.
+>
+>> +struct mmm_finger {
+>> +	__s32 x, y;
+>> +	__u8 rank;
+>> +	int touch:1, valid:1;
+>> +};
+>
+> Does it make sense to turn access to touch and valid into
+> read-modify-write sequence?  Just change them to be 'bool's, it won't
+> cause your structures to grow in size.
+>
+>> +struct mmm_data {
+>> +	struct mmm_finger f[10];
+>> +	__u8 curid, num;
+>> +	int touch:1, valid:1;
+>
+> Same as above.
 
-> Also, do we clamp the bit numbers at KEY_MAX? 
+Why do you think a read-modify-write sequence would be better? in my  
+mind these were just cached values, just like x and y.
 
-Good point. I'll update all the map_*() macros in a separate patch and add 
-range overflow checks.
+Cheers,
 
-> Otherwise looks good, please push through your tree.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+St.
+  

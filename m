@@ -1,131 +1,124 @@
 From: akpm@linux-foundation.org
-Subject: [patch 2/8] input: bcm5974: report ABS_MT events
-Date: Mon, 21 Dec 2009 16:22:57 -0800
-Message-ID: <200912220022.nBM0Mv9p005035@imap1.linux-foundation.org>
+Subject: [patch 3/8] usbtouchscreen: convert from usb_device to usb_interface
+Date: Mon, 21 Dec 2009 16:22:58 -0800
+Message-ID: <200912220022.nBM0MwJb005038@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:34282 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:39087 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752374AbZLVAXO (ORCPT
+	by vger.kernel.org with ESMTP id S1752291AbZLVAXa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 19:23:14 -0500
+	Mon, 21 Dec 2009 19:23:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-software.org, daniel.ritz@gmx.ch, ddstreet@ieee.org, dmitry.torokhov@gmail.com, floe@butterbrot.org, greg@kroah.com, jim-linux@nurd.se, oliver@neukum.org
 
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Ondrej Zary <linux@rainbow-software.org>
 
-Make bcm5974 report raw multi-touch (MT) data in the form of ABS_MT
-events.  The module parameter (nomt) may be used to turn off the effect of
-this patch.
+Convert usbtouchscreen from storing usb_device to usb_interface. This is
+needed for multi-interface touchscreen devices such as iNexio.
 
-The module paremeter was added because all MT events bypass the input
-filtering and get sent directly to the X driver.
-
-Although it works as intended, without visible side effects, the stream of
-events is rather large, and since the bypassing is completely new
-behavior, I felt compelled to provide an option to turn it all off. 
-
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jim Persson <jim-linux@nurd.se>
+Cc: Florian Echtler <floe@butterbrot.org>
+Cc: Dan Streetman <ddstreet@ieee.org>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/bcm5974.c |   53 +++++++++++++++++++++++++++++++-
- 1 file changed, 52 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/usbtouchscreen.c |   22 ++++++++++---------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-report-abs_mt-events drivers/input/mouse/bcm5974.c
---- a/drivers/input/mouse/bcm5974.c~input-bcm5974-report-abs_mt-events
-+++ a/drivers/input/mouse/bcm5974.c
-@@ -96,6 +96,10 @@ static int debug = 1;
- module_param(debug, int, 0644);
- MODULE_PARM_DESC(debug, "Activate debugging output");
+diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-convert-from-usb_device-to-usb_interface drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-convert-from-usb_device-to-usb_interface
++++ a/drivers/input/touchscreen/usbtouchscreen.c
+@@ -104,7 +104,7 @@ struct usbtouch_usb {
+ 	unsigned char *buffer;
+ 	int buf_len;
+ 	struct urb *irq;
+-	struct usb_device *udev;
++	struct usb_interface *interface;
+ 	struct input_dev *input;
+ 	struct usbtouch_device_info *type;
+ 	char name[128];
+@@ -234,8 +234,9 @@ static struct usb_device_id usbtouch_dev
+ static int e2i_init(struct usbtouch_usb *usbtouch)
+ {
+ 	int ret;
++	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
-+static int nomt;
-+module_param(nomt, int, 0644);
-+MODULE_PARM_DESC(nomt, "Disable multitouch (MT) events");
-+
- /* button data structure */
- struct bt_data {
- 	u8 unknown1;		/* constant */
-@@ -139,6 +143,7 @@ struct tp_finger {
- /* trackpad finger data size, empirically at least ten fingers */
- #define SIZEOF_FINGER		sizeof(struct tp_finger)
- #define SIZEOF_ALL_FINGERS	(16 * SIZEOF_FINGER)
-+#define MAX_FINGER_ORIENTATION	16384
+-	ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
++	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 	                      0x01, 0x02, 0x0000, 0x0081,
+ 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
  
- /* device-specific parameters */
- struct bcm5974_param {
-@@ -284,6 +289,28 @@ static void setup_events_to_report(struc
- 	input_set_abs_params(input_dev, ABS_Y,
- 				0, cfg->y.dim, cfg->y.fuzz, 0);
+@@ -344,8 +345,9 @@ static int mtouch_read_data(struct usbto
+ static int mtouch_init(struct usbtouch_usb *usbtouch)
+ {
+ 	int ret, i;
++	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
-+	if (!nomt) {
-+		/* finger touch area */
-+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR,
-+				     cfg->w.devmin, cfg->w.devmax, 0, 0);
-+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR,
-+				     cfg->w.devmin, cfg->w.devmax, 0, 0);
-+		/* finger approach area */
-+		input_set_abs_params(input_dev, ABS_MT_WIDTH_MAJOR,
-+				     cfg->w.devmin, cfg->w.devmax, 0, 0);
-+		input_set_abs_params(input_dev, ABS_MT_WIDTH_MINOR,
-+				     cfg->w.devmin, cfg->w.devmax, 0, 0);
-+		/* finger orientation */
-+		input_set_abs_params(input_dev, ABS_MT_ORIENTATION,
-+				     -MAX_FINGER_ORIENTATION,
-+				     MAX_FINGER_ORIENTATION, 0, 0);
-+		/* finger position */
-+		input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-+				     cfg->x.devmin, cfg->x.devmax, 0, 0);
-+		input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-+				     cfg->y.devmin, cfg->y.devmax, 0, 0);
-+	}
-+
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-@@ -316,7 +343,7 @@ static int report_tp_state(struct bcm597
- 	const struct bcm5974_config *c = &dev->cfg;
- 	const struct tp_finger *f;
- 	struct input_dev *input = dev->input;
--	int raw_p, raw_w, raw_x, raw_y, raw_n;
-+	int raw_p, raw_w, raw_x, raw_y, raw_n, i;
- 	int ptest, origin, ibt = 0, nmin = 0, nmax = 0;
- 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
+-	ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
++	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 	                      MTOUCHUSB_RESET,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -356,7 +358,7 @@ static int mtouch_init(struct usbtouch_u
+ 	msleep(150);
  
-@@ -329,6 +356,30 @@ static int report_tp_state(struct bcm597
+ 	for (i = 0; i < 3; i++) {
+-		ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
++		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+ 				      MTOUCHUSB_ASYNC_REPORT,
+ 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -489,7 +491,7 @@ static int gunze_read_data(struct usbtou
  
- 	/* always track the first finger; when detached, start over */
- 	if (raw_n) {
-+
-+		/* report raw trackpad data */
-+		if (!nomt) {
-+			for (i = 0; i < raw_n; i++) {
-+				int y = c->y.devmin + c->y.devmax;
-+				input_report_abs(input, ABS_MT_TOUCH_MAJOR,
-+						 raw2int(f[i].force_major));
-+				input_report_abs(input, ABS_MT_TOUCH_MINOR,
-+						 raw2int(f[i].force_minor));
-+				input_report_abs(input, ABS_MT_WIDTH_MAJOR,
-+						 raw2int(f[i].size_major));
-+				input_report_abs(input, ABS_MT_WIDTH_MINOR,
-+						 raw2int(f[i].size_minor));
-+				input_report_abs(input, ABS_MT_ORIENTATION,
-+						 MAX_FINGER_ORIENTATION -
-+						 raw2int(f[i].orientation));
-+				input_report_abs(input, ABS_MT_POSITION_X,
-+						 raw2int(f[i].abs_x));
-+				input_report_abs(input, ABS_MT_POSITION_Y,
-+						 y - raw2int(f[i].abs_y));
-+				input_mt_sync(input);
-+			}
-+		}
-+
- 		raw_p = raw2int(f->force_major);
- 		raw_w = raw2int(f->size_major);
- 		raw_x = raw2int(f->abs_x);
+ static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
+ {
+-	struct usb_device *dev = usbtouch->udev;
++	struct usb_device *dev = interface_to_usbdev(usbtouch->interface);
+ 	int ret = -ENOMEM;
+ 	unsigned char *buf;
+ 
+@@ -1021,7 +1023,7 @@ static int usbtouch_open(struct input_de
+ {
+ 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
+ 
+-	usbtouch->irq->dev = usbtouch->udev;
++	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
+ 
+ 	if (!usbtouch->type->irq_always) {
+ 		if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
+@@ -1094,7 +1096,7 @@ static int usbtouch_probe(struct usb_int
+ 		goto out_free_buffers;
+ 	}
+ 
+-	usbtouch->udev = udev;
++	usbtouch->interface = intf;
+ 	usbtouch->input = input_dev;
+ 
+ 	if (udev->manufacturer)
+@@ -1133,12 +1135,12 @@ static int usbtouch_probe(struct usb_int
+ 		input_set_abs_params(input_dev, ABS_PRESSURE, type->min_press,
+ 		                     type->max_press, 0, 0);
+ 
+-	usb_fill_int_urb(usbtouch->irq, usbtouch->udev,
+-			 usb_rcvintpipe(usbtouch->udev, endpoint->bEndpointAddress),
++	usb_fill_int_urb(usbtouch->irq, udev,
++			 usb_rcvintpipe(udev, endpoint->bEndpointAddress),
+ 			 usbtouch->data, type->rept_size,
+ 			 usbtouch_irq, usbtouch, endpoint->bInterval);
+ 
+-	usbtouch->irq->dev = usbtouch->udev;
++	usbtouch->irq->dev = udev;
+ 	usbtouch->irq->transfer_dma = usbtouch->data_dma;
+ 	usbtouch->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 
 _

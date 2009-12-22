@@ -1,33 +1,53 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-pm] [RFT] Input: speed up suspend/shutdown for PS/2 mice
- and keyboards
-Date: Mon, 21 Dec 2009 15:29:20 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0912211528550.2643-100000@iolanthe.rowland.org>
-References: <20091221070951.GA4170@core.coreip.homeip.net>
+From: akpm@linux-foundation.org
+Subject: [patch 1/8] input: bcm5974: retract efi-broken suspend_resume
+Date: Mon, 21 Dec 2009 16:22:55 -0800
+Message-ID: <200912220022.nBM0MtvF005032@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:33411 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753309AbZLUU3X (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:45774 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751548AbZLVAXH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Dec 2009 15:29:23 -0500
-In-Reply-To: <20091221070951.GA4170@core.coreip.homeip.net>
+	Mon, 21 Dec 2009 19:23:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, linux-pm@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-On Sun, 20 Dec 2009, Dmitry Torokhov wrote:
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
-> Hi,
-> 
-> I am asking everyone to give this patch a try. It is reported to speed
-> up suspend process, however there is a risk that there are boxes out
-> there that do require full reset and I would prefer to know that sooner
-> than later.
+With the recent system-wide improvements on suspend/resume and EFI booting
+the suspend_resume method of the bcm5974 has broken.  When waking up from
+the S3 state on the MacBookAir, the trackpad is found in a yet unknown
+state, unable to switch to the proper multitouch mode.  The result is a
+frozen touchpad, and a flood of errors of the kind
 
-It works okay on my machine (Intel ICH4).
+bcm5974: bad trackpad package, length: 8.
 
-Alan Stern
+This patch retracts the reset_resume method altogether, falling back on
+the generic unbind/rebind functionality of the usb layer until further
+investigations can be made as how to reset the device when booting from
+efi.
 
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ drivers/input/mouse/bcm5974.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume
++++ a/drivers/input/mouse/bcm5974.c
+@@ -761,7 +761,6 @@ static struct usb_driver bcm5974_driver 
+ 	.disconnect		= bcm5974_disconnect,
+ 	.suspend		= bcm5974_suspend,
+ 	.resume			= bcm5974_resume,
+-	.reset_resume		= bcm5974_resume,
+ 	.id_table		= bcm5974_table,
+ 	.supports_autosuspend	= 1,
+ };
+_

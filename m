@@ -1,51 +1,62 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Support for 3M multitouch panel
-Date: Tue, 22 Dec 2009 19:00:49 +0100
-Message-ID: <694242AB-D4DC-470D-916D-9ADB2B798FBA@enac.fr>
-References: <20091211101258.CD35D951F5@smtp.lii-enac-fr> <20091211124226.GD17995@ibawizard.net> <20091211141038.0CBD8951F5@smtp.lii-enac.fr> <20091211223622.GA3067@core.coreip.homeip.net>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:43235 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751138AbZLVSBE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Dec 2009 13:01:04 -0500
-In-Reply-To: <20091211223622.GA3067@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Peter Palfrader <weasel@debian.org>
+Subject: Re: 2.6.32.1: BUG and panic: unable to handle kernel NULL pointer dereference at 000000000000001f
+Date: Tue, 22 Dec 2009 19:33:54 +0100
+Message-ID: <20091222183354.GM13850@anguilla.noreply.org>
+References: <20091215162736.GS13850@anguilla.noreply.org> <871vindxkv.fsf@basil.nowhere.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754589AbZLVSd5@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <871vindxkv.fsf@basil.nowhere.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: linux-kernel@vger.kernel.org, DSA <debian-admin@lists.debian.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ynezz@true.cz, linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Tue, 22 Dec 2009, Andi Kleen wrote:
 
-I am working on the 3M driver and taking your comments into account  
-(and applying them to the Stantum driver as well) but I have an  
-question on the comment below:
+> > [    5.304749] BUG: unable to handle kernel NULL pointer dereference at 000000000000001f
+> > ..
+> > [    5.308739] Call Trace:
+> > [    5.308739]  [<ffffffff810c3840>] kstrdup+0x40/0x70
+> > [    5.308739]  [<ffffffff81150d77>] sysfs_new_dirent+0xf7/0x110
+> > [    5.308739]  [<ffffffff8115121d>] create_dir+0x3d/0xc0
+> > [    5.308739]  [<ffffffff81090af1>] ? autoremove_wake_function+0x11/0x40
+> > [    5.308739]  [<ffffffff811512d4>] sysfs_create_dir+0x34/0x50
+> > [    5.308739]  [<ffffffff8138e7ea>] ? kobject_get+0x1a/0x30
+> > [    5.308739]  [<ffffffff8138e961>] kobject_add_internal+0xe1/0x1e0
+> > [    5.308739]  [<ffffffff8138eb78>] kobject_add_varg+0x38/0x60
+> > [    5.308739]  [<ffffffff8138ec15>] kobject_init_and_add+0x75/0x90
+> > [    5.308739]  [<ffffffff81150560>] ? sysfs_ilookup_test+0x0/0x20
+> > [    5.308739]  [<ffffffff8115082d>] ? sysfs_find_dirent+0x2d/0x40
+> > [    5.308739]  [<ffffffff81150ec1>] ? sysfs_addrm_finish+0x21/0x250
+> > [    5.308739]  [<ffffffff8138e7ea>] ? kobject_get+0x1a/0x30
+> > [    5.308739]  [<ffffffff810e6fe4>] ? kmem_cache_alloc+0x84/0xc0
+> > [    5.308739]  [<ffffffff814238d4>] bus_add_driver+0x94/0x260
+> > [    5.308739]  [<ffffffff81424ed9>] driver_register+0x79/0x160
+> > [    5.308739]  [<ffffffff815a28a3>] __hid_register_driver+0x43/0x80
+> > [    5.308739]  [<ffffffff81a3d7ff>] ? gyration_init+0x0/0x1b
+> > [    5.308739]  [<ffffffff81a3d818>] gyration_init+0x19/0x1b
+> 
+> Seems to be caused by the "gyration driver" whatever that is. Do you
+> have such a USB device?  
 
->
->> +struct mmm_finger {
->> +	__s32 x, y;
->> +	__u8 rank;
->> +	int touch:1, valid:1;
->> +};
->
-> Does it make sense to turn access to touch and valid into
-> read-modify-write sequence?  Just change them to be 'bool's, it won't
-> cause your structures to grow in size.
->
->> +struct mmm_data {
->> +	struct mmm_finger f[10];
->> +	__u8 curid, num;
->> +	int touch:1, valid:1;
->
-> Same as above.
+Doubtful.
 
-Why do you think a read-modify-write sequence would be better? in my  
-mind these were just cached values, just like x and y.
+> It could be some module mismatch, it looks suspicious
+> and from a quick look the gyration driver does nothing bad 
+> in that init path. Try a make clean and remove/rebuild/reinstall all the modules
+> on the target system.
+> 
+> If that doesn't help perhaps disable CONFIG_HID_GYRATION,
+> but from your other oops something more seems to be broken anyways.
 
-Cheers,
+This is a static kernel - no module support.  Anyway, I also tried
+without CONFIG_USB_HID (which pulls in all the other HID_* things) but
+no luck.
 
-St.
-  
+-- 
+                           |  .''`.  ** Debian GNU/Linux **
+      Peter Palfrader      | : :' :      The  universal
+ http://www.palfrader.org/ | `. `'      Operating System
+                           |   `-    http://www.debian.org/

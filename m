@@ -1,48 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] ff-memless instant starting
-Date: Wed, 23 Dec 2009 11:38:06 -0800
-Message-ID: <20091223193805.GB4525@core.coreip.homeip.net>
-References: <1261575074.24604.31.camel@tema>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [linux-pm] [RFT] Input: speed up suspend/shutdown for PS/2 mice and keyboards
+Date: Wed, 23 Dec 2009 21:48:47 +0100
+Message-ID: <200912232148.47172.rjw@sisk.pl>
+References: <Pine.LNX.4.44L0.0912211528550.2643-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:46806 "EHLO
-	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751877AbZLWTiY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Dec 2009 14:38:24 -0500
-Received: by pzk26 with SMTP id 26so4528126pzk.4
-        for <linux-input@vger.kernel.org>; Wed, 23 Dec 2009 11:38:23 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1261575074.24604.31.camel@tema>
+Received: from ogre.sisk.pl ([217.79.144.158]:52366 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752654AbZLWUsE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Dec 2009 15:48:04 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0912211528550.2643-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Anssi Hannula <anssi.hannula@iki.fi>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-pm@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>
 
-On Wed, Dec 23, 2009 at 03:31:14PM +0200, Jari Vanhala wrote:
-> Hi,
+On Monday 21 December 2009, Alan Stern wrote:
+> On Sun, 20 Dec 2009, Dmitry Torokhov wrote:
 > 
-> Looks like starting effect with low HZ machine takes considerably time
-> due need to wait for system timer. Simplest way to make things faster is
-> to do calculation for effect always instantly, like in stopping, but
-> this makes starting multiple effects more costly.
+> > Hi,
+> > 
+> > I am asking everyone to give this patch a try. It is reported to speed
+> > up suspend process, however there is a risk that there are boxes out
+> > there that do require full reset and I would prefer to know that sooner
+> > than later.
 > 
-> Other solution would be making it a module parameter, so behavior could
-> be controlled per machine. Optimize possible cost or speed. I attached
-> small patch which will do that.
-> 
-> If starting priority of individual effect is needed to controlled, you
-> probably need to add flag for that to effect itself... I don't know
-> which way FF-api is developing, so this could be either good or bad
-> thing.
-> 
-> Any opinions or suggestions? Other than rising HZ. =)
-> 
+> It works okay on my machine (Intel ICH4).
 
-I think we should just start playing the effect immediately, without any
-additional module parameters. I'll queue such patch unless I hear
-otherwise from Anssi.
+Likewise on my Toshiba Portege R500 (ICH7).
 
--- 
-Dmitry
+[Of course, it also works on my other test boxes, the Wind has ICH7 like the
+Toshiba, and the nx6325 has ATI SB400).
+
+Rafael

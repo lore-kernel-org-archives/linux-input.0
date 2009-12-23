@@ -1,63 +1,368 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Support for 3M multitouch panel
-Date: Wed, 23 Dec 2009 10:47:58 +0100
-Message-ID: <710D1CE6-4FB1-490F-9452-0ADEE565CC22@enac.fr>
-References: <20091211101258.CD35D951F5@smtp.lii-enac-fr>  <20091211124226.GD17995@ibawizard.net>  <20091211141038.0CBD8951F5@smtp.lii-enac.fr>  <20091211223622.GA3067@core.coreip.homeip.net>  <694242AB-D4DC-470D-916D-9ADB2B798FBA@enac.fr>  <20091222185628.GA28392@core.coreip.homeip.net>  <20091222220417.EA008951F2@smtp.lii-enac.fr> <alpine.LNX.2.00.0912230131530.3755@pobox.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: Re: [PATCH 2/2] Support for Stantum multitouch panel
+Date: Wed, 23 Dec 2009 11:56:11 +0100
+Message-ID: <20091223105611.82AC3951F2@smtp.lii-enac.fr>
+References: <20091209214928.1E24D9520C@enac.fr>
+ <20091209231516.GF10138@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:48404 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:60305 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752812AbZLWJsG convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1753952AbZLWK4S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Dec 2009 04:48:06 -0500
-In-Reply-To: <alpine.LNX.2.00.0912230131530.3755@pobox.suse.cz>
+	Wed, 23 Dec 2009 05:56:18 -0500
+In-Reply-To: <20091209231516.GF10138@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Stephane Chatty <chatty@lii-enac.fr>, dmitry.torokhov@gmail.com, ynezz@true.cz, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, chatty@lii-enac.fr
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org
 
-
-Le 23 d=E9c. 09 =E0 01:33, Jiri Kosina a =E9crit :
-
-> On Tue, 22 Dec 2009, Stephane Chatty wrote:
->
->> Added support for 3M multitouch panels.
->
-> ... I had to fix trivial build failure (3M vs. MMM inconsistency in
-> defines).
-
-Oops, sorry. This 3M / MMM thing has bothered me until the end, and I =20
-probably did one change too much.
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
 >
->> +config HID_3M_PCT
->> +	tristate "3M PCT" if EMBEDDED
->> +	depends on USB_HID
->> +	default !EMBEDDED
+> > Dmitry
 >
-> Hmm, I wouldn't be so sure about this in this case ... the point =20
-> behind
-> 'default !EMBEDDED' was that simple a straightforward quirks for HID
-> devices (which are implemented as drivers on HID bus) wouldn't have =20
-> to be
-> enabled separately, if the device is otherwise more-or-less HID =20
-> standard
-> compliant.
->
-> But this driver is rather standalone driver, I guess we'd want to =20
-> have it
-> normally selectable.
+Added support for the Stantum multitouch panel.
 
-I guess too. I had just copied other sections, not fully =20
-understanding what I was doing.
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
-St.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2009-12-08 22:32:21.000000000 +0100
++++ b/drivers/hid/hid-core.c	2009-12-08 22:36:19.000000000 +0100
+@@ -1337,6 +1337,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
+diff -rupN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2009-12-03 04:51:21.000000000 +0100
++++ b/drivers/hid/hid-ids.h	2009-12-08 22:43:10.000000000 +0100
+@@ -383,6 +383,9 @@
+ #define USB_DEVICE_ID_SOUNDGRAPH_IMON_FIRST	0x0034
+ #define USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST	0x0046
+ 
++#define USB_VENDOR_ID_STANTUM		0x1f87
++#define USB_DEVICE_ID_MTP		0x0002
++
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+ 
+diff -rupN a/drivers/hid/hid-stantum.c b/drivers/hid/hid-stantum.c
+--- a/drivers/hid/hid-stantum.c	1970-01-01 01:00:00.000000000 +0100
++++ b/drivers/hid/hid-stantum.c	2009-12-23 11:05:11.000000000 +0100
+@@ -0,0 +1,283 @@
++/*
++ *  HID driver for Stantum multitouch panels
++ *
++ *  Copyright (c) 2009 Stephane Chatty <chatty@enac.fr>
++ *
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++MODULE_VERSION("0.6");
++MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
++MODULE_DESCRIPTION("Stantum HID multitouch panels");
++MODULE_LICENSE("GPL");
++
++#include "hid-ids.h"
++
++struct stantum_data {
++	__s32 x, y, z, w, h;	/* x, y, pressure, width, height */
++	__u16 id;		/* touch id */
++	bool valid;		/* valid finger data, or just placeholder? */
++	bool first;		/* first finger in the HID packet? */
++	bool activity;		/* at least one active finger so far? */
++};
++
++static int stantum_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	switch (usage->hid & HID_USAGE_PAGE) {
++
++	case HID_UP_GENDESK:
++		switch (usage->hid) {
++		case HID_GD_X:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_X);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_X,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
++		case HID_GD_Y:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_Y);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_Y,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
++		}
++		return 0;
++
++	case HID_UP_DIGITIZER:
++		switch (usage->hid) {
++		case HID_DG_INRANGE:
++		case HID_DG_CONFIDENCE:
++		case HID_DG_INPUTMODE:
++		case HID_DG_DEVICEINDEX:
++		case HID_DG_CONTACTCOUNT:
++		case HID_DG_CONTACTMAX:
++		case HID_DG_TIPPRESSURE:
++			return -1;
++
++		case HID_DG_TIPSWITCH:
++			/* touchscreen emulation */
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++			return 1;
++
++		case HID_DG_WIDTH:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MAJOR);
++			return 1;
++		case HID_DG_HEIGHT:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MINOR);
++			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
++					1, 1, 0, 0);
++			return 1;
++		case HID_DG_CONTACTID:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TRACKING_ID);
++			return 1;
++
++		}
++		return 0;
++
++	case 0xff000000:
++		/* no input-oriented meaning */
++		return -1;
++	}
++
++	return 0;
++}
++
++static int stantum_input_mapped(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	if (usage->type == EV_KEY || usage->type == EV_ABS)
++		clear_bit(usage->code, *bit);
++
++	return 0;
++}
++
++/*
++ * this function is called when a whole finger has been parsed,
++ * so that it can decide what to send to the input layer.
++ */
++static void stantum_filter_event(struct stantum_data *sd,
++					struct input_dev *input)
++{
++	bool wide;
++
++	if (!sd->valid) {
++		/*
++		 * touchscreen emulation: if the first finger is not valid and
++		 * there previously was finger activity, this is a release
++		 */
++		if (sd->first && sd->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 0);
++			sd->activity = false;
++		}
++		return;
++	}
++
++	input_event(input, EV_ABS, ABS_MT_TRACKING_ID, sd->id);
++	input_event(input, EV_ABS, ABS_MT_POSITION_X, sd->x);
++	input_event(input, EV_ABS, ABS_MT_POSITION_Y, sd->y);
++
++	wide = (sd->w > sd->h);
++	input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
++	input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, wide ? sd->w : sd->h);
++	input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, wide ? sd->h : sd->w);
++
++#if 0
++	/* MT_PRESSURE does not exist yet */
++	input_event(input, EV_ABS, ABS_MT_PRESSURE, sd->z);
++#endif
++
++	input_mt_sync(input);
++	sd->valid = false;
++	sd->first = false;
++
++	/* touchscreen emulation */
++	if (sd->first) {
++		if (!sd->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 1);
++			sd->activity = true;
++		}
++		input_event(input, EV_ABS, ABS_X, sd->x);
++		input_event(input, EV_ABS, ABS_Y, sd->y);
++	}
++}
++
++
++static int stantum_event(struct hid_device *hid, struct hid_field *field,
++				struct hid_usage *usage, __s32 value)
++{
++	struct stantum_data *sd = hid_get_drvdata(hid);
++
++	if (hid->claimed & HID_CLAIMED_INPUT) {
++		struct input_dev *input = field->hidinput->input;
++
++		switch (usage->hid) {
++		case HID_DG_INRANGE:
++			/* this is the last field in a finger */
++			stantum_filter_event(sd, input);
++			break;
++		case HID_DG_WIDTH:
++			sd->w = value;
++			break;
++		case HID_DG_HEIGHT:
++			sd->h = value;
++			break;
++		case HID_GD_X:
++			sd->x = value;
++			break;
++		case HID_GD_Y:
++			sd->y = value;
++			break;
++		case HID_DG_TIPPRESSURE:
++			sd->z = value;
++			break;
++		case HID_DG_CONTACTID:
++			sd->id = value;
++			break;
++		case HID_DG_CONFIDENCE:
++			sd->valid = !!value;
++			break;
++		case 0xff000002:
++			/* this comes only before the first finger */
++			sd->first = true;
++			break;
++
++		default:
++			/* ignore the others */
++			return 1;
++		}
++	}
++
++	/* we have handled the hidinput part, now remains hiddev */
++	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
++		hid->hiddev_hid_event(hid, field, usage, value);
++
++	return 1;
++}
++
++static int stantum_probe(struct hid_device *hdev,
++				const struct hid_device_id *id)
++{
++	int ret;
++	struct stantum_data *sd;
++
++	sd = kmalloc(sizeof(struct stantum_data), GFP_KERNEL);
++	if (!sd) {
++		dev_err(&hdev->dev, "cannot allocate Stantum data\n");
++		return -ENOMEM;
++	}
++	sd->valid = false;
++	sd->first = false;
++	sd->activity = false;
++	hid_set_drvdata(hdev, sd);
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	if (ret)
++		kfree(sd);
++
++	return ret;
++}
++
++static void stantum_remove(struct hid_device *hdev)
++{
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
++	hid_set_drvdata(hdev, NULL);
++}
++
++static const struct hid_device_id stantum_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STANTUM, USB_DEVICE_ID_MTP) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, stantum_devices);
++
++static const struct hid_usage_id stantum_grabbed_usages[] = {
++	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
++	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
++};
++
++static struct hid_driver stantum_driver = {
++	.name = "stantum",
++	.id_table = stantum_devices,
++	.probe = stantum_probe,
++	.remove = stantum_remove,
++	.input_mapping = stantum_input_mapping,
++	.input_mapped = stantum_input_mapped,
++	.usage_table = stantum_grabbed_usages,
++	.event = stantum_event,
++};
++
++static int __init stantum_init(void)
++{
++	return hid_register_driver(&stantum_driver);
++}
++
++static void __exit stantum_exit(void)
++{
++	hid_unregister_driver(&stantum_driver);
++}
++
++module_init(stantum_init);
++module_exit(stantum_exit);
++
+diff -rupN a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+--- a/drivers/hid/Kconfig	2009-12-08 22:32:05.000000000 +0100
++++ b/drivers/hid/Kconfig	2009-12-23 11:02:12.000000000 +0100
+@@ -241,6 +241,12 @@ config HID_SONY
+ 	---help---
+ 	Support for Sony PS3 controller.
+ 
++config HID_STANTUM
++	tristate "Stantum" if EMBEDDED
++	depends on USB_HID
++	---help---
++	Support for Stantum multitouch panel.
++
+ config HID_SUNPLUS
+ 	tristate "Sunplus" if EMBEDDED
+ 	depends on USB_HID
+diff -rupN a/drivers/hid/Makefile b/drivers/hid/Makefile
+--- a/drivers/hid/Makefile	2009-12-08 22:32:01.000000000 +0100
++++ b/drivers/hid/Makefile	2009-12-08 22:35:20.000000000 +0100
+@@ -39,6 +39,7 @@ obj-$(CONFIG_HID_PETALYNX)	+= hid-petaly
+ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
++obj-$(CONFIG_HID_STANTUM)	+= hid-stantum.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o

@@ -1,50 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: linux kernel HID problem with Saitek X52 Pro Flight System
-Date: Wed, 23 Dec 2009 10:55:47 -0800
-Message-ID: <20091223185546.GA4525@core.coreip.homeip.net>
-References: <20091212044425.GA2956@core.coreip.homeip.net> <4B261412.6090409@canonical.com> <20091214173631.GC2373@core.coreip.homeip.net> <alpine.LNX.2.00.0912151357210.3755@pobox.suse.cz> <4B278C67.5050505@canonical.com> <alpine.LNX.2.00.0912170229340.3755@pobox.suse.cz> <20091217013831.GF6800@core.coreip.homeip.net> <alpine.LNX.2.00.0912181609310.3755@pobox.suse.cz> <20091218174905.GA23450@core.coreip.homeip.net> <alpine.LNX.2.00.0912221430500.3755@pobox.suse.cz>
+Subject: Re: [RFC] ff-memless instant starting
+Date: Wed, 23 Dec 2009 11:38:06 -0800
+Message-ID: <20091223193805.GB4525@core.coreip.homeip.net>
+References: <1261575074.24604.31.camel@tema>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f188.google.com ([209.85.222.188]:56435 "EHLO
+Received: from mail-pz0-f188.google.com ([209.85.222.188]:46806 "EHLO
 	mail-pz0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751046AbZLWS4H (ORCPT
+	with ESMTP id S1751877AbZLWTiY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Dec 2009 13:56:07 -0500
-Received: by pzk26 with SMTP id 26so4506898pzk.4
-        for <linux-input@vger.kernel.org>; Wed, 23 Dec 2009 10:56:03 -0800 (PST)
+	Wed, 23 Dec 2009 14:38:24 -0500
+Received: by pzk26 with SMTP id 26so4528126pzk.4
+        for <linux-input@vger.kernel.org>; Wed, 23 Dec 2009 11:38:23 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0912221430500.3755@pobox.suse.cz>
+In-Reply-To: <1261575074.24604.31.camel@tema>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Stefan Bader <stefan.bader@canonical.com>, Anssi Hannula <anssi.hannula@iki.fi>, Tim Cole <tim.cole@canonical.com>, Sergey Kolesnikov <rockingdemon@gmail.com>, linux-input@vger.kernel.org
+To: Jari Vanhala <ext-jari.vanhala@nokia.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Anssi Hannula <anssi.hannula@iki.fi>
 
-On Tue, Dec 22, 2009 at 02:31:49PM +0100, Jiri Kosina wrote:
-> On Fri, 18 Dec 2009, Dmitry Torokhov wrote:
+On Wed, Dec 23, 2009 at 03:31:14PM +0200, Jari Vanhala wrote:
+> Hi,
 > 
-> > > > > > #define BTN_TRIGGER_HAPPY01	0x210
-> > > > > > ...
-> > > > > > #define BTN_TRIGGER_HAPPY40	0x238
-> > > > > > 
-> > > > > > :-P Assuming 40 additional buttons should be crazy enough (but I know
-> > > > > > this has been said before about other things).
-> > > > > 
-> > > > > Dmitry, do you have any preference here yourself?
-> > > > 
-> > > > "Trigger happy" sounds fine.
-> > > 
-> > > OK, so how about something along the lines below?
-> > 
-> > How about we move trigger happy further towards the 0x2ff limit?
+> Looks like starting effect with low HZ machine takes considerably time
+> due need to wait for system timer. Simplest way to make things faster is
+> to do calculation for effect always instantly, like in stopping, but
+> this makes starting multiple effects more costly.
 > 
-> Sure, no problem. Just tell me the range you'd be comfortable with, and 
-> I'll apply a patch using that range.
+> Other solution would be making it a module parameter, so behavior could
+> be controlled per machine. Optimize possible cost or speed. I attached
+> small patch which will do that.
+> 
+> If starting priority of individual effect is needed to controlled, you
+> probably need to add flag for that to effect itself... I don't know
+> which way FF-api is developing, so this could be either good or bad
+> thing.
+> 
+> Any opinions or suggestions? Other than rising HZ. =)
 > 
 
-How about we start with 0x2c0 - it will give us a buffer of another 20
-to pad with and if that range is not enough that means we need to come
-up with a new story for supporing such joysticks...
+I think we should just start playing the effect immediately, without any
+additional module parameters. I'll queue such patch unless I hear
+otherwise from Anssi.
 
 -- 
 Dmitry

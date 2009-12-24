@@ -1,149 +1,214 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.33-rc2
-Date: Thu, 31 Dec 2009 13:06:54 -0800
-Message-ID: <20091231210654.GA3874@core.coreip.homeip.net>
-References: <20091227214924.GB16279@core.coreip.homeip.net>
- <alpine.LFD.2.00.0912301257340.11961@localhost.localdomain>
- <C08FBDE4-7143-46E4-9DB8-912E870D0008@gmail.com>
- <20091231012252.GA13512@core.coreip.homeip.net>
- <alpine.LFD.2.00.0912311125310.11961@localhost.localdomain>
+From: Marcin Tolysz <tolysz@gmail.com>
+Subject: [RFC] Simple but effective way of changing HID device descriptors
+ (resent)
+Date: Thu, 24 Dec 2009 02:29:47 +0000
+Message-ID: <4B32D21B.9090800@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+ boundary="------------090203020504080102050601"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:48656 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751336AbZLaVHA (ORCPT
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:57288 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751574AbZLXC3x (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Dec 2009 16:07:00 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0912311125310.11961@localhost.localdomain>
+	Wed, 23 Dec 2009 21:29:53 -0500
+Received: by ewy19 with SMTP id 19so6960532ewy.21
+        for <linux-input@vger.kernel.org>; Wed, 23 Dec 2009 18:29:51 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On Thu, Dec 31, 2009 at 11:50:59AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 30 Dec 2009, Dmitry Torokhov wrote:
-> >
-> > Dmitry Torokhov (7):
-> >       Input: speed up suspend/shutdown for PS/2 mice and keyboards
-> 
-> Btw, the thing I like best about this commit is how it adds some comments 
-> on the keyboard commands.
-> 
-> That said, the naming and the comments aren't all that wonderful. I don't 
-> think you should use the word "RESET" for command f5/f6: the command is 
-> called "Set Default" (and ".. Disable" for f5), and there is no actual 
-> reset involved. 
-> 
+This is a multi-part message in MIME format.
+--------------090203020504080102050601
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I guess it is just a matter of wording. For me "reset" and "revert to
-initial state" are pretty much the same.
+Simple but effective way of changing HID device descriptors using 
+firmware loading mechanism.
+Just place your new descriptor in a location specified by driver
+i.e. somewhere in /lib/firmware/hid/
+If it is there it will replace HID descriptor from the device.
+I do not do any parsing or checking, as it is done by hid driver.
 
-> So I suspect the command should be renamed to
-> 
-> 	#define ATKBD_CMD_SET_DEFAULTS_AND_DISABLE	0x00f5
+Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
 
-ATKBD_CMD_SET_DEFAULTS_AND_DISABLE_DATA_REPORTING :) I was just trying
-to follow the existing naming style. It was there before me and it does
-make sense to me still so I did not feel the neet to change it.
+---
+  drivers/hid/hid-core.c |   26 +++++++++++++++++++++++++-
+  1 files changed, 25 insertions(+), 1 deletions(-)
 
-> 	#define ATKBD_CMD_SET_DEFAULTS			0x00f6
-> 
-> and then the comments wouldn't even be needed (and anybody reading the 
-> code would not have to look them up in the header file).
-> 
-> And then "ATKBD_CMD_RESET_BAT" should probably just be "ATKBD_CMD_RESET" 
-> (I wonder what the "BAT" part is all about?)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 80792d3..5d8d656 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -27,6 +27,7 @@
+  #include <linux/wait.h>
+  #include <linux/vmalloc.h>
+  #include <linux/sched.h>
++#include <linux/firmware.h>
 
-That came from Vojtech but I am pretty sure this stands for Basic
-Assurance Test since full reset for touchpads for example involves
-recalibration. See this excerpt from Synaptics docs:
+  #include <linux/hid.h>
+  #include <linux/hiddev.h>
+@@ -640,6 +641,10 @@ int hid_parse_report(struct hid_device *device, 
+__u8 *start,
+  	struct hid_item item;
+  	__u8 *end;
+  	int ret;
++	const struct firmware *fw;
++	int succ;
++	char *file;
++
+  	static int (*dispatch_type[])(struct hid_parser *parser,
+  				      struct hid_item *item) = {
+  		hid_parser_main,
+@@ -650,10 +655,27 @@ int hid_parse_report(struct hid_device *device, 
+__u8 *start,
 
-"At power-on, the PS/2 TouchPad performs a self-test and calibration,
-then transmits the completion code $AA and ID code $00. If the TouchPad
-fails its self-test, it transmits error code $FC and ID code $00.  This
-processing also occurs when a software Reset ($FF) command is received.
-The host should not attempt to send commands to the TouchPad until the
-calibration/self-test is complete."
+  	if (device->driver->report_fixup)
+  		device->driver->report_fixup(device, start, size);
++	/* Now load a hid descriptor from a file firmware
++	ignoring this fixup thing */
++	file=kmalloc(29, GFP_KERNEL);
++ 
+sprintf(file,"hid/%04X:%04X:%04X:%04X.bin",device->bus,device->vendor,device->product,device->version);
++
++	succ = request_firmware(&fw, file, &device->dev);
++
++	if (succ)
++		printk(KERN_INFO "To relace HID descriptor place it in 
+/lib/firmaware/%s\n", file);
++	else{
++		start = fw->data;
++		size = fw->size;
++		printk(KERN_INFO "HID descriptor relaced with /lib/firmaware/%s\n", 
+file);
++	}
++	kfree(file);
 
-> 
-> Oh, and command F5h is not always a "set defaults and disable". For some 
-> (all?) PS/2 mice it seems to be _just_ a "disable",
+  	device->rdesc = kmalloc(size, GFP_KERNEL);
+-	if (device->rdesc == NULL)
++	if (device->rdesc == NULL){
++		if(!succ)release_firmware(fw);
+  		return -ENOMEM;
++	}
+  	memcpy(device->rdesc, start, size);
+  	device->rsize = size;
 
-Exactly, that is why it is called PSMOUSE_CMD_DISABLE when used in mouse
-context. However snippets of docs I have indicate that for keyboards it
-also causes them to reset to defaults.
+@@ -690,6 +712,7 @@ int hid_parse_report(struct hid_device *device, __u8 
+*start,
+  				dbg_hid("unbalanced delimiter at end of report description\n");
+  				goto err;
+  			}
++			if(!succ)release_firmware(fw);
+  			vfree(parser);
+  			return 0;
+  		}
+@@ -697,6 +720,7 @@ int hid_parse_report(struct hid_device *device, __u8 
+*start,
 
-> and I'm not at all 
-> sure you should have used it for the psmouse_cleanup() function.
+  	dbg_hid("item fetching failed at offset %d\n", (int)(end - start));
+  err:
++	if(!succ)release_firmware(fw);
+  	vfree(parser);
+  	return ret;
+  }
+-- 1.6.5.7
 
-I am using PSMOUSE_CMD_RESET_DIS (0xf6) in psmouse_cleanup().
+--------------090203020504080102050601
+Content-Type: text/x-patch;
+ name="0001-Simple-but-effective-way-of-chaging-HID-device-descr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="0001-Simple-but-effective-way-of-chaging-HID-device-descr.pa";
+ filename*1="tch"
 
-> You used 
-> to do a
-> 
-> 	psmouse_reset(psmouse);
-> 
-> which sent a full reset to the mouse (and waits for the two-byte ACK). It 
-> did _not_ disable the mouse - 
+>From 85bc06073ad4d18f44757c2c72f9f8409ecf3ac5 Mon Sep 17 00:00:00 2001
+From: Marcin Tolysz <tolysz@gmail.com>
+To: <linux-input@vger.kernel.org>
+Date: Thu, 24 Dec 2009 01:40:34 +0000
+Subject: [RFC] Simple but effective way of chaging HID device descriptors
 
-It does actually, at least for some devices (incidentally the ones that
-may give trouble to the BIOS if left as is):
+Simple but effective way of chaging HID device descriptorsusing firmware loading mechanism.
+Just place your new descriptor in a location specified by driver
+i.e. somewhere in /lib/firmware/hid/
+If it is there it will replace HID descriptor from the device.
+I do not do any parsing or checking, as it is done by hid driver.
 
-"The reset state of the TouchPad is as follows:
-- Reported sample rate is 100 samples per second (see page 30).
-- Reported resolution is 4 counts per mm (see page 32).
-- Scaling is 1:1.
-- Stream mode is selected.
-- Data reporting is disabled. <---------------
-- Absolute mode is disabled."
+Signed-off-by: Marcin Tolysz <tolysz@gmail.com>
 
-> that happened earlier in 
-> psmouse_deactivate(), when you sent it the PSMOUSE_CMD_DISABLE command.
+---
+ drivers/hid/hid-core.c |   26 +++++++++++++++++++++++++-
+ 1 files changed, 25 insertions(+), 1 deletions(-)
 
-What happened before doing psmouse_reset() (which is PSMOUSE_CMD_RESET_BAT)
-should not matter because all previous state should be reset after it.
-
-> 
-> You changed that 'psmouse_reset()' to
-> 
-> 	/*
-> 	 * Reset the mouse to defaults (bare PS/2 protocol).
-> 	 */
-> 	        ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-> 
-> which now disables it again, only to then later do
->         
-> 	/*      
-> 	 * Some boxes, such as HP nx7400, get terribly confused if mouse
-> 	 * is not fully enabled before suspending/shutting down.
-> 	 */     
-> 	        ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-> 
-> which seems odd. IOW, Why do you do a "set defaults and disable" followed 
-> by a "enable", when you already had it disabled?
-
-We do not have "light reset" option, so we have to use "light reset and
-disable" to return to the bare 3-byte PS/2 protocol. Then we have to
-re-enable the device because BIOS on some HP notebooks would get
-confused and not suspend (or resume, I don't quite remember) if mouse
-left disabled.
-
-> 
-> I think the PSMOUSE_CMD_RESET that _used_ to be there would re-enable most 
-> mice, but now that you don't even do that any more, I get the feeling that 
-> the "set defaults and disable" should be just a "set defaults".
-
-There is no such command for mice unfortunately.
-
-> 
-> (You may have good reasons for having picked the "and disable" command. I 
-> just wonder what they are)
-> 
-> 		Linus
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 80792d3..5d8d656 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -27,6 +27,7 @@
+ #include <linux/wait.h>
+ #include <linux/vmalloc.h>
+ #include <linux/sched.h>
++#include <linux/firmware.h>
+ 
+ #include <linux/hid.h>
+ #include <linux/hiddev.h>
+@@ -640,6 +641,10 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
+ 	struct hid_item item;
+ 	__u8 *end;
+ 	int ret;
++	const struct firmware *fw;
++	int succ;
++	char *file;
++
+ 	static int (*dispatch_type[])(struct hid_parser *parser,
+ 				      struct hid_item *item) = {
+ 		hid_parser_main,
+@@ -650,10 +655,27 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
+ 
+ 	if (device->driver->report_fixup)
+ 		device->driver->report_fixup(device, start, size);
++	/* Now load a hid descriptor from a file firmware
++	ignoring this fixup thing */
++	file=kmalloc(29, GFP_KERNEL);
++	sprintf(file,"hid/%04X:%04X:%04X:%04X.bin",device->bus,device->vendor,device->product,device->version);
++
++	succ = request_firmware(&fw, file, &device->dev);
++
++	if (succ)
++		printk(KERN_INFO "To relace HID descriptor place it in /lib/firmaware/%s\n", file);
++	else{
++		start = fw->data;
++		size = fw->size;
++		printk(KERN_INFO "HID descriptor relaced with /lib/firmaware/%s\n", file);
++	}
++	kfree(file);
+ 
+ 	device->rdesc = kmalloc(size, GFP_KERNEL);
+-	if (device->rdesc == NULL)
++	if (device->rdesc == NULL){
++		if(!succ)release_firmware(fw);
+ 		return -ENOMEM;
++	}
+ 	memcpy(device->rdesc, start, size);
+ 	device->rsize = size;
+ 
+@@ -690,6 +712,7 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
+ 				dbg_hid("unbalanced delimiter at end of report description\n");
+ 				goto err;
+ 			}
++			if(!succ)release_firmware(fw);
+ 			vfree(parser);
+ 			return 0;
+ 		}
+@@ -697,6 +720,7 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
+ 
+ 	dbg_hid("item fetching failed at offset %d\n", (int)(end - start));
+ err:
++	if(!succ)release_firmware(fw);
+ 	vfree(parser);
+ 	return ret;
+ }
 -- 
-Dmitry
+1.6.5.7
+
+
+--------------090203020504080102050601--

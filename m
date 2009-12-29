@@ -1,143 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] dell-laptop: Update rfkill state on kill switch
-Date: Tue, 29 Dec 2009 02:01:42 -0800
-Message-ID: <20091229100142.GA22292@core.coreip.homeip.net>
-References: <20091209203939.GC10138@core.coreip.homeip.net>
- <1260487533-4960-1-git-send-email-mjg@redhat.com>
- <1260487533-4960-2-git-send-email-mjg@redhat.com>
+From: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
+Subject: Re: Linux Force Feedback for Saitek Cyborg Evo Force
+Date: Tue, 29 Dec 2009 13:46:21 +0100
+Message-ID: <4B39FA1D.6070107@physik.uni-muenchen.de>
+References: <4B26B824.8010403@physik.uni-muenchen.de> <alpine.LNX.2.00.0912151403440.3755@pobox.suse.cz> <4B2ABC62.2030600@physik.uni-muenchen.de> <alpine.LNX.2.00.0912181150240.3755@pobox.suse.cz> <20091218175046.GB23450@core.coreip.homeip.net> <4B2D6377.1020703@physik.uni-muenchen.de> <20091221074419.GD3234@core.coreip.homeip.net> <20091221082259.GG3234@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1260487533-4960-2-git-send-email-mjg@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Len Brown <lenb@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, Matthew Garrett <mjg@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:53020 "EHLO
+	mail.physik.uni-muenchen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751475AbZL2MqZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Dec 2009 07:46:25 -0500
+In-Reply-To: <20091221082259.GG3234@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Thu, Dec 10, 2009 at 06:25:33PM -0500, Matthew Garrett wrote:
-> The rfkill interface on Dells only sends a notification that the switch
-> has been changed via the keyboard controller. Add a filter so we can
-> pick these notifications up and update the rfkill state appropriately.
-> 
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+Dmitry Torokhov wrote:
+> On Sun, Dec 20, 2009 at 11:44:19PM -0800, Dmitry Torokhov wrote:
+>> On Sun, Dec 20, 2009 at 12:36:23AM +0100, Johannes Ebke wrote:
+>>> Hi,
+>>>
+>>> It seems that the force feedback works well, I have ported the force
+>>> feedback for my favorite game to linux now, and it works well.
+>>>
+>>> What does not work is updating effects - there just nothing happens, and
+>>> the old event is played. I have circumvented this by
+>>> deleting/re-uploading the effect, but this should probably been made to
+>>> work. Does it work well with other hardware?
+>>>
+>>> Thirdly, I have re-discovered one kernel oops that occurs if the
+>>> joystick is unplugged if some process still has the event device open.
+>>> Steps to reproduce:
+>>> * plug joystick in
+>>> * fftest /dev/input/eventXX
+>>> * unplug joystick
+>>>
+>>> (kern.log extract attached)
+>>>
+>>> Sometimes this just gives an oops, sometimes it escalates into a kernel
+>>> panic.
+>>>
+>> Hmm, it looks like iforce unbinding is completely busted:
+>>
+>> static void iforce_usb_disconnect(struct usb_interface *intf)
+>> {
+>>         struct iforce *iforce = usb_get_intfdata(intf);
+>>         int open = 0; /* FIXME! iforce->dev.handle->open; */
+>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>>
+>>         usb_set_intfdata(intf, NULL);
+>>         if (iforce) {
+>>                 iforce->usbdev = NULL;
+>>                 input_unregister_device(iforce->dev);
+>>
+>>                 if (!open) {
+>>                         iforce_delete_device(iforce);
+>>                         kfree(iforce);
+>>                 }
+>>         }
+>> }
+>>
+>>
+>> Any chance you could fix that FIXME ;) ?
+>>
+>
+> Actually, does the below fixes it for you?
+>
 
-Len,
+This fixes the kernel oops - thanks! However it also disables FF, unless
+I remove "usb_kill_urb(iforce->out);" from iforce_close.
+>From some debug statements I found that iforce_close is called twice if
+you just plug in the joystick, so the effect is immediate.
 
-the i8042 changes are in Linus's tree now so this patch can now be
-applied.
+However, when I unplug the joystick while having it open, I get some
+input input22: usb_submit_urb failed -19
+messages in dmesg (after iforce_disconnect but before iforce_close)
+This is probably what should happen, however.
 
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
-
-> ---
->  drivers/platform/x86/Kconfig       |    1 +
->  drivers/platform/x86/dell-laptop.c |   43 ++++++++++++++++++++++++++++++++++++
->  2 files changed, 44 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-> index 55ca39d..4d42e95 100644
-> --- a/drivers/platform/x86/Kconfig
-> +++ b/drivers/platform/x86/Kconfig
-> @@ -79,6 +79,7 @@ config DELL_LAPTOP
->  	depends on BACKLIGHT_CLASS_DEVICE
->  	depends on RFKILL || RFKILL = n
->  	depends on POWER_SUPPLY
-> +	depends on SERIO_I8042
->  	default n
->  	---help---
->  	This driver adds support for rfkill and backlight control to Dell
-> diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-> index 9061111..0071b56 100644
-> --- a/drivers/platform/x86/dell-laptop.c
-> +++ b/drivers/platform/x86/dell-laptop.c
-> @@ -22,6 +22,7 @@
->  #include <linux/rfkill.h>
->  #include <linux/power_supply.h>
->  #include <linux/acpi.h>
-> +#include <linux/i8042.h>
->  #include "../../firmware/dcdbas.h"
->  
->  #define BRIGHTNESS_TOKEN 0x7d
-> @@ -206,6 +207,16 @@ static const struct rfkill_ops dell_rfkill_ops = {
->  	.query = dell_rfkill_query,
->  };
->  
-> +static void dell_rfkill_update(void)
-> +{
-> +	if (wifi_rfkill)
-> +		dell_rfkill_query(wifi_rfkill, (void *)1);
-> +	if (bluetooth_rfkill)
-> +		dell_rfkill_query(bluetooth_rfkill, (void *)2);
-> +	if (wwan_rfkill)
-> +		dell_rfkill_query(wwan_rfkill, (void *)3);
-> +}
-> +
->  static int dell_setup_rfkill(void)
->  {
->  	struct calling_interface_buffer buffer;
-> @@ -310,6 +321,29 @@ static struct backlight_ops dell_ops = {
->  	.update_status  = dell_send_intensity,
->  };
->  
-> +bool dell_laptop_i8042_filter(unsigned char data, unsigned char str,
-> +			      struct serio *port)
-> +{
-> +	static bool extended;
-> +
-> +	if (str & 0x20)
-> +		return false;
-> +
-> +	if (unlikely(data == 0xe0)) {
-> +		extended = true;
-> +		return false;
-> +	} else if (unlikely(extended)) {
-> +		switch (data) {
-> +		case 0x8:
-> +			dell_rfkill_update();
-> +			break;
-> +		}
-> +		extended = false;
-> +	}
-> +
-> +	return false;
-> +}
-> +
->  static int __init dell_init(void)
->  {
->  	struct calling_interface_buffer buffer;
-> @@ -333,6 +367,13 @@ static int __init dell_init(void)
->  		goto out;
->  	}
->  
-> +	ret = i8042_install_filter(dell_laptop_i8042_filter);
-> +	if (ret) {
-> +		printk(KERN_WARNING
-> +		       "dell-laptop: Unable to install key filter\n");
-> +		goto out;
-> +	}
-> +
->  #ifdef CONFIG_ACPI
->  	/* In the event of an ACPI backlight being available, don't
->  	 * register the platform controller.
-> @@ -369,6 +410,7 @@ static int __init dell_init(void)
->  
->  	return 0;
->  out:
-> +	i8042_remove_filter(dell_laptop_i8042_filter);
->  	if (wifi_rfkill)
->  		rfkill_unregister(wifi_rfkill);
->  	if (bluetooth_rfkill)
-> @@ -381,6 +423,7 @@ out:
->  
->  static void __exit dell_exit(void)
->  {
-> +	i8042_remove_filter(dell_laptop_i8042_filter);
->  	backlight_device_unregister(dell_backlight_device);
->  	if (wifi_rfkill)
->  		rfkill_unregister(wifi_rfkill);
-> -- 
-> 1.6.5.2
-> 
-
--- 
-Dmitry
+Cheers,
+Johannes

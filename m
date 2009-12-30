@@ -1,152 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Linux Force Feedback for Saitek Cyborg Evo Force
-Date: Tue, 29 Dec 2009 19:23:27 -0800
-Message-ID: <20091230032326.GC7049@core.coreip.homeip.net>
-References: <4B26B824.8010403@physik.uni-muenchen.de>
- <alpine.LNX.2.00.0912151403440.3755@pobox.suse.cz>
- <4B2ABC62.2030600@physik.uni-muenchen.de>
- <alpine.LNX.2.00.0912181150240.3755@pobox.suse.cz>
- <20091218175046.GB23450@core.coreip.homeip.net>
- <4B2D6377.1020703@physik.uni-muenchen.de>
- <20091221074419.GD3234@core.coreip.homeip.net>
- <20091221082259.GG3234@core.coreip.homeip.net>
- <4B39FA1D.6070107@physik.uni-muenchen.de>
- <1AD572D6-2C2F-4664-9B52-36A8D1BE8B29@gmail.com>
-Mime-Version: 1.0
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH] input: imon driver for SoundGraph iMON/Antec Veris IR devices
+Date: Wed, 30 Dec 2009 03:02:51 -0500
+Message-ID: <1430BBF0-3A61-471E-86A9-E85CF153A150@wilsonet.com>
+References: <2044EA95-168E-4ACE-A19E-732BB4A34CA7@gmail.com>
+Mime-Version: 1.0 (Apple Message framework v1077)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:36757 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752160AbZL3DXc (ORCPT
+Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:43527
+	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751612AbZL3IDL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Dec 2009 22:23:32 -0500
-Received: by pwj9 with SMTP id 9so7124483pwj.21
-        for <linux-input@vger.kernel.org>; Tue, 29 Dec 2009 19:23:32 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1AD572D6-2C2F-4664-9B52-36A8D1BE8B29@gmail.com>
+	Wed, 30 Dec 2009 03:03:11 -0500
+In-Reply-To: <2044EA95-168E-4ACE-A19E-732BB4A34CA7@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
-Cc: Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jarod Wilson <jarod@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Tue, Dec 29, 2009 at 02:40:21PM -0800, Dmitry Torokhov wrote:
->  Dec 29, 2009, at 4:46 AM, Johannes Ebke
-> <johannes.ebke@physik.uni-muenchen.de> wrote:
-> 
-> >Dmitry Torokhov wrote:
-> >>On Sun, Dec 20, 2009 at 11:44:19PM -0800, Dmitry Torokhov wrote:
-> >>>On Sun, Dec 20, 2009 at 12:36:23AM +0100, Johannes Ebke wrote:
-> >>>>Hi,
-> >>>>
-> >>>>It seems that the force feedback works well, I have ported
-> >>>>the force
-> >>>>feedback for my favorite game to linux now, and it works well.
-> >>>>
-> >>>>What does not work is updating effects - there just nothing
-> >>>>happens, and
-> >>>>the old event is played. I have circumvented this by
-> >>>>deleting/re-uploading the effect, but this should probably
-> >>>>been made to
-> >>>>work. Does it work well with other hardware?
-> >>>>
-> >>>>Thirdly, I have re-discovered one kernel oops that occurs if the
-> >>>>joystick is unplugged if some process still has the event
-> >>>>device open.
-> >>>>Steps to reproduce:
-> >>>>* plug joystick in
-> >>>>* fftest /dev/input/eventXX
-> >>>>* unplug joystick
-> >>>>
-> >>>>(kern.log extract attached)
-> >>>>
-> >>>>Sometimes this just gives an oops, sometimes it escalates
-> >>>>into a kernel
-> >>>>panic.
-> >>>>
-> >>>Hmm, it looks like iforce unbinding is completely busted:
-> >>>
-> >>>static void iforce_usb_disconnect(struct usb_interface *intf)
-> >>>{
-> >>>       struct iforce *iforce = usb_get_intfdata(intf);
-> >>>       int open = 0; /* FIXME! iforce->dev.handle->open; */
-> >>>^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> >>>
-> >>>       usb_set_intfdata(intf, NULL);
-> >>>       if (iforce) {
-> >>>               iforce->usbdev = NULL;
-> >>>               input_unregister_device(iforce->dev);
-> >>>
-> >>>               if (!open) {
-> >>>                       iforce_delete_device(iforce);
-> >>>                       kfree(iforce);
-> >>>               }
-> >>>       }
-> >>>}
-> >>>
-> >>>
-> >>>Any chance you could fix that FIXME ;) ?
-> >>>
-> >>
-> >>Actually, does the below fixes it for you?
-> >>
-> >
-> >This fixes the kernel oops - thanks! However it also disables FF,
-> >unless
-> >I remove "usb_kill_urb(iforce->out);" from iforce_close.
-> >From some debug statements I found that iforce_close is called
-> >twice if
-> >you just plug in the joystick, so the effect is immediate.
-> 
-> I still believe that usb_kill_urb is needed however we need to wait
-> for packet disabling FF to complete.
-> 
+On Dec 29, 2009, at 5:30 PM, Dmitry Torokhov wrote:
 
-Does the patch below (on top of the unmodofied previous one) fixes the
-issue for you?
+> On Tue, Dec 29, 2009 at 12:04:00AM -0500, Jarod Wilson wrote:
+>> On Dec 28, 2009, at 4:31 AM, Dmitry Torokhov wrote:
+>>> 
+>>> Hm, will this work on big-endian?
+>> 
+>> Good question. Not sure offhand. Probably not. Unfortunately, the only devices I have to test with at the moment are integrated into cases with x86 boards in them, so testing isn't particularly straight-forward. I should probably get ahold of one of the plain external usb devices to play with... Mind if I just add a TODO marker near that for now?
+>> 
+> 
+> How about just do le32_to_cpu() instead of memcpy()ing and that's
+> probably it?
 
-Thanks.
+Hrm. My endian-fu sucks. Not sure what the right way to do it without the memcpy is. I thought I had something together than would work, using 2 lines (memcpy, then le32_to_cpu), but I just realized that'll go south on the keys where we're only looking at half the buffer (i.e., the wrong half on big-endian)... Will see what I can do to fix that up in the morning, was hoping to get this out tonight, but its nearly 3am (again)...
+
+Also, forgot to reply to this bit last time:
+
+>> +	init_completion(&context->tx.finished);
+>> +	atomic_set(&(context->tx.busy), 1);
+> 
+> What does this atomic give you? Atomic operations do not imply memory
+> barriers IIRC...
+
+Code is borrowed from lirc_imon from before my time, honestly hadn't really looked into that much until now. I'm guessing it was *supposed* to provide an assurance that later readers saw the correct value for busy, but indeed, I don't think its actually guaranteeing that. I've changed busy to a bool and inserted smp_rmb()'s after each change to it, which I think *will* provide the desired guarantee. (In practice, its been working just fine either way for me so far).
+
+>>> We have pretty different behavior depending on the interface, maybe the
+>>> driver should be split further?
+>> 
+>> This is what we'll call a "fun" topic... These devices expose two interfaces, and a while back in the lirc_imon days, they actually loaded up as two separate lirc devices. But there's a catch: they can't operate independently. Some keys come in via intf0, some via intf1, even from the very same remote. And the interfaces share a hardware-internal buffer (or something), and if you're only listening to one of the two devices, and a key is decoded and sent via the interface you're not listening to, it wedges the entire device until you flush the other interface. Horribly bad hardware design at play there, imo, but meh. What exactly did you have in mind as far as a split? (And/or does it still apply with the above info taken into consideration? ;).
+> 
+> Ok, fair enough. I'd still want to see larger functions split up a bit though.
+
+I've hacked imon_probe() up into 6 different functions now:
+
+imon_probe()
+ -> imon_init_intf0()
+  -> imon_init_idev()
+  -> imon_init_display()
+ -> imon_init_intf1()
+  -> imon_init_touch()
+
+(and there was an existing imon_set_ir_protocol() in the mix)
+
+Quite a bit more manageable and readable now, I think. Haven't looked yet for other candidates for similar refactoring. Were there others you had in mind? At a glance, imon_incoming_packet() seems to be the only remaining function that is particularly hefty. Well, imon_probe() is still ~180 lines, but it used to be north of 400, I think... So perhaps I try trimming imon_probe() a bit more, and see what can be done to make imon_incoming_packet() less chunky.
+
+Current work-in-progress pushed to git.kernel.org again.
+
+Thanks much,
 
 -- 
-Dmitry
+Jarod Wilson
+jarod@wilsonet.com
 
 
-Input: iforce - wait for command completion when closing the device
-
-We need to wait for the command to disable FF effects to complete before
-continuing with closing the device.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/joystick/iforce/iforce-main.c |    3 +++
- drivers/input/joystick/iforce/iforce-usb.c  |    1 +
- 2 files changed, 4 insertions(+), 0 deletions(-)
-
-
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index acc3a9e..b1edd77 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -228,6 +228,9 @@ static void iforce_close(struct input_dev *dev)
- 
- 		/* Disable force feedback playback */
- 		iforce_send_packet(iforce, FF_CMD_ENABLE, "\001");
-+		/* Wait for the command to complete */
-+		wait_event_interruptible(iforce->wait,
-+			!test_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags));
- 	}
- 
- 	switch (iforce->bus) {
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index c0ad883..b41303d 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -109,6 +109,7 @@ static void iforce_usb_out(struct urb *urb)
- 	struct iforce *iforce = urb->context;
- 
- 	if (urb->status) {
-+		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		dbg("urb->status %d, exiting", urb->status);
- 		return;
- 	}
 

@@ -1,75 +1,145 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH] input: imon driver for SoundGraph iMON/Antec Veris IR devices
-Date: Wed, 30 Dec 2009 03:02:51 -0500
-Message-ID: <1430BBF0-3A61-471E-86A9-E85CF153A150@wilsonet.com>
-References: <2044EA95-168E-4ACE-A19E-732BB4A34CA7@gmail.com>
-Mime-Version: 1.0 (Apple Message framework v1077)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
+Subject: Re: Linux Force Feedback for Saitek Cyborg Evo Force
+Date: Wed, 30 Dec 2009 10:01:01 +0100
+Message-ID: <4B3B16CD.1050700@physik.uni-muenchen.de>
+References: <4B26B824.8010403@physik.uni-muenchen.de> <alpine.LNX.2.00.0912151403440.3755@pobox.suse.cz> <4B2ABC62.2030600@physik.uni-muenchen.de> <alpine.LNX.2.00.0912181150240.3755@pobox.suse.cz> <20091218175046.GB23450@core.coreip.homeip.net> <4B2D6377.1020703@physik.uni-muenchen.de> <20091221074419.GD3234@core.coreip.homeip.net> <20091221082259.GG3234@core.coreip.homeip.net> <4B39FA1D.6070107@physik.uni-muenchen.de> <1AD572D6-2C2F-4664-9B52-36A8D1BE8B29@gmail.com> <20091230032326.GC7049@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="------------040904060501000107070906"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from static-72-93-233-3.bstnma.fios.verizon.net ([72.93.233.3]:43527
-	"EHLO mail.wilsonet.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751612AbZL3IDL convert rfc822-to-8bit (ORCPT
+Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:37283 "EHLO
+	mail.physik.uni-muenchen.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752202AbZL3JBD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Dec 2009 03:03:11 -0500
-In-Reply-To: <2044EA95-168E-4ACE-A19E-732BB4A34CA7@gmail.com>
+	Wed, 30 Dec 2009 04:01:03 -0500
+In-Reply-To: <20091230032326.GC7049@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jarod Wilson <jarod@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Dec 29, 2009, at 5:30 PM, Dmitry Torokhov wrote:
+This is a multi-part message in MIME format.
+--------------040904060501000107070906
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> On Tue, Dec 29, 2009 at 12:04:00AM -0500, Jarod Wilson wrote:
->> On Dec 28, 2009, at 4:31 AM, Dmitry Torokhov wrote:
->>> 
->>> Hm, will this work on big-endian?
->> 
->> Good question. Not sure offhand. Probably not. Unfortunately, the only devices I have to test with at the moment are integrated into cases with x86 boards in them, so testing isn't particularly straight-forward. I should probably get ahold of one of the plain external usb devices to play with... Mind if I just add a TODO marker near that for now?
->> 
+Dmitry Torokhov wrote:
+> On Tue, Dec 29, 2009 at 02:40:21PM -0800, Dmitry Torokhov wrote:
+>>  Dec 29, 2009, at 4:46 AM, Johannes Ebke
+>> <johannes.ebke@physik.uni-muenchen.de> wrote:
+>>
+>>> Dmitry Torokhov wrote:
+>>>> On Sun, Dec 20, 2009 at 11:44:19PM -0800, Dmitry Torokhov wrote:
+>>>>> On Sun, Dec 20, 2009 at 12:36:23AM +0100, Johannes Ebke wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> It seems that the force feedback works well, I have ported
+>>>>>> the force
+>>>>>> feedback for my favorite game to linux now, and it works well.
+>>>>>>
+>>>>>> What does not work is updating effects - there just nothing
+>>>>>> happens, and
+>>>>>> the old event is played. I have circumvented this by
+>>>>>> deleting/re-uploading the effect, but this should probably
+>>>>>> been made to
+>>>>>> work. Does it work well with other hardware?
+>>>>>>
+>>>>>> Thirdly, I have re-discovered one kernel oops that occurs if the
+>>>>>> joystick is unplugged if some process still has the event
+>>>>>> device open.
+>>>>>> Steps to reproduce:
+>>>>>> * plug joystick in
+>>>>>> * fftest /dev/input/eventXX
+>>>>>> * unplug joystick
+>>>>>>
+>>>>>> (kern.log extract attached)
+>>>>>>
+>>>>>> Sometimes this just gives an oops, sometimes it escalates
+>>>>>> into a kernel
+>>>>>> panic.
+>>>>>>
+>>>>> Hmm, it looks like iforce unbinding is completely busted:
+>>>>>
+>>>>> static void iforce_usb_disconnect(struct usb_interface *intf)
+>>>>> {
+>>>>>       struct iforce *iforce = usb_get_intfdata(intf);
+>>>>>       int open = 0; /* FIXME! iforce->dev.handle->open; */
+>>>>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>>>>>
+>>>>>       usb_set_intfdata(intf, NULL);
+>>>>>       if (iforce) {
+>>>>>               iforce->usbdev = NULL;
+>>>>>               input_unregister_device(iforce->dev);
+>>>>>
+>>>>>               if (!open) {
+>>>>>                       iforce_delete_device(iforce);
+>>>>>                       kfree(iforce);
+>>>>>               }
+>>>>>       }
+>>>>> }
+>>>>>
+>>>>>
+>>>>> Any chance you could fix that FIXME ;) ?
+>>>>>
+>>>> Actually, does the below fixes it for you?
+>>>>
+>>> This fixes the kernel oops - thanks! However it also disables FF,
+>>> unless
+>>> I remove "usb_kill_urb(iforce->out);" from iforce_close.
+>> >From some debug statements I found that iforce_close is called
+>>> twice if
+>>> you just plug in the joystick, so the effect is immediate.
+>> I still believe that usb_kill_urb is needed however we need to wait
+>> for packet disabling FF to complete.
+>>
 > 
-> How about just do le32_to_cpu() instead of memcpy()ing and that's
-> probably it?
-
-Hrm. My endian-fu sucks. Not sure what the right way to do it without the memcpy is. I thought I had something together than would work, using 2 lines (memcpy, then le32_to_cpu), but I just realized that'll go south on the keys where we're only looking at half the buffer (i.e., the wrong half on big-endian)... Will see what I can do to fix that up in the morning, was hoping to get this out tonight, but its nearly 3am (again)...
-
-Also, forgot to reply to this bit last time:
-
->> +	init_completion(&context->tx.finished);
->> +	atomic_set(&(context->tx.busy), 1);
+> Does the patch below (on top of the unmodofied previous one) fixes the
+> issue for you?
 > 
-> What does this atomic give you? Atomic operations do not imply memory
-> barriers IIRC...
-
-Code is borrowed from lirc_imon from before my time, honestly hadn't really looked into that much until now. I'm guessing it was *supposed* to provide an assurance that later readers saw the correct value for busy, but indeed, I don't think its actually guaranteeing that. I've changed busy to a bool and inserted smp_rmb()'s after each change to it, which I think *will* provide the desired guarantee. (In practice, its been working just fine either way for me so far).
-
->>> We have pretty different behavior depending on the interface, maybe the
->>> driver should be split further?
->> 
->> This is what we'll call a "fun" topic... These devices expose two interfaces, and a while back in the lirc_imon days, they actually loaded up as two separate lirc devices. But there's a catch: they can't operate independently. Some keys come in via intf0, some via intf1, even from the very same remote. And the interfaces share a hardware-internal buffer (or something), and if you're only listening to one of the two devices, and a key is decoded and sent via the interface you're not listening to, it wedges the entire device until you flush the other interface. Horribly bad hardware design at play there, imo, but meh. What exactly did you have in mind as far as a split? (And/or does it still apply with the above info taken into consideration? ;).
+> Thanks.
 > 
-> Ok, fair enough. I'd still want to see larger functions split up a bit though.
 
-I've hacked imon_probe() up into 6 different functions now:
+This fixes it completely, both the FF and the clean shutdown on
+unexpected disconnect! Thank you very much!
 
-imon_probe()
- -> imon_init_intf0()
-  -> imon_init_idev()
-  -> imon_init_display()
- -> imon_init_intf1()
-  -> imon_init_touch()
+Finally, for correct orientation of the rudder axis, I have attached one
+small change to packets - this makes it work for me if i remove the old
+configuration.
 
-(and there was an existing imon_set_ir_protocol() in the mix)
+One other question: Since the USB HID driver can actually discover the
+joystick buttons and axis ranges sucessfully, would it not be easier to
+use that for generic input and only add force-feedback in iforce, or is
+that just too much overhead? Thanks!
 
-Quite a bit more manageable and readable now, I think. Haven't looked yet for other candidates for similar refactoring. Were there others you had in mind? At a glance, imon_incoming_packet() seems to be the only remaining function that is particularly hefty. Well, imon_probe() is still ~180 lines, but it used to be north of 400, I think... So perhaps I try trimming imon_probe() a bit more, and see what can be done to make imon_incoming_packet() less chunky.
-
-Current work-in-progress pushed to git.kernel.org again.
-
-Thanks much,
-
--- 
-Jarod Wilson
-jarod@wilsonet.com
+Cheers,
+Johannes
 
 
+--------------040904060501000107070906
+Content-Type: text/x-patch;
+ name="flipRx.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="flipRx.patch"
 
+Input: iforce - flip initial RUDDER orientation to correct one
+
+Remove the inversion from the data acqisition routine
+
+Signed-off-by: Johannes Ebke <johannes.ebke@physik.uni-muenchen.de>
+---
+
+diff -ru drivers/input/joystick/iforce_dmitry/iforce-packets.c drivers/input/joystick/iforce/iforce-packets.c
+--- drivers/input/joystick/iforce_dmitry/iforce-packets.c	2009-12-30 09:42:22.000000000 +0100
++++ drivers/input/joystick/iforce/iforce-packets.c	2009-12-30 09:32:34.000000000 +0100
+@@ -193,7 +193,7 @@
+ 				if (HI(cmd) == 6) {
+ 					input_report_abs(dev, ABS_THROTTLE, data[4]);
+ 					if (LO(cmd) >= 8 && test_bit(ABS_RUDDER ,dev->absbit))
+-						input_report_abs(dev, ABS_RUDDER, 255 - data[7]);
++						input_report_abs(dev, ABS_RUDDER, data[7]);
+ 				} else {
+ 					input_report_abs(dev, ABS_THROTTLE, 255 - data[4]);
+ 					if (LO(cmd) >= 8 && test_bit(ABS_RUDDER ,dev->absbit))
+
+--------------040904060501000107070906--

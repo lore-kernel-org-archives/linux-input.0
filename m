@@ -1,42 +1,50 @@
-From: "Norton Finance Loan Company" <info@norton.com>
-Subject: loan offer at 3% interest rate
-Date: Sat, 2 Jan 2010 15:49:20 +0100 (CET)
-Message-ID: <1413.41.138.191.181.1262443760.squirrel@webmail.kepe.gr>
-Reply-To: norton0ffice@live.com
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
+	matrix-keypad related?
+Date: Sat, 2 Jan 2010 14:56:09 +0100
+Message-ID: <20100102135608.GA5872@ucw.cz>
+References: <20090930200746.GA1384@ucw.cz> <20091006050649.GH27881@core.coreip.homeip.net> <20091006075816.GA1362@ucw.cz> <20091007043603.GC10204@core.coreip.homeip.net> <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com> <20091007163327.GA12053@core.coreip.homeip.net> <20091007211225.GB17805@elf.ucw.cz> <20091203031709.GE9121@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout.kepe.gr ([79.107.103.8]:60971 "EHLO mailin.kepe.gr"
-	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750747Ab0ABRXJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Jan 2010 12:23:09 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:39174 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751330Ab0ABT2W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Jan 2010 14:28:22 -0500
+Content-Disposition: inline
+In-Reply-To: <20091203031709.GE9121@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, linux-input@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
 
-My name is Mr Brown Greffin,the managing director of Norton
-Finance Loan Company.I am a private loan lender.I give out loans to
-business people and individuals for just 3% interest rate.This loan
-co-operation
-gives out loan without any collateral and under no risk.
-If you are interested in getting a loan from my firm, contact me with the
-following details for the fast processing of your loan which
-will take 48-hours for you to receive your demanded loan all over the
-world.
-======================
-* Applicant Full Names
-* Applicant Contact Address:
-* Direct-Phone Number:
-* Country:
-* Age:
-* Marital Status:
-* Amount Required As Loan:
-* Proposed Terms/Duration Of Loan:
-* Annual Income: * Occupation:
+Hi!
 
-You are to contact me for your much needed loan via email
-below;
-Regards,
-Mr Brown Greffin
-E-mail: norton0ffice@live.com
-Tel:Tel+44 70457 95686
+> > > We ignore the failure right now in the mainline but that causes stack
+> > > traces on resume as we trying to disable not enabled wakeup GPIOs. That
+> > > was original Pavel's complaint.
+> > 
+> > Yep...
+> > 
+> > I'd say that BUG() simply should not trigger if wakeup can not be
+> > enabled/disabled for particular source...?
+> 
+> Pavel,
+> 
+> Could you please try the patch below and let me know if it fixes the
+> problem for you?
+
+(sorry for long delay).
+
+With 33-rc1+your patch, warnings are no longer there. 
+
+I still have one on irq191, but that's gpio button driver.
+
+But please, hold the patch for few more days. I may have cleaner/nicer
+solution. It seems that zaurus is doing something very stupid in low layers.
+
+Thanks,
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,71 +1,99 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
- matrix-keypad related?
-Date: Sun, 3 Jan 2010 09:00:38 +0100
-Message-ID: <20100103080038.GA32383@elf.ucw.cz>
-References: <20090930200746.GA1384@ucw.cz>
- <20091006050649.GH27881@core.coreip.homeip.net>
- <20091006075816.GA1362@ucw.cz>
- <20091007043603.GC10204@core.coreip.homeip.net>
- <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
- <20091007163327.GA12053@core.coreip.homeip.net>
- <20091007211225.GB17805@elf.ucw.cz>
- <20091203031709.GE9121@core.coreip.homeip.net>
- <20100102135608.GA5872@ucw.cz>
- <20100103075733.GA1358@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Daniel Drake <dsd@laptop.org>
+Subject: [PATCH resend] Input: psmouse - Fix a synaptics protocol detection mistake
+Date: Sun,  3 Jan 2010 14:56:33 +0000 (GMT)
+Message-ID: <20100103145633.E2E9C9D400D@zog.reactivated.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:56390 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751438Ab0ACIAr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2010 03:00:47 -0500
-Content-Disposition: inline
-In-Reply-To: <20100103075733.GA1358@core.coreip.homeip.net>
+Received: from queueout01-winn.ispmail.ntl.com ([81.103.221.31]:54129 "EHLO
+	queueout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750977Ab0ACPBm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 3 Jan 2010 10:01:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, linux-input@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
 
-On Sat 2010-01-02 23:57:33, Dmitry Torokhov wrote:
-> On Sat, Jan 02, 2010 at 02:56:09PM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > > We ignore the failure right now in the mainline but that causes stack
-> > > > > traces on resume as we trying to disable not enabled wakeup GPIOs. That
-> > > > > was original Pavel's complaint.
-> > > > 
-> > > > Yep...
-> > > > 
-> > > > I'd say that BUG() simply should not trigger if wakeup can not be
-> > > > enabled/disabled for particular source...?
-> > > 
-> > > Pavel,
-> > > 
-> > > Could you please try the patch below and let me know if it fixes the
-> > > problem for you?
-> > 
-> > (sorry for long delay).
-> > 
-> > With 33-rc1+your patch, warnings are no longer there. 
-> > 
-> 
-> Thank you for testing.
-> 
-> > I still have one on irq191, but that's gpio button driver.
-> > 
-> > But please, hold the patch for few more days. I may have cleaner/nicer
-> > solution. It seems that zaurus is doing something very stupid in low layers.
-> 
-> Sorry, it is already upstream. However I do think that the change is
-> needed. As long as set_irq_wake() may return an error the driver should
-> handle such error. Especially matrix_keypad that operates with large
-> number of GPIOs but has only one knob for enabling wakeup.
+For configurations where synaptics hardware is present but the synaptics
+extensions support is not compiled in, the mouse is reprobed and a new
+device is allocated on every suspend/resume.
 
-Ok, no problem. I still get problems with gpio-button driver, but
-there wakeup is per-button so... I'll just fix the wakeup handling on
-zaurus.
-									Pavel
+During probe, psmouse_switch_protocol() calls psmouse_extensions() with
+set_properties=1. This calls the dummy synaptics_init() which returns an
+error code, instructing us not to use the synaptics extensions.
+
+During resume, psmouse_reconnect() calls psmouse_extensions() with
+set_properties=0. This caused PSMOUSE_SYNAPTICS to be returned as the
+supported extensions, and as this is a different result from earlier it
+then causes psmouse_reconnect() to fail and a full reprobe happens.
+
+Fix this by tweaking the set_properties=0 codepath in psmouse_extensions()
+to be more careful about offering PSMOUSE_SYNAPTICS extensions.
+
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+---
+ drivers/input/mouse/psmouse-base.c |    6 +++++-
+ drivers/input/mouse/synaptics.c    |   10 ++++++++++
+ drivers/input/mouse/synaptics.h    |    1 +
+ 3 files changed, 16 insertions(+), 1 deletions(-)
+
+Originally submitted 19/11/2009 with no response
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 401ac6b..613a55a 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -627,8 +627,12 @@ static int psmouse_extensions(struct psmouse *psmouse,
+ 		synaptics_hardware = true;
+ 
+ 		if (max_proto > PSMOUSE_IMEX) {
+-			if (!set_properties || synaptics_init(psmouse) == 0)
++			/* be careful to only offer the synaptics protocol for use when
++			 * the support is available */
++			if (synaptics_supported() &&
++					(!set_properties || synaptics_init(psmouse) == 0))
+ 				return PSMOUSE_SYNAPTICS;
++
+ /*
+  * Some Synaptics touchpads can emulate extended protocols (like IMPS/2).
+  * Unfortunately Logitech/Genius probes confuse some firmware versions so
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 05689e7..b4d38f5 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -743,6 +743,11 @@ int synaptics_init(struct psmouse *psmouse)
+ 	return -1;
+ }
+ 
++int synaptics_supported(void)
++{
++	return 1;
++}
++
+ #else /* CONFIG_MOUSE_PS2_SYNAPTICS */
+ 
+ void __init synaptics_module_init(void)
+@@ -754,5 +759,10 @@ int synaptics_init(struct psmouse *psmouse)
+ 	return -ENOSYS;
+ }
+ 
++int synaptics_supported(void)
++{
++	return 0;
++}
++
+ #endif /* CONFIG_MOUSE_PS2_SYNAPTICS */
+ 
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 838e7f2..d53ffe6 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -109,5 +109,6 @@ void synaptics_module_init(void);
+ int synaptics_detect(struct psmouse *psmouse, bool set_properties);
+ int synaptics_init(struct psmouse *psmouse);
+ void synaptics_reset(struct psmouse *psmouse);
++int synaptics_supported(void);
+ 
+ #endif /* _SYNAPTICS_H */
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.6.2.5
+

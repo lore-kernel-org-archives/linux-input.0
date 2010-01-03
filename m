@@ -1,75 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
-  quirky remote
-Date: Sat, 2 Jan 2010 22:25:30 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001022221320.2277@pobox.suse.cz>
-References: <3711715e0912310013u25e921cbqe6abb7c1621109e@mail.gmail.com>  <20100102025312.GC5788@core.coreip.homeip.net> <3711715e1001020152s626739daw6cdf2d7742a0d959@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 32-rc1 aka 32-rc2: warning at manage.c:361 (set_irq_wake),
+ matrix-keypad related?
+Date: Sat, 2 Jan 2010 23:57:33 -0800
+Message-ID: <20100103075733.GA1358@core.coreip.homeip.net>
+References: <20090930200746.GA1384@ucw.cz>
+ <20091006050649.GH27881@core.coreip.homeip.net>
+ <20091006075816.GA1362@ucw.cz>
+ <20091007043603.GC10204@core.coreip.homeip.net>
+ <f17812d70910070742y5e27f9c3u38e3299b94f33613@mail.gmail.com>
+ <20091007163327.GA12053@core.coreip.homeip.net>
+ <20091007211225.GB17805@elf.ucw.cz>
+ <20091203031709.GE9121@core.coreip.homeip.net>
+ <20100102135608.GA5872@ucw.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37315 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751657Ab0ABVZf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Jan 2010 16:25:35 -0500
-In-Reply-To: <3711715e1001020152s626739daw6cdf2d7742a0d959@mail.gmail.com>
+Received: from mail-yx0-f188.google.com ([209.85.210.188]:47605 "EHLO
+	mail-yx0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751038Ab0ACH5j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Jan 2010 02:57:39 -0500
+Content-Disposition: inline
+In-Reply-To: <20100102135608.GA5872@ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wayne Thomas <waynethomas69@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Eric Miao <eric.y.miao@gmail.com>, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, linux-input@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
 
-On Sat, 2 Jan 2010, Wayne Thomas wrote:
+On Sat, Jan 02, 2010 at 02:56:09PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > We ignore the failure right now in the mainline but that causes stack
+> > > > traces on resume as we trying to disable not enabled wakeup GPIOs. That
+> > > > was original Pavel's complaint.
+> > > 
+> > > Yep...
+> > > 
+> > > I'd say that BUG() simply should not trigger if wakeup can not be
+> > > enabled/disabled for particular source...?
+> > 
+> > Pavel,
+> > 
+> > Could you please try the patch below and let me know if it fixes the
+> > problem for you?
+> 
+> (sorry for long delay).
+> 
+> With 33-rc1+your patch, warnings are no longer there. 
+> 
 
-> >> The Behavior Tech. Computer Corp. (BTC) remote branded as "Emprex =
-3009URF III
-> >> Vista Remote Controller" uses non-standard mappings for all of its=
- 'special
-> >> purpose' keys (0xffbc usage page). =A0Applies cleanly to 2.6.30 an=
-d 2.6.32
-> >> (other versions not tested).
-> >> scripts/scriptpatch.pl reports 13 styling errors in hid-btc.c
-> >> ("break;" should be on trailing lines)
-> >> but have not changed them to maintain styling consistency with exi=
-sting drivers.
-> >
-> > I believe that this kind of mapping adjustment can be done via UDEV=
-/HAL
-> > key remapping facilities, without need for the kernel patch.
->=20
-> I'll look into what you have suggested.  The issue is identical to
-> that of the TopSeed remote, which is why I used this method.  If this
-> is the case I assume that the topseed driver (and any others) should
-> also be removed?
+Thank you for testing.
 
-Hi Wayne,
+> I still have one on irq191, but that's gpio button driver.
+> 
+> But please, hold the patch for few more days. I may have cleaner/nicer
+> solution. It seems that zaurus is doing something very stupid in low layers.
 
-unfortunately you have a point here.
+Sorry, it is already upstream. However I do think that the change is
+needed. As long as set_irq_wake() may return an error the driver should
+handle such error. Especially matrix_keypad that operates with large
+number of GPIOs but has only one knob for enabling wakeup.
 
-Moving all the drivers which don't do anything else than establish simp=
-le=20
-HID->input mappings (such as your driver, or the TopSpeed one), into=20
-userspace (udev, please note that HAL is now deprecated), has been on m=
-y=20
-TODO list for quite a long time.
-
-But there has unfortunately always been something more important, so I=20
-have been quite sluggish with this.
-
-If you'd be submitting your changes for BTC to udev, it would be cool i=
-f=20
-you could do the same for other drivers we now have in kernel, so that=20
-they could be removed one day.
-Otherwise I'll do it hopefully soon, I will push it in my TODO a little=
-=20
-bit higher as a new-year's resolution :)
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

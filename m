@@ -1,55 +1,77 @@
-From: Adam Jackson <ajax@redhat.com>
-Subject: [PATCH] input/evdev: Be less aggressive about sending SIGIO notifies
-Date: Mon,  4 Jan 2010 16:08:17 -0500
-Message-ID: <1262639297-21857-1-git-send-email-ajax@redhat.com>
+From: Mark Butsch <mbutsch@syntech-fuelmaster.com>
+Subject: RE: Question about /dev/hidraw*
+Date: Mon, 4 Jan 2010 16:24:37 -0500
+Message-ID: <6C2434209962DC46B88345CA85C334A285943E4B3A@Courier.syntech.org>
+References: <6C2434209962DC46B88345CA85C334A2858711C53F@Courier.syntech.org>
+ <alpine.LNX.2.00.1001041208340.2277@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58453 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750770Ab0ADVIT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Jan 2010 16:08:19 -0500
-Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o04L8IYg019142
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <linux-input@vger.kernel.org>; Mon, 4 Jan 2010 16:08:18 -0500
-Received: from localhost.localdomain (ihatethathostname.lab.bos.redhat.com [10.16.43.238])
-	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o04L8I6m014505
-	for <linux-input@vger.kernel.org>; Mon, 4 Jan 2010 16:08:18 -0500
+Received: from exchsrvr.syntech-fuelmaster.com ([199.44.250.2]:58134 "EHLO
+	courier.syntech-fuelmaster.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753589Ab0ADVY7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jan 2010 16:24:59 -0500
+In-Reply-To: <alpine.LNX.2.00.1001041208340.2277@pobox.suse.cz>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: 'Jiri Kosina' <jkosina@suse.cz>
+Cc: "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-When using realtime signals, we'll enqueue one signal for every event.
-This is unfortunate, because (for example) keyboard presses are three
-events: key, msc scancode, and syn.  They'll be enqueued fast enough in
-kernel space that all three events will be ready to read by the time
-userspace runs, so the first invocation of the signal handler will read
-all three events, but then the second two invocations still have to run
-to do no work.
-
-Instead, only send the SIGIO notification on syn events.  This is a
-slight abuse of SIGIO semantics, in principle it ought to fire as soon
-as any events are readable.  But it matches evdev semantics, which is
-more important since SIGIO is rather vaguely defined to begin with.
-
-Signed-off-by: Adam Jackson <ajax@redhat.com>
----
- drivers/input/evdev.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index dee6706..258c639 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -59,7 +59,8 @@ static void evdev_pass_event(struct evdev_client *client,
- 	client->head &= EVDEV_BUFFER_SIZE - 1;
- 	spin_unlock(&client->buffer_lock);
+On Mon, 4 Jan 2010, Jiri Kosina wrote:
  
--	kill_fasync(&client->fasync, SIGIO, POLL_IN);
-+	if (event->type == EV_SYN)
-+		kill_fasync(&client->fasync, SIGIO, POLL_IN);
- }
- 
- /*
--- 
-1.6.5.2
+On Fri, 11 Dec 2009, Mark Butsch wrote:
+
+> > I am going to be developing several USB devices and am interested in 
+> > utilizing the '/dev/hidraw*' interface to make it easier, i.e. don't 
+> > need to write drivers.
+> > 
+> > I have a few questions about the /dev/hidraw interface:
+> > 
+> > 1. Is there a list of best practices and/or example for using /dev/hidraw?
+
+> Not really a "documentation" or "example code". I really should write a 
+> few lines of it though, you are right.
+
+> But there are already drivers floating around the net which use this 
+> interface, you should be able to find them and inspect them. The interface 
+> is super-trivial though. If you have any questions before I write the 
+> example code documentation, just ask me.
+
+> > 2. Will a vendor-specific HID always have a /dev/hidraw available 
+> > (provided kernel is built for it)?
+
+> Yes, hidraw_connect() accepts any HID device, no matter the range of 
+> provided applications (as per device descriptor).
+
+> > 3. For an HID that identifies itself as a keyboard (for example), is 
+> > there a way to not have it function as a normal keyboard (with the input 
+> > subsystem) yet have access to it via the /dev/hidraw? I tried unbinding 
+> > it, but then the /dev/hidraw went away also.
+
+> We'd need to clear HID_CONNECT_HIDINPUT flag for this device in order to 
+> achieve that. Some drivers (hid-apple and hid-samsung) do this for 
+> particular devices.
+
+> > 4. I did some reading of the HID driver source code and looks like if 
+> > there was some way to clear the HID_CLAIMED_INPUT bit, that would keep 
+> > the input subsystem from processing the event. Is there a reason that 
+> > something like that could/should not be done?
+
+> HID_CLAIMED_INPUT is set by the hid-input part of the code once the 
+> registration with the input subsystem has been successfully performed. 
+> Clearing that doesn't provide the functionality you are looking for. 
+> Clearing HID_CONNECT_HIDINPUT is the way to go though.
+
+It looks to me that HID_CONNECT_HIDINPUT would be used if you are writing a kernel driver. I am accessing /dev/hidraw* from userspace. Kind of like using ioctl(EVIOCGRAB), but then you get HID reports instead of events. More general purpose.
+
+I tried adding a couple of ioctl calls to hidraw.c to allow clearing and setting of HID_CLAIMED_INPUT and it appears to provide the functionality. I even added code in hidraw_release() to make sure  HID_CLAIMED_INPUT is set for the next time the device is opened.
+
+Are there some details I have missed?
+
+Thanks,
+
+Mark
 

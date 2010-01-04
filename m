@@ -1,32 +1,55 @@
-From: Lamarque Vieira Souza <lamarque@gmail.com>
-Subject: Re: Problem with Acer Bluetooth Optical Rechargeable Mouse
-Date: Mon, 4 Jan 2010 09:54:47 -0200
-Message-ID: <201001040954.47425.lamarque@gmail.com>
-References: <200908062247.29254.lamarque@gmail.com> <200912252240.59052.lamarque@gmail.com> <alpine.LNX.2.00.1001041233320.2277@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Adam Jackson <ajax@redhat.com>
+Subject: [PATCH] input/evdev: Be less aggressive about sending SIGIO notifies
+Date: Mon,  4 Jan 2010 16:08:17 -0500
+Message-ID: <1262639297-21857-1-git-send-email-ajax@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f176.google.com ([209.85.211.176]:46400 "EHLO
-	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964Ab0ADLy7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Jan 2010 06:54:59 -0500
-Received: by ywh6 with SMTP id 6so15229881ywh.4
-        for <linux-input@vger.kernel.org>; Mon, 04 Jan 2010 03:54:59 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1001041233320.2277@pobox.suse.cz>
+Received: from mx1.redhat.com ([209.132.183.28]:58453 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750770Ab0ADVIT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jan 2010 16:08:19 -0500
+Received: from int-mx03.intmail.prod.int.phx2.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id o04L8IYg019142
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <linux-input@vger.kernel.org>; Mon, 4 Jan 2010 16:08:18 -0500
+Received: from localhost.localdomain (ihatethathostname.lab.bos.redhat.com [10.16.43.238])
+	by int-mx03.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id o04L8I6m014505
+	for <linux-input@vger.kernel.org>; Mon, 4 Jan 2010 16:08:18 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@linux-foundation.org>
+To: linux-input@vger.kernel.org
 
-Em Segunda-feira 04 Janeiro 2010, Jiri Kosina escreveu:
-> It is in current Linus' tree as commit eb8141ccd3.
-> 
+When using realtime signals, we'll enqueue one signal for every event.
+This is unfortunate, because (for example) keyboard presses are three
+events: key, msc scancode, and syn.  They'll be enqueued fast enough in
+kernel space that all three events will be ready to read by the time
+userspace runs, so the first invocation of the signal handler will read
+all three events, but then the second two invocations still have to run
+to do no work.
 
-	Ok, thanks for answering.
+Instead, only send the SIGIO notification on syn events.  This is a
+slight abuse of SIGIO semantics, in principle it ought to fire as soon
+as any events are readable.  But it matches evdev semantics, which is
+more important since SIGIO is rather vaguely defined to begin with.
 
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ drivers/input/evdev.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index dee6706..258c639 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -59,7 +59,8 @@ static void evdev_pass_event(struct evdev_client *client,
+ 	client->head &= EVDEV_BUFFER_SIZE - 1;
+ 	spin_unlock(&client->buffer_lock);
+ 
+-	kill_fasync(&client->fasync, SIGIO, POLL_IN);
++	if (event->type == EV_SYN)
++		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+ }
+ 
+ /*
 -- 
-Lamarque V. Souza
-http://www.geographicguide.com/brazil.htm
-Linux User #57137 - http://counter.li.org/
+1.6.5.2
+

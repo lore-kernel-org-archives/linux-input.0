@@ -1,77 +1,98 @@
-From: Mark Butsch <mbutsch@syntech-fuelmaster.com>
-Subject: RE: Question about /dev/hidraw*
-Date: Mon, 4 Jan 2010 16:24:37 -0500
-Message-ID: <6C2434209962DC46B88345CA85C334A285943E4B3A@Courier.syntech.org>
-References: <6C2434209962DC46B88345CA85C334A2858711C53F@Courier.syntech.org>
- <alpine.LNX.2.00.1001041208340.2277@pobox.suse.cz>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Subject: Re: [PATCH] Logitech G13 driver (fixed cc list --- ignore others)
+Date: Mon, 4 Jan 2010 15:23:36 -0700
+Message-ID: <7f9100aac5f9b06ec78efff25c7a5a71.squirrel@intranet.cs.nmsu.edu>
+References: <200912142122.nBELMW7d001243@mustang.cs.nmsu.edu>
+    <20091216103423.GE1377@ucw.cz>
+    <alpine.LNX.2.00.0912161504360.3755@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exchsrvr.syntech-fuelmaster.com ([199.44.250.2]:58134 "EHLO
-	courier.syntech-fuelmaster.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753589Ab0ADVY7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Jan 2010 16:24:59 -0500
-In-Reply-To: <alpine.LNX.2.00.1001041208340.2277@pobox.suse.cz>
-Content-Language: en-US
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:52773 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753517Ab0ADWXy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Jan 2010 17:23:54 -0500
+In-Reply-To: <alpine.LNX.2.00.0912161504360.3755@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Jiri Kosina' <jkosina@suse.cz>
-Cc: "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, krzysztof.h1@wp.pl, Andrew Morton <akpm@linux-foundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org
 
-On Mon, 4 Jan 2010, Jiri Kosina wrote:
- 
-On Fri, 11 Dec 2009, Mark Butsch wrote:
+Jiri Kosina wrote:
+> On Wed, 16 Dec 2009, Pavel Machek wrote:
+>
+>> > Although identified as a HID, the device does not support standard HID
+>> > input messages. As a result, a sub-input device is allocated and
+>> > registered separately in g13_probe(). The raw events are monitored and
+>> > key presses/joystick activity is reported through the input device
+>> > after referencing an indexed keymap.
+>> >
+>> > Additionally, this device contains a 160x43 monochrome LCD display. A
+>> > registered framebuffer device manages this display. The design of this
+>> > portion of the driver was based on the design of the hecubafb driver
+>> > with deferred framebuffer I/O since there is no real memory to map.
+>> >
+>> > This patch is against the torvalds/linux-2.6.git tree.
+>>
+>> Should this use auxdisplay framework and be located there?
+>
+> Well, the device is still primarily HID device in its nature, so either
+> keeping the whole driver in drivers/hid, or separating it into two
+> drivers, one for the HID part and second for the framebuffer part should
+> be acceptable.
 
-> > I am going to be developing several USB devices and am interested in 
-> > utilizing the '/dev/hidraw*' interface to make it easier, i.e. don't 
-> > need to write drivers.
-> > 
-> > I have a few questions about the /dev/hidraw interface:
-> > 
-> > 1. Is there a list of best practices and/or example for using /dev/hidraw?
+The framebuffer part uses the same interrupt endpoint for both HID and
+display. IIRC there were issues with two drivers using the same interrupt
+endpoint.
 
-> Not really a "documentation" or "example code". I really should write a 
-> few lines of it though, you are right.
 
-> But there are already drivers floating around the net which use this 
-> interface, you should be able to find them and inspect them. The interface 
-> is super-trivial though. If you have any questions before I write the 
-> example code documentation, just ask me.
+>
+>> > --- /dev/null
+>> > +++ b/drivers/hid/hid-g13-logo.xbm
+>> > @@ -0,0 +1,75 @@
+>> > +#define g13_lcd_width 160
+>> > +#define g13_lcd_height 43
+>> > +static unsigned char g13_lcd_bits[] = {
+>> > +   0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+>> 0x00,
+>> > +   0x00, 0x00, 0x00, 0x28, 0x03, 0x00, 0x40, 0x01, 0x00, 0xc0, 0x3f,
+>> 0x00,
+>> > +   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+>> 0xa1,
+>> > +   0x08, 0x00, 0x08, 0x00, 0x00, 0xe0, 0x7f, 0x00, 0x00, 0x00,
+>> > 0x00, 0x00,
+>>
+>> I'd prefer to go without another logo. Just make sure default penguin
+>> gets
+>> there or something.
+>
+> What logo is this, BTW? :)
+>
 
-> > 2. Will a vendor-specific HID always have a /dev/hidraw available 
-> > (provided kernel is built for it)?
+It's similar to the default G13 load image, but with tux on the left and
+the GNU gnu on the right.
 
-> Yes, hidraw_connect() accepts any HID device, no matter the range of 
-> provided applications (as per device descriptor).
+I tried to particularly clean up tux a bit since the default monochrome
+logo is 80x80 and the display is 160x43.
 
-> > 3. For an HID that identifies itself as a keyboard (for example), is 
-> > there a way to not have it function as a normal keyboard (with the input 
-> > subsystem) yet have access to it via the /dev/hidraw? I tried unbinding 
-> > it, but then the /dev/hidraw went away also.
+The only alternatives I could think of were to use the default logo and
+load it at 80x43 which cuts off Tux at the nipples, resample in the
+driver, or leave the logo off.
 
-> We'd need to clear HID_CONNECT_HIDINPUT flag for this device in order to 
-> achieve that. Some drivers (hid-apple and hid-samsung) do this for 
-> particular devices.
+I didn't like the first because it didn't look like tux without his belly
+and feet, the second seemed overly complex, and the third doesn't provide
+a visual cue to the user that it's plugged in and all is well.
 
-> > 4. I did some reading of the HID driver source code and looks like if 
-> > there was some way to clear the HID_CLAIMED_INPUT bit, that would keep 
-> > the input subsystem from processing the event. Is there a reason that 
-> > something like that could/should not be done?
+The visual cue is particularly necessary because the device displays a G13
+logo on initialization even when no working driver is present. It's
+problematic because it appears as if the device is ready, so the use of a
+penguin provides a Linux specific cue.
 
-> HID_CLAIMED_INPUT is set by the hid-input part of the code once the 
-> registration with the input subsystem has been successfully performed. 
-> Clearing that doesn't provide the functionality you are looking for. 
-> Clearing HID_CONNECT_HIDINPUT is the way to go though.
+> I will proceed with reviewing the driver soon, sorry for slightly higher
+> latencies these days.
+>
 
-It looks to me that HID_CONNECT_HIDINPUT would be used if you are writing a kernel driver. I am accessing /dev/hidraw* from userspace. Kind of like using ioctl(EVIOCGRAB), but then you get HID reports instead of events. More general purpose.
+No problem... as you can see my latency responding is rather high.
 
-I tried adding a couple of ioctl calls to hidraw.c to allow clearing and setting of HID_CLAIMED_INPUT and it appears to provide the functionality. I even added code in hidraw_release() to make sure  HID_CLAIMED_INPUT is set for the next time the device is opened.
-
-Are there some details I have missed?
-
-Thanks,
-
-Mark
 

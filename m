@@ -1,52 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Logitech G13 driver (fixed cc list --- ignore others)
-Date: Tue, 5 Jan 2010 10:52:08 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001051048150.2277@pobox.suse.cz>
-References: <200912142122.nBELMW7d001243@mustang.cs.nmsu.edu>    <20091216103423.GE1377@ucw.cz>    <alpine.LNX.2.00.0912161504360.3755@pobox.suse.cz> <7f9100aac5f9b06ec78efff25c7a5a71.squirrel@intranet.cs.nmsu.edu>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: Questions about Multi-touch Protocal
+Date: Tue, 05 Jan 2010 13:08:59 +0100
+Message-ID: <4B432BDB.3000103@euromail.se>
+References: <4B42D998.4050303@samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:48384 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751486Ab0AEJwO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 5 Jan 2010 04:52:14 -0500
-In-Reply-To: <7f9100aac5f9b06ec78efff25c7a5a71.squirrel@intranet.cs.nmsu.edu>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:52778 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751119Ab0AEMZm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 5 Jan 2010 07:25:42 -0500
+In-Reply-To: <4B42D998.4050303@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, krzysztof.h1@wp.pl, Andrew Morton <akpm@linux-foundation.org>, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
 
-On Mon, 4 Jan 2010, Rick L. Vinyard, Jr. wrote:
+Hi Joonyoung,
 
-> >> > This patch is against the torvalds/linux-2.6.git tree.
-> >>
-> >> Should this use auxdisplay framework and be located there?
-> >
-> > Well, the device is still primarily HID device in its nature, so either
-> > keeping the whole driver in drivers/hid, or separating it into two
-> > drivers, one for the HID part and second for the framebuffer part should
-> > be acceptable.
-> 
-> The framebuffer part uses the same interrupt endpoint for both HID and
-> display. IIRC there were issues with two drivers using the same interrupt
-> endpoint.
+> I have some questions about Multi-touch(MT) Protocal.
 
-I have no objection to keeping this as a single driver in drivers/hid, 
-provided that the framebuffer part gets reviewed by someone more familiar 
-with the framebuffer code than I am.
+Let me start by answering your last question:
 
-> > I will proceed with reviewing the driver soon, sorry for slightly higher
-> > latencies these days.
-> 
-> No problem... as you can see my latency responding is rather high.
+> Finally, what is difference of ABS_MT_TOUCH_MAJOR and
+> ABS_MT_WIDTH_MAJOR?
 
-Also please see the other thread about the build failures I am getting 
-with this drivers (and it's not fixed solely by making the driver 
-dependent on FB_DEFERRED_IO (namely it doesn't like to be built in as 
-module, because of the symbol name clashes with hid-lg).
+The TOUCH and WIDTH parameters have a geometrical interpretation; imagine
+looking through a window at someone gently holding a finger against the glass.
+You will see two regions, one inner region consisting of the part of the finger
+actually touching the glass, and one outer region formed by the perimeter of the
+finger. The diameter of the inner region is the ABS_MT_TOUCH_MAJOR, the diameter
+of the outer region is ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the
+finger harder against the glass. The inner region will increase, and in general,
+the ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR, which is always smaller than
+unity, is related to the finger pressure.
 
-Thanks,
+In addition to the MAJOR parameters, the oval shape of the finger can be
+described by adding the MINOR parameters, such that MAJOR and MINOR are the
+major and minor axis of an ellipse. Finally, the orientation of the oval shape
+can be describe with the ORIENTATION parameter.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+> First, what is the purpose of ABS_MT_TOUCH_MAJOR event? I wonder how
+> it is used at userspace side.
+
+In a graphical program it can of course be used as is, but in the specific
+application of creating gesture events, the TOUCH and WIDTH parameters can be
+used to, e.g., approximate finger pressure or distinguish between index finger
+and thumb. With the addition of the MINOR parameters, one can also distinguish
+between a sweeping finger and a pointing finger, and with ORIENTATION, one can
+detect twisting of fingers.
+
+> Should the ABS_MT_TOUCH_MAJOR be the mininum set of events for multi
+> touch? I'm not sure whether this question is valid because of first
+> question.
+
+Each finger packet should have an ABS_MT_TOUCH_MAJOR value. In can be computed
+from various types of sensory input, e.g., the size of the contact area or a
+pressure sensor.
+
+Hope this explains it a bit further.
+

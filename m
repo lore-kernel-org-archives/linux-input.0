@@ -1,22 +1,18 @@
 From: Christian Schuerer <csw@xray.at>
-Subject: [PATCH] linux-2.6.33-rc2 - Re: Device IDs for new Apple Wireless Keyboard
-Date: Wed, 6 Jan 2010 02:16:47 +0100
-Message-ID: <201001060216.47958.csw@xray.at>
+Subject: [PATCH] linux-2.6.32.2 - Re: Device IDs for new Apple Wireless Keyboard
+Date: Wed, 6 Jan 2010 02:16:49 +0100
+Message-ID: <201001060216.50008.csw@xray.at>
 References: <4B38AFDE.8000203@gmail.com> <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from isepic.quincunx.at ([173.45.232.79]:40848 "EHLO
-	isepic.quincunx.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754931Ab0AFB2t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2010 20:28:49 -0500
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755542Ab0AFB25@vger.kernel.org>
 In-Reply-To: <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
 Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
 On Monday 04 January 2010 11:57:33 Jiri Kosina wrote:
 > On Mon, 28 Dec 2009, Jiri Slaby wrote:
@@ -31,7 +27,7 @@ On Monday 04 January 2010 11:57:33 Jiri Kosina wrote:
 
 Jiri,
 
-here is the patch for linux-2.6.33-rc2:
+here is the patch for linux-2.6.32.2:
 
 Changes:
 
@@ -40,13 +36,12 @@ Added device IDs for the new model of the Apple Wireless Keyboard (November
 
 Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
 
-diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
-rc2-vanilla/drivers/hid/hid-apple.c linux-2.6.33-rc2-apple/drivers/hid/hid-
-apple.c
---- linux-2.6.33-rc2-vanilla/drivers/hid/hid-apple.c	2009-12-24 
-22:09:41.000000000 +0100
-+++ linux-2.6.33-rc2-apple/drivers/hid/hid-apple.c	2010-01-06 
-01:39:29.000000000 +0100
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-
+vanilla/drivers/hid/hid-apple.c linux-2.6.32.2-apple/drivers/hid/hid-apple.c
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-apple.c	2009-12-18 
+23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-apple.c	2010-01-06 01:39:31.000000000 
++0100
 @@ -431,6 +431,13 @@ static const struct hid_device_id apple_
  		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
@@ -67,14 +62,13 @@ USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
 USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
-diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
-rc2-vanilla/drivers/hid/hid-core.c linux-2.6.33-rc2-apple/drivers/hid/hid-
-core.c
---- linux-2.6.33-rc2-vanilla/drivers/hid/hid-core.c	2009-12-24 
-22:09:41.000000000 +0100
-+++ linux-2.6.33-rc2-apple/drivers/hid/hid-core.c	2010-01-06 01:41:21.000000000 
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-
+vanilla/drivers/hid/hid-core.c linux-2.6.32.2-apple/drivers/hid/hid-core.c
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-core.c	2009-12-18 
+23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-core.c	2010-01-06 01:41:01.000000000 
 +0100
-@@ -1285,6 +1285,9 @@ static const struct hid_device_id hid_bl
+@@ -1287,6 +1287,9 @@ static const struct hid_device_id hid_bl
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
 USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) 
@@ -92,11 +86,11 @@ USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) 
 },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
-diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
-rc2-vanilla/drivers/hid/hid-ids.h linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h
---- linux-2.6.33-rc2-vanilla/drivers/hid/hid-ids.h	2009-12-24 
-22:09:41.000000000 +0100
-+++ linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h	2010-01-06 01:42:30.000000000 
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-
+vanilla/drivers/hid/hid-ids.h linux-2.6.32.2-apple/drivers/hid/hid-ids.h
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-ids.h	2009-12-18 
+23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-ids.h	2010-01-06 01:42:02.000000000 
 +0100
 @@ -88,6 +88,9 @@
  #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236

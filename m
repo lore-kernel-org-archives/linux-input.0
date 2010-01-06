@@ -1,61 +1,214 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
-Subject: Re: Question: Formula Force GP (Force) Feedback
-Date: Wed, 6 Jan 2010 14:41:30 +0200
-Message-ID: <201001061441.30202.anssi.hannula@iki.fi>
-References: <1262554958.10612.19.camel@slim-one-desktop> <alpine.LNX.2.00.1001061141570.2277@pobox.suse.cz> <1262781002.2804.60.camel@slim-one-desktop>
+From: Christian Schuerer <csw@xray.at>
+Subject: [PATCH] linux-2.6.31.9, linux-2.6.32.2, linux-2.6.33-rc2 -- Re: Device IDs for new Apple Wireless Keyboard
+Date: Wed, 6 Jan 2010 13:57:22 +0100
+Message-ID: <201001061357.22447.csw@xray.at>
+References: <4B38AFDE.8000203@gmail.com> <201001060216.47958.csw@xray.at> <alpine.LNX.2.00.1001061113060.2277@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_yiIRLq5rT3O1x54"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sypressi.dnainternet.net ([83.102.40.135]:57960 "EHLO
-	sypressi.dnainternet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750756Ab0AFMlc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 07:41:32 -0500
-In-Reply-To: <1262781002.2804.60.camel@slim-one-desktop>
+Received: from isepic.quincunx.at ([173.45.232.79]:38222 "EHLO
+	isepic.quincunx.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755785Ab0AFM50 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 07:57:26 -0500
+In-Reply-To: <alpine.LNX.2.00.1001061113060.2277@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter <peter@slim-one.de>
-Cc: Jiri Kosina <jkosina@suse.cz>, wylda@volny.cz, christophe.borivant@wanadoo.fr, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Peter wrote:
-> Hi,
+--Boundary-00=_yiIRLq5rT3O1x54
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Hi!
+Hello Jiri,
 
-> my description wasn't that good indeed :)
-> 
-> I have an Logitech Formula Force GP and tried to get Force Feedback
-> working (to play LFS (www.lfs.net) via wine). The wheel is recognized
-> properly and as an input device there are no problems. Force Feedback
-> isn't working properly, tho. I looked around a bit and found hid-lgff.c,
-> which i have modified a bit to get an idea how the effects are
-> generated:
-> 
->     case FF_CONSTANT:
->         x = effect->u.ramp.start_level + 0x7f; /* 0x7f is center */
->         y = effect->u.ramp.end_level   + 0x7f; /**/
->         CLAMP(x);
->         CLAMP(y);
->         report->field[0]->value[0] = 0x51;
->         report->field[0]->value[1] = 0x08;
->         report->field[0]->value[2] = x;
->         report->field[0]->value[3] = y;
->         dbg_hid("(x, y)=(%04x, %04x)\n", x, y);
->         usbhid_submit_report(hid, report, USB_DIR_OUT);
-> >       printk(KERN_INFO "Forces: x=%d y=%d\n",
-> >		report->field[0]->value[2], 
-> >		report->field[0]->value[3]);
->         break;
-> 
-> I guess i could have enabled debug somehow, but didn't know how to. It
-> did the trick for me anyway. 
-> 
-> The problem is, that somehow x and y only get values above 0x7f.
+On Wednesday 06 January 2010 11:14:38 Jiri Kosina wrote:
+> On Wed, 6 Jan 2010, Christian Schuerer wrote:
+> > here is the patch for linux-2.6.33-rc2:
+> > Thanks. Unfortunately, it's wordwrapped, so it can't be easily applied.
+> Could you please fix up your e-mail client so that it doesn't mangle long
+> lines, or eventually send is as an attachment?
 
-This issue is probably fixed by this commit:
+I'm sorry, I have attached all three patches as text files.
 
-http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commitdiff;h=1b11c88d3e8f55dc9d193d19de11e3f7abc1b7d7
+> > Added device IDs for the new model of the Apple Wireless Keyboard
+> > (November 2009).
+> These are solely Bluetooth device, and there is no USB variant, right?
 
--- 
-Anssi Hannula
+As far as I know of only a new variant of the wireless (bluetooth) keyboard 
+has been released in November 2009.
+
+Greetings,
+Christian
+
+--Boundary-00=_yiIRLq5rT3O1x54
+Content-Type: text/plain;
+  charset="UTF-8";
+  name="patch-2.6.31.9"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-2.6.31.9"
+
+Added device IDs for the new model of the Apple Wireless Keyboard (November 2009).
+
+Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
+
+diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-vanilla/drivers/hid/hid-apple.c linux-2.6.31.9-apple/drivers/hid/hid-apple.c
+--- linux-2.6.31.9-vanilla/drivers/hid/hid-apple.c	2009-12-18 22:47:01.000000000 +0100
++++ linux-2.6.31.9-apple/drivers/hid/hid-apple.c	2010-01-06 01:39:33.000000000 +0100
+@@ -431,6 +431,13 @@ static const struct hid_device_id apple_
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_KEYBOARD },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
+diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-vanilla/drivers/hid/hid-core.c linux-2.6.31.9-apple/drivers/hid/hid-core.c
+--- linux-2.6.31.9-vanilla/drivers/hid/hid-core.c	2009-12-18 22:47:01.000000000 +0100
++++ linux-2.6.31.9-apple/drivers/hid/hid-core.c	2010-01-06 01:40:39.000000000 +0100
+@@ -1259,6 +1259,9 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-vanilla/drivers/hid/hid-ids.h linux-2.6.31.9-apple/drivers/hid/hid-ids.h
+--- linux-2.6.31.9-vanilla/drivers/hid/hid-ids.h	2009-12-18 22:47:01.000000000 +0100
++++ linux-2.6.31.9-apple/drivers/hid/hid-ids.h	2010-01-06 01:41:51.000000000 +0100
+@@ -88,6 +88,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+
+--Boundary-00=_yiIRLq5rT3O1x54
+Content-Type: text/plain;
+  charset="UTF-8";
+  name="patch-2.6.32.2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-2.6.32.2"
+
+Added device IDs for the new model of the Apple Wireless Keyboard (November 2009).
+
+Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
+
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-vanilla/drivers/hid/hid-apple.c linux-2.6.32.2-apple/drivers/hid/hid-apple.c
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-apple.c	2009-12-18 23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-apple.c	2010-01-06 01:39:31.000000000 +0100
+@@ -431,6 +431,13 @@ static const struct hid_device_id apple_
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_KEYBOARD },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-vanilla/drivers/hid/hid-core.c linux-2.6.32.2-apple/drivers/hid/hid-core.c
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-core.c	2009-12-18 23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-core.c	2010-01-06 01:41:01.000000000 +0100
+@@ -1287,6 +1287,9 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+diff -uprN -X linux-2.6.32.2-vanilla/Documentation/dontdiff linux-2.6.32.2-vanilla/drivers/hid/hid-ids.h linux-2.6.32.2-apple/drivers/hid/hid-ids.h
+--- linux-2.6.32.2-vanilla/drivers/hid/hid-ids.h	2009-12-18 23:27:07.000000000 +0100
++++ linux-2.6.32.2-apple/drivers/hid/hid-ids.h	2010-01-06 01:42:02.000000000 +0100
+@@ -88,6 +88,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+
+--Boundary-00=_yiIRLq5rT3O1x54
+Content-Type: text/plain;
+  charset="UTF-8";
+  name="patch-2.6.33-rc2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-2.6.33-rc2"
+
+Added device IDs for the new model of the Apple Wireless Keyboard (November 2009).
+
+Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
+
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-rc2-vanilla/drivers/hid/hid-apple.c linux-2.6.33-rc2-apple/drivers/hid/hid-apple.c
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-apple.c	2009-12-24 22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-apple.c	2010-01-06 01:39:29.000000000 +0100
+@@ -431,6 +431,13 @@ static const struct hid_device_id apple_
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_KEYBOARD },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-rc2-vanilla/drivers/hid/hid-core.c linux-2.6.33-rc2-apple/drivers/hid/hid-core.c
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-core.c	2009-12-24 22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-core.c	2010-01-06 01:41:21.000000000 +0100
+@@ -1285,6 +1285,9 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-rc2-vanilla/drivers/hid/hid-ids.h linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-ids.h	2009-12-24 22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h	2010-01-06 01:42:30.000000000 +0100
+@@ -88,6 +88,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+
+--Boundary-00=_yiIRLq5rT3O1x54--

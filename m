@@ -1,90 +1,86 @@
-From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
-	Keyscan platform data
-Date: Tue, 05 Jan 2010 16:21:11 -0800
-Message-ID: <87aawsozgo.fsf@deeprootsystems.com>
-References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
-	<87hbs25n38.fsf@deeprootsystems.com>
-	<20091208004832.GA9495@core.coreip.homeip.net>
-	<877hsy46o0.fsf@deeprootsystems.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: Questions about Multi-touch Protocal
+Date: Wed, 06 Jan 2010 09:49:58 +0900
+Message-ID: <4B43DE36.6000907@samsung.com>
+References: <4B42D998.4050303@samsung.com> <4B432BDB.3000103@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <877hsy46o0.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> (Kevin Hilman's message of
-	"Mon\, 07 Dec 2009 17\:05\:03 -0800")
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, clark.becker-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org, santiago.nunez-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, miguel.aguilar-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:60699 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753853Ab0AFAuA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2010 19:50:00 -0500
+Received: from epmmp2 (mailout4.samsung.com [203.254.224.34])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KVS009UWVNANT@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 06 Jan 2010 09:49:59 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KVS007S8VNAYT@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 06 Jan 2010 09:49:58 +0900 (KST)
+In-reply-to: <4B432BDB.3000103@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
 
-Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> writes:
+On 1/5/2010 9:08 PM, Henrik Rydberg wrote:
+> Hi Joonyoung,
+> 
+>> I have some questions about Multi-touch(MT) Protocal.
+> 
+> Let me start by answering your last question:
+> 
+>> Finally, what is difference of ABS_MT_TOUCH_MAJOR and
+>> ABS_MT_WIDTH_MAJOR?
+> 
+> The TOUCH and WIDTH parameters have a geometrical interpretation; imagine
+> looking through a window at someone gently holding a finger against the glass.
+> You will see two regions, one inner region consisting of the part of the finger
+> actually touching the glass, and one outer region formed by the perimeter of the
+> finger. The diameter of the inner region is the ABS_MT_TOUCH_MAJOR, the diameter
+> of the outer region is ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the
+> finger harder against the glass. The inner region will increase, and in general,
+> the ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR, which is always smaller than
+> unity, is related to the finger pressure.
+> 
 
-> Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
->
->> On Mon, Dec 07, 2009 at 04:24:59PM -0800, Kevin Hilman wrote:
->>> <miguel.aguilar-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org> writes:
->>> 
->>> > From: Miguel Aguilar <miguel.aguilar-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
->>> >
->>> > Add a function pointer in the platform data of the DaVinci Keyscan driver
->>> > called device_enabled, in order to perform board specific actions when
->>> > the device is initialized, like setup the PINMUX configuration.
->>> >
->>> > Signed-off-by: Miguel Aguilar <miguel.aguilar-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
->>> 
->>> Signed-off-by: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
->>> 
->>> Dmitry,
->>> 
->>> Will you be queueing this driver (and this patch) for 2.6.34?  I
->>> thought you had accepted the original driver, but I don't see it in
->>> the master or next branch of your input tree at:
->>> 
->>>   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->>
->> The driver is there, commit bc09dcadc1a3da87d58aa70ebc8e9441205be75c on
->> 'next' branch (I don't really use master branch).  It was committed back
->> in October, probably that's why you don't see it?
->>
->> As far as the patch goes - I got an impression from email sent by
->> Steve that there are ways to do automatic PINMUX detection and thus
->> this patch was not needed.  Is this ture?
->
-> The method Steve was referring to was done for MontaVista
-> internal/product kernels but was rejected for upstream (by me) because
-> of the way it was implemented (by tying mux settings to clock
-> settings.)
->
->> If not I am stull unsure what happens if you unload the driver. How
->> do you restore the old configuration so that the device you took
->> over from can start working again? Maybe pinmux should be controlled
->> via sysfs attribute (in board code) so that user can switch on-fly
->> between the devices?
->
-> The way we currently handle MUXing in davinci, you don't need to do
-> anything after the driver unloads.  Any other user of these pins will
-> mux them as needed.
->
-> If really necessary, we could do an equivalent 'device_disable' hook
-> but there would be empty as it wouldn't be needed.
->
-> So, speaking as maintainer of the DaVinci support, I'm in favor of this
-> approach from Miguel.
+Aha, i understand :)
 
-Dmitry,
+> In addition to the MAJOR parameters, the oval shape of the finger can be
+> described by adding the MINOR parameters, such that MAJOR and MINOR are the
+> major and minor axis of an ellipse. Finally, the orientation of the oval shape
+> can be describe with the ORIENTATION parameter.
+> 
+>> First, what is the purpose of ABS_MT_TOUCH_MAJOR event? I wonder how
+>> it is used at userspace side.
+> 
+> In a graphical program it can of course be used as is, but in the specific
+> application of creating gesture events, the TOUCH and WIDTH parameters can be
+> used to, e.g., approximate finger pressure or distinguish between index finger
+> and thumb. With the addition of the MINOR parameters, one can also distinguish
+> between a sweeping finger and a pointing finger, and with ORIENTATION, one can
+> detect twisting of fingers.
+> 
+>> Should the ABS_MT_TOUCH_MAJOR be the mininum set of events for multi
+>> touch? I'm not sure whether this question is valid because of first
+>> question.
+> 
+> Each finger packet should have an ABS_MT_TOUCH_MAJOR value. In can be computed
+> from various types of sensory input, e.g., the size of the contact area or a
+> pressure sensor.
+> 
 
-Unless there are further objectsions, could you please queue this
-patch for 2.6.34 with my signoff?
+Hmm, I think ABS_MT_TOUCH_MAJOR is similar to ABS_PRESSURE, of course it
+can be used other purposes. If the device doesn't support the pressure,
+the driver doesn't report ABS_PRESSURE, so if the device cannot get a
+touching size of the finger, how can the driver report it?
 
-Thanks,
+The ABS_MT_TOUCH_MAJOR needs for several things as you explain, but i
+think it isn't essential event for multi-touch such ABS_PRESSURE.
+If we can get only the coodinates of each fingers, is it full enough for
+minimum supporting of multi-touch?
 
-Kevin
+Thanks for explanation.

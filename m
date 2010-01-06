@@ -1,108 +1,92 @@
-From: Christian Schuerer <csw@xray.at>
-Subject: [PATCH] linux-2.6.31.9 - Re: Device IDs for new Apple Wireless Keyboard
-Date: Wed, 6 Jan 2010 02:16:48 +0100
-Message-ID: <201001060216.49052.csw@xray.at>
-References: <4B38AFDE.8000203@gmail.com> <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
+ Keyscan platform data
+Date: Wed, 6 Jan 2010 00:26:38 -0800
+Message-ID: <20100106082638.GA2176@core.coreip.homeip.net>
+References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
+ <87hbs25n38.fsf@deeprootsystems.com>
+ <20091208004832.GA9495@core.coreip.homeip.net>
+ <877hsy46o0.fsf@deeprootsystems.com>
+ <87aawsozgo.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from isepic.quincunx.at ([173.45.232.79]:40847 "EHLO
-	isepic.quincunx.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754962Ab0AFB2t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2010 20:28:49 -0500
-In-Reply-To: <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:62207 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754929Ab0AFI0p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 03:26:45 -0500
+Received: by pwj9 with SMTP id 9so10954161pwj.21
+        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2010 00:26:44 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <87aawsozgo.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: miguel.aguilar@ridgerun.com, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
 
-On Monday 04 January 2010 11:57:33 Jiri Kosina wrote:
-> On Mon, 28 Dec 2009, Jiri Slaby wrote:
-> > Hi, I added some proper CCs. For me they look good. Care to add
-> > signed-off-by line? Thanks.
-> thanks for the patch. Could you please make the following two updates to
-> it, and send it to me, so that I could merge it? Thanks.
+On Tue, Jan 05, 2010 at 04:21:11PM -0800, Kevin Hilman wrote:
+> Kevin Hilman <khilman@deeprootsystems.com> writes:
 > 
-> - add a proper Signed-off-by: line, as described in
->   Documentation/SubmittingPatches
-> - keep the list of Apple IDs ordered by the product number
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> >
+> >> On Mon, Dec 07, 2009 at 04:24:59PM -0800, Kevin Hilman wrote:
+> >>> <miguel.aguilar@ridgerun.com> writes:
+> >>> 
+> >>> > From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> >>> >
+> >>> > Add a function pointer in the platform data of the DaVinci Keyscan driver
+> >>> > called device_enabled, in order to perform board specific actions when
+> >>> > the device is initialized, like setup the PINMUX configuration.
+> >>> >
+> >>> > Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
+> >>> 
+> >>> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+> >>> 
+> >>> Dmitry,
+> >>> 
+> >>> Will you be queueing this driver (and this patch) for 2.6.34?  I
+> >>> thought you had accepted the original driver, but I don't see it in
+> >>> the master or next branch of your input tree at:
+> >>> 
+> >>>   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+> >>
+> >> The driver is there, commit bc09dcadc1a3da87d58aa70ebc8e9441205be75c on
+> >> 'next' branch (I don't really use master branch).  It was committed back
+> >> in October, probably that's why you don't see it?
+> >>
+> >> As far as the patch goes - I got an impression from email sent by
+> >> Steve that there are ways to do automatic PINMUX detection and thus
+> >> this patch was not needed.  Is this ture?
+> >
+> > The method Steve was referring to was done for MontaVista
+> > internal/product kernels but was rejected for upstream (by me) because
+> > of the way it was implemented (by tying mux settings to clock
+> > settings.)
+> >
+> >> If not I am stull unsure what happens if you unload the driver. How
+> >> do you restore the old configuration so that the device you took
+> >> over from can start working again? Maybe pinmux should be controlled
+> >> via sysfs attribute (in board code) so that user can switch on-fly
+> >> between the devices?
+> >
+> > The way we currently handle MUXing in davinci, you don't need to do
+> > anything after the driver unloads.  Any other user of these pins will
+> > mux them as needed.
+> >
+> > If really necessary, we could do an equivalent 'device_disable' hook
+> > but there would be empty as it wouldn't be needed.
+> >
+> > So, speaking as maintainer of the DaVinci support, I'm in favor of this
+> > approach from Miguel.
+> 
+> Dmitry,
+> 
+> Unless there are further objectsions, could you please queue this
+> patch for 2.6.34 with my signoff?
+> 
 
-Jiri,
+Applied to for-linus, I do not see any reason in holding this patch
+till .34. Sorry for the delay.
 
-thank you for your feedback. Here is the patch for linux-2.6.31.9:
-
-Changes:
-
-Added device IDs for the new model of the Apple Wireless Keyboard (November 
-2009).
-
-Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
-
-diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-
-vanilla/drivers/hid/hid-apple.c linux-2.6.31.9-apple/drivers/hid/hid-apple.c
---- linux-2.6.31.9-vanilla/drivers/hid/hid-apple.c	2009-12-18 
-22:47:01.000000000 +0100
-+++ linux-2.6.31.9-apple/drivers/hid/hid-apple.c	2010-01-06 01:39:33.000000000 
-+0100
-@@ -431,6 +431,13 @@ static const struct hid_device_id apple_
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
- 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-+			APPLE_ISO_KEYBOARD },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
-diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-
-vanilla/drivers/hid/hid-core.c linux-2.6.31.9-apple/drivers/hid/hid-core.c
---- linux-2.6.31.9-vanilla/drivers/hid/hid-core.c	2009-12-18 
-22:47:01.000000000 +0100
-+++ linux-2.6.31.9-apple/drivers/hid/hid-core.c	2010-01-06 01:40:39.000000000 
-+0100
-@@ -1259,6 +1259,9 @@ static const struct hid_device_id hid_bl
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) 
-},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) 
-},
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
-USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) 
-},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
-diff -uprN -X linux-2.6.31.9-vanilla/Documentation/dontdiff linux-2.6.31.9-
-vanilla/drivers/hid/hid-ids.h linux-2.6.31.9-apple/drivers/hid/hid-ids.h
---- linux-2.6.31.9-vanilla/drivers/hid/hid-ids.h	2009-12-18 
-22:47:01.000000000 +0100
-+++ linux-2.6.31.9-apple/drivers/hid/hid-ids.h	2010-01-06 01:41:51.000000000 
-+0100
-@@ -88,6 +88,9 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
- #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
-+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
-+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
-+#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
- #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+-- 
+Dmitry

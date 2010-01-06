@@ -1,51 +1,63 @@
-From: Stefan Weil <weil@mail.berlios.de>
-Subject: [PATCH] Fix spelling in log messages
-Date: Thu,  7 Jan 2010 00:05:37 +0100
-Message-ID: <1262819137-16775-1-git-send-email-weil@mail.berlios.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Logitech G13 driver 0.0.2
+Date: Thu, 7 Jan 2010 00:52:32 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1001070051220.15694@twin.jikos.cz>
+References: <200912142244.nBEMikgN002071@mustang.cs.nmsu.edu> <20100106144447.b5ea9b1f.akpm@linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:64150 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932958Ab0AFXGA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 18:06:00 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:47655 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756526Ab0AFXwh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jan 2010 18:52:37 -0500
+In-Reply-To: <20100106144447.b5ea9b1f.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dave Young <hidave.darkstar@gmail.com>, Matthew Garrett <mjg@redhat.com>, "David S . Miller" <davem@davemloft.net>, linux-input@vger.kern
-Cc: Stefan Weil <weil@mail.berlios.de>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, krzysztof.h1@wp.pl, linux-usb@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org
 
-Replace platfrom -> platform.
+On Wed, 6 Jan 2010, Andrew Morton wrote:
 
-Signed-off-by: Stefan Weil <weil@mail.berlios.de>
----
- drivers/input/serio/i8042.c |    2 +-
- drivers/net/davinci_emac.c  |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> > his is a driver for the Logitech G13 gamepad, and contains three
+> > key parts. In the USB reports the device identifies itself as a
+> > HID, and as a result this driver is under the HID framework.
+> > 
+> > There are two primary sub-components to this driver; an input
+> > device and a framebuffer device.
+> > 
+> > Although identified as a HID, the device does not support standard
+> > HID input messages. As a result, a sub-input device is allocated and
+> > registered separately in g13_probe(). The raw events are monitored 
+> > and key presses/joystick activity is reported through the input device 
+> > after referencing an indexed keymap.
+> > 
+> > Additionally, this device contains a 160x43 monochrome LCD display.
+> > A registered framebuffer device manages this display. The design
+> > of this portion of the driver was based on the design of the
+> > hecubafb driver with deferred framebuffer I/O since there is
+> > no real memory to map.
+> 
+> I get this from x86_64 allmodconfig:
+> 
+> drivers/hid/hid-g13.o:(.rodata+0x0): multiple definition of `__mod_hid_device_table'
+> drivers/hid/hid-lg.o:(.rodata+0x0): first defined here
+> /opt/crosstool/gcc-4.0.2-glibc-2.3.6/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-ld: Warning: size of symbol `__mod_hid_device_table' changed from 552 in drivers/hid/hid-lg.o to 48 in drivers/hid/hid-g13.o
+> drivers/hid/hid-g13.o: In function `init_module':
+> hid-g13.c:(.init.text+0x0): multiple definition of `init_module'
+> drivers/hid/hid-lg.o:hid-lg.c:(.init.text+0x0): first defined here
+> drivers/hid/hid-g13.o: In function `cleanup_module':
+> hid-g13.c:(.exit.text+0x0): multiple definition of `cleanup_module'
+> drivers/hid/hid-lg.o:hid-lg.c:(.exit.text+0x0): first defined here
+> 
+> Confused.
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index d84a36e..33f3541 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -430,7 +430,7 @@ static bool i8042_filter(unsigned char data, unsigned char str,
- 	}
- 
- 	if (i8042_platform_filter && i8042_platform_filter(data, str, serio)) {
--		dbg("Filtered out by platfrom filter\n");
-+		dbg("Filtered out by platform filter\n");
- 		return true;
- 	}
- 
-diff --git a/drivers/net/davinci_emac.c b/drivers/net/davinci_emac.c
-index 107bc5f..4741ade 100644
---- a/drivers/net/davinci_emac.c
-+++ b/drivers/net/davinci_emac.c
-@@ -2652,7 +2652,7 @@ static int __devinit davinci_emac_probe(struct platform_device *pdev)
- 
- 	pdata = pdev->dev.platform_data;
- 	if (!pdata) {
--		printk(KERN_ERR "DaVinci EMAC: No platfrom data\n");
-+		printk(KERN_ERR "DaVinci EMAC: No platform data\n");
- 		return -ENODEV;
- 	}
- 
+Yes, please just drop the driver from -mm.
+
+Rick is already aware of this failure, and there were also some other 
+comments coming out from the patch review. Rick will be submitting new 
+patch, and I am planning to integrate it through my tree once it is ready.
+
 -- 
-1.5.6.5
+Jiri Kosina
+SUSE Labs, Novell Inc.
 

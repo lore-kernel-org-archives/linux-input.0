@@ -1,86 +1,110 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: Questions about Multi-touch Protocal
-Date: Wed, 06 Jan 2010 09:49:58 +0900
-Message-ID: <4B43DE36.6000907@samsung.com>
-References: <4B42D998.4050303@samsung.com> <4B432BDB.3000103@euromail.se>
+From: Christian Schuerer <csw@xray.at>
+Subject: [PATCH] linux-2.6.33-rc2 - Re: Device IDs for new Apple Wireless Keyboard
+Date: Wed, 6 Jan 2010 02:16:47 +0100
+Message-ID: <201001060216.47958.csw@xray.at>
+References: <4B38AFDE.8000203@gmail.com> <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:60699 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753853Ab0AFAuA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2010 19:50:00 -0500
-Received: from epmmp2 (mailout4.samsung.com [203.254.224.34])
- by mailout1.samsung.com
- (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTP id <0KVS009UWVNANT@mailout1.samsung.com> for
- linux-input@vger.kernel.org; Wed, 06 Jan 2010 09:49:59 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0KVS007S8VNAYT@mmp2.samsung.com> for
- linux-input@vger.kernel.org; Wed, 06 Jan 2010 09:49:58 +0900 (KST)
-In-reply-to: <4B432BDB.3000103@euromail.se>
+Received: from isepic.quincunx.at ([173.45.232.79]:40848 "EHLO
+	isepic.quincunx.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754931Ab0AFB2t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Jan 2010 20:28:49 -0500
+In-Reply-To: <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On 1/5/2010 9:08 PM, Henrik Rydberg wrote:
-> Hi Joonyoung,
+On Monday 04 January 2010 11:57:33 Jiri Kosina wrote:
+> On Mon, 28 Dec 2009, Jiri Slaby wrote:
+> > Hi, I added some proper CCs. For me they look good. Care to add
+> > signed-off-by line? Thanks.
+> thanks for the patch. Could you please make the following two updates to
+> it, and send it to me, so that I could merge it? Thanks.
 > 
->> I have some questions about Multi-touch(MT) Protocal.
-> 
-> Let me start by answering your last question:
-> 
->> Finally, what is difference of ABS_MT_TOUCH_MAJOR and
->> ABS_MT_WIDTH_MAJOR?
-> 
-> The TOUCH and WIDTH parameters have a geometrical interpretation; imagine
-> looking through a window at someone gently holding a finger against the glass.
-> You will see two regions, one inner region consisting of the part of the finger
-> actually touching the glass, and one outer region formed by the perimeter of the
-> finger. The diameter of the inner region is the ABS_MT_TOUCH_MAJOR, the diameter
-> of the outer region is ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the
-> finger harder against the glass. The inner region will increase, and in general,
-> the ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR, which is always smaller than
-> unity, is related to the finger pressure.
-> 
+> - add a proper Signed-off-by: line, as described in
+>   Documentation/SubmittingPatches
+> - keep the list of Apple IDs ordered by the product number
 
-Aha, i understand :)
+Jiri,
 
-> In addition to the MAJOR parameters, the oval shape of the finger can be
-> described by adding the MINOR parameters, such that MAJOR and MINOR are the
-> major and minor axis of an ellipse. Finally, the orientation of the oval shape
-> can be describe with the ORIENTATION parameter.
-> 
->> First, what is the purpose of ABS_MT_TOUCH_MAJOR event? I wonder how
->> it is used at userspace side.
-> 
-> In a graphical program it can of course be used as is, but in the specific
-> application of creating gesture events, the TOUCH and WIDTH parameters can be
-> used to, e.g., approximate finger pressure or distinguish between index finger
-> and thumb. With the addition of the MINOR parameters, one can also distinguish
-> between a sweeping finger and a pointing finger, and with ORIENTATION, one can
-> detect twisting of fingers.
-> 
->> Should the ABS_MT_TOUCH_MAJOR be the mininum set of events for multi
->> touch? I'm not sure whether this question is valid because of first
->> question.
-> 
-> Each finger packet should have an ABS_MT_TOUCH_MAJOR value. In can be computed
-> from various types of sensory input, e.g., the size of the contact area or a
-> pressure sensor.
-> 
+here is the patch for linux-2.6.33-rc2:
 
-Hmm, I think ABS_MT_TOUCH_MAJOR is similar to ABS_PRESSURE, of course it
-can be used other purposes. If the device doesn't support the pressure,
-the driver doesn't report ABS_PRESSURE, so if the device cannot get a
-touching size of the finger, how can the driver report it?
+Changes:
 
-The ABS_MT_TOUCH_MAJOR needs for several things as you explain, but i
-think it isn't essential event for multi-touch such ABS_PRESSURE.
-If we can get only the coodinates of each fingers, is it full enough for
-minimum supporting of multi-touch?
+Added device IDs for the new model of the Apple Wireless Keyboard (November 
+2009).
 
-Thanks for explanation.
+Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
+
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
+rc2-vanilla/drivers/hid/hid-apple.c linux-2.6.33-rc2-apple/drivers/hid/hid-
+apple.c
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-apple.c	2009-12-24 
+22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-apple.c	2010-01-06 
+01:39:29.000000000 +0100
+@@ -431,6 +431,13 @@ static const struct hid_device_id apple_
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_KEYBOARD },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
+rc2-vanilla/drivers/hid/hid-core.c linux-2.6.33-rc2-apple/drivers/hid/hid-
+core.c
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-core.c	2009-12-24 
+22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-core.c	2010-01-06 01:41:21.000000000 
++0100
+@@ -1285,6 +1285,9 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) 
+},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) 
+},
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) 
+},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
+rc2-vanilla/drivers/hid/hid-ids.h linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h
+--- linux-2.6.33-rc2-vanilla/drivers/hid/hid-ids.h	2009-12-24 
+22:09:41.000000000 +0100
++++ linux-2.6.33-rc2-apple/drivers/hid/hid-ids.h	2010-01-06 01:42:30.000000000 
++0100
+@@ -88,6 +88,9 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
+ #define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI  0x0239
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO   0x023a
++#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241

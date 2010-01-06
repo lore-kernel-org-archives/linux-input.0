@@ -1,40 +1,57 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] linux-2.6.31.9, linux-2.6.32.2, linux-2.6.33-rc2 -- Re:
- Device IDs for new Apple Wireless Keyboard
-Date: Wed, 6 Jan 2010 14:46:58 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001061446450.2277@pobox.suse.cz>
-References: <4B38AFDE.8000203@gmail.com> <201001060216.47958.csw@xray.at> <alpine.LNX.2.00.1001061113060.2277@pobox.suse.cz> <201001061357.22447.csw@xray.at>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Subject: Re: [patch 1/1] hid: Logitech G13 driver 0.0.2
+Date: Wed, 6 Jan 2010 09:23:25 -0700
+Message-ID: <e4857e132859fc5a73c584f1593587ba.squirrel@intranet.cs.nmsu.edu>
+References: <200912220022.nBM0MMS8005004@imap1.linux-foundation.org>
+    <alpine.LNX.2.00.0912230056120.3755@pobox.suse.cz>
+    <20091222160307.0018bda9.akpm@linux-foundation.org>
+    <alpine.LNX.2.00.0912230111010.3755@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:36728 "EHLO mx1.suse.de"
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:58235 "EHLO mail.cs.nmsu.edu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932119Ab0AFNq7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Jan 2010 08:46:59 -0500
-In-Reply-To: <201001061357.22447.csw@xray.at>
+	id S1755430Ab0AFQXj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jan 2010 11:23:39 -0500
+In-Reply-To: <alpine.LNX.2.00.0912230111010.3755@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Schuerer <csw@xray.at>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, dtor@mail.ru, oliver@neukum.org
 
-On Wed, 6 Jan 2010, Christian Schuerer wrote:
+Jiri Kosina wrote:
+> Still, this is not the only build problem of this driver. Apparently it
+> also doesn't like to be built as module (together with all the
+> HID_LOGITECH stuff).
+>
+> drivers/hid/hid-g13.o:(.rodata+0x1e0): multiple definition of
+> `__mod_hid_device_table'
+> drivers/hid/hid-lg.o:(.rodata+0x540): first defined here
+> ld: Warning: size of symbol `__mod_hid_device_table' changed from 552 in
+> drivers/hid/hid-lg.o to 48 in drivers/hid/hid-g13.o
+> drivers/hid/hid-g13.o: In function `g13_init':
+> /home/jkosina/src/hid/drivers/hid/hid-g13.c:1513: multiple definition of
+> `init_module'
+> drivers/hid/hid-lg.o:/home/jkosina/src/hid/drivers/hid/hid-lg.c:354: first
+> defined here
+> drivers/hid/hid-g13.o: In function `g13_exit':
+> /home/jkosina/src/hid/drivers/hid/hid-g13.c:1518: multiple definition of
+> `cleanup_module'
+> drivers/hid/hid-lg.o:/home/jkosina/src/hid/drivers/hid/hid-lg.c:359: first
+> defined here
+> make[1]: *** [drivers/hid/hid-logitech.o] Error 1
+>
 
-> > > here is the patch for linux-2.6.33-rc2:
-> > > Thanks. Unfortunately, it's wordwrapped, so it can't be easily applied.
-> > Could you please fix up your e-mail client so that it doesn't mangle long
-> > lines, or eventually send is as an attachment?
-> 
-> I'm sorry, I have attached all three patches as text files.
-> 
-> > > Added device IDs for the new model of the Apple Wireless Keyboard
-> > > (November 2009).
-> > These are solely Bluetooth device, and there is no USB variant, right?
-> 
-> As far as I know of only a new variant of the wireless (bluetooth) keyboard 
-> has been released in November 2009.
+Even though the G13 is a Logitech device, perhaps I should break it out of
+the Logitech stuff. In reality, the "Logitech" option is a bit of a
+misnomer. It doesn't appear to be Logitech in general but rather Logitech
+Force Feedback devices.
 
-Applied to my tree, thanks Christian.
+There's nothing in the driver that needs the Logitech force feedback code.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+---
+
+Rick
+
+

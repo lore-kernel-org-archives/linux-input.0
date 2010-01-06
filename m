@@ -1,92 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: Add device_enable handler to DaVinci
- Keyscan platform data
-Date: Wed, 6 Jan 2010 00:26:38 -0800
-Message-ID: <20100106082638.GA2176@core.coreip.homeip.net>
-References: <1258141434-18351-1-git-send-email-miguel.aguilar@ridgerun.com>
- <87hbs25n38.fsf@deeprootsystems.com>
- <20091208004832.GA9495@core.coreip.homeip.net>
- <877hsy46o0.fsf@deeprootsystems.com>
- <87aawsozgo.fsf@deeprootsystems.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] linux-2.6.33-rc2 - Re: Device IDs for new Apple Wireless
+ Keyboard
+Date: Wed, 6 Jan 2010 11:14:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1001061113060.2277@pobox.suse.cz>
+References: <4B38AFDE.8000203@gmail.com> <alpine.LNX.2.00.1001041155560.2277@pobox.suse.cz> <201001060216.47958.csw@xray.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:62207 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754929Ab0AFI0p (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 03:26:45 -0500
-Received: by pwj9 with SMTP id 9so10954161pwj.21
-        for <linux-input@vger.kernel.org>; Wed, 06 Jan 2010 00:26:44 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <87aawsozgo.fsf@deeprootsystems.com>
+Received: from cantor2.suse.de ([195.135.220.15]:51600 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755646Ab0AFKOj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jan 2010 05:14:39 -0500
+In-Reply-To: <201001060216.47958.csw@xray.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: miguel.aguilar@ridgerun.com, davinci-linux-open-source@linux.davincidsp.com, nsnehaprabha@ti.com, linux-input@vger.kernel.org, santiago.nunez@ridgerun.com, todd.fischer@ridgerun.com, clark.becker@ridgerun.com
+To: Christian Schuerer <csw@xray.at>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, Jan 05, 2010 at 04:21:11PM -0800, Kevin Hilman wrote:
-> Kevin Hilman <khilman@deeprootsystems.com> writes:
-> 
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> >
-> >> On Mon, Dec 07, 2009 at 04:24:59PM -0800, Kevin Hilman wrote:
-> >>> <miguel.aguilar@ridgerun.com> writes:
-> >>> 
-> >>> > From: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> >>> >
-> >>> > Add a function pointer in the platform data of the DaVinci Keyscan driver
-> >>> > called device_enabled, in order to perform board specific actions when
-> >>> > the device is initialized, like setup the PINMUX configuration.
-> >>> >
-> >>> > Signed-off-by: Miguel Aguilar <miguel.aguilar@ridgerun.com>
-> >>> 
-> >>> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
-> >>> 
-> >>> Dmitry,
-> >>> 
-> >>> Will you be queueing this driver (and this patch) for 2.6.34?  I
-> >>> thought you had accepted the original driver, but I don't see it in
-> >>> the master or next branch of your input tree at:
-> >>> 
-> >>>   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
-> >>
-> >> The driver is there, commit bc09dcadc1a3da87d58aa70ebc8e9441205be75c on
-> >> 'next' branch (I don't really use master branch).  It was committed back
-> >> in October, probably that's why you don't see it?
-> >>
-> >> As far as the patch goes - I got an impression from email sent by
-> >> Steve that there are ways to do automatic PINMUX detection and thus
-> >> this patch was not needed.  Is this ture?
-> >
-> > The method Steve was referring to was done for MontaVista
-> > internal/product kernels but was rejected for upstream (by me) because
-> > of the way it was implemented (by tying mux settings to clock
-> > settings.)
-> >
-> >> If not I am stull unsure what happens if you unload the driver. How
-> >> do you restore the old configuration so that the device you took
-> >> over from can start working again? Maybe pinmux should be controlled
-> >> via sysfs attribute (in board code) so that user can switch on-fly
-> >> between the devices?
-> >
-> > The way we currently handle MUXing in davinci, you don't need to do
-> > anything after the driver unloads.  Any other user of these pins will
-> > mux them as needed.
-> >
-> > If really necessary, we could do an equivalent 'device_disable' hook
-> > but there would be empty as it wouldn't be needed.
-> >
-> > So, speaking as maintainer of the DaVinci support, I'm in favor of this
-> > approach from Miguel.
-> 
-> Dmitry,
-> 
-> Unless there are further objectsions, could you please queue this
-> patch for 2.6.34 with my signoff?
-> 
+On Wed, 6 Jan 2010, Christian Schuerer wrote:
 
-Applied to for-linus, I do not see any reason in holding this patch
-till .34. Sorry for the delay.
+> here is the patch for linux-2.6.33-rc2:
+
+Thanks. Unfortunately, it's wordwrapped, so it can't be easily applied. 
+Could you please fix up your e-mail client so that it doesn't mangle long 
+lines, or eventually send is as an attachment?
+
+> Added device IDs for the new model of the Apple Wireless Keyboard (November 
+> 2009).
+> 
+> Signed-off-by: Christian Schuerer-Waldheim <csw@xray.at>
+> 
+> diff -uprN -X linux-2.6.33-rc2-vanilla/Documentation/dontdiff linux-2.6.33-
+> rc2-vanilla/drivers/hid/hid-apple.c linux-2.6.33-rc2-apple/drivers/hid/hid-
+> apple.c
+> --- linux-2.6.33-rc2-vanilla/drivers/hid/hid-apple.c	2009-12-24 
+> 22:09:41.000000000 +0100
+> +++ linux-2.6.33-rc2-apple/drivers/hid/hid-apple.c	2010-01-06 
+> 01:39:29.000000000 +0100
+> @@ -431,6 +431,13 @@ static const struct hid_device_id apple_
+>  		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, 
+> USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+>  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+> USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+> USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+> +			APPLE_ISO_KEYBOARD },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 
+> USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
+> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+
+These are solely Bluetooth device, and there is no USB variant, right?
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

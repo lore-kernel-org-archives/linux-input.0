@@ -1,52 +1,55 @@
-From: Peter <peter@slim-one.de>
-Subject: Re: Question: Formula Force GP (Force) Feedback
-Date: Wed, 06 Jan 2010 21:10:43 +0100
-Message-ID: <1262808643.8601.3.camel@slim-one-desktop>
-References: <1262554958.10612.19.camel@slim-one-desktop>
-	 <alpine.LNX.2.00.1001061141570.2277@pobox.suse.cz>
-	 <1262781002.2804.60.camel@slim-one-desktop>
-	 <201001061441.30202.anssi.hannula@iki.fi>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] Logitech G13 driver 0.0.2
+Date: Wed, 6 Jan 2010 14:44:47 -0800
+Message-ID: <20100106144447.b5ea9b1f.akpm@linux-foundation.org>
+References: <200912142244.nBEMikgN002071@mustang.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-tRIdC2YuKEF7wpOgbx0Q"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay02.ispgateway.de ([80.67.29.24]:49021 "EHLO
-	smtprelay02.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932560Ab0AFUKs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Jan 2010 15:10:48 -0500
-In-Reply-To: <201001061441.30202.anssi.hannula@iki.fi>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:39425 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S932459Ab0AFWp7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Jan 2010 17:45:59 -0500
+In-Reply-To: <200912142244.nBEMikgN002071@mustang.cs.nmsu.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@iki.fi>
-Cc: Jiri Kosina <jkosina@suse.cz>, wylda@volny.cz, christophe.borivant@wanadoo.fr, linux-input@vger.kernel.org
+To: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
+Cc: linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, krzysztof.h1@wp.pl, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz
 
+On Mon, 14 Dec 2009 15:44:46 -0700
+"Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu> wrote:
 
---=-tRIdC2YuKEF7wpOgbx0Q
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+> his is a driver for the Logitech G13 gamepad, and contains three
+> key parts. In the USB reports the device identifies itself as a
+> HID, and as a result this driver is under the HID framework.
+> 
+> There are two primary sub-components to this driver; an input
+> device and a framebuffer device.
+> 
+> Although identified as a HID, the device does not support standard
+> HID input messages. As a result, a sub-input device is allocated and
+> registered separately in g13_probe(). The raw events are monitored 
+> and key presses/joystick activity is reported through the input device 
+> after referencing an indexed keymap.
+> 
+> Additionally, this device contains a 160x43 monochrome LCD display.
+> A registered framebuffer device manages this display. The design
+> of this portion of the driver was based on the design of the
+> hecubafb driver with deferred framebuffer I/O since there is
+> no real memory to map.
 
-On Wed, 2010-01-06 at 14:41 +0200, Anssi Hannula wrote:=20
-> This issue is probably fixed by this commit:
->=20
-> http://git.kernel.org/?p=3Dlinux/kernel/git/dtor/input.git;a=3Dcommitdiff=
-;h=3D1b11c88d3e8f55dc9d193d19de11e3f7abc1b7d7
->=20
+I get this from x86_64 allmodconfig:
 
-Indeed, Thanks! :)
-I tested 2.6.33-rc2 and 2.6.32-gentoo-r2, both work fine with the patch.
+drivers/hid/hid-g13.o:(.rodata+0x0): multiple definition of `__mod_hid_device_table'
+drivers/hid/hid-lg.o:(.rodata+0x0): first defined here
+/opt/crosstool/gcc-4.0.2-glibc-2.3.6/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-ld: Warning: size of symbol `__mod_hid_device_table' changed from 552 in drivers/hid/hid-lg.o to 48 in drivers/hid/hid-g13.o
+drivers/hid/hid-g13.o: In function `init_module':
+hid-g13.c:(.init.text+0x0): multiple definition of `init_module'
+drivers/hid/hid-lg.o:hid-lg.c:(.init.text+0x0): first defined here
+drivers/hid/hid-g13.o: In function `cleanup_module':
+hid-g13.c:(.exit.text+0x0): multiple definition of `cleanup_module'
+drivers/hid/hid-lg.o:hid-lg.c:(.exit.text+0x0): first defined here
 
-Peter
-
---=-tRIdC2YuKEF7wpOgbx0Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
-
-iEYEABECAAYFAktE7kMACgkQoX+V0yCBsOfwkwCfaMjbWq1aqlWMvGQcVeHi5DO9
-ueoAoM/I4DN1UQMQNRWPb5YtNyPGzJ15
-=TY4s
------END PGP SIGNATURE-----
-
---=-tRIdC2YuKEF7wpOgbx0Q--
-
+Confused.

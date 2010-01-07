@@ -1,51 +1,45 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1
-Date: Thu, 7 Jan 2010 15:33:46 +0800
-Message-ID: <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
-References: <20100106071026.GD1382@ucw.cz> <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
-	<20100107065230.GA1303@ucw.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH resend] Input: psmouse - Fix a synaptics protocol
+ detection mistake
+Date: Thu, 7 Jan 2010 01:55:18 -0800
+Message-ID: <20100107095518.GA16387@core.coreip.homeip.net>
+References: <20100103145633.E2E9C9D400D@zog.reactivated.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f194.google.com ([209.85.221.194]:36358 "EHLO
-	mail-qy0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756265Ab0AGHeH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 02:34:07 -0500
-In-Reply-To: <20100107065230.GA1303@ucw.cz>
+Received: from mail-px0-f174.google.com ([209.85.216.174]:36943 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751367Ab0AGJzX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 04:55:23 -0500
+Received: by pxi4 with SMTP id 4so1142910pxi.33
+        for <linux-input@vger.kernel.org>; Thu, 07 Jan 2010 01:55:23 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20100103145633.E2E9C9D400D@zog.reactivated.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: dtor@mail.ru, linux-input@vger.kernel.org, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, zaurus-devel@lists.linuxtogo.org, "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
+To: Daniel Drake <dsd@laptop.org>
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
 
-On Thu, Jan 7, 2010 at 2:52 PM, Pavel Machek <pavel@ucw.cz> wrote:
-> On Wed 2010-01-06 15:17:39, Eric Miao wrote:
->> On Wed, Jan 6, 2010 at 3:10 PM, Pavel Machek <pavel@ucw.cz> wrote:
->> >
->> > Sharp-SL code uses strange, complex grouping of gpios for wakeups
->> > toggling. Fortunately, it is unneeded in recent kernels (and actually
->> > provokes WARN_ONs during resume). Remove it.
->> >
->> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
->>
->> Pavel,
->>
->> The code to be removed below is used to support pxa27x_keypad
->> to be able to resume from sleep. What's the exact reason to remove
->> this on spitz?
->
-> Well, otherwise I get this during resume: (2.6.32 regression)
->
-> (and similar for matrix-keypad, but dmitry worked around that
-> already).
->
-> Problem is that gpio-keys and matrix-keypad want to set_wake for each
-> gpio individually, hw can do that, but pxa27x.c breaks it.
->
-> I don't get it; what is pxa27x_keypad used on? It looks like
-> matrix-keypad subset.
->
+On Sun, Jan 03, 2010 at 02:56:33PM +0000, Daniel Drake wrote:
+> For configurations where synaptics hardware is present but the synaptics
+> extensions support is not compiled in, the mouse is reprobed and a new
+> device is allocated on every suspend/resume.
+> 
+> During probe, psmouse_switch_protocol() calls psmouse_extensions() with
+> set_properties=1. This calls the dummy synaptics_init() which returns an
+> error code, instructing us not to use the synaptics extensions.
+> 
+> During resume, psmouse_reconnect() calls psmouse_extensions() with
+> set_properties=0. This caused PSMOUSE_SYNAPTICS to be returned as the
+> supported extensions, and as this is a different result from earlier it
+> then causes psmouse_reconnect() to fail and a full reprobe happens.
+> 
+> Fix this by tweaking the set_properties=0 codepath in psmouse_extensions()
+> to be more careful about offering PSMOUSE_SYNAPTICS extensions.
+> 
+> Signed-off-by: Daniel Drake <dsd@laptop.org>
 
-pxa27x has its own specific keypad controller. And since we now
-use enable_irq_wake, and the keypad controller has only one
-such IRQ_KEYPAD, will have to setup the keypad GPIO wakeup
-as a whole.
+Applied, thank you Daniel.
+
+-- 
+Dmitry

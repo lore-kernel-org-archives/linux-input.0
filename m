@@ -1,46 +1,60 @@
 From: Bastian Blank <waldi@debian.org>
-Subject: [PATCH 7/7] Input: wacom - Fail on missing features
-Date: Thu, 7 Jan 2010 19:30:09 +0100
-Message-ID: <20100107183009.GA13036@wavehammer.waldi.eu.org>
+Subject: [PATCH 3/7] Input: wacom - Set driver info for Wacom Penpartner
+Date: Thu, 7 Jan 2010 19:29:42 +0100
+Message-ID: <20100107182941.GA12938@wavehammer.waldi.eu.org>
 References: <20100107182553.GA11236@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wavehammer.waldi.eu.org ([82.139.201.20]:56845 "EHLO
-	wavehammer.waldi.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751681Ab0AGSkv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 13:40:51 -0500
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753474Ab0AGSkz@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <20100107182553.GA11236@wavehammer.waldi.eu.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
+List-Id: linux-input@vger.kernel.org
 
-The driver needs a correct setup feature list, fail if it is not
-correctly set.
+Add define to set also driver info in the usb device ids, convert one
+device.
 
 Signed-off-by: Bastian Blank <waldi@debian.org>
 ---
- drivers/input/tablet/wacom_sys.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/input/tablet/wacom_sys.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
-index 41a631b..c44b9f0 100644
+index b0f3fc3..aa02fb1 100644
 --- a/drivers/input/tablet/wacom_sys.c
 +++ b/drivers/input/tablet/wacom_sys.c
-@@ -534,6 +534,9 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
- 	struct input_dev *input_dev;
- 	int error = -ENOMEM;
+@@ -665,8 +665,11 @@ static int wacom_reset_resume(struct usb_interface *intf)
+ 	return wacom_resume(intf);
+ }
  
-+	if (!features)
-+		return -EIO;
++static struct wacom_features wacom_features_0x00 =
++	{ "Wacom Penpartner",     WACOM_PKGLEN_PENPRTN,    5040,  3780,  255,  0, PENPARTNER };
 +
- 	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
- 	wacom_wac = kzalloc(sizeof(struct wacom_wac), GFP_KERNEL);
- 	input_dev = input_allocate_device();
+ static struct wacom_features wacom_features[] = {
+-	{ "Wacom Penpartner",     WACOM_PKGLEN_PENPRTN,    5040,  3780,  255,  0, PENPARTNER },
++	{ },
+ 	{ "Wacom Graphire",       WACOM_PKGLEN_GRAPHIRE,  10206,  7422,  511, 63, GRAPHIRE },
+ 	{ "Wacom Graphire2 4x5",  WACOM_PKGLEN_GRAPHIRE,  10206,  7422,  511, 63, GRAPHIRE },
+ 	{ "Wacom Graphire2 5x7",  WACOM_PKGLEN_GRAPHIRE,  13918, 10206,  511, 63, GRAPHIRE },
+@@ -732,8 +735,12 @@ static struct wacom_features wacom_features[] = {
+ 	{ }
+ };
+ 
++#define USB_DEVICE_WACOM(prod) \
++	USB_DEVICE(USB_VENDOR_ID_WACOM,prod), \
++	.driver_info = (uintptr_t)&wacom_features_##prod
++
+ static struct usb_device_id wacom_ids[] = {
+-	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x00) },
++	{ USB_DEVICE_WACOM(0x00) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x10) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x11) },
+ 	{ USB_DEVICE(USB_VENDOR_ID_WACOM, 0x12) },
 -- 
 1.6.5.7
 
 
 -- 
-Well, Jim, I'm not much of an actor either.
+Immortality consists largely of boredom.
+		-- Zefrem Cochrane, "Metamorphosis", stardate 3219.8

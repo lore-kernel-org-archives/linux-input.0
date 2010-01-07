@@ -1,45 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/7] Input: wacom - Get features from driver info
-Date: Thu, 7 Jan 2010 11:39:50 -0800
-Message-ID: <201001071139.50766.dmitry.torokhov@gmail.com>
-References: <20100107182553.GA11236@wavehammer.waldi.eu.org> <201001071106.31688.dmitry.torokhov@gmail.com> <20100107192105.GA15015@wavehammer.waldi.eu.org>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Subject: Re: [PATCH] hid: Logitech G13 driver 0.0.3
+Date: Thu, 7 Jan 2010 14:20:45 -0700
+Message-ID: <60d33f2f434689d056f668281abfb5b6.squirrel@intranet.cs.nmsu.edu>
+References: <201001071623.o07GNOB4022157@mustang.cs.nmsu.edu>
+    <20100107193520.GA21695@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:53488 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753854Ab0AGTkG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 14:40:06 -0500
-In-Reply-To: <20100107192105.GA15015@wavehammer.waldi.eu.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754094Ab0AGVVG@vger.kernel.org>
+In-Reply-To: <20100107193520.GA21695@elf.ucw.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz
 List-Id: linux-input@vger.kernel.org
-To: Bastian Blank <waldi@debian.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-On Thursday 07 January 2010 11:21:05 am Bastian Blank wrote:
-> On Thu, Jan 07, 2010 at 11:06:30AM -0800, Dmitry Torokhov wrote:
-> > On Thursday 07 January 2010 10:29:36 am Bastian Blank wrote:
-> > > +	struct wacom_features *features = (void *)id->driver_info;
-> >
-> > What is this cast for?
-> 
-> driver_info is an integer.
-> 
-> > > +	if (!features)
-> > > +		features = get_wacom_feature(id);
-> >
-> > In which cases driver would not have driver_info set up?
-> 
-> At this stage in the patchset, non have. Later the driver defined ids
-> have, the user defined have not.
-> 
+Pavel Machek wrote:
+> On Thu 2010-01-07 09:23:24, Rick L. Vinyard Jr. wrote:
+>>
+>> This is a driver for the Logitech G13 gamepad, and contains three key
+>> parts.  Through the USB reports the device identifies itself as a HID,
+>> and as
+>> a result this driver is under the HID framework.
+> ...
+>> Although identified as a HID, the device does not support standard HID
+>> input messages.  As a result, a sub-input device is allocated and
+>> registered separately in g13_probe().  The raw events are monitored
+>
+> Ok, so the device pretends to be a HID device, but it is not. that
+> seems like rather poor reason...
+>
+>> --- /dev/null
+>> +++ b/drivers/hid/hid-g13.c
+>> @@ -0,0 +1,1598 @@
+>
+> ...to put it into hid directory.
+>
 
-Ah, OK.  Frankly I would fold patches 2-7 into one since it is one logical 
-change. While you are at it, any chance of constifying wacom_features?
+>From what I can tell it is compliant with the USB HID 1.11 standard.
+However, it doesn't support standard HID input messages like a typical
+mouse or keyboard device. Thus, there isn't anything for the generic
+parser to parse. That's why everything (related to input interrupts) has
+to be handled in the raw events.
 
-Thanks.
+While many aspects of the device, such as the M1-MR LED's don't provide an
+LED (or similar) HID usage, they can be controlled with the generalized
+get/set reports. For these I've used usbhid_submit_report() where
+possible, so the driver itself relies most heavily on the usbhid framework
+first and framebuffer second.
 
--- 
-Dmitry
+>> +#define G13_G1		 0
+>> +#define G13_G2		 1
+>> +#define G13_G3		 2
+>> +#define G13_G4		 3
+>> +#define G13_G5		 4
+>> +#define G13_G6		 5
+>> +#define G13_G7		 6
+>> +#define G13_G8		 7
+>> +#define G13_G9		 8
+>> +#define G13_G10		 9
+>> +#define G13_G11		10
+>> +#define G13_G12		11
+>> +#define G13_G13		12
+>> +#define G13_G14		13
+>> +#define G13_G15		14
+>> +#define G13_G16		15
+>> +#define G13_G17		16
+>> +#define G13_G18		17
+>> +#define G13_G19		18
+>> +#define G13_G20		19
+>> +#define G13_G21		20
+>> +#define G13_G22		21
+>
+> This looks like waste of space.
+>
+
+You're right. Those were used in an early version and are no longer needed
+and can be replaced with a bit of documentation indicating which key maps
+to which location in the keymap array. Especially for the ones that follow
+such as:
+
+#define G13_G19		18
+#define G13_G20		19
+#define G13_G21		20
+#define G13_G22		21
+#define G13_FUNC	22
+#define G13_LCD1	23
+#define G13_LCD2	24
+#define G13_LCD3	25
+#define G13_LCD4	26
+#define G13_M1		27
+#define G13_M2		28
+#define G13_M3		29
+#define G13_MR		30
+#define G13_BTN_LEFT	31
+#define G13_BTN_DOWN	32
+#define G13_BTN_STICK	33
+#define G13_LIGHT	34

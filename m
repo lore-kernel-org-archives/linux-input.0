@@ -1,31 +1,46 @@
-From: Bastian Blank <bastian@waldi.eu.org>
-Subject: [PATCH 0/7] Input: wacom - Setup features via driver info
-Date: Thu, 7 Jan 2010 19:25:53 +0100
-Message-ID: <20100107182553.GA11236@wavehammer.waldi.eu.org>
+From: Bastian Blank <waldi@debian.org>
+Subject: [PATCH 7/7] Input: wacom - Fail on missing features
+Date: Thu, 7 Jan 2010 19:30:09 +0100
+Message-ID: <20100107183009.GA13036@wavehammer.waldi.eu.org>
+References: <20100107182553.GA11236@wavehammer.waldi.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wavehammer.waldi.eu.org ([82.139.201.20]:41725 "EHLO
+Received: from wavehammer.waldi.eu.org ([82.139.201.20]:56845 "EHLO
 	wavehammer.waldi.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750964Ab0AGScP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 13:32:15 -0500
+	with ESMTP id S1751681Ab0AGSkv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 13:40:51 -0500
 Content-Disposition: inline
+In-Reply-To: <20100107182553.GA11236@wavehammer.waldi.eu.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ping Cheng <pingc@wacom.com>
 
-This patchset moves the feature info into the driver info of the usb
-device ids.  The wacom driver always needs this info to setup the
-device.
+The driver needs a correct setup feature list, fail if it is not
+correctly set.
 
-Currently the driver uses two synchronized arrays with the standard ids
-and the features.  It calculates the index into the features array by
-hand and does not check for overflow.  With the ability to add new ids
-to the driver, I can instruct the driver to access non-existant features
-entries and produce crashes in the uevent core.
+Signed-off-by: Bastian Blank <waldi@debian.org>
+---
+ drivers/input/tablet/wacom_sys.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-Bastian
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 41a631b..c44b9f0 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -534,6 +534,9 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 	struct input_dev *input_dev;
+ 	int error = -ENOMEM;
+ 
++	if (!features)
++		return -EIO;
++
+ 	wacom = kzalloc(sizeof(struct wacom), GFP_KERNEL);
+ 	wacom_wac = kzalloc(sizeof(struct wacom_wac), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
+-- 
+1.6.5.7
+
 
 -- 
-I'm a soldier, not a diplomat.  I can only tell the truth.
-		-- Kirk, "Errand of Mercy", stardate 3198.9
+Well, Jim, I'm not much of an actor either.

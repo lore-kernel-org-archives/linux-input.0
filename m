@@ -1,78 +1,190 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1
-Date: Thu, 7 Jan 2010 07:52:32 +0100
-Message-ID: <20100107065230.GA1303@ucw.cz>
-References: <20100106071026.GD1382@ucw.cz> <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: [PATCH] input/misc: adxl34x: add support for ADXL346 orientation sensing
+Date: Thu,  7 Jan 2010 02:05:35 -0500
+Message-ID: <1262847935-21106-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:34303 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752822Ab0AGGwt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Jan 2010 01:52:49 -0500
-Content-Disposition: inline
-In-Reply-To: <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:54777 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750849Ab0AGHFn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Jan 2010 02:05:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>, dtor@mail.ru, linux-input@vger.kernel.org
-Cc: rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, zaurus-devel@lists.linuxtogo.org, "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
 
-On Wed 2010-01-06 15:17:39, Eric Miao wrote:
-> On Wed, Jan 6, 2010 at 3:10 PM, Pavel Machek <pavel@ucw.cz> wrote:
-> >
-> > Sharp-SL code uses strange, complex grouping of gpios for wakeups
-> > toggling. Fortunately, it is unneeded in recent kernels (and actually
-> > provokes WARN_ONs during resume). Remove it.
-> >
-> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
-> 
-> Pavel,
-> 
-> The code to be removed below is used to support pxa27x_keypad
-> to be able to resume from sleep. What's the exact reason to remove
-> this on spitz?
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Well, otherwise I get this during resume: (2.6.32 regression)
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ drivers/input/misc/adxl34x.c  |   58 +++++++++++++++++++++++++++++++++++++++-
+ include/linux/input/adxl34x.h |   56 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 112 insertions(+), 2 deletions(-)
 
-(and similar for matrix-keypad, but dmitry worked around that
-already).
-
-Problem is that gpio-keys and matrix-keypad want to set_wake for each
-gpio individually, hw can do that, but pxa27x.c breaks it.
-
-I don't get it; what is pxa27x_keypad used on? It looks like
-matrix-keypad subset.
-
-								Pavel
-
-pxa2xx-spi pxa2xx-spi.2: resume
-sharp-scoop sharp-scoop.0: resume
-matrix-keypad matrix-keypad: resume
-gpio-keys gpio-keys: resume
-------------[ cut here ]------------
-WARNING: at kernel/irq/manage.c:361 set_irq_wake+0x7c/0x138()
-Unbalanced IRQ 191 wake disable
-Modules linked in:
-[<c0024900>] (unwind_backtrace+0x0/0xe4) from [<c00354f4>] (warn_slowpath_common+0x4c/0x80)
-[<c00354f4>] (warn_slowpath_common+0x4c/0x80) from [<c0035564>] (warn_slowpath_fmt+0x28/0x38)
-[<c0035564>] (warn_slowpath_fmt+0x28/0x38) from [<c00622f4>] (set_irq_wake+0x7c/0x138)
-[<c00622f4>] (set_irq_wake+0x7c/0x138) from [<c01d2370>] (gpio_keys_resume+0x94/0xd0)
-[<c01d2370>] (gpio_keys_resume+0x94/0xd0) from [<c0193a50>] (platform_pm_resume+0x30/0x54)
-[<c0193a50>] (platform_pm_resume+0x30/0x54) from [<c01961e4>] (pm_op+0xa0/0xc0)
-[<c01961e4>] (pm_op+0xa0/0xc0) from [<c0196c94>] (dpm_resume_end+0x100/0x474)
-[<c0196c94>] (dpm_resume_end+0x100/0x474) from [<c005ef7c>] (suspend_devices_and_enter+0x8c/0x1dc)
-[<c005ef7c>] (suspend_devices_and_enter+0x8c/0x1dc) from [<c005f1b4>] (enter_state+0xe8/0x120)
-[<c005f1b4>] (enter_state+0xe8/0x120) from [<c005e8b8>] (state_store+0x90/0xc4)
-[<c005e8b8>] (state_store+0x90/0xc4) from [<c01481a4>] (kobj_attr_store+0x1c/0x24)
-[<c01481a4>] (kobj_attr_store+0x1c/0x24) from [<c00daab0>] (sysfs_write_file+0x104/0x18c)
-[<c00daab0>] (sysfs_write_file+0x104/0x18c) from [<c00922cc>] (vfs_write+0xb0/0x164)
-[<c00922cc>] (vfs_write+0xb0/0x164) from [<c0092450>] (sys_write+0x40/0x70)
-[<c0092450>] (sys_write+0x40/0x70) from [<c001ff60>] (ret_fast_syscall+0x0/0x28)
----[ end trace d1b2070efbc838e4 ]---
-leds-gpio leds-gpio: resume
-sharpsl-nand sharpsl-nand: resume
-
-
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+index c67bb17..2864080 100644
+--- a/drivers/input/misc/adxl34x.c
++++ b/drivers/input/misc/adxl34x.c
+@@ -201,6 +201,8 @@ struct adxl34x {
+ 	struct axis_triple hwcal;
+ 	struct axis_triple saved;
+ 	char phys[32];
++	unsigned orient2d_saved;
++	unsigned orient3d_saved;
+ 	unsigned disabled:1;	/* P: mutex */
+ 	unsigned opened:1;	/* P: mutex */
+ 	unsigned fifo_delay:1;
+@@ -303,7 +305,7 @@ static void adxl34x_work(struct work_struct *work)
+ {
+ 	struct adxl34x *ac = container_of(work, struct adxl34x, work);
+ 	struct adxl34x_platform_data *pdata = &ac->pdata;
+-	int int_stat, tap_stat, samples;
++	int int_stat, tap_stat, samples, orient, orient_code;
+ 
+ 	/*
+ 	 * ACT_TAP_STATUS should be read before clearing the interrupt
+@@ -339,6 +341,36 @@ static void adxl34x_work(struct work_struct *work)
+ 					 pdata->ev_code_act_inactivity, 0);
+ 	}
+ 
++	/*
++	 * ORIENTATION SENSING ADXL346 only
++	 */
++	if (pdata->orientation_enable) {
++		orient = AC_READ(ac, ORIENT);
++		if ((pdata->orientation_enable & ADXL_EN_ORIENTATION_2D) &&
++			 (orient & ADXL346_2D_VALID)) {
++
++			orient_code = ADXL346_2D_ORIENT(orient);
++			/* Report orientation only when it changes */
++			if (ac->orient2d_saved != orient_code) {
++				ac->orient2d_saved = orient_code;
++				adxl34x_report_key_single(ac->input,
++					pdata->ev_codes_orient_2d[orient_code]);
++			}
++		}
++
++		if ((pdata->orientation_enable & ADXL_EN_ORIENTATION_3D) &&
++			 (orient & ADXL346_3D_VALID)) {
++
++			orient_code = ADXL346_3D_ORIENT(orient) - 1;
++			/* Report orientation only when it changes */
++			if (ac->orient3d_saved != orient_code) {
++				ac->orient3d_saved = orient_code;
++				adxl34x_report_key_single(ac->input,
++					pdata->ev_codes_orient_3d[orient_code]);
++			}
++		}
++	}
++
+ 	if (int_stat & (DATA_READY | WATERMARK)) {
+ 
+ 		if (pdata->fifo_mode)
+@@ -657,7 +689,7 @@ int adxl34x_probe(struct adxl34x **pac, struct device *dev, int irq,
+ 	struct adxl34x *ac;
+ 	struct input_dev *input_dev;
+ 	struct adxl34x_platform_data *pdata;
+-	int err, range;
++	int err, range, i;
+ 	unsigned char revid;
+ 
+ 	if (!irq) {
+@@ -820,6 +852,28 @@ int adxl34x_probe(struct adxl34x **pac, struct device *dev, int irq,
+ 		/* Map all INTs to INT1 */
+ 		AC_WRITE(ac, INT_MAP, 0);
+ 
++	if ((ac->model == 346) && ac->pdata.orientation_enable) {
++		AC_WRITE(ac, ORIENT_CONF,
++			ORIENT_DEADZONE(ac->pdata.deadzone_angle) |
++			ORIENT_DIVISOR(ac->pdata.divisor_length));
++
++		ac->orient2d_saved = 1234;
++		ac->orient3d_saved = 1234;
++
++	if (pdata->orientation_enable & ADXL_EN_ORIENTATION_3D)
++		for (i = 0; i < ARRAY_SIZE(pdata->ev_codes_orient_3d); i++)
++			__set_bit(pdata->ev_codes_orient_3d[i],
++				 input_dev->keybit);
++
++	if (pdata->orientation_enable & ADXL_EN_ORIENTATION_2D)
++		for (i = 0; i < ARRAY_SIZE(pdata->ev_codes_orient_2d); i++)
++			__set_bit(pdata->ev_codes_orient_2d[i],
++				input_dev->keybit);
++
++	} else {
++		ac->pdata.orientation_enable = 0;
++	}
++
+ 	AC_WRITE(ac, INT_ENABLE, ac->int_mask | OVERRUN);
+ 
+ 	pdata->power_mode &= (PCTL_AUTO_SLEEP | PCTL_LINK);
+diff --git a/include/linux/input/adxl34x.h b/include/linux/input/adxl34x.h
+index 7121182..9da36f2 100644
+--- a/include/linux/input/adxl34x.h
++++ b/include/linux/input/adxl34x.h
+@@ -288,6 +288,62 @@ struct adxl34x_platform_data {
+ 	u32 ev_code_ff;	/* EV_KEY */
+ 	u32 ev_code_act_inactivity;	/* EV_KEY */
+ 
++	/*
++	 * Use ADXL34x INT2 instead of INT1
++	 */
+ 	u8 use_int2;
++
++	/*
++	 * ADXL346 only ORIENTATION SENSING feature
++	 * The orientation function of the ADXL346 reports both 2-D and
++	 * 3-D orientation concurrently.
++	 */
++
++#define ADXL_EN_ORIENTATION_2D		1
++#define ADXL_EN_ORIENTATION_3D		2
++#define ADXL_EN_ORIENTATION_2D_3D	3
++
++	/*
++	 * The width of the deadzone region between two or more
++	 * orientation positions is determined by setting the Deadzone
++	 * value. The deadzone region size can be specified with a
++	 * resolution of 3.6deg. The deadzone angle represents the total
++	 * angle where the orientation is considered invalid.
++	 */
++
++	u8 orientation_enable;
++
++#define ADXL_DEADZONE_ANGLE_0p0	0	/* !!!0.0 [deg] */
++#define ADXL_DEADZONE_ANGLE_3p6	1	/* 3.6 [deg] */
++#define ADXL_DEADZONE_ANGLE_7p2	2	/* 7.2 [deg] */
++#define ADXL_DEADZONE_ANGLE_10p8	3	/* 10.8 [deg] */
++#define ADXL_DEADZONE_ANGLE_14p4	4	/* 14.4 [deg] */
++#define ADXL_DEADZONE_ANGLE_18p0	5	/* 18.0 [deg] */
++#define ADXL_DEADZONE_ANGLE_21p6	6	/* 21.6 [deg] */
++#define ADXL_DEADZONE_ANGLE_25p2	7	/* 25.2 [deg] */
++
++	u8 deadzone_angle;
++
++	/*
++	 * To eliminate most human motion such as walking or shaking,
++	 * a Divisor value should be selected to effectively limit the
++	 * orientation bandwidth. Set the depth of the filter used to
++	 * low-pass filter the measured acceleration for stable
++	 * orientation sensing
++	 */
++
++#define ADXL_LP_FILTER_DIVISOR_2	0
++#define ADXL_LP_FILTER_DIVISOR_4	1
++#define ADXL_LP_FILTER_DIVISOR_8	2
++#define ADXL_LP_FILTER_DIVISOR_16	3
++#define ADXL_LP_FILTER_DIVISOR_32	4
++#define ADXL_LP_FILTER_DIVISOR_64	5
++#define ADXL_LP_FILTER_DIVISOR_128	6
++#define ADXL_LP_FILTER_DIVISOR_256	7
++
++	u8 divisor_length;
++
++	u32 ev_codes_orient_2d[4];	/* EV_KEY {+X, -X, +Y, -Y} */
++	u32 ev_codes_orient_3d[6];	/* EV_KEY {+Z, +Y, +X, -X, -Y, -Z} */
+ };
+ #endif
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.6.6
+

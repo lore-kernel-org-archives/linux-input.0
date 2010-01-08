@@ -1,376 +1,548 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: input: add mxc-keypad driver to support the keypad interface present in the mxc application processors family.
-Date: Fri, 8 Jan 2010 15:33:12 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190902089738@mi8nycmail19.Mi8.com>
-References: <1262977099.2050.75.camel@climbing-alby>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] hid: Logitech G13 driver 0.0.3
+Date: Fri, 8 Jan 2010 12:49:46 -0800
+Message-ID: <20100108204946.GA22950@core.coreip.homeip.net>
+References: <201001071623.o07GNOB4022157@mustang.cs.nmsu.edu>
+ <20100108083020.GB3696@core.coreip.homeip.net>
+ <174828e8a25d1e607eb91ab963396b2a.squirrel@intranet.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og103.obsmtp.com ([64.18.1.185]:41561 "HELO
-	exprod6og103.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752883Ab0AHUdP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Jan 2010 15:33:15 -0500
-Content-class: urn:content-classes:message
-In-Reply-To: <1262977099.2050.75.camel@climbing-alby>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754006Ab0AHUuJ@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <174828e8a25d1e607eb91ab963396b2a.squirrel@intranet.cs.nmsu.edu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Cc: linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, pavel@ucw.cz, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz
 List-Id: linux-input@vger.kernel.org
-To: Alberto Panizzo <maramaopercheseimorto@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel-infradead <linux-arm-kernel@lists.infradead.org>, Sascha linux-arm <s.hauer@pengutronix.de>
 
-T24gRnJpZGF5LCBKYW51YXJ5IDA4LCAyMDEwIDExOjU4IEFNLCBBbGJlcnRvIFBhbml6em8gd3Jv
-dGU6DQo+IFRoZSBNWEMgZmFtaWx5IG9mIEFwcGxpY2F0aW9uIFByb2Nlc3NvcnMgaXMgc2hpcHBl
-ZCB3aXRoIGENCj4gS2V5cGFkIFBvcnQgc3VwcG9ydGVkIG5vdyBieSB0aGlzIGRyaXZlci4NCj4g
-DQo+IFRoZSBwZXJpcGhlcmFsIGNhbiBjb250cm9sIHVwIHRvIGFuIDh4OCBtYXRyaXgga2V5IHBh
-ZCB3aGVyZQ0KPiBhbGwgdGhlIHNjYW5uaW5nIHByb2NlZHVyZSBpcyBkb25lIHZpYSBzb2Z0d2Fy
-ZS4gDQo+IA0KPiBUaGUgaGFyZHdhcmUgcHJvdmlkZSB0d28gaW50ZXJydXB0czogb25lIGZvciBh
-IGtleSBwcmVzc2VkIChLREkpDQo+IGFuZCBvbmUgZm9yIGFsbCBrZXkgcmVsZWFzZXMgKEtSSSku
-IFRoZXJlIGlzIGFsc28gYSBzaW1wbGUgY2lyY3VpdCBmb3IgZ2xpdGNoIA0KPiByZWR1Y3Rpb24g
-KHNhaWQgZm9yIHN5bmNocm9uaXphdGlvbikgbWFkZSBieSB0d28gc2VyaWVzIG9mIDMgRC1sYXRj
-aGVzDQo+IHRoYXQgc3RhYmlsaXplIHRoZSBpbnRlcnJ1cHRzIHNvdXJjZXMuDQo+IEtESSBhbmQg
-S1JJIGFyZSBmaXJlZCBvbmx5IGlmIHRoZSByZXNwZWN0aXZlIGNvbmRpdGlvbnMgYXJlIG1haW50
-YWluZWQgZm9yIA0KPiBhdCBsYXN0IDQga2V5cGFkLWNsb2NrIGN5Y2xlLg0KPiANCj4gVGhvc2Ug
-c2ltcGxlIHN5bmNocm9uaXphdGlvbiBjaXJjdWl0cyBhcmUgdXNlZCBhbHNvIGZvciBtdWx0aXBs
-ZQ0KPiBrZXkgcHJlc3N1cmVzOiBiZXR3ZWVuIGEgS0RJIGFuZCBhIEtSSSB0aGUgZHJpdmVyIHJl
-c2V0IHRoZSANCj4gc3luYyBjaXJjdWl0IGFuZCByZS1lbmFibGUgdGhlIEtESSBpbnRlcnJ1cHQg
-c28gYWZ0ZXIgMw0KPiBrZXlwYWQtY2xvY2sgY3ljbGUgYW5vdGhlciBLREkgaXMgZmlyZWQgbWFr
-aW5nIHBvc3NpYmxlIHRvIHJlcGVhdA0KPiB0aGUgbWF0cml4IHNjYW4gb3BlcmF0aW9uLg0KPiAN
-Cj4gVGhpcyBhbGdvcml0aG0gaXMgZG9uZSB2aWEgYSB0aHJlYWRlZCBtYW5hZ2VtZW50IG9mIHRo
-ZSBrZXlwYWQNCj4gaW50ZXJydXB0IHNvdXJjZSBhbmQgZGVsYXllZCBieSBhIHByb3BlciAoYW5k
-IGxvbmdlcikgZGVib3VuY2UNCj4gaW50ZXJ2YWwgY29udHJvbGxlZCBieSB0aGUgcGxhdGZvcm0g
-aW5pdGlhbGl6YXRpb24uDQo+IElmIGEga2V5IGlzIHByZXNzZWQgZm9yIGEgbG90IG9mIHRpbWUs
-IHRoZSBkcml2ZXIgcmVsYXhlcyBhIGJpdA0KPiB0aGUgdGltaW5ncyB0byBub3Qgb3ZlciBsb2Fk
-IHRoZSBjcHUgaW4gYSBsb25nIHRpbWUga2V5cGFkIGludGVyYWN0aW9uLg0KPiANCj4gS2V5IGNv
-bmZpZ3VyYXRpb24gaXMgZG9uZSB2aWEgcGxhdGZvcm0gaW5pdGlhbGl6YXRpb24gaW4gDQo+IGEg
-c3RhbmRhcmQgbWF0cml4X2tleXBhZCBtYW5uZXIuDQo+IA0KPiBUaGlzIGRyaXZlciBpcyB0ZXN0
-ZWQgZm9yIGJ1aWxkIGluIGtlcm5lbCBvciBhcyBhIG1vZHVsZQ0KPiBhbmQgZm9sbG93IHRoZSBz
-cGVjaWZpY2F0aW9uIG9mIGZyZWVzY2FsZSBpLk1YIDI1IDI3IDMxIDM1IDUxDQo+IGVzcGVjaWFs
-bHkgaXQgaXMgdGVzdGVkIGluIHRoZSBteDMxcGRrIGJvYXJkLg0KPiANCg0KWW91IG1pZ2h0IGNv
-bnNpZGVyIHVzaW5nIHNvbWUgb2YgdGhlIG1hdHJpeF9rZXlwYWQgc3VwcG9ydCBhbHJlYWR5IGlu
-DQp0aGUga2VybmVsLiAgU3BlY2lmaWMncyBiZWxvdy4NCg0KPiANCj4gU2lnbmVkLW9mZi1ieTog
-QWxiZXJ0byBQYW5penpvIDxtYXJhbWFvcGVyY2hlc2VpbW9ydG9AZ21haWwuY29tPg0KPiAtLS0N
-Cj4gIGFyY2gvYXJtL3BsYXQtbXhjL2luY2x1ZGUvbWFjaC9teGNfa2V5cGFkLmggfCAgIDIwICsr
-DQo+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJkL0tjb25maWcgICAgICAgICAgICAgIHwgICAgOSAr
-DQo+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJkL01ha2VmaWxlICAgICAgICAgICAgIHwgICAgMSAr
-DQo+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJkL214Y19rZXlwYWQuYyAgICAgICAgIHwgIDQ4NSAr
-KysrKysrKysrKysrKysrKysrKysrKysrKysNCj4gIDQgZmlsZXMgY2hhbmdlZCwgNTE1IGluc2Vy
-dGlvbnMoKyksIDAgZGVsZXRpb25zKC0pDQo+ICBjcmVhdGUgbW9kZSAxMDA2NDQgYXJjaC9hcm0v
-cGxhdC1teGMvaW5jbHVkZS9tYWNoL214Y19rZXlwYWQuaA0KPiAgY3JlYXRlIG1vZGUgMTAwNjQ0
-IGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbXhjX2tleXBhZC5jDQo+IA0KPiBkaWZmIC0tZ2l0IGEv
-YXJjaC9hcm0vcGxhdC1teGMvaW5jbHVkZS9tYWNoL214Y19rZXlwYWQuaCBiL2FyY2gvYXJtL3Bs
-YXQtbXhjL2luY2x1ZGUvbWFjaC9teGNfa2V5cGFkLmgNCj4gbmV3IGZpbGUgbW9kZSAxMDA2NDQN
-Cj4gaW5kZXggMDAwMDAwMC4uMWIwNTA5Mw0KPiAtLS0gL2Rldi9udWxsDQo+ICsrKyBiL2FyY2gv
-YXJtL3BsYXQtbXhjL2luY2x1ZGUvbWFjaC9teGNfa2V5cGFkLmgNCj4gQEAgLTAsMCArMSwyMCBA
-QA0KPiArI2lmbmRlZiBfX01BQ0hfTVhDX0tFWVBBRF9IDQo+ICsjZGVmaW5lIF9fTUFDSF9NWENf
-S0VZUEFEX0gNCj4gKw0KPiArI2RlZmluZSBNQVhfTUFUUklYX0tFWV9ST1dTCSg4KQ0KPiArI2Rl
-ZmluZSBNQVhfTUFUUklYX0tFWV9DT0xTCSg4KQ0KPiArI2RlZmluZSBNQVRSSVhfUk9XX1NISUZU
-CSgzKQ0KPiArDQo+ICtzdHJ1Y3QgbXhjX2tleXBhZF9wbGF0Zm9ybV9kYXRhIHsNCj4gKw0KPiAr
-CS8qIGNvZGUgbWFwIGZvciB0aGUgbWF0cml4IGtleXMgKi8NCj4gKwl1bnNpZ25lZCBpbnQJbWF0
-cml4X2tleV9yb3dzOw0KPiArCXVuc2lnbmVkIGludAltYXRyaXhfa2V5X2NvbHM7DQo+ICsJdW5z
-aWduZWQgaW50CSptYXRyaXhfa2V5X21hcDsNCj4gKwlpbnQJCW1hdHJpeF9rZXlfbWFwX3NpemU7
-DQo+ICsNCj4gKwkvKiBrZXkgZGVib3VuY2UgaW50ZXJ2YWwgKi8NCj4gKwl1bnNpZ25lZCBpbnQJ
-ZGVib3VuY2VfbXM7DQo+ICt9Ow0KDQpZb3UgY291bGQgdXNlIHN0cnVjdCBtYXRyaXhfa2V5bWFw
-X2RhdGEgdG8gaG9sZCB5b3VyIG1hdHJpeF9rZXlfbWFwIGFuZA0KbWF0cml4X2tleV9tYXBfc2l6
-ZS4gIFRha2UgYSBsb29rIGF0IGluY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4X2tleXBhZC5oLg0K
-DQo+ICsNCj4gKyNlbmRpZiAvKiBfX01BQ0hfTVhDX0tFWVBBRF9IICovDQo+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL0tjb25maWcgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJk
-L0tjb25maWcNCj4gaW5kZXggZWU5OGIxYi4uZWZmMzJmZSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVy
-cy9pbnB1dC9rZXlib2FyZC9LY29uZmlnDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQv
-S2NvbmZpZw0KPiBAQCAtMjgyLDYgKzI4MiwxNSBAQCBjb25maWcgS0VZQk9BUkRfTUFYNzM1OQ0K
-PiAgCSAgVG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTog
-dGhlDQo+ICAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQgbWF4NzM1OV9rZXlwYWQuDQo+ICANCj4g
-K2NvbmZpZyBLRVlCT0FSRF9NWEMNCj4gKwl0cmlzdGF0ZSAiTVhDIGtleXBhZCBzdXBwb3J0Ig0K
-PiArCWRlcGVuZHMgb24gQVJDSF9NWEMNCj4gKwloZWxwDQo+ICsJICBFbmFibGUgc3VwcG9ydCBm
-b3IgTVhDIGtleXBhZCBwb3J0Lg0KPiArDQo+ICsJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFz
-IGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUNCj4gKwkgIG1vZHVsZSB3aWxsIGJlIGNhbGxl
-ZCBteGNfa2V5cGFkLg0KPiArDQo+ICBjb25maWcgS0VZQk9BUkRfTkVXVE9ODQo+ICAJdHJpc3Rh
-dGUgIk5ld3RvbiBrZXlib2FyZCINCj4gIAlzZWxlY3QgU0VSSU8NCj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvaW5wdXQva2V5Ym9hcmQvTWFrZWZpbGUgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL01h
-a2VmaWxlDQo+IGluZGV4IGJhYmFkNWUuLjljNzEzM2EgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMv
-aW5wdXQva2V5Ym9hcmQvTWFrZWZpbGUNCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9N
-YWtlZmlsZQ0KPiBAQCAtMjMsNiArMjMsNyBAQCBvYmotJChDT05GSUdfS0VZQk9BUkRfTE9DT01P
-KQkJKz0gbG9jb21va2JkLm8NCj4gIG9iai0kKENPTkZJR19LRVlCT0FSRF9NQVBMRSkJCSs9IG1h
-cGxlX2tleWIubw0KPiAgb2JqLSQoQ09ORklHX0tFWUJPQVJEX01BVFJJWCkJCSs9IG1hdHJpeF9r
-ZXlwYWQubw0KPiAgb2JqLSQoQ09ORklHX0tFWUJPQVJEX01BWDczNTkpCQkrPSBtYXg3MzU5X2tl
-eXBhZC5vDQo+ICtvYmotJChDT05GSUdfS0VZQk9BUkRfTVhDKQkJKz0gbXhjX2tleXBhZC5vDQo+
-ICBvYmotJChDT05GSUdfS0VZQk9BUkRfTkVXVE9OKQkJKz0gbmV3dG9ua2JkLm8NCj4gIG9iai0k
-KENPTkZJR19LRVlCT0FSRF9PTUFQKQkJKz0gb21hcC1rZXlwYWQubw0KPiAgb2JqLSQoQ09ORklH
-X0tFWUJPQVJEX09QRU5DT1JFUykJKz0gb3BlbmNvcmVzLWtiZC5vDQo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL2lucHV0L2tleWJvYXJkL214Y19rZXlwYWQuYyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9h
-cmQvbXhjX2tleXBhZC5jDQo+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAwMDAwMDAu
-LjRhY2QzMTENCj4gLS0tIC9kZXYvbnVsbA0KPiArKysgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJk
-L214Y19rZXlwYWQuYw0KPiBAQCAtMCwwICsxLDQ4NSBAQA0KPiArLyoNCj4gKyAqIGxpbnV4L2Ry
-aXZlcnMvaW5wdXQva2V5Ym9hcmQvbXhjX2tleXBhZC5jDQo+ICsgKg0KPiArICogRHJpdmVyIGZv
-ciB0aGUgTVhDIGtleXBhZCBwb3J0Lg0KPiArICogQ29weXJpZ2h0IChDKSAyMDA5IEFsYmVydG8g
-UGFuaXp6byA8bWFyYW1hb3BlcmNoZXNlaW1vcnRvQGdtYWlsLmNvbT4NCj4gKyAqICBiYXNlZCBv
-biBSb2RvbGZvIEdpb21ldHRpICYgb3RoZXJzIHdvcmsgaW4gcHhhMjd4X2tleXBhZC5jDQo+ICsg
-Kg0KPiArICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmli
-dXRlIGl0IGFuZC9vciBtb2RpZnkNCj4gKyAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05V
-IEdlbmVyYWwgUHVibGljIExpY2Vuc2UgdmVyc2lvbiAyIGFzDQo+ICsgKiBwdWJsaXNoZWQgYnkg
-dGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbi4NCj4gKyAqDQo+ICsgKiA+PlBvd2VyIG1hbmFn
-ZW1lbnQgbmVlZCB0byBiZSBpbXBsZW1lbnRlZDw8Lg0KPiArICovDQo+ICsNCj4gKyNpbmNsdWRl
-IDxsaW51eC9jbGsuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9kZWxheS5oPg0KPiArI2luY2x1ZGUg
-PGxpbnV4L2RldmljZS5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L2Vyci5oPg0KPiArI2luY2x1ZGUg
-PGxpbnV4L2luaXQuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPg0KPiArI2luY2x1ZGUg
-PGxpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaD4NCg0KaW5wdXQuaCBpcyBub3QgbmVlZGVkIGlm
-IHlvdSBhcmUgaW5jbHVkaW5nIG1hdHJpeF9rZXlwYWQuaA0KDQo+ICsjaW5jbHVkZSA8bGludXgv
-aW50ZXJydXB0Lmg+DQo+ICsjaW5jbHVkZSA8bGludXgvaW8uaD4NCj4gKyNpbmNsdWRlIDxsaW51
-eC9rZXJuZWwuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCj4gKyNpbmNsdWRlIDxs
-aW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4NCj4gKw0KPiArI2luY2x1ZGUgPG1hY2gvbXhjX2tleXBh
-ZC5oPg0KPiArDQo+ICsvKg0KPiArICogS2V5cGFkIENvbnRyb2xsZXIgcmVnaXN0ZXJzIChoYWxm
-d29yZCkNCj4gKyAqLw0KPiArI2RlZmluZSBLUENSCQkweDAwIC8qIEtleXBhZCBDb250cm9sIFJl
-Z2lzdGVyICovDQo+ICsNCj4gKyNkZWZpbmUgS1BTUgkJMHgwMiAvKiBLZXlwYWQgU3RhdHVzIFJl
-Z2lzdGVyICovDQo+ICsjZGVmaW5lIEtCRF9TVEFUX0tQS0QJKDB4MSA8PCAwKSAvKiBLZXkgUHJl
-c3MgSW50ZXJydXB0IFN0YXR1cyBiaXQgKi8NCj4gKyNkZWZpbmUgS0JEX1NUQVRfS1BLUgkoMHgx
-IDw8IDEpIC8qIEtleSBSZWxlYXNlIEludGVycnVwdCBTdGF0dXMgYml0ICovDQo+ICsjZGVmaW5l
-IEtCRF9TVEFUX0tEU0MJKDB4MSA8PCAyKSAvKiBLZXkgRGVwcmVzcyBTeW5jaCBDaGFpbiBTdGF0
-dXMgYml0ICovDQo+ICsjZGVmaW5lIEtCRF9TVEFUX0tSU1MJKDB4MSA8PCAzKSAvKiBLZXkgUmVs
-ZWFzZSBTeW5jaCBTdGF0dXMgYml0ICovDQo+ICsjZGVmaW5lIEtCRF9TVEFUX0tESUUJKDB4MSA8
-PCA4KSAvKiBLZXkgRGVwcmVzcyBJbnRlcnJ1cHQgRW5hYmxlIFN0YXR1cyBiaXQgKi8NCj4gKyNk
-ZWZpbmUgS0JEX1NUQVRfS1JJRQkoMHgxIDw8IDkpIC8qIEtleSBSZWxlYXNlIEludGVycnVwdCBF
-bmFibGUgKi8NCj4gKyNkZWZpbmUgS0JEX1NUQVRfS1BQRU4JKDB4MSA8PCAxMCkgLyogS2V5cGFk
-IENsb2NrIEVuYWJsZSAqLw0KPiArDQo+ICsjZGVmaW5lIEtERFIJCTB4MDQgLyogS2V5cGFkIERh
-dGEgRGlyZWN0aW9uIFJlZ2lzdGVyICovDQo+ICsjZGVmaW5lIEtQRFIJCTB4MDYgLyogS2V5cGFk
-IERhdGEgUmVnaXN0ZXIgKi8NCj4gKw0KPiArI2RlZmluZSBrZXlwYWRfcmVhZHcob2ZmKQlfX3Jh
-d19yZWFkdyhrZXlwYWQtPm1taW9fYmFzZSArIChvZmYpKQ0KPiArI2RlZmluZSBrZXlwYWRfd3Jp
-dGV3KG9mZiwgdikJX19yYXdfd3JpdGV3KCh2KSwga2V5cGFkLT5tbWlvX2Jhc2UgKyAob2ZmKSkN
-Cg0KUGxlYXNlIG1ha2UgdGhlIGFib3ZlIG1hY3JvcyBpbmxpbmUgZnVuY3Rpb25zLg0KU2VlIERv
-Y3VtZW50YXRpb24vQ29kaW5nU3R5bGUsIENoYXB0ZXIgMTIuDQoNCj4gKw0KPiArI2RlZmluZSBN
-QVhfTUFUUklYX0tFWV9OVU0JKE1BWF9NQVRSSVhfS0VZX1JPV1MgKiBNQVhfTUFUUklYX0tFWV9D
-T0xTKQ0KPiArDQo+ICtzdHJ1Y3QgbXhjX2tleXBhZCB7DQo+ICsJc3RydWN0IG14Y19rZXlwYWRf
-cGxhdGZvcm1fZGF0YSAqcGRhdGE7DQo+ICsNCj4gKwlzdHJ1Y3QgY2xrICpjbGs7DQo+ICsJc3Ry
-dWN0IGlucHV0X2RldiAqaW5wdXRfZGV2Ow0KPiArCXZvaWQgX19pb21lbSAqbW1pb19iYXNlOw0K
-PiArDQo+ICsJaW50CQkJaXJxOw0KPiArDQo+ICsjZGVmaW5lIE1YQ19JUlFfREVQUkVTUwkJMQ0K
-PiArI2RlZmluZSBNWENfSVJRX1JFTEVBU0UJCTINCj4gKwl1bnNpZ25lZCBpbnQJCWlycV90eXBl
-Ow0KPiArDQo+ICsJaW50IAkJCWlycV9zaW5jZV9sYXN0X2NoYW5nZTsNCj4gKw0KPiArCXVuc2ln
-bmVkIHNob3J0IAkJa2V5Y29kZXNbTUFYX01BVFJJWF9LRVlfTlVNXTsNCj4gKw0KPiArCS8qIHN0
-YXRlIHJvdyBiaXRzIG9mIGVhY2ggY29sdW1uIHNjYW4gKi8NCj4gKwl1bnNpZ25lZCBzaG9ydCAJ
-CW1hdHJpeF9rZXlfc3RhdGVbTUFYX01BVFJJWF9LRVlfQ09MU107DQo+ICt9Ow0KPiArDQo+ICtz
-dGF0aWMgdm9pZCBteGNfa2V5cGFkX2J1aWxkX2tleWNvZGUoc3RydWN0IG14Y19rZXlwYWQgKmtl
-eXBhZCkNCj4gK3sNCj4gKwlzdHJ1Y3QgbXhjX2tleXBhZF9wbGF0Zm9ybV9kYXRhICpwZGF0YSA9
-IGtleXBhZC0+cGRhdGE7DQo+ICsJc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2ID0ga2V5cGFk
-LT5pbnB1dF9kZXY7DQo+ICsJdW5zaWduZWQgc2hvcnQga2V5Y29kZTsNCj4gKwlpbnQgaTsNCj4g
-Kw0KPiArCWZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bWF0cml4X2tleV9tYXBfc2l6ZTsgaSsrKSB7
-DQo+ICsJCXVuc2lnbmVkIGludCBrZXkgPSBwZGF0YS0+bWF0cml4X2tleV9tYXBbaV07DQo+ICsJ
-CXVuc2lnbmVkIGludCByb3cgPSBLRVlfUk9XKGtleSk7DQo+ICsJCXVuc2lnbmVkIGludCBjb2wg
-PSBLRVlfQ09MKGtleSk7DQo+ICsJCXVuc2lnbmVkIGludCBzY2FuY29kZSA9IE1BVFJJWF9TQ0FO
-X0NPREUocm93LCBjb2wsDQo+ICsJCQkJCQkJIE1BVFJJWF9ST1dfU0hJRlQpOw0KPiArDQo+ICsJ
-CWtleWNvZGUgPSBLRVlfVkFMKGtleSk7DQo+ICsJCWtleXBhZC0+a2V5Y29kZXNbc2NhbmNvZGVd
-ID0ga2V5Y29kZTsNCj4gKwkJX19zZXRfYml0KGtleWNvZGUsIGlucHV0X2Rldi0+a2V5Yml0KTsN
-Cj4gKwl9DQo+ICsNCj4gKwlfX2NsZWFyX2JpdChLRVlfUkVTRVJWRUQsIGlucHV0X2Rldi0+a2V5
-Yml0KTsNCj4gK30NCg0KWW91IHNob3VsZCBiZSBhYmxlIHRvIHVzZSBtYXRyaXhfa2V5cGFkX2J1
-aWxkX2tleW1hcCgpIGlmIHlvdSB1c2UNCnN0cnVjdCBtYXRyaXhfa2V5bWFwX2RhdGEgYXMgbWVu
-dGlvbmVkIGFib3ZlLg0KDQo+ICsNCj4gKy8qIFJldHVybiAwIGlmIG5vIGNoYW5nZXMgYXJlIGRl
-dGVjdGVkIGluIG1hdHJpeCAqLw0KPiArc3RhdGljIGludCBteGNfa2V5cGFkX3NjYW5fbWF0cml4
-KHN0cnVjdCBteGNfa2V5cGFkICprZXlwYWQpDQo+ICt7DQo+ICsJc3RydWN0IG14Y19rZXlwYWRf
-cGxhdGZvcm1fZGF0YSAqcGRhdGEgPSBrZXlwYWQtPnBkYXRhOw0KPiArCXN0cnVjdCBpbnB1dF9k
-ZXYgKmlucHV0X2RldiA9IGtleXBhZC0+aW5wdXRfZGV2Ow0KPiArCWludCByb3csIGNvbCwgY2hh
-bmdlZCA9IDA7DQo+ICsJdW5zaWduZWQgc2hvcnQgbmV3X3N0YXRlW01BWF9NQVRSSVhfS0VZX0NP
-TFNdOw0KPiArCXVuc2lnbmVkIHNob3J0IHJlZ192YWw7DQo+ICsNCj4gKwltZW1zZXQobmV3X3N0
-YXRlLCAwLCBzaXplb2YobmV3X3N0YXRlKSk7DQo+ICsNCj4gKwlmb3IgKGNvbCA9IDA7IGNvbCA8
-IHBkYXRhLT5tYXRyaXhfa2V5X2NvbHM7IGNvbCsrKSB7DQo+ICsJCS8qIERpc2NoYXJnZSBrZXlw
-YWQgY2FwYWNpdGFuY2U6DQo+ICsJCSAqIDIuIHdyaXRlIDFzIG9uIGNvbHVtbiBkYXRhLg0KPiAr
-CQkgKiAzLiBjb25maWd1cmUgY29sdW1ucyBhcyB0b3RlbS1wb2xlIHRvIGRpc2NoYXJnZSBjYXBh
-Y2l0YW5jZS4NCj4gKwkJICogNC4gY29uZmlndXJlIGNvbHVtbnMgYXMgb3Blbi1kcmFpbi4qLw0K
-PiArCQlyZWdfdmFsID0ga2V5cGFkX3JlYWR3KEtQRFIpOw0KPiArCQlyZWdfdmFsIHw9IDB4ZmYw
-MDsNCj4gKwkJa2V5cGFkX3dyaXRldyhLUERSLCByZWdfdmFsKTsNCj4gKw0KPiArCQlyZWdfdmFs
-ID0ga2V5cGFkX3JlYWR3KEtQQ1IpOw0KPiArCQlyZWdfdmFsICY9IH4oKCgxIDw8IHBkYXRhLT5t
-YXRyaXhfa2V5X2NvbHMpIC0gMSkgPDwgOCk7DQo+ICsJCWtleXBhZF93cml0ZXcoS1BDUiwgcmVn
-X3ZhbCk7DQo+ICsNCj4gKwkJdWRlbGF5KDIpOw0KPiArDQo+ICsJCXJlZ192YWwgPSBrZXlwYWRf
-cmVhZHcoS1BDUik7DQo+ICsJCXJlZ192YWwgfD0gKCgxIDw8IHBkYXRhLT5tYXRyaXhfa2V5X2Nv
-bHMpIC0gMSkgPDwgODsNCj4gKwkJa2V5cGFkX3dyaXRldyhLUENSLCByZWdfdmFsKTsNCj4gKw0K
-PiArCQkvKg0KPiArCQkgKiA1LiBXcml0ZSBhIHNpbmdsZSBjb2x1bW4gdG8gMCwgb3RoZXJzIHRv
-IDEuDQo+ICsJCSAqIDYuIFNhbXBsZSByb3cgaW5wdXRzIGFuZCBzYXZlIGRhdGEuDQo+ICsJCSAq
-IDcuIFJlcGVhdCBzdGVwcyAyIC0gNiBmb3IgcmVtYWluaW5nIGNvbHVtbnMuDQo+ICsJCSAqLw0K
-PiArCQlyZWdfdmFsID0ga2V5cGFkX3JlYWR3KEtQRFIpOw0KPiArCQlyZWdfdmFsICY9IH4oMSA8
-PCAoOCArIGNvbCkpOw0KPiArCQlrZXlwYWRfd3JpdGV3KEtQRFIsIHJlZ192YWwpOw0KPiArDQo+
-ICsJCS8qIERlbGF5IGFkZGVkIHRvIGF2b2lkIHByb3BhZ2F0aW5nIHRoZSAwIGZyb20gY29sdW1u
-IHRvIHJvdw0KPiArCQkgKiB3aGVuIHNjYW5uaW5nLiAqLw0KPiArCQl1ZGVsYXkoNSk7DQo+ICsN
-Cj4gKwkJLyogMXMgaW4gc3RhdGUgZGV0ZWN0IGEga2V5IHByZXNzdXJlICovDQo+ICsJCW5ld19z
-dGF0ZVtjb2xdID0gKH5rZXlwYWRfcmVhZHcoS1BEUikpICYgMHgwMGZmOw0KPiArCX0NCj4gKw0K
-PiArCS8qIFRlc3QgdGhlIHN0YXRlIGNoYW5nZXMgKi8NCj4gKwlmb3IgKGNvbCA9IDA7IGNvbCA8
-IHBkYXRhLT5tYXRyaXhfa2V5X2NvbHM7IGNvbCsrKSB7DQo+ICsJCXVuc2lnbmVkIHNob3J0IGJp
-dHNfY2hhbmdlZDsNCj4gKwkJaW50IGNvZGU7DQo+ICsNCj4gKwkJYml0c19jaGFuZ2VkID0ga2V5
-cGFkLT5tYXRyaXhfa2V5X3N0YXRlW2NvbF0gXiBuZXdfc3RhdGVbY29sXTsNCj4gKwkJaWYgKGJp
-dHNfY2hhbmdlZCA9PSAwKQ0KPiArCQkJY29udGludWU7DQo+ICsNCj4gKwkJY2hhbmdlZCA9IDE7
-DQo+ICsJCWZvciAocm93ID0gMDsgcm93IDwgcGRhdGEtPm1hdHJpeF9rZXlfcm93czsgcm93Kysp
-IHsNCj4gKwkJCWlmICgoYml0c19jaGFuZ2VkICYgKDEgPDwgcm93KSkgPT0gMCkNCj4gKwkJCQlj
-b250aW51ZTsNCj4gKw0KPiArCQkJY29kZSA9IE1BVFJJWF9TQ0FOX0NPREUocm93LCBjb2wsIE1B
-VFJJWF9ST1dfU0hJRlQpOw0KPiArCQkJaW5wdXRfZXZlbnQoaW5wdXRfZGV2LCBFVl9NU0MsIE1T
-Q19TQ0FOLCBjb2RlKTsNCj4gKwkJCWlucHV0X3JlcG9ydF9rZXkoaW5wdXRfZGV2LCBrZXlwYWQt
-PmtleWNvZGVzW2NvZGVdLA0KPiArCQkJCQkgbmV3X3N0YXRlW2NvbF0gJiAoMSA8PCByb3cpKTsN
-Cj4gKwkJCWRldl9kYmcoJmlucHV0X2Rldi0+ZGV2LCAiRXZlbnQgY29kZTogJWQsIHZhbDogJWQi
-LA0KPiArCQkJCQlrZXlwYWQtPmtleWNvZGVzW2NvZGVdLA0KPiArCQkJCQluZXdfc3RhdGVbY29s
-XSAmICgxIDw8IHJvdykpOw0KPiArCQl9DQo+ICsJfQ0KPiArCWlucHV0X3N5bmMoaW5wdXRfZGV2
-KTsNCj4gKwltZW1jcHkoa2V5cGFkLT5tYXRyaXhfa2V5X3N0YXRlLCBuZXdfc3RhdGUsIHNpemVv
-ZihuZXdfc3RhdGUpKTsNCj4gKw0KPiArCS8qIFJldHVybiBpbiBzdGFuZGJ5IG1vZGU6DQo+ICsJ
-ICogOS4gd3JpdGUgMHMgdG8gY29sdW1ucyAqLw0KPiArCXJlZ192YWwgPSBrZXlwYWRfcmVhZHco
-S1BEUik7DQo+ICsJcmVnX3ZhbCAmPSAweDAwZmY7DQo+ICsJa2V5cGFkX3dyaXRldyhLUERSLCBy
-ZWdfdmFsKTsNCj4gKw0KPiArCXJldHVybiBjaGFuZ2VkOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMg
-aXJxcmV0dXJuX3QgbXhjX2tleXBhZF9pcnFfaGFuZGxlcl90aHJlYWQoaW50IGlycSwgdm9pZCAq
-ZGV2X2lkKQ0KPiArew0KPiArCXN0cnVjdCBteGNfa2V5cGFkICprZXlwYWQgPSBkZXZfaWQ7DQo+
-ICsJc3RydWN0IG14Y19rZXlwYWRfcGxhdGZvcm1fZGF0YSAqcGRhdGEgPSBrZXlwYWQtPnBkYXRh
-Ow0KPiArCXN0cnVjdCBpbnB1dF9kZXYgKmlkZXYgPSBrZXlwYWQtPmlucHV0X2RldjsNCj4gKwl1
-bnNpZ25lZCBzaG9ydCByZWdfdmFsOw0KPiArDQo+ICsJZGV2X2RiZygmaWRldi0+ZGV2LCAiSGFu
-ZGxpbmcgSW50ZXJydXB0IG9mIHR5cGUgJXhcbiIsDQo+ICsJCQkJCQlrZXlwYWQtPmlycV90eXBl
-KTsNCj4gKw0KPiArCS8qIFdhaXQgdGlsbCBkZWJvdW5jZSAqLw0KPiArCW1zbGVlcChwZGF0YS0+
-ZGVib3VuY2VfbXMpOw0KPiArDQo+ICsJLyogRG8gdGhlIHNjYW4gcm91dGluZSBhbmQgS2VlcCB0
-cmFjayBmb3IgaG93IG1hbnkgdGltZSB3ZSBnb3QNCj4gKwkgKiBpbnRlcnJ1cHQgdGhhdCBtYWtl
-IG5vIGNoYW5nZSAqLw0KPiArCWlmIChteGNfa2V5cGFkX3NjYW5fbWF0cml4KGtleXBhZCkpDQo+
-ICsJCWtleXBhZC0+aXJxX3NpbmNlX2xhc3RfY2hhbmdlID0gMDsNCj4gKwllbHNlDQo+ICsJCWtl
-eXBhZC0+aXJxX3NpbmNlX2xhc3RfY2hhbmdlKys7DQo+ICsNCj4gKwkvKiBJZiB0aGUga2V5IGlz
-IHByZXNzZWQgc2luY2UgdG9vIG1hbnkgdGltZSwgcmVsYXggdGhlIHVwZGF0ZSBwZXJpb2QgKi8N
-Cj4gKwlpZiAoa2V5cGFkLT5pcnFfc2luY2VfbGFzdF9jaGFuZ2UgPiAyKQ0KPiArCQltc2xlZXAo
-MTAwKTsNCj4gKw0KPiArCS8qIDEwLiBDbGVhciBLUEtEIGFuZCBLUEtSIHN0YXR1cyBiaXRzDQo+
-ICsJICogICAgIFNldCB0aGUgS1BLUiBzeW5jIGNoYWluIGFuZCBjbGVhciB0aGUgS1BLRCBzeW5j
-IGNoYWluICovDQo+ICsJcmVnX3ZhbCA9IGtleXBhZF9yZWFkdyhLUFNSKTsNCj4gKwlyZWdfdmFs
-IHw9IEtCRF9TVEFUX0tQS0QgfCBLQkRfU1RBVF9LUEtSIHwNCj4gKwkJICAgS0JEX1NUQVRfS0RT
-QyB8IEtCRF9TVEFUX0tSU1M7DQo+ICsJa2V5cGFkX3dyaXRldyhLUFNSLCByZWdfdmFsKTsNCj4g
-Kw0KPiArCS8qIFJlIGVuYWJsZSBpbnRlcnJ1cHRzIGFuZCBjbGVhciBzeW5jIHJlc2V0IGJpdHMu
-DQo+ICsJICogTmV4dCBLREkgaXMgdXNlZCBmb3IgZGV0ZWN0IG11bHRpcGxlIHByZXNzdXJlcy4g
-Ki8NCj4gKwlyZWdfdmFsID0ga2V5cGFkX3JlYWR3KEtQU1IpOw0KPiArCXJlZ192YWwgJj0gfihL
-QkRfU1RBVF9LRFNDIHwgS0JEX1NUQVRfS1JTUyk7DQo+ICsJa2V5cGFkX3dyaXRldyhLUFNSLCBy
-ZWdfdmFsKTsNCj4gKw0KPiArCXJlZ192YWwgfD0gS0JEX1NUQVRfS0RJRSB8IEtCRF9TVEFUX0tS
-SUU7DQo+ICsJaWYgKGtleXBhZC0+aXJxX3R5cGUgPT0gTVhDX0lSUV9SRUxFQVNFKQ0KPiArCQly
-ZWdfdmFsICY9IH5LQkRfU1RBVF9LUklFOw0KPiArCWtleXBhZF93cml0ZXcoS1BTUiwgcmVnX3Zh
-bCk7DQo+ICsNCj4gKwlyZXR1cm4gSVJRX0hBTkRMRUQ7DQo+ICt9DQo+ICtzdGF0aWMgaXJxcmV0
-dXJuX3QgbXhjX2tleXBhZF9pcnFfaGFuZGxlcihpbnQgaXJxLCB2b2lkICpkZXZfaWQpDQo+ICt7
-DQo+ICsJc3RydWN0IG14Y19rZXlwYWQgKmtleXBhZCA9IGRldl9pZDsNCj4gKwl1bnNpZ25lZCBz
-aG9ydCByZWdfdmFsOw0KPiArDQo+ICsJLyogRGlzYWJsZSBldmVyeSBpbnRlcnJ1cHQgKi8NCj4g
-KwlyZWdfdmFsID0ga2V5cGFkX3JlYWR3KEtQU1IpOw0KPiArCXJlZ192YWwgJj0gfihLQkRfU1RB
-VF9LUklFIHwgS0JEX1NUQVRfS0RJRSk7DQo+ICsJa2V5cGFkX3dyaXRldyhLUFNSLCByZWdfdmFs
-KTsNCj4gKw0KPiArCWtleXBhZC0+aXJxX3R5cGUgPSByZWdfdmFsICYgS0JEX1NUQVRfS1BLRCA/
-DQo+ICsJCQkgICBNWENfSVJRX0RFUFJFU1MgOiBNWENfSVJRX1JFTEVBU0U7DQo+ICsNCj4gKwly
-ZXR1cm4gSVJRX1dBS0VfVEhSRUFEOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCBteGNfa2V5
-cGFkX2NvbmZpZyhzdHJ1Y3QgbXhjX2tleXBhZCAqa2V5cGFkKQ0KPiArew0KPiArCXN0cnVjdCBt
-eGNfa2V5cGFkX3BsYXRmb3JtX2RhdGEgKnBkYXRhID0ga2V5cGFkLT5wZGF0YTsNCj4gKwl1bnNp
-Z25lZCBzaG9ydCByZWdfdmFsOw0KPiArDQo+ICsJLyogRW5hYmxlIG51bWJlciBvZiByb3dzIGlu
-IGtleXBhZCAoS1BDUls3OjBdKQ0KPiArCSAqIENvbmZpZ3VyZSBrZXlwYWQgY29sdW1ucyBhcyBv
-cGVuLWRyYWluIChLUENSWzE1OjhdKQ0KPiArCSAqLw0KPiArCXJlZ192YWwgPSBrZXlwYWRfcmVh
-ZHcoS1BDUik7DQo+ICsJcmVnX3ZhbCB8PSAoMSA8PCBwZGF0YS0+bWF0cml4X2tleV9yb3dzKSAt
-IDE7CQkvKiBMU0IgKi8NCj4gKwlyZWdfdmFsIHw9ICgoMSA8PCBwZGF0YS0+bWF0cml4X2tleV9j
-b2xzKSAtIDEpIDw8IDg7CS8qIE1TQiAqLw0KPiArCWtleXBhZF93cml0ZXcoS1BDUiwgcmVnX3Zh
-bCk7DQo+ICsNCj4gKwkvKiBXcml0ZSAwJ3MgdG8gS1BEUlsxNTo4XSAoQ29sdW1zKSovDQo+ICsJ
-cmVnX3ZhbCA9IGtleXBhZF9yZWFkdyhLUERSKTsNCj4gKwlyZWdfdmFsICY9IDB4MDBmZjsNCj4g
-KwlrZXlwYWRfd3JpdGV3KEtQRFIsIHJlZ192YWwpOw0KPiArDQo+ICsJLyogQ29uZmlndXJlIGNv
-bHVtbnMgYXMgb3V0cHV0LCByb3dzIGFzIGlucHV0IChLRERSWzE1OjBdKSAqLw0KPiArCXJlZ192
-YWwgPSBrZXlwYWRfcmVhZHcoS0REUik7DQo+ICsJcmVnX3ZhbCB8PSAweGZmMDA7DQo+ICsJcmVn
-X3ZhbCAmPSAweGZmMDA7DQo+ICsJa2V5cGFkX3dyaXRldyhLRERSLCByZWdfdmFsKTsNCj4gKw0K
-PiArCS8qIENsZWFyIEtleSBEZXByZXNzIGFuZCBLZXkgUmVsZWFzZSBzdGF0dXMgYml0Lg0KPiAr
-CSAqIENsZWFyIHN5bmNocm9uaXplciBjaGFpbi4NCj4gKwkgKiAqLw0KPiArCXJlZ192YWwgPSBr
-ZXlwYWRfcmVhZHcoS1BTUik7DQo+ICsJcmVnX3ZhbCB8PSBLQkRfU1RBVF9LUEtSIHwgS0JEX1NU
-QVRfS1BLRCB8DQo+ICsJCSAgIEtCRF9TVEFUX0tEU0MgfCBLQkRfU1RBVF9LUlNTOw0KPiArCWtl
-eXBhZF93cml0ZXcoS1BTUiwgcmVnX3ZhbCk7DQo+ICsNCj4gKwkvKiBTZXQgdGhlIEtESUUgY29u
-dHJvbCBiaXQsIGFuZCBjbGVhciB0aGUgS1JJRSBjb250cm9sIGJpdA0KPiArCSAqIChhdm9pZCBm
-YWxzZSByZWxlYXNlIGV2ZW50cykuICovDQo+ICsJcmVnX3ZhbCB8PSBLQkRfU1RBVF9LRElFOw0K
-PiArCXJlZ192YWwgJj0gfktCRF9TVEFUX0tSSUU7DQo+ICsJa2V5cGFkX3dyaXRldyhLUFNSLCBy
-ZWdfdmFsKTsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQgbXhjX2tleXBhZF9pbmhpYml0KHN0
-cnVjdCBteGNfa2V5cGFkICprZXlwYWQpDQo+ICt7DQo+ICsJdW5zaWduZWQgc2hvcnQgcmVnX3Zh
-bDsNCj4gKw0KPiArCS8qIENvbHVtcyBhcyBvcGVuIGRyYWluIGFuZCBkaXNhYmxlIHJvd3MgKi8N
-Cj4gKwlrZXlwYWRfd3JpdGV3KEtQQ1IsIDB4ZmYwMCk7DQo+ICsNCj4gKwkvKiBDbGVhciB0aGUg
-S1BLRCBzdGF0dXMgZmxhZyBhbmQgc3luY2hyb25pemVyIGNoYWluLg0KPiArCSAqIENsZWFyIEtE
-SUUgY29udHJvbCBiaXQgYW5kIEtSSUUgY29udHJvbCBiaXQuDQo+ICsJICovDQo+ICsJcmVnX3Zh
-bCA9IGtleXBhZF9yZWFkdyhLUFNSKTsNCj4gKwlyZWdfdmFsIHw9IEtCRF9TVEFUX0tQS0QgfCBL
-QkRfU1RBVF9LRFNDOw0KPiArCXJlZ192YWwgJj0gfihLQkRfU1RBVF9LUklFIHwgS0JEX1NUQVRf
-S0RJRSk7DQo+ICsJa2V5cGFkX3dyaXRldyhLUFNSLCByZWdfdmFsKTsNCj4gK30NCj4gKw0KPiAr
-c3RhdGljIGludCBteGNfa2V5cGFkX29wZW4oc3RydWN0IGlucHV0X2RldiAqZGV2KQ0KPiArew0K
-PiArCXN0cnVjdCBteGNfa2V5cGFkICprZXlwYWQgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYpOw0K
-PiArCXN0cnVjdCBteGNfa2V5cGFkX3BsYXRmb3JtX2RhdGEgKnBkYXRhID0ga2V5cGFkLT5wZGF0
-YTsNCj4gKw0KPiArCWRldl9kYmcoJmRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsNCj4gKw0K
-PiArCS8qIEVuYWJsZSB1bml0IGNsb2NrICovDQo+ICsJY2xrX2VuYWJsZShrZXlwYWQtPmNsayk7
-DQo+ICsJbXhjX2tleXBhZF9jb25maWcoa2V5cGFkKTsNCj4gKw0KPiArCS8qIFNhbml0eSBjb250
-cm9sLCBub3QgYWxsIHRoZSByb3dzIG11c3QgYmUgdG8gMHMgbm93LiAqLw0KPiArCWlmICgoa2V5
-cGFkX3JlYWR3KEtQRFIpICYgKCgxIDw8IHBkYXRhLT5tYXRyaXhfa2V5X3Jvd3MpIC0gMSkpID09
-IDApIHsNCj4gKwkJZGV2X2VycigmZGV2LT5kZXYsICJUb28gbXVjaCBrZXlzIHByZXNzZWQgZm9y
-IG5vdy4gIg0KPiArCQkJCSJDb250cm9sIHBpbnMgaW5pdGlhbGlzYXRpb24uXG4iKTsNCj4gKwkJ
-Z290byBvcGVuX2VycjsNCj4gKwl9DQo+ICsNCj4gKwlyZXR1cm4gMDsNCj4gKw0KPiArb3Blbl9l
-cnI6DQo+ICsJbXhjX2tleXBhZF9pbmhpYml0KGtleXBhZCk7DQo+ICsJcmV0dXJuIC1FSU87DQo+
-ICt9DQo+ICsNCj4gK3N0YXRpYyB2b2lkIG14Y19rZXlwYWRfY2xvc2Uoc3RydWN0IGlucHV0X2Rl
-diAqZGV2KQ0KPiArew0KPiArCXN0cnVjdCBteGNfa2V5cGFkICprZXlwYWQgPSBpbnB1dF9nZXRf
-ZHJ2ZGF0YShkZXYpOw0KPiArDQo+ICsJbXhjX2tleXBhZF9pbmhpYml0KGtleXBhZCk7DQo+ICsN
-Cj4gKwkvKiBEaXNhYmxlIGNsb2NrIHVuaXQgKi8NCj4gKwljbGtfZGlzYWJsZShrZXlwYWQtPmNs
-ayk7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBpbnQgX19kZXZpbml0IG14Y19rZXlwYWRfcHJvYmUo
-c3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gK3sNCj4gKwlzdHJ1Y3QgbXhjX2tleXBh
-ZF9wbGF0Zm9ybV9kYXRhICpwZGF0YSA9IHBkZXYtPmRldi5wbGF0Zm9ybV9kYXRhOw0KPiArCXN0
-cnVjdCBteGNfa2V5cGFkICprZXlwYWQ7DQo+ICsJc3RydWN0IGlucHV0X2RldiAqaW5wdXRfZGV2
-Ow0KPiArCXN0cnVjdCByZXNvdXJjZSAqcmVzOw0KPiArCWludCBpcnEsIGVycm9yOw0KPiArDQo+
-ICsJaWYgKHBkYXRhID09IE5VTEwpIHsNCj4gKwkJZGV2X2VycigmcGRldi0+ZGV2LCAibm8gcGxh
-dGZvcm0gZGF0YSBkZWZpbmVkXG4iKTsNCj4gKwkJcmV0dXJuIC1FSU5WQUw7DQo+ICsJfQ0KPiAr
-DQo+ICsJaXJxID0gcGxhdGZvcm1fZ2V0X2lycShwZGV2LCAwKTsNCj4gKwlpZiAoaXJxIDwgMCkg
-ew0KPiArCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJmYWlsZWQgdG8gZ2V0IGtleXBhZCBpcnFcbiIp
-Ow0KPiArCQlyZXR1cm4gLUVOWElPOw0KPiArCX0NCj4gKw0KPiArCXJlcyA9IHBsYXRmb3JtX2dl
-dF9yZXNvdXJjZShwZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7DQo+ICsJaWYgKHJlcyA9PSBOVUxM
-KSB7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0byBnZXQgSS9PIG1lbW9yeVxu
-Iik7DQo+ICsJCXJldHVybiAtRU5YSU87DQo+ICsJfQ0KPiArDQo+ICsJa2V5cGFkID0ga3phbGxv
-YyhzaXplb2Yoc3RydWN0IG14Y19rZXlwYWQpLCBHRlBfS0VSTkVMKTsNCj4gKwlpbnB1dF9kZXYg
-PSBpbnB1dF9hbGxvY2F0ZV9kZXZpY2UoKTsNCj4gKwlpZiAoIWtleXBhZCB8fCAhaW5wdXRfZGV2
-KSB7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0byBhbGxvY2F0ZSBtZW1vcnlc
-biIpOw0KPiArCQllcnJvciA9IC1FTk9NRU07DQo+ICsJCWdvdG8gZmFpbGVkX2ZyZWU7DQo+ICsJ
-fQ0KPiArDQo+ICsJa2V5cGFkLT5wZGF0YSA9IHBkYXRhOw0KPiArCWtleXBhZC0+aW5wdXRfZGV2
-ID0gaW5wdXRfZGV2Ow0KPiArCWtleXBhZC0+aXJxID0gaXJxOw0KPiArDQo+ICsJcmVzID0gcmVx
-dWVzdF9tZW1fcmVnaW9uKHJlcy0+c3RhcnQsIHJlc291cmNlX3NpemUocmVzKSwgcGRldi0+bmFt
-ZSk7DQo+ICsJaWYgKHJlcyA9PSBOVUxMKSB7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImZh
-aWxlZCB0byByZXF1ZXN0IEkvTyBtZW1vcnlcbiIpOw0KPiArCQllcnJvciA9IC1FQlVTWTsNCj4g
-KwkJZ290byBmYWlsZWRfZnJlZTsNCj4gKwl9DQo+ICsNCj4gKwlrZXlwYWQtPm1taW9fYmFzZSA9
-IGlvcmVtYXAocmVzLT5zdGFydCwgcmVzb3VyY2Vfc2l6ZShyZXMpKTsNCj4gKwlpZiAoa2V5cGFk
-LT5tbWlvX2Jhc2UgPT0gTlVMTCkgew0KPiArCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJmYWlsZWQg
-dG8gcmVtYXAgSS9PIG1lbW9yeVxuIik7DQo+ICsJCWVycm9yID0gLUVOWElPOw0KPiArCQlnb3Rv
-IGZhaWxlZF9mcmVlX21lbTsNCj4gKwl9DQo+ICsNCj4gKwlrZXlwYWQtPmNsayA9IGNsa19nZXQo
-TlVMTCwgImtwcCIpOw0KPiArCWlmIChJU19FUlIoa2V5cGFkLT5jbGspKSB7DQo+ICsJCWRldl9l
-cnIoJnBkZXYtPmRldiwgImZhaWxlZCB0byBnZXQga2V5cGFkIGNsb2NrXG4iKTsNCj4gKwkJZXJy
-b3IgPSBQVFJfRVJSKGtleXBhZC0+Y2xrKTsNCj4gKwkJZ290byBmYWlsZWRfZnJlZV9pbzsNCj4g
-Kwl9DQo+ICsNCj4gKwlpbnB1dF9kZXYtPm5hbWUgPSBwZGV2LT5uYW1lOw0KPiArCWlucHV0X2Rl
-di0+aWQuYnVzdHlwZSA9IEJVU19IT1NUOw0KPiArCWlucHV0X2Rldi0+b3BlbiA9IG14Y19rZXlw
-YWRfb3BlbjsNCj4gKwlpbnB1dF9kZXYtPmNsb3NlID0gbXhjX2tleXBhZF9jbG9zZTsNCj4gKwlp
-bnB1dF9kZXYtPmRldi5wYXJlbnQgPSAmcGRldi0+ZGV2Ow0KPiArDQo+ICsJaW5wdXRfZGV2LT5r
-ZXljb2RlID0ga2V5cGFkLT5rZXljb2RlczsNCj4gKwlpbnB1dF9kZXYtPmtleWNvZGVzaXplID0g
-c2l6ZW9mKGtleXBhZC0+a2V5Y29kZXNbMF0pOw0KPiArCWlucHV0X2Rldi0+a2V5Y29kZW1heCA9
-IEFSUkFZX1NJWkUoa2V5cGFkLT5rZXljb2Rlcyk7DQo+ICsNCj4gKwlpbnB1dF9zZXRfZHJ2ZGF0
-YShpbnB1dF9kZXYsIGtleXBhZCk7DQo+ICsNCj4gKwlpbnB1dF9kZXYtPmV2Yml0WzBdID0gQklU
-X01BU0soRVZfS0VZKSB8IEJJVF9NQVNLKEVWX1JFUCk7DQo+ICsJaW5wdXRfc2V0X2NhcGFiaWxp
-dHkoaW5wdXRfZGV2LCBFVl9NU0MsIE1TQ19TQ0FOKTsNCj4gKw0KPiArCW14Y19rZXlwYWRfYnVp
-bGRfa2V5Y29kZShrZXlwYWQpOw0KPiArDQo+ICsJZXJyb3IgPSByZXF1ZXN0X3RocmVhZGVkX2ly
-cShpcnEsIG14Y19rZXlwYWRfaXJxX2hhbmRsZXIsDQo+ICsJCQlteGNfa2V5cGFkX2lycV9oYW5k
-bGVyX3RocmVhZCwgSVJRRl9ESVNBQkxFRCwNCj4gKwkJCXBkZXYtPm5hbWUsIGtleXBhZCk7DQo+
-ICsJaWYgKGVycm9yKSB7DQo+ICsJCWRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0byByZXF1
-ZXN0IElSUVxuIik7DQo+ICsJCWdvdG8gZmFpbGVkX3B1dF9jbGs7DQo+ICsJfQ0KPiArDQo+ICsJ
-LyogUmVnaXN0ZXIgdGhlIGlucHV0IGRldmljZSAqLw0KPiArCWVycm9yID0gaW5wdXRfcmVnaXN0
-ZXJfZGV2aWNlKGlucHV0X2Rldik7DQo+ICsJaWYgKGVycm9yKSB7DQo+ICsJCWRldl9lcnIoJnBk
-ZXYtPmRldiwgImZhaWxlZCB0byByZWdpc3RlciBpbnB1dCBkZXZpY2VcbiIpOw0KPiArCQlnb3Rv
-IGZhaWxlZF9mcmVlX2lycTsNCj4gKwl9DQo+ICsNCj4gKwlwbGF0Zm9ybV9zZXRfZHJ2ZGF0YShw
-ZGV2LCBrZXlwYWQpOw0KPiArCWRldmljZV9pbml0X3dha2V1cCgmcGRldi0+ZGV2LCAxKTsNCj4g
-Kw0KPiArCWRldl9pbmZvKCZwZGV2LT5kZXYsICJkZXZpY2UgcHJvYmVkLlxuIik7DQo+ICsNCj4g
-KwlyZXR1cm4gMDsNCj4gKw0KPiArZmFpbGVkX2ZyZWVfaXJxOg0KPiArCWZyZWVfaXJxKGlycSwg
-cGRldik7DQo+ICtmYWlsZWRfcHV0X2NsazoNCj4gKwljbGtfcHV0KGtleXBhZC0+Y2xrKTsNCj4g
-K2ZhaWxlZF9mcmVlX2lvOg0KPiArCWlvdW5tYXAoa2V5cGFkLT5tbWlvX2Jhc2UpOw0KPiArZmFp
-bGVkX2ZyZWVfbWVtOg0KPiArCXJlbGVhc2VfbWVtX3JlZ2lvbihyZXMtPnN0YXJ0LCByZXNvdXJj
-ZV9zaXplKHJlcykpOw0KPiArZmFpbGVkX2ZyZWU6DQo+ICsJaW5wdXRfZnJlZV9kZXZpY2UoaW5w
-dXRfZGV2KTsNCj4gKwlrZnJlZShrZXlwYWQpOw0KPiArCXJldHVybiBlcnJvcjsNCj4gK30NCj4g
-Kw0KPiArc3RhdGljIGludCBfX2RldmV4aXQgbXhjX2tleXBhZF9yZW1vdmUoc3RydWN0IHBsYXRm
-b3JtX2RldmljZSAqcGRldikNCj4gK3sNCj4gKwlzdHJ1Y3QgbXhjX2tleXBhZCAqa2V5cGFkID0g
-cGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+ICsJc3RydWN0IHJlc291cmNlICpyZXM7DQo+
-ICsNCj4gKwlmcmVlX2lycShrZXlwYWQtPmlycSwga2V5cGFkKTsNCg0KWW91IG1pZ2h0IHdhbnQg
-dG8gbW92ZSB0aGUgcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgTlVMTCkgdG8gcHJldmVudA0K
-YW55IHJhY2UgY29uZGl0aW9ucy4NCg0KPiArCWNsa19wdXQoa2V5cGFkLT5jbGspOw0KPiArDQo+
-ICsJaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2Uoa2V5cGFkLT5pbnB1dF9kZXYpOw0KPiArCWlucHV0
-X2ZyZWVfZGV2aWNlKGtleXBhZC0+aW5wdXRfZGV2KTsNCg0KaW5wdXRfZnJlZV9kZXZpY2UgaXMg
-dW5uZWNlc3NhcnkgZm9yIGFscmVhZHkgcmVnaXN0ZXJlZCBkZXZpY2VzLg0KDQo+ICsNCj4gKwlp
-b3VubWFwKGtleXBhZC0+bW1pb19iYXNlKTsNCj4gKw0KPiArCXJlcyA9IHBsYXRmb3JtX2dldF9y
-ZXNvdXJjZShwZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7DQo+ICsJcmVsZWFzZV9tZW1fcmVnaW9u
-KHJlcy0+c3RhcnQsIHJlc291cmNlX3NpemUocmVzKSk7DQo+ICsNCj4gKwlwbGF0Zm9ybV9zZXRf
-ZHJ2ZGF0YShwZGV2LCBOVUxMKTsNCj4gKwlrZnJlZShrZXlwYWQpOw0KPiArDQo+ICsJcmV0dXJu
-IDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIG14Y19rZXlw
-YWRfZHJpdmVyID0gew0KPiArCS5kcml2ZXIJCT0gew0KPiArCQkubmFtZQk9ICJteGMta2V5cGFk
-IiwNCj4gKwkJLm93bmVyCT0gVEhJU19NT0RVTEUsDQo+ICsJfSwNCj4gKwkucHJvYmUJCT0gbXhj
-X2tleXBhZF9wcm9iZSwNCj4gKwkucmVtb3ZlCQk9IF9fZGV2ZXhpdF9wKG14Y19rZXlwYWRfcmVt
-b3ZlKSwNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBpbnQgX19pbml0IG14Y19rZXlwYWRfaW5pdCh2
-b2lkKQ0KPiArew0KPiArCXJldHVybiBwbGF0Zm9ybV9kcml2ZXJfcmVnaXN0ZXIoJm14Y19rZXlw
-YWRfZHJpdmVyKTsNCj4gK30NCj4gKw0KPiArc3RhdGljIHZvaWQgX19leGl0IG14Y19rZXlwYWRf
-ZXhpdCh2b2lkKQ0KPiArew0KPiArCXBsYXRmb3JtX2RyaXZlcl91bnJlZ2lzdGVyKCZteGNfa2V5
-cGFkX2RyaXZlcik7DQo+ICt9DQo+ICsNCj4gK21vZHVsZV9pbml0KG14Y19rZXlwYWRfaW5pdCk7
-DQo+ICttb2R1bGVfZXhpdChteGNfa2V5cGFkX2V4aXQpOw0KPiArDQo+ICtNT0RVTEVfQVVUSE9S
-KCJBbGJlcnRvIFBhbml6em8gPG1hcmFtYW9wZXJjaGVzZWltb3J0b0BnbWFpbC5jb20+Iik7DQo+
-ICtNT0RVTEVfREVTQ1JJUFRJT04oIk1YQyBLZXlwYWQgUG9ydCBEcml2ZXIiKTsNCj4gK01PRFVM
-RV9MSUNFTlNFKCJHUEwgdjIiKTsNCj4gK01PRFVMRV9BTElBUygicGxhdGZvcm06bXhjLWtleXBh
-ZCIpOw0K
+On Fri, Jan 08, 2010 at 11:32:29AM -0700, Rick L. Vinyard, Jr. wrote:
+> Dmitry Torokhov wrote:
+> > Hi Rick,
+> >
+> > On Thu, Jan 07, 2010 at 09:23:24AM -0700, Rick L. Vinyard Jr. wrote:
+> >> +
+> >> +static int g13_input_setkeycode(struct input_dev *dev,
+> >> +				int scancode,
+> >> +				int keycode)
+> >> +{
+> >> +	int old_keycode;
+> >> +	int i;
+> >> +	struct g13_data *data = input_get_g13data(dev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -EINVAL;
+> >> +
+> >> +	if (scancode >= dev->keycodemax)
+> >> +		return -EINVAL;
+> >> +
+> >> +	if (!dev->keycodesize)
+> >> +		return -EINVAL;
+> >> +
+> >> +	if (dev->keycodesize < sizeof(keycode) &&
+> >> +	    (keycode >> (dev->keycodesize * 8)))
+> >> +		return -EINVAL;
+> >> +
+> >> +	write_lock(&data->lock);
+> >> +
+> >> +	old_keycode = data->keycode[scancode];
+> >> +	data->keycode[scancode] = keycode;
+> >> +
+> >> +	clear_bit(old_keycode, dev->keybit);
+> >> +	set_bit(keycode, dev->keybit);
+> >> +
+> >> +	for (i = 0; i < dev->keycodemax; i++) {
+> >> +		if (data->keycode[i] == old_keycode) {
+> >> +			set_bit(old_keycode, dev->keybit);
+> >> +			break; /* Setting the bit twice is useless, so break */
+> >> +		}
+> >> +	}
+> >> +
+> >> +	write_unlock(&data->lock);
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +static int g13_input_getkeycode(struct input_dev *dev,
+> >> +				int scancode,
+> >> +				int *keycode)
+> >> +{
+> >> +	struct g13_data *data = input_get_g13data(dev);
+> >> +
+> >> +	if (!dev->keycodesize)
+> >> +		return -EINVAL;
+> >> +
+> >> +	if (scancode >= dev->keycodemax)
+> >> +		return -EINVAL;
+> >> +
+> >> +	read_lock(&data->lock);
+> >> +
+> >> +	*keycode = data->keycode[scancode];
+> >> +
+> >> +	read_unlock(&data->lock);
+> >> +
+> >> +	return 0;
+> >> +}
+> >
+> > Default input core methods should cover this, no?
+> >
+> 
+> I couldn't find this exposed from input core through sysfs anywhere. From
+> userspace I could access it from an ioctl, but I'd prefer to allow
+> userspace to do everything from libsysfs rather than a mixture of libsysfs
+> and ioctls.
+> 
+> I did make sure the ioctls are still supported by providing functions to
+> input_dev->setkeycode and input_dev->getkeycode.
+> 
+
+Unfortunately the input core does more stuff after driver-specific routines
+get called. And I am planning to add device rebinding upong keymap
+change and more stuff.
+
+> >> +
+> >> +static DEVICE_ATTR(keymap, 0666, g13_keymap_show, g13_keymap_store);
+> >>
+> >
+> > No. Just use EVIOCSKEYCODE.
+> >
+> 
+> I'd really prefer to provide a sysfs interface as opposed to ioctls.
+> 
+
+I really think we should stick to standard interfaces. For the reason
+see above.
+
+> 
+> >> +/*
+> >> + * The "emit_msc_raw" attribute
+> >> + */
+> >> +static ssize_t g13_emit_msc_raw_show(struct device *dev,
+> >> +				     struct device_attribute *attr,
+> >> +				     char *buf)
+> >> +{
+> >> +	struct g13_data *data = dev_get_drvdata(dev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	return sprintf(buf, "%u\n", data->emit_msc_raw);
+> >> +}
+> >> +
+> >> +static ssize_t g13_set_emit_msc_raw(struct hid_device *hdev, unsigned
+> >> k)
+> >> +{
+> >> +	struct g13_data *data = hid_get_g13data(hdev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	data->emit_msc_raw = k;
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +static ssize_t g13_emit_msc_raw_store(struct device *dev,
+> >> +				      struct device_attribute *attr,
+> >> +				      const char *buf, size_t count)
+> >> +{
+> >> +	struct hid_device *hdev;
+> >> +	int i;
+> >> +	unsigned k;
+> >> +	ssize_t set_result;
+> >> +
+> >> +	/* Get the hid associated with the device */
+> >> +	hdev = container_of(dev, struct hid_device, dev);
+> >> +
+> >> +	/* If we have an invalid pointer we'll return ENODATA */
+> >> +	if (hdev == NULL || &(hdev->dev) != dev)
+> >> +		return -ENODATA;
+> >> +
+> >> +	i = sscanf(buf, "%u", &k);
+> >> +	if (i != 1) {
+> >> +		printk(KERN_ERR "unrecognized input: %s", buf);
+> >> +		return -1;
+> >> +	}
+> >> +
+> >> +	set_result = g13_set_emit_msc_raw(hdev, k);
+> >> +
+> >> +	if (set_result < 0)
+> >> +		return set_result;
+> >> +
+> >> +	return count;
+> >> +}
+> >> +
+> >> +static DEVICE_ATTR(emit_msc_raw, 0666,
+> >> +		   g13_emit_msc_raw_show,
+> >> +		   g13_emit_msc_raw_store);
+> >> +
+> >
+> > I do no see the need for this attribute, simply emit MSC_RAW always.
+> >
+> 
+> Will do.
+> 
+> >> +
+> >> +/*
+> >> + * The "keymap_switching" attribute
+> >> + */
+> >> +static ssize_t g13_keymap_switching_show(struct device *dev,
+> >> +					 struct device_attribute *attr,
+> >> +					 char *buf)
+> >> +{
+> >> +	struct g13_data *data = dev_get_drvdata(dev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	return sprintf(buf, "%u\n", data->keymap_switching);
+> >> +}
+> >> +
+> >> +static ssize_t g13_set_keymap_switching(struct hid_device *hdev,
+> >> unsigned k)
+> >> +{
+> >> +	struct g13_data *data = hid_get_g13data(hdev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	data->keymap_switching = k;
+> >> +
+> >> +	if (data->keymap_switching)
+> >> +		g13_set_mled(hdev, 1<<(data->curkeymap));
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +static ssize_t g13_keymap_switching_store(struct device *dev,
+> >> +					  struct device_attribute *attr,
+> >> +					  const char *buf, size_t count)
+> >> +{
+> >> +	struct hid_device *hdev;
+> >> +	int i;
+> >> +	unsigned k;
+> >> +	ssize_t set_result;
+> >> +
+> >> +	/* Get the hid associated with the device */
+> >> +	hdev = container_of(dev, struct hid_device, dev);
+> >> +
+> >> +	/* If we have an invalid pointer we'll return ENODATA */
+> >> +	if (hdev == NULL || &(hdev->dev) != dev)
+> >> +		return -ENODATA;
+> >> +
+> >> +	i = sscanf(buf, "%u", &k);
+> >> +	if (i != 1) {
+> >> +		printk(KERN_ERR "unrecognized input: %s", buf);
+> >> +		return -1;
+> >> +	}
+> >> +
+> >> +	set_result = g13_set_keymap_switching(hdev, k);
+> >> +
+> >> +	if (set_result < 0)
+> >> +		return set_result;
+> >> +
+> >> +	return count;
+> >> +}
+> >> +
+> >> +static DEVICE_ATTR(keymap_switching, 0666,
+> >> +		   g13_keymap_switching_show,
+> >> +		   g13_keymap_switching_store);
+> >
+> > Hmm, attributes that are changing device state are usually 0644.
+> >
+> 
+> Fixed.
+> 
+> >> +
+> >> +
+> >> +static ssize_t g13_name_show(struct device *dev,
+> >> +			     struct device_attribute *attr,
+> >> +			     char *buf)
+> >> +{
+> >> +	struct g13_data *data = dev_get_drvdata(dev);
+> >> +	int result;
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	if (data->name == NULL) {
+> >> +		buf[0] = 0x00;
+> >> +		return 1;
+> >> +	}
+> >> +
+> >> +	read_lock(&data->lock);
+> >> +	result = sprintf(buf, "%s", data->name);
+> >> +	read_unlock(&data->lock);
+> >> +
+> >> +	return result;
+> >> +}
+> >> +
+> >> +static ssize_t g13_name_store(struct device *dev,
+> >> +			      struct device_attribute *attr,
+> >> +			      const char *buf, size_t count)
+> >> +{
+> >> +	struct g13_data *data = dev_get_drvdata(dev);
+> >> +	size_t limit = count;
+> >> +	char *end;
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	write_lock(&data->lock);
+> >> +
+> >> +	if (data->name != NULL) {
+> >> +		kfree(data->name);
+> >> +		data->name = NULL;
+> >> +	}
+> >> +
+> >> +	end = strpbrk(buf, "\n\r");
+> >> +	if (end != NULL)
+> >> +		limit = end - buf;
+> >> +
+> >> +	if (end != buf) {
+> >> +
+> >> +		if (limit > 100)
+> >> +			limit = 100;
+> >> +
+> >> +		data->name = kzalloc(limit+1, GFP_KERNEL);
+> >> +
+> >> +		strncpy(data->name, buf, limit);
+> >> +	}
+> >> +
+> >> +	write_unlock(&data->lock);
+> >> +
+> >> +	return count;
+> >> +}
+> >> +
+> >> +static DEVICE_ATTR(name, 0666, g13_name_show, g13_name_store);
+> >
+> > What this attribute is for?
+> >
+> 
+> To provide a mnemonic identifier for the device that can be shared across
+> applications. It also allows a userspace application to lookup a device by
+> name through sysfs.
+
+To set it you need to identify sysfs path fisrt. Once you've identified
+sysfs path you can simply use it in other apps. So I do not see the need
+for the name.
+
+> 
+> >> +
+> >> +/*
+> >> + * The "rgb" attribute
+> >> + * red green blue
+> >> + * each with values 0 - 255 (black - full intensity)
+> >> + */
+> >> +static ssize_t g13_rgb_show(struct device *dev,
+> >> +			    struct device_attribute *attr,
+> >> +			    char *buf)
+> >> +{
+> >> +	unsigned r, g, b;
+> >> +	struct g13_data *data = dev_get_drvdata(dev);
+> >> +
+> >> +	if (data == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	r = data->rgb[0];
+> >> +	g = data->rgb[1];
+> >> +	b = data->rgb[2];
+> >> +
+> >> +	return sprintf(buf, "%u %u %u\n", r, g, b);
+> >> +}
+> >> +
+> >> +static ssize_t g13_set_rgb(struct hid_device *hdev,
+> >> +			   unsigned r, unsigned g, unsigned b)
+> >> +{
+> >> +	struct g13_data *data = hid_get_g13data(hdev);
+> >> +
+> >> +	if (data == NULL || data->backlight_report == NULL)
+> >> +		return -ENODATA;
+> >> +
+> >> +	data->backlight_report->field[0]->value[0] = r;
+> >> +	data->backlight_report->field[0]->value[1] = g;
+> >> +	data->backlight_report->field[0]->value[2] = b;
+> >> +	data->backlight_report->field[0]->value[3] = 0x00;
+> >> +
+> >> +	usbhid_submit_report(hdev, data->backlight_report, USB_DIR_OUT);
+> >> +
+> >> +	data->rgb[0] = r;
+> >> +	data->rgb[1] = g;
+> >> +	data->rgb[2] = b;
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +static ssize_t g13_rgb_store(struct device *dev,
+> >> +			     struct device_attribute *attr,
+> >> +			     const char *buf, size_t count)
+> >> +{
+> >> +	struct hid_device *hdev;
+> >> +	int i;
+> >> +	unsigned r;
+> >> +	unsigned g;
+> >> +	unsigned b;
+> >> +	ssize_t set_result;
+> >> +
+> >> +	/* Get the hid associated with the device */
+> >> +	hdev = container_of(dev, struct hid_device, dev);
+> >> +
+> >> +	/* If we have an invalid pointer we'll return ENODATA */
+> >> +	if (hdev == NULL || &(hdev->dev) != dev)
+> >> +		return -ENODATA;
+> >> +
+> >> +	i = sscanf(buf, "%u %u %u", &r, &g, &b);
+> >> +	if (i != 3) {
+> >> +		printk(KERN_ERR "unrecognized input: %s", buf);
+> >> +		return -1;
+> >> +	}
+> >> +
+> >> +	set_result = g13_set_rgb(hdev, r, g, b);
+> >> +
+> >> +	if (set_result < 0)
+> >> +		return set_result;
+> >> +
+> >> +	return count;
+> >> +}
+> >> +
+> >> +static DEVICE_ATTR(rgb, 0666, g13_rgb_show, g13_rgb_store);
+> >> +
+> >> +/*
+> >> + * Create a group of attributes so that we can create and destroy them
+> >> all
+> >> + * at once.
+> >> + */
+> >> +static struct attribute *g13_attrs[] = {
+> >> +	&dev_attr_name.attr,
+> >> +	&dev_attr_rgb.attr,
+> >> +	&dev_attr_mled.attr,
+> >> +	&dev_attr_keymap_index.attr,
+> >> +	&dev_attr_emit_msc_raw.attr,
+> >> +	&dev_attr_keymap_switching.attr,
+> >> +	&dev_attr_keymap.attr,
+> >> +	&dev_attr_fb_update_rate.attr,
+> >> +	&dev_attr_fb_node.attr,
+> >> +	NULL,	 /* need to NULL terminate the list of attributes */
+> >> +};
+> >> +
+> >> +/*
+> >> + * An unnamed attribute group will put all of the attributes directly
+> >> in
+> >> + * the kobject directory.  If we specify a name, a subdirectory will be
+> >> + * created for the attributes with the directory being the name of the
+> >> + * attribute group.
+> >> + */
+> >> +static struct attribute_group g13_attr_group = {
+> >> +	.attrs = g13_attrs,
+> >> +};
+> >> +
+> >> +static struct fb_deferred_io g13_fb_defio = {
+> >> +	.delay = HZ / G13FB_UPDATE_RATE_DEFAULT,
+> >> +	.deferred_io = g13_fb_deferred_io,
+> >> +};
+> >> +
+> >> +static void g13_raw_event_process_input(struct hid_device *hdev,
+> >> +					struct g13_data *g13data,
+> >> +     u8 *raw_data)
+> >> +{
+> >> +	struct input_dev *idev = g13data->input_dev;
+> >> +	unsigned int code;
+> >> +	int value;
+> >> +	int i;
+> >> +	int mask;
+> >> +	int offset;
+> >> +	u8 val;
+> >> +
+> >> +	g13data->ready2 = 1;
+> >> +
+> >> +	if (idev == NULL)
+> >> +		return;
+> >> +
+> >> +	if (g13data->curkeymap < 3)
+> >> +		offset = G13_KEYS * g13data->curkeymap;
+> >> +	else
+> >> +		offset = 0;
+> >> +
+> >> +	for (i = 0, mask = 0x01; i < 8; i++, mask <<= 1) {
+> >> +		/* Keys G1 through G8 */
+> >> +		code = g13data->keycode[i+offset];
+> >> +		value = raw_data[3] & mask;
+> >> +		if (g13data->keycode[i] != KEY_RESERVED)
+> >> +			input_report_key(idev, code, value);
+> >> +		input_event(idev, EV_MSC, MSC_SCAN, i);
+> >
+> > That means these MSC_SCAN events are emitted _always_. Not sure if that
+> > is too useful. If you were to detect the state change and emit MSC_SCAN
+> > for changed keys, that would be better.
+> >
+> 
+> I couldn't find anything that really explained the purpose of MSC_SCAN.
+> Can I use it just to report scancodes?
+
+Yes, it purpose if to report scancode or it's equivalent of pressed key.
+
+> 
+> In particular can I selectively emit MSC_SCAN when I only want to report
+> specific events such as an unmapped key or a special key such as the
+> backlight or one of the M* keys?
+
+You could, but then users would not really know what scancode to use to
+remap already mapped key. The problem with your approach that userspace
+will get 10 MSC_SCAN before getting KEY_* event. Not terribly useful.
+
+...
+
+> >> +
+> >> +	dbg_hid("Found all reports\n");
+> >> +
+> >> +	for (i = 0; i < 20; i++) {
+> >> +		if (data->ready && data->ready2)
+> >> +			break;
+> >> +		mdelay(10);
+> >> +	}
+> >
+> > Consider using completion?
+> >
+> 
+> I'm not sure what you mean.
+
+Look at wait_for_completion() and wait_completion_timeout() functions.
+These are proper APIs to wait for completion of a certain task instead
+of busily (or sleepily) spinning.
+
+> 
+> >> +
+> >> +	if (!(data->ready && data->ready2))
+> >> +		printk(KERN_ERR "G13 hasn't responded yet, forging ahead with
+> >> initialization\n");
+> >> +	else
+> >> +		dbg_hid("G13 initialized\n");
+> >> +
+> >> +	/*
+> >> +	 * Set the initial color and load the linux logo
+> >> +	 * We're going to ignore the error values. If there is an error at
+> >> this
+> >> +	 * point we'll forge ahead.
+> >> +	 */
+> >> +
+> >> +	dbg_hid("Set default color\n");
+> >> +
+> >> +	error = g13_set_rgb(hdev, G13_DEFAULT_RED, G13_DEFAULT_GREEN,
+> >> G13_DEFAULT_BLUE);
+> >
+> > And...?
+> >
+> 
+> I had an error message before, but took it out. Missed taking out the
+> "error =" since at this point we'll just forge ahead.
+> 
+> Although failing to set the backlight color at this point could indicate
+> some I/O issue it's not critical enough to fail driver initialization.
+> 
+
+Then dev_warn() is your friend.
+
+
+Thanks.
+
+-- 
+Dmitry

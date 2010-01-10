@@ -1,93 +1,82 @@
-From: Artem Bityutskiy <dedekind1@gmail.com>
-Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Sun, 10 Jan 2010 13:45:34 +0200
-Message-ID: <1263123934.30988.8.camel@localhost.localdomain>
-References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com>
-	 <20091203061912.GA5626@gw.healthdatacare.com>
-	 <20091203062641.GH9121@core.coreip.homeip.net>
-	 <20091215070507.GD25613@gw.healthdatacare.com>
-	 <20091216082528.GI2699@core.coreip.homeip.net>
-Reply-To: dedekind1@gmail.com
+From: =?UTF-8?B?TsOpbWV0aCBNw6FydG9u?= <nm127@freemail.hu>
+Subject: [PATCH] hid: make USB device id constant
+Date: Sun, 10 Jan 2010 17:59:22 +0100
+Message-ID: <4B4A076A.8020207@freemail.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f225.google.com ([209.85.220.225]:54743 "EHLO
-	mail-fx0-f225.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751651Ab0AJLpi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Jan 2010 06:45:38 -0500
-Received: by fxm25 with SMTP id 25so19674fxm.21
-        for <linux-input@vger.kernel.org>; Sun, 10 Jan 2010 03:45:36 -0800 (PST)
-In-Reply-To: <20091216082528.GI2699@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <cocci-bounces@diku.dk>
+List-Unsubscribe: <http://lists.diku.dk/mailman/listinfo/cocci>,
+	<mailto:cocci-request@diku.dk?subject=unsubscribe>
+List-Archive: <http://lists.diku.dk/pipermail/cocci>
+List-Post: <mailto:cocci@diku.dk>
+List-Help: <mailto:cocci-request@diku.dk?subject=help>
+List-Subscribe: <http://lists.diku.dk/mailman/listinfo/cocci>,
+	<mailto:cocci-request@diku.dk?subject=subscribe>
+Sender: cocci-bounces@diku.dk
+Errors-To: cocci-bounces@diku.dk
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>, cocci@diku.dk, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mika Westerberg <mika.westerberg@iki.fi>, linux-input@vger.kernel.org
 
-On Wed, 2009-12-16 at 00:25 -0800, Dmitry Torokhov wrote:
-> On Tue, Dec 15, 2009 at 09:05:07AM +0200, Mika Westerberg wrote:
-> > On Wed, Dec 02, 2009 at 10:26:41PM -0800, Dmitry Torokhov wrote:
-> > > On Thu, Dec 03, 2009 at 08:19:12AM +0200, Mika Westerberg wrote:
-> > > > On Tue, Dec 01, 2009 at 03:53:45PM +0200, Mika Westerberg wrote=
-:
-> > > > >
-> > > > > This is third version of the series. Purpose of this patch is=
- to allow
-> > > > > userland to disable GPIO buttons interrupting the CPU. There =
-is now sysfs
-> > > > > interface that can be used to control the buttons by key code=
- or by switch
-> > > > > code.
-> > > > >=20
-> > > > > I merged those previous 2 patches as one. This is because it =
-made little
-> > > > > sense of having separate patch for adding the 'can_disable' f=
-ield.
-> > > > >=20
-> > > > > Changes in v3:
-> > > > > 	- merged previous 2 patches into one
-> > > > > 	- buttons have 'can_disable' field instead of irqflags field
-> > > > >=20
-> > > > > Tested with RX-51.
-> > > >=20
-> > > > Hi Dmitry,
-> > > >=20
-> > > > Any comments on this? Is it OK to be applied or do I need to ch=
-ange
-> > > > something.
-> > > >=20
-> > >=20
-> > > Hi Mika,
-> > >=20
-> > > SOrry, I am still pondering how to go about it. I am sure that th=
-e sysfs
-> > > interface is proper, so at this point it is just implementation d=
-etails
-> > > that I am not quite sure yet...
-> >=20
-> > Hi Dmitry,
-> >=20
-> > Have you decided yet what to do with these patches?
-> >=20
->=20
-> Hi Mika,
->=20
-> Sorry, not yet, have been busy with some other stuff ;(
+From: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
 
-Hi Dmitry,
+The id_table field of the struct usb_device_id is constant in <linux/usb.=
+h>
+so it is worth to make the initialization data also constant.
 
-just a humble reminder.
+The semantic match that finds this kind of pattern is as follows:
+(http://coccinelle.lip6.fr/)
 
-(We missed .33, would be really cool not to miss .34)
+// <smpl>
+@r@
+disable decl_init,const_decl_init;
+identifier I1, I2, x;
+@@
+	struct I1 {
+	  ...
+	  const struct I2 *x;
+	  ...
+	};
+@s@
+identifier r.I1, y;
+identifier r.x, E;
+@@
+	struct I1 y =3D {
+	  .x =3D E,
+	};
+@c@
+identifier r.I2;
+identifier s.E;
+@@
+	const struct I2 E[] =3D ... ;
+@depends on !c@
+identifier r.I2;
+identifier s.E;
+@@
++	const
+	struct I2 E[] =3D ...;
+// </smpl>
 
---=20
-Best Regards,
-Artem Bityutskiy (=D0=90=D1=80=D1=82=D1=91=D0=BC =D0=91=D0=B8=D1=82=D1=8E=
-=D1=86=D0=BA=D0=B8=D0=B9)
+Signed-off-by: M=C3=A1rton N=C3=A9meth <nm127@freemail.hu>
+Cc: Julia Lawall <julia@diku.dk>
+Cc: cocci@diku.dk
+---
+diff -u -p a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.=
+c
+--- a/drivers/hid/usbhid/hid-core.c 2010-01-07 19:08:40.000000000 +0100
++++ b/drivers/hid/usbhid/hid-core.c 2010-01-08 18:55:16.000000000 +0100
+@@ -1342,7 +1342,7 @@ static int hid_reset_resume(struct usb_i
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ #endif /* CONFIG_PM */
+
+-static struct usb_device_id hid_usb_ids [] =3D {
++static const struct usb_device_id hid_usb_ids[] =3D {
+ 	{ .match_flags =3D USB_DEVICE_ID_MATCH_INT_CLASS,
+ 		.bInterfaceClass =3D USB_INTERFACE_CLASS_HID },
+ 	{ }						/* Terminating entry */
+_______________________________________________
+Cocci mailing list
+Cocci@diku.dk
+http://lists.diku.dk/mailman/listinfo/cocci
+(Web access from inside DIKUs LAN only)

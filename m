@@ -1,63 +1,80 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver support
-Date: Tue, 12 Jan 2010 00:37:02 -0800
-Message-ID: <20100112083702.GB3252@core.coreip.homeip.net>
-References: <hvaibhav@ti.com>
- <1258642000-2271-1-git-send-email-hvaibhav@ti.com>
- <19F8576C6E063C45BE387C64729E7394044A3982AE@dbde02.ent.ti.com>
+Subject: [git pull] Input updates for 2.6.33-rc3
+Date: Tue, 12 Jan 2010 00:39:43 -0800
+Message-ID: <20100112083943.GA13714@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:36331 "EHLO
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:64626 "EHLO
 	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753038Ab0ALIhI (ORCPT
+	with ESMTP id S1751978Ab0ALIjr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jan 2010 03:37:08 -0500
+	Tue, 12 Jan 2010 03:39:47 -0500
 Content-Disposition: inline
-In-Reply-To: <19F8576C6E063C45BE387C64729E7394044A3982AE@dbde02.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hiremath, Vaibhav" <hvaibhav@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Jan 11, 2010 at 11:54:05AM +0530, Hiremath, Vaibhav wrote:
-> 
-> > -----Original Message-----
-> > From: Hiremath, Vaibhav
-> > Sent: Thursday, November 19, 2009 8:17 PM
-> > To: linux-input@vger.kernel.org
-> > Cc: linux-omap@vger.kernel.org; Hiremath, Vaibhav
-> > Subject: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver
-> > support
-> >
-> > From: Vaibhav Hiremath <hvaibhav@ti.com>
-> >
-> > Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
-> > ---
-> >  drivers/input/touchscreen/Kconfig   |   11 +
-> >  drivers/input/touchscreen/Makefile  |    1 +
-> >  drivers/input/touchscreen/tsc2004.c |  525
-> > +++++++++++++++++++++++++++++++++++
-> >  include/linux/i2c/tsc2004.h         |   17 ++
-> >  4 files changed, 554 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/touchscreen/tsc2004.c
-> >  create mode 100644 include/linux/i2c/tsc2004.h
-> >
-> [Hiremath, Vaibhav] Dmitry,
-> 
-> Any update on this? This driver support is important for AM3517EVM, can we merge this patch?
-> 
+Hi Linus,
 
-Hi Hiremath,
+Please pull from:
 
-I looked over the 2 drivers again and I still think that they are too
-much alike to warrant splitting them into 2. The only thing that you
-need is provide tsc2004-specific variant of tsc2007_read_values and
-add tsc2007-specific variant of tsc2004_prepare_for_reading.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Once the drivers start really diverging we may revisit this issue.
+to receive updates for the input subsystem.
 
-Thanks.
+Changelog:
+---------
+
+Adam Jackson (1):
+      Input: evdev - be less aggressive about sending SIGIO notifies
+
+Daniel Drake (1):
+      Input: psmouse - fix Synaptics detection when protocol is disabled
+
+Dmitry Torokhov (3):
+      Input: atkbd - fix canceling event_work in disconnect
+      Input: xbox - do not use GFP_KERNEL under spinlock
+      Input: add compat support for sysfs and /proc capabilities output
+
+Elliott Sales de Andrade (1):
+      Input: i8042 - add Dritek quirk for Acer Aspire 5610.
+
+Eric W. Biederman (1):
+      Input: serio - fix potential deadlock when unbinding drivers
+
+Henrik Rydberg (1):
+      Input: bcm5974 - report ABS_MT events
+
+Miguel Aguilar (1):
+      Input: davinci_keyscan - add device_enable method to platform data
+
+Roel Kluin (1):
+      Input: gf2k - fix &&/|| confusion in gf2k_connect()
+
+
+Diffstat:
+--------
+
+ arch/arm/mach-davinci/include/mach/keyscan.h |    1 +
+ drivers/input/evdev.c                        |    3 +-
+ drivers/input/input-compat.h                 |    2 +
+ drivers/input/input.c                        |   74 ++++++++++++++++++++-----
+ drivers/input/joystick/gf2k.c                |    2 +-
+ drivers/input/joystick/xpad.c                |    4 +-
+ drivers/input/keyboard/atkbd.c               |   69 +++++++++++------------
+ drivers/input/keyboard/davinci_keyscan.c     |    8 +++
+ drivers/input/mouse/bcm5974.c                |   44 +++++++++++++++-
+ drivers/input/mouse/psmouse-base.c           |   41 ++++----------
+ drivers/input/mouse/synaptics.c              |   10 ++++
+ drivers/input/mouse/synaptics.h              |    1 +
+ drivers/input/serio/i8042-x86ia64io.h        |    7 +++
+ include/linux/serio.h                        |   19 -------
+ 14 files changed, 180 insertions(+), 105 deletions(-)
 
 -- 
 Dmitry
+

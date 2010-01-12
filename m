@@ -1,45 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Support for Acer T230H multitouch panel
-Date: Tue, 12 Jan 2010 15:45:40 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001121545040.30977@pobox.suse.cz>
-References: <20100110195805.D573F951DC@smtp.lii-enac.fr> <A97BB4B1-3D8D-4F90-BC97-675CABA950AB@enac.fr>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: linux-next: Tree for January 12 (input)
+Date: Tue, 12 Jan 2010 08:22:21 -0800
+Message-ID: <20100112082221.8c3a4f95.randy.dunlap@oracle.com>
+References: <20100112171739.2011a0eb.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:36840 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753424Ab0ALOpl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jan 2010 09:45:41 -0500
-In-Reply-To: <A97BB4B1-3D8D-4F90-BC97-675CABA950AB@enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20100112171739.2011a0eb.sfr@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: linux-input@vger.kernel.org, cedric <berthiec@gmail.com>, jerom3@free.fr, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, 11 Jan 2010, St=E9phane Chatty wrote:
+On Tue, 12 Jan 2010 17:17:39 +1100 Stephen Rothwell wrote:
 
-> > Added support for the Acer T230H multitouch panel.
->=20
-> I just found out that the touch panel in the T230H, built by Quanta, =
-is also
-> in some HP displays. Same VendorID/ProductID. I'm wondering, now: sho=
-uld we
-> rename the driver?
+> Hi all,
+> 
+> Changes since 20100109:
 
-Well, vendor ID 0x0408 seems to be officially owned by Quanta Computer,=
-=20
-Inc.
 
-So probably this should be reflected in the driver name.
+drivers/input/input.c:841: warning: right shift count >= width of type
 
-Thanks,
+and when CONFIG_PROC_FS is disabled:
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+drivers/input/input.c:1171: error: implicit declaration of function 'input_bits_to_string'
+
+
+---
+~Randy

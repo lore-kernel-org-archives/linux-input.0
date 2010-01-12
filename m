@@ -1,31 +1,37 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: linux-next: Tree for January 12 (input)
-Date: Tue, 12 Jan 2010 08:22:21 -0800
-Message-ID: <20100112082221.8c3a4f95.randy.dunlap@oracle.com>
-References: <20100112171739.2011a0eb.sfr@canb.auug.org.au>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [git pull] Input updates for 2.6.33-rc3
+Date: Tue, 12 Jan 2010 08:53:31 -0800
+Message-ID: <20100112165331.GA4207@core.coreip.homeip.net>
+References: <20100112083943.GA13714@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20100112171739.2011a0eb.sfr@canb.auug.org.au>
-Sender: linux-next-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:57154 "EHLO
+	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753533Ab0ALQxk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Jan 2010 11:53:40 -0500
+Content-Disposition: inline
+In-Reply-To: <20100112083943.GA13714@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, 12 Jan 2010 17:17:39 +1100 Stephen Rothwell wrote:
-
-> Hi all,
+On Tue, Jan 12, 2010 at 12:39:43AM -0800, Dmitry Torokhov wrote:
+> Hi Linus,
 > 
-> Changes since 20100109:
+> Please pull from:
+> 
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> or
+> 	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> 
+> to receive updates for the input subsystem.
+> 
 
+Meh, warnings due to a shitty commit. Plase drop if you haven't
+published yet.
 
-drivers/input/input.c:841: warning: right shift count >= width of type
-
-and when CONFIG_PROC_FS is disabled:
-
-drivers/input/input.c:1171: error: implicit declaration of function 'input_bits_to_string'
-
-
----
-~Randy
+-- 
+Dmitry

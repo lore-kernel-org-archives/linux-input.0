@@ -1,53 +1,41 @@
-From: Bastian Blank <waldi@debian.org>
-Subject: Re: [PATCH 5/7] Input: wacom - Convert remaining ids, part two
-Date: Mon, 11 Jan 2010 23:24:48 +0100
-Message-ID: <20100111222448.GA7959@wavehammer.waldi.eu.org>
-References: <20100107182553.GA11236@wavehammer.waldi.eu.org> <20100107182953.GA12985@wavehammer.waldi.eu.org> <6753EB6004AFF34FAA275742C104F952016A1329@wacom-nt10.wacom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] ep93xx_keypad.c: cleanup and use matrix_keypad helpers
+Date: Tue, 12 Jan 2010 00:30:32 -0800
+Message-ID: <20100112083031.GA3252@core.coreip.homeip.net>
+References: <BD79186B4FD85F4B8E60E381CAEE19090200F166@mi8nycmail19.Mi8.com>
+ <20091221181959.GA6696@core.coreip.homeip.net>
+ <BD79186B4FD85F4B8E60E381CAEE19090200F172@mi8nycmail19.Mi8.com>
+ <BD79186B4FD85F4B8E60E381CAEE19090200F17C@mi8nycmail19.Mi8.com>
+ <BD79186B4FD85F4B8E60E381CAEE190902089963@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wavehammer.waldi.eu.org ([82.139.201.20]:40516 "EHLO
-	wavehammer.waldi.eu.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566Ab0AKWYv (ORCPT
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:57184 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751978Ab0ALIaj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Jan 2010 17:24:51 -0500
+	Tue, 12 Jan 2010 03:30:39 -0500
+Received: by pzk1 with SMTP id 1so6012455pzk.33
+        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2010 00:30:38 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <6753EB6004AFF34FAA275742C104F952016A1329@wacom-nt10.wacom.com>
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190902089963@mi8nycmail19.Mi8.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pingc@wacom.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jason Childs <oblivian@users.sourceforge.net>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: linux-input@vger.kernel.org
 
-Please fix your MUA, it should break lines to below 80 characters.
+Hi Hartley,
 
-On Mon, Jan 11, 2010 at 01:22:31PM -0800, Ping Cheng wrote:
-> Can we only move the struct wacom_features definition to wacom_sys.c
-> and leave the device specific wacom_features in wacom_wac.c?
+On Mon, Jan 11, 2010 at 03:48:48PM -0500, H Hartley Sweeten wrote:
+> Ping... Any comments on this Dmitry?
+> 
 
-The driver is so small. I don't see any reason to split that at all.
+I will apply this patch to by 'next' branch for .34. Regarding the
+other part with changes to interrupt handler - I think we should stick
+with the existing code since I do not fund the new code much easier to
+read.
 
->                                                               Also
-> leave the actual wacom_ids [] in wacom_wac.c as well since they are
-> wacom specific stuff.
-
-No, this are USB id mappings, Linux specific ones.
-
->                        We'd like to keep wacom specific stuff in
-> wacom_wac.c/h, which hopefully can be shared among kernel releases.
-
-The two parts are not properly seperated, none of them can stand on its
-own. How exactly do you want to do that?
-
-> BTW, the testing, led by Jason, got very positive feedbacks. There is
-> no crash reported with your patch applied.
-
-Why should there be any crashs? It is a simple restructuring.
-
-While we are at it, why does this driver need this amount of hardcoding
-of the values in the kernel anyway?
-
-Bastian
+Thanks.
 
 -- 
-Schshschshchsch.
-		-- The Gorn, "Arena", stardate 3046.2
+Dmitry

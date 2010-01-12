@@ -1,297 +1,342 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH v2] Input: ad7879: support auxiliary GPIOs via gpiolib
-Date: Tue, 12 Jan 2010 16:04:57 -0500
-Message-ID: <1263330297-1387-1-git-send-email-vapier@gentoo.org>
-References: <20100107073114.GC2314@core.coreip.homeip.net>
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: Re: [PATCH] Support for Acer T230H multitouch
+Date: Tue, 12 Jan 2010 23:39:36 +0100
+Message-ID: <20100112223936.238A2951A0@smtp.lii-enac.fr>
+References: <alpine.LNX.2.00.1001121545040.30977@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:56791 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752926Ab0ALVE7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jan 2010 16:04:59 -0500
-In-Reply-To: <20100107073114.GC2314@core.coreip.homeip.net>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:45153 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753887Ab0ALWji (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Jan 2010 17:39:38 -0500
+In-Reply-To: <alpine.LNX.2.00.1001121545040.30977@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
+To: jkosina@suse.cz, chatty@enac.fr
+Cc: linux-input@vger.kernel.org, jerom3@free.fr, dmitry.torokhov@gmail.com, berthiec@gmail.com
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+Added support for the Quanta Optical Touch dual-touch panel,
+present in the Acer T230H monitor, HP L2105tm, and Packard-Bell Video 200t.
 
-Drop the simple fancy sysfs hooks for the aux GPIOs and expose these via
-the gpiolib interface so that other drivers can use them.
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
+Tested-by: Jerome Vidal <jerom3@free.fr>
+Tested-by: Cedric Berthier <berthiec@gmail.com>
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Mike Frysinger <vapier@gentoo.org>
----
-v2
-	- call gpiochip_remove as pointed out by Dmitry
-
- drivers/input/touchscreen/ad7879.c |  158 +++++++++++++++++++++++-------------
- include/linux/spi/ad7879.h         |   12 ++-
- 2 files changed, 111 insertions(+), 59 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index c21e6d3..d319d2c 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -47,6 +47,7 @@
- #include <linux/workqueue.h>
- #include <linux/spi/spi.h>
- #include <linux/i2c.h>
-+#include <linux/gpio.h>
+diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-01-10 20:40:31.000000000 +0100
++++ b/drivers/hid/hid-core.c	2010-01-12 23:21:22.000000000 +0100
+@@ -1306,6 +1306,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+diff -rupN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-01-10 20:44:34.000000000 +0100
++++ b/drivers/hid/hid-ids.h	2010-01-12 23:22:11.000000000 +0100
+@@ -370,6 +370,9 @@
+ #define USB_VENDOR_ID_SAITEK		0x06a3
+ #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
  
- #include <linux/spi/ad7879.h>
++#define USB_VENDOR_ID_QUANTA		0x0408
++#define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH	0x3000
++
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
  
-@@ -132,7 +133,9 @@ struct ad7879 {
- 	struct input_dev	*input;
- 	struct work_struct	work;
- 	struct timer_list	timer;
--
-+#ifdef CONFIG_GPIOLIB
-+	struct gpio_chip 	gc;
-+#endif
- 	struct mutex		mutex;
- 	unsigned		disabled:1;	/* P: mutex */
- 
-@@ -150,11 +153,9 @@ struct ad7879 {
- 	u8			median;
- 	u16			x_plate_ohms;
- 	u16			pressure_max;
--	u16			gpio_init;
- 	u16			cmd_crtl1;
- 	u16			cmd_crtl2;
- 	u16			cmd_crtl3;
--	unsigned		gpio:1;
- };
- 
- static int ad7879_read(bus_device *, u8);
-@@ -237,24 +238,6 @@ static irqreturn_t ad7879_irq(int irq, void *handle)
- 
- static void ad7879_setup(struct ad7879 *ts)
- {
--	ts->cmd_crtl3 = AD7879_YPLUS_BIT |
--			AD7879_XPLUS_BIT |
--			AD7879_Z2_BIT |
--			AD7879_Z1_BIT |
--			AD7879_TEMPMASK_BIT |
--			AD7879_AUXVBATMASK_BIT |
--			AD7879_GPIOALERTMASK_BIT;
--
--	ts->cmd_crtl2 = AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
--			AD7879_AVG(ts->averaging) |
--			AD7879_MFS(ts->median) |
--			AD7879_FCD(ts->first_conversion_delay) |
--			ts->gpio_init;
--
--	ts->cmd_crtl1 = AD7879_MODE_INT | AD7879_MODE_SEQ1 |
--			AD7879_ACQ(ts->acquisition_time) |
--			AD7879_TMR(ts->pen_down_acc_interval);
--
- 	ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
- 	ad7879_write(ts->bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
- 	ad7879_write(ts->bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
-@@ -324,48 +307,74 @@ static ssize_t ad7879_disable_store(struct device *dev,
- 
- static DEVICE_ATTR(disable, 0664, ad7879_disable_show, ad7879_disable_store);
- 
--static ssize_t ad7879_gpio_show(struct device *dev,
--				     struct device_attribute *attr, char *buf)
-+static struct attribute *ad7879_attributes[] = {
-+	&dev_attr_disable.attr,
-+	NULL
+diff -rupN a/drivers/hid/hid-quanta.c b/drivers/hid/hid-quanta.c
+--- a/drivers/hid/hid-quanta.c	1970-01-01 01:00:00.000000000 +0100
++++ b/drivers/hid/hid-quanta.c	2010-01-12 10:39:26.000000000 +0100
+@@ -0,0 +1,259 @@
++/*
++ *  HID driver for Quanta Optical Touch dual-touch panels
++ *
++ *  Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
++ *
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++MODULE_VERSION("1.00");
++MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
++MODULE_DESCRIPTION("Quanta dual-touch panel");
++MODULE_LICENSE("GPL");
++
++#include "hid-ids.h"
++
++struct quanta_data {
++	__u16 x, y;
++	__u8 id;
++	bool valid;		/* valid finger data, or just placeholder? */
++	bool first;		/* is this the first finger in this frame? */
++	bool activity_now;	/* at least one active finger in this frame? */
++	bool activity;		/* at least one active finger previously? */
 +};
 +
-+static const struct attribute_group ad7879_attr_group = {
-+	.attrs = ad7879_attributes,
++static int quanta_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	switch (usage->hid & HID_USAGE_PAGE) {
++
++	case HID_UP_GENDESK:
++		switch (usage->hid) {
++		case HID_GD_X:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_X);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_X,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
++		case HID_GD_Y:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_Y);
++			/* touchscreen emulation */
++			input_set_abs_params(hi->input, ABS_Y,
++						field->logical_minimum,
++						field->logical_maximum, 0, 0);
++			return 1;
++		}
++		return 0;
++
++	case HID_UP_DIGITIZER:
++		switch (usage->hid) {
++		case HID_DG_CONFIDENCE:
++		case HID_DG_TIPSWITCH:
++		case HID_DG_INPUTMODE:
++		case HID_DG_DEVICEINDEX:
++		case HID_DG_CONTACTCOUNT:
++		case HID_DG_CONTACTMAX:
++		case HID_DG_TIPPRESSURE:
++		case HID_DG_WIDTH:
++		case HID_DG_HEIGHT:
++			return -1;
++		case HID_DG_INRANGE:
++			/* touchscreen emulation */
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++			return 1;
++		case HID_DG_CONTACTID:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TRACKING_ID);
++			return 1;
++		}
++		return 0;
++
++	case 0xff000000:
++		/* ignore vendor-specific features */
++		return -1;
++	}
++
++	return 0;
++}
++
++static int quanta_input_mapped(struct hid_device *hdev, struct hid_input *hi,
++		struct hid_field *field, struct hid_usage *usage,
++		unsigned long **bit, int *max)
++{
++	if (usage->type == EV_KEY || usage->type == EV_ABS)
++		clear_bit(usage->code, *bit);
++
++	return 0;
++}
++
++/*
++ * this function is called when a whole finger has been parsed,
++ * so that it can decide what to send to the input layer.
++ */
++static void quanta_filter_event(struct quanta_data *td, struct input_dev *input)
++{
++	
++	td->first = !td->first; /* touchscreen emulation */
++
++	if (!td->valid) {
++		/*
++		 * touchscreen emulation: if no finger in this frame is valid
++		 * and there previously was finger activity, this is a release
++		 */ 
++		if (!td->first && !td->activity_now && td->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 0);
++			td->activity = false;
++		}
++		return;
++	}
++
++	input_event(input, EV_ABS, ABS_MT_TRACKING_ID, td->id);
++	input_event(input, EV_ABS, ABS_MT_POSITION_X, td->x);
++	input_event(input, EV_ABS, ABS_MT_POSITION_Y, td->y);
++
++	input_mt_sync(input);
++	td->valid = false;
++
++	/* touchscreen emulation: if first active finger in this frame... */
++	if (!td->activity_now) {
++		/* if there was no previous activity, emit touch event */
++		if (!td->activity) {
++			input_event(input, EV_KEY, BTN_TOUCH, 1);
++			td->activity = true;
++		}
++		td->activity_now = true;
++		/* and in any case this is our preferred finger */
++		input_event(input, EV_ABS, ABS_X, td->x);
++		input_event(input, EV_ABS, ABS_Y, td->y);
++	}
++}
++
++
++static int quanta_event(struct hid_device *hid, struct hid_field *field,
++				struct hid_usage *usage, __s32 value)
++{
++	struct quanta_data *td = hid_get_drvdata(hid);
++
++	if (hid->claimed & HID_CLAIMED_INPUT) {
++		struct input_dev *input = field->hidinput->input;
++
++		switch (usage->hid) {
++		case HID_DG_INRANGE:
++			td->valid = !!value;
++			break;
++		case HID_GD_X:
++			td->x = value;
++			break;
++		case HID_GD_Y:
++			td->y = value;
++			quanta_filter_event(td, input);
++			break;
++		case HID_DG_CONTACTID:
++			td->id = value;
++			break;
++		case HID_DG_CONTACTCOUNT:
++			/* touch emulation: this is the last field in a frame */
++			td->first = false;
++			td->activity_now = false;
++			break;
++		case HID_DG_CONFIDENCE:
++		case HID_DG_TIPSWITCH:
++			/* avoid interference from generic hidinput handling */
++			break;
++
++		default:
++			/* fallback to the generic hidinput handling */
++			return 0;
++		}
++	}
++
++	/* we have handled the hidinput part, now remains hiddev */
++	if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
++		hid->hiddev_hid_event(hid, field, usage, value);
++
++	return 1;
++}
++
++static int quanta_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	struct quanta_data *td;
++
++	td = kmalloc(sizeof(struct quanta_data), GFP_KERNEL);
++	if (!td) {
++		dev_err(&hdev->dev, "cannot allocate Quanta Touch data\n");
++		return -ENOMEM;
++	}
++	td->valid = false;
++	td->activity = false;
++	td->activity_now = false;
++	td->first = false;
++	hid_set_drvdata(hdev, td);
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	if (ret)
++		kfree(td);
++
++	return ret;
++}
++
++static void quanta_remove(struct hid_device *hdev)
++{
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
++	hid_set_drvdata(hdev, NULL);
++}
++
++static const struct hid_device_id quanta_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
++			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, quanta_devices);
++
++static const struct hid_usage_id quanta_grabbed_usages[] = {
++	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
++	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
 +};
 +
-+#ifdef CONFIG_GPIOLIB
-+int ad7879_gpio_direction_input(struct gpio_chip *chip, unsigned gpio)
- {
--	struct ad7879 *ts = dev_get_drvdata(dev);
-+	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
-+	int err;
++static struct hid_driver quanta_driver = {
++	.name = "quanta-touch",
++	.id_table = quanta_devices,
++	.probe = quanta_probe,
++	.remove = quanta_remove,
++	.input_mapping = quanta_input_mapping,
++	.input_mapped = quanta_input_mapped,
++	.usage_table = quanta_grabbed_usages,
++	.event = quanta_event,
++};
 +
-+	mutex_lock(&ts->mutex);
-+	ts->cmd_crtl2 |= AD7879_GPIO_EN | AD7879_GPIODIR | AD7879_GPIOPOL;
-+	err = ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
-+	mutex_unlock(&ts->mutex);
- 
--	return sprintf(buf, "%u\n", ts->gpio);
-+	return err;
- }
- 
--static ssize_t ad7879_gpio_store(struct device *dev,
--				     struct device_attribute *attr,
--				     const char *buf, size_t count)
-+int ad7879_gpio_direction_output(struct gpio_chip *chip, unsigned gpio, int level)
- {
--	struct ad7879 *ts = dev_get_drvdata(dev);
--	unsigned long val;
--	int error;
-+	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
-+	int err;
- 
--	error = strict_strtoul(buf, 10, &val);
--	if (error)
--		return error;
-+	mutex_lock(&ts->mutex);
-+	ts->cmd_crtl2 &= ~AD7879_GPIODIR;
-+	ts->cmd_crtl2 |= AD7879_GPIO_EN | AD7879_GPIOPOL;
-+	if (level)
-+		ts->cmd_crtl2 |= AD7879_GPIO_DATA;
-+	else
-+		ts->cmd_crtl2 &= ~AD7879_GPIO_DATA;
-+
-+	err = ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
-+	mutex_unlock(&ts->mutex);
-+
-+	return err;
++static int __init quanta_init(void)
++{
++	return hid_register_driver(&quanta_driver);
 +}
 +
-+int ad7879_gpio_get_value(struct gpio_chip *chip, unsigned gpio)
++static void __exit quanta_exit(void)
 +{
-+	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
-+	u16 val;
- 
- 	mutex_lock(&ts->mutex);
--	ts->gpio = !!val;
--	error = ad7879_write(ts->bus, AD7879_REG_CTRL2,
--			   ts->gpio ?
--				ts->cmd_crtl2 & ~AD7879_GPIO_DATA :
--				ts->cmd_crtl2 | AD7879_GPIO_DATA);
-+	val = ad7879_read(ts->bus, AD7879_REG_CTRL2);
- 	mutex_unlock(&ts->mutex);
- 
--	return error ? : count;
-+	return !!(val & AD7879_GPIO_DATA);
- }
- 
--static DEVICE_ATTR(gpio, 0664, ad7879_gpio_show, ad7879_gpio_store);
-+void ad7879_gpio_set_value(struct gpio_chip *chip, unsigned gpio, int value)
-+{
-+	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
- 
--static struct attribute *ad7879_attributes[] = {
--	&dev_attr_disable.attr,
--	&dev_attr_gpio.attr,
--	NULL
--};
-+	mutex_lock(&ts->mutex);
-+	if (value)
-+		ts->cmd_crtl2 |= AD7879_GPIO_DATA;
-+	else
-+		ts->cmd_crtl2 &= ~AD7879_GPIO_DATA;
- 
--static const struct attribute_group ad7879_attr_group = {
--	.attrs = ad7879_attributes,
--};
-+	ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
-+	mutex_unlock(&ts->mutex);
++	hid_unregister_driver(&quanta_driver);
 +}
-+#endif
- 
- static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
- {
-@@ -403,12 +412,6 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
- 	ts->pen_down_acc_interval = pdata->pen_down_acc_interval;
- 	ts->median = pdata->median;
- 
--	if (pdata->gpio_output)
--		ts->gpio_init = AD7879_GPIO_EN |
--				(pdata->gpio_default ? 0 : AD7879_GPIO_DATA);
--	else
--		ts->gpio_init = AD7879_GPIO_EN | AD7879_GPIODIR;
--
- 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&bus->dev));
- 
- 	input_dev->name = "AD7879 Touchscreen";
-@@ -446,6 +449,23 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
- 		goto err_free_mem;
- 	}
- 
-+	ts->cmd_crtl3 = AD7879_YPLUS_BIT |
-+			AD7879_XPLUS_BIT |
-+			AD7879_Z2_BIT |
-+			AD7879_Z1_BIT |
-+			AD7879_TEMPMASK_BIT |
-+			AD7879_AUXVBATMASK_BIT |
-+			AD7879_GPIOALERTMASK_BIT;
 +
-+	ts->cmd_crtl2 = AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
-+			AD7879_AVG(ts->averaging) |
-+			AD7879_MFS(ts->median) |
-+			AD7879_FCD(ts->first_conversion_delay);
++module_init(quanta_init);
++module_exit(quanta_exit);
 +
-+	ts->cmd_crtl1 = AD7879_MODE_INT | AD7879_MODE_SEQ1 |
-+			AD7879_ACQ(ts->acquisition_time) |
-+			AD7879_TMR(ts->pen_down_acc_interval);
-+
- 	ad7879_setup(ts);
+diff -rupN a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+--- a/drivers/hid/Kconfig	2010-01-10 19:51:37.000000000 +0100
++++ b/drivers/hid/Kconfig	2010-01-12 23:25:34.000000000 +0100
+@@ -247,6 +247,12 @@ config HID_PETALYNX
+ 	---help---
+ 	Support for Petalynx Maxter remote control.
  
- 	err = request_irq(bus->irq, ad7879_irq,
-@@ -467,6 +487,25 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
- 	dev_info(&bus->dev, "Rev.%d touchscreen, irq %d\n",
- 		 revid >> 8, bus->irq);
- 
-+#ifdef CONFIG_GPIOLIB
-+	if (pdata->gpio_export) {
-+		ts->gc.direction_input = ad7879_gpio_direction_input;
-+		ts->gc.direction_output = ad7879_gpio_direction_output;
-+		ts->gc.get = ad7879_gpio_get_value;
-+		ts->gc.set = ad7879_gpio_set_value;
-+		ts->gc.can_sleep = 1;
-+		ts->gc.base = pdata->gpio_base;
-+		ts->gc.ngpio = 1;
-+		ts->gc.label = "AD7879-GPIO";
-+		ts->gc.owner = THIS_MODULE;
++config HID_QUANTA
++	tristate "Quanta Optical Touch"
++	depends on USB_HID
++	---help---
++	Support for Quanta Optical Touch dual-touch panels.
 +
-+		err = gpiochip_add(&ts->gc);
-+		if (err)
-+			dev_err(&bus->dev, "failed to register gpio %d\n",
-+				ts->gc.base);
-+	}
-+#endif
-+
- 	return 0;
- 
- err_remove_attr:
-@@ -481,6 +520,15 @@ err_free_mem:
- 
- static int __devexit ad7879_destroy(bus_device *bus, struct ad7879 *ts)
- {
-+#ifdef CONFIG_GPIOLIB
-+	struct ad7879_platform_data *pdata = bus->dev.platform_data;
-+	if (pdata->gpio_export) {
-+		if (gpiochip_remove(&ts->gc))
-+			dev_err(&bus->dev, "failed to remove gpio %d\n",
-+				ts->gc.base);
-+	}
-+#endif
-+
- 	ad7879_disable(ts);
- 	sysfs_remove_group(&ts->bus->dev.kobj, &ad7879_attr_group);
- 	free_irq(ts->bus->irq, ts);
-diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
-index 4231104..7231eab 100644
---- a/include/linux/spi/ad7879.h
-+++ b/include/linux/spi/ad7879.h
-@@ -28,8 +28,12 @@ struct ad7879_platform_data {
- 	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
- 	 */
- 	u8	median;
--	/* 1 = AUX/VBAT/GPIO set to GPIO Output */
--	u8	gpio_output;
--	/* Initial GPIO pin state (valid if gpio_output = 1) */
--	u8	gpio_default;
-+	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
-+	 * requires CONFIG_GPIOLIB
-+	 */
-+	u8	gpio_export;
-+	/* identifies the first GPIO number handled by this chip;
-+	 * or, if negative, requests dynamic ID allocation.
-+	 */
-+	s32	gpio_base;
- };
--- 
-1.6.6
-
+ config HID_SAMSUNG
+ 	tristate "Samsung" if EMBEDDED
+ 	depends on USB_HID
+diff -rupN a/drivers/hid/Makefile b/drivers/hid/Makefile
+--- a/drivers/hid/Makefile	2010-01-10 19:52:41.000000000 +0100
++++ b/drivers/hid/Makefile	2010-01-12 10:45:55.000000000 +0100
+@@ -32,6 +32,7 @@ obj-$(CONFIG_HID_LOGITECH)	+= hid-logite
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
+ obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
++obj-$(CONFIG_HID_QUANTA)	+= hid-quanta.o
+ obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
+ obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
+ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o

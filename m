@@ -1,34 +1,44 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: Questions about Multi-touch Protocal
-Date: Wed, 13 Jan 2010 21:21:37 +0100
-Message-ID: <4B4E2B51.8010506@euromail.se>
-References: <4B42D998.4050303@samsung.com> <4B432BDB.3000103@euromail.se> <4B43DE36.6000907@samsung.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 1/1] HID: ignore afatech 9016
+Date: Wed, 13 Jan 2010 21:34:16 +0100
+Message-ID: <4B4E2E48.1000509@gmail.com>
+References: <1263412773-23220-1-git-send-email-jslaby@suse.cz> <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39458 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756312Ab0AMUWR (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.159]:23294 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755007Ab0AMUeU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jan 2010 15:22:17 -0500
-In-Reply-To: <4B43DE36.6000907@samsung.com>
+	Wed, 13 Jan 2010 15:34:20 -0500
+In-Reply-To: <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>
 
-Joonyoung Shim wrote:
-[..]
-
+On 01/13/2010 09:20 PM, Jiri Kosina wrote:
+>> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+>> index 38773dc..788d9a3 100644
+>> --- a/drivers/hid/usbhid/hid-quirks.c
+>> +++ b/drivers/hid/usbhid/hid-quirks.c
+>> @@ -41,7 +41,7 @@ static const struct hid_blacklist {
+>>  	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+>>  	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+>>  
+>> -	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+>> +	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_IGNORE },
 > 
-> The ABS_MT_TOUCH_MAJOR needs for several things as you explain, but i
-> think it isn't essential event for multi-touch such ABS_PRESSURE.
-> If we can get only the coodinates of each fingers, is it full enough for
-> minimum supporting of multi-touch?
+> Hmm, why do we keep HID_QUIRK_IGNORE anyway, when we already have generic 
+> hid_ignore_list[]?
 
-Yes, it will be fine, one can drop ABS_MT_TOUCH_MAJOR for minimal support of the
-MT protocol. I will change the documentation accordingly.
+You returned it back because of dynamic quirks...
 
-Henrik
+> We don't set it for any device in the current codebase any more.
 
+Oh yeah, it's hard for people who don't remember code they wrote :).
+Will respin. Thanks for the reminder.
+
+-- 
+js

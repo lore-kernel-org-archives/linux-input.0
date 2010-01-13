@@ -1,56 +1,87 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] TiVo USB IR Dongle support
-Date: Tue, 12 Jan 2010 23:53:08 -0800
-Message-ID: <20100113075308.GB3242@core.coreip.homeip.net>
-References: <20091206214543.GA5290@acer.drzhang.net>
- <20091212190143.GA3591@acer.drzhang.net>
- <20091212233259.GB16760@core.coreip.homeip.net>
- <20091214220059.GA16776@drzhang.net>
- <20091214222843.GE2373@core.coreip.homeip.net>
- <20091216005357.GA23449@drzhang.net>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH v2] Input: ad7879: support auxiliary GPIOs via gpiolib
+Date: Wed, 13 Jan 2010 09:46:42 +0000
+Message-ID: <8A42379416420646B9BFAC9682273B6D0F0DF094@limkexm3.ad.analog.com>
+References: <20100107073114.GC2314@core.coreip.homeip.net> <1263330297-1387-1-git-send-email-vapier@gentoo.org> <20100113025456.GA2301@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:57260 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752499Ab0AMHxP (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:48854 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751863Ab0AMJqp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jan 2010 02:53:15 -0500
-Received: by pwj9 with SMTP id 9so2684290pwj.21
-        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2010 23:53:14 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20091216005357.GA23449@drzhang.net>
+	Wed, 13 Jan 2010 04:46:45 -0500
+Content-Class: urn:content-classes:message
+In-Reply-To: <20100113025456.GA2301@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chaogui Zhang <czhang@marywood.edu>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org
 
-Hi Chaogui,
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>
+>Hi Mike,
+>
+>On Tue, Jan 12, 2010 at 04:04:57PM -0500, Mike Frysinger wrote:
+>> +
+>> +		err = gpiochip_add(&ts->gc);
+>> +		if (err)
+>> +			dev_err(&bus->dev, "failed to register gpio
+%d\n",
+>> +				ts->gc.base);
+>> +	}
+>
+>So if it fails here...
+>
+>> +	struct ad7879_platform_data *pdata = bus->dev.platform_data;
+>> +	if (pdata->gpio_export) {
+>> +		if (gpiochip_remove(&ts->gc))
+>> +			dev_err(&bus->dev, "failed to remove gpio %d\n",
+>> +				ts->gc.base);
+>
+>... how valid is it to remove it here?
 
-I was looking at the driver again and I have some concerns with the
-foolowing fragment:
+Right - I should use a flag to sense whether the gpiochip was added or
+not.
 
-On Tue, Dec 15, 2009 at 07:53:57PM -0500, Chaogui Zhang wrote:
-> +
-> +	/* The lower 5 bits of the first byte of each packet indicates the size
-> +	 * of the transferred buffer, not including the first byte itself.
-> +	 */
-> +
-> +	length = (remote->in_buffer[0]) & 0x1f;
-> +	for (i = 0; i <= length; i++)
-> +		snprintf(codes + i * 3, 4, "%02x ", remote->in_buffer[i]);
-> +
-> +	/* 0x80 at the end of a regular packet or in a separate packet
-> +	   indicates key release */
-> +
-> +	if (i < TIVOIR_RECV_SIZE && remote->in_buffer[i] == 0x80)
-> +		snprintf(codes + i * 3, 4, "%02x ", remote->in_buffer[i]);
-> +
+>
+>Also, could you stub out
+>ad7879_gptiochip_export/ad7879_gptiochip_unexport
+>in case of !CONFIG_GPIOLIB?
 
-So does this mean that 0x80 indicating release is not included in the
-size of the received packet.
+Can you explain - where do you see those?
 
-Thanks.
 
--- 
-Dmitry
+>
+>> +	}
+>> +#endif
+>> +
+>>  	ad7879_disable(ts);
+>>  	sysfs_remove_group(&ts->bus->dev.kobj, &ad7879_attr_group);
+>>  	free_irq(ts->bus->irq, ts);
+>> diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
+>> index 4231104..7231eab 100644
+>> --- a/include/linux/spi/ad7879.h
+>> +++ b/include/linux/spi/ad7879.h
+>> @@ -28,8 +28,12 @@ struct ad7879_platform_data {
+>>  	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
+>>  	 */
+>>  	u8	median;
+>> -	/* 1 = AUX/VBAT/GPIO set to GPIO Output */
+>> -	u8	gpio_output;
+>> -	/* Initial GPIO pin state (valid if gpio_output = 1) */
+>> -	u8	gpio_default;
+>> +	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
+>> +	 * requires CONFIG_GPIOLIB
+>> +	 */
+>> +	u8	gpio_export;
+>
+>And make this a bool while you are at it.
+>
+>Thanks!
+>
+>--
+>Dmitry
+
+-Michael

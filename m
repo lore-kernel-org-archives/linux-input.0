@@ -1,82 +1,34 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: ignore afatech 9016
-Date: Wed, 13 Jan 2010 21:20:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz>
-References: <1263412773-23220-1-git-send-email-jslaby@suse.cz>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: Questions about Multi-touch Protocal
+Date: Wed, 13 Jan 2010 21:21:37 +0100
+Message-ID: <4B4E2B51.8010506@euromail.se>
+References: <4B42D998.4050303@samsung.com> <4B432BDB.3000103@euromail.se> <4B43DE36.6000907@samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:59830 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755208Ab0AMUUH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jan 2010 15:20:07 -0500
-In-Reply-To: <1263412773-23220-1-git-send-email-jslaby@suse.cz>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39458 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756312Ab0AMUWR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jan 2010 15:22:17 -0500
+In-Reply-To: <4B43DE36.6000907@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, jirislaby@gmail.com, Pekka Sarnila <sarnila@adit.fi>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
 
+Joonyoung Shim wrote:
+[..]
 
-[ Adding Pekka (the author of the patch that added this quirk for AF9016) to 
-  CC ... ]
-
-On Wed, 13 Jan 2010, Jiri Slaby wrote:
-
-> Let's ignore the device altogether by HID layer. It's handled by
-> dvb-usb-remote driver properly already.
 > 
-> By now, FULLSPEED_INTERVAL quirk was used. It probably made things
-> better, but the remote ctrl was still a perfect X killer. This was
-> the last user of the particular quirk. So remove the quirk as well.
-> 
-> With input going through dvb-usb-remote, the remote works
-> perfectly.
-> 
-> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> ---
->  drivers/hid/usbhid/hid-core.c   |    8 --------
->  drivers/hid/usbhid/hid-quirks.c |    2 +-
->  include/linux/hid.h             |    1 -
->  3 files changed, 1 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index e2997a8..36a1561 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -938,14 +938,6 @@ static int usbhid_start(struct hid_device *hid)
->  
->  		interval = endpoint->bInterval;
->  
-> -		/* Some vendors give fullspeed interval on highspeed devides */
-> -		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
-> -		    dev->speed == USB_SPEED_HIGH) {
-> -			interval = fls(endpoint->bInterval*8);
-> -			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
-> -			       hid->name, endpoint->bInterval, interval);
-> -		}
-> -
->  		/* Change the polling interval of mice. */
->  		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
->  			interval = hid_mousepoll_interval;
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 38773dc..788d9a3 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -41,7 +41,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
->  	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
->  
-> -	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
-> +	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_IGNORE },
+> The ABS_MT_TOUCH_MAJOR needs for several things as you explain, but i
+> think it isn't essential event for multi-touch such ABS_PRESSURE.
+> If we can get only the coodinates of each fingers, is it full enough for
+> minimum supporting of multi-touch?
 
-Hmm, why do we keep HID_QUIRK_IGNORE anyway, when we already have generic 
-hid_ignore_list[]?
+Yes, it will be fine, one can drop ABS_MT_TOUCH_MAJOR for minimal support of the
+MT protocol. I will change the documentation accordingly.
 
-We don't set it for any device in the current codebase any more.
+Henrik
 
-Thanks,x
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

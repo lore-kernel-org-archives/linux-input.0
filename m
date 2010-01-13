@@ -1,49 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] HID: ignore afatech 9016
-Date: Wed, 13 Jan 2010 21:44:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001132143550.30977@pobox.suse.cz>
-References: <1263412773-23220-1-git-send-email-jslaby@suse.cz> <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz> <4B4E2E48.1000509@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: Questions about Multi-touch Protocal
+Date: Thu, 14 Jan 2010 08:25:06 +1000
+Message-ID: <20100113222506.GA14525@barra.bne.redhat.com>
+References: <4B42D998.4050303@samsung.com>
+ <4B432BDB.3000103@euromail.se>
+ <4B43DE36.6000907@samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:38490 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755411Ab0AMUou (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Jan 2010 15:44:50 -0500
-In-Reply-To: <4B4E2E48.1000509@gmail.com>
+Received: from leo.clearchain.com ([199.73.29.74]:44470 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754838Ab0AMW0n (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Jan 2010 17:26:43 -0500
+Content-Disposition: inline
+In-Reply-To: <4B43DE36.6000907@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz
 
-On Wed, 13 Jan 2010, Jiri Slaby wrote:
-
-> >> --- a/drivers/hid/usbhid/hid-quirks.c
-> >> +++ b/drivers/hid/usbhid/hid-quirks.c
-> >> @@ -41,7 +41,7 @@ static const struct hid_blacklist {
-> >>  	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
-> >>  	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
-> >>  
-> >> -	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
-> >> +	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_IGNORE },
+On Wed, Jan 06, 2010 at 09:49:58AM +0900, Joonyoung Shim wrote:
+> >> First, what is the purpose of ABS_MT_TOUCH_MAJOR event? I wonder how
+> >> it is used at userspace side.
 > > 
-> > Hmm, why do we keep HID_QUIRK_IGNORE anyway, when we already have generic 
-> > hid_ignore_list[]?
+> > In a graphical program it can of course be used as is, but in the specific
+> > application of creating gesture events, the TOUCH and WIDTH parameters can be
+> > used to, e.g., approximate finger pressure or distinguish between index finger
+> > and thumb. With the addition of the MINOR parameters, one can also distinguish
+> > between a sweeping finger and a pointing finger, and with ORIENTATION, one can
+> > detect twisting of fingers.
+> > 
+> >> Should the ABS_MT_TOUCH_MAJOR be the mininum set of events for multi
+> >> touch? I'm not sure whether this question is valid because of first
+> >> question.
+> > 
+> > Each finger packet should have an ABS_MT_TOUCH_MAJOR value. In can be computed
+> > from various types of sensory input, e.g., the size of the contact area or a
+> > pressure sensor.
+> > 
 > 
-> You returned it back because of dynamic quirks...
+> Hmm, I think ABS_MT_TOUCH_MAJOR is similar to ABS_PRESSURE, of course it
+> can be used other purposes. If the device doesn't support the pressure,
+> the driver doesn't report ABS_PRESSURE, so if the device cannot get a
+> touching size of the finger, how can the driver report it?
 
-Right you are.
+Note that ABS_MT_TOUCH_MAJOR complements ABS_PRESSURE but cannot substitute
+it. The nature of our fingures usually mean that with increasing pressure
+the touch size increases as the finger flattens. This is only useful as a
+relative indicator though, as fingers differ greatly in size.
 
-> > We don't set it for any device in the current codebase any more.
-> 
-> Oh yeah, it's hard for people who don't remember code they wrote :).
-
-Oh, right ... happened to me as well, see a few lines above :)
-
-> Will respin. Thanks for the reminder.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Cheers,
+  Peter

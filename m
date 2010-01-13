@@ -1,57 +1,75 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Patch for multitouch in include/linux/hid.h
-Date: Wed, 13 Jan 2010 00:26:18 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001130025570.30977@pobox.suse.cz>
-References: <E152F1B0-A2E9-4787-8D8D-9CE24CB86A9A@enac.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: ad7879: support auxiliary GPIOs via gpiolib
+Date: Tue, 12 Jan 2010 18:54:56 -0800
+Message-ID: <20100113025456.GA2301@core.coreip.homeip.net>
+References: <20100107073114.GC2314@core.coreip.homeip.net>
+ <1263330297-1387-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52758 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754527Ab0ALX0T (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Jan 2010 18:26:19 -0500
-In-Reply-To: <E152F1B0-A2E9-4787-8D8D-9CE24CB86A9A@enac.fr>
+Received: from mail-pz0-f171.google.com ([209.85.222.171]:48831 "EHLO
+	mail-pz0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751644Ab0AMCzE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Jan 2010 21:55:04 -0500
+Received: by pzk1 with SMTP id 1so6787890pzk.33
+        for <linux-input@vger.kernel.org>; Tue, 12 Jan 2010 18:55:02 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1263330297-1387-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier@gentoo.org>
+Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
 
-On Sun, 10 Jan 2010, St=E9phane Chatty wrote:
+Hi Mike,
 
-> I discovered I might have left a minor mistake in the Stantum driver =
-I sent
-> you, and I directly checked in your for-next tree. It happens that th=
-e mistake
-> is there, and I'll work on a patch.
->=20
-> While checking, I found that you have applied PATCH 2/2, but not PATC=
-H 1/2.
-> Remember, I had forgotten to Cc you when I submitted my patches and y=
-ou found
-> out about the second later; you probably haven't seen the first. The =
-point is
-> that this PATCH 1/2 is in include/linux/hid.h and, as we discussed mo=
-nths ago,
-> it might have consequences on other devices: it consists in changing =
-the end
-> of IS_INPUT_APPLICATION so that digitizer usages up to 0x0006 are con=
-sidered
-> as input applications. Could you have a look at it? Otherwise, the 3M=
-, Stantum
-> and Acer code will not be called by the HID core.
+On Tue, Jan 12, 2010 at 04:04:57PM -0500, Mike Frysinger wrote:
+> +
+> +		err = gpiochip_add(&ts->gc);
+> +		if (err)
+> +			dev_err(&bus->dev, "failed to register gpio %d\n",
+> +				ts->gc.base);
+> +	}
 
-Hi Stephane,
+So if it fails here...
 
-could you please bounce/forward the mail with patch to me?
+> +	struct ad7879_platform_data *pdata = bus->dev.platform_data;
+> +	if (pdata->gpio_export) {
+> +		if (gpiochip_remove(&ts->gc))
+> +			dev_err(&bus->dev, "failed to remove gpio %d\n",
+> +				ts->gc.base);
 
-Thanks,
+... how valid is it to remove it here?
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Also, could you stub out ad7879_gptiochip_export/ad7879_gptiochip_unexport
+in case of !CONFIG_GPIOLIB?
+
+> +	}
+> +#endif
+> +
+>  	ad7879_disable(ts);
+>  	sysfs_remove_group(&ts->bus->dev.kobj, &ad7879_attr_group);
+>  	free_irq(ts->bus->irq, ts);
+> diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
+> index 4231104..7231eab 100644
+> --- a/include/linux/spi/ad7879.h
+> +++ b/include/linux/spi/ad7879.h
+> @@ -28,8 +28,12 @@ struct ad7879_platform_data {
+>  	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
+>  	 */
+>  	u8	median;
+> -	/* 1 = AUX/VBAT/GPIO set to GPIO Output */
+> -	u8	gpio_output;
+> -	/* Initial GPIO pin state (valid if gpio_output = 1) */
+> -	u8	gpio_default;
+> +	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
+> +	 * requires CONFIG_GPIOLIB
+> +	 */
+> +	u8	gpio_export;
+
+And make this a bool while you are at it.
+
+Thanks!
+
+-- 
+Dmitry

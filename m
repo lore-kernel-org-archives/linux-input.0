@@ -1,55 +1,84 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: [PATCH] hid-debug.c: make local symbols static
-Date: Thu, 14 Jan 2010 19:10:07 -0700
-Message-ID: <201001141910.08225.hartleys@visionengravers.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.33-rc4
+Date: Thu, 14 Jan 2010 23:50:27 -0800
+Message-ID: <20100115075026.GA19624@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [206.15.93.42] ([206.15.93.42]:15478 "EHLO
-	visionfs1.visionengravers.com" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S932151Ab0AOCKg (ORCPT
+Received: from mail-px0-f182.google.com ([209.85.216.182]:34042 "EHLO
+	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751138Ab0AOHud (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Jan 2010 21:10:36 -0500
+	Fri, 15 Jan 2010 02:50:33 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-hid-debug.c: make local symbols static
+Hi Linus,
 
-The symbols hid_resolv_event and hid_dump_input_mapping
-are only used locally in this file. Make them static to prevent
-the following sparse warnings:
+Please pull from:
 
-warning: symbol 'hid_resolv_event' was not declared. Should it be static?
-warning: symbol 'hid_dump_input_mapping' was not declared. Should it be static?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
+to receive updates for the input subsystem.
 
----
+Changelog:
+---------
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 6abd036..cd4ece6 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -864,13 +864,13 @@ static const char **names[EV_MAX + 1] = {
- 	[EV_SND] = sounds,			[EV_REP] = repeats,
- };
- 
--void hid_resolv_event(__u8 type, __u16 code, struct seq_file *f) {
--
-+static void hid_resolv_event(__u8 type, __u16 code, struct seq_file *f)
-+{
- 	seq_printf(f, "%s.%s", events[type] ? events[type] : "?",
- 		names[type] ? (names[type][code] ? names[type][code] : "?") : "?");
- }
- 
--void hid_dump_input_mapping(struct hid_device *hid, struct seq_file *f)
-+static void hid_dump_input_mapping(struct hid_device *hid, struct seq_file *f)
- {
- 	int i, j, k;
- 	struct hid_report *report;
+Adam Jackson (1):
+      Input: evdev - be less aggressive about sending SIGIO notifies
+
+Daniel Drake (1):
+      Input: psmouse - fix Synaptics detection when protocol is disabled
+
+Dmitry Torokhov (3):
+      Input: atkbd - fix canceling event_work in disconnect
+      Input: xbox - do not use GFP_KERNEL under spinlock
+      Input: add compat support for sysfs and /proc capabilities output
+
+Elliott Sales de Andrade (1):
+      Input: i8042 - add Dritek quirk for Acer Aspire 5610.
+
+Eric W. Biederman (1):
+      Input: serio - fix potential deadlock when unbinding drivers
+
+Henrik Rydberg (1):
+      Input: bcm5974 - report ABS_MT events
+
+Miguel Aguilar (1):
+      Input: davinci_keyscan - add device_enable method to platform data
+
+Roel Kluin (1):
+      Input: gf2k - fix &&/|| confusion in gf2k_connect()
+
+Tai-hwa Liang (2):
+      Input: pmouse - move Sentelic probe down the list
+      Input: sentelic - fix left/right horizontal scroll mapping
+
+
+Diffstat:
+--------
+
+ arch/arm/mach-davinci/include/mach/keyscan.h |    1 +
+ drivers/input/evdev.c                        |    3 +-
+ drivers/input/input.c                        |   86 +++++++++++++++++++++-----
+ drivers/input/joystick/gf2k.c                |    2 +-
+ drivers/input/joystick/xpad.c                |    4 +-
+ drivers/input/keyboard/atkbd.c               |   69 ++++++++++-----------
+ drivers/input/keyboard/davinci_keyscan.c     |    8 +++
+ drivers/input/mouse/bcm5974.c                |   44 +++++++++++++-
+ drivers/input/mouse/psmouse-base.c           |   69 ++++++++-------------
+ drivers/input/mouse/sentelic.c               |    6 +-
+ drivers/input/mouse/synaptics.c              |   10 +++
+ drivers/input/mouse/synaptics.h              |    1 +
+ drivers/input/serio/i8042-x86ia64io.h        |    7 ++
+ include/linux/serio.h                        |   19 ------
+ 14 files changed, 208 insertions(+), 121 deletions(-)
+
+-- 
+Dmitry
+

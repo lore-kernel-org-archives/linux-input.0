@@ -1,38 +1,342 @@
-From: Xiangfu Liu <xiangfu.z@gmail.com>
-Subject: want add numpad  to matrix_keypad driver. need help.
-Date: Sun, 17 Jan 2010 21:40:36 +0800
-Message-ID: <4B531354.3080709@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: [PATCH v3] Input: ad7879: support auxiliary GPIOs via gpiolib
+Date: Sun, 17 Jan 2010 10:36:42 -0500
+Message-ID: <1263742602-22250-1-git-send-email-vapier@gentoo.org>
+References: <20100113025456.GA2301@core.coreip.homeip.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:35534 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751747Ab0AQNkp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Jan 2010 08:40:45 -0500
-Received: by pwj9 with SMTP id 9so1214848pwj.21
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2010 05:40:45 -0800 (PST)
+Received: from smtp.gentoo.org ([140.211.166.183]:51576 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753169Ab0AQPgd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 17 Jan 2010 10:36:33 -0500
+In-Reply-To: <20100113025456.GA2301@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
 
-Hi
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-in this[1] picture. there is blue [Fn] and blue Numbers.
-I want make the [Fn] as KEY_NUMLOCK. (just like IBM keyboard)
+Drop the simple fancy sysfs hooks for the aux GPIOs and expose these via
+the gpiolib interface so that other drivers can use them.
 
-I use the matrix_keypad driver in our device. I try to modify the 
-matrix_keypad.c but not work.
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+v3
+	- add fixes from Dmitry
+	 - abort on gpiochip_add failure
+	 - split out the add/remove steps into dedicated funcs
+	 - use a bool for gpiochip support
 
-I also try to modify the keyboard.c there is function[2], I want map the 
-[U] [I] [O] to 7 8 9, but not work.
+ drivers/input/touchscreen/ad7879.c |  192 +++++++++++++++++++++++++-----------
+ include/linux/spi/ad7879.h         |   12 ++-
+ 2 files changed, 144 insertions(+), 60 deletions(-)
 
-please give me some advice. 
-thanks.
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index c21e6d3..a0876a9 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -47,6 +47,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/spi/spi.h>
+ #include <linux/i2c.h>
++#include <linux/gpio.h>
+ 
+ #include <linux/spi/ad7879.h>
+ 
+@@ -132,7 +133,9 @@ struct ad7879 {
+ 	struct input_dev	*input;
+ 	struct work_struct	work;
+ 	struct timer_list	timer;
+-
++#ifdef CONFIG_GPIOLIB
++	struct gpio_chip 	gc;
++#endif
+ 	struct mutex		mutex;
+ 	unsigned		disabled:1;	/* P: mutex */
+ 
+@@ -150,11 +153,9 @@ struct ad7879 {
+ 	u8			median;
+ 	u16			x_plate_ohms;
+ 	u16			pressure_max;
+-	u16			gpio_init;
+ 	u16			cmd_crtl1;
+ 	u16			cmd_crtl2;
+ 	u16			cmd_crtl3;
+-	unsigned		gpio:1;
+ };
+ 
+ static int ad7879_read(bus_device *, u8);
+@@ -237,24 +238,6 @@ static irqreturn_t ad7879_irq(int irq, void *handle)
+ 
+ static void ad7879_setup(struct ad7879 *ts)
+ {
+-	ts->cmd_crtl3 = AD7879_YPLUS_BIT |
+-			AD7879_XPLUS_BIT |
+-			AD7879_Z2_BIT |
+-			AD7879_Z1_BIT |
+-			AD7879_TEMPMASK_BIT |
+-			AD7879_AUXVBATMASK_BIT |
+-			AD7879_GPIOALERTMASK_BIT;
+-
+-	ts->cmd_crtl2 = AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
+-			AD7879_AVG(ts->averaging) |
+-			AD7879_MFS(ts->median) |
+-			AD7879_FCD(ts->first_conversion_delay) |
+-			ts->gpio_init;
+-
+-	ts->cmd_crtl1 = AD7879_MODE_INT | AD7879_MODE_SEQ1 |
+-			AD7879_ACQ(ts->acquisition_time) |
+-			AD7879_TMR(ts->pen_down_acc_interval);
+-
+ 	ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
+ 	ad7879_write(ts->bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
+ 	ad7879_write(ts->bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
+@@ -324,48 +307,127 @@ static ssize_t ad7879_disable_store(struct device *dev,
+ 
+ static DEVICE_ATTR(disable, 0664, ad7879_disable_show, ad7879_disable_store);
+ 
+-static ssize_t ad7879_gpio_show(struct device *dev,
+-				     struct device_attribute *attr, char *buf)
++static struct attribute *ad7879_attributes[] = {
++	&dev_attr_disable.attr,
++	NULL
++};
++
++static const struct attribute_group ad7879_attr_group = {
++	.attrs = ad7879_attributes,
++};
++
++#ifdef CONFIG_GPIOLIB
++int ad7879_gpio_direction_input(struct gpio_chip *chip, unsigned gpio)
+ {
+-	struct ad7879 *ts = dev_get_drvdata(dev);
++	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
++	int err;
+ 
+-	return sprintf(buf, "%u\n", ts->gpio);
++	mutex_lock(&ts->mutex);
++	ts->cmd_crtl2 |= AD7879_GPIO_EN | AD7879_GPIODIR | AD7879_GPIOPOL;
++	err = ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
++	mutex_unlock(&ts->mutex);
++
++	return err;
+ }
+ 
+-static ssize_t ad7879_gpio_store(struct device *dev,
+-				     struct device_attribute *attr,
+-				     const char *buf, size_t count)
++int ad7879_gpio_direction_output(struct gpio_chip *chip, unsigned gpio, int level)
+ {
+-	struct ad7879 *ts = dev_get_drvdata(dev);
+-	unsigned long val;
+-	int error;
++	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
++	int err;
+ 
+-	error = strict_strtoul(buf, 10, &val);
+-	if (error)
+-		return error;
++	mutex_lock(&ts->mutex);
++	ts->cmd_crtl2 &= ~AD7879_GPIODIR;
++	ts->cmd_crtl2 |= AD7879_GPIO_EN | AD7879_GPIOPOL;
++	if (level)
++		ts->cmd_crtl2 |= AD7879_GPIO_DATA;
++	else
++		ts->cmd_crtl2 &= ~AD7879_GPIO_DATA;
++
++	err = ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
++	mutex_unlock(&ts->mutex);
++
++	return err;
++}
++
++int ad7879_gpio_get_value(struct gpio_chip *chip, unsigned gpio)
++{
++	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
++	u16 val;
+ 
+ 	mutex_lock(&ts->mutex);
+-	ts->gpio = !!val;
+-	error = ad7879_write(ts->bus, AD7879_REG_CTRL2,
+-			   ts->gpio ?
+-				ts->cmd_crtl2 & ~AD7879_GPIO_DATA :
+-				ts->cmd_crtl2 | AD7879_GPIO_DATA);
++	val = ad7879_read(ts->bus, AD7879_REG_CTRL2);
+ 	mutex_unlock(&ts->mutex);
+ 
+-	return error ? : count;
++	return !!(val & AD7879_GPIO_DATA);
+ }
+ 
+-static DEVICE_ATTR(gpio, 0664, ad7879_gpio_show, ad7879_gpio_store);
++void ad7879_gpio_set_value(struct gpio_chip *chip, unsigned gpio, int value)
++{
++	struct ad7879 *ts = container_of(chip, struct ad7879, gc);
+ 
+-static struct attribute *ad7879_attributes[] = {
+-	&dev_attr_disable.attr,
+-	&dev_attr_gpio.attr,
+-	NULL
+-};
++	mutex_lock(&ts->mutex);
++	if (value)
++		ts->cmd_crtl2 |= AD7879_GPIO_DATA;
++	else
++		ts->cmd_crtl2 &= ~AD7879_GPIO_DATA;
+ 
+-static const struct attribute_group ad7879_attr_group = {
+-	.attrs = ad7879_attributes,
+-};
++	ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
++	mutex_unlock(&ts->mutex);
++}
++
++static inline int ad7879_gpio_add(struct device *dev)
++{
++	struct ad7879 *ts = dev_get_drvdata(dev);
++	struct ad7879_platform_data *pdata = dev->platform_data;
++	int ret = 0;
++
++	if (pdata->gpio_export) {
++		ts->gc.direction_input = ad7879_gpio_direction_input;
++		ts->gc.direction_output = ad7879_gpio_direction_output;
++		ts->gc.get = ad7879_gpio_get_value;
++		ts->gc.set = ad7879_gpio_set_value;
++		ts->gc.can_sleep = 1;
++		ts->gc.base = pdata->gpio_base;
++		ts->gc.ngpio = 1;
++		ts->gc.label = "AD7879-GPIO";
++		ts->gc.owner = THIS_MODULE;
++		ts->gc.dev = dev;
++
++		ret = gpiochip_add(&ts->gc);
++		if (ret)
++			dev_err(dev, "failed to register gpio %d\n",
++				ts->gc.base);
++	}
++
++	return ret;
++}
++
++static int ad7879_gpio_remove(struct device *dev)
++{
++	struct ad7879 *ts = dev_get_drvdata(dev);
++	struct ad7879_platform_data *pdata = dev->platform_data;
++	int ret = 0;
++
++	if (pdata->gpio_export) {
++		ret = gpiochip_remove(&ts->gc);
++		if (ret)
++			dev_err(dev, "failed to remove gpio %d\n",
++				ts->gc.base);
++	}
++
++	return ret;
++}
++#else
++static inline int ad7879_gpio_add(struct device *dev)
++{
++	return 0;
++}
++
++static inline int ad7879_gpio_remove(struct device *dev)
++{
++	return 0;
++}
++#endif
+ 
+ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
+ {
+@@ -403,12 +465,6 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
+ 	ts->pen_down_acc_interval = pdata->pen_down_acc_interval;
+ 	ts->median = pdata->median;
+ 
+-	if (pdata->gpio_output)
+-		ts->gpio_init = AD7879_GPIO_EN |
+-				(pdata->gpio_default ? 0 : AD7879_GPIO_DATA);
+-	else
+-		ts->gpio_init = AD7879_GPIO_EN | AD7879_GPIODIR;
+-
+ 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&bus->dev));
+ 
+ 	input_dev->name = "AD7879 Touchscreen";
+@@ -446,6 +502,23 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
+ 		goto err_free_mem;
+ 	}
+ 
++	ts->cmd_crtl3 = AD7879_YPLUS_BIT |
++			AD7879_XPLUS_BIT |
++			AD7879_Z2_BIT |
++			AD7879_Z1_BIT |
++			AD7879_TEMPMASK_BIT |
++			AD7879_AUXVBATMASK_BIT |
++			AD7879_GPIOALERTMASK_BIT;
++
++	ts->cmd_crtl2 = AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
++			AD7879_AVG(ts->averaging) |
++			AD7879_MFS(ts->median) |
++			AD7879_FCD(ts->first_conversion_delay);
++
++	ts->cmd_crtl1 = AD7879_MODE_INT | AD7879_MODE_SEQ1 |
++			AD7879_ACQ(ts->acquisition_time) |
++			AD7879_TMR(ts->pen_down_acc_interval);
++
+ 	ad7879_setup(ts);
+ 
+ 	err = request_irq(bus->irq, ad7879_irq,
+@@ -460,15 +533,21 @@ static int __devinit ad7879_construct(bus_device *bus, struct ad7879 *ts)
+ 	if (err)
+ 		goto err_free_irq;
+ 
+-	err = input_register_device(input_dev);
++	err = ad7879_gpio_add(&bus->dev);
+ 	if (err)
+ 		goto err_remove_attr;
+ 
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_remove_gpio;
++
+ 	dev_info(&bus->dev, "Rev.%d touchscreen, irq %d\n",
+ 		 revid >> 8, bus->irq);
+ 
+ 	return 0;
+ 
++err_remove_gpio:
++	ad7879_gpio_remove(&bus->dev);
+ err_remove_attr:
+ 	sysfs_remove_group(&bus->dev.kobj, &ad7879_attr_group);
+ err_free_irq:
+@@ -481,6 +560,7 @@ err_free_mem:
+ 
+ static int __devexit ad7879_destroy(bus_device *bus, struct ad7879 *ts)
+ {
++	ad7879_gpio_remove(&bus->dev);
+ 	ad7879_disable(ts);
+ 	sysfs_remove_group(&ts->bus->dev.kobj, &ad7879_attr_group);
+ 	free_irq(ts->bus->irq, ts);
+diff --git a/include/linux/spi/ad7879.h b/include/linux/spi/ad7879.h
+index 4231104..6334cee 100644
+--- a/include/linux/spi/ad7879.h
++++ b/include/linux/spi/ad7879.h
+@@ -28,8 +28,12 @@ struct ad7879_platform_data {
+ 	 * 1 = 4, 2 = 8, 3 = 16 (median > averaging)
+ 	 */
+ 	u8	median;
+-	/* 1 = AUX/VBAT/GPIO set to GPIO Output */
+-	u8	gpio_output;
+-	/* Initial GPIO pin state (valid if gpio_output = 1) */
+-	u8	gpio_default;
++	/* 1 = AUX/VBAT/GPIO export GPIO to gpiolib
++	 * requires CONFIG_GPIOLIB
++	 */
++	bool	gpio_export;
++	/* identifies the first GPIO number handled by this chip;
++	 * or, if negative, requests dynamic ID allocation.
++	 */
++	s32	gpio_base;
+ };
+-- 
+1.6.6
 
-[1]http://downloads.qi-hardware.com/hardware/Photos/2009_09_30_keyboard.jpg
-[2]static void k_pad(struct vc_data *vc, unsigned char value, char up_flag)
-
-Best Regards
-Xiangfu.

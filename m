@@ -1,97 +1,104 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [Uclinux-dist-devel] [PATCH v3] Input: ad7879: support auxiliary
-	GPIOs via gpiolib
-Date: Mon, 18 Jan 2010 01:48:14 -0500
-Message-ID: <8bd0f97a1001172248n531973ai8be0bf48926724ad@mail.gmail.com>
-References: <20100113025456.GA2301@core.coreip.homeip.net>
-	<1263742602-22250-1-git-send-email-vapier@gentoo.org> <20100118063507.GA5012@core.coreip.homeip.net>
+From: Wayne Thomas <waynethomas69@gmail.com>
+Subject: Re: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
+	quirky remote
+Date: Mon, 18 Jan 2010 11:33:09 +0100
+Message-ID: <3711715e1001180233k36072dd2r518c0b388bc8d475@mail.gmail.com>
+References: <3711715e0912310013u25e921cbqe6abb7c1621109e@mail.gmail.com>
+	 <20100102025312.GC5788@core.coreip.homeip.net>
+	 <3711715e1001020152s626739daw6cdf2d7742a0d959@mail.gmail.com>
+	 <alpine.LNX.2.00.1001022221320.2277@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f187.google.com ([209.85.210.187]:38431 "EHLO
-	mail-yx0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750730Ab0ARGsj convert rfc822-to-8bit (ORCPT
+Received: from ey-out-2122.google.com ([74.125.78.26]:57331 "EHLO
+	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932091Ab0ARKdL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Jan 2010 01:48:39 -0500
-Received: by yxe17 with SMTP id 17so3229363yxe.33
-        for <linux-input@vger.kernel.org>; Sun, 17 Jan 2010 22:48:38 -0800 (PST)
-In-Reply-To: <20100118063507.GA5012@core.coreip.homeip.net>
+	Mon, 18 Jan 2010 05:33:11 -0500
+Received: by ey-out-2122.google.com with SMTP id d26so652429eyd.19
+        for <linux-input@vger.kernel.org>; Mon, 18 Jan 2010 02:33:09 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1001022221320.2277@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jan 18, 2010 at 01:35, Dmitry Torokhov wrote:
-> On Sun, Jan 17, 2010 at 10:36:42AM -0500, Mike Frysinger wrote:
->> +#ifdef CONFIG_GPIOLIB
->> +int ad7879_gpio_direction_input(struct gpio_chip *chip, unsigned gp=
-io)
->> =C2=A0{
+On Sat, Jan 2, 2010 at 10:25 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sat, 2 Jan 2010, Wayne Thomas wrote:
 >
-> Sparse recommends making this static and it seems like a good idea. T=
-he
-> same goes for the 3 new fucntions below.
-
-yep
-
->> +static inline int ad7879_gpio_add(struct device *dev)
+>> >> The Behavior Tech. Computer Corp. (BTC) remote branded as "Emprex=
+ 3009URF III
+>> >> Vista Remote Controller" uses non-standard mappings for all of it=
+s 'special
+>> >> purpose' keys (0xffbc usage page). =A0Applies cleanly to 2.6.30 a=
+nd 2.6.32
+>> >> (other versions not tested).
+>> >> scripts/scriptpatch.pl reports 13 styling errors in hid-btc.c
+>> >> ("break;" should be on trailing lines)
+>> >> but have not changed them to maintain styling consistency with ex=
+isting drivers.
+>> >
+>> > I believe that this kind of mapping adjustment can be done via UDE=
+V/HAL
+>> > key remapping facilities, without need for the kernel patch.
+>>
+>> I'll look into what you have suggested. =A0The issue is identical to
+>> that of the TopSeed remote, which is why I used this method. =A0If t=
+his
+>> is the case I assume that the topseed driver (and any others) should
+>> also be removed?
 >
-> Why inline? Let's compiler decide, it's certainly not a hot path.
-
-ad7879_gpio_remove needed to be inlined because it's called from both
-the probe (__devinit) and the remove (__devexit) functions.  might
-able to write a smaller version though for the probe function to avoid
-this.
-
-ad7879_gpio_add is fine to remove the "inline" as long as "__devinit" i=
-s added.
-
->> +{
->> + =C2=A0 =C2=A0 struct ad7879 *ts =3D dev_get_drvdata(dev);
->> + =C2=A0 =C2=A0 struct ad7879_platform_data *pdata =3D dev->platform=
-_data;
->> + =C2=A0 =C2=A0 int ret =3D 0;
->> +
->> + =C2=A0 =C2=A0 if (pdata->gpio_export) {
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.direction_input =3D=
- ad7879_gpio_direction_input;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.direction_output =
-=3D ad7879_gpio_direction_output;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.get =3D ad7879_gp=
-io_get_value;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.set =3D ad7879_gp=
-io_set_value;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.can_sleep =3D 1;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.base =3D pdata->g=
-pio_base;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.ngpio =3D 1;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.label =3D "AD7879=
--GPIO";
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.owner =3D THIS_MO=
-DULE;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.dev =3D dev;
->> +
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D gpiochip_add(&ts=
-->gc);
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (ret)
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 dev_err(dev, "failed to register gpio %d\n",
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ts->gc.base);
->> + =C2=A0 =C2=A0 }
->> +
->> + =C2=A0 =C2=A0 return ret;
->> +}
->> +
->> +static int ad7879_gpio_remove(struct device *dev)
+> Hi Wayne,
 >
-> There is no chance we can handle errors returned by this function so =
-I'd
-> make it 'void'.
+> unfortunately you have a point here.
+>
+> Moving all the drivers which don't do anything else than establish si=
+mple
+> HID->input mappings (such as your driver, or the TopSpeed one), into
+> userspace (udev, please note that HAL is now deprecated), has been on=
+ my
+> TODO list for quite a long time.
+>
+> But there has unfortunately always been something more important, so =
+I
+> have been quite sluggish with this.
+>
+> If you'd be submitting your changes for BTC to udev, it would be cool=
+ if
+> you could do the same for other drivers we now have in kernel, so tha=
+t
+> they could be removed one day.
+> Otherwise I'll do it hopefully soon, I will push it in my TODO a litt=
+le
+> bit higher as a new-year's resolution :)
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs, Novell Inc.
+>
 
-right
--mike
+Jiri/Dmitry,
+I've had a look around in the udev source code for an idea of how you
+intend on this to be implemented, but unfortunately couldn't find a
+sutiable example to examine.  As such I wont be of much use to you
+with in this regard.
+Something I did note however was that there is at least five different
+quirky drivers that are using the 0x0ffbc0000 HID usage page (defined
+as HID_UP_LOGIVENDOR), a handful of which do nothing more than capture
+the keypresses from this usage page.  Comparing the keys in question I
+realised that they could have been captured under a single quirky
+driver, if not in hid-input itself.  It appears to me that a new
+generation of Windows MCE remote devices are coming onto the market
+that are using this usage page as standard.  I was going to fiddle
+around with this but instead will wait to see how this will be
+implemented in udev.
+Sorry I couldn't relieve some of your work-load.
+
+Cheers
+Wayne
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

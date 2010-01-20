@@ -1,1011 +1,1867 @@
-From: "Chris Verges" <chrisv@cyberswitching.com>
-Subject: [PATCH 1/1] linux-2.6.32-tsc2008.patch
-Date: Wed, 20 Jan 2010 11:39:58 -0800
-Message-ID: <68FBE0F3CE97264395875AC1C468F22C220789@mail03.cyberswitching.local>
+From: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
+Subject: [PATCH] hid: Logitech G13 driver 0.0.4
+Date: Wed, 20 Jan 2010 13:47:22 -0700
+Message-ID: <201001202047.o0KKlMTr014003@mustang.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01CA9A08.5C506042"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from p01c12o141.mxlogic.net ([208.65.145.64]:42868 "EHLO
-	p01c12o141.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754015Ab0ATTsN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Jan 2010 14:48:13 -0500
-Content-class: urn:content-classes:message
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:64105 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753264Ab0ATUrs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Jan 2010 15:47:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: felipe.balbi@nokia.com, pavel@ucw.cz, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
 
-This is a multi-part message in MIME format.
+>From b9eeb0aff3f8b9a7792f35741215a1847ec0c98d Mon Sep 17 00:00:00 2001
+From: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>
+Date: Wed, 20 Jan 2010 13:32:04 -0700
+Subject: [PATCH] hid Logitech G13 Driver 0.0.4
 
-------_=_NextPart_001_01CA9A08.5C506042
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+This is a driver for the Logitech G13 gamepad, and contains four key
+parts.  Through the USB reports the device identifies itself as a HID, and as
+a result this driver is under the HID framework.
 
-Hi Dmitry and fellow input driver developers,
+There are three primary sub-components to this driver; an input device, a
+framebuffer device, and four instance of the LED class.
 
-Attached is an updated driver for the tsc2008.  This new driver
-completely replaces older versions, and has been confirmed to work on
-actual hardware.  The TSC2008 is an SPI touchscreen controller produced
-by Texas Instruments.
+Although identified as a HID, the device does not support standard HID
+input messages.  As a result, a sub-input device is allocated and
+registered separately in g13_probe().  The raw events are monitored and
+key presses/joystick activity is reported through the input device after
+referencing an indexed keymap.
 
-An example of integrating this driver into board-sam9263ek board is
-below.  Note that only the sections relevant to the tsc2008 driver are
-included.
+However, the driver does use the HID feature reports extensively to
+control the backlight, LEDs, et. al.
 
-   #include "linux/spi/tsc2008.h"
+The G13 contains a 160x43 monochrome LCD display.  A registered framebuffer
+device manages this display.  The design of this portion of the driver was
+based on the design of the hecubafb driver with deferred framebuffer I/O since
+there is no real memory to map.
 
-   #if defined (CONFIG_TOUCHSCREEN_TSC2008)
-   static int tsc2008_pendown_state(void)
-   {
-      return !at91_get_gpio_value(AT91_PIN_PA15);
-   }
+Changes since 0.0.3:
+- Replaced the mled sysfs attribute with four LED class instances
 
-   static struct tsc2008_platform_data tsc2008_info =3D {
-      .x_plate_ohms        =3D 450,
-      .bit_mode            =3D 8,
-      .get_pendown_state   =3D tsc2008_pendown_state,
-      .clear_penirq        =3D NULL,
-      .init_platform_hw    =3D NULL,
-      .exit_platform_hw    =3D NULL,
-   };
+- Replaced the sleeping waits with completion signaling
 
-   static void __init ek_add_device_ts(void)
-   {
-      at91_set_B_periph(AT91_PIN_PA15, 1);
-      at91_set_gpio_input(AT91_PIN_PA31, 1);
-   }
-   #else
-   static void __init ek_add_device_ts(void) {}
-   #endif
+- Removed the G_* key #defines and replaced with brief comments to document
+  G_* key indices
 
-   static struct spi_board_info ek_spi_devices[] =3D {
-   # if defined(CONFIG_TOUCHSCREEN_TSC2008)
-      {
-         .modalias       =3D "tsc2008",
-         .bus_num        =3D 1,
-         .chip_select    =3D 1,
-         .max_speed_hz   =3D 25000000,
-         .platform_data  =3D &tsc2008_info,
-         .irq            =3D AT91SAM9263_ID_IRQ1,
-      },
-   #endif
-   }
+- Changed rwlock to a spinlock
 
-   static void __init ek_board_init(void)
-   {
-      ek_add_device_ts();
-   }
+- Removed null pointer checks from convenience cast macros
 
-Please review, provide feedback, and consider the driver for inclusion
-in the upstream.
+- Removed g13 data structure null pointer checks from sysfs show and store
+  functions
 
-Thanks,
-Chris
+- Converted printks to dev_warns
 
------- PATCH BELOW ------
+- Removed keycode size checks from input_setkeycode callbacks as we know
+  the size allocated by this driver
 
-Signed-off-by: Chris Verges <chrisv@cyberswitching.com>
+- Removed locks from input_getkeycode callback as they are unnecessary
 
-Index: include/linux/spi/tsc2008.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/include/linux/spi/tsc2008.h	(.../tags/linux-2.6.32.1)
-(revision 0)
-+++ b/include/linux/spi/tsc2008.h
-(.../branches/at91sam9263cs-2.6.32.1)	(revision 184)
-@@ -0,0 +1,18 @@
-+#ifndef __LINUX_SPI_TSC2008_H
-+#define __LINUX_SPI_TSC2008_H
-+
-+/* linux/spi/tsc2008.h */
-+
-+struct tsc2008_platform_data {
-+	u16	model;				/* 2008. */
-+	u16	x_plate_ohms;
-+	u16	bit_mode;			/* 8 (default) or 12 */
-+
-+	int	(*get_pendown_state)(void);
-+	void	(*clear_penirq)(void);		/* If needed, clear 2nd
-level
-+						   interrupt source */
-+	int	(*init_platform_hw)(void);
-+	void	(*exit_platform_hw)(void);
-+};
-+
-+#endif
-Index: drivers/input/touchscreen/Kconfig
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/input/touchscreen/Kconfig	(.../tags/linux-2.6.32.1)
-(revision 184)
-+++ b/drivers/input/touchscreen/Kconfig
-(.../branches/at91sam9263cs-2.6.32.1)	(revision 184)
-@@ -512,6 +512,19 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called tsc2007.
-=20
-+config TOUCHSCREEN_TSC2008
-+	tristate "TSC2008 based touchscreens"
-+	depends on SPI_MASTER
+- Issue key up for pressed keycodes when keymap has changed as well as the
+  keycode for a given scancode. However, if the keycode remains the same,
+  we'll leave the keycode in a key down state.
+
+- Changed all keycode/scancode lookups and sets to use input_get_keycode()
+  and input_set_keycode() for entry points.
+
+- Removed the emit_msc_raw sysfs attribute
+
+- Removed the mled sysfs attribute
+
+- Changed keymap_switching attribute to mode 0644 from 0666
+
+- Added a sysfs attribute for the minor number used to build LED device paths
+  for libsysfs from userspace
+
+- Broke key event handling into a separate function to clean up the input
+  message processing
+
+- Changed MSC_SCAN to emit on keypress of an unmapped key
+
+- Moved check for M* key presses to beginning of message processing to ensure
+  that the keymap will be indexed properly when switched
+
+- Changed clear_bit() and set_bit() to unlocked versions __clear_bit() and
+  __set_bit()
+
+- Changed key 0 references to KEY_RESERVED
+
+- Push the initialized image twice since it seems to sometimes get "lost" in
+  that the device ignores the image sent
+
+- Set driver keymap switching to on as a default as this is the general
+  behavior expected without a userspace daemon controlling keymap
+  switching
+
+- When cleaning up a failed LED class allocation unregister the input
+  device as well. Also, added skip ahead to freeing the framebuffer cache
+  to avoid freeing the input device twice.
+
+- On device removal remove the sysfs attribute group, remove null data pointer
+  checks, add framebuffer deferred i/o cleanup, and led class cleanup
+
+Changes since 0.0.2:
+- Moved the module out of the logitech objs to build on its own
+
+- Added dependency on FB_DEFFERRED_IO
+
+- Added explanation as to why the load image is used and how to view it
+  outside the code.
+
+- Changed the load image to text "G13" with default penguins resized,
+  cleaned up and inverted from framebuffer monochrome penguin logo.
+
+- Cleaned up the raw event callback by moving the key event processing to a
+  separate function.
+
+- Removed several of the line breaks introduced to accomodate 80-column lines
+  to improve readability.
+
+- Reordeded event processing and utility functions to eliminate the need for
+  a g13_set_mled() prototype.
+
+- Removed nonstd flag from framebuffer screeninfo structure
+
+Signed-off-by: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>
+---
+ drivers/hid/Kconfig    |   14 +
+ drivers/hid/Makefile   |    1 +
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-g13.c  | 1657 ++++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h  |    1 +
+ 5 files changed, 1674 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-g13.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 24d90ea..548dd4a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -183,6 +183,20 @@ config LOGIRUMBLEPAD2_FF
+ 	  Say Y here if you want to enable force feedback support for Logitech
+ 	  Rumblepad 2 devices.
+ 
++config HID_LOGITECH_G13
++	tristate "Logitech G13 gameboard support"
++	depends on FB
++	depends on FB_DEFERRED_IO
++	select FB_SYS_FILLRECT
++	select FB_SYS_COPYAREA
++	select FB_SYS_IMAGEBLIT
++	select FB_SYS_FOPS
 +	help
-+	  Say Y here if you have a touchscreen interface using the
-+	  TSC2008 controller, and your board-specific setup code
-+	  includes that in its table of SPI devices.
++	  This provides support for Logitech G13 gameboard
++	  devices. This includes support for the device
++	  as a keypad input with mappable keys as well as
++	  a framebuffer for the LCD display.
 +
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called tsc2008.
-+
- config TOUCHSCREEN_W90X900
- 	tristate "W90P910 touchscreen driver"
- 	depends on HAVE_CLK
-Index: drivers/input/touchscreen/tsc2008.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/input/touchscreen/tsc2008.c
-(.../tags/linux-2.6.32.1)	(revision 0)
-+++ b/drivers/input/touchscreen/tsc2008.c
-(.../branches/at91sam9263cs-2.6.32.1)	(revision 184)
-@@ -0,0 +1,519 @@
-+/*
-+ * drivers/input/touchscreen/tsc2008.c
-+ *
-+ * Copyright (c) 2010 Cyber Switching, Inc.
-+ *    Chris Verges <chrisv@cyberswitching.com>
-+ *    Robert Mehranfar <robertme@earthlink.net>
-+ *
-+ * Using code from:
-+ *  - tsc2008.c
-+ *      Copyright (c) 2008 MtekVision Co., Ltd.
-+ *	Kwangwoo Lee <kwlee@mtekvision.com>
-+ *  - ads7846.c
-+ *	Copyright (c) 2005 David Brownell
-+ *	Copyright (c) 2006 Nokia Corporation
-+ *  - corgi_ts.c
-+ *	Copyright (C) 2004-2005 Richard Purdie
-+ *  - omap_ts.[hc], ads7846.h, ts_osk.c
-+ *	Copyright (C) 2002 MontaVista Software
-+ *	Copyright (C) 2004 Texas Instruments
-+ *	Copyright (C) 2005 Dirk Behme
-+ *
-+ *  This program is free software; you can redistribute it and/or
-modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ */
-+
-+#include <linux/delay.h>
+ config HID_MICROSOFT
+ 	tristate "Microsoft" if EMBEDDED
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0de2dff..d39dc5b 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -31,6 +31,7 @@ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+ obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
+ obj-$(CONFIG_HID_KYE)		+= hid-kye.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
++obj-$(CONFIG_HID_LOGITECH_G13)	+= hid-g13.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
+ obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 80792d3..eeae383 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1325,6 +1325,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G25_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G13) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
+diff --git a/drivers/hid/hid-g13.c b/drivers/hid/hid-g13.c
+new file mode 100644
+index 0000000..992c242
+--- /dev/null
++++ b/drivers/hid/hid-g13.c
+@@ -0,0 +1,1657 @@
++/***************************************************************************
++ *   Copyright (C) 2009 by Rick L. Vinyard, Jr.                            *
++ *   rvinyard@cs.nmsu.edu                                                  *
++ *                                                                         *
++ *   This program is free software: you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation, either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This driver is distributed in the hope that it will be useful, but    *
++ *   WITHOUT ANY WARRANTY; without even the implied warranty of            *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      *
++ *   General Public License for more details.                              *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this software. If not see <http://www.gnu.org/licenses/>.  *
++ ***************************************************************************/
++#include <linux/fb.h>
++#include <linux/hid.h>
++#include <linux/init.h>
 +#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/spi/spi.h>
-+#include <linux/spi/tsc2008.h>
++#include <linux/mm.h>
++#include <linux/sysfs.h>
++#include <linux/uaccess.h>
++#include <linux/usb.h>
++#include <linux/vmalloc.h>
++#include <linux/leds.h>
++#include <linux/completion.h>
 +
-+#define TS_POLL_DELAY			1 /* ms delay between samples */
-+#define TS_POLL_PERIOD			1 /* ms delay between samples */
++#include "hid-ids.h"
++#include "usbhid/usbhid.h"
 +
-+#define TSC2008_START_CMD		(0x1 << 7)
++#define G13_NAME "Logitech G13"
 +
-+#define TSC2008_MEASURE_TEMP1		(0x0 << 4)
-+#define TSC2008_MEASURE_Y		(0x1 << 4)
-+#define TSC2008_SETUP			(0x2 << 4)
-+#define TSC2008_MEASURE_Z1		(0x3 << 4)
-+#define TSC2008_MEASURE_Z2		(0x4 << 4)
-+#define TSC2008_MEASURE_X		(0x5 << 4)
-+#define TSC2008_MEASURE_AUX		(0x6 << 4)
-+#define TSC2008_MEASURE_TEMP2		(0x7 << 4)
++/* Key defines */
++#define G13_KEYS 35
++#define G13_KEYMAP_SIZE (G13_KEYS*3)
 +
-+#define TSC2008_USE_50K			(0x0 << 3)
-+#define TSC2008_USE_90K			(0x1 << 3)
++/* Framebuffer defines */
++#define G13FB_NAME "g13fb"
++#define G13FB_WIDTH (160)
++#define G13FB_LINE_LENGTH (160/8)
++#define G13FB_HEIGHT (43)
++#define G13FB_SIZE (G13FB_LINE_LENGTH*G13FB_HEIGHT)
 +
-+#define TSC2008_ENABLE_MAV		(0x0 << 2)
-+#define TSC2008_DISABLE_MAV		(0x1 << 2)
++#define G13FB_UPDATE_RATE_LIMIT (20)
++#define G13FB_UPDATE_RATE_DEFAULT (10)
 +
-+#define TSC2008_SOFTWARE_RESET		(0x1 << 0)
++/*
++ * The native G13 format uses vertical bits. Therefore the number of bytes
++ * needed to represent the first column is 43/8 (rows/bits) rounded up.
++ * Additionally, the format requires a padding of 32 bits in front of the
++ * image data.
++ *
++ * Therefore the vbitmap size must be:
++ *   160 * ceil(43/8) + 32 = 160 * 6 + 32 = 992
++ */
++#define G13_VBITMAP_SIZE (992)
 +
-+#define TSC2008_POWER_OFF_IRQ_EN	(0x0 << 0)
-+#define TSC2008_ADC_ON_IRQ_DIS0		(0x1 << 0)
-+#define TSC2008_ADC_OFF_IRQ_EN		(0x2 << 0)
-+#define TSC2008_ADC_ON_IRQ_DIS1		(0x3 << 0)
++/* Backlight defaults */
++#define G13_DEFAULT_RED (0)
++#define G13_DEFAULT_GREEN (255)
++#define G13_DEFAULT_BLUE (0)
 +
-+#define TSC2008_12BIT			(0x0 << 1)
-+#define TSC2008_8BIT			(0x1 << 1)
++/* LED array indices */
++#define G13_LED_M1 0
++#define G13_LED_M2 1
++#define G13_LED_M3 2
++#define G13_LED_MR 3
 +
-+#define	MAX_12BIT			(1 << 12)
-+#define MAX_8BIT			(1 << 8)
++#define G13_READY_STAGE_1 0x01
++#define G13_READY_STAGE_2 0x02
++#define G13_READY 0x03
 +
-+#define ADC_ON_12BIT	(TSC2008_START_CMD | TSC2008_12BIT |
-TSC2008_POWER_OFF_IRQ_EN)
-+#define ADC_ON_8BIT	(TSC2008_START_CMD | TSC2008_8BIT |
-TSC2008_POWER_OFF_IRQ_EN)
-+
-+/* usec, SCLK=3D25MHz w/o MAV */
-+#define TX_DELAY	(40)
-+#define RX_DELAY	(40)
-+
-+struct ts_event {
-+	uint16_t	x;
-+	uint16_t	y;
-+	uint16_t	z1, z2;
-+};
-+
-+struct tsc2008 {
-+	struct input_dev	*input;
-+	char			phys[32];
-+	struct delayed_work	work;
-+
-+	struct spi_device	*spi;
-+	struct spi_message	msg;
-+	struct spi_transfer	xfer[8];
-+	uint8_t			tx_buf[4];
-+
-+	uint16_t		model;
-+	uint16_t		x_plate_ohms;
-+	uint16_t		max_bits;
-+
-+	bool			pendown;
-+	int			irq;
-+
-+	int			(*get_pendown_state)(void);
-+	void			(*clear_penirq)(void);
-+};
-+
-+static void tsc2008_read_values(struct tsc2008 *tsc, struct ts_event
-*tc)
-+{
-+	/* Read the values from the TSC2008 */
-+	tsc->xfer[1].rx_buf =3D &tc->x;
-+	tsc->xfer[3].rx_buf =3D &tc->y;
-+	tsc->xfer[5].rx_buf =3D &tc->z1;
-+	tsc->xfer[7].rx_buf =3D &tc->z2;
-+
-+	spi_sync(tsc->spi, &tsc->msg);
-+
-+	dev_dbg(&tsc->spi->dev, "data: x  %05u 0x%08x\n", tc->x, tc->x);
-+	dev_dbg(&tsc->spi->dev, "data: y  %05u 0x%08x\n", tc->y, tc->y);
-+	dev_dbg(&tsc->spi->dev, "data: z1 %05u 0x%08x\n", tc->z1,
-tc->z1);
-+	dev_dbg(&tsc->spi->dev, "data: z2 %05u 0x%08x\n", tc->z2,
-tc->z2);
-+
-+	if (tsc->max_bits =3D=3D MAX_8BIT) {
-+		tc->x  =3D (tc->x  << 1) & 0x00FF;
-+		tc->y  =3D (tc->y  << 1) & 0x00FF;
-+		tc->z1 =3D (tc->z1 << 1) & 0x00FF;
-+		tc->z2 =3D (tc->z2 << 1) & 0x00FF;
-+	} else if (tsc->max_bits =3D=3D MAX_12BIT) {
-+		tc->x  =3D (be16_to_cpu(tc->x)  << 1) >> 4 & 0x0FFF;
-+		tc->y  =3D (be16_to_cpu(tc->y)  << 1) >> 4 & 0x0FFF;
-+		tc->z1 =3D (be16_to_cpu(tc->z1) << 1) >> 4 & 0x0FFF;
-+		tc->z2 =3D (be16_to_cpu(tc->z2) << 1) >> 4 & 0x0FFF;
-+	} else {
-+		dev_err(&tsc->spi->dev, "invalid number of bits
-expected\n");
-+	}
-+
-+	dev_dbg(&tsc->spi->dev, "data: x  %05u 0x%08x\n", tc->x, tc->x);
-+	dev_dbg(&tsc->spi->dev, "data: y  %05u 0x%08x\n", tc->y, tc->y);
-+	dev_dbg(&tsc->spi->dev, "data: z1 %05u 0x%08x\n", tc->z1,
-tc->z1);
-+	dev_dbg(&tsc->spi->dev, "data: z2 %05u 0x%08x\n", tc->z2,
-tc->z2);
-+}
-+
-+static uint32_t tsc2008_calculate_pressure(struct tsc2008 *tsc, struct
-ts_event *tc)
-+{
-+	uint32_t rt =3D 0;
-+
-+	/* range filtering */
-+	if (tc->x =3D=3D (tsc->max_bits - 1))
-+		tc->x =3D 0;
-+
-+	if (likely(tc->x && tc->z1)) {
-+		rt =3D (tc->z2 / tc->z1) - 1;
-+		rt *=3D tc->y * tsc->x_plate_ohms;
-+		rt /=3D tsc->max_bits;
-+
-+		if (tsc->max_bits =3D=3D MAX_8BIT)
-+			rt &=3D 0x00FF;
-+		else
-+			rt &=3D 0x0FFF;
-+	}
-+
-+	dev_dbg(&tsc->spi->dev, "pressure: %05u 0x%08x\n", rt, rt);
-+
-+	return rt;
-+}
-+
-+static void tsc2008_send_up_event(struct tsc2008 *tsc)
-+{
-+	struct input_dev *input =3D tsc->input;
-+
-+	dev_dbg(&tsc->spi->dev, "UP\n");
-+
-+	input_report_key(input, BTN_TOUCH, 0);
-+	input_report_abs(input, ABS_PRESSURE, 0);
-+	input_sync(input);
-+}
-+
-+static void tsc2008_work(struct work_struct *work)
-+{
-+	struct tsc2008 *ts =3D
-+		container_of(to_delayed_work(work), struct tsc2008,
-work);
-+	struct ts_event tc;
-+	uint32_t rt;
-+
-+	/*
-+	 * NOTE: We can't rely on the pressure to determine the pen down
-+	 * state, even though this controller has a pressure sensor.
-+	 * The pressure value can fluctuate for quite a while after
-+	 * lifting the pen and in some cases may not even settle at the
-+	 * expected value.
-+	 *
-+	 * The only safe way to check for the pen up condition is in the
-+	 * work function by reading the pen signal state (it's a GPIO
-+	 * and IRQ). Unfortunately such callback is not always
-available,
-+	 * in that case we have rely on the pressure anyway.
-+	 */
-+	if (ts->get_pendown_state) {
-+		if (unlikely(!ts->get_pendown_state())) {
-+			dev_dbg(&ts->spi->dev, "detected pen UP via GPIO
-read\n");
-+
-+			tsc2008_send_up_event(ts);
-+			ts->pendown =3D false;
-+			goto out;
-+		}
-+
-+		dev_dbg(&ts->spi->dev, "pen is still down\n");
-+	} else {
-+		dev_dbg(&ts->spi->dev, "get_pendown_state undefined, "
-+				"using pressure instead\n");
-+	}
-+
-+	tsc2008_read_values(ts, &tc);
-+
-+	rt =3D tsc2008_calculate_pressure(ts, &tc);
-+	if (rt >=3D ts->max_bits) {
-+		/*
-+		 * Sample found inconsistent by debouncing or pressure
-is
-+		 * beyond the maximum. Don't report it to user space,
-+		 * repeat at least once more the measurement.
-+		 */
-+		dev_dbg(&ts->spi->dev, "ignored pressure %d\n", rt);
-+		goto out;
-+	}
-+
-+	if (rt) {
-+		struct input_dev *input =3D ts->input;
-+
-+		if (!ts->pendown) {
-+			dev_dbg(&ts->spi->dev, "DOWN\n");
-+
-+			input_report_key(input, BTN_TOUCH, 1);
-+			ts->pendown =3D true;
-+		}
-+
-+		input_report_abs(input, ABS_X, tc.x);
-+		input_report_abs(input, ABS_Y, tc.y);
-+		input_report_abs(input, ABS_PRESSURE, rt);
-+
-+		input_sync(input);
-+
-+		dev_dbg(&ts->spi->dev, "point(%4d,%4d), pressure
-(%4u)\n",
-+			tc.x, tc.y, rt);
-+	} else if (!ts->get_pendown_state && ts->pendown) {
-+		/*
-+		 * We don't have callback to check pendown state, so we
-+		 * have to assume that since pressure reported is 0 the
-+		 * pen was lifted up.
-+		 */
-+		tsc2008_send_up_event(ts);
-+		ts->pendown =3D false;
-+	} else {
-+		dev_dbg(&ts->spi->dev, "no change in pen state
-detected\n");
-+	}
-+
-+ out:
-+	if (ts->pendown)
-+		schedule_delayed_work(&ts->work,
-+				      msecs_to_jiffies(TS_POLL_PERIOD));
-+	else
-+		enable_irq(ts->irq);
-+}
-+
-+static irqreturn_t tsc2008_irq(int irq, void *handle)
-+{
-+	struct tsc2008 *ts =3D handle;
-+
-+	if (!ts->get_pendown_state || likely(ts->get_pendown_state())) {
-+		disable_irq_nosync(ts->irq);
-+		schedule_delayed_work(&ts->work,
-+				      msecs_to_jiffies(TS_POLL_DELAY));
-+	}
-+
-+	if (ts->clear_penirq)
-+		ts->clear_penirq();
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void tsc2008_free_irq(struct tsc2008 *ts)
-+{
-+	free_irq(ts->irq, ts);
-+	if (cancel_delayed_work_sync(&ts->work)) {
-+		/*
-+		 * Work was pending, therefore we need to enable
-+		 * IRQ here to balance the disable_irq() done in the
-+		 * interrupt handler.
-+		 */
-+		enable_irq(ts->irq);
-+	}
-+}
-+
-+static int __devinit tsc2008_probe(struct spi_device *spi)
-+{
-+	struct tsc2008 *ts;
-+	struct tsc2008_platform_data *pdata =3D spi->dev.platform_data;
++/* Per device data structure */
++struct g13_data {
++	/* HID reports */
++	struct hid_device *hdev;
++	struct hid_report *backlight_report;
++	struct hid_report *start_input_report;
++	struct hid_report *report_4;
++	struct hid_report *led_report;
 +	struct input_dev *input_dev;
-+	struct spi_transfer *x;
-+	uint8_t tx_buf;
-+	int num_bytes_rx;
-+	int err;
 +
-+	if (!pdata) {
-+		dev_err(&spi->dev, "platform data is required!\n");
-+		return -EINVAL;
-+	}
++	/* core state */
++	char *name;
++	int keycode[G13_KEYMAP_SIZE];
++	int scancode_state[G13_KEYS];
++	u8 rgb[3];
++	u8 led;
++	u8 curkeymap;
++	u8 keymap_switching;
 +
-+	if (!pdata->get_pendown_state) {
-+		dev_err(&spi->dev, "pendown function is required!\n");
-+		return -EINVAL;
-+	}
++	/* Framebuffer stuff */
++	u8 fb_update_rate;
++	u8 *fb_vbitmap;
++	u8 *fb_bitmap;
++	struct fb_info *fb_info;
++	struct fb_deferred_io fb_defio;
 +
-+	if (!pdata->bit_mode) {
-+		dev_dbg(&spi->dev, "bit mode not specified, using 8-bit
-mode\n");
-+		pdata->bit_mode =3D 8;
-+	} else if (pdata->bit_mode !=3D 8 && pdata->bit_mode !=3D 12) {
-+		dev_err(&spi->dev, "invalid bit mode specified, 8-bit or
-12-bit expected\n");
-+		return -EINVAL;
-+	}
++	/* LED stuff */
++	struct led_classdev *led[4];
 +
-+	err =3D spi_setup(spi);
-+	if (err) {
-+		dev_err(&spi->dev, "unable to initialize spi\n");
-+		return -ENODEV;
-+	}
-+
-+	ts =3D kzalloc(sizeof(struct tsc2008), GFP_KERNEL);
-+	input_dev =3D input_allocate_device();
-+	if (!ts || !input_dev) {
-+		err =3D -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	dev_set_drvdata(&spi->dev, ts);
-+	ts->spi =3D spi;
-+	ts->irq =3D spi->irq;
-+	ts->input =3D input_dev;
-+	INIT_DELAYED_WORK(&ts->work, tsc2008_work);
-+
-+	ts->model             =3D pdata->model;
-+	ts->x_plate_ohms      =3D pdata->x_plate_ohms;
-+	ts->max_bits          =3D 1 << pdata->bit_mode;	/* Match either
-MAX_8BIT or MAX_12BIT */
-+	ts->get_pendown_state =3D pdata->get_pendown_state;
-+	ts->clear_penirq      =3D pdata->clear_penirq;
-+
-+	snprintf(ts->phys, sizeof(ts->phys),
-+		 "%s/input0", dev_name(&spi->dev));
-+
-+	input_dev->name =3D "TSC2008 Touchscreen";
-+	input_dev->dev.parent =3D &spi->dev;
-+	input_dev->phys =3D ts->phys;
-+
-+	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
-+
-+	input_set_abs_params(input_dev, ABS_X, 0, ts->max_bits, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, ts->max_bits, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, ts->max_bits,
-0, 0);
-+
-+	if (pdata->init_platform_hw)
-+		pdata->init_platform_hw();
-+
-+	err =3D request_irq(ts->irq, tsc2008_irq, 0,
-+			spi->dev.driver->name, ts);
-+	if (err < 0) {
-+		dev_err(&spi->dev, "irq %d busy?\n", ts->irq);
-+		goto err_free_mem;
-+	}
-+
-+	/* Setup SPI variables */
-+	spi_message_init(&ts->msg);
-+
-+	/*
-+	 * TSC2008_MEASURE_X and TSC2008_MEASURE_Y are intentionally
-+	 * swapped below.
-+	 */
-+	if (ts->max_bits =3D=3D MAX_8BIT) {
-+		dev_dbg(&spi->dev, "using 8-bit mode\n");
-+		num_bytes_rx =3D 1;
-+		ts->tx_buf[0] =3D ADC_ON_8BIT | TSC2008_MEASURE_Y;
-+		ts->tx_buf[1] =3D ADC_ON_8BIT | TSC2008_MEASURE_X;
-+		ts->tx_buf[2] =3D ADC_ON_8BIT | TSC2008_MEASURE_Z1;
-+		ts->tx_buf[3] =3D ADC_ON_8BIT | TSC2008_MEASURE_Z2;
-+	} else {
-+		dev_dbg(&spi->dev, "using 12-bit mode\n");
-+		num_bytes_rx =3D 2;
-+		ts->tx_buf[0] =3D ADC_ON_12BIT | TSC2008_MEASURE_Y;
-+		ts->tx_buf[1] =3D ADC_ON_12BIT | TSC2008_MEASURE_X;
-+		ts->tx_buf[2] =3D ADC_ON_12BIT | TSC2008_MEASURE_Z1;
-+		ts->tx_buf[3] =3D ADC_ON_12BIT | TSC2008_MEASURE_Z2;
-+	}
-+
-+	x =3D &ts->xfer[0];
-+	memset(x, 0, sizeof(*x));
-+	x->tx_buf =3D &ts->tx_buf[0];
-+	x->len =3D 1;
-+	x->delay_usecs =3D TX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[1];
-+	memset(x, 0, sizeof(*x));
-+	x->len =3D num_bytes_rx;
-+	x->delay_usecs =3D RX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[2];
-+	memset(x, 0, sizeof(*x));
-+	x->tx_buf =3D &ts->tx_buf[1];
-+	x->len =3D 1;
-+	x->delay_usecs =3D TX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[3];
-+	memset(x, 0, sizeof(*x));
-+	x->len =3D num_bytes_rx;
-+	x->delay_usecs =3D RX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[4];
-+	memset(x, 0, sizeof(*x));
-+	x->tx_buf =3D &ts->tx_buf[2];
-+	x->len =3D 1;
-+	x->delay_usecs =3D TX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[5];
-+	memset(x, 0, sizeof(*x));
-+	x->len =3D num_bytes_rx;
-+	x->delay_usecs =3D RX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[6];
-+	memset(x, 0, sizeof(*x));
-+	x->tx_buf =3D &ts->tx_buf[3];
-+	x->len =3D 1;
-+	x->delay_usecs =3D TX_DELAY;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	x =3D &ts->xfer[7];
-+	memset(x, 0, sizeof(*x));
-+	x->len =3D num_bytes_rx;
-+	spi_message_add_tail(x, &ts->msg);
-+
-+	/*
-+	 * Reset the controller once using the sequence described
-+	 * on page 29 of the TSC2008 manual (March 2009 revision)
-+	 */
-+	tx_buf =3D TSC2008_START_CMD
-+			| TSC2008_SETUP
-+			| TSC2008_SOFTWARE_RESET;
-+	err =3D spi_write(spi, &tx_buf, 1);
-+	if (err < 0)
-+		goto err_free_irq;
-+	udelay(1);
-+
-+	/* Configure the pull-up resistor and MAV settings */
-+	tx_buf =3D TSC2008_START_CMD
-+			| TSC2008_SETUP
-+			| TSC2008_USE_90K
-+			| TSC2008_DISABLE_MAV;
-+	err =3D spi_write(spi, &tx_buf, 1);
-+	if (err < 0)
-+		goto err_free_irq;
-+
-+	/* Finish input device registration */
-+	err =3D input_register_device(input_dev);
-+	if (err)
-+		goto err_free_irq;
-+
-+	return 0;
-+
-+ err_free_irq:
-+	tsc2008_free_irq(ts);
-+	if (pdata->exit_platform_hw)
-+		pdata->exit_platform_hw();
-+ err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(ts);
-+	return err;
-+}
-+
-+static int __devexit tsc2008_remove(struct spi_device *spi)
-+{
-+	struct tsc2008 *ts =3D dev_get_drvdata(&spi->dev);
-+	struct tsc2008_platform_data *pdata =3D spi->dev.platform_data;
-+
-+	tsc2008_free_irq(ts);
-+
-+	if (pdata->exit_platform_hw)
-+		pdata->exit_platform_hw();
-+
-+	input_unregister_device(ts->input);
-+	kfree(ts);
-+
-+	dev_dbg(&spi->dev, "unregistered touchscreen\n");
-+
-+	return 0;
-+}
-+
-+static struct spi_driver tsc2008_driver =3D {
-+	.driver =3D {
-+		.owner	=3D THIS_MODULE,
-+		.name	=3D "tsc2008",
-+		.bus	=3D &spi_bus_type,
-+	},
-+	.probe		=3D tsc2008_probe,
-+	.remove		=3D __devexit_p(tsc2008_remove),
++	/* Housekeeping stuff */
++	spinlock_t lock;
++	struct completion ready;
++	int ready_stages;
 +};
 +
-+static int __init tsc2008_init(void)
++/* Convenience macros */
++#define hid_get_g13data(hdev) \
++	((struct g13_data *)(hid_get_drvdata(hdev)))
++
++#define input_get_hdev(idev) \
++	((struct hid_device *)(input_get_drvdata(idev)))
++
++#define input_get_g13data(idev) (hid_get_g13data(input_get_hdev(idev)))
++
++/*
++ * Keymap array indices
++ *
++ * Key        Index
++ * ---------  ------
++ * G1-G22     0-21
++ * FUNC       22
++ * LCD1       23
++ * LCD2       24
++ * LCD3       25
++ * LCD4       26
++ * M1         27
++ * M2         28
++ * M3         29
++ * MR         30
++ * BTN_LEFT   31
++ * BTN_DOWN   32
++ * BTN_STICK  33
++ * LIGHT      34
++ */
++static const unsigned int g13_default_key_map[G13_KEYS] = {
++  /* first row g1 - g7 */
++  KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7,
++  /* second row g8 - g11 */
++  KEY_UNKNOWN, KEY_UNKNOWN, KEY_BACK, KEY_UP,
++  /* second row g12 - g13 */
++  KEY_FORWARD, KEY_UNKNOWN, KEY_UNKNOWN,
++  /* third row g15 - g19 */
++  KEY_UNKNOWN, KEY_LEFT, KEY_DOWN, KEY_RIGHT, KEY_UNKNOWN,
++  /* fourth row g20 - g22 */
++  KEY_BACKSPACE, KEY_ENTER, KEY_SPACE,
++  /* next, light left, light center left, light center right, light right */
++  BTN_0, BTN_1, BTN_2, BTN_3, BTN_4,
++  /* M1, M2, M3, MR */
++  KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
++  /* button left, button down, button stick, light */
++  BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, KEY_RESERVED,
++};
++
++/* Framebuffer visual structures */
++static struct fb_fix_screeninfo g13fb_fix = {
++	.id = G13FB_NAME,
++	.type = FB_TYPE_PACKED_PIXELS,
++	.visual = FB_VISUAL_MONO01,
++	.xpanstep = 0,
++	.ypanstep = 0,
++	.ywrapstep = 0,
++	.line_length = G13FB_LINE_LENGTH,
++	.accel = FB_ACCEL_NONE,
++};
++
++static struct fb_var_screeninfo g13fb_var = {
++	.xres = G13FB_WIDTH,
++	.yres = G13FB_HEIGHT,
++	.xres_virtual = G13FB_WIDTH,
++	.yres_virtual = G13FB_HEIGHT,
++	.bits_per_pixel = 1,
++};
++
++/*
++ * This is a default logo to be loaded upon driver initialization
++ * replacing the default Logitech G13 image loaded on device
++ * initialization. This is to provide the user a cue that the
++ * Linux driver is loaded and ready.
++ *
++ * This logo contains the text G13 in the center with two penguins
++ * on each side of the text. The penguins are a 33x40 rendition of
++ * the default framebuffer 80x80 monochrome image scaled down and
++ * cleaned up to retain something that looks a little better than
++ * a simple scaling.
++ *
++ * This logo is a simple xbm image created in GIMP and exported.
++ * To view the image copy the following two #defines plus the
++ * g13_lcd_bits to an ASCII text file and save with extension
++ * .xbm, then open with GIMP or any other graphical editor
++ * such as eog that recognizes the .xbm format.
++ */
++#define g13_lcd_width 160
++#define g13_lcd_height 43
++static unsigned char g13_lcd_bits[] = {
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x3c, 0x00, 0x00, 0x00, 0xc0, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc3, 0x01, 0x00,
++ 0x00, 0x20, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x02, 0x00, 0x00, 0x20, 0x10, 0x01,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x80, 0x40, 0x04, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x04, 0x00,
++ 0x00, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x08, 0x00, 0x00, 0xd0, 0x18, 0x02,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x40, 0x63, 0x08, 0x00, 0x00, 0xd0, 0x1c, 0x02, 0x00, 0xf0, 0xff, 0xff,
++ 0x83, 0xff, 0x01, 0xf8, 0xff, 0xff, 0x03, 0x00, 0x40, 0x73, 0x08, 0x00,
++ 0x00, 0x10, 0x25, 0x02, 0x00, 0xf8, 0xff, 0xff, 0x83, 0xff, 0x01, 0xf8,
++ 0xff, 0xff, 0x07, 0x00, 0x40, 0x94, 0x08, 0x00, 0x00, 0x10, 0x20, 0x02,
++ 0x00, 0xfc, 0xff, 0xff, 0x83, 0xff, 0x01, 0xf8, 0xff, 0xff, 0x0f, 0x00,
++ 0x40, 0x80, 0x08, 0x00, 0x00, 0xd0, 0x1e, 0x02, 0x00, 0xfe, 0xff, 0xff,
++ 0x83, 0xff, 0x01, 0xf8, 0xff, 0xff, 0x1f, 0x00, 0x40, 0x7b, 0x08, 0x00,
++ 0x00, 0xd0, 0x27, 0x02, 0x00, 0xfe, 0xff, 0xff, 0x83, 0xff, 0x01, 0xf8,
++ 0xff, 0xff, 0x1f, 0x00, 0x40, 0x9f, 0x08, 0x00, 0x00, 0x90, 0x1b, 0x02,
++ 0x00, 0x3e, 0x00, 0x00, 0x00, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00,
++ 0x40, 0x6e, 0x08, 0x00, 0x00, 0x10, 0x24, 0x02, 0x00, 0x3e, 0x00, 0x00,
++ 0x00, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x40, 0x90, 0x08, 0x00,
++ 0x00, 0x48, 0x3b, 0x05, 0x00, 0x3e, 0x00, 0x00, 0x00, 0xf0, 0x01, 0x00,
++ 0x00, 0x00, 0x1f, 0x00, 0x20, 0xed, 0x14, 0x00, 0x00, 0xc8, 0x7c, 0x08,
++ 0x00, 0x3e, 0x00, 0x00, 0x00, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00,
++ 0x20, 0xf3, 0x21, 0x00, 0x00, 0xe4, 0x7f, 0x10, 0x00, 0x3e, 0x00, 0x00,
++ 0x00, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x90, 0xff, 0x41, 0x00,
++ 0x00, 0xe2, 0xff, 0x20, 0x00, 0x3e, 0x00, 0x00, 0x00, 0xf0, 0x01, 0x00,
++ 0x00, 0x00, 0x1f, 0x00, 0x88, 0xff, 0x83, 0x00, 0x00, 0xc2, 0x9c, 0x40,
++ 0x00, 0x3e, 0xf8, 0xff, 0x07, 0xf0, 0x01, 0xf8, 0xff, 0xff, 0x1f, 0x00,
++ 0x08, 0x73, 0x02, 0x01, 0x00, 0xf1, 0x3e, 0x41, 0x00, 0x3e, 0xf8, 0xff,
++ 0x07, 0xf0, 0x01, 0xf8, 0xff, 0xff, 0x0f, 0x00, 0xc4, 0xfb, 0x04, 0x01,
++ 0x00, 0xf1, 0x7f, 0x40, 0x00, 0x3e, 0xf8, 0xff, 0x07, 0xf0, 0x01, 0xf8,
++ 0xff, 0xff, 0x07, 0x00, 0xc4, 0xff, 0x01, 0x01, 0x80, 0xf8, 0xff, 0x89,
++ 0x00, 0x3e, 0xf8, 0xff, 0x07, 0xf0, 0x01, 0xf8, 0xff, 0xff, 0x0f, 0x00,
++ 0xe2, 0xff, 0x27, 0x02, 0x80, 0xf8, 0xff, 0x93, 0x00, 0x3e, 0xf8, 0xff,
++ 0x07, 0xf0, 0x01, 0xf8, 0xff, 0xff, 0x0f, 0x00, 0xe2, 0xff, 0x4f, 0x02,
++ 0x40, 0xfc, 0xff, 0x93, 0x00, 0x3e, 0x00, 0xc0, 0x07, 0xf0, 0x01, 0x00,
++ 0x00, 0x00, 0x1f, 0x00, 0xf1, 0xff, 0x4f, 0x02, 0x40, 0xfc, 0xff, 0x13,
++ 0x01, 0x3e, 0x00, 0xc0, 0x07, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x00,
++ 0xf1, 0xff, 0x4f, 0x04, 0x20, 0x7c, 0xff, 0x13, 0x01, 0x3e, 0x00, 0xc0,
++ 0x07, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x80, 0xf0, 0xfd, 0x4f, 0x04,
++ 0x20, 0x7c, 0xff, 0x13, 0x01, 0x3e, 0x00, 0xc0, 0x07, 0xf0, 0x01, 0x00,
++ 0x00, 0x00, 0x1f, 0x80, 0xf0, 0xfd, 0x4f, 0x04, 0x20, 0x7c, 0xff, 0x3b,
++ 0x01, 0x3e, 0x00, 0xc0, 0x07, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x80,
++ 0xf0, 0xfd, 0xef, 0x04, 0xa0, 0xfc, 0xff, 0x00, 0x01, 0x3e, 0x00, 0xc0,
++ 0x07, 0xf0, 0x01, 0x00, 0x00, 0x00, 0x1f, 0x80, 0xf2, 0xff, 0x03, 0x04,
++ 0xc0, 0xfb, 0x7f, 0x83, 0x00, 0xfe, 0xff, 0xff, 0x87, 0xff, 0x7f, 0xf8,
++ 0xff, 0xff, 0x1f, 0x00, 0xef, 0xff, 0x0d, 0x02, 0xe0, 0xe7, 0x7f, 0xc7,
++ 0x00, 0xfe, 0xff, 0xff, 0x87, 0xff, 0x7f, 0xf8, 0xff, 0xff, 0x1f, 0x80,
++ 0x9f, 0xff, 0x1d, 0x03, 0xf0, 0xc7, 0x7f, 0xff, 0x00, 0xfc, 0xff, 0xff,
++ 0x87, 0xff, 0x7f, 0xf8, 0xff, 0xff, 0x0f, 0xc0, 0x1f, 0xff, 0xfd, 0x03,
++ 0xf8, 0xcf, 0x7f, 0xff, 0x03, 0xfc, 0xff, 0xff, 0x87, 0xff, 0x7f, 0xf8,
++ 0xff, 0xff, 0x0f, 0xe0, 0x3f, 0xff, 0xfd, 0x0f, 0xf8, 0xcf, 0x7f, 0xff,
++ 0x03, 0xf0, 0xff, 0xff, 0x87, 0xff, 0x7f, 0xf8, 0xff, 0xff, 0x03, 0xe0,
++ 0x3f, 0xff, 0xfd, 0x0f, 0xfc, 0xef, 0x7f, 0xff, 0x07, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xbf, 0xff, 0xfd, 0x1f,
++ 0xfc, 0xdf, 0x9f, 0xff, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0xf0, 0x7f, 0x7f, 0xfe, 0x0f, 0xfc, 0x3f, 0x80, 0xff,
++ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0,
++ 0xff, 0x00, 0xfe, 0x07, 0xf8, 0x3f, 0x80, 0x7f, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0xff, 0x00, 0xfe, 0x01,
++ 0xc0, 0xdf, 0x7f, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xfd, 0x00, 0x00, 0x1c, 0x00, 0x1f,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x70, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
++
++
++/* Send the current framebuffer vbitmap as an interrupt message */
++static int g13_fb_vbitmap_send(struct hid_device *hdev)
 +{
-+	return spi_register_driver(&tsc2008_driver);
++	struct usb_interface *intf;
++	struct usb_device *usbdev;
++	struct g13_data *data = hid_get_g13data(hdev);
++
++	/* Get the usb device to send the image on */
++	intf = to_usb_interface(hdev->dev.parent);
++	usbdev = interface_to_usbdev(intf);
++
++	return usb_interrupt_msg(usbdev, usb_sndintpipe(usbdev, 0x02),
++				 data->fb_vbitmap, G13_VBITMAP_SIZE,
++				 NULL, USB_CTRL_SET_TIMEOUT*2);
 +}
 +
-+static void __exit tsc2008_exit(void)
++/* Update fb_vbitmap from the screen_base and send to the device */
++static void g13_fb_update(struct g13_data *data)
 +{
-+	spi_unregister_driver(&tsc2008_driver);
++	int row;
++	int col;
++	int bit;
++	u8 *u;
++	size_t offset;
++	u8 temp;
++
++	/* Clear the vbitmap and set the necessary magic number */
++	memset(data->fb_vbitmap, 0x00, G13_VBITMAP_SIZE);
++	data->fb_vbitmap[0] = 0x03;
++
++	/*
++	 * Translate the XBM format screen_base into the format needed by the
++	 * G13. This format places the pixels in a vertical rather than
++	 * horizontal format. Assuming a grid with 0,0 in the upper left corner
++	 * and 159,42 in the lower right corner, the first byte contains the
++	 * pixels 0,0 through 0,7 and the second byte contains the pixels 1,0
++	 * through 1,7. Within the byte, bit 0 represents 0,0; bit 1 0,1; etc.
++	 *
++	 * This loop operates in reverse to shift the lower bits into their
++	 * respective positions, shifting the lower rows into the higher bits.
++	 *
++	 * The offset is calculated for every 8 rows and is adjusted by 32 since
++	 * that is what the G13 image message expects.
++	 */
++	for (row = G13FB_HEIGHT-1; row >= 0; row--) {
++		offset = 32 + row/8 * G13FB_WIDTH;
++		u = data->fb_vbitmap + offset;
++		/*
++		 * Iterate across the screen_base columns to get the
++		 * individual bits
++		 */
++		for (col = 0; col < G13FB_LINE_LENGTH; col++) {
++			/*
++			 * We will work with a temporary value since we don't
++			 * want to modify screen_base as we shift each bit
++			 * downward.
++			 */
++			temp = data->fb_bitmap[row * G13FB_LINE_LENGTH + col];
++
++			/*
++			 * For each bit in the pixel row we will shift it onto
++			 * the appropriate by by shift the g13 byte up by 1 and
++			 * simply doing a bitwise or of the low byte
++			 */
++			for (bit = 0; bit < 8; bit++) {
++				/*Shift the g13 byte up by 1 for this new row*/
++				u[bit] <<= 1;
++				/* Bring in the new pixel of temp */
++				u[bit] |= (temp & 0x01);
++				/*
++				 * Shift temp down so the low pixel is ready
++				 * for the next byte
++				 */
++				temp >>= 1;
++			}
++
++			/*
++			 * The last byte represented 8 vertical pixels so we'll
++			 * jump ahead 8
++			 */
++			u += 8;
++		}
++	}
++
++	/*
++	 * Now that we have translated screen_base into a format expected by
++	 * the g13 let's send out the vbitmap
++	 */
++	g13_fb_vbitmap_send(data->hdev);
++
 +}
 +
-+module_init(tsc2008_init);
-+module_exit(tsc2008_exit);
++/* Callback from deferred IO workqueue */
++static void g13_fb_deferred_io(struct fb_info *info, struct list_head *pagelist)
++{
++	g13_fb_update(info->par);
++}
 +
-+MODULE_AUTHOR("Chris Verges <chrisv@cyberswitching.com>, "
-+		"Robert Mehranfar <robertme@earthlink.net>");
-+MODULE_DESCRIPTION("TSC2008 Touchscreen Driver");
++/* Stub to call the system default and update the image on the g13 */
++static void g13_fb_fillrect(struct fb_info *info,
++			    const struct fb_fillrect *rect)
++{
++	struct g13_data *par = info->par;
++
++	sys_fillrect(info, rect);
++
++	g13_fb_update(par);
++}
++
++/* Stub to call the system default and update the image on the g13 */
++static void g13_fb_copyarea(struct fb_info *info,
++			    const struct fb_copyarea *area)
++{
++	struct g13_data *par = info->par;
++
++	sys_copyarea(info, area);
++
++	g13_fb_update(par);
++}
++
++/* Stub to call the system default and update the image on the g13 */
++static void g13_fb_imageblit(struct fb_info *info, const struct fb_image *image)
++{
++	struct g13_data *par = info->par;
++
++	sys_imageblit(info, image);
++
++	g13_fb_update(par);
++}
++
++/*
++ * this is the slow path from userspace. they can seek and write to
++ * the fb. it's inefficient to do anything less than a full screen draw
++ */
++static ssize_t g13_fb_write(struct fb_info *info, const char __user *buf,
++			    size_t count, loff_t *ppos)
++{
++	struct g13_data *par = info->par;
++	unsigned long p = *ppos;
++	void *dst;
++	int err = 0;
++	unsigned long total_size;
++
++	if (info->state != FBINFO_STATE_RUNNING)
++		return -EPERM;
++
++	total_size = info->fix.smem_len;
++
++	if (p > total_size)
++		return -EFBIG;
++
++	if (count > total_size) {
++		err = -EFBIG;
++		count = total_size;
++	}
++
++	if (count + p > total_size) {
++		if (!err)
++			err = -ENOSPC;
++
++		count = total_size - p;
++	}
++
++	dst = (void __force *)(info->screen_base + p);
++
++	if (copy_from_user(dst, buf, count))
++		err = -EFAULT;
++
++	if (!err)
++		*ppos += count;
++
++	g13_fb_update(par);
++
++	return (err) ? err : count;
++}
++
++static struct fb_ops g13fb_ops = {
++	.owner = THIS_MODULE,
++	.fb_read = fb_sys_read,
++	.fb_write = g13_fb_write,
++	.fb_fillrect  = g13_fb_fillrect,
++	.fb_copyarea  = g13_fb_copyarea,
++	.fb_imageblit = g13_fb_imageblit,
++};
++
++/*
++ * The "fb_node" attribute
++ */
++static ssize_t g13_fb_node_show(struct device *dev,
++				struct device_attribute *attr,
++				char *buf)
++{
++	unsigned fb_node;
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	fb_node = data->fb_info->node;
++
++	return sprintf(buf, "%u\n", fb_node);
++}
++
++static DEVICE_ATTR(fb_node, 0444, g13_fb_node_show, NULL);
++
++
++/*
++ * The "fb_update_rate" attribute
++ */
++static ssize_t g13_fb_update_rate_show(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	unsigned fb_update_rate;
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	fb_update_rate = data->fb_update_rate;
++
++	return sprintf(buf, "%u\n", fb_update_rate);
++}
++
++static ssize_t g13_set_fb_update_rate(struct hid_device *hdev,
++				      unsigned fb_update_rate)
++{
++	struct g13_data *data = hid_get_g13data(hdev);
++
++	if (fb_update_rate > G13FB_UPDATE_RATE_LIMIT)
++		data->fb_update_rate = G13FB_UPDATE_RATE_LIMIT;
++	else if (fb_update_rate == 0)
++		data->fb_update_rate = 1;
++	else
++		data->fb_update_rate = fb_update_rate;
++
++	data->fb_defio.delay = HZ / data->fb_update_rate;
++
++	return 0;
++}
++
++static ssize_t g13_fb_update_rate_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct hid_device *hdev;
++	int i;
++	unsigned u;
++	ssize_t set_result;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* If we have an invalid pointer we'll return ENODATA */
++	if (hdev == NULL || &(hdev->dev) != dev)
++		return -ENODATA;
++
++	i = sscanf(buf, "%u", &u);
++	if (i != 1) {
++		dev_warn(dev, G13_NAME " unrecognized input: %s", buf);
++		return -1;
++	}
++
++	set_result = g13_set_fb_update_rate(hdev, u);
++
++	if (set_result < 0)
++		return set_result;
++
++	return count;
++}
++
++static DEVICE_ATTR(fb_update_rate, 0666,
++		   g13_fb_update_rate_show,
++		   g13_fb_update_rate_store);
++
++
++static ssize_t g13_led_send(struct hid_device *hdev)
++{
++	struct g13_data *data = hid_get_g13data(hdev);
++
++	data->led_report->field[0]->value[0] = data->led&0x0F;
++	data->led_report->field[0]->value[1] = 0x00;
++	data->led_report->field[0]->value[2] = 0x00;
++	data->led_report->field[0]->value[3] = 0x00;
++
++	usbhid_submit_report(hdev, data->led_report, USB_DIR_OUT);
++
++	return 0;
++}
++
++static void g13_led_set(struct led_classdev *led_cdev,
++			 enum led_brightness value,
++			 int led_num)
++{
++	struct device *dev;
++	struct hid_device *hdev;
++	struct g13_data *data;
++	u8 mask;
++
++	/* Get the device associated with the led */
++	dev = led_cdev->dev->parent;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* Get the underlying data value */
++	data = hid_get_g13data(hdev);
++
++	mask = 0x01<<led_num;
++	if (value)
++		data->led |= mask;
++	else
++		data->led &= ~mask;
++
++	g13_led_send(hdev);
++}
++
++static void g13_led_m1_brightness_set(struct led_classdev *led_cdev,
++				      enum led_brightness value)
++{
++	g13_led_set(led_cdev, value, G13_LED_M1);
++}
++
++static void g13_led_m2_brightness_set(struct led_classdev *led_cdev,
++				      enum led_brightness value)
++{
++	g13_led_set(led_cdev, value, G13_LED_M2);
++}
++
++static void g13_led_m3_brightness_set(struct led_classdev *led_cdev,
++				      enum led_brightness value)
++{
++	g13_led_set(led_cdev, value, G13_LED_M3);
++}
++
++static void g13_led_mr_brightness_set(struct led_classdev *led_cdev,
++				      enum led_brightness value)
++{
++	g13_led_set(led_cdev, value, G13_LED_MR);
++}
++
++static enum led_brightness g13_led_brightness_get(struct led_classdev *led_cdev)
++{
++	struct device *dev;
++	struct hid_device *hdev;
++	struct g13_data *data;
++	int value = 0;
++
++	/* Get the device associated with the led */
++	dev = led_cdev->dev->parent;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* Get the underlying data value */
++	data = hid_get_g13data(hdev);
++
++	if (led_cdev == data->led[G13_LED_M1])
++		value = data->led & 0x01;
++	else if (led_cdev == data->led[G13_LED_M2])
++		value = data->led & 0x02;
++	else if (led_cdev == data->led[G13_LED_M3])
++		value = data->led & 0x04;
++	else if (led_cdev == data->led[G13_LED_MR])
++		value = data->led & 0x08;
++	else
++		dev_info(dev, G13_NAME " error retrieving LED brightness\n");
++
++	if (value)
++		return LED_FULL;
++	return LED_OFF;
++}
++
++static const struct led_classdev g13_leds[4] = {
++	{
++		.brightness_set		= g13_led_m1_brightness_set,
++		.brightness_get		= g13_led_brightness_get,
++	},
++	{
++		.brightness_set		= g13_led_m2_brightness_set,
++		.brightness_get		= g13_led_brightness_get,
++	},
++	{
++		.brightness_set		= g13_led_m3_brightness_set,
++		.brightness_get		= g13_led_brightness_get,
++	},
++	{
++		.brightness_set		= g13_led_mr_brightness_set,
++		.brightness_get		= g13_led_brightness_get,
++	},
++};
++
++static int g13_input_setkeycode(struct input_dev *dev,
++				int scancode,
++				int keycode)
++{
++	int old_keycode;
++	int i;
++	struct g13_data *data = input_get_g13data(dev);
++
++	if (scancode >= dev->keycodemax)
++		return -EINVAL;
++
++	spin_lock(&data->lock);
++
++	old_keycode = data->keycode[scancode];
++	data->keycode[scancode] = keycode;
++
++	__clear_bit(old_keycode, dev->keybit);
++	__set_bit(keycode, dev->keybit);
++
++	for (i = 0; i < dev->keycodemax; i++) {
++		if (data->keycode[i] == old_keycode) {
++			__set_bit(old_keycode, dev->keybit);
++			break; /* Setting the bit twice is useless, so break*/
++		}
++	}
++
++	spin_unlock(&data->lock);
++
++	return 0;
++}
++
++static int g13_input_getkeycode(struct input_dev *dev,
++				int scancode,
++				int *keycode)
++{
++	struct g13_data *data = input_get_g13data(dev);
++
++	if (!dev->keycodesize)
++		return -EINVAL;
++
++	if (scancode >= dev->keycodemax)
++		return -EINVAL;
++
++	*keycode = data->keycode[scancode];
++
++	return 0;
++}
++
++
++/*
++ * The "keymap" attribute
++ */
++static ssize_t g13_keymap_index_show(struct device *dev,
++				     struct device_attribute *attr,
++				     char *buf)
++{
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", data->curkeymap);
++}
++
++static ssize_t g13_set_keymap_index(struct hid_device *hdev, unsigned k)
++{
++	int scancode;
++	int offset_old;
++	int offset_new;
++	int keycode_old;
++	int keycode_new;
++	struct g13_data *data = hid_get_g13data(hdev);
++	struct input_dev *idev = data->input_dev;
++
++	if (k > 2)
++		return -EINVAL;
++
++	/*
++	 * Release all the pressed keys unless the new keymap has the same key
++	 * in the same scancode position.
++	 *
++	 * Also, clear the scancode state unless the new keymap has the same
++	 * key in the same scancode position.
++	 *
++	 * This allows a keycode mapped to the same scancode in two different
++	 * keymaps to remain pressed without a key up code when the keymap is
++	 * switched.
++	 */
++	offset_old = G13_KEYS * data->curkeymap;
++	offset_new = G13_KEYS * k;
++	for (scancode = 0; scancode < G13_KEYS; scancode++) {
++		keycode_old = data->keycode[offset_old+scancode];
++		keycode_new = data->keycode[offset_new+scancode];
++		if (keycode_old != keycode_new) {
++			if (keycode_old != KEY_RESERVED)
++				input_report_key(idev, keycode_old, 0);
++			data->scancode_state[scancode] = 0;
++		}
++	}
++
++	data->curkeymap = k;
++
++	if (data->keymap_switching) {
++		data->led = 1 << k;
++		g13_led_send(hdev);
++	}
++
++	return 0;
++}
++
++static ssize_t g13_keymap_index_store(struct device *dev,
++				      struct device_attribute *attr,
++				      const char *buf, size_t count)
++{
++	struct hid_device *hdev;
++	int i;
++	unsigned k;
++	ssize_t set_result;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* If we have an invalid pointer we'll return ENODATA */
++	if (hdev == NULL || &(hdev->dev) != dev)
++		return -ENODATA;
++
++	i = sscanf(buf, "%u", &k);
++	if (i != 1) {
++		dev_warn(dev, G13_NAME " unrecognized input: %s", buf);
++		return -1;
++	}
++
++	set_result = g13_set_keymap_index(hdev, k);
++
++	if (set_result < 0)
++		return set_result;
++
++	return count;
++}
++
++static DEVICE_ATTR(keymap_index, 0666,
++		   g13_keymap_index_show,
++		   g13_keymap_index_store);
++
++/*
++ * The "keycode" attribute
++ */
++static ssize_t g13_keymap_show(struct device *dev,
++			       struct device_attribute *attr,
++			       char *buf)
++{
++	int offset = 0;
++	int result;
++	int scancode;
++	int keycode;
++	int error;
++
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	for (scancode = 0; scancode < G13_KEYMAP_SIZE; scancode++) {
++		error = input_get_keycode(data->input_dev, scancode, &keycode);
++		if (error) {
++			dev_warn(dev, G13_NAME " error accessing scancode %d\n",
++				 scancode);
++			continue;
++		}
++
++		result = sprintf(buf+offset, "0x%03x 0x%04x\n",
++				 scancode, keycode);
++		if (result < 0)
++			return -EINVAL;
++		offset += result;
++	}
++
++	return offset+1;
++}
++
++static ssize_t g13_keymap_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	struct hid_device *hdev;
++	int scanned;
++	int consumed;
++	int scancd;
++	int keycd;
++	int error;
++	int set = 0;
++	int gkey;
++	int index;
++	int good;
++	struct g13_data *data;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* If we have an invalid pointer we'll return ENODATA */
++	if (hdev == NULL || &(hdev->dev) != dev)
++		return -ENODATA;
++
++	/* Now, let's get the data structure */
++	data = hid_get_g13data(hdev);
++
++	do {
++		good = 0;
++
++		/* Look for scancode keycode pair in hex */
++		scanned = sscanf(buf, "%x %x%n", &scancd, &keycd, &consumed);
++		if (scanned == 2) {
++			buf += consumed;
++			error = g13_input_setkeycode(data->input_dev, scancd, keycd);
++			if (error)
++				goto err_input_setkeycode;
++			set++;
++			good = 1;
++		} else {
++			/*
++			 * Look for Gkey keycode pair and assign to current
++			 * keymap
++			 */
++			scanned = sscanf(buf, "G%d %x%n", &gkey, &keycd, &consumed);
++			if (scanned == 2 && gkey > 0 && gkey <= G13_KEYS) {
++				buf += consumed;
++				scancd = data->curkeymap * G13_KEYS + gkey - 1;
++				error = g13_input_setkeycode(data->input_dev, scancd, keycd);
++				if (error)
++					goto err_input_setkeycode;
++				set++;
++				good = 1;
++			} else {
++				/*
++				 * Look for Gkey-index keycode pair and assign
++				 * to indexed keymap
++				 */
++				scanned = sscanf(buf, "G%d-%d %x%n", &gkey, &index, &keycd, &consumed);
++				if (scanned == 3 &&
++				    gkey > 0 && gkey <= G13_KEYS &&
++				    index >= 0 && index <= 2) {
++					buf += consumed;
++					scancd = index * G13_KEYS + gkey - 1;
++					error = g13_input_setkeycode(data->input_dev, scancd, keycd);
++					if (error)
++						goto err_input_setkeycode;
++					set++;
++					good = 1;
++				}
++			}
++		}
++
++	} while (good);
++
++	if (set == 0) {
++		dev_warn(dev, G13_NAME " unrecognized keycode input: %s", buf);
++		return -1;
++	}
++
++	return count;
++
++err_input_setkeycode:
++	dev_warn(dev, G13_NAME " error setting scancode %d to keycode %d\n",
++		 scancd, keycd);
++	return error;
++}
++
++static DEVICE_ATTR(keymap, 0666, g13_keymap_show, g13_keymap_store);
++
++/*
++ * The "keymap_switching" attribute
++ */
++static ssize_t g13_keymap_switching_show(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
++{
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", data->keymap_switching);
++}
++
++static ssize_t g13_set_keymap_switching(struct hid_device *hdev, unsigned k)
++{
++	struct g13_data *data = hid_get_g13data(hdev);
++
++	data->keymap_switching = k;
++
++	if (data->keymap_switching) {
++		data->led = 1 << data->curkeymap;
++		g13_led_send(hdev);
++	}
++
++	return 0;
++}
++
++static ssize_t g13_keymap_switching_store(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
++{
++	struct hid_device *hdev;
++	int i;
++	unsigned k;
++	ssize_t set_result;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* If we have an invalid pointer we'll return ENODATA */
++	if (hdev == NULL || &(hdev->dev) != dev)
++		return -ENODATA;
++
++	i = sscanf(buf, "%u", &k);
++	if (i != 1) {
++		dev_warn(dev, G13_NAME "unrecognized input: %s", buf);
++		return -1;
++	}
++
++	set_result = g13_set_keymap_switching(hdev, k);
++
++	if (set_result < 0)
++		return set_result;
++
++	return count;
++}
++
++static DEVICE_ATTR(keymap_switching, 0644,
++		   g13_keymap_switching_show,
++		   g13_keymap_switching_store);
++
++
++static ssize_t g13_name_show(struct device *dev,
++			     struct device_attribute *attr,
++			     char *buf)
++{
++	struct g13_data *data = dev_get_drvdata(dev);
++	int result;
++
++	if (data->name == NULL) {
++		buf[0] = 0x00;
++		return 1;
++	}
++
++	spin_lock(&data->lock);
++	result = sprintf(buf, "%s", data->name);
++	spin_unlock(&data->lock);
++
++	return result;
++}
++
++static ssize_t g13_name_store(struct device *dev,
++			      struct device_attribute *attr,
++			      const char *buf, size_t count)
++{
++	struct g13_data *data = dev_get_drvdata(dev);
++	size_t limit = count;
++	char *end;
++
++	spin_lock(&data->lock);
++
++	if (data->name != NULL) {
++		kfree(data->name);
++		data->name = NULL;
++	}
++
++	end = strpbrk(buf, "\n\r");
++	if (end != NULL)
++		limit = end - buf;
++
++	if (end != buf) {
++
++		if (limit > 100)
++			limit = 100;
++
++		data->name = kzalloc(limit+1, GFP_KERNEL);
++
++		strncpy(data->name, buf, limit);
++	}
++
++	spin_unlock(&data->lock);
++
++	return count;
++}
++
++static DEVICE_ATTR(name, 0666, g13_name_show, g13_name_store);
++
++/*
++ * The "rgb" attribute
++ * red green blue
++ * each with values 0 - 255 (black - full intensity)
++ */
++static ssize_t g13_rgb_show(struct device *dev,
++			    struct device_attribute *attr,
++			    char *buf)
++{
++	unsigned r, g, b;
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	r = data->rgb[0];
++	g = data->rgb[1];
++	b = data->rgb[2];
++
++	return sprintf(buf, "%u %u %u\n", r, g, b);
++}
++
++static ssize_t g13_set_rgb(struct hid_device *hdev,
++			   unsigned r, unsigned g, unsigned b)
++{
++	struct g13_data *data = hid_get_g13data(hdev);
++
++	data->backlight_report->field[0]->value[0] = r;
++	data->backlight_report->field[0]->value[1] = g;
++	data->backlight_report->field[0]->value[2] = b;
++	data->backlight_report->field[0]->value[3] = 0x00;
++
++	usbhid_submit_report(hdev, data->backlight_report, USB_DIR_OUT);
++
++	data->rgb[0] = r;
++	data->rgb[1] = g;
++	data->rgb[2] = b;
++
++	return 0;
++}
++
++static ssize_t g13_rgb_store(struct device *dev,
++			     struct device_attribute *attr,
++			     const char *buf, size_t count)
++{
++	struct hid_device *hdev;
++	int i;
++	unsigned r;
++	unsigned g;
++	unsigned b;
++	ssize_t set_result;
++
++	/* Get the hid associated with the device */
++	hdev = container_of(dev, struct hid_device, dev);
++
++	/* If we have an invalid pointer we'll return ENODATA */
++	if (hdev == NULL || &(hdev->dev) != dev)
++		return -ENODATA;
++
++	i = sscanf(buf, "%u %u %u", &r, &g, &b);
++	if (i != 3) {
++		dev_warn(dev, G13_NAME "unrecognized input: %s", buf);
++		return -1;
++	}
++
++	set_result = g13_set_rgb(hdev, r, g, b);
++
++	if (set_result < 0)
++		return set_result;
++
++	return count;
++}
++
++static DEVICE_ATTR(rgb, 0666, g13_rgb_show, g13_rgb_store);
++
++/*
++ * The "minor" attribute
++ */
++static ssize_t g13_minor_show(struct device *dev,
++			      struct device_attribute *attr,
++			      char *buf)
++{
++	struct g13_data *data = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", data->hdev->minor);
++}
++
++static DEVICE_ATTR(minor, 0444, g13_minor_show, NULL);
++
++/*
++ * Create a group of attributes so that we can create and destroy them all
++ * at once.
++ */
++static struct attribute *g13_attrs[] = {
++	&dev_attr_name.attr,
++	&dev_attr_rgb.attr,
++	&dev_attr_keymap_index.attr,
++	&dev_attr_keymap_switching.attr,
++	&dev_attr_keymap.attr,
++	&dev_attr_minor.attr,
++	&dev_attr_fb_update_rate.attr,
++	&dev_attr_fb_node.attr,
++	NULL,	 /* need to NULL terminate the list of attributes */
++};
++
++/*
++ * An unnamed attribute group will put all of the attributes directly in
++ * the kobject directory.  If we specify a name, a subdirectory will be
++ * created for the attributes with the directory being the name of the
++ * attribute group.
++ */
++static struct attribute_group g13_attr_group = {
++	.attrs = g13_attrs,
++};
++
++static struct fb_deferred_io g13_fb_defio = {
++	.delay = HZ / G13FB_UPDATE_RATE_DEFAULT,
++	.deferred_io = g13_fb_deferred_io,
++};
++
++static void g13_handle_key_event(struct g13_data *data,
++				 struct input_dev *idev,
++				 int scancode,
++				 int value)
++{
++	int error;
++	int keycode;
++	int offset;
++
++	offset = G13_KEYS * data->curkeymap;
++
++	error = input_get_keycode(idev, scancode+offset, &keycode);
++
++	if (error) {
++		dev_warn(&idev->dev, G13_NAME " error in input_get_keycode(): scancode=%d\n", scancode);
++		return;
++	}
++
++	/* Only report mapped keys */
++	if (keycode != KEY_RESERVED)
++		input_report_key(idev, keycode, value);
++	/* Or report MSC_SCAN on keypress of an unmapped key */
++	else if (data->scancode_state[scancode] == 0 && value)
++		input_event(idev, EV_MSC, MSC_SCAN, scancode);
++
++	data->scancode_state[scancode] = value;
++}
++
++static void g13_raw_event_process_input(struct hid_device *hdev,
++					struct g13_data *data,
++					u8 *raw_data)
++{
++	struct input_dev *idev = data->input_dev;
++	int scancode;
++	int value;
++	int i;
++	int mask;
++
++	if (!data->ready.done && data->ready_stages != G13_READY) {
++		data->ready_stages |= G13_READY_STAGE_2;
++		if (data->ready_stages == G13_READY)
++			complete_all(&data->ready);
++	}
++
++	/*
++	 * We'll check for the M* keys being pressed before processing
++	 * the remainder of the key data. That way the new keymap will
++	 * be loaded if there is a keymap switch.
++	 */
++	if (data->keymap_switching) {
++		if (data->curkeymap != 0 && raw_data[6] & 0x20)
++			g13_set_keymap_index(hdev, 0);
++		else if (data->curkeymap != 1 && raw_data[6] & 0x40)
++			g13_set_keymap_index(hdev, 1);
++		else if (data->curkeymap != 2 && raw_data[6] & 0x80)
++			g13_set_keymap_index(hdev, 2);
++	}
++
++	for (i = 0, mask = 0x01; i < 8; i++, mask <<= 1) {
++		/* Keys G1 through G8 */
++		scancode = i;
++		value = raw_data[3] & mask;
++		g13_handle_key_event(data, idev, scancode, value);
++
++		/* Keys G9 through G16 */
++		scancode = i + 8;
++		value = raw_data[4] & mask;
++		g13_handle_key_event(data, idev, scancode, value);
++
++		/* Keys G17 through G22 */
++		scancode = i + 16;
++		value = raw_data[5] & mask;
++		if (i <= 5)
++			g13_handle_key_event(data, idev, scancode, value);
++
++		/* Keys FUNC through M3 */
++		scancode = i + 22;
++		value = raw_data[6] & mask;
++		g13_handle_key_event(data, idev, scancode, value);
++
++		/* Keys MR through LIGHT */
++		scancode = i + 30;
++		value = raw_data[7] & mask;
++		if (i <= 4)
++			g13_handle_key_event(data, idev, scancode, value);
++	}
++
++	input_report_abs(idev, ABS_X, raw_data[1]);
++	input_report_abs(idev, ABS_Y, raw_data[2]);
++	input_sync(idev);
++}
++
++static int g13_raw_event(struct hid_device *hdev,
++			 struct hid_report *report,
++			 u8 *raw_data, int size)
++{
++	/*
++	* On initialization receive a 258 byte message with
++	* data = 6 0 255 255 255 255 255 255 255 255 ...
++	*/
++	struct g13_data *data;
++	data = dev_get_drvdata(&hdev->dev);
++
++	if (data == NULL)
++		return 1;
++
++	switch (report->id) {
++	case 6:
++		if (data->ready.done)
++			break;
++		data->ready_stages |= G13_READY_STAGE_1;
++		if (data->ready_stages == G13_READY)
++			complete_all(&data->ready);
++		break;
++	case 1:
++		g13_raw_event_process_input(hdev, data, raw_data);
++		break;
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++static void g13_initialize_keymap(struct g13_data *data)
++{
++	int i;
++
++	for (i = 0; i < G13_KEYS; i++) {
++		data->keycode[i] = g13_default_key_map[i];
++		__set_bit(data->keycode[i], data->input_dev->keybit);
++	}
++
++	__clear_bit(KEY_RESERVED, data->input_dev->keybit);
++}
++
++static int g13_probe(struct hid_device *hdev,
++		     const struct hid_device_id *id)
++{
++	int error;
++	struct g13_data *data;
++	int i;
++	int led_num;
++	struct list_head *feature_report_list =
++		&hdev->report_enum[HID_FEATURE_REPORT].report_list;
++	struct hid_report *report;
++	char *led_name;
++
++	dev_dbg(&hdev->dev, "Logitech G13 HID hardware probe...");
++
++	/*
++	 * Let's allocate the g13 data structure, set some reasonable
++	 * defaults, and associate it with the device
++	 */
++	data = kzalloc(sizeof(struct g13_data), GFP_KERNEL);
++	if (data == NULL) {
++		dev_err(&hdev->dev, "can't allocate space for Logitech G13 device attributes\n");
++		error = -ENOMEM;
++		goto err_no_cleanup;
++	}
++
++	spin_lock_init(&data->lock);
++
++	init_completion(&data->ready);
++
++	data->hdev = hdev;
++
++	data->fb_bitmap = vmalloc(G13FB_SIZE);
++	if (data->fb_bitmap == NULL) {
++		dev_err(&hdev->dev, G13_NAME ": ERROR: can't get a free page for framebuffer\n");
++		error = -ENOMEM;
++		goto err_cleanup_data;
++	}
++	memcpy(data->fb_bitmap, g13_lcd_bits, G13FB_SIZE);
++
++	data->fb_vbitmap = kmalloc(sizeof(u8) * G13_VBITMAP_SIZE, GFP_KERNEL);
++	if (data->fb_vbitmap == NULL) {
++		dev_err(&hdev->dev, G13_NAME ": ERROR: can't alloc vbitmap image buffer\n");
++		error = -ENOMEM;
++		goto err_cleanup_fb_bitmap;
++	}
++
++	hid_set_drvdata(hdev, data);
++
++	dbg_hid("Preparing to parse " G13_NAME " hid reports\n");
++
++	/* Parse the device reports and start it up */
++	error = hid_parse(hdev);
++	if (error) {
++		dev_err(&hdev->dev, G13_NAME " device report parse failed\n");
++		error = -EINVAL;
++		goto err_cleanup_fb_vbitmap;
++	}
++
++	error = hid_hw_start(hdev, HID_CONNECT_DEFAULT | HID_CONNECT_HIDINPUT_FORCE);
++	if (error) {
++		dev_err(&hdev->dev, G13_NAME " hardware start failed\n");
++		error = -EINVAL;
++		goto err_cleanup_fb_vbitmap;
++	}
++
++	dbg_hid(G13_NAME " claimed: %d\n", hdev->claimed);
++
++	error = hdev->ll_driver->open(hdev);
++	if (error) {
++		dev_err(&hdev->dev, G13_NAME " failed to open input interrupt pipe for key and joystick events\n");
++		error = -EINVAL;
++		goto err_cleanup_fb_vbitmap;
++	}
++
++	/* Set up the input device for the key I/O */
++	data->input_dev = input_allocate_device();
++	if (data->input_dev == NULL) {
++		dev_err(&hdev->dev, G13_NAME " error initializing the input device");
++		error = -ENOMEM;
++		goto err_cleanup_fb_vbitmap;
++	}
++
++	input_set_drvdata(data->input_dev, hdev);
++
++	data->input_dev->name = G13_NAME;
++	data->input_dev->phys = hdev->phys;
++	data->input_dev->uniq = hdev->uniq;
++	data->input_dev->id.bustype = hdev->bus;
++	data->input_dev->id.vendor = hdev->vendor;
++	data->input_dev->id.product = hdev->product;
++	data->input_dev->id.version = hdev->version;
++	data->input_dev->dev.parent = hdev->dev.parent;
++	data->input_dev->keycode = data->keycode;
++	data->input_dev->keycodemax = G13_KEYMAP_SIZE;
++	data->input_dev->keycodesize = sizeof(int);
++	data->input_dev->setkeycode = g13_input_setkeycode;
++	data->input_dev->getkeycode = g13_input_getkeycode;
++
++	input_set_capability(data->input_dev, EV_ABS, ABS_X);
++	input_set_capability(data->input_dev, EV_ABS, ABS_Y);
++	input_set_capability(data->input_dev, EV_MSC, MSC_SCAN);
++	input_set_capability(data->input_dev, EV_KEY, KEY_UNKNOWN);
++	data->input_dev->evbit[0] |= BIT_MASK(EV_REP);
++
++	/* 4 center values */
++	input_set_abs_params(data->input_dev, ABS_X, 0, 0xff, 0, 4);
++	input_set_abs_params(data->input_dev, ABS_Y, 0, 0xff, 0, 4);
++
++	g13_initialize_keymap(data);
++
++	error = input_register_device(data->input_dev);
++	if (error) {
++		dev_err(&hdev->dev, G13_NAME " error registering the input device");
++		error = -EINVAL;
++		goto err_cleanup_input_dev;
++	}
++
++	/* Set up the framebuffer device */
++	data->fb_update_rate = G13FB_UPDATE_RATE_DEFAULT;
++	data->fb_info = framebuffer_alloc(0, &hdev->dev);
++	if (data->fb_info == NULL) {
++		dev_err(&hdev->dev, G13_NAME " failed to allocate a framebuffer\n");
++		goto err_cleanup_input_dev;
++	}
++
++	dbg_hid(KERN_INFO G13_NAME " allocated framebuffer\n");
++
++	data->fb_defio = g13_fb_defio;
++	data->fb_info->fbdefio = &data->fb_defio;
++
++	dbg_hid(KERN_INFO G13_NAME " allocated deferred IO structure\n");
++
++	data->fb_info->screen_base = (char __force __iomem *) data->fb_bitmap;
++	data->fb_info->fbops = &g13fb_ops;
++	data->fb_info->var = g13fb_var;
++	data->fb_info->fix = g13fb_fix;
++	data->fb_info->fix.smem_len = G13FB_SIZE;
++	data->fb_info->par = data;
++	data->fb_info->flags = FBINFO_FLAG_DEFAULT;
++
++	fb_deferred_io_init(data->fb_info);
++
++	if (register_framebuffer(data->fb_info) < 0)
++		goto err_cleanup_fb;
++
++	if (list_empty(feature_report_list)) {
++		dev_err(&hdev->dev, "no feature report found\n");
++		error = -ENODEV;
++		goto err_cleanup_fb;
++	}
++	dbg_hid("G13 feature report found\n");
++
++	list_for_each_entry(report, feature_report_list, list) {
++		switch (report->id) {
++		case 0x04:
++			data->report_4 = report;
++			break;
++		case 0x05:
++			data->led_report = report;
++			break;
++		case 0x06:
++			data->start_input_report = report;
++			break;
++		case 0x07:
++			data->backlight_report = report;
++			break;
++		default:
++			break;
++		}
++		dbg_hid("G13 Feature report: id=%u type=%u size=%u maxfield=%u report_count=%u\n",
++			report->id, report->type, report->size,
++			report->maxfield, report->field[0]->report_count);
++	}
++
++	dbg_hid("Found all reports\n");
++
++	/* Create the LED structures */
++	for (i = 0; i < 4; i++) {
++		data->led[i] = kzalloc(sizeof(struct led_classdev), GFP_KERNEL);
++		if (data->led[i] == NULL) {
++			dev_err(&hdev->dev, G13_NAME " error allocating memory for led %d", i);
++			error = -ENOMEM;
++			goto err_cleanup_led_structs;
++		}
++		/* Set the accessor functions by copying from template*/
++		*(data->led[i]) = g13_leds[i];
++
++		/*
++		 * Allocate memory for the LED name
++		 *
++		 * Since led_classdev->name is a const char* we'll use an
++		 * intermediate until the name is formatted with sprintf().
++		 */
++		led_name = kzalloc(sizeof(char)*15, GFP_KERNEL);
++		if (led_name == NULL) {
++			dev_err(&hdev->dev, G13_NAME " error allocating memory for led %d name", i);
++			error = -ENOMEM;
++			goto err_cleanup_led_structs;
++		}
++		switch (i) {
++		case 0:
++		case 1:
++		case 2:
++			sprintf(led_name, "g13_%d:red:m%d", hdev->minor, i+1);
++			break;
++		case 3:
++			sprintf(led_name, "g13_%d:red:mr", hdev->minor);
++			break;
++		}
++		data->led[i]->name = led_name;
++	}
++
++	for (i = 0; i < 4; i++) {
++		led_num = i;
++		error = led_classdev_register(&hdev->dev, data->led[i]);
++		if (error < 0) {
++			dev_err(&hdev->dev, G13_NAME " error registering led %d", i);
++			error = -EINVAL;
++			goto err_cleanup_registered_leds;
++		}
++	}
++
++	dbg_hid("Waiting for G13 to activate\n");
++
++	wait_for_completion_interruptible_timeout(&data->ready, HZ*2);
++
++	/* Add the sysfs attributes */
++	error = sysfs_create_group(&(hdev->dev.kobj), &g13_attr_group);
++	if (error) {
++		dev_err(&hdev->dev, G13_NAME " failed to create sysfs group attributes\n");
++		goto err_cleanup_fb;
++	}
++
++	if (!(data->ready.done))
++		dev_warn(&hdev->dev, G13_NAME " hasn't responded yet, forging ahead with initialization\n");
++	else
++		dbg_hid("G13 initialized\n");
++
++	/*
++	 * Set the initial color and load the linux logo
++	 * We're going to ignore the error values. If there is an error at this
++	 * point we'll forge ahead.
++	 */
++
++	dbg_hid("Set default color\n");
++
++	error = g13_set_rgb(hdev, G13_DEFAULT_RED, G13_DEFAULT_GREEN, G13_DEFAULT_BLUE);
++	if (error)
++		dev_warn(&hdev->dev, G13_NAME " setting default color failed\n");
++
++	usbhid_submit_report(hdev, data->start_input_report, USB_DIR_IN);
++
++	/* Push the logo twice since it seems to sometimes fail */
++	g13_fb_update(data);
++	g13_fb_update(data);
++
++	g13_set_keymap_switching(hdev, 1);
++
++	dbg_hid("G13 activated and initialized\n");
++
++	/* Everything went well */
++	return 0;
++
++err_cleanup_registered_leds:
++	for (i = 0; i < led_num; i++)
++		led_classdev_unregister(data->led[i]);
++
++err_cleanup_led_structs:
++	for (i = 0; i < 4; i++) {
++		if (data->led[i] != NULL) {
++			if (data->led[i]->name != NULL)
++				kfree(data->led[i]->name);
++			kfree(data->led[i]);
++		}
++	}
++
++err_cleanup_fb:
++	framebuffer_release(data->fb_info);
++	input_unregister_device(data->input_dev);
++	goto err_cleanup_fb_vbitmap; /* to skip input_free_device() */
++
++err_cleanup_input_dev:
++	input_free_device(data->input_dev);
++
++err_cleanup_fb_vbitmap:
++	kfree(data->fb_vbitmap);
++
++err_cleanup_fb_bitmap:
++	vfree(data->fb_bitmap);
++
++err_cleanup_data:
++	/* Make sure we clean up the allocated data structure */
++	kfree(data);
++
++err_no_cleanup:
++
++	hid_set_drvdata(hdev, NULL);
++
++	return error;
++}
++
++static void g13_remove(struct hid_device *hdev)
++{
++	struct g13_data *data;
++	int i;
++
++	hdev->ll_driver->close(hdev);
++
++	hid_hw_stop(hdev);
++
++	sysfs_remove_group(&(hdev->dev.kobj), &g13_attr_group);
++
++	/* Get the internal g13 data buffer */
++	data = hid_get_drvdata(hdev);
++
++	input_unregister_device(data->input_dev);
++
++	kfree(data->name);
++
++	/* Clean up the leds */
++	for (i = 0; i < 4; i++) {
++		led_classdev_unregister(data->led[i]);
++		kfree(data->led[i]->name);
++		kfree(data->led[i]);
++	}
++
++	/* Clean up the framebuffer */
++	fb_deferred_io_cleanup(data->fb_info);
++	unregister_framebuffer(data->fb_info);
++	framebuffer_release(data->fb_info);
++	vfree(data->fb_bitmap);
++	kfree(data->fb_vbitmap);
++
++	/* Finally, clean up the g13 data itself */
++	kfree(data);
++}
++
++static const struct hid_device_id g13_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G13)
++	},
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, g13_devices);
++
++static struct hid_driver g13_driver = {
++	.name =		"hid-g13",
++	.id_table =	g13_devices,
++	.probe =	g13_probe,
++	.remove =	g13_remove,
++	.raw_event =	g13_raw_event,
++};
++
++static int __init g13_init(void)
++{
++	return hid_register_driver(&g13_driver);
++}
++
++static void __exit g13_exit(void)
++{
++	hid_unregister_driver(&g13_driver);
++}
++
++module_init(g13_init);
++module_exit(g13_exit);
++MODULE_DESCRIPTION("Logitech G13 HID Driver");
++MODULE_AUTHOR("Rick L Vinyard Jr (rvinyard@cs.nmsu.edu)");
 +MODULE_LICENSE("GPL");
-Index: drivers/input/touchscreen/Makefile
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- a/drivers/input/touchscreen/Makefile
-(.../tags/linux-2.6.32.1)	(revision 184)
-+++ b/drivers/input/touchscreen/Makefile
-(.../branches/at91sam9263cs-2.6.32.1)	(revision 184)
-@@ -30,6 +30,7 @@
- obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+=3D touchright.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+=3D touchwin.o
- obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+=3D tsc2007.o
-+obj-$(CONFIG_TOUCHSCREEN_TSC2008)	+=3D tsc2008.o
- obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+=3D ucb1400_ts.o
- obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+=3D wacom_w8001.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+=3D wm97xx-ts.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3839340..f3e27d3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -295,6 +295,7 @@
+ #define USB_DEVICE_ID_LOGITECH_EXTREME_3D	0xc215
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
++#define USB_DEVICE_ID_LOGITECH_G13		0xc21c
+ #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D	0xc283
+ #define USB_DEVICE_ID_LOGITECH_FORCE3D_PRO	0xc286
+ #define USB_DEVICE_ID_LOGITECH_WHEEL	0xc294
+-- 
+1.6.6
 
-------_=_NextPart_001_01CA9A08.5C506042
-Content-Type: application/octet-stream;
-	name="linux-2.6.32-tsc2008.patch"
-Content-Transfer-Encoding: base64
-Content-Description: linux-2.6.32-tsc2008.patch
-Content-Disposition: attachment;
-	filename="linux-2.6.32-tsc2008.patch"
-
-U2lnbmVkLW9mZi1ieTogQ2hyaXMgVmVyZ2VzIDxjaHJpc3ZAY3liZXJzd2l0Y2hpbmcuY29tPgoK
-SW5kZXg6IGluY2x1ZGUvbGludXgvc3BpL3RzYzIwMDguaAo9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBhL2luY2x1
-ZGUvbGludXgvc3BpL3RzYzIwMDguaAkoLi4uL3RhZ3MvbGludXgtMi42LjMyLjEpCShyZXZpc2lv
-biAwKQorKysgYi9pbmNsdWRlL2xpbnV4L3NwaS90c2MyMDA4LmgJKC4uLi9icmFuY2hlcy9hdDkx
-c2FtOTI2M2NzLTIuNi4zMi4xKQkocmV2aXNpb24gMTg0KQpAQCAtMCwwICsxLDE4IEBACisjaWZu
-ZGVmIF9fTElOVVhfU1BJX1RTQzIwMDhfSAorI2RlZmluZSBfX0xJTlVYX1NQSV9UU0MyMDA4X0gK
-KworLyogbGludXgvc3BpL3RzYzIwMDguaCAqLworCitzdHJ1Y3QgdHNjMjAwOF9wbGF0Zm9ybV9k
-YXRhIHsKKwl1MTYJbW9kZWw7CQkJCS8qIDIwMDguICovCisJdTE2CXhfcGxhdGVfb2htczsKKwl1
-MTYJYml0X21vZGU7CQkJLyogOCAoZGVmYXVsdCkgb3IgMTIgKi8KKworCWludAkoKmdldF9wZW5k
-b3duX3N0YXRlKSh2b2lkKTsKKwl2b2lkCSgqY2xlYXJfcGVuaXJxKSh2b2lkKTsJCS8qIElmIG5l
-ZWRlZCwgY2xlYXIgMm5kIGxldmVsCisJCQkJCQkgICBpbnRlcnJ1cHQgc291cmNlICovCisJaW50
-CSgqaW5pdF9wbGF0Zm9ybV9odykodm9pZCk7CisJdm9pZAkoKmV4aXRfcGxhdGZvcm1faHcpKHZv
-aWQpOworfTsKKworI2VuZGlmCkluZGV4OiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25m
-aWcKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcJKC4u
-Li90YWdzL2xpbnV4LTIuNi4zMi4xKQkocmV2aXNpb24gMTg0KQorKysgYi9kcml2ZXJzL2lucHV0
-L3RvdWNoc2NyZWVuL0tjb25maWcJKC4uLi9icmFuY2hlcy9hdDkxc2FtOTI2M2NzLTIuNi4zMi4x
-KQkocmV2aXNpb24gMTg0KQpAQCAtNTEyLDYgKzUxMiwxOSBAQAogCSAgVG8gY29tcGlsZSB0aGlz
-IGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlCiAJICBtb2R1bGUgd2lsbCBi
-ZSBjYWxsZWQgdHNjMjAwNy4KIAorY29uZmlnIFRPVUNIU0NSRUVOX1RTQzIwMDgKKwl0cmlzdGF0
-ZSAiVFNDMjAwOCBiYXNlZCB0b3VjaHNjcmVlbnMiCisJZGVwZW5kcyBvbiBTUElfTUFTVEVSCisJ
-aGVscAorCSAgU2F5IFkgaGVyZSBpZiB5b3UgaGF2ZSBhIHRvdWNoc2NyZWVuIGludGVyZmFjZSB1
-c2luZyB0aGUKKwkgIFRTQzIwMDggY29udHJvbGxlciwgYW5kIHlvdXIgYm9hcmQtc3BlY2lmaWMg
-c2V0dXAgY29kZQorCSAgaW5jbHVkZXMgdGhhdCBpbiBpdHMgdGFibGUgb2YgU1BJIGRldmljZXMu
-CisKKwkgIElmIHVuc3VyZSwgc2F5IE4uCisKKwkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMg
-YSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQorCSAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIHRz
-YzIwMDguCisKIGNvbmZpZyBUT1VDSFNDUkVFTl9XOTBYOTAwCiAJdHJpc3RhdGUgIlc5MFA5MTAg
-dG91Y2hzY3JlZW4gZHJpdmVyIgogCWRlcGVuZHMgb24gSEFWRV9DTEsKSW5kZXg6IGRyaXZlcnMv
-aW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwOC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGEvZHJpdmVycy9pbnB1
-dC90b3VjaHNjcmVlbi90c2MyMDA4LmMJKC4uLi90YWdzL2xpbnV4LTIuNi4zMi4xKQkocmV2aXNp
-b24gMCkKKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi90c2MyMDA4LmMJKC4uLi9icmFu
-Y2hlcy9hdDkxc2FtOTI2M2NzLTIuNi4zMi4xKQkocmV2aXNpb24gMTg0KQpAQCAtMCwwICsxLDUx
-OSBAQAorLyoKKyAqIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdHNjMjAwOC5jCisgKgorICog
-Q29weXJpZ2h0IChjKSAyMDEwIEN5YmVyIFN3aXRjaGluZywgSW5jLgorICogICAgQ2hyaXMgVmVy
-Z2VzIDxjaHJpc3ZAY3liZXJzd2l0Y2hpbmcuY29tPgorICogICAgUm9iZXJ0IE1laHJhbmZhciA8
-cm9iZXJ0bWVAZWFydGhsaW5rLm5ldD4KKyAqCisgKiBVc2luZyBjb2RlIGZyb206CisgKiAgLSB0
-c2MyMDA4LmMKKyAqICAgICAgQ29weXJpZ2h0IChjKSAyMDA4IE10ZWtWaXNpb24gQ28uLCBMdGQu
-CisgKglLd2FuZ3dvbyBMZWUgPGt3bGVlQG10ZWt2aXNpb24uY29tPgorICogIC0gYWRzNzg0Ni5j
-CisgKglDb3B5cmlnaHQgKGMpIDIwMDUgRGF2aWQgQnJvd25lbGwKKyAqCUNvcHlyaWdodCAoYykg
-MjAwNiBOb2tpYSBDb3Jwb3JhdGlvbgorICogIC0gY29yZ2lfdHMuYworICoJQ29weXJpZ2h0IChD
-KSAyMDA0LTIwMDUgUmljaGFyZCBQdXJkaWUKKyAqICAtIG9tYXBfdHMuW2hjXSwgYWRzNzg0Ni5o
-LCB0c19vc2suYworICoJQ29weXJpZ2h0IChDKSAyMDAyIE1vbnRhVmlzdGEgU29mdHdhcmUKKyAq
-CUNvcHlyaWdodCAoQykgMjAwNCBUZXhhcyBJbnN0cnVtZW50cworICoJQ29weXJpZ2h0IChDKSAy
-MDA1IERpcmsgQmVobWUKKyAqCisgKiAgVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlv
-dSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqICBpdCB1bmRlciB0aGUgdGVy
-bXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHZlcnNpb24gMiBhcworICogIHB1
-Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgorICovCisKKyNpbmNsdWRl
-IDxsaW51eC9kZWxheS5oPgorI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+CisjaW5jbHVkZSA8bGlu
-dXgvaW50ZXJydXB0Lmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CisjaW5jbHVkZSA8bGlu
-dXgvc2xhYi5oPgorI2luY2x1ZGUgPGxpbnV4L3NwaS9zcGkuaD4KKyNpbmNsdWRlIDxsaW51eC9z
-cGkvdHNjMjAwOC5oPgorCisjZGVmaW5lIFRTX1BPTExfREVMQVkJCQkxIC8qIG1zIGRlbGF5IGJl
-dHdlZW4gc2FtcGxlcyAqLworI2RlZmluZSBUU19QT0xMX1BFUklPRAkJCTEgLyogbXMgZGVsYXkg
-YmV0d2VlbiBzYW1wbGVzICovCisKKyNkZWZpbmUgVFNDMjAwOF9TVEFSVF9DTUQJCSgweDEgPDwg
-NykKKworI2RlZmluZSBUU0MyMDA4X01FQVNVUkVfVEVNUDEJCSgweDAgPDwgNCkKKyNkZWZpbmUg
-VFNDMjAwOF9NRUFTVVJFX1kJCSgweDEgPDwgNCkKKyNkZWZpbmUgVFNDMjAwOF9TRVRVUAkJCSgw
-eDIgPDwgNCkKKyNkZWZpbmUgVFNDMjAwOF9NRUFTVVJFX1oxCQkoMHgzIDw8IDQpCisjZGVmaW5l
-IFRTQzIwMDhfTUVBU1VSRV9aMgkJKDB4NCA8PCA0KQorI2RlZmluZSBUU0MyMDA4X01FQVNVUkVf
-WAkJKDB4NSA8PCA0KQorI2RlZmluZSBUU0MyMDA4X01FQVNVUkVfQVVYCQkoMHg2IDw8IDQpCisj
-ZGVmaW5lIFRTQzIwMDhfTUVBU1VSRV9URU1QMgkJKDB4NyA8PCA0KQorCisjZGVmaW5lIFRTQzIw
-MDhfVVNFXzUwSwkJCSgweDAgPDwgMykKKyNkZWZpbmUgVFNDMjAwOF9VU0VfOTBLCQkJKDB4MSA8
-PCAzKQorCisjZGVmaW5lIFRTQzIwMDhfRU5BQkxFX01BVgkJKDB4MCA8PCAyKQorI2RlZmluZSBU
-U0MyMDA4X0RJU0FCTEVfTUFWCQkoMHgxIDw8IDIpCisKKyNkZWZpbmUgVFNDMjAwOF9TT0ZUV0FS
-RV9SRVNFVAkJKDB4MSA8PCAwKQorCisjZGVmaW5lIFRTQzIwMDhfUE9XRVJfT0ZGX0lSUV9FTgko
-MHgwIDw8IDApCisjZGVmaW5lIFRTQzIwMDhfQURDX09OX0lSUV9ESVMwCQkoMHgxIDw8IDApCisj
-ZGVmaW5lIFRTQzIwMDhfQURDX09GRl9JUlFfRU4JCSgweDIgPDwgMCkKKyNkZWZpbmUgVFNDMjAw
-OF9BRENfT05fSVJRX0RJUzEJCSgweDMgPDwgMCkKKworI2RlZmluZSBUU0MyMDA4XzEyQklUCQkJ
-KDB4MCA8PCAxKQorI2RlZmluZSBUU0MyMDA4XzhCSVQJCQkoMHgxIDw8IDEpCisKKyNkZWZpbmUJ
-TUFYXzEyQklUCQkJKDEgPDwgMTIpCisjZGVmaW5lIE1BWF84QklUCQkJKDEgPDwgOCkKKworI2Rl
-ZmluZSBBRENfT05fMTJCSVQJKFRTQzIwMDhfU1RBUlRfQ01EIHwgVFNDMjAwOF8xMkJJVCB8IFRT
-QzIwMDhfUE9XRVJfT0ZGX0lSUV9FTikKKyNkZWZpbmUgQURDX09OXzhCSVQJKFRTQzIwMDhfU1RB
-UlRfQ01EIHwgVFNDMjAwOF84QklUIHwgVFNDMjAwOF9QT1dFUl9PRkZfSVJRX0VOKQorCisvKiB1
-c2VjLCBTQ0xLPTI1TUh6IHcvbyBNQVYgKi8KKyNkZWZpbmUgVFhfREVMQVkJKDQwKQorI2RlZmlu
-ZSBSWF9ERUxBWQkoNDApCisKK3N0cnVjdCB0c19ldmVudCB7CisJdWludDE2X3QJeDsKKwl1aW50
-MTZfdAl5OworCXVpbnQxNl90CXoxLCB6MjsKK307CisKK3N0cnVjdCB0c2MyMDA4IHsKKwlzdHJ1
-Y3QgaW5wdXRfZGV2CSppbnB1dDsKKwljaGFyCQkJcGh5c1szMl07CisJc3RydWN0IGRlbGF5ZWRf
-d29yawl3b3JrOworCisJc3RydWN0IHNwaV9kZXZpY2UJKnNwaTsKKwlzdHJ1Y3Qgc3BpX21lc3Nh
-Z2UJbXNnOworCXN0cnVjdCBzcGlfdHJhbnNmZXIJeGZlcls4XTsKKwl1aW50OF90CQkJdHhfYnVm
-WzRdOworCisJdWludDE2X3QJCW1vZGVsOworCXVpbnQxNl90CQl4X3BsYXRlX29obXM7CisJdWlu
-dDE2X3QJCW1heF9iaXRzOworCisJYm9vbAkJCXBlbmRvd247CisJaW50CQkJaXJxOworCisJaW50
-CQkJKCpnZXRfcGVuZG93bl9zdGF0ZSkodm9pZCk7CisJdm9pZAkJCSgqY2xlYXJfcGVuaXJxKSh2
-b2lkKTsKK307CisKK3N0YXRpYyB2b2lkIHRzYzIwMDhfcmVhZF92YWx1ZXMoc3RydWN0IHRzYzIw
-MDggKnRzYywgc3RydWN0IHRzX2V2ZW50ICp0YykKK3sKKwkvKiBSZWFkIHRoZSB2YWx1ZXMgZnJv
-bSB0aGUgVFNDMjAwOCAqLworCXRzYy0+eGZlclsxXS5yeF9idWYgPSAmdGMtPng7CisJdHNjLT54
-ZmVyWzNdLnJ4X2J1ZiA9ICZ0Yy0+eTsKKwl0c2MtPnhmZXJbNV0ucnhfYnVmID0gJnRjLT56MTsK
-Kwl0c2MtPnhmZXJbN10ucnhfYnVmID0gJnRjLT56MjsKKworCXNwaV9zeW5jKHRzYy0+c3BpLCAm
-dHNjLT5tc2cpOworCisJZGV2X2RiZygmdHNjLT5zcGktPmRldiwgImRhdGE6IHggICUwNXUgMHgl
-MDh4XG4iLCB0Yy0+eCwgdGMtPngpOworCWRldl9kYmcoJnRzYy0+c3BpLT5kZXYsICJkYXRhOiB5
-ICAlMDV1IDB4JTA4eFxuIiwgdGMtPnksIHRjLT55KTsKKwlkZXZfZGJnKCZ0c2MtPnNwaS0+ZGV2
-LCAiZGF0YTogejEgJTA1dSAweCUwOHhcbiIsIHRjLT56MSwgdGMtPnoxKTsKKwlkZXZfZGJnKCZ0
-c2MtPnNwaS0+ZGV2LCAiZGF0YTogejIgJTA1dSAweCUwOHhcbiIsIHRjLT56MiwgdGMtPnoyKTsK
-KworCWlmICh0c2MtPm1heF9iaXRzID09IE1BWF84QklUKSB7CisJCXRjLT54ICA9ICh0Yy0+eCAg
-PDwgMSkgJiAweDAwRkY7CisJCXRjLT55ICA9ICh0Yy0+eSAgPDwgMSkgJiAweDAwRkY7CisJCXRj
-LT56MSA9ICh0Yy0+ejEgPDwgMSkgJiAweDAwRkY7CisJCXRjLT56MiA9ICh0Yy0+ejIgPDwgMSkg
-JiAweDAwRkY7CisJfSBlbHNlIGlmICh0c2MtPm1heF9iaXRzID09IE1BWF8xMkJJVCkgeworCQl0
-Yy0+eCAgPSAoYmUxNl90b19jcHUodGMtPngpICA8PCAxKSA+PiA0ICYgMHgwRkZGOworCQl0Yy0+
-eSAgPSAoYmUxNl90b19jcHUodGMtPnkpICA8PCAxKSA+PiA0ICYgMHgwRkZGOworCQl0Yy0+ejEg
-PSAoYmUxNl90b19jcHUodGMtPnoxKSA8PCAxKSA+PiA0ICYgMHgwRkZGOworCQl0Yy0+ejIgPSAo
-YmUxNl90b19jcHUodGMtPnoyKSA8PCAxKSA+PiA0ICYgMHgwRkZGOworCX0gZWxzZSB7CisJCWRl
-dl9lcnIoJnRzYy0+c3BpLT5kZXYsICJpbnZhbGlkIG51bWJlciBvZiBiaXRzIGV4cGVjdGVkXG4i
-KTsKKwl9CisKKwlkZXZfZGJnKCZ0c2MtPnNwaS0+ZGV2LCAiZGF0YTogeCAgJTA1dSAweCUwOHhc
-biIsIHRjLT54LCB0Yy0+eCk7CisJZGV2X2RiZygmdHNjLT5zcGktPmRldiwgImRhdGE6IHkgICUw
-NXUgMHglMDh4XG4iLCB0Yy0+eSwgdGMtPnkpOworCWRldl9kYmcoJnRzYy0+c3BpLT5kZXYsICJk
-YXRhOiB6MSAlMDV1IDB4JTA4eFxuIiwgdGMtPnoxLCB0Yy0+ejEpOworCWRldl9kYmcoJnRzYy0+
-c3BpLT5kZXYsICJkYXRhOiB6MiAlMDV1IDB4JTA4eFxuIiwgdGMtPnoyLCB0Yy0+ejIpOworfQor
-CitzdGF0aWMgdWludDMyX3QgdHNjMjAwOF9jYWxjdWxhdGVfcHJlc3N1cmUoc3RydWN0IHRzYzIw
-MDggKnRzYywgc3RydWN0IHRzX2V2ZW50ICp0YykKK3sKKwl1aW50MzJfdCBydCA9IDA7CisKKwkv
-KiByYW5nZSBmaWx0ZXJpbmcgKi8KKwlpZiAodGMtPnggPT0gKHRzYy0+bWF4X2JpdHMgLSAxKSkK
-KwkJdGMtPnggPSAwOworCisJaWYgKGxpa2VseSh0Yy0+eCAmJiB0Yy0+ejEpKSB7CisJCXJ0ID0g
-KHRjLT56MiAvIHRjLT56MSkgLSAxOworCQlydCAqPSB0Yy0+eSAqIHRzYy0+eF9wbGF0ZV9vaG1z
-OworCQlydCAvPSB0c2MtPm1heF9iaXRzOworCisJCWlmICh0c2MtPm1heF9iaXRzID09IE1BWF84
-QklUKQorCQkJcnQgJj0gMHgwMEZGOworCQllbHNlCisJCQlydCAmPSAweDBGRkY7CisJfQorCisJ
-ZGV2X2RiZygmdHNjLT5zcGktPmRldiwgInByZXNzdXJlOiAlMDV1IDB4JTA4eFxuIiwgcnQsIHJ0
-KTsKKworCXJldHVybiBydDsKK30KKworc3RhdGljIHZvaWQgdHNjMjAwOF9zZW5kX3VwX2V2ZW50
-KHN0cnVjdCB0c2MyMDA4ICp0c2MpCit7CisJc3RydWN0IGlucHV0X2RldiAqaW5wdXQgPSB0c2Mt
-PmlucHV0OworCisJZGV2X2RiZygmdHNjLT5zcGktPmRldiwgIlVQXG4iKTsKKworCWlucHV0X3Jl
-cG9ydF9rZXkoaW5wdXQsIEJUTl9UT1VDSCwgMCk7CisJaW5wdXRfcmVwb3J0X2FicyhpbnB1dCwg
-QUJTX1BSRVNTVVJFLCAwKTsKKwlpbnB1dF9zeW5jKGlucHV0KTsKK30KKworc3RhdGljIHZvaWQg
-dHNjMjAwOF93b3JrKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKK3sKKwlzdHJ1Y3QgdHNjMjAw
-OCAqdHMgPQorCQljb250YWluZXJfb2YodG9fZGVsYXllZF93b3JrKHdvcmspLCBzdHJ1Y3QgdHNj
-MjAwOCwgd29yayk7CisJc3RydWN0IHRzX2V2ZW50IHRjOworCXVpbnQzMl90IHJ0OworCisJLyoK
-KwkgKiBOT1RFOiBXZSBjYW4ndCByZWx5IG9uIHRoZSBwcmVzc3VyZSB0byBkZXRlcm1pbmUgdGhl
-IHBlbiBkb3duCisJICogc3RhdGUsIGV2ZW4gdGhvdWdoIHRoaXMgY29udHJvbGxlciBoYXMgYSBw
-cmVzc3VyZSBzZW5zb3IuCisJICogVGhlIHByZXNzdXJlIHZhbHVlIGNhbiBmbHVjdHVhdGUgZm9y
-IHF1aXRlIGEgd2hpbGUgYWZ0ZXIKKwkgKiBsaWZ0aW5nIHRoZSBwZW4gYW5kIGluIHNvbWUgY2Fz
-ZXMgbWF5IG5vdCBldmVuIHNldHRsZSBhdCB0aGUKKwkgKiBleHBlY3RlZCB2YWx1ZS4KKwkgKgor
-CSAqIFRoZSBvbmx5IHNhZmUgd2F5IHRvIGNoZWNrIGZvciB0aGUgcGVuIHVwIGNvbmRpdGlvbiBp
-cyBpbiB0aGUKKwkgKiB3b3JrIGZ1bmN0aW9uIGJ5IHJlYWRpbmcgdGhlIHBlbiBzaWduYWwgc3Rh
-dGUgKGl0J3MgYSBHUElPCisJICogYW5kIElSUSkuIFVuZm9ydHVuYXRlbHkgc3VjaCBjYWxsYmFj
-ayBpcyBub3QgYWx3YXlzIGF2YWlsYWJsZSwKKwkgKiBpbiB0aGF0IGNhc2Ugd2UgaGF2ZSByZWx5
-IG9uIHRoZSBwcmVzc3VyZSBhbnl3YXkuCisJICovCisJaWYgKHRzLT5nZXRfcGVuZG93bl9zdGF0
-ZSkgeworCQlpZiAodW5saWtlbHkoIXRzLT5nZXRfcGVuZG93bl9zdGF0ZSgpKSkgeworCQkJZGV2
-X2RiZygmdHMtPnNwaS0+ZGV2LCAiZGV0ZWN0ZWQgcGVuIFVQIHZpYSBHUElPIHJlYWRcbiIpOwor
-CisJCQl0c2MyMDA4X3NlbmRfdXBfZXZlbnQodHMpOworCQkJdHMtPnBlbmRvd24gPSBmYWxzZTsK
-KwkJCWdvdG8gb3V0OworCQl9CisKKwkJZGV2X2RiZygmdHMtPnNwaS0+ZGV2LCAicGVuIGlzIHN0
-aWxsIGRvd25cbiIpOworCX0gZWxzZSB7CisJCWRldl9kYmcoJnRzLT5zcGktPmRldiwgImdldF9w
-ZW5kb3duX3N0YXRlIHVuZGVmaW5lZCwgIgorCQkJCSJ1c2luZyBwcmVzc3VyZSBpbnN0ZWFkXG4i
-KTsKKwl9CisKKwl0c2MyMDA4X3JlYWRfdmFsdWVzKHRzLCAmdGMpOworCisJcnQgPSB0c2MyMDA4
-X2NhbGN1bGF0ZV9wcmVzc3VyZSh0cywgJnRjKTsKKwlpZiAocnQgPj0gdHMtPm1heF9iaXRzKSB7
-CisJCS8qCisJCSAqIFNhbXBsZSBmb3VuZCBpbmNvbnNpc3RlbnQgYnkgZGVib3VuY2luZyBvciBw
-cmVzc3VyZSBpcworCQkgKiBiZXlvbmQgdGhlIG1heGltdW0uIERvbid0IHJlcG9ydCBpdCB0byB1
-c2VyIHNwYWNlLAorCQkgKiByZXBlYXQgYXQgbGVhc3Qgb25jZSBtb3JlIHRoZSBtZWFzdXJlbWVu
-dC4KKwkJICovCisJCWRldl9kYmcoJnRzLT5zcGktPmRldiwgImlnbm9yZWQgcHJlc3N1cmUgJWRc
-biIsIHJ0KTsKKwkJZ290byBvdXQ7CisJfQorCisJaWYgKHJ0KSB7CisJCXN0cnVjdCBpbnB1dF9k
-ZXYgKmlucHV0ID0gdHMtPmlucHV0OworCisJCWlmICghdHMtPnBlbmRvd24pIHsKKwkJCWRldl9k
-YmcoJnRzLT5zcGktPmRldiwgIkRPV05cbiIpOworCisJCQlpbnB1dF9yZXBvcnRfa2V5KGlucHV0
-LCBCVE5fVE9VQ0gsIDEpOworCQkJdHMtPnBlbmRvd24gPSB0cnVlOworCQl9CisKKwkJaW5wdXRf
-cmVwb3J0X2FicyhpbnB1dCwgQUJTX1gsIHRjLngpOworCQlpbnB1dF9yZXBvcnRfYWJzKGlucHV0
-LCBBQlNfWSwgdGMueSk7CisJCWlucHV0X3JlcG9ydF9hYnMoaW5wdXQsIEFCU19QUkVTU1VSRSwg
-cnQpOworCisJCWlucHV0X3N5bmMoaW5wdXQpOworCisJCWRldl9kYmcoJnRzLT5zcGktPmRldiwg
-InBvaW50KCU0ZCwlNGQpLCBwcmVzc3VyZSAoJTR1KVxuIiwKKwkJCXRjLngsIHRjLnksIHJ0KTsK
-Kwl9IGVsc2UgaWYgKCF0cy0+Z2V0X3BlbmRvd25fc3RhdGUgJiYgdHMtPnBlbmRvd24pIHsKKwkJ
-LyoKKwkJICogV2UgZG9uJ3QgaGF2ZSBjYWxsYmFjayB0byBjaGVjayBwZW5kb3duIHN0YXRlLCBz
-byB3ZQorCQkgKiBoYXZlIHRvIGFzc3VtZSB0aGF0IHNpbmNlIHByZXNzdXJlIHJlcG9ydGVkIGlz
-IDAgdGhlCisJCSAqIHBlbiB3YXMgbGlmdGVkIHVwLgorCQkgKi8KKwkJdHNjMjAwOF9zZW5kX3Vw
-X2V2ZW50KHRzKTsKKwkJdHMtPnBlbmRvd24gPSBmYWxzZTsKKwl9IGVsc2UgeworCQlkZXZfZGJn
-KCZ0cy0+c3BpLT5kZXYsICJubyBjaGFuZ2UgaW4gcGVuIHN0YXRlIGRldGVjdGVkXG4iKTsKKwl9
-CisKKyBvdXQ6CisJaWYgKHRzLT5wZW5kb3duKQorCQlzY2hlZHVsZV9kZWxheWVkX3dvcmsoJnRz
-LT53b3JrLAorCQkJCSAgICAgIG1zZWNzX3RvX2ppZmZpZXMoVFNfUE9MTF9QRVJJT0QpKTsKKwll
-bHNlCisJCWVuYWJsZV9pcnEodHMtPmlycSk7Cit9CisKK3N0YXRpYyBpcnFyZXR1cm5fdCB0c2My
-MDA4X2lycShpbnQgaXJxLCB2b2lkICpoYW5kbGUpCit7CisJc3RydWN0IHRzYzIwMDggKnRzID0g
-aGFuZGxlOworCisJaWYgKCF0cy0+Z2V0X3BlbmRvd25fc3RhdGUgfHwgbGlrZWx5KHRzLT5nZXRf
-cGVuZG93bl9zdGF0ZSgpKSkgeworCQlkaXNhYmxlX2lycV9ub3N5bmModHMtPmlycSk7CisJCXNj
-aGVkdWxlX2RlbGF5ZWRfd29yaygmdHMtPndvcmssCisJCQkJICAgICAgbXNlY3NfdG9famlmZmll
-cyhUU19QT0xMX0RFTEFZKSk7CisJfQorCisJaWYgKHRzLT5jbGVhcl9wZW5pcnEpCisJCXRzLT5j
-bGVhcl9wZW5pcnEoKTsKKworCXJldHVybiBJUlFfSEFORExFRDsKK30KKworc3RhdGljIHZvaWQg
-dHNjMjAwOF9mcmVlX2lycShzdHJ1Y3QgdHNjMjAwOCAqdHMpCit7CisJZnJlZV9pcnEodHMtPmly
-cSwgdHMpOworCWlmIChjYW5jZWxfZGVsYXllZF93b3JrX3N5bmMoJnRzLT53b3JrKSkgeworCQkv
-KgorCQkgKiBXb3JrIHdhcyBwZW5kaW5nLCB0aGVyZWZvcmUgd2UgbmVlZCB0byBlbmFibGUKKwkJ
-ICogSVJRIGhlcmUgdG8gYmFsYW5jZSB0aGUgZGlzYWJsZV9pcnEoKSBkb25lIGluIHRoZQorCQkg
-KiBpbnRlcnJ1cHQgaGFuZGxlci4KKwkJICovCisJCWVuYWJsZV9pcnEodHMtPmlycSk7CisJfQor
-fQorCitzdGF0aWMgaW50IF9fZGV2aW5pdCB0c2MyMDA4X3Byb2JlKHN0cnVjdCBzcGlfZGV2aWNl
-ICpzcGkpCit7CisJc3RydWN0IHRzYzIwMDggKnRzOworCXN0cnVjdCB0c2MyMDA4X3BsYXRmb3Jt
-X2RhdGEgKnBkYXRhID0gc3BpLT5kZXYucGxhdGZvcm1fZGF0YTsKKwlzdHJ1Y3QgaW5wdXRfZGV2
-ICppbnB1dF9kZXY7CisJc3RydWN0IHNwaV90cmFuc2ZlciAqeDsKKwl1aW50OF90IHR4X2J1ZjsK
-KwlpbnQgbnVtX2J5dGVzX3J4OworCWludCBlcnI7CisKKwlpZiAoIXBkYXRhKSB7CisJCWRldl9l
-cnIoJnNwaS0+ZGV2LCAicGxhdGZvcm0gZGF0YSBpcyByZXF1aXJlZCFcbiIpOworCQlyZXR1cm4g
-LUVJTlZBTDsKKwl9CisKKwlpZiAoIXBkYXRhLT5nZXRfcGVuZG93bl9zdGF0ZSkgeworCQlkZXZf
-ZXJyKCZzcGktPmRldiwgInBlbmRvd24gZnVuY3Rpb24gaXMgcmVxdWlyZWQhXG4iKTsKKwkJcmV0
-dXJuIC1FSU5WQUw7CisJfQorCisJaWYgKCFwZGF0YS0+Yml0X21vZGUpIHsKKwkJZGV2X2RiZygm
-c3BpLT5kZXYsICJiaXQgbW9kZSBub3Qgc3BlY2lmaWVkLCB1c2luZyA4LWJpdCBtb2RlXG4iKTsK
-KwkJcGRhdGEtPmJpdF9tb2RlID0gODsKKwl9IGVsc2UgaWYgKHBkYXRhLT5iaXRfbW9kZSAhPSA4
-ICYmIHBkYXRhLT5iaXRfbW9kZSAhPSAxMikgeworCQlkZXZfZXJyKCZzcGktPmRldiwgImludmFs
-aWQgYml0IG1vZGUgc3BlY2lmaWVkLCA4LWJpdCBvciAxMi1iaXQgZXhwZWN0ZWRcbiIpOworCQly
-ZXR1cm4gLUVJTlZBTDsKKwl9CisKKwllcnIgPSBzcGlfc2V0dXAoc3BpKTsKKwlpZiAoZXJyKSB7
-CisJCWRldl9lcnIoJnNwaS0+ZGV2LCAidW5hYmxlIHRvIGluaXRpYWxpemUgc3BpXG4iKTsKKwkJ
-cmV0dXJuIC1FTk9ERVY7CisJfQorCisJdHMgPSBremFsbG9jKHNpemVvZihzdHJ1Y3QgdHNjMjAw
-OCksIEdGUF9LRVJORUwpOworCWlucHV0X2RldiA9IGlucHV0X2FsbG9jYXRlX2RldmljZSgpOwor
-CWlmICghdHMgfHwgIWlucHV0X2RldikgeworCQllcnIgPSAtRU5PTUVNOworCQlnb3RvIGVycl9m
-cmVlX21lbTsKKwl9CisKKwlkZXZfc2V0X2RydmRhdGEoJnNwaS0+ZGV2LCB0cyk7CisJdHMtPnNw
-aSA9IHNwaTsKKwl0cy0+aXJxID0gc3BpLT5pcnE7CisJdHMtPmlucHV0ID0gaW5wdXRfZGV2Owor
-CUlOSVRfREVMQVlFRF9XT1JLKCZ0cy0+d29yaywgdHNjMjAwOF93b3JrKTsKKworCXRzLT5tb2Rl
-bCAgICAgICAgICAgICA9IHBkYXRhLT5tb2RlbDsKKwl0cy0+eF9wbGF0ZV9vaG1zICAgICAgPSBw
-ZGF0YS0+eF9wbGF0ZV9vaG1zOworCXRzLT5tYXhfYml0cyAgICAgICAgICA9IDEgPDwgcGRhdGEt
-PmJpdF9tb2RlOwkvKiBNYXRjaCBlaXRoZXIgTUFYXzhCSVQgb3IgTUFYXzEyQklUICovCisJdHMt
-PmdldF9wZW5kb3duX3N0YXRlID0gcGRhdGEtPmdldF9wZW5kb3duX3N0YXRlOworCXRzLT5jbGVh
-cl9wZW5pcnEgICAgICA9IHBkYXRhLT5jbGVhcl9wZW5pcnE7CisKKwlzbnByaW50Zih0cy0+cGh5
-cywgc2l6ZW9mKHRzLT5waHlzKSwKKwkJICIlcy9pbnB1dDAiLCBkZXZfbmFtZSgmc3BpLT5kZXYp
-KTsKKworCWlucHV0X2Rldi0+bmFtZSA9ICJUU0MyMDA4IFRvdWNoc2NyZWVuIjsKKwlpbnB1dF9k
-ZXYtPmRldi5wYXJlbnQgPSAmc3BpLT5kZXY7CisJaW5wdXRfZGV2LT5waHlzID0gdHMtPnBoeXM7
-CisKKwlpbnB1dF9kZXYtPmV2Yml0WzBdID0gQklUX01BU0soRVZfS0VZKSB8IEJJVF9NQVNLKEVW
-X0FCUyk7CisJaW5wdXRfZGV2LT5rZXliaXRbQklUX1dPUkQoQlROX1RPVUNIKV0gPSBCSVRfTUFT
-SyhCVE5fVE9VQ0gpOworCisJaW5wdXRfc2V0X2Fic19wYXJhbXMoaW5wdXRfZGV2LCBBQlNfWCwg
-MCwgdHMtPm1heF9iaXRzLCAwLCAwKTsKKwlpbnB1dF9zZXRfYWJzX3BhcmFtcyhpbnB1dF9kZXYs
-IEFCU19ZLCAwLCB0cy0+bWF4X2JpdHMsIDAsIDApOworCWlucHV0X3NldF9hYnNfcGFyYW1zKGlu
-cHV0X2RldiwgQUJTX1BSRVNTVVJFLCAwLCB0cy0+bWF4X2JpdHMsIDAsIDApOworCisJaWYgKHBk
-YXRhLT5pbml0X3BsYXRmb3JtX2h3KQorCQlwZGF0YS0+aW5pdF9wbGF0Zm9ybV9odygpOworCisJ
-ZXJyID0gcmVxdWVzdF9pcnEodHMtPmlycSwgdHNjMjAwOF9pcnEsIDAsCisJCQlzcGktPmRldi5k
-cml2ZXItPm5hbWUsIHRzKTsKKwlpZiAoZXJyIDwgMCkgeworCQlkZXZfZXJyKCZzcGktPmRldiwg
-ImlycSAlZCBidXN5P1xuIiwgdHMtPmlycSk7CisJCWdvdG8gZXJyX2ZyZWVfbWVtOworCX0KKwor
-CS8qIFNldHVwIFNQSSB2YXJpYWJsZXMgKi8KKwlzcGlfbWVzc2FnZV9pbml0KCZ0cy0+bXNnKTsK
-KworCS8qCisJICogVFNDMjAwOF9NRUFTVVJFX1ggYW5kIFRTQzIwMDhfTUVBU1VSRV9ZIGFyZSBp
-bnRlbnRpb25hbGx5CisJICogc3dhcHBlZCBiZWxvdy4KKwkgKi8KKwlpZiAodHMtPm1heF9iaXRz
-ID09IE1BWF84QklUKSB7CisJCWRldl9kYmcoJnNwaS0+ZGV2LCAidXNpbmcgOC1iaXQgbW9kZVxu
-Iik7CisJCW51bV9ieXRlc19yeCA9IDE7CisJCXRzLT50eF9idWZbMF0gPSBBRENfT05fOEJJVCB8
-IFRTQzIwMDhfTUVBU1VSRV9ZOworCQl0cy0+dHhfYnVmWzFdID0gQURDX09OXzhCSVQgfCBUU0My
-MDA4X01FQVNVUkVfWDsKKwkJdHMtPnR4X2J1ZlsyXSA9IEFEQ19PTl84QklUIHwgVFNDMjAwOF9N
-RUFTVVJFX1oxOworCQl0cy0+dHhfYnVmWzNdID0gQURDX09OXzhCSVQgfCBUU0MyMDA4X01FQVNV
-UkVfWjI7CisJfSBlbHNlIHsKKwkJZGV2X2RiZygmc3BpLT5kZXYsICJ1c2luZyAxMi1iaXQgbW9k
-ZVxuIik7CisJCW51bV9ieXRlc19yeCA9IDI7CisJCXRzLT50eF9idWZbMF0gPSBBRENfT05fMTJC
-SVQgfCBUU0MyMDA4X01FQVNVUkVfWTsKKwkJdHMtPnR4X2J1ZlsxXSA9IEFEQ19PTl8xMkJJVCB8
-IFRTQzIwMDhfTUVBU1VSRV9YOworCQl0cy0+dHhfYnVmWzJdID0gQURDX09OXzEyQklUIHwgVFND
-MjAwOF9NRUFTVVJFX1oxOworCQl0cy0+dHhfYnVmWzNdID0gQURDX09OXzEyQklUIHwgVFNDMjAw
-OF9NRUFTVVJFX1oyOworCX0KKworCXggPSAmdHMtPnhmZXJbMF07CisJbWVtc2V0KHgsIDAsIHNp
-emVvZigqeCkpOworCXgtPnR4X2J1ZiA9ICZ0cy0+dHhfYnVmWzBdOworCXgtPmxlbiA9IDE7CisJ
-eC0+ZGVsYXlfdXNlY3MgPSBUWF9ERUxBWTsKKwlzcGlfbWVzc2FnZV9hZGRfdGFpbCh4LCAmdHMt
-Pm1zZyk7CisKKwl4ID0gJnRzLT54ZmVyWzFdOworCW1lbXNldCh4LCAwLCBzaXplb2YoKngpKTsK
-Kwl4LT5sZW4gPSBudW1fYnl0ZXNfcng7CisJeC0+ZGVsYXlfdXNlY3MgPSBSWF9ERUxBWTsKKwlz
-cGlfbWVzc2FnZV9hZGRfdGFpbCh4LCAmdHMtPm1zZyk7CisKKwl4ID0gJnRzLT54ZmVyWzJdOwor
-CW1lbXNldCh4LCAwLCBzaXplb2YoKngpKTsKKwl4LT50eF9idWYgPSAmdHMtPnR4X2J1ZlsxXTsK
-Kwl4LT5sZW4gPSAxOworCXgtPmRlbGF5X3VzZWNzID0gVFhfREVMQVk7CisJc3BpX21lc3NhZ2Vf
-YWRkX3RhaWwoeCwgJnRzLT5tc2cpOworCisJeCA9ICZ0cy0+eGZlclszXTsKKwltZW1zZXQoeCwg
-MCwgc2l6ZW9mKCp4KSk7CisJeC0+bGVuID0gbnVtX2J5dGVzX3J4OworCXgtPmRlbGF5X3VzZWNz
-ID0gUlhfREVMQVk7CisJc3BpX21lc3NhZ2VfYWRkX3RhaWwoeCwgJnRzLT5tc2cpOworCisJeCA9
-ICZ0cy0+eGZlcls0XTsKKwltZW1zZXQoeCwgMCwgc2l6ZW9mKCp4KSk7CisJeC0+dHhfYnVmID0g
-JnRzLT50eF9idWZbMl07CisJeC0+bGVuID0gMTsKKwl4LT5kZWxheV91c2VjcyA9IFRYX0RFTEFZ
-OworCXNwaV9tZXNzYWdlX2FkZF90YWlsKHgsICZ0cy0+bXNnKTsKKworCXggPSAmdHMtPnhmZXJb
-NV07CisJbWVtc2V0KHgsIDAsIHNpemVvZigqeCkpOworCXgtPmxlbiA9IG51bV9ieXRlc19yeDsK
-Kwl4LT5kZWxheV91c2VjcyA9IFJYX0RFTEFZOworCXNwaV9tZXNzYWdlX2FkZF90YWlsKHgsICZ0
-cy0+bXNnKTsKKworCXggPSAmdHMtPnhmZXJbNl07CisJbWVtc2V0KHgsIDAsIHNpemVvZigqeCkp
-OworCXgtPnR4X2J1ZiA9ICZ0cy0+dHhfYnVmWzNdOworCXgtPmxlbiA9IDE7CisJeC0+ZGVsYXlf
-dXNlY3MgPSBUWF9ERUxBWTsKKwlzcGlfbWVzc2FnZV9hZGRfdGFpbCh4LCAmdHMtPm1zZyk7CisK
-Kwl4ID0gJnRzLT54ZmVyWzddOworCW1lbXNldCh4LCAwLCBzaXplb2YoKngpKTsKKwl4LT5sZW4g
-PSBudW1fYnl0ZXNfcng7CisJc3BpX21lc3NhZ2VfYWRkX3RhaWwoeCwgJnRzLT5tc2cpOworCisJ
-LyoKKwkgKiBSZXNldCB0aGUgY29udHJvbGxlciBvbmNlIHVzaW5nIHRoZSBzZXF1ZW5jZSBkZXNj
-cmliZWQKKwkgKiBvbiBwYWdlIDI5IG9mIHRoZSBUU0MyMDA4IG1hbnVhbCAoTWFyY2ggMjAwOSBy
-ZXZpc2lvbikKKwkgKi8KKwl0eF9idWYgPSBUU0MyMDA4X1NUQVJUX0NNRAorCQkJfCBUU0MyMDA4
-X1NFVFVQCisJCQl8IFRTQzIwMDhfU09GVFdBUkVfUkVTRVQ7CisJZXJyID0gc3BpX3dyaXRlKHNw
-aSwgJnR4X2J1ZiwgMSk7CisJaWYgKGVyciA8IDApCisJCWdvdG8gZXJyX2ZyZWVfaXJxOworCXVk
-ZWxheSgxKTsKKworCS8qIENvbmZpZ3VyZSB0aGUgcHVsbC11cCByZXNpc3RvciBhbmQgTUFWIHNl
-dHRpbmdzICovCisJdHhfYnVmID0gVFNDMjAwOF9TVEFSVF9DTUQKKwkJCXwgVFNDMjAwOF9TRVRV
-UAorCQkJfCBUU0MyMDA4X1VTRV85MEsKKwkJCXwgVFNDMjAwOF9ESVNBQkxFX01BVjsKKwllcnIg
-PSBzcGlfd3JpdGUoc3BpLCAmdHhfYnVmLCAxKTsKKwlpZiAoZXJyIDwgMCkKKwkJZ290byBlcnJf
-ZnJlZV9pcnE7CisKKwkvKiBGaW5pc2ggaW5wdXQgZGV2aWNlIHJlZ2lzdHJhdGlvbiAqLworCWVy
-ciA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShpbnB1dF9kZXYpOworCWlmIChlcnIpCisJCWdvdG8g
-ZXJyX2ZyZWVfaXJxOworCisJcmV0dXJuIDA7CisKKyBlcnJfZnJlZV9pcnE6CisJdHNjMjAwOF9m
-cmVlX2lycSh0cyk7CisJaWYgKHBkYXRhLT5leGl0X3BsYXRmb3JtX2h3KQorCQlwZGF0YS0+ZXhp
-dF9wbGF0Zm9ybV9odygpOworIGVycl9mcmVlX21lbToKKwlpbnB1dF9mcmVlX2RldmljZShpbnB1
-dF9kZXYpOworCWtmcmVlKHRzKTsKKwlyZXR1cm4gZXJyOworfQorCitzdGF0aWMgaW50IF9fZGV2
-ZXhpdCB0c2MyMDA4X3JlbW92ZShzdHJ1Y3Qgc3BpX2RldmljZSAqc3BpKQoreworCXN0cnVjdCB0
-c2MyMDA4ICp0cyA9IGRldl9nZXRfZHJ2ZGF0YSgmc3BpLT5kZXYpOworCXN0cnVjdCB0c2MyMDA4
-X3BsYXRmb3JtX2RhdGEgKnBkYXRhID0gc3BpLT5kZXYucGxhdGZvcm1fZGF0YTsKKworCXRzYzIw
-MDhfZnJlZV9pcnEodHMpOworCisJaWYgKHBkYXRhLT5leGl0X3BsYXRmb3JtX2h3KQorCQlwZGF0
-YS0+ZXhpdF9wbGF0Zm9ybV9odygpOworCisJaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2UodHMtPmlu
-cHV0KTsKKwlrZnJlZSh0cyk7CisKKwlkZXZfZGJnKCZzcGktPmRldiwgInVucmVnaXN0ZXJlZCB0
-b3VjaHNjcmVlblxuIik7CisKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIHN0cnVjdCBzcGlfZHJp
-dmVyIHRzYzIwMDhfZHJpdmVyID0geworCS5kcml2ZXIgPSB7CisJCS5vd25lcgk9IFRISVNfTU9E
-VUxFLAorCQkubmFtZQk9ICJ0c2MyMDA4IiwKKwkJLmJ1cwk9ICZzcGlfYnVzX3R5cGUsCisJfSwK
-KwkucHJvYmUJCT0gdHNjMjAwOF9wcm9iZSwKKwkucmVtb3ZlCQk9IF9fZGV2ZXhpdF9wKHRzYzIw
-MDhfcmVtb3ZlKSwKK307CisKK3N0YXRpYyBpbnQgX19pbml0IHRzYzIwMDhfaW5pdCh2b2lkKQor
-eworCXJldHVybiBzcGlfcmVnaXN0ZXJfZHJpdmVyKCZ0c2MyMDA4X2RyaXZlcik7Cit9CisKK3N0
-YXRpYyB2b2lkIF9fZXhpdCB0c2MyMDA4X2V4aXQodm9pZCkKK3sKKwlzcGlfdW5yZWdpc3Rlcl9k
-cml2ZXIoJnRzYzIwMDhfZHJpdmVyKTsKK30KKworbW9kdWxlX2luaXQodHNjMjAwOF9pbml0KTsK
-K21vZHVsZV9leGl0KHRzYzIwMDhfZXhpdCk7CisKK01PRFVMRV9BVVRIT1IoIkNocmlzIFZlcmdl
-cyA8Y2hyaXN2QGN5YmVyc3dpdGNoaW5nLmNvbT4sICIKKwkJIlJvYmVydCBNZWhyYW5mYXIgPHJv
-YmVydG1lQGVhcnRobGluay5uZXQ+Iik7CitNT0RVTEVfREVTQ1JJUFRJT04oIlRTQzIwMDggVG91
-Y2hzY3JlZW4gRHJpdmVyIik7CitNT0RVTEVfTElDRU5TRSgiR1BMIik7CkluZGV4OiBkcml2ZXJz
-L2lucHV0L3RvdWNoc2NyZWVuL01ha2VmaWxlCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGEvZHJpdmVycy9pbnB1
-dC90b3VjaHNjcmVlbi9NYWtlZmlsZQkoLi4uL3RhZ3MvbGludXgtMi42LjMyLjEpCShyZXZpc2lv
-biAxODQpCisrKyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vTWFrZWZpbGUJKC4uLi9icmFu
-Y2hlcy9hdDkxc2FtOTI2M2NzLTIuNi4zMi4xKQkocmV2aXNpb24gMTg0KQpAQCAtMzAsNiArMzAs
-NyBAQAogb2JqLSQoQ09ORklHX1RPVUNIU0NSRUVOX1RPVUNIUklHSFQpCSs9IHRvdWNocmlnaHQu
-bwogb2JqLSQoQ09ORklHX1RPVUNIU0NSRUVOX1RPVUNIV0lOKQkrPSB0b3VjaHdpbi5vCiBvYmot
-JChDT05GSUdfVE9VQ0hTQ1JFRU5fVFNDMjAwNykJKz0gdHNjMjAwNy5vCitvYmotJChDT05GSUdf
-VE9VQ0hTQ1JFRU5fVFNDMjAwOCkJKz0gdHNjMjAwOC5vCiBvYmotJChDT05GSUdfVE9VQ0hTQ1JF
-RU5fVUNCMTQwMCkJKz0gdWNiMTQwMF90cy5vCiBvYmotJChDT05GSUdfVE9VQ0hTQ1JFRU5fV0FD
-T01fVzgwMDEpCSs9IHdhY29tX3c4MDAxLm8KIG9iai0kKENPTkZJR19UT1VDSFNDUkVFTl9XTTk3
-WFgpCSs9IHdtOTd4eC10cy5vCg==
-
-------_=_NextPart_001_01CA9A08.5C506042--

@@ -1,56 +1,137 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
 Subject: Re: [PATCH] hid: Logitech G13 driver 0.0.4
-Date: Mon, 25 Jan 2010 17:59:00 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001251758230.30977@pobox.suse.cz>
-References: <201001202047.o0KKlMTr014003@mustang.cs.nmsu.edu>    <201001202219.12058.oliver@neukum.org> <acd6dfcf4391c081f861d430c0b45311.squirrel@intranet.cs.nmsu.edu>
+Date: Mon, 25 Jan 2010 11:02:18 -0700
+Message-ID: <8512e098224714ed7d54c62b46346796.squirrel@intranet.cs.nmsu.edu>
+References: <201001202047.o0KKlMTr014003@mustang.cs.nmsu.edu>
+    <201001202219.12058.oliver@neukum.org>
+    <acd6dfcf4391c081f861d430c0b45311.squirrel@intranet.cs.nmsu.edu>
+    <alpine.LNX.2.00.1001251758230.30977@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <acd6dfcf4391c081f861d430c0b45311.squirrel-2xSMGd46i5akveL4JqN78fZ8FUJU4vz8@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rick L. Vinyard, Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, pavel-+ZI9xUNit7I@public.gmane.org, jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, krzysztof.h1-5tc4TXWwyLM@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:41133 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750768Ab0AYSCe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 25 Jan 2010 13:02:34 -0500
+In-Reply-To: <alpine.LNX.2.00.1001251758230.30977@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, pavel@ucw.cz, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Mon, 25 Jan 2010, Rick L. Vinyard, Jr. wrote:
+Jiri Kosina wrote:
+> On Mon, 25 Jan 2010, Rick L. Vinyard, Jr. wrote:
+>
+>> > Am Mittwoch, 20. Januar 2010 21:47:22 schrieb Rick L. Vinyard Jr.:
+>> >> +       if (copy_from_user(dst, buf, count))
+>> >> +               err = -EFAULT;
+>> >> +
+>> >> +       if (!err)
+>> >> +               *ppos += count;
+>> >> +
+>> >> +       g13_fb_update(par);
+>> >> +
+>> >> +       return (err) ? err : count;
+>> >
+>> > Do you really want to go on if you get -EFAULT?
+>> >
+>>
+>> Since the hecubafb driver (which I based this portion of the g13 driver
+>> on) uses the same approach I tried to justify it myself when I first saw
+>> it.
+>>
+>> I don't know if this was the intent of the hecubafb author, but this is
+>> the way I saw it.
+>>
+>> By this point the copy_from_user() has failed. If it resulted in a
+>> partial
+>> copy to dst then continuing on to an update can't hurt, and would reduce
+>> display jitter if a re-write occurs from userspace. If a re-write
+>> doesn't
+>> occur the virtual framebuffer is hosed anyways as dst is is the
+>> underlying
+>> framebuffer.
+>>
+>> Given that, the worst-case consequence seems to be an unnecessary update
+>> to the device display.
+>
+> Well, it's quite questionable (and I'd say unexpected) behavior to go on
+> even if userspace passes wild pointers to kernel.
+>
 
-> > Am Mittwoch, 20. Januar 2010 21:47:22 schrieb Rick L. Vinyard Jr.:
-> >> +       if (copy_from_user(dst, buf, count))
-> >> +               err = -EFAULT;
-> >> +
-> >> +       if (!err)
-> >> +               *ppos += count;
-> >> +
-> >> +       g13_fb_update(par);
-> >> +
-> >> +       return (err) ? err : count;
-> >
-> > Do you really want to go on if you get -EFAULT?
-> >
-> 
-> Since the hecubafb driver (which I based this portion of the g13 driver
-> on) uses the same approach I tried to justify it myself when I first saw
-> it.
-> 
-> I don't know if this was the intent of the hecubafb author, but this is
-> the way I saw it.
-> 
-> By this point the copy_from_user() has failed. If it resulted in a partial
-> copy to dst then continuing on to an update can't hurt, and would reduce
-> display jitter if a re-write occurs from userspace. If a re-write doesn't
-> occur the virtual framebuffer is hosed anyways as dst is is the underlying
-> framebuffer.
-> 
-> Given that, the worst-case consequence seems to be an unnecessary update
-> to the device display.
+I agree. It was something that stuck out as an oddity, so I did look into
+it more and it seemed like it was the standard behavior for several
+drivers such as hecubafb, arcfb, xen-fbfront, metronomefb, broadsheetfb,
+et. al.
 
-Well, it's quite questionable (and I'd say unexpected) behavior to go on 
-even if userspace passes wild pointers to kernel.
+I don't have a problem changing it. In fact, it appears that this code is
+largely replicated from fb_sys_write() in hecubafb, et. al.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The only differences appear to be:
+
+fb_sys_write:
+   total_size = info->screen_size;
+
+   if (total_size == 0)
+      total_size = info->fix.smem_len;
+
+...
+
+   if (info->fbops->fb_sync)
+      info->fbops->fb_sync(info);
+
+hecubafb:
+   total_size = info->fix.smem_len;
+
+But, in the drivers screen_size and fb_sync are NULL anyway, so I'm not
+sure why these drivers are explicitly modifying the write().
+
+The approach taken by xen-fbfront seems to be even better in that it
+relies on fb_sys_write():
+
+static ssize_t xenfb_write(struct fb_info *p, const char __user *buf,
+			size_t count, loff_t *ppos)
+{
+	struct xenfb_info *info = p->par;
+	ssize_t res;
+
+	res = fb_sys_write(p, buf, count, ppos);
+	xenfb_refresh(info, 0, 0, info->page->width, info->page->height);
+	return res;
+}
+
+But, if EFAULT is an issue I should modify the g13 version slightly to
+account for the fact that fb_sys_write() could return EFAULT or EPERM
+without modifying the buffer.
+
+static ssize_t g13_fb_write(struct fb_info *info, const char __user *buf,
+			    size_t count, loff_t *ppos)
+{
+	struct g13_data *par = info->par;
+	ssize_t res;
+
+	res = fb_sys_write(p, buf, count, ppos);
+	if ( res != -EFAULT && res != -EPERM )
+                g13_fb_update(par);
+        return res;
+}
+
+The reason why I didn't put it as the following:
+	if ( res >= 0 )
+                g13_fb_update(par);
+
+is because it appears there are two conditions that fb_sys_write() will
+continue on to the copy_from_user() but still return an error code. In
+these cases -EFBIG and -ENOSPEC are returned but it is possible the buffer
+has still been modified.
+
+Again, like I said, I don't have a problem changing it. If it's wrong,
+it's wrong no matter how many other drivers may take the same approach.
+
+My intuition tells me it's wrong, but at the same time I'd like to know if
+there's a reason behind the other drivers also ignoring the EFAULT. Or,
+perhaps it simply started in one driver and everyone else patterned after
+it just like I did the g13 driver.
+
+

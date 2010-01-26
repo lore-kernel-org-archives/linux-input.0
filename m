@@ -1,42 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] linux-2.6.32-tsc2008.patch
-Date: Tue, 26 Jan 2010 01:38:40 -0800
-Message-ID: <20100126093840.GB3480@core.coreip.homeip.net>
-References: <68FBE0F3CE97264395875AC1C468F22C220789@mail03.cyberswitching.local>
+Subject: Re: [PATCH v2] input: MXC: add mxc-keypad driver to support the
+ Keypad Port present in the mxc application processors family.
+Date: Tue, 26 Jan 2010 01:52:17 -0800
+Message-ID: <20100126095217.GC3480@core.coreip.homeip.net>
+References: <1262977099.2050.75.camel@climbing-alby>
+ <BD79186B4FD85F4B8E60E381CAEE190902089738@mi8nycmail19.Mi8.com>
+ <1263664125.4350.18.camel@realization>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:37360 "EHLO
+Received: from mail-pw0-f42.google.com ([209.85.160.42]:61020 "EHLO
 	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751323Ab0AZJiq (ORCPT
+	with ESMTP id S1752200Ab0AZJwX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jan 2010 04:38:46 -0500
-Received: by pwi21 with SMTP id 21so2869960pwi.21
-        for <linux-input@vger.kernel.org>; Tue, 26 Jan 2010 01:38:45 -0800 (PST)
+	Tue, 26 Jan 2010 04:52:23 -0500
 Content-Disposition: inline
-In-Reply-To: <68FBE0F3CE97264395875AC1C468F22C220789@mail03.cyberswitching.local>
+In-Reply-To: <1263664125.4350.18.camel@realization>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Verges <chrisv@cyberswitching.com>
-Cc: linux-input@vger.kernel.org
+To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Cc: H Hartley Sweeten <hartleys@visionengravers.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel-infradead <linux-arm-kernel@lists.infradead.org>, Sascha linux-arm <s.hauer@pengutronix.de>
 
-Hi Chris,
+Hi Alberto,
 
-On Wed, Jan 20, 2010 at 11:39:58AM -0800, Chris Verges wrote:
-> Hi Dmitry and fellow input driver developers,
+On Sat, Jan 16, 2010 at 06:48:45PM +0100, Alberto Panizzo wrote:
+> Version 2 for this driver proposal.
+> --------------------------------------------------------------------------------
+> The MXC family of Application Processors is shipped with a Keypad Port 
+> supported now by this driver.
 > 
-> Attached is an updated driver for the tsc2008.  This new driver
-> completely replaces older versions, and has been confirmed to work on
-> actual hardware.  The TSC2008 is an SPI touchscreen controller produced
-> by Texas Instruments.
+> The peripheral can control up to an 8x8 matrix key pad where all the scanning 
+> procedure is done via software.
+> 
+> The hardware provide two interrupts: one for a key pressed (KDI) and one for 
+> all key releases (KRI). There is also a simple circuit for glitch reduction 
+> (said for synchronization) made by two series of 3 D-latches clocked by the 
+> keypad-clock that stabilize the interrupts sources.
+> KDI and KRI are fired only if the respective conditions are maintained for at 
+> last 4 keypad-clock cycle.
+> 
+> Those simple synchronization circuits are used also for multiple key pressures: 
+> between a KDI and a KRI the driver reset the sync circuit and re-enable the KDI
+> interrupt so after 3 keypad-clock cycle another KDI is fired making possible to
+> repeat the matrix scan operation.
 > 
 
-This is another example of a driver that is very similar (not
-surprisingly of course) to TSC2007. Could we look into turning TSC2007 a
-core module with I2C and SPI transports? Mike Frysinger was doing
-similar work for ad7879 if you'd like to take a look.
+Nicely looking driver, thank you.
 
-Thanks.
+> This algorithm is done via a threaded management of the keypad interrupt source
+> and delayed by a proper (and longer) debounce interval controlled by the 
+> platform initialization.
+
+This I am not so sure about - the core of the matrix scan routine does
+not sleep so I wonder if starting a separate thread is not too wasteful
+in this case - you can easily do whan you want with a timer, no?
+
+> +
+> +	/*
+> +	 * Search for rows and cols enabled
+> +	 */
+> +	keymap_data = (struct matrix_keymap_data *) pdata->keymap_data;
+
+Why do you need to cast away constness instead of declaring keymap_data
+as const pointer?
 
 -- 
 Dmitry

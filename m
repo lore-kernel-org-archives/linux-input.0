@@ -1,56 +1,67 @@
-From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Subject: Re: [PATCH v2] input: MXC: add mxc-keypad driver to support the
- Keypad Port present in the mxc application processors family.
-Date: Tue, 26 Jan 2010 11:29:01 +0100
-Message-ID: <1264501741.5260.29.camel@realization>
-References: <1262977099.2050.75.camel@climbing-alby>
-	 <BD79186B4FD85F4B8E60E381CAEE190902089738@mi8nycmail19.Mi8.com>
-	 <1263664125.4350.18.camel@realization>
-	 <20100126095217.GC3480@core.coreip.homeip.net>
+From: Stanislav Brabec <utx-ZsETY1VsSgLrBKCeMvbIDA@public.gmane.org>
+Subject: Re: gpio_keys and how PXA27x sets gpio_set_wake()
+ (was Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1)
+Date: Tue, 26 Jan 2010 11:44:28 +0100
+Message-ID: <1264502668.4480.97.camel@utx.utx.cz>
+References: <20100106071026.GD1382@ucw.cz>
+	<f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
+	<20100107065230.GA1303@ucw.cz>
+	<f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
+	<1264275669.9100.11.camel@utx.utx.cz>
+	<1264286611.11766.49.camel@utx.utx.cz>
+	<f17812d71001251958t377e158bxc64aac0cb426110b@mail.gmail.com>
+	<1264500824.4480.79.camel@utx.utx.cz>
+	<f17812d71001260220v5d03b0e1u1e3bc229827c37c8@mail.gmail.com>
+Reply-To: Zaurus PDA developers list <zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f219.google.com ([209.85.219.219]:55268 "EHLO
-	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752321Ab0AZK3K (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jan 2010 05:29:10 -0500
-In-Reply-To: <20100126095217.GC3480@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <f17812d71001260220v5d03b0e1u1e3bc229827c37c8-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/options/zaurus-devel>,
+	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxtogo.org/pipermail/zaurus-devel>
+List-Post: <mailto:zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/listinfo/zaurus-devel>,
+	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
+Errors-To: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
+To: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, thommycheck-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, arminlitzel-S0/GAf8tV78@public.gmane.org, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Cyril Hrubis <metan-+ZI9xUNit7I@public.gmane.org>, Dirk-ngtJ1GK09nrbFfAX06+HdQ@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org, Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: H Hartley Sweeten <hartleys@visionengravers.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel-infradead <linux-arm-kernel@lists.infradead.org>, Sascha linux-arm <s.hauer@pengutronix.de>
 
-Hi Dmitry! Thanks for reviewing!
+Eric Miao wrote:
+> 2010/1/26 Stanislav Brabec <utx-ZsETY1VsSgLrBKCeMvbIDA@public.gmane.org>:
 
-On mar, 2010-01-26 at 01:52 -0800, Dmitry Torokhov wrote:
-> > This algorithm is done via a threaded management of the keypad interrupt source
-> > and delayed by a proper (and longer) debounce interval controlled by the 
-> > platform initialization.
-> 
-> This I am not so sure about - the core of the matrix scan routine does
-> not sleep so I wonder if starting a separate thread is not too wasteful
-> in this case - you can easily do whan you want with a timer, no?
+> > Handling platform specific edge/level wake setup would only complicate
+> > the code. (In fact, even the PXA270 platform code does not exist yet -
+> > arch/arm/mach-pxa/mfp-pxa2xx.c:__mfp_config_gpio() is not capable to
+> > configure Power Manager Keyboard Wake-Up Enable Register (PKWR).)
+> That's why WAKEUP_ON_EDGE_* is introduced, no need for gpio-keys
+> to know this.
 
-I'm pretty new to kernel programming and, from the university, the 
-threaded way looked the better (and unique) for me..
-Let me find some documentation on timers and I will restructure the 
-interrupt management. Yes I need only to delay the matrix-scan activity
-without waste cpu time.
+But WAKEUP_ON_EDGE_* is impossible for GPIO 95,
+enable_irq_wake()/gpio_set_wake() returns EINVAL and disable_irq_wake()
+complains on "Unbalanced IRQ 191".
 
-> 
-> > +
-> > +     /*
-> > +      * Search for rows and cols enabled
-> > +      */
-> > +     keymap_data = (struct matrix_keymap_data *) pdata->keymap_data;
-> 
-> Why do you need to cast away constness instead of declaring keymap_data
-> as const pointer?
+In case of Zaurus, gpio_keys.c have to live with wakeup on level (PKWR)
+when using enable/disable_irq_wake().
 
-In next version will be fixed.
+> > The problem affects gpio_keys: It is a driver implementing "one key per
+> > gpio". It now handles On/Off and lid switches on Zaurus. Lid switches
+> > are on "normal" GPIOs, On/Off switch is wired to PKWR capable GPIO.
+> Ain't On/Off switch one of the matrix key? And so SPITZ_GPIO_KEY_INT
+> could be used to handle that?
 
-Alberto!
+No. On/Off is connected directly to GPIO 95. Other keys use strobe/sense
+matrix keypad.
+
+SPITZ_GPIO_KEY_INT is a bit unspecific. I think it means: Charger was
+inserted or key was pressed or On/Off was pressed.
 
 
+
+________________________________________________________________________
+Stanislav Brabec
+http://www.penguin.cz/~utx/zaurus

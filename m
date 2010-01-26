@@ -1,67 +1,120 @@
-From: Stanislav Brabec <utx-ZsETY1VsSgLrBKCeMvbIDA@public.gmane.org>
-Subject: Re: gpio_keys and how PXA27x sets gpio_set_wake()
- (was Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1)
-Date: Tue, 26 Jan 2010 11:44:28 +0100
-Message-ID: <1264502668.4480.97.camel@utx.utx.cz>
-References: <20100106071026.GD1382@ucw.cz>
-	<f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
-	<20100107065230.GA1303@ucw.cz>
-	<f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
-	<1264275669.9100.11.camel@utx.utx.cz>
-	<1264286611.11766.49.camel@utx.utx.cz>
-	<f17812d71001251958t377e158bxc64aac0cb426110b@mail.gmail.com>
-	<1264500824.4480.79.camel@utx.utx.cz>
-	<f17812d71001260220v5d03b0e1u1e3bc229827c37c8@mail.gmail.com>
-Reply-To: Zaurus PDA developers list <zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
+From: Pekka Sarnila <sarnila@adit.fi>
+Subject: Re: [PATCH v2 1/1] HID: ignore afatech 9016
+Date: Tue, 26 Jan 2010 13:06:43 +0200
+Message-ID: <4B5ECCC3.9050106@adit.fi>
+References: <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz> <1263415146-26321-1-git-send-email-jslaby@suse.cz> <alpine.LNX.2.00.1001260156010.30977@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <f17812d71001260220v5d03b0e1u1e3bc229827c37c8-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/options/zaurus-devel>,
-	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxtogo.org/pipermail/zaurus-devel>
-List-Post: <mailto:zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/listinfo/zaurus-devel>,
-	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
-Errors-To: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
-To: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, thommycheck-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, arminlitzel-S0/GAf8tV78@public.gmane.org, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Cyril Hrubis <metan-+ZI9xUNit7I@public.gmane.org>, Dirk-ngtJ1GK09nrbFfAX06+HdQ@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org, Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from psa.adit.fi ([217.112.250.17]:43392 "EHLO psa.adit.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751272Ab0AZLNj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jan 2010 06:13:39 -0500
+In-Reply-To: <alpine.LNX.2.00.1001260156010.30977@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jiri Slaby <jslaby@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, jirislaby@gmail.com
 
-Eric Miao wrote:
-> 2010/1/26 Stanislav Brabec <utx-ZsETY1VsSgLrBKCeMvbIDA@public.gmane.org>:
+Well, as I said I use now different TV-stick. But I have the old one 
+somewhere. I'll try to find it and check it.
 
-> > Handling platform specific edge/level wake setup would only complicate
-> > the code. (In fact, even the PXA270 platform code does not exist yet -
-> > arch/arm/mach-pxa/mfp-pxa2xx.c:__mfp_config_gpio() is not capable to
-> > configure Power Manager Keyboard Wake-Up Enable Register (PKWR).)
-> That's why WAKEUP_ON_EDGE_* is introduced, no need for gpio-keys
-> to know this.
+Pekka
 
-But WAKEUP_ON_EDGE_* is impossible for GPIO 95,
-enable_irq_wake()/gpio_set_wake() returns EINVAL and disable_irq_wake()
-complains on "Unbalanced IRQ 191".
-
-In case of Zaurus, gpio_keys.c have to live with wakeup on level (PKWR)
-when using enable/disable_irq_wake().
-
-> > The problem affects gpio_keys: It is a driver implementing "one key per
-> > gpio". It now handles On/Off and lid switches on Zaurus. Lid switches
-> > are on "normal" GPIOs, On/Off switch is wired to PKWR capable GPIO.
-> Ain't On/Off switch one of the matrix key? And so SPITZ_GPIO_KEY_INT
-> could be used to handle that?
-
-No. On/Off is connected directly to GPIO 95. Other keys use strobe/sense
-matrix keypad.
-
-SPITZ_GPIO_KEY_INT is a bit unspecific. I think it means: Charger was
-inserted or key was pressed or On/Off was pressed.
-
-
-
-________________________________________________________________________
-Stanislav Brabec
-http://www.penguin.cz/~utx/zaurus
+Jiri Kosina wrote:
+> On Wed, 13 Jan 2010, Jiri Slaby wrote:
+> 
+> 
+>>Let's ignore the device altogether by the HID layer. It's handled
+>>by dvb-usb-remote driver already.
+>>
+>>By now, FULLSPEED_INTERVAL quirk was used. It probably made things
+>>better, but the remote controller was still a perfect X killer.
+>>This was the last user of the particular quirk. So remove the quirk
+>>as well.
+>>
+>>With input going through dvb-usb-remote, the remote works
+>>perfectly.
+>>
+>>The device is 15a4:9016.
+> 
+> 
+> Pekka, did you have chance to verify whether it works fine also with your 
+> version of the remote, or you still need the FULLSPEED_INTERVAL quirk on 
+> your side?
+> 
+> Thanks.
+> 
+> 
+>>Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+>>Cc: Jiri Kosina <jkosina@suse.cz>
+>>Cc: Pekka Sarnila <sarnila@adit.fi>
+>>---
+>> drivers/hid/hid-core.c          |    1 +
+>> drivers/hid/usbhid/hid-core.c   |    8 --------
+>> drivers/hid/usbhid/hid-quirks.c |    2 --
+>> include/linux/hid.h             |    1 -
+>> 4 files changed, 1 insertions(+), 11 deletions(-)
+>>
+>>diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>>index 08f8f23..0ae0bfd 100644
+>>--- a/drivers/hid/hid-core.c
+>>+++ b/drivers/hid/hid-core.c
+>>@@ -1534,6 +1534,7 @@ static const struct hid_device_id hid_ignore_list[] = {
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACECAD, USB_DEVICE_ID_ACECAD_FLAIR) },
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACECAD, USB_DEVICE_ID_ACECAD_302) },
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ADS_TECH, USB_DEVICE_ID_ADS_TECH_RADIO_SI470X) },
+>>+	{ HID_USB_DEVICE(USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016) },
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_01) },
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_10) },
+>> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_20) },
+>>diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+>>index e2997a8..36a1561 100644
+>>--- a/drivers/hid/usbhid/hid-core.c
+>>+++ b/drivers/hid/usbhid/hid-core.c
+>>@@ -938,14 +938,6 @@ static int usbhid_start(struct hid_device *hid)
+>> 
+>> 		interval = endpoint->bInterval;
+>> 
+>>-		/* Some vendors give fullspeed interval on highspeed devides */
+>>-		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
+>>-		    dev->speed == USB_SPEED_HIGH) {
+>>-			interval = fls(endpoint->bInterval*8);
+>>-			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
+>>-			       hid->name, endpoint->bInterval, interval);
+>>-		}
+>>-
+>> 		/* Change the polling interval of mice. */
+>> 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+>> 			interval = hid_mousepoll_interval;
+>>diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+>>index 38773dc..f2ae8a7 100644
+>>--- a/drivers/hid/usbhid/hid-quirks.c
+>>+++ b/drivers/hid/usbhid/hid-quirks.c
+>>@@ -41,8 +41,6 @@ static const struct hid_blacklist {
+>> 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
+>> 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
+>> 
+>>-	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+>>-
+>> 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+>> 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
+>> 
+>>diff --git a/include/linux/hid.h b/include/linux/hid.h
+>>index 8709365..4a33e16 100644
+>>--- a/include/linux/hid.h
+>>+++ b/include/linux/hid.h
+>>@@ -311,7 +311,6 @@ struct hid_item {
+>> #define HID_QUIRK_BADPAD			0x00000020
+>> #define HID_QUIRK_MULTI_INPUT			0x00000040
+>> #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+>>-#define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+>> #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+>> 
+>> /*
+>>-- 
+>>1.6.5.7
+>>
+> 
+> 

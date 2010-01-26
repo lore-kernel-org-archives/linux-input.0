@@ -1,105 +1,50 @@
-From: Stanislav Brabec <utx@penguin.cz>
-Subject: Re: gpio_keys and how PXA27x sets gpio_set_wake() (was Re: sharp
- c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1)
-Date: Tue, 26 Jan 2010 13:50:42 +0100
-Message-ID: <1264510242.25072.269.camel@hammer.suse.cz>
-References: <20100106071026.GD1382@ucw.cz>
-	 <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
-	 <20100107065230.GA1303@ucw.cz>
-	 <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
-	 <1264275669.9100.11.camel@utx.utx.cz>
-	 <1264286611.11766.49.camel@utx.utx.cz>
-	 <f17812d71001251958t377e158bxc64aac0cb426110b@mail.gmail.com>
-	 <1264500824.4480.79.camel@utx.utx.cz>
-	 <f17812d71001260220v5d03b0e1u1e3bc229827c37c8@mail.gmail.com>
-	 <1264502668.4480.97.camel@utx.utx.cz>
-	 <f17812d71001260339h6184c82bj25ff13a168284c24@mail.gmail.com>
+From: "Chris Verges" <chrisv@cyberswitching.com>
+Subject: RE: [PATCH 1/1] linux-2.6.32-tsc2008.patch
+Date: Tue, 26 Jan 2010 07:43:41 -0800
+Message-ID: <68FBE0F3CE97264395875AC1C468F22C220A2F@mail03.cyberswitching.local>
+References: <68FBE0F3CE97264395875AC1C468F22C220789@mail03.cyberswitching.local> <20100126093840.GB3480@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns.penguin.cz ([84.21.108.25]:38104 "EHLO ns.penguin.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752002Ab0AZMur (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jan 2010 07:50:47 -0500
-In-Reply-To: <f17812d71001260339h6184c82bj25ff13a168284c24@mail.gmail.com>
+Received: from p01c12o148.mxlogic.net ([208.65.145.71]:59994 "EHLO
+	p01c12o148.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753876Ab0AZPoZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jan 2010 10:44:25 -0500
+Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, thommycheck@gmail.com, dbaryshkov@gmail.com, dtor@mail.ru, arminlitzel@web.de, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, "Rafael J. Wysocki" <rjw@sisk.pl>, lenz@cs.wisc.edu, rpurdie@rpsys.net, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Pavel Machek <pavel@ucw.cz>, Cyril Hrubis <metan@ucw.cz>, zaurus-devel@lists.linuxtogo.org, omegamoon@gmail.com, Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Eric Miao wrote:
-> 2010/1/26 Stanislav Brabec <utx@penguin.cz>:
-> > Eric Miao wrote:
-> >> 2010/1/26 Stanislav Brabec <utx@penguin.cz>:
-> >
-> >> > Handling platform specific edge/level wake setup would only comp=
-licate
-> >> > the code. (In fact, even the PXA270 platform code does not exist=
- yet -
-> >> > arch/arm/mach-pxa/mfp-pxa2xx.c:__mfp_config_gpio() is not capabl=
-e to
-> >> > configure Power Manager Keyboard Wake-Up Enable Register (PKWR).=
-)
-> >> That's why WAKEUP_ON_EDGE_* is introduced, no need for gpio-keys
-> >> to know this.
-> >
-> > But WAKEUP_ON_EDGE_* is impossible for GPIO 95,
-> > enable_irq_wake()/gpio_set_wake() returns EINVAL and disable_irq_wa=
-ke()
-> > complains on "Unbalanced IRQ 191".
+> This is another example of a driver that is very similar (not 
+> surprisingly of course) to TSC2007. Could we look into turning TSC2007
 
-> Now I see, but I don't know why disable_irq_wake() will complains abo=
-ut
-> unbalance since it should really manage it well.
+> a core module with I2C and SPI transports? Mike Frysinger was doing 
+> similar work for ad7879 if you'd like to take a look.
 
-Because gpio_set_wake() returned EINVAL, set_irq_wake() assumed error
-and did not increment wake_depth, the whole enable_irq_wake() was a big
-NOP. disable_irq_wake() seen wake_depth being zero and complains.
+Hi Dmitry,
 
-> A quick dirty solution would be the platform to call keypad_set_wake(=
-)
-> directly somewhere. Otherwise we have to let gpio_set_wake() to handl=
-e
-> those keypad GPIOs and to live together with keypad_set_wake() happil=
-y,
-> which is really difficult.
+I did some work with Mike on the ad525x_dpot driver; he definitely knows
+his stuff.
 
-I was thinking about it as well (and even tested that it works):
-gpio_set_wake():
-if (d->keypad_gpio)
-	return keypad_set_wake(on);
+I hear you on merging the two drivers.  They are probably similar to
+many points.  However, there are two key differences: (1) I2C vs SPI and
+(2) totally different command registers.  It's probably possible to
+merge the two drivers, but my project is coming to an end so I do not
+have a lot of extra time to spend on this.  Such is the way of things,
+unfortunately.
 
-But keypad_set_wake() always sets all keypad GPIOs, not just a single
-one. And there is GPIO 36, that can be configured in more ways.
+If anyone else out there would like to do the work to merge the two,
+I'll gladly give whatever support I can on the tsc2008 side, including
+testing on the hardware platform and code reviews.
 
-gpio_set_wake() and only set wake, keeping the mode as it was before.
-(Well, it's again impossible for GPIO 36 without storing this
-information somewhere.)
+Best regards,
+Chris
 
-But well, another idea:
-
-Only matrix_keypad driver should be aware of level triggered wakeup. Al=
-l
-other drivers could follow *_irq_wake documentation and not care about
-it. If edge triggered interrupt is available, it should be preferred
-there, if not, level triggered wake should be used instead. Hardware
-designers should know what they are doing.
-
-
---=20
-Best Regards / S pozdravem,
-
-Stanislav Brabec
-software developer
----------------------------------------------------------------------
-SUSE LINUX, s. r. o.                          e-mail: sbrabec@suse.cz
-Lihovarsk=E1 1060/12           tel: +420 284 028 966, +49 911 740538747
-190 00 Praha 9                                  fax: +420 284 028 951
-Czech Republic                                    http://www.suse.cz/
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+P.S.  Is there a kernel driver wishlist that talks about how an abstract
+communication API would be nice for drivers that want to support both
+I2C and SPI endpoints?  It seems like a common problem that many drivers
+would face as they mature and support different protocols.

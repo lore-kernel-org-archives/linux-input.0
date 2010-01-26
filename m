@@ -1,120 +1,56 @@
-From: Pekka Sarnila <sarnila@adit.fi>
-Subject: Re: [PATCH v2 1/1] HID: ignore afatech 9016
-Date: Tue, 26 Jan 2010 13:06:43 +0200
-Message-ID: <4B5ECCC3.9050106@adit.fi>
-References: <alpine.LNX.2.00.1001132111570.30977@pobox.suse.cz> <1263415146-26321-1-git-send-email-jslaby@suse.cz> <alpine.LNX.2.00.1001260156010.30977@pobox.suse.cz>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: gpio_keys and how PXA27x sets gpio_set_wake() (was Re: sharp
+	c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1)
+Date: Tue, 26 Jan 2010 14:23:56 +0300
+Message-ID: <bc64b4641001260323y496bf7cdv507085644fadb0fe@mail.gmail.com>
+References: <20100106071026.GD1382@ucw.cz>
+	<f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
+	<20100107065230.GA1303@ucw.cz>
+	<f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
+	<1264275669.9100.11.camel@utx.utx.cz>
+	<1264286611.11766.49.camel@utx.utx.cz>
+	<f17812d71001251958t377e158bxc64aac0cb426110b@mail.gmail.com>
+	<1264500824.4480.79.camel@utx.utx.cz>
+	<f17812d71001260220v5d03b0e1u1e3bc229827c37c8@mail.gmail.com>
+	<1264502668.4480.97.camel@utx.utx.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from psa.adit.fi ([217.112.250.17]:43392 "EHLO psa.adit.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751272Ab0AZLNj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Jan 2010 06:13:39 -0500
-In-Reply-To: <alpine.LNX.2.00.1001260156010.30977@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1264502668.4480.97.camel@utx.utx.cz>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stanislav Brabec <utx@penguin.cz>
+Cc: Andrew Morton <akpm@osdl.org>, thommycheck <thommycheck@gmail.com>, dtor <dtor@mail.ru>, arminlitzel <arminlitzel@web.de>, kernel list <linux-kernel@vger.kernel.org>, Cyril Hrubis <metan@ucw.cz>, Dirk <Dirk@opfer-online.de>, "Rafael J. Wysocki" <rjw@sisk.pl>, lenz <lenz@cs.wisc.edu>, Vojtech Pavlik <vojtech@suse.cz>, rpurdie <rpurdie@rpsys.net>, omegamoon <omegamoon@gmail.com>, Pavel Machek <pavel@ucw.cz>, linux-input <linux-input@vger.kernel.org>, Eric Miao <eric.y.miao@gmail.com>, zaurus-devel <zaurus-devel@lists.linuxtogo.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jslaby@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, jirislaby@gmail.com
 
-Well, as I said I use now different TV-stick. But I have the old one 
-somewhere. I'll try to find it and check it.
+Hello,
 
-Pekka
+2010/1/26 Stanislav Brabec <utx@penguin.cz>:
+> Eric Miao wrote:
+>> > The problem affects gpio_keys: It is a driver implementing "one key per
+>> > gpio". It now handles On/Off and lid switches on Zaurus. Lid switches
+>> > are on "normal" GPIOs, On/Off switch is wired to PKWR capable GPIO.
+>> Ain't On/Off switch one of the matrix key? And so SPITZ_GPIO_KEY_INT
+>> could be used to handle that?
+>
+> No. On/Off is connected directly to GPIO 95. Other keys use strobe/sense
+> matrix keypad.
+>
+> SPITZ_GPIO_KEY_INT is a bit unspecific. I think it means: Charger was
+> inserted or key was pressed or On/Off was pressed.
 
-Jiri Kosina wrote:
-> On Wed, 13 Jan 2010, Jiri Slaby wrote:
-> 
-> 
->>Let's ignore the device altogether by the HID layer. It's handled
->>by dvb-usb-remote driver already.
->>
->>By now, FULLSPEED_INTERVAL quirk was used. It probably made things
->>better, but the remote controller was still a perfect X killer.
->>This was the last user of the particular quirk. So remove the quirk
->>as well.
->>
->>With input going through dvb-usb-remote, the remote works
->>perfectly.
->>
->>The device is 15a4:9016.
-> 
-> 
-> Pekka, did you have chance to verify whether it works fine also with your 
-> version of the remote, or you still need the FULLSPEED_INTERVAL quirk on 
-> your side?
-> 
-> Thanks.
-> 
-> 
->>Signed-off-by: Jiri Slaby <jslaby@suse.cz>
->>Cc: Jiri Kosina <jkosina@suse.cz>
->>Cc: Pekka Sarnila <sarnila@adit.fi>
->>---
->> drivers/hid/hid-core.c          |    1 +
->> drivers/hid/usbhid/hid-core.c   |    8 --------
->> drivers/hid/usbhid/hid-quirks.c |    2 --
->> include/linux/hid.h             |    1 -
->> 4 files changed, 1 insertions(+), 11 deletions(-)
->>
->>diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->>index 08f8f23..0ae0bfd 100644
->>--- a/drivers/hid/hid-core.c
->>+++ b/drivers/hid/hid-core.c
->>@@ -1534,6 +1534,7 @@ static const struct hid_device_id hid_ignore_list[] = {
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACECAD, USB_DEVICE_ID_ACECAD_FLAIR) },
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACECAD, USB_DEVICE_ID_ACECAD_302) },
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_ADS_TECH, USB_DEVICE_ID_ADS_TECH_RADIO_SI470X) },
->>+	{ HID_USB_DEVICE(USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016) },
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_01) },
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_10) },
->> 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_20) },
->>diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
->>index e2997a8..36a1561 100644
->>--- a/drivers/hid/usbhid/hid-core.c
->>+++ b/drivers/hid/usbhid/hid-core.c
->>@@ -938,14 +938,6 @@ static int usbhid_start(struct hid_device *hid)
->> 
->> 		interval = endpoint->bInterval;
->> 
->>-		/* Some vendors give fullspeed interval on highspeed devides */
->>-		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
->>-		    dev->speed == USB_SPEED_HIGH) {
->>-			interval = fls(endpoint->bInterval*8);
->>-			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
->>-			       hid->name, endpoint->bInterval, interval);
->>-		}
->>-
->> 		/* Change the polling interval of mice. */
->> 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
->> 			interval = hid_mousepoll_interval;
->>diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
->>index 38773dc..f2ae8a7 100644
->>--- a/drivers/hid/usbhid/hid-quirks.c
->>+++ b/drivers/hid/usbhid/hid-quirks.c
->>@@ -41,8 +41,6 @@ static const struct hid_blacklist {
->> 	{ USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, HID_QUIRK_BADPAD },
->> 	{ USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, HID_QUIRK_BADPAD },
->> 
->>-	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
->>-
->> 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
->> 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
->> 
->>diff --git a/include/linux/hid.h b/include/linux/hid.h
->>index 8709365..4a33e16 100644
->>--- a/include/linux/hid.h
->>+++ b/include/linux/hid.h
->>@@ -311,7 +311,6 @@ struct hid_item {
->> #define HID_QUIRK_BADPAD			0x00000020
->> #define HID_QUIRK_MULTI_INPUT			0x00000040
->> #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
->>-#define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
->> #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
->> 
->> /*
->>-- 
->>1.6.5.7
->>
-> 
-> 
+This seems to be true. At least they used the same design on tosa and other
+zaurii.
+
+
+-- 
+With best wishes
+Dmitry

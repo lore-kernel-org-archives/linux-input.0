@@ -1,91 +1,56 @@
-From: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: gpio_keys and how PXA27x sets gpio_set_wake()
-	(was Re: sharp c-3000 aka spitz: fix warn_on introduced in
-	2.6.32-rc1)
-Date: Tue, 26 Jan 2010 18:20:13 +0800
-Message-ID: <f17812d71001260220v5d03b0e1u1e3bc229827c37c8@mail.gmail.com>
-References: <20100106071026.GD1382@ucw.cz>
-	<f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
-	<20100107065230.GA1303@ucw.cz>
-	<f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
-	<1264275669.9100.11.camel@utx.utx.cz>
-	<1264286611.11766.49.camel@utx.utx.cz>
-	<f17812d71001251958t377e158bxc64aac0cb426110b@mail.gmail.com>
-	<1264500824.4480.79.camel@utx.utx.cz>
-Reply-To: Zaurus PDA developers list <zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
+From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Subject: Re: [PATCH v2] input: MXC: add mxc-keypad driver to support the
+ Keypad Port present in the mxc application processors family.
+Date: Tue, 26 Jan 2010 11:29:01 +0100
+Message-ID: <1264501741.5260.29.camel@realization>
+References: <1262977099.2050.75.camel@climbing-alby>
+	 <BD79186B4FD85F4B8E60E381CAEE190902089738@mi8nycmail19.Mi8.com>
+	 <1263664125.4350.18.camel@realization>
+	 <20100126095217.GC3480@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1264500824.4480.79.camel-VKpoJ9vcIcXrBKCeMvbIDA@public.gmane.org>
-List-Unsubscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/options/zaurus-devel>,
-	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxtogo.org/pipermail/zaurus-devel>
-List-Post: <mailto:zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.linuxtogo.org/cgi-bin/mailman/listinfo/zaurus-devel>,
-	<mailto:zaurus-devel-request-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
-Errors-To: zaurus-devel-bounces-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org
-To: Stanislav Brabec <utx-ZsETY1VsSgLrBKCeMvbIDA@public.gmane.org>
-Cc: Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, thommycheck-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, arminlitzel-S0/GAf8tV78@public.gmane.org, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Cyril Hrubis <metan-+ZI9xUNit7I@public.gmane.org>, Dirk-ngtJ1GK09nrbFfAX06+HdQ@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, lenz-hcNo3dDEHLuVc3sceRu5cw@public.gmane.org, Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, zaurus-devel-cunTk1MwBs/k6gDgw6ADrEB+6BGkLq7r@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:55268 "EHLO
+	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752321Ab0AZK3K (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Jan 2010 05:29:10 -0500
+In-Reply-To: <20100126095217.GC3480@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: H Hartley Sweeten <hartleys@visionengravers.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-arm-kernel-infradead <linux-arm-kernel@lists.infradead.org>, Sascha linux-arm <s.hauer@pengutronix.de>
 
-MjAxMC8xLzI2IFN0YW5pc2xhdiBCcmFiZWMgPHV0eEBwZW5ndWluLmN6PjoKPiBFcmljIE1pYW8g
-d3JvdGE6Cj4KPj4gSSBwcmVmZXIgMikgLSB0aGUgdWdseSBhbmQgaGFyZGNvZGVkIHNldHVwIGlu
-IHNwaXR6X3BtLmMgc2hvdWxkIHJlYWxseQo+PiBiZSByZW1vdmVkLiBUaGF0J3Mgd2h5IHRoZSBn
-cGlvX3NldF93YWtlKCkgYW5kIGtleXBhZF9zZXRfd2FrZSgpCj4+IGFyZSBpbnRyb2R1Y2VkLgo+
-Cj4gSSBhbSB1bnN1cmUsIHdoZXRoZXIgZ3Bpb19rZXlzIGRyaXZlciBpcyBpbnRlcmVzdGVkIGlu
-IHRoZSB3YXksIGhvdyB3YWtlCj4gaGFwcGVucy4gSSBndWVzcyB0aGF0IGlzIGludGVyZXN0ZWQg
-b25seSBpbiB0aGUgZmFjdCwgdGhhdCB3YWtlCj4gaGFwcGVuZWQuCj4KPiBIYW5kbGluZyBwbGF0
-Zm9ybSBzcGVjaWZpYyBlZGdlL2xldmVsIHdha2Ugc2V0dXAgd291bGQgb25seSBjb21wbGljYXRl
-Cj4gdGhlIGNvZGUuIChJbiBmYWN0LCBldmVuIHRoZSBQWEEyNzAgcGxhdGZvcm0gY29kZSBkb2Vz
-IG5vdCBleGlzdCB5ZXQgLQo+IGFyY2gvYXJtL21hY2gtcHhhL21mcC1weGEyeHguYzpfX21mcF9j
-b25maWdfZ3BpbygpIGlzIG5vdCBjYXBhYmxlIHRvCj4gY29uZmlndXJlIFBvd2VyIE1hbmFnZXIg
-S2V5Ym9hcmQgV2FrZS1VcCBFbmFibGUgUmVnaXN0ZXIgKFBLV1IpLikKPgoKVGhhdCdzIHdoeSBX
-QUtFVVBfT05fRURHRV8qIGlzIGludHJvZHVjZWQsIG5vIG5lZWQgZm9yIGdwaW8ta2V5cwp0byBr
-bm93IHRoaXMuCgo+IEkgdGFsa2VkIHRvIFZvanTEm2NoIFBhdmzDrWsgYW5kIGhlIHRvbGQgdGhh
-dCAxIGlzIGNvcnJlY3Q6IEZvbGxvdwo+IGluY2x1ZGUvbGludXgvaW50ZXJydXB0LmguIFNldHRp
-bmcgZWRnZS9sZXZlbCB3YWtlIG1vZGUgc2hvdWxkIGJlIGRvbmUKPiBpbiB0aGUgcGxhdGZvcm0g
-ZmlsZS4gVGhlIGRyaXZlciBjb3VsZCB1c2UganVzdCBpcnFfc2V0X3dha2UoKSBhbmQgZG9uJ3QK
-PiBjYXJlIGFib3V0IGRldGFpbHMuIEFuZCBpcnFfc2V0X3dha2UoKSBzaG91bGQgZG8gc29tZXRo
-aW5nIHVzZWZ1bCBldmVuCj4gZm9yIFBLV1IgY2FwYWJsZSBHUElPLgo+CgpJIGRvbid0IG1pbmQg
-aWYgSVJRRl9UUklHR0VSXyB3aWxsIGFsd2F5cyBiZSBjb3JyZWN0IHJlZ2FyZGluZyB0aGUKd2Fr
-ZXVwIGVkZ2UvbGV2ZWwgc2V0dGluZ3MgaW4gTUZQLCBidXQgaG9uZXN0bHkgLSBJIGRvbid0IHRo
-aW5rIHNvLgoKPj4ga2V5cGFkX3NldF93YWtlKCkgaXMgcmVhbGx5IHNwZWNpZmljYWxseSBpbnRy
-b2R1Y2VkIGZvciB1c2UgYnkgcHhhMjd4X2tleXBhZAo+PiBhbmQgbm8gZ2VuZXJpYyBHUElPIHN0
-dWZmcy4gU28gaXQncyByZWFsbHkgYW5ub3lpbmcgYSBHUElPIHdpbGwgdXNlCj4+IHRoZSBQS1dS
-IGFzIGEgd2FrZXVwIEdQSU8sIEknZCByZWNvbW1lbmQgb25lIHN0aWxsIGdldCB0aGlzIGhhcmQg
-Y29kZWQKPj4gaW50byB0aGUgcGxhdGZvcm0gZmlsZSwgd2l0aCBjb21iaW5hdGlvbiBvZiBXQUtF
-VVBfT05fTEVWRUxfSElHSCAod2hpY2gKPj4gaXMgc3BlY2lmaWNhbGx5IGRlc2lnbmVkIGZvciBr
-ZXlwYWQgR1BJT3MpIGFuZCBrZXlwYWRfc2V0X3dha2UoKS4KPgo+IFdlbGwsIGtleXBhZF9zZXRf
-d2FrZSgpIHNlZW1zIHRvIGJlIHBvc3NpYmx5IGJyb2tlbiBmb3IgR1BJTyAzOC4gSW1hZ2luZQo+
-IGEgZGV2aWNlLCB0aGF0IGhhcyBhIHNtYWxsIGtleXBhZCwgYnV0IEdQSU8gMzggaGFzIGEgZGlm
-ZmVyZW50IHB1cnBvc2UKPiB0aGF0IHJlcXVpcmVzIGFuIGVkZ2UgdHJpZ2dlcmVkIHdha2V1cCAo
-UFdFUikuIEkgdGhpbmsgdGhhdAo+IGtleXBhZF9zZXRfd2FrZSgpIHJlcHJvZ3JhbXMgaXQgdG8g
-UEtXUi4KClVubGVzcyBzb21lb25lIHNwZWNpZmllcyB0aGF0IGJ5CgpHUElPMzhfR1BJTyB8IFdB
-S0VVUF9PTl9MRVZFTF9ISUdILAoKa2V5cGFkX3NldF93YWtlKCkgd2lsbCBuZXZlciB0cnkgdG8g
-ZW5hYmxlIHRoZSBiaXQgaW4gUEtXUi4KCj4KPiBUaGUgcHJvYmxlbSBhZmZlY3RzIGdwaW9fa2V5
-czogSXQgaXMgYSBkcml2ZXIgaW1wbGVtZW50aW5nICJvbmUga2V5IHBlcgo+IGdwaW8iLiBJdCBu
-b3cgaGFuZGxlcyBPbi9PZmYgYW5kIGxpZCBzd2l0Y2hlcyBvbiBaYXVydXMuIExpZCBzd2l0Y2hl
-cwo+IGFyZSBvbiAibm9ybWFsIiBHUElPcywgT24vT2ZmIHN3aXRjaCBpcyB3aXJlZCB0byBQS1dS
-IGNhcGFibGUgR1BJTy4KPgoKQWluJ3QgT24vT2ZmIHN3aXRjaCBvbmUgb2YgdGhlIG1hdHJpeCBr
-ZXk/IEFuZCBzbyBTUElUWl9HUElPX0tFWV9JTlQKY291bGQgYmUgdXNlZCB0byBoYW5kbGUgdGhh
-dD8KCj4+IFRoZSBzcGl0eiwgaG93ZXZlciwgaXMgZG9pbmcgYSBnb29kIGpvYiBvbiB0aGlzIHRo
-b3VnaCBpdCdzIHVzaW5nIGEgR1BJTwo+PiBlbXVsYXRlZCBtYXRyaXgga2V5cGFkLCB0aGF0IHRo
-ZXJlIGlzIGEgc2VwYXJhdGUgU1BJVFpfR1BJT19LRVlfSU5ULAo+PiB3aGljaCB0cmlnZ2VycyB3
-aGVuZXZlciB0aGVyZSBpcyBhbnkga2V5IHByZXNzIG9uIHRoaXMgbWF0cml4IChJIGRvbid0Cj4+
-IGtub3cgaG93IHRoYXQncyBkZXNpZ25lZCBpbiBIVywgYnV0IGl0IHNlZW1zIHRvIGRvIHRoYXQg
-am9iKSwgYW5kCj4+IHdoaWNoIGNhbiBiZSBzZXR1cCBhcyBhIEdQSU8gd2FrZXVwLgo+Cj4gU1BJ
-VFpfR1BJT19LRVlfSU5UIGhhcHBlbnMgaWYgQUMgYWRhcHRlciBpcyBjb25uZWN0ZWQgb3Iga2V5
-IGlzIHByZXNzZWQuCj4gU3VycHJpc2luZ2x5LCB0aGUga2V5IHByZXNzIGxvZ2ljIGlzIHBhcnQg
-b2YgTkFORCBmbGFzaCBjb250cm9sbGVyIENQTEQuCj4gU1BJVFpfR1BJT19LRVlfSU5UPT0wIC0g
-aXQgbWFrZXMgcG9zc2libGUgdG8gd2FrZSBaYXVydXMgZXZlbiBmcm9tIGRlZXAKPiBzbGVlcCBi
-eSBhbnkga2V5IHByZXNzLiBJdCB3b3VsZCBiZSBpbXBvc3NpYmxlIG9ubHkgd2l0aCBQS1dSLgo+
-Cj4gSSBndWVzcyB0aGF0IHRoaXMgYW5kIGltcGxlbWVudGF0aW9uIG9mIGtleXBhZF9zZXRfd2Fr
-ZSgpIGlzIGEgcmVhc29uLAo+IHdoeSBtb3N0IGRldmljZXMgc3VzcGVuZCBhbmQgcmVzdW1lIGNv
-cnJlY3RseSBldmVuIGlmIHRoZSBpcnFfc2V0X3dha2UoKQo+IHJlZnVzZXMgdG8gY29uZmlndXJl
-IHdha2UgYW5kIHRoZSB3YXJuaW5nIGlzIG9ubHkgdmlzaWJsZSBzeW1wdG9tLgoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWmF1cnVzLWRldmVsIG1haWxp
-bmcgbGlzdApaYXVydXMtZGV2ZWxAbGlzdHMubGludXh0b2dvLm9yZwpodHRwOi8vbGlzdHMubGlu
-dXh0b2dvLm9yZy9jZ2ktYmluL21haWxtYW4vbGlzdGluZm8vemF1cnVzLWRldmVsCg==
+Hi Dmitry! Thanks for reviewing!
+
+On mar, 2010-01-26 at 01:52 -0800, Dmitry Torokhov wrote:
+> > This algorithm is done via a threaded management of the keypad interrupt source
+> > and delayed by a proper (and longer) debounce interval controlled by the 
+> > platform initialization.
+> 
+> This I am not so sure about - the core of the matrix scan routine does
+> not sleep so I wonder if starting a separate thread is not too wasteful
+> in this case - you can easily do whan you want with a timer, no?
+
+I'm pretty new to kernel programming and, from the university, the 
+threaded way looked the better (and unique) for me..
+Let me find some documentation on timers and I will restructure the 
+interrupt management. Yes I need only to delay the matrix-scan activity
+without waste cpu time.
+
+> 
+> > +
+> > +     /*
+> > +      * Search for rows and cols enabled
+> > +      */
+> > +     keymap_data = (struct matrix_keymap_data *) pdata->keymap_data;
+> 
+> Why do you need to cast away constness instead of declaring keymap_data
+> as const pointer?
+
+In next version will be fixed.
+
+Alberto!
+
+

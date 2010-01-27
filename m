@@ -1,53 +1,123 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Wed, 27 Jan 2010 16:40:03 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
-References: <1263997077.1735.2942.camel@localhost.localdomain>
+From: =?iso-8859-15?Q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
+Subject: Re: [PATCH v3] input: MXC: add mxc-keypad driver to support the
+ Keypad Port present in the mxc application processors family.
+Date: Wed, 27 Jan 2010 18:03:56 +0100
+Message-ID: <19296.29180.633167.456022@ipc1.ka-ro>
+References: <1264586106.2463.23.camel@realization>
+	<19296.5728.557535.920849@ipc1.ka-ro>
+	<1264594452.2463.62.camel@realization>
+	<19296.12024.559688.606548@ipc1.ka-ro>
+	<1264603193.2463.75.camel@realization>
+	<19296.21298.394254.553268@ipc1.ka-ro>
+	<1264606159.2463.81.camel@realization>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:37025 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755115Ab0A0PkF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2010 10:40:05 -0500
-In-Reply-To: <1263997077.1735.2942.camel@localhost.localdomain>
+Received: from mail.karo-electronics.de ([81.173.242.67]:58846 "EHLO
+	mail.karo-electronics.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755704Ab0A0REA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jan 2010 12:04:00 -0500
+In-Reply-To: <1264606159.2463.81.camel@realization>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, H Hartley Sweeten <hartleys@visionengravers.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
-On Wed, 20 Jan 2010, Bastien Nocera wrote:
+Hi,
 
-> +First, you will need to disable the kernel driver for the receiver.
-> +
-> +This can be achieved by passing quirks to the usbhid driver.
-> +The quirk line would be:
-> +usbhid.quirks=0x05ac:0x8242:0x08
-> +
-> +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
-> +With 0x8242 being the product ID (check the output of lsusb for your hardware)
-> +And 0x08 being "HID_CONNECT_HIDDEV"
+Alberto Panizzo writes:
+> On mer, 2010-01-27 at 15:52 +0100, Lothar Wa=DFmann wrote:
+> > Hi,
+> >=20
+> > Alberto Panizzo writes:
+> > > On mer, 2010-01-27 at 13:18 +0100, Lothar Wa=DFmann wrote:
+> > > > Hi,
+> > > >=20
+> > > > Alberto Panizzo writes:
+> > > > > > > +	irq =3D platform_get_irq(pdev, 0);
+> > > > > > > +	if (irq < 0) {
+> > > > > > > +		dev_err(&pdev->dev, "failed to get keypad irq\n");
+> > > > > > > +		return -ENXIO;
+> > > > > > > +	}
+> > > > > > >
+> > > > > > This should be -ENODEV.
+> > > > > >=20
+> > > > > Lot of reference keyboard driver use -ENXIO..
+> > > > > May should be better: return irq ?
+> > > > >=20
+> > > > Yes, of course. If a function returns an error code that should=
+ be
+> > > > promoted to the caller instead of inventing a new error code.
+> > > >=20
+> > > >=20
+> > > > Lothar Wa=DFmann
+> > >=20
+> > > But, errno.h say:
+> > > #define ENXIO           6                // Device not configured
+> > > #define ENODEV          19               // Operation not support=
+ed by device
+> > >=20
+> > What errno.h file is that?
+> > I have:
+> > ./include/asm-generic/errno-base.h:#define      ENXIO            6 =
+     /* No such device or address */
+> > ./include/asm-generic/errno-base.h:#define      ENODEV          19 =
+     /* No such device */
+> >=20
+> > AFAIK ENXIO is used when actual I/O has been attempted. But in this
+> > case the driver is still being configured and did not do any I/O ye=
+t.
+> >=20
+> >=20
+> > Lothar Wa=DFmann
+>=20
+> The errno.h that I propose is a googled one and the kernel-one do not=
+ explain well..
+> Not for fighting, I wont understand.
+>=20
+> In drivers/base/platform.c:
+>=20
+> /**
+>  * platform_get_irq - get an IRQ for a device
+>  * @dev: platform device
+>  * @num: IRQ number index
+>  */
+> int platform_get_irq(struct platform_device *dev, unsigned int num)
+> {
+> 	struct resource *r =3D platform_get_resource(dev, IORESOURCE_IRQ, nu=
+m);
+>=20
+> 	return r ? r->start : -ENXIO;
+> }
+>=20
+> If there isn't the irq resource asked platform_get_irq return ENXIO.
+>=20
+The POSIX spec says:
+|[ENXIO]
+|    No such device or address. Input or output on a special file
+|refers to a device that does not exist, or makes a request beyond the
+|capabilities of the device. It may also occur when, for example, a
+|tape drive is not on-line.=20
 
-I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
+http://www.opengroup.org/onlinepubs/000095399/functions/xsh_chap02_03.h=
+tml
 
-We currently don't have dynamic quirk for forcing HIDDEV creation from the 
-module parameter.
 
-> +	if (!memcmp(data, keydown, sizeof(keydown))) {
-> +		/*If we already have a key down, take it up before marking */
-> +		/*this one down */
-> +		if (appleir->current_key)
-> +			key_up(appleir, appleir->current_key);
-> +		appleir->current_key = keymap[(data[4] >> 1) & MAX_KEYS_MASK];
-> +
-> +		key_down(appleir, appleir->current_key);
-> +		/*remote doesn't do key up, either pull them up, in the test */
-> +		/*above, or here set a timer which pulls them up after 1/8 s */
+Lothar Wa=DFmann
+--=20
+___________________________________________________________
 
-Could you please place spaces after the comment starters?
+Ka-Ro electronics GmbH | Pascalstra=DFe 22 | D - 52076 Aachen
+Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
+Gesch=E4ftsf=FChrer: Matthias Kaussen
+Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+www.karo-electronics.de | info@karo-electronics.de
+___________________________________________________________
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

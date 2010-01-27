@@ -1,144 +1,651 @@
 From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Subject: Re: [PATCH v3] input: MXC: add mxc-keypad driver to support the
- Keypad Port present in the mxc application processors family.
-Date: Wed, 27 Jan 2010 18:42:33 +0100
-Message-ID: <1264614153.2463.134.camel@realization>
-References: <1264586106.2463.23.camel@realization>
-	 <19296.5728.557535.920849@ipc1.ka-ro>
-	 <1264594452.2463.62.camel@realization>
-	 <19296.12024.559688.606548@ipc1.ka-ro>
-	 <1264603193.2463.75.camel@realization>
-	 <19296.21298.394254.553268@ipc1.ka-ro>
-	 <1264606159.2463.81.camel@realization>
-	 <19296.29180.633167.456022@ipc1.ka-ro>
+Subject: [PATCH v4] input: MXC: add mxc-keypad driver to support the Keypad
+ Port present in the mxc application processors family.
+Date: Wed, 27 Jan 2010 18:50:44 +0100
+Message-ID: <1264614644.2463.143.camel@realization>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f219.google.com ([209.85.219.219]:51390 "EHLO
+Received: from mail-ew0-f219.google.com ([209.85.219.219]:46236 "EHLO
 	mail-ew0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754612Ab0A0Rmm (ORCPT
+	with ESMTP id S932155Ab0A0Ruu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2010 12:42:42 -0500
-Received: by ewy19 with SMTP id 19so707952ewy.21
-        for <linux-input@vger.kernel.org>; Wed, 27 Jan 2010 09:42:41 -0800 (PST)
-In-Reply-To: <19296.29180.633167.456022@ipc1.ka-ro>
+	Wed, 27 Jan 2010 12:50:50 -0500
+Received: by ewy19 with SMTP id 19so716182ewy.21
+        for <linux-input@vger.kernel.org>; Wed, 27 Jan 2010 09:50:49 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lothar =?ISO-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
-Cc: linux-input <linux-input@vger.kernel.org>, H Hartley Sweeten <hartleys@visionengravers.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lothar =?ISO-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, H Hartley Sweeten <hartleys@visionengravers.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
-Hi,
-On mer, 2010-01-27 at 18:03 +0100, Lothar Wa=C3=9Fmann wrote:
-> Hi,
->=20
-> Alberto Panizzo writes:
-> > On mer, 2010-01-27 at 15:52 +0100, Lothar Wa=C3=9Fmann wrote:
-> > > Hi,
-> > >=20
-> > > Alberto Panizzo writes:
-> > > > On mer, 2010-01-27 at 13:18 +0100, Lothar Wa=C3=9Fmann wrote:
-> > > > > Hi,
-> > > > >=20
-> > > > > Alberto Panizzo writes:
-> > > > > > > > +	irq =3D platform_get_irq(pdev, 0);
-> > > > > > > > +	if (irq < 0) {
-> > > > > > > > +		dev_err(&pdev->dev, "failed to get keypad irq\n");
-> > > > > > > > +		return -ENXIO;
-> > > > > > > > +	}
-> > > > > > > >
-> > > > > > > This should be -ENODEV.
-> > > > > > >=20
-> > > > > > Lot of reference keyboard driver use -ENXIO..
-> > > > > > May should be better: return irq ?
-> > > > > >=20
-> > > > > Yes, of course. If a function returns an error code that shou=
-ld be
-> > > > > promoted to the caller instead of inventing a new error code.
-> > > > >=20
-> > > > >=20
-> > > > > Lothar Wa=C3=9Fmann
-> > > >=20
-> > > > But, errno.h say:
-> > > > #define ENXIO           6                // Device not configur=
-ed
-> > > > #define ENODEV          19               // Operation not suppo=
-rted by device
-> > > >=20
-> > > What errno.h file is that?
-> > > I have:
-> > > ./include/asm-generic/errno-base.h:#define      ENXIO            =
-6      /* No such device or address */
-> > > ./include/asm-generic/errno-base.h:#define      ENODEV          1=
-9      /* No such device */
-> > >=20
-> > > AFAIK ENXIO is used when actual I/O has been attempted. But in th=
-is
-> > > case the driver is still being configured and did not do any I/O =
-yet.
-> > >=20
-> > >=20
-> > > Lothar Wa=C3=9Fmann
-> >=20
-> > The errno.h that I propose is a googled one and the kernel-one do n=
-ot explain well..
-> > Not for fighting, I wont understand.
-> >=20
-> > In drivers/base/platform.c:
-> >=20
-> > /**
-> >  * platform_get_irq - get an IRQ for a device
-> >  * @dev: platform device
-> >  * @num: IRQ number index
-> >  */
-> > int platform_get_irq(struct platform_device *dev, unsigned int num)
-> > {
-> > 	struct resource *r =3D platform_get_resource(dev, IORESOURCE_IRQ, =
-num);
-> >=20
-> > 	return r ? r->start : -ENXIO;
-> > }
-> >=20
-> > If there isn't the irq resource asked platform_get_irq return ENXIO=
-=2E
-> >=20
-> The POSIX spec says:
-> |[ENXIO]
-> |    No such device or address. Input or output on a special file
-> |refers to a device that does not exist, or makes a request beyond th=
-e
-> |capabilities of the device. It may also occur when, for example, a
-> |tape drive is not on-line.=20
+The MXC family of Application Processors is shipped with a Keypad Port
+supported now by this driver.
 
-And I am not doing any I/O, while I am requesting something that is bey=
-ond
-the capability defined in platform_data.
+The peripheral can control up to an 8x8 matrix key pad where all the scanning
+procedure is done via software.
 
-While=20
-|[ENODEV]
-|  No such device. An attempt was made to apply an inappropriate functi=
-on=20
-|to a device; for example, trying to read a write-only device such as a=
- printer.
+The hardware provide two interrupts: one for a key pressed (KDI) and one for
+all key releases (KRI). There is also a simple circuit for glitch reduction
+(said for synchronization) made by two series of 3 D-latches clocked by the
+keypad-clock that stabilize the interrupts sources.
+KDI and KRI are fired only if the respective conditions are maintained for at
+last 4 keypad-clock cycle.
 
-And:
--the device is present (registered in the driver model)=20
--I am not trying to apply an inappropriate function..=20
+Those simple synchronization circuits are used also for multiple key pressures:
+between a KDI and a KRI the driver reset the sync circuit and re-enable the KDI
+interrupt so after 3 keypad-clock cycle another KDI is fired making possible to
+repeat the matrix scan operation.
 
-Maybe the problem have to be attacked form another point of view:
-Platform resources are parameters of the driver, the absence of IRQ and=
- IO mem
-would be considered as wrong parameters so the error should be EINVAL.
+This algorithm is done through the interrupt management code and delayed by a
+proper (and longer) debounce interval controlled by the platform initialization.
+If a key is pressed for a lot of time, the driver relaxes the interrupt re-enabling
+procedure to not over load the cpu in a long time keypad interaction.
 
->=20
-> http://www.opengroup.org/onlinepubs/000095399/functions/xsh_chap02_03=
-=2Ehtml
->=20
-Bookmarked!!!! :)
+This driver is tested to build in kernel or as a module and follow the
+specification of Freescale Application processors:
+i.MX25 i.MX27 i.MX31 i.MX35 i.MX51 especially tested on i.MX31.
+
+Signed-off-by: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+---
+Changes in v2:
+-This driver completely apply to matrix_keypad interface.
+-Rearranged remove procedure.
+-Automated hardware configuration, based on matrix_keypad_data.
+-Removed useless macro.
+
+Changes in v3:
+-Make use of timer API for interrupt management instead of threaded irq.
+-Little fixes.
+
+Changes in v4:
+-Better error handling.
+-Coding style fixes.
+-Fix parameters of clk_get.
+
+ arch/arm/plat-mxc/include/mach/mxc_keypad.h |   18 +
+ drivers/input/keyboard/Kconfig              |    9 +
+ drivers/input/keyboard/Makefile             |    1 +
+ drivers/input/keyboard/mxc_keypad.c         |  511 +++++++++++++++++++++++++++
+ 4 files changed, 539 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/plat-mxc/include/mach/mxc_keypad.h
+ create mode 100644 drivers/input/keyboard/mxc_keypad.c
+
+diff --git a/arch/arm/plat-mxc/include/mach/mxc_keypad.h b/arch/arm/plat-mxc/include/mach/mxc_keypad.h
+new file mode 100644
+index 0000000..c59cab2
+--- /dev/null
++++ b/arch/arm/plat-mxc/include/mach/mxc_keypad.h
+@@ -0,0 +1,18 @@
++#ifndef __MACH_MXC_KEYPAD_H
++#define __MACH_MXC_KEYPAD_H
++
++#include <linux/input/matrix_keypad.h>
++
++#define MAX_MATRIX_KEY_ROWS	8
++#define MAX_MATRIX_KEY_COLS	8
++#define MATRIX_ROW_SHIFT	3
++
++struct mxc_keypad_platform_data {
++
++	const struct matrix_keymap_data *keymap_data;
++
++	/* key debounce interval */
++	unsigned int	debounce_ms;
++};
++
++#endif /* __MACH_MXC_KEYPAD_H */
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 02c836e..2abdab3 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -292,6 +292,15 @@ config KEYBOARD_MAX7359
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called max7359_keypad.
+ 
++config KEYBOARD_MXC
++	tristate "MXC keypad support"
++	depends on ARCH_MXC
++	help
++	  Enable support for MXC keypad port.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called mxc_keypad.
++
+ config KEYBOARD_NEWTON
+ 	tristate "Newton keyboard"
+ 	select SERIO
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 78654ef..0530b78 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -25,6 +25,7 @@ obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
+ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+ obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
++obj-$(CONFIG_KEYBOARD_MXC)		+= mxc_keypad.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+diff --git a/drivers/input/keyboard/mxc_keypad.c b/drivers/input/keyboard/mxc_keypad.c
+new file mode 100644
+index 0000000..5d879ce
+--- /dev/null
++++ b/drivers/input/keyboard/mxc_keypad.c
+@@ -0,0 +1,511 @@
++/*
++ * Driver for the MXC keypad port.
++ * Copyright (C) 2009 Alberto Panizzo <maramaopercheseimorto@gmail.com>
++ *  based on Rodolfo Giometti work in pxa27x_keypad.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * >>Power management need to be implemented<<.
++ */
++
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/input/matrix_keypad.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/timer.h>
++
++#include <mach/mxc_keypad.h>
++
++/*
++ * Keypad Controller registers (halfword)
++ */
++#define KPCR		0x00 /* Keypad Control Register */
++
++#define KPSR		0x02 /* Keypad Status Register */
++#define KBD_STAT_KPKD	(0x1 << 0) /* Key Press Interrupt Status bit */
++#define KBD_STAT_KPKR	(0x1 << 1) /* Key Release Interrupt Status bit */
++#define KBD_STAT_KDSC	(0x1 << 2) /* Key Depress Synch Chain Status bit */
++#define KBD_STAT_KRSS	(0x1 << 3) /* Key Release Synch Status bit */
++#define KBD_STAT_KDIE	(0x1 << 8) /* Key Depress Interrupt Enable Status bit */
++#define KBD_STAT_KRIE	(0x1 << 9) /* Key Release Interrupt Enable */
++#define KBD_STAT_KPPEN	(0x1 << 10) /* Keypad Clock Enable */
++
++#define KDDR		0x04 /* Keypad Data Direction Register */
++#define KPDR		0x06 /* Keypad Data Register */
++
++#define MAX_MATRIX_KEY_NUM	(MAX_MATRIX_KEY_ROWS * MAX_MATRIX_KEY_COLS)
++
++struct mxc_keypad {
++	struct mxc_keypad_platform_data *pdata;
++
++	struct clk *clk;
++	struct input_dev *input_dev;
++	void __iomem *mmio_base;
++
++	int			irq;
++	struct timer_list	scan_timer;
++	struct timer_list	relax_timer;
++
++#define MXC_IRQ_KDI		1
++#define MXC_IRQ_KRI		2
++	unsigned int		irq_type;
++	int			irq_since_last_change;
++
++	/* Masks for enabled rows/cols */
++	unsigned short		rows_en_mask;
++	unsigned short		cols_en_mask;
++
++	unsigned short		keycodes[MAX_MATRIX_KEY_NUM];
++
++	/* state row bits of each column scan */
++	unsigned short		matrix_key_state[MAX_MATRIX_KEY_COLS];
++};
++
++/* Return 0 if no changes are detected in matrix */
++static int mxc_keypad_scan_matrix(struct mxc_keypad *keypad)
++{
++	struct input_dev *input_dev = keypad->input_dev;
++	int row, col, changed = 0;
++	unsigned short new_state[MAX_MATRIX_KEY_COLS];
++	unsigned short reg_val;
++
++	memset(new_state, 0, sizeof(new_state));
++
++	for (col = 0; col < MAX_MATRIX_KEY_COLS; col++) {
++		if ((keypad->cols_en_mask & (1 << col)) == 0)
++			continue;
++		/* Discharge keypad capacitance:
++		 * 2. write 1s on column data.
++		 * 3. configure columns as totem-pole to discharge capacitance.
++		 * 4. configure columns as open-drain.*/
++		reg_val = readw(keypad->mmio_base + KPDR);
++		reg_val |= 0xff00;
++		writew(reg_val, keypad->mmio_base + KPDR);
++
++		reg_val = readw(keypad->mmio_base + KPCR);
++		reg_val &= ~((keypad->cols_en_mask & 0xff) << 8);
++		writew(reg_val, keypad->mmio_base + KPCR);
++
++		udelay(2);
++
++		reg_val = readw(keypad->mmio_base + KPCR);
++		reg_val |= (keypad->cols_en_mask & 0xff) << 8;
++		writew(reg_val, keypad->mmio_base + KPCR);
++
++		/*
++		 * 5. Write a single column to 0, others to 1.
++		 * 6. Sample row inputs and save data.
++		 * 7. Repeat steps 2 - 6 for remaining columns.
++		 */
++		reg_val = readw(keypad->mmio_base + KPDR);
++		reg_val &= ~(1 << (8 + col));
++		writew(reg_val, keypad->mmio_base + KPDR);
++
++		/* Delay added to avoid propagating the 0 from column to row
++		 * when scanning. */
++		udelay(5);
++
++		/* 1s in state detect a key pressure */
++		new_state[col] = (~readw(keypad->mmio_base + KPDR)) & 0x00ff;
++	}
++
++	/* Test the state changes */
++	for (col = 0; col < MAX_MATRIX_KEY_COLS; col++) {
++		unsigned short bits_changed;
++		int code;
++
++		if ((keypad->cols_en_mask & (1 << col)) == 0)
++			continue;
++
++		bits_changed = keypad->matrix_key_state[col] ^ new_state[col];
++		if (bits_changed == 0)
++			continue;
++
++		changed = 1;
++		for (row = 0; row < MAX_MATRIX_KEY_ROWS; row++) {
++			if ((keypad->rows_en_mask & (1 << row)) == 0)
++				continue;
++			if ((bits_changed & (1 << row)) == 0)
++				continue;
++
++			code = MATRIX_SCAN_CODE(row, col, MATRIX_ROW_SHIFT);
++			input_event(input_dev, EV_MSC, MSC_SCAN, code);
++			input_report_key(input_dev, keypad->keycodes[code],
++					 new_state[col] & (1 << row));
++			dev_dbg(&input_dev->dev, "Event code: %d, val: %d",
++					keypad->keycodes[code],
++					new_state[col] & (1 << row));
++		}
++	}
++	input_sync(input_dev);
++	memcpy(keypad->matrix_key_state, new_state, sizeof(new_state));
++
++	/* Return in standby mode:
++	 * 9. write 0s to columns */
++	reg_val = readw(keypad->mmio_base + KPDR);
++	reg_val &= 0x00ff;
++	writew(reg_val, keypad->mmio_base + KPDR);
++
++	return changed;
++}
++
++static void mxc_keypad_relax_timer_handler(unsigned long data)
++{
++	struct mxc_keypad *keypad = (struct mxc_keypad *) data;
++	unsigned short reg_val;
++
++	/* 10. Clear KPKD and KPKR status bits
++	 *     Set the KPKR sync chain and clear the KPKD sync chain */
++	reg_val = readw(keypad->mmio_base + KPSR);
++	reg_val |= KBD_STAT_KPKD | KBD_STAT_KPKR |
++		   KBD_STAT_KDSC | KBD_STAT_KRSS;
++	writew(reg_val, keypad->mmio_base + KPSR);
++
++	/* Re enable interrupts and clear sync reset bits.
++	 * Next KDI is used for detect multiple pressures. */
++	reg_val = readw(keypad->mmio_base + KPSR);
++	reg_val &= ~(KBD_STAT_KDSC | KBD_STAT_KRSS);
++	writew(reg_val, keypad->mmio_base + KPSR);
++
++	reg_val |= KBD_STAT_KDIE | KBD_STAT_KRIE;
++	if (keypad->irq_type == MXC_IRQ_KRI)
++		reg_val &= ~KBD_STAT_KRIE;
++	writew(reg_val, keypad->mmio_base + KPSR);
++}
++
++static void mxc_keypad_scan_timer_handler(unsigned long data)
++{
++	struct mxc_keypad *keypad = (struct mxc_keypad *) data;
++	struct input_dev *idev = keypad->input_dev;
++
++	dev_dbg(&idev->dev, "handling Interrupt of type %x\n",
++						keypad->irq_type);
++
++	/* Do the scan routine and Keep track for how many time we got
++	 * interrupt that make no change */
++	if (mxc_keypad_scan_matrix(keypad))
++		keypad->irq_since_last_change = 0;
++	else
++		keypad->irq_since_last_change++;
++
++	/* If the key is pressed since too many time, relax the update period */
++	if (keypad->irq_since_last_change > 2)
++		mod_timer(&keypad->relax_timer,
++			  jiffies + msecs_to_jiffies(60));
++	else
++		mxc_keypad_relax_timer_handler((unsigned long) keypad);
++}
++
++static irqreturn_t mxc_keypad_irq_handler(int irq, void *dev_id)
++{
++	struct mxc_keypad *keypad = dev_id;
++	struct mxc_keypad_platform_data *pdata = keypad->pdata;
++	unsigned short reg_val;
++
++	/* Disable every keypad interrupt */
++	reg_val = readw(keypad->mmio_base + KPSR);
++	reg_val &= ~(KBD_STAT_KRIE | KBD_STAT_KDIE);
++	writew(reg_val, keypad->mmio_base + KPSR);
++
++	keypad->irq_type = reg_val & KBD_STAT_KPKD ?
++			   MXC_IRQ_KDI : MXC_IRQ_KRI;
++
++	/* Schedule the scanning procedure */
++	mod_timer(&keypad->scan_timer,
++		  jiffies + msecs_to_jiffies(pdata->debounce_ms));
++
++	return IRQ_HANDLED;
++}
++
++static void mxc_keypad_config(struct mxc_keypad *keypad)
++{
++	unsigned short reg_val;
++
++	/* Enable number of rows in keypad (KPCR[7:0])
++	 * Configure keypad columns as open-drain (KPCR[15:8])
++	 */
++	reg_val = readw(keypad->mmio_base + KPCR);
++	reg_val |= keypad->rows_en_mask & 0xff;		/* rows */
++	reg_val |= (keypad->cols_en_mask & 0xff) << 8;	/* cols */
++	writew(reg_val, keypad->mmio_base + KPCR);
++
++	/* Write 0's to KPDR[15:8] (Colums)*/
++	reg_val = readw(keypad->mmio_base + KPDR);
++	reg_val &= 0x00ff;
++	writew(reg_val, keypad->mmio_base + KPDR);
++
++	/* Configure columns as output, rows as input (KDDR[15:0]) */
++	writew(0xff00, keypad->mmio_base + KDDR);
++
++	/* Clear Key Depress and Key Release status bit.
++	 * Clear synchronizer chain.
++	 * */
++	reg_val = readw(keypad->mmio_base + KPSR);
++	reg_val |= KBD_STAT_KPKR | KBD_STAT_KPKD |
++		   KBD_STAT_KDSC | KBD_STAT_KRSS;
++	writew(reg_val, keypad->mmio_base + KPSR);
++
++	/* Set the KDIE control bit, and clear the KRIE control bit
++	 * (avoid false release events). */
++	reg_val |= KBD_STAT_KDIE;
++	reg_val &= ~KBD_STAT_KRIE;
++	writew(reg_val, keypad->mmio_base + KPSR);
++}
++
++static void mxc_keypad_inhibit(struct mxc_keypad *keypad)
++{
++	unsigned short reg_val;
++
++	/* Colums as open drain and disable rows */
++	writew(0xff00, keypad->mmio_base + KPCR);
++
++	/* Clear the KPKD status flag and synchronizer chain.
++	 * Clear KDIE control bit and KRIE control bit.
++	 */
++	reg_val = readw(keypad->mmio_base + KPSR);
++	reg_val |= KBD_STAT_KPKD | KBD_STAT_KDSC;
++	reg_val &= ~(KBD_STAT_KRIE | KBD_STAT_KDIE);
++	writew(reg_val, keypad->mmio_base + KPSR);
++}
++
++static int mxc_keypad_open(struct input_dev *dev)
++{
++	struct mxc_keypad *keypad = input_get_drvdata(dev);
++
++	dev_dbg(&dev->dev, "%s\n", __func__);
++
++	/* Enable unit clock */
++	clk_enable(keypad->clk);
++	mxc_keypad_config(keypad);
++
++	/* Sanity control, not all the rows must be to 0s now. */
++	if ((readw(keypad->mmio_base + KPDR) & keypad->rows_en_mask) == 0) {
++		dev_err(&dev->dev,
++		"too much keys pressed for now, control pins initialisation\n");
++		goto open_err;
++	}
++
++	return 0;
++
++open_err:
++	mxc_keypad_inhibit(keypad);
++	return -EIO;
++}
++
++static void mxc_keypad_close(struct input_dev *dev)
++{
++	struct mxc_keypad *keypad = input_get_drvdata(dev);
++
++	dev_dbg(&dev->dev, "%s\n", __func__);
++
++	mxc_keypad_inhibit(keypad);
++
++	/* Disable clock unit */
++	clk_disable(keypad->clk);
++}
++
++static int __devinit mxc_keypad_probe(struct platform_device *pdev)
++{
++	struct mxc_keypad_platform_data *pdata = pdev->dev.platform_data;
++	struct mxc_keypad *keypad;
++	struct input_dev *input_dev;
++	struct resource *res;
++	int irq, error, i;
++	const struct matrix_keymap_data *keymap_data;
++
++	if (pdata == NULL) {
++		dev_err(&pdev->dev, "no platform data defined\n");
++		return -EINVAL;
++	}
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(&pdev->dev, "no irq defined in platform data\n");
++		return -EINVAL;
++	}
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (res == NULL) {
++		dev_err(&pdev->dev, "no I/O memory defined in platform data\n");
++		return -EINVAL;
++	}
++
++	res = request_mem_region(res->start, resource_size(res), pdev->name);
++	if (res == NULL) {
++		dev_err(&pdev->dev, "failed to request I/O memory\n");
++		return -EBUSY;
++	}
++
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		dev_err(&pdev->dev, "failed to allocate the input device\n");
++		error = -ENOMEM;
++		goto failed_rel_mem;
++	}
++
++	keypad = kzalloc(sizeof(struct mxc_keypad), GFP_KERNEL);
++	if (!keypad) {
++		dev_err(&pdev->dev, "not enough memory for driver data\n");
++		error = -ENOMEM;
++		goto failed_free_input;
++	}
++
++	keypad->pdata = pdata;
++	keypad->input_dev = input_dev;
++	keypad->irq = irq;
++
++	keypad->mmio_base = ioremap(res->start, resource_size(res));
++	if (keypad->mmio_base == NULL) {
++		dev_err(&pdev->dev, "failed to remap I/O memory\n");
++		error = -ENOMEM;
++		goto failed_free_priv;
++	}
++
++	keypad->clk = clk_get(&pdev->dev, "kpp");
++	if (IS_ERR(keypad->clk)) {
++		dev_err(&pdev->dev, "failed to get keypad clock\n");
++		error = PTR_ERR(keypad->clk);
++		goto failed_unmap;
++	}
++
++	/*
++	 * Search for rows and cols enabled
++	 */
++	keymap_data = pdata->keymap_data;
++	for (i = 0; i < keymap_data->keymap_size; i++) {
++		keypad->rows_en_mask |= 1 << KEY_ROW(keymap_data->keymap[i]);
++		keypad->cols_en_mask |= 1 << KEY_COL(keymap_data->keymap[i]);
++	}
++
++	if (keypad->rows_en_mask > ((1 << MAX_MATRIX_KEY_ROWS) - 1) ||
++	   keypad->cols_en_mask > ((1 << MAX_MATRIX_KEY_COLS) - 1)) {
++		dev_err(&pdev->dev, "invalid key data (too rows or colums)\n");
++		error = -EINVAL;
++		goto failed_clock_put;
++	}
++	dev_dbg(&pdev->dev, "enabled rows mask: %x\n", keypad->rows_en_mask);
++	dev_dbg(&pdev->dev, "enabled cols mask: %x\n", keypad->cols_en_mask);
++
++	/* Init Keypad timers */
++	init_timer(&keypad->scan_timer);
++	keypad->scan_timer.function = mxc_keypad_scan_timer_handler;
++	keypad->scan_timer.data = (unsigned long) keypad;
++
++	init_timer(&keypad->relax_timer);
++	keypad->relax_timer.function = mxc_keypad_relax_timer_handler;
++	keypad->relax_timer.data = (unsigned long) keypad;
++
++	/* Init the Input device */
++	input_dev->name = pdev->name;
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->dev.parent = &pdev->dev;
++	input_dev->open = mxc_keypad_open;
++	input_dev->close = mxc_keypad_close;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	input_dev->keycode = keypad->keycodes;
++	input_dev->keycodesize = sizeof(keypad->keycodes[0]);
++	input_dev->keycodemax = ARRAY_SIZE(keypad->keycodes);
++
++	matrix_keypad_build_keymap(pdata->keymap_data, MATRIX_ROW_SHIFT,
++				keypad->keycodes, input_dev->keybit);
++
++	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
++	input_set_drvdata(input_dev, keypad);
++
++	error = request_irq(irq, mxc_keypad_irq_handler, IRQF_DISABLED,
++			pdev->name, keypad);
++	if (error) {
++		dev_err(&pdev->dev, "failed to request IRQ\n");
++		goto failed_clock_put;
++	}
++
++	/* Register the input device */
++	error = input_register_device(input_dev);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		goto failed_free_irq;
++	}
++
++	platform_set_drvdata(pdev, keypad);
++	device_init_wakeup(&pdev->dev, 1);
++
++	dev_info(&pdev->dev, "device probed\n");
++
++	return 0;
++
++failed_free_irq:
++	free_irq(irq, pdev);
++failed_clock_put:
++	clk_put(keypad->clk);
++failed_unmap:
++	iounmap(keypad->mmio_base);
++failed_free_priv:
++	kfree(keypad);
++failed_free_input:
++	input_free_device(input_dev);
++failed_rel_mem:
++	release_mem_region(res->start, resource_size(res));
++	return error;
++}
++
++static int __devexit mxc_keypad_remove(struct platform_device *pdev)
++{
++	struct mxc_keypad *keypad = platform_get_drvdata(pdev);
++	struct resource *res;
++
++	platform_set_drvdata(pdev, NULL);
++
++	free_irq(keypad->irq, keypad);
++	clk_put(keypad->clk);
++	del_timer_sync(&keypad->scan_timer);
++	del_timer_sync(&keypad->relax_timer);
++
++	input_unregister_device(keypad->input_dev);
++
++	iounmap(keypad->mmio_base);
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	release_mem_region(res->start, resource_size(res));
++
++	kfree(keypad);
++
++	dev_info(&pdev->dev, "device removed\n");
++
++	return 0;
++}
++
++static struct platform_driver mxc_keypad_driver = {
++	.driver		= {
++		.name	= "mxc-keypad",
++		.owner	= THIS_MODULE,
++	},
++	.probe		= mxc_keypad_probe,
++	.remove		= __devexit_p(mxc_keypad_remove),
++};
++
++static int __init mxc_keypad_init(void)
++{
++	return platform_driver_register(&mxc_keypad_driver);
++}
++
++static void __exit mxc_keypad_exit(void)
++{
++	platform_driver_unregister(&mxc_keypad_driver);
++}
++
++module_init(mxc_keypad_init);
++module_exit(mxc_keypad_exit);
++
++MODULE_AUTHOR("Alberto Panizzo <maramaopercheseimorto@gmail.com>");
++MODULE_DESCRIPTION("MXC Keypad Port Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:mxc-keypad");
+-- 
+1.6.3.3
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

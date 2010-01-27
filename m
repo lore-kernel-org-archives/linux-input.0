@@ -1,100 +1,53 @@
-From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Subject: Re: [PATCH v3] input: MXC: add mxc-keypad driver to support the
- Keypad Port present in the mxc application processors family.
-Date: Wed, 27 Jan 2010 16:29:19 +0100
-Message-ID: <1264606159.2463.81.camel@realization>
-References: <1264586106.2463.23.camel@realization>
-	 <19296.5728.557535.920849@ipc1.ka-ro>
-	 <1264594452.2463.62.camel@realization>
-	 <19296.12024.559688.606548@ipc1.ka-ro>
-	 <1264603193.2463.75.camel@realization>
-	 <19296.21298.394254.553268@ipc1.ka-ro>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Wed, 27 Jan 2010 16:40:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
+References: <1263997077.1735.2942.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.26]:6739 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754480Ab0A0P3Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2010 10:29:25 -0500
-Received: by ey-out-2122.google.com with SMTP id d26so1524691eyd.19
-        for <linux-input@vger.kernel.org>; Wed, 27 Jan 2010 07:29:24 -0800 (PST)
-In-Reply-To: <19296.21298.394254.553268@ipc1.ka-ro>
+Received: from cantor2.suse.de ([195.135.220.15]:37025 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755115Ab0A0PkF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 Jan 2010 10:40:05 -0500
+In-Reply-To: <1263997077.1735.2942.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lothar =?ISO-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
-Cc: linux-input <linux-input@vger.kernel.org>, H Hartley Sweeten <hartleys@visionengravers.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On mer, 2010-01-27 at 15:52 +0100, Lothar Wa=C3=9Fmann wrote:
-> Hi,
->=20
-> Alberto Panizzo writes:
-> > On mer, 2010-01-27 at 13:18 +0100, Lothar Wa=C3=9Fmann wrote:
-> > > Hi,
-> > >=20
-> > > Alberto Panizzo writes:
-> > > > > > +	irq =3D platform_get_irq(pdev, 0);
-> > > > > > +	if (irq < 0) {
-> > > > > > +		dev_err(&pdev->dev, "failed to get keypad irq\n");
-> > > > > > +		return -ENXIO;
-> > > > > > +	}
-> > > > > >
-> > > > > This should be -ENODEV.
-> > > > >=20
-> > > > Lot of reference keyboard driver use -ENXIO..
-> > > > May should be better: return irq ?
-> > > >=20
-> > > Yes, of course. If a function returns an error code that should b=
-e
-> > > promoted to the caller instead of inventing a new error code.
-> > >=20
-> > >=20
-> > > Lothar Wa=C3=9Fmann
-> >=20
-> > But, errno.h say:
-> > #define ENXIO           6                // Device not configured
-> > #define ENODEV          19               // Operation not supported=
- by device
-> >=20
-> What errno.h file is that?
-> I have:
-> ./include/asm-generic/errno-base.h:#define      ENXIO            6   =
-   /* No such device or address */
-> ./include/asm-generic/errno-base.h:#define      ENODEV          19   =
-   /* No such device */
->=20
-> AFAIK ENXIO is used when actual I/O has been attempted. But in this
-> case the driver is still being configured and did not do any I/O yet.
->=20
->=20
-> Lothar Wa=C3=9Fmann
+On Wed, 20 Jan 2010, Bastien Nocera wrote:
 
-The errno.h that I propose is a googled one and the kernel-one do not e=
-xplain well..
-Not for fighting, I wont understand.
+> +First, you will need to disable the kernel driver for the receiver.
+> +
+> +This can be achieved by passing quirks to the usbhid driver.
+> +The quirk line would be:
+> +usbhid.quirks=0x05ac:0x8242:0x08
+> +
+> +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
+> +With 0x8242 being the product ID (check the output of lsusb for your hardware)
+> +And 0x08 being "HID_CONNECT_HIDDEV"
 
-In drivers/base/platform.c:
+I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
 
-/**
- * platform_get_irq - get an IRQ for a device
- * @dev: platform device
- * @num: IRQ number index
- */
-int platform_get_irq(struct platform_device *dev, unsigned int num)
-{
-	struct resource *r =3D platform_get_resource(dev, IORESOURCE_IRQ, num)=
-;
+We currently don't have dynamic quirk for forcing HIDDEV creation from the 
+module parameter.
 
-	return r ? r->start : -ENXIO;
-}
+> +	if (!memcmp(data, keydown, sizeof(keydown))) {
+> +		/*If we already have a key down, take it up before marking */
+> +		/*this one down */
+> +		if (appleir->current_key)
+> +			key_up(appleir, appleir->current_key);
+> +		appleir->current_key = keymap[(data[4] >> 1) & MAX_KEYS_MASK];
+> +
+> +		key_down(appleir, appleir->current_key);
+> +		/*remote doesn't do key up, either pull them up, in the test */
+> +		/*above, or here set a timer which pulls them up after 1/8 s */
 
-If there isn't the irq resource asked platform_get_irq return ENXIO.
+Could you please place spaces after the comment starters?
 
-Alberto
+Thanks,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,37 +1,99 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH] hid: Logitech G13 driver 0.0.4
-Date: Thu, 28 Jan 2010 08:47:50 +0100
-Message-ID: <201001280847.50445.oliver@neukum.org>
-References: <201001202047.o0KKlMTr014003@mustang.cs.nmsu.edu> <8512e098224714ed7d54c62b46346796.squirrel@intranet.cs.nmsu.edu> <20100128072425.GA25633@atrey.karlin.mff.cuni.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4] input: MXC: add mxc-keypad driver to support the
+ Keypad Port present in the mxc application processors family.
+Date: Thu, 28 Jan 2010 00:11:00 -0800
+Message-ID: <20100128081100.GA22497@core.coreip.homeip.net>
+References: <1264614644.2463.143.camel@realization>
+ <20100127183358.GB8723@core.coreip.homeip.net>
+ <1264621419.2463.236.camel@realization>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:40166 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753943Ab0A1Hrg (ORCPT
+Received: from mail-px0-f182.google.com ([209.85.216.182]:62451 "EHLO
+	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753112Ab0A1ILI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jan 2010 02:47:36 -0500
-In-Reply-To: <20100128072425.GA25633@atrey.karlin.mff.cuni.cz>
+	Thu, 28 Jan 2010 03:11:08 -0500
+Received: by pxi12 with SMTP id 12so363955pxi.33
+        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2010 00:11:07 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1264621419.2463.236.camel@realization>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, H Hartley Sweeten <hartleys@visionengravers.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
- Am Donnerstag, 28. Januar 2010 08:24:26 schrieben Sie:
-> > Again, like I said, I don't have a problem changing it. If it's wrong,
-> > it's wrong no matter how many other drivers may take the same
-> > approach.
+On Wed, Jan 27, 2010 at 08:43:39PM +0100, Alberto Panizzo wrote:
+> Hi Dmitry,
 > 
-> I believe it is wrong.
+> On mer, 2010-01-27 at 10:33 -0800, Dmitry Torokhov wrote:
+> > Hi Alberto,
+> > 
+> > On Wed, Jan 27, 2010 at 06:50:44PM +0100, Alberto Panizzo wrote:
+> > > The MXC family of Application Processors is shipped with a Keypad Port
+> > > supported now by this driver.
+> > > 
+> > > The peripheral can control up to an 8x8 matrix key pad where all the scanning
+> > > procedure is done via software.
+> > > 
+> > > The hardware provide two interrupts: one for a key pressed (KDI) and one for
+> > > all key releases (KRI). There is also a simple circuit for glitch reduction
+> > > (said for synchronization) made by two series of 3 D-latches clocked by the
+> > > keypad-clock that stabilize the interrupts sources.
+> > > KDI and KRI are fired only if the respective conditions are maintained for at
+> > > last 4 keypad-clock cycle.
+> > > 
+> > > Those simple synchronization circuits are used also for multiple key pressures:
+> > > between a KDI and a KRI the driver reset the sync circuit and re-enable the KDI
+> > > interrupt so after 3 keypad-clock cycle another KDI is fired making possible to
+> > > repeat the matrix scan operation.
+> > > 
+> > > This algorithm is done through the interrupt management code and delayed by a
+> > > proper (and longer) debounce interval controlled by the platform initialization.
+> > > If a key is pressed for a lot of time, the driver relaxes the interrupt re-enabling
+> > > procedure to not over load the cpu in a long time keypad interaction.
+> > > 
+> > 
+> > I was looking at the debounce logic and I am not quite sure about it.
+> > Normally you have 2 ways for dealing with jitter:
+> > 
+> > 1. You let interrupts to come in and reschedule the scan until they stop
+> >    arriving. Then to tak ethe stable reading.
+> > 
+> > 2. You inhibit interrupt, take a reading and schedule another reading in
+> >    the future. If they match you decide that reading is stable otherwise
+> >     you schedule another reading.
+> > 
+> > In your case you seem to be simply postponing the reading but this does
+> > not guarantee that the reading is stable.
+> 
+> Yes, because of the glitch suppression circuit, I suppose that when
+> an interrupt arrive, it is a key pressure for sure.
+> Then I assume that the matrix will be stable after a proper debounce
+> time (test look fine with 20 ms).
+> 
+> 1 should be a more accurate way, I can study an implementation.
+> 
+> > 
+> > I also do not think that yopu need 2 timers - you can easily requeue
+> > currently running timer.
+> 
+> The first version I made was with one timer: if for too many repeating 
+> interrupts the matrix state do not change, the scanning procedure was 
+> scheduled with a summed delay.
+> 
+> It resulted in a degradation of responsiveness and more key pressure 
+> losing. It is a better choice to let the scanning procedure near the 
+> interrupt.
 
-So do I. You need not fail if copy_to_user() fails, but if you go
-that route you need to evaluate the return value of copy_to_user()
-and return:
+Hmm, that is unexpected result. I am pretty sure if was implementation
+deficiency and you can achieve the same performance with one timer and
+unified timer function.
 
-not_written = copy_to_user(...);
-return to_be_written - not_written ? to_be_written - not_written : -EFAULT;
+> 
+> Changing the timer handler over the time? Would be acceptable?
 
-	Regards
-		Oliver
+No, it is a bad taste.
+
+-- 
+Dmitry

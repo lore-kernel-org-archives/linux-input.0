@@ -1,79 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Generic PS/2 mouse detected on Fujitsu Lifebook B-Series
-  model laptop instead of LBPS/2 Fujitsu Lifebook TouchScreen
-Date: Wed, 27 Jan 2010 16:15:01 -0800
-Message-ID: <20100128001500.GA17185@core.coreip.homeip.net>
-References: <a05e21071001250812x4461e4a0re7f46f7cd28c4162@mail.gmail.com>
- <20100127155514.cc743fa4.akpm@linux-foundation.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] hid: Logitech G13 driver 0.0.4
+Date: Thu, 28 Jan 2010 08:24:26 +0100
+Message-ID: <20100128072425.GA25633@atrey.karlin.mff.cuni.cz>
+References: <201001202047.o0KKlMTr014003@mustang.cs.nmsu.edu> <201001202219.12058.oliver@neukum.org> <acd6dfcf4391c081f861d430c0b45311.squirrel@intranet.cs.nmsu.edu> <alpine.LNX.2.00.1001251758230.30977@pobox.suse.cz> <8512e098224714ed7d54c62b46346796.squirrel@intranet.cs.nmsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f42.google.com ([209.85.160.42]:57513 "EHLO
-	mail-pw0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751914Ab0A1APN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 Jan 2010 19:15:13 -0500
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755001Ab0A1HY3@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100127155514.cc743fa4.akpm@linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <8512e098224714ed7d54c62b46346796.squirrel@intranet.cs.nmsu.edu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, jayakumar.lkml@gmail.com, linux-fbdev@vger.kernel.org, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: jon - <crayzeejon@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Jan 27, 2010 at 03:55:14PM -0800, Andrew Morton wrote:
-> (suitable cc's added)
+Hi!
+
+> is because it appears there are two conditions that fb_sys_write() will
+> continue on to the copy_from_user() but still return an error code. In
+> these cases -EFBIG and -ENOSPEC are returned but it is possible the buffer
+> has still been modified.
 > 
-> On Mon, 25 Jan 2010 16:12:43 +0000
-> jon - <crayzeejon@gmail.com> wrote:
-> 
-> > From: Jon Dodgson <crayzeejon@gmail.com>
-> > 
-> > Fix Detection of Lifebook B-Series Laptop touch screen with DMI
-> > product Name string 'Lifebook B Series'
-> > 
-> > Signed-off-by: Jon Dodgson <crayzeejon@gmail.com>
-> > 
-> > ---
-> > diff -Nurb linux-2.6.26.2/drivers/input/mouse/lifebook.c
-> > linux-2.6.26.2_patched/drivers/input/mouse/lifebook.c
-> > --- linux-2.6.26.2/drivers/input/mouse/lifebook.c    2008-08-06
-> > 17:19:01.000000000 +0100
-> > +++ linux-2.6.26.2_patched/drivers/input/mouse/lifebook.c    2010-01-25
-> > 02:56:41.000000000 +0000
-> > @@ -51,6 +51,12 @@
-> >     {
-> >         .ident = "LifeBook B",
-> >         .matches = {
-> > +            DMI_MATCH(DMI_PRODUCT_NAME, "Lifebook B Series"),
-> > +        },
-> > +    },
-> > +    {
-> > +        .ident = "LifeBook B",
-> > +        .matches = {
-> >             DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B Series"),
-> >         },
-> >     },
-> 
-> So the problem is "LifeBook" versus "Lifebook"?  These matches are
-> case-sensitive?
+> Again, like I said, I don't have a problem changing it. If it's wrong,
+> it's wrong no matter how many other drivers may take the same
+> approach.
 
-Yep. And trust to the BIOS writers wil fill this data with as many
-permutations as possible.
+I believe it is wrong.
 
-> 
-> I don't know what kernel you were patching, but current kernels no
-> longer have the ".ident" initialisation in that table.  If it _was_
-> still there then I'd wonder why you set the ident to "LifeBook B"
-> rather than "Lifebook B".
+> My intuition tells me it's wrong, but at the same time I'd like to know if
+> there's a reason behind the other drivers also ignoring the EFAULT. Or,
+> perhaps it simply started in one driver and everyone else patterned after
+> it just like I did the g13 driver.
 
-Ident is just for information purposes only (and is was not used by
-input that's why it was removed.
-
-> 
-> Your email client wordwrapped the patch and replaced its tabs with
-> spaces.
-
-Yeah ;( Anyway, I ahve it now, thanks.
+I guess it is indeed a copy&paste problem...
 
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

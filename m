@@ -1,99 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] input: MXC: add mxc-keypad driver to support the
- Keypad Port present in the mxc application processors family.
-Date: Thu, 28 Jan 2010 00:11:00 -0800
-Message-ID: <20100128081100.GA22497@core.coreip.homeip.net>
-References: <1264614644.2463.143.camel@realization>
- <20100127183358.GB8723@core.coreip.homeip.net>
- <1264621419.2463.236.camel@realization>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] input: Provide coordinate logs for accelerated WM97xx I/O
+Date: Thu, 28 Jan 2010 14:32:20 +0000
+Message-ID: <1264689140-10732-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f182.google.com ([209.85.216.182]:62451 "EHLO
-	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753112Ab0A1ILI (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:56337 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752458Ab0A1OcX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Jan 2010 03:11:08 -0500
-Received: by pxi12 with SMTP id 12so363955pxi.33
-        for <linux-input@vger.kernel.org>; Thu, 28 Jan 2010 00:11:07 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1264621419.2463.236.camel@realization>
+	Thu, 28 Jan 2010 09:32:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Cc: Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, H Hartley Sweeten <hartleys@visionengravers.com>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Wed, Jan 27, 2010 at 08:43:39PM +0100, Alberto Panizzo wrote:
-> Hi Dmitry,
-> 
-> On mer, 2010-01-27 at 10:33 -0800, Dmitry Torokhov wrote:
-> > Hi Alberto,
-> > 
-> > On Wed, Jan 27, 2010 at 06:50:44PM +0100, Alberto Panizzo wrote:
-> > > The MXC family of Application Processors is shipped with a Keypad Port
-> > > supported now by this driver.
-> > > 
-> > > The peripheral can control up to an 8x8 matrix key pad where all the scanning
-> > > procedure is done via software.
-> > > 
-> > > The hardware provide two interrupts: one for a key pressed (KDI) and one for
-> > > all key releases (KRI). There is also a simple circuit for glitch reduction
-> > > (said for synchronization) made by two series of 3 D-latches clocked by the
-> > > keypad-clock that stabilize the interrupts sources.
-> > > KDI and KRI are fired only if the respective conditions are maintained for at
-> > > last 4 keypad-clock cycle.
-> > > 
-> > > Those simple synchronization circuits are used also for multiple key pressures:
-> > > between a KDI and a KRI the driver reset the sync circuit and re-enable the KDI
-> > > interrupt so after 3 keypad-clock cycle another KDI is fired making possible to
-> > > repeat the matrix scan operation.
-> > > 
-> > > This algorithm is done through the interrupt management code and delayed by a
-> > > proper (and longer) debounce interval controlled by the platform initialization.
-> > > If a key is pressed for a lot of time, the driver relaxes the interrupt re-enabling
-> > > procedure to not over load the cpu in a long time keypad interaction.
-> > > 
-> > 
-> > I was looking at the debounce logic and I am not quite sure about it.
-> > Normally you have 2 ways for dealing with jitter:
-> > 
-> > 1. You let interrupts to come in and reschedule the scan until they stop
-> >    arriving. Then to tak ethe stable reading.
-> > 
-> > 2. You inhibit interrupt, take a reading and schedule another reading in
-> >    the future. If they match you decide that reading is stable otherwise
-> >     you schedule another reading.
-> > 
-> > In your case you seem to be simply postponing the reading but this does
-> > not guarantee that the reading is stable.
-> 
-> Yes, because of the glitch suppression circuit, I suppose that when
-> an interrupt arrive, it is a key pressure for sure.
-> Then I assume that the matrix will be stable after a proper debounce
-> time (test look fine with 20 ms).
-> 
-> 1 should be a more accurate way, I can study an implementation.
-> 
-> > 
-> > I also do not think that yopu need 2 timers - you can easily requeue
-> > currently running timer.
-> 
-> The first version I made was with one timer: if for too many repeating 
-> interrupts the matrix state do not change, the scanning procedure was 
-> scheduled with a summed delay.
-> 
-> It resulted in a degradation of responsiveness and more key pressure 
-> losing. It is a better choice to let the scanning procedure near the 
-> interrupt.
+This aids debug of problematic systems.
 
-Hmm, that is unexpected result. I am pretty sure if was implementation
-deficiency and you can achieve the same performance with one timer and
-unified timer function.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/mainstone-wm97xx.c |    3 +++
+ drivers/input/touchscreen/zylonite-wm97xx.c  |    3 +++
+ 2 files changed, 6 insertions(+), 0 deletions(-)
 
-> 
-> Changing the timer handler over the time? Would be acceptable?
-
-No, it is a bad taste.
-
+diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
+index 6cdcf2a..b6b8b1c 100644
+--- a/drivers/input/touchscreen/mainstone-wm97xx.c
++++ b/drivers/input/touchscreen/mainstone-wm97xx.c
+@@ -153,6 +153,9 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 		if (pressure)
+ 			p = MODR;
+ 
++		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
++			x, y, p);
++
+ 		/* are samples valid */
+ 		if ((x & WM97XX_ADCSRC_MASK) != WM97XX_ADCSEL_X ||
+ 		    (y & WM97XX_ADCSRC_MASK) != WM97XX_ADCSEL_Y ||
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index eca54db..0488498 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -118,6 +118,9 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 		if (pressure)
+ 			p = MODR;
+ 
++		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
++			x, y, p);
++
+ 		/* are samples valid */
+ 		if ((x & WM97XX_ADCSRC_MASK) != WM97XX_ADCSEL_X ||
+ 		    (y & WM97XX_ADCSRC_MASK) != WM97XX_ADCSEL_Y ||
 -- 
-Dmitry
+1.6.6
+

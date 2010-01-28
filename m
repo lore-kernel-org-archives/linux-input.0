@@ -1,33 +1,55 @@
-From: "Gunn, Brian" <bgunn-2XggCk4BHTRBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCHes] Implement Bluetooth Wacom tablet's mode change in the
- kernel
-Date: Thu, 28 Jan 2010 14:33:04 -0800
-Message-ID: <FE57175CCE23E5419899C1B0CFA26FAD12CDF72C0F@EXMBXSD.dm.solekai.com>
-References: <1263833399.20565.2905.camel@localhost.localdomain>
-	 <1263886149.5591.166.camel@localhost.localdomain>
-	 <1263897015.20565.3988.camel@localhost.localdomain>
-	 <FE57175CCE23E5419899C1B0CFA26FAD101B5E591A@EXMBXSD.dm.solekai.com>
- <1264037759.1735.5008.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1264037759.1735.5008.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Content-Language: en-US
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, BlueZ development <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ping <pinglinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 1/2] input: mt: add the ABS_MT_PRESSURE event
+Date: Thu, 28 Jan 2010 23:42:48 +0100
+Message-ID: <1264718569-9772-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:42013 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753732Ab0A1WpV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 Jan 2010 17:45:21 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jy0922.shim@samsung.com, mika.kuoppala@nokia.com, peter.hutterer@who-t.net, Henrik Rydberg <rydberg@euromail.se>
 
-> > I just tested this patch with my device and it does work.  I had to
-> > slightly alter the data I send (had to add 0xA2 to the front of it),
-> > but then it does work.
->
-> I sent a new version of the patch, which uses "HIDP_TRANS_SET_REPORT |
-> HIDP_DATA_RTYPE_FEATURE" for the first byte. Would that work?
+For pressure-based multi-touch devices, a direct way to send sensor
+intensity data per finger is needed. This patch adds the ABS_MT_PRESSURE
+event to the MT protocol.
 
-Actually for my application it doesn't.  I use HIDP_TRANS_DATA | HIDP_DATA_RTYPE_OUTPUT.
+Requested-by: Yoonyoung Shim <jy0922.shim@samsung.com>
+Requested-by: Mika Kuoppala <mika.kuoppala@nokia.com>
+Requested-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/input.c |    1 +
+ include/linux/input.h |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-Perhaps allowing the user the choice of what do to here is more flexible.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 30b503b..86cb2d2 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -46,6 +46,7 @@ static unsigned int input_abs_bypass_init_data[] __initdata = {
+ 	ABS_MT_TOOL_TYPE,
+ 	ABS_MT_BLOB_ID,
+ 	ABS_MT_TRACKING_ID,
++	ABS_MT_PRESSURE,
+ 	0
+ };
+ static unsigned long input_abs_bypass[BITS_TO_LONGS(ABS_CNT)];
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 7be8a65..735ceaf 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -660,6 +660,7 @@ struct input_absinfo {
+ #define ABS_MT_TOOL_TYPE	0x37	/* Type of touching device */
+ #define ABS_MT_BLOB_ID		0x38	/* Group a set of packets as a blob */
+ #define ABS_MT_TRACKING_ID	0x39	/* Unique ID of initiated contact */
++#define ABS_MT_PRESSURE		0x3a	/* Pressure on contact area */
+ 
+ #define ABS_MAX			0x3f
+ #define ABS_CNT			(ABS_MAX+1)
+-- 
+1.6.3.3
 
-Brian

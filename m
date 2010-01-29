@@ -1,70 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.33-rc5
-Date: Thu, 28 Jan 2010 23:12:30 -0800
-Message-ID: <20100129071230.GE4177@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: RE: [PATCHes] Implement Bluetooth Wacom tablet's mode change in the
+ kernel
+Date: Fri, 29 Jan 2010 10:39:59 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1001291039350.15694@twin.jikos.cz>
+References: <1263833399.20565.2905.camel@localhost.localdomain>  <1263886149.5591.166.camel@localhost.localdomain>  <1263897015.20565.3988.camel@localhost.localdomain>  <FE57175CCE23E5419899C1B0CFA26FAD101B5E591A@EXMBXSD.dm.solekai.com>
+ <1264037759.1735.5008.camel@localhost.localdomain>  <FE57175CCE23E5419899C1B0CFA26FAD12CDF72C0F@EXMBXSD.dm.solekai.com> <1264719198.29532.3149.camel@localhost.localdomain> <FE57175CCE23E5419899C1B0CFA26FAD12CDF72C1E@EXMBXSD.dm.solekai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f189.google.com ([209.85.222.189]:57731 "EHLO
-	mail-pz0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752977Ab0A2HMg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jan 2010 02:12:36 -0500
-Content-Disposition: inline
+Received: from cantor.suse.de ([195.135.220.2]:43650 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754979Ab0A2JkD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Jan 2010 04:40:03 -0500
+In-Reply-To: <FE57175CCE23E5419899C1B0CFA26FAD12CDF72C1E@EXMBXSD.dm.solekai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: "Gunn, Brian" <bgunn@solekai.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Marcel Holtmann <marcel@holtmann.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, BlueZ development <linux-bluetooth@vger.kernel.org>, Ping <pinglinux@gmail.com>
 
-Hi Linus,
+On Thu, 28 Jan 2010, Gunn, Brian wrote:
 
-Please pull from:
+> > > > I sent a new version of the patch, which uses "HIDP_TRANS_SET_REPORT |
+> > > > HIDP_DATA_RTYPE_FEATURE" for the first byte. Would that work?
+> > >
+> > > Actually for my application it doesn't.  I use HIDP_TRANS_DATA |
+> > HIDP_DATA_RTYPE_OUTPUT.
+> > >
+> > > Perhaps allowing the user the choice of what do to here is more flexible.
+> >
+> > Except that it would mean different code for USB and Bluetooth
+> > versions...
+> 
+> So do we need a method of setting which device reports we're sending before writing them?
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Having separate methods for feature and output reports should be 
+sufficient and general enough, right?
 
-to receive updates for the input subsystem. The ad7879 update is a bit
-big to my taste but users want to use standard GPIO interface with the
-driver and we don't want to continue carrying old sysfs interface for
-another release.
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
 
-Changelog:
----------
-
-David H=E4rdeman (1):
-      Input: winbond-cir - remove dmesg spam
-
-Henrik Rydberg (2):
-      Input: add the ABS_MT_PRESSURE event
-      Input: update multi-touch protocol documentation
-
-Jon Dodgson (1):
-      Input: lifebook - add another Lifebook DMI signature
-
-Michael Hennerich (1):
-      Input: ad7879 - support auxiliary GPIOs via gpiolib
-
-
-Diffstat:
---------
-
- Documentation/input/multi-touch-protocol.txt |   48 +++++-
- drivers/input/input.c                        |    1 +
- drivers/input/misc/winbond-cir.c             |    2 +-
- drivers/input/mouse/lifebook.c               |    6 +
- drivers/input/touchscreen/ad7879.c           |  197 ++++++++++++++++++=
---------
- include/linux/input.h                        |    1 +
- include/linux/spi/ad7879.h                   |   12 +-
- 7 files changed, 198 insertions(+), 69 deletions(-)
-
---=20
-Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

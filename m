@@ -1,81 +1,637 @@
-From: Matthew Wilcox <matthew@wil.cx>
-Subject: Securing non-root X input
-Date: Fri, 29 Jan 2010 16:24:38 -0700
-Message-ID: <20100129232437.GB6992@parisc-linux.org>
+From: James Mastros <james@mastros.biz>
+Subject: Xbox 360 big button controllers patch
+Date: Sat, 30 Jan 2010 02:26:05 +0000
+Message-ID: <abc933c51001291826q3b80fcabxe63f37fbc8255f9c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from palinux.external.hp.com ([192.25.206.14]:55503 "EHLO
-	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754863Ab0A2XYk (ORCPT
+Received: from mail-gx0-f226.google.com ([209.85.217.226]:44165 "EHLO
+	mail-gx0-f226.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755967Ab0A3C0I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Jan 2010 18:24:40 -0500
-Content-Disposition: inline
+	Fri, 29 Jan 2010 21:26:08 -0500
+Received: by gxk26 with SMTP id 26so804211gxk.8
+        for <linux-input@vger.kernel.org>; Fri, 29 Jan 2010 18:26:06 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dave Airlie <airlied@gmail.com>, peter.hutterer@who-t.net
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, xorg@freedesktop.org
+To: linux-input@vger.kernel.org, jurrabi@gmail.com
 
+The xbox 360 game "Scene-it" comes with a set of four "big button"
+controllers, see
+http://en.wikipedia.org/wiki/Big_Button_Controller#Big_Button_Pad.
 
-Dave Airlie commented at LCA that the last obstacle to running X as a
-regular user (instead of setuid) was getting revoke() to work on evdev
-file descriptors so that the previous user can't snoop the keypresses /
-mouse movements / etc of the current user.
+Below is a patch which works (most of the time). Each receiver
+attached to the system via USB (multiple at once not tested!) will
+show up as four input devices, one for each controller.  They each
+show up as 11 buttons.  Occasionally, I see missed button-up events,
+and even doubled key-down events (which I didn't think was possible),
+but it works most of the time.  Ideas as to why this happens very
+welcome, as are replies to any of the comments in the patch.
 
-I respectfully disagree that this is the correct approach; making sure
-that legitimate apps behave correctly in the presence of revoke()
-is a significant hurdle, and one I'm not sure we want to undertake.
-It's also a pain in the arse to implement in the kernel, and may take
-an unacceptable amount of time or space to work.
+   Thank you,
+   -=- James Mastros
+   theorbtwo
 
-Another approach we discussed was to implement O_EXCL without O_CREAT.
-ie fail the open if another process has the device open.  This turns
-out to be a bad idea as there are legitimate use cases (eg debugging)
-where we want it to work even if another process has the device open.
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index b114195..eea0550 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -294,6 +294,16 @@ config JOYSTICK_XPAD_LEDS
+ 	  This option enables support for the LED which surrounds the Big X on
+ 	  XBox 360 controller.
 
-We also discussed using leases to ensure that a given task was the
-exclusive opener of a device, but the current lease code only works on
-regular files, and see the previous paragraph for cases where we don't
-want that behaviour anyway.
-
-This tiny patch allows the X server to ask how many times the device has
-been opened.  If it's more than one, the X server can ask the user what
-they want to do about it.  For bonus points, the X server can also run
-programs like lsof or fuser to find out which other processes have the
-device open, and tell the user that information too.  At that point,
-the sysadmin can call in the ICBM strike on the offending user.
-
-Does this approach work for everyone?
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 258c639..c0e5ecf 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -567,6 +567,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 
- 		return input_set_keycode(dev, t, v);
- 
-+	case EVIOCGOPEN:
-+		return evdev->open;
++config JOYSTICK_XBOX360BB
++	tristate "X-Box 360 big-button controller support"
++	depends on USB_ARCH_HAS_HCD
++	select USB
++	help
++	  Say Y here if you want to use the X-Box 360 "big button"
++	  controllers with your computer.  These are the large game-show
++	  style controllers that come with games like Scene It? Lights, Camera,
++	  Action.
 +
- 	case EVIOCRMFF:
- 		return input_ff_erase(dev, (int)(unsigned long) p, file);
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 7be8a65..702ba54 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -62,6 +62,7 @@ struct input_absinfo {
- #define EVIOCSREP		_IOW('E', 0x03, int[2])			/* set repeat settings */
- #define EVIOCGKEYCODE		_IOR('E', 0x04, int[2])			/* get keycode */
- #define EVIOCSKEYCODE		_IOW('E', 0x04, int[2])			/* set keycode */
-+#define EVIOCGOPEN		_IO('E', 0x05)				/* return open count */
- 
- #define EVIOCGNAME(len)		_IOC(_IOC_READ, 'E', 0x06, len)		/* get device name */
- #define EVIOCGPHYS(len)		_IOC(_IOC_READ, 'E', 0x07, len)		/* get physical location */
+ config JOYSTICK_WALKERA0701
+ 	tristate "Walkera WK-0701 RC transmitter"
+ 	depends on HIGH_RES_TIMERS && PARPORT
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index f3a8cbe..7ab2f96 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -29,6 +29,7 @@ obj-$(CONFIG_JOYSTICK_TURBOGRAFX)	+= turbografx.o
+ obj-$(CONFIG_JOYSTICK_TWIDJOY)		+= twidjoy.o
+ obj-$(CONFIG_JOYSTICK_WARRIOR)		+= warrior.o
+ obj-$(CONFIG_JOYSTICK_XPAD)		+= xpad.o
++obj-$(CONFIG_JOYSTICK_XBOX360BB)	+= xbox360bb.o
+ obj-$(CONFIG_JOYSTICK_ZHENHUA)		+= zhenhua.o
+ obj-$(CONFIG_JOYSTICK_WALKERA0701)	+= walkera0701.o
 
--- 
-Matthew Wilcox				Intel Open Source Technology Centre
-"Bill, look, we understand that you're interested in selling us this
-operating system, but compare it to ours.  We can't possibly take such
-a retrograde step."
+diff --git a/drivers/input/joystick/xbox360bb.c
+b/drivers/input/joystick/xbox360bb.c
+new file mode 100644
+index 0000000..7865c8d
+--- /dev/null
++++ b/drivers/input/joystick/xbox360bb.c
+@@ -0,0 +1,547 @@
++/*
++ * X-Box 360 big-button controller driver
++ *
++ * This is for the controllers that come with game-show style games
++ * for the xbox 360.  They consist of an IR reciver with a USB cable,
++ * marked on the bottom "Microsoft X-Box 360 Big Button IR" (fixme:
++ * verify), and four seperate controller devices, each with a
++ * different colour scheme: green, red, blue, and yellow (in that
++ * order).
++ *
++ * To the best of my knowledge, these haven't been publicly reverse
++ * engineered before.  The protocol is pretty simple, and is explained
++ * in the comments below.  It's not terribly far from the normal xbox
++ * protocol; there's an additional byte or three of metadata at the
++ * beginning, which specifies what controller is talking, and one of
++ * the otherwise unused bit is the centre-of-dpad button that normal
++ * controllers don't have.
++ *
++ * What is different from the normal controller is the fact that there
++ * are four of them, and that they use the repeat scheme that is
++ * popular in the CIR world -- you keep getting reports of the same
++ * buttons being held down until they aren't held anymore, and you
++ * never get a report that tells you no buttons are held.
++ *
++ * Unlike a normal xbox360 controller, there are no LEDs (so far as I
++ * know; I haven't actually disassembled one, but the game I played
++ * with them didn't use it at all, if there is one, and it would have
++ * been an obvious enhancement to the gameplay.)
++ *
++ * Copyright 2009 James Mastros <james@mastros.biz>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * This driver is based on:
++ *  - the xpad driver -- general input & usb, some xbox --
+drivers/input/joystick/xpad.c
++ *  - winbond-cir -- repeat handling -- drivers/input/misc/winbond-cir.c
++ *
++ * TODO:
++ *  - smarter support for repeat.
++ *  - Become certian of the correct keycode for the centre button.
++ */
++
++#include <linux/kernel.h>
++#include <linux/usb/input.h>
++#define DRIVER_AUTHOR "James Mastros <james@mastros.biz>"
++#define DRIVER_DESC "X-Box 360 big-buttons driver"
++
++#define DPRINTK(fmt, ...)
++
++/* No idea where this came from, it's copped from xpad.c */
++#define XBOX360BB_PKT_LEN 32
++
++/*
++ * This might be overkill at this point.  I'm honestly not really
++ * sure.
++ */
++static const struct xbox360bb_dev_options {
++	u16 idVendor;
++	u16 idProduct;
++	char *name;
++} xbox360bb_dev_options[] = {
++	{ 0x045e, 0x02a0, "Microsoft X-Box 360 Big Button IR" },
++	{ },
++};
++
++static const signed short xbox360bb_btn[] = {
++	/* Byte 2 (zero-based) or report, MSB to LSB */
++	/* 0x80 and 0x40 are unused */
++	BTN_BACK,   /* 0x20 */
++	BTN_START,  /* 0x10 */
++	BTN_RIGHT,  /* 0x08 */
++        BTN_LEFT,   /* 0x04 */
++	/* No good names for "up" and "down" buttons, use the same as
++	 * xpad. */
++	BTN_1,      /* 0x02 */
++	BTN_0,      /* 0x01 */
++	/* Byte 3 (zero-based) of report, MSB to LSB */
++	BTN_Y,      /* 0x80 */
++	BTN_X,      /* 0x40 */
++	BTN_B,      /* 0x20 */
++	BTN_A,      /* 0x10 */
++	/*
++	 * this bit isn't used for normal xbox controllers -- on a
++	 * normal controller, you simply can't hit all the directions at
++	 * the same time, and on a dance controller, you can only if
++	 * you have four feet.
++	 * There's no clear button defintion for this use, so we use
++	 * thumbr.
++	 * In any case, it's byte 4, 0x08.
++	 */
++	BTN_THUMBR, /* 0x08 */
++	/* The big X, logo button.  xpad uses BTN_MODE. */
++	BTN_MODE,   /* 0x04 */
++	/* 0x02 and 0x01 seem to be unused. */
++	/* end marker */
++	-1
++};
++
++/*
++ * Xbox 360 has a vendor-specific class, so we cannot match it with only
++ * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
++ * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
++ * wireless controllers have protocol 129, and big button controllers
++ * have protocol 4.
++ */
++#define XBOX360BB_VENDOR_PROTOCOL(vend,pr) \
++	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
++	.idVendor = (vend), \
++	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
++	.bInterfaceSubClass = 93, \
++	.bInterfaceProtocol = (pr)
++#define XBOX360BB_VENDOR(vend) \
++	{ XBOX360BB_VENDOR_PROTOCOL(vend,4) }
++
++static struct usb_device_id xbox360bb_usb_table[] = {
++	XBOX360BB_VENDOR(0x045e),	/* Microsoft X-Box 360 controllers */
++	{}
++};
++
++MODULE_DEVICE_TABLE(usb, xbox360bb_usb_table);
++
++/* Circular dependency */
++struct xbox360bb;
++
++struct xbox360bb_controller {
++	/* Points back to the parent usb_xbox360bb struct */
++	struct xbox360bb *receiver;
++	/* 0..3 */
++	int controller_number;
++	struct input_dev *idev;
++	unsigned char last_report[2];
++	struct timer_list timer_keyup;
++};
++
++struct xbox360bb {
++	/* USB side */
++	struct usb_device *udev;	/* usb device */
++	struct urb *irq_in;		/* urb for interrupt in report */
++	unsigned char *raw_data;	/* input data */
++	/* TODO: rename to raw_data_dma */
++	dma_addr_t idata_dma;
++
++	/* input side */
++
++	/* the number of input devices which are open.  Should always
++	   be between 0 and 4, and FIXME should have locking? */
++	int idev_open_count;
++
++	/* These are in a sub-struct per controller, so that we have
++	 * something nice to point to as user data in the callback
++	 * functions that lets us know which controller we are
++	 * handling in a nice, clean manner.  OTOH, directly embedding
++	 * the struct lets us not worry about that messy allocation
++	 * stuff
++	 */
++	struct xbox360bb_controller controller[4];
++};
++
++/* xbox360bb_keydown
++ *
++ * Note that a key has gone down, or is still down.
++ * While currently this is quite simple, it should shortly become
++ * quite a bit more complex.  FIXME: Take code for this from
++ * drivers/input/misc/winbond-cir.c, bcir_keyup & such.
++ *
++ *
++ */
++static void xbox360bb_keydown(struct xbox360bb_controller
+*controller, int button, int val) {
++	input_report_key(controller->idev, button, val);
++}
++
++/* xbox360bb_keyup
++ *
++ * This is the timer callback function.  If we reach this, that means
++ * we haven't had a report at all for this controller in some time, so
++ * we should consider *all* keys that it had down as up.
++ */
++static void xbox360bb_keyup(unsigned long user_data) {
++	int btn_i;
++	struct xbox360bb_controller *controller = (struct
+xbox360bb_controller *)user_data;
++	
++	printk("xbox360bb: timer callback for controller %d\n",
+controller->controller_number);
++	
++	/* FIXME: Is there a quick, simple way to keyup all currently
++	 * down keys at once? */
++	for (btn_i = 0; xbox360bb_btn[btn_i] >= 0; btn_i++) {
++		input_report_key(controller->idev, xbox360bb_btn[btn_i], 0);
++	}
++	input_sync(controller->idev);
++	controller->last_report[0] = 0;
++	controller->last_report[1] = 0;
++}
++
++/*
++ * xbox360bb_usb_process_packet
++ *
++ * Given the actual payload of a packet, make it into events.  This is
++ * the actual core of this module; everything else is plumbing.
++ */
++static void xbox360bb_usb_process_packet(struct xbox360bb *xbox360bb,
+u16 cmd, unsigned char* data)
++{
++	/* Byte 2 of the input is what controller we've got, zero
++	 * based: green, red, blue, yellow. */
++	struct xbox360bb_controller *controller;
++	
++	if (data[2] > 3) {
++		printk("Argh, xbox360bb controller number out of range: %d", data[2]);
++		/* Should we stop processing completely, rather then
++		just this report?  Depends on how severe the error is,
++		and I currently have no way of telling.  There's
++		unlikely to be worse results then just the driver
++		hitting random buttons -- this is the only place where
++		we use input from the controller as an index in kernel
++		space. On the other hand, what controller do we
++		attribute the report to? */
++		return;
++	}
++	controller = &(xbox360bb->controller[data[2]]);
++
++	DPRINTK("xbox360bb: %d ms currently remaining on timer\n",
+jiffies_to_msecs(controller->timer_keyup.expires-jiffies));
++	
++	/* Arm the timer (or move it forward).  In a quick test, 188
++	 * ms is longest between two reports.  250 should give us
++	 * plenty of time for highly loaded systems. */
++	mod_timer(&controller->timer_keyup, jiffies + msecs_to_jiffies(250));
++	
++	/* Short-circuit further processing if this report is the same
++	 * as the previous one.  Just a cheap way of saving CPU time,
++	 * mostly. */
++	if (controller->last_report[0] == data[3] &&
++	    controller->last_report[1] == data[4]) {
++		DPRINTK("xbox360bb: Ignoring duplicate report\n");
++		return;
++	}
++	controller->last_report[0] = data[3];
++	controller->last_report[1] = data[4];
++	
++	/* dpad as four buttons... */
++	xbox360bb_keydown(controller, BTN_0,      data[3] & 0x01); /* up */
++	xbox360bb_keydown(controller, BTN_1,      data[3] & 0x02); /* down */
++	xbox360bb_keydown(controller, BTN_LEFT,   data[3] & 0x04);
++	xbox360bb_keydown(controller, BTN_RIGHT,  data[3] & 0x08);
++	
++	/* start/back buttons */
++	xbox360bb_keydown(controller, BTN_START,  data[3] & 0x10);
++	xbox360bb_keydown(controller, BTN_BACK,   data[3] & 0x20);
++	xbox360bb_keydown(controller, BTN_MODE,   data[4] & 0x04);
++
++	/* This is the only button that is rather novel vs the normal
++	 * controller.  The corsponding bit for the normal controllers
++	 * isn't used, as far as I can see.  It's like the thumb
++	 * buttons, so call it the right one, randomly.
++	 * (Normally the thumb button goes with an analog stick, not a dpad.)
++	 */
++	xbox360bb_keydown(controller, BTN_THUMBR, data[4] & 0x08);
++
++
++	/* buttons A,B,X,Y,TL,TR and MODE */
++	xbox360bb_keydown(controller, BTN_A,	  data[4] & 0x10);
++	xbox360bb_keydown(controller, BTN_B,	  data[4] & 0x20);
++	xbox360bb_keydown(controller, BTN_X,	  data[4] & 0x40);
++	xbox360bb_keydown(controller, BTN_Y,	  data[4] & 0x80);
++	
++	input_sync(controller->idev);
++}
++
++static void xbox360bb_usb_irq_in(struct urb *urb)
++{
++	struct xbox360bb *xbox360bb = urb->context;
++	int retval, status;
++
++	status = urb->status;
++	
++	
++	switch (status) {
++	case 0:
++		/* success */
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dbg("%s - urb shutting down with status: %d",
++		    __func__, status);
++		return;
++	default:
++		dbg("%s - nonzero urb status received: %d",
++		    __func__, status);
++		goto exit;
++	}
++	
++	xbox360bb_usb_process_packet(xbox360bb, 0, xbox360bb->raw_data);
++
++exit:
++	retval = usb_submit_urb (urb, GFP_ATOMIC);
++	if (retval)
++		err ("%s - usb_submit_urb failed with result %d",
++		     __func__, retval);
++}
++
++/* Input side device opened.  We'll never see two overlapping opens
++ * for the same controller; the kernel handles the multiplexing for
++ * us.
++ */
++static int xbox360bb_input_open(struct input_dev *idev)
++{
++	struct xbox360bb_controller *controller = input_get_drvdata(idev);
++	struct xbox360bb *xbox360bb = controller->receiver;
++	int error;
++	
++	if (xbox360bb->idev_open_count == 0) {
++		DPRINTK("In open, submitting URB\n");
++		if ((error = usb_submit_urb(xbox360bb->irq_in, GFP_KERNEL))) {
++			printk("...error = %d\n", error);
++			return -EIO;
++		}
++		DPRINTK("...passed\n");
++	} else {
++		DPRINTK("Not trying to submit URB; it should already be running
+(idev_open_count=%d)\n", xbox360bb->idev_open_count);
++	}
++	xbox360bb->idev_open_count++;
++	if (xbox360bb->idev_open_count > 4) {
++		printk("xbox360bb: WTF, idev_open_count=%d is out of range after
+open\n", xbox360bb->idev_open_count);
++	}
++	
++	return 0;
++}
++
++static void xbox360bb_input_close(struct input_dev *idev)
++{
++	struct xbox360bb_controller *controller = input_get_drvdata(idev);
++	struct xbox360bb *xbox360bb = controller->receiver;
++
++	if (xbox360bb->idev_open_count == 1) {
++		DPRINTK("In close, killing urb\n");
++		usb_kill_urb(xbox360bb->irq_in);
++	} else {
++		DPRINTK("In close, not killing urb, open count=%d\n",
+xbox360bb->idev_open_count);
++	}
++	xbox360bb->idev_open_count--;
++	if (xbox360bb->idev_open_count < 0) {
++		printk("xbox360bb: Argh, idev_open_count less then 0: %d\n",
+xbox360bb->idev_open_count);
++	}
++}
++
++static int xbox360bb_usb_probe(struct usb_interface *intf, const
+struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct xbox360bb *xbox360bb;
++	struct input_dev *input_dev;
++	struct usb_endpoint_descriptor *ep_irq_in;
++	const struct xbox360bb_dev_options *dev_options;
++	char *controller_colors[] = {" green controller",
++				     " red controller",
++				     " blue controller",
++				     " yellow controller"};
++	
++	int options_i;
++	int controller_i;
++	int btn_i;
++	int error = -ENOMEM;
++	
++	printk("xbox360bb_usb_probe vendor=0x%x, product=0x%x\n",
++	       le16_to_cpu(udev->descriptor.idVendor),
++	       le16_to_cpu(udev->descriptor.idProduct)
++		);
++	
++	/* Find the xbox360bb_device entry for this one.  (FIXME:
++	   Should we get rid of this?  We only have one, presently,
++	   and no options we need to look up in here anyway.) */
++	for (options_i = 0; xbox360bb_dev_options[options_i].idVendor; options_i++) {
++		dev_options = &xbox360bb_dev_options[options_i];
++		if ((le16_to_cpu(udev->descriptor.idVendor) == dev_options->idVendor) &&
++		    (le16_to_cpu(udev->descriptor.idProduct) == dev_options->idProduct))
++			break;
++	}
++
++	xbox360bb = kzalloc(sizeof(struct xbox360bb), GFP_KERNEL);
++	if (!xbox360bb)
++		goto fail1;
++
++	/* Init the USB stuff */
++	xbox360bb->udev = udev;
++
++	xbox360bb->raw_data = usb_buffer_alloc(udev, XBOX360BB_PKT_LEN,
+GFP_KERNEL, &xbox360bb->idata_dma);
++	if (!xbox360bb->raw_data)
++		goto fail2;
++
++	xbox360bb->irq_in = usb_alloc_urb(0, GFP_KERNEL);
++	if (!xbox360bb->irq_in)
++		goto fail3;
++	
++	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
++	usb_fill_int_urb(xbox360bb->irq_in, udev,
++			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
++			 xbox360bb->raw_data, XBOX360BB_PKT_LEN, xbox360bb_usb_irq_in,
++			 xbox360bb, ep_irq_in->bInterval);
++	xbox360bb->irq_in->transfer_dma = xbox360bb->idata_dma;
++	xbox360bb->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++	xbox360bb->irq_in->dev = xbox360bb->udev;
++	
++	usb_set_intfdata(intf, xbox360bb);
++	
++	/* Init the input stuff */
++	for (controller_i = 0; controller_i < 4; controller_i++) {
++		int name_size;
++		/* input_dev name/phys are const char *, so we need
++		 * to warn all over, or use a temporary.  */
++		char *name;
++		char *phys;
++		struct xbox360bb_controller *controller =
+&(xbox360bb->controller[controller_i]);
++
++		printk("xbox360bb: making input dev %d\n", controller_i);
++
++		controller->controller_number = controller_i;
++		controller->receiver = xbox360bb;
++
++		setup_timer(&(controller->timer_keyup), xbox360bb_keyup, (unsigned
+long)controller);
++
++		input_dev = input_allocate_device();
++		if (!input_dev)
++			goto fail4;
++		controller->idev = input_dev;
++		
++		name_size = strlen(dev_options->name) +
+strlen(controller_colors[controller_i]) + 1;
++		name = kzalloc(name_size, GFP_KERNEL);
++		if (!name)
++			goto fail4;
++		
++		/* Don't bother checking returns, we explicitly sized
++		 * input_dev->name so it will fit, and the worst that
++		 * will happen with str*l*(cpy|cat) is truncation.
++		 */
++		strlcpy(name, dev_options->name, name_size);
++		strlcat(name, controller_colors[controller_i], name_size);
++		
++		printk("xbox360bb: ... name='%s'\n", name);
++		input_dev->name = name;
++
++		/* Right, now need to do the same with phys, more or less. */
++		/* 64 is taken from xpad.c.  I hope it's long enough. */
++		phys = kzalloc(64, GFP_KERNEL);
++		if (!phys)
++			goto fail4;
++		usb_make_path(udev, phys, 64);
++		snprintf(phys, 64, "%s/input%d", phys, controller_i);
++		printk("xbox360bb: ... phys='%s'\n", phys);
++		input_dev->phys = phys;
++
++		/* Static data */
++		input_dev->dev.parent = &intf->dev;
++		printk("xbox360bb: ... input_set_drvdata\n");
++		input_set_drvdata(input_dev, controller);
++		/* Set the input device vendor/product/version from
++		   the usb ones. */
++		usb_to_input_id(udev, &input_dev->id);
++		input_dev->open  = xbox360bb_input_open;
++		input_dev->close = xbox360bb_input_close;
++		
++		/* This is probably horribly inefficent, but it's
++		   one-time init code.  Keep it easy to read, until
++		   profiling says it's *actually* a problem. */
++		input_dev->evbit[0] = BIT_MASK(EV_KEY);
++		for (btn_i = 0; xbox360bb_btn[btn_i] >= 0; btn_i++) {
++			set_bit(xbox360bb_btn[btn_i], input_dev->keybit);
++		}
++
++		printk("xbox360bb: ... input_register_device\n");
++		error = input_register_device(input_dev);
++		printk("xbox360bb: returned from input_register_device, error=%d\n", error);
++		if (error)
++			goto fail4;
++	}
++
++	return 0;
++
++	/* FIXME: We currently leak in failure cases numbered above
++	 * fail3. */
++fail4:
++	printk("Aaargh, hit fail4!\n");
++	/* need to check which bits of the input stuff have been
++	 * allocated, because it's all loopy. */
++fail3:
++	usb_free_urb(xbox360bb->irq_in);
++fail2:
++	usb_buffer_free(udev, XBOX360BB_PKT_LEN, xbox360bb->raw_data,
+xbox360bb->idata_dma);
++fail1:
++	return error;
++}
++
++static void xbox360bb_usb_disconnect(struct usb_interface *intf)
++{
++	struct xbox360bb *xbox360bb = usb_get_intfdata(intf);
++	
++	usb_set_intfdata(intf, NULL);
++	if (!xbox360bb)
++		return;
++
++	input_unregister_device(xbox360bb->controller[0].idev);
++	input_unregister_device(xbox360bb->controller[1].idev);
++	input_unregister_device(xbox360bb->controller[2].idev);
++	input_unregister_device(xbox360bb->controller[3].idev);
++	/* FIXME: free the timers? */
++	usb_free_urb(xbox360bb->irq_in);
++	usb_buffer_free(xbox360bb->udev, XBOX360BB_PKT_LEN,
++			xbox360bb->raw_data, xbox360bb->idata_dma);
++	kfree(xbox360bb);
++}
++
++static struct usb_driver xbox360bb_usb_driver = {
++	.name       = "xbox360bb",
++	.probe      = xbox360bb_usb_probe,
++	.disconnect = xbox360bb_usb_disconnect,
++	.id_table   = xbox360bb_usb_table
++};
++
++static int __init xbox360bb_usb_init(void)
++{
++	int result = usb_register(&xbox360bb_usb_driver);
++	if (result == 0)
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
++	return result;
++}
++
++static void __exit xbox360bb_usb_exit(void)
++{
++	usb_deregister(&xbox360bb_usb_driver);
++}
++
++module_init(xbox360bb_usb_init);
++module_exit(xbox360bb_usb_exit);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");

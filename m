@@ -1,95 +1,45 @@
-From: "Hiremath, Vaibhav" <hvaibhav@ti.com>
-Subject: RE: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver support
-Date: Sat, 30 Jan 2010 16:28:54 +0530
-Message-ID: <19F8576C6E063C45BE387C64729E7394044A6B8FB7@dbde02.ent.ti.com>
-References: <hvaibhav@ti.com>
- <1258642000-2271-1-git-send-email-hvaibhav@ti.com>
- <19F8576C6E063C45BE387C64729E7394044A3982AE@dbde02.ent.ti.com>
- <20100112083702.GB3252@core.coreip.homeip.net>
+From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Subject: Re: [PATCH v5] input: MXC: add mxc-keypad driver to support the
+ Keypad Port present in the mxc application processors family.
+Date: Sat, 30 Jan 2010 12:27:21 +0100
+Message-ID: <1264850841.2587.0.camel@realization>
+References: <1264799926.2975.3.camel@realization>
+	 <20100129213727.GB21364@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:34444 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750906Ab0A3K66 convert rfc822-to-8bit (ORCPT
+Received: from ey-out-2122.google.com ([74.125.78.27]:35180 "EHLO
+	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932065Ab0A3L1l (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 30 Jan 2010 05:58:58 -0500
-In-Reply-To: <20100112083702.GB3252@core.coreip.homeip.net>
-Content-Language: en-US
+	Sat, 30 Jan 2010 06:27:41 -0500
+Received: by ey-out-2122.google.com with SMTP id d26so668261eyd.19
+        for <linux-input@vger.kernel.org>; Sat, 30 Jan 2010 03:27:40 -0800 (PST)
+In-Reply-To: <20100129213727.GB21364@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, H Hartley Sweeten <hartleys@visionengravers.com>, linux-input <linux-input@vger.kernel.org>, Sascha linux-arm <s.hauer@pengutronix.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Lothar =?ISO-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Tuesday, January 12, 2010 2:07 PM
-> To: Hiremath, Vaibhav
-> Cc: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
-> Subject: Re: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver
-> support
-> 
-> On Mon, Jan 11, 2010 at 11:54:05AM +0530, Hiremath, Vaibhav wrote:
-> >
-> > > -----Original Message-----
-> > > From: Hiremath, Vaibhav
-> > > Sent: Thursday, November 19, 2009 8:17 PM
-> > > To: linux-input@vger.kernel.org
-> > > Cc: linux-omap@vger.kernel.org; Hiremath, Vaibhav
-> > > Subject: [PATCH 2/3] Input:TouchScreen: Introduce TSC2004 driver
-> > > support
-> > >
-> > > From: Vaibhav Hiremath <hvaibhav@ti.com>
-> > >
-> > > Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
-> > > ---
-> > >  drivers/input/touchscreen/Kconfig   |   11 +
-> > >  drivers/input/touchscreen/Makefile  |    1 +
-> > >  drivers/input/touchscreen/tsc2004.c |  525
-> > > +++++++++++++++++++++++++++++++++++
-> > >  include/linux/i2c/tsc2004.h         |   17 ++
-> > >  4 files changed, 554 insertions(+), 0 deletions(-)
-> > >  create mode 100644 drivers/input/touchscreen/tsc2004.c
-> > >  create mode 100644 include/linux/i2c/tsc2004.h
-> > >
-> > [Hiremath, Vaibhav] Dmitry,
-> >
-> > Any update on this? This driver support is important for
-> AM3517EVM, can we merge this patch?
-> >
-> 
-> Hi Hiremath,
-> 
-> I looked over the 2 drivers again and I still think that they are
-> too
-> much alike to warrant splitting them into 2. The only thing that you
-> need is provide tsc2004-specific variant of tsc2007_read_values and
-> add tsc2007-specific variant of tsc2004_prepare_for_reading.
-> 
-> Once the drivers start really diverging we may revisit this issue.
-[Hiremath, Vaibhav] Hi Dmitry,
+On ven, 2010-01-29 at 22:37 +0100, Uwe Kleine-K=C3=B6nig wrote:
+> > [...]
+> > +MODULE_LICENSE("GPL v2");
+> There is no space expected in the string passed to MODULE_LICENSE.=20
 
-Sorry for delayed response, as usual was busy with some other priority issues. Let it be...
+in include/linux/module.h:
 
-As I mentioned before, looking towards the functionality differences I decided to implement/have separate driver for TSC2004. But I think you are right, since as of now software is not leveraging all the features we can use existing TSC2007 driver. Whenever we diverge we can slit them.
+/*
+ * The following license idents are currently accepted as indicating fr=
+ee
+ * software modules
+ *
+ *	"GPL"				[GNU Public License v2 or later]
+ *	"GPL v2"			[GNU Public License v2]
+=2E..
 
-Just wanted to share/conform some thoughts on the implementation point of view,
-
-	- Probably change the driver from tsc2007 to tsc200x
-	
-	- introduce initialization sequence as an array and pass it to the i2c_device_id table.
-
-
-	- Driver will have to only use this array sequence, that's all.
-
-I will try to change the driver accordingly and submit it again and also update/inform you if I came across any issues (while doing this, which is unlikely).
-
-Thanks,
-Vaibhav
-
-> 
-> Thanks.
-> 
-> --
-> Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

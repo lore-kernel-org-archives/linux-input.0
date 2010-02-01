@@ -1,102 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Generic implementation for Input enable disable methods
-Date: Mon, 1 Feb 2010 00:59:01 -0800
-Message-ID: <20100201085901.GC24188@core.coreip.homeip.net>
-References: <1263968920.18053.24.camel@4fid08082>
- <1264141700.2889.14.camel@4fid08082>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Mon, 01 Feb 2010 13:52:21 +0000
+Message-ID: <1265032341.32444.3105.camel@localhost.localdomain>
+References: <1263997077.1735.2942.camel@localhost.localdomain>
+	 <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f172.google.com ([209.85.222.172]:52429 "EHLO
-	mail-pz0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750737Ab0BAI7I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2010 03:59:08 -0500
-Received: by pzk2 with SMTP id 2so4049807pzk.21
-        for <linux-input@vger.kernel.org>; Mon, 01 Feb 2010 00:59:07 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1264141700.2889.14.camel@4fid08082>
+Received: from mx1.redhat.com ([209.132.183.28]:57037 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754577Ab0BANw2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Feb 2010 08:52:28 -0500
+In-Reply-To: <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Onkalo Samu <samu.p.onkalo@nokia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Westerberg Mika.1" <ext-mika.1.westerberg@nokia.com>, "Nikula Jani.1" <ext-jani.1.nikula@nokia.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Fri, Jan 22, 2010 at 08:28:20AM +0200, Onkalo Samu wrote:
-> On Wed, 2010-01-20 at 07:28 +0100, Onkalo Samu.P (Nokia-D/Tampere)
-> wrote:
-> > Hi
-> > 
-> > Some time ago, there were two parallel implementation proposals for
-> > disabling input devices. See following email:
-> > http://www.spinics.net/lists/linux-input/msg05984.html
-> > 
-> > It was asked to combine these two to have generic interface.
-> > I'm proposing following sysfs interface:
-> > 
-> > ../input0/disable/avail_xx
-> > ../input0/disable/disable_xx
-> > 
-> > So, new directory for disable control entries. Own entries for each
-> > of the events or event group. Implementation is using bitmap format:
-> > 
-> > Examples
-> > 
-> > See what event groups can be disabled. Disable and enable all the groups
-> > # cat avail_ev
-> > 0-1,4,20
-> > # echo "0-1,4,20" > disable_ev
-> > # cat disable_ev
-> > 0-1,4,20
-> > # echo -e "\0" > disable_ev
-> > # cat disable_ev
-> >  
-> > See what individual events can be disabled. Disable and enable one of
-> > them:
-> > # cat avail_key
-> > 528
-> > # echo "528" > disable_key
-> > # cat disable_key
-> > 528
-> > # echo -e "\0" -> disable_key
-> > # cat disable_key
-> > 
+On Wed, 2010-01-27 at 16:40 +0100, Jiri Kosina wrote:
+> On Wed, 20 Jan 2010, Bastien Nocera wrote:
 > 
-> After some playing with this interface it is quite clear that this is
-> not very user friendly. To have better usability, I'll change my
-> proposal to following one:
+> > +First, you will need to disable the kernel driver for the receiver.
+> > +
+> > +This can be achieved by passing quirks to the usbhid driver.
+> > +The quirk line would be:
+> > +usbhid.quirks=0x05ac:0x8242:0x08
+> > +
+> > +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
+> > +With 0x8242 being the product ID (check the output of lsusb for your hardware)
+> > +And 0x08 being "HID_CONNECT_HIDDEV"
 > 
-> Entries are changed to this format:
-> .../inputx/disable/enable_xx
-> .../inputx/disable/disable_xx
-> (no avail_xx anymore)
+> I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
 > 
-> Use:
-> echo "1,2" > disable_xx  disable events 1 and 2
-> echo "" > disable_xx   do nothing
-> cat disable_xx   list of currently disabled entries
-> 
-> echo "4-5" > enable_xx enable events 4,5,6
-> echo "" > enable_xx  do nothing
-> cat enable_xx   list of currenty enabled entries
-> 
-> Read operation returns only events which can be controlled via this
-> interface.
-> 
-> Enable all currently disabled events:
-> cat disable_xx > enable_xx
-> 
-> Disable all currently enabled events:
-> cat enable_xx > disable_XX
-> 
+> We currently don't have dynamic quirk for forcing HIDDEV creation from the 
+> module parameter.
 
-Hi Samu,
+Right. Any chance to change that?
 
-I still believe that the only thing we need (apart of special plumbing in
-gpio-keys) is a way for userspace clients to subsribe on unsubscribe
-from certain events rather than device-wide configuration. This way we
-can avoid waking up processes that are not interested in some of the
-events.
+> > +	if (!memcmp(data, keydown, sizeof(keydown))) {
+> > +		/*If we already have a key down, take it up before marking */
+> > +		/*this one down */
+> > +		if (appleir->current_key)
+> > +			key_up(appleir, appleir->current_key);
+> > +		appleir->current_key = keymap[(data[4] >> 1) & MAX_KEYS_MASK];
+> > +
+> > +		key_down(appleir, appleir->current_key);
+> > +		/*remote doesn't do key up, either pull them up, in the test */
+> > +		/*above, or here set a timer which pulls them up after 1/8 s */
+> 
+> Could you please place spaces after the comment starters?
 
-Thanks.
+I've done that on my local copy. I'm now trying to get in touch with
+Matthew Garrett so he can help me out with the suspend parts of the
+patch. I'll resubmit when that's done.
 
--- 
-Dmitry
+Cheers
+

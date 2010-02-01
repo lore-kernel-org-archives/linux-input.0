@@ -1,50 +1,102 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Securing non-root X input
-Date: Sun, 31 Jan 2010 18:03:01 -0800
-Message-ID: <20100201020301.GB24188@core.coreip.homeip.net>
-References: <20100129232437.GB6992@parisc-linux.org>
- <20100130074546.GB30378@core.coreip.homeip.net>
- <20100131013534.GA1331@parisc-linux.org>
- <20100131071307.GB12320@core.coreip.homeip.net>
- <20100131170801.GB1331@parisc-linux.org>
+Subject: Re: [RFC] Generic implementation for Input enable disable methods
+Date: Mon, 1 Feb 2010 00:59:01 -0800
+Message-ID: <20100201085901.GC24188@core.coreip.homeip.net>
+References: <1263968920.18053.24.camel@4fid08082>
+ <1264141700.2889.14.camel@4fid08082>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f182.google.com ([209.85.216.182]:39133 "EHLO
-	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750940Ab0BACDG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 Jan 2010 21:03:06 -0500
-Received: by pxi12 with SMTP id 12so3701161pxi.33
-        for <linux-input@vger.kernel.org>; Sun, 31 Jan 2010 18:03:06 -0800 (PST)
+Received: from mail-pz0-f172.google.com ([209.85.222.172]:52429 "EHLO
+	mail-pz0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750737Ab0BAI7I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Feb 2010 03:59:08 -0500
+Received: by pzk2 with SMTP id 2so4049807pzk.21
+        for <linux-input@vger.kernel.org>; Mon, 01 Feb 2010 00:59:07 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20100131170801.GB1331@parisc-linux.org>
+In-Reply-To: <1264141700.2889.14.camel@4fid08082>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Dave Airlie <airlied@gmail.com>, peter.hutterer@who-t.net, linux-input@vger.kernel.org, xorg@freedesktop.org
+To: Onkalo Samu <samu.p.onkalo@nokia.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Westerberg Mika.1" <ext-mika.1.westerberg@nokia.com>, "Nikula Jani.1" <ext-jani.1.nikula@nokia.com>
 
-On Sun, Jan 31, 2010 at 10:08:01AM -0700, Matthew Wilcox wrote:
-> On Sat, Jan 30, 2010 at 11:13:07PM -0800, Dmitry Torokhov wrote:
-> > > Yes, that's right.  I didn't quite go far enough in my explanation
-> > > above ...  the X server can look around the system to see what trusted
-> > > daemons (running as either root or the same user as the one running X)
-> > > currently have the device open, and notify the user if there's additional
-> > > openers that it isn't expecting.
+On Fri, Jan 22, 2010 at 08:28:20AM +0200, Onkalo Samu wrote:
+> On Wed, 2010-01-20 at 07:28 +0100, Onkalo Samu.P (Nokia-D/Tampere)
+> wrote:
+> > Hi
 > > 
-> > Then it will be constant race between X and the rest of the world with X
-> > pretty much always behind. Kind of like SELinux - as soon as try moving
-> > left or right the thing starts screaming at you...
+> > Some time ago, there were two parallel implementation proposals for
+> > disabling input devices. See following email:
+> > http://www.spinics.net/lists/linux-input/msg05984.html
+> > 
+> > It was asked to combine these two to have generic interface.
+> > I'm proposing following sysfs interface:
+> > 
+> > ../input0/disable/avail_xx
+> > ../input0/disable/disable_xx
+> > 
+> > So, new directory for disable control entries. Own entries for each
+> > of the events or event group. Implementation is using bitmap format:
+> > 
+> > Examples
+> > 
+> > See what event groups can be disabled. Disable and enable all the groups
+> > # cat avail_ev
+> > 0-1,4,20
+> > # echo "0-1,4,20" > disable_ev
+> > # cat disable_ev
+> > 0-1,4,20
+> > # echo -e "\0" > disable_ev
+> > # cat disable_ev
+> >  
+> > See what individual events can be disabled. Disable and enable one of
+> > them:
+> > # cat avail_key
+> > 528
+> > # echo "528" > disable_key
+> > # cat disable_key
+> > 528
+> > # echo -e "\0" -> disable_key
+> > # cat disable_key
+> > 
 > 
-> Only if it's done badly (eg whitelisting HAL and Devkit).  The algorithm
-> I proposed above (allow anything owned by root, and anything owned by
-> the same user that is running X) should be secure, and futureproof.
-> Ultimately, it's up to the distro to get this right.
+> After some playing with this interface it is quite clear that this is
+> not very user friendly. To have better usability, I'll change my
+> proposal to following one:
+> 
+> Entries are changed to this format:
+> .../inputx/disable/enable_xx
+> .../inputx/disable/disable_xx
+> (no avail_xx anymore)
+> 
+> Use:
+> echo "1,2" > disable_xx  disable events 1 and 2
+> echo "" > disable_xx   do nothing
+> cat disable_xx   list of currently disabled entries
+> 
+> echo "4-5" > enable_xx enable events 4,5,6
+> echo "" > enable_xx  do nothing
+> cat enable_xx   list of currenty enabled entries
+> 
+> Read operation returns only events which can be controlled via this
+> interface.
+> 
+> Enable all currently disabled events:
+> cat disable_xx > enable_xx
+> 
+> Disable all currently enabled events:
+> cat enable_xx > disable_XX
 > 
 
-Ah, OK then. Well, I don't think that we need any special support from
-kernel then. If users could create device nodes on their own we'd be in
-trouble right now, but since they can't by default we should be good.
+Hi Samu,
+
+I still believe that the only thing we need (apart of special plumbing in
+gpio-keys) is a way for userspace clients to subsribe on unsubscribe
+from certain events rather than device-wide configuration. This way we
+can avoid waking up processes that are not interested in some of the
+events.
+
+Thanks.
 
 -- 
 Dmitry

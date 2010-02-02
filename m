@@ -1,62 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: use multi input quirk for eTurboTouch touchscreen
-Date: Tue, 2 Feb 2010 23:07:19 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1002022307020.15395@pobox.suse.cz>
-References: <1265141347-7541-1-git-send-email-cascardo@holoscopio.com>
+From: akpm@linux-foundation.org
+Subject: [patch 1/7] input: bcm5974: retract efi-broken suspend_resume
+Date: Tue, 02 Feb 2010 14:42:48 -0800
+Message-ID: <201002022242.o12MgmRX019128@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:34944 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756399Ab0BBWHV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Feb 2010 17:07:21 -0500
-In-Reply-To: <1265141347-7541-1-git-send-email-cascardo@holoscopio.com>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:51229 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756701Ab0BBWnK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Feb 2010 17:43:10 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: linux-kernel@vger.kernel.org, don@syst.com.br, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-On Tue, 2 Feb 2010, Thadeu Lima de Souza Cascardo wrote:
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
-> This device generates ABS_Z and ABS_RX events, while it should be
-> generating ABS_X and ABS_Y instead. Using the MULTI_INPUT quirk solves
-> this issue.
-> 
-> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> Signed-off-by: Daniel Oliveira Nascimento <don@syst.com.br>
-> ---
->  drivers/hid/hid-ids.h           |    3 +++
->  drivers/hid/usbhid/hid-quirks.c |    1 +
->  2 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index adbef5d..e99485f 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -164,6 +164,9 @@
->  #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
->  #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
->  
-> +#define USB_VENDOR_ID_ETURBOTOUCH	0x22b9
-> +#define USB_DEVICE_ID_ETURBOTOUCH	0x0006
-> +
->  #define USB_VENDOR_ID_EZKEY 		0x0518
->  #define USB_DEVICE_ID_BTC_8193		0x0002
->  
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 0d9045a..edc598d 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -42,6 +42,7 @@ static const struct hid_blacklist {
->  
->  	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
->  
-> +	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
->  	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
+With the recent system-wide improvements on suspend/resume and EFI booting
+the suspend_resume method of the bcm5974 has broken.  When waking up from
+the S3 state on the MacBookAir, the trackpad is found in a yet unknown
+state, unable to switch to the proper multitouch mode.  The result is a
+frozen touchpad, and a flood of errors of the kind
 
-Applied to my tree, thank you.
+bcm5974: bad trackpad package, length: 8.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+This patch retracts the reset_resume method altogether, falling back on
+the generic unbind/rebind functionality of the usb layer until further
+investigations can be made as how to reset the device when booting from
+efi.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ drivers/input/mouse/bcm5974.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume
++++ a/drivers/input/mouse/bcm5974.c
+@@ -803,7 +803,6 @@ static struct usb_driver bcm5974_driver 
+ 	.disconnect		= bcm5974_disconnect,
+ 	.suspend		= bcm5974_suspend,
+ 	.resume			= bcm5974_resume,
+-	.reset_resume		= bcm5974_resume,
+ 	.id_table		= bcm5974_table,
+ 	.supports_autosuspend	= 1,
+ };
+_

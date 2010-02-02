@@ -1,44 +1,54 @@
-From: Alexander Shishkin <virtuoso@slind.org>
-Subject: Re: [RFC][PATCH] HID: add NOGET quirk for Prodige Cordless Combo
-Date: Tue, 2 Feb 2010 21:49:36 +0200
-Message-ID: <20100202194936.GA14134@shisha.kicks-ass.net>
-References: <1265129012-6023-1-git-send-email-virtuoso@slind.org>
- <alpine.LNX.2.00.1002022033340.15395@pobox.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: [PATCH] HID: use multi input quirk for eTurboTouch touchscreen
+Date: Tue,  2 Feb 2010 18:09:06 -0200
+Message-ID: <1265141347-7541-1-git-send-email-cascardo@holoscopio.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from filtteri1.pp.htv.fi ([213.243.153.184]:58022 "EHLO
-	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756495Ab0BBT6Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Feb 2010 14:58:16 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1002022033340.15395@pobox.suse.cz>
+Received: from liberdade.minaslivre.org ([72.232.254.139]:55798 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752235Ab0BBUNh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Feb 2010 15:13:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: don@syst.com.br, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, Feb 02, 2010 at 08:34:04 +0100, Jiri Kosina wrote:
-> On Tue, 2 Feb 2010, Alexander Shishkin wrote:
-> 
-> > I happen to own a keyboard identified as 05af:3062 which is labeled as
-> > "FlatX Coldless Combo" by "Prodige", which exhibits input problems without
-> > NOGET quirk. For some reason, lsusb reports this device as "Jing-Mold
-> > Enterprise Co., Ltd", which is not mentioned anywhere on the package.
-> > A quick search on the intenet shows that there a other people who have
-> > this in their lsusb output, but apparently they don't have the problem
-> > I am seeing (or they are not such furious typists as myself).
-> 
-> Out of curiosity, what behavior does the device in question exhibit 
-> without the quirk?
+This device generates ABS_Z and ABS_RX events, while it should be
+generating ABS_X and ABS_Y instead. Using the MULTI_INPUT quirk solves
+this issue.
 
-The "0" key does not send anything, but instead, when I press "P" or "S"
-and then without releasing press any other key, it sends that letter and
-then a keypress for "0", which stays on up until I press something else.
-Also, when I plug the receiver in, it immediately sends the same keypress
-for "0" until the first actual keystroke. Or at least that's how I see it
-in console or X (checked with xev).
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Signed-off-by: Daniel Oliveira Nascimento <don@syst.com.br>
+---
+ drivers/hid/hid-ids.h           |    3 +++
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-Regards,
---
-Alex
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index adbef5d..e99485f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -164,6 +164,9 @@
+ #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
+ #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
+ 
++#define USB_VENDOR_ID_ETURBOTOUCH	0x22b9
++#define USB_DEVICE_ID_ETURBOTOUCH	0x0006
++
+ #define USB_VENDOR_ID_EZKEY 		0x0518
+ #define USB_DEVICE_ID_BTC_8193		0x0002
+ 
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 0d9045a..edc598d 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -42,6 +42,7 @@ static const struct hid_blacklist {
+ 
+ 	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+ 
++	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
+ 
+-- 
+1.6.6.1
+

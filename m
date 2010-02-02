@@ -1,16 +1,16 @@
 From: akpm@linux-foundation.org
-Subject: [patch 2/7] usbtouchscreen: convert from usb_device to usb_interface
-Date: Tue, 02 Feb 2010 14:42:50 -0800
-Message-ID: <201002022242.o12MgoMx019134@imap1.linux-foundation.org>
+Subject: [patch 7/7] usbtouchscreen: fix leaks and check return value of usb_submit_urb()
+Date: Tue, 02 Feb 2010 14:42:57 -0800
+Message-ID: <201002022242.o12Mgvev019151@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:49770 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:47788 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756824Ab0BBWnV (ORCPT
+	by vger.kernel.org with ESMTP id S1757099Ab0BBWnW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Feb 2010 17:43:21 -0500
+	Tue, 2 Feb 2010 17:43:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
@@ -18,8 +18,10 @@ Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-softwa
 
 From: Ondrej Zary <linux@rainbow-software.org>
 
-Convert usbtouchscreen from storing usb_device to usb_interface. This is
-needed for multi-interface touchscreen devices such as iNexio.
+Fix urb and priv leaks in error paths of initialization and NEXIO ack_buf
+leak.
+
+Also check usb_submit_urb() return value.
 
 Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -32,93 +34,58 @@ Cc: Oliver Neukum <oliver@neukum.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/touchscreen/usbtouchscreen.c |   22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |   21 +++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-convert-from-usb_device-to-usb_interface drivers/input/touchscreen/usbtouchscreen.c
---- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-convert-from-usb_device-to-usb_interface
+diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-leaks-and-check-return-value-of-usb_submit_urb drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-fix-leaks-and-check-return-value-of-usb_submit_urb
 +++ a/drivers/input/touchscreen/usbtouchscreen.c
-@@ -104,7 +104,7 @@ struct usbtouch_usb {
- 	unsigned char *buffer;
- 	int buf_len;
- 	struct urb *irq;
--	struct usb_device *udev;
-+	struct usb_interface *interface;
- 	struct input_dev *input;
- 	struct usbtouch_device_info *type;
- 	char name[128];
-@@ -234,8 +234,9 @@ static const struct usb_device_id usbtou
- static int e2i_init(struct usbtouch_usb *usbtouch)
- {
- 	int ret;
-+	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+@@ -834,6 +834,7 @@ static void nexio_exit(struct usbtouch_u
  
--	ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
-+	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 	                      0x01, 0x02, 0x0000, 0x0081,
- 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
+ 	usb_kill_urb(priv->ack);
+ 	usb_free_urb(priv->ack);
++	kfree(priv->ack_buf);
+ 	kfree(priv);
+ }
  
-@@ -344,8 +345,9 @@ static int mtouch_read_data(struct usbto
- static int mtouch_init(struct usbtouch_usb *usbtouch)
- {
- 	int ret, i;
-+	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
- 
--	ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
-+	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 	                      MTOUCHUSB_RESET,
- 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -356,7 +358,7 @@ static int mtouch_init(struct usbtouch_u
- 	msleep(150);
- 
- 	for (i = 0; i < 3; i++) {
--		ret = usb_control_msg(usbtouch->udev, usb_rcvctrlpipe(usbtouch->udev, 0),
-+		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
- 				      MTOUCHUSB_ASYNC_REPORT,
- 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -489,7 +491,7 @@ static int gunze_read_data(struct usbtou
- 
- static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
- {
--	struct usb_device *dev = usbtouch->udev;
-+	struct usb_device *dev = interface_to_usbdev(usbtouch->interface);
- 	int ret = -ENOMEM;
- 	unsigned char *buf;
- 
-@@ -1021,7 +1023,7 @@ static int usbtouch_open(struct input_de
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
- 
--	usbtouch->irq->dev = usbtouch->udev;
-+	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
- 
- 	if (!usbtouch->type->irq_always) {
- 		if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
-@@ -1094,7 +1096,7 @@ static int usbtouch_probe(struct usb_int
- 		goto out_free_buffers;
+@@ -1395,23 +1396,35 @@ static int usbtouch_probe(struct usb_int
+ 		err = type->init(usbtouch);
+ 		if (err) {
+ 			dbg("%s - type->init() failed, err: %d", __func__, err);
+-			goto out_free_buffers;
++			goto out_free_urb;
+ 		}
  	}
  
--	usbtouch->udev = udev;
-+	usbtouch->interface = intf;
- 	usbtouch->input = input_dev;
+ 	err = input_register_device(usbtouch->input);
+ 	if (err) {
+ 		dbg("%s - input_register_device failed, err: %d", __func__, err);
+-		goto out_free_buffers;
++		goto out_exit;
+ 	}
  
- 	if (udev->manufacturer)
-@@ -1133,12 +1135,12 @@ static int usbtouch_probe(struct usb_int
- 		input_set_abs_params(input_dev, ABS_PRESSURE, type->min_press,
- 		                     type->max_press, 0, 0);
+ 	usb_set_intfdata(intf, usbtouch);
  
--	usb_fill_int_urb(usbtouch->irq, usbtouch->udev,
--			 usb_rcvintpipe(usbtouch->udev, endpoint->bEndpointAddress),
-+	usb_fill_int_urb(usbtouch->irq, udev,
-+			 usb_rcvintpipe(udev, endpoint->bEndpointAddress),
- 			 usbtouch->data, type->rept_size,
- 			 usbtouch_irq, usbtouch, endpoint->bInterval);
+-	if (usbtouch->type->irq_always)
+-		usb_submit_urb(usbtouch->irq, GFP_KERNEL);
++	if (usbtouch->type->irq_always) {
++		err = usb_submit_urb(usbtouch->irq, GFP_KERNEL);
++		if (err) {
++			err("%s - usb_submit_urb failed with result: %d",
++			    __func__, err);
++			input_unregister_device(usbtouch->input);
++			goto out_exit;
++		}
++	}
  
--	usbtouch->irq->dev = usbtouch->udev;
-+	usbtouch->irq->dev = udev;
- 	usbtouch->irq->transfer_dma = usbtouch->data_dma;
- 	usbtouch->irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 	return 0;
  
++out_exit:
++	if (type->exit)
++		type->exit(usbtouch);
++out_free_urb:
++	usb_free_urb(usbtouch->irq);
+ out_free_buffers:
+ 	usbtouch_free_buffers(udev, usbtouch);
+ out_free:
 _

@@ -1,53 +1,70 @@
 From: akpm@linux-foundation.org
-Subject: [patch 1/7] input: bcm5974: retract efi-broken suspend_resume
-Date: Tue, 02 Feb 2010 14:42:48 -0800
-Message-ID: <201002022242.o12MgmRX019128@imap1.linux-foundation.org>
+Subject: [patch 3/7] usbtouchscreen: find input endpoint automatically
+Date: Tue, 02 Feb 2010 14:42:52 -0800
+Message-ID: <201002022242.o12MgrgM019138@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:51229 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:49229 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756701Ab0BBWnK (ORCPT
+	by vger.kernel.org with ESMTP id S1756822Ab0BBWnV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Feb 2010 17:43:10 -0500
+	Tue, 2 Feb 2010 17:43:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-software.org, daniel.ritz@gmx.ch, ddstreet@ieee.org, dmitry.torokhov@gmail.com, floe@butterbrot.org, greg@kroah.com, jim-linux@nurd.se, oliver@neukum.org
 
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Ondrej Zary <linux@rainbow-software.org>
 
-With the recent system-wide improvements on suspend/resume and EFI booting
-the suspend_resume method of the bcm5974 has broken.  When waking up from
-the S3 state on the MacBookAir, the trackpad is found in a yet unknown
-state, unable to switch to the proper multitouch mode.  The result is a
-frozen touchpad, and a flood of errors of the kind
+Find input enpoint automatically instead of assuming that the first one is
+OK.  This is needed for devices with multiple endpoints such as iNexio
+where the first endpoint might be output.
 
-bcm5974: bad trackpad package, length: 8.
-
-This patch retracts the reset_resume method altogether, falling back on
-the generic unbind/rebind functionality of the usb layer until further
-investigations can be made as how to reset the device when booting from
-efi.
-
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jim Persson <jim-linux@nurd.se>
+Cc: Florian Echtler <floe@butterbrot.org>
+Cc: Dan Streetman <ddstreet@ieee.org>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/bcm5974.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/touchscreen/usbtouchscreen.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume drivers/input/mouse/bcm5974.c
---- a/drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume
-+++ a/drivers/input/mouse/bcm5974.c
-@@ -803,7 +803,6 @@ static struct usb_driver bcm5974_driver 
- 	.disconnect		= bcm5974_disconnect,
- 	.suspend		= bcm5974_suspend,
- 	.resume			= bcm5974_resume,
--	.reset_resume		= bcm5974_resume,
- 	.id_table		= bcm5974_table,
- 	.supports_autosuspend	= 1,
- };
+diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-find-input-endpoint-automatically drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-find-input-endpoint-automatically
++++ a/drivers/input/touchscreen/usbtouchscreen.c
+@@ -1057,17 +1057,25 @@ static int usbtouch_probe(struct usb_int
+ 	struct usbtouch_usb *usbtouch;
+ 	struct input_dev *input_dev;
+ 	struct usb_host_interface *interface;
+-	struct usb_endpoint_descriptor *endpoint;
++	struct usb_endpoint_descriptor *endpoint = NULL;
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usbtouch_device_info *type;
+ 	int err = -ENOMEM;
++	int i;
+ 
+ 	/* some devices are ignored */
+ 	if (id->driver_info == DEVTYPE_IGNORE)
+ 		return -ENODEV;
+ 
+ 	interface = intf->cur_altsetting;
+-	endpoint = &interface->endpoint[0].desc;
++	/* find first input endpoint */
++	for (i = 0; i < interface->desc.bNumEndpoints; i++)
++		if (usb_endpoint_dir_in(&interface->endpoint[i].desc)) {
++			endpoint = &interface->endpoint[i].desc;
++			break;
++		}
++	if (!endpoint)
++		return -ENXIO;
+ 
+ 	usbtouch = kzalloc(sizeof(struct usbtouch_usb), GFP_KERNEL);
+ 	input_dev = input_allocate_device();
 _

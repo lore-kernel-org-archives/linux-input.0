@@ -1,22 +1,22 @@
-From: "Veronica ? Smallwood" <judy34@gmail.com>
-Subject: Reach 788k doctors - we have the list and others too
-Date: 3 Feb 2010 13:08:36 -0500
-Message-ID: <RTHOEXJGoUN68c098V40000836c@rthoex.int.richtree.ca>
+From: "crewel" <judy34@gmail.com>
+Subject: Doctor Database in the USA
+Date: 3 Feb 2010 17:04:03 +0000
+Message-ID: <PDSVMSoFkHAXEy4fQbP000003de__12057.1145941087$1265222255$gmane$org@phoenixdental.co.uk>
 Reply-To: bobfreeman2006@gmail.com
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.richtree.ca ([38.99.177.86]:4039 "EHLO
-	rthoex.int.richtree.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755646Ab0BCSXO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 13:23:14 -0500
+Received: from 88-97-204-164.dsl.zen.co.uk ([88.97.204.164]:16238 "EHLO
+	phoenixdental.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752736Ab0BCShK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 13:37:10 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mail@safeschoolsillinois.org, kashia21@insightbb.com, mail@fsv.cvut.cz
+To: links@teethwhiteningweb.com, k.russell@edenbrown.com, juanademora@gmail.com, linda.long@uc.edu, linux-il@cs.huji.ac.il
 
-You can reach me at my other email address for details:    Lilia.Tucker@leadsparadise.com
+You can reach me at my other email address for details:    Olivia.Dodd@leadsparadise.com
 
   
 
 
 
 
-have a look at this if you don't like to recieve these kinds of emails please email disappear@leadsparadise.com 
+To invoke no further correspondence status please send an email to disappear@leadsparadise.com

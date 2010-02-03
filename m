@@ -1,69 +1,44 @@
-From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
-Subject: [PATCH] Input: serio - re-add thaw (and add freeze)
-Date: Wed, 03 Feb 2010 18:59:54 +0000
-Message-ID: <4B69C7AA.7000904@tuffmail.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: serio - re-add thaw (and add freeze)
+Date: Wed, 3 Feb 2010 11:11:12 -0800
+Message-ID: <20100203191112.GC30600@core.coreip.homeip.net>
+References: <4B69C7AA.7000904@tuffmail.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f228.google.com ([209.85.219.228]:39723 "EHLO
-	mail-ew0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756284Ab0BCTAE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 14:00:04 -0500
+Received: from mail-pz0-f189.google.com ([209.85.222.189]:41027 "EHLO
+	mail-pz0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756896Ab0BCTL1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 14:11:27 -0500
+Content-Disposition: inline
+In-Reply-To: <4B69C7AA.7000904@tuffmail.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-633aae2 "Input: i8042 - switch to using dev_pm_ops"
-removed handling for PMSG_THAW, causing obscure breakage.
+On Wed, Feb 03, 2010 at 06:59:54PM +0000, Alan Jenkins wrote:
+> 633aae2 "Input: i8042 - switch to using dev_pm_ops"
+> removed handling for PMSG_THAW, causing obscure breakage.
+> 
+> It can break if you press keys during hibernation,
+> which causes subsequent keypresses to be lost -
+> so you can't cancel s2disk by pressing backspace -
+> and then just before system poweroff you get
+> "psmouse.c: Failed to deactivate mouse".
+> 
+> So let's add the thaw handler back.
+> 
+> Also set the freeze handler.  It looks like PMSG_FREEZE
+> didn't do anything in the past, but I think that must
+> have been an oversight.
 
-It can break if you press keys during hibernation,
-which causes subsequent keypresses to be lost -
-so you can't cancel s2disk by pressing backspace -
-and then just before system poweroff you get
-"psmouse.c: Failed to deactivate mouse".
+We do not need to do anything special at freeze time that is why there
+wasn't freeze handler. And so thaw should be pretty much noop as well.
 
-So let's add the thaw handler back.
+What supports canceling s2disk by backspace? I need more data to figure
+out what is going on. At the moment input should be fully-functional
+until poweroff.
 
-Also set the freeze handler.  It looks like PMSG_FREEZE
-didn't do anything in the past, but I think that must
-have been an oversight.
-
-Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
----
- drivers/input/serio/i8042.c |    2 ++
- drivers/input/serio/serio.c |    2 ++
- 2 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index d84a36e..9599766 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1164,6 +1164,8 @@ static int i8042_pm_restore(struct device *dev)
- static const struct dev_pm_ops i8042_pm_ops = {
- 	.suspend	= i8042_pm_reset,
- 	.resume		= i8042_pm_restore,
-+	.freeze		= i8042_pm_reset,
-+	.thaw		= i8042_pm_restore,
- 	.poweroff	= i8042_pm_reset,
- 	.restore	= i8042_pm_restore,
- };
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index e0f3018..2e8f544 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -949,6 +949,8 @@ static int serio_resume(struct device *dev)
- static const struct dev_pm_ops serio_pm_ops = {
- 	.suspend	= serio_suspend,
- 	.resume		= serio_resume,
-+	.freeze		= serio_suspend,
-+	.thaw		= serio_resume,
- 	.poweroff	= serio_suspend,
- 	.restore	= serio_resume,
- };
 -- 
-1.6.3.3
-
-
-
+Dmitry

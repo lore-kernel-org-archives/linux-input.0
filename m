@@ -1,47 +1,22 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 5/7] Input: wacom - Convert remaining ids, part two
-Date: Wed, 3 Feb 2010 09:28:47 -0800
-Message-ID: <20100203172846.GA30600@core.coreip.homeip.net>
-References: <20100107182553.GA11236@wavehammer.waldi.eu.org>
- <20100107182953.GA12985@wavehammer.waldi.eu.org>
- <6753EB6004AFF34FAA275742C104F952016A1329@wacom-nt10.wacom.com>
- <20100111222448.GA7959@wavehammer.waldi.eu.org>
- <20100203084725.GB22110@core.coreip.homeip.net>
- <bc07448c1002030634m2c8492a4h9dc1c1ad005bc98f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <bc07448c1002030634m2c8492a4h9dc1c1ad005bc98f@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Childs <oblivian@users.sourceforge.net>
-Cc: Ping Cheng <pingc@wacom.com>, Bastian Blank <waldi@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Veronica ? Smallwood" <judy34@gmail.com>
+Subject: Reach 788k doctors - we have the list and others too
+Date: 3 Feb 2010 13:08:36 -0500
+Message-ID: <RTHOEXJGoUN68c098V40000836c@rthoex.int.richtree.ca>
+Reply-To: bobfreeman2006@gmail.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.richtree.ca ([38.99.177.86]:4039 "EHLO
+	rthoex.int.richtree.ca" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755646Ab0BCSXO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 13:23:14 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: mail@safeschoolsillinois.org, kashia21@insightbb.com, mail@fsv.cvut.cz
 
-Jason,
+You can reach me at my other email address for details:    Lilia.Tucker@leadsparadise.com
 
-On Wed, Feb 03, 2010 at 09:34:09AM -0500, Jason Childs wrote:
-> Dmitry,
-> 
-> I actually responded on this issue to Ping last night.  My argument is that
-> the usb_driver structure is subject to revision on a per kernel basis and
-> should be in wacom_sys.c.
+  
 
-100% agree, and that is why usb_driver continues to stay in wacom_sys.
-Wacom product IDs however are hardly linux-specific, usb_device_id is
-unlikely to be changed significantly (since there are userspace ties)
-and thus make sense to be kept in wacom_wac.c
 
->  Also with the new set of bamboo patches the
-> features structures are copied per device instance during the initial probe
-> so we are not breaking static conventions.
 
-Ah, great. So nothing stops you guys from marking these statics const - I
-can't do it till your changes reach me. Speaking of which, the next
-merge window is getting close so now would be the best time to send your
-pending queue towars me. *wink, wink*
 
-Thanks.
-
--- 
-Dmitry
+have a look at this if you don't like to recieve these kinds of emails please email disappear@leadsparadise.com 

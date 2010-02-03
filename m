@@ -1,22 +1,69 @@
-From: "crewel" <judy34@gmail.com>
-Subject: Doctor Database in the USA
-Date: 3 Feb 2010 17:04:03 +0000
-Message-ID: <PDSVMSoFkHAXEy4fQbP000003de__12057.1145941087$1265222255$gmane$org@phoenixdental.co.uk>
-Reply-To: bobfreeman2006@gmail.com
+From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
+Subject: [PATCH] Input: serio - re-add thaw (and add freeze)
+Date: Wed, 03 Feb 2010 18:59:54 +0000
+Message-ID: <4B69C7AA.7000904@tuffmail.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 88-97-204-164.dsl.zen.co.uk ([88.97.204.164]:16238 "EHLO
-	phoenixdental.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752736Ab0BCShK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 13:37:10 -0500
+Received: from mail-ew0-f228.google.com ([209.85.219.228]:39723 "EHLO
+	mail-ew0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756284Ab0BCTAE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 14:00:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: links@teethwhiteningweb.com, k.russell@edenbrown.com, juanademora@gmail.com, linda.long@uc.edu, linux-il@cs.huji.ac.il
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-You can reach me at my other email address for details:    Olivia.Dodd@leadsparadise.com
+633aae2 "Input: i8042 - switch to using dev_pm_ops"
+removed handling for PMSG_THAW, causing obscure breakage.
 
-  
+It can break if you press keys during hibernation,
+which causes subsequent keypresses to be lost -
+so you can't cancel s2disk by pressing backspace -
+and then just before system poweroff you get
+"psmouse.c: Failed to deactivate mouse".
+
+So let's add the thaw handler back.
+
+Also set the freeze handler.  It looks like PMSG_FREEZE
+didn't do anything in the past, but I think that must
+have been an oversight.
+
+Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
+---
+ drivers/input/serio/i8042.c |    2 ++
+ drivers/input/serio/serio.c |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d84a36e..9599766 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -1164,6 +1164,8 @@ static int i8042_pm_restore(struct device *dev)
+ static const struct dev_pm_ops i8042_pm_ops = {
+ 	.suspend	= i8042_pm_reset,
+ 	.resume		= i8042_pm_restore,
++	.freeze		= i8042_pm_reset,
++	.thaw		= i8042_pm_restore,
+ 	.poweroff	= i8042_pm_reset,
+ 	.restore	= i8042_pm_restore,
+ };
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index e0f3018..2e8f544 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -949,6 +949,8 @@ static int serio_resume(struct device *dev)
+ static const struct dev_pm_ops serio_pm_ops = {
+ 	.suspend	= serio_suspend,
+ 	.resume		= serio_resume,
++	.freeze		= serio_suspend,
++	.thaw		= serio_resume,
+ 	.poweroff	= serio_suspend,
+ 	.restore	= serio_resume,
+ };
+-- 
+1.6.3.3
 
 
 
-
-To invoke no further correspondence status please send an email to disappear@leadsparadise.com

@@ -1,215 +1,79 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] HID: add multi-input quirk for eGalax Touchcontroller
-Date: Wed, 3 Feb 2010 13:39:14 +1000
-Message-ID: <20100203033914.GA23850@barra.bne.redhat.com>
-References: <20100202034040.GA16880@barra.bne.redhat.com>
- <alpine.LNX.2.00.1002022129380.15395@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: remove BKL from uinput open function
+Date: Tue, 2 Feb 2010 21:07:49 -0800
+Message-ID: <20100203050749.GA22110@core.coreip.homeip.net>
+References: <201001302257.09354.arnd@arndb.de>
+ <520f0cf11001301507k20e3cf8dqa73026e12f3a1767@mail.gmail.com>
+ <201001310520.55813.arnd@arndb.de>
+ <20100131052942.GA12320@core.coreip.homeip.net>
+ <520f0cf11002011222h134dbf06rf1db612da9a9728@mail.gmail.com>
+ <520f0cf11002011227s74e57673j3922941f7ee87989@mail.gmail.com>
+ <20100201212132.GA7380@core.coreip.homeip.net>
+ <520f0cf11002011350u3b541a0cxfb0ed882dca13afe@mail.gmail.com>
+ <20100201220856.GB7380@core.coreip.homeip.net>
+ <520f0cf11002011518y22c2f097s87872e7b5b1690d7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="envbJBWh7q8WU6mo"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f182.google.com ([209.85.216.182]:52122 "EHLO
+	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750725Ab0BCFIA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Feb 2010 00:08:00 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1002022129380.15395@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <520f0cf11002011518y22c2f097s87872e7b5b1690d7@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: John Kacur <jkacur@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>
 
-
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Feb 02, 2010 at 10:44:35PM +0100, Jiri Kosina wrote:
-> On Tue, 2 Feb 2010, Peter Hutterer wrote:
+On Tue, Feb 02, 2010 at 12:18:35AM +0100, John Kacur wrote:
 > 
-> > Nonetheless, I'm not sure about whether that's the right thing to do. With
-> > this patch applied, it gives me two devices, one mute, the other one
-> > announces BTN_PEN and BTN_TOUCH + abs axes, though only BTN_TOUCH is ever
-> > triggered. Loading usbtouchscreen instead of usbhid for this device makes
-> > the device look more sane BTN_TOUCH + abs axes but the actual data is
-> > random. So I'm not quite sure what the fix is supposed to be, any hints are
-> > appreciated if it's not the patch below.
-> 
-> The data could also be mis-interpreted because of some bug in the HID 
-> descriptor.
-> 
-> Does looking at the HID report descriptor and looking at the actual 
-> raw HID reports coming out from the device give any clue? (in recent 
-> kernels, you can just use 'hid' directory in debugfs to gather all this 
-> information).
+> Sorry, maybe I am doing a poor job of explaining myself. My question
+> was whether your driver needs to call uinput_release() or not if it
+> went through your proposed error path, because that is where you have
+> the call to the uinput_destroy_device() function.
+> After taking a fresh look at your code I don't believe that it does.
+> However, you could still hoist your code that calls nonseekable_open()
+> above all that init stuff in uinput_open(), just under the return
+> -ENOMEM if you think that it could fail.
+> However, I still think that nonseekable_open() is designed from the
+> "get-go" to never fail, so I think your code is unnecessarily
+> complicated, by just a little bit. It will still work, so you decide
+> which to go with. I'm fine with either way.
+>
 
-Thanks. The hid descriptor table is attached, but tbh I'm not well-versed
-enough in the HID protocol to even tell what format I can give you. I've
-attached a simple hexdump of two presses, one with a finger, one with the
-stylus. Let me know what format you need or what how I can start to decypher
-this myself (are there any parsing tools around?).
+OK, so how about the patch below? If it is accepted I will just switch
+to
+
+	nonseekable_open(inode, file);
+	return 0;
+
+style. I gonna add Al and akpm to CC to see if the patch will stick...
+
+-- 
+Dmitry
+
+VFS: clarify that nonseekable_open() will never fail
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ fs/open.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+
+diff --git a/fs/open.c b/fs/open.c
+index 040cef7..02ceb73 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -1200,7 +1200,9 @@ EXPORT_SYMBOL(generic_file_open);
  
-Cheers,
-  Peter
-
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="events.hexdump"
-
-0000000 720a 7065 726f 2074 7328 7a69 2065 2936
-0000010 2820 756e 626d 7265 6465 0a29 7200 7065
-0000020 726f 2074 2032 7328 7a69 2065 2936 3d20
-0000030 0020 3020 0032 3020 0033 6120 0030 3020
-0000040 0031 3120 0033 3020 0032 000a 6944 6967
-0000050 6974 657a 7372 542e 7069 7753 7469 6863
-0000060 3d20 3120 000a 6944 6967 6974 657a 7372
-0000070 492e 526e 6e61 6567 3d20 3120 000a 6547
-0000080 656e 6972 4463 7365 746b 706f 582e 3d20
-0000090 3420 3631 000a 6547 656e 6972 4463 7365
-00000a0 746b 706f 592e 3d20 3520 3133 000a 720a
-00000b0 7065 726f 2074 7328 7a69 2065 2936 2820
-00000c0 756e 626d 7265 6465 0a29 7200 7065 726f
-00000d0 2074 2032 7328 7a69 2065 2936 3d20 0020
-00000e0 3020 0032 3020 0033 6120 0030 3020 0031
-00000f0 3120 0032 3020 0032 000a 6944 6967 6974
-0000100 657a 7372 542e 7069 7753 7469 6863 3d20
-0000110 3120 000a 6944 6967 6974 657a 7372 492e
-0000120 526e 6e61 6567 3d20 3120 000a 6547 656e
-0000130 6972 4463 7365 746b 706f 582e 3d20 3420
-0000140 3631 000a 6547 656e 6972 4463 7365 746b
-0000150 706f 592e 3d20 3520 3033 000a 720a 7065
-0000160 726f 2074 7328 7a69 2065 2936 2820 756e
-0000170 626d 7265 6465 0a29 7200 7065 726f 2074
-0000180 2032 7328 7a69 2065 2936 3d20 0020 3020
-0000190 0032 3020 0033 6120 0030 3020 0031 3120
-00001a0 0030 3020 0032 000a 6944 6967 6974 657a
-00001b0 7372 542e 7069 7753 7469 6863 3d20 3120
-00001c0 000a 6944 6967 6974 657a 7372 492e 526e
-00001d0 6e61 6567 3d20 3120 000a 6547 656e 6972
-00001e0 4463 7365 746b 706f 582e 3d20 3420 3631
-00001f0 000a 6547 656e 6972 4463 7365 746b 006f
-0000200 2e70 2059 203d 3235 0a38 0a00 6572 6f70
-0000210 7472 2820 6973 657a 3620 2029 6e28 6d75
-0000220 6562 6572 2964 000a 6572 6f70 7472 3220
-0000230 2820 6973 657a 3620 2029 203d 2000 3230
-0000240 2000 3330 2000 6639 2000 3130 2000 6530
-0000250 2000 3230 0a00 4400 6769 7469 7a69 7265
-0000260 2e73 6954 5370 6977 6374 2068 203d 0a31
-0000270 4400 6769 7469 7a69 7265 2e73 6e49 6152
-0000280 676e 2065 203d 0a31 4700 6e65 7265 6369
-0000290 6544 6b73 6f74 2e70 2058 203d 3134 0a35
-00002a0 4700 6e65 7265 6369 6544 6b73 6f74 2e70
-00002b0 2059 203d 3235 0a36 0a00 6572 6f70 7472
-00002c0 2820 6973 657a 3620 2029 6e28 6d75 6562
-00002d0 6572 2964 000a 6572 6f70 7472 3220 2820
-00002e0 6973 657a 3620 2029 203d 2000 3230 2000
-00002f0 3330 2000 3161 2000 3130 2000 6430 2000
-0000300 3230 0a00 4400 6769 7469 7a69 7265 2e73
-0000310 6954 5370 6977 6374 2068 203d 0a31 4400
-0000320 6769 7469 7a69 7265 2e73 6e49 6152 676e
-0000330 2065 203d 0a31 4700 6e65 7265 6369 6544
-0000340 6b73 6f74 2e70 2058 203d 3134 0a37 4700
-0000350 6e65 7265 6369 6544 6b73 6f74 2e70 2059
-0000360 203d 3235 0a35 0a00 6572 6f70 7472 2820
-0000370 6973 657a 3620 2029 6e28 6d75 6562 6572
-0000380 2964 000a 6572 6f70 7472 3220 2820 6973
-0000390 657a 3620 2029 203d 2000 3230 2000 3330
-00003a0 2000 3161 2000 3130 2000 6330 2000 3230
-00003b0 0a00 4400 6769 7469 7a69 7265 2e73 6954
-00003c0 5370 6977 6374 2068 203d 0a31 4400 6769
-00003d0 7469 7a69 7265 2e73 6e49 6152 676e 2065
-00003e0 203d 0a31 4700 6e65 7265 6369 6544 6b73
-00003f0 6f74 2e70 2058 203d 3134 0a37 4700 0065
-0000400 656e 6972 4463 7365 746b 706f 592e 3d20
-0000410 3520 3432 000a 720a 7065 726f 2074 7328
-0000420 7a69 2065 2936 2820 756e 626d 7265 6465
-0000430 0a29 7200 7065 726f 2074 2032 7328 7a69
-0000440 2065 2936 3d20 0020 3020 0032 3020 0033
-0000450 6120 0031 3020 0031 3020 0062 3020 0032
-0000460 000a 6944 6967 6974 657a 7372 542e 7069
-0000470 7753 7469 6863 3d20 3120 000a 6944 6967
-0000480 6974 657a 7372 492e 526e 6e61 6567 3d20
-0000490 3120 000a 6547 656e 6972 4463 7365 746b
-00004a0 706f 582e 3d20 3420 3731 000a 6547 656e
-00004b0 6972 4463 7365 746b 706f 592e 3d20 3520
-00004c0 3332 000a 720a 7065 726f 2074 7328 7a69
-00004d0 2065 2936 2820 756e 626d 7265 6465 0a29
-00004e0 7200 7065 726f 2074 2032 7328 7a69 2065
-00004f0 2936 3d20 0020 3020 0032 3020 0033 6120
-0000500 0030 3020 0031 3020 0064 3020 0032 000a
-0000510 6944 6967 6974 657a 7372 542e 7069 7753
-0000520 7469 6863 3d20 3120 000a 6944 6967 6974
-0000530 657a 7372 492e 526e 6e61 6567 3d20 3120
-0000540 000a 6547 656e 6972 4463 7365 746b 706f
-0000550 582e 3d2
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=eGalax-hid-descriptor
-
-05 01 09 01 a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 95 02 75 01 81 02 95 01 75 06 81 01 05 01 09 30 09 31 16 2a 00 26 bd 07 36 00 00 46 ff 0f 66 00 00 75 10 95 02 81 02 c0 c0 05 0d 09 04 a1 01 85 02 09 20 a1 00 09 42 09 32 15 00 25 01 95 02 75 01 81 02 95 06 75 01 81 03 05 01 09 30 75 10 95 01 a4 55 00 65 00 36 00 00 46 00 00 16 1e 00 26 c8 0f 81 02 09 31 16 3c 00 26 c3 0f 36 00 00 46 00 00 81 02 b4 c0 c0 
-
-  INPUT(1)[INPUT]
-    Field(0)
-      Physical(GenericDesktop.Pointer)
-      Usage(2)
-        Button.0001
-        Button.0002
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Report Size(1)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Physical(GenericDesktop.Pointer)
-      Usage(2)
-        GenericDesktop.X
-        GenericDesktop.Y
-      Logical Minimum(42)
-      Logical Maximum(1981)
-      Physical Minimum(0)
-      Physical Maximum(4095)
-      Report Size(16)
-      Report Count(2)
-      Report Offset(8)
-      Flags( Variable Absolute )
-  INPUT(2)[INPUT]
-    Field(0)
-      Physical(Digitizers.Stylus)
-      Usage(2)
-        Digitizers.TipSwitch
-        Digitizers.InRange
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Physical Minimum(0)
-      Physical Maximum(4095)
-      Report Size(1)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Physical(Digitizers.Stylus)
-      Usage(1)
-        GenericDesktop.X
-      Logical Minimum(30)
-      Logical Maximum(4040)
-      Report Size(16)
-      Report Count(1)
-      Report Offset(8)
-      Flags( Variable Absolute )
-    Field(2)
-      Physical(Digitizers.Stylus)
-      Usage(1)
-        GenericDesktop.Y
-      Logical Minimum(60)
-      Logical Maximum(4035)
-      Report Size(16)
-      Report Count(1)
-      Report Offset(24)
-      Flags( Variable Absolute )
-
-Button.0001 ---> Key.LeftBtn
-Button.0002 ---> Key.RightBtn
-GenericDesktop.X ---> Absolute.X
-GenericDesktop.Y ---> Absolute.Y
-Digitizers.TipSwitch ---> Key.Touch
-Digitizers.InRange ---> Key.ToolPen
-GenericDesktop.X ---> Absolute.X
-GenericDesktop.Y ---> Absolute.Y
-
---envbJBWh7q8WU6mo--
+ /*
+  * This is used by subsystems that don't want seekable
+- * file descriptors
++ * file descriptors. The function is not supposed to ever fail, the only
++ * reason it returns an 'int' and not 'void' is so that it can be plugged
++ * directly into file_operations structure.
+  */
+ int nonseekable_open(struct inode *inode, struct file *filp)
+ {

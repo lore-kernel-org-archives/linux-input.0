@@ -1,47 +1,112 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Thu, 4 Feb 2010 14:27:42 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1002041425050.15395@pobox.suse.cz>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <4B6ACA4B.2030906@adit.fi>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:45623 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757726Ab0BDN1o (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2010 08:27:44 -0500
-In-Reply-To: <4B6ACA4B.2030906@adit.fi>
-Sender: linux-input-owner@vger.kernel.org
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: [PATCH] Input: ads7846: add regulator support
+Date: Thu,  4 Feb 2010 15:39:18 +0200
+Message-ID: <1265290758-2035-1-git-send-email-notasas@gmail.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org, Grazvydas Ignotas <notasas@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Pekka Sarnila <sarnila@adit.fi>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 4 Feb 2010, Pekka Sarnila wrote:
+The ADS7846/TSC2046 touchscreen controllers can (and usually are)
+connected to various regulators for power, so add regulator support.
+Make it optional for now to avoid breaking all current users of this
+driver.
 
-> The FULLSPEED thing is really not ir receiver specific problem. It can 
-> happen with any device with interrupt endpoint. That's the reason why I 
-> placed the quirk to HID driver.
-> 
-> However even the HID driver is logically a wrong place. Really it should 
-> belong to the usb/endpoint layer because this really is not HID specific 
-> problem but usb layer problem (as also Jiri Kosina then pointed out). 
-> However linux usb layer has been build so that it was technically 
-> impossible to put it there without completely redesigning usb <-> higher 
-> layer (including HID) interface. But I'm of the opinion that that 
-> redesign should be done anyway. Even when no quirk is needed interrupt 
-> endpoint handling is a usb level task not a hid level (or any other 
-> higher level) task. The usb layer should do the interrupt endpoint 
-> polling and just put up interrupt events to higher layers. Partly this 
-> confusion is due the poor usb/hid specifications. It really should be a 
-> device/endpoint-quirk.
+Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+---
+ drivers/input/touchscreen/ads7846.c |   29 +++++++++++++++++++++++++++--
+ 1 files changed, 27 insertions(+), 2 deletions(-)
 
-Yes, I still think what I have stated before, that this should be properly 
-handled in the USB stack.
-
-On the other hand, in usbhid driver we do a lot of USB-specific 
-lower-level things anyway, so it's technically more-or-less OK to apply 
-the quirk there as well (and that's why I have accepted it back then).
-
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 52d2ca1..5da902a 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -27,6 +27,7 @@
+ #include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
++#include <linux/regulator/consumer.h>
+ #include <asm/irq.h>
+ 
+ /*
+@@ -85,6 +86,7 @@ struct ads7846 {
+ 	char			name[32];
+ 
+ 	struct spi_device	*spi;
++	struct regulator	*reg;
+ 
+ #if defined(CONFIG_HWMON) || defined(CONFIG_HWMON_MODULE)
+ 	struct attribute_group	*attr_group;
+@@ -788,6 +790,9 @@ static void ads7846_disable(struct ads7846 *ts)
+ 		}
+ 	}
+ 
++	if (!IS_ERR(ts->reg))
++		regulator_disable(ts->reg);
++
+ 	/* we know the chip's in lowpower mode since we always
+ 	 * leave it that way after every request
+ 	 */
+@@ -799,6 +804,9 @@ static void ads7846_enable(struct ads7846 *ts)
+ 	if (!ts->disabled)
+ 		return;
+ 
++	if (!IS_ERR(ts->reg))
++		regulator_enable(ts->reg);
++
+ 	ts->disabled = 0;
+ 	ts->irq_disabled = 0;
+ 	enable_irq(ts->spi->irq);
+@@ -1139,6 +1147,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 
+ 	ts->last_msg = m;
+ 
++	ts->reg = regulator_get(&spi->dev, "vcc");
++	if (!IS_ERR(ts->reg)) {
++		err = regulator_enable(ts->reg);
++		if (err)
++			goto err_put_regulator;
++	}
++
+ 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
+ 			spi->dev.driver->name, ts)) {
+ 		dev_info(&spi->dev,
+@@ -1148,7 +1163,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 				  spi->dev.driver->name, ts);
+ 		if (err) {
+ 			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-			goto err_free_gpio;
++			goto err_disable_regulator;
+ 		}
+ 	}
+ 
+@@ -1180,7 +1195,12 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	ads784x_hwmon_unregister(spi, ts);
+  err_free_irq:
+ 	free_irq(spi->irq, ts);
+- err_free_gpio:
++ err_disable_regulator:
++	if (!IS_ERR(ts->reg))
++		regulator_disable(ts->reg);
++ err_put_regulator:
++	if (!IS_ERR(ts->reg))
++		regulator_put(ts->reg);
+ 	if (ts->gpio_pendown != -1)
+ 		gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+@@ -1208,6 +1228,11 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ 	/* suspend left the IRQ disabled */
+ 	enable_irq(ts->spi->irq);
+ 
++	if (!IS_ERR(ts->reg)) {
++		regulator_disable(ts->reg);
++		regulator_put(ts->reg);
++	}
++
+ 	if (ts->gpio_pendown != -1)
+ 		gpio_free(ts->gpio_pendown);
+ 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.6.3.3
+

@@ -1,40 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: O_ASYNC not working on /dev/input/event* ?
-Date: Wed, 3 Feb 2010 23:09:25 -0800
-Message-ID: <20100204070925.GA7832@core.coreip.homeip.net>
-References: <20100203085600.GA20743@atrey.karlin.mff.cuni.cz>
- <20100203090045.GC22110@core.coreip.homeip.net>
- <20100204070253.GB3928@atrey.karlin.mff.cuni.cz>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] input: remove BKL from uinput open function
+Date: Thu, 4 Feb 2010 08:32:09 +0100
+Message-ID: <201002040832.09805.arnd@arndb.de>
+References: <201001302257.09354.arnd@arndb.de> <520f0cf11002011518y22c2f097s87872e7b5b1690d7@mail.gmail.com> <20100203050749.GA22110@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f189.google.com ([209.85.222.189]:45684 "EHLO
-	mail-pz0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753719Ab0BDHJa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 02:09:30 -0500
-Received: by pzk27 with SMTP id 27so2464835pzk.33
-        for <linux-input@vger.kernel.org>; Wed, 03 Feb 2010 23:09:30 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20100204070253.GB3928@atrey.karlin.mff.cuni.cz>
+Received: from moutng.kundenserver.de ([212.227.17.9]:54237 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756843Ab0BDHco (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 02:32:44 -0500
+In-Reply-To: <20100203050749.GA22110@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: John Kacur <jkacur@redhat.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>
 
-On Thu, Feb 04, 2010 at 08:02:53AM +0100, Pavel Machek wrote:
-> > On Wed, Feb 03, 2010 at 09:56:00AM +0100, Pavel Machek wrote:
-> > > HI!
-> > > 
-> > > I'm trying to use O_ASYNC on /dev/input/event* (getting SIGIO when key
-> > > is pressed), but so far no luck. Is it possible that O_ASYNC is not
-> > > implemented there?
-> > 
-> > You should be getting SIGIO when driver sends EV_SYN/SYN_REPORT...
+On Wednesday 03 February 2010, Dmitry Torokhov wrote:
+> OK, so how about the patch below? If it is accepted I will just switch
+> to
 > 
-> Thanks, it works now. Signal setup needs to be before fcntl(). 
+>         nonseekable_open(inode, file);
+>         return 0;
 > 
+> style. I gonna add Al and akpm to CC to see if the patch will stick...
 
-Cool. Thanks for letting me know.
+Sounds reasonable, if only to prevent this from becoming a FAQ.
 
--- 
-Dmitry
+> VFS: clarify that nonseekable_open() will never fail
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+Acked-by: Arnd Bergmann <arnd@arndb.de>

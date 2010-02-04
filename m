@@ -1,37 +1,47 @@
-From: Mika Westerberg <mika.westerberg@iki.fi>
-Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Thu, 4 Feb 2010 20:00:49 +0200
-Message-ID: <20100204180049.GB23547@gw.healthdatacare.com>
-References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com> <20091203061912.GA5626@gw.healthdatacare.com> <20091203062641.GH9121@core.coreip.homeip.net> <20091215070507.GD25613@gw.healthdatacare.com> <20091216082528.GI2699@core.coreip.homeip.net> <1264713666.12714.1.camel@localhost.localdomain> <20100204085355.GA8003@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: ads7846: add regulator support
+Date: Thu, 4 Feb 2010 10:08:08 -0800
+Message-ID: <20100204180807.GB10965@core.coreip.homeip.net>
+References: <1265290758-2035-1-git-send-email-notasas@gmail.com>
+ <20100204142439.GA1139@sirena.org.uk>
+ <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com>
+ <20100204162155.GB29982@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f220.google.com ([209.85.220.220]:48648 "EHLO
+Received: from mail-fx0-f220.google.com ([209.85.220.220]:58509 "EHLO
 	mail-fx0-f220.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753478Ab0BDSAy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 13:00:54 -0500
-Received: by fxm20 with SMTP id 20so2854774fxm.1
-        for <linux-input@vger.kernel.org>; Thu, 04 Feb 2010 10:00:53 -0800 (PST)
+	with ESMTP id S1756164Ab0BDSId (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 13:08:33 -0500
 Content-Disposition: inline
-In-Reply-To: <20100204085355.GA8003@core.coreip.homeip.net>
+In-Reply-To: <20100204162155.GB29982@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Artem Bityutskiy <dedekind1@gmail.com>, linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Grazvydas Ignotas <notasas@gmail.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, lrg@slimlogic.co.uk
 
-On Thu, Feb 04, 2010 at 12:53:56AM -0800, Dmitry Torokhov wrote:
+On Thu, Feb 04, 2010 at 04:21:55PM +0000, Mark Brown wrote:
+> On Thu, Feb 04, 2010 at 04:52:26PM +0200, Grazvydas Ignotas wrote:
+> > On Thu, Feb 4, 2010 at 4:24 PM, Mark Brown
 > 
-> Artem, Mika,
+> > > The updates to fix up the boards that need this are fairly
+> > > straightforward and given that it's fairly easy to identify systems
+> > > which are using the driver in mainline so I'd really prefer not to go
+> > > down the route of trying to carry on in the face of error, it papers
+> > > over stuff now but is not robust in the face of future changes.
 > 
-> I was hoping to do something different about the new 'can_disable' flag
-> but unfortunately I don't have enough time and I already sat on the
-> patch for way too long. :(
+> > What about warning and continuing only on ENODEV then? I really don't
+> > want to be responsible for potentially breaking touchscreen on ~30
+> > boards, where I have no idea about how things are wired up and how the
+> > regulators should be set up.
 > 
-> It is applied to my 'next' branch and should get pulled into 2.6.34.
+> I'm really not terribly enthusiastic about that approach - like I say,
+> it just moves the problem about a bit and postpones the breakage in a
+> potentially more obscure fashion.
 > 
-> Thank you for your patience and sorry about the delay.
 
-Thank you very much!
+Maybe we should rely on platform data to tell us whether we need to plug
+into regulator framework and in this case fail hard on any error?
 
-Regards,
-MW
+-- 
+Dmitry

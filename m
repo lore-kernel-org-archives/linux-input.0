@@ -1,58 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Thu, 4 Feb 2010 10:41:32 -0800
-Message-ID: <20100204184132.GD10965@core.coreip.homeip.net>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz>
- <4B5CDB53.6030009@iki.fi>
- <4B5D6098.7010700@gmail.com>
- <4B5DDDFB.5020907@iki.fi>
- <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz>
- <4B6AA211.1060707@gmail.com>
- <20100204181404.GC10965@core.coreip.homeip.net>
- <4B6B12F2.2080102@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] Input: ads7846: add regulator support
+Date: Thu, 4 Feb 2010 18:59:22 +0000
+Message-ID: <583BCA92-EE63-48E7-B2EF-D0281E7F676C@opensource.wolfsonmicro.com>
+References: <1265290758-2035-1-git-send-email-notasas@gmail.com> <20100204142439.GA1139@sirena.org.uk> <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com> <20100204162155.GB29982@rakim.wolfsonmicro.main> <20100204180807.GB10965@core.coreip.homeip.net> (sfid-20100204_180836_896233_FC3A8E05)
+Mime-Version: 1.0 (iPhone Mail 7E18)
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed;
+	delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f219.google.com ([209.85.218.219]:39665 "EHLO
-	mail-bw0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757319Ab0BDSlq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 13:41:46 -0500
-Content-Disposition: inline
-In-Reply-To: <4B6B12F2.2080102@gmail.com>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:53076 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1757832Ab0BDS7E (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Feb 2010 13:59:04 -0500
+In-Reply-To: <20100204180807.GB10965@core.coreip.homeip.net> (sfid-20100204_180836_896233_FC3A8E05)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Grazvydas Ignotas <notasas@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "lrg@slimlogic.co.uk" <lrg@slimlogic.co.uk>
 
-On Thu, Feb 04, 2010 at 07:33:22PM +0100, Jiri Slaby wrote:
-> On 02/04/2010 07:14 PM, Dmitry Torokhov wrote:
-> > On Thu, Feb 04, 2010 at 11:31:45AM +0100, Jiri Slaby wrote:
-> >  +
-> >> +static int dvb_event(struct hid_device *hdev, struct hid_field *field,
-> >> +		struct hid_usage *usage, __s32 value)
-> >> +{
-> >> +	/* we won't get a "key up" event */
-> >> +	if (value) {
-> >> +		input_event(field->hidinput->input, usage->type, usage->code, 1);
-> >> +		input_event(field->hidinput->input, usage->type, usage->code, 0);
-> > 
-> > Do not ever forget input_sync(), you need 2 of them here.
-> > 
-> > With the latest changes to evdev, if you are using SIGIO you won't get
-> > wioken up until EV_SYN/SYN_REPORT.
-> 
-> HID layer syncs on its own. So the second is not needed. Why is needed
-> the first?
-> 
+On 4 Feb 2010, at 18:08, Dmitry Torokhov <dmitry.torokhov@gmail.com>  
+wrote:
 
-Userpsace has a right to accumulate events and only act on them when
-receiving EV_SYN. Press + release in the same event block may be treated
-as no change. The same as REL_X +2, REL_X -2 - no need to move pointer at
-all. And so on.
+> On Thu, Feb 04, 2010 at 04:21:55PM +0000, Mark Brown wrote:
+>> On Thu, Feb 04, 2010 at 04:52:26PM +0200, Grazvydas Ignotas wrote:
+>>> On Thu, Feb 4, 2010 at 4:24 PM, Mark Brown
+>>
+>>>> The updates to fix up the boards that need this are fairly
+>>>> straightforward and given that it's fairly easy to identify systems
+>>>> which are using the driver in mainline so I'd really prefer not  
+>>>> to go
+>>>> down the route of trying to carry on in the face of error, it  
+>>>> papers
+>>>> over stuff now but is not robust in the face of future changes.
+>>
+>>> What about warning and continuing only on ENODEV then? I really  
+>>> don't
+>>> want to be responsible for potentially breaking touchscreen on ~30
+>>> boards, where I have no idea about how things are wired up and how  
+>>> the
+>>> regulators should be set up.
+>>
+>> I'm really not terribly enthusiastic about that approach - like I  
+>> say,
+>> it just moves the problem about a bit and postpones the breakage in a
+>> potentially more obscure fashion.
+>>
+>
+> Maybe we should rely on platform data to tell us whether we need to  
+> plug
+> into regulator framework and in this case fail hard on any error?
 
-> I.e. should there be one also in dvb_usb_read_remote_control?
-
-Probably, I have not looked.
-
--- 
-Dmitry
+That doesn't really help - it requres per driver code for the platform  
+data and for conditionalising all the regulator API calls, results in  
+inconsistent behaviour between drivers (does this driver have a no  
+regulator switch?) and is looking a bit like the situation where  
+you're passing around the regulator name to match device and supply.  
+It seems like more work overall for users. 
+  

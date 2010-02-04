@@ -1,168 +1,66 @@
-From: Pekka Sarnila <sarnila@adit.fi>
-Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Thu, 04 Feb 2010 17:05:37 +0200
-Message-ID: <4B6AE241.6090900@adit.fi>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <4B6ACA4B.2030906@adit.fi> <4B6AD3DB.8090801@redhat.com>
+From: Mike Rapoport <mike@compulab.co.il>
+Subject: Re: [PATCH] Input: ads7846: add regulator support
+Date: Thu, 04 Feb 2010 17:08:11 +0200
+Message-ID: <4B6AE2DB.90809@compulab.co.il>
+References: <1265290758-2035-1-git-send-email-notasas@gmail.com> <20100204142439.GA1139@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from psa.adit.fi ([217.112.250.17]:51989 "EHLO psa.adit.fi"
+Received: from compulab.co.il ([67.18.134.219]:33872 "EHLO compulab.co.il"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758155Ab0BDPDz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2010 10:03:55 -0500
-In-Reply-To: <4B6AD3DB.8090801@redhat.com>
+	id S1758239Ab0BDPJA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Feb 2010 10:09:00 -0500
+In-Reply-To: <20100204142439.GA1139@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Grazvydas Ignotas <notasas@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org
 
-
-
-Mauro Carvalho Chehab wrote:
-> Pekka Sarnila wrote:
+Mark Brown wrote:
+> On Thu, Feb 04, 2010 at 03:39:18PM +0200, Grazvydas Ignotas wrote:
 > 
->>The problem using vendor class is that there is no standard. Each vendor
->>can define its own way using endpoints (and has done so e.g Logitech
->>joysticks). Thus each usb ir receiver must have its own specific driver.
->> However then you get the raw ir codes. When using HID class, generic
->>HID driver can do the job. But then you get HID key codes directly not
->>ir codes.
+>> The ADS7846/TSC2046 touchscreen controllers can (and usually are)
+>> connected to various regulators for power, so add regulator support.
+>> Make it optional for now to avoid breaking all current users of this
+>> driver.
 > 
-> We started writing an abstraction layer for IR, using the input. The idea
-> is to allow the IR receivers to work with different IR's, as several users
-> prefer to use universal IR's to control their devices, instead of the original
-> one. This is already used by all V4L drivers and I intend to port most of
-> the DVB drivers to use it as well soon.
+> This should not be required.  The regulator API stubs itself out when it
+> is not built so all API calls report as successful.
 
-This is very good.
+And what about boards that have the ads7846 tied to power rail and still
+want to use regulator API for other staff?
 
-The problem here is that at least afatech ir receiver has the ir code to 
-key code build in, so trough HID you can use only the remote whose ir to 
-key translate table has been loaded to the aftech device. Unless that 
-can be easily controlled by the user HID is no good for this.
-
+>> +	ts->reg = regulator_get(&spi->dev, "vcc");
+>> +	if (!IS_ERR(ts->reg)) {
+>> +		err = regulator_enable(ts->reg);
+>> +		if (err)
+>> +			goto err_put_regulator;
+>> +	}
 > 
->>Also this should not be seen at all as dvb question. First, not all the
->>world uses dvb standard (including USA) but uses very similar tv-sticks
->>with identical ir receivers and remotes. 
+> If the regulator API is not compiled in then the regulator_get() will
+> return succesfully.  If the regulator API is in use then failure to
+> acquire the regulator is a serious problem which really should be at a
+> minimium be being communicated to the user.  For example, the regulator
+> API may end up powering down regulators which it believes are unused or
+> the regulator may not be powered by default and needs to be enabled.
 > 
-> Despiste its name, the DVB subsystem is not specific for DVB standards, but
-> it is meant to be used by all DTV standards (and almost all DTV standards
-> are already supported).
+> The updates to fix up the boards that need this are fairly
+> straightforward and given that it's fairly easy to identify systems
+> which are using the driver in mainline so I'd really prefer not to go
+> down the route of trying to carry on in the face of error, it papers
+> over stuff now but is not robust in the face of future changes.
 
-But most of the world still uses analog (they can not afford yet the 
-transfer). Those tv-sticks have identical receivers. And there are usb 
-ir receivers not embedded to tv-sticks. Conceptually and technically it 
-has nothing to do with any tv or any other audiovisual system system 
-(e.g. a remote controlled weather station).
+The updates are straightforward for boards that actually _have_
+regulator powering the touchscreen controller. What about the boards
+that do not have such a regulator?
 
-So dvb is both as a place and a name misleading.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
->>Second there are many other
->>type of usb devices with ir receiver. So dvb layer should not be
->>involved at all. There maybe would be need for hid-ir-remote layer (your
->>code suggestion moved there). However even there IMHO better would be
->>just to improve HID <-> input layer interface so that input layer could
->>divert the remotes input to generic remotes layer instead of keyboard
->>layer. IMHO this would be the real linux way.
->  
-> This is already happening.
-> 
-> See drivers/media/IR on linux-next for the IR common code. The ir-core is
-> provided by ir-keytable.c and ir-sysfs.c, and it is not DVB or V4L specific.
 
-Well I was talking about HID remotes that don't give ir codes but key 
-codes. What to do with them?
-
-> The ir-common module were developed for V4L drivers and will probably be
-> changed into a more generic way, with the integration with lirc.
-> 
-> 
->>However linux usb layer has been build so that it was technically
->>impossible to put it there without completely redesigning usb <-> higher
->>layer (including HID) interface. But I'm of the opinion that that
->>redesign should be done anyway. 
-> 
-> Feel free to submit patches. My plan is to integrate the DVB devices soon
-
-Yes, I have thought of it. But it is a big job, I'm quite busy, and 
-after all mostly the benefit is more esthetical than practical. A lot of 
-other usb strandard and vendor class interrupt endpoint drivers beside 
-HID should be rewritten. Writing new ones would be easier though.
-
-> into the new ir-core. I should start with dvb-usb-remote, where most of the
-> DVB USB devices use to attach their IR's. Unfortunately, af9015 doesn't 
-> rely on the dvb-usb-remote, so, it will require some specific changes.
-> As I don't have any af9015 device, I'll likely postpone it or wait for
-> someone to do the job.
-
-Well that was the original point of my involvement. It can support both 
-the dvb-usb-remote and HID. The problem with af9015/dvb-usb-remote is 
-that it uses usb vendor class endpoint (all trough I have used 'vendor 
-class' to specifically mean usb vendor class). Usb vendor classes have 
-no standard. But af9015 can also use USB HID class (remote as keyboard) 
-in a standard manner. That would avoid using special device  based driver.
-
->>Now the question is, how much all usb based ir receivers have in common,
->>and how much they differ. This should determine on what level and in
->>which way they should be handled. How much and on what level there
->>should be common code and where device specific driver code would be
->>needed and where and how the ir-to-code translate should take place.
-> 
-> 
-> There are several different ways for IR receivers, and, at least for 
-> vendor class, no standard way to handle. They can use GPIO polling,
-> they can use i2c layer, they can use IRQ (on PCI devices) and the data
-> may be provided in parallel or on a serial interface.
-
-Well the thing is that even with usb each device can have non standard 
-user vendor endpoint. In case of af9015 it can provide the ir code.
-
-> The idea of the ir-core is to provide support for all those options.
-
-Even for those that do provide key codes trough standard HID layer 
-instead of ir codes trough specific device drivers?
-
->>IMHO all that have HID endpoint that works (either as such or with some
->>generic quirk) should be handled by HID first and then conveyed to
->>generic remotes layer that handles all remote controllers what ever the
->>lower layers (and does translate per remote not per ir receiver). Vendor
->>class should be avoided unless that's the only way to make it work
->>right. But using HID is not without problems either.
-> 
-> Almost all chipsets only provide IR via vendor class. I agree that using 
-> standard HID class is the better way for doing it.
-
-Yes, but look below.
-
->>Now with the two receivers that need the quirk. If they don't have
->>vendor class bulk endpoint for reading ir codes, then specific driver is
->>out anyway. However then changes to HID driver would be needed to make
->>the translate work. The quirk just makes them work as generic usb
->>keyboard with no remote specific translate. With afatech, driver loads
->>the translate table to the device, different for different remotes. I
->>don't know if one table could handle them all. Maybe this table should
->>be loaded from a user space file. Nor do I know how it is with other
->>receivers: can the table be loaded or is it fixed. In any case a generic
->>secondary per remote user configurable translate would be highly
->>desirable. And I don't mean lircd. This job is IMHO kernel level job and
->>lircd won't work here anyway. It does ir code to key code or function
->>translate not key code to key code translate. How nice it would be if
->>there would be a generic usb ir receiver class that all vendors used.
->>There seems to be no way to  make this well and clean.
-> 
-> 
-> The ir-core provides standard ways to replace the IR keycode and IR protocols.
-> The IR protocol change is already working with vendor class with em28xx driver.
-
-The thing is that remote controller trough HID layer does not provide IR 
-keycode but standard keyboard key code. And HID layer does not know that 
-it is a remote controller but sees it as an ordinary usb keyboard. The 
-question is that how can it tell the upper layer that it really is a 
-remote controller so that the event would end up to generic ir-core.
-
-Pekka
-
-> Cheers,
-> Mauro
+-- 
+Sincerely yours,
+Mike.

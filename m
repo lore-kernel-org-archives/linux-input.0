@@ -1,66 +1,49 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH] Input: ads7846: add regulator support
-Date: Thu, 04 Feb 2010 17:08:11 +0200
-Message-ID: <4B6AE2DB.90809@compulab.co.il>
-References: <1265290758-2035-1-git-send-email-notasas@gmail.com> <20100204142439.GA1139@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from compulab.co.il ([67.18.134.219]:33872 "EHLO compulab.co.il"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758239Ab0BDPJA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2010 10:09:00 -0500
-In-Reply-To: <20100204142439.GA1139@sirena.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: [PATCH] HID: use multi input quirk for TouchPack touchscreen
+Date: Thu,  4 Feb 2010 13:36:24 -0200
+Message-ID: <1265297785-1906-1-git-send-email-cascardo@holoscopio.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: don@syst.com.br
+Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Grazvydas Ignotas <notasas@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org
 
-Mark Brown wrote:
-> On Thu, Feb 04, 2010 at 03:39:18PM +0200, Grazvydas Ignotas wrote:
-> 
->> The ADS7846/TSC2046 touchscreen controllers can (and usually are)
->> connected to various regulators for power, so add regulator support.
->> Make it optional for now to avoid breaking all current users of this
->> driver.
-> 
-> This should not be required.  The regulator API stubs itself out when it
-> is not built so all API calls report as successful.
+This device generates ABS_Z and ABS_RX events, while it should be
+generating ABS_X and ABS_Y instead. Using the MULTI_INPUT quirk solves
+this issue.
 
-And what about boards that have the ads7846 tied to power rail and still
-want to use regulator API for other staff?
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Signed-off-by: Daniel Oliveira Nascimento <don@syst.com.br>
+---
+ drivers/hid/hid-ids.h           |    3 +++
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
->> +	ts->reg = regulator_get(&spi->dev, "vcc");
->> +	if (!IS_ERR(ts->reg)) {
->> +		err = regulator_enable(ts->reg);
->> +		if (err)
->> +			goto err_put_regulator;
->> +	}
-> 
-> If the regulator API is not compiled in then the regulator_get() will
-> return succesfully.  If the regulator API is in use then failure to
-> acquire the regulator is a serious problem which really should be at a
-> minimium be being communicated to the user.  For example, the regulator
-> API may end up powering down regulators which it believes are unused or
-> the regulator may not be powered by default and needs to be enabled.
-> 
-> The updates to fix up the boards that need this are fairly
-> straightforward and given that it's fairly easy to identify systems
-> which are using the driver in mainline so I'd really prefer not to go
-> down the route of trying to carry on in the face of error, it papers
-> over stuff now but is not robust in the face of future changes.
-
-The updates are straightforward for boards that actually _have_
-regulator powering the touchscreen controller. What about the boards
-that do not have such a regulator?
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e99485f..ba39103 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -398,6 +398,9 @@
+ 
+ #define USB_VENDOR_ID_THRUSTMASTER	0x044f
+ 
++#define USB_VENDOR_ID_TOUCHPACK		0x1bfd
++#define USB_DEVIDE_ID_TOUCHPAK_RTS	0x1688
++
+ #define USB_VENDOR_ID_TOPMAX		0x0663
+ #define USB_DEVICE_ID_TOPMAX_COBRAPAD	0x0103
+ 
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index edc598d..b89717d 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -45,6 +45,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ETURBOTOUCH, USB_DEVICE_ID_ETURBOTOUCH, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYSTICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS, HID_QUIRK_MULTI_INPUT },
+ 
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS124U, HID_QUIRK_NOGET },
 -- 
-Sincerely yours,
-Mike.
+1.6.6.1

@@ -1,37 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jiri Slaby <jirislaby@gmail.com>
 Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Thu, 4 Feb 2010 10:14:04 -0800
-Message-ID: <20100204181404.GC10965@core.coreip.homeip.net>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz>
- <4B5CDB53.6030009@iki.fi>
- <4B5D6098.7010700@gmail.com>
- <4B5DDDFB.5020907@iki.fi>
- <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz>
- <4B6AA211.1060707@gmail.com>
+Date: Thu, 04 Feb 2010 19:33:22 +0100
+Message-ID: <4B6B12F2.2080102@gmail.com>
+References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <20100204181404.GC10965@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4B6AA211.1060707@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f220.google.com ([209.85.220.220]:43499 "EHLO
+	mail-fx0-f220.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757282Ab0BDSdb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 13:33:31 -0500
+In-Reply-To: <20100204181404.GC10965@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>, linux-input@vger.kernel.org
 
-On Thu, Feb 04, 2010 at 11:31:45AM +0100, Jiri Slaby wrote:
- +
-> +static int dvb_event(struct hid_device *hdev, struct hid_field *field,
-> +		struct hid_usage *usage, __s32 value)
-> +{
-> +	/* we won't get a "key up" event */
-> +	if (value) {
-> +		input_event(field->hidinput->input, usage->type, usage->code, 1);
-> +		input_event(field->hidinput->input, usage->type, usage->code, 0);
+On 02/04/2010 07:14 PM, Dmitry Torokhov wrote:
+> On Thu, Feb 04, 2010 at 11:31:45AM +0100, Jiri Slaby wrote:
+>  +
+>> +static int dvb_event(struct hid_device *hdev, struct hid_field *field,
+>> +		struct hid_usage *usage, __s32 value)
+>> +{
+>> +	/* we won't get a "key up" event */
+>> +	if (value) {
+>> +		input_event(field->hidinput->input, usage->type, usage->code, 1);
+>> +		input_event(field->hidinput->input, usage->type, usage->code, 0);
+> 
+> Do not ever forget input_sync(), you need 2 of them here.
+> 
+> With the latest changes to evdev, if you are using SIGIO you won't get
+> wioken up until EV_SYN/SYN_REPORT.
 
-Do not ever forget input_sync(), you need 2 of them here.
+HID layer syncs on its own. So the second is not needed. Why is needed
+the first?
 
-With the latest changes to evdev, if you are using SIGIO you won't get
-wioken up until EV_SYN/SYN_REPORT.
-
--- 
-Dmitry
+I.e. should there be one also in dvb_usb_read_remote_control?

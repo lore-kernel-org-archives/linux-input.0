@@ -1,77 +1,64 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Thu, 04 Feb 2010 12:26:54 -0200
-Message-ID: <4B6AD92E.5090905@redhat.com>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <4B6AB7E9.40607@redhat.com> <4B6AC333.6030308@gmail.com> <4B6ACEA3.3080900@redhat.com> <4B6C24FF.4050802@redhat.com>
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: Re: [PATCH] Input: ads7846: add regulator support
+Date: Thu, 4 Feb 2010 16:52:26 +0200
+Message-ID: <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com>
+References: <1265290758-2035-1-git-send-email-notasas@gmail.com>
+	 <20100204142439.GA1139@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:64511 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758243Ab0BDO11 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2010 09:27:27 -0500
-In-Reply-To: <4B6C24FF.4050802@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100204142439.GA1139@sirena.org.uk>
+Sender: linux-omap-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, Pekka Sarnila <sarnila@adit.fi>, linux-input@vger.kernel.org
 
-Jarod Wilson wrote:
-> On 02/04/2010 08:41 AM, Mauro Carvalho Chehab wrote:
->> Jiri Slaby wrote:
->>> On 02/04/2010 01:04 PM, Mauro Carvalho Chehab wrote:
->>>>> I have 2 dvb-t receivers and both of them need fullspeed quirk.
->>>>> Further
->>>>> disable_rc_polling (a dvb_usb module parameter) must be set to not get
->>>>> doubled characters now. And then, it works like a charm.
->>>> Module parameters always bothers me. They should be used as last
->>>> resort alternatives
->>>> when there's no other possible way to make it work properly.
->>>>
->>>> If we know for sure that the RC polling should be disabled by an
->>>> specific device,
->>>> just add this logic at the driver.
->>>
->>> Yes, this is planned and written below:
->>
->> Ok.
->>>
->>>>> Note that, it's just some kind of proof of concept. A migration of
->>>>> af9015 devices from dvb-usb-remote needs to be done first.
->>>>>
->>>>> Ideas, comments?
->>>> Please next time, send the patch inlined. As you're using
->>>> Thunderbird, you'll likely need
->>>> Asalted-patches[1] to avoid thunderbird to destroy your patches.
->>>
->>> I must disagree for two reasons: (a) it was not patch intended for merge
->>> and (b) it was a plain-text attachment which is fine even for
->>> submission. However I don't like patches as attachments so if I decide
->>> to submit it for a merge later, you will not see it as an attachment
->>> then :).
->>
->> Attachments aren't good for reply, as they appear as a file. So,
->> people need to
->> open the attachment on a separate application to see and to cut-and-paste
->> if they want to comment, like what I did.
-> 
-> Just as an FYI... If you use mutt appropriately configured, it'll DTRT
-> with attached patches and let you reply with them quoted inline, and
-> actually, thunderbird 3 will more or less work with attached patches if
-> you do a select-all, then hit reply (tbird finally has 'quote selected
-> text' support).
+On Thu, Feb 4, 2010 at 4:24 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+> On Thu, Feb 04, 2010 at 03:39:18PM +0200, Grazvydas Ignotas wrote:
+>
+>> The ADS7846/TSC2046 touchscreen controllers can (and usually are)
+>> connected to various regulators for power, so add regulator support.
+>> Make it optional for now to avoid breaking all current users of this
+>> driver.
+>
+> This should not be required. =A0The regulator API stubs itself out wh=
+en it
+> is not built so all API calls report as successful.
 
-RHEL5 has Thunderbird 2, so, quote selected text doesn't work. I don't 
-like very much to use text mailers, but i prefer the alpine interface.
-I never saw this feature in alpine. Maybe I just never managed to properly
-configure it there.
+ok
 
-Claws-mail has this feature, its monothread/monotask structure is very
-bad, since it stops answering to the edit window, if it starts to fetch new
-emails while you're editing an email. So, I stopped using it.
+>
+>> + =A0 =A0 ts->reg =3D regulator_get(&spi->dev, "vcc");
+>> + =A0 =A0 if (!IS_ERR(ts->reg)) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 err =3D regulator_enable(ts->reg);
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (err)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_put_regulator;
+>> + =A0 =A0 }
+>
+> If the regulator API is not compiled in then the regulator_get() will
+> return succesfully. =A0If the regulator API is in use then failure to
+> acquire the regulator is a serious problem which really should be at =
+a
+> minimium be being communicated to the user. =A0For example, the regul=
+ator
+> API may end up powering down regulators which it believes are unused =
+or
+> the regulator may not be powered by default and needs to be enabled.
+>
+> The updates to fix up the boards that need this are fairly
+> straightforward and given that it's fairly easy to identify systems
+> which are using the driver in mainline so I'd really prefer not to go
+> down the route of trying to carry on in the face of error, it papers
+> over stuff now but is not robust in the face of future changes.
 
--- 
-
-Cheers,
-Mauro
+What about warning and continuing only on ENODEV then? I really don't
+want to be responsible for potentially breaking touchscreen on ~30
+boards, where I have no idea about how things are wired up and how the
+regulators should be set up.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

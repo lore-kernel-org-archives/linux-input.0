@@ -1,85 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Artem Bityutskiy <dedekind1@gmail.com>
 Subject: Re: [PATCH v3 0/1] Input: gpio-keys: support for disabling GPIOs
-Date: Thu, 4 Feb 2010 00:53:56 -0800
-Message-ID: <20100204085355.GA8003@core.coreip.homeip.net>
+Date: Thu, 04 Feb 2010 11:22:59 +0200
+Message-ID: <1265275379.7343.118.camel@localhost>
 References: <cover.1259674171.git.ext-mika.1.westerberg@nokia.com>
- <20091203061912.GA5626@gw.healthdatacare.com>
- <20091203062641.GH9121@core.coreip.homeip.net>
- <20091215070507.GD25613@gw.healthdatacare.com>
- <20091216082528.GI2699@core.coreip.homeip.net>
- <1264713666.12714.1.camel@localhost.localdomain>
+	 <20091203061912.GA5626@gw.healthdatacare.com>
+	 <20091203062641.GH9121@core.coreip.homeip.net>
+	 <20091215070507.GD25613@gw.healthdatacare.com>
+	 <20091216082528.GI2699@core.coreip.homeip.net>
+	 <1264713666.12714.1.camel@localhost.localdomain>
+	 <20100204085355.GA8003@core.coreip.homeip.net>
+Reply-To: dedekind1@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f189.google.com ([209.85.210.189]:48843 "EHLO
-	mail-yx0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755590Ab0BDIyE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 03:54:04 -0500
-Received: by yxe27 with SMTP id 27so1983258yxe.4
-        for <linux-input@vger.kernel.org>; Thu, 04 Feb 2010 00:54:02 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1264713666.12714.1.camel@localhost.localdomain>
+Received: from smtp.nokia.com ([192.100.122.230]:33539 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753058Ab0BDJZH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 04:25:07 -0500
+In-Reply-To: <20100204085355.GA8003@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Artem Bityutskiy <dedekind1@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mika Westerberg <mika.westerberg@iki.fi>, linux-input@vger.kernel.org
 
-On Thu, Jan 28, 2010 at 11:21:06PM +0200, Artem Bityutskiy wrote:
-> On Wed, 2009-12-16 at 00:25 -0800, Dmitry Torokhov wrote:
-> > On Tue, Dec 15, 2009 at 09:05:07AM +0200, Mika Westerberg wrote:
-> > > On Wed, Dec 02, 2009 at 10:26:41PM -0800, Dmitry Torokhov wrote:
-> > > > On Thu, Dec 03, 2009 at 08:19:12AM +0200, Mika Westerberg wrote:
-> > > > > On Tue, Dec 01, 2009 at 03:53:45PM +0200, Mika Westerberg wrote:
-> > > > > >
-> > > > > > This is third version of the series. Purpose of this patch is to allow
-> > > > > > userland to disable GPIO buttons interrupting the CPU. There is now sysfs
-> > > > > > interface that can be used to control the buttons by key code or by switch
-> > > > > > code.
-> > > > > > 
-> > > > > > I merged those previous 2 patches as one. This is because it made little
-> > > > > > sense of having separate patch for adding the 'can_disable' field.
-> > > > > > 
-> > > > > > Changes in v3:
-> > > > > > 	- merged previous 2 patches into one
-> > > > > > 	- buttons have 'can_disable' field instead of irqflags field
-> > > > > > 
-> > > > > > Tested with RX-51.
-> > > > > 
-> > > > > Hi Dmitry,
-> > > > > 
-> > > > > Any comments on this? Is it OK to be applied or do I need to change
-> > > > > something.
-> > > > > 
-> > > > 
-> > > > Hi Mika,
-> > > > 
-> > > > SOrry, I am still pondering how to go about it. I am sure that the sysfs
-> > > > interface is proper, so at this point it is just implementation details
-> > > > that I am not quite sure yet...
-> > > 
-> > > Hi Dmitry,
-> > > 
-> > > Have you decided yet what to do with these patches?
-> > > 
-> > 
-> > Hi Mika,
-> > 
-> > Sorry, not yet, have been busy with some other stuff ;(
-> 
-> Hi Dmitry,
-> 
-> any news? We missed 2.6.33, and the next merge window is coming ...
-> 
+On Thu, 2010-02-04 at 00:53 -0800, Dmitry Torokhov wrote:
+> Artem, Mika,
+>=20
+> I was hoping to do something different about the new 'can_disable' fl=
+ag
+> but unfortunately I don't have enough time and I already sat on the
+> patch for way too long. :(
+>=20
+> It is applied to my 'next' branch and should get pulled into 2.6.34.
+>=20
+> Thank you for your patience and sorry about the delay.
 
-Artem, Mika,
+Great, thank you!
 
-I was hoping to do something different about the new 'can_disable' flag
-but unfortunately I don't have enough time and I already sat on the
-patch for way too long. :(
+--=20
+Best Regards,
+Artem Bityutskiy (=D0=90=D1=80=D1=82=D1=91=D0=BC =D0=91=D0=B8=D1=82=D1=8E=
+=D1=86=D0=BA=D0=B8=D0=B9)
 
-It is applied to my 'next' branch and should get pulled into 2.6.34.
-
-Thank you for your patience and sorry about the delay.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

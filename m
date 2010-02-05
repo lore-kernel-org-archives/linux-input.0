@@ -1,75 +1,95 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
-Date: Fri, 5 Feb 2010 03:04:23 -0800
-Message-ID: <f17812d71002050304u2c216455g4a5d4a908b2c9609@mail.gmail.com>
-References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
-	<4B6BF488.3070107@ru.mvista.com>
+From: Pekka Sarnila <sarnila@adit.fi>
+Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
+Date: Fri, 05 Feb 2010 16:31:57 +0200
+Message-ID: <4B6C2BDD.80002@adit.fi>
+References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <4B6ACA4B.2030906@adit.fi> <4B6AD3DB.8090801@redhat.com> <4B6AE241.6090900@adit.fi> <4B6B0039.7010206@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f189.google.com ([209.85.222.189]:57276 "EHLO
-	mail-pz0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753014Ab0BELEo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 06:04:44 -0500
-Received: by pzk27 with SMTP id 27so4011507pzk.33
-        for <linux-input@vger.kernel.org>; Fri, 05 Feb 2010 03:04:43 -0800 (PST)
-In-Reply-To: <4B6BF488.3070107@ru.mvista.com>
+Received: from psa.adit.fi ([217.112.250.17]:33651 "EHLO psa.adit.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932268Ab0BEOaW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Feb 2010 09:30:22 -0500
+In-Reply-To: <4B6B0039.7010206@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sergei Shtylyov <sshtylyov@mvista.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
->>
->
-> =C2=A0Some grammar nitpicking...
->
 
-Grrr.... anyone has a good recommendation of English training institute
-for me? :-)
 
-Patch updated as below:
+Mauro Carvalho Chehab wrote:
+> Pekka Sarnila wrote:
 
-=46rom 31cec413e534520111716802833675f53ac99b0b Mon Sep 17 00:00:00 200=
-1
-=46rom: Eric Miao <eric.y.miao@gmail.com>
-Date: Thu, 4 Feb 2010 16:41:28 -0800
-Subject: [PATCH 13/13] input: schedule corgi_ssp and corgi_ts to be rem=
-oved
+>>So dvb is both as a place and a name misleading.
+> 
+> It happens that almost all tv products (analog or digital) come with some 
+> IR support. But you can find also some products that are just IR.
+> 
+> That's why we're moving it to be outside the V4L and the DVB directory.
+> For now, it is at /drivers/media/IR (since it helps us to move the code, while
+> there are still some dependencies at ir-common). But the better is to move it
+> later to /drivers/IR or /drivers/input/IR.
 
-Cc: Richard Purdie <rpurdie@rpsys.net>
-Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
----
- Documentation/feature-removal-schedule.txt |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+I was referring to the dvb-usb-remote. I think it's right place should 
+not be under dvb but under usb/remotes. If you have an usb remote device 
+that has nothing to do with audio-video, it would be strange to have its 
+driver under dvb. Dvb is a protocol name and should be used us such in 
+linux kernel as well. Otherwise it is misleading.
 
-diff --git a/Documentation/feature-removal-schedule.txt
-b/Documentation/feature-removal-schedule.txt
-index 5860583..e16529e 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -554,3 +554,15 @@ Why:	We now have a generic GPIO based matrix
-keyboard driver that
- 	and so are difficult to maintain.
- Who:	Eric Miao <eric.y.miao@gmail.com>
+>>Well I was talking about HID remotes that don't give ir codes but key
+>>codes. What to do with them?
+>  
+> What happens if you use it to receive keycodes from a different IR using
+> the same protocol?
 
-+----------------------------
-+
-+What:	corgi_ssp and corgi_ts driver
-+When:	2.6.35
-+Files:	arch/arm/mach-pxa/corgi_ssp.c, drivers/input/touchscreen/corgi_=
-ts.c
-+Why:	The corgi touchscreen is now deprecated in favour of the generic
-+	ads7846.c driver. The noise reduction technique used in corgi_ts.c
-+	that's to wait til vsync before ADC sampling is also integrated into
-+	ads7846 driver now. Provided that the original driver is not generic
-+	and difficult to maintain, it will be removed later.
-+Who:	Eric Miao <eric.y.miao@gmail.com>
-+
---=20
-1.6.3.3
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Nothing. It responds only to those codes that are at the moment loaded 
+into its internal table.
+
+> Maybe it can still be valid to keep allowing keycode translation.
+
+Yes, provided that it can translate also keyboard keycodes to some other 
+keycodes.
+
+> Well, as HID, you may loose the capability of using a different IR than the
+> one shipped with the af9015. It may make sense to just disable HID and use
+> USB Vendor Class.
+
+Yes, that is the question. Both ways have good arguments for.
+
+>>The thing is that remote controller trough HID layer does not provide IR
+>>keycode but standard keyboard key code. And HID layer does not know that
+>>it is a remote controller but sees it as an ordinary usb keyboard. The
+>>question is that how can it tell the upper layer that it really is a
+>>remote controller so that the event would end up to generic ir-core.
+> 
+> For HID remote controllers, the only way I see is to have an USB ID list of devices
+> that are known to be remote controllers and register them via ir_input_register,
+> instead of input_register_device.
+
+Well, the current kernel architecture for input devices is so, that a 
+higher layer generic driver registers a handler with the input layer 
+telling by the way of capabilities what kind deices it is willing to 
+handle. Lower layer devices drivers register with the input layer 
+telling it what kind of capabilities they have. Based on that the input 
+layer finds a match and relays events accordingly. Although arguments 
+against this mechanism can be found, one of its good sides is that it 
+completely separates generic device layer from device driver layer. E.g. 
+the coder of mouse layer does not need to know anything about various 
+mouse device drivers and vv. This is very good for the highly 
+distributed way linux is being developed.
+
+IMHO ir remote controller receivers should be no exception to that. So 
+rather than use separate ir_input_register, a generic remote controller 
+layer (not only IR code based) should register a handler with the input 
+layer with suitable capabilities, and all remote controller device 
+drivers should register with the input layer telling by capabilities 
+that they are remote controllers. They would send events in standard way 
+to the input layer. Input layer would do the rest as normally.
+
+Also in naming, due consideration should be given to the fact that IR 
+can be used for other type of communication as well.
+
+> Cheers,
+> Mauro

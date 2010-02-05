@@ -1,80 +1,70 @@
-From: Sergei Shtylyov <sshtylyov@mvista.com>
-Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
-Date: Fri, 05 Feb 2010 13:35:52 +0300
-Message-ID: <4B6BF488.3070107@ru.mvista.com>
-References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Major update to N-Trig touchscreen
+Date: Fri, 5 Feb 2010 11:39:10 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002051138170.15395@pobox.suse.cz>
+References: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu> <20100205055302.GA17121@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f228.google.com ([209.85.219.228]:37591 "EHLO
-	mail-ew0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753273Ab0BEKg1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 05:36:27 -0500
-Received: by ewy28 with SMTP id 28so4093465ewy.28
-        for <linux-input@vger.kernel.org>; Fri, 05 Feb 2010 02:36:25 -0800 (PST)
-In-Reply-To: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
+Received: from cantor2.suse.de ([195.135.220.15]:42561 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753014Ab0BEKjM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Feb 2010 05:39:12 -0500
+In-Reply-To: <20100205055302.GA17121@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org, chatty@enac.fr, evilynux@gmail.com
 
-Hello.
+On Thu, 4 Feb 2010, Dmitry Torokhov wrote:
 
-Eric Miao wrote:
+>  +
+> > +		if (matched < nd->contact_count) {
+> > +			for (i = 0; i < nd->contact_count; i++) {
+> > +				if (nd->contacts[i].logical_id < 0) {
+> > +					for (j = 0; j < nd->prev_contact_count;
+> > +					     j++) {
+> > +						if (nd->
+> > +						    prev_contacts[j].confidence
+> > +						    &&
+> > +						    (contact_map
+> > +						     [nd->
+> > +						      prev_contacts
+> > +						      [j].logical_id] < 0)
+> > +						    &&
+> > +						    (abs
+> > +						     (nd->contacts[i].x -
+> > +						      nd->prev_contacts[j].x) <
+> > +						     nd->max_width)
+> > +						    &&
+> > +						    (abs
+> > +						     (nd->contacts[i].y -
+> > +						      nd->prev_contacts[j].y) <
+> > +						     nd->max_height)) {
+> > +							nd->contacts
+> > +							    [i].logical_id =
+> > +							    nd->prev_contacts
+> > +							    [j].logical_id;
+> > +							contact_map
+> > +							    [nd->prev_contacts
+> > +							     [j].logical_id]
+> > +							    = i;
+> > +							matched++;
+> 
+> OK, this kind code just makes me want to poke my eyes with a fork... 5
+> times...
+> 
+> Seriously, either factor it out into a nice function, or say "screw it"
+> to the 80 columt limit, or maybe both. Anything but this.
 
-> commit 31cec413e534520111716802833675f53ac99b0b
-> Author: Eric Miao <eric.y.miao@gmail.com>
-> Date:   Thu Feb 4 16:41:28 2010 -0800
->
->     input: schedule corgi_ssp and corgi_ts to be removed
->
->     Cc: Richard Purdie <rpurdie@rpsys.net>
->     Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
->   
+I absolutely agree with Dmitry here.
 
-   Some grammar nitpicking...
+Plus, even if formatted/factored-out properky, the condition seems to be 
+very unintuitivie. Maybe a line of two of comments, explaining what is the 
+actual condition testing, might be very helpful.
 
-> diff --git a/Documentation/feature-removal-schedule.txt
-> b/Documentation/feature-removal-schedule.txt
-> index 5860583..e16529e 100644
-> --- a/Documentation/feature-removal-schedule.txt
-> +++ b/Documentation/feature-removal-schedule.txt
-> @@ -554,3 +554,15 @@ Why:	We now have a generic GPIO based matrix
-> keyboard driver that
->  	and so are difficult to maintain.
->  Who:	Eric Miao <eric.y.miao@gmail.com>
->
-> +----------------------------
-> +
-> +What:	corgi_ssp and corgi_ts driver
-> +When:	2.6.35
-> +Files:	arch/arm/mach-pxa/corgi_ssp.c, drivers/input/touchscreen/corgi_ts.c
-> +Why:	The corgi touchscreen is now deprecated in favour of the generic
-> +	ads7846.c driver. The noise reduction technique used in corgi_ts.c
-> +	that to wait til vsync before ADC sampling is also
+Thanks,
 
-   that's?
-
-
->  inte grated into
->   
-
-    integrated.
-
-> +	ads7846 driver now. Provided that the original driver is no generic
->   
-
-   not generic
-
-> +	and difficult to maintain, will be removed later.
->   
-
-   it will.
-
-> +Who:	Eric Miao <eric.y.miao@gmail.com>
-> +
->   
-
-WBR, Sergei
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

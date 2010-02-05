@@ -1,40 +1,35 @@
-From: John Kacur <jkacur@redhat.com>
-Subject: Re: [PATCH] input: remove BKL from uinput open function
-Date: Fri, 5 Feb 2010 17:04:28 +0100
-Message-ID: <520f0cf11002050804r184dc59bha6ba8b78e7f75909@mail.gmail.com>
-References: <201001302257.09354.arnd@arndb.de>
-	 <520f0cf11002011518y22c2f097s87872e7b5b1690d7@mail.gmail.com>
-	 <20100203050749.GA22110@core.coreip.homeip.net>
-	 <201002040832.09805.arnd@arndb.de>
+From: Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
+Date: Fri, 05 Feb 2010 16:29:00 +0000
+Message-ID: <1265387340.19682.2.camel@rex>
+References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
+	<4B6BF488.3070107@ru.mvista.com>
+	<f17812d71002050304u2c216455g4a5d4a908b2c9609@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201002040832.09805.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <f17812d71002050304u2c216455g4a5d4a908b2c9609@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Sergei Shtylyov <sshtylyov@mvista.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Feb 4, 2010 at 8:32 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Wednesday 03 February 2010, Dmitry Torokhov wrote:
->> OK, so how about the patch below? If it is accepted I will just swit=
-ch
->> to
->>
->> =A0 =A0 =A0 =A0 nonseekable_open(inode, file);
->> =A0 =A0 =A0 =A0 return 0;
->>
->> style. I gonna add Al and akpm to CC to see if the patch will stick.=
-=2E.
->
-> Sounds reasonable, if only to prevent this from becoming a FAQ.
->
->> VFS: clarify that nonseekable_open() will never fail
->>
->> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
->
-> Acked-by: Arnd Bergmann <arnd@arndb.de>
-> --
+On Fri, 2010-02-05 at 03:04 -0800, Eric Miao wrote:
+> From 31cec413e534520111716802833675f53ac99b0b Mon Sep 17 00:00:00 2001
+> From: Eric Miao <eric.y.miao@gmail.com>
+> Date: Thu, 4 Feb 2010 16:41:28 -0800
+> Subject: [PATCH 13/13] input: schedule corgi_ssp and corgi_ts to be removed
+> 
+> Cc: Richard Purdie <rpurdie@rpsys.net>
+> Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
 
-Acked-by: John Kacur <jkacur@redhat.com>
+Acked-by: Richard Purdie <rpurdie@rpsys.net>

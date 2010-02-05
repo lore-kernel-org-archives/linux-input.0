@@ -1,52 +1,65 @@
-From: <samu.p.onkalo@nokia.com>
-Subject: RE: [RFC] Generic implementation for Input enable disable methods
-Date: Fri, 5 Feb 2010 08:38:41 +0100
-Message-ID: <62697B07E9803846BC582181BD6FB6B8257283DAC4@NOK-EUMSG-02.mgdnok.nokia.com>
-References: <1263968920.18053.24.camel@4fid08082>
- <1264141700.2889.14.camel@4fid08082>
- <20100201085901.GC24188@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: Major update to N-Trig touchscreen
+Date: Thu, 4 Feb 2010 21:53:02 -0800
+Message-ID: <20100205055302.GA17121@core.coreip.homeip.net>
+References: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:18185 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933310Ab0BEHi4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 02:38:56 -0500
-In-Reply-To: <20100201085901.GC24188@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from mail-px0-f182.google.com ([209.85.216.182]:38017 "EHLO
+	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752464Ab0BEFxJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 00:53:09 -0500
+Received: by pxi12 with SMTP id 12so3793898pxi.33
+        for <linux-input@vger.kernel.org>; Thu, 04 Feb 2010 21:53:07 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, ext-mika.1.westerberg@nokia.com, ext-jani.1.nikula@nokia.com
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr, evilynux@gmail.com
 
->-----Original Message-----
->From: ext Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->
->Hi Samu,
->
->I still believe that the only thing we need (apart of special plumbing
->in
->gpio-keys) is a way for userspace clients to subsribe on unsubscribe
->from certain events rather than device-wide configuration. This way we
->can avoid waking up processes that are not interested in some of the
->events.
->
+On Thu, Feb 04, 2010 at 10:52:43PM -0500, Rafi Rubin wrote:
+ +
+> +		if (matched < nd->contact_count) {
+> +			for (i = 0; i < nd->contact_count; i++) {
+> +				if (nd->contacts[i].logical_id < 0) {
+> +					for (j = 0; j < nd->prev_contact_count;
+> +					     j++) {
+> +						if (nd->
+> +						    prev_contacts[j].confidence
+> +						    &&
+> +						    (contact_map
+> +						     [nd->
+> +						      prev_contacts
+> +						      [j].logical_id] < 0)
+> +						    &&
+> +						    (abs
+> +						     (nd->contacts[i].x -
+> +						      nd->prev_contacts[j].x) <
+> +						     nd->max_width)
+> +						    &&
+> +						    (abs
+> +						     (nd->contacts[i].y -
+> +						      nd->prev_contacts[j].y) <
+> +						     nd->max_height)) {
+> +							nd->contacts
+> +							    [i].logical_id =
+> +							    nd->prev_contacts
+> +							    [j].logical_id;
+> +							contact_map
+> +							    [nd->prev_contacts
+> +							     [j].logical_id]
+> +							    = i;
+> +							matched++;
 
-Hi Dmitry,
+OK, this kind code just makes me want to poke my eyes with a fork... 5
+times...
 
-I just noticed that control interface for gpio was applied to input-tree.
-We still have a need to disable hw in certain cases. It is probably better
-to forget generic implementation to input core and make control interface
-as specific to each driver like proposed some months ago for example
-for tel4030-keypad driver. Or what do you think?
+Seriously, either factor it out into a nice function, or say "screw it"
+to the 80 columt limit, or maybe both. Anything but this.
 
-Sw filtering which avoids to wakeup some processes is not proper solution
-to embedded devices. We need to avoid waking up the processor itself.
+Thanks.
 
-Br,
-Samu
-
-
-
-
+-- 
+Dmitry

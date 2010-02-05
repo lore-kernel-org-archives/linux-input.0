@@ -1,60 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Generic implementation for Input enable disable methods
-Date: Fri, 5 Feb 2010 00:10:54 -0800
-Message-ID: <201002050010.55524.dmitry.torokhov@gmail.com>
-References: <1263968920.18053.24.camel@4fid08082> <20100201085901.GC24188@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B8257283DAC4@NOK-EUMSG-02.mgdnok.nokia.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] HID: Major update to N-Trig touchscreen
+Date: Fri, 05 Feb 2010 02:27:39 -0500
+Message-ID: <4B6BC86B.9090102@seas.upenn.edu>
+References: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu> <20100205055302.GA17121@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f182.google.com ([209.85.216.182]:35572 "EHLO
-	mail-px0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751223Ab0BEILA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 03:11:00 -0500
-Received: by pxi12 with SMTP id 12so3905306pxi.33
-        for <linux-input@vger.kernel.org>; Fri, 05 Feb 2010 00:11:00 -0800 (PST)
-In-Reply-To: <62697B07E9803846BC582181BD6FB6B8257283DAC4@NOK-EUMSG-02.mgdnok.nokia.com>
+Received: from stag.seas.upenn.edu ([158.130.70.79]:34127 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933606Ab0BEHdc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 02:33:32 -0500
+In-Reply-To: <20100205055302.GA17121@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: samu.p.onkalo@nokia.com
-Cc: linux-input@vger.kernel.org, ext-mika.1.westerberg@nokia.com, ext-jani.1.nikula@nokia.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr, evilynux@gmail.com
 
-On Thursday 04 February 2010 11:38:41 pm samu.p.onkalo@nokia.com wrote:
-> >-----Original Message-----
-> >From: ext Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> >
-> >Hi Samu,
-> >
-> >I still believe that the only thing we need (apart of special plumbing
-> >in
-> >gpio-keys) is a way for userspace clients to subsribe on unsubscribe
-> >from certain events rather than device-wide configuration. This way we
-> >can avoid waking up processes that are not interested in some of the
-> >events.
+Will do.
+
+Dmitry Torokhov wrote:
+> On Thu, Feb 04, 2010 at 10:52:43PM -0500, Rafi Rubin wrote:
+>  +
+>> +		if (matched < nd->contact_count) {
+>> +			for (i = 0; i < nd->contact_count; i++) {
+>> +				if (nd->contacts[i].logical_id < 0) {
+>> +					for (j = 0; j < nd->prev_contact_count;
+>> +					     j++) {
+>> +						if (nd->
+>> +						    prev_contacts[j].confidence
+>> +						    &&
+>> +						    (contact_map
+>> +						     [nd->
+>> +						      prev_contacts
+>> +						      [j].logical_id] < 0)
+>> +						    &&
+>> +						    (abs
+>> +						     (nd->contacts[i].x -
+>> +						      nd->prev_contacts[j].x) <
+>> +						     nd->max_width)
+>> +						    &&
+>> +						    (abs
+>> +						     (nd->contacts[i].y -
+>> +						      nd->prev_contacts[j].y) <
+>> +						     nd->max_height)) {
+>> +							nd->contacts
+>> +							    [i].logical_id =
+>> +							    nd->prev_contacts
+>> +							    [j].logical_id;
+>> +							contact_map
+>> +							    [nd->prev_contacts
+>> +							     [j].logical_id]
+>> +							    = i;
+>> +							matched++;
 > 
-> Hi Dmitry,
+> OK, this kind code just makes me want to poke my eyes with a fork... 5
+> times...
 > 
-> I just noticed that control interface for gpio was applied to input-tree.
-> We still have a need to disable hw in certain cases. It is probably better
-> to forget generic implementation to input core and make control interface
-> as specific to each driver like proposed some months ago for example
-> for tel4030-keypad driver. Or what do you think?
+> Seriously, either factor it out into a nice function, or say "screw it"
+> to the 80 columt limit, or maybe both. Anything but this.
 > 
-> Sw filtering which avoids to wakeup some processes is not proper solution
-> to embedded devices. We need to avoid waking up the processor itself.
-
-I see. I think that such facility should not be limited to input devices
-(with the exception of gpio-keys which is a special case since it works
-with multiple interrupts). We need a way to allow userspace initiate
-putting an arbitrary device to "sleep" and this should be generic
-infrastructure.
-
-So you need to talk to PM people again and design such facility with them
-since IIRC there wasn't anything like that last time you tried asking that
-question.
-
-Thanks.
-
--- 
-Dmitry
+> Thanks.
+> 

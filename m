@@ -1,62 +1,110 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: ads7846: add regulator support
-Date: Thu, 4 Feb 2010 18:59:22 +0000
-Message-ID: <583BCA92-EE63-48E7-B2EF-D0281E7F676C@opensource.wolfsonmicro.com>
-References: <1265290758-2035-1-git-send-email-notasas@gmail.com> <20100204142439.GA1139@sirena.org.uk> <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com> <20100204162155.GB29982@rakim.wolfsonmicro.main> <20100204180807.GB10965@core.coreip.homeip.net> (sfid-20100204_180836_896233_FC3A8E05)
-Mime-Version: 1.0 (iPhone Mail 7E18)
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Content-Transfer-Encoding: 7bit
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: [PATCH] input: mark {corgi,spitz,tosa}kbd driver deprecated
+Date: Thu, 4 Feb 2010 16:31:52 -0800
+Message-ID: <f17812d71002041631o25e63574t4cf13d21dc759dff@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:53076 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757832Ab0BDS7E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Feb 2010 13:59:04 -0500
-In-Reply-To: <20100204180807.GB10965@core.coreip.homeip.net> (sfid-20100204_180836_896233_FC3A8E05)
+Received: from mail-qy0-f202.google.com ([209.85.221.202]:50971 "EHLO
+	mail-qy0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756866Ab0BEAcO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Feb 2010 19:32:14 -0500
+Received: by qyk40 with SMTP id 40so1539544qyk.14
+        for <linux-input@vger.kernel.org>; Thu, 04 Feb 2010 16:32:12 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Grazvydas Ignotas <notasas@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "lrg@slimlogic.co.uk" <lrg@slimlogic.co.uk>
+To: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org
+Cc: Richard Purdie <rpurdie@rpsys.net>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 
-On 4 Feb 2010, at 18:08, Dmitry Torokhov <dmitry.torokhov@gmail.com>  
-wrote:
+commit a527bd8d900b77aa48fbc117b28f678e937275d7
+Author: Eric Miao <eric.y.miao@gmail.com>
+Date:   Thu Feb 4 16:25:19 2010 -0800
 
-> On Thu, Feb 04, 2010 at 04:21:55PM +0000, Mark Brown wrote:
->> On Thu, Feb 04, 2010 at 04:52:26PM +0200, Grazvydas Ignotas wrote:
->>> On Thu, Feb 4, 2010 at 4:24 PM, Mark Brown
->>
->>>> The updates to fix up the boards that need this are fairly
->>>> straightforward and given that it's fairly easy to identify systems
->>>> which are using the driver in mainline so I'd really prefer not  
->>>> to go
->>>> down the route of trying to carry on in the face of error, it  
->>>> papers
->>>> over stuff now but is not robust in the face of future changes.
->>
->>> What about warning and continuing only on ENODEV then? I really  
->>> don't
->>> want to be responsible for potentially breaking touchscreen on ~30
->>> boards, where I have no idea about how things are wired up and how  
->>> the
->>> regulators should be set up.
->>
->> I'm really not terribly enthusiastic about that approach - like I  
->> say,
->> it just moves the problem about a bit and postpones the breakage in a
->> potentially more obscure fashion.
->>
->
-> Maybe we should rely on platform data to tell us whether we need to  
-> plug
-> into regulator framework and in this case fail hard on any error?
+    input: mark {corgi,spitz,tosa}kbd driver deprecated
 
-That doesn't really help - it requres per driver code for the platform  
-data and for conditionalising all the regulator API calls, results in  
-inconsistent behaviour between drivers (does this driver have a no  
-regulator switch?) and is looking a bit like the situation where  
-you're passing around the regulator name to match device and supply.  
-It seems like more work overall for users. 
-  
+    Provided that now keyboards on these devices are now fully supported
+    by generic GPIO based matrix keypad driver, mark these hardcoded, and
+    difficult to maintain drivers deprecated in favour of this.
+
+    Cc: Richard Purdie <rpurdie@rpsys.net>
+    Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+    Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+
+diff --git a/Documentation/feature-removal-schedule.txt
+b/Documentation/feature-removal-schedule.txt
+index 0a46833..5860583 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -542,3 +542,15 @@ Why:	Duplicate functionality with the gspca_zc3xx
+driver, zc0301 only
+ 	sensors) wich are also supported by the gspca_zc3xx driver
+ 	(which supports 53 USB-ID's in total)
+ Who:	Hans de Goede <hdegoede@redhat.com>
++
++----------------------------
++
++What:	corgikbd, spitzkbd, tosakbd driver
++When:	2.6.35
++Files:	drivers/input/keyboard/{corgi,spitz,tosa}kbd.c
++Why:	We now have a generic GPIO based matrix keyboard driver that
++	are fully capable of handling all the keys on these devices.
++	The original drivers manipulate the GPIO registers directly
++	and so are difficult to maintain.
++Who:	Eric Miao <eric.y.miao@gmail.com>
++
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 02c836e..3d131cc 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -144,13 +144,16 @@ config KEYBOARD_BFIN
+ 	  module will be called bf54x-keys.
+
+ config KEYBOARD_CORGI
+-	tristate "Corgi keyboard"
++	tristate "Corgi keyboard (deprecated)"
+ 	depends on PXA_SHARPSL
+ 	default y
+ 	help
+ 	  Say Y here to enable the keyboard on the Sharp Zaurus SL-C7xx
+ 	  series of PDAs.
+
++	  This driver is now deprecated, use generic GPIO based matrix
++	  keyboard driver instead.
++
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called corgikbd.
+
+@@ -329,13 +332,16 @@ config KEYBOARD_PXA930_ROTARY
+ 	  module will be called pxa930_rotary.
+
+ config KEYBOARD_SPITZ
+-	tristate "Spitz keyboard"
++	tristate "Spitz keyboard (deprecated)"
+ 	depends on PXA_SHARPSL
+ 	default y
+ 	help
+ 	  Say Y here to enable the keyboard on the Sharp Zaurus SL-C1000,
+ 	  SL-C3000 and Sl-C3100 series of PDAs.
+
++	  This driver is now deprecated, use generic GPIO based matrix
++	  keyboard driver instead.
++
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called spitzkbd.
+
+@@ -402,12 +408,15 @@ config KEYBOARD_TWL4030
+ 	  module will be called twl4030_keypad.
+
+ config KEYBOARD_TOSA
+-	tristate "Tosa keyboard"
++	tristate "Tosa keyboard (deprecated)"
+ 	depends on MACH_TOSA
+ 	default y
+ 	help
+ 	  Say Y here to enable the keyboard on the Sharp Zaurus SL-6000x (Tosa)
+
++	  This driver is now deprecated, use generic GPIO based matrix
++	  keyboard driver instead.
++
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called tosakbd.

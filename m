@@ -1,71 +1,80 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH] HID: Major update to N-Trig touchscreen
-Date: Fri, 5 Feb 2010 10:40:35 +0100
-Message-ID: <20100205104035.dda70313.ospite@studenti.unina.it>
-References: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu>
+From: Sergei Shtylyov <sshtylyov@mvista.com>
+Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
+Date: Fri, 05 Feb 2010 13:35:52 +0300
+Message-ID: <4B6BF488.3070107@ru.mvista.com>
+References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__5_Feb_2010_10_40_35_+0100_.6BOwIxKRgikPEhm"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out30.alice.it ([85.33.2.30]:1028 "EHLO
-	smtp-out30.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932093Ab0BEJu6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 04:50:58 -0500
-In-Reply-To: <1265341963-5315-1-git-send-email-rafi@seas.upenn.edu>
+Received: from mail-ew0-f228.google.com ([209.85.219.228]:37591 "EHLO
+	mail-ew0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753273Ab0BEKg1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 05:36:27 -0500
+Received: by ewy28 with SMTP id 28so4093465ewy.28
+        for <linux-input@vger.kernel.org>; Fri, 05 Feb 2010 02:36:25 -0800 (PST)
+In-Reply-To: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr, evilynux@gmail.com
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
 
---Signature=_Fri__5_Feb_2010_10_40_35_+0100_.6BOwIxKRgikPEhm
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello.
 
-On Thu,  4 Feb 2010 22:52:43 -0500
-Rafi Rubin <rafi@seas.upenn.edu> wrote:
+Eric Miao wrote:
 
-> Improvements to multitouch handling:
-> 	enabled mt input events were were masked off
-> 	adjusted interpretation of some hid events
-> 	added finger tracking
->=20
-> Pen and touch sensors moved to separate event nodes (HID_QUIRK_MULTI_INPU=
-T) and related changes removing unnecessary code and events that supported =
-the multiplexed streams.  Added names to represent the sensor associated wi=
-th each event node.  Split event handlers for the sensors to make the code =
-a bit more readable.
+> commit 31cec413e534520111716802833675f53ac99b0b
+> Author: Eric Miao <eric.y.miao@gmail.com>
+> Date:   Thu Feb 4 16:41:28 2010 -0800
 >
+>     input: schedule corgi_ssp and corgi_ts to be removed
+>
+>     Cc: Richard Purdie <rpurdie@rpsys.net>
+>     Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+>   
 
-Just a style-question, isn't the commit message supposed to be wrapped
-at 72-80 chars as well? This is not stated explicitly in
-Documentation/SubmittingPatches Section 15.
+   Some grammar nitpicking...
 
-Thanks,
-   Antonio
+> diff --git a/Documentation/feature-removal-schedule.txt
+> b/Documentation/feature-removal-schedule.txt
+> index 5860583..e16529e 100644
+> --- a/Documentation/feature-removal-schedule.txt
+> +++ b/Documentation/feature-removal-schedule.txt
+> @@ -554,3 +554,15 @@ Why:	We now have a generic GPIO based matrix
+> keyboard driver that
+>  	and so are difficult to maintain.
+>  Who:	Eric Miao <eric.y.miao@gmail.com>
+>
+> +----------------------------
+> +
+> +What:	corgi_ssp and corgi_ts driver
+> +When:	2.6.35
+> +Files:	arch/arm/mach-pxa/corgi_ssp.c, drivers/input/touchscreen/corgi_ts.c
+> +Why:	The corgi touchscreen is now deprecated in favour of the generic
+> +	ads7846.c driver. The noise reduction technique used in corgi_ts.c
+> +	that to wait til vsync before ADC sampling is also
 
---=20
-Antonio Ospite
-http://ao2.it
+   that's?
 
-PGP public key ID: 0x4553B001
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+>  inte grated into
+>   
 
---Signature=_Fri__5_Feb_2010_10_40_35_+0100_.6BOwIxKRgikPEhm
-Content-Type: application/pgp-signature
+    integrated.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+> +	ads7846 driver now. Provided that the original driver is no generic
+>   
 
-iEYEARECAAYFAktr55MACgkQ5xr2akVTsAFU0wCfRp4ZUAgdsxfNIBcbVK2PJzuk
-fCsAoJbeFxZEJqt7oNkZyjSFoPe0DndG
-=gQiz
------END PGP SIGNATURE-----
+   not generic
 
---Signature=_Fri__5_Feb_2010_10_40_35_+0100_.6BOwIxKRgikPEhm--
+> +	and difficult to maintain, will be removed later.
+>   
+
+   it will.
+
+> +Who:	Eric Miao <eric.y.miao@gmail.com>
+> +
+>   
+
+WBR, Sergei
+

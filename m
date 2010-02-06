@@ -1,24 +1,24 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] HID: Major update to N-Trig touchscreen
-Date: Fri, 05 Feb 2010 20:03:15 -0500
-Message-ID: <4B6CBFD3.8050700@seas.upenn.edu>
-References: <1265418069-14240-1-git-send-email-rafi@seas.upenn.edu>
+From: Peter Paul <abnominales@web.de>
+Subject: Re: Xbox 360 big button controllers patch
+Date: Sat, 06 Feb 2010 13:43:13 +0100
+Message-ID: <1265460193.1832.3.camel@virtubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:46567 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933330Ab0BFBDS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Feb 2010 20:03:18 -0500
-In-Reply-To: <1265418069-14240-1-git-send-email-rafi@seas.upenn.edu>
+Received: from fmmailgate02.web.de ([217.72.192.227]:54567 "EHLO
+	fmmailgate02.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754192Ab0BFMnQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Feb 2010 07:43:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
+To: james@mastros.biz
+Cc: linux-input@vger.kernel.org
 
-I think something deep down inside of me is trying to expose the depths of my stupidity, forcing me 
-to make countless idiotic mistakes, like forgetting to commit and read the patch before sending it....
+Hi,
+Thank you for your patch. Could you please add your "Signed-off-by: ",
+also please mind to disable line wrapping when inserting the patch in
+your mail client, so it doesn't get corrupted, you also might want to
+add the [PATCH] tag to the subject so it gets recognized as such.
+You also should add loglevels when using printk.
 
-Really, very sorry about that.  I'd better step away from my computers for a while.
-
-Rafi

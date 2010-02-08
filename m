@@ -1,65 +1,74 @@
-From: chatty@lii-enac.fr (Stephane Chatty)
-Subject: [PATCH] Added support for pressure on the Stantum multitouch
- panel
-Date: Sat, 06 Feb 2010 15:20:03 +0100
-Message-ID: <20100206142003.9B86A9520A@smtp.lii-enac.fr>
+From: Jebediah Huang <jebediah.huang@gmail.com>
+Subject: Using PXA arm board with MAX7319 GPIO expander input
+Date: Mon, 8 Feb 2010 13:44:10 +0800
+Message-ID: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:33283 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751699Ab0BFOUE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Feb 2010 09:20:04 -0500
+Received: from mail-fx0-f211.google.com ([209.85.220.211]:58507 "EHLO
+	mail-fx0-f211.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751060Ab0BHFoL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 00:44:11 -0500
+Received: by mail-fx0-f211.google.com with SMTP id 3so7148074fxm.39
+        for <linux-input@vger.kernel.org>; Sun, 07 Feb 2010 21:44:10 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: chatty@enac.fr
+To: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Added pressure handling for Stantum multitouch panels
+Hello ,
 
-Signed-off-by: Stephane Chatty <chatty@enac.fr>
+I have PXA166 board with MAX7319 GPIO expander connected with 8
+buttons. When any button is pressed, I want to get input event. Can
+this be done?
 
-diff -rupN a/drivers/hid/hid-stantum.c b/drivers/hid/hid-stantum.c
---- a/drivers/hid/hid-stantum.c	2010-02-06 15:01:17.000000000 +0100
-+++ b/drivers/hid/hid-stantum.c	2010-02-06 15:03:45.000000000 +0100
-@@ -16,7 +16,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- 
--MODULE_VERSION("1.01");
-+MODULE_VERSION("1.02");
- MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
- MODULE_DESCRIPTION("Stantum HID multitouch panels");
- MODULE_LICENSE("GPL");
-@@ -66,7 +66,6 @@ static int stantum_input_mapping(struct 
- 		case HID_DG_DEVICEINDEX:
- 		case HID_DG_CONTACTCOUNT:
- 		case HID_DG_CONTACTMAX:
--		case HID_DG_TIPPRESSURE:
- 			return -1;
- 
- 		case HID_DG_TIPSWITCH:
-@@ -84,6 +83,11 @@ static int stantum_input_mapping(struct 
- 			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
- 					1, 1, 0, 0);
- 			return 1;
-+		case HID_DG_TIPPRESSURE:
-+			hid_map_usage(hi, usage, bit, max,
-+					EV_ABS, ABS_MT_PRESSURE);
-+			return 1;
-+
- 		case HID_DG_CONTACTID:
- 			hid_map_usage(hi, usage, bit, max,
- 					EV_ABS, ABS_MT_TRACKING_ID);
-@@ -140,10 +144,7 @@ static void stantum_filter_event(struct 
- 	input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, wide ? sd->w : sd->h);
- 	input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, wide ? sd->h : sd->w);
- 
--#if 0
--	/* MT_PRESSURE does not exist yet */
- 	input_event(input, EV_ABS, ABS_MT_PRESSURE, sd->z);
--#endif
- 
- 	input_mt_sync(input);
- 	sd->valid = false;
+I have read the littleton and aspenite code to try. The SDA is 105,
+SCL is 106. I use MAX732x driver. It is set as I2C slave at 0x6C. So I
+set up:
+
+static struct i2c_pxa_platform_data pwri2c_info __initdata = {
+        .use_pio                = 1,
+};
+
+static unsigned long peony_pin_config[] __initdata = {
+        /* i2c bus */
+        GPIO105_CI2C_SDA,
+        GPIO106_CI2C_SCL,
+}
+
+static struct max732x_platform_data max7319_data[] = {
+        [0] = {
+                .gpio_base      = GPIO_EXT0(0),
+        },
+};
+
+static struct i2c_board_info i2c_board_info[] =
+{
+        {
+                .type           = "max7319",
+                .addr           = 0x6C,
+                .irq            = IRQ_GPIO(105),
+                .platform_data  = &max7319_data[0],
+        },
+};
+
+when bootup I see;
+<6>[    0.290770] I2C: i2c-0: PXA I2C adapter
+<6>[    0.307118] I2C: i2c-1: PXA I2C adapter
+<6>[    0.821709] hello pony_init
+<3>[    0.838559] platform_driver_register
+<6>[    0.868069] max732x_read: read g 1
+<6>[    0.881893] max732x_read: read g 0
+<4>[    0.898895] i2c: error: exhausted retries
+<4>[    0.911947] i2c: msg_num: 0 msg_idx: -2000 msg_ptr: 0
+<4>[    0.927509] i2c: ICR: 000007e0 ISR: 00000002
+<4>[    0.927526] i2c: log: [00000006:00000000] [00000006:00000000]
+[00000006:00000000] [00000006:00000000] [00000006:00000000]
+[00000006:00000000] [0000000
+<3>[    1.167890] dummy 0-005d: failed reading
+<5>[    1.182585] SCSI subsystem initialized
+
+Maybe max732x driver is not getting correct data from my setup? No
+event when pressing button. If any ideas?
+
+Thank you very much!
+Jeb

@@ -1,48 +1,33 @@
 From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] input: mark {corgi,spitz,tosa}kbd driver deprecated
-Date: Mon, 8 Feb 2010 19:05:08 +0100
-Message-ID: <20100208180507.GA1469@ucw.cz>
-References: <f17812d71002041631o25e63574t4cf13d21dc759dff@mail.gmail.com>
+Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
+Date: Mon, 8 Feb 2010 19:06:25 +0100
+Message-ID: <20100208180625.GB1469@ucw.cz>
+References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46852 "EHLO
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:51444 "EHLO
 	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751651Ab0BHSFT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 13:05:19 -0500
+	with ESMTP id S1752368Ab0BHSGe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 13:06:34 -0500
 Content-Disposition: inline
-In-Reply-To: <f17812d71002041631o25e63574t4cf13d21dc759dff@mail.gmail.com>
+In-Reply-To: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
 
-Hi!
-
->     input: mark {corgi,spitz,tosa}kbd driver deprecated
+On Thu 2010-02-04 16:45:41, Eric Miao wrote:
+> commit 31cec413e534520111716802833675f53ac99b0b
+> Author: Eric Miao <eric.y.miao@gmail.com>
+> Date:   Thu Feb 4 16:41:28 2010 -0800
 > 
->     Provided that now keyboards on these devices are now fully supported
->     by generic GPIO based matrix keypad driver, mark these hardcoded, and
->     difficult to maintain drivers deprecated in favour of this.
+>     input: schedule corgi_ssp and corgi_ts to be removed
 > 
 >     Cc: Richard Purdie <rpurdie@rpsys.net>
->     Cc: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 >     Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
 
-ACK, but..
-
-> @@ -329,13 +332,16 @@ config KEYBOARD_PXA930_ROTARY
->  	  module will be called pxa930_rotary.
-> 
->  config KEYBOARD_SPITZ
-> -	tristate "Spitz keyboard"
-> +	tristate "Spitz keyboard (deprecated)"
->  	depends on PXA_SHARPSL
->  	default y
-
-Default should be N, and config option probably should be removed
-altogether -- with recent mach_spitz, keyboard_spitz will not be bound
-to the hw, anyway... right?
+ACK.
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

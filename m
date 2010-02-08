@@ -1,67 +1,66 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: ads7846: add regulator support
-Date: Mon, 8 Feb 2010 11:30:29 +0000
-Message-ID: <20100208113028.GA15630@rakim.wolfsonmicro.main>
-References: <1265290758-2035-1-git-send-email-notasas@gmail.com>
- <20100204142439.GA1139@sirena.org.uk>
- <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com>
- <20100204162155.GB29982@rakim.wolfsonmicro.main>
- <f870da181002051245t2f37065duae595fee391e7fd9@mail.gmail.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: Using PXA arm board with MAX7319 GPIO expander input
+Date: Mon, 8 Feb 2010 12:33:06 +0100
+Message-ID: <20100208113306.GN9007@buzzloop.caiaq.de>
+References: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
+ <f17812d71002072202x2fb620c3hf4c3bbf6dc78aa78@mail.gmail.com>
+ <bf0eec9a1002072302w1e81cc6bkd994c3efaab4d51d@mail.gmail.com>
+ <bf0eec9a1002080308v77c9c026j302767e41cd660f2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:49472 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750743Ab0BHLab (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Feb 2010 06:30:31 -0500
+Received: from buzzloop.caiaq.de ([212.112.241.133]:34222 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750780Ab0BHLdL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 06:33:11 -0500
 Content-Disposition: inline
-In-Reply-To: <f870da181002051245t2f37065duae595fee391e7fd9@mail.gmail.com>
+In-Reply-To: <bf0eec9a1002080308v77c9c026j302767e41cd660f2@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Rapoport <mike.rapoport@gmail.com>
-Cc: Grazvydas Ignotas <notasas@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org, lrg@slimlogic.co.uk
+To: Jebediah Huang <jebediah.huang@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Fri, Feb 05, 2010 at 10:45:09PM +0200, Mike Rapoport wrote:
-> On Thu, Feb 4, 2010 at 6:21 PM, Mark Brown
+On Mon, Feb 08, 2010 at 07:08:06PM +0800, Jebediah Huang wrote:
+> Is it correct that max732x driver will take i2c configuration from my
+> setup info and make each max7319 input signel into a gpio?
+> 
+> Hardware work correctly because without max732x driver, above i2c-dev
+> code can read max7319 input signel. Configuration is correct.
+> 
+> gpio_base is starting where max732x driver will add new gpio number
+> for max7319 signel.
 
-> > The bodge I'm thinking of would do something like log an error and
-> > substitute in a dummy regulator when regulator_get() would have fai=
-led
-> > so that the driver sees behaviour equivalent to the stubbed regulat=
-or
-> > API if the bodge is active. =A0A central thing seems much more sens=
-ible
-> > here - there's nothing specific to this driver going on here and ha=
-ving
-> > the API behave in a consistent manner seems good.
+Yes, that should be right. After the driver is probed successfully, you
+should be able to access the GPIOs with generic functions as described
+in include/linux/gpio.h. Can you try if that works?
 
-> I agree that such approach have more sense than checking for -ENODEV
-> in each and every driver that uses the regulator framework. I just
-> wonder, if there should be some mechanism that  can switch the
-> substitution of the dummy regulators on and off. And if yes, how
-> should the platform code communicate with the regulator core the need
-> for such dummy regulators...
+And if you can, you should really hook up an I2C analyzer to your bus
+and see what is happening electrically and which messages pass the bus.
 
-So, having thought about this a bit more we actually have two different
-use cases here.  One is where you've got a system which has software
-controllable regulators for everything but may not have plumbed in all
-the supplies, the other is for systems where only a very few supplies
-are on software controlled regulators which are just trying to save the
-hassle of hooking up the bulk of the supplies to fixed voltage
-regulators.  These two use cases should probably be handled differently
-- the first one is really expected to have all the supplies hooked up
-and so should warn when using the bodge regulator but the warning isn't
-helpful in the second case.
+> static struct max732x_platform_data max7319_data[] = {
+>        [0] = {
+>                .gpio_base      =  NR_BUILTIN_GPIO,
+>        },
+> };
+> 
+> static struct i2c_board_info i2c_board_info[] =
+> {
+>        {
+>                .type           = "max7319",
+>                .addr           = 0x6C,
+>                .irq            = IRQ_GPIO(125), <= this is my irq pin
+> for max7319 INT_N
 
-We already have some support for boards to set up the API in the form o=
-f
-regulator_set_full_constraints() so we could do something similar for
-dummy regulators, or create a new single API to set a bunch of options
-via a struct which is probably less hassle going forward.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I just saw that there is indeed no support for irq line handling in this
+driver. In order to use these lines as input for something like the
+gpio_keys driver, support for that should be added. I never used this
+driver and can't say whether it is under active development.
+
+> Is my understanding wrong?
+
+One thing you should also know is that once the kernel driver is active,
+it blocks the address it is configured to, so you can't access the same
+address via the userspace API. That might be confusing if you're not
+aware of that.
+
+Daniel

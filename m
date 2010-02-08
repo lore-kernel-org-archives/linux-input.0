@@ -1,24 +1,23 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: [PATCH] input/misc: rotary-encoder: Set gpio direction
-Date: Mon, 8 Feb 2010 16:40:47 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190902152EE8@mi8nycmail19.Mi8.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] input/misc: rotary-encoder: Set gpio direction
+Date: Mon, 8 Feb 2010 23:12:06 +0100
+Message-ID: <20100208221206.GP9007@buzzloop.caiaq.de>
 References: <20100208210350.36f51cbf@digital-domain.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og107.obsmtp.com ([64.18.1.208]:50928 "HELO
-	exprod6og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751519Ab0BHVkw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 16:40:52 -0500
-Content-class: urn:content-classes:message
+Received: from buzzloop.caiaq.de ([212.112.241.133]:38454 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751362Ab0BHWML (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 17:12:11 -0500
+Content-Disposition: inline
 In-Reply-To: <20100208210350.36f51cbf@digital-domain.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Clayton <andrew@digital-domain.net>, linux-input@vger.kernel.org
-Cc: Daniel Mack <daniel@caiaq.de>, Mark Somerville <mark@scottishclimbs.com>
+To: Andrew Clayton <andrew@digital-domain.net>
+Cc: linux-input@vger.kernel.org, Mark Somerville <mark@scottishclimbs.com>
 
-On Monday, February 08, 2010 2:04 PM, Andrew Clayton wrote:
+On Mon, Feb 08, 2010 at 09:03:50PM +0000, Andrew Clayton wrote:
 > While trying to get a rotary encoder working under a beagle board using 
 > the drivers/input/misc/rotary-encoder.c driver, we found that even with 
 > the right pin mux settings configured through /sys/kernel/debug/omap_mux/*, 
@@ -27,19 +26,13 @@ On Monday, February 08, 2010 2:04 PM, Andrew Clayton wrote:
 > 
 > By explicitly calling gpio_direction_input() after each requested gpio, 
 > the driver started working and started returning correct input events.
-> 
+>  
 > The following is the patch that works for us. What do you think?
 
-On the ep93xx the gpio's default as inputs.  The gpio's must default as
-outputs on the beagle board.  I never noticed the missing direction set
-call.
+Yep, that looks good to me, thanks!
 
-Tested-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Acked-by: Daniel Mack <daniel@caiaq.de>
 
-> Cheers,
-> Andrew
-> 
-> 
 > Set the gpio direction to input for each requested gpio.
 > 
 > Even with the correct pin mux settings, you still need to explicitly 

@@ -1,48 +1,61 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 02/03] input: bitmap update for sh_keysc
-Date: Mon, 8 Feb 2010 16:41:16 +0900
-Message-ID: <aec7e5c31002072341i33ddc56cwde2776cf89a585c6@mail.gmail.com>
-References: <20100208063216.2003.84260.sendpatchset@rxone.opensource.se>
-	 <20100208063234.2003.7539.sendpatchset@rxone.opensource.se>
-	 <20100208071843.GA22911@core.coreip.homeip.net>
+From: Jebediah Huang <jebediah.huang@gmail.com>
+Subject: Re: Using PXA arm board with MAX7319 GPIO expander input
+Date: Mon, 8 Feb 2010 15:56:10 +0800
+Message-ID: <bf0eec9a1002072356x443c729fpa1c4a8c72209dfec@mail.gmail.com>
+References: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
+	 <f17812d71002072202x2fb620c3hf4c3bbf6dc78aa78@mail.gmail.com>
+	 <bf0eec9a1002072302w1e81cc6bkd994c3efaab4d51d@mail.gmail.com>
+	 <20100208073612.GV28972@buzzloop.caiaq.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20100208071843.GA22911@core.coreip.homeip.net>
-Sender: linux-sh-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.157]:14194 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750998Ab0BHH4M convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 02:56:12 -0500
+Received: by fg-out-1718.google.com with SMTP id 19so13766fgg.1
+        for <linux-input@vger.kernel.org>; Sun, 07 Feb 2010 23:56:11 -0800 (PST)
+In-Reply-To: <20100208073612.GV28972@buzzloop.caiaq.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Eric Miao <eric.y.miao@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On Mon, Feb 8, 2010 at 4:18 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Feb 08, 2010 at 03:32:34PM +0900, Magnus Damm wrote:
+On Mon, Feb 8, 2010 at 3:36 PM, Daniel Mack <daniel@caiaq.de> wrote:
+> On Mon, Feb 08, 2010 at 03:02:14PM +0800, Jebediah Huang wrote:
 >>
->> +#define WRAP(fn, m...) bitmap_##fn(m, SH_KEYSC_MAXKEYS)
->> +#define sh_keysc_map_zero(m) WRAP(zero, (m)->b)
->> +#define sh_keysc_map_fill(m) WRAP(fill, (m)->b)
->> +#define sh_keysc_map_and(m, m2) WRAP(and, (m)->b, (m)->b, (m2)->b)
->> +#define sh_keysc_map_or(m, m2) WRAP(or, (m)->b, (m)->b, (m2)->b)
->> +#define sh_keysc_map_complement(m) WRAP(complement, (m)->b, (m)->b)
->> +#define sh_keysc_map_set(m, n) set_bit((n), (m)->b)
->> +#define sh_keysc_map_clear(m, n) clear_bit((n), (m)->b)
->> +#define sh_keysc_map_test(m, n) test_bit((n), (m)->b)
->> +
+>> output if max732x enabled is:
+>> # ./i2ctest
+>> [ =A0184.070025] i2c: error: exhausted retries
+>> fd=3D3
+>> t=3D-1
+>> [ =A0184.074256] i2c: msg_num: 0 msg_idx: -2000 msg_ptr: 0
+>> [ =A0184.080428] i2c: ICR: 000007e0 ISR: 00000002
+>> [ =A0184.080444] i2c: log: [00000006:00000000] [00000006:00000000]
+>> [00000006:00000000] [00000006:00000000] [00000006:00000000]
+>> [00000006:00000000] [00000006:00
+>> 000000] [00000006:00000000] [00000006:00000000] [00000006:00000000]
+>> [00000006:00000000] [00000007:00000000] [00000447:000007e0]
+>> t=3D-1
 >
-> Why do you need these wrappers? For me they simply create a distraction,
-> later when I read the code I will have to go and look up what
-> sh_keysc_map_set() means but if I see __set_bit() I'd know right away.
+> How do you enable/disable the chip? As Eric said, the error above
+> indicates an eletrical issue with the bus.
 
-To avoid duplicating SH_KEYSC_MAXKEYS all over the place I started out
-by wrapping bitmap_zero/fill/and/or/complement(). To be consistent I
-decided to wrap the set/clear/test_bit() functions as well, but it may
-be better to leave them alone.
+I disable by doing menuconfig and disable max732x:
 
-Are you ok with wrapping the bitmap_...() functions to avoid
-duplicating SH_KEYSC_MAXKEYS?
+# CONFIG_GPIO_MAX732X is not set
 
-Cheers,
+>
+>> disable max732x is:
+>> # ./i2ctest no button pressed
+>
+> What are you testing without the chip?
+>
 
-/ magnus
+I am testing the I2C from i2ctest application using I2C_PXA.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

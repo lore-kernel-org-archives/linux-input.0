@@ -1,78 +1,72 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: S2R resume crash in 2.6.33-rc7 - NULL pointer dereference in
- dev_get_drvdata() for usbhid
-Date: Mon, 8 Feb 2010 15:25:06 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1002081505220.1316-100000@iolanthe.rowland.org>
-References: <20100208190649.0ceea556@neptune.home>
+From: Andrew Clayton <andrew@digital-domain.net>
+Subject: [PATCH] input/misc: rotary-encoder: Set gpio direction
+Date: Mon, 8 Feb 2010 21:03:50 +0000
+Message-ID: <20100208210350.36f51cbf@digital-domain.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:56489 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754293Ab0BHUZJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 15:25:09 -0500
-In-Reply-To: <20100208190649.0ceea556@neptune.home>
+Received: from b.painless.aaisp.net.uk ([81.187.30.52]:47566 "EHLO
+	b.painless.aaisp.net.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750864Ab0BHVb6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 16:31:58 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oliver@neukum.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Marcel Holtmann <marcel@holtmann.org>, H Hartley Sweeten <hsweeten@visionengravers.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Daniel Mack <daniel@caiaq.de>, Mark Somerville <mark@scottishclimbs.com>
 
-On Mon, 8 Feb 2010, Bruno [UTF-8] Pr=C3=A9mont wrote:
+While trying to get a rotary encoder working under a beagle board using 
+the drivers/input/misc/rotary-encoder.c driver, we found that even with 
+the right pin mux settings configured through /sys/kernel/debug/omap_mux/*, 
+i.e INPUT_PULLUP and MODE4, the gpio_get_value() functions only ever 
+returned 1.
 
-> On Mon, 08 February 2010 Bruno Pr=C3=A9mont <bonbons@linux-vserver.or=
-g> wrote:
-> > 2.6.33-rc7 (don't know if any previous version resumes properly)
-> > crashes during resume from S2Ram when my USB keyboard is connected =
-but
-> > resumes properly (viafb corruption put apart) when the USB keyboard=
- is
-> > not connected.
->=20
-> The patch below works around the crash though the WARN_ON() in
-> usbhid_restart_out_queue() triggers in place.
->=20
-> Bruno
->=20
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-c=
-ore.c
-> index e2997a8..d2f8eef 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -196,7 +196,7 @@ static void usbhid_mark_busy(struct usbhid_device=
- *usbhid)
-> =20
->  static int usbhid_restart_out_queue(struct usbhid_device *usbhid)
->  {
-> -	struct hid_device *hid =3D usb_get_intfdata(usbhid->intf);
-> +	struct hid_device *hid =3D usbhid->intf ? usb_get_intfdata(usbhid->=
-intf) : NULL;
->  	int kicked;
-> =20
->  	if (!hid)
-> @@ -214,7 +214,7 @@ static int usbhid_restart_out_queue(struct usbhid=
-_device *usbhid)
-> =20
->  static int usbhid_restart_ctrl_queue(struct usbhid_device *usbhid)
->  {
-> -	struct hid_device *hid =3D usb_get_intfdata(usbhid->intf);
-> +	struct hid_device *hid =3D usbhid->intf ? usb_get_intfdata(usbhid->=
-intf) : NULL;
->  	int kicked;
-> =20
->  	WARN_ON(hid =3D=3D NULL);
+By explicitly calling gpio_direction_input() after each requested gpio, 
+the driver started working and started returning correct input events.
+ 
+The following is the patch that works for us. What do you think?
 
-Clearly something is setting usbhid->intf to NULL.  But I don't see any
-code that would do it.  You may have to resort to putting printk() =20
-statements at various strategic places to find out where it happens. =20
-You could start with the beginnings and ends of hid_suspend,
-hid_resume, and hid_reset_resume.  Maybe also usbhid_disconnect(), just
-in case.
+Cheers,
+Andrew
 
-Alan Stern
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Set the gpio direction to input for each requested gpio.
+
+Even with the correct pin mux settings, you still need to explicitly 
+set the gpio direction. Call gpio_direction_input() after each 
+requested gpio.
+
+Signed-off-by: Andrew Clayton <andrew@digital-domain.net>
+---
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 3b9f588..4ae0793 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -152,6 +152,13 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 		goto exit_unregister_input;
+ 	}
+ 
++	err = gpio_direction_input(pdata->gpio_a);
++	if (err) {
++		dev_err(&pdev->dev, "unable to set GPIO %d for input\n",
++			pdata->gpio_a);
++		goto exit_unregister_input;
++	}
++
+ 	err = gpio_request(pdata->gpio_b, DRV_NAME);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "unable to request GPIO %d\n",
+@@ -159,6 +166,13 @@ static int __devinit rotary_encoder_probe(struct platform_device *pdev)
+ 		goto exit_free_gpio_a;
+ 	}
+ 
++	err = gpio_direction_input(pdata->gpio_b);
++	if (err) {
++		dev_err(&pdev->dev, "unable to set GPIO %d for input\n",
++			pdata->gpio_b);
++		goto exit_free_gpio_a;
++	}
++
+ 	/* request the IRQs */
+ 	err = request_irq(encoder->irq_a, &rotary_encoder_irq,
+ 			  IORESOURCE_IRQ_HIGHEDGE | IORESOURCE_IRQ_LOWEDGE,

@@ -1,27 +1,37 @@
-From: "@GOOGLE 2010 PROMOTION" <2010pomotion@googlewinner.com>
-Subject: Congratulations
-Date: Mon, 8 Feb 2010 04:42:47 +0100 (CET)
-Message-ID: <fa3377da6291e891363991621da67fb2.squirrel__13792.9457975135$1265609876$gmane$org@webmail.polytech.unice.fr>
-Reply-To: giveawayteam09@live.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH 00/03] input: mode 6 patches for sh_keysc
+Date: Mon, 08 Feb 2010 15:32:16 +0900
+Message-ID: <20100208063216.2003.84260.sendpatchset@rxone.opensource.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from email.essi.fr ([157.169.25.6]:53193 "EHLO
-	email.polytech.unice.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752074Ab0BHGRt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 01:17:49 -0500
+Received: from mail-yw0-f189.google.com ([209.85.211.189]:44357 "EHLO
+	mail-yw0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751015Ab0BHGi5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 01:38:57 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: lethal@linux-sh.org, Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, linux-sh@vger.kernel.org
 
+input: mode 6 patches for sh_keysc
 
-You won =C2=A3850,000.00 GBP in google promotion.Ticket
-number:00869575733664,CGPN:7-22-71-00-66-
-12,Serial,numbers:BTD/8070447706/06,Lucky
-numbers:12-12-23-35-40-41(12),giveawayteam.johnson3@gmail.com
+[PATCH 01/03] input: break out hw access functions in sh_keysc 
+[PATCH 02/03] input: bitmap update for sh_keysc
+[PATCH 03/03] input: update sh_keysc driver with mode 6
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+These patches improve the sh_keysc driver with mode 6 support.
+
+The earlier submitted patch for mode 4 and mode 5 extended the
+driver with up to 6 * 7 keys. Mode 6 support included in this
+patch set allows up to 7 * 7 keys.
+
+The sh_keysc driver has so far only been used with hardware
+where the number of keys can fit in a 32-bit bitmap, but from
+mode 4 and up these 32 bits are no longer enough. To address
+this proper bitmaps are made use of instead 32-bit integers.
+
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
+
+ drivers/input/keyboard/sh_keysc.c |  155 ++++++++++++++++++++++++-------------
+ include/linux/input/sh_keysc.h    |    6 -
+ 2 files changed, 106 insertions(+), 55 deletions(-)

@@ -1,55 +1,178 @@
 From: Eric Miao <eric.y.miao@gmail.com>
 Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
-Date: Tue, 9 Feb 2010 20:23:34 +0800
-Message-ID: <f17812d71002090423j4f02225av24e5af0227e0809d@mail.gmail.com>
+Date: Tue, 9 Feb 2010 20:33:49 +0800
+Message-ID: <f17812d71002090433g35504bccwa58460c395847f80@mail.gmail.com>
 References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
-	<20100208180625.GB1469@ucw.cz> <f17812d71002081715w485b33bbx3f67afb86c6d8ee1@mail.gmail.com>
+	<20100208180625.GB1469@ucw.cz>
+	<f17812d71002081715w485b33bbx3f67afb86c6d8ee1@mail.gmail.com>
 	<20100209090918.GA12642@core.coreip.homeip.net>
+	<f17812d71002090423j4f02225av24e5af0227e0809d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f187.google.com ([209.85.222.187]:48627 "EHLO
-	mail-pz0-f187.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753834Ab0BIMX4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2010 07:23:56 -0500
-Received: by pzk17 with SMTP id 17so309447pzk.4
-        for <linux-input@vger.kernel.org>; Tue, 09 Feb 2010 04:23:54 -0800 (PST)
-In-Reply-To: <20100209090918.GA12642@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: multipart/mixed; boundary=0016e64b1e0a62e19a047f2a22d8
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <f17812d71002090423j4f02225av24e5af0227e0809d@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+Cc: Richard Purdie <rpurdie@rpsys.net>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 9, 2010 at 5:09 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Feb 09, 2010 at 09:15:38AM +0800, Eric Miao wrote:
->> On Tue, Feb 9, 2010 at 2:06 AM, Pavel Machek <pavel@ucw.cz> wrote:
->> > On Thu 2010-02-04 16:45:41, Eric Miao wrote:
->> >> commit 31cec413e534520111716802833675f53ac99b0b
->> >> Author: Eric Miao <eric.y.miao@gmail.com>
->> >> Date: =C2=A0 Thu Feb 4 16:41:28 2010 -0800
->> >>
->> >> =C2=A0 =C2=A0 input: schedule corgi_ssp and corgi_ts to be remove=
-d
->> >>
->> >> =C2=A0 =C2=A0 Cc: Richard Purdie <rpurdie@rpsys.net>
->> >> =C2=A0 =C2=A0 Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
->> >
->> > ACK.
->> >
+--0016e64b1e0a62e19a047f2a22d8
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Feb 9, 2010 at 8:23 PM, Eric Miao <eric.y.miao@gmail.com> wrote:
+> On Tue, Feb 9, 2010 at 5:09 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Tue, Feb 09, 2010 at 09:15:38AM +0800, Eric Miao wrote:
+>>> On Tue, Feb 9, 2010 at 2:06 AM, Pavel Machek <pavel@ucw.cz> wrote:
+>>> > On Thu 2010-02-04 16:45:41, Eric Miao wrote:
+>>> >> commit 31cec413e534520111716802833675f53ac99b0b
+>>> >> Author: Eric Miao <eric.y.miao@gmail.com>
+>>> >> Date: =C2=A0 Thu Feb 4 16:41:28 2010 -0800
+>>> >>
+>>> >> =C2=A0 =C2=A0 input: schedule corgi_ssp and corgi_ts to be removed
+>>> >>
+>>> >> =C2=A0 =C2=A0 Cc: Richard Purdie <rpurdie@rpsys.net>
+>>> >> =C2=A0 =C2=A0 Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+>>> >
+>>> > ACK.
+>>> >
+>>>
+>>> Thanks, guys.
+>>>
+>>> Dmitry, I'm hoping these two patches will go through your tree please?
 >>
->> Thanks, guys.
+>> I have it in next, do you want it in .33 instead?
 >>
->> Dmitry, I'm hoping these two patches will go through your tree pleas=
-e?
 >
-> I have it in next, do you want it in .33 instead?
+> No. -next is good, thanks man.
 >
 
-No. -next is good, thanks man.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry,
+
+Attached are the two patches updated, with Pavel's suggestion to make them
+default to 'n' and with their Acks. Please consider re-apply, sorry for the
+bother.
+
+--0016e64b1e0a62e19a047f2a22d8
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0001-input-mark-corgi-spitz-tosa-kbd-driver-deprecated.patch"
+Content-Disposition: attachment;
+	filename="0001-input-mark-corgi-spitz-tosa-kbd-driver-deprecated.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g5goash80
+
+RnJvbSBlN2EzMWRhYjEwZjFlMGE2MzMyYWYyYTg1NmI3MDZmMDkzMjQ5Yzk0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBFcmljIE1pYW8gPGVyaWMueS5taWFvQGdtYWlsLmNvbT4KRGF0
+ZTogVGh1LCA0IEZlYiAyMDEwIDE2OjI1OjE5IC0wODAwClN1YmplY3Q6IFtQQVRDSCAxLzJdIGlu
+cHV0OiBtYXJrIHtjb3JnaSxzcGl0eix0b3NhfWtiZCBkcml2ZXIgZGVwcmVjYXRlZAoKUHJvdmlk
+ZWQgdGhhdCBub3cga2V5Ym9hcmRzIG9uIHRoZXNlIGRldmljZXMgYXJlIG5vdyBmdWxseSBzdXBw
+b3J0ZWQKYnkgZ2VuZXJpYyBHUElPIGJhc2VkIG1hdHJpeCBrZXlwYWQgZHJpdmVyLCBtYXJrIHRo
+ZXNlIGhhcmRjb2RlZCwgYW5kCmRpZmZpY3VsdCB0byBtYWludGFpbiBkcml2ZXJzIGRlcHJlY2F0
+ZWQgaW4gZmF2b3VyIG9mIHRoaXMuCgpDYzogUmljaGFyZCBQdXJkaWUgPHJwdXJkaWVAcnBzeXMu
+bmV0PgpDYzogRG1pdHJ5IEVyZW1pbi1Tb2xlbmlrb3YgPGRiYXJ5c2hrb3ZAZ21haWwuY29tPgpB
+Y2tlZC1ieTogUGF2ZWwgTWFjaGVrIDxwYXZlbEB1Y3cuY3o+ClNpZ25lZC1vZmYtYnk6IEVyaWMg
+TWlhbyA8ZXJpYy55Lm1pYW9AZ21haWwuY29tPgotLS0KIERvY3VtZW50YXRpb24vZmVhdHVyZS1y
+ZW1vdmFsLXNjaGVkdWxlLnR4dCB8ICAgMTIgKysrKysrKysrKysrCiBkcml2ZXJzL2lucHV0L2tl
+eWJvYXJkL0tjb25maWcgICAgICAgICAgICAgfCAgIDIxICsrKysrKysrKysrKysrKy0tLS0tLQog
+MiBmaWxlcyBjaGFuZ2VkLCAyNyBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL0RvY3VtZW50YXRpb24vZmVhdHVyZS1yZW1vdmFsLXNjaGVkdWxlLnR4dCBiL0RvY3Vt
+ZW50YXRpb24vZmVhdHVyZS1yZW1vdmFsLXNjaGVkdWxlLnR4dAppbmRleCAwYTQ2ODMzLi41ODYw
+NTgzIDEwMDY0NAotLS0gYS9Eb2N1bWVudGF0aW9uL2ZlYXR1cmUtcmVtb3ZhbC1zY2hlZHVsZS50
+eHQKKysrIGIvRG9jdW1lbnRhdGlvbi9mZWF0dXJlLXJlbW92YWwtc2NoZWR1bGUudHh0CkBAIC01
+NDIsMyArNTQyLDE1IEBAIFdoeToJRHVwbGljYXRlIGZ1bmN0aW9uYWxpdHkgd2l0aCB0aGUgZ3Nw
+Y2FfemMzeHggZHJpdmVyLCB6YzAzMDEgb25seQogCXNlbnNvcnMpIHdpY2ggYXJlIGFsc28gc3Vw
+cG9ydGVkIGJ5IHRoZSBnc3BjYV96YzN4eCBkcml2ZXIKIAkod2hpY2ggc3VwcG9ydHMgNTMgVVNC
+LUlEJ3MgaW4gdG90YWwpCiBXaG86CUhhbnMgZGUgR29lZGUgPGhkZWdvZWRlQHJlZGhhdC5jb20+
+CisKKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KKworV2hhdDoJY29yZ2lrYmQsIHNwaXR6
+a2JkLCB0b3Nha2JkIGRyaXZlcgorV2hlbjoJMi42LjM1CitGaWxlczoJZHJpdmVycy9pbnB1dC9r
+ZXlib2FyZC97Y29yZ2ksc3BpdHosdG9zYX1rYmQuYworV2h5OglXZSBub3cgaGF2ZSBhIGdlbmVy
+aWMgR1BJTyBiYXNlZCBtYXRyaXgga2V5Ym9hcmQgZHJpdmVyIHRoYXQKKwlhcmUgZnVsbHkgY2Fw
+YWJsZSBvZiBoYW5kbGluZyBhbGwgdGhlIGtleXMgb24gdGhlc2UgZGV2aWNlcy4KKwlUaGUgb3Jp
+Z2luYWwgZHJpdmVycyBtYW5pcHVsYXRlIHRoZSBHUElPIHJlZ2lzdGVycyBkaXJlY3RseQorCWFu
+ZCBzbyBhcmUgZGlmZmljdWx0IHRvIG1haW50YWluLgorV2hvOglFcmljIE1pYW8gPGVyaWMueS5t
+aWFvQGdtYWlsLmNvbT4KKwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9LY29u
+ZmlnIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9LY29uZmlnCmluZGV4IDAyYzgzNmUuLjg5YjRl
+YjAgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvS2NvbmZpZworKysgYi9kcml2
+ZXJzL2lucHV0L2tleWJvYXJkL0tjb25maWcKQEAgLTE0NCwxMyArMTQ0LDE2IEBAIGNvbmZpZyBL
+RVlCT0FSRF9CRklOCiAJICBtb2R1bGUgd2lsbCBiZSBjYWxsZWQgYmY1NHgta2V5cy4KIAogY29u
+ZmlnIEtFWUJPQVJEX0NPUkdJCi0JdHJpc3RhdGUgIkNvcmdpIGtleWJvYXJkIgorCXRyaXN0YXRl
+ICJDb3JnaSBrZXlib2FyZCAoZGVwcmVjYXRlZCkiCiAJZGVwZW5kcyBvbiBQWEFfU0hBUlBTTAot
+CWRlZmF1bHQgeQorCWRlZmF1bHQgbgogCWhlbHAKIAkgIFNheSBZIGhlcmUgdG8gZW5hYmxlIHRo
+ZSBrZXlib2FyZCBvbiB0aGUgU2hhcnAgWmF1cnVzIFNMLUM3eHgKIAkgIHNlcmllcyBvZiBQREFz
+LgogCisJICBUaGlzIGRyaXZlciBpcyBub3cgZGVwcmVjYXRlZCwgdXNlIGdlbmVyaWMgR1BJTyBi
+YXNlZCBtYXRyaXgKKwkgIGtleWJvYXJkIGRyaXZlciBpbnN0ZWFkLgorCiAJICBUbyBjb21waWxl
+IHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUKIAkgIG1vZHVsZSB3
+aWxsIGJlIGNhbGxlZCBjb3JnaWtiZC4KIApAQCAtMzI5LDEzICszMzIsMTYgQEAgY29uZmlnIEtF
+WUJPQVJEX1BYQTkzMF9ST1RBUlkKIAkgIG1vZHVsZSB3aWxsIGJlIGNhbGxlZCBweGE5MzBfcm90
+YXJ5LgogCiBjb25maWcgS0VZQk9BUkRfU1BJVFoKLQl0cmlzdGF0ZSAiU3BpdHoga2V5Ym9hcmQi
+CisJdHJpc3RhdGUgIlNwaXR6IGtleWJvYXJkIChkZXByZWNhdGVkKSIKIAlkZXBlbmRzIG9uIFBY
+QV9TSEFSUFNMCi0JZGVmYXVsdCB5CisJZGVmYXVsdCBuCiAJaGVscAogCSAgU2F5IFkgaGVyZSB0
+byBlbmFibGUgdGhlIGtleWJvYXJkIG9uIHRoZSBTaGFycCBaYXVydXMgU0wtQzEwMDAsCiAJICBT
+TC1DMzAwMCBhbmQgU2wtQzMxMDAgc2VyaWVzIG9mIFBEQXMuCiAKKwkgIFRoaXMgZHJpdmVyIGlz
+IG5vdyBkZXByZWNhdGVkLCB1c2UgZ2VuZXJpYyBHUElPIGJhc2VkIG1hdHJpeAorCSAga2V5Ym9h
+cmQgZHJpdmVyIGluc3RlYWQuCisKIAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1
+bGUsIGNob29zZSBNIGhlcmU6IHRoZQogCSAgbW9kdWxlIHdpbGwgYmUgY2FsbGVkIHNwaXR6a2Jk
+LgogCkBAIC00MDIsMTIgKzQwOCwxNSBAQCBjb25maWcgS0VZQk9BUkRfVFdMNDAzMAogCSAgbW9k
+dWxlIHdpbGwgYmUgY2FsbGVkIHR3bDQwMzBfa2V5cGFkLgogCiBjb25maWcgS0VZQk9BUkRfVE9T
+QQotCXRyaXN0YXRlICJUb3NhIGtleWJvYXJkIgorCXRyaXN0YXRlICJUb3NhIGtleWJvYXJkIChk
+ZXByZWNhdGVkKSIKIAlkZXBlbmRzIG9uIE1BQ0hfVE9TQQotCWRlZmF1bHQgeQorCWRlZmF1bHQg
+bgogCWhlbHAKIAkgIFNheSBZIGhlcmUgdG8gZW5hYmxlIHRoZSBrZXlib2FyZCBvbiB0aGUgU2hh
+cnAgWmF1cnVzIFNMLTYwMDB4IChUb3NhKQogCisJICBUaGlzIGRyaXZlciBpcyBub3cgZGVwcmVj
+YXRlZCwgdXNlIGdlbmVyaWMgR1BJTyBiYXNlZCBtYXRyaXgKKwkgIGtleWJvYXJkIGRyaXZlciBp
+bnN0ZWFkLgorCiAJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2Ug
+TSBoZXJlOiB0aGUKIAkgIG1vZHVsZSB3aWxsIGJlIGNhbGxlZCB0b3Nha2JkLgogCi0tIAoxLjYu
+My4zCgo=
+--0016e64b1e0a62e19a047f2a22d8
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="0002-input-schedule-corgi_ssp-and-corgi_ts-to-be-removed.patch"
+Content-Disposition: attachment;
+	filename="0002-input-schedule-corgi_ssp-and-corgi_ts-to-be-removed.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g5gob8c71
+
+RnJvbSBhYjVmZDkxM2VmMWIyZTQxYzc2OGU2NzA4NTFhZjZhZWU2MzM0YzIwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBFcmljIE1pYW8gPGVyaWMueS5taWFvQGdtYWlsLmNvbT4KRGF0
+ZTogVGh1LCA0IEZlYiAyMDEwIDE2OjQxOjI4IC0wODAwClN1YmplY3Q6IFtQQVRDSCAyLzJdIGlu
+cHV0OiBzY2hlZHVsZSBjb3JnaV9zc3AgYW5kIGNvcmdpX3RzIHRvIGJlIHJlbW92ZWQKCkFja2Vk
+LWJ5OiBSaWNoYXJkIFB1cmRpZSA8cnB1cmRpZUBycHN5cy5uZXQ+CkFja2VkLWJ5OiBQYXZlbCBN
+YWNoZWsgPHBhdmVsQHVjdy5jej4KU2lnbmVkLW9mZi1ieTogRXJpYyBNaWFvIDxlcmljLnkubWlh
+b0BnbWFpbC5jb20+Ci0tLQogRG9jdW1lbnRhdGlvbi9mZWF0dXJlLXJlbW92YWwtc2NoZWR1bGUu
+dHh0IHwgICAxMiArKysrKysrKysrKysKIDEgZmlsZXMgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygr
+KSwgMCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2ZlYXR1cmUtcmVt
+b3ZhbC1zY2hlZHVsZS50eHQgYi9Eb2N1bWVudGF0aW9uL2ZlYXR1cmUtcmVtb3ZhbC1zY2hlZHVs
+ZS50eHQKaW5kZXggNTg2MDU4My4uM2EyMzY3ZSAxMDA2NDQKLS0tIGEvRG9jdW1lbnRhdGlvbi9m
+ZWF0dXJlLXJlbW92YWwtc2NoZWR1bGUudHh0CisrKyBiL0RvY3VtZW50YXRpb24vZmVhdHVyZS1y
+ZW1vdmFsLXNjaGVkdWxlLnR4dApAQCAtNTU0LDMgKzU1NCwxNSBAQCBXaHk6CVdlIG5vdyBoYXZl
+IGEgZ2VuZXJpYyBHUElPIGJhc2VkIG1hdHJpeCBrZXlib2FyZCBkcml2ZXIgdGhhdAogCWFuZCBz
+byBhcmUgZGlmZmljdWx0IHRvIG1haW50YWluLgogV2hvOglFcmljIE1pYW8gPGVyaWMueS5taWFv
+QGdtYWlsLmNvbT4KIAorLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQorCitXaGF0Ogljb3Jn
+aV9zc3AgYW5kIGNvcmdpX3RzIGRyaXZlcgorV2hlbjoJMi42LjM1CitGaWxlczoJYXJjaC9hcm0v
+bWFjaC1weGEvY29yZ2lfc3NwLmMsIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vY29yZ2lfdHMu
+YworV2h5OglUaGUgY29yZ2kgdG91Y2hzY3JlZW4gaXMgbm93IGRlcHJlY2F0ZWQgaW4gZmF2b3Vy
+IG9mIHRoZSBnZW5lcmljCisJYWRzNzg0Ni5jIGRyaXZlci4gVGhlIG5vaXNlIHJlZHVjdGlvbiB0
+ZWNobmlxdWUgdXNlZCBpbiBjb3JnaV90cy5jCisJdGhhdCdzIHRvIHdhaXQgdGlsIHZzeW5jIGJl
+Zm9yZSBBREMgc2FtcGxpbmcgaXMgYWxzbyBpbnRlZ3JhdGVkIGludG8KKwlhZHM3ODQ2IGRyaXZl
+ciBub3cuIFByb3ZpZGVkIHRoYXQgdGhlIG9yaWdpbmFsIGRyaXZlciBpcyBub3QgZ2VuZXJpYwor
+CWFuZCBkaWZmaWN1bHQgdG8gbWFpbnRhaW4sIGl0IHdpbGwgYmUgcmVtb3ZlZCBsYXRlci4KK1do
+bzoJRXJpYyBNaWFvIDxlcmljLnkubWlhb0BnbWFpbC5jb20+CisKLS0gCjEuNi4zLjMKCg==
+--0016e64b1e0a62e19a047f2a22d8
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--0016e64b1e0a62e19a047f2a22d8--

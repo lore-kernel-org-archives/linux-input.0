@@ -1,67 +1,63 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: Using PXA arm board with MAX7319 GPIO expander input
-Date: Tue, 9 Feb 2010 16:19:18 +0800
-Message-ID: <f17812d71002090019n1facdbfw54f87da726333fa3@mail.gmail.com>
-References: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
-	<f17812d71002072202x2fb620c3hf4c3bbf6dc78aa78@mail.gmail.com>
-	<bf0eec9a1002072302w1e81cc6bkd994c3efaab4d51d@mail.gmail.com>
-	<bf0eec9a1002080308v77c9c026j302767e41cd660f2@mail.gmail.com>
-	<20100208113306.GN9007@buzzloop.caiaq.de>
-	<6a1db73cb6c89001764393acd766f2ba.squirrel@www.loen.fr>
-	<f17812d71002081705q7723c388re8582d1186802340@mail.gmail.com>
-	<20100209073903.4d8a00e4@taxman.wild-wind.fr.eu.org>
+From: Mike Rapoport <mike@compulab.co.il>
+Subject: Re: [PATCH] Input: ads7846: add regulator support
+Date: Tue, 09 Feb 2010 10:55:41 +0200
+Message-ID: <4B71230D.1000900@compulab.co.il>
+References: <1265290758-2035-1-git-send-email-notasas@gmail.com> <20100204142439.GA1139@sirena.org.uk> <6ed0b2681002040652r722e3df2s3f032a9fe0d0c0fe@mail.gmail.com> <20100204162155.GB29982@rakim.wolfsonmicro.main> <f870da181002051245t2f37065duae595fee391e7fd9@mail.gmail.com> <20100208113028.GA15630@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20100209073903.4d8a00e4@taxman.wild-wind.fr.eu.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Marc Zyngier <maz@misterjones.org>
-Cc: Jebediah Huang <jebediah.huang@gmail.com>, linux-arm-kernel@lists.infradead.org, Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100208113028.GA15630@rakim.wolfsonmicro.main>
+Sender: linux-omap-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Mike Rapoport <mike.rapoport@gmail.com>, Grazvydas Ignotas <notasas@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-omap@vger.kernel.org, lrg@slimlogic.co.uk
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 9, 2010 at 3:39 PM, Marc Zyngier <maz@misterjones.org> wrote:
-> On Tue, 9 Feb 2010 09:05:22 +0800
-> Eric Miao <eric.y.miao@gmail.com> wrote:
->
->> On Mon, Feb 8, 2010 at 8:32 PM, Marc Zyngier <maz@misterjones.org> wrote:
->> >> I just saw that there is indeed no support for irq line handling in this
->> >> driver. In order to use these lines as input for something like the
->> >> gpio_keys driver, support for that should be added. I never used this
->> >> driver and can't say whether it is under active development.
->> >
->> > It should be rather easy to introduce something similar to what I did for
->> > the pca953x driver (http://patchwork.kernel.org/patch/77418/)
->> >
->> > MAX732x seems a lot saner than PCA953x, as it has at least a hardware
->> > interrupt mask...
->>
->> Well, I'd say max732x is a chip of heavy simplification, input/output direction
->> of each pin is normally hardcoded, depending on the chip model used, there
->> seems no such interrupt mask registers for SW use really.
->
-> I'm currently staring at the max7319 datasheet, and it really looks
-> like there is such a register:
->
-> "All input ports are continuously monitored for state changes
-> (transition detection). Transitions are latched, allowing detection of
-> transient changes. Any combination of inputs can be selected using the
-> interrupt mask to assert the INT output. When the MAX7319 is
-> subsequently accessed through the serial interface, any pending
-> interrupt is cleared."
->
-> So it would seems (although I agree with you that max732x as a GPIO
-> expander is grossly simplified) that the feature is at least advertised.
->
+Mark Brown wrote:
+> On Fri, Feb 05, 2010 at 10:45:09PM +0200, Mike Rapoport wrote:
+>> On Thu, Feb 4, 2010 at 6:21 PM, Mark Brown
+> 
+>>> The bodge I'm thinking of would do something like log an error and
+>>> substitute in a dummy regulator when regulator_get() would have failed
+>>> so that the driver sees behaviour equivalent to the stubbed regulator
+>>> API if the bodge is active.  A central thing seems much more sensible
+>>> here - there's nothing specific to this driver going on here and having
+>>> the API behave in a consistent manner seems good.
+> 
+>> I agree that such approach have more sense than checking for -ENODEV
+>> in each and every driver that uses the regulator framework. I just
+>> wonder, if there should be some mechanism that  can switch the
+>> substitution of the dummy regulators on and off. And if yes, how
+>> should the platform code communicate with the regulator core the need
+>> for such dummy regulators...
+> 
+> So, having thought about this a bit more we actually have two different
+> use cases here.  One is where you've got a system which has software
+> controllable regulators for everything but may not have plumbed in all
+> the supplies, the other is for systems where only a very few supplies
+> are on software controlled regulators which are just trying to save the
+> hassle of hooking up the bulk of the supplies to fixed voltage
+> regulators.  These two use cases should probably be handled differently
+> - the first one is really expected to have all the supplies hooked up
+> and so should warn when using the bodge regulator but the warning isn't
+> helpful in the second case.
 
-That sounds like a good news. I'm seeing your previous implementation
-of interrupt support on pca953x as a good one, so probably would be
-good to follow that, and not sure Jebediah Huang can have this tested :-)
+Sounds right to me.
+
+> We already have some support for boards to set up the API in the form of
+> regulator_set_full_constraints() so we could do something similar for
+> dummy regulators, or create a new single API to set a bunch of options
+> via a struct which is probably less hassle going forward.
+
+Struct sounds more reasonable that just a call to e.g.
+regulator_warn_dummy_fixed_regulator :)
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+-- 
+Sincerely yours,
+Mike.

@@ -1,32 +1,43 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/1] media: dvb-usb/af9015, fix disconnection crashes
-Date: Sun, 7 Feb 2010 20:13:22 -0800
-Message-ID: <20100208041322.GA2988@kroah.com>
-References: <1264007972-6261-1-git-send-email-jslaby@suse.cz> <4B5CDB53.6030009@iki.fi> <4B5D6098.7010700@gmail.com> <4B5DDDFB.5020907@iki.fi> <alpine.LRH.2.00.1001261406010.15694@twin.jikos.cz> <4B6AA211.1060707@gmail.com> <4B6ACA4B.2030906@adit.fi> <alpine.LNX.2.00.1002041425050.15395@pobox.suse.cz> <4B6AD4A8.9080101@adit.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input/misc: rotary-encoder: Set gpio direction
+Date: Mon, 8 Feb 2010 16:18:23 -0800
+Message-ID: <201002081618.23605.dmitry.torokhov@gmail.com>
+References: <20100208210350.36f51cbf@digital-domain.net> <20100208221206.GP9007@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:45718 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752046Ab0BHWef (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Feb 2010 17:34:35 -0500
-Content-Disposition: inline
-In-Reply-To: <4B6AD4A8.9080101@adit.fi>
+Received: from mail-pz0-f172.google.com ([209.85.222.172]:57450 "EHLO
+	mail-pz0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750842Ab0BIAS3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 19:18:29 -0500
+Received: by pzk2 with SMTP id 2so57522pzk.21
+        for <linux-input@vger.kernel.org>; Mon, 08 Feb 2010 16:18:29 -0800 (PST)
+In-Reply-To: <20100208221206.GP9007@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pekka Sarnila <sarnila@adit.fi>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>, Antti Palosaari <crope@iki.fi>, mchehab@infradead.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Andrew Clayton <andrew@digital-domain.net>, linux-input@vger.kernel.org, Mark Somerville <mark@scottishclimbs.com>
 
-On Thu, Feb 04, 2010 at 04:07:36PM +0200, Pekka Sarnila wrote:
-> Yes, my comment maybe criticizes more the basic architectural structure of 
-> usb putting it's own work up to higher layer. The only practical thing is 
-> that, if there is a non-HID device suffering from that FULLSPEED problem, 
-> the quirk won't help it. Anyway in current kernel structure usb layer 
-> doesn't handle endpoint setup at all, thus it simply can not do the job.
+On Monday 08 February 2010 02:12:06 pm Daniel Mack wrote:
+> On Mon, Feb 08, 2010 at 09:03:50PM +0000, Andrew Clayton wrote:
+> > While trying to get a rotary encoder working under a beagle board using
+> > the drivers/input/misc/rotary-encoder.c driver, we found that even with
+> > the right pin mux settings configured through
+> > /sys/kernel/debug/omap_mux/*, i.e INPUT_PULLUP and MODE4, the
+> > gpio_get_value() functions only ever returned 1.
+> >
+> > By explicitly calling gpio_direction_input() after each requested gpio,
+> > the driver started working and started returning correct input events.
+> >
+> > The following is the patch that works for us. What do you think?
+> 
+> Yep, that looks good to me, thanks!
+> 
+> Acked-by: Daniel Mack <daniel@caiaq.de>
 
-Patches to the USB core to resolve this issue are always gladly
-appreciated :)
+.33 material or hold off till .34?
 
-thanks,
-
-greg k-h
+-- 
+Dmitry

@@ -1,40 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: bitmap update for sh_keysc V2
-Date: Tue, 9 Feb 2010 01:39:54 -0800
-Message-ID: <20100209093954.GC12642@core.coreip.homeip.net>
-References: <20100209091609.1262.66929.sendpatchset@rxone.opensource.se>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add mapping for "AL Network Chat" usage
+Date: Tue, 9 Feb 2010 11:17:44 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002091117070.30967@pobox.suse.cz>
+References: <Prayer.1.3.2.1002081302050.29006@hermes-2.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f202.google.com ([209.85.216.202]:44483 "EHLO
-	mail-px0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752234Ab0BIJkB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Feb 2010 04:40:01 -0500
-Content-Disposition: inline
-In-Reply-To: <20100209091609.1262.66929.sendpatchset@rxone.opensource.se>
+Received: from cantor.suse.de ([195.135.220.2]:40764 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751406Ab0BIKRq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Feb 2010 05:17:46 -0500
+In-Reply-To: <Prayer.1.3.2.1002081302050.29006@hermes-2.csi.cam.ac.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
+To: "L.P. White" <lpw25@cam.ac.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Feb 09, 2010 at 06:16:09PM +0900, Magnus Damm wrote:
-> From: Magnus Damm <damm@opensource.se>
+On Mon, 8 Feb 2010, L.P. White wrote:
+
+> From: Leo P White <lpw25@cam.ac.uk>
 > 
-> Update the sh_keysc driver with proper bitmap support V2.
-> This instead of using a fixed 32-bit integer to keep track
-> for the key states. With this change in place the driver
-> supports key pads with more than 32 keys.
+> Adding a mapping for the 'AL Network Chat' usage from the 'Consumer' usage
+> page (USB HID Usage Tables v1.11). This usage is used by some keyboards for a
+> multimedia key.
 > 
-> Signed-off-by: Magnus Damm <damm@opensource.se>
+> Signed-off-by: Leo P White <lpw25@cam.ac.uk>
+> 
 > ---
 > 
->  Changes since V1:
->  - ditched the wrapping macros
->  - use __set_bit() and __clear_bit()
+> diff -upNr linux.orig/drivers/hid/hid-input.c
+> linux.new/drivers/hid/hid-input.c --- linux.orig/drivers/hid/hid-input.c
+> 2010-02-06 22:17:12.000000000 +0000 +++ linux.new/drivers/hid/hid-input.c
+> 2010-02-08 12:32:13.005554190 +0000 @@ -400,6 +400,7 @@ static void
+> hidinput_configure_usage(str
+> 		case 0x192: map_key_clear(KEY_CALC);		break;
+> 		case 0x194: map_key_clear(KEY_FILE);		break;
+> 		case 0x196: map_key_clear(KEY_WWW);		break;
+> +		case 0x199: map_key_clear(KEY_CHAT);		break;
+> 		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
+> 		case 0x19e: map_key_clear(KEY_COFFEE);		break;
+> 		case 0x1a6: map_key_clear(KEY_HELP);		break;
 
-Thank you for making the change. It indeed is easier to read than the
-original since one does not have to go and look up what wrappers are
-doing.
+Thanks for the patch. It has been line-wrapped and whitespace-damaged.
+
+I have fixed it up by hand on my end and applied it, but please keep that 
+in mind for you future patch submissions.
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

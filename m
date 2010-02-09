@@ -1,59 +1,88 @@
 From: Eric Miao <eric.y.miao@gmail.com>
 Subject: Re: Using PXA arm board with MAX7319 GPIO expander input
-Date: Tue, 9 Feb 2010 09:05:22 +0800
-Message-ID: <f17812d71002081705q7723c388re8582d1186802340@mail.gmail.com>
+Date: Tue, 9 Feb 2010 09:07:31 +0800
+Message-ID: <f17812d71002081707u7d65d42byc7a3914bf9e4cc36@mail.gmail.com>
 References: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
-	<f17812d71002072202x2fb620c3hf4c3bbf6dc78aa78@mail.gmail.com>
-	<bf0eec9a1002072302w1e81cc6bkd994c3efaab4d51d@mail.gmail.com>
-	<bf0eec9a1002080308v77c9c026j302767e41cd660f2@mail.gmail.com>
-	<20100208113306.GN9007@buzzloop.caiaq.de> <6a1db73cb6c89001764393acd766f2ba.squirrel@www.loen.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:8400 "EHLO
+Received: from qw-out-2122.google.com ([74.125.92.24]:53368 "EHLO
 	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751453Ab0BIBFn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 20:05:43 -0500
-Received: by qw-out-2122.google.com with SMTP id 9so776838qwb.37
-        for <linux-input@vger.kernel.org>; Mon, 08 Feb 2010 17:05:42 -0800 (PST)
-In-Reply-To: <6a1db73cb6c89001764393acd766f2ba.squirrel@www.loen.fr>
+	with ESMTP id S1751946Ab0BIBHw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Feb 2010 20:07:52 -0500
+Received: by qw-out-2122.google.com with SMTP id 9so777142qwb.37
+        for <linux-input@vger.kernel.org>; Mon, 08 Feb 2010 17:07:51 -0800 (PST)
+In-Reply-To: <bf0eec9a1002072144n461e5894m8993bfd4e8f49e9b@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marc Zyngier <maz@misterjones.org>
-Cc: Daniel Mack <daniel@caiaq.de>, Jebediah Huang <jebediah.huang@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Jebediah Huang <jebediah.huang@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Mon, Feb 8, 2010 at 8:32 PM, Marc Zyngier <maz@misterjones.org> wrot=
-e:
->> I just saw that there is indeed no support for irq line handling in =
-this
->> driver. In order to use these lines as input for something like the
->> gpio_keys driver, support for that should be added. I never used thi=
-s
->> driver and can't say whether it is under active development.
+On Mon, Feb 8, 2010 at 1:44 PM, Jebediah Huang <jebediah.huang@gmail.co=
+m> wrote:
+> Hello ,
 >
-> It should be rather easy to introduce something similar to what I did=
- for
-> the pca953x driver (http://patchwork.kernel.org/patch/77418/)
+> I have PXA166 board with MAX7319 GPIO expander connected with 8
+> buttons. When any button is pressed, I want to get input event. Can
+> this be done?
 >
-> MAX732x seems a lot saner than PCA953x, as it has at least a hardware
-> interrupt mask...
+> I have read the littleton and aspenite code to try. The SDA is 105,
+> SCL is 106. I use MAX732x driver. It is set as I2C slave at 0x6C. So =
+I
+> set up:
+>
+> static struct i2c_pxa_platform_data pwri2c_info __initdata =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0.use_pio =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0=3D 1,
+> };
+>
+> static unsigned long peony_pin_config[] __initdata =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* i2c bus */
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0GPIO105_CI2C_SDA,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0GPIO106_CI2C_SCL,
+> }
+>
+> static struct max732x_platform_data max7319_data[] =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0[0] =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.gpio_base =C2=
+=A0 =C2=A0 =C2=A0=3D GPIO_EXT0(0),
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0},
+> };
+>
+> static struct i2c_board_info i2c_board_info[] =3D
+> {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0{
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.type =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =3D "max7319",
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.addr =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =3D 0x6C,
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.irq =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=3D IRQ_GPIO(105),
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0.platform_data=
+ =C2=A0=3D &max7319_data[0],
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0},
+> };
+>
+> when bootup I see;
+> <6>[ =C2=A0 =C2=A00.290770] I2C: i2c-0: PXA I2C adapter
+> <6>[ =C2=A0 =C2=A00.307118] I2C: i2c-1: PXA I2C adapter
+> <6>[ =C2=A0 =C2=A00.821709] hello pony_init
+> <3>[ =C2=A0 =C2=A00.838559] platform_driver_register
+> <6>[ =C2=A0 =C2=A00.868069] max732x_read: read g 1
+> <6>[ =C2=A0 =C2=A00.881893] max732x_read: read g 0
+> <4>[ =C2=A0 =C2=A00.898895] i2c: error: exhausted retries
+> <4>[ =C2=A0 =C2=A00.911947] i2c: msg_num: 0 msg_idx: -2000 msg_ptr: 0
+> <4>[ =C2=A0 =C2=A00.927509] i2c: ICR: 000007e0 ISR: 00000002
+> <4>[ =C2=A0 =C2=A00.927526] i2c: log: [00000006:00000000] [00000006:0=
+0000000]
+> [00000006:00000000] [00000006:00000000] [00000006:00000000]
+> [00000006:00000000] [0000000
+> <3>[ =C2=A0 =C2=A01.167890] dummy 0-005d: failed reading
 
-Well, I'd say max732x is a chip of heavy simplification, input/output d=
-irection
-of each pin is normally hardcoded, depending on the chip model used, th=
-ere
-seems no such interrupt mask registers for SW use really.
-
-
->
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0M.
-> --
-> And if you don't know where you're going, any road will take you ther=
-e...
->
->
->
+Just noted the exhausted retries are for 0-005d, you sure this is
+max7319 instead of something else, as I was seeing the max7319
+address to be 0x6c in the setup above?
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,58 +1,48 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Support for MosArt multitouch panel
-Date: Wed, 10 Feb 2010 13:50:36 +0100
-Message-ID: <85636024-6AA2-49AE-9D42-ED1377DBB77F@enac.fr>
-References: <20100206141713.EFC3C9520A@smtp.lii-enac.fr> <alpine.LNX.2.00.1002101207591.30967@pobox.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Wed, 10 Feb 2010 13:52:56 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002101352220.30967@pobox.suse.cz>
+References: <1263997077.1735.2942.camel@localhost.localdomain>  <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>  <1265032341.32444.3105.camel@localhost.localdomain>  <alpine.LNX.2.00.1002031653320.15395@pobox.suse.cz>
+ <1265646777.2383.4621.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:40349 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752130Ab0BJMum convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Feb 2010 07:50:42 -0500
-In-Reply-To: <alpine.LNX.2.00.1002101207591.30967@pobox.suse.cz>
+Received: from cantor.suse.de ([195.135.220.2]:57481 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752256Ab0BJMw6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Feb 2010 07:52:58 -0500
+In-Reply-To: <1265646777.2383.4621.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+On Mon, 8 Feb 2010, Bastien Nocera wrote:
 
-Le 10 f=E9vr. 10 =E0 12:08, Jiri Kosina a =E9crit :
+> > > > > +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
+> > > > > +With 0x8242 being the product ID (check the output of lsusb for your hardware)
+> > > > > +And 0x08 being "HID_CONNECT_HIDDEV"
+> > > > 
+> > > > I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
+> > > > 
+> > > > We currently don't have dynamic quirk for forcing HIDDEV creation from the 
+> > > > module parameter.
+> > > 
+> > > Right. Any chance to change that?
+> > 
+> > This particular one might actually make enough sense to be added (although 
+> > I am really trying to avoid quirk additions completely), for backwards 
+> > compatibility reasons.
+> 
+> Should I remove the comments there altogether then? That kind of defeats
+> my "but you can use lirc with some tweaks" argument, even though I still
+> think that those people needing more keys would be in the minority...
 
-> On Sat, 6 Feb 2010, Stephane Chatty wrote:
->
->>
->> +	/* currently, it's better to have one evdev device only */
->> +#if 0
->> +	hdev->quirks |=3D HID_QUIRK_MULTI_INPUT;
->> +#endif
->
-> Could you please explain what is this about?
+I rather though that we could/should (re-)introduce the HID_QUIRK_HIDDEV 
+quirks so that it could still be applied manually.
 
-The device emits three kinds of reports. One is for multitouch =20
-events, one is for a mouse emulation, and one is (as far as I can =20
-remember) for a couple of buttons.
+Thanks,
 
-Originally I experimented using MULTI_INPUT, so that three devices =20
-are created. It made things easier for debug, or so I thought. But =20
-over time it appeared that people kept confusing the mouse device and =20
-the mutitouch device and I lost three weeks trying to debug a driver =20
-that worked perfectly well. More recently, it appeared that it also =20
-creates confusion with hal and X.org.
-
-Since all other mt devices have their own single touch emulation on =20
-the same device (as discussed in a previous thread), I thought it =20
-better to do the same here and ignore the mouse reports (through not =20
-using MULTI_INPUT). I left it between #ifdefs in case things need to =20
-change in the future.
-
-St.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

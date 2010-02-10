@@ -1,159 +1,311 @@
-From: Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>
-Subject: Re: [PATCH 2/2] Add a device driver for the Apple Magic Mouse.
-Date: Wed, 10 Feb 2010 15:31:16 -0500
-Message-ID: <87d40cestn.fsf@troilus.org>
-References: <87y6j2eeqv.fsf_-_@troilus.org> <87pr4eeemz.fsf_-_@troilus.org>
-	<20100210182024.GA29610@core.coreip.homeip.net>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: [PATCH] winbond-cir: fix suspend/resume
+Date: Wed, 10 Feb 2010 23:00:25 +0100
+Message-ID: <20100210220025.GA10609@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100210182024.GA29610-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org> (Dmitry
-	Torokhov's message of "Wed, 10 Feb 2010 10:20:24 -0800")
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I'll post a patch for these based on Jiri's for-next tree this evening.
+I finally got the time to fix suspend/resume with the winbond-cir
+driver on my mainboard. The main problem turned out to be that the
+ACPI _DIS method would completely power off the SP3 module which
+meant that the output lines (including IRQ lines) would be left
+in an undefined state which could cause spurious interrupts and
+that the hardware has to be reinitialized from scratch during
+resume.
 
-Dmitry Torokhov writes:
+This fixes:
+http://bugzilla.kernel.org/show_bug.cgi?id=3D15257
 
-> Hi Michael,
->
-> On Tue, Feb 09, 2010 at 08:13:08AM -0500, Michael Poole wrote:
->> +
->> +static bool emulate_3button = 1;
->
-> If it is a bool then values should be true/false.
+Signed-off-by: David H=E4rdeman <david@hardeman.nu>
+---
+ drivers/input/misc/winbond-cir.c |  213 ++++++++++++++++++------------=
+-------
+ 1 files changed, 104 insertions(+), 109 deletions(-)
 
-Thanks.
-
->> +module_param(emulate_3button, bool, 0644);
->> +MODULE_PARM_DESC(emulate_3button, "Emulate a middle button");
->> +
->> +static int middle_button_start = -350;
->> +static int middle_button_stop = +350;
->> +
->> +static bool emulate_scroll_wheel = 1;
->> +module_param(emulate_scroll_wheel, bool, 0644);
->> +MODULE_PARM_DESC(emulate_scroll_wheel, "Emulate a scroll wheel");
->> +
->> +static bool report_touches = 1;
->> +module_param(report_touches, bool, 0644);
->> +MODULE_PARM_DESC(report_touches, "Emit touch records (otherwise, only use them for emulation)");
->> +
->> +static bool report_undeciphered = 0;
->
-> No need to initialize statics to 0/false.
-
-Okay, I'll remote that.
-
-[snip]
->> +        int last_state = test_bit(BTN_LEFT, msc->input->key) << 0 |
->> +                test_bit(BTN_RIGHT, msc->input->key) << 1 |
->> +                test_bit(BTN_MIDDLE, msc->input->key) << 2;
->
-> Indented with spaces, we prefer tabs.
-
-Whoops -- one of my machines must be misconfigured.  I'll fix that.
-
-[snip]
->> +		if (report_undeciphered) {
->> +			input_event(input, EV_MSC, MSC_RAW, tdata[7]);
->> +		}
->
-> No need for braces for single statement.
-
-Okay.
-
-[snip]
->> +	if (emulate_scroll_wheel)
->> +		set_bit(REL_WHEEL, input->relbit);
->
-> I'd use __set_bit() instead, no need to lock the bus.
-
-Okay.  I wasn't aware of that semantic difference.
-
->> +
->> +	if (report_touches) {
->> +		set_bit(EV_ABS, input->evbit);
->> +
->> +		set_bit(ABS_MT_TRACKING_ID, input->absbit);
->> +		input->absmin[ABS_MT_TRACKING_ID] = 0;
->> +		input->absmax[ABS_MT_TRACKING_ID] = 15;
->> +		input->absfuzz[ABS_MT_TRACKING_ID] = 0;
->
-> input_set_abs_params() is a bit more compact.
-
-Thanks -- more idiomatic is always handy.
-
-[snip]
->> +	ret = hdev->hid_output_raw_report(hdev, feature_1, sizeof(feature_1),
->> +			HID_FEATURE_REPORT);
->
-> This will cause transmission of on-stack data through USB which it does
-> not like.
-
-Current Magic Mouse devices are Bluetooth-only.  Is this an issue for
-that stack as well?  (hid-sony.c and hid-wacom.c also use
-hid_output_raw_report() with on-stack buffers for Bluetooth devices --
-if they need it too, I can write a patch for those.  I have a PS3
-controller that I can test with, but don't have a Wacom tablet.)  Would
-making those buffers static put them in an appropriate section, or does
-the memory need to be allocated from a heap?
-
->> +	if (ret != sizeof(feature_1)) {
->> +		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
->> +				ret);
->> +		goto err_free;
->> +	}
->> +	ret = hdev->hid_output_raw_report(hdev, feature_2,
->> +			sizeof(feature_2), HID_FEATURE_REPORT);
->
-> Same here.
->
->> +	if (ret != sizeof(feature_2)) {
->> +		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
->> +				ret);
->> +		goto err_free;
->> +	}
->> +
->> +	input = input_allocate_device();
->> +	if (!input) {
->> +		dev_err(&hdev->dev, "can't alloc input device\n");
->> +		ret = -ENOMEM;
->> +		goto err_free;
->> +	}
->> +	magicmouse_setup_input(input, hdev);
->> +
->> +	ret = input_register_device(input);
->> +	if (ret) {
->> +		dev_err(&hdev->dev, "input device registration failed\n");
->> +		goto err_both;
->> +	}
->> +	msc->input = input;
->> +
->> +	return 0;
->> + err_both:
->> +	input_free_device(input);
->> + err_free:
->> +	kfree(msc);
->> +	return ret;
->
-> hid_hw_stop() is missing in error path. Also see question about freeing
-> report below.
-
-Thanks, I'll add the hid_hw_stop().
-
->> +}
->> +
->> +static void magicmouse_remove(struct hid_device *hdev)
->> +{
->
-> Do we need to unregister report (I am not that familiar with HID, who is
-> responsible for cleaning report lists?)?
-
-hid-core.c's hid_device_release() frees all the reports that registered
-with hid_register_report().
-
-Michael Poole
+diff --git a/drivers/input/misc/winbond-cir.c b/drivers/input/misc/winb=
+ond-cir.c
+index c8f5a9a..cbec3df 100644
+--- a/drivers/input/misc/winbond-cir.c
++++ b/drivers/input/misc/winbond-cir.c
+@@ -538,6 +538,7 @@ wbcir_reset_irdata(struct wbcir_data *data)
+ 	data->irdata_count =3D 0;
+ 	data->irdata_off =3D 0;
+ 	data->irdata_error =3D 0;
++	data->idle_count =3D 0;
+ }
+=20
+ /* Adds one bit of irdata */
+@@ -1006,7 +1007,6 @@ wbcir_irq_handler(int irqno, void *cookie)
+ 		}
+=20
+ 		wbcir_reset_irdata(data);
+-		data->idle_count =3D 0;
+ 	}
+=20
+ out:
+@@ -1018,7 +1018,7 @@ out:
+=20
+ /*********************************************************************=
+********
+  *
+- * SUSPEND/RESUME FUNCTIONS
++ * SETUP/INIT/SUSPEND/RESUME FUNCTIONS
+  *
+  *********************************************************************=
+********/
+=20
+@@ -1197,7 +1197,16 @@ finish:
+ 	}
+=20
+ 	/* Disable interrupts */
++	wbcir_select_bank(data, WBCIR_BANK_0);
+ 	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
++
++	/*
++	 * ACPI will set the HW disable bit for SP3 which means that the
++	 * output signals are left in an undefined state which may cause
++	 * spurious interrupts which we need to ignore until the hardware
++	 * is reinitialized.
++	 */
++	disable_irq(data->irq);
+ }
+=20
+ static int
+@@ -1207,37 +1216,15 @@ wbcir_suspend(struct pnp_dev *device, pm_messag=
+e_t state)
+ 	return 0;
+ }
+=20
+-static int
+-wbcir_resume(struct pnp_dev *device)
+-{
+-	struct wbcir_data *data =3D pnp_get_drvdata(device);
+-
+-	/* Clear BUFF_EN, Clear END_EN, Clear MATCH_EN */
+-	wbcir_set_bits(data->wbase + WBCIR_REG_WCEIR_EV_EN, 0x00, 0x07);
+-
+-	/* Clear CEIR_EN */
+-	wbcir_set_bits(data->wbase + WBCIR_REG_WCEIR_CTL, 0x00, 0x01);
+-
+-	/* Enable interrupts */
+-	wbcir_reset_irdata(data);
+-	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
+-
+-	return 0;
+-}
+-
+-
+-
+-/*********************************************************************=
+********
+- *
+- * SETUP/INIT FUNCTIONS
+- *
+- *********************************************************************=
+********/
+-
+ static void
+-wbcir_cfg_ceir(struct wbcir_data *data)
++wbcir_init_hw(struct wbcir_data *data)
+ {
+ 	u8 tmp;
+=20
++	/* Disable interrupts */
++	wbcir_select_bank(data, WBCIR_BANK_0);
++	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
++
+ 	/* Set PROT_SEL, RX_INV, Clear CEIR_EN (needed for the led) */
+ 	tmp =3D protocol << 4;
+ 	if (invert)
+@@ -1264,6 +1251,93 @@ wbcir_cfg_ceir(struct wbcir_data *data)
+ 	 * set SP3_IRRX_SW to binary 01, helpfully not documented
+ 	 */
+ 	outb(0x10, data->ebase + WBCIR_REG_ECEIR_CTS);
++
++	/* Enable extended mode */
++	wbcir_select_bank(data, WBCIR_BANK_2);
++	outb(WBCIR_EXT_ENABLE, data->sbase + WBCIR_REG_SP3_EXCR1);
++
++	/*
++	 * Configure baud generator, IR data will be sampled at
++	 * a bitrate of: (24Mhz * prescaler) / (divisor * 16).
++	 *
++	 * The ECIR registers include a flag to change the
++	 * 24Mhz clock freq to 48Mhz.
++	 *
++	 * It's not documented in the specs, but fifo levels
++	 * other than 16 seems to be unsupported.
++	 */
++
++	/* prescaler 1.0, tx/rx fifo lvl 16 */
++	outb(0x30, data->sbase + WBCIR_REG_SP3_EXCR2);
++
++	/* Set baud divisor to generate one byte per bit/cell */
++	switch (protocol) {
++	case IR_PROTOCOL_RC5:
++		outb(0xA7, data->sbase + WBCIR_REG_SP3_BGDL);
++		break;
++	case IR_PROTOCOL_RC6:
++		outb(0x53, data->sbase + WBCIR_REG_SP3_BGDL);
++		break;
++	case IR_PROTOCOL_NEC:
++		outb(0x69, data->sbase + WBCIR_REG_SP3_BGDL);
++		break;
++	}
++	outb(0x00, data->sbase + WBCIR_REG_SP3_BGDH);
++
++	/* Set CEIR mode */
++	wbcir_select_bank(data, WBCIR_BANK_0);
++	outb(0xC0, data->sbase + WBCIR_REG_SP3_MCR);
++	inb(data->sbase + WBCIR_REG_SP3_LSR); /* Clear LSR */
++	inb(data->sbase + WBCIR_REG_SP3_MSR); /* Clear MSR */
++
++	/* Disable RX demod, run-length encoding/decoding, set freq span */
++	wbcir_select_bank(data, WBCIR_BANK_7);
++	outb(0x10, data->sbase + WBCIR_REG_SP3_RCCFG);
++
++	/* Disable timer */
++	wbcir_select_bank(data, WBCIR_BANK_4);
++	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR1);
++
++	/* Enable MSR interrupt, Clear AUX_IRX */
++	wbcir_select_bank(data, WBCIR_BANK_5);
++	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR2);
++
++	/* Disable CRC */
++	wbcir_select_bank(data, WBCIR_BANK_6);
++	outb(0x20, data->sbase + WBCIR_REG_SP3_IRCR3);
++
++	/* Set RX/TX (de)modulation freq, not really used */
++	wbcir_select_bank(data, WBCIR_BANK_7);
++	outb(0xF2, data->sbase + WBCIR_REG_SP3_IRRXDC);
++	outb(0x69, data->sbase + WBCIR_REG_SP3_IRTXMC);
++
++	/* Set invert and pin direction */
++	if (invert)
++		outb(0x10, data->sbase + WBCIR_REG_SP3_IRCFG4);
++	else
++		outb(0x00, data->sbase + WBCIR_REG_SP3_IRCFG4);
++
++	/* Set FIFO thresholds (RX =3D 8, TX =3D 3), reset RX/TX */
++	wbcir_select_bank(data, WBCIR_BANK_0);
++	outb(0x97, data->sbase + WBCIR_REG_SP3_FCR);
++
++	/* Clear AUX status bits */
++	outb(0xE0, data->sbase + WBCIR_REG_SP3_ASCR);
++
++	/* Enable interrupts */
++	wbcir_reset_irdata(data);
++	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
++}
++
++static int
++wbcir_resume(struct pnp_dev *device)
++{
++	struct wbcir_data *data =3D pnp_get_drvdata(device);
++
++	wbcir_init_hw(data);
++	enable_irq(data->irq);
++
++	return 0;
+ }
+=20
+ static int __devinit
+@@ -1393,86 +1467,7 @@ wbcir_probe(struct pnp_dev *device, const struct=
+ pnp_device_id *dev_id)
+=20
+ 	device_init_wakeup(&device->dev, 1);
+=20
+-	wbcir_cfg_ceir(data);
+-
+-	/* Disable interrupts */
+-	wbcir_select_bank(data, WBCIR_BANK_0);
+-	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
+-
+-	/* Enable extended mode */
+-	wbcir_select_bank(data, WBCIR_BANK_2);
+-	outb(WBCIR_EXT_ENABLE, data->sbase + WBCIR_REG_SP3_EXCR1);
+-
+-	/*
+-	 * Configure baud generator, IR data will be sampled at
+-	 * a bitrate of: (24Mhz * prescaler) / (divisor * 16).
+-	 *
+-	 * The ECIR registers include a flag to change the
+-	 * 24Mhz clock freq to 48Mhz.
+-	 *
+-	 * It's not documented in the specs, but fifo levels
+-	 * other than 16 seems to be unsupported.
+-	 */
+-
+-	/* prescaler 1.0, tx/rx fifo lvl 16 */
+-	outb(0x30, data->sbase + WBCIR_REG_SP3_EXCR2);
+-
+-	/* Set baud divisor to generate one byte per bit/cell */
+-	switch (protocol) {
+-	case IR_PROTOCOL_RC5:
+-		outb(0xA7, data->sbase + WBCIR_REG_SP3_BGDL);
+-		break;
+-	case IR_PROTOCOL_RC6:
+-		outb(0x53, data->sbase + WBCIR_REG_SP3_BGDL);
+-		break;
+-	case IR_PROTOCOL_NEC:
+-		outb(0x69, data->sbase + WBCIR_REG_SP3_BGDL);
+-		break;
+-	}
+-	outb(0x00, data->sbase + WBCIR_REG_SP3_BGDH);
+-
+-	/* Set CEIR mode */
+-	wbcir_select_bank(data, WBCIR_BANK_0);
+-	outb(0xC0, data->sbase + WBCIR_REG_SP3_MCR);
+-	inb(data->sbase + WBCIR_REG_SP3_LSR); /* Clear LSR */
+-	inb(data->sbase + WBCIR_REG_SP3_MSR); /* Clear MSR */
+-
+-	/* Disable RX demod, run-length encoding/decoding, set freq span */
+-	wbcir_select_bank(data, WBCIR_BANK_7);
+-	outb(0x10, data->sbase + WBCIR_REG_SP3_RCCFG);
+-
+-	/* Disable timer */
+-	wbcir_select_bank(data, WBCIR_BANK_4);
+-	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR1);
+-
+-	/* Enable MSR interrupt, Clear AUX_IRX */
+-	wbcir_select_bank(data, WBCIR_BANK_5);
+-	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR2);
+-
+-	/* Disable CRC */
+-	wbcir_select_bank(data, WBCIR_BANK_6);
+-	outb(0x20, data->sbase + WBCIR_REG_SP3_IRCR3);
+-
+-	/* Set RX/TX (de)modulation freq, not really used */
+-	wbcir_select_bank(data, WBCIR_BANK_7);
+-	outb(0xF2, data->sbase + WBCIR_REG_SP3_IRRXDC);
+-	outb(0x69, data->sbase + WBCIR_REG_SP3_IRTXMC);
+-
+-	/* Set invert and pin direction */
+-	if (invert)
+-		outb(0x10, data->sbase + WBCIR_REG_SP3_IRCFG4);
+-	else
+-		outb(0x00, data->sbase + WBCIR_REG_SP3_IRCFG4);
+-
+-	/* Set FIFO thresholds (RX =3D 8, TX =3D 3), reset RX/TX */
+-	wbcir_select_bank(data, WBCIR_BANK_0);
+-	outb(0x97, data->sbase + WBCIR_REG_SP3_FCR);
+-
+-	/* Clear AUX status bits */
+-	outb(0xE0, data->sbase + WBCIR_REG_SP3_ASCR);
+-
+-	/* Enable interrupts */
+-	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
++	wbcir_init_hw(data);
+=20
+ 	return 0;
+=20
+--=20
+1.6.6.1

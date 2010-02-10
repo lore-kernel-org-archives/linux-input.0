@@ -1,285 +1,221 @@
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: [RFC] ForceFeedback sequences
-Date: Wed, 10 Feb 2010 11:03:54 +0200
-Message-ID: <1265792634.4787.1591.camel@tema>
-Reply-To: ext-jari.vanhala@nokia.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: bitmap update for sh_keysc V2
+Date: Wed, 10 Feb 2010 01:26:50 -0800
+Message-ID: <20100210092650.GA28229@core.coreip.homeip.net>
+References: <20100209091609.1262.66929.sendpatchset@rxone.opensource.se>
+ <20100209093954.GC12642@core.coreip.homeip.net>
+ <aec7e5c31002092013y615cb624x78a9d5fad126b3ec@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-b2Ip77nffU3LqYp7jwnB"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:60933 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752657Ab0BJJEJ (ORCPT
+Received: from mail-yw0-f173.google.com ([209.85.211.173]:50296 "EHLO
+	mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753536Ab0BJJ05 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Feb 2010 04:04:09 -0500
-Received: from esebh105.NOE.Nokia.com (esebh105.ntc.nokia.com [172.21.138.211])
-	by mgw-mx06.nokia.com (Switch-3.3.3/Switch-3.3.3) with ESMTP id o1A93kXT014553
-	for <linux-input@vger.kernel.org>; Wed, 10 Feb 2010 11:04:06 +0200
-Received: from [172.22.214.74] (trdhcp21474.nmp.nokia.com [172.22.214.74])
-	by mgw-sa01.ext.nokia.com (Switch-3.3.3/Switch-3.3.3) with ESMTP id o1A93uYY018853
-	for <linux-input@vger.kernel.org>; Wed, 10 Feb 2010 11:03:56 +0200
+	Wed, 10 Feb 2010 04:26:57 -0500
+Content-Disposition: inline
+In-Reply-To: <aec7e5c31002092013y615cb624x78a9d5fad126b3ec@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
+
+On Wed, Feb 10, 2010 at 01:13:37PM +0900, Magnus Damm wrote:
+> On Tue, Feb 9, 2010 at 6:39 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Tue, Feb 09, 2010 at 06:16:09PM +0900, Magnus Damm wrote:
+> >> From: Magnus Damm <damm@opensource.se>
+> >>
+> >> Update the sh_keysc driver with proper bitmap support V2.
+> >> This instead of using a fixed 32-bit integer to keep track
+> >> for the key states. With this change in place the driver
+> >> supports key pads with more than 32 keys.
+> >>
+> >> Signed-off-by: Magnus Damm <damm@opensource.se>
+> >> ---
+> >>
+> >> =A0Changes since V1:
+> >> =A0- ditched the wrapping macros
+> >> =A0- use __set_bit() and __clear_bit()
+> >
+> > Thank you for making the change. It indeed is easier to read than t=
+he
+> > original since one does not have to go and look up what wrappers ar=
+e
+> > doing.
+>=20
+> Yeah, I initially disliked the SH_KEYSC_MAXKEYS that now are sprinkle=
+d
+> all over the place, but I have to admit that not using wrappers made
+> me realize that I should use __set_bit() and __clear_bit() instead of
+> the atomic ones. So all good.
+>=20
+
+BTW, that sh_keysc_map seems to be a holdover from the V1 of the patch
+and is not needed anymore. Does the patch below still work for you?
+
+Thanks!
+
+--=20
+Dmitry
 
 
---=-b2Ip77nffU3LqYp7jwnB
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Input: sh_keysc - switch to using bitmaps
 
-Linux FF-interface hasn't developed much. How about adding sequences to
-that interface.
+=46rom: Magnus Damm <damm@opensource.se>
 
-Here is small test-patch which I made to look what kind of problems
-there might be. This is ff-memless only because I wanted to reuse it's
-timer system. Also, it's not optimized (kind of ugly hack :). Anyway, it
-shows some problematic things, like custom_data pointer state, ownership
-of effect and is effect still enabled. Moving to ff-core solves most of
-these.
+Use bitmaps instead of using 32-bit integers to keep track of the key
+states. With this change in place the driver supports key pads with
+more than 32 keys.
 
-More generic way to do this would be at ff-core, so all ff-devices could
-use it, but thats not a simple task (timers..). Also kind of misusing
-custom-field is probably not so good thing :). Maybe adding new type or
-something.
-
-So, what you think? Does this make any sense?
-
-	++Jam
-
-
---=-b2Ip77nffU3LqYp7jwnB
-Content-Disposition: attachment; filename="0001-Input-FF-memless-custom-sequence-hack.patch"
-Content-Type: text/x-patch; name="0001-Input-FF-memless-custom-sequence-hack.patch"; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
->From dec8a86ff4b287019b4ce6989a738934c9eb95a1 Mon Sep 17 00:00:00 2001
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Date: Tue, 9 Feb 2010 11:03:54 +0200
-Subject: [PATCH] Input: FF-memless custom sequence hack
-
-This takes unused custom functionality and use it for
-making sequences in ff-memless. This can be only counted
-as a hack for testing purposes.
-
-Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
+Signed-off-by: Magnus Damm <damm@opensource.se>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/ff-core.c      |    9 +++
- drivers/input/ff-memless.c   |  115 ++++++++++++++++++++++++++++++++++++++++-
- drivers/input/input-compat.c |    1 +
- 3 files changed, 122 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-index 59797a3..6396328 100644
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -193,6 +193,9 @@ static int erase_effect(struct input_dev *dev, int effect_id,
- 		return error;
- 
- 	spin_lock_irq(&dev->event_lock);
-+	if (ff->effects[effect_id].type == FF_PERIODIC &&
-+	    ff->effects[effect_id].u.periodic.waveform == FF_CUSTOM)
-+		ff->effects[effect_id].u.periodic.custom_data = NULL;
- 	ff->playback(dev, effect_id, 0);
- 	ff->effect_owners[effect_id] = NULL;
- 	spin_unlock_irq(&dev->event_lock);
-@@ -250,6 +253,12 @@ static int flush_effects(struct input_dev *dev, struct file *file)
- 	mutex_lock(&ff->mutex);
- 
- 	for (i = 0; i < ff->max_effects; i++)
-+		if (!check_effect_access(ff, i, file) &&
-+		    ff->effects[i].type == FF_PERIODIC &&
-+		    ff->effects[i].u.periodic.waveform == FF_CUSTOM)
-+			ff->effects[i].u.periodic.custom_data = NULL;
-+
-+	for (i = 0; i < ff->max_effects; i++)
- 		erase_effect(dev, i, file);
- 
- 	mutex_unlock(&ff->mutex);
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index f967008..b14510b 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -54,6 +54,7 @@ struct ml_effect_state {
- 	unsigned long play_at;	/* start time */
- 	unsigned long stop_at;	/* stop time */
- 	unsigned long adj_at;	/* last time the effect was sent */
-+	int custom_index;	/* current custom index */
+ drivers/input/keyboard/sh_keysc.c |   69 ++++++++++++++++++++++++-----=
+--------
+ 1 files changed, 44 insertions(+), 25 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/sh_keysc.c b/drivers/input/keyboard=
+/sh_keysc.c
+index 6218b2f..c2fc977 100644
+--- a/drivers/input/keyboard/sh_keysc.c
++++ b/drivers/input/keyboard/sh_keysc.c
+@@ -19,6 +19,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/input/sh_keysc.h>
++#include <linux/bitmap.h>
+ #include <linux/clk.h>
+ #include <linux/io.h>
+=20
+@@ -35,7 +36,7 @@ static const struct {
+ struct sh_keysc_priv {
+ 	void __iomem *iomem_base;
+ 	struct clk *clk;
+-	unsigned long last_keys;
++	DECLARE_BITMAP(last_keys, SH_KEYSC_MAXKEYS);
+ 	struct input_dev *input;
+ 	struct sh_keysc_info pdata;
  };
- 
- struct ml_device {
-@@ -317,6 +318,29 @@ static void ml_combine_effects(struct ff_effect *effect,
- 
+@@ -71,69 +72,87 @@ static void sh_keysc_level_mode(struct sh_keysc_pri=
+v *p,
+ 		udelay(pdata->kycr2_delay);
  }
- 
-+#define IS_CUSTOM(effect)	(effect->type == FF_PERIODIC && \
-+				 effect->u.periodic.waveform == FF_CUSTOM)
-+static struct ff_effect *find_custom_effect(struct ml_effect_state *states,
-+					    struct ff_effect *effect,
-+					    int index)
+=20
++static void sh_keysc_map_dbg(struct device *dev, unsigned long *map,
++			     const char *str)
 +{
-+	s16 id;
-+	struct ff_effect *ret;
++	int k;
 +
-+	if (!effect || !effect->u.periodic.custom_data ||
-+	    effect->u.periodic.custom_len / sizeof(__s16) <= index)
-+		return NULL;
-+	/* XXX: check if effect->u.periodic.custom_data still points
-+	 * to valid memory */
-+	id = effect->u.periodic.custom_data[index];
-+	if (id < 0 || id == effect->id || id >= FF_MEMLESS_EFFECTS)
-+		return NULL;
-+	ret = states[id].effect;
-+	if (IS_CUSTOM(ret))
-+		return NULL;
-+
-+	return ret;
++	for (k =3D 0; k < BITS_TO_LONGS(SH_KEYSC_MAXKEYS); k++)
++		dev_dbg(dev, "%s[%d] 0x%lx\n", str, k, map[k]);
 +}
- 
- /*
-  * Because memoryless devices have only one effect per effect type active
-@@ -326,7 +350,7 @@ static int ml_get_combo_effect(struct ml_device *ml,
- 			       unsigned long *effect_handled,
- 			       struct ff_effect *combo_effect)
++
+ static irqreturn_t sh_keysc_isr(int irq, void *dev_id)
  {
--	struct ff_effect *effect;
-+	struct ff_effect *effect, *effect2;
- 	struct ml_effect_state *state;
- 	int effect_type;
- 	int i;
-@@ -368,9 +392,56 @@ static int ml_get_combo_effect(struct ml_device *ml,
- 
- 			__clear_bit(FF_EFFECT_PLAYING, &state->flags);
- 
-+			if (IS_CUSTOM(effect)) {
-+				state->custom_index++;
-+				effect2 = find_custom_effect(ml->states,
-+					effect, state->custom_index);
-+				if (effect2) {
-+					struct ff_envelope *envelope;
-+					state->play_at = jiffies +
-+						msecs_to_jiffies(effect2->
-+								 replay.delay);
-+					state->stop_at = state->play_at +
-+						msecs_to_jiffies(effect2->
-+								 replay.length);
-+					state->adj_at = state->play_at;
-+					effect->replay.length =
-+						effect2->replay.length;
-+					envelope = (struct ff_envelope *)
-+						get_envelope(effect2);
-+					effect->u.periodic.envelope =
-+						*envelope;
-+					__clear_bit(i, effect_handled);
-+					i--;
-+					continue;
-+				}
+ 	struct platform_device *pdev =3D dev_id;
+ 	struct sh_keysc_priv *priv =3D platform_get_drvdata(pdev);
+ 	struct sh_keysc_info *pdata =3D &priv->pdata;
+-	unsigned long keys, keys1, keys0, mask;
++	int keyout_nr =3D sh_keysc_mode[pdata->mode].keyout;
++	int keyin_nr =3D sh_keysc_mode[pdata->mode].keyin;
++	DECLARE_BITMAP(keys, SH_KEYSC_MAXKEYS);
++	DECLARE_BITMAP(keys0, SH_KEYSC_MAXKEYS);
++	DECLARE_BITMAP(keys1, SH_KEYSC_MAXKEYS);
+ 	unsigned char keyin_set, tmp;
+-	int i, k;
++	int i, k, n;
+=20
+ 	dev_dbg(&pdev->dev, "isr!\n");
+=20
+-	keys1 =3D ~0;
+-	keys0 =3D 0;
++	bitmap_fill(keys1, SH_KEYSC_MAXKEYS);
++	bitmap_zero(keys0, SH_KEYSC_MAXKEYS);
+=20
+ 	do {
+-		keys =3D 0;
++		bitmap_zero(keys, SH_KEYSC_MAXKEYS);
+ 		keyin_set =3D 0;
+=20
+ 		sh_keysc_write(priv, KYCR2, KYCR2_IRQ_DISABLED);
+=20
+-		for (i =3D 0; i < sh_keysc_mode[pdata->mode].keyout; i++) {
++		for (i =3D 0; i < keyout_nr; i++) {
++			n =3D keyin_nr * i;
++
++			/* drive one KEYOUT pin low, read KEYIN pins */
+ 			sh_keysc_write(priv, KYOUTDR, 0xfff ^ (3 << (i * 2)));
+ 			udelay(pdata->delay);
+ 			tmp =3D sh_keysc_read(priv, KYINDR);
+=20
+-			keys |=3D tmp << (sh_keysc_mode[pdata->mode].keyin * i);
+-			tmp ^=3D (1 << sh_keysc_mode[pdata->mode].keyin) - 1;
+-			keyin_set |=3D tmp;
++			/* set bit if key press has been detected */
++			for (k =3D 0; k < keyin_nr; k++) {
++				if (tmp & (1 << k))
++					__set_bit(n + k, keys);
 +			}
 +
- 			if (--state->count <= 0) {
- 				__clear_bit(FF_EFFECT_STARTED, &state->flags);
- 			} else {
-+				if (IS_CUSTOM(effect)) {
-+					struct ff_envelope *envelope;
-+					state->custom_index = 0;
-+					effect2 =
-+						find_custom_effect(ml->states,
-+						effect, state->custom_index);
-+					if (!effect2) {
-+						__clear_bit(FF_EFFECT_PLAYING,
-+							    &state->flags);
-+						__clear_bit(FF_EFFECT_STARTED,
-+							    &state->flags);
-+						continue;
-+					}
-+					effect->replay.length =
-+						effect2->replay.length;
-+					envelope = (struct ff_envelope *)
-+						get_envelope(effect2);
-+					effect->u.periodic.envelope =
-+						*envelope;
-+					__clear_bit(i, effect_handled);
-+					i--;
-+				}
- 				state->play_at = jiffies +
- 					msecs_to_jiffies(effect->replay.delay);
- 				state->stop_at = state->play_at +
-@@ -378,8 +449,27 @@ static int ml_get_combo_effect(struct ml_device *ml,
- 			}
- 		} else {
- 			__set_bit(FF_EFFECT_PLAYING, &state->flags);
--			state->adj_at = jiffies;
--			ml_combine_effects(combo_effect, state, ml->gain);
-+			if (IS_CUSTOM(effect)) {
-+				struct ml_effect_state state2;
-+				effect2 = find_custom_effect(ml->states,
-+					effect, state->custom_index);
-+				if (!effect2) {
-+					__clear_bit(FF_EFFECT_PLAYING,
-+						    &state->flags);
-+					__clear_bit(FF_EFFECT_STARTED,
-+						    &state->flags);
-+					continue;
-+				}
-+				state->adj_at = jiffies;
-+				memcpy(&state2, state, sizeof(state2));
-+				state2.effect = effect2;
-+				ml_combine_effects(combo_effect,
-+						   &state2, ml->gain);
-+			} else {
-+				state->adj_at = jiffies;
-+				ml_combine_effects(combo_effect, state,
-+						   ml->gain);
-+			}
++			/* keep track of which KEYIN bits that have been set */
++			keyin_set |=3D tmp ^ ((1 << keyin_nr) - 1);
  		}
+=20
+ 		sh_keysc_level_mode(priv, keyin_set);
+=20
+-		keys ^=3D ~0;
+-		keys &=3D (1 << (sh_keysc_mode[pdata->mode].keyin *
+-			       sh_keysc_mode[pdata->mode].keyout)) - 1;
+-		keys1 &=3D keys;
+-		keys0 |=3D keys;
++		bitmap_complement(keys, keys, SH_KEYSC_MAXKEYS);
++		bitmap_and(keys1, keys1, keys, SH_KEYSC_MAXKEYS);
++		bitmap_or(keys0, keys0, keys, SH_KEYSC_MAXKEYS);
+=20
+-		dev_dbg(&pdev->dev, "keys 0x%08lx\n", keys);
++		sh_keysc_map_dbg(&pdev->dev, keys, "keys");
+=20
+ 	} while (sh_keysc_read(priv, KYCR2) & 0x01);
+=20
+-	dev_dbg(&pdev->dev, "last_keys 0x%08lx keys0 0x%08lx keys1 0x%08lx\n"=
+,
+-		priv->last_keys, keys0, keys1);
++	sh_keysc_map_dbg(&pdev->dev, priv->last_keys, "last_keys");
++	sh_keysc_map_dbg(&pdev->dev, keys0, "keys0");
++	sh_keysc_map_dbg(&pdev->dev, keys1, "keys1");
+=20
+ 	for (i =3D 0; i < SH_KEYSC_MAXKEYS; i++) {
+ 		k =3D pdata->keycodes[i];
+ 		if (!k)
+ 			continue;
+=20
+-		mask =3D 1 << i;
+-
+-		if (!((priv->last_keys ^ keys0) & mask))
++		if (test_bit(i, keys0) =3D=3D test_bit(i, priv->last_keys))
+ 			continue;
+=20
+-		if ((keys1 | keys0) & mask) {
++		if (test_bit(i, keys1) || test_bit(i, keys0)) {
+ 			input_event(priv->input, EV_KEY, k, 1);
+-			priv->last_keys |=3D mask;
++			__set_bit(i, priv->last_keys);
+ 		}
+=20
+-		if (!(keys1 & mask)) {
++		if (!test_bit(i, keys1)) {
+ 			input_event(priv->input, EV_KEY, k, 0);
+-			priv->last_keys &=3D ~mask;
++			__clear_bit(i, priv->last_keys);
+ 		}
+=20
  	}
- 
-@@ -446,6 +536,24 @@ static int ml_ff_playback(struct input_dev *dev, int effect_id, int value)
- 		state->stop_at = state->play_at +
- 				 msecs_to_jiffies(state->effect->replay.length);
- 		state->adj_at = state->play_at;
-+		if (IS_CUSTOM(state->effect)) {
-+			struct ff_effect *effect;
-+			struct ff_envelope *envelope;
-+			state->custom_index = 0;
-+			effect = find_custom_effect(ml->states, state->effect,
-+						    state->custom_index);
-+			if (!effect) {
-+				__clear_bit(FF_EFFECT_STARTED, &state->flags);
-+				return -EINVAL;
-+			}
-+			state->play_at = jiffies +
-+				msecs_to_jiffies(effect->replay.delay);
-+			state->stop_at = state->play_at +
-+				msecs_to_jiffies(effect->replay.length);
-+			state->effect->replay.length = effect->replay.length;
-+			envelope = (struct ff_envelope *)get_envelope(effect);
-+			state->effect->u.periodic.envelope = *envelope;
-+		}
- 
- 	} else {
- 		debug("initiated stop");
-@@ -536,6 +644,7 @@ int input_ff_create_memless(struct input_dev *dev, void *data,
- 		set_bit(FF_SINE, dev->ffbit);
- 		set_bit(FF_TRIANGLE, dev->ffbit);
- 		set_bit(FF_SQUARE, dev->ffbit);
-+		set_bit(FF_CUSTOM, dev->ffbit);
- 	}
- 
- 	for (i = 0; i < FF_MEMLESS_EFFECTS; i++)
-diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
-index 1accb89..2df00b6 100644
---- a/drivers/input/input-compat.c
-+++ b/drivers/input/input-compat.c
-@@ -83,6 +83,7 @@ int input_ff_effect_from_user(const char __user *buffer, size_t size,
- 
- 		if (compat_effect->type == FF_PERIODIC &&
- 		    compat_effect->u.periodic.waveform == FF_CUSTOM)
-+			/* This propably should make a real copy ++Jam */
- 			effect->u.periodic.custom_data =
- 				compat_ptr(compat_effect->u.periodic.custom_data);
- 	} else {
--- 
-1.6.3.3
-
-
---=-b2Ip77nffU3LqYp7jwnB--
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

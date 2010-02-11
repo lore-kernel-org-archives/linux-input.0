@@ -1,40 +1,62 @@
-From: Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>
-Subject: Re: [PATCH 2/2] Add a device driver for the Apple Magic Mouse.
-Date: Wed, 10 Feb 2010 22:20:13 -0500
-Message-ID: <878wb0e9w2.fsf@troilus.org>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz>
-	<87y6j2eeqv.fsf_-_@troilus.org> <87pr4eeemz.fsf_-_@troilus.org>
-	<201002102205.58967.edt@aei.ca>
+From: "yhch" <yhch@generaltouch.com>
+Subject: patch for usbtouchscreen.c
+Date: Thu, 11 Feb 2010 11:32:06 +0800
+Message-ID: <201002111132063289729@generaltouch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201002102205.58967.edt-Yad3+ZauZac@public.gmane.org> (Ed Tomlinson's message of "Wed,
-	10 Feb 2010 22:05:58 -0500")
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ed Tomlinson <edt-Yad3+ZauZac@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.263xmail.com ([211.150.67.12]:16404 "EHLO
+	smtp.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752327Ab0BKDcM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Feb 2010 22:32:12 -0500
+Received: from smtp10.263xmail.com (smtp10 [127.0.0.1])
+	by smtp10.263xmail.com (Postfix) with ESMTP id 5BEDF950C
+	for <linux-input@vger.kernel.org>; Thu, 11 Feb 2010 11:32:06 +0800 (CST)
+Received: from PC-200903280540 (smtp10 [127.0.0.1])
+	by smtp10.263xmail.com (Postfix) with ESMTP id D70D545D
+	for <linux-input@vger.kernel.org>; Thu, 11 Feb 2010 11:32:05 +0800 (CST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-Ed Tomlinson writes:
+Hi all
 
-> Hi,
->
-> When I apply this to head, I get:
->
-> drivers/hid/hid-magicmouse.c: In function 'magicmouse_probe':                                                         
-> drivers/hid/hid-magicmouse.c:393: error: too many arguments to function 'hdev->hid_output_raw_report'                 
-> drivers/hid/hid-magicmouse.c:400: error: too many arguments to function 'hdev->hid_output_raw_report'                 
->
-> I only need the second patch - the first seems to be in tree.
->
-> Any ideas as to what I am missing?
->
-> TIA
-> Ed
+--This is time,I paste the patch into my email directly.
+There is a problem,that is,the coordinate of Generaltouch touchscreen is limited to 0xFFF by usbtouchscreen.c while many models of our touchscreen give bigger coordinate than that.Could you please apply this patch to linux kernel?
 
-You're missing the patch that makes hid_output_raw_report() more generic.
-It is in the HID tree[1] as commit d4bfa033.
+Thanks!
 
-[1]- http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git
+2010-02-03 
+Best Regards
+Roy.Yin 
+Generaltouch.com
 
-Michael Poole
+--- usbtouchscreen.c	2008-11-21 07:02:37.000000000 +0800
++++ usbtouchscreengt.c	2010-02-03 15:30:57.000000000 +0800
+@@ -526,8 +526,8 @@
+ #ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
+ static int general_touch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ {
+-	dev->x = ((pkt[2] & 0x0F) << 8) | pkt[1] ;
+-	dev->y = ((pkt[4] & 0x0F) << 8) | pkt[3] ;
++	dev->x = ((pkt[2]) << 8) | pkt[1] ;
++	dev->y = ((pkt[4]) << 8) | pkt[3] ;
+ 	dev->press = pkt[5] & 0xff;
+ 	dev->touch = pkt[0] & 0x01;
+ 
+@@ -669,9 +669,9 @@
+ #ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
+ 	[DEVTYPE_GENERAL_TOUCH] = {
+ 		.min_xc		= 0x0,
+-		.max_xc		= 0x0500,
++		.max_xc		= 0x0fff,
+ 		.min_yc		= 0x0,
+-		.max_yc		= 0x0500,
++		.max_yc		= 0x0fff,
+ 		.rept_size	= 7,
+ 		.read_data	= general_touch_read_data,
+ 	},
+

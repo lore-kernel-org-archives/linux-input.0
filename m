@@ -1,51 +1,57 @@
-From: Ed Tomlinson <edt@aei.ca>
-Subject: Re: [PATCH 2/2] Add a device driver for the Apple Magic Mouse (2.6.32.8)
-Date: Thu, 11 Feb 2010 07:51:14 -0500
-Message-ID: <201002110751.14813.edt@aei.ca>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002102205.58967.edt@aei.ca> <878wb0e9w2.fsf@troilus.org>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: usbhid control queue full, due to stuck control request
+Date: Thu, 11 Feb 2010 16:18:11 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz>
+References: <20100206172051.GA22311@spacedout.fries.net> <201002081256.01614.oliver@neukum.org> <20100209023508.GB22311@spacedout.fries.net> <20100211010450.GC22311@spacedout.fries.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail001.aei.ca ([206.123.6.130]:44056 "EHLO mail001.aei.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754014Ab0BKMvS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 07:51:18 -0500
-In-Reply-To: <878wb0e9w2.fsf@troilus.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100211010450.GC22311-6Mk49KDF3Zwuqz//ww0BS9HuzzzSOjJt@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Fries <david-CAZ2Ig26prheoWH0uzbU5w@public.gmane.org>
+Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wednesday 10 February 2010 22:20:13 Michael Poole wrote:
-> Ed Tomlinson writes:
+On Wed, 10 Feb 2010, David Fries wrote:
+
+> Your patch, 7b10f302c6caa940ea5ad67efb8a517923abfcc7 and my patch
+> 4bf8e5d6d42891a6d01fee1b8f3bb674d8364843, (and some verbose output),
+> and usbhid gracefully recovered this afternoon.  Thanks, works for me.
 > 
-> > Hi,
-> >
-> > When I apply this to head, I get:
-> >
-> > drivers/hid/hid-magicmouse.c: In function 'magicmouse_probe':                                                         
-> > drivers/hid/hid-magicmouse.c:393: error: too many arguments to function 'hdev->hid_output_raw_report'                 
-> > drivers/hid/hid-magicmouse.c:400: error: too many arguments to function 'hdev->hid_output_raw_report'                 
-> >
-> > I only need the second patch - the first seems to be in tree.
-> >
-> > Any ideas as to what I am missing?
-> >
-> > TIA
-> > Ed
+> My additional print messages,
+> Feb 10 12:53:31 SubSpace kernel: usbhid control queue 1 max 256
+> Feb 10 12:53:32 SubSpace kernel: usbhid urbctrl timeout -10020, unlink_urb
+> Feb 10 12:53:32 SubSpace kernel: usbhid -ECONNRESET
+> Feb 10 12:53:32 SubSpace kernel: usbhid control queue 0 max 256
 > 
-> You're missing the patch that makes hid_output_raw_report() more generic.
-> It is in the HID tree[1] as commit d4bfa033.
-> 
-> [1]- http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git
+> usbmon dump, -104 was the -ECONNRESET unlink.
+> Wed Feb 10 12:53:01 CST 2010
+> c2fede40 161671434 S Ci:1:002:0 s a1 01 0326 0000 0004 8 <
+> c2fede40 161747009 C Ci:1:002:0 0 4 = 26343130
+> c2fede40 161847590 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
+> c2fede40 161848982 C Ci:1:002:0 0 3 = 140000
+> c2fede40 161908315 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
+> c2fede40 171928585 C Ci:1:002:0 -104 3 = 140000
+> c2fede40 171928605 S Ci:1:002:0 s a1 01 0306 0000 0004 8 <
+> c2fede40 171930579 C Ci:1:002:0 0 4 = 06000008
+> c2fede40 171968852 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
+> c2fede40 171970572 C Ci:1:002:0 0 6 = 0c640000 3f00
+> c2fede40 171989721 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
+> c2fede40 171991562 C Ci:1:002:0 0 6 = 0c640000 3f00
+> Wed Feb 10 12:54:01 CST 2010
 
-Ok.  With this I have a patchset that applies to 2.6.32.8.  If anyone wants it
-just email.  
+I only now noticed your patches, thanks for debugging this guys.
 
-Of course, Michael's cleanups came just after I booted with the new kernel.  I'll
-apply it and update & post my changes that allow both x and y scrolling and almost 
-work for a few multitouch gestures.
+Could you please submit the condensed patch to me, with proper 
+Signed-off-by: etc, so that I could apply it?
 
-Ed
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

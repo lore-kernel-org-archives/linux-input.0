@@ -1,30 +1,34 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] input: schedule corgi_ssp and corgi_ts to be removed
-Date: Thu, 11 Feb 2010 15:36:16 +0800
-Message-ID: <f17812d71002102336k9654c4cwea9dcd9df9d9f357@mail.gmail.com>
-References: <f17812d71002041645n15e502a3sccc76fc3f2e75c76@mail.gmail.com>
-	<20100208180625.GB1469@ucw.cz> <f17812d71002081715w485b33bbx3f67afb86c6d8ee1@mail.gmail.com>
-	<20100209090918.GA12642@core.coreip.homeip.net> <f17812d71002090423j4f02225av24e5af0227e0809d@mail.gmail.com>
-	<f17812d71002090433g35504bccwa58460c395847f80@mail.gmail.com>
-	<20100211070808.GE8252@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid-magicmouse: Coding style and probe failure fixes.
+Date: Thu, 11 Feb 2010 11:26:22 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002111124030.30967@pobox.suse.cz>
+References: <87y6j2eeqv.fsf_-_@troilus.org> <87pr4eeemz.fsf_-_@troilus.org> <20100210182024.GA29610@core.coreip.homeip.net> <873a18e3qu.fsf_-_@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:2434 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751935Ab0BKHgo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 02:36:44 -0500
-Received: by qw-out-2122.google.com with SMTP id 9so198094qwb.37
-        for <linux-input@vger.kernel.org>; Wed, 10 Feb 2010 23:36:36 -0800 (PST)
-In-Reply-To: <20100211070808.GE8252@core.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:38993 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751315Ab0BKK0Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Feb 2010 05:26:24 -0500
+In-Reply-To: <873a18e3qu.fsf_-_@troilus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> Re-applied (with just removing 'default y' instead of replacing with
-> 'default n' which is the same thing).
->
+On Thu, 11 Feb 2010, Michael Poole wrote:
 
-Ah, yes, that's much cleaner. Thanks Dmitry.
+> I haven't had a chance to run-test these changes yet -- hid/for-next
+> causes corrupt X display on my laptop, whereas v2.6.33-rc6 and -rc7 are
+> fine; 
+
+That's indeed quite strange. I'd be curious to see the result of the 
+bisection, thanks a lot for doing this.
+
+I have applied your patch to the branch containing your driver.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

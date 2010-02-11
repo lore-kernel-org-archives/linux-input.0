@@ -1,311 +1,57 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: [PATCH] winbond-cir: fix suspend/resume
-Date: Wed, 10 Feb 2010 23:00:25 +0100
-Message-ID: <20100210220025.GA10609@hardeman.nu>
+From: David Fries <david-CAZ2Ig26prheoWH0uzbU5w@public.gmane.org>
+Subject: Re: usbhid control queue full, due to stuck control request
+Date: Wed, 10 Feb 2010 19:04:50 -0600
+Message-ID: <20100211010450.GC22311@spacedout.fries.net>
+References: <20100206172051.GA22311@spacedout.fries.net> <201002081256.01614.oliver@neukum.org> <20100209023508.GB22311@spacedout.fries.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20100209023508.GB22311-6Mk49KDF3Zwuqz//ww0BS9HuzzzSOjJt@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-I finally got the time to fix suspend/resume with the winbond-cir
-driver on my mainboard. The main problem turned out to be that the
-ACPI _DIS method would completely power off the SP3 module which
-meant that the output lines (including IRQ lines) would be left
-in an undefined state which could cause spurious interrupts and
-that the hardware has to be reinitialized from scratch during
-resume.
+On Mon, Feb 08, 2010 at 08:35:08PM -0600, David Fries wrote:
+> On Mon, Feb 08, 2010 at 12:56:01PM +0100, Oliver Neukum wrote:
+> > Am Samstag, 6. Februar 2010 18:20:52 schrieb David Fries:
+> > > that it takes the control queue to fill up and trigger my routine.  The
+> > > usb monitor doesn't say why the control request doesn't complete, just
+> > > that it was submitted and didn't complete.
+> > it seems we need to implement a timeout. Does this patch help?
+> > Comments?
 
-This fixes:
-http://bugzilla.kernel.org/show_bug.cgi?id=3D15257
+Your patch, 7b10f302c6caa940ea5ad67efb8a517923abfcc7 and my patch
+4bf8e5d6d42891a6d01fee1b8f3bb674d8364843, (and some verbose output),
+and usbhid gracefully recovered this afternoon.  Thanks, works for me.
 
-Signed-off-by: David H=E4rdeman <david@hardeman.nu>
----
- drivers/input/misc/winbond-cir.c |  213 ++++++++++++++++++------------=
--------
- 1 files changed, 104 insertions(+), 109 deletions(-)
+My additional print messages,
+Feb 10 12:53:31 SubSpace kernel: usbhid control queue 1 max 256
+Feb 10 12:53:32 SubSpace kernel: usbhid urbctrl timeout -10020, unlink_urb
+Feb 10 12:53:32 SubSpace kernel: usbhid -ECONNRESET
+Feb 10 12:53:32 SubSpace kernel: usbhid control queue 0 max 256
 
-diff --git a/drivers/input/misc/winbond-cir.c b/drivers/input/misc/winb=
-ond-cir.c
-index c8f5a9a..cbec3df 100644
---- a/drivers/input/misc/winbond-cir.c
-+++ b/drivers/input/misc/winbond-cir.c
-@@ -538,6 +538,7 @@ wbcir_reset_irdata(struct wbcir_data *data)
- 	data->irdata_count =3D 0;
- 	data->irdata_off =3D 0;
- 	data->irdata_error =3D 0;
-+	data->idle_count =3D 0;
- }
-=20
- /* Adds one bit of irdata */
-@@ -1006,7 +1007,6 @@ wbcir_irq_handler(int irqno, void *cookie)
- 		}
-=20
- 		wbcir_reset_irdata(data);
--		data->idle_count =3D 0;
- 	}
-=20
- out:
-@@ -1018,7 +1018,7 @@ out:
-=20
- /*********************************************************************=
-********
-  *
-- * SUSPEND/RESUME FUNCTIONS
-+ * SETUP/INIT/SUSPEND/RESUME FUNCTIONS
-  *
-  *********************************************************************=
-********/
-=20
-@@ -1197,7 +1197,16 @@ finish:
- 	}
-=20
- 	/* Disable interrupts */
-+	wbcir_select_bank(data, WBCIR_BANK_0);
- 	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
-+
-+	/*
-+	 * ACPI will set the HW disable bit for SP3 which means that the
-+	 * output signals are left in an undefined state which may cause
-+	 * spurious interrupts which we need to ignore until the hardware
-+	 * is reinitialized.
-+	 */
-+	disable_irq(data->irq);
- }
-=20
- static int
-@@ -1207,37 +1216,15 @@ wbcir_suspend(struct pnp_dev *device, pm_messag=
-e_t state)
- 	return 0;
- }
-=20
--static int
--wbcir_resume(struct pnp_dev *device)
--{
--	struct wbcir_data *data =3D pnp_get_drvdata(device);
--
--	/* Clear BUFF_EN, Clear END_EN, Clear MATCH_EN */
--	wbcir_set_bits(data->wbase + WBCIR_REG_WCEIR_EV_EN, 0x00, 0x07);
--
--	/* Clear CEIR_EN */
--	wbcir_set_bits(data->wbase + WBCIR_REG_WCEIR_CTL, 0x00, 0x01);
--
--	/* Enable interrupts */
--	wbcir_reset_irdata(data);
--	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
--
--	return 0;
--}
--
--
--
--/*********************************************************************=
-********
-- *
-- * SETUP/INIT FUNCTIONS
-- *
-- *********************************************************************=
-********/
--
- static void
--wbcir_cfg_ceir(struct wbcir_data *data)
-+wbcir_init_hw(struct wbcir_data *data)
- {
- 	u8 tmp;
-=20
-+	/* Disable interrupts */
-+	wbcir_select_bank(data, WBCIR_BANK_0);
-+	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
-+
- 	/* Set PROT_SEL, RX_INV, Clear CEIR_EN (needed for the led) */
- 	tmp =3D protocol << 4;
- 	if (invert)
-@@ -1264,6 +1251,93 @@ wbcir_cfg_ceir(struct wbcir_data *data)
- 	 * set SP3_IRRX_SW to binary 01, helpfully not documented
- 	 */
- 	outb(0x10, data->ebase + WBCIR_REG_ECEIR_CTS);
-+
-+	/* Enable extended mode */
-+	wbcir_select_bank(data, WBCIR_BANK_2);
-+	outb(WBCIR_EXT_ENABLE, data->sbase + WBCIR_REG_SP3_EXCR1);
-+
-+	/*
-+	 * Configure baud generator, IR data will be sampled at
-+	 * a bitrate of: (24Mhz * prescaler) / (divisor * 16).
-+	 *
-+	 * The ECIR registers include a flag to change the
-+	 * 24Mhz clock freq to 48Mhz.
-+	 *
-+	 * It's not documented in the specs, but fifo levels
-+	 * other than 16 seems to be unsupported.
-+	 */
-+
-+	/* prescaler 1.0, tx/rx fifo lvl 16 */
-+	outb(0x30, data->sbase + WBCIR_REG_SP3_EXCR2);
-+
-+	/* Set baud divisor to generate one byte per bit/cell */
-+	switch (protocol) {
-+	case IR_PROTOCOL_RC5:
-+		outb(0xA7, data->sbase + WBCIR_REG_SP3_BGDL);
-+		break;
-+	case IR_PROTOCOL_RC6:
-+		outb(0x53, data->sbase + WBCIR_REG_SP3_BGDL);
-+		break;
-+	case IR_PROTOCOL_NEC:
-+		outb(0x69, data->sbase + WBCIR_REG_SP3_BGDL);
-+		break;
-+	}
-+	outb(0x00, data->sbase + WBCIR_REG_SP3_BGDH);
-+
-+	/* Set CEIR mode */
-+	wbcir_select_bank(data, WBCIR_BANK_0);
-+	outb(0xC0, data->sbase + WBCIR_REG_SP3_MCR);
-+	inb(data->sbase + WBCIR_REG_SP3_LSR); /* Clear LSR */
-+	inb(data->sbase + WBCIR_REG_SP3_MSR); /* Clear MSR */
-+
-+	/* Disable RX demod, run-length encoding/decoding, set freq span */
-+	wbcir_select_bank(data, WBCIR_BANK_7);
-+	outb(0x10, data->sbase + WBCIR_REG_SP3_RCCFG);
-+
-+	/* Disable timer */
-+	wbcir_select_bank(data, WBCIR_BANK_4);
-+	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR1);
-+
-+	/* Enable MSR interrupt, Clear AUX_IRX */
-+	wbcir_select_bank(data, WBCIR_BANK_5);
-+	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR2);
-+
-+	/* Disable CRC */
-+	wbcir_select_bank(data, WBCIR_BANK_6);
-+	outb(0x20, data->sbase + WBCIR_REG_SP3_IRCR3);
-+
-+	/* Set RX/TX (de)modulation freq, not really used */
-+	wbcir_select_bank(data, WBCIR_BANK_7);
-+	outb(0xF2, data->sbase + WBCIR_REG_SP3_IRRXDC);
-+	outb(0x69, data->sbase + WBCIR_REG_SP3_IRTXMC);
-+
-+	/* Set invert and pin direction */
-+	if (invert)
-+		outb(0x10, data->sbase + WBCIR_REG_SP3_IRCFG4);
-+	else
-+		outb(0x00, data->sbase + WBCIR_REG_SP3_IRCFG4);
-+
-+	/* Set FIFO thresholds (RX =3D 8, TX =3D 3), reset RX/TX */
-+	wbcir_select_bank(data, WBCIR_BANK_0);
-+	outb(0x97, data->sbase + WBCIR_REG_SP3_FCR);
-+
-+	/* Clear AUX status bits */
-+	outb(0xE0, data->sbase + WBCIR_REG_SP3_ASCR);
-+
-+	/* Enable interrupts */
-+	wbcir_reset_irdata(data);
-+	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
-+}
-+
-+static int
-+wbcir_resume(struct pnp_dev *device)
-+{
-+	struct wbcir_data *data =3D pnp_get_drvdata(device);
-+
-+	wbcir_init_hw(data);
-+	enable_irq(data->irq);
-+
-+	return 0;
- }
-=20
- static int __devinit
-@@ -1393,86 +1467,7 @@ wbcir_probe(struct pnp_dev *device, const struct=
- pnp_device_id *dev_id)
-=20
- 	device_init_wakeup(&device->dev, 1);
-=20
--	wbcir_cfg_ceir(data);
--
--	/* Disable interrupts */
--	wbcir_select_bank(data, WBCIR_BANK_0);
--	outb(WBCIR_IRQ_NONE, data->sbase + WBCIR_REG_SP3_IER);
--
--	/* Enable extended mode */
--	wbcir_select_bank(data, WBCIR_BANK_2);
--	outb(WBCIR_EXT_ENABLE, data->sbase + WBCIR_REG_SP3_EXCR1);
--
--	/*
--	 * Configure baud generator, IR data will be sampled at
--	 * a bitrate of: (24Mhz * prescaler) / (divisor * 16).
--	 *
--	 * The ECIR registers include a flag to change the
--	 * 24Mhz clock freq to 48Mhz.
--	 *
--	 * It's not documented in the specs, but fifo levels
--	 * other than 16 seems to be unsupported.
--	 */
--
--	/* prescaler 1.0, tx/rx fifo lvl 16 */
--	outb(0x30, data->sbase + WBCIR_REG_SP3_EXCR2);
--
--	/* Set baud divisor to generate one byte per bit/cell */
--	switch (protocol) {
--	case IR_PROTOCOL_RC5:
--		outb(0xA7, data->sbase + WBCIR_REG_SP3_BGDL);
--		break;
--	case IR_PROTOCOL_RC6:
--		outb(0x53, data->sbase + WBCIR_REG_SP3_BGDL);
--		break;
--	case IR_PROTOCOL_NEC:
--		outb(0x69, data->sbase + WBCIR_REG_SP3_BGDL);
--		break;
--	}
--	outb(0x00, data->sbase + WBCIR_REG_SP3_BGDH);
--
--	/* Set CEIR mode */
--	wbcir_select_bank(data, WBCIR_BANK_0);
--	outb(0xC0, data->sbase + WBCIR_REG_SP3_MCR);
--	inb(data->sbase + WBCIR_REG_SP3_LSR); /* Clear LSR */
--	inb(data->sbase + WBCIR_REG_SP3_MSR); /* Clear MSR */
--
--	/* Disable RX demod, run-length encoding/decoding, set freq span */
--	wbcir_select_bank(data, WBCIR_BANK_7);
--	outb(0x10, data->sbase + WBCIR_REG_SP3_RCCFG);
--
--	/* Disable timer */
--	wbcir_select_bank(data, WBCIR_BANK_4);
--	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR1);
--
--	/* Enable MSR interrupt, Clear AUX_IRX */
--	wbcir_select_bank(data, WBCIR_BANK_5);
--	outb(0x00, data->sbase + WBCIR_REG_SP3_IRCR2);
--
--	/* Disable CRC */
--	wbcir_select_bank(data, WBCIR_BANK_6);
--	outb(0x20, data->sbase + WBCIR_REG_SP3_IRCR3);
--
--	/* Set RX/TX (de)modulation freq, not really used */
--	wbcir_select_bank(data, WBCIR_BANK_7);
--	outb(0xF2, data->sbase + WBCIR_REG_SP3_IRRXDC);
--	outb(0x69, data->sbase + WBCIR_REG_SP3_IRTXMC);
--
--	/* Set invert and pin direction */
--	if (invert)
--		outb(0x10, data->sbase + WBCIR_REG_SP3_IRCFG4);
--	else
--		outb(0x00, data->sbase + WBCIR_REG_SP3_IRCFG4);
--
--	/* Set FIFO thresholds (RX =3D 8, TX =3D 3), reset RX/TX */
--	wbcir_select_bank(data, WBCIR_BANK_0);
--	outb(0x97, data->sbase + WBCIR_REG_SP3_FCR);
--
--	/* Clear AUX status bits */
--	outb(0xE0, data->sbase + WBCIR_REG_SP3_ASCR);
--
--	/* Enable interrupts */
--	outb(WBCIR_IRQ_RX | WBCIR_IRQ_ERR, data->sbase + WBCIR_REG_SP3_IER);
-+	wbcir_init_hw(data);
-=20
- 	return 0;
-=20
---=20
-1.6.6.1
+usbmon dump, -104 was the -ECONNRESET unlink.
+Wed Feb 10 12:53:01 CST 2010
+c2fede40 161671434 S Ci:1:002:0 s a1 01 0326 0000 0004 8 <
+c2fede40 161747009 C Ci:1:002:0 0 4 = 26343130
+c2fede40 161847590 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
+c2fede40 161848982 C Ci:1:002:0 0 3 = 140000
+c2fede40 161908315 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
+c2fede40 171928585 C Ci:1:002:0 -104 3 = 140000
+c2fede40 171928605 S Ci:1:002:0 s a1 01 0306 0000 0004 8 <
+c2fede40 171930579 C Ci:1:002:0 0 4 = 06000008
+c2fede40 171968852 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
+c2fede40 171970572 C Ci:1:002:0 0 6 = 0c640000 3f00
+c2fede40 171989721 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
+c2fede40 171991562 C Ci:1:002:0 0 6 = 0c640000 3f00
+Wed Feb 10 12:54:01 CST 2010
+
+-- 
+David Fries <david-CAZ2Ig26prheoWH0uzbU5w@public.gmane.org>
+http://fries.net/~david/ (PGP encryption key available)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

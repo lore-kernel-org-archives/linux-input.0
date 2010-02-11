@@ -1,57 +1,64 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: usbhid control queue full, due to stuck control request
-Date: Thu, 11 Feb 2010 16:18:11 +0100 (CET)
-Message-ID: <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz>
-References: <20100206172051.GA22311@spacedout.fries.net> <201002081256.01614.oliver@neukum.org> <20100209023508.GB22311@spacedout.fries.net> <20100211010450.GC22311@spacedout.fries.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Thu, 11 Feb 2010 18:18:53 +0000
+Message-ID: <1265912333.2383.12172.camel@localhost.localdomain>
+References: <1263997077.1735.2942.camel@localhost.localdomain>
+	 <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
+	 <1265032341.32444.3105.camel@localhost.localdomain>
+	 <alpine.LNX.2.00.1002031653320.15395@pobox.suse.cz>
+	 <1265646777.2383.4621.camel@localhost.localdomain>
+	 <alpine.LNX.2.00.1002101352220.30967@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100211010450.GC22311-6Mk49KDF3Zwuqz//ww0BS9HuzzzSOjJt@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Fries <david-CAZ2Ig26prheoWH0uzbU5w@public.gmane.org>
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:5229 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756463Ab0BKSTB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Feb 2010 13:19:01 -0500
+In-Reply-To: <alpine.LNX.2.00.1002101352220.30967@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 10 Feb 2010, David Fries wrote:
-
-> Your patch, 7b10f302c6caa940ea5ad67efb8a517923abfcc7 and my patch
-> 4bf8e5d6d42891a6d01fee1b8f3bb674d8364843, (and some verbose output),
-> and usbhid gracefully recovered this afternoon.  Thanks, works for me.
+On Wed, 2010-02-10 at 13:52 +0100, Jiri Kosina wrote:
+> On Mon, 8 Feb 2010, Bastien Nocera wrote:
 > 
-> My additional print messages,
-> Feb 10 12:53:31 SubSpace kernel: usbhid control queue 1 max 256
-> Feb 10 12:53:32 SubSpace kernel: usbhid urbctrl timeout -10020, unlink_urb
-> Feb 10 12:53:32 SubSpace kernel: usbhid -ECONNRESET
-> Feb 10 12:53:32 SubSpace kernel: usbhid control queue 0 max 256
+> > > > > > +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
+> > > > > > +With 0x8242 being the product ID (check the output of lsusb for your hardware)
+> > > > > > +And 0x08 being "HID_CONNECT_HIDDEV"
+> > > > > 
+> > > > > I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
+> > > > > 
+> > > > > We currently don't have dynamic quirk for forcing HIDDEV creation from the 
+> > > > > module parameter.
+> > > > 
+> > > > Right. Any chance to change that?
+> > > 
+> > > This particular one might actually make enough sense to be added (although 
+> > > I am really trying to avoid quirk additions completely), for backwards 
+> > > compatibility reasons.
+> > 
+> > Should I remove the comments there altogether then? That kind of defeats
+> > my "but you can use lirc with some tweaks" argument, even though I still
+> > think that those people needing more keys would be in the minority...
 > 
-> usbmon dump, -104 was the -ECONNRESET unlink.
-> Wed Feb 10 12:53:01 CST 2010
-> c2fede40 161671434 S Ci:1:002:0 s a1 01 0326 0000 0004 8 <
-> c2fede40 161747009 C Ci:1:002:0 0 4 = 26343130
-> c2fede40 161847590 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
-> c2fede40 161848982 C Ci:1:002:0 0 3 = 140000
-> c2fede40 161908315 S Ci:1:002:0 s a1 01 0314 0000 0003 8 <
-> c2fede40 171928585 C Ci:1:002:0 -104 3 = 140000
-> c2fede40 171928605 S Ci:1:002:0 s a1 01 0306 0000 0004 8 <
-> c2fede40 171930579 C Ci:1:002:0 0 4 = 06000008
-> c2fede40 171968852 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
-> c2fede40 171970572 C Ci:1:002:0 0 6 = 0c640000 3f00
-> c2fede40 171989721 S Ci:1:002:0 s a1 01 030c 0000 0006 8 <
-> c2fede40 171991562 C Ci:1:002:0 0 6 = 0c640000 3f00
-> Wed Feb 10 12:54:01 CST 2010
+> I rather though that we could/should (re-)introduce the HID_QUIRK_HIDDEV 
+> quirks so that it could still be applied manually.
 
-I only now noticed your patches, thanks for debugging this guys.
+The interaction between the HID and the input layer isn't really my
+forte (well, the kernel's not my forte :).
 
-Could you please submit the condensed patch to me, with proper 
-Signed-off-by: etc, so that I could apply it?
+Wouldn't we have some trouble getting the HID layer provide a hiddev
+device for the receiver, whilst being serviced by an input driver?
 
-Thanks,
+I wouldn't mind trying to port the driver to be a full HID driver, and
+enable hiddev all the time on it. We just wouldn't do anything in the
+input part if the hiddev device was claimed, and parse the raw_report
+from the device otherwise.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Opinions? If it's a good idea, I'd be interested in some examples in
+devices that do their own raw_report event parsing, instead of letting
+the hid layer handle it.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

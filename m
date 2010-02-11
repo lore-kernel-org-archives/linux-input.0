@@ -1,64 +1,50 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Thu, 11 Feb 2010 18:18:53 +0000
-Message-ID: <1265912333.2383.12172.camel@localhost.localdomain>
-References: <1263997077.1735.2942.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1001271631460.30977@pobox.suse.cz>
-	 <1265032341.32444.3105.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1002031653320.15395@pobox.suse.cz>
-	 <1265646777.2383.4621.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1002101352220.30967@pobox.suse.cz>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH] hid-magicmouse: Coding style and probe failure fixes.
+Date: Thu, 11 Feb 2010 18:10:25 -0500
+Message-ID: <87r5orcqse.fsf@troilus.org>
+References: <87y6j2eeqv.fsf_-_@troilus.org> <87pr4eeemz.fsf_-_@troilus.org>
+	<20100210182024.GA29610@core.coreip.homeip.net>
+	<873a18e3qu.fsf_-_@troilus.org>
+	<alpine.LNX.2.00.1002111124030.30967@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:5229 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756463Ab0BKSTB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 13:19:01 -0500
-In-Reply-To: <alpine.LNX.2.00.1002101352220.30967@pobox.suse.cz>
+Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:51741 "HELO
+	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1757197Ab0BKXKa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Feb 2010 18:10:30 -0500
+In-Reply-To: <alpine.LNX.2.00.1002111124030.30967@pobox.suse.cz> (Jiri
+	Kosina's message of "Thu, 11 Feb 2010 11:26:22 +0100 (CET)")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 2010-02-10 at 13:52 +0100, Jiri Kosina wrote:
-> On Mon, 8 Feb 2010, Bastien Nocera wrote:
-> 
-> > > > > > +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
-> > > > > > +With 0x8242 being the product ID (check the output of lsusb for your hardware)
-> > > > > > +And 0x08 being "HID_CONNECT_HIDDEV"
-> > > > > 
-> > > > > I am afraid this is not true, 0x08 is HID_QUIRK_NOGET.
-> > > > > 
-> > > > > We currently don't have dynamic quirk for forcing HIDDEV creation from the 
-> > > > > module parameter.
-> > > > 
-> > > > Right. Any chance to change that?
-> > > 
-> > > This particular one might actually make enough sense to be added (although 
-> > > I am really trying to avoid quirk additions completely), for backwards 
-> > > compatibility reasons.
-> > 
-> > Should I remove the comments there altogether then? That kind of defeats
-> > my "but you can use lirc with some tweaks" argument, even though I still
-> > think that those people needing more keys would be in the minority...
-> 
-> I rather though that we could/should (re-)introduce the HID_QUIRK_HIDDEV 
-> quirks so that it could still be applied manually.
+Jiri Kosina writes:
 
-The interaction between the HID and the input layer isn't really my
-forte (well, the kernel's not my forte :).
+> On Thu, 11 Feb 2010, Michael Poole wrote:
+>
+>> I haven't had a chance to run-test these changes yet -- hid/for-next
+>> causes corrupt X display on my laptop, whereas v2.6.33-rc6 and -rc7 are
+>> fine; 
+>
+> That's indeed quite strange. I'd be curious to see the result of the 
+> bisection, thanks a lot for doing this.
 
-Wouldn't we have some trouble getting the HID layer provide a hiddev
-device for the receiver, whilst being serviced by an input driver?
+The problem was introduced by 859ddf0 and reverted in 6f14a66 (both only
+touching lib/idr.c).  You just happened to merge from master during an
+unfortunate window :)
 
-I wouldn't mind trying to port the driver to be a full HID driver, and
-enable hiddev all the time on it. We just wouldn't do anything in the
-input part if the hiddev device was claimed, and parse the raw_report
-from the device otherwise.
+Cherry-picking the revert (6f14a66) on top of commit 093657 (details
+shown below for reference) yields a working kernel with a working Magic
+Mouse driver.  I expect that merging the rest of master would also work.
 
-Opinions? If it's a good idea, I'd be interested in some examples in
-devices that do their own raw_report event parsing, instead of letting
-the hid layer handle it.
+commit 09365737da8b3af76abd9d811d435d3ce379903a
+Merge: 1b97e37 71b38bd
+Author: Jiri Kosina <jkosina@suse.cz>
+Date:   Thu Feb 11 11:22:52 2010 +0100
 
+    Merge branch 'apple_magic_mouse' into for-next
+
+Michael Poole

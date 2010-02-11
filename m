@@ -1,62 +1,261 @@
-From: "yhch" <yhch@generaltouch.com>
-Subject: patch for usbtouchscreen.c
-Date: Thu, 11 Feb 2010 11:32:06 +0800
-Message-ID: <201002111132063289729@generaltouch.com>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [PATCH] hid-magicmouse: Coding style and probe failure fixes.
+Date: Thu, 11 Feb 2010 00:32:57 -0500
+Message-ID: <873a18e3qu.fsf_-_@troilus.org>
+References: <87y6j2eeqv.fsf_-_@troilus.org> <87pr4eeemz.fsf_-_@troilus.org>
+	<20100210182024.GA29610@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.263xmail.com ([211.150.67.12]:16404 "EHLO
-	smtp.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752327Ab0BKDcM (ORCPT
+Received: from na3sys009aog101.obsmtp.com ([74.125.149.67]:40741 "HELO
+	na3sys009aog101.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1750832Ab0BKFdG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Feb 2010 22:32:12 -0500
-Received: from smtp10.263xmail.com (smtp10 [127.0.0.1])
-	by smtp10.263xmail.com (Postfix) with ESMTP id 5BEDF950C
-	for <linux-input@vger.kernel.org>; Thu, 11 Feb 2010 11:32:06 +0800 (CST)
-Received: from PC-200903280540 (smtp10 [127.0.0.1])
-	by smtp10.263xmail.com (Postfix) with ESMTP id D70D545D
-	for <linux-input@vger.kernel.org>; Thu, 11 Feb 2010 11:32:05 +0800 (CST)
+	Thu, 11 Feb 2010 00:33:06 -0500
+In-Reply-To: <20100210182024.GA29610@core.coreip.homeip.net> (Dmitry
+	Torokhov's message of "Wed, 10 Feb 2010 10:20:24 -0800")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi all
+>From 04b395dbbd1ad2b836188e6f125940ae8fac6925 Mon Sep 17 00:00:00 2001
 
---This is time,I paste the patch into my email directly.
-There is a problem,that is,the coordinate of Generaltouch touchscreen is limited to 0xFFF by usbtouchscreen.c while many models of our touchscreen give bigger coordinate than that.Could you please apply this patch to linux kernel?
+As suggested by Dmitry Torokhov on 10 Feb: Use proper values
+to initialize bool configuration variables, tabs rather than
+spaces, no braces for one-line else clause, __set_bit() when
+the operation doesn't have to be atomic, input_set_abs_params()
+rather than writing the fields directly, and call hid_hw_stop()
+when appropriate to handle failures in the probe.
 
-Thanks!
+Signed-off-by: Michael Poole <mdpoole@troilus.org>
+---
+Dmitry and Jiri,
 
-2010-02-03 
-Best Regards
-Roy.Yin 
-Generaltouch.com
+I haven't had a chance to run-test these changes yet -- hid/for-next
+causes corrupt X display on my laptop, whereas v2.6.33-rc6 and -rc7 are
+fine; I'm still bisecting to figure out the cause -- but this patch is
+not complicated.  (It does compile.)
 
---- usbtouchscreen.c	2008-11-21 07:02:37.000000000 +0800
-+++ usbtouchscreengt.c	2010-02-03 15:30:57.000000000 +0800
-@@ -526,8 +526,8 @@
- #ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
- static int general_touch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
--	dev->x = ((pkt[2] & 0x0F) << 8) | pkt[1] ;
--	dev->y = ((pkt[4] & 0x0F) << 8) | pkt[3] ;
-+	dev->x = ((pkt[2]) << 8) | pkt[1] ;
-+	dev->y = ((pkt[4]) << 8) | pkt[3] ;
- 	dev->press = pkt[5] & 0xff;
- 	dev->touch = pkt[0] & 0x01;
+I left the buffers for hdev->hid_output_raw_report() on the stack
+because the Bluetooth HIDP code memcpy's the contents into a freshly
+allocated skb.
+
+Michael
+
+ drivers/hid/hid-magicmouse.c |  100 +++++++++++++++++-------------------------
+ 1 files changed, 40 insertions(+), 60 deletions(-)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index f94b3e4..4a3a94f 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -18,22 +18,22 @@
  
-@@ -669,9 +669,9 @@
- #ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
- 	[DEVTYPE_GENERAL_TOUCH] = {
- 		.min_xc		= 0x0,
--		.max_xc		= 0x0500,
-+		.max_xc		= 0x0fff,
- 		.min_yc		= 0x0,
--		.max_yc		= 0x0500,
-+		.max_yc		= 0x0fff,
- 		.rept_size	= 7,
- 		.read_data	= general_touch_read_data,
- 	},
+ #include "hid-ids.h"
+ 
+-static bool emulate_3button = 1;
++static bool emulate_3button = true;
+ module_param(emulate_3button, bool, 0644);
+ MODULE_PARM_DESC(emulate_3button, "Emulate a middle button");
+ 
+ static int middle_button_start = -350;
+ static int middle_button_stop = +350;
+ 
+-static bool emulate_scroll_wheel = 1;
++static bool emulate_scroll_wheel = true;
+ module_param(emulate_scroll_wheel, bool, 0644);
+ MODULE_PARM_DESC(emulate_scroll_wheel, "Emulate a scroll wheel");
+ 
+-static bool report_touches = 1;
++static bool report_touches = true;
+ module_param(report_touches, bool, 0644);
+ MODULE_PARM_DESC(report_touches, "Emit touch records (otherwise, only use them for emulation)");
+ 
+-static bool report_undeciphered = 0;
++static bool report_undeciphered;
+ module_param(report_undeciphered, bool, 0644);
+ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
+ 
+@@ -108,9 +108,9 @@ static int magicmouse_firm_touch(struct magicmouse_sc *msc)
+ 
+ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
+ {
+-        int last_state = test_bit(BTN_LEFT, msc->input->key) << 0 |
+-                test_bit(BTN_RIGHT, msc->input->key) << 1 |
+-                test_bit(BTN_MIDDLE, msc->input->key) << 2;
++	int last_state = test_bit(BTN_LEFT, msc->input->key) << 0 |
++		test_bit(BTN_RIGHT, msc->input->key) << 1 |
++		test_bit(BTN_MIDDLE, msc->input->key) << 2;
+ 
+ 	if (emulate_3button) {
+ 		int id;
+@@ -177,7 +177,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		switch (tdata[7] & TOUCH_STATE_MASK) {
+ 		case TOUCH_STATE_START:
+ 			msc->touches[id].scroll_y = y;
+-                        msc->scroll_accel = min_t(int, msc->scroll_accel + 1,
++			msc->scroll_accel = min_t(int, msc->scroll_accel + 1,
+ 						ARRAY_SIZE(accel_profile) - 1);
+ 			break;
+ 		case TOUCH_STATE_DRAG:
+@@ -193,7 +193,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 
+ 	/* Generate the input events for this touch. */
+ 	if (report_touches) {
+-                int orientation = (misc >> 10) - 32;
++		int orientation = (misc >> 10) - 32;
+ 
+ 		input_report_abs(input, ABS_MT_TRACKING_ID, id);
+ 		input_report_abs(input, ABS_MT_TOUCH_MAJOR, tdata[3]);
+@@ -202,9 +202,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		input_report_abs(input, ABS_MT_POSITION_X, x);
+ 		input_report_abs(input, ABS_MT_POSITION_Y, y);
+ 
+-		if (report_undeciphered) {
++		if (report_undeciphered)
+ 			input_event(input, EV_MSC, MSC_RAW, tdata[7]);
+-		}
+ 
+ 		input_mt_sync(input);
+ 	}
+@@ -291,62 +290,41 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 	input->id.version = hdev->version;
+ 	input->dev.parent = hdev->dev.parent;
+ 
+-	set_bit(EV_KEY, input->evbit);
+-	set_bit(BTN_LEFT, input->keybit);
+-	set_bit(BTN_RIGHT, input->keybit);
++	__set_bit(EV_KEY, input->evbit);
++	__set_bit(BTN_LEFT, input->keybit);
++	__set_bit(BTN_RIGHT, input->keybit);
+ 	if (emulate_3button)
+-		set_bit(BTN_MIDDLE, input->keybit);
+-	set_bit(BTN_TOOL_FINGER, input->keybit);
++		__set_bit(BTN_MIDDLE, input->keybit);
++	__set_bit(BTN_TOOL_FINGER, input->keybit);
+ 
+-	set_bit(EV_REL, input->evbit);
+-	set_bit(REL_X, input->relbit);
+-	set_bit(REL_Y, input->relbit);
++	__set_bit(EV_REL, input->evbit);
++	__set_bit(REL_X, input->relbit);
++	__set_bit(REL_Y, input->relbit);
+ 	if (emulate_scroll_wheel)
+-		set_bit(REL_WHEEL, input->relbit);
++		__set_bit(REL_WHEEL, input->relbit);
+ 
+ 	if (report_touches) {
+-		set_bit(EV_ABS, input->evbit);
+-
+-		set_bit(ABS_MT_TRACKING_ID, input->absbit);
+-		input->absmin[ABS_MT_TRACKING_ID] = 0;
+-		input->absmax[ABS_MT_TRACKING_ID] = 15;
+-		input->absfuzz[ABS_MT_TRACKING_ID] = 0;
+-
+-		set_bit(ABS_MT_TOUCH_MAJOR, input->absbit);
+-		input->absmin[ABS_MT_TOUCH_MAJOR] = 0;
+-		input->absmax[ABS_MT_TOUCH_MAJOR] = 255;
+-		input->absfuzz[ABS_MT_TOUCH_MAJOR] = 4;
+-
+-		set_bit(ABS_MT_TOUCH_MINOR, input->absbit);
+-		input->absmin[ABS_MT_TOUCH_MINOR] = 0;
+-		input->absmax[ABS_MT_TOUCH_MINOR] = 255;
+-		input->absfuzz[ABS_MT_TOUCH_MINOR] = 4;
+-
+-		set_bit(ABS_MT_ORIENTATION, input->absbit);
+-		input->absmin[ABS_MT_ORIENTATION] = -32;
+-		input->absmax[ABS_MT_ORIENTATION] = 31;
+-		input->absfuzz[ABS_MT_ORIENTATION] = 1;
+-
+-		set_bit(ABS_MT_POSITION_X, input->absbit);
+-		input->absmin[ABS_MT_POSITION_X] = -1100;
+-		input->absmax[ABS_MT_POSITION_X] = 1358;
+-		input->absfuzz[ABS_MT_POSITION_X] = 4;
+-
++		__set_bit(EV_ABS, input->evbit);
++
++		input_set_abs_params(input, ABS_MT_TRACKING_ID, 0, 15, 0, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255, 4, 0);
++		input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255, 4, 0);
++		input_set_abs_params(input, ABS_MT_ORIENTATION, -32, 31, 1, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_X, -1100, 1358,
++				4, 0);
+ 		/* Note: Touch Y position from the device is inverted relative
+ 		 * to how pointer motion is reported (and relative to how USB
+ 		 * HID recommends the coordinates work).  This driver keeps
+ 		 * the origin at the same position, and just uses the additive
+ 		 * inverse of the reported Y.
+ 		 */
+-		set_bit(ABS_MT_POSITION_Y, input->absbit);
+-		input->absmin[ABS_MT_POSITION_Y] = -1589;
+-		input->absmax[ABS_MT_POSITION_Y] = 2047;
+-		input->absfuzz[ABS_MT_POSITION_Y] = 4;
++		input_set_abs_params(input, ABS_MT_POSITION_Y, -1589, 2047,
++				4, 0);
+ 	}
+ 
+ 	if (report_undeciphered) {
+-		set_bit(EV_MSC, input->evbit);
+-		set_bit(MSC_RAW, input->mscbit);
++		__set_bit(EV_MSC, input->evbit);
++		__set_bit(MSC_RAW, input->mscbit);
+ 	}
+ }
+ 
+@@ -385,7 +363,7 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	if (!report) {
+ 		dev_err(&hdev->dev, "unable to register touch report\n");
+ 		ret = -ENOMEM;
+-		goto err_free;
++		goto err_stop_hw;
+ 	}
+ 	report->size = 6;
+ 
+@@ -394,35 +372,37 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	if (ret != sizeof(feature_1)) {
+ 		dev_err(&hdev->dev, "unable to request touch data (1:%d)\n",
+ 				ret);
+-		goto err_free;
++		goto err_stop_hw;
+ 	}
+ 	ret = hdev->hid_output_raw_report(hdev, feature_2,
+ 			sizeof(feature_2), HID_FEATURE_REPORT);
+ 	if (ret != sizeof(feature_2)) {
+ 		dev_err(&hdev->dev, "unable to request touch data (2:%d)\n",
+ 				ret);
+-		goto err_free;
++		goto err_stop_hw;
+ 	}
+ 
+ 	input = input_allocate_device();
+ 	if (!input) {
+ 		dev_err(&hdev->dev, "can't alloc input device\n");
+ 		ret = -ENOMEM;
+-		goto err_free;
++		goto err_stop_hw;
+ 	}
+ 	magicmouse_setup_input(input, hdev);
+ 
+ 	ret = input_register_device(input);
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "input device registration failed\n");
+-		goto err_both;
++		goto err_input;
+ 	}
+ 	msc->input = input;
+ 
+ 	return 0;
+- err_both:
++err_input:
+ 	input_free_device(input);
+- err_free:
++err_stop_hw:
++	hid_hw_stop(hdev);
++err_free:
+ 	kfree(msc);
+ 	return ret;
+ }
+-- 
+1.6.5.6
 

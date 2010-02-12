@@ -1,129 +1,110 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH 1/4] HID: hid-ntrig add multi input quirk and clean up
-Date: Thu, 11 Feb 2010 19:19:03 -0500
-Message-ID: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
+Subject: [PATCH 2/4] hid-ntrig.c: removed unnecessary tool switching
+Date: Thu, 11 Feb 2010 19:19:04 -0500
+Message-ID: <1265933946-8318-2-git-send-email-rafi@seas.upenn.edu>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:49242 "EHLO
+Received: from LION.seas.upenn.edu ([158.130.12.194]:49244 "EHLO
 	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757503Ab0BLATq (ORCPT
+	with ESMTP id S1757548Ab0BLATr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 19:19:46 -0500
+	Thu, 11 Feb 2010 19:19:47 -0500
+In-Reply-To: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com, chatty@enac.fr
 Cc: Rafi Rubin <rafi@seas.upenn.edu>
 
-Added a quirk to enable distinct input devices.  The digitizer utilizes
-three inputs to represent pen, multitouch and a normal touch screen.
-
-With the Pen partitioned, it behaves well and does not need special
-handling.
-
-Also, I set names to the input devices to clarify the functions of the
-various inputs.
+With the pen and touch split apart, we no longer need to inject
+additional tool switching events.
 
 Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
 ---
- drivers/hid/hid-ntrig.c |   46 ++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 42 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ntrig.c |   41 +----------------------------------------
+ 1 files changed, 1 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 49ce69d..4bb5ed0 100644
+index 4bb5ed0..6464d15 100644
 --- a/drivers/hid/hid-ntrig.c
 +++ b/drivers/hid/hid-ntrig.c
-@@ -42,6 +42,10 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
-+	/* No special mappings needed for the pen */
-+	if(field->application == HID_DG_PEN)
-+		return 0;
-+
- 	switch (usage->hid & HID_USAGE_PAGE) {
+@@ -27,9 +27,6 @@
+ struct ntrig_data {
+ 	__s32 x, y, id, w, h;
+ 	char reading_a_point, found_contact_id;
+-	char pen_active;
+-	char finger_active;
+-	char inverted;
+ };
  
+ /*
+@@ -47,7 +44,6 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		return 0;
+ 
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+-
  	case HID_UP_GENDESK:
-@@ -104,6 +108,9 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
-+	/* No special mappings needed for the pen */
-+	if(field->application == HID_DG_PEN)
-+		return 0;
+ 		switch (usage->hid) {
+ 		case HID_GD_X:
+@@ -111,6 +107,7 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 	/* No special mappings needed for the pen */
+ 	if(field->application == HID_DG_PEN)
+ 		return 0;
++
  	if (usage->type == EV_KEY || usage->type == EV_REL
  			|| usage->type == EV_ABS)
  		clear_bit(usage->code, *bit);
-@@ -123,6 +130,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 	struct input_dev *input = field->hidinput->input;
- 	struct ntrig_data *nd = hid_get_drvdata(hid);
+@@ -136,18 +133,6 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
  
-+	/* No special handling needed for the pen */
-+	if(field->application == HID_DG_PEN)
-+		return 0;
-+
          if (hid->claimed & HID_CLAIMED_INPUT) {
  		switch (usage->hid) {
- 
-@@ -241,6 +252,11 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret;
- 	struct ntrig_data *nd;
-+	struct hid_input *hidinput;
-+	struct input_dev *input;
-+
-+	if (id->driver_data)
-+		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
- 
- 	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
- 	if (!nd) {
-@@ -255,14 +271,36 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (!ret)
- 		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 
--	if (ret)
-+	if (ret) {
- 		kfree (nd);
-+		return ret;
-+	}
-+
-+	list_for_each_entry(hidinput, &hdev->inputs, list) {
-+		input = hidinput->input;
-+		switch (hidinput->report->field[0]->application) {
-+		case HID_DG_PEN:
-+			input->name = "N-Trig Pen";
-+			break;
-+		case HID_DG_TOUCHSCREEN:
-+			/* 
-+			 * The physical touchscreen (single touch) input
-+			 * has a value for physical, whereas the multitouch
-+			 * only has logical input fields.
-+			 */
-+			if(hidinput->report->field[0]->physical) {
-+				input->name = "N-Trig Touchscreen";
-+			} else {
-+				input->name = "N-Trig MultiTouch";
-+			}
-+			break;
-+		}
-+	}
- 
- 	return ret;
- }
- 
--static void ntrig_remove(struct hid_device *hdev)
--{
-+static void ntrig_remove(struct hid_device *hdev) {
- 	hid_hw_stop(hdev);
- 	kfree(hid_get_drvdata(hdev));
- }
-@@ -276,7 +314,7 @@ MODULE_DEVICE_TABLE(hid, ntrig_devices);
- 
- static const struct hid_usage_id ntrig_grabbed_usages[] = {
- 	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
--	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
-+	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1 }
- };
- 
- static struct hid_driver ntrig_driver = {
+-
+-		case HID_DG_INRANGE:
+-			if (field->application & 0x3)
+-				nd->pen_active = (value != 0);
+-			else
+-				nd->finger_active = (value != 0);
+-			return 0;
+-
+-		case HID_DG_INVERT:
+-			nd->inverted = value;
+-			return 0;
+-
+ 		case HID_GD_X:
+ 			nd->x = value;
+ 			nd->reading_a_point = 1;
+@@ -171,32 +156,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 * to emit a normal (X, Y) position
+ 			 */
+ 			if (!nd->found_contact_id) {
+-				if (nd->pen_active && nd->finger_active) {
+-					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
+-					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
+-				}
+-				input_event(input, EV_ABS, ABS_X, nd->x);
+-				input_event(input, EV_ABS, ABS_Y, nd->y);
+-			}
+-			break;
+-		case HID_DG_TIPPRESSURE:
+-			/*
+-			 * when in single touch mode, this is the last
+-			 * report received in a pen event. We want
+-			 * to emit a normal (X, Y) position
+-			 */
+-			if (! nd->found_contact_id) {
+-				if (nd->pen_active && nd->finger_active) {
+-					input_report_key(input,
+-							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
+-							, 0);
+-					input_report_key(input,
+-							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
+-							, 1);
+-				}
+ 				input_event(input, EV_ABS, ABS_X, nd->x);
+ 				input_event(input, EV_ABS, ABS_Y, nd->y);
+-				input_event(input, EV_ABS, ABS_PRESSURE, value);
+ 			}
+ 			break;
+ 		case 0xff000002:
 -- 
 1.6.6.1
 

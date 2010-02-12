@@ -1,47 +1,165 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 3/4] hid-ntrig.c Split multi and single touch.
-Date: Thu, 11 Feb 2010 22:10:35 -0500
-Message-ID: <4B74C6AB.1010704@seas.upenn.edu>
-References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu> <1265933946-8318-2-git-send-email-rafi@seas.upenn.edu> <1265933946-8318-3-git-send-email-rafi@seas.upenn.edu> <20100212004247.GB6394@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/4] HID: hid-ntrig add multi input quirk and clean up
+Date: Thu, 11 Feb 2010 22:14:05 -0500
+Message-ID: <1265944448-23436-1-git-send-email-rafi@seas.upenn.edu>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:48078 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757850Ab0BLDKr (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:45352 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757881Ab0BLDOi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 22:10:47 -0500
-In-Reply-To: <20100212004247.GB6394@core.coreip.homeip.net>
+	Thu, 11 Feb 2010 22:14:38 -0500
+In-Reply-To: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, jkosina@suse.cz, chatty@enac.fr
+Cc: Rafi Rubin <rafi@seas.upenn.edu>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Added a quirk to enable distinct input devices.  The digitizer utilizes
+three inputs to represent pen, multitouch and a normal touch screen.
 
->> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
->> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
->> +			input_mt_sync(input);
->> +		}
->> +	}
-> 
-> Where's the final input_sync()? And if hid does it for us (I think it does)
-> then syncs above are not needed.
+With the Pen partitioned, it behaves well and does not need special
+handling.
 
-It seems the normal input_sync calls are unnecessary for the single touch device.
+Also, I set names to the input devices to clarify the functions of the
+various inputs.
 
-The mt syncs are necessary to separate each contact.  And since we are caching the
-contacts we need to emit those.  The final normal input_sync is handled by hid.
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
+ drivers/hid/hid-ntrig.c |   69 +++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 58 insertions(+), 11 deletions(-)
 
-On a side note, once I pulled the st input syncs, the mt device stopped getting them.
-I had to undo the blocking of CONTACTCOUNT which restores the normal syncs from hid.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 49ce69d..38b2364 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -26,10 +26,10 @@
+ 
+ struct ntrig_data {
+ 	__s32 x, y, id, w, h;
+-	char reading_a_point, found_contact_id;
+-	char pen_active;
+-	char finger_active;
+-	char inverted;
++	bool reading_a_point, found_contact_id;
++	bool pen_active;
++	bool finger_active;
++	bool inverted;
+ };
+ 
+ /*
+@@ -42,6 +42,10 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	/* No special mappings needed for the pen */
++	if (field->application == HID_DG_PEN)
++		return 0;
++
+ 	switch (usage->hid & HID_USAGE_PAGE) {
+ 
+ 	case HID_UP_GENDESK:
+@@ -104,6 +108,9 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
++	/* No special mappings needed for the pen */
++	if (field->application == HID_DG_PEN)
++		return 0;
+ 	if (usage->type == EV_KEY || usage->type == EV_REL
+ 			|| usage->type == EV_ABS)
+ 		clear_bit(usage->code, *bit);
+@@ -123,6 +130,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 	struct input_dev *input = field->hidinput->input;
+ 	struct ntrig_data *nd = hid_get_drvdata(hid);
+ 
++	/* No special handling needed for the pen */
++	if (field->application == HID_DG_PEN)
++		return 0;
++
+         if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
+ 
+@@ -231,8 +242,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 	}
+ 
+ 	/* we have handled the hidinput part, now remains hiddev */
+-        if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
+-                hid->hiddev_hid_event(hid, field, usage, value);
++	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_hid_event)
++		hid->hiddev_hid_event(hid, field, usage, value);
+ 
+ 	return 1;
+ }
+@@ -241,6 +252,11 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+ 	struct ntrig_data *nd;
++	struct hid_input *hidinput;
++	struct input_dev *input;
++
++	if (id->driver_data)
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+ 
+ 	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
+ 	if (!nd) {
+@@ -252,12 +268,43 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	hid_set_drvdata(hdev, nd);
+ 
+ 	ret = hid_parse(hdev);
+-	if (!ret)
+-		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		dev_err(&hdev->dev, "parse failed\n");
++		goto err_free;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		dev_err(&hdev->dev, "hw start failed\n");
++		goto err_free;
++	}
+ 
+-	if (ret)
+-		kfree (nd);
+ 
++	list_for_each_entry(hidinput, &hdev->inputs, list) {
++		input = hidinput->input;
++		switch (hidinput->report->field[0]->application) {
++		case HID_DG_PEN:
++			input->name = "N-Trig Pen";
++			break;
++		case HID_DG_TOUCHSCREEN:
++			/*
++			 * The physical touchscreen (single touch)
++			 * input has a value for physical, whereas
++			 * the multitouch only has logical input
++			 * fields.
++			 */
++			input->name =
++				(hidinput->report->field[0]
++				 ->physical) ?
++				"N-Trig Touchscreen" :
++				"N-Trig MultiTouch";
++			break;
++		}
++	}
++
++	return 0;
++err_free:
++	kfree(nd);
+ 	return ret;
+ }
+ 
+@@ -276,7 +323,7 @@ MODULE_DEVICE_TABLE(hid, ntrig_devices);
+ 
+ static const struct hid_usage_id ntrig_grabbed_usages[] = {
+ 	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
+-	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
++	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1 }
+ };
+ 
+ static struct hid_driver ntrig_driver = {
+-- 
+1.6.6.1
 
-iEYEARECAAYFAkt0xqgACgkQwuRiAT9o6081+wCfe5K5LRJXr0jORoTJPOVwCrXT
-V7YAn1ijdSwMSyenvPU9wy3QfJyodDJS
-=UZmW
------END PGP SIGNATURE-----

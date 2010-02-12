@@ -1,47 +1,29 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] HID: hid-ntrig add multi input quirk and clean up
-Date: Thu, 11 Feb 2010 17:20:57 -0800
-Message-ID: <20100212012057.GC6394@core.coreip.homeip.net>
-References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
- <20100212003604.GA6394@core.coreip.homeip.net>
- <4B74A8F8.3010701@seas.upenn.edu>
+From: glory4u@indline.com
+Subject: Hallo
+Date: Fri, 12 Feb 2010 08:36:22 +0700 (WIT)
+Message-ID: <2242.41.214.123.101.1265938582.squirrel@webmail.indline.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f189.google.com ([209.85.211.189]:50214 "EHLO
-	mail-yw0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754024Ab0BLBVG (ORCPT
+Received: from mail.indline.com ([202.171.25.208]:51286 "HELO
+	atlantis.indline.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with SMTP id S1757697Ab0BLB5S (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 20:21:06 -0500
-Received: by ywh27 with SMTP id 27so1725519ywh.1
-        for <linux-input@vger.kernel.org>; Thu, 11 Feb 2010 17:21:05 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <4B74A8F8.3010701@seas.upenn.edu>
+	Thu, 11 Feb 2010 20:57:18 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
+To: ann10kb@yahoo.com
 
-On Thu, Feb 11, 2010 at 08:03:52PM -0500, Rafi Rubin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> >>  	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
-> >>  	if (!nd) {
-> >> @@ -255,14 +271,36 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >>  	if (!ret)
-> >>  		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> >>  
-> >> -	if (ret)
-> >> +	if (ret) {
-> >>  		kfree (nd);
-> > 
-> > What about hid_hw_stop()? Overall I'd rather see the standard error
-> > unwinding path with gotos.
-> 
-> Cleaning up the probe function.  But it looks like the last caught error is from start, so is it fair to leave out stop?
+Hello
+my dear, i am well pleased to contact you after going through your profile
+on  my search for relationship. To me age, distance, race and color do not
+matter, rather what i value most is the understanding and love that will
+exist between us. So in a special manner i will like to further
+communication with you for us to know each other well, if you share the
+same view with me you can reach me through my email (ann10kb@yahoo.com )
+try to tell me more about you, in reply i will tell you more about my self
+with my picture. I am looking forward to read from you. Yours new friend  
+Ann
+ann10kb@yahoo.com
 
-Ah, yes, my bad.
-
--- 
-Dmitry

@@ -1,132 +1,45 @@
-From: David Fries <david@fries.net>
-Subject: Re: usbhid control queue full, due to stuck control request
-Date: Thu, 11 Feb 2010 18:49:10 -0600
-Message-ID: <20100212004910.GD22311@spacedout.fries.net>
-References: <20100206172051.GA22311@spacedout.fries.net> <201002081256.01614.oliver@neukum.org> <20100209023508.GB22311@spacedout.fries.net> <20100211010450.GC22311@spacedout.fries.net> <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/4] HID: hid-ntrig add multi input quirk and clean up
+Date: Thu, 11 Feb 2010 20:03:52 -0500
+Message-ID: <4B74A8F8.3010701@seas.upenn.edu>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu> <20100212003604.GA6394@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from SpacedOut.fries.net ([67.64.210.234]:42381 "EHLO
-	SpacedOut.fries.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750830Ab0BLAtU (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:56501 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757624Ab0BLBEA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Feb 2010 19:49:20 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz>
+	Thu, 11 Feb 2010 20:04:00 -0500
+In-Reply-To: <20100212003604.GA6394@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
 
-From: Oliver Neukum <oliver@neukum.org>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Some devices do not react to a control request (seen on APC UPS's)
-resulting in a slow stream of messages,
-"generic-usb ... control queue full".
-Therefore request need a timeout.
+>>  	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
+>>  	if (!nd) {
+>> @@ -255,14 +271,36 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>  	if (!ret)
+>>  		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>>  
+>> -	if (ret)
+>> +	if (ret) {
+>>  		kfree (nd);
+> 
+> What about hid_hw_stop()? Overall I'd rather see the standard error
+> unwinding path with gotos.
 
-Signed-off-by: Oliver Neukum <oliver@neukum.org>
-Duplicated the change from last_out to last_ctrl and verified.
-Signed-off-by: David Fries <david@fries.net>
----
+Cleaning up the probe function.  But it looks like the last caught error is from start, so is it fair to leave out stop?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Oliver Neukum, this is based on your patch, do you agree with the
-changes?
-
-One possible problem with this fix is it drops the stalled URB
-transfer.  That might pose a problem for one shot messages, possibly
-hid_ctrl and hid_irq_out could resubmit the same urb when -ECONNRESET
-is received, assuming the message content wasn't the reason it
-timedout in the first place.
-David Fries <david@fries.net>
-
- drivers/hid/usbhid/hid-core.c |   28 ++++++++++++++++++++++++++--
- drivers/hid/usbhid/usbhid.h   |    2 ++
- 2 files changed, 28 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 3c1fcb7..076a29a 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -318,6 +318,7 @@ static int hid_submit_out(struct hid_device *hid)
- 			err_hid("usb_submit_urb(out) failed");
- 			return -1;
- 		}
-+		usbhid->last_out = jiffies;
- 	} else {
- 		/*
- 		 * queue work to wake up the device.
-@@ -379,6 +380,7 @@ static int hid_submit_ctrl(struct hid_device *hid)
- 			err_hid("usb_submit_urb(ctrl) failed");
- 			return -1;
- 		}
-+		usbhid->last_ctrl = jiffies;
- 	} else {
- 		/*
- 		 * queue work to wake up the device.
-@@ -513,9 +515,20 @@ void __usbhid_submit_report(struct hid_device *hid, struct hid_report *report, u
- 		usbhid->out[usbhid->outhead].report = report;
- 		usbhid->outhead = head;
- 
--		if (!test_and_set_bit(HID_OUT_RUNNING, &usbhid->iofl))
-+		if (!test_and_set_bit(HID_OUT_RUNNING, &usbhid->iofl)) {
- 			if (hid_submit_out(hid))
- 				clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
-+		} else {
-+			/*
-+			 * the queue is known to run
-+			 * but an earlier request may be stuck
-+			 * we may need to time out
-+			 * no race because this is called under
-+			 * spinlock
-+			 */
-+			if (time_after(jiffies, usbhid->last_out + HZ * 5))
-+				usb_unlink_urb(usbhid->urbout);
-+		}
- 		return;
- 	}
- 
-@@ -536,9 +549,20 @@ void __usbhid_submit_report(struct hid_device *hid, struct hid_report *report, u
- 	usbhid->ctrl[usbhid->ctrlhead].dir = dir;
- 	usbhid->ctrlhead = head;
- 
--	if (!test_and_set_bit(HID_CTRL_RUNNING, &usbhid->iofl))
-+	if (!test_and_set_bit(HID_CTRL_RUNNING, &usbhid->iofl)) {
- 		if (hid_submit_ctrl(hid))
- 			clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
-+	} else {
-+		/*
-+		 * the queue is known to run
-+		 * but an earlier request may be stuck
-+		 * we may need to time out
-+		 * no race because this is called under
-+		 * spinlock
-+		 */
-+		if (time_after(jiffies, usbhid->last_ctrl + HZ * 5))
-+			usb_unlink_urb(usbhid->urbctrl);
-+	}
- }
- 
- void usbhid_submit_report(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index 08f505c..ec20400 100644
---- a/drivers/hid/usbhid/usbhid.h
-+++ b/drivers/hid/usbhid/usbhid.h
-@@ -80,12 +80,14 @@ struct usbhid_device {
- 	unsigned char ctrlhead, ctrltail;                               /* Control fifo head & tail */
- 	char *ctrlbuf;                                                  /* Control buffer */
- 	dma_addr_t ctrlbuf_dma;                                         /* Control buffer dma */
-+	unsigned long last_ctrl;						/* record of last output for timeouts */
- 
- 	struct urb *urbout;                                             /* Output URB */
- 	struct hid_output_fifo out[HID_CONTROL_FIFO_SIZE];              /* Output pipe fifo */
- 	unsigned char outhead, outtail;                                 /* Output pipe fifo head & tail */
- 	char *outbuf;                                                   /* Output buffer */
- 	dma_addr_t outbuf_dma;                                          /* Output buffer dma */
-+	unsigned long last_out;							/* record of last output for timeouts */
- 
- 	spinlock_t lock;						/* fifo spinlock */
- 	unsigned long iofl;                                             /* I/O flags (CTRL_RUNNING, OUT_RUNNING) */
--- 
-1.5.6.5
-
+iEYEARECAAYFAkt0qPUACgkQwuRiAT9o60+REACg6T73GpC3jz5dkAW+CFsAPLsz
+w4sAn3ttnpvH85bECwYxe8WPhJ77Zs2z
+=xRv3
+-----END PGP SIGNATURE-----

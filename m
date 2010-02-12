@@ -1,31 +1,37 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Oliver Neukum <oliver@neukum.org>
 Subject: Re: usbhid control queue full, due to stuck control request
-Date: Fri, 12 Feb 2010 12:57:11 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1002121256500.30967@pobox.suse.cz>
-References: <20100206172051.GA22311@spacedout.fries.net> <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz> <20100212004910.GD22311@spacedout.fries.net> <201002120835.36908.oliver@neukum.org>
+Date: Fri, 12 Feb 2010 12:59:08 +0100
+Message-ID: <201002121259.08146.oliver@neukum.org>
+References: <20100206172051.GA22311@spacedout.fries.net> <201002120835.36908.oliver@neukum.org> <alpine.LNX.2.00.1002121256500.30967@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45373 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756243Ab0BLL5N (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2010 06:57:13 -0500
-In-Reply-To: <201002120835.36908.oliver@neukum.org>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:54392 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756405Ab0BLL7J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Feb 2010 06:59:09 -0500
+In-Reply-To: <alpine.LNX.2.00.1002121256500.30967@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: David Fries <david@fries.net>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 12 Feb 2010, Oliver Neukum wrote:
-
-> > Oliver Neukum, this is based on your patch, do you agree with the
-> > changes?
+Am Freitag, 12. Februar 2010 12:57:11 schrieb Jiri Kosina:
+> On Fri, 12 Feb 2010, Oliver Neukum wrote:
 > 
-> I do agree.
+> > > Oliver Neukum, this is based on your patch, do you agree with the
+> > > changes?
+> > 
+> > I do agree.
+> 
+> Thanks a lot guys for tracking this down and fixing it. I have applied the 
+> patch.
 
-Thanks a lot guys for tracking this down and fixing it. I have applied the 
-patch.
+This being a fix for broken hardware it should go into stable, too.
+Would you forward it?
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+	Regards
+		Oliver

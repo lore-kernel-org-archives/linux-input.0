@@ -1,65 +1,68 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH 3/4] hid-ntrig.c Split multi and single touch.
-Date: Fri, 12 Feb 2010 14:56:20 -0500
-Message-ID: <4B75B264.3010106@seas.upenn.edu>
-References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu> <1265933946-8318-2-git-send-email-rafi@seas.upenn.edu> <1265933946-8318-3-git-send-email-rafi@seas.upenn.edu> <20100212004247.GB6394@core.coreip.homeip.net> <4B74C6AB.1010704@seas.upenn.edu> <20100212080928.GA7777@core.coreip.homeip.net>
+Date: Fri, 12 Feb 2010 18:16:26 -0500
+Message-ID: <4B75E14A.2050602@seas.upenn.edu>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu> <1265944448-23436-1-git-send-email-rafi@seas.upenn.edu> <1265944448-23436-2-git-send-email-rafi@seas.upenn.edu> <1265944448-23436-3-git-send-email-rafi@seas.upenn.edu> <20100212081350.GB7777@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:56778 "EHLO
+Received: from LION.seas.upenn.edu ([158.130.12.194]:60050 "EHLO
 	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756710Ab0BLT4a (ORCPT
+	with ESMTP id S1751848Ab0BLXQh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2010 14:56:30 -0500
-In-Reply-To: <20100212080928.GA7777@core.coreip.homeip.net>
+	Fri, 12 Feb 2010 18:16:37 -0500
+In-Reply-To: <20100212081350.GB7777@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr, Henrik Rydberg <rydberg@euromail.se>
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-> Ah, these are 2 different devices... I need to increase my coffee
-> intake.
+On 02/12/10 03:13, Dmitry Torokhov wrote:
+> On Thu, Feb 11, 2010 at 10:14:07PM -0500, Rafi Rubin wrote:
+>> +
+>> +	/* options */
+>> +	enum ntrig_mt_emit_ghosts emit_ghosts;
 > 
-> OK, so I re-read the patch again and it you are splittig the one
-> physical device in 2 - one legacy single tap and another multi-touch.
-> If I understand it correctly that means that the same gesture can be
-> potentially sent through bnoth devices. So in this case how system
-> should decide which device to use and which device to ignore?
+> How can user change this option? Why would he want to do it?
 
-Though I can't say for sure that the pen and capacitive touch sensors are
-separate circuitry, it certainly looks that way to the kernel.  The part
-I find particularly strange is that there is a second hid device that does
-nothing and it puts both physicals on a single hid.
+If I move it to a module parameter is there some particular style to handle
+enumerations or should I change it back to an int?  Or even a bool.
 
-Anyway, the physical pen and finger sensors do not interact.  Events from
-tapping the screen with a finger end up going to one device, and using the
-pen on the screen goes to the other.  From what I've seen userspace tools
-recognize which is which by the tools supported (PEN and DOUBLETAP).
+And if I also wanted to make max contacts a parameter is there any reason to
+worry about people putting in multiple devices handled by this driver and
+wanting different caps for each?
 
 
-The third input is a logical multi touch device.  Yes there is definitely
-potential for confusion when both MT X and normal ABS_X are sent.  That's
-an ongoing discussion on the input list and I'm mostly trying to follow
-the current preference which is to send both and let the user space
-programs decide which they care about.  I'm not sure if the consensus was
-to use separate input devices, but since one was already being allocated
-by hid I decided to use it.
+Anyway, the reason I have the max_contacts and 2 ghost options is a bit of
+uncertainty about the protocol.  Perhaps we should clear that up first.
 
-The two touch devices do not get the same output events.  ABS_X goes only
-to the single touch and ABS_MT_POSITION_X to the multi.  The mt device
-gets only details about the contact: id, x, y, and size.  It also sends
-no touch or other tool up/down or on/off events.
+Henrik: you wrote the protocol doc, perhaps you can clarify this.
+
+My understanding is that mt contacts should be emitted sparsely.  And we should
+not worry about emitting ghosts.  If so I'd be happy to pull that.
+
+The document also states that the kernel should not do finger tracking.  In this
+case, the hardware is reporting tracking id's even though it is not actually
+performing the tracking.  Given the history of behavior change on each firmware
+update, it would not surprise me if newer firmware and newer devices might
+actually start sending valid id's.  Is it better to track or to block emission
+of the id's to userspace?
+
+Also, keep in mind that finger tracking is useful for the single touch emulation.
+
+
+For now, I'll remove the ghost code and will write a new patch later if needed.
 
 Rafi
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkt1sl8ACgkQwuRiAT9o609hugCdHIqF30DTTXSZraCTICKSZ9C3
-6jgAmwYGfVxUMFnQZw7n02lF8o5zdED8
-=ERtj
+iEYEARECAAYFAkt14UcACgkQwuRiAT9o60865ACg+MQta7w6FLqXO0lwDslGM79g
+RdMAn2EjxFyK3KYmn+4uORvuHjvUI0aY
+=V5aK
 -----END PGP SIGNATURE-----

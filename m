@@ -1,39 +1,58 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: usbhid control queue full, due to stuck control request
-Date: Fri, 12 Feb 2010 08:35:36 +0100
-Message-ID: <201002120835.36908.oliver@neukum.org>
-References: <20100206172051.GA22311@spacedout.fries.net> <alpine.LRH.2.00.1002111617290.16183@twin.jikos.cz> <20100212004910.GD22311@spacedout.fries.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/4] hid-ntrig.c Split multi and single touch.
+Date: Fri, 12 Feb 2010 00:09:28 -0800
+Message-ID: <20100212080928.GA7777@core.coreip.homeip.net>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu>
+ <1265933946-8318-2-git-send-email-rafi@seas.upenn.edu>
+ <1265933946-8318-3-git-send-email-rafi@seas.upenn.edu>
+ <20100212004247.GB6394@core.coreip.homeip.net>
+ <4B74C6AB.1010704@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:38688 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751000Ab0BLHfh (ORCPT
+Received: from mail-gx0-f224.google.com ([209.85.217.224]:63714 "EHLO
+	mail-gx0-f224.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753446Ab0BLIJd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Feb 2010 02:35:37 -0500
-In-Reply-To: <20100212004910.GD22311@spacedout.fries.net>
+	Fri, 12 Feb 2010 03:09:33 -0500
+Received: by gxk24 with SMTP id 24so2091538gxk.1
+        for <linux-input@vger.kernel.org>; Fri, 12 Feb 2010 00:09:32 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4B74C6AB.1010704@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Fries <david@fries.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
 
-Am Freitag, 12. Februar 2010 01:49:10 schrieb David Fries:
-> Oliver Neukum, this is based on your patch, do you agree with the
-> changes?
+On Thu, Feb 11, 2010 at 10:10:35PM -0500, Rafi Rubin wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> >> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
+> >> +			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
+> >> +			input_mt_sync(input);
+> >> +		}
+> >> +	}
+> > 
+> > Where's the final input_sync()? And if hid does it for us (I think it does)
+> > then syncs above are not needed.
+> 
+> It seems the normal input_sync calls are unnecessary for the single touch device.
+> 
+> The mt syncs are necessary to separate each contact.  And since we are caching the
+> contacts we need to emit those.  The final normal input_sync is handled by hid.
+> 
+> On a side note, once I pulled the st input syncs, the mt device stopped getting them.
+> I had to undo the blocking of CONTACTCOUNT which restores the normal syncs from hid.
 
-I do agree.
+Ah, these are 2 different devices... I need to increase my coffee
+intake.
 
-> One possible problem with this fix is it drops the stalled URB
-> transfer.  That might pose a problem for one shot messages, possibly
-> hid_ctrl and hid_irq_out could resubmit the same urb when -ECONNRESET
-> is received, assuming the message content wasn't the reason it
-> timedout in the first place.
+OK, so I re-read the patch again and it you are splittig the one
+physical device in 2 - one legacy single tap and another multi-touch.
+If I understand it correctly that means that the same gesture can be
+potentially sent through bnoth devices. So in this case how system
+should decide which device to use and which device to ignore?
 
-That is a big assumption. Realistically, if the hardware needs over 5s
-to answer the hardware is buggy. We are working around that. It is best
-to get not too fancy, unless testing shows that we need to.
-
-	Regards
-		Oliver
+-- 
+Dmitry

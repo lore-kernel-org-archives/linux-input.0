@@ -1,17 +1,17 @@
-From: Ed Tomlinson <edt-Yad3+ZauZac@public.gmane.org>
+From: Ed Tomlinson <edt@aei.ca>
 Subject: Re: [PATCH 0/2] Provide a driver for the Apple Magic Mouse - opps
-Date: Mon, 15 Feb 2010 07:42:45 -0500
-Message-ID: <201002150742.46242.edt@aei.ca>
+Date: Mon, 15 Feb 2010 07:44:51 -0500
+Message-ID: <201002150744.51730.edt@aei.ca>
 References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002140922.42014.edt@aei.ca> <20100215071145.GA9135@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100215071145.GA9135-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100215071145.GA9135@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 On Monday 15 February 2010 02:11:46 Dmitry Torokhov wrote:
@@ -62,3 +62,23 @@ On Monday 15 February 2010 02:11:46 Dmitry Torokhov wrote:
 > Almost... you need to do hid_hw_stop() first and only then unregister
 > input device, Otherwise if you unload the module while moving the mouse
 > it is likely to still oops.
+
+How about this?  It applies on top of yesterdays patch.
+
+Ed
+
+---
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 7d252d2..46fdeee 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -430,8 +430,8 @@ static void magicmouse_remove(struct hid_device *hdev)
+ {
+ 	struct magicmouse_sc *msc;
+ 	msc = hid_get_drvdata(hdev);
+-	input_unregister_device(msc->input);
+ 	hid_hw_stop(hdev);
++	input_unregister_device(msc->input);
+ 	kfree(msc);
+ }
+ 

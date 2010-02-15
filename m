@@ -1,152 +1,75 @@
-From: Ed Tomlinson <edt@aei.ca>
-Subject: Re: [PATCH 1/1] Enable xy scrolling for Apple Magic Mouse
-Date: Sun, 14 Feb 2010 19:18:56 -0500
-Message-ID: <201002141918.56758.edt@aei.ca>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002141724.33223.edt@aei.ca> <87zl3bbfdo.fsf@troilus.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] Provide a driver for the Apple Magic Mouse - opps
+Date: Sun, 14 Feb 2010 23:11:46 -0800
+Message-ID: <20100215071145.GA9135@core.coreip.homeip.net>
+References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz>
+ <201002131429.29671.edt@aei.ca>
+ <20100214080344.GA4423@core.coreip.homeip.net>
+ <201002140922.42014.edt@aei.ca>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87zl3bbfdo.fsf@troilus.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f179.google.com ([209.85.211.179]:34403 "EHLO
+	mail-yw0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753680Ab0BOHLw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Feb 2010 02:11:52 -0500
+Content-Disposition: inline
+In-Reply-To: <201002140922.42014.edt@aei.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ed Tomlinson <edt@aei.ca>
+Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sunday 14 February 2010 17:51:15 Michael Poole wrote:
-> Ed Tomlinson writes:
+On Sun, Feb 14, 2010 at 09:22:41AM -0500, Ed Tomlinson wrote:
+> On Sunday 14 February 2010 03:03:44 Dmitry Torokhov wrote:
+> > On Sat, Feb 13, 2010 at 02:29:29PM -0500, Ed Tomlinson wrote:
+> > > On Wednesday 10 February 2010 08:57:37 Jiri Kosina wrote:
+> > > > On Tue, 9 Feb 2010, Michael Poole wrote:
+> > > > 
+> > > > > I think this patch is ready for real review.  The Magic Mouse requires
+> > > > > that a driver send an unlock Report(Feature) command, similar to the
+> > > > > Wacom wireless tablet and Sixaxis controller quirks.  This turns on an
+> > > > > Input Report that isn't published in the input Report descriptor that
+> > > > > contains touch data (and usually overrides the normal motion and click
+> > > > > Report).
+> > > > > 
+> > > > > Because the mouse has only one switch and no scroll wheel, the driver
+> > > > > (under control of parameters) emulates a middle button and scroll wheel.
+> > > > > User space could also ignore and/or re-synthesize those events based on
+> > > > > the reported events.
+> > > > > 
+> > > > > The first patch exports hid_register_report() so the driver can turn on
+> > > > > the multitouch report.  The second patch adds the device ID and the
+> > > > > driver.  Some user-space tools to talk to the mouse directly (that is,
+> > > > > when it is not associated with the host's HIDP stack) are at
+> > > > > http://github.com/entrope/linux-magicmouse .
+> > > > 
+> > > > I have applied the driver into apple_magic_mouse branch and merged this 
+> > > > branch into for-next, so it should appear in the upcoming linux-next.
+> > > 
+> > 
+> > > This driver (or the hid changes) can triggers an opps.  What I did was
+> > > start X.  Turn on the magic mouse.  It connected on input7&8.  Then I
+> > > powered it off and on.  This time it conneced on input9&10.  Then I
+> > > exited X and got the opps.  Note my X does not hotplug the magic
+> > > mouse.  I've also included a trace of the udev events that generated
+> > > the log below (if there was a remove after X stopped it would not be
+> > > included).  To my eyes it looks like we leak an input device (there is
+> > > not a remove event for input8).
+> > >
+> > 
+> > Indeed, we seem to be missing call to input_unregister_device() in
+> > magicmouse_remove().
 > 
-> > Hi,
-> >
-> > Here is a patch that enables xy scrolling with the magic mouse.  I have also
-> > changed the accelleration logic to work better with xy scrolling.
-> 
-> Hi Ed,
-> 
-> Your other patch to call input_unregister_device() looks good -- thanks!
-> 
-> I've never used a horizontal scroll wheel -- what are the common uses
-> for it?  Why should the acceleration be separate for the two directions
-> rather than using the same factor?  Why does the kernel need to emulate
-> this rather than having user-space implement the emulation?
+> How does this look?  With this udevadm shows input8 being removed and
+> there is no more opps.
 
-With style fixups.
+Almost... you need to do hid_hw_stop() first and only then unregister
+input device, Otherwise if you unload the module while moving the mouse
+it is likely to still oops.
 
-Ed
+Thanks.
 
---
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index b20484a..7d252d2 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -59,7 +59,8 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
-  * @delta_time: 18-bit difference between the two most recent touch
-  *     reports from the mouse.
-  * @ntouches: Number of touches in most recent touch report.
-- * @scroll_accel: Number of consecutive scroll motions.
-+ * @scroll_accel_y: Number of consecutive scroll motions.
-+ * @scroll_accel_x: Number of consecutive scroll motions.
-  * @scroll_jiffies: Time of last scroll motion.
-  * @touches: Most recent data for a touch, indexed by tracking ID.
-  * @tracking_ids: Mapping of current touch input data to @touches.
-@@ -71,11 +72,13 @@ struct magicmouse_sc {
- 	int last_timestamp;
- 	int delta_time;
- 	int ntouches;
--	int scroll_accel;
-+	int scroll_accel_y;
-+	int scroll_accel_x;
- 	unsigned long scroll_jiffies;
- 
- 	struct {
- 		short x;
-+		short scroll_x;
- 		short y;
- 		short scroll_y;
- 		u8 size;
-@@ -139,8 +142,10 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
- 	input_report_key(msc->input, BTN_LEFT, state & 1);
- 	input_report_key(msc->input, BTN_RIGHT, state & 2);
- 
--	if (state != last_state)
--		msc->scroll_accel = 0;
-+	if (state != last_state) {
-+		msc->scroll_accel_y = 0;
-+		msc->scroll_accel_x = 0;
-+	}
- }
- 
- static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
-@@ -159,34 +164,46 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 	msc->touches[id].size = misc & 63;
- 
- 	/* If requested, emulate a scroll wheel by detecting small
--	 * vertical touch motions along the middle of the mouse.
-+	 * touch motions on the mouse.
- 	 */
- 	if (emulate_scroll_wheel &&
--	    middle_button_start < x && x < middle_button_stop) {
-+	    msc->ntouches == 1) {
- 		static const int accel_profile[] = {
--			256, 228, 192, 160, 128, 96, 64, 32,
-+			192, 160, 128, 96, 64, 48, 32, 24,
- 		};
- 		unsigned long now = jiffies;
--		int step = msc->touches[id].scroll_y - y;
-+		int stepx, stepy;
- 
- 		/* Reset acceleration after half a second. */
--		if (time_after(now, msc->scroll_jiffies + HZ / 2))
--			msc->scroll_accel = 0;
-+		if (time_after(now, msc->scroll_jiffies + HZ / 2)) {
-+			msc->scroll_accel_y = 0;
-+			msc->scroll_accel_x = 0;
-+		}
- 
--		/* Calculate and apply the scroll motion. */
- 		switch (tdata[7] & TOUCH_STATE_MASK) {
- 		case TOUCH_STATE_START:
- 			msc->touches[id].scroll_y = y;
--			msc->scroll_accel = min_t(int, msc->scroll_accel + 1,
--						ARRAY_SIZE(accel_profile) - 1);
-+			msc->touches[id].scroll_x = x;
- 			break;
- 		case TOUCH_STATE_DRAG:
--			step = step / accel_profile[msc->scroll_accel];
--			if (step != 0) {
-+			/* Calculate the scroll motion. */
-+			stepy = (msc->touches[id].scroll_y - y) / accel_profile[msc->scroll_accel_y];
-+			stepx = (msc->touches[id].scroll_x - x) / accel_profile[msc->scroll_accel_x];
-+
-+			/* Tell input about any motion. */
-+			if (stepy != 0) {
- 				msc->touches[id].scroll_y = y;
--				msc->scroll_jiffies = now;
--				input_report_rel(input, REL_WHEEL, step);
-+				input_report_rel(input, REL_WHEEL, stepy);
-+				msc->scroll_accel_y = min_t(int, msc->scroll_accel_y + 1,
-+							        ARRAY_SIZE(accel_profile) - 1);
- 			}
-+			if (stepx != 0) {
-+				msc->touches[id].scroll_x = x;
-+				input_report_rel(input, REL_HWHEEL, stepx);
-+				msc->scroll_accel_x = min_t(int, msc->scroll_accel_x + 1,
-+							        ARRAY_SIZE(accel_profile) - 1);
-+			}
-+			msc->scroll_jiffies = now;
- 			break;
- 		}
- 	}
-@@ -300,8 +317,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 	__set_bit(EV_REL, input->evbit);
- 	__set_bit(REL_X, input->relbit);
- 	__set_bit(REL_Y, input->relbit);
--	if (emulate_scroll_wheel)
-+	if (emulate_scroll_wheel) {
- 		__set_bit(REL_WHEEL, input->relbit);
-+		__set_bit(REL_HWHEEL, input->relbit);
-+	}
- 
- 	if (report_touches) {
- 		__set_bit(EV_ABS, input->evbit);
+-- 
+Dmitry

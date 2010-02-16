@@ -1,41 +1,72 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] hid-ntrig.c: Single touch mode tap
-Date: Tue, 16 Feb 2010 10:30:13 -0500
-Message-ID: <4B7ABA05.7090209@seas.upenn.edu>
-References: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
+From: Alan Jenkins <sourcejedi.lkml@googlemail.com>
+Subject: Re: [PATCH] Input: serio - re-add thaw (and add freeze)
+Date: Tue, 16 Feb 2010 16:48:30 +0000
+Message-ID: <9b2b86521002160848q3e75d02aqe432376de2a5b732@mail.gmail.com>
+References: <4B69C7AA.7000904@tuffmail.co.uk>
+	 <20100203191112.GC30600@core.coreip.homeip.net>
+	 <4B6A9FD7.5040207@tuffmail.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:40162 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755684Ab0BPPaX (ORCPT
+Received: from mail-bw0-f219.google.com ([209.85.218.219]:33620 "EHLO
+	mail-bw0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932265Ab0BPQsc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Feb 2010 10:30:23 -0500
-In-Reply-To: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
+	Tue, 16 Feb 2010 11:48:32 -0500
+In-Reply-To: <4B6A9FD7.5040207@tuffmail.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 2/4/10, Alan Jenkins <alan-jenkins@tuffmail.co.uk> wrote:
+> Dmitry Torokhov wrote:
+>> On Wed, Feb 03, 2010 at 06:59:54PM +0000, Alan Jenkins wrote:
+>>
+>>> 633aae2 "Input: i8042 - switch to using dev_pm_ops"
+>>> removed handling for PMSG_THAW, causing obscure breakage.
+>>>
+>>> It can break if you press keys during hibernation,
+>>> which causes subsequent keypresses to be lost -
+>>> so you can't cancel s2disk by pressing backspace -
+>>> and then just before system poweroff you get
+>>> "psmouse.c: Failed to deactivate mouse".
+>>>
+>>> So let's add the thaw handler back.
+>>>
+>>> Also set the freeze handler.  It looks like PMSG_FREEZE
+>>> didn't do anything in the past, but I think that must
+>>> have been an oversight.
+>>>
+>>
+>> We do not need to do anything special at freeze time that is why there
+>> wasn't freeze handler. And so thaw should be pretty much noop as well.
 
-I just got some feedback from a user with a single touch firmware letting me
-know he wasn't seeing the DOUBLETAP events after the previous patch set.
+Ok, so I did some more mindless fiddling.  It seems that all it needs
+is to call the interrupt handler at thaw time.
 
-That was a side effect of dropping old mapping for confidence.  The confidence
-mapping may be fine for st mode but causes problems in mt mode.
+Regards
+Alan
 
-This seemed simpler than complicating the mapping further or messing with the
-handling of HD_DG_CONFIDENCE.
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d84a36e..b54aee7 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -1161,9 +1161,17 @@ static int i8042_pm_restore(struct device *dev)
+ 	return 0;
+ }
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkt6ugMACgkQwuRiAT9o609YfgCdGYgDeu+UIGSUd6AJqJxMBR33
-BbAAoJQvbBXKID3ukN5qjkqhzQ6n+iS0
-=xLHv
------END PGP SIGNATURE-----
++static int i8042_pm_thaw(struct device *dev)
++{
++	i8042_interrupt(0, NULL);
++
++	return 0;
++}
++
+ static const struct dev_pm_ops i8042_pm_ops = {
+ 	.suspend	= i8042_pm_reset,
+ 	.resume		= i8042_pm_restore,
++	.thaw		= i8042_pm_thaw,
+ 	.poweroff	= i8042_pm_reset,
+ 	.restore	= i8042_pm_restore,
+ };

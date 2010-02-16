@@ -1,26 +1,34 @@
-From: Ed Tomlinson <edt@aei.ca>
-Subject: Re: [PATCH 0/2] Provide a driver for the Apple Magic Mouse - opps
-Date: Tue, 16 Feb 2010 07:34:47 -0500
-Message-ID: <201002160734.47588.edt@aei.ca>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002140922.42014.edt@aei.ca> <20100215071145.GA9135@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/4] HID: hid-ntrig add multi input quirk and clean up
+Date: Tue, 16 Feb 2010 13:49:20 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002161349040.30967@pobox.suse.cz>
+References: <1265933946-8318-1-git-send-email-rafi@seas.upenn.edu> <1265944448-23436-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100215071145.GA9135@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:44788 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755432Ab0BPMtW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Feb 2010 07:49:22 -0500
+In-Reply-To: <1265944448-23436-1-git-send-email-rafi@seas.upenn.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chatty@enac.fr
 
-On Monday 15 February 2010 02:11:46 Dmitry Torokhov wrote:
-> Almost... you need to do hid_hw_stop() first and only then unregister
-> input device, Otherwise if you unload the module while moving the mouse
-> it is likely to still oops.
+On Thu, 11 Feb 2010, Rafi Rubin wrote:
 
-The exit routing for the module also has a hid_hw_stop.  Is it going to cause
-problems when it gets called twice?
+> Added a quirk to enable distinct input devices.  The digitizer utilizes
+> three inputs to represent pen, multitouch and a normal touch screen.
+> 
+> With the Pen partitioned, it behaves well and does not need special
+> handling.
+> 
+> Also, I set names to the input devices to clarify the functions of the
+> various inputs.
 
-TIA
-Ed
+Applied, thank you.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

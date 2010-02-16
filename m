@@ -1,64 +1,37 @@
-From: Ed Tomlinson <edt-Yad3+ZauZac@public.gmane.org>
-Subject: Re: [PATCH 1/1] Enable xy scrolling for Apple Magic Mouse
-Date: Mon, 15 Feb 2010 07:50:25 -0500
-Message-ID: <201002150750.26142.edt@aei.ca>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002141858.26917.edt@aei.ca> <20100215071850.GB9135@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100215071850.GB9135-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Michael Poole <mdpoole-IZmAEv5cUt1AfugRpC6u6w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] input: enable sh_keysc on SH-Mobile ARM
+Date: Tue, 16 Feb 2010 19:53:15 +0900
+Message-ID: <20100216105315.15440.95212.sendpatchset@t400s>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yx0-f200.google.com ([209.85.210.200]:56948 "EHLO
+	mail-yx0-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751030Ab0BPKxh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Feb 2010 05:53:37 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: lethal@linux-sh.org, Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, linux-sh@vger.kernel.org
 
-On Monday 15 February 2010 02:18:50 Dmitry Torokhov wrote:
-> On Sun, Feb 14, 2010 at 06:58:26PM -0500, Ed Tomlinson wrote:
-> > On Sunday 14 February 2010 17:51:15 Michael Poole wrote:
-> > > Ed Tomlinson writes:
-> > > 
-> > > > Hi,
-> > > >
-> > > > Here is a patch that enables xy scrolling with the magic mouse.  I have also
-> > > > changed the accelleration logic to work better with xy scrolling.
-> > > 
-> > > Hi Ed,
-> > > 
-> > > Your other patch to call input_unregister_device() looks good -- thanks!
-> > 
-> > Thanks.  One question about it though.  Do we have to check if msc is null before
-> > the unregister?
-> 
-> If it is NULL whan remove() is running there are much bigger problems
-> with the driver/HID subsystem.
-> 
-> > 
-> > > I've never used a horizontal scroll wheel -- what are the common uses
-> > > for it?  Why should the acceleration be separate for the two directions
-> > > rather than using the same factor?  Why does the kernel need to emulate
-> > > this rather than having user-space implement the emulation?
-> > 
-> > Its usefull for scrolling left and right while browsing.  If you use kde it can
-> > be used to scroll between applications on the taskbar.   Here most applications
-> > with a horizontial scrollbar work as expected.
-> > 
-> > I first tried with a single acceleration value for both axies.  It leads to confusing
-> > things happening.   For example.  I quickly scroll down, then nudge the
-> > window to the left.  This works as expect with two values.  With one the
-> > nudge is accelerated and moves too far.
-> > 
-> > My personal goal is to have the basic, apple defined, gestures working
-> > from kernel space.  This way the device works as expected without needing
-> > to fiddle with X or other managers (think wayland and/or chromeOS).
-> 
-> I am not sure if this is the desired approach. The current idea is to
-> export useable but minimally processed events to userspace and let them
-> be turned into gestures there (by evdev, synaptics driver and so forth).
+From: Magnus Damm <damm@opensource.se>
 
-I would go along with this if the code to add the emulation in kernel was large or complex.  
-Its not.  About 30 more lines should add the pgup/pgdn code.  
+Update the Kconfig entry for the sh_keysc driver to
+enable build on SH-Mobile ARM platforms.
 
-Thanks
-Ed
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
+
+ drivers/input/keyboard/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- 0001/drivers/input/keyboard/Kconfig
++++ work/drivers/input/keyboard/Kconfig	2010-02-16 19:35:04.000000000 +0900
+@@ -363,7 +363,7 @@ config KEYBOARD_SUNKBD
+ 
+ config KEYBOARD_SH_KEYSC
+ 	tristate "SuperH KEYSC keypad support"
+-	depends on SUPERH
++	depends on SUPERH || ARCH_SHMOBILE
+ 	help
+ 	  Say Y here if you want to use a keypad attached to the KEYSC block
+ 	  on SuperH processors such as sh7722 and sh7343.

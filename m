@@ -1,56 +1,37 @@
-From: Samu Onkalo <samu.p.onkalo@nokia.com>
-Subject: [PATCH] input: polldev can cause crash in case of polling disabled
-Date: Tue, 16 Feb 2010 16:44:41 +0200
-Message-ID: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH] hid-ntrig.c: Single touch mode tap
+Date: Tue, 16 Feb 2010 10:22:11 -0500
+Message-ID: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:32473 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753206Ab0BPOow (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:43261 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756167Ab0BPPW3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Feb 2010 09:44:52 -0500
+	Tue, 16 Feb 2010 10:22:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
+To: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com, rafi@seas.upenn.edu
 
-If polling is set to disabled value and polled input device
-is opened and closed several times, address to workqueue will probably
-change at some point. Since nothing is queued (due to polled disabled
-state), content of the work struct contains pointer to the old and non-existent
-workqueue. When the device is closed again, cancel_delayed_work_sync
-goes crazy due to pointer to nonexisting workqueue.
+Add DOUBLETAP to events emitted when in single touch only mode.
 
-In case on disabled polling, init work struct to initial value to
-clean up the old values.
-
-Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
 ---
- drivers/input/input-polldev.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletions(-)
+ drivers/hid/hid-ntrig.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
-index aa6713b..f9c8e34 100644
---- a/drivers/input/input-polldev.c
-+++ b/drivers/input/input-polldev.c
-@@ -88,9 +88,17 @@ static int input_open_polled_device(struct input_dev *input)
- 	if (dev->open)
- 		dev->open(dev);
- 
--	/* Only start polling if polling is enabled */
-+	/*
-+	 * Only start polling if polling is enabled.
-+	 * If polling is not running, clean up work struct since
-+	 * pointer to just allocated WQ may have been changed since
-+	 * previous use. If polling is not used, canceling of the
-+	 * work goes crazy.
-+	 */
- 	if (dev->poll_interval > 0)
- 		queue_delayed_work(polldev_wq, &dev->work, 0);
-+	else
-+		INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
- 
- 	return 0;
- }
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index f6f882d..3234c72 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -165,6 +165,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 * to emit a normal (X, Y) position
+ 			 */
+ 			if (!nd->reading_mt) {
++				input_report_key(input, BTN_TOOL_DOUBLETAP,
++						 (nd->confidence != 0));
+ 				input_event(input, EV_ABS, ABS_X, nd->x);
+ 				input_event(input, EV_ABS, ABS_Y, nd->y);
+ 			}
 -- 
-1.6.0.4
+1.6.6.1
 

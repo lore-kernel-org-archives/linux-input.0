@@ -1,69 +1,99 @@
-From: Matthew Garrett <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/2] rfkill: Add support for KEY_RFKILL
-Date: Tue, 16 Feb 2010 16:36:25 -0500
-Message-ID: <1266356185-10324-2-git-send-email-mjg@redhat.com>
-References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1266356185-10324-1-git-send-email-mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org
-Cc: linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org, Matthew Garrett <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: polldev can cause crash in case of polling
+ disabled
+Date: Tue, 16 Feb 2010 13:43:10 -0800
+Message-ID: <20100216214309.GC15376@core.coreip.homeip.net>
+References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
+ <20100216175047.GB15376@core.coreip.homeip.net>
+ <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f227.google.com ([209.85.217.227]:39120 "EHLO
+	mail-gx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933264Ab0BPVsm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Feb 2010 16:48:42 -0500
+Received: by gxk27 with SMTP id 27so522256gxk.1
+        for <linux-input@vger.kernel.org>; Tue, 16 Feb 2010 13:48:41 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: samu.p.onkalo@nokia.com, oleg@redhat.com
+Cc: linux-input@vger.kernel.org
 
-Add support for handling KEY_RFKILL in the rfkill input module. This
-simply toggles the state of all rfkill devices. The comment in rfkill.h
-is also updated to reflect that RFKILL_TYPE_ALL may be used inside the
-kernel.
+On Tue, Feb 16, 2010 at 07:37:49PM +0100, samu.p.onkalo@nokia.com wrote:
+> 
+> 
+> >-----Original Message-----
+> >From: ext Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> >Sent: 16 February, 2010 19:51
+> >To: Onkalo Samu.P (Nokia-D/Tampere)
+> >Cc: linux-input@vger.kernel.org
+> >Subject: Re: [PATCH] input: polldev can cause crash in case of polling
+> >disabled
+> >
+> >Hi Samu,
+> >
+> >On Tue, Feb 16, 2010 at 04:44:41PM +0200, Samu Onkalo wrote:
+> >> If polling is set to disabled value and polled input device
+> >> is opened and closed several times, address to workqueue will probably
+> >> change at some point. Since nothing is queued (due to polled disabled
+> >> state), content of the work struct contains pointer to the old and
+> >non-existent
+> >> workqueue.
+> >
+> >This I do not quite understand. The work struct as far as I can see does
+> >not reference workqueue at all. There is a list entry but if we do not
+> >poll the device that entry should be always detached from any lists. We
+> >properly initialize WQ entry when we create the device and it shoudl
+> >remain valid until the device is destroyed.
+> 
+> 'data' entry contains a pointer to per-cpu-workqueue which in turn contains
+> the workqueue pointer. This 'data' entry is not ok in case of failure. I can
+> Collect more data about this.
+> 
+> >
+> >> When the device is closed again, cancel_delayed_work_sync
+> >> goes crazy due to pointer to nonexisting workqueue.
+> >>
+> >
+> >What kind of failure do you see? Is there a stack trace or something?
+> 
+> Kernel panic while in workqueue handling (paging fault with some crappy address).
+> 
+> >
+> >> In case on disabled polling, init work struct to initial value to
+> >> clean up the old values.
+> >>
+> >
+> >Also, why would not we see the same issue with enabled polling? The
+> >workqueue is being created and destroyed in this case as well.
+> 
+> 
+> Queue_delayed_work updates the work struct. Workqueue itself is ok.
+> 
+> I think that the sequence goes about this way (no other polled devices open):
+> 1. Polled device is opened with polling enabled
+> 2. It first creates workqueue and then queue the first polling. Kernels
+> Workqueue functions updates current workqueue information to the work-struct
+> 3. polled device is closed
+> 4. workqueue is destroyed
+> 
+> 5. polling interval is set to 0
+> 6. device is reopened
+> 7. New workqueue is created
+> 8. polled device is closed without queueing a work
+> 9. work struct for polled device contains pointer to the old (created in 2.) wq
+> 10. cancel_workqueue... can access unallocated memory causing crash.
+> 
 
-Signed-off-by: Matthew Garrett <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- include/linux/rfkill.h |    2 +-
- net/rfkill/input.c     |    8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletions(-)
+Ah, I see. In this case I think it should be fixed in workqueue code by
+clearing work data so it does not point to the [potentially] non-existing
+workqueue when we cancel or complete work.
 
-diff --git a/include/linux/rfkill.h b/include/linux/rfkill.h
-index 97059d0..4f82326 100644
---- a/include/linux/rfkill.h
-+++ b/include/linux/rfkill.h
-@@ -29,7 +29,7 @@
- /**
-  * enum rfkill_type - type of rfkill switch.
-  *
-- * @RFKILL_TYPE_ALL: toggles all switches (userspace only)
-+ * @RFKILL_TYPE_ALL: toggles all switches (requests only - not a switch type)
-  * @RFKILL_TYPE_WLAN: switch is on a 802.11 wireless network device.
-  * @RFKILL_TYPE_BLUETOOTH: switch is on a bluetooth device.
-  * @RFKILL_TYPE_UWB: switch is on a ultra wideband device.
-diff --git a/net/rfkill/input.c b/net/rfkill/input.c
-index a7295ad..3713d7e 100644
---- a/net/rfkill/input.c
-+++ b/net/rfkill/input.c
-@@ -212,6 +212,9 @@ static void rfkill_event(struct input_handle *handle, unsigned int type,
- 		case KEY_WIMAX:
- 			rfkill_schedule_toggle(RFKILL_TYPE_WIMAX);
- 			break;
-+		case KEY_RFKILL:
-+			rfkill_schedule_toggle(RFKILL_TYPE_ALL);
-+			break;
- 		}
- 	} else if (type == EV_SW && code == SW_RFKILL_ALL)
- 		rfkill_schedule_evsw_rfkillall(data);
-@@ -295,6 +298,11 @@ static const struct input_device_id rfkill_ids[] = {
- 		.keybit = { [BIT_WORD(KEY_WIMAX)] = BIT_MASK(KEY_WIMAX) },
- 	},
- 	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT,
-+		.evbit = { BIT_MASK(EV_KEY) },
-+		.keybit = { [BIT_WORD(KEY_RFKILL)] = BIT_MASK(KEY_RFKILL) },
-+	},
-+	{
- 		.flags = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_SWBIT,
- 		.evbit = { BIT(EV_SW) },
- 		.swbit = { [BIT_WORD(SW_RFKILL_ALL)] = BIT_MASK(SW_RFKILL_ALL) },
+Oleg, do you agree?
+
 -- 
-1.6.6.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

@@ -1,37 +1,41 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH] hid-ntrig.c: Single touch mode tap
-Date: Tue, 16 Feb 2010 10:22:11 -0500
-Message-ID: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
+Subject: Re: [PATCH] hid-ntrig.c: Single touch mode tap
+Date: Tue, 16 Feb 2010 10:30:13 -0500
+Message-ID: <4B7ABA05.7090209@seas.upenn.edu>
+References: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:43261 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756167Ab0BPPW3 (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:40162 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755684Ab0BPPaX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Feb 2010 10:22:29 -0500
+	Tue, 16 Feb 2010 10:30:23 -0500
+In-Reply-To: <1266333731-2166-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com, rafi@seas.upenn.edu
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz, dmitry.torokhov@gmail.com
 
-Add DOUBLETAP to events emitted when in single touch only mode.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
- drivers/hid/hid-ntrig.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+I just got some feedback from a user with a single touch firmware letting me
+know he wasn't seeing the DOUBLETAP events after the previous patch set.
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index f6f882d..3234c72 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -165,6 +165,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			 * to emit a normal (X, Y) position
- 			 */
- 			if (!nd->reading_mt) {
-+				input_report_key(input, BTN_TOOL_DOUBLETAP,
-+						 (nd->confidence != 0));
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
--- 
-1.6.6.1
+That was a side effect of dropping old mapping for confidence.  The confidence
+mapping may be fine for st mode but causes problems in mt mode.
 
+This seemed simpler than complicating the mapping further or messing with the
+handling of HD_DG_CONFIDENCE.
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkt6ugMACgkQwuRiAT9o609YfgCdGYgDeu+UIGSUd6AJqJxMBR33
+BbAAoJQvbBXKID3ukN5qjkqhzQ6n+iS0
+=xLHv
+-----END PGP SIGNATURE-----

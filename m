@@ -1,53 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/2] Provide a driver for the Apple Magic Mouse - opps
-Date: Tue, 16 Feb 2010 13:57:04 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1002161356220.30967@pobox.suse.cz>
-References: <alpine.LNX.2.00.1001291515560.356@pobox.suse.cz> <201002140922.42014.edt@aei.ca> <20100215071145.GA9135@core.coreip.homeip.net> <201002150744.51730.edt@aei.ca>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCH] input: polldev can cause crash in case of polling disabled
+Date: Tue, 16 Feb 2010 16:44:41 +0200
+Message-ID: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:45071 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755635Ab0BPM5H (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Feb 2010 07:57:07 -0500
-In-Reply-To: <201002150744.51730.edt@aei.ca>
+Received: from smtp.nokia.com ([192.100.122.233]:32473 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753206Ab0BPOow (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Feb 2010 09:44:52 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ed Tomlinson <edt@aei.ca>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 
-On Mon, 15 Feb 2010, Ed Tomlinson wrote:
+If polling is set to disabled value and polled input device
+is opened and closed several times, address to workqueue will probably
+change at some point. Since nothing is queued (due to polled disabled
+state), content of the work struct contains pointer to the old and non-existent
+workqueue. When the device is closed again, cancel_delayed_work_sync
+goes crazy due to pointer to nonexisting workqueue.
 
-> > Almost... you need to do hid_hw_stop() first and only then unregister
-> > input device, Otherwise if you unload the module while moving the mouse
-> > it is likely to still oops.
-> 
-> How about this?  It applies on top of yesterdays patch.
-> 
-> Ed
-> 
-> ---
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 7d252d2..46fdeee 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -430,8 +430,8 @@ static void magicmouse_remove(struct hid_device *hdev)
->  {
->  	struct magicmouse_sc *msc;
->  	msc = hid_get_drvdata(hdev);
-> -	input_unregister_device(msc->input);
->  	hid_hw_stop(hdev);
-> +	input_unregister_device(msc->input);
->  	kfree(msc);
->  }
+In case on disabled polling, init work struct to initial value to
+clean up the old values.
 
-This looks OK.
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+---
+ drivers/input/input-polldev.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
 
-Could you please send it altogether with short changelog entry and 
-Signed-off-by line so that I could queue that up?
-
-Thanks,
-
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index aa6713b..f9c8e34 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -88,9 +88,17 @@ static int input_open_polled_device(struct input_dev *input)
+ 	if (dev->open)
+ 		dev->open(dev);
+ 
+-	/* Only start polling if polling is enabled */
++	/*
++	 * Only start polling if polling is enabled.
++	 * If polling is not running, clean up work struct since
++	 * pointer to just allocated WQ may have been changed since
++	 * previous use. If polling is not used, canceling of the
++	 * work goes crazy.
++	 */
+ 	if (dev->poll_interval > 0)
+ 		queue_delayed_work(polldev_wq, &dev->work, 0);
++	else
++		INIT_DELAYED_WORK(&dev->work, input_polled_device_work);
+ 
+ 	return 0;
+ }
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.6.0.4
+

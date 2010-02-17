@@ -1,41 +1,44 @@
-From: Bastien Nocera <hadess@hadess.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
-Date: Wed, 17 Feb 2010 18:49:35 +0000
-Message-ID: <1266432575.678.980.camel@localhost.localdomain>
+Date: Wed, 17 Feb 2010 11:17:08 -0800
+Message-ID: <20100217191708.GA15554@core.coreip.homeip.net>
 References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
-	 <20100217052247.GD7160@core.coreip.homeip.net>
-	 <20100217180342.GA22522@srcf.ucam.org>
-	 <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
-	 <20100217184502.GA23573@srcf.ucam.org>
+ <20100217052247.GD7160@core.coreip.homeip.net>
+ <20100217180342.GA22522@srcf.ucam.org>
+ <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52446 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753710Ab0BQSuB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 13:50:01 -0500
-In-Reply-To: <20100217184502.GA23573@srcf.ucam.org>
+Received: from mail-yw0-f197.google.com ([209.85.211.197]:56325 "EHLO
+	mail-yw0-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754090Ab0BQTRX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Feb 2010 14:17:23 -0500
+Content-Disposition: inline
+In-Reply-To: <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Christian Lamparter <chunkeey@googlemail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org, marcel@holtmann.org
+To: Christian Lamparter <chunkeey@googlemail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org, marcel@holtmann.org
 
-On Wed, 2010-02-17 at 18:45 +0000, Matthew Garrett wrote:
-> On Wed, Feb 17, 2010 at 07:43:56PM +0100, Christian Lamparter wrote:
+On Wed, Feb 17, 2010 at 07:43:56PM +0100, Christian Lamparter wrote:
+> On Wed, Feb 17, 2010 at 7:03 PM, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> > On Tue, Feb 16, 2010 at 09:22:47PM -0800, Dmitry Torokhov wrote:
+> >
+> >> I'd like some breathing room aroung KEY_NUMERIC? Any issues with making
+> >> it 247 or 0x211?
+> >
+> > None. Do you want to make that change, or should I resubmit?
+> >
+> Wait wait... do you can get another KEY_?
 > 
-> > Wait wait... do you can get another KEY_?
-> > 
-> > The reason: Some new devices come with a WPS "Push Button".
-> > And there's no code for them yet.
+> The reason: Some new devices come with a WPS "Push Button".
+> And there's no code for them yet.
 > 
-> What's a WPS button? There's no fundamental issue with getting new KEY_ 
-> codes defined, but bear in mind that anything greater than 255 won't be 
-> seen by X at present.
 
-Won't be seen by most X applications. The server should definitely see
-it, so should applications that use XInput2-aware widget sets.
+Yes, we can add a new key definition if you provide clear description of
+what the intended use is and if we can't map such use to any existing
+key definitions.
 
-(Which obviously means not much at all right now).
-
-
+-- 
+Dmitry

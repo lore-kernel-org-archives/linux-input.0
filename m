@@ -1,35 +1,47 @@
-From: Alex Chiang <achiang@hp.com>
-Subject: Re: Synaptics touchpad doesn't click (refers thread from December
-	2009)
-Date: Wed, 17 Feb 2010 13:03:45 -0700
-Message-ID: <20100217200345.GD32353@ldl.fc.hp.com>
-References: <4B7B1229.4030008@d2ux.org> <20100217194902.GA28560@ldl.fc.hp.com> <20100217195626.GC32353@ldl.fc.hp.com> <20100217200214.GA1948@core.coreip.homeip.net>
+From: Christian Lamparter <chunkeey@googlemail.com>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Wed, 17 Feb 2010 21:18:33 +0100
+Message-ID: <22ee4e771002171218t69cc4348ia0300a645ce9763d@mail.gmail.com>
+References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
+	 <20100217052247.GD7160@core.coreip.homeip.net>
+	 <20100217180342.GA22522@srcf.ucam.org>
+	 <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
+	 <20100217191708.GA15554@core.coreip.homeip.net>
+	 <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com>
+	 <20100217195435.GA15742@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from g5t0006.atlanta.hp.com ([15.192.0.43]:4248 "EHLO
-	g5t0006.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754537Ab0BQUDq (ORCPT
+Received: from gv-out-0910.google.com ([216.239.58.191]:51946 "EHLO
+	gv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754856Ab0BQUSf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 15:03:46 -0500
-Content-Disposition: inline
-In-Reply-To: <20100217200214.GA1948@core.coreip.homeip.net>
+	Wed, 17 Feb 2010 15:18:35 -0500
+In-Reply-To: <20100217195435.GA15742@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthias Petermann <matthias@d2ux.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org, marcel@holtmann.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Wed, Feb 17, 2010 at 12:56:26PM -0700, Alex Chiang wrote:
-> > Sigh, sorry. I fat-fingered Dmitry's email address.
-> 
-> Arhg, lost track of it in my INBOX, so not merged yet, sorry.
+On Wed, Feb 17, 2010 at 8:54 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Is there anything currently in works that would make use of this button?
+> I do not want to allocate keycode "for the future" which may never come.
+> We did it with KEY_BATTERY but I do not think anyone actually uses it.
 
-Can you mark it for stable so it gets picked up by the distros?
+Of course, there are lots of routers:
 
-Also, were you going to take Takashi's patch for the userspace
-portion as well?
+Linksys: wrt160nl
+Netgear: wnr2000, wndr3700
+TP-Link: wr1043n, ... wr741nd
+TrendNET: TEW-632BRP
+Planex: MZK-W300NH,  MZK-W04NU
+...
 
-Thanks,
-/ac
+And a few new client adapters, I know about:
+TP-Link: WN821 v2, WN721N, WN727N
+Netgear: WNDA3100 v2
+...
 
+(Not to mention all the coming products).

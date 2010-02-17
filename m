@@ -1,45 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
-  quirky remote
-Date: Wed, 17 Feb 2010 16:20:45 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1002171620060.30967@pobox.suse.cz>
-References: <3711715e0912310013u25e921cbqe6abb7c1621109e@mail.gmail.com>  <20100102025312.GC5788@core.coreip.homeip.net>  <3711715e1001020152s626739daw6cdf2d7742a0d959@mail.gmail.com>  <alpine.LNX.2.00.1001022221320.2277@pobox.suse.cz>
- <3711715e1001180233k36072dd2r518c0b388bc8d475@mail.gmail.com>
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH] input: polldev can cause crash in case of polling
+	disabled
+Date: Wed, 17 Feb 2010 17:28:47 +0100
+Message-ID: <20100217162847.GA10249@redhat.com>
+References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com> <20100216175047.GB15376@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com> <20100216214309.GC15376@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:52161 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:64713 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757397Ab0BQPUq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 10:20:46 -0500
-In-Reply-To: <3711715e1001180233k36072dd2r518c0b388bc8d475@mail.gmail.com>
+	id S1752157Ab0BQQ3j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Feb 2010 11:29:39 -0500
+Content-Disposition: inline
+In-Reply-To: <20100216214309.GC15376@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wayne Thomas <waynethomas69@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: samu.p.onkalo@nokia.com, linux-input@vger.kernel.org
 
-On Mon, 18 Jan 2010, Wayne Thomas wrote:
+On 02/16, Dmitry Torokhov wrote:
+>
+> On Tue, Feb 16, 2010 at 07:37:49PM +0100, samu.p.onkalo@nokia.com wrote:
+> >
+> > Queue_delayed_work updates the work struct. Workqueue itself is ok.
+> >
+> > I think that the sequence goes about this way (no other polled devices open):
+> > 1. Polled device is opened with polling enabled
+> > 2. It first creates workqueue and then queue the first polling. Kernels
+> > Workqueue functions updates current workqueue information to the work-struct
+> > 3. polled device is closed
+> > 4. workqueue is destroyed
+> >
+> > 5. polling interval is set to 0
+> > 6. device is reopened
+> > 7. New workqueue is created
+> > 8. polled device is closed without queueing a work
+> > 9. work struct for polled device contains pointer to the old (created in 2.) wq
+> > 10. cancel_workqueue... can access unallocated memory causing crash.
+> >
+>
+> Ah, I see. In this case I think it should be fixed in workqueue code by
+> clearing work data so it does not point to the [potentially] non-existing
+> workqueue when we cancel
 
-> I've had a look around in the udev source code for an idea of how you 
-> intend on this to be implemented, but unfortunately couldn't find a 
-> sutiable example to examine.  As such I wont be of much use to you with 
-> in this regard. Something I did note however was that there is at least 
-> five different quirky drivers that are using the 0x0ffbc0000 HID usage 
-> page (defined as HID_UP_LOGIVENDOR), a handful of which do nothing more 
-> than capture the keypresses from this usage page.  Comparing the keys in 
-> question I realised that they could have been captured under a single 
-> quirky driver, if not in hid-input itself.  It appears to me that a new 
-> generation of Windows MCE remote devices are coming onto the market that 
-> are using this usage page as standard.  I was going to fiddle around 
-> with this but instead will wait to see how this will be implemented in 
-> udev. Sorry I couldn't relieve some of your work-load.
+I think yes, cancel_() can clear ->data. Instead of work_clear_pending()
+__cancel_work_timer() should do something like
+"work->data &= ~WORK_STRUCT_STATIC", but we should somehow do this
+atomically, to avoid the race with test_and_set_bit(PENDING).
 
-udev keymaps are described in README.keymap.txt in udev package. You can 
-find current version on 
-http://git.kernel.org/?p=linux/hotplug/udev.git;a=blob;f=extras/keymap/README.keymap.txt;h=9c2d5dc16a151d57720b1dfe39e784f1b1d47367;hb=HEAD
+> or complete work.
 
-Thanks,
+No, run_workqueue() can't do this.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+First of all, we shouldn't clear work->data before work->func() returns,
+and when it returns we must not use this pointer: the work can be already
+freed/reused.
+
+But even if we could do this, it would be wrong. This can break flush
+or cancel, the same work can be queued/running again (on the same or
+other CPUs).
+
+Oleg.
+

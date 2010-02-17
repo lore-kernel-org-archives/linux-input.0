@@ -1,61 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: polldev can cause crash in case of polling disabled
-Date: Wed, 17 Feb 2010 12:54:30 -0800
-Message-ID: <128C206A-CDA0-47F8-AB9E-3FB90CFD6046@gmail.com>
-References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com> <20100216175047.GB15376@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com> <20100216214309.GC15376@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B82661D4AA59@NOK-EUMSG-02.mgdnok.nokia.com> <20100217170315.GB10249@redhat.com> <20100217195044.GC15554@core.coreip.homeip.net> <20100217202339.GA21840@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Wed, 17 Feb 2010 12:52:06 -0800
+Message-ID: <069C4DAE-598D-45F1-99B5-DA5BAF718179@gmail.com>
+References: <1266356185-10324-1-git-send-email-mjg@redhat.com> <20100217052247.GD7160@core.coreip.homeip.net> <20100217180342.GA22522@srcf.ucam.org> <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com> <20100217191708.GA15554@core.coreip.homeip.net> <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com> <20100217195435.GA15742@core.coreip.homeip.net> <22ee4e771002171218t69cc4348ia0300a645ce9763d@mail.gmail.com>
 Mime-Version: 1.0 (iPhone Mail 7C144)
 Content-Type: text/plain;
 	charset=us-ascii;
 	format=flowed;
 	delsp=yes
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f197.google.com ([209.85.211.197]:49058 "EHLO
-	mail-yw0-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756084Ab0BQUym (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 15:54:42 -0500
-Received: by ywh35 with SMTP id 35so297886ywh.4
-        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2010 12:54:41 -0800 (PST)
-In-Reply-To: <20100217202339.GA21840@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <22ee4e771002171218t69cc4348ia0300a645ce9763d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Lamparter <chunkeey-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: Matthew Garrett <mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org>, "johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org" <johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org>, "linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org" <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: "samu.p.onkalo@nokia.com" <samu.p.onkalo@nokia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Feb 17, 2010, at 12:23 PM, Oleg Nesterov <oleg@redhat.com> wrote:
+On Feb 17, 2010, at 12:18 PM, Christian Lamparter <chunkeey-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org 
+ > wrote:
 
-> On 02/17, Dmitry Torokhov wrote:
+> On Wed, Feb 17, 2010 at 8:54 PM, Dmitry Torokhov
+> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 >>
->> It apppears that it is allowed to try to cancel work that has never  
->> been
->> queued
+>> Is there anything currently in works that would make use of this  
+>> button?
+>> I do not want to allocate keycode "for the future" which may never  
+>> come.
+>> We did it with KEY_BATTERY but I do not think anyone actually uses  
+>> it.
 >
-> Yes,
+> Of course, there are lots of routers:
 >
->> and I believe that canceled or completed work should be exactly
->> the same as never been queued work (which is apparently not the case
->> currently).
+> Linksys: wrt160nl
+> Netgear: wnr2000, wndr3700
+> TP-Link: wr1043n, ... wr741nd
+> TrendNET: TEW-632BRP
+> Planex: MZK-W300NH,  MZK-W04NU
+> ...
 >
-> And yes, currently this is not the case.
+> And a few new client adapters, I know about:
+> TP-Link: WN821 v2, WN721N, WN727N
+> Netgear: WNDA3100 v2
+> ...
 >
-> As I said, I agree that cancel() could clear ->data. Will this change
-> help? (in any case this change is not for 2.6.33)
->
-> But I don't see how "completed" can do this, please see my previous
-> email. Note that flush() can't do this too.
->
->> Yes, it is certainly possible to work around the issue in every  
->> driver
->> that may happen to shut down and re-create workqueue as needed. The
->> question is whether it is the right thing to do.
->
-> I'd say, the question is whether we can improve this ;) Well, see  
-> above.
->
+> (Not to mention all the coming products).
 
-I understand. I think if we just change cancel to do the right thing  
-that should be enough to avoid surprises.
+Sorry, I was not clear enough. I meant something in works in Linux  
+software stack, I was aware that certain router have these buttons  
+already.
 
 -- 
 Dmitry
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

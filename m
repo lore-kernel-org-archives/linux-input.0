@@ -1,47 +1,47 @@
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [PATCH] input: polldev can cause crash in case of polling
-	disabled
-Date: Wed, 17 Feb 2010 21:23:39 +0100
-Message-ID: <20100217202339.GA21840@redhat.com>
-References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com> <20100216175047.GB15376@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com> <20100216214309.GC15376@core.coreip.homeip.net> <62697B07E9803846BC582181BD6FB6B82661D4AA59@NOK-EUMSG-02.mgdnok.nokia.com> <20100217170315.GB10249@redhat.com> <20100217195044.GC15554@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Wed, 17 Feb 2010 12:49:14 -0800
+Message-ID: <446821D4-8E9D-4701-9A50-04738C5733B6@gmail.com>
+References: <1266356185-10324-1-git-send-email-mjg@redhat.com> <20100217052247.GD7160@core.coreip.homeip.net> <20100217180342.GA22522@srcf.ucam.org> <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com> <20100217191708.GA15554@core.coreip.homeip.net> <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com> <20100217195435.GA15742@core.coreip.homeip.net> <20100217200233.GA24976@srcf.ucam.org>
+Mime-Version: 1.0 (iPhone Mail 7C144)
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed;
+	delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58642 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755019Ab0BQUY3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 15:24:29 -0500
-Content-Disposition: inline
-In-Reply-To: <20100217195044.GC15554@core.coreip.homeip.net>
+Received: from mail-yx0-f180.google.com ([209.85.210.180]:57792 "EHLO
+	mail-yx0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755315Ab0BQUta (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Feb 2010 15:49:30 -0500
+In-Reply-To: <20100217200233.GA24976@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: samu.p.onkalo@nokia.com, linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Christian Lamparter <chunkeey@googlemail.com>, "johannes@sipsolutions.net" <johannes@sipsolutions.net>, "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "marcel@holtmann.org" <marcel@holtmann.org>
 
-On 02/17, Dmitry Torokhov wrote:
+On Feb 17, 2010, at 12:02 PM, Matthew Garrett <mjg59@srcf.ucam.org>  
+wrote:
+
+> On Wed, Feb 17, 2010 at 11:54:35AM -0800, Dmitry Torokhov wrote:
 >
-> It apppears that it is allowed to try to cancel work that has never been
-> queued
+>> Is there anything currently in works that would make use of this  
+>> button?
+>> I do not want to allocate keycode "for the future" which may never  
+>> come.
+>> We did it with KEY_BATTERY but I do not think anyone actually uses  
+>> it.
+>
+> KEY_BATTERY is heavily used in userspace. I think all the hardware  
+> that
+> generates it does so via i8042 rather than a platform driver, so it
+> wouldn't show up in the kernel.
+>
 
-Yes,
+Ah, I see. I hope the keycode is not used to signal battery status  
+change but to invoke battery/power manager applet...
 
-> and I believe that canceled or completed work should be exactly
-> the same as never been queued work (which is apparently not the case
-> currently).
-
-And yes, currently this is not the case.
-
-As I said, I agree that cancel() could clear ->data. Will this change
-help? (in any case this change is not for 2.6.33)
-
-But I don't see how "completed" can do this, please see my previous
-email. Note that flush() can't do this too.
-
-> Yes, it is certainly possible to work around the issue in every driver
-> that may happen to shut down and re-create workqueue as needed. The
-> question is whether it is the right thing to do.
-
-I'd say, the question is whether we can improve this ;) Well, see above.
-
-Oleg.
+-- 
+Dmitry
 

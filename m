@@ -1,54 +1,30 @@
-From: Peter Hutterer <peter.hutterer-Pf4JEFdB4epeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
-Date: Thu, 18 Feb 2010 08:34:50 +1000
-Message-ID: <20100217223450.GC22561@barra.bne.redhat.com>
-References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
- <20100217052247.GD7160@core.coreip.homeip.net>
- <20100217180342.GA22522@srcf.ucam.org>
- <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
- <20100217184502.GA23573@srcf.ucam.org>
- <1266432575.678.980.camel@localhost.localdomain>
+From: Matthias Petermann <matthias@d2ux.org>
+Subject: Re: Synaptics touchpad doesn't click (refers thread from December
+ 2009)
+Date: Thu, 18 Feb 2010 00:25:39 +0100
+Message-ID: <4B7C7AF3.7050508@d2ux.org>
+References: <4B7B1229.4030008@d2ux.org> <20100217194902.GA28560@ldl.fc.hp.com> <20100217195626.GC32353@ldl.fc.hp.com> <20100217200214.GA1948@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1266432575.678.980.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: Matthew Garrett <mjg59-1xO5oi07KQx4cg9Nei1l7Q@public.gmane.org>, Christian Lamparter <chunkeey-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100217200214.GA1948@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alex Chiang <achiang@hp.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 17, 2010 at 06:49:35PM +0000, Bastien Nocera wrote:
-> On Wed, 2010-02-17 at 18:45 +0000, Matthew Garrett wrote:
-> > On Wed, Feb 17, 2010 at 07:43:56PM +0100, Christian Lamparter wrote:
-> > 
-> > > Wait wait... do you can get another KEY_?
-> > > 
-> > > The reason: Some new devices come with a WPS "Push Button".
-> > > And there's no code for them yet.
-> > 
-> > What's a WPS button? There's no fundamental issue with getting new KEY_ 
-> > codes defined, but bear in mind that anything greater than 255 won't be 
-> > seen by X at present.
-> 
-> Won't be seen by most X applications. The server should definitely see
-> it, so should applications that use XInput2-aware widget sets.
-> 
-> (Which obviously means not much at all right now).
+Am 17.02.10 21:02, schrieb Dmitry Torokhov:
+> On Wed, Feb 17, 2010 at 12:56:26PM -0700, Alex Chiang wrote:
+>> Sigh, sorry. I fat-fingered Dmitry's email address.
+>>
+>
+> Arhg, lost track of it in my INBOX, so not merged yet, sorry.
 
-Because XKB2 never happened we don't actually have any way of configuring
-keysyms in the server for keys > 255 or getting this layout information to
-the client. So XI2 applications that want to use higher keycodes are reliant
-on the keycode itself which is strictly speaking random - at least the
-protocol makes no guarantee that they remain fixed.
+Dmitry, thank you for that fast response. Do you expect to find some 
+time to merge the patch into the trunk in the next weeks, and/or is any 
+help on this welcome? Could you please give me a hint for which kernel 
+version the patch initially was written?
 
-In practice that's not quite true and the keycodes are likely to remain
-fixed but relying on that hurt us quite badly in the keyboard -> evdev
-conversion.
-
-Cheers,
-  Peter
---
-To unsubscribe from this list: send the line "unsubscribe linux-wireless" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks & kind regards,
+Matthias

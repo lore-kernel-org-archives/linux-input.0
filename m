@@ -1,112 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: polldev can cause crash in case of polling
- disabled
-Date: Wed, 17 Feb 2010 11:50:44 -0800
-Message-ID: <20100217195044.GC15554@core.coreip.homeip.net>
-References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
- <20100216175047.GB15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com>
- <20100216214309.GC15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4AA59@NOK-EUMSG-02.mgdnok.nokia.com>
- <20100217170315.GB10249@redhat.com>
+Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
+Date: Wed, 17 Feb 2010 11:54:35 -0800
+Message-ID: <20100217195435.GA15742@core.coreip.homeip.net>
+References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
+ <20100217052247.GD7160@core.coreip.homeip.net>
+ <20100217180342.GA22522@srcf.ucam.org>
+ <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
+ <20100217191708.GA15554@core.coreip.homeip.net>
+ <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f197.google.com ([209.85.211.197]:50301 "EHLO
-	mail-yw0-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752854Ab0BQTuv (ORCPT
+Received: from mail-qy0-f200.google.com ([209.85.221.200]:63569 "EHLO
+	mail-qy0-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753905Ab0BQTyn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 14:50:51 -0500
-Received: by ywh35 with SMTP id 35so230698ywh.4
-        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2010 11:50:50 -0800 (PST)
+	Wed, 17 Feb 2010 14:54:43 -0500
 Content-Disposition: inline
-In-Reply-To: <20100217170315.GB10249@redhat.com>
+In-Reply-To: <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: samu.p.onkalo@nokia.com, linux-input@vger.kernel.org
+To: Christian Lamparter <chunkeey@googlemail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org, marcel@holtmann.org
 
-On Wed, Feb 17, 2010 at 06:03:15PM +0100, Oleg Nesterov wrote:
-> On 02/17, samu.p.onkalo@nokia.com wrote:
-> >
-> > First time device open:
-> > [   29.094879] INPUT_OPEN_POLLED_DEVICE - enter
-> > [   29.099182] polldev_wq before start_workqueue: 0
-> > [   29.154449] polldev_wq after start_workqueue: ded3c580
-> > [   29.159637] cpu_wq of wq: dc4b8480
-> > [   29.255950] poll_interval: 32
-> > [   29.258941] addr of work: dfbe8f20
-> > [   29.262359] data (==cwq) at work (before queueing): 0
-> > [   29.267669] data (==cwq) at work (after queueing): dc4b8480  <------- CPU workqueue same as polldev_wq
-> > [   29.273315] wq from cwq: ded3c580
-> > [   29.276641] INPUT_OPEN_POLLED_DEVICE - done
-> >
-> > there were other devices opened and closed between
-> >
-> > Second time device open:
-> > [  202.372680] INPUT_OPEN_POLLED_DEVICE - enter
-> > [  202.377258] polldev_wq before start_workqueue: dc57ba00
-> > [  202.382598] cpu_wq of wq: dc4ea900
-> > [  202.386077] polldev_wq after start_workqueue: dc57ba00
-> > [  202.391326] cpu_wq of wq: dc4ea900
-> > [  202.459259] poll_interval: 0  <-------------------------------- no queueing because of this
-> > [  202.462188] addr of work: dfbe8f20
-> > [  202.465637] data (==cwq) at work (before queueing): dc4b8480  <----------- CPU workqueue not updated.
-> > [  202.471435] wq from cwq: 6b6b006f
-> > [  202.474853] data (==cwq) at work (after queueing): dc4b8480 <----- queueing not done -> not updated
-> > [  202.480468] wq from cwq: 6b6b006f <-------------------------- crap
-> > [  202.483886] INPUT_OPEN_POLLED_DEVICE - done
-> >
-> > And when cancel_delayed_work_sync is called, kernel crashes due to crap address to per-cpu workqueue.
-> >
-> > Actually problem is that "data" field in the work struct points to the non-existing per-cpu workqueue entry.
-> > When this is cancelled at device close, kernel crashes. But what is the root cause? In input-polldev,
-> > workqueue can change from time to time depending on what happens at the userspace. Work struct
-> > can still contain references to the old workqueue. Is that illegal thing to do?
+On Wed, Feb 17, 2010 at 08:42:45PM +0100, Christian Lamparter wrote:
+> On Wed, Feb 17, 2010 at 8:17 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Wed, Feb 17, 2010 at 07:43:56PM +0100, Christian Lamparter wrote:
+> >> The reason: Some new devices come with a WPS "Push Button".
+> >> And there's no code for them yet.
+> >>
+> > Yes, we can add a new key definition if you provide clear description of
+> > what the intended use is and if we can't map such use to any existing
+> > key definitions.
 > 
-> Yes, it is illegal. Well, it is OK to do queue(), but not cancel/flush.
+> I found one http://en.wikipedia.org/wiki/Wi-Fi_Protected_Setup (if you
+> don't mind):
 > 
-> > It is said in the workqueue.c:
-> > * The caller must ensure that workqueue_struct on which this work was last
-> >  * queued can't be destroyed before this function returns.
-> >
-> > This is not true here. Workqueue has been destroyed since the work has
-> > never queued to the new workqueue.
+> There's the relevant part: (PBC stands for Push Button Control/Configuration?)
 > 
-> Not sure I understand... The comment says that workqueue_struct must
-> stay valid until cancel() returns, of course this also means it must
-> be valid when cancel() is called.
->
+> "PBC Method, in which the user simply has to push a button, either an actual
+> or virtual one, on both the AP (or a Registrar of the Network) and the new
+> wireless client device (STA)
+> .
+> Support of this model is mandatory for APs and optional for STAs."
+> 
+> And there are already a few potential users:
+> OpenWRT routers as well as some rt30xx, ar9170 and ar9271 devices.
 
-It apppears that it is allowed to try to cancel work that has never been
-queued and I believe that canceled or completed work should be exactly
-the same as never been queued work (which is apparently not the case
-currently).
-
-Obviously if work has never been queued there is no workqueue struct so
-it can't possibly be valid.
- 
-> > Either cancel_(delayed)_work_sync should clear the data field
-> 
-> I am a bit confused. Yes I think this is possible, but Dmitry thinks
-> we should clear ->data when the work completes... See another email in
-> this thread.
-> 
-> > instead of setting it to non-pending or
-> > input-polldev must clear the work struct in case of no queueing.
-> 
-> Or the caller of cancel can clear ->data?
-> 
-> Of course, I don't understand input-polldev.c, but shouldn't the trivial
-> patch below fix the problem? Although, most likely I do not really
-> understand what the problem is ;)
->
-
-Yes, it is certainly possible to work around the issue in every driver
-that may happen to shut down and re-create workqueue as needed. The
-question is whether it is the right thing to do.
-
-Thanks.
+Is there anything currently in works that would make use of this button?
+I do not want to allocate keycode "for the future" which may never come.
+We did it with KEY_BATTERY but I do not think anyone actually uses it.
 
 -- 
 Dmitry

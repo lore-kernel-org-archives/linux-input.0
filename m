@@ -1,88 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: polldev can cause crash in case of polling
- disabled
-Date: Wed, 17 Feb 2010 01:47:56 -0800
-Message-ID: <20100217094756.GA24848@core.coreip.homeip.net>
-References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
- <20100216175047.GB15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com>
- <20100216214309.GC15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4AA59@NOK-EUMSG-02.mgdnok.nokia.com>
- <62697B07E9803846BC582181BD6FB6B82661D4AAC2@NOK-EUMSG-02.mgdnok.nokia.com>
+From: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
+Subject: [PATCH] Input: serio - add thaw
+Date: Wed, 17 Feb 2010 11:03:56 +0000
+Message-ID: <4B7BCD1C.4020102@tuffmail.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f176.google.com ([209.85.211.176]:33156 "EHLO
-	mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932863Ab0BQJsQ (ORCPT
+Received: from mail-ew0-f228.google.com ([209.85.219.228]:47666 "EHLO
+	mail-ew0-f228.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751861Ab0BQLEE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 04:48:16 -0500
-Received: by ywh6 with SMTP id 6so5391059ywh.4
-        for <linux-input@vger.kernel.org>; Wed, 17 Feb 2010 01:48:14 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <62697B07E9803846BC582181BD6FB6B82661D4AAC2@NOK-EUMSG-02.mgdnok.nokia.com>
+	Wed, 17 Feb 2010 06:04:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: samu.p.onkalo@nokia.com
-Cc: oleg@redhat.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi Samu,
+633aae2 "Input: i8042 - switch to using dev_pm_ops"
+removed handling for PMSG_THAW, causing obscure breakage.
 
-On Wed, Feb 17, 2010 at 09:56:33AM +0100, samu.p.onkalo@nokia.com wrote:
-> 
-> >
-> >Second time device open:
-> >[  202.372680] INPUT_OPEN_POLLED_DEVICE - enter
-> >[  202.377258] polldev_wq before start_workqueue: dc57ba00
-> >[  202.382598] cpu_wq of wq: dc4ea900
-> >[  202.386077] polldev_wq after start_workqueue: dc57ba00
-> >[  202.391326] cpu_wq of wq: dc4ea900
-> >[  202.459259] poll_interval: 0  <-------------------------------- no
-> >queueing because of this
-> >[  202.462188] addr of work: dfbe8f20
-> >[  202.465637] data (==cwq) at work (before queueing): dc4b8480  <------
-> >----- CPU workqueue not updated.
-> >[  202.471435] wq from cwq: 6b6b006f
-> >[  202.474853] data (==cwq) at work (after queueing): dc4b8480 <-----
-> >queueing not done -> not updated
-> >[  202.480468] wq from cwq: 6b6b006f <-------------------------- crap
-> >[  202.483886] INPUT_OPEN_POLLED_DEVICE - done
-> >
-> >And when cancel_delayed_work_sync is called, kernel crashes due to crap
-> >address to per-cpu workqueue.
-> >
-> >Actually problem is that "data" field in the work struct points to the
-> >non-existing per-cpu workqueue entry.
-> >When this is cancelled at device close, kernel crashes. But what is the
-> >root cause? In input-polldev,
-> >workqueue can change from time to time depending on what happens at the
-> >userspace. Work struct
-> >can still contain references to the old workqueue. Is that illegal thing
-> >to do?
-> >Or should cancellation of the work cleanup the work struct so that it is
-> >in initial state.
-> >
-> >It is said in the workqueue.c:
-> >* The caller must ensure that workqueue_struct on which this work was
-> >last
-> > * queued can't be destroyed before this function returns.
-> >
-> >This is not true here. Workqueue has been destroyed since the work has
-> >never queued to the new workqueue.
-> >Either cancel_(delayed)_work_sync should clear the data field instead of
-> >setting it to non-pending or
-> >input-polldev must clear the work struct in case of no queueing. Or do
-> >you have other proposals?
-> >
-> 
-> One solution is not to destroy and recreate workqueue in input-polldev
-> based on open / close calls. This way references to workqueue stays valid.
-> 
+It can break if you press keys during hibernation,
+which causes subsequent keypresses to be lost -
+so you can't cancel s2disk by pressing backspace -
+and then just before system poweroff you get
+"psmouse.c: Failed to deactivate mouse".
 
-I would really prefer having this fixed in the workqueue core instead of
-working around the issue in a driver.
+Apparently freeze/thaw doesn't need the heavyweight
+enable/disable cycle.  So we just need to check for
+pending events at thaw time, by running the interrupt
+handler.
 
-Thanks.
+Signed-off-by: Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 
--- 
-Dmitry
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index d84a36e..b54aee7 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -1161,9 +1161,17 @@ static int i8042_pm_restore(struct device *dev)
+ 	return 0;
+ }
+ 
++static int i8042_pm_thaw(struct device *dev)
++{
++	i8042_interrupt(0, NULL);
++
++	return 0;
++}
++
+ static const struct dev_pm_ops i8042_pm_ops = {
+ 	.suspend	= i8042_pm_reset,
+ 	.resume		= i8042_pm_restore,
++	.thaw		= i8042_pm_thaw,
+ 	.poweroff	= i8042_pm_reset,
+ 	.restore	= i8042_pm_restore,
+ };
+
+

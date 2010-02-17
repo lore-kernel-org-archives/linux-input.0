@@ -1,56 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: Add KEY_RFKILL
-Date: Wed, 17 Feb 2010 11:54:35 -0800
-Message-ID: <20100217195435.GA15742@core.coreip.homeip.net>
-References: <1266356185-10324-1-git-send-email-mjg@redhat.com>
- <20100217052247.GD7160@core.coreip.homeip.net>
- <20100217180342.GA22522@srcf.ucam.org>
- <22ee4e771002171043u2aaf97vd73c1090c2fce901@mail.gmail.com>
- <20100217191708.GA15554@core.coreip.homeip.net>
- <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com>
+From: Alex Chiang <achiang@hp.com>
+Subject: Re: Synaptics touchpad doesn't click (refers thread from December
+	2009)
+Date: Wed, 17 Feb 2010 12:56:26 -0700
+Message-ID: <20100217195626.GC32353@ldl.fc.hp.com>
+References: <4B7B1229.4030008@d2ux.org> <20100217194902.GA28560@ldl.fc.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f200.google.com ([209.85.221.200]:63569 "EHLO
-	mail-qy0-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753905Ab0BQTyn (ORCPT
+Received: from g5t0006.atlanta.hp.com ([15.192.0.43]:2213 "EHLO
+	g5t0006.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753905Ab0BQT42 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Feb 2010 14:54:43 -0500
+	Wed, 17 Feb 2010 14:56:28 -0500
 Content-Disposition: inline
-In-Reply-To: <22ee4e771002171142q1496842ap4079026a5c0be8c6@mail.gmail.com>
+In-Reply-To: <20100217194902.GA28560@ldl.fc.hp.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christian Lamparter <chunkeey@googlemail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, johannes@sipsolutions.net, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org, marcel@holtmann.org
+To: Matthias Petermann <matthias@d2ux.org>, dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Feb 17, 2010 at 08:42:45PM +0100, Christian Lamparter wrote:
-> On Wed, Feb 17, 2010 at 8:17 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Feb 17, 2010 at 07:43:56PM +0100, Christian Lamparter wrote:
-> >> The reason: Some new devices come with a WPS "Push Button".
-> >> And there's no code for them yet.
-> >>
-> > Yes, we can add a new key definition if you provide clear description of
-> > what the intended use is and if we can't map such use to any existing
-> > key definitions.
-> 
-> I found one http://en.wikipedia.org/wiki/Wi-Fi_Protected_Setup (if you
-> don't mind):
-> 
-> There's the relevant part: (PBC stands for Push Button Control/Configuration?)
-> 
-> "PBC Method, in which the user simply has to push a button, either an actual
-> or virtual one, on both the AP (or a Registrar of the Network) and the new
-> wireless client device (STA)
-> .
-> Support of this model is mandatory for APs and optional for STAs."
-> 
-> And there are already a few potential users:
-> OpenWRT routers as well as some rt30xx, ar9170 and ar9271 devices.
+Sigh, sorry. I fat-fingered Dmitry's email address.
 
-Is there anything currently in works that would make use of this button?
-I do not want to allocate keycode "for the future" which may never come.
-We did it with KEY_BATTERY but I do not think anyone actually uses it.
-
--- 
-Dmitry
+* Alex Chiang <achiang@hp.com>:
+> Adding cc's.
+> 
+> /ac
+> 
+> * Matthias Petermann <matthias@d2ux.org>:
+> > Hi,
+> >
+> > around mid December 2009 there was a thread with the same topic as in my  
+> > subject on LKML. Initially there were reported click-problems with the  
+> > Synaptics Trackpad-Click like it is present with current HP Envy 13 and  
+> > 15 Notebooks.
+> >
+> > Dmitry Torokhov stated some very promising patch sets here in this list  
+> > and so far some other persons like Alex Chiang reported success with  
+> > them. Especially I refer to [1].
+> >
+> > Can anyone give a short update what happens to this patches? Are they  
+> > fully merged into 2.6.33-rc8? I tried to match the code of the patch  
+> > with it but it looks quite different from my novices eye ;-)
+> >
+> >
+> > Thanks,
+> > Matthias
+> >
+> >
+> >
+> > [1] http://lkml.org/lkml/2009/12/15/29
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

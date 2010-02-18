@@ -1,54 +1,56 @@
-From: <samu.p.onkalo@nokia.com>
-Subject: RE: [PATCH] input: polldev can cause crash in case of polling
-	disabled
-Date: Thu, 18 Feb 2010 07:46:51 +0100
-Message-ID: <62697B07E9803846BC582181BD6FB6B82661DE37D4@NOK-EUMSG-02.mgdnok.nokia.com>
-References: <1266331481-2094-1-git-send-email-samu.p.onkalo@nokia.com>
- <20100216175047.GB15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4A81B@NOK-EUMSG-02.mgdnok.nokia.com>
- <20100216214309.GC15376@core.coreip.homeip.net>
- <62697B07E9803846BC582181BD6FB6B82661D4AA59@NOK-EUMSG-02.mgdnok.nokia.com>
- <20100217170315.GB10249@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Samu Onkalo <samu.p.onkalo@nokia.com>
+Subject: [PATCHv2] input: polldev can cause crash in case of polling disabled
+Date: Thu, 18 Feb 2010 10:23:40 +0200
+Message-ID: <1266481420-9405-1-git-send-email-samu.p.onkalo@nokia.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:47749 "EHLO
+Received: from smtp.nokia.com ([192.100.122.233]:53705 "EHLO
 	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750728Ab0BRGrY convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751867Ab0BRIYJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Feb 2010 01:47:24 -0500
-In-Reply-To: <20100217170315.GB10249@redhat.com>
-Content-Language: en-US
+	Thu, 18 Feb 2010 03:24:09 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: oleg@redhat.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, oleg@redhat.com, Samu Onkalo <samu.p.onkalo@nokia.com>
 
->Of course, I don't understand input-polldev.c, but shouldn't the trivial
->patch below fix the problem? Although, most likely I do not really
->understand what the problem is ;)
->
->Oleg.
->
->the patch assumes INIT can't race with queue, I don't know if this
->is true.
->
->--- drivers/input/input-polldev.c
->+++ drivers/input/input-polldev.c
->@@ -100,6 +100,7 @@ static void input_close_polled_device(st
-> 	struct input_polled_dev *dev = input_get_drvdata(input);
->
-> 	cancel_delayed_work_sync(&dev->work);
->+	INIT_DELAYED_WORK(&dev->work, dev->work->func);
-> 	input_polldev_stop_workqueue();
->
-> 	if (dev->close)
+When polled input device is opened and closed and there are no other
+users of polled device, the workqueue is created and destroyed in
+every open / close operation. It is probable that at some point
+dynamic allocation of internal parts of the workqueue cause changes to the
+workqueue.
 
-Yes that should fix the problem. This way references to the old workqueue are cleaned up.
-I proposed similar thing but to the opening phase. Both should work. 
+When a work is queued to the workqueue the work struct contains pointers
+to the workqueue data. If the workqueue has been changed and the work
+has never been queued to the new workqueue, work-struct contains pointers
+to the non-existing workqueue. This will cause crash at the work
+cancellation during device close since cancellation of a work assumes
+that the workqueue exists.
 
-I'll test this. 
+To prevent that, work struct is cleaned up at device close. This keeps
+work struct clean for the next use.
 
--Samu
+Signed-off-by: Samu Onkalo <samu.p.onkalo@nokia.com>
+---
+ drivers/input/input-polldev.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index aa6713b..291d939 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -100,6 +100,12 @@ static void input_close_polled_device(struct input_dev *input)
+ 	struct input_polled_dev *dev = input_get_drvdata(input);
+ 
+ 	cancel_delayed_work_sync(&dev->work);
++	/*
++	 * Clean up work struct to remove references to the workqueue.
++	 * It may be destroyed by the next call. This causes problems
++	 * at next device open-close in case of poll_interval == 0.
++	 */
++	INIT_DELAYED_WORK(&dev->work, dev->work.work.func);
+ 	input_polldev_stop_workqueue();
+ 
+ 	if (dev->close)
+-- 
+1.6.0.4
 

@@ -1,26 +1,36 @@
-From: "Mcclellan abutting" <jakerisj394@gmail.com>
-Subject: National Health Service Corp Clinics - 1,300 total records with emails for government run free clinics
-Date: Thu, 18 Feb 2010 16:04:11 -0300 (BRT)
-Message-ID: <20100218190412.193DB24D194@webmail.secom.to.gov.br>
-Reply-To: dh37fh37r@gmail.com
+From: Przemo Firszt <przemo@firszt.eu>
+Subject: Re: EV_PWR events for reporting battery state?
+Date: Thu, 18 Feb 2010 20:51:06 +0000
+Message-ID: <1266526266.3181.1.camel@pldmachine>
+References: <1266357620.4195.10.camel@pldmachine>
+	 <20100217051940.GC7160@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [201.67.112.60] ([201.67.112.60]:53712 "EHLO
-	webmail.secom.to.gov.br" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751677Ab0BRSsx (ORCPT
+Received: from cheetah.host-care.com ([66.7.219.192]:27644 "EHLO
+	cheetah.host-care.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753153Ab0BRVfG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Feb 2010 13:48:53 -0500
+	Thu, 18 Feb 2010 16:35:06 -0500
+In-Reply-To: <20100217051940.GC7160@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: careeropenday@edenbrown.com, vicedean-education@fme.vutbr.cz, info@bibobbyjohnny.nl, jonathan_29@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
+Dnia 2010-02-16, wto o godzinie 21:19 -0800, Dmitry Torokhov pisze:
+> Hi Przemo,
+[..]
+> > There are some definitions in HID usage tables in HID specification, but
+> > I cannot see any of them implemented in kernel (or I omitted something).
+> 
+> I maintain that these kind of events are outside of input subsystem
+> doman (which I would like to limit to human interfaces, not general
+> purpose transport).
+Hi Dmitry,
+OK, it makes sense. I'll use sysfs then.
+--
+Thanks,
+Przemo
 
-
-Email me at this address for a catalog of all our US lists: Melba.Dalton@rightpricedlists.Co.CC
-
-Also, ask about our sale pricing for more than one list.  
-  
-
-
-
-
-to get off please email rembox@rightpricedlists.Co.CC

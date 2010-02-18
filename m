@@ -1,42 +1,26 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: [PATCH 4/4] s3c24xx_ts: re-enable IRQ on resume
-Date: Thu, 18 Feb 2010 18:32:30 +0200
-Message-ID: <1266510750-9846-5-git-send-email-anarsoul@gmail.com>
-References: <1266510750-9846-1-git-send-email-anarsoul@gmail.com>
+From: "Mcclellan abutting" <jakerisj394@gmail.com>
+Subject: National Health Service Corp Clinics - 1,300 total records with emails for government run free clinics
+Date: Thu, 18 Feb 2010 16:04:11 -0300 (BRT)
+Message-ID: <20100218190412.193DB24D194@webmail.secom.to.gov.br>
+Reply-To: dh37fh37r@gmail.com
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f220.google.com ([209.85.220.220]:51002 "EHLO
-	mail-fx0-f220.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757481Ab0BRQdo (ORCPT
+Received: from [201.67.112.60] ([201.67.112.60]:53712 "EHLO
+	webmail.secom.to.gov.br" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751677Ab0BRSsx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Feb 2010 11:33:44 -0500
-Received: by mail-fx0-f220.google.com with SMTP id 20so9209314fxm.21
-        for <linux-input@vger.kernel.org>; Thu, 18 Feb 2010 08:33:44 -0800 (PST)
-In-Reply-To: <1266510750-9846-1-git-send-email-anarsoul@gmail.com>
+	Thu, 18 Feb 2010 13:48:53 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: ben-linux@fluff.org, linux-input@vger.kernel.org, Vasily Khoruzhick <anarsoul@gmail.com>
+To: careeropenday@edenbrown.com, vicedean-education@fme.vutbr.cz, info@bibobbyjohnny.nl, jonathan_29@gmail.com
 
-IRQ should be enabled on resume, otherwise driver doesn't
-report events.
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
----
- drivers/input/touchscreen/s3c2410_ts.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index e2fe2ed..6738c26 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -401,6 +401,7 @@ static int s3c2410ts_resume(struct device *dev)
- 	struct s3c2410_ts_mach_info *info = pdev->dev.platform_data;
- 
- 	clk_enable(ts.clock);
-+	enable_irq(ts.irq_tc);
- 
- 	/* Initialise registers */
- 	if ((info->delay & 0xffff) > 0)
--- 
-1.7.0
+Email me at this address for a catalog of all our US lists: Melba.Dalton@rightpricedlists.Co.CC
 
+Also, ask about our sale pricing for more than one list.  
+  
+
+
+
+
+to get off please email rembox@rightpricedlists.Co.CC

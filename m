@@ -1,36 +1,49 @@
-From: Przemo Firszt <przemo@firszt.eu>
-Subject: Re: EV_PWR events for reporting battery state?
-Date: Thu, 18 Feb 2010 20:51:06 +0000
-Message-ID: <1266526266.3181.1.camel@pldmachine>
-References: <1266357620.4195.10.camel@pldmachine>
-	 <20100217051940.GC7160@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] s3c24xx_ts: re-enable IRQ on resume
+Date: Fri, 19 Feb 2010 01:05:07 -0800
+Message-ID: <20100219090506.GA2856@core.coreip.homeip.net>
+References: <1266510750-9846-1-git-send-email-anarsoul@gmail.com>
+ <1266510750-9846-5-git-send-email-anarsoul@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cheetah.host-care.com ([66.7.219.192]:27644 "EHLO
-	cheetah.host-care.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753153Ab0BRVfG (ORCPT
+Received: from mail-yx0-f200.google.com ([209.85.210.200]:36928 "EHLO
+	mail-yx0-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751424Ab0BSJFN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Feb 2010 16:35:06 -0500
-In-Reply-To: <20100217051940.GC7160@core.coreip.homeip.net>
+	Fri, 19 Feb 2010 04:05:13 -0500
+Received: by yxe38 with SMTP id 38so7258183yxe.4
+        for <linux-input@vger.kernel.org>; Fri, 19 Feb 2010 01:05:11 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1266510750-9846-5-git-send-email-anarsoul@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Vasily Khoruzhick <anarsoul@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, linux-input@vger.kernel.org
 
-Dnia 2010-02-16, wto o godzinie 21:19 -0800, Dmitry Torokhov pisze:
-> Hi Przemo,
-[..]
-> > There are some definitions in HID usage tables in HID specification, but
-> > I cannot see any of them implemented in kernel (or I omitted something).
+On Thu, Feb 18, 2010 at 06:32:30PM +0200, Vasily Khoruzhick wrote:
+> IRQ should be enabled on resume, otherwise driver doesn't
+> report events.
 > 
-> I maintain that these kind of events are outside of input subsystem
-> doman (which I would like to limit to human interfaces, not general
-> purpose transport).
-Hi Dmitry,
-OK, it makes sense. I'll use sysfs then.
---
-Thanks,
-Przemo
+> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+> ---
+>  drivers/input/touchscreen/s3c2410_ts.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+> index e2fe2ed..6738c26 100644
+> --- a/drivers/input/touchscreen/s3c2410_ts.c
+> +++ b/drivers/input/touchscreen/s3c2410_ts.c
+> @@ -401,6 +401,7 @@ static int s3c2410ts_resume(struct device *dev)
+>  	struct s3c2410_ts_mach_info *info = pdev->dev.platform_data;
+>  
+>  	clk_enable(ts.clock);
+> +	enable_irq(ts.irq_tc);
+>  
+>  	/* Initialise registers */
+>  	if ((info->delay & 0xffff) > 0)
 
+Applied to my 'next' branch, thank you Vasily.
+
+-- 
+Dmitry

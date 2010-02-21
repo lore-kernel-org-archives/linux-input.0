@@ -1,46 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
 Subject: Re: [PATCH 2/4] s3c24xx_ts: report touch only when stylus is down
-Date: Sun, 21 Feb 2010 01:41:51 -0800
-Message-ID: <20100221094151.GC18298@core.coreip.homeip.net>
-References: <1266510750-9846-1-git-send-email-anarsoul@gmail.com>
-	<201002191202.16384.anarsoul@gmail.com>
-	<20100221073512.GA18298@core.coreip.homeip.net>
-	<201002211105.30079.anarsoul@gmail.com>
+Date: Sun, 21 Feb 2010 12:33:08 +0200
+Message-ID: <201002211233.11842.anarsoul@gmail.com>
+References: <1266510750-9846-1-git-send-email-anarsoul@gmail.com> <201002211210.12306.anarsoul@gmail.com> <20100221102807.GE18298@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <201002211105.30079.anarsoul@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Vasily Khoruzhick <anarsoul@gmail.com>
-Cc: ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart4098448.41dJHHZJFK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f209.google.com ([209.85.218.209]:59221 "EHLO
+	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755157Ab0BUKdb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Feb 2010 05:33:31 -0500
+Received: by bwz1 with SMTP id 1so1009145bwz.21
+        for <linux-input@vger.kernel.org>; Sun, 21 Feb 2010 02:33:30 -0800 (PST)
+In-Reply-To: <20100221102807.GE18298@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, linux-input@vger.kernel.org
 
-T24gU3VuLCBGZWIgMjEsIDIwMTAgYXQgMTE6MDU6MjZBTSArMDIwMCwgVmFzaWx5IEtob3J1emhp
-Y2sgd3JvdGU6Cj4g0JIg0YHQvtC+0LHRidC10L3QuNC4INC+0YIgMjEg0YTQtdCy0YDQsNC70Y8g
-MjAxMCAwOTozNToxMyDQsNCy0YLQvtGAIERtaXRyeSBUb3Jva2hvdiDQvdCw0L/QuNGB0LDQuzoK
-PiAKPiA+IEFwcGxpZWQsIHRoYW5rIHlvdSBWYXNpbHkuCj4gPiAKPiA+IE9uZSBtb3JlIHRoaW5n
-IHRob3VnaCAtIHdoeSBkbyB3ZSBuZWVkIHRoYXQgdGltZXIgdG8gcmVwb3J0IGlucHV0IGV2ZW50
-cwo+ID4gYW5kIHJlc2NoZWR1bGUgQURDIGNvbnZlcnNpb25zPyBJdCBsb29rcyBsaWtlIGl0IGlz
-IG5vdCByZWFsbHkgbmVlZGVkLgo+ID4gQ291bGQgeW91IHBsZWFzZSBnaXZlIGEgdHJ5IHRvIHRo
-ZSBwYXRjaCBiZWxvdz8KPiA+IAo+ID4gVGhhbmtzIQo+IAo+IFRpbWVyIGlzIHVzZWQgdG8gYXZv
-aWQgcmVwb3J0aW5nIGlucHV0IGV2ZW50cyBpbiBpbnRlcnJ1cHQgY29udGV4dCAoc2VsZWN0IAo+
-IGNhbGxiYWNrIGlzIGNhbGxlZCBmcm9tIHMzY19hZGNfdHJ5IGFuZCBmcm9tIHMzY19hZGNfaXJx
-KSwKCj8/PyBUaGlzIGlzIHF1aXRlIGEgbm92ZWwgY29uY2VwdCBmb3IgbWUuLi4KCj4gSXMgaXQg
-c2FmZSB0byBjYWxsIAo+IGlucHV0X3JlcG9ydF9hYnMvaW5wdXRfcmVwb3J0X2tleSBmcm9tIGlu
-dGVycnVwdCBjb250ZXh0PwoKWWVzLgoKPiBBbnl3YXksIGRyaXZlciAKPiBkb2Vzbid0IHdvcmsg
-Zm9yIG1lIHdpdGggdGhpcyBwYXRjaCAoaXQgd29ya3MgYXMgbW91c2UsIGJ1dCBpdCBkb2Vzbid0
-IGFzIAo+IHRvdWNoc2NyZWVuIHRocm91Z2ggdHNsaWIpCgpIbW0sIGRvZXMgZXZ0ZXN0IHV0aWxp
-dHkgcmVwb3J0IGFsbCBleHBlY3RlZCBldmVudHM/CgotLSAKRG1pdHJ5CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxp
-bmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3Rz
-LmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+--nextPart4098448.41dJHHZJFK
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+=D0=92 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=D0=B8 =D0=BE=D1=82 =
+21 =D1=84=D0=B5=D0=B2=D1=80=D0=B0=D0=BB=D1=8F 2010 12:28:07 =D0=B0=D0=B2=D1=
+=82=D0=BE=D1=80 Dmitry Torokhov =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB:
+
+> While flooding does it report BTN_TOUCH as up or down? I might have messed
+> s3c24xx_ts_check_pen_down()...
+
+Nope, it reports coordinates, here's part of evtest output.
+
+Regards,
+Vasily
+
+Event: time 1254477272.320125, type 3 (Absolute), code 0 (X), value 515
+Event: time 1254477272.320158, type 3 (Absolute), code 1 (Y), value 496
+Event: time 1254477272.320179, -------------- Report Sync ------------=20
+Event: time 1254477272.333973, type 3 (Absolute), code 1 (Y), value 497
+Event: time 1254477272.334012, -------------- Report Sync ------------=20
+Event: time 1254477272.374775, type 3 (Absolute), code 0 (X), value 516
+Event: time 1254477272.374824, -------------- Report Sync ------------=20
+Event: time 1254477272.388559, type 3 (Absolute), code 0 (X), value 515
+Event: time 1254477272.388591, type 3 (Absolute), code 1 (Y), value 498
+Event: time 1254477272.388612, -------------- Report Sync ------------=20
+Event: time 1254477272.402415, type 3 (Absolute), code 1 (Y), value 497
+Event: time 1254477272.402456, -------------- Report Sync ------------=20
+Event: time 1254477272.456858, type 3 (Absolute), code 1 (Y), value 496
+Event: time 1254477272.456901, -------------- Report Sync ------------=20
+Event: time 1254477272.470573, type 3 (Absolute), code 1 (Y), value 497
+Event: time 1254477272.470615, -------------- Report Sync ------------=20
+Event: time 1254477272.484288, type 3 (Absolute), code 1 (Y), value 498
+Event: time 1254477272.484330, -------------- Report Sync ------------
+
+--nextPart4098448.41dJHHZJFK
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+iEYEABECAAYFAkuBC+cACgkQRM6pQpltKE4CHQCfV9T7OOYadQAG8VUIs2QL/ESg
+NBQAoLEGx/WpQzowZbL5QXKmnnrjOrZU
+=nWmb
+-----END PGP SIGNATURE-----
+
+--nextPart4098448.41dJHHZJFK--

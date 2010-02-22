@@ -1,70 +1,37 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: Re: [PATCH 2/4] s3c24xx_ts: report touch only when stylus is down
-Date: Mon, 22 Feb 2010 10:58:11 +0200
-Message-ID: <201002221058.18989.anarsoul@gmail.com>
-References: <1266510750-9846-1-git-send-email-anarsoul@gmail.com>
-	<201002220058.52583.anarsoul@gmail.com>
-	<20100222071403.GD2095@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] HID: documentation additions and elimination of
+ legacy filenames for Roccat Kone driver
+Date: Mon, 22 Feb 2010 11:01:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1002221100130.30967@pobox.suse.cz>
+References: <201002200911.53900.stefan_achatz@web.de> <20100221081327.GB18298@core.coreip.homeip.net> <201002211750.45618.erazor_de@users.sourceforge.net> <20100222062916.GA2095@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0518266420=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20100222071403.GD2095@core.coreip.homeip.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: arhuaco@freaks-unidos.net, ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:55050 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752110Ab0BVKBg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Feb 2010 05:01:36 -0500
+In-Reply-To: <20100222062916.GA2095@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---===============0518266420==
-Content-Type: multipart/signed;
-  boundary="nextPart180981284.0H36jHJMVV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+On Sun, 21 Feb 2010, Dmitry Torokhov wrote:
 
---nextPart180981284.0H36jHJMVV
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: base64
+> On Sun, Feb 21, 2010 at 05:50:45PM +0100, Stefan Achatz wrote:
+> >  This patch adds more documentation and renames sysfs attributes to eliminate my legacy naming.
+> 
+> There are still questions as to the intended use of the attributes...
 
-0JIg0YHQvtC+0LHRidC10L3QuNC4INC+0YIgMjIg0YTQtdCy0YDQsNC70Y8gMjAxMCAwOToxNDow
-MyDQsNCy0YLQvtGAIERtaXRyeSBUb3Jva2hvdiDQvdCw0L/QuNGB0LDQuzoKIAo+IFNvIGlzIHRo
-ZSBiZWxvdyBzdWZmaWNpZW50IHRvIG1ha2UgaXQgd29yaz8gRXZlbiBpZiBpdCB3b3JrcyBhSSB0
-aGluayB3ZQo+IG5lZWQgdG8gYWRkIHNvY2tlIGxvY2tpbmcgYXJvdW5kIHNjaGVkdWxpbmcgcmVh
-ZHMgZnJvbSBpcnEgYW5kCj4gY2FsbGJhY2suLi4KClNvcnJ5LCBzdGlsbCBkb2Vzbid0IHdvcmsu
-CgpSZWdhcmRzClZhc2lseQo=
+Indeed.
 
---nextPart180981284.0H36jHJMVV
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Originally there was a plan to have everything under sysfs documented in 
+Documentation/ABI.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.14 (GNU/Linux)
+Many developers (including me) have been too lazy to do that (or forgot to 
+do so), but it might still be worthwile to resurrect this.
 
-iEYEABECAAYFAkuCRyoACgkQRM6pQpltKE4zvgCfZTsKtFvByybcbQKTwhSIgdId
-DDsAoOGMI0dlSjSbBmiXV3UM1hF4WF48
-=edLI
------END PGP SIGNATURE-----
-
---nextPart180981284.0H36jHJMVV--
-
-
---===============0518266420==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============0518266420==--
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

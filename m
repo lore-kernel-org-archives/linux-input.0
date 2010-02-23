@@ -1,219 +1,403 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1]: input: add support for VirtualBox touchscreen
- emulation to the Lifebook driver
-Date: Tue, 23 Feb 2010 09:58:53 -0800
-Message-ID: <20100223175852.GA11301@core.coreip.homeip.net>
-References: <1266923615.3602.85.camel@michael-laptop>
+Subject: Re: [PATCH v2 1/2] Input: TWL4030: add Force Feedback vibra
+Date: Tue, 23 Feb 2010 10:24:55 -0800
+Message-ID: <20100223182455.GB11301@core.coreip.homeip.net>
+References: <1266935279-331-1-git-send-email-ext-jari.vanhala@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f219.google.com ([209.85.220.219]:45130 "EHLO
-	mail-fx0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751422Ab0BWR7K (ORCPT
+Received: from mail-bw0-f212.google.com ([209.85.218.212]:37433 "EHLO
+	mail-bw0-f212.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752209Ab0BWSZJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Feb 2010 12:59:10 -0500
+	Tue, 23 Feb 2010 13:25:09 -0500
+Received: by bwz4 with SMTP id 4so2850554bwz.28
+        for <linux-input@vger.kernel.org>; Tue, 23 Feb 2010 10:25:07 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1266923615.3602.85.camel@michael-laptop>
+In-Reply-To: <1266935279-331-1-git-send-email-ext-jari.vanhala@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Thayer <Michael.Thayer@Sun.COM>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jari Vanhala <ext-jari.vanhala@nokia.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Michael,
-
-On Tue, Feb 23, 2010 at 12:13:35PM +0100, Michael Thayer wrote:
-> This patch adds support for VirtualBox touchscreen emulation to the Lifebook
->  input driver.
+On Tue, Feb 23, 2010 at 04:27:58PM +0200, Jari Vanhala wrote:
+> TWL4030 Vibrator implemented via Force Feedback
+> interface. This uses MFD TWL4030 codec and own workqueue.
 > 
-> The device will be present as an extension to the PS/2 mouse emulation in the
-> next major release of VirtualBox.  We chose to emulate the Lifebook touchscreen
-> mainly in order to simplify in-kernel support, as the Lifebook driver is active
-> by default in most kernel configurations.  We had to extend the protocol
-> slightly as we wish to provide five mouse buttons and a two-way scroll wheel to
-> virtual guest systems, and we tried to do this in the most non-intrusive way
-> possible with regard to the current driver, which is the reason for the slightly
-> unusual handling of mouse buttons three to five.
-
-I am wondering if it is a good idea to piggy-back on Lifebook. The
-devices are sufficiently different with Lifebook really having 2
-separate devices (touchscreen and either regular external mouse or a
-touchpad) and VirtualBox having asingle device that looks like a pointer
-(not a touchscreen since pointer moves constantly, not while "touching")
-with absolute coordinates reporting.
-
-I think it would be better if we had separate protocol module for that.
-The fact that Lifebook is enabled in many current configurations should
-not affect the decision - current distributions will have to chose to
-backport the change and if they decide to do so will activate the config
-option; users compiling their own kernels will decide if they want it.
-Also, VirualBox may be popular enough to condition the new option on
-EMBEDDED so that it is active by default.
-
+> Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
+> ---
+>  drivers/input/misc/Kconfig         |   11 ++
+>  drivers/input/misc/Makefile        |    1 +
+>  drivers/input/misc/twl4030-vibra.c |  297 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 309 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/misc/twl4030-vibra.c
 > 
-> Most changes in the driver are conditional on the VirtualBox DMI string being
-> found.  A notable exception is the removal of the keybit fields for the left,
-> right and middle buttons for the first device.
-
-This issue should be fixed in the recent kernels.
-
-> The current X.Org evdev driver
-> was seeing these and treating the device as a touchpad instead of a touchscreen.
-> I also tested this with a vanilla Ubuntu Lucid live CD while emulating the
-> original device and presenting a suitable DMI string.
-> 
-> Signed-off-by: Michael Thayer <michael.thayer@sun.com>
-> --- lifebook.c	2010-02-23 12:01:32.941643681 +0100
-> +++ lifebook-vbox.c	2010-02-23 11:44:57.831664482 +0100
-> @@ -1,6 +1,8 @@
->  /*
->   * Fujitsu B-series Lifebook PS/2 TouchScreen driver
-> + * Also used for Oracle VirtualBox mouse integration
->   *
-> + * Copyright (c) 2010 Oracle.  All rights reserved.
->   * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
->   * Copyright (c) 2005 Kenan Esau <kenan.esau@conan.de>
->   *
-> @@ -41,6 +43,15 @@ static int lifebook_set_6byte_proto(cons
->  	return 0;
->  }
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 16ec523..399495a 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -204,6 +204,17 @@ config INPUT_TWL4030_PWRBUTTON
+>  	  To compile this driver as a module, choose M here. The module will
+>  	  be called twl4030_pwrbutton.
 >  
-> +static bool lifebook_use_vbox_proto;
+> +config INPUT_TWL4030_VIBRA
+> +	tristate "Support for TWL4030 Vibrator"
+> +	depends on TWL4030_CORE
+> +	select TWL4030_CODEC
+> +	select INPUT_FF_MEMLESS
+> +	help
+> +	  This option enables support for TWL4030 Vibrator Driver.
 > +
-> +static int lifebook_set_vbox_proto(const struct dmi_system_id *d)
+> +	  To compile this driver as a module, choose M here. The module will
+> +	  be called twl4030_vibra.
+> +
+>  config INPUT_UINPUT
+>  	tristate "User level driver support"
+>  	help
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index a8b8485..1ab002e 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+>  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
+>  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
+> +obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
+>  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+>  obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
+>  obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+> new file mode 100644
+> index 0000000..50f7537
+> --- /dev/null
+> +++ b/drivers/input/misc/twl4030-vibra.c
+> @@ -0,0 +1,297 @@
+> +/*
+> + * twl4030-vibra.c - TWL4030 Vibrator driver
+> + *
+> + * Copyright (C) 2008-2010 Nokia Corporation
+> + *
+> + * Written by Henrik Saari <henrik.saari@nokia.com>
+> + * Updates by Felipe Balbi <felipe.balbi@nokia.com>
+> + * Input by Jari Vanhala <ext-jari.vanhala@nokia.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+> + * 02110-1301 USA
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/workqueue.h>
+> +#include <linux/i2c/twl.h>
+> +#include <linux/mfd/twl4030-codec.h>
+> +#include <linux/input.h>
+> +#include <linux/spinlock.h>
+> +
+> +/* MODULE ID2 */
+> +#define LEDEN		0x00
+> +
+> +/* ForceFeedback */
+> +#define EFFECT_DIR_180_DEG	0x8000 /* range is 0 - 0xFFFF */
+> +
+> +struct vibra_info {
+> +	struct device		*dev;
+> +	struct input_dev	*input_dev;
+> +
+> +	struct workqueue_struct *workqueue;
+> +	struct work_struct	play_work;
+> +	spinlock_t		lock; /* for workqueue */
+> +
+> +	bool			enabled;
+> +	int			speed;
+> +	int			direction;
+> +
+> +	bool			coexist;
+> +};
+> +
+> +static void vibra_disable_leds(void)
 > +{
-> +	lifebook_use_6byte_proto = true;
-> +	lifebook_use_vbox_proto = true;
+> +	u8 reg;
+> +
+> +	/* Disable LEDA & LEDB, cannot be used with vibra (PWM) */
+> +	twl_i2c_read_u8(TWL4030_MODULE_LED, &reg, LEDEN);
+> +	reg &= ~0x03;
+> +	twl_i2c_write_u8(TWL4030_MODULE_LED, LEDEN, reg);
+> +}
+> +
+> +/* Powers H-Bridge and enables audio clk */
+> +static void vibra_enable(struct vibra_info *info)
+> +{
+> +	u8 reg;
+> +
+> +	twl4030_codec_enable_resource(TWL4030_CODEC_RES_POWER);
+> +
+> +	/* turn H-Bridge on */
+> +	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +			&reg, TWL4030_REG_VIBRA_CTL);
+> +	twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +			 (reg | TWL4030_VIBRA_EN), TWL4030_REG_VIBRA_CTL);
+> +
+> +	twl4030_codec_enable_resource(TWL4030_CODEC_RES_APLL);
+> +
+> +	info->enabled = true;
+> +}
+> +
+> +static void vibra_disable(struct vibra_info *info)
+> +{
+> +	u8 reg;
+> +
+> +	/* Power down H-Bridge */
+> +	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +			&reg, TWL4030_REG_VIBRA_CTL);
+> +	twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +			 (reg & ~TWL4030_VIBRA_EN), TWL4030_REG_VIBRA_CTL);
+> +
+> +	twl4030_codec_disable_resource(TWL4030_CODEC_RES_POWER);
+> +	twl4030_codec_disable_resource(TWL4030_CODEC_RES_APLL);
+> +
+> +	info->enabled = false;
+> +}
+> +
+> +static void vibra_play_work(struct work_struct *work)
+> +{
+> +	struct vibra_info *info = container_of(work,
+> +			struct vibra_info, play_work);
+> +	int dir;
+> +	int pwm;
+> +	u8 reg;
+> +
+> +	dir = info->direction;
+> +	pwm = info->speed;
+> +
+> +	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +			&reg, TWL4030_REG_VIBRA_CTL);
+> +	if (pwm && (!info->coexist || !(reg & TWL4030_VIBRA_SEL))) {
+> +
+> +		if (!info->enabled)
+> +			vibra_enable(info);
+> +
+> +		/* set vibra rotation direction */
+> +		twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +				&reg, TWL4030_REG_VIBRA_CTL);
+> +		reg = (dir) ? (reg | TWL4030_VIBRA_DIR) :
+> +			(reg & ~TWL4030_VIBRA_DIR);
+> +		twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +				 reg, TWL4030_REG_VIBRA_CTL);
+> +
+> +		/* set PWM, 1 = max, 255 = min */
+> +		twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
+> +				 256 - pwm, TWL4030_REG_VIBRA_SET);
+> +	} else {
+> +		if (info->enabled)
+> +			vibra_disable(info);
+> +	}
+> +}
+> +
+> +/*** ForceFeedback ***/
+> +
+> +static int vibra_play(struct input_dev *dev, void *data,
+> +		      struct ff_effect *effect)
+> +{
+> +	struct vibra_info *info = data;
+> +
+> +	spin_lock(&info->lock);
+> +	if (!info->workqueue)
+> +		goto out;
+> +
+> +	info->speed = effect->u.rumble.strong_magnitude >> 8;
+> +	if (!info->speed)
+> +		info->speed = effect->u.rumble.weak_magnitude >> 9;
+> +	info->direction = effect->direction < EFFECT_DIR_180_DEG ? 0 : 1;
+> +	queue_work(info->workqueue, &info->play_work);
+
+What if workqueue was not fast enough and previous queue has not been
+scheduled yet? It looks like we need to cancel and reschedule the work,
+otherwise our scheduling will be off. Or we don't really care?
+
+> +out:
+> +	spin_unlock(&info->lock);
 > +	return 0;
 > +}
 > +
->  static const struct dmi_system_id lifebook_dmi_table[] = {
->  	{
->  		.ident = "FLORA-ie 55mi",
-> @@ -115,6 +126,13 @@ static const struct dmi_system_id lifebo
->  			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B142"),
->  		},
->  	},
-> +	{
-> +		.ident = "VirtualBox",
-> +		.matches = {
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "VirtualBox"),
-> +		},
-> +		.callback = lifebook_set_vbox_proto,
-> +	},
->  	{ }
->  };
->  
-> @@ -180,6 +198,21 @@ static psmouse_ret_t lifebook_process_by
->  				((packet[0] & 0x10) ? packet[1] - 256 : packet[1]));
->  			input_report_rel(dev2, REL_Y,
->  				 -(int)((packet[0] & 0x20) ? packet[2] - 256 : packet[2]));
-> +			if (lifebook_use_vbox_proto && !(packet[0] & 0x04)) {
-> +				unsigned btn = (packet[0] >> 6);
+> +/*** Module ***/
+> +#if CONFIG_PM
+> +static int twl4030_vibra_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct vibra_info *info = platform_get_drvdata(pdev);
 > +
-> +				input_report_key(dev2, BTN_MIDDLE, btn == 1);
-> +				input_report_key(dev2, BTN_SIDE, btn == 2);
-> +				input_report_key(dev2, BTN_EXTRA, btn == 3);
-> +			}
-> +			if (lifebook_use_vbox_proto && (packet[0] & 0x04)) {
-> +				unsigned wheel = (packet[0] >> 6);
+> +	if (info->enabled)
+> +		vibra_disable(info);
 > +
-> +				input_report_rel(dev2, REL_WHEEL,
-> +					(wheel == 0) - (wheel == 1));
-> +				input_report_rel(dev2, REL_HWHEEL,
-> +					(wheel == 2) - (wheel == 3));
-> +			}
->  		}
->  		input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
->  		input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
-> @@ -200,11 +233,17 @@ static int lifebook_absolute_mode(struct
->  	/*
->  	   Enable absolute output -- ps2_command fails always but if
->  	   you leave this call out the touchsreen will never send
-> -	   absolute coordinates
-> +	   absolute coordinates.
-> +
-> +	   Note that old versions of VirtualBox which didn't emulate the
-> +	   touchscreen also failed to return an error here, so if we are
-> +	   running inside VirtualBox, we actually have to make sure that
-> +	   the command fails!
->  	*/
->  	param = lifebook_use_6byte_proto ? 0x08 : 0x07;
-> -	ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
-> -
-> +	if (!ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES) &&
-> +		lifebook_use_vbox_proto)
-> +		return -1;
->  	return 0;
->  }
->  
-> @@ -251,11 +290,14 @@ int lifebook_detect(struct psmouse *psmo
->  		return -1;
->  
->  	if (set_properties) {
-> -		psmouse->vendor = "Fujitsu";
-> -		psmouse->name = "Lifebook TouchScreen";
-> +		psmouse->vendor = !lifebook_use_vbox_proto ? "Fujitsu" :
-> +			"VirtualBox";
-> +		psmouse->name =  !lifebook_use_vbox_proto ?
-> +			"Lifebook TouchScreen" :
-> +			"Mouse Integration" ;
->  	}
->  
-> -        return 0;
+
+What will happen if memoryless core will schedule another play effect
+right here? It looks like it will re-enable the device... Need to handle
+this somehow. Or we depending on the workqueue thread being frozen?
+
 > +	return 0;
->  }
->  
->  static int lifebook_create_relative_device(struct psmouse *psmouse)
-> @@ -274,7 +316,8 @@ static int lifebook_create_relative_devi
->  		 "%s/input1", psmouse->ps2dev.serio->phys);
->  
->  	dev2->phys = priv->phys;
-> -	dev2->name = "PS/2 Touchpad";
-> +	dev2->name = !lifebook_use_vbox_proto ? "PS/2 Touchpad" :
-> +		"Virtual PS/2 Mouse";
->  	dev2->id.bustype = BUS_I8042;
->  	dev2->id.vendor  = 0x0002;
->  	dev2->id.product = PSMOUSE_LIFEBOOK;
-> @@ -285,6 +328,13 @@ static int lifebook_create_relative_devi
->  	dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
->  	dev2->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) |
->  		BIT_MASK(BTN_RIGHT);
-> +	if (lifebook_use_vbox_proto) {
-> +		__set_bit(BTN_MIDDLE, dev2->keybit);
-> +		__set_bit(REL_WHEEL, dev2->relbit);
-> +		__set_bit(REL_HWHEEL, dev2->relbit);
-> +		__set_bit(BTN_SIDE, dev2->keybit);
-> +		__set_bit(BTN_EXTRA, dev2->keybit);
-> +	}
->  
->  	error = input_register_device(priv->dev2);
->  	if (error)
-> @@ -310,6 +360,14 @@ int lifebook_init(struct psmouse *psmous
->  	dev1->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
->  	dev1->relbit[0] = 0;
->  	dev1->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +	/*
-> +	   The psmouse-base driver enables these bits, but if the X.Org
-> +	   evdev driver sees them it thinks we are a touchpad, not a
-> +	   touchscreen.
-> +	*/
-> +	psmouse->dev->keybit[BIT_WORD(BTN_MOUSE)] &= ~(BIT_MASK(BTN_LEFT) |
-> +		BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT));
+> +}
 > +
->  	input_set_abs_params(dev1, ABS_X, 0, max_coord, 0, 0);
->  	input_set_abs_params(dev1, ABS_Y, 0, max_coord, 0, 0);
-> 
-> 
+> +static int twl4030_vibra_resume(struct device *dev)
+> +{
+
+Why don't we do vibra_enable() here if it was enabled at suspend time?
+Just waiting for the next play do do it for us?
+
+> +	vibra_disable_leds();
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+> +			 twl4030_vibra_suspend, twl4030_vibra_resume);
+> +#endif
+> +
+> +static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
+> +{
+> +	struct twl4030_codec_vibra_data *pdata = pdev->dev.platform_data;
+> +	struct vibra_info *info;
+> +	int ret;
+> +
+> +	if (!pdata) {
+> +		dev_dbg(&pdev->dev, "platform_data not available\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	info = kzalloc(sizeof(*info), GFP_KERNEL);
+> +	if (!info)
+> +		return -ENOMEM;
+> +
+> +	info->dev = &pdev->dev;
+> +	info->enabled = false;
+
+Kzalloc did it for us.
+
+> +	info->coexist = pdata->coexist ? true : false;
+> +
+> +	platform_set_drvdata(pdev, info);
+> +
+> +	info->workqueue = create_singlethread_workqueue("vibra");
+> +	if (info->workqueue == NULL) {
+> +		dev_err(&pdev->dev, "couldn't create workqueue\n");
+> +		ret = -ENOMEM;
+> +		goto err_kzalloc;
+> +	}
+> +	INIT_WORK(&info->play_work, vibra_play_work);
+> +	spin_lock_init(&info->lock);
+> +
+> +	info->input_dev = input_allocate_device();
+> +	if (info->input_dev == NULL) {
+> +		dev_err(&pdev->dev, "couldn't allocate input device\n");
+> +		ret = -ENOMEM;
+> +		goto err_workq;
+> +	}
+> +	input_set_drvdata(info->input_dev, info);
+> +
+> +	info->input_dev->name = "twl4030:vibrator";
+> +	info->input_dev->id.version = 1;
+> +	info->input_dev->dev.parent = pdev->dev.parent;
+> +	set_bit(FF_RUMBLE, info->input_dev->ffbit);
+> +
+> +	ret = input_register_device(info->input_dev);
+> +	if (ret < 0) {
+> +		dev_dbg(&pdev->dev, "couldn't register input device\n");
+> +		goto err_ialloc;
+> +	}
+> +
+> +	ret = input_ff_create_memless(info->input_dev, info, vibra_play);
+> +	if (ret < 0) {
+> +		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
+> +		goto err_ireg;
+> +	}
+
+This needs to happen before registering input device.
+
+> +
+> +	vibra_disable_leds();
+> +
+> +	return 0;
+> +err_ireg:
+> +	input_unregister_device(info->input_dev);
+> +	info->input_dev = NULL;
+> +err_ialloc:
+> +	input_free_device(info->input_dev);
+> +err_workq:
+> +	destroy_workqueue(info->workqueue);
+> +err_kzalloc:
+> +	kfree(info);
+> +	return ret;
+> +}
+> +
+> +static int __devexit twl4030_vibra_remove(struct platform_device *pdev)
+> +{
+> +	struct vibra_info *info = platform_get_drvdata(pdev);
+> +	struct workqueue_struct *wq;
+> +
+> +	spin_lock(&info->lock);
+> +	wq = info->workqueue;
+> +	info->workqueue = NULL;
+> +	spin_unlock(&info->lock);
+
+If you combine this and the next patch then this locking is not needed.
+
+> +
+> +	cancel_work_sync(&info->play_work);
+> +	destroy_workqueue(wq);
+> +	if (info->enabled)
+> +		vibra_disable(info);
+> +	/* this also free ff-memless which (in turn) kfree info */
+> +	input_unregister_device(info->input_dev);
+> +
+
+It is a good etiquette to do "platform_set_drvdata(pdev, NULL);" to
+avoid leaving dangling pointers behind.
+
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver twl4030_vibra_driver = {
+> +	.probe		= twl4030_vibra_probe,
+> +	.remove		= __devexit_p(twl4030_vibra_remove),
+> +	.driver		= {
+> +		.name	= "twl4030_codec_vibra",
+> +		.owner	= THIS_MODULE,
+> +#ifdef CONFIG_PM
+> +		.pm	= &twl4030_vibra_pm_ops,
+> +#endif
+> +	},
+> +};
+> +
+> +static int __init twl4030_vibra_init(void)
+> +{
+> +	return platform_driver_register(&twl4030_vibra_driver);
+> +}
+> +module_init(twl4030_vibra_init);
+> +
+> +static void __exit twl4030_vibra_exit(void)
+> +{
+> +	platform_driver_unregister(&twl4030_vibra_driver);
+> +}
+> +module_exit(twl4030_vibra_exit);
+> +
+> +MODULE_ALIAS("platform:twl4030_codec_vibra");
+> +
+> +MODULE_DESCRIPTION("TWL4030 Vibra driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Nokia Corporation");
 > -- 
-> Sun Microsystems GmbH        Michael Thayer
-> Werkstrasse 24               VirtualBox engineer
-> 71384 Weinstadt, Germany     mailto:michael.thayer@sun.com
-> 
-> Sitz der Gesellschaft:
-> Sun Microsystems GmbH, Sonnenallee 1, 85551 Kirchheim-Heimstetten
-> Amtsgericht Muenchen: HRB 161028
-> Geschaeftsfuehrer: Thomas Schroeder, Wolfgang Engels, Wolf Frenkel
-> Vorsitzender des Aufsichtsrates: Martin Haering
+> 1.6.3.3
 > 
 
 -- 

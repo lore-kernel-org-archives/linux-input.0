@@ -1,150 +1,220 @@
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: [PATCH v2 2/2] Input: TWL4030-vibra: use dynamic workqueue
-Date: Tue, 23 Feb 2010 16:27:59 +0200
-Message-ID: <1266935279-331-2-git-send-email-ext-jari.vanhala@nokia.com>
-References: <1266935279-331-1-git-send-email-ext-jari.vanhala@nokia.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1]: input: add support for VirtualBox touchscreen
+ emulation to the Lifebook driver
+Date: Tue, 23 Feb 2010 09:58:53 -0800
+Message-ID: <20100223175852.GA11301@core.coreip.homeip.net>
+References: <1266923615.3602.85.camel@michael-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.105.134]:58324 "EHLO
-	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752688Ab0BWO2R (ORCPT
+Received: from mail-fx0-f219.google.com ([209.85.220.219]:45130 "EHLO
+	mail-fx0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751422Ab0BWR7K (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Feb 2010 09:28:17 -0500
-In-Reply-To: <1266935279-331-1-git-send-email-ext-jari.vanhala@nokia.com>
+	Tue, 23 Feb 2010 12:59:10 -0500
+Content-Disposition: inline
+In-Reply-To: <1266923615.3602.85.camel@michael-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jari Vanhala <ext-jari.vanhala@nokia.com>
+To: Michael Thayer <Michael.Thayer@Sun.COM>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Change static workqueue to dynamically created &
-destroyed version.
+Hi Michael,
 
-Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
----
- drivers/input/misc/twl4030-vibra.c |   69 ++++++++++++++++++++++++++----------
- 1 files changed, 50 insertions(+), 19 deletions(-)
+On Tue, Feb 23, 2010 at 12:13:35PM +0100, Michael Thayer wrote:
+> This patch adds support for VirtualBox touchscreen emulation to the Lifebook
+>  input driver.
+> 
+> The device will be present as an extension to the PS/2 mouse emulation in the
+> next major release of VirtualBox.  We chose to emulate the Lifebook touchscreen
+> mainly in order to simplify in-kernel support, as the Lifebook driver is active
+> by default in most kernel configurations.  We had to extend the protocol
+> slightly as we wish to provide five mouse buttons and a two-way scroll wheel to
+> virtual guest systems, and we tried to do this in the most non-intrusive way
+> possible with regard to the current driver, which is the reason for the slightly
+> unusual handling of mouse buttons three to five.
 
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-index 50f7537..0d5be20 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -45,6 +45,7 @@ struct vibra_info {
- 	struct workqueue_struct *workqueue;
- 	struct work_struct	play_work;
- 	spinlock_t		lock; /* for workqueue */
-+	int			users;
- 
- 	bool			enabled;
- 	int			speed;
-@@ -153,6 +154,49 @@ out:
- 	return 0;
- }
- 
-+static int twl4030_vibra_open(struct input_dev *input)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	if (info->workqueue == NULL) {
-+		info->workqueue = create_singlethread_workqueue("vibra");
-+		if (info->workqueue == NULL) {
-+			dev_err(&input->dev, "couldn't create workqueue\n");
-+			return -ENOMEM;
-+		}
-+	}
-+
-+	info->users++;
-+	return 0;
-+}
-+
-+static void twl4030_vibra_wq_destroy(struct vibra_info *info)
-+{
-+	struct workqueue_struct *wq;
-+
-+	spin_lock(&info->lock);
-+	wq = info->workqueue;
-+	info->workqueue = NULL;
-+	spin_unlock(&info->lock);
-+
-+	if (wq) {
-+		cancel_work_sync(&info->play_work);
-+		INIT_WORK(&info->play_work, vibra_play_work); /* cleanup */
-+		destroy_workqueue(wq);
-+	}
-+
-+	if (info->enabled)
-+		vibra_disable(info);
-+}
-+
-+static void twl4030_vibra_close(struct input_dev *input)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	if (!(--info->users))
-+		twl4030_vibra_wq_destroy(info);
-+}
-+
- /*** Module ***/
- #if CONFIG_PM
- static int twl4030_vibra_suspend(struct device *dev)
-@@ -197,12 +241,8 @@ static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, info);
- 
--	info->workqueue = create_singlethread_workqueue("vibra");
--	if (info->workqueue == NULL) {
--		dev_err(&pdev->dev, "couldn't create workqueue\n");
--		ret = -ENOMEM;
--		goto err_kzalloc;
--	}
-+	info->workqueue = NULL;
-+	info->users = 0;
- 	INIT_WORK(&info->play_work, vibra_play_work);
- 	spin_lock_init(&info->lock);
- 
-@@ -210,13 +250,15 @@ static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
- 	if (info->input_dev == NULL) {
- 		dev_err(&pdev->dev, "couldn't allocate input device\n");
- 		ret = -ENOMEM;
--		goto err_workq;
-+		goto err_kzalloc;
- 	}
- 	input_set_drvdata(info->input_dev, info);
- 
- 	info->input_dev->name = "twl4030:vibrator";
- 	info->input_dev->id.version = 1;
- 	info->input_dev->dev.parent = pdev->dev.parent;
-+	info->input_dev->open = twl4030_vibra_open;
-+	info->input_dev->close = twl4030_vibra_close;
- 	set_bit(FF_RUMBLE, info->input_dev->ffbit);
- 
- 	ret = input_register_device(info->input_dev);
-@@ -239,8 +281,6 @@ err_ireg:
- 	info->input_dev = NULL;
- err_ialloc:
- 	input_free_device(info->input_dev);
--err_workq:
--	destroy_workqueue(info->workqueue);
- err_kzalloc:
- 	kfree(info);
- 	return ret;
-@@ -249,17 +289,8 @@ err_kzalloc:
- static int __devexit twl4030_vibra_remove(struct platform_device *pdev)
- {
- 	struct vibra_info *info = platform_get_drvdata(pdev);
--	struct workqueue_struct *wq;
--
--	spin_lock(&info->lock);
--	wq = info->workqueue;
--	info->workqueue = NULL;
--	spin_unlock(&info->lock);
- 
--	cancel_work_sync(&info->play_work);
--	destroy_workqueue(wq);
--	if (info->enabled)
--		vibra_disable(info);
-+	twl4030_vibra_wq_destroy(info);
- 	/* this also free ff-memless which (in turn) kfree info */
- 	input_unregister_device(info->input_dev);
- 
+I am wondering if it is a good idea to piggy-back on Lifebook. The
+devices are sufficiently different with Lifebook really having 2
+separate devices (touchscreen and either regular external mouse or a
+touchpad) and VirtualBox having asingle device that looks like a pointer
+(not a touchscreen since pointer moves constantly, not while "touching")
+with absolute coordinates reporting.
+
+I think it would be better if we had separate protocol module for that.
+The fact that Lifebook is enabled in many current configurations should
+not affect the decision - current distributions will have to chose to
+backport the change and if they decide to do so will activate the config
+option; users compiling their own kernels will decide if they want it.
+Also, VirualBox may be popular enough to condition the new option on
+EMBEDDED so that it is active by default.
+
+> 
+> Most changes in the driver are conditional on the VirtualBox DMI string being
+> found.  A notable exception is the removal of the keybit fields for the left,
+> right and middle buttons for the first device.
+
+This issue should be fixed in the recent kernels.
+
+> The current X.Org evdev driver
+> was seeing these and treating the device as a touchpad instead of a touchscreen.
+> I also tested this with a vanilla Ubuntu Lucid live CD while emulating the
+> original device and presenting a suitable DMI string.
+> 
+> Signed-off-by: Michael Thayer <michael.thayer@sun.com>
+> --- lifebook.c	2010-02-23 12:01:32.941643681 +0100
+> +++ lifebook-vbox.c	2010-02-23 11:44:57.831664482 +0100
+> @@ -1,6 +1,8 @@
+>  /*
+>   * Fujitsu B-series Lifebook PS/2 TouchScreen driver
+> + * Also used for Oracle VirtualBox mouse integration
+>   *
+> + * Copyright (c) 2010 Oracle.  All rights reserved.
+>   * Copyright (c) 2005 Vojtech Pavlik <vojtech@suse.cz>
+>   * Copyright (c) 2005 Kenan Esau <kenan.esau@conan.de>
+>   *
+> @@ -41,6 +43,15 @@ static int lifebook_set_6byte_proto(cons
+>  	return 0;
+>  }
+>  
+> +static bool lifebook_use_vbox_proto;
+> +
+> +static int lifebook_set_vbox_proto(const struct dmi_system_id *d)
+> +{
+> +	lifebook_use_6byte_proto = true;
+> +	lifebook_use_vbox_proto = true;
+> +	return 0;
+> +}
+> +
+>  static const struct dmi_system_id lifebook_dmi_table[] = {
+>  	{
+>  		.ident = "FLORA-ie 55mi",
+> @@ -115,6 +126,13 @@ static const struct dmi_system_id lifebo
+>  			DMI_MATCH(DMI_PRODUCT_NAME, "LifeBook B142"),
+>  		},
+>  	},
+> +	{
+> +		.ident = "VirtualBox",
+> +		.matches = {
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "VirtualBox"),
+> +		},
+> +		.callback = lifebook_set_vbox_proto,
+> +	},
+>  	{ }
+>  };
+>  
+> @@ -180,6 +198,21 @@ static psmouse_ret_t lifebook_process_by
+>  				((packet[0] & 0x10) ? packet[1] - 256 : packet[1]));
+>  			input_report_rel(dev2, REL_Y,
+>  				 -(int)((packet[0] & 0x20) ? packet[2] - 256 : packet[2]));
+> +			if (lifebook_use_vbox_proto && !(packet[0] & 0x04)) {
+> +				unsigned btn = (packet[0] >> 6);
+> +
+> +				input_report_key(dev2, BTN_MIDDLE, btn == 1);
+> +				input_report_key(dev2, BTN_SIDE, btn == 2);
+> +				input_report_key(dev2, BTN_EXTRA, btn == 3);
+> +			}
+> +			if (lifebook_use_vbox_proto && (packet[0] & 0x04)) {
+> +				unsigned wheel = (packet[0] >> 6);
+> +
+> +				input_report_rel(dev2, REL_WHEEL,
+> +					(wheel == 0) - (wheel == 1));
+> +				input_report_rel(dev2, REL_HWHEEL,
+> +					(wheel == 2) - (wheel == 3));
+> +			}
+>  		}
+>  		input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
+>  		input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
+> @@ -200,11 +233,17 @@ static int lifebook_absolute_mode(struct
+>  	/*
+>  	   Enable absolute output -- ps2_command fails always but if
+>  	   you leave this call out the touchsreen will never send
+> -	   absolute coordinates
+> +	   absolute coordinates.
+> +
+> +	   Note that old versions of VirtualBox which didn't emulate the
+> +	   touchscreen also failed to return an error here, so if we are
+> +	   running inside VirtualBox, we actually have to make sure that
+> +	   the command fails!
+>  	*/
+>  	param = lifebook_use_6byte_proto ? 0x08 : 0x07;
+> -	ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
+> -
+> +	if (!ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES) &&
+> +		lifebook_use_vbox_proto)
+> +		return -1;
+>  	return 0;
+>  }
+>  
+> @@ -251,11 +290,14 @@ int lifebook_detect(struct psmouse *psmo
+>  		return -1;
+>  
+>  	if (set_properties) {
+> -		psmouse->vendor = "Fujitsu";
+> -		psmouse->name = "Lifebook TouchScreen";
+> +		psmouse->vendor = !lifebook_use_vbox_proto ? "Fujitsu" :
+> +			"VirtualBox";
+> +		psmouse->name =  !lifebook_use_vbox_proto ?
+> +			"Lifebook TouchScreen" :
+> +			"Mouse Integration" ;
+>  	}
+>  
+> -        return 0;
+> +	return 0;
+>  }
+>  
+>  static int lifebook_create_relative_device(struct psmouse *psmouse)
+> @@ -274,7 +316,8 @@ static int lifebook_create_relative_devi
+>  		 "%s/input1", psmouse->ps2dev.serio->phys);
+>  
+>  	dev2->phys = priv->phys;
+> -	dev2->name = "PS/2 Touchpad";
+> +	dev2->name = !lifebook_use_vbox_proto ? "PS/2 Touchpad" :
+> +		"Virtual PS/2 Mouse";
+>  	dev2->id.bustype = BUS_I8042;
+>  	dev2->id.vendor  = 0x0002;
+>  	dev2->id.product = PSMOUSE_LIFEBOOK;
+> @@ -285,6 +328,13 @@ static int lifebook_create_relative_devi
+>  	dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+>  	dev2->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) |
+>  		BIT_MASK(BTN_RIGHT);
+> +	if (lifebook_use_vbox_proto) {
+> +		__set_bit(BTN_MIDDLE, dev2->keybit);
+> +		__set_bit(REL_WHEEL, dev2->relbit);
+> +		__set_bit(REL_HWHEEL, dev2->relbit);
+> +		__set_bit(BTN_SIDE, dev2->keybit);
+> +		__set_bit(BTN_EXTRA, dev2->keybit);
+> +	}
+>  
+>  	error = input_register_device(priv->dev2);
+>  	if (error)
+> @@ -310,6 +360,14 @@ int lifebook_init(struct psmouse *psmous
+>  	dev1->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+>  	dev1->relbit[0] = 0;
+>  	dev1->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +	/*
+> +	   The psmouse-base driver enables these bits, but if the X.Org
+> +	   evdev driver sees them it thinks we are a touchpad, not a
+> +	   touchscreen.
+> +	*/
+> +	psmouse->dev->keybit[BIT_WORD(BTN_MOUSE)] &= ~(BIT_MASK(BTN_LEFT) |
+> +		BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT));
+> +
+>  	input_set_abs_params(dev1, ABS_X, 0, max_coord, 0, 0);
+>  	input_set_abs_params(dev1, ABS_Y, 0, max_coord, 0, 0);
+> 
+> 
+> -- 
+> Sun Microsystems GmbH        Michael Thayer
+> Werkstrasse 24               VirtualBox engineer
+> 71384 Weinstadt, Germany     mailto:michael.thayer@sun.com
+> 
+> Sitz der Gesellschaft:
+> Sun Microsystems GmbH, Sonnenallee 1, 85551 Kirchheim-Heimstetten
+> Amtsgericht Muenchen: HRB 161028
+> Geschaeftsfuehrer: Thomas Schroeder, Wolfgang Engels, Wolf Frenkel
+> Vorsitzender des Aufsichtsrates: Martin Haering
+> 
+
 -- 
-1.6.3.3
-
+Dmitry

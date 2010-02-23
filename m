@@ -1,180 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Stefan Achatz <stefan_achatz@web.de>
 Subject: Re: [PATCH 3/3] Adding documentation to sysfs attributes of roccat
  kone driver
-Date: Mon, 22 Feb 2010 15:10:32 -0800
-Message-ID: <20100222231031.GC5233@core.coreip.homeip.net>
+Date: Tue, 23 Feb 2010 09:03:08 +0100 (CET)
+Message-ID: <31758929.1286552.1266912188132.JavaMail.fmail@mwmweb006>
 References: <201002200911.53900.stefan_achatz@web.de>
  <20100222062916.GA2095@core.coreip.homeip.net>
  <alpine.LNX.2.00.1002221100130.30967@pobox.suse.cz>
  <201002221942.04624.erazor_de@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fmmailgate03.web.de ([217.72.192.234]:33185 "EHLO
+	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751710Ab0BWIDK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Feb 2010 03:03:10 -0500
 Content-Disposition: inline
 In-Reply-To: <201002221942.04624.erazor_de@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Stefan,
+> Thank you for adding documentation for the sysfs attributes. I have o=
+ne
+> more request though - the documentation adds a lot of anformation abo=
+ut
+> whta the fields mean but unfortunately it is silent on _why_ all thes=
+e
+> fields are needed.
 
-On Mon, Feb 22, 2010 at 07:42:04PM +0100, Stefan Achatz wrote:
->  This patch adds documentation to sysfs attributes introduced by
->  roccat kone mouse driver. The attributes are used by userland
->  software already released by me under
->  http://sourceforge.net/projects/roccat/
-> 
+> For example, why weight is interesting? Is it just shown just because=
+ we can?
+> What woudl yuser do with this information? Why would I need to
+> manipulate several profiles instead of letting udev configure desired
+> state for me every time mouse is plugged into the box? Should not TCU
+> calibration be simply performed during driver binding instead of
+> on-demand from userspace? And so forth.
 
-Thank you for adding documentation for the sysfs attributes. I have one
-more request though - the documentation adds a lot of anformation about
-whta the fields mean but unfortunately it is silent on _why_ all these
-fields are needed.
+I would have done all with libusb in userspace if I had not some proble=
+ms with it:
+- devio wouldn't let me access the mouseprofiles because the manufactur=
+er uses a way to access them check_ctrlrecip() forbids.
+- removing usbhid temporarily would render the mouse not responding for=
+ the time the action takes.
+- readding usbhid is quirky and one needs to replug the mouse if the so=
+ftware fails in some way.
 
-For example, why weight is interesting? Is it just shown just because we can?
-What woudl yuser do with this information? Why would I need to
-manipulate several profiles instead of letting udev configure desired
-state for me every time mouse is plugged into the box? Should not TCU
-calibration be simply performed during driver binding instead of
-on-demand from userspace? And so forth.
+I'm unsure if all this functionality is wanted inside the kernel. This =
+device is Hardware for gamers which i find interesting to be supported =
+by linux also.
+In my attempt to raise acceptance for kernel integration i moved all un=
+necessary functionality like calculating real weight and dpi values int=
+o my userland tools to keep only the basic functions in the module.
+This driver is available as externally compiled module for some months =
+now, in my eyes its the most elegant (and the only workable) solution a=
+nd these patches are also an attempt to find out if this project genera=
+lly has a chance to be integrated in the kernel (but there is also a mo=
+dule for sonys ps3 controller).
+There are more devices from this manufacturer which have similar functi=
+ons like a keyboard with a whole bunch of macro keys where the macros a=
+re stored in the keyboard which I find useful as (amateur) programmer a=
+nd admin.
 
-Thanks.
+The weight is really just a "because I can" value.
 
-> Didn't know if sysfs-driver-hid-roccat-kone or sysfs-driver-usb-roccat-kone
-> is the right filename, since the sysfs files are in bus/usb path.
-> 
-> I refused to split the What-lines to keep lines under 80 chars.
-> 
-> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
-> ---
->  .../ABI/testing/sysfs-driver-hid-roccat-kone       |  108 ++++++++++++++++++++
->  1 files changed, 108 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
-> 
-> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone 
-> b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
-> new file mode 100644
-> index 0000000..0bf1589
-> --- /dev/null
-> +++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
-> @@ -0,0 +1,108 @@
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/actual_dpi
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	It is possible to switch the dpi setting of the mouse with the
-> +		press of a button.
-> +		When read, this file returns the raw number of the actual dpi
-> +		setting of the mouse. This number has to be further processed
-> +		to receive the real dpi value.
-> +
-> +		VALUE DPI
-> +		1     800
-> +		2     1200
-> +		3     1600
-> +		4     2000
-> +		5     2400
-> +		6     3200
-> +
-> +		This file is readonly.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/actual_profile
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	When read, this file returns the number of the actual profile.
-> +		This file is readonly.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface 
-> num>/firmware_version
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	When read, this file returns the raw version number of the
-> +		firmware stored in the mouse. Using the integer value eases
-> +		further usage in other programs. To receive the real version
-> +		number the decimal point has to be shifted 2 positions to the
-> +		left. E.g. a returned value of 138 means 1.38
-> +		This file is readonly.
-> +	
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface 
-> num>/kone_driver_version
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	When read, this file returns the driver version.
-> +		The format of the string is "v<major>.<minor>.<patchlevel>".
-> +		This filename is used by the userland tools to find the
-> +		sys-paths of installed kone-mice. Versions of this driver for
-> +		old kernels replace usbhid instead of generic-usb. The way to
-> +		scan for this file has been chosen to provide a consistent way
-> +		for all supported kernel versions.
-> +		The version number is used to determine the drivers abilities.
-> +		This file is readonly.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/profile[1-5]
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	The mouse can store 5 profiles which can be switched by the
-> +		press of a button. A profile holds informations like button
-> +		mappings, sensitivity, the colors of the 5 leds and light
-> +		effects.
-> +		When read, these files return the respective profile. The
-> +		returned data is 975 bytes in size.
-> +		When written, this file lets one write the respective profile
-> +		data back to the mouse. The data has to be 975 bytes long. The
-> +		checksum and correct profile number will be set by the driver.
-> +		The mouse will reject invalid data.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/settings
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	When read, this file returns the settings stored in the mouse.
-> +		The size of the data is 36 bytes and holds information like the
-> +		startup_profile, tcu state and calibration_data.
-> +		When written, this file lets write settings back to the mouse.
-> +		The data has to be 36 bytes long, the checksum will be
-> +		calculated by the driver. The mouse will reject invalid data.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/startup_profile
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	When read, this file returns the number of the profile thats
-> +		active when the mouse is powered on.
-> +		This file is readonly.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/tcu
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	The mouse has a "Tracking Control Unit" which lets the user
-> +		calibrate the laser power to the mousepad surface.
-> +		When read, this file returns the current state of the TCU,
-> +		where 0 means off and 1 means on.
-> +		Writing 0 in this file will switch the TCU off.
-> +		Writing 1 in this file will start the calibration which takes
-> +		around 6 seconds to complete and activates the TCU.
-> +
-> +What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/weight
-> +Date:		February 2010
-> +Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-> +Description:	The mouse can be equipped with one of four supplied weights
-> +		ranging from 5 to 20 grams which are recognized by the mouse
-> +		and its value can be read out. When read, this file returns the
-> +		raw value returned by the mouse which eases further processing
-> +		in other software.
-> +		The values map to the weights as follows:
-> +
-> +		VALUE WEIGHT
-> +		0     none
-> +		1     5g
-> +		2     10g
-> +		3     15g
-> +		4     20g
-> +
-> +		This file is readonly.
-> -- 
-> 1.6.6
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Switching the profiles is done via software or pressing a button on the=
+ mouse and is useful if you wan't to play games with high sensitivity a=
+nd use a low sensitivity profile for detail work in a graphics applicat=
+ion. Also different button mappings (the mouse can play macros with can=
+ contain keyboard and mouse button events) are useful for different app=
+lications. As example some applications (viewers) do pagescroling with =
+"page up/down" some with arrow keys. You are free to change profiles in=
+ the mouse or load new profiles as you like.
+You can use a script to backup profiles and load a whole set of specifi=
+c profiles before starting maybe a game and restore the old profiles on=
+ exit.
 
--- 
-Dmitry
+TCU calibration is only needed if you switch the surface the mouse is b=
+eing used on. Also you can save and restore already aquired calibration=
+ data with the settings attribute without the need of recalibration.
+
+Maybe this answers some of the questions. I'm new to this kernel patchi=
+ng stuff and I might benefit from verbatim questions and statements.
+Thanks
+Stefan Achatz
+___________________________________________________________
+GRATIS f=C3=BCr alle WEB.DE-Nutzer: Die maxdome Movie-FLAT!
+Jetzt freischalten unter http://movieflat.web.de
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

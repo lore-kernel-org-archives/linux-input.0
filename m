@@ -1,69 +1,51 @@
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: Re: [PATCH] HID: TWL4030: add HID Force Feedback vibra
-Date: Tue, 23 Feb 2010 10:40:07 +0200
-Message-ID: <1266914407.4787.3308.camel@tema>
-References: <1266409336-24146-1-git-send-email-ext-jari.vanhala@nokia.com>
-	 <20100222064004.GB2095@core.coreip.homeip.net>
-	 <1266844776.4787.3236.camel@tema>
-	 <20100222183809.GA5233@core.coreip.homeip.net>
-Reply-To: ext-jari.vanhala@nokia.com
+From: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Key for tablet rotation?
+Date: Tue, 23 Feb 2010 10:20:25 +0100
+Message-ID: <20100223092025.GF11685@suse.cz>
+References: <20100216211714.GA5071@srcf.ucam.org> <20100216225449.GA4466@core.coreip.homeip.net> <20100216225602.GB4466@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:30319 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752412Ab0BWIkU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Feb 2010 03:40:20 -0500
-In-Reply-To: <20100222183809.GA5233@core.coreip.homeip.net>
+Received: from cantor.suse.de ([195.135.220.2]:39227 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750909Ab0BWJU1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Feb 2010 04:20:27 -0500
+Content-Disposition: inline
+In-Reply-To: <20100216225602.GB4466@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org
 
-On Mon, 2010-02-22 at 19:38 +0100, ext Dmitry Torokhov wrote:
-> On Mon, Feb 22, 2010 at 03:19:36PM +0200, Jari Vanhala wrote:
-> > On Mon, 2010-02-22 at 07:40 +0100, ext Dmitry Torokhov wrote:
-> > > > +struct vibra_info {
-> > > > +	struct device		*dev;
-> > > > +	struct input_dev	*input_dev;
-> > > > +
-> > > > +	struct workqueue_struct *workqueue;
-> > > 
-> > > Why do we need a separate workqueue? Can't keventd serve us?
-> > 
-> > There were problems with too long delays once in a while, own workqueue
-> > made things much better. Also, you can change priority if needed.
-> > 
+On Tue, Feb 16, 2010 at 02:56:02PM -0800, Dmitry Torokhov wrote:
+> Now if I only did not forget to CC Vojtech first time around...
 > 
-> OK, in this case you shoudl consider starting it only when input device
-> is opened and shutting it down when it is closed.
-
-Hum.. Delayed workqueue creating/destroying makes driver much more
-complex. I create separate patch for it.
-
-> > > > +static int vibra_play(struct input_dev *dev, void *data,
-> > > > +		      struct ff_effect *effect)
-> > > > +{
-> > > > +	struct vibra_info *info = data;
-> > > > +
-> > > > +	if (!info->workqueue)
-> > > > +		return 0;
+> On Tue, Feb 16, 2010 at 02:54:49PM -0800, Dmitry Torokhov wrote:
+> > On Tue, Feb 16, 2010 at 09:17:14PM +0000, Matthew Garrett wrote:
+> > > Many tablet PCs have a button to indicate that the screen should be 
+> > > rotated from landscape to portrait mode. There's currently no 
+> > > standardisation here - a couple of drivers seem to be using 
+> > > KEY_DIRECTION, and others are just being mapped to arbitrary F keys. So:
 > > > 
-> > > How can workqueue be missig here?
+> > > 1) What is KEY_DIRECTION supposed to be for?
 > > 
-> > It's missing when we remove driver. ff-memless wants to stop vibra (if
-> > it was running) and destroys info. And also we really don't want to
-> > start worker anymore.
-> 
-> I would expect the code to make sure workqueue is present while there
-> are any outstanding playback requests. Otherwise you need more locking
-> (what stops workqueue from being deleted right after you checked it?)
+> > Hmm, that is the good question. It looks like it's been introduced with
+> > the first patch for input events that Vojtech brought in 2.3 kernels and
+> > I do not see any users for it in mainline.
+> > 
+> > Vojtech, do you remember by any chance what you intended it to be used
+> > for?
+> > 
+> > > 2) If it's not suitable, do we still have space for a KEY_ROTATE?
+> > > 
+> > 
+> > We still have a few slots available but I'd lean towards KEY_DIRECTION
+> > (with better name maybe).
 
-I think locking is kind of overkill. Vibra_play is run in atomic-context
-and.. but I can add spinlock to protect work.
+This is way too long ago, sorry. I suppose it was a key on one of the
+early extended AT keyboards, not really related to tablet computing.
+Now, if it's not used anywhere, it makes good sense to reuse it.
 
-	++Jam
-
-
+-- 
+Vojtech Pavlik
+Director SuSE Labs

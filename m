@@ -1,111 +1,96 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH 2/3] hid: add suspend/resume hooks for hid drivers
-Date: Wed, 24 Feb 2010 17:01:12 +0100
-Message-ID: <20100224170112.576403ee@neptune.home>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Subject: [PATCH 3/3] hid-picolcd: make use of new suspend/resume hooks
+Date: Wed, 24 Feb 2010 17:01:25 +0100
+Message-ID: <20100224170125.65f8bdfc@neptune.home>
 References: <20100221002001.0a7e05a7@neptune.home>
  <20100224163101.3622d69f@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100224163101.3622d69f@neptune.home>
-References: <20100224170049.0d04af3c@neptune.home>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100224163101.3622d69f-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
+References: <20100224170049.0d04af3c-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add suspend/resume hooks for HID drivers so these can do some
-additional state adjustment when device gets suspended/resumed.
+Make use of new suspend/resume hooks to disable backlight on suspend
+and restore backlight on simple resume or backlight, contrast and
+framebuffer content on reset-resume.
 
-This patch calls these hooks from usbhid suspend/resume functions,
-only calling suspend on plain suspend, not autosuspend.
-(it might be worth adding an autosuspend parameter to suspend
-hook and calling suspend in both cases)
-
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Cc: Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/hid/hid-core.c              |   19 ++-
- include/linux/hid.h                 |    8 +
- 2 files changed, 36 insertions(+), 1 deletions(-)
+ drivers/hid/hid-picolcd.c           |   45 +++
+ 1 files changed, 45 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
-e.c
-index e2997a8..8ad1a98 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1272,6 +1272,11 @@ static int hid_suspend(struct usb_interface *int=
-f, pm_message_t message)
- 		}
-=20
- 	} else {
-+		if (hid->driver && hid->driver->suspend) {
-+			status =3D hid->driver->suspend(hid);
-+			if (status < 0)
-+				return status;
-+		}
- 		spin_lock_irq(&usbhid->lock);
- 		set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
- 		spin_unlock_irq(&usbhid->lock);
-@@ -1326,6 +1331,11 @@ static int hid_resume(struct usb_interface *intf=
-)
- 		hid_io_error(hid);
- 	usbhid_restart_queues(usbhid);
-=20
-+	if (hid->driver && hid->driver->resume) {
-+		int ret =3D hid->driver->resume(hid);
-+		if (ret < 0 && status =3D=3D 0)
-+			status =3D ret;
-+	}
- 	dev_dbg(&intf->dev, "resume status %d\n", status);
- 	return 0;
- }
-@@ -1334,9 +1344,16 @@ static int hid_reset_resume(struct usb_interface=
- *intf)
- {
- 	struct hid_device *hid =3D usb_get_intfdata(intf);
- 	struct usbhid_device *usbhid =3D hid->driver_data;
-+	int status;
-=20
- 	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
--	return hid_post_reset(intf);
-+	status =3D hid_post_reset(intf);
-+	if (hid->driver && hid->driver->reset_resume) {
-+		int ret =3D hid->driver->reset_resume(hid);
-+		if (ret < 0 && status =3D=3D 0)
-+			status =3D ret;
-+	}
-+	return status;
- }
-=20
- #endif /* CONFIG_PM */
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 8709365..b4409f1 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -589,6 +589,9 @@ struct hid_usage_id {
-  * @report_fixup: called before report descriptor parsing (NULL means =
-nop)
-  * @input_mapping: invoked on input registering before mapping an usag=
-e
-  * @input_mapped: invoked on input registering after mapping an usage
-+ * @suspend: invoked on suspend (NULL means nop)
-+ * @resume: invoked on resume if device was not reset (NULL means nop)
-+ * @reset_resume: invoked on resume if device was reset (NULL means no=
-p)
-  *
-  * raw_event and event should return 0 on no action performed, 1 when =
-no
-  * further processing should be done and negative on error
-@@ -629,6 +632,11 @@ struct hid_driver {
- 	int (*input_mapped)(struct hid_device *hdev,
- 			struct hid_input *hidinput, struct hid_field *field,
- 			struct hid_usage *usage, unsigned long **bit, int *max);
-+#ifdef CONFIG_PM
-+	int (*suspend)(struct hid_device *hdev);
-+	int (*resume)(struct hid_device *hdev);
-+	int (*reset_resume)(struct hid_device *hdev);
-+#endif
- /* private: */
- 	struct device_driver driver;
+diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
+index e69de29..90f6be5 100644
+--- a/drivers/hid/hid-picolcd.c
++++ b/drivers/hid/hid-picolcd.c
+@@ -833,6 +833,46 @@
  };
+=20
+=20
++#ifdef CONFIG_PM
++static int picolcd_suspend(struct hid_device *hdev)
++{
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	int bl_power =3D data->lcd_power;
++
++	data->backlight->props.power =3D FB_BLANK_POWERDOWN;
++	picolcd_set_brightness(data->backlight);
++	data->lcd_power =3D data->backlight->props.power =3D bl_power;
++	dbg_hid(PICOLCD_NAME " device ready for suspend, lcd_power=3D%d\n", b=
+l_power);
++	return 0;
++}
++
++static int picolcd_resume(struct hid_device *hdev)
++{
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	int ret;
++	ret =3D picolcd_set_brightness(data->backlight);
++	if (ret)
++		dbg_hid(PICOLCD_NAME " restoring brightness failed: %d\n", ret);
++	ret =3D picolcd_set_contrast(data->lcd, data->lcd_contrast);
++	if (ret)
++		dbg_hid(PICOLCD_NAME " restoring contrast failed: %d\n", ret);
++	return 0;
++}
++
++static int picolcd_reset_resume(struct hid_device *hdev)
++{
++	int ret;
++	ret =3D picolcd_reset(hdev);
++	if (ret)
++		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
++	ret =3D picolcd_fb_reset(hdev, 0);
++	if (ret)
++		dbg_hid(PICOLCD_NAME " restoring framebuffer content failed: %d\n", =
+ret);
++	return 0;
++}
++#endif
++
++
+ static int picolcd_probe(struct hid_device *hdev,
+ 		     const struct hid_device_id *id)
+ {
+@@ -1057,6 +1097,11 @@
+ 	.probe =3D         picolcd_probe,
+ 	.remove =3D        picolcd_remove,
+ 	.raw_event =3D     picolcd_raw_event,
++#ifdef CONFIG_PM
++	.suspend =3D       picolcd_suspend,
++	.resume =3D        picolcd_resume,
++	.reset_resume =3D  picolcd_reset_resume,
++#endif
+ };
+=20
+ static int __init picolcd_init(void)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

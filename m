@@ -1,76 +1,38 @@
-From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+From: "Rick L. Vinyard, Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
 Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Thu, 25 Feb 2010 08:34:42 -0700
-Message-ID: <7316226fbd1cb53b7f90965c54acd343.squirrel@intranet.cs.nmsu.edu>
+Date: Thu, 25 Feb 2010 10:52:40 -0700
+Message-ID: <d8539fd26220388f501300c92b12bbe1.squirrel@intranet.cs.nmsu.edu>
 References: <20100221002001.0a7e05a7@neptune.home>
     <20100224170049.0d04af3c@neptune.home>
-    <201002241927.53532.oliver@neukum.org>
-    <ffb352764fc5a0da5cca6f3da7fc2603.squirrel@intranet.cs.nmsu.edu>
-    <alpine.LNX.2.00.1002251157500.30967@pobox.suse.cz>
+    <alpine.LNX.2.00.1002251201430.30967@pobox.suse.cz>
+    <20100225123214.0523a310@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.nmsu.edu ([128.123.64.3]:41008 "EHLO mail.cs.nmsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759190Ab0BYPfF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Feb 2010 10:35:05 -0500
-In-Reply-To: <alpine.LNX.2.00.1002251157500.30967@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100225123214.0523a310-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bruno =?iso-8859-1?Q?Pr=C3=A9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Oliver Neukum <oliver@neukum.org>, Bruno =?iso-8859-1?Q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Nicu Pavel <npavel@ituner.com>
 
-Jiri Kosina wrote:
-> On Wed, 24 Feb 2010, Rick L. Vinyard, Jr. wrote:
->
->> The key difference is the replacement of spin_lock() with spin_trylock()
->> such that if the non-interrupt code has already obtained the lock, the
->> interrupt will not deadlock but instead take the else path and schedule
->> a
->> framebuffer update at the next interval.
->
-> Why is _irqsave() and/or deferred work not enough? The aproach with
-> _trylock() seems to be overly complicated for no good reason (I personally
-> become very suspicious every time I see code that is using _trylock()).
+
+Bruno Pr=C3=A9mont wrote:
+> The one for deferredio refresh rate should ideally go below fb device
+> (and I guess that might also be of use for other users of deferredio)
 >
 
-I was concerned about _irqsave() because the lock is split across two
-functions to protect the urb after it is handed off to the usb subsystem
-with usb_submit_urb(). It's locked in g13_fb_send() and unlocked in the
-urb completion callback.
+I'm testing a patch now. I didn't expect anyone else would really need =
+it,
+but it does help with throttling bus traffic from userspace.
 
-As for deferred work, the g13_fb_send() is the I/O portion of the deferred
-framebuffer callback. I was concerned that without a lock one deferred
-update could hand the urb off to the usb subsystem and a second could try
-to access it before it was handed back to the driver.
+If it's in fbsysfs.c we can both eliminate it from our drivers.
 
-In this case the _trylock() would fail and in the else patch we would
-defer yet again until the next update cycle.
-
-I took this approach because usb_interrupt_msg() couldn't be used from an
-interrupt context, such as a resume hook because eventually down the chain
-it does a wait_for_completion_timeout().
-
-It has the added benefit of reusing the urb instead of creating a new one
-for each framebuffer sent out, but that wasn't a reason... just a side
-effect.
-
-The downside is that I had to manage the urb.
-
-One thing I could do is forget about directly calling g13_fb_send() from
-any context and instead use the deferred framebuffer workqueue.
-
-That's probably a simpler approach anyway.
-
-> [ by the way, Rick, are you planning to resubmit the G13 driver with
-> incorporated feedback from the last review round? ]
->
-
-Yes. I just wanted to get the details of suspend/resume worked out before
-resubmitting.
-
--- 
+--=20
 
 Rick
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

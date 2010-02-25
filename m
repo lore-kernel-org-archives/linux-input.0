@@ -1,38 +1,52 @@
-From: "Rick L. Vinyard, Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
-Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Thu, 25 Feb 2010 10:52:40 -0700
-Message-ID: <d8539fd26220388f501300c92b12bbe1.squirrel@intranet.cs.nmsu.edu>
-References: <20100221002001.0a7e05a7@neptune.home>
-    <20100224170049.0d04af3c@neptune.home>
-    <alpine.LNX.2.00.1002251201430.30967@pobox.suse.cz>
-    <20100225123214.0523a310@neptune.home>
+From: Felipe Balbi <me@felipebalbi.com>
+Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
+ interfaced to TCA6416
+Date: Thu, 25 Feb 2010 20:47:03 +0200
+Message-ID: <20100225184702.GA5125@gandalf>
+References: <1267103701-23823-1-git-send-email-srk@ti.com>
+ <1267103701-23823-2-git-send-email-srk@ti.com>
+Reply-To: me@felipebalbi.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100225123214.0523a310-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bruno =?iso-8859-1?Q?Pr=C3=A9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1267103701-23823-2-git-send-email-srk@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Sriramakrishnan <srk@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi,
 
-Bruno Pr=C3=A9mont wrote:
-> The one for deferredio refresh rate should ideally go below fb device
-> (and I guess that might also be of use for other users of deferredio)
->
+On Thu, Feb 25, 2010 at 06:44:59PM +0530, Sriramakrishnan wrote:
+> This patch implements a simple Keypad driver that functions
+> as an I2C client. It handles key press events for keys
+> connected to TCA6416 I2C based IO expander.
 
-I'm testing a patch now. I didn't expect anyone else would really need =
-it,
-but it does help with throttling bus traffic from userspace.
+what's wrong with gpio-keys ??
 
-If it's in fbsysfs.c we can both eliminate it from our drivers.
+> + * Implementation based on drivers/input/keyboard/gpio_keys.c
 
---=20
+I see,
 
-Rick
+shouldn't you instead provide a gpiolib driver for tca6416 and use the
+generic gpio_keys driver ??
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	if (!chip->use_polling) {
+
+IMO, you should only use polling if the irq line isn't connected.
+
+> +		if (pdata->irq_is_gpio)
+> +			chip->irqnum = gpio_to_irq(pdata->irqnum);
+
+you can pass the irq number via i2c_board_info. Use it.
+
+> +		else
+> +			chip->irqnum = pdata->irqnum;
+> +
+> +		ret = request_irq(chip->irqnum, tca6416_keys_isr,
+
+it's an i2c driver!!! this should be request_threaded_irq()
+
+-- 
+balbi

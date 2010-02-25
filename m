@@ -1,50 +1,76 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
 Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Thu, 25 Feb 2010 16:29:32 +0100
-Message-ID: <20100225162932.43ee42a8@neptune.home>
+Date: Thu, 25 Feb 2010 08:34:42 -0700
+Message-ID: <7316226fbd1cb53b7f90965c54acd343.squirrel@intranet.cs.nmsu.edu>
 References: <20100221002001.0a7e05a7@neptune.home>
-	<20100224170049.0d04af3c@neptune.home>
-	<alpine.LNX.2.00.1002251201430.30967@pobox.suse.cz>
-	<20100225123214.0523a310@neptune.home>
-	<alpine.LNX.2.00.1002251615570.30967@pobox.suse.cz>
+    <20100224170049.0d04af3c@neptune.home>
+    <201002241927.53532.oliver@neukum.org>
+    <ffb352764fc5a0da5cca6f3da7fc2603.squirrel@intranet.cs.nmsu.edu>
+    <alpine.LNX.2.00.1002251157500.30967@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1002251615570.30967@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:41008 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759190Ab0BYPfF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Feb 2010 10:35:05 -0500
+In-Reply-To: <alpine.LNX.2.00.1002251157500.30967@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Oliver Neukum <oliver@neukum.org>, Bruno =?iso-8859-1?Q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Nicu Pavel <npavel@ituner.com>
 
-On Thu, 25 February 2010 Jiri Kosina <jkosina@suse.cz> wrote:
+Jiri Kosina wrote:
+> On Wed, 24 Feb 2010, Rick L. Vinyard, Jr. wrote:
 >
-> On Thu, 25 Feb 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > For the two sysfs attributes I currently use, the 'reset' one shall=
-=20
-> > probably be moved to debugfs (I would like to place it under=20
-> > /sys/kernel/debug/hid/$device/ next to rdesc and event).
->=20
-> Yes, that would make sense.
+>> The key difference is the replacement of spin_lock() with spin_trylock()
+>> such that if the non-interrupt code has already obtained the lock, the
+>> interrupt will not deadlock but instead take the else path and schedule
+>> a
+>> framebuffer update at the next interval.
+>
+> Why is _irqsave() and/or deferred work not enough? The aproach with
+> _trylock() seems to be overly complicated for no good reason (I personally
+> become very suspicious every time I see code that is using _trylock()).
+>
 
-So I will move it.
+I was concerned about _irqsave() because the lock is split across two
+functions to protect the urb after it is handed off to the usb subsystem
+with usb_submit_urb(). It's locked in g13_fb_send() and unlocked in the
+urb completion callback.
 
-> ( ... which reminds me to finally to the Documentation/ABI part in
-> sync with respect to current HID code again ... )
->=20
-> > By the way, I'm wondering why event does not list any of the
-> > reports coming from my device though as I understand the code it
-> > should be doing that before my raw_event function gets called...
->=20
-> Sorry, what 'event' do you mean in 'event does not list any of the=20
-> reports'?
+As for deferred work, the g13_fb_send() is the I/O portion of the deferred
+framebuffer callback. I was concerned that without a lock one deferred
+update could hand the urb off to the usb subsystem and a second could try
+to access it before it was handed back to the driver.
 
-Sorry, one 's' that got eaten between my brain and mail client. I
-mean events file in debugfs.
-=46or USB HID keyboard each key press generates "report dump" under
-/sys/kernel/debug/hid/$device/events but for my PicoLCD I don't get
-any entry in there. I'm wondering why.
+In this case the _trylock() would fail and in the else patch we would
+defer yet again until the next update cycle.
 
-Thanks,
-Bruno
+I took this approach because usb_interrupt_msg() couldn't be used from an
+interrupt context, such as a resume hook because eventually down the chain
+it does a wait_for_completion_timeout().
+
+It has the added benefit of reusing the urb instead of creating a new one
+for each framebuffer sent out, but that wasn't a reason... just a side
+effect.
+
+The downside is that I had to manage the urb.
+
+One thing I could do is forget about directly calling g13_fb_send() from
+any context and instead use the deferred framebuffer workqueue.
+
+That's probably a simpler approach anyway.
+
+> [ by the way, Rick, are you planning to resubmit the G13 driver with
+> incorporated feedback from the last review round? ]
+>
+
+Yes. I just wanted to get the details of suspend/resume worked out before
+resubmitting.
+
+-- 
+
+Rick
+

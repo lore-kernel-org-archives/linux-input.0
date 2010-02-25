@@ -1,106 +1,204 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Thu, 25 Feb 2010 12:32:14 +0100
-Message-ID: <20100225123214.0523a310@neptune.home>
-References: <20100221002001.0a7e05a7@neptune.home>
-	<20100224170049.0d04af3c@neptune.home>
-	<alpine.LNX.2.00.1002251201430.30967@pobox.suse.cz>
+From: Jari Vanhala <ext-jari.vanhala@nokia.com>
+Subject: Re: [PATCH v2 1/2] Input: TWL4030: add Force Feedback vibra
+Date: Thu, 25 Feb 2010 10:24:37 +0200
+Message-ID: <1267086277.4787.5670.camel@tema>
+References: <1266935279-331-1-git-send-email-ext-jari.vanhala@nokia.com>
+	 <20100223182455.GB11301@core.coreip.homeip.net>
+Reply-To: ext-jari.vanhala@nokia.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.1002251201430.30967-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.nokia.com ([192.100.122.233]:29621 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932172Ab0BYMNf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Feb 2010 07:13:35 -0500
+In-Reply-To: <20100223182455.GB11301@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, 25 February 2010 Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On Wed, 24 Feb 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > +config HID_PICOLCD
-> > +	tristate "Minibox PicoLCD (graphic version)"
-> > +	depends on FB
-> > +	select FB_DEFERRED_IO
-> > +	select FB_SYS_FILLRECT
-> > +	select FB_SYS_COPYAREA
-> > +	select FB_SYS_IMAGEBLIT
-> > +	select FB_SYS_FOPS
-> > +	select BACKLIGHT_LCD_SUPPORT
-> > +	select BACKLIGHT_CLASS_DEVICE
-> > +	select LCD_CLASS_DEVICE
->=20
-> I guess you need dependency on USB_HID as well, right?
-
-Yep, will add
-
-> > --- a/drivers/hid/hid-picolcd.c
-> > +++ b/drivers/hid/hid-picolcd.c
-> > @@ -0,0 +1,1075 @@
-> > +/*****************************************************************=
-**********
-> > + *   Copyright (C) 2010 by Bruno Pr=C3=A9mont <bonbons@linux-vserv=
-er.org>       *
-> > + *                                                                =
-         *
-> > + *   Based on Logitech G13 driver (v0.4)                          =
-         *
-> > + *     Copyright (C) 2009 by Rick L. Vinyard, Jr. <rvinyard-Ef8Xd5ARO5Q@public.gmane.org=
-u.edu>   *
-> > + *                                                                =
-         *
-> > + *   This program is free software: you can redistribute it and/or=
- modify  *
-> > + *   it under the terms of the GNU General Public License as publi=
-shed by  *
-> > + *   the Free Software Foundation, either version 2 of the License=
-=2E        *
->=20
-> I support removing the 'or any later' clause, but I think your
-> version has the grammar wrong :)
-
-Oops, will fix
-
-> > +/* Update fb_vbitmap from the screen_base and send changed tiles t=
-o device */
-> > +static void picolcd_fb_update(struct picolcd_data *data)
+On Tue, 2010-02-23 at 19:24 +0100, ext Dmitry Torokhov wrote:
+> On Tue, Feb 23, 2010 at 04:27:58PM +0200, Jari Vanhala wrote:
+> > +static int vibra_play(struct input_dev *dev, void *data,
+> > +                   struct ff_effect *effect)
 > > +{
-> > +	int chip, tile;
+> > +     struct vibra_info *info = data;
 > > +
-> > +	spin_lock(&data->lock);
-> > +	if (!(data->status & PICOLCD_READY_FB)) {
-> > +		spin_unlock(&data->lock);
-> > +		picolcd_fb_reset(data->hdev, 0);
-> > +	} else
-> > +		spin_unlock(&data->lock);
->=20
-> Please put the brackets to the else branch as well.
+> > +     spin_lock(&info->lock);
+> > +     if (!info->workqueue)
+> > +             goto out;
+> > +
+> > +     info->speed = effect->u.rumble.strong_magnitude >> 8;
+> > +     if (!info->speed)
+> > +             info->speed = effect->u.rumble.weak_magnitude >> 9;
+> > +     info->direction = effect->direction < EFFECT_DIR_180_DEG ? 0 : 1;
+> > +     queue_work(info->workqueue, &info->play_work);
+> 
+> What if workqueue was not fast enough and previous queue has not been
+> scheduled yet? It looks like we need to cancel and reschedule the work,
+> otherwise our scheduling will be off. Or we don't really care?
 
-Ok, will add the brackets while switching from spin_(un)lock to
-spin_(un)lock_irq{save|restore}.
+queue_work() just return 0 if it was already queued. And it's better to
+get latest speed than all fast changes, motor isn't that sensitive.
 
-> Also, it'd be great if the framebuffer part would get Ack from
-> someone more familiar with framebuffer code than me.
+> > +out:
+> > +     spin_unlock(&info->lock);
+> > +     return 0;
+> > +}
+> > +
+> > +/*** Module ***/
+> > +#if CONFIG_PM
+> > +static int twl4030_vibra_suspend(struct device *dev)
+> > +{
+> > +     struct platform_device *pdev = to_platform_device(dev);
+> > +     struct vibra_info *info = platform_get_drvdata(pdev);
+> > +
+> > +     if (info->enabled)
+> > +             vibra_disable(info);
+> > +
+> 
+> What will happen if memoryless core will schedule another play effect
+> right here? It looks like it will re-enable the device... Need to handle
+> this somehow. Or we depending on the workqueue thread being frozen?
 
-I would appreciate such one as well, especially regarding the
-deferredio part and the more advanced fb use. For now I only tested
-read/write from /dev/fbx.
+We are trusting that nothing is happening from userspace anymore (as
+it's frozen) and all other parts in kernel is also going down. Probably
+if userspace doing something, suspend itself could be canceled (unless
+forced) and we would get back to normal state.
+
+> > +     return 0;
+> > +}
+> > +
+> > +static int twl4030_vibra_resume(struct device *dev)
+> > +{
+> 
+> Why don't we do vibra_enable() here if it was enabled at suspend time?
+> Just waiting for the next play do do it for us?
+
+We want to keep vibra's power off when it's not running, so we wait for
+next play.
+
+> > +     vibra_disable_leds();
+> > +     return 0;
+> > +}
+> > +
+> > +static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+> > +                      twl4030_vibra_suspend, twl4030_vibra_resume);
+> > +#endif
+> > +
+> > +static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
+> > +{
+> > +     struct twl4030_codec_vibra_data *pdata = pdev->dev.platform_data;
+> > +     struct vibra_info *info;
+> > +     int ret;
+> > +
+> > +     if (!pdata) {
+> > +             dev_dbg(&pdev->dev, "platform_data not available\n");
+> > +             return -EINVAL;
+> > +     }
+> > +
+> > +     info = kzalloc(sizeof(*info), GFP_KERNEL);
+> > +     if (!info)
+> > +             return -ENOMEM;
+> > +
+> > +     info->dev = &pdev->dev;
+> > +     info->enabled = false;
+> 
+> Kzalloc did it for us.
+
+Ok.
+
+> > +     info->coexist = pdata->coexist ? true : false;
+> > +
+> > +     platform_set_drvdata(pdev, info);
+> > +
+> > +     info->workqueue = create_singlethread_workqueue("vibra");
+> > +     if (info->workqueue == NULL) {
+> > +             dev_err(&pdev->dev, "couldn't create workqueue\n");
+> > +             ret = -ENOMEM;
+> > +             goto err_kzalloc;
+> > +     }
+> > +     INIT_WORK(&info->play_work, vibra_play_work);
+> > +     spin_lock_init(&info->lock);
+> > +
+> > +     info->input_dev = input_allocate_device();
+> > +     if (info->input_dev == NULL) {
+> > +             dev_err(&pdev->dev, "couldn't allocate input device\n");
+> > +             ret = -ENOMEM;
+> > +             goto err_workq;
+> > +     }
+> > +     input_set_drvdata(info->input_dev, info);
+> > +
+> > +     info->input_dev->name = "twl4030:vibrator";
+> > +     info->input_dev->id.version = 1;
+> > +     info->input_dev->dev.parent = pdev->dev.parent;
+> > +     set_bit(FF_RUMBLE, info->input_dev->ffbit);
+> > +
+> > +     ret = input_register_device(info->input_dev);
+> > +     if (ret < 0) {
+> > +             dev_dbg(&pdev->dev, "couldn't register input device\n");
+> > +             goto err_ialloc;
+> > +     }
+> > +
+> > +     ret = input_ff_create_memless(info->input_dev, info, vibra_play);
+> > +     if (ret < 0) {
+> > +             dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
+> > +             goto err_ireg;
+> > +     }
+> 
+> This needs to happen before registering input device.
+
+And I thought I checked that call order was right.. Fixing. Keeping info
+as data to play is getting too complicated so I drop it and get it via
+input-dev (@play).
+
+> > +
+> > +     vibra_disable_leds();
+> > +
+> > +     return 0;
+> > +err_ireg:
+> > +     input_unregister_device(info->input_dev);
+> > +     info->input_dev = NULL;
+> > +err_ialloc:
+> > +     input_free_device(info->input_dev);
+> > +err_workq:
+> > +     destroy_workqueue(info->workqueue);
+> > +err_kzalloc:
+> > +     kfree(info);
+> > +     return ret;
+> > +}
+> > +
+> > +static int __devexit twl4030_vibra_remove(struct platform_device *pdev)
+> > +{
+> > +     struct vibra_info *info = platform_get_drvdata(pdev);
+> > +     struct workqueue_struct *wq;
+> > +
+> > +     spin_lock(&info->lock);
+> > +     wq = info->workqueue;
+> > +     info->workqueue = NULL;
+> > +     spin_unlock(&info->lock);
+> 
+> If you combine this and the next patch then this locking is not needed.
+
+Hum. Unregister seems to call close.. Great.
+
+> > +
+> > +     cancel_work_sync(&info->play_work);
+> > +     destroy_workqueue(wq);
+> > +     if (info->enabled)
+> > +             vibra_disable(info);
+> > +     /* this also free ff-memless which (in turn) kfree info */
+> > +     input_unregister_device(info->input_dev);
+> > +
+> 
+> It is a good etiquette to do "platform_set_drvdata(pdev, NULL);" to
+> avoid leaving dangling pointers behind.
+
+Ok.
+
+	++Jam
 
 
-=46or the two sysfs attributes I currently use, the 'reset' one shall
-probably be moved to debugfs (I would like to place it under
-/sys/kernel/debug/hid/$device/ next to rdesc and event).
-
-By the way, I'm wondering why event does not list any of the reports
-coming from my device though as I understand the code it should be
-doing that before my raw_event function gets called...
-
-The one for deferredio refresh rate should ideally go below fb device
-(and I guess that might also be of use for other users of deferredio)
-
-Thanks for the review,
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

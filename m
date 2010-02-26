@@ -1,53 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Fri, 26 Feb 2010 00:15:15 -0800
-Message-ID: <20100226081514.GB17444@core.coreip.homeip.net>
-References: <20100221002001.0a7e05a7@neptune.home>
- <20100224170049.0d04af3c@neptune.home>
- <alpine.LNX.2.00.1002251201430.30967@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
+ interfaced to TCA6416
+Date: Fri, 26 Feb 2010 00:28:04 -0800
+Message-ID: <20100226082803.GC17444@core.coreip.homeip.net>
+References: <1267103701-23823-1-git-send-email-srk@ti.com>
+ <1267103701-23823-2-git-send-email-srk@ti.com>
+ <20100225184702.GA5125@gandalf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:51714 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935533Ab0BZI2L (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Feb 2010 03:28:11 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1002251201430.30967-ztGlSCb7Y1iN3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20100225184702.GA5125@gandalf>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Felipe Balbi <me@felipebalbi.com>
+Cc: Sriramakrishnan <srk@ti.com>, linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Feb 25, 2010 at 12:07:38PM +0100, Jiri Kosina wrote:
-> On Wed, 24 Feb 2010, Bruno Pr=E9mont wrote:
->=20
-> > +/* Update fb_vbitmap from the screen_base and send changed tiles t=
-o device */
-> > +static void picolcd_fb_update(struct picolcd_data *data)
-> > +{
-> > +	int chip, tile;
+On Thu, Feb 25, 2010 at 08:47:03PM +0200, Felipe Balbi wrote:
+> Hi,
+> 
+> On Thu, Feb 25, 2010 at 06:44:59PM +0530, Sriramakrishnan wrote:
+> > This patch implements a simple Keypad driver that functions
+> > as an I2C client. It handles key press events for keys
+> > connected to TCA6416 I2C based IO expander.
+> 
+> what's wrong with gpio-keys ??
+> 
+> > + * Implementation based on drivers/input/keyboard/gpio_keys.c
+> 
+> I see,
+> 
+> shouldn't you instead provide a gpiolib driver for tca6416 and use the
+> generic gpio_keys driver ??
+> 
+
+Right. The fact that the driver precludes all otehr gpios from being
+used is a major drawback.
+
+
+> > +	if (!chip->use_polling) {
+> 
+> IMO, you should only use polling if the irq line isn't connected.
+> 
+> > +		if (pdata->irq_is_gpio)
+> > +			chip->irqnum = gpio_to_irq(pdata->irqnum);
+> 
+> you can pass the irq number via i2c_board_info. Use it.
+> 
+> > +		else
+> > +			chip->irqnum = pdata->irqnum;
 > > +
-> > +	spin_lock(&data->lock);
-> > +	if (!(data->status & PICOLCD_READY_FB)) {
-> > +		spin_unlock(&data->lock);
-> > +		picolcd_fb_reset(data->hdev, 0);
-> > +	} else
-> > +		spin_unlock(&data->lock);
->=20
-> Please put the brackets to the else branch as well.
->=20
-Well, it looks like it can be rewritten as:
+> > +		ret = request_irq(chip->irqnum, tca6416_keys_isr,
+> 
+> it's an i2c driver!!! this should be request_threaded_irq()
+> 
 
-	spin_lock(&data->lock);
-	need_reset =3D !(data->status & PICOLCD_READY_FB);
-	spin_unlock(&data->lock);
+Threaded IRQ probably does not fit well when you want to support both
+interrupt and polling in the same driver...
 
-	if (need_reset)
-		picolcd_fb_reset(data->hdev, 0);
-
-Which plainly shows that the locking here is bogus.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

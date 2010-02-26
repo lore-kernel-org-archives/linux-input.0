@@ -1,47 +1,74 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH] Route kbd leds through the generic leds layer (3rd version)
-Date: Thu, 25 Feb 2010 22:47:59 +0100
-Message-ID: <20100225214759.GC9378@const.homenet.telecomitalia.it>
-References: <20100224012010.GA4062@const> <20100225013840.GA5519@const.homenet.telecomitalia.it> <20100225102056.GG10823@core.coreip.homeip.net> <1267100600.4243.13.camel@rex>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Route kbd leds through the generic leds layer (3rd
+ version)
+Date: Thu, 25 Feb 2010 19:54:48 -0800
+Message-ID: <20100226035448.GA16797__19416.2251581021$1267156513$gmane$org@core.coreip.homeip.net>
+References: <20100224012010.GA4062@const>
+ <20100225013840.GA5519@const.homenet.telecomitalia.it>
+ <20100225102056.GG10823@core.coreip.homeip.net>
+ <20100225214403.GB9378@const.homenet.telecomitalia.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from toccata.ens-lyon.fr ([140.77.166.68]:44553 "EHLO
-	toccata.ens-lyon.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934033Ab0BYVsE (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:41985 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935056Ab0BZDyx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Feb 2010 16:48:04 -0500
+	Thu, 25 Feb 2010 22:54:53 -0500
 Content-Disposition: inline
-In-Reply-To: <1267100600.4243.13.camel@rex>
+In-Reply-To: <20100225214403.GB9378@const.homenet.telecomitalia.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>, Alexey Dobriyan <adobriyan@gmail.com>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, mgarski@post.pl, linux-input@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, "H. Peter Anvin" <hpa@zytor.com>, Pavel Machek <pavel@ucw.cz>, Alexey Dobriyan <adobriyan@gmail.com>, akpm@linux-foundation.orglinux-
 
-Richard Purdie, le Thu 25 Feb 2010 12:23:20 +0000, a =E9crit :
-> The first would be the triggers themselves which are independent in
-> their own right and shouldn't be too controversial.
+On Thu, Feb 25, 2010 at 10:44:03PM +0100, Samuel Thibault wrote:
+> Dmitry Torokhov, le Thu 25 Feb 2010 02:20:56 -0800, a =E9crit :
+> > I am aunsure about this patch. It ties all LEDs together
+>=20
+> For now, yes.  There could be an additional per-device layer that the
+> user could select instead, but my patch doesn't prevent that.
+>=20
+> > whereas currently it is possible to operate keyboards and their led=
+s
+> > independently
+>=20
+> You mean through the input layer?  Technically, yes, but at least my
+> patch is an improvement over what exists right now: at first read of
+> your sentence I thought "of course not! keyboard.c does it for all
+> devices!", so it's not a regression in that concern.
 
-One issue is that keyboard.c has to know whether to send input events
-itself as it does now (e.g. because triggers are not compiled), or to
-rely on triggers to do it for him.
+Right now on .33, if you write LED event to one event device while
+legacy keyboard driver is inactive (in raw mode) then that write will
+only affect that particular event device, not the rest of them. Your
+patch changes that.
 
-> The second part would be the input LEDs themselves. My input susbsyst=
-em
-> memory is fuzzy, I assume this sets a set of LEDs per input device an=
-d
-> attaches the appropriate default triggers?
+Whether LED state should be shared between all input devices or should
+be kept separate is a matter of policy and we try to keep policy in
+userspace.
 
-I would rather say that it sets a set of input devices per LED and
-attaches them the appropriate default trigger.
+>  On the contrary,
+> it fixes the problem of proper caps lock with led feedback.
+>=20
 
-> Is there a set of states we can detect (like raw mode) when we could
-> just know to disconnect the default triggers?
+I am unaware of such issue, any pointers?
 
-What for?
+> Being able to assign only some of the devices to the linux console
+> would indeed probably be good, but to me it's just a refinement. User=
+s
+> a priori assume all keyboards get their leds updated, so my patch
+> makes sense.  And it won't prevent a further patch that, in addition
+> to input::<led> leds, adds per-device leds, which the user could use
+> instead of input::<led>.
 
-Samuel
+I think that if we want to go LED route we shoudl start with adding led
+devices to individual keyboard drivers first and then convert legacy
+keyboard to use trigger instead of talking to input devices directly.
+
+Thanks.
+
+--=20
+Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

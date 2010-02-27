@@ -1,115 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
- interfaced to TCA6416
-Date: Sat, 27 Feb 2010 01:00:17 -0800
-Message-ID: <20100227090017.GI793@core.coreip.homeip.net>
-References: <1267103701-23823-1-git-send-email-srk@ti.com>
- <1267103701-23823-2-git-send-email-srk@ti.com>
- <20100225184702.GA5125@gandalf>
- <20100226082803.GC17444@core.coreip.homeip.net>
- <FCCFB4CDC6E5564B9182F639FC3560870304194AD0@dbde02.ent.ti.com>
+From: Ben Hardill <b.hardill@gmail.com>
+Subject: RE: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
+ quirky remote
+Date: Sat, 27 Feb 2010 11:32:21 +0000
+Message-ID: <4B8902C5.5000508@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:46148 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967998Ab0B0JAX (ORCPT
+Received: from mail-ew0-f220.google.com ([209.85.219.220]:38130 "EHLO
+	mail-ew0-f220.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S966166Ab0B0LcY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Feb 2010 04:00:23 -0500
-Content-Disposition: inline
-In-Reply-To: <FCCFB4CDC6E5564B9182F639FC3560870304194AD0@dbde02.ent.ti.com>
+	Sat, 27 Feb 2010 06:32:24 -0500
+Received: by ewy20 with SMTP id 20so504071ewy.21
+        for <linux-input@vger.kernel.org>; Sat, 27 Feb 2010 03:32:23 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Cc: Felipe Balbi <me@felipebalbi.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: Wayne Thomas <waynethomas69@gmail.com>
 
-On Fri, Feb 26, 2010 at 08:13:28PM +0530, Govindarajan, Sriramakrishnan wrote:
+> > are using this usage page as standard.  I was going to fiddle
+> > around with this but instead will wait to see how this will be
+> > implemented in udev. Sorry I couldn't relieve some of your
+> > work-load.
+>
+>  udev keymaps are described in README.keymap.txt in udev package. You
+>  can find current version on
 > 
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: Friday, February 26, 2010 1:58 PM
-> > To: Felipe Balbi
-> > Cc: Govindarajan, Sriramakrishnan; linux-omap@vger.kernel.org; linux-
-> > input@vger.kernel.org
-> > Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
-> > interfaced to TCA6416
-> > 
-> > On Thu, Feb 25, 2010 at 08:47:03PM +0200, Felipe Balbi wrote:
-> > > Hi,
-> > >
-> > > On Thu, Feb 25, 2010 at 06:44:59PM +0530, Sriramakrishnan wrote:
-> > > > This patch implements a simple Keypad driver that functions
-> > > > as an I2C client. It handles key press events for keys
-> > > > connected to TCA6416 I2C based IO expander.
-> > >
-> > > what's wrong with gpio-keys ??
-> > >
-> > > > + * Implementation based on drivers/input/keyboard/gpio_keys.c
-> > >
-> > > I see,
-> > >
-> > > shouldn't you instead provide a gpiolib driver for tca6416 and use the
-> > > generic gpio_keys driver ??
-> > >
-> > 
-> > Right. The fact that the driver precludes all otehr gpios from being
-> > used is a major drawback.
+http://git.kernel.org/?p=linux/hotplug/udev.git;a=blob;f=extras/keymap/README.keymap.txt;h=9c2d5dc16a151d57720b1dfe39e784f1b1d47367;hb=HEAD
+>
+>
+>
+Thanks,
 
-> [Sriram] gpio_keys implementation assumes that every key can generate
-> an interrupt to the processor and also the state machine to process
-> events will handle each line individually. Imagine if 16 keys are
-> connected to the TCA controller and you have to query(assume it is
-> polling, interrupt mode not possible - as you have single interrupt
-> line to the processor for event on any of the 16 input lines) 16 lines
-> individually over i2c bus - the associated overhead is too high.
-> Instead this implementation handles the necessary book-keeping in one
-> simple function (get status of all 16 lines in one read transaction).
-> Building on a GPIO implementation and using gpio-keys above will be
-> both clumsy and incur runtime overhead as against a direct keypad
-> driver.
-> 
-> More often(as on AM3517EVM) the keypad keys are not mixed with other
-> GPIO keys. The initial implementation includes key_mask to identify
-> the keys to be used for keypad and the others are logically not
-> modified. Hence the implementation can be extended if need arises to
-> overcome this restriction.
+Jiri,
 
-In this case you should not build on gpio_keys at all but select some
-other keyboard as an example that smply uses keytable with set of
-keycodes, single interrupt, etc. The overhead of all gpio_keys data
-structures is not needed here.
+I've tried to follow the instructions in the README.keymap but when I 
+run /lib/udev/keymap -i input/eventX against both of the event devices I 
+get nothing out, not even the "unknown" message mentioned in the doc.
 
-> > 
-> > 
-> > > > +	if (!chip->use_polling) {
-> > >
-> > > IMO, you should only use polling if the irq line isn't connected.
-> > >
-> > > > +		if (pdata->irq_is_gpio)
-> > > > +			chip->irqnum = gpio_to_irq(pdata->irqnum);
-> > >
-> > > you can pass the irq number via i2c_board_info. Use it.
-> > >
-> > > > +		else
-> > > > +			chip->irqnum = pdata->irqnum;
-> > > > +
-> > > > +		ret = request_irq(chip->irqnum, tca6416_keys_isr,
-> > >
-> > > it's an i2c driver!!! this should be request_threaded_irq()
-> > >
-> > 
-> > Threaded IRQ probably does not fit well when you want to support both
-> > interrupt and polling in the same driver...
+I'm not totally up to speed with this yet, but I think i may be down to 
+the "e0x0ffbc0000 HID usage page" that Wayne mentioned earlier not being 
+read by the input layer and passed to the udev layer. If this is the 
+case then before udev can be used to make hardware like this work the 
+input layer will need to add support for this page.
 
-> [Sriram] All the core logic (including I2C transactions) is
-> implemented through a work queue implementation. The ISR is slim and
-> only schedules the work queue. This also enables the implementation to
-> be easily adaptable for both interrupt/polled mode.
-> 
+Thanks,
 
-Fair enough but you need to ensure that you do not leave irq unbalances
-(in regards to enable/disable) when you using workqueue and disabling
-interrupt in the ISR.
+Ben
 
--- 
-Dmitry

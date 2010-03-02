@@ -1,364 +1,203 @@
-From: Jari Vanhala <ext-jari.vanhala@nokia.com>
-Subject: [PATCHv3] Input/misc: TWL4030-vibra: add Force Feedback vibra
-Date: Tue,  2 Mar 2010 14:53:32 +0200
-Message-ID: <1267534412-9542-1-git-send-email-ext-jari.vanhala@nokia.com>
+From: "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
+Subject: [PATCH] Add sysfs support for fbdefio delay
+Date: Tue, 02 Mar 2010 11:47:34 -0700
+Message-ID: <201003021847.o22IlYR8004349@mustang.cs.nmsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:19452 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752963Ab0CBMxt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2010 07:53:49 -0500
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:52793 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751921Ab0CBSs3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Mar 2010 13:48:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jari Vanhala <ext-jari.vanhala@nokia.com>
+To: linux-kernel@vger.kernel.org
+Cc: felipe.balbi@nokia.com, pavel@ucw.cz, jayakumar.lkml@gmail.com, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, npavel@ituner.com, tomi.valkeinen@nokia.com, tony@atomide.com, FlorianSchandinat@gmx.de, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-fbdev@vger.kernel.org, jkosina@suse.cz, bonbons@linux-vserver.org
 
-TWL4030 Vibrator implemented via Force Feedback
-interface. This uses MFD TWL4030 codec and own dynamic
-workqueue.
+This patch adds support for examining and modifying the fbdefio delay
+parameter through sysfs. It also adds two driver definable minimum
+and maximum bounds.
 
-Signed-off-by: Jari Vanhala <ext-jari.vanhala@nokia.com>
+The default behavior is to not permit modifications if delay_max is 0,
+thus preventing modification of the delay if the driver does not
+explicitly permit modification.
+
+Signed-off-by: Rick L. Vinyard, Jr <rvinyard@cs.nmsu.edu>
 ---
- drivers/input/misc/Kconfig         |   11 ++
- drivers/input/misc/Makefile        |    1 +
- drivers/input/misc/twl4030-vibra.c |  295 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 307 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/twl4030-vibra.c
+ .../ABI/testing/sysfs-class-graphics-defio         |   35 ++++++++
+ drivers/video/fbsysfs.c                            |   87 ++++++++++++++++++++
+ include/linux/fb.h                                 |    9 ++-
+ 3 files changed, 130 insertions(+), 1 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-class-graphics-defio
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 16ec523..399495a 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -204,6 +204,17 @@ config INPUT_TWL4030_PWRBUTTON
- 	  To compile this driver as a module, choose M here. The module will
- 	  be called twl4030_pwrbutton.
- 
-+config INPUT_TWL4030_VIBRA
-+	tristate "Support for TWL4030 Vibrator"
-+	depends on TWL4030_CORE
-+	select TWL4030_CODEC
-+	select INPUT_FF_MEMLESS
-+	help
-+	  This option enables support for TWL4030 Vibrator Driver.
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called twl4030_vibra.
-+
- config INPUT_UINPUT
- 	tristate "User level driver support"
- 	help
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index a8b8485..1ab002e 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -25,6 +25,7 @@ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
- obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
- obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
-+obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
- obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
- obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
- obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+diff --git a/Documentation/ABI/testing/sysfs-class-graphics-defio b/Documentation/ABI/testing/sysfs-class-graphics-defio
 new file mode 100644
-index 0000000..5a06a27
+index 0000000..e0ef924
 --- /dev/null
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -0,0 +1,295 @@
-+/*
-+ * twl4030-vibra.c - TWL4030 Vibrator driver
-+ *
-+ * Copyright (C) 2008-2010 Nokia Corporation
-+ *
-+ * Written by Henrik Saari <henrik.saari@nokia.com>
-+ * Updates by Felipe Balbi <felipe.balbi@nokia.com>
-+ * Input by Jari Vanhala <ext-jari.vanhala@nokia.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-+ * 02110-1301 USA
-+ *
-+ */
++++ b/Documentation/ABI/testing/sysfs-class-graphics-defio
+@@ -0,0 +1,35 @@
++What:		/sys/class/graphics/<fb>/defio_delay
++Date:		February 2010
++KernelVersion:	2.6.34
++Contact:	Rick L Vinyard Jr <rvinyard@cs.nmsu.edu>
++Description:
++		Set the deferred I/O delay of the framebuffer in ms.
++		This value can be used to throttle deferred I/O updates.
++		Most framebuffer devices do not have or need support for
++		deferred I/O. Accessing a framebuffer without deferred I/O
++		support will return -ENODEV. Can be read but not modified if
++		/sys/class/graphics/<fb>/defio_delay_max is 0. When modifying,
++		the value must be greater than or equal to
++		/sys/class/graphics/<fb>/defio_delay_min and less than or equal
++		to /sys/class/graphics/<fb>/defio_delay_max.
 +
-+#include <linux/module.h>
-+#include <linux/jiffies.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/i2c/twl.h>
-+#include <linux/mfd/twl4030-codec.h>
-+#include <linux/input.h>
++What:		/sys/class/graphics/<fb>/defio_delay_min
++Date:		February 2010
++KernelVersion:	2.6.34
++Contact:	Rick L Vinyard Jr <rvinyard@cs.nmsu.edu>
++Description:
++		Minimum deferred I/O value in ms for this framebuffer.
++		This value is specified by the driver and cannot be modified
++		from sysfs. Default is 0.
 +
-+/* MODULE ID2 */
-+#define LEDEN		0x00
++What:		/sys/class/graphics/<fb>/defio_delay_min
++Date:		February 2010
++KernelVersion:	2.6.34
++Contact:	Rick L Vinyard Jr <rvinyard@cs.nmsu.edu>
++Description:
++		Maximum deferred I/O value in ms for this framebuffer.
++		This value is specified by the driver and cannot be modified
++		from sysfs. Default is 0.
++		If this value is 0 /sys/class/graphics/<fb>/defio_delay cannot
++		be modified, but can be read.
 +
-+/* ForceFeedback */
-+#define EFFECT_DIR_180_DEG	0x8000 /* range is 0 - 0xFFFF */
-+
-+struct vibra_info {
-+	struct device		*dev;
-+	struct input_dev	*input_dev;
-+
-+	struct workqueue_struct *workqueue;
-+	struct work_struct	play_work;
-+
-+	bool			enabled;
-+	int			speed;
-+	int			direction;
-+
-+	bool			coexist;
-+};
-+
-+static void vibra_disable_leds(void)
+diff --git a/drivers/video/fbsysfs.c b/drivers/video/fbsysfs.c
+index d4a2c11..d00ea2d 100644
+--- a/drivers/video/fbsysfs.c
++++ b/drivers/video/fbsysfs.c
+@@ -484,6 +484,87 @@ static ssize_t show_bl_curve(struct device *device,
+ }
+ #endif
+ 
++#ifdef CONFIG_FB_DEFERRED_IO
++static ssize_t store_defio_delay(struct device *device,
++				 struct device_attribute *attr,
++				 const char *buf, size_t count)
 +{
-+	u8 reg;
++	struct fb_info *fb_info = dev_get_drvdata(device);
++	unsigned long delay_ms = 0;
++	unsigned long delay;
++	int error;
++	char *last = NULL;
 +
-+	/* Disable LEDA & LEDB, cannot be used with vibra (PWM) */
-+	twl_i2c_read_u8(TWL4030_MODULE_LED, &reg, LEDEN);
-+	reg &= ~0x03;
-+	twl_i2c_write_u8(TWL4030_MODULE_LED, LEDEN, reg);
-+}
++	/* Check to see whether this is a deferred I/O driver */
++	if (!fb_info || !fb_info->fbdefio)
++		return -ENODEV;
 +
-+/* Powers H-Bridge and enables audio clk */
-+static void vibra_enable(struct vibra_info *info)
-+{
-+	u8 reg;
++	/* Check whether delay_max permits setting of delay */
++	if (fb_info->fbdefio->delay_max == 0)
++		return -EPERM;
 +
-+	twl4030_codec_enable_resource(TWL4030_CODEC_RES_POWER);
++	error = strict_strtoul(buf, 10, &delay_ms);
++	if (error < 0)
++		return error;
 +
-+	/* turn H-Bridge on */
-+	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
-+			&reg, TWL4030_REG_VIBRA_CTL);
-+	twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
-+			 (reg | TWL4030_VIBRA_EN), TWL4030_REG_VIBRA_CTL);
++	delay = delay_ms * HZ / 1000;
 +
-+	twl4030_codec_enable_resource(TWL4030_CODEC_RES_APLL);
-+
-+	info->enabled = true;
-+}
-+
-+static void vibra_disable(struct vibra_info *info)
-+{
-+	u8 reg;
-+
-+	/* Power down H-Bridge */
-+	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
-+			&reg, TWL4030_REG_VIBRA_CTL);
-+	twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
-+			 (reg & ~TWL4030_VIBRA_EN), TWL4030_REG_VIBRA_CTL);
-+
-+	twl4030_codec_disable_resource(TWL4030_CODEC_RES_POWER);
-+	twl4030_codec_disable_resource(TWL4030_CODEC_RES_APLL);
-+
-+	info->enabled = false;
-+}
-+
-+static void vibra_play_work(struct work_struct *work)
-+{
-+	struct vibra_info *info = container_of(work,
-+			struct vibra_info, play_work);
-+	int dir;
-+	int pwm;
-+	u8 reg;
-+
-+	dir = info->direction;
-+	pwm = info->speed;
-+
-+	twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
-+			&reg, TWL4030_REG_VIBRA_CTL);
-+	if (pwm && (!info->coexist || !(reg & TWL4030_VIBRA_SEL))) {
-+
-+		if (!info->enabled)
-+			vibra_enable(info);
-+
-+		/* set vibra rotation direction */
-+		twl_i2c_read_u8(TWL4030_MODULE_AUDIO_VOICE,
-+				&reg, TWL4030_REG_VIBRA_CTL);
-+		reg = (dir) ? (reg | TWL4030_VIBRA_DIR) :
-+			(reg & ~TWL4030_VIBRA_DIR);
-+		twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
-+				 reg, TWL4030_REG_VIBRA_CTL);
-+
-+		/* set PWM, 1 = max, 255 = min */
-+		twl_i2c_write_u8(TWL4030_MODULE_AUDIO_VOICE,
-+				 256 - pwm, TWL4030_REG_VIBRA_SET);
-+	} else {
-+		if (info->enabled)
-+			vibra_disable(info);
-+	}
-+}
-+
-+/*** Input/ForceFeedback ***/
-+
-+static int vibra_play(struct input_dev *input, void *data,
-+		      struct ff_effect *effect)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	info->speed = effect->u.rumble.strong_magnitude >> 8;
-+	if (!info->speed)
-+		info->speed = effect->u.rumble.weak_magnitude >> 9;
-+	info->direction = effect->direction < EFFECT_DIR_180_DEG ? 0 : 1;
-+	queue_work(info->workqueue, &info->play_work);
-+	return 0;
-+}
-+
-+static int twl4030_vibra_open(struct input_dev *input)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	info->workqueue = create_singlethread_workqueue("vibra");
-+	if (info->workqueue == NULL) {
-+		dev_err(&input->dev, "couldn't create workqueue\n");
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+static void twl4030_vibra_close(struct input_dev *input)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	cancel_work_sync(&info->play_work);
-+	INIT_WORK(&info->play_work, vibra_play_work); /* cleanup */
-+	destroy_workqueue(info->workqueue);
-+	info->workqueue = NULL;
-+
-+	if (info->enabled)
-+		vibra_disable(info);
-+}
-+
-+/*** Module ***/
-+#if CONFIG_PM
-+static int twl4030_vibra_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct vibra_info *info = platform_get_drvdata(pdev);
-+
-+	if (info->enabled)
-+		vibra_disable(info);
-+
-+	return 0;
-+}
-+
-+static int twl4030_vibra_resume(struct device *dev)
-+{
-+	vibra_disable_leds();
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
-+			 twl4030_vibra_suspend, twl4030_vibra_resume);
-+#endif
-+
-+static int __devinit twl4030_vibra_probe(struct platform_device *pdev)
-+{
-+	struct twl4030_codec_vibra_data *pdata = pdev->dev.platform_data;
-+	struct vibra_info *info;
-+	int ret;
-+
-+	if (!pdata) {
-+		dev_dbg(&pdev->dev, "platform_data not available\n");
++	if (delay < fb_info->fbdefio->delay_min ||
++	    delay > fb_info->fbdefio->delay_max)
 +		return -EINVAL;
-+	}
 +
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
++	fb_info->fbdefio->delay = delay;
 +
-+	info->dev = &pdev->dev;
-+	info->coexist = pdata->coexist ? true : false;
-+	platform_set_drvdata(pdev, info);
-+	INIT_WORK(&info->play_work, vibra_play_work);
-+
-+	info->input_dev = input_allocate_device();
-+	if (info->input_dev == NULL) {
-+		dev_err(&pdev->dev, "couldn't allocate input device\n");
-+		ret = -ENOMEM;
-+		goto err_kzalloc;
-+	}
-+	input_set_drvdata(info->input_dev, info);
-+
-+	info->input_dev->name = "twl4030:vibrator";
-+	info->input_dev->id.version = 1;
-+	info->input_dev->dev.parent = pdev->dev.parent;
-+	info->input_dev->open = twl4030_vibra_open;
-+	info->input_dev->close = twl4030_vibra_close;
-+	set_bit(FF_RUMBLE, info->input_dev->ffbit);
-+
-+	ret = input_ff_create_memless(info->input_dev, NULL, vibra_play);
-+	if (ret < 0) {
-+		dev_dbg(&pdev->dev, "couldn't register vibrator to FF\n");
-+		goto err_ialloc;
-+	}
-+
-+	ret = input_register_device(info->input_dev);
-+	if (ret < 0) {
-+		dev_dbg(&pdev->dev, "couldn't register input device\n");
-+		goto err_iff;
-+	}
-+
-+	vibra_disable_leds();
-+
-+	return 0;
-+err_iff:
-+	input_ff_destroy(info->input_dev);
-+err_ialloc:
-+	input_free_device(info->input_dev);
-+err_kzalloc:
-+	kfree(info);
-+	return ret;
++	return count;
 +}
 +
-+static int __devexit twl4030_vibra_remove(struct platform_device *pdev)
++static ssize_t show_defio_delay(struct device *device,
++				struct device_attribute *attr, char *buf)
 +{
-+	struct vibra_info *info = platform_get_drvdata(pdev);
++	struct fb_info *fb_info = dev_get_drvdata(device);
++	unsigned long delay_ms;
 +
-+	/* this also free ff-memless and calls close if needed */
-+	input_unregister_device(info->input_dev);
-+	kfree(info);
-+	platform_set_drvdata(pdev, NULL);
++	/* Check to see whether this is a deferred I/O driver */
++	if (!fb_info || !fb_info->fbdefio)
++		return -ENODEV;
 +
-+	return 0;
++	delay_ms = fb_info->fbdefio->delay * 1000 / HZ;
++
++	return snprintf(buf, PAGE_SIZE, "%lu\n", delay_ms);
 +}
 +
-+static struct platform_driver twl4030_vibra_driver = {
-+	.probe		= twl4030_vibra_probe,
-+	.remove		= __devexit_p(twl4030_vibra_remove),
-+	.driver		= {
-+		.name	= "twl4030_codec_vibra",
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &twl4030_vibra_pm_ops,
++static ssize_t show_defio_delay_min(struct device *device,
++				    struct device_attribute *attr, char *buf)
++{
++	struct fb_info *fb_info = dev_get_drvdata(device);
++	unsigned long delay_ms;
++
++	/* Check to see whether this is a deferred I/O driver */
++	if (!fb_info || !fb_info->fbdefio)
++		return -ENODEV;
++
++	delay_ms = fb_info->fbdefio->delay_min * 1000 / HZ;
++
++	return snprintf(buf, PAGE_SIZE, "%lu\n", delay_ms);
++}
++
++static ssize_t show_defio_delay_max(struct device *device,
++				    struct device_attribute *attr, char *buf)
++{
++	struct fb_info *fb_info = dev_get_drvdata(device);
++	unsigned long delay_ms;
++
++	/* Check to see whether this is a deferred I/O driver */
++	if (!fb_info || !fb_info->fbdefio)
++		return -ENODEV;
++
++	delay_ms = fb_info->fbdefio->delay_max * 1000 / HZ;
++
++	return snprintf(buf, PAGE_SIZE, "%lu\n", delay_ms);
++}
++
 +#endif
-+	},
-+};
 +
-+static int __init twl4030_vibra_init(void)
-+{
-+	return platform_driver_register(&twl4030_vibra_driver);
-+}
-+module_init(twl4030_vibra_init);
-+
-+static void __exit twl4030_vibra_exit(void)
-+{
-+	platform_driver_unregister(&twl4030_vibra_driver);
-+}
-+module_exit(twl4030_vibra_exit);
-+
-+MODULE_ALIAS("platform:twl4030_codec_vibra");
-+
-+MODULE_DESCRIPTION("TWL4030 Vibra driver");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Nokia Corporation");
+ /* When cmap is added back in it should be a binary attribute
+  * not a text one. Consideration should also be given to converting
+  * fbdev to use configfs instead of sysfs */
+@@ -503,6 +584,12 @@ static struct device_attribute device_attrs[] = {
+ #ifdef CONFIG_FB_BACKLIGHT
+ 	__ATTR(bl_curve, S_IRUGO|S_IWUSR, show_bl_curve, store_bl_curve),
+ #endif
++#ifdef CONFIG_FB_DEFERRED_IO
++	__ATTR(defio_delay, S_IRUGO|S_IWUSR,
++	       show_defio_delay, store_defio_delay),
++	__ATTR(defio_delay_min, S_IRUGO, show_defio_delay_min, NULL),
++	__ATTR(defio_delay_max, S_IRUGO, show_defio_delay_max, NULL),
++#endif
+ };
+ 
+ int fb_init_device(struct fb_info *fb_info)
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 369767b..76f35fd 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -591,8 +591,15 @@ struct fb_pixmap {
+ 
+ #ifdef CONFIG_FB_DEFERRED_IO
+ struct fb_deferred_io {
+-	/* delay between mkwrite and deferred handler */
++	/* delay in jiffies between mkwrite and deferred handler */
+ 	unsigned long delay;
++	/* The minimum delay in jiffies that may be set through sysfs */
++	unsigned long delay_min;
++	/*
++	 * The maximum delay in jiffies that may be set through sysfs.
++	 * If delay_max is 0, delay cannot be set through sysfs.
++	 */
++	unsigned long delay_max;
+ 	struct mutex lock; /* mutex that protects the page list */
+ 	struct list_head pagelist; /* list of touched pages */
+ 	/* callback */
 -- 
-1.6.3.3
+1.6.6.1
 

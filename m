@@ -1,53 +1,87 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC] Wakeup for PNP
-Date: Tue, 2 Mar 2010 16:08:23 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1003021606310.1326-100000@iolanthe.rowland.org>
-References: <201003021341.58988.bjorn.helgaas@hp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1]: input: add support for VirtualBox touchscreen
+ emulation to the Lifebook driver
+Date: Tue, 2 Mar 2010 13:28:12 -0800
+Message-ID: <20100302212812.GA13499@core.coreip.homeip.net>
+References: <1266923615.3602.85.camel@michael-laptop>
+ <20100223175852.GA11301@core.coreip.homeip.net>
+ <1266958533.3602.128.camel@michael-laptop>
+ <20100224100206.GA5598@core.coreip.homeip.net>
+ <1267011989.2831.30.camel@michael-laptop>
+ <20100225101705.GF10823@core.coreip.homeip.net>
+ <1267562688.2441.7.camel@michael-laptop>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:37039 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751453Ab0CBVIY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2010 16:08:24 -0500
-In-Reply-To: <201003021341.58988.bjorn.helgaas@hp.com>
+Received: from mail-bw0-f209.google.com ([209.85.218.209]:57671 "EHLO
+	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752442Ab0CBV2V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2010 16:28:21 -0500
+Content-Disposition: inline
+In-Reply-To: <1267562688.2441.7.camel@michael-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Li Shaohua <shaohua.li@intel.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, linux-input@vger.kernel.org
+To: Michael Thayer <Michael.Thayer@Sun.COM>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2 Mar 2010, Bjorn Helgaas wrote:
+On Tue, Mar 02, 2010 at 09:44:48PM +0100, Michael Thayer wrote:
+> Hello Dmitry,
+>=20
+> Le jeudi 25 f=E9vrier 2010 =E0 02:17 -0800, Dmitry Torokhov a =E9crit=
+ :
+> > On Wed, Feb 24, 2010 at 12:46:29PM +0100, Michael Thayer wrote:
+> > > Le mercredi 24 f=E9vrier 2010 =E0 02:02 -0800, Dmitry Torokhov a =
+=E9crit :
+> > > > On Tue, Feb 23, 2010 at 09:55:33PM +0100, Michael Thayer wrote:
+> > > > > I'm not sure, if we ended up doing a completely new device, h=
+ow different it
+> > > > > would end up being.  Emulating a touchscreen or a tablet make=
+s sense for us as
+> > > > > these are both something known, which will work with existing=
+ systems without
+> > > > > too much tweaking
+> > > > > [snip]
+> > > > But the virtual mouse is not a touchscreen or a tablet, it beha=
+ves
+> > > > differently.
+> > > What would you suggest emulating that exists in the real world?
+> >=20
+> > There are not many real devices that have teh same characteristics =
+as
+> > virtual mouse generating absolute coordinates. Umm, the closest wou=
+ld be
+> > a wacom tablet when used with its own mouse.
+> We decided in the end to emulate a USB tablet, as some other virtuali=
+sers do.
+> It works well out of the box with recent Linux distributions, and whi=
+le older
+> ones recognise it as a touchpad (in fact they use it through /dev/inp=
+ut/mice),
 
-> > Does this look reasonable?  I don't know anything about PNPBIOS or 
-> > ISAPNP, so it handles only PNPACPI.  But at least it's a starting 
-> > point -- and it does enable my system to wake up in response to 
-> > hitting a key.
-> 
-> I don't know much about power management, but your patch looks
-> reasonable to me.
+Yes, mousedev will provide workable approximation of standard mouse for
+a device that provides absolute events. BTW, the fact that data from a
+device is available from /dev/input/mice does not mean that device was
+recognized as a mouse, a touchpad or something else. It just means that
+kernel is able to approximate device as a standard PS/2 Expolorer mouse=
+=2E
+
+> it still provides a reasonable user experience until the user has ins=
+talled our
+> guest drivers.
+
+It is your call but I would much rather if you worked on fixeng evdev t=
+o
+work with your virtual device rather than having to install a new X
+driver and going through the hoops trying to detect which one should be
+used on a particular box. At least on Linux...
 
 Thanks.
 
-> > --- usb-2.6.orig/drivers/pnp/pnpacpi/core.c
-> > +++ usb-2.6/drivers/pnp/pnpacpi/core.c
-> > @@ -121,12 +121,27 @@ static int pnpacpi_disable_resources(str
-> >  }
-> >  
-> >  #ifdef CONFIG_ACPI_SLEEP
-> > +static bool pnpacpi_can_wakeup(struct pnp_dev *dev)
-> > +{
-> > +	acpi_handle handle = DEVICE_ACPI_HANDLE(&dev->dev);
-> 
-> I would have used:
-> 
-> 	struct acpi_device *acpi_dev = dev->data;
-> 	acpi_handle handle = acpi_dev->handle;
-> 
-> here because that's what the rest of the PNPACPI code does.
-
-Ah yes.  I just copied the code from the corresponding PCI function 
-without thinking about it very much.  I'll update the patch and wait to 
-hear from other people.
-
-Alan Stern
-
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

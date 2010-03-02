@@ -1,84 +1,83 @@
-From: Michael Thayer <Michael.Thayer@Sun.COM>
-Subject: Re: [PATCH 1/1]: input: add support for VirtualBox touchscreen
- emulation to the Lifebook driver
-Date: Wed, 03 Mar 2010 00:13:47 +0100
-Message-ID: <1267571627.2441.24.camel@michael-laptop>
-References: <1266923615.3602.85.camel@michael-laptop>
- <20100223175852.GA11301@core.coreip.homeip.net>
- <1266958533.3602.128.camel@michael-laptop>
- <20100224100206.GA5598@core.coreip.homeip.net>
- <1267011989.2831.30.camel@michael-laptop>
- <20100225101705.GF10823@core.coreip.homeip.net>
- <1267562688.2441.7.camel@michael-laptop>
- <20100302212812.GA13499@core.coreip.homeip.net>
- <1267567219.2441.12.camel@michael-laptop>
- <20100302223947.GC13499@core.coreip.homeip.net>
+From: Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] hid Logitech G13 Driver 0.0.5
+Date: Wed, 3 Mar 2010 07:23:37 +0800
+Message-ID: <45a44e481003021523h4a05a9bfu9691f2c0f2f053c7@mail.gmail.com>
+References: <201003021848.o22ImLSS004394@mustang.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gmp-eb-inf-2.sun.com ([192.18.6.24]:57112 "EHLO
-	gmp-eb-inf-2.sun.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752074Ab0CBXOI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Mar 2010 18:14:08 -0500
-In-reply-to: <20100302223947.GC13499@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201003021848.o22ImLSS004394-wBm1UmGkUFOpxMv/W9li2JVzexx5G7lz@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, pavel-+ZI9xUNit7I@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org, tomi.valkeinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org, krzysztof.h1-5tc4TXWwyLM@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Le mardi 02 mars 2010 =C3=A0 14:39 -0800, Dmitry Torokhov a =C3=A9crit =
-:
-> On Tue, Mar 02, 2010 at 11:00:19PM +0100, Michael Thayer wrote:
-> > Le mardi 02 mars 2010 =C3=A0 13:28 -0800, Dmitry Torokhov a =C3=A9c=
-rit :
-> > > It is your call but I would much rather if you worked on fixeng e=
-vdev to
-> > > work with your virtual device rather than having to install a new=
- X
-> > > driver and going through the hoops trying to detect which one sho=
-uld be
-> > > used on a particular box. At least on Linux...
-> > That wouldn't really help us much here, as we are talking about dis=
-tributions
-> > shipping X.Org Server 1.4 and earlier, and those distributions are =
-no longer
-> > going to get that sort of update (in those cases in which they are =
-still
-> > getting updates at all).  Legacy support if you like.
+On Wed, Mar 3, 2010 at 2:48 AM, Rick L. Vinyard Jr.
+<rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org> wrote:
+> [PATCH] hid Logitech G13 Driver 0.0.5
 
-> You need to distribute something... Or do these older distros already
-> include your guest drivers?
-We provide the drivers for those distributions (as well as a couple of =
-other
-things like tools for clipboard integration with the host, or seamless =
-desktop
-integration) as part of the VirtualBox package (and yes, we do jump thr=
-ough
-hoops to install them :) ).  A couple of distributions do actually inst=
-all them
-by default (openSUSE, Pardus), but that is a bit of a mixed blessing fo=
-r us, as
-the versions installed are usually not the most recent, and it is hard =
-for us to
-update them.
+Hi Rick,
 
-Regards,
+Thanks for posting this. It has improved a lot.
 
-Michael
---=20
-Sun Microsystems GmbH        Michael Thayer
-Werkstrasse 24               VirtualBox engineer
-71384 Weinstadt, Germany     mailto:michael.thayer@sun.com
+>
+> This driver relies on two patches:
+> =A01. Bruno Pr=E9mont's [PATCH 2/3] hid: add suspend/resume hooks for=
+ hid drivers
+> =A02. [PATCH] Add sysfs support for fbdefio delay
 
-Sitz der Gesellschaft:
-Sun Microsystems GmbH, Sonnenallee 1, 85551 Kirchheim-Heimstetten
-Amtsgericht Muenchen: HRB 161028
-Geschaeftsfuehrer: Thomas Schroeder, Wolfgang Engels
-Vorsitzender des Aufsichtsrates: Martin Haering
+Please help me understand in what way does this patch have to have the
+global userspace exposure of defio delay in sysfs support. If that
+sysfs patch was not accepted, I don't see this patch affected
+negatively.
 
+> However, the driver does use the HID feature reports extensively to
+> control the backlight, LEDs, et. al.
+
+Ok.
+
+> - Removed the update rate sysfs attribute as it is in the second patc=
+h above.
+
+Why? There is no consensus that exposing defio delay for _all_ fb
+drivers is a good idea. I would rather you left that in here for now.
+
+> +/*
+> + * This is a default logo to be loaded upon driver initialization
+> + * replacing the default Logitech G13 image loaded on device
+> + * initialization. This is to provide the user a cue that the
+> + * Linux driver is loaded and ready.
+> + *
+> + * This logo contains the text G13 in the center with two penguins
+> + * on each side of the text. The penguins are a 33x40 rendition of
+> + * the default framebuffer 80x80 monochrome image scaled down and
+> + * cleaned up to retain something that looks a little better than
+> + * a simple scaling.
+> + *
+> + * This logo is a simple xbm image created in GIMP and exported.
+> + * To view the image copy the following two #defines plus the
+> + * g13_lcd_bits to an ASCII text file and save with extension
+> + * .xbm, then open with GIMP or any other graphical editor
+> + * such as eog that recognizes the .xbm format.
+> + */
+=2E..
+> +static unsigned char g13_lcd_bits[] =3D {
+> + 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0=
+x00,
+
+I think you'll agree above is not an elegant solution.
+
+> +
+> +static DEVICE_ATTR(rgb, 0666, g13_rgb_show, g13_rgb_store);
+
+Reading above code, it looks like this new userspace sysfs attribute
+is for backlight control. Could that be better exposed using the
+existing backlight class?
+
+Thanks,
+jaya
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

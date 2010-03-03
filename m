@@ -1,47 +1,50 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [GIT PULL] Ambient Light Sensors subsystem
-Date: Wed, 03 Mar 2010 17:51:14 +0000
-Message-ID: <4B8EA192.5070108@cam.ac.uk>
-References: <4B8C1867.7040201@cam.ac.uk> <404ea8001003022213v78be2c81r40504661835fff7e@mail.gmail.com> <alpine.LFD.2.00.1003030859360.3627@localhost.localdomain>
+From: FedEx Courier Express =?iso-8859-1?Q?UK=A9?= <info@mastercard.com>
+Subject: Dear Customer/Beneficiary!
+Date: Wed, 3 Mar 2010 18:24:44 -0000 (UTC)
+Message-ID: <46555.212.100.250.228.1267640684.squirrel__10157.3288361125$1267642082$gmane$org@webmail.kepe.gr>
+Reply-To: fedexuk121@hotmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:37795 "EHLO
-	ppsw-7.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755342Ab0CCRtP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Mar 2010 12:49:15 -0500
-In-Reply-To: <alpine.LFD.2.00.1003030859360.3627@localhost.localdomain>
+Received: from mailout.kepe.gr ([79.107.103.8]:60964 "EHLO mailin.kepe.gr"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753271Ab0CCSrx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Mar 2010 13:47:53 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dima Zavin <dmitriyz@google.com>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Cc'ing Input list and maintainer.
-> 
-> On Tue, 2 Mar 2010, Dima Zavin wrote:
->>
->> I definitely see the need for what you guys are trying to accomplish.
->> For example, currently, we use an input device for reporting events,
->> and a separate misc device node for control
->> (enable/disable/configure). It's definitely suboptimal, but there
->> currently isn't anything there would let us do things cleanly.
-> 
-> I have to say, I personally don't see why something like an ambient light 
-> sensor _isn't_ just an input device. 
-> 
-> What's the difference between a physical "increase screen brightness" key, 
-> and a "ambient light sensor"? Absolutely none as far as I can tell.
-> 
-> And for something like an X server, it sounds a lot more natural to just 
-> have another input device than to have yet abother event reporting 
-> interface.
-> 
-> And quite frankly, the "explanations" I see in this thread for why it 
-> needs to be a subsystem of its own don't actually explain anything or make 
-> sense. They seem to boil down to "we just did it this way" without 
-> actually answering any of the issues brought up.
-> 
-> 		Linus
-> 
+Dear Customer/Beneficiary!
+Kindly contact our delivery department with the details
+Given below: FedEx Courier Express UK=A9
+Contact Person: Mr.Daniel Cole
+E-mail:fedexuk121@hotmail.com
+ Telephone: +4470359 96450
 
+Reasons: This is due to the fact that we are in possession
+Of your Package containing a master card worth of five
+Hundred Thousand United State Dollars that was registered
+With us by the Master Card Award Team for shipment to you,
+You are to act fast by providing your postal address and
+Your direct phone number to enable us makes the delivery ASAP.
+Note that as soon as our Delivery Team confirms your
+Informations, it will take only two working days (48 hours)
+=46or your package to arrive your designated address. For your
+Information, the Mail, VAT & Shipping fees have been paid by
+The Award Promo Board you will only have to pay a sum of
+$200.00 to the FedEx Courier Department being full payment
+=46or the Security Keeping Fee of the FedEx Courier as stated
+In our privacy terms & condition page.
+Yours Faithfully,
+Secretary
+Mrs. Mercy Hunt =A9
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D
+COPYRIGHT =A9 2010 MasterCard=AE.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

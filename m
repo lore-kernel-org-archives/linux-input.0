@@ -1,71 +1,89 @@
-From: Martin Buck <mb-tmp-yvahk-vachg@gromit.dyndns.org>
-Subject: Stuck buttons on ALPS touchpad
-Date: Wed, 3 Mar 2010 23:07:35 +0100
-Message-ID: <20100303220735.GC26412@gromit.at.home>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Zeroing the report before setting fields
+Date: Thu, 4 Mar 2010 14:33:49 -0700
+Message-ID: <20100304143349.2d861ec6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail17.bluewin.ch ([195.186.18.64]:20362 "EHLO
-	mail17.bluewin.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756854Ab0CCWOo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Mar 2010 17:14:44 -0500
-Received: from mb by gromit.at.home with local (Exim 4.63)
-	(envelope-from <mb-tmp-yvahk-vachg@gromit.dyndns.org>)
-	id 1Nmwj9-0007y1-CK
-	for linux-input@vger.kernel.org; Wed, 03 Mar 2010 23:07:35 +0100
-Content-Disposition: inline
+Received: from mx1.redhat.com ([209.132.183.28]:30455 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752525Ab0CDVds (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 4 Mar 2010 16:33:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, zaitcev@redhat.com
 
-Hi,
+Hi, Dmitry et. al.:
 
-I've got a little problem with the ALPS touchpad in my Dell Inspiron 8200
-(identified as E7 report: 32 02 14). Sometimes when pressing the touchpad
-buttons, they get stuck (in the driver only, of course :-) and are released
-only after moving the finger on the touchpad. This behaviour started after
-upgrading to kernel 2.6.32.8. With the 2.6.26.5 kernel I was using
-previously, it didn't occur.
+I was looking at the way unused bits of report are being zeroed, and
+it seems like there must be a bug. Currently, the zeroing is done in
+hid_output_field and it covers any bits between the last used bit and
+the end of the byte. But in case of, say, my keyboard, NumLock is mask
+0x01 and CapsLock is 0x02. Invoking hid_output_field for NumLock
+definitely zeroes across CapsLock. The only reason this works is that
+the fields are sorted by the offset.
 
-I identified the change causing this to be the following one from Ulrich
-Dangel:
+I am not sure it's safe at all times, so why don't we pull the
+zeroing outside and do it once per report? Please see the attached.
+I tested it with various keyboards (including those that blow up
+on RHEL 5), and it works, but the question is, do we want it?
 
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=d7ed5d883c09c5474f842dcb148515dfaef2a567
+Cheers,
+-- Pete
 
-> Input: ALPS - handle touchpoints buttons correctly
-> 
-> When pressing any button belonging to the touchpoint, the generated
-> click events don't belong to the touchpoint but to the touchpad.
-> This patch fixes this behaviour, the events will be sent via the
-> correct device, so scrolling with touchpoint is possible.
-
-On my machine, this seems to sometimes direct the touchpad button release
-event to the touchpoint, causing the old touchpad button state to remain
-until the next packet from the touchpad arrives. Looking at the packets
-received, it's obvious why this happens:
-
-Normal left button down/up sequence:
-[  269.805058] ff 11 20 49 32 00
-[  269.983019] ff 11 20 48 32 00
-
-Broken left button down/up sequence:
-[  273.947184] ff 11 20 49 32 00
-[  274.106059] ff 11 20 49 32 00
-[  274.262486] ff 00 00 08 00 7f
-
-As you can see, when the button gets stuck, the touchpad sends the button
-down event twice and instead of the normal button up event, it sends one
-with z==127 which Ulrich's change interprets as belonging to the touchpoint.
-
-Interestingly, kernel 2.6.32.8 already has all the code to fix this, it's
-just not enabled for my touchpad. alps_report_buttons() checks the
-ALPS_PS2_INTERLEAVED flag and if set, directs button up events to the
-same device that got the button down event, regardless of the source derived
-from the packet. Does anybody see a reason why this shouldn't be done
-unconditionally regardless of the ALPS_PS2_INTERLEAVED flag? Or should there
-be another flag that enables the workaround just for selected models?
-
-Any other ideas how to fix this?
-
-Thanks,
-Martin
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index eabe5f8..14b45b1 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -929,6 +929,15 @@ exit:
+ 	kfree(value);
+ }
+ 
++static unsigned int hid_field_length(struct hid_field *field)
++{
++	unsigned count = field->report_count;
++	unsigned offset = field->report_offset;
++	unsigned size = field->report_size;
++
++	return offset + count * size;
++}
++
+ /*
+  * Output the field into the report.
+  */
+@@ -938,13 +947,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+ 	unsigned count = field->report_count;
+ 	unsigned offset = field->report_offset;
+ 	unsigned size = field->report_size;
+-	unsigned bitsused = offset + count * size;
+ 	unsigned n;
+ 
+-	/* make sure the unused bits in the last byte are zeros */
+-	if (count > 0 && size > 0 && (bitsused % 8) != 0)
+-		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
+-
+ 	for (n = 0; n < count; n++) {
+ 		if (field->logical_minimum < 0)	/* signed values */
+ 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+@@ -960,10 +964,19 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+ void hid_output_report(struct hid_report *report, __u8 *data)
+ {
+ 	unsigned n;
++	unsigned length, bitsused;
+ 
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
++	length = 0;
++	for (n = 0; n < report->maxfield; n++) {
++		bitsused = hid_field_length(report->field[n]);
++		if (bitsused > length)
++			length = bitsused;
++	}
++	memset(data, 0, (length + 7) / 8);
++
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->field[n], data);
+ }

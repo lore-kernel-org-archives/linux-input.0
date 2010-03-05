@@ -1,57 +1,89 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1
-Date: Fri, 5 Mar 2010 10:23:38 +0100
-Message-ID: <20100305092338.GA32433@atrey.karlin.mff.cuni.cz>
-References: <20100106071026.GD1382@ucw.cz> <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com> <20100107065230.GA1303@ucw.cz> <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
+From: "Govindarajan, Sriramakrishnan" <srk@ti.com>
+Subject: RE: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
+ interfaced to TCA6416
+Date: Fri, 5 Mar 2010 20:36:14 +0530
+Message-ID: <FCCFB4CDC6E5564B9182F639FC356087030435E531@dbde02.ent.ti.com>
+References: <1267103701-23823-1-git-send-email-srk@ti.com>
+ <1267103701-23823-2-git-send-email-srk@ti.com>
+ <20100225184702.GA5125@gandalf>
+ <20100226082803.GC17444@core.coreip.homeip.net>
+ <FCCFB4CDC6E5564B9182F639FC3560870304194AD0@dbde02.ent.ti.com>
+ <20100227090017.GI793@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:50606 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751924Ab0CEJXj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 5 Mar 2010 04:23:39 -0500
-Content-Disposition: inline
-In-Reply-To: <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
+Received: from comal.ext.ti.com ([198.47.26.152]:34879 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752675Ab0CEPGY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Mar 2010 10:06:24 -0500
+In-Reply-To: <20100227090017.GI793@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: dtor@mail.ru, linux-input@vger.kernel.org, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, zaurus-devel@lists.linuxtogo.org, "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felipe Balbi <me@felipebalbi.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi!
 
-> >> > Sharp-SL code uses strange, complex grouping of gpios for wakeups
-> >> > toggling. Fortunately, it is unneeded in recent kernels (and actually
-> >> > provokes WARN_ONs during resume). Remove it.
-> >> >
-> >> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
-> >>
-> >> Pavel,
-> >>
-> >> The code to be removed below is used to support pxa27x_keypad
-> >> to be able to resume from sleep. What's the exact reason to remove
-> >> this on spitz?
-> >
-> > Well, otherwise I get this during resume: (2.6.32 regression)
-> >
-> > (and similar for matrix-keypad, but dmitry worked around that
-> > already).
-> >
-> > Problem is that gpio-keys and matrix-keypad want to set_wake for each
-> > gpio individually, hw can do that, but pxa27x.c breaks it.
-> >
-> > I don't get it; what is pxa27x_keypad used on? It looks like
-> > matrix-keypad subset.
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Saturday, February 27, 2010 2:30 PM
+> To: Govindarajan, Sriramakrishnan
+> Cc: Felipe Balbi; linux-omap@vger.kernel.org; linux-input@vger.kernel.org
+> Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
+> interfaced to TCA6416
+
+---snip---
+> > > > I see,
+> > > >
+> > > > shouldn't you instead provide a gpiolib driver for tca6416 and use
+> the
+> > > > generic gpio_keys driver ??
+> > > >
+> > >
+> > > Right. The fact that the driver precludes all otehr gpios from being
+> > > used is a major drawback.
 > 
-> pxa27x has its own specific keypad controller. And since we now
-> use enable_irq_wake, and the keypad controller has only one
-> such IRQ_KEYPAD, will have to setup the keypad GPIO wakeup
-> as a whole.
+> > [Sriram] gpio_keys implementation assumes that every key can generate
+> > an interrupt to the processor and also the state machine to process
+> > events will handle each line individually. Imagine if 16 keys are
+> > connected to the TCA controller and you have to query(assume it is
+> > polling, interrupt mode not possible - as you have single interrupt
+> > line to the processor for event on any of the 16 input lines) 16 lines
+> > individually over i2c bus - the associated overhead is too high.
+> > Instead this implementation handles the necessary book-keeping in one
+> > simple function (get status of all 16 lines in one read transaction).
+> > Building on a GPIO implementation and using gpio-keys above will be
+> > both clumsy and incur runtime overhead as against a direct keypad
+> > driver.
+> >
+> > More often(as on AM3517EVM) the keypad keys are not mixed with other
+> > GPIO keys. The initial implementation includes key_mask to identify
+> > the keys to be used for keypad and the others are logically not
+> > modified. Hence the implementation can be extended if need arises to
+> > overcome this restriction.
+> 
+> In this case you should not build on gpio_keys at all but select some
+> other keyboard as an example that smply uses keytable with set of
+> keycodes, single interrupt, etc. The overhead of all gpio_keys data
+> structures is not needed here.
+> 
+[Sriram] I am working on cleaning up the driver to use a simpler book keeping structure(move away from gpio_keys). Will post the reworked patch shortly.
 
-But pxa27x keypad controlled is not used on spitz, right? So why do we
-break spitz by tying GPIO wakeup settings together?
-									Pavel
+---snip ---
+> 
+> > [Sriram] All the core logic (including I2C transactions) is
+> > implemented through a work queue implementation. The ISR is slim and
+> > only schedules the work queue. This also enables the implementation to
+> > be easily adaptable for both interrupt/polled mode.
+> >
+> 
+> Fair enough but you need to ensure that you do not leave irq unbalances
+> (in regards to enable/disable) when you using workqueue and disabling
+> interrupt in the ISR.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+[Sriram] Will ensure that this is addressed appropriately (including cleanup on error conditions).
+
+---
+Sriram

@@ -1,89 +1,106 @@
-From: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Subject: RE: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
- interfaced to TCA6416
-Date: Fri, 5 Mar 2010 20:36:14 +0530
-Message-ID: <FCCFB4CDC6E5564B9182F639FC356087030435E531@dbde02.ent.ti.com>
-References: <1267103701-23823-1-git-send-email-srk@ti.com>
- <1267103701-23823-2-git-send-email-srk@ti.com>
- <20100225184702.GA5125@gandalf>
- <20100226082803.GC17444@core.coreip.homeip.net>
- <FCCFB4CDC6E5564B9182F639FC3560870304194AD0@dbde02.ent.ti.com>
- <20100227090017.GI793@core.coreip.homeip.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Problems with remote-wakeup settings
+Date: Fri, 5 Mar 2010 11:23:22 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.1003051020380.1677-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:34879 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752675Ab0CEPGY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Mar 2010 10:06:24 -0500
-In-Reply-To: <20100227090017.GI793@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from iolanthe.rowland.org ([192.131.102.54]:57084 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754861Ab0CEQX0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Mar 2010 11:23:26 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <me@felipebalbi.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, Kernel
+
+The way we implement remote wakeup has got some problems.
+
+Here's a brief summary of the way it currently works.  Each dev->power
+structure contains two bitflags: can_wakeup and should_wakeup.
+
+	The can_wakeup flag indicates whether the device is _capable_
+	of issuing wakeup requests; it is supposed to be set by the
+	driver.
+
+	The should_wakeup flag indicates whether the device should be
+	_allowed_ to issue wakeup requests.  This is a policy decision
+	which generally should be left up to userspace, through the
+	/sys/devices/.../power/wakeup sysfs attribute.
+
+There are various routines defined in include/linux/pm_wakeup.h for
+manipulating these flags.  In particular, device_may_wakeup() tells
+whether or not the device's wakeup facility should be enabled by the
+driver's suspend routine when a system sleep starts.  It returns true
+only when both flags are set.
+
+(Wakeup settings during runtime suspend are a different matter; I'm not
+going to discuss them here.)
 
 
+The first problem is that device_initialize() calls 
+device_init_wakeup(), setting both flags to 0.  This is simply a 
+mistake.  For one thing, the bits should have been initialized to 0 
+when the device structure was kzalloc'ed.  For another, it means that 
+drivers can't usefully set the can_wakeup flag before doing either 
+device_initialize() or device_register().
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Saturday, February 27, 2010 2:30 PM
-> To: Govindarajan, Sriramakrishnan
-> Cc: Felipe Balbi; linux-omap@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCH 1/3] TCA6416 keypad : Implement keypad driver for keys
-> interfaced to TCA6416
 
----snip---
-> > > > I see,
-> > > >
-> > > > shouldn't you instead provide a gpiolib driver for tca6416 and use
-> the
-> > > > generic gpio_keys driver ??
-> > > >
-> > >
-> > > Right. The fact that the driver precludes all otehr gpios from being
-> > > used is a major drawback.
-> 
-> > [Sriram] gpio_keys implementation assumes that every key can generate
-> > an interrupt to the processor and also the state machine to process
-> > events will handle each line individually. Imagine if 16 keys are
-> > connected to the TCA controller and you have to query(assume it is
-> > polling, interrupt mode not possible - as you have single interrupt
-> > line to the processor for event on any of the 16 input lines) 16 lines
-> > individually over i2c bus - the associated overhead is too high.
-> > Instead this implementation handles the necessary book-keeping in one
-> > simple function (get status of all 16 lines in one read transaction).
-> > Building on a GPIO implementation and using gpio-keys above will be
-> > both clumsy and incur runtime overhead as against a direct keypad
-> > driver.
-> >
-> > More often(as on AM3517EVM) the keypad keys are not mixed with other
-> > GPIO keys. The initial implementation includes key_mask to identify
-> > the keys to be used for keypad and the others are logically not
-> > modified. Hence the implementation can be extended if need arises to
-> > overcome this restriction.
-> 
-> In this case you should not build on gpio_keys at all but select some
-> other keyboard as an example that smply uses keytable with set of
-> keycodes, single interrupt, etc. The overhead of all gpio_keys data
-> structures is not needed here.
-> 
-[Sriram] I am working on cleaning up the driver to use a simpler book keeping structure(move away from gpio_keys). Will post the reworked patch shortly.
+The next problem has to do with the sysfs interface.  The power/wakeup 
+attribute file is implemented to contain either "enabled" or "disabled" 
+(according to the should_wakeup flag) if can_wakeup is set, and to be 
+empty if can_wakeup is clear.  Userspace can write "enabled" or 
+"disabled" to the file to set or clear the should_wakeup flag.
 
----snip ---
-> 
-> > [Sriram] All the core logic (including I2C transactions) is
-> > implemented through a work queue implementation. The ISR is slim and
-> > only schedules the work queue. This also enables the implementation to
-> > be easily adaptable for both interrupt/polled mode.
-> >
-> 
-> Fair enough but you need to ensure that you do not leave irq unbalances
-> (in regards to enable/disable) when you using workqueue and disabling
-> interrupt in the ISR.
+This is bad, because it means the should_wakeup setting is invisible 
+when can_wakeup is off.  Userspace certainly will want to affect the 
+should_wakeup flag at times when can_wakeup is off (for example, before 
+the device has finished binding to its driver).
 
-[Sriram] Will ensure that this is addressed appropriately (including cleanup on error conditions).
 
----
-Sriram
+The third problem concerns the initial or default should_wakeup
+setting.  There isn't any coherent thought about what value the flag 
+should have before userspace takes control of it.
+
+In many cases setting a default value isn't feasible.  Only the driver
+is in a position to know whether or not the device should be allowed to
+issue wakeup requests, but by the time the driver binds to the device,
+the power/wakeup attribute has already been exposed through sysfs.  
+Any change the driver makes might therefore overwrite the user's
+preference.  Hence drivers should not be allowed to change the
+should_wakeup flag.  Unfortunately many drivers do exactly that, as
+can be seen by searching for "device_set_wakeup_enable" or
+"device_init_wakeup".
+
+In principle, the decision about setting should_wakeup ought to be left
+entirely up to userspace.  In practice, userspace doesn't do a very
+good job of carrying out this decision.  Programs like udev or hal
+ought to impose useful settings, but as far as I know, they do not.
+
+And then what about systems that don't have udev?  Presumably embedded
+systems can be trusted to set up the wakeup flags appropriately for
+their own needs.  Is there a significant number of other systems
+without udev?  And even if there isn't, the necessary changes to udev
+would take a while to percolate out.
+
+So we have a situation where the kernel is defining policy which should
+be set by userspace, and doing so in a way which would often override
+the user's settings.  Clearly this isn't good.  The only sane approach
+I can think of is for the kernel never to change should_wakeup --
+always leave it set to 0 until userspace changes it.  (There could be a
+few exceptions for devices which everyone always expects to be
+wakeup-enabled, such as power buttons and keyboards.)  But then of
+course we would have the problem that in today's distributions,
+userspace never does change it.
+
+The lack of a proper design for all this has already started to cause 
+problems.  There are bug reports about systems failing to suspend 
+because some device, enabled for remote wakeup when it shouldn't be,
+sends a wakeup request as soon as it gets suspended.  One example of 
+such a bug report is
+
+	https://bugs.launchpad.net/ubuntu/+source/linux/+bug/515109
+
+What do people think?
+
+Alan Stern
+

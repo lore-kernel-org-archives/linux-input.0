@@ -1,40 +1,57 @@
-From: =?ISO-8859-1?Q?I=F1igo_Mart=EDnez?= <martinez.i@ikusi.com>
-Subject: Nexio Touchscreen
-Date: Fri, 05 Mar 2010 10:02:58 +0100
-Message-ID: <1267779778.2829.19.camel@nbiku1124.ikusi.net>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1
+Date: Fri, 5 Mar 2010 10:23:38 +0100
+Message-ID: <20100305092338.GA32433@atrey.karlin.mff.cuni.cz>
+References: <20100106071026.GD1382@ucw.cz> <f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com> <20100107065230.GA1303@ucw.cz> <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from correo.ikusi.com ([194.30.89.100]:23711 "EHLO correo.ikusi.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751029Ab0CEJSS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Mar 2010 04:18:18 -0500
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:50606 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751924Ab0CEJXj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 5 Mar 2010 04:23:39 -0500
+Content-Disposition: inline
+In-Reply-To: <f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: richard@codelemon.com
-Cc: linux-input@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: dtor@mail.ru, linux-input@vger.kernel.org, rpurdie@rpsys.net, lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>, Dirk@opfer-online.de, arminlitzel@web.de, Cyril Hrubis <metan@ucw.cz>, thommycheck@gmail.com, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dbaryshkov@gmail.com, omegamoon@gmail.com, utx@penguin.cz, zaurus-devel@lists.linuxtogo.org, "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
 
-Hello Richard:
+Hi!
 
-I'm I=F1igo Mart=EDnez from Ikusi at Spain. I've been talking with Andr=
-ew
-Morton about your Nexio touchscreen driver that I've been trying lately=
-=2E
-Thank you, now its recognized and working correctly.
+> >> > Sharp-SL code uses strange, complex grouping of gpios for wakeups
+> >> > toggling. Fortunately, it is unneeded in recent kernels (and actually
+> >> > provokes WARN_ONs during resume). Remove it.
+> >> >
+> >> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
+> >>
+> >> Pavel,
+> >>
+> >> The code to be removed below is used to support pxa27x_keypad
+> >> to be able to resume from sleep. What's the exact reason to remove
+> >> this on spitz?
+> >
+> > Well, otherwise I get this during resume: (2.6.32 regression)
+> >
+> > (and similar for matrix-keypad, but dmitry worked around that
+> > already).
+> >
+> > Problem is that gpio-keys and matrix-keypad want to set_wake for each
+> > gpio individually, hw can do that, but pxa27x.c breaks it.
+> >
+> > I don't get it; what is pxa27x_keypad used on? It looks like
+> > matrix-keypad subset.
+> 
+> pxa27x has its own specific keypad controller. And since we now
+> use enable_irq_wake, and the keypad controller has only one
+> such IRQ_KEYPAD, will have to setup the keypad GPIO wakeup
+> as a whole.
 
-I have a question thought. I have trying it on X without any success.
-Have you managed to get it working on X ? I can't get any movement afte=
-r
-touching the screen.
+But pxa27x keypad controlled is not used on spitz, right? So why do we
+break spitz by tying GPIO wakeup settings together?
+									Pavel
 
-Have you managed to get it working on X ?
-
-Looking forward to your reply,
-
-Best regards,
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,67 +1,55 @@
-From: Andrey Borzenkov <arvidjaar-JGs/UdohzUI@public.gmane.org>
-Subject: Re: Problems with remote-wakeup settings
-Date: Sat, 6 Mar 2010 07:36:18 +0300
-Message-ID: <201003060736.18555.arvidjaar@mail.ru>
-References: <Pine.LNX.4.44L0.1003052314130.10381-100000@netrider.rowland.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] Route kbd leds through the generic leds layer (3rd
+ version)
+Date: Sat, 6 Mar 2010 07:52:50 +0100
+Message-ID: <20100306065250.GD28759__3399.75949978015$1267858408$gmane$org@elf.ucw.cz>
+References: <20100224012010.GA4062@const>
+ <20100225013840.GA5519@const.homenet.telecomitalia.it>
+ <20100225102056.GG10823@core.coreip.homeip.net>
+ <20100225214403.GB9378@const.homenet.telecomitalia.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2181245.yYC95H6HeF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.44L0.1003052314130.10381-100000-pYrvlCTfrz9XsRXLowluHWD2FQJk+8+b@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-hotplug-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Linux-pm mailing list <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:52944 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751272Ab0CFGw6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 6 Mar 2010 01:52:58 -0500
+Content-Disposition: inline
+In-Reply-To: <20100225214403.GB9378@const.homenet.telecomitalia.it>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Alexey Dobriyan <adobriyan@gmail.com>, akpm@linux-found
 
---nextPart2181245.yYC95H6HeF
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-On Saturday 06 of March 2010 07:16:20 Alan Stern wrote:
-> On Fri, 5 Mar 2010, Rafael J. Wysocki wrote:
-> > On Friday 05 March 2010, Oliver Neukum wrote:
-> > > Am Freitag, 5. M=E4rz 2010 21:59:31 schrieben Sie:
-> > > > > I guess it's better if drivers don't set should_wakeup if
-> > > > > unsure, but of course that's impossible to enforce.
-> > > >=20
-> > > > That's the real question.  Ideally, drivers won't touch
-> > > > should_wakeup. How do we get there from here?
-> > >=20
-> > > Enable it only for devices specifically designed for wakeup, that
-> > > is keyboards, power buttons and WoL, perhaps also mice and
-> > > modems. Are we far away from that?
-> >=20
-> > I don't think we're very far from that.
-> >=20
-> > Mice are known dangerous, especially the USB ones, though.
+On Thu 2010-02-25 22:44:03, Samuel Thibault wrote:
+> Dmitry Torokhov, le Thu 25 Feb 2010 02:20:56 -0800, a =E9crit :
+> > I am aunsure about this patch. It ties all LEDs together
 >=20
-> I agree, especially for desktop systems.  You don't want the system
-> to wake up merely because you happened to jostle the mouse.  That
-> happened to me just a few days ago (and it was a PS/2 mouse, not
-> USB).
+> For now, yes.  There could be an additional per-device layer that the
+> user could select instead, but my patch doesn't prevent that.
 
-I remember, my old desktop had BIOS option to wake up on mouse click=20
-(and it had PS/2 mouse either) ignoring mouse move. I actually found it=20
-useful.
+Well, having one LED device for all the keyboard leds, and separate
+LED device for each of them indivudually would not be quite nice, and
+once we have the "one for all" device, we can't really get rid of it.
 
---nextPart2181245.yYC95H6HeF
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+> Being able to assign only some of the devices to the linux console
+> would indeed probably be good, but to me it's just a refinement. User=
+s
+> a priori assume all keyboards get their leds updated, so my patch
+> makes sense.  And it won't prevent a further patch that, in addition
+> to input::<led> leds, adds per-device leds, which the user could use
+> instead of input::<led>.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEABECAAYFAkuR28IACgkQR6LMutpd94yuegCgpfFtMVCw09Qh0dPDNcFu3wil
-RL8AnRB0i5bEosIeWXKgcs3/5IthH0io
-=uiuN
------END PGP SIGNATURE-----
-
---nextPart2181245.yYC95H6HeF--
+As I said, having both is ugly... but the triggers could / should be
+merged now...
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
+/blog.html
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

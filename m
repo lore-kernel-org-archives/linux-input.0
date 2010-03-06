@@ -1,41 +1,83 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH] Route kbd leds through the generic leds layer (3rd version)
-Date: Sun, 7 Mar 2010 13:06:04 +0100
-Message-ID: <20100307120604.GE5203@const.famille.thibault.fr>
-References: <20100224012010.GA4062@const> <20100225013840.GA5519@const.homenet.telecomitalia.it> <20100225102056.GG10823@core.coreip.homeip.net> <20100225214403.GB9378@const.homenet.telecomitalia.it> <20100226035448.GA16797@core.coreip.homeip.net> <20100226103505.GB3992@const.homenet.telecomitalia.it> <20100306065457.GE28759@elf.ucw.cz> <20100306123058.GE5203@const.famille.thibault.fr> <20100307082519.GC1987@elf.ucw.cz>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: Problems with remote-wakeup settings
+Date: Sat, 6 Mar 2010 21:54:02 +0100
+Message-ID: <201003062154.02199.rjw@sisk.pl>
+References: <Pine.LNX.4.44L0.1003052316290.10381-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from solo.fdn.fr ([80.67.169.19]:40893 "EHLO solo.fdn.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751618Ab0CGMGN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 7 Mar 2010 07:06:13 -0500
-Content-Disposition: inline
-In-Reply-To: <20100307082519.GC1987@elf.ucw.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1003052316290.10381-100000@netrider.rowland.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, linux-input@vger.kernel.org, linux-hotplug@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, Kernel development list <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Alexey Dobriyan <adobriyan@gmail.com>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, mgarski@post.pl, linux-input@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Richard Purdie <rpurdie@rpsys.net>
 
-Pavel Machek, le Sun 07 Mar 2010 09:25:19 +0100, a =E9crit :
-> But you mentioned having per-keyboard led would be quite easy, it doe=
-s
-> not seem to be controversial, so perhaps that's way to go, first?
+On Saturday 06 March 2010, Alan Stern wrote:
+> On Fri, 5 Mar 2010, Rafael J. Wysocki wrote:
+> 
+> > > So the problem is that subsystems can't usefully set the can_wakeup 
+> > > flag before doing either device_initialize() or device_register().  
+> > > This can be fixed easily by removing the call in device_initialize().
+> > 
+> > PCI depends on the flag being unset when pci_pm_init(dev) is called.
+> > 
+> > If that's still valid after removing the call in device_initialize(), I'm fine
+> > with the removal.
+> 
+> It should still be valid.  After all, there's nothing else to set the
+> flag except for other parts of the PCI core.
 
-Thinking more about it, what about the following:
+All right, then.
 
-keyboard numlock trigger -> input numlock led -> input numlock trigger =
--> input keyboard led
+> > > Agreed, ethtool and sysfs should affect the same flags.
+> > 
+> > Yeah, but.  Right now, if the setting is changed via sysfs, it doesn't modify
+> > the WoL setting as visible by ethtool.
+> 
+> > > I don't understand.  Do you mean there's no way to update the
+> > > _device's_ WoL setting when the sysfs attribute is changed?
+> > 
+> > There's no code for that, that's the problem.
+> > 
+> > > The device's WoL setting matters only at suspend time.  So the network
+> > > driver's suspend routine ought to test device_may_wakeup() to see
+> > > whether or not WoL should be enabled.  Maybe this can be centralized 
+> > > somewhere in the network stack.
+> > 
+> > Maybe.  The problem is people expect wakeup to work once WoL has been set
+> > with the help of ethtool and they expect it to work if the WoL is set by
+> > default.
+> 
+> It's not difficult in theory to tie together the WoL setting and the
+> wakeup flag:
+> 
+> 	If ethtool changes the WoL setting, the driver's ioctl handler
+> 	should make the corresponding change to the wakeup flag.
+> 
+> 	If ethtool queries the WoL setting, the ioctl handler should
+> 	check the wakeup flag.  If the flag is off, it should report 
+> 	that WoL is disabled; if the flag is on, it should report that 
+> 	WoL is enabled.  (The same check should be made in the suspend
+> 	routine.)
 
-Userland applications which want to redirect leds for (a priori) all
-keyboards change the trigger used by the input numlock led. Userland
-applications which want to redirect leds for a particular keyboard can
-change the trigger user by the particular input keyboard led.
+That's done this way already in all drivers I know, but we need a hook
+from wake_store() back to the driver.
 
-Samuel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > And also IMO, enabling WoL by default is very questionable.  But that's 
+> > > a separate matter.
+> > 
+> > That's been a common practice for years in the network adapter land and I don't
+> > think we're able to change that now.  Besides, if the WoL is set to g by
+> > default, which also is common, that doesn't really lead to any problems.
+> 
+> All right, we can declare that network drivers are allowed to enable
+> WoL by default (like keyboard drivers).  There shouldn't be any problem
+> provided they initialize the wakeup setting before registering the
+> network interface, so that the initialization doesn't override any 
+> action by udev.
+
+That sounds reasonable.
+
+Rafael

@@ -1,71 +1,642 @@
-From: Cory Maccarrone <darkstar6262@gmail.com>
-Subject: Re: [PATCH] Input: Add tsc2046 touchscreen driver
-Date: Sun, 7 Mar 2010 09:54:21 -0800
-Message-ID: <6cb013311003070954x36ae650fk40fcb4e21184166@mail.gmail.com>
-References: <1260736754-374-1-git-send-email-darkstar6262@gmail.com>
-	<6cb013311001101507s42f21679l87ccbea6fd06d8b8@mail.gmail.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH] Route kbd LEDs through the generic LEDs layer (4th version)
+Date: Sun, 7 Mar 2010 21:02:50 +0100
+Message-ID: <20100307200250.GA9340__17618.9525089741$1267992207$gmane$org@const.famille.thibault.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:61871 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754521Ab0CGRyl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 7 Mar 2010 12:54:41 -0500
-Received: by pvb32 with SMTP id 32so1218680pvb.19
-        for <linux-input@vger.kernel.org>; Sun, 07 Mar 2010 09:54:41 -0800 (PST)
-In-Reply-To: <6cb013311001101507s42f21679l87ccbea6fd06d8b8@mail.gmail.com>
+Received: from solo.fdn.fr ([80.67.169.19]:51579 "EHLO solo.fdn.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754643Ab0CGUC6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 7 Mar 2010 15:02:58 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Cory Maccarrone <darkstar6262@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Alexey Dobriyan <adobriyan@gmail.com>, akpm@linux-foundation.org, linux-ke
 
-On Sun, Jan 10, 2010 at 3:07 PM, Cory Maccarrone <darkstar6262@gmail.co=
-m> wrote:
-> On Sun, Dec 13, 2009 at 12:39 PM, Cory Maccarrone
-> <darkstar6262@gmail.com> wrote:
->> This change implements a new driver for the TSC2046-series
->> touchscreen found on many HTC OMAP850-based smartphones.
->> This driver differs from the ADS7846 in that it uses 16-bit
->> commands instead of 8-bit, and does not include temerature
->> or voltage sensing capabilities.
->>
->> This driver was submitted in May of 2007 to the linux-omap
->> list at:
->>
->> http://linux.omap.com/pipermail/linux-omap-open-source/2007-May/0097=
-45.html
->>
->> This is a resubmit of this driver, with additions that allows
->> the injection of pointercal parameters from tslib through
->> /sys. =C2=A0This was done for the Wing Linux project primarily to
->> allow this touchscreen to work with Android, but it's useful for
->> any userspace that doesn't support tslib calibration. =C2=A0Pointerc=
-al
->> use is optional -- it produces raw parameters unless the use_pointer=
-cal
->> /sys file is set to 1.
->>
->> Though this driver was previously submitted to linux-omap, there
->> is nothing omap-specific in this driver.
->>
->> Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
->
-> I haven't heard anything on this yet, so I want to give a gentle poke=
+Route keyboard LEDs through the generic LEDs layer.
+
+This permits to reassign keyboard LEDs to something else than keyboard =
+"leds"
+state, by adding keyboard led and modifier triggers connected to a seri=
+es
+of global input LEDs, themselves connected to global input triggers, wh=
+ich
+per-input device LEDs use by default.  Userland can thus easily change =
+the LED
+behavior of (a priori) all input devices, or of particular input device=
+s.
+
+This also permits to fix #7063 from userland by using a modifier to imp=
+lement
+proper CapsLock behavior and have the keyboard caps lock led show that =
+modifier
+state.
+
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+---
+
+Hello,
+
+Samuel Thibault, le Sun 07 Mar 2010 13:06:04 +0100, a =E9crit :
+> Thinking more about it, what about the following:
+>=20
+> keyboard numlock trigger -> input numlock led -> input numlock trigge=
+r -> input keyboard led
+
+Here is a fourth version of the patch that implements this.
+
+Difference from the third version:
+- creates LEDs for each input device.
+- creates a global LED trigger connected to the global LED, that
+per-device LEDs use by default.
+- properly initializes LED state on trigger and input device connection=
 =2E
-> =C2=A0Any chance of this making it in for .33, or has this patch alre=
-ady
-> missed that window?
->
-> Thanks
-> Cory
->
 
-I've still heard nothing on this for several months.  Can someone
-please take a look at it and provide feedback?  Can this patch be
-included soon?
+Difference between third and second:
+- only input LEDs actually available on devices are registered.
 
-- Cory
+Difference between second and first:
+- rebase on 2.6.33, fix locking issues.
+
+Samuel
+
+
+diff -ur linux-2.6.33-orig/Documentation/leds-class.txt linux-2.6.33-pe=
+rso/Documentation/leds-class.txt
+--- linux-2.6.33-orig/Documentation/leds-class.txt	2009-12-03 13:41:42.=
+000000000 +0100
++++ linux-2.6.33-perso/Documentation/leds-class.txt	2010-02-25 01:45:28=
+=2E000000000 +0100
+@@ -2,9 +2,6 @@
+ LED handling under Linux
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=20
+-If you're reading this and thinking about keyboard leds, these are
+-handled by the input subsystem and the led class is *not* needed.
+-
+ In its simplest form, the LED class just allows control of LEDs from
+ userspace. LEDs appear in /sys/class/leds/. The maximum brightness of =
+the
+ LED is defined in max_brightness file. The brightness file will set th=
+e brightness
+diff -ur linux-2.6.33-orig/drivers/char/keyboard.c linux-2.6.33-perso/d=
+rivers/char/keyboard.c
+--- linux-2.6.33-orig/drivers/char/keyboard.c	2010-02-25 01:41:19.00000=
+0000 +0100
++++ linux-2.6.33-perso/drivers/char/keyboard.c	2010-03-07 20:03:37.0000=
+00000 +0100
+@@ -34,6 +34,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/irq.h>
++#include <linux/leds.h>
+=20
+ #include <linux/kbd_kern.h>
+ #include <linux/kbd_diacr.h>
+@@ -139,6 +140,9 @@
+ static char rep;					/* flag telling character repeat */
+=20
+ static unsigned char ledstate =3D 0xff;			/* undefined */
++#ifdef CONFIG_LEDS_INPUT
++static unsigned char lockstate =3D 0xff;			/* undefined */
++#endif
+ static unsigned char ledioctl;
+=20
+ static struct ledptr {
+@@ -971,6 +975,35 @@
+ 	}
+ }
+=20
++#ifdef CONFIG_LEDS_INPUT
++/* When input-based leds are enabled, we route keyboard "leds" through=
+ triggers
++ */
++static void kbd_ledstate_trigger_activate(struct led_classdev *cdev);
++static struct led_trigger ledtrig_ledstate[] =3D {
++#define DEFINE_LEDSTATE_TRIGGER(kbd_led, nam) \
++	[kbd_led] =3D { .name =3D nam, .activate =3D kbd_ledstate_trigger_act=
+ivate, }
++	DEFINE_LEDSTATE_TRIGGER(VC_SCROLLOCK, "scrollock"),
++	DEFINE_LEDSTATE_TRIGGER(VC_NUMLOCK,   "numlock"),
++	DEFINE_LEDSTATE_TRIGGER(VC_CAPSLOCK,  "capslock"),
++	DEFINE_LEDSTATE_TRIGGER(VC_KANALOCK,  "kanalock"),
++#undef DEFINE_LEDSTATE_TRIGGER
++};
++static void kbd_lockstate_trigger_activate(struct led_classdev *cdev);
++static struct led_trigger ledtrig_lockstate[] =3D {
++#define DEFINE_LOCKSTATE_TRIGGER(kbd_led, nam) \
++	[kbd_led] =3D { .name =3D nam, .activate =3D kbd_lockstate_trigger_ac=
+tivate, }
++	DEFINE_LOCKSTATE_TRIGGER(VC_SHIFTLOCK,  "shiftlock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_ALTGRLOCK,  "altgrlock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_CTRLLOCK,   "ctrllock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_ALTLOCK,    "altlock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_SHIFTLLOCK, "shiftllock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_SHIFTRLOCK, "shiftrlock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_CTRLLLOCK,  "ctrlllock"),
++	DEFINE_LOCKSTATE_TRIGGER(VC_CTRLRLOCK,  "ctrlrlock"),
++#undef DEFINE_LOCKSTATE_TRIGGER
++};
++#endif
++
+ /*
+  * The leds display either (i) the status of NumLock, CapsLock, Scroll=
+Lock,
+  * or (ii) whatever pattern of lights people want to show using KDSETL=
+ED,
+@@ -1014,19 +1047,44 @@
+ 	return leds;
+ }
+=20
++#ifdef CONFIG_LEDS_INPUT
++/* Called on trigger connection, to set initial state */
++static void kbd_ledstate_trigger_activate(struct led_classdev *cdev)
++{
++	struct led_trigger *trigger =3D cdev->trigger;
++	int led =3D trigger - ledtrig_ledstate;
++
++	tasklet_disable(&keyboard_tasklet);
++	led_trigger_event(trigger, ledstate & (1 << led) ? INT_MAX : LED_OFF)=
+;
++	tasklet_enable(&keyboard_tasklet);
++}
++static void kbd_lockstate_trigger_activate(struct led_classdev *cdev)
++{
++	struct led_trigger *trigger =3D cdev->trigger;
++	int led =3D trigger - ledtrig_lockstate;
++
++	tasklet_disable(&keyboard_tasklet);
++	led_trigger_event(trigger, lockstate & (1 << led) ? INT_MAX : LED_OFF=
+);
++	tasklet_enable(&keyboard_tasklet);
++}
++#else
+ static int kbd_update_leds_helper(struct input_handle *handle, void *d=
+ata)
+ {
+ 	unsigned char leds =3D *(unsigned char *)data;
+=20
+ 	if (test_bit(EV_LED, handle->dev->evbit)) {
+-		input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & 0x01));
+-		input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & 0x02));
+-		input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & 0x04));
++		input_inject_event(handle, EV_LED, LED_SCROLLL,
++				!!(leds & VC_SCROLLOCK));
++		input_inject_event(handle, EV_LED, LED_NUML,
++				!!(leds & VC_NUMLOCK));
++		input_inject_event(handle, EV_LED, LED_CAPSL,
++				!!(leds & VC_CAPSLOCK));
+ 		input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
+ 	}
+=20
+ 	return 0;
+ }
++#endif
+=20
+ /*
+  * This is the tasklet that updates LED state on all keyboards
+@@ -1040,10 +1098,31 @@
+ 	unsigned char leds =3D getleds();
+=20
+ 	if (leds !=3D ledstate) {
++#ifdef CONFIG_LEDS_INPUT
++		int i;
++		for (i =3D 0; i < ARRAY_SIZE(ledtrig_ledstate); i++)
++			if ((leds ^ ledstate) & (1 << i))
++				led_trigger_event(&ledtrig_ledstate[i],
++						leds & (1 << i)
++						? INT_MAX : LED_OFF);
++#else
+ 		input_handler_for_each_handle(&kbd_handler, &leds,
+ 					      kbd_update_leds_helper);
++#endif
+ 		ledstate =3D leds;
+ 	}
++
++#ifdef CONFIG_LEDS_INPUT
++	if (kbd->lockstate !=3D lockstate) {
++		int i;
++		for (i =3D 0; i < ARRAY_SIZE(ledtrig_lockstate); i++)
++			if ((kbd->lockstate ^ lockstate) & (1 << i))
++				led_trigger_event(&ledtrig_lockstate[i],
++						kbd->lockstate & (1 << i)
++						? INT_MAX : LED_OFF);
++		lockstate =3D kbd->lockstate;
++	}
++#endif
+ }
+=20
+ DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+@@ -1380,6 +1459,7 @@
+ 	kfree(handle);
+ }
+=20
++#ifndef CONFIG_LEDS_INPUT
+ /*
+  * Start keyboard handler on the new keyboard by refreshing LED state =
+to
+  * match the rest of the system.
+@@ -1393,6 +1473,7 @@
+=20
+ 	tasklet_enable(&keyboard_tasklet);
+ }
++#endif
+=20
+ static const struct input_device_id kbd_ids[] =3D {
+ 	{
+@@ -1414,7 +1495,9 @@
+ 	.event		=3D kbd_event,
+ 	.connect	=3D kbd_connect,
+ 	.disconnect	=3D kbd_disconnect,
++#ifndef CONFIG_LEDS_INPUT
+ 	.start		=3D kbd_start,
++#endif
+ 	.name		=3D "kbd",
+ 	.id_table	=3D kbd_ids,
+ };
+@@ -1441,5 +1524,12 @@
+ 	tasklet_enable(&keyboard_tasklet);
+ 	tasklet_schedule(&keyboard_tasklet);
+=20
++#ifdef CONFIG_LEDS_INPUT
++	for (i =3D 0; i < ARRAY_SIZE(ledtrig_ledstate); i++)
++		led_trigger_register(&ledtrig_ledstate[i]);
++	for (i =3D 0; i < ARRAY_SIZE(ledtrig_lockstate); i++)
++		led_trigger_register(&ledtrig_lockstate[i]);
++#endif
++
+ 	return 0;
+ }
+diff -ur linux-2.6.33-orig/drivers/leds/Kconfig linux-2.6.33-perso/driv=
+ers/leds/Kconfig
+--- linux-2.6.33-orig/drivers/leds/Kconfig	2010-02-25 01:41:27.00000000=
+0 +0100
++++ linux-2.6.33-perso/drivers/leds/Kconfig	2010-03-07 15:38:11.0000000=
+00 +0100
+@@ -4,9 +4,6 @@
+ 	  Say Y to enable Linux LED support.  This allows control of supporte=
+d
+ 	  LEDs from both userspace and optionally, by kernel events (triggers=
+).
+=20
+-	  This is not related to standard keyboard LEDs which are controlled
+-	  via the input system.
+-
+ if NEW_LEDS
+=20
+ config LEDS_CLASS
+@@ -17,6 +14,14 @@
+=20
+ comment "LED drivers"
+=20
++config LEDS_INPUT
++	tristate "LED Support using input keyboards"
++	depends on LEDS_CLASS
++	select LEDS_TRIGGERS
++	help
++	  This option enables support for the LEDs on keyboard managed
++	  by the input layer.
++
+ config LEDS_ATMEL_PWM
+ 	tristate "LED Support using Atmel PWM outputs"
+ 	depends on LEDS_CLASS && ATMEL_PWM
+diff -ur linux-2.6.33-orig/drivers/leds/leds-input.c linux-2.6.33-perso=
+/drivers/leds/leds-input.c
+--- linux-2.6.33-orig/drivers/leds/leds-input.c	2010-02-21 04:13:41.000=
+000000 +0100
++++ linux-2.6.33-perso/drivers/leds/leds-input.c	2010-03-07 20:16:38.00=
+0000000 +0100
+@@ -0,0 +1,295 @@
++/*
++ * LED support for the input layer
++ *
++ * Copyright 2010 Samuel Thibault <samuel.thibault@ens-lyon.org>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/leds.h>
++#include <linux/input.h>
++
++/*
++ * Keyboard LEDs are propagated by default like the following example:
++ *
++ * keyboard numlock trigger
++ * -> input::numl global input LED
++ * -> input-numl global input trigger
++ * -> per-device <device>-input::numl LED
++ *
++ * Userland can however choose the trigger for the input::numl LED, or
++ * independently choose the trigger for any input-<device>::numl LED.
++ */
++
++/* Global LED classes and triggers are registered on-demand according =
+to
++ * existing devices */
++
++/* Handler for global input LEDs, just triggers the corresponding glob=
+al input
++ * trigger. */
++static void input_led_set(struct led_classdev *cdev,
++			  enum led_brightness brightness);
++static struct led_classdev input_leds[LED_CNT] =3D {
++#define DEFINE_INPUT_LED(input_led, nam, deftrig) \
++	[input_led] =3D { \
++		.name =3D "input::"nam, \
++		.max_brightness =3D 1, \
++		.brightness_set =3D input_led_set, \
++		.default_trigger =3D deftrig, \
++	}
++/* Default triggers for the global input LEDs just correspond to the l=
+egacy
++ * usage. */
++	DEFINE_INPUT_LED(LED_NUML, "numl", "numlock"),
++	DEFINE_INPUT_LED(LED_CAPSL, "capsl", "capslock"),
++	DEFINE_INPUT_LED(LED_SCROLLL, "scrolll", "scrollock"),
++	DEFINE_INPUT_LED(LED_COMPOSE, "compose", NULL),
++	DEFINE_INPUT_LED(LED_KANA, "kana", "kanalock"),
++	DEFINE_INPUT_LED(LED_SLEEP, "sleep", NULL),
++	DEFINE_INPUT_LED(LED_SUSPEND, "suspend", NULL),
++	DEFINE_INPUT_LED(LED_MUTE, "mute", NULL),
++	DEFINE_INPUT_LED(LED_MISC, "misc", NULL),
++	DEFINE_INPUT_LED(LED_MAIL, "mail", NULL),
++	DEFINE_INPUT_LED(LED_CHARGING, "charging", NULL),
++};
++static const char *const input_led_names[LED_CNT] =3D {
++	[LED_NUML] =3D "numl",
++	[LED_CAPSL] =3D "capsl",
++	[LED_SCROLLL] =3D "scrolll",
++	[LED_COMPOSE] =3D "compose",
++	[LED_KANA] =3D "kana",
++	[LED_SLEEP] =3D "sleep",
++	[LED_SUSPEND] =3D "suspend",
++	[LED_MUTE] =3D "mute",
++	[LED_MISC] =3D "misc",
++	[LED_MAIL] =3D "mail",
++	[LED_CHARGING] =3D "charging",
++};
++/* Handler for hotplug initialization */
++static void input_led_trigger_activate(struct led_classdev *cdev);
++/* Global input triggers */
++static struct led_trigger input_led_triggers[LED_CNT] =3D {
++#define DEFINE_INPUT_LED_TRIGGER(input_led, nam) \
++	[input_led] =3D { \
++		.name =3D "input-"nam, \
++		.activate =3D input_led_trigger_activate, \
++	}
++	DEFINE_INPUT_LED_TRIGGER(LED_NUML, "numl"),
++	DEFINE_INPUT_LED_TRIGGER(LED_CAPSL, "capsl"),
++	DEFINE_INPUT_LED_TRIGGER(LED_SCROLLL, "scrolll"),
++	DEFINE_INPUT_LED_TRIGGER(LED_COMPOSE, "compose"),
++	DEFINE_INPUT_LED_TRIGGER(LED_KANA, "kana"),
++	DEFINE_INPUT_LED_TRIGGER(LED_SLEEP, "sleep"),
++	DEFINE_INPUT_LED_TRIGGER(LED_SUSPEND, "suspend"),
++	DEFINE_INPUT_LED_TRIGGER(LED_MUTE, "mute"),
++	DEFINE_INPUT_LED_TRIGGER(LED_MISC, "misc"),
++	DEFINE_INPUT_LED_TRIGGER(LED_MAIL, "mail"),
++	DEFINE_INPUT_LED_TRIGGER(LED_CHARGING, "charging"),
++};
++/* Lock for registration coherency */
++static DEFINE_SPINLOCK(input_led_registered_lock);
++/* Which global LED classes and triggers are registered */
++static unsigned long input_led_registered[BITS_TO_LONGS(LED_CNT)];
++
++/* Our input handler to catch connect/disconnect */
++static struct input_handler input_led_handler;
++
++/* Global input LED state change, tell the global input trigger.  */
++static void input_led_set(struct led_classdev *cdev,
++			  enum led_brightness brightness)
++{
++	int led =3D cdev - input_leds;
++
++	led_trigger_event(&input_led_triggers[led], !!brightness);
++}
++
++/* LED state change for some keyboard, notify that keyboard.  */
++static void perdevice_input_led_set(struct led_classdev *cdev,
++			  enum led_brightness brightness)
++{
++	struct input_handle *handle =3D cdev->private;
++	struct led_classdev *leds =3D handle->private;
++	int led =3D cdev - leds;
++
++	input_inject_event(handle, EV_LED, led, !!brightness);
++	input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
++}
++
++/* Keyboard hotplug, initialize its LED status */
++static void input_led_trigger_activate(struct led_classdev *cdev)
++{
++	struct input_handle *handle =3D cdev->private;
++	struct led_classdev *leds =3D handle->private;
++	int led =3D cdev - leds;
++
++	perdevice_input_led_set(cdev, input_leds[led].brightness);
++}
++
++/* Free an input handle, used at abortion and disconnection.  */
++static void input_led_delete_handle(struct input_handle *handle)
++{
++	if (handle) {
++		struct led_classdev *leds =3D handle->private;
++		if (leds) {
++			int i;
++			for (i =3D 0; i < LED_CNT; i++)
++				kfree(leds[i].name);
++			kfree(leds);
++		}
++		kfree(handle);
++	}
++}
++
++/* A new input device with potential LEDs to connect.  */
++static int input_led_connect(struct input_handler *handler,
++			      struct input_dev *dev,
++			      const struct input_device_id *id)
++{
++	struct input_handle *handle;
++	int i, error =3D 0;
++	unsigned long flags;
++	struct led_classdev *leds;
++
++	if (!test_bit(EV_LED, dev->keybit))
++		return -ENODEV;
++
++	handle =3D kzalloc(sizeof(*handle), GFP_KERNEL);
++	if (!handle) {
++		error =3D -ENOMEM;
++		goto err;
++	}
++
++	handle->private =3D leds =3D kzalloc(sizeof(*leds) * LED_CNT,
++						GFP_KERNEL);
++	if (!handle->private) {
++		error =3D -ENOMEM;
++		goto err;
++	}
++
++	handle->dev =3D dev;
++	handle->handler =3D handler;
++	handle->name =3D "input leds";
++
++	error =3D input_register_handle(handle);
++	if (error)
++		goto err;
++
++	/* lazily register missing global input LEDs */
++	spin_lock_irqsave(&input_led_registered_lock, flags);
++	for (i =3D 0; i < LED_CNT; i++)
++		if (input_leds[i].name
++				&& !test_bit(i, input_led_registered)
++				&& test_bit(i, dev->ledbit)) {
++			led_trigger_register(&input_led_triggers[i]);
++			/* This keyboard has led i, try to register it */
++			if (!led_classdev_register(NULL, &input_leds[i]))
++				set_bit(i, input_led_registered);
++			else
++				led_trigger_unregister(&input_led_triggers[i]);
++		}
++	spin_unlock_irqrestore(&input_led_registered_lock, flags);
++
++	/* and register this device's LEDs */
++	for (i =3D 0; i < LED_CNT; i++)
++		if (input_leds[i].name && test_bit(i, dev->ledbit)) {
++			leds[i].name =3D kasprintf(GFP_KERNEL, "%s::%s",
++						dev_name(&dev->dev),
++						input_led_names[i]);
++			if (!leds[i].name) {
++				error =3D -ENOMEM;
++				goto err_handler;
++			}
++			leds[i].max_brightness =3D 1;
++			leds[i].brightness_set =3D perdevice_input_led_set;
++			leds[i].default_trigger =3D input_led_triggers[i].name;
++			leds[i].private =3D handle;
++		}
++
++	/* No issue so far, we can register for real.  */
++	for (i =3D 0; i < LED_CNT; i++)
++		if (leds[i].name)
++			led_classdev_register(input_leds[i].dev, &leds[i]);
++
++	return 0;
++
++err_handler:
++	input_unregister_handler(&input_led_handler);
++err:
++	input_led_delete_handle(handle);
++	return error;
++}
++
++/* Disconnected input device. Clean it, and deregister now-useless glo=
+bal LEDs
++ * and triggers.  */
++static void input_led_disconnect(struct input_handle *handle)
++{
++	int unregister, i;
++	unsigned long flags;
++	struct led_classdev *leds =3D handle->private;
++
++	for (i =3D 0; i < LED_CNT; i++)
++		if (leds[i].name)
++			led_classdev_unregister(&leds[i]);
++
++	input_unregister_handle(handle);
++	input_led_delete_handle(handle);
++
++	spin_lock_irqsave(&input_led_registered_lock, flags);
++	for (i =3D 0; i < LED_CNT; i++) {
++		if (!test_bit(i, input_led_registered))
++			continue;
++
++		unregister =3D 1;
++		list_for_each_entry(handle, &input_led_handler.h_list, h_node) {
++			if (test_bit(i, handle->dev->ledbit)) {
++				unregister =3D 0;
++				break;
++			}
++		}
++		if (!unregister)
++			continue;
++
++		led_classdev_unregister(&input_leds[i]);
++		led_trigger_unregister(&input_led_triggers[i]);
++		clear_bit(i, input_led_registered);
++	}
++	spin_unlock_irqrestore(&input_led_registered_lock, flags);
++}
++
++/* Only handle input devices which have LEDs */
++static const struct input_device_id input_led_ids[] =3D {
++	{
++		.flags =3D INPUT_DEVICE_ID_MATCH_EVBIT,
++		.evbit =3D { BIT_MASK(EV_LED) },
++	},
++
++	{ },	/* Terminating entry */
++};
++
++static struct input_handler input_led_handler =3D {
++	.connect	=3D input_led_connect,
++	.disconnect	=3D input_led_disconnect,
++	.name		=3D "input leds",
++	.id_table	=3D input_led_ids,
++};
++
++static int __init input_led_init(void)
++{
++	return input_register_handler(&input_led_handler);
++}
++
++static void __exit input_led_exit(void)
++{
++	/* This also disconnects all devices and thus unregisters LEDs and
++	 * triggers */
++	input_unregister_handler(&input_led_handler);
++}
++
++module_init(input_led_init);
++module_exit(input_led_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("User LED support for input layer");
++MODULE_AUTHOR("Samuel Thibault <samuel.thibault@ens-lyon.org>");
+diff -ur linux-2.6.33-orig/drivers/leds/Makefile linux-2.6.33-perso/dri=
+vers/leds/Makefile
+--- linux-2.6.33-orig/drivers/leds/Makefile	2010-02-25 01:41:27.0000000=
+00 +0100
++++ linux-2.6.33-perso/drivers/leds/Makefile	2010-02-25 01:45:28.000000=
+000 +0100
+@@ -5,6 +5,7 @@
+ obj-$(CONFIG_LEDS_TRIGGERS)		+=3D led-triggers.o
+=20
+ # LED Platform Drivers
++obj-$(CONFIG_LEDS_INPUT)		+=3D leds-input.o
+ obj-$(CONFIG_LEDS_ATMEL_PWM)		+=3D leds-atmel-pwm.o
+ obj-$(CONFIG_LEDS_BD2802)		+=3D leds-bd2802.o
+ obj-$(CONFIG_LEDS_LOCOMO)		+=3D leds-locomo.o
+diff -ur linux-2.6.33-orig/include/linux/leds.h linux-2.6.33-perso/incl=
+ude/linux/leds.h
+--- linux-2.6.33-orig/include/linux/leds.h	2009-09-10 01:26:46.00000000=
+0 +0200
++++ linux-2.6.33-perso/include/linux/leds.h	2010-03-07 15:34:32.0000000=
+00 +0100
+@@ -65,6 +65,7 @@
+ 	struct list_head	 trig_list;
+ 	void			*trigger_data;
+ #endif
++	void			*private;
+ };
+=20
+ extern int led_classdev_register(struct device *parent,
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

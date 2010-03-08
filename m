@@ -1,38 +1,46 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 6/7] HID: N-trig MTM Driver fix And cleanup patch 6
-Date: Mon, 08 Mar 2010 20:20:13 -0500
-Message-ID: <4B95A24D.2090903@seas.upenn.edu>
-References: <1268082827-2680-1-git-send-email-micki@n-trig.com> <1268082827-2680-2-git-send-email-micki@n-trig.com> <1268082827-2680-3-git-send-email-micki@n-trig.com> <1268082827-2680-4-git-send-email-micki@n-trig.com> <1268082827-2680-5-git-send-email-micki@n-trig.com> <1268082827-2680-6-git-send-email-micki@n-trig.com>
+From: Christian Lamparter <chunkeey@googlemail.com>
+Subject: [PATCH] Kirkwood: WPS button keycode mapping
+Date: Tue, 9 Mar 2010 00:25:29 +0100
+Message-ID: <201003090025.29849.chunkeey@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:42353 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756317Ab0CIBUb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 20:20:31 -0500
-In-Reply-To: <1268082827-2680-6-git-send-email-micki@n-trig.com>
+Received: from mail-fx0-f219.google.com ([209.85.220.219]:38364 "EHLO
+	mail-fx0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751070Ab0CHXZj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 18:25:39 -0500
+Received: by fxm19 with SMTP id 19so6926538fxm.21
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 15:25:38 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mickib1@gmail.com
-Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rafi@seas.upenn.edu
+To: linux-arm-kernel@lists.infradead.org
+Cc: Lennert Buytenhek <buytenh@marvell.com>, Nicolas Pitre <nico@marvell.com>, linux-input@vger.kernel.org
 
->   static const struct hid_device_id ntrig_devices[] = {
->   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN),
-> -		.driver_data = NTRIG_DUPLICATE_USAGES },
-> +		.driver_data = NTRIG_USB_DEVICE_ID },
+Commit "Input: add KEY_WPS_BUTTON definition"
+added a generic keycode for WPS button.
+Let's use it, instead of "F1" mapping.
 
-The vendor and device id are in the first field "HID_USB_DEVICE", driver 
-data is for flags, not id.  Its merely a coincidence that they are the 
-same in this case.
+Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
+---
+(untested, don't have the HW - please keep the CC!)
 
-The duplicate usages tells hid to let you have more than one "x" and "y" 
-axis.  Otherwise each finger gets a new set (the second finger gets "z" 
-and "rx" and so on).
-
->   static int __init ntrig_init(void)
->   {
-> +	info("N-trig Driver Version 1.6\n");
-
-Perhaps you mean:
-MODULE_VERSION("1.06");
+KEY_WPS_BUTTON chance made it into 2.6.34-rc1.
+---
+diff --git a/arch/arm/mach-kirkwood/mv88f6281gtw_ge-setup.c b/arch/arm/mach-kirkwood/mv88f6281gtw_ge-setup.c
+index 0358f45..5e6f711 100644
+--- a/arch/arm/mach-kirkwood/mv88f6281gtw_ge-setup.c
++++ b/arch/arm/mach-kirkwood/mv88f6281gtw_ge-setup.c
+@@ -74,9 +74,9 @@ static struct gpio_keys_button mv88f6281gtw_ge_button_pins[] = {
+ 		.desc		= "SWR Button",
+ 		.active_low	= 1,
+ 	}, {
+-		.code		= KEY_F1,
++		.code		= KEY_WPS_BUTTON,
+ 		.gpio		= 46,
+-		.desc		= "WPS Button(F1)",
++		.desc		= "WPS Button",
+ 		.active_low	= 1,
+ 	},
+ };

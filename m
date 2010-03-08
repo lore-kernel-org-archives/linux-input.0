@@ -1,49 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/4] Added locks for sysfs attributes and internal
- data.
-Date: Tue, 9 Mar 2010 01:05:08 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003090103240.17799@pobox.suse.cz>
-References: <201002200911.53900.stefan_achatz@web.de> <31758929.1286552.1266912188132.JavaMail.fmail@mwmweb006> <20100226074422.GA17062@core.coreip.homeip.net> <201003081704.30119.stefan_achatz@web.de>
+From: Christian Lamparter <chunkeey@googlemail.com>
+Subject: [PATCH] Orion5x: replace KEY_WLAN with KEY_WPS_BUTTON
+Date: Tue, 9 Mar 2010 00:26:35 +0100
+Message-ID: <201003090026.35696.chunkeey@googlemail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53068 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753884Ab0CIAFL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Mar 2010 19:05:11 -0500
-In-Reply-To: <201003081704.30119.stefan_achatz@web.de>
+Received: from fg-out-1718.google.com ([72.14.220.158]:37932 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750972Ab0CHX0j (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 18:26:39 -0500
+Received: by fg-out-1718.google.com with SMTP id 16so2620194fgg.1
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 15:26:37 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <stefan_achatz@web.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-input@vger.kernel.org, Lennert Buytenhek <buytenh@marvell.com>, Nicolas Pitre <nico@marvell.com>
 
-On Mon, 8 Mar 2010, Stefan Achatz wrote:
+"Input: add KEY_WPS_BUTTON definition" introduced
+a generic keycode for WPS input events. 
 
-> From 47678162da8e374d6f132db21d89b718ee5cfbd1 Mon Sep 17 00:00:00 2001
-> From: Stefan Achatz <erazor_de@users.sourceforge.net>
-> Date: Mon, 8 Mar 2010 16:54:19 +0100
-> Subject: [PATCH 4/4] Added locks for sysfs attributes and internal data.
-> 
-> Added mutex lock to prevent different processes from accessing
-> sysfs attributes at the same time.
-> Added spin lock for internal data.
-> ---
->  drivers/hid/hid-roccat-kone.c |  246 ++++++++++++++++++++++++++++------------
->  drivers/hid/hid-roccat-kone.h |    9 +-
->  2 files changed, 179 insertions(+), 76 deletions(-)
+Signed-off-by: Christian Lamparter <chunkeey@googlemail.com>
+---
+(untested, don't have the HW - keep the CC.)
 
-Stefan,
-
-could you please submit the rest of the patch series as well? I seem to 
-have got only "4/4" patch of your series, but not the rest of the roccat 
-driver (I recall there were some review comments raised after your initial 
-submission of the driver, so full respin would be appreciated).
-
-Also, please don't forget to put proper Signed-off-by: lines to the 
-patches you submit with intention for upstream merge.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+KEY_WLAN is _reversed_ for WLAN rfkill. ;-)
+---
+diff --git a/arch/arm/mach-orion5x/wrt350n-v2-setup.c b/arch/arm/mach-orion5x/wrt350n-v2-setup.c
+index cb0feca..f9f222e 100644
+--- a/arch/arm/mach-orion5x/wrt350n-v2-setup.c
++++ b/arch/arm/mach-orion5x/wrt350n-v2-setup.c
+@@ -77,7 +77,7 @@ static struct gpio_keys_button wrt350n_v2_buttons[] = {
+ 		.desc		= "Reset Button",
+ 		.active_low	= 1,
+ 	}, {
+-		.code		= KEY_WLAN,
++		.code		= KEY_WPS_BUTTON,
+ 		.gpio		= 2,
+ 		.desc		= "WPS Button",
+ 		.active_low	= 1,

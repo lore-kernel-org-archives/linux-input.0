@@ -1,65 +1,193 @@
-From: Benjamin Tissoires <tissoire@tls.cena.fr>
-Subject: Re: [PATCH 3/3] HID: deletion of unused code in hid-magicmouse.
-Date: Mon, 08 Mar 2010 21:51:36 +0100
-Message-ID: <4B956358.80608@tls.cena.fr>
-References: <1268065277-30129-1-git-send-email-tissoire@cena.fr>	<1268065277-30129-2-git-send-email-tissoire@cena.fr>	<1268065277-30129-3-git-send-email-tissoire@cena.fr>	<1268065277-30129-4-git-send-email-tissoire@cena.fr>	<1268065277-30129-5-git-send-email-tissoire@cena.fr>	<4B95255B.5010900@cena.fr>	<alpine.LNX.2.00.1003081730170.17799@pobox.suse.cz>	<4B952C77.3080505@cena.fr> <87sk8a36f4.fsf@troilus.org>
+From: mickib1@gmail.com
+Subject: [PATCH 1/7] HID: N-trig MTM Driver fix and cleanup patch 1
+Date: Mon,  8 Mar 2010 23:13:41 +0200
+Message-ID: <1268082827-2680-1-git-send-email-micki@n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hilar.cena.fr ([195.83.98.1]:37756 "EHLO hilar.tls.cena.fr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755288Ab0CHUvk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Mar 2010 15:51:40 -0500
-In-Reply-To: <87sk8a36f4.fsf@troilus.org>
+Received: from mail-fx0-f219.google.com ([209.85.220.219]:62249 "EHLO
+	mail-fx0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755537Ab0CHVOA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 16:14:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Benjamin Tissoires <tissoire@cena.fr>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
+To: jkosina@suse.cz, rafi@seas.upenn.edu, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Sorry about that, I'm beginning in sending patch for the kernel. I tried 
-to use the git send-email command, but I saw after that the command just 
-send email to the people I added, but not the mailing list. To be sure 
-to (re)send the last patch, I attached it to be sure to send it 
-"correctly", but not according to the recommended practice.
+=46rom: micki <micki@micki-laptop.(none)>
 
-I will resend the whole patch list to the mailing list.
+Add Change Log and defines of MTM firmware.
+Add debug Paramater change Driver name in hid_driver structure
 
-The patch you told was not intended to be self-consistant but a final 
-cleanup after the two patches I tried to send before. I splitted them 
-like that in order to keep them human readable as git tried to intrelace 
-the additions and removals, even if they were not related together.
+N-trig is changing the way people interact with computers by providing =
+a dual-mode pen and true multi-touch input device, specifically designe=
+d for today's advanced computing world.
+N-trig DuoSense=C2=AE solution provides a real Hands-on computing=C2=AE=
+ experience, and sets the stage for OEMs and ISVs to introduce innovati=
+ve computer products and applications for an intuitive, Hands-on=C2=AE =
+experience directly onscreen.
+DuoSense digitizers are easily integrated into existing technologies, s=
+upport all LCDs, keep devices slim and light, and can be implemented in=
+ a broad range of products, ranging from small notebooks to large LCDs.
+N-trig has offices in Israel, the US, Taiwan and Japan.
 
-Sorry again
+Signed-off-by: Micki Balanga <micki@n-trig.com>
+---
+ drivers/hid/hid-ntrig.c |   94 +++++++++++++++++++++++++++++++++++++++=
++++++--
+ 1 files changed, 89 insertions(+), 5 deletions(-)
 
-Benjamin
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 3234c72..e99342d 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -3,7 +3,18 @@
+  *
+  *  Copyright (c) 2008 Rafi Rubin
+  *  Copyright (c) 2009 Stephane Chatty
++ *  Copyright (c) 2010 N-TRIG
+  *
++ *	1.0 - Rafi Rubin ( Version From 2010-02-13 02:13:05)
++ *		This cleans up the identification of multitouch
++ *		groups and enables the end of group sync.
++ *		Taps are now explicitly handled to adjust for the changes in the
++ *		event stream in multitouch mode.
++ *		Added triple and quad tap for the benefit of
++ *		tools that recognize different tap types but
++ *		do not have full multi touch support.
++ *	1.1 - N-trig - Add Change Log and defines of MTM firmware.
++ *		Add debug Paramater change Driver name in hid_driver structure
+  */
+=20
+ /*
+@@ -16,8 +27,78 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+-
++#include <linux/usb.h>
+ #include "hid-ids.h"
++#include "usbhid/usbhid.h"
++
++/*
++ * Pen Event Field Declaration
++ */
++#define	EVENT_PEN_TIP		0x03
++#define	EVENT_PEN_RIGHT		0x05
++#define	EVENT_TOUCH_PEN		0x07
++#define EVENT_PEN_IN_RANGE	0x01
++
++/*
++ * MTM 4 last bytes of report descriptor
++ */
++#define REPORT_GENERIC1		0x01
++#define REPORT_MT		0x02
++#define REPORT_PALM		0x03
++#define REPORT_GENERIC2		0x04
++
++#define NTRIG_USB_DEVICE_ID	0x0001
++
++/*
++ * MTM fields
++ */
++#define PEN_REPORT_SIZE		0x48
++#define MAX_FINGERS_SUPPORT	0x06
++#define END_OF_REPORT		0x64
++
++/*
++ * Dummy Finger Declaration
++ */
++#define X_CORD_VAL		0x00
++#define Y_CORD_VAL		0x00
++#define DX_CORD_VAL		0xFA
++#define DY_CORD_VAL		0x96
++#define GENERIC_BYTE_VAL	0x0D
++
++/*
++ * MTM Parse Event
++ */
++#define MTM_FRAME_INDEX		0xff000001
++#define MTM_PROPROETARY		0xff000002
++
++/*
++ * MTM  Set Feature Commands
++ */
++#define REPORTID_DRIVER_ALIVE	0x0A
++#define REPORTID_CALIBRATION	0x0B
++#define REPORTID_GET_VERSION	0x0C
++#define REPORTID_GET_MODE	0x0D
++#define REPORTID_SET_MODE_PEN	0x0E
++#define REPORTID_SET_MODE_TOUCH	0x0F
++#define REPORTID_SET_MODE_DUAL	0x10
++#define REPORTID_CALIBRATION_RESPOND	0x11
++#define HID_CAPACITORS_CALIB	0x12
++#define HID_GET_CAPACITORS_CALIB_DONE	0x13
++
++
++static int debug;
++
++#define MODULE_NAME "hid_ntrig"
++
++
++#define info(format, arg...) \
++	printk(KERN_INFO "%s: " format , MODULE_NAME , ## arg)
++#define ntrig_dbg(format, arg...) \
++	do { \
++		if (debug) \
++			printk(KERN_DEBUG "%s: " format, \
++			MODULE_NAME , ## arg); \
++	} while (0)
+=20
+ #define NTRIG_DUPLICATE_USAGES	0x001
+=20
+@@ -123,8 +204,8 @@ static int ntrig_input_mapped(struct hid_device *hd=
+ev, struct hid_input *hi,
+  * decide whether we are in multi or single touch mode
+  * and call input_mt_sync after each point if necessary
+  */
+-static int ntrig_event (struct hid_device *hid, struct hid_field *fiel=
+d,
+-		                        struct hid_usage *usage, __s32 value)
++static int ntrig_event(struct hid_device *hid, struct hid_field *field=
+,
++			struct hid_usage *usage, __s32 value)
+ {
+ 	struct input_dev *input =3D field->hidinput->input;
+ 	struct ntrig_data *nd =3D hid_get_drvdata(hid);
+@@ -133,7 +214,7 @@ static int ntrig_event (struct hid_device *hid, str=
+uct hid_field *field,
+ 	if (field->application =3D=3D HID_DG_PEN)
+ 		return 0;
+=20
+-        if (hid->claimed & HID_CLAIMED_INPUT) {
++	if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
+ 		case 0xff000001:
+ 			/* Tag indicating the start of a multitouch group */
+@@ -362,7 +443,7 @@ static const struct hid_usage_id ntrig_grabbed_usag=
+es[] =3D {
+ };
+=20
+ static struct hid_driver ntrig_driver =3D {
+-	.name =3D "ntrig",
++	.name =3D MODULE_NAME,
+ 	.id_table =3D ntrig_devices,
+ 	.probe =3D ntrig_probe,
+ 	.remove =3D ntrig_remove,
+@@ -384,4 +465,7 @@ static void __exit ntrig_exit(void)
+=20
+ module_init(ntrig_init);
+ module_exit(ntrig_exit);
++
++MODULE_PARM_DESC(debug, "Debug mode enable disable");
++module_param(debug, bool, 0644);
+ MODULE_LICENSE("GPL");
+--=20
+1.6.3.3
 
-On 03/08/2010 09:27 PM, Michael Poole wrote:
-> Benjamin Tissoires writes:
->
->>>
->>> Well ... I don't see any patch titled "HID: deletion of unused code in
->>> hid-magicmouse" neither in my inbox nor in my linux-input@ folder. Could
->>> you perhaps please resend?
->>>
->>> Thanks,
->>>
->>
->> Of course, I attached it. Do I need to send it in mbox format or is it ok ?
->>
->> Cheers,
->> Benjamin
->
-> The recommended practice for sending patches is (from
-> Documentation/SubmittingPatches) "7) No MIME, no links, no compression,
-> no attachments.  Just plain text."
->
-> I'm a bit mystified, though -- if magicmouse_setup_input() is from "the
-> old implementation", where is the new implementation?  Jiri's
-> hid/for-next and hid/master trees definitely use the input device that
-> it sets up.  The "magicmouse_input_mapping" function that shows up at
-> the end of your patch doesn't exist in those trees.  The reason I didn't
-> use input_mapping() initially was because it only allows setting up one
-> input field, and the touch records generate multiple types of events.
->
-> Michael Poole
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

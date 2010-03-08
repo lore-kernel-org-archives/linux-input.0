@@ -1,115 +1,57 @@
-From: Maurus Cuelenaere <mcuelenaere@gmail.com>
-Subject: Re: [PATCH 5/7] ARM: S3C64XX: Add s3c64xx support to touchscreen
- driver
-Date: Mon, 08 Mar 2010 21:04:58 +0100
-Message-ID: <4B95586A.2080806@gmail.com>
-References: <b2e8f9f71003081038v5096204dm8bb4bfaeadb3203d@mail.gmail.com> <20100308200126.GH24864@trinity.fluff.org>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 3/3] HID: deletion of unused code in hid-magicmouse.
+Date: Mon, 08 Mar 2010 15:27:43 -0500
+Message-ID: <87sk8a36f4.fsf@troilus.org>
+References: <1268065277-30129-1-git-send-email-tissoire@cena.fr>
+	<1268065277-30129-2-git-send-email-tissoire@cena.fr>
+	<1268065277-30129-3-git-send-email-tissoire@cena.fr>
+	<1268065277-30129-4-git-send-email-tissoire@cena.fr>
+	<1268065277-30129-5-git-send-email-tissoire@cena.fr>
+	<4B95255B.5010900@cena.fr>
+	<alpine.LNX.2.00.1003081730170.17799@pobox.suse.cz>
+	<4B952C77.3080505@cena.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f216.google.com ([209.85.219.216]:46329 "EHLO
-	mail-ew0-f216.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755523Ab0CHUFC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 15:05:02 -0500
-In-Reply-To: <20100308200126.GH24864@trinity.fluff.org>
+Received: from na3sys009aog102.obsmtp.com ([74.125.149.69]:33150 "HELO
+	na3sys009aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753798Ab0CHU16 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Mar 2010 15:27:58 -0500
+Received: by mail-vw0-f46.google.com with SMTP id 9so3172825vws.33
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 12:27:46 -0800 (PST)
+In-Reply-To: <4B952C77.3080505@cena.fr> (Benjamin Tissoires's message of "Mon,
+	08 Mar 2010 17:57:27 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <tissoire@cena.fr>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-Op 08-03-10 21:01, Ben Dooks schreef:
-> On Mon, Mar 08, 2010 at 07:38:59PM +0100, Maurus Cuelenaere wrote:
->    
->> This ack's the extra interrupt s3c64xx platforms have in the touchscreen driver.
->>      
-> This acks, no need for an ' here.
+Benjamin Tissoires writes:
+
+>>
+>> Well ... I don't see any patch titled "HID: deletion of unused code in
+>> hid-magicmouse" neither in my inbox nor in my linux-input@ folder. Could
+>> you perhaps please resend?
+>>
+>> Thanks,
+>>
 >
-> You'd have been better off sayinh:
+> Of course, I attached it. Do I need to send it in mbox format or is it ok ?
 >
-> Add support for the S3C64XX touchscreen to the s3c2410_ts driver, ensuring
-> it compiles and supports the extra features such as the interrupt generation.
->    
+> Cheers,
+> Benjamin
 
-Ok, should I resend this?
+The recommended practice for sending patches is (from
+Documentation/SubmittingPatches) "7) No MIME, no links, no compression,
+no attachments.  Just plain text."
 
->> Signed-off-by: Maurus Cuelenaere<mcuelenaere@gmail.com>
->> ---
->>   drivers/input/touchscreen/Kconfig      |    6 +++---
->>   drivers/input/touchscreen/s3c2410_ts.c |   26 ++++++++++++++++++++++----
->>   2 files changed, 25 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/Kconfig
->> b/drivers/input/touchscreen/Kconfig
->> index dfafc76..0378b3d 100644
->> --- a/drivers/input/touchscreen/Kconfig
->> +++ b/drivers/input/touchscreen/Kconfig
->> @@ -146,11 +146,11 @@ config TOUCHSCREEN_FUJITSU
->>   	  module will be called fujitsu-ts.
->>
->>   config TOUCHSCREEN_S3C2410
->> -	tristate "Samsung S3C2410 touchscreen input driver"
->> -	depends on ARCH_S3C2410
->> +	tristate "Samsung S3C touchscreen input driver"
->> +	depends on ARCH_S3C2410 || ARCH_S3C64XX
->>   	select S3C24XX_ADC
->>   	help
->> -	  Say Y here if you have the s3c2410 touchscreen.
->> +	  Say Y here if you have the s3c touchscreen.
->>
->>   	  If unsure, say N.
->>
->> diff --git a/drivers/input/touchscreen/s3c2410_ts.c
->> b/drivers/input/touchscreen/s3c2410_ts.c
->> index 0cd0ca6..04c990e 100644
->> --- a/drivers/input/touchscreen/s3c2410_ts.c
->> +++ b/drivers/input/touchscreen/s3c2410_ts.c
->> @@ -40,7 +40,9 @@
->>   #include<plat/regs-adc.h>
->>   #include<plat/ts.h>
->>
->>      
-> OA>  +#ifdef PLAT_S3C24XX
->    
->>   #include<mach/regs-gpio.h>
->> +#endif
->>      
-> hmm, does this correct a compile error?
->    
+I'm a bit mystified, though -- if magicmouse_setup_input() is from "the
+old implementation", where is the new implementation?  Jiri's
+hid/for-next and hid/master trees definitely use the input device that
+it sets up.  The "magicmouse_input_mapping" function that shows up at
+the end of your patch doesn't exist in those trees.  The reason I didn't
+use input_mapping() initially was because it only allows setting up one
+input field, and the touch records generate multiple types of events.
 
-It does, this has been mentioned in a previous version of this patch.
-Last time I checked, this file wasn't available for S3C64xx targets.
-Also, see below.
-
->>   #define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC_XY_PST(0))
->>
->> @@ -88,6 +90,12 @@ struct s3c2410ts {
->>
->>   static struct s3c2410ts ts;
->>
->> +enum s3c_cpu_type {
->> +	TYPE_S3C2410,
->> +	TYPE_S3C2440,
->> +	TYPE_S3C64XX,
->> +};
->> +
->>   /**
->>    * s3c2410_ts_connect - configure gpio for s3c2410 systems
->>    *
->> @@ -97,10 +105,12 @@ static struct s3c2410ts ts;
->>   */
->>   static inline void s3c2410_ts_connect(void)
->>   {
->> +#ifdef PLAT_S3C24XX
->>   	s3c2410_gpio_cfgpin(S3C2410_GPG(12), S3C2410_GPG12_XMON);
->>   	s3c2410_gpio_cfgpin(S3C2410_GPG(13), S3C2410_GPG13_nXPON);
->>   	s3c2410_gpio_cfgpin(S3C2410_GPG(14), S3C2410_GPG14_YMON);
->>   	s3c2410_gpio_cfgpin(S3C2410_GPG(15), S3C2410_GPG15_nYPON);
->> +#endif
->>   }
-
-The s3c2410_gpio_cfgpin() and S3C2410_* aren't defined for S3C64xx builds.
-
--- 
-Maurus Cuelenaere
-
+Michael Poole

@@ -1,23 +1,27 @@
 From: mickib1@gmail.com
-Subject: [PATCH 3/7] HID: N-trig MTM Driver fix And cleanup patch 3
-Date: Mon,  8 Mar 2010 23:13:43 +0200
-Message-ID: <1268082827-2680-3-git-send-email-micki@n-trig.com>
+Subject: [PATCH 4/7] HID: N-trig MTM Driver fix And cleanup Patch 4
+Date: Mon,  8 Mar 2010 23:13:44 +0200
+Message-ID: <1268082827-2680-4-git-send-email-micki@n-trig.com>
 References: <1268082827-2680-1-git-send-email-micki@n-trig.com>
  <1268082827-2680-2-git-send-email-micki@n-trig.com>
+ <1268082827-2680-3-git-send-email-micki@n-trig.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1268082827-2680-2-git-send-email-micki@n-trig.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f219.google.com ([209.85.220.219]:62249 "EHLO
+	mail-fx0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755927Ab0CHVOH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 16:14:07 -0500
+In-Reply-To: <1268082827-2680-3-git-send-email-micki@n-trig.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz, rafi@seas.upenn.edu, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 =46rom: micki <micki@micki-laptop.(none)>
 
-Change ntrig_input_mapped function to support EV_MSC events.
-Support pen button left/right
+Add ntrig_send_report - enable us to configure firmware.
 
 N-trig is changing the way people interact with computers by providing =
 a dual-mode pen and true multi-touch input device, specifically designe=
@@ -33,53 +37,85 @@ N-trig has offices in Israel, the US, Taiwan and Japan.
 
 Signed-off-by: Micki Balanga <micki@n-trig.com>
 ---
- drivers/hid/hid-ntrig.c |   26 ++++++++++++++++++--------
- 1 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/hid/hid-ntrig.c |   50 +++++++++++++++++++++++++++++++++++++++=
+++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 3602cd0..8130c3c 100644
+index 8130c3c..8cdb3c2 100644
 --- a/drivers/hid/hid-ntrig.c
 +++ b/drivers/hid/hid-ntrig.c
-@@ -16,6 +16,7 @@
-  *	1.1 - N-trig - Add Change Log and defines of MTM firmware.
+@@ -17,6 +17,8 @@
   *		Add debug Paramater change Driver name in hid_driver structure
   *	1.2 - N-trig - Change ntrig_input_mapping
-+ *	1.3 - N-trig - Change ntrig_input_mapped
+  *	1.3 - N-trig - Change ntrig_input_mapped
++ *	1.4 - N-trig - Add ntrig_send_report function
++ *		send set feature command to firmware
   */
 =20
  /*
-@@ -182,14 +183,23 @@ static int ntrig_input_mapped(struct hid_device *=
-hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
--	/* No special mappings needed for the pen and single touch */
--	if (field->physical)
--		return 0;
--
--	if (usage->type =3D=3D EV_KEY || usage->type =3D=3D EV_REL
--			|| usage->type =3D=3D EV_ABS)
--		clear_bit(usage->code, *bit);
--
-+       /*
-+	* Maps Key For Pen And Touch events
-+	* MSC events used to transfer information about finger status
-+	* In cureent Frame
-+	* todo: Maybe later transfer to mt proctol
-+	* if there will be relevant events
-+	*/
-+	struct input_dev *input =3D hi->input;
-+	set_bit(BTN_LEFT, input->keybit);
-+	set_bit(BTN_RIGHT, input->keybit);
-+	set_bit(EV_MSC, input->evbit);
-+	set_bit(MSC_PULSELED, input->mscbit);
-+	set_bit(MSC_SERIAL, input->mscbit);
-+	set_bit(MSC_SCAN, input->mscbit);
-+
-+	input_set_abs_params(hi->input, ABS_PRESSURE,
-+			0/*Min*/, 255 /*Max*/, 0, 0);
- 	return 0;
+@@ -361,6 +363,54 @@ static int ntrig_event(struct hid_device *hid, str=
+uct hid_field *field,
+ 	return 1;
  }
 =20
++/*
++ * This function used to configure N-trig firmware
++ * The first command we need to send to firmware is change
++ * to Multi-touch Mode we don't receive a reply
++ */
++static int ntrig_send_report(struct hid_device *hid)
++{
++	struct hid_report *report;
++	struct list_head *report_list =3D
++			&hid->report_enum[HID_FEATURE_REPORT].report_list;
++
++	if (list_empty(report_list)) {
++		ntrig_dbg("no feature reports found\n");
++		return -ENODEV;
++	}
++	report =3D list_first_entry(report_list, struct hid_report, list);
++	if (report->maxfield < 1)
++		return -ENODEV;
++
++	list_for_each_entry(report,
++			    report_list, list) {
++		if (report->maxfield < 1) {
++		      ntrig_dbg("no fields in the report\n");
++		      continue;
++		}
++		ntrig_dbg("Report ID %x\n", report->id);
++		switch (report->id) {
++		case REPORTID_DRIVER_ALIVE:
++		      usbhid_submit_report(hid, report, USB_DIR_OUT);
++		      break;
++		      /*
++		       * These command will implement later accroding to demand
++		       */
++		case REPORTID_GET_VERSION:	/* FALLTHRU */
++		case REPORTID_SET_MODE_DUAL:	/* FALLTHRU */
++		case REPORTID_CALIBRATION:	/* FALLTHRU */
++		case REPORTID_GET_MODE:		/* FALLTHRU */
++		case REPORTID_SET_MODE_PEN:	/* FALLTHRU */
++		case REPORTID_SET_MODE_TOUCH:	/* FALLTHRU */
++		case REPORTID_CALIBRATION_RESPOND:/* FALLTHRU */
++		case HID_CAPACITORS_CALIB:	/* FALLTHRU */
++		case HID_GET_CAPACITORS_CALIB_DONE:
++		      break;
++		}
++	}
++	return 0;
++}
++
+ static int ntrig_probe(struct hid_device *hdev, const struct hid_devic=
+e_id *id)
+ {
+ 	int ret;
 --=20
 1.6.3.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

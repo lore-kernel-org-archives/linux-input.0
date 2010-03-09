@@ -1,71 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] hid-magicmouse: Fix oops after device removal.
-Date: Mon, 8 Mar 2010 23:48:20 -0800
-Message-ID: <20100309074820.GD17288@core.coreip.homeip.net>
-References: <87aaui2usx.fsf@troilus.org>
+Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product
+   ... why not + dev->serial?
+Date: Tue, 9 Mar 2010 00:22:16 -0800
+Message-ID: <20100309082216.GG17288@core.coreip.homeip.net>
+References: <201003071655.06644@rk-nord.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f191.google.com ([209.85.210.191]:54853 "EHLO
-	mail-yx0-f191.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751446Ab0CIHs1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 02:48:27 -0500
-Received: by yxe29 with SMTP id 29so815249yxe.4
-        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 23:48:25 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87aaui2usx.fsf@troilus.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <201003071655.06644@rk-nord.at>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Melchior FRANZ <melchior.franz@gmail.com>
+Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <tissoire@tls.cena.fr>, Stephane Chatty <chatty@enac.fr>
 
-On Mon, Mar 08, 2010 at 07:38:38PM -0500, Michael Poole wrote:
-> From 57c6af4c2dadcce71566995baa15593103ab33aa Mon Sep 17 00:00:00 2001
-> From: Michael Poole <mdpoole@troilus.org>
-> Date: Mon, 8 Mar 2010 19:09:26 -0500
-> Subject: [PATCH 1/1] hid-magicmouse: Fix oops after device removal.
+Hi Melchior,
+
+I'm adding a few CCs and takinng discussion a bit away from your patch
+;)
+
+On Sun, Mar 07, 2010 at 04:55:06PM +0100, Melchior FRANZ wrote:
+> Hi,
 > 
-> Ask the HID core not to register an input device for the mouse.
-> Fix an oops after removing the device, due to leaving the new
-> input device registered.
+> just recently I purchased two data acquisition HID devices that pretend to be
+> joysticks[1], because that way no special kernel drivers are required, and
+> because they are usually used for joystick-like purposes. The devices identify
+> themselves as
 > 
-> Signed-off-by: Michael Poole <mdpoole@troilus.org>
-> ---
->  drivers/hid/hid-magicmouse.c |    5 ++++-
->  1 files changed, 4 insertions(+), 1 deletions(-)
+>   idVendor           0x16c0
+>   idProduct          0x05ba 
+>   iManufacturer      1 Leo Bodnar
+>   iProduct           2 BU0836A Interface
+>   iSerial            3 A10123
 > 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 4a3a94f..2e7d701 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -353,7 +353,7 @@ static int magicmouse_probe(struct hid_device *hdev,
->  		goto err_free;
->  	}
->  
-> -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
->  	if (ret) {
->  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
->  		goto err_free;
-> @@ -409,7 +409,10 @@ err_free:
->  
->  static void magicmouse_remove(struct hid_device *hdev)
->  {
-> +	struct magicmouse_sc *msc;
+> The Linux kernel creates the HID/"joystick name" from only iManufacturer and
+> iProduct, ignoring iSerial. That way, JSIOCGNAME returns the same string
+> for all such devices, making an actual identification impossible.
+> joystick-api.txt says about JSIOCGNAME:
+> 
+>   #define JSIOCGNAME(len) /* get identifier string        char    */
+>   ...
+>   JSIOCGNAME(len) allows you to get the name string of the joystick
+> 
+> But this isn't actually true. "Leo Bodnar BU0836A Interface" is only
+> the name of the product, but not of the actual (joystick or whatever)
+> device. If you have more of these devices on the bus, then software has
+> no way to know which is which -- which is the one with the temperature
+> sensor on axis 0 etc. (Apart from doing all the USB querying itself,
+> of course.)
+> 
 
-Blank lines between variable definitions and code are always
-appreciated. but also coudl be written as:
+This is nicely illustrates one of the reasons why input subsystem is
+ill-suited for generic data acquisition. I call it "device anonymity" -
+input subsystem only interested in the type of event (ABS_X, ABS_Y) but
+not necessarily the device it came from. You may have 2 joysticks and
+prefer to use one in one game and other in another game. With default
+setup you could grab either one and start playing, ABS_X from either
+mapping on horizontal movements, ABS_Y on vertical... Same with
+keyboards - you plug an external keyboard into laptop and you just start
+typing (sans multi-seat setups that we don't support well at the
+moment). In other words for input we care very much about capabilities
+of a device but care much less about the device itself.
 
-	struct magicmouse_sc *msc = hid_get_drvdata(dev);
+Which data acquisition you care not only about hypothetical
+ABS_TEMPERATIRE event but it is also _very_ important the exact device
+or probe the data is coming from. Temperature from device A can't be
+used in place of temperature form device B.
 
-> +	msc = hid_get_drvdata(hdev);
->  	hid_hw_stop(hdev);
-> +	input_unregister_device(msc->input);
->  	kfree(hid_get_drvdata(hdev));
+> The patch below fixed the problem for me. But, certainly, the current
+> (mis)behaviour wasn't an accident, but intentional. But what was the
+> intention? What happens if I attach two actual identical joysticks?
+> What's the purpose of them having the same name on the system under
+> /dev/input/{js,event}? 
 
-You have msc already sho that should be 'kfree(msc);'.
->  }
->  
+They will have different event nodes.
+
+> Not even two (human) identical twins have the
+> same first name, and for a reason!
+> 
+
+But you as an observer have no idea what their names are, and they look the
+same to you. And in case of joysticks ther serials are not easily
+visible on them when you quickly grab one.
+
+Nevertheless serials are exported in sysfs ('uniq' attribute). Also udev
+can give persistent names device nodes based on physocal connection,
+serial numbers, etc.
 
 -- 
 Dmitry

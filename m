@@ -1,94 +1,42 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: [PATCH 2/3] input: use input_mutex instead of BKL when opening
- input device
-Date: Tue, 9 Mar 2010 17:59:48 -0300
-Message-ID: <20100309205947.GB1498@holoscopio.com>
-References: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
- <1268162386-2745-2-git-send-email-cascardo@holoscopio.com>
- <201003092112.14071.arnd@arndb.de>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
+Date: Tue, 09 Mar 2010 16:17:37 -0500
+Message-ID: <4B96BAF1.5070209@seas.upenn.edu>
+References: <4B75E14A.2050602@seas.upenn.edu> <1266027185-5311-1-git-send-email-rafi@seas.upenn.edu> <4B760D60.6020907@seas.upenn.edu> <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz> <4B96B740.7020208@euromail.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.254.139]:42800 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756069Ab0CIU75 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 15:59:57 -0500
-Content-Disposition: inline
-In-Reply-To: <201003092112.14071.arnd@arndb.de>
+Received: from LION.seas.upenn.edu ([158.130.12.194]:57925 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751326Ab0CIVRs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 16:17:48 -0500
+In-Reply-To: <4B96B740.7020208@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John Kacur <jkacur@gmail.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chatty@enac.fr
+
+On 03/09/2010 04:01 PM, Henrik Rydberg wrote:
+> In hid-ntrig.c, I see BTN_TOUCH set to one in one place in the code, but no
+> place where it is set to zero.
+
+Oops.  I removed that accidentally when I backed off on some of the more 
+aggressive ideas.
+
+> Incidently, I have a documentation patch pending which further specifies how to
+> handle the fingers-off-screen events. Perhaps that is the issue here?
+
+Nope just purely a mistake.
 
 
---TakKZr9L6Hm6aLOc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Since you're considering protocol clarification, what's your opinion on 
+splitting the multi-touch and single touch (possibly emulated) to 
+separate input devices?
 
-On Tue, Mar 09, 2010 at 09:12:13PM +0100, Arnd Bergmann wrote:
-> On Tuesday 09 March 2010, Thadeu Lima de Souza Cascardo wrote:
-> >  MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-> > @@ -1881,7 +1880,7 @@ static int input_open_file(struct inode *inode, s=
-truct file *file)
-> >         const struct file_operations *old_fops, *new_fops =3D NULL;
-> >         int err;
-> > =20
-> > -       lock_kernel();
-> > +       mutex_lock(&input_mutex);
-> >         /* No load-on-demand here? */
-> >         handler =3D input_table[iminor(inode) >> 5];
-> >         if (!handler || !(new_fops =3D fops_get(handler->fops))) {
-> > @@ -1909,7 +1908,7 @@ static int input_open_file(struct inode *inode, s=
-truct file *file)
-> >         }
-> >         fops_put(old_fops);
-> >  out:
-> > -       unlock_kernel();
-> > +       mutex_unlock(&input_mutex);
-> >         return err;
-> >  }
-> > =20
-> > --=20
->=20
-> Well, actually please have a look at
-> http://git.kernel.org/?p=3Dlinux/kernel/git/arnd/playground.git;a=3Dcommi=
-tdiff;h=3Dc06fd0234357618a5741ce958d58901ae4cb7ac1
->=20
-> * use mutex_lock_interruptible() where possible
-> * you probably don't want to hold input_mutex when calling into the lower
->   device's open function
->=20
-> 	Arnd
+Also BTN_0 or BTN_TOOL_DOUBLETAP for single touch (or both)?  It seems 
+to me Wacom uses doubletap, whereas my hardware's rdesc defaults to btn0 
+and evdev prefers btn0 as well.
 
-Yeah. I was just looking at your appointed branch. And I've noticed your
-change was better.
 
-I was willing to let the open call go unprotected. But ended up checking
-that the three callees were fine (they do not call any of the other
-functions that take the mutex).
-
-Since the fops_put/fops_get do protect that section from the handler
-removal and I can't think of any other race right now, I think your
-version is really better.
-
-Acked-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-
-Regards,
-Cascardo.
-
---TakKZr9L6Hm6aLOc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkuWtsMACgkQyTpryRcqtS0XjgCghF1eduvktyWryrkoEFY03k5p
-sKIAn1obCxXzHZWQQ1cItZ158aEuXdXS
-=HQGd
------END PGP SIGNATURE-----
-
---TakKZr9L6Hm6aLOc--
+Rafi

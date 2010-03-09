@@ -1,56 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 7/7] HID: N-trig MTM Driver fix And cleanup patch 7
-Date: Tue, 9 Mar 2010 10:51:30 -0800
-Message-ID: <20100309185130.GF19814@core.coreip.homeip.net>
-References: <micki@n-trig.com>
- <1268083024-3029-1-git-send-email-micki@n-trig.com>
+From: Melchior FRANZ <melchior.franz@gmail.com>
+Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product ... why not + dev->serial?
+Date: Tue, 9 Mar 2010 19:52:40 +0100
+Message-ID: <201003091952.40853@rk-nord.at>
+References: <201003071655.06644@rk-nord.at> <201003091342.20273@rk-nord.at> <20100309184127.GE19814@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:65483 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752474Ab0CISvj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 13:51:39 -0500
-Content-Disposition: inline
-In-Reply-To: <1268083024-3029-1-git-send-email-micki@n-trig.com>
+Received: from warsl404pip6.highway.telekom.at ([195.3.96.89]:53697 "EHLO
+	email.aon.at" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755526Ab0CISwl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 13:52:41 -0500
+In-Reply-To: <20100309184127.GE19814@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mickib1@gmail.com
-Cc: jkosina@suse.cz, rafi@seas.upenn.edu, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
 
-On Mon, Mar 08, 2010 at 11:17:04PM +0200, mickib1@gmail.com wrote:
-> +				case REPORT_GENERIC2:
-> +					if ((X_CORD_VAL == nd->x_cord) && (Y_CORD_VAL == nd->y_cord) &&
-> +					    (DX_CORD_VAL == nd->dx) && (DY_CORD_VAL == nd->dy) &&
-> +					    (GENERIC_BYTE_VAL == value)) {
-> +						if (MAX_FINGERS_SUPPORT == nd->fake_fingers--) {
-> +							input_report_abs(input, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
-> +							input_report_abs(input, ABS_MT_TRACKING_ID, END_OF_REPORT);
-> +							input_event(input, EV_MSC, MSC_SCAN, nd->frame_index);
+* Dmitry Torokhov -- Tuesday 09 March 2010:
+> Have you considered the fact that maybe you not using the right interface?
 
-EV_MSC/MSC_SCAN is to be used to communicate scancodes or their
-equivalents for the corresponsing KEV_KEY/KEY_xxx to userspace.
+No. Because I'm not talking about *writing* an application, but about
+*using* applications written by others. The producer of my two BU0836A
+knows that the devices are different, I know that they are different,
+the kernel knows that they are different, but the applications don't
+know that, because the kernel doesn't tell them (via JSIOCGNAME).
 
-> +							input_sync(input);
-> +							ntrig_dbg("Session Sync Frame %x\n", nd->frame_index);
-> +						} else
-> +							ntrig_dbg("Fake Finger %x\n", nd->frame_index);
-> +					} else {
-> +						input_report_abs(input, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
-> +						input_report_abs(input, ABS_MT_TRACKING_ID, nd->finger_id);
-> +						input_report_abs(input, ABS_MT_POSITION_X, nd->x_cord);
-> +						input_report_abs(input, ABS_MT_POSITION_Y, nd->y_cord);
-> +						input_report_abs(input, ABS_MT_TOUCH_MAJOR, nd->dx);
-> +						input_report_abs(input, ABS_MT_TOUCH_MINOR, nd->dy);
-> +						input_event(input, EV_MSC, MSC_PULSELED, nd->generic_byte);
 
-No, you are not pulsing the led here. Please do not overload the events
-with your application-specific usage.
 
-New events might be allocated, but the need for them must be articulated
-on a purely technical basis.
+> You need to work with guys at linux-iio@vger.kernel.org (which stands
+> for Industrial I/O which is exactly what you are working with).
 
-Thanks.
+Hmm, then I wonder why the joystick names are different on Windows and
+Linux already.  :-}
+ 
+  unpatched Linux:  "Leo Bodnar BU0836A Interface"
+  (Vista?) Windows: "BU0836A Interface" (not even the manufacturer ... pff)
 
--- 
-Dmitry
+Oh, well. Forget it. I'll just distribute the patch, then. I didn't have
+much hope, anyway.
+
+m.

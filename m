@@ -1,196 +1,179 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
-Date: Mon, 08 Mar 2010 19:58:42 -0500
-Message-ID: <871vfu2tvh.fsf@troilus.org>
-References: <8763562u0n.fsf@troilus.org>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/7] HID: N-trig MTM Driver fix and cleanup patch 1
+Date: Mon, 08 Mar 2010 19:50:49 -0500
+Message-ID: <4B959B69.80705@seas.upenn.edu>
+References: <1268082827-2680-1-git-send-email-micki@n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:34106 "HELO
-	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756302Ab0CIA6r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Mar 2010 19:58:47 -0500
-Received: by mail-qy0-f177.google.com with SMTP id 7so4726876qyk.21
-        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 16:58:45 -0800 (PST)
-In-Reply-To: <8763562u0n.fsf@troilus.org> (Michael Poole's message of "Mon, 08
-	Mar 2010 19:55:36 -0500")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1268082827-2680-1-git-send-email-micki@n-trig.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mickib1@gmail.com
+Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rafi@seas.upenn.edu
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <tissoire@tls.cena.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
->From 92872d16dfc6f2c037124644f30f807d30b6557c Mon Sep 17 00:00:00 2001
-From: Michael Poole <mdpoole@troilus.org>
-Date: Mon, 8 Mar 2010 19:10:13 -0500
-Subject: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
+On 03/08/2010 04:13 PM, mickib1@gmail.com wrote:
+> From: micki<micki@micki-laptop.(none)>
+>
+> Add Change Log and defines of MTM firmware.
+> Add debug Paramater change Driver name in hid_driver structure
+>
+> N-trig is changing the way people interact with computers by providin=
+g a dual-mode pen and true multi-touch input device, specifically desig=
+ned for today's advanced computing world.
+> N-trig DuoSense=C2=AE solution provides a real Hands-on computing=C2=AE=
+ experience, and sets the stage for OEMs and ISVs to introduce innovati=
+ve computer products and applications for an intuitive, Hands-on=C2=AE =
+experience directly onscreen.
+> DuoSense digitizers are easily integrated into existing technologies,=
+ support all LCDs, keep devices slim and light, and can be implemented =
+in a broad range of products, ranging from small notebooks to large LCD=
+s.
+> N-trig has offices in Israel, the US, Taiwan and Japan.
 
-Also publish a parameter to control the emulated scroll
-acceleration rates.
+Is that just in your .sig?
 
-Signed-off-by: Michael Poole <mdpoole@troilus.org>
----
- drivers/hid/hid-magicmouse.c |   96 ++++++++++++++++++++++++++++++------------
- 1 files changed, 69 insertions(+), 27 deletions(-)
+> Signed-off-by: Micki Balanga<micki@n-trig.com>
+> ---
+>   drivers/hid/hid-ntrig.c |   94 ++++++++++++++++++++++++++++++++++++=
+++++++++--
+>   1 files changed, 89 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+> index 3234c72..e99342d 100644
+> --- a/drivers/hid/hid-ntrig.c
+> +++ b/drivers/hid/hid-ntrig.c
+> @@ -3,7 +3,18 @@
+>    *
+>    *  Copyright (c) 2008 Rafi Rubin
+>    *  Copyright (c) 2009 Stephane Chatty
+> + *  Copyright (c) 2010 N-TRIG
+>    *
+> + *	1.0 - Rafi Rubin ( Version From 2010-02-13 02:13:05)
+> + *		This cleans up the identification of multitouch
+> + *		groups and enables the end of group sync.
+> + *		Taps are now explicitly handled to adjust for the changes in the
+> + *		event stream in multitouch mode.
+> + *		Added triple and quad tap for the benefit of
+> + *		tools that recognize different tap types but
+> + *		do not have full multi touch support.
+> + *	1.1 - N-trig - Add Change Log and defines of MTM firmware.
+> + *		Add debug Paramater change Driver name in hid_driver structure
+>    */
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 2e7d701..31e6c2f 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -37,6 +37,14 @@ static bool report_undeciphered;
- module_param(report_undeciphered, bool, 0644);
- MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
- 
-+static int scroll_accel_profile[8] = {
-+	192, 160, 128, 96, 64, 48, 32, 24
-+};
-+static unsigned int num_scroll_accel_profile;
-+module_param_array(scroll_accel_profile, int, &num_scroll_accel_profile, 0644);
-+MODULE_PARM_DESC(scroll_accel_profile, "Acceleration profile for successive "
-+		"simulated scroll events");
-+
- #define TOUCH_REPORT_ID   0x29
- /* These definitions are not precise, but they're close enough.  (Bits
-  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
-@@ -59,7 +67,8 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
-  * @delta_time: 18-bit difference between the two most recent touch
-  *     reports from the mouse.
-  * @ntouches: Number of touches in most recent touch report.
-- * @scroll_accel: Number of consecutive scroll motions.
-+ * @scroll_accel_x: Number of consecutive left-right scroll motions.
-+ * @scroll_accel_y: Number of consecutive up-down scroll motions.
-  * @scroll_jiffies: Time of last scroll motion.
-  * @touches: Most recent data for a touch, indexed by tracking ID.
-  * @tracking_ids: Mapping of current touch input data to @touches.
-@@ -71,12 +80,14 @@ struct magicmouse_sc {
- 	int last_timestamp;
- 	int delta_time;
- 	int ntouches;
--	int scroll_accel;
-+	int scroll_accel_x;
-+	int scroll_accel_y;
- 	unsigned long scroll_jiffies;
- 
- 	struct {
- 		short x;
- 		short y;
-+		short scroll_x;
- 		short scroll_y;
- 		u8 size;
- 	} touches[16];
-@@ -139,8 +150,32 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
- 	input_report_key(msc->input, BTN_LEFT, state & 1);
- 	input_report_key(msc->input, BTN_RIGHT, state & 2);
- 
--	if (state != last_state)
--		msc->scroll_accel = 0;
-+	if (state != last_state) {
-+		msc->scroll_accel_x = 0;
-+		msc->scroll_accel_y = 0;
-+	}
-+}
-+
-+static inline int magicmouse_scroll(int *scroll_accel, short *base_pos,
-+		short curr_pos, u8 touch_state)
-+{
-+	int step = 0;
-+
-+	switch (touch_state) {
-+	case TOUCH_STATE_START:
-+		*base_pos = curr_pos;
-+		*scroll_accel = min_t(int, *scroll_accel + 1,
-+			num_scroll_accel_profile - 1);
-+		break;
-+	case TOUCH_STATE_DRAG:
-+		step = (curr_pos - *base_pos) /
-+			scroll_accel_profile[*scroll_accel];
-+		if (step)
-+			*base_pos = curr_pos;
-+		break;
-+	}
-+
-+	return step;
- }
- 
- static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
-@@ -163,31 +198,30 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 	 */
- 	if (emulate_scroll_wheel &&
- 	    middle_button_start < x && x < middle_button_stop) {
--		static const int accel_profile[] = {
--			256, 228, 192, 160, 128, 96, 64, 32,
--		};
- 		unsigned long now = jiffies;
--		int step = msc->touches[id].scroll_y - y;
-+		int step;
- 
- 		/* Reset acceleration after half a second. */
--		if (time_after(now, msc->scroll_jiffies + HZ / 2))
--			msc->scroll_accel = 0;
--
--		/* Calculate and apply the scroll motion. */
--		switch (tdata[7] & TOUCH_STATE_MASK) {
--		case TOUCH_STATE_START:
--			msc->touches[id].scroll_y = y;
--			msc->scroll_accel = min_t(int, msc->scroll_accel + 1,
--						ARRAY_SIZE(accel_profile) - 1);
--			break;
--		case TOUCH_STATE_DRAG:
--			step = step / accel_profile[msc->scroll_accel];
--			if (step != 0) {
--				msc->touches[id].scroll_y = y;
--				msc->scroll_jiffies = now;
--				input_report_rel(input, REL_WHEEL, step);
--			}
--			break;
-+		if (time_after(now, msc->scroll_jiffies + HZ / 2)) {
-+			msc->scroll_accel_x = 0;
-+			msc->scroll_accel_y = 0;
-+		}
-+
-+		/* Calculate and apply the scroll motions. */
-+		step = magicmouse_scroll(&msc->scroll_accel_x,
-+			&msc->touches[id].scroll_x, x,
-+			tdata[7] & TOUCH_STATE_MASK);
-+		if (step) {
-+			msc->scroll_jiffies = now;
-+			input_report_rel(input, REL_HWHEEL, step);
-+		}
-+
-+		step = magicmouse_scroll(&msc->scroll_accel_y,
-+			&msc->touches[id].scroll_y, -y,
-+			tdata[7] & TOUCH_STATE_MASK);
-+		if (step) {
-+			msc->scroll_jiffies = now;
-+			input_report_rel(input, REL_WHEEL, step);
- 		}
- 	}
- 
-@@ -300,8 +334,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 	__set_bit(EV_REL, input->evbit);
- 	__set_bit(REL_X, input->relbit);
- 	__set_bit(REL_Y, input->relbit);
--	if (emulate_scroll_wheel)
-+	if (emulate_scroll_wheel) {
-+		__set_bit(REL_HWHEEL, input->relbit);
- 		__set_bit(REL_WHEEL, input->relbit);
-+	}
- 
- 	if (report_touches) {
- 		__set_bit(EV_ABS, input->evbit);
-@@ -434,6 +470,12 @@ static struct hid_driver magicmouse_driver = {
- static int __init magicmouse_init(void)
- {
- 	int ret;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(scroll_accel_profile); i++)
-+		if (scroll_accel_profile[i] == 0)
-+			break;
-+	num_scroll_accel_profile = i;
- 
- 	ret = hid_register_driver(&magicmouse_driver);
- 	if (ret)
--- 
-1.7.0.2
+I don't know that the change log needs to be in the code file itself.=20
+The point was more that your commit messages should give us an idea=20
+about what your changing.  Jiri, what's your take on that?
 
+> +/*
+> + * Pen Event Field Declaration
+> + */
+> +#define	EVENT_PEN_TIP		0x03
+> +#define	EVENT_PEN_RIGHT		0x05
+> +#define	EVENT_TOUCH_PEN		0x07
+> +#define EVENT_PEN_IN_RANGE	0x01
+
+You still haven't actually established why its necessary to fuss with=20
+pen events if we split the pen off to a separate input device.
+
+> +/*
+> + * MTM 4 last bytes of report descriptor
+> + */
+> +#define REPORT_GENERIC1		0x01
+> +#define REPORT_MT		0x02
+> +#define REPORT_PALM		0x03
+> +#define REPORT_GENERIC2		0x04
+
+When its not too inconvenient, it would be better to put defines in the=
+=20
+patches where you actually use them.  I know these are actually useful,=
+=20
+but if we stop here they aren't actually used.
+
+
+> +#define NTRIG_USB_DEVICE_ID	0x0001
+Already defined in hid-ids.h
+
+
+
+> +
+> +/*
+> + * MTM fields
+> + */
+> +#define PEN_REPORT_SIZE		0x48
+
+The report seems to specifically identify itself.  Why not use that=20
+clear identification instead of something less clear that may change in=
+=20
+the future (even if there are no plans at the moment).  If nothing else=
+=20
+this relieves a little pressure on your hardware/firmware designers.
+
+ From the rdesc of my screen in the debug fs:
+INPUT(1)[INPUT]
+     Field(0)
+       Physical(Digitizers.Stylus)
+
+Paraphrasing ntrig_probe from 2.6.33:
+
+   list_for_each_entry(hidinput, &hdev->inputs, list)
+	switch (hidinput->report->field[0]->application)
+	case  HID_DG_PEN:
+		input->name =3D "N-Trig Pen";
+		break;
+	case HID_DG_TOUCHSCREEN:
+
+Note that in this one case I do use this to identify the report, and=20
+thus need to pick a field which you could argue is a potential hazard,=20
+but you haven't made that point.  So please tell us what's wrong with=20
+this before you toss it out for something different.
+
+> +#define MAX_FINGERS_SUPPORT	0x06
+
+Again, is it really a good idea to keep this quantity fixed?  Especiall=
+y=20
+in light of the press release that suggests your company is considering=
+=20
+devices that support more fingers.
+
+> +#define END_OF_REPORT		0x64
+
+I should comment where you put the code that uses this, but you put the=
+m=20
+in separate patches.
+
+I don't see why you tie up a group of contacts by emitting TRACKING_ID=20
+0x64.  The group should already by wrapped up with an input_sync, which=
+=20
+you have.  Therefore this extra event doesn't actually provide any=20
+additional information.  Furthermore, sending a bogus tracking id may=20
+upset other user space tools.
+
+> +/*
+> + * Dummy Finger Declaration
+> + */
+> +#define X_CORD_VAL		0x00
+> +#define Y_CORD_VAL		0x00
+> +#define DX_CORD_VAL		0xFA
+> +#define DY_CORD_VAL		0x96
+> +#define GENERIC_BYTE_VAL	0x0D
+
+The naming of these constants seems a little messy.  Perhaps something=20
+more like "DUMMY_X, DUMMY_DX"....
+
+> +#define MTM_FRAME_INDEX		0xff000001
+> +#define MTM_PROPROETARY		0xff000002
+
+Thank you, we should have named these constants earlier.
+
+> +#define MODULE_NAME "hid_ntrig"
+> -	.name =3D "ntrig",
+
+I left off the "hid_" prefix based on what I saw in the other hid=20
+drivers.  Jiri, is there a standard to follow or do you have an opinion=
+=20
+about this?
+
+Rafi

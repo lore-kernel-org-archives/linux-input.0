@@ -1,58 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product
- ... why not + dev->serial?
-Date: Tue, 9 Mar 2010 10:57:05 -0800
-Message-ID: <20100309185705.GA28000@core.coreip.homeip.net>
-References: <201003071655.06644@rk-nord.at>
- <201003091342.20273@rk-nord.at>
- <20100309184127.GE19814@core.coreip.homeip.net>
- <201003091952.40853@rk-nord.at>
+From: Melchior FRANZ <melchior.franz@gmail.com>
+Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product ... why not + dev->serial?
+Date: Tue, 9 Mar 2010 19:58:27 +0100
+Message-ID: <201003091958.27832@rk-nord.at>
+References: <201003071655.06644@rk-nord.at> <20100309184127.GE19814@core.coreip.homeip.net> <201003091952.40853@rk-nord.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:50132 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751366Ab0CIS5P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 13:57:15 -0500
-Content-Disposition: inline
+Received: from WARSL404PIP2.highway.telekom.at ([195.3.96.113]:37420 "EHLO
+	email.aon.at" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755639Ab0CIS63 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 13:58:29 -0500
+Received: from 93-82-15-81.adsl.highway.telekom.at (HELO server.lan) ([93.82.15.81])
+          (envelope-sender <melchior.franz@gmail.com>)
+          by smarthub98.highway.telekom.at (qmail-ldap-1.03) with SMTP
+          for <linux-input@vger.kernel.org>; 9 Mar 2010 18:58:26 -0000
+Received: from server.localnet (localhost [127.0.0.1])
+	by server.lan (Postfix) with ESMTP id 17DA4BE1A2
+	for <linux-input@vger.kernel.org>; Tue,  9 Mar 2010 19:58:28 +0100 (CET)
 In-Reply-To: <201003091952.40853@rk-nord.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Melchior FRANZ <melchior.franz@gmail.com>
-Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, Mar 09, 2010 at 07:52:40PM +0100, Melchior FRANZ wrote:
-> * Dmitry Torokhov -- Tuesday 09 March 2010:
-> > Have you considered the fact that maybe you not using the right interface?
-> 
-> No. Because I'm not talking about *writing* an application, but about
-> *using* applications written by others.
-
-Then you need to mention that to your ISV.
-
-> The producer of my two BU0836A
-> knows that the devices are different, I know that they are different,
-> the kernel knows that they are different, but the applications don't
-> know that, because the kernel doesn't tell them (via JSIOCGNAME).
-> 
-> 
-> 
-> > You need to work with guys at linux-iio@vger.kernel.org (which stands
-> > for Industrial I/O which is exactly what you are working with).
-> 
+* Melchior FRANZ -- Tuesday 09 March 2010:
 > Hmm, then I wonder why the joystick names are different on Windows and
 > Linux already.  :-}
->  
 
-Probably because these are 2 quite different OSes?
+Oh, wait. That was an inaccurate statement. I have no idea how that
+application retrieved the joystick name. Maybe it has a choice and
+just didn't bother to ask for the manufacturer.
 
->   unpatched Linux:  "Leo Bodnar BU0836A Interface"
->   (Vista?) Windows: "BU0836A Interface" (not even the manufacturer ... pff)
-> 
-> Oh, well. Forget it. I'll just distribute the patch, then. I didn't have
-> much hope, anyway.
->
-> m.
-
--- 
-Dmitry
+m

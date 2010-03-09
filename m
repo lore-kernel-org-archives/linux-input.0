@@ -1,38 +1,49 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH] INPUT: enable remote wakeup for PNP i8042 keyboard ports
-Date: Mon, 8 Mar 2010 16:52:42 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1003081651220.1297-100000@iolanthe.rowland.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/4] Added locks for sysfs attributes and internal
+ data.
+Date: Tue, 9 Mar 2010 01:05:08 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003090103240.17799@pobox.suse.cz>
+References: <201002200911.53900.stefan_achatz@web.de> <31758929.1286552.1266912188132.JavaMail.fmail@mwmweb006> <20100226074422.GA17062@core.coreip.homeip.net> <201003081704.30119.stefan_achatz@web.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:48904 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755859Ab0CHVwn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 16:52:43 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:53068 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753884Ab0CIAFL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Mar 2010 19:05:11 -0500
+In-Reply-To: <201003081704.30119.stefan_achatz@web.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Stefan Achatz <stefan_achatz@web.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch (as1355) enables remote wakeup by default on PNP i8042
-keyboard ports.
+On Mon, 8 Mar 2010, Stefan Achatz wrote:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> From 47678162da8e374d6f132db21d89b718ee5cfbd1 Mon Sep 17 00:00:00 2001
+> From: Stefan Achatz <erazor_de@users.sourceforge.net>
+> Date: Mon, 8 Mar 2010 16:54:19 +0100
+> Subject: [PATCH 4/4] Added locks for sysfs attributes and internal data.
+> 
+> Added mutex lock to prevent different processes from accessing
+> sysfs attributes at the same time.
+> Added spin lock for internal data.
+> ---
+>  drivers/hid/hid-roccat-kone.c |  246 ++++++++++++++++++++++++++++------------
+>  drivers/hid/hid-roccat-kone.h |    9 +-
+>  2 files changed, 179 insertions(+), 76 deletions(-)
 
----
+Stefan,
 
-Index: usb-2.6/drivers/input/serio/i8042-x86ia64io.h
-===================================================================
---- usb-2.6.orig/drivers/input/serio/i8042-x86ia64io.h
-+++ usb-2.6/drivers/input/serio/i8042-x86ia64io.h
-@@ -624,6 +624,9 @@ static int i8042_pnp_kbd_probe(struct pn
- 		strlcat(i8042_pnp_kbd_name, pnp_dev_name(dev), sizeof(i8042_pnp_kbd_name));
- 	}
- 
-+	/* Keyboard ports are always supposed to be wakeup-enabled */
-+	device_set_wakeup_enable(&dev->dev, true);
-+
- 	i8042_pnp_kbd_devices++;
- 	return 0;
- }
+could you please submit the rest of the patch series as well? I seem to 
+have got only "4/4" patch of your series, but not the rest of the roccat 
+driver (I recall there were some review comments raised after your initial 
+submission of the driver, so full respin would be appreciated).
 
+Also, please don't forget to put proper Signed-off-by: lines to the 
+patches you submit with intention for upstream merge.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,58 +1,196 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 2/7] HID: N-trig MTM Driver fix and cleanup patch 2
-Date: Mon, 08 Mar 2010 20:07:08 -0500
-Message-ID: <4B959F3C.3020701@seas.upenn.edu>
-References: <1268082827-2680-1-git-send-email-micki@n-trig.com> <1268082827-2680-2-git-send-email-micki@n-trig.com>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
+Date: Mon, 08 Mar 2010 19:58:42 -0500
+Message-ID: <871vfu2tvh.fsf@troilus.org>
+References: <8763562u0n.fsf@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:34323 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756322Ab0CIBHY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Mar 2010 20:07:24 -0500
-In-Reply-To: <1268082827-2680-2-git-send-email-micki@n-trig.com>
+Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:34106 "HELO
+	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756302Ab0CIA6r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Mar 2010 19:58:47 -0500
+Received: by mail-qy0-f177.google.com with SMTP id 7so4726876qyk.21
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 16:58:45 -0800 (PST)
+In-Reply-To: <8763562u0n.fsf@troilus.org> (Michael Poole's message of "Mon, 08
+	Mar 2010 19:55:36 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mickib1@gmail.com
-Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rafi@seas.upenn.edu
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <tissoire@tls.cena.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
-> -		case HID_DG_CONTACTID: /* Not trustworthy, squelch for now */
+>From 92872d16dfc6f2c037124644f30f807d30b6557c Mon Sep 17 00:00:00 2001
+From: Michael Poole <mdpoole@troilus.org>
+Date: Mon, 8 Mar 2010 19:10:13 -0500
+Subject: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
 
-I squelched contact id because they don't actually track fingers, rather 
-contacts are reported spatially (seems to be from the bottom to top) 
-making this value useless for tracking (after all the user space tools 
-can count contacts since the start of the group).
+Also publish a parameter to control the emulated scroll
+acceleration rates.
 
-See the "Finger Tracking" section in
-	Documentation/input/multi-touch-protocol.txt
-When tracking id is incorrect its better to just leave it out.
+Signed-off-by: Michael Poole <mdpoole@troilus.org>
+---
+ drivers/hid/hid-magicmouse.c |   96 ++++++++++++++++++++++++++++++------------
+ 1 files changed, 69 insertions(+), 27 deletions(-)
 
-> +		case HID_DG_INVERT: /* value is always 0 */
-> +		case HID_DG_ERASER: /* value is always 0 */
-> +		case HID_DG_CONTACTID: /* value is useless */
-> +		case HID_DG_BARRELSWITCH:  /* doubtful */
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 2e7d701..31e6c2f 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -37,6 +37,14 @@ static bool report_undeciphered;
+ module_param(report_undeciphered, bool, 0644);
+ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
+ 
++static int scroll_accel_profile[8] = {
++	192, 160, 128, 96, 64, 48, 32, 24
++};
++static unsigned int num_scroll_accel_profile;
++module_param_array(scroll_accel_profile, int, &num_scroll_accel_profile, 0644);
++MODULE_PARM_DESC(scroll_accel_profile, "Acceleration profile for successive "
++		"simulated scroll events");
++
+ #define TOUCH_REPORT_ID   0x29
+ /* These definitions are not precise, but they're close enough.  (Bits
+  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
+@@ -59,7 +67,8 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+  * @delta_time: 18-bit difference between the two most recent touch
+  *     reports from the mouse.
+  * @ntouches: Number of touches in most recent touch report.
+- * @scroll_accel: Number of consecutive scroll motions.
++ * @scroll_accel_x: Number of consecutive left-right scroll motions.
++ * @scroll_accel_y: Number of consecutive up-down scroll motions.
+  * @scroll_jiffies: Time of last scroll motion.
+  * @touches: Most recent data for a touch, indexed by tracking ID.
+  * @tracking_ids: Mapping of current touch input data to @touches.
+@@ -71,12 +80,14 @@ struct magicmouse_sc {
+ 	int last_timestamp;
+ 	int delta_time;
+ 	int ntouches;
+-	int scroll_accel;
++	int scroll_accel_x;
++	int scroll_accel_y;
+ 	unsigned long scroll_jiffies;
+ 
+ 	struct {
+ 		short x;
+ 		short y;
++		short scroll_x;
+ 		short scroll_y;
+ 		u8 size;
+ 	} touches[16];
+@@ -139,8 +150,32 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
+ 	input_report_key(msc->input, BTN_LEFT, state & 1);
+ 	input_report_key(msc->input, BTN_RIGHT, state & 2);
+ 
+-	if (state != last_state)
+-		msc->scroll_accel = 0;
++	if (state != last_state) {
++		msc->scroll_accel_x = 0;
++		msc->scroll_accel_y = 0;
++	}
++}
++
++static inline int magicmouse_scroll(int *scroll_accel, short *base_pos,
++		short curr_pos, u8 touch_state)
++{
++	int step = 0;
++
++	switch (touch_state) {
++	case TOUCH_STATE_START:
++		*base_pos = curr_pos;
++		*scroll_accel = min_t(int, *scroll_accel + 1,
++			num_scroll_accel_profile - 1);
++		break;
++	case TOUCH_STATE_DRAG:
++		step = (curr_pos - *base_pos) /
++			scroll_accel_profile[*scroll_accel];
++		if (step)
++			*base_pos = curr_pos;
++		break;
++	}
++
++	return step;
+ }
+ 
+ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
+@@ -163,31 +198,30 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 	 */
+ 	if (emulate_scroll_wheel &&
+ 	    middle_button_start < x && x < middle_button_stop) {
+-		static const int accel_profile[] = {
+-			256, 228, 192, 160, 128, 96, 64, 32,
+-		};
+ 		unsigned long now = jiffies;
+-		int step = msc->touches[id].scroll_y - y;
++		int step;
+ 
+ 		/* Reset acceleration after half a second. */
+-		if (time_after(now, msc->scroll_jiffies + HZ / 2))
+-			msc->scroll_accel = 0;
+-
+-		/* Calculate and apply the scroll motion. */
+-		switch (tdata[7] & TOUCH_STATE_MASK) {
+-		case TOUCH_STATE_START:
+-			msc->touches[id].scroll_y = y;
+-			msc->scroll_accel = min_t(int, msc->scroll_accel + 1,
+-						ARRAY_SIZE(accel_profile) - 1);
+-			break;
+-		case TOUCH_STATE_DRAG:
+-			step = step / accel_profile[msc->scroll_accel];
+-			if (step != 0) {
+-				msc->touches[id].scroll_y = y;
+-				msc->scroll_jiffies = now;
+-				input_report_rel(input, REL_WHEEL, step);
+-			}
+-			break;
++		if (time_after(now, msc->scroll_jiffies + HZ / 2)) {
++			msc->scroll_accel_x = 0;
++			msc->scroll_accel_y = 0;
++		}
++
++		/* Calculate and apply the scroll motions. */
++		step = magicmouse_scroll(&msc->scroll_accel_x,
++			&msc->touches[id].scroll_x, x,
++			tdata[7] & TOUCH_STATE_MASK);
++		if (step) {
++			msc->scroll_jiffies = now;
++			input_report_rel(input, REL_HWHEEL, step);
++		}
++
++		step = magicmouse_scroll(&msc->scroll_accel_y,
++			&msc->touches[id].scroll_y, -y,
++			tdata[7] & TOUCH_STATE_MASK);
++		if (step) {
++			msc->scroll_jiffies = now;
++			input_report_rel(input, REL_WHEEL, step);
+ 		}
+ 	}
+ 
+@@ -300,8 +334,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+ 	__set_bit(EV_REL, input->evbit);
+ 	__set_bit(REL_X, input->relbit);
+ 	__set_bit(REL_Y, input->relbit);
+-	if (emulate_scroll_wheel)
++	if (emulate_scroll_wheel) {
++		__set_bit(REL_HWHEEL, input->relbit);
+ 		__set_bit(REL_WHEEL, input->relbit);
++	}
+ 
+ 	if (report_touches) {
+ 		__set_bit(EV_ABS, input->evbit);
+@@ -434,6 +470,12 @@ static struct hid_driver magicmouse_driver = {
+ static int __init magicmouse_init(void)
+ {
+ 	int ret;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(scroll_accel_profile); i++)
++		if (scroll_accel_profile[i] == 0)
++			break;
++	num_scroll_accel_profile = i;
+ 
+ 	ret = hid_register_driver(&magicmouse_driver);
+ 	if (ret)
+-- 
+1.7.0.2
 
-Stephane put these here erroneously.  He was working with a firmware 
-that didn't support the stylus at all when he made those observations. 
-These events are useful and should not be squelched.
-
-> +		case HID_DG_CONTACTCOUNT:
-
-See the rdesc for the device.
-"Digitizers.ContactCount ---> Sync.Report"
-
-As the last event sent by a mt group, that is already mapped to 
-input_sync().  If you don't squelch it, you don't need to implicitly add 
-the sync.
-
->   		case HID_DG_HEIGHT:
->   			hid_map_usage(hi, usage, bit, max,
->   					EV_ABS, ABS_MT_TOUCH_MINOR);
-> -			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
-> -					0, 1, 0, 0);
-
-Stephane added the orientation to height, I can't comment about the 
-wisdom of pulling it.
-
-Rafi

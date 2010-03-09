@@ -1,67 +1,96 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: [PATCH 2/3] input: use input_mutex instead of BKL when opening input device
-Date: Tue,  9 Mar 2010 16:19:45 -0300
-Message-ID: <1268162386-2745-2-git-send-email-cascardo@holoscopio.com>
-References: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: alps: Add support for the touchpad of the Toshiba
+ Tecra A11-11L
+Date: Tue, 9 Mar 2010 11:26:34 -0800
+Message-ID: <20100309192634.GC28000@core.coreip.homeip.net>
+References: <1268160967-21403-1-git-send-email-thomas@archlinux.org>
+ <20100309190135.GB28000@core.coreip.homeip.net>
+ <4B969EAE.3030903@archlinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.254.139]:39155 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755083Ab0CITUI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 14:20:08 -0500
-In-Reply-To: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:32823 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751912Ab0CIT0p (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 14:26:45 -0500
+Received: by fxm5 with SMTP id 5so1718857fxm.29
+        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 11:26:44 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4B969EAE.3030903@archlinux.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, John Kacur <jkacur@gmail.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+To: Thomas =?iso-8859-1?Q?B=E4chler?= <thomas@archlinux.org>
+Cc: linux-input@vger.kernel.org
 
-There are three types of input character devices: mousedev, joydev and
-evdev. They all use the same major device and, then, their opening is
-multiplexed in input_open_file.
+On Tue, Mar 09, 2010 at 08:17:02PM +0100, Thomas B=E4chler wrote:
+> Am 09.03.2010 20:01, schrieb Dmitry Torokhov:
+> > Hi Thomas,
+> >=20
+> > On Tue, Mar 09, 2010 at 07:56:07PM +0100, Thomas B=E4chler wrote:
+> >>
+> >> Signed-off-by: Thomas B=E4chler <thomas@archlinux.org>
+> >> ---
+> >> This patch was made by trial-and-error, I copied the byte0 and
+> >> mask0 value from another model, tried different flags settings
+> >> and it seems to work. I have no idea if there might be side-
+> >> effects due to incorrect settings. Please tell me if I can do
+> >> anything to verify or correct these values.
+> >>
+> >>  drivers/input/mouse/alps.c |    2 ++
+> >>  1 files changed, 2 insertions(+), 0 deletions(-)
+> >>
+> >> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps=
+=2Ec
+> >> index f93c2c0..f6dad83 100644
+> >> --- a/drivers/input/mouse/alps.c
+> >> +++ b/drivers/input/mouse/alps.c
+> >> @@ -63,6 +63,8 @@ static const struct alps_model_info alps_model_d=
+ata[] =3D {
+> >>  	{ { 0x62, 0x02, 0x14 }, 0xcf, 0xcf,
+> >>  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
+> >>  	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* De=
+ll Vostro 1400 */
+> >> +	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
+> >> +		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshi=
+ba Tecra A11-11L */
+> >>  };
+> >> =20
+> >=20
+> > Looking at the picture it appears to have a touchpad only, not a
+> > touchpad/trackpoint combo. So I am wondering if ALPS_DUALPOINT and
+> > ALPS_PS2_INTERLEAVED flags are needed here. What happens if you rem=
+ove
+> > them? Also, does it have external PS/2 post?
+>=20
+> The model I have here does have a trackpoint, thus I put ALPS_DUALPOI=
+NT
+> in. Also, I had problems without ALPS_PS2_INTERLEAVED ([...] lost syn=
+c
+> at byte 1). I did not try without ALPS_PASS though, only with.
+>=20
 
-After the BKL pushdown, this multiplexing is protected by the BKL. But
-there's already a mutex used for adding and removing to the table
-indexed by input_open_file.
+No, ALPS_PASS is OK - you would notice right away if you didn't need it
+- the device would not switch to absolute mode.
 
-So, we use this mutex instead of the BKL. Since it will call the
-handlers' open function under the mutex, I've checked that the current
-functions do not call input_{un,}register_{handler,device}, which are
-the only other functions to take the mutex.
+> The device does not seem to have an external PS/2 port, but there is =
+a
+> connector for a docking station (which I don't own).
+>
 
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
----
- drivers/input/input.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Ah, I see.
+=20
+> I am more concerned about the two 0xff values here, because they are
+> actually guesses.
+>=20
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 41168d5..af9c246 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -23,7 +23,6 @@
- #include <linux/device.h>
- #include <linux/mutex.h>
- #include <linux/rcupdate.h>
--#include <linux/smp_lock.h>
- #include "input-compat.h"
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-@@ -1881,7 +1880,7 @@ static int input_open_file(struct inode *inode, struct file *file)
- 	const struct file_operations *old_fops, *new_fops = NULL;
- 	int err;
- 
--	lock_kernel();
-+	mutex_lock(&input_mutex);
- 	/* No load-on-demand here? */
- 	handler = input_table[iminor(inode) >> 5];
- 	if (!handler || !(new_fops = fops_get(handler->fops))) {
-@@ -1909,7 +1908,7 @@ static int input_open_file(struct inode *inode, struct file *file)
- 	}
- 	fops_put(old_fops);
- out:
--	unlock_kernel();
-+	mutex_unlock(&input_mutex);
- 	return err;
- }
- 
--- 
-1.6.6.1
+If you do not see it loosing sync as you workign it then you selected
+proper byte0 and mask.
 
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

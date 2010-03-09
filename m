@@ -1,53 +1,73 @@
-From: =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
-Subject: [PATCH] input: alps: Add support for the touchpad of the Toshiba Tecra A11-11L
-Date: Tue,  9 Mar 2010 19:56:07 +0100
-Message-ID: <1268160967-21403-1-git-send-email-thomas@archlinux.org>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [git pull] Input updates for 2.6.34-rc0
+Date: Tue, 09 Mar 2010 19:08:25 +0000
+Message-ID: <4B969CA9.5040103@cam.ac.uk>
+References: <20100301080342.GH765@core.coreip.homeip.net> <8bd0f97a1003090644p19fb7dacqe1f2fb3adee3fa7a@mail.gmail.com> 	<20100309175107.GB23378@core.coreip.homeip.net> <8bd0f97a1003090958i741f4ffm3528450e89089e9@mail.gmail.com> 	<4B9690F8.1080804@cam.ac.uk> <8bd0f97a1003091021u717fb87jf3e32c7258ee4011@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gerolde.archlinux.org ([66.211.214.132]:39554 "EHLO
-	archlinux.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755359Ab0CITGJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 14:06:09 -0500
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:39666 "EHLO
+	ppsw-6.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755823Ab0CITGO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 14:06:14 -0500
+In-Reply-To: <8bd0f97a1003091021u717fb87jf3e32c7258ee4011@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Robin Getz <rgetz@blackfin.uclinux.org>
 
+On 03/09/10 18:21, Mike Frysinger wrote:
+> On Tue, Mar 9, 2010 at 13:18, Jonathan Cameron wrote:
+>> On 03/09/10 17:58, Mike Frysinger wrote:
+>>> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
+>>>> On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger wrote:
+>>>>> On Mon, Mar 1, 2010 at 03:03, Dmitry Torokhov wrote:
+>>>>>> Hi Linus,
+>>>>>>
+>>>>>> Please pull from:
+>>>>>>
+>>>>>>        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+>>>>>> or
+>>>>>>        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+>>>>>>
+>>>>>> to receive first round of updates for the input subsystem.
+>>>>>
+>>>>> i'm trying to figure out what the problem is with the ADXL34x and
+>>>>> AD714x drivers you seem to have accepted (at least, you didnt say
+>>>>> there was anything left for us to do).  i would have expected them to
+>>>>> be in 2.6.33/2.6.34 already, but it seems they arent moving now.  so
+>>>>> what's up ?
+>>>>
+>>>> I am still spooked by the fact that this is an accelerometer and does
+>>>> not have to be an input device but maybe used for different purposes as
+>>>> well.
+>>>
+>>> the AD714x is not an accelerometer, it's a capacitance touch sensor
+>>>
+>>> i understand the ADXL34x is a bit wonky, but what else would you
+>>> propose ?  or just leave the driver in limbo forever until people
+>>> forget about it ?
+>>
+>> Perhaps whilst this remains in debate it might merge under misc, or
+>> even staging temporarily.  That would avoid setting a precedent for
+>> putting them in input.  I personally agree with Dmitry's wish to
+>> avoid feature drift in input, but then we don't have anything else ready
+>> for the big time.  Under staging the entire TODO list would be along
+>> lines of awaiting a suitable framework...  This is effectively what
+>> is going to happen to the various Ambient Light sensor drivers for
+>> pretty much the same reason (see responses to our recent pull request).
+>>
+>> We certainly want to be careful not to loose good drivers like this
+>> and also to make them available to those who wish to use them.
+> 
+> i dont have any problems with where exactly the driver gets merged, or
+> if we have a goal we're working towards (in terms of a "better"
+> place).  but drivers sitting in perpetual limbo sucks.
+> -mike
+> 
+In that case, I suggest asking Greg KH to pull it into staging for now
+with suitable explanation (and perhaps an ack for putting it there from
+Dmitry?)
 
-Signed-off-by: Thomas B=C3=A4chler <thomas@archlinux.org>
----
-This patch was made by trial-and-error, I copied the byte0 and
-mask0 value from another model, tried different flags settings
-and it seems to work. I have no idea if there might be side-
-effects due to incorrect settings. Please tell me if I can do
-anything to verify or correct these values.
-
- drivers/input/mouse/alps.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index f93c2c0..f6dad83 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -63,6 +63,8 @@ static const struct alps_model_info alps_model_data[]=
- =3D {
- 	{ { 0x62, 0x02, 0x14 }, 0xcf, 0xcf,
- 		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },
- 	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* Dell Vo=
-stro 1400 */
-+	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
-+		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshiba Te=
-cra A11-11L */
- };
-=20
- /*
---=20
-1.7.0.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jonathan

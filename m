@@ -1,68 +1,69 @@
-From: Henrik Rydberg <rydberg@euromail.se>
+From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
-Date: Tue, 09 Mar 2010 23:25:24 +0100
-Message-ID: <4B96CAD4.4010407@euromail.se>
-References: <4B75E14A.2050602@seas.upenn.edu>  <1266027185-5311-1-git-send-email-rafi@seas.upenn.edu>  <4B760D60.6020907@seas.upenn.edu>  <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz>  <4B96B740.7020208@euromail.se> <4B96BAF1.5070209@seas.upenn.edu> <alpine.LNX.2.00.1003092218530.17799@pobox.suse.cz> <5423752A-3AE0-4848-9149-B0C01B0BCA39@enac.fr>
+Date: Tue, 09 Mar 2010 17:27:13 -0500
+Message-ID: <4B96CB41.9040804@seas.upenn.edu>
+References: <4B75E14A.2050602@seas.upenn.edu> <1266027185-5311-1-git-send-email-rafi@seas.upenn.edu> <4B760D60.6020907@seas.upenn.edu> <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz> <4B96B740.7020208@euromail.se> <4B96BAF1.5070209@seas.upenn.edu> <4B96C4A8.3060005@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:50240 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754921Ab0CIWZz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 17:25:55 -0500
-In-Reply-To: <5423752A-3AE0-4848-9149-B0C01B0BCA39@enac.fr>
+Received: from stag.seas.upenn.edu ([158.130.70.79]:47973 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752547Ab0CIW1Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 17:27:25 -0500
+In-Reply-To: <4B96C4A8.3060005@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Jiri Kosina <jkosina@suse.cz>, Rafi Rubin <rafi@seas.upenn.edu>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, chatty@enac.fr
 
-> One would be separation of concerns. If I'm interested in single touch
-> events, I'd be better off with no "multitouch noise". If I'm interested
-> in low level events, I'd be better off without the interference created
-> by all sorts of "clever" event emulation in drivers. An easy way to do
-> this is to have a different input node for each protocol.
+On 03/09/2010 04:59 PM, Henrik Rydberg wrote:
+> Rafi Rubin wrote:
+>> Since you're considering protocol clarification, what's your opinion on
+>> splitting the multi-touch and single touch (possibly emulated) to
+>> separate input devices?
+>
+> The multi-touch protocol was designed to complement single-touch, not replace
+> it. The MT events were specifically designed to be ignored by current userland
+> applications, so there is no need to separate them into different devices.
+>
+> On the contrary, the MT protocol is dependent on one of the single-touch events
+> BTN_TOUCH or ABS_PRESSURE to be present in the event stream for proper device
+> identification and for correct handling of zero-finger events. The latter
+> because at least one value (BTN_TOUCH or ABS_PRESSURE) must change state to pass
+> through input filtering when no fingers are present. This is what needs
+> clarification.
+>
+>> Also BTN_0 or BTN_TOOL_DOUBLETAP for single touch (or both)?  It seems
+>> to me Wacom uses doubletap, whereas my hardware's rdesc defaults to btn0
+>> and evdev prefers btn0 as well.
+>
+> Single touch should be goverened by one of BTN_TOUCH or ABS_PRESSURE.
+> BTN_TOOL_DOUBLETAP is a two-finger event.
 
-Keeping backward compatibility with single-touch userland does not really
-clutter the driver -- adding single-touch events to a clean multi-touch driver
-is just a handful of lines.
+That definitely makes sense to me.  I really don't know why wacom uses 
+double tap there.
 
-[snip]
+Is there any harm in letting through the BTN_0 events?  Is the "rdesc" 
+mapping defined by the hardware or hid?
 
-> On another note, having multiple input nodes is a relevant question when
-> dealing with multitouch anyway. Let me take an example: consider two
-> users, each interacting with their own application in its own window but
-> on the same display. Now, consider these two input possibilities: either
-> each has their own mouse, or they both use the same dual-touch panel. In
-> the first case, each app can open its own input node; in the second,
-> they need to share the same device and perform some filtering to extract
-> the events they want (user1 or user2). The symmetry breaking between the
-> two situations is not satisfactory: you need to change the code in the
-> apps.
+For my device touch contacts look like this:
 
-Symmetry is also restored by passing all single-input devices as MT packets.
+Digitizers.TipSwitch ---> Key.Touch
+Digitizers.InRange ---> Key.ToolPen
+Digitizers.Confidence ---> Key.Btn0
+Digitizers.ContactID ---> Sync.Report
+GenericDesktop.X ---> Absolute.MTPositionX
+GenericDesktop.Y ---> Absolute.MTPositionY
+Digitizers.Width ---> Absolute.MTMajor
+Digitizers.Height ---> Absolute.MTMinor
+ff00.0002 ---> Sync.Report
+ff00.0002 ---> Sync.Report
+ff00.0002 ---> Sync.Report
+ff00.0002 ---> Sync.Report
 
-> With this regard, I am a big fan of the idea of having hierarchical
-> devices, just like with have hierarchical file systems. Each finger on
-> the dual-touch panel would be a device, child of the panel device. Each
-> would be equivalent to a mouse, and voila, the symmetry is restored.
-> Conceptually, saying (panel/finger1, any event) or (panel, finger1
-> events) are equivalent; but in the first case the routing is done by the
-> OS and in the second case it has to be done by the app, which breaks
-> reusability. There are other interesting perspectives, but I don't want
-> to get carried away too much.
+Hence some of my confusion about setting both Touch and another button 
+(the ToolPen bit seemed less pertinent).
 
-A hierarchy is imposing an unnecessary restriction on the graph of possible
-relations between point devices. Consider for instance the case of two people,
-each with one finger on the panel. The hierarchy says panel-person1-finger1 and
-panel-person2-finger1. Now have them move close enough for the fingers to touch.
-The hierarchy now says panel-person-(finger1, finger2). Symmetry breaking once more.
 
-The main point here is that however the data reaches userland, it will have to
-be processed intelligibly and collectively. The point of processing could be an
-MT X Driver, it could be some other input section, but it is has to be done
-somewhere.
-
-Henrik
-
+Rafi

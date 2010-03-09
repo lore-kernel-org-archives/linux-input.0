@@ -1,66 +1,73 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: [PATCH v2] hid-magicmouse: Fix oops after device removal.
-Date: Tue, 09 Mar 2010 06:47:35 -0500
-Message-ID: <87iq951zu0.fsf_-_@troilus.org>
-References: <87aaui2usx.fsf@troilus.org>
-	<20100309074820.GD17288@core.coreip.homeip.net>
+From: Rantanplan <rantanplanlechien@free.fr>
+Subject: Re: [PATCH 3/3] HID: deletion of unused code in hid-magicmouse.
+Date: Tue, 09 Mar 2010 13:00:41 +0100
+Message-ID: <4B963869.2010801@free.fr>
+References: <1268065277-30129-1-git-send-email-tissoire@cena.fr> <1268065277-30129-2-git-send-email-tissoire@cena.fr> <1268065277-30129-3-git-send-email-tissoire@cena.fr> <1268065277-30129-4-git-send-email-tissoire@cena.fr> <1268065277-30129-5-git-send-email-tissoire@cena.fr> <4B95255B.5010900@cena.fr> <alpine.LNX.2.00.1003081730170.17799@pobox.suse.cz> <4B952C77.3080505@cena.fr> <87sk8a36f4.fsf@troilus.org> <4B956358.80608@tls.cena.fr> <alpine.LNX.2.00.1003090056020.17799@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog107.obsmtp.com ([74.125.149.197]:42643 "HELO
-	na3sys009aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754460Ab0CILrj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 06:47:39 -0500
-Received: by qyk40 with SMTP id 40so3676914qyk.23
-        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 03:47:38 -0800 (PST)
-In-Reply-To: <20100309074820.GD17288@core.coreip.homeip.net> (Dmitry
-	Torokhov's message of "Mon, 8 Mar 2010 23:48:20 -0800")
+Received: from smtp5-g21.free.fr ([212.27.42.5]:47901 "EHLO smtp5-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750750Ab0CIMAw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 07:00:52 -0500
+In-Reply-To: <alpine.LNX.2.00.1003090056020.17799@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@tls.cena.fr>, Stephane Chatty <chatty@enac.fr>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <tissoire@tls.cena.fr>, Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
->From 7466c15f196621c44b01e3e1f8abd61099e48989 Mon Sep 17 00:00:00 2001
-From: Michael Poole <mdpoole@troilus.org>
-Date: Tue, 9 Mar 2010 06:46:09 -0500
-Subject: [PATCH v2] hid-magicmouse: Fix oops after device removal.
+My apologies for the inconvenience. After some thought I finally=20
+realized that the smtp server at work did not send any of the mail to=20
+the people outside its domain, i.e. everybody except me...
 
-Ask the HID core not to register an input device for the mouse.
-Fix an oops after removing the device, due to leaving the new
-input device registered.
+Michael already reviewed the patch (I send them to the mailing list onl=
+y=20
+in order not to spam your inboxes, mistake number 2) and send his=20
+comments, so I will resend the patch after including his notes. However=
+,=20
+as Michael said, the patches are a little bit heavy faced to the proble=
+m=20
+tackled.
+That's why I will answer to its mail instead of creating two threads.
 
-Signed-off-by: Michael Poole <mdpoole@troilus.org>
----
- drivers/hid/hid-magicmouse.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+Cheers,
+Benjamin
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 4a3a94f..c174b64 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -353,7 +353,7 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		goto err_free;
- 	}
- 
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
- 	if (ret) {
- 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
- 		goto err_free;
-@@ -409,8 +409,11 @@ err_free:
- 
- static void magicmouse_remove(struct hid_device *hdev)
- {
-+	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-+
- 	hid_hw_stop(hdev);
--	kfree(hid_get_drvdata(hdev));
-+	input_unregister_device(msc->input);
-+	kfree(msc);
- }
- 
- static const struct hid_device_id magic_mice[] = {
--- 
-1.7.0.2
+Le 09/03/2010 00:56, Jiri Kosina a =E9crit :
+> On Mon, 8 Mar 2010, Benjamin Tissoires wrote:
+>
+>> Sorry about that, I'm beginning in sending patch for the kernel. I t=
+ried to
+>> use the git send-email command, but I saw after that the command jus=
+t send
+>> email to the people I added, but not the mailing list. To be sure to=
+ (re)send
+>> the last patch, I attached it to be sure to send it "correctly", but=
+ not
+>> according to the recommended practice.
+>>
+>> I will resend the whole patch list to the mailing list.
+>>
+>> The patch you told was not intended to be self-consistant but a fina=
+l cleanup
+>> after the two patches I tried to send before. I splitted them like t=
+hat in
+>> order to keep them human readable as git tried to intrelace the addi=
+tions and
+>> removals, even if they were not related together.
+>
+> Hi Benjamin,
+>
+> well, I don't have the 1/3 and 2/3 patches anywhere in my mailboxes
+> either ... so please resend those as well.
+>
+> Thanks,
+>
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

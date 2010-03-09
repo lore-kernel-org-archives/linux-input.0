@@ -1,54 +1,29 @@
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [git pull] Input updates for 2.6.34-rc0
-Date: Tue, 9 Mar 2010 14:39:48 -0500
-Message-ID: <201003091439.49023.rgetz@blackfin.uclinux.org>
-References: <20100301080342.GH765@core.coreip.homeip.net> <8bd0f97a1003091013q565f8b1bse66b48d9c9a25600@mail.gmail.com> <20100309182013.GC19814@core.coreip.homeip.net>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 1/3] input: remove BKL from mousedev
+Date: Tue, 9 Mar 2010 21:05:54 +0100
+Message-ID: <201003092105.55102.arnd@arndb.de>
+References: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:16739 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750973Ab0CITjx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 14:39:53 -0500
-In-Reply-To: <20100309182013.GC19814@core.coreip.homeip.net>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John Kacur <jkacur@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Hennerich, Michael" <Michael.Hennerich@analog.com>
 
-On Tue 9 Mar 2010 13:20, Dmitry Torokhov pondered:
-> On Tue, Mar 09, 2010 at 01:13:34PM -0500, Mike Frysinger wrote:
-> > On Tue, Mar 9, 2010 at 13:10, Dmitry Torokhov wrote:
-> > > On Tue, Mar 09, 2010 at 12:58:24PM -0500, Mike Frysinger wrote:
-> > >> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
-> > >> > On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger wrote=
-:
-[snip]
-> > >> i understand the ADXL34x is a bit wonky, but what else would you
-> > >> propose ? =A0or just leave the driver in limbo forever until peo=
-ple
-> > >> forget about it ?
-> > >
-> > > No, just till we have proper framework for it to be merged into.
-> >=20
-> > that sounds fine, but is there actually something in progress for t=
-hat
-> > ?  waiting for a framework no one is working on is the same in
-> > practice ...
->=20
-> I have high hopes that IIO will fill the needs of these kinds of devi=
-ces.
+On Tuesday 09 March 2010, Thadeu Lima de Souza Cascardo wrote:
+> There's no need for BKL in mousedev. It uses lots of locking already
+> that should handle the open case.
+> 
+> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 
-The fact of things is that many people are using this as pointing devic=
-e.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
 
-I'm not convinced that IIO is the best place for these types of things.=
-=2E.
+I actually have the same ones in
+http://git.kernel.org/?p=linux/kernel/git/arnd/playground.git;a=shortlog;h=refs/heads/bkl-removal
+(yes, that's broken), so I'd really like to see them go in.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Arnd

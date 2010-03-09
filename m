@@ -1,179 +1,46 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 1/7] HID: N-trig MTM Driver fix and cleanup patch 1
-Date: Mon, 08 Mar 2010 19:50:49 -0500
-Message-ID: <4B959B69.80705@seas.upenn.edu>
-References: <1268082827-2680-1-git-send-email-micki@n-trig.com>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [PATCH 0/1] hid-magicmouse: Emulate horizontal scrolling.
+Date: Mon, 08 Mar 2010 19:55:36 -0500
+Message-ID: <8763562u0n.fsf@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1268082827-2680-1-git-send-email-micki@n-trig.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mickib1@gmail.com
-Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rafi@seas.upenn.edu
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:33320 "HELO
+	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756248Ab0CIAzp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 8 Mar 2010 19:55:45 -0500
+Received: by mail-qy0-f189.google.com with SMTP id 27so1914755qyk.3
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 16:55:38 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <tissoire@tls.cena.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
-On 03/08/2010 04:13 PM, mickib1@gmail.com wrote:
-> From: micki<micki@micki-laptop.(none)>
->
-> Add Change Log and defines of MTM firmware.
-> Add debug Paramater change Driver name in hid_driver structure
->
-> N-trig is changing the way people interact with computers by providin=
-g a dual-mode pen and true multi-touch input device, specifically desig=
-ned for today's advanced computing world.
-> N-trig DuoSense=C2=AE solution provides a real Hands-on computing=C2=AE=
- experience, and sets the stage for OEMs and ISVs to introduce innovati=
-ve computer products and applications for an intuitive, Hands-on=C2=AE =
-experience directly onscreen.
-> DuoSense digitizers are easily integrated into existing technologies,=
- support all LCDs, keep devices slim and light, and can be implemented =
-in a broad range of products, ranging from small notebooks to large LCD=
-s.
-> N-trig has offices in Israel, the US, Taiwan and Japan.
+This patch is separate from the changes about input device registration,
+except for having some context lines in common with Benjamin's patch.  I
+found a use case for horizontal scrolling while moving left to right in
+an OpenOffice.org spreadsheet, and this gesture seems basic enough to
+merit inclusion in the kernel.
 
-Is that just in your .sig?
+Some areas that may deserve revision or more attention before commit:
 
-> Signed-off-by: Micki Balanga<micki@n-trig.com>
-> ---
->   drivers/hid/hid-ntrig.c |   94 ++++++++++++++++++++++++++++++++++++=
-++++++++--
->   1 files changed, 89 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 3234c72..e99342d 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -3,7 +3,18 @@
->    *
->    *  Copyright (c) 2008 Rafi Rubin
->    *  Copyright (c) 2009 Stephane Chatty
-> + *  Copyright (c) 2010 N-TRIG
->    *
-> + *	1.0 - Rafi Rubin ( Version From 2010-02-13 02:13:05)
-> + *		This cleans up the identification of multitouch
-> + *		groups and enables the end of group sync.
-> + *		Taps are now explicitly handled to adjust for the changes in the
-> + *		event stream in multitouch mode.
-> + *		Added triple and quad tap for the benefit of
-> + *		tools that recognize different tap types but
-> + *		do not have full multi touch support.
-> + *	1.1 - N-trig - Add Change Log and defines of MTM firmware.
-> + *		Add debug Paramater change Driver name in hid_driver structure
->    */
+1) It might make sense to separately commit the parameter for the
+acceleration profile.  I didn't do that because they touch the same code
+and exporting the module parameter is so few lines.
 
-I don't know that the change log needs to be in the code file itself.=20
-The point was more that your commit messages should give us an idea=20
-about what your changing.  Jiri, what's your take on that?
+2) The acceleration profile is faster than the original, which was not
+as responsive as my mice with physical scroll wheels.  However, the
+horizontal scrolling may be a little too sensitive: I have to be
+somewhat careful to only drag vertically, or else it will generate
+horizontal scroll events.  This would be fixable using a different
+scroll_accel_profile-like array for each direction.  Other potential
+solutions (such as heuristics to guess the direction of the swipe)
+seemed better left to user space.
 
-> +/*
-> + * Pen Event Field Declaration
-> + */
-> +#define	EVENT_PEN_TIP		0x03
-> +#define	EVENT_PEN_RIGHT		0x05
-> +#define	EVENT_TOUCH_PEN		0x07
-> +#define EVENT_PEN_IN_RANGE	0x01
+3) The initial calculation of num_scroll_accel_profile is not pretty.
+It seemed marginally better to calculate it at module load time than
+hard-code the default value, but that's debatable.  I don't see a
+reasonable way to calculate the default value at compile time.
 
-You still haven't actually established why its necessary to fuss with=20
-pen events if we split the pen off to a separate input device.
-
-> +/*
-> + * MTM 4 last bytes of report descriptor
-> + */
-> +#define REPORT_GENERIC1		0x01
-> +#define REPORT_MT		0x02
-> +#define REPORT_PALM		0x03
-> +#define REPORT_GENERIC2		0x04
-
-When its not too inconvenient, it would be better to put defines in the=
-=20
-patches where you actually use them.  I know these are actually useful,=
-=20
-but if we stop here they aren't actually used.
-
-
-> +#define NTRIG_USB_DEVICE_ID	0x0001
-Already defined in hid-ids.h
-
-
-
-> +
-> +/*
-> + * MTM fields
-> + */
-> +#define PEN_REPORT_SIZE		0x48
-
-The report seems to specifically identify itself.  Why not use that=20
-clear identification instead of something less clear that may change in=
-=20
-the future (even if there are no plans at the moment).  If nothing else=
-=20
-this relieves a little pressure on your hardware/firmware designers.
-
- From the rdesc of my screen in the debug fs:
-INPUT(1)[INPUT]
-     Field(0)
-       Physical(Digitizers.Stylus)
-
-Paraphrasing ntrig_probe from 2.6.33:
-
-   list_for_each_entry(hidinput, &hdev->inputs, list)
-	switch (hidinput->report->field[0]->application)
-	case  HID_DG_PEN:
-		input->name =3D "N-Trig Pen";
-		break;
-	case HID_DG_TOUCHSCREEN:
-
-Note that in this one case I do use this to identify the report, and=20
-thus need to pick a field which you could argue is a potential hazard,=20
-but you haven't made that point.  So please tell us what's wrong with=20
-this before you toss it out for something different.
-
-> +#define MAX_FINGERS_SUPPORT	0x06
-
-Again, is it really a good idea to keep this quantity fixed?  Especiall=
-y=20
-in light of the press release that suggests your company is considering=
-=20
-devices that support more fingers.
-
-> +#define END_OF_REPORT		0x64
-
-I should comment where you put the code that uses this, but you put the=
-m=20
-in separate patches.
-
-I don't see why you tie up a group of contacts by emitting TRACKING_ID=20
-0x64.  The group should already by wrapped up with an input_sync, which=
-=20
-you have.  Therefore this extra event doesn't actually provide any=20
-additional information.  Furthermore, sending a bogus tracking id may=20
-upset other user space tools.
-
-> +/*
-> + * Dummy Finger Declaration
-> + */
-> +#define X_CORD_VAL		0x00
-> +#define Y_CORD_VAL		0x00
-> +#define DX_CORD_VAL		0xFA
-> +#define DY_CORD_VAL		0x96
-> +#define GENERIC_BYTE_VAL	0x0D
-
-The naming of these constants seems a little messy.  Perhaps something=20
-more like "DUMMY_X, DUMMY_DX"....
-
-> +#define MTM_FRAME_INDEX		0xff000001
-> +#define MTM_PROPROETARY		0xff000002
-
-Thank you, we should have named these constants earlier.
-
-> +#define MODULE_NAME "hid_ntrig"
-> -	.name =3D "ntrig",
-
-I left off the "hid_" prefix based on what I saw in the other hid=20
-drivers.  Jiri, is there a standard to follow or do you have an opinion=
-=20
-about this?
-
-Rafi
+Michael Poole

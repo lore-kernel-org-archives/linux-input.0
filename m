@@ -1,56 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/7] HID: N-trig MTM Driver fix and cleanup patch 1
-Date: Tue, 9 Mar 2010 11:11:34 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003091107460.17799@pobox.suse.cz>
-References: <1268082827-2680-1-git-send-email-micki@n-trig.com> <4B959B69.80705@seas.upenn.edu>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: [PATCH v2] hid-magicmouse: Fix oops after device removal.
+Date: Tue, 09 Mar 2010 06:47:35 -0500
+Message-ID: <87iq951zu0.fsf_-_@troilus.org>
+References: <87aaui2usx.fsf@troilus.org>
+	<20100309074820.GD17288@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:33714 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752892Ab0CIKLg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 05:11:36 -0500
-In-Reply-To: <4B959B69.80705@seas.upenn.edu>
+Received: from na3sys009aog107.obsmtp.com ([74.125.149.197]:42643 "HELO
+	na3sys009aog107.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754460Ab0CILrj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 06:47:39 -0500
+Received: by qyk40 with SMTP id 40so3676914qyk.23
+        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 03:47:38 -0800 (PST)
+In-Reply-To: <20100309074820.GD17288@core.coreip.homeip.net> (Dmitry
+	Torokhov's message of "Mon, 8 Mar 2010 23:48:20 -0800")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: mickib1@gmail.com, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@tls.cena.fr>, Stephane Chatty <chatty@enac.fr>
 
-On Mon, 8 Mar 2010, Rafi Rubin wrote:
+>From 7466c15f196621c44b01e3e1f8abd61099e48989 Mon Sep 17 00:00:00 2001
+From: Michael Poole <mdpoole@troilus.org>
+Date: Tue, 9 Mar 2010 06:46:09 -0500
+Subject: [PATCH v2] hid-magicmouse: Fix oops after device removal.
 
-> > + *	1.0 - Rafi Rubin ( Version From 2010-02-13 02:13:05)
-> > + *		This cleans up the identification of multitouch
-> > + *		groups and enables the end of group sync.
-> > + *		Taps are now explicitly handled to adjust for the changes in
-> > the
-> > + *		event stream in multitouch mode.
-> > + *		Added triple and quad tap for the benefit of
-> > + *		tools that recognize different tap types but
-> > + *		do not have full multi touch support.
-> > + *	1.1 - N-trig - Add Change Log and defines of MTM firmware.
-> > + *		Add debug Paramater change Driver name in hid_driver structure
-> >    */
-> 
-> I don't know that the change log needs to be in the code file itself. The
-> point was more that your commit messages should give us an idea about what
-> your changing.  Jiri, what's your take on that?
+Ask the HID core not to register an input device for the mouse.
+Fix an oops after removing the device, due to leaving the new
+input device registered.
 
-Fully agreed. I am all for removing any Changelog entries from the .c 
-source files altogether. We have excellent SCM to handle this all for us.
+Signed-off-by: Michael Poole <mdpoole@troilus.org>
+---
+ drivers/hid/hid-magicmouse.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-> Thank you, we should have named these constants earlier.
-> 
-> > +#define MODULE_NAME "hid_ntrig"
-> > -	.name = "ntrig",
-> 
-> I left off the "hid_" prefix based on what I saw in the other hid drivers.
-> Jiri, is there a standard to follow or do you have an opinion about this?
-
-The convention used by all the other drivers hanging on HID bus are 
-without the 'hid' prefix, so we should obey that also for ntrig, yes.
-
-Thanks,
-
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 4a3a94f..c174b64 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -353,7 +353,7 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		goto err_free;
+ 	}
+ 
+-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "magicmouse hw start failed\n");
+ 		goto err_free;
+@@ -409,8 +409,11 @@ err_free:
+ 
+ static void magicmouse_remove(struct hid_device *hdev)
+ {
++	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
+ 	hid_hw_stop(hdev);
+-	kfree(hid_get_drvdata(hdev));
++	input_unregister_device(msc->input);
++	kfree(msc);
+ }
+ 
+ static const struct hid_device_id magic_mice[] = {
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.0.2
+

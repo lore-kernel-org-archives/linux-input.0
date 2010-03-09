@@ -1,343 +1,114 @@
 From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH] input/misc: PCF8574 I2C keypad input device driver
-Date: Tue,  9 Mar 2010 10:01:00 -0500
-Message-ID: <1268146860-15936-1-git-send-email-vapier@gentoo.org>
+Subject: [PATCH] input/misc: ad714x: add support for the AD7143/8/7A parts
+Date: Tue,  9 Mar 2010 10:00:57 -0500
+Message-ID: <1268146857-15869-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:49625 "EHLO smtp.gentoo.org"
+Received: from smtp.gentoo.org ([140.211.166.183]:49614 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752267Ab0CIO5o (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 09:57:44 -0500
+	id S1751775Ab0CIO5l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 09:57:41 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Bryan Wu <cooloney@kernel.org>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Barry Song <barry.song@analog.com>
 
-From: Bryan Wu <cooloney@kernel.org>
+From: Barry Song <barry.song@analog.com>
 
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
+Signed-off-by: Barry Song <barry.song@analog.com>
 Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
- drivers/input/misc/Kconfig          |   10 ++
- drivers/input/misc/Makefile         |    1 +
- drivers/input/misc/pcf8574_keypad.c |  278 +++++++++++++++++++++++++++++++++++
- 3 files changed, 289 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/pcf8574_keypad.c
+ drivers/input/misc/Kconfig      |    2 +-
+ drivers/input/misc/ad714x-i2c.c |    3 +++
+ drivers/input/misc/ad714x.c     |   27 +++++++++++++++++++++------
+ 3 files changed, 25 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 49a31bd..fa97c58 100644
+index 10d3195..49a31bd 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -396,4 +396,14 @@ config INPUT_ADXL34X_SPI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called adxl34x-spi.
+@@ -332,7 +332,7 @@ config INPUT_PCAP
+ config INPUT_AD714X
+ 	tristate "Analog Devices AD714x Capacitance Touch Sensor"
+ 	help
+-	  Say Y here if you want to support an AD7142/AD7147 touch sensor.
++	  Say Y here if you want to support an AD7142/3/7/8/7A touch sensor.
  
-+config INPUT_PCF8574
-+	tristate "PCF8574 Keypad input device"
-+	depends on I2C && EXPERIMENTAL
-+	help
-+	  Say Y here if you want to support a keypad connetced via I2C
-+	  with a PCF8574.
+ 	  You should select a bus connection too.
+ 
+diff --git a/drivers/input/misc/ad714x-i2c.c b/drivers/input/misc/ad714x-i2c.c
+index 596c199..7242e01 100644
+--- a/drivers/input/misc/ad714x-i2c.c
++++ b/drivers/input/misc/ad714x-i2c.c
+@@ -101,7 +101,10 @@ static int __devexit ad714x_i2c_remove(struct i2c_client *client)
+ 
+ static const struct i2c_device_id ad714x_id[] = {
+ 	{ "ad7142_captouch", 0 },
++	{ "ad7143_captouch", 0 },
+ 	{ "ad7147_captouch", 0 },
++	{ "ad7147a_captouch", 0 },
++	{ "ad7148_captouch", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ad714x_id);
+diff --git a/drivers/input/misc/ad714x.c b/drivers/input/misc/ad714x.c
+index bc4f042..028aee2 100644
+--- a/drivers/input/misc/ad714x.c
++++ b/drivers/input/misc/ad714x.c
+@@ -1,5 +1,5 @@
+ /*
+- * AD714X CapTouch Programmable Controller driver
++ * AD714X CapTouch Programmable Controller driver supporting AD7142/3/7/8/7A
+  *
+  * Copyright 2009 Analog Devices Inc.
+  *
+@@ -17,8 +17,10 @@
+ #define AD714X_STG_CAL_EN_REG     0x1
+ #define AD714X_AMB_COMP_CTRL0_REG 0x2
+ #define AD714X_PARTID_REG         0x17
+-#define AD7147_PARTID             0x1470
+ #define AD7142_PARTID             0xE620
++#define AD7143_PARTID             0xE630
++#define AD7147_PARTID             0x1470
++#define AD7148_PARTID             0x1480
+ #define AD714X_STAGECFG_REG       0x80
+ #define AD714X_SYSCFG_REG         0x0
+ 
+@@ -934,18 +936,31 @@ static int ad714x_hw_detect(struct ad714x_chip *ad714x)
+ 
+ 	ad714x->read(ad714x->dev, AD714X_PARTID_REG, &data);
+ 	switch (data & 0xFFF0) {
++	case AD7142_PARTID:
++		ad714x->product = 0x7142;
++		ad714x->version = data & 0xF;
++		dev_info(ad714x->dev, "found AD7142 captouch, rev:%d\n",
++				ad714x->version);
++		return 0;
++	case AD7143_PARTID:
++		ad714x->product = 0x7143;
++		ad714x->version = data & 0xF;
++		dev_info(ad714x->dev, "found AD7143 captouch, rev:%d\n",
++				ad714x->version);
++		return 0;
+ 	case AD7147_PARTID:
+ 		ad714x->product = 0x7147;
+ 		ad714x->version = data & 0xF;
+-		dev_info(ad714x->dev, "found AD7147 captouch, rev:%d\n",
++		dev_info(ad714x->dev, "found AD7147(A) captouch, rev:%d\n",
+ 				ad714x->version);
+ 		return 0;
+-	case AD7142_PARTID:
+-		ad714x->product = 0x7142;
++	case AD7148_PARTID:
++		ad714x->product = 0x7148;
+ 		ad714x->version = data & 0xF;
+-		dev_info(ad714x->dev, "found AD7142 captouch, rev:%d\n",
++		dev_info(ad714x->dev, "found AD7148 captouch, rev:%d\n",
+ 				ad714x->version);
+ 		return 0;
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pcf8574_keypad.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 775db74..8107c57 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
- obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
- obj-$(CONFIG_INPUT_AD714X_SPI)		+= ad714x-spi.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
-+obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
- obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
- obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
-diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-new file mode 100644
-index 0000000..85bd87c
---- /dev/null
-+++ b/drivers/input/misc/pcf8574_keypad.c
-@@ -0,0 +1,278 @@
-+/*
-+ * Driver for a keypad w/16 buttons connected to a PCF8574 I2C I/O expander
-+ *
-+ * Copyright 2005-2008 Analog Devices Inc.
-+ *
-+ * Licensed under the GPL-2 or later.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/workqueue.h>
-+
-+#define DRV_NAME "pcf8574_keypad"
-+
-+MODULE_AUTHOR("Michael Hennerich");
-+MODULE_DESCRIPTION("Keypad input driver for 16 keys connected to PCF8574");
-+MODULE_LICENSE("GPL");
-+
-+static unsigned char pcf8574_kp_btncode[] = {
-+	[0] = KEY_RESERVED,
-+	[1] = KEY_ENTER,
-+	[2] = KEY_BACKSLASH,
-+	[3] = KEY_0,
-+	[4] = KEY_RIGHTBRACE,
-+	[5] = KEY_C,
-+	[6] = KEY_9,
-+	[7] = KEY_8,
-+	[8] = KEY_7,
-+	[9] = KEY_B,
-+	[10] = KEY_6,
-+	[11] = KEY_5,
-+	[12] = KEY_4,
-+	[13] = KEY_A,
-+	[14] = KEY_3,
-+	[15] = KEY_2,
-+	[16] = KEY_1
-+};
-+
-+struct kp_data {
-+	unsigned char *btncode;
-+	struct input_dev *idev;
-+	struct i2c_client *client;
-+	char name[64];
-+	char phys[32];
-+	unsigned char laststate;
-+	unsigned char statechanged;
-+	unsigned long irq_handled;
-+	unsigned long events_sended;
-+	unsigned long events_processed;
-+	struct work_struct pcf8574_kp_work;
-+};
-+
-+static short read_state(struct kp_data *lp)
-+{
-+	unsigned char x, y, a, b;
-+
-+	if (lp->client) {
-+		i2c_smbus_write_byte(lp->client, 240);
-+		x = 0xF & (~(i2c_smbus_read_byte(lp->client) >> 4));
-+
-+		i2c_smbus_write_byte(lp->client, 15);
-+		y = 0xF & (~i2c_smbus_read_byte(lp->client));
-+
-+		for (a = 0; x > 0; a++)
-+			x = x >> 1;
-+		for (b = 0; y > 0; b++)
-+			y = y >> 1;
-+
-+		return ((a - 1) * 4) + b;
-+	}
-+
-+	return -1;
-+}
-+
-+static void check_and_notify(struct work_struct *work)
-+{
-+	struct kp_data *lp =
-+	    container_of(work, struct kp_data, pcf8574_kp_work);
-+	unsigned char nextstate = read_state(lp);
-+
-+	lp->statechanged = lp->laststate ^ nextstate;
-+
-+	if (lp->statechanged) {
-+		input_report_key(lp->idev,
-+				 nextstate > 17 ? lp->btncode[lp->laststate] :
-+				 lp->btncode[nextstate],
-+				 nextstate > 17 ? 0 : 1);
-+
-+		lp->events_sended++;
-+	}
-+	lp->laststate = nextstate;
-+	input_sync(lp->idev);
-+	enable_irq(lp->client->irq);
-+}
-+
-+static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
-+{
-+	struct kp_data *lp = dev_id;
-+
-+	disable_irq_nosync(lp->client->irq);
-+	schedule_work(&lp->pcf8574_kp_work);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit pcf8574_kp_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	int i, ret;
-+	struct input_dev *idev;
-+	struct kp_data *lp;
-+
-+	if (i2c_smbus_write_byte(client, 240) < 0) {
-+		dev_err(&client->dev, "probe: write fail\n");
-+		return -ENODEV;
-+	}
-+
-+	lp = kzalloc(sizeof(struct kp_data), GFP_KERNEL);
-+	if (!lp)
-+		return -ENOMEM;
-+	lp->client = client;
-+
-+	i2c_set_clientdata(client, lp);
-+
-+	if (client->irq > 0) {
-+		ret = request_irq(client->irq, pcf8574_kp_irq_handler,
-+			IRQF_TRIGGER_LOW, DRV_NAME, lp);
-+		if (ret) {
-+			dev_err(&client->dev, "IRQ %d is not free\n", client->irq);
-+			goto fail_irq;
-+		}
-+	} else
-+		dev_warn(&client->dev, "IRQ not configured!\n");
-+
-+
-+	idev = input_allocate_device();
-+	if (!idev) {
-+		dev_err(&client->dev, "Can't allocate input device\n");
-+		ret = -ENOMEM;
-+		goto fail_allocate;
-+	}
-+
-+	lp->idev = idev;
-+	lp->btncode = pcf8574_kp_btncode;
-+
-+	idev->evbit[0] = 0;
-+
-+	idev->evbit[0] |= BIT_MASK(EV_KEY);
-+	idev->keycode = lp->btncode;
-+	idev->keycodesize = sizeof(pcf8574_kp_btncode);
-+	idev->keycodemax = ARRAY_SIZE(pcf8574_kp_btncode);
-+
-+	for (i = 0; i < ARRAY_SIZE(pcf8574_kp_btncode); ++i)
-+		__set_bit(lp->btncode[i] & KEY_MAX, idev->keybit);
-+
-+	__clear_bit(KEY_RESERVED, idev->keybit);
-+
-+	sprintf(lp->name, DRV_NAME);
-+	sprintf(lp->phys, "kp_data/input0");
-+
-+	idev->name = lp->name;
-+	idev->phys = lp->phys;
-+	idev->id.bustype = BUS_I2C;
-+	idev->id.vendor = 0x0001;
-+	idev->id.product = 0x0001;
-+	idev->id.version = 0x0100;
-+
-+	input_set_drvdata(idev, lp);
-+
-+	ret = input_register_device(lp->idev);
-+	if (ret) {
-+		dev_err(&client->dev, "input_register_device() failed\n");
-+		goto fail_register;
-+	}
-+
-+	lp->statechanged = 0x0;
-+
-+	lp->laststate = read_state(lp);
-+
-+	/* Set up our workqueue. */
-+	INIT_WORK(&lp->pcf8574_kp_work, check_and_notify);
-+
-+	dev_info(&client->dev, "input: %s at %s IRQ %d\n", lp->name, lp->phys,
-+		client->irq);
-+
-+	return 0;
-+
-+ fail_register:
-+	input_set_drvdata(idev, NULL);
-+	input_free_device(idev);
-+ fail_allocate:
-+	free_irq(client->irq, lp);
-+ fail_irq:
-+	i2c_set_clientdata(client, NULL);
-+	kfree(lp);
-+
-+	return ret;
-+}
-+
-+static int __devexit pcf8574_kp_remove(struct i2c_client *client)
-+{
-+	struct kp_data *lp = i2c_get_clientdata(client);
-+
-+	if (client->irq > 0)
-+		free_irq(client->irq, lp);
-+
-+	input_set_drvdata(lp->idev, NULL);
-+	input_unregister_device(lp->idev);
-+	kfree(lp);
-+
-+	i2c_set_clientdata(client, NULL);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int pcf8574_kp_resume(struct i2c_client *client)
-+{
-+	struct kp_data *lp = i2c_get_clientdata(client);
-+	int ret;
-+
-+	if (client->irq > 0) {
-+		ret = request_irq(client->irq, pcf8574_kp_irq_handler,
-+			IRQF_TRIGGER_LOW, DRV_NAME, lp);
-+		if (ret) {
-+			dev_err(&client->dev, "IRQ %d is not free\n", client->irq);
-+			return -ENODEV;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int pcf8574_kp_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	struct kp_data *lp = i2c_get_clientdata(client);
-+
-+	if (client->irq > 0)
-+		free_irq(client->irq, lp);
-+
-+	return 0;
-+}
-+#else
-+# define pcf8574_kp_resume  NULL
-+# define pcf8574_kp_suspend NULL
-+#endif
-+
-+static const struct i2c_device_id pcf8574_kp_id[] = {
-+	{ DRV_NAME, 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, pcf8574_kp_id);
-+
-+static struct i2c_driver pcf8574_kp_driver = {
-+	.driver = {
-+		.name = DRV_NAME,
-+	},
-+	.probe    = pcf8574_kp_probe,
-+	.remove   = __devexit_p(pcf8574_kp_remove),
-+	.suspend  = pcf8574_kp_suspend,
-+	.resume   = pcf8574_kp_resume,
-+	.id_table = pcf8574_kp_id,
-+};
-+
-+static int __init pcf8574_kp_init(void)
-+{
-+	return i2c_add_driver(&pcf8574_kp_driver);
-+}
-+
-+static void __exit pcf8574_kp_exit(void)
-+{
-+	i2c_del_driver(&pcf8574_kp_driver);
-+}
-+
-+module_init(pcf8574_kp_init);
-+module_exit(pcf8574_kp_exit);
+ 	default:
+ 		dev_err(ad714x->dev,
+ 			"fail to detect AD714X captouch, read ID is %04x\n",
 -- 
 1.7.0.2
 

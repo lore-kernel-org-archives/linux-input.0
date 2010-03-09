@@ -1,114 +1,92 @@
-From: Melchior FRANZ <melchior.franz@gmail.com>
-Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product ... why not + dev->serial?
-Date: Tue, 9 Mar 2010 13:42:20 +0100
-Message-ID: <201003091342.20273@rk-nord.at>
-References: <201003071655.06644@rk-nord.at> <20100309082216.GG17288@core.coreip.homeip.net>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 2/3] HID: suppress the second input for the Apple Magic Mouse.
+Date: Tue, 09 Mar 2010 08:06:59 -0500
+Message-ID: <87bpex1w5o.fsf@troilus.org>
+References: <1268083784.9018.20.camel@localhost.localdomain>
+	<87eiju2v1u.fsf@troilus.org> <4B963892.9020103@free.fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from warsl404pip5.highway.telekom.at ([195.3.96.77]:48134 "EHLO
-	email.aon.at" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750987Ab0CIMmZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 07:42:25 -0500
-In-Reply-To: <20100309082216.GG17288@core.coreip.homeip.net>
+Received: from na3sys009aog114.obsmtp.com ([74.125.149.211]:54906 "HELO
+	na3sys009aog114.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751823Ab0CINHE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 08:07:04 -0500
+Received: by qw-out-1920.google.com with SMTP id 5so1882936qwc.38
+        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 05:07:02 -0800 (PST)
+In-Reply-To: <4B963892.9020103@free.fr> (Rantanplan's message of "Tue, 09 Mar
+	2010 13:01:22 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
+To: Rantanplan <rantanplanlechien@free.fr>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
-Hey,
+Rantanplan <rantanplanlechien@free.fr> writes:
 
-* Dmitry Torokhov -- Tuesday 09 March 2010:
-> I'm adding a few CCs and takinng discussion a bit away from your patch
-> ;)
+[snip]
+> Then I also saw that contrary to the driver I saw before (hid-stantum
+> and hid-ntrig) the hid-magicmouse uses raw event instead of higher
+> level events. I thought it was not very clear (at least for me as I do
+> not speak very well bit fields) and I started to write a work-around.
 
-Hmm ... I wonder if they'll all be happy about that. But I can't cut them
-off now, either. Sorry.  :-}
+That was mostly a code compactness issue: It was not clear to me how to
+generate an appropriate set of field descriptors for the multi-touch
+records, but it looked like it would not be easy.  It is still not clear
+to me -- from hid-ntrig, hid-stantum, hid-core and your patch -- how a
+variable-length report from the device gets translated to multiple
+events for the touch fields.  (The key words there are "to me": I am
+probably overlooking something.)
 
+The other notable part of using raw events is that the middle-button
+emulation requires watching button state in both the standard mouse
+report and the multi-touch report.  Matching button-down and -up events
+may be sent in different report types.
 
+> The last point that was worrying me was the line (after the call of
+> hid_register_report):
+> 'report->size = 6;'
+> The driver registered a new report, tells it has an arbitrary size (or
+> maybe not?) whereas it has no field initialized.
 
-> On Sun, Mar 07, 2010 at 04:55:06PM +0100, Melchior FRANZ wrote:
-> > The Linux kernel creates the HID/"joystick name" from only iManufacturer and
-> > iProduct, ignoring iSerial. That way, JSIOCGNAME returns the same string
-> > for all such devices, making an actual identification impossible.
+Six bytes is the minimum length of the touch report -- although now that
+I look at it, report->size was meant to count bits.  (I am not sure why
+the mouse sometimes decides to send a report with zero touches rather
+than the standard mouse report, but it does.)
 
-> This is nicely illustrates one of the reasons why input subsystem is
-> ill-suited for generic data acquisition.
+> So I wrote first a big patch to avoid all the 'problems' listed above.
+> I did not send it immediately and I was a little bit overload at work.
+> However, when I saw that the driver had been included in the next
+> branch of the kernel, I took time to work on the patch again. But, I
+> only tried to tackle the problem of the second input device.
+>
+> To sum up, the advantages of my patch are, I think, the following
+> (though I do not want to seem to be competing with Micheal):
+> - It's documenting the data the magic mouse sends as the mouse does
+> not send the descriptor.
+> - It will allow another patch to avoid the use of the raw events
+> instead of high level events (don't know if it is really a benefit)
+>
+> As Micheal said there are huge pitfalls:
+> - It heavy regards to its aim
+> - I insert fields into the descriptor that I use them later with a
+> slightly change in the meaning (some keywords are not well choose and
+> the whole meaning is split between the registering of the fields and
+> the mapping)
+> - coding style (not really a problem though)
+> - raw events have the benefits of giving the number of touches into
+> the data size, something we don't have with high level events only.
+>
+>
+> Maybe a solution would just be to add a comment documenting the bit
+> fields in the data? (as now, most of the problems had been solved by
+> the last patch of Michael)
 
-No. It demonstrates that Linux shouldn't drop essential information on
-the floor for no good reason. So, why is iSerial ignored? After all,
-my simple patch solves my problems. Most input devices probably don't
-have iSerial set anyway, so there wouldn't be much change. But those
-devices that *do* set it may have a reason to do so.
+To what end?  User space should see the same data from either approach.
+In the kernel, the decoding of the multi-touch reports is in five lines
+near the top of magicmouse_emit_touch() and five to seven lines in
+magicmouse_raw_event()'s case TOUCH_REPORT_ID.  There are ten known
+fields (X, Y, buttons, and six touch fields) in the data, so it seems
+hard to do better than ten (sane) lines.  Using some other description
+may be easier to find, but I'm not sure it will be much clearer.
 
-
-
-> You may have 2 joysticks and prefer to use one in one game and other
-> in another game.
-
-Sure. And that's still possible, just like before. The difference is,
-that *if* an application actually cares about the name, then it does
-now get an actual identifier, not just a generic product name. And not
-just "some" identifier, but the one that the manufacturer set, which
-includes the serial number. If an application does only want to look
-up the product, rather than the specific devices, then it can simply
-search for the longest match in its db.
-
-
-
-> With default setup you could grab either one and start playing, ABS_X
-> from either mapping on horizontal movements, ABS_Y on vertical... Same
-> with keyboards - you plug an external keyboard into laptop and you just
-> start typing
-
-Yes, and that works no matter if serial is in the name or not. Because
-that's how usb/hid works. But *iff* an application wants to query the
-device's identifier, then it better be specific, no? That's what identifiers
-are about.
-
-
-
-> > The patch below fixed the problem for me. But, certainly, the current
-> > (mis)behaviour wasn't an accident, but intentional. But what was the
-> > intention? What happens if I attach two actual identical joysticks?
-> > What's the purpose of them having the same name on the system under
-> > /dev/input/{js,event}? 
-> 
-> They will have different event nodes.
-
-Sure. Unfortunatly that doesn't buy me anything. Of cousre, I can just
-work around the strange omission and do the USB querying myself. But the
-question still is, why do I have to? Because the kernel dropped information
-that I now have to retrieve again the hard way?  :-)
-
-
-
-> Nevertheless serials are exported in sysfs ('uniq' attribute). Also udev
-> can give persistent names device nodes based on physocal connection,
-> serial numbers, etc.
-
-It's not much fun to use all sorts of additional Linux specific interfaces,
-because the responsible one doesn't do its job.
-
-Anyway, my kernel is "fixed", so it's not about me at all. I just feel a
-bit uncomfortably if I have to hack my kernel. Before the fix I got this
-information from js_demo/JSIOCGNAME:
-
-  Joystick 0: "Leo Bodnar BU0836A Interface"
-  Joystick 1: "Leo Bodnar BU0836A Interface"
-  Joystick 2: "SAITEK CYBORG 3D USB"
-
-and now I get:
-
-  Joystick 0: "Leo Bodnar BU0836A Interface A12107"
-  Joystick 1: "Leo Bodnar BU0836A Interface A12100"
-  Joystick 2: "SAITEK CYBORG 3D USB"
-
-As you see, nothing changed for the Saitek. They don't bother setting
-iSerial, as probably most vendors. (Reminder: These are circuit boards
-and can have very different sensors attached to their inputs, so it's
-essential to identify them safely).
-
-m.
+Michael

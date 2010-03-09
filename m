@@ -1,46 +1,53 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: [PATCH 0/1] hid-magicmouse: Emulate horizontal scrolling.
-Date: Mon, 08 Mar 2010 19:55:36 -0500
-Message-ID: <8763562u0n.fsf@troilus.org>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/7] HID: N-trig MTM Driver fix and cleanup patch 1
+Date: Mon, 08 Mar 2010 19:34:25 -0500
+Message-ID: <4B959791.5010802@seas.upenn.edu>
+References: <1268082827-2680-1-git-send-email-micki@n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:33320 "HELO
-	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1756248Ab0CIAzp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 8 Mar 2010 19:55:45 -0500
-Received: by mail-qy0-f189.google.com with SMTP id 27so1914755qyk.3
-        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 16:55:38 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1268082827-2680-1-git-send-email-micki@n-trig.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mickib1@gmail.com
+Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rafi@seas.upenn.edu
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <tissoire@tls.cena.fr>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>
 
-This patch is separate from the changes about input device registration,
-except for having some context lines in common with Benjamin's patch.  I
-found a use case for horizontal scrolling while moving left to right in
-an OpenOffice.org spreadsheet, and this gesture seems basic enough to
-merit inclusion in the kernel.
+Just a comment before I respond to your patches.
 
-Some areas that may deserve revision or more attention before commit:
+Clearly my knowledge of the workings of your devices is limited.  I have 
+no special access to your documentation or developers and no idea where 
+the company plans to go in the future.
 
-1) It might make sense to separately commit the parameter for the
-acceleration profile.  I didn't do that because they touch the same code
-and exporting the module parameter is so few lines.
+With that said, what I have seen is a set of devices which mostly follow 
+standard behavior and thus are simple to support with existing drivers. 
+  The kernel driver as of 2.6.33 names the device and does a tiny bit of 
+clean up for pen and single touch, but mostly leaves the handling of 
+those to the hid core.
 
-2) The acceleration profile is faster than the original, which was not
-as responsive as my mice with physical scroll wheels.  However, the
-horizontal scrolling may be a little too sensitive: I have to be
-somewhat careful to only drag vertically, or else it will generate
-horizontal scroll events.  This would be fixable using a different
-scroll_accel_profile-like array for each direction.  Other potential
-solutions (such as heuristics to guess the direction of the swipe)
-seemed better left to user space.
+Even the multi-touch support only needs slight tweaking to account for 
+the "fake fingers" sent out by the hardware and some other minor points.
 
-3) The initial calculation of num_scroll_accel_profile is not pretty.
-It seemed marginally better to calculate it at module load time than
-hard-code the default value, but that's debatable.  I don't see a
-reasonable way to calculate the default value at compile time.
 
-Michael Poole
+While I appreciate that you've put a lot of effort into writing and 
+testing an in house tool stack, that doesn't justify breaking 
+compatibility unnecessarily.  I too have spent considerable effort for 
+more than a year (with months of non-functioning hardware before that), 
+and have quite a lot of established testing time.  I do not feel that my 
+work and the communal effort to test and fix justifies inhibiting your 
+work, but it should justify some consideration.
+
+Furthermore I tried to contact your company repeatedly before I began my 
+work, and several times since.  That you have put so much effort in 
+development and testing in isolation was your choice not mine.
+
+
+
+So, if there is information that you can put to good use but leads to 
+compatibility issues with existing tools (like the evdev driver), lets 
+discuss those.
+
+If you are ready to release the user space source, I will happily lend a 
+hand synchronizing the kernel and user space.
+
+Rafi

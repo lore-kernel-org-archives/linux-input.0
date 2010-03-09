@@ -1,73 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] hid-magicmouse: Fix oops after device removal.
-Date: Tue, 9 Mar 2010 09:36:47 -0800
-Message-ID: <20100309173647.GA23378@core.coreip.homeip.net>
-References: <87aaui2usx.fsf@troilus.org>
- <20100309074820.GD17288@core.coreip.homeip.net>
- <87iq951zu0.fsf_-_@troilus.org>
+Subject: Re: [git pull] Input updates for 2.6.34-rc0
+Date: Tue, 9 Mar 2010 09:51:07 -0800
+Message-ID: <20100309175107.GB23378@core.coreip.homeip.net>
+References: <20100301080342.GH765@core.coreip.homeip.net>
+ <8bd0f97a1003090644p19fb7dacqe1f2fb3adee3fa7a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:45204 "EHLO
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:34343 "EHLO
 	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750781Ab0CIRg4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 12:36:56 -0500
-Received: by fxm5 with SMTP id 5so1569748fxm.29
-        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 09:36:55 -0800 (PST)
+	with ESMTP id S1751377Ab0CIRvT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 12:51:19 -0500
 Content-Disposition: inline
-In-Reply-To: <87iq951zu0.fsf_-_@troilus.org>
+In-Reply-To: <8bd0f97a1003090644p19fb7dacqe1f2fb3adee3fa7a@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Benjamin Tissoires <tissoire@tls.cena.fr>, Stephane Chatty <chatty@enac.fr>
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Robin Getz <rgetz@blackfin.uclinux.org>
 
-On Tue, Mar 09, 2010 at 06:47:35AM -0500, Michael Poole wrote:
-> From 7466c15f196621c44b01e3e1f8abd61099e48989 Mon Sep 17 00:00:00 2001
-> From: Michael Poole <mdpoole@troilus.org>
-> Date: Tue, 9 Mar 2010 06:46:09 -0500
-> Subject: [PATCH v2] hid-magicmouse: Fix oops after device removal.
-> 
-> Ask the HID core not to register an input device for the mouse.
-> Fix an oops after removing the device, due to leaving the new
-> input device registered.
-> 
-> Signed-off-by: Michael Poole <mdpoole@troilus.org>
+On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger wrote:
+> On Mon, Mar 1, 2010 at 03:03, Dmitry Torokhov wrote:
+> > Hi Linus,
+> >
+> > Please pull from:
+> >
+> > =A0 =A0 =A0 =A0git://git.kernel.org/pub/scm/linux/kernel/git/dtor/i=
+nput.git for-linus
+> > or
+> > =A0 =A0 =A0 =A0master.kernel.org:/pub/scm/linux/kernel/git/dtor/inp=
+ut.git for-linus
+> >
+> > to receive first round of updates for the input subsystem.
+>=20
+> i'm trying to figure out what the problem is with the ADXL34x and
+> AD714x drivers you seem to have accepted (at least, you didnt say
+> there was anything left for us to do).  i would have expected them to
+> be in 2.6.33/2.6.34 already, but it seems they arent moving now.  so
+> what's up ?
 
-Yep, looks good, thank you for making the change.
+I am still spooked by the fact that this is an accelerometer and does
+not have to be an input device but maybe used for different purposes as
+well.
 
-> ---
->  drivers/hid/hid-magicmouse.c |    7 +++++--
->  1 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 4a3a94f..c174b64 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -353,7 +353,7 @@ static int magicmouse_probe(struct hid_device *hdev,
->  		goto err_free;
->  	}
->  
-> -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDINPUT);
->  	if (ret) {
->  		dev_err(&hdev->dev, "magicmouse hw start failed\n");
->  		goto err_free;
-> @@ -409,8 +409,11 @@ err_free:
->  
->  static void magicmouse_remove(struct hid_device *hdev)
->  {
-> +	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
-> +
->  	hid_hw_stop(hdev);
-> -	kfree(hid_get_drvdata(hdev));
-> +	input_unregister_device(msc->input);
-> +	kfree(msc);
->  }
->  
->  static const struct hid_device_id magic_mice[] = {
-> -- 
-> 1.7.0.2
-> 
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

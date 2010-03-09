@@ -1,239 +1,198 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] Added locks for sysfs attributes and internal data.
-Date: Mon, 8 Mar 2010 23:41:55 -0800
-Message-ID: <20100309074155.GA17288@core.coreip.homeip.net>
-References: <201002200911.53900.stefan_achatz@web.de>
- <31758929.1286552.1266912188132.JavaMail.fmail@mwmweb006>
- <20100226074422.GA17062@core.coreip.homeip.net>
- <201003081704.30119.stefan_achatz@web.de>
+Subject: Re: [PATCH] USB: N-trig Finger Pen Multitouch fix
+Date: Tue, 9 Mar 2010 00:06:16 -0800
+Message-ID: <20100309080616.GF17288@core.coreip.homeip.net>
+References: <48A28051AC6D7A48B64F28272458190301AF29@Exchange-IL.n-trig.com>
+ <4B94541C.5090509@seas.upenn.edu>
+ <48A28051AC6D7A48B64F28272458190324F4F3@Exchange-IL.n-trig.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:48217 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751027Ab0CIHmE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 02:42:04 -0500
+Received: from mail-gx0-f217.google.com ([209.85.217.217]:64731 "EHLO
+	mail-gx0-f217.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751614Ab0CIIGW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 03:06:22 -0500
 Content-Disposition: inline
-In-Reply-To: <201003081704.30119.stefan_achatz@web.de>
+In-Reply-To: <48A28051AC6D7A48B64F28272458190324F4F3@Exchange-IL.n-trig.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <stefan_achatz@web.de>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Micki Balanga <micki@n-trig.com>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Stefan,
+Hi Micki,
 
-On Mon, Mar 08, 2010 at 05:04:29PM +0100, Stefan Achatz wrote:
-> From 47678162da8e374d6f132db21d89b718ee5cfbd1 Mon Sep 17 00:00:00 2001
-> From: Stefan Achatz <erazor_de@users.sourceforge.net>
-> Date: Mon, 8 Mar 2010 16:54:19 +0100
-> Subject: [PATCH 4/4] Added locks for sysfs attributes and internal data.
+On Mon, Mar 08, 2010 at 03:11:08PM +0200, Micki Balanga wrote:
 > 
-> Added mutex lock to prevent different processes from accessing
-> sysfs attributes at the same time.
-> Added spin lock for internal data.
-> ---
->  drivers/hid/hid-roccat-kone.c |  246 ++++++++++++++++++++++++++++------------
->  drivers/hid/hid-roccat-kone.h |    9 +-
->  2 files changed, 179 insertions(+), 76 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-> index 941f5b3..eded7d4 100644
-> --- a/drivers/hid/hid-roccat-kone.c
-> +++ b/drivers/hid/hid-roccat-kone.c
-> @@ -223,11 +223,6 @@ static int kone_get_profile(struct usb_device *usb_dev,
->  	if (number < 1 || number > 5)
->  		return -EINVAL;
->  
-> -	/*
-> -	 * The manufacturer uses a control message of type class with interface
-> -	 * as recipient and provides the profile number as index parameter.
-> -	 * This is prevented in userspace by function check_ctrlrecip.
-> -	 */
->  	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
->  			USB_REQ_CLEAR_FEATURE, USB_TYPE_CLASS
->  					| USB_RECIP_INTERFACE | USB_DIR_IN,
-> @@ -398,16 +393,18 @@ static int kone_get_firmware_version(struct usb_device *usb_dev, int *result)
->  static ssize_t kone_sysfs_set_settings(struct device *dev,
->  		struct device_attribute *attr, char const *buf, size_t size)
->  {
-> -	struct hid_device *hdev = dev_get_drvdata(dev);
-> -	struct kone_device *kone = hid_get_drvdata(hdev);
-> -	struct usb_interface *intf = to_usb_interface(dev);
-> -	struct usb_device *usb_dev = interface_to_usbdev(intf);
-> +	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
->  	int err;
-> +	unsigned long flags;
->  
->  	if (size != sizeof(struct kone_settings))
->  		return -EINVAL;
->  
-> +	mutex_lock(&kone->kone_lock);
->  	err = kone_set_settings(usb_dev, (struct kone_settings const *)buf);
+> -----Original Message-----
+> From: Rafi Rubin [mailto:rafi@seas.upenn.edu] 
+> Sent: Monday, March 08, 2010 3:34 AM
+> To: Micki Balanga
+> Cc: jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] USB: N-trig Finger Pen Multitouch fix
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> First let me thank you for contributing to the development of this
+> driver.
+> 
+> 
+> I suggest you use scripts/checkpatch.pl it will catch a number of style
+> issues.
+>  Dmitry was kind enough to point it out when I sent in my recent set of
+> patches.
+> 
+> [Micki] I used the script to check the patch
+> 
+> Mostly it looks like this patch is the delta from an almost completely
+> independently developed driver.  That makes it considerably more work to
+> analyze
+> the fundamental differences.  I would have preferred to see a set of
+> patches
+> which first mutate the existing code to match your naming conventions
+> (if that
+> is so desired) and then patches that show how things are actually
+> different (A
+> lesson I've learned the hard way).
+> 
+> I see quite a number of changes that handle the protocol better than my
+> version,
+> would you be offended if I begin to absorb those and submit joint
+> patches?  I'm
+> not sure about the proper etiquette for that.
+> 
+> [Micki] As mentioned in my mail we have tested the driver with
+> application develop by N-trig. 
+> [Micki] Our user space application rely on these events, so if you want
+> to make any change I will be happy if you 
+> [Micki] consult me.
+> 
 
-Hmm, this kind of casting tells me that this is binary, not text data
-and thus binary sysfs attribute shoudl be used.
+No, this is not how it works. There are already existing userspace
+drivers/applications working with current n-trig driver, the fact that
+your changes happen to work with your userspace is not enough.
 
-> +	mutex_unlock(&kone->kone_lock);
-> +
->  	if (err)
->  		return err;
->  
-> @@ -415,9 +412,10 @@ static ssize_t kone_sysfs_set_settings(struct device *dev,
->  	 * If we get here, treat buf as okay (apart from checksum) and use value
->  	 * of startup_profile as its at hand
->  	 */
-> +	spin_lock_irqsave(&kone->actual_lock, flags);
->  	kone->act_profile = ((struct kone_settings *)buf)->startup_profile;
-> -	kone->act_profile_valid = 1;
-> -	kone->act_dpi_valid = 0;
-> +	kone->act_dpi = -1;
-> +	spin_unlock_irqrestore(&kone->actual_lock, flags);
->  
 
-You don't really need a spinlock to set one integer.
+> On 03/07/10 14:04, Micki Balanga wrote:
+> > The purpose of this patch is to enable Linux users to experience the
+> > complete N-trig DuoSense pen and true multi-touch solution
+> capabilities
+> > over a Linux platform. This driver has been carefully and thoroughly
+> > tested by N-trig, over a period of several months.
+> 
+> What user space tools have you tested this driver with?  It does not
+> seem to
+> work well with the wacom and evdev drivers.
+> 
+> [Micki] We will put on N-trig web site a DEB package
+> 
 
->  	return sizeof(struct kone_settings);
->  }
-> @@ -425,10 +423,14 @@ static ssize_t kone_sysfs_set_settings(struct device *dev,
->  static ssize_t kone_sysfs_show_settings(struct device *dev,
->  		struct device_attribute *attr, char *buf)
->  {
-> -	struct usb_interface *intf = to_usb_interface(dev);
-> -	struct usb_device *usb_dev = interface_to_usbdev(intf);
-> +	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
->  	int err;
-> +
-> +	mutex_lock(&kone->kone_lock);
->  	err = kone_get_settings(usb_dev, (struct kone_settings *)buf);
-> +	mutex_unlock(&kone->kone_lock);
-> +
->  	if (err)
->  		return err;
->  
-> @@ -437,10 +439,14 @@ static ssize_t kone_sysfs_show_settings(struct device *dev,
->  
->  static ssize_t kone_sysfs_get_profile(struct device *dev, char *buf, int number)
->  {
-> -	struct usb_interface *intf = to_usb_interface(dev);
-> -	struct usb_device *usb_dev = interface_to_usbdev(intf);
-> +	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
->  	int err;
-> +
-> +	mutex_lock(&kone->kone_lock);
->  	err = kone_get_profile(usb_dev, (struct kone_profile *)buf, number);
-> +	mutex_unlock(&kone->kone_lock);
-> +
->  	if (err)
->  		return err;
->  	return sizeof(struct kone_profile);
-> @@ -449,15 +455,17 @@ static ssize_t kone_sysfs_get_profile(struct device *dev, char *buf, int number)
->  static ssize_t kone_sysfs_set_profile(struct device *dev, char const *buf,
->  		size_t size, int number)
->  {
-> -	struct usb_interface *intf = to_usb_interface(dev);
-> -	struct usb_device *usb_dev = interface_to_usbdev(intf);
-> -
-> +	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
->  	int err;
->  
->  	if (size != sizeof(struct kone_profile))
->  		return -EINVAL;
->  
-> +	mutex_lock(&kone->kone_lock);
->  	err = kone_set_profile(usb_dev, buf, number);
-> +	mutex_unlock(&kone->kone_lock);
-> +
->  	if (err)
->  		return err;
->  
-> @@ -525,32 +533,68 @@ static ssize_t kone_sysfs_set_profile_5(struct device *dev,
->  }
->  
->  /*
-> - * Helper to fill kone_device structure with actual values
-> - * On success returns 0
-> - * On failure returns errno
-> + * Fills act_profile in kone_device.
-> + * Also writes result in @result.
-> + * Once act_profile is valid, its not getting invalid any more.
-> + * Returns on success 0, on failure errno
->   */
-> -static int kone_device_set_actual_values(struct kone_device *kone,
-> -		struct device *dev, int both)
-> +static int kone_device_set_actual_profile(struct kone_device *kone,
-> +		struct device *dev, int *result)
->  {
-> -	struct usb_interface *intf = to_usb_interface(dev);
-> -	struct usb_device *usb_dev = interface_to_usbdev(intf);
-> -	int err;
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-> +	int err, temp;
-> +	unsigned long flags;
->  
-> -	/* first make sure profile is valid */
-> -	if (!kone->act_profile_valid) {
-> -		err = kone_get_startup_profile(usb_dev, &kone->act_profile);
-> +	spin_lock_irqsave(&kone->actual_lock, flags);
-> +	if (kone->act_profile == -1) {
-> +		spin_unlock_irqrestore(&kone->actual_lock, flags);
-> +		err = kone_get_startup_profile(usb_dev, &temp);
->  		if (err)
->  			return err;
-> -		kone->act_profile_valid = 1;
-> +		spin_lock_irq(&kone->actual_lock);
-> +		kone->act_profile = temp;
-> +		spin_unlock_irqrestore(&kone->actual_lock, flags);
+What about distributions not user deb?
 
-You shoudl not be mixing _irq/_irqrestore. Also it is probably not
-needed at all. If it is needed then the common style to acquire and
-release locks only once in a function - this makes checking whether
-lock/unlock is balanced easier.
+> What improvements beyond the driver that's in 2.6.33 are you targeting?
+> 
+> [Micki] We will update the driver and user space application with new
+> features.
 
-> +		if (result)
-> +			*result = temp;
-> +	} else {
-> +		if (result)
-> +			*result = kone->act_profile;
-> +		spin_unlock_irqrestore(&kone->actual_lock, flags);
->  	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Fills act_dpi in kone_device.
-> + * Also writes result in @result.
-> + * On success returns 0
-> + * On failure returns errno
-> + */
-> +static int kone_device_set_actual_dpi(struct kone_device *kone,
-> +		struct device *dev, int *result)
-> +{
-> +	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-> +	int err, temp;
-> +	unsigned long flags;
-> +
-> +	kone_device_set_actual_profile(kone, dev, NULL);
->  
-> -	/* then get startup dpi value */
-> -	if (!kone->act_dpi_valid && both) {
-> +	spin_lock_irqsave(&kone->actual_lock, flags);
-> +	if (kone->act_dpi == -1) {
-> +		spin_unlock_irqrestore(&kone->actual_lock, flags);
+What about other applications? You are not working in a vacuum. Please
+consider working with X evdev and wacom developers - I am pretty sure
+distributions would prefer a single userspace component supporting wide
+range of multitouch devieces.  Consider how Synaptics X driver
+(coincidentially not developed by Synaptisc) happens to support pretty
+much every non-multitouch touchpad that is supported by Linux.
 
-So what are we protecting exactly? What if act_dpi will become -1 here
-(after you released the spinlock?
+> 
+> > + * The driver will support MTM firwmare Pen, Finger (Up to 6)
+> 
+> Is this code intended to support older firmwares as well?  It would be
+> best not
+> to break the driver for users with legacy firmwares without reason.
+> 
+> [Micki] There will be a DEB package for firmware upgrade.
 
->  		err = kone_get_profile_startup_dpi(usb_dev, kone->act_profile,
-> -				&kone->act_dpi);
-> +				&temp);
+You surely do not expect users to rush and upgrade their fimwares
+en-masse? The dirver should support devices with both older and newer
+firmwares (obviously devices with newer firmware will have wider set of
+features).
 
-Stopped looking - locking obviously is bogus and needs to be redone. You
-need to decide what exactly needs protection and what critical sections
-are.
+> 
+> > +#define PEN_REPORT_SIZE                0x48
+> > +#define MAX_FINGERS_SUPPORT    0x06
+> 
+> Are these guaranteed to be kept constant for the foreseeable future?
+> I've
+> already seen hints that N-Trig may move to 10+ fingers in the not to
+> distant future.
+> 
+> http://www.n-trig.com/Content.aspx?Page=PressReleases&PressReleaseId=541
+> 
+> I was starting to move to non-fixed finger limits before I pulled the
+> finger
+> tracking code.
+> 
+> > -       if (field->application == HID_DG_PEN)
+> > -               return 0;
+> 
+> > +               if (PEN_REPORT_SIZE == field->report->size) {
+> 
+> What was wrong with using field->application to detect the pen?  On a
+> side note,
+> after splitting the touch and pen events to separate input devices, I
+> found that
+> the pen events conform quite well to the hid spec and don't need special
+> handling.  Is there something I missed?
+> 
+> [Micki] Report Pen is constant , but I will look into it, as you
+> mentioned in your mail 
+> 
+> > +#define MODULE_NAME "hid_ntrig"
+> > +
+> > +
+> > +#define info(format, arg...) \
+> > +       printk(KERN_INFO "%s: " format , MODULE_NAME , ## arg)
+> > +#define ntrig_dbg(format, arg...) \
+> > +       do { \
+> > +               if (debug) \
+> > +                       printk(KERN_DEBUG "%s: " format, \
+> > +                       MODULE_NAME , ## arg); \
+> > +       } while (0)
+> 
+> >  static struct hid_driver ntrig_driver = {
+> >         .name = "ntrig",
+> 
+> Might want to use the #define for that too.
+> 
+> [Micki] : Not A Problem I will change it. 
+> 
+> 
+> > +                       case HID_DG_CONTACTCOUNT:
+> > +                               nt_rpt->real_fingers = value;
+> > +                               nt_rpt->fake_fingers =
+> > MAX_FINGERS_SUPPORT - value;
+> 
+> > +                                               if
+> (MAX_FINGERS_SUPPORT
+> > == nt_rpt->fake_fingers--) {
+> 
+> Would you care to explain "fake_fingers"?  I'm not really seeing why it
+> helps
+> when you already have real_fingers.  It looks like you use that to
+> detect some
+> ghost events, but really again, fingers should be fine at that point.
+> 
+> That does remind me that I pulled that special case when I cleaned up my
+> last
+> patch set and forgot to put it back.
+> 
+> Are the fake finger events intentional or just a bug?
+> [Micki] As I mentioned before we developed a user space application
+> which analyze the data 
+>         Transferred from driver and the driver need to report about fake
+> fingers.
+
+This is not a technical argument ;(
 
 -- 
 Dmitry

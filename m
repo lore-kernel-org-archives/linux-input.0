@@ -1,45 +1,114 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Zeroing the report before setting fields
-Date: Tue, 9 Mar 2010 13:41:24 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz>
-References: <20100304143349.2d861ec6@redhat.com> <20100305082901.GA20245@core.coreip.homeip.net>
+From: Melchior FRANZ <melchior.franz@gmail.com>
+Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product ... why not + dev->serial?
+Date: Tue, 9 Mar 2010 13:42:20 +0100
+Message-ID: <201003091342.20273@rk-nord.at>
+References: <201003071655.06644@rk-nord.at> <20100309082216.GG17288@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:38227 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750987Ab0CIMlZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 9 Mar 2010 07:41:25 -0500
-In-Reply-To: <20100305082901.GA20245@core.coreip.homeip.net>
+Received: from warsl404pip5.highway.telekom.at ([195.3.96.77]:48134 "EHLO
+	email.aon.at" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750987Ab0CIMmZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 9 Mar 2010 07:42:25 -0500
+In-Reply-To: <20100309082216.GG17288@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
 
-On Fri, 5 Mar 2010, Dmitry Torokhov wrote:
+Hey,
 
-> > the end of the byte. But in case of, say, my keyboard, NumLock is mask
-> > 0x01 and CapsLock is 0x02. Invoking hid_output_field for NumLock
-> > definitely zeroes across CapsLock. The only reason this works is that
-> > the fields are sorted by the offset.
-> > 
-> > I am not sure it's safe at all times, so why don't we pull the
-> > zeroing outside and do it once per report? Please see the attached.
-> > I tested it with various keyboards (including those that blow up
-> > on RHEL 5), and it works, but the question is, do we want it?
-> > 
+* Dmitry Torokhov -- Tuesday 09 March 2010:
+> I'm adding a few CCs and takinng discussion a bit away from your patch
+> ;)
+
+Hmm ... I wonder if they'll all be happy about that. But I can't cut them
+off now, either. Sorry.  :-}
+
+
+
+> On Sun, Mar 07, 2010 at 04:55:06PM +0100, Melchior FRANZ wrote:
+> > The Linux kernel creates the HID/"joystick name" from only iManufacturer and
+> > iProduct, ignoring iSerial. That way, JSIOCGNAME returns the same string
+> > for all such devices, making an actual identification impossible.
+
+> This is nicely illustrates one of the reasons why input subsystem is
+> ill-suited for generic data acquisition.
+
+No. It demonstrates that Linux shouldn't drop essential information on
+the floor for no good reason. So, why is iSerial ignored? After all,
+my simple patch solves my problems. Most input devices probably don't
+have iSerial set anyway, so there wouldn't be much change. But those
+devices that *do* set it may have a reason to do so.
+
+
+
+> You may have 2 joysticks and prefer to use one in one game and other
+> in another game.
+
+Sure. And that's still possible, just like before. The difference is,
+that *if* an application actually cares about the name, then it does
+now get an actual identifier, not just a generic product name. And not
+just "some" identifier, but the one that the manufacturer set, which
+includes the serial number. If an application does only want to look
+up the product, rather than the specific devices, then it can simply
+search for the longest match in its db.
+
+
+
+> With default setup you could grab either one and start playing, ABS_X
+> from either mapping on horizontal movements, ABS_Y on vertical... Same
+> with keyboards - you plug an external keyboard into laptop and you just
+> start typing
+
+Yes, and that works no matter if serial is in the name or not. Because
+that's how usb/hid works. But *iff* an application wants to query the
+device's identifier, then it better be specific, no? That's what identifiers
+are about.
+
+
+
+> > The patch below fixed the problem for me. But, certainly, the current
+> > (mis)behaviour wasn't an accident, but intentional. But what was the
+> > intention? What happens if I attach two actual identical joysticks?
+> > What's the purpose of them having the same name on the system under
+> > /dev/input/{js,event}? 
 > 
-> I think Jiri is the most qualified to answer questions like that about
-> HID (CCed) buit I think what you are proposing is reasonable and would
-> make the code safer indeed.
+> They will have different event nodes.
 
-Yes, the patch looks fine to me, thanks for CCing me. 
+Sure. Unfortunatly that doesn't buy me anything. Of cousre, I can just
+work around the strange omission and do the USB querying myself. But the
+question still is, why do I have to? Because the kernel dropped information
+that I now have to retrieve again the hard way?  :-)
 
-Pete, could you please send it to me along with your Signed-off-by line, 
-so that I could queue it up?
 
-Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+> Nevertheless serials are exported in sysfs ('uniq' attribute). Also udev
+> can give persistent names device nodes based on physocal connection,
+> serial numbers, etc.
+
+It's not much fun to use all sorts of additional Linux specific interfaces,
+because the responsible one doesn't do its job.
+
+Anyway, my kernel is "fixed", so it's not about me at all. I just feel a
+bit uncomfortably if I have to hack my kernel. Before the fix I got this
+information from js_demo/JSIOCGNAME:
+
+  Joystick 0: "Leo Bodnar BU0836A Interface"
+  Joystick 1: "Leo Bodnar BU0836A Interface"
+  Joystick 2: "SAITEK CYBORG 3D USB"
+
+and now I get:
+
+  Joystick 0: "Leo Bodnar BU0836A Interface A12107"
+  Joystick 1: "Leo Bodnar BU0836A Interface A12100"
+  Joystick 2: "SAITEK CYBORG 3D USB"
+
+As you see, nothing changed for the Saitek. They don't bother setting
+iSerial, as probably most vendors. (Reminder: These are circuit boards
+and can have very different sensors attached to their inputs, so it's
+essential to identify them safely).
+
+m.

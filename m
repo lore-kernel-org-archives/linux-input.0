@@ -1,54 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] INPUT: enable remote wakeup for PNP i8042 keyboard ports
-Date: Mon, 8 Mar 2010 23:46:04 -0800
-Message-ID: <20100309074604.GC17288@core.coreip.homeip.net>
-References: <Pine.LNX.4.44L0.1003081651220.1297-100000@iolanthe.rowland.org>
+Subject: Re: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
+Date: Mon, 8 Mar 2010 23:50:11 -0800
+Message-ID: <20100309075010.GE17288@core.coreip.homeip.net>
+References: <8763562u0n.fsf@troilus.org>
+ <871vfu2tvh.fsf@troilus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f189.google.com ([209.85.211.189]:43876 "EHLO
+Received: from mail-yw0-f189.google.com ([209.85.211.189]:54224 "EHLO
 	mail-yw0-f189.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753167Ab0CIHqK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 02:46:10 -0500
-Received: by ywh27 with SMTP id 27so3070489ywh.22
-        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 23:46:09 -0800 (PST)
+	with ESMTP id S1751808Ab0CIHuP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 02:50:15 -0500
+Received: by ywh27 with SMTP id 27so3071583ywh.22
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 23:50:15 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1003081651220.1297-100000@iolanthe.rowland.org>
+In-Reply-To: <871vfu2tvh.fsf@troilus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-input@vger.kernel.org
+To: Michael Poole <mdpoole@troilus.org>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <tissoire@tls.cena.fr>, Stephane Chatty <chatty@enac.fr>
 
-On Mon, Mar 08, 2010 at 04:52:42PM -0500, Alan Stern wrote:
-> This patch (as1355) enables remote wakeup by default on PNP i8042
-> keyboard ports.
+On Mon, Mar 08, 2010 at 07:58:42PM -0500, Michael Poole wrote:
+> From 92872d16dfc6f2c037124644f30f807d30b6557c Mon Sep 17 00:00:00 2001
+> From: Michael Poole <mdpoole@troilus.org>
+> Date: Mon, 8 Mar 2010 19:10:13 -0500
+> Subject: [PATCH 1/1] hid-magicmouse: Emulate horizontal scrolling.
 > 
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> Also publish a parameter to control the emulated scroll
+> acceleration rates.
 > 
 
-Will apply, thank you Alan.
+FWIW I am still inconvinced that complex gesture emulation should be
+done in kernel drievr.
 
-> ---
-> 
-> Index: usb-2.6/drivers/input/serio/i8042-x86ia64io.h
-> ===================================================================
-> --- usb-2.6.orig/drivers/input/serio/i8042-x86ia64io.h
-> +++ usb-2.6/drivers/input/serio/i8042-x86ia64io.h
-> @@ -624,6 +624,9 @@ static int i8042_pnp_kbd_probe(struct pn
->  		strlcat(i8042_pnp_kbd_name, pnp_dev_name(dev), sizeof(i8042_pnp_kbd_name));
->  	}
->  
-> +	/* Keyboard ports are always supposed to be wakeup-enabled */
-> +	device_set_wakeup_enable(&dev->dev, true);
-> +
->  	i8042_pnp_kbd_devices++;
->  	return 0;
->  }
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks.
 
 -- 
 Dmitry

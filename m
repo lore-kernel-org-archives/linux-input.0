@@ -1,60 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Uclinux-dist-devel] [PATCH v2] input/misc: PCF8574 I2C keypad
- input device driver
-Date: Tue, 9 Mar 2010 14:30:39 -0800
-Message-ID: <20100309223038.GB29517@core.coreip.homeip.net>
-References: <20100309180906.GA19814@core.coreip.homeip.net>
- <1268168513-7431-1-git-send-email-vapier@gentoo.org>
- <20100309212127.GA29333@core.coreip.homeip.net>
- <8bd0f97a1003091327y5f5596eelb60b3c52694517b1@mail.gmail.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
+Date: Tue, 09 Mar 2010 17:32:00 -0500
+Message-ID: <4B96CC60.8030608@seas.upenn.edu>
+References: <4B75E14A.2050602@seas.upenn.edu> <1266027185-5311-1-git-send-email-rafi@seas.upenn.edu> <4B760D60.6020907@seas.upenn.edu> <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz> <4B96B740.7020208@euromail.se> <4B96BAF1.5070209@seas.upenn.edu> <alpine.LNX.2.00.1003092218530.17799@pobox.suse.cz> <5423752A-3AE0-4848-9149-B0C01B0BCA39@enac.fr> <20100309222731.GA29517@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:61344 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752639Ab0CIWat (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 17:30:49 -0500
-Received: by fxm5 with SMTP id 5so1961817fxm.29
-        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 14:30:47 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <8bd0f97a1003091327y5f5596eelb60b3c52694517b1@mail.gmail.com>
+Received: from LION.seas.upenn.edu ([158.130.12.194]:46735 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755363Ab0CIWcL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 17:32:11 -0500
+In-Reply-To: <20100309222731.GA29517@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: uclinux-dist-devel@blackfin.uclinux.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
 
-On Tue, Mar 09, 2010 at 04:27:48PM -0500, Mike Frysinger wrote:
-> On Tue, Mar 9, 2010 at 16:21, Dmitry Torokhov wrote:
-> > On Tue, Mar 09, 2010 at 04:01:53PM -0500, Mike Frysinger wrote:
-> >> From: Bryan Wu <cooloney@kernel.org>
-> >>
-> >> Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> >> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> >> ---
-> >> v2
-> >> =A0 =A0 =A0 - process all feedback from Dmitry except for threaded=
- irqs; that'll have to be done later
-> >
-> > Could I ask why? As it stands the remove() is racy WRT to a work
-> > running. But if you simply add cancel_work_sync() you'll risk leavi=
-ng
-> > unbalanced enable_irq()/disable_irq().
->=20
-> ive never worked with threaded irq handlers before.  i'll have to rea=
-d
-> about them before i can do the work.  i'm not suggesting you take the
-> driver now as is ... having it on a list in case someone else wants a
-> mostly-ok driver.
+>> With this regard, I am a big fan of the idea of having hierarchical
+>> devices, just like with have hierarchical file systems. Each finger
+>> on the dual-touch panel would be a device, child of the panel
+>> device. Each would be equivalent to a mouse, and voila, the symmetry
+>> is restored. Conceptually, saying (panel/finger1, any event) or
+>> (panel, finger1 events) are equivalent; but in the first case the
+>> routing is done by the OS and in the second case it has to be done
+>> by the app, which breaks reusability. There are other interesting
+>> perspectives, but I don't want to get carried away too much.
+>
+> Theoretically it is nice but it practice the cases are differemt: with
+> mice you are dealing with 2 separate devices whereas with touchscreen
+> there is one and it is mater of interpretation whether 2 touches should
+> be taken as independent events or a complex gestures.
 
-It is very simple, take a look at drivers/input/touchscreen/mcs5000_ts.=
-c
-Just make sure you request threaded irq with IRQF_ONESHOT.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I see your point, reporting the position on separate axes (ABS_X and 
+ABS_MT_X) isn't as problematic as seeing TOUCH turn on twice.

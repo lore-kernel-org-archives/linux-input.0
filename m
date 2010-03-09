@@ -1,91 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product
-   ... why not + dev->serial?
-Date: Tue, 9 Mar 2010 00:22:16 -0800
-Message-ID: <20100309082216.GG17288@core.coreip.homeip.net>
-References: <201003071655.06644@rk-nord.at>
+Subject: Re: [RFC] Wakeup for PNP
+Date: Mon, 8 Mar 2010 23:45:30 -0800
+Message-ID: <20100309074530.GB17288@core.coreip.homeip.net>
+References: <20100302213105.GB13499@core.coreip.homeip.net>
+ <Pine.LNX.4.44L0.1003031019040.2821-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:61211 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752090Ab0CIHpi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 02:45:38 -0500
+Received: by gwb15 with SMTP id 15so3406673gwb.19
+        for <linux-input@vger.kernel.org>; Mon, 08 Mar 2010 23:45:37 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <201003071655.06644@rk-nord.at>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Melchior FRANZ <melchior.franz@gmail.com>
-Cc: linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Dima Zavin <dmitriyz@google.com>, Jonathan Cameron <jic23@cam.ac.uk>, LKML <linux-kernel@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, Amit Kucheria <amit.kucheria@verdurent.com>, Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, linux-iio@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.1003031019040.2821-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Li Shaohua <shaohua.li@intel.com>, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, linux-input@vger.kernel.org
 
-Hi Melchior,
+Hi Alan,
 
-I'm adding a few CCs and takinng discussion a bit away from your patch
-;)
-
-On Sun, Mar 07, 2010 at 04:55:06PM +0100, Melchior FRANZ wrote:
-> Hi,
+On Wed, Mar 03, 2010 at 10:29:09AM -0500, Alan Stern wrote:
+> On Tue, 2 Mar 2010, Dmitry Torokhov wrote:
 > 
-> just recently I purchased two data acquisition HID devices that pretend to be
-> joysticks[1], because that way no special kernel drivers are required, and
-> because they are usually used for joystick-like purposes. The devices identify
-> themselves as
+> > > @@ -656,7 +658,7 @@ static struct pnp_device_id pnp_kbd_devi
+> > >  };
+> > >  
+> > >  static struct pnp_driver i8042_pnp_kbd_driver = {
+> > > -	.name           = "i8042 kbd",
+> > > +	.name           = "i8042-kbd",
+> > 
+> > Why is this needed? I don't think spaces are more dangerous than a colon
+> > which we do use...
 > 
->   idVendor           0x16c0
->   idProduct          0x05ba 
->   iManufacturer      1 Leo Bodnar
->   iProduct           2 BU0836A Interface
->   iSerial            3 A10123
-> 
-> The Linux kernel creates the HID/"joystick name" from only iManufacturer and
-> iProduct, ignoring iSerial. That way, JSIOCGNAME returns the same string
-> for all such devices, making an actual identification impossible.
-> joystick-api.txt says about JSIOCGNAME:
-> 
->   #define JSIOCGNAME(len) /* get identifier string        char    */
->   ...
->   JSIOCGNAME(len) allows you to get the name string of the joystick
-> 
-> But this isn't actually true. "Leo Bodnar BU0836A Interface" is only
-> the name of the product, but not of the actual (joystick or whatever)
-> device. If you have more of these devices on the bus, then software has
-> no way to know which is which -- which is the one with the temperature
-> sensor on axis 0 etc. (Apart from doing all the USB querying itself,
-> of course.)
+> This string becomes the name of a directory in sysfs.  Having a ' '
+> character in a directory name just doesn't seem like a good idea; at
+> the very least it's likely to confuse shell scripts.  (A ':' character
+> is a lot less subject to misinterpretation.)  I could change the '-' to 
+> ':' if you prefer.
 > 
 
-This is nicely illustrates one of the reasons why input subsystem is
-ill-suited for generic data acquisition. I call it "device anonymity" -
-input subsystem only interested in the type of event (ABS_X, ABS_Y) but
-not necessarily the device it came from. You may have 2 joysticks and
-prefer to use one in one game and other in another game. With default
-setup you could grab either one and start playing, ABS_X from either
-mapping on horizontal movements, ABS_Y on vertical... Same with
-keyboards - you plug an external keyboard into laptop and you just start
-typing (sans multi-seat setups that we don't support well at the
-moment). In other words for input we care very much about capabilities
-of a device but care much less about the device itself.
+We have not heard complains about this causing trouble ever since PNP
+support was added (so what 5 years at least?). At this point I'd be more
+worried about breaking existing users...
 
-Which data acquisition you care not only about hypothetical
-ABS_TEMPERATIRE event but it is also _very_ important the exact device
-or probe the data is coming from. Temperature from device A can't be
-used in place of temperature form device B.
-
-> The patch below fixed the problem for me. But, certainly, the current
-> (mis)behaviour wasn't an accident, but intentional. But what was the
-> intention? What happens if I attach two actual identical joysticks?
-> What's the purpose of them having the same name on the system under
-> /dev/input/{js,event}? 
-
-They will have different event nodes.
-
-> Not even two (human) identical twins have the
-> same first name, and for a reason!
-> 
-
-But you as an observer have no idea what their names are, and they look the
-same to you. And in case of joysticks ther serials are not easily
-visible on them when you quickly grab one.
-
-Nevertheless serials are exported in sysfs ('uniq' attribute). Also udev
-can give persistent names device nodes based on physocal connection,
-serial numbers, etc.
+Thanks.
 
 -- 
 Dmitry

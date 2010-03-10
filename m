@@ -1,80 +1,38 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: ntrig touch events
-Date: Wed, 10 Mar 2010 16:04:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003101603400.18642@pobox.suse.cz>
-References: <4B9722A5.1030607@seas.upenn.edu> <1268210326-8066-1-git-send-email-rafi@seas.upenn.edu>
+Subject: Re: [PATCH 3/3] HID: deletion of unused code in hid-magicmouse.
+Date: Wed, 10 Mar 2010 16:09:39 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003101607560.18642@pobox.suse.cz>
+References: <1268065277-30129-1-git-send-email-tissoire@cena.fr> <1268065277-30129-2-git-send-email-tissoire@cena.fr> <1268065277-30129-3-git-send-email-tissoire@cena.fr> <1268065277-30129-4-git-send-email-tissoire@cena.fr> <1268065277-30129-5-git-send-email-tissoire@cena.fr>
+ <4B95255B.5010900@cena.fr> <alpine.LNX.2.00.1003081730170.17799@pobox.suse.cz> <4B952C77.3080505@cena.fr>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:51501 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:51663 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756676Ab0CJPEJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Mar 2010 10:04:09 -0500
-In-Reply-To: <1268210326-8066-1-git-send-email-rafi@seas.upenn.edu>
+	id S932077Ab0CJPJl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Mar 2010 10:09:41 -0500
+In-Reply-To: <4B952C77.3080505@cena.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, chatty@enac.fr, rafi <rafi@hex.seas.upenn.edu>
+To: Benjamin Tissoires <tissoire@cena.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, Stephane Chatty <chatty@enac.fr>
 
-On Wed, 10 Mar 2010, rafi@seas.upenn.edu wrote:
+On Mon, 8 Mar 2010, Benjamin Tissoires wrote:
 
-> This reinstates the lost unpressing of BTN_TOUCH.  To prevent undesireably
-> touch toggles this also deals with tip switch events.
+> > Well ... I don't see any patch titled "HID: deletion of unused code in
+> > hid-magicmouse" neither in my inbox nor in my linux-input@ folder. Could
+> > you perhaps please resend?
+> > 
+> > Thanks,
 > 
-> Added a trap to prevent going out of bounds for hidinputs with empty reports.
-> 
-> Clear bits of unused buttons which result in misidentification.
-> 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> ---
->  drivers/hid/hid-ntrig.c |   11 +++++++++++
->  1 files changed, 11 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 3234c72..edcc0c4 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -140,6 +140,9 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  			nd->reading_mt = 1;
->  			nd->first_contact_confidence = 0;
->  			break;
-> +		case HID_DG_TIPSWITCH:
-> +			/* Prevent emission of touch until validated */
-> +			return 1;
->  		case HID_DG_CONFIDENCE:
->  			nd->confidence = value;
->  			break;
-> @@ -259,6 +262,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  						BTN_TOOL_TRIPLETAP, 0);
->  				input_report_key(input,
->  						BTN_TOOL_QUADTAP, 0);
-> +				input_report_key(input, BTN_TOUCH, 0);
->  			}
->  			break;
->  
-> @@ -308,13 +312,20 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  
->  
->  	list_for_each_entry(hidinput, &hdev->inputs, list) {
-> +		if (hidinput->report->maxfield < 1)
-> +			continue;
-> +
->  		input = hidinput->input;
->  		switch (hidinput->report->field[0]->application) {
->  		case HID_DG_PEN:
->  			input->name = "N-Trig Pen";
->  			break;
->  		case HID_DG_TOUCHSCREEN:
-> +			/* These keys are redundant for fingers, clear them
-> +			 * to prevent incorrect identification */
->  			__clear_bit(BTN_TOOL_PEN, input->keybit);
-> +			__clear_bit(BTN_TOOL_FINGER, input->keybit);
-> +			__clear_bit(BTN_0, input->keybit);
->  			/*
->  			 * A little something special to enable
->  			 * two and three finger taps.
+> Of course, I attached it. Do I need to send it in mbox format or is it ok ?
 
-Thanks for the fix. I have altered changelog a little bit, and applied.
+Well, magicmouse_setup_input() is actually used from inside the probe 
+routine, so we'd rather not remove it.
+
+I have already merged Michael's patch with calls hid_hw_start() with 
+HID_CONNECT_HIDINPUT flag cleared out, so the registration of the input 
+device is now performed properly.
 
 -- 
 Jiri Kosina

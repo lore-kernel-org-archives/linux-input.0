@@ -1,75 +1,60 @@
-From: =?ISO-8859-1?Q?I=F1igo_Mart=EDnez?= <martinez.i@ikusi.com>
-Subject: Re: Nexio touchscreen under X
-Date: Wed, 10 Mar 2010 12:30:46 +0100
-Message-ID: <1268220646.5240.7.camel@nbiku1124.ikusi.net>
-References: <1268218600.2437.8.camel@nbiku1124.ikusi.net>
-	 <3ec861a71003100321q31e556dfy21e13506522233ab@mail.gmail.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [git pull] Input updates for 2.6.34-rc0
+Date: Wed, 10 Mar 2010 08:30:37 +0000
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712D6B1D98DB@LIMKCMBX1.ad.analog.com>
+References: <20100301080342.GH765@core.coreip.homeip.net>
+ <8bd0f97a1003091013q565f8b1bse66b48d9c9a25600@mail.gmail.com>
+ <20100309182013.GC19814@core.coreip.homeip.net>
+ <201003091439.49023.rgetz@blackfin.uclinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from correo.ikusi.com ([194.30.89.100]:24089 "EHLO correo.ikusi.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754916Ab0CJLat convert rfc822-to-8bit (ORCPT
+Received: from nwd2mail10.analog.com ([137.71.25.55]:10146 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751639Ab0CJIam convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Mar 2010 06:30:49 -0500
-In-Reply-To: <3ec861a71003100321q31e556dfy21e13506522233ab@mail.gmail.com>
+	Wed, 10 Mar 2010 03:30:42 -0500
+In-Reply-To: <201003091439.49023.rgetz@blackfin.uclinux.org>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Robin Getz <rgetz@blackfin.uclinux.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Thank you for your answer Kristoffer.
+Robin Getz wrote on 2010-03-09:
+> On Tue 9 Mar 2010 13:20, Dmitry Torokhov pondered:
+>> On Tue, Mar 09, 2010 at 01:13:34PM -0500, Mike Frysinger wrote:
+>>> On Tue, Mar 9, 2010 at 13:10, Dmitry Torokhov wrote:
+>>>> On Tue, Mar 09, 2010 at 12:58:24PM -0500, Mike Frysinger wrote:
+>>>>> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
+>>>>>> On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger
+> wrote:
+> [snip]
+>>>>> i understand the ADXL34x is a bit wonky, but what else would you
+>>>>> propose ?  or just leave the driver in limbo forever until people
+>>>>> forget about it ?
+>>>>
+>>>> No, just till we have proper framework for it to be merged into.
+>>>
+>>> that sounds fine, but is there actually something in progress for
+>>> that ?  waiting for a framework no one is working on is the same
+>>> in practice ...
+>>
+>> I have high hopes that IIO will fill the needs of these kinds of
+> devices.
+>
+> The fact of things is that many people are using this as pointing device.
+>
+> I'm not convinced that IIO is the best place for these types of
+> things...
 
-Umm, not totally, any sense. I mean, first, I think it has something
-todo with calibrating the device, as the pointer in the Y axis is only
-working between the edge and the middle of the screen, but I have
-noticed too, that only one axis is working.
+Very true - this driver was originally targeted and designed as a typical human interface input device.
 
-By default the Y axis, and if wrote an option for the input driver, the
-X axis. I have been doing some tests, and I can't get both axis to get
-working.
+Greetings,
+Michael
 
-Can this throw any bright of light ?
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
 
-On Wed, 2010-03-10 at 12:21 +0100, Kristoffer Ericson wrote:
-> how do you mean that the touches dont have any sense? Are the values
-> completely wrong or?
->=20
-> 2010/3/10 I=F1igo Mart=EDnez <martinez.i@ikusi.com>
->         Hello:
->        =20
->         Lately, I have been trying to get a Nexio USB touchscreen
->         working. It
->         has been recently supported on the kernel, so I get in touch
->         with Andrew
->         Morton, and he pointed me to this list and the author Richard
->         Lemon.
->        =20
->         At the moment, I can see the output after touching it, and it
->         does
->         respond, but the touches don't have any sense at all.
->        =20
->         I want to know if anyone has tried this device under the X
->         server with
->         any success.
->        =20
->         Please, tell me if I'm out of the scope of this list, as I'm
->         not sure.
->        =20
->         Thank you,
->        =20
->        =20
->         --
->         To unsubscribe from this list: send the line "unsubscribe
->         linux-input" in
->         the body of a message to majordomo@vger.kernel.org
->         More majordomo info at
->          http://vger.kernel.org/majordomo-info.html
->=20
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

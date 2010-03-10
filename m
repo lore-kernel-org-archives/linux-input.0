@@ -1,38 +1,75 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH 2/3] input: use input_mutex instead of BKL when opening input device
-Date: Wed, 10 Mar 2010 07:49:20 +0100
-Message-ID: <201003100749.20723.oliver@neukum.org>
-References: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com> <20100309205947.GB1498@holoscopio.com> <20100310062015.GA2445@core.coreip.homeip.net>
+From: =?ISO-8859-1?Q?I=F1igo_Mart=EDnez?= <martinez.i@ikusi.com>
+Subject: Re: Nexio touchscreen under X
+Date: Wed, 10 Mar 2010 12:30:46 +0100
+Message-ID: <1268220646.5240.7.camel@nbiku1124.ikusi.net>
+References: <1268218600.2437.8.camel@nbiku1124.ikusi.net>
+	 <3ec861a71003100321q31e556dfy21e13506522233ab@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100310062015.GA2445@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John Kacur <jkacur@gmail.com>, jkosina@suse.cz
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from correo.ikusi.com ([194.30.89.100]:24089 "EHLO correo.ikusi.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754916Ab0CJLat convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Mar 2010 06:30:49 -0500
+In-Reply-To: <3ec861a71003100321q31e556dfy21e13506522233ab@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Am Mittwoch, 10. M=E4rz 2010 07:20:15 schrieb Dmitry Torokhov:
-> > I was willing to let the open call go unprotected. But ended up che=
-cking
-> > that the three callees were fine (they do not call any of the other
-> > functions that take the mutex).
-> >=20
-> > Since the fops_put/fops_get do protect that section from the handle=
-r
-> > removal and I can't think of any other race right now, I think your
-> > version is really better.
-> >=20
-> > Acked-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> >=20
+Thank you for your answer Kristoffer.
+
+Umm, not totally, any sense. I mean, first, I think it has something
+todo with calibrating the device, as the pointer in the Y axis is only
+working between the edge and the middle of the screen, but I have
+noticed too, that only one axis is working.
+
+By default the Y axis, and if wrote an option for the input driver, the
+X axis. I have been doing some tests, and I can't get both axis to get
+working.
+
+Can this throw any bright of light ?
+
+On Wed, 2010-03-10 at 12:21 +0100, Kristoffer Ericson wrote:
+> how do you mean that the touches dont have any sense? Are the values
+> completely wrong or?
 >=20
-> OK, applied 2 Thadeu's patches and one Arnd's.
+> 2010/3/10 I=F1igo Mart=EDnez <martinez.i@ikusi.com>
+>         Hello:
+>        =20
+>         Lately, I have been trying to get a Nexio USB touchscreen
+>         working. It
+>         has been recently supported on the kernel, so I get in touch
+>         with Andrew
+>         Morton, and he pointed me to this list and the author Richard
+>         Lemon.
+>        =20
+>         At the moment, I can see the output after touching it, and it
+>         does
+>         respond, but the touches don't have any sense at all.
+>        =20
+>         I want to know if anyone has tried this device under the X
+>         server with
+>         any success.
+>        =20
+>         Please, tell me if I'm out of the scope of this list, as I'm
+>         not sure.
+>        =20
+>         Thank you,
+>        =20
+>        =20
+>         --
+>         To unsubscribe from this list: send the line "unsubscribe
+>         linux-input" in
+>         the body of a message to majordomo@vger.kernel.org
+>         More majordomo info at
+>          http://vger.kernel.org/majordomo-info.html
+>=20
 
-Jiri,
-
-it is possible that this requires a change in usbhid as it uses BKL.
-Do you remember?
-
-	Regards
-		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

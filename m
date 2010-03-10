@@ -1,77 +1,81 @@
-From: rafi@seas.upenn.edu
-Subject: [PATCH] hid: ntrig touch events
-Date: Wed, 10 Mar 2010 03:38:46 -0500
-Message-ID: <1268210326-8066-1-git-send-email-rafi@seas.upenn.edu>
-References: <4B9722A5.1030607@seas.upenn.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
+Date: Tue, 9 Mar 2010 19:47:42 -0800
+Message-ID: <20100310034742.GA20434@core.coreip.homeip.net>
+References: <4B760D60.6020907@seas.upenn.edu>
+ <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz>
+ <4B96B740.7020208@euromail.se>
+ <4B96BAF1.5070209@seas.upenn.edu>
+ <4B96C4A8.3060005@euromail.se>
+ <4B96CB41.9040804@seas.upenn.edu>
+ <4B96D85A.4060604@euromail.se>
+ <4B96DBEE.4060605@seas.upenn.edu>
+ <20100309234223.GB29942@core.coreip.homeip.net>
+ <4B96E8B9.1040605@seas.upenn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:39012 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755412Ab0CJIjR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Mar 2010 03:39:17 -0500
-In-Reply-To: <4B9722A5.1030607@seas.upenn.edu>
+Received: from mail-bw0-f209.google.com ([209.85.218.209]:38253 "EHLO
+	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756028Ab0CJDrw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 22:47:52 -0500
+Received: by bwz1 with SMTP id 1so4590977bwz.21
+        for <linux-input@vger.kernel.org>; Tue, 09 Mar 2010 19:47:50 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <4B96E8B9.1040605@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, chatty@enac.fr
-Cc: rafi <rafi@hex.seas.upenn.edu>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, chatty@enac.fr
 
-From: rafi <rafi@hex.seas.upenn.edu>
+On Tue, Mar 09, 2010 at 07:32:57PM -0500, Rafi Rubin wrote:
+> On 03/09/2010 06:42 PM, Dmitry Torokhov wrote:
+> >On Tue, Mar 09, 2010 at 06:38:22PM -0500, Rafi Rubin wrote:
+> >>On 03/09/2010 06:23 PM, Henrik Rydberg wrote:
+> >>>Rafi Rubin wrote:
+> >>>>>Single touch should be goverened by one of BTN_TOUCH or ABS_PRESSURE.
+> >>>>>BTN_TOOL_DOUBLETAP is a two-finger event.
+> >>>>
+> >>>>That definitely makes sense to me.  I really don't know why wacom uses
+> >>>>double tap there.
+> >>>>
+> >>>>Is there any harm in letting through the BTN_0 events?  Is the "rdesc"
+> >>>>mapping defined by the hardware or hid?
+> >>>
+> >>>I cannot imagine BTN_0 will do any harm. In synaptics, the BTN_X buttons are
+> >>>mapped to multibuttons without clear-cut usage. The button events that carry
+> >>>well-defined semantic meaning with regard to touch screens are BTN_TOUCH (any
+> >>>finger), BTN_TOOL_FINGER (one finger), BTN_TOOL_PEN (pen), BTN_TOOL_DOUBLETAP
+> >>>(two fingers) and BTN_TOOL_TRIPLETAP (three fingers or more).
+> >>>
+> >>>Henrik
+> >>>
+> >>
+> >>Perhaps we should have a general touch device document.
+> >>
+> >>I looked at the evdev code.  And as you say for single touch
+> >>devices, BTN_TOUCH is the bit that matters.  It only broken because
+> >>I pulled the TOUCH<- 0 when I removed BTN_0.
+> >>
+> >>So why does evdev associate BTN_TOOL_FINGER with touchpads
+> >>(resulting in the wrong set of assumptions and a poorly calibrated
+> >>touch screen)?  I suppose that's really a discussion for another
+> >>list.
+> >>
+> >
+> >Historic reasons. When Synaptics driver was in works we needed an event
+> >that is different from BTN_TOUCH to differentiate from touchscreens.
+> 
+> So should I clear the BTN_TOOL_FINGER bit for ntrig, or push to
+> clean up evdev?
+> 
+> At the moment nothing is actually expecting or emitting the finger
+> events.  Given the move to actual mt support does it make sense to
+> use finger, double and triple for single touch events?  I'd vote for
+> letting the user space mt tools handle more advanced button clicks.
+> 
 
-This reinstates the lost unpressing of BTN_TOUCH.  To prevent undesireably
-touch toggles this also deals with tip switch events.
+I'd opt for this as well; let's leave BTN_TOOL_FINGER to touchpads.
 
-Added a trap to prevent going out of bounds for hidinputs with empty reports.
-
-Clear bits of unused buttons which result in misidentification.
-
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
- drivers/hid/hid-ntrig.c |   11 +++++++++++
- 1 files changed, 11 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 3234c72..edcc0c4 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -140,6 +140,9 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			nd->reading_mt = 1;
- 			nd->first_contact_confidence = 0;
- 			break;
-+		case HID_DG_TIPSWITCH:
-+			/* Prevent emission of touch until validated */
-+			return 1;
- 		case HID_DG_CONFIDENCE:
- 			nd->confidence = value;
- 			break;
-@@ -259,6 +262,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 						BTN_TOOL_TRIPLETAP, 0);
- 				input_report_key(input,
- 						BTN_TOOL_QUADTAP, 0);
-+				input_report_key(input, BTN_TOUCH, 0);
- 			}
- 			break;
- 
-@@ -308,13 +312,20 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 
- 	list_for_each_entry(hidinput, &hdev->inputs, list) {
-+		if (hidinput->report->maxfield < 1)
-+			continue;
-+
- 		input = hidinput->input;
- 		switch (hidinput->report->field[0]->application) {
- 		case HID_DG_PEN:
- 			input->name = "N-Trig Pen";
- 			break;
- 		case HID_DG_TOUCHSCREEN:
-+			/* These keys are redundant for fingers, clear them
-+			 * to prevent incorrect identification */
- 			__clear_bit(BTN_TOOL_PEN, input->keybit);
-+			__clear_bit(BTN_TOOL_FINGER, input->keybit);
-+			__clear_bit(BTN_0, input->keybit);
- 			/*
- 			 * A little something special to enable
- 			 * two and three finger taps.
 -- 
-1.7.0
-
+Dmitry

@@ -1,60 +1,77 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [git pull] Input updates for 2.6.34-rc0
-Date: Wed, 10 Mar 2010 08:30:37 +0000
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712D6B1D98DB@LIMKCMBX1.ad.analog.com>
-References: <20100301080342.GH765@core.coreip.homeip.net>
- <8bd0f97a1003091013q565f8b1bse66b48d9c9a25600@mail.gmail.com>
- <20100309182013.GC19814@core.coreip.homeip.net>
- <201003091439.49023.rgetz@blackfin.uclinux.org>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
+Date: Tue, 09 Mar 2010 23:40:05 -0500
+Message-ID: <4B9722A5.1030607@seas.upenn.edu>
+References: <4B760D60.6020907@seas.upenn.edu> <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz> <4B96B740.7020208@euromail.se> <4B96BAF1.5070209@seas.upenn.edu> <4B96C4A8.3060005@euromail.se> <4B96CB41.9040804@seas.upenn.edu> <4B96D85A.4060604@euromail.se> <4B96DBEE.4060605@seas.upenn.edu> <20100309234223.GB29942@core.coreip.homeip.net> <4B96E8B9.1040605@seas.upenn.edu> <20100310034742.GA20434@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:10146 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751639Ab0CJIam convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Mar 2010 03:30:42 -0500
-In-Reply-To: <201003091439.49023.rgetz@blackfin.uclinux.org>
-Content-Language: en-US
+Received: from LION.seas.upenn.edu ([158.130.12.194]:35056 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756282Ab0CJEkW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 23:40:22 -0500
+In-Reply-To: <20100310034742.GA20434@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robin Getz <rgetz@blackfin.uclinux.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, chatty@enac.fr
 
-Robin Getz wrote on 2010-03-09:
-> On Tue 9 Mar 2010 13:20, Dmitry Torokhov pondered:
->> On Tue, Mar 09, 2010 at 01:13:34PM -0500, Mike Frysinger wrote:
->>> On Tue, Mar 9, 2010 at 13:10, Dmitry Torokhov wrote:
->>>> On Tue, Mar 09, 2010 at 12:58:24PM -0500, Mike Frysinger wrote:
->>>>> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
->>>>>> On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger
-> wrote:
-> [snip]
->>>>> i understand the ADXL34x is a bit wonky, but what else would you
->>>>> propose ?  or just leave the driver in limbo forever until people
->>>>> forget about it ?
+On 03/09/2010 10:47 PM, Dmitry Torokhov wrote:
+> On Tue, Mar 09, 2010 at 07:32:57PM -0500, Rafi Rubin wrote:
+>> On 03/09/2010 06:42 PM, Dmitry Torokhov wrote:
+>>> On Tue, Mar 09, 2010 at 06:38:22PM -0500, Rafi Rubin wrote:
+>>>> On 03/09/2010 06:23 PM, Henrik Rydberg wrote:
+>>>>> Rafi Rubin wrote:
+>>>>>>> Single touch should be goverened by one of BTN_TOUCH or ABS_PRESSURE.
+>>>>>>> BTN_TOOL_DOUBLETAP is a two-finger event.
+>>>>>>
+>>>>>> That definitely makes sense to me.  I really don't know why wacom uses
+>>>>>> double tap there.
+>>>>>>
+>>>>>> Is there any harm in letting through the BTN_0 events?  Is the "rdesc"
+>>>>>> mapping defined by the hardware or hid?
+>>>>>
+>>>>> I cannot imagine BTN_0 will do any harm. In synaptics, the BTN_X buttons are
+>>>>> mapped to multibuttons without clear-cut usage. The button events that carry
+>>>>> well-defined semantic meaning with regard to touch screens are BTN_TOUCH (any
+>>>>> finger), BTN_TOOL_FINGER (one finger), BTN_TOOL_PEN (pen), BTN_TOOL_DOUBLETAP
+>>>>> (two fingers) and BTN_TOOL_TRIPLETAP (three fingers or more).
+>>>>>
+>>>>> Henrik
+>>>>>
 >>>>
->>>> No, just till we have proper framework for it to be merged into.
+>>>> Perhaps we should have a general touch device document.
+>>>>
+>>>> I looked at the evdev code.  And as you say for single touch
+>>>> devices, BTN_TOUCH is the bit that matters.  It only broken because
+>>>> I pulled the TOUCH<- 0 when I removed BTN_0.
+>>>>
+>>>> So why does evdev associate BTN_TOOL_FINGER with touchpads
+>>>> (resulting in the wrong set of assumptions and a poorly calibrated
+>>>> touch screen)?  I suppose that's really a discussion for another
+>>>> list.
+>>>>
 >>>
->>> that sounds fine, but is there actually something in progress for
->>> that ?  waiting for a framework no one is working on is the same
->>> in practice ...
+>>> Historic reasons. When Synaptics driver was in works we needed an event
+>>> that is different from BTN_TOUCH to differentiate from touchscreens.
 >>
->> I have high hopes that IIO will fill the needs of these kinds of
-> devices.
+>> So should I clear the BTN_TOOL_FINGER bit for ntrig, or push to
+>> clean up evdev?
+>>
+>> At the moment nothing is actually expecting or emitting the finger
+>> events.  Given the move to actual mt support does it make sense to
+>> use finger, double and triple for single touch events?  I'd vote for
+>> letting the user space mt tools handle more advanced button clicks.
+>>
 >
-> The fact of things is that many people are using this as pointing device.
->
-> I'm not convinced that IIO is the best place for these types of
-> things...
+> I'd opt for this as well; let's leave BTN_TOOL_FINGER to touchpads.
 
-Very true - this driver was originally targeted and designed as a typical human interface input device.
+Ok. I'll clear FINGER.  For now, I'll leave the incorrect DOUBLETAP as 
+is to avoid breaking compatibility with the wacom driver.  Ugly or not, 
+most people I've heard from who use this device use that driver.
 
-Greetings,
-Michael
+What's the proper style for labeling code as deprecated and to be 
+removed after viable alternatives are well established?
 
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
-
-
+Rafi

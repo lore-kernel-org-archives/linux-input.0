@@ -1,77 +1,65 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] input: use input_mutex instead of BKL when opening
- input device
-Date: Tue, 9 Mar 2010 22:20:15 -0800
-Message-ID: <20100310062015.GA2445@core.coreip.homeip.net>
-References: <1268162386-2745-1-git-send-email-cascardo@holoscopio.com>
- <1268162386-2745-2-git-send-email-cascardo@holoscopio.com>
- <201003092112.14071.arnd@arndb.de>
- <20100309205947.GB1498@holoscopio.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] hid-ntrig.c Multitouch cleanup and fix
+Date: Tue, 09 Mar 2010 19:32:57 -0500
+Message-ID: <4B96E8B9.1040605@seas.upenn.edu>
+References: <4B75E14A.2050602@seas.upenn.edu> <1266027185-5311-1-git-send-email-rafi@seas.upenn.edu> <4B760D60.6020907@seas.upenn.edu> <alpine.LNX.2.00.1002161349470.30967@pobox.suse.cz> <4B96B740.7020208@euromail.se> <4B96BAF1.5070209@seas.upenn.edu> <4B96C4A8.3060005@euromail.se> <4B96CB41.9040804@seas.upenn.edu> <4B96D85A.4060604@euromail.se> <4B96DBEE.4060605@seas.upenn.edu> <20100309234223.GB29942@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:39026 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752735Ab0CJGUV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Mar 2010 01:20:21 -0500
-Content-Disposition: inline
-In-Reply-To: <20100309205947.GB1498@holoscopio.com>
+Received: from stag.seas.upenn.edu ([158.130.70.79]:46934 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752218Ab0CJAdI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 9 Mar 2010 19:33:08 -0500
+In-Reply-To: <20100309234223.GB29942@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, John Kacur <jkacur@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, chatty@enac.fr
 
-On Tue, Mar 09, 2010 at 05:59:48PM -0300, Thadeu Lima de Souza Cascardo wrote:
-> On Tue, Mar 09, 2010 at 09:12:13PM +0100, Arnd Bergmann wrote:
-> > On Tuesday 09 March 2010, Thadeu Lima de Souza Cascardo wrote:
-> > >  MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-> > > @@ -1881,7 +1880,7 @@ static int input_open_file(struct inode *inode, struct file *file)
-> > >         const struct file_operations *old_fops, *new_fops = NULL;
-> > >         int err;
-> > >  
-> > > -       lock_kernel();
-> > > +       mutex_lock(&input_mutex);
-> > >         /* No load-on-demand here? */
-> > >         handler = input_table[iminor(inode) >> 5];
-> > >         if (!handler || !(new_fops = fops_get(handler->fops))) {
-> > > @@ -1909,7 +1908,7 @@ static int input_open_file(struct inode *inode, struct file *file)
-> > >         }
-> > >         fops_put(old_fops);
-> > >  out:
-> > > -       unlock_kernel();
-> > > +       mutex_unlock(&input_mutex);
-> > >         return err;
-> > >  }
-> > >  
-> > > -- 
-> > 
-> > Well, actually please have a look at
-> > http://git.kernel.org/?p=linux/kernel/git/arnd/playground.git;a=commitdiff;h=c06fd0234357618a5741ce958d58901ae4cb7ac1
-> > 
-> > * use mutex_lock_interruptible() where possible
-> > * you probably don't want to hold input_mutex when calling into the lower
-> >   device's open function
-> > 
-> > 	Arnd
-> 
-> Yeah. I was just looking at your appointed branch. And I've noticed your
-> change was better.
-> 
-> I was willing to let the open call go unprotected. But ended up checking
-> that the three callees were fine (they do not call any of the other
-> functions that take the mutex).
-> 
-> Since the fops_put/fops_get do protect that section from the handler
-> removal and I can't think of any other race right now, I think your
-> version is really better.
-> 
-> Acked-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> 
+On 03/09/2010 06:42 PM, Dmitry Torokhov wrote:
+> On Tue, Mar 09, 2010 at 06:38:22PM -0500, Rafi Rubin wrote:
+>> On 03/09/2010 06:23 PM, Henrik Rydberg wrote:
+>>> Rafi Rubin wrote:
+>>>>> Single touch should be goverened by one of BTN_TOUCH or ABS_PRESSURE.
+>>>>> BTN_TOOL_DOUBLETAP is a two-finger event.
+>>>>
+>>>> That definitely makes sense to me.  I really don't know why wacom uses
+>>>> double tap there.
+>>>>
+>>>> Is there any harm in letting through the BTN_0 events?  Is the "rdesc"
+>>>> mapping defined by the hardware or hid?
+>>>
+>>> I cannot imagine BTN_0 will do any harm. In synaptics, the BTN_X buttons are
+>>> mapped to multibuttons without clear-cut usage. The button events that carry
+>>> well-defined semantic meaning with regard to touch screens are BTN_TOUCH (any
+>>> finger), BTN_TOOL_FINGER (one finger), BTN_TOOL_PEN (pen), BTN_TOOL_DOUBLETAP
+>>> (two fingers) and BTN_TOOL_TRIPLETAP (three fingers or more).
+>>>
+>>> Henrik
+>>>
+>>
+>> Perhaps we should have a general touch device document.
+>>
+>> I looked at the evdev code.  And as you say for single touch
+>> devices, BTN_TOUCH is the bit that matters.  It only broken because
+>> I pulled the TOUCH<- 0 when I removed BTN_0.
+>>
+>> So why does evdev associate BTN_TOOL_FINGER with touchpads
+>> (resulting in the wrong set of assumptions and a poorly calibrated
+>> touch screen)?  I suppose that's really a discussion for another
+>> list.
+>>
+>
+> Historic reasons. When Synaptics driver was in works we needed an event
+> that is different from BTN_TOUCH to differentiate from touchscreens.
 
-OK, applied 2 Thadeu's patches and one Arnd's.
+So should I clear the BTN_TOOL_FINGER bit for ntrig, or push to clean up 
+evdev?
 
-Thanks.
+At the moment nothing is actually expecting or emitting the finger 
+events.  Given the move to actual mt support does it make sense to use 
+finger, double and triple for single touch events?  I'd vote for letting 
+the user space mt tools handle more advanced button clicks.
 
--- 
-Dmitry
+Rafi

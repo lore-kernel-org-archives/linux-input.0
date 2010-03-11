@@ -1,51 +1,95 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
 Subject: Re: [PATCH] V4L/DVB: ir: Add a link to associate /sys/class/ir/irrcv
  with the input device
-Date: Thu, 11 Mar 2010 09:52:14 -0800
-Message-ID: <20100311175214.GB7467@core.coreip.homeip.net>
-References: <4B99104B.3090307@redhat.com>
+Date: Thu, 11 Mar 2010 19:05:42 -0300
+Message-ID: <4B996936.8030905@redhat.com>
+References: <4B99104B.3090307@redhat.com> <20100311175214.GB7467@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f227.google.com ([209.85.220.227]:50096 "EHLO
-	mail-fx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932346Ab0CKRwY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Mar 2010 12:52:24 -0500
-Content-Disposition: inline
-In-Reply-To: <4B99104B.3090307@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:15310 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758249Ab0CKWF6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Mar 2010 17:05:58 -0500
+In-Reply-To: <20100311175214.GB7467@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Mauro,
+Dmitry,
 
-On Thu, Mar 11, 2010 at 12:46:19PM -0300, Mauro Carvalho Chehab wrote:
-> In order to allow userspace programs to autoload an IR table, a link is
-> needed to point to the corresponding input device.
+Dmitry Torokhov wrote:
+> Hi Mauro,
 > 
-> $ tree /sys/class/irrcv/irrcv0
-> /sys/class/irrcv/irrcv0
-> |-- current_protocol
-> |-- input -> ../../../pci0000:00/0000:00:0b.1/usb1/1-3/input/input22
-> |-- power
-> |   `-- wakeup
-> |-- subsystem -> ../../../../class/irrcv
-> `-- uevent
+> On Thu, Mar 11, 2010 at 12:46:19PM -0300, Mauro Carvalho Chehab wrote:
+>> In order to allow userspace programs to autoload an IR table, a link is
+>> needed to point to the corresponding input device.
+>>
+>> $ tree /sys/class/irrcv/irrcv0
+>> /sys/class/irrcv/irrcv0
+>> |-- current_protocol
+>> |-- input -> ../../../pci0000:00/0000:00:0b.1/usb1/1-3/input/input22
+>> |-- power
+>> |   `-- wakeup
+>> |-- subsystem -> ../../../../class/irrcv
+>> `-- uevent
+>>
+>> It is now easy to associate an irrcv device with the corresponding
+>> device node, at the input interface.
+>>
 > 
-> It is now easy to associate an irrcv device with the corresponding
-> device node, at the input interface.
+> I guess the question is why don't you make input device a child of your
+> irrcvX device? Then I believe driver core will link them properly. It
+> will also ensure proper power management hierarchy.
 > 
+> That probably will require you changing from class_dev into device but
+> that's the direction kernel is going to anyway.
 
-I guess the question is why don't you make input device a child of your
-irrcvX device? Then I believe driver core will link them properly. It
-will also ensure proper power management hierarchy.
+I remember you asked me to create a separate class for IR. The current code
+does it, using class_create(). Once the class is created, I'm using 
+device_create() to create the nodes. 
 
-That probably will require you changing from class_dev into device but
-that's the direction kernel is going to anyway.
+The current code is:
 
-Thanks.
+int ir_register_class(struct input_dev *input_dev)
+{
+	...
+	ir_dev->class_dev = device_create(ir_input_class, NULL,
+					  input_dev->dev.devt, ir_dev,
+					  "irrcv%d", devno);
+	...
+	rc = sysfs_create_group(kobj, &ir_dev->attr);
+	...
+	rc = sysfs_create_link(kobj, &input_dev->dev.kobj, "input");
+	...
+	return 0;
+};
+
+int ir_input_register(struct input_dev *input_dev,
+		      const struct ir_scancode_table *rc_tab,
+		      const struct ir_dev_props *props)
+{
+	...
+	rc = input_register_device(input_dev);
+	...
+	rc = ir_register_class(input_dev);
+	...
+}
+
+static int __init ir_core_init(void)
+{
+	ir_input_class = class_create(THIS_MODULE, "irrcv");
+	...
+}
+
+I couldn't find any other way to create the link without explicitly
+calling sysfs_create_link().
+
+Do you have a better idea?
 
 -- 
-Dmitry
+
+Cheers,
+Mauro

@@ -1,95 +1,53 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH] V4L/DVB: ir: Add a link to associate /sys/class/ir/irrcv
- with the input device
-Date: Thu, 11 Mar 2010 19:05:42 -0300
-Message-ID: <4B996936.8030905@redhat.com>
-References: <4B99104B.3090307@redhat.com> <20100311175214.GB7467@core.coreip.homeip.net>
+From: akpm@linux-foundation.org
+Subject: [patch 1/1] input: bcm5974: retract efi-broken suspend_resume
+Date: Thu, 11 Mar 2010 14:04:58 -0800
+Message-ID: <201003112204.o2BM4wYm013275@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:15310 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758249Ab0CKWF6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Mar 2010 17:05:58 -0500
-In-Reply-To: <20100311175214.GB7467@core.coreip.homeip.net>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:44647 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758249Ab0CKWFW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Mar 2010 17:05:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-Dmitry,
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
-Dmitry Torokhov wrote:
-> Hi Mauro,
-> 
-> On Thu, Mar 11, 2010 at 12:46:19PM -0300, Mauro Carvalho Chehab wrote:
->> In order to allow userspace programs to autoload an IR table, a link is
->> needed to point to the corresponding input device.
->>
->> $ tree /sys/class/irrcv/irrcv0
->> /sys/class/irrcv/irrcv0
->> |-- current_protocol
->> |-- input -> ../../../pci0000:00/0000:00:0b.1/usb1/1-3/input/input22
->> |-- power
->> |   `-- wakeup
->> |-- subsystem -> ../../../../class/irrcv
->> `-- uevent
->>
->> It is now easy to associate an irrcv device with the corresponding
->> device node, at the input interface.
->>
-> 
-> I guess the question is why don't you make input device a child of your
-> irrcvX device? Then I believe driver core will link them properly. It
-> will also ensure proper power management hierarchy.
-> 
-> That probably will require you changing from class_dev into device but
-> that's the direction kernel is going to anyway.
+With the recent system-wide improvements on suspend/resume and EFI booting
+the suspend_resume method of the bcm5974 has broken.  When waking up from
+the S3 state on the MacBookAir, the trackpad is found in a yet unknown
+state, unable to switch to the proper multitouch mode.  The result is a
+frozen touchpad, and a flood of errors of the kind
 
-I remember you asked me to create a separate class for IR. The current code
-does it, using class_create(). Once the class is created, I'm using 
-device_create() to create the nodes. 
+bcm5974: bad trackpad package, length: 8.
 
-The current code is:
+This patch retracts the reset_resume method altogether, falling back on
+the generic unbind/rebind functionality of the usb layer until further
+investigations can be made as how to reset the device when booting from
+efi.
 
-int ir_register_class(struct input_dev *input_dev)
-{
-	...
-	ir_dev->class_dev = device_create(ir_input_class, NULL,
-					  input_dev->dev.devt, ir_dev,
-					  "irrcv%d", devno);
-	...
-	rc = sysfs_create_group(kobj, &ir_dev->attr);
-	...
-	rc = sysfs_create_link(kobj, &input_dev->dev.kobj, "input");
-	...
-	return 0;
-};
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-int ir_input_register(struct input_dev *input_dev,
-		      const struct ir_scancode_table *rc_tab,
-		      const struct ir_dev_props *props)
-{
-	...
-	rc = input_register_device(input_dev);
-	...
-	rc = ir_register_class(input_dev);
-	...
-}
+ drivers/input/mouse/bcm5974.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-static int __init ir_core_init(void)
-{
-	ir_input_class = class_create(THIS_MODULE, "irrcv");
-	...
-}
-
-I couldn't find any other way to create the link without explicitly
-calling sysfs_create_link().
-
-Do you have a better idea?
-
--- 
-
-Cheers,
-Mauro
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-retract-efi-broken-suspend_resume
++++ a/drivers/input/mouse/bcm5974.c
+@@ -803,7 +803,6 @@ static struct usb_driver bcm5974_driver 
+ 	.disconnect		= bcm5974_disconnect,
+ 	.suspend		= bcm5974_suspend,
+ 	.resume			= bcm5974_resume,
+-	.reset_resume		= bcm5974_resume,
+ 	.id_table		= bcm5974_table,
+ 	.supports_autosuspend	= 1,
+ };
+_

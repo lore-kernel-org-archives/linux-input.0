@@ -1,79 +1,33 @@
-From: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Subject: RE: [PATCHv2 0/3] Add support for TCA6416 based Keypad driver.
-Date: Fri, 12 Mar 2010 17:12:45 +0530
-Message-ID: <FCCFB4CDC6E5564B9182F639FC356087030445C4A7@dbde02.ent.ti.com>
-References: <1268385499-7075-1-git-send-email-srk@ti.com>
- <6ed0b2681003120323r2a1b72a9m344d71431ebcd7c4@mail.gmail.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: [RFC/RFT 0/5]power management for the touchscreen driver
+Date: Fri, 12 Mar 2010 15:40:31 +0100
+Message-ID: <201003121540.31876.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:56951 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752984Ab0CLLmv convert rfc822-to-8bit (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:47986 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752750Ab0CLOkh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Mar 2010 06:42:51 -0500
-In-Reply-To: <6ed0b2681003120323r2a1b72a9m344d71431ebcd7c4@mail.gmail.com>
-Content-Language: en-US
+	Fri, 12 Mar 2010 09:40:37 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: linux-input@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
 
+Hi,
 
+this patch set implements all features of (runtime) power management
+in the USB touchscreen driver. It does
 
-> -----Original Message-----
-> From: Grazvydas Ignotas [mailto:notasas@gmail.com]
-> Sent: Friday, March 12, 2010 4:54 PM
-> To: Govindarajan, Sriramakrishnan
-> Cc: linux-omap@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCHv2 0/3] Add support for TCA6416 based Keypad drive=
-r.
->=20
-> On Fri, Mar 12, 2010 at 11:18 AM, Sriramakrishnan <srk@ti.com> wrote:
-> > AM3517 EVM with APPS board includes keys interfaced to TCA6416 IO
-> expander
-> > User keys are connected as GPIO lines to TCA6416 IO expander. Unlik=
-e the
-> > case with generic gpio-keypad driver individual keys do not generat=
-e an
-> > interrupt event. Hence we implement a simple keypad driver, that
-> > registers as direct I2C client.
-> >
-> > The implementation has been tested on AM3517 EVM with the driver te=
-sted
-> > in polling mode.
-> >
-> > Version2 of the patch series addresses review comments from the ear=
-lier
-> > posting - specifically redesigned to eliminate overhead of using
-> gpio_keys
-> > data structures.
-> >
-> > Sriramakrishnan (3):
-> > =A0TCA6416 keypad : Implement keypad driver for keys interfaced to
-> > =A0 =A0TCA6416
-> > =A0AM3517: Board hookup for TCA6416 keypad driver.
-> > =A0AM3517 EVM : Enable TCA6416 keypad.
-> >
-> > =A0arch/arm/configs/am3517_evm_defconfig =A0 | =A0 16 ++-
-> > =A0arch/arm/mach-omap2/board-am3517evm.c =A0 | =A0 47 ++++-
-> > =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 16 ++
-> > =A0drivers/input/keyboard/Makefile =A0 =A0 =A0 =A0 | =A0 =A01 +
-> > =A0drivers/input/keyboard/tca6416-keypad.c | =A0354
-> +++++++++++++++++++++++++++++++
-> > =A0include/linux/tca6416_keypad.h =A0 =A0 =A0 =A0 =A0| =A0 34 +++
-> > =A06 files changed, 462 insertions(+), 6 deletions(-)
-> > =A0mode change 100644 =3D> 100755 arch/arm/mach-omap2/board-am3517e=
-vm.c
-> > =A0create mode 100755 drivers/input/keyboard/tca6416-keypad.c
-> > =A0create mode 100755 include/linux/tca6416_keypad.h
->=20
-> Please fix mode - remove +x flags.
-[Sriram] Thanks for pointing out. I will await further review comments
-And post the updated version thereafter
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-ordinary suspend/resume
+- reset_resume
+- simple autosuspend
+- autosuspend for active devices
+
+Testers are needed.
+
+	Regards
+		Oliver

@@ -1,36 +1,42 @@
-From: Tony Lindgren <tony@atomide.com>
+From: Trilok Soni <soni.trilok@gmail.com>
 Subject: Re: [PATCHv2 0/3] Add support for TCA6416 based Keypad driver.
-Date: Fri, 12 Mar 2010 09:29:43 -0800
-Message-ID: <20100312172943.GH2900@atomide.com>
+Date: Sat, 13 Mar 2010 02:08:20 +0530
+Message-ID: <5d5443651003121238l7fb1c5b1rbcbea660c5cf83c@mail.gmail.com>
 References: <1268385499-7075-1-git-send-email-srk@ti.com>
- <6ed0b2681003120323r2a1b72a9m344d71431ebcd7c4@mail.gmail.com>
- <FCCFB4CDC6E5564B9182F639FC356087030445C4A7@dbde02.ent.ti.com>
+	 <6ed0b2681003120323r2a1b72a9m344d71431ebcd7c4@mail.gmail.com>
+	 <FCCFB4CDC6E5564B9182F639FC356087030445C4A7@dbde02.ent.ti.com>
+	 <20100312172943.GH2900@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-02-ewr.mailhop.org ([204.13.248.72]:51836 "EHLO
-	mho-02-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933363Ab0CLR2X (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Mar 2010 12:28:23 -0500
-Content-Disposition: inline
-In-Reply-To: <FCCFB4CDC6E5564B9182F639FC356087030445C4A7@dbde02.ent.ti.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100312172943.GH2900@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: "Govindarajan, Sriramakrishnan" <srk@ti.com>, Grazvydas Ignotas <notasas@gmail.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Cc: Grazvydas Ignotas <notasas@gmail.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-* Govindarajan, Sriramakrishnan <srk@ti.com> [100312 03:39]:
-> 
-> > Please fix mode - remove +x flags.
+Hi,
+
+On Fri, Mar 12, 2010 at 10:59 PM, Tony Lindgren <tony@atomide.com> wrote:
+> * Govindarajan, Sriramakrishnan <srk@ti.com> [100312 03:39]:
+>>
+>> > Please fix mode - remove +x flags.
+>>
+>> [Sriram] Thanks for pointing out. I will await further review comments
+>> And post the updated version thereafter
 >
-> [Sriram] Thanks for pointing out. I will await further review comments
-> And post the updated version thereafter
+> Please fix mode change issue at TI in general.
+>
+> We're getting these executable mode change patches from TI on regular basis.
+>
 
-Please fix mode change issue at TI in general.
+Better way to add checking +x attribute support internally in
+checkpatch.pl and let everybody scan through checkpatch.pl before
+submitting a patch to ML. It works !!!
 
-We're getting these executable mode change patches from TI on regular basis.
 
-Regards,
 
-Tony
+-- 
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

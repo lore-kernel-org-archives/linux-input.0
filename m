@@ -1,45 +1,60 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: [RFT 2/2] USB: acecad: Implement reset_resume()
-Date: Fri, 12 Mar 2010 11:40:32 +0100
-Message-ID: <201003121140.32229.oliver@neukum.org>
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: Re: [PATCHv2 0/3] Add support for TCA6416 based Keypad driver.
+Date: Fri, 12 Mar 2010 13:23:59 +0200
+Message-ID: <6ed0b2681003120323r2a1b72a9m344d71431ebcd7c4@mail.gmail.com>
+References: <1268385499-7075-1-git-send-email-srk@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:55976 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757541Ab0CLKo0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Mar 2010 05:44:26 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1268385499-7075-1-git-send-email-srk@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Sriramakrishnan <srk@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: edouard.tisserant@wanadoo.fr
-Cc: svoltz@numericable.fr, linux-input@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
 
->From 2a264b56c60daecf6cd3cebc47699b4eafdcb041 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oliver@neukum.org>
-Date: Fri, 12 Mar 2010 11:36:03 +0100
-Subject: [PATCH 2/2] USB: acecad: Implement reset_resume()
+On Fri, Mar 12, 2010 at 11:18 AM, Sriramakrishnan <srk@ti.com> wrote:
+> AM3517 EVM with APPS board includes keys interfaced to TCA6416 IO exp=
+ander
+> User keys are connected as GPIO lines to TCA6416 IO expander. Unlike =
+the
+> case with generic gpio-keypad driver individual keys do not generate =
+an
+> interrupt event. Hence we implement a simple keypad driver, that
+> registers as direct I2C client.
+>
+> The implementation has been tested on AM3517 EVM with the driver test=
+ed
+> in polling mode.
+>
+> Version2 of the patch series addresses review comments from the earli=
+er
+> posting - specifically redesigned to eliminate overhead of using gpio=
+_keys
+> data structures.
+>
+> Sriramakrishnan (3):
+> =A0TCA6416 keypad : Implement keypad driver for keys interfaced to
+> =A0 =A0TCA6416
+> =A0AM3517: Board hookup for TCA6416 keypad driver.
+> =A0AM3517 EVM : Enable TCA6416 keypad.
+>
+> =A0arch/arm/configs/am3517_evm_defconfig =A0 | =A0 16 ++-
+> =A0arch/arm/mach-omap2/board-am3517evm.c =A0 | =A0 47 ++++-
+> =A0drivers/input/keyboard/Kconfig =A0 =A0 =A0 =A0 =A0| =A0 16 ++
+> =A0drivers/input/keyboard/Makefile =A0 =A0 =A0 =A0 | =A0 =A01 +
+> =A0drivers/input/keyboard/tca6416-keypad.c | =A0354 +++++++++++++++++=
+++++++++++++++
+> =A0include/linux/tca6416_keypad.h =A0 =A0 =A0 =A0 =A0| =A0 34 +++
+> =A06 files changed, 462 insertions(+), 6 deletions(-)
+> =A0mode change 100644 =3D> 100755 arch/arm/mach-omap2/board-am3517evm=
+=2Ec
+> =A0create mode 100755 drivers/input/keyboard/tca6416-keypad.c
+> =A0create mode 100755 include/linux/tca6416_keypad.h
 
-resume() can do double duty.
-
-Signed-off-by: Oliver Neukum <neukum@b1-systems.de>
----
- drivers/input/tablet/acecad.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/tablet/acecad.c b/drivers/input/tablet/acecad.c
-index bf5bffb..25bfdb2 100644
---- a/drivers/input/tablet/acecad.c
-+++ b/drivers/input/tablet/acecad.c
-@@ -297,6 +297,7 @@ static struct usb_driver usb_acecad_driver = {
- 	.disconnect =	usb_acecad_disconnect,
- 	.suspend =	usb_acecad_suspend,
- 	.resume =	usb_acecad_resume,
-+	.reset_resume =	usb_acecad_resume,
- 	.id_table =	usb_acecad_id_table,
- };
- 
--- 
-1.6.4.2
-
+Please fix mode - remove +x flags.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

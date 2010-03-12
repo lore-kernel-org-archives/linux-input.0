@@ -1,103 +1,148 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: [RFC/RFT 5/5] USB: usbtouch: autosuspend for active touchscreens
-Date: Fri, 12 Mar 2010 15:44:13 +0100
-Message-ID: <201003121544.13173.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Aaro Koskinen <aaro.koskinen@nokia.com>
+Subject: [PATCH v3 2/2] omap: rx-51: enable tsc2005
+Date: Fri, 12 Mar 2010 18:54:34 +0200
+Message-ID: <1268412874-18869-2-git-send-email-aaro.koskinen@nokia.com>
+References: <1268412874-18869-1-git-send-email-aaro.koskinen@nokia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.nokia.com ([192.100.105.134]:17169 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757935Ab0CLQyz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Mar 2010 11:54:55 -0500
+In-Reply-To: <1268412874-18869-1-git-send-email-aaro.koskinen@nokia.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: aaro.koskinen@nokia.com
 
->From e8d77319b208e06e66ea89efc9780f0c7c7690c6 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Date: Thu, 11 Mar 2010 15:40:54 +0100
-Subject: [PATCH 5/5] USB: usbtouch: autosuspend for active touchscreens
+Enable TSC2005 touchscreen driver on the RX-51 board.
 
-USB autosuspend with all bells and whistles.
-
-Signed-off-by: Oliver Neukum <neukum-shG/GajIFYqbacvFa/9K2g@public.gmane.org>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
 ---
- drivers/input/touchscreen/usbtouchscreen.c |   33 +++++++++++++++++++--------
- 1 files changed, 23 insertions(+), 10 deletions(-)
+ arch/arm/configs/rx51_defconfig              |    1 +
+ arch/arm/mach-omap2/board-rx51-peripherals.c |   57 ++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index cc0eb7c..f89036a 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -1260,6 +1260,7 @@ static void usbtouch_irq(struct urb *urb)
- 	usbtouch->type->process_pkt(usbtouch, usbtouch->data, urb->actual_length);
+diff --git a/arch/arm/configs/rx51_defconfig b/arch/arm/configs/rx51_defconfig
+index b6eeebb..95b76ec 100644
+--- a/arch/arm/configs/rx51_defconfig
++++ b/arch/arm/configs/rx51_defconfig
+@@ -801,6 +801,7 @@ CONFIG_INPUT_TOUCHSCREEN=y
+ # CONFIG_TOUCHSCREEN_TOUCHWIN is not set
+ # CONFIG_TOUCHSCREEN_USB_COMPOSITE is not set
+ # CONFIG_TOUCHSCREEN_TOUCHIT213 is not set
++CONFIG_TOUCHSCREEN_TSC2005=m
+ # CONFIG_TOUCHSCREEN_TSC2007 is not set
+ CONFIG_INPUT_MISC=y
+ # CONFIG_INPUT_ATI_REMOTE is not set
+diff --git a/arch/arm/mach-omap2/board-rx51-peripherals.c b/arch/arm/mach-omap2/board-rx51-peripherals.c
+index acafdbc..bdd7398 100644
+--- a/arch/arm/mach-omap2/board-rx51-peripherals.c
++++ b/arch/arm/mach-omap2/board-rx51-peripherals.c
+@@ -14,6 +14,7 @@
+ #include <linux/input.h>
+ #include <linux/input/matrix_keypad.h>
+ #include <linux/spi/spi.h>
++#include <linux/spi/tsc2005.h>
+ #include <linux/spi/wl12xx.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c/twl.h>
+@@ -42,18 +43,28 @@
+ #define RX51_WL1251_POWER_GPIO		87
+ #define RX51_WL1251_IRQ_GPIO		42
  
- exit:
-+	usb_mark_last_busy(interface_to_usbdev(usbtouch->interface));
- 	retval = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (retval)
- 		err("%s - usb_submit_urb failed with result: %d",
-@@ -1269,36 +1270,48 @@ exit:
- static int usbtouch_open(struct input_dev *input)
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
--	int r;
-+	int rv = 0;
- 
- 	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
- 	
--	r = usb_autopm_get_interface(usbtouch->interface);
--	if (r < 0)
-+	rv = usb_autopm_get_interface(usbtouch->interface);
-+	if (rv < 0)
- 		goto err_out;
- 
- 	if (!usbtouch->type->irq_always) {
--		if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
--		  goto err_out_revert;
-+		rv = usb_submit_urb(usbtouch->irq, GFP_KERNEL);
-+		if (rv < 0)
-+			goto err_out_revert;
- 		usbtouch->submitted = true;
- 	}
--
--	return 0;
-+	usbtouch->interface->needs_remote_wakeup = 1;
- 
- err_out_revert:
- 	usb_autopm_put_interface(usbtouch->interface);
- err_out:
--	return -EIO;
-+	return rv < 0 ? -EIO : 0;
- }
- 
- static void usbtouch_close(struct input_dev *input)
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
-+	int r;
- 
- 	usbtouch->submitted = false;
--	if (!usbtouch->type->irq_always)
++#define RX51_TSC2005_RESET_GPIO		104
++#define RX51_TSC2005_IRQ_GPIO		100
 +
-+	/*
-+	 * if the irq needs to be kept running we know remote
-+	 * wakeup will be needed and as it is requested at this
-+	 * time we do nothing
-+	 */
-+	if (!usbtouch->type->irq_always) {
- 		usb_kill_urb(usbtouch->irq);
--	usb_autopm_put_interface(usbtouch->interface);
-+		r = usb_autopm_get_interface(usbtouch->interface);
-+		if (r == 0) {
-+			usbtouch->interface->needs_remote_wakeup = 0;
-+			usb_autopm_put_interface(usbtouch->interface);
-+		}
-+	}
- }
+ /* list all spi devices here */
+ enum {
+ 	RX51_SPI_WL1251,
++	RX51_SPI_TSC2005,
+ };
  
- static int usbtouch_suspend(struct usb_interface *intf, pm_message_t message)
+ static struct wl12xx_platform_data wl1251_pdata;
++static struct tsc2005_platform_data tsc2005_pdata;
+ 
+ static struct omap2_mcspi_device_config wl1251_mcspi_config = {
+ 	.turbo_mode	= 0,
+ 	.single_channel	= 1,
+ };
+ 
++static struct omap2_mcspi_device_config tsc2005_mcspi_config = {
++	.turbo_mode     = 0,
++	.single_channel = 1,
++};
++
+ static struct spi_board_info rx51_peripherals_spi_board_info[] __initdata = {
+ 	[RX51_SPI_WL1251] = {
+ 		.modalias		= "wl1251",
+@@ -64,6 +75,15 @@ static struct spi_board_info rx51_peripherals_spi_board_info[] __initdata = {
+ 		.controller_data	= &wl1251_mcspi_config,
+ 		.platform_data		= &wl1251_pdata,
+ 	},
++	[RX51_SPI_TSC2005] = {
++		.modalias		= "tsc2005",
++		.bus_num		= 1,
++		.chip_select		= 0,
++		.irq			= OMAP_GPIO_IRQ(RX51_TSC2005_IRQ_GPIO),
++		.max_speed_hz		= 6000000,
++		.controller_data	= &tsc2005_mcspi_config,
++		.platform_data		= &tsc2005_pdata,
++	},
+ };
+ 
+ #if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
+@@ -665,6 +685,42 @@ static inline void board_onenand_init(void)
+ 
+ #endif
+ 
++static struct tsc2005_platform_data tsc2005_pdata = {
++	.ts_pressure_max   = 2048,
++	.ts_pressure_fudge = 2,
++	.ts_x_max	   = 4096,
++	.ts_x_fudge	   = 4,
++	.ts_y_max	   = 4096,
++	.ts_y_fudge	   = 7,
++	.ts_x_plate_ohm	   = 280,
++	.esd_timeout_ms	   = 8000,
++};
++
++static void rx51_tsc2005_set_reset(bool enable)
++{
++	gpio_set_value(RX51_TSC2005_RESET_GPIO, enable);
++}
++
++static void __init rx51_init_tsc2005(void)
++{
++	int r;
++
++	r = gpio_request(RX51_TSC2005_IRQ_GPIO, "tsc2005 IRQ");
++	if (r >= 0)
++		gpio_direction_input(RX51_TSC2005_IRQ_GPIO);
++	else
++		printk(KERN_ERR "unable to get %s GPIO\n", "tsc2005 IRQ");
++
++	r = gpio_request(RX51_TSC2005_RESET_GPIO, "tsc2005 reset");
++	if (r >= 0) {
++		gpio_direction_output(RX51_TSC2005_RESET_GPIO, 1);
++		tsc2005_pdata.set_reset = rx51_tsc2005_set_reset;
++	} else {
++		printk(KERN_ERR "unable to get %s GPIO\n", "tsc2005 reset");
++		tsc2005_pdata.esd_timeout_ms = 0;
++	}
++}
++
+ #if defined(CONFIG_SMC91X) || defined(CONFIG_SMC91X_MODULE)
+ 
+ static struct omap_smc91x_platform_data board_smc91x_data = {
+@@ -749,6 +805,7 @@ void __init rx51_peripherals_init(void)
+ 	board_smc91x_init();
+ 	rx51_add_gpio_keys();
+ 	rx51_init_wl1251();
++	rx51_init_tsc2005();
+ 	spi_register_board_info(rx51_peripherals_spi_board_info,
+ 				ARRAY_SIZE(rx51_peripherals_spi_board_info));
+ }
 -- 
-1.6.4.2
+1.6.0.4
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

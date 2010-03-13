@@ -1,71 +1,76 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 1/3] picolcd: driver for PicoLCD HID device
-Date: Sat, 13 Mar 2010 16:35:59 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: [PATCH] hid: Register debugfs entries before adding device
+Date: Sat, 13 Mar 2010 23:13:55 +0100
+Message-ID: <20100313231355.61c75c30@neptune.home>
 References: <20100313203953.0f3436b3@neptune.home>
+ <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:35185 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1759303Ab0CMVgA (ORCPT
+Received: from legolas.restena.lu ([158.64.1.34]:40444 "EHLO
+	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754530Ab0CMWOg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Mar 2010 16:36:00 -0500
-In-Reply-To: <20100313203953.0f3436b3@neptune.home>
+	Sat, 13 Mar 2010 17:14:36 -0500
+In-Reply-To: <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
+To: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
 
-On Sat, 13 Mar 2010, Bruno [UTF-8] Pr=C3=A9mont wrote:
-
-> Is something like below acceptable? (from error handling point of vie=
-w
-> it makes no difference...)
+On Sat, 13 March 2010 Alan Stern <stern@rowland.harvard.edu> wrote:
 >=20
-> Thanks,
-> Bruno
->=20
-> file: drivers/hid/hid-core.c
->=20
->  int hid_add_device(struct hid_device *hdev)
->  {
->          static atomic_t id =3D ATOMIC_INIT(0);
->          int ret;
-> =20
->          if (WARN_ON(hdev->status & HID_STAT_ADDED))
->                  return -EBUSY;
-> =20
->          /* we need to kill them here, otherwise they will stay alloc=
-ated to
->           * wait for coming driver */
->          if (hid_ignore(hdev))
->                  return -ENODEV;
-> =20
->          /* XXX hack, any other cleaner solution after the driver cor=
-e
->           * is converted to allow more than 20 bytes as the device na=
-me? */
->          dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
->                       hdev->vendor, hdev->product, atomic_inc_return(=
-&id));
-> =20
-> +        hid_debug_register(hdev, dev_name(&hdev->dev));
->          ret =3D device_add(&hdev->dev);
->          if (!ret)
->                  hdev->status |=3D HID_STAT_ADDED;
-> =20
-> -        hid_debug_register(hdev, dev_name(&hdev->dev));
-> =20
->          return ret;
->  }
+> If the device_add() fails, you should undo the hid_debug_register()=20
+> call.
 
-If the device_add() fails, you should undo the hid_debug_register()=20
-call.
+Well I was wondering why hid_debug_register() was called no matter what
+device_add() returned but didn't dig around what happened when
+hid_add_device() would return an error.
 
-Alan Stern
+Looking a few lines further, hid_remove_device() just unregisters debug=
+fs
+entries when status has HID_STAT_ADDED so it definitely makes sense to
+do the proper cleanup (and hid_remove_device() is the only once calling
+hid_debug_unregister())
 
+So patch for both below:
+
+
+
+
+Register debugfs entries before calling device_add() so debugfs entries
+are already present when HID driver's probe function gets called on dev=
+ice
+hotplug.
+Also undo debugfs entry registration if device_add() fails so status
+HID_STAT_ADDED and debugfs registration status remain consistent and
+we don't leak the debugfs entries.
+
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+---
+
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index eabe5f8..709b4d0 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1759,11 +1759,12 @@ int hid_add_device(struct hid_device *hdev)
+ 	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
+ 		     hdev->vendor, hdev->product, atomic_inc_return(&id));
+=20
++	hid_debug_register(hdev, dev_name(&hdev->dev));
+ 	ret =3D device_add(&hdev->dev);
+ 	if (!ret)
+ 		hdev->status |=3D HID_STAT_ADDED;
+-
+-	hid_debug_register(hdev, dev_name(&hdev->dev));
++	else
++		hid_debug_unregister(hdev);
+=20
+ 	return ret;
+ }
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

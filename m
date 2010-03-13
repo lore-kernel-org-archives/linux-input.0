@@ -1,45 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 1/1] input: bcm5974: retract efi-broken suspend_resume
-Date: Sat, 13 Mar 2010 00:35:44 -0800
-Message-ID: <20100313083544.GC22494@core.coreip.homeip.net>
-References: <201003112204.o2BM4wYm013275@imap1.linux-foundation.org>
+Subject: Re: [PATCH] V4L/DVB: ir: Add a link to associate /sys/class/ir/irrcv
+ with the input device
+Date: Sat, 13 Mar 2010 00:41:58 -0800
+Message-ID: <20100313084157.GD22494@core.coreip.homeip.net>
+References: <4B99104B.3090307@redhat.com>
+ <20100311175214.GB7467@core.coreip.homeip.net>
+ <4B99C3D7.7000301@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f227.google.com ([209.85.217.227]:50286 "EHLO
-	mail-gx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932146Ab0CMIfu (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:63818 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932422Ab0CMImI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Mar 2010 03:35:50 -0500
-Received: by gxk27 with SMTP id 27so1389021gxk.1
-        for <linux-input@vger.kernel.org>; Sat, 13 Mar 2010 00:35:48 -0800 (PST)
+	Sat, 13 Mar 2010 03:42:08 -0500
 Content-Disposition: inline
-In-Reply-To: <201003112204.o2BM4wYm013275@imap1.linux-foundation.org>
+In-Reply-To: <4B99C3D7.7000301@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-Henrik,
+On Fri, Mar 12, 2010 at 01:32:23AM -0300, Mauro Carvalho Chehab wrote:
+> Dmitry Torokhov wrote:
+> > Hi Mauro,
+> > 
+> > On Thu, Mar 11, 2010 at 12:46:19PM -0300, Mauro Carvalho Chehab wrote:
+> >> In order to allow userspace programs to autoload an IR table, a link is
+> >> needed to point to the corresponding input device.
+> >>
+> >> $ tree /sys/class/irrcv/irrcv0
+> >> /sys/class/irrcv/irrcv0
+> >> |-- current_protocol
+> >> |-- input -> ../../../pci0000:00/0000:00:0b.1/usb1/1-3/input/input22
+> >> |-- power
+> >> |   `-- wakeup
+> >> |-- subsystem -> ../../../../class/irrcv
+> >> `-- uevent
+> >>
+> >> It is now easy to associate an irrcv device with the corresponding
+> >> device node, at the input interface.
+> >>
+> > 
+> > I guess the question is why don't you make input device a child of your
+> > irrcvX device? Then I believe driver core will link them properly. It
+> > will also ensure proper power management hierarchy.
+> > 
+> > That probably will require you changing from class_dev into device but
+> > that's the direction kernel is going to anyway.
+> 
+> Done, see enclosed. It is now using class_register/device_register. The
+> newly created device for irrcv is used as the parent for input_dev->dev.
+> 
+> The resulting code looked cleaner after the change ;)
+>
 
-On Thu, Mar 11, 2010 at 02:04:58PM -0800, akpm@linux-foundation.org wrote:
-> From: "Henrik Rydberg" <rydberg@euromail.se>
-> 
-> With the recent system-wide improvements on suspend/resume and EFI booting
-> the suspend_resume method of the bcm5974 has broken.  When waking up from
-> the S3 state on the MacBookAir, the trackpad is found in a yet unknown
-> state, unable to switch to the proper multitouch mode.  The result is a
-> frozen touchpad, and a flood of errors of the kind
-> 
-> bcm5974: bad trackpad package, length: 8.
-> 
-> This patch retracts the reset_resume method altogether, falling back on
-> the generic unbind/rebind functionality of the usb layer until further
-> investigations can be made as how to reset the device when booting from
-> efi.
+It is indeed better, however I wonder if current hierarchy expresses the
+hardware in best way. You currently have irrcv devices grow in parallel
+with input devices whereas I would expect input devices be children of
+irrcv devices:
 
-Is the driver still broken on EFI without this patch? I was hoping if I
-ignore the patch long enough EFI will get fixed ;)
+
+	parent (PCI board, USB) -> irrcvX -> input1
+                                          -> input2
+					 ...
+
+This way your PM sequence as follows - input core does its thing and
+releases all pressed keys, etc, then you can shut off the receiver and
+then board driver can shut doen the main piece. Otherwise irrcv0 suspend
+may be racing with input suspend and so forth.
 
 Thanks.
 

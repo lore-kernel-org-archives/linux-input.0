@@ -1,78 +1,48 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH] hid: Register debugfs entries before adding device
-Date: Sat, 13 Mar 2010 23:13:55 +0100
-Message-ID: <20100313231355.61c75c30@neptune.home>
-References: <20100313203953.0f3436b3@neptune.home>
- <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Zeroing the report before setting fields
+Date: Sat, 13 Mar 2010 23:25:11 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz>
+References: <20100304143349.2d861ec6@redhat.com> <20100305082901.GA20245@core.coreip.homeip.net> <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz> <20100309162648.289871c4@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:40444 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754530Ab0CMWOg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Mar 2010 17:14:36 -0500
-In-Reply-To: <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org>
+Received: from cantor.suse.de ([195.135.220.2]:55369 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751249Ab0CMWZN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 13 Mar 2010 17:25:13 -0500
+In-Reply-To: <20100309162648.289871c4@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, 13 March 2010 Alan Stern <stern@rowland.harvard.edu> wrote:
->=20
-> If the device_add() fails, you should undo the hid_debug_register()=20
-> call.
+On Tue, 9 Mar 2010, Pete Zaitcev wrote:
 
-Well I was wondering why hid_debug_register() was called no matter what
-device_add() returned but didn't dig around what happened when
-hid_add_device() would return an error.
+> > > > the end of the byte. But in case of, say, my keyboard, NumLock is mask
+> > > > 0x01 and CapsLock is 0x02. Invoking hid_output_field for NumLock
+> > > > definitely zeroes across CapsLock. The only reason this works is that
+> > > > the fields are sorted by the offset.
+> 
+> > > I think Jiri is the most qualified to answer questions like that about
+> > > HID (CCed) buit I think what you are proposing is reasonable and would
+> > > make the code safer indeed.
+> > 
+> > Yes, the patch looks fine to me, thanks for CCing me. 
+> > 
+> > Pete, could you please send it to me along with your Signed-off-by line, 
+> > so that I could queue it up?
+> 
+> Will do, thanks. I was hoping for a comment re. memset.
+> It is not needed for reports that consist of full bytes,
+> so it's a little wasteful. I aimed at simplicity, but I don't
+> know, what do you think?
 
-Looking a few lines further, hid_remove_device() just unregisters debug=
-fs
-entries when status has HID_STAT_ADDED so it definitely makes sense to
-do the proper cleanup (and hid_remove_device() is the only once calling
-hid_debug_unregister())
+I don't think it's super important (basically nothing can be considered 
+super-hot path when dealing with such slow hardware as HID devices :) ), 
+but I wouldn't object to adding extra check before calling the memset.
 
-So patch for both below:
+Thanks,
 
-
-
-
-Register debugfs entries before calling device_add() so debugfs entries
-are already present when HID driver's probe function gets called on dev=
-ice
-hotplug.
-Also undo debugfs entry registration if device_add() fails so status
-HID_STAT_ADDED and debugfs registration status remain consistent and
-we don't leak the debugfs entries.
-
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
----
-
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index eabe5f8..709b4d0 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1759,11 +1759,12 @@ int hid_add_device(struct hid_device *hdev)
- 	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
- 		     hdev->vendor, hdev->product, atomic_inc_return(&id));
-=20
-+	hid_debug_register(hdev, dev_name(&hdev->dev));
- 	ret =3D device_add(&hdev->dev);
- 	if (!ret)
- 		hdev->status |=3D HID_STAT_ADDED;
--
--	hid_debug_register(hdev, dev_name(&hdev->dev));
-+	else
-+		hid_debug_unregister(hdev);
-=20
- 	return ret;
- }
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

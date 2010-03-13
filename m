@@ -1,76 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] V4L/DVB: ir: Add a link to associate /sys/class/ir/irrcv
- with the input device
-Date: Sat, 13 Mar 2010 00:41:58 -0800
-Message-ID: <20100313084157.GD22494@core.coreip.homeip.net>
-References: <4B99104B.3090307@redhat.com>
- <20100311175214.GB7467@core.coreip.homeip.net>
- <4B99C3D7.7000301@redhat.com>
+Subject: Re: [git pull] Input updates for 2.6.34-rc0
+Date: Sat, 13 Mar 2010 00:44:19 -0800
+Message-ID: <20100313084419.GE22494@core.coreip.homeip.net>
+References: <20100301080342.GH765@core.coreip.homeip.net>
+ <201003091439.49023.rgetz@blackfin.uclinux.org>
+ <544AC56F16B56944AEC3BD4E3D5917712D6B1D98DB@LIMKCMBX1.ad.analog.com>
+ <201003121555.37998.rgetz@blackfin.uclinux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:63818 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932422Ab0CMImI (ORCPT
+Received: from mail-yx0-f174.google.com ([209.85.210.174]:62501 "EHLO
+	mail-yx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755432Ab0CMIoY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Mar 2010 03:42:08 -0500
+	Sat, 13 Mar 2010 03:44:24 -0500
 Content-Disposition: inline
-In-Reply-To: <4B99C3D7.7000301@redhat.com>
+In-Reply-To: <201003121555.37998.rgetz@blackfin.uclinux.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Cc: "Hennerich, Michael" <Michael.Hennerich@analog.com>, Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Fri, Mar 12, 2010 at 01:32:23AM -0300, Mauro Carvalho Chehab wrote:
-> Dmitry Torokhov wrote:
-> > Hi Mauro,
+On Fri, Mar 12, 2010 at 03:55:37PM -0500, Robin Getz wrote:
+> On Wed 10 Mar 2010 03:30, Hennerich, Michael pondered:
+> > Robin Getz wrote on 2010-03-09:
+> > > On Tue 9 Mar 2010 13:20, Dmitry Torokhov pondered:
+> > >> On Tue, Mar 09, 2010 at 01:13:34PM -0500, Mike Frysinger wrote:
+> > >>> On Tue, Mar 9, 2010 at 13:10, Dmitry Torokhov wrote:
+> > >>>> On Tue, Mar 09, 2010 at 12:58:24PM -0500, Mike Frysinger wrote:
+> > >>>>> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
+> > >>>>>> On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger
+> > > wrote:
+> > > [snip]
+> > >>>>> i understand the ADXL34x is a bit wonky, but what else would you
+> > >>>>> propose ?  or just leave the driver in limbo forever until people
+> > >>>>> forget about it ?
+> > >>>>
+> > >>>> No, just till we have proper framework for it to be merged into.
+> > >>>
+> > >>> that sounds fine, but is there actually something in progress for
+> > >>> that ?  waiting for a framework no one is working on is the same
+> > >>> in practice ...
+> > >>
+> > >> I have high hopes that IIO will fill the needs of these kinds of
+> > > devices.
+> > >
+> > > The fact of things is that many people are using this as pointing device.
+> > >
+> > > I'm not convinced that IIO is the best place for these types of
+> > > things...
 > > 
-> > On Thu, Mar 11, 2010 at 12:46:19PM -0300, Mauro Carvalho Chehab wrote:
-> >> In order to allow userspace programs to autoload an IR table, a link is
-> >> needed to point to the corresponding input device.
-> >>
-> >> $ tree /sys/class/irrcv/irrcv0
-> >> /sys/class/irrcv/irrcv0
-> >> |-- current_protocol
-> >> |-- input -> ../../../pci0000:00/0000:00:0b.1/usb1/1-3/input/input22
-> >> |-- power
-> >> |   `-- wakeup
-> >> |-- subsystem -> ../../../../class/irrcv
-> >> `-- uevent
-> >>
-> >> It is now easy to associate an irrcv device with the corresponding
-> >> device node, at the input interface.
-> >>
+> > Very true - this driver was originally targeted and designed as a 
+> > typical human interface input device. 
 > > 
-> > I guess the question is why don't you make input device a child of your
-> > irrcvX device? Then I believe driver core will link them properly. It
-> > will also ensure proper power management hierarchy.
-> > 
-> > That probably will require you changing from class_dev into device but
-> > that's the direction kernel is going to anyway.
 > 
-> Done, see enclosed. It is now using class_register/device_register. The
-> newly created device for irrcv is used as the parent for input_dev->dev.
+> Dmitry:
 > 
-> The resulting code looked cleaner after the change ;)
->
+> Care to comment? I would prefer to come to some sort of conclusion. As Mike 
+> said - leaving the driver in limbo forever isn't really a solution for 
+> anyone....
 
-It is indeed better, however I wonder if current hierarchy expresses the
-hardware in best way. You currently have irrcv devices grow in parallel
-with input devices whereas I would expect input devices be children of
-irrcv devices:
-
-
-	parent (PCI board, USB) -> irrcvX -> input1
-                                          -> input2
-					 ...
-
-This way your PM sequence as follows - input core does its thing and
-releases all pressed keys, etc, then you can shut off the receiver and
-then board driver can shut doen the main piece. Otherwise irrcv0 suspend
-may be racing with input suspend and so forth.
-
-Thanks.
+OK, you swayed my opinion about 3-axis accelerometers, I will review the
+patch again (although IIRC I was pretty satisfied with it) and apply.
 
 -- 
 Dmitry

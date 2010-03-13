@@ -1,61 +1,47 @@
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [git pull] Input updates for 2.6.34-rc0
-Date: Fri, 12 Mar 2010 15:55:37 -0500
-Message-ID: <201003121555.37998.rgetz@blackfin.uclinux.org>
-References: <20100301080342.GH765@core.coreip.homeip.net> <201003091439.49023.rgetz@blackfin.uclinux.org>  <544AC56F16B56944AEC3BD4E3D5917712D6B1D98DB@LIMKCMBX1.ad.analog.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 1/1] input: bcm5974: retract efi-broken suspend_resume
+Date: Sat, 13 Mar 2010 00:35:44 -0800
+Message-ID: <20100313083544.GC22494@core.coreip.homeip.net>
+References: <201003112204.o2BM4wYm013275@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:47856 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932729Ab0CLUzl (ORCPT
+Received: from mail-gx0-f227.google.com ([209.85.217.227]:50286 "EHLO
+	mail-gx0-f227.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932146Ab0CMIfu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Mar 2010 15:55:41 -0500
-In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712D6B1D98DB@LIMKCMBX1.ad.analog.com>
+	Sat, 13 Mar 2010 03:35:50 -0500
+Received: by gxk27 with SMTP id 27so1389021gxk.1
+        for <linux-input@vger.kernel.org>; Sat, 13 Mar 2010 00:35:48 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <201003112204.o2BM4wYm013275@imap1.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Hennerich, Michael" <Michael.Hennerich@analog.com>, Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: akpm@linux-foundation.org
+Cc: linux-input@vger.kernel.org, rydberg@euromail.se
 
-On Wed 10 Mar 2010 03:30, Hennerich, Michael pondered:
-> Robin Getz wrote on 2010-03-09:
-> > On Tue 9 Mar 2010 13:20, Dmitry Torokhov pondered:
-> >> On Tue, Mar 09, 2010 at 01:13:34PM -0500, Mike Frysinger wrote:
-> >>> On Tue, Mar 9, 2010 at 13:10, Dmitry Torokhov wrote:
-> >>>> On Tue, Mar 09, 2010 at 12:58:24PM -0500, Mike Frysinger wrote:
-> >>>>> On Tue, Mar 9, 2010 at 12:51, Dmitry Torokhov wrote:
-> >>>>>> On Tue, Mar 09, 2010 at 09:44:08AM -0500, Mike Frysinger
-> > wrote:
-> > [snip]
-> >>>>> i understand the ADXL34x is a bit wonky, but what else would you
-> >>>>> propose ?  or just leave the driver in limbo forever until people
-> >>>>> forget about it ?
-> >>>>
-> >>>> No, just till we have proper framework for it to be merged into.
-> >>>
-> >>> that sounds fine, but is there actually something in progress for
-> >>> that ?  waiting for a framework no one is working on is the same
-> >>> in practice ...
-> >>
-> >> I have high hopes that IIO will fill the needs of these kinds of
-> > devices.
-> >
-> > The fact of things is that many people are using this as pointing device.
-> >
-> > I'm not convinced that IIO is the best place for these types of
-> > things...
+Henrik,
+
+On Thu, Mar 11, 2010 at 02:04:58PM -0800, akpm@linux-foundation.org wrote:
+> From: "Henrik Rydberg" <rydberg@euromail.se>
 > 
-> Very true - this driver was originally targeted and designed as a 
-> typical human interface input device. 
+> With the recent system-wide improvements on suspend/resume and EFI booting
+> the suspend_resume method of the bcm5974 has broken.  When waking up from
+> the S3 state on the MacBookAir, the trackpad is found in a yet unknown
+> state, unable to switch to the proper multitouch mode.  The result is a
+> frozen touchpad, and a flood of errors of the kind
 > 
+> bcm5974: bad trackpad package, length: 8.
+> 
+> This patch retracts the reset_resume method altogether, falling back on
+> the generic unbind/rebind functionality of the usb layer until further
+> investigations can be made as how to reset the device when booting from
+> efi.
 
-Dmitry:
+Is the driver still broken on EFI without this patch? I was hoping if I
+ignore the patch long enough EFI will get fixed ;)
 
-Care to comment? I would prefer to come to some sort of conclusion. As Mike 
-said - leaving the driver in limbo forever isn't really a solution for 
-anyone....
+Thanks.
 
-
-
+-- 
+Dmitry

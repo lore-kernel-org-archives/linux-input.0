@@ -1,62 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] Added locks for sysfs attributes and internal data.
-Date: Sun, 14 Mar 2010 00:42:15 -0800
-Message-ID: <20100314084215.GA8226@core.coreip.homeip.net>
-References: <201002200911.53900.stefan_achatz@web.de>
- <201003081704.30119.stefan_achatz@web.de>
- <20100309074155.GA17288@core.coreip.homeip.net>
- <201003131219.27482.erazor_de@users.sourceforge.net>
+Subject: Re: Nexio touchscreen under X
+Date: Sun, 14 Mar 2010 00:48:55 -0800
+Message-ID: <20100314084854.GB8226@core.coreip.homeip.net>
+References: <1268218600.2437.8.camel@nbiku1124.ikusi.net>
+ <3ec861a71003100321q31e556dfy21e13506522233ab@mail.gmail.com>
+ <1268220646.5240.7.camel@nbiku1124.ikusi.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-iw0-f176.google.com ([209.85.223.176]:40731 "EHLO
+	mail-iw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755415Ab0CNIs7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 14 Mar 2010 04:48:59 -0400
+Received: by iwn6 with SMTP id 6so1060112iwn.4
+        for <linux-input@vger.kernel.org>; Sun, 14 Mar 2010 00:48:59 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <201003131219.27482.erazor_de@users.sourceforge.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1268220646.5240.7.camel@nbiku1124.ikusi.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?I=F1igo_Mart=EDnez?= <martinez.i@ikusi.com>
+Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input@vger.kernel.org, Ondrej Zary <linux@rainbow-software.org>
 
-Hi Stefan,
+Hi I=F1igo,
+=20
+On Wed, Mar 10, 2010 at 12:30:46PM +0100, I=F1igo Mart=EDnez wrote:
+> Thank you for your answer Kristoffer.
+>=20
+> Umm, not totally, any sense. I mean, first, I think it has something
+> todo with calibrating the device, as the pointer in the Y axis is onl=
+y
+> working between the edge and the middle of the screen, but I have
+> noticed too, that only one axis is working.
+>=20
+> By default the Y axis, and if wrote an option for the input driver, t=
+he
+> X axis. I have been doing some tests, and I can't get both axis to ge=
+t
+> working.
+>=20
+> Can this throw any bright of light ?
+>=20
 
-On Sat, Mar 13, 2010 at 12:19:27PM +0100, Stefan Achatz wrote:
-> Hello,
-> I have some more questions regarding the work on my driver:
-> 
-> 1. binary vs text sysfs attributes
-> As I found little information about binary sysfs attributes I used the normal 
-> sysfs attributes to transfer binary data because they are also easier to use. 
-> The transfered data is far less than the 4096 bytes minimum page size.
-> So, is there a significant difference in these two variants that should force 
-> me to use the binary variant?
-> 
-
-I'd say in this case it just sets expectations for the interface -
-normal sysfs attributes are supposed to pass data in human-readable
-form, one value per attribute.
-
-> 2. memory footprint
-> I'm thinking about a redesign of my sysfs attributes to reduce io and simplify 
-> the use of binary sysfs attributes (if needed, see above). This would 
-> increase the memory footprint of hid_drvdata to around 5kbytes.
-> Is it allowed for a driver to constantly alloc such an amount of data or 
-> should I stick with more complicated code and more io?
-
-5K is not that much but why do you think binary attributes will require
-such increase?
-
-> 
-> 3. grow up of driver
-> I see my work is not quite ready for kernel inclusion. Maybe I'm wrong in this 
-> list and should bug other people. Would the linuxdriverproject.org be a 
-> better place to raise my work to adulthood?
-> 
-
-Rarely a driver is ready for inclusion right away ;) Normally that
-happens after someone submitted a few of them to the same subsystem so
-he knows maintainers perferences, etc. I'd say you are doing well as is
-here, there is no sense to move away somewhere else at this point.
+Your best bet would be to wotk with Ondrej Zary
+<linux@rainbow-software.org> (CCed) since he was working with iNexio
+last and it is his patches that were accepted.
 
 Thanks.
 
--- 
+> On Wed, 2010-03-10 at 12:21 +0100, Kristoffer Ericson wrote:
+> > how do you mean that the touches dont have any sense? Are the value=
+s
+> > completely wrong or?
+> >=20
+> > 2010/3/10 I=F1igo Mart=EDnez <martinez.i@ikusi.com>
+> >         Hello:
+> >        =20
+> >         Lately, I have been trying to get a Nexio USB touchscreen
+> >         working. It
+> >         has been recently supported on the kernel, so I get in touc=
+h
+> >         with Andrew
+> >         Morton, and he pointed me to this list and the author Richa=
+rd
+> >         Lemon.
+> >        =20
+> >         At the moment, I can see the output after touching it, and =
+it
+> >         does
+> >         respond, but the touches don't have any sense at all.
+> >        =20
+> >         I want to know if anyone has tried this device under the X
+> >         server with
+> >         any success.
+> >        =20
+> >         Please, tell me if I'm out of the scope of this list, as I'=
+m
+> >         not sure.
+> >        =20
+> >         Thank you,
+> >        =20
+> >        =20
+> >         --
+> >         To unsubscribe from this list: send the line "unsubscribe
+> >         linux-input" in
+> >         the body of a message to majordomo@vger.kernel.org
+> >         More majordomo info at
+> >          http://vger.kernel.org/majordomo-info.html
+> >=20
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

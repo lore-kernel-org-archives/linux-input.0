@@ -1,44 +1,77 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH] V4L/DVB: ir: Add a link to associate /sys/class/ir/irrcv
- with the input device
-Date: Sun, 14 Mar 2010 15:22:36 -0300
-Message-ID: <4B9D296C.1090901@redhat.com>
-References: <4B99104B.3090307@redhat.com> <20100311175214.GB7467@core.coreip.homeip.net> <4B99C3D7.7000301@redhat.com> <20100313084157.GD22494@core.coreip.homeip.net> <4B9BFCB6.4080805@redhat.com> <20100314063704.GB24684@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: Register debugfs entries before adding device
+Date: Mon, 15 Mar 2010 14:48:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003151448190.18642@pobox.suse.cz>
+References: <20100313203953.0f3436b3@neptune.home> <Pine.LNX.4.44L0.1003131635170.19476-100000@netrider.rowland.org> <20100313231355.61c75c30@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:17432 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752040Ab0CNSWm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Mar 2010 14:22:42 -0400
-In-Reply-To: <20100314063704.GB24684@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100313231355.61c75c30@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Sat, Mar 13, 2010 at 05:59:34PM -0300, Mauro Carvalho Chehab wrote:
+On Sat, 13 Mar 2010, Bruno Pr=C3=A9mont wrote:
 
->> It is representing it right:
->>
->> usb1/1-3 -> irrcv -> irrcv0 -> input7 -> event7
->>
->> The only extra attribute there is the class name "irrcv", but this seems
->> coherent with the other classes on this device (dvb, sound, power, video4linux).
->>
-> 
-> Ah, yes, I saw where you take input device's parent and use it as
-> irrcv's parent but missed the piece where you substitute original
-> input device's parent with irrcv. I bit sneaky to my taste but I guess
-> can be cleaned up later.
+> > If the device_add() fails, you should undo the hid_debug_register()=
+=20
+> > call.
+>=20
+> Well I was wondering why hid_debug_register() was called no matter wh=
+at
+> device_add() returned but didn't dig around what happened when
+> hid_add_device() would return an error.
+>=20
+> Looking a few lines further, hid_remove_device() just unregisters deb=
+ugfs
+> entries when status has HID_STAT_ADDED so it definitely makes sense t=
+o
+> do the proper cleanup (and hid_remove_device() is the only once calli=
+ng
+> hid_debug_unregister())
+>=20
+> So patch for both below:
+>=20
+>=20
+>=20
+>=20
+> Register debugfs entries before calling device_add() so debugfs entri=
+es
+> are already present when HID driver's probe function gets called on d=
+evice
+> hotplug.
+> Also undo debugfs entry registration if device_add() fails so status
+> HID_STAT_ADDED and debugfs registration status remain consistent and
+> we don't leak the debugfs entries.
+>=20
+> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+> Cc: Alan Stern <stern@rowland.harvard.edu>
+> ---
+>=20
+>=20
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index eabe5f8..709b4d0 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1759,11 +1759,12 @@ int hid_add_device(struct hid_device *hdev)
+>  	dev_set_name(&hdev->dev, "%04X:%04X:%04X.%04X", hdev->bus,
+>  		     hdev->vendor, hdev->product, atomic_inc_return(&id));
+> =20
+> +	hid_debug_register(hdev, dev_name(&hdev->dev));
+>  	ret =3D device_add(&hdev->dev);
+>  	if (!ret)
+>  		hdev->status |=3D HID_STAT_ADDED;
+> -
+> -	hid_debug_register(hdev, dev_name(&hdev->dev));
+> +	else
+> +		hid_debug_unregister(hdev);
+> =20
+>  	return ret;
 
-Yes. I opted to do this little trick to avoid changing the interfaces
-on the other modules, and to minimize the needs when porting from input.
-We can later clean it if/when needed.
+Applied, thank you Bruno.
 
--- 
-
-Cheers,
-Mauro
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.

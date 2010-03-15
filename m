@@ -1,43 +1,40 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/4] Added locks for sysfs attributes and internal
- data.
-Date: Mon, 15 Mar 2010 14:51:11 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003151449050.18642@pobox.suse.cz>
-References: <201002200911.53900.stefan_achatz@web.de> <201003081704.30119.stefan_achatz@web.de> <20100309074155.GA17288@core.coreip.homeip.net> <201003131219.27482.erazor_de@users.sourceforge.net> <20100314084215.GA8226@core.coreip.homeip.net>
+Subject: RE: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
+ quirky remote
+Date: Mon, 15 Mar 2010 17:03:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003151701380.18642@pobox.suse.cz>
+References: <4B8902C5.5000508@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47414 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:52389 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936249Ab0CONvN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Mar 2010 09:51:13 -0400
-In-Reply-To: <20100314084215.GA8226@core.coreip.homeip.net>
+	id S965235Ab0COQDE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Mar 2010 12:03:04 -0400
+In-Reply-To: <4B8902C5.5000508@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Pavel Machek <pavel@suse.cz>, Alessandro Guido <ag@alessandroguido.name>, Tomas Hanak <tomas.hanak@gmail.com>, Jason Noble <nobleja@polezero.com>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, Henning Glawe <glaweh@debian.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ben Hardill <b.hardill@gmail.com>
+Cc: linux-input@vger.kernel.org, Wayne Thomas <waynethomas69@gmail.com>
 
-On Sun, 14 Mar 2010, Dmitry Torokhov wrote:
+On Sat, 27 Feb 2010, Ben Hardill wrote:
 
-> > 3. grow up of driver
-> > I see my work is not quite ready for kernel inclusion. Maybe I'm wrong in this 
-> > list and should bug other people. Would the linuxdriverproject.org be a 
-> > better place to raise my work to adulthood?
-> > 
-> Rarely a driver is ready for inclusion right away ;) Normally that 
-> happens after someone submitted a few of them to the same subsystem so 
-> he knows maintainers perferences, etc. I'd say you are doing well as is 
-> here, there is no sense to move away somewhere else at this point.
+> I've tried to follow the instructions in the README.keymap but when I 
+> run /lib/udev/keymap -i input/eventX against both of the event devices I 
+> get nothing out, not even the "unknown" message mentioned in the doc.
+> 
+> I'm not totally up to speed with this yet, but I think i may be down to the
+> "e0x0ffbc0000 HID usage page" that Wayne mentioned earlier not being read by
+> the input layer and passed to the udev layer. If this is the case then before
+> udev can be used to make hardware like this work the input layer will need to
+> add support for this page.
 
-Absolutely.
+Could you guys please send me output from debugfs files for this 
+particular device?
 
-Stefan, you are handling the review feedback in an excellent way, and the 
-driver is very quickly getting into shape in which it would be merge-able 
-right away.
-
-So please do another round of submission with all the concerns that have 
-been raised previously addressed, and I believe I'll just apply the driver 
-to my tree.
+Namely /sys/kernel/debug/hid/<device>/rdesc 
+/syse/kernel/debug/hid/<device>/events from the time the non-working 
+buttons are pressed?
 
 Thanks,
 

@@ -1,61 +1,75 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: usbtouchscreen: support bigger iNexio touchscreens
-Date: Tue, 16 Mar 2010 14:26:15 +0100 (CET)
-Message-ID: <alpine.LRH.2.00.1003161425480.26353@twin.jikos.cz>
-References: <201003161423.54495.linux@rainbow-software.org>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH] hid: avoid '\0' in hid debugfs events file
+Date: Tue, 16 Mar 2010 18:35:18 +0100
+Message-ID: <20100316183518.3b631b73@neptune.home>
+References: <20100315190027.752c82ea@neptune.home>
+	<alpine.LNX.2.00.1003161354380.18642@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201003161423.54495.linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, daniel.ritz-OI3hZJvNYWs@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from legolas.restena.lu ([158.64.1.34]:34720 "EHLO
+	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S938018Ab0CPRgB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Mar 2010 13:36:01 -0400
+In-Reply-To: <alpine.LNX.2.00.1003161354380.18642@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+
+On Tue, 16 March 2010 Jiri Kosina <jkosina@suse.cz> wrote:
+> On Mon, 15 Mar 2010, Bruno Pr=C3=A9mont wrote:
+> > The ring buffer overflow case (when tail crosses head) seems to be
+> > suboptimal at best.
+> > Would there be a good way to mark those cases so reader can know wh=
+ere
+> > data got lost. (though this might not be easy keeping the lockless
+> > design)
+>=20
+> I agree that there might be better implementation. The circular buffe=
+r is=20
+> merely the same to what we use in other userspace interfaces already =
+(see=20
+> original hiddev, for example). Plus this is only debugging interface,=
+ and=20
+> with SIZE being 512, it's very unlikely that events will get lost.
+
+Well, 512 is not that large, considering that a single event may well
+fill half of it (e.g. 64byte HID event * 3 for hex dump, adding decoded
+event to it). For basic keyboard events it's definitely sufficient.
+
+In my case I was seeing overflow with outbound reports I dumped there
+too, where it's pretty common to have more than a single report sent
+back to device in a row.
+Sure it's just an aid for debugging so loosing data is not an issue,
+just having a hard time to understand output when things got lost would
+be nice to avoid.
+
+> But I don't think the lockless design is that important here, so if y=
+ou=20
+> are motivated to rewrite it to something better, I wouldn't object.
+
+The easy way to keep output consistent would be to stop appending new
+data when the ring buffer is full. (and maybe adding a single '\0' or
+equivalent just before head if more data has to be written than space i=
+s
+available so there is an overflow marker).
+This way reader would not risk reading old data a second time.
+
+Dropping old data looks more complicated to get race-free or it would
+have to be a bigger change (with new locking).
 
 
-[ adding some more relevant CCs ]
+The optimal case would be to have a single ring-buffer implementation
+for use by anyone needing it (I don't know if such one exists nor
+how many ring-buffers are being used around the kernel)...
+This is for a later time when I'm happy with my PicoLCD driver!
 
-On Tue, 16 Mar 2010, Ondrej Zary wrote:
-
-> Bigger Nexio touchscreens not only send more data but also the header values
-> are modified somehow. Fix the header somehow (it's a guesswork but it works
-> at least on one 46" touchscreen with 2.00SMS firmware) and also increase
-> rept_size.
-> 
-> Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-> 
-> --- linux-2.6.34-rc1-orig/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:34:51.000000000 +0100
-> +++ linux-2.6.34-rc1/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:46:15.000000000 +0100
-> @@ -858,6 +858,11 @@
->  	if ((pkt[0] & 0xe0) != 0xe0)
->  		return 0;
->  
-> +	if (be16_to_cpu(packet->data_len) > 0xff)
-> +		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
-> +	if (be16_to_cpu(packet->x_len) > 0xff)
-> +		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
-> +
->  	/* send ACK */
->  	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
->  
-> @@ -1113,7 +1118,7 @@
->  
->  #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
->  	[DEVTYPE_NEXIO] = {
-> -		.rept_size	= 128,
-> +		.rept_size	= 1024,
->  		.irq_always	= true,
->  		.read_data	= nexio_read_data,
->  		.init		= nexio_init,
-> 
-> 
-> 
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
-
+Bruno
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

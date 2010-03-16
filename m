@@ -1,69 +1,61 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: avoid '\0' in hid debugfs events file
-Date: Tue, 16 Mar 2010 13:58:15 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003161354380.18642@pobox.suse.cz>
-References: <20100315190027.752c82ea@neptune.home>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: usbtouchscreen: support bigger iNexio touchscreens
+Date: Tue, 16 Mar 2010 14:26:15 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.1003161425480.26353@twin.jikos.cz>
+References: <201003161423.54495.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:58690 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755528Ab0CPM6Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Mar 2010 08:58:16 -0400
-In-Reply-To: <20100315190027.752c82ea@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201003161423.54495.linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, daniel.ritz-OI3hZJvNYWs@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2010, Bruno Pr=C3=A9mont wrote:
 
-> When dumping /sys/kernel/debug/hid/$device/events '\0' characters sho=
-w up
-> (invisible if cat to console but shown by less or while looking at a =
-dump
-> file).
-> These are due to hid_debug_event() adding strlen()+1 bytes to the rin=
-g
-> buffer (e.g. including the trailing '\0').
-> Any roll-over causes a '\0' as well as hid_debug_event() handles the =
-ring
-> buffers with HID_DEBUG_BUFSIZE-1 size while hid_debug_events_read() h=
-andles
-> it with full HID_DEBUG_BUFSIZE size.
+[ adding some more relevant CCs ]
 
-Applied, thanks.
+On Tue, 16 Mar 2010, Ondrej Zary wrote:
 
-> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> ---
-> Note:
-> The ring buffer overflow case (when tail crosses head) seems to be
-> suboptimal at best.
-> Would there be a good way to mark those cases so reader can know wher=
-e
-> data got lost. (though this might not be easy keeping the lockless
-> design)
+> Bigger Nexio touchscreens not only send more data but also the header values
+> are modified somehow. Fix the header somehow (it's a guesswork but it works
+> at least on one 46" touchscreen with 2.00SMS firmware) and also increase
+> rept_size.
+> 
+> Signed-off-by: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+> 
+> --- linux-2.6.34-rc1-orig/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:34:51.000000000 +0100
+> +++ linux-2.6.34-rc1/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:46:15.000000000 +0100
+> @@ -858,6 +858,11 @@
+>  	if ((pkt[0] & 0xe0) != 0xe0)
+>  		return 0;
+>  
+> +	if (be16_to_cpu(packet->data_len) > 0xff)
+> +		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
+> +	if (be16_to_cpu(packet->x_len) > 0xff)
+> +		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
+> +
+>  	/* send ACK */
+>  	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
+>  
+> @@ -1113,7 +1118,7 @@
+>  
+>  #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
+>  	[DEVTYPE_NEXIO] = {
+> -		.rept_size	= 128,
+> +		.rept_size	= 1024,
+>  		.irq_always	= true,
+>  		.read_data	= nexio_read_data,
+>  		.init		= nexio_init,
+> 
+> 
+> 
 
-I agree that there might be better implementation. The circular buffer =
-is=20
-merely the same to what we use in other userspace interfaces already (s=
-ee=20
-original hiddev, for example). Plus this is only debugging interface, a=
-nd=20
-with SIZE being 512, it's very unlikely that events will get lost.
-
-But I don't think the lockless design is that important here, so if you=
-=20
-are motivated to rewrite it to something better, I wouldn't object.
-
-Thanks,
-
---=20
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

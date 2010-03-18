@@ -1,1451 +1,1184 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: add driver for Roccat Kone gaming mouse 2nd Attempt
-Date: Thu, 18 Mar 2010 16:43:01 +0100
-Message-ID: <1268926981.11269.3.camel__15410.8564406217$1268927005$gmane$org@localhost>
+From: Wayne Thomas <waynethomas69@gmail.com>
+Subject: Re: [PATCH] HID: driver for BTC "Emprex 3009URF III Vista MCE Remote"
+	quirky remote
+Date: Thu, 18 Mar 2010 21:03:57 +0100
+Message-ID: <3711715e1003181303t7b118c2at50aed6b3cd84b2de@mail.gmail.com>
+References: <4B8902C5.5000508@gmail.com>
+	 <alpine.LNX.2.00.1003151701380.18642@pobox.suse.cz>
+	 <3711715e1003171218n2e15438fy6bf5d2615a4cb4ae@mail.gmail.com>
+	 <alpine.LNX.2.00.1003181150401.18642@pobox.suse.cz>
+	 <alpine.LNX.2.00.1003181200220.18642@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=0016e6d7ec6c2626c0048218bb57
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:34347 "EHLO
-	mail-in-02.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751089Ab0CRPnH (ORCPT
+Received: from mail-ww0-f46.google.com ([74.125.82.46]:52050 "EHLO
+	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751143Ab0CRUD7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Mar 2010 11:43:07 -0400
+	Thu, 18 Mar 2010 16:03:59 -0400
+Received: by wwe15 with SMTP id 15so1366769wwe.19
+        for <linux-input@vger.kernel.org>; Thu, 18 Mar 2010 13:03:57 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1003181200220.18642@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinn>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Ben Hardill <b.hardill@gmail.com>, linux-input@vger.kernel.org
 
-This Patch adds support for Kone gaming mouse from Roccat.
-It provides access to profiles, settings, firmware, weight,
-actual settings etc. through sysfs attributes.
-Event handling of this mouse differs from standard hid behaviour
-in that tilt button press is reported in each move event which
-results in strange behaviour if not handled by the driver.
+--0016e6d7ec6c2626c0048218bb57
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-This is a heavily reworked version of the previously introduced driver.
-The changes include most of the previously raised concerns,
-memory leak and other fixes, code cleanups, adoption of additional
-achieved knowlege about the hardware and is (IMHO) a much better version
-than before even when I exchanged reduced USB-IO with a bigger memory
-consumption.
+On Thu, Mar 18, 2010 at 12:00 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Thu, 18 Mar 2010, Jiri Kosina wrote:
+>
+>> > I have compiled kernel 2.6.33.1 with hid_debug set to 2.
+>> > Below is the output of the appropriate device (the remote presents
+>> > itself as two separate event devices) when pressing some of the
+>> > buttons in question.
+>> >
+>> > I have attached the output of
+>> > /sys/kernel/debug/hid/0003:046E:5578.0004/rdesc as a text file since
+>> > it is so long, but here is the output of
+>> > /sys/kernel/debug/hid/0003:046E:5578.0004/events (one report for each
+>> > button pressed).
+>> >
+>> > report (size 7) (numbered)
+>> >
+>> >
+>> >
+>> > report (size 7) (numbered)
+>> >
+>> >
+>> >
+>> > report (size 7) (numbered)
+>> >
+>> >
+>> >
+>>
+>> Hmm, this is very odd output. Do you by any chance have messages such as
+>>
+>> =A0 =A0 =A0 =A0 undefined report_id <NUMBER> received
+>>
+>> appearing in your 'dmesg' output when you are pressing the keys?
+>
+> Does applying the patch below give reasonable output in 'events' debugfs
+> file please?
+>
+>
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 368fbb0..c49aaa2 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1096,20 +1096,11 @@ int hid_input_report(struct hid_device *hid, int =
+type, u8 *data, int size, int i
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto nomem;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "\nreport (size %u) (%snumb=
+ered)\n", size, report_enum->numbered ? "" : "un");
+> - =A0 =A0 =A0 hid_debug_event(hid, buf);
+> -
+> - =A0 =A0 =A0 report =3D hid_get_report(report_enum, data);
+> - =A0 =A0 =A0 if (!report) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(buf);
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+> - =A0 =A0 =A0 }
+> -
+> =A0 =A0 =A0 =A0/* dump the report */
+> =A0 =A0 =A0 =A0snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "report %d (size %u) =3D ",=
+ report->id, size);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "\nreport (size %u) (%snumb=
+ered) =3D ", size, report_enum->numbered ? "" : "un");
+> =A0 =A0 =A0 =A0hid_debug_event(hid, buf);
+> +
+> =A0 =A0 =A0 =A0for (i =3D 0; i < size; i++) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0snprintf(buf, HID_DEBUG_BUFSIZE - 1,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0" %02x", d=
+ata[i]);
+> @@ -1117,6 +1108,13 @@ int hid_input_report(struct hid_device *hid, int t=
+ype, u8 *data, int size, int i
+> =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0hid_debug_event(hid, "\n");
+>
+> + =A0 =A0 =A0 report =3D hid_get_report(report_enum, data);
+> +
+> + =A0 =A0 =A0 if (!report) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(buf);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -1;
+> + =A0 =A0 =A0 }
+> +
+> =A0 =A0 =A0 =A0kfree(buf);
+>
+> =A0nomem:
+>
 
-I refused to implement one mentioned point:
-Removing the 'just-because-we-can' attributes. Motivation:
-Reading the clipped in weight: I'm no gamer and can't determine the
-usefulness of this feature but if the manufacturer implements such a
-feature it might make sense to someone and I would unwillingly limit the
-functionality besides its such a small feature.
-Reading the actual profile and dpi settings: Here I can testify that one
-can get lost of the actual settings when switching back and forth.
-The manufacturers windows driver has the ability for on-screen-display
-of the values and there is a mouse in the market that has an lcd on the
-underside of it to show these values. So I think this feature makes sense
-not only for me and shouldn't be removed.
+Jiri,
+nothing at all appears in dmesg in relation to the button presses.
+I manually applied the patch and have retested.  The only difference I
+noticed was the presence of an equals sign in events:
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
----
- .../ABI/testing/sysfs-driver-hid-roccat-kone       |  111 +++
- drivers/hid/Kconfig                                |    7 +
- drivers/hid/Makefile                               |    1 +
- drivers/hid/hid-ids.h                              |    3 +
- drivers/hid/hid-roccat-kone.c                      | 1001 ++++++++++++++++++++
- drivers/hid/hid-roccat-kone.h                      |  214 +++++
- 6 files changed, 1337 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
- create mode 100644 drivers/hid/hid-roccat-kone.c
- create mode 100644 drivers/hid/hid-roccat-kone.h
-
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
-new file mode 100644
-index 0000000..88340a2
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-roccat-kone
-@@ -0,0 +1,111 @@
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/actual_dpi
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	It is possible to switch the dpi setting of the mouse with the
-+		press of a button.
-+		When read, this file returns the raw number of the actual dpi
-+		setting reported by the mouse. This number has to be further
-+		processed to receive the real dpi value.
-+
-+		VALUE DPI
-+		1     800
-+		2     1200
-+		3     1600
-+		4     2000
-+		5     2400
-+		6     3200
-+
-+		This file is readonly.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/actual_profile
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	When read, this file returns the number of the actual profile.
-+		This file is readonly.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/firmware_version
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	When read, this file returns the raw integer version number of the
-+		firmware reported by the mouse. Using the integer value eases
-+		further usage in other programs. To receive the real version
-+		number the decimal point has to be shifted 2 positions to the
-+		left. E.g. a returned value of 138 means 1.38
-+		This file is readonly.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/kone_driver_version
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	When read, this file returns the driver version.
-+		The format of the string is "v<major>.<minor>.<patchlevel>".
-+		This attribute is used by the userland tools to find the sysfs-
-+		paths of installed kone-mice and determine the capabilites of
-+		the driver. Versions of this driver for old kernels replace
-+		usbhid instead of generic-usb. The way to scan for this file
-+		has been chosen to provide a consistent way for all supported
-+		kernel versions.
-+		This file is readonly.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/profile[1-5]
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	The mouse can store 5 profiles which can be switched by the
-+                press of a button. A profile holds informations like button
-+                mappings, sensitivity, the colors of the 5 leds and light
-+                effects.
-+                When read, these files return the respective profile. The
-+                returned data is 975 bytes in size.
-+		When written, this file lets one write the respective profile
-+		data back to the mouse. The data has to be 975 bytes long.
-+		The mouse will reject invalid data, whereas the profile number
-+		stored in the profile doesn't need to fit the number of the
-+		store.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/settings
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	When read, this file returns the settings stored in the mouse.
-+		The size of the data is 36 bytes and holds information like the
-+		startup_profile, tcu state and calibration_data.
-+		When written, this file lets write settings back to the mouse.
-+		The data has to be 36 bytes long. The mouse will reject invalid
-+		data.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/startup_profile
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	The integer value of this attribute ranges from 1 to 5.
-+                When read, this attribute returns the number of the profile
-+                that's active when the mouse is powered on.
-+		When written, this file sets the number of the startup profile
-+		and the mouse activates this profile immediately.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/tcu
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	The mouse has a "Tracking Control Unit" which lets the user
-+		calibrate the laser power to fit the mousepad surface.
-+		When read, this file returns the current state of the TCU,
-+		where 0 means off and 1 means on.
-+		Writing 0 in this file will switch the TCU off.
-+		Writing 1 in this file will start the calibration which takes
-+		around 6 seconds to complete and activates the TCU.
-+
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/weight
-+Date:		March 2010
-+Contact:	Stefan Achatz <erazor_de@users.sourceforge.net>
-+Description:	The mouse can be equipped with one of four supplied weights
-+		ranging from 5 to 20 grams which are recognized by the mouse
-+		and its value can be read out. When read, this file returns the
-+		raw value returned by the mouse which eases further processing
-+		in other software.
-+		The values map to the weights as follows:
-+
-+		VALUE WEIGHT
-+		0     none
-+		1     5g
-+		2     10g
-+		3     15g
-+		4     20g
-+
-+		This file is readonly.
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 71d4c07..d819b02 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -268,6 +268,13 @@ config HID_QUANTA
- 	---help---
- 	Support for Quanta Optical Touch dual-touch panels.
- 
-+config HID_ROCCAT_KONE
-+	tristate "Roccat Kone" if EMBEDDED
-+	depends on USB_HID
-+	default !EMBEDDED
-+	---help---
-+	Support for Roccat Kone mouse.
-+
- config HID_SAMSUNG
- 	tristate "Samsung" if EMBEDDED
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 0b2618f..08b83cc 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
- obj-$(CONFIG_HID_QUANTA)	+= hid-quanta.o
- obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
-+obj-$(CONFIG_HID_ROCCAT_KONE)	+= hid-roccat-kone.o
- obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
- obj-$(CONFIG_HID_SONY)		+= hid-sony.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 72c05f9..237c583 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -399,6 +399,9 @@
- #define USB_VENDOR_ID_PRODIGE		0x05af
- #define USB_DEVICE_ID_PRODIGE_CORDLESS	0x3062
- 
-+#define USB_VENDOR_ID_ROCCAT		0x1e7d
-+#define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
-+
- #define USB_VENDOR_ID_SAITEK		0x06a3
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
- 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-new file mode 100644
-index 0000000..1a5e993
---- /dev/null
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -0,0 +1,1001 @@
-+/*
-+ * Roccat Kone driver for Linux
-+ *
-+ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+/*
-+ * Roccat Kone is a gamer mouse which consists of a mouse part and a keyboard
-+ * part. The keyboard part enables the mouse to execute stored macros with mixed
-+ * key- and button-events.
-+ *
-+ * TODO implement on-the-fly polling-rate change
-+ *      The windows driver has the ability to change the polling rate of the
-+ *      device on the press of a mousebutton.
-+ *      Is it possible to remove and reinstall the urb in raw-event- or any
-+ *      other handler, or to defer this action to be executed somewhere else?
-+ *
-+ * TODO implement notification mechanism for overlong macro execution
-+ *      If user wants to execute an overlong macro only the names of macroset
-+ *      and macro are given. Should userland tap hidraw or is there an
-+ *      additional streaming mechanism?
-+ *
-+ * TODO is it possible to overwrite group for sysfs attributes via udev?
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/hid.h>
-+#include <linux/usb.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+#include "hid-roccat-kone.h"
-+
-+static void kone_set_settings_checksum(struct kone_settings *settings)
-+{
-+	uint16_t checksum = 0;
-+	unsigned char *address = (unsigned char *)settings;
-+	int i;
-+
-+	for (i = 0; i < sizeof(struct kone_settings) - 2; ++i, ++address)
-+		checksum += *address;
-+	settings->checksum = cpu_to_le16(checksum);
-+}
-+
-+/*
-+ * Checks success after writing data to mouse
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_check_write(struct usb_device *usb_dev)
-+{
-+	int len;
-+	unsigned char *data;
-+
-+	data = kmalloc(1, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	do {
-+		/*
-+		 * Mouse needs 50 msecs until it says ok, but there are
-+		 * 30 more msecs needed for next write to work.
-+		 */
-+		msleep(80);
-+
-+		len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+				USB_REQ_CLEAR_FEATURE,
-+				USB_TYPE_CLASS | USB_RECIP_INTERFACE |
-+				USB_DIR_IN,
-+				kone_command_confirm_write, 0, data, 1,
-+				USB_CTRL_SET_TIMEOUT);
-+
-+		if (len != 1) {
-+			kfree(data);
-+			return -EIO;
-+		}
-+
-+		/*
-+		 * value of 3 seems to mean something like
-+		 * "not finished yet, but it looks good"
-+		 * So check again after a moment.
-+		 */
-+	} while (*data == 3);
-+
-+	if (*data == 1) { /* everything alright */
-+		kfree(data);
-+		return 0;
-+	} else { /* unknown answer */
-+		dev_err(&usb_dev->dev, "got retval %d when checking write\n",
-+				*data);
-+		kfree(data);
-+		return -EIO;
-+	}
-+}
-+
-+/*
-+ * Reads settings from mouse and stores it in @buf
-+ * @buf has to be alloced with GFP_KERNEL
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_get_settings(struct usb_device *usb_dev,
-+		struct kone_settings *buf)
-+{
-+	int len;
-+
-+	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-+			kone_command_settings, 0, buf,
-+			sizeof(struct kone_settings), USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != sizeof(struct kone_settings))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Writes settings from @buf to mouse
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_set_settings(struct usb_device *usb_dev,
-+		struct kone_settings const *settings)
-+{
-+	int len;
-+
-+	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
-+			USB_REQ_SET_CONFIGURATION,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
-+			kone_command_settings, 0, (char *)settings,
-+			sizeof(struct kone_settings),
-+			USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != sizeof(struct kone_settings))
-+		return -EIO;
-+
-+	if (kone_check_write(usb_dev))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Reads profile data from mouse and stores it in @buf
-+ * @number: profile number to read
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_get_profile(struct usb_device *usb_dev,
-+		struct kone_profile *buf, int number)
-+{
-+	int len;
-+
-+	if (number < 1 || number > 5)
-+		return -EINVAL;
-+
-+	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-+			kone_command_profile, number, buf,
-+			sizeof(struct kone_profile), USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != sizeof(struct kone_profile))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Writes profile data to mouse.
-+ * @number: profile number to write
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_set_profile(struct usb_device *usb_dev,
-+		struct kone_profile const *profile, int number)
-+{
-+	int len;
-+
-+	if (number < 1 || number > 5)
-+		return -EINVAL;
-+
-+	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
-+			USB_REQ_SET_CONFIGURATION,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
-+			kone_command_profile, number, (char *)profile,
-+			sizeof(struct kone_profile),
-+			USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != sizeof(struct kone_profile))
-+		return len;
-+
-+	if (kone_check_write(usb_dev))
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Reads value of "fast-clip-weight" and stores it in @result
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_get_weight(struct usb_device *usb_dev, int *result)
-+{
-+	int len;
-+	uint8_t *data;
-+
-+	data = kmalloc(1, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-+			kone_command_weight, 0, data, 1, USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != 1) {
-+		kfree(data);
-+		return -EIO;
-+	}
-+	*result = (int)*data;
-+	kfree(data);
-+	return 0;
-+}
-+
-+/*
-+ * Reads firmware_version of mouse and stores it in @result
-+ * On success returns 0
-+ * On failure returns errno
-+ */
-+static int kone_get_firmware_version(struct usb_device *usb_dev, int *result)
-+{
-+	int len;
-+	unsigned char *data;
-+
-+	data = kmalloc(2, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	len = usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_IN,
-+			kone_command_firmware_version, 0, data, 2,
-+			USB_CTRL_SET_TIMEOUT);
-+
-+	if (len != 2) {
-+		kfree(data);
-+		return -EIO;
-+	}
-+	*result = le16_to_cpu(*data);
-+	kfree(data);
-+	return 0;
-+}
-+
-+static ssize_t kone_sysfs_read_settings(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+
-+	if (off >= sizeof(struct kone_settings))
-+		return 0;
-+
-+	if (off + count > sizeof(struct kone_settings))
-+		count = sizeof(struct kone_settings) - off;
-+
-+	mutex_lock(&kone->kone_lock);
-+	memcpy(buf, &kone->settings + off, count);
-+	mutex_unlock(&kone->kone_lock);
-+
-+	return count;
-+}
-+
-+/*
-+ * Writing settings automatically activates startup_profile.
-+ * This function keeps values in kone_device up to date and assumes that in
-+ * case of error the old data is still valid
-+ */
-+static ssize_t kone_sysfs_write_settings(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-+	int retval = 0, difference;
-+
-+	/* I need to get my data in one piece */
-+	if (off != 0 || count != sizeof(struct kone_settings))
-+		return -EINVAL;
-+
-+	mutex_lock(&kone->kone_lock);
-+	difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
-+	if (difference) {
-+		retval = kone_set_settings(usb_dev,
-+				(struct kone_settings const *)buf);
-+		if (!retval)
-+			memcpy(&kone->settings, buf,
-+					sizeof(struct kone_settings));
-+	}
-+	mutex_unlock(&kone->kone_lock);
-+
-+	if (retval)
-+		return retval;
-+
-+	/*
-+	 * If we get here, treat settings as okay and update actual values
-+	 * according to startup_profile
-+	 */
-+	kone->actual_profile = kone->settings.startup_profile;
-+	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
-+
-+	return sizeof(struct kone_settings);
-+}
-+
-+static ssize_t kone_sysfs_read_profilex(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count, int number) {
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+
-+	if (off >= sizeof(struct kone_profile))
-+		return 0;
-+
-+	if (off + count > sizeof(struct kone_profile))
-+		count = sizeof(struct kone_profile) - off;
-+
-+	mutex_lock(&kone->kone_lock);
-+	memcpy(buf, &kone->profiles[number - 1], sizeof(struct kone_profile));
-+	mutex_unlock(&kone->kone_lock);
-+
-+	return count;
-+}
-+
-+static ssize_t kone_sysfs_read_profile1(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_read_profilex(kobj, attr, buf, off, count, 1);
-+}
-+
-+static ssize_t kone_sysfs_read_profile2(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_read_profilex(kobj, attr, buf, off, count, 2);
-+}
-+
-+static ssize_t kone_sysfs_read_profile3(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_read_profilex(kobj, attr, buf, off, count, 3);
-+}
-+
-+static ssize_t kone_sysfs_read_profile4(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_read_profilex(kobj, attr, buf, off, count, 4);
-+}
-+
-+static ssize_t kone_sysfs_read_profile5(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_read_profilex(kobj, attr, buf, off, count, 5);
-+}
-+
-+/* Writes data only if different to stored data */
-+static ssize_t kone_sysfs_write_profilex(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count, int number) {
-+	struct device *dev = container_of(kobj, struct device, kobj);
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-+	struct kone_profile *profile;
-+	int retval = 0, difference;
-+
-+	/* I need to get my data in one piece */
-+	if (off != 0 || count != sizeof(struct kone_profile))
-+		return -EINVAL;
-+
-+	profile = &kone->profiles[number - 1];
-+
-+	mutex_lock(&kone->kone_lock);
-+	difference = memcmp(buf, profile, sizeof(struct kone_profile));
-+	if (difference) {
-+		retval = kone_set_profile(usb_dev,
-+				(struct kone_profile const *)buf, number);
-+		if (!retval)
-+			memcpy(profile, buf, sizeof(struct kone_profile));
-+	}
-+	mutex_unlock(&kone->kone_lock);
-+
-+	if (retval)
-+		return retval;
-+
-+	return sizeof(struct kone_profile);
-+}
-+
-+static ssize_t kone_sysfs_write_profile1(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_write_profilex(kobj, attr, buf, off, count, 1);
-+}
-+
-+static ssize_t kone_sysfs_write_profile2(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_write_profilex(kobj, attr, buf, off, count, 2);
-+}
-+
-+static ssize_t kone_sysfs_write_profile3(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_write_profilex(kobj, attr, buf, off, count, 3);
-+}
-+
-+static ssize_t kone_sysfs_write_profile4(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_write_profilex(kobj, attr, buf, off, count, 4);
-+}
-+
-+static ssize_t kone_sysfs_write_profile5(struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf,
-+		loff_t off, size_t count) {
-+	return kone_sysfs_write_profilex(kobj, attr, buf, off, count, 5);
-+}
-+
-+static ssize_t kone_sysfs_show_actual_profile(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_profile);
-+}
-+
-+static ssize_t kone_sysfs_show_actual_dpi(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_dpi);
-+}
-+
-+/* weight is read each time, since we don't get informed when it's changed */
-+static ssize_t kone_sysfs_show_weight(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-+	int weight = 0;
-+	int retval;
-+
-+	mutex_lock(&kone->kone_lock);
-+	retval = kone_get_weight(usb_dev, &weight);
-+	mutex_unlock(&kone->kone_lock);
-+
-+	if (retval)
-+		return retval;
-+	return snprintf(buf, PAGE_SIZE, "%d\n", weight);
-+}
-+
-+static ssize_t kone_sysfs_show_firmware_version(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	return snprintf(buf, PAGE_SIZE, "%d\n", kone->firmware_version);
-+}
-+
-+static ssize_t kone_sysfs_show_tcu(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.tcu);
-+}
-+
-+static int kone_tcu_command(struct usb_device *usb_dev, int number)
-+{
-+	int len;
-+	char *value;
-+
-+	value = kmalloc(1, GFP_KERNEL);
-+	if (!value)
-+		return -ENOMEM;
-+
-+	*value = number;
-+
-+	len = usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
-+			USB_REQ_SET_CONFIGURATION,
-+			USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_DIR_OUT,
-+			kone_command_calibrate, 0, value, 1,
-+			USB_CTRL_SET_TIMEOUT);
-+
-+	kfree(value);
-+	return ((len != 1) ? -EIO : 0);
-+}
-+
-+/*
-+ * Calibrating the tcu is the only action that changes settings data inside the
-+ * mouse, so this data needs to be reread
-+ */
-+static ssize_t kone_sysfs_set_tcu(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t size)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-+	int retval, checksum;
-+	unsigned long state;
-+
-+	retval = strict_strtoul(buf, 10, &state);
-+	if (retval)
-+		return retval;
-+
-+	if (state != 0 && state != 1)
-+		return -EINVAL;
-+
-+	mutex_lock(&kone->kone_lock);
-+
-+	if (state == 1) { /* state activate */
-+		retval = kone_tcu_command(usb_dev, 1);
-+		if (retval)
-+			goto exit_unlock;
-+		retval = kone_tcu_command(usb_dev, 2);
-+		if (retval)
-+			goto exit_unlock;
-+		ssleep(5); /* tcu needs this time for calibration */
-+		retval = kone_tcu_command(usb_dev, 3);
-+		if (retval)
-+			goto exit_unlock;
-+		retval = kone_tcu_command(usb_dev, 0);
-+		if (retval)
-+			goto exit_unlock;
-+		retval = kone_tcu_command(usb_dev, 4);
-+		if (retval)
-+			goto exit_unlock;
-+		/*
-+		 * Kone needs this time to settle things.
-+		 * Reading settings too early will result in invalid data.
-+		 * Roccat's driver waits 1 sec, maybe this time could be
-+		 * shortened.
-+		 */
-+		ssleep(1);
-+	}
-+
-+	/* calibration changes values in settings, so reread */
-+	retval = kone_get_settings(usb_dev, &kone->settings);
-+	if (retval)
-+		goto exit_no_settings;
-+
-+	/* only write settings back if activation state is different */
-+	if (kone->settings.tcu != state) {
-+		kone->settings.tcu = state;
-+		kone_set_settings_checksum(&kone->settings);
-+
-+		retval = kone_set_settings(usb_dev, &kone->settings);
-+		if (retval) {
-+			dev_err(&usb_dev->dev, "couldn't set tcu state\n");
-+			/*
-+			 * try to reread valid settings into buffer overwriting
-+			 * first error code
-+			 */
-+			retval = kone_get_settings(usb_dev, &kone->settings);
-+			if (retval)
-+				goto exit_no_settings;
-+			goto exit_unlock;
-+		}
-+	}
-+
-+	retval = size;
-+exit_no_settings:
-+	dev_err(&usb_dev->dev, "couldn't read settings\n");
-+exit_unlock:
-+	mutex_unlock(&kone->kone_lock);
-+	return retval;
-+}
-+
-+static ssize_t kone_sysfs_show_startup_profile(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.startup_profile);
-+}
-+
-+static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
-+		struct device_attribute *attr, char const *buf, size_t size)
-+{
-+	struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
-+	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-+	int retval;
-+	unsigned long new_startup_profile;
-+
-+	retval = strict_strtoul(buf, 10, &new_startup_profile);
-+	if (retval)
-+		return retval;
-+
-+	if (new_startup_profile  < 1 || new_startup_profile > 5)
-+		return -EINVAL;
-+
-+	mutex_lock(&kone->kone_lock);
-+
-+	kone->settings.startup_profile = new_startup_profile;
-+	kone_set_settings_checksum(&kone->settings);
-+
-+	retval = kone_set_settings(usb_dev, &kone->settings);
-+
-+	mutex_unlock(&kone->kone_lock);
-+
-+	if (retval)
-+		return retval;
-+
-+	/* changing the startup profile immediately activates this profile */
-+	kone->actual_profile = new_startup_profile;
-+	kone->actual_dpi = kone->profiles[kone->actual_profile - 1].startup_dpi;
-+
-+	return size;
-+}
-+
-+/*
-+ * This file is used by userland software to find devices that are handled by
-+ * this driver. This provides a consistent way for actual and older kernels
-+ * where this driver replaced usbhid instead of generic-usb.
-+ * Driver capabilities are determined by version number.
-+ */
-+static ssize_t kone_sysfs_show_driver_version(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	return snprintf(buf, PAGE_SIZE, DRIVER_VERSION "\n");
-+}
-+
-+/*
-+ * Read actual dpi settings.
-+ * Returns raw value for further processing. Refer to enum kone_polling_rates to
-+ * get real value.
-+ */
-+static DEVICE_ATTR(actual_dpi, 0440, kone_sysfs_show_actual_dpi, NULL);
-+
-+static DEVICE_ATTR(actual_profile, 0440, kone_sysfs_show_actual_profile, NULL);
-+
-+/*
-+ * The mouse can be equipped with one of four supplied weights from 5 to 20
-+ * grams which are recognized and its value can be read out.
-+ * This returns the raw value reported by the mouse for easy evaluation by
-+ * software. Refer to enum kone_weights to get corresponding real weight.
-+ */
-+static DEVICE_ATTR(weight, 0440, kone_sysfs_show_weight, NULL);
-+
-+/*
-+ * Prints firmware version stored in mouse as integer.
-+ * The raw value reported by the mouse is returned for easy evaluation, to get
-+ * the real version number the decimal point has to be shifted 2 positions to
-+ * the left. E.g. a value of 138 means 1.38.
-+ */
-+static DEVICE_ATTR(firmware_version, 0440,
-+		kone_sysfs_show_firmware_version, NULL);
-+
-+/*
-+ * Prints state of Tracking Control Unit as number where 0 = off and 1 = on
-+ * Writing 0 deactivates tcu and writing 1 calibrates and activates the tcu
-+ */
-+static DEVICE_ATTR(tcu, 0660, kone_sysfs_show_tcu, kone_sysfs_set_tcu);
-+
-+/* Prints and takes the number of the profile the mouse starts with */
-+static DEVICE_ATTR(startup_profile, 0660,
-+		kone_sysfs_show_startup_profile,
-+		kone_sysfs_set_startup_profile);
-+
-+static DEVICE_ATTR(kone_driver_version, 0440,
-+		kone_sysfs_show_driver_version, NULL);
-+
-+static struct attribute *kone_attributes[] = {
-+		&dev_attr_actual_dpi.attr,
-+		&dev_attr_actual_profile.attr,
-+		&dev_attr_weight.attr,
-+		&dev_attr_firmware_version.attr,
-+		&dev_attr_tcu.attr,
-+		&dev_attr_startup_profile.attr,
-+		&dev_attr_kone_driver_version.attr,
-+		NULL
-+};
-+
-+static struct attribute_group kone_attribute_group = {
-+		.attrs = kone_attributes
-+};
-+
-+static struct bin_attribute kone_settings_attr = {
-+	.attr = { .name = "settings", .mode = 0660 },
-+	.size = sizeof(struct kone_settings),
-+	.read = kone_sysfs_read_settings,
-+	.write = kone_sysfs_write_settings
-+};
-+
-+static struct bin_attribute kone_profile1_attr = {
-+	.attr = { .name = "profile1", .mode = 0660 },
-+	.size = sizeof(struct kone_profile),
-+	.read = kone_sysfs_read_profile1,
-+	.write = kone_sysfs_write_profile1
-+};
-+
-+static struct bin_attribute kone_profile2_attr = {
-+	.attr = { .name = "profile2", .mode = 0660 },
-+	.size = sizeof(struct kone_profile),
-+	.read = kone_sysfs_read_profile2,
-+	.write = kone_sysfs_write_profile2
-+};
-+
-+static struct bin_attribute kone_profile3_attr = {
-+	.attr = { .name = "profile3", .mode = 0660 },
-+	.size = sizeof(struct kone_profile),
-+	.read = kone_sysfs_read_profile3,
-+	.write = kone_sysfs_write_profile3
-+};
-+
-+static struct bin_attribute kone_profile4_attr = {
-+	.attr = { .name = "profile4", .mode = 0660 },
-+	.size = sizeof(struct kone_profile),
-+	.read = kone_sysfs_read_profile4,
-+	.write = kone_sysfs_write_profile4
-+};
-+
-+static struct bin_attribute kone_profile5_attr = {
-+	.attr = { .name = "profile5", .mode = 0660 },
-+	.size = sizeof(struct kone_profile),
-+	.read = kone_sysfs_read_profile5,
-+	.write = kone_sysfs_write_profile5
-+};
-+
-+static int kone_create_sysfs_attributes(struct usb_interface *intf)
-+{
-+	int retval;
-+
-+	retval = sysfs_create_group(&intf->dev.kobj, &kone_attribute_group);
-+	if (retval)
-+		goto exit_1;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_settings_attr);
-+	if (retval)
-+		goto exit_2;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile1_attr);
-+	if (retval)
-+		goto exit_3;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile2_attr);
-+	if (retval)
-+		goto exit_4;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile3_attr);
-+	if (retval)
-+		goto exit_5;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile4_attr);
-+	if (retval)
-+		goto exit_6;
-+
-+	retval = sysfs_create_bin_file(&intf->dev.kobj, &kone_profile5_attr);
-+	if (retval)
-+		goto exit_7;
-+
-+	return 0;
-+
-+exit_7:
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile4_attr);
-+exit_6:
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile3_attr);
-+exit_5:
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile2_attr);
-+exit_4:
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile1_attr);
-+exit_3:
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_settings_attr);
-+exit_2:
-+	sysfs_remove_group(&intf->dev.kobj, &kone_attribute_group);
-+exit_1:
-+	return retval;
-+}
-+
-+static void kone_remove_sysfs_attributes(struct usb_interface *intf)
-+{
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile5_attr);
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile4_attr);
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile3_attr);
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile2_attr);
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_profile1_attr);
-+	sysfs_remove_bin_file(&intf->dev.kobj, &kone_settings_attr);
-+	sysfs_remove_group(&intf->dev.kobj, &kone_attribute_group);
-+}
-+
-+static int kone_init_kone_device_struct(struct usb_device *usb_dev,
-+		struct kone_device *kone)
-+{
-+	uint i;
-+	int retval;
-+
-+	mutex_init(&kone->kone_lock);
-+
-+	for (i = 0; i < 5; ++i) {
-+		retval = kone_get_profile(usb_dev, &kone->profiles[i], i + 1);
-+		if (retval)
-+			return retval;
-+	}
-+
-+	retval = kone_get_settings(usb_dev, &kone->settings);
-+	if (retval)
-+		return retval;
-+
-+	retval = kone_get_firmware_version(usb_dev, &kone->firmware_version);
-+	if (retval)
-+		return retval;
-+
-+	kone->actual_profile = kone->settings.startup_profile;
-+	kone->actual_dpi = kone->profiles[kone->actual_profile].startup_dpi;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Since IGNORE_MOUSE quirk moved to hid-apple, there is no way to bind only to
-+ * mousepart if usb_hid is compiled into the kernel and kone is compiled as
-+ * module.
-+ * Secial behaviour is bound only to mousepart since only mouseevents contain
-+ * additional notifications.
-+ */
-+static int kone_init_specials(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct usb_device *usb_dev = interface_to_usbdev(intf);
-+	struct kone_device *kone;
-+	int retval;
-+
-+	if (intf->cur_altsetting->desc.bInterfaceProtocol
-+			== USB_INTERFACE_PROTOCOL_MOUSE) {
-+
-+		kone = kzalloc(sizeof(*kone), GFP_KERNEL);
-+		if (!kone) {
-+			dev_err(&hdev->dev, "can't alloc device descriptor\n");
-+			return -ENOMEM;
-+		}
-+		hid_set_drvdata(hdev, kone);
-+
-+		retval = kone_init_kone_device_struct(usb_dev, kone);
-+		if (retval) {
-+			dev_err(&hdev->dev,
-+					"couldn't init struct kone_device\n");
-+			goto exit_free;
-+		}
-+		retval = kone_create_sysfs_attributes(intf);
-+		if (retval) {
-+			dev_err(&hdev->dev, "cannot create sysfs files\n");
-+			goto exit_free;
-+		}
-+	} else {
-+		hid_set_drvdata(hdev, NULL);
-+	}
-+
-+	return 0;
-+exit_free:
-+	kfree(kone);
-+	return retval;
-+}
-+
-+
-+static void kone_remove_specials(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+
-+	if (intf->cur_altsetting->desc.bInterfaceProtocol
-+			== USB_INTERFACE_PROTOCOL_MOUSE) {
-+		kone_remove_sysfs_attributes(intf);
-+		kfree(hid_get_drvdata(hdev));
-+	}
-+}
-+
-+static int kone_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int retval;
-+
-+	retval = hid_parse(hdev);
-+	if (retval) {
-+		dev_err(&hdev->dev, "parse failed\n");
-+		goto exit;
-+	}
-+
-+	retval = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (retval) {
-+		dev_err(&hdev->dev, "hw start failed\n");
-+		goto exit;
-+	}
-+
-+	retval = kone_init_specials(hdev);
-+	if (retval) {
-+		dev_err(&hdev->dev, "couldn't install mouse\n");
-+		goto exit_stop;
-+	}
-+
-+	return 0;
-+
-+exit_stop:
-+	hid_hw_stop(hdev);
-+exit:
-+	return retval;
-+}
-+
-+static void kone_remove(struct hid_device *hdev)
-+{
-+	kone_remove_specials(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+/*
-+ * Is called for keyboard- and mousepart.
-+ * Only mousepart gets informations about special events in its extended event
-+ * structure.
-+ */
-+static int kone_raw_event(struct hid_device *hdev, struct hid_report *report,
-+		u8 *data, int size)
-+{
-+	struct kone_device *kone = hid_get_drvdata(hdev);
-+	struct kone_mouse_event *event = (struct kone_mouse_event *)data;
-+
-+	/* keyboard events are always processed by default handler */
-+	if (size != sizeof(struct kone_mouse_event))
-+		return 0;
-+
-+	/*
-+	 * Firmware 1.38 introduced new behaviour for tilt buttons.
-+	 * Pressed tilt button is reported in each movement event.
-+	 * Workaround sends only one event per press.
-+	 */
-+	if (kone->last_tilt_state == event->tilt)
-+		event->tilt = 0;
-+	else
-+		kone->last_tilt_state = event->tilt;
-+
-+	/*
-+	 * handle special events and keep actual profile and dpi values
-+	 * up to date
-+	 */
-+	switch (event->event) {
-+	case kone_mouse_event_osd_dpi:
-+		dev_dbg(&hdev->dev, "osd dpi event. actual dpi %d\n",
-+				event->value);
-+		return 1; /* return 1 if event was handled */
-+	case kone_mouse_event_switch_dpi:
-+		kone->actual_dpi = event->value;
-+		dev_dbg(&hdev->dev, "switched dpi to %d\n", event->value);
-+		return 1;
-+	case kone_mouse_event_osd_profile:
-+		dev_dbg(&hdev->dev, "osd profile event. actual profile %d\n",
-+				event->value);
-+		return 1;
-+	case kone_mouse_event_switch_profile:
-+		kone->actual_profile = event->value;
-+		kone->actual_dpi = kone->profiles[kone->actual_profile - 1].
-+				startup_dpi;
-+		dev_dbg(&hdev->dev, "switched profile to %d\n", event->value);
-+		return 1;
-+	case kone_mouse_event_call_overlong_macro:
-+		dev_dbg(&hdev->dev, "overlong macro called, button %d %s/%s\n",
-+				event->macro_key,
-+				kone->profiles[kone->actual_profile - 1].
-+				button_infos[event->macro_key].macro_set_name,
-+				kone->profiles[kone->actual_profile - 1].
-+				button_infos[event->macro_key].macro_name
-+				);
-+		return 1;
-+	}
-+
-+	return 0; /* do further processing */
-+}
-+
-+static const struct hid_device_id kone_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) },
-+	{ } };
-+
-+MODULE_DEVICE_TABLE(hid, kone_devices);
-+
-+static struct hid_driver kone_driver = { .name = "kone",
-+		.id_table = kone_devices, .probe = kone_probe,
-+		.remove = kone_remove, .raw_event = kone_raw_event, };
-+
-+static int kone_init(void)
-+{
-+	return hid_register_driver(&kone_driver);
-+}
-+
-+static void kone_exit(void)
-+{
-+	hid_unregister_driver(&kone_driver);
-+}
-+
-+module_init(kone_init);
-+module_exit(kone_exit);
-+
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE(DRIVER_LICENSE);
-diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
-new file mode 100644
-index 0000000..ee6898c
---- /dev/null
-+++ b/drivers/hid/hid-roccat-kone.h
-@@ -0,0 +1,214 @@
-+#ifndef __HID_ROCCAT_KONE_H
-+#define __HID_ROCCAT_KONE_H
-+
-+/*
-+ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/types.h>
-+
-+#define DRIVER_VERSION "v0.3.0"
-+#define DRIVER_AUTHOR "Stefan Achatz"
-+#define DRIVER_DESC "USB Roccat Kone driver"
-+#define DRIVER_LICENSE "GPL v2"
-+
-+#pragma pack(push)
-+#pragma pack(1)
-+
-+struct kone_keystroke {
-+	uint8_t key;
-+	uint8_t action;
-+	uint16_t period; /* in milliseconds */
-+};
-+
-+enum kone_keystroke_buttons {
-+	kone_keystroke_button_1 = 0xf0, /* left mouse button */
-+	kone_keystroke_button_2 = 0xf1, /* right mouse button */
-+	kone_keystroke_button_3 = 0xf2, /* wheel */
-+	kone_keystroke_button_9 = 0xf3, /* side button up */
-+	kone_keystroke_button_8 = 0xf4 /* side button down */
-+};
-+
-+enum kone_keystroke_actions {
-+	kone_keystroke_action_press = 0,
-+	kone_keystroke_action_release = 1
-+};
-+
-+struct kone_button_info {
-+	uint8_t number; /* range 1-8 */
-+	uint8_t type;
-+	uint8_t macro_type; /* 0 = short, 1 = overlong */
-+	uint8_t macro_set_name[16]; /* can be max 15 chars long */
-+	uint8_t macro_name[16]; /* can be max 15 chars long */
-+	uint8_t count;
-+	struct kone_keystroke keystrokes[20];
-+};
-+
-+enum kone_button_info_types {
-+	/* valid button types until firmware 1.32 */
-+	kone_button_info_type_button_1 = 0x1, /* click (left mouse button) */
-+	kone_button_info_type_button_2 = 0x2, /* menu (right mouse button)*/
-+	kone_button_info_type_button_3 = 0x3, /* scroll (wheel) */
-+	kone_button_info_type_double_click = 0x4,
-+	kone_button_info_type_key = 0x5,
-+	kone_button_info_type_macro = 0x6,
-+	kone_button_info_type_off = 0x7,
-+	/* TODO clarify function and rename */
-+	kone_button_info_type_osd_xy_prescaling = 0x8,
-+	kone_button_info_type_osd_dpi = 0x9,
-+	kone_button_info_type_osd_profile = 0xa,
-+	kone_button_info_type_button_9 = 0xb, /* ie forward */
-+	kone_button_info_type_button_8 = 0xc, /* ie backward */
-+	kone_button_info_type_dpi_up = 0xd, /* internal */
-+	kone_button_info_type_dpi_down = 0xe, /* internal */
-+	kone_button_info_type_button_7 = 0xf, /* tilt left */
-+	kone_button_info_type_button_6 = 0x10, /* tilt right */
-+	kone_button_info_type_profile_up = 0x11, /* internal */
-+	kone_button_info_type_profile_down = 0x12, /* internal */
-+	/* additional valid button types since firmware 1.38 */
-+	kone_button_info_type_multimedia_open_player = 0x20,
-+	kone_button_info_type_multimedia_next_track = 0x21,
-+	kone_button_info_type_multimedia_prev_track = 0x22,
-+	kone_button_info_type_multimedia_play_pause = 0x23,
-+	kone_button_info_type_multimedia_stop = 0x24,
-+	kone_button_info_type_multimedia_mute = 0x25,
-+	kone_button_info_type_multimedia_volume_up = 0x26,
-+	kone_button_info_type_multimedia_volume_down = 0x27
-+};
-+
-+struct kone_light_info {
-+	uint8_t number; /* number of light 1-5 */
-+	uint8_t mod;   /* 1 = on, 2 = off */
-+	uint8_t red;   /* range 0x00-0xff */
-+	uint8_t green; /* range 0x00-0xff */
-+	uint8_t blue;  /* range 0x00-0xff */
-+};
-+
-+struct kone_profile {
-+	uint16_t size; /* always 975 */
-+	uint16_t unused; /* always 0 */
-+
-+	/*
-+	 * range 1-5
-+	 * This number does not need to correspond with location where profile
-+	 * saved
-+	 */
-+	uint8_t profile; /* range 1-5 */
-+
-+	uint16_t main_sensitivity; /* range 100-1000 */
-+	uint8_t xy_sensitivity_enabled; /* 1 = on, 2 = off */
-+	uint16_t x_sensitivity; /* range 100-1000 */
-+	uint16_t y_sensitivity; /* range 100-1000 */
-+	uint8_t dpi_rate; /* bit 1 = 800, ... */
-+	uint8_t startup_dpi; /* range 1-6 */
-+	uint8_t polling_rate; /* 1 = 125Hz, 2 = 500Hz, 3 = 1000Hz */
-+	/* kone has no dcu
-+	 * value is always 2 in firmwares <= 1.32 and
-+	 * 1 in firmwares > 1.32
-+	 */
-+	uint8_t dcu_flag;
-+	uint8_t light_effect_1; /* range 1-3 */
-+	uint8_t light_effect_2; /* range 1-5 */
-+	uint8_t light_effect_3; /* range 1-4 */
-+	uint8_t light_effect_speed; /* range 0-255 */
-+
-+	struct kone_light_info light_infos[5];
-+	struct kone_button_info button_infos[8];
-+
-+	uint16_t checksum; /* \brief holds checksum of struct */
-+};
-+
-+enum kone_polling_rates {
-+	kone_polling_rate_125 = 1,
-+	kone_polling_rate_500 = 2,
-+	kone_polling_rate_1000 = 3
-+};
-+
-+struct kone_settings {
-+	uint16_t size; /* always 36 */
-+	uint8_t  startup_profile; /* 1-5 */
-+	uint8_t	 unknown1;
-+	uint8_t  tcu; /* 0 = off, 1 = on */
-+	uint8_t  unknown2[23];
-+	uint8_t  calibration_data[4];
-+	uint8_t  unknown3[2];
-+	uint16_t checksum;
-+};
-+
-+/*
-+ * 12 byte mouse event read by interrupt_read
-+ */
-+struct kone_mouse_event {
-+	uint8_t report_number; /* always 1 */
-+	uint8_t button;
-+	uint16_t x;
-+	uint16_t y;
-+	uint8_t wheel; /* up = 1, down = -1 */
-+	uint8_t tilt; /* right = 1, left = -1 */
-+	uint8_t unknown;
-+	uint8_t event;
-+	uint8_t value; /* press = 0, release = 1 */
-+	uint8_t macro_key; /* 0 to 8 */
-+};
-+
-+enum kone_mouse_events {
-+	/* osd events are thought to be display on screen */
-+	kone_mouse_event_osd_dpi = 0xa0,
-+	kone_mouse_event_osd_profile = 0xb0,
-+	/* TODO clarify meaning and occurence of kone_mouse_event_calibration */
-+	kone_mouse_event_calibration = 0xc0,
-+	kone_mouse_event_call_overlong_macro = 0xe0,
-+	/* switch events notify if user changed values wiht mousebutton click */
-+	kone_mouse_event_switch_dpi = 0xf0,
-+	kone_mouse_event_switch_profile = 0xf1
-+};
-+
-+enum kone_commands {
-+	kone_command_profile = 0x5a,
-+	kone_command_settings = 0x15a,
-+	kone_command_firmware_version = 0x25a,
-+	kone_command_weight = 0x45a,
-+	kone_command_calibrate = 0x55a,
-+	kone_command_confirm_write = 0x65a,
-+	kone_command_firmware = 0xe5a
-+};
-+
-+#pragma pack(pop)
-+
-+struct kone_device {
-+	/*
-+	 * Storing actual values when we get informed about changes since there
-+	 * is no way of getting this information from the device on demand
-+	 */
-+	int actual_profile, actual_dpi;
-+	/* Used for neutralizing abnormal tilt button behaviour */
-+	int last_tilt_state;
-+	/*
-+	 * It's unlikely that multiple sysfs attributes are accessed at a time,
-+	 * so only one mutex is used to secure hardware access and profiles and
-+	 * settings of this struct.
-+	 */
-+	struct mutex kone_lock;
-+
-+	/*
-+	 * Storing the data here reduces IO and ensures that data is available
-+	 * when its needed (E.g. interrupt handler).
-+	 */
-+	struct kone_profile profiles[5];
-+	struct kone_settings settings;
-+
-+	/*
-+	 * firmware doesn't change unless firmware update is implemented,
-+	 * so it's read only once
-+	 */
-+	int firmware_version;
-+};
-+
-+#endif
--- 
-1.6.6.1
+report (size 7) (numbered) =3D
 
 
+rdesc appears identical, but I have attached it just in case.
 
+Also, in the off-chance that it is any use, here is the output of
+dmesg when I plug the receiver in (there is no output when any buttons
+are pressed).
 
+[  572.392097] usb 3-1: new low speed USB device using uhci_hcd and address=
+ 4
+[  572.577199] drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
+[  572.590688] input: BTC USB MCE Cordless Remote Control. as
+/devices/pci0000:00/0000:00:1d.1/usb3/3-1/3-1:1.0/input/input12
+[  572.590843] generic-usb 0003:046E:5578.0005: input,hidraw0: USB HID
+v1.11 Keyboard [BTC USB MCE Cordless Remote Control.] on
+usb-0000:00:1d.1-1/input0
+[  572.590969] drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1
+[  572.611848] drivers/hid/usbhid/hid-core.c: submitting ctrl urb:
+Get_Report wValue=3D0x0101 wIndex=3D0x0001 wLength=3D2
+[  572.614082] drivers/hid/usbhid/hid-core.c: submitting ctrl urb:
+Get_Report wValue=3D0x0102 wIndex=3D0x0001 wLength=3D7
+[  572.617082] drivers/hid/usbhid/hid-core.c: submitting ctrl urb:
+Get_Report wValue=3D0x0103 wIndex=3D0x0001 wLength=3D7
+[  572.621086] drivers/hid/hid-core.c: undefined report_id 0 received
+[  572.621095] drivers/hid/usbhid/hid-core.c: submitting ctrl urb:
+Get_Report wValue=3D0x0303 wIndex=3D0x0001 wLength=3D8
+[  572.625084] drivers/hid/hid-core.c: undefined report_id 0 received
+[  572.625366] input: BTC USB MCE Cordless Remote Control. as
+/devices/pci0000:00/0000:00:1d.1/usb3/3-1/3-1:1.1/input/input13
+[  572.625576] generic-usb 0003:046E:5578.0006:
+input,hiddev96,hidraw1: USB HID v1.11 Device [BTC USB MCE Cordless
+Remote Control.] on usb-0000:00:1d.1-1/input1
+
+Cheers
+Wayne
+
+--0016e6d7ec6c2626c0048218bb57
+Content-Type: text/plain; charset=US-ASCII; name="rdesc.txt"
+Content-Disposition: attachment; filename="rdesc.txt"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_g6xzk8d10
+
+MDUgMDEgMDkgODAgYTEgMDEgODUgMDEgMTkgODEgMjkgODMgMTUgMDAgMjUgMDEgNzUgMDEgOTUg
+MDMgODEgMDIgOTUgMDUgODEgMDEgYzAgMDUgMGMgMDkgMDEgYTEgMDEgODUgMDIgMTkgMDAgMmEg
+ZmYgMDIgMTUgMDAgMjYgZmYgMDIgNzUgMTAgOTUgMDMgODEgMDAgYzAgMDYgYmMgZmYgMDkgODgg
+YTEgMDEgODUgMDMgMTkgMDAgMmEgZmYgMDAgMTUgMDAgMjYgZmYgMDAgNzUgMTAgOTUgMDMgODEg
+MDAgMDYgYmMgZmYgMTkgMDAgMmEgZmYgMDAgMTUgMDAgMjYgZmYgMDAgNzUgMDggOTUgMDcgYjEg
+MDQgYzAgCgogIElOUFVUKDEpW0lOUFVUXQogICAgRmllbGQoMCkKICAgICAgVXNhZ2UoMykKICAg
+ICAgICBHZW5lcmljRGVza3RvcC5TeXN0ZW1Qb3dlckRvd24KICAgICAgICBHZW5lcmljRGVza3Rv
+cC5TeXN0ZW1TbGVlcAogICAgICAgIEdlbmVyaWNEZXNrdG9wLlN5c3RlbVdha2VVcAogICAgICBM
+b2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDEpCiAgICAgIFJlcG9ydCBT
+aXplKDEpCiAgICAgIFJlcG9ydCBDb3VudCgzKQogICAgICBSZXBvcnQgT2Zmc2V0KDApCiAgICAg
+IEZsYWdzKCBWYXJpYWJsZSBBYnNvbHV0ZSApCiAgSU5QVVQoMilbSU5QVVRdCiAgICBGaWVsZCgw
+KQogICAgICBVc2FnZSg3NjgpCiAgICAgICAgQ29uc3VtZXIuMDAwMAogICAgICAgIENvbnN1bWVy
+LjAwMDEKICAgICAgICBDb25zdW1lci4wMDAyCiAgICAgICAgQ29uc3VtZXIuMDAwMwogICAgICAg
+IENvbnN1bWVyLjAwMDQKICAgICAgICBDb25zdW1lci4wMDA1CiAgICAgICAgQ29uc3VtZXIuMDAw
+NgogICAgICAgIENvbnN1bWVyLjAwMDcKICAgICAgICBDb25zdW1lci4wMDA4CiAgICAgICAgQ29u
+c3VtZXIuMDAwOQogICAgICAgIENvbnN1bWVyLjAwMGEKICAgICAgICBDb25zdW1lci4wMDBiCiAg
+ICAgICAgQ29uc3VtZXIuMDAwYwogICAgICAgIENvbnN1bWVyLjAwMGQKICAgICAgICBDb25zdW1l
+ci4wMDBlCiAgICAgICAgQ29uc3VtZXIuMDAwZgogICAgICAgIENvbnN1bWVyLjAwMTAKICAgICAg
+ICBDb25zdW1lci4wMDExCiAgICAgICAgQ29uc3VtZXIuMDAxMgogICAgICAgIENvbnN1bWVyLjAw
+MTMKICAgICAgICBDb25zdW1lci4wMDE0CiAgICAgICAgQ29uc3VtZXIuMDAxNQogICAgICAgIENv
+bnN1bWVyLjAwMTYKICAgICAgICBDb25zdW1lci4wMDE3CiAgICAgICAgQ29uc3VtZXIuMDAxOAog
+ICAgICAgIENvbnN1bWVyLjAwMTkKICAgICAgICBDb25zdW1lci4wMDFhCiAgICAgICAgQ29uc3Vt
+ZXIuMDAxYgogICAgICAgIENvbnN1bWVyLjAwMWMKICAgICAgICBDb25zdW1lci4wMDFkCiAgICAg
+ICAgQ29uc3VtZXIuMDAxZQogICAgICAgIENvbnN1bWVyLjAwMWYKICAgICAgICBDb25zdW1lci4w
+MDIwCiAgICAgICAgQ29uc3VtZXIuMDAyMQogICAgICAgIENvbnN1bWVyLjAwMjIKICAgICAgICBD
+b25zdW1lci4wMDIzCiAgICAgICAgQ29uc3VtZXIuMDAyNAogICAgICAgIENvbnN1bWVyLjAwMjUK
+ICAgICAgICBDb25zdW1lci4wMDI2CiAgICAgICAgQ29uc3VtZXIuMDAyNwogICAgICAgIENvbnN1
+bWVyLjAwMjgKICAgICAgICBDb25zdW1lci4wMDI5CiAgICAgICAgQ29uc3VtZXIuMDAyYQogICAg
+ICAgIENvbnN1bWVyLjAwMmIKICAgICAgICBDb25zdW1lci4wMDJjCiAgICAgICAgQ29uc3VtZXIu
+MDAyZAogICAgICAgIENvbnN1bWVyLjAwMmUKICAgICAgICBDb25zdW1lci4wMDJmCiAgICAgICAg
+Q29uc3VtZXIuMDAzMAogICAgICAgIENvbnN1bWVyLjAwMzEKICAgICAgICBDb25zdW1lci4wMDMy
+CiAgICAgICAgQ29uc3VtZXIuMDAzMwogICAgICAgIENvbnN1bWVyLjAwMzQKICAgICAgICBDb25z
+dW1lci4wMDM1CiAgICAgICAgQ29uc3VtZXIuMDAzNgogICAgICAgIENvbnN1bWVyLjAwMzcKICAg
+ICAgICBDb25zdW1lci4wMDM4CiAgICAgICAgQ29uc3VtZXIuMDAzOQogICAgICAgIENvbnN1bWVy
+LjAwM2EKICAgICAgICBDb25zdW1lci4wMDNiCiAgICAgICAgQ29uc3VtZXIuMDAzYwogICAgICAg
+IENvbnN1bWVyLjAwM2QKICAgICAgICBDb25zdW1lci4wMDNlCiAgICAgICAgQ29uc3VtZXIuMDAz
+ZgogICAgICAgIENvbnN1bWVyLjAwNDAKICAgICAgICBDb25zdW1lci4wMDQxCiAgICAgICAgQ29u
+c3VtZXIuMDA0MgogICAgICAgIENvbnN1bWVyLjAwNDMKICAgICAgICBDb25zdW1lci4wMDQ0CiAg
+ICAgICAgQ29uc3VtZXIuMDA0NQogICAgICAgIENvbnN1bWVyLjAwNDYKICAgICAgICBDb25zdW1l
+ci4wMDQ3CiAgICAgICAgQ29uc3VtZXIuMDA0OAogICAgICAgIENvbnN1bWVyLjAwNDkKICAgICAg
+ICBDb25zdW1lci4wMDRhCiAgICAgICAgQ29uc3VtZXIuMDA0YgogICAgICAgIENvbnN1bWVyLjAw
+NGMKICAgICAgICBDb25zdW1lci4wMDRkCiAgICAgICAgQ29uc3VtZXIuMDA0ZQogICAgICAgIENv
+bnN1bWVyLjAwNGYKICAgICAgICBDb25zdW1lci4wMDUwCiAgICAgICAgQ29uc3VtZXIuMDA1MQog
+ICAgICAgIENvbnN1bWVyLjAwNTIKICAgICAgICBDb25zdW1lci4wMDUzCiAgICAgICAgQ29uc3Vt
+ZXIuMDA1NAogICAgICAgIENvbnN1bWVyLjAwNTUKICAgICAgICBDb25zdW1lci4wMDU2CiAgICAg
+ICAgQ29uc3VtZXIuMDA1NwogICAgICAgIENvbnN1bWVyLjAwNTgKICAgICAgICBDb25zdW1lci4w
+MDU5CiAgICAgICAgQ29uc3VtZXIuMDA1YQogICAgICAgIENvbnN1bWVyLjAwNWIKICAgICAgICBD
+b25zdW1lci4wMDVjCiAgICAgICAgQ29uc3VtZXIuMDA1ZAogICAgICAgIENvbnN1bWVyLjAwNWUK
+ICAgICAgICBDb25zdW1lci4wMDVmCiAgICAgICAgQ29uc3VtZXIuMDA2MAogICAgICAgIENvbnN1
+bWVyLjAwNjEKICAgICAgICBDb25zdW1lci4wMDYyCiAgICAgICAgQ29uc3VtZXIuMDA2MwogICAg
+ICAgIENvbnN1bWVyLjAwNjQKICAgICAgICBDb25zdW1lci4wMDY1CiAgICAgICAgQ29uc3VtZXIu
+MDA2NgogICAgICAgIENvbnN1bWVyLjAwNjcKICAgICAgICBDb25zdW1lci4wMDY4CiAgICAgICAg
+Q29uc3VtZXIuMDA2OQogICAgICAgIENvbnN1bWVyLjAwNmEKICAgICAgICBDb25zdW1lci4wMDZi
+CiAgICAgICAgQ29uc3VtZXIuMDA2YwogICAgICAgIENvbnN1bWVyLjAwNmQKICAgICAgICBDb25z
+dW1lci4wMDZlCiAgICAgICAgQ29uc3VtZXIuMDA2ZgogICAgICAgIENvbnN1bWVyLjAwNzAKICAg
+ICAgICBDb25zdW1lci4wMDcxCiAgICAgICAgQ29uc3VtZXIuMDA3MgogICAgICAgIENvbnN1bWVy
+LjAwNzMKICAgICAgICBDb25zdW1lci4wMDc0CiAgICAgICAgQ29uc3VtZXIuMDA3NQogICAgICAg
+IENvbnN1bWVyLjAwNzYKICAgICAgICBDb25zdW1lci4wMDc3CiAgICAgICAgQ29uc3VtZXIuMDA3
+OAogICAgICAgIENvbnN1bWVyLjAwNzkKICAgICAgICBDb25zdW1lci4wMDdhCiAgICAgICAgQ29u
+c3VtZXIuMDA3YgogICAgICAgIENvbnN1bWVyLjAwN2MKICAgICAgICBDb25zdW1lci4wMDdkCiAg
+ICAgICAgQ29uc3VtZXIuMDA3ZQogICAgICAgIENvbnN1bWVyLjAwN2YKICAgICAgICBDb25zdW1l
+ci4wMDgwCiAgICAgICAgQ29uc3VtZXIuMDA4MQogICAgICAgIENvbnN1bWVyLjAwODIKICAgICAg
+ICBDb25zdW1lci4wMDgzCiAgICAgICAgQ29uc3VtZXIuMDA4NAogICAgICAgIENvbnN1bWVyLjAw
+ODUKICAgICAgICBDb25zdW1lci4wMDg2CiAgICAgICAgQ29uc3VtZXIuMDA4NwogICAgICAgIENv
+bnN1bWVyLjAwODgKICAgICAgICBDb25zdW1lci4wMDg5CiAgICAgICAgQ29uc3VtZXIuMDA4YQog
+ICAgICAgIENvbnN1bWVyLjAwOGIKICAgICAgICBDb25zdW1lci4wMDhjCiAgICAgICAgQ29uc3Vt
+ZXIuMDA4ZAogICAgICAgIENvbnN1bWVyLjAwOGUKICAgICAgICBDb25zdW1lci4wMDhmCiAgICAg
+ICAgQ29uc3VtZXIuMDA5MAogICAgICAgIENvbnN1bWVyLjAwOTEKICAgICAgICBDb25zdW1lci4w
+MDkyCiAgICAgICAgQ29uc3VtZXIuMDA5MwogICAgICAgIENvbnN1bWVyLjAwOTQKICAgICAgICBD
+b25zdW1lci4wMDk1CiAgICAgICAgQ29uc3VtZXIuMDA5NgogICAgICAgIENvbnN1bWVyLjAwOTcK
+ICAgICAgICBDb25zdW1lci4wMDk4CiAgICAgICAgQ29uc3VtZXIuMDA5OQogICAgICAgIENvbnN1
+bWVyLjAwOWEKICAgICAgICBDb25zdW1lci4wMDliCiAgICAgICAgQ29uc3VtZXIuMDA5YwogICAg
+ICAgIENvbnN1bWVyLjAwOWQKICAgICAgICBDb25zdW1lci4wMDllCiAgICAgICAgQ29uc3VtZXIu
+MDA5ZgogICAgICAgIENvbnN1bWVyLjAwYTAKICAgICAgICBDb25zdW1lci4wMGExCiAgICAgICAg
+Q29uc3VtZXIuMDBhMgogICAgICAgIENvbnN1bWVyLjAwYTMKICAgICAgICBDb25zdW1lci4wMGE0
+CiAgICAgICAgQ29uc3VtZXIuMDBhNQogICAgICAgIENvbnN1bWVyLjAwYTYKICAgICAgICBDb25z
+dW1lci4wMGE3CiAgICAgICAgQ29uc3VtZXIuMDBhOAogICAgICAgIENvbnN1bWVyLjAwYTkKICAg
+ICAgICBDb25zdW1lci4wMGFhCiAgICAgICAgQ29uc3VtZXIuMDBhYgogICAgICAgIENvbnN1bWVy
+LjAwYWMKICAgICAgICBDb25zdW1lci4wMGFkCiAgICAgICAgQ29uc3VtZXIuMDBhZQogICAgICAg
+IENvbnN1bWVyLjAwYWYKICAgICAgICBDb25zdW1lci4wMGIwCiAgICAgICAgQ29uc3VtZXIuMDBi
+MQogICAgICAgIENvbnN1bWVyLjAwYjIKICAgICAgICBDb25zdW1lci4wMGIzCiAgICAgICAgQ29u
+c3VtZXIuMDBiNAogICAgICAgIENvbnN1bWVyLjAwYjUKICAgICAgICBDb25zdW1lci4wMGI2CiAg
+ICAgICAgQ29uc3VtZXIuMDBiNwogICAgICAgIENvbnN1bWVyLjAwYjgKICAgICAgICBDb25zdW1l
+ci4wMGI5CiAgICAgICAgQ29uc3VtZXIuMDBiYQogICAgICAgIENvbnN1bWVyLjAwYmIKICAgICAg
+ICBDb25zdW1lci4wMGJjCiAgICAgICAgQ29uc3VtZXIuMDBiZAogICAgICAgIENvbnN1bWVyLjAw
+YmUKICAgICAgICBDb25zdW1lci4wMGJmCiAgICAgICAgQ29uc3VtZXIuMDBjMAogICAgICAgIENv
+bnN1bWVyLjAwYzEKICAgICAgICBDb25zdW1lci4wMGMyCiAgICAgICAgQ29uc3VtZXIuMDBjMwog
+ICAgICAgIENvbnN1bWVyLjAwYzQKICAgICAgICBDb25zdW1lci4wMGM1CiAgICAgICAgQ29uc3Vt
+ZXIuMDBjNgogICAgICAgIENvbnN1bWVyLjAwYzcKICAgICAgICBDb25zdW1lci4wMGM4CiAgICAg
+ICAgQ29uc3VtZXIuMDBjOQogICAgICAgIENvbnN1bWVyLjAwY2EKICAgICAgICBDb25zdW1lci4w
+MGNiCiAgICAgICAgQ29uc3VtZXIuMDBjYwogICAgICAgIENvbnN1bWVyLjAwY2QKICAgICAgICBD
+b25zdW1lci4wMGNlCiAgICAgICAgQ29uc3VtZXIuMDBjZgogICAgICAgIENvbnN1bWVyLjAwZDAK
+ICAgICAgICBDb25zdW1lci4wMGQxCiAgICAgICAgQ29uc3VtZXIuMDBkMgogICAgICAgIENvbnN1
+bWVyLjAwZDMKICAgICAgICBDb25zdW1lci4wMGQ0CiAgICAgICAgQ29uc3VtZXIuMDBkNQogICAg
+ICAgIENvbnN1bWVyLjAwZDYKICAgICAgICBDb25zdW1lci4wMGQ3CiAgICAgICAgQ29uc3VtZXIu
+MDBkOAogICAgICAgIENvbnN1bWVyLjAwZDkKICAgICAgICBDb25zdW1lci4wMGRhCiAgICAgICAg
+Q29uc3VtZXIuMDBkYgogICAgICAgIENvbnN1bWVyLjAwZGMKICAgICAgICBDb25zdW1lci4wMGRk
+CiAgICAgICAgQ29uc3VtZXIuMDBkZQogICAgICAgIENvbnN1bWVyLjAwZGYKICAgICAgICBDb25z
+dW1lci4wMGUwCiAgICAgICAgQ29uc3VtZXIuMDBlMQogICAgICAgIENvbnN1bWVyLjAwZTIKICAg
+ICAgICBDb25zdW1lci4wMGUzCiAgICAgICAgQ29uc3VtZXIuMDBlNAogICAgICAgIENvbnN1bWVy
+LjAwZTUKICAgICAgICBDb25zdW1lci4wMGU2CiAgICAgICAgQ29uc3VtZXIuMDBlNwogICAgICAg
+IENvbnN1bWVyLjAwZTgKICAgICAgICBDb25zdW1lci4wMGU5CiAgICAgICAgQ29uc3VtZXIuMDBl
+YQogICAgICAgIENvbnN1bWVyLjAwZWIKICAgICAgICBDb25zdW1lci4wMGVjCiAgICAgICAgQ29u
+c3VtZXIuMDBlZAogICAgICAgIENvbnN1bWVyLjAwZWUKICAgICAgICBDb25zdW1lci4wMGVmCiAg
+ICAgICAgQ29uc3VtZXIuMDBmMAogICAgICAgIENvbnN1bWVyLjAwZjEKICAgICAgICBDb25zdW1l
+ci4wMGYyCiAgICAgICAgQ29uc3VtZXIuMDBmMwogICAgICAgIENvbnN1bWVyLjAwZjQKICAgICAg
+ICBDb25zdW1lci4wMGY1CiAgICAgICAgQ29uc3VtZXIuMDBmNgogICAgICAgIENvbnN1bWVyLjAw
+ZjcKICAgICAgICBDb25zdW1lci4wMGY4CiAgICAgICAgQ29uc3VtZXIuMDBmOQogICAgICAgIENv
+bnN1bWVyLjAwZmEKICAgICAgICBDb25zdW1lci4wMGZiCiAgICAgICAgQ29uc3VtZXIuMDBmYwog
+ICAgICAgIENvbnN1bWVyLjAwZmQKICAgICAgICBDb25zdW1lci4wMGZlCiAgICAgICAgQ29uc3Vt
+ZXIuMDBmZgogICAgICAgIENvbnN1bWVyLjAxMDAKICAgICAgICBDb25zdW1lci4wMTAxCiAgICAg
+ICAgQ29uc3VtZXIuMDEwMgogICAgICAgIENvbnN1bWVyLjAxMDMKICAgICAgICBDb25zdW1lci4w
+MTA0CiAgICAgICAgQ29uc3VtZXIuMDEwNQogICAgICAgIENvbnN1bWVyLjAxMDYKICAgICAgICBD
+b25zdW1lci4wMTA3CiAgICAgICAgQ29uc3VtZXIuMDEwOAogICAgICAgIENvbnN1bWVyLjAxMDkK
+ICAgICAgICBDb25zdW1lci4wMTBhCiAgICAgICAgQ29uc3VtZXIuMDEwYgogICAgICAgIENvbnN1
+bWVyLjAxMGMKICAgICAgICBDb25zdW1lci4wMTBkCiAgICAgICAgQ29uc3VtZXIuMDEwZQogICAg
+ICAgIENvbnN1bWVyLjAxMGYKICAgICAgICBDb25zdW1lci4wMTEwCiAgICAgICAgQ29uc3VtZXIu
+MDExMQogICAgICAgIENvbnN1bWVyLjAxMTIKICAgICAgICBDb25zdW1lci4wMTEzCiAgICAgICAg
+Q29uc3VtZXIuMDExNAogICAgICAgIENvbnN1bWVyLjAxMTUKICAgICAgICBDb25zdW1lci4wMTE2
+CiAgICAgICAgQ29uc3VtZXIuMDExNwogICAgICAgIENvbnN1bWVyLjAxMTgKICAgICAgICBDb25z
+dW1lci4wMTE5CiAgICAgICAgQ29uc3VtZXIuMDExYQogICAgICAgIENvbnN1bWVyLjAxMWIKICAg
+ICAgICBDb25zdW1lci4wMTFjCiAgICAgICAgQ29uc3VtZXIuMDExZAogICAgICAgIENvbnN1bWVy
+LjAxMWUKICAgICAgICBDb25zdW1lci4wMTFmCiAgICAgICAgQ29uc3VtZXIuMDEyMAogICAgICAg
+IENvbnN1bWVyLjAxMjEKICAgICAgICBDb25zdW1lci4wMTIyCiAgICAgICAgQ29uc3VtZXIuMDEy
+MwogICAgICAgIENvbnN1bWVyLjAxMjQKICAgICAgICBDb25zdW1lci4wMTI1CiAgICAgICAgQ29u
+c3VtZXIuMDEyNgogICAgICAgIENvbnN1bWVyLjAxMjcKICAgICAgICBDb25zdW1lci4wMTI4CiAg
+ICAgICAgQ29uc3VtZXIuMDEyOQogICAgICAgIENvbnN1bWVyLjAxMmEKICAgICAgICBDb25zdW1l
+ci4wMTJiCiAgICAgICAgQ29uc3VtZXIuMDEyYwogICAgICAgIENvbnN1bWVyLjAxMmQKICAgICAg
+ICBDb25zdW1lci4wMTJlCiAgICAgICAgQ29uc3VtZXIuMDEyZgogICAgICAgIENvbnN1bWVyLjAx
+MzAKICAgICAgICBDb25zdW1lci4wMTMxCiAgICAgICAgQ29uc3VtZXIuMDEzMgogICAgICAgIENv
+bnN1bWVyLjAxMzMKICAgICAgICBDb25zdW1lci4wMTM0CiAgICAgICAgQ29uc3VtZXIuMDEzNQog
+ICAgICAgIENvbnN1bWVyLjAxMzYKICAgICAgICBDb25zdW1lci4wMTM3CiAgICAgICAgQ29uc3Vt
+ZXIuMDEzOAogICAgICAgIENvbnN1bWVyLjAxMzkKICAgICAgICBDb25zdW1lci4wMTNhCiAgICAg
+ICAgQ29uc3VtZXIuMDEzYgogICAgICAgIENvbnN1bWVyLjAxM2MKICAgICAgICBDb25zdW1lci4w
+MTNkCiAgICAgICAgQ29uc3VtZXIuMDEzZQogICAgICAgIENvbnN1bWVyLjAxM2YKICAgICAgICBD
+b25zdW1lci4wMTQwCiAgICAgICAgQ29uc3VtZXIuMDE0MQogICAgICAgIENvbnN1bWVyLjAxNDIK
+ICAgICAgICBDb25zdW1lci4wMTQzCiAgICAgICAgQ29uc3VtZXIuMDE0NAogICAgICAgIENvbnN1
+bWVyLjAxNDUKICAgICAgICBDb25zdW1lci4wMTQ2CiAgICAgICAgQ29uc3VtZXIuMDE0NwogICAg
+ICAgIENvbnN1bWVyLjAxNDgKICAgICAgICBDb25zdW1lci4wMTQ5CiAgICAgICAgQ29uc3VtZXIu
+MDE0YQogICAgICAgIENvbnN1bWVyLjAxNGIKICAgICAgICBDb25zdW1lci4wMTRjCiAgICAgICAg
+Q29uc3VtZXIuMDE0ZAogICAgICAgIENvbnN1bWVyLjAxNGUKICAgICAgICBDb25zdW1lci4wMTRm
+CiAgICAgICAgQ29uc3VtZXIuMDE1MAogICAgICAgIENvbnN1bWVyLjAxNTEKICAgICAgICBDb25z
+dW1lci4wMTUyCiAgICAgICAgQ29uc3VtZXIuMDE1MwogICAgICAgIENvbnN1bWVyLjAxNTQKICAg
+ICAgICBDb25zdW1lci4wMTU1CiAgICAgICAgQ29uc3VtZXIuMDE1NgogICAgICAgIENvbnN1bWVy
+LjAxNTcKICAgICAgICBDb25zdW1lci4wMTU4CiAgICAgICAgQ29uc3VtZXIuMDE1OQogICAgICAg
+IENvbnN1bWVyLjAxNWEKICAgICAgICBDb25zdW1lci4wMTViCiAgICAgICAgQ29uc3VtZXIuMDE1
+YwogICAgICAgIENvbnN1bWVyLjAxNWQKICAgICAgICBDb25zdW1lci4wMTVlCiAgICAgICAgQ29u
+c3VtZXIuMDE1ZgogICAgICAgIENvbnN1bWVyLjAxNjAKICAgICAgICBDb25zdW1lci4wMTYxCiAg
+ICAgICAgQ29uc3VtZXIuMDE2MgogICAgICAgIENvbnN1bWVyLjAxNjMKICAgICAgICBDb25zdW1l
+ci4wMTY0CiAgICAgICAgQ29uc3VtZXIuMDE2NQogICAgICAgIENvbnN1bWVyLjAxNjYKICAgICAg
+ICBDb25zdW1lci4wMTY3CiAgICAgICAgQ29uc3VtZXIuMDE2OAogICAgICAgIENvbnN1bWVyLjAx
+NjkKICAgICAgICBDb25zdW1lci4wMTZhCiAgICAgICAgQ29uc3VtZXIuMDE2YgogICAgICAgIENv
+bnN1bWVyLjAxNmMKICAgICAgICBDb25zdW1lci4wMTZkCiAgICAgICAgQ29uc3VtZXIuMDE2ZQog
+ICAgICAgIENvbnN1bWVyLjAxNmYKICAgICAgICBDb25zdW1lci4wMTcwCiAgICAgICAgQ29uc3Vt
+ZXIuMDE3MQogICAgICAgIENvbnN1bWVyLjAxNzIKICAgICAgICBDb25zdW1lci4wMTczCiAgICAg
+ICAgQ29uc3VtZXIuMDE3NAogICAgICAgIENvbnN1bWVyLjAxNzUKICAgICAgICBDb25zdW1lci4w
+MTc2CiAgICAgICAgQ29uc3VtZXIuMDE3NwogICAgICAgIENvbnN1bWVyLjAxNzgKICAgICAgICBD
+b25zdW1lci4wMTc5CiAgICAgICAgQ29uc3VtZXIuMDE3YQogICAgICAgIENvbnN1bWVyLjAxN2IK
+ICAgICAgICBDb25zdW1lci4wMTdjCiAgICAgICAgQ29uc3VtZXIuMDE3ZAogICAgICAgIENvbnN1
+bWVyLjAxN2UKICAgICAgICBDb25zdW1lci4wMTdmCiAgICAgICAgQ29uc3VtZXIuMDE4MAogICAg
+ICAgIENvbnN1bWVyLjAxODEKICAgICAgICBDb25zdW1lci4wMTgyCiAgICAgICAgQ29uc3VtZXIu
+MDE4MwogICAgICAgIENvbnN1bWVyLjAxODQKICAgICAgICBDb25zdW1lci4wMTg1CiAgICAgICAg
+Q29uc3VtZXIuMDE4NgogICAgICAgIENvbnN1bWVyLjAxODcKICAgICAgICBDb25zdW1lci4wMTg4
+CiAgICAgICAgQ29uc3VtZXIuMDE4OQogICAgICAgIENvbnN1bWVyLjAxOGEKICAgICAgICBDb25z
+dW1lci4wMThiCiAgICAgICAgQ29uc3VtZXIuMDE4YwogICAgICAgIENvbnN1bWVyLjAxOGQKICAg
+ICAgICBDb25zdW1lci4wMThlCiAgICAgICAgQ29uc3VtZXIuMDE4ZgogICAgICAgIENvbnN1bWVy
+LjAxOTAKICAgICAgICBDb25zdW1lci4wMTkxCiAgICAgICAgQ29uc3VtZXIuMDE5MgogICAgICAg
+IENvbnN1bWVyLjAxOTMKICAgICAgICBDb25zdW1lci4wMTk0CiAgICAgICAgQ29uc3VtZXIuMDE5
+NQogICAgICAgIENvbnN1bWVyLjAxOTYKICAgICAgICBDb25zdW1lci4wMTk3CiAgICAgICAgQ29u
+c3VtZXIuMDE5OAogICAgICAgIENvbnN1bWVyLjAxOTkKICAgICAgICBDb25zdW1lci4wMTlhCiAg
+ICAgICAgQ29uc3VtZXIuMDE5YgogICAgICAgIENvbnN1bWVyLjAxOWMKICAgICAgICBDb25zdW1l
+ci4wMTlkCiAgICAgICAgQ29uc3VtZXIuMDE5ZQogICAgICAgIENvbnN1bWVyLjAxOWYKICAgICAg
+ICBDb25zdW1lci4wMWEwCiAgICAgICAgQ29uc3VtZXIuMDFhMQogICAgICAgIENvbnN1bWVyLjAx
+YTIKICAgICAgICBDb25zdW1lci4wMWEzCiAgICAgICAgQ29uc3VtZXIuMDFhNAogICAgICAgIENv
+bnN1bWVyLjAxYTUKICAgICAgICBDb25zdW1lci4wMWE2CiAgICAgICAgQ29uc3VtZXIuMDFhNwog
+ICAgICAgIENvbnN1bWVyLjAxYTgKICAgICAgICBDb25zdW1lci4wMWE5CiAgICAgICAgQ29uc3Vt
+ZXIuMDFhYQogICAgICAgIENvbnN1bWVyLjAxYWIKICAgICAgICBDb25zdW1lci4wMWFjCiAgICAg
+ICAgQ29uc3VtZXIuMDFhZAogICAgICAgIENvbnN1bWVyLjAxYWUKICAgICAgICBDb25zdW1lci4w
+MWFmCiAgICAgICAgQ29uc3VtZXIuMDFiMAogICAgICAgIENvbnN1bWVyLjAxYjEKICAgICAgICBD
+b25zdW1lci4wMWIyCiAgICAgICAgQ29uc3VtZXIuMDFiMwogICAgICAgIENvbnN1bWVyLjAxYjQK
+ICAgICAgICBDb25zdW1lci4wMWI1CiAgICAgICAgQ29uc3VtZXIuMDFiNgogICAgICAgIENvbnN1
+bWVyLjAxYjcKICAgICAgICBDb25zdW1lci4wMWI4CiAgICAgICAgQ29uc3VtZXIuMDFiOQogICAg
+ICAgIENvbnN1bWVyLjAxYmEKICAgICAgICBDb25zdW1lci4wMWJiCiAgICAgICAgQ29uc3VtZXIu
+MDFiYwogICAgICAgIENvbnN1bWVyLjAxYmQKICAgICAgICBDb25zdW1lci4wMWJlCiAgICAgICAg
+Q29uc3VtZXIuMDFiZgogICAgICAgIENvbnN1bWVyLjAxYzAKICAgICAgICBDb25zdW1lci4wMWMx
+CiAgICAgICAgQ29uc3VtZXIuMDFjMgogICAgICAgIENvbnN1bWVyLjAxYzMKICAgICAgICBDb25z
+dW1lci4wMWM0CiAgICAgICAgQ29uc3VtZXIuMDFjNQogICAgICAgIENvbnN1bWVyLjAxYzYKICAg
+ICAgICBDb25zdW1lci4wMWM3CiAgICAgICAgQ29uc3VtZXIuMDFjOAogICAgICAgIENvbnN1bWVy
+LjAxYzkKICAgICAgICBDb25zdW1lci4wMWNhCiAgICAgICAgQ29uc3VtZXIuMDFjYgogICAgICAg
+IENvbnN1bWVyLjAxY2MKICAgICAgICBDb25zdW1lci4wMWNkCiAgICAgICAgQ29uc3VtZXIuMDFj
+ZQogICAgICAgIENvbnN1bWVyLjAxY2YKICAgICAgICBDb25zdW1lci4wMWQwCiAgICAgICAgQ29u
+c3VtZXIuMDFkMQogICAgICAgIENvbnN1bWVyLjAxZDIKICAgICAgICBDb25zdW1lci4wMWQzCiAg
+ICAgICAgQ29uc3VtZXIuMDFkNAogICAgICAgIENvbnN1bWVyLjAxZDUKICAgICAgICBDb25zdW1l
+ci4wMWQ2CiAgICAgICAgQ29uc3VtZXIuMDFkNwogICAgICAgIENvbnN1bWVyLjAxZDgKICAgICAg
+ICBDb25zdW1lci4wMWQ5CiAgICAgICAgQ29uc3VtZXIuMDFkYQogICAgICAgIENvbnN1bWVyLjAx
+ZGIKICAgICAgICBDb25zdW1lci4wMWRjCiAgICAgICAgQ29uc3VtZXIuMDFkZAogICAgICAgIENv
+bnN1bWVyLjAxZGUKICAgICAgICBDb25zdW1lci4wMWRmCiAgICAgICAgQ29uc3VtZXIuMDFlMAog
+ICAgICAgIENvbnN1bWVyLjAxZTEKICAgICAgICBDb25zdW1lci4wMWUyCiAgICAgICAgQ29uc3Vt
+ZXIuMDFlMwogICAgICAgIENvbnN1bWVyLjAxZTQKICAgICAgICBDb25zdW1lci4wMWU1CiAgICAg
+ICAgQ29uc3VtZXIuMDFlNgogICAgICAgIENvbnN1bWVyLjAxZTcKICAgICAgICBDb25zdW1lci4w
+MWU4CiAgICAgICAgQ29uc3VtZXIuMDFlOQogICAgICAgIENvbnN1bWVyLjAxZWEKICAgICAgICBD
+b25zdW1lci4wMWViCiAgICAgICAgQ29uc3VtZXIuMDFlYwogICAgICAgIENvbnN1bWVyLjAxZWQK
+ICAgICAgICBDb25zdW1lci4wMWVlCiAgICAgICAgQ29uc3VtZXIuMDFlZgogICAgICAgIENvbnN1
+bWVyLjAxZjAKICAgICAgICBDb25zdW1lci4wMWYxCiAgICAgICAgQ29uc3VtZXIuMDFmMgogICAg
+ICAgIENvbnN1bWVyLjAxZjMKICAgICAgICBDb25zdW1lci4wMWY0CiAgICAgICAgQ29uc3VtZXIu
+MDFmNQogICAgICAgIENvbnN1bWVyLjAxZjYKICAgICAgICBDb25zdW1lci4wMWY3CiAgICAgICAg
+Q29uc3VtZXIuMDFmOAogICAgICAgIENvbnN1bWVyLjAxZjkKICAgICAgICBDb25zdW1lci4wMWZh
+CiAgICAgICAgQ29uc3VtZXIuMDFmYgogICAgICAgIENvbnN1bWVyLjAxZmMKICAgICAgICBDb25z
+dW1lci4wMWZkCiAgICAgICAgQ29uc3VtZXIuMDFmZQogICAgICAgIENvbnN1bWVyLjAxZmYKICAg
+ICAgICBDb25zdW1lci4wMjAwCiAgICAgICAgQ29uc3VtZXIuMDIwMQogICAgICAgIENvbnN1bWVy
+LjAyMDIKICAgICAgICBDb25zdW1lci4wMjAzCiAgICAgICAgQ29uc3VtZXIuMDIwNAogICAgICAg
+IENvbnN1bWVyLjAyMDUKICAgICAgICBDb25zdW1lci4wMjA2CiAgICAgICAgQ29uc3VtZXIuMDIw
+NwogICAgICAgIENvbnN1bWVyLjAyMDgKICAgICAgICBDb25zdW1lci4wMjA5CiAgICAgICAgQ29u
+c3VtZXIuMDIwYQogICAgICAgIENvbnN1bWVyLjAyMGIKICAgICAgICBDb25zdW1lci4wMjBjCiAg
+ICAgICAgQ29uc3VtZXIuMDIwZAogICAgICAgIENvbnN1bWVyLjAyMGUKICAgICAgICBDb25zdW1l
+ci4wMjBmCiAgICAgICAgQ29uc3VtZXIuMDIxMAogICAgICAgIENvbnN1bWVyLjAyMTEKICAgICAg
+ICBDb25zdW1lci4wMjEyCiAgICAgICAgQ29uc3VtZXIuMDIxMwogICAgICAgIENvbnN1bWVyLjAy
+MTQKICAgICAgICBDb25zdW1lci4wMjE1CiAgICAgICAgQ29uc3VtZXIuMDIxNgogICAgICAgIENv
+bnN1bWVyLjAyMTcKICAgICAgICBDb25zdW1lci4wMjE4CiAgICAgICAgQ29uc3VtZXIuMDIxOQog
+ICAgICAgIENvbnN1bWVyLjAyMWEKICAgICAgICBDb25zdW1lci4wMjFiCiAgICAgICAgQ29uc3Vt
+ZXIuMDIxYwogICAgICAgIENvbnN1bWVyLjAyMWQKICAgICAgICBDb25zdW1lci4wMjFlCiAgICAg
+ICAgQ29uc3VtZXIuMDIxZgogICAgICAgIENvbnN1bWVyLjAyMjAKICAgICAgICBDb25zdW1lci4w
+MjIxCiAgICAgICAgQ29uc3VtZXIuMDIyMgogICAgICAgIENvbnN1bWVyLjAyMjMKICAgICAgICBD
+b25zdW1lci4wMjI0CiAgICAgICAgQ29uc3VtZXIuMDIyNQogICAgICAgIENvbnN1bWVyLjAyMjYK
+ICAgICAgICBDb25zdW1lci4wMjI3CiAgICAgICAgQ29uc3VtZXIuMDIyOAogICAgICAgIENvbnN1
+bWVyLjAyMjkKICAgICAgICBDb25zdW1lci4wMjJhCiAgICAgICAgQ29uc3VtZXIuMDIyYgogICAg
+ICAgIENvbnN1bWVyLjAyMmMKICAgICAgICBDb25zdW1lci4wMjJkCiAgICAgICAgQ29uc3VtZXIu
+MDIyZQogICAgICAgIENvbnN1bWVyLjAyMmYKICAgICAgICBDb25zdW1lci4wMjMwCiAgICAgICAg
+Q29uc3VtZXIuMDIzMQogICAgICAgIENvbnN1bWVyLjAyMzIKICAgICAgICBDb25zdW1lci4wMjMz
+CiAgICAgICAgQ29uc3VtZXIuMDIzNAogICAgICAgIENvbnN1bWVyLjAyMzUKICAgICAgICBDb25z
+dW1lci4wMjM2CiAgICAgICAgQ29uc3VtZXIuMDIzNwogICAgICAgIENvbnN1bWVyLkhvcml6b250
+YWxXaGVlbAogICAgICAgIENvbnN1bWVyLjAyMzkKICAgICAgICBDb25zdW1lci4wMjNhCiAgICAg
+ICAgQ29uc3VtZXIuMDIzYgogICAgICAgIENvbnN1bWVyLjAyM2MKICAgICAgICBDb25zdW1lci4w
+MjNkCiAgICAgICAgQ29uc3VtZXIuMDIzZQogICAgICAgIENvbnN1bWVyLjAyM2YKICAgICAgICBD
+b25zdW1lci4wMjQwCiAgICAgICAgQ29uc3VtZXIuMDI0MQogICAgICAgIENvbnN1bWVyLjAyNDIK
+ICAgICAgICBDb25zdW1lci4wMjQzCiAgICAgICAgQ29uc3VtZXIuMDI0NAogICAgICAgIENvbnN1
+bWVyLjAyNDUKICAgICAgICBDb25zdW1lci4wMjQ2CiAgICAgICAgQ29uc3VtZXIuMDI0NwogICAg
+ICAgIENvbnN1bWVyLjAyNDgKICAgICAgICBDb25zdW1lci4wMjQ5CiAgICAgICAgQ29uc3VtZXIu
+MDI0YQogICAgICAgIENvbnN1bWVyLjAyNGIKICAgICAgICBDb25zdW1lci4wMjRjCiAgICAgICAg
+Q29uc3VtZXIuMDI0ZAogICAgICAgIENvbnN1bWVyLjAyNGUKICAgICAgICBDb25zdW1lci4wMjRm
+CiAgICAgICAgQ29uc3VtZXIuMDI1MAogICAgICAgIENvbnN1bWVyLjAyNTEKICAgICAgICBDb25z
+dW1lci4wMjUyCiAgICAgICAgQ29uc3VtZXIuMDI1MwogICAgICAgIENvbnN1bWVyLjAyNTQKICAg
+ICAgICBDb25zdW1lci4wMjU1CiAgICAgICAgQ29uc3VtZXIuMDI1NgogICAgICAgIENvbnN1bWVy
+LjAyNTcKICAgICAgICBDb25zdW1lci4wMjU4CiAgICAgICAgQ29uc3VtZXIuMDI1OQogICAgICAg
+IENvbnN1bWVyLjAyNWEKICAgICAgICBDb25zdW1lci4wMjViCiAgICAgICAgQ29uc3VtZXIuMDI1
+YwogICAgICAgIENvbnN1bWVyLjAyNWQKICAgICAgICBDb25zdW1lci4wMjVlCiAgICAgICAgQ29u
+c3VtZXIuMDI1ZgogICAgICAgIENvbnN1bWVyLjAyNjAKICAgICAgICBDb25zdW1lci4wMjYxCiAg
+ICAgICAgQ29uc3VtZXIuMDI2MgogICAgICAgIENvbnN1bWVyLjAyNjMKICAgICAgICBDb25zdW1l
+ci4wMjY0CiAgICAgICAgQ29uc3VtZXIuMDI2NQogICAgICAgIENvbnN1bWVyLjAyNjYKICAgICAg
+ICBDb25zdW1lci4wMjY3CiAgICAgICAgQ29uc3VtZXIuMDI2OAogICAgICAgIENvbnN1bWVyLjAy
+NjkKICAgICAgICBDb25zdW1lci4wMjZhCiAgICAgICAgQ29uc3VtZXIuMDI2YgogICAgICAgIENv
+bnN1bWVyLjAyNmMKICAgICAgICBDb25zdW1lci4wMjZkCiAgICAgICAgQ29uc3VtZXIuMDI2ZQog
+ICAgICAgIENvbnN1bWVyLjAyNmYKICAgICAgICBDb25zdW1lci4wMjcwCiAgICAgICAgQ29uc3Vt
+ZXIuMDI3MQogICAgICAgIENvbnN1bWVyLjAyNzIKICAgICAgICBDb25zdW1lci4wMjczCiAgICAg
+ICAgQ29uc3VtZXIuMDI3NAogICAgICAgIENvbnN1bWVyLjAyNzUKICAgICAgICBDb25zdW1lci4w
+Mjc2CiAgICAgICAgQ29uc3VtZXIuMDI3NwogICAgICAgIENvbnN1bWVyLjAyNzgKICAgICAgICBD
+b25zdW1lci4wMjc5CiAgICAgICAgQ29uc3VtZXIuMDI3YQogICAgICAgIENvbnN1bWVyLjAyN2IK
+ICAgICAgICBDb25zdW1lci4wMjdjCiAgICAgICAgQ29uc3VtZXIuMDI3ZAogICAgICAgIENvbnN1
+bWVyLjAyN2UKICAgICAgICBDb25zdW1lci4wMjdmCiAgICAgICAgQ29uc3VtZXIuMDI4MAogICAg
+ICAgIENvbnN1bWVyLjAyODEKICAgICAgICBDb25zdW1lci4wMjgyCiAgICAgICAgQ29uc3VtZXIu
+MDI4MwogICAgICAgIENvbnN1bWVyLjAyODQKICAgICAgICBDb25zdW1lci4wMjg1CiAgICAgICAg
+Q29uc3VtZXIuMDI4NgogICAgICAgIENvbnN1bWVyLjAyODcKICAgICAgICBDb25zdW1lci4wMjg4
+CiAgICAgICAgQ29uc3VtZXIuMDI4OQogICAgICAgIENvbnN1bWVyLjAyOGEKICAgICAgICBDb25z
+dW1lci4wMjhiCiAgICAgICAgQ29uc3VtZXIuMDI4YwogICAgICAgIENvbnN1bWVyLjAyOGQKICAg
+ICAgICBDb25zdW1lci4wMjhlCiAgICAgICAgQ29uc3VtZXIuMDI4ZgogICAgICAgIENvbnN1bWVy
+LjAyOTAKICAgICAgICBDb25zdW1lci4wMjkxCiAgICAgICAgQ29uc3VtZXIuMDI5MgogICAgICAg
+IENvbnN1bWVyLjAyOTMKICAgICAgICBDb25zdW1lci4wMjk0CiAgICAgICAgQ29uc3VtZXIuMDI5
+NQogICAgICAgIENvbnN1bWVyLjAyOTYKICAgICAgICBDb25zdW1lci4wMjk3CiAgICAgICAgQ29u
+c3VtZXIuMDI5OAogICAgICAgIENvbnN1bWVyLjAyOTkKICAgICAgICBDb25zdW1lci4wMjlhCiAg
+ICAgICAgQ29uc3VtZXIuMDI5YgogICAgICAgIENvbnN1bWVyLjAyOWMKICAgICAgICBDb25zdW1l
+ci4wMjlkCiAgICAgICAgQ29uc3VtZXIuMDI5ZQogICAgICAgIENvbnN1bWVyLjAyOWYKICAgICAg
+ICBDb25zdW1lci4wMmEwCiAgICAgICAgQ29uc3VtZXIuMDJhMQogICAgICAgIENvbnN1bWVyLjAy
+YTIKICAgICAgICBDb25zdW1lci4wMmEzCiAgICAgICAgQ29uc3VtZXIuMDJhNAogICAgICAgIENv
+bnN1bWVyLjAyYTUKICAgICAgICBDb25zdW1lci4wMmE2CiAgICAgICAgQ29uc3VtZXIuMDJhNwog
+ICAgICAgIENvbnN1bWVyLjAyYTgKICAgICAgICBDb25zdW1lci4wMmE5CiAgICAgICAgQ29uc3Vt
+ZXIuMDJhYQogICAgICAgIENvbnN1bWVyLjAyYWIKICAgICAgICBDb25zdW1lci4wMmFjCiAgICAg
+ICAgQ29uc3VtZXIuMDJhZAogICAgICAgIENvbnN1bWVyLjAyYWUKICAgICAgICBDb25zdW1lci4w
+MmFmCiAgICAgICAgQ29uc3VtZXIuMDJiMAogICAgICAgIENvbnN1bWVyLjAyYjEKICAgICAgICBD
+b25zdW1lci4wMmIyCiAgICAgICAgQ29uc3VtZXIuMDJiMwogICAgICAgIENvbnN1bWVyLjAyYjQK
+ICAgICAgICBDb25zdW1lci4wMmI1CiAgICAgICAgQ29uc3VtZXIuMDJiNgogICAgICAgIENvbnN1
+bWVyLjAyYjcKICAgICAgICBDb25zdW1lci4wMmI4CiAgICAgICAgQ29uc3VtZXIuMDJiOQogICAg
+ICAgIENvbnN1bWVyLjAyYmEKICAgICAgICBDb25zdW1lci4wMmJiCiAgICAgICAgQ29uc3VtZXIu
+MDJiYwogICAgICAgIENvbnN1bWVyLjAyYmQKICAgICAgICBDb25zdW1lci4wMmJlCiAgICAgICAg
+Q29uc3VtZXIuMDJiZgogICAgICAgIENvbnN1bWVyLjAyYzAKICAgICAgICBDb25zdW1lci4wMmMx
+CiAgICAgICAgQ29uc3VtZXIuMDJjMgogICAgICAgIENvbnN1bWVyLjAyYzMKICAgICAgICBDb25z
+dW1lci4wMmM0CiAgICAgICAgQ29uc3VtZXIuMDJjNQogICAgICAgIENvbnN1bWVyLjAyYzYKICAg
+ICAgICBDb25zdW1lci4wMmM3CiAgICAgICAgQ29uc3VtZXIuMDJjOAogICAgICAgIENvbnN1bWVy
+LjAyYzkKICAgICAgICBDb25zdW1lci4wMmNhCiAgICAgICAgQ29uc3VtZXIuMDJjYgogICAgICAg
+IENvbnN1bWVyLjAyY2MKICAgICAgICBDb25zdW1lci4wMmNkCiAgICAgICAgQ29uc3VtZXIuMDJj
+ZQogICAgICAgIENvbnN1bWVyLjAyY2YKICAgICAgICBDb25zdW1lci4wMmQwCiAgICAgICAgQ29u
+c3VtZXIuMDJkMQogICAgICAgIENvbnN1bWVyLjAyZDIKICAgICAgICBDb25zdW1lci4wMmQzCiAg
+ICAgICAgQ29uc3VtZXIuMDJkNAogICAgICAgIENvbnN1bWVyLjAyZDUKICAgICAgICBDb25zdW1l
+ci4wMmQ2CiAgICAgICAgQ29uc3VtZXIuMDJkNwogICAgICAgIENvbnN1bWVyLjAyZDgKICAgICAg
+ICBDb25zdW1lci4wMmQ5CiAgICAgICAgQ29uc3VtZXIuMDJkYQogICAgICAgIENvbnN1bWVyLjAy
+ZGIKICAgICAgICBDb25zdW1lci4wMmRjCiAgICAgICAgQ29uc3VtZXIuMDJkZAogICAgICAgIENv
+bnN1bWVyLjAyZGUKICAgICAgICBDb25zdW1lci4wMmRmCiAgICAgICAgQ29uc3VtZXIuMDJlMAog
+ICAgICAgIENvbnN1bWVyLjAyZTEKICAgICAgICBDb25zdW1lci4wMmUyCiAgICAgICAgQ29uc3Vt
+ZXIuMDJlMwogICAgICAgIENvbnN1bWVyLjAyZTQKICAgICAgICBDb25zdW1lci4wMmU1CiAgICAg
+ICAgQ29uc3VtZXIuMDJlNgogICAgICAgIENvbnN1bWVyLjAyZTcKICAgICAgICBDb25zdW1lci4w
+MmU4CiAgICAgICAgQ29uc3VtZXIuMDJlOQogICAgICAgIENvbnN1bWVyLjAyZWEKICAgICAgICBD
+b25zdW1lci4wMmViCiAgICAgICAgQ29uc3VtZXIuMDJlYwogICAgICAgIENvbnN1bWVyLjAyZWQK
+ICAgICAgICBDb25zdW1lci4wMmVlCiAgICAgICAgQ29uc3VtZXIuMDJlZgogICAgICAgIENvbnN1
+bWVyLjAyZjAKICAgICAgICBDb25zdW1lci4wMmYxCiAgICAgICAgQ29uc3VtZXIuMDJmMgogICAg
+ICAgIENvbnN1bWVyLjAyZjMKICAgICAgICBDb25zdW1lci4wMmY0CiAgICAgICAgQ29uc3VtZXIu
+MDJmNQogICAgICAgIENvbnN1bWVyLjAyZjYKICAgICAgICBDb25zdW1lci4wMmY3CiAgICAgICAg
+Q29uc3VtZXIuMDJmOAogICAgICAgIENvbnN1bWVyLjAyZjkKICAgICAgICBDb25zdW1lci4wMmZh
+CiAgICAgICAgQ29uc3VtZXIuMDJmYgogICAgICAgIENvbnN1bWVyLjAyZmMKICAgICAgICBDb25z
+dW1lci4wMmZkCiAgICAgICAgQ29uc3VtZXIuMDJmZQogICAgICAgIENvbnN1bWVyLjAyZmYKICAg
+ICAgTG9naWNhbCBNaW5pbXVtKDApCiAgICAgIExvZ2ljYWwgTWF4aW11bSg3NjcpCiAgICAgIFJl
+cG9ydCBTaXplKDE2KQogICAgICBSZXBvcnQgQ291bnQoMykKICAgICAgUmVwb3J0IE9mZnNldCgw
+KQogICAgICBGbGFncyggQXJyYXkgQWJzb2x1dGUgKQogIElOUFVUKDMpW0lOUFVUXQogICAgRmll
+bGQoMCkKICAgICAgVXNhZ2UoMjU2KQogICAgICAgIGZmYmMuMDAwMAogICAgICAgIGZmYmMuMDAw
+MQogICAgICAgIGZmYmMuMDAwMgogICAgICAgIGZmYmMuMDAwMwogICAgICAgIGZmYmMuMDAwNAog
+ICAgICAgIGZmYmMuMDAwNQogICAgICAgIGZmYmMuMDAwNgogICAgICAgIGZmYmMuMDAwNwogICAg
+ICAgIGZmYmMuMDAwOAogICAgICAgIGZmYmMuMDAwOQogICAgICAgIGZmYmMuMDAwYQogICAgICAg
+IGZmYmMuMDAwYgogICAgICAgIGZmYmMuMDAwYwogICAgICAgIGZmYmMuMDAwZAogICAgICAgIGZm
+YmMuMDAwZQogICAgICAgIGZmYmMuMDAwZgogICAgICAgIGZmYmMuMDAxMAogICAgICAgIGZmYmMu
+MDAxMQogICAgICAgIGZmYmMuMDAxMgogICAgICAgIGZmYmMuMDAxMwogICAgICAgIGZmYmMuMDAx
+NAogICAgICAgIGZmYmMuMDAxNQogICAgICAgIGZmYmMuMDAxNgogICAgICAgIGZmYmMuMDAxNwog
+ICAgICAgIGZmYmMuMDAxOAogICAgICAgIGZmYmMuMDAxOQogICAgICAgIGZmYmMuMDAxYQogICAg
+ICAgIGZmYmMuMDAxYgogICAgICAgIGZmYmMuMDAxYwogICAgICAgIGZmYmMuMDAxZAogICAgICAg
+IGZmYmMuMDAxZQogICAgICAgIGZmYmMuMDAxZgogICAgICAgIGZmYmMuMDAyMAogICAgICAgIGZm
+YmMuMDAyMQogICAgICAgIGZmYmMuMDAyMgogICAgICAgIGZmYmMuMDAyMwogICAgICAgIGZmYmMu
+MDAyNAogICAgICAgIGZmYmMuMDAyNQogICAgICAgIGZmYmMuMDAyNgogICAgICAgIGZmYmMuMDAy
+NwogICAgICAgIGZmYmMuMDAyOAogICAgICAgIGZmYmMuMDAyOQogICAgICAgIGZmYmMuMDAyYQog
+ICAgICAgIGZmYmMuMDAyYgogICAgICAgIGZmYmMuMDAyYwogICAgICAgIGZmYmMuMDAyZAogICAg
+ICAgIGZmYmMuMDAyZQogICAgICAgIGZmYmMuMDAyZgogICAgICAgIGZmYmMuMDAzMAogICAgICAg
+IGZmYmMuMDAzMQogICAgICAgIGZmYmMuMDAzMgogICAgICAgIGZmYmMuMDAzMwogICAgICAgIGZm
+YmMuMDAzNAogICAgICAgIGZmYmMuMDAzNQogICAgICAgIGZmYmMuMDAzNgogICAgICAgIGZmYmMu
+MDAzNwogICAgICAgIGZmYmMuMDAzOAogICAgICAgIGZmYmMuMDAzOQogICAgICAgIGZmYmMuMDAz
+YQogICAgICAgIGZmYmMuMDAzYgogICAgICAgIGZmYmMuMDAzYwogICAgICAgIGZmYmMuMDAzZAog
+ICAgICAgIGZmYmMuMDAzZQogICAgICAgIGZmYmMuMDAzZgogICAgICAgIGZmYmMuMDA0MAogICAg
+ICAgIGZmYmMuMDA0MQogICAgICAgIGZmYmMuMDA0MgogICAgICAgIGZmYmMuMDA0MwogICAgICAg
+IGZmYmMuMDA0NAogICAgICAgIGZmYmMuMDA0NQogICAgICAgIGZmYmMuMDA0NgogICAgICAgIGZm
+YmMuMDA0NwogICAgICAgIGZmYmMuMDA0OAogICAgICAgIGZmYmMuMDA0OQogICAgICAgIGZmYmMu
+MDA0YQogICAgICAgIGZmYmMuMDA0YgogICAgICAgIGZmYmMuMDA0YwogICAgICAgIGZmYmMuMDA0
+ZAogICAgICAgIGZmYmMuMDA0ZQogICAgICAgIGZmYmMuMDA0ZgogICAgICAgIGZmYmMuMDA1MAog
+ICAgICAgIGZmYmMuMDA1MQogICAgICAgIGZmYmMuMDA1MgogICAgICAgIGZmYmMuMDA1MwogICAg
+ICAgIGZmYmMuMDA1NAogICAgICAgIGZmYmMuMDA1NQogICAgICAgIGZmYmMuMDA1NgogICAgICAg
+IGZmYmMuMDA1NwogICAgICAgIGZmYmMuMDA1OAogICAgICAgIGZmYmMuMDA1OQogICAgICAgIGZm
+YmMuMDA1YQogICAgICAgIGZmYmMuMDA1YgogICAgICAgIGZmYmMuMDA1YwogICAgICAgIGZmYmMu
+MDA1ZAogICAgICAgIGZmYmMuMDA1ZQogICAgICAgIGZmYmMuMDA1ZgogICAgICAgIGZmYmMuMDA2
+MAogICAgICAgIGZmYmMuMDA2MQogICAgICAgIGZmYmMuMDA2MgogICAgICAgIGZmYmMuMDA2Mwog
+ICAgICAgIGZmYmMuMDA2NAogICAgICAgIGZmYmMuMDA2NQogICAgICAgIGZmYmMuMDA2NgogICAg
+ICAgIGZmYmMuMDA2NwogICAgICAgIGZmYmMuMDA2OAogICAgICAgIGZmYmMuMDA2OQogICAgICAg
+IGZmYmMuMDA2YQogICAgICAgIGZmYmMuMDA2YgogICAgICAgIGZmYmMuMDA2YwogICAgICAgIGZm
+YmMuMDA2ZAogICAgICAgIGZmYmMuMDA2ZQogICAgICAgIGZmYmMuMDA2ZgogICAgICAgIGZmYmMu
+MDA3MAogICAgICAgIGZmYmMuMDA3MQogICAgICAgIGZmYmMuMDA3MgogICAgICAgIGZmYmMuMDA3
+MwogICAgICAgIGZmYmMuMDA3NAogICAgICAgIGZmYmMuMDA3NQogICAgICAgIGZmYmMuMDA3Ngog
+ICAgICAgIGZmYmMuMDA3NwogICAgICAgIGZmYmMuMDA3OAogICAgICAgIGZmYmMuMDA3OQogICAg
+ICAgIGZmYmMuMDA3YQogICAgICAgIGZmYmMuMDA3YgogICAgICAgIGZmYmMuMDA3YwogICAgICAg
+IGZmYmMuMDA3ZAogICAgICAgIGZmYmMuMDA3ZQogICAgICAgIGZmYmMuMDA3ZgogICAgICAgIGZm
+YmMuMDA4MAogICAgICAgIGZmYmMuMDA4MQogICAgICAgIGZmYmMuMDA4MgogICAgICAgIGZmYmMu
+MDA4MwogICAgICAgIGZmYmMuMDA4NAogICAgICAgIGZmYmMuMDA4NQogICAgICAgIGZmYmMuMDA4
+NgogICAgICAgIGZmYmMuMDA4NwogICAgICAgIGZmYmMuMDA4OAogICAgICAgIGZmYmMuMDA4OQog
+ICAgICAgIGZmYmMuMDA4YQogICAgICAgIGZmYmMuMDA4YgogICAgICAgIGZmYmMuMDA4YwogICAg
+ICAgIGZmYmMuMDA4ZAogICAgICAgIGZmYmMuMDA4ZQogICAgICAgIGZmYmMuMDA4ZgogICAgICAg
+IGZmYmMuMDA5MAogICAgICAgIGZmYmMuMDA5MQogICAgICAgIGZmYmMuMDA5MgogICAgICAgIGZm
+YmMuMDA5MwogICAgICAgIGZmYmMuMDA5NAogICAgICAgIGZmYmMuMDA5NQogICAgICAgIGZmYmMu
+MDA5NgogICAgICAgIGZmYmMuMDA5NwogICAgICAgIGZmYmMuMDA5OAogICAgICAgIGZmYmMuMDA5
+OQogICAgICAgIGZmYmMuMDA5YQogICAgICAgIGZmYmMuMDA5YgogICAgICAgIGZmYmMuMDA5Ywog
+ICAgICAgIGZmYmMuMDA5ZAogICAgICAgIGZmYmMuMDA5ZQogICAgICAgIGZmYmMuMDA5ZgogICAg
+ICAgIGZmYmMuMDBhMAogICAgICAgIGZmYmMuMDBhMQogICAgICAgIGZmYmMuMDBhMgogICAgICAg
+IGZmYmMuMDBhMwogICAgICAgIGZmYmMuMDBhNAogICAgICAgIGZmYmMuMDBhNQogICAgICAgIGZm
+YmMuMDBhNgogICAgICAgIGZmYmMuMDBhNwogICAgICAgIGZmYmMuMDBhOAogICAgICAgIGZmYmMu
+MDBhOQogICAgICAgIGZmYmMuMDBhYQogICAgICAgIGZmYmMuMDBhYgogICAgICAgIGZmYmMuMDBh
+YwogICAgICAgIGZmYmMuMDBhZAogICAgICAgIGZmYmMuMDBhZQogICAgICAgIGZmYmMuMDBhZgog
+ICAgICAgIGZmYmMuMDBiMAogICAgICAgIGZmYmMuMDBiMQogICAgICAgIGZmYmMuMDBiMgogICAg
+ICAgIGZmYmMuMDBiMwogICAgICAgIGZmYmMuMDBiNAogICAgICAgIGZmYmMuMDBiNQogICAgICAg
+IGZmYmMuMDBiNgogICAgICAgIGZmYmMuMDBiNwogICAgICAgIGZmYmMuMDBiOAogICAgICAgIGZm
+YmMuMDBiOQogICAgICAgIGZmYmMuMDBiYQogICAgICAgIGZmYmMuMDBiYgogICAgICAgIGZmYmMu
+MDBiYwogICAgICAgIGZmYmMuMDBiZAogICAgICAgIGZmYmMuMDBiZQogICAgICAgIGZmYmMuMDBi
+ZgogICAgICAgIGZmYmMuMDBjMAogICAgICAgIGZmYmMuMDBjMQogICAgICAgIGZmYmMuMDBjMgog
+ICAgICAgIGZmYmMuMDBjMwogICAgICAgIGZmYmMuMDBjNAogICAgICAgIGZmYmMuMDBjNQogICAg
+ICAgIGZmYmMuMDBjNgogICAgICAgIGZmYmMuMDBjNwogICAgICAgIGZmYmMuMDBjOAogICAgICAg
+IGZmYmMuMDBjOQogICAgICAgIGZmYmMuMDBjYQogICAgICAgIGZmYmMuMDBjYgogICAgICAgIGZm
+YmMuMDBjYwogICAgICAgIGZmYmMuMDBjZAogICAgICAgIGZmYmMuMDBjZQogICAgICAgIGZmYmMu
+MDBjZgogICAgICAgIGZmYmMuMDBkMAogICAgICAgIGZmYmMuMDBkMQogICAgICAgIGZmYmMuMDBk
+MgogICAgICAgIGZmYmMuMDBkMwogICAgICAgIGZmYmMuMDBkNAogICAgICAgIGZmYmMuMDBkNQog
+ICAgICAgIGZmYmMuMDBkNgogICAgICAgIGZmYmMuMDBkNwogICAgICAgIGZmYmMuMDBkOAogICAg
+ICAgIGZmYmMuMDBkOQogICAgICAgIGZmYmMuMDBkYQogICAgICAgIGZmYmMuMDBkYgogICAgICAg
+IGZmYmMuMDBkYwogICAgICAgIGZmYmMuMDBkZAogICAgICAgIGZmYmMuMDBkZQogICAgICAgIGZm
+YmMuMDBkZgogICAgICAgIGZmYmMuMDBlMAogICAgICAgIGZmYmMuMDBlMQogICAgICAgIGZmYmMu
+MDBlMgogICAgICAgIGZmYmMuMDBlMwogICAgICAgIGZmYmMuMDBlNAogICAgICAgIGZmYmMuMDBl
+NQogICAgICAgIGZmYmMuMDBlNgogICAgICAgIGZmYmMuMDBlNwogICAgICAgIGZmYmMuMDBlOAog
+ICAgICAgIGZmYmMuMDBlOQogICAgICAgIGZmYmMuMDBlYQogICAgICAgIGZmYmMuMDBlYgogICAg
+ICAgIGZmYmMuMDBlYwogICAgICAgIGZmYmMuMDBlZAogICAgICAgIGZmYmMuMDBlZQogICAgICAg
+IGZmYmMuMDBlZgogICAgICAgIGZmYmMuMDBmMAogICAgICAgIGZmYmMuMDBmMQogICAgICAgIGZm
+YmMuMDBmMgogICAgICAgIGZmYmMuMDBmMwogICAgICAgIGZmYmMuMDBmNAogICAgICAgIGZmYmMu
+MDBmNQogICAgICAgIGZmYmMuMDBmNgogICAgICAgIGZmYmMuMDBmNwogICAgICAgIGZmYmMuMDBm
+OAogICAgICAgIGZmYmMuMDBmOQogICAgICAgIGZmYmMuMDBmYQogICAgICAgIGZmYmMuMDBmYgog
+ICAgICAgIGZmYmMuMDBmYwogICAgICAgIGZmYmMuMDBmZAogICAgICAgIGZmYmMuMDBmZQogICAg
+ICAgIGZmYmMuMDBmZgogICAgICBMb2dpY2FsIE1pbmltdW0oMCkKICAgICAgTG9naWNhbCBNYXhp
+bXVtKDI1NSkKICAgICAgUmVwb3J0IFNpemUoMTYpCiAgICAgIFJlcG9ydCBDb3VudCgzKQogICAg
+ICBSZXBvcnQgT2Zmc2V0KDApCiAgICAgIEZsYWdzKCBBcnJheSBBYnNvbHV0ZSApCiAgRkVBVFVS
+RSgzKVtGRUFUVVJFXQogICAgRmllbGQoMCkKICAgICAgVXNhZ2UoMjU2KQogICAgICAgIGZmYmMu
+MDAwMAogICAgICAgIGZmYmMuMDAwMQogICAgICAgIGZmYmMuMDAwMgogICAgICAgIGZmYmMuMDAw
+MwogICAgICAgIGZmYmMuMDAwNAogICAgICAgIGZmYmMuMDAwNQogICAgICAgIGZmYmMuMDAwNgog
+ICAgICAgIGZmYmMuMDAwNwogICAgICAgIGZmYmMuMDAwOAogICAgICAgIGZmYmMuMDAwOQogICAg
+ICAgIGZmYmMuMDAwYQogICAgICAgIGZmYmMuMDAwYgogICAgICAgIGZmYmMuMDAwYwogICAgICAg
+IGZmYmMuMDAwZAogICAgICAgIGZmYmMuMDAwZQogICAgICAgIGZmYmMuMDAwZgogICAgICAgIGZm
+YmMuMDAxMAogICAgICAgIGZmYmMuMDAxMQogICAgICAgIGZmYmMuMDAxMgogICAgICAgIGZmYmMu
+MDAxMwogICAgICAgIGZmYmMuMDAxNAogICAgICAgIGZmYmMuMDAxNQogICAgICAgIGZmYmMuMDAx
+NgogICAgICAgIGZmYmMuMDAxNwogICAgICAgIGZmYmMuMDAxOAogICAgICAgIGZmYmMuMDAxOQog
+ICAgICAgIGZmYmMuMDAxYQogICAgICAgIGZmYmMuMDAxYgogICAgICAgIGZmYmMuMDAxYwogICAg
+ICAgIGZmYmMuMDAxZAogICAgICAgIGZmYmMuMDAxZQogICAgICAgIGZmYmMuMDAxZgogICAgICAg
+IGZmYmMuMDAyMAogICAgICAgIGZmYmMuMDAyMQogICAgICAgIGZmYmMuMDAyMgogICAgICAgIGZm
+YmMuMDAyMwogICAgICAgIGZmYmMuMDAyNAogICAgICAgIGZmYmMuMDAyNQogICAgICAgIGZmYmMu
+MDAyNgogICAgICAgIGZmYmMuMDAyNwogICAgICAgIGZmYmMuMDAyOAogICAgICAgIGZmYmMuMDAy
+OQogICAgICAgIGZmYmMuMDAyYQogICAgICAgIGZmYmMuMDAyYgogICAgICAgIGZmYmMuMDAyYwog
+ICAgICAgIGZmYmMuMDAyZAogICAgICAgIGZmYmMuMDAyZQogICAgICAgIGZmYmMuMDAyZgogICAg
+ICAgIGZmYmMuMDAzMAogICAgICAgIGZmYmMuMDAzMQogICAgICAgIGZmYmMuMDAzMgogICAgICAg
+IGZmYmMuMDAzMwogICAgICAgIGZmYmMuMDAzNAogICAgICAgIGZmYmMuMDAzNQogICAgICAgIGZm
+YmMuMDAzNgogICAgICAgIGZmYmMuMDAzNwogICAgICAgIGZmYmMuMDAzOAogICAgICAgIGZmYmMu
+MDAzOQogICAgICAgIGZmYmMuMDAzYQogICAgICAgIGZmYmMuMDAzYgogICAgICAgIGZmYmMuMDAz
+YwogICAgICAgIGZmYmMuMDAzZAogICAgICAgIGZmYmMuMDAzZQogICAgICAgIGZmYmMuMDAzZgog
+ICAgICAgIGZmYmMuMDA0MAogICAgICAgIGZmYmMuMDA0MQogICAgICAgIGZmYmMuMDA0MgogICAg
+ICAgIGZmYmMuMDA0MwogICAgICAgIGZmYmMuMDA0NAogICAgICAgIGZmYmMuMDA0NQogICAgICAg
+IGZmYmMuMDA0NgogICAgICAgIGZmYmMuMDA0NwogICAgICAgIGZmYmMuMDA0OAogICAgICAgIGZm
+YmMuMDA0OQogICAgICAgIGZmYmMuMDA0YQogICAgICAgIGZmYmMuMDA0YgogICAgICAgIGZmYmMu
+MDA0YwogICAgICAgIGZmYmMuMDA0ZAogICAgICAgIGZmYmMuMDA0ZQogICAgICAgIGZmYmMuMDA0
+ZgogICAgICAgIGZmYmMuMDA1MAogICAgICAgIGZmYmMuMDA1MQogICAgICAgIGZmYmMuMDA1Mgog
+ICAgICAgIGZmYmMuMDA1MwogICAgICAgIGZmYmMuMDA1NAogICAgICAgIGZmYmMuMDA1NQogICAg
+ICAgIGZmYmMuMDA1NgogICAgICAgIGZmYmMuMDA1NwogICAgICAgIGZmYmMuMDA1OAogICAgICAg
+IGZmYmMuMDA1OQogICAgICAgIGZmYmMuMDA1YQogICAgICAgIGZmYmMuMDA1YgogICAgICAgIGZm
+YmMuMDA1YwogICAgICAgIGZmYmMuMDA1ZAogICAgICAgIGZmYmMuMDA1ZQogICAgICAgIGZmYmMu
+MDA1ZgogICAgICAgIGZmYmMuMDA2MAogICAgICAgIGZmYmMuMDA2MQogICAgICAgIGZmYmMuMDA2
+MgogICAgICAgIGZmYmMuMDA2MwogICAgICAgIGZmYmMuMDA2NAogICAgICAgIGZmYmMuMDA2NQog
+ICAgICAgIGZmYmMuMDA2NgogICAgICAgIGZmYmMuMDA2NwogICAgICAgIGZmYmMuMDA2OAogICAg
+ICAgIGZmYmMuMDA2OQogICAgICAgIGZmYmMuMDA2YQogICAgICAgIGZmYmMuMDA2YgogICAgICAg
+IGZmYmMuMDA2YwogICAgICAgIGZmYmMuMDA2ZAogICAgICAgIGZmYmMuMDA2ZQogICAgICAgIGZm
+YmMuMDA2ZgogICAgICAgIGZmYmMuMDA3MAogICAgICAgIGZmYmMuMDA3MQogICAgICAgIGZmYmMu
+MDA3MgogICAgICAgIGZmYmMuMDA3MwogICAgICAgIGZmYmMuMDA3NAogICAgICAgIGZmYmMuMDA3
+NQogICAgICAgIGZmYmMuMDA3NgogICAgICAgIGZmYmMuMDA3NwogICAgICAgIGZmYmMuMDA3OAog
+ICAgICAgIGZmYmMuMDA3OQogICAgICAgIGZmYmMuMDA3YQogICAgICAgIGZmYmMuMDA3YgogICAg
+ICAgIGZmYmMuMDA3YwogICAgICAgIGZmYmMuMDA3ZAogICAgICAgIGZmYmMuMDA3ZQogICAgICAg
+IGZmYmMuMDA3ZgogICAgICAgIGZmYmMuMDA4MAogICAgICAgIGZmYmMuMDA4MQogICAgICAgIGZm
+YmMuMDA4MgogICAgICAgIGZmYmMuMDA4MwogICAgICAgIGZmYmMuMDA4NAogICAgICAgIGZmYmMu
+MDA4NQogICAgICAgIGZmYmMuMDA4NgogICAgICAgIGZmYmMuMDA4NwogICAgICAgIGZmYmMuMDA4
+OAogICAgICAgIGZmYmMuMDA4OQogICAgICAgIGZmYmMuMDA4YQogICAgICAgIGZmYmMuMDA4Ygog
+ICAgICAgIGZmYmMuMDA4YwogICAgICAgIGZmYmMuMDA4ZAogICAgICAgIGZmYmMuMDA4ZQogICAg
+ICAgIGZmYmMuMDA4ZgogICAgICAgIGZmYmMuMDA5MAogICAgICAgIGZmYmMuMDA5MQogICAgICAg
+IGZmYmMuMDA5MgogICAgICAgIGZmYmMuMDA5MwogICAgICAgIGZmYmMuMDA5NAogICAgICAgIGZm
+YmMuMDA5NQogICAgICAgIGZmYmMuMDA5NgogICAgICAgIGZmYmMuMDA5NwogICAgICAgIGZmYmMu
+MDA5OAogICAgICAgIGZmYmMuMDA5OQogICAgICAgIGZmYmMuMDA5YQogICAgICAgIGZmYmMuMDA5
+YgogICAgICAgIGZmYmMuMDA5YwogICAgICAgIGZmYmMuMDA5ZAogICAgICAgIGZmYmMuMDA5ZQog
+ICAgICAgIGZmYmMuMDA5ZgogICAgICAgIGZmYmMuMDBhMAogICAgICAgIGZmYmMuMDBhMQogICAg
+ICAgIGZmYmMuMDBhMgogICAgICAgIGZmYmMuMDBhMwogICAgICAgIGZmYmMuMDBhNAogICAgICAg
+IGZmYmMuMDBhNQogICAgICAgIGZmYmMuMDBhNgogICAgICAgIGZmYmMuMDBhNwogICAgICAgIGZm
+YmMuMDBhOAogICAgICAgIGZmYmMuMDBhOQogICAgICAgIGZmYmMuMDBhYQogICAgICAgIGZmYmMu
+MDBhYgogICAgICAgIGZmYmMuMDBhYwogICAgICAgIGZmYmMuMDBhZAogICAgICAgIGZmYmMuMDBh
+ZQogICAgICAgIGZmYmMuMDBhZgogICAgICAgIGZmYmMuMDBiMAogICAgICAgIGZmYmMuMDBiMQog
+ICAgICAgIGZmYmMuMDBiMgogICAgICAgIGZmYmMuMDBiMwogICAgICAgIGZmYmMuMDBiNAogICAg
+ICAgIGZmYmMuMDBiNQogICAgICAgIGZmYmMuMDBiNgogICAgICAgIGZmYmMuMDBiNwogICAgICAg
+IGZmYmMuMDBiOAogICAgICAgIGZmYmMuMDBiOQogICAgICAgIGZmYmMuMDBiYQogICAgICAgIGZm
+YmMuMDBiYgogICAgICAgIGZmYmMuMDBiYwogICAgICAgIGZmYmMuMDBiZAogICAgICAgIGZmYmMu
+MDBiZQogICAgICAgIGZmYmMuMDBiZgogICAgICAgIGZmYmMuMDBjMAogICAgICAgIGZmYmMuMDBj
+MQogICAgICAgIGZmYmMuMDBjMgogICAgICAgIGZmYmMuMDBjMwogICAgICAgIGZmYmMuMDBjNAog
+ICAgICAgIGZmYmMuMDBjNQogICAgICAgIGZmYmMuMDBjNgogICAgICAgIGZmYmMuMDBjNwogICAg
+ICAgIGZmYmMuMDBjOAogICAgICAgIGZmYmMuMDBjOQogICAgICAgIGZmYmMuMDBjYQogICAgICAg
+IGZmYmMuMDBjYgogICAgICAgIGZmYmMuMDBjYwogICAgICAgIGZmYmMuMDBjZAogICAgICAgIGZm
+YmMuMDBjZQogICAgICAgIGZmYmMuMDBjZgogICAgICAgIGZmYmMuMDBkMAogICAgICAgIGZmYmMu
+MDBkMQogICAgICAgIGZmYmMuMDBkMgogICAgICAgIGZmYmMuMDBkMwogICAgICAgIGZmYmMuMDBk
+NAogICAgICAgIGZmYmMuMDBkNQogICAgICAgIGZmYmMuMDBkNgogICAgICAgIGZmYmMuMDBkNwog
+ICAgICAgIGZmYmMuMDBkOAogICAgICAgIGZmYmMuMDBkOQogICAgICAgIGZmYmMuMDBkYQogICAg
+ICAgIGZmYmMuMDBkYgogICAgICAgIGZmYmMuMDBkYwogICAgICAgIGZmYmMuMDBkZAogICAgICAg
+IGZmYmMuMDBkZQogICAgICAgIGZmYmMuMDBkZgogICAgICAgIGZmYmMuMDBlMAogICAgICAgIGZm
+YmMuMDBlMQogICAgICAgIGZmYmMuMDBlMgogICAgICAgIGZmYmMuMDBlMwogICAgICAgIGZmYmMu
+MDBlNAogICAgICAgIGZmYmMuMDBlNQogICAgICAgIGZmYmMuMDBlNgogICAgICAgIGZmYmMuMDBl
+NwogICAgICAgIGZmYmMuMDBlOAogICAgICAgIGZmYmMuMDBlOQogICAgICAgIGZmYmMuMDBlYQog
+ICAgICAgIGZmYmMuMDBlYgogICAgICAgIGZmYmMuMDBlYwogICAgICAgIGZmYmMuMDBlZAogICAg
+ICAgIGZmYmMuMDBlZQogICAgICAgIGZmYmMuMDBlZgogICAgICAgIGZmYmMuMDBmMAogICAgICAg
+IGZmYmMuMDBmMQogICAgICAgIGZmYmMuMDBmMgogICAgICAgIGZmYmMuMDBmMwogICAgICAgIGZm
+YmMuMDBmNAogICAgICAgIGZmYmMuMDBmNQogICAgICAgIGZmYmMuMDBmNgogICAgICAgIGZmYmMu
+MDBmNwogICAgICAgIGZmYmMuMDBmOAogICAgICAgIGZmYmMuMDBmOQogICAgICAgIGZmYmMuMDBm
+YQogICAgICAgIGZmYmMuMDBmYgogICAgICAgIGZmYmMuMDBmYwogICAgICAgIGZmYmMuMDBmZAog
+ICAgICAgIGZmYmMuMDBmZQogICAgICAgIGZmYmMuMDBmZgogICAgICBMb2dpY2FsIE1pbmltdW0o
+MCkKICAgICAgTG9naWNhbCBNYXhpbXVtKDI1NSkKICAgICAgUmVwb3J0IFNpemUoOCkKICAgICAg
+UmVwb3J0IENvdW50KDcpCiAgICAgIFJlcG9ydCBPZmZzZXQoMCkKICAgICAgRmxhZ3MoIEFycmF5
+IFJlbGF0aXZlICkKCkdlbmVyaWNEZXNrdG9wLlN5c3RlbVBvd2VyRG93biAtLS0+IEtleS5Qb3dl
+cgpHZW5lcmljRGVza3RvcC5TeXN0ZW1TbGVlcCAtLS0+IEtleS5TbGVlcApHZW5lcmljRGVza3Rv
+cC5TeXN0ZW1XYWtlVXAgLS0tPiBLZXkuV2FrZVVwCkNvbnN1bWVyLjAwMDAgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMDAxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAwMiAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwMDMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDA0IC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAwNSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAw
+MDYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDA3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDAwOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMDkgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMDBhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAwYiAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAwMGMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDBkIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDAwZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMGYgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDEwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAx
+MSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMTIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMDEzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAxNCAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAwMTUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDE2IC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDAxNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMTggLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMDE5IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAxYSAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMWIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDFj
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAxZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAwMWUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDFmIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDAyMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMjEgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMDIyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAyMyAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAwMjQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDI1IC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDAyNiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMjcg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDI4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDAyOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMmEgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMDJiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAyYyAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAwMmQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDJlIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDAyZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMzAgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMDMxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAzMiAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwMzMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MDM0IC0tLT4gS2V5LlNsZWVwCkNvbnN1bWVyLjAwMzUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMDM2IC0tLT4gS2V5LkJ0bjAKQ29uc3VtZXIuMDAzNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAwMzggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDM5IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDAzYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwM2IgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMDNjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDAzZCAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwM2UgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDNmIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA0MCAtLS0+IEtleS5NZW51CkNvbnN1bWVyLjAwNDEg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDQyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDA0MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNDQgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMDQ1IC0tLT4gS2V5LlJhZGlvCkNvbnN1bWVyLjAwNDYgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMDQ3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA0OCAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAwNDkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDRhIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDA0YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNGMgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDRkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA0
+ZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNGYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMDUwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA1MSAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAwNTIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDUzIC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDA1NCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNTUgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMDU2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA1NyAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNTggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDU5
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA1YSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAwNWIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDVjIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDA1ZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNWUgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMDVmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA2MCAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAwNjEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDYyIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDA2MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNjQg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDY1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDA2NiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNjcgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMDY4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA2OSAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAwNmEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDZiIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDA2YyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNmQgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMDZlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA2ZiAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNzAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MDcxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA3MiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAwNzMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDc0IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDA3NSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwNzYgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMDc3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA3OCAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwNzkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDdhIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA3YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAw
+N2MgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDdkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDA3ZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwN2YgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMDgwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA4MSAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAwODIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDgzIC0tLT4gS2V5
+Lkxhc3QKQ29uc3VtZXIuMDA4NCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwODUgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMDg2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDA4NyAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwODggLS0tPiBLZXkuUEMKQ29uc3VtZXIuMDA4OSAt
+LS0+IEtleS5UVgpDb25zdW1lci4wMDhhIC0tLT4gS2V5LldXVwpDb25zdW1lci4wMDhiIC0tLT4g
+S2V5LkRWRApDb25zdW1lci4wMDhjIC0tLT4gS2V5LlBob25lCkNvbnN1bWVyLjAwOGQgLS0tPiBL
+ZXkuUHJvZ3JhbQpDb25zdW1lci4wMDhlIC0tLT4gS2V5Lj8KQ29uc3VtZXIuMDA4ZiAtLS0+IEtl
+eS4/CkNvbnN1bWVyLjAwOTAgLS0tPiBLZXkuTWVtbwpDb25zdW1lci4wMDkxIC0tLT4gS2V5LkNE
+CkNvbnN1bWVyLjAwOTIgLS0tPiBLZXkuVkNSCkNvbnN1bWVyLjAwOTMgLS0tPiBLZXkuVHVuZXIK
+Q29uc3VtZXIuMDA5NCAtLS0+IEtleS5FeGl0CkNvbnN1bWVyLjAwOTUgLS0tPiBLZXkuSGVscApD
+b25zdW1lci4wMDk2IC0tLT4gS2V5LlRhcGUKQ29uc3VtZXIuMDA5NyAtLS0+IEtleS5UVjIKQ29u
+c3VtZXIuMDA5OCAtLS0+IEtleS5TYXQKQ29uc3VtZXIuMDA5OSAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAwOWEgLS0tPiBLZXkuUFZSCkNvbnN1bWVyLjAwOWIgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMDljIC0tLT4gS2V5LkNoYW5uZWxVcApDb25zdW1lci4wMDlkIC0tLT4gS2V5LkNo
+YW5uZWxEb3duCkNvbnN1bWVyLjAwOWUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMDlmIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBhMCAtLS0+IEtleS5WQ1IyCkNvbnN1bWVyLjAwYTEg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGEyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDBhMyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYTQgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMGE1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBhNiAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAwYTcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGE4IC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDBhOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYWEgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMGFiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBhYyAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYWQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MGFlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBhZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAwYjAgLS0tPiBLZXkuUGxheQpDb25zdW1lci4wMGIxIC0tLT4gS2V5LlBhdXNlCkNvbnN1
+bWVyLjAwYjIgLS0tPiBLZXkuUmVjb3JkCkNvbnN1bWVyLjAwYjMgLS0tPiBLZXkuRmFzdEZvcndh
+cmQKQ29uc3VtZXIuMDBiNCAtLS0+IEtleS5SZXdpbmQKQ29uc3VtZXIuMDBiNSAtLS0+IEtleS5O
+ZXh0U29uZwpDb25zdW1lci4wMGI2IC0tLT4gS2V5LlByZXZpb3VzU29uZwpDb25zdW1lci4wMGI3
+IC0tLT4gS2V5LlN0b3BDRApDb25zdW1lci4wMGI4IC0tLT4gS2V5LkVqZWN0Q0QKQ29uc3VtZXIu
+MDBiOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYmEgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMGJiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBiYyAtLS0+IEtleS4/CkNvbnN1
+bWVyLjAwYmQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGJlIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDBiZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYzAgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMGMxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBjMiAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwYzMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGM0IC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBjNSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAw
+YzYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGM3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDBjOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwYzkgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMGNhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBjYiAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAwY2MgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGNkIC0tLT4gS2V5
+LlBsYXlQYXVzZQpDb25zdW1lci4wMGNlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBjZiAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZDAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MGQxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBkMiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAwZDMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGQ0IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDBkNSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZDYgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMGQ3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBkOCAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwZDkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGRhIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBkYiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAw
+ZGMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGRkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDBkZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZGYgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMGUwIC0tLT4gQWJzb2x1dGUuVm9sdW1lCkNvbnN1bWVyLjAwZTEgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMGUyIC0tLT4gS2V5Lk11dGUKQ29uc3VtZXIuMDBlMyAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwZTQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGU1IC0t
+LT4gS2V5LkJhc3NCb29zdApDb25zdW1lci4wMGU2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDBlNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZTggLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMGU5IC0tLT4gS2V5LlZvbHVtZVVwCkNvbnN1bWVyLjAwZWEgLS0tPiBLZXkuVm9sdW1l
+RG93bgpDb25zdW1lci4wMGViIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBlYyAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAwZWQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGVlIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBlZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAw
+ZjAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGYxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDBmMiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZjMgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMGY0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBmNSAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAwZjYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGY3IC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDBmOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZjkgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMGZhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBm
+YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAwZmMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMGZkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDBmZSAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAwZmYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTAwIC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDEwMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMDIgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMTAzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEwNCAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMDUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTA2
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEwNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAxMDggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTA5IC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDEwYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMGIgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMTBjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEwZCAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAxMGUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTBmIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDExMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMTEg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTEyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDExMyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMTQgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMTE1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDExNiAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAxMTcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTE4IC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDExOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMWEgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMTFiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDExYyAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMWQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MTFlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDExZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAxMjAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTIxIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDEyMiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMjMgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMTI0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEyNSAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAxMjYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTI3IC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEyOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAx
+MjkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTJhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDEyYiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMmMgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMTJkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEyZSAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAxMmYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTMwIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDEzMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMzIgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTMzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEz
+NCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxMzUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMTM2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEzNyAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAxMzggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTM5IC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDEzYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxM2IgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMTNjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDEzZCAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxM2UgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTNm
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE0MCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAxNDEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTQyIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDE0MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNDQgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMTQ1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE0NiAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAxNDcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTQ4IC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDE0OSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNGEg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTRiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDE0YyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNGQgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMTRlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE0ZiAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAxNTAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTUxIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDE1MiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNTMgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMTU0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE1NSAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNTYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MTU3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE1OCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAxNTkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTVhIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDE1YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNWMgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMTVkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE1ZSAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAxNWYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTYwIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE2MSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAx
+NjIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTYzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDE2NCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNjUgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMTY2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE2NyAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAxNjggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTY5IC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDE2YSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNmIgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTZjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE2
+ZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNmUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMTZmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE3MCAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAxNzEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTcyIC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDE3MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNzQgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMTc1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE3NiAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxNzcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTc4
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE3OSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAxN2EgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTdiIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDE3YyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxN2QgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMTdlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE3ZiAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAxODAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTgxIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDE4MiAtLS0+IEtleS5Cb29rbWFya3MKQ29uc3VtZXIuMDE4
+MyAtLS0+IEtleS5Db25maWcKQ29uc3VtZXIuMDE4NCAtLS0+IEtleS4/CkNvbnN1bWVyLjAxODUg
+LS0tPiBLZXkuPwpDb25zdW1lci4wMTg2IC0tLT4gS2V5Lj8KQ29uc3VtZXIuMDE4NyAtLS0+IEtl
+eS4/CkNvbnN1bWVyLjAxODggLS0tPiBLZXkuPwpDb25zdW1lci4wMTg5IC0tLT4gS2V5Lj8KQ29u
+c3VtZXIuMDE4YSAtLS0+IEtleS5NYWlsCkNvbnN1bWVyLjAxOGIgLS0tPiBLZXkuPwpDb25zdW1l
+ci4wMThjIC0tLT4gS2V5Lj8KQ29uc3VtZXIuMDE4ZCAtLS0+IEtleS4/CkNvbnN1bWVyLjAxOGUg
+LS0tPiBLZXkuQ2FsZW5kYXIKQ29uc3VtZXIuMDE4ZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAxOTAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTkxIC0tLT4gS2V5LkZpbmFuY2UKQ29u
+c3VtZXIuMDE5MiAtLS0+IEtleS5DYWxjCkNvbnN1bWVyLjAxOTMgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMTk0IC0tLT4gS2V5LkZpbGUKQ29uc3VtZXIuMDE5NSAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAxOTYgLS0tPiBLZXkuV1dXCkNvbnN1bWVyLjAxOTcgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMTk4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDE5OSAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAxOWEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMTliIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDE5YyAtLS0+IEtleS5Mb2dvZmYKQ29uc3VtZXIuMDE5ZCAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxOWUgLS0tPiBLZXkuQ29mZmVlCkNvbnN1bWVyLjAx
+OWYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWEwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDFhMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYTIgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMWEzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFhNCAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAxYTUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWE2IC0tLT4gS2V5
+LkhlbHAKQ29uc3VtZXIuMDFhNyAtLS0+IEtleS5Eb2N1bWVudHMKQ29uc3VtZXIuMDFhOCAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYTkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWFh
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFhYiAtLS0+IEtleS5TcGVsbENoZWNrCkNvbnN1
+bWVyLjAxYWMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWFkIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDFhZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYWYgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMWIwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFiMSAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAxYjIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWIzIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFiNCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAx
+YjUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWI2IC0tLT4gS2V5Lk1lZGlhCkNvbnN1bWVy
+LjAxYjcgLS0tPiBLZXkuU291bmQKQ29uc3VtZXIuMDFiOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAxYjkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWJhIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDFiYiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYmMgLS0tPiBLZXkuPwpD
+b25zdW1lci4wMWJkIC0tLT4gS2V5LkluZm8KQ29uc3VtZXIuMDFiZSAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAxYmYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWMwIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDFjMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYzIgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMWMzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFjNCAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxYzUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MWM2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFjNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAxYzggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWM5IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDFjYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxY2IgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMWNjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFjZCAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAxY2UgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWNmIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFkMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAx
+ZDEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWQyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDFkMyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZDQgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMWQ1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFkNiAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAxZDcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWQ4IC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDFkOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZGEgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWRiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFk
+YyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZGQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMWRlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFkZiAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAxZTAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWUxIC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDFlMiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZTMgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMWU0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFlNSAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZTYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWU3
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFlOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAxZTkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWVhIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDFlYiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZWMgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMWVkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFlZSAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAxZWYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWYwIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDFmMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZjIg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWYzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDFmNCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZjUgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMWY2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFmNyAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAxZjggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMWY5IC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDFmYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZmIgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMWZjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDFmZCAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAxZmUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MWZmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIwMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyMDEgLS0tPiBLZXkuTmV3CkNvbnN1bWVyLjAyMDIgLS0tPiBLZXkuT3BlbgpDb25zdW1l
+ci4wMjAzIC0tLT4gS2V5LkNsb3NlCkNvbnN1bWVyLjAyMDQgLS0tPiBLZXkuRXhpdApDb25zdW1l
+ci4wMjA1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIwNiAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAyMDcgLS0tPiBLZXkuU2F2ZQpDb25zdW1lci4wMjA4IC0tLT4gS2V5LlByaW50CkNv
+bnN1bWVyLjAyMDkgLS0tPiBLZXkuUHJvcHMKQ29uc3VtZXIuMDIwYSAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyMGIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjBjIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDIwZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyMGUgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMjBmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIxMCAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyMTEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MjEyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIxMyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyMTQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjE1IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDIxNiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyMTcgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMjE4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIxOSAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAyMWEgLS0tPiBLZXkuVW5kbwpDb25zdW1lci4wMjFiIC0tLT4g
+S2V5LkNvcHkKQ29uc3VtZXIuMDIxYyAtLS0+IEtleS5DdXQKQ29uc3VtZXIuMDIxZCAtLS0+IEtl
+eS5QYXN0ZQpDb25zdW1lci4wMjFlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIxZiAtLS0+
+IEtleS5GaW5kCkNvbnN1bWVyLjAyMjAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjIxIC0t
+LT4gS2V5LlNlYXJjaApDb25zdW1lci4wMjIyIC0tLT4gS2V5LkdvdG8KQ29uc3VtZXIuMDIyMyAt
+LS0+IEtleS5Ib21lUGFnZQpDb25zdW1lci4wMjI0IC0tLT4gS2V5LkJhY2sKQ29uc3VtZXIuMDIy
+NSAtLS0+IEtleS5Gb3J3YXJkCkNvbnN1bWVyLjAyMjYgLS0tPiBLZXkuU3RvcApDb25zdW1lci4w
+MjI3IC0tLT4gS2V5LlJlZnJlc2gKQ29uc3VtZXIuMDIyOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyMjkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjJhIC0tLT4gS2V5LkJvb2ttYXJr
+cwpDb25zdW1lci4wMjJiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIyYyAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAyMmQgLS0tPiBLZXkuPwpDb25zdW1lci4wMjJlIC0tLT4gS2V5Lj8K
+Q29uc3VtZXIuMDIyZiAtLS0+IEtleS4/CkNvbnN1bWVyLjAyMzAgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMjMxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIzMiAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAyMzMgLS0tPiBLZXkuU2Nyb2xsVXAKQ29uc3VtZXIuMDIzNCAtLS0+IEtl
+eS5TY3JvbGxEb3duCkNvbnN1bWVyLjAyMzUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjM2
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDIzNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+Lkhvcml6b250YWxXaGVlbCAtLS0+IFJlbGF0aXZlLkhXaGVlbApDb25zdW1lci4wMjM5IC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDIzYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyM2Ig
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjNjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDIzZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyM2UgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMjNmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI0MCAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyNDEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjQyIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDI0MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNDQgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMjQ1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI0NiAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNDcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MjQ4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI0OSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyNGEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjRiIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDI0YyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNGQgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMjRlIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI0ZiAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAyNTAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjUxIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI1MiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAy
+NTMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjU0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDI1NSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNTYgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMjU3IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI1OCAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAyNTkgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjVhIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDI1YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNWMgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjVkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI1
+ZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNWYgLS0tPiBLZXkuQ2FuY2VsCkNvbnN1bWVy
+LjAyNjAgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjYxIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDI2MiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNjMgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMjY0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI2NSAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAyNjYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjY3IC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDI2OCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNjkg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjZhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDI2YiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNmMgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMjZkIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI2ZSAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyNmYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjcwIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDI3MSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNzIgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMjczIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI3NCAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyNzUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+Mjc2IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI3NyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyNzggLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjc5IC0tLT4gS2V5LlJlZG8KQ29u
+c3VtZXIuMDI3YSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyN2IgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMjdjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI3ZCAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAyN2UgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjdmIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDI4MCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyODEg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjgyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDI4MyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyODQgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMjg1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI4NiAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyODcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjg4IC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDI4OSAtLS0+IEtleS5SZXBseQpDb25zdW1lci4wMjhhIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDI4YiAtLS0+IEtleS5Gb3J3YXJkTWFpbApDb25zdW1lci4wMjhj
+IC0tLT4gS2V5LlNlbmQKQ29uc3VtZXIuMDI4ZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAy
+OGUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjhmIC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDI5MCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyOTEgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMjkyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI5MyAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAyOTQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjk1IC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDI5NiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyOTcgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjk4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI5
+OSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyOWEgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMjliIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDI5YyAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAyOWQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMjllIC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDI5ZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYTAgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMmExIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJhMiAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYTMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmE0
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJhNSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAyYTYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmE3IC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDJhOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYTkgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMmFhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJhYiAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAyYWMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmFkIC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDJhZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYWYg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmIwIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDJiMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYjIgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMmIzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJiNCAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyYjUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmI2IC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDJiNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYjggLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMmI5IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJiYSAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYmIgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MmJjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJiZCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyYmUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmJmIC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDJjMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyYzEgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMmMyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJjMyAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAyYzQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmM1IC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJjNiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAy
+YzcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmM4IC0tLT4gU3luYy5SZXBvcnQKQ29uc3Vt
+ZXIuMDJjOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyY2EgLS0tPiBTeW5jLlJlcG9ydApD
+b25zdW1lci4wMmNiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJjYyAtLS0+IFN5bmMuUmVw
+b3J0CkNvbnN1bWVyLjAyY2QgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmNlIC0tLT4gU3lu
+Yy5SZXBvcnQKQ29uc3VtZXIuMDJjZiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZDAgLS0t
+PiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmQxIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJk
+MiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZDMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1l
+ci4wMmQ0IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJkNSAtLS0+IFN5bmMuUmVwb3J0CkNv
+bnN1bWVyLjAyZDYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmQ3IC0tLT4gU3luYy5SZXBv
+cnQKQ29uc3VtZXIuMDJkOCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZDkgLS0tPiBTeW5j
+LlJlcG9ydApDb25zdW1lci4wMmRhIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJkYiAtLS0+
+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZGMgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmRk
+IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJkZSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVy
+LjAyZGYgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmUwIC0tLT4gU3luYy5SZXBvcnQKQ29u
+c3VtZXIuMDJlMSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZTIgLS0tPiBTeW5jLlJlcG9y
+dApDb25zdW1lci4wMmUzIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJlNCAtLS0+IFN5bmMu
+UmVwb3J0CkNvbnN1bWVyLjAyZTUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmU2IC0tLT4g
+U3luYy5SZXBvcnQKQ29uc3VtZXIuMDJlNyAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZTgg
+LS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmU5IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIu
+MDJlYSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZWIgLS0tPiBTeW5jLlJlcG9ydApDb25z
+dW1lci4wMmVjIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJlZCAtLS0+IFN5bmMuUmVwb3J0
+CkNvbnN1bWVyLjAyZWUgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmVmIC0tLT4gU3luYy5S
+ZXBvcnQKQ29uc3VtZXIuMDJmMCAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZjEgLS0tPiBT
+eW5jLlJlcG9ydApDb25zdW1lci4wMmYyIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJmMyAt
+LS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZjQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4w
+MmY1IC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJmNiAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1
+bWVyLjAyZjcgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmY4IC0tLT4gU3luYy5SZXBvcnQK
+Q29uc3VtZXIuMDJmOSAtLS0+IFN5bmMuUmVwb3J0CkNvbnN1bWVyLjAyZmEgLS0tPiBTeW5jLlJl
+cG9ydApDb25zdW1lci4wMmZiIC0tLT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJmYyAtLS0+IFN5
+bmMuUmVwb3J0CkNvbnN1bWVyLjAyZmQgLS0tPiBTeW5jLlJlcG9ydApDb25zdW1lci4wMmZlIC0t
+LT4gU3luYy5SZXBvcnQKQ29uc3VtZXIuMDJmZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwMCAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwMiAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDAwMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwNCAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDAwNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwNiAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDAwNyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwOCAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDAwOSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwYSAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDAwYiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwYyAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDAwZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAwZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDAwZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxMCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAx
+MSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxMiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxMyAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxNCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxNSAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDAxNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxNyAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDAxOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxOSAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDAxYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxYiAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDAxYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxZCAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDAxZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAxZiAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDAyMCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDAyMiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAy
+NCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyNiAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyNyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyOCAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDAyOSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyYSAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDAyYiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyYyAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDAyZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAyZSAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDAyZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzMCAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDAzMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzMiAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDAzMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzNCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDAzNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAz
+NyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzOSAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzYiAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDAzYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzZCAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDAzZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDAzZiAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA0MCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0MSAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDA0MiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0MyAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDA0NCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0NSAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDA0NiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0NyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDA0OCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0OSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0
+YSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0YiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0YyAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0ZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA0ZSAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDA0ZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1MCAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDA1MSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1MiAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA1MyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1NCAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDA1NSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1NiAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDA1NyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1OCAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDA1OSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1YSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDA1YiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1YyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1
+ZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1ZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA1ZiAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2MCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2MSAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDA2MiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2MyAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDA2NCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2NSAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA2NiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2NyAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDA2OCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2OSAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDA2YSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2YiAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDA2YyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2ZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDA2ZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA2ZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3
+MCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3MSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3MiAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3MyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3NCAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDA3NSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3NiAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDA3NyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3OCAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA3OSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3YSAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDA3YiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3YyAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDA3ZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA3ZSAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDA3ZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4MCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDA4MSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4MiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4
+MyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4NCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4NSAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4NiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4NyAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDA4OCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4OSAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDA4YSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4YiAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA4YyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4ZCAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDA4ZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA4ZiAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDA5MCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5MSAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDA5MiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5MyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDA5NCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5NSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5
+NiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5NyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5OCAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5OSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5YSAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDA5YiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5YyAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDA5ZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDA5ZSAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDA5ZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhMCAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDBhMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhMiAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDBhMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhNCAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDBhNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDBhNyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBh
+OSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhYiAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhZCAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDBhZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBhZiAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDBiMCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiMSAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDBiMiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiMyAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDBiNCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiNSAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDBiNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiNyAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDBiOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiOSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDBiYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiYiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBi
+YyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiZSAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBiZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjMCAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDBjMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjMiAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDBjMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjNCAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDBjNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjNiAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDBjNyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjOCAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDBjOSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjYSAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDBjYiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDBjZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBjZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBj
+ZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkMCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkMSAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkMiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkMyAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDBkNCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkNSAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDBkNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkNyAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDBkOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkOSAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDBkYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkYiAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDBkYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkZCAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDBkZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBkZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDBlMCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBl
+MiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlNCAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlNSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlNiAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDBlNyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlOCAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDBlOSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlYSAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDBlYiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlYyAtLS0+IFN5bmMuUmVw
+b3J0CmZmYmMuMDBlZCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBlZSAtLS0+IFN5bmMuUmVwb3J0
+CmZmYmMuMDBlZiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmMCAtLS0+IFN5bmMuUmVwb3J0CmZm
+YmMuMDBmMSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmMiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMu
+MDBmMyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmNCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBm
+NSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmNiAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmNyAt
+LS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmOCAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmOSAtLS0+
+IFN5bmMuUmVwb3J0CmZmYmMuMDBmYSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmYiAtLS0+IFN5
+bmMuUmVwb3J0CmZmYmMuMDBmYyAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmZCAtLS0+IFN5bmMu
+UmVwb3J0CmZmYmMuMDBmZSAtLS0+IFN5bmMuUmVwb3J0CmZmYmMuMDBmZiAtLS0+IFN5bmMuUmVw
+b3J0Cg==
+--0016e6d7ec6c2626c0048218bb57--

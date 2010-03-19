@@ -1,47 +1,61 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Fri, 19 Mar 2010 13:06:41 -0300
-Message-ID: <20100319160641.GC16743@khazad-dum.debian.net>
+Date: Fri, 19 Mar 2010 11:03:14 -0700
+Message-ID: <20100319180314.GB12143@core.coreip.homeip.net>
 References: <20100317061952.GA19789@core.coreip.homeip.net>
  <20100319000043.GC12017@khazad-dum.debian.net>
  <20100319000931.GA5671@core.coreip.homeip.net>
+ <20100319160641.GC16743@khazad-dum.debian.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:46922 "EHLO
-	out2.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751323Ab0CSQGp (ORCPT
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:43469 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752157Ab0CSSD0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Mar 2010 12:06:45 -0400
+	Fri, 19 Mar 2010 14:03:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20100319000931.GA5671@core.coreip.homeip.net>
+In-Reply-To: <20100319160641.GC16743@khazad-dum.debian.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
 
-On Thu, 18 Mar 2010, Dmitry Torokhov wrote:
-> On Thu, Mar 18, 2010 at 09:00:43PM -0300, Henrique de Moraes Holschuh wrote:
-> > Any chance of the user being able to avoid the SysRQ events getting to the
-> > handle, e.g. by opening the input device in exclusive mode or something like
-> > that?
+On Fri, Mar 19, 2010 at 01:06:41PM -0300, Henrique de Moraes Holschuh wrote:
+> On Thu, 18 Mar 2010, Dmitry Torokhov wrote:
+> > On Thu, Mar 18, 2010 at 09:00:43PM -0300, Henrique de Moraes Holschuh wrote:
+> > > Any chance of the user being able to avoid the SysRQ events getting to the
+> > > handle, e.g. by opening the input device in exclusive mode or something like
+> > > that?
+> > 
+> > Yes, it is a possible to suppress SysRq by grabbing an input device.
+> > This possibility exisst with the current implementation too though -
+> > after all legacy keyboard driver implemented as an input handler as
+> > well.
+> > 
+> > ... or am I answering a question different from the one you asked? ;)
 > 
-> Yes, it is a possible to suppress SysRq by grabbing an input device.
-> This possibility exisst with the current implementation too though -
-> after all legacy keyboard driver implemented as an input handler as
-> well.
+> No, that's exactly what I wanted to know.
 > 
-> ... or am I answering a question different from the one you asked? ;)
+> What about SAK?  That thing *has* to be untrappable.
+> 
 
-No, that's exactly what I wanted to know.
+On what level untrapable? And what exactly is SAK? There is not a
+special key, at least not in general case, it is an action assigned to a
+key comboi.  Root can "trap" legacy keyboard SAK with loadkeys; it can
+also disable sysrq, unload modules and do other nasty things. But
+ordinary users can not trap it.
 
-What about SAK?  That thing *has* to be untrappable.
+> Even for the SysRQ debug events, I'd feel better if we could have a class of
+> system input handlers that cannot be suppressed to use for these things.
 
-Even for the SysRQ debug events, I'd feel better if we could have a class of
-system input handlers that cannot be suppressed to use for these things.
+That would require moving "these things", including their state
+machines, into input core otherwise it would not know what events can be
+trappable and which should be passed through. Or we should get rid of
+EVIOCGRAB.
+
+Given the fact that event devices are accessible only to root I think
+that current behavior is acceptable.
 
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Dmitry

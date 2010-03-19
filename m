@@ -1,42 +1,44 @@
-From: Anisse Astier <anisse@astier.eu>
-Subject: i8042: 10 second lag/timeout with no AUX
-Date: Fri, 19 Mar 2010 10:34:50 +0100
-Message-ID: <20100319103450.56c6e278@destiny.ordissimo>
+From: Henrik Rydberg <rydberg@enmesh.se>
+Subject: input: mt: Software finger tracking in the kernel?
+Date: Fri, 19 Mar 2010 11:58:35 +0100
+Message-ID: <4BA358DB.20708@enmesh.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f196.google.com ([209.85.223.196]:40575 "EHLO
-	mail-iw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750855Ab0CSJfg (ORCPT
+Received: from node01-shml-0001.s.ipeer.se ([213.180.89.85]:56140 "EHLO
+	shml-0001.s.ipeer.se" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751080Ab0CSLFQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Mar 2010 05:35:36 -0400
-Received: by iwn34 with SMTP id 34so2550608iwn.15
-        for <linux-input@vger.kernel.org>; Fri, 19 Mar 2010 02:35:36 -0700 (PDT)
+	Fri, 19 Mar 2010 07:05:16 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi,
+Hi Dmitry,
 
-I have a computer that will take a ten second hit at kernel boot if not passed
-the option "i8042.noaux" on kernel cmdline.:
-[    2.460706] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-[   12.078279] Failed to disable AUX port, but continuing anyway... Is this a SiS?
-[   12.082637] If AUX port is really absent please use the 'i8042.noaux' option.
-[   23.472591] serio: i8042 KBD port at 0x60,0x64 irq 1
+there is an ongoing discussion about adding multitouch to X
+(http://lists.x.org/archives/xorg-devel/2010-March/006206.html), which is
+beginning to take on more solid form.
 
+One of the suggestions emerging from that discussion is to add the software
+finger tracking to the kernel. Back in summer 2009 when I thought about this, I
+disregarded it as being too experimental. I have since then reconsidered,
+starting to think it really is the right place.
 
-It does not have any external PS2 port. It's an MSI AE2220.
-Dmi identification gives:
-	Manufacturer: MICRO-STAR INTERNATIONAL CO., LTD
-	Product Name: MS-6657
+The MT protocol allows applications to take advantage of multi-contact hardware,
+but leaves the problems of finger tracking and filtering to the user. Arguably,
+no application can make good use of MT without these, so the problem is pushed
+forward, in this case to evdev or equivalent.
 
+The knowledge of signal-to-noise ratios and prior input states resides in the
+kernel. Because of this, the finger matching and filtering would naturally
+reside within the kernel.
 
-Is there a way to add a quirk of some sort for this computer? I didn't find
-anything related to i8042.noaux in drivers/input/serio/i8042-x86ia64io.h.
+So, if there were to appear patches to include matching in the input core, would
+you consider them? :-)
 
+Cheers,
+Henrik
 
-Regards,
-
-Anisse

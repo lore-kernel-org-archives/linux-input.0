@@ -1,57 +1,27 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Thu, 18 Mar 2010 17:30:54 -0700
-Message-ID: <20100319003054.GA5825@core.coreip.homeip.net>
-References: <20100317061952.GA19789@core.coreip.homeip.net>
- <4BA2C1AF.7010205@oracle.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: ntrig touch events
+Date: Fri, 19 Mar 2010 09:44:48 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003190944320.18642@pobox.suse.cz>
+References: <4B9722A5.1030607@seas.upenn.edu> <1268210326-8066-1-git-send-email-rafi@seas.upenn.edu> <alpine.LNX.2.00.1003101603400.18642@pobox.suse.cz> <4BA28AD6.7020803@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f196.google.com ([209.85.223.196]:57988 "EHLO
-	mail-iw0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752624Ab0CSAbF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Mar 2010 20:31:05 -0400
-Content-Disposition: inline
-In-Reply-To: <4BA2C1AF.7010205@oracle.com>
+Received: from cantor.suse.de ([195.135.220.2]:33870 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753015Ab0CSIot (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Mar 2010 04:44:49 -0400
+In-Reply-To: <4BA28AD6.7020803@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Mar 18, 2010 at 05:13:35PM -0700, Randy Dunlap wrote:
-> On 03/16/10 23:19, Dmitry Torokhov wrote:
-> > Instead of keeping SysRq support inside of legacy keyboard driver split
-> > it out into a separate input handler (filter). This stops most SysRq input
-> > events from leaking into evdev clients (some events, such as first SysRq
-> > scancode - not keycode - event, are still leaked into both legacy keyboard
-> > and evdev).
-> > 
-> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > ---
-> > 
-> >  drivers/char/keyboard.c |   40 +-------
-> >  drivers/char/sysrq.c    |  222 +++++++++++++++++++++++++++++++++++++++++------
-> >  include/linux/sysrq.h   |   23 +----
-> >  kernel/sysctl.c         |   23 +++++
-> >  4 files changed, 224 insertions(+), 84 deletions(-)
-> 
-> 
-> > +/* Simple translation table for the SysRq keys */
-> > +static const unsigned char sysrq_xlate[KEY_MAX + 1] =
-> > +        "\000\0331234567890-=\177\t"                    /* 0x00 - 0x0f */
-> > +        "qwertyuiop[]\r\000as"                          /* 0x10 - 0x1f */
-> > +        "dfghjkl;'`\000\\zxcv"                          /* 0x20 - 0x2f */
-> > +        "bnm,./\000*\000 \000\201\202\203\204\205"      /* 0x30 - 0x3f */
-> > +        "\206\207\210\211\212\000\000789-456+1"         /* 0x40 - 0x4f */
-> > +        "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
-> > +        "\r\000/";                                      /* 0x60 - 0x6f */
-> 
-> We are running out of these precious sysrq keys.
-> Do you have any ideas of how to have a larger xlate table?
-> 
+On Thu, 18 Mar 2010, Rafi Rubin wrote:
 
-When we run out we could add shift modifiers I guess.
+> Is this patch likely to get promoted soon (days, weeks)?
+
+It's in Linus' tree already, commit 2886539d5e64.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs, Novell Inc.

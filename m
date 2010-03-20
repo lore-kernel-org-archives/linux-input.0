@@ -1,262 +1,593 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH v2 3/6] hid: add backlight support to PicoLCD device
-Date: Sat, 20 Mar 2010 17:06:19 +0100
-Message-ID: <20100320170619.4ae99546@neptune.home>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Subject: [PATCH v2 2/6] hid: add framebuffer support to PicoLCD device
+Date: Sat, 20 Mar 2010 17:04:15 +0100
+Message-ID: <20100320170415.6ee219c8@neptune.home>
 References: <20100320170014.440959a8@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:49082 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753275Ab0CTQPO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Mar 2010 12:15:14 -0400
-In-Reply-To: <20100320170014.440959a8@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100320170014.440959a8-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
 
-Add backlight support to PicoLCD device.
+Add framebuffer support to PicoLCD device with use of deferred-io.
 
-Backlight support depends on backlight class and is only being
-compiled if backlight class has been selected.
+Only changed areas of framebuffer get sent to device in order to
+save USB bandwidth and especially resources on PicoLCD device or
+allow higher refresh rate for a small area.
 
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
 ---
- drivers/hid/Kconfig       |    2 +-
- drivers/hid/hid-picolcd.c |  134 +++++++++++++++++++++++++++++++++++++=
-+++++++-
- 2 files changed, 134 insertions(+), 2 deletions(-)
+ drivers/hid/Kconfig       |    7 +-
+ drivers/hid/hid-picolcd.c |  454 +++++++++++++++++++++++++++++++++++++=
+++++++++
+ 2 files changed, 460 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index a474bcd..5ec3cb7 100644
+index 7097f0a..a474bcd 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -243,8 +243,8 @@ config HID_PICOLCD
+@@ -230,6 +230,11 @@ config HID_PETALYNX
+ config HID_PICOLCD
+ 	tristate "PicoLCD (graphic version)"
+ 	depends on USB_HID
++	select FB_DEFERRED_IO if FB
++	select FB_SYS_FILLRECT if FB
++	select FB_SYS_COPYAREA if FB
++	select FB_SYS_IMAGEBLIT if FB
++	select FB_SYS_FOPS if FB
+ 	---help---
+ 	  This provides support for Minibox PicoLCD devices, currently
+ 	  only the graphical ones are supported.
+@@ -237,8 +242,8 @@ config HID_PICOLCD
+ 	  This includes support for the following device features:
  	  - Keypad
  	  - Switching between Firmware and Flash mode
+-	  Features that are not (yet) supported:
  	  - Framebuffer for monochrome 256x64 display
-+	  - Backlight control    (needs CONFIG_BACKLIGHT_CLASS_DEVICE)
- 	  Features that are not (yet) supported:
--	  - Backlight control
++	  Features that are not (yet) supported:
+ 	  - Backlight control
  	  - Contrast control
  	  - IR
- 	  - General purpose outputs
 diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 0c1d293..06cf099 100644
+index 30b8e08..0c1d293 100644
 --- a/drivers/hid/hid-picolcd.c
 +++ b/drivers/hid/hid-picolcd.c
-@@ -26,6 +26,7 @@
+@@ -24,6 +24,9 @@
+ #include "usbhid/usbhid.h"
+ #include <linux/usb.h>
 =20
- #include <linux/fb.h>
- #include <linux/vmalloc.h>
-+#include <linux/backlight.h>
-=20
++#include <linux/fb.h>
++#include <linux/vmalloc.h>
++
  #include <linux/seq_file.h>
  #include <linux/debugfs.h>
-@@ -182,6 +183,11 @@ struct picolcd_data {
- 	struct fb_info *fb_info;
- 	struct fb_deferred_io fb_defio;
- #endif /* CONFIG_FB */
-+#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
-_CLASS_DEVICE_MODULE)
-+	struct backlight_device *backlight;
-+	u8 lcd_brightness;
-+	u8 lcd_power;
-+#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
 =20
+@@ -69,6 +72,59 @@
+ #define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
+ #define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
+: OUT[2]         */
+=20
++#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++/* Framebuffer
++ *
++ * The PicoLCD use a Topway LCD module of 256x64 pixel
++ * This display area is tiled over 4 controllers with 8 tiles
++ * each. Each tile has 8x64 pixel, each data byte representing
++ * a 1-bit wide vertical line of the tile.
++ *
++ * The display can be updated at a tile granularity.
++ *
++ *       Chip 1           Chip 2           Chip 3           Chip 4
++ * +----------------+----------------+----------------+---------------=
+-+
++ * |     Tile 1     |     Tile 1     |     Tile 1     |     Tile 1    =
+ |
++ * +----------------+----------------+----------------+---------------=
+-+
++ * |     Tile 2     |     Tile 2     |     Tile 2     |     Tile 2    =
+ |
++ * +----------------+----------------+----------------+---------------=
+-+
++ *                                  ...
++ * +----------------+----------------+----------------+---------------=
+-+
++ * |     Tile 8     |     Tile 8     |     Tile 8     |     Tile 8    =
+ |
++ * +----------------+----------------+----------------+---------------=
+-+
++ */
++#define PICOLCDFB_NAME "picolcdfb"
++#define PICOLCDFB_WIDTH (256)
++#define PICOLCDFB_LINE_LENGTH (256/8)
++#define PICOLCDFB_HEIGHT (64)
++#define PICOLCDFB_SIZE (PICOLCDFB_LINE_LENGTH*PICOLCDFB_HEIGHT)
++
++#define PICOLCDFB_UPDATE_RATE_LIMIT   10
++#define PICOLCDFB_UPDATE_RATE_DEFAULT  2
++
++/* Framebuffer visual structures */
++static const struct fb_fix_screeninfo picolcdfb_fix =3D {
++	.id          =3D PICOLCDFB_NAME,
++	.type        =3D FB_TYPE_PACKED_PIXELS,
++	.visual      =3D FB_VISUAL_MONO01,
++	.xpanstep    =3D 0,
++	.ypanstep    =3D 0,
++	.ywrapstep   =3D 0,
++	.line_length =3D PICOLCDFB_LINE_LENGTH,
++	.accel       =3D FB_ACCEL_NONE,
++};
++
++static const struct fb_var_screeninfo picolcdfb_var =3D {
++	.xres           =3D PICOLCDFB_WIDTH,
++	.yres           =3D PICOLCDFB_HEIGHT,
++	.xres_virtual   =3D PICOLCDFB_WIDTH,
++	.yres_virtual   =3D PICOLCDFB_HEIGHT,
++	.width          =3D 103,
++	.height         =3D 26,
++	.bits_per_pixel =3D 1,
++};
++#endif /* CONFIG_FB */
++
+ /* Input device
+  *
+  * The PicoLCD has an IR receiver header, a built-in keypad with 5 key=
+s
+@@ -118,12 +174,22 @@ struct picolcd_data {
+ 	struct input_dev *input_cir;
+ 	int keycode[PICOLCD_KEYS];
+=20
++#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++	/* Framebuffer stuff */
++	u8 fb_update_rate;
++	u8 *fb_vbitmap;		/* local copy of what was sent to PicoLCD */
++	u8 *fb_bitmap;		/* framebuffer */
++	struct fb_info *fb_info;
++	struct fb_deferred_io fb_defio;
++#endif /* CONFIG_FB */
++
  	/* Housekeeping stuff */
  	spinlock_t lock;
-@@ -641,7 +647,7 @@ static void picolcd_exit_framebuffer(struct picolcd=
-_data *data)
- 	kfree(fb_vbitmap);
+ 	struct picolcd_pending *pending;
+ 	struct completion ready;
+ 	int status;
+ #define PICOLCD_BUSY 1
++#define PICOLCD_READY_FB 2
+ #define PICOLCD_FAILED 4
+ #define PICOLCD_BOOTLOADER 8
+ };
+@@ -218,6 +284,378 @@ retry:
+ 	}
  }
 =20
--
-+#define picolcd_fbinfo(d) (d)->fb_info
- #else
- static inline int picolcd_fb_reset(struct picolcd_data *data, int clea=
-r)
- {
-@@ -654,8 +660,118 @@ static inline int picolcd_init_framebuffer(struct=
- picolcd_data *data)
- static void picolcd_exit_framebuffer(struct picolcd_data *data)
- {
- }
-+#define picolcd_fbinfo(d) NULL
- #endif /* CONFIG_FB */
-=20
-+#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
-_CLASS_DEVICE_MODULE)
-+/*
-+ * backlight class device
-+ */
-+static int picolcd_get_brightness(struct backlight_device *bdev)
++#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++/* Send a given tile to PicoLCD */
++static inline int picolcd_fb_send_tile(struct hid_device *hdev, int ch=
+ip,
++		int tile)
 +{
-+	struct picolcd_data *data =3D bl_get_data(bdev);
-+	return data->lcd_brightness;
-+}
-+
-+static int picolcd_set_brightness(struct backlight_device *bdev)
-+{
-+	struct picolcd_data *data =3D bl_get_data(bdev);
-+	struct hid_report *report =3D picolcd_out_report(REPORT_BRIGHTNESS, d=
-ata->hdev);
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	struct hid_report *report1 =3D picolcd_out_report(REPORT_LCD_CMD_DATA=
+, hdev);
++	struct hid_report *report2 =3D picolcd_out_report(REPORT_LCD_DATA, hd=
+ev);
 +	unsigned long flags;
++	u8 *tdata;
++	int i;
 +
-+	if (!report || report->maxfield !=3D 1 || report->field[0]->report_co=
-unt !=3D 1)
++	if (!report1 || report1->maxfield !=3D 1 || !report2 || report2->maxf=
+ield !=3D 1)
 +		return -ENODEV;
 +
-+	data->lcd_brightness =3D bdev->props.brightness & 0x0ff;
-+	data->lcd_power      =3D bdev->props.power;
 +	spin_lock_irqsave(&data->lock, flags);
-+	hid_set_field(report->field[0], 0, data->lcd_power =3D=3D FB_BLANK_UN=
-BLANK ? data->lcd_brightness : 0);
-+	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
++	hid_set_field(report1->field[0],  0, chip << 2);
++	hid_set_field(report1->field[0],  1, 0x02);
++	hid_set_field(report1->field[0],  2, 0x00);
++	hid_set_field(report1->field[0],  3, 0x00);
++	hid_set_field(report1->field[0],  4, 0xb8 | tile);
++	hid_set_field(report1->field[0],  5, 0x00);
++	hid_set_field(report1->field[0],  6, 0x00);
++	hid_set_field(report1->field[0],  7, 0x40);
++	hid_set_field(report1->field[0],  8, 0x00);
++	hid_set_field(report1->field[0],  9, 0x00);
++	hid_set_field(report1->field[0], 10,   32);
++
++	hid_set_field(report2->field[0],  0, (chip << 2) | 0x01);
++	hid_set_field(report2->field[0],  1, 0x00);
++	hid_set_field(report2->field[0],  2, 0x00);
++	hid_set_field(report2->field[0],  3,   32);
++
++	tdata =3D data->fb_vbitmap + (tile * 4 + chip) * 64;
++	for (i =3D 0; i < 64; i++)
++		if (i < 32)
++			hid_set_field(report1->field[0], 11 + i, tdata[i]);
++		else
++			hid_set_field(report2->field[0], 4 + i - 32, tdata[i]);
++
++	usbhid_submit_report(data->hdev, report1, USB_DIR_OUT);
++	usbhid_submit_report(data->hdev, report2, USB_DIR_OUT);
 +	spin_unlock_irqrestore(&data->lock, flags);
 +	return 0;
 +}
 +
-+static int picolcd_check_bl_fb(struct backlight_device *bdev, struct f=
-b_info *fb)
++/* Translate a single tile*/
++static inline int picolcd_fb_update_tile(u8 *vbitmap, const u8 *bitmap=
+,
++		int chip, int tile)
 +{
-+	return fb && fb =3D=3D picolcd_fbinfo((struct picolcd_data *)bl_get_d=
-ata(bdev));
++	int i, b, changed =3D 0;
++	u8 tdata[64];
++	u8 *vdata =3D vbitmap + (tile * 4 + chip) * 64;
++
++	for (b =3D 7; b >=3D 0; b--) {
++		const u8 *bdata =3D bitmap + tile * 256 + chip * 8 + b * 32;
++		for (i =3D 0; i < 64; i++) {
++			tdata[i] <<=3D 1;
++			tdata[i] |=3D (bdata[i/8] >> (7 - i % 8)) & 0x01;
++		}
++	}
++	for (i =3D 0; i < 64; i++)
++		if (tdata[i] !=3D vdata[i]) {
++			changed =3D 1;
++			vdata[i] =3D tdata[i];
++		}
++	return changed;
 +}
 +
-+static const struct backlight_ops picolcd_blops =3D {
-+	.update_status  =3D picolcd_set_brightness,
-+	.get_brightness =3D picolcd_get_brightness,
-+	.check_fb       =3D picolcd_check_bl_fb,
++/* Reconfigure LCD display */
++static int picolcd_fb_reset(struct picolcd_data *data, int clear)
++{
++	struct hid_report *report =3D picolcd_out_report(REPORT_LCD_CMD, data=
+->hdev);
++	int i, j;
++	unsigned long flags;
++	static const u8 mapcmd[8] =3D { 0x00, 0x02, 0x00, 0x64, 0x3f, 0x00, 0=
+x64, 0xc0 };
++
++	if (!report || report->maxfield !=3D 1)
++		return -ENODEV;
++
++	spin_lock_irqsave(&data->lock, flags);
++	for (i =3D 0; i < 4; i++) {
++		for (j =3D 0; j < report->field[0]->maxusage; j++)
++			if (j =3D=3D 0)
++				hid_set_field(report->field[0], j, i << 2);
++			else if (j < sizeof(mapcmd))
++				hid_set_field(report->field[0], j, mapcmd[j]);
++			else
++				hid_set_field(report->field[0], j, 0);
++		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
++	}
++
++	data->status |=3D PICOLCD_READY_FB;
++	spin_unlock_irqrestore(&data->lock, flags);
++
++	if (clear && data->fb_bitmap) {
++		memset(data->fb_bitmap, 0, PICOLCDFB_SIZE);
++	}
++
++	/* schedule first output of framebuffer */
++	if (data->fb_info)
++		schedule_delayed_work(&data->fb_info->deferred_work, 0);
++
++	return 0;
++}
++
++/* Update fb_vbitmap from the screen_base and send changed tiles to de=
+vice */
++static void picolcd_fb_update(struct picolcd_data *data)
++{
++	int chip, tile;
++	unsigned long flags;
++
++	spin_lock_irqsave(&data->lock, flags);
++	if (!(data->status & PICOLCD_READY_FB)) {
++		spin_unlock_irqrestore(&data->lock, flags);
++		picolcd_fb_reset(data, 0);
++	} else {
++		spin_unlock_irqrestore(&data->lock, flags);
++	}
++
++	/*
++	 * Translate the XBM format screen_base into the format needed by the
++	 * PicoLCD. See display layout above.
++	 * Do this one tile after the other and push those tiles that changed=
+=2E
++	 */
++	for (chip =3D 0; chip < 4; chip++)
++		for (tile =3D 0; tile < 8; tile++)
++			if (picolcd_fb_update_tile(data->fb_vbitmap,
++					data->fb_bitmap, chip, tile))
++				picolcd_fb_send_tile(data->hdev, chip, tile);
++}
++
++/* Stub to call the system default and update the image on the picoLCD=
+ */
++static void picolcd_fb_fillrect(struct fb_info *info,
++		const struct fb_fillrect *rect)
++{
++	if (!info->par)
++		return;
++	sys_fillrect(info, rect);
++
++	schedule_delayed_work(&info->deferred_work, 0);
++}
++
++/* Stub to call the system default and update the image on the picoLCD=
+ */
++static void picolcd_fb_copyarea(struct fb_info *info,
++		const struct fb_copyarea *area)
++{
++	if (!info->par)
++		return;
++	sys_copyarea(info, area);
++
++	schedule_delayed_work(&info->deferred_work, 0);
++}
++
++/* Stub to call the system default and update the image on the picoLCD=
+ */
++static void picolcd_fb_imageblit(struct fb_info *info, const struct fb=
+_image *image)
++{
++	if (!info->par)
++		return;
++	sys_imageblit(info, image);
++
++	schedule_delayed_work(&info->deferred_work, 0);
++}
++
++/*
++ * this is the slow path from userspace. they can seek and write to
++ * the fb. it's inefficient to do anything less than a full screen dra=
+w
++ */
++static ssize_t picolcd_fb_write(struct fb_info *info, const char __use=
+r *buf,
++		size_t count, loff_t *ppos)
++{
++	ssize_t ret;
++	if (!info->par)
++		return -ENODEV;
++	ret =3D fb_sys_write(info, buf, count, ppos);
++	if (ret >=3D 0)
++		schedule_delayed_work(&info->deferred_work, 0);
++	return ret;
++}
++
++static int picolcd_fb_blank(int blank, struct fb_info *info)
++{
++	if (!info->par)
++		return -ENODEV;
++	/* We let fb notification do this for us via lcd/backlight device */
++	return 0;
++}
++
++static void picolcd_fb_destroy(struct fb_info *info)
++{
++	struct picolcd_data *data =3D info->par;
++	info->par =3D NULL;
++	if (data)
++		data->fb_info =3D NULL;
++	fb_deferred_io_cleanup(info);
++	framebuffer_release(info);
++}
++
++/* Note this can't be const because of struct fb_info definition */
++static struct fb_ops picolcdfb_ops =3D {
++	.owner        =3D THIS_MODULE,
++	.fb_destroy   =3D picolcd_fb_destroy,
++	.fb_read      =3D fb_sys_read,
++	.fb_write     =3D picolcd_fb_write,
++	.fb_blank     =3D picolcd_fb_blank,
++	.fb_fillrect  =3D picolcd_fb_fillrect,
++	.fb_copyarea  =3D picolcd_fb_copyarea,
++	.fb_imageblit =3D picolcd_fb_imageblit,
 +};
 +
-+static inline int picolcd_init_backlight(struct picolcd_data *data, st=
-ruct hid_report *report)
++
++/* Callback from deferred IO workqueue */
++static void picolcd_fb_deferred_io(struct fb_info *info, struct list_h=
+ead *pagelist)
++{
++	picolcd_fb_update(info->par);
++}
++
++static const struct fb_deferred_io picolcd_fb_defio =3D {
++	.delay =3D HZ / PICOLCDFB_UPDATE_RATE_DEFAULT,
++	.deferred_io =3D picolcd_fb_deferred_io,
++};
++
++
++/*
++ * The "fb_update_rate" sysfs attribute
++ */
++static ssize_t picolcd_fb_update_rate_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct picolcd_data *data =3D dev_get_drvdata(dev);
++	unsigned fb_update_rate =3D data->fb_update_rate;
++
++	return snprintf(buf, PAGE_SIZE, "%u (1..%u)\n", fb_update_rate,
++			PICOLCDFB_UPDATE_RATE_LIMIT);
++}
++
++static ssize_t picolcd_fb_update_rate_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct picolcd_data *data =3D dev_get_drvdata(dev);
++	int i;
++	unsigned u;
++
++	if (count < 1 || count > 10)
++		return -EINVAL;
++
++	i =3D sscanf(buf, "%u", &u);
++	if (i !=3D 1)
++		return -EINVAL;
++
++	if (u > PICOLCDFB_UPDATE_RATE_LIMIT)
++		return -ERANGE;
++	else if (u =3D=3D 0)
++		u =3D PICOLCDFB_UPDATE_RATE_DEFAULT;
++
++	data->fb_update_rate =3D u;
++	data->fb_defio.delay =3D HZ / data->fb_update_rate;
++	return count;
++}
++
++static DEVICE_ATTR(fb_update_rate, 0666, picolcd_fb_update_rate_show,
++		picolcd_fb_update_rate_store);
++
++/* initialize Framebuffer device */
++static inline int picolcd_init_framebuffer(struct picolcd_data *data)
 +{
 +	struct device *dev =3D &data->hdev->dev;
-+	struct backlight_device *bdev;
-+	struct backlight_properties props;
-+	if (!report)
-+		return -ENODEV;
-+	if (report->maxfield !=3D 1 || report->field[0]->report_count !=3D 1 =
-||
-+			report->field[0]->report_size !=3D 8) {
-+		dev_err(dev, "unsupported BRIGHTNESS report");
-+		return -EINVAL;
++	struct fb_info *info =3D NULL;
++	int error =3D -ENOMEM;
++	u8 *fb_vbitmap =3D NULL;
++	u8 *fb_bitmap  =3D NULL;
++
++	fb_bitmap =3D vmalloc(PICOLCDFB_SIZE);
++	if (fb_bitmap =3D=3D NULL) {
++		dev_err(dev, "can't get a free page for framebuffer\n");
++		goto err_nomem;
 +	}
 +
-+	memset(&props, 0, sizeof(props));
-+	props.max_brightness =3D 0xff;
-+	bdev =3D backlight_device_register(dev_name(dev), dev, data, &picolcd=
-_blops, &props);
-+	if (IS_ERR(bdev)) {
-+		dev_err(dev, "failed to register backlight\n");
-+		return PTR_ERR(bdev);
++	fb_vbitmap =3D kmalloc(PICOLCDFB_SIZE, GFP_KERNEL);
++	if (fb_vbitmap =3D=3D NULL) {
++		dev_err(dev, "can't alloc vbitmap image buffer\n");
++		goto err_nomem;
 +	}
-+	bdev->props.brightness     =3D 0xff;
-+	data->lcd_brightness       =3D 0xff;
-+	data->backlight            =3D bdev;
-+	picolcd_set_brightness(bdev);
++
++	data->fb_update_rate =3D PICOLCDFB_UPDATE_RATE_DEFAULT;
++	data->fb_defio =3D picolcd_fb_defio;
++	info =3D framebuffer_alloc(0, dev);
++	if (info =3D=3D NULL) {
++		dev_err(dev, "failed to allocate a framebuffer\n");
++		goto err_nomem;
++	}
++
++	info->fbdefio =3D &data->fb_defio;
++	info->screen_base =3D (char __force __iomem *)fb_bitmap;
++	info->fbops =3D &picolcdfb_ops;
++	info->var =3D picolcdfb_var;
++	info->fix =3D picolcdfb_fix;
++	info->fix.smem_len =3D PICOLCDFB_SIZE;
++	info->par =3D data;
++	info->flags =3D FBINFO_FLAG_DEFAULT;
++
++	data->fb_vbitmap =3D fb_vbitmap;
++	data->fb_bitmap  =3D fb_bitmap;
++	error =3D picolcd_fb_reset(data, 1);
++	if (error) {
++		dev_err(dev, "failed to configure display\n");
++		goto err_cleanup;
++	}
++	error =3D sysfs_create_file(&dev->kobj, &dev_attr_fb_update_rate.attr=
+);
++	if (error) {
++		dev_err(dev, "failed to create sysfs attributes\n");
++		goto err_cleanup;
++	}
++	data->fb_info    =3D info;
++	error =3D register_framebuffer(info);
++	if (error) {
++		dev_err(dev, "failed to register framebuffer\n");
++		goto err_sysfs;
++	}
++	fb_deferred_io_init(info);
++	/* schedule first output of framebuffer */
++	schedule_delayed_work(&info->deferred_work, 0);
 +	return 0;
++
++err_sysfs:
++	sysfs_remove_file(&dev->kobj, &dev_attr_fb_update_rate.attr);
++err_cleanup:
++	data->fb_vbitmap =3D NULL;
++	data->fb_bitmap  =3D NULL;
++	data->fb_info    =3D NULL;
++
++err_nomem:
++	framebuffer_release(info);
++	vfree(fb_bitmap);
++	kfree(fb_vbitmap);
++	return error;
 +}
 +
-+static void picolcd_exit_backlight(struct picolcd_data *data)
++static void picolcd_exit_framebuffer(struct picolcd_data *data)
 +{
-+	struct backlight_device *bdev =3D data->backlight;
++	struct fb_info *info =3D data->fb_info;
++	u8 *fb_vbitmap =3D data->fb_vbitmap;
++	u8 *fb_bitmap  =3D data->fb_bitmap;
 +
-+	data->backlight =3D NULL;
-+	if (bdev)
-+		backlight_device_unregister(bdev);
-+}
-+
-+static inline int picolcd_resume_backlight(struct picolcd_data *data)
-+{
-+	if (!data->backlight)
-+		return 0;
-+	return picolcd_set_brightness(data->backlight);
-+}
-+
-+static void picolcd_suspend_backlight(struct picolcd_data *data)
-+{
-+	int bl_power =3D data->lcd_power;
-+	if (!data->backlight)
++	if (!info)
 +		return;
 +
-+	data->backlight->props.power =3D FB_BLANK_POWERDOWN;
-+	picolcd_set_brightness(data->backlight);
-+	data->lcd_power =3D data->backlight->props.power =3D bl_power;
++	data->fb_vbitmap =3D NULL;
++	data->fb_bitmap  =3D NULL;
++	data->fb_info    =3D NULL;
++	sysfs_remove_file(&(data->hdev->dev.kobj), &dev_attr_fb_update_rate.a=
+ttr);
++	fb_deferred_io_cleanup(info);
++	unregister_framebuffer(info);
++	vfree(fb_bitmap);
++	kfree(fb_vbitmap);
 +}
++
++
 +#else
-+static inline int picolcd_init_backlight(struct picolcd_data *data, st=
-ruct hid_report *report)
++static inline int picolcd_fb_reset(struct picolcd_data *data, int clea=
+r)
 +{
 +	return 0;
 +}
-+static inline void picolcd_exit_backlight(struct picolcd_data *data)
-+{
-+}
-+static inline int picolcd_resume_backlight(struct picolcd_data *data)
++static inline int picolcd_init_framebuffer(struct picolcd_data *data)
 +{
 +	return 0;
 +}
-+static void picolcd_suspend_backlight(struct picolcd_data *data)
++static void picolcd_exit_framebuffer(struct picolcd_data *data)
 +{
 +}
-+#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
++#endif /* CONFIG_FB */
 +
  /*
   * input class device
   */
-@@ -775,6 +891,7 @@ static int picolcd_reset(struct hid_device *hdev)
+@@ -337,6 +775,11 @@ static int picolcd_reset(struct hid_device *hdev)
  		return -EBUSY;
  	}
 =20
-+	picolcd_resume_backlight(data);
- #if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
- 	if (data->fb_info)
- 		schedule_delayed_work(&data->fb_info->deferred_work, 0);
-@@ -1365,12 +1482,17 @@ static int picolcd_raw_event(struct hid_device =
-*hdev,
- #ifdef CONFIG_PM
- static int picolcd_suspend(struct hid_device *hdev)
- {
-+	picolcd_suspend_backlight(hid_get_drvdata(hdev));
- 	dbg_hid(PICOLCD_NAME " device ready for suspend\n");
++#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++	if (data->fb_info)
++		schedule_delayed_work(&data->fb_info->deferred_work, 0);
++#endif /* CONFIG_FB */
++
  	return 0;
  }
 =20
- static int picolcd_resume(struct hid_device *hdev)
- {
-+	int ret;
-+	ret =3D picolcd_resume_backlight(hid_get_drvdata(hdev));
-+	if (ret)
-+		dbg_hid(PICOLCD_NAME " restoring backlight failed: %d\n", ret);
- 	return 0;
- }
-=20
-@@ -1383,6 +1505,9 @@ static int picolcd_reset_resume(struct hid_device=
- *hdev)
- 	ret =3D picolcd_fb_reset(hid_get_drvdata(hdev), 0);
+@@ -937,6 +1380,9 @@ static int picolcd_reset_resume(struct hid_device =
+*hdev)
+ 	ret =3D picolcd_reset(hdev);
  	if (ret)
- 		dbg_hid(PICOLCD_NAME " restoring framebuffer content failed: %d\n", =
-ret);
-+	ret =3D picolcd_resume_backlight(hid_get_drvdata(hdev));
+ 		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
++	ret =3D picolcd_fb_reset(hid_get_drvdata(hdev), 0);
 +	if (ret)
-+		dbg_hid(PICOLCD_NAME " restoring backlight failed: %d\n", ret);
++		dbg_hid(PICOLCD_NAME " restoring framebuffer content failed: %d\n", =
+ret);
  	return 0;
  }
  #endif
-@@ -1504,6 +1629,11 @@ static inline int picolcd_probe_lcd(struct hid_d=
+@@ -1053,6 +1499,11 @@ static inline int picolcd_probe_lcd(struct hid_d=
 evice *hdev, struct picolcd_data
  	if (error)
  		goto err;
 =20
-+	/* Setup backlight class device */
-+	error =3D picolcd_init_backlight(data, picolcd_out_report(REPORT_BRIG=
-HTNESS, hdev));
++	/* Set up the framebuffer device */
++	error =3D picolcd_init_framebuffer(data);
 +	if (error)
 +		goto err;
 +
@@ -264,29 +595,29 @@ HTNESS, hdev));
  	report =3D picolcd_out_report(REPORT_READ_MEMORY, hdev);
  	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
 ize =3D=3D 8)
-@@ -1513,6 +1643,7 @@ static inline int picolcd_probe_lcd(struct hid_de=
+@@ -1062,6 +1513,7 @@ static inline int picolcd_probe_lcd(struct hid_de=
 vice *hdev, struct picolcd_data
  #endif
  	return 0;
  err:
-+	picolcd_exit_backlight(data);
- 	picolcd_exit_framebuffer(data);
++	picolcd_exit_framebuffer(data);
  	picolcd_exit_cir(data);
  	picolcd_exit_keys(data);
-@@ -1653,6 +1784,7 @@ static void picolcd_remove(struct hid_device *hde=
+ 	return error;
+@@ -1200,6 +1652,8 @@ static void picolcd_remove(struct hid_device *hde=
 v)
+ 	hdev->ll_driver->close(hdev);
  	hid_hw_stop(hdev);
 =20
- 	/* Clean up the framebuffer */
-+	picolcd_exit_backlight(data);
- 	picolcd_exit_framebuffer(data);
++	/* Clean up the framebuffer */
++	picolcd_exit_framebuffer(data);
  	/* Cleanup input */
  	picolcd_exit_cir(data);
+ 	picolcd_exit_keys(data);
 --=20
 1.6.4.4
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,57 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
 Subject: Re: input: mt: Software finger tracking in the kernel?
-Date: Sat, 20 Mar 2010 12:44:24 -0700
-Message-ID: <20100320194424.GC28402@core.coreip.homeip.net>
-References: <4BA358DB.20708@enmesh.se>
+Date: Sat, 20 Mar 2010 22:59:29 +0100
+Message-ID: <4BA54541.5030900@euromail.se>
+References: <4BA358DB.20708@enmesh.se> <20100320194424.GC28402@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f172.google.com ([209.85.211.172]:42317 "EHLO
-	mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752158Ab0CTToa (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:36503 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751597Ab0CTV7k (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Mar 2010 15:44:30 -0400
-Content-Disposition: inline
-In-Reply-To: <4BA358DB.20708@enmesh.se>
+	Sat, 20 Mar 2010 17:59:40 -0400
+In-Reply-To: <20100320194424.GC28402@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@enmesh.se>
-Cc: linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@enmesh.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Henrik,
+Dmitry Torokhov wrote:
+> Hi Henrik
+[...]
+> I am not sure if input core itself is the proper place to do such
+> thing, I'd envisioned something more like a library providing common
+> code that drivers could opt in to use, like we hane ff-memless for
+> memory-less force-feedback devices.
+> 
+> Does it make any sense? I guess post the skeleton of the code and we can
+> discuss further.
 
-On Fri, Mar 19, 2010 at 11:58:35AM +0100, Henrik Rydberg wrote:
-> Hi Dmitry,
-> 
-> there is an ongoing discussion about adding multitouch to X
-> (http://lists.x.org/archives/xorg-devel/2010-March/006206.html), which is
-> beginning to take on more solid form.
-> 
-> One of the suggestions emerging from that discussion is to add the software
-> finger tracking to the kernel. Back in summer 2009 when I thought about this, I
-> disregarded it as being too experimental. I have since then reconsidered,
-> starting to think it really is the right place.
-> 
-> The MT protocol allows applications to take advantage of multi-contact hardware,
-> but leaves the problems of finger tracking and filtering to the user. Arguably,
-> no application can make good use of MT without these, so the problem is pushed
-> forward, in this case to evdev or equivalent.
-> 
-> The knowledge of signal-to-noise ratios and prior input states resides in the
-> kernel. Because of this, the finger matching and filtering would naturally
-> reside within the kernel.
-> 
-> So, if there were to appear patches to include matching in the input core, would
-> you consider them? :-)
-> 
+Yes, input core as in input*.c might be wrong. The big thing is that the events
+most likely have to be deferred to the bottom half. Otherwise, the scheme would
+have fit rather nicely on top of the current filtering in input_device. The
+ideas I am currently looking at are:
 
-I am not sure if input core itself is the proper place to do such
-thing, I'd envisioned something more like a library providing common
-code that drivers could opt in to use, like we hane ff-memless for
-memory-less force-feedback devices.
+1. Expand on the new event filtering mechanism, providing a sort of rewrite
+functionality which can schedule events for later injection into the event stream.
 
-Does it make any sense? I guess post the skeleton of the code and we can
-discuss further.
+2. Add additional logic to evdev so that it buffers MT events and flushes the
+reworked events directly onto the clients.
 
--- 
-Dmitry
+3. Add a new multitouch handler, mtdev, which by default does event deferral,
+only emitting events by scheduling them upon SYN_REPORT requests.
+
+To my untrained eye, all three options could be made to work with acceptable
+latency. Number three probably means applications (read X) have to keep open
+both evdev and mtdev, which might be confusing. Number one is quite general, but
+probably contains hidden (to me) difficulties. Number two sounds pretty
+straight-forward, although tapping into the code somewhat through the back door.
+
+Henrik

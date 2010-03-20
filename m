@@ -1,43 +1,23 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: mt: update the status of the Multitouch X driver project
-Date: Sat, 20 Mar 2010 23:19:56 +0100
-Message-ID: <1269123596-2674-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:43630 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752206Ab0CTWV5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Mar 2010 18:21:57 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: input: mt: Software finger tracking in the kernel?
+Date: Sat, 20 Mar 2010 23:31:45 +0100
+Message-ID: <4BA54CD1.6060706@bitmath.org>
+References: <4BA358DB.20708@enmesh.se> <20100320194424.GC28402@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100320194424.GC28402@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+Cc: Henrik Rydberg <rydberg@enmesh.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-The Multitouch X driver project has moved to alpha status.
-This patch updates the documentation accordingly.
+Dmitry Torokhov wrote:
+> [...] I'd envisioned something more like a library providing common
+> code that drivers could opt in to use, like we hane ff-memless for
+> memory-less force-feedback devices.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- Documentation/input/multi-touch-protocol.txt |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
+As long as one can queue work with such a method, it looks like a good idea.
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index eacb226..c0fc1c7 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -233,11 +233,6 @@ where examples can be found.
- difference between the contact position and the approaching tool position
- could be used to derive tilt.
- [2] The list can of course be extended.
--[3] The multi-touch X driver is currently in the prototyping stage. At the
--time of writing (April 2009), the MT protocol is not yet merged, and the
--prototype implements finger matching, basic mouse support and two-finger
--scrolling. The project aims at improving the quality of current multi-touch
--functionality available in the Synaptics X driver, and in addition
--implement more advanced gestures.
-+[3] Multitouch X driver project: http://bitmath.org/code/multitouch/.
- [4] See the section on event computation.
- [5] See the section on finger tracking.
--- 
-1.6.3.3
-
+Henrik

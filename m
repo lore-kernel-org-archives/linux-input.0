@@ -1,61 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Fri, 19 Mar 2010 11:03:14 -0700
-Message-ID: <20100319180314.GB12143@core.coreip.homeip.net>
-References: <20100317061952.GA19789@core.coreip.homeip.net>
- <20100319000043.GC12017@khazad-dum.debian.net>
- <20100319000931.GA5671@core.coreip.homeip.net>
- <20100319160641.GC16743@khazad-dum.debian.net>
+From: Yong Wang <yong.y.wang@linux.intel.com>
+Subject: Re: [PATCH] eeepc-wmi: new driver for WMI based hotkeys on Eee PC
+	laptops
+Date: Sat, 20 Mar 2010 08:55:53 +0800
+Message-ID: <20100320005553.GB32163@ywang-moblin2.bj.intel.com>
+References: <20100319133924.GA30427@ywang-moblin2.bj.intel.com> <20100319135929.GA29027@srcf.ucam.org> <20100319151054.GA30664@ywang-moblin2.bj.intel.com> <20100319152323.GA30456@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:43469 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752157Ab0CSSD0 (ORCPT
+Received: from mga12.intel.com ([143.182.124.36]:60789 "EHLO
+	azsmga102.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752111Ab0CTBEv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Mar 2010 14:03:26 -0400
+	Fri, 19 Mar 2010 21:04:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20100319160641.GC16743@khazad-dum.debian.net>
+In-Reply-To: <20100319152323.GA30456@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Chary <corentincj@iksaif.net>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Mar 19, 2010 at 01:06:41PM -0300, Henrique de Moraes Holschuh wrote:
-> On Thu, 18 Mar 2010, Dmitry Torokhov wrote:
-> > On Thu, Mar 18, 2010 at 09:00:43PM -0300, Henrique de Moraes Holschuh wrote:
-> > > Any chance of the user being able to avoid the SysRQ events getting to the
-> > > handle, e.g. by opening the input device in exclusive mode or something like
-> > > that?
+On Fri, Mar 19, 2010 at 03:23:23PM +0000, Matthew Garrett wrote:
+> 
+> > > > +		if (code >= NOTIFY_BRNUP_MIN && code <= NOTIFY_BRNUP_MAX)
+> > > > +			code = NOTIFY_BRNUP_MIN;
+> > > > +		else if (code >= NOTIFY_BRNDOWN_MIN && code <= NOTIFY_BRNDOWN_MAX)
+> > > > +			code = NOTIFY_BRNDOWN_MIN;
+> > > 
+> > > Do the brightness keys just send notifications, or do they actually 
+> > > change the brightness? If they actually change the brightness, we 
+> > > shouldn't send input events.
+> > > 
 > > 
-> > Yes, it is a possible to suppress SysRq by grabbing an input device.
-> > This possibility exisst with the current implementation too though -
-> > after all legacy keyboard driver implemented as an input handler as
-> > well.
-> > 
-> > ... or am I answering a question different from the one you asked? ;)
+> > Yes, hardware and bios change brightness by themselves without software intervention
+> > on my Eee PC 1005 when pressing the hotkeys.
 > 
-> No, that's exactly what I wanted to know.
-> 
-> What about SAK?  That thing *has* to be untrappable.
+> Ok. In that case, you shouldn't send input events. Once backlight 
+> control is implemented in the eee-wmi driver you can send notifications 
+> via that instead.
 > 
 
-On what level untrapable? And what exactly is SAK? There is not a
-special key, at least not in general case, it is an action assigned to a
-key comboi.  Root can "trap" legacy keyboard SAK with loadkeys; it can
-also disable sysrq, unload modules and do other nasty things. But
-ordinary users can not trap it.
+One question just popped off the top my head. What if there is a power
+applet that wants to display a slider field at the bottom of the screen
+showing the current brightness real time whenever users press brightness
+hotkeys? Shouldn't it listen to the standard input events translated by
+X into standard XF86 keysyms? Or shall it listen to the ACPI backlight
+events? If so, it is the ACPI LCD event when using acpi backlight
+driver. But what if those vendor specific backlight drivers are used?
 
-> Even for the SysRQ debug events, I'd feel better if we could have a class of
-> system input handlers that cannot be suppressed to use for these things.
-
-That would require moving "these things", including their state
-machines, into input core otherwise it would not know what events can be
-trappable and which should be passed through. Or we should get rid of
-EVIOCGRAB.
-
-Given the fact that event devices are accessible only to root I think
-that current behavior is acceptable.
-
--- 
-Dmitry
+Thanks
+-Yong

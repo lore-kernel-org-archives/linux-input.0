@@ -1,36 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Check whether getkeycode and setkeycode are still valide
-Date: Sat, 20 Mar 2010 20:11:49 -0700
-Message-ID: <20100321031149.GC29360@core.coreip.homeip.net>
-References: <20100321025648.GA24497@ywang-moblin2.bj.intel.com>
+Subject: Re: [PATCH v2 2/6] hid: add framebuffer support to PicoLCD device
+Date: Sat, 20 Mar 2010 20:25:22 -0700
+Message-ID: <20100321032522.GD29360@core.coreip.homeip.net>
+References: <20100320170014.440959a8@neptune.home>
+ <20100320170415.6ee219c8@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:40940 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752998Ab0CUDLz (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:44276 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752998Ab0CUDZ2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Mar 2010 23:11:55 -0400
-Received: by gwaa18 with SMTP id a18so431584gwa.19
-        for <linux-input@vger.kernel.org>; Sat, 20 Mar 2010 20:11:54 -0700 (PDT)
+	Sat, 20 Mar 2010 23:25:28 -0400
 Content-Disposition: inline
-In-Reply-To: <20100321025648.GA24497@ywang-moblin2.bj.intel.com>
+In-Reply-To: <20100320170415.6ee219c8@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yong Wang <yong.y.wang@linux.intel.com>
-Cc: linux-input@vger.kernel.org
+To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
 
-On Sun, Mar 21, 2010 at 10:56:48AM +0800, Yong Wang wrote:
-> If sparse keymap is freed before unregistering the device, there is a
-> window where userspace can issue EVIOCGKEYCODE or EVIOCSKEYCODE. When
-> that happens, kernel will crash. Noticed by Dmitry Torokhov.
-> 
+On Sat, Mar 20, 2010 at 05:04:15PM +0100, Bruno Pr=E9mont wrote:
+> +static inline int picolcd_fb_send_tile(struct hid_device *hdev, int =
+chip,
+> +		int tile)
+> +{
 
-I'd rather require that getkeycode and setkeycode be mandatory. I will
-change sparse-kepmap module to stop setting these to NULL when freeing
-keymap.
+You seemt o be fond of the 'inline; attribute ;) I don't think that a
+40 lines function qualifies. Please lose inlines on functions that are
+not in .h files and are not stubs.
 
-Thanks.
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,46 +1,42 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: input: mt: Software finger tracking in the kernel?
-Date: Sat, 20 Mar 2010 23:06:38 -0400
-Message-ID: <4BA58D3E.1000804@seas.upenn.edu>
-References: <4BA358DB.20708@enmesh.se> <20100320194424.GC28402@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 6/6] hid: add experimental access to PicoLCD device's
+ EEPROM and FLASH
+Date: Sat, 20 Mar 2010 20:08:02 -0700
+Message-ID: <20100321030802.GB29360@core.coreip.homeip.net>
+References: <20100320170014.440959a8@neptune.home>
+ <20100320171119.193c5615@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:49694 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752998Ab0CUDGp (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Mar 2010 23:06:45 -0400
-In-Reply-To: <20100320194424.GC28402@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20100320171119.193c5615@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bruno =?iso-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@enmesh.se>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Mar 20, 2010 at 05:11:19PM +0100, Bruno Pr=E9mont wrote:
+> The PicoLCD device has a small amount of EEPROM and also provides
+> access to its FLASH where firmware and splash image are saved.
+> In flasher mode FLASH access is the only active feature.
+>=20
+> Give read/write access to both via debugfs files.
+>=20
 
-> I am not sure if input core itself is the proper place to do such
-> thing, I'd envisioned something more like a library providing common
-> code that drivers could opt in to use, like we hane ff-memless for
-> memory-less force-feedback devices.
-> 
-> Does it make any sense? I guess post the skeleton of the code and we can
-> discuss further.
+It looks you are allowing multiple users access to these files. What
+will happen if 2 processes try to write EEPROM at the same time?
 
-Regardless of where the code goes, I suggest we enable tracking by default for
-MT devices and perhaps have a quirt MT_NOTRACK to opt out.
+> +
+> +static inline int picolcd_init_devfs(struct picolcd_data *data,
+> +		struct hid_report *eeprom_r, struct hid_report *eeprom_w,
+> +		struct hid_report *flash_r, struct hid_report *flash_w,
+> +		struct hid_report *reset)
+> +{
 
-If tracking is the common case and expected down stream, it would be nice to let
-HID compliant devices work without needing to explicitly identify them in code.
+I don't think this should be forced inline.
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+Thanks.
 
-iEYEARECAAYFAkuljTwACgkQwuRiAT9o60/iBwCgudrOvmam/A0VQ2uA0UtK5R3H
-l3oAnAgEV7D+FFTWjofm85Djp25QhWq1
-=2+sX
------END PGP SIGNATURE-----
+--=20
+Dmitry

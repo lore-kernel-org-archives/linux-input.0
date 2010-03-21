@@ -1,125 +1,777 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v2 2/6] hid: add framebuffer support to PicoLCD device
-Date: Sun, 21 Mar 2010 17:11:28 +0100
-Message-ID: <20100321171128.324a606f@neptune.home>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Subject: Re: [PATCH v2 1/6] hid: new driver for PicoLCD device
+Date: Sun, 21 Mar 2010 17:37:37 +0100
+Message-ID: <20100321173737.5fcf3580@neptune.home>
 References: <20100320170014.440959a8@neptune.home>
- <20100320170415.6ee219c8@neptune.home>
- <45a44e481003210024l2c66938fp9436d34f6473f811@mail.gmail.com>
+	<20100320170241.55258b0d@neptune.home>
+	<20100321034600.GE29360@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <45a44e481003210024l2c66938fp9436d34f6473f811@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jaya Kumar <jayakumar.lkml@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100321034600.GE29360-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 21 March 2010 Jaya Kumar <jayakumar.lkml@gmail.com> wrote:
-> > Add framebuffer support to PicoLCD device with use of deferred-io.
-> >
-> > Only changed areas of framebuffer get sent to device in order to
-> > save USB bandwidth and especially resources on PicoLCD device or
-> > allow higher refresh rate for a small area.
+On Sat, 20 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
+:
+> On Sat, Mar 20, 2010 at 05:02:41PM +0100, Bruno Pr=C3=A9mont wrote:
+> > +/* Input device
+> > + *
+> > + * The PicoLCD has an IR receiver header, a built-in keypad with 5=
+ keys
+> > + * and header for 4x4 key matrix. The built-in keys are part of th=
+e matrix.
+> > + */
+> > +#define PICOLCD_KEYS 17
+> > +
+> > +static const int def_keymap[PICOLCD_KEYS] =3D {
 >=20
-> Interesting work. One minor comment, defio doesn't currently guarante=
-e
-> that it is "changed areas". Just that it is "written" pages which
-> typically equates to "changed" but does not guarantee this.
-
-When copying from framebuffer to shadow buffer I check if any given til=
-e
-has changed and only send that tile to the device if it has effectively
-changed. So this check is done independently of defio.
-(though I have to force-fully transfer the whole framebuffer at probe
-or after reset - which is missing)
-
-> > Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> > ---
-> > =C2=A0drivers/hid/Kconfig =C2=A0 =C2=A0 =C2=A0 | =C2=A0 =C2=A07 +-
-> > =C2=A0drivers/hid/hid-picolcd.c | =C2=A0454 +++++++++++++++++++++++=
-++++++++++++++++++++++
-> > =C2=A02 files changed, 460 insertions(+), 1 deletions(-)
+> def_keymap[] =3D {
+> ...
+> };
+> #define PICOLCD_KEYS ARRAY_SIZE(def_keymap);
 >=20
-> It is customary for framebuffer drivers to live in drivers/video. Thi=
-s
-> is the first one I've reviewed that is outside of it. Is there a good
-> reason for this one to be outside of it? If so, could you put it in
-> the comments.
+> would be safe.  Also unsigned short should cover it.
 
-I've kept all the pieces of PicoLCD driver together under hid,
-as it's a HID based device. Framebuffer is just one of its features and
-keeping pieces together makes it easier to handle.
+Ok
 
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index 7097f0a..a474bcd 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -230,6 +230,11 @@ config HID_PETALYNX
-> > =C2=A0config HID_PICOLCD
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0tristate "PicoLCD (graphic version)"
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0depends on USB_HID
-> > + =C2=A0 =C2=A0 =C2=A0 select FB_DEFERRED_IO if FB
-> > + =C2=A0 =C2=A0 =C2=A0 select FB_SYS_FILLRECT if FB
-> > + =C2=A0 =C2=A0 =C2=A0 select FB_SYS_COPYAREA if FB
-> > + =C2=A0 =C2=A0 =C2=A0 select FB_SYS_IMAGEBLIT if FB
-> > + =C2=A0 =C2=A0 =C2=A0 select FB_SYS_FOPS if FB
+> > +	KEY_RESERVED,	/* none */
+> > +	KEY_BACK,	/* col 4 + row 1 */
+> > +	KEY_HOMEPAGE,	/* col 3 + row 1 */
+> > +	KEY_RESERVED,	/* col 2 + row 1 */
+> > +	KEY_RESERVED,	/* col 1 + row 1 */
+> > +	KEY_SCROLLUP,	/* col 4 + row 2 */
+> > +	KEY_OK,		/* col 3 + row 2 */
+> > +	KEY_SCROLLDOWN,	/* col 2 + row 2 */
+> > +	KEY_RESERVED,	/* col 1 + row 2 */
+> > +	KEY_RESERVED,	/* col 4 + row 3 */
+> > +	KEY_RESERVED,	/* col 3 + row 3 */
+> > +	KEY_RESERVED,	/* col 2 + row 3 */
+> > +	KEY_RESERVED,	/* col 1 + row 3 */
+> > +	KEY_RESERVED,	/* col 4 + row 4 */
+> > +	KEY_RESERVED,	/* col 3 + row 4 */
+> > +	KEY_RESERVED,	/* col 2 + row 4 */
+> > +	KEY_RESERVED,	/* col 1 + row 4 */
+> > +};
+> > +
+> > +/* Description of in-progress IO operation, used for operations
+> > + * that trigger response from device */
+> > +struct picolcd_pending {
+> > +	struct hid_report *out_report;
+> > +	struct hid_report *in_report;
+> > +	int raw_size;
+> > +	u8 raw_data[64];
+> > +};
+> > +
+> > +/* Per device data structure */
+> > +struct picolcd_data {
+> > +	struct hid_device *hdev;
+> > +#ifdef CONFIG_DEBUG_FS
+> > +	int addr_sz;
+> > +#endif
+> > +	u8 version[2];
+> > +	/* input stuff */
+> > +	u8 pressed_keys[2];
+> > +	struct input_dev *input_keys;
+> > +	struct input_dev *input_cir;
+> > +	int keycode[PICOLCD_KEYS];
+> > +
+> > +	/* Housekeeping stuff */
+> > +	spinlock_t lock;
+> > +	struct picolcd_pending *pending;
+> > +	struct completion ready;
+> > +	int status;
+> > +#define PICOLCD_BUSY 1
+> > +#define PICOLCD_FAILED 4
+> > +#define PICOLCD_BOOTLOADER 8
+> > +};
+> > +
+> > +
+> > +/* Find a given report */
+> > +#define picolcd_in_report(id, dev) picolcd_report(id, dev, HID_INP=
+UT_REPORT)
+> > +#define picolcd_out_report(id, dev) picolcd_report(id, dev, HID_OU=
+TPUT_REPORT)
+> > +
+> > +static struct hid_report *picolcd_report(int id, struct hid_device=
+ *hdev, int dir)
+> > +{
+> > +	struct list_head *feature_report_list =3D &hdev->report_enum[dir]=
+=2Ereport_list;
+> > +	struct hid_report *report =3D NULL;
+> > +
+> > +	list_for_each_entry(report, feature_report_list, list) {
+> > +		if (report->id =3D=3D id)
+> > +			return report;
+> > +	}
+> > +	dev_warn(&hdev->dev, "No report with id 0x%x found\n", id);
+> > +	return NULL;
+> > +}
+> > +
+> > +#ifdef CONFIG_DEBUG_FS
+> > +static void picolcd_debug_out_report(struct picolcd_data *data,
+> > +		struct hid_device *hdev, struct hid_report *report);
+> > +#define usbhid_submit_report(a, b, c) \
+> > +	picolcd_debug_out_report(hid_get_drvdata(a), a, b); \
+> > +	usbhid_submit_report(a, b, c)
+> > +#endif
+> > +
+> > +/* Submit a report and wait for a reply from device - if device fa=
+des away
+> > + * or does not respond in time, return NULL */
+> > +static struct picolcd_pending* picolcd_send_and_wait(struct hid_de=
+vice *hdev,
+> > +		int report_id, const u8 *raw_data, int size)
+> > +{
+> > +	struct picolcd_data *data =3D hid_get_drvdata(hdev);
+> > +	struct picolcd_pending *work;
+> > +	struct hid_report *report =3D picolcd_out_report(report_id, hdev)=
+;
+> > +	unsigned long flags;
+> > +	int status, i, j, k;
+> > +
+> > +	if (!report)
+> > +		return NULL;
+> > +	work =3D kzalloc(sizeof(*work), GFP_KERNEL);
+> > +	if (!work)
+> > +		return NULL;
+> > +
+> > +	work->out_report =3D report;
+> > +	work->in_report  =3D NULL;
+> > +	work->raw_size   =3D 0;
+> > +
+> > +retry:
+> > +	/* try to get lock and enqueue our job */
+> > +	spin_lock_irqsave(&data->lock, flags);
+> > +	status =3D data->status;
+> > +	if (data->pending || (status & PICOLCD_FAILED)) {
+> > +		/* some job already pending,
+> > +		 * wait for it to complete and try again */
+> > +		spin_unlock_irqrestore(&data->lock, flags);
+> > +		if (status & PICOLCD_FAILED) {
+> > +			kfree(work);
+> > +			return NULL;
+> > +		}
+> > +		wait_for_completion_interruptible_timeout(&data->ready, HZ*2);
+> > +		goto retry;
 >=20
-> I think all of that "if FB" stuff looks odd, it would disappear if it
-> were in the right Kconfig.
-
-In the initial patch I did select FB as well though for v2 I decided
-to make all the dependencies of non-input features optional. For the FB
-case the various helper entries are needed, for the rest it's sufficien=
-t
-to have #ifdef's for their device class.
-
-Another option would be to distribute the Kconfig entries over the
-various device class's Kconfig files though I don't think that would
-make things easier to understand...
-
-> > +/* Framebuffer visual structures */
-> > +static const struct fb_fix_screeninfo picolcdfb_fix =3D {
-> > + =C2=A0 =C2=A0 =C2=A0 .id =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=3D PI=
-COLCDFB_NAME,
-> > + =C2=A0 =C2=A0 =C2=A0 .type =C2=A0 =C2=A0 =C2=A0 =C2=A0=3D FB_TYPE=
-_PACKED_PIXELS,
-> > + =C2=A0 =C2=A0 =C2=A0 .visual =C2=A0 =C2=A0 =C2=A0=3D FB_VISUAL_MO=
-NO01,
+> Umm, can we do this with a mutex? Like you take a mutex and don't
+> release till you are done talking to the device. So that other guy wi=
+ll
+> wait on the mutex instead of waking up and rechecking condition.
 >=20
-> Interesting choice. Out of curiosity, which fb client application are
-> you testing/using this with?
-
-=46or now I've just been testing with manual read/write to /dev/fb. I'v=
-e
-not yet played with fb applications.
-
-
-I've had a look at fb applications, seems that none wants to play with
-individual bits, they all bail out requesting 8 or more bpp (some
-fail politely, others just exit/segfault and don't undo changes they di=
-d)
-
-So I guess I will have to add support for translating 8bpp to device's
-1bpp to be able to use any existing fb application and switching betwee=
-n
-1bpp and 8bpp framebuffer...
-
-> > + =C2=A0 =C2=A0 =C2=A0 /*
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* Translate the XBM format screen_base=
- into the format needed by the
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* PicoLCD. See display layout above.
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* Do this one tile after the other and=
- push those tiles that changed.
-> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
+> > +	}
+> > +	data->status |=3D PICOLCD_BUSY;
+> > +	data->pending =3D work;
+> > +	for (i =3D k =3D 0; i < report->maxfield; i++)
+> > +		for (j =3D 0; j < report->field[i]->report_count; j++) {
+> > +			hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0);
+> > +			k++;
+> > +		}
+> > +	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
+> > +	complete_all(&data->ready);
+> > +	INIT_COMPLETION(data->ready);
 >=20
-> I think screen_base is in standard fb format, which you've specified
-> as MONO01 above. When you say, XBM format, in the above comment is it
-> exactly the same?
+> Umm, what does this do, exactly?
 
-It should be the same (from what I read MONO01 versus MONO10 is just
-whether 0 or 1 is "black" or "white") and in combination with
-PACKED_PIXELS it makes 8 pixels per bytes.
+It wakes up anyone waiting on the completion and then resets the comple=
+tion
+as otherwise any future attempt to wait on it would succeed immediately=
+=2E
 
-Thanks for the review,
+The complete_all() instead of just complete() comes from the reset() fu=
+nction.
+I can probably reduce it here.
+
+Will check this combined with your mutex suggestion above.
+
+> > +	spin_unlock_irqrestore(&data->lock, flags);
+> > +	/* wait for our job to complete */
+> > +	wait_for_completion_interruptible_timeout(&data->ready, HZ*2);
+> > +
+> > +	spin_lock_irqsave(&data->lock, flags);
+> > +	if (data->pending =3D=3D work) {
+> > +		data->status  &=3D ~PICOLCD_BUSY;
+> > +		data->pending =3D NULL;
+> > +		complete_all(&data->ready);
+> > +		spin_unlock_irqrestore(&data->lock, flags);
+> > +		return work;
+> > +	} else {
+> > +		spin_unlock_irqrestore(&data->lock, flags);
+> > +		kfree(work);
+> > +		return NULL;
+> > +	}
+> > +}
+> > +
+> > +/*
+> > + * input class device
+> > + */
+> > +static int picolcd_raw_keypad(struct hid_device *hdev,
+> > +		struct hid_report *report, u8 *raw_data, int size)
+> > +{
+> > +	/*
+> > +	 * Keypad event
+> > +	 * First and second data bytes list currently pressed keys,
+> > +	 * 0x00 means no key and at most 2 keys may be pressed at same ti=
+me
+> > +	 */
+> > +	struct picolcd_data *data =3D hid_get_drvdata(hdev);
+> > +	int i, j;
+> > +
+> > +	/* determine newly pressed keys */
+> > +	for (i =3D 0; i < size; i++) {
+> > +		int key_code;
+> > +		if (raw_data[i] =3D=3D 0)
+> > +			continue;
+> > +		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
+> > +			if (data->pressed_keys[j] =3D=3D raw_data[i])
+> > +				goto key_already_down;
+> > +		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
+> > +			if (data->pressed_keys[j] =3D=3D 0) {
+> > +				data->pressed_keys[j] =3D raw_data[i];
+> > +				break;
+> > +			}
+> > +		input_event(data->input_keys, EV_MSC, MSC_SCAN, raw_data[i]);
+> > +		if (input_get_keycode(data->input_keys, raw_data[i], &key_code))
+> > +			key_code =3D KEY_UNKNOWN;
+>=20
+> Just get keycode directly from the driver's table, no need to jump th=
+rough hoops
+> here,
+
+Ok
+
+> > +		if (key_code !=3D KEY_UNKNOWN) {
+> > +			dbg_hid(PICOLCD_NAME " got key press for %u:%d", raw_data[i], k=
+ey_code);
+> > +			input_report_key(data->input_keys, key_code, 1);
+> > +		}
+> > +		input_sync(data->input_keys);
+> > +key_already_down:
+> > +		continue;
+> > +	}
+> > +
+> > +	/* determine newly released keys */
+> > +	for (j =3D 0; j < sizeof(data->pressed_keys); j++) {
+> > +		int key_code;
+> > +		if (data->pressed_keys[j] =3D=3D 0)
+> > +			continue;
+> > +		for (i =3D 0; i < size; i++)
+> > +			if (data->pressed_keys[j] =3D=3D raw_data[i])
+> > +				goto key_still_down;
+> > +		input_event(data->input_keys, EV_MSC, MSC_SCAN, data->pressed_ke=
+ys[j]);
+> > +		if (input_get_keycode(data->input_keys, data->pressed_keys[j], &=
+key_code))
+> > +			key_code =3D KEY_UNKNOWN;
+> > +		if (key_code !=3D KEY_UNKNOWN) {
+> > +			dbg_hid(PICOLCD_NAME " got key release for %u:%d", data->presse=
+d_keys[j], key_code);
+> > +			input_report_key(data->input_keys, key_code, 0);
+> > +		}
+> > +		input_sync(data->input_keys);
+> > +		data->pressed_keys[j] =3D 0;
+> > +key_still_down:
+> > +		continue;
+> > +	}
+> > +	return 1;
+> > +}
+> > +
+> > +static int picolcd_raw_cir(struct hid_device *hdev,
+> > +		struct hid_report *report, u8 *raw_data, int size)
+> > +{
+> > +	/* Need understanding of CIR data format to implement ... */
+> > +	return 1;
+> > +}
+> > +
+> > +
+> > +
+> > +/*
+> > + * Reset our device and wait for answer to VERSION request
+> > + */
+> > +static int picolcd_reset(struct hid_device *hdev)
+> > +{
+> > +	struct picolcd_data *data =3D hid_get_drvdata(hdev);
+> > +	struct hid_report *report =3D picolcd_out_report(REPORT_RESET, hd=
+ev);
+> > +	struct picolcd_pending *verinfo;
+> > +	unsigned long flags;
+> > +
+> > +	if (!data || !report || report->maxfield !=3D 1)
+> > +		return -ENODEV;
+> > +
+> > +	spin_lock_irqsave(&data->lock, flags);
+> > +	complete_all(&data->ready);
+> > +	INIT_COMPLETION(data->ready);
+> > +	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
+> > +		data->status |=3D PICOLCD_BOOTLOADER;
+> > +
+> > +	/* perform the reset */
+> > +	hid_set_field(report->field[0], 0, 1);
+> > +	usbhid_submit_report(hdev, report, USB_DIR_OUT);
+> > +	spin_unlock_irqrestore(&data->lock, flags);
+> > +
+> > +	verinfo =3D picolcd_send_and_wait(hdev, REPORT_VERSION, NULL, 0);
+> > +	if (verinfo && verinfo->raw_size =3D=3D 2) {
+> > +		if (data->status & PICOLCD_BOOTLOADER) {
+> > +			dev_info(&hdev->dev, "PicoLCD reset successful, bootloader vers=
+ion %d.%d\n",
+> > +					verinfo->raw_data[0], verinfo->raw_data[1]);
+> > +			data->version[0] =3D verinfo->raw_data[0];
+> > +			data->version[1] =3D verinfo->raw_data[1];
+> > +		} else {
+> > +			dev_info(&hdev->dev, "PicoLCD reset successful, firmware versio=
+n %d.%d\n",
+> > +					verinfo->raw_data[1], verinfo->raw_data[0]);
+> > +			data->version[0] =3D verinfo->raw_data[1];
+> > +			data->version[1] =3D verinfo->raw_data[0];
+> > +		}
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +	} else if (verinfo) {
+> > +		dev_err(&hdev->dev, "confused, got unexpected version response f=
+rom PicoLCD after reset\n");
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +	} else {
+> > +		dev_err(&hdev->dev, "no version response from PicoLCD after rese=
+t");
+> > +		return -EBUSY;
+> > +	}
+> > +
+>=20
+> I am pretty sure it could be written clearer instead of checking for
+> verinfo several times...
+>=20
+> 	if (!verinfo) {
+> 		dev_err(..);
+> 		return -EBUSY;
+> 	}
+>=20
+> 	if (verinfo->raw_size =3D=3D 2) {
+> 		...
+> 	} else {
+> 		dev_err(...)
+> 	}
+>=20
+> 	kfree(verinfo);
+
+See below
+
+> > +	return 0;
+> > +}
+> > +
+> > +/*
+> > + * The "operation_mode" sysfs attribute
+> > + */
+> > +static ssize_t picolcd_operation_mode_show(struct device *dev,
+> > +		struct device_attribute *attr, char *buf)
+> > +{
+> > +	struct picolcd_data *data =3D dev_get_drvdata(dev);
+> > +
+> > +	if (data->status & PICOLCD_BOOTLOADER)
+> > +		return snprintf(buf, PAGE_SIZE, "<bootloader> lcd\n");
+> > +	else
+> > +		return snprintf(buf, PAGE_SIZE, "bootloader <lcd>\n");
+> > +}
+> > +
+> > +static ssize_t picolcd_operation_mode_store(struct device *dev,
+> > +		struct device_attribute *attr, const char *buf, size_t count)
+> > +{
+> > +	struct picolcd_data *data =3D dev_get_drvdata(dev);
+> > +	struct hid_report *report =3D NULL;
+> > +	size_t cnt =3D count;
+> > +	int timeout =3D 5000;
+> > +	unsigned u;
+> > +	unsigned long flags;
+> > +
+> > +	if (cnt >=3D 3 && strncmp("lcd", buf, 3) =3D=3D 0) {
+> > +		if (data->status & PICOLCD_BOOTLOADER)
+> > +			report =3D picolcd_out_report(REPORT_EXIT_FLASHER, data->hdev);
+> > +		buf +=3D 3;
+> > +		cnt -=3D 3;
+> > +	} else if (cnt >=3D 10 && strncmp("bootloader", buf, 10) =3D=3D 0=
+) {
+> > +		if (!(data->status & PICOLCD_BOOTLOADER))
+> > +			report =3D picolcd_out_report(REPORT_EXIT_KEYBOARD, data->hdev)=
+;
+> > +		buf +=3D 10;
+> > +		cnt -=3D 10;
+> > +	}
+> > +	if (!report)
+> > +		return -EINVAL;
+> > +
+> > +	while (cnt > 0 && (*buf =3D=3D ' ' || *buf =3D=3D '\t')) {
+> > +		buf++;
+> > +		cnt--;
+> > +	}
+> > +	while (cnt > 0 && (buf[cnt-1] =3D=3D '\n' || buf[cnt-1] =3D=3D '\=
+r'))
+> > +		cnt--;
+> > +	if (cnt > 0) {
+> > +		if (sscanf(buf, "%u", &u) !=3D 1)
+> > +			return -EINVAL;
+> > +		if (u > 30000)
+> > +			return -EINVAL;
+> > +		else
+> > +			timeout =3D u;
+> > +	}
+> > +
+> > +	spin_lock_irqsave(&data->lock, flags);
+> > +	hid_set_field(report->field[0], 0, timeout & 0xff);
+> > +	hid_set_field(report->field[0], 1, (timeout >> 8) & 0xff);
+> > +	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
+> > +	spin_unlock_irqrestore(&data->lock, flags);
+> > +	return count;
+> > +}
+> > +
+> > +static DEVICE_ATTR(operation_mode, 0644, picolcd_operation_mode_sh=
+ow,
+> > +		picolcd_operation_mode_store);
+> > +
+> > +
+> > +#ifdef CONFIG_DEBUG_FS
+
+=2E.. snip reports dumping to debugfs's events ...
+
+> > +#else
+> > +#define picolcd_debug_raw_event(data, hdev, report, raw_data, size=
+)
+> > +#endif
+> > +
+> > +/*
+> > + * Handle raw report as sent by device
+> > + */
+> > +static int picolcd_raw_event(struct hid_device *hdev,
+> > +		struct hid_report *report, u8 *raw_data, int size)
+> > +{
+> > +	struct picolcd_data *data =3D hid_get_drvdata(hdev);
+> > +	unsigned long flags;
+> > +	int ret =3D 0;
+> > +
+> > +	if (data =3D=3D NULL)
+> > +		return 1;
+> > +
+> > +	if (report->id =3D=3D REPORT_KEY_STATE) {
+> > +		if (data->input_keys)
+> > +			ret =3D picolcd_raw_keypad(hdev, report, raw_data+1, size-1);
+> > +	} else if (report->id =3D=3D REPORT_IR_DATA) {
+> > +		if (data->input_cir)
+> > +			ret =3D picolcd_raw_cir(hdev, report, raw_data+1, size-1);
+> > +	} else {
+> > +		spin_lock_irqsave(&data->lock, flags);
+> > +		/*
+> > +		 * We let the caller of picolcd_send_and_wait() check if the rep=
+ort
+> > +		 * we got is one of the expected ones or not.
+> > +		 */
+> > +		if (data->pending) {
+> > +			memcpy(data->pending->raw_data, raw_data+1, size-1);
+> > +			data->pending->raw_size  =3D size-1;
+> > +			data->pending->in_report =3D report;
+> > +			complete_all(&data->ready);
+> > +		}
+> > +		spin_unlock_irqrestore(&data->lock, flags);
+> > +	}
+> > +
+> > +	picolcd_debug_raw_event(data, hdev, report, raw_data, size);
+> > +	return 1;
+> > +}
+> > +
+> > +#ifdef CONFIG_PM
+> > +static int picolcd_suspend(struct hid_device *hdev)
+> > +{
+> > +	dbg_hid(PICOLCD_NAME " device ready for suspend\n");
+> > +	return 0;
+> > +}
+> > +
+> > +static int picolcd_resume(struct hid_device *hdev)
+> > +{
+> > +	return 0;
+> > +}
+> > +
+> > +static int picolcd_reset_resume(struct hid_device *hdev)
+> > +{
+> > +	int ret;
+> > +	ret =3D picolcd_reset(hdev);
+> > +	if (ret)
+> > +		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
+> > +	return 0;
+> > +}
+> > +#endif
+> > +
+> > +/* initialize keypad input device */
+> > +static inline int picolcd_init_keys(struct picolcd_data *data,
+> > +		struct hid_report *report)
+> > +{
+> > +	struct hid_device *hdev =3D data->hdev;
+> > +	struct input_dev *idev;
+> > +	int error, i;
+> > +
+> > +	if (!report)
+> > +		return -ENODEV;
+> > +	if (report->maxfield !=3D 1 || report->field[0]->report_count !=3D=
+ 2 ||
+> > +			report->field[0]->report_size !=3D 8) {
+> > +		dev_err(&hdev->dev, "unsupported KEY_STATE report");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	idev =3D input_allocate_device();
+> > +	if (idev =3D=3D NULL) {
+> > +		dev_err(&hdev->dev, "failed to allocate input device");
+> > +		return -ENOMEM;
+> > +	}
+> > +	input_set_drvdata(idev, hdev);
+> > +	memcpy(data->keycode, def_keymap, sizeof(def_keymap));
+> > +	idev->name =3D hdev->name;
+> > +	idev->phys =3D hdev->phys;
+> > +	idev->uniq =3D hdev->uniq;
+> > +	idev->id.bustype =3D hdev->bus;
+> > +	idev->id.vendor  =3D hdev->vendor;
+> > +	idev->id.product =3D hdev->product;
+> > +	idev->id.version =3D hdev->version;
+> > +	idev->dev.parent =3D hdev->dev.parent;
+> > +	idev->keycode     =3D &data->keycode;
+> > +	idev->keycodemax  =3D PICOLCD_KEYS;
+> > +	idev->keycodesize =3D sizeof(int);
+> > +	input_set_capability(idev, EV_MSC, MSC_SCAN);
+> > +	set_bit(EV_REP, idev->evbit);
+> > +	for (i =3D 0; i < PICOLCD_KEYS; i++) {
+> > +		int key =3D ((int *)idev->keycode)[i];
+> > +		if (key < KEY_MAX && key >=3D 0)
+> > +			input_set_capability(idev, EV_KEY, key);
+> > +	}
+> > +	error =3D input_register_device(idev);
+> > +	if (error) {
+> > +		dev_err(&hdev->dev, "error registering the input device");
+> > +		input_free_device(idev);
+> > +		return error;
+> > +	}
+> > +	data->input_keys =3D idev;
+> > +	return 0;
+> > +}
+> > +
+> > +static void picolcd_exit_keys(struct picolcd_data *data)
+> > +{
+> > +	struct input_dev *idev =3D data->input_keys;
+> > +
+> > +	data->input_keys =3D NULL;
+> > +	if (idev)
+> > +		input_unregister_device(idev);
+> > +}
+> > +
+> > +/* initialize CIR input device */
+> > +static inline int picolcd_init_cir(struct picolcd_data *data, stru=
+ct hid_report *report)
+> > +{
+> > +	/* support not implemented yet */
+> > +	return 0;
+> > +}
+> > +
+> > +static void picolcd_exit_cir(struct picolcd_data *data)
+> > +{
+> > +}
+> > +
+> > +static inline int picolcd_probe_lcd(struct hid_device *hdev, struc=
+t picolcd_data *data)
+> > +{
+> > +	struct picolcd_pending *verinfo;
+> > +	struct hid_report *report;
+> > +	int error;
+> > +
+> > +	verinfo =3D picolcd_send_and_wait(hdev, REPORT_VERSION, NULL, 0);
+> > +	if (!verinfo || !verinfo->in_report) {
+> > +		kfree(verinfo);
+> > +		dev_err(&hdev->dev, "failed to query FW version of device\n");
+> > +		return -ENODEV;
+> > +	} else if (verinfo->in_report->id =3D=3D REPORT_VERSION && verinf=
+o->raw_size =3D=3D 2) {
+> > +		dev_info(&hdev->dev, "detected PicoLCD with firmware version %d.=
+%d\n",
+> > +				verinfo->raw_data[0], verinfo->raw_data[1]);
+> > +		data->version[0] =3D verinfo->raw_data[1];
+> > +		data->version[1] =3D verinfo->raw_data[0];
+> > +		if (data->version[0] !=3D 0 && data->version[1] !=3D 3)
+> > +			dev_info(&hdev->dev, "Device with untested firmware revision, "
+> > +				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.=
+\n",
+> > +				dev_name(&hdev->dev));
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +	} else {
+> > +		dev_err(&hdev->dev, "unexpected version response from PicoLCD"
+> > +				" (report=3D0x%02x, size=3D%d)\n",
+> > +				verinfo->in_report->id, verinfo->raw_size);
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +		return -ENODEV;
+> > +	}
+>=20
+>=20
+> Please consolidate freeing of acquired resources.
+
+See below
+
+> > +
+> > +	/* Setup keypad input device */
+> > +	error =3D picolcd_init_keys(data, picolcd_in_report(REPORT_KEY_ST=
+ATE, hdev));
+> > +	if (error)
+> > +		goto err;
+> > +
+> > +	/* Setup CIR input device */
+> > +	error =3D picolcd_init_cir(data, picolcd_in_report(REPORT_IR_DATA=
+, hdev));
+> > +	if (error)
+> > +		goto err;
+> > +
+> > +#ifdef CONFIG_DEBUG_FS
+> > +	report =3D picolcd_out_report(REPORT_READ_MEMORY, hdev);
+> > +	if (report && report->maxfield =3D=3D 1 && report->field[0]->repo=
+rt_size =3D=3D 8)
+> > +		data->addr_sz =3D report->field[0]->report_count - 1;
+> > +	else
+> > +		data->addr_sz =3D -1;
+> > +#endif
+> > +	return 0;
+> > +err:
+> > +	picolcd_exit_cir(data);
+> > +	picolcd_exit_keys(data);
+> > +	return error;
+> > +}
+> > +
+> > +static inline int picolcd_probe_bootloader(struct hid_device *hdev=
+, struct picolcd_data *data)
+> > +{
+> > +	struct picolcd_pending *verinfo;
+> > +	struct hid_report *report;
+> > +
+> > +	verinfo =3D picolcd_send_and_wait(hdev, REPORT_VERSION, NULL, 0);
+> > +	if (!verinfo || !verinfo->in_report) {
+> > +		kfree(verinfo);
+> > +		dev_err(&hdev->dev, "failed to query FW version of device\n");
+> > +		return -ENODEV;
+> > +	} else if (verinfo->in_report->id =3D=3D REPORT_VERSION && verinf=
+o->raw_size =3D=3D 2) {
+> > +		dev_info(&hdev->dev, "detected PicoLCD with bootloader version %=
+d.%d\n",
+> > +				verinfo->raw_data[1], verinfo->raw_data[0]);
+> > +		data->version[0] =3D verinfo->raw_data[1];
+> > +		data->version[1] =3D verinfo->raw_data[0];
+> > +		if (data->version[0] !=3D 1 && data->version[1] !=3D 0)
+> > +			dev_info(&hdev->dev, "Device with untested bootloader revision,=
+ "
+> > +				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.=
+\n",
+> > +				dev_name(&hdev->dev));
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +	} else {
+> > +		dev_err(&hdev->dev, "unexpected version response from PicoLCD"
+> > +				" (report=3D0x%02x, size=3D%d)\n",
+> > +				verinfo->in_report->id, verinfo->raw_size);
+> > +		kfree(verinfo);
+> > +		verinfo =3D NULL;
+> > +		return -ENODEV;
+> > +	}
+> >=20
+>=20
+> Please consolidate freeing of acquired resources. Wait, I just saw
+> afucntion like that... can we combine them somehow?
+
+Yeah, there are 3 blocks of very similar code though the important
+difference is the operation mode (bootloader versus firmware).
+According to the behavior and what bootloader mode displays
+the version numbers are not in the same order for both cases.
+
+The code distribution was looking worse some internal revisions ago
+as by then I did allocate verinfo->raw_data separately ...
+
+Will try to extract version check to a function.
+
+> > +
+> > +#ifdef CONFIG_DEBUG_FS
+> > +	report =3D picolcd_out_report(REPORT_BL_READ_MEMORY, hdev);
+> > +	if (report && report->maxfield =3D=3D 1 && report->field[0]->repo=
+rt_size =3D=3D 8)
+> > +		data->addr_sz =3D report->field[0]->report_count - 1;
+> > +	else
+> > +		data->addr_sz =3D -1;
+> > +#endif
+> > +	return 0;
+> > +}
+> > +
+> > +static int picolcd_probe(struct hid_device *hdev,
+> > +		     const struct hid_device_id *id)
+> > +{
+> > +	struct picolcd_data *data;
+> > +	int error =3D -ENOMEM;
+> > +
+> > +	dbg_hid(PICOLCD_NAME " hardware probe...\n");
+> > +
+> > +	/*
+> > +	 * Let's allocate the picolcd data structure, set some reasonable
+> > +	 * defaults, and associate it with the device
+> > +	 */
+> > +	data =3D kzalloc(sizeof(struct picolcd_data), GFP_KERNEL);
+> > +	if (data =3D=3D NULL) {
+> > +		dev_err(&hdev->dev, "can't allocate space for Minibox PicoLCD de=
+vice data\n");
+> > +		error =3D -ENOMEM;
+> > +		goto err_no_cleanup;
+> > +	}
+> > +
+> > +	spin_lock_init(&data->lock);
+> > +	init_completion(&data->ready);
+> > +	data->hdev =3D hdev;
+> > +	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
+> > +		data->status |=3D PICOLCD_BOOTLOADER;
+> > +	hid_set_drvdata(hdev, data);
+> > +
+> > +	/* Parse the device reports and start it up */
+> > +	error =3D hid_parse(hdev);
+> > +	if (error) {
+> > +		dev_err(&hdev->dev, "device report parse failed\n");
+> > +		goto err_cleanup_data;
+> > +	}
+> > +
+> > +	/* We don't use hidinput but hid_hw_start() fails if nothing is
+> > +	 * claimed. So spoof claimed input. */
+> > +	hdev->claimed =3D HID_CLAIMED_INPUT;
+> > +	error =3D hid_hw_start(hdev, 0);
+> > +	hdev->claimed =3D 0;
+> > +	if (error) {
+> > +		dev_err(&hdev->dev, "hardware start failed\n");
+> > +		goto err_cleanup_data;
+> > +	}
+> > +
+> > +	error =3D hdev->ll_driver->open(hdev);
+> > +	if (error) {
+> > +		dev_err(&hdev->dev, "failed to open input interrupt pipe for key=
+ and IR events\n");
+> > +		goto err_cleanup_hid_hw;
+> > +	}
+> > +
+> > +	error =3D sysfs_create_file(&(hdev->dev.kobj), &dev_attr_operatio=
+n_mode.attr);
+>=20
+> device_create_file?
+
+Thanks for the pointer, will switch
+
+> > +	if (error) {
+> > +		dev_err(&hdev->dev, "failed to create sysfs attributes\n");
+> > +		goto err_cleanup_hid_ll;
+> > +	}
+> > +
+
+Thanks for your review,
 Bruno
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

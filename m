@@ -1,68 +1,69 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH v2 6/6] hid: add experimental access to PicoLCD device's
- EEPROM and FLASH
-Date: Sun, 21 Mar 2010 11:29:22 +0100
-Message-ID: <20100321112922.53bb8c6e@neptune.home>
-References: <20100320170014.440959a8@neptune.home>
-	<20100320171119.193c5615@neptune.home>
-	<20100321030802.GB29360@core.coreip.homeip.net>
+From: Corentin Chary <corentin.chary@gmail.com>
+Subject: Re: [PATCH] eeepc-wmi: new driver for WMI based hotkeys on Eee PC
+	laptops
+Date: Sun, 21 Mar 2010 14:14:18 +0100
+Message-ID: <71cd59b01003210614j3fd77990g502fb062175a9ed0@mail.gmail.com>
+References: <20100319133924.GA30427@ywang-moblin2.bj.intel.com>
+	 <20100319135929.GA29027@srcf.ucam.org>
+	 <20100319151054.GA30664@ywang-moblin2.bj.intel.com>
+	 <20100319152323.GA30456@srcf.ucam.org>
+	 <20100320005553.GB32163@ywang-moblin2.bj.intel.com>
+	 <20100320122049.GA1478@holoscopio.com>
+	 <20100320122416.GA10558@ywang-moblin2.bj.intel.com>
+	 <71cd59b01003201021q118500a9nc1f56b37803d5bf3@mail.gmail.com>
+	 <20100321005927.GA11076@ywang-moblin2.bj.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100321030802.GB29360-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f211.google.com ([209.85.218.211]:64843 "EHLO
+	mail-bw0-f211.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751824Ab0CUNOU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Mar 2010 09:14:20 -0400
+In-Reply-To: <20100321005927.GA11076@ywang-moblin2.bj.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yong Wang <yong.y.wang@linux.intel.com>
+Cc: cascardo@holoscopio.com, Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, 20 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
-:
-> On Sat, Mar 20, 2010 at 05:11:19PM +0100, Bruno Pr=C3=A9mont wrote:
-> > The PicoLCD device has a small amount of EEPROM and also provides
-> > access to its FLASH where firmware and splash image are saved.
-> > In flasher mode FLASH access is the only active feature.
-> >=20
-> > Give read/write access to both via debugfs files.
-> >=20
->=20
-> It looks you are allowing multiple users access to these files. What
-> will happen if 2 processes try to write EEPROM at the same time?
+On Sun, Mar 21, 2010 at 1:59 AM, Yong Wang <yong.y.wang@linux.intel.com> wrote:
+> On Sat, Mar 20, 2010 at 06:21:42PM +0100, Corentin Chary wrote:
+>>
+>> Hi Yong,
+>>
+>> You can check how eeepc-laptop work for backlight stuff.
+>> I think you should also remove all the NOTIFY_BRNDOWN_* code. It's
+>> still in eeepc-laptop for backward compatibility, but it should not be
+>> i newer drivers.
+>>
+>> Anyway, most of the time the backlight will be handled by the
+>> acpi/video.ko driver which will
+>> send events itself.
+>>
+>
+> Thanks for the info. I will take a look.
+>
+>> I will update this page soon
+>> http://dev.iksaif.net/projects/acpi4asus/wiki/Eeepc-wmi .
+>>
+>
+> Yeah, I actually passed by this wiki page last week and I read the "how
+> to help" section. I cannot donate hardware so I wrote the driver;-)
+>
+>> Do you want this driver to be part of acpi4asus project ? It would
+>> allow to share the same git tree / bugtracker / wiki. I can give you
+>> access to all that stuff quickly. I think it would be easier for users
+>> if we merge into one single project.
+>>
+>
+> I have no problem. What is the relationship between acpi4asus and
+> platform x86 drivers? Will Matthew merge your tree?
 
-Writes will be serialized by the wait for response from device with
-picolcd_send_and_wait() and it's up to userspace to repeat the
-reads/writes in order to get all the data they need if they requested
-more that the 20 bytes that can be transferred in a single HID report.
+Yep Matthew will merge my tree. Platform x86 subsystem is young, so it
+only happened once, but I think
+he will continue to do so. Do you want a write access to acpi4asus
+tree, or do you want me to merge your tree ?
 
-=46or flash access a concurrent write to same area can cause one of the
-writers to conflict with the other one as a write there is a sequence
-of operations which can interleave (e.g. A erases, A writes 1/2,
-B erases, B writes 1/2, A writes 2nd 1/2, B writes 2nd 1/2 which would
-fail).
-A single-user open would be a nice work-around for this.
-I would prefer to make erase operation explicitly visible to user so
-I don't have to do the erase behind the scenes.
-I've not yet looked in the area of mtd/nand support if I can use their
-interface.
-
-This is the big reason I did put both to debugfs, they (especially
-flash access) need to be made visible in a better way.
-
-> > +
-> > +static inline int picolcd_init_devfs(struct picolcd_data *data,
-> > +		struct hid_report *eeprom_r, struct hid_report *eeprom_w,
-> > +		struct hid_report *flash_r, struct hid_report *flash_w,
-> > +		struct hid_report *reset)
-> > +{
->=20
-> I don't think this should be forced inline.
-
-Ok, will drop most of the 'inline' keywords as you suggested already
-on one of the other patches.
-
-Thanks for the review,
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Corentin Chary
+http://xf.iksaif.net

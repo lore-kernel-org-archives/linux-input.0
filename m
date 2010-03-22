@@ -1,68 +1,49 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: UCB1400: Passing IRQ through platform_data
-Date: Mon, 22 Mar 2010 14:13:20 +0100
-Message-ID: <201003221413.20841.marek.vasut@gmail.com>
-References: <4BA70831.1040606@gmail.com>
+From: Ondrej Zary <linux@rainbow-software.org>
+Subject: [PATCH] [resend] usbtouchscreen: support bigger iNexio touchscreens
+Date: Mon, 22 Mar 2010 14:29:20 +0100
+Message-ID: <201003221429.21723.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:65249 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754710Ab0CVNN6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 09:13:58 -0400
-Received: by fg-out-1718.google.com with SMTP id l26so454449fgb.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Mar 2010 06:13:56 -0700 (PDT)
-In-Reply-To: <4BA70831.1040606@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb@vger.kernel.org, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Graham Gower <graham.gower@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-arm-kernel@lists.arm.linux.org.uk
 
-Dne Po 22. b=C5=99ezna 2010 07:03:29 Graham Gower napsal(a):
-> Hi Marek,
-> I wish to use the ucb1400_ts driver on my device. But I'm having trou=
-ble
-> passing the platform_data to the ucb1400_core driver.
->=20
-> I couldn't see any in tree examples of this being done and my attempt=
-s to
-> do this via registering a platform_driver for ucb1400_core have faile=
-d
-> (probably since this driver is ac97_bus_type, not a platform_driver).
->=20
-> Can you provide me with info regarding the correct method for passing=
- the
-> irq to the driver?
->=20
-> Thanks,
-> -Graham
->=20
+Bigger Nexio touchscreens not only send more data but also the header values
+are modified somehow. Fix the header somehow (it's a guesswork but it works
+at least on one 46" touchscreen with 2.00SMS firmware) and also increase
+rept_size.
 
-static struct ucb1400_pdata pdata =3D {
-	.irq	=3D IRQ_GPIO(123),
-};
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 
-static struct platform_device ucb1400_core =3D {
-        .name   =3D "ucb1400_core",
-        .id     =3D -1,
-	.dev	=3D {
-		.platform_data =3D &pdata,
-	},
-};
+--- linux-2.6.34-rc1-orig/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:34:51.000000000 +0100
++++ linux-2.6.34-rc1/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:46:15.000000000 +0100
+@@ -858,6 +858,11 @@
+ 	if ((pkt[0] & 0xe0) != 0xe0)
+ 		return 0;
+ 
++	if (be16_to_cpu(packet->data_len) > 0xff)
++		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
++	if (be16_to_cpu(packet->x_len) > 0xff)
++		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
++
+ 	/* send ACK */
+ 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
+ 
+@@ -1113,7 +1118,7 @@
+ 
+ #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
+ 	[DEVTYPE_NEXIO] = {
+-		.rept_size	= 128,
++		.rept_size	= 1024,
+ 		.irq_always	= true,
+ 		.read_data	= nexio_read_data,
+ 		.init		= nexio_init,
 
-init() {
-	platform_device_register(&ucb1400_core);
-}
 
-Like this ?
-
-btw. you don't have to pass pdata at all ... the logic for auto-detecti=
-ng IRQ is=20
-still there and is active if no pdata are supplied.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Ondrej Zary

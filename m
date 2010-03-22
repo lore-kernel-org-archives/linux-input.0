@@ -1,76 +1,85 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Zeroing the report before setting fields
-Date: Mon, 22 Mar 2010 16:22:06 -0600
-Message-ID: <20100322162206.3c1e9b9e@redhat.com>
-References: <20100304143349.2d861ec6@redhat.com>
- <20100305082901.GA20245@core.coreip.homeip.net>
- <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz>
- <20100309162648.289871c4@redhat.com>
- <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz>
- <20100321230941.6a56eae2@redhat.com>
- <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
+From: Graham Gower <graham.gower@gmail.com>
+Subject: Re: UCB1400: Passing IRQ through platform_data
+Date: Tue, 23 Mar 2010 09:14:26 +1030
+Message-ID: <4BA7F2CA.1060608@gmail.com>
+References: <4BA70831.1040606@gmail.com> <201003221413.20841.marek.vasut@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:3761 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756621Ab0CVWWF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 18:22:05 -0400
-In-Reply-To: <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
+Received: from fg-out-1718.google.com ([72.14.220.153]:6598 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751031Ab0CVWog (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Mar 2010 18:44:36 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so696982fgg.1
+        for <linux-input@vger.kernel.org>; Mon, 22 Mar 2010 15:44:34 -0700 (PDT)
+In-Reply-To: <201003221413.20841.marek.vasut@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, zaitcev@redhat.com
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 22 Mar 2010 17:30:31 +0100 (CET)
-Jiri Kosina <jkosina@suse.cz> wrote:
+Marek Vasut wrote:
+> Dne Po 22. b=C5=99ezna 2010 07:03:29 Graham Gower napsal(a):
+>> Hi Marek,
+>> I wish to use the ucb1400_ts driver on my device. But I'm having tro=
+uble
+>> passing the platform_data to the ucb1400_core driver.
+>>
+>> I couldn't see any in tree examples of this being done and my attemp=
+ts to
+>> do this via registering a platform_driver for ucb1400_core have fail=
+ed
+>> (probably since this driver is ac97_bus_type, not a platform_driver)=
+=2E
+>>
+>> Can you provide me with info regarding the correct method for passin=
+g the
+>> irq to the driver?
+>>
+>> Thanks,
+>> -Graham
+>>
+>=20
+> static struct ucb1400_pdata pdata =3D {
+> 	.irq	=3D IRQ_GPIO(123),
+> };
+>=20
+> static struct platform_device ucb1400_core =3D {
+>         .name   =3D "ucb1400_core",
+>         .id     =3D -1,
+> 	.dev	=3D {
+> 		.platform_data =3D &pdata,
+> 	},
+> };
+>=20
+> init() {
+> 	platform_device_register(&ucb1400_core);
+> }
+>=20
+> Like this ?
 
-> >  	if (dir == USB_DIR_OUT) {
-> > -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
-> > +		usbhid->ctrl[usbhid->ctrlhead].raw_report = kzalloc(len, GFP_ATOMIC);
-> >  		if (!usbhid->ctrl[usbhid->ctrlhead].raw_report) {
-> >  			dev_warn(&hid->dev, "control queueing failed\n");
+That is the first thing I tried and it doesn't work. I suggest you prin=
+tk
+the pdata in the ucb1400_core driver after having done this to confirm =
+(I got
+NULL). You don't need to register a platform driver for ucb1400_core_pr=
+obe()
+to be called anyway - presumably its enumerated from the ac97 bus.
 
-> Frankly, I like the generic aproach more ... if we were to add more 
-> low-level transport HID implementations later, I am sure this will be 
-> forgotten multiple times :) (as it isn't directly implied by the HID 
-> specification, but is rather a workaround for devices that are violating 
-> the spec by looking at the bits they shouldn't care about).
+>=20
+> btw. you don't have to pass pdata at all ... the logic for auto-detec=
+ting IRQ is=20
+> still there and is active if no pdata are supplied.
 
-You are right, I screwed the pooch on the layering. Sorry.
+This does not work for me. I have not yet investigated why.
 
-Still, I do not want to go back to counting of field lengths.
-Too many what-ifs.
+-Graham
 
-How about this (I tested it but clearly my tests are limited):
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 368fbb0..e290bb3 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
- 	unsigned count = field->report_count;
- 	unsigned offset = field->report_offset;
- 	unsigned size = field->report_size;
--	unsigned bitsused = offset + count * size;
- 	unsigned n;
- 
--	/* make sure the unused bits in the last byte are zeros */
--	if (count > 0 && size > 0 && (bitsused % 8) != 0)
--		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
--
- 	for (n = 0; n < count; n++) {
- 		if (field->logical_minimum < 0)	/* signed values */
- 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
-@@ -966,6 +961,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
- 	if (report->id > 0)
- 		*data++ = report->id;
- 
-+	memset(data, 0, ((report->size - 1) >> 3) + 1);
- 	for (n = 0; n < report->maxfield; n++)
- 		hid_output_field(report->field[n], data);
- }
-
-Yours,
--- Pete
+PS: I am on mips, not arm. Arm CC removed.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

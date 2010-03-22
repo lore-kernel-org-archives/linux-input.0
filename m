@@ -1,58 +1,94 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] Updated hid_blacklist, reformatted code and removed
- unused variable
-Date: Mon, 22 Mar 2010 16:27:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003221626070.18642@pobox.suse.cz>
-References: <1268926981.11269.3.camel@localhost> <1269269304.2236.1.camel@localhost> <alpine.LNX.2.00.1003221552360.18642@pobox.suse.cz> <201003221614.38424.erazor_de@users.sourceforge.net>
+Subject: Re: Zeroing the report before setting fields
+Date: Mon, 22 Mar 2010 17:30:31 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
+References: <20100304143349.2d861ec6@redhat.com> <20100305082901.GA20245@core.coreip.homeip.net> <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz> <20100309162648.289871c4@redhat.com> <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz>
+ <20100321230941.6a56eae2@redhat.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:57284 "EHLO mx1.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:55091 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753123Ab0CVP1J (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 11:27:09 -0400
-In-Reply-To: <201003221614.38424.erazor_de@users.sourceforge.net>
+	id S1755044Ab0CVQad (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Mar 2010 12:30:33 -0400
+In-Reply-To: <20100321230941.6a56eae2@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Michael Poole <mdpoole@troilus.org>, simon.windows@gmail.com, Sean Hildebrand <silverwraithii@gmail.com>, Sid Boyce <sboyce@blueyonder.co.uk>, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-input@vger.kernel.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, 22 Mar 2010, Stefan Achatz wrote:
+On Sun, 21 Mar 2010, Pete Zaitcev wrote:
 
-> > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > index 368fbb0..dbd6fb8 100644
-> > > --- a/drivers/hid/hid-core.c
-> > > +++ b/drivers/hid/hid-core.c
-> > > @@ -1346,6 +1346,7 @@ static const struct hid_device_id hid_blacklist[] =
-> > > { { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX,
-> > > USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) }, {
-> > > HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH)
-> > > }, { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-> > > USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) }, +	{
-> > > HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_KONE) }, {
-> > > HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
-> > > { HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER)
-> > > }, { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY,
-> > > USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
-> >
-> > Thanks for the fix. I only wonder how well has the driver been tested, as
-> > without this change it couldn't get to operate the device at all ... ?
-> >
-> > Thanks,
+> > I don't think it's super important (basically nothing can be considered 
+> > super-hot path when dealing with such slow hardware as HID devices :) ), 
+> > but I wouldn't object to adding extra check before calling the memset.
 > 
-> Hi,
+> I thought about the issue some more and came to the conclusion that
+> all the bit counting in my patch was entirely unnecessary (it's still
+> needed in the code that sets them, of course).
 > 
-> As most testing was done with external module compilation on different kernel 
-> versions with generic hid compiled as internal or as module I have a script 
-> that uses the drivers sysfs bind/unbind funtionality to switch from generic 
-> hid to kone driver. Thats issued via udev and was active all the time.
+> What would you say to the following? I tested it to work with the
+> affected keyboard. Seems like a simpler way to remove the overlap
+> and the trailing bits.
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 368fbb0..7f2a3b9 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+>  	unsigned count = field->report_count;
+>  	unsigned offset = field->report_offset;
+>  	unsigned size = field->report_size;
+> -	unsigned bitsused = offset + count * size;
+>  	unsigned n;
+>  
+> -	/* make sure the unused bits in the last byte are zeros */
+> -	if (count > 0 && size > 0 && (bitsused % 8) != 0)
+> -		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
+> -
+>  	for (n = 0; n < count; n++) {
+>  		if (field->logical_minimum < 0)	/* signed values */
+>  			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 56d06cd..1332ed0 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -505,7 +505,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
+>  			return;
+>  		}
+>  
+> -		usbhid->out[usbhid->outhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> +		usbhid->out[usbhid->outhead].raw_report = kzalloc(len, GFP_ATOMIC);
+>  		if (!usbhid->out[usbhid->outhead].raw_report) {
+>  			dev_warn(&hid->dev, "output queueing failed\n");
+>  			return;
+> @@ -537,7 +537,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
+>  	}
+>  
+>  	if (dir == USB_DIR_OUT) {
+> -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> +		usbhid->ctrl[usbhid->ctrlhead].raw_report = kzalloc(len, GFP_ATOMIC);
+>  		if (!usbhid->ctrl[usbhid->ctrlhead].raw_report) {
+>  			dev_warn(&hid->dev, "control queueing failed\n");
+>  			return;
 
-OK, thanks.
+In principle this looks correct. 
 
-I will fold the patches into one, and I will also make the driver 
-independent on CONFIG_EMBEDDED, to be comopatible with other HID drivers 
-which are not simple quirks, but rather full, stand-alone HID device 
-drivers.
+The problem is that with previous aproach, we are handling the zeroing in 
+the generic HID layer, but after your patch the zeroing is handled less 
+generally for USB transport only.
+
+I.e. I see two problems, which are closely related
+
+- you forgot to do the same change to Bluetooth as well
+- this introduces a new semantical constraint on HID transport drivers, so 
+  that they have to make sure that the reports are always zeroed properly
+
+Frankly, I like the generic aproach more ... if we were to add more 
+low-level transport HID implementations later, I am sure this will be 
+forgotten multiple times :) (as it isn't directly implied by the HID 
+specification, but is rather a workaround for devices that are violating 
+the spec by looking at the bits they shouldn't care about).
 
 Thanks,
 

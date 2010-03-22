@@ -1,103 +1,256 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH v2 1/6] hid: new driver for PicoLCD device
-Date: Mon, 22 Mar 2010 12:38:40 +0100
-Message-ID: <20100322123840.7351cc82@neptune.home>
-References: <20100320170014.440959a8@neptune.home>
-	<20100320170241.55258b0d@neptune.home>
-	<20100321034600.GE29360@core.coreip.homeip.net>
-	<20100321173737.5fcf3580@neptune.home>
-	<20100322043508.GC31621@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100322043508.GC31621-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: micki@n-trig.com
+Subject: [PATCH 1/2] HID: N-trig Add set feature commands to driver
+Date: Mon, 22 Mar 2010 14:16:12 +0200
+Message-ID: <1269260173-2543-1-git-send-email-micki@n-trig.com>
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mxout12.netvision.net.il ([194.90.6.37]:50498 "EHLO
+	mxout12.netvision.net.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751875Ab0CVMQS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Mar 2010 08:16:18 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, rafi@seas.upenn.edu, chatty@enac.fr, peterhuewe@gmx.de, micki@n-trig.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 21 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
-:
-> On Sun, Mar 21, 2010 at 05:37:37PM +0100, Bruno Pr=C3=A9mont wrote:
-> > On Sat, 20 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> w=
-rote:
-> > > > +	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-> > > > +	complete_all(&data->ready);
-> > > > +	INIT_COMPLETION(data->ready);
-> > >=20
-> > > Umm, what does this do, exactly?
-> >=20
-> > It wakes up anyone waiting on the completion and then resets the co=
-mpletion
-> > as otherwise any future attempt to wait on it would succeed immedia=
-tely.
-> >=20
->=20
-> You realize that if you re-initialize the completion right after
-> signalling it there is a big chance the waiters will miss it (they do
-> check completion->done flags that you reset right away.
->=20
-> In general completions are suited for something that happens once (a
-> single request - allocated - processed - signalled) but not for
-> repeating use.
+From: micki <micki@micki-laptop.(none)>
 
-Would below approach be more correct?
+Add set feature commands to initialize N-trig firwmare.
+Add debug option to driver, Add Macro.
+Update probe function, delete name allocation caused kernel panaic
 
-- move the completion to struct picolcd_pending
-  so it meets the "happens once" requirement
+Signed-off-by: Micki Balanga <micki@n-trig.com>
+---
+ drivers/hid/hid-ntrig.c |  169 +++++++++++++++++++++++++++++++++++-----------
+ 1 files changed, 128 insertions(+), 41 deletions(-)
 
-- protect data->pending with a mutex
-  (though also use spinlock to prevent race between event which
-   signals the completion and picolcd_send_and_wait() around timeout)
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index edcc0c4..b4a573b 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -3,6 +3,7 @@
+  *
+  *  Copyright (c) 2008 Rafi Rubin
+  *  Copyright (c) 2009 Stephane Chatty
++ *  Copyright (c) 2010 N-TRIG
+  *
+  */
+ 
+@@ -16,8 +17,77 @@
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/usb.h>
+ 
+ #include "hid-ids.h"
++#include "usbhid/usbhid.h"
++/*
++ * Pen Event Field Declaration
++ */
++#define	EVENT_PEN_TIP		0x03
++#define	EVENT_PEN_RIGHT		0x05
++#define	EVENT_TOUCH_PEN		0x07
++#define EVENT_PEN_IN_RANGE	0x01
++
++/*
++ * MTM 4 last bytes of report descriptor
++ */
++#define REPORT_GENERIC1		0x01
++#define REPORT_MT		0x02
++#define REPORT_PALM		0x03
++#define REPORT_GENERIC2		0x04
++
++#define NTRIG_USB_DEVICE_ID	0x0001
++
++/*
++ * MTM fields
++ */
++#define MAX_FINGERS_SUPPORT	0x06
++#define END_OF_REPORT		0x64
++
++/*
++ * Dummy Finger Declaration
++ */
++#define DUMMY_X_CORD_VAL	0x00
++#define DUMMY_Y_CORD_VAL	0x00
++#define DUMMY_DX_CORD_VAL	0xFA
++#define DUMMY_DY_CORD_VAL	0x96
++#define DUMMY_GENERIC_BYTE_VAL	0x0D
++
++/*
++ * MTM Parse Event
++ */
++#define MTM_FRAME_INDEX		0xff000001
++#define MTM_PROPROETARY		0xff000002
++
++/*
++ * MTM  Set Feature Commands
++ */
++#define REPORTID_DRIVER_ALIVE	0x0A
++#define REPORTID_CALIBRATION	0x0B
++#define REPORTID_GET_VERSION	0x0C
++#define REPORTID_GET_MODE	0x0D
++#define REPORTID_SET_MODE_PEN	0x0E
++#define REPORTID_SET_MODE_TOUCH	0x0F
++#define REPORTID_SET_MODE_DUAL	0x10
++#define REPORTID_CALIBRATION_RESPOND	0x11
++#define HID_CAPACITORS_CALIB	0x12
++#define HID_GET_CAPACITORS_CALIB_DONE	0x13
++
++
++static int debug;
++
++#define MODULE_NAME "hid_ntrig"
++
++
++#define info(format, arg...) \
++	printk(KERN_INFO "%s: " format , MODULE_NAME , ## arg)
++#define ntrig_dbg(format, arg...) \
++	do { \
++		if (debug) \
++			printk(KERN_DEBUG "%s: " format, \
++			MODULE_NAME , ## arg); \
++	} while (0)
+ 
+ #define NTRIG_DUPLICATE_USAGES	0x001
+ 
+@@ -123,8 +193,8 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+  * decide whether we are in multi or single touch mode
+  * and call input_mt_sync after each point if necessary
+  */
+-static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+-		                        struct hid_usage *usage, __s32 value)
++static int ntrig_event(struct hid_device *hid, struct hid_field *field,
++			struct hid_usage *usage, __s32 value)
+ {
+ 	struct input_dev *input = field->hidinput->input;
+ 	struct ntrig_data *nd = hid_get_drvdata(hid);
+@@ -133,7 +203,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 	if (field->application == HID_DG_PEN)
+ 		return 0;
+ 
+-        if (hid->claimed & HID_CLAIMED_INPUT) {
++	if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
+ 		case 0xff000001:
+ 			/* Tag indicating the start of a multitouch group */
+@@ -279,12 +349,58 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 	return 1;
+ }
+ 
++/*
++ * This function used to configure N-trig firmware
++ * The first command we need to send to firmware is change
++ * to Multi-touch Mode we don't receive a reply
++ */
++static int ntrig_send_report(struct hid_device *hid)
++{
++	struct hid_report *report;
++	struct list_head *report_list =
++			&hid->report_enum[HID_FEATURE_REPORT].report_list;
++
++	if (list_empty(report_list)) {
++		ntrig_dbg("no feature reports found\n");
++		return -ENODEV;
++	}
++	report = list_first_entry(report_list, struct hid_report, list);
++	if (report->maxfield < 1)
++		return -ENODEV;
++
++	list_for_each_entry(report,
++			    report_list, list) {
++		if (report->maxfield < 1) {
++		      ntrig_dbg("no fields in the report\n");
++		      continue;
++		}
++		ntrig_dbg("report id %x\n", report->id);
++		switch (report->id) {
++		case REPORTID_DRIVER_ALIVE:
++		      usbhid_submit_report(hid, report, USB_DIR_OUT);
++		      break;
++		      /*
++		       * These command will implement later accroding to demand
++		       */
++		case REPORTID_GET_VERSION:	/* FALLTHRU */
++		case REPORTID_SET_MODE_DUAL:	/* FALLTHRU */
++		case REPORTID_CALIBRATION:	/* FALLTHRU */
++		case REPORTID_GET_MODE:		/* FALLTHRU */
++		case REPORTID_SET_MODE_PEN:	/* FALLTHRU */
++		case REPORTID_SET_MODE_TOUCH:	/* FALLTHRU */
++		case REPORTID_CALIBRATION_RESPOND:/* FALLTHRU */
++		case HID_CAPACITORS_CALIB:	/* FALLTHRU */
++		case HID_GET_CAPACITORS_CALIB_DONE:
++		      break;
++		}
++	}
++	return 0;
++}
++
+ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret;
+ 	struct ntrig_data *nd;
+-	struct hid_input *hidinput;
+-	struct input_dev *input;
+ 
+ 	if (id->driver_data)
+ 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+@@ -310,42 +426,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err_free;
+ 	}
+ 
+-
+-	list_for_each_entry(hidinput, &hdev->inputs, list) {
+-		if (hidinput->report->maxfield < 1)
+-			continue;
+-
+-		input = hidinput->input;
+-		switch (hidinput->report->field[0]->application) {
+-		case HID_DG_PEN:
+-			input->name = "N-Trig Pen";
+-			break;
+-		case HID_DG_TOUCHSCREEN:
+-			/* These keys are redundant for fingers, clear them
+-			 * to prevent incorrect identification */
+-			__clear_bit(BTN_TOOL_PEN, input->keybit);
+-			__clear_bit(BTN_TOOL_FINGER, input->keybit);
+-			__clear_bit(BTN_0, input->keybit);
+-			/*
+-			 * A little something special to enable
+-			 * two and three finger taps.
+-			 */
+-			__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+-			__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+-			__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+-			/*
+-			 * The physical touchscreen (single touch)
+-			 * input has a value for physical, whereas
+-			 * the multitouch only has logical input
+-			 * fields.
+-			 */
+-			input->name =
+-				(hidinput->report->field[0]
+-				 ->physical) ?
+-				"N-Trig Touchscreen" :
+-				"N-Trig MultiTouch";
+-			break;
+-		}
++	ret = ntrig_send_report(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "send set feature failed\n");
++		goto err_free;
+ 	}
+ 
+ 	return 0;
+@@ -395,4 +479,7 @@ static void __exit ntrig_exit(void)
+ 
+ module_init(ntrig_init);
+ module_exit(ntrig_exit);
++
++MODULE_PARM_DESC(debug, "Debug mode enable disable");
++module_param(debug, bool, 0644);
+ MODULE_LICENSE("GPL");
+-- 
+1.6.3.3
 
-- use the data->lock spinlock to protect multi-report requests from
-  interleaving
-
-In speudo-code this would be something like:
-
-picolcd_send_and_wait(...)
-{
-	struct picolcd_pending pending;
-	...
-	init_completion(&pending->ready);
-	aquire_mutex(data->mutex);
-	spin_lock_irqsave(&data->lock, flags);
-	... // prepare report
-	data->pending =3D &pending;
-	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-	spin_unlock_irqrestore(&data->lock, flags);
-	wait_for_completion_interruptible_timeout(&pending->ready, HZ*2);
-	spin_lock_irqsave(&data->lock, flags);
-	if (data->pending =3D=3D &pending)
-		data->pending =3D NULL;
-	spin_unlock_irqrestore(&data->lock, flags);
-	release_mutext(data->mutex);
-	...
-}
-
-picolcd_raw_event(...)
-{
-	...
-	spin_lock_irqsave(&data->lock, flags);
-	if (data->pending) {
-		// copy event data to pending
-		...
-		complete(&pending->ready);
-	}
-	spin_unlock_irqrestore(&data->lock, flags);
-	...
-}
-
-In picolcd_remove() and picolcd_reset() I could then do something
-similar to picolcd_raw_event() to trigger completion with no
-data/error in order to skip timeout on the requester side.
-
-Though how should I prevent races on hot-unplug?
-
-Thanks,
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

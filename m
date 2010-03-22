@@ -1,58 +1,103 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v2 3/6] hid: add backlight support to PicoLCD device
-Date: Mon, 22 Mar 2010 12:01:16 +0100
-Message-ID: <20100322120116.12979762@neptune.home>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Subject: Re: [PATCH v2 1/6] hid: new driver for PicoLCD device
+Date: Mon, 22 Mar 2010 12:38:40 +0100
+Message-ID: <20100322123840.7351cc82@neptune.home>
 References: <20100320170014.440959a8@neptune.home>
-	<20100320170619.4ae99546@neptune.home>
-	<alpine.LNX.2.00.1003220957390.18642@pobox.suse.cz>
+	<20100320170241.55258b0d@neptune.home>
+	<20100321034600.GE29360@core.coreip.homeip.net>
+	<20100321173737.5fcf3580@neptune.home>
+	<20100322043508.GC31621@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1003220957390.18642@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100322043508.GC31621-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 22 March 2010 Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sat, 20 Mar 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > Add backlight support to PicoLCD device.
+On Sun, 21 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
+:
+> On Sun, Mar 21, 2010 at 05:37:37PM +0100, Bruno Pr=C3=A9mont wrote:
+> > On Sat, 20 March 2010 Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> w=
+rote:
+> > > > +	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
+> > > > +	complete_all(&data->ready);
+> > > > +	INIT_COMPLETION(data->ready);
+> > >=20
+> > > Umm, what does this do, exactly?
 > >=20
-> > Backlight support depends on backlight class and is only being
-> > compiled if backlight class has been selected.
+> > It wakes up anyone waiting on the completion and then resets the co=
+mpletion
+> > as otherwise any future attempt to wait on it would succeed immedia=
+tely.
 > >=20
-> > Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> > ---
-> >  drivers/hid/Kconfig       |    2 +-
-> >  drivers/hid/hid-picolcd.c |  134 +++++++++++++++++++++++++++++++++=
-+++++++++++-
-> >  2 files changed, 134 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index a474bcd..5ec3cb7 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -243,8 +243,8 @@ config HID_PICOLCD
-> >  	  - Keypad
-> >  	  - Switching between Firmware and Flash mode
-> >  	  - Framebuffer for monochrome 256x64 display
-> > +	  - Backlight control    (needs CONFIG_BACKLIGHT_CLASS_DEVICE)
 >=20
-> Wouldn't it be better to have Kconfig rules actually resolve the=20
-> dependency?
+> You realize that if you re-initialize the completion right after
+> signalling it there is a big chance the waiters will miss it (they do
+> check completion->done flags that you reset right away.
 >=20
-> I don't see any issue with HID_PICOLCD directly selecting=20
-> BACKLIGHT_CLASS_DEVICE. Or you can do a separate sub-option for that,=
- if=20
-> you really want to avoid the direct dependency of the whole driver.
+> In general completions are suited for something that happens once (a
+> single request - allocated - processed - signalled) but not for
+> repeating use.
 
-I could select both BACKLIGHT_CLASS_DEVICE and LCD_CLASS_DEVICE (as
-well as their common parent -- same applies to FB) though for the
-LEDS_CLASS I would definitely rather go the path of a sub-option, by
-default the GPO pins operated with the LEDs are not connected to
-anything.
+Would below approach be more correct?
 
-Thanks for the review,
+- move the completion to struct picolcd_pending
+  so it meets the "happens once" requirement
+
+- protect data->pending with a mutex
+  (though also use spinlock to prevent race between event which
+   signals the completion and picolcd_send_and_wait() around timeout)
+
+- use the data->lock spinlock to protect multi-report requests from
+  interleaving
+
+In speudo-code this would be something like:
+
+picolcd_send_and_wait(...)
+{
+	struct picolcd_pending pending;
+	...
+	init_completion(&pending->ready);
+	aquire_mutex(data->mutex);
+	spin_lock_irqsave(&data->lock, flags);
+	... // prepare report
+	data->pending =3D &pending;
+	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
+	spin_unlock_irqrestore(&data->lock, flags);
+	wait_for_completion_interruptible_timeout(&pending->ready, HZ*2);
+	spin_lock_irqsave(&data->lock, flags);
+	if (data->pending =3D=3D &pending)
+		data->pending =3D NULL;
+	spin_unlock_irqrestore(&data->lock, flags);
+	release_mutext(data->mutex);
+	...
+}
+
+picolcd_raw_event(...)
+{
+	...
+	spin_lock_irqsave(&data->lock, flags);
+	if (data->pending) {
+		// copy event data to pending
+		...
+		complete(&pending->ready);
+	}
+	spin_unlock_irqrestore(&data->lock, flags);
+	...
+}
+
+In picolcd_remove() and picolcd_reset() I could then do something
+similar to picolcd_raw_event() to trigger completion with no
+data/error in order to skip timeout on the requester side.
+
+Though how should I prevent races on hot-unplug?
+
+Thanks,
 Bruno
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

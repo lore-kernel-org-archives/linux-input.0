@@ -1,319 +1,142 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
-Date: Mon, 22 Mar 2010 14:17:22 -0400
-Message-ID: <20100322181722.GA24483@seas.upenn.edu>
-References: <1269260173-2543-1-git-send-email-micki@n-trig.com> <20100322172920.GA18658@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEE8@Exchange-IL.n-trig.com>
+Date: Mon, 22 Mar 2010 16:43:18 -0400
+Message-ID: <4BA7D666.5030608@seas.upenn.edu>
+References: <1269260173-2543-1-git-send-email-micki@n-trig.com> <20100322172920.GA18658@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEE8@Exchange-IL.n-trig.com> <20100322181722.GA24483@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEEB@Exchange-IL.n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+ boundary="------------030605050506000909020204"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:55475 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755589Ab0CVSRd (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:49754 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752137Ab0CVUne (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 14:17:33 -0400
-Content-Disposition: inline
-In-Reply-To: <48A28051AC6D7A48B64F28272458190326DEE8@Exchange-IL.n-trig.com>
+	Mon, 22 Mar 2010 16:43:34 -0400
+In-Reply-To: <48A28051AC6D7A48B64F28272458190326DEEB@Exchange-IL.n-trig.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Micki Balanga <micki@n-trig.com>
-Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Mon, Mar 22, 2010 at 07:39:56PM +0200, Micki Balanga wrote:
-> 
-> Hi 
-> Thank you for you comment but the driver as been tested on kernel 2.6.31 and above,
-> and i got the module to kill himself this is the reason i deleted the code.
-> I put the task in my TODO list so the next version of the driver we release 
-> will include  input->name.
+This is a multi-part message in MIME format.
+--------------030605050506000909020204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please explain where its dying.  Is it a NULL report?  In the case where 
-it dies, do you have the multi-input quirk cleared?
+On 03/22/2010 03:58 PM, Micki Balanga wrote:
+>
+> Hi
+> I would like to add more information about the Fake button.
+> I will explain using this scenario:
+> You touch the sensor with one finger and then remove the finger,
+> Firmware will report six frames with fake fingers,(Indicate end of session)
+> The driver will report this as fake fingers (Will send 3 events) and
+> input_sync
+> to inform user space application that the user removed finger from sensor.
+> this information is needed in order to analyze the data received from
+> N-trig firmware.
+> Micki
 
-Have you considered the possibility that perhaps setting the features 
-_after_ hw_start (which results in changing the reports) might not be such 
-a good idea?  If you have specific probing and setup code, perhaps its 
-best to do that before initializing data structures, parsing the records, 
-and activating the device.
+Thank you for taking this to a discussion format.
 
-I haven't tried out your feature enabling code yet, so haven't had a 
-chance to debug it.  Does the MT enable change the behavior of all 
-firmwares or just those from the 2.59 software package?
+It seems you have raised an issue that is an active discussion for multi 
+touch handling in general and an issue that I have considered for n-trig 
+support in specific.
 
-(Again, easier to test if you want to make firmware blobs and loader 
-available)
 
-> -----Original Message-----
-> From: Rafi Rubin [mailto:rafi@seas.upenn.edu]
-> Sent: Mon 3/22/2010 7:29 PM
-> To: Micki Balanga
-> Cc: jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
->  
-> On Mon, Mar 22, 2010 at 02:16:12PM +0200, micki@n-trig.com wrote:
-> > From: micki <micki@micki-laptop.(none)>
-> > 
-> > Add set feature commands to initialize N-trig firwmare.
-> > Add debug option to driver, Add Macro.
-> > Update probe function, delete name allocation caused kernel panaic
-> 
-> Its been brought to my attention that the probe code you are having 
-> trouble with is incompatible with older kernels due to a bug which was 
-> fixed shortly before 2.6.30.
-> 
-> It seems to me that your patches suggest that you've been working with an 
-> older version of the kernel and that has greatly influenced the design of 
-> the changes you suggested.
-> 
-> I'm sorry I wasn't able to catch this sooner.  But that's part of the risk 
-> you take with developing with out of date branches.
-> 
-> 
-> Anyway, I suggest you either try applying your changes bit by bit to a 
-> newer kernel, or move the multi-input quirk to usbhid/hid-quirks.c (I 
-> should probably do that anyway to keep things cleaner).
-> 
-> Once you have valid multiple input devices with the pen events routed to a 
-> separate device, I'm sure you will see how much it simplifies the design 
-> of this driver.  After that we can discuss what does or does not need 
-> handling in the ntrig specific event handler and which mappings should or 
-> should not be changed.
-> 
-> Also when you break up your changes into multiple patches, I ask that you 
-> add you #defines where needed.  In this case your feature commands defines 
-> make sense, but none of the rest make sense in the scope of this patch.
->  
-> > Signed-off-by: Micki Balanga <micki@n-trig.com>
-> > ---
-> >  drivers/hid/hid-ntrig.c |  169 +++++++++++++++++++++++++++++++++++-----------
-> >  1 files changed, 128 insertions(+), 41 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> > index edcc0c4..b4a573b 100644
-> > --- a/drivers/hid/hid-ntrig.c
-> > +++ b/drivers/hid/hid-ntrig.c
-> > @@ -3,6 +3,7 @@
-> >   *
-> >   *  Copyright (c) 2008 Rafi Rubin
-> >   *  Copyright (c) 2009 Stephane Chatty
-> > + *  Copyright (c) 2010 N-TRIG
-> >   *
-> >   */
-> >  
-> > @@ -16,8 +17,77 @@
-> >  #include <linux/device.h>
-> >  #include <linux/hid.h>
-> >  #include <linux/module.h>
-> > +#include <linux/usb.h>
-> >  
-> >  #include "hid-ids.h"
-> > +#include "usbhid/usbhid.h"
-> > +/*
-> > + * Pen Event Field Declaration
-> > + */
-> > +#define	EVENT_PEN_TIP		0x03
-> > +#define	EVENT_PEN_RIGHT		0x05
-> > +#define	EVENT_TOUCH_PEN		0x07
-> > +#define EVENT_PEN_IN_RANGE	0x01
-> > +
-> > +/*
-> > + * MTM 4 last bytes of report descriptor
-> > + */
-> > +#define REPORT_GENERIC1		0x01
-> > +#define REPORT_MT		0x02
-> > +#define REPORT_PALM		0x03
-> > +#define REPORT_GENERIC2		0x04
-> > +
-> > +#define NTRIG_USB_DEVICE_ID	0x0001
-> > +
-> > +/*
-> > + * MTM fields
-> > + */
-> > +#define MAX_FINGERS_SUPPORT	0x06
-> > +#define END_OF_REPORT		0x64
-> > +
-> > +/*
-> > + * Dummy Finger Declaration
-> > + */
-> > +#define DUMMY_X_CORD_VAL	0x00
-> > +#define DUMMY_Y_CORD_VAL	0x00
-> > +#define DUMMY_DX_CORD_VAL	0xFA
-> > +#define DUMMY_DY_CORD_VAL	0x96
-> > +#define DUMMY_GENERIC_BYTE_VAL	0x0D
-> > +
-> > +/*
-> > + * MTM Parse Event
-> > + */
-> > +#define MTM_FRAME_INDEX		0xff000001
-> > +#define MTM_PROPROETARY		0xff000002
-> > +
-> > +/*
-> > + * MTM  Set Feature Commands
-> > + */
-> > +#define REPORTID_DRIVER_ALIVE	0x0A
-> > +#define REPORTID_CALIBRATION	0x0B
-> > +#define REPORTID_GET_VERSION	0x0C
-> > +#define REPORTID_GET_MODE	0x0D
-> > +#define REPORTID_SET_MODE_PEN	0x0E
-> > +#define REPORTID_SET_MODE_TOUCH	0x0F
-> > +#define REPORTID_SET_MODE_DUAL	0x10
-> > +#define REPORTID_CALIBRATION_RESPOND	0x11
-> > +#define HID_CAPACITORS_CALIB	0x12
-> > +#define HID_GET_CAPACITORS_CALIB_DONE	0x13
-> > +
-> > +
-> > +static int debug;
-> > +
-> > +#define MODULE_NAME "hid_ntrig"
-> > +
-> > +
-> > +#define info(format, arg...) \
-> > +	printk(KERN_INFO "%s: " format , MODULE_NAME , ## arg)
-> > +#define ntrig_dbg(format, arg...) \
-> > +	do { \
-> > +		if (debug) \
-> > +			printk(KERN_DEBUG "%s: " format, \
-> > +			MODULE_NAME , ## arg); \
-> > +	} while (0)
-> >  
-> >  #define NTRIG_DUPLICATE_USAGES	0x001
-> >  
-> > @@ -123,8 +193,8 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-> >   * decide whether we are in multi or single touch mode
-> >   * and call input_mt_sync after each point if necessary
-> >   */
-> > -static int ntrig_event (struct hid_device *hid, struct hid_field *field,
-> > -		                        struct hid_usage *usage, __s32 value)
-> > +static int ntrig_event(struct hid_device *hid, struct hid_field *field,
-> > +			struct hid_usage *usage, __s32 value)
-> >  {
-> >  	struct input_dev *input = field->hidinput->input;
-> >  	struct ntrig_data *nd = hid_get_drvdata(hid);
-> > @@ -133,7 +203,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
-> >  	if (field->application == HID_DG_PEN)
-> >  		return 0;
-> >  
-> > -        if (hid->claimed & HID_CLAIMED_INPUT) {
-> > +	if (hid->claimed & HID_CLAIMED_INPUT) {
-> >  		switch (usage->hid) {
-> >  		case 0xff000001:
-> >  			/* Tag indicating the start of a multitouch group */
-> > @@ -279,12 +349,58 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
-> >  	return 1;
-> >  }
-> >  
-> > +/*
-> > + * This function used to configure N-trig firmware
-> > + * The first command we need to send to firmware is change
-> > + * to Multi-touch Mode we don't receive a reply
-> > + */
-> > +static int ntrig_send_report(struct hid_device *hid)
-> > +{
-> > +	struct hid_report *report;
-> > +	struct list_head *report_list =
-> > +			&hid->report_enum[HID_FEATURE_REPORT].report_list;
-> > +
-> > +	if (list_empty(report_list)) {
-> > +		ntrig_dbg("no feature reports found\n");
-> > +		return -ENODEV;
-> > +	}
-> > +	report = list_first_entry(report_list, struct hid_report, list);
-> > +	if (report->maxfield < 1)
-> > +		return -ENODEV;
-> > +
-> > +	list_for_each_entry(report,
-> > +			    report_list, list) {
-> > +		if (report->maxfield < 1) {
-> > +		      ntrig_dbg("no fields in the report\n");
-> > +		      continue;
-> > +		}
-> > +		ntrig_dbg("report id %x\n", report->id);
-> > +		switch (report->id) {
-> > +		case REPORTID_DRIVER_ALIVE:
-> > +		      usbhid_submit_report(hid, report, USB_DIR_OUT);
-> > +		      break;
-> > +		      /*
-> > +		       * These command will implement later accroding to demand
-> > +		       */
-> > +		case REPORTID_GET_VERSION:	/* FALLTHRU */
-> > +		case REPORTID_SET_MODE_DUAL:	/* FALLTHRU */
-> > +		case REPORTID_CALIBRATION:	/* FALLTHRU */
-> > +		case REPORTID_GET_MODE:		/* FALLTHRU */
-> > +		case REPORTID_SET_MODE_PEN:	/* FALLTHRU */
-> > +		case REPORTID_SET_MODE_TOUCH:	/* FALLTHRU */
-> > +		case REPORTID_CALIBRATION_RESPOND:/* FALLTHRU */
-> > +		case HID_CAPACITORS_CALIB:	/* FALLTHRU */
-> > +		case HID_GET_CAPACITORS_CALIB_DONE:
-> > +		      break;
-> > +		}
-> > +	}
-> > +	return 0;
-> > +}
-> > +
-> >  static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  {
-> >  	int ret;
-> >  	struct ntrig_data *nd;
-> > -	struct hid_input *hidinput;
-> > -	struct input_dev *input;
-> >  
-> >  	if (id->driver_data)
-> >  		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> > @@ -310,42 +426,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> >  		goto err_free;
-> >  	}
-> >  
-> > -
-> > -	list_for_each_entry(hidinput, &hdev->inputs, list) {
-> > -		if (hidinput->report->maxfield < 1)
-> > -			continue;
-> > -
-> > -		input = hidinput->input;
-> > -		switch (hidinput->report->field[0]->application) {
-> > -		case HID_DG_PEN:
-> > -			input->name = "N-Trig Pen";
-> > -			break;
-> > -		case HID_DG_TOUCHSCREEN:
-> > -			/* These keys are redundant for fingers, clear them
-> > -			 * to prevent incorrect identification */
-> > -			__clear_bit(BTN_TOOL_PEN, input->keybit);
-> > -			__clear_bit(BTN_TOOL_FINGER, input->keybit);
-> > -			__clear_bit(BTN_0, input->keybit);
-> > -			/*
-> > -			 * A little something special to enable
-> > -			 * two and three finger taps.
-> > -			 */
-> > -			__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> > -			__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> > -			__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> > -			/*
-> > -			 * The physical touchscreen (single touch)
-> > -			 * input has a value for physical, whereas
-> > -			 * the multitouch only has logical input
-> > -			 * fields.
-> > -			 */
-> > -			input->name =
-> > -				(hidinput->report->field[0]
-> > -				 ->physical) ?
-> > -				"N-Trig Touchscreen" :
-> > -				"N-Trig MultiTouch";
-> > -			break;
-> > -		}
-> > +	ret = ntrig_send_report(hdev);
-> > +	if (ret) {
-> > +		dev_err(&hdev->dev, "send set feature failed\n");
-> > +		goto err_free;
-> >  	}
-> >  
-> >  	return 0;
-> > @@ -395,4 +479,7 @@ static void __exit ntrig_exit(void)
-> >  
-> >  module_init(ntrig_init);
-> >  module_exit(ntrig_exit);
-> > +
-> > +MODULE_PARM_DESC(debug, "Debug mode enable disable");
-> > +module_param(debug, bool, 0644);
-> >  MODULE_LICENSE("GPL");
-> > -- 
-> > 1.6.3.3
-> > 
-> 
+The current published version of the driver does send one more sequence 
+of events after it decides all fingers are off the screen.  That final 
+sequence is necessary to tell single touch drivers that the tools are 
+released (BTN_TOUCH is set to zero, etc).  This also resets the active 
+contact count to zero for multi touch handlers, which look to see how 
+many MT events come from each frame.
+
+I had observed that sometimes the tablet looses contacts semi 
+arbitrarily, and we get a zero contact group as a mistake.  In the 
+patches I sent in early in February you will notice a solution that I 
+was considering at the time.  I was also playing with correcting for 
+events that looked like real contacts but were also just noise.  After 
+rethinking my patches and reading the multi touch doc in the Documents 
+tree, I chose to leave out these corrections.
+
+That being said, I do have a specific patch to handle the set of end of 
+stream events.  All that's needed is to count the empty groups and send 
+the terminal events only when a counter hits the specified value 
+(attached is a tiny patch I wrote when I needed that feature back really 
+quickly when my screen started misbehaving during a meeting).
+
+Note I have submitted that as a patch for 2 reasons.  First I couldn't 
+be completely sure that there was a specific number of empty groups to 
+signal end of stream which would be expected to be maintained over time. 
+  And secondly the erroneous termination of stream has not been much of 
+a problem in general.
+
+You will note, that this is something that is simple enough that it 
+makes perfect sense to put into the kernel.  There's little point in 
+wasting the cycles to push that decision to user space.
+
+--------------030605050506000909020204
+Content-Type: text/plain;
+ name="commit-4c6fffa"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="commit-4c6fffa"
+
+commit 4c6fffa347e529672dfb858b07168f49ba4bbe97
+Author: Rafi Rubin <rafi@seas.upenn.edu>
+Date:   Tue Feb 23 12:11:41 2010 -0500
+
+    Quick and dirty avoidance of erroneous end of contact events.
+
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 3234c72..25ee5a4 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -35,6 +35,9 @@ struct ntrig_data {
+ 
+ 	__u8 mt_footer[4];
+ 	__u8 mt_foot_count;
++
++	__u8 deactivate_slack;
++	__u8 deactivate_state; 
+ };
+ 
+ /*
+@@ -192,6 +195,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			/* Pen activity signal, trigger end of touch. */
+ 			if (nd->mt_footer[2]) {
+ 				nd->confidence = 0;
++				nd->deactivate_state = 0;
+ 				break;
+ 			}
+ 
+@@ -252,14 +256,16 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 							BTN_TOOL_QUADTAP, 1);
+ 				}
+ 				input_report_key(input, BTN_TOUCH, 1);
+-			} else {
++				nd->deactivate_state = nd->deactivate_slack;
++			} else if (! nd->deactivate_state) {
+ 				input_report_key(input,
+ 						BTN_TOOL_DOUBLETAP, 0);
+ 				input_report_key(input,
+ 						BTN_TOOL_TRIPLETAP, 0);
+ 				input_report_key(input,
+ 						BTN_TOOL_QUADTAP, 0);
+-			}
++			} else
++				nd->deactivate_state--;
+ 			break;
+ 
+ 		default:
+@@ -292,6 +298,8 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	nd->reading_mt = 0;
++	nd->deactivate_slack = 4;
++	nd->deactivate_state = 0; 
+ 	hid_set_drvdata(hdev, nd);
+ 
+ 	ret = hid_parse(hdev);
+
+--------------030605050506000909020204--

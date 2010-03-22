@@ -1,139 +1,76 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
-Date: Mon, 22 Mar 2010 17:55:19 -0400
-Message-ID: <4BA7E747.4040008@seas.upenn.edu>
-References: <1269260173-2543-1-git-send-email-micki@n-trig.com> <20100322172920.GA18658@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEE8@Exchange-IL.n-trig.com> <20100322181722.GA24483@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEEB@Exchange-IL.n-trig.com> <4BA7D666.5030608@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEEE@Exchange-IL.n-trig.com>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Zeroing the report before setting fields
+Date: Mon, 22 Mar 2010 16:22:06 -0600
+Message-ID: <20100322162206.3c1e9b9e@redhat.com>
+References: <20100304143349.2d861ec6@redhat.com>
+ <20100305082901.GA20245@core.coreip.homeip.net>
+ <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz>
+ <20100309162648.289871c4@redhat.com>
+ <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz>
+ <20100321230941.6a56eae2@redhat.com>
+ <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:40494 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756490Ab0CVVzg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 17:55:36 -0400
-In-Reply-To: <48A28051AC6D7A48B64F28272458190326DEEE@Exchange-IL.n-trig.com>
+Received: from mx1.redhat.com ([209.132.183.28]:3761 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756621Ab0CVWWF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Mar 2010 18:22:05 -0400
+In-Reply-To: <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Micki Balanga <micki@n-trig.com>
-Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, zaitcev@redhat.com
 
-On 03/22/2010 05:14 PM, Micki Balanga wrote:
-> Hi
-> first of all i am happy my explanation helps you to understand the
-> necessity of fake finger report.
-> The algorithm to analyze the information use complex math calculation,
-> so it can't be transfer to the driver.
-> (the driver should stay simple as possible, main purpose analyze USB
-> message and transfer it to Linux events)
-> As i mentioned before you talked about glitch a noise, which N-trig
-> solution solve.
-> The driver implement the necessary events needed by the user, in order
-> to analyze touch events.
+On Mon, 22 Mar 2010 17:30:31 +0100 (CET)
+Jiri Kosina <jkosina@suse.cz> wrote:
 
-I'm not really much of a judge of how to balance kernel vs user land 
-load.  Though I can certainly see why you would want to keep all 
-proprietary analysis to the user land and thus want to pass through 
-necessary events.  I was "encouraged" earlier to take a deeper look at 
-what I was writing, and determine if all that I was trying to send was 
-actually necessary or just me missing something.
+> >  	if (dir == USB_DIR_OUT) {
+> > -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> > +		usbhid->ctrl[usbhid->ctrlhead].raw_report = kzalloc(len, GFP_ATOMIC);
+> >  		if (!usbhid->ctrl[usbhid->ctrlhead].raw_report) {
+> >  			dev_warn(&hid->dev, "control queueing failed\n");
 
-I will look more closely, and perhaps see if I can suggest modifications 
-which include the events you need without breaking the existing 
-protocol.  Dmitry seems to be an authority on how input events should be 
-used.  I'm still just learning myself.
+> Frankly, I like the generic aproach more ... if we were to add more 
+> low-level transport HID implementations later, I am sure this will be 
+> forgotten multiple times :) (as it isn't directly implied by the HID 
+> specification, but is rather a workaround for devices that are violating 
+> the spec by looking at the bits they shouldn't care about).
 
-But this still leaves the point of lets try to keep the split input 
-devices.  It is still a cleaner abstraction than splitting in the user 
-space code.
+You are right, I screwed the pooch on the layering. Sorry.
 
-> About a question you raised before about set_feature location, it should
-> be done after the hw_start because
-> if the HW start fail there is no reason to send the command. this
-> command doesn't change the report descriptor size.
+Still, I do not want to go back to counting of field lengths.
+Too many what-ifs.
 
-I'm still not entirely sure of the ordering of things.  Users have sent 
-me the rdesc outputs from a device with 2.59 with and without your code 
-to enable MT, and it looked to me like the report descriptor was 
-different.  I can try to experiment with that.
+How about this (I tested it but clearly my tests are limited):
 
-Can you specify conditions or versions which cause this failure?  It 
-would be nice to be able to see for myself, especially since removing 
-the naming and the quirk will disrupt quite a number of users.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 368fbb0..e290bb3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+ 	unsigned count = field->report_count;
+ 	unsigned offset = field->report_offset;
+ 	unsigned size = field->report_size;
+-	unsigned bitsused = offset + count * size;
+ 	unsigned n;
+ 
+-	/* make sure the unused bits in the last byte are zeros */
+-	if (count > 0 && size > 0 && (bitsused % 8) != 0)
+-		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
+-
+ 	for (n = 0; n < count; n++) {
+ 		if (field->logical_minimum < 0)	/* signed values */
+ 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+@@ -966,6 +961,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
++	memset(data, 0, ((report->size - 1) >> 3) + 1);
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->field[n], data);
+ }
 
-I do agree that the code should be more robust to bad conditions, so 
-please try it with:
-
-    list_for_each_entry(hidinput, &hdev->inputs, list) {
-+      if (hidinput->report == NULL) {
-+         dev_err(&hdev->dev, "NULL report\n");
-+         continue;
-+      }
-
-That way we'll have a graceful fallback for your needs without breaking 
-users.  And also, hopefully this will lead to finding any lingering bugs.
-
-
-> -----Original Message-----
-> From: Rafi Rubin [mailto:rafi@seas.upenn.edu]
-> Sent: Mon 3/22/2010 10:43 PM
-> To: Micki Balanga
-> Cc: jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de;
-> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Henrik Rydberg
-> Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
->
-> On 03/22/2010 03:58 PM, Micki Balanga wrote:
->  >
->  > Hi
->  > I would like to add more information about the Fake button.
->  > I will explain using this scenario:
->  > You touch the sensor with one finger and then remove the finger,
->  > Firmware will report six frames with fake fingers,(Indicate end of
-> session)
->  > The driver will report this as fake fingers (Will send 3 events) and
->  > input_sync
->  > to inform user space application that the user removed finger from
-> sensor.
->  > this information is needed in order to analyze the data received from
->  > N-trig firmware.
->  > Micki
->
-> Thank you for taking this to a discussion format.
->
-> It seems you have raised an issue that is an active discussion for multi
-> touch handling in general and an issue that I have considered for n-trig
-> support in specific.
->
->
-> The current published version of the driver does send one more sequence
-> of events after it decides all fingers are off the screen. That final
-> sequence is necessary to tell single touch drivers that the tools are
-> released (BTN_TOUCH is set to zero, etc). This also resets the active
-> contact count to zero for multi touch handlers, which look to see how
-> many MT events come from each frame.
->
-> I had observed that sometimes the tablet looses contacts semi
-> arbitrarily, and we get a zero contact group as a mistake. In the
-> patches I sent in early in February you will notice a solution that I
-> was considering at the time. I was also playing with correcting for
-> events that looked like real contacts but were also just noise. After
-> rethinking my patches and reading the multi touch doc in the Documents
-> tree, I chose to leave out these corrections.
->
-> That being said, I do have a specific patch to handle the set of end of
-> stream events. All that's needed is to count the empty groups and send
-> the terminal events only when a counter hits the specified value
-> (attached is a tiny patch I wrote when I needed that feature back really
-> quickly when my screen started misbehaving during a meeting).
->
-> Note I have submitted that as a patch for 2 reasons. First I couldn't
-> be completely sure that there was a specific number of empty groups to
-> signal end of stream which would be expected to be maintained over time.
-> And secondly the erroneous termination of stream has not been much of
-> a problem in general.
->
-> You will note, that this is something that is simple enough that it
-> makes perfect sense to put into the kernel. There's little point in
-> wasting the cycles to push that decision to user space.
->
-
+Yours,
+-- Pete

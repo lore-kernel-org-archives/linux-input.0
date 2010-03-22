@@ -1,62 +1,50 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 1/6] hid: new driver for PicoLCD device
-Date: Mon, 22 Mar 2010 09:54:12 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003220951440.18642@pobox.suse.cz>
-References: <20100320170014.440959a8@neptune.home> <20100320170241.55258b0d@neptune.home> <20100321034600.GE29360@core.coreip.homeip.net> <20100321173737.5fcf3580@neptune.home>
+Subject: Re: [PATCH v2 2/6] hid: add framebuffer support to PicoLCD device
+Date: Mon, 22 Mar 2010 09:56:38 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1003220955000.18642@pobox.suse.cz>
+References: <20100320170014.440959a8@neptune.home> <20100320170415.6ee219c8@neptune.home> <45a44e481003210024l2c66938fp9436d34f6473f811@mail.gmail.com> <20100321171128.324a606f@neptune.home>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Type: TEXT/PLAIN; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:43699 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753656Ab0CVIyT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 04:54:19 -0400
-In-Reply-To: <20100321173737.5fcf3580@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100321171128.324a606f@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
 To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
+Cc: Jaya Kumar <jayakumar.lkml@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+List-Id: linux-input@vger.kernel.org
 
-On Sun, 21 Mar 2010, Bruno Pr=E9mont wrote:
+On Sun, 21 Mar 2010, Bruno Pr=C3=A9mont wrote:
 
-> > > +	}
-> > > +	data->status |=3D PICOLCD_BUSY;
-> > > +	data->pending =3D work;
-> > > +	for (i =3D k =3D 0; i < report->maxfield; i++)
-> > > +		for (j =3D 0; j < report->field[i]->report_count; j++) {
-> > > +			hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0=
-);
-> > > +			k++;
-> > > +		}
-> > > +	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-> > > +	complete_all(&data->ready);
-> > > +	INIT_COMPLETION(data->ready);
+> > > ---
+> > > =C2=A0drivers/hid/Kconfig =C2=A0 =C2=A0 =C2=A0 | =C2=A0 =C2=A07 +=
+-
+> > > =C2=A0drivers/hid/hid-picolcd.c | =C2=A0454 +++++++++++++++++++++=
+++++++++++++++++++++++++
+> > > =C2=A02 files changed, 460 insertions(+), 1 deletions(-)
 > >=20
-> > Umm, what does this do, exactly?
-> >
-> It wakes up anyone waiting on the completion and then resets the comp=
-letion
-> as otherwise any future attempt to wait on it would succeed immediate=
-ly.
+> > It is customary for framebuffer drivers to live in drivers/video. T=
+his
+> > is the first one I've reviewed that is outside of it. Is there a go=
+od
+> > reason for this one to be outside of it? If so, could you put it in
+> > the comments.
 >=20
-> The complete_all() instead of just complete() comes from the reset() =
-function.
-> I can probably reduce it here.
->=20
-> Will check this combined with your mutex suggestion above.
+> I've kept all the pieces of PicoLCD driver together under hid,
+> as it's a HID based device. Framebuffer is just one of its features a=
+nd
+> keeping pieces together makes it easier to handle.
 
-I am afraid this code is racy as is. You can't be sure that whoever has=
-=20
-been waiting on the completion has been notified already between=20
-complete_all() and INIT_COMPLETION(), can you?
+I think it makes sense for a HID driver for this device to contain the=20
+framebuffer bits as well ... from user perspective, this seems to be HI=
+D=20
+device, with "extra" framebuffer display on it.
 
-Thanks for the driver!
+If framebuffer folks Ack the fb-related code, I am fine keeping it unde=
+r=20
+drivers/hid.
+
+Thanks,
 
 --=20
 Jiri Kosina
 SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

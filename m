@@ -1,97 +1,287 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Zeroing the report before setting fields
-Date: Mon, 22 Mar 2010 17:30:31 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz>
-References: <20100304143349.2d861ec6@redhat.com> <20100305082901.GA20245@core.coreip.homeip.net> <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz> <20100309162648.289871c4@redhat.com> <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz>
- <20100321230941.6a56eae2@redhat.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
+Date: Mon, 22 Mar 2010 13:29:20 -0400
+Message-ID: <20100322172920.GA18658@seas.upenn.edu>
+References: <1269260173-2543-1-git-send-email-micki@n-trig.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:55091 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755044Ab0CVQad (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 12:30:33 -0400
-In-Reply-To: <20100321230941.6a56eae2@redhat.com>
+Received: from LION.seas.upenn.edu ([158.130.12.194]:55572 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755395Ab0CVR3o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 22 Mar 2010 13:29:44 -0400
+Content-Disposition: inline
+In-Reply-To: <1269260173-2543-1-git-send-email-micki@n-trig.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-input@vger.kernel.org
+To: micki@n-trig.com
+Cc: jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2010, Pete Zaitcev wrote:
+On Mon, Mar 22, 2010 at 02:16:12PM +0200, micki@n-trig.com wrote:
+> From: micki <micki@micki-laptop.(none)>
+> 
+> Add set feature commands to initialize N-trig firwmare.
+> Add debug option to driver, Add Macro.
+> Update probe function, delete name allocation caused kernel panaic
 
-> > I don't think it's super important (basically nothing can be considered 
-> > super-hot path when dealing with such slow hardware as HID devices :) ), 
-> > but I wouldn't object to adding extra check before calling the memset.
+Its been brought to my attention that the probe code you are having 
+trouble with is incompatible with older kernels due to a bug which was 
+fixed shortly before 2.6.30.
+
+It seems to me that your patches suggest that you've been working with an 
+older version of the kernel and that has greatly influenced the design of 
+the changes you suggested.
+
+I'm sorry I wasn't able to catch this sooner.  But that's part of the risk 
+you take with developing with out of date branches.
+
+
+Anyway, I suggest you either try applying your changes bit by bit to a 
+newer kernel, or move the multi-input quirk to usbhid/hid-quirks.c (I 
+should probably do that anyway to keep things cleaner).
+
+Once you have valid multiple input devices with the pen events routed to a 
+separate device, I'm sure you will see how much it simplifies the design 
+of this driver.  After that we can discuss what does or does not need 
+handling in the ntrig specific event handler and which mappings should or 
+should not be changed.
+
+Also when you break up your changes into multiple patches, I ask that you 
+add you #defines where needed.  In this case your feature commands defines 
+make sense, but none of the rest make sense in the scope of this patch.
+ 
+> Signed-off-by: Micki Balanga <micki@n-trig.com>
+> ---
+>  drivers/hid/hid-ntrig.c |  169 +++++++++++++++++++++++++++++++++++-----------
+>  1 files changed, 128 insertions(+), 41 deletions(-)
 > 
-> I thought about the issue some more and came to the conclusion that
-> all the bit counting in my patch was entirely unnecessary (it's still
-> needed in the code that sets them, of course).
-> 
-> What would you say to the following? I tested it to work with the
-> affected keyboard. Seems like a simpler way to remove the overlap
-> and the trailing bits.
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 368fbb0..7f2a3b9 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
->  	unsigned count = field->report_count;
->  	unsigned offset = field->report_offset;
->  	unsigned size = field->report_size;
-> -	unsigned bitsused = offset + count * size;
->  	unsigned n;
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+> index edcc0c4..b4a573b 100644
+> --- a/drivers/hid/hid-ntrig.c
+> +++ b/drivers/hid/hid-ntrig.c
+> @@ -3,6 +3,7 @@
+>   *
+>   *  Copyright (c) 2008 Rafi Rubin
+>   *  Copyright (c) 2009 Stephane Chatty
+> + *  Copyright (c) 2010 N-TRIG
+>   *
+>   */
 >  
-> -	/* make sure the unused bits in the last byte are zeros */
-> -	if (count > 0 && size > 0 && (bitsused % 8) != 0)
-> -		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
-> -
->  	for (n = 0; n < count; n++) {
->  		if (field->logical_minimum < 0)	/* signed values */
->  			implement(data, offset + n * size, size, s32ton(field->value[n], size));
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 56d06cd..1332ed0 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -505,7 +505,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
->  			return;
->  		}
+> @@ -16,8 +17,77 @@
+>  #include <linux/device.h>
+>  #include <linux/hid.h>
+>  #include <linux/module.h>
+> +#include <linux/usb.h>
 >  
-> -		usbhid->out[usbhid->outhead].raw_report = kmalloc(len, GFP_ATOMIC);
-> +		usbhid->out[usbhid->outhead].raw_report = kzalloc(len, GFP_ATOMIC);
->  		if (!usbhid->out[usbhid->outhead].raw_report) {
->  			dev_warn(&hid->dev, "output queueing failed\n");
->  			return;
-> @@ -537,7 +537,7 @@ static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *re
+>  #include "hid-ids.h"
+> +#include "usbhid/usbhid.h"
+> +/*
+> + * Pen Event Field Declaration
+> + */
+> +#define	EVENT_PEN_TIP		0x03
+> +#define	EVENT_PEN_RIGHT		0x05
+> +#define	EVENT_TOUCH_PEN		0x07
+> +#define EVENT_PEN_IN_RANGE	0x01
+> +
+> +/*
+> + * MTM 4 last bytes of report descriptor
+> + */
+> +#define REPORT_GENERIC1		0x01
+> +#define REPORT_MT		0x02
+> +#define REPORT_PALM		0x03
+> +#define REPORT_GENERIC2		0x04
+> +
+> +#define NTRIG_USB_DEVICE_ID	0x0001
+> +
+> +/*
+> + * MTM fields
+> + */
+> +#define MAX_FINGERS_SUPPORT	0x06
+> +#define END_OF_REPORT		0x64
+> +
+> +/*
+> + * Dummy Finger Declaration
+> + */
+> +#define DUMMY_X_CORD_VAL	0x00
+> +#define DUMMY_Y_CORD_VAL	0x00
+> +#define DUMMY_DX_CORD_VAL	0xFA
+> +#define DUMMY_DY_CORD_VAL	0x96
+> +#define DUMMY_GENERIC_BYTE_VAL	0x0D
+> +
+> +/*
+> + * MTM Parse Event
+> + */
+> +#define MTM_FRAME_INDEX		0xff000001
+> +#define MTM_PROPROETARY		0xff000002
+> +
+> +/*
+> + * MTM  Set Feature Commands
+> + */
+> +#define REPORTID_DRIVER_ALIVE	0x0A
+> +#define REPORTID_CALIBRATION	0x0B
+> +#define REPORTID_GET_VERSION	0x0C
+> +#define REPORTID_GET_MODE	0x0D
+> +#define REPORTID_SET_MODE_PEN	0x0E
+> +#define REPORTID_SET_MODE_TOUCH	0x0F
+> +#define REPORTID_SET_MODE_DUAL	0x10
+> +#define REPORTID_CALIBRATION_RESPOND	0x11
+> +#define HID_CAPACITORS_CALIB	0x12
+> +#define HID_GET_CAPACITORS_CALIB_DONE	0x13
+> +
+> +
+> +static int debug;
+> +
+> +#define MODULE_NAME "hid_ntrig"
+> +
+> +
+> +#define info(format, arg...) \
+> +	printk(KERN_INFO "%s: " format , MODULE_NAME , ## arg)
+> +#define ntrig_dbg(format, arg...) \
+> +	do { \
+> +		if (debug) \
+> +			printk(KERN_DEBUG "%s: " format, \
+> +			MODULE_NAME , ## arg); \
+> +	} while (0)
+>  
+>  #define NTRIG_DUPLICATE_USAGES	0x001
+>  
+> @@ -123,8 +193,8 @@ static int ntrig_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>   * decide whether we are in multi or single touch mode
+>   * and call input_mt_sync after each point if necessary
+>   */
+> -static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+> -		                        struct hid_usage *usage, __s32 value)
+> +static int ntrig_event(struct hid_device *hid, struct hid_field *field,
+> +			struct hid_usage *usage, __s32 value)
+>  {
+>  	struct input_dev *input = field->hidinput->input;
+>  	struct ntrig_data *nd = hid_get_drvdata(hid);
+> @@ -133,7 +203,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  	if (field->application == HID_DG_PEN)
+>  		return 0;
+>  
+> -        if (hid->claimed & HID_CLAIMED_INPUT) {
+> +	if (hid->claimed & HID_CLAIMED_INPUT) {
+>  		switch (usage->hid) {
+>  		case 0xff000001:
+>  			/* Tag indicating the start of a multitouch group */
+> @@ -279,12 +349,58 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  	return 1;
+>  }
+>  
+> +/*
+> + * This function used to configure N-trig firmware
+> + * The first command we need to send to firmware is change
+> + * to Multi-touch Mode we don't receive a reply
+> + */
+> +static int ntrig_send_report(struct hid_device *hid)
+> +{
+> +	struct hid_report *report;
+> +	struct list_head *report_list =
+> +			&hid->report_enum[HID_FEATURE_REPORT].report_list;
+> +
+> +	if (list_empty(report_list)) {
+> +		ntrig_dbg("no feature reports found\n");
+> +		return -ENODEV;
+> +	}
+> +	report = list_first_entry(report_list, struct hid_report, list);
+> +	if (report->maxfield < 1)
+> +		return -ENODEV;
+> +
+> +	list_for_each_entry(report,
+> +			    report_list, list) {
+> +		if (report->maxfield < 1) {
+> +		      ntrig_dbg("no fields in the report\n");
+> +		      continue;
+> +		}
+> +		ntrig_dbg("report id %x\n", report->id);
+> +		switch (report->id) {
+> +		case REPORTID_DRIVER_ALIVE:
+> +		      usbhid_submit_report(hid, report, USB_DIR_OUT);
+> +		      break;
+> +		      /*
+> +		       * These command will implement later accroding to demand
+> +		       */
+> +		case REPORTID_GET_VERSION:	/* FALLTHRU */
+> +		case REPORTID_SET_MODE_DUAL:	/* FALLTHRU */
+> +		case REPORTID_CALIBRATION:	/* FALLTHRU */
+> +		case REPORTID_GET_MODE:		/* FALLTHRU */
+> +		case REPORTID_SET_MODE_PEN:	/* FALLTHRU */
+> +		case REPORTID_SET_MODE_TOUCH:	/* FALLTHRU */
+> +		case REPORTID_CALIBRATION_RESPOND:/* FALLTHRU */
+> +		case HID_CAPACITORS_CALIB:	/* FALLTHRU */
+> +		case HID_GET_CAPACITORS_CALIB_DONE:
+> +		      break;
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+>  static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+>  	int ret;
+>  	struct ntrig_data *nd;
+> -	struct hid_input *hidinput;
+> -	struct input_dev *input;
+>  
+>  	if (id->driver_data)
+>  		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+> @@ -310,42 +426,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		goto err_free;
 >  	}
 >  
->  	if (dir == USB_DIR_OUT) {
-> -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
-> +		usbhid->ctrl[usbhid->ctrlhead].raw_report = kzalloc(len, GFP_ATOMIC);
->  		if (!usbhid->ctrl[usbhid->ctrlhead].raw_report) {
->  			dev_warn(&hid->dev, "control queueing failed\n");
->  			return;
-
-In principle this looks correct. 
-
-The problem is that with previous aproach, we are handling the zeroing in 
-the generic HID layer, but after your patch the zeroing is handled less 
-generally for USB transport only.
-
-I.e. I see two problems, which are closely related
-
-- you forgot to do the same change to Bluetooth as well
-- this introduces a new semantical constraint on HID transport drivers, so 
-  that they have to make sure that the reports are always zeroed properly
-
-Frankly, I like the generic aproach more ... if we were to add more 
-low-level transport HID implementations later, I am sure this will be 
-forgotten multiple times :) (as it isn't directly implied by the HID 
-specification, but is rather a workaround for devices that are violating 
-the spec by looking at the bits they shouldn't care about).
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+> -
+> -	list_for_each_entry(hidinput, &hdev->inputs, list) {
+> -		if (hidinput->report->maxfield < 1)
+> -			continue;
+> -
+> -		input = hidinput->input;
+> -		switch (hidinput->report->field[0]->application) {
+> -		case HID_DG_PEN:
+> -			input->name = "N-Trig Pen";
+> -			break;
+> -		case HID_DG_TOUCHSCREEN:
+> -			/* These keys are redundant for fingers, clear them
+> -			 * to prevent incorrect identification */
+> -			__clear_bit(BTN_TOOL_PEN, input->keybit);
+> -			__clear_bit(BTN_TOOL_FINGER, input->keybit);
+> -			__clear_bit(BTN_0, input->keybit);
+> -			/*
+> -			 * A little something special to enable
+> -			 * two and three finger taps.
+> -			 */
+> -			__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+> -			__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+> -			__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+> -			/*
+> -			 * The physical touchscreen (single touch)
+> -			 * input has a value for physical, whereas
+> -			 * the multitouch only has logical input
+> -			 * fields.
+> -			 */
+> -			input->name =
+> -				(hidinput->report->field[0]
+> -				 ->physical) ?
+> -				"N-Trig Touchscreen" :
+> -				"N-Trig MultiTouch";
+> -			break;
+> -		}
+> +	ret = ntrig_send_report(hdev);
+> +	if (ret) {
+> +		dev_err(&hdev->dev, "send set feature failed\n");
+> +		goto err_free;
+>  	}
+>  
+>  	return 0;
+> @@ -395,4 +479,7 @@ static void __exit ntrig_exit(void)
+>  
+>  module_init(ntrig_init);
+>  module_exit(ntrig_exit);
+> +
+> +MODULE_PARM_DESC(debug, "Debug mode enable disable");
+> +module_param(debug, bool, 0644);
+>  MODULE_LICENSE("GPL");
+> -- 
+> 1.6.3.3
+> 

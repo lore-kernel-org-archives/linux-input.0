@@ -1,75 +1,169 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: RE: UCB1400: Passing IRQ through platform_data
-Date: Mon, 22 Mar 2010 20:25:42 -0500
-Message-ID: <0D753D10438DA54287A00B02708426976368DDD220@AUSP01VMBX24.collaborationhost.net>
-References: <4BA70831.1040606@gmail.com>
- <201003221413.20841.marek.vasut@gmail.com> <4BA7F2CA.1060608@gmail.com>
- <201003230159.19010.marek.vasut@gmail.com>
+From: Graham Gower <graham.gower@gmail.com>
+Subject: Re: UCB1400: Passing IRQ through platform_data
+Date: Tue, 23 Mar 2010 12:09:19 +1030
+Message-ID: <4BA81BC7.9040107@gmail.com>
+References: <4BA70831.1040606@gmail.com> <201003221413.20841.marek.vasut@gmail.com> <4BA7F2CA.1060608@gmail.com> <201003230159.19010.marek.vasut@gmail.com> <0D753D10438DA54287A00B02708426976368DDD220@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from p01c12o142.mxlogic.net ([208.65.145.65]:51528 "EHLO
-	p01c12o142.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756577Ab0CWBeI (ORCPT
+Received: from mail-fx0-f223.google.com ([209.85.220.223]:49719 "EHLO
+	mail-fx0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756235Ab0CWBja (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 21:34:08 -0400
-In-Reply-To: <201003230159.19010.marek.vasut@gmail.com>
-Content-Language: en-US
+	Mon, 22 Mar 2010 21:39:30 -0400
+Received: by fxm23 with SMTP id 23so1467010fxm.21
+        for <linux-input@vger.kernel.org>; Mon, 22 Mar 2010 18:39:28 -0700 (PDT)
+In-Reply-To: <0D753D10438DA54287A00B02708426976368DDD220@AUSP01VMBX24.collaborationhost.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>, Graham Gower <graham.gower@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-T24gTW9uZGF5LCBNYXJjaCAyMiwgMjAxMCA1OjU5IFBNLCBNYXJlayBWYXN1dCB3cm90ZToNCj4g
-RG5lIFBvIDIyLiBixZllem5hIDIwMTAgMjM6NDQ6MjYgR3JhaGFtIEdvd2VyIG5hcHNhbChhKToN
-Cj4+IE1hcmVrIFZhc3V0IHdyb3RlOg0KPj4+IERuZSBQbyAyMi4gYsWZZXpuYSAyMDEwIDA3OjAz
-OjI5IEdyYWhhbSBHb3dlciBuYXBzYWwoYSk6DQo+Pj4+IEhpIE1hcmVrLA0KPj4+PiBJIHdpc2gg
-dG8gdXNlIHRoZSB1Y2IxNDAwX3RzIGRyaXZlciBvbiBteSBkZXZpY2UuIEJ1dCBJJ20gaGF2aW5n
-IHRyb3VibGUNCj4+Pj4gcGFzc2luZyB0aGUgcGxhdGZvcm1fZGF0YSB0byB0aGUgdWNiMTQwMF9j
-b3JlIGRyaXZlci4NCj4+Pj4NCj4+Pj4gSSBjb3VsZG4ndCBzZWUgYW55IGluIHRyZWUgZXhhbXBs
-ZXMgb2YgdGhpcyBiZWluZyBkb25lIGFuZCBteSBhdHRlbXB0cw0KPj4+PiB0byBkbyB0aGlzIHZp
-YSByZWdpc3RlcmluZyBhIHBsYXRmb3JtX2RyaXZlciBmb3IgdWNiMTQwMF9jb3JlIGhhdmUNCj4+
-Pj4gZmFpbGVkIChwcm9iYWJseSBzaW5jZSB0aGlzIGRyaXZlciBpcyBhYzk3X2J1c190eXBlLCBu
-b3QgYQ0KPj4+PiBwbGF0Zm9ybV9kcml2ZXIpLg0KPj4+Pg0KPj4+PiBDYW4geW91IHByb3ZpZGUg
-bWUgd2l0aCBpbmZvIHJlZ2FyZGluZyB0aGUgY29ycmVjdCBtZXRob2QgZm9yIHBhc3NpbmcNCj4+
-Pj4gdGhlIGlycSB0byB0aGUgZHJpdmVyPw0KPj4+Pg0KPj4+PiBUaGFua3MsDQo+Pj4+IC1HcmFo
-YW0NCj4+Pg0KPj4+IHN0YXRpYyBzdHJ1Y3QgdWNiMTQwMF9wZGF0YSBwZGF0YSA9IHsNCj4+PiAJ
-LmlycQk9IElSUV9HUElPKDEyMyksDQo+Pj4gfTsNCj4+Pg0KPj4+IHN0YXRpYyBzdHJ1Y3QgcGxh
-dGZvcm1fZGV2aWNlIHVjYjE0MDBfY29yZSA9IHsNCj4+PiAgICAgICAgIC5uYW1lICAgPSAidWNi
-MTQwMF9jb3JlIiwNCj4+PiAgICAgICAgIC5pZCAgICAgPSAtMSwNCj4+PiAJLmRldgk9IHsNCj4+
-PiAJCS5wbGF0Zm9ybV9kYXRhID0gJnBkYXRhLA0KPj4+IAl9LA0KPj4+IH07DQo+Pj4NCj4+PiBp
-bml0KCkgew0KPj4+IAlwbGF0Zm9ybV9kZXZpY2VfcmVnaXN0ZXIoJnVjYjE0MDBfY29yZSk7DQo+
-Pj4gfQ0KPj4+DQo+Pj4gTGlrZSB0aGlzID8NCj4+IA0KPj4gVGhhdCBpcyB0aGUgZmlyc3QgdGhp
-bmcgSSB0cmllZCBhbmQgaXQgZG9lc24ndCB3b3JrLiBJIHN1Z2dlc3QgeW91IHByaW50aw0KPj4g
-dGhlIHBkYXRhIGluIHRoZSB1Y2IxNDAwX2NvcmUgZHJpdmVyIGFmdGVyIGhhdmluZyBkb25lIHRo
-aXMgdG8gY29uZmlybSAoSQ0KPj4gIGdvdCBOVUxMKS4gWW91IGRvbid0IG5lZWQgdG8gcmVnaXN0
-ZXIgYSBwbGF0Zm9ybSBkcml2ZXIgZm9yDQo+PiAgdWNiMTQwMF9jb3JlX3Byb2JlKCkgdG8gYmUg
-Y2FsbGVkIGFueXdheSAtIHByZXN1bWFibHkgaXRzIGVudW1lcmF0ZWQgZnJvbQ0KPj4gIHRoZSBh
-Yzk3IGJ1cy4NCj4NCj4gT2ggeWVzIHlvdSBoYXZlIHRvLCBvdGhlcndpc2UgdGhlIHBkYXRhIHdv
-bid0IGJlIHBhc3NlZC4gQmVzaWRlcywgaXQncyB3ZWlyZCANCj4gcHJvYmUoKSdzIGNhbGxlZCBp
-ZiB5b3UgZGlkbid0IHJlZ2lzdGVyIGl0LiBCdXQgb2J2aW91c2x5IHdoYXRldmVyIGNhbGxzIGl0
-IA0KPiBkb2Vzbid0IHBhc3MgdGhlIHBkYXRhLg0KDQpUaGUgZHJpdmVyIGlzIHJlZ2lzdGVyZWQg
-d2l0aCBwbGF0Zm9ybV9kcml2ZXJfcmVnaXN0ZXIsIGFzIHN1Y2ggaXQgd2lsbCBiZSB0aWVkDQp0
-byB0aGUgcGxhdGZvcm0gYnVzIG5vdCB0aGUgYWM5NyBidXMuICBCZWluZyBhIHBsYXRmb3JtIGRy
-aXZlciwgeW91IGRvIG5lZWQgYQ0KbWF0Y2hpbmcgcGxhdGZvcm1fZGV2aWNlX3JlZ2lzdGVyIHNv
-IHRoYXQgeW91IGdldCBhIGRldmljZTwtPmRyaXZlciBiaW5kaW5nLg0KDQo+IEFuZCB5ZXMsIEkg
-cHJpbnRrJ2QgaXQgd2hlbiBJIHdhcyBzZW5kaW5nIHRoaXMgcGF0Y2ggaW4gYW5kIGl0IHdvcmtl
-ZCBmb3IgbWUgLi4uIA0KPiByZWdpc3RlciB0aGUgcGxhdGZvcm0gZGV2aWNlIGFuZCB5b3Ugc2hv
-dWxkIGJlIG9rLg0KPj4gDQo+Pj4gYnR3LiB5b3UgZG9uJ3QgaGF2ZSB0byBwYXNzIHBkYXRhIGF0
-IGFsbCAuLi4gdGhlIGxvZ2ljIGZvciBhdXRvLWRldGVjdGluZw0KPj4+IElSUSBpcyBzdGlsbCB0
-aGVyZSBhbmQgaXMgYWN0aXZlIGlmIG5vIHBkYXRhIGFyZSBzdXBwbGllZC4NCj4+IA0KPj4gVGhp
-cyBkb2VzIG5vdCB3b3JrIGZvciBtZS4gSSBoYXZlIG5vdCB5ZXQgaW52ZXN0aWdhdGVkIHdoeS4N
-Cj4NCj4gSSdkIGJldHRlciBnZXQgcmlkIG9mIHRoYXQgYXV0b2RldGVjdGlvbiBzdHVmZiBhbHRv
-Z2V0aGVyLCBidXQgZnR0YiBpdCBjYW4gYmUgDQo+IHRoZXJlLg0KDQpBbm90aGVyIHJlYXNvbiB5
-b3VyIGlycSBtaWdodCBub3QgYmUgd29ya2luZyBpcyB0aGF0IGl0cyBub3QgdmFsaWQuICBJcyBn
-cGlvIDEyMw0KYSB2YWxpZCBJUlEgcHJvZHVjZXIgb24geW91ciBwbGF0Zm9ybT8gIElSUV9HUElP
-KDEyMykgbWlnaHQgcmVzb2x2ZSB0bw0KKHVjYi0+aXJxIDwgMCkgd2hpY2ggd291bGQgY2F1c2Ug
-dGhlIHByb2JlIHRvIHRyeSBhdXRvIGRldGVjdGluZyB0aGUgaXJxLg0KDQpCVFcsIHRoaXMgZHJp
-dmVyIGxvb2tzIGEgbGl0dGxlIHNjYXJ5Lg0KDQpUaGUgJ3BsYXRmb3JtIGRhdGEnIHRoYXQgaXMg
-cGFzc2VkIHRvIHRoZSBkcml2ZXIgaXMgYWxzbyB0aGUgJ3ByaXZhdGUgZGF0YScgdXNlZA0KYnkg
-dGhlIGRyaXZlci4gIFNpbmNlIHRoZSBvbmx5IGRhdGEgcGFzc2VkIGJ5IHRoZSBwbGF0Zm9ybSBp
-cyB0aGUgaXJxIGl0IHdvdWxkDQpwcm9iYWJseSBiZSBjbGVhbmVyIHRvIHBhc3MgYSBzdHJ1Y3Qg
-dWNiMTQwMF9wZGF0YSB0byB0aGUgZHJpdmVyIGFuZCBremFsbG9jDQp0aGUgcHJpdmF0ZSBzdHJ1
-Y3QgdWNiMTQwMF90cyBkYXRhIGluIHRoZSBkcml2ZXIuDQoNCkp1c3QgbXkgMC4wMi4uLg0KDQpS
-ZWdhcmRzLA0KSGFydGxleQ==
+H Hartley Sweeten wrote:
+> On Monday, March 22, 2010 5:59 PM, Marek Vasut wrote:
+>> Dne Po 22. b=C5=99ezna 2010 23:44:26 Graham Gower napsal(a):
+>>> Marek Vasut wrote:
+>>>> Dne Po 22. b=C5=99ezna 2010 07:03:29 Graham Gower napsal(a):
+>>>>> Hi Marek,
+>>>>> I wish to use the ucb1400_ts driver on my device. But I'm having =
+trouble
+>>>>> passing the platform_data to the ucb1400_core driver.
+>>>>>
+>>>>> I couldn't see any in tree examples of this being done and my att=
+empts
+>>>>> to do this via registering a platform_driver for ucb1400_core hav=
+e
+>>>>> failed (probably since this driver is ac97_bus_type, not a
+>>>>> platform_driver).
+>>>>>
+>>>>> Can you provide me with info regarding the correct method for pas=
+sing
+>>>>> the irq to the driver?
+>>>>>
+>>>>> Thanks,
+>>>>> -Graham
+>>>> static struct ucb1400_pdata pdata =3D {
+>>>> 	.irq	=3D IRQ_GPIO(123),
+>>>> };
+>>>>
+>>>> static struct platform_device ucb1400_core =3D {
+>>>>         .name   =3D "ucb1400_core",
+>>>>         .id     =3D -1,
+>>>> 	.dev	=3D {
+>>>> 		.platform_data =3D &pdata,
+>>>> 	},
+>>>> };
+>>>>
+>>>> init() {
+>>>> 	platform_device_register(&ucb1400_core);
+>>>> }
+>>>>
+>>>> Like this ?
+>>> That is the first thing I tried and it doesn't work. I suggest you =
+printk
+>>> the pdata in the ucb1400_core driver after having done this to conf=
+irm (I
+>>>  got NULL). You don't need to register a platform driver for
+>>>  ucb1400_core_probe() to be called anyway - presumably its enumerat=
+ed from
+>>>  the ac97 bus.
+>> Oh yes you have to, otherwise the pdata won't be passed. Besides, it=
+'s weird=20
+>> probe()'s called if you didn't register it. But obviously whatever c=
+alls it=20
+>> doesn't pass the pdata.
+>=20
+> The driver is registered with platform_driver_register, as such it wi=
+ll be tied
+> to the platform bus not the ac97 bus.  Being a platform driver, you d=
+o need a
+> matching platform_device_register so that you get a device<->driver b=
+inding.
+
+I suspect we are looking at different files, or different versions of t=
+he file.
+I'm looking at drivers/mfd/ucb1400_core.c, which looks like this:
+http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+blob;f=3Ddrivers/mfd/ucb1400_core.c;hb=3DHEAD
+
+The ucb1400_core is registered with driver_register.
+
+I have grepped my tree and the only places I see "ucb12400_core" are in=
+ a couple
+of arm board files and in my board file. Mine is commented out, and I d=
+efinitely
+still get the probe being called.
+
+I added dump_stack() to the probe function.
+
+[<80014f50>] dump_stack+0x8/0x34
+[<801b1dec>] ucb1400_core_probe+0x48/0x1ac
+[<801ab114>] driver_probe_device+0x128/0x254
+[<801aa440>] bus_for_each_drv+0x60/0xb0
+[<801ab3e4>] device_attach+0x60/0x88
+[<801aa234>] bus_probe_device+0x30/0x54
+[<801a8a74>] device_add+0x368/0x4f0
+[<80210970>] snd_ac97_dev_register+0xa0/0xd8
+[<801ef6e8>] snd_device_register_all+0x44/0x80
+[<801eb2f4>] snd_card_register+0x64/0x18c
+[<80216f3c>] snd_soc_instantiate_cards+0x368/0x5c4
+[<80217214>] soc_probe+0x7c/0xc4
+[<801ab114>] driver_probe_device+0x128/0x254
+[<801aa440>] bus_for_each_drv+0x60/0xb0
+[<801ab3e4>] device_attach+0x60/0x88
+[<801aa234>] bus_probe_device+0x30/0x54
+[<801a8a74>] device_add+0x368/0x4f0
+[<801aca5c>] platform_device_add+0x14c/0x1b8
+[<803813a4>] quokka_init+0x98/0xec
+[<800180f0>] do_one_initcall+0x68/0x200
+[<80371328>] kernel_init+0xc4/0x164
+[<8001ac2c>] kernel_thread_helper+0x10/0x18
+
+
+>=20
+>> And yes, I printk'd it when I was sending this patch in and it worke=
+d for me ...=20
+>> register the platform device and you should be ok.
+>>>> btw. you don't have to pass pdata at all ... the logic for auto-de=
+tecting
+>>>> IRQ is still there and is active if no pdata are supplied.
+>>> This does not work for me. I have not yet investigated why.
+>> I'd better get rid of that autodetection stuff altogether, but fttb =
+it can be=20
+>> there.
+>=20
+> Another reason your irq might not be working is that its not valid.  =
+Is gpio 123
+> a valid IRQ producer on your platform?  IRQ_GPIO(123) might resolve t=
+o
+> (ucb->irq < 0) which would cause the probe to try auto detecting the =
+irq.
+
+This has nothing to do with the irq number that I'm passing (which is n=
+ot 123
+anyway). The ucb1400_core's dev->platform_data pointer is NULL.
+
+
+>=20
+> BTW, this driver looks a little scary.
+>=20
+> The 'platform data' that is passed to the driver is also the 'private=
+ data' used
+> by the driver.  Since the only data passed by the platform is the irq=
+ it would
+> probably be cleaner to pass a struct ucb1400_pdata to the driver and =
+kzalloc
+> the private struct ucb1400_ts data in the driver.
+>=20
+> Just my 0.02...
+>=20
+> Regards,
+> Hartley
+
+-Graham
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,169 +1,110 @@
-From: Graham Gower <graham.gower@gmail.com>
-Subject: Re: UCB1400: Passing IRQ through platform_data
-Date: Tue, 23 Mar 2010 12:09:19 +1030
-Message-ID: <4BA81BC7.9040107@gmail.com>
-References: <4BA70831.1040606@gmail.com> <201003221413.20841.marek.vasut@gmail.com> <4BA7F2CA.1060608@gmail.com> <201003230159.19010.marek.vasut@gmail.com> <0D753D10438DA54287A00B02708426976368DDD220@AUSP01VMBX24.collaborationhost.net>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: [RFC PATCH 0/1] input/touchscreen: Synaptics Touchscreen Driver
+Date: Mon, 22 Mar 2010 19:07:37 -0700
+Message-ID: <1269310058-10894-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f223.google.com ([209.85.220.223]:49719 "EHLO
-	mail-fx0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756235Ab0CWBja (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Mar 2010 21:39:30 -0400
-Received: by fxm23 with SMTP id 23so1467010fxm.21
-        for <linux-input@vger.kernel.org>; Mon, 22 Mar 2010 18:39:28 -0700 (PDT)
-In-Reply-To: <0D753D10438DA54287A00B02708426976368DDD220@AUSP01VMBX24.collaborationhost.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-H Hartley Sweeten wrote:
-> On Monday, March 22, 2010 5:59 PM, Marek Vasut wrote:
->> Dne Po 22. b=C5=99ezna 2010 23:44:26 Graham Gower napsal(a):
->>> Marek Vasut wrote:
->>>> Dne Po 22. b=C5=99ezna 2010 07:03:29 Graham Gower napsal(a):
->>>>> Hi Marek,
->>>>> I wish to use the ucb1400_ts driver on my device. But I'm having =
-trouble
->>>>> passing the platform_data to the ucb1400_core driver.
->>>>>
->>>>> I couldn't see any in tree examples of this being done and my att=
-empts
->>>>> to do this via registering a platform_driver for ucb1400_core hav=
-e
->>>>> failed (probably since this driver is ac97_bus_type, not a
->>>>> platform_driver).
->>>>>
->>>>> Can you provide me with info regarding the correct method for pas=
-sing
->>>>> the irq to the driver?
->>>>>
->>>>> Thanks,
->>>>> -Graham
->>>> static struct ucb1400_pdata pdata =3D {
->>>> 	.irq	=3D IRQ_GPIO(123),
->>>> };
->>>>
->>>> static struct platform_device ucb1400_core =3D {
->>>>         .name   =3D "ucb1400_core",
->>>>         .id     =3D -1,
->>>> 	.dev	=3D {
->>>> 		.platform_data =3D &pdata,
->>>> 	},
->>>> };
->>>>
->>>> init() {
->>>> 	platform_device_register(&ucb1400_core);
->>>> }
->>>>
->>>> Like this ?
->>> That is the first thing I tried and it doesn't work. I suggest you =
-printk
->>> the pdata in the ucb1400_core driver after having done this to conf=
-irm (I
->>>  got NULL). You don't need to register a platform driver for
->>>  ucb1400_core_probe() to be called anyway - presumably its enumerat=
-ed from
->>>  the ac97 bus.
->> Oh yes you have to, otherwise the pdata won't be passed. Besides, it=
-'s weird=20
->> probe()'s called if you didn't register it. But obviously whatever c=
-alls it=20
->> doesn't pass the pdata.
->=20
-> The driver is registered with platform_driver_register, as such it wi=
-ll be tied
-> to the platform bus not the ac97 bus.  Being a platform driver, you d=
-o need a
-> matching platform_device_register so that you get a device<->driver b=
-inding.
+This patch adds an initial driver supporting Synaptics ClearPad
+touchscreens that use the RMI4 protocol, as defined here:
 
-I suspect we are looking at different files, or different versions of t=
-he file.
-I'm looking at drivers/mfd/ucb1400_core.c, which looks like this:
-http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
-blob;f=3Ddrivers/mfd/ucb1400_core.c;hb=3DHEAD
-
-The ucb1400_core is registered with driver_register.
-
-I have grepped my tree and the only places I see "ucb12400_core" are in=
- a couple
-of arm board files and in my board file. Mine is commented out, and I d=
-efinitely
-still get the probe being called.
-
-I added dump_stack() to the probe function.
-
-[<80014f50>] dump_stack+0x8/0x34
-[<801b1dec>] ucb1400_core_probe+0x48/0x1ac
-[<801ab114>] driver_probe_device+0x128/0x254
-[<801aa440>] bus_for_each_drv+0x60/0xb0
-[<801ab3e4>] device_attach+0x60/0x88
-[<801aa234>] bus_probe_device+0x30/0x54
-[<801a8a74>] device_add+0x368/0x4f0
-[<80210970>] snd_ac97_dev_register+0xa0/0xd8
-[<801ef6e8>] snd_device_register_all+0x44/0x80
-[<801eb2f4>] snd_card_register+0x64/0x18c
-[<80216f3c>] snd_soc_instantiate_cards+0x368/0x5c4
-[<80217214>] soc_probe+0x7c/0xc4
-[<801ab114>] driver_probe_device+0x128/0x254
-[<801aa440>] bus_for_each_drv+0x60/0xb0
-[<801ab3e4>] device_attach+0x60/0x88
-[<801aa234>] bus_probe_device+0x30/0x54
-[<801a8a74>] device_add+0x368/0x4f0
-[<801aca5c>] platform_device_add+0x14c/0x1b8
-[<803813a4>] quokka_init+0x98/0xec
-[<800180f0>] do_one_initcall+0x68/0x200
-[<80371328>] kernel_init+0xc4/0x164
-[<8001ac2c>] kernel_thread_helper+0x10/0x18
+http://www.synaptics.com/sites/default/files/511-000136-01_revA.pdf
 
 
->=20
->> And yes, I printk'd it when I was sending this patch in and it worke=
-d for me ...=20
->> register the platform device and you should be ok.
->>>> btw. you don't have to pass pdata at all ... the logic for auto-de=
-tecting
->>>> IRQ is still there and is active if no pdata are supplied.
->>> This does not work for me. I have not yet investigated why.
->> I'd better get rid of that autodetection stuff altogether, but fttb =
-it can be=20
->> there.
->=20
-> Another reason your irq might not be working is that its not valid.  =
-Is gpio 123
-> a valid IRQ producer on your platform?  IRQ_GPIO(123) might resolve t=
-o
-> (ucb->irq < 0) which would cause the probe to try auto detecting the =
-irq.
-
-This has nothing to do with the irq number that I'm passing (which is n=
-ot 123
-anyway). The ucb1400_core's dev->platform_data pointer is NULL.
+This patch addresses most of the feedback relating to our previous subm=
+ission.
+Any elements not acted on (such as creation of an 'rmi' bus on the kern=
+el
+bus architecture) are captured as TODOs in the code, and will be implem=
+ented
+in a future submission.  In addition:
+    - We think we've resolved all the whitespace issues.  For Kconfig,
+      we used the indent pattern used by other modules.  For all other
+      sources, we've converted to 8-space hard TAB characters.
+    - Some concerns were expressed regarding our I2C implementation.
+      Dmitry recommended we contact Jean Delvare for further review,
+      so we are cc'ing him on this patch.
 
 
->=20
-> BTW, this driver looks a little scary.
->=20
-> The 'platform data' that is passed to the driver is also the 'private=
- data' used
-> by the driver.  Since the only data passed by the platform is the irq=
- it would
-> probably be cleaner to pass a struct ucb1400_pdata to the driver and =
-kzalloc
-> the private struct ucb1400_ts data in the driver.
->=20
-> Just my 0.02...
->=20
-> Regards,
-> Hartley
+This version of the driver does not support all features of the RMI4
+protocol yet.  We felt it more important to start with a solid
+implementation of the basic functionality, and then build on that base
+to support additional features (such as gestures, proximity detection,
+capacitive buttons, and so on).
 
--Graham
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Additionally, as this is our team's first venture into the wonderful
+world of kernel submissions, we figured it was important to start out
+initially with a fairly simple codebase, just in case we're doing
+something horribly wrong.
+
+
+The significant files in this version of the driver are:
+    rmi_core.c
+        Implements the basic core of the RMI4 protocol
+        including self-discovery of RMI4 functions.  This
+        also implements RMI4 function 0x01, which provides
+        generic device control.
+    rmi_function_11.c
+        Implements basic RMI4 function 0x11 (2D sensor)
+        features, including multitouch up to 10 fingers.
+    rmi_app_touchpad.c
+        The major driver functions (mod_init, mod_exit,
+        and so on).
+An additional file is included, but will eventually be changed/dropped
+    rmi_i2c_gta01.c
+        Provides platform setup for development.  This will
+        be replaced in the future by a generic approach to
+        specifying platform parameters.
+More detailed descriptions can be found in each file's comments.
+
+We chose to use multiple source files because it makes it easy to add
+support for additional RMI4 functions with minimal impact to existing
+functions.  Additionally, this supports future changes to the
+configuration to allow you to compile in only those RMI4 functions that
+you need for your particular device.
+
+
+There are two existing drivers for similar Synaptics devices in the
+current kernel tree (excluding the PS/2 touchpad driver).  These are:
+
+=2E/linux-2.6/drivers/input/mouse/synaptics_i2c.c
+      A driver for the Exeda 15mm touchpad, written by Mike Rapoport
+      <mike@compulab.co.il> and Igor Grinberg <grinberg@compulab.co.il>
+
+=2E/linux-2.6/drivers/staging/dream/synaptics_i2c_rmi.c
+      A driver for the HTC Dream ClearPad, written by Arve Hj=C3=B8nnev=
+=C3=A5g
+      <arve@android.com>
+
+We have not extended these drivers for a couple of reasons.  First, the
+two drivers are specific to particular Synaptics products, and it is ou=
+r
+desire to produce a general solution that takes advantage of the 'self
+describing' features of products that use the RMI protocol.
+
+Second, and more importantly, is that the existing drivers are written
+for an older version of the RMI protocol (aka RMI3) that is being
+retired in favor of a more recent and substantially changed version (ak=
+a
+RMI4).  Most currently shipping Synaptics ClearPads speak the RMI4
+protocol, and it will be Synaptics protocol of choice going forward.  I=
+n
+almost all respects, RMI4 is not backward compatible with RMI3, making
+it impractical to support both versions in the same driver.
+
+
+Comments and other feedback on this driver are welcomed.
+
+Bill Manson
+Allie Xiong
+Christopher Heiny
+
+
+
+---

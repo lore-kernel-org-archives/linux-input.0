@@ -1,756 +1,1415 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [PATCH v3 2/6] hid: add framebuffer support to PicoLCD device
-Date: Wed, 24 Mar 2010 23:49:45 +0100
-Message-ID: <20100324234945.6b7d1f37@neptune.home>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
+Subject: [PATCH v3 1/6] hid: new driver for PicoLCD device
+Date: Wed, 24 Mar 2010 23:40:22 +0100
+Message-ID: <20100324234022.0361bd80@neptune.home>
 References: <20100324233707.7243b04d@neptune.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:37643 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752101Ab0CXXBN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Mar 2010 19:01:13 -0400
-In-Reply-To: <20100324233707.7243b04d@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100324233707.7243b04d-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Add framebuffer support to PicoLCD device with use of deferred-io.
-
-Only changed areas of framebuffer get sent to device in order to
-save USB bandwidth and especially resources on PicoLCD device or
-allow higher refresh rate for a small area. Changed tiles are
-determined while updating shadow framebuffer.
+Add basic driver for PicoLCD graphics device.
+Initially support keypad with input device and provide support
+for debugging communication via events file from debugfs.
 
 Changes since v2:
- - add 8bit grayscale depth as near to no userspace app handles 1bit
- - properly send whole framebuffer on reset/init
- - drop inline keywords from non-stub functions
- - use device_{create,remove}_file instead of sysfs_{create,remove}_fil=
+ - Move completion to struct picolcd_pending
+ - Use mutex for commands which generate reply
+ - Drop inline keyword on non-stub functions
+ - Combine version check into a common function
+ - Define PICOLCD_KEYS based on array size
+ - Lookup keycode directly instead of asking input
+ - Use device_{create,remove}_file instead of sysfs_{create,remove}_fil=
 e
 
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
 ---
+ Documentation/ABI/testing/sysfs-driver-hid-picolcd |   17 +
+ drivers/hid/Kconfig                                |   18 +
+ drivers/hid/Makefile                               |    1 +
+ drivers/hid/hid-core.c                             |    2 +
+ drivers/hid/hid-ids.h                              |    2 +
+ drivers/hid/hid-picolcd.c                          | 1213 ++++++++++++=
+++++++++
+ 6 files changed, 1253 insertions(+), 0 deletions(-)
 
-Jaya, is my choice of FB_VISUAL_TRUECOLOR correct for grayscale
-8bpp mode?
-
-Userspace applications I tested with:
-- links
-    Tested the 8bpp mode, works fine.
-- fdbsee
-    Fails with a message mentioning font creation, so I assume it's
-    unrelated to my implementation.
-- fbv
-    Fails and complains about missing color map.
-    That one should not be needed for grayscale unless I'm missing
-    something (documentation is rather poor)
-
-I've not tested with Xorg as there is none installed on the test
-system.
-
-
-
- drivers/hid/Kconfig       |    7 +-
- drivers/hid/hid-picolcd.c |  544 +++++++++++++++++++++++++++++++++++++=
-+++++++-
- 2 files changed, 549 insertions(+), 2 deletions(-)
-
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-picolcd b/Docum=
+entation/ABI/testing/sysfs-driver-hid-picolcd
+new file mode 100644
+index 0000000..1c63a0f
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-driver-hid-picolcd
+@@ -0,0 +1,17 @@
++What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface =
+num>/operation_mode
++Date:		March 2010
++Contact:	Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
++Description:	Make it possible to switch the PicoLCD device between LCD
++		(firmware) and bootloader (flasher) operation modes.
++
++		Reading: returns list of available modes is show, the active mode
++		being enclosed in brackets ('<' and '>')
++
++		Writing: causes operation mode switch. Permitted values are
++		the non-active mode names listed when read, optionally followed
++		by a delay value expressed in ms.
++
++		Note: when switching mode the current PicoLCD HID device gets
++		disconnected and reconnects after above delay (default value
++		is 5 seconds though this default should not be relied on).
++
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 138ba6a..a813ea9 100644
+index 71d4c07..138ba6a 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -265,6 +265,11 @@ config HID_PETALYNX
- config HID_PICOLCD
- 	tristate "PicoLCD (graphic version)"
- 	depends on USB_HID
-+	select FB_DEFERRED_IO if FB
-+	select FB_SYS_FILLRECT if FB
-+	select FB_SYS_COPYAREA if FB
-+	select FB_SYS_IMAGEBLIT if FB
-+	select FB_SYS_FOPS if FB
+@@ -262,6 +262,24 @@ config HID_PETALYNX
  	---help---
- 	  This provides support for Minibox PicoLCD devices, currently
- 	  only the graphical ones are supported.
-@@ -272,8 +277,8 @@ config HID_PICOLCD
- 	  This includes support for the following device features:
- 	  - Keypad
- 	  - Switching between Firmware and Flash mode
--	  Features that are not (yet) supported:
- 	  - Framebuffer for monochrome 256x64 display
+ 	Support for Petalynx Maxter remote control.
+=20
++config HID_PICOLCD
++	tristate "PicoLCD (graphic version)"
++	depends on USB_HID
++	---help---
++	  This provides support for Minibox PicoLCD devices, currently
++	  only the graphical ones are supported.
++
++	  This includes support for the following device features:
++	  - Keypad
++	  - Switching between Firmware and Flash mode
 +	  Features that are not (yet) supported:
- 	  - Backlight control
- 	  - Contrast control
- 	  - IR
++	  - Framebuffer for monochrome 256x64 display
++	  - Backlight control
++	  - Contrast control
++	  - IR
++	  - General purpose outputs
++	  - EEProm / Flash access
++
+ config HID_QUANTA
+ 	tristate "Quanta Optical Touch"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 0b2618f..7fd1614 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -44,6 +44,7 @@ obj-$(CONFIG_HID_ORTEK)		+=3D hid-ortek.o
+ obj-$(CONFIG_HID_QUANTA)	+=3D hid-quanta.o
+ obj-$(CONFIG_HID_PANTHERLORD)	+=3D hid-pl.o
+ obj-$(CONFIG_HID_PETALYNX)	+=3D hid-petalynx.o
++obj-$(CONFIG_HID_PICOLCD)	+=3D hid-picolcd.o
+ obj-$(CONFIG_HID_SAMSUNG)	+=3D hid-samsung.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+=3D hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+=3D hid-sony.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2e2aa75..bb11fb4 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1335,6 +1335,8 @@ static const struct hid_device_id hid_blacklist[]=
+ =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBL=
+EPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER=
+) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR=
+) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTL=
+OADER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV=
+) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 797e064..783b41d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -341,6 +341,8 @@
+ #define USB_VENDOR_ID_MICROCHIP		0x04d8
+ #define USB_DEVICE_ID_PICKIT1		0x0032
+ #define USB_DEVICE_ID_PICKIT2		0x0033
++#define USB_DEVICE_ID_PICOLCD		0xc002
++#define USB_DEVICE_ID_PICOLCD_BOOTLOADER	0xf002
+=20
+ #define USB_VENDOR_ID_MICROSOFT		0x045e
+ #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
 diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 2e4409d..6d17d89 100644
---- a/drivers/hid/hid-picolcd.c
+new file mode 100644
+index 0000000..2e4409d
+--- /dev/null
 +++ b/drivers/hid/hid-picolcd.c
-@@ -24,6 +24,9 @@
- #include "usbhid/usbhid.h"
- #include <linux/usb.h>
-=20
-+#include <linux/fb.h>
-+#include <linux/vmalloc.h>
+@@ -0,0 +1,1213 @@
++/*********************************************************************=
+******
++ *   Copyright (C) 2010 by Bruno Pr=C3=A9mont <bonbons@linux-vserver.o=
+rg>       *
++ *                                                                    =
+     *
++ *   Based on Logitech G13 driver (v0.4)                              =
+     *
++ *     Copyright (C) 2009 by Rick L. Vinyard, Jr. <rvinyard-qcTL/1vZYtjHfRtnQztjLA@public.gmane.org=
+u>   *
++ *                                                                    =
+     *
++ *   This program is free software: you can redistribute it and/or mod=
+ify  *
++ *   it under the terms of the GNU General Public License as published=
+ by  *
++ *   the Free Software Foundation, version 2 of the License.          =
+     *
++ *                                                                    =
+     *
++ *   This driver is distributed in the hope that it will be useful, bu=
+t    *
++ *   WITHOUT ANY WARRANTY; without even the implied warranty of       =
+     *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU =
+     *
++ *   General Public License for more details.                         =
+     *
++ *                                                                    =
+     *
++ *   You should have received a copy of the GNU General Public License=
+     *
++ *   along with this software. If not see <http://www.gnu.org/licenses=
+/>.  *
++ *********************************************************************=
+******/
 +
- #include <linux/seq_file.h>
- #include <linux/debugfs.h>
-=20
-@@ -69,6 +72,59 @@
- #define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
- #define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
++#include <linux/hid.h>
++#include <linux/hid-debug.h>
++#include <linux/input.h>
++#include "hid-ids.h"
++#include "usbhid/usbhid.h"
++#include <linux/usb.h>
++
++#include <linux/seq_file.h>
++#include <linux/debugfs.h>
++
++#include <linux/completion.h>
++
++#define PICOLCD_NAME "PicoLCD (graphic)"
++
++/* Report numbers */
++#define REPORT_ERROR_CODE      0x10 /* LCD: IN[16]  */
++#define   ERR_SUCCESS            0x00
++#define   ERR_PARAMETER_MISSING  0x01
++#define   ERR_DATA_MISSING       0x02
++#define   ERR_BLOCK_READ_ONLY    0x03
++#define   ERR_BLOCK_NOT_ERASABLE 0x04
++#define   ERR_BLOCK_TOO_BIG      0x05
++#define   ERR_SECTION_OVERFLOW   0x06
++#define   ERR_INVALID_CMD_LEN    0x07
++#define   ERR_INVALID_DATA_LEN   0x08
++#define REPORT_KEY_STATE       0x11 /* LCD: IN[2]   */
++#define REPORT_IR_DATA         0x21 /* LCD: IN[63]  */
++#define REPORT_EE_DATA         0x32 /* LCD: IN[63]  */
++#define REPORT_MEMORY          0x41 /* LCD: IN[63]  */
++#define REPORT_LED_STATE       0x81 /* LCD: OUT[1]  */
++#define REPORT_BRIGHTNESS      0x91 /* LCD: OUT[1]  */
++#define REPORT_CONTRAST        0x92 /* LCD: OUT[1]  */
++#define REPORT_RESET           0x93 /* LCD: OUT[2]  */
++#define REPORT_LCD_CMD         0x94 /* LCD: OUT[63] */
++#define REPORT_LCD_DATA        0x95 /* LCD: OUT[63] */
++#define REPORT_LCD_CMD_DATA    0x96 /* LCD: OUT[63] */
++#define	REPORT_EE_READ         0xa3 /* LCD: OUT[63] */
++#define REPORT_EE_WRITE        0xa4 /* LCD: OUT[63] */
++#define REPORT_ERASE_MEMORY    0xb2 /* LCD: OUT[2]  */
++#define REPORT_READ_MEMORY     0xb3 /* LCD: OUT[3]  */
++#define REPORT_WRITE_MEMORY    0xb4 /* LCD: OUT[63] */
++#define REPORT_SPLASH_RESTART  0xc1 /* LCD: OUT[1]  */
++#define REPORT_EXIT_KEYBOARD   0xef /* LCD: OUT[2]  */
++#define REPORT_VERSION         0xf1 /* LCD: IN[2],OUT[1]    Bootloader=
+: IN[2],OUT[1]   */
++#define REPORT_BL_ERASE_MEMORY 0xf2 /*                      Bootloader=
+: IN[36],OUT[4]  */
++#define REPORT_BL_READ_MEMORY  0xf3 /*                      Bootloader=
+: IN[36],OUT[4]  */
++#define REPORT_BL_WRITE_MEMORY 0xf4 /*                      Bootloader=
+: IN[36],OUT[36] */
++#define REPORT_DEVID           0xf5 /* LCD: IN[5], OUT[1]   Bootloader=
+: IN[5],OUT[1]   */
++#define REPORT_SPLASH_SIZE     0xf6 /* LCD: IN[4], OUT[1]   */
++#define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
++#define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
 : OUT[2]         */
-=20
-+#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+/* Framebuffer
++
++/* Input device
 + *
-+ * The PicoLCD use a Topway LCD module of 256x64 pixel
-+ * This display area is tiled over 4 controllers with 8 tiles
-+ * each. Each tile has 8x64 pixel, each data byte representing
-+ * a 1-bit wide vertical line of the tile.
-+ *
-+ * The display can be updated at a tile granularity.
-+ *
-+ *       Chip 1           Chip 2           Chip 3           Chip 4
-+ * +----------------+----------------+----------------+---------------=
--+
-+ * |     Tile 1     |     Tile 1     |     Tile 1     |     Tile 1    =
- |
-+ * +----------------+----------------+----------------+---------------=
--+
-+ * |     Tile 2     |     Tile 2     |     Tile 2     |     Tile 2    =
- |
-+ * +----------------+----------------+----------------+---------------=
--+
-+ *                                  ...
-+ * +----------------+----------------+----------------+---------------=
--+
-+ * |     Tile 8     |     Tile 8     |     Tile 8     |     Tile 8    =
- |
-+ * +----------------+----------------+----------------+---------------=
--+
-+ */
-+#define PICOLCDFB_NAME "picolcdfb"
-+#define PICOLCDFB_WIDTH (256)
-+#define PICOLCDFB_HEIGHT (64)
-+#define PICOLCDFB_SIZE (PICOLCDFB_WIDTH * PICOLCDFB_HEIGHT / 8)
-+
-+#define PICOLCDFB_UPDATE_RATE_LIMIT   10
-+#define PICOLCDFB_UPDATE_RATE_DEFAULT  2
-+
-+/* Framebuffer visual structures */
-+static const struct fb_fix_screeninfo picolcdfb_fix =3D {
-+	.id          =3D PICOLCDFB_NAME,
-+	.type        =3D FB_TYPE_PACKED_PIXELS,
-+	.visual      =3D FB_VISUAL_MONO01,
-+	.xpanstep    =3D 0,
-+	.ypanstep    =3D 0,
-+	.ywrapstep   =3D 0,
-+	.line_length =3D PICOLCDFB_WIDTH / 8,
-+	.accel       =3D FB_ACCEL_NONE,
-+};
-+
-+static const struct fb_var_screeninfo picolcdfb_var =3D {
-+	.xres           =3D PICOLCDFB_WIDTH,
-+	.yres           =3D PICOLCDFB_HEIGHT,
-+	.xres_virtual   =3D PICOLCDFB_WIDTH,
-+	.yres_virtual   =3D PICOLCDFB_HEIGHT,
-+	.width          =3D 103,
-+	.height         =3D 26,
-+	.bits_per_pixel =3D 1,
-+	.grayscale      =3D 1,
-+};
-+#endif /* CONFIG_FB */
-+
- /* Input device
-  *
-  * The PicoLCD has an IR receiver header, a built-in keypad with 5 key=
++ * The PicoLCD has an IR receiver header, a built-in keypad with 5 key=
 s
-@@ -118,6 +174,16 @@ struct picolcd_data {
- 	struct input_dev *input_cir;
- 	unsigned short keycode[PICOLCD_KEYS];
-=20
-+#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+	/* Framebuffer stuff */
-+	u8 fb_update_rate;
-+	u8 fb_bpp;
-+	u8 *fb_vbitmap;		/* local copy of what was sent to PicoLCD */
-+	u8 *fb_bitmap;		/* framebuffer */
-+	struct fb_info *fb_info;
-+	struct fb_deferred_io fb_defio;
-+#endif /* CONFIG_FB */
++ * and header for 4x4 key matrix. The built-in keys are part of the ma=
+trix.
++ */
++static const unsigned short def_keymap[] =3D {
++	KEY_RESERVED,	/* none */
++	KEY_BACK,	/* col 4 + row 1 */
++	KEY_HOMEPAGE,	/* col 3 + row 1 */
++	KEY_RESERVED,	/* col 2 + row 1 */
++	KEY_RESERVED,	/* col 1 + row 1 */
++	KEY_SCROLLUP,	/* col 4 + row 2 */
++	KEY_OK,		/* col 3 + row 2 */
++	KEY_SCROLLDOWN,	/* col 2 + row 2 */
++	KEY_RESERVED,	/* col 1 + row 2 */
++	KEY_RESERVED,	/* col 4 + row 3 */
++	KEY_RESERVED,	/* col 3 + row 3 */
++	KEY_RESERVED,	/* col 2 + row 3 */
++	KEY_RESERVED,	/* col 1 + row 3 */
++	KEY_RESERVED,	/* col 4 + row 4 */
++	KEY_RESERVED,	/* col 3 + row 4 */
++	KEY_RESERVED,	/* col 2 + row 4 */
++	KEY_RESERVED,	/* col 1 + row 4 */
++};
++#define PICOLCD_KEYS ARRAY_SIZE(def_keymap)
 +
- 	/* Housekeeping stuff */
- 	spinlock_t lock;
- 	struct mutex mutex;
-@@ -125,6 +191,7 @@ struct picolcd_data {
- 	int status;
- #define PICOLCD_BOOTLOADER 1
- #define PICOLCD_FAILED 2
-+#define PICOLCD_READY_FB 4
- };
-=20
-=20
-@@ -197,6 +264,460 @@ static struct picolcd_pending *picolcd_send_and_w=
-ait(struct hid_device *hdev,
- 	return work;
- }
-=20
-+#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+/* Send a given tile to PicoLCD */
-+static int picolcd_fb_send_tile(struct hid_device *hdev, int chip, int=
- tile)
++/* Description of in-progress IO operation, used for operations
++ * that trigger response from device */
++struct picolcd_pending {
++	struct hid_report *out_report;
++	struct hid_report *in_report;
++	struct completion ready;
++	int raw_size;
++	u8 raw_data[64];
++};
++
++/* Per device data structure */
++struct picolcd_data {
++	struct hid_device *hdev;
++#ifdef CONFIG_DEBUG_FS
++	int addr_sz;
++#endif
++	u8 version[2];
++	/* input stuff */
++	u8 pressed_keys[2];
++	struct input_dev *input_keys;
++	struct input_dev *input_cir;
++	unsigned short keycode[PICOLCD_KEYS];
++
++	/* Housekeeping stuff */
++	spinlock_t lock;
++	struct mutex mutex;
++	struct picolcd_pending *pending;
++	int status;
++#define PICOLCD_BOOTLOADER 1
++#define PICOLCD_FAILED 2
++};
++
++
++/* Find a given report */
++#define picolcd_in_report(id, dev) picolcd_report(id, dev, HID_INPUT_R=
+EPORT)
++#define picolcd_out_report(id, dev) picolcd_report(id, dev, HID_OUTPUT=
+_REPORT)
++
++static struct hid_report *picolcd_report(int id, struct hid_device *hd=
+ev, int dir)
++{
++	struct list_head *feature_report_list =3D &hdev->report_enum[dir].rep=
+ort_list;
++	struct hid_report *report =3D NULL;
++
++	list_for_each_entry(report, feature_report_list, list) {
++		if (report->id =3D=3D id)
++			return report;
++	}
++	dev_warn(&hdev->dev, "No report with id 0x%x found\n", id);
++	return NULL;
++}
++
++#ifdef CONFIG_DEBUG_FS
++static void picolcd_debug_out_report(struct picolcd_data *data,
++		struct hid_device *hdev, struct hid_report *report);
++#define usbhid_submit_report(a, b, c) \
++	do { \
++		picolcd_debug_out_report(hid_get_drvdata(a), a, b); \
++		usbhid_submit_report(a, b, c); \
++	} while (0)
++#endif
++
++/* Submit a report and wait for a reply from device - if device fades =
+away
++ * or does not respond in time, return NULL */
++static struct picolcd_pending *picolcd_send_and_wait(struct hid_device=
+ *hdev,
++		int report_id, const u8 *raw_data, int size)
 +{
 +	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	struct hid_report *report1 =3D picolcd_out_report(REPORT_LCD_CMD_DATA=
-, hdev);
-+	struct hid_report *report2 =3D picolcd_out_report(REPORT_LCD_DATA, hd=
-ev);
++	struct picolcd_pending *work;
++	struct hid_report *report =3D picolcd_out_report(report_id, hdev);
 +	unsigned long flags;
-+	u8 *tdata;
-+	int i;
++	int i, j, k;
 +
-+	if (!report1 || report1->maxfield !=3D 1 || !report2 || report2->maxf=
-ield !=3D 1)
-+		return -ENODEV;
++	if (!report || !data)
++		return NULL;
++	if (data->status & PICOLCD_FAILED)
++		return NULL;
++	work =3D kzalloc(sizeof(*work), GFP_KERNEL);
++	if (!work)
++		return NULL;
 +
++	init_completion(&work->ready);
++	work->out_report =3D report;
++	work->in_report  =3D NULL;
++	work->raw_size   =3D 0;
++
++	mutex_lock(&data->mutex);
 +	spin_lock_irqsave(&data->lock, flags);
-+	hid_set_field(report1->field[0],  0, chip << 2);
-+	hid_set_field(report1->field[0],  1, 0x02);
-+	hid_set_field(report1->field[0],  2, 0x00);
-+	hid_set_field(report1->field[0],  3, 0x00);
-+	hid_set_field(report1->field[0],  4, 0xb8 | tile);
-+	hid_set_field(report1->field[0],  5, 0x00);
-+	hid_set_field(report1->field[0],  6, 0x00);
-+	hid_set_field(report1->field[0],  7, 0x40);
-+	hid_set_field(report1->field[0],  8, 0x00);
-+	hid_set_field(report1->field[0],  9, 0x00);
-+	hid_set_field(report1->field[0], 10,   32);
-+
-+	hid_set_field(report2->field[0],  0, (chip << 2) | 0x01);
-+	hid_set_field(report2->field[0],  1, 0x00);
-+	hid_set_field(report2->field[0],  2, 0x00);
-+	hid_set_field(report2->field[0],  3,   32);
-+
-+	tdata =3D data->fb_vbitmap + (tile * 4 + chip) * 64;
-+	for (i =3D 0; i < 64; i++)
-+		if (i < 32)
-+			hid_set_field(report1->field[0], 11 + i, tdata[i]);
-+		else
-+			hid_set_field(report2->field[0], 4 + i - 32, tdata[i]);
-+
-+	usbhid_submit_report(data->hdev, report1, USB_DIR_OUT);
-+	usbhid_submit_report(data->hdev, report2, USB_DIR_OUT);
++	for (i =3D k =3D 0; i < report->maxfield; i++)
++		for (j =3D 0; j < report->field[i]->report_count; j++) {
++			hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0);
++			k++;
++		}
++	data->pending =3D work;
++	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
 +	spin_unlock_irqrestore(&data->lock, flags);
-+	return 0;
-+}
-+
-+/* Translate a single tile*/
-+static int picolcd_fb_update_tile(u8 *vbitmap, const u8 *bitmap, int b=
-pp,
-+		int chip, int tile)
-+{
-+	int i, b, changed =3D 0;
-+	u8 tdata[64];
-+	u8 *vdata =3D vbitmap + (tile * 4 + chip) * 64;
-+
-+	if (bpp =3D=3D 1) {
-+		for (b =3D 7; b >=3D 0; b--) {
-+			const u8 *bdata =3D bitmap + tile * 256 + chip * 8 + b * 32;
-+			for (i =3D 0; i < 64; i++) {
-+				tdata[i] <<=3D 1;
-+				tdata[i] |=3D (bdata[i/8] >> (7 - i % 8)) & 0x01;
-+			}
-+		}
-+	} else if (bpp =3D=3D 8) {
-+		for (b =3D 7; b >=3D 0; b--) {
-+			const u8 *bdata =3D bitmap + (tile * 256 + chip * 8 + b * 32) * 8;
-+			for (i =3D 0; i < 64; i++) {
-+				tdata[i] <<=3D 1;
-+				tdata[i] |=3D (bdata[i] & 0x80) ? 0x01 : 0x00;
-+			}
-+		}
-+	} else {
-+		/* Oops, we should never get here! */
-+		WARN_ON(1);
-+		return 0;
-+	}
-+
-+	for (i =3D 0; i < 64; i++)
-+		if (tdata[i] !=3D vdata[i]) {
-+			changed =3D 1;
-+			vdata[i] =3D tdata[i];
-+		}
-+	return changed;
-+}
-+
-+/* Reconfigure LCD display */
-+static int picolcd_fb_reset(struct picolcd_data *data, int clear)
-+{
-+	struct hid_report *report =3D picolcd_out_report(REPORT_LCD_CMD, data=
-->hdev);
-+	int i, j;
-+	unsigned long flags;
-+	static const u8 mapcmd[8] =3D { 0x00, 0x02, 0x00, 0x64, 0x3f, 0x00, 0=
-x64, 0xc0 };
-+
-+	if (!report || report->maxfield !=3D 1)
-+		return -ENODEV;
-+
++	wait_for_completion_interruptible_timeout(&work->ready, HZ*2);
 +	spin_lock_irqsave(&data->lock, flags);
-+	for (i =3D 0; i < 4; i++) {
-+		for (j =3D 0; j < report->field[0]->maxusage; j++)
-+			if (j =3D=3D 0)
-+				hid_set_field(report->field[0], j, i << 2);
-+			else if (j < sizeof(mapcmd))
-+				hid_set_field(report->field[0], j, mapcmd[j]);
-+			else
-+				hid_set_field(report->field[0], j, 0);
-+		usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	}
-+
-+	data->status |=3D PICOLCD_READY_FB;
++	data->pending =3D NULL;
 +	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	if (clear && data->fb_bitmap) {
-+		memset(data->fb_vbitmap, 0xff, PICOLCDFB_SIZE);
-+		memset(data->fb_bitmap, 0, PICOLCDFB_SIZE*data->fb_bpp);
-+	}
-+
-+	/* schedule first output of framebuffer */
-+	if (data->fb_info)
-+		schedule_delayed_work(&data->fb_info->deferred_work, 0);
-+
-+	return 0;
-+}
-+
-+/* Update fb_vbitmap from the screen_base and send changed tiles to de=
-vice */
-+static void picolcd_fb_update(struct picolcd_data *data)
-+{
-+	int chip, tile;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	if (!(data->status & PICOLCD_READY_FB)) {
-+		spin_unlock_irqrestore(&data->lock, flags);
-+		picolcd_fb_reset(data, 0);
-+	} else {
-+		spin_unlock_irqrestore(&data->lock, flags);
-+	}
-+
-+	/*
-+	 * Translate the XBM format screen_base into the format needed by the
-+	 * PicoLCD. See display layout above.
-+	 * Do this one tile after the other and push those tiles that changed=
-=2E
-+	 */
-+	for (chip =3D 0; chip < 4; chip++)
-+		for (tile =3D 0; tile < 8; tile++)
-+			if (picolcd_fb_update_tile(data->fb_vbitmap,
-+					data->fb_bitmap, data->fb_bpp, chip, tile))
-+				picolcd_fb_send_tile(data->hdev, chip, tile);
-+}
-+
-+/* Stub to call the system default and update the image on the picoLCD=
- */
-+static void picolcd_fb_fillrect(struct fb_info *info,
-+		const struct fb_fillrect *rect)
-+{
-+	if (!info->par)
-+		return;
-+	sys_fillrect(info, rect);
-+
-+	schedule_delayed_work(&info->deferred_work, 0);
-+}
-+
-+/* Stub to call the system default and update the image on the picoLCD=
- */
-+static void picolcd_fb_copyarea(struct fb_info *info,
-+		const struct fb_copyarea *area)
-+{
-+	if (!info->par)
-+		return;
-+	sys_copyarea(info, area);
-+
-+	schedule_delayed_work(&info->deferred_work, 0);
-+}
-+
-+/* Stub to call the system default and update the image on the picoLCD=
- */
-+static void picolcd_fb_imageblit(struct fb_info *info, const struct fb=
-_image *image)
-+{
-+	if (!info->par)
-+		return;
-+	sys_imageblit(info, image);
-+
-+	schedule_delayed_work(&info->deferred_work, 0);
++	mutex_unlock(&data->mutex);
++	return work;
 +}
 +
 +/*
-+ * this is the slow path from userspace. they can seek and write to
-+ * the fb. it's inefficient to do anything less than a full screen dra=
-w
++ * input class device
 + */
-+static ssize_t picolcd_fb_write(struct fb_info *info, const char __use=
-r *buf,
-+		size_t count, loff_t *ppos)
++static int picolcd_raw_keypad(struct picolcd_data *data,
++		struct hid_report *report, u8 *raw_data, int size)
 +{
-+	ssize_t ret;
-+	if (!info->par)
++	/*
++	 * Keypad event
++	 * First and second data bytes list currently pressed keys,
++	 * 0x00 means no key and at most 2 keys may be pressed at same time
++	 */
++	int i, j;
++
++	/* determine newly pressed keys */
++	for (i =3D 0; i < size; i++) {
++		int key_code;
++		if (raw_data[i] =3D=3D 0)
++			continue;
++		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
++			if (data->pressed_keys[j] =3D=3D raw_data[i])
++				goto key_already_down;
++		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
++			if (data->pressed_keys[j] =3D=3D 0) {
++				data->pressed_keys[j] =3D raw_data[i];
++				break;
++			}
++		input_event(data->input_keys, EV_MSC, MSC_SCAN, raw_data[i]);
++		if (raw_data[i] < PICOLCD_KEYS)
++			key_code =3D data->keycode[raw_data[i]];
++		else
++			key_code =3D KEY_UNKNOWN;
++		if (key_code !=3D KEY_UNKNOWN) {
++			dbg_hid(PICOLCD_NAME " got key press for %u:%d",
++					raw_data[i], key_code);
++			input_report_key(data->input_keys, key_code, 1);
++		}
++		input_sync(data->input_keys);
++key_already_down:
++		continue;
++	}
++
++	/* determine newly released keys */
++	for (j =3D 0; j < sizeof(data->pressed_keys); j++) {
++		int key_code;
++		if (data->pressed_keys[j] =3D=3D 0)
++			continue;
++		for (i =3D 0; i < size; i++)
++			if (data->pressed_keys[j] =3D=3D raw_data[i])
++				goto key_still_down;
++		input_event(data->input_keys, EV_MSC, MSC_SCAN, data->pressed_keys[j=
+]);
++		if (raw_data[i] < PICOLCD_KEYS)
++			key_code =3D data->keycode[raw_data[i]];
++		else
++			key_code =3D KEY_UNKNOWN;
++		if (key_code !=3D KEY_UNKNOWN) {
++			dbg_hid(PICOLCD_NAME " got key release for %u:%d",
++					data->pressed_keys[j], key_code);
++			input_report_key(data->input_keys, key_code, 0);
++		}
++		input_sync(data->input_keys);
++		data->pressed_keys[j] =3D 0;
++key_still_down:
++		continue;
++	}
++	return 1;
++}
++
++static int picolcd_raw_cir(struct picolcd_data *data,
++		struct hid_report *report, u8 *raw_data, int size)
++{
++	/* Need understanding of CIR data format to implement ... */
++	return 1;
++}
++
++static int picolcd_check_version(struct hid_device *hdev)
++{
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	struct picolcd_pending *verinfo;
++	int ret =3D 0;
++
++	if (!data)
 +		return -ENODEV;
-+	ret =3D fb_sys_write(info, buf, count, ppos);
-+	if (ret >=3D 0)
-+		schedule_delayed_work(&info->deferred_work, 0);
++
++	verinfo =3D picolcd_send_and_wait(hdev, REPORT_VERSION, NULL, 0);
++	if (!verinfo) {
++		dev_err(&hdev->dev, "no version response from PicoLCD");
++		return -ENODEV;
++	}
++
++	if (verinfo->raw_size =3D=3D 2) {
++		if (data->status & PICOLCD_BOOTLOADER) {
++			dev_info(&hdev->dev, "PicoLCD, bootloader version %d.%d\n",
++					verinfo->raw_data[0], verinfo->raw_data[1]);
++			data->version[0] =3D verinfo->raw_data[0];
++			data->version[1] =3D verinfo->raw_data[1];
++		} else {
++			dev_info(&hdev->dev, "PicoLCD, firmware version %d.%d\n",
++					verinfo->raw_data[1], verinfo->raw_data[0]);
++			data->version[0] =3D verinfo->raw_data[1];
++			data->version[1] =3D verinfo->raw_data[0];
++		}
++	} else {
++		dev_err(&hdev->dev, "confused, got unexpected version response from =
+PicoLCD\n");
++		ret =3D -EINVAL;
++	}
++	kfree(verinfo);
 +	return ret;
 +}
 +
-+static int picolcd_fb_blank(int blank, struct fb_info *info)
++/*
++ * Reset our device and wait for answer to VERSION request
++ */
++static int picolcd_reset(struct hid_device *hdev)
 +{
-+	if (!info->par)
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	struct hid_report *report =3D picolcd_out_report(REPORT_RESET, hdev);
++	unsigned long flags;
++
++	if (!data || !report || report->maxfield !=3D 1)
 +		return -ENODEV;
-+	/* We let fb notification do this for us via lcd/backlight device */
-+	return 0;
++
++	spin_lock_irqsave(&data->lock, flags);
++	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
++		data->status |=3D PICOLCD_BOOTLOADER;
++
++	/* perform the reset */
++	hid_set_field(report->field[0], 0, 1);
++	usbhid_submit_report(hdev, report, USB_DIR_OUT);
++	spin_unlock_irqrestore(&data->lock, flags);
++
++	return picolcd_check_version(hdev);
 +}
-+
-+static void picolcd_fb_destroy(struct fb_info *info)
-+{
-+	struct picolcd_data *data =3D info->par;
-+	info->par =3D NULL;
-+	if (data)
-+		data->fb_info =3D NULL;
-+	fb_deferred_io_cleanup(info);
-+	framebuffer_release(info);
-+}
-+
-+static int picolcd_fb_check_var(struct fb_var_screeninfo *var, struct =
-fb_info *info)
-+{
-+	__u32 bpp      =3D var->bits_per_pixel;
-+	__u32 activate =3D var->activate;
-+
-+	/* only allow 1/8 bit depth (8-bit is grayscale) */
-+	*var =3D picolcdfb_var;
-+	var->activate =3D activate;
-+	if (bpp >=3D 8)
-+		var->bits_per_pixel =3D 8;
-+	else
-+		var->bits_per_pixel =3D 1;
-+	return 0;
-+}
-+
-+static int picolcd_set_par(struct fb_info *info)
-+{
-+	struct picolcd_data *data =3D info->par;
-+	u8 *o_fb, *n_fb;
-+	if (info->var.bits_per_pixel =3D=3D data->fb_bpp)
-+		return 0;
-+	/* switch between 1/8 bit depths */
-+	if (info->var.bits_per_pixel !=3D 1 && info->var.bits_per_pixel !=3D =
-8)
-+		return -EINVAL;
-+
-+	o_fb =3D data->fb_bitmap;
-+	n_fb =3D vmalloc(PICOLCDFB_SIZE*info->var.bits_per_pixel);
-+	if (!n_fb)
-+		return -ENOMEM;
-+
-+	fb_deferred_io_cleanup(info);
-+	/* translate FB content to new bits-per-pixel */
-+	if (info->var.bits_per_pixel =3D=3D 1) {
-+		int i, b;
-+		for (i =3D 0; i < PICOLCDFB_SIZE; i++) {
-+			u8 p =3D 0;
-+			for (b =3D 0; b < 8; b++) {
-+				p <<=3D 1;
-+				p |=3D o_fb[i*8+b] ? 0x01 : 0x00;
-+			}
-+		}
-+		info->fix.visual =3D FB_VISUAL_MONO01;
-+		info->fix.line_length =3D PICOLCDFB_WIDTH / 8;
-+	} else {
-+		int i;
-+		for (i =3D 0; i < PICOLCDFB_SIZE * 8; i++)
-+			n_fb[i] =3D o_fb[i/8] & (0x01 << (7 - i % 8)) ? 0xff : 0x00;
-+		info->fix.visual =3D FB_VISUAL_TRUECOLOR;
-+		info->fix.line_length =3D PICOLCDFB_WIDTH;
-+	}
-+
-+	data->fb_bitmap   =3D n_fb;
-+	data->fb_bpp      =3D info->var.bits_per_pixel;
-+	info->screen_base =3D (char __force __iomem *)n_fb;
-+	info->fix.smem_start =3D (unsigned long)n_fb;
-+	info->fix.smem_len   =3D PICOLCDFB_SIZE*data->fb_bpp;
-+	fb_deferred_io_init(info);
-+	vfree(o_fb);
-+	return 0;
-+}
-+
-+/* Note this can't be const because of struct fb_info definition */
-+static struct fb_ops picolcdfb_ops =3D {
-+	.owner        =3D THIS_MODULE,
-+	.fb_destroy   =3D picolcd_fb_destroy,
-+	.fb_read      =3D fb_sys_read,
-+	.fb_write     =3D picolcd_fb_write,
-+	.fb_blank     =3D picolcd_fb_blank,
-+	.fb_fillrect  =3D picolcd_fb_fillrect,
-+	.fb_copyarea  =3D picolcd_fb_copyarea,
-+	.fb_imageblit =3D picolcd_fb_imageblit,
-+	.fb_check_var =3D picolcd_fb_check_var,
-+	.fb_set_par   =3D picolcd_set_par,
-+};
-+
-+
-+/* Callback from deferred IO workqueue */
-+static void picolcd_fb_deferred_io(struct fb_info *info, struct list_h=
-ead *pagelist)
-+{
-+	picolcd_fb_update(info->par);
-+}
-+
-+static const struct fb_deferred_io picolcd_fb_defio =3D {
-+	.delay =3D HZ / PICOLCDFB_UPDATE_RATE_DEFAULT,
-+	.deferred_io =3D picolcd_fb_deferred_io,
-+};
-+
 +
 +/*
-+ * The "fb_update_rate" sysfs attribute
++ * The "operation_mode" sysfs attribute
 + */
-+static ssize_t picolcd_fb_update_rate_show(struct device *dev,
++static ssize_t picolcd_operation_mode_show(struct device *dev,
 +		struct device_attribute *attr, char *buf)
 +{
 +	struct picolcd_data *data =3D dev_get_drvdata(dev);
-+	unsigned fb_update_rate =3D data->fb_update_rate;
 +
-+	return snprintf(buf, PAGE_SIZE, "%u (1..%u)\n", fb_update_rate,
-+			PICOLCDFB_UPDATE_RATE_LIMIT);
++	if (data->status & PICOLCD_BOOTLOADER)
++		return snprintf(buf, PAGE_SIZE, "<bootloader> lcd\n");
++	else
++		return snprintf(buf, PAGE_SIZE, "bootloader <lcd>\n");
 +}
 +
-+static ssize_t picolcd_fb_update_rate_store(struct device *dev,
++static ssize_t picolcd_operation_mode_store(struct device *dev,
 +		struct device_attribute *attr, const char *buf, size_t count)
 +{
 +	struct picolcd_data *data =3D dev_get_drvdata(dev);
-+	int i;
++	struct hid_report *report =3D NULL;
++	size_t cnt =3D count;
++	int timeout =3D 5000;
 +	unsigned u;
++	unsigned long flags;
 +
-+	if (count < 1 || count > 10)
++	if (cnt >=3D 3 && strncmp("lcd", buf, 3) =3D=3D 0) {
++		if (data->status & PICOLCD_BOOTLOADER)
++			report =3D picolcd_out_report(REPORT_EXIT_FLASHER, data->hdev);
++		buf +=3D 3;
++		cnt -=3D 3;
++	} else if (cnt >=3D 10 && strncmp("bootloader", buf, 10) =3D=3D 0) {
++		if (!(data->status & PICOLCD_BOOTLOADER))
++			report =3D picolcd_out_report(REPORT_EXIT_KEYBOARD, data->hdev);
++		buf +=3D 10;
++		cnt -=3D 10;
++	}
++	if (!report)
 +		return -EINVAL;
 +
-+	i =3D sscanf(buf, "%u", &u);
-+	if (i !=3D 1)
-+		return -EINVAL;
++	while (cnt > 0 && (*buf =3D=3D ' ' || *buf =3D=3D '\t')) {
++		buf++;
++		cnt--;
++	}
++	while (cnt > 0 && (buf[cnt-1] =3D=3D '\n' || buf[cnt-1] =3D=3D '\r'))
++		cnt--;
++	if (cnt > 0) {
++		if (sscanf(buf, "%u", &u) !=3D 1)
++			return -EINVAL;
++		if (u > 30000)
++			return -EINVAL;
++		else
++			timeout =3D u;
++	}
 +
-+	if (u > PICOLCDFB_UPDATE_RATE_LIMIT)
-+		return -ERANGE;
-+	else if (u =3D=3D 0)
-+		u =3D PICOLCDFB_UPDATE_RATE_DEFAULT;
-+
-+	data->fb_update_rate =3D u;
-+	data->fb_defio.delay =3D HZ / data->fb_update_rate;
++	spin_lock_irqsave(&data->lock, flags);
++	hid_set_field(report->field[0], 0, timeout & 0xff);
++	hid_set_field(report->field[0], 1, (timeout >> 8) & 0xff);
++	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
++	spin_unlock_irqrestore(&data->lock, flags);
 +	return count;
 +}
 +
-+static DEVICE_ATTR(fb_update_rate, 0666, picolcd_fb_update_rate_show,
-+		picolcd_fb_update_rate_store);
++static DEVICE_ATTR(operation_mode, 0644, picolcd_operation_mode_show,
++		picolcd_operation_mode_store);
 +
-+/* initialize Framebuffer device */
-+static int picolcd_init_framebuffer(struct picolcd_data *data)
++
++#ifdef CONFIG_DEBUG_FS
++/*
++ * Helper code for HID report level dumping/debugging
++ */
++static const char *error_codes[] =3D {
++	"success", "parameter missing", "data_missing", "block readonly",
++	"block not erasable", "block too big", "section overflow",
++	"invalid command length", "invalid data length",
++};
++
++static void dump_buff_as_hex(char *dst, size_t dst_sz, const u8 *data,
++		const size_t data_len)
 +{
-+	struct device *dev =3D &data->hdev->dev;
-+	struct fb_info *info =3D NULL;
-+	int error =3D -ENOMEM;
-+	u8 *fb_vbitmap =3D NULL;
-+	u8 *fb_bitmap  =3D NULL;
-+
-+	fb_bitmap =3D vmalloc(PICOLCDFB_SIZE*picolcdfb_var.bits_per_pixel);
-+	if (fb_bitmap =3D=3D NULL) {
-+		dev_err(dev, "can't get a free page for framebuffer\n");
-+		goto err_nomem;
++	int i, j;
++	for (i =3D j =3D 0; i < data_len && j + 3 < dst_sz; i++) {
++		dst[j++] =3D hex_asc[(data[i] >> 4) & 0x0f];
++		dst[j++] =3D hex_asc[data[i] & 0x0f];
++		dst[j++] =3D ' ';
 +	}
-+
-+	fb_vbitmap =3D kmalloc(PICOLCDFB_SIZE, GFP_KERNEL);
-+	if (fb_vbitmap =3D=3D NULL) {
-+		dev_err(dev, "can't alloc vbitmap image buffer\n");
-+		goto err_nomem;
-+	}
-+
-+	data->fb_update_rate =3D PICOLCDFB_UPDATE_RATE_DEFAULT;
-+	data->fb_defio =3D picolcd_fb_defio;
-+	info =3D framebuffer_alloc(0, dev);
-+	if (info =3D=3D NULL) {
-+		dev_err(dev, "failed to allocate a framebuffer\n");
-+		goto err_nomem;
-+	}
-+
-+	info->fbdefio =3D &data->fb_defio;
-+	info->screen_base =3D (char __force __iomem *)fb_bitmap;
-+	info->fbops =3D &picolcdfb_ops;
-+	info->var =3D picolcdfb_var;
-+	info->fix =3D picolcdfb_fix;
-+	info->fix.smem_len   =3D PICOLCDFB_SIZE;
-+	info->fix.smem_start =3D (unsigned long)fb_bitmap;
-+	info->par =3D data;
-+	info->flags =3D FBINFO_FLAG_DEFAULT;
-+
-+	data->fb_vbitmap =3D fb_vbitmap;
-+	data->fb_bitmap  =3D fb_bitmap;
-+	data->fb_bpp     =3D picolcdfb_var.bits_per_pixel;
-+	error =3D picolcd_fb_reset(data, 1);
-+	if (error) {
-+		dev_err(dev, "failed to configure display\n");
-+		goto err_cleanup;
-+	}
-+	error =3D device_create_file(dev, &dev_attr_fb_update_rate);
-+	if (error) {
-+		dev_err(dev, "failed to create sysfs attributes\n");
-+		goto err_cleanup;
-+	}
-+	data->fb_info    =3D info;
-+	error =3D register_framebuffer(info);
-+	if (error) {
-+		dev_err(dev, "failed to register framebuffer\n");
-+		goto err_sysfs;
-+	}
-+	fb_deferred_io_init(info);
-+	/* schedule first output of framebuffer */
-+	schedule_delayed_work(&info->deferred_work, 0);
-+	return 0;
-+
-+err_sysfs:
-+	device_remove_file(dev, &dev_attr_fb_update_rate);
-+err_cleanup:
-+	data->fb_vbitmap =3D NULL;
-+	data->fb_bitmap  =3D NULL;
-+	data->fb_bpp     =3D 0;
-+	data->fb_info    =3D NULL;
-+
-+err_nomem:
-+	framebuffer_release(info);
-+	vfree(fb_bitmap);
-+	kfree(fb_vbitmap);
-+	return error;
++	if (j < dst_sz) {
++		dst[j--] =3D '\0';
++		dst[j] =3D '\n';
++	} else
++		dst[j] =3D '\0';
 +}
 +
-+static void picolcd_exit_framebuffer(struct picolcd_data *data)
++static void picolcd_debug_out_report(struct picolcd_data *data,
++		struct hid_device *hdev, struct hid_report *report)
 +{
-+	struct fb_info *info =3D data->fb_info;
-+	u8 *fb_vbitmap =3D data->fb_vbitmap;
-+	u8 *fb_bitmap  =3D data->fb_bitmap;
++	u8 raw_data[70];
++	int raw_size =3D (report->size >> 3) + 1;
++	char *buff;
++#define BUFF_SZ 256
 +
-+	if (!info)
++	/* Avoid unnecessary overhead if debugfs is disabled */
++	if (!hdev->debug_events)
 +		return;
 +
-+	data->fb_vbitmap =3D NULL;
-+	data->fb_bitmap  =3D NULL;
-+	data->fb_bpp     =3D 0;
-+	data->fb_info    =3D NULL;
-+	device_remove_file(&data->hdev->dev, &dev_attr_fb_update_rate);
-+	fb_deferred_io_cleanup(info);
-+	unregister_framebuffer(info);
-+	vfree(fb_bitmap);
-+	kfree(fb_vbitmap);
++	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
++	if (!buff)
++		return;
++
++	snprintf(buff, BUFF_SZ, "\nout report %d (size %d) =3D  ",
++			report->id, raw_size);
++	hid_debug_event(hdev, buff);
++	if (raw_size + 5 > sizeof(raw_data)) {
++		hid_debug_event(hdev, " TOO BIG\n");
++		return;
++	} else {
++		raw_data[0] =3D report->id;
++		hid_output_report(report, raw_data);
++		dump_buff_as_hex(buff, BUFF_SZ, raw_data, raw_size);
++		hid_debug_event(hdev, buff);
++	}
++
++	switch (report->id) {
++	case REPORT_LED_STATE:
++		/* 1 data byte with GPO state */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_LED_STATE", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tGPO state: 0x%02x\n", raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_BRIGHTNESS:
++		/* 1 data byte with brightness */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_BRIGHTNESS", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tBrightness: 0x%02x\n", raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_CONTRAST:
++		/* 1 data byte with contrast */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_CONTRAST", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tContrast: 0x%02x\n", raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_RESET:
++		/* 2 data bytes with reset duration in ms */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_RESET", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tDuration: 0x%02x%02x (%dms)\n",
++				raw_data[2], raw_data[1], raw_data[2] << 8 | raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_LCD_CMD:
++		/* 63 data bytes with LCD commands */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_LCD_CMD", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		/* TODO: format decoding */
++		break;
++	case REPORT_LCD_DATA:
++		/* 63 data bytes with LCD data */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_LCD_CMD", report->id, raw_size-1);
++		/* TODO: format decoding */
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_LCD_CMD_DATA:
++		/* 63 data bytes with LCD commands and data */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_LCD_CMD", report->id, raw_size-1);
++		/* TODO: format decoding */
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_EE_READ:
++		/* 3 data bytes with read area description */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_EE_READ", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_EE_WRITE:
++		/* 3+1..20 data bytes with write area description */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_EE_WRITE", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++		hid_debug_event(hdev, buff);
++		if (raw_data[3] =3D=3D 0) {
++			snprintf(buff, BUFF_SZ, "\tNo data\n");
++		} else if (raw_data[3] + 4 <=3D raw_size) {
++			snprintf(buff, BUFF_SZ, "\tData: ");
++			hid_debug_event(hdev, buff);
++			dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
++		} else {
++			snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++		}
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_ERASE_MEMORY:
++	case REPORT_BL_ERASE_MEMORY:
++		/* 3 data bytes with pointer inside erase block */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_ERASE_MEMORY", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		switch (data->addr_sz) {
++		case 2:
++			snprintf(buff, BUFF_SZ, "\tAddress inside 64 byte block: 0x%02x%02x=
+\n",
++					raw_data[2], raw_data[1]);
++			break;
++		case 3:
++			snprintf(buff, BUFF_SZ, "\tAddress inside 64 byte block: 0x%02x%02x=
+%02x\n",
++					raw_data[3], raw_data[2], raw_data[1]);
++			break;
++		default:
++			snprintf(buff, BUFF_SZ, "\tNot supported\n");
++		}
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_READ_MEMORY:
++	case REPORT_BL_READ_MEMORY:
++		/* 4 data bytes with read area description */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_READ_MEMORY", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		switch (data->addr_sz) {
++		case 2:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++					raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++			break;
++		case 3:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
++					raw_data[3], raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
++			break;
++		default:
++			snprintf(buff, BUFF_SZ, "\tNot supported\n");
++		}
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_WRITE_MEMORY:
++	case REPORT_BL_WRITE_MEMORY:
++		/* 4+1..32 data bytes with write adrea description */
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_WRITE_MEMORY", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		switch (data->addr_sz) {
++		case 2:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++					raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++			hid_debug_event(hdev, buff);
++			if (raw_data[3] =3D=3D 0) {
++				snprintf(buff, BUFF_SZ, "\tNo data\n");
++			} else if (raw_data[3] + 4 <=3D raw_size) {
++				snprintf(buff, BUFF_SZ, "\tData: ");
++				hid_debug_event(hdev, buff);
++				dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
++			} else {
++				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++			}
++			break;
++		case 3:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
++					raw_data[3], raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
++			hid_debug_event(hdev, buff);
++			if (raw_data[4] =3D=3D 0) {
++				snprintf(buff, BUFF_SZ, "\tNo data\n");
++			} else if (raw_data[4] + 5 <=3D raw_size) {
++				snprintf(buff, BUFF_SZ, "\tData: ");
++				hid_debug_event(hdev, buff);
++				dump_buff_as_hex(buff, BUFF_SZ, raw_data+5, raw_data[4]);
++			} else {
++				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++			}
++			break;
++		default:
++			snprintf(buff, BUFF_SZ, "\tNot supported\n");
++		}
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_SPLASH_RESTART:
++		/* TODO */
++		break;
++	case REPORT_EXIT_KEYBOARD:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_EXIT_KEYBOARD", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tRestart delay: %dms (0x%02x%02x)\n",
++				raw_data[1] | (raw_data[2] << 8),
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_VERSION:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_VERSION", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_DEVID:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_DEVID", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_SPLASH_SIZE:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_SPLASH_SIZE", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_HOOK_VERSION:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_HOOK_VERSION", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_EXIT_FLASHER:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"REPORT_VERSION", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tRestart delay: %dms (0x%02x%02x)\n",
++				raw_data[1] | (raw_data[2] << 8),
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	default:
++		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
++			"<unknown>", report->id, raw_size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	}
++	wake_up_interruptible(&hdev->debug_wait);
++	kfree(buff);
 +}
 +
++static void picolcd_debug_raw_event(struct picolcd_data *data,
++		struct hid_device *hdev, struct hid_report *report,
++		u8 *raw_data, int size)
++{
++	char *buff;
 +
++#define BUFF_SZ 256
++	/* Avoid unnecessary overhead if debugfs is disabled */
++	if (!hdev->debug_events)
++		return;
++
++	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
++	if (!buff)
++		return;
++
++	switch (report->id) {
++	case REPORT_ERROR_CODE:
++		/* 2 data bytes with affected report and error code */
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_ERROR_CODE", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		if (raw_data[2] < ARRAY_SIZE(error_codes))
++			snprintf(buff, BUFF_SZ, "\tError code 0x%02x (%s) in reply to repor=
+t 0x%02x\n",
++					raw_data[2], error_codes[raw_data[2]], raw_data[1]);
++		else
++			snprintf(buff, BUFF_SZ, "\tError code 0x%02x in reply to report 0x%=
+02x\n",
++					raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_KEY_STATE:
++		/* 2 data bytes with key state */
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_KEY_STATE", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		if (raw_data[1] =3D=3D 0)
++			snprintf(buff, BUFF_SZ, "\tNo key pressed\n");
++		else if (raw_data[2] =3D=3D 0)
++			snprintf(buff, BUFF_SZ, "\tOne key pressed: 0x%02x (%d)\n",
++					raw_data[1], raw_data[1]);
++		else
++			snprintf(buff, BUFF_SZ, "\tTwo keys pressed: 0x%02x (%d), 0x%02x (%=
+d)\n",
++					raw_data[1], raw_data[1], raw_data[2], raw_data[2]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_IR_DATA:
++		/* Up to 20 byes of IR scancode data */
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_IR_DATA", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		if (raw_data[1] =3D=3D 0) {
++			snprintf(buff, BUFF_SZ, "\tUnexpectedly 0 data length\n");
++			hid_debug_event(hdev, buff);
++		} else if (raw_data[1] + 1 <=3D size) {
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n\tIR Data: ",
++					raw_data[1]-1);
++			hid_debug_event(hdev, buff);
++			dump_buff_as_hex(buff, BUFF_SZ, raw_data+2, raw_data[1]-1);
++			hid_debug_event(hdev, buff);
++		} else {
++			snprintf(buff, BUFF_SZ, "\tOverflowing data length: %d\n",
++					raw_data[1]-1);
++			hid_debug_event(hdev, buff);
++		}
++		break;
++	case REPORT_EE_DATA:
++		/* Data buffer in response to REPORT_EE_READ or REPORT_EE_WRITE */
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_EE_DATA", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++		hid_debug_event(hdev, buff);
++		if (raw_data[3] =3D=3D 0) {
++			snprintf(buff, BUFF_SZ, "\tNo data\n");
++			hid_debug_event(hdev, buff);
++		} else if (raw_data[3] + 4 <=3D size) {
++			snprintf(buff, BUFF_SZ, "\tData: ");
++			hid_debug_event(hdev, buff);
++			dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
++			hid_debug_event(hdev, buff);
++		} else {
++			snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++			hid_debug_event(hdev, buff);
++		}
++		break;
++	case REPORT_MEMORY:
++		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRTIE_MEM=
+ORY */
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_MEMORY", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		switch (data->addr_sz) {
++		case 2:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
++					raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
++			hid_debug_event(hdev, buff);
++			if (raw_data[3] =3D=3D 0) {
++				snprintf(buff, BUFF_SZ, "\tNo data\n");
++			} else if (raw_data[3] + 4 <=3D size) {
++				snprintf(buff, BUFF_SZ, "\tData: ");
++				hid_debug_event(hdev, buff);
++				dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
++			} else {
++				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++			}
++			break;
++		case 3:
++			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
++					raw_data[3], raw_data[2], raw_data[1]);
++			hid_debug_event(hdev, buff);
++			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
++			hid_debug_event(hdev, buff);
++			if (raw_data[4] =3D=3D 0) {
++				snprintf(buff, BUFF_SZ, "\tNo data\n");
++			} else if (raw_data[4] + 5 <=3D size) {
++				snprintf(buff, BUFF_SZ, "\tData: ");
++				hid_debug_event(hdev, buff);
++				dump_buff_as_hex(buff, BUFF_SZ, raw_data+5, raw_data[4]);
++			} else {
++				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
++			}
++			break;
++		default:
++			snprintf(buff, BUFF_SZ, "\tNot supported\n");
++		}
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_VERSION:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_VERSION", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tFirmware version: %d.%d\n",
++				raw_data[2], raw_data[1]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_BL_ERASE_MEMORY:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_BL_ERASE_MEMORY", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		/* TODO */
++		break;
++	case REPORT_BL_READ_MEMORY:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_BL_READ_MEMORY", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		/* TODO */
++		break;
++	case REPORT_BL_WRITE_MEMORY:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_BL_WRITE_MEMORY", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		/* TODO */
++		break;
++	case REPORT_DEVID:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_DEVID", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tSerial: 0x%02x%02x%02x%02x\n",
++				raw_data[1], raw_data[2], raw_data[3], raw_data[4]);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tType: 0x%02x\n",
++				raw_data[5]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_SPLASH_SIZE:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_SPLASH_SIZE", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tTotal splash space: %d\n",
++				(raw_data[2] << 8) | raw_data[1]);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tUsed splash space: %d\n",
++				(raw_data[4] << 8) | raw_data[3]);
++		hid_debug_event(hdev, buff);
++		break;
++	case REPORT_HOOK_VERSION:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"REPORT_HOOK_VERSION", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		snprintf(buff, BUFF_SZ, "\tFirmware version: %d.%d\n",
++				raw_data[1], raw_data[2]);
++		hid_debug_event(hdev, buff);
++		break;
++	default:
++		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
++			"<unknown>", report->id, size-1);
++		hid_debug_event(hdev, buff);
++		break;
++	}
++	wake_up_interruptible(&hdev->debug_wait);
++	kfree(buff);
++}
 +#else
-+static inline int picolcd_fb_reset(struct picolcd_data *data, int clea=
-r)
-+{
-+	return 0;
-+}
-+static inline int picolcd_init_framebuffer(struct picolcd_data *data)
-+{
-+	return 0;
-+}
-+static void picolcd_exit_framebuffer(struct picolcd_data *data)
-+{
-+}
-+#endif /* CONFIG_FB */
++#define picolcd_debug_raw_event(data, hdev, report, raw_data, size)
++#endif
 +
- /*
-  * input class device
-  */
-@@ -314,6 +835,7 @@ static int picolcd_reset(struct hid_device *hdev)
- 	struct picolcd_data *data =3D hid_get_drvdata(hdev);
- 	struct hid_report *report =3D picolcd_out_report(REPORT_RESET, hdev);
- 	unsigned long flags;
++/*
++ * Handle raw report as sent by device
++ */
++static int picolcd_raw_event(struct hid_device *hdev,
++		struct hid_report *report, u8 *raw_data, int size)
++{
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	unsigned long flags;
++	int ret =3D 0;
++
++	if (!data)
++		return 1;
++
++	if (report->id =3D=3D REPORT_KEY_STATE) {
++		if (data->input_keys)
++			ret =3D picolcd_raw_keypad(data, report, raw_data+1, size-1);
++	} else if (report->id =3D=3D REPORT_IR_DATA) {
++		if (data->input_cir)
++			ret =3D picolcd_raw_cir(data, report, raw_data+1, size-1);
++	} else {
++		spin_lock_irqsave(&data->lock, flags);
++		/*
++		 * We let the caller of picolcd_send_and_wait() check if the
++		 * report we got is one of the expected ones or not.
++		 */
++		if (data->pending) {
++			memcpy(data->pending->raw_data, raw_data+1, size-1);
++			data->pending->raw_size  =3D size-1;
++			data->pending->in_report =3D report;
++			complete(&data->pending->ready);
++		}
++		spin_unlock_irqrestore(&data->lock, flags);
++	}
++
++	picolcd_debug_raw_event(data, hdev, report, raw_data, size);
++	return 1;
++}
++
++#ifdef CONFIG_PM
++static int picolcd_suspend(struct hid_device *hdev)
++{
++	dbg_hid(PICOLCD_NAME " device ready for suspend\n");
++	return 0;
++}
++
++static int picolcd_resume(struct hid_device *hdev)
++{
++	return 0;
++}
++
++static int picolcd_reset_resume(struct hid_device *hdev)
++{
++	int ret;
++	ret =3D picolcd_reset(hdev);
++	if (ret)
++		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
++	return 0;
++}
++#endif
++
++/* initialize keypad input device */
++static int picolcd_init_keys(struct picolcd_data *data,
++		struct hid_report *report)
++{
++	struct hid_device *hdev =3D data->hdev;
++	struct input_dev *idev;
++	int error, i;
++
++	if (!report)
++		return -ENODEV;
++	if (report->maxfield !=3D 1 || report->field[0]->report_count !=3D 2 =
+||
++			report->field[0]->report_size !=3D 8) {
++		dev_err(&hdev->dev, "unsupported KEY_STATE report");
++		return -EINVAL;
++	}
++
++	idev =3D input_allocate_device();
++	if (idev =3D=3D NULL) {
++		dev_err(&hdev->dev, "failed to allocate input device");
++		return -ENOMEM;
++	}
++	input_set_drvdata(idev, hdev);
++	memcpy(data->keycode, def_keymap, sizeof(def_keymap));
++	idev->name =3D hdev->name;
++	idev->phys =3D hdev->phys;
++	idev->uniq =3D hdev->uniq;
++	idev->id.bustype =3D hdev->bus;
++	idev->id.vendor  =3D hdev->vendor;
++	idev->id.product =3D hdev->product;
++	idev->id.version =3D hdev->version;
++	idev->dev.parent =3D hdev->dev.parent;
++	idev->keycode     =3D &data->keycode;
++	idev->keycodemax  =3D PICOLCD_KEYS;
++	idev->keycodesize =3D sizeof(data->keycode[0]);
++	input_set_capability(idev, EV_MSC, MSC_SCAN);
++	set_bit(EV_REP, idev->evbit);
++	for (i =3D 0; i < PICOLCD_KEYS; i++) {
++		int key =3D ((int *)idev->keycode)[i];
++		if (key < KEY_MAX && key >=3D 0)
++			input_set_capability(idev, EV_KEY, key);
++	}
++	error =3D input_register_device(idev);
++	if (error) {
++		dev_err(&hdev->dev, "error registering the input device");
++		input_free_device(idev);
++		return error;
++	}
++	data->input_keys =3D idev;
++	return 0;
++}
++
++static void picolcd_exit_keys(struct picolcd_data *data)
++{
++	struct input_dev *idev =3D data->input_keys;
++
++	data->input_keys =3D NULL;
++	if (idev)
++		input_unregister_device(idev);
++}
++
++/* initialize CIR input device */
++static inline int picolcd_init_cir(struct picolcd_data *data, struct h=
+id_report *report)
++{
++	/* support not implemented yet */
++	return 0;
++}
++
++static inline void picolcd_exit_cir(struct picolcd_data *data)
++{
++}
++
++static int picolcd_probe_lcd(struct hid_device *hdev, struct picolcd_d=
+ata *data)
++{
++	struct hid_report *report;
 +	int error;
-=20
- 	if (!data || !report || report->maxfield !=3D 1)
- 		return -ENODEV;
-@@ -327,7 +849,16 @@ static int picolcd_reset(struct hid_device *hdev)
- 	usbhid_submit_report(hdev, report, USB_DIR_OUT);
- 	spin_unlock_irqrestore(&data->lock, flags);
-=20
--	return picolcd_check_version(hdev);
++
 +	error =3D picolcd_check_version(hdev);
 +	if (error)
 +		return error;
 +
-+#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+	if (data->fb_info)
-+		schedule_delayed_work(&data->fb_info->deferred_work, 0);
-+#endif /* CONFIG_FB */
++	if (data->version[0] !=3D 0 && data->version[1] !=3D 3)
++		dev_info(&hdev->dev, "Device with untested firmware revision, "
++				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.\n",
++				dev_name(&hdev->dev));
 +
-+	return 0;
- }
-=20
- /*
-@@ -931,6 +1462,9 @@ static int picolcd_reset_resume(struct hid_device =
-*hdev)
- 	ret =3D picolcd_reset(hdev);
- 	if (ret)
- 		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
-+	ret =3D picolcd_fb_reset(hid_get_drvdata(hdev), 0);
-+	if (ret)
-+		dbg_hid(PICOLCD_NAME " restoring framebuffer content failed: %d\n", =
-ret);
- 	return 0;
- }
- #endif
-@@ -1030,6 +1564,11 @@ static int picolcd_probe_lcd(struct hid_device *=
-hdev, struct picolcd_data *data)
- 	if (error)
- 		goto err;
-=20
-+	/* Set up the framebuffer device */
-+	error =3D picolcd_init_framebuffer(data);
++	/* Setup keypad input device */
++	error =3D picolcd_init_keys(data, picolcd_in_report(REPORT_KEY_STATE,=
+ hdev));
 +	if (error)
 +		goto err;
 +
- #ifdef CONFIG_DEBUG_FS
- 	report =3D picolcd_out_report(REPORT_READ_MEMORY, hdev);
- 	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
++	/* Setup CIR input device */
++	error =3D picolcd_init_cir(data, picolcd_in_report(REPORT_IR_DATA, hd=
+ev));
++	if (error)
++		goto err;
++
++#ifdef CONFIG_DEBUG_FS
++	report =3D picolcd_out_report(REPORT_READ_MEMORY, hdev);
++	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
 ize =3D=3D 8)
-@@ -1039,6 +1578,7 @@ static int picolcd_probe_lcd(struct hid_device *h=
-dev, struct picolcd_data *data)
- #endif
- 	return 0;
- err:
-+	picolcd_exit_framebuffer(data);
- 	picolcd_exit_cir(data);
- 	picolcd_exit_keys(data);
- 	return error;
-@@ -1168,6 +1708,8 @@ static void picolcd_remove(struct hid_device *hde=
-v)
- 		complete(&data->pending->ready);
- 	spin_unlock_irqrestore(&data->lock, flags);
-=20
-+	/* Clean up the framebuffer */
-+	picolcd_exit_framebuffer(data);
- 	/* Cleanup input */
- 	picolcd_exit_cir(data);
- 	picolcd_exit_keys(data);
++		data->addr_sz =3D report->field[0]->report_count - 1;
++	else
++		data->addr_sz =3D -1;
++#endif
++	return 0;
++err:
++	picolcd_exit_cir(data);
++	picolcd_exit_keys(data);
++	return error;
++}
++
++static int picolcd_probe_bootloader(struct hid_device *hdev, struct pi=
+colcd_data *data)
++{
++	struct hid_report *report;
++	int error;
++
++	error =3D picolcd_check_version(hdev);
++	if (error)
++		return error;
++
++	if (data->version[0] !=3D 1 && data->version[1] !=3D 0)
++		dev_info(&hdev->dev, "Device with untested bootloader revision, "
++				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.\n",
++				dev_name(&hdev->dev));
++
++#ifdef CONFIG_DEBUG_FS
++	report =3D picolcd_out_report(REPORT_BL_READ_MEMORY, hdev);
++	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
+ize =3D=3D 8)
++		data->addr_sz =3D report->field[0]->report_count - 1;
++	else
++		data->addr_sz =3D -1;
++#endif
++	return 0;
++}
++
++static int picolcd_probe(struct hid_device *hdev,
++		     const struct hid_device_id *id)
++{
++	struct picolcd_data *data;
++	int error =3D -ENOMEM;
++
++	dbg_hid(PICOLCD_NAME " hardware probe...\n");
++
++	/*
++	 * Let's allocate the picolcd data structure, set some reasonable
++	 * defaults, and associate it with the device
++	 */
++	data =3D kzalloc(sizeof(struct picolcd_data), GFP_KERNEL);
++	if (data =3D=3D NULL) {
++		dev_err(&hdev->dev, "can't allocate space for Minibox PicoLCD device=
+ data\n");
++		error =3D -ENOMEM;
++		goto err_no_cleanup;
++	}
++
++	spin_lock_init(&data->lock);
++	mutex_init(&data->mutex);
++	data->hdev =3D hdev;
++	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
++		data->status |=3D PICOLCD_BOOTLOADER;
++	hid_set_drvdata(hdev, data);
++
++	/* Parse the device reports and start it up */
++	error =3D hid_parse(hdev);
++	if (error) {
++		dev_err(&hdev->dev, "device report parse failed\n");
++		goto err_cleanup_data;
++	}
++
++	/* We don't use hidinput but hid_hw_start() fails if nothing is
++	 * claimed. So spoof claimed input. */
++	hdev->claimed =3D HID_CLAIMED_INPUT;
++	error =3D hid_hw_start(hdev, 0);
++	hdev->claimed =3D 0;
++	if (error) {
++		dev_err(&hdev->dev, "hardware start failed\n");
++		goto err_cleanup_data;
++	}
++
++	error =3D hdev->ll_driver->open(hdev);
++	if (error) {
++		dev_err(&hdev->dev, "failed to open input interrupt pipe for key and=
+ IR events\n");
++		goto err_cleanup_hid_hw;
++	}
++
++	error =3D device_create_file(&hdev->dev, &dev_attr_operation_mode);
++	if (error) {
++		dev_err(&hdev->dev, "failed to create sysfs attributes\n");
++		goto err_cleanup_hid_ll;
++	}
++
++	if (data->status & PICOLCD_BOOTLOADER)
++		error =3D picolcd_probe_bootloader(hdev, data);
++	else
++		error =3D picolcd_probe_lcd(hdev, data);
++	if (error)
++		goto err_cleanup_sysfs;
++
++	dbg_hid(PICOLCD_NAME " activated and initialized\n");
++	return 0;
++
++err_cleanup_sysfs:
++	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
++err_cleanup_hid_ll:
++	hdev->ll_driver->close(hdev);
++err_cleanup_hid_hw:
++	hid_hw_stop(hdev);
++err_cleanup_data:
++	kfree(data);
++err_no_cleanup:
++	hid_set_drvdata(hdev, NULL);
++
++	return error;
++}
++
++static void picolcd_remove(struct hid_device *hdev)
++{
++	struct picolcd_data *data =3D hid_get_drvdata(hdev);
++	unsigned long flags;
++
++	dbg_hid(PICOLCD_NAME " hardware remove...\n");
++	spin_lock_irqsave(&data->lock, flags);
++	data->status |=3D PICOLCD_FAILED;
++	spin_unlock_irqrestore(&data->lock, flags);
++
++	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
++	hdev->ll_driver->close(hdev);
++	hid_hw_stop(hdev);
++	hid_set_drvdata(hdev, NULL);
++
++	/* Shortcut potential pending reply that will never arrive */
++	spin_lock_irqsave(&data->lock, flags);
++	if (data->pending)
++		complete(&data->pending->ready);
++	spin_unlock_irqrestore(&data->lock, flags);
++
++	/* Cleanup input */
++	picolcd_exit_cir(data);
++	picolcd_exit_keys(data);
++
++	mutex_destroy(&data->mutex);
++	/* Finally, clean up the picolcd data itself */
++	kfree(data);
++}
++
++static const struct hid_device_id picolcd_devices[] =3D {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTL=
+OADER) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, picolcd_devices);
++
++static struct hid_driver picolcd_driver =3D {
++	.name =3D          "hid-picolcd",
++	.id_table =3D      picolcd_devices,
++	.probe =3D         picolcd_probe,
++	.remove =3D        picolcd_remove,
++	.raw_event =3D     picolcd_raw_event,
++#ifdef CONFIG_PM
++	.suspend =3D       picolcd_suspend,
++	.resume =3D        picolcd_resume,
++	.reset_resume =3D  picolcd_reset_resume,
++#endif
++};
++
++static int __init picolcd_init(void)
++{
++	return hid_register_driver(&picolcd_driver);
++}
++
++static void __exit picolcd_exit(void)
++{
++	hid_unregister_driver(&picolcd_driver);
++}
++
++module_init(picolcd_init);
++module_exit(picolcd_exit);
++MODULE_DESCRIPTION("Minibox graphics PicoLCD Driver");
++MODULE_LICENSE("GPL v2");
 --=20
 1.6.4.4
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

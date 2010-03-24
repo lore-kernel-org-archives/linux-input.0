@@ -1,81 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC][PATCH 4/5] input: serio: add support for Amstrad Delta serial keyboard port
-Date: Wed, 24 Mar 2010 14:29:21 -0700
-Message-ID: <201003241429.21578.dmitry.torokhov@gmail.com>
-References: <D615D960-7E56-492A-9CA0-BA66CF3AAF9B@gmail.com> <20100324161604.GA6338@core.coreip.homeip.net> <201003242221.24551.jkrzyszt@tis.icnet.pl>
+Subject: Re: Two questions regarding evdev
+Date: Wed, 24 Mar 2010 14:41:48 -0700
+Message-ID: <201003241441.48437.dmitry.torokhov@gmail.com>
+References: <20100324205332.GA7303@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f223.google.com ([209.85.220.223]:60689 "EHLO
-	mail-fx0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753465Ab0CXV33 (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.159]:24094 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750726Ab0CXVmB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Mar 2010 17:29:29 -0400
-In-Reply-To: <201003242221.24551.jkrzyszt@tis.icnet.pl>
+	Wed, 24 Mar 2010 17:42:01 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so1755057fgg.1
+        for <linux-input@vger.kernel.org>; Wed, 24 Mar 2010 14:42:00 -0700 (PDT)
+In-Reply-To: <20100324205332.GA7303@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: David =?iso-8859-1?q?H=E4rdeman?= <david@hardeman.nu>
+Cc: linux-input@vger.kernel.org
 
-On Wednesday 24 March 2010 02:21:22 pm Janusz Krzysztofik wrote:
-> Hi Dmitry,
-> 
-> Wednesday 24 March 2010 17:16:04 Dmitry Torokhov wrote:
-> > On Mon, Mar 22, 2010 at 10:07:47PM +0100, Janusz Krzysztofik wrote:
-> > > Meanwhile, I've connected the Amstrad Delta keyboard to a PC. I can
-> > > confirm it speaks PS/2 protocol and is automatically detected by
-> > > atkbd/i8042 drivers. The initial handshake sequence actually looks
-> > > exactly the same as that of a standard AT keyboard.
-> > 
-> > OK, since the device really speaks PS/2 protocol I withdraw my objection
-> > of using serio + atkbd combo, however we should not be doing translation
-> > in serio.
-> 
-> Sure, thank you.
-> 
-> > > The problem persists about different scancodes, giving
-> > > wrong keystrokes.
-> > 
-> > This can be dealt with from userspace by loading correct keymap.
-> 
-> Sounds acceptable. I hope the machine's built-in matrix keypad won't be
-> affected.
-> 
+Hi David,
 
-The scan code to key code mapping is per-device so it should not. 
+On Wednesday 24 March 2010 01:53:32 pm David H=E4rdeman wrote:
+> I've been going over the evdev (drivers/input/evdev.c) code since I'm
+> using it as inspiration for a small project I'm hacking on. So far I
+> have two questions with regard to the code:
+>=20
+> First, evdev_event passes a new event to all connected clients (writi=
+ng
+> it to each client's event fifo) and then calls wake_up_interruptible.
+> However, given that all clients will have at least one new event to r=
+ead
+> after evdev_event is done, shouldn't wake_up_interruptible_all be cal=
+led
+> instead?
 
-> > > Resuming, if there were a boot/module option to atkbd allowing for
-> > > non-default scancode table, or another similiar possibility, both
-> > > devices would work with a PC using exsisting drivers.
-> > 
-> > You can train UDEV to load proper keymap. What does teh device report as
-> > 'version' in sysfs (output of 'cat
-> > /sys/bus/serio/devices/serio0/input/input3/id/bustype', please adjust
-> > serioX and inputX to match yours)?
-> 
-> When connected to a PC over a real 2-way i8042 port, the device identifies
-> itself as:
-> 
-> # grep '' /sys/bus/serio/devices/serio0/input/input2/id/*
-> /sys/bus/serio/devices/serio0/input/input2/id/bustype:0011
-> /sys/bus/serio/devices/serio0/input/input2/id/product:0001
-> /sys/bus/serio/devices/serio0/input/input2/id/vendor:0001
-> /sys/bus/serio/devices/serio0/input/input2/id/version:ab41
-> #
-> 
-> Unfortunatelly, it looks exactly the same as my standard AT keyboard.
->
+wake_up() vs. wake_up_all() only matters if there is exclusive waiters
+which evdev does not use. PLease see comment/explanation for wake up
+here:
 
-:(
- 
-> Can you imagine any other possible way of distinguishing them?
+	http://lxr.linux.no/linux+v2.6.33/kernel/sched.c#L5685
 
-Not automatically. I mean we could assume that if we see AT keyboard on
-E3 we'd need special keymap but user would have to override if he
-connects a regular one.
+>=20
+> Second, evdev_poll never sets the POLLOUT flag, but evdev can accept
+> writes (which will be passed to input_inject_event), so shouldn't the
+> POLLOUT flag always be set?
 
+We could but I guess nobody tries to pull evdev for writing, everyone
+is interested in reading.=20
 
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

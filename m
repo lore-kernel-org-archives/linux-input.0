@@ -1,59 +1,57 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: Multitouch for Lenovo S10-3t?
-Date: Thu, 25 Mar 2010 16:30:24 +0100
-Message-ID: <45cc95261003250830l2d787dd9g7b2baf9439844f77@mail.gmail.com>
-References: <1268906178.4638.295.camel@pancake>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Thu, 25 Mar 2010 19:32:59 +0100
+Message-ID: <20100325183259.GA22902@elf.ucw.cz>
+References: <20091215115011.GB1385@ucw.cz>
+ <4B279017.3080303@redhat.com>
+ <20091215195859.GI24406@elf.ucw.cz>
+ <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
+ <20091215201933.GK24406@elf.ucw.cz>
+ <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
+ <20091215203300.GL24406@elf.ucw.cz>
+ <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+ <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+ <4BAB7659.1040408@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f209.google.com ([209.85.218.209]:53663 "EHLO
-	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754839Ab0CYPas convert rfc822-to-8bit (ORCPT
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:51801 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753469Ab0CYSdI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Mar 2010 11:30:48 -0400
-Received: by bwz1 with SMTP id 1so969390bwz.21
-        for <linux-input@vger.kernel.org>; Thu, 25 Mar 2010 08:30:46 -0700 (PDT)
-In-Reply-To: <1268906178.4638.295.camel@pancake>
+	Thu, 25 Mar 2010 14:33:08 -0400
+Content-Disposition: inline
+In-Reply-To: <4BAB7659.1040408@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-According to this site :
-http://www.marauderzstuff.com/PermaLink,guid,9e7815fa-c113-43c4-8c11-86=
-4f50e77a65.aspx
+Hi!
 
-it is a :
-"2 point multitouch capacitive touchscreen"
+> This were the original plan we've discussed, back in December:
+....
 
+Seems sane.
 
+> struct keycode_table_entry {
+> 	unsigned keycode;
+> 	char scancode[32];	/* 32 is just an arbitrary long array - maybe shorter */
+> 	int len;
+> }
 
-On Thu, Mar 18, 2010 at 10:56 AM, Florian Echtler <floe@butterbrot.org>=
- wrote:
-> Hello everyone,
->
-> I'm considering a Lenovo S10-3t tablet and would like to use it under
-> Linux. However, I haven't been able to figure out what kind of
-> touchscreen controller it uses, if it does support true multitouch an=
-d,
-> most importantly, if there is already a Linux driver for it..
->
-> Can anybody enlighten me on these things?
->
-> Many thanks,
-> Yours, Florian
-> --
-> 0666 - Filemode of the Beast
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+What about
+
+struct keycode_table_entry {
+	unsigned keycode;
+	int len;
+	char scancode[];
+}
+
+? gcc extension, but commonly used around kernel.
+									Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

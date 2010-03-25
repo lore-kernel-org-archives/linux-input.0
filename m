@@ -1,1415 +1,288 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-Subject: [PATCH v3 1/6] hid: new driver for PicoLCD device
-Date: Wed, 24 Mar 2010 23:40:22 +0100
-Message-ID: <20100324234022.0361bd80@neptune.home>
-References: <20100324233707.7243b04d@neptune.home>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
+Date: Wed, 24 Mar 2010 20:25:24 -0400
+Message-ID: <4BAAAD74.8090907@seas.upenn.edu>
+References: <1269260173-2543-1-git-send-email-micki@n-trig.com> <20100322172920.GA18658@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEE8@Exchange-IL.n-trig.com> <20100322181722.GA24483@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEEB@Exchange-IL.n-trig.com> <4BA7D666.5030608@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190326DEEE@Exchange-IL.n-trig.com> <4BA7E747.4040008@seas.upenn.edu> <48A28051AC6D7A48B64F28272458190324FE9F@Exchange-IL.n-trig.com> <45cc95261003240627i1c1c9a8y6f5dc78eddf67e32@mail.gmail.com> <48A28051AC6D7A48B64F28272458190326DEF4@Exchange-IL.n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100324233707.7243b04d-hY15tx4IgV39zxVx7UNMDg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rick L. Vinyard Jr." <rvinyard-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>, Nicu Pavel <npavel-VxACSXvuqMTQT0dZR+AlfA@public.gmane.org>, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Jaya Kumar <jayakumar.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from stag.seas.upenn.edu ([158.130.70.79]:51390 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753875Ab0CYAZp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Mar 2010 20:25:45 -0400
+In-Reply-To: <48A28051AC6D7A48B64F28272458190326DEF4@Exchange-IL.n-trig.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Micki Balanga <micki@n-trig.com>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, jkosina@suse.cz, chatty@enac.fr, peterhuewe@gmx.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, DmitryTorokhov <dmitry.torokhov@gmail.com>
 
-Add basic driver for PicoLCD graphics device.
-Initially support keypad with input device and provide support
-for debugging communication via events file from debugfs.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Changes since v2:
- - Move completion to struct picolcd_pending
- - Use mutex for commands which generate reply
- - Drop inline keyword on non-stub functions
- - Combine version check into a common function
- - Define PICOLCD_KEYS based on array size
- - Lookup keycode directly instead of asking input
- - Use device_{create,remove}_file instead of sysfs_{create,remove}_fil=
-e
+I think there's a large rift in perspective here.
 
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
----
- Documentation/ABI/testing/sysfs-driver-hid-picolcd |   17 +
- drivers/hid/Kconfig                                |   18 +
- drivers/hid/Makefile                               |    1 +
- drivers/hid/hid-core.c                             |    2 +
- drivers/hid/hid-ids.h                              |    2 +
- drivers/hid/hid-picolcd.c                          | 1213 ++++++++++++=
-++++++++
- 6 files changed, 1253 insertions(+), 0 deletions(-)
+Micki: what is your motivation for pushing your code to the mainline
+kernel.  Nobody is stopping you from publishing your own driver stack
+on your website, as you do with some of your windows drivers and
+other vendors (nvidia for example) do with their linux drivers.
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-picolcd b/Docum=
-entation/ABI/testing/sysfs-driver-hid-picolcd
-new file mode 100644
-index 0000000..1c63a0f
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-picolcd
-@@ -0,0 +1,17 @@
-+What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface =
-num>/operation_mode
-+Date:		March 2010
-+Contact:	Bruno Pr=C3=A9mont <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>
-+Description:	Make it possible to switch the PicoLCD device between LCD
-+		(firmware) and bootloader (flasher) operation modes.
-+
-+		Reading: returns list of available modes is show, the active mode
-+		being enclosed in brackets ('<' and '>')
-+
-+		Writing: causes operation mode switch. Permitted values are
-+		the non-active mode names listed when read, optionally followed
-+		by a delay value expressed in ms.
-+
-+		Note: when switching mode the current PicoLCD HID device gets
-+		disconnected and reconnects after above delay (default value
-+		is 5 seconds though this default should not be relied on).
-+
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 71d4c07..138ba6a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -262,6 +262,24 @@ config HID_PETALYNX
- 	---help---
- 	Support for Petalynx Maxter remote control.
-=20
-+config HID_PICOLCD
-+	tristate "PicoLCD (graphic version)"
-+	depends on USB_HID
-+	---help---
-+	  This provides support for Minibox PicoLCD devices, currently
-+	  only the graphical ones are supported.
-+
-+	  This includes support for the following device features:
-+	  - Keypad
-+	  - Switching between Firmware and Flash mode
-+	  Features that are not (yet) supported:
-+	  - Framebuffer for monochrome 256x64 display
-+	  - Backlight control
-+	  - Contrast control
-+	  - IR
-+	  - General purpose outputs
-+	  - EEProm / Flash access
-+
- config HID_QUANTA
- 	tristate "Quanta Optical Touch"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 0b2618f..7fd1614 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_HID_ORTEK)		+=3D hid-ortek.o
- obj-$(CONFIG_HID_QUANTA)	+=3D hid-quanta.o
- obj-$(CONFIG_HID_PANTHERLORD)	+=3D hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+=3D hid-petalynx.o
-+obj-$(CONFIG_HID_PICOLCD)	+=3D hid-picolcd.o
- obj-$(CONFIG_HID_SAMSUNG)	+=3D hid-samsung.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+=3D hid-sjoy.o
- obj-$(CONFIG_HID_SONY)		+=3D hid-sony.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2e2aa75..bb11fb4 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1335,6 +1335,8 @@ static const struct hid_device_id hid_blacklist[]=
- =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBL=
-EPAD2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER=
-) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR=
-) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTL=
-OADER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV=
-) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 797e064..783b41d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -341,6 +341,8 @@
- #define USB_VENDOR_ID_MICROCHIP		0x04d8
- #define USB_DEVICE_ID_PICKIT1		0x0032
- #define USB_DEVICE_ID_PICKIT2		0x0033
-+#define USB_DEVICE_ID_PICOLCD		0xc002
-+#define USB_DEVICE_ID_PICOLCD_BOOTLOADER	0xf002
-=20
- #define USB_VENDOR_ID_MICROSOFT		0x045e
- #define USB_DEVICE_ID_SIDEWINDER_GV	0x003b
-diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-new file mode 100644
-index 0000000..2e4409d
---- /dev/null
-+++ b/drivers/hid/hid-picolcd.c
-@@ -0,0 +1,1213 @@
-+/*********************************************************************=
-******
-+ *   Copyright (C) 2010 by Bruno Pr=C3=A9mont <bonbons@linux-vserver.o=
-rg>       *
-+ *                                                                    =
-     *
-+ *   Based on Logitech G13 driver (v0.4)                              =
-     *
-+ *     Copyright (C) 2009 by Rick L. Vinyard, Jr. <rvinyard-qcTL/1vZYtjHfRtnQztjLA@public.gmane.org=
-u>   *
-+ *                                                                    =
-     *
-+ *   This program is free software: you can redistribute it and/or mod=
-ify  *
-+ *   it under the terms of the GNU General Public License as published=
- by  *
-+ *   the Free Software Foundation, version 2 of the License.          =
-     *
-+ *                                                                    =
-     *
-+ *   This driver is distributed in the hope that it will be useful, bu=
-t    *
-+ *   WITHOUT ANY WARRANTY; without even the implied warranty of       =
-     *
-+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU =
-     *
-+ *   General Public License for more details.                         =
-     *
-+ *                                                                    =
-     *
-+ *   You should have received a copy of the GNU General Public License=
-     *
-+ *   along with this software. If not see <http://www.gnu.org/licenses=
-/>.  *
-+ *********************************************************************=
-******/
-+
-+#include <linux/hid.h>
-+#include <linux/hid-debug.h>
-+#include <linux/input.h>
-+#include "hid-ids.h"
-+#include "usbhid/usbhid.h"
-+#include <linux/usb.h>
-+
-+#include <linux/seq_file.h>
-+#include <linux/debugfs.h>
-+
-+#include <linux/completion.h>
-+
-+#define PICOLCD_NAME "PicoLCD (graphic)"
-+
-+/* Report numbers */
-+#define REPORT_ERROR_CODE      0x10 /* LCD: IN[16]  */
-+#define   ERR_SUCCESS            0x00
-+#define   ERR_PARAMETER_MISSING  0x01
-+#define   ERR_DATA_MISSING       0x02
-+#define   ERR_BLOCK_READ_ONLY    0x03
-+#define   ERR_BLOCK_NOT_ERASABLE 0x04
-+#define   ERR_BLOCK_TOO_BIG      0x05
-+#define   ERR_SECTION_OVERFLOW   0x06
-+#define   ERR_INVALID_CMD_LEN    0x07
-+#define   ERR_INVALID_DATA_LEN   0x08
-+#define REPORT_KEY_STATE       0x11 /* LCD: IN[2]   */
-+#define REPORT_IR_DATA         0x21 /* LCD: IN[63]  */
-+#define REPORT_EE_DATA         0x32 /* LCD: IN[63]  */
-+#define REPORT_MEMORY          0x41 /* LCD: IN[63]  */
-+#define REPORT_LED_STATE       0x81 /* LCD: OUT[1]  */
-+#define REPORT_BRIGHTNESS      0x91 /* LCD: OUT[1]  */
-+#define REPORT_CONTRAST        0x92 /* LCD: OUT[1]  */
-+#define REPORT_RESET           0x93 /* LCD: OUT[2]  */
-+#define REPORT_LCD_CMD         0x94 /* LCD: OUT[63] */
-+#define REPORT_LCD_DATA        0x95 /* LCD: OUT[63] */
-+#define REPORT_LCD_CMD_DATA    0x96 /* LCD: OUT[63] */
-+#define	REPORT_EE_READ         0xa3 /* LCD: OUT[63] */
-+#define REPORT_EE_WRITE        0xa4 /* LCD: OUT[63] */
-+#define REPORT_ERASE_MEMORY    0xb2 /* LCD: OUT[2]  */
-+#define REPORT_READ_MEMORY     0xb3 /* LCD: OUT[3]  */
-+#define REPORT_WRITE_MEMORY    0xb4 /* LCD: OUT[63] */
-+#define REPORT_SPLASH_RESTART  0xc1 /* LCD: OUT[1]  */
-+#define REPORT_EXIT_KEYBOARD   0xef /* LCD: OUT[2]  */
-+#define REPORT_VERSION         0xf1 /* LCD: IN[2],OUT[1]    Bootloader=
-: IN[2],OUT[1]   */
-+#define REPORT_BL_ERASE_MEMORY 0xf2 /*                      Bootloader=
-: IN[36],OUT[4]  */
-+#define REPORT_BL_READ_MEMORY  0xf3 /*                      Bootloader=
-: IN[36],OUT[4]  */
-+#define REPORT_BL_WRITE_MEMORY 0xf4 /*                      Bootloader=
-: IN[36],OUT[36] */
-+#define REPORT_DEVID           0xf5 /* LCD: IN[5], OUT[1]   Bootloader=
-: IN[5],OUT[1]   */
-+#define REPORT_SPLASH_SIZE     0xf6 /* LCD: IN[4], OUT[1]   */
-+#define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
-+#define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
-: OUT[2]         */
-+
-+/* Input device
-+ *
-+ * The PicoLCD has an IR receiver header, a built-in keypad with 5 key=
-s
-+ * and header for 4x4 key matrix. The built-in keys are part of the ma=
-trix.
-+ */
-+static const unsigned short def_keymap[] =3D {
-+	KEY_RESERVED,	/* none */
-+	KEY_BACK,	/* col 4 + row 1 */
-+	KEY_HOMEPAGE,	/* col 3 + row 1 */
-+	KEY_RESERVED,	/* col 2 + row 1 */
-+	KEY_RESERVED,	/* col 1 + row 1 */
-+	KEY_SCROLLUP,	/* col 4 + row 2 */
-+	KEY_OK,		/* col 3 + row 2 */
-+	KEY_SCROLLDOWN,	/* col 2 + row 2 */
-+	KEY_RESERVED,	/* col 1 + row 2 */
-+	KEY_RESERVED,	/* col 4 + row 3 */
-+	KEY_RESERVED,	/* col 3 + row 3 */
-+	KEY_RESERVED,	/* col 2 + row 3 */
-+	KEY_RESERVED,	/* col 1 + row 3 */
-+	KEY_RESERVED,	/* col 4 + row 4 */
-+	KEY_RESERVED,	/* col 3 + row 4 */
-+	KEY_RESERVED,	/* col 2 + row 4 */
-+	KEY_RESERVED,	/* col 1 + row 4 */
-+};
-+#define PICOLCD_KEYS ARRAY_SIZE(def_keymap)
-+
-+/* Description of in-progress IO operation, used for operations
-+ * that trigger response from device */
-+struct picolcd_pending {
-+	struct hid_report *out_report;
-+	struct hid_report *in_report;
-+	struct completion ready;
-+	int raw_size;
-+	u8 raw_data[64];
-+};
-+
-+/* Per device data structure */
-+struct picolcd_data {
-+	struct hid_device *hdev;
-+#ifdef CONFIG_DEBUG_FS
-+	int addr_sz;
-+#endif
-+	u8 version[2];
-+	/* input stuff */
-+	u8 pressed_keys[2];
-+	struct input_dev *input_keys;
-+	struct input_dev *input_cir;
-+	unsigned short keycode[PICOLCD_KEYS];
-+
-+	/* Housekeeping stuff */
-+	spinlock_t lock;
-+	struct mutex mutex;
-+	struct picolcd_pending *pending;
-+	int status;
-+#define PICOLCD_BOOTLOADER 1
-+#define PICOLCD_FAILED 2
-+};
-+
-+
-+/* Find a given report */
-+#define picolcd_in_report(id, dev) picolcd_report(id, dev, HID_INPUT_R=
-EPORT)
-+#define picolcd_out_report(id, dev) picolcd_report(id, dev, HID_OUTPUT=
-_REPORT)
-+
-+static struct hid_report *picolcd_report(int id, struct hid_device *hd=
-ev, int dir)
-+{
-+	struct list_head *feature_report_list =3D &hdev->report_enum[dir].rep=
-ort_list;
-+	struct hid_report *report =3D NULL;
-+
-+	list_for_each_entry(report, feature_report_list, list) {
-+		if (report->id =3D=3D id)
-+			return report;
-+	}
-+	dev_warn(&hdev->dev, "No report with id 0x%x found\n", id);
-+	return NULL;
-+}
-+
-+#ifdef CONFIG_DEBUG_FS
-+static void picolcd_debug_out_report(struct picolcd_data *data,
-+		struct hid_device *hdev, struct hid_report *report);
-+#define usbhid_submit_report(a, b, c) \
-+	do { \
-+		picolcd_debug_out_report(hid_get_drvdata(a), a, b); \
-+		usbhid_submit_report(a, b, c); \
-+	} while (0)
-+#endif
-+
-+/* Submit a report and wait for a reply from device - if device fades =
-away
-+ * or does not respond in time, return NULL */
-+static struct picolcd_pending *picolcd_send_and_wait(struct hid_device=
- *hdev,
-+		int report_id, const u8 *raw_data, int size)
-+{
-+	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	struct picolcd_pending *work;
-+	struct hid_report *report =3D picolcd_out_report(report_id, hdev);
-+	unsigned long flags;
-+	int i, j, k;
-+
-+	if (!report || !data)
-+		return NULL;
-+	if (data->status & PICOLCD_FAILED)
-+		return NULL;
-+	work =3D kzalloc(sizeof(*work), GFP_KERNEL);
-+	if (!work)
-+		return NULL;
-+
-+	init_completion(&work->ready);
-+	work->out_report =3D report;
-+	work->in_report  =3D NULL;
-+	work->raw_size   =3D 0;
-+
-+	mutex_lock(&data->mutex);
-+	spin_lock_irqsave(&data->lock, flags);
-+	for (i =3D k =3D 0; i < report->maxfield; i++)
-+		for (j =3D 0; j < report->field[i]->report_count; j++) {
-+			hid_set_field(report->field[i], j, k < size ? raw_data[k] : 0);
-+			k++;
-+		}
-+	data->pending =3D work;
-+	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	spin_unlock_irqrestore(&data->lock, flags);
-+	wait_for_completion_interruptible_timeout(&work->ready, HZ*2);
-+	spin_lock_irqsave(&data->lock, flags);
-+	data->pending =3D NULL;
-+	spin_unlock_irqrestore(&data->lock, flags);
-+	mutex_unlock(&data->mutex);
-+	return work;
-+}
-+
-+/*
-+ * input class device
-+ */
-+static int picolcd_raw_keypad(struct picolcd_data *data,
-+		struct hid_report *report, u8 *raw_data, int size)
-+{
-+	/*
-+	 * Keypad event
-+	 * First and second data bytes list currently pressed keys,
-+	 * 0x00 means no key and at most 2 keys may be pressed at same time
-+	 */
-+	int i, j;
-+
-+	/* determine newly pressed keys */
-+	for (i =3D 0; i < size; i++) {
-+		int key_code;
-+		if (raw_data[i] =3D=3D 0)
-+			continue;
-+		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
-+			if (data->pressed_keys[j] =3D=3D raw_data[i])
-+				goto key_already_down;
-+		for (j =3D 0; j < sizeof(data->pressed_keys); j++)
-+			if (data->pressed_keys[j] =3D=3D 0) {
-+				data->pressed_keys[j] =3D raw_data[i];
-+				break;
-+			}
-+		input_event(data->input_keys, EV_MSC, MSC_SCAN, raw_data[i]);
-+		if (raw_data[i] < PICOLCD_KEYS)
-+			key_code =3D data->keycode[raw_data[i]];
-+		else
-+			key_code =3D KEY_UNKNOWN;
-+		if (key_code !=3D KEY_UNKNOWN) {
-+			dbg_hid(PICOLCD_NAME " got key press for %u:%d",
-+					raw_data[i], key_code);
-+			input_report_key(data->input_keys, key_code, 1);
-+		}
-+		input_sync(data->input_keys);
-+key_already_down:
-+		continue;
-+	}
-+
-+	/* determine newly released keys */
-+	for (j =3D 0; j < sizeof(data->pressed_keys); j++) {
-+		int key_code;
-+		if (data->pressed_keys[j] =3D=3D 0)
-+			continue;
-+		for (i =3D 0; i < size; i++)
-+			if (data->pressed_keys[j] =3D=3D raw_data[i])
-+				goto key_still_down;
-+		input_event(data->input_keys, EV_MSC, MSC_SCAN, data->pressed_keys[j=
-]);
-+		if (raw_data[i] < PICOLCD_KEYS)
-+			key_code =3D data->keycode[raw_data[i]];
-+		else
-+			key_code =3D KEY_UNKNOWN;
-+		if (key_code !=3D KEY_UNKNOWN) {
-+			dbg_hid(PICOLCD_NAME " got key release for %u:%d",
-+					data->pressed_keys[j], key_code);
-+			input_report_key(data->input_keys, key_code, 0);
-+		}
-+		input_sync(data->input_keys);
-+		data->pressed_keys[j] =3D 0;
-+key_still_down:
-+		continue;
-+	}
-+	return 1;
-+}
-+
-+static int picolcd_raw_cir(struct picolcd_data *data,
-+		struct hid_report *report, u8 *raw_data, int size)
-+{
-+	/* Need understanding of CIR data format to implement ... */
-+	return 1;
-+}
-+
-+static int picolcd_check_version(struct hid_device *hdev)
-+{
-+	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	struct picolcd_pending *verinfo;
-+	int ret =3D 0;
-+
-+	if (!data)
-+		return -ENODEV;
-+
-+	verinfo =3D picolcd_send_and_wait(hdev, REPORT_VERSION, NULL, 0);
-+	if (!verinfo) {
-+		dev_err(&hdev->dev, "no version response from PicoLCD");
-+		return -ENODEV;
-+	}
-+
-+	if (verinfo->raw_size =3D=3D 2) {
-+		if (data->status & PICOLCD_BOOTLOADER) {
-+			dev_info(&hdev->dev, "PicoLCD, bootloader version %d.%d\n",
-+					verinfo->raw_data[0], verinfo->raw_data[1]);
-+			data->version[0] =3D verinfo->raw_data[0];
-+			data->version[1] =3D verinfo->raw_data[1];
-+		} else {
-+			dev_info(&hdev->dev, "PicoLCD, firmware version %d.%d\n",
-+					verinfo->raw_data[1], verinfo->raw_data[0]);
-+			data->version[0] =3D verinfo->raw_data[1];
-+			data->version[1] =3D verinfo->raw_data[0];
-+		}
-+	} else {
-+		dev_err(&hdev->dev, "confused, got unexpected version response from =
-PicoLCD\n");
-+		ret =3D -EINVAL;
-+	}
-+	kfree(verinfo);
-+	return ret;
-+}
-+
-+/*
-+ * Reset our device and wait for answer to VERSION request
-+ */
-+static int picolcd_reset(struct hid_device *hdev)
-+{
-+	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	struct hid_report *report =3D picolcd_out_report(REPORT_RESET, hdev);
-+	unsigned long flags;
-+
-+	if (!data || !report || report->maxfield !=3D 1)
-+		return -ENODEV;
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
-+		data->status |=3D PICOLCD_BOOTLOADER;
-+
-+	/* perform the reset */
-+	hid_set_field(report->field[0], 0, 1);
-+	usbhid_submit_report(hdev, report, USB_DIR_OUT);
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	return picolcd_check_version(hdev);
-+}
-+
-+/*
-+ * The "operation_mode" sysfs attribute
-+ */
-+static ssize_t picolcd_operation_mode_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct picolcd_data *data =3D dev_get_drvdata(dev);
-+
-+	if (data->status & PICOLCD_BOOTLOADER)
-+		return snprintf(buf, PAGE_SIZE, "<bootloader> lcd\n");
-+	else
-+		return snprintf(buf, PAGE_SIZE, "bootloader <lcd>\n");
-+}
-+
-+static ssize_t picolcd_operation_mode_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct picolcd_data *data =3D dev_get_drvdata(dev);
-+	struct hid_report *report =3D NULL;
-+	size_t cnt =3D count;
-+	int timeout =3D 5000;
-+	unsigned u;
-+	unsigned long flags;
-+
-+	if (cnt >=3D 3 && strncmp("lcd", buf, 3) =3D=3D 0) {
-+		if (data->status & PICOLCD_BOOTLOADER)
-+			report =3D picolcd_out_report(REPORT_EXIT_FLASHER, data->hdev);
-+		buf +=3D 3;
-+		cnt -=3D 3;
-+	} else if (cnt >=3D 10 && strncmp("bootloader", buf, 10) =3D=3D 0) {
-+		if (!(data->status & PICOLCD_BOOTLOADER))
-+			report =3D picolcd_out_report(REPORT_EXIT_KEYBOARD, data->hdev);
-+		buf +=3D 10;
-+		cnt -=3D 10;
-+	}
-+	if (!report)
-+		return -EINVAL;
-+
-+	while (cnt > 0 && (*buf =3D=3D ' ' || *buf =3D=3D '\t')) {
-+		buf++;
-+		cnt--;
-+	}
-+	while (cnt > 0 && (buf[cnt-1] =3D=3D '\n' || buf[cnt-1] =3D=3D '\r'))
-+		cnt--;
-+	if (cnt > 0) {
-+		if (sscanf(buf, "%u", &u) !=3D 1)
-+			return -EINVAL;
-+		if (u > 30000)
-+			return -EINVAL;
-+		else
-+			timeout =3D u;
-+	}
-+
-+	spin_lock_irqsave(&data->lock, flags);
-+	hid_set_field(report->field[0], 0, timeout & 0xff);
-+	hid_set_field(report->field[0], 1, (timeout >> 8) & 0xff);
-+	usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-+	spin_unlock_irqrestore(&data->lock, flags);
-+	return count;
-+}
-+
-+static DEVICE_ATTR(operation_mode, 0644, picolcd_operation_mode_show,
-+		picolcd_operation_mode_store);
-+
-+
-+#ifdef CONFIG_DEBUG_FS
-+/*
-+ * Helper code for HID report level dumping/debugging
-+ */
-+static const char *error_codes[] =3D {
-+	"success", "parameter missing", "data_missing", "block readonly",
-+	"block not erasable", "block too big", "section overflow",
-+	"invalid command length", "invalid data length",
-+};
-+
-+static void dump_buff_as_hex(char *dst, size_t dst_sz, const u8 *data,
-+		const size_t data_len)
-+{
-+	int i, j;
-+	for (i =3D j =3D 0; i < data_len && j + 3 < dst_sz; i++) {
-+		dst[j++] =3D hex_asc[(data[i] >> 4) & 0x0f];
-+		dst[j++] =3D hex_asc[data[i] & 0x0f];
-+		dst[j++] =3D ' ';
-+	}
-+	if (j < dst_sz) {
-+		dst[j--] =3D '\0';
-+		dst[j] =3D '\n';
-+	} else
-+		dst[j] =3D '\0';
-+}
-+
-+static void picolcd_debug_out_report(struct picolcd_data *data,
-+		struct hid_device *hdev, struct hid_report *report)
-+{
-+	u8 raw_data[70];
-+	int raw_size =3D (report->size >> 3) + 1;
-+	char *buff;
-+#define BUFF_SZ 256
-+
-+	/* Avoid unnecessary overhead if debugfs is disabled */
-+	if (!hdev->debug_events)
-+		return;
-+
-+	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
-+	if (!buff)
-+		return;
-+
-+	snprintf(buff, BUFF_SZ, "\nout report %d (size %d) =3D  ",
-+			report->id, raw_size);
-+	hid_debug_event(hdev, buff);
-+	if (raw_size + 5 > sizeof(raw_data)) {
-+		hid_debug_event(hdev, " TOO BIG\n");
-+		return;
-+	} else {
-+		raw_data[0] =3D report->id;
-+		hid_output_report(report, raw_data);
-+		dump_buff_as_hex(buff, BUFF_SZ, raw_data, raw_size);
-+		hid_debug_event(hdev, buff);
-+	}
-+
-+	switch (report->id) {
-+	case REPORT_LED_STATE:
-+		/* 1 data byte with GPO state */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_LED_STATE", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tGPO state: 0x%02x\n", raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_BRIGHTNESS:
-+		/* 1 data byte with brightness */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_BRIGHTNESS", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tBrightness: 0x%02x\n", raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_CONTRAST:
-+		/* 1 data byte with contrast */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_CONTRAST", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tContrast: 0x%02x\n", raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_RESET:
-+		/* 2 data bytes with reset duration in ms */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_RESET", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tDuration: 0x%02x%02x (%dms)\n",
-+				raw_data[2], raw_data[1], raw_data[2] << 8 | raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_LCD_CMD:
-+		/* 63 data bytes with LCD commands */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_LCD_CMD", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		/* TODO: format decoding */
-+		break;
-+	case REPORT_LCD_DATA:
-+		/* 63 data bytes with LCD data */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_LCD_CMD", report->id, raw_size-1);
-+		/* TODO: format decoding */
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_LCD_CMD_DATA:
-+		/* 63 data bytes with LCD commands and data */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_LCD_CMD", report->id, raw_size-1);
-+		/* TODO: format decoding */
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_EE_READ:
-+		/* 3 data bytes with read area description */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_EE_READ", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_EE_WRITE:
-+		/* 3+1..20 data bytes with write area description */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_EE_WRITE", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+		hid_debug_event(hdev, buff);
-+		if (raw_data[3] =3D=3D 0) {
-+			snprintf(buff, BUFF_SZ, "\tNo data\n");
-+		} else if (raw_data[3] + 4 <=3D raw_size) {
-+			snprintf(buff, BUFF_SZ, "\tData: ");
-+			hid_debug_event(hdev, buff);
-+			dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
-+		} else {
-+			snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+		}
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_ERASE_MEMORY:
-+	case REPORT_BL_ERASE_MEMORY:
-+		/* 3 data bytes with pointer inside erase block */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_ERASE_MEMORY", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		switch (data->addr_sz) {
-+		case 2:
-+			snprintf(buff, BUFF_SZ, "\tAddress inside 64 byte block: 0x%02x%02x=
-\n",
-+					raw_data[2], raw_data[1]);
-+			break;
-+		case 3:
-+			snprintf(buff, BUFF_SZ, "\tAddress inside 64 byte block: 0x%02x%02x=
-%02x\n",
-+					raw_data[3], raw_data[2], raw_data[1]);
-+			break;
-+		default:
-+			snprintf(buff, BUFF_SZ, "\tNot supported\n");
-+		}
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_READ_MEMORY:
-+	case REPORT_BL_READ_MEMORY:
-+		/* 4 data bytes with read area description */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_READ_MEMORY", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		switch (data->addr_sz) {
-+		case 2:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+					raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+			break;
-+		case 3:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
-+					raw_data[3], raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
-+			break;
-+		default:
-+			snprintf(buff, BUFF_SZ, "\tNot supported\n");
-+		}
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_WRITE_MEMORY:
-+	case REPORT_BL_WRITE_MEMORY:
-+		/* 4+1..32 data bytes with write adrea description */
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_WRITE_MEMORY", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		switch (data->addr_sz) {
-+		case 2:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+					raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+			hid_debug_event(hdev, buff);
-+			if (raw_data[3] =3D=3D 0) {
-+				snprintf(buff, BUFF_SZ, "\tNo data\n");
-+			} else if (raw_data[3] + 4 <=3D raw_size) {
-+				snprintf(buff, BUFF_SZ, "\tData: ");
-+				hid_debug_event(hdev, buff);
-+				dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
-+			} else {
-+				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+			}
-+			break;
-+		case 3:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
-+					raw_data[3], raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
-+			hid_debug_event(hdev, buff);
-+			if (raw_data[4] =3D=3D 0) {
-+				snprintf(buff, BUFF_SZ, "\tNo data\n");
-+			} else if (raw_data[4] + 5 <=3D raw_size) {
-+				snprintf(buff, BUFF_SZ, "\tData: ");
-+				hid_debug_event(hdev, buff);
-+				dump_buff_as_hex(buff, BUFF_SZ, raw_data+5, raw_data[4]);
-+			} else {
-+				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+			}
-+			break;
-+		default:
-+			snprintf(buff, BUFF_SZ, "\tNot supported\n");
-+		}
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_SPLASH_RESTART:
-+		/* TODO */
-+		break;
-+	case REPORT_EXIT_KEYBOARD:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_EXIT_KEYBOARD", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tRestart delay: %dms (0x%02x%02x)\n",
-+				raw_data[1] | (raw_data[2] << 8),
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_VERSION:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_VERSION", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_DEVID:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_DEVID", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_SPLASH_SIZE:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_SPLASH_SIZE", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_HOOK_VERSION:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_HOOK_VERSION", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_EXIT_FLASHER:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"REPORT_VERSION", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tRestart delay: %dms (0x%02x%02x)\n",
-+				raw_data[1] | (raw_data[2] << 8),
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	default:
-+		snprintf(buff, BUFF_SZ, "out report %s (%d, size=3D%d)\n",
-+			"<unknown>", report->id, raw_size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	}
-+	wake_up_interruptible(&hdev->debug_wait);
-+	kfree(buff);
-+}
-+
-+static void picolcd_debug_raw_event(struct picolcd_data *data,
-+		struct hid_device *hdev, struct hid_report *report,
-+		u8 *raw_data, int size)
-+{
-+	char *buff;
-+
-+#define BUFF_SZ 256
-+	/* Avoid unnecessary overhead if debugfs is disabled */
-+	if (!hdev->debug_events)
-+		return;
-+
-+	buff =3D kmalloc(BUFF_SZ, GFP_ATOMIC);
-+	if (!buff)
-+		return;
-+
-+	switch (report->id) {
-+	case REPORT_ERROR_CODE:
-+		/* 2 data bytes with affected report and error code */
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_ERROR_CODE", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		if (raw_data[2] < ARRAY_SIZE(error_codes))
-+			snprintf(buff, BUFF_SZ, "\tError code 0x%02x (%s) in reply to repor=
-t 0x%02x\n",
-+					raw_data[2], error_codes[raw_data[2]], raw_data[1]);
-+		else
-+			snprintf(buff, BUFF_SZ, "\tError code 0x%02x in reply to report 0x%=
-02x\n",
-+					raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_KEY_STATE:
-+		/* 2 data bytes with key state */
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_KEY_STATE", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		if (raw_data[1] =3D=3D 0)
-+			snprintf(buff, BUFF_SZ, "\tNo key pressed\n");
-+		else if (raw_data[2] =3D=3D 0)
-+			snprintf(buff, BUFF_SZ, "\tOne key pressed: 0x%02x (%d)\n",
-+					raw_data[1], raw_data[1]);
-+		else
-+			snprintf(buff, BUFF_SZ, "\tTwo keys pressed: 0x%02x (%d), 0x%02x (%=
-d)\n",
-+					raw_data[1], raw_data[1], raw_data[2], raw_data[2]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_IR_DATA:
-+		/* Up to 20 byes of IR scancode data */
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_IR_DATA", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		if (raw_data[1] =3D=3D 0) {
-+			snprintf(buff, BUFF_SZ, "\tUnexpectedly 0 data length\n");
-+			hid_debug_event(hdev, buff);
-+		} else if (raw_data[1] + 1 <=3D size) {
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n\tIR Data: ",
-+					raw_data[1]-1);
-+			hid_debug_event(hdev, buff);
-+			dump_buff_as_hex(buff, BUFF_SZ, raw_data+2, raw_data[1]-1);
-+			hid_debug_event(hdev, buff);
-+		} else {
-+			snprintf(buff, BUFF_SZ, "\tOverflowing data length: %d\n",
-+					raw_data[1]-1);
-+			hid_debug_event(hdev, buff);
-+		}
-+		break;
-+	case REPORT_EE_DATA:
-+		/* Data buffer in response to REPORT_EE_READ or REPORT_EE_WRITE */
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_EE_DATA", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+		hid_debug_event(hdev, buff);
-+		if (raw_data[3] =3D=3D 0) {
-+			snprintf(buff, BUFF_SZ, "\tNo data\n");
-+			hid_debug_event(hdev, buff);
-+		} else if (raw_data[3] + 4 <=3D size) {
-+			snprintf(buff, BUFF_SZ, "\tData: ");
-+			hid_debug_event(hdev, buff);
-+			dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
-+			hid_debug_event(hdev, buff);
-+		} else {
-+			snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+			hid_debug_event(hdev, buff);
-+		}
-+		break;
-+	case REPORT_MEMORY:
-+		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRTIE_MEM=
-ORY */
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_MEMORY", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		switch (data->addr_sz) {
-+		case 2:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x\n",
-+					raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[3]);
-+			hid_debug_event(hdev, buff);
-+			if (raw_data[3] =3D=3D 0) {
-+				snprintf(buff, BUFF_SZ, "\tNo data\n");
-+			} else if (raw_data[3] + 4 <=3D size) {
-+				snprintf(buff, BUFF_SZ, "\tData: ");
-+				hid_debug_event(hdev, buff);
-+				dump_buff_as_hex(buff, BUFF_SZ, raw_data+4, raw_data[3]);
-+			} else {
-+				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+			}
-+			break;
-+		case 3:
-+			snprintf(buff, BUFF_SZ, "\tData address: 0x%02x%02x%02x\n",
-+					raw_data[3], raw_data[2], raw_data[1]);
-+			hid_debug_event(hdev, buff);
-+			snprintf(buff, BUFF_SZ, "\tData length: %d\n", raw_data[4]);
-+			hid_debug_event(hdev, buff);
-+			if (raw_data[4] =3D=3D 0) {
-+				snprintf(buff, BUFF_SZ, "\tNo data\n");
-+			} else if (raw_data[4] + 5 <=3D size) {
-+				snprintf(buff, BUFF_SZ, "\tData: ");
-+				hid_debug_event(hdev, buff);
-+				dump_buff_as_hex(buff, BUFF_SZ, raw_data+5, raw_data[4]);
-+			} else {
-+				snprintf(buff, BUFF_SZ, "\tData overflowed\n");
-+			}
-+			break;
-+		default:
-+			snprintf(buff, BUFF_SZ, "\tNot supported\n");
-+		}
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_VERSION:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_VERSION", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tFirmware version: %d.%d\n",
-+				raw_data[2], raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_BL_ERASE_MEMORY:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_BL_ERASE_MEMORY", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		/* TODO */
-+		break;
-+	case REPORT_BL_READ_MEMORY:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_BL_READ_MEMORY", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		/* TODO */
-+		break;
-+	case REPORT_BL_WRITE_MEMORY:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_BL_WRITE_MEMORY", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		/* TODO */
-+		break;
-+	case REPORT_DEVID:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_DEVID", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tSerial: 0x%02x%02x%02x%02x\n",
-+				raw_data[1], raw_data[2], raw_data[3], raw_data[4]);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tType: 0x%02x\n",
-+				raw_data[5]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_SPLASH_SIZE:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_SPLASH_SIZE", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tTotal splash space: %d\n",
-+				(raw_data[2] << 8) | raw_data[1]);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tUsed splash space: %d\n",
-+				(raw_data[4] << 8) | raw_data[3]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	case REPORT_HOOK_VERSION:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"REPORT_HOOK_VERSION", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		snprintf(buff, BUFF_SZ, "\tFirmware version: %d.%d\n",
-+				raw_data[1], raw_data[2]);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	default:
-+		snprintf(buff, BUFF_SZ, "report %s (%d, size=3D%d)\n",
-+			"<unknown>", report->id, size-1);
-+		hid_debug_event(hdev, buff);
-+		break;
-+	}
-+	wake_up_interruptible(&hdev->debug_wait);
-+	kfree(buff);
-+}
-+#else
-+#define picolcd_debug_raw_event(data, hdev, report, raw_data, size)
-+#endif
-+
-+/*
-+ * Handle raw report as sent by device
-+ */
-+static int picolcd_raw_event(struct hid_device *hdev,
-+		struct hid_report *report, u8 *raw_data, int size)
-+{
-+	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	unsigned long flags;
-+	int ret =3D 0;
-+
-+	if (!data)
-+		return 1;
-+
-+	if (report->id =3D=3D REPORT_KEY_STATE) {
-+		if (data->input_keys)
-+			ret =3D picolcd_raw_keypad(data, report, raw_data+1, size-1);
-+	} else if (report->id =3D=3D REPORT_IR_DATA) {
-+		if (data->input_cir)
-+			ret =3D picolcd_raw_cir(data, report, raw_data+1, size-1);
-+	} else {
-+		spin_lock_irqsave(&data->lock, flags);
-+		/*
-+		 * We let the caller of picolcd_send_and_wait() check if the
-+		 * report we got is one of the expected ones or not.
-+		 */
-+		if (data->pending) {
-+			memcpy(data->pending->raw_data, raw_data+1, size-1);
-+			data->pending->raw_size  =3D size-1;
-+			data->pending->in_report =3D report;
-+			complete(&data->pending->ready);
-+		}
-+		spin_unlock_irqrestore(&data->lock, flags);
-+	}
-+
-+	picolcd_debug_raw_event(data, hdev, report, raw_data, size);
-+	return 1;
-+}
-+
-+#ifdef CONFIG_PM
-+static int picolcd_suspend(struct hid_device *hdev)
-+{
-+	dbg_hid(PICOLCD_NAME " device ready for suspend\n");
-+	return 0;
-+}
-+
-+static int picolcd_resume(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static int picolcd_reset_resume(struct hid_device *hdev)
-+{
-+	int ret;
-+	ret =3D picolcd_reset(hdev);
-+	if (ret)
-+		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
-+	return 0;
-+}
-+#endif
-+
-+/* initialize keypad input device */
-+static int picolcd_init_keys(struct picolcd_data *data,
-+		struct hid_report *report)
-+{
-+	struct hid_device *hdev =3D data->hdev;
-+	struct input_dev *idev;
-+	int error, i;
-+
-+	if (!report)
-+		return -ENODEV;
-+	if (report->maxfield !=3D 1 || report->field[0]->report_count !=3D 2 =
-||
-+			report->field[0]->report_size !=3D 8) {
-+		dev_err(&hdev->dev, "unsupported KEY_STATE report");
-+		return -EINVAL;
-+	}
-+
-+	idev =3D input_allocate_device();
-+	if (idev =3D=3D NULL) {
-+		dev_err(&hdev->dev, "failed to allocate input device");
-+		return -ENOMEM;
-+	}
-+	input_set_drvdata(idev, hdev);
-+	memcpy(data->keycode, def_keymap, sizeof(def_keymap));
-+	idev->name =3D hdev->name;
-+	idev->phys =3D hdev->phys;
-+	idev->uniq =3D hdev->uniq;
-+	idev->id.bustype =3D hdev->bus;
-+	idev->id.vendor  =3D hdev->vendor;
-+	idev->id.product =3D hdev->product;
-+	idev->id.version =3D hdev->version;
-+	idev->dev.parent =3D hdev->dev.parent;
-+	idev->keycode     =3D &data->keycode;
-+	idev->keycodemax  =3D PICOLCD_KEYS;
-+	idev->keycodesize =3D sizeof(data->keycode[0]);
-+	input_set_capability(idev, EV_MSC, MSC_SCAN);
-+	set_bit(EV_REP, idev->evbit);
-+	for (i =3D 0; i < PICOLCD_KEYS; i++) {
-+		int key =3D ((int *)idev->keycode)[i];
-+		if (key < KEY_MAX && key >=3D 0)
-+			input_set_capability(idev, EV_KEY, key);
-+	}
-+	error =3D input_register_device(idev);
-+	if (error) {
-+		dev_err(&hdev->dev, "error registering the input device");
-+		input_free_device(idev);
-+		return error;
-+	}
-+	data->input_keys =3D idev;
-+	return 0;
-+}
-+
-+static void picolcd_exit_keys(struct picolcd_data *data)
-+{
-+	struct input_dev *idev =3D data->input_keys;
-+
-+	data->input_keys =3D NULL;
-+	if (idev)
-+		input_unregister_device(idev);
-+}
-+
-+/* initialize CIR input device */
-+static inline int picolcd_init_cir(struct picolcd_data *data, struct h=
-id_report *report)
-+{
-+	/* support not implemented yet */
-+	return 0;
-+}
-+
-+static inline void picolcd_exit_cir(struct picolcd_data *data)
-+{
-+}
-+
-+static int picolcd_probe_lcd(struct hid_device *hdev, struct picolcd_d=
-ata *data)
-+{
-+	struct hid_report *report;
-+	int error;
-+
-+	error =3D picolcd_check_version(hdev);
-+	if (error)
-+		return error;
-+
-+	if (data->version[0] !=3D 0 && data->version[1] !=3D 3)
-+		dev_info(&hdev->dev, "Device with untested firmware revision, "
-+				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.\n",
-+				dev_name(&hdev->dev));
-+
-+	/* Setup keypad input device */
-+	error =3D picolcd_init_keys(data, picolcd_in_report(REPORT_KEY_STATE,=
- hdev));
-+	if (error)
-+		goto err;
-+
-+	/* Setup CIR input device */
-+	error =3D picolcd_init_cir(data, picolcd_in_report(REPORT_IR_DATA, hd=
-ev));
-+	if (error)
-+		goto err;
-+
-+#ifdef CONFIG_DEBUG_FS
-+	report =3D picolcd_out_report(REPORT_READ_MEMORY, hdev);
-+	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
-ize =3D=3D 8)
-+		data->addr_sz =3D report->field[0]->report_count - 1;
-+	else
-+		data->addr_sz =3D -1;
-+#endif
-+	return 0;
-+err:
-+	picolcd_exit_cir(data);
-+	picolcd_exit_keys(data);
-+	return error;
-+}
-+
-+static int picolcd_probe_bootloader(struct hid_device *hdev, struct pi=
-colcd_data *data)
-+{
-+	struct hid_report *report;
-+	int error;
-+
-+	error =3D picolcd_check_version(hdev);
-+	if (error)
-+		return error;
-+
-+	if (data->version[0] !=3D 1 && data->version[1] !=3D 0)
-+		dev_info(&hdev->dev, "Device with untested bootloader revision, "
-+				"please submit /sys/kernel/debug/hid/%s/rdesc for this device.\n",
-+				dev_name(&hdev->dev));
-+
-+#ifdef CONFIG_DEBUG_FS
-+	report =3D picolcd_out_report(REPORT_BL_READ_MEMORY, hdev);
-+	if (report && report->maxfield =3D=3D 1 && report->field[0]->report_s=
-ize =3D=3D 8)
-+		data->addr_sz =3D report->field[0]->report_count - 1;
-+	else
-+		data->addr_sz =3D -1;
-+#endif
-+	return 0;
-+}
-+
-+static int picolcd_probe(struct hid_device *hdev,
-+		     const struct hid_device_id *id)
-+{
-+	struct picolcd_data *data;
-+	int error =3D -ENOMEM;
-+
-+	dbg_hid(PICOLCD_NAME " hardware probe...\n");
-+
-+	/*
-+	 * Let's allocate the picolcd data structure, set some reasonable
-+	 * defaults, and associate it with the device
-+	 */
-+	data =3D kzalloc(sizeof(struct picolcd_data), GFP_KERNEL);
-+	if (data =3D=3D NULL) {
-+		dev_err(&hdev->dev, "can't allocate space for Minibox PicoLCD device=
- data\n");
-+		error =3D -ENOMEM;
-+		goto err_no_cleanup;
-+	}
-+
-+	spin_lock_init(&data->lock);
-+	mutex_init(&data->mutex);
-+	data->hdev =3D hdev;
-+	if (hdev->product =3D=3D USB_DEVICE_ID_PICOLCD_BOOTLOADER)
-+		data->status |=3D PICOLCD_BOOTLOADER;
-+	hid_set_drvdata(hdev, data);
-+
-+	/* Parse the device reports and start it up */
-+	error =3D hid_parse(hdev);
-+	if (error) {
-+		dev_err(&hdev->dev, "device report parse failed\n");
-+		goto err_cleanup_data;
-+	}
-+
-+	/* We don't use hidinput but hid_hw_start() fails if nothing is
-+	 * claimed. So spoof claimed input. */
-+	hdev->claimed =3D HID_CLAIMED_INPUT;
-+	error =3D hid_hw_start(hdev, 0);
-+	hdev->claimed =3D 0;
-+	if (error) {
-+		dev_err(&hdev->dev, "hardware start failed\n");
-+		goto err_cleanup_data;
-+	}
-+
-+	error =3D hdev->ll_driver->open(hdev);
-+	if (error) {
-+		dev_err(&hdev->dev, "failed to open input interrupt pipe for key and=
- IR events\n");
-+		goto err_cleanup_hid_hw;
-+	}
-+
-+	error =3D device_create_file(&hdev->dev, &dev_attr_operation_mode);
-+	if (error) {
-+		dev_err(&hdev->dev, "failed to create sysfs attributes\n");
-+		goto err_cleanup_hid_ll;
-+	}
-+
-+	if (data->status & PICOLCD_BOOTLOADER)
-+		error =3D picolcd_probe_bootloader(hdev, data);
-+	else
-+		error =3D picolcd_probe_lcd(hdev, data);
-+	if (error)
-+		goto err_cleanup_sysfs;
-+
-+	dbg_hid(PICOLCD_NAME " activated and initialized\n");
-+	return 0;
-+
-+err_cleanup_sysfs:
-+	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
-+err_cleanup_hid_ll:
-+	hdev->ll_driver->close(hdev);
-+err_cleanup_hid_hw:
-+	hid_hw_stop(hdev);
-+err_cleanup_data:
-+	kfree(data);
-+err_no_cleanup:
-+	hid_set_drvdata(hdev, NULL);
-+
-+	return error;
-+}
-+
-+static void picolcd_remove(struct hid_device *hdev)
-+{
-+	struct picolcd_data *data =3D hid_get_drvdata(hdev);
-+	unsigned long flags;
-+
-+	dbg_hid(PICOLCD_NAME " hardware remove...\n");
-+	spin_lock_irqsave(&data->lock, flags);
-+	data->status |=3D PICOLCD_FAILED;
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
-+	hdev->ll_driver->close(hdev);
-+	hid_hw_stop(hdev);
-+	hid_set_drvdata(hdev, NULL);
-+
-+	/* Shortcut potential pending reply that will never arrive */
-+	spin_lock_irqsave(&data->lock, flags);
-+	if (data->pending)
-+		complete(&data->pending->ready);
-+	spin_unlock_irqrestore(&data->lock, flags);
-+
-+	/* Cleanup input */
-+	picolcd_exit_cir(data);
-+	picolcd_exit_keys(data);
-+
-+	mutex_destroy(&data->mutex);
-+	/* Finally, clean up the picolcd data itself */
-+	kfree(data);
-+}
-+
-+static const struct hid_device_id picolcd_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTL=
-OADER) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, picolcd_devices);
-+
-+static struct hid_driver picolcd_driver =3D {
-+	.name =3D          "hid-picolcd",
-+	.id_table =3D      picolcd_devices,
-+	.probe =3D         picolcd_probe,
-+	.remove =3D        picolcd_remove,
-+	.raw_event =3D     picolcd_raw_event,
-+#ifdef CONFIG_PM
-+	.suspend =3D       picolcd_suspend,
-+	.resume =3D        picolcd_resume,
-+	.reset_resume =3D  picolcd_reset_resume,
-+#endif
-+};
-+
-+static int __init picolcd_init(void)
-+{
-+	return hid_register_driver(&picolcd_driver);
-+}
-+
-+static void __exit picolcd_exit(void)
-+{
-+	hid_unregister_driver(&picolcd_driver);
-+}
-+
-+module_init(picolcd_init);
-+module_exit(picolcd_exit);
-+MODULE_DESCRIPTION("Minibox graphics PicoLCD Driver");
-+MODULE_LICENSE("GPL v2");
---=20
-1.6.4.4
+There is much to be said for engaging the community and I think you,
+your company, and your customers would profit from healthy cooperation.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Your requests for blind faith do not really interest me.  You talk about
+algorithms running in closed source modules (which we haven't even seen)
+that do "stuff".  That really doesn't mean much.  Why should I or anyone
+else be interested in algorithms if we don't know what they are supposed
+to improve?  Why should we accept breakage, temporary or permanent, based
+on your word that its worth it.
+
+There's no argument that your status as a developer may give you access
+to inside information that may improve the overall user experience.  But
+that doesn't justify blind faith from the community.  There are many
+reasons to suspect that your interests do not necessary mesh with the
+community as a whole.
+
+
+If you have some actual points to make, make them.  Just don't expect
+to convince anyone with vacuous arguments and claims of corporate
+backing.
+
+Micki Balanga wrote:
+> I as mentioned in the last email
+> The algorithm to analyze the information use complex math calculation,
+> so it can't be transfer to the driver.
+> (the driver should stay simple as possible, main purpose analyze USB
+> message and transfer it to Linux events)
+> As i mentioned before you talked about glitch a noise, which N-trig
+> solution solve.
+> The driver implement the necessary events needed by the user, in order
+> to analyze touch events.
+> In the coming weeks we'll provide an additional package
+> that will improve and enhance the system performance.
+> This package will support Linux events as well as Message Queue based
+> API for the benefit of the developers.
+
+You haven't really demonstrated that you can do a better job of
+de-glitching than we could do with some very _simple_ code in the kernel.
+
+As for kernel vs. user space computational burden.  Looking for the 6
+end of stream events in the kernel costs fewer cycles than emitting
+the events to let the user space catch that particular signal.
+
+Also there is a second set of conditions indicating the pen is
+active, those can also be caught just as easily, and don't add any
+additional justification of passing those events through.
+
+
+I don't see why you make a big deal out of message queues, its
+not even clear that's really such an appropriate medium to feed
+events downstream.  Don't get me wrong, I like message queues
+they are fun and have their place, and its fun to add them to
+class projects and watch students misuse them.
+
+> -----Original Message-----
+> From: Mohamed Ikbel Boulabiar [mailto:boulabiar@gmail.com]
+> Sent: Wed 3/24/2010 3:27 PM
+> To: Micki Balanga
+> Cc: Rafi Rubin; jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Henrik
+> Rydberg; DmitryTorokhov
+> Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
+> 
+> Hi,
+> 
+> Do you have any intention to add some more low level tracking in the
+> driver ?
+> 
+> I haven't followed all mails, I remember that a small algorithm for
+> tracking was suggested by Rafi Rubin, but don't know if N-Trig
+> developers can push more things inside the driver and provide a
+> contact-id information inside events submission.
+> 
+> Thanks,
+
+I pulled the tracking code while I responding to other issues concerning
+the problems with my patches.  Specifically I removed that code because
+I read Henrik's protocol documentation more carefully.  I think there is
+still an opportunity to perform partial tracking, but that's another
+discussion.
+
+While it was pretty lightweight I also felt I could do better, both in
+terms of the computations it already did and to make it take better
+advantage of the specific scan patterns of the n-trig hardware that I've
+observed.
+
+
+Its also not entirely clear to me what the intention of the
+manufacturer is with regards to tracking.  If they do intend to clean up
+the poor tracking in the firmware, then it doesn't really make sense to add
+it now.  One more reason it would be good to have firmware version and
+possibly some other method to sanity check.
+
+- - Rafi
+
+> On Tue, Mar 23, 2010 at 3:43 PM, Micki Balanga <micki@n-trig.com> wrote:
+>> N-trig driver can be used directly for Multi-Touch and Pen support.
+>> Furthermore, in the coming weeks we'll provide an additional package
+>> that will improve and enhance the system performance.
+>> This package will support Linux events as well as Message Queue based
+>> API for the benefit of the developers.
+>>
+>> -----Original Message-----
+>> From: Rafi Rubin [mailto:rafi@seas.upenn.edu]
+>> Sent: Monday, March 22, 2010 11:55 PM
+>> To: Micki Balanga
+>> Cc: jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de;
+>> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Henrik
+>> Rydberg; Dmitry Torokhov
+>> Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to driver
+>>
+>> On 03/22/2010 05:14 PM, Micki Balanga wrote:
+>>> Hi
+>>> first of all i am happy my explanation helps you to understand the
+>>> necessity of fake finger report.
+>>> The algorithm to analyze the information use complex math calculation,
+>>> so it can't be transfer to the driver.
+>>> (the driver should stay simple as possible, main purpose analyze USB
+>>> message and transfer it to Linux events)
+>>> As i mentioned before you talked about glitch a noise, which N-trig
+>>> solution solve.
+>>> The driver implement the necessary events needed by the user, in order
+>>> to analyze touch events.
+>>
+>> I'm not really much of a judge of how to balance kernel vs user land
+>> load.  Though I can certainly see why you would want to keep all
+>> proprietary analysis to the user land and thus want to pass through
+>> necessary events.  I was "encouraged" earlier to take a deeper look at
+>> what I was writing, and determine if all that I was trying to send was
+>> actually necessary or just me missing something.
+>>
+>> I will look more closely, and perhaps see if I can suggest modifications
+>>
+>> which include the events you need without breaking the existing
+>> protocol.  Dmitry seems to be an authority on how input events should be
+>>
+>> used.  I'm still just learning myself.
+>>
+>> But this still leaves the point of lets try to keep the split input
+>> devices.  It is still a cleaner abstraction than splitting in the user
+>> space code.
+>>
+>>> About a question you raised before about set_feature location, it
+>> should
+>>> be done after the hw_start because
+>>> if the HW start fail there is no reason to send the command. this
+>>> command doesn't change the report descriptor size.
+>>
+>> I'm still not entirely sure of the ordering of things.  Users have sent
+>> me the rdesc outputs from a device with 2.59 with and without your code
+>> to enable MT, and it looked to me like the report descriptor was
+>> different.  I can try to experiment with that.
+>>
+>> Can you specify conditions or versions which cause this failure?  It
+>> would be nice to be able to see for myself, especially since removing
+>> the naming and the quirk will disrupt quite a number of users.
+>>
+>> I do agree that the code should be more robust to bad conditions, so
+>> please try it with:
+>>
+>>    list_for_each_entry(hidinput, &hdev->inputs, list) {
+>> +      if (hidinput->report == NULL) {
+>> +         dev_err(&hdev->dev, "NULL report\n");
+>> +         continue;
+>> +      }
+>>
+>> That way we'll have a graceful fallback for your needs without breaking
+>> users.  And also, hopefully this will lead to finding any lingering
+>> bugs.
+>>
+>>
+>>> -----Original Message-----
+>>> From: Rafi Rubin [mailto:rafi@seas.upenn.edu]
+>>> Sent: Mon 3/22/2010 10:43 PM
+>>> To: Micki Balanga
+>>> Cc: jkosina@suse.cz; chatty@enac.fr; peterhuewe@gmx.de;
+>>> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Henrik
+>> Rydberg
+>>> Subject: Re: [PATCH 1/2] HID: N-trig Add set feature commands to
+>> driver
+>>>
+>>> On 03/22/2010 03:58 PM, Micki Balanga wrote:
+>>>  >
+>>>  > Hi
+>>>  > I would like to add more information about the Fake button.
+>>>  > I will explain using this scenario:
+>>>  > You touch the sensor with one finger and then remove the finger,
+>>>  > Firmware will report six frames with fake fingers,(Indicate end of
+>>> session)
+>>>  > The driver will report this as fake fingers (Will send 3 events)
+>> and
+>>>  > input_sync
+>>>  > to inform user space application that the user removed finger from
+>>> sensor.
+>>>  > this information is needed in order to analyze the data received
+>> from
+>>>  > N-trig firmware.
+>>>  > Micki
+>>>
+>>> Thank you for taking this to a discussion format.
+>>>
+>>> It seems you have raised an issue that is an active discussion for
+>> multi
+>>> touch handling in general and an issue that I have considered for
+>> n-trig
+>>> support in specific.
+>>>
+>>>
+>>> The current published version of the driver does send one more
+>> sequence
+>>> of events after it decides all fingers are off the screen. That final
+>>> sequence is necessary to tell single touch drivers that the tools are
+>>> released (BTN_TOUCH is set to zero, etc). This also resets the active
+>>> contact count to zero for multi touch handlers, which look to see how
+>>> many MT events come from each frame.
+>>>
+>>> I had observed that sometimes the tablet looses contacts semi
+>>> arbitrarily, and we get a zero contact group as a mistake. In the
+>>> patches I sent in early in February you will notice a solution that I
+>>> was considering at the time. I was also playing with correcting for
+>>> events that looked like real contacts but were also just noise. After
+>>> rethinking my patches and reading the multi touch doc in the Documents
+>>> tree, I chose to leave out these corrections.
+>>>
+>>> That being said, I do have a specific patch to handle the set of end
+>> of
+>>> stream events. All that's needed is to count the empty groups and send
+>>> the terminal events only when a counter hits the specified value
+>>> (attached is a tiny patch I wrote when I needed that feature back
+>> really
+>>> quickly when my screen started misbehaving during a meeting).
+>>>
+>>> Note I have submitted that as a patch for 2 reasons. First I couldn't
+>>> be completely sure that there was a specific number of empty groups to
+>>> signal end of stream which would be expected to be maintained over
+>> time.
+>>> And secondly the erroneous termination of stream has not been much of
+>>> a problem in general.
+>>>
+>>> You will note, that this is something that is simple enough that it
+>>> makes perfect sense to put into the kernel. There's little point in
+>>> wasting the cycles to push that decision to user space.
+>>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkuqrXQACgkQwuRiAT9o60/HcACgi5ze2V11OMoDklz/WgxGIR8T
+J64AnRSoTv96r+LJYnIPBD0QGVjUf9li
+=7qYp
+-----END PGP SIGNATURE-----

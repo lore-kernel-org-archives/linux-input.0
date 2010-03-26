@@ -1,121 +1,164 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR 	system?
-Date: Fri, 26 Mar 2010 12:17:34 -0300
-Message-ID: <4BACD00E.7040401@redhat.com>
-References: <20091215115011.GB1385@ucw.cz> <4B279017.3080303@redhat.com> <20091215195859.GI24406@elf.ucw.cz> <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com> <20091215201933.GK24406@elf.ucw.cz> <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com> <20091215203300.GL24406@elf.ucw.cz> <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com> <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com> <4BAB7659.1040408@redhat.com> <20100326122317.GC5387@hardeman.nu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+ system?
+Date: Fri, 26 Mar 2010 09:01:50 -0700
+Message-ID: <20100326160150.GA28804@core.coreip.homeip.net>
+References: <20091215195859.GI24406@elf.ucw.cz>
+ <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
+ <20091215201933.GK24406@elf.ucw.cz>
+ <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
+ <20091215203300.GL24406@elf.ucw.cz>
+ <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+ <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+ <4BAB7659.1040408@redhat.com>
+ <20100326112755.GB5387@hardeman.nu>
+ <4BACC769.6020906@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:1568 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754205Ab0CZPSp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Mar 2010 11:18:45 -0400
-In-Reply-To: <20100326122317.GC5387@hardeman.nu>
+Received: from fg-out-1718.google.com ([72.14.220.154]:20016 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751738Ab0CZQCC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Mar 2010 12:02:02 -0400
+Content-Disposition: inline
+In-Reply-To: <4BACC769.6020906@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-David H=E4rdeman wrote:
-> On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wrote=
-:
->>>        2) add current_protocol support on other drivers;
->> Done. Patch were already merged upstream.
->>
->> The current_protocol attribute shows the protocol(s) that the device=
- is accepting
->> and allows changing it to another protocol.=20
->>
->> In the case of the em28xx hardware, only one protocol can be active,=
- since the decoder
->> is inside the hardware.=20
->>
->> On the raw IR decode implementation I've done at the saa7134, all ra=
-w pulse events are
->> sent to all registered decoders, so I'm thinking on using this sysfs=
- node to allow
->> disabling the standard behavior of passing the IR codes to all decod=
-ers, routing it
->> to just one decoder.
->>
->> Another alternative would be to show current_protocol only for devic=
-es with hardware
->> decoder, and create one sysfs node for each decoder, allowing enabli=
-ng/disabling each
->> decoder individually.
+On Fri, Mar 26, 2010 at 11:40:41AM -0300, Mauro Carvalho Chehab wrote:
+> David H=E4rdeman wrote:
+> > On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wro=
+te:
+> >>>        10) extend keycode table replacement to support big/variab=
+le=20
+> >>>        sized scancodes;
+> >> Pending.
+> >>
+> >> The current limit here is the scancode ioctl's are defined as:
+> >>
+> >> #define EVIOCGKEYCODE           _IOR('E', 0x04, int[2])           =
+      /* get keycode */
+> >> #define EVIOCSKEYCODE           _IOW('E', 0x04, int[2])           =
+      /* set keycode */
+> >>
+> >> As int size is 32 bits, and we must pass both 64 (or even bigger) =
+scancodes, associated
+> >> with a keycode, there's not enough bits there for IR.
+> >>
+> >> The better approach seems to create an struct with an arbitrary lo=
+ng size, like:
+> >>
+> >> struct keycode_table_entry {
+> >> 	unsigned keycode;
+> >> 	char scancode[32];	/* 32 is just an arbitrary long array - maybe =
+shorter */
+> >> 	int len;
+> >> }
+> >>
+> >> and re-define the ioctls. For example we might be doing:
+> >>
+> >> #define EVIOCGKEYCODEBIG           _IOR('E', 0x04, struct keycode_=
+table_entry)
+> >> #define EVIOCSKEYCODEBIG           _IOW('E', 0x04, struct keycode_=
+table_entry)
+> >> #define EVIOCLEARKEYCODEBIG        _IOR('E', 0x04, void)
+> >>
+> >> Provided that the size for struct keycode_table_entry is different=
+, _IO will generate
+> >> a different magic number for those.
+> >>
+> >> Or, instead of using 0x04, just use another sequential number at t=
+he 'E' namespace.
+> >>
+> >> An specific function to clear the table is needed with big scancod=
+e space,
+> >> as already discussed.
+> >>
+> >=20
+> > I'd suggest:
+> >=20
+> > struct keycode_table_entry {
+> > 	unsigned keycode;
+> > 	unsigned index;
+> > 	unsigned len;
+> > 	char scancode[];
+> > };
+> >=20
+> > Use index in EVIOCGKEYCODEBIG to look up a keycode (all other field=
+s are=20
+> > ignored), that way no special function to clear the table is necess=
+ary,=20
+> > instead you do a loop with:
+> >=20
+> > EVIOCGKEYCODEBIG (with index 0)
+> > EVIOCSKEYCODEBIG (with the returned struct from EVIOCGKEYCODEBIG an=
+d
+> > 		  keycode =3D KEY_RESERVED)
+> >=20
+> > until EVIOCGKEYCODEBIG returns an error.
 >=20
-> You're eventually going to want to add ioctl's to set a lot of TX or =
-RX=20
-> parameters in one go (stuff like active receiver(s) and transmitter(s=
-),=20
-> carrier frequency, duty cycle, timeouts, filter levels and resolution=
- -=20
-> all of which would need to be set in one operation since some hardwar=
-e=20
-> will need to be reset after each parameter is changed).
+> Makes sense.
 
-TX is a completely different history. It has nothing to do with input e=
-vent
-subsystem. So, another approach should be taken for it.
+Yes, I think so too. Just need a nice way to handle transition, I'd
+like in the end to have drivers implement only the improved methods and
+map legacy methods in evdev.
 
-I haven't seen yet a hardware decoder with such parameters, but maybe I=
- just
-don't have enough specs here to adjust them. Anyway, one simple way to =
-avoid
-resetting the hardware for every new parameter change would be to use a=
- timer
-for reset. This way, an userspace application or script that is touchin=
-g on=20
-several parameters would just send the complete RX init sequence and
-after some dozens of milliseconds, the hardware will load the new param=
-eters.
-
-> Then you'll end up with a few things being controlled via sysfs and s=
-ome=20
-> being controlled via ioctls. Maybe it's a good idea to have a bitmask=
+>=20
+> > This also allows you to get all the current mappings from the kerne=
+l=20
+> > without having to blindly search through an arbitrarily large keysp=
+ace.
+> >=20
+> > Also, EVIOCLEARKEYCODEBIG should be:
+> >=20
+> > #define EVIOCLEARKEYCODEBIG _IOR('E', 0x04, struct keycode_table_en=
+try)
+> >=20
+> > That way a user space application can simply call EVIOCLEARKEYCODEB=
+IG,=20
+> > ask the user for an appropriate keycode, fill in the keycode member=
  of=20
-> supported and enabled protocols in those ioctls instead?
+> > the struct returned from EVIOCLEARKEYCODEBIG and call EVIOCSKEYCODE=
+BIG.
+>=20
+> By using the index concept, I don't think we need another ioctl. Also=
+,
+> there's no way for kernel to handle it, as it will be using the same
+> magic number of EVIOCGKEYCODEBIG.
+>=20
+> > On a related note, I really think the interface would benefit from=20
+> > allowing more than one keytable per irrcv device with an input devi=
+ce=20
+> > created per keytable. That way you can have one input device per re=
+mote=20
+> > control. This implies that EVIOCLEARKEYCODEBIG is a bit misplaced a=
+s an=20
+> > evdev IOCTL since there's an N-1 mapping between input devices and =
+irrcv=20
+> > devices.
+>=20
+> I don't think that an ioctl over one /dev/input/event should be the p=
+roper way
+> to ask kernel to create another filtered /dev/input/event. As it were=
+ commented
+> that the multimedia keys on some keyboards could benefit on having a =
+filter
+> capability, maybe we may have a sysfs node at class input that would =
+allow
+> the creation/removal of the filtered event interface.
 
-There's an interesting discussion about bitmasks x a list of enumerated=
- values
-as a way to represent a bitmask into a series of values on sysfs,
-at http://lwn.net/Articles/378219/  (see "A critical look at sysfs attr=
-ibute values"
-article there).
+No, if you want separate event devices just create a new instance of
+input device for every keymap and have driver/irrcv class route events
+to proper input device.
 
-That's said, I'm starting to think that the better is to have some diff=
-erentiation
-there between hardware and software decoders. IMO, software decoders ar=
-e better
-handled with an "enabled" attribute, per software decoder, inside each =
-irrcv.
-
-In the case of hardware decoders, just one attribute is enough to contr=
-ol it. I think
-it should be a bitmask parameter, but presented with their aliases, lik=
-e for example:
-	$cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
-	ondemand conservative performance=20
-
-This is clearly a bitmask, but it is presented as textual values, inste=
-ad of a
-magic number.
-
-So, we may have
-	/sys/class/irrcv/irrcv0/supported_protocols
-
-as, for example:
-	RC-5 NEC
-
-and allow setting current_protocol as just "RC-5" or, if the hardware s=
-upports
-more than one decoder at the same time, as "RC-5 NEC".
+Thanks.
 
 --=20
-
-Cheers,
-Mauro
+Dmitry
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

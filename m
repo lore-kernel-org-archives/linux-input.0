@@ -1,106 +1,210 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v3 1/6] hid: new driver for PicoLCD device
-Date: Fri, 26 Mar 2010 22:39:32 +0100
-Message-ID: <20100326223932.01305c17@neptune.home>
-References: <20100324233707.7243b04d@neptune.home>
-	<20100326102951.3b9ecda1@neptune.home>
-	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
-	<201003261416.25387.dmitry.torokhov@gmail.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Fri, 26 Mar 2010 18:37:41 -0400
+Message-ID: <9e4733911003261537s770a66c8v92ab7384fde34839@mail.gmail.com>
+References: <20091215195859.GI24406@elf.ucw.cz>
+	 <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
+	 <20091215203300.GL24406@elf.ucw.cz>
+	 <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+	 <4BAB7659.1040408@redhat.com> <20100326112755.GB5387@hardeman.nu>
+	 <4BACC769.6020906@redhat.com>
+	 <20100326160150.GA28804@core.coreip.homeip.net>
+	 <4BACED6B.9030409@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:48023 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752338Ab0CZVkU convert rfc822-to-8bit (ORCPT
+Received: from mail-qy0-f188.google.com ([209.85.221.188]:42404 "EHLO
+	mail-qy0-f188.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754261Ab0CZWho convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Mar 2010 17:40:20 -0400
-In-Reply-To: <201003261416.25387.dmitry.torokhov@gmail.com>
+	Fri, 26 Mar 2010 18:37:44 -0400
+In-Reply-To: <4BACED6B.9030409@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Fri, 26 March 2010 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote=
-:
-> On Friday 26 March 2010 01:59:19 pm Jiri Kosina wrote:
-> > On Fri, 26 Mar 2010, Bruno Pr=C3=A9mont wrote:
-> > > > > +	for (i =3D 0; i < PICOLCD_KEYS; i++) {
-> > > > > +		int key =3D ((int *)idev->keycode)[i];
-> > > >=20
-> > > > Keycodes are now short, not int. Also, just do:
-> > > > 		input_set_capability(idev, EV_KEY, data->keycode[i]);
-> > > > 	=09
-> > > > > +		if (key < KEY_MAX && key >=3D 0)
-> > > > > +			input_set_capability(idev, EV_KEY, key);
-> > >=20
-> > > Oops, I was not careful enough when switching over...
-> >=20
-> > Dmitry, thanks a lot for rapid review the driver.
-> >=20
-> > Bruno, could you please fix this and submit a followup 1/6 patch, s=
-o that
-> > I could queue the driver in my tree?
-> >=20
-> > I have almost finished going over the driver and haven't encountere=
-d any
-> > other issues that would require immediate fixing.
-> >=20
-> > Still, it would be nice to have the framebuffer/LCD/backlight bits
-> > reviewed by respective subsystem maintainers. But I'll probably que=
-ue the
-> > driver nevertheless and add potential ACKs later.
->=20
-> FWIW I am not entrely happy with the whole send-and_wait implementati=
-on -
-> it looks like it is not being called concurrently so we don't need mu=
-tex
-> there... I'd do something like:
+On Fri, Mar 26, 2010 at 1:22 PM, Mauro Carvalho Chehab
+<mchehab@redhat.com> wrote:
+> Dmitry Torokhov wrote:
+>> On Fri, Mar 26, 2010 at 11:40:41AM -0300, Mauro Carvalho Chehab wrot=
+e:
+>>> David H=E4rdeman wrote:
+>>>> On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wr=
+ote:
+>>>>>> =A0 =A0 =A0 =A010) extend keycode table replacement to support b=
+ig/variable
+>>>>>> =A0 =A0 =A0 =A0sized scancodes;
+>>>>> Pending.
+>>>>>
+>>>>> The current limit here is the scancode ioctl's are defined as:
+>>>>>
+>>>>> #define EVIOCGKEYCODE =A0 =A0 =A0 =A0 =A0 _IOR('E', 0x04, int[2])=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* get keycode */
+>>>>> #define EVIOCSKEYCODE =A0 =A0 =A0 =A0 =A0 _IOW('E', 0x04, int[2])=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* set keycode */
+>>>>>
+>>>>> As int size is 32 bits, and we must pass both 64 (or even bigger)=
+ scancodes, associated
+>>>>> with a keycode, there's not enough bits there for IR.
+>>>>>
+>>>>> The better approach seems to create an struct with an arbitrary l=
+ong size, like:
+>>>>>
+>>>>> struct keycode_table_entry {
+>>>>> =A0 =A0unsigned keycode;
+>>>>> =A0 =A0char scancode[32]; =A0 =A0 =A0/* 32 is just an arbitrary l=
+ong array - maybe shorter */
+>>>>> =A0 =A0int len;
+>>>>> }
+>>>>>
+>>>>> and re-define the ioctls. For example we might be doing:
+>>>>>
+>>>>> #define EVIOCGKEYCODEBIG =A0 =A0 =A0 =A0 =A0 _IOR('E', 0x04, stru=
+ct keycode_table_entry)
+>>>>> #define EVIOCSKEYCODEBIG =A0 =A0 =A0 =A0 =A0 _IOW('E', 0x04, stru=
+ct keycode_table_entry)
+>>>>> #define EVIOCLEARKEYCODEBIG =A0 =A0 =A0 =A0_IOR('E', 0x04, void)
+>>>>>
+>>>>> Provided that the size for struct keycode_table_entry is differen=
+t, _IO will generate
+>>>>> a different magic number for those.
+>>>>>
+>>>>> Or, instead of using 0x04, just use another sequential number at =
+the 'E' namespace.
+>>>>>
+>>>>> An specific function to clear the table is needed with big scanco=
+de space,
+>>>>> as already discussed.
+>>>>>
+>>>> I'd suggest:
+>>>>
+>>>> struct keycode_table_entry {
+>>>> =A0 =A0 unsigned keycode;
+>>>> =A0 =A0 unsigned index;
+>>>> =A0 =A0 unsigned len;
+>>>> =A0 =A0 char scancode[];
+>>>> };
+>>>>
+>>>> Use index in EVIOCGKEYCODEBIG to look up a keycode (all other fiel=
+ds are
+>>>> ignored), that way no special function to clear the table is neces=
+sary,
+>>>> instead you do a loop with:
+>>>>
+>>>> EVIOCGKEYCODEBIG (with index 0)
+>>>> EVIOCSKEYCODEBIG (with the returned struct from EVIOCGKEYCODEBIG a=
+nd
+>>>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 keycode =3D KEY_RESERVED)
+>>>>
+>>>> until EVIOCGKEYCODEBIG returns an error.
+>>> Makes sense.
+>>
+>> Yes, I think so too. Just need a nice way to handle transition, I'd
+>> like in the end to have drivers implement only the improved methods =
+and
+>> map legacy methods in evdev.
+>
+> Ok. I'll prepare the patches for adding the new ioctl, in a way that =
+it will
+> also handle the legacy methods, and post for review.
+>
+>>>> On a related note, I really think the interface would benefit from
+>>>> allowing more than one keytable per irrcv device with an input dev=
+ice
+>>>> created per keytable. That way you can have one input device per r=
+emote
+>>>> control. This implies that EVIOCLEARKEYCODEBIG is a bit misplaced =
+as an
+>>>> evdev IOCTL since there's an N-1 mapping between input devices and=
+ irrcv
+>>>> devices.
+>>> I don't think that an ioctl over one /dev/input/event should be the=
+ proper way
+>>> to ask kernel to create another filtered /dev/input/event. As it we=
+re commented
+>>> that the multimedia keys on some keyboards could benefit on having =
+a filter
+>>> capability, maybe we may have a sysfs node at class input that woul=
+d allow
+>>> the creation/removal of the filtered event interface.
+>>
+>> No, if you want separate event devices just create a new instance of
+>> input device for every keymap and have driver/irrcv class route even=
+ts
+>> to proper input device.
+>
+> This don't solve the issue about how to signalize to kernel that more=
+ than one
+> input device is needed.
+>
+> As the userspace will request the creation of those keymaps, we need =
+some way
+> to receive such requests from userspace.
+>
+> I can see a few ways for doing it:
+>
+> 1) create a control device for the irrcv device as a hole,
+> that would handle such requests via ioctl (/dev/irctl[0-9]* ?)
+>
+> 2) create a read/write sysfs node that would indicate the number of e=
+vent/keymaps
+> associated with a given IR. By writing a bigger number, it would crea=
+te new devices.
+> By writing a smaller number, it will delete some maps. There's an iss=
+ue though:
+> what criteria would be used to delete? The newly created ones?
 
-It can be called concurrently, not within patch 1/6 but it definitely
-can once patch 6/6 is applied (concurrent access to debugfs files for
-EEPROM and/or FLASH).
-Even later on when FLASH (and EEPROM) access get moved to a better home
-concurrent access will still exist.
+This is normally handled a sysfs node on the core, something like
+'adddev'. You echo '1' to this node and a new interface is created.
+
+Each interface has a sysfs node, make a 'remove' attribute in it. Echo
+'1' to remove to make it disappear.
+
+You have to implement the code behind these interfaces but this
+convention is used in other subsubsystems.
+
+BTW - you're recreating everything the configfs interface did. it
+achieved the same results with mkdir/rmdir. I liked the configfs
+scheme since there are no obscure commands to learn. Everybody can
+make files and directories.
 
 
-> send_nand_wait() {
->=20
-> 	set_bit(WAITING_RESPONSE, data->state);
-> 	prepare message
-> 	send message
-> 	wait_for_event_interruptible_timeout(&data->wait,
-> 					!test_bit(WAITING_RESPONSE, data->state));
-> 	if (!test_bit()) {
-> 		process
-> 		return 0;
-> 	}
->=20
-> 	return -ETIME;
-> }
->=20
-> irq(...) {
->=20
-> 	else if (test_bit(WAITING_RESPONSE, data->state)) {
-> 		copy response...
-> 		clear_bit(WAITING_RESPONSE, data->state);=09
-> 		wake_up(&data->wait);
-> 	}
-> }
->=20
-> and not bother with kmallocing pending structure, but it should not
-> stop from merging driver.
+>
+> 3) create a fixed number of event devices, and add a sysfs attribute =
+to enable
+> or disable it;
+>
+> 4) create a fixed number of sysfs attributes to represent the keymaps=
+=2E For example:
+> /sys/class/irrcv/irrcv0/keymap0/enabled
+> =A0 =A0 =A0 =A0...
+> /sys/class/irrcv/irrcv0/keymap7/enabled
+>
+> The input/event node will be created only when the enabled=3D1.
+>
+> I don't like (2) or (3), because removing a table with (2) may end by=
+ removing the wrong
+> table, and (3) will create more event interfaces than probably needed=
+ by the majority
+> of IR users.
+>
+> maybe (4) is the better one.
+>
+> --
+>
+> Cheers,
+> Mauro
+>
 
-It might be an option to not allocate the pending structure but as
-the whole "pending" access is definitely not a hot path (flashing
-firmware or splash and changing EEPROM values will most probably
-not be done very often). The only more common use is version check
-on probe.
 
-So what is more expensive, the used memory or the CPU usage to
-allocate/release the struct? That probably depends on reader's taste.
 
-Bruno
+--=20
+Jon Smirl
+jonsmirl@gmail.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

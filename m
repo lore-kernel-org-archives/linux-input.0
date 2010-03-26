@@ -1,47 +1,123 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Merge plans for Staging  Synaptics Touchscreen Driver
-Date: Fri, 26 Mar 2010 15:44:16 +0100
-Message-ID: <20100326144415.GA1591@ucw.cz>
-References: <19039.10.24.255.18.1269336516.squirrel@dbdmail.itg.ti.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Fri, 26 Mar 2010 12:17:34 -0300
+Message-ID: <4BACD00E.7040401@redhat.com>
+References: <20091215115011.GB1385@ucw.cz> <4B279017.3080303@redhat.com> <20091215195859.GI24406@elf.ucw.cz> <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com> <20091215201933.GK24406@elf.ucw.cz> <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com> <20091215203300.GL24406@elf.ucw.cz> <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com> <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com> <4BAB7659.1040408@redhat.com> <20100326122317.GC5387@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:60825 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753883Ab0CZOo1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Mar 2010 10:44:27 -0400
-Content-Disposition: inline
-In-Reply-To: <19039.10.24.255.18.1269336516.squirrel@dbdmail.itg.ti.com>
+Received: from mx1.redhat.com ([209.132.183.28]:1568 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754205Ab0CZPSp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Mar 2010 11:18:45 -0400
+In-Reply-To: <20100326122317.GC5387@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>
 
-Hi!
+David H=E4rdeman wrote:
+> On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wrote=
+:
+>>>        2) add current_protocol support on other drivers;
+>> Done. Patch were already merged upstream.
+>>
+>> The current_protocol attribute shows the protocol(s) that the device=
+ is accepting
+>> and allows changing it to another protocol.=20
+>>
+>> In the case of the em28xx hardware, only one protocol can be active,=
+ since the decoder
+>> is inside the hardware.=20
+>>
+>> On the raw IR decode implementation I've done at the saa7134, all ra=
+w pulse events are
+>> sent to all registered decoders, so I'm thinking on using this sysfs=
+ node to allow
+>> disabling the standard behavior of passing the IR codes to all decod=
+ers, routing it
+>> to just one decoder.
+>>
+>> Another alternative would be to show current_protocol only for devic=
+es with hardware
+>> decoder, and create one sysfs node for each decoder, allowing enabli=
+ng/disabling each
+>> decoder individually.
+>=20
+> You're eventually going to want to add ioctl's to set a lot of TX or =
+RX=20
+> parameters in one go (stuff like active receiver(s) and transmitter(s=
+),=20
+> carrier frequency, duty cycle, timeouts, filter levels and resolution=
+ -=20
+> all of which would need to be set in one operation since some hardwar=
+e=20
+> will need to be reset after each parameter is changed).
 
-> Are there any plans to merge the synaptics touchscreen driver
-> (drivers/staging/dream/synaptics_i2c_rmi.c) to
-> drivers/input/touchscreen. We are interested in the same
-> since OMAP3 based Zoom boards use this touchscreen.
+TX is a completely different history. It has nothing to do with input e=
+vent
+subsystem. So, another approach should be taken for it.
 
-Plans are, but day job interferes with them.
+I haven't seen yet a hardware decoder with such parameters, but maybe I=
+ just
+don't have enough specs here to adjust them. Anyway, one simple way to =
+avoid
+resetting the hardware for every new parameter change would be to use a=
+ timer
+for reset. This way, an userspace application or script that is touchin=
+g on=20
+several parameters would just send the complete RX init sequence and
+after some dozens of milliseconds, the hardware will load the new param=
+eters.
 
-> Pl add (if required) below tested by for the staging driver.
+> Then you'll end up with a few things being controlled via sysfs and s=
+ome=20
+> being controlled via ioctls. Maybe it's a good idea to have a bitmask=
+ of=20
+> supported and enabled protocols in those ioctls instead?
 
-Its not as easy.
+There's an interesting discussion about bitmasks x a list of enumerated=
+ values
+as a way to represent a bitmask into a series of values on sysfs,
+at http://lwn.net/Articles/378219/  (see "A critical look at sysfs attr=
+ibute values"
+article there).
 
-So... 
+That's said, I'm starting to think that the better is to have some diff=
+erentiation
+there between hardware and software decoders. IMO, software decoders ar=
+e better
+handled with an "enabled" attribute, per software decoder, inside each =
+irrcv.
 
-1) are you able to use driver in staging?
+In the case of hardware decoders, just one attribute is enough to contr=
+ol it. I think
+it should be a bitmask parameter, but presented with their aliases, lik=
+e for example:
+	$cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
+	ondemand conservative performance=20
 
-at minimum, non-standard multitouch support needs to be removed before
-merging to input. Do you have time to help?
+This is clearly a bitmask, but it is presented as textual values, inste=
+ad of a
+magic number.
 
-Plus it would be good to investigate possibility of using threaded
-interrupt support -- look through mail archives.
-								Pavel 
+So, we may have
+	/sys/class/irrcv/irrcv0/supported_protocols
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+as, for example:
+	RC-5 NEC
+
+and allow setting current_protocol as just "RC-5" or, if the hardware s=
+upports
+more than one decoder at the same time, as "RC-5 NEC".
+
+--=20
+
+Cheers,
+Mauro
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

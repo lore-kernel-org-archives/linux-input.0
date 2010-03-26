@@ -1,9 +1,10 @@
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
  IR 	system?
-Date: Fri, 26 Mar 2010 12:04:15 +0100
-Message-ID: <20100326110415.GA5387@hardeman.nu>
-References: <4B279017.3080303@redhat.com>
+Date: Fri, 26 Mar 2010 13:23:18 +0100
+Message-ID: <20100326122317.GC5387@hardeman.nu>
+References: <20091215115011.GB1385@ucw.cz>
+ <4B279017.3080303@redhat.com>
  <20091215195859.GI24406@elf.ucw.cz>
  <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
  <20091215201933.GK24406@elf.ucw.cz>
@@ -12,38 +13,58 @@ References: <4B279017.3080303@redhat.com>
  <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
  <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
  <4BAB7659.1040408@redhat.com>
- <20100325183259.GA22902@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:33291 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752906Ab0CZNXK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Mar 2010 09:23:10 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100325183259.GA22902@elf.ucw.cz>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4BAB7659.1040408@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jon Smirl <jonsmirl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Thu, Mar 25, 2010 at 07:32:59PM +0100, Pavel Machek wrote:
-> struct keycode_table_entry {
-> 	unsigned keycode;
-> 	int len;
-> 	char scancode[];
-> }
+On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wrote:
+>>        2) add current_protocol support on other drivers;
 >=20
-> ? gcc extension, but commonly used around kernel.
+> Done. Patch were already merged upstream.
+>=20
+> The current_protocol attribute shows the protocol(s) that the device =
+is accepting
+> and allows changing it to another protocol.=20
+>=20
+> In the case of the em28xx hardware, only one protocol can be active, =
+since the decoder
+> is inside the hardware.=20
+>=20
+> On the raw IR decode implementation I've done at the saa7134, all raw=
+ pulse events are
+> sent to all registered decoders, so I'm thinking on using this sysfs =
+node to allow
+> disabling the standard behavior of passing the IR codes to all decode=
+rs, routing it
+> to just one decoder.
+>=20
+> Another alternative would be to show current_protocol only for device=
+s with hardware
+> decoder, and create one sysfs node for each decoder, allowing enablin=
+g/disabling each
+> decoder individually.
 
-=46lexible array members are ok in C99, aren't they?
+You're eventually going to want to add ioctl's to set a lot of TX or RX=
+=20
+parameters in one go (stuff like active receiver(s) and transmitter(s),=
+=20
+carrier frequency, duty cycle, timeouts, filter levels and resolution -=
+=20
+all of which would need to be set in one operation since some hardware=20
+will need to be reset after each parameter is changed).
+
+Then you'll end up with a few things being controlled via sysfs and som=
+e=20
+being controlled via ioctls. Maybe it's a good idea to have a bitmask o=
+f=20
+supported and enabled protocols in those ioctls instead?
 
 --=20
 David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

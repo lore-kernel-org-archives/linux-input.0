@@ -1,191 +1,145 @@
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
 Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR system?
-Date: Fri, 26 Mar 2010 20:07:41 +0100
-Message-ID: <20100326190741.GA8743@hardeman.nu>
-References: <20091215201933.GK24406@elf.ucw.cz>
+ IR 	system?
+Date: Fri, 26 Mar 2010 20:21:17 +0100
+Message-ID: <20100326192117.GA9290@hardeman.nu>
+References: <20091215195859.GI24406@elf.ucw.cz>
+ <9e4733910912151214n68161fc7tca0ffbf34c2c4e4@mail.gmail.com>
+ <20091215201933.GK24406@elf.ucw.cz>
  <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
  <20091215203300.GL24406@elf.ucw.cz>
  <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
  <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
  <4BAB7659.1040408@redhat.com>
- <20100326112755.GB5387@hardeman.nu>
- <4BACC769.6020906@redhat.com>
- <20100326160150.GA28804@core.coreip.homeip.net>
- <4BACED6B.9030409@redhat.com>
+ <20100326122317.GC5387@hardeman.nu>
+ <4BACD00E.7040401@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:49028 "EHLO
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:37064 "EHLO
 	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752198Ab0CZTHq (ORCPT
+	with ESMTP id S1751426Ab0CZTVW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Mar 2010 15:07:46 -0400
+	Fri, 26 Mar 2010 15:21:22 -0400
 Content-Disposition: inline
-In-Reply-To: <4BACED6B.9030409@redhat.com>
+In-Reply-To: <4BACD00E.7040401@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-On Fri, Mar 26, 2010 at 02:22:51PM -0300, Mauro Carvalho Chehab wrote:
-> Dmitry Torokhov wrote:
-> > On Fri, Mar 26, 2010 at 11:40:41AM -0300, Mauro Carvalho Chehab wro=
+On Fri, Mar 26, 2010 at 12:17:34PM -0300, Mauro Carvalho Chehab wrote:
+> David H=E4rdeman wrote:
+> > On Thu, Mar 25, 2010 at 11:42:33AM -0300, Mauro Carvalho Chehab wro=
 te:
-> >> David H=E4rdeman wrote:
-> >>> I'd suggest:
-> >>>
-> >>> struct keycode_table_entry {
-> >>> 	unsigned keycode;
-> >>> 	unsigned index;
-> >>> 	unsigned len;
-> >>> 	char scancode[];
-> >>> };
-> >>>
-> >>> Use index in EVIOCGKEYCODEBIG to look up a keycode (all other fie=
-lds are=20
-> >>> ignored), that way no special function to clear the table is nece=
-ssary,=20
-> >>> instead you do a loop with:
-> >>>
-> >>> EVIOCGKEYCODEBIG (with index 0)
-> >>> EVIOCSKEYCODEBIG (with the returned struct from EVIOCGKEYCODEBIG =
-and
-> >>> 		  keycode =3D KEY_RESERVED)
-> >>>
-> >>> until EVIOCGKEYCODEBIG returns an error.
-> >> Makes sense.
+> >>>        2) add current_protocol support on other drivers;
+> >> Done. Patch were already merged upstream.
+> >>
+> >> The current_protocol attribute shows the protocol(s) that the devi=
+ce is accepting
+> >> and allows changing it to another protocol.=20
+> >>
+> >> In the case of the em28xx hardware, only one protocol can be activ=
+e, since the decoder
+> >> is inside the hardware.=20
+> >>
+> >> On the raw IR decode implementation I've done at the saa7134, all =
+raw pulse events are
+> >> sent to all registered decoders, so I'm thinking on using this sys=
+fs node to allow
+> >> disabling the standard behavior of passing the IR codes to all dec=
+oders, routing it
+> >> to just one decoder.
+> >>
+> >> Another alternative would be to show current_protocol only for dev=
+ices with hardware
+> >> decoder, and create one sysfs node for each decoder, allowing enab=
+ling/disabling each
+> >> decoder individually.
 > >=20
-> > Yes, I think so too. Just need a nice way to handle transition, I'd
-> > like in the end to have drivers implement only the improved methods=
- and
-> > map legacy methods in evdev.
+> > You're eventually going to want to add ioctl's to set a lot of TX o=
+r RX=20
+> > parameters in one go (stuff like active receiver(s) and transmitter=
+(s),=20
+> > carrier frequency, duty cycle, timeouts, filter levels and resoluti=
+on -=20
+> > all of which would need to be set in one operation since some hardw=
+are=20
+> > will need to be reset after each parameter is changed).
 >=20
-> Ok. I'll prepare the patches for adding the new ioctl, in a way that =
-it will
-> also handle the legacy methods, and post for review.
+> TX is a completely different history. It has nothing to do with input=
+ event
+> subsystem. So, another approach should be taken for it.
 
-If EVIOCGKEYCODEBIG is going to be used as a superset of the old ioctl,=
+I suggest (though I might not have been clear on that point) that irrcv=
 =20
-might it be a good idea change the proposed struct to:
+devices create a char node...ir specifics are handled via that node=20
+(with read/write/ioctl...see the other mail I just send).
 
-struct keycode_table_entry {
-	unsigned keycode;
-	unsigned index;
-	unsigned type;
-	unsigned len;
-	char scancode[];
-};
+> I haven't seen yet a hardware decoder with such parameters, but maybe=
+ I just
+> don't have enough specs here to adjust them.
 
-Where "type" is used to give a hint of how the scancode[] member should=
-=20
-be interpreted?
-
->>>> On a related note, I really think the interface would benefit from=
-=20
->>>> allowing more than one keytable per irrcv device with an input=20
->>>> device created per keytable. That way you can have one input devic=
+The entire idea is to have a common API for hardware decoders and=20
+decoders which provide raw pulse/space timings. That, to me, is one of=20
+the major points of having in-kernel IR decoders - being able to provid=
 e=20
->>>> per remote control. This implies that EVIOCLEARKEYCODEBIG is a bit=
-=20
->>>> misplaced as an evdev IOCTL since there's an N-1 mapping between=20
->>>> input devices and irrcv devices.
->>> I don't think that an ioctl over one /dev/input/event should be the=
-=20
->>> proper way
->>> to ask kernel to create another filtered /dev/input/event. As it=20
->>> were commented
->>> that the multimedia keys on some keyboards could benefit on having =
-a=20
->>> filter
->>> capability, maybe we may have a sysfs node at class input that woul=
-d=20
->>> allow
->>> the creation/removal of the filtered event interface.
->>=20
->> No, if you want separate event devices just create a new instance=20
->> of
->> input device for every keymap and have driver/irrcv class route=20
->> events
->> to proper input device.
+a consistent interface for both hardware decoders and pulse/space=20
+hardware.
 
-I fully agree!
+> Anyway, one simple way to avoid
+> resetting the hardware for every new parameter change would be to use=
+ a timer
+> for reset. This way, an userspace application or script that is touch=
+ing on=20
+> several parameters would just send the complete RX init sequence and
+> after some dozens of milliseconds, the hardware will load the new par=
+ameters.
 
-> This don't solve the issue about how to signalize to kernel that more=
- than one
-> input device is needed.=20
+And I do not think that sounds like a good interface.
+
+> > Then you'll end up with a few things being controlled via sysfs and=
+ some=20
+> > being controlled via ioctls. Maybe it's a good idea to have a bitma=
+sk of=20
+> > supported and enabled protocols in those ioctls instead?
 >=20
-> As the userspace will request the creation of those keymaps, we need =
-some way
-> to receive such requests from userspace.=20
->=20
-> I can see a few ways for doing it:
->=20
-> 1) create a control device for the irrcv device as a hole,
-> that would handle such requests via ioctl (/dev/irctl[0-9]* ?)
->
-> 2) create a read/write sysfs node that would indicate the number of e=
-vent/keymaps
-> associated with a given IR. By writing a bigger number, it would crea=
-te new devices.
-> By writing a smaller number, it will delete some maps. There's an iss=
-ue though:=20
-> what criteria would be used to delete? The newly created ones?
+> There's an interesting discussion about bitmasks x a list of enumerat=
+ed values
+> as a way to represent a bitmask into a series of values on sysfs,
+> at http://lwn.net/Articles/378219/  (see "A critical look at sysfs at=
+tribute values"
+> article there).
 
-This won't work for the reason you've already set out...which keymap=20
-should be deleted?
+Not really relevant...that's just the minor detail of how a sysfs file=20
+might be represented.
+
+> That's said, I'm starting to think that the better is to have some di=
+fferentiation
+> there between hardware and software decoders. IMO, software decoders =
+are better
+> handled with an "enabled" attribute, per software decoder, inside eac=
+h irrcv.
+
+I think we can create an interface which obscures the differences:
+
+Software decoders will export all in-kernel IR decoders in a bitmask in=
 =20
-> 3) create a fixed number of event devices, and add a sysfs attribute =
-to enable
-> or disable it;
+the "supported_protocols" sysfs file or ioctl struct member.
 
-You really seem to prefer sysfs over ioctls :)
-
-> 4) create a fixed number of sysfs attributes to represent the keymaps=
-=2E For example:
-> /sys/class/irrcv/irrcv0/keymap0/enabled
-> 	...
-> /sys/class/irrcv/irrcv0/keymap7/enabled
->=20
-> The input/event node will be created only when the enabled=3D1.
-
-This sounds like 3)
-
-> I don't like (2) or (3), because removing a table with (2) may end by=
- removing the wrong
-> table, and (3) will create more event interfaces than probably needed=
- by the majority
-> of IR users.
->=20
-> maybe (4) is the better one.
-
-Personally I think 1) is the best approach. Having a device for the=20
-irrcv device allows for three kinds of operations:
-
-read
-----
-which corresponds to RX...you're eventually going to want to let=20
-userspace devices read IR commands which have no entries in a keytable=20
-yet in order to create keytables for new remotes, the same interface ca=
-n=20
-also be used for lirc-type user-space apps which want to access the raw=
+Hardware decoders will export the hardware supported protocol(s) in the=
 =20
-pulse/space timings for userspace decoding.
+same file/member.
 
-write
------
-which would correspond to TX...I'd suggest a stream of s32 integers to=20
-imply pulse/space timings.
+In addition, a sysfs file or ioctl member for "enabled_protocols" will=20
+control either the enabled in-kernel IR decoders or hardware decoder(s)=
+=2E
 
-ioctl
------
-for controlling the RX/TX parameters, creating/destroying additional=20
-keytables, etc...
 
-Basically, we'll end up with a lirc_dev 2.0. And the "irrcv" class name=
-=20
-will be misleading since it will be irrcv + irsnd :)
+
+As should be quite obvious by now...I suggest ioctls (on a irrcv=20
+specific chardev) for controlling this :)
 
 --=20
 David H=E4rdeman

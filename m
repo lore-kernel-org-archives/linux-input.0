@@ -1,28 +1,49 @@
-From: Emanuel aseptic <twentythreehundred2300@gmail.com>
-Subject: Database of plastic surgerons  and more
-Date: Sun, 28 Mar 2010 11:08:39 -0400
-Message-ID: <7980c004-7b4f-410a-91d7-693801c18481@LWI-SERVER1.lawrenceandwheeler.local>
-Reply-To: <opeufdh383@gmail.com>
+From: Ondrej Zary <linux@rainbow-software.org>
+Subject: [PATCH] [resend] usbtouchscreen: support bigger iNexio touchscreens
+Date: Sun, 28 Mar 2010 22:15:38 +0200
+Message-ID: <201003282215.41522.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod8ob119.obsmtp.com ([64.18.3.37]:53577 "EHLO
-	exprod8ob119.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751574Ab0C1PfO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Mar 2010 11:35:14 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb@vger.kernel.org, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: lisa.pederson@ndsu.edu, lisa.h.smith@pepperdine.edu, linharesb@tampabay.rr.com, lily@impactiva.com, lisa.guiterman@gmail.com
+
+Bigger Nexio touchscreens not only send more data but also the header values
+are modified somehow. Fix the header somehow (it's a guesswork but it works
+at least on one 46" touchscreen with 2.00SMS firmware) and also increase
+rept_size.
+
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+
+--- linux-2.6.34-rc1-orig/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:34:51.000000000 +0100
++++ linux-2.6.34-rc1/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:46:15.000000000 +0100
+@@ -858,6 +858,11 @@
+ 	if ((pkt[0] & 0xe0) != 0xe0)
+ 		return 0;
+ 
++	if (be16_to_cpu(packet->data_len) > 0xff)
++		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
++	if (be16_to_cpu(packet->x_len) > 0xff)
++		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
++
+ 	/* send ACK */
+ 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
+ 
+@@ -1113,7 +1118,7 @@
+ 
+ #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
+ 	[DEVTYPE_NEXIO] = {
+-		.rept_size	= 128,
++		.rept_size	= 1024,
+ 		.irq_always	= true,
+ 		.read_data	= nexio_read_data,
+ 		.init		= nexio_init,
 
 
-
-Email me at this address for a catalog of all our US lists: Antonia.Williamson@datashopper.tk
-
-Also, ask about our sale pricing for more than one list.  
-  
-
-
-
-
-to stop this email in future email us at rembox@datashopper.tk
+-- 
+Ondrej Zary

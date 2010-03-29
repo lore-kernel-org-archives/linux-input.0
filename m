@@ -1,49 +1,67 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: [RFC][PATCH v2 5/5] omap1: Amstrad Delta: modify defconfig for external keyboard support
-Date: Mon, 29 Mar 2010 16:32:31 +0200
-Message-ID: <201003291632.33077.jkrzyszt@tis.icnet.pl>
-References: <201003291619.25878.jkrzyszt@tis.icnet.pl>
+From: Anisse Astier <anisse@astier.eu>
+Subject: Re: [PATCH] hid: Add NOGET quirk for Quanta usb optical touchscreen
+ Pixart to prevent timeout
+Date: Mon, 29 Mar 2010 17:03:53 +0200
+Message-ID: <20100329170353.437bab66@destiny.ordissimo>
+References: <20100329162006.3f6e03b1@destiny.ordissimo>
+	<alpine.LNX.2.00.1003291625100.24576@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:45564 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750925Ab0C2Ocw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Mar 2010 10:32:52 -0400
-In-Reply-To: <201003291619.25878.jkrzyszt@tis.icnet.pl>
-Content-Disposition: inline
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:61386 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751441Ab0C2PEE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Mar 2010 11:04:04 -0400
+Received: by pva18 with SMTP id 18so2528916pva.19
+        for <linux-input@vger.kernel.org>; Mon, 29 Mar 2010 08:04:03 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1003291625100.24576@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, e3-hacking@earth.li
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Stephane Chatty <chatty@lii-enac.fr>, Alex Neblett <alexneblett01@yahoo.com>
 
-The patch adds a CONFIG directive required for supporting the Amstrad Delta
-connected external keyboard by default.
+On Mon, 29 Mar 2010 16:25:31 +0200 (CEST), Jiri Kosina <jkosina@suse.cz> wrote :
 
-Works on top of patch 4/5:
-	input: serio: add support for Amstrad Delta serial keyboard port
+> On Mon, 29 Mar 2010, Anisse Astier wrote:
+> 
+> > 
+> > Add the NOGET quirk for the Quanta optical touchscreen present on MSI AE2220,
+> > Otherwise, the hid-quanta driver timeouts at load time:
+> > 
+> > drivers/hid/usbhid/hid-core.c: usb_submit_urb(ctrl) failed
+> > quanta-touch 0003:0408:3001.0003: timeout initializing reports
+> > input: PixArt Imaging Inc. Optical Touch Screen as /class/input/input7
+> > quanta-touch 0003:0408:3001.0003: input: USB HID v1.10 Device [PixArt Imaging Inc. Optical Touch Screen] on usb-0000:00:06.0-2/input0
+> > 
+> > Signed-off-by: Anisse Astier <anisse@astier.eu>
+> > ---
+> >  drivers/hid/usbhid/hid-quirks.c |    1 +
+> >  1 files changed, 1 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> > index 928943c..e71e005 100644
+> > --- a/drivers/hid/usbhid/hid-quirks.c
+> > +++ b/drivers/hid/usbhid/hid-quirks.c
+> > @@ -60,6 +60,7 @@ static const struct hid_blacklist {
+> >  	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS, HID_QUIRK_NOGET },
+> > +	{ USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
+> >  	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, HID_QUIRK_MULTI_INPUT },
+> 
+> I have applied the patch, but I wonder why Alex (who added this device ID 
+> initially) wasn't seeing it?
+Good question indeed, that's why I included him in the Cc. I just assumed that
+he saw it but didn't bother, since this problem is not critical: the driver
+just works correctly after the timeout, and we can receive the touchscreen
+events.
 
-Created and tested against linux-2.6.34-rc2.
+Maybe I'm wrong, Alex?
 
-Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
----
-v2 changes:
-- no functional changes,
-- refreshed against linux-2.6.34-rc2.
+Regards,
 
- arch/arm/configs/ams_delta_defconfig |    1 +
- 1 file changed, 1 insertion(+)
-
-diff -uprN git.orig/arch/arm/configs/ams_delta_defconfig git/arch/arm/configs/ams_delta_defconfig
---- git.orig/arch/arm/configs/ams_delta_defconfig	2010-03-28 23:43:07.000000000 +0200
-+++ git/arch/arm/configs/ams_delta_defconfig	2010-03-28 23:46:29.000000000 +0200
-@@ -700,6 +700,7 @@ CONFIG_SERIO=y
- CONFIG_SERIO_SERPORT=y
- CONFIG_SERIO_LIBPS2=y
- # CONFIG_SERIO_RAW is not set
-+CONFIG_SERIO_AMS_DELTA=y
- # CONFIG_GAMEPORT is not set
- 
- #
+Anisse

@@ -1,85 +1,73 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v4 1/6] hid: new driver for PicoLCD device
-Date: Mon, 29 Mar 2010 12:16:11 +0200
-Message-ID: <20100329121611.0c22dcaf@pluto.restena.lu>
-References: <20100324233707.7243b04d@neptune.home>
-	<20100324234022.0361bd80@neptune.home>
-	<20100326065656.GC26602@core.coreip.homeip.net>
-	<20100326102951.3b9ecda1@neptune.home>
-	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
-	<20100327012245.0ace6a09@neptune.home>
-	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: Re: Merge plans for Staging  Synaptics Touchscreen Driver
+Date: Mon, 29 Mar 2010 17:25:32 +0530 (IST)
+Message-ID: <33474.10.24.255.18.1269863732.squirrel@dbdmail.itg.ti.com>
+References: <19039.10.24.255.18.1269336516.squirrel@dbdmail.itg.ti.com>
+    <20100326144415.GA1591@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:47302 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750925Ab0C2Lzi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Mar 2010 07:55:38 -0400
+In-Reply-To: <20100326144415.GA1591@ucw.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
 
-On Mon, 29 Mar 2010 11:47:27 +0200 Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sat, 27 Mar 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > +#ifdef CONFIG_PM
-> > +static int picolcd_suspend(struct hid_device *hdev)
-> > +{
-> > +	dbg_hid(PICOLCD_NAME " device ready for suspend\n");
-> > +	return 0;
-> > +}
-> > +
-> > +static int picolcd_resume(struct hid_device *hdev)
-> > +{
-> > +	return 0;
-> > +}
-> > +
-> > +static int picolcd_reset_resume(struct hid_device *hdev)
-> > +{
-> > +	int ret;
-> > +	ret =3D picolcd_reset(hdev);
-> > +	if (ret)
-> > +		dbg_hid(PICOLCD_NAME " resetting our device failed: %d\n", ret);
-> > +	return 0;
-> > +}
-> > +#endif
-> [ ... ]
-> > +static struct hid_driver picolcd_driver =3D {
-> > +	.name =3D          "hid-picolcd",
-> > +	.id_table =3D      picolcd_devices,
-> > +	.probe =3D         picolcd_probe,
-> > +	.remove =3D        picolcd_remove,
-> > +	.raw_event =3D     picolcd_raw_event,
-> > +#ifdef CONFIG_PM
-> > +	.suspend =3D       picolcd_suspend,
-> > +	.resume =3D        picolcd_resume,
-> > +	.reset_resume =3D  picolcd_reset_resume,
-> > +#endif
-> > +};
->=20
-> struct hid_driver doesn't provide power-management related callbacks.
-> So I guess that you have either not tested this feature at all, or
-> you have some extra patch somewhere which adds such callbacks to HID
-> core, but you haven't sent it out for review?
->=20
-> In any cases, this will very likely cause compilation failure with=20
-> CONFIG_PM turned on.
+> Hi!
+>
+>> Are there any plans to merge the synaptics touchscreen driver
+>> (drivers/staging/dream/synaptics_i2c_rmi.c) to
+>> drivers/input/touchscreen. We are interested in the same
+>> since OMAP3 based Zoom boards use this touchscreen.
+>
+> Plans are, but day job interferes with them.
+>
+>> Pl add (if required) below tested by for the staging driver.
 
-That's the patch I referred to (under series introduction mail) when
-saying:
-> The series depends on my previous patch adding HID suspend support
-> (I've not yet looked at improving it).
+>
+> 1) are you able to use driver in staging?
 
-Link to the patch:
-  http://lkml.org/lkml/2010/2/24/233
+Yes I am able to use staging driver for single
+touch events.
 
-Especially the reset-resume part is important as the device has to be
-reprogrammed with framebuffer content, brightness/contrast in that case=
-=2E
+>
+> at minimum, non-standard multitouch support needs to be removed before
+> merging to input. Do you have time to help?
+
+Could you review the below patch.
+
+Thanks
+Hemanth
+
+---
+
+Remove non-standard multi touch support.
+
+Signed-off-by: Hemanth V <hemanthv@ti.com>
+
+diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/staging/dream/synaptics_i2c_rmi.c
+index 4de6bc9..34449ad 100644
+--- a/drivers/staging/dream/synaptics_i2c_rmi.c
++++ b/drivers/staging/dream/synaptics_i2c_rmi.c
+@@ -150,14 +150,6 @@ static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
+ 		input_report_abs(ts->input_dev, ABS_Y, pos[0][1]);
+ 	}
+ 	input_report_abs(ts->input_dev, ABS_PRESSURE, z);
+-	input_report_abs(ts->input_dev, ABS_TOOL_WIDTH, w);
+-	input_report_key(ts->input_dev, BTN_TOUCH, finger);
+-	finger2_pressed = finger > 1 && finger != 7;
+-	input_report_key(ts->input_dev, BTN_2, finger2_pressed);
+-	if (finger2_pressed) {
+-		input_report_abs(ts->input_dev, ABS_HAT0X, pos[1][0]);
+-		input_report_abs(ts->input_dev, ABS_HAT0Y, pos[1][1]);
+-	}
+ 	input_sync(ts->input_dev);
+ }
 
 
-As stated, Oliver didn't like the implementation of the addition of
-those hooks too much and I have yet to look at improving it.
 
-Thanks,
-Bruno

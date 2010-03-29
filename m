@@ -1,67 +1,19 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH] ati_remote: add some missing devices from lirc_atiusb
-Date: Mon, 29 Mar 2010 11:42:37 -0400
-Message-ID: <20100329154237.GB26097@redhat.com>
+From: "Sgt. Ken Holland" <tarant@yahoo.com>
+Subject: Urgent Attention
+Date: Mon, 29 Mar 2010 09:39:25 -0700 (PDT)
+Message-ID: <641226.76206.qm@web88304.mail.re4.yahoo.com>
+Reply-To: sgt.kenh105@yahoo.com.hk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43314 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754022Ab0C2PnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Mar 2010 11:43:17 -0400
-Content-Disposition: inline
+Received: from web88304.mail.re4.yahoo.com ([216.39.53.227]:37015 "HELO
+	web88304.mail.re4.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753529Ab0C2QqG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Mar 2010 12:46:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Torrey Hoffman <thoffman@arnor.net>
 
-The (out-of-tree) lirc_atiusb driver has a much longer list of devices
-it supports. Some of them look like they may just be guesses at possible
-device IDs, but a few are definitely confirmed devices. This adds the
-nVidia-branded RF receiver and the X10 Lola Wireless Video Sender device
-(which contains an RF receiver) to the list of devices in ati_remote.
+Permit me to approach you in this manner.I am Sgt. Ken Holland of the US Marine in Ba'qubah,Iraq. We got the sum of $15,500,000.00 we made from some Crude Oil Money deal that i will want you to help us receive. Since we are working here on Official capacity we cannot keep this funds hence my contacting you. If you are interested, do get back to me so that i can give you further details.
 
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-
----
- drivers/input/misc/ati_remote.c |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/misc/ati_remote.c b/drivers/input/misc/ati_remote.c
-index 614b65d..e8bbc61 100644
---- a/drivers/input/misc/ati_remote.c
-+++ b/drivers/input/misc/ati_remote.c
-@@ -98,10 +98,12 @@
-  * Module and Version Information, Module Parameters
-  */
- 
--#define ATI_REMOTE_VENDOR_ID	0x0bc7
--#define ATI_REMOTE_PRODUCT_ID	0x004
--#define LOLA_REMOTE_PRODUCT_ID	0x002
--#define MEDION_REMOTE_PRODUCT_ID 0x006
-+#define ATI_REMOTE_VENDOR_ID		0x0bc7
-+#define LOLA_REMOTE_PRODUCT_ID		0x0002
-+#define LOLA2_REMOTE_PRODUCT_ID		0x0003
-+#define ATI_REMOTE_PRODUCT_ID		0x0004
-+#define NVIDIA_REMOTE_PRODUCT_ID	0x0005
-+#define MEDION_REMOTE_PRODUCT_ID	0x0006
- 
- #define DRIVER_VERSION	        "2.2.1"
- #define DRIVER_AUTHOR           "Torrey Hoffman <thoffman@arnor.net>"
-@@ -142,8 +144,10 @@ MODULE_PARM_DESC(repeat_delay, "Delay before sending repeats, default = 500 msec
- #define err(format, arg...) printk(KERN_ERR format , ## arg)
- 
- static struct usb_device_id ati_remote_table[] = {
--	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, ATI_REMOTE_PRODUCT_ID) },
- 	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, LOLA_REMOTE_PRODUCT_ID) },
-+	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, LOLA2_REMOTE_PRODUCT_ID) },
-+	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, ATI_REMOTE_PRODUCT_ID) },
-+	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, NVIDIA_REMOTE_PRODUCT_ID) },
- 	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, MEDION_REMOTE_PRODUCT_ID) },
- 	{}	/* Terminating entry */
- };
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Sgt. Ken Holland

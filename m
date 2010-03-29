@@ -1,58 +1,40 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Merge plans for Staging  Synaptics Touchscreen Driver
-Date: Mon, 29 Mar 2010 15:12:40 +0200
-Message-ID: <20100329131136.GA26586@ucw.cz>
-References: <19039.10.24.255.18.1269336516.squirrel@dbdmail.itg.ti.com> <20100326144415.GA1591@ucw.cz> <33474.10.24.255.18.1269863733.squirrel@dbdmail.itg.ti.com> <49670.10.24.255.17.1269864940.squirrel@dbdmail.itg.ti.com>
+From: Octoploid <Cryptooctoploid@gmail.com>
+Subject: Logitech M705 thumb button
+Date: Mon, 29 Mar 2010 15:40:20 +0200
+Message-ID: <hoqak4$m6t$1@dough.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:41635 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751213Ab0C2NMv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Mar 2010 09:12:51 -0400
-Content-Disposition: inline
-In-Reply-To: <49670.10.24.255.17.1269864940.squirrel@dbdmail.itg.ti.com>
+Received: from lo.gmane.org ([80.91.229.12]:43432 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751477Ab0C2NpF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Mar 2010 09:45:05 -0400
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1NwFH5-00027H-2q
+	for linux-input@vger.kernel.org; Mon, 29 Mar 2010 15:45:03 +0200
+Received: from 77-22-100-23-dynip.superkabel.de ([77.22.100.23])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 29 Mar 2010 15:45:03 +0200
+Received: from Cryptooctoploid by 77-22-100-23-dynip.superkabel.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 29 Mar 2010 15:45:03 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>, kernel list <linux-kernel@vger.kernel.org>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi!
+Just bought a Logitech M705 mouse today and everything is working
+fine except the thumb button. I just don't get any events in =C2=BBxev=C2=
+=AB or=20
+=C2=BBxinput test=C2=AB when I press that button.
+This mouse comes with the new =C2=BBUnifying USB receiver=C2=AB.
 
-> >>> Pl add (if required) below tested by for the staging driver.
-> >
-> >>
-> >> 1) are you able to use driver in staging?
-> >
-> > Yes I am able to use staging driver for single
-> > touch events.
+Any hints on how I could get that button working?=20
 
-Good.
-
-> >> at minimum, non-standard multitouch support needs to be removed before
-> >> merging to input. Do you have time to help?
-> >
-> > Could you review the below patch.
-> 
-> Forgot to remove unused variables in earlier patch, here's
-> the updated one.
-
-Thanks, seems ok.
-
-> Remove non-standard multi touch support.
-> 
-> Signed-off-by: Hemanth V <hemanthv@ti.com>
-
-ACK.
-
-Now... you probably want to send the patch to Greg. And then, I guess
-you could take the patch from staging, and ask for another round of
-review on linux-input.
-
-If you could figure out if threaded interrupts can be used for this
-driver, that would be welcome bonus.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

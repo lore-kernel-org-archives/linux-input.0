@@ -1,78 +1,71 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [RFC][PATCH v2 4/5] input: serio: add support for Amstrad Delta serial keyboard port
-Date: Tue, 30 Mar 2010 12:23:55 +0200
-Message-ID: <201003301223.57206.jkrzyszt@tis.icnet.pl>
-References: <201003291619.25878.jkrzyszt@tis.icnet.pl> <201003291630.43694.jkrzyszt@tis.icnet.pl> <20100330065618.GB12764@core.coreip.homeip.net>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR system?
+Date: Tue, 30 Mar 2010 13:01:38 +0200
+Message-ID: <20100330110138.GA6164@hardeman.nu>
+References: <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com>
+ <20091215203300.GL24406@elf.ucw.cz>
+ <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com>
+ <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+ <4BAB7659.1040408@redhat.com>
+ <20100326112755.GB5387@hardeman.nu>
+ <4BACC769.6020906@redhat.com>
+ <20100326160150.GA28804@core.coreip.homeip.net>
+ <4BAFE4B7.2030204@redhat.com>
+ <4BAFF985.3090703@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:34286 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756211Ab0C3K0K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Mar 2010 06:26:10 -0400
-In-Reply-To: <20100330065618.GB12764@core.coreip.homeip.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4BAFF985.3090703@redhat.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@radix.net, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li
 
-Tuesday 30 March 2010 08:56:19 Dmitry Torokhov wrote:
-> On Mon, Mar 29, 2010 at 04:30:41PM +0200, Janusz Krzysztofik wrote:
-> > The patch introduces a serio driver that supports a keyboard serial port
-> > found on the Amstrad Delta videophone board.
-> >
-[snip]
-> > +#define MAX_SCANCODE 0x84
->
-> Not needed anymore?
->
-[snip]
-> > +		printk(KERN_WARNING
-> > +				"Invalid stop bit in AMS keyboard"
-> > +				" data=0x%X\r\n", data);
->
-> Consider switching top dev_err(), dev_warning(), etc. Also do not split
-> text strings, even if you run over 80 column limit. BTW, why "\r\n" in
-> the message?
->
-[snip]
-> > +	serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
->
-> kzalloc() please.
->
-[snip]
-> > +		snprintf(serio->phys, sizeof(serio->phys), "%s/serio0", "GPIO");
->
-> strlcpy(serio->phys, "GPIO/serio0", sizeof(serio->phys)); ?
->
-[snip]
-> > +	if (gpio_request(AMS_DELTA_GPIO_PIN_KEYBRD_DATA, "kbd-data")) {
-> > +		printk(KERN_ERR "Couldn't request gpio pin for keyboard data");
-> > +		err = -EINVAL;
->
-> Why do you mangle return value of gpio_request()? Just return what it
-> reported. Same goes for request_irq() below.
->
-[snip]
-> > +	/* enable keyboard */
-> > +	ams_delta_latch2_write(AMD_DELTA_LATCH2_KEYBRD_PWR,
-> > +			AMD_DELTA_LATCH2_KEYBRD_PWR);
->
-> This shoukd probably go into open() method of the serio port.
->
-[snip]
-> > +	/* disable keyboard */
-> > +	ams_delta_latch2_write(AMD_DELTA_LATCH2_KEYBRD_PWR, 0);
->
-> And this into close().
->
+On Sun, Mar 28, 2010 at 09:51:17PM -0300, Mauro Carvalho Chehab wrote:
+>=20
+> I spoke too soon... removing the index causes a problem at the read i=
+octl: there's no way
+> to retrieve just the non-sparsed values.
+>=20
+> There's one solution that would allow both read/write and compat to w=
+ork nicely,
+> but the API would become somewhat asymmetrical:
+>=20
+> At get (EVIOCGKEYCODEBIG):
+> 	use index/len as input and keycode/scancode as output;
+>=20
+> At set (EVIOCSKEYCODEBIG):
+> 	use scancode/keycode/len as input (and, optionally, index as output)=
+=2E
+>=20
 
-Hi Dmitry,
-Thanks for your review time. I agree with all your comments and will address 
-them in next version.
+This was exactly the approach I had in mind when I suggested using=20
+indexes.
 
-Regards,
-Janusz
+> Having it asymmetrical doesn't sound good, but, on the other hand,=20
+> using index for
+> the set function also doesn't seem good, as the driver may reorder th=
+e entries after
+> setting, for example to work with a binary tree or with hashes.
+
+I don't think the assymetry is really a problem. As I see it, there are=
+=20
+basically two user cases:
+
+1) Userspace wants scancode X to generate keypress Y
+   (In which case userspace doesn't care one iota what the index is)
+
+2) Userspace wants to get the current keytable from the kernel
+   (In which case a loop with an index from 0 to n is appropriate)
+
+and, possibly:
+
+3) Userspace wants to know what keycode (if any) scancode X generates
+   (In which case approach 2 will work just as well, but this usecase
+    seems a bit contrived anyway...)
+
+--=20
+David H=E4rdeman

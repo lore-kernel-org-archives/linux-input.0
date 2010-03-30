@@ -1,2378 +1,758 @@
-From: Octoploid <cryptooctoploid@gmail.com>
-Subject: Re: Logitech M705 thumb button
-Date: Tue, 30 Mar 2010 15:02:54 +0200
-Message-ID: <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
-References: <hoqak4$m6t$1@dough.gmane.org>
-	 <20100330065625.GC12764@core.coreip.homeip.net>
-	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>
-	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
+From: Jan-Hendrik Zab <jan@jhz.name>
+Subject: Re: Add Sony Vaio VPCZ1 series to the nopnp table
+Date: Tue, 30 Mar 2010 22:39:11 +0200
+Message-ID: <20100330203911.GA89560@jhz.name>
+References: <20100329233257.GA85504@jhz.name>
+ <20100329233901.GF5864@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f223.google.com ([209.85.220.223]:59907 "EHLO
-	mail-fx0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756279Ab0C3NC5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Mar 2010 09:02:57 -0400
-Received: by fxm23 with SMTP id 23so241859fxm.21
-        for <linux-input@vger.kernel.org>; Tue, 30 Mar 2010 06:02:55 -0700 (PDT)
-In-Reply-To: <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
+Received: from red.unix-ag.uni-hannover.de ([130.75.176.204]:50152 "EHLO
+	jhz.name" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755072Ab0C3UjZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Mar 2010 16:39:25 -0400
+Content-Disposition: inline
+In-Reply-To: <20100329233901.GF5864@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: torvalds@linux-foundation.org, linux-input@vger.kernel.org
 
-On Tue, Mar 30, 2010 at 2:28 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 30 Mar 2010, Octoploid wrote:
->
->> >> Just bought a Logitech M705 mouse today and everything is working
->> >> fine except the thumb button. I just don't get any events in =BBx=
-ev=AB or
->> >> =BBxinput test=AB when I press that button.
->> >> This mouse comes with the new =BBUnifying USB receiver=AB.
->> >>
->> >> Any hints on how I could get that button working?
->> >>
->> >
->> > Start with locating "evtest" utility and confirming that the keren=
-l does
->> > not emit any events for the thumb button.
->>
->> Yes, there are no events emitted for the thumb button when running =BB=
-evtest=AB.
->
-> Could you please provide output of
->
-> =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/rdesc
->
-> and
->
-> =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/events
->
+On 29/03/10 16:39 -0700, Dmitry Torokhov wrote:
+> Hi Jan-Hendrik,
+> 
+> On Tue, Mar 30, 2010 at 01:32:57AM +0200, Jan-Hendrik Zab wrote:
+> > The entire Sony Vaio VPCZ1 series seems to need the nopnp option set to
+> > get the touchpad working. This patch adds the laptops to the nopnp table
+> > to automatically set it.
+> > 
+> > Signed-off-by: Jan-Hendrik Zab <jan@jhz.name>
+> > 
+> 
+> In what way the PNP data is messed up? Can we get a dmesg of the boot
+> without the patch?
 
-Sure:
+Attached dmesg output below.
 
-There are no events logged when I press the thumb button
-while running cat /sys/kernel/debug/hid/0003:046D:C52B.0002/events.
-
-(The =BBunifying USB reciever=AB has three sub-devices. The first one i=
-s
-for keyboards, the second for mouses and the third is not used:
-usb 3-1: new full speed USB device using ohci_hcd and address 2
-input: Logitech USB Receiver as
-/devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
-generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboard
-[Logitech USB Receiver] on usb-0000:00:12.0-1/input0
-input: Logitech USB Receiver as
-/devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
-generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.11
-Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
-generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
-Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
-
-The rdesc output for the mouse and the third device follows:
+	-jhz
 
 
-05 01 09 02 a1 01 85 02 09 01 a1 00 05 09 19 01 29 10 15 00 25 01 95
-10 75 01 81 02 05 01 16 01 f8 26 ff 07 75 0c 95 02 09 30 09 31 81 06
-15 81 25 7f 75 08 95 01 09 38 81 06 05 0c 0a 38 02 95 01 81 06 c0 c0
-05 0c 09 01 a1 01 85 03 75 10 95 02 15 01 26 8c 02 19 01 2a 8c 02 81
-00 c0 05 01 09 80 a1 01 85 04 75 02 95 01 15 01 25 03 09 82 09 81 09
-83 81 60 75 06 81 03 c0 06 bc ff 09 88 a1 01 85 08 19 01 29 ff 15 01
-26 ff 00 75 08 95 01 81 00 c0
-
-  INPUT(2)[INPUT]
-    Field(0)
-      Physical(GenericDesktop.Pointer)
-      Usage(16)
-        Button.0001
-        Button.0002
-        Button.0003
-        Button.0004
-        Button.0005
-        Button.0006
-        Button.0007
-        Button.0008
-        Button.0009
-        Button.000a
-        Button.000b
-        Button.000c
-        Button.000d
-        Button.000e
-        Button.000f
-        Button.0010
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Report Size(1)
-      Report Count(16)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Physical(GenericDesktop.Pointer)
-      Usage(2)
-        GenericDesktop.X
-        GenericDesktop.Y
-      Logical Minimum(-2047)
-      Logical Maximum(2047)
-      Report Size(12)
-      Report Count(2)
-      Report Offset(16)
-      Flags( Variable Relative )
-    Field(2)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.Wheel
-      Logical Minimum(-127)
-      Logical Maximum(127)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(40)
-      Flags( Variable Relative )
-    Field(3)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        Consumer.HorizontalWheel
-      Logical Minimum(-127)
-      Logical Maximum(127)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(48)
-      Flags( Variable Relative )
-  INPUT(3)[INPUT]
-    Field(0)
-      Usage(652)
-        Consumer.0001
-        Consumer.0002
-        Consumer.0003
-        Consumer.0004
-        Consumer.0005
-        Consumer.0006
-        Consumer.0007
-        Consumer.0008
-        Consumer.0009
-        Consumer.000a
-        Consumer.000b
-        Consumer.000c
-        Consumer.000d
-        Consumer.000e
-        Consumer.000f
-        Consumer.0010
-        Consumer.0011
-        Consumer.0012
-        Consumer.0013
-        Consumer.0014
-        Consumer.0015
-        Consumer.0016
-        Consumer.0017
-        Consumer.0018
-        Consumer.0019
-        Consumer.001a
-        Consumer.001b
-        Consumer.001c
-        Consumer.001d
-        Consumer.001e
-        Consumer.001f
-        Consumer.0020
-        Consumer.0021
-        Consumer.0022
-        Consumer.0023
-        Consumer.0024
-        Consumer.0025
-        Consumer.0026
-        Consumer.0027
-        Consumer.0028
-        Consumer.0029
-        Consumer.002a
-        Consumer.002b
-        Consumer.002c
-        Consumer.002d
-        Consumer.002e
-        Consumer.002f
-        Consumer.0030
-        Consumer.0031
-        Consumer.0032
-        Consumer.0033
-        Consumer.0034
-        Consumer.0035
-        Consumer.0036
-        Consumer.0037
-        Consumer.0038
-        Consumer.0039
-        Consumer.003a
-        Consumer.003b
-        Consumer.003c
-        Consumer.003d
-        Consumer.003e
-        Consumer.003f
-        Consumer.0040
-        Consumer.0041
-        Consumer.0042
-        Consumer.0043
-        Consumer.0044
-        Consumer.0045
-        Consumer.0046
-        Consumer.0047
-        Consumer.0048
-        Consumer.0049
-        Consumer.004a
-        Consumer.004b
-        Consumer.004c
-        Consumer.004d
-        Consumer.004e
-        Consumer.004f
-        Consumer.0050
-        Consumer.0051
-        Consumer.0052
-        Consumer.0053
-        Consumer.0054
-        Consumer.0055
-        Consumer.0056
-        Consumer.0057
-        Consumer.0058
-        Consumer.0059
-        Consumer.005a
-        Consumer.005b
-        Consumer.005c
-        Consumer.005d
-        Consumer.005e
-        Consumer.005f
-        Consumer.0060
-        Consumer.0061
-        Consumer.0062
-        Consumer.0063
-        Consumer.0064
-        Consumer.0065
-        Consumer.0066
-        Consumer.0067
-        Consumer.0068
-        Consumer.0069
-        Consumer.006a
-        Consumer.006b
-        Consumer.006c
-        Consumer.006d
-        Consumer.006e
-        Consumer.006f
-        Consumer.0070
-        Consumer.0071
-        Consumer.0072
-        Consumer.0073
-        Consumer.0074
-        Consumer.0075
-        Consumer.0076
-        Consumer.0077
-        Consumer.0078
-        Consumer.0079
-        Consumer.007a
-        Consumer.007b
-        Consumer.007c
-        Consumer.007d
-        Consumer.007e
-        Consumer.007f
-        Consumer.0080
-        Consumer.0081
-        Consumer.0082
-        Consumer.0083
-        Consumer.0084
-        Consumer.0085
-        Consumer.0086
-        Consumer.0087
-        Consumer.0088
-        Consumer.0089
-        Consumer.008a
-        Consumer.008b
-        Consumer.008c
-        Consumer.008d
-        Consumer.008e
-        Consumer.008f
-        Consumer.0090
-        Consumer.0091
-        Consumer.0092
-        Consumer.0093
-        Consumer.0094
-        Consumer.0095
-        Consumer.0096
-        Consumer.0097
-        Consumer.0098
-        Consumer.0099
-        Consumer.009a
-        Consumer.009b
-        Consumer.009c
-        Consumer.009d
-        Consumer.009e
-        Consumer.009f
-        Consumer.00a0
-        Consumer.00a1
-        Consumer.00a2
-        Consumer.00a3
-        Consumer.00a4
-        Consumer.00a5
-        Consumer.00a6
-        Consumer.00a7
-        Consumer.00a8
-        Consumer.00a9
-        Consumer.00aa
-        Consumer.00ab
-        Consumer.00ac
-        Consumer.00ad
-        Consumer.00ae
-        Consumer.00af
-        Consumer.00b0
-        Consumer.00b1
-        Consumer.00b2
-        Consumer.00b3
-        Consumer.00b4
-        Consumer.00b5
-        Consumer.00b6
-        Consumer.00b7
-        Consumer.00b8
-        Consumer.00b9
-        Consumer.00ba
-        Consumer.00bb
-        Consumer.00bc
-        Consumer.00bd
-        Consumer.00be
-        Consumer.00bf
-        Consumer.00c0
-        Consumer.00c1
-        Consumer.00c2
-        Consumer.00c3
-        Consumer.00c4
-        Consumer.00c5
-        Consumer.00c6
-        Consumer.00c7
-        Consumer.00c8
-        Consumer.00c9
-        Consumer.00ca
-        Consumer.00cb
-        Consumer.00cc
-        Consumer.00cd
-        Consumer.00ce
-        Consumer.00cf
-        Consumer.00d0
-        Consumer.00d1
-        Consumer.00d2
-        Consumer.00d3
-        Consumer.00d4
-        Consumer.00d5
-        Consumer.00d6
-        Consumer.00d7
-        Consumer.00d8
-        Consumer.00d9
-        Consumer.00da
-        Consumer.00db
-        Consumer.00dc
-        Consumer.00dd
-        Consumer.00de
-        Consumer.00df
-        Consumer.00e0
-        Consumer.00e1
-        Consumer.00e2
-        Consumer.00e3
-        Consumer.00e4
-        Consumer.00e5
-        Consumer.00e6
-        Consumer.00e7
-        Consumer.00e8
-        Consumer.00e9
-        Consumer.00ea
-        Consumer.00eb
-        Consumer.00ec
-        Consumer.00ed
-        Consumer.00ee
-        Consumer.00ef
-        Consumer.00f0
-        Consumer.00f1
-        Consumer.00f2
-        Consumer.00f3
-        Consumer.00f4
-        Consumer.00f5
-        Consumer.00f6
-        Consumer.00f7
-        Consumer.00f8
-        Consumer.00f9
-        Consumer.00fa
-        Consumer.00fb
-        Consumer.00fc
-        Consumer.00fd
-        Consumer.00fe
-        Consumer.00ff
-        Consumer.0100
-        Consumer.0101
-        Consumer.0102
-        Consumer.0103
-        Consumer.0104
-        Consumer.0105
-        Consumer.0106
-        Consumer.0107
-        Consumer.0108
-        Consumer.0109
-        Consumer.010a
-        Consumer.010b
-        Consumer.010c
-        Consumer.010d
-        Consumer.010e
-        Consumer.010f
-        Consumer.0110
-        Consumer.0111
-        Consumer.0112
-        Consumer.0113
-        Consumer.0114
-        Consumer.0115
-        Consumer.0116
-        Consumer.0117
-        Consumer.0118
-        Consumer.0119
-        Consumer.011a
-        Consumer.011b
-        Consumer.011c
-        Consumer.011d
-        Consumer.011e
-        Consumer.011f
-        Consumer.0120
-        Consumer.0121
-        Consumer.0122
-        Consumer.0123
-        Consumer.0124
-        Consumer.0125
-        Consumer.0126
-        Consumer.0127
-        Consumer.0128
-        Consumer.0129
-        Consumer.012a
-        Consumer.012b
-        Consumer.012c
-        Consumer.012d
-        Consumer.012e
-        Consumer.012f
-        Consumer.0130
-        Consumer.0131
-        Consumer.0132
-        Consumer.0133
-        Consumer.0134
-        Consumer.0135
-        Consumer.0136
-        Consumer.0137
-        Consumer.0138
-        Consumer.0139
-        Consumer.013a
-        Consumer.013b
-        Consumer.013c
-        Consumer.013d
-        Consumer.013e
-        Consumer.013f
-        Consumer.0140
-        Consumer.0141
-        Consumer.0142
-        Consumer.0143
-        Consumer.0144
-        Consumer.0145
-        Consumer.0146
-        Consumer.0147
-        Consumer.0148
-        Consumer.0149
-        Consumer.014a
-        Consumer.014b
-        Consumer.014c
-        Consumer.014d
-        Consumer.014e
-        Consumer.014f
-        Consumer.0150
-        Consumer.0151
-        Consumer.0152
-        Consumer.0153
-        Consumer.0154
-        Consumer.0155
-        Consumer.0156
-        Consumer.0157
-        Consumer.0158
-        Consumer.0159
-        Consumer.015a
-        Consumer.015b
-        Consumer.015c
-        Consumer.015d
-        Consumer.015e
-        Consumer.015f
-        Consumer.0160
-        Consumer.0161
-        Consumer.0162
-        Consumer.0163
-        Consumer.0164
-        Consumer.0165
-        Consumer.0166
-        Consumer.0167
-        Consumer.0168
-        Consumer.0169
-        Consumer.016a
-        Consumer.016b
-        Consumer.016c
-        Consumer.016d
-        Consumer.016e
-        Consumer.016f
-        Consumer.0170
-        Consumer.0171
-        Consumer.0172
-        Consumer.0173
-        Consumer.0174
-        Consumer.0175
-        Consumer.0176
-        Consumer.0177
-        Consumer.0178
-        Consumer.0179
-        Consumer.017a
-        Consumer.017b
-        Consumer.017c
-        Consumer.017d
-        Consumer.017e
-        Consumer.017f
-        Consumer.0180
-        Consumer.0181
-        Consumer.0182
-        Consumer.0183
-        Consumer.0184
-        Consumer.0185
-        Consumer.0186
-        Consumer.0187
-        Consumer.0188
-        Consumer.0189
-        Consumer.018a
-        Consumer.018b
-        Consumer.018c
-        Consumer.018d
-        Consumer.018e
-        Consumer.018f
-        Consumer.0190
-        Consumer.0191
-        Consumer.0192
-        Consumer.0193
-        Consumer.0194
-        Consumer.0195
-        Consumer.0196
-        Consumer.0197
-        Consumer.0198
-        Consumer.0199
-        Consumer.019a
-        Consumer.019b
-        Consumer.019c
-        Consumer.019d
-        Consumer.019e
-        Consumer.019f
-        Consumer.01a0
-        Consumer.01a1
-        Consumer.01a2
-        Consumer.01a3
-        Consumer.01a4
-        Consumer.01a5
-        Consumer.01a6
-        Consumer.01a7
-        Consumer.01a8
-        Consumer.01a9
-        Consumer.01aa
-        Consumer.01ab
-        Consumer.01ac
-        Consumer.01ad
-        Consumer.01ae
-        Consumer.01af
-        Consumer.01b0
-        Consumer.01b1
-        Consumer.01b2
-        Consumer.01b3
-        Consumer.01b4
-        Consumer.01b5
-        Consumer.01b6
-        Consumer.01b7
-        Consumer.01b8
-        Consumer.01b9
-        Consumer.01ba
-        Consumer.01bb
-        Consumer.01bc
-        Consumer.01bd
-        Consumer.01be
-        Consumer.01bf
-        Consumer.01c0
-        Consumer.01c1
-        Consumer.01c2
-        Consumer.01c3
-        Consumer.01c4
-        Consumer.01c5
-        Consumer.01c6
-        Consumer.01c7
-        Consumer.01c8
-        Consumer.01c9
-        Consumer.01ca
-        Consumer.01cb
-        Consumer.01cc
-        Consumer.01cd
-        Consumer.01ce
-        Consumer.01cf
-        Consumer.01d0
-        Consumer.01d1
-        Consumer.01d2
-        Consumer.01d3
-        Consumer.01d4
-        Consumer.01d5
-        Consumer.01d6
-        Consumer.01d7
-        Consumer.01d8
-        Consumer.01d9
-        Consumer.01da
-        Consumer.01db
-        Consumer.01dc
-        Consumer.01dd
-        Consumer.01de
-        Consumer.01df
-        Consumer.01e0
-        Consumer.01e1
-        Consumer.01e2
-        Consumer.01e3
-        Consumer.01e4
-        Consumer.01e5
-        Consumer.01e6
-        Consumer.01e7
-        Consumer.01e8
-        Consumer.01e9
-        Consumer.01ea
-        Consumer.01eb
-        Consumer.01ec
-        Consumer.01ed
-        Consumer.01ee
-        Consumer.01ef
-        Consumer.01f0
-        Consumer.01f1
-        Consumer.01f2
-        Consumer.01f3
-        Consumer.01f4
-        Consumer.01f5
-        Consumer.01f6
-        Consumer.01f7
-        Consumer.01f8
-        Consumer.01f9
-        Consumer.01fa
-        Consumer.01fb
-        Consumer.01fc
-        Consumer.01fd
-        Consumer.01fe
-        Consumer.01ff
-        Consumer.0200
-        Consumer.0201
-        Consumer.0202
-        Consumer.0203
-        Consumer.0204
-        Consumer.0205
-        Consumer.0206
-        Consumer.0207
-        Consumer.0208
-        Consumer.0209
-        Consumer.020a
-        Consumer.020b
-        Consumer.020c
-        Consumer.020d
-        Consumer.020e
-        Consumer.020f
-        Consumer.0210
-        Consumer.0211
-        Consumer.0212
-        Consumer.0213
-        Consumer.0214
-        Consumer.0215
-        Consumer.0216
-        Consumer.0217
-        Consumer.0218
-        Consumer.0219
-        Consumer.021a
-        Consumer.021b
-        Consumer.021c
-        Consumer.021d
-        Consumer.021e
-        Consumer.021f
-        Consumer.0220
-        Consumer.0221
-        Consumer.0222
-        Consumer.0223
-        Consumer.0224
-        Consumer.0225
-        Consumer.0226
-        Consumer.0227
-        Consumer.0228
-        Consumer.0229
-        Consumer.022a
-        Consumer.022b
-        Consumer.022c
-        Consumer.022d
-        Consumer.022e
-        Consumer.022f
-        Consumer.0230
-        Consumer.0231
-        Consumer.0232
-        Consumer.0233
-        Consumer.0234
-        Consumer.0235
-        Consumer.0236
-        Consumer.0237
-        Consumer.HorizontalWheel
-        Consumer.0239
-        Consumer.023a
-        Consumer.023b
-        Consumer.023c
-        Consumer.023d
-        Consumer.023e
-        Consumer.023f
-        Consumer.0240
-        Consumer.0241
-        Consumer.0242
-        Consumer.0243
-        Consumer.0244
-        Consumer.0245
-        Consumer.0246
-        Consumer.0247
-        Consumer.0248
-        Consumer.0249
-        Consumer.024a
-        Consumer.024b
-        Consumer.024c
-        Consumer.024d
-        Consumer.024e
-        Consumer.024f
-        Consumer.0250
-        Consumer.0251
-        Consumer.0252
-        Consumer.0253
-        Consumer.0254
-        Consumer.0255
-        Consumer.0256
-        Consumer.0257
-        Consumer.0258
-        Consumer.0259
-        Consumer.025a
-        Consumer.025b
-        Consumer.025c
-        Consumer.025d
-        Consumer.025e
-        Consumer.025f
-        Consumer.0260
-        Consumer.0261
-        Consumer.0262
-        Consumer.0263
-        Consumer.0264
-        Consumer.0265
-        Consumer.0266
-        Consumer.0267
-        Consumer.0268
-        Consumer.0269
-        Consumer.026a
-        Consumer.026b
-        Consumer.026c
-        Consumer.026d
-        Consumer.026e
-        Consumer.026f
-        Consumer.0270
-        Consumer.0271
-        Consumer.0272
-        Consumer.0273
-        Consumer.0274
-        Consumer.0275
-        Consumer.0276
-        Consumer.0277
-        Consumer.0278
-        Consumer.0279
-        Consumer.027a
-        Consumer.027b
-        Consumer.027c
-        Consumer.027d
-        Consumer.027e
-        Consumer.027f
-        Consumer.0280
-        Consumer.0281
-        Consumer.0282
-        Consumer.0283
-        Consumer.0284
-        Consumer.0285
-        Consumer.0286
-        Consumer.0287
-        Consumer.0288
-        Consumer.0289
-        Consumer.028a
-        Consumer.028b
-        Consumer.028c
-      Logical Minimum(1)
-      Logical Maximum(652)
-      Report Size(16)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Array Absolute )
-  INPUT(4)[INPUT]
-    Field(0)
-      Usage(3)
-        GenericDesktop.SystemSleep
-        GenericDesktop.SystemPowerDown
-        GenericDesktop.SystemWakeUp
-      Logical Minimum(1)
-      Logical Maximum(3)
-      Report Size(2)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Array Absolute NoPreferredState NullState )
-  INPUT(8)[INPUT]
-    Field(0)
-      Usage(255)
-        ffbc.0001
-        ffbc.0002
-        ffbc.0003
-        ffbc.0004
-        ffbc.0005
-        ffbc.0006
-        ffbc.0007
-        ffbc.0008
-        ffbc.0009
-        ffbc.000a
-        ffbc.000b
-        ffbc.000c
-        ffbc.000d
-        ffbc.000e
-        ffbc.000f
-        ffbc.0010
-        ffbc.0011
-        ffbc.0012
-        ffbc.0013
-        ffbc.0014
-        ffbc.0015
-        ffbc.0016
-        ffbc.0017
-        ffbc.0018
-        ffbc.0019
-        ffbc.001a
-        ffbc.001b
-        ffbc.001c
-        ffbc.001d
-        ffbc.001e
-        ffbc.001f
-        ffbc.0020
-        ffbc.0021
-        ffbc.0022
-        ffbc.0023
-        ffbc.0024
-        ffbc.0025
-        ffbc.0026
-        ffbc.0027
-        ffbc.0028
-        ffbc.0029
-        ffbc.002a
-        ffbc.002b
-        ffbc.002c
-        ffbc.002d
-        ffbc.002e
-        ffbc.002f
-        ffbc.0030
-        ffbc.0031
-        ffbc.0032
-        ffbc.0033
-        ffbc.0034
-        ffbc.0035
-        ffbc.0036
-        ffbc.0037
-        ffbc.0038
-        ffbc.0039
-        ffbc.003a
-        ffbc.003b
-        ffbc.003c
-        ffbc.003d
-        ffbc.003e
-        ffbc.003f
-        ffbc.0040
-        ffbc.0041
-        ffbc.0042
-        ffbc.0043
-        ffbc.0044
-        ffbc.0045
-        ffbc.0046
-        ffbc.0047
-        ffbc.0048
-        ffbc.0049
-        ffbc.004a
-        ffbc.004b
-        ffbc.004c
-        ffbc.004d
-        ffbc.004e
-        ffbc.004f
-        ffbc.0050
-        ffbc.0051
-        ffbc.0052
-        ffbc.0053
-        ffbc.0054
-        ffbc.0055
-        ffbc.0056
-        ffbc.0057
-        ffbc.0058
-        ffbc.0059
-        ffbc.005a
-        ffbc.005b
-        ffbc.005c
-        ffbc.005d
-        ffbc.005e
-        ffbc.005f
-        ffbc.0060
-        ffbc.0061
-        ffbc.0062
-        ffbc.0063
-        ffbc.0064
-        ffbc.0065
-        ffbc.0066
-        ffbc.0067
-        ffbc.0068
-        ffbc.0069
-        ffbc.006a
-        ffbc.006b
-        ffbc.006c
-        ffbc.006d
-        ffbc.006e
-        ffbc.006f
-        ffbc.0070
-        ffbc.0071
-        ffbc.0072
-        ffbc.0073
-        ffbc.0074
-        ffbc.0075
-        ffbc.0076
-        ffbc.0077
-        ffbc.0078
-        ffbc.0079
-        ffbc.007a
-        ffbc.007b
-        ffbc.007c
-        ffbc.007d
-        ffbc.007e
-        ffbc.007f
-        ffbc.0080
-        ffbc.0081
-        ffbc.0082
-        ffbc.0083
-        ffbc.0084
-        ffbc.0085
-        ffbc.0086
-        ffbc.0087
-        ffbc.0088
-        ffbc.0089
-        ffbc.008a
-        ffbc.008b
-        ffbc.008c
-        ffbc.008d
-        ffbc.008e
-        ffbc.008f
-        ffbc.0090
-        ffbc.0091
-        ffbc.0092
-        ffbc.0093
-        ffbc.0094
-        ffbc.0095
-        ffbc.0096
-        ffbc.0097
-        ffbc.0098
-        ffbc.0099
-        ffbc.009a
-        ffbc.009b
-        ffbc.009c
-        ffbc.009d
-        ffbc.009e
-        ffbc.009f
-        ffbc.00a0
-        ffbc.00a1
-        ffbc.00a2
-        ffbc.00a3
-        ffbc.00a4
-        ffbc.00a5
-        ffbc.00a6
-        ffbc.00a7
-        ffbc.00a8
-        ffbc.00a9
-        ffbc.00aa
-        ffbc.00ab
-        ffbc.00ac
-        ffbc.00ad
-        ffbc.00ae
-        ffbc.00af
-        ffbc.00b0
-        ffbc.00b1
-        ffbc.00b2
-        ffbc.00b3
-        ffbc.00b4
-        ffbc.00b5
-        ffbc.00b6
-        ffbc.00b7
-        ffbc.00b8
-        ffbc.00b9
-        ffbc.00ba
-        ffbc.00bb
-        ffbc.00bc
-        ffbc.00bd
-        ffbc.00be
-        ffbc.00bf
-        ffbc.00c0
-        ffbc.00c1
-        ffbc.00c2
-        ffbc.00c3
-        ffbc.00c4
-        ffbc.00c5
-        ffbc.00c6
-        ffbc.00c7
-        ffbc.00c8
-        ffbc.00c9
-        ffbc.00ca
-        ffbc.00cb
-        ffbc.00cc
-        ffbc.00cd
-        ffbc.00ce
-        ffbc.00cf
-        ffbc.00d0
-        ffbc.00d1
-        ffbc.00d2
-        ffbc.00d3
-        ffbc.00d4
-        ffbc.00d5
-        ffbc.00d6
-        ffbc.00d7
-        ffbc.00d8
-        ffbc.00d9
-        ffbc.00da
-        ffbc.00db
-        ffbc.00dc
-        ffbc.00dd
-        ffbc.00de
-        ffbc.00df
-        ffbc.00e0
-        ffbc.00e1
-        ffbc.00e2
-        ffbc.00e3
-        ffbc.00e4
-        ffbc.00e5
-        ffbc.00e6
-        ffbc.00e7
-        ffbc.00e8
-        ffbc.00e9
-        ffbc.00ea
-        ffbc.00eb
-        ffbc.00ec
-        ffbc.00ed
-        ffbc.00ee
-        ffbc.00ef
-        ffbc.00f0
-        ffbc.00f1
-        ffbc.00f2
-        ffbc.00f3
-        ffbc.00f4
-        ffbc.00f5
-        ffbc.00f6
-        ffbc.00f7
-        ffbc.00f8
-        ffbc.00f9
-        ffbc.00fa
-        ffbc.00fb
-        ffbc.00fc
-        ffbc.00fd
-        ffbc.00fe
-        ffbc.00ff
-      Logical Minimum(1)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Array Absolute )
-
-Button.0001 ---> Key.LeftBtn
-Button.0002 ---> Key.RightBtn
-Button.0003 ---> Key.MiddleBtn
-Button.0004 ---> Key.SideBtn
-Button.0005 ---> Key.ExtraBtn
-Button.0006 ---> Key.ForwardBtn
-Button.0007 ---> Key.BackBtn
-Button.0008 ---> Key.TaskBtn
-Button.0009 ---> Key.?
-Button.000a ---> Key.?
-Button.000b ---> Key.?
-Button.000c ---> Key.?
-Button.000d ---> Key.?
-Button.000e ---> Key.?
-Button.000f ---> Key.?
-Button.0010 ---> Key.?
-GenericDesktop.X ---> Relative.X
-GenericDesktop.Y ---> Relative.Y
-GenericDesktop.Wheel ---> Relative.Wheel
-Consumer.HorizontalWheel ---> Relative.HWheel
-Consumer.0001 ---> Sync.Report
-Consumer.0002 ---> Sync.Report
-Consumer.0003 ---> Sync.Report
-Consumer.0004 ---> Sync.Report
-Consumer.0005 ---> Sync.Report
-Consumer.0006 ---> Sync.Report
-Consumer.0007 ---> Sync.Report
-Consumer.0008 ---> Sync.Report
-Consumer.0009 ---> Sync.Report
-Consumer.000a ---> Sync.Report
-Consumer.000b ---> Sync.Report
-Consumer.000c ---> Sync.Report
-Consumer.000d ---> Sync.Report
-Consumer.000e ---> Sync.Report
-Consumer.000f ---> Sync.Report
-Consumer.0010 ---> Sync.Report
-Consumer.0011 ---> Sync.Report
-Consumer.0012 ---> Sync.Report
-Consumer.0013 ---> Sync.Report
-Consumer.0014 ---> Sync.Report
-Consumer.0015 ---> Sync.Report
-Consumer.0016 ---> Sync.Report
-Consumer.0017 ---> Sync.Report
-Consumer.0018 ---> Sync.Report
-Consumer.0019 ---> Sync.Report
-Consumer.001a ---> Sync.Report
-Consumer.001b ---> Sync.Report
-Consumer.001c ---> Sync.Report
-Consumer.001d ---> Sync.Report
-Consumer.001e ---> Sync.Report
-Consumer.001f ---> Sync.Report
-Consumer.0020 ---> Sync.Report
-Consumer.0021 ---> Sync.Report
-Consumer.0022 ---> Sync.Report
-Consumer.0023 ---> Sync.Report
-Consumer.0024 ---> Sync.Report
-Consumer.0025 ---> Sync.Report
-Consumer.0026 ---> Sync.Report
-Consumer.0027 ---> Sync.Report
-Consumer.0028 ---> Sync.Report
-Consumer.0029 ---> Sync.Report
-Consumer.002a ---> Sync.Report
-Consumer.002b ---> Sync.Report
-Consumer.002c ---> Sync.Report
-Consumer.002d ---> Sync.Report
-Consumer.002e ---> Sync.Report
-Consumer.002f ---> Sync.Report
-Consumer.0030 ---> Sync.Report
-Consumer.0031 ---> Sync.Report
-Consumer.0032 ---> Sync.Report
-Consumer.0033 ---> Sync.Report
-Consumer.0034 ---> Key.Sleep
-Consumer.0035 ---> Sync.Report
-Consumer.0036 ---> Key.Btn0
-Consumer.0037 ---> Sync.Report
-Consumer.0038 ---> Sync.Report
-Consumer.0039 ---> Sync.Report
-Consumer.003a ---> Sync.Report
-Consumer.003b ---> Sync.Report
-Consumer.003c ---> Sync.Report
-Consumer.003d ---> Sync.Report
-Consumer.003e ---> Sync.Report
-Consumer.003f ---> Sync.Report
-Consumer.0040 ---> Key.Menu
-Consumer.0041 ---> Sync.Report
-Consumer.0042 ---> Sync.Report
-Consumer.0043 ---> Sync.Report
-Consumer.0044 ---> Sync.Report
-Consumer.0045 ---> Key.Radio
-Consumer.0046 ---> Sync.Report
-Consumer.0047 ---> Sync.Report
-Consumer.0048 ---> Sync.Report
-Consumer.0049 ---> Sync.Report
-Consumer.004a ---> Sync.Report
-Consumer.004b ---> Sync.Report
-Consumer.004c ---> Sync.Report
-Consumer.004d ---> Sync.Report
-Consumer.004e ---> Sync.Report
-Consumer.004f ---> Sync.Report
-Consumer.0050 ---> Sync.Report
-Consumer.0051 ---> Sync.Report
-Consumer.0052 ---> Sync.Report
-Consumer.0053 ---> Sync.Report
-Consumer.0054 ---> Sync.Report
-Consumer.0055 ---> Sync.Report
-Consumer.0056 ---> Sync.Report
-Consumer.0057 ---> Sync.Report
-Consumer.0058 ---> Sync.Report
-Consumer.0059 ---> Sync.Report
-Consumer.005a ---> Sync.Report
-Consumer.005b ---> Sync.Report
-Consumer.005c ---> Sync.Report
-Consumer.005d ---> Sync.Report
-Consumer.005e ---> Sync.Report
-Consumer.005f ---> Sync.Report
-Consumer.0060 ---> Sync.Report
-Consumer.0061 ---> Sync.Report
-Consumer.0062 ---> Sync.Report
-Consumer.0063 ---> Sync.Report
-Consumer.0064 ---> Sync.Report
-Consumer.0065 ---> Sync.Report
-Consumer.0066 ---> Sync.Report
-Consumer.0067 ---> Sync.Report
-Consumer.0068 ---> Sync.Report
-Consumer.0069 ---> Sync.Report
-Consumer.006a ---> Sync.Report
-Consumer.006b ---> Sync.Report
-Consumer.006c ---> Sync.Report
-Consumer.006d ---> Sync.Report
-Consumer.006e ---> Sync.Report
-Consumer.006f ---> Sync.Report
-Consumer.0070 ---> Sync.Report
-Consumer.0071 ---> Sync.Report
-Consumer.0072 ---> Sync.Report
-Consumer.0073 ---> Sync.Report
-Consumer.0074 ---> Sync.Report
-Consumer.0075 ---> Sync.Report
-Consumer.0076 ---> Sync.Report
-Consumer.0077 ---> Sync.Report
-Consumer.0078 ---> Sync.Report
-Consumer.0079 ---> Sync.Report
-Consumer.007a ---> Sync.Report
-Consumer.007b ---> Sync.Report
-Consumer.007c ---> Sync.Report
-Consumer.007d ---> Sync.Report
-Consumer.007e ---> Sync.Report
-Consumer.007f ---> Sync.Report
-Consumer.0080 ---> Sync.Report
-Consumer.0081 ---> Sync.Report
-Consumer.0082 ---> Sync.Report
-Consumer.0083 ---> Key.Last
-Consumer.0084 ---> Sync.Report
-Consumer.0085 ---> Sync.Report
-Consumer.0086 ---> Sync.Report
-Consumer.0087 ---> Sync.Report
-Consumer.0088 ---> Key.PC
-Consumer.0089 ---> Key.TV
-Consumer.008a ---> Key.WWW
-Consumer.008b ---> Key.DVD
-Consumer.008c ---> Key.Phone
-Consumer.008d ---> Key.Program
-Consumer.008e ---> Key.?
-Consumer.008f ---> Key.?
-Consumer.0090 ---> Key.Memo
-Consumer.0091 ---> Key.CD
-Consumer.0092 ---> Key.VCR
-Consumer.0093 ---> Key.Tuner
-Consumer.0094 ---> Key.Exit
-Consumer.0095 ---> Key.Help
-Consumer.0096 ---> Key.Tape
-Consumer.0097 ---> Key.TV2
-Consumer.0098 ---> Key.Sat
-Consumer.0099 ---> Sync.Report
-Consumer.009a ---> Key.PVR
-Consumer.009b ---> Sync.Report
-Consumer.009c ---> Key.ChannelUp
-Consumer.009d ---> Key.ChannelDown
-Consumer.009e ---> Sync.Report
-Consumer.009f ---> Sync.Report
-Consumer.00a0 ---> Key.VCR2
-Consumer.00a1 ---> Sync.Report
-Consumer.00a2 ---> Sync.Report
-Consumer.00a3 ---> Sync.Report
-Consumer.00a4 ---> Sync.Report
-Consumer.00a5 ---> Sync.Report
-Consumer.00a6 ---> Sync.Report
-Consumer.00a7 ---> Sync.Report
-Consumer.00a8 ---> Sync.Report
-Consumer.00a9 ---> Sync.Report
-Consumer.00aa ---> Sync.Report
-Consumer.00ab ---> Sync.Report
-Consumer.00ac ---> Sync.Report
-Consumer.00ad ---> Sync.Report
-Consumer.00ae ---> Sync.Report
-Consumer.00af ---> Sync.Report
-Consumer.00b0 ---> Key.Play
-Consumer.00b1 ---> Key.Pause
-Consumer.00b2 ---> Key.Record
-Consumer.00b3 ---> Key.FastForward
-Consumer.00b4 ---> Key.Rewind
-Consumer.00b5 ---> Key.NextSong
-Consumer.00b6 ---> Key.PreviousSong
-Consumer.00b7 ---> Key.StopCD
-Consumer.00b8 ---> Key.EjectCD
-Consumer.00b9 ---> Sync.Report
-Consumer.00ba ---> Sync.Report
-Consumer.00bb ---> Sync.Report
-Consumer.00bc ---> Key.?
-Consumer.00bd ---> Sync.Report
-Consumer.00be ---> Sync.Report
-Consumer.00bf ---> Sync.Report
-Consumer.00c0 ---> Sync.Report
-Consumer.00c1 ---> Sync.Report
-Consumer.00c2 ---> Sync.Report
-Consumer.00c3 ---> Sync.Report
-Consumer.00c4 ---> Sync.Report
-Consumer.00c5 ---> Sync.Report
-Consumer.00c6 ---> Sync.Report
-Consumer.00c7 ---> Sync.Report
-Consumer.00c8 ---> Sync.Report
-Consumer.00c9 ---> Sync.Report
-Consumer.00ca ---> Sync.Report
-Consumer.00cb ---> Sync.Report
-Consumer.00cc ---> Sync.Report
-Consumer.00cd ---> Key.PlayPause
-Consumer.00ce ---> Sync.Report
-Consumer.00cf ---> Sync.Report
-Consumer.00d0 ---> Sync.Report
-Consumer.00d1 ---> Sync.Report
-Consumer.00d2 ---> Sync.Report
-Consumer.00d3 ---> Sync.Report
-Consumer.00d4 ---> Sync.Report
-Consumer.00d5 ---> Sync.Report
-Consumer.00d6 ---> Sync.Report
-Consumer.00d7 ---> Sync.Report
-Consumer.00d8 ---> Sync.Report
-Consumer.00d9 ---> Sync.Report
-Consumer.00da ---> Sync.Report
-Consumer.00db ---> Sync.Report
-Consumer.00dc ---> Sync.Report
-Consumer.00dd ---> Sync.Report
-Consumer.00de ---> Sync.Report
-Consumer.00df ---> Sync.Report
-Consumer.00e0 ---> Absolute.Volume
-Consumer.00e1 ---> Sync.Report
-Consumer.00e2 ---> Key.Mute
-Consumer.00e3 ---> Sync.Report
-Consumer.00e4 ---> Sync.Report
-Consumer.00e5 ---> Key.BassBoost
-Consumer.00e6 ---> Sync.Report
-Consumer.00e7 ---> Sync.Report
-Consumer.00e8 ---> Sync.Report
-Consumer.00e9 ---> Key.VolumeUp
-Consumer.00ea ---> Key.VolumeDown
-Consumer.00eb ---> Sync.Report
-Consumer.00ec ---> Sync.Report
-Consumer.00ed ---> Sync.Report
-Consumer.00ee ---> Sync.Report
-Consumer.00ef ---> Sync.Report
-Consumer.00f0 ---> Sync.Report
-Consumer.00f1 ---> Sync.Report
-Consumer.00f2 ---> Sync.Report
-Consumer.00f3 ---> Sync.Report
-Consumer.00f4 ---> Sync.Report
-Consumer.00f5 ---> Sync.Report
-Consumer.00f6 ---> Sync.Report
-Consumer.00f7 ---> Sync.Report
-Consumer.00f8 ---> Sync.Report
-Consumer.00f9 ---> Sync.Report
-Consumer.00fa ---> Sync.Report
-Consumer.00fb ---> Sync.Report
-Consumer.00fc ---> Sync.Report
-Consumer.00fd ---> Sync.Report
-Consumer.00fe ---> Sync.Report
-Consumer.00ff ---> Sync.Report
-Consumer.0100 ---> Sync.Report
-Consumer.0101 ---> Sync.Report
-Consumer.0102 ---> Sync.Report
-Consumer.0103 ---> Sync.Report
-Consumer.0104 ---> Sync.Report
-Consumer.0105 ---> Sync.Report
-Consumer.0106 ---> Sync.Report
-Consumer.0107 ---> Sync.Report
-Consumer.0108 ---> Sync.Report
-Consumer.0109 ---> Sync.Report
-Consumer.010a ---> Sync.Report
-Consumer.010b ---> Sync.Report
-Consumer.010c ---> Sync.Report
-Consumer.010d ---> Sync.Report
-Consumer.010e ---> Sync.Report
-Consumer.010f ---> Sync.Report
-Consumer.0110 ---> Sync.Report
-Consumer.0111 ---> Sync.Report
-Consumer.0112 ---> Sync.Report
-Consumer.0113 ---> Sync.Report
-Consumer.0114 ---> Sync.Report
-Consumer.0115 ---> Sync.Report
-Consumer.0116 ---> Sync.Report
-Consumer.0117 ---> Sync.Report
-Consumer.0118 ---> Sync.Report
-Consumer.0119 ---> Sync.Report
-Consumer.011a ---> Sync.Report
-Consumer.011b ---> Sync.Report
-Consumer.011c ---> Sync.Report
-Consumer.011d ---> Sync.Report
-Consumer.011e ---> Sync.Report
-Consumer.011f ---> Sync.Report
-Consumer.0120 ---> Sync.Report
-Consumer.0121 ---> Sync.Report
-Consumer.0122 ---> Sync.Report
-Consumer.0123 ---> Sync.Report
-Consumer.0124 ---> Sync.Report
-Consumer.0125 ---> Sync.Report
-Consumer.0126 ---> Sync.Report
-Consumer.0127 ---> Sync.Report
-Consumer.0128 ---> Sync.Report
-Consumer.0129 ---> Sync.Report
-Consumer.012a ---> Sync.Report
-Consumer.012b ---> Sync.Report
-Consumer.012c ---> Sync.Report
-Consumer.012d ---> Sync.Report
-Consumer.012e ---> Sync.Report
-Consumer.012f ---> Sync.Report
-Consumer.0130 ---> Sync.Report
-Consumer.0131 ---> Sync.Report
-Consumer.0132 ---> Sync.Report
-Consumer.0133 ---> Sync.Report
-Consumer.0134 ---> Sync.Report
-Consumer.0135 ---> Sync.Report
-Consumer.0136 ---> Sync.Report
-Consumer.0137 ---> Sync.Report
-Consumer.0138 ---> Sync.Report
-Consumer.0139 ---> Sync.Report
-Consumer.013a ---> Sync.Report
-Consumer.013b ---> Sync.Report
-Consumer.013c ---> Sync.Report
-Consumer.013d ---> Sync.Report
-Consumer.013e ---> Sync.Report
-Consumer.013f ---> Sync.Report
-Consumer.0140 ---> Sync.Report
-Consumer.0141 ---> Sync.Report
-Consumer.0142 ---> Sync.Report
-Consumer.0143 ---> Sync.Report
-Consumer.0144 ---> Sync.Report
-Consumer.0145 ---> Sync.Report
-Consumer.0146 ---> Sync.Report
-Consumer.0147 ---> Sync.Report
-Consumer.0148 ---> Sync.Report
-Consumer.0149 ---> Sync.Report
-Consumer.014a ---> Sync.Report
-Consumer.014b ---> Sync.Report
-Consumer.014c ---> Sync.Report
-Consumer.014d ---> Sync.Report
-Consumer.014e ---> Sync.Report
-Consumer.014f ---> Sync.Report
-Consumer.0150 ---> Sync.Report
-Consumer.0151 ---> Sync.Report
-Consumer.0152 ---> Sync.Report
-Consumer.0153 ---> Sync.Report
-Consumer.0154 ---> Sync.Report
-Consumer.0155 ---> Sync.Report
-Consumer.0156 ---> Sync.Report
-Consumer.0157 ---> Sync.Report
-Consumer.0158 ---> Sync.Report
-Consumer.0159 ---> Sync.Report
-Consumer.015a ---> Sync.Report
-Consumer.015b ---> Sync.Report
-Consumer.015c ---> Sync.Report
-Consumer.015d ---> Sync.Report
-Consumer.015e ---> Sync.Report
-Consumer.015f ---> Sync.Report
-Consumer.0160 ---> Sync.Report
-Consumer.0161 ---> Sync.Report
-Consumer.0162 ---> Sync.Report
-Consumer.0163 ---> Sync.Report
-Consumer.0164 ---> Sync.Report
-Consumer.0165 ---> Sync.Report
-Consumer.0166 ---> Sync.Report
-Consumer.0167 ---> Sync.Report
-Consumer.0168 ---> Sync.Report
-Consumer.0169 ---> Sync.Report
-Consumer.016a ---> Sync.Report
-Consumer.016b ---> Sync.Report
-Consumer.016c ---> Sync.Report
-Consumer.016d ---> Sync.Report
-Consumer.016e ---> Sync.Report
-Consumer.016f ---> Sync.Report
-Consumer.0170 ---> Sync.Report
-Consumer.0171 ---> Sync.Report
-Consumer.0172 ---> Sync.Report
-Consumer.0173 ---> Sync.Report
-Consumer.0174 ---> Sync.Report
-Consumer.0175 ---> Sync.Report
-Consumer.0176 ---> Sync.Report
-Consumer.0177 ---> Sync.Report
-Consumer.0178 ---> Sync.Report
-Consumer.0179 ---> Sync.Report
-Consumer.017a ---> Sync.Report
-Consumer.017b ---> Sync.Report
-Consumer.017c ---> Sync.Report
-Consumer.017d ---> Sync.Report
-Consumer.017e ---> Sync.Report
-Consumer.017f ---> Sync.Report
-Consumer.0180 ---> Sync.Report
-Consumer.0181 ---> Sync.Report
-Consumer.0182 ---> Key.Bookmarks
-Consumer.0183 ---> Key.Config
-Consumer.0184 ---> Key.?
-Consumer.0185 ---> Key.?
-Consumer.0186 ---> Key.?
-Consumer.0187 ---> Key.?
-Consumer.0188 ---> Key.?
-Consumer.0189 ---> Key.?
-Consumer.018a ---> Key.Mail
-Consumer.018b ---> Key.?
-Consumer.018c ---> Key.?
-Consumer.018d ---> Key.?
-Consumer.018e ---> Key.Calendar
-Consumer.018f ---> Sync.Report
-Consumer.0190 ---> Sync.Report
-Consumer.0191 ---> Key.Finance
-Consumer.0192 ---> Key.Calc
-Consumer.0193 ---> Sync.Report
-Consumer.0194 ---> Key.File
-Consumer.0195 ---> Sync.Report
-Consumer.0196 ---> Key.WWW
-Consumer.0197 ---> Sync.Report
-Consumer.0198 ---> Sync.Report
-Consumer.0199 ---> Key.Chat
-Consumer.019a ---> Sync.Report
-Consumer.019b ---> Sync.Report
-Consumer.019c ---> Key.Logoff
-Consumer.019d ---> Sync.Report
-Consumer.019e ---> Key.Coffee
-Consumer.019f ---> Sync.Report
-Consumer.01a0 ---> Sync.Report
-Consumer.01a1 ---> Sync.Report
-Consumer.01a2 ---> Sync.Report
-Consumer.01a3 ---> Sync.Report
-Consumer.01a4 ---> Sync.Report
-Consumer.01a5 ---> Sync.Report
-Consumer.01a6 ---> Key.Help
-Consumer.01a7 ---> Key.Documents
-Consumer.01a8 ---> Sync.Report
-Consumer.01a9 ---> Sync.Report
-Consumer.01aa ---> Sync.Report
-Consumer.01ab ---> Key.SpellCheck
-Consumer.01ac ---> Sync.Report
-Consumer.01ad ---> Sync.Report
-Consumer.01ae ---> Sync.Report
-Consumer.01af ---> Sync.Report
-Consumer.01b0 ---> Sync.Report
-Consumer.01b1 ---> Sync.Report
-Consumer.01b2 ---> Sync.Report
-Consumer.01b3 ---> Sync.Report
-Consumer.01b4 ---> Sync.Report
-Consumer.01b5 ---> Sync.Report
-Consumer.01b6 ---> Key.Media
-Consumer.01b7 ---> Key.Sound
-Consumer.01b8 ---> Sync.Report
-Consumer.01b9 ---> Sync.Report
-Consumer.01ba ---> Sync.Report
-Consumer.01bb ---> Sync.Report
-Consumer.01bc ---> Key.?
-Consumer.01bd ---> Key.Info
-Consumer.01be ---> Sync.Report
-Consumer.01bf ---> Sync.Report
-Consumer.01c0 ---> Sync.Report
-Consumer.01c1 ---> Sync.Report
-Consumer.01c2 ---> Sync.Report
-Consumer.01c3 ---> Sync.Report
-Consumer.01c4 ---> Sync.Report
-Consumer.01c5 ---> Sync.Report
-Consumer.01c6 ---> Sync.Report
-Consumer.01c7 ---> Sync.Report
-Consumer.01c8 ---> Sync.Report
-Consumer.01c9 ---> Sync.Report
-Consumer.01ca ---> Sync.Report
-Consumer.01cb ---> Sync.Report
-Consumer.01cc ---> Sync.Report
-Consumer.01cd ---> Sync.Report
-Consumer.01ce ---> Sync.Report
-Consumer.01cf ---> Sync.Report
-Consumer.01d0 ---> Sync.Report
-Consumer.01d1 ---> Sync.Report
-Consumer.01d2 ---> Sync.Report
-Consumer.01d3 ---> Sync.Report
-Consumer.01d4 ---> Sync.Report
-Consumer.01d5 ---> Sync.Report
-Consumer.01d6 ---> Sync.Report
-Consumer.01d7 ---> Sync.Report
-Consumer.01d8 ---> Sync.Report
-Consumer.01d9 ---> Sync.Report
-Consumer.01da ---> Sync.Report
-Consumer.01db ---> Sync.Report
-Consumer.01dc ---> Sync.Report
-Consumer.01dd ---> Sync.Report
-Consumer.01de ---> Sync.Report
-Consumer.01df ---> Sync.Report
-Consumer.01e0 ---> Sync.Report
-Consumer.01e1 ---> Sync.Report
-Consumer.01e2 ---> Sync.Report
-Consumer.01e3 ---> Sync.Report
-Consumer.01e4 ---> Sync.Report
-Consumer.01e5 ---> Sync.Report
-Consumer.01e6 ---> Sync.Report
-Consumer.01e7 ---> Sync.Report
-Consumer.01e8 ---> Sync.Report
-Consumer.01e9 ---> Sync.Report
-Consumer.01ea ---> Sync.Report
-Consumer.01eb ---> Sync.Report
-Consumer.01ec ---> Sync.Report
-Consumer.01ed ---> Sync.Report
-Consumer.01ee ---> Sync.Report
-Consumer.01ef ---> Sync.Report
-Consumer.01f0 ---> Sync.Report
-Consumer.01f1 ---> Sync.Report
-Consumer.01f2 ---> Sync.Report
-Consumer.01f3 ---> Sync.Report
-Consumer.01f4 ---> Sync.Report
-Consumer.01f5 ---> Sync.Report
-Consumer.01f6 ---> Sync.Report
-Consumer.01f7 ---> Sync.Report
-Consumer.01f8 ---> Sync.Report
-Consumer.01f9 ---> Sync.Report
-Consumer.01fa ---> Sync.Report
-Consumer.01fb ---> Sync.Report
-Consumer.01fc ---> Sync.Report
-Consumer.01fd ---> Sync.Report
-Consumer.01fe ---> Sync.Report
-Consumer.01ff ---> Sync.Report
-Consumer.0200 ---> Sync.Report
-Consumer.0201 ---> Key.New
-Consumer.0202 ---> Key.Open
-Consumer.0203 ---> Key.Close
-Consumer.0204 ---> Key.Exit
-Consumer.0205 ---> Sync.Report
-Consumer.0206 ---> Sync.Report
-Consumer.0207 ---> Key.Save
-Consumer.0208 ---> Key.Print
-Consumer.0209 ---> Key.Props
-Consumer.020a ---> Sync.Report
-Consumer.020b ---> Sync.Report
-Consumer.020c ---> Sync.Report
-Consumer.020d ---> Sync.Report
-Consumer.020e ---> Sync.Report
-Consumer.020f ---> Sync.Report
-Consumer.0210 ---> Sync.Report
-Consumer.0211 ---> Sync.Report
-Consumer.0212 ---> Sync.Report
-Consumer.0213 ---> Sync.Report
-Consumer.0214 ---> Sync.Report
-Consumer.0215 ---> Sync.Report
-Consumer.0216 ---> Sync.Report
-Consumer.0217 ---> Sync.Report
-Consumer.0218 ---> Sync.Report
-Consumer.0219 ---> Sync.Report
-Consumer.021a ---> Key.Undo
-Consumer.021b ---> Key.Copy
-Consumer.021c ---> Key.Cut
-Consumer.021d ---> Key.Paste
-Consumer.021e ---> Sync.Report
-Consumer.021f ---> Key.Find
-Consumer.0220 ---> Sync.Report
-Consumer.0221 ---> Key.Search
-Consumer.0222 ---> Key.Goto
-Consumer.0223 ---> Key.HomePage
-Consumer.0224 ---> Key.Back
-Consumer.0225 ---> Key.Forward
-Consumer.0226 ---> Key.Stop
-Consumer.0227 ---> Key.Refresh
-Consumer.0228 ---> Sync.Report
-Consumer.0229 ---> Sync.Report
-Consumer.022a ---> Key.Bookmarks
-Consumer.022b ---> Sync.Report
-Consumer.022c ---> Sync.Report
-Consumer.022d ---> Key.?
-Consumer.022e ---> Key.?
-Consumer.022f ---> Key.?
-Consumer.0230 ---> Sync.Report
-Consumer.0231 ---> Sync.Report
-Consumer.0232 ---> Sync.Report
-Consumer.0233 ---> Key.ScrollUp
-Consumer.0234 ---> Key.ScrollDown
-Consumer.0235 ---> Sync.Report
-Consumer.0236 ---> Sync.Report
-Consumer.0237 ---> Sync.Report
-Consumer.HorizontalWheel ---> Relative.Dial
-Consumer.0239 ---> Sync.Report
-Consumer.023a ---> Sync.Report
-Consumer.023b ---> Sync.Report
-Consumer.023c ---> Sync.Report
-Consumer.023d ---> Sync.Report
-Consumer.023e ---> Sync.Report
-Consumer.023f ---> Sync.Report
-Consumer.0240 ---> Sync.Report
-Consumer.0241 ---> Sync.Report
-Consumer.0242 ---> Sync.Report
-Consumer.0243 ---> Sync.Report
-Consumer.0244 ---> Sync.Report
-Consumer.0245 ---> Sync.Report
-Consumer.0246 ---> Sync.Report
-Consumer.0247 ---> Sync.Report
-Consumer.0248 ---> Sync.Report
-Consumer.0249 ---> Sync.Report
-Consumer.024a ---> Sync.Report
-Consumer.024b ---> Sync.Report
-Consumer.024c ---> Sync.Report
-Consumer.024d ---> Sync.Report
-Consumer.024e ---> Sync.Report
-Consumer.024f ---> Sync.Report
-Consumer.0250 ---> Sync.Report
-Consumer.0251 ---> Sync.Report
-Consumer.0252 ---> Sync.Report
-Consumer.0253 ---> Sync.Report
-Consumer.0254 ---> Sync.Report
-Consumer.0255 ---> Sync.Report
-Consumer.0256 ---> Sync.Report
-Consumer.0257 ---> Sync.Report
-Consumer.0258 ---> Sync.Report
-Consumer.0259 ---> Sync.Report
-Consumer.025a ---> Sync.Report
-Consumer.025b ---> Sync.Report
-Consumer.025c ---> Sync.Report
-Consumer.025d ---> Sync.Report
-Consumer.025e ---> Sync.Report
-Consumer.025f ---> Key.Cancel
-Consumer.0260 ---> Sync.Report
-Consumer.0261 ---> Sync.Report
-Consumer.0262 ---> Sync.Report
-Consumer.0263 ---> Sync.Report
-Consumer.0264 ---> Sync.Report
-Consumer.0265 ---> Sync.Report
-Consumer.0266 ---> Sync.Report
-Consumer.0267 ---> Sync.Report
-Consumer.0268 ---> Sync.Report
-Consumer.0269 ---> Sync.Report
-Consumer.026a ---> Sync.Report
-Consumer.026b ---> Sync.Report
-Consumer.026c ---> Sync.Report
-Consumer.026d ---> Sync.Report
-Consumer.026e ---> Sync.Report
-Consumer.026f ---> Sync.Report
-Consumer.0270 ---> Sync.Report
-Consumer.0271 ---> Sync.Report
-Consumer.0272 ---> Sync.Report
-Consumer.0273 ---> Sync.Report
-Consumer.0274 ---> Sync.Report
-Consumer.0275 ---> Sync.Report
-Consumer.0276 ---> Sync.Report
-Consumer.0277 ---> Sync.Report
-Consumer.0278 ---> Sync.Report
-Consumer.0279 ---> Key.Redo
-Consumer.027a ---> Sync.Report
-Consumer.027b ---> Sync.Report
-Consumer.027c ---> Sync.Report
-Consumer.027d ---> Sync.Report
-Consumer.027e ---> Sync.Report
-Consumer.027f ---> Sync.Report
-Consumer.0280 ---> Sync.Report
-Consumer.0281 ---> Sync.Report
-Consumer.0282 ---> Sync.Report
-Consumer.0283 ---> Sync.Report
-Consumer.0284 ---> Sync.Report
-Consumer.0285 ---> Sync.Report
-Consumer.0286 ---> Sync.Report
-Consumer.0287 ---> Sync.Report
-Consumer.0288 ---> Sync.Report
-Consumer.0289 ---> Key.Reply
-Consumer.028a ---> Sync.Report
-Consumer.028b ---> Key.ForwardMail
-Consumer.028c ---> Key.Send
-GenericDesktop.SystemSleep ---> Key.Sleep
-GenericDesktop.SystemPowerDown ---> Key.Power
-GenericDesktop.SystemWakeUp ---> Key.WakeUp
-ffbc.0001 ---> Sync.Report
-ffbc.0002 ---> Sync.Report
-ffbc.0003 ---> Sync.Report
-ffbc.0004 ---> Sync.Report
-ffbc.0005 ---> Sync.Report
-ffbc.0006 ---> Sync.Report
-ffbc.0007 ---> Sync.Report
-ffbc.0008 ---> Sync.Report
-ffbc.0009 ---> Sync.Report
-ffbc.000a ---> Sync.Report
-ffbc.000b ---> Sync.Report
-ffbc.000c ---> Sync.Report
-ffbc.000d ---> Sync.Report
-ffbc.000e ---> Sync.Report
-ffbc.000f ---> Sync.Report
-ffbc.0010 ---> Sync.Report
-ffbc.0011 ---> Sync.Report
-ffbc.0012 ---> Sync.Report
-ffbc.0013 ---> Sync.Report
-ffbc.0014 ---> Sync.Report
-ffbc.0015 ---> Sync.Report
-ffbc.0016 ---> Sync.Report
-ffbc.0017 ---> Sync.Report
-ffbc.0018 ---> Sync.Report
-ffbc.0019 ---> Sync.Report
-ffbc.001a ---> Sync.Report
-ffbc.001b ---> Sync.Report
-ffbc.001c ---> Sync.Report
-ffbc.001d ---> Sync.Report
-ffbc.001e ---> Sync.Report
-ffbc.001f ---> Sync.Report
-ffbc.0020 ---> Sync.Report
-ffbc.0021 ---> Sync.Report
-ffbc.0022 ---> Sync.Report
-ffbc.0023 ---> Sync.Report
-ffbc.0024 ---> Sync.Report
-ffbc.0025 ---> Sync.Report
-ffbc.0026 ---> Sync.Report
-ffbc.0027 ---> Sync.Report
-ffbc.0028 ---> Sync.Report
-ffbc.0029 ---> Sync.Report
-ffbc.002a ---> Sync.Report
-ffbc.002b ---> Sync.Report
-ffbc.002c ---> Sync.Report
-ffbc.002d ---> Sync.Report
-ffbc.002e ---> Sync.Report
-ffbc.002f ---> Sync.Report
-ffbc.0030 ---> Sync.Report
-ffbc.0031 ---> Sync.Report
-ffbc.0032 ---> Sync.Report
-ffbc.0033 ---> Sync.Report
-ffbc.0034 ---> Sync.Report
-ffbc.0035 ---> Sync.Report
-ffbc.0036 ---> Sync.Report
-ffbc.0037 ---> Sync.Report
-ffbc.0038 ---> Sync.Report
-ffbc.0039 ---> Sync.Report
-ffbc.003a ---> Sync.Report
-ffbc.003b ---> Sync.Report
-ffbc.003c ---> Sync.Report
-ffbc.003d ---> Sync.Report
-ffbc.003e ---> Sync.Report
-ffbc.003f ---> Sync.Report
-ffbc.0040 ---> Sync.Report
-ffbc.0041 ---> Sync.Report
-ffbc.0042 ---> Sync.Report
-ffbc.0043 ---> Sync.Report
-ffbc.0044 ---> Sync.Report
-ffbc.0045 ---> Sync.Report
-ffbc.0046 ---> Sync.Report
-ffbc.0047 ---> Sync.Report
-ffbc.0048 ---> Sync.Report
-ffbc.0049 ---> Sync.Report
-ffbc.004a ---> Sync.Report
-ffbc.004b ---> Sync.Report
-ffbc.004c ---> Sync.Report
-ffbc.004d ---> Sync.Report
-ffbc.004e ---> Sync.Report
-ffbc.004f ---> Sync.Report
-ffbc.0050 ---> Sync.Report
-ffbc.0051 ---> Sync.Report
-ffbc.0052 ---> Sync.Report
-ffbc.0053 ---> Sync.Report
-ffbc.0054 ---> Sync.Report
-ffbc.0055 ---> Sync.Report
-ffbc.0056 ---> Sync.Report
-ffbc.0057 ---> Sync.Report
-ffbc.0058 ---> Sync.Report
-ffbc.0059 ---> Sync.Report
-ffbc.005a ---> Sync.Report
-ffbc.005b ---> Sync.Report
-ffbc.005c ---> Sync.Report
-ffbc.005d ---> Sync.Report
-ffbc.005e ---> Sync.Report
-ffbc.005f ---> Sync.Report
-ffbc.0060 ---> Sync.Report
-ffbc.0061 ---> Sync.Report
-ffbc.0062 ---> Sync.Report
-ffbc.0063 ---> Sync.Report
-ffbc.0064 ---> Sync.Report
-ffbc.0065 ---> Sync.Report
-ffbc.0066 ---> Sync.Report
-ffbc.0067 ---> Sync.Report
-ffbc.0068 ---> Sync.Report
-ffbc.0069 ---> Sync.Report
-ffbc.006a ---> Sync.Report
-ffbc.006b ---> Sync.Report
-ffbc.006c ---> Sync.Report
-ffbc.006d ---> Sync.Report
-ffbc.006e ---> Sync.Report
-ffbc.006f ---> Sync.Report
-ffbc.0070 ---> Sync.Report
-ffbc.0071 ---> Sync.Report
-ffbc.0072 ---> Sync.Report
-ffbc.0073 ---> Sync.Report
-ffbc.0074 ---> Sync.Report
-ffbc.0075 ---> Sync.Report
-ffbc.0076 ---> Sync.Report
-ffbc.0077 ---> Sync.Report
-ffbc.0078 ---> Sync.Report
-ffbc.0079 ---> Sync.Report
-ffbc.007a ---> Sync.Report
-ffbc.007b ---> Sync.Report
-ffbc.007c ---> Sync.Report
-ffbc.007d ---> Sync.Report
-ffbc.007e ---> Sync.Report
-ffbc.007f ---> Sync.Report
-ffbc.0080 ---> Sync.Report
-ffbc.0081 ---> Sync.Report
-ffbc.0082 ---> Sync.Report
-ffbc.0083 ---> Sync.Report
-ffbc.0084 ---> Sync.Report
-ffbc.0085 ---> Sync.Report
-ffbc.0086 ---> Sync.Report
-ffbc.0087 ---> Sync.Report
-ffbc.0088 ---> Sync.Report
-ffbc.0089 ---> Sync.Report
-ffbc.008a ---> Sync.Report
-ffbc.008b ---> Sync.Report
-ffbc.008c ---> Sync.Report
-ffbc.008d ---> Sync.Report
-ffbc.008e ---> Sync.Report
-ffbc.008f ---> Sync.Report
-ffbc.0090 ---> Sync.Report
-ffbc.0091 ---> Sync.Report
-ffbc.0092 ---> Sync.Report
-ffbc.0093 ---> Sync.Report
-ffbc.0094 ---> Sync.Report
-ffbc.0095 ---> Sync.Report
-ffbc.0096 ---> Sync.Report
-ffbc.0097 ---> Sync.Report
-ffbc.0098 ---> Sync.Report
-ffbc.0099 ---> Sync.Report
-ffbc.009a ---> Sync.Report
-ffbc.009b ---> Sync.Report
-ffbc.009c ---> Sync.Report
-ffbc.009d ---> Sync.Report
-ffbc.009e ---> Sync.Report
-ffbc.009f ---> Sync.Report
-ffbc.00a0 ---> Sync.Report
-ffbc.00a1 ---> Sync.Report
-ffbc.00a2 ---> Sync.Report
-ffbc.00a3 ---> Sync.Report
-ffbc.00a4 ---> Sync.Report
-ffbc.00a5 ---> Sync.Report
-ffbc.00a6 ---> Sync.Report
-ffbc.00a7 ---> Sync.Report
-ffbc.00a8 ---> Sync.Report
-ffbc.00a9 ---> Sync.Report
-ffbc.00aa ---> Sync.Report
-ffbc.00ab ---> Sync.Report
-ffbc.00ac ---> Sync.Report
-ffbc.00ad ---> Sync.Report
-ffbc.00ae ---> Sync.Report
-ffbc.00af ---> Sync.Report
-ffbc.00b0 ---> Sync.Report
-ffbc.00b1 ---> Sync.Report
-ffbc.00b2 ---> Sync.Report
-ffbc.00b3 ---> Sync.Report
-ffbc.00b4 ---> Sync.Report
-ffbc.00b5 ---> Sync.Report
-ffbc.00b6 ---> Sync.Report
-ffbc.00b7 ---> Sync.Report
-ffbc.00b8 ---> Sync.Report
-ffbc.00b9 ---> Sync.Report
-ffbc.00ba ---> Sync.Report
-ffbc.00bb ---> Sync.Report
-ffbc.00bc ---> Sync.Report
-ffbc.00bd ---> Sync.Report
-ffbc.00be ---> Sync.Report
-ffbc.00bf ---> Sync.Report
-ffbc.00c0 ---> Sync.Report
-ffbc.00c1 ---> Sync.Report
-ffbc.00c2 ---> Sync.Report
-ffbc.00c3 ---> Sync.Report
-ffbc.00c4 ---> Sync.Report
-ffbc.00c5 ---> Sync.Report
-ffbc.00c6 ---> Sync.Report
-ffbc.00c7 ---> Sync.Report
-ffbc.00c8 ---> Sync.Report
-ffbc.00c9 ---> Sync.Report
-ffbc.00ca ---> Sync.Report
-ffbc.00cb ---> Sync.Report
-ffbc.00cc ---> Sync.Report
-ffbc.00cd ---> Sync.Report
-ffbc.00ce ---> Sync.Report
-ffbc.00cf ---> Sync.Report
-ffbc.00d0 ---> Sync.Report
-ffbc.00d1 ---> Sync.Report
-ffbc.00d2 ---> Sync.Report
-ffbc.00d3 ---> Sync.Report
-ffbc.00d4 ---> Sync.Report
-ffbc.00d5 ---> Sync.Report
-ffbc.00d6 ---> Sync.Report
-ffbc.00d7 ---> Sync.Report
-ffbc.00d8 ---> Sync.Report
-ffbc.00d9 ---> Sync.Report
-ffbc.00da ---> Sync.Report
-ffbc.00db ---> Sync.Report
-ffbc.00dc ---> Sync.Report
-ffbc.00dd ---> Sync.Report
-ffbc.00de ---> Sync.Report
-ffbc.00df ---> Sync.Report
-ffbc.00e0 ---> Sync.Report
-ffbc.00e1 ---> Sync.Report
-ffbc.00e2 ---> Sync.Report
-ffbc.00e3 ---> Sync.Report
-ffbc.00e4 ---> Sync.Report
-ffbc.00e5 ---> Sync.Report
-ffbc.00e6 ---> Sync.Report
-ffbc.00e7 ---> Sync.Report
-ffbc.00e8 ---> Sync.Report
-ffbc.00e9 ---> Sync.Report
-ffbc.00ea ---> Sync.Report
-ffbc.00eb ---> Sync.Report
-ffbc.00ec ---> Sync.Report
-ffbc.00ed ---> Sync.Report
-ffbc.00ee ---> Sync.Report
-ffbc.00ef ---> Sync.Report
-ffbc.00f0 ---> Sync.Report
-ffbc.00f1 ---> Sync.Report
-ffbc.00f2 ---> Sync.Report
-ffbc.00f3 ---> Sync.Report
-ffbc.00f4 ---> Sync.Report
-ffbc.00f5 ---> Sync.Report
-ffbc.00f6 ---> Sync.Report
-ffbc.00f7 ---> Sync.Report
-ffbc.00f8 ---> Sync.Report
-ffbc.00f9 ---> Sync.Report
-ffbc.00fa ---> Sync.Report
-ffbc.00fb ---> Sync.Report
-ffbc.00fc ---> Sync.Report
-ffbc.00fd ---> Sync.Report
-ffbc.00fe ---> Sync.Report
-ffbc.00ff ---> Sync.Report
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-
-06 00 ff 09 01 a1 01 85 10 75 08 95 06 15 00 26 ff 00 09 01 81 00 09
-01 91 00 c0 06 00 ff 09 02 a1 01 85 11 75 08 95 13 15 00 26 ff 00 09
-02 81 00 09 02 91 00 c0 06 00 ff 09 04 a1 01 85 20 75 08 95 0e 15 00
-26 ff 00 09 41 81 00 09 41 91 00 85 21 95 1f 15 00 26 ff 00 09 42 81
-00 09 42 91 00 c0
-
-  INPUT(16)[INPUT]
-    Field(0)
-      Usage(6)
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(6)
-      Report Offset(0)
-      Flags( Array Absolute )
-  INPUT(17)[INPUT]
-    Field(0)
-      Usage(19)
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(19)
-      Report Offset(0)
-      Flags( Array Absolute )
-  INPUT(32)[INPUT]
-    Field(0)
-      Usage(14)
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(14)
-      Report Offset(0)
-      Flags( Array Absolute )
-  INPUT(33)[INPUT]
-    Field(0)
-      Usage(31)
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(31)
-      Report Offset(0)
-      Flags( Array Absolute )
-  OUTPUT(16)[OUTPUT]
-    Field(0)
-      Usage(6)
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-        ff00.0001
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(6)
-      Report Offset(0)
-      Flags( Array Absolute )
-  OUTPUT(17)[OUTPUT]
-    Field(0)
-      Usage(19)
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-        ff00.0002
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(19)
-      Report Offset(0)
-      Flags( Array Absolute )
-  OUTPUT(32)[OUTPUT]
-    Field(0)
-      Usage(14)
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-        ff00.0041
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(14)
-      Report Offset(0)
-      Flags( Array Absolute )
-  OUTPUT(33)[OUTPUT]
-    Field(0)
-      Usage(31)
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-        ff00.0042
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Report Size(8)
-      Report Count(31)
-      Report Offset(0)
-      Flags( Array Absolute )
-
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0001 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0002 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0041 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
-ff00.0042 ---> Sync.Report
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Linux version 2.6.34-rc2-ARCH-00392-g0e52d6f-dirty (jan@middleman) (gcc version 4.4.3 20100316 (prerelease) (GCC) ) #3 SMP PREEMPT Tue Mar 30 18:44:58 CEST 2010
+Command line: root=/dev/sda2 ro usbcore.autosuspend=1
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 0000000000095c00 (usable)
+ BIOS-e820: 0000000000095c00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000009363f000 (usable)
+ BIOS-e820: 000000009363f000 - 00000000936bf000 (reserved)
+ BIOS-e820: 00000000936bf000 - 00000000937bf000 (ACPI NVS)
+ BIOS-e820: 00000000937bf000 - 00000000937ff000 (ACPI data)
+ BIOS-e820: 00000000937ff000 - 0000000093800000 (usable)
+ BIOS-e820: 0000000093800000 - 00000000a0000000 (reserved)
+ BIOS-e820: 00000000f0000000 - 00000000f4000000 (reserved)
+ BIOS-e820: 00000000feb00000 - 00000000feb04000 (reserved)
+ BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+ BIOS-e820: 00000000fed10000 - 00000000fed14000 (reserved)
+ BIOS-e820: 00000000fed18000 - 00000000fed1a000 (reserved)
+ BIOS-e820: 00000000fed1b000 - 00000000fed20000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 0000000158000000 (usable)
+NX (Execute Disable) protection: active
+DMI 2.4 present.
+e820 update range: 0000000000000000 - 0000000000001000 (usable) ==> (reserved)
+e820 remove range: 00000000000a0000 - 0000000000100000 (usable)
+No AGP bridge found
+last_pfn = 0x158000 max_arch_pfn = 0x400000000
+MTRR default type: uncachable
+MTRR fixed ranges enabled:
+  00000-9FFFF write-back
+  A0000-BFFFF uncachable
+  C0000-FFFFF write-protect
+MTRR variable ranges enabled:
+  0 base 000000000 mask F80000000 write-back
+  1 base 0FFE00000 mask FFFE00000 write-protect
+  2 base 080000000 mask FE0000000 write-back
+  3 base 098000000 mask FF8000000 uncachable
+  4 base 094000000 mask FFC000000 uncachable
+  5 base 093800000 mask FFF800000 uncachable
+  6 base 100000000 mask F80000000 write-back
+  7 base 160000000 mask FE0000000 uncachable
+x86 PAT enabled: cpu 0, old 0x7040600070406, new 0x7010600070106
+last_pfn = 0x93800 max_arch_pfn = 0x400000000
+e820 update range: 0000000000001000 - 0000000000010000 (usable) ==> (reserved)
+Scanning 1 areas for low memory corruption
+modified physical RAM map:
+ modified: 0000000000000000 - 0000000000010000 (reserved)
+ modified: 0000000000010000 - 0000000000095c00 (usable)
+ modified: 0000000000095c00 - 00000000000a0000 (reserved)
+ modified: 00000000000e0000 - 0000000000100000 (reserved)
+ modified: 0000000000100000 - 000000009363f000 (usable)
+ modified: 000000009363f000 - 00000000936bf000 (reserved)
+ modified: 00000000936bf000 - 00000000937bf000 (ACPI NVS)
+ modified: 00000000937bf000 - 00000000937ff000 (ACPI data)
+ modified: 00000000937ff000 - 0000000093800000 (usable)
+ modified: 0000000093800000 - 00000000a0000000 (reserved)
+ modified: 00000000f0000000 - 00000000f4000000 (reserved)
+ modified: 00000000feb00000 - 00000000feb04000 (reserved)
+ modified: 00000000fec00000 - 00000000fec01000 (reserved)
+ modified: 00000000fed10000 - 00000000fed14000 (reserved)
+ modified: 00000000fed18000 - 00000000fed1a000 (reserved)
+ modified: 00000000fed1b000 - 00000000fed20000 (reserved)
+ modified: 00000000fee00000 - 00000000fee01000 (reserved)
+ modified: 00000000ffe00000 - 0000000100000000 (reserved)
+ modified: 0000000100000000 - 0000000158000000 (usable)
+initial memory mapped : 0 - 20000000
+init_memory_mapping: 0000000000000000-0000000093800000
+ 0000000000 - 0093800000 page 2M
+kernel direct mapping tables up to 93800000 @ 16000-1a000
+init_memory_mapping: 0000000100000000-0000000158000000
+ 0100000000 - 0158000000 page 2M
+kernel direct mapping tables up to 158000000 @ 18000-1f000
+ACPI: RSDP 00000000000fe020 00024 (v02   Sony)
+ACPI: XSDT 00000000937fe120 00074 (v01   Sony     VAIO 20100205      01000013)
+ACPI: FACP 00000000937fc000 000F4 (v04   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: DSDT 00000000937ed000 0B086 (v02   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: FACS 000000009376f000 00040
+ACPI: ASF! 00000000937fd000 000A5 (v32   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: HPET 00000000937fb000 00038 (v01   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: APIC 00000000937fa000 0008C (v02   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: MCFG 00000000937f9000 0003C (v01   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: SLIC 00000000937ec000 00176 (v01   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: BOOT 00000000937eb000 00028 (v01   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: SSDT 00000000937e9000 001B4 (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: ASPT 00000000937e6000 00034 (v04   Sony     VAIO 20100205 MSFT 01000013)
+ACPI: SSDT 00000000937e5000 009F1 (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: Local APIC address 0xfee00000
+No NUMA configuration found
+Faking a node at 0000000000000000-0000000158000000
+Initmem setup node 0 0000000000000000-0000000158000000
+  NODE_DATA [0000000100000000 - 0000000100004fff]
+ [ffffea0000000000-ffffea0004bfffff] PMD -> [ffff880100200000-ffff8801037fffff] on node 0
+Zone PFN ranges:
+  DMA      0x00000010 -> 0x00001000
+  DMA32    0x00001000 -> 0x00100000
+  Normal   0x00100000 -> 0x00158000
+Movable zone start PFN for each node
+early_node_map[4] active PFN ranges
+    0: 0x00000010 -> 0x00000095
+    0: 0x00000100 -> 0x0009363f
+    0: 0x000937ff -> 0x00093800
+    0: 0x00100000 -> 0x00158000
+On node 0 totalpages: 964037
+  DMA zone: 56 pages used for memmap
+  DMA zone: 0 pages reserved
+  DMA zone: 3917 pages, LIFO batch:0
+  DMA32 zone: 14280 pages used for memmap
+  DMA32 zone: 585336 pages, LIFO batch:31
+  Normal zone: 4928 pages used for memmap
+  Normal zone: 355520 pages, LIFO batch:31
+ACPI: PM-Timer IO Port: 0x408
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+ACPI: LAPIC (acpi_id[0x03] lapic_id[0x04] enabled)
+ACPI: LAPIC (acpi_id[0x04] lapic_id[0x05] enabled)
+ACPI: LAPIC (acpi_id[0x05] lapic_id[0x00] disabled)
+ACPI: LAPIC (acpi_id[0x06] lapic_id[0x00] disabled)
+ACPI: LAPIC (acpi_id[0x07] lapic_id[0x00] disabled)
+ACPI: LAPIC (acpi_id[0x08] lapic_id[0x00] disabled)
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+ACPI: IRQ0 used by override.
+ACPI: IRQ2 used by override.
+ACPI: IRQ9 used by override.
+Using ACPI (MADT) for SMP configuration information
+ACPI: HPET id: 0x8086a201 base: 0xfed00000
+8 Processors exceeds NR_CPUS limit of 4
+SMP: Allowing 4 CPUs, 0 hotplug CPUs
+nr_irqs_gsi: 24
+early_res array is doubled to 64 at [1a000 - 1a7ff]
+PM: Registered nosave memory: 0000000000095000 - 0000000000096000
+PM: Registered nosave memory: 0000000000096000 - 00000000000a0000
+PM: Registered nosave memory: 00000000000a0000 - 00000000000e0000
+PM: Registered nosave memory: 00000000000e0000 - 0000000000100000
+PM: Registered nosave memory: 000000009363f000 - 00000000936bf000
+PM: Registered nosave memory: 00000000936bf000 - 00000000937bf000
+PM: Registered nosave memory: 00000000937bf000 - 00000000937ff000
+PM: Registered nosave memory: 0000000093800000 - 00000000a0000000
+PM: Registered nosave memory: 00000000a0000000 - 00000000f0000000
+PM: Registered nosave memory: 00000000f0000000 - 00000000f4000000
+PM: Registered nosave memory: 00000000f4000000 - 00000000feb00000
+PM: Registered nosave memory: 00000000feb00000 - 00000000feb04000
+PM: Registered nosave memory: 00000000feb04000 - 00000000fec00000
+PM: Registered nosave memory: 00000000fec00000 - 00000000fec01000
+PM: Registered nosave memory: 00000000fec01000 - 00000000fed10000
+PM: Registered nosave memory: 00000000fed10000 - 00000000fed14000
+PM: Registered nosave memory: 00000000fed14000 - 00000000fed18000
+PM: Registered nosave memory: 00000000fed18000 - 00000000fed1a000
+PM: Registered nosave memory: 00000000fed1a000 - 00000000fed1b000
+PM: Registered nosave memory: 00000000fed1b000 - 00000000fed20000
+PM: Registered nosave memory: 00000000fed20000 - 00000000fee00000
+PM: Registered nosave memory: 00000000fee00000 - 00000000fee01000
+PM: Registered nosave memory: 00000000fee01000 - 00000000ffe00000
+PM: Registered nosave memory: 00000000ffe00000 - 0000000100000000
+Allocating PCI resources starting at a0000000 (gap: a0000000:50000000)
+Booting paravirtualized kernel on bare hardware
+setup_percpu: NR_CPUS:4 nr_cpumask_bits:4 nr_cpu_ids:4 nr_node_ids:1
+PERCPU: Embedded 26 pages/cpu @ffff880001800000 s77608 r8192 d20696 u524288
+pcpu-alloc: s77608 r8192 d20696 u524288 alloc=1*2097152
+pcpu-alloc: [0] 0 1 2 3 
+early_res array is doubled to 128 at [1a800 - 1b7ff]
+Built 1 zonelists in Node order, mobility grouping on.  Total pages: 944773
+Policy zone: Normal
+Kernel command line: root=/dev/sda2 ro usbcore.autosuspend=1
+PID hash table entries: 4096 (order: 3, 32768 bytes)
+Checking aperture...
+No AGP bridge found
+Subtract (60 early reservations)
+  #1 [0001000000 - 00017009b8]   TEXT DATA BSS
+  #2 [0000095c00 - 0000100000]   BIOS reserved
+  #3 [0001701000 - 00017011fc]             BRK
+  #4 [0000010000 - 0000012000]      TRAMPOLINE
+  #5 [0000012000 - 0000016000]     ACPI WAKEUP
+  #6 [0000016000 - 0000018000]         PGTABLE
+  #7 [0000018000 - 000001a000]         PGTABLE
+  #8 [0100000000 - 0100005000]       NODE_DATA
+  #9 [0001701200 - 0001702200]         BOOTMEM
+  #10 [00017009c0 - 0001700ba0]         BOOTMEM
+  #11 [0100005000 - 0100006000]         BOOTMEM
+  #12 [0100006000 - 0100007000]         BOOTMEM
+  #13 [0100200000 - 0103800000]        MEMMAP 0
+  #14 [0001700bc0 - 0001700d40]         BOOTMEM
+  #15 [0001702200 - 000171a200]         BOOTMEM
+  #16 [000171a200 - 0001726200]         BOOTMEM
+  #17 [0001727000 - 0001728000]         BOOTMEM
+  #18 [0001700d40 - 0001700d81]         BOOTMEM
+  #19 [0001700dc0 - 0001700e03]         BOOTMEM
+  #20 [0001726200 - 0001726628]         BOOTMEM
+  #21 [0001700e40 - 0001700ea8]         BOOTMEM
+  #22 [0001700ec0 - 0001700f28]         BOOTMEM
+  #23 [0001700f40 - 0001700fa8]         BOOTMEM
+  #24 [0001726640 - 00017266a8]         BOOTMEM
+  #25 [00017266c0 - 0001726728]         BOOTMEM
+  #26 [0001726740 - 00017267a8]         BOOTMEM
+  #27 [00017267c0 - 0001726828]         BOOTMEM
+  #28 [0001726840 - 00017268a8]         BOOTMEM
+  #29 [00017268c0 - 0001726928]         BOOTMEM
+  #30 [0001726940 - 00017269a8]         BOOTMEM
+  #31 [00017269c0 - 0001726a28]         BOOTMEM
+  #32 [0001726a40 - 0001726aa8]         BOOTMEM
+  #33 [0001726ac0 - 0001726b28]         BOOTMEM
+  #34 [0001726b40 - 0001726ba8]         BOOTMEM
+  #35 [0001726bc0 - 0001726c28]         BOOTMEM
+  #36 [0001726c40 - 0001726ca8]         BOOTMEM
+  #37 [0001726cc0 - 0001726d28]         BOOTMEM
+  #38 [0001726d40 - 0001726da8]         BOOTMEM
+  #39 [0001700fc0 - 0001700fe0]         BOOTMEM
+  #40 [0001726dc0 - 0001726de0]         BOOTMEM
+  #41 [0001726e00 - 0001726e20]         BOOTMEM
+  #42 [0001726e40 - 0001726e68]         BOOTMEM
+  #43 [0001726e80 - 0001726ea8]         BOOTMEM
+  #44 [0001800000 - 000181a000]         BOOTMEM
+  #45 [0001880000 - 000189a000]         BOOTMEM
+  #46 [0001900000 - 000191a000]         BOOTMEM
+  #47 [0001980000 - 000199a000]         BOOTMEM
+  #48 [0001726ec0 - 0001726ec8]         BOOTMEM
+  #49 [0001726f00 - 0001726f08]         BOOTMEM
+  #50 [0001726f40 - 0001726f50]         BOOTMEM
+  #51 [0001726f80 - 0001726fa0]         BOOTMEM
+  #52 [000172a000 - 000172a130]         BOOTMEM
+  #53 [000172a140 - 000172a190]         BOOTMEM
+  #54 [000172a1c0 - 000172a210]         BOOTMEM
+  #55 [000172a240 - 0001732240]         BOOTMEM
+  #56 [000199a000 - 000599a000]         BOOTMEM
+  #57 [0001732240 - 0001752240]         BOOTMEM
+  #58 [0001752240 - 0001792240]         BOOTMEM
+  #59 [000001b800 - 0000023800]         BOOTMEM
+Memory: 3727048k/5636096k available (4271k kernel code, 1779948k absent, 129100k reserved, 1840k data, 544k init)
+SLUB: Genslabs=14, HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Hierarchical RCU implementation.
+NR_IRQS:384
+Extended CMOS year: 2000
+Console: colour VGA+ 80x25
+console [tty0] enabled
+hpet clockevent registered
+Fast TSC calibration using PIT
+Detected 2393.771 MHz processor.
+Calibrating delay loop (skipped), value calculated using timer frequency.. 4789.02 BogoMIPS (lpj=7979236)
+Security Framework initialized
+Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)
+Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Mount-cache hash table entries: 256
+CPU: Physical Processor ID: 0
+CPU: Processor Core ID: 0
+mce: CPU supports 9 MCE banks
+CPU0: Thermal monitoring handled by SMI
+using mwait in idle threads.
+Performance Events: Westmere events, Intel PMU driver.
+... version:                3
+... bit width:              48
+... generic registers:      4
+... value mask:             0000ffffffffffff
+... max period:             000000007fffffff
+... fixed-purpose events:   3
+... event mask:             000000070000000f
+ACPI: Core revision 20100121
+Setting APIC routing to flat
+..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+CPU0: Intel(R) Core(TM) i5 CPU       M 520  @ 2.40GHz stepping 02
+Booting Node   0, Processors  #1
+CPU1: Thermal monitoring handled by SMI
+ #2
+CPU2: Thermal monitoring handled by SMI
+ #3 Ok.
+CPU3: Thermal monitoring handled by SMI
+Brought up 4 CPUs
+Total of 4 processors activated (19158.33 BogoMIPS).
+NET: Registered protocol family 16
+ACPI FADT declares the system doesn't support PCIe ASPM, so disable it
+ACPI: bus type pci registered
+PCI: MMCONFIG for domain 0000 [bus 00-3f] at [mem 0xf0000000-0xf3ffffff] (base 0xf0000000)
+PCI: MMCONFIG at [mem 0xf0000000-0xf3ffffff] reserved in E820
+PCI: Using configuration type 1 for base access
+bio: create slab <bio-0> at 0
+ACPI: EC: Look up EC in DSDT
+ACPI: Executed 1 blocks of module-level executable AML code
+ACPI: BIOS _OSI(Linux) query ignored
+ACPI: SSDT 0000000093690918 003E2 (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: SSDT 000000009368e618 005CD (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: SSDT 000000009368fa98 00303 (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: SSDT 000000009368dd98 00119 (v01   Sony     VAIO 20100205 INTL 20051117)
+ACPI: Interpreter enabled
+ACPI: (supports S0 S3 S4 S5)
+ACPI: Using IOAPIC for interrupt routing
+ACPI: EC: GPE = 0x17, I/O: command/status = 0x66, data = 0x62
+ACPI: Power Resource [DGPR] (on)
+ACPI: Power Resource [MGPR] (on)
+ACPI: No dock devices found.
+PCI: Using host bridge windows from ACPI; if necessary, use "pci=nocrs" and report a bug
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 8 1f 
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+pci_root PNP0A08:00: host bridge window [io  0x0000-0x0cf7]
+pci_root PNP0A08:00: host bridge window [io  0x0d00-0xffff]
+pci_root PNP0A08:00: host bridge window [mem 0x000a0000-0x000bffff]
+pci_root PNP0A08:00: host bridge window [mem 0xa0000000-0xfeafffff]
+pci 0000:00:01.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:01.0: PME# disabled
+pci 0000:00:02.0: reg 10: [mem 0xd1400000-0xd17fffff 64bit]
+pci 0000:00:02.0: reg 18: [mem 0xc0000000-0xcfffffff 64bit pref]
+pci 0000:00:02.0: reg 20: [io  0x7078-0x707f]
+pci 0000:00:16.0: reg 10: [mem 0xd7828100-0xd782810f 64bit]
+pci 0000:00:16.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:16.0: PME# disabled
+pci 0000:00:19.0: reg 10: [mem 0xd7800000-0xd781ffff]
+pci 0000:00:19.0: reg 14: [mem 0xd7825000-0xd7825fff]
+pci 0000:00:19.0: reg 18: [io  0x7040-0x705f]
+pci 0000:00:19.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:19.0: PME# disabled
+pci 0000:00:1a.0: reg 10: [mem 0xd7827c00-0xd7827fff]
+pci 0000:00:1a.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:1a.0: PME# disabled
+pci 0000:00:1b.0: reg 10: [mem 0xd7820000-0xd7823fff 64bit]
+pci 0000:00:1b.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:1b.0: PME# disabled
+pci 0000:00:1c.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:1c.0: PME# disabled
+pci 0000:00:1c.1: PME# supported from D0 D3hot D3cold
+pci 0000:00:1c.1: PME# disabled
+pci 0000:00:1c.2: PME# supported from D0 D3hot D3cold
+pci 0000:00:1c.2: PME# disabled
+pci 0000:00:1d.0: reg 10: [mem 0xd7827800-0xd7827bff]
+pci 0000:00:1d.0: PME# supported from D0 D3hot D3cold
+pci 0000:00:1d.0: PME# disabled
+pci 0000:00:1f.2: reg 10: [io  0x7068-0x706f]
+pci 0000:00:1f.2: reg 14: [io  0x7084-0x7087]
+pci 0000:00:1f.2: reg 18: [io  0x7060-0x7067]
+pci 0000:00:1f.2: reg 1c: [io  0x7080-0x7083]
+pci 0000:00:1f.2: reg 20: [io  0x7020-0x703f]
+pci 0000:00:1f.2: reg 24: [mem 0xd7827000-0xd78277ff]
+pci 0000:00:1f.2: PME# supported from D3hot
+pci 0000:00:1f.2: PME# disabled
+pci 0000:00:1f.3: reg 10: [mem 0xd7828000-0xd78280ff 64bit]
+pci 0000:00:1f.3: reg 20: [io  0x7000-0x701f]
+pci 0000:00:1f.6: reg 10: [mem 0xd7824000-0xd7824fff 64bit]
+pci 0000:01:00.0: reg 10: [mem 0xd0000000-0xd0ffffff]
+pci 0000:01:00.0: reg 14: [mem 0xa0000000-0xafffffff 64bit pref]
+pci 0000:01:00.0: reg 1c: [mem 0xb0000000-0xb1ffffff 64bit pref]
+pci 0000:01:00.0: reg 24: [io  0x6000-0x607f]
+pci 0000:01:00.0: reg 30: [mem 0xfff80000-0xffffffff pref]
+pci 0000:01:00.1: reg 10: [mem 0xd1000000-0xd1003fff]
+pci 0000:00:01.0: PCI bridge to [bus 01-01]
+pci 0000:00:01.0:   bridge window [io  0x6000-0x6fff]
+pci 0000:00:01.0:   bridge window [mem 0xd0000000-0xd10fffff]
+pci 0000:00:01.0:   bridge window [mem 0xa0000000-0xb1ffffff 64bit pref]
+pci 0000:02:00.0: reg 10: [mem 0xd6800000-0xd6801fff 64bit]
+pci 0000:02:00.0: PME# supported from D0 D3hot D3cold
+pci 0000:02:00.0: PME# disabled
+pci 0000:00:1c.0: PCI bridge to [bus 02-02]
+pci 0000:00:1c.0:   bridge window [io  0x5000-0x5fff]
+pci 0000:00:1c.0:   bridge window [mem 0xd6800000-0xd77fffff]
+pci 0000:00:1c.0:   bridge window [mem 0xd1800000-0xd27fffff 64bit pref]
+pci 0000:03:00.0: reg 10: [mem 0xd5800a00-0xd5800aff]
+pci 0000:03:00.0: supports D1 D2
+pci 0000:03:00.0: PME# supported from D0 D1 D2 D3hot D3cold
+pci 0000:03:00.0: PME# disabled
+pci 0000:03:00.1: reg 10: [mem 0xd5800900-0xd58009ff]
+pci 0000:03:00.1: supports D1 D2
+pci 0000:03:00.1: PME# supported from D0 D1 D2 D3hot D3cold
+pci 0000:03:00.1: PME# disabled
+pci 0000:03:00.3: reg 10: [mem 0xd5800000-0xd58007ff]
+pci 0000:03:00.3: supports D1 D2
+pci 0000:03:00.3: PME# supported from D0 D1 D2 D3hot D3cold
+pci 0000:03:00.3: PME# disabled
+pci 0000:03:00.4: reg 10: [mem 0xd5800800-0xd58008ff]
+pci 0000:03:00.4: supports D1 D2
+pci 0000:03:00.4: PME# supported from D0 D1 D2 D3hot D3cold
+pci 0000:03:00.4: PME# disabled
+pci 0000:00:1c.1: PCI bridge to [bus 03-03]
+pci 0000:00:1c.1:   bridge window [io  0x4000-0x4fff]
+pci 0000:00:1c.1:   bridge window [mem 0xd5800000-0xd67fffff]
+pci 0000:00:1c.1:   bridge window [mem 0xd2800000-0xd37fffff 64bit pref]
+pci 0000:00:1c.2: PCI bridge to [bus 04-0b]
+pci 0000:00:1c.2:   bridge window [io  0x3000-0x3fff]
+pci 0000:00:1c.2:   bridge window [mem 0xd4800000-0xd57fffff]
+pci 0000:00:1c.2:   bridge window [mem 0xd3800000-0xd47fffff 64bit pref]
+pci 0000:00:1e.0: PCI bridge to [bus 0c-0c] (subtractive decode)
+pci 0000:00:1e.0:   bridge window [io  0xf000-0x0000] (disabled)
+pci 0000:00:1e.0:   bridge window [mem 0xfff00000-0x000fffff] (disabled)
+pci 0000:00:1e.0:   bridge window [mem 0xfff00000-0x000fffff pref] (disabled)
+pci 0000:00:1e.0:   bridge window [io  0x0000-0x0cf7] (subtractive decode)
+pci 0000:00:1e.0:   bridge window [io  0x0d00-0xffff] (subtractive decode)
+pci 0000:00:1e.0:   bridge window [mem 0x000a0000-0x000bffff] (subtractive decode)
+pci 0000:00:1e.0:   bridge window [mem 0xa0000000-0xfeafffff] (subtractive decode)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P2._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP01._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP02._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP03._PRT]
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 19 1f 
+ACPI: PCI Root Bridge [CPBG] (0000:3f)
+ACPI: PCI Interrupt Link [LNKA] (IRQs 1 3 4 *5 6 7 10 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 1 3 4 5 6 7 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 1 3 4 5 6 7 *10 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 1 3 4 *5 6 7 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 1 3 4 5 6 7 *10 12 14 15)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 1 3 4 5 6 7 11 12 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKG] (IRQs 1 3 4 5 6 7 10 12 14 15) *11
+ACPI: PCI Interrupt Link [LNKH] (IRQs 1 3 4 5 6 7 *11 12 14 15)
+vgaarb: device added: PCI:0000:00:02.0,decodes=io+mem,owns=io+mem,locks=none
+vgaarb: device added: PCI:0000:01:00.0,decodes=io+mem,owns=none,locks=none
+vgaarb: loaded
+SCSI subsystem initialized
+libata version 3.00 loaded.
+usbcore: registered new interface driver usbfs
+usbcore: registered new interface driver hub
+usbcore: registered new device driver usb
+PCI: Using ACPI for IRQ routing
+PCI: pci_cache_line_size set to 64 bytes
+reserve RAM buffer: 0000000000095c00 - 000000000009ffff 
+reserve RAM buffer: 000000009363f000 - 0000000093ffffff 
+reserve RAM buffer: 0000000093800000 - 0000000093ffffff 
+NetLabel: Initializing
+NetLabel:  domain hash size = 128
+NetLabel:  protocols = UNLABELED CIPSOv4
+NetLabel:  unlabeled traffic allowed by default
+hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0, 0, 0, 0, 0, 0
+hpet0: 8 comparators, 64-bit 14.318180 MHz counter
+Switching to clocksource tsc
+pnp: PnP ACPI init
+ACPI: bus type pnp registered
+pnp: PnP ACPI: found 10 devices
+ACPI: ACPI bus type pnp unregistered
+system 00:05: [io  0x0680-0x069f] has been reserved
+system 00:05: [io  0x0800-0x080f] has been reserved
+system 00:05: [io  0x0810-0x0813] has been reserved
+system 00:05: [io  0xffff] has been reserved
+system 00:05: [io  0x0400-0x047f] has been reserved
+system 00:05: [io  0x0500-0x057f] has been reserved
+system 00:05: [io  0x164e-0x164f] has been reserved
+system 00:05: [io  0x2000] has been reserved
+system 00:05: [io  0x2004] has been reserved
+system 00:08: [mem 0xfed1c000-0xfed1ffff] has been reserved
+system 00:08: [mem 0xfed10000-0xfed13fff] has been reserved
+system 00:08: [mem 0xfed18000-0xfed18fff] has been reserved
+system 00:08: [mem 0xfed19000-0xfed19fff] has been reserved
+system 00:08: [mem 0xf0000000-0xf3ffffff] has been reserved
+system 00:08: [mem 0xfed20000-0xfed3ffff] has been reserved
+system 00:08: [mem 0xfed45000-0xfed8ffff] has been reserved
+system 00:08: [mem 0xff000000-0xffffffff] could not be reserved
+system 00:08: [mem 0xfee00000-0xfeefffff] could not be reserved
+system 00:08: [mem 0xd7900000-0xd7900fff] has been reserved
+pci 0000:01:00.0: no compatible bridge window for [mem 0xfff80000-0xffffffff pref]
+PCI: max bus depth: 1 pci_try_num: 2
+pci 0000:01:00.0: BAR 6: assigned [mem 0xd1080000-0xd10fffff pref]
+pci 0000:00:01.0: PCI bridge to [bus 01-01]
+pci 0000:00:01.0:   bridge window [io  0x6000-0x6fff]
+pci 0000:00:01.0:   bridge window [mem 0xd0000000-0xd10fffff]
+pci 0000:00:01.0:   bridge window [mem 0xa0000000-0xb1ffffff 64bit pref]
+pci 0000:00:1c.0: PCI bridge to [bus 02-02]
+pci 0000:00:1c.0:   bridge window [io  0x5000-0x5fff]
+pci 0000:00:1c.0:   bridge window [mem 0xd6800000-0xd77fffff]
+pci 0000:00:1c.0:   bridge window [mem 0xd1800000-0xd27fffff 64bit pref]
+pci 0000:00:1c.1: PCI bridge to [bus 03-03]
+pci 0000:00:1c.1:   bridge window [io  0x4000-0x4fff]
+pci 0000:00:1c.1:   bridge window [mem 0xd5800000-0xd67fffff]
+pci 0000:00:1c.1:   bridge window [mem 0xd2800000-0xd37fffff 64bit pref]
+pci 0000:00:1c.2: PCI bridge to [bus 04-0b]
+pci 0000:00:1c.2:   bridge window [io  0x3000-0x3fff]
+pci 0000:00:1c.2:   bridge window [mem 0xd4800000-0xd57fffff]
+pci 0000:00:1c.2:   bridge window [mem 0xd3800000-0xd47fffff 64bit pref]
+pci 0000:00:1e.0: PCI bridge to [bus 0c-0c]
+pci 0000:00:1e.0:   bridge window [io  disabled]
+pci 0000:00:1e.0:   bridge window [mem disabled]
+pci 0000:00:1e.0:   bridge window [mem pref disabled]
+pci 0000:00:01.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+pci 0000:00:01.0: setting latency timer to 64
+pci 0000:00:1c.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+pci 0000:00:1c.0: setting latency timer to 64
+pci 0000:00:1c.1: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+pci 0000:00:1c.1: setting latency timer to 64
+pci 0000:00:1c.2: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+pci 0000:00:1c.2: setting latency timer to 64
+pci 0000:00:1e.0: setting latency timer to 64
+pci_bus 0000:00: resource 4 [io  0x0000-0x0cf7]
+pci_bus 0000:00: resource 5 [io  0x0d00-0xffff]
+pci_bus 0000:00: resource 6 [mem 0x000a0000-0x000bffff]
+pci_bus 0000:00: resource 7 [mem 0xa0000000-0xfeafffff]
+pci_bus 0000:01: resource 0 [io  0x6000-0x6fff]
+pci_bus 0000:01: resource 1 [mem 0xd0000000-0xd10fffff]
+pci_bus 0000:01: resource 2 [mem 0xa0000000-0xb1ffffff 64bit pref]
+pci_bus 0000:02: resource 0 [io  0x5000-0x5fff]
+pci_bus 0000:02: resource 1 [mem 0xd6800000-0xd77fffff]
+pci_bus 0000:02: resource 2 [mem 0xd1800000-0xd27fffff 64bit pref]
+pci_bus 0000:03: resource 0 [io  0x4000-0x4fff]
+pci_bus 0000:03: resource 1 [mem 0xd5800000-0xd67fffff]
+pci_bus 0000:03: resource 2 [mem 0xd2800000-0xd37fffff 64bit pref]
+pci_bus 0000:04: resource 0 [io  0x3000-0x3fff]
+pci_bus 0000:04: resource 1 [mem 0xd4800000-0xd57fffff]
+pci_bus 0000:04: resource 2 [mem 0xd3800000-0xd47fffff 64bit pref]
+pci_bus 0000:0c: resource 4 [io  0x0000-0x0cf7]
+pci_bus 0000:0c: resource 5 [io  0x0d00-0xffff]
+pci_bus 0000:0c: resource 6 [mem 0x000a0000-0x000bffff]
+pci_bus 0000:0c: resource 7 [mem 0xa0000000-0xfeafffff]
+NET: Registered protocol family 2
+IP route cache hash table entries: 131072 (order: 8, 1048576 bytes)
+TCP established hash table entries: 524288 (order: 11, 8388608 bytes)
+TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
+TCP: Hash tables configured (established 524288 bind 65536)
+TCP reno registered
+UDP hash table entries: 2048 (order: 4, 65536 bytes)
+UDP-Lite hash table entries: 2048 (order: 4, 65536 bytes)
+NET: Registered protocol family 1
+pci 0000:00:02.0: Boot video device
+PCI: CLS 64 bytes, default 64
+PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
+Placing 64MB software IO TLB between ffff88000199a000 - ffff88000599a000
+software IO TLB at phys 0x199a000 - 0x599a000
+Simple Boot Flag at 0x44 set to 0x1
+Scanning for low memory corruption every 60 seconds
+alg: skcipher: Failed to load transform for ecb-aes-aesni: -2
+VFS: Disk quotas dquot_6.5.2
+Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+squashfs: version 4.0 (2009/01/31) Phillip Lougher
+fuse init (API version 7.13)
+msgmni has been set to 7279
+alg: No test for stdrng (krng)
+Block layer SCSI generic (bsg) driver version 0.4 loaded (major 254)
+io scheduler noop registered
+io scheduler cfq registered (default)
+pcieport 0000:00:01.0: setting latency timer to 64
+pcieport 0000:00:01.0: irq 24 for MSI/MSI-X
+pcieport 0000:00:1c.0: setting latency timer to 64
+pcieport 0000:00:1c.0: irq 25 for MSI/MSI-X
+pcieport 0000:00:1c.1: setting latency timer to 64
+pcieport 0000:00:1c.1: irq 26 for MSI/MSI-X
+pcieport 0000:00:1c.2: setting latency timer to 64
+pcieport 0000:00:1c.2: irq 27 for MSI/MSI-X
+pcieport 0000:00:01.0: Requesting control of PCIe PME from ACPI BIOS
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 0 1f 
+pcieport 0000:00:01.0: Failed to receive control of PCIe PME service: ACPI _OSC failed
+pcie_pme: probe of 0000:00:01.0:pcie01 failed with error -13
+pcieport 0000:00:1c.0: Requesting control of PCIe PME from ACPI BIOS
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 0 1f 
+pcieport 0000:00:1c.0: Failed to receive control of PCIe PME service: ACPI _OSC failed
+pcie_pme: probe of 0000:00:1c.0:pcie01 failed with error -13
+pcieport 0000:00:1c.1: Requesting control of PCIe PME from ACPI BIOS
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 0 1f 
+pcieport 0000:00:1c.1: Failed to receive control of PCIe PME service: ACPI _OSC failed
+pcie_pme: probe of 0000:00:1c.1:pcie01 failed with error -13
+pcieport 0000:00:1c.2: Requesting control of PCIe PME from ACPI BIOS
+\_SB_.PCI0:_OSC invalid UUID
+_OSC request data:1 0 1f 
+pcieport 0000:00:1c.2: Failed to receive control of PCIe PME service: ACPI _OSC failed
+pcie_pme: probe of 0000:00:1c.2:pcie01 failed with error -13
+Linux agpgart interface v0.103
+Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+loop: module loaded
+ahci 0000:00:1f.2: version 3.0
+ahci 0000:00:1f.2: PCI INT A -> GSI 22 (level, low) -> IRQ 22
+ahci 0000:00:1f.2: irq 28 for MSI/MSI-X
+ahci: SSS flag set, parallel bus scan disabled
+ahci 0000:00:1f.2: AHCI 0001.0300 32 slots 6 ports 3 Gbps 0x1f impl RAID mode
+ahci 0000:00:1f.2: flags: 64bit ncq sntf stag pm led clo pio slum part apst 
+ahci 0000:00:1f.2: setting latency timer to 64
+scsi0 : ahci
+scsi1 : ahci
+scsi2 : ahci
+scsi3 : ahci
+scsi4 : ahci
+scsi5 : ahci
+ata1: SATA max UDMA/133 abar m2048@0xd7827000 port 0xd7827100 irq 28
+ata2: SATA max UDMA/133 abar m2048@0xd7827000 port 0xd7827180 irq 28
+ata3: SATA max UDMA/133 abar m2048@0xd7827000 port 0xd7827200 irq 28
+ata4: SATA max UDMA/133 abar m2048@0xd7827000 port 0xd7827280 irq 28
+ata5: SATA max UDMA/133 abar m2048@0xd7827000 port 0xd7827300 irq 28
+ata6: DUMMY
+e1000e: Intel(R) PRO/1000 Network Driver - 1.0.2-k2
+e1000e: Copyright (c) 1999 - 2009 Intel Corporation.
+e1000e 0000:00:19.0: PCI INT A -> GSI 18 (level, low) -> IRQ 18
+e1000e 0000:00:19.0: setting latency timer to 64
+e1000e 0000:00:19.0: irq 29 for MSI/MSI-X
+ata1: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+ata1.00: ACPI cmd f5/00:00:00:00:00:00 (SECURITY FREEZE LOCK) filtered out
+ata1.00: ATA-8: TOSHIBA MK3265GSX, GJ002H, max UDMA/100
+ata1.00: 625142448 sectors, multi 16: LBA48 NCQ (depth 31/32), AA
+ata1.00: ACPI cmd f5/00:00:00:00:00:00 (SECURITY FREEZE LOCK) filtered out
+ata1.00: configured for UDMA/100
+scsi 0:0:0:0: Direct-Access     ATA      TOSHIBA MK3265GS GJ00 PQ: 0 ANSI: 5
+sd 0:0:0:0: Attached scsi generic sg0 type 0
+sd 0:0:0:0: [sda] 625142448 512-byte logical blocks: (320 GB/298 GiB)
+sd 0:0:0:0: [sda] Write Protect is off
+sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+0000:00:19.0: eth0: (PCI Express:2.5GB/s:Width x1) 00:1d:ba:c0:9a:67
+0000:00:19.0: eth0: Intel(R) PRO/1000 Network Connection
+0000:00:19.0: eth0: MAC: 9, PHY: 10, PBA No: ffffff-0ff
+ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+ehci_hcd 0000:00:1a.0: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+ehci_hcd 0000:00:1a.0: setting latency timer to 64
+ehci_hcd 0000:00:1a.0: EHCI Host Controller
+ehci_hcd 0000:00:1a.0: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:1a.0: debug port 2
+ehci_hcd 0000:00:1a.0: cache line size of 64 is not supported
+ehci_hcd 0000:00:1a.0: irq 23, io mem 0xd7827c00
+ sda:
+ehci_hcd 0000:00:1a.0: USB 2.0 started, EHCI 1.00
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 3 ports detected
+ehci_hcd 0000:00:1d.0: PCI INT A -> GSI 20 (level, low) -> IRQ 20
+ehci_hcd 0000:00:1d.0: setting latency timer to 64
+ehci_hcd 0000:00:1d.0: EHCI Host Controller
+ehci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+ehci_hcd 0000:00:1d.0: debug port 2
+ehci_hcd 0000:00:1d.0: cache line size of 64 is not supported
+ehci_hcd 0000:00:1d.0: irq 20, io mem 0xd7827800
+ehci_hcd 0000:00:1d.0: USB 2.0 started, EHCI 1.00
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 3 ports detected
+Initializing USB Mass Storage driver...
+usbcore: registered new interface driver usb-storage
+USB Mass Storage support registered.
+PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 1
+PNP: PS/2 appears to have AUX port disabled, if this is incorrect please boot with i8042.nopnp
+serio: i8042 KBD port at 0x60,0x64 irq 1
+mice: PS/2 mouse device common for all mice
+device-mapper: ioctl: 4.17.0-ioctl (2010-03-05) initialised: dm-devel@redhat.com
+cpuidle: using governor ladder
+cpuidle: using governor menu
+sdhci: Secure Digital Host Controller Interface driver
+sdhci: Copyright(c) Pierre Ossman
+sdhci-pci 0000:03:00.0: SDHCI controller found [1180:e822] (rev 0)
+sdhci-pci 0000:03:00.0: PCI INT A -> GSI 17 (level, low) -> IRQ 17
+sdhci-pci 0000:03:00.0: Will use DMA mode even though HW doesn't fully claim to support it.
+sdhci-pci 0000:03:00.0: setting latency timer to 64
+mmc0: SDHCI controller on PCI [0000:03:00.0] using DMA
+sdhci-pci 0000:03:00.4: SDHCI controller found [1180:e822] (rev 0)
+sdhci-pci 0000:03:00.4: PCI INT C -> GSI 19 (level, low) -> IRQ 19
+sdhci-pci 0000:03:00.4: Will use DMA mode even though HW doesn't fully claim to support it.
+sdhci-pci 0000:03:00.4: setting latency timer to 64
+mmc1: SDHCI controller on PCI [0000:03:00.4] using DMA
+usbcore: registered new interface driver usbhid
+usbhid: USB HID core driver
+TCP cubic registered
+NET: Registered protocol family 17
+SCTP: Hash tables configured (established 65536 bind 65536)
+input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+ sda1 sda2 sda3 sda4
+sd 0:0:0:0: [sda] Attached SCSI disk
+mmc1: new SD card at address 9ff0
+mmcblk0: mmc1:9ff0 SD02G 1.89 GiB (ro)
+ mmcblk0: p1
+ata2: SATA link down (SStatus 0 SControl 300)
+usb 1-1: new high speed USB device using ehci_hcd and address 2
+hub 1-1:1.0: USB hub found
+hub 1-1:1.0: 6 ports detected
+usb 2-1: new high speed USB device using ehci_hcd and address 2
+ata3: SATA link down (SStatus 0 SControl 300)
+hub 2-1:1.0: USB hub found
+hub 2-1:1.0: 8 ports detected
+usb 1-1.2: new high speed USB device using ehci_hcd and address 3
+usb 1-1.3: new high speed USB device using ehci_hcd and address 4
+ata4: SATA link down (SStatus 0 SControl 300)
+usb 1-1.3: config 1 has an invalid interface number: 1 but max is 0
+usb 1-1.3: config 1 has no interface number 0
+usb 1-1.6: new full speed USB device using ehci_hcd and address 5
+hub 1-1:1.0: unable to enumerate USB device on port 6
+ata5: SATA link down (SStatus 0 SControl 300)
+EXT3-fs (sda2): error: couldn't mount because of unsupported optional features (240)
+EXT2-fs (sda2): error: couldn't mount because of unsupported optional features (240)
+EXT4-fs (sda2): mounted filesystem with ordered data mode
+VFS: Mounted root (ext4 filesystem) readonly on device 8:2.
+Freeing unused kernel memory: 544k freed
+rtc_cmos 00:06: RTC can wake from S4
+rtc_cmos 00:06: rtc core: registered rtc_cmos as rtc0
+rtc0: alarms up to one year, y3k, 242 bytes nvram, hpet irqs
+udev: starting version 151
+Monitor-Mwait will be used to enter C-1 state
+Monitor-Mwait will be used to enter C-2 state
+Monitor-Mwait will be used to enter C-3 state
+thermal LNXTHERM:01: registered as thermal_zone0
+ACPI: Thermal Zone [DTS0] (57 C)
+input: Lid Switch as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0D:00/input/input1
+ACPI: Lid Switch [LID0]
+input: Power Button as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0C:00/input/input2
+ACPI: Power Button [PWRB]
+input: PC Speaker as /devices/platform/pcspkr/input/input3
+ACPI: AC Adapter [ADP1] (on-line)
+i801_smbus 0000:00:1f.3: PCI INT B -> GSI 22 (level, low) -> IRQ 22
+ACPI: I/O resource 0000:00:1f.3 [0x7000-0x701f] conflicts with ACPI region SMBI [0x7000-0x700f]
+ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+ACPI: Battery Slot [BAT1] (battery present)
+sony-laptop: Sony Notebook Control Driver v0.6.
+input: Sony Vaio Keys as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:0a/SNY5001:00/input/input4
+input: Sony Vaio Jogdial as /devices/virtual/input/input5
+sony-laptop: brightness ignored, must be controlled by ACPI video driver
+cfg80211: Calling CRDA to update world regulatory domain
+agpgart-intel 0000:00:00.0: Intel HD Graphics Chipset
+agpgart-intel 0000:00:00.0: detected 131068K stolen memory
+agpgart-intel 0000:00:00.0: AGP aperture is 256M @ 0xc0000000
+iwlagn: Intel(R) Wireless WiFi Link AGN driver for Linux, in-tree:
+iwlagn: Copyright(c) 2003-2010 Intel Corporation
+iwlagn 0000:02:00.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+iwlagn 0000:02:00.0: setting latency timer to 64
+iwlagn 0000:02:00.0: Detected Intel Wireless WiFi Link 6000 Series 2x2 AGN REV=0x74
+iwlagn 0000:02:00.0: Tunable channels: 13 802.11bg, 24 802.11a channels
+iwlagn 0000:02:00.0: irq 30 for MSI/MSI-X
+iwlagn 0000:02:00.0: firmware: requesting iwlwifi-6000-4.ucode
+HDA Intel 0000:00:1b.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+HDA Intel 0000:00:1b.0: irq 31 for MSI/MSI-X
+HDA Intel 0000:00:1b.0: setting latency timer to 64
+iwlagn 0000:02:00.0: loaded firmware version 9.176.4.1
+phy0: Selected rate control algorithm 'iwl-agn-rs'
+hda_codec: ALC889: BIOS auto-probing.
+input: HDA Digital PCBeep as /devices/pci0000:00/0000:00:1b.0/input/input6
+HDA Intel 0000:01:00.1: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+hda_intel: Disable MSI for Nvidia chipset
+HDA Intel 0000:01:00.1: setting latency timer to 64
+iwlagn 0000:02:00.0: RF_KILL bit toggled to enable radio.
+usb 1-1.6: new full speed USB device using ehci_hcd and address 6
+EXT4-fs (sda3): mounted filesystem with ordered data mode

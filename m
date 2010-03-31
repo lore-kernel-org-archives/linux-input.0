@@ -1,144 +1,54 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Logitech M705 thumb button
-Date: Wed, 31 Mar 2010 14:05:08 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
-References: <hoqak4$m6t$1@dough.gmane.org>  <20100330065625.GC12764@core.coreip.homeip.net>  <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>  <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
- <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
+Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
+ for hid drivers
+Date: Wed, 31 Mar 2010 14:15:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
+References: <20100324233707.7243b04d@neptune.home> <20100324234022.0361bd80@neptune.home> <20100326065656.GC26602@core.coreip.homeip.net> <20100326102951.3b9ecda1@neptune.home> <alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz> <20100327012245.0ace6a09@neptune.home>
+ <alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz> <20100329121611.0c22dcaf@pluto.restena.lu> <alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz> <20100330223224.18fe4f3e@neptune.home> <20100330224230.7b84df75@neptune.home>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54502 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:54947 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932204Ab0CaMFK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Mar 2010 08:05:10 -0400
-In-Reply-To: <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
+	id S932204Ab0CaMP6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Mar 2010 08:15:58 -0400
+In-Reply-To: <20100330224230.7b84df75@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Octoploid <cryptooctoploid@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
 
-On Tue, 30 Mar 2010, Octoploid wrote:
+On Tue, 30 Mar 2010, Bruno Pr=C3=A9mont wrote:
 
-> > Could you please provide output of
-> >
-> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/rdesc
-> >
-> > and
-> >
-> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/events
-> >
+> Add suspend/resume hooks for HID drivers so these can do some
+> additional state adjustment when device gets suspended/resumed.
 >=20
-> Sure:
+> This patch calls these hooks from usbhid suspend/resume functions,
+> only calling suspend on plain suspend, not autosuspend.
+> (it might be worth adding an autosuspend parameter to suspend
+> hook and calling suspend in both cases)
 >=20
-> There are no events logged when I press the thumb button
-> while running cat /sys/kernel/debug/hid/0003:046D:C52B.0002/events.
+> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+> ---
 >=20
-> (The =BBunifying USB reciever=AB has three sub-devices. The first one=
- is
-> for keyboards, the second for mouses and the third is not used:
-> usb 3-1: new full speed USB device using ohci_hcd and address 2
-> input: Logitech USB Receiver as
-> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
-> generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboar=
-d
-> [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
-> input: Logitech USB Receiver as
-> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
-> generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.1=
-1
-> Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
-> generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
-> Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
->=20
-> The rdesc output for the mouse and the third device follows:
+> Note:
+>   this patch needs improvements as mentionned by Olivier Neukum:
+>   - suspend hook for both system suspend and autosuspend
+>   - no call of hook on USB-HID-resume failure
 
-Thanks for providing the output.
+I agree with Oliver's comments.
 
-The device defines 16 buttons in its report descriptor. How much does i=
-t=20
-actually physically have?
+We should also consider putting the hook calls into bluetooth=20
+implementation as well (though there is currently no driver using it, b=
+ut=20
+I don't know, maybe Wacom could benefit from it as well).
 
-Is the other (non-used) interface also silent when you press the=20
-non-working button? (I can see that it is claimed by HID as well).
+Thanks,
 
-Could you please apply the patch below and check whether there is still=
- no=20
-event present when you press the button?
-
-Thanks.
-
-
-
-=46rom 1caea61eda5c4d446147aa0e712ba395bb6b81c3 Mon Sep 17 00:00:00 200=
-1
-=46rom: Jiri Kosina <jkosina@suse.cz>
-Date: Thu, 18 Mar 2010 12:09:53 +0100
-Subject: [PATCH] HID: output event in debugfs even if hid_get_report() =
-fails
-
-if hid_get_report() fails for whatever reason, the raw output of
-the report doesn't make it into 'events' file in debugfs at all, becaus=
-e
-we leave hid_input_report() too soon.
-
-We want the report to be always present for debugging reasons. Move the
-code around, so that the event makes it to 'events' file all the time,
-even if we are going to discard the report.
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/hid/hid-core.c |   20 +++++++++-----------
- 1 files changed, 9 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 368fbb0..c49aaa2 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1096,20 +1096,11 @@ int hid_input_report(struct hid_device *hid, in=
-t type, u8 *data, int size, int i
- 		goto nomem;
- 	}
-=20
--	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
--			"\nreport (size %u) (%snumbered)\n", size, report_enum->numbered ? =
-"" : "un");
--	hid_debug_event(hid, buf);
--
--	report =3D hid_get_report(report_enum, data);
--	if (!report) {
--		kfree(buf);
--		return -1;
--	}
--
- 	/* dump the report */
- 	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
--			"report %d (size %u) =3D ", report->id, size);
-+			"\nreport (size %u) (%snumbered) =3D ", size, report_enum->numbered=
- ? "" : "un");
- 	hid_debug_event(hid, buf);
-+
- 	for (i =3D 0; i < size; i++) {
- 		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
- 				" %02x", data[i]);
-@@ -1117,6 +1108,13 @@ int hid_input_report(struct hid_device *hid, int=
- type, u8 *data, int size, int i
- 	}
- 	hid_debug_event(hid, "\n");
-=20
-+	report =3D hid_get_report(report_enum, data);
-+
-+	if (!report) {
-+		kfree(buf);
-+		return -1;
-+	}
-+
- 	kfree(buf);
-=20
- nomem:
 --=20
-1.6.4.2
-
+Jiri Kosina
+SUSE Labs, Novell Inc.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

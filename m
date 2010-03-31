@@ -1,86 +1,54 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
- IR system?
-Date: Wed, 31 Mar 2010 03:01:56 -0300
-Message-ID: <4BB2E554.6030308@redhat.com>
-References: <9e4733910912151229o371ee017tf3640d8f85728011@mail.gmail.com> <20091215203300.GL24406@elf.ucw.cz> <9e4733910912151245ne442a5dlcfee92609e364f70@mail.gmail.com> <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com> <4BAB7659.1040408@redhat.com> <20100326112755.GB5387@hardeman.nu> <4BACC769.6020906@redhat.com> <20100326160150.GA28804@core.coreip.homeip.net> <4BAFE4B7.2030204@redhat.com> <4BAFF985.3090703@redhat.com> <20100330110138.GA6164@hardeman.nu>
+From: Ondrej Zary <linux@rainbow-software.org>
+Subject: [PATCH] [resend] usbtouchscreen: support bigger iNexio touchscreens
+Date: Wed, 31 Mar 2010 08:33:55 +0200
+Message-ID: <201003310833.57222.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:17191 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932376Ab0CaGC6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Mar 2010 02:02:58 -0400
-In-Reply-To: <20100330110138.GA6164@hardeman.nu>
+Received: from mail1-out1.atlantis.sk ([80.94.52.55]:54921 "EHLO
+	mail.atlantis.sk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757250Ab0CaGeB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Mar 2010 02:34:01 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Krzysztof Halasa <khc@pm.waw.pl>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb@vger.kernel.org, daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-David H=E4rdeman wrote:
-> On Sun, Mar 28, 2010 at 09:51:17PM -0300, Mauro Carvalho Chehab wrote=
-:
->> I spoke too soon... removing the index causes a problem at the read =
-ioctl: there's no way
->> to retrieve just the non-sparsed values.
->>
->> There's one solution that would allow both read/write and compat to =
-work nicely,
->> but the API would become somewhat asymmetrical:
->>
->> At get (EVIOCGKEYCODEBIG):
->> 	use index/len as input and keycode/scancode as output;
->>
->> At set (EVIOCSKEYCODEBIG):
->> 	use scancode/keycode/len as input (and, optionally, index as output=
-).
->>
->=20
-> This was exactly the approach I had in mind when I suggested using=20
-> indexes.
+Bigger Nexio touchscreens not only send more data but also the header values
+are modified somehow. Fix the header somehow (it's a guesswork but it works
+at least on one 46" touchscreen with 2.00SMS firmware) and also increase
+rept_size.
 
-Doesn't work perfectly. The asymmetry has a side effect on the internal=
- logic:=20
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
 
-EVIOCGKEYCODEBIG should be implemented with a pseudo-code like:
-	kt_entry =3D getkeycodebig_from_index(index);
+--- linux-2.6.34-rc1-orig/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:34:51.000000000 +0100
++++ linux-2.6.34-rc1/drivers/input/touchscreen/usbtouchscreen.c	2010-03-16 13:46:15.000000000 +0100
+@@ -858,6 +858,11 @@
+ 	if ((pkt[0] & 0xe0) != 0xe0)
+ 		return 0;
+ 
++	if (be16_to_cpu(packet->data_len) > 0xff)
++		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
++	if (be16_to_cpu(packet->x_len) > 0xff)
++		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
++
+ 	/* send ACK */
+ 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
+ 
+@@ -1113,7 +1118,7 @@
+ 
+ #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
+ 	[DEVTYPE_NEXIO] = {
+-		.rept_size	= 128,
++		.rept_size	= 1024,
+ 		.irq_always	= true,
+ 		.read_data	= nexio_read_data,
+ 		.init		= nexio_init,
 
-EVIOCSKEYCODEBIG should be implemented with a pseudo-code like:
-	kt_entry =3D getkeycodebig_from_scan(scan, len);
-	old_key =3D kt_entry->keycode;
 
-	kt_entry->keycode =3D newkey;
-	if (setkeycodebig(kt_entry) =3D=3D 0)
-		keyup(old_key);
-
-As you see, the input parameters for the getkeycodebig*() are different=
-=2E
-
-So, this approach requires 3 ops instead of 2. Yet, as scancode->keycod=
-e is
-needed anyway, this doesn't actually hurts.
-
-I just added the patches that implement those two ioctls on my IR devel=
-opment tree.
-I tested only the original EVIOCGKEYCODE/EVIOSGKEYCODE and calling a cl=
-ear_table
-function using EVIOCSKEYCODEBIG via emulation.
-
-My next step is to test the remaining ir-keytable functions via emulati=
-on, and then
-implement the *BIG ioctls at ir-core, for testing.
-
-I haven't test yet the *keycode*default methods.=20
-
-After having it fully tested, I'll submit the complete input ioctl patc=
-h via ML.
-
---=20
-
-Cheers,
-Mauro
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Ondrej Zary

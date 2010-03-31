@@ -1,94 +1,48 @@
-From: Octoploid <cryptooctoploid@gmail.com>
-Subject: Re: Logitech M705 thumb button
-Date: Wed, 31 Mar 2010 14:54:20 +0200
-Message-ID: <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
-References: <hoqak4$m6t$1@dough.gmane.org>
-	 <20100330065625.GC12764@core.coreip.homeip.net>
-	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>
-	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
-	 <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
-	 <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: [PATCH] matrix_keypad: allow platform to disable key autorepeat
+Date: Wed, 31 Mar 2010 13:55:58 -0500
+Message-ID: <0D753D10438DA54287A00B02708426976369248B0D@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.157]:31740 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932682Ab0CaMyV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Mar 2010 08:54:21 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so445697fgg.1
-        for <linux-input@vger.kernel.org>; Wed, 31 Mar 2010 05:54:20 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Mar 31, 2010 at 2:05 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 30 Mar 2010, Octoploid wrote:
->
->> > Could you please provide output of
->> >
->> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/rdesc
->> >
->> > and
->> >
->> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/events
->> >
->>
->> Sure:
->>
->> There are no events logged when I press the thumb button
->> while running cat /sys/kernel/debug/hid/0003:046D:C52B.0002/events.
->>
->> (The =BBunifying USB reciever=AB has three sub-devices. The first on=
-e is
->> for keyboards, the second for mouses and the third is not used:
->> usb 3-1: new full speed USB device using ohci_hcd and address 2
->> input: Logitech USB Receiver as
->> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
->> generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboa=
-rd
->> [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
->> input: Logitech USB Receiver as
->> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
->> generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.=
-11
->> Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
->> generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
->> Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
->>
->> The rdesc output for the mouse and the third device follows:
->
-> Thanks for providing the output.
->
-> The device defines 16 buttons in its report descriptor. How much does=
- it
-> actually physically have?
-
-8 if I count correctly (left,middle,right,scrollwheel left,scrollwheel =
-right,
-forward, backward and the hidden (the non working) thumb button).
-Here is a photo of the mouse (the hidden button is located under the
-white underscore below the back and forward buttons):
-http://www.techfresh.net/wp-content/uploads/2010/03/logitech_m705.jpg
-
-> Is the other (non-used) interface also silent when you press the
-> non-working button? (I can see that it is claimed by HID as well).
-
-Yes.
-
-> Could you please apply the patch below and check whether there is sti=
-ll no
-> event present when you press the button?
->
-
-Yes, unfortunately there are still no events even with the patch applie=
-d.
-(I've tested both interfaces)
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SW4gYW4gZW1iZWRkZWQgc3lzdGVtIHRoZSBtYXRyaXhfa2V5cGFkIGRyaXZlciBtaWdodCBiZSB1
+c2VkIHRvIA0KaW50ZXJmYWNlIHdpdGggYW4gZXh0ZXJuYWwgY29udHJvbCBwYW5lbCBhbmQgbm90
+IGFuIGFjdHVhbCBrZXlib2FyZC4NCk9uIHRoZSBjb250cm9sIHBhbmVsIHNvbWUgb2YgdGhlIGtl
+eXMgY291bGQgYmUgdXNlZCB0byB0dXJuIG9uL29mZg0KdmFyaW91cyBmdW5jdGlvbnMuICBJZiBr
+ZXkgYXV0b3JlcGVhdCBpcyBlbmFibGVkIHRoaXMgY2F1c2VzIHRoZQ0KZnVuY3Rpb24gdG8gcXVp
+Y2tseSB0b2dnbGUgYmV0d2VlbiB0aGUgb24gYW5kIG9mZiBzdGF0ZXMgYW5kIG1ha2VzDQpvcGVy
+YXRpb24gZGlmZmljdWx0Lg0KDQpBZGQgYW4gb3B0aW9uIGluIHRoZSBwbGF0Zm9ybS1zcGVjaWZp
+YyBkYXRhIHRvIGRpc2FibGUgdGhlIGtleQ0KYXV0b3JlcGVhdC4NCg0KU2lnbmVkLW9mZi1ieTog
+SCBIYXJ0bGV5IFN3ZWV0ZW4gPGhzd2VldGVuQHZpc2lvbmVuZ3JhdmVycy5jb20+DQpDYzogRG1p
+dHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPg0KDQotLS0NCg0KZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBhZC5jIGIvZHJpdmVycy9p
+bnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMNCmluZGV4IGQzYzhiNjEuLjdkOTliNDQgMTAw
+NjQ0DQotLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYw0KKysrIGIv
+ZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMNCkBAIC0zNzMsNyArMzczLDkg
+QEAgc3RhdGljIGludCBfX2RldmluaXQgbWF0cml4X2tleXBhZF9wcm9iZShzdHJ1Y3QgcGxhdGZv
+cm1fZGV2aWNlICpwZGV2KQ0KIAlpbnB1dF9kZXYtPm5hbWUJCT0gcGRldi0+bmFtZTsNCiAJaW5w
+dXRfZGV2LT5pZC5idXN0eXBlCT0gQlVTX0hPU1Q7DQogCWlucHV0X2Rldi0+ZGV2LnBhcmVudAk9
+ICZwZGV2LT5kZXY7DQotCWlucHV0X2Rldi0+ZXZiaXRbMF0JPSBCSVRfTUFTSyhFVl9LRVkpIHwg
+QklUX01BU0soRVZfUkVQKTsNCisJaW5wdXRfZGV2LT5ldmJpdFswXQk9IEJJVF9NQVNLKEVWX0tF
+WSk7DQorCWlmICghcGRhdGEtPm5vX2F1dG9yZXApDQorCQlpbnB1dF9kZXYtPmV2Yml0WzBdIHw9
+IEJJVF9NQVNLKEVWX1JFUCk7DQogCWlucHV0X2Rldi0+b3BlbgkJPSBtYXRyaXhfa2V5cGFkX3N0
+YXJ0Ow0KIAlpbnB1dF9kZXYtPmNsb3NlCT0gbWF0cml4X2tleXBhZF9zdG9wOw0KIA0KZGlmZiAt
+LWdpdCBhL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4X2tleXBhZC5oIGIvaW5jbHVkZS9saW51
+eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgNCmluZGV4IDNiZDAxOGIuLjFkOWNhOTQgMTAwNjQ0DQot
+LS0gYS9pbmNsdWRlL2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaA0KKysrIGIvaW5jbHVkZS9s
+aW51eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgNCkBAIC00NCw2ICs0NCw3IEBAIHN0cnVjdCBtYXRy
+aXhfa2V5bWFwX2RhdGEgew0KICAqIEBhY3RpdmVfbG93OiBncGlvIHBvbGFyaXR5DQogICogQHdh
+a2V1cDogY29udHJvbHMgd2hldGhlciB0aGUgZGV2aWNlIHNob3VsZCBiZSBzZXQgdXAgYXMgd2Fr
+ZXVwDQogICoJc291cmNlDQorICogQG5vX2F1dG9yZXA6IGRpc2FibGUga2V5IGF1dG9yZXBlYXQN
+CiAgKg0KICAqIFRoaXMgc3RydWN0dXJlIHJlcHJlc2VudHMgcGxhdGZvcm0tc3BlY2lmaWMgZGF0
+YSB0aGF0IHVzZSB1c2VkIGJ5DQogICogbWF0cml4X2tleXBhZCBkcml2ZXIgdG8gcGVyZm9ybSBw
+cm9wZXIgaW5pdGlhbGl6YXRpb24uDQpAQCAtNjQsNiArNjUsNyBAQCBzdHJ1Y3QgbWF0cml4X2tl
+eXBhZF9wbGF0Zm9ybV9kYXRhIHsNCiANCiAJYm9vbAkJYWN0aXZlX2xvdzsNCiAJYm9vbAkJd2Fr
+ZXVwOw0KKwlib29sCQlub19hdXRvcmVwOw0KIH07DQogDQogLyoqDQo=

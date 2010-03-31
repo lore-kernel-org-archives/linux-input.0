@@ -1,54 +1,92 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
- for hid drivers
-Date: Wed, 31 Mar 2010 14:15:53 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
-References: <20100324233707.7243b04d@neptune.home> <20100324234022.0361bd80@neptune.home> <20100326065656.GC26602@core.coreip.homeip.net> <20100326102951.3b9ecda1@neptune.home> <alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz> <20100327012245.0ace6a09@neptune.home>
- <alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz> <20100329121611.0c22dcaf@pluto.restena.lu> <alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz> <20100330223224.18fe4f3e@neptune.home> <20100330224230.7b84df75@neptune.home>
+From: Octoploid <cryptooctoploid@gmail.com>
+Subject: Re: Logitech M705 thumb button
+Date: Wed, 31 Mar 2010 14:54:20 +0200
+Message-ID: <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
+References: <hoqak4$m6t$1@dough.gmane.org>
+	 <20100330065625.GC12764@core.coreip.homeip.net>
+	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>
+	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
+	 <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
+	 <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:54947 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932204Ab0CaMP6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Mar 2010 08:15:58 -0400
-In-Reply-To: <20100330224230.7b84df75@neptune.home>
+Received: from fg-out-1718.google.com ([72.14.220.157]:31740 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932682Ab0CaMyV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 31 Mar 2010 08:54:21 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so445697fgg.1
+        for <linux-input@vger.kernel.org>; Wed, 31 Mar 2010 05:54:20 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>, Jaya Kumar <jayakumar.lkml@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, 30 Mar 2010, Bruno Pr=C3=A9mont wrote:
+On Wed, Mar 31, 2010 at 2:05 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Tue, 30 Mar 2010, Octoploid wrote:
+>
+>> > Could you please provide output of
+>> >
+>> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/rdesc
+>> >
+>> > and
+>> >
+>> > =A0 =A0 =A0 =A0cat /sys/kernel/debug/hid/<device>/events
+>> >
+>>
+>> Sure:
+>>
+>> There are no events logged when I press the thumb button
+>> while running cat /sys/kernel/debug/hid/0003:046D:C52B.0002/events.
+>>
+>> (The =BBunifying USB reciever=AB has three sub-devices. The first on=
+e is
+>> for keyboards, the second for mouses and the third is not used:
+>> usb 3-1: new full speed USB device using ohci_hcd and address 2
+>> input: Logitech USB Receiver as
+>> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
+>> generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyboa=
+rd
+>> [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
+>> input: Logitech USB Receiver as
+>> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
+>> generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v1.=
+11
+>> Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
+>> generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
+>> Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
+>>
+>> The rdesc output for the mouse and the third device follows:
+>
+> Thanks for providing the output.
+>
+> The device defines 16 buttons in its report descriptor. How much does=
+ it
+> actually physically have?
 
-> Add suspend/resume hooks for HID drivers so these can do some
-> additional state adjustment when device gets suspended/resumed.
->=20
-> This patch calls these hooks from usbhid suspend/resume functions,
-> only calling suspend on plain suspend, not autosuspend.
-> (it might be worth adding an autosuspend parameter to suspend
-> hook and calling suspend in both cases)
->=20
-> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> ---
->=20
-> Note:
->   this patch needs improvements as mentionned by Olivier Neukum:
->   - suspend hook for both system suspend and autosuspend
->   - no call of hook on USB-HID-resume failure
+8 if I count correctly (left,middle,right,scrollwheel left,scrollwheel =
+right,
+forward, backward and the hidden (the non working) thumb button).
+Here is a photo of the mouse (the hidden button is located under the
+white underscore below the back and forward buttons):
+http://www.techfresh.net/wp-content/uploads/2010/03/logitech_m705.jpg
 
-I agree with Oliver's comments.
+> Is the other (non-used) interface also silent when you press the
+> non-working button? (I can see that it is claimed by HID as well).
 
-We should also consider putting the hook calls into bluetooth=20
-implementation as well (though there is currently no driver using it, b=
-ut=20
-I don't know, maybe Wacom could benefit from it as well).
+Yes.
 
-Thanks,
+> Could you please apply the patch below and check whether there is sti=
+ll no
+> event present when you press the button?
+>
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Yes, unfortunately there are still no events even with the patch applie=
+d.
+(I've tested both interfaces)
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

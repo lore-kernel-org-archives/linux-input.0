@@ -1,35 +1,51 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 0/2] [STAGING] Synaptic Touchscreen Driver
-Date: Thu, 1 Apr 2010 18:34:50 +0200
-Message-ID: <20100401163450.GC1520@ucw.cz>
-References: <37368.10.24.255.17.1270127772.squirrel@dbdmail.itg.ti.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: [PATCH 11/15] V4L/DVB: saa7134: clear warning noise
+Date: Thu, 1 Apr 2010 14:56:31 -0300
+Message-ID: <20100401145631.0fe0ab24@pedra>
+References: <cover.1270142346.git.mchehab@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:45739 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757637Ab0DAQe6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 1 Apr 2010 12:34:58 -0400
-Content-Disposition: inline
-In-Reply-To: <37368.10.24.255.17.1270127772.squirrel@dbdmail.itg.ti.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59880 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758054Ab0DAR5s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2010 13:57:48 -0400
+In-Reply-To: <cover.1270142346.git.mchehab@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hemanth V <hemanthv@ti.com>
-Cc: gregkh@suse.de, devel@driverdev.osuosl.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Thu 2010-04-01 18:46:12, Hemanth V wrote:
-> This series of 2 patches are for the synaptic
-> touchscreen driver in staging. This adds
-> support for threaded irq and some cleanup.
+drivers/media/video/saa7134/saa7134-input.c: In function =E2=80=98saa71=
+34_raw_decode_irq=E2=80=99:
+drivers/media/video/saa7134/saa7134-input.c:957: warning: unused variab=
+le =E2=80=98oldpulse=E2=80=99
+drivers/media/video/saa7134/saa7134-input.c:957: warning: unused variab=
+le =E2=80=98count=E2=80=99
 
-Thanks!
+Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-You probably want to post full source of syn*_i2c_rmi.c here, so that
-it gets review, and may be moved to drivers/input in 2.6.35...
+diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/medi=
+a/video/saa7134/saa7134-input.c
+index 8dd74ae..a42c953 100644
+--- a/drivers/media/video/saa7134/saa7134-input.c
++++ b/drivers/media/video/saa7134/saa7134-input.c
+@@ -954,7 +954,7 @@ static int saa7134_raw_decode_irq(struct saa7134_de=
+v *dev)
+ {
+ 	struct card_ir	*ir =3D dev->remote;
+ 	unsigned long 	timeout;
+-	int count, pulse, oldpulse;
++	int pulse;
+=20
+ 	/* Generate initial event */
+ 	saa_clearb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
+--=20
+1.6.6.1
 
-								Pavel
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

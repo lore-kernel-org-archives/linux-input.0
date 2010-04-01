@@ -1,48 +1,125 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [PATCH 11/15] V4L/DVB: saa7134: clear warning noise
-Date: Thu, 1 Apr 2010 14:56:31 -0300
-Message-ID: <20100401145631.0fe0ab24@pedra>
-References: <cover.1270142346.git.mchehab@redhat.com>
+Subject: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
+ and decoder plugins
+Date: Thu, 1 Apr 2010 14:56:32 -0300
+Message-ID: <20100401145632.5631756f@pedra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59880 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54314 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758054Ab0DAR5s convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2010 13:57:48 -0400
-In-Reply-To: <cover.1270142346.git.mchehab@redhat.com>
+	id S1758680Ab0DAR5x convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2010 13:57:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-drivers/media/video/saa7134/saa7134-input.c: In function =E2=80=98saa71=
-34_raw_decode_irq=E2=80=99:
-drivers/media/video/saa7134/saa7134-input.c:957: warning: unused variab=
-le =E2=80=98oldpulse=E2=80=99
-drivers/media/video/saa7134/saa7134-input.c:957: warning: unused variab=
-le =E2=80=98count=E2=80=99
+This series of 15 patches improves support for IR, as discussed at the
+"What are the goals for the architecture of an in-kernel IR system?"
+thread.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+It basically adds a raw decoder layer at ir-core, allowing decoders to =
+plug
+into IR core, and preparing for the addition of a lirc_dev driver that =
+will
+allow raw IR codes to be sent to userspace.
 
-diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/medi=
-a/video/saa7134/saa7134-input.c
-index 8dd74ae..a42c953 100644
---- a/drivers/media/video/saa7134/saa7134-input.c
-+++ b/drivers/media/video/saa7134/saa7134-input.c
-@@ -954,7 +954,7 @@ static int saa7134_raw_decode_irq(struct saa7134_de=
-v *dev)
- {
- 	struct card_ir	*ir =3D dev->remote;
- 	unsigned long 	timeout;
--	int count, pulse, oldpulse;
-+	int pulse;
-=20
- 	/* Generate initial event */
- 	saa_clearb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
---=20
-1.6.6.1
+There's no lirc patch in this series. I have also a few other patches f=
+rom
+David H=E4rdeman that I'm about to test/review probably later today, bu=
+t
+as I prefer to first merge what I have at V4L/DVB tree, before applying
+them.
 
+There are two patches on this series that deserve a better analysis, IM=
+O:
+
+-  V4L/DVB: ir-core: rename sysfs remote controller class from ir to rc
+
+As discussed, "IR" is not a good name, as this infrastructure could lat=
+er
+be used by other types of Remote Controllers, as it has nothing that
+is specific to IR inside the code, except for the name. So, I'm proposi=
+ng
+to replace the sysfs notes do "rc", instead of "ir". The sooner we do
+such changes, the better, as userspace apps using it are still under
+development. So, an API change is still possible, without causing
+much hurt.
+
+Also, as some RC devices allow RC code transmission, we probably need t=
+o add
+a TX node somewhere, associated with the same RX part (as some devices
+don't allow simultaneous usage of TX and RX).
+
+So, we have a few alternatives for the RC device sysfs node:
+a) /sys/class/rc/rc0
+                 |--> rx
+                 ---> tx
+b) /sys/class/rc/rcrcv0
+   /sys/class/rc/rctx0
+
+c) /sys/class/rc/rc0
+  and have there the RX and TX nodes/attributes mixed. IMO, (b) is a ba=
+d idea,
+so, I am between (a) and (c).
+
+-  V4L/DVB: input: Add support for EVIO[CS]GKEYCODEBIG
+
+Adds two new ioctls in order to handle with big keycode tables. As alre=
+ady
+said, we'll need another ioctl, in order to get the maximum keycode sup=
+ported
+by a given device. I didn't wrote the patch for the new ioctl yet.
+This patch will probably have a small conflict with upstream input, but=
+ I
+prefer to keep it on my tree and fix the upstream conflicts when submit=
+ing
+it, as the rest of the new IR code is also on my tree, and this patch i=
+s
+needed to procced with the IR code development.
+
+Mauro Carvalho Chehab (15):
+  V4L/DVB: ir-core: be less pedantic with RC protocol name
+  V4L/DVB: saa7134: use a full scancode table for M135A
+  V4L/DVB: saa7134: add code to allow changing IR protocol
+  V4L/DVB: ir-core: Add logic to decode IR protocols at the IR core
+  V4L/DVB: ir-core: add two functions to report keyup/keydown events
+  V4L/DVB: ir-core/saa7134: Move ir keyup/keydown code to the ir-core
+  V4L/DVB: saa7134: don't wait too much to generate an IR event on raw_=
+decode
+  V4L/DVB: ir-core: dynamically load the compiled IR protocols
+  V4L/DVB: ir-core: prepare to add more operations for ir decoders
+  V4L/DVB: ir-nec-decoder: Add sysfs node to enable/disable per irrcv
+  V4L/DVB: saa7134: clear warning noise
+  V4L/DVB: ir-core: rename sysfs remote controller class from ir to rc
+  V4L/DVB: ir-core: Add callbacks for input/evdev open/close on IR core
+  V4L/DVB: cx88: Only start IR if the input device is opened
+  V4L/DVB: input: Add support for EVIO[CS]GKEYCODEBIG
+
+ drivers/input/evdev.c                       |   39 +++
+ drivers/input/input.c                       |  260 ++++++++++++++++++-=
+-
+ drivers/media/IR/Kconfig                    |    9 +
+ drivers/media/IR/Makefile                   |    3 +-
+ drivers/media/IR/ir-keymaps.c               |   98 ++++----
+ drivers/media/IR/ir-keytable.c              |   75 ++++++-
+ drivers/media/IR/ir-nec-decoder.c           |  351 +++++++++++++++++++=
+++++++++
+ drivers/media/IR/ir-raw-event.c             |  231 ++++++++++++++++++
+ drivers/media/IR/ir-sysfs.c                 |   29 ++-
+ drivers/media/video/cx88/cx88-input.c       |   69 +++++-
+ drivers/media/video/cx88/cx88-video.c       |    6 +-
+ drivers/media/video/cx88/cx88.h             |    6 +-
+ drivers/media/video/saa7134/saa7134-core.c  |    2 +-
+ drivers/media/video/saa7134/saa7134-input.c |  207 +++++++++++++++--
+ drivers/media/video/saa7134/saa7134.h       |    4 +-
+ include/linux/input.h                       |   40 +++-
+ include/media/ir-common.h                   |    9 +-
+ include/media/ir-core.h                     |   59 +++++-
+ 18 files changed, 1368 insertions(+), 129 deletions(-)
+ create mode 100644 drivers/media/IR/ir-nec-decoder.c
+ create mode 100644 drivers/media/IR/ir-raw-event.c
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

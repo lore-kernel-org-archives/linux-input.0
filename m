@@ -1,65 +1,58 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Thu, 1 Apr 2010 15:34:55 +0200
-Message-ID: <20100401133454.GA1291@ucw.cz>
-References: <20100317061952.GA19789@core.coreip.homeip.net> <20100319000043.GC12017@khazad-dum.debian.net> <20100319000931.GA5671@core.coreip.homeip.net> <20100319160641.GC16743@khazad-dum.debian.net> <20100319180314.GB12143@core.coreip.homeip.net> <20100320025329.GA2468@khazad-dum.debian.net> <20100322045910.GE31621@core.coreip.homeip.net>
+From: "Govindarajan, Sriramakrishnan" <srk@ti.com>
+Subject: RE: [PATCHv3 0/3] Add support for TCA6416 based Keypad driver.
+Date: Thu, 1 Apr 2010 19:45:11 +0530
+Message-ID: <FCCFB4CDC6E5564B9182F639FC35608703048E5988@dbde02.ent.ti.com>
+References: <1269357035-19754-1-git-send-email-srk@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:48056 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755817Ab0DANsQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 1 Apr 2010 09:48:16 -0400
-Content-Disposition: inline
-In-Reply-To: <20100322045910.GE31621@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1269357035-19754-1-git-send-email-srk@ti.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "Govindarajan, Sriramakrishnan" <srk@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
 
-Hi!
 
-> > root isn't really a problem from a security PoV (well, maybe it is if the
-> > operation isn't constrained by capabilities).  SAK can't protect you from
-> > root.
-> > 
-> > _Normal_ userspace behaviour running a root process is a problem if it
-> > blocks these handles, though, both for SAK and regular SysRQ.  I have lost
-> > count of how many times SysRQ+SUB delivered me from filesystem corruption
-> > and very annoying problems, both at home and at work.
-> > 
-> > We are sort of trusting userspace to not break the one way out from severly
-> > hung systems while doing its normal day-to-day operations (as opposed to
-> > deliberately disabling SysRQ or remapping SAK, etc).
 
-If userspace disables sysrq during normal operation, that makes it
-useless.
-
-If normal user could do that, that's a security problem.
-
-> > > That would require moving "these things", including their state
-> > > machines, into input core otherwise it would not know what events can be
-> > > trappable and which should be passed through. Or we should get rid of
-> > > EVIOCGRAB.
-> > 
-> > Maybe we can add a flags field to input devices and input handlers, to be
-> > able to have the core behave differently when needed, without moving
-> > everything into the input core?  Would that work, or would it need too much
-> > churn in the core?
+> -----Original Message-----
+> From: Govindarajan, Sriramakrishnan
+> Sent: Tuesday, March 23, 2010 8:41 PM
+> To: linux-omap@vger.kernel.org; linux-input@vger.kernel.org
+> Cc: Govindarajan, Sriramakrishnan
+> Subject: [PATCHv3 0/3] Add support for TCA6416 based Keypad driver.
 > 
-> The problem is that device does not know what SysRq and especially SAK are.
-> User can reassign key codes and key symbols easily.
+> AM3517 EVM with APPS board includes keys interfaced to TCA6416 IO expander
+> User keys are connected as GPIO lines to TCA6416 IO expander. Unlike the
+> case with generic gpio-keypad driver individual keys do not generate an
+> interrupt event. Hence we implement a simple keypad driver, that
+> registers as direct I2C client.
+> 
+> The implementation has been tested on AM3517 EVM with the driver tested
+> in polling mode.
+> 
+> Version3 is refreshed against the tip of linux-omap and
+> file mode issues from the previous version is fixed.
+> 
+> Sriramakrishnan (3):
+>   TCA6416 keypad : Implement keypad driver for keys interfaced to
+>     TCA6416
+>   AM3517: Board hookup for TCA6416 keypad driver.
+>   AM3517 EVM : Enable TCA6416 keypad.
+> 
+>  arch/arm/configs/am3517_evm_defconfig   |   16 ++-
+>  arch/arm/mach-omap2/board-am3517evm.c   |   47 ++++-
+>  drivers/input/keyboard/Kconfig          |   16 ++
+>  drivers/input/keyboard/Makefile         |    1 +
+>  drivers/input/keyboard/tca6416-keypad.c |  354
+> +++++++++++++++++++++++++++++++
+>  include/linux/tca6416_keypad.h          |   34 +++
+>  6 files changed, 462 insertions(+), 6 deletions(-)
+>  create mode 100644 drivers/input/keyboard/tca6416-keypad.c
+>  create mode 100644 include/linux/tca6416_keypad.h
 
-That was not case in original implementation; it had hardcoded keymap.
+[Sriram] All,
+Any feedback on this updated patch series?
+Thanks
+Sriram
 
-> I don't think we had any issues like this since 2.5 so I would not worry
-> about userspace too much. If anything we just need to review what stuff
-> we run as root (we do that anyway, right?).
-
-Hehe. If X can break sysrq, that's both X and sysrq problem.
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

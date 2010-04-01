@@ -1,48 +1,102 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: [PATCH] matrix_keypad: allow platform to disable key autorepeat
-Date: Wed, 31 Mar 2010 13:55:58 -0500
-Message-ID: <0D753D10438DA54287A00B02708426976369248B0D@AUSP01VMBX24.collaborationhost.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: joystick with large number of buttons
+Date: Thu, 1 Apr 2010 11:23:16 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004011121240.8345@pobox.suse.cz>
+References: <6121ee741003271645i2f091b9bq566edaa12b4b3561@mail.gmail.com>  <alpine.LNX.2.00.1003301411070.24576@pobox.suse.cz>  <6121ee741003300520r25a1d46dm189ee034272fa514@mail.gmail.com>  <x2y6121ee741003310400sf3f36c09g2fad909fd11166a3@mail.gmail.com>
+ <s2t6121ee741004010116nf1c9ba7et4aff02c48ccf9f63@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:40125 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752993Ab0DAJXS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Apr 2010 05:23:18 -0400
+In-Reply-To: <s2t6121ee741004010116nf1c9ba7et4aff02c48ccf9f63@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Attila Nagy <nagy.attila.gabor@gmail.com>
+Cc: stefan.bader@canonical.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-SW4gYW4gZW1iZWRkZWQgc3lzdGVtIHRoZSBtYXRyaXhfa2V5cGFkIGRyaXZlciBtaWdodCBiZSB1
-c2VkIHRvIA0KaW50ZXJmYWNlIHdpdGggYW4gZXh0ZXJuYWwgY29udHJvbCBwYW5lbCBhbmQgbm90
-IGFuIGFjdHVhbCBrZXlib2FyZC4NCk9uIHRoZSBjb250cm9sIHBhbmVsIHNvbWUgb2YgdGhlIGtl
-eXMgY291bGQgYmUgdXNlZCB0byB0dXJuIG9uL29mZg0KdmFyaW91cyBmdW5jdGlvbnMuICBJZiBr
-ZXkgYXV0b3JlcGVhdCBpcyBlbmFibGVkIHRoaXMgY2F1c2VzIHRoZQ0KZnVuY3Rpb24gdG8gcXVp
-Y2tseSB0b2dnbGUgYmV0d2VlbiB0aGUgb24gYW5kIG9mZiBzdGF0ZXMgYW5kIG1ha2VzDQpvcGVy
-YXRpb24gZGlmZmljdWx0Lg0KDQpBZGQgYW4gb3B0aW9uIGluIHRoZSBwbGF0Zm9ybS1zcGVjaWZp
-YyBkYXRhIHRvIGRpc2FibGUgdGhlIGtleQ0KYXV0b3JlcGVhdC4NCg0KU2lnbmVkLW9mZi1ieTog
-SCBIYXJ0bGV5IFN3ZWV0ZW4gPGhzd2VldGVuQHZpc2lvbmVuZ3JhdmVycy5jb20+DQpDYzogRG1p
-dHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPg0KDQotLS0NCg0KZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBhZC5jIGIvZHJpdmVycy9p
-bnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMNCmluZGV4IGQzYzhiNjEuLjdkOTliNDQgMTAw
-NjQ0DQotLS0gYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYw0KKysrIGIv
-ZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMNCkBAIC0zNzMsNyArMzczLDkg
-QEAgc3RhdGljIGludCBfX2RldmluaXQgbWF0cml4X2tleXBhZF9wcm9iZShzdHJ1Y3QgcGxhdGZv
-cm1fZGV2aWNlICpwZGV2KQ0KIAlpbnB1dF9kZXYtPm5hbWUJCT0gcGRldi0+bmFtZTsNCiAJaW5w
-dXRfZGV2LT5pZC5idXN0eXBlCT0gQlVTX0hPU1Q7DQogCWlucHV0X2Rldi0+ZGV2LnBhcmVudAk9
-ICZwZGV2LT5kZXY7DQotCWlucHV0X2Rldi0+ZXZiaXRbMF0JPSBCSVRfTUFTSyhFVl9LRVkpIHwg
-QklUX01BU0soRVZfUkVQKTsNCisJaW5wdXRfZGV2LT5ldmJpdFswXQk9IEJJVF9NQVNLKEVWX0tF
-WSk7DQorCWlmICghcGRhdGEtPm5vX2F1dG9yZXApDQorCQlpbnB1dF9kZXYtPmV2Yml0WzBdIHw9
-IEJJVF9NQVNLKEVWX1JFUCk7DQogCWlucHV0X2Rldi0+b3BlbgkJPSBtYXRyaXhfa2V5cGFkX3N0
-YXJ0Ow0KIAlpbnB1dF9kZXYtPmNsb3NlCT0gbWF0cml4X2tleXBhZF9zdG9wOw0KIA0KZGlmZiAt
-LWdpdCBhL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4X2tleXBhZC5oIGIvaW5jbHVkZS9saW51
-eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgNCmluZGV4IDNiZDAxOGIuLjFkOWNhOTQgMTAwNjQ0DQot
-LS0gYS9pbmNsdWRlL2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaA0KKysrIGIvaW5jbHVkZS9s
-aW51eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgNCkBAIC00NCw2ICs0NCw3IEBAIHN0cnVjdCBtYXRy
-aXhfa2V5bWFwX2RhdGEgew0KICAqIEBhY3RpdmVfbG93OiBncGlvIHBvbGFyaXR5DQogICogQHdh
-a2V1cDogY29udHJvbHMgd2hldGhlciB0aGUgZGV2aWNlIHNob3VsZCBiZSBzZXQgdXAgYXMgd2Fr
-ZXVwDQogICoJc291cmNlDQorICogQG5vX2F1dG9yZXA6IGRpc2FibGUga2V5IGF1dG9yZXBlYXQN
-CiAgKg0KICAqIFRoaXMgc3RydWN0dXJlIHJlcHJlc2VudHMgcGxhdGZvcm0tc3BlY2lmaWMgZGF0
-YSB0aGF0IHVzZSB1c2VkIGJ5DQogICogbWF0cml4X2tleXBhZCBkcml2ZXIgdG8gcGVyZm9ybSBw
-cm9wZXIgaW5pdGlhbGl6YXRpb24uDQpAQCAtNjQsNiArNjUsNyBAQCBzdHJ1Y3QgbWF0cml4X2tl
-eXBhZF9wbGF0Zm9ybV9kYXRhIHsNCiANCiAJYm9vbAkJYWN0aXZlX2xvdzsNCiAJYm9vbAkJd2Fr
-ZXVwOw0KKwlib29sCQlub19hdXRvcmVwOw0KIH07DQogDQogLyoqDQo=
+On Thu, 1 Apr 2010, Attila Nagy wrote:
+
+> >>>> I've just found this thread:
+> >>>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/492056 and the
+> >>>> following patch:
+> >>>> http://launchpadlibrarian.net/38497329/0001-HID-handle-joysticks-with-large-number-of-buttons.patch
+> >>>>
+> >>>> If I understand, this pushes the limit on the number of the buttons
+> >>>> per joystick to 56?
+> >>>>
+> >>>> Shouldn't this limit be raised to some more? In fact if I understand
+> >>>> the HID specification one could define 65K buttons per device. Well
+> >>>> that's a bit silly, but I found this bug when I was about to build a
+> >>>> hid device that has 64 buttons (or maybe more).
+> >>>>
+> >>>> I wonder if there's a possibility to push this limit a bit further? I
+> >>>> guess 256 could be a reasonable limit for a while.
+> >>>
+> >>> Is this still a joystick though? Wouldn't it better to have those be KEY_*
+> >>> events?
+> >>
+> >> Thanks for your reply.
+> >>
+> >> This is a bit philosophical question. In the practical side people
+> >> like me choose to implement joystick hardware, because games have a
+> >> decent support for joys with many buttons. If I have an interface,
+> >> that has 64 buttons, I can map them in a game to functions as I want,
+> >> without interferencing with the keyboard events.
+> >>
+> >> In the terms of the HID usage tables, one might should define these
+> >> things as a game pad, or a "simulation control device", but support
+> >> for such devices in current operating systems isn't that self
+> >> understanding like support for a joystick.
+> > I'll test it with 128 buttons today.
+> 
+> I've tried 128 buttons. Currently the mapping space goes until 0x2ff,
+> thus leaving room for 64 effective buttons per device. Over that only
+> the lower 64 is reported and working, buttons over that are silently
+> ignored.
+> 
+> The attached patch raises this limit to 128 per device. Only two
+> constants need to be modified, and after that everything did work fine
+> for me.
+> 
+> Could this hurt something, I didn't notice?
+> 
+> 
+> [if I'm knocking on the wrong door, then please redirect me to the
+> appropriate people]
+
+This should definitely go through Dmitry. Adding him, and linux-input@, to 
+CC.
+
+(for reference, the patch is below)
+
+diff -ru linux-2.6.33.1.clean/include/linux/input.h linux-2.6.33.1/include/linux/input.h
+--- linux-2.6.33.1.clean/include/linux/input.h	Wed Mar 31 22:02:17 2010
++++ linux-2.6.33.1/include/linux/input.h	Wed Mar 31 21:37:54 2010
+@@ -642,7 +642,7 @@
+ 
+ /* We avoid low common keys in module aliases so they don't get huge. */
+ #define KEY_MIN_INTERESTING	KEY_MUTE
+-#define KEY_MAX			0x2ff
++#define KEY_MAX			0x34f
+ #define KEY_CNT			(KEY_MAX+1)
+ 
+ /*
+diff -ru linux-2.6.33.1.clean/include/linux/mod_devicetable.h linux-2.6.33.1/include/linux/mod_devicetable.h
+--- linux-2.6.33.1.clean/include/linux/mod_devicetable.h	Mon Mar 15 17:09:39 2010
++++ linux-2.6.33.1/include/linux/mod_devicetable.h	Wed Mar 31 21:39:40 2010
+@@ -285,7 +285,7 @@
+ /* Input */
+ #define INPUT_DEVICE_ID_EV_MAX		0x1f
+ #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
+-#define INPUT_DEVICE_ID_KEY_MAX		0x2ff
++#define INPUT_DEVICE_ID_KEY_MAX		0x34f
+ #define INPUT_DEVICE_ID_REL_MAX		0x0f
+ #define INPUT_DEVICE_ID_ABS_MAX		0x3f
+ #define INPUT_DEVICE_ID_MSC_MAX		0x07
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

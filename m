@@ -1,79 +1,65 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: [PATCH 1/2] [STAGING] Synaptic : Remove non-standard multi touch   
-        support
-Date: Thu, 1 Apr 2010 18:46:19 +0530 (IST)
-Message-ID: <37391.10.24.255.17.1270127779.squirrel@dbdmail.itg.ti.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC] Input: implement sysrq as an input handler
+Date: Thu, 1 Apr 2010 15:34:55 +0200
+Message-ID: <20100401133454.GA1291@ucw.cz>
+References: <20100317061952.GA19789@core.coreip.homeip.net> <20100319000043.GC12017@khazad-dum.debian.net> <20100319000931.GA5671@core.coreip.homeip.net> <20100319160641.GC16743@khazad-dum.debian.net> <20100319180314.GB12143@core.coreip.homeip.net> <20100320025329.GA2468@khazad-dum.debian.net> <20100322045910.GE31621@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-References: 
-In-Reply-To: 
-Sender: linux-omap-owner@vger.kernel.org
-To: gregkh@suse.de, devel@driverdev.osuosl.org
-Cc: pavel@ucw.cz, linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:48056 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1755817Ab0DANsQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Apr 2010 09:48:16 -0400
+Content-Disposition: inline
+In-Reply-To: <20100322045910.GE31621@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
 
->From dbd87fbdf5be92351f81030a133e57d96634a3d3 Mon Sep 17 00:00:00 2001 From: Hemanth V <hemanthv@ti.com>
-Date: Thu, 1 Apr 2010 17:26:49 +0530
-Subject: [PATCH] Remove non-standard multi touch support
+Hi!
 
+> > root isn't really a problem from a security PoV (well, maybe it is if the
+> > operation isn't constrained by capabilities).  SAK can't protect you from
+> > root.
+> > 
+> > _Normal_ userspace behaviour running a root process is a problem if it
+> > blocks these handles, though, both for SAK and regular SysRQ.  I have lost
+> > count of how many times SysRQ+SUB delivered me from filesystem corruption
+> > and very annoying problems, both at home and at work.
+> > 
+> > We are sort of trusting userspace to not break the one way out from severly
+> > hung systems while doing its normal day-to-day operations (as opposed to
+> > deliberately disabling SysRQ or remapping SAK, etc).
 
-Signed-off-by: Hemanth V <hemanthv@ti.com>
----
- drivers/staging/dream/synaptics_i2c_rmi.c |   15 ---------------
- 1 files changed, 0 insertions(+), 15 deletions(-)
+If userspace disables sysrq during normal operation, that makes it
+useless.
 
-diff --git a/drivers/staging/dream/synaptics_i2c_rmi.c b/drivers/staging/dream/synaptics_i2c_rmi.c index 4de6bc9..7c1b980 100644
---- a/drivers/staging/dream/synaptics_i2c_rmi.c
-+++ b/drivers/staging/dream/synaptics_i2c_rmi.c
-@@ -108,9 +108,7 @@ static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
- 	int f, a;
- 	int base = 2;
- 	int z = buf[1];
--	int w = buf[0] >> 4;
- 	int finger = buf[0] & 7;
--	int finger2_pressed;
+If normal user could do that, that's a security problem.
 
- 	for (f = 0; f < 2; f++) {
- 		u32 flip_flag = SYNAPTICS_FLIP_X;
-@@ -150,14 +148,7 @@ static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
- 		input_report_abs(ts->input_dev, ABS_Y, pos[0][1]);
- 	}
- 	input_report_abs(ts->input_dev, ABS_PRESSURE, z);
--	input_report_abs(ts->input_dev, ABS_TOOL_WIDTH, w);
- 	input_report_key(ts->input_dev, BTN_TOUCH, finger);
--	finger2_pressed = finger > 1 && finger != 7;
--	input_report_key(ts->input_dev, BTN_2, finger2_pressed);
--	if (finger2_pressed) {
--		input_report_abs(ts->input_dev, ABS_HAT0X, pos[1][0]);
--		input_report_abs(ts->input_dev, ABS_HAT0Y, pos[1][1]);
--	}
- 	input_sync(ts->input_dev);
- }
+> > > That would require moving "these things", including their state
+> > > machines, into input core otherwise it would not know what events can be
+> > > trappable and which should be passed through. Or we should get rid of
+> > > EVIOCGRAB.
+> > 
+> > Maybe we can add a flags field to input devices and input handlers, to be
+> > able to have the core behave differently when needed, without moving
+> > everything into the input core?  Would that work, or would it need too much
+> > churn in the core?
+> 
+> The problem is that device does not know what SysRq and especially SAK are.
+> User can reassign key codes and key symbols easily.
 
-@@ -346,11 +337,6 @@ static void compute_areas(struct synaptics_ts_data *ts,
- 			     -inactive_area_top, max_y + inactive_area_bottom,
- 			     fuzz_y, 0);
- 	input_set_abs_params(ts->input_dev, ABS_PRESSURE, 0, 255, fuzz_p, 0);
--	input_set_abs_params(ts->input_dev, ABS_TOOL_WIDTH, 0, 15, fuzz_w, 0); -	input_set_abs_params(ts->input_dev, ABS_HAT0X, -inactive_area_left, -			 
-   max_x + inactive_area_right, fuzz_x, 0);
--	input_set_abs_params(ts->input_dev, ABS_HAT0Y, -inactive_area_top, -			     max_y + inactive_area_bottom, fuzz_y, 0);
- }
+That was not case in original implementation; it had hardcoded keymap.
 
- static struct synaptics_i2c_rmi_platform_data fake_pdata;
-@@ -486,7 +472,6 @@ static int __devinit synaptics_ts_probe(
- 	__set_bit(EV_SYN, ts->input_dev->evbit);
- 	__set_bit(EV_KEY, ts->input_dev->evbit);
- 	__set_bit(BTN_TOUCH, ts->input_dev->keybit);
--	__set_bit(BTN_2, ts->input_dev->keybit);
- 	__set_bit(EV_ABS, ts->input_dev->evbit);
+> I don't think we had any issues like this since 2.5 so I would not worry
+> about userspace too much. If anything we just need to review what stuff
+> we run as root (we do that anyway, right?).
 
- 	compute_areas(ts, pdata, max_x, max_y);
+Hehe. If X can break sysrq, that's both X and sysrq problem.
+								Pavel
+
 -- 
-1.5.6.3
-
-
-
-
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

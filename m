@@ -1,300 +1,376 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [PATCH 08/15] V4L/DVB: ir-core: dynamically load the compiled IR
- protocols
+Subject: [PATCH 07/15] V4L/DVB: saa7134: don't wait too much to generate an
+ IR event on raw_decode
 Date: Thu, 1 Apr 2010 14:56:32 -0300
-Message-ID: <20100401145632.09268907@pedra>
+Message-ID: <20100401145632.5d708551@pedra>
 References: <cover.1270142346.git.mchehab@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:18626 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758053Ab0DAR6A (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 1 Apr 2010 13:58:00 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <cover.1270142346.git.mchehab@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-Instead of hardcoding the protocols into ir-core, add a register interface
-for the IR protocol decoders, and convert ir-nec-decoder into a client of
-ir-core.
+At raw_decode mode, the key is processed after the end of a timer. The
+previous code resets the timer every time something is received at the IR
+port. While this works fine with IR's that don't implement repeat, like
+Avermedia RM-JX IR, it keeps waiting until keydown, on IR's that implement
+NEC repeat command, like the Terratec yellow.
 
-With this approach, it is possible to dynamically load the needed IR protocols,
-and to add a RAW IR interface module, registered as one IR raw protocol decoder.
+The solution is to change the behaviour to do the timeout after the first
+received data.
 
-This patch opens a way to register a lirc_dev interface to work as an userspace
-IR protocol decoder.
+The timeout is currently set to 15 ms, as it works fine with NEC protcocol.
+It may need some adjustments to support other protocols and to better handle
+spurious detections that may happen with some IR sensors.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-diff --git a/drivers/media/IR/Kconfig b/drivers/media/IR/Kconfig
-index 4dde7d1..de410d4 100644
---- a/drivers/media/IR/Kconfig
-+++ b/drivers/media/IR/Kconfig
-@@ -7,3 +7,12 @@ config VIDEO_IR
- 	tristate
- 	depends on IR_CORE
- 	default IR_CORE
-+
-+config IR_NEC_DECODER
-+	tristate "Enable IR raw decoder for NEC protocol"
-+	depends on IR_CORE
-+	default y
-+
-+	---help---
-+	   Enable this option if you have IR with NEC protocol, and
-+	   if the IR is decoded in software
-diff --git a/drivers/media/IR/Makefile b/drivers/media/IR/Makefile
-index 18794c7..6140b27 100644
---- a/drivers/media/IR/Makefile
-+++ b/drivers/media/IR/Makefile
-@@ -1,5 +1,6 @@
- ir-common-objs  := ir-functions.o ir-keymaps.o
--ir-core-objs	:= ir-keytable.o ir-sysfs.o ir-raw-event.o ir-nec-decoder.o
-+ir-core-objs	:= ir-keytable.o ir-sysfs.o ir-raw-event.o
+diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
+index ab60730..f25193c 100644
+--- a/drivers/media/IR/ir-keytable.c
++++ b/drivers/media/IR/ir-keytable.c
+@@ -404,6 +404,7 @@ void ir_keyup(struct input_dev *dev)
+ 	if (!ir->keypressed)
+ 		return;
  
- obj-$(CONFIG_IR_CORE) += ir-core.o
- obj-$(CONFIG_VIDEO_IR) += ir-common.o
-+obj-$(CONFIG_IR_NEC_DECODER) += ir-nec-decoder.o
++	IR_dprintk(1, "keyup key 0x%04x\n", ir->keycode);
+ 	input_report_key(dev, ir->keycode, 0);
+ 	input_sync(dev);
+ 	ir->keypressed = 0;
 diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
-index 104482a..c9a986d 100644
+index a58c717..104482a 100644
 --- a/drivers/media/IR/ir-nec-decoder.c
 +++ b/drivers/media/IR/ir-nec-decoder.c
-@@ -1,4 +1,4 @@
--/* ir-raw-event.c - handle IR Pulse/Space event
-+/* ir-nec-decoder.c - handle NEC IR Pulse/Space protocol
-  *
-  * Copyright (C) 2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-  *
-@@ -147,7 +147,7 @@ static int __ir_nec_decode(struct input_dev *input_dev,
+@@ -14,21 +14,51 @@
+ 
+ #include <media/ir-core.h>
+ 
+-/* Start time: 4.5 ms  */
+-#define MIN_START_TIME	3900000
+-#define MAX_START_TIME	5100000
++/* Start time: 4.5 ms + 560 us of the next pulse */
++#define MIN_START_TIME	(3900000 + 560000)
++#define MAX_START_TIME	(5100000 + 560000)
+ 
+-/* Pulse time: 560 us  */
+-#define MIN_PULSE_TIME	460000
+-#define MAX_PULSE_TIME	660000
++/* Bit 1 time: 2.25ms us */
++#define MIN_BIT1_TIME	2050000
++#define MAX_BIT1_TIME	2450000
+ 
+-/* Bit 1 space time: 2.25ms-560 us */
+-#define MIN_BIT1_TIME	1490000
+-#define MAX_BIT1_TIME	1890000
++/* Bit 0 time: 1.12ms us */
++#define MIN_BIT0_TIME	920000
++#define MAX_BIT0_TIME	1320000
+ 
+-/* Bit 0 space time: 1.12ms-560 us */
+-#define MIN_BIT0_TIME	360000
+-#define MAX_BIT0_TIME	760000
++/* Total IR code is 110 ms, including the 9 ms for the start pulse */
++#define MAX_NEC_TIME	4000000
++
++/* Total IR code is 110 ms, including the 9 ms for the start pulse */
++#define MIN_REPEAT_TIME	99000000
++#define MAX_REPEAT_TIME	112000000
++
++/* Repeat time: 2.25ms us */
++#define MIN_REPEAT_START_TIME	2050000
++#define MAX_REPEAT_START_TIME	3000000
++
++#define REPEAT_TIME	240 /* ms */
++
++/** is_repeat - Check if it is a NEC repeat event
++ * @input_dev:	the struct input_dev descriptor of the device
++ * @pos:	the position of the first event
++ * @len:	the length of the buffer
++ */
++static int is_repeat(struct ir_raw_event *evs, int len, int pos)
++{
++	if ((evs[pos].delta.tv_nsec < MIN_REPEAT_START_TIME) ||
++	    (evs[pos].delta.tv_nsec > MAX_REPEAT_START_TIME))
++		return 0;
++
++	if (++pos >= len)
++		return 0;
++
++	if ((evs[pos].delta.tv_nsec < MIN_REPEAT_TIME) ||
++	    (evs[pos].delta.tv_nsec > MAX_REPEAT_TIME))
++		return 0;
++
++	return 1;
++}
+ 
+ /**
+  * __ir_nec_decode() - Decode one NEC pulsecode
+@@ -36,49 +66,59 @@
+  * @evs:	event array with type/duration of pulse/space
+  * @len:	length of the array
+  * @pos:	position to start seeking for a code
+- * This function returns the decoded ircode or -EINVAL if no pulse got decoded
++ * This function returns -EINVAL if no pulse got decoded,
++ * 0 if buffer is empty and 1 if one keycode were handled.
+  */
+ static int __ir_nec_decode(struct input_dev *input_dev,
+ 			   struct ir_raw_event *evs,
+ 			   int len, int *pos)
+ {
++	struct ir_input_dev *ir = input_get_drvdata(input_dev);
+ 	int count = -1;
+ 	int ircode = 0, not_code = 0;
+ 
+ 	/* Be sure that the first event is an start one and is a pulse */
+ 	for (; *pos < len; (*pos)++) {
+-		if (evs[*pos].type & (IR_START_EVENT | IR_PULSE))
++		/* Very long delays are considered as start events */
++		if (evs[*pos].delta.tv_nsec > MAX_NEC_TIME)
+ 			break;
+-	}
+-	(*pos)++;	/* First event doesn't contain data */
++		if (evs[*pos].type & IR_START_EVENT)
++			break;
++		IR_dprintk(1, "%luus: Spurious NEC %s\n",
++			   (evs[*pos].delta.tv_nsec + 500) / 1000,
++			   (evs[*pos].type & IR_SPACE) ? "space" : "pulse");
+ 
++	}
+ 	if (*pos >= len)
+ 		return 0;
+ 
++	(*pos)++;	/* First event doesn't contain data */
++
++	if (evs[*pos].type != IR_PULSE)
++		goto err;
++
++	/* Check if it is a NEC repeat event */
++	if (is_repeat(evs, len, *pos)) {
++		*pos += 2;
++		if (ir->keypressed) {
++			mod_timer(&ir->raw->timer_keyup,
++				jiffies + msecs_to_jiffies(REPEAT_TIME));
++			IR_dprintk(1, "NEC repeat event\n");
++			return 1;
++		} else {
++			IR_dprintk(1, "missing NEC repeat event\n");
++			return 0;
++		}
++	}
++
+ 	/* First space should have 4.5 ms otherwise is not NEC protocol */
+-	if ((evs[*pos].delta.tv_nsec < MIN_START_TIME) |
+-	    (evs[*pos].delta.tv_nsec > MAX_START_TIME) |
+-	    (evs[*pos].type != IR_SPACE))
++	if ((evs[*pos].delta.tv_nsec < MIN_START_TIME) ||
++	    (evs[*pos].delta.tv_nsec > MAX_START_TIME))
+ 		goto err;
+ 
+-	/*
+-	 * FIXME: need to implement the repeat sequence
+-	 */
+-
+ 	count = 0;
+ 	for ((*pos)++; *pos < len; (*pos)++) {
+ 		int bit;
+-
+-		if ((evs[*pos].delta.tv_nsec < MIN_PULSE_TIME) |
+-		    (evs[*pos].delta.tv_nsec > MAX_PULSE_TIME) |
+-		    (evs[*pos].type != IR_PULSE))
+-			goto err;
+-
+-		if (++*pos >= len)
+-			goto err;
+-		if (evs[*pos].type != IR_SPACE)
+-			goto err;
+-
+ 		if ((evs[*pos].delta.tv_nsec > MIN_BIT1_TIME) &&
+ 		    (evs[*pos].delta.tv_nsec < MAX_BIT1_TIME))
+ 			bit = 1;
+@@ -107,6 +147,7 @@ static int __ir_nec_decode(struct input_dev *input_dev,
  		if (++count == 32)
  			break;
  	}
--	*pos++;
-+	(*pos)++;
++	*pos++;
  
  	/*
  	 * Fixme: may need to accept Extended NEC protocol?
-@@ -181,9 +181,9 @@ err:
-  * This function returns the number of decoded pulses or -EINVAL if no
-  * pulse got decoded
-  */
--int ir_nec_decode(struct input_dev *input_dev,
--			   struct ir_raw_event *evs,
--			   int len)
-+static int ir_nec_decode(struct input_dev *input_dev,
-+			 struct ir_raw_event *evs,
-+			 int len)
- {
- 	int pos = 0;
- 	int rc = 0;
-@@ -198,4 +198,27 @@ int ir_nec_decode(struct input_dev *input_dev,
- 	return rc;
- }
+@@ -119,12 +160,15 @@ static int __ir_nec_decode(struct input_dev *input_dev,
  
--EXPORT_SYMBOL_GPL(ir_nec_decode);
-+static struct ir_raw_handler nec_handler = {
-+	.decode = ir_nec_decode,
-+};
-+
-+static int __init ir_nec_decode_init(void)
-+{
-+	ir_raw_handler_register(&nec_handler);
-+
-+	printk(KERN_INFO "IR NEC protocol handler initialized\n");
-+	return 0;
-+}
-+
-+static void __exit ir_nec_decode_exit(void)
-+{
-+	ir_raw_handler_unregister(&nec_handler);
-+}
-+
-+module_init(ir_nec_decode_init);
-+module_exit(ir_nec_decode_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Mauro Carvalho Chehab <mchehab@redhat.com>");
-+MODULE_AUTHOR("Red Hat Inc. (http://www.redhat.com)");
-+MODULE_DESCRIPTION("NEC IR protocol decoder");
+ 	IR_dprintk(1, "NEC scancode 0x%04x\n", ircode);
+ 	ir_keydown(input_dev, ircode);
+-	ir_keyup(input_dev);
++	mod_timer(&ir->raw->timer_keyup,
++		  jiffies + msecs_to_jiffies(REPEAT_TIME));
+ 
+-	return ircode;
++	return 1;
+ err:
+-	IR_dprintk(1, "NEC decoded failed at bit %d while decoding %luus time\n",
+-		   count, (evs[*pos].delta.tv_nsec + 500) / 1000);
++	IR_dprintk(1, "NEC decoded failed at bit %d (%s) while decoding %luus time\n",
++		   count,
++		   (evs[*pos].type & IR_SPACE) ? "space" : "pulse",
++		   (evs[*pos].delta.tv_nsec + 500) / 1000);
+ 
+ 	return -EINVAL;
+ }
+@@ -145,7 +189,7 @@ int ir_nec_decode(struct input_dev *input_dev,
+ 	int rc = 0;
+ 
+ 	while (pos < len) {
+-		if (__ir_nec_decode(input_dev, evs, len, &pos) >= 0)
++		if (__ir_nec_decode(input_dev, evs, len, &pos) > 0)
+ 			rc++;
+ 	}
+ 
 diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
-index 0ae5543..3eae128 100644
+index 9c71ac8..0ae5543 100644
 --- a/drivers/media/IR/ir-raw-event.c
 +++ b/drivers/media/IR/ir-raw-event.c
-@@ -13,10 +13,18 @@
-  */
- 
- #include <media/ir-core.h>
-+#include <linux/workqueue.h>
- 
+@@ -17,6 +17,13 @@
  /* Define the max number of bit transitions per IR keycode */
  #define MAX_IR_EVENT_SIZE	256
  
-+/* Used to handle IR raw handler extensions */
-+static LIST_HEAD(ir_raw_handler_list);
-+static DEFINE_MUTEX(ir_raw_handler_lock);
++static void ir_keyup_timer(unsigned long data)
++{
++	struct input_dev *input_dev = (struct input_dev *)data;
 +
-+/* Used to load the decoders */
-+static struct work_struct wq_load;
++	ir_keyup(input_dev);
++}
 +
- static void ir_keyup_timer(unsigned long data)
+ int ir_raw_event_register(struct input_dev *input_dev)
  {
- 	struct input_dev *input_dev = (struct input_dev *)data;
-@@ -101,6 +109,7 @@ int ir_raw_event_handle(struct input_dev *input_dev)
- 	int				rc;
- 	struct ir_raw_event		*evs;
- 	int 				len, i;
-+	struct ir_raw_handler		*ir_raw_handler;
+ 	struct ir_input_dev *ir = input_get_drvdata(input_dev);
+@@ -27,6 +34,11 @@ int ir_raw_event_register(struct input_dev *input_dev)
+ 	size = sizeof(struct ir_raw_event) * MAX_IR_EVENT_SIZE * 2;
+ 	size = roundup_pow_of_two(size);
  
- 	/*
- 	 * Store the events into a temporary buffer. This allows calling more than
-@@ -122,10 +131,56 @@ int ir_raw_event_handle(struct input_dev *input_dev)
- 			evs[i].type, (evs[i].delta.tv_nsec + 500) / 1000);
- 	}
- 
--	rc = ir_nec_decode(input_dev, evs, len);
-+	/*
-+	 * Call all ir decoders. This allows decoding the same event with
-+	 * more than one protocol handler.
-+	 * FIXME: better handle the returned code: does it make sense to use
-+	 * other decoders, if the first one already handled the IR?
-+	 */
-+	list_for_each_entry(ir_raw_handler, &ir_raw_handler_list, list) {
-+		rc = ir_raw_handler->decode(input_dev, evs, len);
-+	}
- 
- 	kfree(evs);
++	init_timer(&ir->raw->timer_keyup);
++	ir->raw->timer_keyup.function = ir_keyup_timer;
++	ir->raw->timer_keyup.data = (unsigned long)input_dev;
++	set_bit(EV_REP, input_dev->evbit);
++
+ 	rc = kfifo_alloc(&ir->raw->kfifo, size, GFP_KERNEL);
  
  	return rc;
- }
- EXPORT_SYMBOL_GPL(ir_raw_event_handle);
+@@ -40,6 +52,8 @@ void ir_raw_event_unregister(struct input_dev *input_dev)
+ 	if (!ir->raw)
+ 		return;
+ 
++	del_timer_sync(&ir->raw->timer_keyup);
 +
-+/*
-+ * Extension interface - used to register the IR decoders
-+ */
+ 	kfifo_free(&ir->raw->kfifo);
+ 	kfree(ir->raw);
+ 	ir->raw = NULL;
+diff --git a/drivers/media/video/saa7134/saa7134-input.c b/drivers/media/video/saa7134/saa7134-input.c
+index 740adb3..38f60e4 100644
+--- a/drivers/media/video/saa7134/saa7134-input.c
++++ b/drivers/media/video/saa7134/saa7134-input.c
+@@ -424,8 +424,11 @@ static void saa7134_input_timer(unsigned long data)
+ void ir_raw_decode_timer_end(unsigned long data)
+ {
+ 	struct saa7134_dev *dev = (struct saa7134_dev *)data;
++	struct card_ir *ir = dev->remote;
+ 
+ 	ir_raw_event_handle(dev->remote->dev);
 +
-+int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler)
-+{
-+	mutex_lock(&ir_raw_handler_lock);
-+	list_add_tail(&ir_raw_handler->list, &ir_raw_handler_list);
-+	mutex_unlock(&ir_raw_handler_lock);
-+	return 0;
-+}
-+EXPORT_SYMBOL(ir_raw_handler_register);
-+
-+void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler)
-+{
-+	mutex_lock(&ir_raw_handler_lock);
-+	list_del(&ir_raw_handler->list);
-+	mutex_unlock(&ir_raw_handler_lock);
-+}
-+EXPORT_SYMBOL(ir_raw_handler_unregister);
-+
-+static void init_decoders(struct work_struct *work)
-+{
-+	/* Load the decoder modules */
-+
-+	load_nec_decode();
-+
-+	/* If needed, we may later add some init code. In this case,
-+	   it is needed to change the CONFIG_MODULE test at ir-core.h
-+	 */
-+}
-+
-+void ir_raw_init(void)
-+{
-+	INIT_WORK(&wq_load, init_decoders);
-+	schedule_work(&wq_load);
-+}
-\ No newline at end of file
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index ee6b36d..2dbce59 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -1,6 +1,6 @@
- /* ir-register.c - handle IR scancode->keycode tables
-  *
-- * Copyright (C) 2009 by Mauro Carvalho Chehab <mchehab@redhat.com>
-+ * Copyright (C) 2009-2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-@@ -27,7 +27,7 @@ static char *ir_devnode(struct device *dev, mode_t *mode)
- 	return kasprintf(GFP_KERNEL, "irrcv/%s", dev_name(dev));
++	ir->active = 0;
  }
  
--struct class ir_input_class = {
-+static struct class ir_input_class = {
- 	.name		= "irrcv",
- 	.devnode	= ir_devnode,
- };
-@@ -250,6 +250,9 @@ static int __init ir_core_init(void)
- 		return rc;
+ void saa7134_ir_start(struct saa7134_dev *dev, struct card_ir *ir)
+@@ -461,6 +464,7 @@ void saa7134_ir_start(struct saa7134_dev *dev, struct card_ir *ir)
+ 		init_timer(&ir->timer_end);
+ 		ir->timer_end.function = ir_raw_decode_timer_end;
+ 		ir->timer_end.data = (unsigned long)dev;
++		ir->active = 0;
+ 	}
+ }
+ 
+@@ -476,8 +480,10 @@ void saa7134_ir_stop(struct saa7134_dev *dev)
+ 		del_timer_sync(&ir->timer_end);
+ 	else if (ir->nec_gpio)
+ 		tasklet_kill(&ir->tlet);
+-	else if (ir->raw_decode)
++	else if (ir->raw_decode) {
+ 		del_timer_sync(&ir->timer_end);
++		ir->active = 0;
++	}
+ 
+ 	ir->running = 0;
+ }
+@@ -950,39 +956,24 @@ static int saa7134_raw_decode_irq(struct saa7134_dev *dev)
+ 	unsigned long 	timeout;
+ 	int count, pulse, oldpulse;
+ 
+-	/* Disable IR IRQ line */
+-	saa_clearl(SAA7134_IRQ2, SAA7134_IRQ2_INTE_GPIO18);
+-
+ 	/* Generate initial event */
+ 	saa_clearb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
+ 	saa_setb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
+ 	pulse = saa_readl(SAA7134_GPIO_GPSTATUS0 >> 2) & ir->mask_keydown;
+ 	ir_raw_event_store(dev->remote->dev, pulse? IR_PULSE : IR_SPACE);
+ 
+-#if 1
+-	/* Wait up to 10 ms for event change */
+-	oldpulse = pulse;
+-	for (count = 0; count < 1000; count++)  {
+-		udelay(10);
+-		/* rising SAA7134_GPIO_GPRESCAN reads the status */
+-		saa_clearb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
+-		saa_setb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
+-		pulse = saa_readl(SAA7134_GPIO_GPSTATUS0 >> 2)
+-			& ir->mask_keydown;
+-		if (pulse != oldpulse)
+-			break;
++
++	/*
++	 * Wait 15 ms from the start of the first IR event before processing
++	 * the event. This time is enough for NEC protocol. May need adjustments
++	 * to work with other protocols.
++	 */
++	if (!ir->active) {
++		timeout = jiffies + jiffies_to_msecs(15);
++		mod_timer(&ir->timer_end, timeout);
++		ir->active = 1;
  	}
  
-+	/* Initialize/load the decoders that will be used */
-+	ir_raw_init();
-+
- 	return 0;
+-	/* Store final event */
+-	ir_raw_event_store(dev->remote->dev, pulse? IR_PULSE : IR_SPACE);
+-#endif
+-	/* Wait 15 ms before deciding to do something else */
+-	timeout = jiffies + jiffies_to_msecs(15);
+-	mod_timer(&ir->timer_end, timeout);
+-
+-	/* Enable IR IRQ line */
+-	saa_setl(SAA7134_IRQ2, SAA7134_IRQ2_INTE_GPIO18);
+-
+ 	return 1;
  }
  
 diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index 8d8ed7e..c377bf4 100644
+index 9e03528..8d8ed7e 100644
 --- a/include/media/ir-core.h
 +++ b/include/media/ir-core.h
-@@ -1,6 +1,8 @@
- /*
-  * Remote Controller core header
-  *
-+ * Copyright (C) 2009-2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License as published by
-  *  the Free Software Foundation version 2 of the License.
-@@ -80,6 +82,14 @@ struct ir_input_dev {
- 	int				keypressed;	/* current state */
+@@ -18,6 +18,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/kfifo.h>
+ #include <linux/time.h>
++#include <linux/timer.h>
+ 
+ extern int ir_core_debug;
+ #define IR_dprintk(level, fmt, arg...)	if (ir_core_debug >= level) \
+@@ -63,6 +64,7 @@ struct ir_raw_event {
+ struct ir_raw_event_ctrl {
+ 	struct kfifo			kfifo;		/* fifo for the pulse/space events */
+ 	struct timespec			last_event;	/* when last event occurred */
++	struct timer_list		timer_keyup;	/* timer for key release */
  };
  
-+struct ir_raw_handler {
-+	struct list_head list;
-+
-+	int (*decode)(struct input_dev *input_dev,
-+		      struct ir_raw_event *evs,
-+		      int len);
-+};
-+
- #define to_ir_input_dev(_attr) container_of(_attr, struct ir_input_dev, attr)
- 
- /* Routines from ir-keytable.c */
-@@ -104,11 +114,20 @@ int ir_raw_event_register(struct input_dev *input_dev);
- void ir_raw_event_unregister(struct input_dev *input_dev);
- int ir_raw_event_store(struct input_dev *input_dev, enum raw_event_type type);
- int ir_raw_event_handle(struct input_dev *input_dev);
-+int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
-+void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler);
-+
-+#ifdef MODULE
-+void ir_raw_init(void);
-+#else
-+#define ir_raw_init() 0
-+#endif
- 
- /* from ir-nec-decoder.c */
--int ir_nec_decode(struct input_dev *input_dev,
--		  struct ir_raw_event *evs,
--		  int len);
--
--
-+#ifdef CONFIG_IR_NEC_DECODER_MODULE
-+#define load_nec_decode()	request_module("ir-nec-decoder")
-+#else
-+#define load_nec_decode()	0
- #endif
-+
-+#endif /* _IR_CORE */
+ struct ir_input_dev {
 -- 
 1.6.6.1
-
-

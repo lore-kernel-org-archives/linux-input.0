@@ -1,128 +1,206 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
- and decoder plugins
-Date: Thu, 1 Apr 2010 14:56:32 -0300
-Message-ID: <20100401145632.5631756f@pedra>
+Subject: [PATCH 10/15] V4L/DVB: ir-nec-decoder: Add sysfs node to
+ enable/disable per irrcv
+Date: Thu, 1 Apr 2010 14:56:31 -0300
+Message-ID: <20100401145631.716b7967@pedra>
+References: <cover.1270142346.git.mchehab@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54314 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:17461 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758680Ab0DAR5x convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Apr 2010 13:57:53 -0400
+	id S1758694Ab0DAR5z (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Apr 2010 13:57:55 -0400
+In-Reply-To: <cover.1270142346.git.mchehab@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-This series of 15 patches improves support for IR, as discussed at the
-"What are the goals for the architecture of an in-kernel IR system?"
-thread.
+With the help of raw_register/raw_unregister, adds a sysfs group
+associated with the decoder, inside the corresponding irrcv node.
 
-It basically adds a raw decoder layer at ir-core, allowing decoders to =
-plug
-into IR core, and preparing for the addition of a lirc_dev driver that =
-will
-allow raw IR codes to be sent to userspace.
+Writing 1 to nec_decoder/enabled enables the decoder, while
+writing 0 disables it.
 
-There's no lirc patch in this series. I have also a few other patches f=
-rom
-David H=E4rdeman that I'm about to test/review probably later today, bu=
-t
-as I prefer to first merge what I have at V4L/DVB tree, before applying
-them.
+Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-There are two patches on this series that deserve a better analysis, IM=
-O:
+diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
+index cb57cc2..83a9912 100644
+--- a/drivers/media/IR/ir-nec-decoder.c
++++ b/drivers/media/IR/ir-nec-decoder.c
+@@ -39,6 +39,85 @@
+ 
+ #define REPEAT_TIME	240 /* ms */
+ 
++/* Used to register nec_decoder clients */
++static LIST_HEAD(decoder_list);
++static spinlock_t decoder_lock;
++
++struct decoder_data {
++	struct list_head	list;
++	struct ir_input_dev	*ir_dev;
++	int			enabled:1;
++};
++
++
++/**
++ * get_decoder_data()	- gets decoder data
++ * @input_dev:	input device
++ *
++ * Returns the struct decoder_data that corresponds to a device
++ */
++
++static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_dev)
++{
++	struct decoder_data *data = NULL;
++
++	spin_lock(&decoder_lock);
++	list_for_each_entry(data, &decoder_list, list) {
++		if (data->ir_dev == ir_dev)
++			break;
++	}
++	spin_unlock(&decoder_lock);
++	return data;
++}
++
++static ssize_t store_enabled(struct device *d,
++			     struct device_attribute *mattr,
++			     const char *buf,
++			     size_t len)
++{
++	unsigned long value;
++	struct ir_input_dev *ir_dev = dev_get_drvdata(d);
++	struct decoder_data *data = get_decoder_data(ir_dev);
++
++	if (!data)
++		return -EINVAL;
++
++	if (strict_strtoul(buf, 10, &value) || value > 1)
++		return -EINVAL;
++
++	data->enabled = value;
++
++	return len;
++}
++
++static ssize_t show_enabled(struct device *d,
++			     struct device_attribute *mattr, char *buf)
++{
++	struct ir_input_dev *ir_dev = dev_get_drvdata(d);
++	struct decoder_data *data = get_decoder_data(ir_dev);
++
++	if (!data)
++		return -EINVAL;
++
++	if (data->enabled)
++		return sprintf(buf, "1\n");
++	else
++	return sprintf(buf, "0\n");
++}
++
++static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_enabled);
++
++static struct attribute *decoder_attributes[] = {
++	&dev_attr_enabled.attr,
++	NULL
++};
++
++static struct attribute_group decoder_attribute_group = {
++	.name	= "nec_decoder",
++	.attrs	= decoder_attributes,
++};
++
++
+ /** is_repeat - Check if it is a NEC repeat event
+  * @input_dev:	the struct input_dev descriptor of the device
+  * @pos:	the position of the first event
+@@ -184,9 +263,15 @@ static int ir_nec_decode(struct input_dev *input_dev,
+ 			 struct ir_raw_event *evs,
+ 			 int len)
+ {
++	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
++	struct decoder_data *data;
+ 	int pos = 0;
+ 	int rc = 0;
+ 
++	data = get_decoder_data(ir_dev);
++	if (!data || !data->enabled)
++		return 0;
++
+ 	while (pos < len) {
+ 		if (__ir_nec_decode(input_dev, evs, len, &pos) > 0)
+ 			rc++;
+@@ -194,8 +279,54 @@ static int ir_nec_decode(struct input_dev *input_dev,
+ 	return rc;
+ }
+ 
++static int ir_nec_register(struct input_dev *input_dev)
++{
++	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
++	struct decoder_data *data;
++	int rc;
++
++	rc = sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group);
++	if (rc < 0)
++		return rc;
++
++	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	if (!data) {
++		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
++		return -ENOMEM;
++	}
++
++	data->ir_dev = ir_dev;
++	data->enabled = 1;
++
++	spin_lock(&decoder_lock);
++	list_add_tail(&data->list, &decoder_list);
++	spin_unlock(&decoder_lock);
++
++	return 0;
++}
++
++static int ir_nec_unregister(struct input_dev *input_dev)
++{
++	struct ir_input_dev *ir_dev = input_get_drvdata(input_dev);
++	static struct decoder_data *data;
++
++	data = get_decoder_data(ir_dev);
++	if (!data)
++		return 0;
++
++	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
++
++	spin_lock(&decoder_lock);
++	list_del(&data->list);
++	spin_unlock(&decoder_lock);
++
++	return 0;
++}
++
+ static struct ir_raw_handler nec_handler = {
+-	.decode = ir_nec_decode,
++	.decode		= ir_nec_decode,
++	.raw_register	= ir_nec_register,
++	.raw_unregister	= ir_nec_unregister,
+ };
+ 
+ static int __init ir_nec_decode_init(void)
+diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
+index 11f23f4..371d88e 100644
+--- a/drivers/media/IR/ir-raw-event.c
++++ b/drivers/media/IR/ir-raw-event.c
+@@ -223,7 +223,7 @@ static void init_decoders(struct work_struct *work)
+ void ir_raw_init(void)
+ {
+ 	spin_lock_init(&ir_raw_handler_lock);
+-	
++
+ #ifdef MODULE
+ 	INIT_WORK(&wq_load, init_decoders);
+ 	schedule_work(&wq_load);
+-- 
+1.6.6.1
 
--  V4L/DVB: ir-core: rename sysfs remote controller class from ir to rc
 
-As discussed, "IR" is not a good name, as this infrastructure could lat=
-er
-be used by other types of Remote Controllers, as it has nothing that
-is specific to IR inside the code, except for the name. So, I'm proposi=
-ng
-to replace the sysfs notes do "rc", instead of "ir". The sooner we do
-such changes, the better, as userspace apps using it are still under
-development. So, an API change is still possible, without causing
-much hurt.
-
-Also, as some RC devices allow RC code transmission, we probably need t=
-o add
-a TX node somewhere, associated with the same RX part (as some devices
-don't allow simultaneous usage of TX and RX).
-
-So, we have a few alternatives for the RC device sysfs node:
-a) /sys/class/rc/rc0
-                 |--> rx
-                 ---> tx
-b) /sys/class/rc/rcrcv0
-   /sys/class/rc/rctx0
-
-c) /sys/class/rc/rc0
-  and have there the RX and TX nodes/attributes mixed. IMO, (b) is a ba=
-d idea,
-so, I am between (a) and (c).
-
--  V4L/DVB: input: Add support for EVIO[CS]GKEYCODEBIG
-
-Adds two new ioctls in order to handle with big keycode tables. As alre=
-ady
-said, we'll need another ioctl, in order to get the maximum keycode sup=
-ported
-by a given device. I didn't wrote the patch for the new ioctl yet.
-This patch will probably have a small conflict with upstream input, but=
- I
-prefer to keep it on my tree and fix the upstream conflicts when submit=
-ing
-it, as the rest of the new IR code is also on my tree, and this patch i=
-s
-needed to procced with the IR code development.
-
-Mauro Carvalho Chehab (15):
-  V4L/DVB: ir-core: be less pedantic with RC protocol name
-  V4L/DVB: saa7134: use a full scancode table for M135A
-  V4L/DVB: saa7134: add code to allow changing IR protocol
-  V4L/DVB: ir-core: Add logic to decode IR protocols at the IR core
-  V4L/DVB: ir-core: add two functions to report keyup/keydown events
-  V4L/DVB: ir-core/saa7134: Move ir keyup/keydown code to the ir-core
-  V4L/DVB: saa7134: don't wait too much to generate an IR event on raw_=
-decode
-  V4L/DVB: ir-core: dynamically load the compiled IR protocols
-  V4L/DVB: ir-core: prepare to add more operations for ir decoders
-  V4L/DVB: ir-nec-decoder: Add sysfs node to enable/disable per irrcv
-  V4L/DVB: saa7134: clear warning noise
-  V4L/DVB: ir-core: rename sysfs remote controller class from ir to rc
-  V4L/DVB: ir-core: Add callbacks for input/evdev open/close on IR core
-  V4L/DVB: cx88: Only start IR if the input device is opened
-  V4L/DVB: input: Add support for EVIO[CS]GKEYCODEBIG
-
- drivers/input/evdev.c                       |   39 +++
- drivers/input/input.c                       |  260 ++++++++++++++++++-=
--
- drivers/media/IR/Kconfig                    |    9 +
- drivers/media/IR/Makefile                   |    3 +-
- drivers/media/IR/ir-keymaps.c               |   98 ++++----
- drivers/media/IR/ir-keytable.c              |   75 ++++++-
- drivers/media/IR/ir-nec-decoder.c           |  351 +++++++++++++++++++=
-++++++++
- drivers/media/IR/ir-raw-event.c             |  231 ++++++++++++++++++
- drivers/media/IR/ir-sysfs.c                 |   29 ++-
- drivers/media/video/cx88/cx88-input.c       |   69 +++++-
- drivers/media/video/cx88/cx88-video.c       |    6 +-
- drivers/media/video/cx88/cx88.h             |    6 +-
- drivers/media/video/saa7134/saa7134-core.c  |    2 +-
- drivers/media/video/saa7134/saa7134-input.c |  207 +++++++++++++++--
- drivers/media/video/saa7134/saa7134.h       |    4 +-
- include/linux/input.h                       |   40 +++-
- include/media/ir-common.h                   |    9 +-
- include/media/ir-core.h                     |   59 +++++-
- 18 files changed, 1368 insertions(+), 129 deletions(-)
- create mode 100644 drivers/media/IR/ir-nec-decoder.c
- create mode 100644 drivers/media/IR/ir-raw-event.c
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

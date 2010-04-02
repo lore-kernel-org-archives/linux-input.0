@@ -1,68 +1,99 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
- LIRC and decoder plugins
-Date: Fri, 2 Apr 2010 12:20:11 +0200
-Message-ID: <20100402102011.GA6947@hardeman.nu>
-References: <20100401145632.5631756f@pedra>
- <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
+From: Octoploid <cryptooctoploid@gmail.com>
+Subject: Re: Logitech M705 thumb button
+Date: Fri, 2 Apr 2010 12:28:40 +0200
+Message-ID: <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com>
+References: <hoqak4$m6t$1@dough.gmane.org>
+	 <20100330065625.GC12764@core.coreip.homeip.net>
+	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>
+	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
+	 <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
+	 <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
+	 <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
+	 <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>, Jarod Wilson <jarod@wilsonet.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.153]:45975 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758268Ab0DBK2m convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Apr 2010 06:28:42 -0400
+Received: by fg-out-1718.google.com with SMTP id l26so610105fgb.1
+        for <linux-input@vger.kernel.org>; Fri, 02 Apr 2010 03:28:41 -0700 (PDT)
+In-Reply-To: <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Apr 01, 2010 at 09:44:12PM -0400, Jon Smirl wrote:
-> On Thu, Apr 1, 2010 at 1:56 PM, Mauro Carvalho Chehab
-> <mchehab@redhat.com> wrote:
-> > This series of 15 patches improves support for IR, as discussed at =
-the
-> > "What are the goals for the architecture of an in-kernel IR system?=
-"
-> > thread.
-> >
-> > It basically adds a raw decoder layer at ir-core, allowing decoders=
- to plug
-> > into IR core, and preparing for the addition of a lirc_dev driver t=
-hat will
-> > allow raw IR codes to be sent to userspace.
-> >
-> > There's no lirc patch in this series. I have also a few other patch=
-es from
-> > David H=E4rdeman that I'm about to test/review probably later today=
-, but
-> > as I prefer to first merge what I have at V4L/DVB tree, before appl=
-ying
-> > them.
->=20
-> Has anyone ported the MSMCE driver onto these patches yet? That would
-> be a good check to make sure that rc-core has the necessary API.
+On Fri, Apr 2, 2010 at 12:05 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 31 Mar 2010, Octoploid wrote:
+>
+>> >> (The =BBunifying USB reciever=AB has three sub-devices. The first=
+ one is
+>> >> for keyboards, the second for mouses and the third is not used:
+>> >> usb 3-1: new full speed USB device using ohci_hcd and address 2
+>> >> input: Logitech USB Receiver as
+>> >> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
+>> >> generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Key=
+board
+>> >> [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
+>> >> input: Logitech USB Receiver as
+>> >> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
+>> >> generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID =
+v1.11
+>> >> Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
+>> >> generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
+>> >> Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
+>> >>
+>> >> The rdesc output for the mouse and the third device follows:
+>> >
+>> > Thanks for providing the output.
+>> >
+>> > The device defines 16 buttons in its report descriptor. How much d=
+oes it
+>> > actually physically have?
+>>
+>> 8 if I count correctly (left,middle,right,scrollwheel left,scrollwhe=
+el right,
+>> forward, backward and the hidden (the non working) thumb button).
+>> Here is a photo of the mouse (the hidden button is located under the
+>> white underscore below the back and forward buttons):
+>> http://www.techfresh.net/wp-content/uploads/2010/03/logitech_m705.jp=
+g
+>>
+>> > Is the other (non-used) interface also silent when you press the
+>> > non-working button? (I can see that it is claimed by HID as well).
+>>
+>> Yes.
+>>
+>> > Could you please apply the patch below and check whether there is =
+still no
+>> > event present when you press the button?
+>> >
+>>
+>> Yes, unfortunately there are still no events even with the patch app=
+lied.
+>> (I've tested both interfaces)
+>
+> Could you please verify that there is indeed no USB event being trigg=
+ered
+> by the button press at all, with usbmon [1]?
 
-I still plan to make lots of changes to the rc-core API (I just have to=
-=20
-convince Mauro first, but I'll get there). What I have done is to port=20
-your port of the msmce driver to the suggested rc-core subsystem I sent=
-=20
-you in private a week or so ago, and it works fine (I've bought the=20
-hardware and tested it with 20 or so different protocols).
+I already verified this, but forgot to mention it in my last mail.
+There are indeed no USB events being triggered when I run
+"cat /sys/kernel/debug/usb/usbmon/ou".
 
-The subsystem I suggested is basically what I'm using as inspiration=20
-while working with Mauro in improving rc-core so msmce should work well=
-=20
-with the end product...but there's still some ground to cover.
+> If it is the case, I am afraid the only option would be inspecting wh=
+at
+> initialization sequence does the driver for Another OS perform, so th=
+at it
+> makes the button work.
 
-Porting the msmce driver to rc-core will be high on my list of=20
-priorities once I've done some more changes to the API.
-
-> Cooler if it works both through LIRC and with an internal protocol
-> decoder. The MSMCE driver in my old patches was very simplified, it
-> removed about half of the code from the LIRC version.
-
-Yes, and it was a great help to me at least...thanks :)
-
---=20
-David H=E4rdeman
+Any pointers on how I could accomplish this?
+Thanks in advance.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

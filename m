@@ -1,84 +1,86 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH v6 1/8] hid: new driver for PicoLCD device
-Date: Thu, 1 Apr 2010 18:58:45 +0200
-Message-ID: <201004011858.45859.oliver@neukum.org>
-References: <20100324233707.7243b04d@neptune.home> <20100330223224.18fe4f3e@neptune.home> <20100330223350.32044891@neptune.home>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Logitech M705 thumb button
+Date: Fri, 2 Apr 2010 12:05:46 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>
+References: <hoqak4$m6t$1@dough.gmane.org>  <20100330065625.GC12764@core.coreip.homeip.net>  <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>  <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>  <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
+  <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz> <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:55428 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751535Ab0DBIqf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Apr 2010 04:46:35 -0400
-In-Reply-To: <20100330223350.32044891@neptune.home>
+Received: from cantor.suse.de ([195.135.220.2]:49066 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755017Ab0DBKFs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Apr 2010 06:05:48 -0400
+In-Reply-To: <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?utf-8?q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Jaya Kumar <jayakumar.lkml@gmail.com>
+To: Octoploid <cryptooctoploid@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Am Dienstag, 30. M=C3=A4rz 2010 22:33:50 schrieb Bruno Pr=C3=A9mont:
-> +static ssize_t picolcd_operation_mode_store(struct device *dev,
-> +               struct device_attribute *attr, const char *buf, size_=
-t count)
-> +{
-> +       struct picolcd_data *data =3D dev_get_drvdata(dev);
-> +       struct hid_report *report =3D NULL;
-> +       size_t cnt =3D count;
-> +       int timeout =3D 5000;
-> +       unsigned u;
-> +       unsigned long flags;
-> +
-> +       if (cnt >=3D 3 && strncmp("lcd", buf, 3) =3D=3D 0) {
-> +               if (data->status & PICOLCD_BOOTLOADER)
-> +                       report =3D picolcd_out_report(REPORT_EXIT_FLA=
-SHER, data->hdev);
-> +               buf +=3D 3;
-> +               cnt -=3D 3;
-> +       } else if (cnt >=3D 10 && strncmp("bootloader", buf, 10) =3D=3D=
- 0) {
-> +               if (!(data->status & PICOLCD_BOOTLOADER))
-> +                       report =3D picolcd_out_report(REPORT_EXIT_KEY=
-BOARD, data->hdev);
-> +               buf +=3D 10;
-> +               cnt -=3D 10;
-> +       }
-> +       if (!report)
-> +               return -EINVAL;
-> +
-> +       while (cnt > 0 && (*buf =3D=3D ' ' || *buf =3D=3D '\t')) {
-> +               buf++;
-> +               cnt--;
-> +       }
-> +       while (cnt > 0 && (buf[cnt-1] =3D=3D '\n' || buf[cnt-1] =3D=3D=
- '\r'))
-> +               cnt--;
-> +       if (cnt > 0) {
-> +               if (sscanf(buf, "%u", &u) !=3D 1)
-> +                       return -EINVAL;
-> +               if (u > 30000)
-> +                       return -EINVAL;
-> +               else
-> +                       timeout =3D u;
-> +       }
-> +
-> +       spin_lock_irqsave(&data->lock, flags);
-> +       hid_set_field(report->field[0], 0, timeout & 0xff);
-> +       hid_set_field(report->field[0], 1, (timeout >> 8) & 0xff);
-> +       usbhid_submit_report(data->hdev, report, USB_DIR_OUT);
-> +       spin_unlock_irqrestore(&data->lock, flags);
-> +       return count;
-> +}
-> +
-> +static DEVICE_ATTR(operation_mode, 0644, picolcd_operation_mode_show=
-,
-> +               picolcd_operation_mode_store);
+On Wed, 31 Mar 2010, Octoploid wrote:
 
-This violates the one file =3D=3D one attribute rule.
-Can you change this interface?
+> >> (The =BBunifying USB reciever=AB has three sub-devices. The first =
+one is
+> >> for keyboards, the second for mouses and the third is not used:
+> >> usb 3-1: new full speed USB device using ohci_hcd and address 2
+> >> input: Logitech USB Receiver as
+> >> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.0/input/input2
+> >> generic-usb 0003:046D:C52B.0001: input,hidraw0: USB HID v1.11 Keyb=
+oard
+> >> [Logitech USB Receiver] on usb-0000:00:12.0-1/input0
+> >> input: Logitech USB Receiver as
+> >> /devices/pci0000:00/0000:00:12.0/usb3/3-1/3-1:1.1/input/input3
+> >> generic-usb 0003:046D:C52B.0002: input,hiddev96,hidraw1: USB HID v=
+1.11
+> >> Mouse [Logitech USB Receiver] on usb-0000:00:12.0-1/input1
+> >> generic-usb 0003:046D:C52B.0003: hiddev97,hidraw2: USB HID v1.11
+> >> Device [Logitech USB Receiver] on usb-0000:00:12.0-1/input2)
+> >>
+> >> The rdesc output for the mouse and the third device follows:
+> >
+> > Thanks for providing the output.
+> >
+> > The device defines 16 buttons in its report descriptor. How much do=
+es it
+> > actually physically have?
+>=20
+> 8 if I count correctly (left,middle,right,scrollwheel left,scrollwhee=
+l right,
+> forward, backward and the hidden (the non working) thumb button).
+> Here is a photo of the mouse (the hidden button is located under the
+> white underscore below the back and forward buttons):
+> http://www.techfresh.net/wp-content/uploads/2010/03/logitech_m705.jpg
+>=20
+> > Is the other (non-used) interface also silent when you press the
+> > non-working button? (I can see that it is claimed by HID as well).
+>=20
+> Yes.
+>=20
+> > Could you please apply the patch below and check whether there is s=
+till no
+> > event present when you press the button?
+> >
+>=20
+> Yes, unfortunately there are still no events even with the patch appl=
+ied.
+> (I've tested both interfaces)
 
-	Regards
-		Oliver
+Could you please verify that there is indeed no USB event being trigger=
+ed=20
+by the button press at all, with usbmon [1]?
+
+If it is the case, I am afraid the only option would be inspecting what=
+=20
+initialization sequence does the driver for Another OS perform, so that=
+ it=20
+makes the button work.
+
+[1] Documentation/usb/usbmon.txt
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

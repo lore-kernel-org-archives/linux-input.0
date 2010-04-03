@@ -1,215 +1,581 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: [PATCH 2/2] xpad: use joystick instead of mouse buttons
-Date: Sun, 04 Apr 2010 01:14:20 +0200
-Message-ID: <1270336460.4282.5.camel@lovely>
+From: Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] Add touch screen input driver for TPS6507x family of
+	multi-function chips.
+Date: Sat,  3 Apr 2010 17:16:40 -0600
+Message-ID: <1270336600-1664-1-git-send-email-todd.fischer@ridgerun.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.159]:50565 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752686Ab0DCXJ0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Apr 2010 19:09:26 -0400
-Received: by fg-out-1718.google.com with SMTP id d23so23567fga.1
-        for <linux-input@vger.kernel.org>; Sat, 03 Apr 2010 16:09:25 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, todd
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dominic Cerquetti <binary1230@yahoo.com>, Jan Kratochvil <honza@jikos.cz>
 
-Let's dance with red octane on strange hardware:
- - don't use mouse buttons
- - add handling of dance pad 'MAP_REDOCTANE_DPAD'
+The TPS6507x family of Texas Instruments power management ICs (pmic)
+are multi-function chips that include voltage regulation and touch
+screen controller capabilities.  This patch adds a touch screen
+input driver for the TPS6507x pmic.  There was an existing regulator
+driver.  Before the touch screen driver could be added, a multi-function
+device (MFD) driver was needed and the regulator driver modified to
+use the MDF driver.  Patches for these changes have been posted and
+reviewed.  The TPS6507x touch screen driver applies cleanly to the
+MFD GIT repo after the above referenced patches are applied.  If I
+should use a different approach for the touch screen driver, please
+let me know.
 
-
-Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
 ---
- drivers/input/joystick/xpad.c |   78 ++++++++++++++++++++++++++++++++---------
- 1 files changed, 61 insertions(+), 17 deletions(-)
+ arch/arm/mach-davinci/board-da850-evm.c |   12 +
+ drivers/input/touchscreen/Kconfig       |   13 +
+ drivers/input/touchscreen/Makefile      |    1 +
+ drivers/input/touchscreen/tps6507x-ts.c |  400 +++++++++++++++++++++++++++++++
+ drivers/mfd/tps6507x.c                  |    3 +
+ include/linux/input/tps6507x-ts.h       |   24 ++
+ include/linux/mfd/tps6507x.h            |    2 +
+ 7 files changed, 455 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/tps6507x-ts.c
+ create mode 100644 include/linux/input/tps6507x-ts.h
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 9b3353b..7912ffb 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -9,6 +9,7 @@
-  *               2005 Dominic Cerquetti <binary1230@yahoo.com>
-  *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
-  *               2007 Jan Kratochvil <honza@jikos.cz>
-+ *               2010 Christoph Fritz <chf.fritz@googlemail.com>
-  *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as
-@@ -69,6 +70,11 @@
-  *  - pass the module paramater 'dpad_to_buttons' to force
-  *    the D-PAD to map to buttons if your pad is not detected
-  *
-+ * 2010-04-03 - 0.0.7 : no mousebuttons
-+ *  - dance pads use extended gamepad buttons BTN_TRIGGER_HAPPY
-+ *    instead of mouse buttons
-+ *  - correct handling of dance pad 'MAP_REDOCTANE_DPAD'
-+ *
-  * Later changes can be tracked in SCM.
-  */
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index d059924..b3cbb32 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -25,6 +25,8 @@
+ #include <linux/mtd/partitions.h>
+ #include <linux/mtd/physmap.h>
+ #include <linux/regulator/machine.h>
++#include <linux/mfd/tps6507x.h>
++#include <linux/input/tps6507x-ts.h>
  
-@@ -87,7 +93,8 @@
- /* xbox d-pads should map to buttons, as is required for DDR pads
-    but we map them to axes when possible to simplify things */
- #define MAP_DPAD_TO_BUTTONS		(1 << 0)
--#define MAP_TRIGGERS_TO_BUTTONS		(1 << 1)
-+#define MAP_TRIGGERS_TO_BUTTONS	(1 << 1)
-+#define MAP_REDOCTANE_DPAD		(1 << 2)
- 
- #define XTYPE_XBOX        0
- #define XTYPE_XBOX360     1
-@@ -114,7 +121,7 @@ static const struct xpad_device {
- 	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
--	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
-+	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_REDOCTANE_DPAD, XTYPE_XBOX },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
-@@ -158,7 +165,7 @@ static const struct xpad_device {
- /* buttons shared with xbox and xbox360 */
- static const signed short xpad_common_btn[] = {
- 	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
--	BTN_START, BTN_BACK, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
-+	BTN_START, BTN_SELECT, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
- 	-1						/* terminating entry */
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+@@ -534,8 +536,18 @@ struct regulator_init_data tps65070_regulator_data[] = {
+ 	},
  };
  
-@@ -168,10 +175,10 @@ static const signed short xpad_btn[] = {
- 	-1			/* terminating entry */
- };
- 
--/* used when dpad is mapped to nuttons */
-+/* used when dpad is mapped to buttons */
- static const signed short xpad_btn_pad[] = {
--	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
--	BTN_0, BTN_1,			/* d-pad up, down (XXX names??) */
-+	BTN_TRIGGER_HAPPY1, BTN_TRIGGER_HAPPY2,		/* d-pad left, right */
-+	BTN_TRIGGER_HAPPY3, BTN_TRIGGER_HAPPY4,		/* d-pad up, down */
- 	-1				/* terminating entry */
- };
- 
-@@ -206,6 +213,14 @@ static const signed short xpad_abs_triggers[] = {
- 	-1
- };
- 
-+/* used for "RedOctane Xbox Dance Pad" */
-+static const signed short xpad_redoxdpad[] = {
-+	BTN_A, BTN_B, BTN_X, BTN_Y,
-+	BTN_START, BTN_SELECT,
-+	BTN_C, BTN_Z, BTN_TL, BTN_TR,		/* up,down,left,right */
-+	-1
++static struct touchscreen_init_data tps6507x_touchscreen_data = {
++	.poll_period =  30,	/* ms between touch samples */
++	.min_pressure = 0x30,	/* minimum pressure to trigger touch */
++	.vref = 0,		/* turn off vref when not using A/D */
++	.vendor = 0,		/* /sys/class/input/input?/id/vendor */
++	.product = 65070,	/* /sys/class/input/input?/id/product */
++	.version = 0x100,	/* /sys/class/input/input?/id/version */
 +};
 +
- /* Xbox 360 has a vendor-specific class, so we cannot match it with only
-  * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
-  * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
-@@ -279,6 +294,24 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- {
- 	struct input_dev *dev = xpad->dev;
+ static struct tps6507x_board tps_board = {
+ 	.tps6507x_pmic_init_data = &tps65070_regulator_data[0],
++	.tps6507x_ts_init_data = &tps6507x_touchscreen_data,
+ };
  
-+	/* process special model */
-+	if (xpad->mapping & MAP_REDOCTANE_DPAD) {
-+		input_report_key(dev, BTN_A,      data[4]);
-+		input_report_key(dev, BTN_B,      data[5]);
-+		input_report_key(dev, BTN_X,      data[6]);
-+		input_report_key(dev, BTN_Y,      data[7]);
-+		input_report_key(dev, BTN_C,      data[2] & 0x01); /* up */
-+		input_report_key(dev, BTN_Z,      data[2] & 0x02); /* down */
-+		input_report_key(dev, BTN_TL,     data[2] & 0x04); /* left */
-+		input_report_key(dev, BTN_TR,     data[2] & 0x08); /* right */
-+		input_report_key(dev, BTN_START,  data[2] & 0x10);
-+		input_report_key(dev, BTN_SELECT, data[2] & 0x20); /* back */
-+		input_sync(dev);
-+		return;
+ static struct i2c_board_info __initdata da850evm_tps65070_info[] = {
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 8a8fa4d..6166aa8 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -594,4 +594,17 @@ config TOUCHSCREEN_PCAP
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcap_ts.
++
++config TOUCHSCREEN_TPS6507X
++	tristate "TPS6507x based touchscreens"
++	depends on I2C
++	help
++	  Say Y here if you have a TPS6507x based touchscreen
++	  controller.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called tps6507x_ts.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 7fef7d5..cfa83d0 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -46,3 +46,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ATMEL)	+= atmel-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
++obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+new file mode 100644
+index 0000000..5de80a1
+--- /dev/null
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -0,0 +1,400 @@
++/*
++ * drivers/input/touchscreen/tps6507x_ts.c
++ *
++ * Touchscreen driver for the tps6507x chip.
++ *
++ * Copyright (c) 2009 RidgeRun (todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org)
++ *
++ * Credits:
++ *
++ *    Using code from tsc2007, MtekVision Co., Ltd.
++ *
++ * For licencing details see kernel-base/COPYING
++ *
++ * TPS65070, TPS65073, TPS650731, and TPS650732 support
++ * 10 bit touch screen interface.
++ */
++
++#include <linux/module.h>
++#include <linux/workqueue.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/tps6507x.h>
++#include <linux/input/tps6507x-ts.h>
++#include <linux/delay.h>
++
++#define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
++#define TPS_DEFAULT_MIN_PRESSURE 0x30
++#define MAX_10BIT ((1 << 10) - 1)
++
++#define	TPS6507X_ADCONFIG_CONVERT_TS (TPS6507X_ADCONFIG_AD_ENABLE | \
++					 TPS6507X_ADCONFIG_START_CONVERSION | \
++					 TPS6507X_ADCONFIG_INPUT_REAL_TSC)
++#define	TPS6507X_ADCONFIG_POWER_DOWN_TS (TPS6507X_ADCONFIG_INPUT_REAL_TSC)
++
++struct ts_event {
++	u16	x;
++	u16	y;
++	u16	pressure;
++};
++
++struct tps6507x_ts {
++	struct input_dev	*input_dev;
++	struct device		*dev;
++	char			phys[32];
++	struct workqueue_struct *wq;
++	struct delayed_work	work;
++	unsigned		polling;	/* polling is active */
++	struct ts_event		tc;
++	struct tps6507x_dev	*mfd;
++	u16			model;
++	unsigned		pendown;
++	int			irq;
++	void			(*clear_penirq)(void);
++	unsigned long		poll_period;	/* ms */
++	u16			min_pressure;
++	int			vref;		/* non-zero to leave vref on */
++};
++
++static int tps6507x_read_u8(struct tps6507x_ts *tsc, u8 reg, u8 *data)
++{
++	int err;
++
++	err = tsc->mfd->read_dev(tsc->mfd, reg, 1, data);
++
++	if (err)
++		return err;
++
++	return 0;
++}
++
++static int tps6507x_write_u8(struct tps6507x_ts *tsc, u8 reg, u8 data)
++{
++	return tsc->mfd->write_dev(tsc->mfd, reg, 1, &data);
++}
++
++static s32 tps6507x_adc_conversion(struct tps6507x_ts *tsc,
++				   u8 tsc_mode, u16 *value)
++{
++	s32 ret;
++	u8 adc_status;
++	u8 result;
++
++	/* Route input signal to A/D converter */
++
++	ret = tps6507x_write_u8(tsc, TPS6507X_REG_TSCMODE, tsc_mode);
++	if (ret) {
++		dev_err(tsc->dev, "TSC mode read failed\n");
++		goto err;
 +	}
 +
-+	/* process generic models */
++	/* Start A/D conversion */
 +
- 	/* left stick */
- 	input_report_abs(dev, ABS_X,
- 			 (__s16) le16_to_cpup((__le16 *)(data + 12)));
-@@ -302,10 +335,10 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 
- 	/* digital pad */
- 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
--		input_report_key(dev, BTN_LEFT,  data[2] & 0x04);
--		input_report_key(dev, BTN_RIGHT, data[2] & 0x08);
--		input_report_key(dev, BTN_0,     data[2] & 0x01); /* up */
--		input_report_key(dev, BTN_1,     data[2] & 0x02); /* down */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY1, data[2] & 0x04); /* left */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY2, data[2] & 0x08); /* right */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY3, data[2] & 0x01); /* up */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY4, data[2] & 0x02); /* down */
- 	} else {
- 		input_report_abs(dev, ABS_HAT0X,
- 				 !!(data[2] & 0x08) - !!(data[2] & 0x04));
-@@ -315,7 +348,7 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 
- 	/* start/back buttons and stick press left/right */
- 	input_report_key(dev, BTN_START,  data[2] & 0x10);
--	input_report_key(dev, BTN_BACK,   data[2] & 0x20);
-+	input_report_key(dev, BTN_SELECT, data[2] & 0x20);
- 	input_report_key(dev, BTN_THUMBL, data[2] & 0x40);
- 	input_report_key(dev, BTN_THUMBR, data[2] & 0x80);
- 
-@@ -349,11 +382,11 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
- 
- 	/* digital pad */
- 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
--		/* dpad as buttons (right, left, down, up) */
--		input_report_key(dev, BTN_LEFT, data[2] & 0x04);
--		input_report_key(dev, BTN_RIGHT, data[2] & 0x08);
--		input_report_key(dev, BTN_0, data[2] & 0x01);	/* up */
--		input_report_key(dev, BTN_1, data[2] & 0x02);	/* down */
-+		/* dpad as buttons (left, right, up, down) */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY1, data[2] & 0x04); /* left */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY2, data[2] & 0x08); /* right */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY3, data[2] & 0x01); /* up */
-+		input_report_key(dev, BTN_TRIGGER_HAPPY4, data[2] & 0x02); /* down */
- 	} else {
- 		input_report_abs(dev, ABS_HAT0X,
- 				 !!(data[2] & 0x08) - !!(data[2] & 0x04));
-@@ -363,7 +396,7 @@ static void xpad360_process_packet(struct usb_xpad *xpad,
- 
- 	/* start/back buttons */
- 	input_report_key(dev, BTN_START,  data[2] & 0x10);
--	input_report_key(dev, BTN_BACK,   data[2] & 0x20);
-+	input_report_key(dev, BTN_SELECT, data[2] & 0x20);
- 
- 	/* stick press left/right */
- 	input_report_key(dev, BTN_THUMBL, data[2] & 0x40);
-@@ -830,6 +863,15 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	input_dev->open = xpad_open;
- 	input_dev->close = xpad_close;
- 
-+
-+	/* special model set up */
-+	if (xpad->mapping & MAP_REDOCTANE_DPAD) {
-+		input_dev->evbit[0] = BIT_MASK(EV_KEY);
-+		for (i = 0; xpad_redoxdpad[i] >= 0; i++)
-+			__set_bit(xpad_redoxdpad[i], input_dev->keybit);
-+		goto input_register;
++	ret = tps6507x_write_u8(tsc, TPS6507X_REG_ADCONFIG,
++				TPS6507X_ADCONFIG_CONVERT_TS);
++	if (ret) {
++		dev_err(tsc->dev, "ADC config write failed\n");
++		return ret;
 +	}
 +
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 
- 	/* set up standard buttons and axes */
-@@ -864,6 +906,8 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
- 	}
- 
-+ input_register:
++	do {
++		ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADCONFIG,
++				       &adc_status);
++		if (ret) {
++			dev_err(tsc->dev, "ADC config read failed\n");
++			goto err;
++		}
++	} while (adc_status & TPS6507X_ADCONFIG_START_CONVERSION);
 +
- 	error = xpad_init_output(intf, xpad);
- 	if (error)
- 		goto fail2;
++	ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADRESULT_2, &result);
++	if (ret) {
++		dev_err(tsc->dev, "ADC result 2 read failed\n");
++		goto err;
++	}
++
++	*value = (result & TPS6507X_REG_ADRESULT_2_MASK) << 8;
++
++	ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADRESULT_1, &result);
++	if (ret) {
++		dev_err(tsc->dev, "ADC result 1 read failed\n");
++		goto err;
++	}
++
++	*value |= result;
++
++	dev_dbg(tsc->dev, "TSC channel %d = 0x%X\n", tsc_mode, *value);
++
++err:
++	return ret;
++}
++
++/* Need to call tps6507x_adc_standby() after using A/D converter for the
++ * touch screen interrupt to work properly.
++ */
++
++static s32 tps6507x_adc_standby(struct tps6507x_ts *tsc)
++{
++	s32 ret;
++	s32 loops = 0;
++	u8 val;
++
++	ret = tps6507x_write_u8(tsc,  TPS6507X_REG_ADCONFIG,
++				TPS6507X_ADCONFIG_INPUT_TSC);
++	if (ret)
++		return ret;
++
++	ret = tps6507x_write_u8(tsc, TPS6507X_REG_TSCMODE,
++				TPS6507X_TSCMODE_STANDBY);
++	if (ret)
++		return ret;
++
++	ret = tps6507x_read_u8(tsc, TPS6507X_REG_INT, &val);
++	if (ret)
++		return ret;
++
++	while (val & TPS6507X_REG_TSC_INT) {
++		mdelay(10);
++		ret = tps6507x_read_u8(tsc, TPS6507X_REG_INT, &val);
++		if (ret)
++			return ret;
++		loops++;
++	}
++
++	return ret;
++}
++
++static void tps6507x_ts_handler(struct work_struct *work)
++{
++	struct tps6507x_ts *tsc =  container_of(work,
++				struct tps6507x_ts, work.work);
++	struct input_dev *input_dev = tsc->input_dev;
++	int pendown;
++	int schd;
++	int poll = 0;
++	s32 ret;
++
++	ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
++				       &tsc->tc.pressure);
++	if (ret)
++		goto done;
++
++	pendown = tsc->tc.pressure > tsc->min_pressure;
++
++	if (unlikely(!pendown && tsc->pendown)) {
++		dev_dbg(tsc->dev, "UP\n");
++		input_report_key(input_dev, BTN_TOUCH, 0);
++		input_report_abs(input_dev, ABS_PRESSURE, 0);
++		input_sync(input_dev);
++		tsc->pendown = 0;
++	}
++
++	if (pendown) {
++
++		if (!tsc->pendown) {
++			dev_dbg(tsc->dev, "DOWN\n");
++			input_report_key(input_dev, BTN_TOUCH, 1);
++		} else
++			dev_dbg(tsc->dev, "still down\n");
++
++		ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_X_POSITION,
++					       &tsc->tc.x);
++		if (ret)
++			goto done;
++
++		ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_Y_POSITION,
++					       &tsc->tc.y);
++		if (ret)
++			goto done;
++
++		input_report_abs(input_dev, ABS_X, tsc->tc.x);
++		input_report_abs(input_dev, ABS_Y, tsc->tc.y);
++		input_report_abs(input_dev, ABS_PRESSURE, tsc->tc.pressure);
++		input_sync(input_dev);
++		tsc->pendown = 1;
++		poll = 1;
++	}
++
++done:
++	/* always poll if not using interrupts */
++	poll = 1;
++
++	if (poll) {
++		schd = queue_delayed_work(tsc->wq, &tsc->work,
++					  tsc->poll_period * HZ / 1000);
++		if (schd)
++			tsc->polling = 1;
++		else {
++			tsc->polling = 0;
++			dev_err(tsc->dev, "re-schedule failed");
++		}
++	} else
++		tsc->polling = 0;
++
++	ret = tps6507x_adc_standby(tsc);
++}
++
++static int tps6507x_ts_probe(struct platform_device *pdev)
++{
++	int error;
++	struct tps6507x_ts *tsc;
++	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
++	struct touchscreen_init_data *init_data;
++	struct input_dev *input_dev;
++	struct tps6507x_board *tps_board;
++	int schd;
++
++	/**
++	 * tps_board points to pmic related constants
++	 * coming from the board-evm file.
++	 */
++
++	tps_board = (struct tps6507x_board *)tps6507x_dev->dev->platform_data;
++
++	if (!tps_board) {
++		dev_err(tps6507x_dev->dev,
++			"Could not find tps6507x platform data\n");
++		return -EIO;
++	}
++
++	/**
++	 * init_data points to array of regulator_init structures
++	 * coming from the board-evm file.
++	 */
++
++	init_data = tps_board->tps6507x_ts_init_data;
++
++	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
++	if (!tsc) {
++		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
++		error = -ENOMEM;
++		goto err0;
++	}
++
++	tps6507x_dev->ts = tsc;
++	tsc->mfd = tps6507x_dev;
++	tsc->dev = tps6507x_dev->dev;
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		dev_err(tsc->dev, "Failed to allocate input device.\n");
++		error = -ENOMEM;
++		goto err1;
++	}
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_10BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_10BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
++
++	input_dev->name = "TPS6507x Touchscreen";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = tsc->dev;
++
++	snprintf(tsc->phys, sizeof(tsc->phys),
++		 "%s/input0", dev_name(tsc->dev));
++	input_dev->phys = tsc->phys;
++
++	dev_dbg(tsc->dev, "device: %s\n", input_dev->phys);
++
++	input_set_drvdata(input_dev, tsc);
++
++	tsc->input_dev = input_dev;
++
++	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
++	tsc->wq = create_workqueue("TPS6507x Touchscreen");
++
++	if (init_data) {
++		tsc->poll_period = init_data->poll_period;
++		tsc->vref = init_data->vref;
++		tsc->min_pressure = init_data->min_pressure;
++		input_dev->id.vendor = init_data->vendor;
++		input_dev->id.product = init_data->product;
++		input_dev->id.version = init_data->version;
++	} else {
++		tsc->poll_period = TSC_DEFAULT_POLL_PERIOD;
++		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
++	}
++
++	error = tps6507x_adc_standby(tsc);
++	if (error)
++		goto err2;
++
++	error = input_register_device(input_dev);
++	if (error)
++		goto err2;
++
++	schd = queue_delayed_work(tsc->wq, &tsc->work,
++				  tsc->poll_period * HZ / 1000);
++
++	if (schd)
++		tsc->polling = 1;
++	else {
++		tsc->polling = 0;
++		dev_err(tsc->dev, "schedule failed");
++		goto err2;
++	 }
++
++	return 0;
++
++err2:
++	cancel_delayed_work(&tsc->work);
++	flush_workqueue(tsc->wq);
++	destroy_workqueue(tsc->wq);
++	tsc->wq = 0;
++	input_free_device(input_dev);
++err1:
++	kfree(tsc);
++	tps6507x_dev->ts = NULL;
++err0:
++	return error;
++}
++
++static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
++{
++	struct tps6507x_dev *tps6507x_dev = platform_get_drvdata(pdev);
++	struct tps6507x_ts *tsc = tps6507x_dev->ts;
++	struct input_dev *input_dev = tsc->input_dev;
++
++	if (!tsc)
++		return 0;
++
++	cancel_delayed_work(&tsc->work);
++	flush_workqueue(tsc->wq);
++	destroy_workqueue(tsc->wq);
++	tsc->wq = 0;
++
++	input_free_device(input_dev);
++
++	tps6507x_dev->ts = NULL;
++	kfree(tsc);
++
++	return 0;
++}
++
++static struct platform_driver tps6507x_ts_driver = {
++	.driver = {
++		.name = "tps6507x-ts",
++		.owner = THIS_MODULE,
++	},
++	.probe = tps6507x_ts_probe,
++	.remove = __devexit_p(tps6507x_ts_remove),
++};
++
++static int __init tps6507x_ts_init(void)
++{
++	return platform_driver_register(&tps6507x_ts_driver);
++}
++module_init(tps6507x_ts_init);
++
++static void __exit tps6507x_ts_exit(void)
++{
++	platform_driver_unregister(&tps6507x_ts_driver);
++}
++module_exit(tps6507x_ts_exit);
++
++MODULE_AUTHOR("Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>");
++MODULE_DESCRIPTION("TPS6507x - TouchScreen driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:tps6507x-tsc");
+diff --git a/drivers/mfd/tps6507x.c b/drivers/mfd/tps6507x.c
+index edda9ff..d05c52d 100644
+--- a/drivers/mfd/tps6507x.c
++++ b/drivers/mfd/tps6507x.c
+@@ -25,6 +25,9 @@ static struct mfd_cell tps6507x_devs[] = {
+ 	{
+ 		.name = "tps6507x-pmic",
+ 	},
++	{
++		.name = "tps6507x-ts",
++	},
+ };
+ 
+ 
+diff --git a/include/linux/input/tps6507x-ts.h b/include/linux/input/tps6507x-ts.h
+new file mode 100644
+index 0000000..ab14403
+--- /dev/null
++++ b/include/linux/input/tps6507x-ts.h
+@@ -0,0 +1,24 @@
++/* linux/i2c/tps6507x-ts.h
++ *
++ * Functions to access TPS65070 touch screen chip.
++ *
++ * Copyright (c) 2009 RidgeRun (todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org)
++ *
++ *
++ *  For licencing details see kernel-base/COPYING
++ */
++
++#ifndef __LINUX_I2C_TPS6507X_TS_H
++#define __LINUX_I2C_TPS6507X_TS_H
++
++/* Board specific touch screen initial values */
++struct touchscreen_init_data {
++	int	poll_period;	/* ms */
++	int	vref;		/* non-zero to leave vref on */
++	__u16	min_pressure;	/* min reading to be treated as a touch */
++	__u16	vendor;
++	__u16	product;
++	__u16	version;
++};
++
++#endif /*  __LINUX_I2C_TPS6507X_TS_H */
+diff --git a/include/linux/mfd/tps6507x.h b/include/linux/mfd/tps6507x.h
+index 9543cb7..c923e48 100644
+--- a/include/linux/mfd/tps6507x.h
++++ b/include/linux/mfd/tps6507x.h
+@@ -142,6 +142,7 @@
+ 
+ struct tps6507x_board {
+ 	struct regulator_init_data *tps6507x_pmic_init_data;
++	struct touchscreen_init_data *tps6507x_ts_init_data;
+ };
+ 
+ /**
+@@ -162,6 +163,7 @@ struct tps6507x_dev {
+ 
+ 	/* Client devices */
+ 	struct tps6507x_pmic *pmic;
++	struct tps6507x_ts *ts;
+ };
+ 
+ #endif /*  __LINUX_MFD_TPS6507X_H */
 -- 
-1.5.6.5
-
-
-
+1.6.0.4

@@ -1,581 +1,134 @@
-From: Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] Add touch screen input driver for TPS6507x family of
-	multi-function chips.
-Date: Sat,  3 Apr 2010 17:16:40 -0600
-Message-ID: <1270336600-1664-1-git-send-email-todd.fischer@ridgerun.com>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 04/15] V4L/DVB: ir-core: Add logic to decode IR
+ protocols at the IR core
+Date: Sun, 04 Apr 2010 08:35:51 -0400
+Message-ID: <1270384551.4979.47.camel@palomino.walls.org>
+References: <cover.1270142346.git.mchehab@redhat.com>
+	 <20100401145632.7b1b98d5@pedra>
+	 <1270251567.3027.55.camel@palomino.walls.org> <4BB69A95.5000705@redhat.com>
+	 <1270314992.9169.40.camel@palomino.walls.org>  <4BB7C795.20506@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, todd
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:58164 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754049Ab0DDMfh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 4 Apr 2010 08:35:37 -0400
+In-Reply-To: <4BB7C795.20506@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-The TPS6507x family of Texas Instruments power management ICs (pmic)
-are multi-function chips that include voltage regulation and touch
-screen controller capabilities.  This patch adds a touch screen
-input driver for the TPS6507x pmic.  There was an existing regulator
-driver.  Before the touch screen driver could be added, a multi-function
-device (MFD) driver was needed and the regulator driver modified to
-use the MDF driver.  Patches for these changes have been posted and
-reviewed.  The TPS6507x touch screen driver applies cleanly to the
-MFD GIT repo after the above referenced patches are applied.  If I
-should use a different approach for the touch screen driver, please
-let me know.
+On Sat, 2010-04-03 at 19:56 -0300, Mauro Carvalho Chehab wrote:
+> Andy Walls wrote:
+> > On Fri, 2010-04-02 at 22:32 -0300, Mauro Carvalho Chehab wrote:
+> >> Andy Walls wrote:
+> >  
+> >>> I haven't taken a very hard look at this since I'm very busy this month.
+> >>>
+> >>> It looks OK so far. 
+> >> Thank you for your review. 
+> >>
+> >> One general comment: my main target of writing the NEC decoder is to have one
+> >> decoder for testing. I know that there are several other implementations, so I 
+> >> didn't try to write a perfect decoder, but, instead, I wrote a code that 
+> >> works, and that allows me to continue the Remote Controller subsystem design.
+> > 
+> > Understood.
+> 
+> Btw, I just finish rewriting the nec decoder:
+> 
+> http://git.linuxtv.org/mchehab/ir.git?a=blob;f=drivers/media/IR/ir-nec-decoder.c;h=33b260f517f509efd9c55067eb89c8cd748ed12c;hb=09b1808271b3d705b839ee3239fd1c85b7289f41
+> 
+> I've got your constants and a few of your ideas, but the code is different:
+> instead of getting a pulse/mark pair, the code handles event by event. Also,
+> it is controlled by a state machine.
+> 
+> The end result is that the code seems very reliable. It also handles both NEC
+> and NEC extended.
 
-Signed-off-by: Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>
----
- arch/arm/mach-davinci/board-da850-evm.c |   12 +
- drivers/input/touchscreen/Kconfig       |   13 +
- drivers/input/touchscreen/Makefile      |    1 +
- drivers/input/touchscreen/tps6507x-ts.c |  400 +++++++++++++++++++++++++++++++
- drivers/mfd/tps6507x.c                  |    3 +
- include/linux/input/tps6507x-ts.h       |   24 ++
- include/linux/mfd/tps6507x.h            |    2 +
- 7 files changed, 455 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/tps6507x-ts.c
- create mode 100644 include/linux/input/tps6507x-ts.h
+Looks good.
 
-diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-index d059924..b3cbb32 100644
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -25,6 +25,8 @@
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/physmap.h>
- #include <linux/regulator/machine.h>
-+#include <linux/mfd/tps6507x.h>
-+#include <linux/input/tps6507x-ts.h>
+On intervals that are supposed to be longer than 1 NEC_UNIT, the
+tolerance of NEC_UNIT / 2 is a little unforgiving.  However, if this
+decoder is called not knowing apriori that the protocol is NEC, it is
+probably the right thing to do.
+
+
+And when you have time:
+
+I think all that is missing is a glitch (low pass) filter to discard
+pulses much shorter than 1 NEC_UNIT.  A way to generate random IR
+glitches is with bright sunlight reflecting off of a basin of water
+that's surface is being disturbed to make waves.  
+
+LIRC has a software glitch filter implementation in 
+
+	lirc-0.8.5/drivers/lirc_serial/lirc_serial.c:frbwrite()
+
+but it's not the simplest code to understand and it keeps its state in
+static variables in the function.
+
+(My kernel NEC decoder implementation didn't have a software glitch
+filter, because there was a filter provided by the hardware.  For NEC, I
+decided to discard any pulse less than 5/8 * NEC_UNIT.  For RC-5, I set
+it to discard pulses less than 3/4 of a pulse time.)
+
+
+Since a glitch filter is probably going to be needed by a number of
+drivers and since the minimum acceptable pulse depends slightly on the
+protocol, it probably makes sense for
+
+1. A driver to indicate if its raw events need glitch filtering
+
+2. A common glitch filtering library function that can be used by all
+decoders, and that also can accept a decoder specified minimum
+acceptable pulse width.
+
+
+> > Is it the case that some drivers will only be able to perform leading
+> > edge detection (measuring time between marks) or trailing edge detection
+> > (measuring time between spaces)?
+> 
+> In the specific case of saa7134, the IRQ can be enabled for a positive and/or
+> for a negative edge.
+> 
+> I'm not sure about the other IRQ driven hardware. On cx88, there's no IRQ code
+> for IR - maybe it is not supported. I haven't check yet how IRQ's work on bttv.
+> I've no idea about the other devices that support raw IR decoding.
+
+I can look into what the cx88 and bttv chips can do.  How the boards are
+wired up is a different issue.
+
+
+
+> >> I found one NEC IR here that uses the extended protocol. The issue I have here is that
+> >> maybe it could be interesting to allow enable or disable a more pedantic check.
+> >> At least on the room I'm working, I have two strong fluorescent lamps that interfere
+> >> on the IR sensor of the saa7134 board. I'll probably add a sysfs node to allow enable/
+> >> disable the strict check for non-extended protocol.
+> > 
+> > Would that make the setting global or would it be on a per remote
+> > control basis?
+> 
+> The protocol sysfs nodes are per device. Yet, for now, I haven't created
+> such node.
+
+Per device means per IR receiver device?
+
  
- #include <asm/mach-types.h>
- #include <asm/mach/arch.h>
-@@ -534,8 +536,18 @@ struct regulator_init_data tps65070_regulator_data[] = {
- 	},
- };
- 
-+static struct touchscreen_init_data tps6507x_touchscreen_data = {
-+	.poll_period =  30,	/* ms between touch samples */
-+	.min_pressure = 0x30,	/* minimum pressure to trigger touch */
-+	.vref = 0,		/* turn off vref when not using A/D */
-+	.vendor = 0,		/* /sys/class/input/input?/id/vendor */
-+	.product = 65070,	/* /sys/class/input/input?/id/product */
-+	.version = 0x100,	/* /sys/class/input/input?/id/version */
-+};
-+
- static struct tps6507x_board tps_board = {
- 	.tps6507x_pmic_init_data = &tps65070_regulator_data[0],
-+	.tps6507x_ts_init_data = &tps6507x_touchscreen_data,
- };
- 
- static struct i2c_board_info __initdata da850evm_tps65070_info[] = {
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 8a8fa4d..6166aa8 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -594,4 +594,17 @@ config TOUCHSCREEN_PCAP
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called pcap_ts.
-+
-+config TOUCHSCREEN_TPS6507X
-+	tristate "TPS6507x based touchscreens"
-+	depends on I2C
-+	help
-+	  Say Y here if you have a TPS6507x based touchscreen
-+	  controller.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called tps6507x_ts.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 7fef7d5..cfa83d0 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -46,3 +46,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ATMEL)	+= atmel-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-new file mode 100644
-index 0000000..5de80a1
---- /dev/null
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -0,0 +1,400 @@
-+/*
-+ * drivers/input/touchscreen/tps6507x_ts.c
-+ *
-+ * Touchscreen driver for the tps6507x chip.
-+ *
-+ * Copyright (c) 2009 RidgeRun (todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org)
-+ *
-+ * Credits:
-+ *
-+ *    Using code from tsc2007, MtekVision Co., Ltd.
-+ *
-+ * For licencing details see kernel-base/COPYING
-+ *
-+ * TPS65070, TPS65073, TPS650731, and TPS650732 support
-+ * 10 bit touch screen interface.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/workqueue.h>
-+#include <linux/slab.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/mfd/tps6507x.h>
-+#include <linux/input/tps6507x-ts.h>
-+#include <linux/delay.h>
-+
-+#define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
-+#define TPS_DEFAULT_MIN_PRESSURE 0x30
-+#define MAX_10BIT ((1 << 10) - 1)
-+
-+#define	TPS6507X_ADCONFIG_CONVERT_TS (TPS6507X_ADCONFIG_AD_ENABLE | \
-+					 TPS6507X_ADCONFIG_START_CONVERSION | \
-+					 TPS6507X_ADCONFIG_INPUT_REAL_TSC)
-+#define	TPS6507X_ADCONFIG_POWER_DOWN_TS (TPS6507X_ADCONFIG_INPUT_REAL_TSC)
-+
-+struct ts_event {
-+	u16	x;
-+	u16	y;
-+	u16	pressure;
-+};
-+
-+struct tps6507x_ts {
-+	struct input_dev	*input_dev;
-+	struct device		*dev;
-+	char			phys[32];
-+	struct workqueue_struct *wq;
-+	struct delayed_work	work;
-+	unsigned		polling;	/* polling is active */
-+	struct ts_event		tc;
-+	struct tps6507x_dev	*mfd;
-+	u16			model;
-+	unsigned		pendown;
-+	int			irq;
-+	void			(*clear_penirq)(void);
-+	unsigned long		poll_period;	/* ms */
-+	u16			min_pressure;
-+	int			vref;		/* non-zero to leave vref on */
-+};
-+
-+static int tps6507x_read_u8(struct tps6507x_ts *tsc, u8 reg, u8 *data)
-+{
-+	int err;
-+
-+	err = tsc->mfd->read_dev(tsc->mfd, reg, 1, data);
-+
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
-+static int tps6507x_write_u8(struct tps6507x_ts *tsc, u8 reg, u8 data)
-+{
-+	return tsc->mfd->write_dev(tsc->mfd, reg, 1, &data);
-+}
-+
-+static s32 tps6507x_adc_conversion(struct tps6507x_ts *tsc,
-+				   u8 tsc_mode, u16 *value)
-+{
-+	s32 ret;
-+	u8 adc_status;
-+	u8 result;
-+
-+	/* Route input signal to A/D converter */
-+
-+	ret = tps6507x_write_u8(tsc, TPS6507X_REG_TSCMODE, tsc_mode);
-+	if (ret) {
-+		dev_err(tsc->dev, "TSC mode read failed\n");
-+		goto err;
-+	}
-+
-+	/* Start A/D conversion */
-+
-+	ret = tps6507x_write_u8(tsc, TPS6507X_REG_ADCONFIG,
-+				TPS6507X_ADCONFIG_CONVERT_TS);
-+	if (ret) {
-+		dev_err(tsc->dev, "ADC config write failed\n");
-+		return ret;
-+	}
-+
-+	do {
-+		ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADCONFIG,
-+				       &adc_status);
-+		if (ret) {
-+			dev_err(tsc->dev, "ADC config read failed\n");
-+			goto err;
-+		}
-+	} while (adc_status & TPS6507X_ADCONFIG_START_CONVERSION);
-+
-+	ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADRESULT_2, &result);
-+	if (ret) {
-+		dev_err(tsc->dev, "ADC result 2 read failed\n");
-+		goto err;
-+	}
-+
-+	*value = (result & TPS6507X_REG_ADRESULT_2_MASK) << 8;
-+
-+	ret = tps6507x_read_u8(tsc, TPS6507X_REG_ADRESULT_1, &result);
-+	if (ret) {
-+		dev_err(tsc->dev, "ADC result 1 read failed\n");
-+		goto err;
-+	}
-+
-+	*value |= result;
-+
-+	dev_dbg(tsc->dev, "TSC channel %d = 0x%X\n", tsc_mode, *value);
-+
-+err:
-+	return ret;
-+}
-+
-+/* Need to call tps6507x_adc_standby() after using A/D converter for the
-+ * touch screen interrupt to work properly.
-+ */
-+
-+static s32 tps6507x_adc_standby(struct tps6507x_ts *tsc)
-+{
-+	s32 ret;
-+	s32 loops = 0;
-+	u8 val;
-+
-+	ret = tps6507x_write_u8(tsc,  TPS6507X_REG_ADCONFIG,
-+				TPS6507X_ADCONFIG_INPUT_TSC);
-+	if (ret)
-+		return ret;
-+
-+	ret = tps6507x_write_u8(tsc, TPS6507X_REG_TSCMODE,
-+				TPS6507X_TSCMODE_STANDBY);
-+	if (ret)
-+		return ret;
-+
-+	ret = tps6507x_read_u8(tsc, TPS6507X_REG_INT, &val);
-+	if (ret)
-+		return ret;
-+
-+	while (val & TPS6507X_REG_TSC_INT) {
-+		mdelay(10);
-+		ret = tps6507x_read_u8(tsc, TPS6507X_REG_INT, &val);
-+		if (ret)
-+			return ret;
-+		loops++;
-+	}
-+
-+	return ret;
-+}
-+
-+static void tps6507x_ts_handler(struct work_struct *work)
-+{
-+	struct tps6507x_ts *tsc =  container_of(work,
-+				struct tps6507x_ts, work.work);
-+	struct input_dev *input_dev = tsc->input_dev;
-+	int pendown;
-+	int schd;
-+	int poll = 0;
-+	s32 ret;
-+
-+	ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_PRESSURE,
-+				       &tsc->tc.pressure);
-+	if (ret)
-+		goto done;
-+
-+	pendown = tsc->tc.pressure > tsc->min_pressure;
-+
-+	if (unlikely(!pendown && tsc->pendown)) {
-+		dev_dbg(tsc->dev, "UP\n");
-+		input_report_key(input_dev, BTN_TOUCH, 0);
-+		input_report_abs(input_dev, ABS_PRESSURE, 0);
-+		input_sync(input_dev);
-+		tsc->pendown = 0;
-+	}
-+
-+	if (pendown) {
-+
-+		if (!tsc->pendown) {
-+			dev_dbg(tsc->dev, "DOWN\n");
-+			input_report_key(input_dev, BTN_TOUCH, 1);
-+		} else
-+			dev_dbg(tsc->dev, "still down\n");
-+
-+		ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_X_POSITION,
-+					       &tsc->tc.x);
-+		if (ret)
-+			goto done;
-+
-+		ret =  tps6507x_adc_conversion(tsc, TPS6507X_TSCMODE_Y_POSITION,
-+					       &tsc->tc.y);
-+		if (ret)
-+			goto done;
-+
-+		input_report_abs(input_dev, ABS_X, tsc->tc.x);
-+		input_report_abs(input_dev, ABS_Y, tsc->tc.y);
-+		input_report_abs(input_dev, ABS_PRESSURE, tsc->tc.pressure);
-+		input_sync(input_dev);
-+		tsc->pendown = 1;
-+		poll = 1;
-+	}
-+
-+done:
-+	/* always poll if not using interrupts */
-+	poll = 1;
-+
-+	if (poll) {
-+		schd = queue_delayed_work(tsc->wq, &tsc->work,
-+					  tsc->poll_period * HZ / 1000);
-+		if (schd)
-+			tsc->polling = 1;
-+		else {
-+			tsc->polling = 0;
-+			dev_err(tsc->dev, "re-schedule failed");
-+		}
-+	} else
-+		tsc->polling = 0;
-+
-+	ret = tps6507x_adc_standby(tsc);
-+}
-+
-+static int tps6507x_ts_probe(struct platform_device *pdev)
-+{
-+	int error;
-+	struct tps6507x_ts *tsc;
-+	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
-+	struct touchscreen_init_data *init_data;
-+	struct input_dev *input_dev;
-+	struct tps6507x_board *tps_board;
-+	int schd;
-+
-+	/**
-+	 * tps_board points to pmic related constants
-+	 * coming from the board-evm file.
-+	 */
-+
-+	tps_board = (struct tps6507x_board *)tps6507x_dev->dev->platform_data;
-+
-+	if (!tps_board) {
-+		dev_err(tps6507x_dev->dev,
-+			"Could not find tps6507x platform data\n");
-+		return -EIO;
-+	}
-+
-+	/**
-+	 * init_data points to array of regulator_init structures
-+	 * coming from the board-evm file.
-+	 */
-+
-+	init_data = tps_board->tps6507x_ts_init_data;
-+
-+	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
-+	if (!tsc) {
-+		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
-+		error = -ENOMEM;
-+		goto err0;
-+	}
-+
-+	tps6507x_dev->ts = tsc;
-+	tsc->mfd = tps6507x_dev;
-+	tsc->dev = tps6507x_dev->dev;
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		dev_err(tsc->dev, "Failed to allocate input device.\n");
-+		error = -ENOMEM;
-+		goto err1;
-+	}
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+
-+	input_set_abs_params(input_dev, ABS_X, 0, MAX_10BIT, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, MAX_10BIT, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_10BIT, 0, 0);
-+
-+	input_dev->name = "TPS6507x Touchscreen";
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = tsc->dev;
-+
-+	snprintf(tsc->phys, sizeof(tsc->phys),
-+		 "%s/input0", dev_name(tsc->dev));
-+	input_dev->phys = tsc->phys;
-+
-+	dev_dbg(tsc->dev, "device: %s\n", input_dev->phys);
-+
-+	input_set_drvdata(input_dev, tsc);
-+
-+	tsc->input_dev = input_dev;
-+
-+	INIT_DELAYED_WORK(&tsc->work, tps6507x_ts_handler);
-+	tsc->wq = create_workqueue("TPS6507x Touchscreen");
-+
-+	if (init_data) {
-+		tsc->poll_period = init_data->poll_period;
-+		tsc->vref = init_data->vref;
-+		tsc->min_pressure = init_data->min_pressure;
-+		input_dev->id.vendor = init_data->vendor;
-+		input_dev->id.product = init_data->product;
-+		input_dev->id.version = init_data->version;
-+	} else {
-+		tsc->poll_period = TSC_DEFAULT_POLL_PERIOD;
-+		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
-+	}
-+
-+	error = tps6507x_adc_standby(tsc);
-+	if (error)
-+		goto err2;
-+
-+	error = input_register_device(input_dev);
-+	if (error)
-+		goto err2;
-+
-+	schd = queue_delayed_work(tsc->wq, &tsc->work,
-+				  tsc->poll_period * HZ / 1000);
-+
-+	if (schd)
-+		tsc->polling = 1;
-+	else {
-+		tsc->polling = 0;
-+		dev_err(tsc->dev, "schedule failed");
-+		goto err2;
-+	 }
-+
-+	return 0;
-+
-+err2:
-+	cancel_delayed_work(&tsc->work);
-+	flush_workqueue(tsc->wq);
-+	destroy_workqueue(tsc->wq);
-+	tsc->wq = 0;
-+	input_free_device(input_dev);
-+err1:
-+	kfree(tsc);
-+	tps6507x_dev->ts = NULL;
-+err0:
-+	return error;
-+}
-+
-+static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
-+{
-+	struct tps6507x_dev *tps6507x_dev = platform_get_drvdata(pdev);
-+	struct tps6507x_ts *tsc = tps6507x_dev->ts;
-+	struct input_dev *input_dev = tsc->input_dev;
-+
-+	if (!tsc)
-+		return 0;
-+
-+	cancel_delayed_work(&tsc->work);
-+	flush_workqueue(tsc->wq);
-+	destroy_workqueue(tsc->wq);
-+	tsc->wq = 0;
-+
-+	input_free_device(input_dev);
-+
-+	tps6507x_dev->ts = NULL;
-+	kfree(tsc);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver tps6507x_ts_driver = {
-+	.driver = {
-+		.name = "tps6507x-ts",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = tps6507x_ts_probe,
-+	.remove = __devexit_p(tps6507x_ts_remove),
-+};
-+
-+static int __init tps6507x_ts_init(void)
-+{
-+	return platform_driver_register(&tps6507x_ts_driver);
-+}
-+module_init(tps6507x_ts_init);
-+
-+static void __exit tps6507x_ts_exit(void)
-+{
-+	platform_driver_unregister(&tps6507x_ts_driver);
-+}
-+module_exit(tps6507x_ts_exit);
-+
-+MODULE_AUTHOR("Todd Fischer <todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org>");
-+MODULE_DESCRIPTION("TPS6507x - TouchScreen driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:tps6507x-tsc");
-diff --git a/drivers/mfd/tps6507x.c b/drivers/mfd/tps6507x.c
-index edda9ff..d05c52d 100644
---- a/drivers/mfd/tps6507x.c
-+++ b/drivers/mfd/tps6507x.c
-@@ -25,6 +25,9 @@ static struct mfd_cell tps6507x_devs[] = {
- 	{
- 		.name = "tps6507x-pmic",
- 	},
-+	{
-+		.name = "tps6507x-ts",
-+	},
- };
- 
- 
-diff --git a/include/linux/input/tps6507x-ts.h b/include/linux/input/tps6507x-ts.h
-new file mode 100644
-index 0000000..ab14403
---- /dev/null
-+++ b/include/linux/input/tps6507x-ts.h
-@@ -0,0 +1,24 @@
-+/* linux/i2c/tps6507x-ts.h
-+ *
-+ * Functions to access TPS65070 touch screen chip.
-+ *
-+ * Copyright (c) 2009 RidgeRun (todd.fischer-9uBrGCPFOa1Wk0Htik3J/w@public.gmane.org)
-+ *
-+ *
-+ *  For licencing details see kernel-base/COPYING
-+ */
-+
-+#ifndef __LINUX_I2C_TPS6507X_TS_H
-+#define __LINUX_I2C_TPS6507X_TS_H
-+
-+/* Board specific touch screen initial values */
-+struct touchscreen_init_data {
-+	int	poll_period;	/* ms */
-+	int	vref;		/* non-zero to leave vref on */
-+	__u16	min_pressure;	/* min reading to be treated as a touch */
-+	__u16	vendor;
-+	__u16	product;
-+	__u16	version;
-+};
-+
-+#endif /*  __LINUX_I2C_TPS6507X_TS_H */
-diff --git a/include/linux/mfd/tps6507x.h b/include/linux/mfd/tps6507x.h
-index 9543cb7..c923e48 100644
---- a/include/linux/mfd/tps6507x.h
-+++ b/include/linux/mfd/tps6507x.h
-@@ -142,6 +142,7 @@
- 
- struct tps6507x_board {
- 	struct regulator_init_data *tps6507x_pmic_init_data;
-+	struct touchscreen_init_data *tps6507x_ts_init_data;
- };
- 
- /**
-@@ -162,6 +163,7 @@ struct tps6507x_dev {
- 
- 	/* Client devices */
- 	struct tps6507x_pmic *pmic;
-+	struct tps6507x_ts *ts;
- };
- 
- #endif /*  __LINUX_MFD_TPS6507X_H */
--- 
-1.6.0.4
+> > I don't know if a driver or end user can set the expectaion of a remote
+> > control's NEC address in your recent design (or if the intent was to not
+> > require it and use discovery).
+> 
+> Well, bet to let it as-is. If later needed, it would be easy to add a sysfs
+> node parameter to control it.
+
+OK.
+
+Regards,
+Andy
+

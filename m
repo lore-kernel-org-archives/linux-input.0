@@ -1,63 +1,63 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Sun, 4 Apr 2010 15:27:34 +0200
-Message-ID: <20100404132734.GB1346@ucw.cz>
-References: <20100317061952.GA19789@core.coreip.homeip.net> <20100319000043.GC12017@khazad-dum.debian.net> <20100319000931.GA5671@core.coreip.homeip.net> <20100319160641.GC16743@khazad-dum.debian.net> <20100319180314.GB12143@core.coreip.homeip.net> <20100320025329.GA2468@khazad-dum.debian.net> <20100322045910.GE31621@core.coreip.homeip.net> <20100401133454.GA1291@ucw.cz> <20100401154212.GA7900@core.coreip.homeip.net>
+From: Alexander Lam <lambchop468@gmail.com>
+Subject: Bug: Short reset of ps/2 mouse causes Synaptics touchpad misdetection
+Date: Sun, 4 Apr 2010 11:58:06 -0400
+Message-ID: <s2ydfb03c971004040858p6872d1f4p3fc0f8dac1fbd2e6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:50041 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753255Ab0DDN1r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 4 Apr 2010 09:27:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20100401154212.GA7900@core.coreip.homeip.net>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:43384 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754563Ab0DDP61 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Apr 2010 11:58:27 -0400
+Received: by gwb19 with SMTP id 19so844778gwb.19
+        for <linux-input@vger.kernel.org>; Sun, 04 Apr 2010 08:58:26 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
+To: linux-input@vger.kernel.org
 
-Hi!
+Hi,
 
-> > If userspace disables sysrq during normal operation, that makes it
-> > useless.
-> > 
-> > If normal user could do that, that's a security problem.
-> > 
-> 
-> Yes, and...? This patch does not change the way one enables, disables,
-> intercepts, etc. SysRq and SAK compared to how it was handled when SysRq
-> was part of keyboard _input handler_. The only thisng this patch does is
-> moving the code into a _separate_ input handler.
+Please CC: me when replying
 
-Yep, that was just a note.
+I have filed a bug on the kernel bug tracker, #15636,
+https://bugzilla.kernel.org/show_bug.cgi?id=15636.
 
-> > > The problem is that device does not know what SysRq and especially SAK are.
-> > > User can reassign key codes and key symbols easily.
-> > 
-> > That was not case in original implementation; it had hardcoded keymap.
-> 
-> The earth was also flat back then and the only keyboard was AT one. SAK
-> was always part of keymap so could be reassinged at any time.
+Description:
+The commit
+     commit 4a299bf591bc5bef3bde8316e603b9eaec5a7696
+     author:    Dmitry Torokhov <dmitry.torokhov@gmail.com>
+     date:    Fri, 25 Dec 2009 05:40:24 +0000 (21:40 -0800)
+     Input: speed up suspend/shutdown for PS/2 mice and keyboards
 
-Well, there are two SAKs.
+     Instead of doing full-blown reset while suspending or shutting down
+     the box use lighter form of reset that should take less time.
 
-One SAK -- in keymap, is remappable and always was.
+(I didn't do a full bisection, but I reversed this just this commit on a hunch,
+and it made my problems go away)
 
-Second, sysrq-saK -- is (was?) hardcoded and not affected by
-keymap. Please don't change that.
+Causes ~50% misdetection rate of the Synaptics touchpad upon reboot on an Acer
+Aspire One AOA150.
 
-> > > I don't think we had any issues like this since 2.5 so I would not worry
-> > > about userspace too much. If anything we just need to review what stuff
-> > > we run as root (we do that anyway, right?).
-> > 
-> > Hehe. If X can break sysrq, that's both X and sysrq problem.
-> 
-> Root can disable Sysrq... News at 11.
+Sometimes, the touchpad is detected as a plain mouse, and sometimes it is
+detected as a Synaptics device.
 
-Root *does* disable sysrq is indeed news ... and problem.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Relevant dmesg sections:
+Good Boot:
+Mar  6 12:29:30 lamtop kernel: [    3.201052] Synaptics Touchpad, model: 1, fw:
+7.2, id: 0x1c0b1, caps: 0xd04771/0xa40000
+Mar  6 12:29:30 lamtop kernel: [    3.263016] input: SynPS/2 Synaptics TouchPad
+as /devices/platform/i8042/serio2/input/input6
+
+
+Bad Boot:
+Feb 12 08:16:12 lamtop kernel: [    4.060365] input: PS/2 Generic Mouse as
+/devices/platform/i8042/serio2/input/input6
+
+
+I am posting this to the list because there hasn't been any movement on this
+bug since last week when it was filed. It also appears that the server
+hosting the mailing list that the kernel input bugs are assigned to is down
+(no ping, no nmap results to email ports)
+
+--
+Alexander Lam

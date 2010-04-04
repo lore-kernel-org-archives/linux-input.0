@@ -1,134 +1,63 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 04/15] V4L/DVB: ir-core: Add logic to decode IR
- protocols at the IR core
-Date: Sun, 04 Apr 2010 08:35:51 -0400
-Message-ID: <1270384551.4979.47.camel@palomino.walls.org>
-References: <cover.1270142346.git.mchehab@redhat.com>
-	 <20100401145632.7b1b98d5@pedra>
-	 <1270251567.3027.55.camel@palomino.walls.org> <4BB69A95.5000705@redhat.com>
-	 <1270314992.9169.40.camel@palomino.walls.org>  <4BB7C795.20506@redhat.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC] Input: implement sysrq as an input handler
+Date: Sun, 4 Apr 2010 15:27:34 +0200
+Message-ID: <20100404132734.GB1346@ucw.cz>
+References: <20100317061952.GA19789@core.coreip.homeip.net> <20100319000043.GC12017@khazad-dum.debian.net> <20100319000931.GA5671@core.coreip.homeip.net> <20100319160641.GC16743@khazad-dum.debian.net> <20100319180314.GB12143@core.coreip.homeip.net> <20100320025329.GA2468@khazad-dum.debian.net> <20100322045910.GE31621@core.coreip.homeip.net> <20100401133454.GA1291@ucw.cz> <20100401154212.GA7900@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:58164 "EHLO
-	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754049Ab0DDMfh (ORCPT
+Received: from ksp.mff.cuni.cz ([195.113.26.206]:50041 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753255Ab0DDN1r (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 4 Apr 2010 08:35:37 -0400
-In-Reply-To: <4BB7C795.20506@redhat.com>
+	Sun, 4 Apr 2010 09:27:47 -0400
+Content-Disposition: inline
+In-Reply-To: <20100401154212.GA7900@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
 
-On Sat, 2010-04-03 at 19:56 -0300, Mauro Carvalho Chehab wrote:
-> Andy Walls wrote:
-> > On Fri, 2010-04-02 at 22:32 -0300, Mauro Carvalho Chehab wrote:
-> >> Andy Walls wrote:
-> >  
-> >>> I haven't taken a very hard look at this since I'm very busy this month.
-> >>>
-> >>> It looks OK so far. 
-> >> Thank you for your review. 
-> >>
-> >> One general comment: my main target of writing the NEC decoder is to have one
-> >> decoder for testing. I know that there are several other implementations, so I 
-> >> didn't try to write a perfect decoder, but, instead, I wrote a code that 
-> >> works, and that allows me to continue the Remote Controller subsystem design.
+Hi!
+
+> > If userspace disables sysrq during normal operation, that makes it
+> > useless.
 > > 
-> > Understood.
-> 
-> Btw, I just finish rewriting the nec decoder:
-> 
-> http://git.linuxtv.org/mchehab/ir.git?a=blob;f=drivers/media/IR/ir-nec-decoder.c;h=33b260f517f509efd9c55067eb89c8cd748ed12c;hb=09b1808271b3d705b839ee3239fd1c85b7289f41
-> 
-> I've got your constants and a few of your ideas, but the code is different:
-> instead of getting a pulse/mark pair, the code handles event by event. Also,
-> it is controlled by a state machine.
-> 
-> The end result is that the code seems very reliable. It also handles both NEC
-> and NEC extended.
-
-Looks good.
-
-On intervals that are supposed to be longer than 1 NEC_UNIT, the
-tolerance of NEC_UNIT / 2 is a little unforgiving.  However, if this
-decoder is called not knowing apriori that the protocol is NEC, it is
-probably the right thing to do.
-
-
-And when you have time:
-
-I think all that is missing is a glitch (low pass) filter to discard
-pulses much shorter than 1 NEC_UNIT.  A way to generate random IR
-glitches is with bright sunlight reflecting off of a basin of water
-that's surface is being disturbed to make waves.  
-
-LIRC has a software glitch filter implementation in 
-
-	lirc-0.8.5/drivers/lirc_serial/lirc_serial.c:frbwrite()
-
-but it's not the simplest code to understand and it keeps its state in
-static variables in the function.
-
-(My kernel NEC decoder implementation didn't have a software glitch
-filter, because there was a filter provided by the hardware.  For NEC, I
-decided to discard any pulse less than 5/8 * NEC_UNIT.  For RC-5, I set
-it to discard pulses less than 3/4 of a pulse time.)
-
-
-Since a glitch filter is probably going to be needed by a number of
-drivers and since the minimum acceptable pulse depends slightly on the
-protocol, it probably makes sense for
-
-1. A driver to indicate if its raw events need glitch filtering
-
-2. A common glitch filtering library function that can be used by all
-decoders, and that also can accept a decoder specified minimum
-acceptable pulse width.
-
-
-> > Is it the case that some drivers will only be able to perform leading
-> > edge detection (measuring time between marks) or trailing edge detection
-> > (measuring time between spaces)?
-> 
-> In the specific case of saa7134, the IRQ can be enabled for a positive and/or
-> for a negative edge.
-> 
-> I'm not sure about the other IRQ driven hardware. On cx88, there's no IRQ code
-> for IR - maybe it is not supported. I haven't check yet how IRQ's work on bttv.
-> I've no idea about the other devices that support raw IR decoding.
-
-I can look into what the cx88 and bttv chips can do.  How the boards are
-wired up is a different issue.
-
-
-
-> >> I found one NEC IR here that uses the extended protocol. The issue I have here is that
-> >> maybe it could be interesting to allow enable or disable a more pedantic check.
-> >> At least on the room I'm working, I have two strong fluorescent lamps that interfere
-> >> on the IR sensor of the saa7134 board. I'll probably add a sysfs node to allow enable/
-> >> disable the strict check for non-extended protocol.
+> > If normal user could do that, that's a security problem.
 > > 
-> > Would that make the setting global or would it be on a per remote
-> > control basis?
 > 
-> The protocol sysfs nodes are per device. Yet, for now, I haven't created
-> such node.
+> Yes, and...? This patch does not change the way one enables, disables,
+> intercepts, etc. SysRq and SAK compared to how it was handled when SysRq
+> was part of keyboard _input handler_. The only thisng this patch does is
+> moving the code into a _separate_ input handler.
 
-Per device means per IR receiver device?
+Yep, that was just a note.
 
- 
-> > I don't know if a driver or end user can set the expectaion of a remote
-> > control's NEC address in your recent design (or if the intent was to not
-> > require it and use discovery).
+> > > The problem is that device does not know what SysRq and especially SAK are.
+> > > User can reassign key codes and key symbols easily.
+> > 
+> > That was not case in original implementation; it had hardcoded keymap.
 > 
-> Well, bet to let it as-is. If later needed, it would be easy to add a sysfs
-> node parameter to control it.
+> The earth was also flat back then and the only keyboard was AT one. SAK
+> was always part of keymap so could be reassinged at any time.
 
-OK.
+Well, there are two SAKs.
 
-Regards,
-Andy
+One SAK -- in keymap, is remappable and always was.
 
+Second, sysrq-saK -- is (was?) hardcoded and not affected by
+keymap. Please don't change that.
+
+> > > I don't think we had any issues like this since 2.5 so I would not worry
+> > > about userspace too much. If anything we just need to review what stuff
+> > > we run as root (we do that anyway, right?).
+> > 
+> > Hehe. If X can break sysrq, that's both X and sysrq problem.
+> 
+> Root can disable Sysrq... News at 11.
+
+Root *does* disable sysrq is indeed news ... and problem.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

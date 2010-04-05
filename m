@@ -1,31 +1,34 @@
-From: Christopher Heiny <cheiny@synaptics.com>
-Subject: Re: [RFC PATCH 1/1] input/touchscreen: Synaptics Touchscreen Driver
-Date: Mon, 5 Apr 2010 16:04:05 -0700
-Message-ID: <4BBA6C65.1010300@synaptics.com>
-References: <1269310058-10894-1-git-send-email-cheiny@synaptics.com>	<1269310058-10894-2-git-send-email-cheiny@synaptics.com> <20100402145025.0265a074@hyperion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Todd Fischer <todd.fischer@ridgerun.com>
+Subject: [PATCH 0/2]-V2 Add touch screen input driver for TPS6507x family of multi-function chips.
+Date: Mon,  5 Apr 2010 17:53:11 -0600
+Message-ID: <1270511593-4785-1-git-send-email-todd.fischer@ridgerun.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx4.synaptics.com ([12.178.49.178]:60520 "EHLO
-	us-mx4.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756816Ab0DEXEJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Apr 2010 19:04:09 -0400
-In-Reply-To: <20100402145025.0265a074@hyperion.delvare>
+Received: from fischerfamily.org ([71.216.156.246]:24915 "EHLO gw"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1757013Ab0DEXwU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Apr 2010 19:52:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <WManson@synaptics.com>
+To: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, sameo@linux.intel.com, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com, todd.fischer@ridgerun.com
 
-On 04/02/2010 05:50 AM, Jean Delvare wrote:
-> Sorry for the delay. Here finally come my comments on your code. I'm
-> only commenting on the i2c side of things.
 
-Hi Jean,
+This is the second posting of the TPS6507x touch screen driver. I have
+incorporated Kevin Hilman's request to split the board specific changes
+into a separate patch.
 
-Thanks for the input!  It's quite helpful and clears up some things we 
-were a bit puzzled about.  We'll fold most of your suggestions into the 
-next patch.  Answers to some questions you raised will be coming shortly.
+The TPS6507x family of Texas Instruments power management ICs (pmic)
+are multi-function chips that include voltage regulation and touch
+screen controller capabilities.  This patch adds a touch screen
+input driver for the TPS6507x pmic.  There was an existing regulator
+driver.  Before the touch screen driver can be added, a multi-function
+device (MFD) driver was needed and the regulator driver modified to
+use the MDF driver.  Patches for these changes have been posted and
+reviewed.  The TPS6507x touch screen driver applies cleanly to the
+MFD GIT repo after the above referenced patches are applied.  If I
+should use a different approach, please let me know.
 
-				Thanks again,
-					Chris
+The TPS6507x pmic supports interrupting on touch detection.
+Unfortuntaly, the hardware used for driver development didn't have
+the interrupt signal properly connected.  When TPS6507x pmic interrupt
+capable hardware is in hand, another patch will be posted adding
+interrupt support.

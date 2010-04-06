@@ -1,67 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.34-rc3
-Date: Mon, 5 Apr 2010 23:30:52 -0700
-Message-ID: <20100406063051.GB1895@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
+Date: Tue, 6 Apr 2010 10:40:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz>
+References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org> <20100405220414.9d90da83.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f172.google.com ([209.85.211.172]:35578 "EHLO
-	mail-yw0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750976Ab0DFGa5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Apr 2010 02:30:57 -0400
-Content-Disposition: inline
+Received: from cantor.suse.de ([195.135.220.2]:43506 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751157Ab0DFIkJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Apr 2010 04:40:09 -0400
+In-Reply-To: <20100405220414.9d90da83.randy.dunlap@oracle.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Chase Douglas (1):
-      Input: ALPS - add signature for HP Pavilion dm3 laptops
-
-Dmitry Torokhov (1):
-      Input: sparse-keymap - implement safer freeing of the keymap
-
-Dominik Brodowski (1):
-      Input: i8042 - spelling fix
-
-H Hartley Sweeten (1):
-      Input: matrix_keypad - allow platform to disable key autorepeat
-
-Henrik Rydberg (3):
-      Input: bcm5974 - retract efi-broken suspend_resume
-      Input: clarify the no-finger event in multitouch protocol
-      Input: update the status of the Multitouch X driver project
-
-Yong Wang (1):
-      Input: sparse-keymap - free the right keymap on error
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu, =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
 
 
-Diffstat:
---------
+[ adding Bruno to CC ]
 
- Documentation/input/multi-touch-protocol.txt |   23 ++++++++---
- drivers/input/input.c                        |    9 ++++-
- drivers/input/keyboard/matrix_keypad.c       |    4 +-
- drivers/input/mouse/alps.c                   |    1 +
- drivers/input/mouse/bcm5974.c                |    1 -
- drivers/input/serio/i8042.c                  |    2 +-
- drivers/input/sparse-keymap.c                |   52 ++++++++++++++++---------
- include/linux/input/matrix_keypad.h          |    2 +
- 8 files changed, 65 insertions(+), 29 deletions(-)
+On Mon, 5 Apr 2010, Randy Dunlap wrote:
+
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> HID_PICOLCD should depend on LCD_CLASS_DEVICE, otherwise the
+> build fails when HID_PICOLCD=y and LCD_CLASS_DEVICE=m:
+> 
+> hid-picolcd.c:(.text+0x84523f): undefined reference to `lcd_device_unregister'
+> hid-picolcd.c:(.text+0x8478ab): undefined reference to `lcd_device_register'
+> hid-picolcd.c:(.text+0x84c15f): undefined reference to `lcd_device_unregister'
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  drivers/hid/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- mmotm-2010-0405-1609.orig/drivers/hid/Kconfig
+> +++ mmotm-2010-0405-1609/drivers/hid/Kconfig
+> @@ -265,6 +265,7 @@ config HID_PETALYNX
+>  config HID_PICOLCD
+>  	tristate "PicoLCD (graphic version)"
+>  	depends on USB_HID
+> +	depends on LCD_CLASS_DEVICE
+>  	select FB_DEFERRED_IO if FB
+>  	select FB_SYS_FILLRECT if FB
+>  	select FB_SYS_COPYAREA if FB
+
+Thanks Randy. We'll have to take care of the other dependencies as well 
+though (CONFIG_LCD_CLASS_DEVICE, CONFIG_LEDS_CLASS).
 
 -- 
-Dmitry
-
+Jiri Kosina
+SUSE Labs, Novell Inc.

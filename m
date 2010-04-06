@@ -1,66 +1,261 @@
-From: chatty@lii-enac.fr (Stephane Chatty)
-Subject: [PATCH] Fix for N-trig touch panel with recent firmware
-Date: Tue, 06 Apr 2010 22:22:58 +0200
-Message-ID: <20100406202258.837F19520E@smtp.lii-enac.fr>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
+Date: Tue, 6 Apr 2010 23:04:34 +0200
+Message-ID: <20100406230434.1336c317@neptune.home>
+References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org>
+	<20100405220414.9d90da83.randy.dunlap@oracle.com>
+	<alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz>
+	<20100406105635.5384a087@pluto.restena.lu>
+	<20100406082614.79aaf1c5.randy.dunlap@oracle.com>
+	<20100406183535.7de3c628@neptune.home>
+	<20100406095633.49ec957a.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:49928 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756245Ab0DFUcz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Apr 2010 16:32:55 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:52051 "EHLO
+	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756468Ab0DFVEl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Apr 2010 17:04:41 -0400
+In-Reply-To: <20100406095633.49ec957a.randy.dunlap@oracle.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz
-Cc: micki@n-trig.com, rafi@seas.upenn.edu, dmitry.torokhov@gmail.com, chatty@enac.fr
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu
 
-Added an init message that avoids device freeze with recent firmware.
+On Tue, 06 April 2010 Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> > It triggers the issue by having PicoLCD built-in while one of the
+> > optional dependencies as a module.
+>=20
+> Yes, basically what the patch description said.
 
-Signed-off-by: Stephane Chatty <chatty@enac.fr>
-Tested-by: Rafi Rubin <rafi@seas.upenn.edu>
+Oops, sorry I didn't completely read the patch description.
 
-diff -rupN a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
---- a/drivers/hid/hid-ntrig.c	2010-03-20 02:17:57.000000000 +0100
-+++ b/drivers/hid/hid-ntrig.c	2010-04-02 01:06:11.000000000 +0200
-@@ -1,8 +1,8 @@
+> > Any idea of how this can be solved with kbuild in order to keep the
+> > dependencies optional?
+> >=20
+> > Something that would satisfy the following pseudocode:
+> >   if CONFIG_HID_PICOLCD =3D=3D y
+> >     assert(CONFIG_LCD_CLASS_DEVICE !=3D m)
+> >=20
+>=20
+> If you don't want the kconfig machinery to do that (it appears that y=
+ou don't),
+> then I guess that you'll need to expand the source code to handle
+> CONFIG_LCD_CLASS_DEVICE=3Dy and CONFIG_LCD_CLASS_DEVICE=3Dm different=
+ly.
+> Or only handle them differently if HID_PICOLCD=3Dy.  :(
+
+Below a patch (against 2.6.34-rc3 + Jiri's picolcd branch) which
+should fix above issue keeping the deps optional.
+
+With it it's not yet possible to select the deps from HID menu.
+
+I did a few oldconfig and compile-tests with PICOLCD=3Dy/m and same for
+the deps (not switched FB for those tests).
+
+Bruno
+
+
+
+
+
+HID_PICOLCD should depend on LCD_CLASS_DEVICE, otherwise the
+build fails when HID_PICOLCD=3Dy and LCD_CLASS_DEVICE=3Dm:
+
+hid-picolcd.c:(.text+0x84523f): undefined reference to `lcd_device_unre=
+gister'
+hid-picolcd.c:(.text+0x8478ab): undefined reference to `lcd_device_regi=
+ster'
+hid-picolcd.c:(.text+0x84c15f): undefined reference to `lcd_device_unre=
+gister'
+
+Reported-by: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index a2ecd83..39df4f5 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -285,6 +285,35 @@ config HID_PICOLCD
+ 	  Features that are not (yet) supported:
+ 	  - IR
+=20
++config HID_PICOLCD_FB
++	bool "Framebuffer support"
++	default !EMBEDDED
++	depends on HID_PICOLCD
++	depends on HID_PICOLCD=3DFB || FB=3Dy
++	select FB_DEFERRED_IO
++	select FB_SYS_FILLRECT
++	select FB_SYS_COPYAREA
++	select FB_SYS_IMAGEBLIT
++	select FB_SYS_FOPS
++
++config HID_PICOLCD_BACKLIGHT
++	bool "Backlight control"
++	default !EMBEDDED
++	depends on HID_PICOLCD
++	depends on HID_PICOLCD=3DBACKLIGHT_CLASS_DEVICE || BACKLIGHT_CLASS_DE=
+VICE=3Dy
++
++config HID_PICOLCD_LCD
++	bool "Contrast control"
++	default !EMBEDDED
++	depends on HID_PICOLCD
++	depends on HID_PICOLCD=3DLCD_CLASS_DEVICE || LCD_CLASS_DEVICE=3Dy
++
++config HID_PICOLCD_LEDS
++	bool "GPO via leds class"
++	default !EMBEDDED
++	depends on HID_PICOLCD
++	depends on HID_PICOLCD=3DLEDS_CLASS || LEDS_CLASS=3Dy
++
+ config HID_QUANTA
+ 	tristate "Quanta Optical Touch"
+ 	depends on USB_HID
+diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
+index 0eacc6b..0fbc7d3 100644
+--- a/drivers/hid/hid-picolcd.c
++++ b/drivers/hid/hid-picolcd.c
+@@ -77,7 +77,7 @@
+ #define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
+ #define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
+: OUT[2]         */
+=20
+-#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++#ifdef CONFIG_HID_PICOLCD_FB
+ /* Framebuffer
+  *
+  * The PicoLCD use a Topway LCD module of 256x64 pixel
+@@ -128,7 +128,7 @@ static const struct fb_var_screeninfo picolcdfb_var=
+ =3D {
+ 	.bits_per_pixel =3D 1,
+ 	.grayscale      =3D 1,
+ };
+-#endif /* CONFIG_FB */
++#endif /* CONFIG_HID_PICOLCD_FB */
+=20
+ /* Input device
+  *
+@@ -183,7 +183,7 @@ struct picolcd_data {
+ 	struct input_dev *input_cir;
+ 	unsigned short keycode[PICOLCD_KEYS];
+=20
+-#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++#ifdef CONFIG_HID_PICOLCD_FB
+ 	/* Framebuffer stuff */
+ 	u8 fb_update_rate;
+ 	u8 fb_bpp;
+@@ -191,21 +191,21 @@ struct picolcd_data {
+ 	u8 *fb_bitmap;		/* framebuffer */
+ 	struct fb_info *fb_info;
+ 	struct fb_deferred_io fb_defio;
+-#endif /* CONFIG_FB */
+-#if defined(CONFIG_LCD_CLASS_DEVICE) || defined(CONFIG_LCD_CLASS_DEVIC=
+E_MODULE)
++#endif /* CONFIG_HID_PICOLCD_FB */
++#ifdef CONFIG_HID_PICOLCD_LCD
+ 	struct lcd_device *lcd;
+ 	u8 lcd_contrast;
+-#endif
+-#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
+_CLASS_DEVICE_MODULE)
++#endif /* CONFIG_HID_PICOLCD_LCD */
++#ifdef CONFIG_HID_PICOLCD_BACKLIGHT
+ 	struct backlight_device *backlight;
+ 	u8 lcd_brightness;
+ 	u8 lcd_power;
+-#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
+-#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
++#endif /* CONFIG_HID_PICOLCD_BACKLIGHT */
++#ifdef CONFIG_HID_PICOLCD_LEDS
+ 	/* LED stuff */
+ 	u8 led_state;
+ 	struct led_classdev *led[8];
+-#endif /* CONFIG_LEDS_CLASS */
++#endif /* CONFIG_HID_PICOLCD_LEDS */
+=20
+ 	/* Housekeeping stuff */
+ 	spinlock_t lock;
+@@ -287,7 +287,7 @@ static struct picolcd_pending *picolcd_send_and_wai=
+t(struct hid_device *hdev,
+ 	return work;
+ }
+=20
+-#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++#ifdef CONFIG_HID_PICOLCD_FB
+ /* Send a given tile to PicoLCD */
+ static int picolcd_fb_send_tile(struct hid_device *hdev, int chip, int=
+ tile)
+ {
+@@ -766,9 +766,9 @@ static void picolcd_exit_framebuffer(struct picolcd=
+_data *data)
+ {
+ }
+ #define picolcd_fbinfo(d) NULL
+-#endif /* CONFIG_FB */
++#endif /* CONFIG_HID_PICOLCD_FB */
+=20
+-#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
+_CLASS_DEVICE_MODULE)
++#ifdef CONFIG_HID_PICOLCD_BACKLIGHT
  /*
-  *  HID driver for N-Trig touchscreens
-  *
-- *  Copyright (c) 2008 Rafi Rubin
-- *  Copyright (c) 2009 Stephane Chatty
-+ *  Copyright (c) 2008-2010 Rafi Rubin
-+ *  Copyright (c) 2009-2010 Stephane Chatty
-  *
+  * backlight class device
   */
- 
-@@ -16,6 +16,8 @@
- #include <linux/device.h>
- #include <linux/hid.h>
- #include <linux/module.h>
-+#include <linux/usb.h>
-+#include "usbhid/usbhid.h"
- 
- #include "hid-ids.h"
- 
-@@ -285,6 +287,7 @@ static int ntrig_probe(struct hid_device
- 	struct ntrig_data *nd;
- 	struct hid_input *hidinput;
- 	struct input_dev *input;
-+	struct hid_report *report;
- 
- 	if (id->driver_data)
- 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-@@ -348,6 +351,11 @@ static int ntrig_probe(struct hid_device
- 		}
- 	}
- 
-+	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0x0a]; 
-+	if (report)
-+		usbhid_submit_report(hdev, report, USB_DIR_OUT);
-+
-+
+@@ -864,9 +864,9 @@ static inline int picolcd_resume_backlight(struct p=
+icolcd_data *data)
+ {
  	return 0;
- err_free:
- 	kfree(nd);
-
+ }
+-#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
++#endif /* CONFIG_HID_PICOLCD_BACKLIGHT */
+=20
+-#if defined(CONFIG_LCD_CLASS_DEVICE) || defined(CONFIG_LCD_CLASS_DEVIC=
+E_MODULE)
++#ifdef CONFIG_HID_PICOLCD_LCD
+ /*
+  * lcd class device
+  */
+@@ -957,9 +957,9 @@ static inline int picolcd_resume_lcd(struct picolcd=
+_data *data)
+ {
+ 	return 0;
+ }
+-#endif /* CONFIG_LCD_CLASS_DEVICE */
++#endif /* CONFIG_HID_PICOLCD_LCD */
+=20
+-#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
++#ifdef CONFIG_HID_PICOLCD_LEDS
+ /**
+  * LED class device
+  */
+@@ -1104,7 +1104,7 @@ static inline int picolcd_leds_set(struct picolcd=
+_data *data)
+ {
+ 	return 0;
+ }
+-#endif /* CONFIG_LEDS_CLASS */
++#endif /* CONFIG_HID_PICOLCD_LEDS */
+=20
+ /*
+  * input class device
+@@ -1243,10 +1243,10 @@ static int picolcd_reset(struct hid_device *hde=
+v)
+=20
+ 	picolcd_resume_lcd(data);
+ 	picolcd_resume_backlight(data);
+-#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
++#ifdef CONFIG_HID_PICOLCD_FB
+ 	if (data->fb_info)
+ 		schedule_delayed_work(&data->fb_info->deferred_work, 0);
+-#endif /* CONFIG_FB */
++#endif /* CONFIG_HID_PICOLCD_FB */
+=20
+ 	picolcd_leds_set(data);
+ 	return 0;
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

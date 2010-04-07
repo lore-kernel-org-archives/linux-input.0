@@ -1,45 +1,53 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Fix for N-trig touch panel with recent firmware
-Date: Tue, 6 Apr 2010 23:12:59 +0200
-Message-ID: <01FA5ACC-E06A-4F52-ACFC-53843EC4D7BE@enac.fr>
-References: <20100406202258.837F19520E@smtp.lii-enac.fr> <alpine.LNX.2.00.1004062302310.8345@pobox.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 0/2]-V2 Add touch screen input driver for TPS6507x
+ family of multi-function chips.
+Date: Wed, 7 Apr 2010 10:46:45 +0200
+Message-ID: <20100407084644.GB2962@sortiz.org>
+References: <1270511593-4785-1-git-send-email-todd.fischer@ridgerun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:36926 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756824Ab0DFVNN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Apr 2010 17:13:13 -0400
-In-Reply-To: <alpine.LNX.2.00.1004062302310.8345@pobox.suse.cz>
+Received: from mga12.intel.com ([143.182.124.36]:27157 "EHLO
+	azsmga102.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753057Ab0DGIqK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 04:46:10 -0400
+Content-Disposition: inline
+In-Reply-To: <1270511593-4785-1-git-send-email-todd.fischer@ridgerun.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Micki Balanga <micki@n-trig.com>, Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Todd Fischer <todd.fischer@ridgerun.com>
+Cc: linux-input@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com
+
+Hi Todd, hi Kevin,
+
+On Mon, Apr 05, 2010 at 05:53:11PM -0600, Todd Fischer wrote:
+> 
+> This is the second posting of the TPS6507x touch screen driver. I have
+> incorporated Kevin Hilman's request to split the board specific changes
+> into a separate patch.
+> 
+> The TPS6507x family of Texas Instruments power management ICs (pmic)
+> are multi-function chips that include voltage regulation and touch
+> screen controller capabilities.  This patch adds a touch screen
+> input driver for the TPS6507x pmic.  There was an existing regulator
+> driver.  Before the touch screen driver can be added, a multi-function
+> device (MFD) driver was needed and the regulator driver modified to
+> use the MDF driver.  Patches for these changes have been posted and
+> reviewed.  The TPS6507x touch screen driver applies cleanly to the
+> MFD GIT repo after the above referenced patches are applied.  If I
+> should use a different approach, please let me know.
+> 
+> The TPS6507x pmic supports interrupting on touch detection.
+> Unfortuntaly, the hardware used for driver development didn't have
+> the interrupt signal properly connected.  When TPS6507x pmic interrupt
+> capable hardware is in hand, another patch will be posted adding
+> interrupt support.
+I've applied patch #1 of this patchset. Kevin, would you please take patch #2?
+
+Cheers,
+Samuel.
 
 
-Le 6 avr. 10 =E0 23:06, Jiri Kosina a =E9crit :
->>
->> +	report =3D hdev->report_enum[HID_FEATURE_REPORT].report_id_hash=20
->> [0x0a];
->> +	if (report)
->> +		usbhid_submit_report(hdev, report, USB_DIR_OUT);
->> +
->> +
->
-> Thanks guys, I have queued the patch in my tree.
->
-> I will also put a one-line comment above this chunk of code to =20
-> explain why
-> is it actually needed, if you don't mind.
-
-Thanks, and sorry for forgetting the comment.
-
-St.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

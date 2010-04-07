@@ -1,56 +1,49 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [RFC] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Wed, 7 Apr 2010 11:03:14 -0400
-Message-ID: <k2i9e4733911004070803ib02cf971k810c0b02971a2e67@mail.gmail.com>
-References: <20100406104410.710253548@hardeman.nu>
-	 <20100406104811.GA6414@hardeman.nu> <4BBB449B.3000207@infradead.org>
-	 <1270635607.3021.222.camel@palomino.walls.org>
-	 <20100407114234.GA3476@hardeman.nu>
-	 <j2g9e4733911004070611je836445apb6527b4e2d8137fb@mail.gmail.com>
-	 <4BBC88AA.4030808@infradead.org>
+From: Corentin Chary <corentin.chary@gmail.com>
+Subject: Re: [PATCH] eeepc-wmi: Add backlight support
+Date: Wed, 7 Apr 2010 17:05:41 +0200
+Message-ID: <m2y71cd59b01004070805nb2e7a03cgccfa8d3deebe954c@mail.gmail.com>
+References: <20100407141750.GA16896@ywang-moblin2.bj.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4BBC88AA.4030808@infradead.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Andy Walls <awalls@md.metrocast.net>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f209.google.com ([209.85.218.209]:34020 "EHLO
+	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932596Ab0DGPFn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 11:05:43 -0400
+In-Reply-To: <20100407141750.GA16896@ywang-moblin2.bj.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yong Wang <yong.y.wang@linux.intel.com>
+Cc: Matthew Garrett <mjg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Apr 7, 2010 at 9:29 AM, Mauro Carvalho Chehab
-<mchehab@infradead.org> wrote:
-> On the implementation I did, each event is passed to each decoder serialized (yet, as one keystroke
-> is a series of events, it behaves as if they are processed in parallel). We might create separate
-> kthreads for each decoder, and use a spinlock at kfifo, but I suspect that the end result will be
-> very close and we'll have more threads interfering at the samples collect, especially on those
-> (broken) hardware that don't have IRQ's to indicate a state transition, so the driver needs
-> to poll the samples.
-
-Polling should be the driver's problem. They can set up a timer
-interrupt and do it that way. Do all of the protocols have a long
-enough lead one for a timer tick to catch them? If so, look for it in
-the timer event, then go into a polling loop. You'd be way better off
-buying new hardware since your video is going to stop while this
-pooling loop runs. Do modern serial ports interrupt on DTR or whatever
-those Iguana devices use? What is an example of a polled input device?
-I can't think of one, even IR diode on mic input is interrupt driven
-(that require a special ALSA driver to pass the data into RC core).
-
-No need to use different kthreads for each protocol decoder, but don't
-lock up the default kernel thread waiting for a user space response.
-What I meant by parallel was that pulses are fed one at a time into
-each of the decoders, don't wait for a long space and then feed the
-entire message into the decoders.
-
+On Wed, Apr 7, 2010 at 4:17 PM, Yong Wang <yong.y.wang@linux.intel.com>=
+ wrote:
+> Add backlight support for WMI based Eee PC laptops. In addition, star=
+t
+> to use a platform device to manage all functional devices as more
+> features will be implemented later.
 >
-> --
->
-> Cheers,
-> Mauro
->
+> +static struct platform_device *eeepc_wmi_platform_device;
+> =A0static struct input_dev *eeepc_wmi_input_dev;
+> +struct backlight_device *eeepc_wmi_backlight_device;
 
+Instead of using static variables, you should really use a struct
+eeepc_wmi, store stuff inside it,
+and make all these functions reentrant. Alan did it for eeepc-laptop,
+and I did it for asus-laptop,
+see http://git.iksaif.net/?p=3Dacpi4asus.git;a=3Dcommit;h=3D854c78363f3=
+7f03e30e2856ef17d7eefc62e0d06
+=2E
+The driver would really be cleaner and easier to review with that. And
+it would be more coherent with
+eeepc-laptop's code.
 
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+--=20
+Corentin Chary
+http://xf.iksaif.net
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

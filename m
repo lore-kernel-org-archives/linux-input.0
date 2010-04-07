@@ -1,110 +1,126 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+From: Jon Smirl <jonsmirl@gmail.com>
 Subject: Re: [RFC] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Wed, 7 Apr 2010 13:42:34 +0200
-Message-ID: <20100407114234.GA3476@hardeman.nu>
+Date: Wed, 7 Apr 2010 09:11:51 -0400
+Message-ID: <j2g9e4733911004070611je836445apb6527b4e2d8137fb@mail.gmail.com>
 References: <20100406104410.710253548@hardeman.nu>
- <20100406104811.GA6414@hardeman.nu>
- <4BBB449B.3000207@infradead.org>
- <1270635607.3021.222.camel@palomino.walls.org>
+	 <20100406104811.GA6414@hardeman.nu> <4BBB449B.3000207@infradead.org>
+	 <1270635607.3021.222.camel@palomino.walls.org>
+	 <20100407114234.GA3476@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:39741 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752191Ab0DGLmi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 07:42:38 -0400
-Content-Disposition: inline
-In-Reply-To: <1270635607.3021.222.camel@palomino.walls.org>
+Received: from mail-qy0-f179.google.com ([209.85.221.179]:62779 "EHLO
+	mail-qy0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757580Ab0DGNLx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 09:11:53 -0400
+In-Reply-To: <20100407114234.GA3476@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Andy Walls <awalls@md.metrocast.net>
 Cc: Mauro Carvalho Chehab <mchehab@infradead.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Apr 07, 2010 at 06:20:07AM -0400, Andy Walls wrote:
-> On Tue, 2010-04-06 at 11:26 -0300, Mauro Carvalho Chehab wrote:
-> > I won't comment every single bits of the change, since we're more=20
-> > interested on the conceptual
-> > aspects.
-> >=20
-> > > -int ir_raw_event_store(struct input_dev *input_dev, enum raw_eve=
-nt_type type)
-> >=20
-> > Don't remove the raw_event_store. It is needed by the hardware that=
- gets events from
-> > IRQ/polling. For sure another interface is needed, for the cases wh=
-ere the hardware pass their
-> > own time measure, like cx18 (http://linuxtv.org/hg/~awalls/cx23885-=
-ir2/rev/2cfef53b95a2).
-> >=20
-> > For those, we need something like:
-> >=20
-> > int ir_raw_event_time_store(struct input_dev *input_dev, enum raw_e=
-vent_type type, u32 nsecs)
-> >=20
-> > Where, instead of using ktime_get_ts(), it will use the timing prov=
-ided by the hardware.
->=20
-> Just to clarify what Conexant hardware, and my current driver for it,=
- is
-> capable of:
->=20
-> 1. It provides raw pulse (and space) width measurements.
->=20
-> 2. Those measurements can have very high resoltuion (~37 ns IIRC) or
-> very low resolution (usec or msec IIRC) depending on how the hardware
-> clock dividers are set up.
->=20
-> 3. The hardware provides a timeout when the measurment timer overflow=
-s,
-> meaning that no edge happened for a very long time.  This generates a
-> special "overflow" measurment value and a receiver timeout interrupt.
->=20
-> 4. The hardware has an 8 measurement deep FIFO, which the driver star=
-ts
-> to drain whenever it is half full (i.e. pulse measurement data is
-> delayed).  This happens in response to a hardware FIFO service reques=
-t
-> interrupt.
->=20
-> 5. The hardware FIFO is drained by the driver whenever an interrupt i=
-s
-> received and the available measruement data is placed into a kfifo().
-> This will then signal a work handler that it has work to do.
->=20
-> 6. Measurements are scaled to standard time units (i.e. ns) by the
-> driver when they are read out of the kfifo() by a work handler.  (No
-> sense in doing time conversions in an interrupt handler).
->=20
-> 7. The work handler then begins passing whatever measurements it has,
-> one at a time, over to a pulse stream decoder.
->=20
-> 8. If the pulse stream decoder actually decodes something, it is pass=
-ed
-> over to the input subsystem.
->=20
-> I suspect this device's behavior is much closer to what the MCE-USB
-> device does, than the raw GPIO handlers, but I don't really know the
-> MCE-USB.
+I had to rework this portion of code several times in the IR code I posted.
 
-This sounds very similar to winbond-cir (the hardware parts that is,=20
-basically until and including item 5, line 1). The mceusb HW does=20
-something similar...it sends usb packets with a couple of pulse/space=20
-duration measurements (of 50us resolution IIRC)...and it automatically=20
-enters an inactive state after 10000 us of silence.
+I had the core provide input_ir_queue() which was legal to call from
+interrupt context. Calling from interrupt context was an important
+aspect I missed in the first versions. I made this a common routine so
+that the code didn't get copied into all of the drivers. This code
+should have used kfifo but I didn't know about kfifo.
 
-The ir_raw_event_duration() function of my patch is intended for exactl=
-y=20
-this kind of hardware (which I mentioned in my reply to Mauro which I=20
-just sent out).
-
-The question is though, is the kfifo and work handler really=20
+>>The question is though, is the kfifo and work handler really
 necessary?
 
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes, otherwise it will get duplicated into all of the drivers that run
+in interrupt context like this GPIO one. Put this common code into the
+core so that the individual drivers writers don't mess it up.
+
+void input_ir_queue(struct input_dev *dev, int sample)
+{
+	unsigned int next;
+
+	spin_lock(dev->ir->queue.lock);
+	dev->ir->queue.samples[dev->ir->queue.head] = sample;
+	next = dev->ir->queue.head + 1;
+	dev->ir->queue.head = (next >= MAX_SAMPLES ? 0 : next);
+	spin_unlock(dev->ir->queue.lock);
+
+	schedule_work(&dev->ir->work);
+}
+
+My GPIO implementation simply call input_it_queue() with the timing
+data. I collapsed multiple long space interrupts into one very long
+space. If you are using protocol engines, there is no need to detect
+the long trailing space. The protocol engine will trigger on the last
+pulse of the signal.
+
+On the other hand, LIRC in user space needs the last long space to
+know when to flush the buffer from kernel space into user space. The
+timeout for this flush should be implemented in the LIRC compatibility
+driver, not ir-core. In this case my GPIO driver doesn't ever generate
+an event for the long space at the end of the message (because it
+doesn't end). Instead the LIRC compatibility layer should start a
+timer and flush when no data has been received for 200ms or whatever.
+
+static irqreturn_t dpeak_ir_irq(int irq, void *_ir)
+{
+	struct ir_gpt *ir_gpt = _ir;
+	int sample, count, delta, bit, wrap;
+
+	sample = in_be32(&ir_gpt->regs->status);
+	out_be32(&ir_gpt->regs->status, 0xF);
+
+	count = sample >> 16;
+	wrap = (sample >> 12) & 7;
+	bit = (sample >> 8) & 1;
+
+	delta = count - ir_gpt->previous;
+	delta += wrap * 0x10000;
+
+	ir_gpt->previous = count;
+
+	if (bit)
+		delta = -delta;
+
+	input_ir_queue(ir_gpt->input, delta);
+
+	return IRQ_HANDLED;
+}
+
+For MSMCE I converted their format back into simple delays and fed it
+into input_ir_queue(). This was not done in interrupt context because
+of the way USB works. input_ir_queue() doesn't care - it works
+correctly when called from either context.
+
+				if (ir->last.command == 0x80) {
+					bit = ((ir->buf_in[i] & MCE_PULSE_BIT) != 0);
+					delta = (ir->buf_in[i] & MCE_PULSE_MASK) * MCE_TIME_BASE;
+
+					if ((ir->buf_in[i] & MCE_PULSE_MASK) == 0x7f) {
+						if (ir->last.bit == bit)
+							ir->last.delta += delta;
+						else {
+							ir->last.delta = delta;
+							ir->last.bit = bit;
+						}
+						continue;
+					}
+					delta += ir->last.delta;
+					ir->last.delta = 0;
+					ir->last.bit = bit;
+
+					dev_dbg(&ir->usbdev->dev, "bit %d delta %d\n", bit, delta);
+					if (bit)
+						delta = -delta;
+
+					input_ir_queue(ir->input, delta);
+				}
+
+These delay messages are then fed into the protocol engines which
+process the pulses in parallel. Processing in parallel works, because
+that's how IR receivers work. When you shine a remote on an equipment
+rack, all of the equipment sees the command in parallel. The protocols
+are designed so that parallel decode works properly.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,927 +1,114 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: [RFC2] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Wed, 7 Apr 2010 22:18:35 +0200
-Message-ID: <20100407201835.GA8438@hardeman.nu>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
+Date: Wed, 7 Apr 2010 22:29:37 +0200
+Message-ID: <20100407222937.73ed530b@neptune.home>
+References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org>
+	<20100405220414.9d90da83.randy.dunlap@oracle.com>
+	<alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz>
+	<20100406105635.5384a087@pluto.restena.lu>
+	<20100406082614.79aaf1c5.randy.dunlap@oracle.com>
+	<20100406183535.7de3c628@neptune.home>
+	<20100406095633.49ec957a.randy.dunlap@oracle.com>
+	<20100407204404.5233ba6b@neptune.home>
+	<20100407131204.10759584.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:50842 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751027Ab0DGUSj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 16:18:39 -0400
-Content-Disposition: inline
+Received: from legolas.restena.lu ([158.64.1.34]:42396 "EHLO
+	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750717Ab0DGU3n convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 16:29:43 -0400
+In-Reply-To: <20100407131204.10759584.randy.dunlap@oracle.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mchehab@infradead.org
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu
 
-drivers/media/IR/ir-raw-event.c is currently written with the assumptio=
-n=20
-that all "raw" hardware will generate events only on state change (i.e.=
- =20
-when a pulse or space starts).
+On Wed, 07 April 2010 Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> On Wed, 7 Apr 2010 20:44:04 +0200 Bruno Pr=C3=A9mont wrote:
+>=20
+> > On Tue, 06 April 2010 Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> > > >=20
+> > > > One of my attempts did end up with a circular loop with regard =
+to FB
+> > > > (some of the FB drivers did select INPUT)? =20
+> > >=20
+> > >   (not that I can find)
+> > >=20
+> > > CONFIG_VT does select INPUT
+> > > and CONFIG_DRM_I915 does
+> > > 	select INPUT if ACPI
+> >=20
+> > A newer attempt still produces the same result:
+> >=20
+> > drivers/input/Kconfig:9:error: found recursive dependency: INPUT ->
+> >        HID_SUPPORT -> HID_PICOLCD_FB -> FB -> FB_STI -> VT -> INPUT
+> >=20
+> > (it's only FB which causes the loop, LEDS, LCD and BACKLIGHT are fi=
+ne)
+>=20
+>   (yes, so I see)
+>=20
+> > This is with following patch on top of the improved deps patch I se=
+nt
+> > a few minutes ago deeper in this thread.
+> >=20
+> > Is there a way around this?
+> >=20
+>=20
+> Well, lesson #1 is that select is evil^W^W should only be used to ena=
+ble
+> library-like code, or as Documentation/kbuild/kconfig-language.txt sa=
+ys:
+>=20
+>   Note:
+> 	select should be used with care. select will force
+> 	a symbol to a value without visiting the dependencies.
+> 	By abusing select you are able to select a symbol FOO even
+> 	if FOO depends on BAR that is not set.
+> 	In general use select only for non-visible symbols
+> 	(no prompts anywhere) and for symbols with no dependencies.
+> 	That will limit the usefulness but on the other hand avoid
+> 	the illegal configurations all over.
+> 	kconfig should one day warn about such things.
 
-However, some hardware (like mceusb, probably the most popular IR recei=
-ver
-out there) only generates duration data (and that data is buffered so u=
-sing
-any kind of timing on the data is futile).
+I've read that paragraph and I would definitely prefer not to have to
+use select for what this patch should achieve!
 
-=46urthermore, using signed int's to represent pulse/space durations in=
- ms
-is a well-known approach to anyone with experience in writing ir decode=
-rs.
+It should really be a helper for the user going through menuconfig like
+"please check all what is needed to satisfy this item's dependencies"
+A "try-select-deep" or whatever it could be called.
 
-This patch (which has been tested this time) is still a RFC on my propo=
-sed
-interface changes.
+A well-behaved "GUI" implementation of this would show what would get n=
+ewly
+checked and give the user the opportunity to not proceed or fine-tune
+y/m choices.
 
-Changes since last version:
+> (more below)
+>=20
+> >=20
+> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > index 782a34e..711c091 100644
+> > --- a/drivers/hid/Kconfig
+> > +++ b/drivers/hid/Kconfig
+> > @@ -285,7 +285,7 @@ config HID_PICOLCD_FB
+> >  	bool "Framebuffer support"
+> >  	default !EMBEDDED
+> >  	depends on HID_PICOLCD
+> > -	depends on HID_PICOLCD=3DFB || FB=3Dy
+> > +	select FB
+>=20
+> If you'll go back to the unpatched (by this patch) version here,
+> it seems to work OK.
 
-o RC5x and NECx support no longer added in patch (separate patches to f=
-ollow)
+So best is probably to just forget about all of this non-leaf select
+usage for now. (and not have one half doing one way and the other half
+doing it the other way)
 
-o The use of a kfifo has been left given feedback from Jon, Andy, Mauro
+Thanks,
+Bruno
 
-o The RX decoding is now handled via a workqueue (I can break that up i=
-nto a
-  separate patch later, but I think it helps the discussion to have it =
-in for
-  now), with inspiration from Andy's code.
-
-o Separate reset operations are no longer added to decoders, a duration=
- of
-  zero is instead used to signal a reset (which allows the reset reques=
-t to
-  be inserted into the kfifo).
-
-o Not sent using quilt...Mauro, does it still trip up your MUA?
-
-Not changed:
-
-o int's are still used to represent pulse/space durations in ms. Mauro =
-and I
-  seem to disagree on this one but I'm right :)
-
-Index: ir/drivers/media/IR/ir-raw-event.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ir.orig/drivers/media/IR/ir-raw-event.c	2010-04-06 12:16:27.0000000=
-00 +0200
-+++ ir/drivers/media/IR/ir-raw-event.c	2010-04-07 21:32:13.961850481 +0=
-200
-@@ -15,13 +15,14 @@
- #include <media/ir-core.h>
- #include <linux/workqueue.h>
- #include <linux/spinlock.h>
-+#include <linux/sched.h>
-=20
- /* Define the max number of bit transitions per IR keycode */
- #define MAX_IR_EVENT_SIZE	256
-=20
- /* Used to handle IR raw handler extensions */
- static LIST_HEAD(ir_raw_handler_list);
--static spinlock_t ir_raw_handler_lock;
-+static DEFINE_SPINLOCK(ir_raw_handler_lock);
-=20
- /**
-  * RUN_DECODER()	- runs an operation on all IR decoders
-@@ -53,19 +54,30 @@
- /* Used to load the decoders */
- static struct work_struct wq_load;
-=20
-+static void ir_raw_event_work(struct work_struct *work)
-+{
-+	int d;
-+	struct ir_raw_event_ctrl *raw =3D
-+		container_of(work, struct ir_raw_event_ctrl, rx_work);
-+
-+	while (kfifo_out(&raw->kfifo, &d, sizeof(d)) =3D=3D sizeof(d))
-+		RUN_DECODER(decode, raw->input_dev, d);
-+}
-+
- int ir_raw_event_register(struct input_dev *input_dev)
- {
- 	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
--	int rc, size;
-+	int rc;
-=20
- 	ir->raw =3D kzalloc(sizeof(*ir->raw), GFP_KERNEL);
- 	if (!ir->raw)
- 		return -ENOMEM;
-=20
--	size =3D sizeof(struct ir_raw_event) * MAX_IR_EVENT_SIZE * 2;
--	size =3D roundup_pow_of_two(size);
-+	ir->raw->input_dev =3D input_dev;
-+	INIT_WORK(&ir->raw->rx_work, ir_raw_event_work);
-=20
--	rc =3D kfifo_alloc(&ir->raw->kfifo, size, GFP_KERNEL);
-+	rc =3D kfifo_alloc(&ir->raw->kfifo, sizeof(int) * MAX_IR_EVENT_SIZE,
-+			 GFP_KERNEL);
- 	if (rc < 0) {
- 		kfree(ir->raw);
- 		ir->raw =3D NULL;
-@@ -91,6 +103,7 @@
- 	if (!ir->raw)
- 		return;
-=20
-+	cancel_work_sync(&ir->raw->rx_work);
- 	RUN_DECODER(raw_unregister, input_dev);
-=20
- 	kfifo_free(&ir->raw->kfifo);
-@@ -99,74 +112,85 @@
- }
- EXPORT_SYMBOL_GPL(ir_raw_event_unregister);
-=20
--int ir_raw_event_store(struct input_dev *input_dev, enum raw_event_typ=
-e type)
-+/**
-+ * ir_raw_event_store() - pass a pulse/space duration to the raw ir de=
-coders
-+ * @input_dev:	the struct input_dev device descriptor
-+ * @duration:	duration of the pulse or space
-+ *
-+ * This routine passes a pulse/space duration to the raw ir decoding s=
-tate
-+ * machines. Pulses are signalled as positive values and spaces as neg=
-ative
-+ * values. A zero value will reset the decoding state machines.
-+ */
-+int ir_raw_event_store(struct input_dev *input_dev, int duration)
- {
--	struct ir_input_dev	*ir =3D input_get_drvdata(input_dev);
--	struct timespec		ts;
--	struct ir_raw_event	event;
--	int			rc;
-+	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
-=20
- 	if (!ir->raw)
- 		return -EINVAL;
-=20
--	event.type =3D type;
--	event.delta.tv_sec =3D 0;
--	event.delta.tv_nsec =3D 0;
-+	if (kfifo_in(&ir->raw->kfifo, &duration, sizeof(duration)) !=3D sizeo=
-f(duration))
-+		return -ENOMEM;
-=20
--	ktime_get_ts(&ts);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(ir_raw_event_store);
-=20
--	if (timespec_equal(&ir->raw->last_event, &event.delta))
--		event.type |=3D IR_START_EVENT;
--	else
--		event.delta =3D timespec_sub(ts, ir->raw->last_event);
-+/**
-+ * ir_raw_event_store_edge() - notify raw ir decoders of the start of =
-a pulse/space
-+ * @input_dev:	the struct input_dev device descriptor
-+ * @type:	the type of the event that has occurred
-+ *
-+ * This routine is used to notify the raw ir decoders on the beginning=
- of an
-+ * ir pulse or space (or the start/end of ir reception). This is used =
-by
-+ * hardware which does not provide durations directly but only interru=
-pts
-+ * (or similar events) on state change.
-+ */
-+int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_even=
-t_type type)
-+{
-+	struct ir_input_dev	*ir =3D input_get_drvdata(input_dev);
-+	ktime_t			now;
-+	s64			delta; /* us */
-+	int			rc =3D 0;
-=20
--	memcpy(&ir->raw->last_event, &ts, sizeof(ts));
-+	if (!ir->raw)
-+		return -EINVAL;
-=20
--	if (event.delta.tv_sec) {
--		event.type |=3D IR_START_EVENT;
--		event.delta.tv_sec =3D 0;
--		event.delta.tv_nsec =3D 0;
--	}
-+	now =3D ktime_get();
-+	delta =3D ktime_us_delta(now, ir->raw->last_event);
-=20
--	kfifo_in(&ir->raw->kfifo, &event, sizeof(event));
-+	/* Are we called for the first time? */
-+	if (!ir->raw->last_type)
-+		type |=3D IR_START_EVENT;
-+
-+	if (type & IR_START_EVENT)
-+		ir_raw_event_reset(input_dev);
-+	else if (ir->raw->last_type & IR_SPACE)
-+		rc =3D ir_raw_event_store(input_dev, (int)-delta);
-+	else if (ir->raw->last_type & IR_PULSE)
-+		rc =3D ir_raw_event_store(input_dev, (int)delta);
-+	else
-+		return 0;
-=20
-+	ir->raw->last_event =3D now;
-+	ir->raw->last_type =3D type;
- 	return rc;
- }
--EXPORT_SYMBOL_GPL(ir_raw_event_store);
-+EXPORT_SYMBOL_GPL(ir_raw_event_store_edge);
-=20
--int ir_raw_event_handle(struct input_dev *input_dev)
-+/**
-+ * ir_raw_event_handle() - schedules the decoding of stored ir data
-+ * @input_dev:	the struct input_dev device descriptor
-+ *
-+ * This routine will signal the workqueue to start decoding stored ir =
-data.
-+ */
-+void ir_raw_event_handle(struct input_dev *input_dev)
- {
--	struct ir_input_dev		*ir =3D input_get_drvdata(input_dev);
--	int				rc;
--	struct ir_raw_event		ev;
--	int 				len, i;
--
--	/*
--	 * Store the events into a temporary buffer. This allows calling more=
- than
--	 * one decoder to deal with the received data
--	 */
--	len =3D kfifo_len(&ir->raw->kfifo) / sizeof(ev);
--	if (!len)
--		return 0;
--
--	for (i =3D 0; i < len; i++) {
--		rc =3D kfifo_out(&ir->raw->kfifo, &ev, sizeof(ev));
--		if (rc !=3D sizeof(ev)) {
--			IR_dprintk(1, "overflow error: received %d instead of %zd\n",
--				   rc, sizeof(ev));
--			return -EINVAL;
--		}
--		IR_dprintk(2, "event type %d, time before event: %07luus\n",
--			ev.type, (ev.delta.tv_nsec + 500) / 1000);
--		rc =3D RUN_DECODER(decode, input_dev, &ev);
--	}
-+	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
-=20
--	/*
--	 * Call all ir decoders. This allows decoding the same event with
--	 * more than one protocol handler.
--	 */
-+	if (!ir->raw)
-+		return;
-=20
--	return rc;
-+	schedule_work(&ir->raw->rx_work);
- }
- EXPORT_SYMBOL_GPL(ir_raw_event_handle);
-=20
-@@ -205,8 +229,6 @@
-=20
- void ir_raw_init(void)
- {
--	spin_lock_init(&ir_raw_handler_lock);
--
- #ifdef MODULE
- 	INIT_WORK(&wq_load, init_decoders);
- 	schedule_work(&wq_load);
-Index: ir/include/media/ir-core.h
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ir.orig/include/media/ir-core.h	2010-04-06 12:16:27.000000000 +0200
-+++ ir/include/media/ir-core.h	2010-04-07 18:17:53.524850074 +0200
-@@ -57,14 +57,12 @@
- 	void		(*close)(void *priv);
- };
-=20
--struct ir_raw_event {
--	struct timespec		delta;	/* Time spent before event */
--	enum raw_event_type	type;	/* event type */
--};
--
- struct ir_raw_event_ctrl {
--	struct kfifo			kfifo;		/* fifo for the pulse/space events */
--	struct timespec			last_event;	/* when last event occurred */
-+	struct work_struct		rx_work;	/* for the rx decoding workqueue */
-+	struct kfifo			kfifo;		/* fifo for the pulse/space durations */
-+	ktime_t				last_event;	/* when last event occurred */
-+	enum raw_event_type		last_type;	/* last event type */
-+	struct input_dev		*input_dev;	/* pointer to the parent input_dev */
- };
-=20
- struct ir_input_dev {
-@@ -89,8 +87,7 @@
- struct ir_raw_handler {
- 	struct list_head list;
-=20
--	int (*decode)(struct input_dev *input_dev,
--		      struct ir_raw_event *ev);
-+	int (*decode)(struct input_dev *input_dev, int duration);
- 	int (*raw_register)(struct input_dev *input_dev);
- 	int (*raw_unregister)(struct input_dev *input_dev);
- };
-@@ -146,8 +143,13 @@
- /* Routines from ir-raw-event.c */
- int ir_raw_event_register(struct input_dev *input_dev);
- void ir_raw_event_unregister(struct input_dev *input_dev);
--int ir_raw_event_store(struct input_dev *input_dev, enum raw_event_typ=
-e type);
--int ir_raw_event_handle(struct input_dev *input_dev);
-+void ir_raw_event_handle(struct input_dev *input_dev);
-+int ir_raw_event_store(struct input_dev *input_dev, int duration);
-+int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_even=
-t_type type);
-+static inline void ir_raw_event_reset(struct input_dev *dev) {
-+	ir_raw_event_store(input_dev, 0);
-+	ir_raw_event_handle(input_dev);
-+}
- int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_init(void);
-Index: ir/drivers/media/IR/ir-nec-decoder.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ir.orig/drivers/media/IR/ir-nec-decoder.c	2010-04-06 12:16:27.00000=
-0000 +0200
-+++ ir/drivers/media/IR/ir-nec-decoder.c	2010-04-07 18:32:10.892853025 =
-+0200
-@@ -13,23 +13,23 @@
-  */
-=20
- #include <media/ir-core.h>
-+#include <linux/bitrev.h>
-=20
- #define NEC_NBITS		32
--#define NEC_UNIT		559979 /* ns */
--#define NEC_HEADER_MARK		(16 * NEC_UNIT)
--#define NEC_HEADER_SPACE	(8 * NEC_UNIT)
--#define NEC_REPEAT_SPACE	(4 * NEC_UNIT)
--#define NEC_MARK		(NEC_UNIT)
--#define NEC_0_SPACE		(NEC_UNIT)
--#define NEC_1_SPACE		(3 * NEC_UNIT)
-+#define NEC_UNIT		562	/* us */
-+#define NEC_HEADER_MARK		16
-+#define NEC_HEADER_SPACE	-8
-+#define NEC_REPEAT_SPACE	-4
-+#define NEC_MARK		1
-+#define NEC_0_SPACE		-1
-+#define NEC_1_SPACE		-3
-=20
- /* Used to register nec_decoder clients */
- static LIST_HEAD(decoder_list);
--static spinlock_t decoder_lock;
-+static DEFINE_SPINLOCK(decoder_lock);
-=20
- enum nec_state {
- 	STATE_INACTIVE,
--	STATE_HEADER_MARK,
- 	STATE_HEADER_SPACE,
- 	STATE_MARK,
- 	STATE_SPACE,
-@@ -37,13 +37,6 @@
- 	STATE_TRAILER_SPACE,
- };
-=20
--struct nec_code {
--	u8	address;
--	u8	not_address;
--	u8	command;
--	u8	not_command;
--};
--
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
-@@ -51,7 +44,7 @@
-=20
- 	/* State machine control */
- 	enum nec_state		state;
--	struct nec_code		nec_code;
-+	u32			nec_bits;
- 	unsigned		count;
- };
-=20
-@@ -62,7 +55,6 @@
-  *
-  * Returns the struct decoder_data that corresponds to a device
-  */
--
- static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
-dev)
- {
- 	struct decoder_data *data =3D NULL;
-@@ -123,20 +115,20 @@
- 	.attrs	=3D decoder_attributes,
- };
-=20
--
- /**
-  * ir_nec_decode() - Decode one NEC pulse or space
-  * @input_dev:	the struct input_dev descriptor of the device
-- * @ev:		event array with type/duration of pulse/space
-+ * @duration:	duration in us of pulse/space
-  *
-  * This function returns -EINVAL if the pulse violates the state machi=
-ne
-  */
--static int ir_nec_decode(struct input_dev *input_dev,
--			 struct ir_raw_event *ev)
-+static int ir_nec_decode(struct input_dev *input_dev, int duration)
- {
- 	struct decoder_data *data;
- 	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
--	int bit, last_bit;
-+	int d;
-+	u32 scancode;
-+	u8 address, not_address, command, not_command;
-=20
- 	data =3D get_decoder_data(ir_dev);
- 	if (!data)
-@@ -145,150 +137,106 @@
- 	if (!data->enabled)
- 		return 0;
-=20
--	/* Except for the initial event, what matters is the previous bit */
--	bit =3D (ev->type & IR_PULSE) ? 1 : 0;
--
--	last_bit =3D !bit;
--
--	/* Discards spurious space last_bits when inactive */
--
--	/* Very long delays are considered as start events */
--	if (ev->delta.tv_nsec > NEC_HEADER_MARK + NEC_HEADER_SPACE - NEC_UNIT=
- / 2)
-+	if (duration =3D=3D 0) {
- 		data->state =3D STATE_INACTIVE;
-+		return 0;
-+	}
-=20
--	if (ev->type & IR_START_EVENT)
--		data->state =3D STATE_INACTIVE;
-+	d =3D DIV_ROUND_CLOSEST(abs(duration), NEC_UNIT);
-+	if (duration < 0)
-+		d =3D -d;
-+
-+	IR_dprintk(2, "NEC decode started at state %d (%i units, %ius)\n",
-+		   data->state, d, duration);
-=20
- 	switch (data->state) {
--	case STATE_INACTIVE:
--		if (!bit)		/* PULSE marks the start event */
--			return 0;
-=20
--		data->count =3D 0;
--		data->state =3D STATE_HEADER_MARK;
--		memset (&data->nec_code, 0, sizeof(data->nec_code));
--		return 0;
--	case STATE_HEADER_MARK:
--		if (!last_bit)
--			goto err;
--		if (ev->delta.tv_nsec < NEC_HEADER_MARK - 6 * NEC_UNIT)
--			goto err;
--		data->state =3D STATE_HEADER_SPACE;
-+	case STATE_INACTIVE:
-+		if (d =3D=3D NEC_HEADER_MARK) {
-+			data->count =3D 0;
-+			data->state =3D STATE_HEADER_SPACE;
-+		}
- 		return 0;
-+
- 	case STATE_HEADER_SPACE:
--		if (last_bit)
--			goto err;
--		if (ev->delta.tv_nsec >=3D NEC_HEADER_SPACE - NEC_UNIT / 2) {
-+		if (d =3D=3D NEC_HEADER_SPACE) {
- 			data->state =3D STATE_MARK;
- 			return 0;
--		}
--
--		if (ev->delta.tv_nsec >=3D NEC_REPEAT_SPACE - NEC_UNIT / 2) {
-+		} else if (d =3D=3D NEC_REPEAT_SPACE) {
- 			ir_repeat(input_dev);
- 			IR_dprintk(1, "Repeat last key\n");
- 			data->state =3D STATE_TRAILER_MARK;
- 			return 0;
- 		}
--		goto err;
-+		break;
-+
- 	case STATE_MARK:
--		if (!last_bit)
--			goto err;
--		if ((ev->delta.tv_nsec > NEC_MARK + NEC_UNIT / 2) ||
--		    (ev->delta.tv_nsec < NEC_MARK - NEC_UNIT / 2))
--			goto err;
--		data->state =3D STATE_SPACE;
--		return 0;
-+		if (d =3D=3D NEC_MARK) {
-+			data->state =3D STATE_SPACE;
-+			return 0;
-+		}
-+		break;
-+
- 	case STATE_SPACE:
--		if (last_bit)
--			goto err;
-+		if (d !=3D NEC_0_SPACE && d !=3D NEC_1_SPACE)
-+			break;
-=20
--		if ((ev->delta.tv_nsec >=3D NEC_0_SPACE - NEC_UNIT / 2) &&
--		    (ev->delta.tv_nsec < NEC_0_SPACE + NEC_UNIT / 2))
--			bit =3D 0;
--		else if ((ev->delta.tv_nsec >=3D NEC_1_SPACE - NEC_UNIT / 2) &&
--		         (ev->delta.tv_nsec < NEC_1_SPACE + NEC_UNIT / 2))
--			bit =3D 1;
--		else {
--			IR_dprintk(1, "Decode failed at %d-th bit (%s) @%luus\n",
--				data->count,
--				last_bit ? "pulse" : "space",
--				(ev->delta.tv_nsec + 500) / 1000);
-+		data->nec_bits <<=3D 1;
-+		if (d =3D=3D NEC_1_SPACE)
-+			data->nec_bits |=3D 1;
-+		data->count++;
-=20
--			goto err2;
-+		if (data->count !=3D NEC_NBITS) {
-+			data->state =3D STATE_MARK;
-+			return 0;
- 		}
-=20
--		/* Ok, we've got a valid bit. proccess it */
--		if (bit) {
--			int shift =3D data->count;
--
--			/*
--			 * NEC transmit bytes on this temporal order:
--			 * address | not address | command | not command
--			 */
--			if (shift < 8) {
--				data->nec_code.address |=3D 1 << shift;
--			} else if (shift < 16) {
--				data->nec_code.not_address |=3D 1 << (shift - 8);
--			} else if (shift < 24) {
--				data->nec_code.command |=3D 1 << (shift - 16);
--			} else {
--				data->nec_code.not_command |=3D 1 << (shift - 24);
--			}
-+		address     =3D bitrev8((data->nec_bits >> 24) & 0xff);
-+		not_address =3D bitrev8((data->nec_bits >> 16) & 0xff);
-+		command	    =3D bitrev8((data->nec_bits >>  8) & 0xff);
-+		not_command =3D bitrev8((data->nec_bits >>  0) & 0xff);
-+
-+		if ((command ^ not_command) !=3D 0xff) {
-+			IR_dprintk(1, "NEC checksum error: received 0x%08x\n",
-+				   data->nec_bits);
-+			break;
- 		}
--		if (++data->count =3D=3D NEC_NBITS) {
--			u32 scancode;
--			/*
--			 * Fixme: may need to accept Extended NEC protocol?
--			 */
--			if ((data->nec_code.command ^ data->nec_code.not_command) !=3D 0xff=
-)
--				goto checksum_err;
--
--			if ((data->nec_code.address ^ data->nec_code.not_address) !=3D 0xff=
-) {
--				/* Extended NEC */
--				scancode =3D data->nec_code.address << 16 |
--					   data->nec_code.not_address << 8 |
--					   data->nec_code.command;
--				IR_dprintk(1, "NEC scancode 0x%06x\n", scancode);
--			} else {
--				/* normal NEC */
--				scancode =3D data->nec_code.address << 8 |
--					   data->nec_code.command;
--				IR_dprintk(1, "NEC scancode 0x%04x\n", scancode);
--			}
--			ir_keydown(input_dev, scancode, 0);
-=20
--			data->state =3D STATE_TRAILER_MARK;
--		} else
--			data->state =3D STATE_MARK;
-+		if ((address ^ not_address) !=3D 0xff) {
-+			/* Extended NEC */
-+			scancode =3D address     << 16 |
-+				   not_address <<  8 |
-+				   command;
-+			IR_dprintk(1, "NEC (Ext) scancode 0x%06x\n", scancode);
-+		} else {
-+			/* normal NEC */
-+			scancode =3D address << 8 | command;
-+			IR_dprintk(1, "NEC scancode 0x%04x\n", scancode);
-+		}
-+
-+		ir_keydown(input_dev, scancode, 0);
-+		data->state =3D STATE_TRAILER_MARK;
- 		return 0;
-+
- 	case STATE_TRAILER_MARK:
--		if (!last_bit)
--			goto err;
--		data->state =3D STATE_TRAILER_SPACE;
--		return 0;
-+		if (d > 0) {
-+			data->state =3D STATE_TRAILER_SPACE;
-+			return 0;
-+		}
-+		break;
-+
- 	case STATE_TRAILER_SPACE:
--		if (last_bit)
--			goto err;
--		data->state =3D STATE_INACTIVE;
--		return 0;
--	}
-+		if (d < 0) {
-+			data->state =3D STATE_INACTIVE;
-+			return 0;
-+		}
-=20
--err:
--	IR_dprintk(1, "NEC decoded failed at state %d (%s) @ %luus\n",
--		   data->state,
--		   bit ? "pulse" : "space",
--		   (ev->delta.tv_nsec + 500) / 1000);
--err2:
--	data->state =3D STATE_INACTIVE;
--	return -EINVAL;
-+		break;
-+	}
-=20
--checksum_err:
-+	IR_dprintk(1, "NEC decode failed at state %d (%i units, %ius)\n",
-+		   data->state, d, duration);
- 	data->state =3D STATE_INACTIVE;
--	IR_dprintk(1, "NEC checksum error: received 0x%02x%02x%02x%02x\n",
--		   data->nec_code.address,
--		   data->nec_code.not_address,
--		   data->nec_code.command,
--		   data->nec_code.not_command);
- 	return -EINVAL;
- }
-=20
-Index: ir/drivers/media/IR/ir-rc5-decoder.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ir.orig/drivers/media/IR/ir-rc5-decoder.c	2010-04-06 12:16:51.78484=
-9187 +0200
-+++ ir/drivers/media/IR/ir-rc5-decoder.c	2010-04-07 21:34:14.816870395 =
-+0200
-@@ -15,31 +15,22 @@
- /*
-  * This code only handles 14 bits RC-5 protocols. There are other vari=
-ants
-  * that use a different number of bits. This is currently unsupported
-- * It considers a carrier of 36 kHz, with a total of 14 bits, where
-- * the first two bits are start bits, and a third one is a filing bit
-  */
-=20
- #include <media/ir-core.h>
-=20
--static unsigned int ir_rc5_remote_gap =3D 888888;
--
--#define RC5_NBITS		14
--#define RC5_BIT			(ir_rc5_remote_gap * 2)
--#define RC5_DURATION		(ir_rc5_remote_gap * RC5_NBITS)
-+#define RC5_UNIT		889 /* us */
-+#define	RC5_BITS		14
-=20
- /* Used to register rc5_decoder clients */
- static LIST_HEAD(decoder_list);
--static spinlock_t decoder_lock;
-+static DEFINE_SPINLOCK(decoder_lock);
-=20
- enum rc5_state {
- 	STATE_INACTIVE,
--	STATE_MARKSPACE,
--	STATE_TRAILER,
--};
--
--struct rc5_code {
--	u8	address;
--	u8	command;
-+	STATE_BIT_START,
-+	STATE_BIT_END,
-+	STATE_FINISHED,
- };
-=20
- struct decoder_data {
-@@ -49,8 +40,9 @@
-=20
- 	/* State machine control */
- 	enum rc5_state		state;
--	struct rc5_code		rc5_code;
--	unsigned		code, elapsed, last_bit, last_code;
-+	u32			rc5_bits;
-+	int			last_delta;
-+	unsigned		count;
- };
-=20
-=20
-@@ -122,18 +114,19 @@
- };
-=20
- /**
-- * handle_event() - Decode one RC-5 pulse or space
-+ * ir_rc5_decode() - Decode one RC-5 pulse or space
-  * @input_dev:	the struct input_dev descriptor of the device
-- * @ev:		event array with type/duration of pulse/space
-+ * @duration:	duration of pulse/space
-  *
-  * This function returns -EINVAL if the pulse violates the state machi=
-ne
-  */
--static int ir_rc5_decode(struct input_dev *input_dev,
--			struct ir_raw_event *ev)
-+static int ir_rc5_decode(struct input_dev *input_dev, int duration)
- {
- 	struct decoder_data *data;
- 	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
--	int is_pulse, scancode, delta, toggle;
-+	u8 command, system, toggle;
-+	u32 scancode;
-+	int d;
-=20
- 	data =3D get_decoder_data(ir_dev);
- 	if (!data)
-@@ -142,79 +135,86 @@
- 	if (!data->enabled)
- 		return 0;
-=20
--	delta =3D DIV_ROUND_CLOSEST(ev->delta.tv_nsec, ir_rc5_remote_gap);
-+	if (duration =3D=3D 0) {
-+		data->state =3D STATE_INACTIVE;
-+		return 0;
-+	}
-=20
--	/* The duration time refers to the last bit time */
--	is_pulse =3D (ev->type & IR_PULSE) ? 1 : 0;
-+	d =3D DIV_ROUND_CLOSEST(abs(duration), RC5_UNIT);
-+	if (duration < 0)
-+		d =3D -d;
-+
-+again:
-+	IR_dprintk(2, "RC5 decode started at state %i (%i units, %ius)\n",
-+		   data->state, d, duration);
-=20
--	/* Very long delays are considered as start events */
--	if (delta > RC5_DURATION || (ev->type & IR_START_EVENT))
--		data->state =3D STATE_INACTIVE;
-+	if (d =3D=3D 0 && data->state !=3D STATE_FINISHED)
-+		return 0;
-=20
- 	switch (data->state) {
-+
- 	case STATE_INACTIVE:
--	IR_dprintk(2, "currently inative. Start bit (%s) @%uus\n",
--		   is_pulse ? "pulse" : "space",
--		   (unsigned)(ev->delta.tv_nsec + 500) / 1000);
--
--		/* Discards the initial start space */
--		if (!is_pulse)
--			goto err;
--		data->code =3D 1;
--		data->last_bit =3D 1;
--		data->elapsed =3D 0;
--		memset(&data->rc5_code, 0, sizeof(data->rc5_code));
--		data->state =3D STATE_MARKSPACE;
--		return 0;
--	case STATE_MARKSPACE:
--		if (delta !=3D 1)
--			data->last_bit =3D data->last_bit ? 0 : 1;
-+		if ((d =3D=3D 1) || (d =3D=3D 2)) {
-+			data->state =3D STATE_BIT_START;
-+			data->count =3D 1;
-+			d--;
-+			goto again;
-+		}
-+		break;
-=20
--		data->elapsed +=3D delta;
-+	case STATE_BIT_START:
-+		if (abs(d) =3D=3D 1) {
-+			data->rc5_bits <<=3D 1;
-+			if (d =3D=3D -1)
-+				data->rc5_bits |=3D 1;
-+			data->count++;
-+			data->last_delta =3D d;
-+
-+			/*
-+			 * If the last bit is zero, a space will "merge"
-+			 * with the silence after the command.
-+			 */
-+			if ((data->count =3D=3D data->wanted_bits) && (d =3D=3D 1))
-+				data->state =3D STATE_FINISHED;
-+			else
-+				data->state =3D STATE_BIT_END;
-=20
--		if ((data->elapsed % 2) =3D=3D 1)
- 			return 0;
-+		}
-+		break;
-=20
--		data->code <<=3D 1;
--		data->code |=3D data->last_bit;
--
--		/* Fill the 2 unused bits at the command with 0 */
--		if (data->elapsed / 2 =3D=3D 6)
--			data->code <<=3D 2;
--
--		if (data->elapsed >=3D (RC5_NBITS - 1) * 2) {
--			scancode =3D data->code;
--
--			/* Check for the start bits */
--			if ((scancode & 0xc000) !=3D 0xc000) {
--				IR_dprintk(1, "Code 0x%04x doesn't have two start bits. It is not =
-RC-5\n", scancode);
--				goto err;
--			}
--
--			toggle =3D (scancode & 0x2000) ? 1 : 0;
--
--			if (scancode =3D=3D data->last_code) {
--				IR_dprintk(1, "RC-5 repeat\n");
--				ir_repeat(input_dev);
--			} else {
--				data->last_code =3D scancode;
--				scancode &=3D 0x1fff;
--				IR_dprintk(1, "RC-5 scancode 0x%04x\n", scancode);
--
--				ir_keydown(input_dev, scancode, 0);
--			}
--			data->state =3D STATE_TRAILER;
-+	case STATE_BIT_END:
-+		/* delta and last_delta signedness must differ */
-+		if (d * data->last_delta < 0) {
-+			if (data->count =3D=3D RC5_BITS)
-+				data->state =3D STATE_FINISHED;
-+			else
-+				data->state =3D STATE_BIT_START;
-+
-+			if (d > 0)
-+				d--;
-+			else if (d < 0)
-+				d++;
-+			goto again;
- 		}
--		return 0;
--	case STATE_TRAILER:
-+		break;
-+
-+	case STATE_FINISHED:
-+		command  =3D (data->rc5_bits & 0x0003F) >> 0;
-+		system   =3D (data->rc5_bits & 0x007C0) >> 6;
-+		toggle   =3D (data->rc5_bits & 0x00800) ? 1 : 0;
-+		command +=3D (data->rc5_bits & 0x01000) ? 0 : 0x40;
-+		scancode =3D system << 8 | command;
-+
-+		IR_dprintk(1, "RC5 scancode 0x%04x (toggle: %u)\n",
-+			   scancode, toggle);
-+		ir_keydown(input_dev, scancode, toggle);
- 		data->state =3D STATE_INACTIVE;
- 		return 0;
- 	}
-=20
--err:
--	IR_dprintk(1, "RC-5 decoded failed at %s @ %luus\n",
--		   is_pulse ? "pulse" : "space",
--		   (ev->delta.tv_nsec + 500) / 1000);
-+	IR_dprintk(1, "RC5 decode failed at state %i (%i units, %ius)\n",
-+		   data->state, d, duration);
- 	data->state =3D STATE_INACTIVE;
- 	return -EINVAL;
- }
-Index: ir/drivers/media/video/saa7134/saa7134-input.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- ir.orig/drivers/media/video/saa7134/saa7134-input.c	2010-04-06 12:3=
-0:16.428854774 +0200
-+++ ir/drivers/media/video/saa7134/saa7134-input.c	2010-04-07 18:05:27.=
-756852639 +0200
-@@ -1021,7 +1021,7 @@
- 	saa_clearb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
- 	saa_setb(SAA7134_GPIO_GPMODE3, SAA7134_GPIO_GPRESCAN);
- 	space =3D saa_readl(SAA7134_GPIO_GPSTATUS0 >> 2) & ir->mask_keydown;
--	ir_raw_event_store(dev->remote->dev, space ? IR_SPACE : IR_PULSE);
-+	ir_raw_event_store_edge(dev->remote->dev, space ? IR_SPACE : IR_PULSE=
-);
-=20
-=20
- 	/*
-
---=20
-David H=E4rdeman
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

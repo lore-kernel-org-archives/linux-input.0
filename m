@@ -1,69 +1,73 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
- LIRC and decoder plugins
-Date: Wed, 7 Apr 2010 11:32:05 +0200
-Message-ID: <20100407093205.GB3029@hardeman.nu>
-References: <20100401145632.5631756f@pedra>
- <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
- <20100402102011.GA6947@hardeman.nu>
- <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [RFC] Teach drivers/media/IR/ir-raw-event.c to use durations
+Date: Wed, 07 Apr 2010 06:20:07 -0400
+Message-ID: <1270635607.3021.222.camel@palomino.walls.org>
+References: <20100406104410.710253548@hardeman.nu>
+	 <20100406104811.GA6414@hardeman.nu>  <4BBB449B.3000207@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:52589 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752963Ab0DGJcJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Apr 2010 05:32:09 -0400
-Content-Disposition: inline
-In-Reply-To: <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4BBB449B.3000207@infradead.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Mon, Apr 05, 2010 at 04:49:10PM -0400, Jarod Wilson wrote:
-> On Fri, Apr 2, 2010 at 6:20 AM, David H=E4rdeman <david@hardeman.nu> =
-wrote:
-> > Porting the msmce driver to rc-core will be high on my list of
-> > priorities once I've done some more changes to the API.
->=20
-> Very cool. Though note that the latest lirc_mceusb is quite heavily
-> modified from what Jon had initially ported, and I still have a few
-> outstanding enhancements to make, such as auto-detecting xmit mask to
-> eliminate the crude inverted mask list and support for the mce IR
-> keyboard/mouse, though that'll probably be trivial once RC5 and RC6
-> in-kernel decoders are in place. I'd intended to start with porting
-> the imon driver I'm working on over to this new infra (onboard
-> hardware decoder, should be rather easy to port), and then hop over t=
-o
-> the mceusb driver, but if you beat me to it, I've got no problem with
-> you doing it instead. :)
+On Tue, 2010-04-06 at 11:26 -0300, Mauro Carvalho Chehab wrote:
+> Hi David,
+> 
 
-I'd be happy with you doing it, you seem to know the hardware better=20
-than me. The mceusb driver I'm using right now with ir-core is based on=
-=20
-Jon's driver which is in turn based on a version of lirc_mceusb which i=
-s=20
-quite old by now. My version of the driver is basically just random bit=
-s=20
-and pieces thrown together, enough to get pulse/space durations flowing=
-=20
-through ir-core so that I can test the decoders, but not much more - so=
-=20
-it's not something I'd even consider useful as a starting point :)
+> I won't comment every single bits of the change, since we're more interested on the conceptual
+> aspects.
+> 
+> > -int ir_raw_event_store(struct input_dev *input_dev, enum raw_event_type type)
+> 
+> Don't remove the raw_event_store. It is needed by the hardware that gets events from
+> IRQ/polling. For sure another interface is needed, for the cases where the hardware pass their
+> own time measure, like cx18 (http://linuxtv.org/hg/~awalls/cx23885-ir2/rev/2cfef53b95a2).
+> 
+> For those, we need something like:
+> 
+> int ir_raw_event_time_store(struct input_dev *input_dev, enum raw_event_type type, u32 nsecs)
+> 
+> Where, instead of using ktime_get_ts(), it will use the timing provided by the hardware.
 
-Note however that you won't be able to actually port the mceusb driver=20
-over until ir-core is taught to use durations (first version of the=20
-patch is at [1], second version still brewing but I still need to=20
-convince Mauro though).
+Just to clarify what Conexant hardware, and my current driver for it, is
+capable of:
 
-[1] http://www.spinics.net/lists/linux-input/msg07859.html
+1. It provides raw pulse (and space) width measurements.
 
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2. Those measurements can have very high resoltuion (~37 ns IIRC) or
+very low resolution (usec or msec IIRC) depending on how the hardware
+clock dividers are set up.
+
+3. The hardware provides a timeout when the measurment timer overflows,
+meaning that no edge happened for a very long time.  This generates a
+special "overflow" measurment value and a receiver timeout interrupt.
+
+4. The hardware has an 8 measurement deep FIFO, which the driver starts
+to drain whenever it is half full (i.e. pulse measurement data is
+delayed).  This happens in response to a hardware FIFO service request
+interrupt.
+
+5. The hardware FIFO is drained by the driver whenever an interrupt is
+received and the available measruement data is placed into a kfifo().
+This will then signal a work handler that it has work to do.
+
+6. Measurements are scaled to standard time units (i.e. ns) by the
+driver when they are read out of the kfifo() by a work handler.  (No
+sense in doing time conversions in an interrupt handler).
+
+7. The work handler then begins passing whatever measurements it has,
+one at a time, over to a pulse stream decoder.
+
+8. If the pulse stream decoder actually decodes something, it is passed
+over to the input subsystem.
+
+I suspect this device's behavior is much closer to what the MCE-USB
+device does, than the raw GPIO handlers, but I don't really know the
+MCE-USB.
+
+Regards,
+Andy

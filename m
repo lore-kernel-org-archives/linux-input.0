@@ -1,49 +1,78 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [RFC2] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Thu, 8 Apr 2010 14:43:15 +0200
-Message-ID: <20100408124315.GA21540@hardeman.nu>
-References: <20100407201835.GA8438@hardeman.nu>
- <4BBD6550.6030000@infradead.org>
- <20100408112305.GA2803@hardeman.nu>
- <4BBDC318.4040709@infradead.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: mt: introduce MT event slots
+Date: Thu, 08 Apr 2010 15:01:37 +0200
+Message-ID: <4BBDD3B1.6030808@euromail.se>
+References: <1270685590-2204-1-git-send-email-rydberg@euromail.se>	<87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se> <87mxxei33o.fsf@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:53042 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757876Ab0DHMnT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 08:43:19 -0400
-Content-Disposition: inline
-In-Reply-To: <4BBDC318.4040709@infradead.org>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48582 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754690Ab0DHNEB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Apr 2010 09:04:01 -0400
+In-Reply-To: <87mxxei33o.fsf@troilus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Apr 08, 2010 at 08:50:48AM -0300, Mauro Carvalho Chehab wrote:
-> >-	size =3D sizeof(struct ir_raw_event) * MAX_IR_EVENT_SIZE * 2;
-> >-	size =3D roundup_pow_of_two(size);
-> >+	ir->raw->input_dev =3D input_dev;
-> >+	INIT_WORK(&ir->raw->rx_work, ir_raw_event_work);
-> >=20
-> >-	rc =3D kfifo_alloc(&ir->raw->kfifo, size, GFP_KERNEL);
-> >+	rc =3D kfifo_alloc(&ir->raw->kfifo, sizeof(int) * MAX_IR_EVENT_SIZ=
-E,
-> >+			 GFP_KERNEL);
->=20
-> kfifo logic requires a power of two buffer to work, so, please keep t=
-he
-> original roundup_pow_of_two() logic, or add a comment before MAX_IR_E=
-VENT_SIZE.
+Michael Poole wrote:
+[...]
+> 
+> For hardware with touch tracking support, what does a slot ID provide
+> for user-space that the tracking ID doesn't?  (TRACKING_ID is already
+> supposed to be unique for the life of the touch.)
 
-No, kfifo_alloc() takes care of the rounding up. See the code for=20
-kfifo_alloc() in kernel/kfifo.c.
+The purpose of the slot is twofold. Firstly, it reintroduces the ability for the
+kernel to filter ABS_MT events, which reduces the number of events emitted from
+the input core by a large factor. Secondly, it allows the driver to send partial
+information without breaking the protocol.
 
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The current MT protocol is designed for anonymous contacts, which dictates that
+all data for all fingers has to be sent between every synchronization point.
+Although this is fine for a handful of fingers, it does not play well with a
+larger scenario. The slot concept allows for a minimum of information to be
+emitted from the input core, without breaking compatibility with the current MT
+protocol. If a single attribute of a single finger of a single user is changed,
+the event sequence will simply be:
+
+SYN_MT_SLOT <slot-in-use>
+ABS_MT_ATTRIBUTE <some-value>
+
+If the contact gets destroyed and replaced by another one, there is not even a
+need to send that information explicitly, but this sequence would suffice:
+
+SYN_MT_SLOT <slot-in-use>
+ABS_MT_USER_ID <replacing-user>
+ABS_MT_TRACKING_ID <replacing-tracking-id>
+ABS_MT_ATTRIBUTE1 <some-value>
+ABS_MT_ATTRIBUTE2 <some-value>
+...
+
+
+One might argue that a similar sequence could be implemented within the existing
+ MT protocol. However, it would at least require a different semantic usage of
+the SYN_MT_REPORT event, without the ability to detect what semantics to use.
+Besides, a larger amount of events would be needed than with the proposed slot
+concept.
+
+> For hardware without
+> touch tracking, is the driver expected to implement the Euclidean
+> bipartite matching in order to assign touch reports to slots?
+
+This is a possible scenario, yes. The driver would of course use a common kernel
+library for the matching task. Whether or not this will happen depends somewhat
+on how well userspace works with the current MT protocol.
+
+> 
+> (Pardon me if I'm being dense -- I'm more familiar with the kernel
+> driver side, not the X server's implementation or dispatch of multitouch
+> events.)
+
+Thank you for your questions, the discussion is very much appreciated.
+
+Cheers,
+Henrik
+

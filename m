@@ -1,116 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
-Date: Thu, 8 Apr 2010 14:42:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004081441460.8345@pobox.suse.cz>
-References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org> <20100405220414.9d90da83.randy.dunlap@oracle.com> <alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz> <20100406105635.5384a087@pluto.restena.lu> <20100406082614.79aaf1c5.randy.dunlap@oracle.com>
- <20100406183535.7de3c628@neptune.home> <20100406095633.49ec957a.randy.dunlap@oracle.com> <20100406230434.1336c317@neptune.home> <20100407092010.4cd60ece.randy.dunlap@oracle.com> <20100407203132.7fe2d0f1@neptune.home>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [RFC2] Teach drivers/media/IR/ir-raw-event.c to use durations
+Date: Thu, 8 Apr 2010 14:43:15 +0200
+Message-ID: <20100408124315.GA21540@hardeman.nu>
+References: <20100407201835.GA8438@hardeman.nu>
+ <4BBD6550.6030000@infradead.org>
+ <20100408112305.GA2803@hardeman.nu>
+ <4BBDC318.4040709@infradead.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:45323 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757876Ab0DHMmz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Apr 2010 08:42:55 -0400
-In-Reply-To: <20100407203132.7fe2d0f1@neptune.home>
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:53042 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757876Ab0DHMnT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 08:43:19 -0400
+Content-Disposition: inline
+In-Reply-To: <4BBDC318.4040709@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, 7 Apr 2010, Bruno Pr=C3=A9mont wrote:
-
-> HID_PICOLCD should depend on LCD_CLASS_DEVICE, otherwise the
-> build fails when HID_PICOLCD=3Dy and LCD_CLASS_DEVICE=3Dm:
->=20
-> hid-picolcd.c:(.text+0x84523f): undefined reference to `lcd_device_un=
-register'
-> hid-picolcd.c:(.text+0x8478ab): undefined reference to `lcd_device_re=
-gister'
-> hid-picolcd.c:(.text+0x84c15f): undefined reference to `lcd_device_un=
-register'
->=20
-> Same applies to FB, BACKLIGHT_CLASS_DEVICE and LEDS_CLASS.
->=20
-> Add suboptions for those features to handle the deps on kbuild side
-> and just check HID_PICOLCD_* in the code.
->=20
-> Reported-by: Randy Dunlap <randy.dunlap@oracle.com>
-> Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> ---
->=20
-> On Wed, 07 April 2010 Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> > All of these user-visible kconfig options need help text also...
+On Thu, Apr 08, 2010 at 08:50:48AM -0300, Mauro Carvalho Chehab wrote:
+> >-	size =3D sizeof(struct ir_raw_event) * MAX_IR_EVENT_SIZE * 2;
+> >-	size =3D roundup_pow_of_two(size);
+> >+	ir->raw->input_dev =3D input_dev;
+> >+	INIT_WORK(&ir->raw->rx_work, ir_raw_event_work);
 > >=20
+> >-	rc =3D kfifo_alloc(&ir->raw->kfifo, size, GFP_KERNEL);
+> >+	rc =3D kfifo_alloc(&ir->raw->kfifo, sizeof(int) * MAX_IR_EVENT_SIZ=
+E,
+> >+			 GFP_KERNEL);
 >=20
-> Here is a better patch, with added documentation and stripped
-> select clauses under HID_PICOLCD as they are handled by HID_PICOLCD_F=
-B.
->=20
->=20
->=20
->=20
->  drivers/hid/Kconfig       |   53 +++++++++++++++++++++++++++++++++++=
-++-------
->  drivers/hid/hid-picolcd.c |   40 +++++++++++++++++-----------------
->  2 files changed, 64 insertions(+), 29 deletions(-)
->=20
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index a2ecd83..782a34e 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -265,11 +265,6 @@ config HID_PETALYNX
->  config HID_PICOLCD
->  	tristate "PicoLCD (graphic version)"
->  	depends on USB_HID
-> -	select FB_DEFERRED_IO if FB
-> -	select FB_SYS_FILLRECT if FB
-> -	select FB_SYS_COPYAREA if FB
-> -	select FB_SYS_IMAGEBLIT if FB
-> -	select FB_SYS_FOPS if FB
->  	---help---
->  	  This provides support for Minibox PicoLCD devices, currently
->  	  only the graphical ones are supported.
-> @@ -277,14 +272,54 @@ config HID_PICOLCD
->  	  This includes support for the following device features:
->  	  - Keypad
->  	  - Switching between Firmware and Flash mode
-> -	  - Framebuffer for monochrome 256x64 display
-> -	  - Backlight control         (needs CONFIG_BACKLIGHT_CLASS_DEVICE)
-> -	  - Contrast control          (needs CONFIG_LCD_CLASS_DEVICE)
-> -	  - General purpose outputs   (needs CONFIG_LEDS_CLASS)
->  	  - EEProm / Flash access     (via debugfs)
-> +	  Features to selectively enable:
-> +	  - Framebuffer for monochrome 256x64 display
-> +	  - Backlight control
-> +	  - Contrast control
-> +	  - General purpose outputs
->  	  Features that are not (yet) supported:
->  	  - IR
-> =20
-> +config HID_PICOLCD_FB
-> +	bool "Framebuffer support"
-> +	default !EMBEDDED
-> +	depends on HID_PICOLCD
-> +	depends on HID_PICOLCD=3DFB || FB=3Dy
-> +	select FB_DEFERRED_IO
-> +	select FB_SYS_FILLRECT
-> +	select FB_SYS_COPYAREA
-> +	select FB_SYS_IMAGEBLIT
-> +	select FB_SYS_FOPS
+> kfifo logic requires a power of two buffer to work, so, please keep t=
+he
+> original roundup_pow_of_two() logic, or add a comment before MAX_IR_E=
+VENT_SIZE.
 
-Could we perhaps also make the sub-choices for individual features=20
-availabel only if !EMBEDDED as well?
-
-It's probably too much to ask for a single device during oldconfig run,=
-=20
-for example ...
-
-Thanks,
+No, kfifo_alloc() takes care of the rounding up. See the code for=20
+kfifo_alloc() in kernel/kfifo.c.
 
 --=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
+David H=E4rdeman
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

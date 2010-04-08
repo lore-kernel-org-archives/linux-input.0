@@ -1,71 +1,55 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH 0/2]-V2 Add touch screen input driver for TPS6507x
- family of multi-function chips.
-Date: Thu, 8 Apr 2010 11:32:49 +0200
-Message-ID: <20100408093248.GA3075@sortiz.org>
-References: <1270511593-4785-1-git-send-email-todd.fischer@ridgerun.com>
- <20100407084644.GB2962@sortiz.org>
- <874ojnfdlt.fsf@deeprootsystems.com>
- <87ljczdydj.fsf@deeprootsystems.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: mt: introduce MT event slots
+Date: Thu, 08 Apr 2010 11:43:49 +0200
+Message-ID: <4BBDA555.1020003@euromail.se>
+References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <87tyrmiqw2.fsf@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.89]:2265 "EHLO
-	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754105Ab0DHJc2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 05:32:28 -0400
-Content-Disposition: inline
-In-Reply-To: <87ljczdydj.fsf@deeprootsystems.com>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:34957 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756764Ab0DHJoF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Apr 2010 05:44:05 -0400
+In-Reply-To: <87tyrmiqw2.fsf@troilus.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>, davinci-linux-open-source@linux.davincidsp.com, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
+To: Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Kevin,
+Michael Poole wrote:
+[...]
+> 
+> How would the slot number for a contact be chosen?
 
-On Wed, Apr 07, 2010 at 09:24:24AM -0700, Kevin Hilman wrote:
-> Kevin Hilman <khilman@deeprootsystems.com> writes:
-> 
-> > Samuel Ortiz <sameo@linux.intel.com> writes:
-> >
-> >> Hi Todd, hi Kevin,
-> >>
-> >> On Mon, Apr 05, 2010 at 05:53:11PM -0600, Todd Fischer wrote:
-> >>> 
-> >>> This is the second posting of the TPS6507x touch screen driver. I have
-> >>> incorporated Kevin Hilman's request to split the board specific changes
-> >>> into a separate patch.
-> 
-> [...]
-> 
-> >>
-> >> I've applied patch #1 of this patchset. Kevin, would you please take patch #2?
-> >
-> > Thanks.  Yes, patch #2 will be queued for linux-next and 2.6.35.
-> 
-> After trying to apply this, I ran into some snags
-> 
-> The other series '[PATCH 0/4]-V3 TPS6507x MFD driver' also had some
-> board file changes mixed in that I did not catch, and patch #2 of this
-> series depends on those.
-> 
-> So either we split those out and merge them via my tree, or you can
-> just merge patch #2 of this series via your tree as well.
-> 
-> I'm OK with either option, but just merging patch #2 of this series
-> via your tree seems like the least amount of hassle at this time.
-Definitely. I'm taking this patch, thanks a lot.
+The device driver determines how to use the slots. The driver calls
+input_mt_slot(dev, slot), sends the data for the slot, picks another slot, and
+repeats.
+
+> If the kernel makes
+> that assignment, what should a "slot" correspond to from a computer
+> user's perspective? "Set[s] of identified sources" is a little vague:
+> Does it mean contacts from one hand, contacts in one displayed window
+> (assuming the touch surface is a screen), or something else?  (I assume
+> it would not duplicate the blob or tracking IDs already defined for MT
+> events.)
+
+The slot is only used for data communication. Think of the slot as a combined,
+unique identifier. For example, imagine a device driver dealing with contacts
+labeled with both a USER_ID and a TRACKING_ID. The driver assigns every active
+(USER_ID, TRACKING_ID) contact to a specific slot, and uses it to communicate
+all changes to that contact. When the contact is destroyed (for instance by
+sending a zero ABS_MT_PRESSURE on that slot), the slot is free to be used for
+another contact.
+
+> It seems like those would be important aspects of the protocol
+> to document in Documentation/input/multi-touch-protocol.txt --
+> otherwise, driver implementers or application developers might get it
+> wrong.
+
+Certainly.
 
 Cheers,
-Samuel.
+Henrik
 
-
-> If you merge via your tree, please add:
-> 
-> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
-> 
-> Kevin
-
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/

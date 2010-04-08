@@ -1,67 +1,71 @@
-From: Corentin Chary <corentin.chary@gmail.com>
-Subject: Re: [PATCH] eeepc-wmi: Add backlight support
-Date: Thu, 8 Apr 2010 07:29:59 +0200
-Message-ID: <p2y71cd59b01004072229wb66497a4q77d647bdcce49e9d@mail.gmail.com>
-References: <20100407141750.GA16896@ywang-moblin2.bj.intel.com>
-	 <m2y71cd59b01004070805nb2e7a03cgccfa8d3deebe954c@mail.gmail.com>
-	 <20100407225005.GA30445@ywang-moblin2.bj.intel.com>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 0/2]-V2 Add touch screen input driver for TPS6507x
+ family of multi-function chips.
+Date: Thu, 8 Apr 2010 11:32:49 +0200
+Message-ID: <20100408093248.GA3075@sortiz.org>
+References: <1270511593-4785-1-git-send-email-todd.fischer@ridgerun.com>
+ <20100407084644.GB2962@sortiz.org>
+ <874ojnfdlt.fsf@deeprootsystems.com>
+ <87ljczdydj.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f209.google.com ([209.85.218.209]:58155 "EHLO
-	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751022Ab0DHFaB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 01:30:01 -0400
-In-Reply-To: <20100407225005.GA30445@ywang-moblin2.bj.intel.com>
+Received: from mga05.intel.com ([192.55.52.89]:2265 "EHLO
+	fmsmga101.fm.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754105Ab0DHJc2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 05:32:28 -0400
+Content-Disposition: inline
+In-Reply-To: <87ljczdydj.fsf@deeprootsystems.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yong Wang <yong.y.wang@linux.intel.com>
-Cc: Matthew Garrett <mjg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@linux.intel.com>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+To: Kevin Hilman <khilman@deeprootsystems.com>
+Cc: Todd Fischer <todd.fischer@ridgerun.com>, davinci-linux-open-source@linux.davincidsp.com, lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com, linux-input@vger.kernel.org
 
-On Thu, Apr 8, 2010 at 12:50 AM, Yong Wang <yong.y.wang@linux.intel.com> wrote:
-> On Wed, Apr 07, 2010 at 05:05:41PM +0200, Corentin Chary wrote:
->> On Wed, Apr 7, 2010 at 4:17 PM, Yong Wang <yong.y.wang@linux.intel.com> wrote:
->> > Add backlight support for WMI based Eee PC laptops. In addition, start
->> > to use a platform device to manage all functional devices as more
->> > features will be implemented later.
->> >
->> > +static struct platform_device *eeepc_wmi_platform_device;
->> > ?static struct input_dev *eeepc_wmi_input_dev;
->> > +struct backlight_device *eeepc_wmi_backlight_device;
->>
->> Instead of using static variables, you should really use a struct
->> eeepc_wmi, store stuff inside it,
->> and make all these functions reentrant. Alan did it for eeepc-laptop,
->> and I did it for asus-laptop,
->> see http://git.iksaif.net/?p=acpi4asus.git;a=commit;h=854c78363f37f03e30e2856ef17d7eefc62e0d06
->> .
->> The driver would really be cleaner and easier to review with that. And
->> it would be more coherent with
->> eeepc-laptop's code.
->>
->
-> Thanks for your review, Corentin. Could you please explain a bit more
-> what you mean by "make all these functions reentrant"?
->
-> Thanks
-> -Yong
->
->
+Hi Kevin,
 
-Well, it means that you should'nt use a static variable for platform,
-backlight, input
-and only use function parameters to get the job done.
-In your case, it's not really mandatory, but as Alan explain in the
-changelog I linked,
-it's really cleaner. And also make the code a lot easier to review.
+On Wed, Apr 07, 2010 at 09:24:24AM -0700, Kevin Hilman wrote:
+> Kevin Hilman <khilman@deeprootsystems.com> writes:
+> 
+> > Samuel Ortiz <sameo@linux.intel.com> writes:
+> >
+> >> Hi Todd, hi Kevin,
+> >>
+> >> On Mon, Apr 05, 2010 at 05:53:11PM -0600, Todd Fischer wrote:
+> >>> 
+> >>> This is the second posting of the TPS6507x touch screen driver. I have
+> >>> incorporated Kevin Hilman's request to split the board specific changes
+> >>> into a separate patch.
+> 
+> [...]
+> 
+> >>
+> >> I've applied patch #1 of this patchset. Kevin, would you please take patch #2?
+> >
+> > Thanks.  Yes, patch #2 will be queued for linux-next and 2.6.35.
+> 
+> After trying to apply this, I ran into some snags
+> 
+> The other series '[PATCH 0/4]-V3 TPS6507x MFD driver' also had some
+> board file changes mixed in that I did not catch, and patch #2 of this
+> series depends on those.
+> 
+> So either we split those out and merge them via my tree, or you can
+> just merge patch #2 of this series via your tree as well.
+> 
+> I'm OK with either option, but just merging patch #2 of this series
+> via your tree seems like the least amount of hassle at this time.
+Definitely. I'm taking this patch, thanks a lot.
 
-Also, if you do that, could you split up the patch in (for example):
-- add a eeepc_wmi context structure, and put input_device into it
-- add a platform device
-- add backlight support
+Cheers,
+Samuel.
 
-Thanks !
+
+> If you merge via your tree, please add:
+> 
+> Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+> 
+> Kevin
 
 -- 
-Corentin Chary
-http://xf.iksaif.net
+Intel Open Source Technology Centre
+http://oss.intel.com/

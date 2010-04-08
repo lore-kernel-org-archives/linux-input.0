@@ -1,29 +1,76 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Status of synaptics clickpad patch
-Date: Thu, 8 Apr 2010 14:56:35 -0400
-Message-ID: <r2v40ec3ea41004081156g41330efaz7dd1eaeb63b10b2@mail.gmail.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] input: mt: introduce MT event slots
+Date: Thu, 08 Apr 2010 15:15:25 -0400
+Message-ID: <4BBE2B4D.9040808@seas.upenn.edu>
+References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:34924 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933106Ab0DHS4f (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 14:56:35 -0400
-Received: by pva18 with SMTP id 18so1585676pva.19
-        for <linux-input@vger.kernel.org>; Thu, 08 Apr 2010 11:56:35 -0700 (PDT)
+Received: from LION.SEAS.upenn.edu ([158.130.12.194]:41552 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932983Ab0DHTPs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 15:15:48 -0400
+In-Reply-To: <4BBDA555.1020003@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dmitry,
+On 04/08/2010 05:43 AM, Henrik Rydberg wrote:
+> Michael Poole wrote:
+> [...]
+>>
+>> How would the slot number for a contact be chosen?
+>
+> The device driver determines how to use the slots. The driver calls
+> input_mt_slot(dev, slot), sends the data for the slot, picks another slot, and
+> repeats.
+>
 
-What's the status of this patch:
+Is there any particular downside to defaulting to implicit slot ids?
 
-http://www.spinics.net/lists/linux-input/msg06333.html
+For drivers/hardware that don't handle tracking, SYN_MT_REPORT could 
+just result in dev->slot++ and a SYN_REPORT resets dev->slot to 0;
 
-We look to include this in Lucid since it fixes things for users, but
-I'm surprised it hasn't been applied to your tree yet.
+For tracking hardware do you envision waiting for TRACKING_ID before 
+selecting a slot?  If so then either with explicit or implicit slot ids, 
+we would need to cache event until the tracking id is read, and either 
+use SYN_MT_SLOT or some other mechanism to denote known slot id.
 
-Thanks!
 
--- Chase
+I like the idea and am just wondering if we can simplify the burden for 
+the drivers (and reduce the potential for mistakes).
+
+>> If the kernel makes
+>> that assignment, what should a "slot" correspond to from a computer
+>> user's perspective? "Set[s] of identified sources" is a little vague:
+>> Does it mean contacts from one hand, contacts in one displayed window
+>> (assuming the touch surface is a screen), or something else?  (I assume
+>> it would not duplicate the blob or tracking IDs already defined for MT
+>> events.)
+>
+> The slot is only used for data communication. Think of the slot as a combined,
+> unique identifier. For example, imagine a device driver dealing with contacts
+> labeled with both a USER_ID and a TRACKING_ID. The driver assigns every active
+> (USER_ID, TRACKING_ID) contact to a specific slot, and uses it to communicate
+> all changes to that contact. When the contact is destroyed (for instance by
+> sending a zero ABS_MT_PRESSURE on that slot), the slot is free to be used for
+> another contact.
+>
+>> It seems like those would be important aspects of the protocol
+>> to document in Documentation/input/multi-touch-protocol.txt --
+>> otherwise, driver implementers or application developers might get it
+>> wrong.
+>
+> Certainly.
+>
+ > Cheers,
+ > Henrik
+
+Please clarify which slots are emitted to userspace.  At some point you 
+mentioned that if any are changed all will be emitted, is that still 
+your intent?  Have you reconsidered using an explicit event to signify 
+the end of a contact/slot?
+
+Rafi

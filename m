@@ -1,78 +1,107 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: introduce MT event slots
-Date: Thu, 08 Apr 2010 15:01:37 +0200
-Message-ID: <4BBDD3B1.6030808@euromail.se>
-References: <1270685590-2204-1-git-send-email-rydberg@euromail.se>	<87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se> <87mxxei33o.fsf@troilus.org>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [RFC2] Teach drivers/media/IR/ir-raw-event.c to use durations
+Date: Thu, 08 Apr 2010 10:06:53 -0300
+Message-ID: <4BBDD4ED.5040007@infradead.org>
+References: <20100407201835.GA8438@hardeman.nu>	 <4BBD6550.6030000@infradead.org> <r2l9e4733911004080541s58fd4e70o215800426290a09a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:48582 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754690Ab0DHNEB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Apr 2010 09:04:01 -0400
-In-Reply-To: <87mxxei33o.fsf@troilus.org>
+Received: from bombadil.infradead.org ([18.85.46.34]:40223 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758636Ab0DHNG7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 09:06:59 -0400
+In-Reply-To: <r2l9e4733911004080541s58fd4e70o215800426290a09a@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-Michael Poole wrote:
-[...]
-> 
-> For hardware with touch tracking support, what does a slot ID provide
-> for user-space that the tracking ID doesn't?  (TRACKING_ID is already
-> supposed to be unique for the life of the touch.)
+Jon Smirl wrote:
+> On Thu, Apr 8, 2010 at 1:10 AM, Mauro Carvalho Chehab
+> <mchehab@infradead.org> wrote:
+>> David H=E4rdeman wrote:
+>>> drivers/media/IR/ir-raw-event.c is currently written with the assum=
+ption
+>>> that all "raw" hardware will generate events only on state change (=
+i.e.
+>>> when a pulse or space starts).
+>>>
+>>> However, some hardware (like mceusb, probably the most popular IR r=
+eceiver
+>>> out there) only generates duration data (and that data is buffered =
+so using
+>>> any kind of timing on the data is futile).
+>>>
+>>> Furthermore, using signed int's to represent pulse/space durations =
+in ms
+>>> is a well-known approach to anyone with experience in writing ir de=
+coders.
+>>>
+>>> This patch (which has been tested this time) is still a RFC on my p=
+roposed
+>>> interface changes.
+>>>
+>>> Changes since last version:
+>>>
+>>> o RC5x and NECx support no longer added in patch (separate patches =
+to follow)
+>>>
+>>> o The use of a kfifo has been left given feedback from Jon, Andy, M=
+auro
+>> Ok.
+>>
+>>> o The RX decoding is now handled via a workqueue (I can break that =
+up into a
+>>>   separate patch later, but I think it helps the discussion to have=
+ it in for
+>>>   now), with inspiration from Andy's code.
+>> I'm in doubt about that. the workqueue is called just after an event=
+=2E this means
+>> that, just after every IRQ trigger (assuming the worse case), the wo=
+rkqueue will
+>> be called.
+>>
+>> On the previous code, it is drivers responsibility to call the funct=
+ion that
+>> de-queue. On saa7134, I've scheduled it to wake after 15 ms. So, ins=
+tead of
+>> 32 wakeups, just one is done, and the additional delay introduced by=
+ it is not
+>> enough to disturb the user.
+>=20
+> The wakeup is variable when the default thread is used. My quad core
+> desktop wakes up on every pulse. My embedded system wakes up about
+> every 15 pulses. The embedded system called schedule_work() fifteen
+> times from the IRQ, but the kernel collapsed them into a single
+> wakeup. I'd stick with the default thread and let the kernel get
+> around to processing IR whenever it has some time.
 
-The purpose of the slot is twofold. Firstly, it reintroduces the ability for the
-kernel to filter ABS_MT events, which reduces the number of events emitted from
-the input core by a large factor. Secondly, it allows the driver to send partial
-information without breaking the protocol.
+Makes sense.
 
-The current MT protocol is designed for anonymous contacts, which dictates that
-all data for all fingers has to be sent between every synchronization point.
-Although this is fine for a handful of fingers, it does not play well with a
-larger scenario. The slot concept allows for a minimum of information to be
-emitted from the input core, without breaking compatibility with the current MT
-protocol. If a single attribute of a single finger of a single user is changed,
-the event sequence will simply be:
+> A workqueue has to be used at some point in the system. The input
+> subsystem calls that send messages to user space can't be called from
+> interrupt context.  I believe in handing off to the workqueue as soon
+> as possible for IR signals.
 
-SYN_MT_SLOT <slot-in-use>
-ABS_MT_ATTRIBUTE <some-value>
+I'm ok on using a workqueue for it.
+>=20
+> Keep this code in the core to simplify writing the drivers. My GPIO
+> timer driver example is very simple.
+>=20
+> If you're worried about performance, none of this code matters. What
+> is more important is localizing memory accesses to avoid processor
+> cache misses. A cache miss can equal 1000 divides.
 
-If the contact gets destroyed and replaced by another one, there is not even a
-need to send that information explicitly, but this sequence would suffice:
-
-SYN_MT_SLOT <slot-in-use>
-ABS_MT_USER_ID <replacing-user>
-ABS_MT_TRACKING_ID <replacing-tracking-id>
-ABS_MT_ATTRIBUTE1 <some-value>
-ABS_MT_ATTRIBUTE2 <some-value>
-...
+Agreed.
 
 
-One might argue that a similar sequence could be implemented within the existing
- MT protocol. However, it would at least require a different semantic usage of
-the SYN_MT_REPORT event, without the ability to detect what semantics to use.
-Besides, a larger amount of events would be needed than with the proposed slot
-concept.
-
-> For hardware without
-> touch tracking, is the driver expected to implement the Euclidean
-> bipartite matching in order to assign touch reports to slots?
-
-This is a possible scenario, yes. The driver would of course use a common kernel
-library for the matching task. Whether or not this will happen depends somewhat
-on how well userspace works with the current MT protocol.
-
-> 
-> (Pardon me if I'm being dense -- I'm more familiar with the kernel
-> driver side, not the X server's implementation or dispatch of multitouch
-> events.)
-
-Thank you for your questions, the discussion is very much appreciated.
+--=20
 
 Cheers,
-Henrik
-
+Mauro
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

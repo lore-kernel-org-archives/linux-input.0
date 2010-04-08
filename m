@@ -1,75 +1,302 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [RFC3] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Thu, 08 Apr 2010 09:21:17 -0300
-Message-ID: <4BBDCA3D.3000106@infradead.org>
-References: <20100408113910.GA17104@hardeman.nu>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [RFC2] Teach drivers/media/IR/ir-raw-event.c to use durations
+Date: Thu, 8 Apr 2010 08:41:29 -0400
+Message-ID: <r2l9e4733911004080541s58fd4e70o215800426290a09a@mail.gmail.com>
+References: <20100407201835.GA8438@hardeman.nu>
+	 <4BBD6550.6030000@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:53319 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755874Ab0DHMVV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 08:21:21 -0400
-In-Reply-To: <20100408113910.GA17104@hardeman.nu>
+Received: from mail-qy0-f179.google.com ([209.85.221.179]:36355 "EHLO
+	mail-qy0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758420Ab0DHMlb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Apr 2010 08:41:31 -0400
+In-Reply-To: <4BBD6550.6030000@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-David H=E4rdeman wrote:
-> drivers/media/IR/ir-raw-event.c is currently written with the assumpt=
-ion=20
-> that all "raw" hardware will generate events only on state change (i.=
-e. =20
-> when a pulse or space starts).
->=20
-> However, some hardware (like mceusb, probably the most popular IR rec=
-eiver
-> out there) only generates duration data (and that data is buffered so=
- using
-> any kind of timing on the data is futile).
->=20
-> Furthermore, using signed int's to represent pulse/space durations in=
- ms
-> is a well-known approach to anyone with experience in writing ir deco=
-ders.
->=20
-> This patch (which has been tested this time) is still a RFC on my pro=
-posed
-> interface changes.
->=20
-> Changes since last version:
->=20
-> o s64's are used to represent pulse/space durations in ns.
->=20
-> o Lots of #defines are used in the decoders
->=20
-> o Refreshed to apply cleanly on top of Mauro's current git tree
->=20
-> o Jon's comments wrt. interrupt-context safe functions have been adde=
-d
->=20
+On Thu, Apr 8, 2010 at 1:10 AM, Mauro Carvalho Chehab
+<mchehab@infradead.org> wrote:
+> David H=E4rdeman wrote:
+>> drivers/media/IR/ir-raw-event.c is currently written with the assump=
+tion
+>> that all "raw" hardware will generate events only on state change (i=
+=2Ee.
+>> when a pulse or space starts).
+>>
+>> However, some hardware (like mceusb, probably the most popular IR re=
+ceiver
+>> out there) only generates duration data (and that data is buffered s=
+o using
+>> any kind of timing on the data is futile).
+>>
+>> Furthermore, using signed int's to represent pulse/space durations i=
+n ms
+>> is a well-known approach to anyone with experience in writing ir dec=
+oders.
+>>
+>> This patch (which has been tested this time) is still a RFC on my pr=
+oposed
+>> interface changes.
+>>
+>> Changes since last version:
+>>
+>> o RC5x and NECx support no longer added in patch (separate patches t=
+o follow)
+>>
+>> o The use of a kfifo has been left given feedback from Jon, Andy, Ma=
+uro
+>
+> Ok.
+>
+>> o The RX decoding is now handled via a workqueue (I can break that u=
+p into a
+>> =A0 separate patch later, but I think it helps the discussion to hav=
+e it in for
+>> =A0 now), with inspiration from Andy's code.
+>
+> I'm in doubt about that. the workqueue is called just after an event.=
+ this means
+> that, just after every IRQ trigger (assuming the worse case), the wor=
+kqueue will
+> be called.
+>
+> On the previous code, it is drivers responsibility to call the functi=
+on that
+> de-queue. On saa7134, I've scheduled it to wake after 15 ms. So, inst=
+ead of
+> 32 wakeups, just one is done, and the additional delay introduced by =
+it is not
+> enough to disturb the user.
 
-Ok, tested it with a variety of NEC/NEC extended/RC-5 IR's I have, with=
- the
-saa7134 hardware. All worked.
+The wakeup is variable when the default thread is used. My quad core
+desktop wakes up on every pulse. My embedded system wakes up about
+every 15 pulses. The embedded system called schedule_work() fifteen
+times from the IRQ, but the kernel collapsed them into a single
+wakeup. I'd stick with the default thread and let the kernel get
+around to processing IR whenever it has some time.
 
-There's just a few checkpatch.pl complains, and the most important thin=
-g:
+A workqueue has to be used at some point in the system. The input
+subsystem calls that send messages to user space can't be called from
+interrupt context.  I believe in handing off to the workqueue as soon
+as possible for IR signals.
 
-It lacks your SOB ;)
+Keep this code in the core to simplify writing the drivers. My GPIO
+timer driver example is very simple.
 
-Please fix the checkpatch.pl errors, add a kfifo size comment and your =
-SOB
-and resend it to me (or, if you prefer, just send your SOB. I can take =
-care
-of the rest, as they're just trivial things).
+If you're worried about performance, none of this code matters. What
+is more important is localizing memory accesses to avoid processor
+cache misses. A cache miss can equal 1000 divides.
+
+>
+> =A0> o Separate reset operations are no longer added to decoders, a d=
+uration of
+>> =A0 zero is instead used to signal a reset (which allows the reset r=
+equest to
+>> =A0 be inserted into the kfifo).
+>>
+>> o Not sent using quilt...Mauro, does it still trip up your MUA?
+>
+> Thank you! Btw, git mailsend doesn't have any troubles.
+>
+>> Not changed:
+>>
+>> o int's are still used to represent pulse/space durations in ms. Mau=
+ro and I
+>> =A0 seem to disagree on this one but I'm right :)
+>
+> :)
+>
+> We both have different opinions on that. I didn't hear a good argumen=
+t from you
+> why your're right and I am wrong ;)
+>
+> Maybe we can try to make a deal on it.
+>
+> What you're really doing is:
+>
+> struct rc_event {
+> =A0 =A0 =A0 =A0u32 =A0 =A0 mark : 1;
+> =A0 =A0 =A0 =A0u32 =A0 =A0 duration :31; =A0 /* in microsseconds */
+> };
+>
+> Please, correct me if I'm wrong, but I suspect that the technical rea=
+sons behind your
+> proposal are:
+> =A0 =A0 =A0 =A01) to save space at kfifo and argument exchange with t=
+he functions;
+> =A0 =A0 =A0 =A02) nanoseconds is too short for a carrier at the order=
+ of 10^4 Hz;
+>
+> My proposal is to do something like:
+>
+> struct rc_event {
+> =A0 =A0 =A0 =A0enum rc_event_type type;
+> =A0 =A0 =A0 =A0u64 duration =A0 =A0 =A0 =A0 =A0 =A0/* in nanoseconds =
+*/
+>
+> My rationale are:
+> =A0 =A0 =A0 =A01) To make the decoder code less obfuscated;
+> =A0 =A0 =A0 =A02) To use the same time measurement as used on kernel =
+timers, avoiding an uneeded division
+> for IRQ and polling-based devices.
+>
+> It might have some other non-technical issues, like foo/bar uses this=
+/that, this means less changes
+> on some code, etc, but we shouldn't consider those non-technical issu=
+es when discussing
+> the architecture.
+>
+> So, here's the deal:
+>
+> Let's do something in-between. While I still think that using a diffe=
+rent measure for
+> duration will add an unnecessary runtime conversion from kernel ktime=
+ into
+> microsseconds, for me, the most important point is to avoid obfuscati=
+ng the code.
+>
+> So, we can define a opaque type:
+>
+> typedef u32 mark_duration_t;
+>
+> To represent the rc_event struct (this isn't a number anymore - it is=
+ a struct with one
+> bit for mark/space and 31 bits for unsigned duration). The use of an =
+opaque type may
+> avoid people to do common mistakes.
+>
+> And use some macros to convert from this type, like:
+>
+> #define DURATION(mark_duration) abs(mark_duration)
+> #define MARK(duration) =A0(abs(duration))
+> #define SPACE(duration) (-abs(duration))
+> #define IS_MARK(mark_duration) =A0((duration > 0) ? 1 : 0)
+> #define IS_SPACE(mark_duration) ((duration < 0) ? 1 : 0)
+> #define DURATION(mark_duration) abs(mark_duration)
+> #define TO_UNITS(mark_duration, unit) =A0 \
+> =A0 =A0 =A0 =A0do { \
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0a =3D DIV_ROUND_CLOSEST(DURATION(mark_=
+duration), unit); \
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0a =3D (mark_duration < 0) ? -a: a; \
+> =A0 =A0 =A0 =A0} while (0)
+>
+> And use it along the decoders:
+>
+> <from your nec decoder>
+>
+> instead of:
+>
+>> +#define NEC_UNIT =A0 =A0 =A0 =A0 =A0 =A0 562 =A0 =A0 /* us */
+>> +#define NEC_HEADER_MARK =A0 =A0 =A0 =A0 =A0 =A0 =A016
+>> +#define NEC_HEADER_SPACE =A0 =A0 -8
+>>
+>> d =3D DIV_ROUND_CLOSEST(abs(duration), NEC_UNIT);
+>> + =A0 =A0 if (duration < 0)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 d =3D -d;
+>
+> With macros, we'll have:
+>
+> #define NEC_UNIT =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0DURATION(562) =A0 /* =
+us */
+> #define NEC_HEADER_MARK =A0 =A0 =A0 =A0 MARK(16) =A0 =A0 =A0 =A0/* un=
+its */
+> #define NEC_HEADER_SPACE =A0 =A0 =A0 =A0SPACE(8) =A0 =A0 =A0 =A0/* un=
+its */
+>
+> d =3D TO_UNITS(duration, NEC_UNIT);
+>
+>
+> <from your rc5 decoder>
+>
+> Instead of this obfuscated code:
+>
+>> d =3D DIV_ROUND_CLOSEST(abs(duration), RC5_UNIT);
+>> + =A0 =A0 if (duration < 0)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 d =3D -d;
+>>
+>> + =A0 =A0 case STATE_BIT_START:
+>> + =A0 =A0 =A0 =A0 =A0 =A0 if (abs(d) =3D=3D 1) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 data->rc5_bits <<=3D 1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (d =3D=3D -1)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 data->rc5_=
+bits |=3D 1;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 data->count++;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 data->last_delta =3D d;
+>> +
+>
+>
+> A less obfuscated code will be:
+>
+> =A0 =A0 =A0 =A0d =3D TO_UNITS(duration, RC5_UNIT);
+>
+> =A0 =A0 =A0 =A0case STATE_BIT_START:
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (DURATION(d) =3D=3D 1) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data->rc5_bits <<=3D 1=
+;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (IS_SPACE(d))
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data->=
+rc5_bits |=3D 1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data->count++;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0data->last_delta =3D d=
+;
+>
+>
+> The compiled code will be identical, but it the code is now clearer,
+> as, on all places that the opaque type is being used, a
+> macro is properly indicating what part of the "struct mark/duration" =
+were used.
+>
+>
+> PS.: Macros untested - it is 2am here and I'm a little tired, so prob=
+ably they
+> are not 100% ;) I hope you got the idea.
+>
+>>
+>> Index: ir/drivers/media/IR/ir-raw-event.c
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>> --- ir.orig/drivers/media/IR/ir-raw-event.c =A0 2010-04-06 12:16:27.=
+000000000 +0200
+>> +++ ir/drivers/media/IR/ir-raw-event.c =A0 =A0 =A0 =A02010-04-07 21:=
+32:13.961850481 +0200
+>> @@ -15,13 +15,14 @@
+>> =A0#include <media/ir-core.h>
+>> =A0#include <linux/workqueue.h>
+>> =A0#include <linux/spinlock.h>
+>> +#include <linux/sched.h>
+>>
+>> =A0/* Define the max number of bit transitions per IR keycode */
+>> =A0#define MAX_IR_EVENT_SIZE =A0 =A0256
+>>
+>> =A0/* Used to handle IR raw handler extensions */
+>> =A0static LIST_HEAD(ir_raw_handler_list);
+>> -static spinlock_t ir_raw_handler_lock;
+>> +static DEFINE_SPINLOCK(ir_raw_handler_lock);
+>
+> (just a side note: I had to do the above change already, due to some =
+lock troubles I'm
+> having - Patch were already send to the -git tree).
+>
+>
+> Cheers,
+> Mauro
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+
+
 
 --=20
-
-Cheers,
-Mauro
+Jon Smirl
+jonsmirl@gmail.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

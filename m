@@ -1,65 +1,92 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] input: mt: introduce MT event slots
-Date: Thu, 08 Apr 2010 17:23:53 -0400
-Message-ID: <4BBE4969.60802@seas.upenn.edu>
-References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se> <4BBE2B4D.9040808@seas.upenn.edu> <4BBE3BC4.2030503@euromail.se>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH 8/8] V4L/DVB: ir-core: move subsystem internal calls to
+ ir-core-priv.h
+Date: Thu, 08 Apr 2010 18:34:22 -0300
+Message-ID: <4BBE4BDE.80500@redhat.com>
+References: <cover.1270754989.git.mchehab@redhat.com> <20100408163716.70862743@pedra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4BBE3BC4.2030503@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20100408163716.70862743@pedra>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Mauro Carvalho Chehab wrote:
+> ir-core.h has the kABI to be used by the bridge drivers, when needing=
+ to register
+> IR protocols and pass IR events. However, the same file also contains=
+ IR subsystem
+> internal calls, meant to be used inside ir-core and between ir-core a=
+nd the raw
+> decoders.
+>=20
+> Better to move those functions to an internal header, for some reason=
+s:
+>=20
+> 1) Header will be a little more cleaner;
+>=20
+> 2) It avoids the need of recompile everything (bridge/hardware driver=
+s, etc),
+>    just because a new decoder were added, or some other internal chan=
+ge were needed;
+>=20
+> 3) Better organize the ir-core API, splitting the functions that are =
+internal to
+>    IR core and the ancillary drivers (decoders, lirc_dev) from the fe=
+atures that
+>    should be exported to IR subsystem clients.
+>=20
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+>=20
+>  create mode 100644 drivers/media/IR/ir-core-priv.h
 
-On 04/08/10 16:25, Henrik Rydberg wrote:
-> Rafi Rubin wrote:
->> On 04/08/2010 05:43 AM, Henrik Rydberg wrote:
->>> Michael Poole wrote:
->>> [...]
->>>>
->>>> How would the slot number for a contact be chosen?
->>>
->>> The device driver determines how to use the slots. The driver calls
->>> input_mt_slot(dev, slot), sends the data for the slot, picks another
->>> slot, and
->>> repeats.
->>>
->>
->> Is there any particular downside to defaulting to implicit slot ids?
-> 
-> Yes. The device driver should not have to update every slot between
-> synchronizations, or the point would be lost.
-> 
->> For drivers/hardware that don't handle tracking, SYN_MT_REPORT could
->> just result in dev->slot++ and a SYN_REPORT resets dev->slot to 0;
-> 
-> Drivers that do not handle tracking should not use the slots at all. The slot
-> concept requires that whatever gets communicated over it is identifiable, or
-> else it would not be possible to send changes. Drivers without tracking
-> capabilities should stick to the current MT protocol, for which it was designed.
+This cleanup were too aggressive:
 
-That's unfortunate.
+drivers/media/dvb/ttpci/budget-ci.c: In function =E2=80=98msp430_ir_int=
+errupt=E2=80=99:
+drivers/media/dvb/ttpci/budget-ci.c:163: error: implicit declaration of=
+ function =E2=80=98ir_keydown=E2=80=99
 
-I think tracking upsets are generally quite rare (at least for the n-trig
-hardware), and we would see most of the benefit of jitter and bandwidth
-reduction even if we use contact ordering for slots.  Tracking upsets would
-still flow downstream, a large state change should cause the slot to emit the
-new position.
+We need ir_keydown() / ir_repeat() for in-hardware decoders. I'm foldin=
+g it
+with this patch:
 
-I was also hoping the slotting mechanism might be a good place to inject generic
-tracking support later.
+diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core=
+-priv.h
+index ab785bc..8d97d6c 100644
+--- a/drivers/media/IR/ir-core-priv.h
++++ b/drivers/media/IR/ir-core-priv.h
+@@ -62,8 +62,6 @@ struct ir_raw_event_ctrl {
+=20
+ u32 ir_g_keycode_from_table(struct input_dev *input_dev,
+                            u32 scancode);
+-void ir_repeat(struct input_dev *dev);
+-void ir_keydown(struct input_dev *dev, int scancode, u8 toggle);
+=20
+ /*
+  * Routines from ir-sysfs.c - Meant to be called only internally insid=
+e
+diff --git a/include/media/ir-core.h b/include/media/ir-core.h
+index 40b6250..ab3bd30 100644
+--- a/include/media/ir-core.h
++++ b/include/media/ir-core.h
+@@ -122,6 +122,9 @@ static inline int ir_input_register(struct input_de=
+v *dev,
+=20
+ void ir_input_unregister(struct input_dev *input_dev);
+=20
++void ir_repeat(struct input_dev *dev);
++void ir_keydown(struct input_dev *dev, int scancode, u8 toggle);
++
+ /* From ir-raw-event.c */
+=20
+ void ir_raw_event_handle(struct input_dev *input_dev);
 
-Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAku+SWcACgkQwuRiAT9o60894wCg1lQIzcFgmUNqUpiKJSDigxNE
-QVcAn3YylXnlNaieGTJyQ2UblpqR5X7q
-=EokA
------END PGP SIGNATURE-----
+
+--=20
+
+Cheers,
+Mauro

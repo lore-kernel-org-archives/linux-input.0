@@ -1,97 +1,150 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [PATCH 1/8] V4L/DVB: em28xx: fix a regression caused by the rc-map
- changes
+Subject: [PATCH 5/8] V4L/DVB: ir-core: properly present the supported and
+ current protocols
 Date: Thu, 8 Apr 2010 16:37:17 -0300
-Message-ID: <20100408163717.4042660e@pedra>
+Message-ID: <20100408163717.7d193308@pedra>
 References: <cover.1270754989.git.mchehab@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:20854 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S933150Ab0DHThg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Apr 2010 15:37:36 -0400
 In-Reply-To: <cover.1270754989.git.mchehab@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-The patch that adds the rc-map changes didn't take into account that an
-a table with IR_TYPE_UNKNOWN would make change_protocol to return -EINVAL.
+Hardware decoders have a more limited set of decoders than software ones.
+In general, they support just one protocol at a given time, but allow
+changing between a few options.
 
-As this function is fundamental to initialize some data, including a
-callback to the getkey function, this caused the driver to stop working,
-hanging the machine most of the times.
+Rename the previous badly named "current_protocol" as just "protocol",
+meaning the current protocol(s) accepted by the driver, and
+add a "support_protocols" to represent the entire universe of supported
+protocols by that specific hardware.
 
-The fix were simply to add a handler for the IR type, but, to avoid further
-issues, explicitly call change_protocol and handle the error before
-initializing the IR. Also, let input_dev to start/stop IR handling,
-after the opening of the input device.
+As commented on http://lwn.net/Articles/378884/, the "one file, one value"
+rule doesn't fit nor does make much sense for bitmap or enum values. So, the
+supported_protocols will enum all supported protocols, and the protocol
+will present all active protocols.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-diff --git a/drivers/media/video/em28xx/em28xx-input.c b/drivers/media/video/em28xx/em28xx-input.c
-index 3200f48..dffd026 100644
---- a/drivers/media/video/em28xx/em28xx-input.c
-+++ b/drivers/media/video/em28xx/em28xx-input.c
-@@ -361,14 +361,20 @@ static void em28xx_ir_work(struct work_struct *work)
- 	schedule_delayed_work(&ir->work, msecs_to_jiffies(ir->polling));
- }
+diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
+index efde912..9d132d0 100644
+--- a/drivers/media/IR/ir-sysfs.c
++++ b/drivers/media/IR/ir-sysfs.c
+@@ -55,13 +55,13 @@ static ssize_t show_protocol(struct device *d,
+ 	if (ir_type == IR_TYPE_UNKNOWN)
+ 		s = "Unknown";
+ 	else if (ir_type == IR_TYPE_RC5)
+-		s = "RC-5";
++		s = "rc-5";
+ 	else if (ir_type == IR_TYPE_PD)
+-		s = "Pulse/distance";
++		s = "pulse-distance";
+ 	else if (ir_type == IR_TYPE_NEC)
+-		s = "NEC";
++		s = "nec";
+ 	else
+-		s = "Other";
++		s = "other";
  
--static void em28xx_ir_start(struct em28xx_IR *ir)
-+static int em28xx_ir_start(void *priv)
+ 	return sprintf(buf, "%s\n", s);
+ }
+@@ -85,23 +85,22 @@ static ssize_t store_protocol(struct device *d,
+ 			      size_t len)
  {
-+	struct em28xx_IR *ir = priv;
-+
- 	INIT_DELAYED_WORK(&ir->work, em28xx_ir_work);
- 	schedule_delayed_work(&ir->work, 0);
-+
-+	return 0;
+ 	struct ir_input_dev *ir_dev = dev_get_drvdata(d);
+-	u64 ir_type = IR_TYPE_UNKNOWN;
++	u64 ir_type = 0;
+ 	int rc = -EINVAL;
+ 	unsigned long flags;
+ 	char *buf;
+ 
+-	buf = strsep((char **) &data, "\n");
++	while (buf = strsep((char **) &data, " \n")) {
++		if (!strcasecmp(buf, "rc-5") || !strcasecmp(buf, "rc5"))
++			ir_type |= IR_TYPE_RC5;
++		if (!strcasecmp(buf, "pd") || !strcasecmp(buf, "pulse-distance"))
++			ir_type |= IR_TYPE_PD;
++		if (!strcasecmp(buf, "nec"))
++			ir_type |= IR_TYPE_NEC;
++	}
+ 
+-	if (!strcasecmp(buf, "rc-5") || !strcasecmp(buf, "rc5"))
+-		ir_type = IR_TYPE_RC5;
+-	else if (!strcasecmp(buf, "pd"))
+-		ir_type = IR_TYPE_PD;
+-	else if (!strcasecmp(buf, "nec"))
+-		ir_type = IR_TYPE_NEC;
+-
+-	if (ir_type == IR_TYPE_UNKNOWN) {
+-		IR_dprintk(1, "Error setting protocol to %lld\n",
+-			   (long long)ir_type);
++	if (!ir_type) {
++		IR_dprintk(1, "Unknown protocol\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -119,12 +118,34 @@ static ssize_t store_protocol(struct device *d,
+ 	ir_dev->rc_tab.ir_type = ir_type;
+ 	spin_unlock_irqrestore(&ir_dev->rc_tab.lock, flags);
+ 
+-	IR_dprintk(1, "Current protocol is %lld\n",
++	IR_dprintk(1, "Current protocol(s) is(are) %lld\n",
+ 		   (long long)ir_type);
+ 
+ 	return len;
  }
  
--static void em28xx_ir_stop(struct em28xx_IR *ir)
-+static void em28xx_ir_stop(void *priv)
- {
-+	struct em28xx_IR *ir = priv;
++static ssize_t show_supported_protocols(struct device *d,
++			     struct device_attribute *mattr, char *buf)
++{
++	char *orgbuf = buf;
++	struct ir_input_dev *ir_dev = dev_get_drvdata(d);
 +
- 	cancel_delayed_work_sync(&ir->work);
- }
- 
-@@ -388,7 +394,7 @@ int em28xx_ir_change_protocol(void *priv, u64 ir_type)
- 		dev->board.xclk &= ~EM28XX_XCLK_IR_RC5_MODE;
- 		ir_config = EM2874_IR_NEC;
- 		ir->full_code = 1;
--	} else
-+	} else if (ir_type != IR_TYPE_UNKNOWN)
- 		rc = -EINVAL;
- 
- 	em28xx_write_reg_bits(dev, EM28XX_R0F_XCLK, dev->board.xclk,
-@@ -441,6 +447,13 @@ int em28xx_ir_init(struct em28xx *dev)
- 	ir->props.allowed_protos = IR_TYPE_RC5 | IR_TYPE_NEC;
- 	ir->props.priv = ir;
- 	ir->props.change_protocol = em28xx_ir_change_protocol;
-+	ir->props.open = em28xx_ir_start;
-+	ir->props.close = em28xx_ir_stop;
++	/* FIXME: doesn't support multiple protocols at the same time */
++	if (ir_dev->props->allowed_protos == IR_TYPE_UNKNOWN)
++		buf += sprintf(buf, "unknown ");
++	if (ir_dev->props->allowed_protos & IR_TYPE_RC5)
++		buf += sprintf(buf, "rc-5 ");
++	if (ir_dev->props->allowed_protos & IR_TYPE_PD)
++		buf += sprintf(buf, "pulse-distance ");
++	if (ir_dev->props->allowed_protos & IR_TYPE_NEC)
++		buf += sprintf(buf, "nec ");
++	if (buf == orgbuf)
++		buf += sprintf(buf, "other ");
 +
-+	/* By default, keep protocol field untouched */
-+	err = em28xx_ir_change_protocol(ir, IR_TYPE_UNKNOWN);
-+	if (err)
-+		goto err_out_free;
++	buf += sprintf(buf - 1, "\n");
++
++	return buf - orgbuf;
++}
  
- 	/* This is how often we ask the chip for IR information */
- 	ir->polling = 100; /* ms */
-@@ -467,7 +480,6 @@ int em28xx_ir_init(struct em28xx *dev)
- 	input_dev->dev.parent = &dev->udev->dev;
+ #define ADD_HOTPLUG_VAR(fmt, val...)					\
+ 	do {								\
+@@ -148,11 +169,15 @@ static int ir_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ /*
+  * Static device attribute struct with the sysfs attributes for IR's
+  */
+-static DEVICE_ATTR(current_protocol, S_IRUGO | S_IWUSR,
++static DEVICE_ATTR(protocol, S_IRUGO | S_IWUSR,
+ 		   show_protocol, store_protocol);
  
++static DEVICE_ATTR(supported_protocols, S_IRUGO | S_IWUSR,
++		   show_supported_protocols, NULL);
++
+ static struct attribute *ir_hw_dev_attrs[] = {
+-	&dev_attr_current_protocol.attr,
++	&dev_attr_protocol.attr,
++	&dev_attr_supported_protocols.attr,
+ 	NULL,
+ };
  
--	em28xx_ir_start(ir);
- 
- 	/* all done */
- 	err = ir_input_register(ir->input, dev->board.ir_codes,
-@@ -477,7 +489,6 @@ int em28xx_ir_init(struct em28xx *dev)
- 
- 	return 0;
-  err_out_stop:
--	em28xx_ir_stop(ir);
- 	dev->ir = NULL;
-  err_out_free:
- 	kfree(ir);
 -- 
 1.6.6.1
+
+

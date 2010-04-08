@@ -1,83 +1,124 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: [PATCH 3/8] V4L/DVB: rename sysfs remote controller devices from
- rcrcv to rc
-Date: Thu, 8 Apr 2010 16:37:17 -0300
-Message-ID: <20100408163717.1e55c862@pedra>
-References: <cover.1270754989.git.mchehab@redhat.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: mt: introduce MT event slots
+Date: Thu, 08 Apr 2010 22:25:40 +0200
+Message-ID: <4BBE3BC4.2030503@euromail.se>
+References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se> <4BBE2B4D.9040808@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <cover.1270754989.git.mchehab@redhat.com>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:35875 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755333Ab0DHU0M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Apr 2010 16:26:12 -0400
+In-Reply-To: <4BBE2B4D.9040808@seas.upenn.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Michael Poole <mdpoole@troilus.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-=46rom: David H=E4rdeman <david@hardeman.nu>
+Rafi Rubin wrote:
+> On 04/08/2010 05:43 AM, Henrik Rydberg wrote:
+>> Michael Poole wrote:
+>> [...]
+>>>
+>>> How would the slot number for a contact be chosen?
+>>
+>> The device driver determines how to use the slots. The driver calls
+>> input_mt_slot(dev, slot), sends the data for the slot, picks another
+>> slot, and
+>> repeats.
+>>
+> 
+> Is there any particular downside to defaulting to implicit slot ids?
 
-When the remote controller class is anyway being renamed from ir to rc
-this would be a good time to also rename the devices from rcrcvX to rcX=
-=2E
+Yes. The device driver should not have to update every slot between
+synchronizations, or the point would be lost.
 
-I know we haven't reached any agreement on whether transmission will
-eventually be handled by the same device, but this change will at
-least make the device name non-receive-specific which will make it
-possible in the future (and if a different approach is finally
-agreed upon, the device name still works).
+> For drivers/hardware that don't handle tracking, SYN_MT_REPORT could
+> just result in dev->slot++ and a SYN_REPORT resets dev->slot to 0;
 
-Signed-off-by: David H=E4rdeman <david@hardeman.nu>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+Drivers that do not handle tracking should not use the slots at all. The slot
+concept requires that whatever gets communicated over it is identifiable, or
+else it would not be possible to send changes. Drivers without tracking
+capabilities should stick to the current MT protocol, for which it was designed.
 
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index 0b05c7b..e177140 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -39,7 +39,7 @@ static struct class ir_input_class =3D {
-  * @buf:	a pointer to the output buffer
-  *
-  * This routine is a callback routine for input read the IR protocol t=
-ype.
-- * it is trigged by reading /sys/class/rc/rcrcv?/current_protocol.
-+ * it is trigged by reading /sys/class/rc/rc?/current_protocol.
-  * It returns the protocol name, as understood by the driver.
-  */
- static ssize_t show_protocol(struct device *d,
-@@ -74,7 +74,7 @@ static ssize_t show_protocol(struct device *d,
-  * @len:	length of the input buffer
-  *
-  * This routine is a callback routine for changing the IR protocol typ=
-e.
-- * it is trigged by reading /sys/class/rc/rcrcv?/current_protocol.
-+ * it is trigged by reading /sys/class/rc/rc?/current_protocol.
-  * It changes the IR the protocol name, if the IR type is recognized
-  * by the driver.
-  * If an unknown protocol name is used, returns -EINVAL.
-@@ -171,7 +171,7 @@ static struct device_type ir_dev_type =3D {
- };
-=20
- /**
-- * ir_register_class() - creates the sysfs for /sys/class/rc/rcrcv?
-+ * ir_register_class() - creates the sysfs for /sys/class/rc/rc?
-  * @input_dev:	the struct input_dev descriptor of the device
-  *
-  * This routine is used to register the syfs code for IR class
-@@ -191,7 +191,7 @@ int ir_register_class(struct input_dev *input_dev)
- 	ir_dev->dev.type =3D &ir_dev_type;
- 	ir_dev->dev.class =3D &ir_input_class;
- 	ir_dev->dev.parent =3D input_dev->dev.parent;
--	dev_set_name(&ir_dev->dev, "rcrcv%d", devno);
-+	dev_set_name(&ir_dev->dev, "rc%d", devno);
- 	dev_set_drvdata(&ir_dev->dev, ir_dev);
- 	rc =3D device_register(&ir_dev->dev);
- 	if (rc)
-@@ -222,7 +222,7 @@ int ir_register_class(struct input_dev *input_dev)
-=20
- /**
-  * ir_unregister_class() - removes the sysfs for sysfs for
-- *			   /sys/class/rc/rcrcv?
-+ *			   /sys/class/rc/rc?
-  * @input_dev:	the struct input_dev descriptor of the device
-  *
-  * This routine is used to unregister the syfs code for IR class
---=20
-1.6.6.1
+> For tracking hardware do you envision waiting for TRACKING_ID before
+> selecting a slot?  If so then either with explicit or implicit slot ids,
+> we would need to cache event until the tracking id is read, and either
+> use SYN_MT_SLOT or some other mechanism to denote known slot id.
+
+The slot protocol propagates changes, which implies that the full state of each
+initiated contact has to reside in the receiving end. Upon receiving an MT
+event, one simply updates the appropriate attribute of the active slot. Done.
+The TRACKING_ID is also an attribute of the slot, and gets updated the same way.
+ Keeping track of fingers should thus be trivial. All in all, the SYN_MT_SLOT
+method is probably more intuitive to use in the consumer end than the more
+low-level SYN_MT_REPORT method.
+
+> I like the idea and am just wondering if we can simplify the burden for
+> the drivers (and reduce the potential for mistakes).
+
+There will be more updates of the documentation following this, of course.
+Hopefully that will help.
+
+>>> If the kernel makes
+>>> that assignment, what should a "slot" correspond to from a computer
+>>> user's perspective? "Set[s] of identified sources" is a little vague:
+>>> Does it mean contacts from one hand, contacts in one displayed window
+>>> (assuming the touch surface is a screen), or something else?  (I assume
+>>> it would not duplicate the blob or tracking IDs already defined for MT
+>>> events.)
+>>
+>> The slot is only used for data communication. Think of the slot as a
+>> combined,
+>> unique identifier. For example, imagine a device driver dealing with
+>> contacts
+>> labeled with both a USER_ID and a TRACKING_ID. The driver assigns
+>> every active
+>> (USER_ID, TRACKING_ID) contact to a specific slot, and uses it to
+>> communicate
+>> all changes to that contact. When the contact is destroyed (for
+>> instance by
+>> sending a zero ABS_MT_PRESSURE on that slot), the slot is free to be
+>> used for
+>> another contact.
+>>
+>>> It seems like those would be important aspects of the protocol
+>>> to document in Documentation/input/multi-touch-protocol.txt --
+>>> otherwise, driver implementers or application developers might get it
+>>> wrong.
+>>
+>> Certainly.
+>>
+>> Cheers,
+>> Henrik
+> 
+> Please clarify which slots are emitted to userspace.
+
+Picture an array of slots in the driver and an array of slots in the receiver.
+For each slot, the driver keeps everything it can report, and the receiver keeps
+everything if can use. The receiver may also keep an array of active tracking
+ids. Each MT event updates an attribute of a slot in the receiver. Once the
+synchronization event arrives, the receiver just reads off whatever the state
+is. Every slot with a valid tracking id (nonzero pressure or nonzero touch_major
+or the like) is an existing contact. Compare to the array of active tracking
+ids, and you can figure out all new, modified and deleted ones.
+
+> At some point you
+> mentioned that if any are changed all will be emitted, is that still
+> your intent?  Have you reconsidered using an explicit event to signify
+> the end of a contact/slot?
+
+No. The current MT protocol, using the SYN_MT_REPORT event, is well-defined in
+that respect, will always send all data for all fingers, and requires no further
+changes. For the slot extension, which uses SYN_MT_SLOT instead of
+SYN_MT_REPORT, the issue with contact destruction arises in the drivers that
+currently only report ABS_MT_POSITION_X and ABS_MT_POSITION_Y. Adding either
+ABS_MT_PRESSURE or ABS_MT_TOUCH_MAJOR to those drivers, as intended in the MT
+protocol, resolves the problem. The explicit contact destruction then comes
+naturally as a zero touch event.
+
+Cheers,
+Henrik

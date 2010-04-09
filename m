@@ -1,68 +1,44 @@
-From: James Hogan <james@albanarts.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR 	system?
-Date: Fri, 9 Apr 2010 22:42:03 +0100
-Message-ID: <201004092242.11897.james@albanarts.com>
-References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com> <1270810226.3764.34.camel@palomino.walls.org> <4BBF253A.8030406@redhat.com>
+From: Devin Heitmueller <dheitmueller@kernellabs.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
+	system?
+Date: Fri, 9 Apr 2010 17:55:28 -0400
+Message-ID: <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
+References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>
+	 <1270810226.3764.34.camel@palomino.walls.org>
+	 <4BBF253A.8030406@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3311773.ZsyI2Y3QfT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:59001 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754550Ab0DIVmS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 17:42:18 -0400
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:61394 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752460Ab0DIVza (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 17:55:30 -0400
 In-Reply-To: <4BBF253A.8030406@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+Cc: Andy Walls <awalls@radix.net>, James Hogan <james@albanarts.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
---nextPart3311773.ZsyI2Y3QfT
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Fri, Apr 9, 2010 at 9:01 AM, Mauro Carvalho Chehab
+<mchehab@redhat.com> wrote:
+> [1] Basically, a keycode (like KEY_POWER) could be used to wake up the machine. So, by
+> associating some scancode to KEY_POWER via ir-core, the driver can program the hardware
+> to wake up the machine with the corresponding scancode. I can't see a need for a change at
+> ir-core to implement such behavior. Of course, some attributes at sysfs can be added
+> to enable or disable this feature, and to control the associated logic, but we first
+> need to implement the wakeup feature at the hardware driver, and then adding some logic
+> at ir-core to add the non-hardware specific code there.
 
-On Fri, Apr 09, 2010 at 06:50:26AM -0400, Andy Walls wrote:
-> If you're waiting for me to get that working, I'll advise you to plan on
-> getting off the couch and pushing the power switch for some time to
-> come. ;)
+Really?  Have you actually seen any hardware where a particular scan
+code can be used to wake up the hardware?  The only hardware I have
+seen has the ability to unsuspend on arrival of IR traffic, but you
+didn't have the granularity to dictate that it only wake up on
+particular scancodes.
 
-:-)
+Devin
 
-On Friday 09 April 2010 14:01:46 Mauro Carvalho Chehab wrote:
-> The additions at IR core, if needed [1], shouldn't be hard, but the main
-> changes should happen at the hardware driver level.  There's no current
-> plans for it, at least from my side, but, let's see if some hardware
-> driver developers want to implement it on the corresponding driver.
->=20
-> [1] Basically, a keycode (like KEY_POWER) could be used to wake up the
-> machine. So, by associating some scancode to KEY_POWER via ir-core, the
-> driver can program the hardware to wake up the machine with the
-> corresponding scancode. I can't see a need for a change at ir-core to
-> implement such behavior. Of course, some attributes at sysfs can be added
-> to enable or disable this feature, and to control the associated logic,
-> but we first need to implement the wakeup feature at the hardware driver,
-> and then adding some logic at ir-core to add the non-hardware specific
-> code there.
-
-Thanks for the info Mauro.
-
-Cheers
-James
-
---nextPart3311773.ZsyI2Y3QfT
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.13 (GNU/Linux)
-
-iEYEABECAAYFAku/nzMACgkQ4hGc8zKz77CimACePOvNj7FsSe8t5n+Y2mUKfoih
-oHoAn3RUdSvZEIoSu65YGypFaqaIMVRJ
-=4Vmu
------END PGP SIGNATURE-----
-
---nextPart3311773.ZsyI2Y3QfT--
+-- 
+Devin J. Heitmueller - Kernel Labs
+http://www.kernellabs.com

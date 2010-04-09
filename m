@@ -1,106 +1,53 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH 2/2] Use TIPSWITCH for TOUCH
-Date: Fri,  9 Apr 2010 17:58:26 -0400
-Message-ID: <1270850306-4949-2-git-send-email-rafi@seas.upenn.edu>
-References: <1270850306-4949-1-git-send-email-rafi@seas.upenn.edu>
+From: Andy Walls <awalls@radix.net>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR  system?
+Date: Fri, 09 Apr 2010 18:14:00 -0400
+Message-ID: <1270851240.3038.51.camel@palomino.walls.org>
+References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>
+	 <1270810226.3764.34.camel@palomino.walls.org> <4BBF253A.8030406@redhat.com>
+	 <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.SEAS.upenn.edu ([158.130.12.194]:36571 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751122Ab0DIV7U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 17:59:20 -0400
-In-Reply-To: <1270850306-4949-1-git-send-email-rafi@seas.upenn.edu>
+Received: from mail1.radix.net ([207.192.128.31]:33431 "EHLO mail1.radix.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751444Ab0DIWNe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Apr 2010 18:13:34 -0400
+In-Reply-To: <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz
-Cc: micki@n-trig.com, dmitry.torokhov@gmail.com, chatty@enac.fr, Rafi Rubin <rafi@seas.upenn.edu>
+To: Devin Heitmueller <dheitmueller@kernellabs.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, James Hogan <james@albanarts.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-TipSwitch is a better match for touch.  Confidence and InRange work
-for more current firmwares, but with some older versions only
-TipSwitch is appropriate.
+On Fri, 2010-04-09 at 17:55 -0400, Devin Heitmueller wrote:
+> On Fri, Apr 9, 2010 at 9:01 AM, Mauro Carvalho Chehab
+> <mchehab@redhat.com> wrote:
+> > [1] Basically, a keycode (like KEY_POWER) could be used to wake up the machine. So, by
+> > associating some scancode to KEY_POWER via ir-core, the driver can program the hardware
+> > to wake up the machine with the corresponding scancode. I can't see a need for a change at
+> > ir-core to implement such behavior. Of course, some attributes at sysfs can be added
+> > to enable or disable this feature, and to control the associated logic, but we first
+> > need to implement the wakeup feature at the hardware driver, and then adding some logic
+> > at ir-core to add the non-hardware specific code there.
+> 
+> Really?  Have you actually seen any hardware where a particular scan
+> code can be used to wake up the hardware?  The only hardware I have
+> seen has the ability to unsuspend on arrival of IR traffic, but you
+> didn't have the granularity to dictate that it only wake up on
+> particular scancodes.
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
+The CX23888 and CX23102 can do it.  Basically any IR pulse pattern your
+heart desires; within reason.  And any carrier freq you want too; within
+reason.
 
-TipSwitch seems to be the prevailing convention for Touch, I was
-mistaken to depend on Confidence, at least for single touch firmwares.
-While some firmwares send the same value for confidence and tipswitch,
-some older versions only send the correct state with tipswitch.
+But let's be real, the cx23885, cx231xx, and cx25840 modules are nowhere
+near properly supporing suspend/resume for their main video and DMA
+functions, AFAIK.
 
-I've also taken the opportunity to update the types and names of some
-of the driver data fields.
+Regards,
+Andy
 
- drivers/hid/hid-ntrig.c |   25 +++++++++++++++++--------
- 1 files changed, 17 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 58ba0d3..8a145e9 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -31,10 +31,12 @@ struct ntrig_data {
- 	/* Incoming raw values for a single contact */
- 	__u16 x, y, w, h;
- 	__u16 id;
--	__u8 confidence;
-+
-+	bool tipswitch;
-+	bool confidence;
-+	bool first_contact_touch;
- 
- 	bool reading_mt;
--	__u8 first_contact_confidence;
- 
- 	__u8 mt_footer[4];
- 	__u8 mt_foot_count;
-@@ -141,9 +143,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 		case 0xff000001:
- 			/* Tag indicating the start of a multitouch group */
- 			nd->reading_mt = 1;
--			nd->first_contact_confidence = 0;
-+			nd->first_contact_touch = 0;
- 			break;
- 		case HID_DG_TIPSWITCH:
-+			nd->tipswitch = value;
- 			/* Prevent emission of touch until validated */
- 			return 1;
- 		case HID_DG_CONFIDENCE:
-@@ -171,10 +174,15 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			 * to emit a normal (X, Y) position
- 			 */
- 			if (!nd->reading_mt) {
--				input_report_key(input, BTN_TOOL_DOUBLETAP,
--						 (nd->confidence != 0));
-+				/*
-+				 * TIPSWITCH indicates the presence of a
-+				 * finger.  DOUBLETAP is emitted are both
-+				 * emitted to support legacy drivers.
-+				 */
- 				input_report_key(input, BTN_TOUCH,
--						 (nd->confidence != 0));
-+						 nd->tipswitch);
-+				input_report_key(input, BTN_TOOL_DOUBLETAP,
-+						 nd->tipswitch);
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
-@@ -213,7 +221,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 
- 			/* emit a normal (X, Y) for the first point only */
- 			if (nd->id == 0) {
--				nd->first_contact_confidence = nd->confidence;
-+				nd->first_contact_touch = nd->confidence &&
-+					nd->tipswitch;
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
-@@ -243,7 +252,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 
- 			nd->reading_mt = 0;
- 
--			if (nd->first_contact_confidence) {
-+			if (nd->first_contact_touch) {
- 				switch (value) {
- 				case 0:	/* for single touch devices */
- 				case 1:
--- 
-1.7.0.4
 

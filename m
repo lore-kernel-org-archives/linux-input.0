@@ -1,44 +1,45 @@
-From: Devin Heitmueller <dheitmueller@kernellabs.com>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel IR
-	system?
-Date: Fri, 9 Apr 2010 17:55:28 -0400
-Message-ID: <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
-References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
-	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
-	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>
-	 <1270810226.3764.34.camel@palomino.walls.org>
-	 <4BBF253A.8030406@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH 1/2] Emit TOUCH with DOUBLETAP for single touch
+Date: Fri,  9 Apr 2010 17:58:25 -0400
+Message-ID: <1270850306-4949-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:61394 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752460Ab0DIVza (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 17:55:30 -0400
-In-Reply-To: <4BBF253A.8030406@redhat.com>
+Received: from LION.SEAS.upenn.edu ([158.130.12.194]:36567 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751122Ab0DIV7P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 17:59:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, James Hogan <james@albanarts.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: micki@n-trig.com, dmitry.torokhov@gmail.com, chatty@enac.fr, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Fri, Apr 9, 2010 at 9:01 AM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
-> [1] Basically, a keycode (like KEY_POWER) could be used to wake up the machine. So, by
-> associating some scancode to KEY_POWER via ir-core, the driver can program the hardware
-> to wake up the machine with the corresponding scancode. I can't see a need for a change at
-> ir-core to implement such behavior. Of course, some attributes at sysfs can be added
-> to enable or disable this feature, and to control the associated logic, but we first
-> need to implement the wakeup feature at the hardware driver, and then adding some logic
-> at ir-core to add the non-hardware specific code there.
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
 
-Really?  Have you actually seen any hardware where a particular scan
-code can be used to wake up the hardware?  The only hardware I have
-seen has the ability to unsuspend on arrival of IR traffic, but you
-didn't have the granularity to dictate that it only wake up on
-particular scancodes.
+I squelched TipSwitch in a recent patch which resulted in the loss
+of Touch events for single touch firmwares.  This patch just puts Touch back
+in for single touch, and bundles it with DoubleTap (like the multitouch code).
+The two events are used to convey the same message to different drivers.
 
-Devin
+I still would like to remove DoubleTap, though I think that should wait until
+after users have a more motivation to migrate away from the wacom driver for
+touch.
 
+ drivers/hid/hid-ntrig.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index a418f9e..58ba0d3 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -173,6 +173,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			if (!nd->reading_mt) {
+ 				input_report_key(input, BTN_TOOL_DOUBLETAP,
+ 						 (nd->confidence != 0));
++				input_report_key(input, BTN_TOUCH,
++						 (nd->confidence != 0));
+ 				input_event(input, EV_ABS, ABS_X, nd->x);
+ 				input_event(input, EV_ABS, ABS_Y, nd->y);
+ 			}
 -- 
-Devin J. Heitmueller - Kernel Labs
-http://www.kernellabs.com
+1.7.0.4
+

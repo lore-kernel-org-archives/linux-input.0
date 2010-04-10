@@ -1,43 +1,86 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [RFC3] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Fri, 09 Apr 2010 21:35:04 -0300
-Message-ID: <4BBFC7B8.8080505@infradead.org>
-References: <20100408113910.GA17104@hardeman.nu> <1270812351.3764.66.camel@palomino.walls.org>
+From: hermann pitton <hermann-pitton@arcor.de>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+	IR  system?
+Date: Sat, 10 Apr 2010 02:38:23 +0200
+Message-ID: <1270859903.8003.16.camel@pc07.localdom.local>
+References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
+	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
+	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>
+	 <1270810226.3764.34.camel@palomino.walls.org> <4BBF253A.8030406@redhat.com>
+	 <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
+	 <1270851240.3038.51.camel@palomino.walls.org> <4BBFB925.7080606@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1270812351.3764.66.camel@palomino.walls.org>
-Sender: linux-media-owner@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:35814 "EHLO
+	mail-in-05.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751145Ab0DJAih (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Apr 2010 20:38:37 -0400
+In-Reply-To: <4BBFB925.7080606@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Andy Walls <awalls@radix.net>, Devin Heitmueller <dheitmueller@kernellabs.com>, James Hogan <james@albanarts.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Andy Walls wrote:
-> On Thu, 2010-04-08 at 13:39 +0200, David H=C3=A4rdeman wrote:
+Hi!
 
-> Encoding pulse vs space with a negative sign, even if now hidden with
-> macros, is still just using a sign instead of a boolean.  Memory in
-> modern computers (and now microcontrollers) is cheap and only getting
-> cheaper.  Don't give up readability, flexibility, or mainatainability=
-,
-> for the sake of saving memory.
+Am Freitag, den 09.04.2010, 20:32 -0300 schrieb Mauro Carvalho Chehab:
+> Andy Walls wrote:
+> > On Fri, 2010-04-09 at 17:55 -0400, Devin Heitmueller wrote:
+> >> On Fri, Apr 9, 2010 at 9:01 AM, Mauro Carvalho Chehab
+> >> <mchehab@redhat.com> wrote:
+> >>> [1] Basically, a keycode (like KEY_POWER) could be used to wake up the machine. So, by
+> >>> associating some scancode to KEY_POWER via ir-core, the driver can program the hardware
+> >>> to wake up the machine with the corresponding scancode. I can't see a need for a change at
+> >>> ir-core to implement such behavior. Of course, some attributes at sysfs can be added
+> >>> to enable or disable this feature, and to control the associated logic, but we first
+> >>> need to implement the wakeup feature at the hardware driver, and then adding some logic
+> >>> at ir-core to add the non-hardware specific code there.
+> >> Really?  Have you actually seen any hardware where a particular scan
+> >> code can be used to wake up the hardware?  The only hardware I have
+> >> seen has the ability to unsuspend on arrival of IR traffic, but you
+> >> didn't have the granularity to dictate that it only wake up on
+> >> particular scancodes.
+> > 
+> > The CX23888 and CX23102 can do it.  Basically any IR pulse pattern your
+> > heart desires; within reason.  And any carrier freq you want too; within
+> > reason.
+> > 
+> > But let's be real, the cx23885, cx231xx, and cx25840 modules are nowhere
+> > near properly supporing suspend/resume for their main video and DMA
+> > functions, AFAIK.
+> 
+> AFAIK, only saa7134 have a good suspend/resume code [1]. You may be watching TV,
+> do a suspend and waking the hardware again, and you'll keep seeing the same
+> channel (I tested it some time ago, when the proper suspend code were added,
+> on analog mode, with alsa enabled). Other drivers can suspend/resume, but
+> they won't properly restore the video registers, so, you'll see artifacts when
+> it returns.
 
-Btw, a bad side effect of using the negative sign is that enabling debu=
-g will
-present those messages, showing negative number of units and time to th=
-e poor user:
+Yes, that was Maxim with enough testers around and Matthias Schwarzott
+had fixes.
 
-[42889.320163] ir_rc5_decode: RC5(x) decode started at state 1 (-1 unit=
-s, -816us)
-[42889.320166] ir_rc6_decode: RC6 decode started at state 0 (-2 units, =
--816us)
-[42889.320169] ir_rc6_decode: RC6 decode failed at state 0 (-2 units, -=
-816us)
+To remind, we don't recover from suspend on DVB, needs to reload the
+driver once. We are also not MFE ready with mixed init calls through v4l
+and dvb.
 
-It seems we need a debug macro also.
-
---=20
+But yes, analog is on leading edge on that ;)
 
 Cheers,
-Mauro
+Hermann
+
+> So, yes, you're right: before any suspend/resume code on those drivers, we
+> first need to add some code to properly handle kernel threads and work queues
+> during suspend, and to restore all the registers to a sane state at resume,
+> before implementing IR wakeup on them.
+> 
+> In the case of mceusb, as there is already an userspace code for it on lirc,
+> it would probably not be that hard to make this feature to work with ir-core.
+> 
+> [1] Yet, none of the in-hardware decoders allow resume, AFAIK. With a software
+> decoder, the IR IRQ might be used to wake, but this means that everything,
+> even a glitch, would wake the hardware, so this won't work neither.
+> 
+

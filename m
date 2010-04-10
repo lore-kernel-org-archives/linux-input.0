@@ -1,69 +1,51 @@
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH] Teach drivers/media/IR/ir-raw-event.c to use durations
-Date: Fri, 09 Apr 2010 21:43:10 -0300
-Message-ID: <4BBFC99E.6010707@infradead.org>
-References: <20100408161000.GA23119@hardeman.nu> <1270848998.3038.47.camel@palomino.walls.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
+ IR 	system?
+Date: Fri, 09 Apr 2010 22:01:18 -0300
+Message-ID: <4BBFCDDE.7050405@redhat.com>
+References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>	 <1270810226.3764.34.camel@palomino.walls.org>	 <4BBF253A.8030406@redhat.com>	 <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>	 <1270851240.3038.51.camel@palomino.walls.org>	 <4BBFB925.7080606@redhat.com> <l2y9e4733911004091718s4404d983o3894f78a75d996f3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:42049 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753084Ab0DJAnP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 20:43:15 -0400
-In-Reply-To: <1270848998.3038.47.camel@palomino.walls.org>
+Received: from mx1.redhat.com ([209.132.183.28]:20411 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751135Ab0DJBCh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Apr 2010 21:02:37 -0400
+In-Reply-To: <l2y9e4733911004091718s4404d983o3894f78a75d996f3@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andy Walls <awalls@radix.net>, Devin Heitmueller <dheitmueller@kernellabs.com>, James Hogan <james@albanarts.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, hermann pitton <hermann-pitton@arcor.de>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
 
-Andy Walls wrote:
-> On Thu, 2010-04-08 at 18:10 +0200, David H=C3=A4rdeman wrote:
->=20
->> With this patch:
->>
->> s64 int's are used to represent pulse/space durations in ns
->=20
-> If performing divides on 64 bit numbers, please check to make sure yo=
-ur
-> code compiles, links, and loads on a 32-bit system.
->=20
-> We've had problems in the past in where gcc will build the module to
-> reference __udivdi3 under 32-bit kernels; but that symbol is not in t=
-he
-> kernel.
+Jon Smirl wrote:
+> On Fri, Apr 9, 2010 at 7:32 PM, Mauro Carvalho Chehab
+> <mchehab@redhat.com> wrote:
+> 
+>> [1] Yet, none of the in-hardware decoders allow resume, AFAIK. With a software
+>> decoder, the IR IRQ might be used to wake, but this means that everything,
+>> even a glitch, would wake the hardware, so this won't work neither.
+> 
+> On my embedded hardware there is 100KB of static RAM on the CPU die.
+> It is preserved even in deep sleep. An IR pulse can wake the CPU and
+> run code in this 100KB RAM. Then the CPU can decide whether it wants
+> to power on main RAM and restore the OS. But implementing this is
+> outside the scope of the Linux kernel.
+> 
+> In someways this is how an MSMCE behaves in suspend. There is code
+> running on the MCU inside the MSMCE receiver. Too bad we can't tell it
+> a pattern to watch for and then trigger USB wake up. It is easy to
+> build a MSMCE clone, maybe someone will clone it and add the wakeup
+> pattern match. An enterprising hacker can probably change the firmware
+> in the existing devices.
 
-Good catch!
+Waking up the entire hardware just because an IRQ was triggered doesn't seem
+a good idea on PC's. Here, I had to put the IR sensors behind the table
+to avoid receiving too many noise from my room's lamp.
+If I put it on the right place, I start receiving several of glitches per
+second. I doubt this would be useful for suspend/resume operations.
 
-> Search for 'do_div' in:
->=20
-> 	linux/drivers/media/video/cx18/cx18-av-core.c
->=20
-> for a simple example divide that works on both 64 and 32 bit machines=
-=2E
-
-Unfortunately, not all gcc versions complain about the lack of the __ud=
-ivi32
-library. Some (like the one I run on my desktop), will add some inlined
-assembler code for it, instead of requiring some library to do the divi=
-sion.
-
-We'll likely only discover such bugs only after sending the code to lin=
-ux-next
-(done later yesterday - but I suspect that it were pulled only today fr=
-om
-my tree) and receiving a complain for the ones that run those robots th=
-at
-test hundreds of different CONFIG_foo options.
-
-So, I suspect that we'll have some of such complaints by tomorrow...
-
---=20
+-- 
 
 Cheers,
 Mauro
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

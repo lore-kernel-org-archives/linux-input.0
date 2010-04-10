@@ -1,86 +1,69 @@
-From: hermann pitton <hermann-pitton@arcor.de>
-Subject: Re: [RFC] What are the goals for the architecture of an in-kernel
-	IR  system?
-Date: Sat, 10 Apr 2010 02:38:23 +0200
-Message-ID: <1270859903.8003.16.camel@pc07.localdom.local>
-References: <9e4733910912060952h4aad49dake8e8486acb6566bc@mail.gmail.com>
-	 <9e4733910912151338n62b30af5i35f8d0963e6591c@mail.gmail.com>
-	 <4BAB7659.1040408@redhat.com> <201004090821.10435.james@albanarts.com>
-	 <1270810226.3764.34.camel@palomino.walls.org> <4BBF253A.8030406@redhat.com>
-	 <g2k829197381004091455m20368cc6r63df4a4f00d36b45@mail.gmail.com>
-	 <1270851240.3038.51.camel@palomino.walls.org> <4BBFB925.7080606@redhat.com>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [PATCH] Teach drivers/media/IR/ir-raw-event.c to use durations
+Date: Fri, 09 Apr 2010 21:43:10 -0300
+Message-ID: <4BBFC99E.6010707@infradead.org>
+References: <20100408161000.GA23119@hardeman.nu> <1270848998.3038.47.camel@palomino.walls.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:35814 "EHLO
-	mail-in-05.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751145Ab0DJAih (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Apr 2010 20:38:37 -0400
-In-Reply-To: <4BBFB925.7080606@redhat.com>
+Received: from bombadil.infradead.org ([18.85.46.34]:42049 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753084Ab0DJAnP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Apr 2010 20:43:15 -0400
+In-Reply-To: <1270848998.3038.47.camel@palomino.walls.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Andy Walls <awalls@radix.net>, Devin Heitmueller <dheitmueller@kernellabs.com>, James Hogan <james@albanarts.com>, Jon Smirl <jonsmirl@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Halasa <khc@pm.waw.pl>, Christoph Bartelmus <lirc@bartelmus.de>, j@jannau.net, jarod@redhat.com, jarod@wilsonet.com, kraxel@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, superm1@ubuntu.com
+To: Andy Walls <awalls@radix.net>
+Cc: =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-Hi!
+Andy Walls wrote:
+> On Thu, 2010-04-08 at 18:10 +0200, David H=C3=A4rdeman wrote:
+>=20
+>> With this patch:
+>>
+>> s64 int's are used to represent pulse/space durations in ns
+>=20
+> If performing divides on 64 bit numbers, please check to make sure yo=
+ur
+> code compiles, links, and loads on a 32-bit system.
+>=20
+> We've had problems in the past in where gcc will build the module to
+> reference __udivdi3 under 32-bit kernels; but that symbol is not in t=
+he
+> kernel.
 
-Am Freitag, den 09.04.2010, 20:32 -0300 schrieb Mauro Carvalho Chehab:
-> Andy Walls wrote:
-> > On Fri, 2010-04-09 at 17:55 -0400, Devin Heitmueller wrote:
-> >> On Fri, Apr 9, 2010 at 9:01 AM, Mauro Carvalho Chehab
-> >> <mchehab@redhat.com> wrote:
-> >>> [1] Basically, a keycode (like KEY_POWER) could be used to wake up the machine. So, by
-> >>> associating some scancode to KEY_POWER via ir-core, the driver can program the hardware
-> >>> to wake up the machine with the corresponding scancode. I can't see a need for a change at
-> >>> ir-core to implement such behavior. Of course, some attributes at sysfs can be added
-> >>> to enable or disable this feature, and to control the associated logic, but we first
-> >>> need to implement the wakeup feature at the hardware driver, and then adding some logic
-> >>> at ir-core to add the non-hardware specific code there.
-> >> Really?  Have you actually seen any hardware where a particular scan
-> >> code can be used to wake up the hardware?  The only hardware I have
-> >> seen has the ability to unsuspend on arrival of IR traffic, but you
-> >> didn't have the granularity to dictate that it only wake up on
-> >> particular scancodes.
-> > 
-> > The CX23888 and CX23102 can do it.  Basically any IR pulse pattern your
-> > heart desires; within reason.  And any carrier freq you want too; within
-> > reason.
-> > 
-> > But let's be real, the cx23885, cx231xx, and cx25840 modules are nowhere
-> > near properly supporing suspend/resume for their main video and DMA
-> > functions, AFAIK.
-> 
-> AFAIK, only saa7134 have a good suspend/resume code [1]. You may be watching TV,
-> do a suspend and waking the hardware again, and you'll keep seeing the same
-> channel (I tested it some time ago, when the proper suspend code were added,
-> on analog mode, with alsa enabled). Other drivers can suspend/resume, but
-> they won't properly restore the video registers, so, you'll see artifacts when
-> it returns.
+Good catch!
 
-Yes, that was Maxim with enough testers around and Matthias Schwarzott
-had fixes.
+> Search for 'do_div' in:
+>=20
+> 	linux/drivers/media/video/cx18/cx18-av-core.c
+>=20
+> for a simple example divide that works on both 64 and 32 bit machines=
+=2E
 
-To remind, we don't recover from suspend on DVB, needs to reload the
-driver once. We are also not MFE ready with mixed init calls through v4l
-and dvb.
+Unfortunately, not all gcc versions complain about the lack of the __ud=
+ivi32
+library. Some (like the one I run on my desktop), will add some inlined
+assembler code for it, instead of requiring some library to do the divi=
+sion.
 
-But yes, analog is on leading edge on that ;)
+We'll likely only discover such bugs only after sending the code to lin=
+ux-next
+(done later yesterday - but I suspect that it were pulled only today fr=
+om
+my tree) and receiving a complain for the ones that run those robots th=
+at
+test hundreds of different CONFIG_foo options.
+
+So, I suspect that we'll have some of such complaints by tomorrow...
+
+--=20
 
 Cheers,
-Hermann
-
-> So, yes, you're right: before any suspend/resume code on those drivers, we
-> first need to add some code to properly handle kernel threads and work queues
-> during suspend, and to restore all the registers to a sane state at resume,
-> before implementing IR wakeup on them.
-> 
-> In the case of mceusb, as there is already an userspace code for it on lirc,
-> it would probably not be that hard to make this feature to work with ir-core.
-> 
-> [1] Yet, none of the in-hardware decoders allow resume, AFAIK. With a software
-> decoder, the IR IRQ might be used to wake, but this means that everything,
-> even a glitch, would wake the hardware, so this won't work neither.
-> 
-
+Mauro
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

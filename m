@@ -1,49 +1,59 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
- for hid drivers
-Date: Sun, 11 Apr 2010 20:40:02 +0200
-Message-ID: <20100411204002.6ba32f43@neptune.home>
-References: <20100324233707.7243b04d@neptune.home>
-	<20100324234022.0361bd80@neptune.home>
-	<20100326065656.GC26602@core.coreip.homeip.net>
-	<20100326102951.3b9ecda1@neptune.home>
-	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
-	<20100327012245.0ace6a09@neptune.home>
-	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
-	<20100329121611.0c22dcaf@pluto.restena.lu>
-	<alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz>
-	<20100330223224.18fe4f3e@neptune.home>
-	<20100330224230.7b84df75@neptune.home>
-	<alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
-	<20100411130226.4086a92d@neptune.home>
-	<alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: Preferred way for a multitouch driver?
+Date: Sun, 11 Apr 2010 15:02:33 -0400
+Message-ID: <4BC21CC9.40606@seas.upenn.edu>
+References: <Pine.LNX.4.64.1004111828030.29274@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:46509 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752693Ab0DKSkM (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:51187 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752693Ab0DKTDH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 14:40:12 -0400
-In-Reply-To: <alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz>
+	Sun, 11 Apr 2010 15:03:07 -0400
+In-Reply-To: <Pine.LNX.4.64.1004111828030.29274@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+To: Florian Echtler <floe@butterbrot.org>
+Cc: linux-input@vger.kernel.org, Michael Poole <mdpoole@troilus.org>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 
-On Sun, 11 April 2010 Jiri Kosina <jkosina@suse.cz> wrote:
-> > As far as I understand the code, in auto-suspend case if the driver 
-> > sends commands to the device it will have to call usbhid_wait_io(). 
-> > Please correct me if I'm wrong!
-> 
-> It's not needed. There is a queuing mechanism in place on 
-> 'resumption_waker' workqueue.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So the driver is not allowed to ask the device to do something
-at auto-suspend time (as that would abort the auto-suspension).
+On 04/11/10 12:41, Florian Echtler wrote:
+> Hello everyone,
+>=20
+> I've just bought a Lenovo S10-3t convertible netbook, and now I'm
+> experimenting with the "multitouch" screen (dual-touch, rather). It's
+> being recognized as a HID device, and using hid-device-dump, I can
+> nicely read the reports of both fingers. There's also some hacks
+> floating around which use xf86-input-hidtouch, but AFAICT that doesn'=
+t
+> do any kind of multitouch.
+>=20
+> From lurking here on the list, I've gathered that the evdev interface=
+ by
+> now fully supports all kinds of multitouch events, so I guess the
+> preferred way would be a hiddev-to-evdev bridge of some kind, right?
+>=20
+> Can somebody point me into the right direction, e.g. to some other
+> driver which also works that way?
+>=20
+> Many thanks,
+> Florian
 
-Am I right?
+I think St=E9phane is working on that one.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Thanks,
-Bruno
+iEYEARECAAYFAkvCHMUACgkQwuRiAT9o609ckACgkDYjvF4SN67jn1A1/+DttvF+
+xpkAnA2FFlfc6e6UhP7YkTJda4IaOjRY
+=3DRr6m
+-----END PGP SIGNATURE-----
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

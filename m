@@ -1,296 +1,188 @@
 From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
-Date: Sun, 11 Apr 2010 12:17:45 +0200
-Message-ID: <20100411121745.6a500755@neptune.home>
-References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org>
-	<20100405220414.9d90da83.randy.dunlap@oracle.com>
-	<alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz>
-	<20100406105635.5384a087@pluto.restena.lu>
-	<20100406082614.79aaf1c5.randy.dunlap@oracle.com>
-	<20100406183535.7de3c628@neptune.home>
-	<20100406095633.49ec957a.randy.dunlap@oracle.com>
-	<20100406230434.1336c317@neptune.home>
-	<20100407092010.4cd60ece.randy.dunlap@oracle.com>
-	<20100407203132.7fe2d0f1@neptune.home>
-	<alpine.LNX.2.00.1004081441460.8345@pobox.suse.cz>
+Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
+ for hid drivers
+Date: Sun, 11 Apr 2010 13:02:26 +0200
+Message-ID: <20100411130226.4086a92d@neptune.home>
+References: <20100324233707.7243b04d@neptune.home>
+	<20100324234022.0361bd80@neptune.home>
+	<20100326065656.GC26602@core.coreip.homeip.net>
+	<20100326102951.3b9ecda1@neptune.home>
+	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
+	<20100327012245.0ace6a09@neptune.home>
+	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
+	<20100329121611.0c22dcaf@pluto.restena.lu>
+	<alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz>
+	<20100330223224.18fe4f3e@neptune.home>
+	<20100330224230.7b84df75@neptune.home>
+	<alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:49468 "EHLO
+Received: from legolas.restena.lu ([158.64.1.34]:50062 "EHLO
 	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750770Ab0DKKR7 convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751801Ab0DKLCe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 06:17:59 -0400
-In-Reply-To: <alpine.LNX.2.00.1004081441460.8345@pobox.suse.cz>
+	Sun, 11 Apr 2010 07:02:34 -0400
+In-Reply-To: <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
 
-HID_PICOLCD should depend on LCD_CLASS_DEVICE, otherwise the
-build fails when HID_PICOLCD=3Dy and LCD_CLASS_DEVICE=3Dm:
+On Wed, 31 March 2010 Jiri Kosina <jkosina@suse.cz> wrote:
 
-hid-picolcd.c:(.text+0x84523f): undefined reference to `lcd_device_unre=
-gister'
-hid-picolcd.c:(.text+0x8478ab): undefined reference to `lcd_device_regi=
-ster'
-hid-picolcd.c:(.text+0x84c15f): undefined reference to `lcd_device_unre=
-gister'
-
-Same applies to FB, BACKLIGHT_CLASS_DEVICE and LEDS_CLASS.
-
-Add suboptions for those features to handle the deps on kbuild side
-and just check HID_PICOLCD_* in the code.
-
-Reported-by: Randy Dunlap <randy.dunlap@oracle.com>
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
----
-
-On Thu, 08 April 2010 Jiri Kosina <jkosina@suse.cz> wrote:
-> > +config HID_PICOLCD_FB
-> > +	bool "Framebuffer support"
-> > +	default !EMBEDDED
-> > +	depends on HID_PICOLCD
-> > +	depends on HID_PICOLCD=3DFB || FB=3Dy
-> > +	select FB_DEFERRED_IO
-> > +	select FB_SYS_FILLRECT
-> > +	select FB_SYS_COPYAREA
-> > +	select FB_SYS_IMAGEBLIT
-> > +	select FB_SYS_FOPS
+> On Tue, 30 Mar 2010, Bruno Pr=C3=A9mont wrote:
 >=20
-> Could we perhaps also make the sub-choices for individual features=20
-> availabel only if !EMBEDDED as well?
+> > Add suspend/resume hooks for HID drivers so these can do some
+> > additional state adjustment when device gets suspended/resumed.
+> >=20
+> > This patch calls these hooks from usbhid suspend/resume functions,
+> > only calling suspend on plain suspend, not autosuspend.
+> > (it might be worth adding an autosuspend parameter to suspend
+> > hook and calling suspend in both cases)
+> >=20
+> > Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+> > ---
+> >=20
+> > Note:
+> >   this patch needs improvements as mentionned by Olivier Neukum:
+> >   - suspend hook for both system suspend and autosuspend
+> >   - no call of hook on USB-HID-resume failure
+>=20
+> I agree with Oliver's comments.
+>=20
+> We should also consider putting the hook calls into bluetooth=20
+> implementation as well (though there is currently no driver using it,=
+ but=20
+> I don't know, maybe Wacom could benefit from it as well).
 
-Here is an updated patch to make the sub-choices visible only in
-EMBEDDED case.
+Where do I find the bluetooth HID bits? I've been searching through ker=
+nel
+sources (under drivers/) but did not find bluetooth code trying to
+register a HID device...
+
+Below an updated patch which also calls the hook for auto-suspend case.
+The patch compiles but I've not runtime-tested it yet (especially for
+the auto-suspend part, as I'm not sure what should trigger it).
+
+As far as I understand the code, in auto-suspend case if the driver
+sends commands to the device it will have to call usbhid_wait_io().
+Please correct me if I'm wrong!
 
 Thanks,
 Bruno
 
 
+---
 
- drivers/hid/Kconfig       |   53 +++++++++++++++++++++++++++++++++++++=
--------
- drivers/hid/hid-picolcd.c |   40 +++++++++++++++++-----------------
- 2 files changed, 64 insertions(+), 29 deletions(-)
+Add suspend/resume hooks for HID drivers so these can do some
+additional state adjustment when device gets suspended/resumed.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index a2ecd83..621c52c 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -265,11 +265,6 @@ config HID_PETALYNX
- config HID_PICOLCD
- 	tristate "PicoLCD (graphic version)"
- 	depends on USB_HID
--	select FB_DEFERRED_IO if FB
--	select FB_SYS_FILLRECT if FB
--	select FB_SYS_COPYAREA if FB
--	select FB_SYS_IMAGEBLIT if FB
--	select FB_SYS_FOPS if FB
- 	---help---
- 	  This provides support for Minibox PicoLCD devices, currently
- 	  only the graphical ones are supported.
-@@ -277,14 +272,54 @@ config HID_PICOLCD
- 	  This includes support for the following device features:
- 	  - Keypad
- 	  - Switching between Firmware and Flash mode
--	  - Framebuffer for monochrome 256x64 display
--	  - Backlight control         (needs CONFIG_BACKLIGHT_CLASS_DEVICE)
--	  - Contrast control          (needs CONFIG_LCD_CLASS_DEVICE)
--	  - General purpose outputs   (needs CONFIG_LEDS_CLASS)
- 	  - EEProm / Flash access     (via debugfs)
-+	  Features selectively enabled:
-+	  - Framebuffer for monochrome 256x64 display
-+	  - Backlight control
-+	  - Contrast control
-+	  - General purpose outputs
- 	  Features that are not (yet) supported:
- 	  - IR
+v2:
+  - Adds auto_suspend parameter to suspend hook
+  - Only calls HID driver's resume hooks when previous code
+    did succeed
+
+Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
+---
+ drivers/hid/usbhid/hid-core.c |   24 +++++++++++++++++++++++-
+ include/linux/hid.h           |    8 ++++++++
+ 2 files changed, 31 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
+e.c
+index 3e7909b..1f40695 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1291,6 +1291,11 @@ static int hid_suspend(struct usb_interface *int=
+f, pm_message_t message)
+ 		{
+ 			set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
+ 			spin_unlock_irq(&usbhid->lock);
++			if (hid->driver && hid->driver->suspend) {
++				status =3D hid->driver->suspend(hid, 1);
++				if (status < 0)
++					return status;
++			}
+ 		} else {
+ 			usbhid_mark_busy(usbhid);
+ 			spin_unlock_irq(&usbhid->lock);
+@@ -1298,6 +1303,11 @@ static int hid_suspend(struct usb_interface *int=
+f, pm_message_t message)
+ 		}
 =20
-+config HID_PICOLCD_FB
-+	bool "Framebuffer support" if EMBEDDED
-+	default !EMBEDDED
-+	depends on HID_PICOLCD
-+	depends on HID_PICOLCD=3DFB || FB=3Dy
-+	select FB_DEFERRED_IO
-+	select FB_SYS_FILLRECT
-+	select FB_SYS_COPYAREA
-+	select FB_SYS_IMAGEBLIT
-+	select FB_SYS_FOPS
-+	---help---
-+	  Provide access to PicoLCD's 256x64 monochrome display via a
-+	  frambuffer device.
-+
-+config HID_PICOLCD_BACKLIGHT
-+	bool "Backlight control" if EMBEDDED
-+	default !EMBEDDED
-+	depends on HID_PICOLCD
-+	depends on HID_PICOLCD=3DBACKLIGHT_CLASS_DEVICE || BACKLIGHT_CLASS_DE=
-VICE=3Dy
-+	---help---
-+	  Provide access to PicoLCD's backlight control via backlight
-+	  class.
-+
-+config HID_PICOLCD_LCD
-+	bool "Contrast control" if EMBEDDED
-+	default !EMBEDDED
-+	depends on HID_PICOLCD
-+	depends on HID_PICOLCD=3DLCD_CLASS_DEVICE || LCD_CLASS_DEVICE=3Dy
-+	---help---
-+	  Provide access to PicoLCD's LCD contrast via lcd class.
-+
-+config HID_PICOLCD_LEDS
-+	bool "GPO via leds class" if EMBEDDED
-+	default !EMBEDDED
-+	depends on HID_PICOLCD
-+	depends on HID_PICOLCD=3DLEDS_CLASS || LEDS_CLASS=3Dy
-+	---help---
-+	  Provide access to PicoLCD's GPO pins via leds class.
-+
- config HID_QUANTA
- 	tristate "Quanta Optical Touch"
- 	depends on USB_HID
-diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 0eacc6b..0fbc7d3 100644
---- a/drivers/hid/hid-picolcd.c
-+++ b/drivers/hid/hid-picolcd.c
-@@ -77,7 +77,7 @@
- #define REPORT_HOOK_VERSION    0xf7 /* LCD: IN[2], OUT[1]   */
- #define REPORT_EXIT_FLASHER    0xff /*                      Bootloader=
-: OUT[2]         */
+ 	} else {
++		if (hid->driver && hid->driver->suspend) {
++			status =3D hid->driver->suspend(hid, 0);
++			if (status < 0)
++				return status;
++		}
+ 		spin_lock_irq(&usbhid->lock);
+ 		set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
+ 		spin_unlock_irq(&usbhid->lock);
+@@ -1352,6 +1362,11 @@ static int hid_resume(struct usb_interface *intf=
+)
+ 		hid_io_error(hid);
+ 	usbhid_restart_queues(usbhid);
 =20
--#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_FB
- /* Framebuffer
++	if (status >=3D 0 && hid->driver && hid->driver->resume) {
++		int ret =3D hid->driver->resume(hid);
++		if (ret < 0)
++			status =3D ret;
++	}
+ 	dev_dbg(&intf->dev, "resume status %d\n", status);
+ 	return 0;
+ }
+@@ -1360,9 +1375,16 @@ static int hid_reset_resume(struct usb_interface=
+ *intf)
+ {
+ 	struct hid_device *hid =3D usb_get_intfdata(intf);
+ 	struct usbhid_device *usbhid =3D hid->driver_data;
++	int status;
+=20
+ 	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
+-	return hid_post_reset(intf);
++	status =3D hid_post_reset(intf);
++	if (status >=3D 0 && hid->driver && hid->driver->reset_resume) {
++		int ret =3D hid->driver->reset_resume(hid);
++		if (ret < 0)
++			status =3D ret;
++	}
++	return status;
+ }
+=20
+ #endif /* CONFIG_PM */
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index b1344ec..a2f3612 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -589,6 +589,9 @@ struct hid_usage_id {
+  * @report_fixup: called before report descriptor parsing (NULL means =
+nop)
+  * @input_mapping: invoked on input registering before mapping an usag=
+e
+  * @input_mapped: invoked on input registering after mapping an usage
++ * @suspend: invoked on suspend (NULL means nop)
++ * @resume: invoked on resume if device was not reset (NULL means nop)
++ * @reset_resume: invoked on resume if device was reset (NULL means no=
+p)
   *
-  * The PicoLCD use a Topway LCD module of 256x64 pixel
-@@ -128,7 +128,7 @@ static const struct fb_var_screeninfo picolcdfb_var=
- =3D {
- 	.bits_per_pixel =3D 1,
- 	.grayscale      =3D 1,
+  * raw_event and event should return 0 on no action performed, 1 when =
+no
+  * further processing should be done and negative on error
+@@ -629,6 +632,11 @@ struct hid_driver {
+ 	int (*input_mapped)(struct hid_device *hdev,
+ 			struct hid_input *hidinput, struct hid_field *field,
+ 			struct hid_usage *usage, unsigned long **bit, int *max);
++#ifdef CONFIG_PM
++	int (*suspend)(struct hid_device *hdev, int auto_suspend);
++	int (*resume)(struct hid_device *hdev);
++	int (*reset_resume)(struct hid_device *hdev);
++#endif
+ /* private: */
+ 	struct device_driver driver;
  };
--#endif /* CONFIG_FB */
-+#endif /* CONFIG_HID_PICOLCD_FB */
-=20
- /* Input device
-  *
-@@ -183,7 +183,7 @@ struct picolcd_data {
- 	struct input_dev *input_cir;
- 	unsigned short keycode[PICOLCD_KEYS];
-=20
--#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_FB
- 	/* Framebuffer stuff */
- 	u8 fb_update_rate;
- 	u8 fb_bpp;
-@@ -191,21 +191,21 @@ struct picolcd_data {
- 	u8 *fb_bitmap;		/* framebuffer */
- 	struct fb_info *fb_info;
- 	struct fb_deferred_io fb_defio;
--#endif /* CONFIG_FB */
--#if defined(CONFIG_LCD_CLASS_DEVICE) || defined(CONFIG_LCD_CLASS_DEVIC=
-E_MODULE)
-+#endif /* CONFIG_HID_PICOLCD_FB */
-+#ifdef CONFIG_HID_PICOLCD_LCD
- 	struct lcd_device *lcd;
- 	u8 lcd_contrast;
--#endif
--#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
-_CLASS_DEVICE_MODULE)
-+#endif /* CONFIG_HID_PICOLCD_LCD */
-+#ifdef CONFIG_HID_PICOLCD_BACKLIGHT
- 	struct backlight_device *backlight;
- 	u8 lcd_brightness;
- 	u8 lcd_power;
--#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
--#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
-+#endif /* CONFIG_HID_PICOLCD_BACKLIGHT */
-+#ifdef CONFIG_HID_PICOLCD_LEDS
- 	/* LED stuff */
- 	u8 led_state;
- 	struct led_classdev *led[8];
--#endif /* CONFIG_LEDS_CLASS */
-+#endif /* CONFIG_HID_PICOLCD_LEDS */
-=20
- 	/* Housekeeping stuff */
- 	spinlock_t lock;
-@@ -287,7 +287,7 @@ static struct picolcd_pending *picolcd_send_and_wai=
-t(struct hid_device *hdev,
- 	return work;
- }
-=20
--#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_FB
- /* Send a given tile to PicoLCD */
- static int picolcd_fb_send_tile(struct hid_device *hdev, int chip, int=
- tile)
- {
-@@ -766,9 +766,9 @@ static void picolcd_exit_framebuffer(struct picolcd=
-_data *data)
- {
- }
- #define picolcd_fbinfo(d) NULL
--#endif /* CONFIG_FB */
-+#endif /* CONFIG_HID_PICOLCD_FB */
-=20
--#if defined(CONFIG_BACKLIGHT_CLASS_DEVICE) || defined(CONFIG_BACKLIGHT=
-_CLASS_DEVICE_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_BACKLIGHT
- /*
-  * backlight class device
-  */
-@@ -864,9 +864,9 @@ static inline int picolcd_resume_backlight(struct p=
-icolcd_data *data)
- {
- 	return 0;
- }
--#endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
-+#endif /* CONFIG_HID_PICOLCD_BACKLIGHT */
-=20
--#if defined(CONFIG_LCD_CLASS_DEVICE) || defined(CONFIG_LCD_CLASS_DEVIC=
-E_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_LCD
- /*
-  * lcd class device
-  */
-@@ -957,9 +957,9 @@ static inline int picolcd_resume_lcd(struct picolcd=
-_data *data)
- {
- 	return 0;
- }
--#endif /* CONFIG_LCD_CLASS_DEVICE */
-+#endif /* CONFIG_HID_PICOLCD_LCD */
-=20
--#if defined(CONFIG_LEDS_CLASS) || defined(CONFIG_LEDS_CLASS_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_LEDS
- /**
-  * LED class device
-  */
-@@ -1104,7 +1104,7 @@ static inline int picolcd_leds_set(struct picolcd=
-_data *data)
- {
- 	return 0;
- }
--#endif /* CONFIG_LEDS_CLASS */
-+#endif /* CONFIG_HID_PICOLCD_LEDS */
-=20
- /*
-  * input class device
-@@ -1243,10 +1243,10 @@ static int picolcd_reset(struct hid_device *hde=
-v)
-=20
- 	picolcd_resume_lcd(data);
- 	picolcd_resume_backlight(data);
--#if defined(CONFIG_FB) || defined(CONFIG_FB_MODULE)
-+#ifdef CONFIG_HID_PICOLCD_FB
- 	if (data->fb_info)
- 		schedule_delayed_work(&data->fb_info->deferred_work, 0);
--#endif /* CONFIG_FB */
-+#endif /* CONFIG_HID_PICOLCD_FB */
-=20
- 	picolcd_leds_set(data);
- 	return 0;
 --=20
 1.6.4.4
 

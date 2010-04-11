@@ -1,81 +1,42 @@
-From: Octoploid <cryptooctoploid@gmail.com>
-Subject: Re: Logitech M705 thumb button
-Date: Sun, 11 Apr 2010 18:29:47 +0200
-Message-ID: <g2u319012f1004110929oc9ff5f58i511346d0f6ad399d@mail.gmail.com>
-References: <hoqak4$m6t$1@dough.gmane.org>
-	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>
-	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>
-	 <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>
-	 <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>
-	 <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>
-	 <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>
-	 <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com>
-	 <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com>
-	 <4BC1F110.4030203@yahoo.de>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Preferred way for a multitouch driver?
+Date: Sun, 11 Apr 2010 18:41:04 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1004111828030.29274@butterbrot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.159]:63689 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752156Ab0DKQ3t (ORCPT
+Received: from static.88-198-47-201.clients.your-server.de ([88.198.47.201]:41631
+	"EHLO butterbrot.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752162Ab0DKQkG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 12:29:49 -0400
-Received: by fg-out-1718.google.com with SMTP id 22so445129fge.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Apr 2010 09:29:47 -0700 (PDT)
-In-Reply-To: <4BC1F110.4030203@yahoo.de>
+	Sun, 11 Apr 2010 12:40:06 -0400
+Received: from localhost (unknown [127.0.0.1])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by butterbrot.org (Postfix) with ESMTPS id A855815407A
+	for <linux-input@vger.kernel.org>; Sun, 11 Apr 2010 18:41:04 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Schedel <r.schedel@yahoo.de>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Sun, Apr 11, 2010 at 5:56 PM, Robert Schedel <r.schedel@yahoo.de> wrote:
-> Hello,
->
-> On 02.04.2010 13:27, Octoploid wrote:
-> [...]
->>>> Could you please verify that there is indeed no USB event being triggered
->>>> by the button press at all, with usbmon [1]?
->>>
->>> I already verified this, but forgot to mention it in my last mail.
->>> There are indeed no USB events being triggered when I run
->>> "cat /sys/kernel/debug/usb/usbmon/ou".
->>>
->>>> If it is the case, I am afraid the only option would be inspecting what
->>>> initialization sequence does the driver for Another OS perform, so that it
->>>> makes the button work.
->>
->> OK, I have downloaded a trial version of a usb-monitor and
->> recorded the following initialization sequence.
->> Let me know it this helps.
->>
->> http://pastebin.org/131184
->
-> You did not add info at which time you pressed which button, e.g. thumb button.
+Hello everyone,
 
-Basically: pull out the USB receiver, then plug it in and press the
-thumb button a couple of times (which is kind of hard without
-involuntarily moving the mouse).
+I've just bought a Lenovo S10-3t convertible netbook, and now I'm 
+experimenting with the "multitouch" screen (dual-touch, rather). It's 
+being recognized as a HID device, and using hid-device-dump, I can nicely 
+read the reports of both fingers. There's also some hacks floating around 
+which use xf86-input-hidtouch, but AFAICT that doesn't do any kind of 
+multitouch.
 
-> But, OK, init sequence is more important: Looking for "(DOWN)", there are several device-specific control blocks which resemble those sent by "lomoco" or other mouse tools for configuring Logitech features.
->
-> Example, request 0x9, value 0x210, sent downstream:
->
-> # 002448: Control Transfer (DOWN), 02.04.2010 11:14:55.341 +0.0
-> # Pipe Handle: 0x0
-> # Recipient: Interface
-> # Request Type: Class
-> # Direction: Host->Device
-> # Request: 0x9 (Unknown)
-> # Value: 0x210
-> # Index: 0x2
-> # Length: 0x7
->
-> My guess is, some new init trigger is required from a userspace tool (only) to enable thumb button, no kernel issue. This is difficult to analyze though w/o the device available and w/o spec. You might
-> a) fiddle with lomoco source code yourself, e.g. making the existing features work first + adding feature bits found in your protocol
-> b) get in touch with the developers
-> c) wait for someone more experienced to get the mouse and analyze
+>From lurking here on the list, I've gathered that the evdev interface by 
+now fully supports all kinds of multitouch events, so I guess the 
+preferred way would be a hiddev-to-evdev bridge of some kind, right?
 
-I choose option c) then ;-)
-(I have no experience in this area whatsoever, and hoped that
-some USB (HID) guru might see what is going on by just reading
-the log.)
+Can somebody point me into the right direction, e.g. to some other driver 
+which also works that way?
+
+Many thanks,
+Florian
+-- 
+"_Nothing_ brightens up my morning. Coffee simply provides a shade of
+grey just above the pitch-black of the infinite depths of the _abyss_."

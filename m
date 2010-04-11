@@ -1,28 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Added support for the new 3M multitouch 22" display
-Date: Sun, 11 Apr 2010 20:37:35 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004112037170.8345@pobox.suse.cz>
-References: <20100411125124.D2C72951EF@smtp.lii-enac.fr>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
+ for hid drivers
+Date: Sun, 11 Apr 2010 20:40:02 +0200
+Message-ID: <20100411204002.6ba32f43@neptune.home>
+References: <20100324233707.7243b04d@neptune.home>
+	<20100324234022.0361bd80@neptune.home>
+	<20100326065656.GC26602@core.coreip.homeip.net>
+	<20100326102951.3b9ecda1@neptune.home>
+	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
+	<20100327012245.0ace6a09@neptune.home>
+	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
+	<20100329121611.0c22dcaf@pluto.restena.lu>
+	<alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz>
+	<20100330223224.18fe4f3e@neptune.home>
+	<20100330224230.7b84df75@neptune.home>
+	<alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
+	<20100411130226.4086a92d@neptune.home>
+	<alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:53376 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752693Ab0DKShh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 14:37:37 -0400
-In-Reply-To: <20100411125124.D2C72951EF@smtp.lii-enac.fr>
+Received: from legolas.restena.lu ([158.64.1.34]:46509 "EHLO
+	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752693Ab0DKSkM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Apr 2010 14:40:12 -0400
+In-Reply-To: <alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stephane Chatty <chatty@lii-enac.fr>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, dsuljic@mmm.com, chatty@enac.fr
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
 
-On Sun, 11 Apr 2010, Stephane Chatty wrote:
+On Sun, 11 April 2010 Jiri Kosina <jkosina@suse.cz> wrote:
+> > As far as I understand the code, in auto-suspend case if the driver 
+> > sends commands to the device it will have to call usbhid_wait_io(). 
+> > Please correct me if I'm wrong!
+> 
+> It's not needed. There is a queuing mechanism in place on 
+> 'resumption_waker' workqueue.
 
-> Now support the 22" display and its updated firmware, including touch
-> width and height.
+So the driver is not allowed to ask the device to do something
+at auto-suspend time (as that would abort the auto-suspension).
 
-Applied, thank you Stephane.
+Am I right?
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Thanks,
+Bruno

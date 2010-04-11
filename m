@@ -1,193 +1,134 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
- for hid drivers
-Date: Sun, 11 Apr 2010 13:02:26 +0200
-Message-ID: <20100411130226.4086a92d@neptune.home>
-References: <20100324233707.7243b04d@neptune.home>
-	<20100324234022.0361bd80@neptune.home>
-	<20100326065656.GC26602@core.coreip.homeip.net>
-	<20100326102951.3b9ecda1@neptune.home>
-	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
-	<20100327012245.0ace6a09@neptune.home>
-	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
-	<20100329121611.0c22dcaf@pluto.restena.lu>
-	<alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz>
-	<20100330223224.18fe4f3e@neptune.home>
-	<20100330224230.7b84df75@neptune.home>
-	<alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: [PATCH] Added support for the new 3M multitouch 22" display
+Date: Sun, 11 Apr 2010 14:51:24 +0200
+Message-ID: <20100411125124.D2C72951EF@smtp.lii-enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:50062 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751801Ab0DKLCe convert rfc822-to-8bit (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:43559 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751143Ab0DKMv1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 07:02:34 -0400
-In-Reply-To: <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
+	Sun, 11 Apr 2010 08:51:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+To: jkosina@suse.cz, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: dsuljic@mmm.com, chatty@enac.fr
 
-On Wed, 31 March 2010 Jiri Kosina <jkosina@suse.cz> wrote:
+Now support the 22" display and its updated firmware, including touch
+width and height.
 
-> On Tue, 30 Mar 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > Add suspend/resume hooks for HID drivers so these can do some
-> > additional state adjustment when device gets suspended/resumed.
-> >=20
-> > This patch calls these hooks from usbhid suspend/resume functions,
-> > only calling suspend on plain suspend, not autosuspend.
-> > (it might be worth adding an autosuspend parameter to suspend
-> > hook and calling suspend in both cases)
-> >=20
-> > Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
-> > ---
-> >=20
-> > Note:
-> >   this patch needs improvements as mentionned by Olivier Neukum:
-> >   - suspend hook for both system suspend and autosuspend
-> >   - no call of hook on USB-HID-resume failure
->=20
-> I agree with Oliver's comments.
->=20
-> We should also consider putting the hook calls into bluetooth=20
-> implementation as well (though there is currently no driver using it,=
- but=20
-> I don't know, maybe Wacom could benefit from it as well).
+The number of touches can now go up to 60, and our single touch emulation
+will fail when there are more than 6-7 touches; further work is needed on
+this.
 
-Where do I find the bluetooth HID bits? I've been searching through ker=
-nel
-sources (under drivers/) but did not find bluetooth code trying to
-register a HID device...
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
-Below an updated patch which also calls the hook for auto-suspend case.
-The patch compiles but I've not runtime-tested it yet (especially for
-the auto-suspend part, as I'm not sure what should trigger it).
-
-As far as I understand the code, in auto-suspend case if the driver
-sends commands to the device it will have to call usbhid_wait_io().
-Please correct me if I'm wrong!
-
-Thanks,
-Bruno
-
-
----
-
-Add suspend/resume hooks for HID drivers so these can do some
-additional state adjustment when device gets suspended/resumed.
-
-v2:
-  - Adds auto_suspend parameter to suspend hook
-  - Only calls HID driver's resume hooks when previous code
-    did succeed
-
-Signed-off-by: Bruno Pr=C3=A9mont <bonbons@linux-vserver.org>
----
- drivers/hid/usbhid/hid-core.c |   24 +++++++++++++++++++++++-
- include/linux/hid.h           |    8 ++++++++
- 2 files changed, 31 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
-e.c
-index 3e7909b..1f40695 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1291,6 +1291,11 @@ static int hid_suspend(struct usb_interface *int=
-f, pm_message_t message)
- 		{
- 			set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
- 			spin_unlock_irq(&usbhid->lock);
-+			if (hid->driver && hid->driver->suspend) {
-+				status =3D hid->driver->suspend(hid, 1);
-+				if (status < 0)
-+					return status;
-+			}
- 		} else {
- 			usbhid_mark_busy(usbhid);
- 			spin_unlock_irq(&usbhid->lock);
-@@ -1298,6 +1303,11 @@ static int hid_suspend(struct usb_interface *int=
-f, pm_message_t message)
- 		}
-=20
- 	} else {
-+		if (hid->driver && hid->driver->suspend) {
-+			status =3D hid->driver->suspend(hid, 0);
-+			if (status < 0)
-+				return status;
-+		}
- 		spin_lock_irq(&usbhid->lock);
- 		set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
- 		spin_unlock_irq(&usbhid->lock);
-@@ -1352,6 +1362,11 @@ static int hid_resume(struct usb_interface *intf=
-)
- 		hid_io_error(hid);
- 	usbhid_restart_queues(usbhid);
-=20
-+	if (status >=3D 0 && hid->driver && hid->driver->resume) {
-+		int ret =3D hid->driver->resume(hid);
-+		if (ret < 0)
-+			status =3D ret;
-+	}
- 	dev_dbg(&intf->dev, "resume status %d\n", status);
- 	return 0;
- }
-@@ -1360,9 +1375,16 @@ static int hid_reset_resume(struct usb_interface=
- *intf)
- {
- 	struct hid_device *hid =3D usb_get_intfdata(intf);
- 	struct usbhid_device *usbhid =3D hid->driver_data;
-+	int status;
-=20
- 	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
--	return hid_post_reset(intf);
-+	status =3D hid_post_reset(intf);
-+	if (status >=3D 0 && hid->driver && hid->driver->reset_resume) {
-+		int ret =3D hid->driver->reset_resume(hid);
-+		if (ret < 0)
-+			status =3D ret;
-+	}
-+	return status;
- }
-=20
- #endif /* CONFIG_PM */
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index b1344ec..a2f3612 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -589,6 +589,9 @@ struct hid_usage_id {
-  * @report_fixup: called before report descriptor parsing (NULL means =
-nop)
-  * @input_mapping: invoked on input registering before mapping an usag=
-e
-  * @input_mapped: invoked on input registering after mapping an usage
-+ * @suspend: invoked on suspend (NULL means nop)
-+ * @resume: invoked on resume if device was not reset (NULL means nop)
-+ * @reset_resume: invoked on resume if device was reset (NULL means no=
-p)
+diff -rupN a/drivers/hid/hid-3m-pct.c b/drivers/hid/hid-3m-pct.c
+--- a/drivers/hid/hid-3m-pct.c	2010-03-20 02:17:57.000000000 +0100
++++ b/drivers/hid/hid-3m-pct.c	2010-04-11 15:15:30.000000000 +0200
+@@ -1,7 +1,7 @@
+ /*
+  *  HID driver for 3M PCT multitouch panels
   *
-  * raw_event and event should return 0 on no action performed, 1 when =
-no
-  * further processing should be done and negative on error
-@@ -629,6 +632,11 @@ struct hid_driver {
- 	int (*input_mapped)(struct hid_device *hdev,
- 			struct hid_input *hidinput, struct hid_field *field,
- 			struct hid_usage *usage, unsigned long **bit, int *max);
-+#ifdef CONFIG_PM
-+	int (*suspend)(struct hid_device *hdev, int auto_suspend);
-+	int (*resume)(struct hid_device *hdev);
-+	int (*reset_resume)(struct hid_device *hdev);
-+#endif
- /* private: */
- 	struct device_driver driver;
+- *  Copyright (c) 2009 Stephane Chatty <chatty@enac.fr>
++ *  Copyright (c) 2009-2010 Stephane Chatty <chatty@enac.fr>
+  *
+  */
+ 
+@@ -24,7 +24,7 @@ MODULE_LICENSE("GPL");
+ #include "hid-ids.h"
+ 
+ struct mmm_finger {
+-	__s32 x, y;
++	__s32 x, y, w, h;
+ 	__u8 rank;
+ 	bool touch, valid;
  };
---=20
-1.6.4.4
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+@@ -81,7 +81,18 @@ static int mmm_input_mapping(struct hid_
+ 			/* touchscreen emulation */
+ 			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+ 			return 1;
++		case HID_DG_WIDTH:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MAJOR);
++			return 1;
++		case HID_DG_HEIGHT:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MINOR);
++			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
++					1, 1, 0, 0);
++			return 1;
+ 		case HID_DG_CONTACTID:
++			field->logical_maximum = 59;
+ 			hid_map_usage(hi, usage, bit, max,
+ 					EV_ABS, ABS_MT_TRACKING_ID);
+ 			return 1;
+@@ -127,9 +138,15 @@ static void mmm_filter_event(struct mmm_
+ 			/* this finger is just placeholder data, ignore */
+ 		} else if (f->touch) {
+ 			/* this finger is on the screen */
++			int wide = (f->w > f->h);
+ 			input_event(input, EV_ABS, ABS_MT_TRACKING_ID, i);
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_X, f->x);
+ 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, f->y);
++			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR,
++						wide ? f->w : f->h);
++			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR,
++						wide ? f->h : f->w);
+ 			input_mt_sync(input);
+ 			/*
+ 			 * touchscreen emulation: maintain the age rank
+@@ -196,6 +213,14 @@ static int mmm_event(struct hid_device *
+ 		case HID_DG_CONFIDENCE:
+ 			md->valid = value;
+ 			break;
++		case HID_DG_WIDTH:
++			if (md->valid)
++				md->f[md->curid].w = value;
++			break;
++		case HID_DG_HEIGHT:
++			if (md->valid)
++				md->f[md->curid].h = value;
++			break;
+ 		case HID_DG_CONTACTID:
+ 			if (md->valid) {
+ 				md->curid = value;
+@@ -254,6 +279,7 @@ static void mmm_remove(struct hid_device
+ 
+ static const struct hid_device_id mmm_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mmm_devices);
+@@ -286,5 +312,4 @@ static void __exit mmm_exit(void)
+ 
+ module_init(mmm_init);
+ module_exit(mmm_exit);
+-MODULE_LICENSE("GPL");
+ 
+diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-04-11 15:06:34.000000000 +0200
++++ b/drivers/hid/hid-core.c	2010-04-11 14:49:32.000000000 +0200
+@@ -1251,6 +1251,7 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
+ /* a list of devices for which there is a specialized driver on HID bus */
+ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M2256) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+diff -rupN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-04-11 15:06:47.000000000 +0200
++++ b/drivers/hid/hid-ids.h	2010-04-11 14:50:34.000000000 +0200
+@@ -20,6 +20,7 @@
+ 
+ #define USB_VENDOR_ID_3M		0x0596
+ #define USB_DEVICE_ID_3M1968		0x0500
++#define USB_DEVICE_ID_3M2256		0x0502
+ 
+ #define USB_VENDOR_ID_A4TECH		0x09da
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006

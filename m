@@ -1,56 +1,47 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 4/4] Add RC6 support to ir-core
-Date: Sun, 11 Apr 2010 00:23:19 +0200
-Message-ID: <20100410222319.GA10473@hardeman.nu>
-References: <20100408230246.14453.97377.stgit@localhost.localdomain>
- <20100408230440.14453.36936.stgit@localhost.localdomain>
- <1270861928.3038.153.camel@palomino.walls.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: [PATCH 2/2] ir-core: Fix the delete logic
+Date: Sun, 11 Apr 2010 00:20:00 -0300
+Message-ID: <20100411002000.0ba27cdd@pedra>
+References: <ccda6144bee4797ab2f2524c4c4fe43c964c56e2.1270955959.git.mchehab@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1270861928.3038.153.camel@palomino.walls.org>
+In-Reply-To: <ccda6144bee4797ab2f2524c4c4fe43c964c56e2.1270955959.git.mchehab@redhat.com>
 Sender: linux-media-owner@vger.kernel.org
-To: Andy Walls <awalls@radix.net>
-Cc: mchehab@redhat.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Apr 09, 2010 at 09:12:08PM -0400, Andy Walls wrote:
-> On Fri, 2010-04-09 at 01:04 +0200, David H=E4rdeman wrote:
-> > +again:
-> > +	IR_dprintk(2, "RC6 decode started at state %i (%i units, %ius)\n"=
-,
-> > +		   data->state, u, TO_US(duration));
-> > +
-> > +	if (DURATION(u) =3D=3D 0 && data->state !=3D STATE_FINISHED)
-> > +		return 0;
->=20
-> Isn't there a better way to structure the logic to break up two adjac=
-ent
-> pulse units than with goto's out of the switch back up to here?
->=20
-> A do {} while() loop would have been much clearer.
+Instead of removing an entry, the logic were doing both a deletion and
+a key addition, as shown by the log:
 
-I just tried it, and I'm not convinced. The main problem is that you'll=
-=20
-end up with:
+[11517.323314] ir_getkeycode: unknown key for scancode 0x0050
+[11517.326529] ir_do_setkeycode: #80: Deleting scan 0x0050
+[11517.326529] ir_do_setkeycode: #80: New scan 0x0050 with key 0x0000
+[11517.340598] ir_getkeycode: unknown key for scancode 0x0051
+[11517.343811] ir_do_setkeycode: #81: Deleting scan 0x0051
+[11517.343811] ir_do_setkeycode: #81: New scan 0x0051 with key 0x0000
+[11517.357889] ir_getkeycode: unknown key for scancode 0x0052
+[11517.361104] ir_do_setkeycode: #82: Deleting scan 0x0052
+[11517.361104] ir_do_setkeycode: #82: New scan 0x0052 with key 0x0000
+[11517.375453] ir_getkeycode: unknown key for scancode 0x0053
+[11517.378474] ir_do_setkeycode: #83: Deleting scan 0x0053
+[11517.378474] ir_do_setkeycode: #83: New scan 0x0053 with key 0x0000
 
-do {
-	switch(b) {
-	case c:
-		if (x)
-			break;
-		else if (y)
-			continue;
-while(a);
+Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-Where the break statement will affect the switch() and the continue=20
-statement will affect the do-while() loop which is kinda confusing.
-
-Especially if you're so far down in the function body that the=20
-do-while() and switch() statements aren't visible any more.
-
-
---=20
-David H=E4rdeman
+diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
+index 01bddc4..f0eb680 100644
+--- a/drivers/media/IR/ir-keytable.c
++++ b/drivers/media/IR/ir-keytable.c
+@@ -126,7 +126,7 @@ static int ir_do_setkeycode(struct input_dev *dev,
+ 		break;
+ 	}
+ 
+-	if (old_keycode == KEY_RESERVED) {
++	if (old_keycode == KEY_RESERVED && keycode != KEY_RESERVED) {
+ 		/* No previous mapping found, we might need to grow the table */
+ 		if (ir_resize_table(rc_tab))
+ 			return -ENOMEM;
+-- 
+1.6.6.1

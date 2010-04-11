@@ -1,51 +1,50 @@
-From: Michael Poole <mdpoole@troilus.org>
-Subject: Re: Preferred way for a multitouch driver?
-Date: Sun, 11 Apr 2010 12:54:40 -0400
-Message-ID: <87633yhqun.fsf@troilus.org>
-References: <Pine.LNX.4.64.1004111828030.29274@butterbrot.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH mmotm] hid-picolcd: depends on LCD_CLASS_DEVICE
+Date: Sun, 11 Apr 2010 20:28:35 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004112028080.8345@pobox.suse.cz>
+References: <201004052336.o35NaeSE015814@imap1.linux-foundation.org> <20100405220414.9d90da83.randy.dunlap@oracle.com> <alpine.LNX.2.00.1004061038510.8345@pobox.suse.cz> <20100406105635.5384a087@pluto.restena.lu> <20100406082614.79aaf1c5.randy.dunlap@oracle.com>
+ <20100406183535.7de3c628@neptune.home> <20100406095633.49ec957a.randy.dunlap@oracle.com> <20100406230434.1336c317@neptune.home> <20100407092010.4cd60ece.randy.dunlap@oracle.com> <20100407203132.7fe2d0f1@neptune.home> <alpine.LNX.2.00.1004081441460.8345@pobox.suse.cz>
+ <20100411121745.6a500755@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from na3sys009aog108.obsmtp.com ([74.125.149.199]:51173 "HELO
-	na3sys009aog108.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751953Ab0DKQyo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 12:54:44 -0400
-Received: by qyk30 with SMTP id 30so1266146qyk.16
-        for <linux-input@vger.kernel.org>; Sun, 11 Apr 2010 09:54:43 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.1004111828030.29274@butterbrot.org> (Florian
-	Echtler's message of "Sun, 11 Apr 2010 18:41:04 +0200 (CEST)")
+Received: from cantor.suse.de ([195.135.220.2]:53088 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752456Ab0DKS2o (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Apr 2010 14:28:44 -0400
+In-Reply-To: <20100411121745.6a500755@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rvinyard@cs.nmsu.edu
 
-Florian Echtler writes:
+On Sun, 11 Apr 2010, Bruno Pr=C3=A9mont wrote:
 
-> Hello everyone,
->
-> I've just bought a Lenovo S10-3t convertible netbook, and now I'm
-> experimenting with the "multitouch" screen (dual-touch, rather). It's
-> being recognized as a HID device, and using hid-device-dump, I can
-> nicely read the reports of both fingers. There's also some hacks
-> floating around which use xf86-input-hidtouch, but AFAICT that doesn't
-> do any kind of multitouch.
->
-> From lurking here on the list, I've gathered that the evdev interface
-> by now fully supports all kinds of multitouch events, so I guess the
-> preferred way would be a hiddev-to-evdev bridge of some kind, right?
+> > > +config HID_PICOLCD_FB
+> > > +	bool "Framebuffer support"
+> > > +	default !EMBEDDED
+> > > +	depends on HID_PICOLCD
+> > > +	depends on HID_PICOLCD=3DFB || FB=3Dy
+> > > +	select FB_DEFERRED_IO
+> > > +	select FB_SYS_FILLRECT
+> > > +	select FB_SYS_COPYAREA
+> > > +	select FB_SYS_IMAGEBLIT
+> > > +	select FB_SYS_FOPS
+> >=20
+> > Could we perhaps also make the sub-choices for individual features=20
+> > availabel only if !EMBEDDED as well?
+>=20
+> Here is an updated patch to make the sub-choices visible only in
+> EMBEDDED case.
 
-You don't need that -- HID drivers already generate evdev events.
+Applied, thanks Bruno.
 
-> Can somebody point me into the right direction, e.g. to some other
-> driver which also works that way?
-
-You can find them by grepping for ABS_MT_ in the drivers/hid/ directory.
-hid-3m-pct, hid-magicmouse, hid-mosart, hid-ntrig, hid-quanta and
-hid-stratum all generate multitouch events.  Most of them use standard
-HID report descriptors; however, hid-magicmouse has to translate input
-reports that don't have published descriptors.  Depending on how the
-screen behaves, you'll probably want to look more at the other drivers
-than hid-magicmouse.
-
-Michael Poole
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

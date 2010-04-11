@@ -1,61 +1,64 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks for hid drivers
-Date: Sun, 11 Apr 2010 15:38:30 +0200
-Message-ID: <201004111538.31009.oliver@neukum.org>
-References: <20100324233707.7243b04d@neptune.home> <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz> <20100411130226.4086a92d@neptune.home>
+From: Robert Schedel <r.schedel@yahoo.de>
+Subject: Re: Logitech M705 thumb button
+Date: Sun, 11 Apr 2010 17:56:00 +0200
+Message-ID: <4BC1F110.4030203@yahoo.de>
+References: <hoqak4$m6t$1@dough.gmane.org>	 <20100330065625.GC12764@core.coreip.homeip.net>	 <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>	 <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>	 <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>	 <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>	 <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>	 <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>	 <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com> <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:34234 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751873Ab0DKNic convert rfc822-to-8bit (ORCPT
+Received: from smtp121.mail.ukl.yahoo.com ([77.238.184.52]:46156 "HELO
+	smtp121.mail.ukl.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751874Ab0DKQDG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Apr 2010 09:38:32 -0400
-In-Reply-To: <20100411130226.4086a92d@neptune.home>
+	Sun, 11 Apr 2010 12:03:06 -0400
+In-Reply-To: <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?utf-8?q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
+To: Octoploid <cryptooctoploid@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Am Sonntag, 11. April 2010 13:02:26 schrieb Bruno Pr=C3=A9mont:
-> Where do I find the bluetooth HID bits? I've been searching through k=
-ernel
-> sources (under drivers/) but did not find bluetooth code trying to
-> register a HID device...
+Hello,
 
-net/bluetooth/hidp/core.c
+On 02.04.2010 13:27, Octoploid wrote:
+[...]
+>>> Could you please verify that there is indeed no USB event being triggered
+>>> by the button press at all, with usbmon [1]?
+>>
+>> I already verified this, but forgot to mention it in my last mail.
+>> There are indeed no USB events being triggered when I run
+>> "cat /sys/kernel/debug/usb/usbmon/ou".
+>>
+>>> If it is the case, I am afraid the only option would be inspecting what
+>>> initialization sequence does the driver for Another OS perform, so that it
+>>> makes the button work.
+> 
+> OK, I have downloaded a trial version of a usb-monitor and
+> recorded the following initialization sequence.
+> Let me know it this helps.
+> 
+> http://pastebin.org/131184
 
-> Below an updated patch which also calls the hook for auto-suspend cas=
-e.
-> The patch compiles but I've not runtime-tested it yet (especially for
-> the auto-suspend part, as I'm not sure what should trigger it).
+You did not add info at which time you pressed which button, e.g. thumb button.
 
-Looks basically good.
+But, OK, init sequence is more important: Looking for "(DOWN)", there are several device-specific control blocks which resemble those sent by "lomoco" or other mouse tools for configuring Logitech features.
 
-> As far as I understand the code, in auto-suspend case if the driver
-> sends commands to the device it will have to call usbhid_wait_io().
-> Please correct me if I'm wrong!
+Example, request 0x9, value 0x210, sent downstream:
 
-No, only if it wants to know that the command has finished.
-hid_submit_out() will queue IO in the autosuspended case
-and schedule a resumption.
+# 002448: Control Transfer (DOWN), 02.04.2010 11:14:55.341 +0.0
+# Pipe Handle: 0x0
+# Recipient: Interface
+# Request Type: Class
+# Direction: Host->Device
+# Request: 0x9 (Unknown)
+# Value: 0x210
+# Index: 0x2
+# Length: 0x7
 
-> @@ -629,6 +632,11 @@ struct hid_driver {
->         int (*input_mapped)(struct hid_device *hdev,
->                         struct hid_input *hidinput, struct hid_field =
-*field,
->                         struct hid_usage *usage, unsigned long **bit,=
- int *max);
-> +#ifdef CONFIG_PM
-> +       int (*suspend)(struct hid_device *hdev, int auto_suspend);
+My guess is, some new init trigger is required from a userspace tool (only) to enable thumb button, no kernel issue. This is difficult to analyze though w/o the device available and w/o spec. You might
+a) fiddle with lomoco source code yourself, e.g. making the existing features work first + adding feature bits found in your protocol
+b) get in touch with the developers
+c) wait for someone more experienced to get the mouse and analyze
 
-It would be better to pass the full message.
-
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Robert Schedel

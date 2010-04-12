@@ -1,46 +1,75 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
- for hid drivers
-Date: Mon, 12 Apr 2010 13:43:49 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz>
-References: <20100324233707.7243b04d@neptune.home> <20100324234022.0361bd80@neptune.home> <20100326065656.GC26602@core.coreip.homeip.net> <20100326102951.3b9ecda1@neptune.home> <alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz> <20100327012245.0ace6a09@neptune.home>
- <alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz> <20100329121611.0c22dcaf@pluto.restena.lu> <alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz> <20100330223224.18fe4f3e@neptune.home> <20100330224230.7b84df75@neptune.home> <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
- <20100411130226.4086a92d@neptune.home> <alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz> <20100411204002.6ba32f43@neptune.home>
+Subject: Re: Zeroing the report before setting fields
+Date: Mon, 12 Apr 2010 18:08:09 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004121807480.8345@pobox.suse.cz>
+References: <20100304143349.2d861ec6@redhat.com> <20100305082901.GA20245@core.coreip.homeip.net> <alpine.LNX.2.00.1003091340250.17799@pobox.suse.cz> <20100309162648.289871c4@redhat.com> <alpine.LNX.2.00.1003132324250.18642@pobox.suse.cz> <20100321230941.6a56eae2@redhat.com>
+ <alpine.LNX.2.00.1003221726320.18642@pobox.suse.cz> <20100322162206.3c1e9b9e@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100411204002.6ba32f43@neptune.home>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:59842 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752058Ab0DLQIL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Apr 2010 12:08:11 -0400
+In-Reply-To: <20100322162206.3c1e9b9e@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Sun, 11 Apr 2010, Bruno Pr=E9mont wrote:
+On Mon, 22 Mar 2010, Pete Zaitcev wrote:
 
-> > > As far as I understand the code, in auto-suspend case if the driv=
-er=20
-> > > sends commands to the device it will have to call usbhid_wait_io(=
-).=20
-> > > Please correct me if I'm wrong!
-> >=20
-> > It's not needed. There is a queuing mechanism in place on=20
-> > 'resumption_waker' workqueue.
->=20
-> So the driver is not allowed to ask the device to do something
-> at auto-suspend time (as that would abort the auto-suspension).
+> > >  	if (dir == USB_DIR_OUT) {
+> > > -		usbhid->ctrl[usbhid->ctrlhead].raw_report = kmalloc(len, GFP_ATOMIC);
+> > > +		usbhid->ctrl[usbhid->ctrlhead].raw_report = kzalloc(len, GFP_ATOMIC);
+> > >  		if (!usbhid->ctrl[usbhid->ctrlhead].raw_report) {
+> > >  			dev_warn(&hid->dev, "control queueing failed\n");
+> 
+> > Frankly, I like the generic aproach more ... if we were to add more 
+> > low-level transport HID implementations later, I am sure this will be 
+> > forgotten multiple times :) (as it isn't directly implied by the HID 
+> > specification, but is rather a workaround for devices that are violating 
+> > the spec by looking at the bits they shouldn't care about).
+> 
+> You are right, I screwed the pooch on the layering. Sorry.
+> 
+> Still, I do not want to go back to counting of field lengths.
+> Too many what-ifs.
+> 
+> How about this (I tested it but clearly my tests are limited):
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 368fbb0..e290bb3 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+>  	unsigned count = field->report_count;
+>  	unsigned offset = field->report_offset;
+>  	unsigned size = field->report_size;
+> -	unsigned bitsused = offset + count * size;
+>  	unsigned n;
+>  
+> -	/* make sure the unused bits in the last byte are zeros */
+> -	if (count > 0 && size > 0 && (bitsused % 8) != 0)
+> -		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
+> -
+>  	for (n = 0; n < count; n++) {
+>  		if (field->logical_minimum < 0)	/* signed values */
+>  			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+> @@ -966,6 +961,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+>  	if (report->id > 0)
+>  		*data++ = report->id;
+>  
+> +	memset(data, 0, ((report->size - 1) >> 3) + 1);
+>  	for (n = 0; n < report->maxfield; n++)
+>  		hid_output_field(report->field[n], data);
+>  }
 
-What do you mean by "is not allowed" exactly?
-
-Yes, it will wake the device up from auto-suspension. However, that's=20
-usually what you want to happen, is there is anything you need to dispa=
-tch=20
-to the device, isn't it?
-
-What exactly is the situation you are trying to handle?
+This looks basically fine. Could you please send it with chagelog and your 
+Signed-off-by entry?
 
 Thanks,
 
---=20
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.

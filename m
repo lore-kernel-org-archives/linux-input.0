@@ -1,76 +1,63 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
- for hid drivers
-Date: Mon, 12 Apr 2010 18:56:07 +0200
-Message-ID: <20100412185607.10c7b3be@neptune.home>
-References: <20100324233707.7243b04d@neptune.home>
-	<20100324234022.0361bd80@neptune.home>
-	<20100326065656.GC26602@core.coreip.homeip.net>
-	<20100326102951.3b9ecda1@neptune.home>
-	<alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz>
-	<20100327012245.0ace6a09@neptune.home>
-	<alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz>
-	<20100329121611.0c22dcaf@pluto.restena.lu>
-	<alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz>
-	<20100330223224.18fe4f3e@neptune.home>
-	<20100330224230.7b84df75@neptune.home>
-	<alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
-	<20100411130226.4086a92d@neptune.home>
-	<alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz>
-	<20100411204002.6ba32f43@neptune.home>
-	<alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: [Patch] HID: non-overlapping zeroing of extra bits
+Date: Mon, 12 Apr 2010 12:16:11 -0600
+Message-ID: <20100412121611.4d8ff409@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:47652 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752424Ab0DLQ4Q convert rfc822-to-8bit (ORCPT
+Received: from mx1.redhat.com ([209.132.183.28]:55069 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753057Ab0DLSQJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Apr 2010 12:56:16 -0400
-In-Reply-To: <alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz>
+	Mon, 12 Apr 2010 14:16:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
+Cc: linux-input@vger.kernel.org, zaitcev@redhat.com
 
-On Mon, 12 April 2010 Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sun, 11 Apr 2010, Bruno Pr=C3=A9mont wrote:
->=20
-> > > > As far as I understand the code, in auto-suspend case if the dr=
-iver=20
-> > > > sends commands to the device it will have to call usbhid_wait_i=
-o().=20
-> > > > Please correct me if I'm wrong!
-> > >=20
-> > > It's not needed. There is a queuing mechanism in place on=20
-> > > 'resumption_waker' workqueue.
-> >=20
-> > So the driver is not allowed to ask the device to do something
-> > at auto-suspend time (as that would abort the auto-suspension).
->=20
-> What do you mean by "is not allowed" exactly?
->
-> Yes, it will wake the device up from auto-suspension. However, that's=
-=20
-> usually what you want to happen, is there is anything you need to dis=
-patch=20
-> to the device, isn't it?
+>From my review of the way the unused bits of report are being zeroed,
+it seems like there must be a bug. Currently, the zeroing is done
+in hid_output_field and it covers any bits between the last used bit
+and the end of the byte. But in case of, say, my keyboard, NumLock is
+mask 0x01 and CapsLock is 0x02. Invoking hid_output_field for NumLock
+definitely zeroes across CapsLock. The only reason this works is that
+the fields are sorted by the offset.
 
-I thought of a report to send to device to ask the device to disable so=
-me
-power using feature (e.g. turning off or dimming LEDs)
+It would be more correct and simpler to zero-fill the buffer into
+which the fields are set.
 
-> What exactly is the situation you are trying to handle?
+The patch is tested with an IBM keyboard that is improperly sensitive
+to out-of-report pad bits, the extra bits are still zeroed and the
+fields continue to work as expected. It is also tested with good
+keyboards.
 
-That's rather a generic question, not related to any implementation.
+In case, a related bug in RHEL 5 is tracked with Red Hat bug 513934.
 
-Maybe I'm mixing suspend and USB-autosuspend too much?
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
 
-Thanks,
-Bruno
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
+ 	unsigned count = field->report_count;
+ 	unsigned offset = field->report_offset;
+ 	unsigned size = field->report_size;
+-	unsigned bitsused = offset + count * size;
+ 	unsigned n;
+ 
+-	/* make sure the unused bits in the last byte are zeros */
+-	if (count > 0 && size > 0 && (bitsused % 8) != 0)
+-		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
+-
+ 	for (n = 0; n < count; n++) {
+ 		if (field->logical_minimum < 0)	/* signed values */
+ 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
+@@ -966,6 +961,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
+ 	if (report->id > 0)
+ 		*data++ = report->id;
+ 
++	memset(data, 0, ((report->size - 1) >> 3) + 1);
+ 	for (n = 0; n < report->maxfield; n++)
+ 		hid_output_field(report->field[n], data);
+ }

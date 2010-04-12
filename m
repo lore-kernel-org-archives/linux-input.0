@@ -1,66 +1,46 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Support for the eGalax dual-touch panel
-Date: Mon, 12 Apr 2010 09:19:55 +0200
-Message-ID: <z2g8f7062ad1004120019g9dbd9069m8b5f9dfcba64f1c9@mail.gmail.com>
-References: <20100410144308.9ABEE951F6@smtp.lii-enac.fr>
-	 <1270915489.3869.12.camel@lovely>
-	 <4E18664F-5C63-4A5B-AFC8-12CC9FD0FA3A@enac.fr>
-	 <20100412032158.GE29292@core.coreip.homeip.net>
-	 <r2l8f7062ad1004120015h21632b7v65deeae98cb1739a@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks
+ for hid drivers
+Date: Mon, 12 Apr 2010 13:43:49 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz>
+References: <20100324233707.7243b04d@neptune.home> <20100324234022.0361bd80@neptune.home> <20100326065656.GC26602@core.coreip.homeip.net> <20100326102951.3b9ecda1@neptune.home> <alpine.LNX.2.00.1003262156280.24576@pobox.suse.cz> <20100327012245.0ace6a09@neptune.home>
+ <alpine.LNX.2.00.1003291144350.24576@pobox.suse.cz> <20100329121611.0c22dcaf@pluto.restena.lu> <alpine.LNX.2.00.1003301010410.24576@pobox.suse.cz> <20100330223224.18fe4f3e@neptune.home> <20100330224230.7b84df75@neptune.home> <alpine.LNX.2.00.1003311415000.24576@pobox.suse.cz>
+ <20100411130226.4086a92d@neptune.home> <alpine.LNX.2.00.1004112029220.8345@pobox.suse.cz> <20100411204002.6ba32f43@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f46.google.com ([74.125.82.46]:50428 "EHLO
-	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751065Ab0DLHT5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Apr 2010 03:19:57 -0400
-Received: by wwi17 with SMTP id 17so1968913wwi.19
-        for <linux-input@vger.kernel.org>; Mon, 12 Apr 2010 00:19:55 -0700 (PDT)
-In-Reply-To: <r2l8f7062ad1004120015h21632b7v65deeae98cb1739a@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100411204002.6ba32f43@neptune.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Oliver Neukum <oliver@neukum.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-2010/4/12 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Sat, Apr 10, 2010 at 08:00:59PM +0200, St=E9phane Chatty wrote:
->>
->> Le 10 avr. 10 =E0 18:04, Christoph Fritz a =E9crit :
->>
->> >Am Samstag, den 10.04.2010, 16:43 +0200 schrieb Stephane Chatty:
->> >>Added support for the eGalax dual-touch panel, found on the Asus
->> >>EeePC T101MT
->> >
->> >>+static void egalax_remove(struct hid_device *hdev)
->> >>+{
->> >>+ =A0 hid_hw_stop(hdev);
->> >>+ =A0 kfree(hid_get_drvdata(hdev));
->> >>+ =A0 hid_set_drvdata(hdev, NULL);
->> >>+}
->> >
->> >Why not using hid_hw_stop() instead of hid_set_drvdata()?
->> >
->
-> It is used 2 lines above, isn't it?
+On Sun, 11 Apr 2010, Bruno Pr=E9mont wrote:
 
-sure, that's why I asked (overdetermined)
+> > > As far as I understand the code, in auto-suspend case if the driv=
+er=20
+> > > sends commands to the device it will have to call usbhid_wait_io(=
+).=20
+> > > Please correct me if I'm wrong!
+> >=20
+> > It's not needed. There is a queuing mechanism in place on=20
+> > 'resumption_waker' workqueue.
+>=20
+> So the driver is not allowed to ask the device to do something
+> at auto-suspend time (as that would abort the auto-suspension).
 
->
->>
->> Er, actually for a previous driver Dmitry suggested to add this line
->> and I did it without trying to understand :-)
->>
->
-> You normally want to reset any pointers you set before, unless core d=
-oes
-> this for you. As far as I know only i2c guys decided to move that int=
-o
-> core so far.
+What do you mean by "is not allowed" exactly?
 
-Should we do this too in a long run?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yes, it will wake the device up from auto-suspension. However, that's=20
+usually what you want to happen, is there is anything you need to dispa=
+tch=20
+to the device, isn't it?
+
+What exactly is the situation you are trying to handle?
+
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,63 +1,41 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: [Patch] HID: non-overlapping zeroing of extra bits
-Date: Mon, 12 Apr 2010 12:16:11 -0600
-Message-ID: <20100412121611.4d8ff409@redhat.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks for hid drivers
+Date: Mon, 12 Apr 2010 21:45:10 +0200
+Message-ID: <201004122145.10396.oliver@neukum.org>
+References: <20100324233707.7243b04d@neptune.home> <alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz> <20100412185607.10c7b3be@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55069 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753057Ab0DLSQJ convert rfc822-to-8bit (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:42764 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752398Ab0DLTpQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Apr 2010 14:16:09 -0400
+	Mon, 12 Apr 2010 15:45:16 -0400
+In-Reply-To: <20100412185607.10c7b3be@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, zaitcev@redhat.com
+To: Bruno =?utf-8?q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
 
->From my review of the way the unused bits of report are being zeroed,
-it seems like there must be a bug. Currently, the zeroing is done
-in hid_output_field and it covers any bits between the last used bit
-and the end of the byte. But in case of, say, my keyboard, NumLock is
-mask 0x01 and CapsLock is 0x02. Invoking hid_output_field for NumLock
-definitely zeroes across CapsLock. The only reason this works is that
-the fields are sorted by the offset.
+Am Montag, 12. April 2010 18:56:07 schrieb Bruno Pr=C3=A9mont:
+> > Yes, it will wake the device up from auto-suspension. However, that=
+'s=20
+> > usually what you want to happen, is there is anything you need to d=
+ispatch=20
+> > to the device, isn't it?
+>=20
+> I thought of a report to send to device to ask the device to disable =
+some
+> power using feature (e.g. turning off or dimming LEDs)
 
-It would be more correct and simpler to zero-fill the buffer into
-which the fields are set.
+The device should do this on its own. If it is really necessary you
+can do this in suspend()
 
-The patch is tested with an IBM keyboard that is improperly sensitive
-to out-of-report pad bits, the extra bits are still zeroed and the
-fields continue to work as expected. It is also tested with good
-keyboards.
-
-In case, a related bug in RHEL 5 is tracked with Red Hat bug 513934.
-
-Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -940,13 +940,8 @@ static void hid_output_field(struct hid_field *field, __u8 *data)
- 	unsigned count = field->report_count;
- 	unsigned offset = field->report_offset;
- 	unsigned size = field->report_size;
--	unsigned bitsused = offset + count * size;
- 	unsigned n;
- 
--	/* make sure the unused bits in the last byte are zeros */
--	if (count > 0 && size > 0 && (bitsused % 8) != 0)
--		data[(bitsused-1)/8] &= (1 << (bitsused % 8)) - 1;
--
- 	for (n = 0; n < count; n++) {
- 		if (field->logical_minimum < 0)	/* signed values */
- 			implement(data, offset + n * size, size, s32ton(field->value[n], size));
-@@ -966,6 +961,7 @@ void hid_output_report(struct hid_report *report, __u8 *data)
- 	if (report->id > 0)
- 		*data++ = report->id;
- 
-+	memset(data, 0, ((report->size - 1) >> 3) + 1);
- 	for (n = 0; n < report->maxfield; n++)
- 		hid_output_field(report->field[n], data);
- }
+	Regards
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,51 +1,50 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: [PATCH] input: eeti_ts: cancel pending work when going to suspend
-Date: Tue, 13 Apr 2010 20:31:45 +0200
-Message-ID: <1271183505-28133-1-git-send-email-daniel@caiaq.de>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH 1/2] Emit TOUCH with DOUBLETAP for single touch
+Date: Tue, 13 Apr 2010 16:01:26 -0400
+Message-ID: <4BC4CD96.3050806@seas.upenn.edu>
+References: <1270850306-4949-1-git-send-email-rafi@seas.upenn.edu> <alpine.LNX.2.00.1004131526300.8345@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:55062 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753492Ab0DMSbz (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:60570 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752952Ab0DMUBs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Apr 2010 14:31:55 -0400
+	Tue, 13 Apr 2010 16:01:48 -0400
+In-Reply-To: <alpine.LNX.2.00.1004131526300.8345@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Daniel Mack <daniel@caiaq.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, micki@n-trig.com, dmitry.torokhov@gmail.com, chatty@enac.fr
 
-This fixes a race between the suspend code and input events.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Daniel Mack <daniel@caiaq.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/eeti_ts.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+Jiri Kosina wrote:
+> On Fri, 9 Apr 2010, Rafi Rubin wrote:
+> 
+>> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+>> ---
+>>
+>> I squelched TipSwitch in a recent patch which resulted in the loss
+>> of Touch events for single touch firmwares.  This patch just puts Touch back
+>> in for single touch, and bundles it with DoubleTap (like the multitouch code).
+>> The two events are used to convey the same message to different drivers.
+> 
+> Thanks Rafi. This should probably still be .34 material, right?
 
-diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-index 204b8a1..2a01695 100644
---- a/drivers/input/touchscreen/eeti_ts.c
-+++ b/drivers/input/touchscreen/eeti_ts.c
-@@ -250,6 +250,9 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
- 	if (device_may_wakeup(&client->dev))
- 		enable_irq_wake(priv->irq);
- 
-+	disable_irq(priv->irq);
-+	cancel_work_sync(&priv->work);
-+
- 	return 0;
- }
- 
-@@ -260,6 +263,10 @@ static int eeti_ts_resume(struct i2c_client *client)
- 	if (device_may_wakeup(&client->dev))
- 		disable_irq_wake(priv->irq);
- 
-+	/* If we have active users, read the events once to arm the IRQ */
-+	if (priv->input->users)
-+		eeti_ts_read(&priv->work);
-+
- 	return 0;
- }
- #else
--- 
-1.7.0.3
+Yes, this fix became more necessary with the previous Touch patch, which
+squelched the tipswitch event on behalf of the multi touch firmwares.  So it
+would be nice to keep them relatively close together.
 
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkvEzZYACgkQwuRiAT9o60/PaACgmzf/cLF+vyms9JZcR9zZab04
+mNsAoPXBPJjFmXdnhITd6NEMf9qjdyR5
+=stpn
+-----END PGP SIGNATURE-----

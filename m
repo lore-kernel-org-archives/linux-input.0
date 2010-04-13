@@ -1,41 +1,22 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH v6 7/8, needs improvement] hid: add suspend/resume hooks for hid drivers
-Date: Mon, 12 Apr 2010 21:45:10 +0200
-Message-ID: <201004122145.10396.oliver@neukum.org>
-References: <20100324233707.7243b04d@neptune.home> <alpine.LNX.2.00.1004121342550.8345@pobox.suse.cz> <20100412185607.10c7b3be@neptune.home>
+From: "Janson, Marius A." <JansonM@msx.umsl.edu>
+Subject: NOTIFICATION!!! (deskofleonardscott@googlemail.com)
+Date: Mon, 12 Apr 2010 22:25:10 -0500
+Message-ID: <FA0AA39ADA423048A16FB3CCA9DB8407048C2222__43764.9650419646$1271130051$gmane$org@stl-mail3.stl.umsl.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:42764 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752398Ab0DLTpQ convert rfc822-to-8bit (ORCPT
+Received: from STL-PROTO13.umsl.edu ([134.124.45.92]:36419 "EHLO
+	stl-proto13.umsl.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750733Ab0DMDk0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Apr 2010 15:45:16 -0400
-In-Reply-To: <20100412185607.10c7b3be@neptune.home>
+	Mon, 12 Apr 2010 23:40:26 -0400
+Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno =?utf-8?q?Pr=C3=A9mont?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>
 
-Am Montag, 12. April 2010 18:56:07 schrieb Bruno Pr=C3=A9mont:
-> > Yes, it will wake the device up from auto-suspension. However, that=
-'s=20
-> > usually what you want to happen, is there is anything you need to d=
-ispatch=20
-> > to the device, isn't it?
->=20
-> I thought of a report to send to device to ask the device to disable =
-some
-> power using feature (e.g. turning off or dimming LEDs)
-
-The device should do this on its own. If it is really necessary you
-can do this in suspend()
-
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This is to bring to your notice that you are a winner of 750,000.00 pounds in the swiss lotto draws. you are to send your Name: Age: Occupation : Country: Sex: Mobile Number: to Mr. Leonard Scott via email to deskof.lscott@yahoo.com.hk .
+ 
+Regards,
+Marius Janson.
+Promo Co-ordinator.

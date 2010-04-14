@@ -1,32 +1,43 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] Input: add HP Compaq 2710p to 'noloop' table
-Date: Wed, 14 Apr 2010 13:52:44 +0100
-Message-ID: <20100414125244.GC10075@srcf.ucam.org>
-References: <alpine.LNX.2.00.1004141409450.8345@pobox.suse.cz> <20100414123643.GB9242@srcf.ucam.org> <alpine.LNX.2.00.1004141437340.8345@pobox.suse.cz> <20100414135350.3b1643c2@lxorguk.ukuu.org.uk>
+From: Alan Cox <alan@linux.intel.com>
+Subject: [PATCH 0/4] Various intel small device drivers
+Date: Wed, 14 Apr 2010 13:51:30 +0100
+Message-ID: <20100414124913.23181.75903.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:39360 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754201Ab0DNMwt (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:34971 "EHLO
+	bob.linux.org.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750939Ab0DNNYI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Apr 2010 08:52:49 -0400
-Content-Disposition: inline
-In-Reply-To: <20100414135350.3b1643c2@lxorguk.ukuu.org.uk>
+	Wed, 14 Apr 2010 09:24:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2010 at 01:53:50PM +0100, Alan Cox wrote:
+These have been through my clean up processing, in particular the accelerometers
+are now using the input layer infrastructure.
 
-> It's not really that unlikely that an AUX handling bug exists and only on
-> one BIOS version given we've seen things as neat as i8042 emulation that
-> only works on CPU #0 8)
 
-Doubtless, but on the other hand these machines work with versions of 
-Windows that were released well before them, so if there's a difference 
-in behaviour then we have a bug regardless of what the spec says.
+---
+
+Kalhan Trisal (4):
+      emc1403: thermal sensor support
+      liss331d1: accelerometer driver
+      isl29020: ambient light sensor
+      hmc6352: Add driver for the HMC6352 compass
+
+
+ drivers/hwmon/Kconfig    |   34 ++++
+ drivers/hwmon/Makefile   |    4 
+ drivers/hwmon/emc1403.c  |  437 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hwmon/hmc6352.c  |  235 +++++++++++++++++++++++++
+ drivers/hwmon/isl29020.c |  243 ++++++++++++++++++++++++++
+ drivers/hwmon/lis331dl.c |  286 ++++++++++++++++++++++++++++++
+ 6 files changed, 1239 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hwmon/emc1403.c
+ create mode 100644 drivers/hwmon/hmc6352.c
+ create mode 100644 drivers/hwmon/isl29020.c
+ create mode 100644 drivers/hwmon/lis331dl.c
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org

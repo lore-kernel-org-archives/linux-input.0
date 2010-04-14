@@ -1,77 +1,75 @@
-From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 3/4] liss331d1: accelerometer driver
-Date: Wed, 14 Apr 2010 13:52:00 +0100
-Message-ID: <20100414125155.23181.56610.stgit@localhost.localdomain>
+From: Alan Cox <alan@linux.intel.com>
+Subject: [PATCH 2/4] isl29020: ambient light sensor
+Date: Wed, 14 Apr 2010 13:51:49 +0100
+Message-ID: <20100414125147.23181.5817.stgit@localhost.localdomain>
 References: <20100414124913.23181.75903.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100414124913.23181.75903.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100414124913.23181.75903.stgit@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Kalhan Trisal <kalhan.trisal@intel.com>
 
-The acceleremeter driver reads the x,y,z coordinate registers and provides
-the information to user through the input layer
+The LS driver will read the latest Lux measurement based upon the
+light brightness and will report the LUX output through sysfs interface.
 
-Conversion to input device, clean up and porting of retry fixes needed
-for AAVA done by Alan Cox.
-
-Signed-off-by: Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Kalhan Trisal <kalhan.trisal@intel.com>
+Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
- drivers/hwmon/Kconfig    |    8 +
+ drivers/hwmon/Kconfig    |    9 ++
  drivers/hwmon/Makefile   |    1 
- drivers/hwmon/lis331dl.c |  286 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 295 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hwmon/lis331dl.c
+ drivers/hwmon/isl29020.c |  243 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 253 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hwmon/isl29020.c
 
 
 diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index 1fa2533..6868b9d 100644
+index 74f672d..1fa2533 100644
 --- a/drivers/hwmon/Kconfig
 +++ b/drivers/hwmon/Kconfig
-@@ -1104,6 +1104,14 @@ config SENSORS_ISL29020
- 	  Range values can be configured using sysfs.
- 	  Lux data is accessible via sysfs.
+@@ -1095,6 +1095,15 @@ config SENSORS_HMC6352
+ 	  This driver provides support for the Honeywell HMC6352 compass,
+ 	  providing configuration and heading data via sysfs.
  
-+config SENSORS_LIS331DL
-+	tristate "STMicroeletronics LIS331DL three-axis digital accelerometer"
++config SENSORS_ISL29020
++	tristate "Intersil ISL29020 ALS"
 +	depends on I2C
 +	help
-+	  If you say yes here you get support for the Accelerometer  Devices
-+	  Device can be configured using sysfs.
-+	  x y Z data can be   accessible via sysfs.
++	  If you say yes here you get support for the ALS Devices
++	  Ambient Light Sensor monitoring chip.
++	  Range values can be configured using sysfs.
++	  Lux data is accessible via sysfs.
 +
  if ACPI
  
  comment "ACPI drivers"
 diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index 13d6832..ebeb2a2 100644
+index ad2ed36..13d6832 100644
 --- a/drivers/hwmon/Makefile
 +++ b/drivers/hwmon/Makefile
-@@ -60,6 +60,7 @@ obj-$(CONFIG_SENSORS_K10TEMP)	+= k10temp.o
- obj-$(CONFIG_SENSORS_LIS3LV02D) += lis3lv02d.o hp_accel.o
- obj-$(CONFIG_SENSORS_LIS3_SPI)	+= lis3lv02d.o lis3lv02d_spi.o
- obj-$(CONFIG_SENSORS_LIS3_I2C)	+= lis3lv02d.o lis3lv02d_i2c.o
-+obj-$(CONFIG_SENSORS_LIS331DL)	+= lis331dl.o
- obj-$(CONFIG_SENSORS_LM63)	+= lm63.o
- obj-$(CONFIG_SENSORS_LM70)	+= lm70.o
- obj-$(CONFIG_SENSORS_LM73)	+= lm73.o
-diff --git a/drivers/hwmon/lis331dl.c b/drivers/hwmon/lis331dl.c
+@@ -53,6 +53,7 @@ obj-$(CONFIG_SENSORS_HMC6352)	+= hmc6352.o
+ obj-$(CONFIG_SENSORS_I5K_AMB)	+= i5k_amb.o
+ obj-$(CONFIG_SENSORS_IBMAEM)	+= ibmaem.o
+ obj-$(CONFIG_SENSORS_IBMPEX)	+= ibmpex.o
++obj-$(CONFIG_SENSORS_ISL29020)	+= isl29020.o
+ obj-$(CONFIG_SENSORS_IT87)	+= it87.o
+ obj-$(CONFIG_SENSORS_K8TEMP)	+= k8temp.o
+ obj-$(CONFIG_SENSORS_K10TEMP)	+= k10temp.o
+diff --git a/drivers/hwmon/isl29020.c b/drivers/hwmon/isl29020.c
 new file mode 100644
-index 0000000..34009eb
+index 0000000..458140d
 --- /dev/null
-+++ b/drivers/hwmon/lis331dl.c
-@@ -0,0 +1,286 @@
++++ b/drivers/hwmon/isl29020.c
+@@ -0,0 +1,243 @@
 +/*
-+ * lis331dl.c - ST LIS331DL  Accelerometer Driver
++ * isl29020.c - Intersil  ALS Driver
 + *
-+ * Copyright (C) 2009 Intel Corp
++ * Copyright (C) 2008 Intel Corp
 + *
 + *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 + *
@@ -95,262 +93,219 @@ index 0000000..34009eb
 +#include <linux/init.h>
 +#include <linux/slab.h>
 +#include <linux/i2c.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/hwmon-vid.h>
 +#include <linux/err.h>
 +#include <linux/delay.h>
 +#include <linux/mutex.h>
 +#include <linux/sysfs.h>
-+#include <linux/input-polldev.h>
 +
 +
-+#define POLL_INTERVAL	50
++#define ALS_MIN_RANGE_VAL 0
++#define ALS_MAX_RANGE_VAL 5
 +
-+struct lis331dl {
-+	struct input_polled_dev *idev;
-+	struct i2c_client *client;
-+	struct mutex update_lock;
++struct als_data {
++	struct device *hwmon_dev;
 +};
 +
-+static ssize_t data_rate_show(struct device *dev,
++static unsigned int i2c_write_current_data(struct i2c_client *client,
++					unsigned int reg, unsigned int value)
++{
++	int ret_val;
++
++	ret_val = i2c_smbus_write_byte_data(client, reg, value);
++	return ret_val;
++}
++
++static ssize_t als_sensing_range_show(struct device *dev,
++			struct device_attribute *attr,  char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int  val;
++
++	val = i2c_smbus_read_byte_data(client, 0x00);
++	return sprintf(buf, "%d000\n", 1 << (2 * (val & 3)));
++
++}
++
++static ssize_t als_lux_output_data_show(struct device *dev,
 +			struct device_attribute *attr, char *buf)
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
-+	int val;
-+	int speed = 100;
++	unsigned int ret_val, val;
++	unsigned long int lux, max_count;
++	int tempv1, tempv2;
 +
-+	val = i2c_smbus_read_byte_data(client, 0x20);
-+	if (val & 0x80); /* 1= 400HZ 0= 100HZ */
-+		speed = 400;
-+	return sprintf(buf, "%d\n", speed);
++	max_count = 65535;
++	tempv1 = i2c_smbus_read_byte_data(client, 0x02); /* MSB data */
++	tempv2 = i2c_smbus_read_byte_data(client, 0x01); /* LSB data */
++	ret_val = tempv1;
++	ret_val = (ret_val << 8 | tempv2);
++	val = i2c_smbus_read_byte_data(client, 0x00);
++	lux = ((((1 << (2 * (val & 3))))*1000) * ret_val) / max_count;
++	return sprintf(buf, "%ld\n", lux);
 +}
 +
-+static ssize_t power_mode_show(struct device *dev,
-+			struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	int val;
-+
-+	val = i2c_smbus_read_byte_data(client, 0x20) & 0x40;
-+	if (val == 0x40)
-+		val = 1;
-+	return sprintf(buf, "%d\n", val);
-+}
-+
-+static int read_with_retries(struct i2c_client *client, int r)
-+{
-+	int retries;
-+	int ret;
-+	
-+	for (retries = 0; retries < 5; retries++) {
-+		ret = i2c_smbus_read_byte_data(client, r);
-+		if (ret != -ETIMEDOUT)
-+			break;
-+		msleep(10);
-+	}
-+	return ret;
-+}
-+
-+static void lis331dl_poll(struct input_polled_dev *idev)
-+{
-+	struct input_dev *input = idev->input;
-+	struct lis331dl *data = idev->private;
-+	int x, y, z;
-+	struct i2c_client *client = data->client;
-+
-+	x = read_with_retries(client, 0x29);
-+	y = read_with_retries(client, 0x2B);
-+	z = read_with_retries(client, 0x2D);
-+
-+	input_report_abs(input, ABS_X, x);
-+	input_report_abs(input, ABS_Y, y);
-+	input_report_abs(input, ABS_Z, z);
-+	input_sync(input);
-+}
-+
-+static ssize_t data_rate_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct lis331dl *data = i2c_get_clientdata(client);
-+	unsigned int ret_val;
-+	unsigned long val;
-+
-+	if (strict_strtoul(buf, 10, &val))
-+		return -EINVAL;
-+
-+	mutex_lock(&data->update_lock);
-+
-+	ret_val = i2c_smbus_read_byte_data(client, 0x20);
-+	ret_val &= 0x7F;
-+
-+	switch (val) {
-+	case 400:
-+		ret_val |= 0x80;
-+	case 100:
-+		i2c_smbus_write_byte_data(client, 0x20, ret_val);
-+		break;
-+	default:		
-+		mutex_unlock(&data->update_lock);
-+		return -EINVAL;
-+	}
-+	mutex_unlock(&data->update_lock);
-+	return count;
-+}
-+
-+static ssize_t power_mode_store(struct device *dev,
++static ssize_t als_sensing_range_store(struct device *dev,
 +		struct device_attribute *attr, const  char *buf, size_t count)
 +{
 +	struct i2c_client *client = to_i2c_client(dev);
-+	struct lis331dl *data = i2c_get_clientdata(client);
-+	unsigned int ret_val;
++	unsigned int ret_val, set_val = 0;
 +	unsigned long val;
 +
 +	if (strict_strtoul(buf, 10, &val))
 +		return -EINVAL;
++	ret_val = i2c_smbus_read_byte_data(client, 0x00);
++	ret_val = ret_val & 0xFC; /*reset the bit before setting them */
++	if (val == 1)
++		set_val = (ret_val | 0x00); /* setting the 1:0  bit */
++	else if (val == 2)
++		set_val = (ret_val | 0x01);
++	else if (val == 3)
++		set_val = (ret_val | 0x02);
++	else if (val == 4)
++		set_val = (ret_val | 0x03);
++	else
++		goto invarg;
++	i2c_write_current_data(client, 0x00, set_val);
++	return count;
++invarg:
++	return -EINVAL;
++}
 +
-+	mutex_lock(&data->update_lock);
++static ssize_t als_power_status_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int ret_val;
 +
-+	ret_val = i2c_smbus_read_byte_data(client, 0x20);
-+	ret_val &= 0xBF;
-+	
-+	switch(val) {
-+	case 1:
-+		ret_val |= 0x40;
-+	case 0:
-+		i2c_smbus_write_byte_data(client, 0x20, ret_val);
-+		break;
-+	default:
-+		mutex_unlock(&data->update_lock);
++	ret_val = i2c_smbus_read_byte_data(client, 0x00);
++	ret_val = ret_val & 0x80;
++	if (ret_val == 0x80)
++		ret_val = 1;
++	return sprintf(buf, "%x", ret_val);
++}
++
++static ssize_t als_power_status_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	unsigned long val = 0;
++	char curr_val;
++
++	if (strict_strtoul(buf, 10, &val))
 +		return -EINVAL;
-+	}
-+	mutex_unlock(&data->update_lock);
++
++	curr_val = i2c_smbus_read_byte_data(client, 0x00);
++	if (val == 1)
++		curr_val = curr_val | 0x80;
++	else if (val == 0)
++		curr_val = curr_val & 0x7F;
++	else
++		return -EINVAL;
++	i2c_write_current_data(client, 0x00, curr_val);
 +	return count;
 +}
 +
-+static DEVICE_ATTR(data_rate, S_IRUGO | S_IWUSR,
-+	data_rate_show, data_rate_store);
++static DEVICE_ATTR(sensing_range, S_IRUGO | S_IWUSR,
++	als_sensing_range_show, als_sensing_range_store);
++static DEVICE_ATTR(lux_output, S_IRUGO, als_lux_output_data_show, NULL);
 +static DEVICE_ATTR(power_state, S_IRUGO | S_IWUSR,
-+	power_mode_show, power_mode_store);
++	als_power_status_show, als_power_status_store);
 +
-+static struct attribute *mid_att_accelero[] = {
-+	&dev_attr_data_rate.attr,
++static struct attribute *mid_att_als[] = {
++	&dev_attr_sensing_range.attr,
++	&dev_attr_lux_output.attr,
 +	&dev_attr_power_state.attr,
 +	NULL
 +};
 +
-+static struct attribute_group m_accelero_gr = {
-+	.name = "lis331dl",
-+	.attrs = mid_att_accelero
++static struct attribute_group m_als_gr = {
++	.name = "isl29020",
++	.attrs = mid_att_als
 +};
 +
-+static void accel_set_default_config(struct i2c_client *client)
++static void als_set_default_config(struct i2c_client *client)
 +{
-+	i2c_smbus_write_byte_data(client, 0x20, 0x47);
++	i2c_write_current_data(client, 0x00, 0xc0);
 +}
 +
-+static int  lis331dl_probe(struct i2c_client *client,
++static int  isl29020_probe(struct i2c_client *client,
 +					const struct i2c_device_id *id)
 +{
 +	int res;
-+	struct lis331dl *data;
-+	struct input_polled_dev *idev;
-+	struct input_dev *input;
++	struct als_data *data;
 +
-+	data = kzalloc(sizeof(struct lis331dl), GFP_KERNEL);
++	data = kzalloc(sizeof(struct als_data), GFP_KERNEL);
 +	if (data == NULL) {
-+		dev_err(&client->dev, "lis331dl: out of memory\n");
++		printk(KERN_WARNING " isl29020: out of memory");
 +		return -ENOMEM;
 +	}
-+	mutex_init(&data->update_lock);
 +	i2c_set_clientdata(client, data);
-+	data->client = client;
 +
-+	res = sysfs_create_group(&client->dev.kobj, &m_accelero_gr);
++	res = sysfs_create_group(&client->dev.kobj, &m_als_gr);
 +	if (res) {
-+		dev_err(&client->dev, "lis331dl: sysfs  group failed\n");
-+		goto accelero_error1;
++		printk(KERN_WARNING "isl29020: device create file failed!!\n");
++		goto als_error1;
 +	}
-+	idev = input_allocate_polled_device();
-+	if (!idev) {
-+		res = -ENOMEM;
-+		dev_err(&client->dev,
-+			"lis331dl: unable to register input device\n");
-+		goto accelero_error2;
++	data->hwmon_dev = hwmon_device_register(&client->dev);
++	if (IS_ERR(data->hwmon_dev)) {
++		res = PTR_ERR(data->hwmon_dev);
++		data->hwmon_dev = NULL;
++		sysfs_remove_group(&client->dev.kobj, &m_als_gr);
++		printk(KERN_ERR "isl29020:unable to register hwmon device\n");
++		goto als_error1;
 +	}
-+	idev->poll = lis331dl_poll;
-+	idev->poll_interval = POLL_INTERVAL;
++	dev_info(&client->dev, "%s isl29020: ALS chip found\n", client->name);
++	als_set_default_config(client);
++	return res;
 +
-+	idev->private = data;
-+	data->idev =  idev;
-+
-+	input = idev->input;
-+	input->name = "lis331dl";
-+	input->phys = "lis331dl/input0";
-+	input->id.bustype = BUS_I2C;
-+	input->dev.parent = &client->dev;
-+	input->evbit[0] = BIT_MASK(EV_ABS);
-+	input_set_abs_params(input, ABS_X, 0, 255, 2, 2);
-+	input_set_abs_params(input, ABS_Y, 0, 255, 2, 2);
-+	input_set_abs_params(input, ABS_Z, 0, 255, 2, 2);
-+
-+	res = input_register_polled_device(idev);
-+	if (res == 0) {
-+		dev_info(&client->dev,
-+			"%s lis331dl:  Accelerometer chip found",
-+							client->name);
-+		return 0;
-+	}
-+	input_free_polled_device(idev);
-+accelero_error2:
-+	sysfs_remove_group(&client->dev.kobj, &m_accelero_gr);
-+accelero_error1:
++als_error1:
 +	i2c_set_clientdata(client, NULL);
 +	kfree(data);
 +	return res;
 +}
 +
-+static int lis331dl_remove(struct i2c_client *client)
++static int isl29020_remove(struct i2c_client *client)
 +{
-+	struct lis331dl *data = i2c_get_clientdata(client);
++	struct als_data *data = i2c_get_clientdata(client);
 +
-+	input_unregister_polled_device(data->idev);
-+	input_free_polled_device(data->idev);
-+	sysfs_remove_group(&client->dev.kobj, &m_accelero_gr);
++	hwmon_device_unregister(data->hwmon_dev);
++	sysfs_remove_group(&client->dev.kobj, &m_als_gr);
 +	kfree(data);
 +	return 0;
 +}
 +
-+static struct i2c_device_id lis331dl_id[] = {
-+	{ "i2c_accel", 0 },
++static struct i2c_device_id isl29020_id[] = {
++	{ "i2c_als", 0 },
 +	{ }
 +};
 +
-+MODULE_DEVICE_TABLE(i2c, lis331dl_id);
++MODULE_DEVICE_TABLE(i2c, isl29020_id);
 +
-+static struct i2c_driver lis331dl_driver = {
++static struct i2c_driver isl29020_driver = {
 +	.driver = {
-+	.name = "lis331dl",
++	.name = "isl29020",
 +	},
-+	.probe = lis331dl_probe,
-+	.remove = lis331dl_remove,
-+	.id_table = lis331dl_id,
++	.probe = isl29020_probe,
++	.remove = isl29020_remove,
++	.id_table = isl29020_id,
 +};
 +
-+static int __init sensor_lis331dl_init(void)
++static int __init sensor_isl29020_init(void)
 +{
-+	int res;
-+
-+	res = i2c_add_driver(&lis331dl_driver);
-+	return res;
++	return i2c_add_driver(&isl29020_driver);
 +}
 +
-+static void  __exit sensor_lis331dl_exit(void)
++static void  __exit sensor_isl29020_exit(void)
 +{
-+	i2c_del_driver(&lis331dl_driver);
++	i2c_del_driver(&isl29020_driver);
 +}
 +
-+module_init(sensor_lis331dl_init);
-+module_exit(sensor_lis331dl_exit);
++module_init(sensor_isl29020_init);
++module_exit(sensor_isl29020_exit);
 +
-+MODULE_AUTHOR("Kalhan Trisal <kalhan.trisal-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alan Cox");
-+MODULE_DESCRIPTION("STMicroelectronics LIS331DL Accelerometer Driver");
++MODULE_AUTHOR("Kalhan Trisal <kalhan.trisal@intel.com");
++MODULE_DESCRIPTION("Intersil isl29020 ALS Driver");
 +MODULE_LICENSE("GPL v2");

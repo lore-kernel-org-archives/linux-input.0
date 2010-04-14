@@ -1,43 +1,31 @@
-From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Subject: Re: Handling macros with input devices
-Date: Wed, 14 Apr 2010 13:08:40 -0600
-Message-ID: <858c533f3330c7d6804eaf1162c71a03.squirrel@intranet.cs.nmsu.edu>
-References: <054d04d6a47f4ba368c8d75f8d8fb08f.squirrel@intranet.cs.nmsu.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Added support for the Cando dual touch panel
+Date: Wed, 14 Apr 2010 13:54:06 -0700
+Message-ID: <20100414205406.GA11838@core.coreip.homeip.net>
+References: <20100414190341.25BD8951EF@smtp.lii-enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.cs.nmsu.edu ([128.123.64.3]:41052 "EHLO mail.cs.nmsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753023Ab0DNTcZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Apr 2010 15:32:25 -0400
-In-Reply-To: <054d04d6a47f4ba368c8d75f8d8fb08f.squirrel@intranet.cs.nmsu.edu>
+Received: from mail-bw0-f209.google.com ([209.85.218.209]:62227 "EHLO
+	mail-bw0-f209.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755688Ab0DNUyS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Apr 2010 16:54:18 -0400
+Received: by bwz1 with SMTP id 1so958033bwz.2
+        for <linux-input@vger.kernel.org>; Wed, 14 Apr 2010 13:54:16 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20100414190341.25BD8951EF@smtp.lii-enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
-Cc: linux-input@vger.kernel.org
+To: Stephane Chatty <chatty@lii-enac.fr>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, priya.vijayan@intel.com, floe@butterbrot.org, chatty@enac.fr
 
-One of the sticking points I have with the G13 driver is that I'd like it
-to have support for macros. The reason I'd like to support macros is that
-the G13's raison d'etre is to allow the end user to customize the device
-with their own macros.
+On Wed, Apr 14, 2010 at 09:03:41PM +0200, Stephane Chatty wrote:
+> 
+> Added support for the Cando dual touch panels, found in the Lenovo S10-3t.
+> 
 
-However, I've been looking around and I can't find any support for macros
-within the kernel.
-
-In particular, I have support for getkeycode and setkeycode ioctl's. I was
-thinking of supporting at least setkeycode to allow a standard way to set
-a one key macro. Supporting getkeycode and setting keybit are more
-problematic.
-
-If someone has already brought this issue up I apologize, but I couldn't
-find any discussion on the linux-input list relating to macros (at least
-other than preprocessor macros).
-
-Any suggestions?
+Looks good as far as I can see, thanks Stephane.
 
 -- 
-
-Rick
-
-
+Dmitry

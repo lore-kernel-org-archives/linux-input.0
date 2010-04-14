@@ -1,133 +1,84 @@
-From: Vimal Singh <vimal.newwork@gmail.com>
-Subject: Re: [RFC] [PATCH 2/3] OMAP4: Keyboard Board Support
-Date: Wed, 14 Apr 2010 10:49:21 +0530
-Message-ID: <s2xce9ab5791004132219q528e6c7cyb709d78f8dc177ee@mail.gmail.com>
-References: <Acrbb1c3f6VIFUq3RumCrtM3k0PWuQ==> <27F9C60D11D683428E133F85D2BB4A53043D9EE7F6@dlee03.ent.ti.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Use TipSwitch for Touch
+Date: Tue, 13 Apr 2010 23:32:43 -0700
+Message-ID: <20100414063242.GB9428@core.coreip.homeip.net>
+References: <alpine.LNX.2.00.1004131530460.8345@pobox.suse.cz>
+ <1271221494-14846-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f219.google.com ([209.85.218.219]:39090 "EHLO
-	mail-bw0-f219.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752592Ab0DNFTn convert rfc822-to-8bit (ORCPT
+Received: from mail-yw0-f198.google.com ([209.85.211.198]:57853 "EHLO
+	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753365Ab0DNGcs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Apr 2010 01:19:43 -0400
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F6@dlee03.ent.ti.com>
+	Wed, 14 Apr 2010 02:32:48 -0400
+Received: by ywh36 with SMTP id 36so3537106ywh.4
+        for <linux-input@vger.kernel.org>; Tue, 13 Apr 2010 23:32:47 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1271221494-14846-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Arce, Abraham" <x0066660@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, micki@n-trig.com, chatty@enac.fr
 
-On Wed, Apr 14, 2010 at 6:40 AM, Arce, Abraham <x0066660@ti.com> wrote:
-> From: Syed Rafiuddin <rafiuddin.syed@ti.com>
->
-> Keyboard support for SDP OMAP4430
->
-> Signed-off-by: Abraham Arce <x0066660@ti.com>
+On Wed, Apr 14, 2010 at 01:04:54AM -0400, Rafi Rubin wrote:
+> TipSwitch is a better match for touch.  Confidence and InRange work
+> for more current firmwares, but with some older versions only
+> TipSwitch is appropriate.
+> 
+> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
 > ---
+>  drivers/hid/hid-ntrig.c |   27 +++++++++++++++++++--------
+>  1 files changed, 19 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+> index 58ba0d3..071f86d 100644
+> --- a/drivers/hid/hid-ntrig.c
+> +++ b/drivers/hid/hid-ntrig.c
+> @@ -31,10 +31,12 @@ struct ntrig_data {
+>  	/* Incoming raw values for a single contact */
+>  	__u16 x, y, w, h;
+>  	__u16 id;
+> -	__u8 confidence;
+> +
+> +	bool tipswitch;
+> +	bool confidence;
+> +	bool first_contact_touch;
+>  
+>  	bool reading_mt;
+> -	__u8 first_contact_confidence;
+>  
+>  	__u8 mt_footer[4];
+>  	__u8 mt_foot_count;
+> @@ -141,9 +143,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  		case 0xff000001:
+>  			/* Tag indicating the start of a multitouch group */
+>  			nd->reading_mt = 1;
+> -			nd->first_contact_confidence = 0;
+> +			nd->first_contact_touch = 0;
+>  			break;
+>  		case HID_DG_TIPSWITCH:
+> +			nd->tipswitch = value;
+>  			/* Prevent emission of touch until validated */
+>  			return 1;
+>  		case HID_DG_CONFIDENCE:
+> @@ -171,10 +174,17 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  			 * to emit a normal (X, Y) position
+>  			 */
+>  			if (!nd->reading_mt) {
+> -				input_report_key(input, BTN_TOOL_DOUBLETAP,
+> -						 (nd->confidence != 0));
+> +				/*
+> +				 * TipSwitch indicates the presence of a
+> +				 * finger.  Touch is the preferred event for
+> +				 * downstream support.  DoubleTap is also
+> +				 * emitted to support proper operation with
+> +				 * the wacom X driver (for now).
+> +				 */
 
-'Form: Syed Rafiuddin', but not 'Signed-off-by:'... is it correct?
+I am not sure if we want to propagate unfortunate event selection in
+wacom drievr into other drivers. Any chance you could lend Ping hand in
+adding proper multitouch support to wacom X driver instead?
 
-
-> =A0arch/arm/mach-omap2/board-4430sdp.c | =A0 61 ++++++++++++++-------=
--------------
-> =A01 files changed, 25 insertions(+), 36 deletions(-)
->
-> diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap=
-2/board-4430sdp.c
-> index 9a35367..747a4d8 100644
-> --- a/arch/arm/mach-omap2/board-4430sdp.c
-> +++ b/arch/arm/mach-omap2/board-4430sdp.c
-> @@ -35,16 +35,13 @@
-> =A0#include <plat/timer-gp.h>
-> =A0#include <plat/usb.h>
-> =A0#include <plat/syntm12xx.h>
-> -#include <plat/keypad.h>
-> =A0#include <asm/hardware/gic.h>
-> =A0#include <asm/hardware/cache-l2x0.h>
-> =A0#include <linux/i2c/twl.h>
-> =A0#include <linux/regulator/machine.h>
-> =A0#include "mmc-twl4030.h"
->
-> -#define OMAP4_KBDOCP_BASE =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x4A31C000
-> -
-> -static int omap_keymap[] =3D {
-> +static int sdp4430_keymap[] =3D {
-> =A0 =A0 =A0 =A0KEY(0, 0, KEY_E),
-> =A0 =A0 =A0 =A0KEY(0, 1, KEY_D),
-> =A0 =A0 =A0 =A0KEY(0, 2, KEY_X),
-> @@ -52,7 +49,7 @@ static int omap_keymap[] =3D {
-> =A0 =A0 =A0 =A0KEY(0, 4, KEY_W),
-> =A0 =A0 =A0 =A0KEY(0, 5, KEY_S),
-> =A0 =A0 =A0 =A0KEY(0, 6, KEY_Q),
-> - =A0 =A0 =A0 KEY(0, 7, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(0, 7, KEY_PROG1),
->
-> =A0 =A0 =A0 =A0KEY(1, 0, KEY_R),
-> =A0 =A0 =A0 =A0KEY(1, 1, KEY_F),
-> @@ -61,7 +58,7 @@ static int omap_keymap[] =3D {
-> =A0 =A0 =A0 =A0KEY(1, 4, KEY_Y),
-> =A0 =A0 =A0 =A0KEY(1, 5, KEY_H),
-> =A0 =A0 =A0 =A0KEY(1, 6, KEY_A),
-> - =A0 =A0 =A0 KEY(1, 7, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(1, 7, KEY_PROG2),
->
-> =A0 =A0 =A0 =A0KEY(2, 0, KEY_T),
-> =A0 =A0 =A0 =A0KEY(2, 1, KEY_G),
-> @@ -70,23 +67,23 @@ static int omap_keymap[] =3D {
-> =A0 =A0 =A0 =A0KEY(2, 4, KEY_U),
-> =A0 =A0 =A0 =A0KEY(2, 5, KEY_J),
-> =A0 =A0 =A0 =A0KEY(2, 6, KEY_N),
-> - =A0 =A0 =A0 KEY(2, 7, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(2, 7, KEY_PROG3),
->
-> =A0 =A0 =A0 =A0KEY(3, 0, KEY_HOME),
-> =A0 =A0 =A0 =A0KEY(3, 1, KEY_SEND),
-> =A0 =A0 =A0 =A0KEY(3, 2, KEY_END),
-> =A0 =A0 =A0 =A0KEY(3, 3, KEY_F1),
-> - =A0 =A0 =A0 KEY(3, 4, KEY_LEFTSHIFT),
-> + =A0 =A0 =A0 KEY(3, 4, KEY_F2),
-> =A0 =A0 =A0 =A0KEY(3, 5, KEY_F3),
-> =A0 =A0 =A0 =A0KEY(3, 6, KEY_BACK),
-> - =A0 =A0 =A0 KEY(3, 7, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(3, 7, KEY_PROG4),
->
-> - =A0 =A0 =A0 KEY(4, 0, KEY_UNKNOWN),
-> - =A0 =A0 =A0 KEY(4, 1, KEY_UNKNOWN),
-> - =A0 =A0 =A0 KEY(4, 2, KEY_UNKNOWN),
-> - =A0 =A0 =A0 KEY(4, 3, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(4, 0, KEY_F5),
-> + =A0 =A0 =A0 KEY(4, 1, KEY_F6),
-> + =A0 =A0 =A0 KEY(4, 2, KEY_F7),
-> + =A0 =A0 =A0 KEY(4, 3, KEY_F8),
-> =A0 =A0 =A0 =A0KEY(4, 4, KEY_VOLUMEUP),
-> - =A0 =A0 =A0 KEY(4, 5, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(4, 5, KEY_F9),
-> =A0 =A0 =A0 =A0KEY(4, 6, KEY_BACKSPACE),
-> =A0 =A0 =A0 =A0KEY(4, 7, KEY_F4),
->
-> @@ -108,7 +105,7 @@ static int omap_keymap[] =3D {
-> =A0 =A0 =A0 =A0KEY(6, 6, KEY_P),
-> =A0 =A0 =A0 =A0KEY(6, 7, KEY_OK),
->
-> - =A0 =A0 =A0 KEY(7, 0, KEY_UNKNOWN),
-> + =A0 =A0 =A0 KEY(7, 0, KEY_LEFTSHIFT),
-> =A0 =A0 =A0 =A0KEY(7, 1, KEY_ENTER),
-> =A0 =A0 =A0 =A0KEY(7, 2, KEY_CAPSLOCK),
-> =A0 =A0 =A0 =A0KEY(7, 3, KEY_SPACE),
-> @@ -119,31 +116,23 @@ static int omap_keymap[] =3D {
-> =A0 =A0 =A0 =A00,
-> =A0};
-
-Are you aware of that interpretation of 'row' and 'col' get reversed
-in matrix keymap framework.
-Also last element '0' should be removed.
-
---=20
-Regards,
-Vimal Singh
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

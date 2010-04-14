@@ -1,613 +1,185 @@
-From: Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: Re: cy8ctmg110 for review
-Date: Wed, 14 Apr 2010 10:45:32 -0700
-Message-ID: <20100414104532.9c71a2fb.randy.dunlap@oracle.com>
-References: <20100414125234.23507.42816.stgit@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: eeti_ts: cancel pending work when going to suspend
+Date: Wed, 14 Apr 2010 11:14:18 -0700
+Message-ID: <20100414181417.GA27661@core.coreip.homeip.net>
+References: <1271183505-28133-1-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100414125234.23507.42816.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:56740 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756359Ab0DNSO1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Apr 2010 14:14:27 -0400
+Received: by wyb39 with SMTP id 39so49411wyb.19
+        for <linux-input@vger.kernel.org>; Wed, 14 Apr 2010 11:14:25 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1271183505-28133-1-git-send-email-daniel@caiaq.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 14 Apr 2010 13:54:02 +0100 Alan Cox wrote:
-
-> Subject: [FOR COMMENT] cy8ctmg110 for review
+On Tue, Apr 13, 2010 at 08:31:45PM +0200, Daniel Mack wrote:
+> This fixes a race between the suspend code and input events.
 > 
-> From: Samuli Konttila <samuli.konttila-GpSoQilbZ/bZJqsBc5GL+g@public.gmane.org>
-> 
-> Add support for the cy8ctmg110 capacitive touchscreen used on some embedded
-> devices.
-> 
-> (Some clean up by Alan Cox)
-> 
-> (No signed off, not yet ready to go in)
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
+>  drivers/input/touchscreen/eeti_ts.c |    7 +++++++
+>  1 files changed, 7 insertions(+), 0 deletions(-)
 > 
->  drivers/input/touchscreen/Kconfig         |   12 +
->  drivers/input/touchscreen/Makefile        |    3 
->  drivers/input/touchscreen/cy8ctmg110_ts.c |  521 +++++++++++++++++++++++++++++
->  3 files changed, 535 insertions(+), 1 deletions(-)
->  create mode 100644 drivers/input/touchscreen/cy8ctmg110_ts.c
-> 
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index b3ba374..89a3eb1 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -591,4 +591,16 @@ config TOUCHSCREEN_TPS6507X
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called tps6507x_ts.
+> diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+> index 204b8a1..2a01695 100644
+> --- a/drivers/input/touchscreen/eeti_ts.c
+> +++ b/drivers/input/touchscreen/eeti_ts.c
+> @@ -250,6 +250,9 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+>  	if (device_may_wakeup(&client->dev))
+>  		enable_irq_wake(priv->irq);
 >  
-> +config TOUCHSCREEN_CY8CTMG110
-> +	tristate "cy8ctmg110 touchscreen"
-> +	depends on I2C
+> +	disable_irq(priv->irq);
+> +	cancel_work_sync(&priv->work);
 
-	depends on GPIOLIB
-	depends on INPUT
+You need to check 'users' when disabling as well, otherwise you may get
+enable/disable unbalanced when there are no users.
 
-Does it build when CONFIG_PM is disabled?
+Does the patch below still work for you?
 
-
-> +	help
-> +	  Say Y here if you have a cy8ctmg110 touchscreen capacitive
-> +	  touchscreen
-
-drop first "touchscreen" and end with '.'.
-
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called cy8ctmg110_ts.
-> +
->  endif
-
-> diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-> new file mode 100644
-> index 0000000..4adbe87
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-> @@ -0,0 +1,521 @@
-> +/*
-> + * cy8ctmg110_ts.c Driver for cypress touch screen controller
-> + * Copyright (c) 2009 Aava Mobile
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/interrupt.h>
-> +#include <asm/io.h>
-> +#include <linux/i2c.h>
-> +#include <linux/timer.h>
-> +#include <linux/gpio.h>
-> +#include <linux/hrtimer.h>
-> +
-> +#include <linux/platform_device.h>
-> +#include <linux/delay.h>
-> +#include <linux/fs.h>
-> +#include <asm/ioctl.h>
-> +#include <asm/uaccess.h>
-> +#include <linux/device.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/delay.h>
-> +#include <linux/fs.h>
-> +#include <asm/ioctl.h>
-> +#include <linux/fs.h>
-> +#include <linux/init.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-
-wow.  Some of them are there 3 times.  :(
-
-> +
-> +#define CY8CTMG110_DRIVER_NAME      "cy8ctmg110"
-> +
-> +
-> +/*HW definations*/
-
-        definitions
-
-> +#define CY8CTMG110_RESET_PIN_GPIO   43
-> +#define CY8CTMG110_IRQ_PIN_GPIO     59
-> +#define CY8CTMG110_I2C_ADDR         0x38
-> +#define CY8CTMG110_I2C_ADDR_EXT     0x39
-> +#define CY8CTMG110_I2C_ADDR_        0x2	/*i2c address first sample */
-> +#define CY8CTMG110_I2C_ADDR__       53	/*i2c address to FW where irq support missing */
-> +#define CY8CTMG110_TOUCH_IRQ        21
-> +#define CY8CTMG110_TOUCH_LENGHT     9787
-> +#define CY8CTMG110_SCREEN_LENGHT    8424
-> +
-> +
-> +/*Touch coordinates*/
-> +#define CY8CTMG110_X_MIN        0
-> +#define CY8CTMG110_Y_MIN        0
-> +#define CY8CTMG110_X_MAX        864
-> +#define CY8CTMG110_Y_MAX        480
-> +
-> +
-> +/*cy8ctmg110 registers defination*/
-
-                          definition
-
-> +#define CY8CTMG110_TOUCH_WAKEUP_TIME   0
-> +#define CY8CTMG110_TOUCH_SLEEP_TIME    2
-> +#define CY8CTMG110_TOUCH_X1            3
-> +#define CY8CTMG110_TOUCH_Y1            5
-> +#define CY8CTMG110_TOUCH_X2            7
-> +#define CY8CTMG110_TOUCH_Y2            9
-> +#define CY8CTMG110_FINGERS             11
-> +#define CY8CTMG110_GESTURE             12
-> +#define CY8CTMG110_REG_MAX             13
-> +
-> +#define CY8CTMG110_POLL_TIMER_DELAY  1000*1000*100
-
-better to use parens on expressions:	(1000 * 1000 * 100)
-
-> +#define TOUCH_MAX_I2C_FAILS          50
-> +
-> +/* Scale factors for coordinates */
-> +#define X_SCALE_FACTOR 9387/8424
-> +#define Y_SCALE_FACTOR 97/100
-
-use parens.  Oops, probably can't do that here, since:
-+		y2 = (u16) (x * Y_SCALE_FACTOR);
-
-you (== the code) want (x * 97) / 100.
-Otherwise (with parens) it would be x * 0.
-oh well.
-
-> +
-> +/* For tracing */
-> +static int g_y_trace_coord = 0;
-> +module_param(g_y_trace_coord, int, 0600);
-> +
-> +/* Polling mode */
-> +static int polling = 0;
-> +module_param(polling, int, 0);
-> +MODULE_PARM_DESC(polling, "Set to enabling polling of the touchscreen");
-
-s/enabling/enable/
-
-> +
-> +
-> +/*
-> + * The touch position structure.
-> + */
-> +struct ts_event {
-> +	int x1;
-> +	int y1;
-> +	int x2;
-> +	int y2;
-> +	bool event_sended;
-
-	bool event_sent;
-
-> +};
-> +
-> +/*
-> + * The touch driver structure.
-> + */
-> +struct cy8ctmg110 {
-> +	struct input_dev *input;
-> +	char phys[32];
-> +	struct ts_event tc;
-> +	struct i2c_client *client;
-> +	bool pending;
-> +	spinlock_t lock;
-> +	bool initController;
-> +	bool sleepmode;
-> +	int i2c_fail_count;
-> +	struct hrtimer timer;
-> +};
-> +
-> +/*
-> + * cy8ctmg110_poweroff is the routine that is called when touch hardware 
-> + * will powered off
-> + */
-> +static void cy8ctmg110_power(bool poweron)
-> +{
-> +	if (poweron)
-> +		gpio_direction_output(CY8CTMG110_RESET_PIN_GPIO, 0);
-> +	else
-> +		gpio_direction_output(CY8CTMG110_RESET_PIN_GPIO, 1);
-> +}
-> +
-> +/*
-> + * cy8ctmg110_write_req write regs to the i2c devices
-> + * 
-> + */
-> +static int cy8ctmg110_write_req(struct cy8ctmg110 *tsc, unsigned char reg,
-> +		unsigned char len, unsigned char *value)
-> +{
-> +	struct i2c_client *client = tsc->client;
-> +	unsigned int ret;
-> +	unsigned char i2c_data[] = { 0, 0, 0, 0, 0, 0 };
-> +	struct i2c_msg msg[] = {
-> +			{client->addr, 0, len + 1, i2c_data},
-> +			};
-> +
-> +	i2c_data[0] = reg;
-> +	memcpy(i2c_data + 1, value, len);
-> +
-> +	ret = i2c_transfer(client->adapter, msg, 1);
-> +	if (ret != 1) {
-> +		printk("cy8ctmg110 touch : i2c write data cmd failed \n");
-
-Better to use DRIVER_NAME as prefix in messages.
-
-> +		return ret;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_read_req read regs from i2c devise
-> + * 
-> + */
-> +
-> +static int cy8ctmg110_read_req(struct cy8ctmg110 *tsc,
-> +		unsigned char *i2c_data, unsigned char len, unsigned char cmd)
-> +{
-> +	struct i2c_client *client = tsc->client;
-> +	unsigned int ret;
-> +	unsigned char regs_cmd[2] = { 0, 0 };
-> +	struct i2c_msg msg1[] = {
-> +		{client->addr, 0, 1, regs_cmd},
-> +	};
-> +	struct i2c_msg msg2[] = {
-> +		{client->addr, I2C_M_RD, len, i2c_data},
-> +	};
-> +
-> +	regs_cmd[0] = cmd;
-> +
-> +	/* first write slave position to i2c devices */
-> +	ret = i2c_transfer(client->adapter, msg1, 1);
-> +	if (ret != 1) {
-> +		tsc->i2c_fail_count++;
-> +		return ret;
-> +	}
-> +
-> +	/* Second read data from position */
-> +	ret = i2c_transfer(client->adapter, msg2, 1);
-> +	if (ret != 1) {
-> +		tsc->i2c_fail_count++;
-> +		return ret;
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_send_event delevery touch event to the userpace
-> + * function use normal input interface
-> + */
-> +static void cy8ctmg110_send_event(void *tsc)
-> +{
-> +	struct cy8ctmg110 *ts = tsc;
-> +	struct input_dev *input = ts->input;
-> +	u16 x, y;
-> +	u16 x2, y2;
-> +
-> +	x = ts->tc.x1;
-> +	y = ts->tc.y1;
-> +
-> +	if (ts->tc.event_sended == false) {
-> +		input_report_key(input, BTN_TOUCH, 1);
-> +		ts->pending = true;
-> +		x2 = (u16) (y * X_SCALE_FACTOR);
-> +		y2 = (u16) (x * Y_SCALE_FACTOR);
-> +		input_report_abs(input, ABS_X, x2);
-> +		input_report_abs(input, ABS_Y, y2);
-> +		input_sync(input);
-> +		if (g_y_trace_coord)
-> +			printk("cy8ctmg110 touch position X:%d (was = %d) Y:%d (was = %d)\n", x2, y, y2, x);
-> +	}
-> +
-> +}
-> +
-> +/*
-> + * cy8ctmg110_touch_pos check touch position from i2c devices
-> + * 
-> + */
-> +static int cy8ctmg110_touch_pos(struct cy8ctmg110 *tsc)
-> +{
-> +	unsigned char reg_p[CY8CTMG110_REG_MAX];
-> +	int x, y;
-> +
-> +	memset(reg_p, 0, CY8CTMG110_REG_MAX);
-> +
-> +	/*Reading coordinates */
-> +	if (cy8ctmg110_read_req(tsc, reg_p, 9, CY8CTMG110_TOUCH_X1) != 0)
-> +		return -EIO;
-> +		
-> +	y = reg_p[2] << 8 | reg_p[3];
-> +	x = reg_p[0] << 8 | reg_p[1];
-> +		/*number of touch */
-> +	if (reg_p[8] == 0) {
-> +		if (tsc->pending == true) {
-> +			struct input_dev *input = tsc->input;
-> +
-> +			input_report_key(input, BTN_TOUCH, 0);
-> +			tsc->tc.event_sended = true;
-> +			tsc->pending = false;
-> +		}
-> +	} else if (tsc->tc.x1 != x || tsc->tc.y1 != y) {
-> +		tsc->tc.y1 = y;
-> +		tsc->tc.x1 = x;
-> +		tsc->tc.event_sended = false;
-> +		cy8ctmg110_send_event(tsc);
-> +	}
-> +	return 0;
-> +}
-> +
-> +/*
-> + * if interrupt isn't in use the touch positions can reads by polling
-
-                                                    can be read
-
-> + * 
-> + */
-> +static enum hrtimer_restart cy8ctmg110_timer(struct hrtimer *handle)
-> +{
-> +	struct cy8ctmg110 *ts = container_of(handle, struct cy8ctmg110, timer);
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&ts->lock, flags);
-> +
-> +	cy8ctmg110_touch_pos(ts);
-> +	if (ts->i2c_fail_count < TOUCH_MAX_I2C_FAILS)
-> +		hrtimer_start(&ts->timer, ktime_set(0, CY8CTMG110_POLL_TIMER_DELAY), HRTIMER_MODE_REL);
-> +
-> +	spin_unlock_irqrestore(&ts->lock, flags);
-> +	return HRTIMER_NORESTART;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_init_controller set init value to touchcontroller
-> + * 
-> + */
-> +static bool cy8ctmg110_set_sleepmode(struct cy8ctmg110 *ts)
-> +{
-> +	unsigned char reg_p[3];
-> +
-> +	if (ts->sleepmode == true) {
-> +		reg_p[0] = 0x00;
-> +		reg_p[1] = 0xff;
-> +		reg_p[2] = 5;
-> +	} else {
-> +		reg_p[0] = 0x10;
-> +		reg_p[1] = 0xff;
-> +		reg_p[2] = 0;
-> +	}
-> +
-> +	if (cy8ctmg110_write_req(ts, CY8CTMG110_TOUCH_WAKEUP_TIME, 3, reg_p))
-> +		return false;
-> +
-> +	ts->initController = true;
-> +	return true;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_irq_handler irq handling function
-> + * 
-> + */
-> +
-> +static irqreturn_t cy8ctmg110_irq_handler(int irq, void *dev_id)
-> +{
-> +	struct cy8ctmg110 *tsc = (struct cy8ctmg110 *) dev_id;
-> +
-> +	if (tsc->initController == false) {
-> +		if (cy8ctmg110_set_sleepmode(tsc) == true)
-> +			tsc->initController = true;
-> +	} else
-> +		cy8ctmg110_touch_pos(tsc);
-> +
-> +	/* if interrupt supported in the touch controller
-> +	   timer polling need to stop */
-> +	tsc->i2c_fail_count = TOUCH_MAX_I2C_FAILS;
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +
-> +static int cy8ctmg110_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> +{
-> +	struct cy8ctmg110 *ts;
-> +	struct input_dev *input_dev;
-> +	int err;
-> +	client->irq = CY8CTMG110_TOUCH_IRQ;
-> +
-> +	if (!i2c_check_functionality(client->adapter,
-> +					I2C_FUNC_SMBUS_READ_WORD_DATA))
-> +		return -EIO;
-> +
-> +	ts = kzalloc(sizeof(struct cy8ctmg110), GFP_KERNEL);
-> +	input_dev = input_allocate_device();
-> +
-> +	if (!ts || !input_dev) {
-> +		err = -ENOMEM;
-> +		goto err_free_mem;
-> +	}
-> +
-> +	ts->client = client;
-> +	i2c_set_clientdata(client, ts);
-> +
-> +	ts->input = input_dev;
-> +	ts->pending = false;
-> +	ts->sleepmode = false;
-> +
-> +	snprintf(ts->phys, sizeof(ts->phys), "%s/input0",
-> +						dev_name(&client->dev));
-> +
-> +	input_dev->name = CY8CTMG110_DRIVER_NAME " Touchscreen";
-> +	input_dev->phys = ts->phys;
-> +	input_dev->id.bustype = BUS_I2C;
-> +
-> +	spin_lock_init(&ts->lock);
-> +
-> +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-> +					BIT_MASK(EV_REL) | BIT_MASK(EV_ABS);
-> +	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +
-> +	input_set_capability(input_dev, EV_KEY, KEY_F);
-> +
-> +	input_set_abs_params(input_dev, ABS_X, CY8CTMG110_X_MIN, CY8CTMG110_X_MAX, 0, 0);
-> +	input_set_abs_params(input_dev, ABS_Y, CY8CTMG110_Y_MIN, CY8CTMG110_Y_MAX, 0, 0);
-> +
-> +	err = gpio_request(CY8CTMG110_RESET_PIN_GPIO, NULL);
-> +
-> +	if (err) {
-> +		dev_err(&client->dev, "cy8ctmg110_ts: Unable to request GPIO pin %d.\n",
-> +						CY8CTMG110_RESET_PIN_GPIO);
-> +		goto err_free_irq;
-> +	}
-> +	cy8ctmg110_power(true);
-> +
-> +	ts->initController = false;
-> +	ts->i2c_fail_count = 0;
-> +
-> +	hrtimer_init(&ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	ts->timer.function = cy8ctmg110_timer;
-> +
-> +	if (polling)
-> +		hrtimer_start(&ts->timer, ktime_set(10, 0), HRTIMER_MODE_REL);
-> +
-> +	/* Can we fall back to polling if these bits fail - something to look
-> +	   at for robustness */
-> +
-> +	err = gpio_request(CY8CTMG110_IRQ_PIN_GPIO, "touch_irq_key");
-> +	if (err < 0) {
-> +		dev_err(&client->dev,
-> +			"cy8ctmg110_ts: failed to request GPIO %d, error %d\n",
-> +						CY8CTMG110_IRQ_PIN_GPIO, err);
-> +		goto err_free_timer;
-> +	}
-> +
-> +	err = gpio_direction_input(CY8CTMG110_IRQ_PIN_GPIO);
-> +
-> +	if (err < 0) {
-> +		dev_err(&client->dev,
-> +			"cy8ctmg110_ts: failed to configure input direction for GPIO %d, error %d\n",
-> +						CY8CTMG110_IRQ_PIN_GPIO, err);
-> +		goto err_free_gpio;
-> +	}
-> +	client->irq = gpio_to_irq(CY8CTMG110_IRQ_PIN_GPIO);
-> +
-> +	if (client->irq < 0) {
-> +		err = client->irq;
-> +		dev_err(&client->dev,
-> +	"cy8ctmg110_ts: Unable to get irq number" " for GPIO %d, error %d\n",
-> +						CY8CTMG110_IRQ_PIN_GPIO, err);
-> +		goto err_free_gpio;
-> +	}
-> +	err = request_irq(client->irq, cy8ctmg110_irq_handler, IRQF_TRIGGER_RISING | IRQF_SHARED, "touch_reset_key", ts);
-> +	if (err < 0) {
-> +		dev_err(&client->dev,
-> +			"cy8ctmg110 irq %d busy? error %d\n",
-> +				client->irq, err);
-> +		goto err_free_gpio;
-> +	}
-> +
-> +	err = input_register_device(input_dev);
-> +	if (!err)
-> +		return 0;
-> +err_free_gpio:
-> +	gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-> +err_free_timer:
-> +	if (polling)
-> +		hrtimer_cancel(&ts->timer);
-> +err_free_irq:
-> +	free_irq(client->irq, ts);
-> +err_free_mem:
-> +	input_free_device(input_dev);
-> +	kfree(ts);
-> +	return err;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_suspend
-> + * 
-> + */
-> +
-> +static int cy8ctmg110_suspend(struct i2c_client *client, pm_message_t mesg)
-> +{
-> +	if (device_may_wakeup(&client->dev))
-> +		enable_irq_wake(client->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_resume 
-> + * 
-> + */
-> +
-> +static int cy8ctmg110_resume(struct i2c_client *client)
-> +{
-> +	if (device_may_wakeup(&client->dev))
-> +		disable_irq_wake(client->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * cy8ctmg110_remove
-> + * 
-> + */
-> +
-> +static int cy8ctmg110_remove(struct i2c_client *client)
-> +{
-> +	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
-> +
-> +	cy8ctmg110_power(false);
-> +
-> +	if (polling)
-> +		hrtimer_cancel(&ts->timer);
-> +	free_irq(client->irq, ts);
-> +	input_unregister_device(ts->input);
-> +	/* FIXME: Do we need to free the GPIO ? */
-> +	kfree(ts);
-> +	return 0;
-> +}
-> +
-> +static struct i2c_device_id cy8ctmg110_idtable[] = {
-> +	{CY8CTMG110_DRIVER_NAME, 1},
-> +	{}
-> +};
-> +
-> +MODULE_DEVICE_TABLE(i2c, cy8ctmg110_idtable);
-> +
-> +static struct i2c_driver cy8ctmg110_driver = {
-> +	.driver = {
-> +		   .owner = THIS_MODULE,
-> +		   .name = CY8CTMG110_DRIVER_NAME,
-> +		   .bus = &i2c_bus_type,
-> +		   },
-> +	.id_table = cy8ctmg110_idtable,
-> +	.probe = cy8ctmg110_probe,
-> +	.remove = cy8ctmg110_remove,
-> +	.suspend = cy8ctmg110_suspend,
-> +	.resume = cy8ctmg110_resume,
-> +};
+-- 
+Dmitry
 
 
+Input: eeti_ts - cancel pending work when going to suspend
+
+From: Daniel Mack <daniel@caiaq.de>
+
+This fixes a race between the suspend code and input events.
+
+Signed-off-by: Daniel Mack <daniel@caiaq.de>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
-~Randy
+
+ drivers/input/touchscreen/eeti_ts.c |   56 +++++++++++++++++++++++++++++------
+ 1 files changed, 46 insertions(+), 10 deletions(-)
+
+
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 204b8a1..75f8b73 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -124,14 +124,25 @@ static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int eeti_ts_open(struct input_dev *dev)
++static void eeti_ts_start(struct eeti_ts_priv *priv)
+ {
+-	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+-
+ 	enable_irq(priv->irq);
+ 
+ 	/* Read the events once to arm the IRQ */
+ 	eeti_ts_read(&priv->work);
++}
++
++static void eeti_ts_stop(struct eeti_ts_priv *priv)
++{
++	disable_irq(priv->irq);
++	cancel_work_sync(&priv->work);
++}
++
++static int eeti_ts_open(struct input_dev *dev)
++{
++	struct eeti_ts_priv *priv = input_get_drvdata(dev);
++
++	eeti_ts_start(priv);
+ 
+ 	return 0;
+ }
+@@ -140,8 +151,7 @@ static void eeti_ts_close(struct input_dev *dev)
+ {
+ 	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+ 
+-	disable_irq(priv->irq);
+-	cancel_work_sync(&priv->work);
++	eeti_ts_stop(priv);
+ }
+ 
+ static int __devinit eeti_ts_probe(struct i2c_client *client,
+@@ -153,10 +163,12 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 	unsigned int irq_flags;
+ 	int err = -ENOMEM;
+ 
+-	/* In contrast to what's described in the datasheet, there seems
++	/*
++	 * In contrast to what's described in the datasheet, there seems
+ 	 * to be no way of probing the presence of that device using I2C
+ 	 * commands. So we need to blindly believe it is there, and wait
+-	 * for interrupts to occur. */
++	 * for interrupts to occur.
++	 */
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+ 	if (!priv) {
+@@ -212,9 +224,11 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+ 		goto err2;
+ 	}
+ 
+-	/* Disable the irq for now. It will be enabled once the input device
+-	 * is opened. */
+-	disable_irq(priv->irq);
++	/*
++	 * Disable the device for now. It will be enabled once the
++	 * input device is opened.
++	 */
++	eeti_ts_stop(priv);
+ 
+ 	device_init_wakeup(&client->dev, 0);
+ 	return 0;
+@@ -235,6 +249,12 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+ 
+ 	free_irq(priv->irq, priv);
++	/*
++	 * eeti_ts_stop() leaves IRQ disabled. We need to re-enable it
++	 * so that device still works if we reload the driver.
++	 */
++	enable_irq(priv->irq);
++
+ 	input_unregister_device(priv->input);
+ 	i2c_set_clientdata(client, NULL);
+ 	kfree(priv);
+@@ -246,6 +266,14 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
+ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+ {
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
++	struct input_dev *input_dev = priv->input;
++
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		eeti_ts_stop(priv);
++
++	mutex_unlock(&input_dev->mutex);
+ 
+ 	if (device_may_wakeup(&client->dev))
+ 		enable_irq_wake(priv->irq);
+@@ -256,10 +284,18 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+ static int eeti_ts_resume(struct i2c_client *client)
+ {
+ 	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
++	struct input_dev *input_dev = priv->input;
+ 
+ 	if (device_may_wakeup(&client->dev))
+ 		disable_irq_wake(priv->irq);
+ 
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users)
++		eeti_ts_start(priv);
++
++	mutex_unlock(&input_dev->mutex);
++
+ 	return 0;
+ }
+ #else

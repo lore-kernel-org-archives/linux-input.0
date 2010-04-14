@@ -1,70 +1,174 @@
-From: Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Hotkeys generating input as well as ACPI events
-Date: Wed, 14 Apr 2010 09:11:24 +0200
-Message-ID: <s2x71cd59b01004140011jc2416c14x259627e278c6a162@mail.gmail.com>
-References: <87vdbvvbp8.fsf@cybersource.com.au>
-	<g2j71cd59b01004130512ydcecbbf9n5a8c5e271881d080@mail.gmail.com>
-	<87633uq0oz.fsf@cybersource.com.au>
-	<r2z71cd59b01004132314r6fdbbd63r3fba622d1c6f105f@mail.gmail.com>
-	<87pr22o83t.fsf@cybersource.com.au>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
+Date: Wed, 14 Apr 2010 13:04:40 +0530
+Message-ID: <i2x5d5443651004140034mdd11969cg72d4306c77f2bd0f@mail.gmail.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <87pr22o83t.fsf-3AaVwj9c10wJYc8buCWFOBCuuivNXqWP@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=acpi4asus-user>
-List-Post: <mailto:acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/acpi4asus-user>,
-	<mailto:acpi4asus-user-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: acpi4asus-user-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: "Trent W. Buck" <twb-3AaVwj9c10wJYc8buCWFOBCuuivNXqWP@public.gmane.org>
-Cc: debian-eeepc-devel-XbBxUvOt3X2LieD7tvxI8l/i77bcL1HB@public.gmane.org, acpi4asus-user-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qy0-f196.google.com ([209.85.221.196]:43680 "EHLO
+	mail-qy0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752315Ab0DNHem convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Apr 2010 03:34:42 -0400
+In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-On Wed, Apr 14, 2010 at 8:34 AM, Trent W. Buck <twb-3AaVwj9c10wJYc8buCWFOBCuuivNXqWP@public.gmane.org> wro=
-te:
-> Corentin Chary <corentin.chary-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> writes:
->
->> All seems ok and I was able to reproduce the issue (only in screen),
->
-> Hmm; I can also reproduce this as root on vt2, without screen. =A0It's
-> more obvious if I run "cat -A" before typing; otherwise I only see a ~
-> and hear a beep.
->
->> but I don't really know what's the best way to fix it.
->> Isn't there any way to "ignore" an input device in screen/fbcon ?
->
-> I don't know. =A0I guess that would be disconnecting
->
-> =A0 =A0/sys/devices/platform/eeepc/input/input8
-> =A0 =A0i.e. SUBSYSTEM=3D=3D"input", NAME=3D=3D"Asus EeePC extra buttons"
->
-> ...from fbcon. =A0Obviously I don't want to disable the ACPI events, nor
-> the normal keyboard input. =A0I'll try to find an fbcon guru.
->
-> I might be able to patch terminfo/termcap entries to discard those
-> escape sequences, but it feels like a bodge.
->
+Hi Abraham,
 
-If there is no way to ignore an input device in userspace, maybe the
-right way to do it is to add a way to disable an input device using
-some /sys/ file.
+On Wed, Apr 14, 2010 at 6:40 AM, Arce, Abraham <x0066660@ti.com> wrote:
+> Keyboard controller for OMAP4 with built-in scanning algorithm.
+> The following implementations are used:
+>
+> =A0- matrix_keypac.c logic
+> =A0- hwmod framework
 
-CC-ing linux-input, they probably have something to tell about that.
+Do we have hwmod framework mainlined in the kernel?
 
--- =
+>
+> +config KEYBOARD_OMAP4
+> + =A0 =A0 =A0 =A0tristate "TI OMAP4 keypad support"
+> + =A0 =A0 =A0 =A0depends on (ARCH_OMAP4)
 
-Corentin Chary
-http://xf.iksaif.net
+No need of brackets.
 
----------------------------------------------------------------------------=
----
-Download Intel&#174; Parallel Studio Eval
-Try the new software tools for yourself. Speed compiling, find bugs
-proactively, and fine-tune applications for parallel performance.
-See why Intel Parallel Studio got high marks during beta.
-http://p.sf.net/sfu/intel-sw-dev
+Could you please provide "default y/n" option too?
+
+> + * linux/drivers/input/keyboard/omap4-keypad.c
+
+Better not to include file paths.
+
+> +
+> +struct omap_device_pm_latency omap_keyboard_latency[] =3D {
+
+static?
+
+> + =A0 =A0 =A0 {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .deactivate_func =3D omap_device_idle_h=
+wmods,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .activate_func =A0 =3D omap_device_enab=
+le_hwmods,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .flags =3D OMAP_DEVICE_LATENCY_AUTO_ADJ=
+UST,
+> + =A0 =A0 =A0 },
+> +};
+> +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
+> +{
+> + =A0 =A0 =A0 struct omap_keypad *keypad_data =3D dev_id;
+> + =A0 =A0 =A0 struct input_dev *input =3D keypad_data->input;
+> + =A0 =A0 =A0 unsigned char key_state[8];
+> + =A0 =A0 =A0 int col, row, code;
+> + =A0 =A0 =A0 u32 *new_state =3D (u32 *) key_state;
+> +
+> + =A0 =A0 =A0 *new_state =A0 =A0 =A0 =3D __raw_readl(keypad_data->bas=
+e +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_KBD_FULLCODE31_0)=
+;
+> + =A0 =A0 =A0 *(new_state + 1) =3D __raw_readl(keypad_data->base +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP4_KBD_FULLCODE63_32=
+);
+> +
+> + =A0 =A0 =A0 for (col =3D 0; col < keypad_data->cols; col++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (row =3D 0; row < keypad_data->rows=
+; row++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 code =3D MATRIX_SCAN_CO=
+DE(row, col,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 keypad_data->row_shift);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (code < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(=
+KERN_INFO "Spurious key %d-%d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 col, row);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continu=
+e;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(input,=
+ keypad_data->keycodes[code],
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 key_state[col] & (1 << row));
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+
+where is input_sync(..)?
+
+> +
+> + =A0 =A0 =A0 pdata =3D kzalloc(sizeof(struct matrix_keypad_platform_=
+data),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KER=
+NEL);
+
+Please check error return here, because kzalloc can fail.
+
+> +
+> + =A0 =A0 =A0 od =3D omap_device_build(name, id, oh, pdata,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sizeof(=
+struct matrix_keypad_platform_data),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_ke=
+yboard_latency,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ARRAY_S=
+IZE(omap_keyboard_latency), 1);
+> + =A0 =A0 =A0 WARN(IS_ERR(od), "Could not build omap_device for %s %s=
+\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 name, oh_name);
+> +
+> + =A0 =A0 =A0 /* platform data */
+> + =A0 =A0 =A0 pdata =3D pdev->dev.platform_data;
+> + =A0 =A0 =A0 if (!pdata) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no platform data d=
+efined\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(pdata);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 /* keymap data */
+> + =A0 =A0 =A0 keymap_data =3D pdata->keymap_data;
+> + =A0 =A0 =A0 if (!keymap_data) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no keymap data def=
+ined\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(keymap_data);
+
+not freeing kfree(pdata)? Please check error return path again in this =
+driver.
+
+> +
+> + =A0 =A0 =A0 __set_bit(EV_REP, input_dev->evbit);
+> + =A0 =A0 =A0 __set_bit(KEY_OK, input_dev->keybit);
+> + =A0 =A0 =A0 __set_bit(EV_KEY, input_dev->evbit);
+
+> +
+> + =A0 =A0 =A0 input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> + =A0 =A0 =A0 input_set_drvdata(input_dev, keypad_data);
+> +
+> + =A0 =A0 =A0 status =3D input_register_device(keypad_data->input);
+> + =A0 =A0 =A0 if (status < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "failed to register=
+ input device\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto failed_free_device;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 omap_keypad_config(keypad_data);
+> +
+> + =A0 =A0 =A0 platform_set_drvdata(pdev, keypad_data);
+> +
+> + =A0 =A0 =A0 return 0;
+> +
+> +failed_free_device:
+> + =A0 =A0 =A0 input_unregister_device(keypad_data->input);
+
+add keypad_data->input =3D NULL.
+
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

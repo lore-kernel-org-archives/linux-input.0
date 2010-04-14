@@ -1,42 +1,38 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH 2/2] Use TIPSWITCH for TOUCH
-Date: Tue, 13 Apr 2010 16:04:37 -0400
-Message-ID: <4BC4CE55.8030905@seas.upenn.edu>
-References: <1270850306-4949-1-git-send-email-rafi@seas.upenn.edu> <1270850306-4949-2-git-send-email-rafi@seas.upenn.edu> <alpine.LNX.2.00.1004131530460.8345@pobox.suse.cz>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: [RFC] [PATCH 0/3] OMAP4 Keyboard Controller Support
+Date: Tue, 13 Apr 2010 20:10:40 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F4@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:58975 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752793Ab0DMUEs (ORCPT
+Received: from comal.ext.ti.com ([198.47.26.152]:41812 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752071Ab0DNBKn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Apr 2010 16:04:48 -0400
-In-Reply-To: <alpine.LNX.2.00.1004131530460.8345@pobox.suse.cz>
+	Tue, 13 Apr 2010 21:10:43 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, micki@n-trig.com, dmitry.torokhov@gmail.com, chatty@enac.fr
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
->> +				/*
->> +				 * TIPSWITCH indicates the presence of a
->> +				 * finger.  DOUBLETAP is emitted are both
->> +				 * emitted to support legacy drivers.
->> +				 */
-> 
-> This comment has some slightly strange wording.
+Keyboard controller for OMAP4 includes
 
-Yeah, the wording wasn't great before, but it looks like something happened to
-the comment I thought I wrote.  I will clean up that comment and resubmit later
-today.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+ - built-in scanning algorithm
+ - debouncing feature
+ - handling mechanism up to 9 x 9 keys
+ - wake-up event generation
 
-iEYEARECAAYFAkvEzlUACgkQwuRiAT9o609lyQCfS8LgCIT3XPHyH0113lRicYFt
-qWsAn07U5muHivTFk1ovYcdzWvaM4gK3
-=Bd+a
------END PGP SIGNATURE-----
+These patches have been tested in a SDP4430 board.
+Taking OMAP4 TI tree as code base, omap4_next-wip branch
+  http://dev.omapzoom.org/?p=santosh/kernel-omap4-base.git;a=summary
+
+---
+ arch/arm/configs/omap_4430sdp_defconfig |    3 +-
+ arch/arm/mach-omap2/board-4430sdp.c     |   61 ++---
+ drivers/input/keyboard/Kconfig          |    9 +
+ drivers/input/keyboard/Makefile         |    1 +
+ drivers/input/keyboard/omap4-keypad.c   |  366 +++++++++++++++++++++++++++++++
+ 5 files changed, 403 insertions(+), 37 deletions(-)
+

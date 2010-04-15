@@ -1,50 +1,32 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: [PATCH v3 5/5(7)] OMAP1: Amstrad Delta: modify defconfig for external keyboard support
-Date: Thu, 15 Apr 2010 04:32:32 +0200
-Message-ID: <201004150432.35559.jkrzyszt@tis.icnet.pl>
-References: <201004150419.05038.jkrzyszt@tis.icnet.pl>
+From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Subject: Re: [PATCH 2/4] isl29020: ambient light sensor
+Date: Thu, 15 Apr 2010 08:20:23 +0200
+Message-ID: <20100415062023.GG30801@buzzloop.caiaq.de>
+References: <20100414124913.23181.75903.stgit@localhost.localdomain>
+ <20100414125147.23181.5817.stgit@localhost.localdomain>
+ <20100414224542.GX30807@buzzloop.caiaq.de>
+ <20100414233554.3f020155@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:39214 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756451Ab0DOCeg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Apr 2010 22:34:36 -0400
-In-Reply-To: <201004150419.05038.jkrzyszt@tis.icnet.pl>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20100414233554.3f020155-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, e3-hacking@earth.li
 
-The patch adds a CONFIG directive required for supporting the Amstrad Delta
-connected external keyboard by default.
+On Wed, Apr 14, 2010 at 11:35:54PM +0100, Alan Cox wrote:
+> > Would it be possible to make the existing driver for the ISL29003
+> > support the ISL29020 as well?
+> 
+> I dug the manuals out for these to take a look - the answer is they are
+> quite different chips. 
 
-Created and tested against linux-2.6.34-rc2.
-Works on top of PATCH 4/5(7), "input: serio: add support for Amstrad Delta 
-serial keyboard port".
+Hmm, sad :(
 
-Signed-off-by: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
----
-v2 changes:
-- no functional changes,
-- refreshed against linux-2.6.34-rc2.
-v3 changes:
-- since CONFIG_KEYBOARD_ATKBD and CONFIG_AMS_DELTA_FIQ are now selected 
-  automatically, limit defconfig changes to CONFIG_SERIO_AMS_DELTA selection
+However, the driver should be applied to the ALS tree after all, unless
+Jonathan plans to drop the whole thing, which I doubt.
 
- arch/arm/configs/ams_delta_defconfig |    1 +
- 1 file changed, 1 insertion(+)
-
---- git.orig/arch/arm/configs/ams_delta_defconfig	2010-04-14 03:11:50.000000000 +0200
-+++ git/arch/arm/configs/ams_delta_defconfig	2010-04-15 03:29:05.000000000 +0200
-@@ -699,6 +699,7 @@ CONFIG_SERIO=y
- CONFIG_SERIO_SERPORT=y
- CONFIG_SERIO_LIBPS2=y
- # CONFIG_SERIO_RAW is not set
-+CONFIG_SERIO_AMS_DELTA=y
- # CONFIG_GAMEPORT is not set
- 
- #
+Thanks,
+Daniel

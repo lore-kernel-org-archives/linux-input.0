@@ -1,32 +1,64 @@
-From: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Subject: Re: [PATCH 2/4] isl29020: ambient light sensor
-Date: Thu, 15 Apr 2010 08:20:23 +0200
-Message-ID: <20100415062023.GG30801@buzzloop.caiaq.de>
-References: <20100414124913.23181.75903.stgit@localhost.localdomain>
- <20100414125147.23181.5817.stgit@localhost.localdomain>
- <20100414224542.GX30807@buzzloop.caiaq.de>
- <20100414233554.3f020155@linux.intel.com>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
+Subject: Re: [PATCH 3/4] liss331d1: accelerometer driver
+Date: Thu, 15 Apr 2010 11:47:40 +0200
+Message-ID: <4BC6E0BC.2040006@tremplin-utc.net>
+References: <20100414124913.23181.75903.stgit@localhost.localdomain>	<20100414125155.23181.56610.stgit@localhost.localdomain>	<4BC63DC5.8040501@tudelft.nl>	<20100414223429.GW30807@buzzloop.caiaq.de> <20100415090542.21f9778d@notabene.brown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20100414233554.3f020155-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100415090542.21f9778d@notabene.brown>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Neil Brown <neilb@suse.de>
+Cc: Daniel Mack <daniel@caiaq.de>, Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Apr 14, 2010 at 11:35:54PM +0100, Alan Cox wrote:
-> > Would it be possible to make the existing driver for the ISL29003
-> > support the ISL29020 as well?
+On 15/04/10 01:05, Neil Brown wrote:
+:
 > 
-> I dug the manuals out for these to take a look - the answer is they are
-> quite different chips. 
+> The Openmoko Freerunner has as lis302D which is an SPI version of a very
+> similar device, so making the one driver work on that was well would be nice
+> if possible.
+Definitely!
 
-Hmm, sad :(
+> 
+> The lis302d can detect threshold crossings and taps as well as simple
+> orientation and I found it useful to include support for those in the driver
+> as well.
+> In particular:
+>  1/ I allowed the 'data_rate' that was programmed to be any number (including 
+>     fractions and 0) and the driver would report at that rate, using a timer
+>     for rates below 50Hz.
+>     When the app is only interested in long-term change, this can
+>     significantly reduce the amount of data that has to be handled by
+>     userspace.
+Samu (from Nokia) has started to had such idea via the patch
+lis3-setup-poll-interval-limits.patch which in now in the -mm tree. It
+allows to specify the polling rate via the input interface
+(/sys/devices/platform/lis3lv02d/input/input8/poll). But for now I don't
+think the actual refresh rate is updated automatically, it would be a
+nice addition.
 
-However, the driver should be applied to the ALS tree after all, unless
-Jonathan plans to drop the whole thing, which I doubt.
 
-Thanks,
-Daniel
+> 
+>  2/ I allowed a 'threshold' to be set so that changes bigger than that get
+>     notified promptly even if that is faster than the requested data rate
+It could be interesting too... but what interface are you using for the
+userspace to specify this threshold? A sysfs file?
+
+> 
+>  3/ I allowed taps to be detected and reported as BTN_X BTN_Y and BTN_Z
+>     input events.
+This one should now be working with Samu's patch
+lis3-interrupt-handlers-for-8bit-wakeup-and-click-events.patch also in
+the -mm tree.
+
+> 
+> Would it be sensible to include that support in this driver?  The
+> LIS331DL seem to have the same threshold and tap support.
+So all in all, if you could have a look at what changes are necessary to
+get the lis3lv02d driver work with your hardware, it would be great. (I
+suspect it should be quite little.)
+
+See you,
+Eric

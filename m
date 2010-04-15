@@ -1,34 +1,56 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 0/8] Series short description
-Date: Thu, 15 Apr 2010 23:59:34 +0200
-Message-ID: <20100415215934.GA14463@hardeman.nu>
-References: <20100415214520.14142.56114.stgit@localhost.localdomain>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: [RFC] [PATCH 2/3] OMAP4: Keyboard Board Support
+Date: Thu, 15 Apr 2010 17:59:04 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043DA67660@dlee03.ent.ti.com>
+References: <Acrbb1c3f6VIFUq3RumCrtM3k0PWuQ==>
+ <27F9C60D11D683428E133F85D2BB4A53043D9EE7F6@dlee03.ent.ti.com>
+ <s2xce9ab5791004132219q528e6c7cyb709d78f8dc177ee@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:60139 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757306Ab0DOV7k (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Apr 2010 17:59:40 -0400
-Content-Disposition: inline
-In-Reply-To: <20100415214520.14142.56114.stgit@localhost.localdomain>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <s2xce9ab5791004132219q528e6c7cyb709d78f8dc177ee@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Vimal Singh <vimal.newwork@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: mchehab@redhat.com
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Apr 15, 2010 at 11:45:55PM +0200, David H=E4rdeman wrote:
-> The following series implements the suggested change to ir-core
-> to use a 1:31 struct for pulse/space durations, adds two new
-> raw decoders, converts two users of ir-functions to plain ir-core
-> and fixes a few small bugs in ir-core.
+Thanks Vimal,
 
-Sorry about the subject of this mail...missed filling in that field :)
+> > Signed-off-by: Abraham Arce <x0066660@ti.com>
+> > ---
+>=20
+> 'Form: Syed Rafiuddin', but not 'Signed-off-by:'... is it correct?
 
+Yes, it is missing, added it in 02 && 03 patches...
+
+<snip>
+
+> >
+> > - =A0 =A0 =A0 KEY(7, 0, KEY_UNKNOWN),
+> > + =A0 =A0 =A0 KEY(7, 0, KEY_LEFTSHIFT),
+> > =A0 =A0 =A0 =A0KEY(7, 1, KEY_ENTER),
+> > =A0 =A0 =A0 =A0KEY(7, 2, KEY_CAPSLOCK),
+> > =A0 =A0 =A0 =A0KEY(7, 3, KEY_SPACE),
+> > @@ -119,31 +116,23 @@ static int omap_keymap[] =3D {
+> > =A0 =A0 =A0 =A00,
+> > =A0};
+>=20
+> Are you aware of that interpretation of 'row' and 'col' get reversed
+> in matrix keymap framework.
+
+I forgot, changed now...
+
+> Also last element '0' should be removed.
+>=20
+
+Removed...
+
+Best Regards
+Abraham
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

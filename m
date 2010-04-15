@@ -1,64 +1,46 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <eric.piel@tremplin-utc.net>
-Subject: Re: [PATCH 3/4] liss331d1: accelerometer driver
-Date: Thu, 15 Apr 2010 11:47:40 +0200
-Message-ID: <4BC6E0BC.2040006@tremplin-utc.net>
-References: <20100414124913.23181.75903.stgit@localhost.localdomain>	<20100414125155.23181.56610.stgit@localhost.localdomain>	<4BC63DC5.8040501@tudelft.nl>	<20100414223429.GW30807@buzzloop.caiaq.de> <20100415090542.21f9778d@notabene.brown>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH 2/4] isl29020: ambient light sensor
+Date: Thu, 15 Apr 2010 11:15:51 +0100
+Message-ID: <4BC6E757.3030204@cam.ac.uk>
+References: <20100414124913.23181.75903.stgit@localhost.localdomain> <20100414125147.23181.5817.stgit@localhost.localdomain> <20100414224542.GX30807@buzzloop.caiaq.de> <20100414233554.3f020155@linux.intel.com> <20100415062023.GG30801@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100415090542.21f9778d@notabene.brown>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Brown <neilb@suse.de>
-Cc: Daniel Mack <daniel@caiaq.de>, Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Samu Onkalo <samu.p.onkalo@nokia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ppsw-33.csi.cam.ac.uk ([131.111.8.133]:57344 "EHLO
+	ppsw-33.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751891Ab0DOKNE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Apr 2010 06:13:04 -0400
+In-Reply-To: <20100415062023.GG30801@buzzloop.caiaq.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 15/04/10 01:05, Neil Brown wrote:
-:
+On 04/15/10 07:20, Daniel Mack wrote:
+> On Wed, Apr 14, 2010 at 11:35:54PM +0100, Alan Cox wrote:
+>>> Would it be possible to make the existing driver for the ISL29003
+>>> support the ISL29020 as well?
+>>
+>> I dug the manuals out for these to take a look - the answer is they are
+>> quite different chips. 
 > 
-> The Openmoko Freerunner has as lis302D which is an SPI version of a very
-> similar device, so making the one driver work on that was well would be nice
-> if possible.
-Definitely!
-
+> Hmm, sad :(
 > 
-> The lis302d can detect threshold crossings and taps as well as simple
-> orientation and I found it useful to include support for those in the driver
-> as well.
-> In particular:
->  1/ I allowed the 'data_rate' that was programmed to be any number (including 
->     fractions and 0) and the driver would report at that rate, using a timer
->     for rates below 50Hz.
->     When the app is only interested in long-term change, this can
->     significantly reduce the amount of data that has to be handled by
->     userspace.
-Samu (from Nokia) has started to had such idea via the patch
-lis3-setup-poll-interval-limits.patch which in now in the -mm tree. It
-allows to specify the polling rate via the input interface
-(/sys/devices/platform/lis3lv02d/input/input8/poll). But for now I don't
-think the actual refresh rate is updated automatically, it would be a
-nice addition.
+> However, the driver should be applied to the ALS tree after all, unless
+> Jonathan plans to drop the whole thing, which I doubt.
+Sadly ALS is dead.  Linus made it pretty clear he wasn't going to pull it.
 
+Hence currently either ALS drivers are going into misc (and can be moved
+elsewhere later), or we are taking them into IIO (and hence staging)
+where they fit fine and we can sort out a bridge to input to answer Linus'
+issue with the original patch set.
 
-> 
->  2/ I allowed a 'threshold' to be set so that changes bigger than that get
->     notified promptly even if that is faster than the requested data rate
-It could be interesting too... but what interface are you using for the
-userspace to specify this threshold? A sysfs file?
+In the thread following Alan's repost (having moved this driver to misc)
+Greg just pointed out the sysfs interface needed documenting, and I've
+suggested that we sort out the naming properly (in a way compliant with
+hwmon and the new IIO abi.  90% of what the ALS subsystem contributed was
+defining the ABI anyway!
 
-> 
->  3/ I allowed taps to be detected and reported as BTN_X BTN_Y and BTN_Z
->     input events.
-This one should now be working with Samu's patch
-lis3-interrupt-handlers-for-8bit-wakeup-and-click-events.patch also in
-the -mm tree.
-
-> 
-> Would it be sensible to include that support in this driver?  The
-> LIS331DL seem to have the same threshold and tap support.
-So all in all, if you could have a look at what changes are necessary to
-get the lis3lv02d driver work with your hardware, it would be great. (I
-suspect it should be quite little.)
-
-See you,
-Eric
+Jonathan

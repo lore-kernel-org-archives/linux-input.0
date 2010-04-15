@@ -1,46 +1,31 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 4/5(7)] input: serio: add support for Amstrad Delta
- serial keyboard port
-Date: Thu, 15 Apr 2010 09:14:51 -0700
-Message-ID: <20100415161451.GA13966@core.coreip.homeip.net>
-References: <201004150419.05038.jkrzyszt@tis.icnet.pl>
- <201004150431.06719.jkrzyszt@tis.icnet.pl>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH] Added support for the Cando dual touch panel
+Date: Thu, 15 Apr 2010 12:28:55 -0400
+Message-ID: <1271348935.4941.68.camel@flunder>
+References: <20100414190341.25BD8951EF@smtp.lii-enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201004150431.06719.jkrzyszt@tis.icnet.pl>
-Sender: linux-omap-owner@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from static.88-198-47-201.clients.your-server.de ([88.198.47.201]:38322
+	"EHLO butterbrot.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752540Ab0DOQ26 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Apr 2010 12:28:58 -0400
+In-Reply-To: <20100414190341.25BD8951EF@smtp.lii-enac.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stephane Chatty <chatty@lii-enac.fr>
+Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, priya.vijayan@intel.com, chatty@enac.fr
 
-Hi Janusz,
+Hello Stephane,
 
-On Thu, Apr 15, 2010 at 04:31:03AM +0200, Janusz Krzysztofik wrote:
-> +
-> +config SERIO_AMS_DELTA
-> +	tristate "Amstrad Delta (E3) mailboard support"
-> +	depends on MACH_AMS_DELTA
-> +	default y
-> +	select AMS_DELTA_FIQ
-> +	select KEYBOARD_ATKBD
+I see you didn't use HID_CONNECT_HIDINPUT_FORCE after all.
+Was that intentional?
 
-I'd rather not select atkbd here since it is not required for this
-driver to work but simply adjust your defconfig.
+> +	ret = hid_parse(hdev);
+> +	if (!ret)
+> +		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
 
-> +
-> +	if (!(machine_is_ams_delta()))
-> +		return -ENODEV;
+Thanks, Yours, Florian
 
-Extra parens.
-
-Otherwise:
-
-	Acked-by: Dmitry Torokhov <dtor@mail.ru>
-
-I assume it is going to be merged with the rest of your patches through
-a tree other than linux-input.
-
--- 
-Dmitry

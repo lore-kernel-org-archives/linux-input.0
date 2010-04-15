@@ -1,75 +1,76 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [PATCH v3 4/5(7)] input: serio: add support for Amstrad Delta serial keyboard port
-Date: Thu, 15 Apr 2010 20:16:07 +0200
-Message-ID: <201004152016.10035.jkrzyszt@tis.icnet.pl>
-References: <201004150419.05038.jkrzyszt@tis.icnet.pl> <201004150431.06719.jkrzyszt@tis.icnet.pl> <20100415161451.GA13966@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.34-rc3
+Date: Thu, 15 Apr 2010 11:27:08 -0700
+Message-ID: <20100415182708.GA17514@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:49764 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751338Ab0DOSSX convert rfc822-to-8bit (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:51044 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753046Ab0DOS1Q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Apr 2010 14:18:23 -0400
-In-Reply-To: <20100415161451.GA13966@core.coreip.homeip.net>
+	Thu, 15 Apr 2010 14:27:16 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Thursday 15 April 2010 18:14:51 Dmitry Torokhov napisa=C5=82(a):
-> Hi Janusz,
+Hi Linus,
 
-Hi Dmitry,
+Please pull from:
 
-> On Thu, Apr 15, 2010 at 04:31:03AM +0200, Janusz Krzysztofik wrote:
-> > +
-> > +config SERIO_AMS_DELTA
-> > +	tristate "Amstrad Delta (E3) mailboard support"
-> > +	depends on MACH_AMS_DELTA
-> > +	default y
-> > +	select AMS_DELTA_FIQ
-> > +	select KEYBOARD_ATKBD
->
-> I'd rather not select atkbd here since it is not required for this
-> driver to work but simply adjust your defconfig.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I was just trying to address possible future support questions, as you =
-can=20
-already find them in the e3-hacking 2006 archives :).
+to receive updates for the input subsystem. This adds a couple of
+patches to my previous pull request for -rc3 that it seems you have
+missed. Thanks!
 
-OK, I'll drop it then and move the config back inside the "if SERIO"...=
-"endif"=20
-block.
+Changelog:
+---------
 
-> > +
-> > +	if (!(machine_is_ams_delta()))
-> > +		return -ENODEV;
->
-> Extra parens.
+Chase Douglas (1):
+      Input: ALPS - add signature for HP Pavilion dm3 laptops
 
-Yes, it looks like I'm too much wary. I'll drop them.
+Dmitry Torokhov (2):
+      Input: sparse-keymap - implement safer freeing of the keymap
+      Revert "Input: wacom - merge out and in prox events"
 
-> Otherwise:
->
-> 	Acked-by: Dmitry Torokhov <dtor@mail.ru>
+Dominik Brodowski (1):
+      Input: i8042 - spelling fix
 
-Thanks.
+H Hartley Sweeten (1):
+      Input: matrix_keypad - allow platform to disable key autorepeat
 
-> I assume it is going to be merged with the rest of your patches throu=
-gh
-> a tree other than linux-input.
+Henrik Rydberg (3):
+      Input: bcm5974 - retract efi-broken suspend_resume
+      Input: clarify the no-finger event in multitouch protocol
+      Input: update the status of the Multitouch X driver project
 
-Probably yes, since it depends on most of them. Let's see first what To=
-ny=20
-says.
+Ping Cheng (1):
+      Input: wacom - switch mode upon system resume
 
-Regards,
-Janusz
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Yong Wang (1):
+      Input: sparse-keymap - free the right keymap on error
+
+
+Diffstat:
+--------
+
+ Documentation/input/multi-touch-protocol.txt |   23 +++-
+ drivers/input/input.c                        |    9 ++-
+ drivers/input/keyboard/matrix_keypad.c       |    4 +-
+ drivers/input/mouse/alps.c                   |    1 +
+ drivers/input/mouse/bcm5974.c                |    1 -
+ drivers/input/serio/i8042.c                  |    2 +-
+ drivers/input/sparse-keymap.c                |   52 +++++---
+ drivers/input/tablet/wacom_sys.c             |   12 +-
+ drivers/input/tablet/wacom_wac.c             |  163 ++++++++++++++++---------
+ include/linux/input/matrix_keypad.h          |    2 +
+ 10 files changed, 176 insertions(+), 93 deletions(-)
+
+-- 
+Dmitry
+

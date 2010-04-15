@@ -1,48 +1,73 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Added support for the Cando dual touch panel
-Date: Thu, 15 Apr 2010 19:46:45 +0200
-Message-ID: <CBC9CC4A-A2F6-4580-8AA4-7ECB290959CD@enac.fr>
-References: <20100414190341.25BD8951EF@smtp.lii-enac.fr> <1271348935.4941.68.camel@flunder>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: Re: [PATCH v3 4/5(7)] input: serio: add support for Amstrad Delta serial keyboard port
+Date: Thu, 15 Apr 2010 20:16:07 +0200
+Message-ID: <201004152016.10035.jkrzyszt@tis.icnet.pl>
+References: <201004150419.05038.jkrzyszt@tis.icnet.pl> <201004150431.06719.jkrzyszt@tis.icnet.pl> <20100415161451.GA13966@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:45270 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753046Ab0DORqw convert rfc822-to-8bit (ORCPT
+Received: from d1.icnet.pl ([212.160.220.21]:49764 "EHLO d1.icnet.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751338Ab0DOSSX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Apr 2010 13:46:52 -0400
-In-Reply-To: <1271348935.4941.68.camel@flunder>
+	Thu, 15 Apr 2010 14:18:23 -0400
+In-Reply-To: <20100415161451.GA13966@core.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Priya Vijayan <priya.vijayan@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, e3-hacking@earth.li
 
+Thursday 15 April 2010 18:14:51 Dmitry Torokhov napisa=C5=82(a):
+> Hi Janusz,
 
-Le 15 avr. 10 =E0 18:28, Florian Echtler a =E9crit :
+Hi Dmitry,
 
-
-> Hello Stephane,
+> On Thu, Apr 15, 2010 at 04:31:03AM +0200, Janusz Krzysztofik wrote:
+> > +
+> > +config SERIO_AMS_DELTA
+> > +	tristate "Amstrad Delta (E3) mailboard support"
+> > +	depends on MACH_AMS_DELTA
+> > +	default y
+> > +	select AMS_DELTA_FIQ
+> > +	select KEYBOARD_ATKBD
 >
-> I see you didn't use HID_CONNECT_HIDINPUT_FORCE after all.
-> Was that intentional?
+> I'd rather not select atkbd here since it is not required for this
+> driver to work but simply adjust your defconfig.
+
+I was just trying to address possible future support questions, as you =
+can=20
+already find them in the e3-hacking 2006 archives :).
+
+OK, I'll drop it then and move the config back inside the "if SERIO"...=
+"endif"=20
+block.
+
+> > +
+> > +	if (!(machine_is_ams_delta()))
+> > +		return -ENODEV;
 >
+> Extra parens.
+
+Yes, it looks like I'm too much wary. I'll drop them.
+
+> Otherwise:
 >
+> 	Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
-Yes, it was. In 2.6.34, IS_INPUT_APPLICATION is updated (it's a patch =20
-I submitted back in January) so there's no need for the flag.
+Thanks.
 
-If I had known about this flag before I would not have bothered with =20
-IS_INPUT_APPLICATION and it would have been simpler for everybody. =20
-But the harm was done and there already are 4 or 5 drivers around =20
-working this way, so I sticked to the same pattern.
+> I assume it is going to be merged with the rest of your patches throu=
+gh
+> a tree other than linux-input.
 
-But I'll definitely use the flag for other drivers with strange =20
-Application usages I'm working on :-)
+Probably yes, since it depends on most of them. Let's see first what To=
+ny=20
+says.
 
-St.
-
+Regards,
+Janusz
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

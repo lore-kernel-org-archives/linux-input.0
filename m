@@ -1,76 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.34-rc3
-Date: Thu, 15 Apr 2010 11:27:08 -0700
-Message-ID: <20100415182708.GA17514@core.coreip.homeip.net>
+From: David =?utf-8?b?SMOkcmRlbWFu?= <david@hardeman.nu>
+Subject: [PATCH 0/8] Series short description
+Date: Thu, 15 Apr 2010 23:45:55 +0200
+Message-ID: <20100415214520.14142.56114.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:51044 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753046Ab0DOS1Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Apr 2010 14:27:16 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: mchehab@redhat.com
+Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+The following series implements the suggested change to ir-core
+to use a 1:31 struct for pulse/space durations, adds two new
+raw decoders, converts two users of ir-functions to plain ir-core
+and fixes a few small bugs in ir-core.
 
-Please pull from:
+---
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. This adds a couple of
-patches to my previous pull request for -rc3 that it seems you have
-missed. Thanks!
-
-Changelog:
----------
-
-Chase Douglas (1):
-      Input: ALPS - add signature for HP Pavilion dm3 laptops
-
-Dmitry Torokhov (2):
-      Input: sparse-keymap - implement safer freeing of the keymap
-      Revert "Input: wacom - merge out and in prox events"
-
-Dominik Brodowski (1):
-      Input: i8042 - spelling fix
-
-H Hartley Sweeten (1):
-      Input: matrix_keypad - allow platform to disable key autorepeat
-
-Henrik Rydberg (3):
-      Input: bcm5974 - retract efi-broken suspend_resume
-      Input: clarify the no-finger event in multitouch protocol
-      Input: update the status of the Multitouch X driver project
-
-Ping Cheng (1):
-      Input: wacom - switch mode upon system resume
-
-Yong Wang (1):
-      Input: sparse-keymap - free the right keymap on error
+David H=C3=A4rdeman (8):
+      ir-core: change duration to be coded as a u32 integer
+      ir-core: Add JVC support to ir-core
+      ir-core: Add Sony support to ir-core
+      ir-core: remove ir-functions usage from dm1105
+      ir-core: convert mantis from ir-functions.c
+      ir-core: fix double spinlock init in drivers/media/IR/rc-map.c
+      ir-core: fix table resize during keymap init
+      ir-core: fix some confusing comments
 
 
-Diffstat:
---------
-
- Documentation/input/multi-touch-protocol.txt |   23 +++-
- drivers/input/input.c                        |    9 ++-
- drivers/input/keyboard/matrix_keypad.c       |    4 +-
- drivers/input/mouse/alps.c                   |    1 +
- drivers/input/mouse/bcm5974.c                |    1 -
- drivers/input/serio/i8042.c                  |    2 +-
- drivers/input/sparse-keymap.c                |   52 +++++---
- drivers/input/tablet/wacom_sys.c             |   12 +-
- drivers/input/tablet/wacom_wac.c             |  163 ++++++++++++++++---------
- include/linux/input/matrix_keypad.h          |    2 +
- 10 files changed, 176 insertions(+), 93 deletions(-)
-
--- 
-Dmitry
-
+ drivers/media/IR/Kconfig           |   18 ++
+ drivers/media/IR/Makefile          |    2=20
+ drivers/media/IR/ir-core-priv.h    |   63 ++++---
+ drivers/media/IR/ir-jvc-decoder.c  |  320 ++++++++++++++++++++++++++++=
+++++++++
+ drivers/media/IR/ir-keytable.c     |   12 +
+ drivers/media/IR/ir-nec-decoder.c  |  120 ++++++++------
+ drivers/media/IR/ir-raw-event.c    |   32 ++--
+ drivers/media/IR/ir-rc5-decoder.c  |  105 ++++++------
+ drivers/media/IR/ir-rc6-decoder.c  |  221 +++++++++++++------------
+ drivers/media/IR/ir-sony-decoder.c |  312 ++++++++++++++++++++++++++++=
++++++++
+ drivers/media/IR/ir-sysfs.c        |   12 +
+ drivers/media/IR/rc-map.c          |    5 -
+ 12 files changed, 955 insertions(+), 267 deletions(-)
+ create mode 100644 drivers/media/IR/ir-jvc-decoder.c
+ create mode 100644 drivers/media/IR/ir-sony-decoder.c

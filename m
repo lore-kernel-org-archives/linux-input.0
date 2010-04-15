@@ -1,7 +1,7 @@
 From: David =?utf-8?b?SMOkcmRlbWFu?= <david@hardeman.nu>
-Subject: [PATCH 2/8] ir-core: Add JVC support to ir-core
-Date: Thu, 15 Apr 2010 23:46:05 +0200
-Message-ID: <20100415214605.14142.1626.stgit@localhost.localdomain>
+Subject: [PATCH 3/8] ir-core: Add Sony support to ir-core
+Date: Thu, 15 Apr 2010 23:46:10 +0200
+Message-ID: <20100415214610.14142.85260.stgit@localhost.localdomain>
 References: <20100415214520.14142.56114.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -13,71 +13,84 @@ To: mchehab@redhat.com
 Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds a JVC decoder to ir-core.
+This patch adds a Sony12/15/20 decoder to ir-core.
 
 Signed-off-by: David H=C3=A4rdeman <david@hardeman.nu>
 ---
- drivers/media/IR/Kconfig          |    9 +
- drivers/media/IR/Makefile         |    1=20
- drivers/media/IR/ir-core-priv.h   |    7 +
- drivers/media/IR/ir-jvc-decoder.c |  320 +++++++++++++++++++++++++++++=
+ drivers/media/IR/Kconfig           |    9 +
+ drivers/media/IR/Makefile          |    1=20
+ drivers/media/IR/ir-core-priv.h    |    7 +
+ drivers/media/IR/ir-raw-event.c    |    1=20
+ drivers/media/IR/ir-sony-decoder.c |  312 ++++++++++++++++++++++++++++=
 ++++++++
- drivers/media/IR/ir-raw-event.c   |    1=20
- drivers/media/IR/ir-sysfs.c       |    4=20
- 6 files changed, 342 insertions(+), 0 deletions(-)
- create mode 100644 drivers/media/IR/ir-jvc-decoder.c
+ drivers/media/IR/ir-sysfs.c        |    4=20
+ 6 files changed, 334 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/media/IR/ir-sony-decoder.c
 
 diff --git a/drivers/media/IR/Kconfig b/drivers/media/IR/Kconfig
-index ee66d16..179e4c3 100644
+index 179e4c3..25e10b5 100644
 --- a/drivers/media/IR/Kconfig
 +++ b/drivers/media/IR/Kconfig
-@@ -36,3 +36,12 @@ config IR_RC6_DECODER
+@@ -45,3 +45,12 @@ config IR_JVC_DECODER
  	---help---
  	   Enable this option if you have an infrared remote control which
- 	   uses the RC6 protocol, and you need software decoding support.
+ 	   uses the JVC protocol, and you need software decoding support.
 +
-+config IR_JVC_DECODER
-+	tristate "Enable IR raw decoder for the JVC protocol"
++config IR_SONY_DECODER
++	tristate "Enable IR raw decoder for the Sony protocol"
 +	depends on IR_CORE
 +	default y
 +
 +	---help---
 +	   Enable this option if you have an infrared remote control which
-+	   uses the JVC protocol, and you need software decoding support.
++	   uses the Sony protocol, and you need software decoding support.
 diff --git a/drivers/media/IR/Makefile b/drivers/media/IR/Makefile
-index 792d9ca..8d0098f 100644
+index 8d0098f..a12ee37 100644
 --- a/drivers/media/IR/Makefile
 +++ b/drivers/media/IR/Makefile
-@@ -8,3 +8,4 @@ obj-$(CONFIG_VIDEO_IR) +=3D ir-common.o
- obj-$(CONFIG_IR_NEC_DECODER) +=3D ir-nec-decoder.o
+@@ -9,3 +9,4 @@ obj-$(CONFIG_IR_NEC_DECODER) +=3D ir-nec-decoder.o
  obj-$(CONFIG_IR_RC5_DECODER) +=3D ir-rc5-decoder.o
  obj-$(CONFIG_IR_RC6_DECODER) +=3D ir-rc6-decoder.o
-+obj-$(CONFIG_IR_JVC_DECODER) +=3D ir-jvc-decoder.o
+ obj-$(CONFIG_IR_JVC_DECODER) +=3D ir-jvc-decoder.o
++obj-$(CONFIG_IR_SONY_DECODER) +=3D ir-sony-decoder.o
 diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core=
 -priv.h
-index 707beeb..4b1a21d 100644
+index 4b1a21d..04962a6 100644
 --- a/drivers/media/IR/ir-core-priv.h
 +++ b/drivers/media/IR/ir-core-priv.h
-@@ -111,4 +111,11 @@ void ir_raw_init(void);
- #define load_rc6_decode()	0
+@@ -118,4 +118,11 @@ void ir_raw_init(void);
+ #define load_jvc_decode()	0
  #endif
 =20
-+/* from ir-jvc-decoder.c */
-+#ifdef CONFIG_IR_JVC_DECODER_MODULE
-+#define load_jvc_decode()	request_module("ir-jvc-decoder")
++/* from ir-sony-decoder.c */
++#ifdef CONFIG_IR_SONY_DECODER_MODULE
++#define load_sony_decode()	request_module("ir-sony-decoder")
 +#else
-+#define load_jvc_decode()	0
++#define load_sony_decode()	0
 +#endif
 +
  #endif /* _IR_RAW_EVENT */
-diff --git a/drivers/media/IR/ir-jvc-decoder.c b/drivers/media/IR/ir-jv=
-c-decoder.c
+diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-=
+event.c
+index 7eef6bf..ea68a3f 100644
+--- a/drivers/media/IR/ir-raw-event.c
++++ b/drivers/media/IR/ir-raw-event.c
+@@ -234,6 +234,7 @@ static void init_decoders(struct work_struct *work)
+ 	load_rc5_decode();
+ 	load_rc6_decode();
+ 	load_jvc_decode();
++	load_sony_decode();
+=20
+ 	/* If needed, we may later add some init code. In this case,
+ 	   it is needed to change the CONFIG_MODULE test at ir-core.h
+diff --git a/drivers/media/IR/ir-sony-decoder.c b/drivers/media/IR/ir-s=
+ony-decoder.c
 new file mode 100644
-index 0000000..0b80494
+index 0000000..9f440c5
 --- /dev/null
-+++ b/drivers/media/IR/ir-jvc-decoder.c
-@@ -0,0 +1,320 @@
-+/* ir-jvc-decoder.c - handle JVC IR Pulse/Space protocol
++++ b/drivers/media/IR/ir-sony-decoder.c
+@@ -0,0 +1,312 @@
++/* ir-sony-decoder.c - handle Sony IR Pulse/Space protocol
 + *
 + * Copyright (C) 2010 by David H=C3=A4rdeman <david@hardeman.nu>
 + *
@@ -96,28 +109,24 @@ y
 +#include <linux/bitrev.h>
 +#include "ir-core-priv.h"
 +
-+#define JVC_NBITS		16		/* dev(8) + func(8) */
-+#define JVC_UNIT		525000		/* ns */
-+#define JVC_HEADER_PULSE	(16 * JVC_UNIT) /* lack of header -> repeat *=
-/
-+#define JVC_HEADER_SPACE	(8  * JVC_UNIT)
-+#define JVC_BIT_PULSE		(1  * JVC_UNIT)
-+#define JVC_BIT_0_SPACE		(1  * JVC_UNIT)
-+#define JVC_BIT_1_SPACE		(3  * JVC_UNIT)
-+#define JVC_TRAILER_PULSE	(1  * JVC_UNIT)
-+#define	JVC_TRAILER_SPACE	(35 * JVC_UNIT)
++#define SONY_UNIT		600000 /* ns */
++#define SONY_HEADER_PULSE	(4 * SONY_UNIT)
++#define	SONY_HEADER_SPACE	(1 * SONY_UNIT)
++#define SONY_BIT_0_PULSE	(1 * SONY_UNIT)
++#define SONY_BIT_1_PULSE	(2 * SONY_UNIT)
++#define SONY_BIT_SPACE		(1 * SONY_UNIT)
++#define SONY_TRAILER_SPACE	(10 * SONY_UNIT) /* minimum */
 +
-+/* Used to register jvc_decoder clients */
++/* Used to register sony_decoder clients */
 +static LIST_HEAD(decoder_list);
-+DEFINE_SPINLOCK(decoder_lock);
++static DEFINE_SPINLOCK(decoder_lock);
 +
-+enum jvc_state {
++enum sony_state {
 +	STATE_INACTIVE,
 +	STATE_HEADER_SPACE,
 +	STATE_BIT_PULSE,
 +	STATE_BIT_SPACE,
-+	STATE_TRAILER_PULSE,
-+	STATE_TRAILER_SPACE,
++	STATE_FINISHED,
 +};
 +
 +struct decoder_data {
@@ -126,12 +135,9 @@ y
 +	int			enabled:1;
 +
 +	/* State machine control */
-+	enum jvc_state		state;
-+	u16			jvc_bits;
-+	u16			jvc_old_bits;
++	enum sony_state		state;
++	u32			sony_bits;
 +	unsigned		count;
-+	bool			first;
-+	bool			toggle;
 +};
 +
 +
@@ -199,23 +205,25 @@ bled);
 +};
 +
 +static struct attribute_group decoder_attribute_group =3D {
-+	.name	=3D "jvc_decoder",
++	.name	=3D "sony_decoder",
 +	.attrs	=3D decoder_attributes,
 +};
 +
 +/**
-+ * ir_jvc_decode() - Decode one JVC pulse or space
++ * ir_sony_decode() - Decode one Sony pulse or space
 + * @input_dev:	the struct input_dev descriptor of the device
-+ * @duration:   the struct ir_raw_event descriptor of the pulse/space
++ * @ev:         the struct ir_raw_event descriptor of the pulse/space
 + *
 + * This function returns -EINVAL if the pulse violates the state machi=
 ne
 + */
-+static int ir_jvc_decode(struct input_dev *input_dev, struct ir_raw_ev=
-ent ev)
++static int ir_sony_decode(struct input_dev *input_dev, struct ir_raw_e=
+vent ev)
 +{
 +	struct decoder_data *data;
 +	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
++	u32 scancode;
++	u8 device, subdevice, function;
 +
 +	data =3D get_decoder_data(ir_dev);
 +	if (!data)
@@ -229,10 +237,10 @@ ent ev)
 +		return 0;
 +	}
 +
-+	if (!geq_margin(ev.duration, JVC_UNIT, JVC_UNIT / 2))
++	if (!geq_margin(ev.duration, SONY_UNIT, SONY_UNIT / 2))
 +		goto out;
 +
-+	IR_dprintk(2, "JVC decode started at state %d (%uus %s)\n",
++	IR_dprintk(2, "Sony decode started at state %d (%uus %s)\n",
 +		   data->state, TO_US(ev.duration), TO_STR(ev.pulse));
 +
 +	switch (data->state) {
@@ -241,12 +249,10 @@ ent ev)
 +		if (!ev.pulse)
 +			break;
 +
-+		if (!eq_margin(ev.duration, JVC_HEADER_PULSE, JVC_UNIT / 2))
++		if (!eq_margin(ev.duration, SONY_HEADER_PULSE, SONY_UNIT / 2))
 +			break;
 +
 +		data->count =3D 0;
-+		data->first =3D true;
-+		data->toggle =3D !data->toggle;
 +		data->state =3D STATE_HEADER_SPACE;
 +		return 0;
 +
@@ -254,7 +260,7 @@ ent ev)
 +		if (ev.pulse)
 +			break;
 +
-+		if (!eq_margin(ev.duration, JVC_HEADER_SPACE, JVC_UNIT / 2))
++		if (!eq_margin(ev.duration, SONY_HEADER_SPACE, SONY_UNIT / 2))
 +			break;
 +
 +		data->state =3D STATE_BIT_PULSE;
@@ -264,9 +270,13 @@ ent ev)
 +		if (!ev.pulse)
 +			break;
 +
-+		if (!eq_margin(ev.duration, JVC_BIT_PULSE, JVC_UNIT / 2))
++		data->sony_bits <<=3D 1;
++		if (eq_margin(ev.duration, SONY_BIT_1_PULSE, SONY_UNIT / 2))
++			data->sony_bits |=3D 1;
++		else if (!eq_margin(ev.duration, SONY_BIT_0_PULSE, SONY_UNIT / 2))
 +			break;
 +
++		data->count++;
 +		data->state =3D STATE_BIT_SPACE;
 +		return 0;
 +
@@ -274,68 +284,62 @@ ent ev)
 +		if (ev.pulse)
 +			break;
 +
-+		data->jvc_bits <<=3D 1;
-+		if (eq_margin(ev.duration, JVC_BIT_1_SPACE, JVC_UNIT / 2)) {
-+			data->jvc_bits |=3D 1;
-+			decrease_duration(&ev, JVC_BIT_1_SPACE);
-+		} else if (eq_margin(ev.duration, JVC_BIT_0_SPACE, JVC_UNIT / 2))
-+			decrease_duration(&ev, JVC_BIT_0_SPACE);
-+		else
++		if (!geq_margin(ev.duration, SONY_BIT_SPACE, SONY_UNIT / 2))
 +			break;
-+		data->count++;
 +
-+		if (data->count =3D=3D JVC_NBITS)
-+			data->state =3D STATE_TRAILER_PULSE;
-+		else
++		decrease_duration(&ev, SONY_BIT_SPACE);
++
++		if (!geq_margin(ev.duration, SONY_UNIT, SONY_UNIT / 2)) {
 +			data->state =3D STATE_BIT_PULSE;
-+		return 0;
++			return 0;
++		}
 +
-+	case STATE_TRAILER_PULSE:
-+		if (!ev.pulse)
-+			break;
++		data->state =3D STATE_FINISHED;
++		/* Fall through */
 +
-+		if (!eq_margin(ev.duration, JVC_TRAILER_PULSE, JVC_UNIT / 2))
-+			break;
-+
-+		data->state =3D STATE_TRAILER_SPACE;
-+		return 0;
-+
-+	case STATE_TRAILER_SPACE:
++	case STATE_FINISHED:
 +		if (ev.pulse)
 +			break;
 +
-+		if (!geq_margin(ev.duration, JVC_TRAILER_SPACE, JVC_UNIT / 2))
++		if (!geq_margin(ev.duration, SONY_TRAILER_SPACE, SONY_UNIT / 2))
 +			break;
 +
-+		if (data->first) {
-+			u32 scancode;
-+			scancode =3D (bitrev8((data->jvc_bits >> 8) & 0xff) << 8) |
-+				   (bitrev8((data->jvc_bits >> 0) & 0xff) << 0);
-+			IR_dprintk(1, "JVC scancode 0x%04x\n", scancode);
-+			ir_keydown(input_dev, scancode, data->toggle);
-+			data->first =3D false;
-+			data->jvc_old_bits =3D data->jvc_bits;
-+		} else if (data->jvc_bits =3D=3D data->jvc_old_bits) {
-+			IR_dprintk(1, "JVC repeat\n");
-+			ir_repeat(input_dev);
-+		} else {
-+			IR_dprintk(1, "JVC invalid repeat msg\n");
++		switch (data->count) {
++		case 12:
++			device    =3D bitrev8((data->sony_bits <<  3) & 0xF8);
++			subdevice =3D 0;
++			function  =3D bitrev8((data->sony_bits >>  4) & 0xFE);
 +			break;
++		case 15:
++			device    =3D bitrev8((data->sony_bits >>  0) & 0xFF);
++			subdevice =3D 0;
++			function  =3D bitrev8((data->sony_bits >>  7) & 0xFD);
++			break;
++		case 20:
++			device    =3D bitrev8((data->sony_bits >>  5) & 0xF8);
++			subdevice =3D bitrev8((data->sony_bits >>  0) & 0xFF);
++			function  =3D bitrev8((data->sony_bits >> 12) & 0xFE);
++			break;
++		default:
++			IR_dprintk(1, "Sony invalid bitcount %u\n", data->count);
++			goto out;
 +		}
 +
-+		data->count =3D 0;
-+		data->state =3D STATE_BIT_PULSE;
++		scancode =3D device << 16 | subdevice << 8 | function;
++		IR_dprintk(1, "Sony(%u) scancode 0x%05x\n", data->count, scancode);
++		ir_keydown(input_dev, scancode, 0);
++		data->state =3D STATE_INACTIVE;
 +		return 0;
 +	}
 +
 +out:
-+	IR_dprintk(1, "JVC decode failed at state %d (%uus %s)\n",
++	IR_dprintk(1, "Sony decode failed at state %d (%uus %s)\n",
 +		   data->state, TO_US(ev.duration), TO_STR(ev.pulse));
 +	data->state =3D STATE_INACTIVE;
 +	return -EINVAL;
 +}
 +
-+static int ir_jvc_register(struct input_dev *input_dev)
++static int ir_sony_register(struct input_dev *input_dev)
 +{
 +	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
 +	struct decoder_data *data;
@@ -362,7 +366,7 @@ ent ev)
 +	return 0;
 +}
 +
-+static int ir_jvc_unregister(struct input_dev *input_dev)
++static int ir_sony_unregister(struct input_dev *input_dev)
 +{
 +	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
 +	static struct decoder_data *data;
@@ -380,75 +384,62 @@ ent ev)
 +	return 0;
 +}
 +
-+static struct ir_raw_handler jvc_handler =3D {
-+	.decode		=3D ir_jvc_decode,
-+	.raw_register	=3D ir_jvc_register,
-+	.raw_unregister	=3D ir_jvc_unregister,
++static struct ir_raw_handler sony_handler =3D {
++	.decode		=3D ir_sony_decode,
++	.raw_register	=3D ir_sony_register,
++	.raw_unregister	=3D ir_sony_unregister,
 +};
 +
-+static int __init ir_jvc_decode_init(void)
++static int __init ir_sony_decode_init(void)
 +{
-+	ir_raw_handler_register(&jvc_handler);
++	ir_raw_handler_register(&sony_handler);
 +
-+	printk(KERN_INFO "IR JVC protocol handler initialized\n");
++	printk(KERN_INFO "IR Sony protocol handler initialized\n");
 +	return 0;
 +}
 +
-+static void __exit ir_jvc_decode_exit(void)
++static void __exit ir_sony_decode_exit(void)
 +{
-+	ir_raw_handler_unregister(&jvc_handler);
++	ir_raw_handler_unregister(&sony_handler);
 +}
 +
-+module_init(ir_jvc_decode_init);
-+module_exit(ir_jvc_decode_exit);
++module_init(ir_sony_decode_init);
++module_exit(ir_sony_decode_exit);
 +
 +MODULE_LICENSE("GPL");
 +MODULE_AUTHOR("David H=C3=A4rdeman <david@hardeman.nu>");
-+MODULE_DESCRIPTION("JVC IR protocol decoder");
-diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-=
-event.c
-index 59f173c..7eef6bf 100644
---- a/drivers/media/IR/ir-raw-event.c
-+++ b/drivers/media/IR/ir-raw-event.c
-@@ -233,6 +233,7 @@ static void init_decoders(struct work_struct *work)
- 	load_nec_decode();
- 	load_rc5_decode();
- 	load_rc6_decode();
-+	load_jvc_decode();
-=20
- 	/* If needed, we may later add some init code. In this case,
- 	   it is needed to change the CONFIG_MODULE test at ir-core.h
++MODULE_DESCRIPTION("Sony IR protocol decoder");
 diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index d7ec973..8e2751e 100644
+index 8e2751e..dfd45fa 100644
 --- a/drivers/media/IR/ir-sysfs.c
 +++ b/drivers/media/IR/ir-sysfs.c
-@@ -62,6 +62,8 @@ static ssize_t show_protocol(struct device *d,
- 		s =3D "nec";
- 	else if (ir_type =3D=3D IR_TYPE_RC6)
+@@ -64,6 +64,8 @@ static ssize_t show_protocol(struct device *d,
  		s =3D "rc6";
-+	else if (ir_type =3D=3D IR_TYPE_JVC)
-+		s =3D "jvc";
+ 	else if (ir_type =3D=3D IR_TYPE_JVC)
+ 		s =3D "jvc";
++	else if (ir_type =3D=3D IR_TYPE_SONY)
++		s =3D "sony";
  	else
  		s =3D "other";
 =20
-@@ -99,6 +101,8 @@ static ssize_t store_protocol(struct device *d,
- 			ir_type |=3D IR_TYPE_PD;
- 		if (!strcasecmp(buf, "nec"))
+@@ -103,6 +105,8 @@ static ssize_t store_protocol(struct device *d,
  			ir_type |=3D IR_TYPE_NEC;
-+		if (!strcasecmp(buf, "jvc"))
-+			ir_type |=3D IR_TYPE_JVC;
+ 		if (!strcasecmp(buf, "jvc"))
+ 			ir_type |=3D IR_TYPE_JVC;
++		if (!strcasecmp(buf, "sony"))
++			ir_type |=3D IR_TYPE_SONY;
  	}
 =20
  	if (!ir_type) {
 diff --git a/include/media/rc-map.h b/include/media/rc-map.h
-index 11f6618..214f072 100644
+index 214f072..67af24e 100644
 --- a/include/media/rc-map.h
 +++ b/include/media/rc-map.h
-@@ -16,6 +16,7 @@
- #define IR_TYPE_PD	(1  << 1)	/* Pulse distance encoded IR */
+@@ -17,6 +17,7 @@
  #define IR_TYPE_NEC	(1  << 2)
  #define IR_TYPE_RC6	(1  << 3)	/* Philips RC6 protocol */
-+#define IR_TYPE_JVC	(1  << 4)	/* JVC protocol */
+ #define IR_TYPE_JVC	(1  << 4)	/* JVC protocol */
++#define IR_TYPE_SONY	(1  << 5)	/* Sony12/15/20 protocol */
  #define IR_TYPE_OTHER	(1u << 31)
 =20
  struct ir_scancode {

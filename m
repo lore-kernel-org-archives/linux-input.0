@@ -1,48 +1,119 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: your mail
-Date: Thu, 15 Apr 2010 19:41:22 -0400
-Message-ID: <4BC7A422.7050601@seas.upenn.edu>
-References: <20100414125234.23507.42816.stgit@localhost.localdomain> <20100414231604.GA12281@core.coreip.homeip.net>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
+Date: Thu, 15 Apr 2010 19:04:11 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043DA67699@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
+ <i2x5d5443651004140034mdd11969cg72d4306c77f2bd0f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:56120 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754604Ab0DOXls (ORCPT
+Received: from arroyo.ext.ti.com ([192.94.94.40]:46678 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758114Ab0DPAEU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Apr 2010 19:41:48 -0400
-In-Reply-To: <20100414231604.GA12281@core.coreip.homeip.net>
+	Thu, 15 Apr 2010 20:04:20 -0400
+In-Reply-To: <i2x5d5443651004140034mdd11969cg72d4306c77f2bd0f@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alan Cox <alan@linux.intel.com>, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
->> +	if (ts->tc.event_sended == false) {
-> 
-> We set "event_sended" to false immediately before calling
-> cy8ctmg110_send_event() so I do not see the point of this flag.
+Hi Trilok!
 
-On that note:
+> > =A0- matrix_keypac.c logic
+> > =A0- hwmod framework
+>=20
+> Do we have hwmod framework mainlined in the kernel?
 
-$ git grep -n sended
-drivers/net/eth16i.c:1295:
-		how many packets there is to be sended */
-drivers/net/wan/sbni.c:638:
-		/* if frame was sended but not ACK'ed - resend it */
-drivers/net/wan/sbni.c:659:
-		* frame sended then in prepare_to_send next frame
-drivers/usb/serial/aircable.c:13:
-		* next two bytes must say how much data will be sended.
+Not yet but wanted to gather initial comments to be ready once framewor=
+k is pushed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+>=20
+> >
+> > +config KEYBOARD_OMAP4
+> > + =A0 =A0 =A0 =A0tristate "TI OMAP4 keypad support"
+> > + =A0 =A0 =A0 =A0depends on (ARCH_OMAP4)
+>=20
+> No need of brackets.
 
-iEYEARECAAYFAkvHpB4ACgkQwuRiAT9o609wAgCfbGjTP2lIN6JJyX28VzjPHxTY
-ylIAn15FZRPpBEkWaFR8oAFKCCRmNF4d
-=u4nx
------END PGP SIGNATURE-----
+Removed
+
+>=20
+> Could you please provide "default y/n" option too?
+
+Added
+
+>=20
+> > + * linux/drivers/input/keyboard/omap4-keypad.c
+>=20
+> Better not to include file paths.
+
+Removed path... only filename
+
+>=20
+> > +
+> > +struct omap_device_pm_latency omap_keyboard_latency[] =3D {
+>=20
+> static?
+
+Not sure... I'll check
+
+<snip>
+
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(inpu=
+t, keypad_data->keycodes[code],
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 key_state[col] & (1 << row));
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > + =A0 =A0 =A0 }
+>=20
+> where is input_sync(..)?
+
+Added
+
+>=20
+> > +
+> > + =A0 =A0 =A0 pdata =3D kzalloc(sizeof(struct matrix_keypad_platfor=
+m_data),
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_K=
+ERNEL);
+>=20
+> Please check error return here, because kzalloc can fail.
+
+Added
+
+<snip>
+
+> > +
+> > + =A0 =A0 =A0 /* keymap data */
+> > + =A0 =A0 =A0 keymap_data =3D pdata->keymap_data;
+> > + =A0 =A0 =A0 if (!keymap_data) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "no keymap data d=
+efined\n");
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 kfree(keymap_data);
+>=20
+> not freeing kfree(pdata)? Please check error return path again in thi=
+s driver.
+
+I'll check error return in all code
+
+<snip>
+
+> > +
+> > +failed_free_device:
+> > + =A0 =A0 =A0 input_unregister_device(keypad_data->input);
+>=20
+> add keypad_data->input =3D NULL.
+
+Added
+
+Best Regards
+Abraham
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

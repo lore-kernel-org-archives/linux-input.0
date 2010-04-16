@@ -1,66 +1,49 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH 0/3] ir-core: add imon device driver
-Date: Fri, 16 Apr 2010 17:26:22 -0400
-Message-ID: <20100416212622.GA6888@redhat.com>
+From: Manu Abraham <abraham.manu@gmail.com>
+Subject: Re: [PATCH 5/8] ir-core: convert mantis from ir-functions.c
+Date: Sat, 17 Apr 2010 01:27:05 +0400
+Message-ID: <j2r1a297b361004161427q88bd9fa3hbf64a38662199712@mail.gmail.com>
+References: <20100415214520.14142.56114.stgit@localhost.localdomain>
+	 <20100415214620.14142.19939.stgit@localhost.localdomain>
+	 <u2x1a297b361004151617gbd08bc10l4fa202ab8dcec306@mail.gmail.com>
+	 <20100416205638.GA2873@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:4555 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932369Ab0DPV00 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 17:26:26 -0400
-Content-Disposition: inline
+Received: from fg-out-1718.google.com ([72.14.220.158]:1565 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932475Ab0DPV1H convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Apr 2010 17:27:07 -0400
+In-Reply-To: <20100416205638.GA2873@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mchehab@redhat.com
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: mchehab@redhat.com, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-The following series adds a new device driver for the SoundGraph iMON and
-Antec Veris IR/display devices commonly found in many home theater pc
-cases and as after-market case additions.
+On Sat, Apr 17, 2010 at 12:56 AM, David H=E4rdeman <david@hardeman.nu> =
+wrote:
+> On Fri, Apr 16, 2010 at 03:17:35AM +0400, Manu Abraham wrote:
+>> On Fri, Apr 16, 2010 at 1:46 AM, David H=E4rdeman <david@hardeman.nu=
+> wrote:
+>> > Convert drivers/media/dvb/mantis/mantis_input.c to not use ir-func=
+tions.c
+>> > (The driver is anyway not complete enough to actually use the subs=
+ystem yet).
+>>
+>> Huh ? I don't follow what you imply here ..
+>>
+>
+> The mantis_input.c file seems to be a skeleton as far as I could
+> tell...not actually in use yet. Or am I mistaken?
 
-This driver was previously submitted as a pure input layer driver, but I
-was convinced to port it to the new ir-core infrastructure, so this patch
-is against http://git.linuxtv.org/mchehab/ir.git.
-
-With only some minor modifications to ir-core (making an already exported
-function public) and reasonably little porting driver-side, I've managed
-to finish at least the initial conversion. There's still a local key
-release timer in use in the driver that needs to be converted to use
-ir-core's keyup timer, and I'm not using ir_keydown due to some serious
-quirks in the way the imon hardware decodes IR signals (I need to do my
-own key release detection, as there are three different ways a key release
-is identified even on the exact same device...), but it does use all the
-ir-core keymap loading and parsing code, ir_input_dev, ir_dev_props, etc.
-
-Something I wasn't too sure about... Where exactly should an IR-only device
-driver live in the tree? I've put it at drivers/media/IR/imon.c for the
-moment, but it might make sense to have a drivers/media/IR/hardware/
-directory to drop things like this and the forthcoming lirc_mceusb port
-into, rather than intermingling with the core bits.
-
-The most important part: I've tested this out w/actual imon hardware, and
-it even works. :)
-
----
-
-Jarod Wilson (3)
-	ir-core: make ir_g_keycode_from_table a public function
-	ir-core: add imon pad and mce keymaps
-	ir-core: add imon driver
-
- drivers/media/IR/Kconfig               |   12 +
- drivers/media/IR/Makefile              |    3 +
- drivers/media/IR/imon.c                | 2417 ++++++++++++++++++++++++++++++++
- drivers/media/IR/ir-core-priv.h        |    7 -
- drivers/media/IR/keymaps/Makefile      |    2 +
- drivers/media/IR/keymaps/rc-imon-mce.c |  142 ++
- drivers/media/IR/keymaps/rc-imon-pad.c |  155 ++
- include/media/ir-core.h                |    1 +
- include/media/rc-map.h                 |    2 +
- 9 files changed, 2734 insertions(+), 7 deletions(-)
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Only the input related parts of the IR stuff is there in
+mantis_input.c, the hardware handling is done by mantis_uart.c/h.
+There is a small bit which has not gone upstream yet, which is
+pending;
+http://jusst.de/hg/mantis-v4l-dvb/rev/ad8b00c9edc2
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

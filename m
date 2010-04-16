@@ -1,37 +1,34 @@
-From: chatty@lii-enac.fr (Stephane Chatty)
-Subject: [PATCH] Fixed missing inits in hid-cando.c
-Date: Fri, 16 Apr 2010 22:23:58 +0200
-Message-ID: <20100416202358.7839695164@smtp.lii-enac.fr>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 5/8] ir-core: convert mantis from ir-functions.c
+Date: Fri, 16 Apr 2010 22:56:38 +0200
+Message-ID: <20100416205638.GA2873@hardeman.nu>
+References: <20100415214520.14142.56114.stgit@localhost.localdomain>
+ <20100415214620.14142.19939.stgit@localhost.localdomain>
+ <u2x1a297b361004151617gbd08bc10l4fa202ab8dcec306@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:52137 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932396Ab0DPUYA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 16:24:00 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <u2x1a297b361004151617gbd08bc10l4fa202ab8dcec306@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Manu Abraham <abraham.manu@gmail.com>
+Cc: mchehab@redhat.com, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
-Cc: priya.vijayan@intel.com, floe@butterbrot.org
 
-With flags non initialized, the single touch emulation has an erratic
-behavior. Fixed this.
+On Fri, Apr 16, 2010 at 03:17:35AM +0400, Manu Abraham wrote:
+> On Fri, Apr 16, 2010 at 1:46 AM, David H=E4rdeman <david@hardeman.nu>=
+ wrote:
+> > Convert drivers/media/dvb/mantis/mantis_input.c to not use ir-funct=
+ions.c
+> > (The driver is anyway not complete enough to actually use the subsy=
+stem yet).
+>=20
+> Huh ? I don't follow what you imply here ..
+>=20
 
-Signed-off-by: Stephane Chatty
+The mantis_input.c file seems to be a skeleton as far as I could=20
+tell...not actually in use yet. Or am I mistaken?
 
-
-diff -rupN a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
---- a/drivers/hid/hid-cando.c	2010-04-16 22:04:20.000000000 +0200
-+++ b/drivers/hid/hid-cando.c	2010-04-16 22:02:38.000000000 +0200
-@@ -211,6 +211,9 @@ static int cando_probe(struct hid_device
- 		return -ENOMEM;
- 	}
- 	hid_set_drvdata(hdev, td);
-+	td->first = false;
-+	td->oldest = -1;
-+	td->valid = false;
- 
- 	ret = hid_parse(hdev);
- 	if (!ret)
+--=20
+David H=E4rdeman

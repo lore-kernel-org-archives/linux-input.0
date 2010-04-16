@@ -1,49 +1,67 @@
-From: Manu Abraham <abraham.manu@gmail.com>
-Subject: Re: [PATCH 5/8] ir-core: convert mantis from ir-functions.c
-Date: Sat, 17 Apr 2010 01:27:05 +0400
-Message-ID: <j2r1a297b361004161427q88bd9fa3hbf64a38662199712@mail.gmail.com>
-References: <20100415214520.14142.56114.stgit@localhost.localdomain>
-	 <20100415214620.14142.19939.stgit@localhost.localdomain>
-	 <u2x1a297b361004151617gbd08bc10l4fa202ab8dcec306@mail.gmail.com>
-	 <20100416205638.GA2873@hardeman.nu>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH 1/3] ir-core: make ir_g_keycode_from_table a public function
+Date: Fri, 16 Apr 2010 17:27:58 -0400
+Message-ID: <20100416212758.GB2427@redhat.com>
+References: <20100416212622.GA6888@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:1565 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932475Ab0DPV1H convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 17:27:07 -0400
-In-Reply-To: <20100416205638.GA2873@hardeman.nu>
+Received: from mx1.redhat.com ([209.132.183.28]:7335 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932417Ab0DPV2C (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Apr 2010 17:28:02 -0400
+Content-Disposition: inline
+In-Reply-To: <20100416212622.GA6888@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: mchehab@redhat.com, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: mchehab@redhat.com
+Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, Apr 17, 2010 at 12:56 AM, David H=E4rdeman <david@hardeman.nu> =
-wrote:
-> On Fri, Apr 16, 2010 at 03:17:35AM +0400, Manu Abraham wrote:
->> On Fri, Apr 16, 2010 at 1:46 AM, David H=E4rdeman <david@hardeman.nu=
-> wrote:
->> > Convert drivers/media/dvb/mantis/mantis_input.c to not use ir-func=
-tions.c
->> > (The driver is anyway not complete enough to actually use the subs=
-ystem yet).
->>
->> Huh ? I don't follow what you imply here ..
->>
->
-> The mantis_input.c file seems to be a skeleton as far as I could
-> tell...not actually in use yet. Or am I mistaken?
+The imon driver I've previously submitted and have been porting to
+use ir-core needs to use ir_g_keycode_from_table, as ir_keydown is
+not sufficient, due to these things having really oddball hardware
+decoders in them. This just moves the function declaration from
+ir-core-priv.h over to ir-core.h.
 
-Only the input related parts of the IR stuff is there in
-mantis_input.c, the hardware handling is done by mantis_uart.c/h.
-There is a small bit which has not gone upstream yet, which is
-pending;
-http://jusst.de/hg/mantis-v4l-dvb/rev/ad8b00c9edc2
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+
+---
+ drivers/media/IR/ir-core-priv.h |    7 -------
+ include/media/ir-core.h         |    1 +
+ 2 files changed, 1 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
+index ef7f543..d79d91e 100644
+--- a/drivers/media/IR/ir-core-priv.h
++++ b/drivers/media/IR/ir-core-priv.h
+@@ -57,13 +57,6 @@ struct ir_raw_event_ctrl {
+ #define TO_US(duration)		((int)TO_UNITS(duration, 1000))
+ 
+ /*
+- * Routines from ir-keytable.c to be used internally on ir-core and decoders
+- */
+-
+-u32 ir_g_keycode_from_table(struct input_dev *input_dev,
+-			    u32 scancode);
+-
+-/*
+  * Routines from ir-sysfs.c - Meant to be called only internally inside
+  * ir-core
+  */
+diff --git a/include/media/ir-core.h b/include/media/ir-core.h
+index ab3bd30..51e8eb3 100644
+--- a/include/media/ir-core.h
++++ b/include/media/ir-core.h
+@@ -124,6 +124,7 @@ void ir_input_unregister(struct input_dev *input_dev);
+ 
+ void ir_repeat(struct input_dev *dev);
+ void ir_keydown(struct input_dev *dev, int scancode, u8 toggle);
++u32 ir_g_keycode_from_table(struct input_dev *input_dev, u32 scancode);
+ 
+ /* From ir-raw-event.c */
+ 
+
+-- 
+Jarod Wilson
+jarod@redhat.com
+

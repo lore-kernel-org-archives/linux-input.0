@@ -1,67 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Input: implement sysrq as an input handler
-Date: Thu, 15 Apr 2010 22:33:05 -0700
-Message-ID: <20100416053305.GC1078@core.coreip.homeip.net>
-References: <20100317061952.GA19789@core.coreip.homeip.net>
- <20100319000043.GC12017@khazad-dum.debian.net>
- <20100319000931.GA5671@core.coreip.homeip.net>
- <20100319160641.GC16743@khazad-dum.debian.net>
- <20100319180314.GB12143@core.coreip.homeip.net>
- <20100320025329.GA2468@khazad-dum.debian.net>
- <20100322045910.GE31621@core.coreip.homeip.net>
- <20100401133454.GA1291@ucw.cz>
- <20100401154212.GA7900@core.coreip.homeip.net>
- <20100404132734.GB1346@ucw.cz>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH] input: mt: introduce MT event slots
+Date: Fri, 16 Apr 2010 08:40:37 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E567F0FEB@LIMKCMBX1.ad.analog.com>
+References: <1270685590-2204-1-git-send-email-rydberg@euromail.se>
+	<87tyrmiqw2.fsf@troilus.org> <4BBDA555.1020003@euromail.se>
+ <87mxxei33o.fsf@troilus.org> <4BBDD3B1.6030808@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f194.google.com ([209.85.211.194]:47906 "EHLO
-	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753124Ab0DPFdM (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:6380 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754540Ab0DPHkj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 01:33:12 -0400
-Content-Disposition: inline
-In-Reply-To: <20100404132734.GB1346@ucw.cz>
+	Fri, 16 Apr 2010 03:40:39 -0400
+In-Reply-To: <4BBDD3B1.6030808@euromail.se>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jason Wessel <jason.wessel@windriver.com>
+To: Henrik Rydberg <rydberg@euromail.se>, Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, Apr 04, 2010 at 03:27:34PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > If userspace disables sysrq during normal operation, that makes it
-> > > useless.
-> > > 
-> > > If normal user could do that, that's a security problem.
-> > > 
-> > 
-> > Yes, and...? This patch does not change the way one enables, disables,
-> > intercepts, etc. SysRq and SAK compared to how it was handled when SysRq
-> > was part of keyboard _input handler_. The only thisng this patch does is
-> > moving the code into a _separate_ input handler.
-> 
-> Yep, that was just a note.
-> 
-> > > > The problem is that device does not know what SysRq and especially SAK are.
-> > > > User can reassign key codes and key symbols easily.
-> > > 
-> > > That was not case in original implementation; it had hardcoded keymap.
-> > 
-> > The earth was also flat back then and the only keyboard was AT one. SAK
-> > was always part of keymap so could be reassinged at any time.
-> 
-> Well, there are two SAKs.
-> 
-> One SAK -- in keymap, is remappable and always was.
-> 
-> Second, sysrq-saK -- is (was?) hardcoded and not affected by
-> keymap. Please don't change that.
+Henrik Rydberg wrote on 2010-04-08:
+> Michael Poole wrote:
+> [...]
+>>
+>> For hardware with touch tracking support, what does a slot ID
+>> provide for user-space that the tracking ID doesn't?  (TRACKING_ID
+>> is already supposed to be unique for the life of the touch.)
+>
+> The purpose of the slot is twofold. Firstly, it reintroduces the
+> ability for the kernel to filter ABS_MT events, which reduces the
+> number of events emitted from the input core by a large factor.
+> Secondly, it allows the driver to send partial information without
+> breaking the protocol.
+>
+> The current MT protocol is designed for anonymous contacts, which
+> dictates that all data for all fingers has to be sent between every
+> synchronization point.
+> Although this is fine for a handful of fingers, it does not play well
+> with a larger scenario. The slot concept allows for a minimum of
+> information to be emitted from the input core, without breaking
+> compatibility with the current MT protocol. If a single attribute of a
+> single finger of a single user is changed, the event sequence will
+> simply be:
+>
+> SYN_MT_SLOT <slot-in-use>
+> ABS_MT_ATTRIBUTE <some-value>
+>
+> If the contact gets destroyed and replaced by another one, there is
+> not even a need to send that information explicitly, but this sequence
+> would suffice:
+>
+> SYN_MT_SLOT <slot-in-use>
+> ABS_MT_USER_ID <replacing-user>
+> ABS_MT_TRACKING_ID <replacing-tracking-id>
+> ABS_MT_ATTRIBUTE1 <some-value>
+> ABS_MT_ATTRIBUTE2 <some-value>
+> ...
 
-Can I change Alt? Just saying... ;)
+Sorry, I must have missed something -
+What is ABS_MT_USER_ID?
 
-Anyway, yes, it was hardcodced in 2.4. It also was only working on AT
-keyboards, and now we support much wider range.
+Regards,
+Michael
 
--- 
-Dmitry
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
+
+

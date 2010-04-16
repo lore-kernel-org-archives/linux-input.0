@@ -1,73 +1,97 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: introduce MT event slots
-Date: Fri, 16 Apr 2010 17:09:06 +0200
-Message-ID: <4BC87D92.1070507@euromail.se>
-References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <20100415232523.GA18263@core.coreip.homeip.net>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH] Add HID_QUIRK_HIDDEV_FORCE and HID_QUIRK_NO_IGNORE
+Date: Fri, 16 Apr 2010 17:19:50 +0100
+Message-ID: <1271434790.2045.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:39977 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757036Ab0DPPJs (ORCPT
+Received: from slow3-v.mail.gandi.net ([217.70.178.89]:41224 "EHLO
+	slow3-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757123Ab0DPQ1Q (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 11:09:48 -0400
-In-Reply-To: <20100415232523.GA18263@core.coreip.homeip.net>
+	Fri, 16 Apr 2010 12:27:16 -0400
+Received: from relay4-v.mail.gandi.net (relay4-v.mail.gandi.net [217.70.178.78])
+	by slow3-v.mail.gandi.net (Postfix) with ESMTP id 1D5C8380AC
+	for <linux-input@vger.kernel.org>; Fri, 16 Apr 2010 18:27:15 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 
-Dmitry Torokhov wrote:
-> Hi Henrik,
-> 
-> On Thu, Apr 08, 2010 at 02:13:10AM +0200, Henrik Rydberg wrote:
->> With the rapidly increasing number of intelligent multi-contact and
->> multi-user devices, the need to send digested, filtered information
->> from a set of different sources within the same device is imminent.
->> This patch adds the concept of slots to the MT protocol. The slots
->> enumerate a set of identified sources, such that all MT events
->> can be passed independently and selectively per identified source.
->>
->> The protocol works like this: Instead of sending a SYN_MT_REPORT
->> event immediately after the contact data, one sends a SYN_MT_SLOT
->> event immediately before the contact data. The input core will only
->> emit events for the slots corresponding to the contacts that have
->> changed. It is assumed that the same slot is used for the duration
->> of an initiated contact.
->>
-> 
-> I see the reason for doing this however I would like to hold off
-> applying it till we get a couple of users and prove that the scheme
-> works well for them.
+Add two quirks to make it possible for usbhid module options to
+override whether a device is ignored (HID_QUIRK_NO_IGNORE) and
+whether to connect a hiddev device (HID_QUIRK_HIDDEV_FORCE).
 
-Sounds good.
+Passing HID_QUIRK_NO_IGNORE for your device means that it will
+not be ignored by the HID layer, even if present in a blacklist.
 
->>  
->> +/**
->> + * struct input_mt_slot - represents the state of an MT input slot
->> + * @abs: current values from absolute axes for this slot
->> + */
->> +struct input_mt_slot {
->> +	int abs[ABS_MAX + 1];
->> +};
-> 
-> It would be nice to use abs[ABS_MT_MAX - ABS_MT_TOUCH_MAJOR] to save
-> some memory.
-> 
+HID_QUIRK_HIDDEV_FORCE will force the creation of a hiddev for that
+device, making it accessible from user-space.
 
-Spot on! I was choosing between different strategies here: from a) mapping just
-the ABS_MT values to keep memory down (but introduce yet another mapping); to b)
-opening up the protocol for all kinds of event types (after all, it is only
-backwards compatibility that prevents the slots from being used also for, say,
-button events). It seemed best to keep the possibility for new event types to be
-used with slots, thus using a straight mapping to the ABS events and ignoring
-the extra memory used. However the word "new" is not enforced with this patch,
-which your change remedies in the most satisfactory way. Nice.
+Tested with an Apple IR Receiver, switching it from using appleir
+to using lirc's macmini driver.
 
-I will wait for some more implementation test results (I know of one currently
-in progress), then I will be back with an updated patch and accompanying
-documentation.
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/hid/hid-core.c        |    4 +++-
+ drivers/hid/usbhid/hid-core.c |    1 +
+ include/linux/hid.h           |    2 ++
+ 3 files changed, 6 insertions(+), 1 deletions(-)
 
-Cheers,
-Henrik
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index b57e5f7..6ae1ea2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1172,6 +1172,8 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+ 	unsigned int i;
+ 	int len;
+ 
++	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
++		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
+ 	if (hdev->bus != BUS_USB)
+ 		connect_mask &= ~HID_CONNECT_HIDDEV;
+ 	if (hid_hiddev(hdev))
+@@ -1761,7 +1763,7 @@ int hid_add_device(struct hid_device *hdev)
+ 
+ 	/* we need to kill them here, otherwise they will stay allocated to
+ 	 * wait for coming driver */
+-	if (hid_ignore(hdev))
++	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE) && hid_ignore(hdev))
+ 		return -ENODEV;
+ 
+ 	/* XXX hack, any other cleaner solution after the driver core
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 56d06cd..cf73e39 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1140,6 +1140,7 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
+ 	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
+ 	hid->product = le16_to_cpu(dev->descriptor.idProduct);
+ 	hid->name[0] = 0;
++	hid->quirks = usbhid_lookup_quirk(hid->vendor, hid->product);
+ 	if (intf->cur_altsetting->desc.bInterfaceProtocol ==
+ 			USB_INTERFACE_PROTOCOL_MOUSE)
+ 		hid->type = HID_TYPE_USBMOUSE;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index b1344ec..f1f2b6f 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -308,11 +308,13 @@ struct hid_item {
+ #define HID_QUIRK_NOTOUCH			0x00000002
+ #define HID_QUIRK_IGNORE			0x00000004
+ #define HID_QUIRK_NOGET				0x00000008
++#define HID_QUIRK_HIDDEV_FORCE			0x00000010
+ #define HID_QUIRK_BADPAD			0x00000020
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
++#define HID_QUIRK_NO_IGNORE			0x40000000
+ 
+ /*
+  * This is the global environment of the parser. This information is
+-- 
+1.6.6.1
+
+

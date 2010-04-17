@@ -1,744 +1,912 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Sat, 17 Apr 2010 01:12:13 -0700
-Message-ID: <20100417081212.GA19866@core.coreip.homeip.net>
-References: <1271434792.2045.5.camel@localhost.localdomain>
+Subject: Re: [PATCH] Input: Add tsc2046 touchscreen driver
+Date: Sat, 17 Apr 2010 01:28:42 -0700
+Message-ID: <20100417082841.GB19866@core.coreip.homeip.net>
+References: <1260736754-374-1-git-send-email-darkstar6262@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:41668 "EHLO
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:48478 "EHLO
 	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752126Ab0DQIMU (ORCPT
+	with ESMTP id S1751142Ab0DQI2s (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Apr 2010 04:12:20 -0400
-Received: by gyg13 with SMTP id 13so1760505gyg.19
-        for <linux-input@vger.kernel.org>; Sat, 17 Apr 2010 01:12:19 -0700 (PDT)
+	Sat, 17 Apr 2010 04:28:48 -0400
+Received: by gyg13 with SMTP id 13so1763158gyg.19
+        for <linux-input@vger.kernel.org>; Sat, 17 Apr 2010 01:28:47 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1271434792.2045.5.camel@localhost.localdomain>
+In-Reply-To: <1260736754-374-1-git-send-email-darkstar6262@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Cory Maccarrone <darkstar6262@gmail.com>
+Cc: linux-input@vger.kernel.org, spi-devel-general@lists.sourceforge.net
 
-HI Bastien,
+Hi Cory,
 
-On Fri, Apr 16, 2010 at 05:19:52PM +0100, Bastien Nocera wrote:
-> This driver was originally written by James McKenzie, updated by
-> Greg Kroah-Hartman, further updated by myself, with suspend support
-> added.
+Sorry for not reviewing the driver earlier.
+
+On Sun, Dec 13, 2009 at 12:39:14PM -0800, Cory Maccarrone wrote:
+> This change implements a new driver for the TSC2046-series
+> touchscreen found on many HTC OMAP850-based smartphones.
+> This driver differs from the ADS7846 in that it uses 16-bit
+> commands instead of 8-bit, and does not include temerature
+> or voltage sensing capabilities.
 > 
-> More recent versions of the IR receiver are also supported through
-> a patch by Alex Karpenko.
+> This driver was submitted in May of 2007 to the linux-omap
+> list at:
 > 
-> Tested on a MacbookAir1,1
+> http://linux.omap.com/pipermail/linux-omap-open-source/2007-May/009745.html
+> 
+> This is a resubmit of this driver, with additions that allows
+> the injection of pointercal parameters from tslib through
+> /sys.  This was done for the Wing Linux project primarily to
+> allow this touchscreen to work with Android, but it's useful for
+> any userspace that doesn't support tslib calibration.  Pointercal
+> use is optional -- it produces raw parameters unless the use_pointercal
+> /sys file is set to 1.
+
+The current poiicy is simply use tslib and push the filtering and
+scaling out of the kernel. I do not see the reason for this driver be an
+exception.
+
+> 
+> Though this driver was previously submitted to linux-omap, there
+> is nothing omap-specific in this driver.
 > 
 
-A few comments...
+Overall I would like to see this being not a standalone driver but
+instead tsc2046 support being plugged into existing tsc2007, extending
+it. There are a few of TSC drivers floating around, all of them very
+similar, with the difference of the transport (i2c vs spi) and register
+sets but all having very similar core interrupt handling, suspend and
+resume algorithms... This is a waste.
 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
 > ---
->  Documentation/input/appleir.txt |   45 ++++
->  drivers/hid/hid-apple.c         |    4 -
->  drivers/hid/hid-core.c          |    5 +-
->  drivers/hid/hid-ids.h           |    1 +
-
-HID pieces need to go through Jiri or he needs to ack them to go through
-my tree...
-
->  drivers/input/misc/Kconfig      |   13 +
->  drivers/input/misc/Makefile     |    1 +
->  drivers/input/misc/appleir.c    |  477 +++++++++++++++++++++++++++++++++++++++
->  7 files changed, 540 insertions(+), 6 deletions(-)
->  create mode 100644 Documentation/input/appleir.txt
->  create mode 100644 drivers/input/misc/appleir.c
+>  drivers/input/touchscreen/Kconfig   |   14 +
+>  drivers/input/touchscreen/Makefile  |    1 +
+>  drivers/input/touchscreen/tsc2046.c |  740 +++++++++++++++++++++++++++++++++++
+>  include/linux/input/tsc2046.h       |   26 ++
+>  4 files changed, 781 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/tsc2046.c
+>  create mode 100644 include/linux/input/tsc2046.h
 > 
-> diff --git a/Documentation/input/appleir.txt b/Documentation/input/appleir.txt
-> new file mode 100644
-> index 0000000..0267a4b
-> --- /dev/null
-> +++ b/Documentation/input/appleir.txt
-> @@ -0,0 +1,45 @@
-> +Apple IR receiver Driver (appleir)
-> +----------------------------------
-> +	Copyright (C) 2009 Bastien Nocera <hadess@hadess.net>
-> +
-> +The appleir driver is a kernel input driver to handle Apple's IR
-> +receivers (and associated remotes) in the kernel.
-> +
-> +The driver is an input driver which only handles "official" remotes
-> +as built and sold by Apple.
-> +
-> +Authors
-> +-------
-> +
-> +James McKenzie (original driver)
-> +Alex Karpenko (05ac:8242 support)
-> +Greg Kroah-Hartman (cleanups and original submission)
-> +Bastien Nocera (further cleanups and suspend support)
-> +
-> +Supported hardware
-> +------------------
-> +
-> +- All Apple laptops and desktops from 2005 onwards, except:
-> +  - the unibody Macbook (2009)
-> +  - Mac Pro (all versions)
-> +- Apple TV (all revisions)
-> +
-> +The remote will only support the 6 buttons of the original remotes
-> +as sold by Apple. See the next section if you want to use other remotes
-> +or want to use lirc with the device instead of the kernel driver.
-> +
-> +Using lirc (native) instead of the kernel driver
-> +------------------------------------------------
-> +
-> +First, you will need to disable the kernel driver for the receiver.
-> +
-> +This can be achieved by passing quirks to the usbhid driver.
-> +The quirk line would be:
-> +usbhid.quirks=0x05ac:0x8242:0x40000010
-> +
-> +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
-> +With 0x8242 being the product ID (check the output of lsusb for your hardware)
-> +And 0x10 being "HID_QUIRK_HIDDEV_FORCE" and 0x40000000 being "HID_QUIRK_NO_IGNORE"
-> +
-> +This should force the creation of a hiddev device for the receiver, and
-> +make it usable under lirc.
-> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-> index 78286b1..5f2a731 100644
-> --- a/drivers/hid/hid-apple.c
-> +++ b/drivers/hid/hid-apple.c
-> @@ -360,10 +360,6 @@ static void apple_remove(struct hid_device *hdev)
->  }
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 8cc453c..1f3273b 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -501,6 +501,20 @@ config TOUCHSCREEN_TOUCHIT213
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called touchit213.
 >  
->  static const struct hid_device_id apple_devices[] = {
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL),
-> -		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4),
-> -		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
->  		.driver_data = APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
->  
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 368fbb0..b57e5f7 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1253,8 +1253,6 @@ static const struct hid_device_id hid_blacklist[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) },
-> @@ -1553,6 +1551,9 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 72c05f9..66a2ca8 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -97,6 +97,7 @@
->  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
->  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
-> +#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
->  #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
->  #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
->  
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 23140a3..46614b2 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -159,6 +159,19 @@ config INPUT_KEYSPAN_REMOTE
->  	  To compile this driver as a module, choose M here: the module will
->  	  be called keyspan_remote.
->  
-> +config INPUT_APPLEIR
-> +	tristate "Apple infrared receiver (built in)"
-> +	depends on USB_ARCH_HAS_HCD
-> +	select USB
+> +config TOUCHSCREEN_TSC2046
+> +	tristate "TSC2046 based touchscreens"
+> +	depends on SPI_MASTER
 > +	help
-> +	  Say Y here if you want to use a Apple infrared remote control. All
-> +	  the Apple computers from 2005 onwards include such a port, except
-> +	  the unibody Macbook (2009), and Mac Pros. This receiver is also
-> +	  used in the Apple TV set-top box.
+> +	  Say Y here if you have a touchscreen interface using the
+> +	  TI TSC 2046 controller, and your board-specific initialization
+> +	  code includes that in its table of SPI devices.  Also make
+> +	  sure the proper SPI controller is selected.
 > +
-> +	  To compile this driver as a module, choose M here: the module will
-> +	  be called appleir.
+> +	  If unsure, say N (but it's safe to say "Y").
 > +
->  config INPUT_POWERMATE
->  	tristate "Griffin PowerMate and Contour Jog support"
->  	depends on USB_ARCH_HAS_HCD
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 7e95a5d..3fa4404 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -6,6 +6,7 @@
->  
->  obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
->  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
-> +obj-$(CONFIG_INPUT_APPLEIR)		+= appleir.o
->  obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
->  obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
->  obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
-> diff --git a/drivers/input/misc/appleir.c b/drivers/input/misc/appleir.c
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called tsc2046.
+> +
+>  config TOUCHSCREEN_TSC2007
+>  	tristate "TSC2007 based touchscreens"
+>  	depends on I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 15fa62c..3c413f7 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -30,6 +30,7 @@ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+>  obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
+> +obj-$(CONFIG_TOUCHSCREEN_TSC2046)	+= tsc2046.o
+>  obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+= wacom_w8001.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
+> diff --git a/drivers/input/touchscreen/tsc2046.c b/drivers/input/touchscreen/tsc2046.c
 > new file mode 100644
-> index 0000000..138f4c8
+> index 0000000..e45d251
 > --- /dev/null
-> +++ b/drivers/input/misc/appleir.c
-> @@ -0,0 +1,477 @@
+> +++ b/drivers/input/touchscreen/tsc2046.c
+> @@ -0,0 +1,740 @@
 > +/*
-> + * appleir: USB driver for the apple ir device
+> + * TSC2046 Touchscreen driver
 > + *
-> + * Original driver written by James McKenzie
-> + * Ported to recent 2.6 kernel versions by Greg Kroah-Hartman <gregkh@suse.de>
+> + * Author: Kevin Hilman, MontaVista Software, Inc. <source@mvista.com>
 > + *
-> + * Copyright (C) 2006 James McKenzie
-> + * Copyright (C) 2008 Greg Kroah-Hartman <greg@kroah.com>
-> + * Copyright (C) 2008 Novell Inc.
+> + * Communication details from original TI driver
+> + * Copyright (C) 2004-2005 Texas Instruments, Inc.
 > + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation, version 2.
+> + * Structure based heavily on TSC2301 driver
+> + * Copyright (C) 2005-2006 Nokia Corporation
+> + *
+> + * 2007 (c) MontaVista Software, Inc. This file is licensed under
+> + * the terms of the GNU General Public License version 2. This program
+> + * is licensed "as is" without any warranty of any kind, whether express
+> + * or implied.
 > + *
 > + */
 > +
 > +#include <linux/kernel.h>
-> +#include <linux/slab.h>
-> +#include <linux/input.h>
-> +#include <linux/usb/input.h>
 > +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/usb.h>
-> +#include <linux/usb/input.h>
-> +#include <asm/unaligned.h>
-> +#include <asm/byteorder.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/delay.h>
+> +#include <linux/spi/spi.h>
+> +#include <linux/gpio.h>
 > +
-> +#define DRIVER_VERSION "v1.2"
-> +#define DRIVER_AUTHOR "James McKenzie"
-> +#define DRIVER_DESC "Apple infrared receiver driver"
-> +#define DRIVER_LICENSE "GPL"
+> +#include <linux/input/tsc2046.h>
 > +
-> +MODULE_AUTHOR(DRIVER_AUTHOR);
-> +MODULE_DESCRIPTION(DRIVER_DESC);
-> +MODULE_LICENSE(DRIVER_LICENSE);
+> +/* TSC2046 commands */
+> +#define START_BYTE		0x8000
+> +#define X_CMDWD			0xd300
+> +#define Y_CMDWD			0x9300
+> +#define Z1_CMDWD		0xb300
+> +#define Z2_CMDWD		0xc300
 > +
-> +#define USB_VENDOR_ID_APPLE			0x05ac
-> +#define USB_DEVICE_ID_APPLE_IRCONTROL		0x8240
-> +#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
-> +#define USB_DEVICE_ID_APPLE_IRCONTROL4		0x8242
+> +#define TSC2046_TS_SCAN_TIME	1
+> +#define MAX_12BIT		((1 << 12) - 1)
 > +
-> +#define URB_SIZE	32
+> +#define MIN_ABS_X    528
+> +#define MAX_ABS_X    3760
+> +#define MIN_ABS_Y    624
+> +#define MAX_ABS_Y    3760
 > +
-> +#define MAX_KEYS	8
-> +#define MAX_KEYS_MASK	(MAX_KEYS - 1)
+> +/* The TSC2046 operates at a maximum speed of 2MHz */
+> +#define TSC2046_HZ	2000000
 > +
-> +#define dbginfo(dev, format, arg...) do { if (debug) dev_info(dev , format , ## arg); } while (0)
+> +#define CONV_DATA(d1, d2) \
+> +  (((d1 & 0x7f) << 5) | ((d2 >> 11) & 0x1f))
 > +
-> +static int debug;
-> +module_param(debug, int, 0644);
-> +MODULE_PARM_DESC(debug, "Enable extra debug messages and information");
+> +/* Convenience macros for pointercal calibration calculation */
+> +#define PA ts->pointercal[0]
+> +#define PB ts->pointercal[1]
+> +#define PC ts->pointercal[2]
+> +#define PD ts->pointercal[3]
+> +#define PE ts->pointercal[4]
+> +#define PF ts->pointercal[5]
+> +#define PS ts->pointercal[6]
 > +
-> +struct appleir {
-> +	struct input_dev *input_dev;
-> +	u8 *data;
-> +	dma_addr_t dma_buf;
-> +	struct usb_device *usbdev;
-> +	unsigned int flags;
-> +	struct urb *urb;
-> +	int timer_initted;
-> +	struct timer_list key_up_timer;
-> +	int current_key;
-> +	char phys[32];
+> +struct tsc2046_ts {
+> +	struct input_dev	*idev;
+> +	char			phys[32];
+> +	struct timer_list	timer;
+> +	spinlock_t		lock;
+> +
+> +	struct spi_transfer	read_xfer[3];
+> +	struct spi_message	read_msg;
+> +	struct spi_message	enable_msg;
+> +	u16                     data[5];
+> +
+> +	u16			x;
+> +	u16			y;
+> +	u16			p;
+> +	u16			old_x;
+> +	u16			old_y;
+> +	u16			old_pressure;
+> +	int			sample_cnt;
+> +
+> +	int			ignore_last : 1;
+> +	u16			x_plate_ohm;
+> +	int			max_pressure;
+> +	int			touch_pressure;
+> +	int			pressure_limit;
+> +
+> +	int			pointercal[7];
+> +	u16			x_res;
+> +	u16			y_res;
+> +
+> +	u16			irq_enabled:1;
+> +	u16			pen_down:1;
+> +	u16			disabled:1;
+> +	u16			pending:1;
+> +	u16			use_pointercal:1;
+> +
+> +	s16			dav_gpio;
+> +	int			(*get_pendown_state)(void);
+> +	int			irq;
 > +};
 > +
-> +static DEFINE_MUTEX(appleir_mutex);
-> +
-> +enum {
-> +	APPLEIR_OPENED = 0x1,
-> +	APPLEIR_SUSPENDED = 0x2,
+> +struct tsc2046 {
+> +	struct spi_device	*spi;
+> +	struct tsc2046_ts	*ts;
 > +};
-> +
-> +static struct usb_device_id appleir_ids[] = {
-> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
-> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
-> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(usb, appleir_ids);
-> +
-> +/* I have two devices both of which report the following */
-> +/* 25 87 ee 83 0a  	+  */
-> +/* 25 87 ee 83 0c  	-  */
-> +/* 25 87 ee 83 09	<< */
-> +/* 25 87 ee 83 06	>> */
-> +/* 25 87 ee 83 05	>" */
-> +/* 25 87 ee 83 03	menu */
-> +/* 26 00 00 00 00	for key repeat*/
-> +
-> +/* Thomas Glanzmann reports the following responses */
-> +/* 25 87 ee ca 0b	+  */
-> +/* 25 87 ee ca 0d	-  */
-> +/* 25 87 ee ca 08	<< */
-> +/* 25 87 ee ca 07	>> */
-> +/* 25 87 ee ca 04	>" */
-> +/* 25 87 ee ca 02 	menu */
-> +/* 26 00 00 00 00       for key repeat*/
-> +/* He also observes the following event sometimes */
-> +/* sent after a key is release, which I interpret */
-> +/* as a flat battery message */
-> +/* 25 87 e0 ca 06	flat battery */
-> +
-> +/* Alexandre Karpenko reports the following responses for Device ID 0x8242 */
-> +/* 25 87 ee 47 0b	+  */
-> +/* 25 87 ee 47 0d	-  */
-> +/* 25 87 ee 47 08	<< */
-> +/* 25 87 ee 47 07	>> */
-> +/* 25 87 ee 47 04	>" */
-> +/* 25 87 ee 47 02 	menu */
-> +/* 26 87 ee 47 ** 	for key repeat (** is the code of the key being held) */
-> +
-> +static int keymap[MAX_KEYS] = {
-> +	KEY_RESERVED,
-> +	KEY_MENU,
-> +	KEY_PLAYPAUSE,
-> +	KEY_FORWARD,
-> +	KEY_BACK,
-> +	KEY_VOLUMEUP,
-> +	KEY_VOLUMEDOWN,
-> +	KEY_RESERVED,
-> +};
-> +
-> +static void dump_packet(struct appleir *appleir, char *msg, u8 *data, int len)
-> +{
-> +	int i;
-> +
-> +	printk(KERN_ERR "appleir: %s (%d bytes)", msg, len);
-> +
-> +	for (i = 0; i < len; ++i)
-> +		printk(" %02x", data[i]);
-> +	printk("\n");
-> +}
-> +
-> +static void key_up(struct appleir *appleir, int key)
-> +{
-> +	dbginfo (&appleir->input_dev->dev, "key %d up\n", key);
 
-No space between function and opening parenthesis.
+Why is such a split?
 
-> +	input_report_key(appleir->input_dev, key, 0);
-> +	input_sync(appleir->input_dev);
+> +
+> +static const u16 tsc2046_ts_cmd_data[] = {
+> +	START_BYTE, X_CMDWD, Y_CMDWD, Z1_CMDWD, Z2_CMDWD,
+> +};
+> +
+> +static int tsc2046_device_suspended(struct device *dev)
+> +{
+> +	struct tsc2046 *tsc = dev_get_drvdata(dev);
+> +	return dev->power.power_state.event != PM_EVENT_ON || tsc->ts->disabled;
 > +}
 > +
-> +static void key_down(struct appleir *appleir, int key)
+> +static void tsc2046_update_pen_state(struct tsc2046 *tsc, int x, int y, int pressure)
 > +{
-> +	dbginfo (&appleir->input_dev->dev, "key %d down\n", key);
-> +	input_report_key(appleir->input_dev, key, 1);
-> +	input_sync(appleir->input_dev);
-> +}
+> +	struct tsc2046_ts *ts = tsc->ts;
 > +
-> +static void battery_flat(struct appleir *appleir)
-> +{
-> +	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
-> +}
+> +	if (x <= ts->old_x - 4 || x >= ts->old_x + 4 ||
+> +	    y <= ts->old_y - 4 || y >= ts->old_y + 4 ||
+> +	    pressure <= ts->old_pressure - 4 || pressure >= ts->old_pressure + 4)
+> +	{
+> +		if (pressure) {
+> +			if (!ts->use_pointercal || (ts->use_pointercal &&
+> +			    x >= 0 &&
+> +			    x <= ts->x_res - 1 &&
+> +			    y >= 0 &&
+> +			    y <= ts->y_res - 1))
+> +			{
+> +				input_report_abs(ts->idev, ABS_X, x);
+> +				input_report_abs(ts->idev, ABS_Y, y);
+> +				input_report_abs(ts->idev, ABS_PRESSURE, 1);
+
+Why don't you report true pressure reading instead of clamping to [0,1]
+range?
+
+> +				input_report_key(ts->idev, BTN_TOUCH, 1);
+> +				ts->pen_down = 1;
+> +			} else {
+> +				input_report_abs(ts->idev, ABS_PRESSURE, 0);
+> +				input_report_key(ts->idev, BTN_TOUCH, 0);
+> +				ts->pen_down = 0;
+> +			}
+> +		} else {
+> +			input_report_abs(ts->idev, ABS_PRESSURE, 0);
+> +			input_report_key(ts->idev, BTN_TOUCH, 0);
+> +			ts->pen_down = 0;
+> +		}
 > +
-> +static void key_up_tick(unsigned long data)
-> +{
-> +	struct appleir *appleir = (struct appleir *)data;
+> +		ts->old_x = x;
+> +		ts->old_y = y;
+> +		ts->old_pressure = pressure;
 > +
-> +	if (appleir->current_key) {
-> +		key_up(appleir, appleir->current_key);
-> +		appleir->current_key = 0;
+> +		input_sync(ts->idev);
+> +
+> +#ifdef VERBOSE
+> +		dev_dbg(&tsc->spi->dev, "x %4d y %4d p %4d\n", x, y, pressure);
+> +#endif
+
+dev_vdbg().
+
+
 > +	}
 > +}
 > +
-> +static void new_data(struct appleir *appleir, u8 *data, int len)
+> +/*
+> + * This procedure is called by the SPI framework after the coordinates
+> + * have been read from TSC2046
+> + */
+> +static void tsc2046_ts_rx(void *arg)
 > +{
-> +	static const u8 keydown[] = { 0x25, 0x87, 0xee };
-> +	static const u8 keyrepeat[] = { 0x26, };
-> +	static const u8 flatbattery[] = { 0x25, 0x87, 0xe0 };
+> +	struct tsc2046 *tsc = arg;
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +	unsigned int x, y, z1, z2, pressure;
+> +	int xN, yN;
 > +
-> +	if (debug)
-> +		dump_packet(appleir, "received", data, len);
+> +	x  = CONV_DATA(ts->data[2], ts->data[3]);
+> +	y  = CONV_DATA(ts->data[1], ts->data[2]);
+> +	z1 = CONV_DATA(ts->data[3], ts->data[4]);
+> +	z2 = CONV_DATA(ts->data[4], 0);
 > +
-> +	if (len != 5)
-> +		return;
+> +	if (z1) {
+> +		pressure = ts->x_plate_ohm * x;
+> +		pressure /= 4096;
+> +		pressure *= z2 - z1;
+> +		pressure /= z1;
+> +	} else
+> +		pressure = 0;
 > +
-> +	if (!memcmp(data, keydown, sizeof(keydown))) {
-> +		/* If we already have a key down, take it up before marking
-> +		   this one down */
-> +		if (appleir->current_key)
-> +			key_up(appleir, appleir->current_key);
-> +		appleir->current_key = keymap[(data[4] >> 1) & MAX_KEYS_MASK];
+> +	if (ts->use_pointercal) {
+> +		/* Transform pen state according to calibration parameters.  This
+> +		 * algorithm is the same used by tslib and Qt to do 7-value
+> +		 * screen transforms.  See:
+> +		 *
+> +		 * http://doc.trolltech.com/4.3/qwscalibratedmousehandler.html#transform
+> +		 */
+> +		xN = ((PA * x) + (PB * y) + PC) / PS;
+> +		yN = ((PD * x) + (PE * y) + PF) / PS;
 > +
-> +		key_down(appleir, appleir->current_key);
-> +		/* Remote doesn't do key up, either pull them up, in the test
-> +		   above, or here set a timer which pulls them up after 1/8 s */
-> +		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-> +
-> +		return;
+> +		x = (xN < 0) ? 0 : (xN > ts->x_res ? ts->x_res - 1 : (unsigned int)xN);
+> +		y = (yN < 0) ? 0 : (yN > ts->y_res ? ts->y_res - 1 : (unsigned int)yN);
 > +	}
 > +
-> +	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
-> +		key_down(appleir, appleir->current_key);
-> +		/* Remote doesn't do key up, either pull them up, in the test
-> +		   above, or here set a timer which pulls them up after 1/8 s */
-> +		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
-> +		return;
+> +	/* If pressure value is above a preset limit (pen is barely
+> +	 * touching the screen) we can't trust the coordinate values.
+> +	 */
+> +	if (pressure < ts->pressure_limit && x < MAX_12BIT && y < MAX_12BIT) {
+> +		ts->pressure_limit = ts->max_pressure;
+> +		if (ts->ignore_last) {
+> +			if (ts->sample_cnt)
+> +				tsc2046_update_pen_state(tsc, ts->x, ts->y, ts->p);
+> +			ts->x = x;
+> +			ts->y = y;
+> +			ts->p = pressure;
+> +		} else
+> +			tsc2046_update_pen_state(tsc, x, y, pressure);
+> +		ts->sample_cnt++;
 > +	}
 > +
-> +	if (!memcmp(data, flatbattery, sizeof(flatbattery))) {
-> +		battery_flat(appleir);
-> +		/* Fall through */
-> +	}
-> +
-> +	dump_packet(appleir, "unknown packet", data, len);
+> +	mod_timer(&ts->timer,
+> +		  jiffies + msecs_to_jiffies(TSC2046_TS_SCAN_TIME));
 > +}
 > +
-> +static void appleir_urb(struct urb *urb)
+> +static int tsc2046_is_pen_down(struct tsc2046_ts *ts)
 > +{
-> +	struct appleir *appleir = urb->context;
-> +	int status = urb->status;
-> +	int retval;
-> +
-> +	switch (status) {
-> +	case 0:
-> +		new_data(appleir, urb->transfer_buffer, urb->actual_length);
-> +		break;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +		/* This urb is terminated, clean up */
-> +		dbginfo(&appleir->input_dev->dev, "%s - urb shutting down with status: %d", __func__,
-> +			urb->status);
-> +		return;
-> +	default:
-> +		dbginfo(&appleir->input_dev->dev, "%s - nonzero urb status received: %d", __func__,
-> +			urb->status);
-> +	}
-> +
-> +	retval = usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (retval)
-> +		err("%s - usb_submit_urb failed with result %d", __func__,
-> +		    retval);
+> +	return ts->pen_down;
 > +}
 > +
-> +static int appleir_open(struct input_dev *dev)
+> +static int tsc2046_get_pendown_state(struct tsc2046_ts *ts)
 > +{
-> +	struct appleir *appleir = input_get_drvdata(dev);
-> +	struct usb_interface *intf = usb_ifnum_to_if(appleir->usbdev, 0);
+> +	if (ts->get_pendown_state)
+> +		return ts->get_pendown_state();
+> +
+> +	return !gpio_get_value(ts->dav_gpio);
+> +}
+> +
+> +/*
+> + * Timer is called every TSC2046_TS_SCAN_TIME when the pen is down
+> + */
+> +static void tsc2046_ts_timer(unsigned long arg)
+> +{
+> +	struct tsc2046 *tsc = (void *) arg;
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +	unsigned long flags;
+> +	int ndav;
 > +	int r;
 > +
-> +	r = usb_autopm_get_interface(intf);
-> +	if (r) {
-> +		dev_err(&intf->dev,
-> +			"%s(): usb_autopm_get_interface() = %d\n", __func__, r);
-> +		return r;
+> +	spin_lock_irqsave(&ts->lock, flags);
+> +	ndav = tsc2046_get_pendown_state(ts);
+> +	if (!ndav || tsc2046_device_suspended(&tsc->spi->dev)) {
+> +		/* Pen has been lifted */
+> +		if (!tsc2046_device_suspended(&tsc->spi->dev) &&
+> +		    !ts->irq_enabled)
+> +		{
+> +			ts->irq_enabled = 1;
+> +			enable_irq(ts->irq);
+> +		}
+> +		tsc2046_update_pen_state(tsc, 0, 0, 0);
+> +		ts->pending = 0;
+> +		spin_unlock_irqrestore(&ts->lock, flags);
+> +
+> +	} else {
+> +		ts->pen_down = 1;
+> +		spin_unlock_irqrestore(&ts->lock, flags);
+> +
+> +		r = spi_async(tsc->spi, &ts->read_msg);
+> +		if (r)
+> +			dev_err(&tsc->spi->dev, "ts: spi_async() failed");
 > +	}
+> +}
 > +
-> +	mutex_lock(&appleir_mutex);
+> +/*
+> + * This interrupt is called when pen is down and first coordinates are
+> + * available. That is indicated by a falling edge on DEV line.  IRQ is
+> + * disabled here because while the pen is down the coordinates are
+> + * read by a timer.
+> + */
+> +static irqreturn_t tsc2046_ts_irq_handler(int irq, void *dev_id)
+> +{
+> +	struct tsc2046 *tsc = dev_id;
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +	unsigned long flags;
 > +
-> +	if (usb_submit_urb(appleir->urb, GFP_KERNEL)) {
-> +		r = -EIO;
-> +		goto fail;
+> +	spin_lock_irqsave(&ts->lock, flags);
+> +	if (ts->irq_enabled) {
+> +		ts->irq_enabled = 0;
+> +		disable_irq_nosync(ts->irq);
+> +		ts->pending = 1;
+> +		ts->pressure_limit = ts->touch_pressure;
+> +		ts->sample_cnt = 0;
+> +		mod_timer(&ts->timer,
+> +			  jiffies + msecs_to_jiffies(TSC2046_TS_SCAN_TIME));
 > +	}
+> +	spin_unlock_irqrestore(&ts->lock, flags);
 > +
-> +	appleir->flags |= APPLEIR_OPENED;
+> +	return IRQ_HANDLED;
+> +}
 > +
-> +	mutex_unlock(&appleir_mutex);
+> +/* Must be called with ts->lock held */
+> +static void tsc2046_ts_disable(struct tsc2046 *tsc)
+> +{
+> +	struct tsc2046_ts *ts = tsc->ts;
 > +
-> +	usb_autopm_put_interface(intf);
+> +	if (ts->disabled)
+> +		return;
+> +
+> +	ts->disabled = 1;
+> +	if (!ts->pending) {
+> +		ts->irq_enabled = 0;
+> +		disable_irq(ts->irq);
+> +	} else {
+> +		while (ts->pending) {
+> +			spin_unlock_irq(&ts->lock);
+> +			msleep(1);
+> +			spin_lock_irq(&ts->lock);
+> +		}
+> +	}
+> +}
+> +
+> +static void tsc2046_ts_enable(struct tsc2046 *tsc)
+> +{
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +
+> +	if (!ts->disabled)
+> +		return;
+> +
+> +	ts->disabled = 0;
+> +	ts->irq_enabled = 1;
+> +	enable_irq(ts->irq);
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +int tsc2046_ts_suspend(struct tsc2046 *tsc)
+> +{
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +
+> +	spin_lock_irq(&ts->lock);
+> +	tsc2046_ts_disable(tsc);
+> +	spin_unlock_irq(&ts->lock);
 > +
 > +	return 0;
-> +fail:
-> +	mutex_unlock(&appleir_mutex);
-> +	usb_autopm_put_interface(intf);
+> +}
+> +
+> +void tsc2046_ts_resume(struct tsc2046 *tsc)
+> +{
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +
+> +	spin_lock_irq(&ts->lock);
+> +	tsc2046_ts_enable(tsc);
+> +	spin_unlock_irq(&ts->lock);
+> +}
+> +#endif
+> +
+> +static void tsc2046_ts_setup_spi_xfer(struct tsc2046 *tsc)
+> +{
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +	struct spi_message *m = &ts->read_msg;
+> +	struct spi_transfer *x = &ts->read_xfer[1];
+> +
+> +	spi_message_init(m);
+> +
+> +	/* read and write data in one transaction */
+> +	x->tx_buf = &tsc2046_ts_cmd_data;
+> +	x->rx_buf = &ts->data;
+> +	x->len    = 10;
+> +	spi_message_add_tail(x, m);
+> +
+> +	/* send another START_BYTE to (re)enable pen interrupts */
+> +	x++;
+> +	x->tx_buf = &tsc2046_ts_cmd_data[0];
+> +	x->rx_buf = &ts->data;
+> +	x->len = 2;
+> +	spi_message_add_tail(x, m);
+> +
+> +	m->complete = tsc2046_ts_rx;
+> +	m->context = tsc;
+> +}
+> +
+> +/* Attribute functions */
+> +
+> +static ssize_t tsc2046_ts_use_pointercal_show(struct device *dev,
+> +				       struct device_attribute *attr, char *buf)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +
+> +	return sprintf(buf, "%u\n", ts->use_pointercal);
+> +}
+> +
+> +static ssize_t tsc2046_ts_use_pointercal_store(struct device *dev,
+> +					struct device_attribute *attr,
+> +					const char *buf, size_t count)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +	char *endp;
+> +	int i;
+> +
+> +	i = simple_strtoul(buf, &endp, 10);
+> +	spin_lock_irq(&ts->lock);
+> +
+> +	if (i)
+> +		ts->use_pointercal = 1;
+> +	else
+> +		ts->use_pointercal = 0;
+> +
+> +	spin_unlock_irq(&ts->lock);
+> +
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(use_pointercal, 0644, tsc2046_ts_use_pointercal_show, tsc2046_ts_use_pointercal_store);
+> +
+> +static ssize_t tsc2046_ts_pointercal_show(struct device *dev,
+> +		   struct device_attribute *attr, char *buf)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +
+> +	return sprintf(buf, "%d %d %d %d %d %d %d\n", PA, PB, PC, PD, PE, PF, PS);
+> +}
+> +
+> +static ssize_t tsc2046_ts_pointercal_store(struct device *dev,
+> +					struct device_attribute *attr,
+> +					const char *buf, size_t count)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +	char *endp;
+> +	int i;
+> +	unsigned int index = 0, offset = 0;
+> +
+> +	spin_lock_irq(&ts->lock);
+> +
+> +	for (index = 0; index < 7; index++) {
+> +		/* Grab the numbers */
+> +		i = simple_strtol(buf + offset, &endp, 10);
+> +		ts->pointercal[index] = i;
+> +
+> +		/* Skip the space */
+> +		offset = endp - buf + 1;
+> +	}
+> +
+> +	spin_unlock_irq(&ts->lock);
+> +
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(pointercal, 0644, tsc2046_ts_pointercal_show, tsc2046_ts_pointercal_store);
+> +
+> +static ssize_t tsc2046_ts_screen_res_show(struct device *dev,
+> +		   struct device_attribute *attr, char *buf)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +
+> +	return sprintf(buf, "%u %u\n", ts->x_res, ts->y_res);
+> +}
+> +
+> +static ssize_t tsc2046_ts_screen_res_store(struct device *dev,
+> +					struct device_attribute *attr,
+> +					const char *buf, size_t count)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +	char *endp;
+> +	unsigned int i, offset = 0;
+> +
+> +	spin_lock_irq(&ts->lock);
+> +
+> +	/* Grab the x res */
+> +	i = simple_strtoul(buf, &endp, 10);
+> +	ts->x_res = i;
+> +
+> +	/* Skip the space */
+> +	offset = endp - buf + 1;
+> +
+> +	/* Grab the y res */
+> +	i = simple_strtoul(buf + offset, &endp, 10);
+> +	ts->y_res = i;
+> +
+> +	/* Update the device parameters */
+> +	input_set_abs_params(ts->idev, ABS_X, 0, ts->x_res - 1, 0, 0);
+> +	input_set_abs_params(ts->idev, ABS_Y, 0, ts->y_res - 1, 0, 0);
+> +
+> +	spin_unlock_irq(&ts->lock);
+> +
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(screen_res, 0644, tsc2046_ts_screen_res_show, tsc2046_ts_screen_res_store);
+> +
+> +static ssize_t tsc2046_ts_pen_down_show(struct device *dev,
+> +					struct device_attribute *attr,
+> +					char *buf)
+> +{
+> +	struct tsc2046 *tsc = dev_get_drvdata(dev);
+> +
+> +	return sprintf(buf, "%u\n", tsc2046_is_pen_down(tsc->ts));
+> +}
+> +
+> +static DEVICE_ATTR(pen_down, S_IRUGO, tsc2046_ts_pen_down_show, NULL);
+> +
+> +static ssize_t tsc2046_ts_disable_show(struct device *dev,
+> +				       struct device_attribute *attr, char *buf)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +
+> +	return sprintf(buf, "%u\n", ts->disabled);
+> +}
+> +
+> +static ssize_t tsc2046_ts_disable_store(struct device *dev,
+> +					struct device_attribute *attr,
+> +					const char *buf, size_t count)
+> +{
+> +	struct tsc2046		*tsc = dev_get_drvdata(dev);
+> +	struct tsc2046_ts	*ts = tsc->ts;
+> +	char *endp;
+> +	int i;
+> +
+> +	i = simple_strtoul(buf, &endp, 10);
+> +	spin_lock_irq(&ts->lock);
+> +
+> +	if (i)
+> +		tsc2046_ts_disable(tsc);
+> +	else
+> +		tsc2046_ts_enable(tsc);
+> +
+> +	spin_unlock_irq(&ts->lock);
+> +
+> +	return count;
+> +}
+> +
+> +static DEVICE_ATTR(disable_ts, 0664, tsc2046_ts_disable_show,
+> +		   tsc2046_ts_disable_store);
+> +
+> +/* Init functions */
+> +
+> +static int __devinit tsc2046_probe(struct spi_device *spi)
+> +{
+> +	struct tsc2046			*tsc;
+> +	struct tsc2046_ts		*ts;
+> +	struct tsc2046_platform_data	*pdata = spi->dev.platform_data;
+> +	struct input_dev		*idev;
+> +	int r = -ENODEV;
+> +
+> +	dev_dbg(&spi->dev, "%s\n", __FUNCTION__);
+> +
+> +	if (!pdata) {
+> +		dev_dbg(&spi->dev, "no platform data?\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	tsc = kzalloc(sizeof(*tsc), GFP_KERNEL);
+> +	if (tsc == NULL)
+> +		return -ENOMEM;
+> +
+> +	dev_set_drvdata(&spi->dev, tsc);
+> +	tsc->spi = spi;
+> +	spi->dev.power.power_state = PMSG_ON;
+> +
+> +	spi->mode = SPI_MODE_1;
+> +	spi->bits_per_word = 16;
+> +
+> +	/* The max speed might've been defined by the board-specific
+> +	 * struct */
+> +	if (!spi->max_speed_hz)
+> +		spi->max_speed_hz = TSC2046_HZ;
+> +	spi_setup(spi);
+> +
+> +	if (spi->irq < 0) {
+> +		dev_err(&tsc->spi->dev, "need DAV IRQ/GPIO");
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (!pdata->get_pendown_state && !gpio_is_valid(pdata->gpio_pendown)) {
+> +		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
+> +	if (ts == NULL)
+> +		return -ENOMEM;
+> +	tsc->ts = ts;
+> +
+> +	if (pdata->get_pendown_state)
+> +		ts->get_pendown_state = pdata->get_pendown_state;
+> +	else {
+> +		ts->dav_gpio = pdata->gpio_pendown;
+> +		r = gpio_request(ts->dav_gpio, dev_name(&tsc->spi->dev));
+> +		if (r < 0) {
+> +			dev_err(&tsc->spi->dev, "unable to get DAV GPIO");
+> +			goto err1;
+> +		}
+> +		gpio_direction_input(ts->dav_gpio);
+> +	}
+> +
+> +	ts->irq = spi->irq;
+> +
+> +	init_timer(&ts->timer);
+> +	ts->timer.data = (unsigned long) tsc;
+> +	ts->timer.function = tsc2046_ts_timer;
+> +
+> +	spin_lock_init(&ts->lock);
+> +
+> +	ts->x_plate_ohm	= pdata->ts_x_plate_ohm ? : 280;
+> +	ts->max_pressure = pdata->ts_max_pressure ? : MAX_12BIT;
+> +	ts->touch_pressure = pdata->ts_touch_pressure ? : ts->max_pressure;
+> +	ts->ignore_last	= pdata->ts_ignore_last;
+> +
+> +	idev = input_allocate_device();
+> +	if (idev == NULL) {
+> +		r = -ENOMEM;
+> +		goto err2;
+> +	}
+> +	idev->name = "TSC2046 touchscreen";
+> +	snprintf(ts->phys, sizeof(ts->phys),
+> +		 "%s/input-ts", dev_name(&tsc->spi->dev));
+> +	idev->phys = ts->phys;
+> +
+> +	idev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> +	idev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE);
+> +	ts->idev = idev;
+> +
+> +	tsc2046_ts_setup_spi_xfer(tsc);
+> +
+> +	/* X and Y res default to 240x320 */
+> +	ts->x_res = pdata->ts_x_res ? : 240;
+> +	ts->y_res = pdata->ts_y_res ? : 320;
+> +
+> +	input_set_abs_params(idev, ABS_X, 0, ts->x_res - 1, 0, 0);
+> +	input_set_abs_params(idev, ABS_Y, 0, ts->y_res - 1, 0, 0);
+> +	input_set_abs_params(idev, ABS_PRESSURE, 0, 1, 0, 0);
+> +
+> +	set_bit(BTN_TOUCH, idev->keybit);
+> +
+> +	r = request_irq(ts->irq, tsc2046_ts_irq_handler,
+> +			IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_FALLING,
+> +			"tsc2046-ts", tsc);
+> +	if (r < 0) {
+> +		dev_err(&tsc->spi->dev, "unable to get DAV IRQ");
+> +		goto err3;
+> +	}
+> +	set_irq_wake(ts->irq, 1);
+> +	ts->irq_enabled = 1;
+> +
+> +	/* Create the various driver attributes */
+> +	if (device_create_file(&tsc->spi->dev, &dev_attr_pen_down) < 0)
+> +		goto err4;
+> +	if (device_create_file(&tsc->spi->dev, &dev_attr_disable_ts) < 0)
+> +		goto err5;
+> +	if (device_create_file(&tsc->spi->dev, &dev_attr_use_pointercal) < 0)
+> +		goto err6;
+> +	if (device_create_file(&tsc->spi->dev, &dev_attr_pointercal) < 0)
+> +		goto err7;
+> +	if (device_create_file(&tsc->spi->dev, &dev_attr_screen_res) < 0)
+> +		goto err8;
+
+If there are still more than 1 attriute left then anonymous attribute
+group should be used. HOwever if you remove pointercal support that
+basically leaves disable methid and I am not too keen on having it
+either - I believe we need a generic solution for shutting off an
+arbitrary device and not somethign that has to be reimplemented in every
+driver.
+
+> +
+> +	r = input_register_device(idev);
+> +	if (r < 0) {
+> +		dev_err(&tsc->spi->dev, "can't register touchscreen device\n");
+> +		goto err9;
+> +	}
+> +
+> +	/* kick off a transaction to enable pen interrupts */
+> +	spi_async(tsc->spi, &ts->read_msg);
+
+Should be done in open() method.
+
+> +
+> +	return 0;
+> +err9:
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_screen_res);
+> +err8:
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_pointercal);
+> +err7:
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_use_pointercal);
+> +err6:
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_disable_ts);
+> +err5:
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_pen_down);
+> +err4:
+> +	free_irq(ts->irq, tsc);
+> +err3:
+> +	input_free_device(idev);
+> +err2:
+> +	if (ts->dav_gpio)
+> +		gpio_free(ts->dav_gpio);
+> +err1:
+> +	kfree(ts);
 > +	return r;
 > +}
 > +
-> +static void appleir_close(struct input_dev *dev)
+> +static int __devexit tsc2046_remove(struct spi_device *spi)
 > +{
-> +	struct appleir *appleir = input_get_drvdata(dev);
+> +	struct tsc2046 *tsc = dev_get_drvdata(&spi->dev);
+> +	struct tsc2046_ts *ts = tsc->ts;
+> +	unsigned long flags;
 > +
-> +	mutex_lock(&appleir_mutex);
+> +	dev_dbg(&tsc->spi->dev, "%s\n", __FUNCTION__);
 > +
-> +	if (!(appleir->flags & APPLEIR_SUSPENDED)) {
-> +		usb_kill_urb(appleir->urb);
-> +		del_timer_sync(&appleir->key_up_timer);
-> +	}
+> +	spin_lock_irqsave(&ts->lock, flags);
+> +	tsc2046_ts_disable(tsc);
+> +	spin_unlock_irqrestore(&ts->lock, flags);
 > +
-> +	appleir->flags &= ~APPLEIR_OPENED;
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_disable_ts);
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_pen_down);
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_use_pointercal);
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_pointercal);
+> +	device_remove_file(&tsc->spi->dev, &dev_attr_screen_res);
 > +
-> +	mutex_unlock(&appleir_mutex);
-> +}
+> +	free_irq(ts->irq, tsc);
+> +	input_unregister_device(ts->idev);
 > +
-> +static int appleir_probe(struct usb_interface *intf,
-> +			 const struct usb_device_id *id)
-> +{
-> +	struct usb_device *dev = interface_to_usbdev(intf);
-> +	struct usb_endpoint_descriptor *endpoint;
-> +	struct appleir *appleir = NULL;
-> +	struct input_dev *input_dev;
-> +	int retval = -ENOMEM;
-> +	int i;
+> +	if (ts->dav_gpio)
+> +		gpio_free(ts->dav_gpio);
 > +
-> +	appleir = kzalloc(sizeof(struct appleir), GFP_KERNEL);
-> +	if (!appleir)
-> +		goto fail;
-> +
-> +	appleir->data = usb_buffer_alloc(dev, URB_SIZE, GFP_KERNEL,
-> +					 &appleir->dma_buf);
-> +	if (!appleir->data)
-> +		goto fail;
-> +
-> +	appleir->urb = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!appleir->urb)
-> +		goto fail;
-> +
-> +	appleir->usbdev = dev;
-> +
-> +	input_dev = input_allocate_device();
-> +	if (!input_dev)
-> +		goto fail;
-> +
-> +	appleir->input_dev = input_dev;
-> +
-> +	usb_make_path(dev, appleir->phys, sizeof(appleir->phys));
-> +	strlcpy(appleir->phys, "/input0", sizeof(appleir->phys));
-> +
-> +	input_dev->name = "Apple infrared remote control driver";
-
-Device is not driver. So it should probably read:
-
-	 "Apple Infrared Remote Controller"
-
-> +	input_dev->phys = appleir->phys;
-> +	usb_to_input_id(dev, &input_dev->id);
-> +	input_dev->dev.parent = &intf->dev;
-> +	input_set_drvdata(input_dev, appleir);
-> +
-> +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
-> +	input_dev->ledbit[0] = 0;
-
-Input device is zeroed out by input_allocate_device().
-
-> +
-> +	for (i = 0; i < MAX_KEYS; i++)
-> +		set_bit(keymap[i], input_dev->keybit);
-
-Keymap should be part of appleir structure; also set up
-input_dev->keycode, keycodemax and keycodesize so that keymap can be
-adjusted from userspace on per-device basis.
-
-> +
-> +	clear_bit(0, input_dev->keybit);
-
-Not needed anymore.
-
-> +
-> +	input_dev->open = appleir_open;
-> +	input_dev->close = appleir_close;
-> +
-> +	endpoint = &intf->cur_altsetting->endpoint[0].desc;
-> +
-> +	usb_fill_int_urb(appleir->urb, dev,
-> +			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
-> +			 appleir->data, 8,
-> +			 appleir_urb, appleir, endpoint->bInterval);
-> +
-> +	appleir->urb->transfer_dma = appleir->dma_buf;
-> +	appleir->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> +
-> +	usb_set_intfdata(intf, appleir);
-
-Should go directly in front of "return 0;".
-> +
-> +	init_timer(&appleir->key_up_timer);
-> +
-> +	appleir->key_up_timer.function = key_up_tick;
-> +	appleir->key_up_timer.data = (unsigned long)appleir;
-
-setup_timer()?
-
-> +
-> +	appleir->timer_initted++;
-
-Pointless, really.
-
-> +
-> +	retval = input_register_device(appleir->input_dev);
-> +	if (retval)
-> +		goto fail;
-> +
-> +	return 0;
-> +
-> +fail:
-
-Generally I prefer having multiple fail points instead of teting
-conditions in fail path.
-
-> +	printk(KERN_WARNING "Failed to load appleir\n");
-
-Not load but bind. And driver core will let us know already.
-
-> +	if (appleir) {
-> +		if (appleir->data)
-> +			usb_buffer_free(dev, URB_SIZE, appleir->data,
-> +					appleir->dma_buf);
-> +
-> +		if (appleir->timer_initted)
-> +			del_timer_sync(&appleir->key_up_timer);
-> +
-
-No need (see comments in appleir_remove).
-
-> +		if (appleir->input_dev)
-> +			input_free_device(appleir->input_dev);
-> +
-> +		kfree(appleir);
-> +	}
-> +
-> +	return retval;
-> +}
-> +
-> +static void appleir_disconnect(struct usb_interface *intf)
-> +{
-> +	struct appleir *appleir = usb_get_intfdata(intf);
-> +
-> +	usb_set_intfdata(intf, NULL);
-> +	if (appleir) {
-
-Is it possible for appleir to be NULL at this point?
-
-> +		input_unregister_device(appleir->input_dev);
-> +		if (appleir->timer_initted)
-
-How can this be possible?
-
-> +			del_timer_sync(&appleir->key_up_timer);
-
-If this is needed then you are doing it too late (input deviceis already
-gone). However this should not be needed since appleir_close is
-guaranteed to be called if you opened the device and it will cancel the
-timer for you.
-
-> +		usb_kill_urb(appleir->urb);
-
-NOt needed here either.
-
-> +		usb_free_urb(appleir->urb);
-> +		usb_buffer_free(interface_to_usbdev(intf), URB_SIZE,
-> +				appleir->data, appleir->dma_buf);
-> +		kfree(appleir);
-> +	}
-> +}
-> +
-> +static int appleir_suspend(struct usb_interface *interface,
-> +			   pm_message_t message)
-> +{
-> +	struct appleir *appleir;
-> +
-> +	appleir = usb_get_intfdata(interface);
-> +
-> +	mutex_lock(&appleir_mutex);
-> +
-> +	if (appleir->flags & APPLEIR_OPENED) {
-> +		usb_kill_urb(appleir->urb);
-> +		del_timer_sync(&appleir->key_up_timer);
-> +	}
-> +
-> +	appleir->flags |= APPLEIR_SUSPENDED;
-> +
-> +	mutex_unlock(&appleir_mutex);
+> +	kfree(ts);
+> +	kfree(tsc);
 > +
 > +	return 0;
 > +}
 > +
-> +static int appleir_resume(struct usb_interface *interface)
-> +{
-> +	struct appleir *appleir;
-> +
-> +	appleir = usb_get_intfdata(interface);
-
-Combine definition with initialization?
-
-> +
-> +	mutex_lock(&appleir_mutex);
-> +
-> +	if (appleir->flags & APPLEIR_OPENED) {
-> +		struct usb_endpoint_descriptor *endpoint;
-> +
-> +		endpoint = &interface->cur_altsetting->endpoint[0].desc;
-> +		usb_fill_int_urb(appleir->urb, appleir->usbdev,
-> +				 usb_rcvintpipe(appleir->usbdev, endpoint->bEndpointAddress),
-> +				 appleir->data, 8,
-> +				 appleir_urb, appleir, endpoint->bInterval);
-> +		appleir->urb->transfer_dma = appleir->dma_buf;
-> +		appleir->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> +
-> +		init_timer(&appleir->key_up_timer);
-> +
-> +		appleir->key_up_timer.function = key_up_tick;
-> +		appleir->key_up_timer.data = (unsigned long)appleir;
-
-Why do you need to re-initialize the timer?
-
-> +	}
-> +
-> +	appleir->flags &= ~APPLEIR_SUSPENDED;
-> +
-> +	mutex_unlock(&appleir_mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct usb_driver appleir_driver = {
-> +	.name                 = "appleir",
-> +	.probe                = appleir_probe,
-> +	.disconnect           = appleir_disconnect,
-> +	.suspend              = appleir_suspend,
-> +	.resume               = appleir_resume,
-> +	.reset_resume         = NULL,
-> +	.id_table             = appleir_ids,
-> +	.supports_autosuspend = 1,
+> +static struct spi_driver tsc2046_driver = {
+> +	.driver = {
+> +		   .name = "tsc2046",
+> +		   .bus = &spi_bus_type,
+> +		   .owner = THIS_MODULE,
+> +	},
+> +	.probe = tsc2046_probe,
+> +	.remove = __devexit_p(tsc2046_remove),
 > +};
 > +
-> +static int __init appleir_init(void)
+> +static int __init tsc2046_init(void)
 > +{
-> +	int retval;
+> +	printk(KERN_INFO "TSC2046 driver initializing\n");
 > +
-> +	retval = usb_register(&appleir_driver);
-> +	if (retval)
-> +		goto out;
-> +	printk(KERN_INFO DRIVER_VERSION ":" DRIVER_DESC);
-> +out:
-> +	return retval;
-
-How about
-
-	return usb_register(&appleir_driver);
-
-?
-
-Boot is noisy enough.
-
+> +	return spi_register_driver(&tsc2046_driver);
 > +}
 > +
-> +static void __exit appleir_exit(void)
+> +static void __exit tsc2046_exit(void)
 > +{
-> +	usb_deregister(&appleir_driver);
+> +	spi_unregister_driver(&tsc2046_driver);
 > +}
 > +
-> +module_init(appleir_init);
-> +module_exit(appleir_exit);
+> +module_init(tsc2046_init);
+> +module_exit(tsc2046_exit);
+> +
+> +MODULE_AUTHOR("Kevin Hilman <khilman@mvista.com>");
+> +MODULE_LICENSE("GPL");
+> +
+> diff --git a/include/linux/input/tsc2046.h b/include/linux/input/tsc2046.h
+> new file mode 100644
+> index 0000000..acb8fed
+> --- /dev/null
+> +++ b/include/linux/input/tsc2046.h
+> @@ -0,0 +1,26 @@
+> +#ifndef _LINUX_INPUT_TSC2046_H
+> +#define _LINUX_INPUT_TSC2046_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/timer.h>
+> +
+> +struct tsc2046_platform_data {
+> +	int	(*get_pendown_state)(void);
+> +	int	gpio_pendown;
+> +	s16	gpio_debounce;
+> +	u16	ts_x_plate_ohm;
+> +	u32	ts_max_pressure;  /* Samples with bigger pressure value will
+> +				     be ignored, since the corresponding X, Y
+> +				     values are unreliable */
+> +	u32	ts_touch_pressure;/* Pressure limit until we report a
+> +				     touch event. After that we switch
+> +				     to ts_max_pressure. */
+> +	u32	ts_x_res;
+> +	u32	ts_y_res;
+> +	unsigned ts_ignore_last : 1;
+> +
+> +};
+> +
+> +#endif
+> +
+> +
 
 Thanks.
 

@@ -1,110 +1,746 @@
-From: "Peter M. Petrakis" <peter.petrakis@canonical.com>
-Subject: [PATCH] Reset ps/2 port should psmouse_probe fail before retrying
-Date: Fri, 16 Apr 2010 18:52:50 -0400
-Message-ID: <4BC8EA42.6030507@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Sat, 17 Apr 2010 01:12:13 -0700
+Message-ID: <20100417081212.GA19866@core.coreip.homeip.net>
+References: <1271434792.2045.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:34075 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932692Ab0DPWww (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:41668 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752126Ab0DQIMU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Apr 2010 18:52:52 -0400
+	Sat, 17 Apr 2010 04:12:20 -0400
+Received: by gyg13 with SMTP id 13so1760505gyg.19
+        for <linux-input@vger.kernel.org>; Sat, 17 Apr 2010 01:12:19 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1271434792.2045.5.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: rubini@ipvvis.unipv.it
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi All,
+HI Bastien,
 
-I filed a bug on this too:
+On Fri, Apr 16, 2010 at 05:19:52PM +0100, Bastien Nocera wrote:
+> This driver was originally written by James McKenzie, updated by
+> Greg Kroah-Hartman, further updated by myself, with suspend support
+> added.
+> 
+> More recent versions of the IR receiver are also supported through
+> a patch by Alex Karpenko.
+> 
+> Tested on a MacbookAir1,1
+> 
 
-https://bugzilla.kernel.org/show_bug.cgi?id=15780
+A few comments...
 
-This particular laptop will lose it's synaptics touch
-pad on return from suspend state. Reloading the psmouse
-module makes no difference. I came up with the attached
-work around which simply calls psmouse_reset on the
-port should the initial probe fail. This solves the problem
-for me and I've tested this on several laptops.
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> ---
+>  Documentation/input/appleir.txt |   45 ++++
+>  drivers/hid/hid-apple.c         |    4 -
+>  drivers/hid/hid-core.c          |    5 +-
+>  drivers/hid/hid-ids.h           |    1 +
 
-Initially discovered on Ubuntu 2.6.31 (karmic) and the problem
-continues to exist in lucid 2.6.32. I've filed a bug against
-ubuntu kernel here:
+HID pieces need to go through Jiri or he needs to ack them to go through
+my tree...
 
-https://bugs.launchpad.net/oem-priority/+bug/551234
+>  drivers/input/misc/Kconfig      |   13 +
+>  drivers/input/misc/Makefile     |    1 +
+>  drivers/input/misc/appleir.c    |  477 +++++++++++++++++++++++++++++++++++++++
+>  7 files changed, 540 insertions(+), 6 deletions(-)
+>  create mode 100644 Documentation/input/appleir.txt
+>  create mode 100644 drivers/input/misc/appleir.c
+> 
+> diff --git a/Documentation/input/appleir.txt b/Documentation/input/appleir.txt
+> new file mode 100644
+> index 0000000..0267a4b
+> --- /dev/null
+> +++ b/Documentation/input/appleir.txt
+> @@ -0,0 +1,45 @@
+> +Apple IR receiver Driver (appleir)
+> +----------------------------------
+> +	Copyright (C) 2009 Bastien Nocera <hadess@hadess.net>
+> +
+> +The appleir driver is a kernel input driver to handle Apple's IR
+> +receivers (and associated remotes) in the kernel.
+> +
+> +The driver is an input driver which only handles "official" remotes
+> +as built and sold by Apple.
+> +
+> +Authors
+> +-------
+> +
+> +James McKenzie (original driver)
+> +Alex Karpenko (05ac:8242 support)
+> +Greg Kroah-Hartman (cleanups and original submission)
+> +Bastien Nocera (further cleanups and suspend support)
+> +
+> +Supported hardware
+> +------------------
+> +
+> +- All Apple laptops and desktops from 2005 onwards, except:
+> +  - the unibody Macbook (2009)
+> +  - Mac Pro (all versions)
+> +- Apple TV (all revisions)
+> +
+> +The remote will only support the 6 buttons of the original remotes
+> +as sold by Apple. See the next section if you want to use other remotes
+> +or want to use lirc with the device instead of the kernel driver.
+> +
+> +Using lirc (native) instead of the kernel driver
+> +------------------------------------------------
+> +
+> +First, you will need to disable the kernel driver for the receiver.
+> +
+> +This can be achieved by passing quirks to the usbhid driver.
+> +The quirk line would be:
+> +usbhid.quirks=0x05ac:0x8242:0x40000010
+> +
+> +With 0x05ac being the vendor ID (Apple, you shouldn't need to change this)
+> +With 0x8242 being the product ID (check the output of lsusb for your hardware)
+> +And 0x10 being "HID_QUIRK_HIDDEV_FORCE" and 0x40000000 being "HID_QUIRK_NO_IGNORE"
+> +
+> +This should force the creation of a hiddev device for the receiver, and
+> +make it usable under lirc.
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 78286b1..5f2a731 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -360,10 +360,6 @@ static void apple_remove(struct hid_device *hdev)
+>  }
+>  
+>  static const struct hid_device_id apple_devices[] = {
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL),
+> -		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4),
+> -		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
+>  		.driver_data = APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
+>  
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 368fbb0..b57e5f7 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1253,8 +1253,6 @@ static const struct hid_device_id hid_blacklist[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_3M, USB_DEVICE_ID_3M1968) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) },
+> @@ -1553,6 +1551,9 @@ static const struct hid_device_id hid_ignore_list[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 72c05f9..66a2ca8 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -97,6 +97,7 @@
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
+>  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+>  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+> +#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
+>  #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+>  #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+>  
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 23140a3..46614b2 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -159,6 +159,19 @@ config INPUT_KEYSPAN_REMOTE
+>  	  To compile this driver as a module, choose M here: the module will
+>  	  be called keyspan_remote.
+>  
+> +config INPUT_APPLEIR
+> +	tristate "Apple infrared receiver (built in)"
+> +	depends on USB_ARCH_HAS_HCD
+> +	select USB
+> +	help
+> +	  Say Y here if you want to use a Apple infrared remote control. All
+> +	  the Apple computers from 2005 onwards include such a port, except
+> +	  the unibody Macbook (2009), and Mac Pros. This receiver is also
+> +	  used in the Apple TV set-top box.
+> +
+> +	  To compile this driver as a module, choose M here: the module will
+> +	  be called appleir.
+> +
+>  config INPUT_POWERMATE
+>  	tristate "Griffin PowerMate and Contour Jog support"
+>  	depends on USB_ARCH_HAS_HCD
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 7e95a5d..3fa4404 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -6,6 +6,7 @@
+>  
+>  obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
+>  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+> +obj-$(CONFIG_INPUT_APPLEIR)		+= appleir.o
+>  obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
+>  obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
+>  obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
+> diff --git a/drivers/input/misc/appleir.c b/drivers/input/misc/appleir.c
+> new file mode 100644
+> index 0000000..138f4c8
+> --- /dev/null
+> +++ b/drivers/input/misc/appleir.c
+> @@ -0,0 +1,477 @@
+> +/*
+> + * appleir: USB driver for the apple ir device
+> + *
+> + * Original driver written by James McKenzie
+> + * Ported to recent 2.6 kernel versions by Greg Kroah-Hartman <gregkh@suse.de>
+> + *
+> + * Copyright (C) 2006 James McKenzie
+> + * Copyright (C) 2008 Greg Kroah-Hartman <greg@kroah.com>
+> + * Copyright (C) 2008 Novell Inc.
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation, version 2.
+> + *
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/usb/input.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/usb.h>
+> +#include <linux/usb/input.h>
+> +#include <asm/unaligned.h>
+> +#include <asm/byteorder.h>
+> +
+> +#define DRIVER_VERSION "v1.2"
+> +#define DRIVER_AUTHOR "James McKenzie"
+> +#define DRIVER_DESC "Apple infrared receiver driver"
+> +#define DRIVER_LICENSE "GPL"
+> +
+> +MODULE_AUTHOR(DRIVER_AUTHOR);
+> +MODULE_DESCRIPTION(DRIVER_DESC);
+> +MODULE_LICENSE(DRIVER_LICENSE);
+> +
+> +#define USB_VENDOR_ID_APPLE			0x05ac
+> +#define USB_DEVICE_ID_APPLE_IRCONTROL		0x8240
+> +#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+> +#define USB_DEVICE_ID_APPLE_IRCONTROL4		0x8242
+> +
+> +#define URB_SIZE	32
+> +
+> +#define MAX_KEYS	8
+> +#define MAX_KEYS_MASK	(MAX_KEYS - 1)
+> +
+> +#define dbginfo(dev, format, arg...) do { if (debug) dev_info(dev , format , ## arg); } while (0)
+> +
+> +static int debug;
+> +module_param(debug, int, 0644);
+> +MODULE_PARM_DESC(debug, "Enable extra debug messages and information");
+> +
+> +struct appleir {
+> +	struct input_dev *input_dev;
+> +	u8 *data;
+> +	dma_addr_t dma_buf;
+> +	struct usb_device *usbdev;
+> +	unsigned int flags;
+> +	struct urb *urb;
+> +	int timer_initted;
+> +	struct timer_list key_up_timer;
+> +	int current_key;
+> +	char phys[32];
+> +};
+> +
+> +static DEFINE_MUTEX(appleir_mutex);
+> +
+> +enum {
+> +	APPLEIR_OPENED = 0x1,
+> +	APPLEIR_SUSPENDED = 0x2,
+> +};
+> +
+> +static struct usb_device_id appleir_ids[] = {
+> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
+> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL) },
+> +	{ USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(usb, appleir_ids);
+> +
+> +/* I have two devices both of which report the following */
+> +/* 25 87 ee 83 0a  	+  */
+> +/* 25 87 ee 83 0c  	-  */
+> +/* 25 87 ee 83 09	<< */
+> +/* 25 87 ee 83 06	>> */
+> +/* 25 87 ee 83 05	>" */
+> +/* 25 87 ee 83 03	menu */
+> +/* 26 00 00 00 00	for key repeat*/
+> +
+> +/* Thomas Glanzmann reports the following responses */
+> +/* 25 87 ee ca 0b	+  */
+> +/* 25 87 ee ca 0d	-  */
+> +/* 25 87 ee ca 08	<< */
+> +/* 25 87 ee ca 07	>> */
+> +/* 25 87 ee ca 04	>" */
+> +/* 25 87 ee ca 02 	menu */
+> +/* 26 00 00 00 00       for key repeat*/
+> +/* He also observes the following event sometimes */
+> +/* sent after a key is release, which I interpret */
+> +/* as a flat battery message */
+> +/* 25 87 e0 ca 06	flat battery */
+> +
+> +/* Alexandre Karpenko reports the following responses for Device ID 0x8242 */
+> +/* 25 87 ee 47 0b	+  */
+> +/* 25 87 ee 47 0d	-  */
+> +/* 25 87 ee 47 08	<< */
+> +/* 25 87 ee 47 07	>> */
+> +/* 25 87 ee 47 04	>" */
+> +/* 25 87 ee 47 02 	menu */
+> +/* 26 87 ee 47 ** 	for key repeat (** is the code of the key being held) */
+> +
+> +static int keymap[MAX_KEYS] = {
+> +	KEY_RESERVED,
+> +	KEY_MENU,
+> +	KEY_PLAYPAUSE,
+> +	KEY_FORWARD,
+> +	KEY_BACK,
+> +	KEY_VOLUMEUP,
+> +	KEY_VOLUMEDOWN,
+> +	KEY_RESERVED,
+> +};
+> +
+> +static void dump_packet(struct appleir *appleir, char *msg, u8 *data, int len)
+> +{
+> +	int i;
+> +
+> +	printk(KERN_ERR "appleir: %s (%d bytes)", msg, len);
+> +
+> +	for (i = 0; i < len; ++i)
+> +		printk(" %02x", data[i]);
+> +	printk("\n");
+> +}
+> +
+> +static void key_up(struct appleir *appleir, int key)
+> +{
+> +	dbginfo (&appleir->input_dev->dev, "key %d up\n", key);
 
-though the Ubuntu kernel team would really like to get upstream's
-input on the matter before accepting the patch. Please
-let me know what you think. Thanks.
+No space between function and opening parenthesis.
 
-Peter
---
- From e997195a6488753738523b92cbcc97cb2f4bda03 Mon Sep 17 00:00:00 2001
-From: Peter M. Petrakis <peter.petrakis@canonical.com>
-Date: Fri, 16 Apr 2010 17:56:24 -0400
-Subject: [PATCH] Reset the PS/2 port should psmouse_probe fail for any 
-reason. This
-  is necessary for some PS/2 devices who can't even be identified
-  when returning from sleep (S3).
+> +	input_report_key(appleir->input_dev, key, 0);
+> +	input_sync(appleir->input_dev);
+> +}
+> +
+> +static void key_down(struct appleir *appleir, int key)
+> +{
+> +	dbginfo (&appleir->input_dev->dev, "key %d down\n", key);
+> +	input_report_key(appleir->input_dev, key, 1);
+> +	input_sync(appleir->input_dev);
+> +}
+> +
+> +static void battery_flat(struct appleir *appleir)
+> +{
+> +	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
+> +}
+> +
+> +static void key_up_tick(unsigned long data)
+> +{
+> +	struct appleir *appleir = (struct appleir *)data;
+> +
+> +	if (appleir->current_key) {
+> +		key_up(appleir, appleir->current_key);
+> +		appleir->current_key = 0;
+> +	}
+> +}
+> +
+> +static void new_data(struct appleir *appleir, u8 *data, int len)
+> +{
+> +	static const u8 keydown[] = { 0x25, 0x87, 0xee };
+> +	static const u8 keyrepeat[] = { 0x26, };
+> +	static const u8 flatbattery[] = { 0x25, 0x87, 0xe0 };
+> +
+> +	if (debug)
+> +		dump_packet(appleir, "received", data, len);
+> +
+> +	if (len != 5)
+> +		return;
+> +
+> +	if (!memcmp(data, keydown, sizeof(keydown))) {
+> +		/* If we already have a key down, take it up before marking
+> +		   this one down */
+> +		if (appleir->current_key)
+> +			key_up(appleir, appleir->current_key);
+> +		appleir->current_key = keymap[(data[4] >> 1) & MAX_KEYS_MASK];
+> +
+> +		key_down(appleir, appleir->current_key);
+> +		/* Remote doesn't do key up, either pull them up, in the test
+> +		   above, or here set a timer which pulls them up after 1/8 s */
+> +		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
+> +
+> +		return;
+> +	}
+> +
+> +	if (!memcmp(data, keyrepeat, sizeof(keyrepeat))) {
+> +		key_down(appleir, appleir->current_key);
+> +		/* Remote doesn't do key up, either pull them up, in the test
+> +		   above, or here set a timer which pulls them up after 1/8 s */
+> +		mod_timer(&appleir->key_up_timer, jiffies + HZ / 8);
+> +		return;
+> +	}
+> +
+> +	if (!memcmp(data, flatbattery, sizeof(flatbattery))) {
+> +		battery_flat(appleir);
+> +		/* Fall through */
+> +	}
+> +
+> +	dump_packet(appleir, "unknown packet", data, len);
+> +}
+> +
+> +static void appleir_urb(struct urb *urb)
+> +{
+> +	struct appleir *appleir = urb->context;
+> +	int status = urb->status;
+> +	int retval;
+> +
+> +	switch (status) {
+> +	case 0:
+> +		new_data(appleir, urb->transfer_buffer, urb->actual_length);
+> +		break;
+> +	case -ECONNRESET:
+> +	case -ENOENT:
+> +	case -ESHUTDOWN:
+> +		/* This urb is terminated, clean up */
+> +		dbginfo(&appleir->input_dev->dev, "%s - urb shutting down with status: %d", __func__,
+> +			urb->status);
+> +		return;
+> +	default:
+> +		dbginfo(&appleir->input_dev->dev, "%s - nonzero urb status received: %d", __func__,
+> +			urb->status);
+> +	}
+> +
+> +	retval = usb_submit_urb(urb, GFP_ATOMIC);
+> +	if (retval)
+> +		err("%s - usb_submit_urb failed with result %d", __func__,
+> +		    retval);
+> +}
+> +
+> +static int appleir_open(struct input_dev *dev)
+> +{
+> +	struct appleir *appleir = input_get_drvdata(dev);
+> +	struct usb_interface *intf = usb_ifnum_to_if(appleir->usbdev, 0);
+> +	int r;
+> +
+> +	r = usb_autopm_get_interface(intf);
+> +	if (r) {
+> +		dev_err(&intf->dev,
+> +			"%s(): usb_autopm_get_interface() = %d\n", __func__, r);
+> +		return r;
+> +	}
+> +
+> +	mutex_lock(&appleir_mutex);
+> +
+> +	if (usb_submit_urb(appleir->urb, GFP_KERNEL)) {
+> +		r = -EIO;
+> +		goto fail;
+> +	}
+> +
+> +	appleir->flags |= APPLEIR_OPENED;
+> +
+> +	mutex_unlock(&appleir_mutex);
+> +
+> +	usb_autopm_put_interface(intf);
+> +
+> +	return 0;
+> +fail:
+> +	mutex_unlock(&appleir_mutex);
+> +	usb_autopm_put_interface(intf);
+> +	return r;
+> +}
+> +
+> +static void appleir_close(struct input_dev *dev)
+> +{
+> +	struct appleir *appleir = input_get_drvdata(dev);
+> +
+> +	mutex_lock(&appleir_mutex);
+> +
+> +	if (!(appleir->flags & APPLEIR_SUSPENDED)) {
+> +		usb_kill_urb(appleir->urb);
+> +		del_timer_sync(&appleir->key_up_timer);
+> +	}
+> +
+> +	appleir->flags &= ~APPLEIR_OPENED;
+> +
+> +	mutex_unlock(&appleir_mutex);
+> +}
+> +
+> +static int appleir_probe(struct usb_interface *intf,
+> +			 const struct usb_device_id *id)
+> +{
+> +	struct usb_device *dev = interface_to_usbdev(intf);
+> +	struct usb_endpoint_descriptor *endpoint;
+> +	struct appleir *appleir = NULL;
+> +	struct input_dev *input_dev;
+> +	int retval = -ENOMEM;
+> +	int i;
+> +
+> +	appleir = kzalloc(sizeof(struct appleir), GFP_KERNEL);
+> +	if (!appleir)
+> +		goto fail;
+> +
+> +	appleir->data = usb_buffer_alloc(dev, URB_SIZE, GFP_KERNEL,
+> +					 &appleir->dma_buf);
+> +	if (!appleir->data)
+> +		goto fail;
+> +
+> +	appleir->urb = usb_alloc_urb(0, GFP_KERNEL);
+> +	if (!appleir->urb)
+> +		goto fail;
+> +
+> +	appleir->usbdev = dev;
+> +
+> +	input_dev = input_allocate_device();
+> +	if (!input_dev)
+> +		goto fail;
+> +
+> +	appleir->input_dev = input_dev;
+> +
+> +	usb_make_path(dev, appleir->phys, sizeof(appleir->phys));
+> +	strlcpy(appleir->phys, "/input0", sizeof(appleir->phys));
+> +
+> +	input_dev->name = "Apple infrared remote control driver";
 
----
-  drivers/input/mouse/psmouse-base.c |   29 ++++++++++++++++++++++++++---
-  1 files changed, 26 insertions(+), 3 deletions(-)
+Device is not driver. So it should probably read:
 
-diff --git a/drivers/input/mouse/psmouse-base.c 
-b/drivers/input/mouse/psmouse-base.c
-index d8c0c8d..a51b9a7 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -905,12 +905,12 @@ static const struct psmouse_protocol 
-*psmouse_protocol_by_name(const char *name,
-  	return NULL;
-  }
+	 "Apple Infrared Remote Controller"
 
--
-  /*
-- * psmouse_probe() probes for a PS/2 mouse.
-+ * __psmouse_probe() probes for a PS/2 mouse.
-+ * Wrapped by psmouse_probe() for clean reset code.
-   */
+> +	input_dev->phys = appleir->phys;
+> +	usb_to_input_id(dev, &input_dev->id);
+> +	input_dev->dev.parent = &intf->dev;
+> +	input_set_drvdata(input_dev, appleir);
+> +
+> +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
+> +	input_dev->ledbit[0] = 0;
 
--static int psmouse_probe(struct psmouse *psmouse)
-+static int __psmouse_probe(struct psmouse *psmouse)
-  {
-  	struct ps2dev *ps2dev = &psmouse->ps2dev;
-  	unsigned char param[2];
-@@ -941,6 +941,29 @@ static int psmouse_probe(struct psmouse *psmouse)
-  }
+Input device is zeroed out by input_allocate_device().
 
-  /*
-+ * Wrapper for probe routine to cleanly reset the device should
-+ * the initial probe fail for any reason.
-+ */
-+static int psmouse_probe(struct psmouse *psmouse)
-+{
-+	struct ps2dev *ps2dev = &psmouse->ps2dev;
-+	int i;
-+	int ret = -1;
-+
-+	for (i=0; i < 3; i++) {
-+		ret = __psmouse_probe(psmouse);
-+		if (ret == 0)
-+			break;
-+
-+		printk(KERN_ERR "psmouse.c: Error encountered while probing "
-+			"PS/2 device on %s, resetting\n", ps2dev->serio->phys);
-+		psmouse_reset(psmouse);
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-   * Here we set the mouse resolution.
-   */
+> +
+> +	for (i = 0; i < MAX_KEYS; i++)
+> +		set_bit(keymap[i], input_dev->keybit);
+
+Keymap should be part of appleir structure; also set up
+input_dev->keycode, keycodemax and keycodesize so that keymap can be
+adjusted from userspace on per-device basis.
+
+> +
+> +	clear_bit(0, input_dev->keybit);
+
+Not needed anymore.
+
+> +
+> +	input_dev->open = appleir_open;
+> +	input_dev->close = appleir_close;
+> +
+> +	endpoint = &intf->cur_altsetting->endpoint[0].desc;
+> +
+> +	usb_fill_int_urb(appleir->urb, dev,
+> +			 usb_rcvintpipe(dev, endpoint->bEndpointAddress),
+> +			 appleir->data, 8,
+> +			 appleir_urb, appleir, endpoint->bInterval);
+> +
+> +	appleir->urb->transfer_dma = appleir->dma_buf;
+> +	appleir->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+> +
+> +	usb_set_intfdata(intf, appleir);
+
+Should go directly in front of "return 0;".
+> +
+> +	init_timer(&appleir->key_up_timer);
+> +
+> +	appleir->key_up_timer.function = key_up_tick;
+> +	appleir->key_up_timer.data = (unsigned long)appleir;
+
+setup_timer()?
+
+> +
+> +	appleir->timer_initted++;
+
+Pointless, really.
+
+> +
+> +	retval = input_register_device(appleir->input_dev);
+> +	if (retval)
+> +		goto fail;
+> +
+> +	return 0;
+> +
+> +fail:
+
+Generally I prefer having multiple fail points instead of teting
+conditions in fail path.
+
+> +	printk(KERN_WARNING "Failed to load appleir\n");
+
+Not load but bind. And driver core will let us know already.
+
+> +	if (appleir) {
+> +		if (appleir->data)
+> +			usb_buffer_free(dev, URB_SIZE, appleir->data,
+> +					appleir->dma_buf);
+> +
+> +		if (appleir->timer_initted)
+> +			del_timer_sync(&appleir->key_up_timer);
+> +
+
+No need (see comments in appleir_remove).
+
+> +		if (appleir->input_dev)
+> +			input_free_device(appleir->input_dev);
+> +
+> +		kfree(appleir);
+> +	}
+> +
+> +	return retval;
+> +}
+> +
+> +static void appleir_disconnect(struct usb_interface *intf)
+> +{
+> +	struct appleir *appleir = usb_get_intfdata(intf);
+> +
+> +	usb_set_intfdata(intf, NULL);
+> +	if (appleir) {
+
+Is it possible for appleir to be NULL at this point?
+
+> +		input_unregister_device(appleir->input_dev);
+> +		if (appleir->timer_initted)
+
+How can this be possible?
+
+> +			del_timer_sync(&appleir->key_up_timer);
+
+If this is needed then you are doing it too late (input deviceis already
+gone). However this should not be needed since appleir_close is
+guaranteed to be called if you opened the device and it will cancel the
+timer for you.
+
+> +		usb_kill_urb(appleir->urb);
+
+NOt needed here either.
+
+> +		usb_free_urb(appleir->urb);
+> +		usb_buffer_free(interface_to_usbdev(intf), URB_SIZE,
+> +				appleir->data, appleir->dma_buf);
+> +		kfree(appleir);
+> +	}
+> +}
+> +
+> +static int appleir_suspend(struct usb_interface *interface,
+> +			   pm_message_t message)
+> +{
+> +	struct appleir *appleir;
+> +
+> +	appleir = usb_get_intfdata(interface);
+> +
+> +	mutex_lock(&appleir_mutex);
+> +
+> +	if (appleir->flags & APPLEIR_OPENED) {
+> +		usb_kill_urb(appleir->urb);
+> +		del_timer_sync(&appleir->key_up_timer);
+> +	}
+> +
+> +	appleir->flags |= APPLEIR_SUSPENDED;
+> +
+> +	mutex_unlock(&appleir_mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +static int appleir_resume(struct usb_interface *interface)
+> +{
+> +	struct appleir *appleir;
+> +
+> +	appleir = usb_get_intfdata(interface);
+
+Combine definition with initialization?
+
+> +
+> +	mutex_lock(&appleir_mutex);
+> +
+> +	if (appleir->flags & APPLEIR_OPENED) {
+> +		struct usb_endpoint_descriptor *endpoint;
+> +
+> +		endpoint = &interface->cur_altsetting->endpoint[0].desc;
+> +		usb_fill_int_urb(appleir->urb, appleir->usbdev,
+> +				 usb_rcvintpipe(appleir->usbdev, endpoint->bEndpointAddress),
+> +				 appleir->data, 8,
+> +				 appleir_urb, appleir, endpoint->bInterval);
+> +		appleir->urb->transfer_dma = appleir->dma_buf;
+> +		appleir->urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+> +
+> +		init_timer(&appleir->key_up_timer);
+> +
+> +		appleir->key_up_timer.function = key_up_tick;
+> +		appleir->key_up_timer.data = (unsigned long)appleir;
+
+Why do you need to re-initialize the timer?
+
+> +	}
+> +
+> +	appleir->flags &= ~APPLEIR_SUSPENDED;
+> +
+> +	mutex_unlock(&appleir_mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct usb_driver appleir_driver = {
+> +	.name                 = "appleir",
+> +	.probe                = appleir_probe,
+> +	.disconnect           = appleir_disconnect,
+> +	.suspend              = appleir_suspend,
+> +	.resume               = appleir_resume,
+> +	.reset_resume         = NULL,
+> +	.id_table             = appleir_ids,
+> +	.supports_autosuspend = 1,
+> +};
+> +
+> +static int __init appleir_init(void)
+> +{
+> +	int retval;
+> +
+> +	retval = usb_register(&appleir_driver);
+> +	if (retval)
+> +		goto out;
+> +	printk(KERN_INFO DRIVER_VERSION ":" DRIVER_DESC);
+> +out:
+> +	return retval;
+
+How about
+
+	return usb_register(&appleir_driver);
+
+?
+
+Boot is noisy enough.
+
+> +}
+> +
+> +static void __exit appleir_exit(void)
+> +{
+> +	usb_deregister(&appleir_driver);
+> +}
+> +
+> +module_init(appleir_init);
+> +module_exit(appleir_exit);
+
+Thanks.
 
 -- 
-1.7.0.4
-
+Dmitry

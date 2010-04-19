@@ -1,47 +1,186 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Fixed missing inits in hid-cando.c
-Date: Mon, 19 Apr 2010 13:38:46 +0200
-Message-ID: <5E80D4D5-2CDD-4A85-BD21-0516DE566DC6@enac.fr>
-References: <20100416202358.7839695164@smtp.lii-enac.fr> <alpine.LNX.2.00.1004191320210.7579@pobox.suse.cz>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] input: eeti_ts: cancel pending work when going to
+ suspend
+Date: Mon, 19 Apr 2010 16:15:20 +0200
+Message-ID: <20100419141520.GG30801@buzzloop.caiaq.de>
+References: <1271183505-28133-1-git-send-email-daniel@caiaq.de>
+ <20100414181417.GA27661@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:53764 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752893Ab0DSLiw convert rfc822-to-8bit (ORCPT
+Received: from buzzloop.caiaq.de ([212.112.241.133]:49920 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753811Ab0DSOP2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Apr 2010 07:38:52 -0400
-In-Reply-To: <alpine.LNX.2.00.1004191320210.7579@pobox.suse.cz>
+	Mon, 19 Apr 2010 10:15:28 -0400
+Content-Disposition: inline
+In-Reply-To: <20100414181417.GA27661@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Priya Vijayan <priya.vijayan@intel.com>, Florian Echtler <floe@butterbrot.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+
+On Wed, Apr 14, 2010 at 11:14:18AM -0700, Dmitry Torokhov wrote:
+> > This fixes a race between the suspend code and input events.
+> > 
+> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/touchscreen/eeti_ts.c |    7 +++++++
+> >  1 files changed, 7 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+> > index 204b8a1..2a01695 100644
+> > --- a/drivers/input/touchscreen/eeti_ts.c
+> > +++ b/drivers/input/touchscreen/eeti_ts.c
+> > @@ -250,6 +250,9 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+> >  	if (device_may_wakeup(&client->dev))
+> >  		enable_irq_wake(priv->irq);
+> >  
+> > +	disable_irq(priv->irq);
+> > +	cancel_work_sync(&priv->work);
+> 
+> You need to check 'users' when disabling as well, otherwise you may get
+> enable/disable unbalanced when there are no users.
+> 
+> Does the patch below still work for you?
+
+Yes, looks good. Thanks :)
+
+Daniel
 
 
-Le 19 avr. 10 =E0 13:20, Jiri Kosina a =E9crit :
-
-> On Fri, 16 Apr 2010, Stephane Chatty wrote:
->
->> With flags non initialized, the single touch emulation has an errati=
-c
->> behavior. Fixed this.
->>
->> Signed-off-by: Stephane Chatty
->
-> I have made this to actually be
->
-> 	Signed-off-by: Stephane Chatty <chatty@lii-enac.fr>
->
-> and applied. Please let me know if this is wrong.
-
-Oops, sorry. I usually prefer chatty@enac.fr, but don't bother.
-
-St.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Input: eeti_ts - cancel pending work when going to suspend
+> 
+> From: Daniel Mack <daniel@caiaq.de>
+> 
+> This fixes a race between the suspend code and input events.
+> 
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+> 
+>  drivers/input/touchscreen/eeti_ts.c |   56 +++++++++++++++++++++++++++++------
+>  1 files changed, 46 insertions(+), 10 deletions(-)
+> 
+> 
+> diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+> index 204b8a1..75f8b73 100644
+> --- a/drivers/input/touchscreen/eeti_ts.c
+> +++ b/drivers/input/touchscreen/eeti_ts.c
+> @@ -124,14 +124,25 @@ static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int eeti_ts_open(struct input_dev *dev)
+> +static void eeti_ts_start(struct eeti_ts_priv *priv)
+>  {
+> -	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+> -
+>  	enable_irq(priv->irq);
+>  
+>  	/* Read the events once to arm the IRQ */
+>  	eeti_ts_read(&priv->work);
+> +}
+> +
+> +static void eeti_ts_stop(struct eeti_ts_priv *priv)
+> +{
+> +	disable_irq(priv->irq);
+> +	cancel_work_sync(&priv->work);
+> +}
+> +
+> +static int eeti_ts_open(struct input_dev *dev)
+> +{
+> +	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+> +
+> +	eeti_ts_start(priv);
+>  
+>  	return 0;
+>  }
+> @@ -140,8 +151,7 @@ static void eeti_ts_close(struct input_dev *dev)
+>  {
+>  	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+>  
+> -	disable_irq(priv->irq);
+> -	cancel_work_sync(&priv->work);
+> +	eeti_ts_stop(priv);
+>  }
+>  
+>  static int __devinit eeti_ts_probe(struct i2c_client *client,
+> @@ -153,10 +163,12 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+>  	unsigned int irq_flags;
+>  	int err = -ENOMEM;
+>  
+> -	/* In contrast to what's described in the datasheet, there seems
+> +	/*
+> +	 * In contrast to what's described in the datasheet, there seems
+>  	 * to be no way of probing the presence of that device using I2C
+>  	 * commands. So we need to blindly believe it is there, and wait
+> -	 * for interrupts to occur. */
+> +	 * for interrupts to occur.
+> +	 */
+>  
+>  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+>  	if (!priv) {
+> @@ -212,9 +224,11 @@ static int __devinit eeti_ts_probe(struct i2c_client *client,
+>  		goto err2;
+>  	}
+>  
+> -	/* Disable the irq for now. It will be enabled once the input device
+> -	 * is opened. */
+> -	disable_irq(priv->irq);
+> +	/*
+> +	 * Disable the device for now. It will be enabled once the
+> +	 * input device is opened.
+> +	 */
+> +	eeti_ts_stop(priv);
+>  
+>  	device_init_wakeup(&client->dev, 0);
+>  	return 0;
+> @@ -235,6 +249,12 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
+>  	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+>  
+>  	free_irq(priv->irq, priv);
+> +	/*
+> +	 * eeti_ts_stop() leaves IRQ disabled. We need to re-enable it
+> +	 * so that device still works if we reload the driver.
+> +	 */
+> +	enable_irq(priv->irq);
+> +
+>  	input_unregister_device(priv->input);
+>  	i2c_set_clientdata(client, NULL);
+>  	kfree(priv);
+> @@ -246,6 +266,14 @@ static int __devexit eeti_ts_remove(struct i2c_client *client)
+>  static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+>  {
+>  	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = priv->input;
+> +
+> +	mutex_lock(&input_dev->mutex);
+> +
+> +	if (input_dev->users)
+> +		eeti_ts_stop(priv);
+> +
+> +	mutex_unlock(&input_dev->mutex);
+>  
+>  	if (device_may_wakeup(&client->dev))
+>  		enable_irq_wake(priv->irq);
+> @@ -256,10 +284,18 @@ static int eeti_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+>  static int eeti_ts_resume(struct i2c_client *client)
+>  {
+>  	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
+> +	struct input_dev *input_dev = priv->input;
+>  
+>  	if (device_may_wakeup(&client->dev))
+>  		disable_irq_wake(priv->irq);
+>  
+> +	mutex_lock(&input_dev->mutex);
+> +
+> +	if (input_dev->users)
+> +		eeti_ts_start(priv);
+> +
+> +	mutex_unlock(&input_dev->mutex);
+> +
+>  	return 0;
+>  }
+>  #else

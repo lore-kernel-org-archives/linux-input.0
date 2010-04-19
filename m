@@ -1,148 +1,74 @@
-From: Aaro Koskinen <aaro.koskinen@nokia.com>
-Subject: [PATCH v4 2/2] omap: rx-51: enable tsc2005
-Date: Mon, 19 Apr 2010 17:51:04 +0300
-Message-ID: <1271688664-21525-2-git-send-email-aaro.koskinen@nokia.com>
-References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+From: "Peter M. Petrakis" <peter.petrakis@canonical.com>
+Subject: Re: [PATCH] Reset ps/2 port should psmouse_probe fail	before	retrying
+Date: Mon, 19 Apr 2010 11:33:08 -0400
+Message-ID: <4BCC77B4.5030703@canonical.com>
+References: <4BC8EA42.6030507@canonical.com>	 <1271502098.4155.27.camel@lovely>  <4BC9D444.3090802@canonical.com> <1271523195.3676.5.camel@lovely>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:51114 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753849Ab0DSOxs (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:54110 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755312Ab0DSPdK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Apr 2010 10:53:48 -0400
-In-Reply-To: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+	Mon, 19 Apr 2010 11:33:10 -0400
+In-Reply-To: <1271523195.3676.5.camel@lovely>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Aaro Koskinen <aaro.koskinen@nokia.com>
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: linux-input@vger.kernel.org, rubini@cvml.unipv.it
 
-Enable TSC2005 touchscreen driver on the RX-51 board.
+Retesting here and I've found that with i8042.reset=1,
+i8042_controller_selftest is returning 0. The reason I'm
+not seeing any messages is because there's nothing to
+complain about at this level.
 
-Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
----
- arch/arm/configs/rx51_defconfig              |    1 +
- arch/arm/mach-omap2/board-rx51-peripherals.c |   57 ++++++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 0 deletions(-)
+   202 pm-suspend(6228):  -> i8042_controller_selftest
+         i8042_controller_selftest args []
+         i8042_controller_selftest locals [param=0x0 i=?]
+   206 pm-suspend(6228):   -> i8042_command
+         i8042_command args [param=0xf3715e2f command=0x1aa]
+         i8042_command locals [flags=? retval=?]
+exit    798 pm-suspend(6228):   -> i8042_command
+i8042_command args [return=0x0]
+exit    800 pm-suspend(6228):  -> i8042_controller_selftest
 
-diff --git a/arch/arm/configs/rx51_defconfig b/arch/arm/configs/rx51_defconfig
-index 45135ff..2ebfdb9 100644
---- a/arch/arm/configs/rx51_defconfig
-+++ b/arch/arm/configs/rx51_defconfig
-@@ -804,6 +804,7 @@ CONFIG_INPUT_TOUCHSCREEN=y
- # CONFIG_TOUCHSCREEN_TOUCHWIN is not set
- # CONFIG_TOUCHSCREEN_USB_COMPOSITE is not set
- # CONFIG_TOUCHSCREEN_TOUCHIT213 is not set
-+CONFIG_TOUCHSCREEN_TSC2005=m
- # CONFIG_TOUCHSCREEN_TSC2007 is not set
- CONFIG_INPUT_MISC=y
- # CONFIG_INPUT_ATI_REMOTE is not set
-diff --git a/arch/arm/mach-omap2/board-rx51-peripherals.c b/arch/arm/mach-omap2/board-rx51-peripherals.c
-index 4377a4c..0fafac4 100644
---- a/arch/arm/mach-omap2/board-rx51-peripherals.c
-+++ b/arch/arm/mach-omap2/board-rx51-peripherals.c
-@@ -14,6 +14,7 @@
- #include <linux/input.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/spi/spi.h>
-+#include <linux/spi/tsc2005.h>
- #include <linux/spi/wl12xx.h>
- #include <linux/i2c.h>
- #include <linux/i2c/twl.h>
-@@ -42,18 +43,28 @@
- #define RX51_WL1251_POWER_GPIO		87
- #define RX51_WL1251_IRQ_GPIO		42
- 
-+#define RX51_TSC2005_RESET_GPIO		104
-+#define RX51_TSC2005_IRQ_GPIO		100
-+
- /* list all spi devices here */
- enum {
- 	RX51_SPI_WL1251,
-+	RX51_SPI_TSC2005,
- };
- 
- static struct wl12xx_platform_data wl1251_pdata;
-+static struct tsc2005_platform_data tsc2005_pdata;
- 
- static struct omap2_mcspi_device_config wl1251_mcspi_config = {
- 	.turbo_mode	= 0,
- 	.single_channel	= 1,
- };
- 
-+static struct omap2_mcspi_device_config tsc2005_mcspi_config = {
-+	.turbo_mode     = 0,
-+	.single_channel = 1,
-+};
-+
- static struct spi_board_info rx51_peripherals_spi_board_info[] __initdata = {
- 	[RX51_SPI_WL1251] = {
- 		.modalias		= "wl1251",
-@@ -64,6 +75,15 @@ static struct spi_board_info rx51_peripherals_spi_board_info[] __initdata = {
- 		.controller_data	= &wl1251_mcspi_config,
- 		.platform_data		= &wl1251_pdata,
- 	},
-+	[RX51_SPI_TSC2005] = {
-+		.modalias		= "tsc2005",
-+		.bus_num		= 1,
-+		.chip_select		= 0,
-+		.irq			= OMAP_GPIO_IRQ(RX51_TSC2005_IRQ_GPIO),
-+		.max_speed_hz		= 6000000,
-+		.controller_data	= &tsc2005_mcspi_config,
-+		.platform_data		= &tsc2005_pdata,
-+	},
- };
- 
- #if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
-@@ -703,6 +723,42 @@ static inline void board_onenand_init(void)
- 
- #endif
- 
-+static struct tsc2005_platform_data tsc2005_pdata = {
-+	.ts_pressure_max   = 2048,
-+	.ts_pressure_fudge = 2,
-+	.ts_x_max	   = 4096,
-+	.ts_x_fudge	   = 4,
-+	.ts_y_max	   = 4096,
-+	.ts_y_fudge	   = 7,
-+	.ts_x_plate_ohm	   = 280,
-+	.esd_timeout_ms	   = 8000,
-+};
-+
-+static void rx51_tsc2005_set_reset(bool enable)
-+{
-+	gpio_set_value(RX51_TSC2005_RESET_GPIO, enable);
-+}
-+
-+static void __init rx51_init_tsc2005(void)
-+{
-+	int r;
-+
-+	r = gpio_request(RX51_TSC2005_IRQ_GPIO, "tsc2005 IRQ");
-+	if (r >= 0)
-+		gpio_direction_input(RX51_TSC2005_IRQ_GPIO);
-+	else
-+		printk(KERN_ERR "unable to get %s GPIO\n", "tsc2005 IRQ");
-+
-+	r = gpio_request(RX51_TSC2005_RESET_GPIO, "tsc2005 reset");
-+	if (r >= 0) {
-+		gpio_direction_output(RX51_TSC2005_RESET_GPIO, 1);
-+		tsc2005_pdata.set_reset = rx51_tsc2005_set_reset;
-+	} else {
-+		printk(KERN_ERR "unable to get %s GPIO\n", "tsc2005 reset");
-+		tsc2005_pdata.esd_timeout_ms = 0;
-+	}
-+}
-+
- #if defined(CONFIG_SMC91X) || defined(CONFIG_SMC91X_MODULE)
- 
- static struct omap_smc91x_platform_data board_smc91x_data = {
-@@ -787,6 +843,7 @@ void __init rx51_peripherals_init(void)
- 	board_smc91x_init();
- 	rx51_add_gpio_keys();
- 	rx51_init_wl1251();
-+	rx51_init_tsc2005();
- 	spi_register_board_info(rx51_peripherals_spi_board_info,
- 				ARRAY_SIZE(rx51_peripherals_spi_board_info));
- 	omap2_hsmmc_init(mmc);
--- 
-1.6.3.3
+You can see from the triage notes here:
+https://bugzilla.kernel.org/show_bug.cgi?id=15780
 
+That psmouse can't even identify the device.
+
+        param[0] = 0xa5;
+        if (ps2_command(ps2dev, param, PSMOUSE_CMD_GETID))
+                return -1;
+
+With regards to windows... What am supposed to be able to find out? 
+Of course it works, but how am I supposed to crack open the driver
+to find out what it's doing? Thanks.
+
+Peter
+
+On 04/17/2010 12:53 PM, Christoph Fritz wrote:
+> Hi
+> 
+> Am Samstag, den 17.04.2010, 11:31 -0400 schrieb Peter M. Petrakis:
+>> Hi,
+>>
+>> i8042.reset=1 was one the first things we tried and it didn't
+>> improve the situation. Now looking at the code for
+>> i8042_controller_reset, I don't recall seeing these printks
+>> though I could double check.
+> 
+> And as far as I recall, you should see them.
+> 
+>>  Any other suggestions for
+>> resets or instrumentation?
+> 
+> not really, maybe you can check what windows (without vendor drivers)
+> does
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,53 +1,70 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Mon, 19 Apr 2010 12:00:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004191159130.7579@pobox.suse.cz>
-References: <1271434792.2045.5.camel@localhost.localdomain>  <20100417081212.GA19866@core.coreip.homeip.net>  <alpine.LNX.2.00.1004191121390.7579@pobox.suse.cz> <1271669507.17421.39.camel@localhost.localdomain>
+Date: Mon, 19 Apr 2010 11:08:10 +0100
+Message-ID: <1271671690.17421.80.camel@localhost.localdomain>
+References: <1271434792.2045.5.camel@localhost.localdomain>
+	 <20100418194328.GA17565@core.coreip.homeip.net>
+	 <1271620177.19833.3471.camel@localhost.localdomain>
+	 <201004181319.25318.dmitry.torokhov@gmail.com>
+	 <1271637109.19833.3767.camel@localhost.localdomain>
+	 <20100419072847.GA26102@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:55435 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751813Ab0DSKA0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Apr 2010 06:00:26 -0400
-In-Reply-To: <1271669507.17421.39.camel@localhost.localdomain>
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:40763 "EHLO
+	relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753518Ab0DSKIQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Apr 2010 06:08:16 -0400
+In-Reply-To: <20100419072847.GA26102@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, 19 Apr 2010, Bastien Nocera wrote:
-
-> > > A few comments...
+On Mon, 2010-04-19 at 00:28 -0700, Dmitry Torokhov wrote:
+> On Mon, Apr 19, 2010 at 01:31:49AM +0100, Bastien Nocera wrote:
+> > On Sun, 2010-04-18 at 13:19 -0700, Dmitry Torokhov wrote:
+> > <snip>
+> > > > > Hmm, I am curious why suspend and resume is not necessary for this
+> > > > > device... Are you relying on the USB core to tear down and re-create the
+> > > > > device? Then you may lose user-applied settings (like changed keymap).
+> > > > 
+> > > > How could I test that?
 > > > 
-> > > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > > > ---
-> > > >  Documentation/input/appleir.txt |   45 ++++
-> > > >  drivers/hid/hid-apple.c         |    4 -
-> > > >  drivers/hid/hid-core.c          |    5 +-
-> > > >  drivers/hid/hid-ids.h           |    1 +
-> > > 
-> > > HID pieces need to go through Jiri or he needs to ack them to go through
-> > > my tree...
+> > > Change the keymap (with keyfuzz or something similar), suspend. resume and see 
+> > > if the mapping persisted.
 > > 
-> > Please feel free to put
+> > Tried using udev's keymap tool on it, but the default get function
+> > doesn't give me any output.
 > > 
-> > 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> > Am I supposed to implement get/setkeycode myself for this to work, or
+> > should the default input functions work? If the latter, is there
+> > anything missing in the driver for me to call to enable that?
 > > 
-> > on the blakclist changes in drivers/hid once you merge the 
-> > standalone appleir driver from Bastien.
+> > Trying to set a keycode says that the "EVIOCSKEYCODE" ioctl returns
+> > EINVAL.
+> > 
 > 
-> Any comments on the additional quirks necessary to get lirc working?
+> As I said in an earlier e-mail:
+> 
+> > ... also set up input_dev->keycode, keycodemax and keycodesize so that
+> > keymap can be adjusted from userspace on per-device basis.
 
-Ouch, I thought that we have discussed previously that I am basically fine 
-with adding those two quirks, but I haven't seen any patch doing that 
-since then ... ?
+I missed that bit, sorry.
 
-So I'd suggest you either remove that part from the appleir documentation 
-until this is implemented, or send me a patch adding those two flags.
+I tested udev's keymap, and the keymap isn't being saved across
+suspend/resume cycles. I re-added the _suspend() and _resume() calls
+(and their definitions in the usb_driver struct), but the keymap still
+disappears.
 
-Thanks,
+Is there anything else I would need to do in this case to keep the
+device (and its keymap) around during suspend?
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+I'm guessing that this problem wouldn't matter too much because udev
+would re-apply any keymaps it had for the device when it reappears, and
+in the lirc case, the keymap is in user-space.
+
+Cheers
+

@@ -1,67 +1,53 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 5/8] ir-core: convert mantis from ir-functions.c
-Date: Mon, 19 Apr 2010 11:58:18 +0200
-Message-ID: <20100419095818.GA3055@hardeman.nu>
-References: <20100415214520.14142.56114.stgit@localhost.localdomain>
- <20100415214620.14142.19939.stgit@localhost.localdomain>
- <u2x1a297b361004151617gbd08bc10l4fa202ab8dcec306@mail.gmail.com>
- <20100416205638.GA2873@hardeman.nu>
- <j2r1a297b361004161427q88bd9fa3hbf64a38662199712@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Mon, 19 Apr 2010 12:00:25 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004191159130.7579@pobox.suse.cz>
+References: <1271434792.2045.5.camel@localhost.localdomain>  <20100417081212.GA19866@core.coreip.homeip.net>  <alpine.LNX.2.00.1004191121390.7579@pobox.suse.cz> <1271669507.17421.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:57991 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752076Ab0DSJ6a (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Apr 2010 05:58:30 -0400
-Content-Disposition: inline
-In-Reply-To: <j2r1a297b361004161427q88bd9fa3hbf64a38662199712@mail.gmail.com>
+Received: from cantor.suse.de ([195.135.220.2]:55435 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751813Ab0DSKA0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Apr 2010 06:00:26 -0400
+In-Reply-To: <1271669507.17421.39.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: mchehab@redhat.com, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Sat, Apr 17, 2010 at 01:27:05AM +0400, Manu Abraham wrote:
-> On Sat, Apr 17, 2010 at 12:56 AM, David H=E4rdeman <david@hardeman.nu=
-> wrote:
-> > On Fri, Apr 16, 2010 at 03:17:35AM +0400, Manu Abraham wrote:
-> >> On Fri, Apr 16, 2010 at 1:46 AM, David H=E4rdeman <david@hardeman.=
-nu> wrote:
-> >> > Convert drivers/media/dvb/mantis/mantis_input.c to not use ir-fu=
-nctions.c
-> >> > (The driver is anyway not complete enough to actually use the su=
-bsystem yet).
-> >>
-> >> Huh ? I don't follow what you imply here ..
-> >>
-> >
-> > The mantis_input.c file seems to be a skeleton as far as I could
-> > tell...not actually in use yet. Or am I mistaken?
->=20
-> Only the input related parts of the IR stuff is there in
-> mantis_input.c, the hardware handling is done by mantis_uart.c/h.
-> There is a small bit which has not gone upstream yet, which is
-> pending;
-> http://jusst.de/hg/mantis-v4l-dvb/rev/ad8b00c9edc2
->=20
+On Mon, 19 Apr 2010, Bastien Nocera wrote:
 
-Yes, and that patch includes actually calling mantis_input_init(), whic=
-h=20
-wasn't called previously, so mantis_input.c wasn't actually in use.
+> > > A few comments...
+> > > 
+> > > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > > > ---
+> > > >  Documentation/input/appleir.txt |   45 ++++
+> > > >  drivers/hid/hid-apple.c         |    4 -
+> > > >  drivers/hid/hid-core.c          |    5 +-
+> > > >  drivers/hid/hid-ids.h           |    1 +
+> > > 
+> > > HID pieces need to go through Jiri or he needs to ack them to go through
+> > > my tree...
+> > 
+> > Please feel free to put
+> > 
+> > 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> > 
+> > on the blakclist changes in drivers/hid once you merge the 
+> > standalone appleir driver from Bastien.
+> 
+> Any comments on the additional quirks necessary to get lirc working?
 
-Anyways, my patch still applies (or the principle at least) - use the=20
-functionality of ir-core and not ir-functions.c (which is going away).
+Ouch, I thought that we have discussed previously that I am basically fine 
+with adding those two quirks, but I haven't seen any patch doing that 
+since then ... ?
 
-And on a related note, the above patch adds keytables with entries like=
-=20
-KEY_0, they should probably be KEY_NUMERIC_* instead.
+So I'd suggest you either remove that part from the appleir documentation 
+until this is implemented, or send me a patch adding those two flags.
 
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

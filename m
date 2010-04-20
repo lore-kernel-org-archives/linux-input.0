@@ -1,55 +1,70 @@
-From: "Peter M. Petrakis" <peter.petrakis@canonical.com>
-Subject: Re: [PATCH] Reset ps/2 port should psmouse_probe	fail	before	retrying
-Date: Tue, 20 Apr 2010 17:08:28 -0400
-Message-ID: <4BCE17CC.8020804@canonical.com>
-References: <4BC8EA42.6030507@canonical.com>	 <1271502098.4155.27.camel@lovely>  <4BC9D444.3090802@canonical.com>	 <1271523195.3676.5.camel@lovely>  <4BCC77B4.5030703@canonical.com> <1271723857.6652.6.camel@lovely>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH 3/3] ir-core: add imon driver
+Date: Tue, 20 Apr 2010 18:22:36 -0300
+Message-ID: <20100420182236.2e5a1325@pedra>
+References: <20100416212622.GA6888@redhat.com>
+	<20100416212902.GD2427@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:33390 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754146Ab0DTVIb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Apr 2010 17:08:31 -0400
-In-Reply-To: <1271723857.6652.6.camel@lovely>
+Received: from mx1.redhat.com ([209.132.183.28]:33564 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755260Ab0DTVWm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Apr 2010 17:22:42 -0400
+In-Reply-To: <20100416212902.GD2427@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: linux-input@vger.kernel.org, rubini@cvml.unipv.it
+To: Jarod Wilson <jarod@redhat.com>
+Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Ugh... I never get out of suspend with this patch, also
-tried i8042_toggle_aux(false) followed by ... (true) with the
-same result. Any other ideas? Thanks.
+Em Fri, 16 Apr 2010 17:29:02 -0400
+Jarod Wilson <jarod@redhat.com> escreveu:
 
-Peter
+> 
+> This is a new driver for the SoundGraph iMON and Antec Veris IR/display
+> devices commonly found in many home theater pc cases and as after-market
+> case additions.
 
-On 04/19/2010 08:37 PM, Christoph Fritz wrote:
-> Hi Peter,
-> 
->  does this work for you?
-> 
-> I8042_CMD_AUX_ENABLE gets now triggered during pm_restore.
-> 
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 6440a8f..1af5a58 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -1151,8 +1151,10 @@ static int i8042_pm_restore(struct device *dev)
->  			printk(KERN_WARNING
->  				"i8042: failed to resume active multiplexor, "
->  				"mouse won't work.\n");
-> -	} else if (i8042_ports[I8042_AUX_PORT_NO].serio)
-> +	} else if (i8042_ports[I8042_AUX_PORT_NO].serio) {
-> +		i8042_toggle_aux(true);
->  		i8042_enable_aux_port();
-> +	}
->  
->  	if (i8042_ports[I8042_KBD_PORT_NO].serio)
->  		i8042_enable_kbd_port();
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> +/* IR protocol: native iMON, Windows MCE (RC-6), or iMON w/o PAD stabilize */
+> +static int ir_protocol;
+> +module_param(ir_protocol, int, S_IRUGO | S_IWUSR);
+> +MODULE_PARM_DESC(ir_protocol, "Which IR protocol to use. 0=auto-detect, "
+> +		 "1=Windows Media Center Ed. (RC-6), 2=iMON native, "
+> +		 "4=iMON w/o PAD stabilize (default: auto-detect)");
+> +
+
+You don't need this. Let's the protocol to be adjustable via sysfs. All you need to do is
+to use the set_protocol callbacks with something like:
+
+        props->allowed_protos = IR_TYPE_RC6 | IR_TYPE_<imon protocol>;
+        props->change_protocol = imon_ir_change_protocol;
+
+You can see an example of such implementation at drivers/media/video/em28xx-em28xx-input.c.
+Look for em28xx_ir_change_protocol() function.
+
+That's said, I'm not sure what would be better way to map IR_TYPE_<imon protocol>. Maybe we
+can just use IR_TYPE_OTHER.
+
+So, basically, we'll have:
+
+	IR_TYPE_OTHER | IR_TYPE_RC6	- auto-detected between RC-6 and iMON
+	IR_TYPE_OTHER			- iMON proprietary protocol
+	IR_TYPE_RC6			- RC-6 protocol
+
+
+By doing this, the userspace application ir-keycode will already be able to handle the
+IR protocol.
+
+I'm not sure how to map the "PAD stablilize" case, but it seems that the better would be to
+add a sysfs node for it, at sys/class/rc/rc0. There are other cases where some protocols
+may require some adjustments, so I'm thinking on having some protocol-specific properties there.
+
+Except for that, the patch looked sane to my eyes. So, I'll add it on my tree and wait for a
+latter patch from you addressing the protocol control.
+
+-- 
+
+Cheers,
+Mauro

@@ -1,70 +1,45 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 3/3] ir-core: add imon driver
-Date: Tue, 20 Apr 2010 18:22:36 -0300
-Message-ID: <20100420182236.2e5a1325@pedra>
-References: <20100416212622.GA6888@redhat.com>
-	<20100416212902.GD2427@redhat.com>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
+Date: Tue, 20 Apr 2010 16:11:04 -0700
+Message-ID: <871ve9d8jb.fsf@deeprootsystems.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
+	<i2x5d5443651004140034mdd11969cg72d4306c77f2bd0f@mail.gmail.com>
+	<27F9C60D11D683428E133F85D2BB4A53043DA67699@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33564 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755260Ab0DTVWm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Apr 2010 17:22:42 -0400
-In-Reply-To: <20100416212902.GD2427@redhat.com>
+Received: from mail-pz0-f204.google.com ([209.85.222.204]:62909 "EHLO
+	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752525Ab0DTXLH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Apr 2010 19:11:07 -0400
+In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043DA67699@dlee03.ent.ti.com> (Abraham Arce's message of "Thu\, 15 Apr 2010 19\:04\:11 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: "Arce, Abraham" <x0066660@ti.com>
+Cc: Trilok Soni <soni.trilok@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-Em Fri, 16 Apr 2010 17:29:02 -0400
-Jarod Wilson <jarod@redhat.com> escreveu:
+"Arce, Abraham" <x0066660@ti.com> writes:
 
-> 
-> This is a new driver for the SoundGraph iMON and Antec Veris IR/display
-> devices commonly found in many home theater pc cases and as after-market
-> case additions.
+> Hi Trilok!
+>
+>> > =A0- matrix_keypac.c logic
+>> > =A0- hwmod framework
+>>=20
+>> Do we have hwmod framework mainlined in the kernel?
+>
+> Not yet but wanted to gather initial comments to be ready once framew=
+ork is pushed
 
+Just to clarify, hwmod framework is already in mainline. =20
 
-> +/* IR protocol: native iMON, Windows MCE (RC-6), or iMON w/o PAD stabilize */
-> +static int ir_protocol;
-> +module_param(ir_protocol, int, S_IRUGO | S_IWUSR);
-> +MODULE_PARM_DESC(ir_protocol, "Which IR protocol to use. 0=auto-detect, "
-> +		 "1=Windows Media Center Ed. (RC-6), 2=iMON native, "
-> +		 "4=iMON w/o PAD stabilize (default: auto-detect)");
-> +
+Only thing missing to test this driver is adding the hwmod data for
+this device.
 
-You don't need this. Let's the protocol to be adjustable via sysfs. All you need to do is
-to use the set_protocol callbacks with something like:
-
-        props->allowed_protos = IR_TYPE_RC6 | IR_TYPE_<imon protocol>;
-        props->change_protocol = imon_ir_change_protocol;
-
-You can see an example of such implementation at drivers/media/video/em28xx-em28xx-input.c.
-Look for em28xx_ir_change_protocol() function.
-
-That's said, I'm not sure what would be better way to map IR_TYPE_<imon protocol>. Maybe we
-can just use IR_TYPE_OTHER.
-
-So, basically, we'll have:
-
-	IR_TYPE_OTHER | IR_TYPE_RC6	- auto-detected between RC-6 and iMON
-	IR_TYPE_OTHER			- iMON proprietary protocol
-	IR_TYPE_RC6			- RC-6 protocol
-
-
-By doing this, the userspace application ir-keycode will already be able to handle the
-IR protocol.
-
-I'm not sure how to map the "PAD stablilize" case, but it seems that the better would be to
-add a sysfs node for it, at sys/class/rc/rc0. There are other cases where some protocols
-may require some adjustments, so I'm thinking on having some protocol-specific properties there.
-
-Except for that, the patch looked sane to my eyes. So, I'll add it on my tree and wait for a
-latter patch from you addressing the protocol control.
-
--- 
-
-Cheers,
-Mauro
+Kevin
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,60 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC/RFT] Synaptics -
-Date: Wed, 21 Apr 2010 10:24:20 -0700
-Message-ID: <20100421172420.GE10566@core.coreip.homeip.net>
-References: <20100421061116.GF4364@core.coreip.homeip.net>
- <s5hiq7khqbf.wl%tiwai@suse.de>
+From: "Peter M. Petrakis" <peter.petrakis@canonical.com>
+Subject: Re: [PATCH] Reset ps/2 port should psmouse_probe	fail	before	retrying
+Date: Wed, 21 Apr 2010 15:38:59 -0400
+Message-ID: <4BCF5453.5060703@canonical.com>
+References: <4BC8EA42.6030507@canonical.com> <1271502098.4155.27.camel@lovely> <4BC9D444.3090802@canonical.com> <1271523195.3676.5.camel@lovely> <4BCC77B4.5030703@canonical.com> <1271723857.6652.6.camel@lovely> <4BCE17CC.8020804@canonical.com> <20100421063328.GJ4364@core.coreip.homeip.net> <4BCF2263.40306@canonical.com> <20100421171055.GB10566@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f179.google.com ([209.85.221.179]:45236 "EHLO
-	mail-qy0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753452Ab0DURYZ (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:57372 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756012Ab0DUTjA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Apr 2010 13:24:25 -0400
-Received: by qyk9 with SMTP id 9so9629139qyk.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Apr 2010 10:24:24 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <s5hiq7khqbf.wl%tiwai@suse.de>
+	Wed, 21 Apr 2010 15:39:00 -0400
+In-Reply-To: <20100421171055.GB10566@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>, linux-input@vger.kernel.org, rubini@cvml.unipv.it
 
-On Wed, Apr 21, 2010 at 03:45:40PM +0200, Takashi Iwai wrote:
-> At Tue, 20 Apr 2010 23:11:17 -0700,
-> Dmitry Torokhov wrote:
-> > 
-> > Newer Synaptics firmware allows to quesry maximim dimensions reported by
-> > device, let's use this data.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> > ---
-> > 
-> > Takashi,
-> > 
-> > I would appreciate if you could give this patch a try.
-> 
-> The bit definition seems wrong:
-> 
-> > @@ -51,6 +52,7 @@
-> >  #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
-> >  #define SYN_CAP_PRODUCT_ID(ec)		(((ec) & 0xff0000) >> 16)
-> >  #define SYN_CAP_CLICKPAD(ex0c)		((ex0c) & 0x100100)
-> > +#define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x02)
-> 
-> This should be
-> 
-> 	#define SYN_CAP_MAX_DIMENSIONS(ex0c)	((ex0c) & 0x020000)
-> 
+This issue only occurs on resume, boot is fine. It is indeed
+a multitouch. It doesn't have the $OTHER_OS installed but it
+could if necessary. 
 
-You are right. I forgot we shift the bytes around...
+Peter
 
-> After changing this, it seems working fine.
-> The area is detected as 5584 x 4618.
+On 04/21/2010 01:10 PM, Dmitry Torokhov wrote:
+> On Wed, Apr 21, 2010 at 12:05:55PM -0400, Peter M. Petrakis wrote:
+>> The laptop is a Dell "yet to be officially released" laptop,
+>> the touchpad reports itself as:
+>>
+>> Apr 21 11:24:05 ubuntu-laptop kernel: [  983.174813]
+>> input: PS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input14
 > 
-
-Great! Thank you.
-
--- 
-Dmitry
+> Umm, Synaptics but not using SynPS protocol. Some users will not be
+> happy... Is it after cold boot or resume? Also, is it a multiouch model
+> (does the box have the $OTHER_OS on it)?
+> 
+>>
+>> I didn't find any additional attributes in sysfs that could give me
+>> the fw revision or model. It doesn't show up in dmidecode either.
+>>
+>> With regards to retrying the probe... which resume path? psmouse
+>> currently doesn't have one. Thanks.
+> 
+> 
+> That'd be "reconnect" in serio speak, so you need to look into
+> psmouse_reconnect().
+> 

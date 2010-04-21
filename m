@@ -1,65 +1,46 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Add support for the Wacom Intuos 4 wireless
-Date: Wed, 21 Apr 2010 15:53:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004211553220.7579@pobox.suse.cz>
-References: <1271857920.1960.5.camel@localhost.localdomain>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Wed, 21 Apr 2010 15:06:51 +0100
+Message-ID: <1271858811.17421.3572.camel@localhost.localdomain>
+References: <1271434792.2045.5.camel@localhost.localdomain>
+	 <20100418194328.GA17565@core.coreip.homeip.net>
+	 <1271620177.19833.3471.camel@localhost.localdomain>
+	 <201004181319.25318.dmitry.torokhov@gmail.com>
+	 <1271637109.19833.3767.camel@localhost.localdomain>
+	 <20100419072847.GA26102@core.coreip.homeip.net>
+	 <1271671690.17421.80.camel@localhost.localdomain>
+	 <20100421063142.GI4364@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:33456 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754808Ab0DUNxz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Apr 2010 09:53:55 -0400
-In-Reply-To: <1271857920.1960.5.camel@localhost.localdomain>
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:37796 "EHLO
+	relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753884Ab0DUOG4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Apr 2010 10:06:56 -0400
+In-Reply-To: <20100421063142.GI4364@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, 21 Apr 2010, Bastien Nocera wrote:
-
-> Same command set as the Graphire Bluetooth tablet.
+On Tue, 2010-04-20 at 23:31 -0700, Dmitry Torokhov wrote:
+<snip>
+> > I tested udev's keymap, and the keymap isn't being saved across
+> > suspend/resume cycles. I re-added the _suspend() and _resume() calls
+> > (and their definitions in the usb_driver struct), but the keymap still
+> > disappears.
 > 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/hid/hid-ids.h   |    1 +
->  drivers/hid/hid-wacom.c |    2 +-
->  2 files changed, 2 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 66a2ca8..21f360f 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -456,6 +456,7 @@
->  
->  #define USB_VENDOR_ID_WACOM		0x056a
->  #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
-> +#define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH	0xbd
->  
->  #define USB_VENDOR_ID_WISEGROUP		0x0925
->  #define USB_DEVICE_ID_SMARTJOY_PLUS	0x0005
-> diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
-> index 8d3b46f..91dbae3 100644
-> --- a/drivers/hid/hid-wacom.c
-> +++ b/drivers/hid/hid-wacom.c
-> @@ -256,7 +256,7 @@ static void wacom_remove(struct hid_device *hdev)
->  
->  static const struct hid_device_id wacom_devices[] = {
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
-> -
-> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH) },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, wacom_devices);
+> Do you see another instance of the device appearing in dmesg?
 
-Hi Bastien,
+The device was disappearing when a reset_resume wasn't present. I now
+use resume for both reset_resume and resume, and force a URB on resume,
+which should fix some cases of the device being dead on resume.
 
-has this particular patch been tested?
+That also fixes the keymap disappearing on suspend.
 
-How about addition of this VID/PID combination to hid_blacklist[]?
+Updated patch is now on the list
 
-Thanks,
+Cheers
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.

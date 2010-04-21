@@ -1,135 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Add Sony Vaio VPCZ1 series to the nopnp table
-Date: Wed, 21 Apr 2010 01:10:48 -0700
-Message-ID: <20100421081048.GA22357@core.coreip.homeip.net>
-References: <20100329233257.GA85504@jhz.name>
- <20100329233901.GF5864@core.coreip.homeip.net>
- <20100330203911.GA89560@jhz.name>
- <20100414233401.GA12414@core.coreip.homeip.net>
- <20100419094614.GA27749@jhz.name>
- <20100421070158.GM4364@core.coreip.homeip.net>
+From: Jian-feng Ding <jian-feng.ding@intel.com>
+Subject: some questions about Synaptics Clickpad driver patch
+Date: Wed, 21 Apr 2010 16:40:58 +0800
+Message-ID: <20100421084058.GS15241@djf-karmic.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:41896 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752179Ab0DUIKz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Apr 2010 04:10:55 -0400
-Received: by pwj9 with SMTP id 9so4913069pwj.19
-        for <linux-input@vger.kernel.org>; Wed, 21 Apr 2010 01:10:54 -0700 (PDT)
+Received: from mga02.intel.com ([134.134.136.20]:1473 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752645Ab0DUIiv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Apr 2010 04:38:51 -0400
 Content-Disposition: inline
-In-Reply-To: <20100421070158.GM4364@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jan-Hendrik Zab <jan@jhz.name>, Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: torvalds@linux-foundation.org, linux-input@vger.kernel.org
+To: tiwai@suse.de
+Cc: linux-input@vger.kernel.org
 
-On Wed, Apr 21, 2010 at 12:01:58AM -0700, Dmitry Torokhov wrote:
-> On Mon, Apr 19, 2010 at 11:46:14AM +0200, Jan-Hendrik Zab wrote:
-> > On 14/04/10 16:34 -0700, Dmitry Torokhov wrote:
-> > > Sorry for the delay. I wonder if we simply do not recognize PNP ID for
-> > > the touchpad. Coudl you give me output of:
-> > > 
-> > > for i in /sys/bus/pnp/devices/*; do echo $i; cat $i/id; done
-> > > 
-> > > and also your dsdt.
-> > 
-> > Hey,
-> > I attached the DSDT and uploaded it to [0] for everyone on the
-> > mailing list.
-> > 
-> 
-> *sigh*
-> 
-> 
->                 Device (PS2M)
->                 {
->                     Name (_HID, "SNYSYN0003")
->                     Name (_CID, EisaId ("PNP0F13"))
->                     Name (_CRS, ResourceTemplate ()
-> 
-> PNP ID should be 7 characters...
-> 
-> Bjorn, do you think we could substitute CID for HID in case HID is
-> invalid PNP device ID but CID is valid?
-> 
+Hi IWai,
 
-Does something like below help in any way?
+  I am from MeeGo team of Intel, and being to enable the clickpad in HP Mini210 netbook by applying your great patch.
+  I have tried the old copy from: https://patchwork.kernel.org/patch/67335/ , it just worked fine for both
+  left/mid/right clicks. And today, I noticed your patch has been integrated to dtor's input subsys git tree as the
+  commit: 5f57d67da87332a9a1ba8fa7a33bf0680e1c76e7
+    http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=5f57d67da87332a9a1ba8fa7a33bf0680e1c76e7
 
--- 
-Dmitry
+  It seems the latest copy, right?
+  I noticed you have removed the code for left/mid/right clicks diffenrentiation, and only export left clicks events
+  to user level. In the commit comment, you mentioned:
 
+    The kernel driver morphs to the left button. The real handling of Clickpad is done rather in X driver side.
 
-PNPACPI: cope with invalid device IDs
+  Did you mean the left/mid/right clicks differentiation should be done in x.org input drv? If so, would you give
+  me some clues for it?
 
-If primary ID (HID) is invalid try locating first valid ID on compatible
-ID list before giving up.
+  Thanks!
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/pnp/pnpacpi/core.c      |   27 +++++++++++++++++++++++----
- include/linux/mod_devicetable.h |    1 +
- 2 files changed, 24 insertions(+), 4 deletions(-)
-
-
-diff --git a/drivers/pnp/pnpacpi/core.c b/drivers/pnp/pnpacpi/core.c
-index f7ff628..1bf1677 100644
---- a/drivers/pnp/pnpacpi/core.c
-+++ b/drivers/pnp/pnpacpi/core.c
-@@ -28,7 +28,7 @@
- #include "../base.h"
- #include "pnpacpi.h"
- 
--static int num = 0;
-+static int num;
- 
- /* We need only to blacklist devices that have already an acpi driver that
-  * can't use pnp layer. We don't need to blacklist device that are directly
-@@ -157,11 +157,24 @@ struct pnp_protocol pnpacpi_protocol = {
- };
- EXPORT_SYMBOL(pnpacpi_protocol);
- 
-+static char *pnpacpi_get_id(struct acpi_device *device)
-+{
-+	struct acpi_hardware_id *id;
-+
-+	list_for_each_entry(id, &device->pnp.ids, list) {
-+		if (ispnpidacpi(id->id))
-+			return id->id;
-+	}
-+
-+	return NULL;
-+}
-+
- static int __init pnpacpi_add_device(struct acpi_device *device)
- {
- 	acpi_handle temp = NULL;
- 	acpi_status status;
- 	struct pnp_dev *dev;
-+	char *pnpid;
- 	struct acpi_hardware_id *id;
- 
- 	/*
-@@ -169,11 +182,17 @@ static int __init pnpacpi_add_device(struct acpi_device *device)
- 	 * driver should not be loaded.
- 	 */
- 	status = acpi_get_handle(device->handle, "_CRS", &temp);
--	if (ACPI_FAILURE(status) || !ispnpidacpi(acpi_device_hid(device)) ||
--	    is_exclusive_device(device) || (!device->status.present))
-+	if (ACPI_FAILURE(status))
-+		return 0;
-+
-+	pnpid = pnpacpi_get_id(device);
-+	if (!pnpid)
-+		return 0;
-+
-+	if (!is_exclusive_device(device) || !device->status.present)
- 		return 0;
- 
--	dev = pnp_alloc_dev(&pnpacpi_protocol, num, acpi_device_hid(device));
-+	dev = pnp_alloc_dev(&pnpacpi_protocol, num, pnpid);
- 	if (!dev)
- 		return -ENOMEM;
+- jf.ding
  

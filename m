@@ -1,75 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Wed, 21 Apr 2010 13:09:41 -0700
-Message-ID: <20100421200941.GA10671@core.coreip.homeip.net>
-References: <1271434792.2045.5.camel@localhost.localdomain>
- <20100417081212.GA19866@core.coreip.homeip.net>
- <alpine.LNX.2.00.1004191121390.7579@pobox.suse.cz>
- <1271669507.17421.39.camel@localhost.localdomain>
- <alpine.LNX.2.00.1004191159130.7579@pobox.suse.cz>
- <1271672080.17421.91.camel@localhost.localdomain>
- <alpine.LNX.2.00.1004191307360.7579@pobox.suse.cz>
+Subject: Re: [PATCH] Reset ps/2 port should psmouse_probe	fail	before	retrying
+Date: Wed, 21 Apr 2010 12:52:38 -0700
+Message-ID: <20100421195238.GA10641@core.coreip.homeip.net>
+References: <1271502098.4155.27.camel@lovely>
+ <4BC9D444.3090802@canonical.com>
+ <1271523195.3676.5.camel@lovely>
+ <4BCC77B4.5030703@canonical.com>
+ <1271723857.6652.6.camel@lovely>
+ <4BCE17CC.8020804@canonical.com>
+ <20100421063328.GJ4364@core.coreip.homeip.net>
+ <4BCF2263.40306@canonical.com>
+ <20100421171055.GB10566@core.coreip.homeip.net>
+ <4BCF5453.5060703@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:60801 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755658Ab0DUUJr (ORCPT
+Received: from mail-pz0-f185.google.com ([209.85.222.185]:53605 "EHLO
+	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754824Ab0DUUTy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Apr 2010 16:09:47 -0400
-Received: by pvg13 with SMTP id 13so1137968pvg.19
-        for <linux-input@vger.kernel.org>; Wed, 21 Apr 2010 13:09:47 -0700 (PDT)
+	Wed, 21 Apr 2010 16:19:54 -0400
+Received: by pzk15 with SMTP id 15so4608085pzk.15
+        for <linux-input@vger.kernel.org>; Wed, 21 Apr 2010 13:19:54 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.1004191307360.7579@pobox.suse.cz>
+In-Reply-To: <4BCF5453.5060703@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
+To: "Peter M. Petrakis" <peter.petrakis@canonical.com>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>, linux-input@vger.kernel.org, rubini@cvml.unipv.it
 
-On Mon, Apr 19, 2010 at 01:08:57PM +0200, Jiri Kosina wrote:
-> On Mon, 19 Apr 2010, Bastien Nocera wrote:
-> 
-> > > > > > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> > > > > > > ---
-> > > > > > >  Documentation/input/appleir.txt |   45 ++++
-> > > > > > >  drivers/hid/hid-apple.c         |    4 -
-> > > > > > >  drivers/hid/hid-core.c          |    5 +-
-> > > > > > >  drivers/hid/hid-ids.h           |    1 +
-> > > > > > 
-> > > > > > HID pieces need to go through Jiri or he needs to ack them to go through
-> > > > > > my tree...
-> > > > > 
-> > > > > Please feel free to put
-> > > > > 
-> > > > > 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> > > > > 
-> > > > > on the blakclist changes in drivers/hid once you merge the 
-> > > > > standalone appleir driver from Bastien.
-> > > > 
-> > > > Any comments on the additional quirks necessary to get lirc working?
-> > > 
-> > > Ouch, I thought that we have discussed previously that I am basically fine 
-> > > with adding those two quirks, but I haven't seen any patch doing that 
-> > > since then ... ?
-> > > 
-> > > So I'd suggest you either remove that part from the appleir documentation 
-> > > until this is implemented, or send me a patch adding those two flags.
-> > 
-> > I sent it Friday with the subject:
-> > [PATCH] Add HID_QUIRK_HIDDEV_FORCE and HID_QUIRK_NO_IGNORE
-> > 
-> > The patch was also sent to the input list:
-> > http://thread.gmane.org/gmane.linux.kernel.input/12176
-> 
-> Ah, now I see it. It somehow didn't reach my inbox, though your other 
-> mails do, odd.
-> 
-> Thanks, I will take it through my tree and queue it for next merge window 
-> (if Dmitry is not going to push the driver even for current -rcs ... ?).
-> 
+On Wed, Apr 21, 2010 at 03:38:59PM -0400, Peter M. Petrakis wrote:
+> This issue only occurs on resume, boot is fine. It is indeed
+> a multitouch.
 
-No, even though it is a new driver it is gettign kind of late. I am
-going to put it in my 'next' branch.
+Ok, so full multitouch is not supported at the moment but the est of teh
+features shoudl work.
+
+> It doesn't have the $OTHER_OS installed but it
+> could if necessary. 
+
+Can you enable i8042 debugging:
+
+	echo 1 > /sys/module/i8042/parameters/debug
+
+and do suspend/resume cycle and share dmesg? I wonder where exactly
+reconnect fails.
+
+Thanks.
 
 -- 
 Dmitry

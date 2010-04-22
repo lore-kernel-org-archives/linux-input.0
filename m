@@ -1,90 +1,58 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: [alsa-devel] [PATCH 4/4] snd-maestro3: Make hardware volume
- buttons an input device
-Date: Thu, 22 Apr 2010 20:54:26 +0300
-Message-ID: <20100422175426.GD6861@sci.fi>
-References: <1271862249-22612-1-git-send-email-hdegoede@redhat.com>
- <4BD00176.3000904@redhat.com>
- <20100422151112.GC6861@sci.fi>
- <201004220959.01347.dmitry.torokhov@gmail.com>
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: [PATCH] Support for the 11.6" Cando panel, found on the Acer
+ 1825PTZ
+Date: Thu, 22 Apr 2010 23:24:36 +0200
+Message-ID: <20100422212436.91C58951F6@smtp.lii-enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from filtteri1.pp.htv.fi ([213.243.153.184]:52591 "EHLO
-	filtteri1.pp.htv.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754801Ab0DVRya (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:51947 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756130Ab0DVVYj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Apr 2010 13:54:30 -0400
-Content-Disposition: inline
-In-Reply-To: <201004220959.01347.dmitry.torokhov@gmail.com>
+	Thu, 22 Apr 2010 17:24:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, jkosina@suse.cz
+Cc: dmitry.torokhov@gmail.com, johannesklug@room2web.de, apw@canonical.com, chatty@enac.fr
 
-On Thu, Apr 22, 2010 at 09:59:00AM -0700, Dmitry Torokhov wrote:
-> On Thursday 22 April 2010 08:11:12 am Ville Syrj=E4l=E4 wrote:
-> > On Thu, Apr 22, 2010 at 09:57:42AM +0200, Hans de Goede wrote:
-> > > On 04/21/2010 06:05 PM, Ville Syrj=E4l=E4 wrote:
-> > > > On Wed, Apr 21, 2010 at 11:04:09AM -0400, Hans de Goede wrote:
-> > > >> @@ -2524,6 +2494,42 @@ static int m3_resume(struct pci_dev *pc=
-i)
-> > > >>=20
-> > > >>   }
-> > > >>   #endif /* CONFIG_PM */
-> > > >>=20
-> > > >> +#ifdef CONFIG_INPUT
-> > > >> +static int __devinit snd_m3_input_register(struct snd_m3 *chi=
-p)
-> > > >> +{
-> > > >> +	struct input_dev *input_dev;
-> > > >> +	int err;
-> > > >> +
-> > > >> +	input_dev =3D input_allocate_device();
-> > > >> +	if (!input_dev)
-> > > >> +		return -ENOMEM;
-> > > >> +
-> > > >> +	snprintf(chip->phys, sizeof(chip->phys), "pci-%s/input0",
-> > > >> +		 pci_name(chip->pci));
-> > > >=20
-> > > > What's the proper format of phys? I see gameport stuff uses
-> > > > pci%s/gameport0, ir stuff uses pci-%s/ir0. I can't immediately =
-find any
-> > > > other pci input things.
-> > >=20
-> > > I've no idea, I took the pci-%s/ part from other pci drivers regi=
-stering
-> > > input devices and the input0 part is based on doing:
-> > > cat /sys/class/input/input?/phys
-> > >=20
-> > > On my system which yields a string ending in input0 for almost al=
-l
-> > > input devices.
-> >=20
-> > Same for me. Unfortunately none start with "pci". Adding Dmitry and
-> > linux-input in cc. Dmitry, any official statement about this phys
-> > string?
->=20
-> Phys can be pretty much anything, it is supposed to aid in identifyin=
-g
-> particular device by physical connection. DVB guys like phys ending i=
-n
-> "irX", everywhere else we put "inputX" (normally input0 but if there
-> several input devices on the same physical device, like some USB HID
-> devices, there could be xxx/input1, xxx/intput2 and so on).
+Added support for the 11.6" Cando panel found on the Acer Timeline 1825PTZ.
 
-OK. I was mainly worried that perhaps some tool might use it and would
-need some specific format. In this case the dash between the bus type
-and the device name caught my eye as some drivers have it and some
-don't.
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
+Tested-by: Johannes Klug <johannesklug@room2web.de>
 
---=20
-Ville Syrj=E4l=E4
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff -rupN a/drivers/hid/hid-cando.c b/drivers/hid/hid-cando.c
+--- a/drivers/hid/hid-cando.c	2010-04-23 00:12:41.000000000 +0200
++++ b/drivers/hid/hid-cando.c	2010-04-23 00:07:37.000000000 +0200
+@@ -235,6 +235,8 @@ static void cando_remove(struct hid_devi
+ static const struct hid_device_id cando_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
+ 			USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO,
++			USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, cando_devices);
+diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-04-23 00:12:47.000000000 +0200
++++ b/drivers/hid/hid-core.c	2010-04-23 00:10:19.000000000 +0200
+@@ -1274,6 +1274,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1) },
+diff -rupN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-04-23 00:12:51.000000000 +0200
++++ b/drivers/hid/hid-ids.h	2010-04-23 00:10:40.000000000 +0200
+@@ -118,6 +118,7 @@
+ 
+ #define USB_VENDOR_ID_CANDO		0x2087
+ #define USB_DEVICE_ID_CANDO_MULTI_TOUCH 0x0a01
++#define USB_DEVICE_ID_CANDO_MULTI_TOUCH_11_6 0x0b03
+ 
+ #define USB_VENDOR_ID_CH		0x068e
+ #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2

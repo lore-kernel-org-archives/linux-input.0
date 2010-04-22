@@ -1,87 +1,78 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Reset ps/2 port should
-	psmouse_probe	fail	before	retrying
-Date: Thu, 22 Apr 2010 18:28:50 +0200
-Message-ID: <1271953731.4566.27.camel@lovely>
-References: <1271502098.4155.27.camel@lovely>
-	 <4BC9D444.3090802@canonical.com> <1271523195.3676.5.camel@lovely>
-	 <4BCC77B4.5030703@canonical.com> <1271723857.6652.6.camel@lovely>
-	 <4BCE17CC.8020804@canonical.com>
-	 <20100421063328.GJ4364@core.coreip.homeip.net>
-	 <4BCF2263.40306@canonical.com>
-	 <20100421171055.GB10566@core.coreip.homeip.net>
-	 <4BCF5453.5060703@canonical.com>
-	 <20100421195238.GA10641@core.coreip.homeip.net>
-	 <4BCF69CB.7010000@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [alsa-devel] [PATCH 4/4] snd-maestro3: Make hardware volume buttons an input device
+Date: Thu, 22 Apr 2010 09:59:00 -0700
+Message-ID: <201004220959.01347.dmitry.torokhov@gmail.com>
+References: <1271862249-22612-1-git-send-email-hdegoede@redhat.com> <4BD00176.3000904@redhat.com> <20100422151112.GC6861@sci.fi>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.154]:4532 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753228Ab0DVQ0P (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:41373 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755448Ab0DVQ7M convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Apr 2010 12:26:15 -0400
-Received: by fg-out-1718.google.com with SMTP id d23so495372fga.1
-        for <linux-input@vger.kernel.org>; Thu, 22 Apr 2010 09:26:12 -0700 (PDT)
-In-Reply-To: <4BCF69CB.7010000@canonical.com>
+	Thu, 22 Apr 2010 12:59:12 -0400
+Received: by wyb39 with SMTP id 39so4987108wyb.19
+        for <linux-input@vger.kernel.org>; Thu, 22 Apr 2010 09:59:11 -0700 (PDT)
+In-Reply-To: <20100422151112.GC6861@sci.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Peter M. Petrakis" <peter.petrakis@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, rubini@cvml.unipv.it
+To: Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Cc: Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 
-Hi,
+On Thursday 22 April 2010 08:11:12 am Ville Syrj=E4l=E4 wrote:
+> On Thu, Apr 22, 2010 at 09:57:42AM +0200, Hans de Goede wrote:
+> > On 04/21/2010 06:05 PM, Ville Syrj=E4l=E4 wrote:
+> > > On Wed, Apr 21, 2010 at 11:04:09AM -0400, Hans de Goede wrote:
+> > >> @@ -2524,6 +2494,42 @@ static int m3_resume(struct pci_dev *pci)
+> > >>=20
+> > >>   }
+> > >>   #endif /* CONFIG_PM */
+> > >>=20
+> > >> +#ifdef CONFIG_INPUT
+> > >> +static int __devinit snd_m3_input_register(struct snd_m3 *chip)
+> > >> +{
+> > >> +	struct input_dev *input_dev;
+> > >> +	int err;
+> > >> +
+> > >> +	input_dev =3D input_allocate_device();
+> > >> +	if (!input_dev)
+> > >> +		return -ENOMEM;
+> > >> +
+> > >> +	snprintf(chip->phys, sizeof(chip->phys), "pci-%s/input0",
+> > >> +		 pci_name(chip->pci));
+> > >=20
+> > > What's the proper format of phys? I see gameport stuff uses
+> > > pci%s/gameport0, ir stuff uses pci-%s/ir0. I can't immediately fi=
+nd any
+> > > other pci input things.
+> >=20
+> > I've no idea, I took the pci-%s/ part from other pci drivers regist=
+ering
+> > input devices and the input0 part is based on doing:
+> > cat /sys/class/input/input?/phys
+> >=20
+> > On my system which yields a string ending in input0 for almost all
+> > input devices.
+>=20
+> Same for me. Unfortunately none start with "pci". Adding Dmitry and
+> linux-input in cc. Dmitry, any official statement about this phys
+> string?
 
-to quote 4d368456808c977b8e9782dbe9542cf8ddedbab8 :
+Phys can be pretty much anything, it is supposed to aid in identifying
+particular device by physical connection. DVB guys like phys ending in
+"irX", everywhere else we put "inputX" (normally input0 but if there
+several input devices on the same physical device, like some USB HID
+devices, there could be xxx/input1, xxx/intput2 and so on).
 
-Input: synaptics - ensure we reset the device on resume
-    
-    When resuming from suspend newer Synaptics touchpads do not recover
-    correctly.  Analysis of the resume sequence as applied in Linux was
-    compared to that of other operating systems.  This indicated that the
-    other OSs were resetting the mouse before attempting to detect it (for
-    all Synaptics touchpads, old and new).  Applying this same modification
-    fixes these newer Synaptics touchpads and brings the driver into line
-    with common OS reset behaviour.
-<quote end>
+The piece in the quoted patch segment seems to be just fine.
 
+Hope this helps.
 
-So Synaptics touchpads which are not not yet covered by their
-driver need to be resetted when resuming from suspend.
-
-But the device we are actually talking about will be sooner or later supported
-by the synaptics driver, and should all other devices who act normal be resetted
-too?
-
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index d8c0c8d..6877371 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1383,6 +1383,7 @@ static int psmouse_reconnect(struct serio *serio)
- 	struct psmouse *parent = NULL;
- 	struct serio_driver *drv = serio->drv;
- 	int rc = -1;
-+	int retries = 0;
- 
- 	if (!drv || !psmouse) {
- 		printk(KERN_DEBUG "psmouse: reconnect request, but serio is disconnected, ignoring...\n");
-@@ -1401,10 +1402,14 @@ static int psmouse_reconnect(struct serio *serio)
- 	if (psmouse->reconnect) {
- 		if (psmouse->reconnect(psmouse))
- 			goto out;
--	} else if (psmouse_probe(psmouse) < 0 ||
-+	} else {
-+		while ((retries++ < 3) && psmouse_reset(psmouse))
-+			/* empty */;
-+		if (psmouse_probe(psmouse) < 0 ||
- 		   psmouse->type != psmouse_extensions(psmouse,
- 						psmouse_max_proto, false)) {
--		goto out;
-+			goto out;
-+		}
- 	}
- 
- 	/* ok, the device type (and capabilities) match the old one,
-
-
-
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

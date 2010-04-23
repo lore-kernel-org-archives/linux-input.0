@@ -1,72 +1,74 @@
 From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Reset ps/2 port
-	should	psmouse_probe	fail	before	retrying
-Date: Fri, 23 Apr 2010 02:47:48 +0200
-Message-ID: <1271983668.16254.44.camel@lovely>
-References: <1271723857.6652.6.camel@lovely>
-	 <4BCE17CC.8020804@canonical.com>
-	 <20100421063328.GJ4364@core.coreip.homeip.net>
-	 <4BCF2263.40306@canonical.com>
-	 <20100421171055.GB10566@core.coreip.homeip.net>
-	 <4BCF5453.5060703@canonical.com>
-	 <20100421195238.GA10641@core.coreip.homeip.net>
-	 <4BCF69CB.7010000@canonical.com> <1271953731.4566.27.camel@lovely>
-	 <4BD0C425.5030609@canonical.com>
-	 <20100422215517.GB28213@core.coreip.homeip.net>
+Subject: [PATCH] reset quirk at reconnect for Synaptics touchpads
+Date: Fri, 23 Apr 2010 02:52:39 +0200
+Message-ID: <1271983959.16254.48.camel@lovely>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f225.google.com ([209.85.218.225]:55273 "EHLO
+Received: from mail-bw0-f225.google.com ([209.85.218.225]:52578 "EHLO
 	mail-bw0-f225.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754431Ab0DWAmS (ORCPT
+	with ESMTP id S1754500Ab0DWArH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Apr 2010 20:42:18 -0400
-Received: by bwz25 with SMTP id 25so10396053bwz.28
-        for <linux-input@vger.kernel.org>; Thu, 22 Apr 2010 17:42:16 -0700 (PDT)
-In-Reply-To: <20100422215517.GB28213@core.coreip.homeip.net>
+	Thu, 22 Apr 2010 20:47:07 -0400
+Received: by bwz25 with SMTP id 25so10400577bwz.28
+        for <linux-input@vger.kernel.org>; Thu, 22 Apr 2010 17:47:05 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
 
-Am Donnerstag, den 22.04.2010, 14:55 -0700 schrieb Dmitry Torokhov:
-> On Thu, Apr 22, 2010 at 05:48:21PM -0400, Peter M. Petrakis wrote:
-> > Hi,
-> > 
-> > This one is a winner. with regards to your follow up. I wouldn't
-> > want to reset something unless we have cause to. This code
-> > seems to be doing the right thing e.g. I see "unable to query
-> > synaptics hardware" followed by it's (re)discovery on return
-> > from S3.
-> > 
-> > When it's fully supported by the Synaptics driver, the initial
-> > reconnect will succeed and we'll never get to this additional
-> > failsafe code which is essentially a catch all for the bleeding
-> > edge.
-> >
-> 
-> I am confused here... what protocol does the kernel select upon fresh
-> boot?
-
-Peter's dmesg:
-
-[    7.428561] Unable to query Synaptics hardware.
-
- It's plain PS/2 or IMPS/2 because this bleeding edge device fails somewehre
-in synaptics_query_hardware(). Most likely the test on priv->identity.
-
-[    8.239494] input: PS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input12
-
-This is the normal KERN_INFO printk of input_register_device() which does
-not mean that it's using the synaptics driver. "PS/2 Synaptics TouchPad"
-is just the name of the device.
-
-in conclusion:
- If a Synaptics touchpad can't be initialized (synaptics_init) and falls
+If a Synaptics touchpad can't be initialized (synaptics_init) and falls
 back to PS/2, it doesn't get a psmouse_reset() after resuming from
 suspend as it would get with a synaptics driver.
+ So check state of synaptics_hardware and reset this beast.
 
+Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
+---
+ drivers/input/mouse/psmouse-base.c |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index d8c0c8d..66ce0ac 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -116,6 +116,9 @@ struct psmouse_protocol {
+ 	int (*init)(struct psmouse *);
+ };
+ 
++/* to handle some reset quirks */
++static bool synaptics_hardware = false;
++
+ /*
+  * psmouse_process_byte() analyzes the PS/2 data stream and reports
+  * relevant events to the input module once full packet has arrived.
+@@ -597,7 +600,6 @@ static int cortron_detect(struct psmouse *psmouse, bool set_properties)
+ static int psmouse_extensions(struct psmouse *psmouse,
+ 			      unsigned int max_proto, bool set_properties)
+ {
+-	bool synaptics_hardware = false;
+ 
+ /*
+  * We always check for lifebook because it does not disturb mouse
+@@ -1401,10 +1403,14 @@ static int psmouse_reconnect(struct serio *serio)
+ 	if (psmouse->reconnect) {
+ 		if (psmouse->reconnect(psmouse))
+ 			goto out;
+-	} else if (psmouse_probe(psmouse) < 0 ||
++	} else {
++		if (synaptics_hardware)		/* is using plain PS/2 */
++			psmouse_reset(psmouse);
++		if (psmouse_probe(psmouse) < 0 ||
+ 		   psmouse->type != psmouse_extensions(psmouse,
+ 						psmouse_max_proto, false)) {
+-		goto out;
++			goto out;
++		}
+ 	}
+ 
+ 	/* ok, the device type (and capabilities) match the old one,
+-- 
+1.5.6.5
 
 
 

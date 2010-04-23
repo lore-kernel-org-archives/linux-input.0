@@ -1,112 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 8/9] Input: Block suspend while event queue is not empty.
-Date: Fri, 23 Apr 2010 14:08:14 -0700
-Message-ID: <201004231408.15885.dmitry.torokhov@gmail.com>
-References: <1271984938-13920-1-git-send-email-arve@android.com> <1271984938-13920-9-git-send-email-arve@android.com> <20100423135625.1e12d005.randy.dunlap@oracle.com>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
+ LIRC  and decoder plugins
+Date: Fri, 23 Apr 2010 18:20:28 -0400
+Message-ID: <1272061228.3089.8.camel@palomino.walls.org>
+References: <20100401145632.5631756f@pedra>
+	 <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
+	 <20100402102011.GA6947@hardeman.nu>
+	 <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+	 <20100407093205.GB3029@hardeman.nu>
+	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+	 <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:33350 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757384Ab0DWVIV convert rfc822-to-8bit (ORCPT
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:45572 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750925Ab0DWWUQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Apr 2010 17:08:21 -0400
-In-Reply-To: <20100423135625.1e12d005.randy.dunlap@oracle.com>
+	Fri, 23 Apr 2010 18:20:16 -0400
+In-Reply-To: <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Arve =?iso-8859-1?q?Hj=F8nnev=E5g?= <arve@android.com>, linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, =?iso-8859-1?q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Sven Neumann <s.neumann@raumfeld.com>, Tero Saarni <tero.saarni@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Matthew Garrett <mjg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Jarod Wilson <jarod@wilsonet.com>, David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Friday 23 April 2010 01:56:25 pm Randy Dunlap wrote:
-> On Thu, 22 Apr 2010 18:08:57 -0700 Arve Hj=F8nnev=E5g wrote:
-> > Add an ioctl, EVIOCSSUSPENDBLOCK, to enable a suspend_blocker that =
-will
-> > block suspend while the event queue is not empty. This allows users=
-pace
-> > code to process input events while the device appears to be asleep.
->=20
-> All new ioctls need to be added to Documentation/ioctl/ioctl-number.t=
-xt,
-> please.
+On Fri, 2010-04-23 at 14:06 -0400, Jon Smirl wrote:
+> On Fri, Apr 23, 2010 at 1:40 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
+> >
+> > So now that I'm more or less done with porting the imon driver, I
+> > think I'm ready to start tackling the mceusb driver. But I'm debating
+> > on what approach to take with respect to lirc support. It sort of
+> > feels like we should have lirc_dev ported as an ir "decoder"
+> > driver/plugin before starting to port mceusb to ir-core, so that we
+> > can maintain lirc compat and transmit support. Alternatively, I could
+> > port mceusb without lirc support for now, leaving it to only use
+> > in-kernel decoding and have no transmit support for the moment, then
+> > re-add lirc support. I'm thinking that porting lirc_dev as, say,
+> > ir-lirc-decoder first is probably the way to go though. Anyone else
+> > want to share their thoughts on this?
+> 
+> I'd take whatever you think is the simplest path. It is more likely
+> that initial testers will want to work with the new in-kernel system
+> than the compatibility layer to LIRC. Existing users that are happy
+> with the current LIRC should just keep on using it.
 
-I do not see the reason for it to be in the kernel still. Have a proces=
-s
-that listens to all input devices (or subset of them), once events stop
-coming initiate suspend.
+Jarod,
 
->=20
-> > Signed-off-by: Arve Hj=F8nnev=E5g <arve@android.com>
-> > ---
-> >=20
-> >  drivers/input/evdev.c |   22 ++++++++++++++++++++++
-> >  include/linux/input.h |    3 +++
-> >  2 files changed, 25 insertions(+), 0 deletions(-)
-> >=20
-> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> > index 2ee6c7a..66e0d16 100644
-> > --- a/drivers/input/evdev.c
-> > +++ b/drivers/input/evdev.c
-> > @@ -585,6 +594,19 @@ static long evdev_do_ioctl(struct file *file,
-> > unsigned int cmd,
-> >=20
-> >  		else
-> >  	=09
-> >  			return evdev_ungrab(evdev, client);
-> >=20
-> > +	case EVIOCGSUSPENDBLOCK:
-> > +		return put_user(client->use_suspend_blocker, ip);
-> > +
-> > +	case EVIOCSSUSPENDBLOCK:
-> > +		spin_lock_irq(&client->buffer_lock);
-> > +		if (!client->use_suspend_blocker && p)
-> > +			suspend_blocker_init(&client->suspend_blocker, "evdev");
-> > +		else if (client->use_suspend_blocker && !p)
-> > +			suspend_blocker_destroy(&client->suspend_blocker);
-> > +		client->use_suspend_blocker =3D !!p;
-> > +		spin_unlock_irq(&client->buffer_lock);
-> > +		return 0;
-> > +
-> >=20
-> >  	default:
-> >  		if (_IOC_TYPE(cmd) !=3D 'E')
-> >=20
-> > diff --git a/include/linux/input.h b/include/linux/input.h
-> > index 7ed2251..b2d93b4 100644
-> > --- a/include/linux/input.h
-> > +++ b/include/linux/input.h
-> > @@ -82,6 +82,9 @@ struct input_absinfo {
-> >=20
-> >  #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release=20
-device */
-> >=20
-> > +#define EVIOCGSUSPENDBLOCK	_IOR('E', 0x91, int)			/* get=20
-suspend block
-> > enable */ +#define EVIOCSSUSPENDBLOCK	_IOW('E', 0x91, int)			/*=20
-set
-> > suspend block enable */ +
-> >=20
-> >  /*
-> > =20
-> >   * Event types
-> >   */
->=20
-> thanks,
-> ---
-> ~Randy
-> *** Remember to use Documentation/SubmitChecklist when testing your c=
-ode
-> *** --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Not that my commit rate has been > 0 LOC lately, but I'd like to see
+lirc_dev, just to get transmit worked out for the CX23888 chip and
+cx23885 driver.
 
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I think this device will bring to light some assumptions LIRC currently
+makes about transmit that don't apply to the CX23888 (i.e. LIRC having
+to perform the pulse timing).  The cx23888-ir implementation has a kfifo
+for holding outgoing pulse data and the hardware itself has an 8 pulse
+measurement deep fifo.
+
+
+But I'd recommend whatever helps you get more productive work done
+first.  I've had no time for linux lately.
+
+Regards,
+Andy
+

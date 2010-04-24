@@ -1,7 +1,7 @@
 From: David =?utf-8?b?SMOkcmRlbWFu?= <david@hardeman.nu>
-Subject: [PATCH 2/4] ir-core: centralize sysfs raw decoder enabling/disabling
-Date: Sat, 24 Apr 2010 23:14:06 +0200
-Message-ID: <20100424211406.11570.96241.stgit@localhost.localdomain>
+Subject: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Sat, 24 Apr 2010 23:14:11 +0200
+Message-ID: <20100424211411.11570.2189.stgit@localhost.localdomain>
 References: <20100424210843.11570.82007.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -13,364 +13,473 @@ To: mchehab@redhat.com
 Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-With the current logic, each raw decoder needs to add a copy of the exa=
-ct
-same sysfs code. This is both unnecessary and also means that (re)loadi=
-ng
-an IR driver after raw decoder modules have been loaded won't work as
-expected.
+This patch moves the state from each raw decoder into the
+ir_raw_event_ctrl struct.
 
-This patch moves that logic into ir-raw-event and adds a single sysfs
-file per device.
+This allows the removal of code like this:
 
-Reading that file returns something like:
+        spin_lock(&decoder_lock);
+        list_for_each_entry(data, &decoder_list, list) {
+                if (data->ir_dev =3D=3D ir_dev)
+                        break;
+        }
+        spin_unlock(&decoder_lock);
+        return data;
 
-	"rc5 [rc6] nec jvc [sony]"
+which is currently run for each decoder on each event in order
+to get the client-specific decoding state data.
 
-(with enabled protocols in [] brackets)
+In addition, ir decoding modules and ir driver module load
+order is now independent. Centralizing the data also allows
+for a nice code reduction of about 30% per raw decoder as
+client lists and client registration callbacks are no longer
+necessary.
 
-Writing either "+protocol" or "-protocol" to that file will
-enable or disable the according protocol decoder.
-
-An additional benefit is that the disabling of a decoder will be
-remembered across module removal/insertion so a previously
-disabled decoder won't suddenly be activated again. The default
-setting is to enable all decoders.
-
-This is also necessary for the next patch which moves even more decoder
-state into the central raw decoding structs.
+Out-of-tree modules can still use a similar trick to what
+the raw decoders did before this patch until they are merged.
 
 Signed-off-by: David H=C3=A4rdeman <david@hardeman.nu>
 ---
- drivers/media/IR/ir-core-priv.h    |    3=20
- drivers/media/IR/ir-jvc-decoder.c  |   64 ---------
- drivers/media/IR/ir-nec-decoder.c  |   64 ---------
- drivers/media/IR/ir-raw-event.c    |  112 +++++++++-------
- drivers/media/IR/ir-rc5-decoder.c  |   64 ---------
- drivers/media/IR/ir-rc6-decoder.c  |   64 ---------
- drivers/media/IR/ir-sony-decoder.c |   64 ---------
- drivers/media/IR/ir-sysfs.c        |  252 +++++++++++++++++++++-------=
+ drivers/media/IR/ir-core-priv.h    |   37 ++++++++++++-
+ drivers/media/IR/ir-jvc-decoder.c  |   90 ++--------------------------=
+---
+ drivers/media/IR/ir-nec-decoder.c  |   89 +++-------------------------=
+---
+ drivers/media/IR/ir-raw-event.c    |   48 +++--------------
+ drivers/media/IR/ir-rc5-decoder.c  |  103 +++++-----------------------=
 --------
- 8 files changed, 231 insertions(+), 456 deletions(-)
+ drivers/media/IR/ir-rc6-decoder.c  |   92 ++--------------------------=
+----
+ drivers/media/IR/ir-sony-decoder.c |   93 +++-------------------------=
+-----
+ 7 files changed, 87 insertions(+), 465 deletions(-)
 
 diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core=
 -priv.h
-index 04962a6..821d012 100644
+index 821d012..1e9464a 100644
 --- a/drivers/media/IR/ir-core-priv.h
 +++ b/drivers/media/IR/ir-core-priv.h
-@@ -21,6 +21,7 @@
- struct ir_raw_handler {
- 	struct list_head list;
+@@ -23,8 +23,6 @@ struct ir_raw_handler {
 =20
-+	u64 protocols; /* which are handled by this handler */
+ 	u64 protocols; /* which are handled by this handler */
  	int (*decode)(struct input_dev *input_dev, struct ir_raw_event event)=
 ;
- 	int (*raw_register)(struct input_dev *input_dev);
- 	int (*raw_unregister)(struct input_dev *input_dev);
-@@ -32,6 +33,7 @@ struct ir_raw_event_ctrl {
- 	ktime_t				last_event;	/* when last event occurred */
+-	int (*raw_register)(struct input_dev *input_dev);
+-	int (*raw_unregister)(struct input_dev *input_dev);
+ };
+=20
+ struct ir_raw_event_ctrl {
+@@ -34,6 +32,41 @@ struct ir_raw_event_ctrl {
  	enum raw_event_type		last_type;	/* last event type */
  	struct input_dev		*input_dev;	/* pointer to the parent input_dev */
-+	u64				enabled_protocols; /* enabled raw protocol decoders */
+ 	u64				enabled_protocols; /* enabled raw protocol decoders */
++
++	/* raw decoder state follows */
++	struct ir_raw_event prev_ev;
++	struct nec_dec {
++		int state;
++		unsigned count;
++		u32 bits;
++	} nec;
++	struct rc5_dec {
++		int state;
++		u32 bits;
++		unsigned count;
++		unsigned wanted_bits;
++	} rc5;
++	struct rc6_dec {
++		int state;
++		u8 header;
++		u32 body;
++		bool toggle;
++		unsigned count;
++		unsigned wanted_bits;
++	} rc6;
++	struct sony_dec {
++		int state;
++		u32 bits;
++		unsigned count;
++	} sony;
++	struct jvc_dec {
++		int state;
++		u16 bits;
++		u16 old_bits;
++		unsigned count;
++		bool first;
++		bool toggle;
++	} jvc;
  };
 =20
  /* macros for IR decoders */
-@@ -76,6 +78,7 @@ void ir_unregister_class(struct input_dev *input_dev)=
-;
- /*
-  * Routines from ir-raw-event.c to be used internally and by decoders
-  */
-+u64 ir_raw_get_allowed_protocols(void);
- int ir_raw_event_register(struct input_dev *input_dev);
- void ir_raw_event_unregister(struct input_dev *input_dev);
- int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
 diff --git a/drivers/media/IR/ir-jvc-decoder.c b/drivers/media/IR/ir-jv=
 c-decoder.c
-index 0b80494..1055de4 100644
+index 1055de4..8894d8b 100644
 --- a/drivers/media/IR/ir-jvc-decoder.c
 +++ b/drivers/media/IR/ir-jvc-decoder.c
-@@ -41,7 +41,6 @@ enum jvc_state {
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
--	int			enabled:1;
+@@ -25,10 +25,6 @@
+ #define JVC_TRAILER_PULSE	(1  * JVC_UNIT)
+ #define	JVC_TRAILER_SPACE	(35 * JVC_UNIT)
 =20
- 	/* State machine control */
- 	enum jvc_state		state;
-@@ -72,53 +71,6 @@ static struct decoder_data *get_decoder_data(struct =
- ir_input_dev *ir_dev)
- 	return data;
- }
+-/* Used to register jvc_decoder clients */
+-static LIST_HEAD(decoder_list);
+-DEFINE_SPINLOCK(decoder_lock);
+-
+ enum jvc_state {
+ 	STATE_INACTIVE,
+ 	STATE_HEADER_SPACE,
+@@ -38,39 +34,6 @@ enum jvc_state {
+ 	STATE_TRAILER_SPACE,
+ };
 =20
--static ssize_t store_enabled(struct device *d,
--			     struct device_attribute *mattr,
--			     const char *buf,
--			     size_t len)
--{
--	unsigned long value;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
+-struct decoder_data {
+-	struct list_head	list;
+-	struct ir_input_dev	*ir_dev;
 -
--	if (!data)
--		return -EINVAL;
--
--	if (strict_strtoul(buf, 10, &value) || value > 1)
--		return -EINVAL;
--
--	data->enabled =3D value;
--
--	return len;
--}
--
--static ssize_t show_enabled(struct device *d,
--			     struct device_attribute *mattr, char *buf)
--{
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
--
--	if (!data)
--		return -EINVAL;
--
--	if (data->enabled)
--		return sprintf(buf, "1\n");
--	else
--	return sprintf(buf, "0\n");
--}
--
--static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_ena=
-bled);
--
--static struct attribute *decoder_attributes[] =3D {
--	&dev_attr_enabled.attr,
--	NULL
+-	/* State machine control */
+-	enum jvc_state		state;
+-	u16			jvc_bits;
+-	u16			jvc_old_bits;
+-	unsigned		count;
+-	bool			first;
+-	bool			toggle;
 -};
 -
--static struct attribute_group decoder_attribute_group =3D {
--	.name	=3D "jvc_decoder",
--	.attrs	=3D decoder_attributes,
--};
+-
+-/**
+- * get_decoder_data()	- gets decoder data
+- * @input_dev:	input device
+- *
+- * Returns the struct decoder_data that corresponds to a device
+- */
+-static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
+dev)
+-{
+-	struct decoder_data *data =3D NULL;
+-
+-	spin_lock(&decoder_lock);
+-	list_for_each_entry(data, &decoder_list, list) {
+-		if (data->ir_dev =3D=3D ir_dev)
+-			break;
+-	}
+-	spin_unlock(&decoder_lock);
+-	return data;
+-}
 -
  /**
   * ir_jvc_decode() - Decode one JVC pulse or space
   * @input_dev:	the struct input_dev descriptor of the device
-@@ -135,7 +87,7 @@ static int ir_jvc_decode(struct input_dev *input_dev=
-, struct ir_raw_event ev)
- 	if (!data)
- 		return -EINVAL;
-=20
--	if (!data->enabled)
-+	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_JVC))
- 		return 0;
-=20
- 	if (IS_RESET(ev)) {
-@@ -253,21 +205,12 @@ static int ir_jvc_register(struct input_dev *inpu=
-t_dev)
+@@ -80,12 +43,8 @@ static struct decoder_data *get_decoder_data(struct =
+ ir_input_dev *ir_dev)
+  */
+ static int ir_jvc_decode(struct input_dev *input_dev, struct ir_raw_ev=
+ent ev)
  {
+-	struct decoder_data *data;
  	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
- 	struct decoder_data *data;
--	int rc;
 -
--	rc =3D sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group=
-);
--	if (rc < 0)
--		return rc;
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return -EINVAL;
++	struct jvc_dec *data =3D &ir_dev->raw->jvc;
 =20
- 	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data) {
--		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
-+	if (!data)
- 		return -ENOMEM;
--	}
-=20
- 	data->ir_dev =3D ir_dev;
--	data->enabled =3D 1;
--
- 	spin_lock(&decoder_lock);
- 	list_add_tail(&data->list, &decoder_list);
- 	spin_unlock(&decoder_lock);
-@@ -284,8 +227,6 @@ static int ir_jvc_unregister(struct input_dev *inpu=
-t_dev)
- 	if (!data)
+ 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_JVC))
  		return 0;
+@@ -140,9 +99,9 @@ static int ir_jvc_decode(struct input_dev *input_dev=
+, struct ir_raw_event ev)
+ 		if (ev.pulse)
+ 			break;
 =20
--	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
--
- 	spin_lock(&decoder_lock);
- 	list_del(&data->list);
- 	spin_unlock(&decoder_lock);
-@@ -294,6 +235,7 @@ static int ir_jvc_unregister(struct input_dev *inpu=
-t_dev)
+-		data->jvc_bits <<=3D 1;
++		data->bits <<=3D 1;
+ 		if (eq_margin(ev.duration, JVC_BIT_1_SPACE, JVC_UNIT / 2)) {
+-			data->jvc_bits |=3D 1;
++			data->bits |=3D 1;
+ 			decrease_duration(&ev, JVC_BIT_1_SPACE);
+ 		} else if (eq_margin(ev.duration, JVC_BIT_0_SPACE, JVC_UNIT / 2))
+ 			decrease_duration(&ev, JVC_BIT_0_SPACE);
+@@ -175,13 +134,13 @@ static int ir_jvc_decode(struct input_dev *input_=
+dev, struct ir_raw_event ev)
+=20
+ 		if (data->first) {
+ 			u32 scancode;
+-			scancode =3D (bitrev8((data->jvc_bits >> 8) & 0xff) << 8) |
+-				   (bitrev8((data->jvc_bits >> 0) & 0xff) << 0);
++			scancode =3D (bitrev8((data->bits >> 8) & 0xff) << 8) |
++				   (bitrev8((data->bits >> 0) & 0xff) << 0);
+ 			IR_dprintk(1, "JVC scancode 0x%04x\n", scancode);
+ 			ir_keydown(input_dev, scancode, data->toggle);
+ 			data->first =3D false;
+-			data->jvc_old_bits =3D data->jvc_bits;
+-		} else if (data->jvc_bits =3D=3D data->jvc_old_bits) {
++			data->old_bits =3D data->bits;
++		} else if (data->bits =3D=3D data->old_bits) {
+ 			IR_dprintk(1, "JVC repeat\n");
+ 			ir_repeat(input_dev);
+ 		} else {
+@@ -201,44 +160,9 @@ out:
+ 	return -EINVAL;
  }
 =20
+-static int ir_jvc_register(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	struct decoder_data *data;
+-
+-	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-
+-	data->ir_dev =3D ir_dev;
+-	spin_lock(&decoder_lock);
+-	list_add_tail(&data->list, &decoder_list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+-static int ir_jvc_unregister(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	static struct decoder_data *data;
+-
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return 0;
+-
+-	spin_lock(&decoder_lock);
+-	list_del(&data->list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
  static struct ir_raw_handler jvc_handler =3D {
-+	.protocols	=3D IR_TYPE_JVC,
+ 	.protocols	=3D IR_TYPE_JVC,
  	.decode		=3D ir_jvc_decode,
- 	.raw_register	=3D ir_jvc_register,
- 	.raw_unregister	=3D ir_jvc_unregister,
+-	.raw_register	=3D ir_jvc_register,
+-	.raw_unregister	=3D ir_jvc_unregister,
+ };
+=20
+ static int __init ir_jvc_decode_init(void)
 diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-ne=
 c-decoder.c
-index ba79233..2cc2b92 100644
+index 2cc2b92..52e0f37 100644
 --- a/drivers/media/IR/ir-nec-decoder.c
 +++ b/drivers/media/IR/ir-nec-decoder.c
-@@ -43,7 +43,6 @@ enum nec_state {
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
--	int			enabled:1;
+@@ -27,10 +27,6 @@
+ #define	NEC_TRAILER_PULSE	(1  * NEC_UNIT)
+ #define	NEC_TRAILER_SPACE	(10 * NEC_UNIT) /* even longer in reality */
 =20
- 	/* State machine control */
- 	enum nec_state		state;
-@@ -71,53 +70,6 @@ static struct decoder_data *get_decoder_data(struct =
- ir_input_dev *ir_dev)
- 	return data;
- }
+-/* Used to register nec_decoder clients */
+-static LIST_HEAD(decoder_list);
+-static DEFINE_SPINLOCK(decoder_lock);
+-
+ enum nec_state {
+ 	STATE_INACTIVE,
+ 	STATE_HEADER_SPACE,
+@@ -40,36 +36,6 @@ enum nec_state {
+ 	STATE_TRAILER_SPACE,
+ };
 =20
--static ssize_t store_enabled(struct device *d,
--			     struct device_attribute *mattr,
--			     const char *buf,
--			     size_t len)
--{
--	unsigned long value;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
+-struct decoder_data {
+-	struct list_head	list;
+-	struct ir_input_dev	*ir_dev;
 -
--	if (!data)
--		return -EINVAL;
--
--	if (strict_strtoul(buf, 10, &value) || value > 1)
--		return -EINVAL;
--
--	data->enabled =3D value;
--
--	return len;
--}
--
--static ssize_t show_enabled(struct device *d,
--			     struct device_attribute *mattr, char *buf)
--{
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
--
--	if (!data)
--		return -EINVAL;
--
--	if (data->enabled)
--		return sprintf(buf, "1\n");
--	else
--	return sprintf(buf, "0\n");
--}
--
--static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_ena=
-bled);
--
--static struct attribute *decoder_attributes[] =3D {
--	&dev_attr_enabled.attr,
--	NULL
+-	/* State machine control */
+-	enum nec_state		state;
+-	u32			nec_bits;
+-	unsigned		count;
 -};
 -
--static struct attribute_group decoder_attribute_group =3D {
--	.name	=3D "nec_decoder",
--	.attrs	=3D decoder_attributes,
--};
+-
+-/**
+- * get_decoder_data()	- gets decoder data
+- * @input_dev:	input device
+- *
+- * Returns the struct decoder_data that corresponds to a device
+- */
+-static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
+dev)
+-{
+-	struct decoder_data *data =3D NULL;
+-
+-	spin_lock(&decoder_lock);
+-	list_for_each_entry(data, &decoder_list, list) {
+-		if (data->ir_dev =3D=3D ir_dev)
+-			break;
+-	}
+-	spin_unlock(&decoder_lock);
+-	return data;
+-}
 -
  /**
   * ir_nec_decode() - Decode one NEC pulse or space
   * @input_dev:	the struct input_dev descriptor of the device
-@@ -136,7 +88,7 @@ static int ir_nec_decode(struct input_dev *input_dev=
-, struct ir_raw_event ev)
- 	if (!data)
- 		return -EINVAL;
-=20
--	if (!data->enabled)
-+	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_NEC))
- 		return 0;
-=20
- 	if (IS_RESET(ev)) {
-@@ -260,21 +212,12 @@ static int ir_nec_register(struct input_dev *inpu=
-t_dev)
+@@ -79,15 +45,11 @@ static struct decoder_data *get_decoder_data(struct=
+  ir_input_dev *ir_dev)
+  */
+ static int ir_nec_decode(struct input_dev *input_dev, struct ir_raw_ev=
+ent ev)
  {
+-	struct decoder_data *data;
  	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
- 	struct decoder_data *data;
--	int rc;
--
--	rc =3D sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group=
-);
--	if (rc < 0)
--		return rc;
++	struct nec_dec *data =3D &ir_dev->raw->nec;
+ 	u32 scancode;
+ 	u8 address, not_address, command, not_command;
 =20
- 	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data) {
--		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
-+	if (!data)
- 		return -ENOMEM;
--	}
-=20
- 	data->ir_dev =3D ir_dev;
--	data->enabled =3D 1;
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return -EINVAL;
 -
- 	spin_lock(&decoder_lock);
- 	list_add_tail(&data->list, &decoder_list);
- 	spin_unlock(&decoder_lock);
-@@ -291,8 +234,6 @@ static int ir_nec_unregister(struct input_dev *inpu=
-t_dev)
- 	if (!data)
+ 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_NEC))
  		return 0;
 =20
--	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
--
- 	spin_lock(&decoder_lock);
- 	list_del(&data->list);
- 	spin_unlock(&decoder_lock);
-@@ -301,6 +242,7 @@ static int ir_nec_unregister(struct input_dev *inpu=
-t_dev)
+@@ -143,9 +105,9 @@ static int ir_nec_decode(struct input_dev *input_de=
+v, struct ir_raw_event ev)
+ 		if (ev.pulse)
+ 			break;
+=20
+-		data->nec_bits <<=3D 1;
++		data->bits <<=3D 1;
+ 		if (eq_margin(ev.duration, NEC_BIT_1_SPACE, NEC_UNIT / 2))
+-			data->nec_bits |=3D 1;
++			data->bits |=3D 1;
+ 		else if (!eq_margin(ev.duration, NEC_BIT_0_SPACE, NEC_UNIT / 2))
+ 			break;
+ 		data->count++;
+@@ -174,14 +136,14 @@ static int ir_nec_decode(struct input_dev *input_=
+dev, struct ir_raw_event ev)
+ 		if (!geq_margin(ev.duration, NEC_TRAILER_SPACE, NEC_UNIT / 2))
+ 			break;
+=20
+-		address     =3D bitrev8((data->nec_bits >> 24) & 0xff);
+-		not_address =3D bitrev8((data->nec_bits >> 16) & 0xff);
+-		command	    =3D bitrev8((data->nec_bits >>  8) & 0xff);
+-		not_command =3D bitrev8((data->nec_bits >>  0) & 0xff);
++		address     =3D bitrev8((data->bits >> 24) & 0xff);
++		not_address =3D bitrev8((data->bits >> 16) & 0xff);
++		command	    =3D bitrev8((data->bits >>  8) & 0xff);
++		not_command =3D bitrev8((data->bits >>  0) & 0xff);
+=20
+ 		if ((command ^ not_command) !=3D 0xff) {
+ 			IR_dprintk(1, "NEC checksum error: received 0x%08x\n",
+-				   data->nec_bits);
++				   data->bits);
+ 			break;
+ 		}
+=20
+@@ -208,44 +170,9 @@ static int ir_nec_decode(struct input_dev *input_d=
+ev, struct ir_raw_event ev)
+ 	return -EINVAL;
  }
 =20
- static struct ir_raw_handler nec_handler =3D {
-+	.protocols	=3D IR_TYPE_NEC,
- 	.decode		=3D ir_nec_decode,
- 	.raw_register	=3D ir_nec_register,
- 	.raw_unregister	=3D ir_nec_unregister,
-diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-=
-event.c
-index ea68a3f..eeca8a8 100644
---- a/drivers/media/IR/ir-raw-event.c
-+++ b/drivers/media/IR/ir-raw-event.c
-@@ -21,8 +21,9 @@
- #define MAX_IR_EVENT_SIZE      512
-=20
- /* Used to handle IR raw handler extensions */
--static LIST_HEAD(ir_raw_handler_list);
- static DEFINE_SPINLOCK(ir_raw_handler_lock);
-+static LIST_HEAD(ir_raw_handler_list);
-+static u64 available_protocols;
-=20
- /**
-  * RUN_DECODER()	- runs an operation on all IR decoders
-@@ -65,52 +66,6 @@ static void ir_raw_event_work(struct work_struct *wo=
-rk)
- 		RUN_DECODER(decode, raw->input_dev, ev);
- }
-=20
--int ir_raw_event_register(struct input_dev *input_dev)
+-static int ir_nec_register(struct input_dev *input_dev)
 -{
--	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
--	int rc;
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	struct decoder_data *data;
 -
--	ir->raw =3D kzalloc(sizeof(*ir->raw), GFP_KERNEL);
--	if (!ir->raw)
+-	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
 -		return -ENOMEM;
 -
--	ir->raw->input_dev =3D input_dev;
--	INIT_WORK(&ir->raw->rx_work, ir_raw_event_work);
+-	data->ir_dev =3D ir_dev;
+-	spin_lock(&decoder_lock);
+-	list_add_tail(&data->list, &decoder_list);
+-	spin_unlock(&decoder_lock);
 -
--	rc =3D kfifo_alloc(&ir->raw->kfifo, sizeof(s64) * MAX_IR_EVENT_SIZE,
--			 GFP_KERNEL);
--	if (rc < 0) {
--		kfree(ir->raw);
--		ir->raw =3D NULL;
--		return rc;
--	}
+-	return 0;
+-}
 -
+-static int ir_nec_unregister(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	static struct decoder_data *data;
+-
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return 0;
+-
+-	spin_lock(&decoder_lock);
+-	list_del(&data->list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+ static struct ir_raw_handler nec_handler =3D {
+ 	.protocols	=3D IR_TYPE_NEC,
+ 	.decode		=3D ir_nec_decode,
+-	.raw_register	=3D ir_nec_register,
+-	.raw_unregister	=3D ir_nec_unregister,
+ };
+=20
+ static int __init ir_nec_decode_init(void)
+diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-=
+event.c
+index eeca8a8..eb77378 100644
+--- a/drivers/media/IR/ir-raw-event.c
++++ b/drivers/media/IR/ir-raw-event.c
+@@ -25,32 +25,6 @@ static DEFINE_SPINLOCK(ir_raw_handler_lock);
+ static LIST_HEAD(ir_raw_handler_list);
+ static u64 available_protocols;
+=20
+-/**
+- * RUN_DECODER()	- runs an operation on all IR decoders
+- * @ops:	IR raw handler operation to be called
+- * @arg:	arguments to be passed to the callback
+- *
+- * Calls ir_raw_handler::ops for all registered IR handlers. It preven=
+ts
+- * new decode addition/removal while running, by locking ir_raw_handle=
+r_lock
+- * mutex. If an error occurs, it stops the ops. Otherwise, it returns =
+a sum
+- * of the return codes.
+- */
+-#define RUN_DECODER(ops, ...) ({					    \
+-	struct ir_raw_handler		*_ir_raw_handler;		    \
+-	int _sumrc =3D 0, _rc;						    \
+-	spin_lock(&ir_raw_handler_lock);				    \
+-	list_for_each_entry(_ir_raw_handler, &ir_raw_handler_list, list) {  \
+-		if (_ir_raw_handler->ops) {				    \
+-			_rc =3D _ir_raw_handler->ops(__VA_ARGS__);	    \
+-			if (_rc < 0)					    \
+-				break;					    \
+-			_sumrc +=3D _rc;					    \
+-		}							    \
+-	}								    \
+-	spin_unlock(&ir_raw_handler_lock);				    \
+-	_sumrc;								    \
+-})
+-
+ #ifdef MODULE
+ /* Used to load the decoders */
+ static struct work_struct wq_load;
+@@ -59,11 +33,17 @@ static struct work_struct wq_load;
+ static void ir_raw_event_work(struct work_struct *work)
+ {
+ 	struct ir_raw_event ev;
++	struct ir_raw_handler *handler;
+ 	struct ir_raw_event_ctrl *raw =3D
+ 		container_of(work, struct ir_raw_event_ctrl, rx_work);
+=20
+-	while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) =3D=3D sizeof(ev))
+-		RUN_DECODER(decode, raw->input_dev, ev);
++	while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) =3D=3D sizeof(ev)) {
++		spin_lock(&ir_raw_handler_lock);
++		list_for_each_entry(handler, &ir_raw_handler_list, list)
++			handler->decode(raw->input_dev, ev);
++		spin_unlock(&ir_raw_handler_lock);
++		raw->prev_ev =3D ev;
++	}
+ }
+=20
+ /**
+@@ -193,15 +173,7 @@ int ir_raw_event_register(struct input_dev *input_=
+dev)
+ 		return rc;
+ 	}
+=20
 -	rc =3D RUN_DECODER(raw_register, input_dev);
 -	if (rc < 0) {
 -		kfifo_free(&ir->raw->kfifo);
@@ -380,821 +489,524 @@ rk)
 -	}
 -
 -	return rc;
--}
--
--void ir_raw_event_unregister(struct input_dev *input_dev)
--{
--	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
--
--	if (!ir->raw)
--		return;
--
--	cancel_work_sync(&ir->raw->rx_work);
++	return 0;
+ }
+=20
+ void ir_raw_event_unregister(struct input_dev *input_dev)
+@@ -212,8 +184,6 @@ void ir_raw_event_unregister(struct input_dev *inpu=
+t_dev)
+ 		return;
+=20
+ 	cancel_work_sync(&ir->raw->rx_work);
 -	RUN_DECODER(raw_unregister, input_dev);
 -
--	kfifo_free(&ir->raw->kfifo);
--	kfree(ir->raw);
--	ir->raw =3D NULL;
--}
--
- /**
-  * ir_raw_event_store() - pass a pulse/space duration to the raw ir de=
-coders
-  * @input_dev:	the struct input_dev device descriptor
-@@ -204,6 +159,66 @@ void ir_raw_event_handle(struct input_dev *input_d=
-ev)
- }
- EXPORT_SYMBOL_GPL(ir_raw_event_handle);
-=20
-+/* used internally by the sysfs interface */
-+u64
-+ir_raw_get_allowed_protocols()
-+{
-+	u64 protocols;
-+	spin_lock(&ir_raw_handler_lock);
-+	protocols =3D available_protocols;
-+	spin_unlock(&ir_raw_handler_lock);
-+	return protocols;
-+}
-+
-+/*
-+ * Used to (un)register raw event clients
-+ */
-+int ir_raw_event_register(struct input_dev *input_dev)
-+{
-+	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
-+	int rc;
-+
-+	ir->raw =3D kzalloc(sizeof(*ir->raw), GFP_KERNEL);
-+	if (!ir->raw)
-+		return -ENOMEM;
-+
-+	ir->raw->input_dev =3D input_dev;
-+	INIT_WORK(&ir->raw->rx_work, ir_raw_event_work);
-+	ir->raw->enabled_protocols =3D ~0;
-+	rc =3D kfifo_alloc(&ir->raw->kfifo, sizeof(s64) * MAX_IR_EVENT_SIZE,
-+			 GFP_KERNEL);
-+	if (rc < 0) {
-+		kfree(ir->raw);
-+		ir->raw =3D NULL;
-+		return rc;
-+	}
-+
-+	rc =3D RUN_DECODER(raw_register, input_dev);
-+	if (rc < 0) {
-+		kfifo_free(&ir->raw->kfifo);
-+		kfree(ir->raw);
-+		ir->raw =3D NULL;
-+		return rc;
-+	}
-+
-+	return rc;
-+}
-+
-+void ir_raw_event_unregister(struct input_dev *input_dev)
-+{
-+	struct ir_input_dev *ir =3D input_get_drvdata(input_dev);
-+
-+	if (!ir->raw)
-+		return;
-+
-+	cancel_work_sync(&ir->raw->rx_work);
-+	RUN_DECODER(raw_unregister, input_dev);
-+
-+	kfifo_free(&ir->raw->kfifo);
-+	kfree(ir->raw);
-+	ir->raw =3D NULL;
-+}
-+
- /*
-  * Extension interface - used to register the IR decoders
-  */
-@@ -212,7 +227,9 @@ int ir_raw_handler_register(struct ir_raw_handler *=
-ir_raw_handler)
- {
- 	spin_lock(&ir_raw_handler_lock);
- 	list_add_tail(&ir_raw_handler->list, &ir_raw_handler_list);
-+	available_protocols |=3D ir_raw_handler->protocols;
- 	spin_unlock(&ir_raw_handler_lock);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(ir_raw_handler_register);
-@@ -221,6 +238,7 @@ void ir_raw_handler_unregister(struct ir_raw_handle=
-r *ir_raw_handler)
- {
- 	spin_lock(&ir_raw_handler_lock);
- 	list_del(&ir_raw_handler->list);
-+	available_protocols &=3D ~ir_raw_handler->protocols;
- 	spin_unlock(&ir_raw_handler_lock);
- }
- EXPORT_SYMBOL(ir_raw_handler_unregister);
+ 	kfifo_free(&ir->raw->kfifo);
+ 	kfree(ir->raw);
+ 	ir->raw =3D NULL;
 diff --git a/drivers/media/IR/ir-rc5-decoder.c b/drivers/media/IR/ir-rc=
 5-decoder.c
-index 23cdb1b..1be8981 100644
+index 1be8981..7af656d 100644
 --- a/drivers/media/IR/ir-rc5-decoder.c
 +++ b/drivers/media/IR/ir-rc5-decoder.c
-@@ -45,7 +45,6 @@ enum rc5_state {
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
--	int			enabled:1;
+@@ -30,10 +30,6 @@
+ #define RC5_BIT_END		(1 * RC5_UNIT)
+ #define RC5X_SPACE		(4 * RC5_UNIT)
 =20
- 	/* State machine control */
- 	enum rc5_state		state;
-@@ -76,53 +75,6 @@ static struct decoder_data *get_decoder_data(struct =
- ir_input_dev *ir_dev)
- 	return data;
- }
+-/* Used to register rc5_decoder clients */
+-static LIST_HEAD(decoder_list);
+-static DEFINE_SPINLOCK(decoder_lock);
+-
+ enum rc5_state {
+ 	STATE_INACTIVE,
+ 	STATE_BIT_START,
+@@ -42,39 +38,6 @@ enum rc5_state {
+ 	STATE_FINISHED,
+ };
 =20
--static ssize_t store_enabled(struct device *d,
--			     struct device_attribute *mattr,
--			     const char *buf,
--			     size_t len)
--{
--	unsigned long value;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
+-struct decoder_data {
+-	struct list_head	list;
+-	struct ir_input_dev	*ir_dev;
 -
--	if (!data)
--		return -EINVAL;
--
--	if (strict_strtoul(buf, 10, &value) || value > 1)
--		return -EINVAL;
--
--	data->enabled =3D value;
--
--	return len;
--}
--
--static ssize_t show_enabled(struct device *d,
--			     struct device_attribute *mattr, char *buf)
--{
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
--
--	if (!data)
--		return -EINVAL;
--
--	if (data->enabled)
--		return sprintf(buf, "1\n");
--	else
--	return sprintf(buf, "0\n");
--}
--
--static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_ena=
-bled);
--
--static struct attribute *decoder_attributes[] =3D {
--	&dev_attr_enabled.attr,
--	NULL
+-	/* State machine control */
+-	enum rc5_state		state;
+-	u32			rc5_bits;
+-	struct ir_raw_event	prev_ev;
+-	unsigned		count;
+-	unsigned		wanted_bits;
 -};
 -
--static struct attribute_group decoder_attribute_group =3D {
--	.name	=3D "rc5_decoder",
--	.attrs	=3D decoder_attributes,
--};
+-
+-/**
+- * get_decoder_data()	- gets decoder data
+- * @input_dev:	input device
+- *
+- * Returns the struct decoder_data that corresponds to a device
+- */
+-
+-static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
+dev)
+-{
+-	struct decoder_data *data =3D NULL;
+-
+-	spin_lock(&decoder_lock);
+-	list_for_each_entry(data, &decoder_list, list) {
+-		if (data->ir_dev =3D=3D ir_dev)
+-			break;
+-	}
+-	spin_unlock(&decoder_lock);
+-	return data;
+-}
 -
  /**
   * ir_rc5_decode() - Decode one RC-5 pulse or space
   * @input_dev:	the struct input_dev descriptor of the device
-@@ -141,7 +93,7 @@ static int ir_rc5_decode(struct input_dev *input_dev=
-, struct ir_raw_event ev)
- 	if (!data)
- 		return -EINVAL;
-=20
--	if (!data->enabled)
-+	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC5))
- 		return 0;
-=20
- 	if (IS_RESET(ev)) {
-@@ -256,21 +208,12 @@ static int ir_rc5_register(struct input_dev *inpu=
-t_dev)
+@@ -84,15 +47,11 @@ static struct decoder_data *get_decoder_data(struct=
+  ir_input_dev *ir_dev)
+  */
+ static int ir_rc5_decode(struct input_dev *input_dev, struct ir_raw_ev=
+ent ev)
  {
+-	struct decoder_data *data;
  	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
- 	struct decoder_data *data;
--	int rc;
--
--	rc =3D sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group=
-);
--	if (rc < 0)
--		return rc;
++	struct rc5_dec *data =3D &ir_dev->raw->rc5;
+ 	u8 toggle;
+ 	u32 scancode;
 =20
- 	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data) {
--		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
-+	if (!data)
- 		return -ENOMEM;
--	}
-=20
- 	data->ir_dev =3D ir_dev;
--	data->enabled =3D 1;
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return -EINVAL;
 -
- 	spin_lock(&decoder_lock);
- 	list_add_tail(&data->list, &decoder_list);
- 	spin_unlock(&decoder_lock);
-@@ -287,8 +230,6 @@ static int ir_rc5_unregister(struct input_dev *inpu=
-t_dev)
- 	if (!data)
+ 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC5))
  		return 0;
 =20
--	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
--
- 	spin_lock(&decoder_lock);
- 	list_del(&data->list);
- 	spin_unlock(&decoder_lock);
-@@ -297,6 +238,7 @@ static int ir_rc5_unregister(struct input_dev *inpu=
-t_dev)
+@@ -128,16 +87,15 @@ again:
+ 		if (!eq_margin(ev.duration, RC5_BIT_START, RC5_UNIT / 2))
+ 			break;
+=20
+-		data->rc5_bits <<=3D 1;
++		data->bits <<=3D 1;
+ 		if (!ev.pulse)
+-			data->rc5_bits |=3D 1;
++			data->bits |=3D 1;
+ 		data->count++;
+-		data->prev_ev =3D ev;
+ 		data->state =3D STATE_BIT_END;
+ 		return 0;
+=20
+ 	case STATE_BIT_END:
+-		if (!is_transition(&ev, &data->prev_ev))
++		if (!is_transition(&ev, &ir_dev->raw->prev_ev))
+ 			break;
+=20
+ 		if (data->count =3D=3D data->wanted_bits)
+@@ -169,11 +127,11 @@ again:
+ 		if (data->wanted_bits =3D=3D RC5X_NBITS) {
+ 			/* RC5X */
+ 			u8 xdata, command, system;
+-			xdata    =3D (data->rc5_bits & 0x0003F) >> 0;
+-			command  =3D (data->rc5_bits & 0x00FC0) >> 6;
+-			system   =3D (data->rc5_bits & 0x1F000) >> 12;
+-			toggle   =3D (data->rc5_bits & 0x20000) ? 1 : 0;
+-			command +=3D (data->rc5_bits & 0x01000) ? 0 : 0x40;
++			xdata    =3D (data->bits & 0x0003F) >> 0;
++			command  =3D (data->bits & 0x00FC0) >> 6;
++			system   =3D (data->bits & 0x1F000) >> 12;
++			toggle   =3D (data->bits & 0x20000) ? 1 : 0;
++			command +=3D (data->bits & 0x01000) ? 0 : 0x40;
+ 			scancode =3D system << 16 | command << 8 | xdata;
+=20
+ 			IR_dprintk(1, "RC5X scancode 0x%06x (toggle: %u)\n",
+@@ -182,10 +140,10 @@ again:
+ 		} else {
+ 			/* RC5 */
+ 			u8 command, system;
+-			command  =3D (data->rc5_bits & 0x0003F) >> 0;
+-			system   =3D (data->rc5_bits & 0x007C0) >> 6;
+-			toggle   =3D (data->rc5_bits & 0x00800) ? 1 : 0;
+-			command +=3D (data->rc5_bits & 0x01000) ? 0 : 0x40;
++			command  =3D (data->bits & 0x0003F) >> 0;
++			system   =3D (data->bits & 0x007C0) >> 6;
++			toggle   =3D (data->bits & 0x00800) ? 1 : 0;
++			command +=3D (data->bits & 0x01000) ? 0 : 0x40;
+ 			scancode =3D system << 8 | command;
+=20
+ 			IR_dprintk(1, "RC5 scancode 0x%04x (toggle: %u)\n",
+@@ -204,44 +162,9 @@ out:
+ 	return -EINVAL;
  }
 =20
+-static int ir_rc5_register(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	struct decoder_data *data;
+-
+-	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-
+-	data->ir_dev =3D ir_dev;
+-	spin_lock(&decoder_lock);
+-	list_add_tail(&data->list, &decoder_list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+-static int ir_rc5_unregister(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	static struct decoder_data *data;
+-
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return 0;
+-
+-	spin_lock(&decoder_lock);
+-	list_del(&data->list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
  static struct ir_raw_handler rc5_handler =3D {
-+	.protocols	=3D IR_TYPE_RC5,
+ 	.protocols	=3D IR_TYPE_RC5,
  	.decode		=3D ir_rc5_decode,
- 	.raw_register	=3D ir_rc5_register,
- 	.raw_unregister	=3D ir_rc5_unregister,
+-	.raw_register	=3D ir_rc5_register,
+-	.raw_unregister	=3D ir_rc5_unregister,
+ };
+=20
+ static int __init ir_rc5_decode_init(void)
 diff --git a/drivers/media/IR/ir-rc6-decoder.c b/drivers/media/IR/ir-rc=
 6-decoder.c
-index 2bf479f..5e940a8 100644
+index 5e940a8..a562952 100644
 --- a/drivers/media/IR/ir-rc6-decoder.c
 +++ b/drivers/media/IR/ir-rc6-decoder.c
-@@ -61,7 +61,6 @@ enum rc6_state {
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
--	int			enabled:1;
+@@ -36,10 +36,6 @@
+ #define RC6_STARTBIT_MASK	0x08	/* for the header bits */
+ #define RC6_6A_MCE_TOGGLE_MASK	0x8000	/* for the body bits */
 =20
- 	/* State machine control */
- 	enum rc6_state		state;
-@@ -93,53 +92,6 @@ static struct decoder_data *get_decoder_data(struct =
- ir_input_dev *ir_dev)
- 	return data;
- }
+-/* Used to register rc6_decoder clients */
+-static LIST_HEAD(decoder_list);
+-static DEFINE_SPINLOCK(decoder_lock);
+-
+ enum rc6_mode {
+ 	RC6_MODE_0,
+ 	RC6_MODE_6A,
+@@ -58,41 +54,7 @@ enum rc6_state {
+ 	STATE_FINISHED,
+ };
 =20
--static ssize_t store_enabled(struct device *d,
--			     struct device_attribute *mattr,
--			     const char *buf,
--			     size_t len)
--{
--	unsigned long value;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
+-struct decoder_data {
+-	struct list_head	list;
+-	struct ir_input_dev	*ir_dev;
 -
--	if (!data)
--		return -EINVAL;
--
--	if (strict_strtoul(buf, 10, &value) || value > 1)
--		return -EINVAL;
--
--	data->enabled =3D value;
--
--	return len;
--}
--
--static ssize_t show_enabled(struct device *d,
--			     struct device_attribute *mattr, char *buf)
--{
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
--
--	if (!data)
--		return -EINVAL;
--
--	if (data->enabled)
--		return sprintf(buf, "1\n");
--	else
--	return sprintf(buf, "0\n");
--}
--
--static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_ena=
-bled);
--
--static struct attribute *decoder_attributes[] =3D {
--	&dev_attr_enabled.attr,
--	NULL
+-	/* State machine control */
+-	enum rc6_state		state;
+-	u8			header;
+-	u32			body;
+-	struct ir_raw_event	prev_ev;
+-	bool			toggle;
+-	unsigned		count;
+-	unsigned		wanted_bits;
 -};
 -
--static struct attribute_group decoder_attribute_group =3D {
--	.name	=3D "rc6_decoder",
--	.attrs	=3D decoder_attributes,
--};
 -
- static enum rc6_mode rc6_mode(struct decoder_data *data) {
+-/**
+- * get_decoder_data()	- gets decoder data
+- * @input_dev:	input device
+- *
+- * Returns the struct decoder_data that corresponds to a device
+- */
+-static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
+dev)
+-{
+-	struct decoder_data *data =3D NULL;
+-
+-	spin_lock(&decoder_lock);
+-	list_for_each_entry(data, &decoder_list, list) {
+-		if (data->ir_dev =3D=3D ir_dev)
+-			break;
+-	}
+-	spin_unlock(&decoder_lock);
+-	return data;
+-}
+-
+-static enum rc6_mode rc6_mode(struct decoder_data *data) {
++static enum rc6_mode rc6_mode(struct rc6_dec *data) {
  	switch (data->header & RC6_MODE_MASK) {
  	case 0:
-@@ -171,7 +123,7 @@ static int ir_rc6_decode(struct input_dev *input_de=
-v, struct ir_raw_event ev)
- 	if (!data)
- 		return -EINVAL;
-=20
--	if (!data->enabled)
-+	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC6))
- 		return 0;
-=20
- 	if (IS_RESET(ev)) {
-@@ -352,21 +304,12 @@ static int ir_rc6_register(struct input_dev *inpu=
-t_dev)
+ 		return RC6_MODE_0;
+@@ -114,15 +76,11 @@ static enum rc6_mode rc6_mode(struct decoder_data =
+*data) {
+  */
+ static int ir_rc6_decode(struct input_dev *input_dev, struct ir_raw_ev=
+ent ev)
  {
+-	struct decoder_data *data;
  	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
- 	struct decoder_data *data;
--	int rc;
--
--	rc =3D sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group=
-);
--	if (rc < 0)
--		return rc;
++	struct rc6_dec *data =3D &ir_dev->raw->rc6;
+ 	u32 scancode;
+ 	u8 toggle;
 =20
- 	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data) {
--		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
-+	if (!data)
- 		return -ENOMEM;
--	}
-=20
- 	data->ir_dev =3D ir_dev;
--	data->enabled =3D 1;
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return -EINVAL;
 -
- 	spin_lock(&decoder_lock);
- 	list_add_tail(&data->list, &decoder_list);
- 	spin_unlock(&decoder_lock);
-@@ -383,8 +326,6 @@ static int ir_rc6_unregister(struct input_dev *inpu=
-t_dev)
- 	if (!data)
+ 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_RC6))
  		return 0;
 =20
--	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
+@@ -175,12 +133,11 @@ again:
+ 		if (ev.pulse)
+ 			data->header |=3D 1;
+ 		data->count++;
+-		data->prev_ev =3D ev;
+ 		data->state =3D STATE_HEADER_BIT_END;
+ 		return 0;
+=20
+ 	case STATE_HEADER_BIT_END:
+-		if (!is_transition(&ev, &data->prev_ev))
++		if (!is_transition(&ev, &ir_dev->raw->prev_ev))
+ 			break;
+=20
+ 		if (data->count =3D=3D RC6_HEADER_NBITS)
+@@ -196,12 +153,11 @@ again:
+ 			break;
+=20
+ 		data->toggle =3D ev.pulse;
+-		data->prev_ev =3D ev;
+ 		data->state =3D STATE_TOGGLE_END;
+ 		return 0;
+=20
+ 	case STATE_TOGGLE_END:
+-		if (!is_transition(&ev, &data->prev_ev) ||
++		if (!is_transition(&ev, &ir_dev->raw->prev_ev) ||
+ 		    !geq_margin(ev.duration, RC6_TOGGLE_END, RC6_UNIT / 2))
+ 			break;
+=20
+@@ -211,7 +167,6 @@ again:
+ 		}
+=20
+ 		data->state =3D STATE_BODY_BIT_START;
+-		data->prev_ev =3D ev;
+ 		decrease_duration(&ev, RC6_TOGGLE_END);
+ 		data->count =3D 0;
+=20
+@@ -243,13 +198,11 @@ again:
+ 		if (ev.pulse)
+ 			data->body |=3D 1;
+ 		data->count++;
+-		data->prev_ev =3D ev;
 -
- 	spin_lock(&decoder_lock);
- 	list_del(&data->list);
- 	spin_unlock(&decoder_lock);
-@@ -393,6 +334,7 @@ static int ir_rc6_unregister(struct input_dev *inpu=
-t_dev)
+ 		data->state =3D STATE_BODY_BIT_END;
+ 		return 0;
+=20
+ 	case STATE_BODY_BIT_END:
+-		if (!is_transition(&ev, &data->prev_ev))
++		if (!is_transition(&ev, &ir_dev->raw->prev_ev))
+ 			break;
+=20
+ 		if (data->count =3D=3D data->wanted_bits)
+@@ -300,44 +253,9 @@ out:
+ 	return -EINVAL;
  }
 =20
+-static int ir_rc6_register(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	struct decoder_data *data;
+-
+-	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
+-
+-	data->ir_dev =3D ir_dev;
+-	spin_lock(&decoder_lock);
+-	list_add_tail(&data->list, &decoder_list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+-static int ir_rc6_unregister(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	static struct decoder_data *data;
+-
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return 0;
+-
+-	spin_lock(&decoder_lock);
+-	list_del(&data->list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
  static struct ir_raw_handler rc6_handler =3D {
-+	.protocols	=3D IR_TYPE_RC6,
+ 	.protocols	=3D IR_TYPE_RC6,
  	.decode		=3D ir_rc6_decode,
- 	.raw_register	=3D ir_rc6_register,
- 	.raw_unregister	=3D ir_rc6_unregister,
+-	.raw_register	=3D ir_rc6_register,
+-	.raw_unregister	=3D ir_rc6_unregister,
+ };
+=20
+ static int __init ir_rc6_decode_init(void)
 diff --git a/drivers/media/IR/ir-sony-decoder.c b/drivers/media/IR/ir-s=
 ony-decoder.c
-index 9f440c5..8afd16a 100644
+index 8afd16a..b9074f0 100644
 --- a/drivers/media/IR/ir-sony-decoder.c
 +++ b/drivers/media/IR/ir-sony-decoder.c
-@@ -38,7 +38,6 @@ enum sony_state {
- struct decoder_data {
- 	struct list_head	list;
- 	struct ir_input_dev	*ir_dev;
--	int			enabled:1;
+@@ -23,10 +23,6 @@
+ #define SONY_BIT_SPACE		(1 * SONY_UNIT)
+ #define SONY_TRAILER_SPACE	(10 * SONY_UNIT) /* minimum */
 =20
- 	/* State machine control */
- 	enum sony_state		state;
-@@ -66,53 +65,6 @@ static struct decoder_data *get_decoder_data(struct =
- ir_input_dev *ir_dev)
- 	return data;
- }
+-/* Used to register sony_decoder clients */
+-static LIST_HEAD(decoder_list);
+-static DEFINE_SPINLOCK(decoder_lock);
+-
+ enum sony_state {
+ 	STATE_INACTIVE,
+ 	STATE_HEADER_SPACE,
+@@ -35,36 +31,6 @@ enum sony_state {
+ 	STATE_FINISHED,
+ };
 =20
--static ssize_t store_enabled(struct device *d,
--			     struct device_attribute *mattr,
--			     const char *buf,
--			     size_t len)
--{
--	unsigned long value;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
+-struct decoder_data {
+-	struct list_head	list;
+-	struct ir_input_dev	*ir_dev;
 -
--	if (!data)
--		return -EINVAL;
--
--	if (strict_strtoul(buf, 10, &value) || value > 1)
--		return -EINVAL;
--
--	data->enabled =3D value;
--
--	return len;
--}
--
--static ssize_t show_enabled(struct device *d,
--			     struct device_attribute *mattr, char *buf)
--{
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	struct decoder_data *data =3D get_decoder_data(ir_dev);
--
--	if (!data)
--		return -EINVAL;
--
--	if (data->enabled)
--		return sprintf(buf, "1\n");
--	else
--	return sprintf(buf, "0\n");
--}
--
--static DEVICE_ATTR(enabled, S_IRUGO | S_IWUSR, show_enabled, store_ena=
-bled);
--
--static struct attribute *decoder_attributes[] =3D {
--	&dev_attr_enabled.attr,
--	NULL
+-	/* State machine control */
+-	enum sony_state		state;
+-	u32			sony_bits;
+-	unsigned		count;
 -};
 -
--static struct attribute_group decoder_attribute_group =3D {
--	.name	=3D "sony_decoder",
--	.attrs	=3D decoder_attributes,
--};
+-
+-/**
+- * get_decoder_data()	- gets decoder data
+- * @input_dev:	input device
+- *
+- * Returns the struct decoder_data that corresponds to a device
+- */
+-static struct decoder_data *get_decoder_data(struct  ir_input_dev *ir_=
+dev)
+-{
+-	struct decoder_data *data =3D NULL;
+-
+-	spin_lock(&decoder_lock);
+-	list_for_each_entry(data, &decoder_list, list) {
+-		if (data->ir_dev =3D=3D ir_dev)
+-			break;
+-	}
+-	spin_unlock(&decoder_lock);
+-	return data;
+-}
 -
  /**
   * ir_sony_decode() - Decode one Sony pulse or space
   * @input_dev:	the struct input_dev descriptor of the device
-@@ -131,7 +83,7 @@ static int ir_sony_decode(struct input_dev *input_de=
-v, struct ir_raw_event ev)
- 	if (!data)
- 		return -EINVAL;
-=20
--	if (!data->enabled)
-+	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_SONY))
- 		return 0;
-=20
- 	if (IS_RESET(ev)) {
-@@ -245,21 +197,12 @@ static int ir_sony_register(struct input_dev *inp=
-ut_dev)
+@@ -74,15 +40,11 @@ static struct decoder_data *get_decoder_data(struct=
+  ir_input_dev *ir_dev)
+  */
+ static int ir_sony_decode(struct input_dev *input_dev, struct ir_raw_e=
+vent ev)
  {
+-	struct decoder_data *data;
  	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
- 	struct decoder_data *data;
--	int rc;
--
--	rc =3D sysfs_create_group(&ir_dev->dev.kobj, &decoder_attribute_group=
-);
--	if (rc < 0)
--		return rc;
++	struct sony_dec *data =3D &ir_dev->raw->sony;
+ 	u32 scancode;
+ 	u8 device, subdevice, function;
 =20
- 	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
--	if (!data) {
--		sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
-+	if (!data)
- 		return -ENOMEM;
--	}
-=20
- 	data->ir_dev =3D ir_dev;
--	data->enabled =3D 1;
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return -EINVAL;
 -
- 	spin_lock(&decoder_lock);
- 	list_add_tail(&data->list, &decoder_list);
- 	spin_unlock(&decoder_lock);
-@@ -276,8 +219,6 @@ static int ir_sony_unregister(struct input_dev *inp=
-ut_dev)
- 	if (!data)
+ 	if (!(ir_dev->raw->enabled_protocols & IR_TYPE_SONY))
  		return 0;
 =20
--	sysfs_remove_group(&ir_dev->dev.kobj, &decoder_attribute_group);
--
- 	spin_lock(&decoder_lock);
- 	list_del(&data->list);
- 	spin_unlock(&decoder_lock);
-@@ -286,6 +227,7 @@ static int ir_sony_unregister(struct input_dev *inp=
-ut_dev)
+@@ -124,9 +86,9 @@ static int ir_sony_decode(struct input_dev *input_de=
+v, struct ir_raw_event ev)
+ 		if (!ev.pulse)
+ 			break;
+=20
+-		data->sony_bits <<=3D 1;
++		data->bits <<=3D 1;
+ 		if (eq_margin(ev.duration, SONY_BIT_1_PULSE, SONY_UNIT / 2))
+-			data->sony_bits |=3D 1;
++			data->bits |=3D 1;
+ 		else if (!eq_margin(ev.duration, SONY_BIT_0_PULSE, SONY_UNIT / 2))
+ 			break;
+=20
+@@ -160,19 +122,19 @@ static int ir_sony_decode(struct input_dev *input=
+_dev, struct ir_raw_event ev)
+=20
+ 		switch (data->count) {
+ 		case 12:
+-			device    =3D bitrev8((data->sony_bits <<  3) & 0xF8);
++			device    =3D bitrev8((data->bits <<  3) & 0xF8);
+ 			subdevice =3D 0;
+-			function  =3D bitrev8((data->sony_bits >>  4) & 0xFE);
++			function  =3D bitrev8((data->bits >>  4) & 0xFE);
+ 			break;
+ 		case 15:
+-			device    =3D bitrev8((data->sony_bits >>  0) & 0xFF);
++			device    =3D bitrev8((data->bits >>  0) & 0xFF);
+ 			subdevice =3D 0;
+-			function  =3D bitrev8((data->sony_bits >>  7) & 0xFD);
++			function  =3D bitrev8((data->bits >>  7) & 0xFD);
+ 			break;
+ 		case 20:
+-			device    =3D bitrev8((data->sony_bits >>  5) & 0xF8);
+-			subdevice =3D bitrev8((data->sony_bits >>  0) & 0xFF);
+-			function  =3D bitrev8((data->sony_bits >> 12) & 0xFE);
++			device    =3D bitrev8((data->bits >>  5) & 0xF8);
++			subdevice =3D bitrev8((data->bits >>  0) & 0xFF);
++			function  =3D bitrev8((data->bits >> 12) & 0xFE);
+ 			break;
+ 		default:
+ 			IR_dprintk(1, "Sony invalid bitcount %u\n", data->count);
+@@ -193,44 +155,9 @@ out:
+ 	return -EINVAL;
  }
 =20
- static struct ir_raw_handler sony_handler =3D {
-+	.protocols	=3D IR_TYPE_SONY,
- 	.decode		=3D ir_sony_decode,
- 	.raw_register	=3D ir_sony_register,
- 	.raw_unregister	=3D ir_sony_unregister,
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index facca11..2efb475 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -33,122 +33,178 @@ static struct class ir_input_class =3D {
- };
-=20
- /**
-- * show_protocol() - shows the current IR protocol
-+ * show_protocols() - shows the current IR protocol(s)
-  * @d:		the device descriptor
-  * @mattr:	the device attribute struct (unused)
-  * @buf:	a pointer to the output buffer
-  *
-- * This routine is a callback routine for input read the IR protocol t=
-ype.
-- * it is trigged by reading /sys/class/rc/rc?/current_protocol.
-- * It returns the protocol name, as understood by the driver.
-+ * This routine is a callback routine for input read the IR protocol t=
-ype(s).
-+ * it is trigged by reading /sys/class/rc/rc?/protocols.
-+ * It returns the protocol names of supported protocols.
-+ * Enabled protocols are printed in brackets.
-  */
--static ssize_t show_protocol(struct device *d,
--			     struct device_attribute *mattr, char *buf)
-+static ssize_t show_protocols(struct device *d,
-+			      struct device_attribute *mattr, char *buf)
- {
--	char *s;
- 	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	u64 ir_type =3D ir_dev->rc_tab.ir_type;
--
--	IR_dprintk(1, "Current protocol is %lld\n", (long long)ir_type);
--
--	/* FIXME: doesn't support multiple protocols at the same time */
--	if (ir_type =3D=3D IR_TYPE_UNKNOWN)
--		s =3D "Unknown";
--	else if (ir_type =3D=3D IR_TYPE_RC5)
--		s =3D "rc-5";
--	else if (ir_type =3D=3D IR_TYPE_NEC)
--		s =3D "nec";
--	else if (ir_type =3D=3D IR_TYPE_RC6)
--		s =3D "rc6";
--	else if (ir_type =3D=3D IR_TYPE_JVC)
--		s =3D "jvc";
--	else if (ir_type =3D=3D IR_TYPE_SONY)
--		s =3D "sony";
--	else
--		s =3D "other";
-+	u64 allowed, enabled;
-+	char *tmp =3D buf;
-+
-+	if (ir_dev->props->driver_type =3D=3D RC_DRIVER_SCANCODE) {
-+		enabled =3D ir_dev->rc_tab.ir_type;
-+		allowed =3D ir_dev->props->allowed_protos;
-+	} else {
-+		enabled =3D ir_dev->raw->enabled_protocols;
-+		allowed =3D ir_raw_get_allowed_protocols();
-+	}
-=20
--	return sprintf(buf, "%s\n", s);
-+	IR_dprintk(1, "allowed - 0x%llx, enabled - 0x%llx\n",
-+		   (long long)allowed,
-+		   (long long)enabled);
-+
-+	if (allowed & enabled & IR_TYPE_UNKNOWN)
-+		tmp +=3D sprintf(tmp, "[unknown] ");
-+	else if (allowed & IR_TYPE_UNKNOWN)
-+		tmp +=3D sprintf(tmp, "unknown ");
-+
-+	if (allowed & enabled & IR_TYPE_RC5)
-+		tmp +=3D sprintf(tmp, "[rc5] ");
-+	else if (allowed & IR_TYPE_RC5)
-+		tmp +=3D sprintf(tmp, "rc5 ");
-+
-+	if (allowed & enabled & IR_TYPE_NEC)
-+		tmp +=3D sprintf(tmp, "[nec] ");
-+	else if (allowed & IR_TYPE_NEC)
-+		tmp +=3D sprintf(tmp, "nec ");
-+
-+	if (allowed & enabled & IR_TYPE_RC6)
-+		tmp +=3D sprintf(tmp, "[rc6] ");
-+	else if (allowed & IR_TYPE_RC6)
-+		tmp +=3D sprintf(tmp, "rc6 ");
-+
-+	if (allowed & enabled & IR_TYPE_JVC)
-+		tmp +=3D sprintf(tmp, "[jvc] ");
-+	else if (allowed & IR_TYPE_JVC)
-+		tmp +=3D sprintf(tmp, "jvc ");
-+
-+	if (allowed & enabled & IR_TYPE_SONY)
-+		tmp +=3D sprintf(tmp, "[sony] ");
-+	else if (allowed & IR_TYPE_SONY)
-+		tmp +=3D sprintf(tmp, "sony ");
-+
-+	if (tmp !=3D buf)
-+		tmp--;
-+	*tmp =3D '\n';
-+	return tmp + 1 - buf;
- }
-=20
- /**
-- * store_protocol() - shows the current IR protocol
-+ * store_protocols() - changes the current IR protocol(s)
-  * @d:		the device descriptor
-  * @mattr:	the device attribute struct (unused)
-  * @buf:	a pointer to the input buffer
-  * @len:	length of the input buffer
-  *
-  * This routine is a callback routine for changing the IR protocol typ=
-e.
-- * it is trigged by reading /sys/class/rc/rc?/current_protocol.
-- * It changes the IR the protocol name, if the IR type is recognized
-- * by the driver.
-- * If an unknown protocol name is used, returns -EINVAL.
-+ * It is trigged by writing to /sys/class/rc/rc?/protocols.
-+ * Writing "+proto" will add a protocol to the list of enabled protoco=
-ls.
-+ * Writing "-proto" will remove a protocol from the list of enabled pr=
-otocols.
-+ * Writing "proto" will enable only "proto".
-+ * Returns -EINVAL if an invalid protocol combination or unknown proto=
-col name
-+ * is used, otherwise @len.
-  */
--static ssize_t store_protocol(struct device *d,
--			      struct device_attribute *mattr,
--			      const char *data,
--			      size_t len)
-+static ssize_t store_protocols(struct device *d,
-+			       struct device_attribute *mattr,
-+			       const char *data,
-+			       size_t len)
- {
- 	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
--	u64 ir_type =3D 0;
--	int rc =3D -EINVAL;
-+	bool enable, disable;
-+	const char *tmp;
-+	u64 type;
-+	u64 mask;
-+	int rc;
- 	unsigned long flags;
--	char *buf;
--
--	while ((buf =3D strsep((char **) &data, " \n")) !=3D NULL) {
--		if (!strcasecmp(buf, "rc-5") || !strcasecmp(buf, "rc5"))
--			ir_type |=3D IR_TYPE_RC5;
--		if (!strcasecmp(buf, "nec"))
--			ir_type |=3D IR_TYPE_NEC;
--		if (!strcasecmp(buf, "jvc"))
--			ir_type |=3D IR_TYPE_JVC;
--		if (!strcasecmp(buf, "sony"))
--			ir_type |=3D IR_TYPE_SONY;
-+
-+	tmp =3D skip_spaces(data);
-+
-+	if (*tmp =3D=3D '+') {
-+		enable =3D true;
-+		disable =3D false;
-+		tmp++;
-+	} else if (*tmp =3D=3D '-') {
-+		enable =3D false;
-+		disable =3D true;
-+		tmp++;
-+	} else {
-+		enable =3D false;
-+		disable =3D false;
- 	}
-=20
--	if (!ir_type) {
-+	if (!strncasecmp(tmp, "unknown", 7)) {
-+		tmp +=3D 7;
-+		mask =3D IR_TYPE_UNKNOWN;
-+	} else if (!strncasecmp(tmp, "rc5", 3)) {
-+		tmp +=3D 3;
-+		mask =3D IR_TYPE_RC5;
-+	} else if (!strncasecmp(tmp, "nec", 3)) {
-+		tmp +=3D 3;
-+		mask =3D IR_TYPE_NEC;
-+	} else if (!strncasecmp(tmp, "rc6", 3)) {
-+		tmp +=3D 3;
-+		mask =3D IR_TYPE_RC6;
-+	} else if (!strncasecmp(tmp, "jvc", 3)) {
-+		tmp +=3D 3;
-+		mask =3D IR_TYPE_JVC;
-+	} else if (!strncasecmp(tmp, "sony", 4)) {
-+		tmp +=3D 4;
-+		mask =3D IR_TYPE_SONY;
-+	} else {
- 		IR_dprintk(1, "Unknown protocol\n");
- 		return -EINVAL;
- 	}
-=20
--	if (ir_dev->props && ir_dev->props->change_protocol)
--		rc =3D ir_dev->props->change_protocol(ir_dev->props->priv,
--						    ir_type);
--
--	if (rc < 0) {
--		IR_dprintk(1, "Error setting protocol to %lld\n",
--			   (long long)ir_type);
-+	tmp =3D skip_spaces(tmp);
-+	if (*tmp !=3D '\0') {
-+		IR_dprintk(1, "Invalid trailing characters\n");
- 		return -EINVAL;
- 	}
-=20
--	spin_lock_irqsave(&ir_dev->rc_tab.lock, flags);
--	ir_dev->rc_tab.ir_type =3D ir_type;
--	spin_unlock_irqrestore(&ir_dev->rc_tab.lock, flags);
-+	if (ir_dev->props->driver_type =3D=3D RC_DRIVER_SCANCODE)
-+		type =3D ir_dev->rc_tab.ir_type;
-+	else
-+		type =3D ir_dev->raw->enabled_protocols;
-=20
--	IR_dprintk(1, "Current protocol(s) is(are) %lld\n",
--		   (long long)ir_type);
-+	if (enable)
-+		type |=3D mask;
-+	else if (disable)
-+		type &=3D ~mask;
-+	else
-+		type =3D mask;
-=20
--	return len;
--}
-+	if (ir_dev->props && ir_dev->props->change_protocol) {
-+		rc =3D ir_dev->props->change_protocol(ir_dev->props->priv,
-+						    type);
-+		if (rc < 0) {
-+			IR_dprintk(1, "Error setting protocols to 0x%llx\n",
-+				   (long long)type);
-+			return -EINVAL;
-+		}
-+	}
-=20
--static ssize_t show_supported_protocols(struct device *d,
--			     struct device_attribute *mattr, char *buf)
+-static int ir_sony_register(struct input_dev *input_dev)
 -{
--	char *orgbuf =3D buf;
--	struct ir_input_dev *ir_dev =3D dev_get_drvdata(d);
-+	if (ir_dev->props->driver_type =3D=3D RC_DRIVER_SCANCODE) {
-+		spin_lock_irqsave(&ir_dev->rc_tab.lock, flags);
-+		ir_dev->rc_tab.ir_type =3D type;
-+		spin_unlock_irqrestore(&ir_dev->rc_tab.lock, flags);
-+	} else {
-+		ir_dev->raw->enabled_protocols =3D type;
-+	}
-=20
--	/* FIXME: doesn't support multiple protocols at the same time */
--	if (ir_dev->props->allowed_protos =3D=3D IR_TYPE_UNKNOWN)
--		buf +=3D sprintf(buf, "unknown ");
--	if (ir_dev->props->allowed_protos & IR_TYPE_RC5)
--		buf +=3D sprintf(buf, "rc-5 ");
--	if (ir_dev->props->allowed_protos & IR_TYPE_NEC)
--		buf +=3D sprintf(buf, "nec ");
--	if (buf =3D=3D orgbuf)
--		buf +=3D sprintf(buf, "other ");
-=20
--	buf +=3D sprintf(buf - 1, "\n");
-+	IR_dprintk(1, "Current protocol(s): 0x%llx\n",
-+		   (long long)type);
-=20
--	return buf - orgbuf;
-+	return len;
- }
-=20
- #define ADD_HOTPLUG_VAR(fmt, val...)					\
-@@ -158,7 +214,7 @@ static ssize_t show_supported_protocols(struct devi=
-ce *d,
- 			return err;					\
- 	} while (0)
-=20
--static int ir_dev_uevent(struct device *device, struct kobj_uevent_env=
- *env)
-+static int rc_dev_uevent(struct device *device, struct kobj_uevent_env=
- *env)
- {
- 	struct ir_input_dev *ir_dev =3D dev_get_drvdata(device);
-=20
-@@ -173,34 +229,26 @@ static int ir_dev_uevent(struct device *device, s=
-truct kobj_uevent_env *env)
- /*
-  * Static device attribute struct with the sysfs attributes for IR's
-  */
--static DEVICE_ATTR(protocol, S_IRUGO | S_IWUSR,
--		   show_protocol, store_protocol);
-+static DEVICE_ATTR(protocols, S_IRUGO | S_IWUSR,
-+		   show_protocols, store_protocols);
-=20
--static DEVICE_ATTR(supported_protocols, S_IRUGO | S_IWUSR,
--		   show_supported_protocols, NULL);
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	struct decoder_data *data;
 -
--static struct attribute *ir_hw_dev_attrs[] =3D {
--	&dev_attr_protocol.attr,
--	&dev_attr_supported_protocols.attr,
-+static struct attribute *rc_dev_attrs[] =3D {
-+	&dev_attr_protocols.attr,
- 	NULL,
- };
-=20
--static struct attribute_group ir_hw_dev_attr_grp =3D {
--	.attrs	=3D ir_hw_dev_attrs,
-+static struct attribute_group rc_dev_attr_grp =3D {
-+	.attrs	=3D rc_dev_attrs,
- };
-=20
--static const struct attribute_group *ir_hw_dev_attr_groups[] =3D {
--	&ir_hw_dev_attr_grp,
-+static const struct attribute_group *rc_dev_attr_groups[] =3D {
-+	&rc_dev_attr_grp,
- 	NULL
- };
-=20
- static struct device_type rc_dev_type =3D {
--	.groups		=3D ir_hw_dev_attr_groups,
--	.uevent		=3D ir_dev_uevent,
--};
+-	data =3D kzalloc(sizeof(*data), GFP_KERNEL);
+-	if (!data)
+-		return -ENOMEM;
 -
--static struct device_type ir_raw_dev_type =3D {
--	.uevent		=3D ir_dev_uevent,
-+	.groups		=3D rc_dev_attr_groups,
-+	.uevent		=3D rc_dev_uevent,
+-	data->ir_dev =3D ir_dev;
+-	spin_lock(&decoder_lock);
+-	list_add_tail(&data->list, &decoder_list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+-static int ir_sony_unregister(struct input_dev *input_dev)
+-{
+-	struct ir_input_dev *ir_dev =3D input_get_drvdata(input_dev);
+-	static struct decoder_data *data;
+-
+-	data =3D get_decoder_data(ir_dev);
+-	if (!data)
+-		return 0;
+-
+-	spin_lock(&decoder_lock);
+-	list_del(&data->list);
+-	spin_unlock(&decoder_lock);
+-
+-	return 0;
+-}
+-
+ static struct ir_raw_handler sony_handler =3D {
+ 	.protocols	=3D IR_TYPE_SONY,
+ 	.decode		=3D ir_sony_decode,
+-	.raw_register	=3D ir_sony_register,
+-	.raw_unregister	=3D ir_sony_unregister,
  };
 =20
- /**
-@@ -220,11 +268,7 @@ int ir_register_class(struct input_dev *input_dev)
- 	if (unlikely(devno < 0))
- 		return devno;
-=20
--	if (ir_dev->props->driver_type =3D=3D RC_DRIVER_SCANCODE)
--		ir_dev->dev.type =3D &rc_dev_type;
--	else
--		ir_dev->dev.type =3D &ir_raw_dev_type;
--
-+	ir_dev->dev.type =3D &rc_dev_type;
- 	ir_dev->dev.class =3D &ir_input_class;
- 	ir_dev->dev.parent =3D input_dev->dev.parent;
- 	dev_set_name(&ir_dev->dev, "rc%d", devno);
+ static int __init ir_sony_decode_init(void)

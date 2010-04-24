@@ -1,148 +1,113 @@
-From: David =?utf-8?b?SMOkcmRlbWFu?= <david@hardeman.nu>
-Subject: [PATCH 4/4] ir-core: remove ir-functions usage from cx231xx
-Date: Sat, 24 Apr 2010 23:14:16 +0200
-Message-ID: <20100424211416.11570.83633.stgit@localhost.localdomain>
-References: <20100424210843.11570.82007.stgit@localhost.localdomain>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
+ LIRC and decoder plugins
+Date: Sat, 24 Apr 2010 23:23:53 +0200
+Message-ID: <20100424212353.GB11879@hardeman.nu>
+References: <20100402102011.GA6947@hardeman.nu>
+ <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+ <20100407093205.GB3029@hardeman.nu>
+ <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+ <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
+ <1272061228.3089.8.camel@palomino.walls.org>
+ <20100424052254.GB3101@hardeman.nu>
+ <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
+ <20100424141510.GA3070@hardeman.nu>
+ <y2h9e4733911004240807wfa6b0e79q8deb18c425484b6f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:34943 "EHLO
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:39042 "EHLO
 	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752176Ab0DXVOU (ORCPT
+	with ESMTP id S1752553Ab0DXVYB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 17:14:20 -0400
-In-Reply-To: <20100424210843.11570.82007.stgit@localhost.localdomain>
+	Sat, 24 Apr 2010 17:24:01 -0400
+Content-Disposition: inline
+In-Reply-To: <y2h9e4733911004240807wfa6b0e79q8deb18c425484b6f@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mchehab@redhat.com
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-Convert drivers/media/video/cx231xx/cx231xx-input.c to not
-rely on ir-functions.c.
+On Sat, Apr 24, 2010 at 11:07:07AM -0400, Jon Smirl wrote:
+> On Sat, Apr 24, 2010 at 10:15 AM, David H=E4rdeman <david@hardeman.nu=
+> wrote:
+> > On Sat, Apr 24, 2010 at 08:35:48AM -0400, Jon Smirl wrote:
+> >> On Sat, Apr 24, 2010 at 1:22 AM, David H=E4rdeman <david@hardeman.=
+nu> wrote:
+> >> > I think we're eventually going to want to let rc-core create a=20
+> >> > chardev
+> >> > per rc device to allow for things like reading out scancodes (wh=
+en
+> >> > creating keymaps for new and unknown remotes), raw timings (for
+> >> > debugging in-kernel decoders and writing new ones), possibly als=
+o
+> >> > ioctl's (for e.g. setting all RX parameters in one go or to
+> >> > create/destroy additional keymaps, though I'm sure some will wan=
+t all of
+> >> > that to go through sysfs).
+> >>
+> >> That problem is handled differently in the graphics code. =A0You o=
+nly
+> >> have one /dev device for graphics. IOCTLs on it are divided into
+> >> ranges - core and driver. The IOCTL call initially lands in the co=
+re
+> >> code, but if it is in the driver range it simply gets forwarded to=
+ the
+> >> specific driver and handled there.
+> >>
+> >> Doing it that was avoids needing two /dev devices nodes for the sa=
+me
+> >> device. Two device nodes has problems. =A0How do you keep them fro=
+m
+> >> being open by two different users and different privilege levels, =
+or
+> >> one is open and one closed, etc...
+> >
+> > I'm not sure which two devices you're talking about. ir-core curren=
+tly
+> > creates no device at all (unless you count the input device). And
+> > further down the road I think each rc (ir) device should support
+> > multiple keytables, each keytable having an associated input device=
+=2E
+> >
+> > Input device(s) would be used by the majority of applications that =
+only
+> > want to react on keypresses, the rc device is used by rc-aware
+> > applications that want to create new keytables, send ir commands, t=
+weak
+> > RX/TX parameters, etc. I do not see how any of your two-device conc=
+erns
+> > would apply to that division...
+> >
+> >> Splitting the IOCTL range is easy to add to input core and it won'=
+t
+> >> effect any existing user space code.
+> >
+> > The input maintainers have already NAK'ed adding any ir-specific io=
+ctls
+> > to the input layer, and I tend to agree with them.
+>=20
+> Based on my experience with DRM adding a split to the IOCTL range is =
+a
+> good solution. The split does not add IR specific IOCTLs to the input
+> core. The input core just looks at the IOCTL number and if it is out
+> of range it forwards it down the chain - to IR core, which can proces=
+s
+> it  or forward to the specific driver.  This model is already in use
+> and it works without problem.
 
-(I do not have the hardware so I can only compile test this)
+I don't care either way. Get the input maintainers to agree and I'll=20
+happily write patches that follow that approach (writing TX data to the=
+=20
+input dev will also have to be supported).
 
-Signed-off-by: David H=C3=A4rdeman <david@hardeman.nu>
----
- drivers/media/video/cx231xx/cx231xx-input.c |   47 +++++--------------=
---------
- drivers/media/video/cx231xx/cx231xx.h       |    2 +
- 2 files changed, 10 insertions(+), 39 deletions(-)
+The only real problem I see is if we implement > 1 input device per=20
+rc/ir device (which I think we should do - each logical remote should=20
+have a separate keytable and input device).
 
-diff --git a/drivers/media/video/cx231xx/cx231xx-input.c b/drivers/medi=
-a/video/cx231xx/cx231xx-input.c
-index dbd6218..a3d6593 100644
---- a/drivers/media/video/cx231xx/cx231xx-input.c
-+++ b/drivers/media/video/cx231xx/cx231xx-input.c
-@@ -60,7 +60,6 @@ struct cx231xx_ir_poll_result {
- struct cx231xx_IR {
- 	struct cx231xx *dev;
- 	struct input_dev *input;
--	struct ir_input_state ir;
- 	char name[32];
- 	char phys[32];
-=20
-@@ -68,9 +67,7 @@ struct cx231xx_IR {
- 	int polling;
- 	struct work_struct work;
- 	struct timer_list timer;
--	unsigned int last_toggle:1;
- 	unsigned int last_readcount;
--	unsigned int repeat_interval;
-=20
- 	int (*get_key) (struct cx231xx_IR *, struct cx231xx_ir_poll_result *)=
-;
- };
-@@ -82,7 +79,6 @@ struct cx231xx_IR {
- static void cx231xx_ir_handle_key(struct cx231xx_IR *ir)
- {
- 	int result;
--	int do_sendkey =3D 0;
- 	struct cx231xx_ir_poll_result poll_result;
-=20
- 	/* read the registers containing the IR status */
-@@ -96,44 +92,23 @@ static void cx231xx_ir_handle_key(struct cx231xx_IR=
- *ir)
- 		poll_result.toggle_bit, poll_result.read_count,
- 		ir->last_readcount, poll_result.rc_data[0]);
-=20
--	if (ir->dev->chip_id =3D=3D CHIP_ID_EM2874) {
-+	if (poll_result.read_count > 0 &&
-+	    poll_result.read_count !=3D ir->last_readcount)
-+		ir_keydown(ir->input,
-+			   poll_result.rc_data[0],
-+			   poll_result.toggle_bit);
-+
-+	if (ir->dev->chip_id =3D=3D CHIP_ID_EM2874)
- 		/* The em2874 clears the readcount field every time the
- 		   register is read.  The em2860/2880 datasheet says that it
- 		   is supposed to clear the readcount, but it doesn't.  So with
- 		   the em2874, we are looking for a non-zero read count as
- 		   opposed to a readcount that is incrementing */
- 		ir->last_readcount =3D 0;
--	}
--
--	if (poll_result.read_count =3D=3D 0) {
--		/* The button has not been pressed since the last read */
--	} else if (ir->last_toggle !=3D poll_result.toggle_bit) {
--		/* A button has been pressed */
--		dprintk("button has been pressed\n");
--		ir->last_toggle =3D poll_result.toggle_bit;
--		ir->repeat_interval =3D 0;
--		do_sendkey =3D 1;
--	} else if (poll_result.toggle_bit =3D=3D ir->last_toggle &&
--		   poll_result.read_count > 0 &&
--		   poll_result.read_count !=3D ir->last_readcount) {
--		/* The button is still being held down */
--		dprintk("button being held down\n");
--
--		/* Debouncer for first keypress */
--		if (ir->repeat_interval++ > 9) {
--			/* Start repeating after 1 second */
--			do_sendkey =3D 1;
--		}
--	}
-+	else
-+		ir->last_readcount =3D poll_result.read_count;
-=20
--	if (do_sendkey) {
--		dprintk("sending keypress\n");
--		ir_input_keydown(ir->input, &ir->ir, poll_result.rc_data[0]);
--		ir_input_nokey(ir->input, &ir->ir);
- 	}
--
--	ir->last_readcount =3D poll_result.read_count;
--	return;
- }
-=20
- static void ir_timer(unsigned long data)
-@@ -199,10 +174,6 @@ int cx231xx_ir_init(struct cx231xx *dev)
- 	usb_make_path(dev->udev, ir->phys, sizeof(ir->phys));
- 	strlcat(ir->phys, "/input0", sizeof(ir->phys));
-=20
--	err =3D ir_input_init(input_dev, &ir->ir, IR_TYPE_OTHER);
--	if (err < 0)
--		goto err_out_free;
--
- 	input_dev->name =3D ir->name;
- 	input_dev->phys =3D ir->phys;
- 	input_dev->id.bustype =3D BUS_USB;
-diff --git a/drivers/media/video/cx231xx/cx231xx.h b/drivers/media/vide=
-o/cx231xx/cx231xx.h
-index 17d4d1a..38d4171 100644
---- a/drivers/media/video/cx231xx/cx231xx.h
-+++ b/drivers/media/video/cx231xx/cx231xx.h
-@@ -32,7 +32,7 @@
-=20
- #include <media/videobuf-vmalloc.h>
- #include <media/v4l2-device.h>
--#include <media/ir-kbd-i2c.h>
-+#include <media/ir-core.h>
- #if defined(CONFIG_VIDEO_CX231XX_DVB) || \
- 	defined(CONFIG_VIDEO_CX231XX_DVB_MODULE)
- #include <media/videobuf-dvb.h>
-
+--=20
+David H=E4rdeman
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,124 +1,154 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
- LIRC and decoder plugins
-Date: Sat, 24 Apr 2010 16:15:10 +0200
-Message-ID: <20100424141510.GA3070@hardeman.nu>
-References: <20100401145632.5631756f@pedra>
- <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
- <20100402102011.GA6947@hardeman.nu>
- <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
- <20100407093205.GB3029@hardeman.nu>
- <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
- <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
- <1272061228.3089.8.camel@palomino.walls.org>
- <20100424052254.GB3101@hardeman.nu>
- <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
+From: Wayne Thomas <waynethomas69@gmail.com>
+Subject: HID: expand hid-topseed driver to support BTC "Emprex 3009URF III
+	Vista MCE Remote"
+Date: Sat, 24 Apr 2010 16:18:51 +0200
+Message-ID: <t2g3711715e1004240718m8aacffc5o68fc9ccd1e66f212@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ww0-f46.google.com ([74.125.82.46]:38647 "EHLO
+	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751711Ab0DXOSy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 24 Apr 2010 10:18:54 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Sat, Apr 24, 2010 at 08:35:48AM -0400, Jon Smirl wrote:
-> On Sat, Apr 24, 2010 at 1:22 AM, David H=E4rdeman <david@hardeman.nu>=
- wrote:
-> > On Fri, Apr 23, 2010 at 06:20:28PM -0400, Andy Walls wrote:
-> >> Not that my commit rate has been > 0 LOC lately, but I'd like to s=
-ee
-> >> lirc_dev, just to get transmit worked out for the CX23888 chip and
-> >> cx23885 driver.
-> >>
-> >> I think this device will bring to light some assumptions LIRC curr=
-ently
-> >> makes about transmit that don't apply to the CX23888 (i.e. LIRC ha=
-ving
-> >> to perform the pulse timing). =A0The cx23888-ir implementation has=
- a kfifo
-> >> for holding outgoing pulse data and the hardware itself has an 8 p=
-ulse
-> >> measurement deep fifo.
-> >
-> > I think we're eventually going to want to let rc-core create a char=
-dev
-> > per rc device to allow for things like reading out scancodes (when
-> > creating keymaps for new and unknown remotes), raw timings (for
-> > debugging in-kernel decoders and writing new ones), possibly also
-> > ioctl's (for e.g. setting all RX parameters in one go or to
-> > create/destroy additional keymaps, though I'm sure some will want a=
-ll of
-> > that to go through sysfs).
->=20
-> That problem is handled differently in the graphics code.  You only
-> have one /dev device for graphics. IOCTLs on it are divided into
-> ranges - core and driver. The IOCTL call initially lands in the core
-> code, but if it is in the driver range it simply gets forwarded to th=
-e
-> specific driver and handled there.
->=20
-> Doing it that was avoids needing two /dev devices nodes for the same
-> device. Two device nodes has problems.  How do you keep them from
-> being open by two different users and different privilege levels, or
-> one is open and one closed, etc...
+HID: expand hid-topseed driver to support BTC "Emprex 3009URF III
+Vista MCE Remote"
 
-I'm not sure which two devices you're talking about. ir-core currently=20
-creates no device at all (unless you count the input device). And=20
-further down the road I think each rc (ir) device should support=20
-multiple keytables, each keytable having an associated input device.
+The Behavior Tech. Computer Corp. (BTC) remote branded as "Emprex 3009URF III
+Vista Remote Controller" uses non-standard mappings for all of its 'special
+purpose' keys (0xffbc usage page).  This patch modifies the existing hid-topseed
+quirky driver to support both remotes in order to prevent proliferation of
+in-kernel quirky drivers until such a time that udev remapping works
+with these devices.
+Tested successfully with both the "Emprex" remote and the "CyberLink" remote
+originally supported by the hid-topseed driver.
 
-Input device(s) would be used by the majority of applications that only=
-=20
-want to react on keypresses, the rc device is used by rc-aware=20
-applications that want to create new keytables, send ir commands, tweak=
-=20
-RX/TX parameters, etc. I do not see how any of your two-device concerns=
-=20
-would apply to that division...
+Signed-off-by: Wayne Thomas <waynethomas69@gmail.com>
 
-> Splitting the IOCTL range is easy to add to input core and it won't
-> effect any existing user space code.
 
-The input maintainers have already NAK'ed adding any ir-specific ioctls=
-=20
-to the input layer, and I tend to agree with them.
+diff -uprN linux-2.6.33-clean/drivers/hid/hid-core.c
+linux/drivers/hid/hid-core.c
+--- linux-2.6.33-clean/drivers/hid/hid-core.c	2010-04-22
+21:04:17.000000000 +0200
++++ linux/drivers/hid/hid-core.c	2010-04-23 19:55:17.000000000 +0200
+@@ -1291,6 +1291,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1) },
+diff -uprN linux-2.6.33-clean/drivers/hid/hid-ids.h linux/drivers/hid/hid-ids.h
+--- linux-2.6.33-clean/drivers/hid/hid-ids.h	2010-04-22 21:04:17.000000000 +0200
++++ linux/drivers/hid/hid-ids.h	2010-04-23 07:09:59.000000000 +0200
+@@ -116,6 +116,9 @@
+ #define USB_VENDOR_ID_BERKSHIRE		0x0c98
+ #define USB_DEVICE_ID_BERKSHIRE_PCWD	0x1140
 
-> Don't forget about binary sysfs attributes. I have scars from
-> implementing sysfs attributes as text that other people thought shoul=
-d
-> have been binary.
->=20
-> There has long been talk of implementing sysfs transactions. I think
-> the closest thing that got implemented was to not make the attributes
-> take effect until an action occurs. For example, you would set all of
-> the RX parameters using sysfs. They would be written into shadow
-> variables. Then you write to a 'commit' attribute. The write triggers
-> the copy from the shadow variables to the real ones.
++#define USB_VENDOR_ID_BTC		0x046e
++#define USB_DEVICE_ID_BTC_EMPREX_REMOTE	0x5578
++
+ #define USB_VENDOR_ID_CH		0x068e
+ #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
+ #define USB_DEVICE_ID_CH_COMBATSTICK	0x00f4
+diff -uprN linux-2.6.33-clean/drivers/hid/hid-topseed.c
+linux/drivers/hid/hid-topseed.c
+--- linux-2.6.33-clean/drivers/hid/hid-topseed.c	2010-04-22
+20:48:43.000000000 +0200
++++ linux/drivers/hid/hid-topseed.c	2010-04-22 21:29:20.000000000 +0200
+@@ -3,6 +3,9 @@
+  *
+  *  Copyright (c) 2008 Lev Babiev
+  *  based on hid-cherry driver
++ *
++ *  Modified to also support BTC "Emprex 3009URF III Vista MCE Remote"
++ *
+  */
 
-I still fail to understand why sysfs is preferrable over ioctls.
-=20
-> Why are the TX variables being set via sysfs?=20
+ /*
+@@ -24,23 +27,29 @@ static int ts_input_mapping(struct hid_d
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	if ((usage->hid & HID_USAGE_PAGE) != 0x0ffbc0000)
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_LOGIVENDOR)
+ 		return 0;
 
-There's not a single line of TX code yet.
+ 	switch (usage->hid & HID_USAGE) {
+-        case 0x00d: ts_map_key_clear(KEY_HOME);           break;
+-        case 0x024: ts_map_key_clear(KEY_MENU);           break;
+-        case 0x025: ts_map_key_clear(KEY_TV);             break;
+-        case 0x048: ts_map_key_clear(KEY_RED);            break;
+-        case 0x047: ts_map_key_clear(KEY_GREEN);          break;
+-        case 0x049: ts_map_key_clear(KEY_YELLOW);         break;
+-        case 0x04a: ts_map_key_clear(KEY_BLUE);           break;
+-        case 0x04b: ts_map_key_clear(KEY_ANGLE);          break;
+-        case 0x04c: ts_map_key_clear(KEY_LANGUAGE);       break;
+-        case 0x04d: ts_map_key_clear(KEY_SUBTITLE);       break;
+-        case 0x031: ts_map_key_clear(KEY_AUDIO);          break;
+-        case 0x032: ts_map_key_clear(KEY_TEXT);           break;
+-        case 0x033: ts_map_key_clear(KEY_CHANNEL);        break;
++	case 0x00d: ts_map_key_clear(KEY_HOME);		break;
++	case 0x024: ts_map_key_clear(KEY_MENU);		break;
++	case 0x025: ts_map_key_clear(KEY_TV);		break;
++	case 0x031: ts_map_key_clear(KEY_AUDIO);	break;
++	case 0x032: ts_map_key_clear(KEY_TEXT);		break;
++	case 0x033: ts_map_key_clear(KEY_CHANNEL);	break;
++	case 0x047: ts_map_key_clear(KEY_MP3);		break;
++	case 0x048: ts_map_key_clear(KEY_DVD);		break;
++	case 0x049: ts_map_key_clear(KEY_CAMERA);	break;
++	case 0x04a: ts_map_key_clear(KEY_VIDEO);	break;
++	case 0x04b: ts_map_key_clear(KEY_ANGLE);	break;
++	case 0x04c: ts_map_key_clear(KEY_LANGUAGE);	break;
++	case 0x04d: ts_map_key_clear(KEY_SUBTITLE);	break;
++	case 0x050: ts_map_key_clear(KEY_RADIO);	break;
++	case 0x05b: ts_map_key_clear(KEY_RED);		break;
++	case 0x05c: ts_map_key_clear(KEY_GREEN);	break;
++	case 0x05d: ts_map_key_clear(KEY_YELLOW);	break;
++	case 0x05e: ts_map_key_clear(KEY_BLUE);		break;
++	case 0x05a: ts_map_key_clear(KEY_TEXT);		break;
+ 	default:
+ 		return 0;
+ 	}
+@@ -50,6 +59,7 @@ static int ts_input_mapping(struct hid_d
 
-> I think the attributes
-> were read only in the code I wrote. Instead I set them via commands i=
-n
-> the input stream. Setting via the stream make it easy to change them
-> on each transmit.  The input layer already supports transactions
-> wrapping in output. The same transactions could be used to wrap input
-> parameter setting.  Start an input transaction, set the TX variables,
-> send the pulse data, end the input transaction. I don't remember if I
-> got around to implementing that.
+ static const struct hid_device_id ts_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ts_devices);
+diff -uprN linux-2.6.33-clean/drivers/hid/Kconfig linux/drivers/hid/Kconfig
+--- linux-2.6.33-clean/drivers/hid/Kconfig	2010-04-22 20:48:43.000000000 +0200
++++ linux/drivers/hid/Kconfig	2010-04-22 21:29:20.000000000 +0200
+@@ -80,6 +80,13 @@ config HID_BELKIN
+ 	---help---
+ 	Support for Belkin Flip KVM and Wireless keyboard.
 
-Again, the input maintainers have NAK'ed the kind of changes that would=
-=20
-be necessary to support TX through the input layer. We're going to have=
-=20
-to go with something ir-core specific.
-
---=20
-David H=E4rdeman
++config HID_BTC
++	tristate "BTC Emprex remote control support" if EMBEDDED
++	depends on USB_HID
++	default y
++	---help---
++	Say Y if you have a BTC Emprex remote control.
++
+ config HID_CHERRY
+ 	tristate "Cherry" if EMBEDDED
+ 	depends on USB_HID
+diff -uprN linux-2.6.33-clean/drivers/hid/Makefile linux/drivers/hid/Makefile
+--- linux-2.6.33-clean/drivers/hid/Makefile	2010-04-22 20:48:43.000000000 +0200
++++ linux/drivers/hid/Makefile	2010-04-22 21:29:20.000000000 +0200
+@@ -22,6 +22,7 @@ endif
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+ obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+ obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
++obj-$(CONFIG_HID_BTC)		+= hid-topseed.o
+ obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o

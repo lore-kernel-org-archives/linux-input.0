@@ -1,45 +1,54 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail   
-	before  retrying
-Date: Sat, 24 Apr 2010 03:22:05 +0200
-Message-ID: <1272072125.4341.10.camel@lovely>
-References: <1271723857.6652.6.camel@lovely>
-	 <20100422215517.GB28213@core.coreip.homeip.net>
-	 <1271983668.16254.44.camel@lovely>
-	 <201004230953.52447.dmitry.torokhov@gmail.com>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Subject: Re: [PATCH 8/9] Input: Block suspend while event queue is not empty.
+Date: Fri, 23 Apr 2010 21:58:56 -0700
+Message-ID: <v2sd6200be21004232158m3a3eaebai1ca0e49ae79e97f@mail.gmail.com>
+References: <1271984938-13920-1-git-send-email-arve@android.com>
+	 <1271984938-13920-2-git-send-email-arve@android.com>
+	 <1271984938-13920-3-git-send-email-arve@android.com>
+	 <1271984938-13920-4-git-send-email-arve@android.com>
+	 <1271984938-13920-5-git-send-email-arve@android.com>
+	 <1271984938-13920-6-git-send-email-arve@android.com>
+	 <1271984938-13920-7-git-send-email-arve@android.com>
+	 <1271984938-13920-8-git-send-email-arve@android.com>
+	 <1271984938-13920-9-git-send-email-arve@android.com>
+	 <20100423135625.1e12d005.randy.dunlap@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.159]:60507 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757475Ab0DXBQb (ORCPT
+Received: from mail-iw0-f197.google.com ([209.85.223.197]:61656 "EHLO
+	mail-iw0-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751048Ab0DXE66 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Apr 2010 21:16:31 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so503675fgg.1
-        for <linux-input@vger.kernel.org>; Fri, 23 Apr 2010 18:16:30 -0700 (PDT)
-In-Reply-To: <201004230953.52447.dmitry.torokhov@gmail.com>
+	Sat, 24 Apr 2010 00:58:58 -0400
+In-Reply-To: <20100423135625.1e12d005.randy.dunlap@oracle.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Sven Neumann <s.neumann@raumfeld.com>, Tero Saarni <tero.saarni@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Matthew Garrett <mjg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Fri, 2010-04-23 at 09:53 -0700, Dmitry Torokhov wrote:
-> On Thursday 22 April 2010 05:47:48 pm Christoph Fritz wrote:
+2010/4/23 Randy Dunlap <randy.dunlap@oracle.com>:
+> On Thu, 22 Apr 2010 18:08:57 -0700 Arve Hj=F8nnev=E5g wrote:
+>
+>> Add an ioctl, EVIOCSSUSPENDBLOCK, to enable a suspend_blocker that w=
+ill block
+>> suspend while the event queue is not empty. This allows userspace co=
+de to
+>> process input events while the device appears to be asleep.
+>
+>
+> All new ioctls need to be added to Documentation/ioctl/ioctl-number.t=
+xt, please.
+>
 
-> > in conclusion:
-> >  If a Synaptics touchpad can't be initialized (synaptics_init) and falls
-> > back to PS/2, it doesn't get a psmouse_reset() after resuming from
-> > suspend as it would get with a synaptics driver.
-> 
-> Yes, you are right. Maybe we should just reset psmouse unconditionally in 
-> psmouse_reconnect() before actually doing any protocol reconnect/reprobe. That 
-> should help in cases when users not enable Synaptics support; also it is 
-> probably unlikely that mouse that was there gets unplugged after resume.
+These two appear to already be covered by "'E'     all
+linux/input.h           conflict!", but I will add a line the user
+space suspend blocker ioctls added earlier in this patch set.
 
-Yes, this would solve that case too. Maybe if we take that
-"unconditionally-reset-step", what about taking the full step and
-getting rid of the whole i8042_dmi_reset_table quirk stuff and doing
-unconditionally resets there too?
-
-
+--=20
+Arve Hj=F8nnev=E5g
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

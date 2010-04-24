@@ -1,59 +1,168 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-pm] [PATCH 8/9] Input: Block suspend while event queue
- is not empty.
-Date: Sat, 24 Apr 2010 10:36:58 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1004241035260.6848-100000@netrider.rowland.org>
-References: <z2wd6200be21004232202me5d59908y25bf9523fd62edce@mail.gmail.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
+	and decoder plugins
+Date: Sat, 24 Apr 2010 11:07:07 -0400
+Message-ID: <y2h9e4733911004240807wfa6b0e79q8deb18c425484b6f@mail.gmail.com>
+References: <20100401145632.5631756f@pedra> <20100402102011.GA6947@hardeman.nu>
+	 <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+	 <20100407093205.GB3029@hardeman.nu>
+	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+	 <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
+	 <1272061228.3089.8.camel@palomino.walls.org>
+	 <20100424052254.GB3101@hardeman.nu>
+	 <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
+	 <20100424141510.GA3070@hardeman.nu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:46271 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752487Ab0DXOg7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 10:36:59 -0400
-In-Reply-To: <z2wd6200be21004232202me5d59908y25bf9523fd62edce@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20100424141510.GA3070@hardeman.nu>
+Sender: linux-media-owner@vger.kernel.org
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Randy Dunlap <randy.dunlap@oracle.com>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, Sven Neumann <s.neumann@raumfeld.com>, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-pm@lists.linux-foundation.org, Tero Saarni <tero.saarni@gmail.com>, Matthew Garrett <mjg@redhat.com>
 
-On Fri, 23 Apr 2010, Arve Hj=F8nnev=E5g wrote:
+On Sat, Apr 24, 2010 at 10:15 AM, David H=E4rdeman <david@hardeman.nu> =
+wrote:
+> On Sat, Apr 24, 2010 at 08:35:48AM -0400, Jon Smirl wrote:
+>> On Sat, Apr 24, 2010 at 1:22 AM, David H=E4rdeman <david@hardeman.nu=
+> wrote:
+>> > On Fri, Apr 23, 2010 at 06:20:28PM -0400, Andy Walls wrote:
+>> >> Not that my commit rate has been > 0 LOC lately, but I'd like to =
+see
+>> >> lirc_dev, just to get transmit worked out for the CX23888 chip an=
+d
+>> >> cx23885 driver.
+>> >>
+>> >> I think this device will bring to light some assumptions LIRC cur=
+rently
+>> >> makes about transmit that don't apply to the CX23888 (i.e. LIRC h=
+aving
+>> >> to perform the pulse timing). =A0The cx23888-ir implementation ha=
+s a kfifo
+>> >> for holding outgoing pulse data and the hardware itself has an 8 =
+pulse
+>> >> measurement deep fifo.
+>> >
+>> > I think we're eventually going to want to let rc-core create a cha=
+rdev
+>> > per rc device to allow for things like reading out scancodes (when
+>> > creating keymaps for new and unknown remotes), raw timings (for
+>> > debugging in-kernel decoders and writing new ones), possibly also
+>> > ioctl's (for e.g. setting all RX parameters in one go or to
+>> > create/destroy additional keymaps, though I'm sure some will want =
+all of
+>> > that to go through sysfs).
+>>
+>> That problem is handled differently in the graphics code. =A0You onl=
+y
+>> have one /dev device for graphics. IOCTLs on it are divided into
+>> ranges - core and driver. The IOCTL call initially lands in the core
+>> code, but if it is in the driver range it simply gets forwarded to t=
+he
+>> specific driver and handled there.
+>>
+>> Doing it that was avoids needing two /dev devices nodes for the same
+>> device. Two device nodes has problems. =A0How do you keep them from
+>> being open by two different users and different privilege levels, or
+>> one is open and one closed, etc...
+>
+> I'm not sure which two devices you're talking about. ir-core currentl=
+y
+> creates no device at all (unless you count the input device). And
+> further down the road I think each rc (ir) device should support
+> multiple keytables, each keytable having an associated input device.
+>
+> Input device(s) would be used by the majority of applications that on=
+ly
+> want to react on keypresses, the rc device is used by rc-aware
+> applications that want to create new keytables, send ir commands, twe=
+ak
+> RX/TX parameters, etc. I do not see how any of your two-device concer=
+ns
+> would apply to that division...
+>
+>> Splitting the IOCTL range is easy to add to input core and it won't
+>> effect any existing user space code.
+>
+> The input maintainers have already NAK'ed adding any ir-specific ioct=
+ls
+> to the input layer, and I tend to agree with them.
 
-> On Fri, Apr 23, 2010 at 2:08 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Friday 23 April 2010 01:56:25 pm Randy Dunlap wrote:
-> >> On Thu, 22 Apr 2010 18:08:57 -0700 Arve Hj=F8nnev=E5g wrote:
-> >> > Add an ioctl, EVIOCSSUSPENDBLOCK, to enable a suspend_blocker th=
-at will
-> >> > block suspend while the event queue is not empty. This allows us=
-erspace
-> >> > code to process input events while the device appears to be asle=
-ep.
-> >>
-> >> All new ioctls need to be added to Documentation/ioctl/ioctl-numbe=
-r.txt,
-> >> please.
-> >
-> > I do not see the reason for it to be in the kernel still. Have a pr=
-ocess
-> > that listens to all input devices (or subset of them), once events =
-stop
-> > coming initiate suspend.
-> >
->=20
-> I think the document added by the first patch explains this. The
-> solution you propose above will ignore a wakeup key pressed right
-> after user space decides to initiate suspend.
+Based on my experience with DRM adding a split to the IOCTL range is a
+good solution. The split does not add IR specific IOCTLs to the input
+core. The input core just looks at the IOCTL number and if it is out
+of range it forwards it down the chain - to IR core, which can process
+it  or forward to the specific driver.  This model is already in use
+and it works without problem.
 
-Is there some reason why this feature needs to be enabled by an=20
-ioctl?  Why not make this suspend blocker permanently enabled?
+> want to react on keypresses, the rc device is used by rc-aware
+> applications that want to create new keytables, send ir commands, twe=
+ak
+> RX/TX parameters, etc. I do not see how any of your two-device concer=
+ns
 
-Alan Stern
+These would be implemented by IOCTL forwarding.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
+>> Don't forget about binary sysfs attributes. I have scars from
+>> implementing sysfs attributes as text that other people thought shou=
+ld
+>> have been binary.
+>>
+>> There has long been talk of implementing sysfs transactions. I think
+>> the closest thing that got implemented was to not make the attribute=
+s
+>> take effect until an action occurs. For example, you would set all o=
+f
+>> the RX parameters using sysfs. They would be written into shadow
+>> variables. Then you write to a 'commit' attribute. The write trigger=
+s
+>> the copy from the shadow variables to the real ones.
+>
+> I still fail to understand why sysfs is preferrable over ioctls.
+
+I don't care one way or the other. IOCTLs have portability issues with
+word size and endianness. sysfs gets rid of those problems. But sysfs
+doesn't have an explicit transaction mechanism. So both strategies
+have issues.
+
+>
+>> Why are the TX variables being set via sysfs?
+>
+> There's not a single line of TX code yet.
+>
+>> I think the attributes
+>> were read only in the code I wrote. Instead I set them via commands =
 in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> the input stream. Setting via the stream make it easy to change them
+>> on each transmit. =A0The input layer already supports transactions
+>> wrapping in output. The same transactions could be used to wrap inpu=
+t
+>> parameter setting. =A0Start an input transaction, set the TX variabl=
+es,
+>> send the pulse data, end the input transaction. I don't remember if =
+I
+>> got around to implementing that.
+>
+> Again, the input maintainers have NAK'ed the kind of changes that wou=
+ld
+> be necessary to support TX through the input layer. We're going to ha=
+ve
+> to go with something ir-core specific.
+
+We already have two way devices in the input layer (keyboards with
+displays). Why create a new mechanism?
+
+The same concept of chained extensions can be used to keep the code
+out of input core.
+
+>
+> --
+> David H=E4rdeman
+>
+
+
+
+--=20
+Jon Smirl
+jonsmirl@gmail.com

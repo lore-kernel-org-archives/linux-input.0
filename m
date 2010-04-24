@@ -1,69 +1,52 @@
 From: Florian Ragwitz <rafl@debian.org>
-Subject: Getting recent elantech touchpads to work with synaptics
-Date: Sat, 24 Apr 2010 22:40:58 +0200
-Message-ID: <1272141662-23431-1-git-send-email-rafl@debian.org>
+Subject: [PATCH 3/4] Input: elantech - Ignore high bits in the position coordinates
+Date: Sat, 24 Apr 2010 22:41:01 +0200
+Message-ID: <1272141662-23431-4-git-send-email-rafl@debian.org>
+References: <1272141662-23431-1-git-send-email-rafl@debian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from weedy.perldition.org ([85.10.210.75]:54451 "EHLO
+Received: from weedy.perldition.org ([85.10.210.75]:54449 "EHLO
 	weedy.perldition.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750876Ab0DXV0i (ORCPT
+	with ESMTP id S1750876Ab0DXV0h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 17:26:38 -0400
-Received: from p4fd764a8.dip.t-dialin.net ([79.215.100.168]:33228 helo=tardis.perldition.org)
-	by weedy.perldition.org with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.60)
-	(envelope-from <rafl@tardis.perldition.org>)
-	id 1O5mAf-0008V3-Sy
-	for linux-input@vger.kernel.org; Sat, 24 Apr 2010 22:41:50 +0200
-Received: from rafl by tardis.perldition.org with local (Exim 4.71)
-	(envelope-from <rafl@tardis.perldition.org>)
-	id 1O5mA0-00069R-Vp
-	for linux-input@vger.kernel.org; Sat, 24 Apr 2010 22:41:09 +0200
+	Sat, 24 Apr 2010 17:26:37 -0400
+In-Reply-To: <1272141662-23431-1-git-send-email-rafl@debian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Florian Ragwitz <rafl@debian.org>
 
-The following 4 patches aim to improve various bits of the the elantech support
-in the psmouse driver in order to get it to work with recent elantech firmwares
-used in many touchpads of modern laptops. The list of those laptops includes
-almost all recent ASUS machines, including the UL{2,3,5,8}0- and and P-series,
-but also various others, like many Dell Inspiron machines.
+In older versions of the elantech hardware/firmware those bits always were
+unset, so it didn't actually matter, but newer versions seem to use those high
+bits for something else, screwing up the coordinates we report to the input
+layer for those devices.
 
-[PATCH 1/4] Input: elantech - Assume all firmware versions >= 2.48 use 6 byte packets
+Signed-off-by: Florian Ragwitz <rafl@debian.org>
+---
+ drivers/input/mouse/elantech.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-  This patch just fixes a minor thinko in the handling of v1 vs. v2 firmware
-  versions.
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index bfd08c7..254a967 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -251,13 +251,13 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
+ 
+ 	switch (fingers) {
+ 	case 1:
+-		/* byte 1: x15 x14 x13 x12 x11 x10 x9  x8
++		/* byte 1:  .   .   .   .   .  x10 x9  x8
+ 		   byte 2: x7  x6  x5  x4  x4  x2  x1  x0 */
+-		input_report_abs(dev, ABS_X, (packet[1] << 8) | packet[2]);
+-		/* byte 4: y15 y14 y13 y12 y11 y10 y8  y8
++		input_report_abs(dev, ABS_X, ((packet[1] & 0x07) << 8) | packet[2]);
++		/* byte 4:  .   .   .   .   .   .  y8  y8
+ 		   byte 5: y7  y6  y5  y4  y3  y2  y1  y0 */
+ 		input_report_abs(dev, ABS_Y, ETP_YMAX_V2 -
+-			((packet[4] << 8) | packet[5]));
++			(((packet[4] & 0x03) << 8) | packet[5]));
+ 		break;
+ 
+ 	case 2:
+-- 
+1.7.0.5
 
-[PATCH 2/4] Input: Add an option to force the use of the elantech extension
-
-  This adds a force_elantech options to the psmouse module, which allows to
-  force the use of the elantech extension if a device responds to the elantech
-  magic knock and firmware version request, but the driver doesn't know about
-  the particular firmware version yet.
-
-[PATCH 3/4] Input: elantech - Ignore high bits in the position coordinates
-
-  This change is what actually makes things work on new firmwares. The driver
-  used to use too many of the bits sent by the device to compute the position
-  coordinates. On old versions all those bits were always zero, so it didn't
-  actually matter, but new versions apparently reuse the bits for something
-  else, screwing up results.
-
-[PATCH 4/4] Input: elantech - Whitelist new models with firmware version 4.1
-
-  This broadens the range of devices which are automatically recognized as
-  elantech to include all devices reporting the bytes 0x04 0x01 0x01 upon a
-  firmware version request. The check is intentionally rather strict, and I
-  assume there's other devices out there, which report slightly different
-  versions, but would still work, but given how easy it is to test those
-  devices with the force_elantech option, I figured the check could be
-  relaxed later, if necessary, and it'd be better to avoid recognizing
-  non-elantech devices wrongly.
-
-
-Those patches are only tested on machines with firmware version 4.1. They
-should also be tested on older firmware versions using the 6-byte packet
-format, like any ASUS Eee PC, before being applied.
-
---
-BOFH excuse #196:
-Me no internet, only janitor, me just wax floors.

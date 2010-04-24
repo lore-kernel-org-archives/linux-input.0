@@ -1,89 +1,106 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 15/15] V4L/DVB: input: Add support for
- EVIO[CS]GKEYCODEBIG
-Date: Sat, 24 Apr 2010 11:09:34 +0200
-Message-ID: <20100424090934.GB2668@hardeman.nu>
-References: <cover.1270142346.git.mchehab@redhat.com>
- <20100401145631.7a708a06@pedra>
+From: Christoph Fritz <chf.fritz@googlemail.com>
+Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail   
+	before  retrying
+Date: Sat, 24 Apr 2010 12:00:33 +0200
+Message-ID: <1272103233.4666.15.camel@lovely>
+References: <1271723857.6652.6.camel@lovely>
+	 <20100422215517.GB28213@core.coreip.homeip.net>
+	 <1271983668.16254.44.camel@lovely>
+	 <201004230953.52447.dmitry.torokhov@gmail.com>
+	 <1272072125.4341.10.camel@lovely>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:47331 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752612Ab0DXJJi (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.154]:17694 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750837Ab0DXJy6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 05:09:38 -0400
-Content-Disposition: inline
-In-Reply-To: <20100401145631.7a708a06@pedra>
+	Sat, 24 Apr 2010 05:54:58 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so718876fgg.1
+        for <linux-input@vger.kernel.org>; Sat, 24 Apr 2010 02:54:56 -0700 (PDT)
+In-Reply-To: <1272072125.4341.10.camel@lovely>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
 
-On Thu, Apr 01, 2010 at 02:56:31PM -0300, Mauro Carvalho Chehab wrote:
-> Several devices use a high number of bits for scancodes. One importan=
-t
-> group is the Remote Controllers. Some new protocols like RC-6 define =
-a
-> scancode space of 64 bits.
->=20
-> The current EVIO[CS]GKEYCODE ioctls allow replace the scancode/keycod=
-e
-> translation tables, but it is limited to up to 32 bits for scancode.
->=20
-> Also, if userspace wants to clean the existing table, replacing it by
-> a new one, it needs to run a loop calling the old ioctls, over the
-> entire sparsed scancode userspace.
->=20
-> To solve those problems, this patch introduces two new ioctls:
-> 	EVIOCGKEYCODEBIG - reads a scancode from the translation table;
-> 	EVIOSGKEYCODEBIG - writes a scancode into the translation table.
-=2E..
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 663208a..6445fc9 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -34,7 +34,7 @@ struct input_event {
->   * Protocol version.
->   */
-> =20
-> -#define EV_VERSION		0x010000
-> +#define EV_VERSION		0x010001
-> =20
->  /*
->   * IOCTLs (0x00 - 0x7f)
-> @@ -56,12 +56,22 @@ struct input_absinfo {
->  	__s32 resolution;
->  };
-> =20
-> +struct keycode_table_entry {
-> +	__u32 keycode;		/* e.g. KEY_A */
-> +	__u32 index;            /* Index for the given scan/key table, on E=
-VIOCGKEYCODEBIG */
-> +	__u32 len;		/* Length of the scancode */
-> +	__u32 reserved[2];	/* Reserved for future usage */
-> +	char *scancode;		/* scancode, in machine-endian */
-> +};
+On Sat, 2010-04-24 at 03:22 +0200, Christoph Fritz wrote:
+> On Fri, 2010-04-23 at 09:53 -0700, Dmitry Torokhov wrote:
+> > On Thursday 22 April 2010 05:47:48 pm Christoph Fritz wrote:
+> 
+> > > in conclusion:
+> > >  If a Synaptics touchpad can't be initialized (synaptics_init) and falls
+> > > back to PS/2, it doesn't get a psmouse_reset() after resuming from
+> > > suspend as it would get with a synaptics driver.
+> > 
+> > Yes, you are right. Maybe we should just reset psmouse unconditionally in 
+> > psmouse_reconnect() before actually doing any protocol reconnect/reprobe. That 
+> > should help in cases when users not enable Synaptics support; also it is 
+> > probably unlikely that mouse that was there gets unplugged after resume.
+> 
+> Yes, this would solve that case too. 
 
-Wouldn't changing the scancode member from a pointer to a flexible arra=
-y=20
-member (C99 feature, which I assume is ok since other C99 features are=20
-already in use in the kernel code) remove the need for any compat32=20
-code?
+I have to correct myself.
+ The case is already achieved with the patch I sent:
+synaptics_detect() detects presence of synaptics_hardware even if the user
+does not enable CONFIG_MOUSE_PS2_SYNAPTICS.
 
-struct keycode_table_entry {
-	__u32 keycode;
-	__u32 index;
-	__u32 len;
-	__u32 reserved[2];
-	char scancode[];
-};
+Just for a better overview in this thread, here it is:
 
---=20
-David H=E4rdeman
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+---
+If a Synaptics touchpad can't be initialized (synaptics_init) and falls
+back to PS/2, it doesn't get a psmouse_reset() after resuming from
+suspend as it would get with a synaptics driver.
+ So check state of synaptics_hardware and reset this beast.
+
+Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
+---
+ drivers/input/mouse/psmouse-base.c |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index d8c0c8d..66ce0ac 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -116,6 +116,9 @@ struct psmouse_protocol {
+ 	int (*init)(struct psmouse *);
+ };
+ 
++/* to handle some reset quirks */
++static bool synaptics_hardware = false;
++
+ /*
+  * psmouse_process_byte() analyzes the PS/2 data stream and reports
+  * relevant events to the input module once full packet has arrived.
+@@ -597,7 +600,6 @@ static int cortron_detect(struct psmouse *psmouse, bool set_properties)
+ static int psmouse_extensions(struct psmouse *psmouse,
+ 			      unsigned int max_proto, bool set_properties)
+ {
+-	bool synaptics_hardware = false;
+ 
+ /*
+  * We always check for lifebook because it does not disturb mouse
+@@ -1401,10 +1403,14 @@ static int psmouse_reconnect(struct serio *serio)
+ 	if (psmouse->reconnect) {
+ 		if (psmouse->reconnect(psmouse))
+ 			goto out;
+-	} else if (psmouse_probe(psmouse) < 0 ||
++	} else {
++		if (synaptics_hardware)		/* is using plain PS/2 */
++			psmouse_reset(psmouse);
++		if (psmouse_probe(psmouse) < 0 ||
+ 		   psmouse->type != psmouse_extensions(psmouse,
+ 						psmouse_max_proto, false)) {
+-		goto out;
++			goto out;
++		}
+ 	}
+ 
+ 	/* ok, the device type (and capabilities) match the old one,
+-- 
+1.5.6.5
+
+
+

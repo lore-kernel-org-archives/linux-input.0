@@ -1,43 +1,58 @@
-From: Florian Ragwitz <rafl@debian.org>
-Subject: [PATCH 4/4] Input: elantech - Whitelist new models with firmware version 4.1
-Date: Sat, 24 Apr 2010 22:41:02 +0200
-Message-ID: <1272141662-23431-5-git-send-email-rafl@debian.org>
-References: <1272141662-23431-1-git-send-email-rafl@debian.org>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
+	and decoder plugins
+Date: Sat, 24 Apr 2010 17:59:46 -0400
+Message-ID: <v2z9e4733911004241459jd637bec0g5d76b24a611c3863@mail.gmail.com>
+References: <20100402102011.GA6947@hardeman.nu>
+	 <20100407093205.GB3029@hardeman.nu>
+	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+	 <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
+	 <1272061228.3089.8.camel@palomino.walls.org>
+	 <20100424052254.GB3101@hardeman.nu>
+	 <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
+	 <20100424141510.GA3070@hardeman.nu>
+	 <y2h9e4733911004240807wfa6b0e79q8deb18c425484b6f@mail.gmail.com>
+	 <20100424212353.GB11879@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from weedy.perldition.org ([85.10.210.75]:54457 "EHLO
-	weedy.perldition.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752338Ab0DXV0n (ORCPT
+Received: from mail-qy0-f179.google.com ([209.85.221.179]:54273 "EHLO
+	mail-qy0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751306Ab0DXV7s convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 17:26:43 -0400
-In-Reply-To: <1272141662-23431-1-git-send-email-rafl@debian.org>
+	Sat, 24 Apr 2010 17:59:48 -0400
+In-Reply-To: <20100424212353.GB11879@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Florian Ragwitz <rafl@debian.org>
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-The check is intentionally quite strict. It will probably need to be relaxed
-later, but given how easy it is to test a non-whitelisted firmware with
-force_elantech, that's OK.
+On Sat, Apr 24, 2010 at 5:23 PM, David H=E4rdeman <david@hardeman.nu> w=
+rote:
+> I don't care either way. Get the input maintainers to agree and I'll
+> happily write patches that follow that approach (writing TX data to t=
+he
+> input dev will also have to be supported).
+>
+> The only real problem I see is if we implement > 1 input device per
+> rc/ir device (which I think we should do - each logical remote should
+> have a separate keytable and input device).
 
-Signed-off-by: Florian Ragwitz <rafl@debian.org>
----
- drivers/input/mouse/elantech.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+I forgot about the many to 1 aspect of the receiver. You should have
+started off with this point and I would have shut up, DRM does not
+have many to 1 mappings. My radio receivers show up as network
+devices. So I have multiple devices too.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 254a967..70321b7 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -599,7 +599,8 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
- 	pr_debug("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
- 		 param[0], param[1], param[2]);
- 
--	if (param[0] == 0 || param[1] != 0) {
-+	if ((param[0] == 0 || param[1] != 0) &&
-+	    (param[0] != 4 && param[1] != 1 && param[2] != 1)) {
- 		if (!force_elantech) {
- 			pr_debug("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
- 			return -1;
--- 
-1.7.0.5
+I don't think we want a 'rc' device. The IR transceiver should be an
+'ir' device. My radios are already 'net' devices. So my complaint
+really is, I don't want an three devices - input, rc and net.
 
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

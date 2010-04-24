@@ -1,54 +1,68 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: [PATCH 8/9] Input: Block suspend while event queue is not empty.
-Date: Fri, 23 Apr 2010 22:02:50 -0700
-Message-ID: <z2wd6200be21004232202me5d59908y25bf9523fd62edce@mail.gmail.com>
-References: <1271984938-13920-1-git-send-email-arve@android.com>
-	 <1271984938-13920-9-git-send-email-arve@android.com>
-	 <20100423135625.1e12d005.randy.dunlap@oracle.com>
-	 <201004231408.15885.dmitry.torokhov@gmail.com>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding
+ LIRC and decoder plugins
+Date: Sat, 24 Apr 2010 07:12:06 +0200
+Message-ID: <20100424051206.GA3101@hardeman.nu>
+References: <20100401145632.5631756f@pedra>
+ <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
+ <20100402102011.GA6947@hardeman.nu>
+ <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+ <20100407093205.GB3029@hardeman.nu>
+ <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f194.google.com ([209.85.211.194]:62782 "EHLO
-	mail-yw0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751048Ab0DXFCw convert rfc822-to-8bit (ORCPT
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:57779 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751893Ab0DXFML (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 01:02:52 -0400
-In-Reply-To: <201004231408.15885.dmitry.torokhov@gmail.com>
+	Sat, 24 Apr 2010 01:12:11 -0400
+Content-Disposition: inline
+In-Reply-To: <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Sven Neumann <s.neumann@raumfeld.com>, Tero Saarni <tero.saarni@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Matthew Garrett <mjg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Fri, Apr 23, 2010 at 2:08 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Friday 23 April 2010 01:56:25 pm Randy Dunlap wrote:
->> On Thu, 22 Apr 2010 18:08:57 -0700 Arve Hj=F8nnev=E5g wrote:
->> > Add an ioctl, EVIOCSSUSPENDBLOCK, to enable a suspend_blocker that=
- will
->> > block suspend while the event queue is not empty. This allows user=
-space
->> > code to process input events while the device appears to be asleep=
-=2E
->>
->> All new ioctls need to be added to Documentation/ioctl/ioctl-number.=
-txt,
->> please.
->
-> I do not see the reason for it to be in the kernel still. Have a proc=
-ess
-> that listens to all input devices (or subset of them), once events st=
-op
-> coming initiate suspend.
->
+On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
+> So now that I'm more or less done with porting the imon driver, I
+> think I'm ready to start tackling the mceusb driver. But I'm debating
+> on what approach to take with respect to lirc support. It sort of
+> feels like we should have lirc_dev ported as an ir "decoder"
+> driver/plugin before starting to port mceusb to ir-core, so that we
+> can maintain lirc compat and transmit support. Alternatively, I could
+> port mceusb without lirc support for now, leaving it to only use
+> in-kernel decoding and have no transmit support for the moment, then
+> re-add lirc support. I'm thinking that porting lirc_dev as, say,
+> ir-lirc-decoder first is probably the way to go though. Anyone else
+> want to share their thoughts on this?
 
-I think the document added by the first patch explains this. The
-solution you propose above will ignore a wakeup key pressed right
-after user space decides to initiate suspend.
+I think it would make sense to start with a mce driver without the TX=20
+and lirc bits first. Adding lirc rx support can be done as a separate=20
+"raw" decoder later (so its scope is outside the mce driver anyway) and=
+=20
+TX support is not implemented in ir-core yet and we haven't had any=20
+discussion yet on which form it should take.
+
+> (Actually, while sharing thoughts... Should drivers/media/IR become
+> drivers/media/RC, ir-core.h become rc-core.h, ir-keytable.c become
+> rc-keytable.c and so on?)
+
+It will happen...and on a related note, I still think rc-core should in=
+=20
+the end expose an API where drivers create "rc" devices and the input=20
+device(s) are kept as an internal detail in rc-core rather than the way=
+=20
+it works now (where drivers create input devices and use ir-core to=20
+create a kind of addon device).
+
+But that change is about as disruptive as the ir-core -> rc-core change=
+,=20
+so it can also wait to a more convenient time.
 
 --=20
-Arve Hj=F8nnev=E5g
+David H=E4rdeman
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

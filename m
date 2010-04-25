@@ -1,56 +1,71 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
-	and decoder plugins
-Date: Sat, 24 Apr 2010 17:59:46 -0400
-Message-ID: <v2z9e4733911004241459jd637bec0g5d76b24a611c3863@mail.gmail.com>
-References: <20100402102011.GA6947@hardeman.nu>
-	 <20100407093205.GB3029@hardeman.nu>
-	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
-	 <o2l9e4733911004231106te8b727e9nfa75bfd9c73e9506@mail.gmail.com>
-	 <1272061228.3089.8.camel@palomino.walls.org>
-	 <20100424052254.GB3101@hardeman.nu>
-	 <m2j9e4733911004240535k4b14d64fu940f5dff17837b20@mail.gmail.com>
-	 <20100424141510.GA3070@hardeman.nu>
-	 <y2h9e4733911004240807wfa6b0e79q8deb18c425484b6f@mail.gmail.com>
-	 <20100424212353.GB11879@hardeman.nu>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [linux-pm] [PATCH 8/9] Input: Block suspend while event queue is not empty.
+Date: Sun, 25 Apr 2010 04:30:30 +0200
+Message-ID: <201004250430.31054.rjw@sisk.pl>
+References: <Pine.LNX.4.44L0.1004241035260.6848-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f179.google.com ([209.85.221.179]:54273 "EHLO
-	mail-qy0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751306Ab0DXV7s convert rfc822-to-8bit (ORCPT
+Received: from ogre.sisk.pl ([217.79.144.158]:39730 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750994Ab0DYCap convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Apr 2010 17:59:48 -0400
-In-Reply-To: <20100424212353.GB11879@hardeman.nu>
+	Sat, 24 Apr 2010 22:30:45 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1004241035260.6848-100000@netrider.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Andy Walls <awalls@md.metrocast.net>, Jarod Wilson <jarod@wilsonet.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Arve =?iso-8859-1?q?Hj=F8nnev=E5g?= <arve@android.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Randy Dunlap <randy.dunlap@oracle.com>, =?iso-8859-1?q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-input@vger.kernel.org, Sven Neumann <s.neumann@raumfeld.com>, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Jiri Kosina <jkosina@suse.cz>, linux-pm@lists.linux-foundation.org, Tero Saarni <tero.saarni@gmail.com>, Matthew Garrett <mjg@redhat.com>
 
-On Sat, Apr 24, 2010 at 5:23 PM, David H=E4rdeman <david@hardeman.nu> w=
-rote:
-> I don't care either way. Get the input maintainers to agree and I'll
-> happily write patches that follow that approach (writing TX data to t=
-he
-> input dev will also have to be supported).
->
-> The only real problem I see is if we implement > 1 input device per
-> rc/ir device (which I think we should do - each logical remote should
-> have a separate keytable and input device).
+On Saturday 24 April 2010, Alan Stern wrote:
+> On Fri, 23 Apr 2010, Arve Hj=F8nnev=E5g wrote:
+>=20
+> > On Fri, Apr 23, 2010 at 2:08 PM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > On Friday 23 April 2010 01:56:25 pm Randy Dunlap wrote:
+> > >> On Thu, 22 Apr 2010 18:08:57 -0700 Arve Hj=F8nnev=E5g wrote:
+> > >> > Add an ioctl, EVIOCSSUSPENDBLOCK, to enable a suspend_blocker =
+that will
+> > >> > block suspend while the event queue is not empty. This allows =
+userspace
+> > >> > code to process input events while the device appears to be as=
+leep.
+> > >>
+> > >> All new ioctls need to be added to Documentation/ioctl/ioctl-num=
+ber.txt,
+> > >> please.
+> > >
+> > > I do not see the reason for it to be in the kernel still. Have a =
+process
+> > > that listens to all input devices (or subset of them), once event=
+s stop
+> > > coming initiate suspend.
 
-I forgot about the many to 1 aspect of the receiver. You should have
-started off with this point and I would have shut up, DRM does not
-have many to 1 mappings. My radio receivers show up as network
-devices. So I have multiple devices too.
+This solution is not practical with the Android user space AFAICT.
+=20
+> > I think the document added by the first patch explains this. The
+> > solution you propose above will ignore a wakeup key pressed right
+> > after user space decides to initiate suspend.
+>=20
+> Is there some reason why this feature needs to be enabled by an=20
+> ioctl?  Why not make this suspend blocker permanently enabled?
 
-I don't think we want a 'rc' device. The IR transceiver should be an
-'ir' device. My radios are already 'net' devices. So my complaint
-really is, I don't want an three devices - input, rc and net.
+The ioctl is there so that user space can use suspend blockers, which i=
+s
+needed because only user space know that some activities are going to c=
+ontinue
+and therefore the system should not be suspended (like playing music "i=
+n the
+background").
 
---=20
-Jon Smirl
-jonsmirl@gmail.com
+=46rom all of the interfaces that could be used for this purpose ioctl =
+appears to
+be the most convenient (we need something that is per process and allow=
+s us
+to carry out four operations: creat, destroy, activate, deactivate).
+
+Rafael
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

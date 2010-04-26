@@ -1,34 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: fix picolcd's version parsing
-Date: Mon, 26 Apr 2010 11:44:27 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004261144170.7579@pobox.suse.cz>
-References: <20100425213140.371194b0@neptune.home>
+Subject: Re: HID: expand hid-topseed driver to support BTC "Emprex 3009URF
+ III  Vista MCE Remote"
+Date: Mon, 26 Apr 2010 11:48:24 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004261146430.7579@pobox.suse.cz>
+References: <t2g3711715e1004240718m8aacffc5o68fc9ccd1e66f212@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:55690 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751312Ab0DZJob (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Apr 2010 05:44:31 -0400
-In-Reply-To: <20100425213140.371194b0@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <t2g3711715e1004240718m8aacffc5o68fc9ccd1e66f212@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wayne Thomas <waynethomas69@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, 25 Apr 2010, Bruno Pr=C3=A9mont wrote:
+On Sat, 24 Apr 2010, Wayne Thomas wrote:
 
-> During grouping of version checking code bootloader mode's version
-> bytes got swapped. Fix their order.
+> +config HID_BTC
+> +	tristate "BTC Emprex remote control support" if EMBEDDED
+> +	depends on USB_HID
+> +	default y
+> +	---help---
+> +	Say Y if you have a BTC Emprex remote control.
+> +
+>  config HID_CHERRY
+>  	tristate "Cherry" if EMBEDDED
+>  	depends on USB_HID
+> diff -uprN linux-2.6.33-clean/drivers/hid/Makefile linux/drivers/hid/Makefile
+> --- linux-2.6.33-clean/drivers/hid/Makefile	2010-04-22 20:48:43.000000000 +0200
+> +++ linux/drivers/hid/Makefile	2010-04-22 21:29:20.000000000 +0200
+> @@ -22,6 +22,7 @@ endif
+>  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+>  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+>  obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
+> +obj-$(CONFIG_HID_BTC)		+= hid-topseed.o
+>  obj-$(CONFIG_HID_CHERRY)	+= hid-cherry.o
+>  obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+>  obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
 
-Applied, thanks Bruno.
+The separate config option for this is just overhead, I think. I'd suggest 
+just to update the Kconfig help text for CONFIG_TOPSPEED to mention that 
+it supports also this particular device.
 
---=20
+Thanks,
+
+-- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

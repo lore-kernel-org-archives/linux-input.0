@@ -1,65 +1,84 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 2/2] hid: add PM support to PicoLCD device
-Date: Tue, 27 Apr 2010 22:57:11 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004272256160.9849@pobox.suse.cz>
-References: <20100425214003.7e87c6a3@neptune.home> <20100425214306.5d7be049@neptune.home> <alpine.LNX.2.00.1004271525330.9849@pobox.suse.cz> <20100427221648.39735c41@neptune.home>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: How to send/receive a feature report with hidraw.
+Date: Tue, 27 Apr 2010 22:59:10 +0200
+Message-ID: <20100427225910.82d980d4.ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__27_Apr_2010_22_59_10_+0200_cX2NX0wHngcWEQ4Q"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38911 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754885Ab0D0U5O (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Apr 2010 16:57:14 -0400
-In-Reply-To: <20100427221648.39735c41@neptune.home>
+Received: from smtp-out110.alice.it ([85.37.17.110]:3109 "EHLO
+	smtp-out110.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752792Ab0D0VJe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Apr 2010 17:09:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Oliver Neukum <oliver@neukum.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Nicu Pavel <npavel@ituner.com>, Jaya Kumar <jayakumar.lkml@gmail.com>, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: hadess@hadess.net, Marcin Tolysz <tolysz@gmail.com>
 
-On Tue, 27 Apr 2010, Bruno Pr=C3=A9mont wrote:
+--Signature=_Tue__27_Apr_2010_22_59_10_+0200_cX2NX0wHngcWEQ4Q
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > +#ifdef CONFIG_PM
-> > > +static void picolcd_suspend_backlight(struct picolcd_data *data)
-> > > +{
-> > > +	int bl_power =3D data->lcd_power;
-> > > +	if (!data->backlight)
-> > > +		return;
-> > > +
-> > > +	data->backlight->props.power =3D FB_BLANK_POWERDOWN;
-> > > +	picolcd_set_brightness(data->backlight);
-> > > +	data->lcd_power =3D data->backlight->props.power =3D bl_power;
-> > > +}
-> > > +#else
-> > > +#define picolcd_suspend_backlight(a)
-> > > +#endif /* CONFIG_PM */
-> >=20
-> > Stylistic thing -- it would be nice if this was actually=20
-> >=20
-> > static inline void picolcd_suspend_backlight(struct picolcd_data *d=
-ata)
-> > {
-> > 	return 0;
-> > }
-> >=20
-> > But why do you need to have it defined in !CONFIG_PM situation anyw=
-ay?=20
-> > It's not used otherwise at all.
->=20
-> Yeah, I could drop the #else branch (of #ifconfig CONFIG_PM).
+Hi,
 
-Yup, please do so.
+there must be something that either I am missing or that is missing in
+hidraw, I'd bet on the latter _this_time_ :)
 
-> Is gcc quiet about defined but unused static inline functions?
+I was trying to add "proper" association support for the Sony Sixaxis
+Controller, "proper" means without libusb detaching and reattaching the
+hid driver which is not particularly nice to evdev or to the user.
 
-Yup, -Wunused-function doesn't warn about unused static inline function=
-=2E
+In order to do that, the following steps are needed:
+ 1. I need to _read_ the feature report 0xf2 out of the device in order
+    to know its bdaddr so I can tell it to the bluetooth subsystem
+ 2. I need to  _write_ the feature report 0xf5 to the device in order to
+    set the master bdaddr into the controller
+
+I cannot do that with hiddev because the reports above are not listed in
+the device HID descriptor and hence they get filtered out.
+
+So the choices are hidraw or a custom sysfs kernel interface.
+I decided to give a try to hidraw first, but:
+ 1. I was not able to find a way to read a specific report
+ 2. I can only write output reports, see in hidraw.c::hidraw_write()
+    ret =3D dev->hid_output_raw_report(dev, buf, count,
+          HID_OUTPUT_REPORT);
+              ^^^^^^
+
+If it is confirmed that hidraw can't do what I need, yet, then I'll
+propose the aforementioned custom sysfs interface under hid-sony which
+works quite well.
+
+Thanks,
+   Antonio
+
+P.S. I am not subscribed to linux-usb, please CC me if you get the mail
+from there.
 
 --=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
+
+--Signature=_Tue__27_Apr_2010_22_59_10_+0200_cX2NX0wHngcWEQ4Q
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkvXUB4ACgkQ5xr2akVTsAHj3QCfcsD84qqUysTX7JbTRfP5cxwx
+V0EAnA0Jaj1Pyui+bUylbEH1xbRHG6LV
+=dFXg
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__27_Apr_2010_22_59_10_+0200_cX2NX0wHngcWEQ4Q--

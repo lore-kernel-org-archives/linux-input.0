@@ -1,259 +1,59 @@
 From: akpm@linux-foundation.org
-Subject: [patch 3/3] input: handle bad parity PS/2 packets in mouse drivers better
-Date: Tue, 27 Apr 2010 14:12:39 -0700
-Message-ID: <201004272112.o3RLCeTc020088@imap1.linux-foundation.org>
+Subject: [patch 2/3] usbtouchscreen: support bigger iNexio touchscreens
+Date: Tue, 27 Apr 2010 14:12:38 -0700
+Message-ID: <201004272112.o3RLCcnp020085@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:52488 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:58617 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753834Ab0D0VNS (ORCPT
+	by vger.kernel.org with ESMTP id S1753834Ab0D0VNW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Apr 2010 17:13:18 -0400
+	Tue, 27 Apr 2010 17:13:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, damjan.jov@gmail.com, rubini@cvml.unipv.it
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-software.org, oliver@neukum.org
 
-From: Damjan Jovanovic <damjan.jov@gmail.com>
+From: Ondrej Zary <linux@rainbow-software.org>
 
-This fixes a regression introduced in Linux 2.6.2 where mice that
-sporadically produce bad parity go crazy and start jumping around and
-clicking randomly, which never happens in any version of Windows running
-on the same hardware.  The bugzilla bug is
-https://bugzilla.kernel.org/show_bug.cgi?id=6105
+Bigger Nexio touchscreens not only send more data but also the header
+values are modified somehow.  Fix the header somehow (it's a guesswork but
+it works at least on one 46" touchscreen with 2.00SMS firmware) and also
+increase rept_size.
 
-The patch works by always accumulating a full PS/2 packet, then ignoring
-the packet if any byte had a bad checksum.  A month of testing it against
-an affected mouse has revealed it works perfectly in practice.
-
-Signed-off-by: Damjan Jovanovic <damjan.jov@gmail.com>
-Cc: Alessandro Rubini <rubini@cvml.unipv.it>
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+Cc: Oliver Neukum <oliver@neukum.org>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/alps.c         |   15 ++++++++++++---
- drivers/input/mouse/elantech.c     |    3 +++
- drivers/input/mouse/hgpk.c         |    3 ++-
- drivers/input/mouse/lifebook.c     |    6 ++++++
- drivers/input/mouse/logips2pp.c    |    3 +++
- drivers/input/mouse/psmouse-base.c |   15 +++++++++++++--
- drivers/input/mouse/psmouse.h      |    1 +
- drivers/input/mouse/sentelic.c     |    3 +++
- drivers/input/mouse/synaptics.c    |    3 +++
- drivers/input/mouse/touchkit_ps2.c |    3 +++
- 10 files changed, 49 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff -puN drivers/input/mouse/alps.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/alps.c
-@@ -379,10 +379,16 @@ static psmouse_ret_t alps_process_byte(s
- 	struct alps_data *priv = psmouse->private;
- 	const struct alps_model_info *model = priv->i;
+diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-support-bigger-inexio-touchscreens drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-support-bigger-inexio-touchscreens
++++ a/drivers/input/touchscreen/usbtouchscreen.c
+@@ -858,6 +858,11 @@ static int nexio_read_data(struct usbtou
+ 	if ((pkt[0] & 0xe0) != 0xe0)
+ 		return 0;
  
-+	if (psmouse->pktcnt == 1 && psmouse->badparity)
-+		return PSMOUSE_BAD_DATA;
++	if (be16_to_cpu(packet->data_len) > 0xff)
++		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
++	if (be16_to_cpu(packet->x_len) > 0xff)
++		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
 +
- 	if ((psmouse->packet[0] & 0xc8) == 0x08) { /* PS/2 packet */
- 		if (psmouse->pktcnt == 3) {
--			alps_report_bare_ps2_packet(psmouse, psmouse->packet,
--						    true);
-+			if (psmouse->badparity) {
-+				alps_report_bare_ps2_packet(psmouse,
-+							    psmouse->packet,
-+							    true);
-+			}
- 			return PSMOUSE_FULL_PACKET;
- 		}
- 		return PSMOUSE_GOOD_DATA;
-@@ -392,6 +398,8 @@ static psmouse_ret_t alps_process_byte(s
+ 	/* send ACK */
+ 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
  
- 	if ((model->flags & ALPS_PS2_INTERLEAVED) &&
- 	    psmouse->pktcnt >= 4 && (psmouse->packet[3] & 0x0f) == 0x0f) {
-+		if (psmouse->badparity)
-+			return PSMOUSE_BAD_DATA;
- 		return alps_handle_interleaved_ps2(psmouse);
- 	}
+@@ -1113,7 +1118,7 @@ static struct usbtouch_device_info usbto
  
-@@ -410,7 +418,8 @@ static psmouse_ret_t alps_process_byte(s
- 	}
- 
- 	if (psmouse->pktcnt == 6) {
--		alps_process_packet(psmouse);
-+		if (!psmouse->badparity)
-+			alps_process_packet(psmouse);
- 		return PSMOUSE_FULL_PACKET;
- 	}
- 
-diff -puN drivers/input/mouse/elantech.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/elantech.c
---- a/drivers/input/mouse/elantech.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/elantech.c
-@@ -325,6 +325,9 @@ static psmouse_ret_t elantech_process_by
- 	if (psmouse->pktcnt < psmouse->pktsize)
- 		return PSMOUSE_GOOD_DATA;
- 
-+	if (psmouse->pktcnt == psmouse->pktsize && psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- 	if (etd->debug > 1)
- 		elantech_packet_dump(psmouse->packet, psmouse->pktsize);
- 
-diff -puN drivers/input/mouse/hgpk.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/hgpk.c
---- a/drivers/input/mouse/hgpk.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/hgpk.c
-@@ -188,7 +188,8 @@ static psmouse_ret_t hgpk_process_byte(s
- 	}
- 
- 	if (psmouse->pktcnt >= psmouse->pktsize) {
--		hgpk_process_packet(psmouse);
-+		if (!psmouse->badparity)
-+			hgpk_process_packet(psmouse);
- 		return PSMOUSE_FULL_PACKET;
- 	}
- 
-diff -puN drivers/input/mouse/lifebook.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/lifebook.c
---- a/drivers/input/mouse/lifebook.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/lifebook.c
-@@ -139,6 +139,9 @@ static psmouse_ret_t lifebook_process_by
- 	unsigned char *packet = psmouse->packet;
- 	bool relative_packet = packet[0] & 0x08;
- 
-+	if (psmouse->pktcnt == 1 && psmouse->badparity)
-+		return PSMOUSE_BAD_DATA;
-+
- 	if (relative_packet || !lifebook_use_6byte_proto) {
- 		if (psmouse->pktcnt != 3)
- 			return PSMOUSE_GOOD_DATA;
-@@ -167,6 +170,9 @@ static psmouse_ret_t lifebook_process_by
- 		}
- 	}
- 
-+	if (psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- 	if (relative_packet) {
- 		if (!dev2)
- 			printk(KERN_WARNING "lifebook.c: got relative packet "
-diff -puN drivers/input/mouse/logips2pp.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/logips2pp.c
---- a/drivers/input/mouse/logips2pp.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/logips2pp.c
-@@ -51,6 +51,9 @@ static psmouse_ret_t ps2pp_process_byte(
-  * Full packet accumulated, process it
-  */
- 
-+	if (psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- 	if ((packet[0] & 0x48) == 0x48 && (packet[1] & 0x02) == 0x02) {
- 
- 		/* Logitech extended packet */
-diff -puN drivers/input/mouse/psmouse-base.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/psmouse-base.c
-@@ -134,6 +134,9 @@ static psmouse_ret_t psmouse_process_byt
-  * Full packet accumulated, process it
-  */
- 
-+	if (psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- /*
-  * Scroll wheel on IntelliMice, scroll buttons on NetMice
-  */
-@@ -218,6 +221,7 @@ void psmouse_queue_work(struct psmouse *
- static inline void __psmouse_set_state(struct psmouse *psmouse, enum psmouse_state new_state)
- {
- 	psmouse->state = new_state;
-+	psmouse->badparity = 0;
- 	psmouse->pktcnt = psmouse->out_of_sync_cnt = 0;
- 	psmouse->ps2dev.flags = 0;
- 	psmouse->last = jiffies;
-@@ -258,10 +262,12 @@ static int psmouse_handle_byte(struct ps
- 					return -1;
- 				}
- 			}
-+			psmouse->badparity = 0;
- 			psmouse->pktcnt = 0;
- 			break;
- 
- 		case PSMOUSE_FULL_PACKET:
-+			psmouse->badparity = 0;
- 			psmouse->pktcnt = 0;
- 			if (psmouse->out_of_sync_cnt) {
- 				psmouse->out_of_sync_cnt = 0;
-@@ -271,6 +277,7 @@ static int psmouse_handle_byte(struct ps
- 			break;
- 
- 		case PSMOUSE_GOOD_DATA:
-+			psmouse->badparity = 0;
- 			break;
- 	}
- 	return 0;
-@@ -296,8 +303,12 @@ static irqreturn_t psmouse_interrupt(str
- 			printk(KERN_WARNING "psmouse.c: bad data from KBC -%s%s\n",
- 				flags & SERIO_TIMEOUT ? " timeout" : "",
- 				flags & SERIO_PARITY ? " bad parity" : "");
--		ps2_cmd_aborted(&psmouse->ps2dev);
--		goto out;
-+		if (flags & SERIO_TIMEOUT) {
-+			ps2_cmd_aborted(&psmouse->ps2dev);
-+			goto out;
-+		} else {
-+			psmouse->badparity = 1;
-+		}
- 	}
- 
- 	if (unlikely(psmouse->ps2dev.flags & PS2_FLAG_ACK))
-diff -puN drivers/input/mouse/psmouse.h~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/psmouse.h
---- a/drivers/input/mouse/psmouse.h~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/psmouse.h
-@@ -43,6 +43,7 @@ struct psmouse {
- 	char *vendor;
- 	char *name;
- 	unsigned char packet[8];
-+	int badparity;
- 	unsigned char badbyte;
- 	unsigned char pktcnt;
- 	unsigned char pktsize;
-diff -puN drivers/input/mouse/sentelic.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/sentelic.c
---- a/drivers/input/mouse/sentelic.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/sentelic.c
-@@ -638,6 +638,9 @@ static psmouse_ret_t fsp_process_byte(st
- 	 * Full packet accumulated, process it
- 	 */
- 
-+	if (psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- 	switch (psmouse->packet[0] >> FSP_PKT_TYPE_SHIFT) {
- 	case FSP_PKT_TYPE_ABS:
- 		dev_warn(&psmouse->ps2dev.serio->dev,
-diff -puN drivers/input/mouse/synaptics.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/synaptics.c
-@@ -554,6 +554,9 @@ static psmouse_ret_t synaptics_process_b
- 	struct synaptics_data *priv = psmouse->private;
- 
- 	if (psmouse->pktcnt >= 6) { /* Full packet received */
-+		if (psmouse->badparity)
-+			return PSMOUSE_FULL_PACKET;
-+
- 		if (unlikely(priv->pkt_type == SYN_NEWABS))
- 			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
- 
-diff -puN drivers/input/mouse/touchkit_ps2.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better drivers/input/mouse/touchkit_ps2.c
---- a/drivers/input/mouse/touchkit_ps2.c~input-handle-bad-parity-ps-2-packets-in-mouse-drivers-better
-+++ a/drivers/input/mouse/touchkit_ps2.c
-@@ -58,6 +58,9 @@ static psmouse_ret_t touchkit_ps2_proces
- 	if (psmouse->pktcnt != 5)
- 		return PSMOUSE_GOOD_DATA;
- 
-+	if (psmouse->badparity)
-+		return PSMOUSE_FULL_PACKET;
-+
- 	input_report_abs(dev, ABS_X, TOUCHKIT_GET_X(packet));
- 	input_report_abs(dev, ABS_Y, TOUCHKIT_GET_Y(packet));
- 	input_report_key(dev, BTN_TOUCH, TOUCHKIT_GET_TOUCHED(packet));
+ #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
+ 	[DEVTYPE_NEXIO] = {
+-		.rept_size	= 128,
++		.rept_size	= 1024,
+ 		.irq_always	= true,
+ 		.read_data	= nexio_read_data,
+ 		.init		= nexio_init,
 _

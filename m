@@ -1,59 +1,67 @@
 From: akpm@linux-foundation.org
-Subject: [patch 2/3] usbtouchscreen: support bigger iNexio touchscreens
-Date: Tue, 27 Apr 2010 14:12:38 -0700
-Message-ID: <201004272112.o3RLCcnp020085@imap1.linux-foundation.org>
+Subject: [patch 1/3] ati_remote: add some missing devices from lirc_atiusb
+Date: Tue, 27 Apr 2010 14:12:37 -0700
+Message-ID: <201004272112.o3RLCciJ020082@imap1.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:58617 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:32796 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753834Ab0D0VNW (ORCPT
+	by vger.kernel.org with ESMTP id S1756142Ab0D0VRJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Apr 2010 17:13:22 -0400
+	Tue, 27 Apr 2010 17:17:09 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, linux@rainbow-software.org, oliver@neukum.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, jarod@redhat.com, nm127@freemail.hu
 
-From: Ondrej Zary <linux@rainbow-software.org>
+From: Jarod Wilson <jarod@redhat.com>
 
-Bigger Nexio touchscreens not only send more data but also the header
-values are modified somehow.  Fix the header somehow (it's a guesswork but
-it works at least on one 46" touchscreen with 2.00SMS firmware) and also
-increase rept_size.
+The (out-of-tree) lirc_atiusb driver has a much longer list of devices it
+supports.  Some of them look like they may just be guesses at possible
+device IDs, but a few are definitely confirmed devices.  This adds the
+nVidia-branded RF receiver and the X10 Lola Wireless Video Sender device
+(which contains an RF receiver) to the list of devices in ati_remote.
 
-Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
-Cc: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Cc: <nm127@freemail.hu>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/touchscreen/usbtouchscreen.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/misc/ati_remote.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff -puN drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-support-bigger-inexio-touchscreens drivers/input/touchscreen/usbtouchscreen.c
---- a/drivers/input/touchscreen/usbtouchscreen.c~usbtouchscreen-support-bigger-inexio-touchscreens
-+++ a/drivers/input/touchscreen/usbtouchscreen.c
-@@ -858,6 +858,11 @@ static int nexio_read_data(struct usbtou
- 	if ((pkt[0] & 0xe0) != 0xe0)
- 		return 0;
+diff -puN drivers/input/misc/ati_remote.c~ati_remote-add-some-missing-devices-from-lirc_atiusb drivers/input/misc/ati_remote.c
+--- a/drivers/input/misc/ati_remote.c~ati_remote-add-some-missing-devices-from-lirc_atiusb
++++ a/drivers/input/misc/ati_remote.c
+@@ -98,10 +98,12 @@
+  * Module and Version Information, Module Parameters
+  */
  
-+	if (be16_to_cpu(packet->data_len) > 0xff)
-+		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
-+	if (be16_to_cpu(packet->x_len) > 0xff)
-+		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
-+
- 	/* send ACK */
- 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
+-#define ATI_REMOTE_VENDOR_ID	0x0bc7
+-#define ATI_REMOTE_PRODUCT_ID	0x004
+-#define LOLA_REMOTE_PRODUCT_ID	0x002
+-#define MEDION_REMOTE_PRODUCT_ID 0x006
++#define ATI_REMOTE_VENDOR_ID		0x0bc7
++#define LOLA_REMOTE_PRODUCT_ID		0x0002
++#define LOLA2_REMOTE_PRODUCT_ID		0x0003
++#define ATI_REMOTE_PRODUCT_ID		0x0004
++#define NVIDIA_REMOTE_PRODUCT_ID	0x0005
++#define MEDION_REMOTE_PRODUCT_ID	0x0006
  
-@@ -1113,7 +1118,7 @@ static struct usbtouch_device_info usbto
+ #define DRIVER_VERSION	        "2.2.1"
+ #define DRIVER_AUTHOR           "Torrey Hoffman <thoffman@arnor.net>"
+@@ -142,8 +144,10 @@ MODULE_PARM_DESC(repeat_delay, "Delay be
+ #define err(format, arg...) printk(KERN_ERR format , ## arg)
  
- #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
- 	[DEVTYPE_NEXIO] = {
--		.rept_size	= 128,
-+		.rept_size	= 1024,
- 		.irq_always	= true,
- 		.read_data	= nexio_read_data,
- 		.init		= nexio_init,
+ static struct usb_device_id ati_remote_table[] = {
+-	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, ATI_REMOTE_PRODUCT_ID) },
+ 	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, LOLA_REMOTE_PRODUCT_ID) },
++	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, LOLA2_REMOTE_PRODUCT_ID) },
++	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, ATI_REMOTE_PRODUCT_ID) },
++	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, NVIDIA_REMOTE_PRODUCT_ID) },
+ 	{ USB_DEVICE(ATI_REMOTE_VENDOR_ID, MEDION_REMOTE_PRODUCT_ID) },
+ 	{}	/* Terminating entry */
+ };
 _

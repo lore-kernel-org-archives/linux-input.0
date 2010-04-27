@@ -1,39 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: split picolcd's operation_mode sysfs attribute
-Date: Tue, 27 Apr 2010 15:32:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1004271532260.9849@pobox.suse.cz>
-References: <20100324233707.7243b04d@neptune.home> <20100330223224.18fe4f3e@neptune.home> <20100330223350.32044891@neptune.home> <201004011858.45859.oliver@neukum.org> <20100425212916.2b9af33b@neptune.home>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Florian Ragwitz <rafl@debian.org>
+Subject: Re: Getting recent elantech touchpads to work with synaptics
+Date: Tue, 27 Apr 2010 16:58:46 +0200
+Message-ID: <1272380327-7921-1-git-send-email-rafl@debian.org>
+References: <20100427073654.GC29797@core.coreip.homeip.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:49341 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752895Ab0D0Ncm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Apr 2010 09:32:42 -0400
-In-Reply-To: <20100425212916.2b9af33b@neptune.home>
+Received: from weedy.perldition.org ([85.10.210.75]:52322 "EHLO
+	weedy.perldition.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756163Ab0D0PAK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Apr 2010 11:00:10 -0400
+Received: from p4fd76bae.dip.t-dialin.net ([79.215.107.174]:55374 helo=tardis.perldition.org)
+	by weedy.perldition.org with esmtpsa (TLSv1:AES256-SHA:256)
+	(Exim 4.60)
+	(envelope-from <rafl@tardis.perldition.org>)
+	id 1O6mGe-00036D-Hg
+	for linux-input@vger.kernel.org; Tue, 27 Apr 2010 17:00:08 +0200
+Received: from rafl by tardis.perldition.org with local (Exim 4.71)
+	(envelope-from <rafl@tardis.perldition.org>)
+	id 1O6mFp-00024e-2H
+	for linux-input@vger.kernel.org; Tue, 27 Apr 2010 16:59:17 +0200
+In-Reply-To: <20100427073654.GC29797@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: Oliver Neukum <oliver@neukum.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Rick L. Vinyard Jr." <rvinyard@cs.nmsu.edu>, Nicu Pavel <npavel@ituner.com>, Jaya Kumar <jayakumar.lkml@gmail.com>
+To: linux-input@vger.kernel.org
 
-On Sun, 25 Apr 2010, Bruno Pr=C3=A9mont wrote:
+On Tue, 27 Apr 2010 00:36:54 -0700, Dmitry Torokhov wrote:
+> Florian, great work. I will queue the patches for .34, I think is not
+> too late.
 
-> Original operation_mode sysfs attribute accepts the operation mode
-> as main value with an option delay as second value to change
-> the start-up delay on mode change.
->=20
-> As it is preferred to have exactly one value per sysfs attribute,
-> extract this delay into a separate sysfs attribute called
-> operation_mode_delay.
+Great news. Thank you!
 
-Yeah, thanks for fixing this. Applied.
+I also just noticed my initial patch updated the comments about the packet
+structure in the source code, but failed to update the relevant docs in
+Documentation/.
 
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The following patch does just that.
+
+  [PATCH] Update elantech documentation
+
+
+-- 
+BOFH excuse #390:
+Increased sunspot activity.

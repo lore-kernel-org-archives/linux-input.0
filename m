@@ -1,47 +1,32 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH] IR/imon: add proper auto-repeat support
-Date: Wed, 28 Apr 2010 17:00:58 -0400
-Message-ID: <20100428210058.GO15951@redhat.com>
-References: <20100428173700.GA14240@redhat.com>
- <20100428204112.GA6663@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: HID: expand hid-topseed driver to support BTC "Emprex 3009URF
+ III  Vista MCE Remote"
+Date: Thu, 29 Apr 2010 00:46:05 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1004290045400.9849@pobox.suse.cz>
+References: <t2g3711715e1004240718m8aacffc5o68fc9ccd1e66f212@mail.gmail.com>  <w2l3711715e1004271145v133cd94ax971aa213eb60cfaa@mail.gmail.com>  <alpine.LNX.2.00.1004272242050.9849@pobox.suse.cz>  <y2u3711715e1004272206u4700fac7u744b2fb0cf203367@mail.gmail.com>
+  <alpine.LNX.2.00.1004281349130.9849@pobox.suse.cz> <m2x3711715e1004280754h35225f9ch75cb0be11ab6b75e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100428204112.GA6663@core.coreip.homeip.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:48551 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755514Ab0D1WqH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Apr 2010 18:46:07 -0400
+In-Reply-To: <m2x3711715e1004280754h35225f9ch75cb0be11ab6b75e@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Wayne Thomas <waynethomas69@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2010 at 01:41:12PM -0700, Dmitry Torokhov wrote:
-> On Wed, Apr 28, 2010 at 01:37:00PM -0400, Jarod Wilson wrote:
-> > Set the EV_REP bit, so reported key repeats actually make their
-> > way out to userspace, and fix up the handling of repeats a bit,
-> > routines for which are shamelessly heisted from ati_remote2.c.
-> >
-> 
-> Is it really needed? I'd expect input core handling auto-repeating
-> for you as long as you set EV_REP flag.
+On Wed, 28 Apr 2010, Wayne Thomas wrote:
 
-In my own (albeit brief) testing, the heisted bits don't make a
-significant difference, but I had a user say that it helped a bit at
-suppressing what he perceived as extraneous repeats being passed through.
-In reality, setting a slightly higher rep delay or rep period might be the
-better answer here.
+> The TopSeed remote has four keys in particular with two labels on each
+> of them (but only a single output for each key):
+[ ... ]
+> I hope this has answered your question sufficiently.
 
-Actually, I think I know exactly what was happening for said user. He's
-using a device that only supports mce mode, where these devices don't have
-a release code, they're timer-based, I think the repeat timeout of 200ms
-was triggering an auto-repeat every 33ms for 200ms, thus giving the
-appearance of way more repeats than the hardware actually sent.
-
-Okay, lemme rework this patch a bit, I think I can drop all that heisted
-crud, and simply bumping the release timer in mce mode by rep period ms
-instead of 200ms for repeats should be sufficient. Need to get my imon
-device that supports both imon and mce proto back into a state where I can
-use it for testing...
+Thanks. I have applied the changes.
 
 -- 
-Jarod Wilson
-jarod@redhat.com
+Jiri Kosina
+SUSE Labs, Novell Inc.

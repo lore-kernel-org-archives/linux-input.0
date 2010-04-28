@@ -1,36 +1,40 @@
-From: info <infoweb210@singnet.com.sg>
-Subject: Irish 2010 Grant Winner
-Date: Thu, 29 Apr 2010 00:00:26 +0800 (SGT)
-Message-ID: <1272470426.4bd85b9aae69a@arrowana.singnet.com.sg>
-Reply-To: bnl.claimsdept121@live.co.uk
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: question on releasing keys
+Date: Wed, 28 Apr 2010 09:42:24 -0700
+Message-ID: <201004280942.25746.dmitry.torokhov@gmail.com>
+References: <201004281053.52598.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comsmtp1.singnet.com.sg ([165.21.101.74]:54575 "EHLO
-	comsmtp1.singnet.com.sg" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755177Ab0D1QBM (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:52501 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755821Ab0D1Qmf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Apr 2010 12:01:12 -0400
+	Wed, 28 Apr 2010 12:42:35 -0400
+Received: by wye20 with SMTP id 20so918255wye.19
+        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2010 09:42:34 -0700 (PDT)
+In-Reply-To: <201004281053.52598.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: iri@uk.cc
+To: Oliver Neukum <oneukum@suse.de>
+Cc: linux-input@vger.kernel.org
 
-Your email address has won =A31,000,000Pounds,in the on going UK Promo.=
-send your details:
-Names:_____________
-Tele:_____________
-Age:_________
-Address:___
-occupation:___
-country:___
-next of kin:____
-Email:bnl.claimsdept121@live.co.uk
+Hi Oliver,
 
-Agent Name: Mr.Franck Smith
-Tel:+44 704-571-0545
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Wednesday 28 April 2010 01:53:52 am Oliver Neukum wrote:
+> Hi,
+> 
+> I am seeing a generic problem with buttons on devices released during S3.
+> The input layer then assumes that the button is still pressed. It would be
+> best for drivers to either verify that a button is still held or
+> alternatively, to release all buttons upon resumption. Is there a generic
+> way to do that?
+>
+
+I think input core should force release of all keys when device is
+being suspended, I guess we need to change input.c::input_dev_reset().
+
+-- 
+Dmitry

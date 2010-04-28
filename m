@@ -1,75 +1,139 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Reset ps/2 port  should psmouse_probe fail before
- retrying
-Date: Wed, 28 Apr 2010 10:07:21 -0700
-Message-ID: <20100428170721.GA6608@core.coreip.homeip.net>
-References: <1271723857.6652.6.camel@lovely>
- <20100422215517.GB28213@core.coreip.homeip.net>
- <1271983668.16254.44.camel@lovely>
- <201004230953.52447.dmitry.torokhov@gmail.com>
- <4BD1EB1C.1070200@canonical.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] IR/imon: add proper auto-repeat support
+Date: Wed, 28 Apr 2010 13:37:00 -0400
+Message-ID: <20100428173700.GA14240@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:48885 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753862Ab0D1RHa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Apr 2010 13:07:30 -0400
-Received: by wye20 with SMTP id 20so938840wye.19
-        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2010 10:07:29 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:14993 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753349Ab0D1RhC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Apr 2010 13:37:02 -0400
 Content-Disposition: inline
-In-Reply-To: <4BD1EB1C.1070200@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Peter M. Petrakis" <peter.petrakis@canonical.com>
-Cc: Christoph Fritz <chf.fritz@googlemail.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>, Christopher Heiny <cheiny@synaptics.com>
+To: linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-On Fri, Apr 23, 2010 at 02:46:52PM -0400, Peter M. Petrakis wrote:
-> Here are the dmesg boot logs with i8042.debug. 
-> 
-> On 04/23/2010 12:53 PM, Dmitry Torokhov wrote:
-> > On Thursday 22 April 2010 05:47:48 pm Christoph Fritz wrote:
-> >> Am Donnerstag, den 22.04.2010, 14:55 -0700 schrieb Dmitry Torokhov:
-> >>> On Thu, Apr 22, 2010 at 05:48:21PM -0400, Peter M. Petrakis wrote:
-> >>>> Hi,
-> >>>>
-> >>>> This one is a winner. with regards to your follow up. I wouldn't
-> >>>> want to reset something unless we have cause to. This code
-> >>>> seems to be doing the right thing e.g. I see "unable to query
-> >>>> synaptics hardware" followed by it's (re)discovery on return
-> >>>> from S3.
-> >>>>
-> >>>> When it's fully supported by the Synaptics driver, the initial
-> >>>> reconnect will succeed and we'll never get to this additional
-> >>>> failsafe code which is essentially a catch all for the bleeding
-> >>>> edge.
-> >>>
-> >>> I am confused here... what protocol does the kernel select upon fresh
-> >>> boot?
-> >>
-> >> Peter's dmesg:
-> >>
-> >> [    7.428561] Unable to query Synaptics hardware.
-> >>
-> >>  It's plain PS/2 or IMPS/2 because this bleeding edge device fails
-> >> somewehre in synaptics_query_hardware(). Most likely the test on
-> >> priv->identity.
-> > 
-> > Ah, I missed that. Peter, could you boot with i8042.debug so we could see 
-> > where exactly Synaptics detection fails?
-> > 
+Set the EV_REP bit, so reported key repeats actually make their
+way out to userspace, and fix up the handling of repeats a bit,
+routines for which are shamelessly heisted from ati_remote2.c.
 
-Indeed, capability request returns "d0 00 73" whereas we expect 0x47 in
-the middle byte.
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+---
+ drivers/media/IR/imon.c |   38 +++++++++++++++++++++++++++++++-------
+ 1 files changed, 31 insertions(+), 7 deletions(-)
 
-Peter, please make sure that you do not have touchpad disabled in BIOS
-(at least other Dells that I seen had similar options).
-
-Cristofer, do you know by any chance why touchpad reporing firmware 7.5
-would return such unexpected answer to 0x02 query?
-
-Thanks!
+diff --git a/drivers/media/IR/imon.c b/drivers/media/IR/imon.c
+index b65c31a..16e2e7f 100644
+--- a/drivers/media/IR/imon.c
++++ b/drivers/media/IR/imon.c
+@@ -130,6 +130,7 @@ struct imon_context {
+ 	u64 ir_type;			/* iMON or MCE (RC6) IR protocol? */
+ 	u8 mce_toggle_bit;		/* last mce toggle bit */
+ 	bool release_code;		/* some keys send a release code */
++	unsigned long jiffies;		/* repeat timer */
+ 
+ 	u8 display_type;		/* store the display type */
+ 	bool pad_mouse;			/* toggle kbd(0)/mouse(1) mode */
+@@ -146,7 +147,6 @@ struct imon_context {
+ };
+ 
+ #define TOUCH_TIMEOUT	(HZ/30)
+-#define MCE_TIMEOUT_MS	200
+ 
+ /* vfd character device file operations */
+ static const struct file_operations vfd_fops = {
+@@ -1394,6 +1394,8 @@ static int imon_parse_press_type(struct imon_context *ictx,
+ 				 unsigned char *buf, u8 ktype)
+ {
+ 	int press_type = 0;
++	int rep_delay = ictx->idev->rep[REP_DELAY];
++	int rep_period = ictx->idev->rep[REP_PERIOD];
+ 
+ 	/* key release of 0x02XXXXXX key */
+ 	if (ictx->kc == KEY_RESERVED && buf[0] == 0x02 && buf[3] == 0x00)
+@@ -1418,12 +1420,12 @@ static int imon_parse_press_type(struct imon_context *ictx,
+ 			ictx->mce_toggle_bit = buf[2];
+ 			press_type = 1;
+ 			mod_timer(&ictx->itimer,
+-				  jiffies + msecs_to_jiffies(MCE_TIMEOUT_MS));
++				  jiffies + msecs_to_jiffies(rep_delay));
+ 		/* repeat */
+ 		} else {
+ 			press_type = 2;
+ 			mod_timer(&ictx->itimer,
+-				  jiffies + msecs_to_jiffies(MCE_TIMEOUT_MS));
++				  jiffies + msecs_to_jiffies(rep_period));
+ 		}
+ 
+ 	/* incoherent or irrelevant data */
+@@ -1458,12 +1460,14 @@ static void imon_incoming_packet(struct imon_context *ictx,
+ 	u32 remote_key = 0;
+ 	struct input_dev *idev = NULL;
+ 	int press_type = 0;
+-	int msec;
++	int msec, rep_delay, rep_period;
+ 	struct timeval t;
+ 	static struct timeval prev_time = { 0, 0 };
+ 	u8 ktype = IMON_KEY_IMON;
+ 
+ 	idev = ictx->idev;
++	rep_delay = idev->rep[REP_DELAY];
++	rep_period = idev->rep[REP_PERIOD];
+ 
+ 	/* filter out junk data on the older 0xffdc imon devices */
+ 	if ((buf[0] == 0xff) && (buf[7] == 0xff))
+@@ -1529,8 +1533,28 @@ static void imon_incoming_packet(struct imon_context *ictx,
+ 	}
+ 
+ 	press_type = imon_parse_press_type(ictx, buf, ktype);
+-	if (press_type < 0)
++
++	switch (press_type) {
++	/* release */
++	case 0:
++		break;
++	/* press */
++	case 1:
++		ictx->jiffies = jiffies + msecs_to_jiffies(rep_delay);
++		break;
++	/* repeat */
++	case 2:
++		/* don't repeat too fast */
++		if (!time_after_eq(jiffies, ictx->jiffies))
++			return;
++
++		ictx->jiffies = jiffies + msecs_to_jiffies(rep_period);
++		break;
++	case -EINVAL:
++	default:
+ 		goto not_input_data;
++		break;
++	}
+ 
+ 	if (ictx->kc == KEY_UNKNOWN)
+ 		goto unknown_key;
+@@ -1541,7 +1565,7 @@ static void imon_incoming_packet(struct imon_context *ictx,
+ 		do_gettimeofday(&t);
+ 		msec = tv2int(&t, &prev_time);
+ 		prev_time = t;
+-		if (msec < 200)
++		if (msec < rep_delay)
+ 			return;
+ 	}
+ 
+@@ -1686,7 +1710,7 @@ static struct input_dev *imon_init_idev(struct imon_context *ictx)
+ 	strlcat(ictx->phys_idev, "/input0", sizeof(ictx->phys_idev));
+ 	idev->phys = ictx->phys_idev;
+ 
+-	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
++	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) | BIT_MASK(EV_REL);
+ 
+ 	idev->keybit[BIT_WORD(BTN_MOUSE)] =
+ 		BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_RIGHT);
 
 -- 
-Dmitry
+Jarod Wilson
+jarod@redhat.com
+

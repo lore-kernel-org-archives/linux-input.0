@@ -1,146 +1,117 @@
-From: Wayne Thomas <waynethomas69@gmail.com>
-Subject: Re: HID: expand hid-topseed driver to support BTC "Emprex 3009URF III
-	Vista MCE Remote"
-Date: Wed, 28 Apr 2010 07:06:37 +0200
-Message-ID: <y2u3711715e1004272206u4700fac7u744b2fb0cf203367@mail.gmail.com>
-References: <t2g3711715e1004240718m8aacffc5o68fc9ccd1e66f212@mail.gmail.com>
-	 <w2l3711715e1004271145v133cd94ax971aa213eb60cfaa@mail.gmail.com>
-	 <alpine.LNX.2.00.1004272242050.9849@pobox.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail before
+  retrying
+Date: Wed, 28 Apr 2010 00:26:33 -0700
+Message-ID: <20100428072633.GC4232@core.coreip.homeip.net>
+References: <1271723857.6652.6.camel@lovely>
+ <20100422215517.GB28213@core.coreip.homeip.net>
+ <1271983668.16254.44.camel@lovely>
+ <201004230953.52447.dmitry.torokhov@gmail.com>
+ <1272072125.4341.10.camel@lovely>
+ <1272103233.4666.15.camel@lovely>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016e6d9677e848ff1048544f9e3
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1004272242050.9849@pobox.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:40480 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751733Ab0D1Hcw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Apr 2010 03:32:52 -0400
+Received: by pwj9 with SMTP id 9so10157990pwj.19
+        for <linux-input@vger.kernel.org>; Wed, 28 Apr 2010 00:32:52 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1272103233.4666.15.camel@lovely>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
 
---0016e6d9677e848ff1048544f9e3
-Content-Type: text/plain; charset=ISO-8859-1
+On Sat, Apr 24, 2010 at 12:00:33PM +0200, Christoph Fritz wrote:
+> On Sat, 2010-04-24 at 03:22 +0200, Christoph Fritz wrote:
+> > On Fri, 2010-04-23 at 09:53 -0700, Dmitry Torokhov wrote:
+> > > On Thursday 22 April 2010 05:47:48 pm Christoph Fritz wrote:
+> > 
+> > > > in conclusion:
+> > > >  If a Synaptics touchpad can't be initialized (synaptics_init) and falls
+> > > > back to PS/2, it doesn't get a psmouse_reset() after resuming from
+> > > > suspend as it would get with a synaptics driver.
+> > > 
+> > > Yes, you are right. Maybe we should just reset psmouse unconditionally in 
+> > > psmouse_reconnect() before actually doing any protocol reconnect/reprobe. That 
+> > > should help in cases when users not enable Synaptics support; also it is 
+> > > probably unlikely that mouse that was there gets unplugged after resume.
+> > 
+> > Yes, this would solve that case too. 
+> 
+> I have to correct myself.
+>  The case is already achieved with the patch I sent:
+> synaptics_detect() detects presence of synaptics_hardware even if the user
+> does not enable CONFIG_MOUSE_PS2_SYNAPTICS.
+> 
+> Just for a better overview in this thread, here it is:
+> 
+> 
+> ---
+> If a Synaptics touchpad can't be initialized (synaptics_init) and falls
+> back to PS/2, it doesn't get a psmouse_reset() after resuming from
+> suspend as it would get with a synaptics driver.
+>  So check state of synaptics_hardware and reset this beast.
+> 
+> Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
+> ---
+>  drivers/input/mouse/psmouse-base.c |   12 +++++++++---
+>  1 files changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> index d8c0c8d..66ce0ac 100644
+> --- a/drivers/input/mouse/psmouse-base.c
+> +++ b/drivers/input/mouse/psmouse-base.c
+> @@ -116,6 +116,9 @@ struct psmouse_protocol {
+>  	int (*init)(struct psmouse *);
+>  };
+>  
+> +/* to handle some reset quirks */
+> +static bool synaptics_hardware = false;
 
-On Tue, Apr 27, 2010 at 10:43 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 27 Apr 2010, Wayne Thomas wrote:
->
->> OK, next attempt...
->
-> The patch is OK, but your mail client whitespace-damaged it. Could you
-> please fix up your client and resend? (or attach it separately as an
-> attachment, if your client can't be fixed).
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs, Novell Inc.
->
+This is not entirely correct as there could be more than one PS/2 device
+attached to a box (i.e. a touchpad and an external mouse).
 
-I thought it might have; sorry about that.
-Have attached patch as separate file as a precaution.
+What about simply resetting the mouse before actually trying to
+reconnect?
 
-Cheers
-Wayne
+BTW, no need to initialize static variables to 0/false.
 
---0016e6d9677e848ff1048544f9e3
-Content-Type: application/octet-stream; name=btc_patch2
-Content-Disposition: attachment; filename=btc_patch2
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_g8joghzt0
+> +
+>  /*
+>   * psmouse_process_byte() analyzes the PS/2 data stream and reports
+>   * relevant events to the input module once full packet has arrived.
+> @@ -597,7 +600,6 @@ static int cortron_detect(struct psmouse *psmouse, bool set_properties)
+>  static int psmouse_extensions(struct psmouse *psmouse,
+>  			      unsigned int max_proto, bool set_properties)
+>  {
+> -	bool synaptics_hardware = false;
+>  
+>  /*
+>   * We always check for lifebook because it does not disturb mouse
+> @@ -1401,10 +1403,14 @@ static int psmouse_reconnect(struct serio *serio)
+>  	if (psmouse->reconnect) {
+>  		if (psmouse->reconnect(psmouse))
+>  			goto out;
+> -	} else if (psmouse_probe(psmouse) < 0 ||
+> +	} else {
+> +		if (synaptics_hardware)		/* is using plain PS/2 */
+> +			psmouse_reset(psmouse);
+> +		if (psmouse_probe(psmouse) < 0 ||
+>  		   psmouse->type != psmouse_extensions(psmouse,
+>  						psmouse_max_proto, false)) {
+> -		goto out;
+> +			goto out;
+> +		}
+>  	}
+>  
+>  	/* ok, the device type (and capabilities) match the old one,
 
-SElEOiBleHBhbmQgaGlkLXRvcHNlZWQgZHJpdmVyIHRvIHN1cHBvcnQgQlRDICJFbXByZXggMzAw
-OVVSRiBJSUkgVmlzdGEgTUNFIFJlbW90ZSIKClRoZSBCZWhhdmlvciBUZWNoLiBDb21wdXRlciBD
-b3JwLiAoQlRDKSByZW1vdGUgYnJhbmRlZCBhcyAiRW1wcmV4IDMwMDlVUkYgSUlJIFZpc3RhClJl
-bW90ZSBDb250cm9sbGVyIiB1c2VzIG5vbi1zdGFuZGFyZCBtYXBwaW5ncyBmb3IgYWxsIG9mIGl0
-cyAnc3BlY2lhbCBwdXJwb3NlJyBrZXlzCigweGZmYmMgdXNhZ2UgcGFnZSkuICBUaGlzIHBhdGNo
-IG1vZGlmaWVzIHRoZSBleGlzdGluZyBoaWQtdG9wc2VlZCBxdWlya3kgZHJpdmVyIHRvCnN1cHBv
-cnQgYm90aCByZW1vdGVzIGluIG9yZGVyIHRvIHByZXZlbnQgcHJvbGlmZXJhdGlvbiBvZiBpbi1r
-ZXJuZWwgcXVpcmt5IGRyaXZlcnMKdW50aWwgc3VjaCBhIHRpbWUgdGhhdCB1ZGV2IHJlbWFwcGlu
-ZyB3b3JrcyB3aXRoIHRoZXNlIGRldmljZXMuClRlc3RlZCBzdWNjZXNzZnVsbHkgd2l0aCBib3Ro
-IHRoZSAiRW1wcmV4IiByZW1vdGUgYW5kIHRoZSAiQ3liZXJMaW5rIiByZW1vdGUKb3JpZ2luYWxs
-eSBzdXBwb3J0ZWQgYnkgdGhlIGhpZC10b3BzZWVkIGRyaXZlci4KClNpZ25lZC1vZmYtYnk6IFdh
-eW5lIFRob21hcyA8d2F5bmV0aG9tYXM2OUBnbWFpbC5jb20+CgoKZGlmZiAtdXByTiBsaW51eC0y
-LjYuMzMtY2xlYW4vZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBsaW51eC9kcml2ZXJzL2hpZC9oaWQt
-Y29yZS5jCi0tLSBsaW51eC0yLjYuMzMtY2xlYW4vZHJpdmVycy9oaWQvaGlkLWNvcmUuYwkyMDEw
-LTA0LTIyIDIxOjA0OjE3LjAwMDAwMDAwMCArMDIwMAorKysgbGludXgvZHJpdmVycy9oaWQvaGlk
-LWNvcmUuYwkyMDEwLTA0LTIzIDE5OjU1OjE3LjAwMDAwMDAwMCArMDIwMApAQCAtMTI5MSw2ICsx
-MjkxLDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkIGhpZF9ibAogCXsgSElE
-X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9GT1VO
-VEFJTl9UUF9PTkxZKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9BUFBMRSwg
-VVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIxX1RQX09OTFkpIH0sCiAJeyBISURfVVNCX0RFVklD
-RShVU0JfVkVORE9SX0lEX0JFTEtJTiwgVVNCX0RFVklDRV9JRF9GTElQX0tWTSkgfSwKKwl7IEhJ
-RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfQlRDLCBVU0JfREVWSUNFX0lEX0JUQ19FTVBSRVhf
-UkVNT1RFKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9DSEVSUlksIFVTQl9E
-RVZJQ0VfSURfQ0hFUlJZX0NZTU9USU9OKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
-Ul9JRF9DSElDT05ZLCBVU0JfREVWSUNFX0lEX0NISUNPTllfVEFDVElDQUxfUEFEKSB9LAogCXsg
-SElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9DWVBSRVNTLCBVU0JfREVWSUNFX0lEX0NZUFJF
-U1NfQkFSQ09ERV8xKSB9LApkaWZmIC11cHJOIGxpbnV4LTIuNi4zMy1jbGVhbi9kcml2ZXJzL2hp
-ZC9oaWQtaWRzLmggbGludXgvZHJpdmVycy9oaWQvaGlkLWlkcy5oCi0tLSBsaW51eC0yLjYuMzMt
-Y2xlYW4vZHJpdmVycy9oaWQvaGlkLWlkcy5oCTIwMTAtMDQtMjIgMjE6MDQ6MTcuMDAwMDAwMDAw
-ICswMjAwCisrKyBsaW51eC9kcml2ZXJzL2hpZC9oaWQtaWRzLmgJMjAxMC0wNC0yMyAwNzowOTo1
-OS4wMDAwMDAwMDAgKzAyMDAKQEAgLTExNiw2ICsxMTYsOSBAQAogI2RlZmluZSBVU0JfVkVORE9S
-X0lEX0JFUktTSElSRQkJMHgwYzk4CiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQkVSS1NISVJFX1BD
-V0QJMHgxMTQwCiAKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9CVEMJCTB4MDQ2ZQorI2RlZmluZSBV
-U0JfREVWSUNFX0lEX0JUQ19FTVBSRVhfUkVNT1RFCTB4NTU3OAorCiAjZGVmaW5lIFVTQl9WRU5E
-T1JfSURfQ0gJCTB4MDY4ZQogI2RlZmluZSBVU0JfREVWSUNFX0lEX0NIX1BST19QRURBTFMJMHgw
-MGYyCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQ0hfQ09NQkFUU1RJQ0sJMHgwMGY0CmRpZmYgLXVw
-ck4gbGludXgtMi42LjMzLWNsZWFuL2RyaXZlcnMvaGlkL2hpZC10b3BzZWVkLmMgbGludXgvZHJp
-dmVycy9oaWQvaGlkLXRvcHNlZWQuYwotLS0gbGludXgtMi42LjMzLWNsZWFuL2RyaXZlcnMvaGlk
-L2hpZC10b3BzZWVkLmMJMjAxMC0wNC0yMiAyMDo0ODo0My4wMDAwMDAwMDAgKzAyMDAKKysrIGxp
-bnV4L2RyaXZlcnMvaGlkL2hpZC10b3BzZWVkLmMJMjAxMC0wNC0yMiAyMToyOToyMC4wMDAwMDAw
-MDAgKzAyMDAKQEAgLTMsNiArMyw5IEBACiAgKgogICogIENvcHlyaWdodCAoYykgMjAwOCBMZXYg
-QmFiaWV2CiAgKiAgYmFzZWQgb24gaGlkLWNoZXJyeSBkcml2ZXIKKyAqCisgKiAgTW9kaWZpZWQg
-dG8gYWxzbyBzdXBwb3J0IEJUQyAiRW1wcmV4IDMwMDlVUkYgSUlJIFZpc3RhIE1DRSBSZW1vdGUi
-IGJ5CisgKiAgV2F5bmUgVGhvbWFzIDIwMTAuCiAgKi8KIAogLyoKQEAgLTI0LDIzICsyNywyOSBA
-QCBzdGF0aWMgaW50IHRzX2lucHV0X21hcHBpbmcoc3RydWN0IGhpZF9kCiAJCXN0cnVjdCBoaWRf
-ZmllbGQgKmZpZWxkLCBzdHJ1Y3QgaGlkX3VzYWdlICp1c2FnZSwKIAkJdW5zaWduZWQgbG9uZyAq
-KmJpdCwgaW50ICptYXgpCiB7Ci0JaWYgKCh1c2FnZS0+aGlkICYgSElEX1VTQUdFX1BBR0UpICE9
-IDB4MGZmYmMwMDAwKQorCWlmICgodXNhZ2UtPmhpZCAmIEhJRF9VU0FHRV9QQUdFKSAhPSBISURf
-VVBfTE9HSVZFTkRPUikKIAkJcmV0dXJuIDA7CiAKIAlzd2l0Y2ggKHVzYWdlLT5oaWQgJiBISURf
-VVNBR0UpIHsKLSAgICAgICAgY2FzZSAweDAwZDogdHNfbWFwX2tleV9jbGVhcihLRVlfSE9NRSk7
-ICAgICAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDAyNDogdHNfbWFwX2tleV9jbGVhcihL
-RVlfTUVOVSk7ICAgICAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDAyNTogdHNfbWFwX2tl
-eV9jbGVhcihLRVlfVFYpOyAgICAgICAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDA0ODog
-dHNfbWFwX2tleV9jbGVhcihLRVlfUkVEKTsgICAgICAgICAgICBicmVhazsKLSAgICAgICAgY2Fz
-ZSAweDA0NzogdHNfbWFwX2tleV9jbGVhcihLRVlfR1JFRU4pOyAgICAgICAgICBicmVhazsKLSAg
-ICAgICAgY2FzZSAweDA0OTogdHNfbWFwX2tleV9jbGVhcihLRVlfWUVMTE9XKTsgICAgICAgICBi
-cmVhazsKLSAgICAgICAgY2FzZSAweDA0YTogdHNfbWFwX2tleV9jbGVhcihLRVlfQkxVRSk7ICAg
-ICAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDA0YjogdHNfbWFwX2tleV9jbGVhcihLRVlf
-QU5HTEUpOyAgICAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDA0YzogdHNfbWFwX2tleV9j
-bGVhcihLRVlfTEFOR1VBR0UpOyAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAweDA0ZDogdHNf
-bWFwX2tleV9jbGVhcihLRVlfU1VCVElUTEUpOyAgICAgICBicmVhazsKLSAgICAgICAgY2FzZSAw
-eDAzMTogdHNfbWFwX2tleV9jbGVhcihLRVlfQVVESU8pOyAgICAgICAgICBicmVhazsKLSAgICAg
-ICAgY2FzZSAweDAzMjogdHNfbWFwX2tleV9jbGVhcihLRVlfVEVYVCk7ICAgICAgICAgICBicmVh
-azsKLSAgICAgICAgY2FzZSAweDAzMzogdHNfbWFwX2tleV9jbGVhcihLRVlfQ0hBTk5FTCk7ICAg
-ICAgICBicmVhazsKKwljYXNlIDB4MDBkOiB0c19tYXBfa2V5X2NsZWFyKEtFWV9NRURJQSk7CWJy
-ZWFrOworCWNhc2UgMHgwMjQ6IHRzX21hcF9rZXlfY2xlYXIoS0VZX01FTlUpOwkJYnJlYWs7CisJ
-Y2FzZSAweDAyNTogdHNfbWFwX2tleV9jbGVhcihLRVlfVFYpOwkJYnJlYWs7CisJY2FzZSAweDAz
-MTogdHNfbWFwX2tleV9jbGVhcihLRVlfQVVESU8pOwlicmVhazsKKwljYXNlIDB4MDMyOiB0c19t
-YXBfa2V5X2NsZWFyKEtFWV9URVhUKTsJCWJyZWFrOworCWNhc2UgMHgwMzM6IHRzX21hcF9rZXlf
-Y2xlYXIoS0VZX0NIQU5ORUwpOwlicmVhazsKKwljYXNlIDB4MDQ3OiB0c19tYXBfa2V5X2NsZWFy
-KEtFWV9NUDMpOwkJYnJlYWs7CisJY2FzZSAweDA0ODogdHNfbWFwX2tleV9jbGVhcihLRVlfVFYy
-KTsJCWJyZWFrOworCWNhc2UgMHgwNDk6IHRzX21hcF9rZXlfY2xlYXIoS0VZX0NBTUVSQSk7CWJy
-ZWFrOworCWNhc2UgMHgwNGE6IHRzX21hcF9rZXlfY2xlYXIoS0VZX1ZJREVPKTsJYnJlYWs7CisJ
-Y2FzZSAweDA0YjogdHNfbWFwX2tleV9jbGVhcihLRVlfQU5HTEUpOwlicmVhazsKKwljYXNlIDB4
-MDRjOiB0c19tYXBfa2V5X2NsZWFyKEtFWV9MQU5HVUFHRSk7CWJyZWFrOworCWNhc2UgMHgwNGQ6
-IHRzX21hcF9rZXlfY2xlYXIoS0VZX1NVQlRJVExFKTsJYnJlYWs7CisJY2FzZSAweDA1MDogdHNf
-bWFwX2tleV9jbGVhcihLRVlfUkFESU8pOwlicmVhazsKKwljYXNlIDB4MDVhOiB0c19tYXBfa2V5
-X2NsZWFyKEtFWV9URVhUKTsJCWJyZWFrOworCWNhc2UgMHgwNWI6IHRzX21hcF9rZXlfY2xlYXIo
-S0VZX1JFRCk7CQlicmVhazsKKwljYXNlIDB4MDVjOiB0c19tYXBfa2V5X2NsZWFyKEtFWV9HUkVF
-Tik7CWJyZWFrOworCWNhc2UgMHgwNWQ6IHRzX21hcF9rZXlfY2xlYXIoS0VZX1lFTExPVyk7CWJy
-ZWFrOworCWNhc2UgMHgwNWU6IHRzX21hcF9rZXlfY2xlYXIoS0VZX0JMVUUpOwkJYnJlYWs7CiAJ
-ZGVmYXVsdDoKIAkJcmV0dXJuIDA7CiAJfQpAQCAtNTAsNiArNTksNyBAQCBzdGF0aWMgaW50IHRz
-X2lucHV0X21hcHBpbmcoc3RydWN0IGhpZF9kCiAKIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaGlkX2Rl
-dmljZV9pZCB0c19kZXZpY2VzW10gPSB7CiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lE
-X1RPUFNFRUQsIFVTQl9ERVZJQ0VfSURfVE9QU0VFRF9DWUJFUkxJTkspIH0sCisJeyBISURfVVNC
-X0RFVklDRShVU0JfVkVORE9SX0lEX0JUQywgVVNCX0RFVklDRV9JRF9CVENfRU1QUkVYX1JFTU9U
-RSkgfSwKIAl7IH0KIH07CiBNT0RVTEVfREVWSUNFX1RBQkxFKGhpZCwgdHNfZGV2aWNlcyk7CmRp
-ZmYgLXVwck4gbGludXgtMi42LjMzLWNsZWFuL2RyaXZlcnMvaGlkL0tjb25maWcgbGludXgvZHJp
-dmVycy9oaWQvS2NvbmZpZwotLS0gbGludXgtMi42LjMzLWNsZWFuL2RyaXZlcnMvaGlkL0tjb25m
-aWcJMjAxMC0wNC0yMiAyMDo0ODo0My4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4L2RyaXZlcnMv
-aGlkL0tjb25maWcJMjAxMC0wNC0yNiAyMTowNjo0Ni4wMDAwMDAwMDAgKzAyMDAKQEAgLTI4NSw3
-ICsyODUsNyBAQCBjb25maWcgSElEX1RPUFNFRUQKIAlkZXBlbmRzIG9uIFVTQl9ISUQKIAlkZWZh
-dWx0ICFFTUJFRERFRAogCS0tLWhlbHAtLS0KLQlTYXkgWSBpZiB5b3UgaGF2ZSBhIFRvcFNlZWQg
-Q3liZXJsaW5rIHJlbW90ZSBjb250cm9sLgorCVNheSBZIGlmIHlvdSBoYXZlIGEgVG9wU2VlZCBD
-eWJlcmxpbmsgb3IgQlRDIEVtcHJleCByZW1vdGUgY29udHJvbC4KIAogY29uZmlnIEhJRF9USFJV
-U1RNQVNURVIKIAl0cmlzdGF0ZSAiVGhydXN0TWFzdGVyIGRldmljZXMgc3VwcG9ydCIgaWYgRU1C
-RURERUQK
---0016e6d9677e848ff1048544f9e3--
+Thanks.
+
+-- 
+Dmitry

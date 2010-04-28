@@ -1,68 +1,87 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
-	and decoder plugins
-Date: Wed, 28 Apr 2010 00:32:22 -0400
-Message-ID: <h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
-References: <20100401145632.5631756f@pedra>
-	 <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
-	 <20100402102011.GA6947@hardeman.nu>
-	 <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
-	 <20100407093205.GB3029@hardeman.nu>
-	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
-	 <20100424051206.GA3101@hardeman.nu>
+From: =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
+Subject: [PATCH 7/8] Input: Block suspend while event queue is
+	not empty.
+Date: Tue, 27 Apr 2010 21:31:58 -0700
+Message-ID: <1272429119-12103-8-git-send-email-arve@android.com>
+References: <1272429119-12103-1-git-send-email-arve@android.com>
+	<1272429119-12103-2-git-send-email-arve@android.com>
+	<1272429119-12103-3-git-send-email-arve@android.com>
+	<1272429119-12103-4-git-send-email-arve@android.com>
+	<1272429119-12103-5-git-send-email-arve@android.com>
+	<1272429119-12103-6-git-send-email-arve@android.com>
+	<1272429119-12103-7-git-send-email-arve@android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20100424051206.GA3101@hardeman.nu>
-Sender: linux-media-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <1272429119-12103-7-git-send-email-arve@android.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, =?UTF-8?q?M=C3=A1rton=20N=C3=A9meth?= <nm127@freemail.hu>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Tejun Heo <tj@kernel.org>, Henrik Rydberg <rydberg@euromail.se>, Tero Saarni <tero.saarni@gmail.com>, Matthew Garrett <mjg@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Apr 24, 2010 at 1:12 AM, David H=E4rdeman <david@hardeman.nu> w=
-rote:
-> On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
->> So now that I'm more or less done with porting the imon driver, I
->> think I'm ready to start tackling the mceusb driver. But I'm debatin=
-g
->> on what approach to take with respect to lirc support. It sort of
->> feels like we should have lirc_dev ported as an ir "decoder"
->> driver/plugin before starting to port mceusb to ir-core, so that we
->> can maintain lirc compat and transmit support. Alternatively, I coul=
-d
->> port mceusb without lirc support for now, leaving it to only use
->> in-kernel decoding and have no transmit support for the moment, then
->> re-add lirc support. I'm thinking that porting lirc_dev as, say,
->> ir-lirc-decoder first is probably the way to go though. Anyone else
->> want to share their thoughts on this?
->
-> I think it would make sense to start with a mce driver without the TX
-> and lirc bits first. Adding lirc rx support can be done as a separate
-> "raw" decoder later (so its scope is outside the mce driver anyway) a=
-nd
-> TX support is not implemented in ir-core yet and we haven't had any
-> discussion yet on which form it should take.
-
-So after looking at folks feedback, I did settle on starting the
-mceusb port first, my logic going more or less like this... Having a
-well-supported general-purpose IR receiver functional is a Good Thing
-for people wanting to work on protocol support (i.e., so they have a
-way to actually test protocol support). Having an
-already-ir-core-ified driver to test out an ir-lirc-decoder (lirc_dev
-port) would also be rather helpful. So rather than trying to port
-lirc_dev before there's anything that can actually make use of it,
-give myself something to work with. I'm kind of thinking that
-ir-lirc-decoder might actually be ir-lirc-codec, able to do xmit as
-well, maintaining full compat with lirc userspace, and then we'd have
-a separate input subsystem based xmit method at some point, which
-might be the "preferred/blessed" route. This means ripping a bunch of
-code out of lirc_mceusb.c only to put it back in later, but that's not
-terribly painful. I've already got as far as having an mceusb.c that
-has no lirc dependency, which builds, but doesn't actually do anything
-useful yet (not wired up to ir-core). Should be able to get something
-functional RSN, I hope...
-
---=20
-Jarod Wilson
-jarod@wilsonet.com
+QWRkIGFuIGlvY3RsLCBFVklPQ1NTVVNQRU5EQkxPQ0ssIHRvIGVuYWJsZSBhIHN1c3BlbmRfYmxv
+Y2tlciB0aGF0IHdpbGwgYmxvY2sKc3VzcGVuZCB3aGlsZSB0aGUgZXZlbnQgcXVldWUgaXMgbm90
+IGVtcHR5LiBUaGlzIGFsbG93cyB1c2Vyc3BhY2UgY29kZSB0bwpwcm9jZXNzIGlucHV0IGV2ZW50
+cyB3aGlsZSB0aGUgZGV2aWNlIGFwcGVhcnMgdG8gYmUgYXNsZWVwLgoKU2lnbmVkLW9mZi1ieTog
+QXJ2ZSBIasO4bm5ldsOlZyA8YXJ2ZUBhbmRyb2lkLmNvbT4KLS0tCiBkcml2ZXJzL2lucHV0L2V2
+ZGV2LmMgfCAgIDIyICsrKysrKysrKysrKysrKysrKysrKysKIGluY2x1ZGUvbGludXgvaW5wdXQu
+aCB8ICAgIDMgKysrCiAyIGZpbGVzIGNoYW5nZWQsIDI1IGluc2VydGlvbnMoKyksIDAgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9ldmRldi5jIGIvZHJpdmVycy9pbnB1
+dC9ldmRldi5jCmluZGV4IDJlZTZjN2EuLjY2ZTBkMTYgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5w
+dXQvZXZkZXYuYworKysgYi9kcml2ZXJzL2lucHV0L2V2ZGV2LmMKQEAgLTIwLDYgKzIwLDcgQEAK
+ICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgogI2luY2x1ZGUgPGxpbnV4L21ham9yLmg+CiAjaW5j
+bHVkZSA8bGludXgvZGV2aWNlLmg+CisjaW5jbHVkZSA8bGludXgvc3VzcGVuZF9ibG9ja2VyLmg+
+CiAjaW5jbHVkZSAiaW5wdXQtY29tcGF0LmgiCiAKIHN0cnVjdCBldmRldiB7CkBAIC00Myw2ICs0
+NCw4IEBAIHN0cnVjdCBldmRldl9jbGllbnQgewogCXN0cnVjdCBmYXN5bmNfc3RydWN0ICpmYXN5
+bmM7CiAJc3RydWN0IGV2ZGV2ICpldmRldjsKIAlzdHJ1Y3QgbGlzdF9oZWFkIG5vZGU7CisJc3Ry
+dWN0IHN1c3BlbmRfYmxvY2tlciBzdXNwZW5kX2Jsb2NrZXI7CisJYm9vbCB1c2Vfc3VzcGVuZF9i
+bG9ja2VyOwogfTsKIAogc3RhdGljIHN0cnVjdCBldmRldiAqZXZkZXZfdGFibGVbRVZERVZfTUlO
+T1JTXTsKQEAgLTU1LDYgKzU4LDggQEAgc3RhdGljIHZvaWQgZXZkZXZfcGFzc19ldmVudChzdHJ1
+Y3QgZXZkZXZfY2xpZW50ICpjbGllbnQsCiAJICogSW50ZXJydXB0cyBhcmUgZGlzYWJsZWQsIGp1
+c3QgYWNxdWlyZSB0aGUgbG9jawogCSAqLwogCXNwaW5fbG9jaygmY2xpZW50LT5idWZmZXJfbG9j
+ayk7CisJaWYgKGNsaWVudC0+dXNlX3N1c3BlbmRfYmxvY2tlcikKKwkJc3VzcGVuZF9ibG9jaygm
+Y2xpZW50LT5zdXNwZW5kX2Jsb2NrZXIpOwogCWNsaWVudC0+YnVmZmVyW2NsaWVudC0+aGVhZCsr
+XSA9ICpldmVudDsKIAljbGllbnQtPmhlYWQgJj0gRVZERVZfQlVGRkVSX1NJWkUgLSAxOwogCXNw
+aW5fdW5sb2NrKCZjbGllbnQtPmJ1ZmZlcl9sb2NrKTsKQEAgLTIzNCw2ICsyMzksOCBAQCBzdGF0
+aWMgaW50IGV2ZGV2X3JlbGVhc2Uoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZp
+bGUpCiAJbXV0ZXhfdW5sb2NrKCZldmRldi0+bXV0ZXgpOwogCiAJZXZkZXZfZGV0YWNoX2NsaWVu
+dChldmRldiwgY2xpZW50KTsKKwlpZiAoY2xpZW50LT51c2Vfc3VzcGVuZF9ibG9ja2VyKQorCQlz
+dXNwZW5kX2Jsb2NrZXJfZGVzdHJveSgmY2xpZW50LT5zdXNwZW5kX2Jsb2NrZXIpOwogCWtmcmVl
+KGNsaWVudCk7CiAKIAlldmRldl9jbG9zZV9kZXZpY2UoZXZkZXYpOwpAQCAtMzM1LDYgKzM0Miw4
+IEBAIHN0YXRpYyBpbnQgZXZkZXZfZmV0Y2hfbmV4dF9ldmVudChzdHJ1Y3QgZXZkZXZfY2xpZW50
+ICpjbGllbnQsCiAJaWYgKGhhdmVfZXZlbnQpIHsKIAkJKmV2ZW50ID0gY2xpZW50LT5idWZmZXJb
+Y2xpZW50LT50YWlsKytdOwogCQljbGllbnQtPnRhaWwgJj0gRVZERVZfQlVGRkVSX1NJWkUgLSAx
+OworCQlpZiAoY2xpZW50LT51c2Vfc3VzcGVuZF9ibG9ja2VyICYmIGNsaWVudC0+aGVhZCA9PSBj
+bGllbnQtPnRhaWwpCisJCQlzdXNwZW5kX3VuYmxvY2soJmNsaWVudC0+c3VzcGVuZF9ibG9ja2Vy
+KTsKIAl9CiAKIAlzcGluX3VubG9ja19pcnEoJmNsaWVudC0+YnVmZmVyX2xvY2spOwpAQCAtNTg1
+LDYgKzU5NCwxOSBAQCBzdGF0aWMgbG9uZyBldmRldl9kb19pb2N0bChzdHJ1Y3QgZmlsZSAqZmls
+ZSwgdW5zaWduZWQgaW50IGNtZCwKIAkJZWxzZQogCQkJcmV0dXJuIGV2ZGV2X3VuZ3JhYihldmRl
+diwgY2xpZW50KTsKIAorCWNhc2UgRVZJT0NHU1VTUEVOREJMT0NLOgorCQlyZXR1cm4gcHV0X3Vz
+ZXIoY2xpZW50LT51c2Vfc3VzcGVuZF9ibG9ja2VyLCBpcCk7CisKKwljYXNlIEVWSU9DU1NVU1BF
+TkRCTE9DSzoKKwkJc3Bpbl9sb2NrX2lycSgmY2xpZW50LT5idWZmZXJfbG9jayk7CisJCWlmICgh
+Y2xpZW50LT51c2Vfc3VzcGVuZF9ibG9ja2VyICYmIHApCisJCQlzdXNwZW5kX2Jsb2NrZXJfaW5p
+dCgmY2xpZW50LT5zdXNwZW5kX2Jsb2NrZXIsICJldmRldiIpOworCQllbHNlIGlmIChjbGllbnQt
+PnVzZV9zdXNwZW5kX2Jsb2NrZXIgJiYgIXApCisJCQlzdXNwZW5kX2Jsb2NrZXJfZGVzdHJveSgm
+Y2xpZW50LT5zdXNwZW5kX2Jsb2NrZXIpOworCQljbGllbnQtPnVzZV9zdXNwZW5kX2Jsb2NrZXIg
+PSAhIXA7CisJCXNwaW5fdW5sb2NrX2lycSgmY2xpZW50LT5idWZmZXJfbG9jayk7CisJCXJldHVy
+biAwOworCiAJZGVmYXVsdDoKIAogCQlpZiAoX0lPQ19UWVBFKGNtZCkgIT0gJ0UnKQpkaWZmIC0t
+Z2l0IGEvaW5jbHVkZS9saW51eC9pbnB1dC5oIGIvaW5jbHVkZS9saW51eC9pbnB1dC5oCmluZGV4
+IDdlZDIyNTEuLmIyZDkzYjQgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaW5wdXQuaAorKysg
+Yi9pbmNsdWRlL2xpbnV4L2lucHV0LmgKQEAgLTgyLDYgKzgyLDkgQEAgc3RydWN0IGlucHV0X2Fi
+c2luZm8gewogCiAjZGVmaW5lIEVWSU9DR1JBQgkJX0lPVygnRScsIDB4OTAsIGludCkJCQkvKiBH
+cmFiL1JlbGVhc2UgZGV2aWNlICovCiAKKyNkZWZpbmUgRVZJT0NHU1VTUEVOREJMT0NLCV9JT1Io
+J0UnLCAweDkxLCBpbnQpCQkJLyogZ2V0IHN1c3BlbmQgYmxvY2sgZW5hYmxlICovCisjZGVmaW5l
+IEVWSU9DU1NVU1BFTkRCTE9DSwlfSU9XKCdFJywgMHg5MSwgaW50KQkJCS8qIHNldCBzdXNwZW5k
+IGJsb2NrIGVuYWJsZSAqLworCiAvKgogICogRXZlbnQgdHlwZXMKICAqLwotLSAKMS42LjUuMQoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtcG0g
+bWFpbGluZyBsaXN0CmxpbnV4LXBtQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1wbQ==

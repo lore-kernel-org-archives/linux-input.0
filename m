@@ -1,39 +1,29 @@
-From: Dmitry Artamonow <mad_soft@inbox.ru>
-Subject: Re: [PATCH 2/3] input: remove obsolete {corgi,spitz,tosa}kbd.c
-Date: Wed, 28 Apr 2010 12:38:36 +0400
-Message-ID: <20100428083835.GA13085@rainbow>
-References: <m2mf17812d71004270025xc4ced0a8y188c525184304dec@mail.gmail.com>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: question on releasing keys
+Date: Wed, 28 Apr 2010 10:53:52 +0200
+Message-ID: <201004281053.52598.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <m2mf17812d71004270025xc4ced0a8y188c525184304dec@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:54093 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753276Ab0D1Ix5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Apr 2010 04:53:57 -0400
+Received: from relay1.suse.de (charybdis-ext.suse.de [195.135.221.2])
+	by mx2.suse.de (Postfix) with ESMTP id 22D5A86A2E
+	for <linux-input@vger.kernel.org>; Wed, 28 Apr 2010 10:53:56 +0200 (CEST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 15:25 Tue 27 Apr     , Eric Miao wrote:
-> commit 856661df1bfb7c90bc83fa97d8f98fc4740fca9d
-> Author: Eric Miao <eric.y.miao@gmail.com>
-> Date:   Tue Apr 27 14:50:54 2010 +0800
-> 
->     input: remove obsolete {corgi,spitz,tosa}kbd.c
-> 
->     Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+Hi,
 
-Don't forget to update Documentation/feature-removal-schedule.txt as
-well.
+I am seeing a generic problem with buttons on devices released during S3.
+The input layer then assumes that the button is still pressed. It would be best
+for drivers to either verify that a button is still held or alternatively, to release
+all buttons upon resumption. Is there a generic way to do that?
 
--- 
-Best regards,
-Dmitry "MAD" Artamonow
+	Regards
+		Oliver

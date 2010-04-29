@@ -1,42 +1,38 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: ATMEL camera interface
-Date: Thu, 29 Apr 2010 18:35:10 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1004291824200.4666@axis700.grange>
-References: <4BD9AA8A.7030306@atmel.com>
+From: "Alfaro 6 Glenna" <lisastevens@corp-85-11-196-178.ornskoldsvik.com>
+Subject: business email lists
+Date: Thu, 29 Apr 2010 18:50:52 +0200 (CEST)
+Message-ID: <20100429165052.A55E536C5D8@gateway1.malux.net>
+Reply-To: lisastevens@corp-85-11-196-178.ornskoldsvik.com
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:60950 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932997Ab0D3RfC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Apr 2010 13:35:02 -0400
-In-Reply-To: <4BD9AA8A.7030306@atmel.com>
+Received: from corp-85-11-196-178.ornskoldsvik.com ([85.11.196.178]:43027 "EHLO
+	gateway1.malux.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933810Ab0D3SFK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Apr 2010 14:05:10 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+To: md@whl.ru, info@togetherevents.com, president@mbc-direct.com
 
-Hi Sedji
+Here's a business list package on sale this week only:
 
-On Thu, 29 Apr 2010, Sedji Gaouaou wrote:
+Business List Silver Package
 
-> Hi,
-> 
-> I need to re-work my driver so I could commit it to the community.
-> Is there a git tree that I can use?
+Manufacturers Database - 1,057,119 records with 476,509 emails
+Real Estate Agents - 1 million records with emails
+US New Business Database - 4.8 million records all with emails
+Financial Planners Database - 148,857 records all with emails
+Finance and Money Professionals Database - 116,568 records all with emails
 
-Nice to hear that! As far as soc-camera is concerned, the present APIs are 
-pretty stable. Just use the Linus' git tree, or, if you like, you can use 
-the v4l-dvb git tree at git://linuxtv.org/v4l-dvb.git. In fact, you don't 
-have to use the soc-camera API these days, you can just write a complete 
-v4l2-device driver, using the v4l2-subdev API to interface to video 
-clients (sensors, decoders, etc.) However, you can still write your driver 
-as an soc-camera host driver, which would make your task a bit easier at 
-the cost of some reduced flexibility, it's up to you to decide.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski, Ph.D.
-Freelance Open-Source Software Developer
-http://www.open-technology.de/
+All complete lists above: $345
+
+
+There are more packages and not just for business. we also have healthcare, consumers and more. Contact me here for more info or to get samples: Lynette.Knutson@goodlists.co.cc
+
+  
+
+
+you must press here to stop the mail please send an email to disappear@goodlists.co.cc
+
+

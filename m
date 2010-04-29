@@ -1,45 +1,112 @@
-From: Marcin Tolysz <tolysz-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Actual code fixing Sixaxis
-Date: Thu, 29 Apr 2010 00:05:37 +0100
-Message-ID: <l2u54bbe4e01004281605l85d02f71l2023db70d04927fd@mail.gmail.com>
-References: <1272318628.3269.44.camel@zony.bied.prout.be>
-	 <1272361924.17421.6787.camel@localhost.localdomain>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: sharp c-3000 aka spitz: fix warn_on introduced in 2.6.32-rc1
+Date: Thu, 29 Apr 2010 15:08:52 +0200
+Message-ID: <20100429130852.GC1661@ucw.cz>
+References: <20100106071026.GD1382@ucw.cz>
+	<f17812d71001052317h2bf25fady6bd729b35ef6db63@mail.gmail.com>
+	<20100107065230.GA1303@ucw.cz>
+	<f17812d71001062333y2e49fa21scf91718da9ae3091@mail.gmail.com>
+	<20100305092338.GA32433@atrey.karlin.mff.cuni.cz>
+	<f17812d71003072135wcc7165m31a302b7da75c36e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1272361924.17421.6787.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <f17812d71003072135wcc7165m31a302b7da75c36e@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, thommycheck@gmail.com, dbaryshkov@gmail.com, dtor@mail.ru, arminlitzel@web.de, kernel list <linux-kernel@vger.kernel.org>, Cyril Hrubis <metan@ucw.cz>, Dirk@opfer-online.de, utx@penguin.cz, lenz@cs.wisc.edu, rpurdie@rpsys.net, omegamoon@gmail.com, linux-input@vger.kernel.org, zaurus-devel@lists.linuxtogo.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On 27 April 2010 10:52, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org> wrote:
-> Separate the sixaxis changes from the hid core changes.
-Sixaxis changes does not mean anything without the ability to modify
-the descriptor ... but sure if it helps I can separate them.
+Hi!
 
-> Add a documentation file for that, don't put it in the commit log.
-The documentation will need to grow for some time:
-https://code.google.com/p/ghid/
-https://code.google.com/p/ghid/wiki/HowTo
+Okay, maybe this is better fix for the regression?
 
-> Won't that trigger udev's firmware code and popup PackageKit's firmware
-> downloader for each and every HID device?
-I do not use this, but the solution is probably to ask PackageKit' to
-ignore firmware/hid/ requests
+Simplify irq wakeup code, and fix ugly warning during resume on spitz
+as a result.
 
-> Can't this be done for the BT one as well, rather than requiring a
-> modified firmware? (although the firmware hack could be useful as a
-> debugging tool).
-Sixaxis has broken HID report description(firmware?) and the only
-solution to fix this is to replace it, replacing firmware works for BT
-or USB devices in the same way (and sixaxis has got both descriptors
-broken) (well the other way is to write a dedicated driver mirroring
-the code from the general case)
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 
-The main advantage of modifying HidRD is the kernel itself does all
-translations, thus it is possible to reconfigure the device by simply
-changing the descriptor.
-How to actually modify the descriptor? Some info and tools are on
-https://code.google.com/p/ghid/ and the rest on the
-http://www.usb.org/developers/hidpage/
+--- ./drivers/input/keyboard/pxa27x_keypad.c	2010-04-15 07:50:34.000000000 +0200
++++ ./drivers/input/keyboard/pxa27x_keypad.c	2010-04-27 15:38:02.000000000 +0200
+@@ -33,6 +33,8 @@
+ 
+ #include <mach/hardware.h>
+ #include <mach/pxa27x_keypad.h>
++#include <mach/mfp-pxa2xx.h>
++
+ /*
+  * Keypad Controller registers
+  */
+@@ -412,7 +416,7 @@
+ 	clk_disable(keypad->clk);
+ 
+ 	if (device_may_wakeup(&pdev->dev))
+-		enable_irq_wake(keypad->irq);
++		keypad_set_wake(1);
+ 
+ 	return 0;
+ }
+@@ -424,7 +428,7 @@
+ 	struct input_dev *input_dev = keypad->input_dev;
+ 
+ 	if (device_may_wakeup(&pdev->dev))
+-		disable_irq_wake(keypad->irq);
++		keypad_set_wake(0);
+ 
+ 	mutex_lock(&input_dev->mutex);
+ 
+--- ./arch/arm/mach-pxa/mfp-pxa2xx.c	2009-09-10 00:13:59.000000000 +0200
++++ ./arch/arm/mach-pxa/mfp-pxa2xx.c	2010-04-27 15:22:42.000000000 +0200
+@@ -34,7 +34,6 @@
+ struct gpio_desc {
+ 	unsigned	valid		: 1;
+ 	unsigned	can_wakeup	: 1;
+-	unsigned	keypad_gpio	: 1;
+ 	unsigned	dir_inverted	: 1;
+ 	unsigned int	mask; /* bit mask in PWER or PKWR */
+ 	unsigned int	mux_mask; /* bit mask of muxed gpio bits, 0 if no mux */
+@@ -178,9 +177,6 @@
+ 	if (!d->valid)
+ 		return -EINVAL;
+ 
+-	if (d->keypad_gpio)
+-		return -EINVAL;
+-
+ 	mux_taken = (PWER & d->mux_mask) & (~d->mask);
+ 	if (on && mux_taken)
+ 		return -EBUSY;
+@@ -291,7 +288,6 @@
+ 	for (i = 0; i < ARRAY_SIZE(pxa27x_pkwr_gpio); i++) {
+ 		gpio = pxa27x_pkwr_gpio[i];
+ 		gpio_desc[gpio].can_wakeup = 1;
+-		gpio_desc[gpio].keypad_gpio = 1;
+ 		gpio_desc[gpio].mask = 1 << i;
+ 	}
+ 
+--- ./arch/arm/mach-pxa/pxa27x.c	2010-03-21 22:09:12.000000000 +0100
++++ ./arch/arm/mach-pxa/pxa27x.c	2010-04-27 07:43:30.000000000 +0200
+@@ -342,9 +342,6 @@
+ 	if (gpio >= 0 && gpio < 128)
+ 		return gpio_set_wake(gpio, on);
+ 
+-	if (irq == IRQ_KEYPAD)
+-		return keypad_set_wake(on);
+-
+ 	switch (irq) {
+ 	case IRQ_RTCAlrm:
+ 		mask = PWER_RTC;
+
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

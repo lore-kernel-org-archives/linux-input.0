@@ -1,136 +1,30 @@
-From: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Subject: RE: [PATCHv3 1/3] TCA6416 keypad : Implement keypad driver for keys
- interfaced to TCA6416
-Date: Fri, 30 Apr 2010 19:49:20 +0530
-Message-ID: <FCCFB4CDC6E5564B9182F639FC3560870304E80EDC@dbde02.ent.ti.com>
-References: <1269357035-19754-1-git-send-email-srk@ti.com>
- <1269357035-19754-2-git-send-email-srk@ti.com>
- <20100416052500.GA1078@core.coreip.homeip.net>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH] hid/hid-sony: fix sony_set_operational_bt
+Date: Fri, 30 Apr 2010 00:23:30 +0100
+Message-ID: <1272583410.2582.441.camel@localhost.localdomain>
+References: <1272578374-9250-1-git-send-email-ospite@studenti.unina.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100416052500.GA1078@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1272578374-9250-1-git-send-email-ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Friday, April 16, 2010 10:55 AM
-> To: Govindarajan, Sriramakrishnan
-> Cc: linux-omap@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: Re: [PATCHv3 1/3] TCA6416 keypad : Implement keypad driver for
-> keys interfaced to TCA6416
+On Thu, 2010-04-29 at 23:59 +0200, Antonio Ospite wrote:
+> Don't send the report type as part of the data, this prevents the
+> controller from going into the operational state at all.
 > 
-> On Tue, Mar 23, 2010 at 08:40:33PM +0530, Sriramakrishnan wrote:
-> > This patch implements a simple Keypad driver that functions
-> > as an I2C client. It handles key press events for keys
-> > connected to TCA6416 I2C based IO expander.
-> >
-> > Signed-off-by: Sriramakrishnan <srk@ti.com>
-> > ---
-> >  drivers/input/keyboard/Kconfig          |   16 ++
-> >  drivers/input/keyboard/Makefile         |    1 +
-> >  drivers/input/keyboard/tca6416-keypad.c |  354
-> +++++++++++++++++++++++++++++++
-> >  include/linux/tca6416_keypad.h          |   34 +++
-> >  4 files changed, 405 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/keyboard/tca6416-keypad.c
-> >  create mode 100644 include/linux/tca6416_keypad.h
-----snip----
-Does the driver still work if you aplly the patch below on top?
-[Sriram] Dmitry, I was able to test with the patch below(again scope restricted to Polling mode) and it works but with following minor changes. Please review.
+> This is completely equivalent to what the code originally meant to accomplish:
+> as per in net/bluetooth/hidp/core.c::hidp_output_raw_report(), by using
+> HID_FEATURE_REPORT here, what will be actually sent is
+> (HIDP_TRANS_SET_REPORT | HIDP_DATA_RTYPE_FEATURE) which is exactly 0x53.
 > 
-> Thanks.
-> 
-> --
-> Dmitry
-> 
-> Input: tca6416 - misc fixes
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/keyboard/tca6416-keypad.c |  327 +++++++++++++++-----------
-> -----
->  1 files changed, 160 insertions(+), 167 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/keyboard/tca6416-keypad.c
-> b/drivers/input/keyboard/tca6416-keypad.c
-> index 17df832..0943af3 100644
-> --- a/drivers/input/keyboard/tca6416-keypad.c
-> +++ b/drivers/input/keyboard/tca6416-keypad.c
-> @@ -10,16 +10,17 @@
->   * published by the Free Software Foundation.
->   */
----snip---
+> Signed-off-by: Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
 
-> +static int tca6416_keys_open(struct input_dev *dev)
-> +{
-> +	struct tca6416_keypad_chip *chip = input_get_drvdata(dev);
-> +
-> +	/* Get initial device state in case it has switches */
-> +	tca6416_keys_scan(chip);
-> 
->  	if (chip->use_polling)
->  		schedule_delayed_work(&chip->dwork, msecs_to_jiffies(100));
->  	else
->  		enable_irq(chip->irqnum);
-> 
-> +	return 0;
-> +}
-> +
-> +static void tca6416_keys_close(struct input_dev *dev)
-> +{
-> +	struct tca6416_keypad_chip *chip = input_get_drvdata(dev);
-> +
-> +	if (chip->use_polling)
-> +		cancel_delayed_work_sync(&chip->dwork);
-> +	else
-> +		free_irq(chip->irqnum, chip);
-[Sriram] replaced free_irq() with disable_irq() instead. This should take care of multiple (concurrent) opens.
+My mistake there. I should have tested the patch at run-time, and not
+trusted my copy-paste skills :(
 
->  }
-> 
-> +static int __devinit tca6416_setup_registers(struct tca6416_keypad_chip
-> *chip)
-> +{
-> +	int error;
-> +
-> +	error = tca6416_read_reg(chip, TCA6416_OUTPUT, &chip->reg_output);
-> +	if (error)
-> +		return error;
-> +
-> +	error = tca6416_read_reg(chip, TCA6416_DIRECTION, &chip-
-> >reg_direction);
-> +	if (error)
-> +		return error;
-> +
-> +	/* ensure that keypad pins are set to input */
-> +	error = tca6416_write_reg(chip, TCA6416_DIRECTION,
-> +				  chip->reg_direction | chip->pinmask);
-> +	if (error)
-> +		return error;
-> +
-> +	error = tca6416_read_reg(chip, TCA6416_DIRECTION, &chip-
-> >reg_direction);
-> +	if (error)
-> +		return error;
-> +
-> +	error = tca6416_read_reg(chip, TCA6416_INPUT, &chip->reg_input);
-> +	if (error)
-> +		return error;
-
-[Sriram] reg_input cached value needs to be masked with pinmask - otherwise on device open the driver reports continuous stream of key_down(repeat) events until a key is pressed.
-
-> +	return 0;
-> +}
-> 
-[Sriram] Dmitry, once you have reviewed the changes, should I re-post the patch series with your patch added to the series?
-
-Regards
-Sriram
+Signed-off-by: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>

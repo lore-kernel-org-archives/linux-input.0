@@ -1,74 +1,39 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: ATMEL camera interface
-Date: Mon, 3 May 2010 18:40:39 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005031836140.4231@axis700.grange>
-References: <4BD9AA8A.7030306@atmel.com> <Pine.LNX.4.64.1004291824200.4666@axis700.grange>
- <4BDED3A8.4090606@atmel.com> <Pine.LNX.4.64.1005031556570.4231@axis700.grange>
- <4BDEDB06.9090909@atmel.com> <Pine.LNX.4.64.1005031622040.4231@axis700.grange>
- <4BDEEE38.9070801@atmel.com>
+From: Octoploid <Cryptooctoploid@gmail.com>
+Subject: Re: Logitech M705 thumb button
+Date: Mon, 03 May 2010 19:41:33 +0200
+Message-ID: <hrn1sd$ch2$1@dough.gmane.org>
+References: <hoqak4$m6t$1@dough.gmane.org> <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com> <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz> <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com> <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz> <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com> <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz> <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com> <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com> <4BC1F110.4030203@yahoo.de> <g2u319012f1004110929oc9ff5f58i511346d0f6ad399d@mail.gmail.com> <loom.20100503T124140-184@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4BDEEE38.9070801@atmel.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lo.gmane.org ([80.91.229.12]:43034 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753520Ab0ECRls (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 May 2010 13:41:48 -0400
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1O8zeM-0004CE-Ao
+	for linux-input@vger.kernel.org; Mon, 03 May 2010 19:41:46 +0200
+Received: from 77-22-100-23-dynip.superkabel.de ([77.22.100.23])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 19:41:46 +0200
+Received: from Cryptooctoploid by 77-22-100-23-dynip.superkabel.de with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 19:41:46 +0200
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, 3 May 2010, Sedji Gaouaou wrote:
+Cristian M=C4=83gheru=C8=99an-Stanciu wrote:
+>=20
+> Your pastebin post has expired, can you create another one?
 
-> Well sorry to bother you again but I am looking at the mx1_camera.c f=
-ile, and
-> I wonder where are implemented the queue and dqueue functions?
->=20
-> The atmel IP is using linked list for the buffers, and previously I w=
-as
-> managing it in the queue and dqueue functions.
-> I am not sure where I should take care of it now?
+Sure. http://tinypaste.com/856ae
 
-qbuf and dqbuf are implemented by soc-camera in soc_camera_qbuf() and=20
-soc_camera_dqbuf() respectively, drivers only implement methods from=20
-struct videobuf_queue_ops, e.g., a .buf_queue method, which for mx1_cam=
-era=20
-is implemented by mx1_videobuf_queue().
-
-Thanks
-Guennadi
-
->=20
->=20
-> Regards,
-> Sedji
->=20
-> Le 5/3/2010 4:26 PM, Guennadi Liakhovetski a =E9crit :
-> > On Mon, 3 May 2010, Sedji Gaouaou wrote:
-> >=20
-> > > Well I need contiguous memory, so I guess I will have a look at
-> > > mx1_camera.c?
-> > > Is there another example?
-> > >=20
-> > > What do you mean by videobuf implementation? As I said I just nee=
-d a
-> > > contiguous memory.
-> >=20
-> > I mean, whether you're gping to use videobuf-dma-contig.c or
-> > videobuf-dma-sg.c, respectively, whether you'll be calling
-> > videobuf_queue_dma_contig_init() or videobuf_queue_sg_init() in you=
-r
-> > driver.
-> >=20
-> > Regards
-> > Guennadi
-> > ---
-> > Guennadi Liakhovetski, Ph.D.
-> > Freelance Open-Source Software Developer
-> > http://www.open-technology.de/
-> >=20
->=20
->=20
-
----
-Guennadi Liakhovetski, Ph.D.
-=46reelance Open-Source Software Developer
-http://www.open-technology.de/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

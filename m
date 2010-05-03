@@ -1,26 +1,38 @@
-From: Damjan Jovanovic <damjan.jov@gmail.com>
-Subject: Re: [PATCH] input: handle bad parity PS/2 packets in mouse drivers
-	better
-Date: Mon, 3 May 2010 13:31:13 +0200
-Message-ID: <g2u9e89675b1005030431wec92e4bdq9af9149a839a638e@mail.gmail.com>
-References: <r2x9e89675b1004080434yfea09b06x2c3c4680a9437a9@mail.gmail.com>
-	 <g2v9e89675b1004130429w6f6f9775u2e34d4727de706e@mail.gmail.com>
-	 <20100414205959.GB11838@core.coreip.homeip.net>
-	 <m2k9e89675b1004170233yb5ab19ach1713ccbee001883e@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/2] hid-ntrig.c tipswitch and cleanup
+Date: Mon, 3 May 2010 15:23:40 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005031523200.9849@pobox.suse.cz>
+References: <1272877710-25431-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f195.google.com ([209.85.221.195]:61301 "EHLO
-	mail-qy0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757824Ab0ECLbR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 May 2010 07:31:17 -0400
-In-Reply-To: <m2k9e89675b1004170233yb5ab19ach1713ccbee001883e@mail.gmail.com>
+Received: from cantor.suse.de ([195.135.220.2]:54082 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759260Ab0ECNXn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 May 2010 09:23:43 -0400
+In-Reply-To: <1272877710-25431-1-git-send-email-rafi@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, akpm@linux-foundation.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, chatty@enac.fr, dmitry.torokhov@gmail.com, micki@n-trig.com, linux-kernel@vger.kernel.org
 
-Ping? This patch works, can you please commit it?
+On Mon, 3 May 2010, Rafi Rubin wrote:
 
-Thank you
-Damjan
+> 
+> [PATCH 1/2] TipSwitch for single touch mode touch.
+> This patch is a resubmit of a recent patch which might have been lost due
+> to the discussion of a distasteful comment (which has been sanitized).  Note
+> this does not increase the use of TAP events in the driver, though it also does
+> not remove them.
+> 
+> 
+> [PATCH 2/2] Remove unused macro, TripleTap and QuadTap
+> This patch marks the start of the removal of TAP events from hid-ntrig.  I will
+> remove DoubleTap when the wacom X driver is capable of interpreting MT events,
+> which is currently a work in progress.
+
+I have applied both patches, thanks Rafi.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

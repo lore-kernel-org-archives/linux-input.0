@@ -1,97 +1,34 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH 1/2] TipSwitch for single touch mode touch.
-Date: Mon,  3 May 2010 05:08:29 -0400
-Message-ID: <1272877710-25431-2-git-send-email-rafi@seas.upenn.edu>
-References: <1272877710-25431-1-git-send-email-rafi@seas.upenn.edu>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1272877710-25431-1-git-send-email-rafi@seas.upenn.edu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, chatty@enac.fr
-Cc: dmitry.torokhov@gmail.com, micki@n-trig.com, linux-kernel@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>
+From: Cristian =?utf-8?b?TcSDZ2hlcnXImWFuLVN0YW5jaXU=?=
+	<cristi.magherusan@net.utcluj.ro>
+Subject: Re: Logitech M705 thumb button
+Date: Mon, 3 May 2010 10:42:20 +0000 (UTC)
+Message-ID: <loom.20100503T124140-184@post.gmane.org>
+References: <hoqak4$m6t$1@dough.gmane.org>  <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com>  <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz>  <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com>  <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz>  <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com>  <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz>  <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com>  <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com>  <4BC1F110.4030203@yahoo.de> <g2u319012f1004110929oc9ff5f58i511346d0f6ad399d@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lo.gmane.org ([80.91.229.12]:40679 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757038Ab0ECKpJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 May 2010 06:45:09 -0400
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1O8t96-0003fI-Am
+	for linux-input@vger.kernel.org; Mon, 03 May 2010 12:45:04 +0200
+Received: from 126.13.122.86.static.cluj.rdsnet.ro.13.122.86.in-addr.arpa ([126.13.122.86.static.cluj.rdsnet.ro.13.122.86.in-addr.arpa])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 12:45:04 +0200
+Received: from cristi.magherusan by 126.13.122.86.static.cluj.rdsnet.ro.13.122.86.in-addr.arpa with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 12:45:04 +0200
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Include TipSwitch in the touch detection decision for some single touch
-firmwares.  Confidence and InRange are high for all finger events
-including those used to indicate the finger is no longer in contact with
-the sensor.
+Hi,
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
- drivers/hid/hid-ntrig.c |   29 +++++++++++++++++++++--------
- 1 files changed, 21 insertions(+), 8 deletions(-)
+Your pastebin post has expired, can you create another one?
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 58ba0d3..10b08d6 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -31,10 +31,12 @@ struct ntrig_data {
- 	/* Incoming raw values for a single contact */
- 	__u16 x, y, w, h;
- 	__u16 id;
--	__u8 confidence;
-+
-+	bool tipswitch;
-+	bool confidence;
-+	bool first_contact_touch;
- 
- 	bool reading_mt;
--	__u8 first_contact_confidence;
- 
- 	__u8 mt_footer[4];
- 	__u8 mt_foot_count;
-@@ -141,9 +143,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 		case 0xff000001:
- 			/* Tag indicating the start of a multitouch group */
- 			nd->reading_mt = 1;
--			nd->first_contact_confidence = 0;
-+			nd->first_contact_touch = 0;
- 			break;
- 		case HID_DG_TIPSWITCH:
-+			nd->tipswitch = value;
- 			/* Prevent emission of touch until validated */
- 			return 1;
- 		case HID_DG_CONFIDENCE:
-@@ -171,10 +174,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			 * to emit a normal (X, Y) position
- 			 */
- 			if (!nd->reading_mt) {
--				input_report_key(input, BTN_TOOL_DOUBLETAP,
--						 (nd->confidence != 0));
-+				/*
-+				 * TipSwitch indicates the presence of a
-+				 * finger in single touch mode.
-+				 */
- 				input_report_key(input, BTN_TOUCH,
--						 (nd->confidence != 0));
-+						 nd->tipswitch);
-+				input_report_key(input, BTN_TOOL_DOUBLETAP,
-+						 nd->tipswitch);
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
-@@ -213,7 +220,13 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 
- 			/* emit a normal (X, Y) for the first point only */
- 			if (nd->id == 0) {
--				nd->first_contact_confidence = nd->confidence;
-+				/*
-+				 * TipSwitch is superfluous in multitouch
-+				 * mode.  The footer events tell us
-+				 * if there is a finger on the screen or
-+				 * not.
-+				 */
-+				nd->first_contact_touch = nd->confidence;
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
-@@ -243,7 +256,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 
- 			nd->reading_mt = 0;
- 
--			if (nd->first_contact_confidence) {
-+			if (nd->first_contact_touch) {
- 				switch (value) {
- 				case 0:	/* for single touch devices */
- 				case 1:
--- 
-1.7.1
+

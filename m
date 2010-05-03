@@ -1,52 +1,41 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: [PATCH 0/2] Groundwork for Sixaxis paring into bluez.
-Date: Mon,  3 May 2010 22:15:54 +0200
-Message-ID: <1272917756-31098-1-git-send-email-ospite@studenti.unina.it>
+From: Dan Carpenter <error27@gmail.com>
+Subject: Re: [Bug 15893] Alps: No edge-scrolling since 2.6.34-rc5
+Date: Tue, 4 May 2010 00:06:06 +0200
+Message-ID: <20100503220606.GP29093@bicker>
+References: <bug-15893-5697@https.bugzilla.kernel.org/> <201005032116.o43LGcXi010308@demeter.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out110.alice.it ([85.37.17.110]:2399 "EHLO
-	smtp-out110.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756535Ab0ECUQ7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 May 2010 16:16:59 -0400
+Received: from fg-out-1718.google.com ([72.14.220.156]:59593 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755422Ab0ECWGS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 3 May 2010 18:06:18 -0400
+Received: by fg-out-1718.google.com with SMTP id d23so1273024fga.1
+        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 15:06:16 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <201005032116.o43LGcXi010308@demeter.kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Antonio Ospite <ospite@studenti.unina.it>, Bastien Nocera <hadess@hadess.net>, linux-bluetooth@vger.kernel.org, cbe-oss-dev@lists.ozlabs.org
+Cc: f.zweig@yahoo.de, chase.douglas@canonical.com, Dmitry Torokhov <dtor@mail.ru>
 
-Hi,
+It looks like the "Acer Aspire One 532h" and the "HP Pavilion dm3" 
+have the same signature but they behave differently.
 
-These changes are in preparation of seamless integration of the Sixaxis
-pairing procedure into bluez. It was about time :)
+As a result commit 5e28d8eb68 "Input: ALPS - add signature for HP 
+Pavilion dm3 laptops" fixes things for dm3 but breaks the Acer Aspire
+One 532h which was working (with a userspace driver maybe??).
 
-The first one cleans up the quirks handling.
+Here is the relevant "i8042.debug" output from bz 15893:
 
-The second one adds a sysfs interface to set and get the device and master
-bdaddr, this is needed in order to setup the host for pairing. This kernel
-interface is a mere workaround for the lack of features of hidraw[1], if
-someone wants to add the missing features to hidraw I will be happy to drop
-this one, otherwise consider queuing these for 2.6.35 if it's too late for
-2.6.34.
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [535]
+drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [535]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 1, 12) [535]
+drivers/input/serio/i8042.c: 73 <- i8042 (interrupt, 1, 12) [536]
+drivers/input/serio/i8042.c: 02 <- i8042 (interrupt, 1, 12) [536]
+drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, 1, 12) [536]
 
-Thanks,
-   Antonio
+What's the right way to handle this?
 
-[1] http://www.spinics.net/lists/linux-input/msg08311.html
-
-
-Antonio Ospite (2):
-  hid/hid-sony: Apply sixaxis quirks only to sixaxis
-  hid/hid-sony: get and set Sixaxis bdaddr via sysfs
-
- drivers/hid/hid-sony.c |  170 +++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 155 insertions(+), 15 deletions(-)
-
--- 
-Antonio Ospite
-http://ao2.it
-
-PGP public key ID: 0x4553B001
-
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+regards,
+dan carpenter

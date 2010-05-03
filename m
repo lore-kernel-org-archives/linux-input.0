@@ -1,37 +1,84 @@
-From: Octoploid <Cryptooctoploid@gmail.com>
-Subject: Re: Logitech M705 thumb button
-Date: Mon, 03 May 2010 19:41:33 +0200
-Message-ID: <hrn1sd$ch2$1@dough.gmane.org>
-References: <hoqak4$m6t$1@dough.gmane.org> <319012f1003300033k254715dao7f9a807615df36df@mail.gmail.com> <alpine.LRH.2.00.1003301418000.10181@twin.jikos.cz> <319012f1003300602q708563ebo90b30c8d8b15e938@mail.gmail.com> <alpine.LNX.2.00.1003311401230.24576@pobox.suse.cz> <i2m319012f1003310554gd0a6a9fej27838c2c63bac171@mail.gmail.com> <alpine.LNX.2.00.1004021204310.8345@pobox.suse.cz> <g2w319012f1004020328l36f7bc5t2a1c3932681a2ee6@mail.gmail.com> <v2x319012f1004020427t86509b85yb68e9fd7df50a5ef@mail.gmail.com> <4BC1F110.4030203@yahoo.de> <g2u319012f1004110929oc9ff5f58i511346d0f6ad399d@mail.gmail.com> <loom.20100503T124140-184@post.gmane.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH 2/4] ir-core: centralize sysfs raw decoder enabling/disabling
+Date: Mon, 03 May 2010 16:49:20 -0300
+Message-ID: <4BDF28C0.4060102@redhat.com>
+References: <20100424210843.11570.82007.stgit@localhost.localdomain> <20100424211406.11570.96241.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lo.gmane.org ([80.91.229.12]:43034 "EHLO lo.gmane.org"
+Received: from mx1.redhat.com ([209.132.183.28]:42389 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753520Ab0ECRls (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 May 2010 13:41:48 -0400
-Received: from list by lo.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1O8zeM-0004CE-Ao
-	for linux-input@vger.kernel.org; Mon, 03 May 2010 19:41:46 +0200
-Received: from 77-22-100-23-dynip.superkabel.de ([77.22.100.23])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 19:41:46 +0200
-Received: from Cryptooctoploid by 77-22-100-23-dynip.superkabel.de with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Mon, 03 May 2010 19:41:46 +0200
+	id S1751286Ab0ECTt3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 May 2010 15:49:29 -0400
+In-Reply-To: <20100424211406.11570.96241.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>
+Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Cristian M=C4=83gheru=C8=99an-Stanciu wrote:
+Hi David,
+
+David H=C3=A4rdeman wrote:
+> With the current logic, each raw decoder needs to add a copy of the e=
+xact
+> same sysfs code. This is both unnecessary and also means that (re)loa=
+ding
+> an IR driver after raw decoder modules have been loaded won't work as
+> expected.
 >=20
-> Your pastebin post has expired, can you create another one?
+> This patch moves that logic into ir-raw-event and adds a single sysfs
+> file per device.
+>=20
+> Reading that file returns something like:
+>=20
+> 	"rc5 [rc6] nec jvc [sony]"
+>=20
+> (with enabled protocols in [] brackets)
+>=20
+> Writing either "+protocol" or "-protocol" to that file will
+> enable or disable the according protocol decoder.
+>=20
+> An additional benefit is that the disabling of a decoder will be
+> remembered across module removal/insertion so a previously
+> disabled decoder won't suddenly be activated again. The default
+> setting is to enable all decoders.
+>=20
+> This is also necessary for the next patch which moves even more decod=
+er
+> state into the central raw decoding structs.
 
-Sure. http://tinypaste.com/856ae
+I liked the idea of your redesign, but I didn't like the removal of
+a per-decoder sysfs entry. As already discussed, there are cases where
+we'll need a per-decoder sysfs entry (lirc_dev is probably one of those
+cases - also Jarod's imon driver is currently implementing a modprobe
+parameter that needs to be moved to the driver).
 
+So, while we can implement some core support at the raw event core, we =
+should
+keep the decoder attributes internally inside the driver. So, each deco=
+der
+may have his own code like:
+
+static struct attribute *decoder_attributes[] =3D {
+       &dev_attr_enabled.attr,
+       &dev_attr_bar1.attr,
+       &dev_attr_bar2.attr,
+       &dev_attr_bar3.attr,
+       NULL
+};
+
+static struct attribute_group decoder_attribute_group =3D {
+       .name   =3D "foo_decoder",
+       .attrs  =3D decoder_attributes,
+};
+
+As the attr_enabled is common to all, maybe we can have a default enabl=
+e
+code at the .h or inside the core.
+=20
+Cheers,
+Mauro
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

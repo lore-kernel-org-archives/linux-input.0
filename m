@@ -1,41 +1,70 @@
-From: "MICROSOFT EMAIL PROMOTION" <promo@microsoft.com>
-Subject: Email Promo Notification
-Date: Mon, 3 May 2010 22:41:52 -0200 (FNT)
-Message-ID: <45212.41.206.15.1.1272933712.squirrel@41.206.15.1>
-Reply-To: scott.willkins1@yahoo.com.hk
+From: "Hemanth V" <hemanthv@ti.com>
+Subject: RE: [RFC][PATCH1/2] SFH7741: proximity sensor driver support
+Date: Tue, 4 May 2010 11:46:09 +0530 (IST)
+Message-ID: <52275.10.24.255.17.1272953769.squirrel@dbdmail.itg.ti.com>
+References: <0680EC522D0CC943BC586913CF3768C003B3164B2F@dbde02.ent.ti.com>
+    <02ab01caea96$26e07a40$LocalHost@wipblrx0099946>
+    <0680EC522D0CC943BC586913CF3768C003B3164BC3@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.avellaneda-ba.gov.ar ([200.71.230.2]:48950 "EHLO
-	ns2.avellaneda-ba.gov.ar" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755548Ab0EDA4g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 May 2010 20:56:36 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B3164BC3@dbde02.ent.ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Email Promo Notification
+>> ----- Original Message -----
+>> From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+>> >
+>> > From: Datta, Shubhrajyoti
+>> > Sent: Monday, May 03, 2010 11:07 AM
+>> > To: Datta, Shubhrajyoti
+>> > Subject: [RFC][PATCH1/2] SFH7741: proximity sensor driver support
+>> >
+>>
+>> > +
+>> > +static irqreturn_t sfh7741_isr(int irq, void *dev_id)
+>> > +{
+>> > + struct sfh7741_drvdata *ddata = dev_id;
+>> > +
+>> > + int proximity = gpio_get_value(ddata->proximity_out);
+>> > + input_report_abs(ddata->input, ABS_DISTANCE, proximity);
+>> > + input_sync(ddata->input);
+>> > +
+>> > + return IRQ_HANDLED;
+>> > +}
+>> > +
+>> > +static int __devinit sfh7741_setup(struct device *dev,
+>> > + struct sfh7741_drvdata *ddata
+>> > + )
+>> > +{
+>> > + int  error;
+>> > + char *desc = "sfh7741";
+>> > +
+>> > + error = gpio_request(ddata->proximity_out, desc);
+>> > + if (error < 0) {
+>> > + dev_err(dev, "failed to request GPIO %d, error %d\n",
+>> > + ddata->proximity_out, error);
+>> > + return error;
+>> > + }
+>> > +
+>> > + error = gpio_direction_input(ddata->proximity_out);
+>> > + if (error < 0) {
+>> > + dev_err(dev, "failed to configure direction for GPIO %d,\
+>> > + error %d\n", ddata->proximity_out, error);
+>> > + goto fail1;
+>> > + }
+>> > +
+>>
+>> General comment about GPIO,
+>> It might be better to have GPIO configuration as part of board file,
+>> rather than being part of the driver. This is should make the driver
+>> more generic.
+> I read GPIO in the ISR how can I take care of that?
 
-You are hereby notified to contact the claims officer below with your
-information ( Name, Address,Phone,Country,Sex/Gender) as your email
-address has won an approved total sum of  =A3375,000,00 (Three Hundred =
-and
-Seventy  Five Thousand British Pounds Sterling).
-
-SCOTT WILKINS ( scott.willkins@yahoo.com.hk )
-
-Your secret pin code  which is MEP-3461098. Be warned that cases of dou=
-ble
-claims and unwarranted abuse of this program  will be legally pursued.
-
-Yours Faithfully
-MRS CAROL WENSTON
+A generic read function pointer could be defined as part
+of platform data, which could be used to retieve gpio value
 
 
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

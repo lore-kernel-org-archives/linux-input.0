@@ -1,40 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv3 1/3] TCA6416 keypad : Implement keypad driver for keys
- interfaced to TCA6416
-Date: Mon, 3 May 2010 23:46:19 -0700
-Message-ID: <20100504064618.GA17482@core.coreip.homeip.net>
-References: <1269357035-19754-1-git-send-email-srk@ti.com>
- <1269357035-19754-2-git-send-email-srk@ti.com>
- <20100416052500.GA1078@core.coreip.homeip.net>
- <FCCFB4CDC6E5564B9182F639FC3560870304E80EDC@dbde02.ent.ti.com>
+Subject: Re: [PATCH 1/3] input: mt: Simplify event bypass logic
+Date: Mon, 3 May 2010 23:49:05 -0700
+Message-ID: <20100504064905.GB17482@core.coreip.homeip.net>
+References: <1272721779-2124-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:45753 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755159Ab0EDGq0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 May 2010 02:46:26 -0400
+Received: from mail-iw0-f202.google.com ([209.85.223.202]:57624 "EHLO
+	mail-iw0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752409Ab0EDGtQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 May 2010 02:49:16 -0400
 Content-Disposition: inline
-In-Reply-To: <FCCFB4CDC6E5564B9182F639FC3560870304E80EDC@dbde02.ent.ti.com>
+In-Reply-To: <1272721779-2124-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Govindarajan, Sriramakrishnan" <srk@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2010 at 07:49:20PM +0530, Govindarajan, Sriramakrishnan
-wrote:
-> > 
-> [Sriram] Dmitry, once you have reviewed the changes, should I re-post
-> the patch series with your patch added to the series?
+On Sat, May 01, 2010 at 03:49:39PM +0200, Henrik Rydberg wrote:
+> The input bypass mechanism is only used by the MT events. Since all
+> MT events use bypassing by construction, the current list is a mere
+> duplication of input.h. This patch replaces the bypass list by a
+> simple range test.
 > 
 
-Sriram,
+Henrik,
 
-Thank you for reviewing my changes.
+I disagree with the patch. I can not guarantee that we will be able to
+maintain continuous range of ABS_MT_* events and thus current scheme is
+more flexible.
 
-I folded my changes into your original patch and will commit it to the
-next bramch of my tree. The board-specific changes will have to go
-thotugh maintainer of the arch in question.
+Thanks.
 
 -- 
 Dmitry

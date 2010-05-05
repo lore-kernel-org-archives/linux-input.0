@@ -1,42 +1,56 @@
-From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [PATCH 2/2] elantech: Report multitouch with proper ABS_MT messages
-Date: Thu, 06 May 2010 01:00:33 +0200
-Message-ID: <4BE1F891.7000801@tudelft.nl>
-References: <4BE1629E.50901@tudelft.nl> <20100505163832.GA7337@core.coreip.homeip.net> <4BE1B289.2040204@euromail.se> <4BE1B595.9090705@tudelft.nl> <4BE1B84C.1040903@euromail.se> <4BE1BA57.5080709@tudelft.nl>
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: Add Sony Vaio VPCZ1 series to the nopnp table
+Date: Wed, 5 May 2010 17:03:07 -0600
+Message-ID: <201005051703.08109.bjorn.helgaas@hp.com>
+References: <20100329233257.GA85504@jhz.name> <20100419094614.GA27749@jhz.name> <20100421070158.GM4364@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:53412 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753443Ab0EEXAf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 19:00:35 -0400
-In-Reply-To: <4BE1BA57.5080709@tudelft.nl>
+Received: from g5t0007.atlanta.hp.com ([15.192.0.44]:1400 "EHLO
+	g5t0007.atlanta.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754563Ab0EEXDS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 19:03:18 -0400
+In-Reply-To: <20100421070158.GM4364@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jan-Hendrik Zab <jan@jhz.name>, torvalds@linux-foundation.org, linux-input@vger.kernel.org
 
-Op 05-05-10 20:35, =C9ric Piel schreef:
-:
->=20
-> BTW, does anyone know a graphical app which reads the MT events from =
-a
-> /dev/input/eventX device and displays them as points in a window? Tha=
-t
-> would be rather helpful to reverse-engineer/debug multitouch hardware=
-s.
-Now that I have my little app, it was easier to test with the protocol.
-When there are 3 fingers, there is only one coordinate reported, and it
-is done in the same way as with one finger.
+On Wednesday, April 21, 2010 01:01:58 am Dmitry Torokhov wrote:
+> On Mon, Apr 19, 2010 at 11:46:14AM +0200, Jan-Hendrik Zab wrote:
+> > On 14/04/10 16:34 -0700, Dmitry Torokhov wrote:
+> > > Sorry for the delay. I wonder if we simply do not recognize PNP ID for
+> > > the touchpad. Coudl you give me output of:
+> > > 
+> > > for i in /sys/bus/pnp/devices/*; do echo $i; cat $i/id; done
+> > > 
+> > > and also your dsdt.
+> > 
+> > Hey,
+> > I attached the DSDT and uploaded it to [0] for everyone on the
+> > mailing list.
+> > 
+> 
+> *sigh*
+> 
+> 
+>                 Device (PS2M)
+>                 {
+>                     Name (_HID, "SNYSYN0003")
+>                     Name (_CID, EisaId ("PNP0F13"))
+>                     Name (_CRS, ResourceTemplate ()
+> 
+> PNP ID should be 7 characters...
 
-There might also be some additional info on the 5th and 6th bit of byte
-3, and 5th to 8th bits of byte 4. No idea yet what they correspond to.
+It'd be nice to know how Windows handles this situation.  If we can
+tell from the Device Manager that Windows actually exposes this
+invalid _HID somehow, we might want to think about handling it
+similarly in Linux.
 
-Cheers,
-Eric
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If Linux completely ignores invalid _HIDs like this, we can only
+use the _CID to bind a driver.  If a device doesn't supply a _CID,
+we'd be unable to bind a driver at all.
+
+Bjorn

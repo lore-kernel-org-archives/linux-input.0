@@ -1,36 +1,71 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: introduce MT event slots
-Date: Tue, 04 May 2010 23:41:24 +0200
-Message-ID: <4BE09484.9000600@euromail.se>
-References: <1270685590-2204-1-git-send-email-rydberg@euromail.se> <20100415232523.GA18263@core.coreip.homeip.net> <4BDFD356.7070008@bitmath.org> <20100504172903.GB29428@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.34-rc6
+Date: Tue, 4 May 2010 23:41:34 -0700
+Message-ID: <20100505064133.GA12329@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:43312 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933217Ab0EDVl7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 May 2010 17:41:59 -0400
-In-Reply-To: <20100504172903.GB29428@core.coreip.homeip.net>
+Received: from mail-pz0-f204.google.com ([209.85.222.204]:38065 "EHLO
+	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755352Ab0EEGli (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 02:41:38 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Tue, May 04, 2010 at 09:57:10AM +0200, Henrik Rydberg wrote:
->>> It would be nice to use abs[ABS_MT_MAX - ABS_MT_TOUCH_MAJOR] to save
->>> some memory.
->>>
->> Is it possible this was meant to read "ABS_MAX - ABS_MT_TOUCH_MAJOR"? It would
->> explain my confusion.
->>
-> 
-> By ABS_MT_MAX I meant highest MT event currently defined. No need to go all
-> the way to ABS_MAX if there are no MT events defined there.
-> 
+Hi Linus,
 
-I see, thanks.
+Please pull from:
 
-Henrik
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Nothing super exciting but
+owners of newer touchpads will get a bit happier.
+
+Changelog:
+---------
+
+Christoph Fritz (1):
+      Input: joydev - allow binding to button-only devices
+
+Daniel Mack (1):
+      Input: eeti_ts - cancel pending work when going to suspend
+
+Dmitry Torokhov (2):
+      Input: psmouse - ignore parity error for basic protocols
+      Revert "Input: ALPS - add signature for HP Pavilion dm3 laptops"
+
+Florian Ragwitz (3):
+      Input: elantech - fix firmware version check
+      Input: elantech - allow forcing Elantech protocol
+      Input: elantech - ignore high bits in the position coordinates
+
+Jarod Wilson (1):
+      Input: ati_remote - add some missing devices from lirc_atiusb
+
+Takashi Iwai (1):
+      Input: Add support of Synaptics Clickpad device
+
+
+Diffstat:
+--------
+
+ Documentation/input/elantech.txt    |    8 ++--
+ drivers/input/joydev.c              |   18 +++++++
+ drivers/input/misc/ati_remote.c     |   14 ++++--
+ drivers/input/mouse/alps.c          |    1 -
+ drivers/input/mouse/elantech.c      |   84 +++++++++++++++++++++++------------
+ drivers/input/mouse/psmouse-base.c  |   18 ++++++-
+ drivers/input/mouse/psmouse.h       |    1 +
+ drivers/input/mouse/synaptics.c     |   35 ++++++++++++--
+ drivers/input/mouse/synaptics.h     |    4 ++
+ drivers/input/touchscreen/eeti_ts.c |   56 +++++++++++++++++++----
+ 10 files changed, 183 insertions(+), 56 deletions(-)
+
+-- 
+Dmitry
+

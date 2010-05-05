@@ -1,60 +1,68 @@
-From: Florian Ragwitz <rafl@debian.org>
-Subject: Re: [PATCH 2/2] elantech: Report multitouch with proper ABS_MT messages
-Date: Wed, 5 May 2010 20:05:37 +0200
-Message-ID: <20100505180528.GI6075@perldition.org>
-References: <4BE1629E.50901@tudelft.nl> <20100505163832.GA7337@core.coreip.homeip.net> <4BE1A591.3020201@tudelft.nl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] elantech: Report tool width when it is known
+Date: Wed, 5 May 2010 11:09:11 -0700
+Message-ID: <201005051109.11531.dmitry.torokhov@gmail.com>
+References: <4BE16121.8040000@tudelft.nl> <20100505171350.GE7337@core.coreip.homeip.net> <20100505180048.GH6075@perldition.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YrQNB5Deg1WGKZi3"
+Content-Type: Text/Plain; charset=iso-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from weedy.perldition.org ([85.10.210.75]:48038 "EHLO
-	weedy.perldition.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757211Ab0EESF5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 14:05:57 -0400
-Content-Disposition: inline
-In-Reply-To: <4BE1A591.3020201@tudelft.nl>
+Received: from mail-ww0-f46.google.com ([74.125.82.46]:65200 "EHLO
+	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752217Ab0EESJW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 14:09:22 -0400
+Received: by wwb34 with SMTP id 34so65827wwb.19
+        for <linux-input@vger.kernel.org>; Wed, 05 May 2010 11:09:20 -0700 (PDT)
+In-Reply-To: <20100505180048.GH6075@perldition.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-15?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@euromail.se>
+To: Florian Ragwitz <rafl@debian.org>
+Cc: =?iso-8859-15?q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
+On Wednesday 05 May 2010 11:00:48 am Florian Ragwitz wrote:
+> On Wed, May 05, 2010 at 10:13:50AM -0700, Dmitry Torokhov wrote:
+> > On Wed, May 05, 2010 at 06:58:18PM +0200, =C9ric Piel wrote:
+> > > Op 05-05-10 18:39, Dmitry Torokhov schreef:
+> > > > I think we shoudl have threshold for the firmware version when =
+we
+> > > > start reporting the width.
+> > >=20
+> > > What do you mean? That the width might not be reported correctly =
+by all
+> > > the firmwares? I have no idea if that is the case. For info, IIRC=
+ my
+> > > firmware report 2.1 with middle byte 8.
+> >=20
+> > My understanding was that older firmwares would report 0. I might b=
+e
+> > mistaken.
+>=20
+> Some firmwares always set the upper bits to 0. Others don't.
+>=20
+> As far as I can see, we only know about firmware version 2.1 and 4.1
+> using those high bits for width reports.
+>=20
+> However, there's firmware versions inbetween, like 2.48, which don't
+> report width information. And there's even other firmware versions
+> inbetween, like 2.36, which actually implment what the driver calls
+> hardware version 1. Those have a quite different packet format, and a=
+lso
+> no width information.
 
---YrQNB5Deg1WGKZi3
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What we need to figure out if 2.48 and 2.36 are in fact something like
+2.0.48 and 2.0.36.. And 2.1 is actually 2.x.1. Then it would all make
+better sense.
 
-On Wed, May 05, 2010 at 07:06:25PM +0200, =C9ric Piel wrote:
-> Op 05-05-10 18:38, Dmitry Torokhov schreef:
-> > Where is the proprietary driver BTW? Do we even care? I'd probably get
-> > rid of HAT abuse if our standard tools provide good user experience.
-> Actually I had never heard of a proprietary driver before reading the
-> code ;-) Maybe Florian knows?
-
-No, unfortunately he doesn't.
-
-I've only ever heard of it through the comment in the current driver.
-I've tried to find them, but failed.
-
-git blames Arjan Opmeer <arjan@opmeer.net> for the comment, but he seems
-a little unresponsive these days.
-
+>=20
+> Currently it seems to be unknown how to detect hw ver 1 vs. 2 based o=
+n
+> the firmware version. Guesses tend towards the middle bit being
+> signifficant, somehow.
 
 --=20
-BOFH excuse #445:
-Browser's cookie is corrupted -- someone's been nibbling on it.
-
---YrQNB5Deg1WGKZi3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFL4bNodC8qQo5jWl4RAtyJAJ9BNPsfI1AeYx+D+5X0UGm1Y7us0ACfSLra
-HseKk+XVMfaYTksvSA64vJ4=
-=QT4i
------END PGP SIGNATURE-----
-
---YrQNB5Deg1WGKZi3--
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,63 +1,128 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-Date: Wed, 5 May 2010 21:30:24 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043DEEC189@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
- <87vdblbtqn.fsf@deeprootsystems.com>
+From: Clemens Ladisch <clemens@ladisch.de>
+Subject: Re: [alsa-devel] [PATCH 2.6.34-rc5] HID: Prodikeys PC-MIDI HID Driver
+Date: Thu, 06 May 2010 08:30:22 +0200
+Message-ID: <4BE261FE.60109@ladisch.de>
+References: <4BE1A2E2.1040801@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:38036 "EHLO bear.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753305Ab0EFCa0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 May 2010 22:30:26 -0400
-In-Reply-To: <87vdblbtqn.fsf@deeprootsystems.com>
-Content-Language: en-US
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:36007 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752694Ab0EFGaZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 6 May 2010 02:30:25 -0400
+In-Reply-To: <4BE1A2E2.1040801@yahoo.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: "dhprince.devel@yahoo" <dhprince.devel@yahoo.co.uk>
+Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
 
-Thanks Kevin,
+dhprince.devel@yahoo wrote:
+> A specialised HID driver for the CreativeLabs Prodikeys PC-MIDI USB 
+> Keyboard.
+> ...
 
-> > Keyboard controller for OMAP4 with built-in scanning algorithm.
-> > The following implementations are used:
-> >
-> >   - matrix_keypac.c logic
-> >   - hwmod framework
-> >   - threaded irq
-> >
-> > Signed-off-by: Syed Rafiuddin <rafiuddin.syed@ti.com>
-> > Signed-off-by: Abraham Arce <x0066660@ti.com>
-> 
-> Some general comments...
-> 
-> What's missing here is a separation of the driver and the device.
-> What you need is for arch code to register a platfrom_device (using
-> hwmod + omap_device).  Then this driver will use the standard
-> platform_device resource calls to get its base address, IRQs, etc. and
-> any platform_data.
-> 
-> IOW, as Felipe mentioned, the driver should not be doing the hwmod +
-> omap_device init and registration.
+I cannot comment on the input stuff, but the sound stuff looks good
+overall.
 
-As metioned to Felipe, my approach is 
+> +What:        /sys/bus/hid/drivers/prodikeys/.../channel
+> +Date:        April 2010
+> +KernelVersion:    2.6.34
+> +Contact:    Don Prince <dhprince.devel@yahoo.co.uk>
+> +Descripts/checkpatch.plscription:
 
-  sdp4430_keypad_init() {
-     ...
-     omap_hwmod_lookup(oh_name);
-     ...
-     kzalloc(sizeof(struct matrix_keypad_platform_data), GFP_KERNEL);
-     ...
-     omap_device_build(name, id, oh, pdata,
-     ...
-  }
+Huh?
 
-and then called within
+> +What:        /sys/bus/hid/drivers/prodikeys/.../sustain
+> +Description:
+> +        Allows control (via software) the sustain duration of a
+> +        note held by the pc-midi driver.
 
-  omap_4430sdp_init()
+Why is this feature needed?  Does the device report key releases
+incorrectly?
+
+These three sysfs controls could also be implemented as mixer controls.
+This would allow them to be automatically saved and restored when the
+computer is shut down.
+
+> +    { HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, 
+> USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
+
+Your mailer wrapped long lines and killed the tabs.
+Please see <Documentation/email-clients.txt>.
+
+And your code looks as if it does not use eight-column tabs for
+indention.
+
+> +static void pcmidi_send_note(struct pcmidi_snd *pm,
+> ...
+> +    res = snd_rawmidi_receive(pm->in_substream, buffer, 3);
+
+This return value is never used.
+
+> +                    if (!atomic_read(&pms->in_use)) {
+> +                        pms->status = status;
+> +                        pms->note = note;
+> +                        pms->velocity = velocity;
+> +                        atomic_set(&pms->in_use, 1);
+
+If you're using the atomic variable to protect against some concurrently
+executing code, then you have a race condition in the time interval
+between the read and the set.
+
+> +static void pcmidi_out_tasklet(unsigned long data)
+> ...
+> +    while (1) {
+> +        /* just read them and drop them */
+> +        u8 b;
+> +        if (snd_rawmidi_transmit(pm->out_substream, &b, 1) != 1) {
+> +            pm->out_active = 0;
+> +            break;
+> +        }
+
+This isn't quite how output ports are supposed to be implemented.  :-)
+
+I'd guess you want to remove the OUTPUT and DUPLEX flags and to drop all
+output-related functions.
+
+> +static void pcmidi_in_trigger(struct snd_rawmidi_substream *substream, 
+> int up)
+> ...
+> +    if (up)
+> +        set_bit(substream->number, &pm->in_triggered);
+> +    else
+> +        clear_bit(substream->number, &pm->in_triggered);
+
+You have only one substream, a boolean variable would suffice.
+
+> +int pcmidi_snd_initialise(struct pcmidi_snd *pm)
+> ...
+> +    int out_ports = 1;
+> +    int in_ports = 1;
+
+These variables are not variable and therefore not needed.
+
+> +    snd_component_add(card, "MIDI");
+
+This function is intended for sound cards that are composed of several
+components, and the component name is usually a chip name.  I think
+you don't need to call this function at all.
+
+> +    err = snd_card_register(card);
+> ...
+> +    /* create sysfs variables */
+> +    err = device_create_file(&pm->pk->hdev->dev,
+> +                 sysfs_device_attr_channel);
+> ...
+> +    spin_lock_init(&pm->rawmidi_in_lock);
+> +
+> +    init_sustain_timers(pm);
+
+snd_card_register() makes all sound interfaces available to userspace.
+Initializations for any data that might be accessed from userspace must
+be done before that call.
 
 
-Best Regards
-Abraham
+Regards,
+Clemens

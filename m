@@ -1,76 +1,83 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [TRIVIAL, PATCH] hid/hidraw: indent with tabs, not spaces
-Date: Thu, 6 May 2010 11:02:14 +0200
-Message-ID: <20100506110214.0c6cbb48.ospite@studenti.unina.it>
-References: <1272656998-29307-1-git-send-email-ospite@studenti.unina.it>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH 2/2] elantech: Report multitouch with proper ABS_MT
+ messages
+Date: Thu, 6 May 2010 10:22:14 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E568A0765@LIMKCMBX1.ad.analog.com>
+References: <4BE1629E.50901@tudelft.nl>
+ <20100505163832.GA7337@core.coreip.homeip.net>
+ <4BE1B289.2040204@euromail.se> <4BE1B595.9090705@tudelft.nl>
+ <4BE1B84C.1040903@euromail.se> <4BE1BA57.5080709@tudelft.nl>
+ <4BE1C198.3080809@euromail.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__6_May_2010_11_02_14_+0200_5Xd19sLcACEFl.xl"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out20.alice.it ([85.33.2.20]:1079 "EHLO
-	smtp-out20.alice.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753188Ab0EFJMl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 May 2010 05:12:41 -0400
-In-Reply-To: <1272656998-29307-1-git-send-email-ospite@studenti.unina.it>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:59762 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753162Ab0EFJWS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 May 2010 05:22:18 -0400
+In-Reply-To: <4BE1C198.3080809@euromail.se>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <trivial@kernel.org>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>, =?iso-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, =?iso-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>, Benjamin Tissoires <tissoire@cena.fr>
 
---Signature=_Thu__6_May_2010_11_02_14_+0200_5Xd19sLcACEFl.xl
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Henrik Rydberg wrote on 2010-05-05:
+> =C9ric Piel wrote:
+>>
+>> BTW, does anyone know a graphical app which reads the MT events from=
+ a
+>> /dev/input/eventX device and displays them as points in a window? Th=
+at
+>> would be rather helpful to reverse-engineer/debug multitouch
+> hardwares.
+>
+> Something like fingermgmt in OSX? Not to my knowledge. The touchd
+> project includes some graphics via python, but is not based on MT
+> events. Maybe our friends at ENAC has something cooking?
+>
+> Henrik
+>
 
-On Fri, 30 Apr 2010 21:49:58 +0200
-Antonio Ospite <ospite@studenti.unina.it> wrote:
+I've been playing with Benjamin's xf86-input-evdev multitouch-subdevs w=
+ork.
+http://cgit.freedesktop.org/~tissoire/xf86-input-evdev/log/?h=3Dmultito=
+uch-subdevs
 
-> Signed-off-by: Antonio Ospite <ospite@studenti.unina.it>
-> ---
->  drivers/hid/hidraw.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->=20
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 6eadf1a..a9becf9 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -311,7 +311,7 @@ static long hidraw_ioctl(struct file *file, unsigned =
-int cmd,
->  						-EFAULT : len;
->  					break;
->  				}
-> -                }
-> +		}
-> =20
->  		ret =3D -ENOTTY;
->  	}
-> --=20
-> 1.7.1
+Its supports finger tracking ID and you can control multiple pointers o=
+n your X.
+What's currently lacking is that xf86-input-evdev doesn't generate clic=
+k events (something like a LEFT CLICK) for touches.
 
-Ping.
+What also supports Linux MT events is Android =C9clair
+http://lukehutch.wordpress.com/2010/01/06/my-multi-touch-code-ported-to=
+-eclair/
 
---=20
-Antonio Ospite
-http://ao2.it
+It Uses:
+ABS_MT_POSITION_X
+ABS_MT_POSITION_Y
+ABS_MT_TOUCH_MAJOR
+ABS_MT_WIDTH_MAJOR
 
-PGP public key ID: 0x4553B001
+Without ABS_MT_TRACKING_ID.
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
+Luke Hutchison wrote some basic MT demo applications, such as mtvisuali=
+zer.apk.
+http://lukehutch.wordpress.com/2009/01/25/get-multi-touch-support-on-yo=
+ur-t-mobile-g1-today/
 
---Signature=_Thu__6_May_2010_11_02_14_+0200_5Xd19sLcACEFl.xl
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Greetings,
+Michael
 
-iEYEARECAAYFAkvihZYACgkQ5xr2akVTsAFLMwCgn+DtMdVaRt5j3SBN5Tu3x5R/
-VmUAn2Vun6Xwbg52vGhbOeHwaj8r+kxQ
-=hvTQ
------END PGP SIGNATURE-----
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Gesch=
+aeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
 
---Signature=_Thu__6_May_2010_11_02_14_+0200_5Xd19sLcACEFl.xl--
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

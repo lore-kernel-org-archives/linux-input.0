@@ -1,77 +1,49 @@
-From: "Oskar Schirmer" <os@emlix.com>
-Subject: [PATCH] ad7877: keep dma rx buffers in seperate cache lines
-Date: Thu,  6 May 2010 12:37:45 +0200
-Message-ID: <1273142265-11929-2-git-send-email-os@emlix.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH] ad7877: fix spi word size to 16 bit
+Date: Thu, 6 May 2010 12:18:35 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E568A07DD@LIMKCMBX1.ad.analog.com>
 References: <1273142265-11929-1-git-send-email-os@emlix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:61509 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752105Ab0EFLSk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 May 2010 07:18:40 -0400
 In-Reply-To: <1273142265-11929-1-git-send-email-os@emlix.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oskar Schirmer <os@emlix.com>, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oskar Schirmer <os@emlix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?utf-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>
 
-With dma based spi transmission, data corruption
-is observed occasionally. With dma buffers located
-right next to msg and xfer fields, cache lines
-correctly flushed in preparation for dma usage
-may be polluted again when writing to fields
-in the same cache line.
-
-Make sure cache fields used with dma do not
-share cache lines with fields changed during
-dma handling. As both fields are part of a
-struct that is allocated via kzalloc, thus
-cache aligned, moving the fields to the 1st
-position and insert padding for alignment
-does the job.
-
-Signed-off-by: Oskar Schirmer <os@emlix.com>
-Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
-Signed-off-by: Oliver Schneidewind <osw@emlix.com>
-Signed-off-by: Johannes Weiner <jw@emlix.com>
----
- drivers/input/touchscreen/ad7877.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
-reen/ad7877.c
-index 92acd85..9719368 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -153,15 +153,21 @@ enum {
-  */
-=20
- struct ser_req {
-+	u16			sample;
-+	char			__padalign[L1_CACHE_BYTES - sizeof(u16)];
-+
- 	u16			reset;
- 	u16			ref_on;
- 	u16			command;
--	u16			sample;
- 	struct spi_message	msg;
- 	struct spi_transfer	xfer[6];
- };
-=20
- struct ad7877 {
-+	u16			conversion_data[AD7877_NR_SENSE];
-+	char			__padalign[L1_CACHE_BYTES
-+					- AD7877_NR_SENSE * sizeof(u16)];
-+
- 	struct input_dev	*input;
- 	char			phys[32];
-=20
-@@ -182,8 +188,6 @@ struct ad7877 {
- 	u8			averaging;
- 	u8			pen_down_acc_interval;
-=20
--	u16			conversion_data[AD7877_NR_SENSE];
--
- 	struct spi_transfer	xfer[AD7877_NR_SENSE + 2];
- 	struct spi_message	msg;
-=20
---=20
-1.5.3.7
+T3NrYXIgU2NoaXJtZXIgd3JvdGUgb24gMjAxMC0wNS0wNjoNCj4gV2l0aCBubyB3b3JkIHNpemUg
+Z2l2ZW4gaW4gdGhlIHVzZXJzIHBsYXRmb3JtIGRhdGEsIGEgZ2VuZXJpYyBzcGkgaG9zdA0KPiBj
+b250cm9sbGVyIGRyaXZlciB3aWxsIGFzc3VtZSBhIGRlZmF1bHQgd29yZCBzaXplIG9mIGVpZ2h0
+IGJpdC4gVGhpcw0KPiBjYXVzZXMgdHJhbnNtaXNzaW9uIHRvIGJlIHBlcmZvcm1lZCBieXRld2lz
+ZSwgd2hpY2ggd2lsbCBmYWlsIG9uDQo+IGxpdHRsZSBlbmRpYW4gbWFjaGluZXMgZm9yIHN1cmUu
+IEZhaWx1cmUgb24gYmlnIGVuZGlhbiBkZXBlbmRzIG9uDQo+IHVzYWdlIG9mIHNsYXZlIHNlbGVj
+dCB0byBtYXJrIHdvcmQgYm91bmRhcmllcy4NCj4NCj4gQW55d2F5LCBhZDc4NzcgaXMgc3BlY2lm
+aWVkIHRvIHdvcmsgd2l0aCAxNiBiaXQgcGVyIHdvcmQsIHNvDQo+IHVuY29uZGl0aW9uYWxseSBz
+ZXQgdGhlIHdvcmQgc2l6ZSBhY2NvcmRpbmdseS4NCj4NCj4gU2lnbmVkLW9mZi1ieTogT3NrYXIg
+U2NoaXJtZXIgPG9zQGVtbGl4LmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogRGFuaWVsIEdsw7Zja25l
+ciA8ZGdAZW1saXguY29tPg0KPiBTaWduZWQtb2ZmLWJ5OiBPbGl2ZXIgU2NobmVpZGV3aW5kIDxv
+c3dAZW1saXguY29tPg0KDQpBY2tlZC1ieTogTWljaGFlbCBIZW5uZXJpY2ggPG1pY2hhZWwuaGVu
+bmVyaWNoQGFuYWxvZy5jb20+DQoNCj4gLS0tDQo+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L2FkNzg3Ny5jIHwgICAgMiArKw0KPiAgMSBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
+IDAgZGVsZXRpb25zKC0pDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L2FkNzg3Ny5jDQo+IGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hZDc4NzcuYyBpbmRleCBl
+MDE5ZDUzLi45MmFjZDg1IDEwMDY0NCAtLS0NCj4gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L2FkNzg3Ny5jICsrKw0KPiBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYWQ3ODc3LmMgQEAg
+LTY2OSw2ICs2NjksOCBAQCBzdGF0aWMgaW50DQo+IF9fZGV2aW5pdCBhZDc4NzdfcHJvYmUoc3Ry
+dWN0IHNwaV9kZXZpY2UgKnNwaSkNCj4gICAgICAgICAgICAgICBkZXZfZGJnKCZzcGktPmRldiwg
+IlNQSSBDTEsgJWQgSHo/XG4iLHNwaS0+bWF4X3NwZWVkX2h6KTsNCj4gICAgICAgICAgICAgICBy
+ZXR1cm4gLUVJTlZBTDsNCj4gICAgICAgfQ0KPiArICAgICBzcGktPmJpdHNfcGVyX3dvcmQgPSAx
+NjsNCj4gKyAgICAgc3BpX3NldHVwKHNwaSk7DQo+DQo+ICAgICAgIHRzID0ga3phbGxvYyhzaXpl
+b2Yoc3RydWN0IGFkNzg3NyksIEdGUF9LRVJORUwpOw0KPiAgICAgICBpbnB1dF9kZXYgPSBpbnB1
+dF9hbGxvY2F0ZV9kZXZpY2UoKTsNCg0KR3JlZXRpbmdzLA0KTWljaGFlbA0KDQpBbmFsb2cgRGV2
+aWNlcyBHbWJIICAgICAgV2lsaGVsbS1XYWdlbmZlbGQtU3RyLiA2ICAgICAgODA4MDcgTXVlbmNo
+ZW4NClNpdHogZGVyIEdlc2VsbHNjaGFmdCBNdWVuY2hlbiwgUmVnaXN0ZXJnZXJpY2h0IE11ZW5j
+aGVuIEhSQiA0MDM2IEdlc2NoYWVmdHNmdWVocmVyIFRob21hcyBXZXNzZWwsIFdpbGxpYW0gQS4g
+TWFydGluLCBNYXJnYXJldCBTZWlmDQoNCg==

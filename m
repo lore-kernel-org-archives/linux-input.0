@@ -1,53 +1,64 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH] ad7877: keep dma rx buffers in seperate cache lines
-Date: Thu, 6 May 2010 14:46:04 -0400
-Message-ID: <g2j8bd0f97a1005061146l2b01e45do15bf46162e38ce84@mail.gmail.com>
-References: <1273142265-11929-1-git-send-email-os@emlix.com>
-	<1273142265-11929-2-git-send-email-os@emlix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: [PATCH 1/2] iforce: Add Gullemot Jet Leader Force Feedback
+Date: Thu,  6 May 2010 23:34:00 +0200
+Message-ID: <1273181641-24546-1-git-send-email-marek.vasut@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f198.google.com ([209.85.211.198]:47781 "EHLO
-	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754039Ab0EFSq1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 May 2010 14:46:27 -0400
-In-Reply-To: <1273142265-11929-2-git-send-email-os@emlix.com>
+Received: from fg-out-1718.google.com ([72.14.220.159]:11166 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751171Ab0EFVfX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 May 2010 17:35:23 -0400
+Received: by fg-out-1718.google.com with SMTP id d23so534889fga.1
+        for <linux-input@vger.kernel.org>; Thu, 06 May 2010 14:35:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskar Schirmer <os@emlix.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, Marek Vasut <marek.vasut@gmail.com>
 
-T24gVGh1LCBNYXkgNiwgMjAxMCBhdCAwNjozNywgT3NrYXIgU2NoaXJtZXIgd3JvdGU6Cj4gwqBz
-dHJ1Y3Qgc2VyX3JlcSB7Cj4gKyDCoCDCoCDCoCB1MTYgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgc2FtcGxlOwo+ICsgwqAgwqAgwqAgY2hhciDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoF9fcGFkYWxpZ25bTDFfQ0FDSEVfQllURVMgLSBzaXplb2YodTE2KV07Cj4gKwo+IMKgIMKg
-IMKgIMKgdTE2IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJlc2V0Owo+IMKgIMKgIMKg
-IMKgdTE2IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHJlZl9vbjsKPiDCoCDCoCDCoCDC
-oHUxNiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb21tYW5kOwo+IC0gwqAgwqAgwqAg
-dTE2IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHNhbXBsZTsKPiDCoCDCoCDCoCDCoHN0
-cnVjdCBzcGlfbWVzc2FnZSDCoCDCoCDCoG1zZzsKPiDCoCDCoCDCoCDCoHN0cnVjdCBzcGlfdHJh
-bnNmZXIgwqAgwqAgeGZlcls2XTsKPiDCoH07CgphcmUgeW91IHN1cmUgdGhpcyBpcyBuZWNlc3Nh
-cnkgPyAgc2VyX3JlcSBpcyBvbmx5IGV2ZXIgdXNlZCB3aXRoCnNwaV9zeW5jKCkgYW5kIGl0J3Mg
-YWxsb2NhdGVkL3JlbGVhc2VkIG9uIHRoZSBmbHksIHNvIGhvdyBjb3VsZAphbnl0aGluZyBiZSBy
-ZWFkaW5nIHRoYXQgbWVtb3J5IGJldHdlZW4gdGhlIHN0YXJ0IG9mIHRoZSB0cmFuc21pc3Npb24K
-YW5kIHRoZSByZXR1cm4gdG8gYWRpNzg3NyA/Cgo+IMKgc3RydWN0IGFkNzg3NyB7Cj4gKyDCoCDC
-oCDCoCB1MTYgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgY29udmVyc2lvbl9kYXRhW0FE
-Nzg3N19OUl9TRU5TRV07Cj4gKyDCoCDCoCDCoCBjaGFyIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgX19wYWRhbGlnbltMMV9DQUNIRV9CWVRFUwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgLSBBRDc4NzdfTlJfU0VOU0UgKiBz
-aXplb2YodTE2KV07Cj4gKwo+IMKgIMKgIMKgIMKgc3RydWN0IGlucHV0X2RldiDCoCDCoCDCoCDC
-oCppbnB1dDsKPiDCoCDCoCDCoCDCoGNoYXIgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBw
-aHlzWzMyXTsKPgo+IEBAIC0xODIsOCArMTg4LDYgQEAgc3RydWN0IGFkNzg3NyB7Cj4gwqAgwqAg
-wqAgwqB1OCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGF2ZXJhZ2luZzsKPiDCoCDC
-oCDCoCDCoHU4IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgcGVuX2Rvd25fYWNjX2lu
-dGVydmFsOwo+Cj4gLSDCoCDCoCDCoCB1MTYgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-Y29udmVyc2lvbl9kYXRhW0FENzg3N19OUl9TRU5TRV07Cj4gLQo+IMKgIMKgIMKgIMKgc3RydWN0
-IHNwaV90cmFuc2ZlciDCoCDCoCB4ZmVyW0FENzg3N19OUl9TRU5TRSArIDJdOwo+IMKgIMKgIMKg
-IMKgc3RydWN0IHNwaV9tZXNzYWdlIMKgIMKgIMKgbXNnOwoKaSBjYW4gc2VlIHRoZSBzcGlfbWVz
-c2FnZSBpbnNpZGUgb2YgdGhpcyBzdHJ1Y3QgYmVpbmcgYSBwcm9ibGVtCmJlY2F1c2UgdGhlIHNw
-aSB0cmFuc2ZlciBpcyBkb2luZyBhc3luY2hyb25vdXNseSB3aXRoIHNwaV9hc3luYygpLgpob3dl
-dmVyLCBpIHdvdWxkIGFkZCBhIGNvbW1lbnQgcmlnaHQgYWJvdmUgdGhlc2UgdHdvIGZpZWxkcyB3
-aXRoIGEKc2hvcnQgZXhwbGFuYXRpb24gYXMgdG8gd2h5IHRoZXkncmUgYXQgdGhlIHN0YXJ0IGFu
-ZCB3aHkgdGhlIHBhZApleGlzdHMgc28gc29tZW9uZSBkb3duIHRoZSBsaW5lIGRvZXNudCBtb3Zl
-IGl0LgotbWlrZQo=
+Patch for this was in my repo since like 2.6.16 times. I never used the device
+much so the patch was always forgotten. This device features a RUDDER on the
+knob, so I had to add one more definition for that. The rest is just a USB ID
+addition.
+
+Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+---
+ drivers/input/joystick/iforce/iforce-main.c |    4 ++++
+ drivers/input/joystick/iforce/iforce-usb.c  |    1 +
+ 2 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index b1edd77..987faea 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -54,6 +54,9 @@ static signed short btn_avb_wheel[] =
+ static signed short abs_joystick[] =
+ { ABS_X, ABS_Y, ABS_THROTTLE, ABS_HAT0X, ABS_HAT0Y, -1 };
+ 
++static signed short abs_joystick_rudder[] =
++{ ABS_X, ABS_Y, ABS_THROTTLE, ABS_RUDDER, ABS_HAT0X, ABS_HAT0Y, -1 };
++
+ static signed short abs_avb_pegasus[] =
+ { ABS_X, ABS_Y, ABS_THROTTLE, ABS_RUDDER, ABS_HAT0X, ABS_HAT0Y,
+   ABS_HAT1X, ABS_HAT1Y, -1 };
+@@ -76,6 +79,7 @@ static struct iforce_device iforce_device[] = {
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
+ 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
++	{ 0x06f8, 0x0003, "Gullemot Jet Leader Force Feedback",		btn_joystick, abs_joystick_rudder, ff_iforce },
+ 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0004, "Gullemot Jet Leader 3D",			btn_joystick, abs_joystick, ff_iforce }, //?
+ 	{ 0x06d6, 0x29bc, "Trust Force Feedback Race Master",		btn_wheel, abs_wheel, ff_iforce },
+diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
+index b41303d..6c96631 100644
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -212,6 +212,7 @@ static struct usb_device_id iforce_usb_ids [] = {
+ 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
+ 	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
+ 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback */
++	{ USB_DEVICE(0x06f8, 0x0003) },		/* Guillemot Jet Leader Force Feedback */
+ 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Wheel */
+ 	{ USB_DEVICE(0x06f8, 0xa302) },		/* Guillemot Jet Leader 3D */
+ 	{ }					/* Terminating entry */
+-- 
+1.7.0
+

@@ -1,45 +1,44 @@
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [alsa-devel] [PATCH 2.6.34-rc5] HID: Prodikeys PC-MIDI HID Driver
-Date: Fri, 07 May 2010 08:45:03 +0200
-Message-ID: <4BE3B6EF.2030608@ladisch.de>
-References: <4BE1A2E2.1040801@yahoo.co.uk> <4BE261FE.60109@ladisch.de> <4BE30935.9040001@yahoo.co.uk>
+From: Christoph Langner <mail@christoph-langner.de>
+Subject: Erratic cursor movement with Apple Magic Mouse
+Date: Fri, 7 May 2010 11:07:58 +0200
+Message-ID: <v2ka31bf27a1005070207ga9e8420as99deff74cc41655@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:44319 "EHLO
-	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750796Ab0EGGpZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 7 May 2010 02:45:25 -0400
-In-Reply-To: <4BE30935.9040001@yahoo.co.uk>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:54978 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752798Ab0EGJIT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 May 2010 05:08:19 -0400
+Received: by fxm10 with SMTP id 10so603419fxm.19
+        for <linux-input@vger.kernel.org>; Fri, 07 May 2010 02:08:18 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Don Prince <dhprince.devel@yahoo.co.uk>
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Don Prince wrote:
-> On 06/05/10 07:30, Clemens Ladisch wrote:
->> I'd guess you want to remove the OUTPUT and DUPLEX flags and to drop all
->> output-related functions.
->
-> I know, it was naff, but without it the I get this from "amidi"
-> 
-> $ amidi -l
-> Dir Device    Name
-> cannot get rawmidi information 2:0: No such file or directory
-> 
-> Is it supposed to print this?
+Hello!
 
-Try the latest alsa-utils version.
+I'm trying to use a Apple Magic Mouse on a ordinary PC with Ubuntu
+Linux 10.04. Out of the box the mouse "worked" in Lucid. Paring,
+moving the cursor over the screen and right/left clicks worked. After
+I installed multitouch-kernel-source_1.2. and a reboot I was able to
+scroll and do middle clicks. So more or less it worked very good.
 
-> 90 32 00
-> 80 32 7F
+Today (i can't remember that i changed a thing) the cursor is stuck at
+the top left corner of the screen,  even when I move the mouse. When i
+touch the surface of the mouse I can move the cursor. It looks like
+the surface of the mouse controls the position of the cursor on my
+screen. I installed the kernel module inside Ubuntu Lucid Lynx 10.04
+and the PPA of Chase Douglas [1]. Other people [2] report similar
+issues. Deleting the connection between my
+system and the mouse and re-pair it doesn't help.
 
-In MIDI, note-on commands with velocity zero must be interpreted as
-note-off.  If the device reports such a velocity for a key press, you
-have to make it nonzero.
+I reported the issue to bugzilla.kernel.org [3], is there something I
+can do to make the mouse work again?
+
+Thanks
+Christoph
 
 
-Regards,
-Clemens
+[1] https://launchpad.net/~chasedouglas/+archive/multitouch
+[2] http://ubuntuforums.org/showpost.php?p=9244651&postcount=121
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=15928

@@ -1,43 +1,50 @@
-From: "Hemanth V" <hemanthv@ti.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
 Subject: Re: [RFC] [PATCH 1/2]  CMA3000 Accelerometer Driver
-Date: Fri, 7 May 2010 19:01:54 +0530 (IST)
-Message-ID: <5421.10.24.255.18.1273239114.squirrel@dbdmail.itg.ti.com>
+Date: Fri, 07 May 2010 16:14:34 +0100
+Message-ID: <4BE42E5A.40301@cam.ac.uk>
 References: <12046.10.24.255.18.1272638611.squirrel@dbdmail.itg.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ppsw-52.csi.cam.ac.uk ([131.111.8.152]:36477 "EHLO
+	ppsw-52.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754775Ab0EGPMJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 May 2010 11:12:09 -0400
 In-Reply-To: <12046.10.24.255.18.1272638611.squirrel@dbdmail.itg.ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: linux-omap@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hemanth V <hemanthv@ti.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Ossi.Kauppinen@vti.fi
 
-> From d2842ba67e142e78b2554cebb01341c76b84b693 Mon Sep 17 00:00:00 2001
+
+Hi Hemanth,
+
+Quick comments below.  I haven't commented much on the
+input aspects, just stuck to the more general driver aspects.
+As ever at the moment, the should this be in input question is
+open, but if Dmitry is happy to take it then that's fine with me.
+
+Jonathan
+
+>>From d2842ba67e142e78b2554cebb01341c76b84b693 Mon Sep 17 00:00:00 2001
 > From: Hemanth V <hemanthv@ti.com>
 > Date: Fri, 30 Apr 2010 11:55:10 +0530
 > Subject: [PATCH] CMA3000 Accelerometer Driver
->
+> 
 > This patch adds support for CMA3000 Tri-axis accelerometer, which
 > supports Motion detect, Measurement and Free fall modes.
 > CMA3000 supports both I2C/SPI bus for communication, currently the
 > driver supports I2C based communication.
-
-Dimitry, Did you get a chance to look at this
-series.
-
-Thanks
-Hemanth
-
->
+> 
 > Driver reports acceleration data through input subsystem and supports
 > sysfs for configuration changes.
->
+> 
 > This chip is currently used with OMAP4 based boards
->
+> 
 > Thanks to Ossi Kauppinen <Ossi.Kauppinen@vti.fi> for the support
 > provided during development
->
+> 
 > Signed-off-by: Hemanth V <hemanthv@ti.com>
 > ---
 >  drivers/input/misc/Kconfig           |    9 +
@@ -47,11 +54,13 @@ Hemanth
 >  drivers/input/misc/cma3000_d0x_i2c.c |  136 ++++++++
 >  include/linux/i2c/cma3000.h          |   60 ++++
 >  6 files changed, 879 insertions(+), 0 deletions(-)
+General convention is pick a device and name driver after it. Avoids confusion
+in future.
 >  create mode 100644 drivers/input/misc/cma3000_d0x.c
 >  create mode 100644 drivers/input/misc/cma3000_d0x.h
 >  create mode 100644 drivers/input/misc/cma3000_d0x_i2c.c
 >  create mode 100644 include/linux/i2c/cma3000.h
->
+> 
 > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
 > index 16ec523..4752a00 100644
 > --- a/drivers/input/misc/Kconfig
@@ -59,7 +68,7 @@ Hemanth
 > @@ -319,4 +319,13 @@ config INPUT_PCAP
 >  	  To compile this driver as a module, choose M here: the
 >  	  module will be called pcap_keys.
->
+> 
 > +config INPUT_CMA3000_I2C
 > +	tristate "VTI CMA3000 Tri-axis accelerometer"
 > +	depends on I2C
@@ -90,6 +99,8 @@ Hemanth
 > + * cma3000_d0x.c
 > + * VTI CMA3000_D0x Accelerometer driver
 > + * 	Supports I2C/SPI interfaces
+The device, might but I'm not seeing SPI here.  Please clear out the define bits about
+i2c in the code as they aren't currently relevant.
 > + *
 > + * Copyright (C) 2010 Texas Instruments
 > + * Author: Hemanth V <hemanthv@ti.com>
@@ -165,6 +176,9 @@ Hemanth
 > +	{bit_to_8g, bit_to_2g},
 > +	{NULL, NULL },
 > +};
+
+This arrary looks suspicious.  Why the 8g's in the second column?
+If they are real can we have an explanatory comment.
 > +
 > +static ssize_t cma3000_show_attr_mode(struct device *dev,
 > +				     struct device_attribute *attr,
@@ -178,8 +192,12 @@ Hemanth
 > +	mode = cma3000_read(data, CMA3000_CTRL, "ctrl");
 > +	ret = sprintf(buf, "%d\n", (mode & CMA3000_MODEMASK) >> 1);
 > +	return ret;
+Roll previous 2 lines into 1.
 > +}
 > +
+
+Well into the realms of magic numbers here.  At the very least this needs
+some abi documenation.
 > +static ssize_t cma3000_store_attr_mode(struct device *dev,
 > +				     struct device_attribute *attr,
 > +				     const char *buf, size_t count)
@@ -207,6 +225,12 @@ Hemanth
 > +
 > +	disable_irq(data->client->irq);
 > +	cma3000_set(data, CMA3000_CTRL, ctrl, "ctrl");
+Personally I would have allowed the error that might result from this to be split
+into two (i2c_smbus_write_byte_data failed: (error code) then, "Ctrl register set failed".
+Thus no need to pass magic looking strings around.  Doesn't really matter though.
+Also no handling of error codes that this fuction can return.  These should be passed
+directly up to userspace.
+
 > +
 > +	/* Settling time delay required after mode change */
 > +	msleep(CMA3000_SETDELAY);
@@ -217,6 +241,7 @@ Hemanth
 > +	return count;
 > +}
 > +
+More magic numbers.  Please document.
 > +static ssize_t cma3000_show_attr_grange(struct device *dev,
 > +				       struct device_attribute *attr,
 > +				       char *buf)
@@ -264,6 +289,8 @@ Hemanth
 > +		goto err_op_failed;
 > +	}
 > +
+
+Why not just pass these directly into the following functions?
 > +	g_range = data->pdata.g_range;
 > +	fuzz_x = data->pdata.fuzz_x;
 > +	fuzz_y = data->pdata.fuzz_y;
@@ -303,6 +330,8 @@ Hemanth
 > +	ret = sprintf(buf, "%d\n", mode);
 > +
 > +	return ret;
+Again roll lines together. Lots more of these below.  Add code for
+no gain in my view.
 > +}
 > +
 > +static ssize_t cma3000_store_attr_mdthr(struct device *dev,
@@ -314,6 +343,8 @@ Hemanth
 > +	unsigned long val;
 > +	int error;
 > +
+Why not specify the base? Pretty much anything will work so why 
+make a fair bit of code run to guess what is right.
 > +	error = strict_strtoul(buf, 0, &val);
 > +	if (error)
 > +		return error;
@@ -363,12 +394,14 @@ Hemanth
 > +
 > +	disable_irq(data->client->irq);
 > +	cma3000_set(data, CMA3000_MDFFTMR, val, "mdthr");
+Again handle the error code returned by this.
 > +	enable_irq(data->client->irq);
 > +	mutex_unlock(&data->mutex);
 > +
 > +	return count;
 > +}
 > +
+More documentation needed. I've no idea what this one is!
 > +static ssize_t cma3000_show_attr_ffthr(struct device *dev,
 > +					struct device_attribute *attr,
 > +					char *buf)
@@ -403,12 +436,18 @@ Hemanth
 > +
 > +	disable_irq(data->client->irq);
 > +	cma3000_set(data, CMA3000_FFTHR, val, "mdthr");
+more error codes not handled.
 > +	enable_irq(data->client->irq);
 > +	mutex_unlock(&data->mutex);
 > +
 > +	return count;
 > +}
 > +
+
+All need documentation.  What they should be called is a little
+open to debate. I'd argue in favour of the iio naming conventions,
+but then I wrote most of them :)  
+
 > +static DEVICE_ATTR(mode, S_IWUSR | S_IRUGO,
 > +		cma3000_show_attr_mode, cma3000_store_attr_mode);
 > +
@@ -445,6 +484,8 @@ Hemanth
 > +	if (ret)
 > +		dev_err(&data->client->dev,
 > +			"failed to create sysfs entries\n");
+This is a void returning function?  Surely it failing should stop the driver
+loading and exit nicely?
 > +
 > +}
 > +
@@ -458,6 +499,8 @@ Hemanth
 > +{
 > +	int i, tmpx = 0, tmpy = 0, tmpz = 0;
 > +
+
+Can this get rolled into a function per channel? Would be easier to read.
 > +	for (i = 0; i < 7; ++i) {
 > +		tmpx += (((*datax) & BIT(i)) >> i) * (data->bit_to_mg[i]);
 > +		tmpy += (((*datay) & BIT(i)) >> i) * (data->bit_to_mg[i]);
@@ -499,6 +542,9 @@ Hemanth
 > +
 > +
 > +	/* Delay required between each read for interrupt clearing */
+Weird... Not your fault obviously! Got to love vti parts sometimes.
+Can you just confirm that the chip really sends out a data ready for each
+channel?  That to put it lightly would be very unusual.
 > +	datax = cma3000_read(data, CMA3000_DOUTX, "X");
 > +	udelay(CMA3000_INTDELAY);
 > +	datay = cma3000_read(data, CMA3000_DOUTY, "Y");
@@ -508,6 +554,8 @@ Hemanth
 > +	ctrl = cma3000_read(data, CMA3000_CTRL, "ctrl");
 > +	mode = (ctrl & CMA3000_MODEMASK) >> 1;
 > +	range = (ctrl & CMA3000_GRANGEMASK) >> 7;
+Please can you cache this ctrl register.  Silly to read it every time
+when I think you should be able to know in advance what it is set to.
 > +
 > +	data->bit_to_mg = mode_to_mg[mode][range];
 > +
@@ -541,6 +589,7 @@ Hemanth
 > +	ret = cma3000_read(data, CMA3000_STATUS, "Status");
 > +	if ((ret < 0) || (ret & CMA3000_STATUS_PERR)) {
 > +		dev_err(&data->client->dev, "Reset failed\n");
+Why kill the perfectly good error code from cma3000_read?
 > +		return -EIO;
 > +	}
 > +
@@ -552,6 +601,8 @@ Hemanth
 > +	uint8_t ctrl = 0, mdthr, mdfftmr, ffthr, mode;
 > +	int g_range, ret;
 > +
+
+Any reason for local copies?
 > +	g_range = data->pdata.g_range;
 > +	mode = data->pdata.mode;
 > +	mdthr = data->pdata.mdthr;
@@ -609,6 +660,7 @@ Hemanth
 > +		goto err_op2_failed;
 > +	}
 > +
+Why the local copy?  Isn't data->client->dev.platform_data always available?
 > +	memcpy(&(data->pdata), data->client->dev.platform_data,
 > +		sizeof(struct cma3000_platform_data));
 > +
@@ -892,7 +944,7 @@ Hemanth
 > +
 > +static int __init cma3000_accl_init(void)
 > +{
-> +
+Bonus white line,
 > +	return i2c_add_driver(&cma3000_accl_driver);
 > +}
 > +
@@ -973,9 +1025,4 @@ Hemanth
 > +};
 > +
 > +#endif
-> --
-> 1.5.6.3
->
->
->
->
+

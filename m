@@ -1,44 +1,55 @@
-From: Christoph Langner <mail@christoph-langner.de>
-Subject: Erratic cursor movement with Apple Magic Mouse
-Date: Fri, 7 May 2010 11:07:58 +0200
-Message-ID: <v2ka31bf27a1005070207ga9e8420as99deff74cc41655@mail.gmail.com>
+From: =?UTF-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>
+Subject: Re: [PATCH] ad7877: fix spi word size to 16 bit
+Date: Fri, 07 May 2010 11:41:02 +0200
+Message-ID: <4BE3E02E.1090500@emlix.com>
+References: <1273142265-11929-1-git-send-email-os@emlix.com> <n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:54978 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752798Ab0EGJIT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 May 2010 05:08:19 -0400
-Received: by fxm10 with SMTP id 10so603419fxm.19
-        for <linux-input@vger.kernel.org>; Fri, 07 May 2010 02:08:18 -0700 (PDT)
+Received: from mx1.emlix.com ([193.175.82.87]:47907 "EHLO mx1.emlix.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753957Ab0EGJlI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 7 May 2010 05:41:08 -0400
+In-Reply-To: <n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Oskar Schirmer <os@emlix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Schneidewind <osw@emlix.com>, Michael Hennerich <michael.hennerich@analog.com>
 
-Hello!
+On 05/06/2010 08:26 PM, Mike Frysinger wrote:
+> i think it'd be a better idea to do something like:
+>   if (spi->bits_per_word !=3D 16) {
+>     if (spi->bits_per_word) {
+>       dev_err(&spi->dev, "Invalid SPI settings; bits_per_word must be=
+ 16\n");
+>       return -EINVAL;
+>     }
+>     spi->bits_per_word =3D 16;
+>     spi_setup(spi);
+>   }
 
-I'm trying to use a Apple Magic Mouse on a ordinary PC with Ubuntu
-Linux 10.04. Out of the box the mouse "worked" in Lucid. Paring,
-moving the cursor over the screen and right/left clicks worked. After
-I installed multitouch-kernel-source_1.2. and a reboot I was able to
-scroll and do middle clicks. So more or less it worked very good.
+There is no way to set bits_per_word using struct spi_board_info. The
+description of that structure in spi.h explicitly lists the wordsize as
+one of the parameters drivers should set themself in probe().
 
-Today (i can't remember that i changed a thing) the cursor is stuck at
-the top left corner of the screen,  even when I move the mouse. When i
-touch the surface of the mouse I can move the cursor. It looks like
-the surface of the mouse controls the position of the cursor on my
-screen. I installed the kernel module inside Ubuntu Lucid Lynx 10.04
-and the PPA of Chase Douglas [1]. Other people [2] report similar
-issues. Deleting the connection between my
-system and the mouse and re-pair it doesn't help.
+Only struct bfin5xx_spi_chip allows to set this value in the board code=
+=2E
 
-I reported the issue to bugzilla.kernel.org [3], is there something I
-can do to make the mouse work again?
-
-Thanks
-Christoph
+  Daniel
 
 
-[1] https://launchpad.net/~chasedouglas/+archive/multitouch
-[2] http://ubuntuforums.org/showpost.php?p=9244651&postcount=121
-[3] https://bugzilla.kernel.org/show_bug.cgi?id=15928
+--=20
+Dipl.-Math. Daniel Gl=C3=B6ckner, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax -11, Bahnhofsallee 1b, 37081 G=C3=B6ttingen,=
+ Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B =
+3160
+Gesch=C3=A4ftsf=C3=BChrer: Dr. Uwe Kracke, Ust-IdNr.: DE 205 198 055
+
+emlix - your embedded linux partner
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,124 +1,51 @@
-From: "Peter M. Petrakis" <peter.petrakis@canonical.com>
-Subject: Re: [PATCH] Reset ps/2 port  should psmouse_probe fail before	retrying
-Date: Fri, 07 May 2010 13:57:08 -0400
-Message-ID: <4BE45474.8040001@canonical.com>
-References: <1271723857.6652.6.camel@lovely>	 <20100422215517.GB28213@core.coreip.homeip.net>	 <1271983668.16254.44.camel@lovely>	 <201004230953.52447.dmitry.torokhov@gmail.com>	 <4BD1EB1C.1070200@canonical.com>	 <20100428170721.GA6608@core.coreip.homeip.net>	 <4BD897D4.4060405@canonical.com> <1272560268.3987.12.camel@lovely>	 <4BDB5BA0.1080104@canonical.com> <1272769662.3315.36.camel@lovely>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [PATCH] ad7877: fix spi word size to 16 bit
+Date: Fri, 7 May 2010 14:23:07 -0400
+Message-ID: <h2l8bd0f97a1005071123u782bab2doee5c122dbd4c8642@mail.gmail.com>
+References: <1273142265-11929-1-git-send-email-os@emlix.com>
+	<n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
+	<4BE3E02E.1090500@emlix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:45065 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755596Ab0EGR5P (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 7 May 2010 13:57:15 -0400
-In-Reply-To: <1272769662.3315.36.camel@lovely>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:53874 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757313Ab0EGSXa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 May 2010 14:23:30 -0400
+In-Reply-To: <4BE3E02E.1090500@emlix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Fritz <chf.fritz@googlemail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>, Christopher Heiny <cheiny@synaptics.com>
+To: =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>
+Cc: Oskar Schirmer <os@emlix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Schneidewind <osw@emlix.com>, Michael Hennerich <michael.hennerich@analog.com>
 
-So where do we stand on this? Option #2 sounds like a good
-thing to implement regardless of whether synaptics is the
-victim device or not. Devices supported by the fall back driver
-will eventually get our attention again when users wish to use
-the extended features of the device. In the meanwhile, at least
-they'll have a reliable, minimum set of features.
+On Fri, May 7, 2010 at 05:41, Daniel Gl=C3=B6ckner wrote:
+> On 05/06/2010 08:26 PM, Mike Frysinger wrote:
+>> i think it'd be a better idea to do something like:
+>> =C2=A0 if (spi->bits_per_word !=3D 16) {
+>> =C2=A0 =C2=A0 if (spi->bits_per_word) {
+>> =C2=A0 =C2=A0 =C2=A0 dev_err(&spi->dev, "Invalid SPI settings; bits_=
+per_word must be 16\n");
+>> =C2=A0 =C2=A0 =C2=A0 return -EINVAL;
+>> =C2=A0 =C2=A0 }
+>> =C2=A0 =C2=A0 spi->bits_per_word =3D 16;
+>> =C2=A0 =C2=A0 spi_setup(spi);
+>> =C2=A0 }
+>
+> There is no way to set bits_per_word using struct spi_board_info. The
+> description of that structure in spi.h explicitly lists the wordsize =
+as
+> one of the parameters drivers should set themself in probe().
+>
+> Only struct bfin5xx_spi_chip allows to set this value in the board co=
+de.
 
-I'm happy to continue instrumenting this mysterious synaptics
-device. Just keep the patches coming. Thanks.
-
-Peter
-
-On 05/01/2010 11:07 PM, Christoph Fritz wrote:
-> Am Freitag, den 30.04.2010, 18:37 -0400 schrieb Peter M. Petrakis:
->> Christoph,
->>
->> The setres cmds don't seem to be working. We end up falling
->> back to the generic driver again and failing in psmouse_probe.
->> Logs attached with some instrumentation and i8042.debug enabled.
->
-> As Dmitry already told, this "E8 02 E8 02 E8 02 E8 02 E9" is nonsene. I
-> missed part 4.4 in the docu. There was no need to test, sorry to not
-> making this more clear.
->
-> At the moment there are two open questions:
->
->   1. Why does the device report itself as 0x73 when we expect 0x47 to
-> special query 0x02? Christopher from Synaptics has been already asked.
->    By the way, this 0x73 is the cause why your device falls back to ps2
-> driver. It's the root of your suspend problem: synaptics driver does,
-> psmouse-base does no reset in reconnect().
->
->   2. Should we do a reset in psmouse-base too? If yes, only for these
-> "fall-back-synaptic-touchpads" or should all generic ps2 devices get a
-> reset?
->
-> Here I missused the model entry, but it's not that fine:
->
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index d8c0c8d..5e726df 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -597,7 +597,6 @@ static int cortron_detect(struct psmouse *psmouse, bool set_properties)
->   static int psmouse_extensions(struct psmouse *psmouse,
->   			      unsigned int max_proto, bool set_properties)
->   {
-> -	bool synaptics_hardware = false;
->
->   /*
->    * We always check for lifebook because it does not disturb mouse
-> @@ -621,10 +620,10 @@ static int psmouse_extensions(struct psmouse *psmouse,
->   /*
->    * Try Synaptics TouchPad. Note that probing is done even if Synaptics protocol
->    * support is disabled in config - we need to know if it is synaptics so we
-> - * can reset it properly after probing for intellimouse.
-> + * can reset it properly at reconnect and after probing for intellimouse.
->    */
->   	if (max_proto>  PSMOUSE_PS2&&  synaptics_detect(psmouse, set_properties) == 0) {
-> -		synaptics_hardware = true;
-> +		psmouse->model = PSMOUSE_MODEL_NEEDRESET;
->
->   		if (max_proto>  PSMOUSE_IMEX) {
->   /*
-> @@ -740,7 +739,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
->    */
->   	ps2bare_detect(psmouse, set_properties);
->
-> -	if (synaptics_hardware) {
-> +	if (psmouse->model == PSMOUSE_MODEL_NEEDRESET) {
->   /*
->    * We detected Synaptics hardware but it did not respond to IMPS/2 probes.
->    * We need to reset the touchpad because if there is a track point on the
-> @@ -1401,10 +1400,14 @@ static int psmouse_reconnect(struct serio *serio)
->   	if (psmouse->reconnect) {
->   		if (psmouse->reconnect(psmouse))
->   			goto out;
-> -	} else if (psmouse_probe(psmouse)<  0 ||
-> +	} else {
-> +		if (psmouse->model == PSMOUSE_MODEL_NEEDRESET)
-> +			psmouse_reset(psmouse);
-> +		if (psmouse_probe(psmouse)<  0 ||
->   		   psmouse->type != psmouse_extensions(psmouse,
->   						psmouse_max_proto, false)) {
-> -		goto out;
-> +			goto out;
-> +		}
->   	}
->
->   	/* ok, the device type (and capabilities) match the old one,
-> diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-> index e053bdd..c45b5ef 100644
-> --- a/drivers/input/mouse/psmouse.h
-> +++ b/drivers/input/mouse/psmouse.h
-> @@ -20,6 +20,9 @@
->   #define PSMOUSE_RET_ACK		0xfa
->   #define PSMOUSE_RET_NAK		0xfe
->
-> +#define PSMOUSE_MODEL_UNKNOWN		0x00
-> +#define PSMOUSE_MODEL_NEEDRESET	0x01
-> +
->   enum psmouse_state {
->   	PSMOUSE_IGNORE,
->   	PSMOUSE_INITIALIZING,
->
->
+an obvious shortcoming in the SPI framework that should be fixed, but
+that doesnt make any difference to the above code now does it ?  it'll
+operate correctly regardless of the SPI bus master.
+-mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

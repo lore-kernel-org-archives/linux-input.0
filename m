@@ -1,38 +1,34 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail
-	before retrying
-Date: Sat, 08 May 2010 18:22:09 +0200
-Message-ID: <1273335729.7427.17.camel@lovely>
-References: <1271723857.6652.6.camel@lovely>
-	 <20100422215517.GB28213@core.coreip.homeip.net>
-	 <1271983668.16254.44.camel@lovely>
-	 <201004230953.52447.dmitry.torokhov@gmail.com>
-	 <1272072125.4341.10.camel@lovely> <1272103233.4666.15.camel@lovely>
-	 <20100428072633.GC4232@core.coreip.homeip.net>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: [PATCH 0/2 v2] elantech: Additional info reporting with version 2
+Date: Sat, 08 May 2010 18:34:51 +0200
+Message-ID: <4BE592AB.7040801@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.157]:34071 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753518Ab0EHQQH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 8 May 2010 12:16:07 -0400
-Received: by fg-out-1718.google.com with SMTP id d23so1085865fga.1
-        for <linux-input@vger.kernel.org>; Sat, 08 May 2010 09:16:05 -0700 (PDT)
-In-Reply-To: <20100428072633.GC4232@core.coreip.homeip.net>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:42607 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753407Ab0EHQjS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 8 May 2010 12:39:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
+Cc: Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, 2010-04-28 at 00:26 -0700, Dmitry Torokhov wrote:
+Hello,
 
-> What about simply resetting the mouse before actually trying to
-> reconnect?
+Will follow a second version of my patches to support more information
+in the hardware version 2 of elantech. The main changes is that I've
+done much further reverse engineering on the protocol, and found out that:
+ * the width is acutally reported on 6 bits (not just 4)
+ * the coordinates of the three finger touch are rerported as a one
+finger touch
+ * it's possible to differentiate between 3 and 4 fingers touch
 
-Isn't psmouse_reconnect() the first in psmouse-base.c that gets called
-after waking up from hibernation/suspend?
-And should all ps2 devices get a reset or only the one which needs it
-(synaptic touchpads not handled by synaptics driver)?
+The second patch to add MT support has only be adapted to work better
+with mousedev, as suggested by Dmitry.
 
+Patches are against git input-linux for-linus.
 
+See you,
+Eric

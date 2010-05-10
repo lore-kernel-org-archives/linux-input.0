@@ -1,56 +1,97 @@
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [alsa-devel] [PATCH 2.6.34-rc5 v2] HID: Prodikeys PC-MIDI HID
- Driver
-Date: Mon, 10 May 2010 09:48:56 +0200
-Message-ID: <4BE7BA68.90600@ladisch.de>
-References: <4BE6E4FA.10204@yahoo.co.uk>
+From: "Oskar Schirmer" <os@emlix.com>
+Subject: [PATCH v2] ad7877: keep dma rx buffers in seperate cache lines
+Date: Mon, 10 May 2010 12:34:02 +0200
+Message-ID: <1273487642-2169-1-git-send-email-os@emlix.com>
+References: <1273142265-11929-2-git-send-email-os@emlix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:53158 "EHLO
-	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751923Ab0EJHs7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 03:48:59 -0400
-In-Reply-To: <4BE6E4FA.10204@yahoo.co.uk>
+Received: from mx1.emlix.com ([193.175.82.87]:55169 "EHLO mx1.emlix.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752650Ab0EJKeN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 May 2010 06:34:13 -0400
+In-Reply-To: <1273142265-11929-2-git-send-email-os@emlix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Don Prince <dhprince.devel@yahoo.co.uk>
-Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+To: Michael Hennerich <Michael.Hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oskar Schirmer <os@emlix.com>, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
 
-Don Prince wrote:
-> A specialised HID driver for the Creative Prodikeys PC-MIDI USB Keyboard.
-> 
-> The Prodikeys PC-MIDI is a multifunction keyboard comprising a qwerty 
-> 
-> keyboard, multimedia keys and a touch sensitive musical keyboard.
-> 
-> The specialised HID driver adds full support for the musical keyboard 
-> 
-> and extra multimedia keys which are not currently handled by the default 
-> 
-> HID driver.
-> 
-> The specialised HID driver interfaces with Alsa, and presents the midi 
-> 
-> keyboard as a Rawmidi device. Sustain duration, octave shifting and the  
-> 
-> midi output channel can be read/written form userspace  via sysfs.
+With dma based spi transmission, data corruption
+is observed occasionally. With dma buffers located
+right next to msg and xfer fields, cache lines
+correctly flushed in preparation for dma usage
+may be polluted again when writing to fields
+in the same cache line.
 
-Thunderbird does this when it reads the text from another mail (neither
-directly typed in nor pasted from the clipboard); the patch itself is
-fine.
+Make sure cache fields used with dma do not
+share cache lines with fields changed during
+dma handling. As both fields are part of a
+struct that is allocated via kzalloc, thus
+cache aligned, moving the fields to the 1st
+position and insert padding for alignment
+does the job.
 
-> Signed-off-by: Don Prince <dhprince-devel@yahoo.co.uk>
+Signed-off-by: Oskar Schirmer <os@emlix.com>
+Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
+Signed-off-by: Oliver Schneidewind <osw@emlix.com>
+Signed-off-by: Johannes Weiner <jw@emlix.com>
+---
+ drivers/input/touchscreen/ad7877.c |   18 +++++++++++++++---
+ 1 files changed, 15 insertions(+), 3 deletions(-)
 
-for the ALSA parts:
-Acked-by: Clemens Ladisch <clemens@ladisch.de>
+v2: add a comment to explain why alignment is needed
 
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
+reen/ad7877.c
+index 9cfc8b5..69ebacf 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -153,15 +153,29 @@ enum {
+  */
+=20
+ struct ser_req {
++	u16			sample;
++	/*
++	 * DMA (thus cache coherency maintainance) requires the
++	 * transfer buffers to live in their own cache lines.
++	 */
++	char			__padalign[L1_CACHE_BYTES - sizeof(u16)];
++
+ 	u16			reset;
+ 	u16			ref_on;
+ 	u16			command;
+-	u16			sample;
+ 	struct spi_message	msg;
+ 	struct spi_transfer	xfer[6];
+ };
+=20
+ struct ad7877 {
++	u16			conversion_data[AD7877_NR_SENSE];
++	/*
++	 * DMA (thus cache coherency maintainance) requires the
++	 * transfer buffers to live in their own cache lines.
++	 */
++	char			__padalign[L1_CACHE_BYTES
++					- AD7877_NR_SENSE * sizeof(u16)];
++
+ 	struct input_dev	*input;
+ 	char			phys[32];
+=20
+@@ -182,8 +196,6 @@ struct ad7877 {
+ 	u8			averaging;
+ 	u8			pen_down_acc_interval;
+=20
+-	u16			conversion_data[AD7877_NR_SENSE];
+-
+ 	struct spi_transfer	xfer[AD7877_NR_SENSE + 2];
+ 	struct spi_message	msg;
+=20
+--=20
+1.5.3.7
 
-You should send the patch not only to the list but also to the HID
-maintainer.
-
-
-Regards,
-Clemens
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

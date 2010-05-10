@@ -1,41 +1,50 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Mon, 10 May 2010 17:27:30 -0400
-Message-ID: <AANLkTinp6wpCTgvq2Vqj4GZRcsM8-vdOm4oI6MMKaedj@mail.gmail.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	<1273488154-2993-1-git-send-email-os@emlix.com> <20100510142225.4bf215ef.akpm@linux-foundation.org>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 2/2 v3] elantech: Report multitouch with proper ABS_MT
+ messages
+Date: Tue, 11 May 2010 00:27:57 +0200
+Message-ID: <4BE8886D.4040302@tudelft.nl>
+References: <4BE593AA.6040408@tudelft.nl> <4BE86886.2080909@tudelft.nl> <4BE8725D.1060703@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100510142225.4bf215ef.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:40088 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752816Ab0EJW2A (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 May 2010 18:28:00 -0400
+In-Reply-To: <4BE8725D.1060703@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, May 10, 2010 at 17:22, Andrew Morton wrote:
-> On Mon, 10 May 2010 12:42:34 +0200 "Oskar Schirmer" wrote:
->> With dma based spi transmission, data corruption
->> is observed occasionally. With dma buffers located
->> right next to msg and xfer fields, cache lines
->> correctly flushed in preparation for dma usage
->> may be polluted again when writing to fields
->> in the same cache line.
->>
->> Make sure cache fields used with dma do not
->> share cache lines with fields changed during
->> dma handling. As both fields are part of a
->> struct that is allocated via kzalloc, thus
->> cache aligned, moving the fields to the 1st
->> position and insert padding for alignment
->> does the job.
->
-> This sounds odd. =C2=A0Doesn't it imply that some code somewhere is m=
-issing
-> some DMA synchronisation actions?
+Op 10-05-10 22:53, Henrik Rydberg schreef:
+> Hi again =C3=89ric,
+>=20
+> thanks for your changes, the first patch looks better now. However, b=
+oth patches
+> still have style problems. Also, the second patch now makes unrelated=
+ changes to
+> the ABS_X etc, so it is difficult to even know what was tested, and w=
+hether the
+> first patch really works as claimed.
+What are the style problems of the first patch? I tried to fix all of t=
+hem.
 
-i think it's kind of dumb and induces this sort of bug
-semi-frequently, but it is what the current DMA API requires (see like
-Documentation/spi/spi-summary)
--mike
+Concerning the second patch, it's necessary to change the lines with
+ABS_X, because otherwise the computation would be duplicated for the MT
+part and it would make everything look more complicated. Honestly, I
+think this change is still very limited and can easily be reviewed for
+not changing the semantic. Well, I think it would be a bit overkill, bu=
+t
+if really considered necessary, I can do a third intermediary patch...
+Dmitry let me know if you can merge the patch as is.
+
+Eric
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

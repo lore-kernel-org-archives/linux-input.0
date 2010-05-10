@@ -1,40 +1,43 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Mon, 10 May 2010 12:39:49 -0400
-Message-ID: <AANLkTiniq9gT5-x8tP3SRXvMvTAZ3VJF7pe21OLl1qDH@mail.gmail.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	<1273488154-2993-1-git-send-email-os@emlix.com>
+From: Christoph Fritz <chf.fritz@googlemail.com>
+Subject: Re: Reading keys
+Date: Mon, 10 May 2010 18:55:47 +0200
+Message-ID: <1273510547.10849.10.camel@lovely>
+References: <1273507273.2199.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yx0-f171.google.com ([209.85.210.171]:61109 "EHLO
-	mail-yx0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751446Ab0EJQkK (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:60050 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753835Ab0EJQtn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 12:40:10 -0400
-In-Reply-To: <1273488154-2993-1-git-send-email-os@emlix.com>
+	Mon, 10 May 2010 12:49:43 -0400
+Received: by fxm7 with SMTP id 7so294108fxm.19
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2010 09:49:41 -0700 (PDT)
+In-Reply-To: <1273507273.2199.13.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskar Schirmer <os@emlix.com>
-Cc: Michael Hennerich <Michael.Hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+To: Niko Rosvall <niko@fograven.net>
+Cc: Linux input <linux-input@vger.kernel.org>
 
-On Mon, May 10, 2010 at 06:42, Oskar Schirmer wrote:
-> With dma based spi transmission, data corruption
-> is observed occasionally. With dma buffers located
-> right next to msg and xfer fields, cache lines
-> correctly flushed in preparation for dma usage
-> may be polluted again when writing to fields
-> in the same cache line.
->
-> Make sure cache fields used with dma do not
-> share cache lines with fields changed during
-> dma handling. As both fields are part of a
-> struct that is allocated via kzalloc, thus
-> cache aligned, moving the fields to the 1st
-> position and insert padding for alignment
-> does the job.
+On Mon, 2010-05-10 at 19:01 +0300, Niko Rosvall wrote:
+> Hi All,
+> 
+> I'm new to Linux kernel and actually subscribed to this list today.
+> So, i'm not even sure is this the right place to ask this, but:
+> 
+> I want to make a kernel module which detects a keypress and then
+> disables it. E.g someone presses F1 and my module would just "eat" it.
 
-Acked-by: Mike Frysinger <vapier@gentoo.org>
+Interesting usecase, is it for a kiosk? And why don't you disable the
+keys in X or your application?
 
-i'm guessing Dmitry will pick it up now
--mike
+> Any examples and/or hints where to start? Some nice, small peace of code
+> would be very very nice.
+
+You could hack input_event() in drivers/input/input.c
+
+Thanks,
+ Christoph
+
+

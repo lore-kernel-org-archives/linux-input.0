@@ -1,62 +1,60 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: More info on the elantech touchpad
-Date: Mon, 10 May 2010 21:34:02 +0100
-Message-ID: <1273523642.2308.651.camel@localhost.localdomain>
-References: <4BE86ABE.5040400@tudelft.nl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Reading keys
+Date: Mon, 10 May 2010 13:48:44 -0700
+Message-ID: <20100510204843.GA30878@core.coreip.homeip.net>
+References: <1273507273.2199.13.camel@localhost>
+ <1273510547.10849.10.camel@lovely>
+ <1273521263.2199.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay1-v.mail.gandi.net ([217.70.178.75]:43981 "EHLO
-	relay1-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753605Ab0EJUeL (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:49780 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756879Ab0EJUsu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 16:34:11 -0400
-In-Reply-To: <4BE86ABE.5040400@tudelft.nl>
+	Mon, 10 May 2010 16:48:50 -0400
+Received: by pvb32 with SMTP id 32so170244pvb.19
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2010 13:48:49 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1273521263.2199.17.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
-Cc: Florian Ragwitz <rafl@debian.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Niko Rosvall <niko@fograven.net>
+Cc: Christoph Fritz <chf.fritz@googlemail.com>, Linux input <linux-input@vger.kernel.org>
 
-On Mon, 2010-05-10 at 22:21 +0200, =C9ric Piel wrote:
-> Hello,
->=20
-> There is a version apparently developed for the Dell mini 10 of the
-> elantech driver which brings some light on the versions and the proto=
-col.
->=20
-> It was hidden in some ubuntu git trees [1] (warning, the code hurts t=
-he
-> eyes):
-> http://zinc.ubuntu.com/git?p=3Dmid-team/hardy-netbook.git;a=3Dblob;f=3D=
-drivers/input/mouse/elantech.c;h=3Dd0e2cafed162428f72e3654f4dda85e08ea4=
-86b3;hb=3Drefs/heads/abi-22
->=20
-> In particular the elantech_init() function is very instructive about =
-the
-> various available versions.
->=20
-> Hopefully someone can merge this code with the current kernel version=
-,
-> so we get something that detects automatically most hardware...
+On Mon, May 10, 2010 at 10:54:23PM +0300, Niko Rosvall wrote:
+> On Mon, 2010-05-10 at 18:55 +0200, Christoph Fritz wrote:
+> > On Mon, 2010-05-10 at 19:01 +0300, Niko Rosvall wrote:
+> > > Hi All,
+> > > 
+> > > I'm new to Linux kernel and actually subscribed to this list today.
+> > > So, i'm not even sure is this the right place to ask this, but:
+> > > 
+> > > I want to make a kernel module which detects a keypress and then
+> > > disables it. E.g someone presses F1 and my module would just "eat" it.
+> > 
+> > Interesting usecase, is it for a kiosk? And why don't you disable the
+> > keys in X or your application?
+> > 
+> > > Any examples and/or hints where to start? Some nice, small peace of code
+> > > would be very very nice.
+> > 
+> > You could hack input_event() in drivers/input/input.c
+> > 
+> > Thanks,
+> >  Christoph
+> 
+> No, not for a kiosk or anything. Basically I'm just having fun here and
+> trying to do a module which would disable caps lock key completely.
+> 
+> Of course I can do that using xmodmap, but where's the fun then? ;)
+> 
+> I did modify input.c (didn't test it yet thought), but what I really
+> want is just a simple module so I can load and unload it when I want.
+> 
 
-Arjen already has the code, as well as some custom Elantech user-space
-drivers and code on top of it. But he didn't have any hardware.
+You need to define "filter" input handler - one that implements filter()
+instead of event(). This requires recent kernel though.
 
-I noticed that Peter was working on the Dell mini 10 Elantech touchpad
-and passed the code up to him as well.
-
-Cheers
-
-> See you,
-> Eric
->=20
-> [1] kudos to Bastien Nocera for spotting it out:
-> http://www.hadess.net/2009/05/dell-mini-10-gah.html
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

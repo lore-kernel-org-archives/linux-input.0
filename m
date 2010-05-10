@@ -1,38 +1,62 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
-Subject: More info on the elantech touchpad
-Date: Mon, 10 May 2010 22:21:18 +0200
-Message-ID: <4BE86ABE.5040400@tudelft.nl>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: More info on the elantech touchpad
+Date: Mon, 10 May 2010 21:34:02 +0100
+Message-ID: <1273523642.2308.651.camel@localhost.localdomain>
+References: <4BE86ABE.5040400@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:60605 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757192Ab0EJUVV (ORCPT
+Received: from relay1-v.mail.gandi.net ([217.70.178.75]:43981 "EHLO
+	relay1-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753605Ab0EJUeL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 16:21:21 -0400
+	Mon, 10 May 2010 16:34:11 -0400
+In-Reply-To: <4BE86ABE.5040400@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Ragwitz <rafl@debian.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: =?ISO-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
+Cc: Florian Ragwitz <rafl@debian.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hello,
+On Mon, 2010-05-10 at 22:21 +0200, =C9ric Piel wrote:
+> Hello,
+>=20
+> There is a version apparently developed for the Dell mini 10 of the
+> elantech driver which brings some light on the versions and the proto=
+col.
+>=20
+> It was hidden in some ubuntu git trees [1] (warning, the code hurts t=
+he
+> eyes):
+> http://zinc.ubuntu.com/git?p=3Dmid-team/hardy-netbook.git;a=3Dblob;f=3D=
+drivers/input/mouse/elantech.c;h=3Dd0e2cafed162428f72e3654f4dda85e08ea4=
+86b3;hb=3Drefs/heads/abi-22
+>=20
+> In particular the elantech_init() function is very instructive about =
+the
+> various available versions.
+>=20
+> Hopefully someone can merge this code with the current kernel version=
+,
+> so we get something that detects automatically most hardware...
 
-There is a version apparently developed for the Dell mini 10 of the
-elantech driver which brings some light on the versions and the protocol.
+Arjen already has the code, as well as some custom Elantech user-space
+drivers and code on top of it. But he didn't have any hardware.
 
-It was hidden in some ubuntu git trees [1] (warning, the code hurts the
-eyes):
-http://zinc.ubuntu.com/git?p=mid-team/hardy-netbook.git;a=blob;f=drivers/input/mouse/elantech.c;h=d0e2cafed162428f72e3654f4dda85e08ea486b3;hb=refs/heads/abi-22
+I noticed that Peter was working on the Dell mini 10 Elantech touchpad
+and passed the code up to him as well.
 
-In particular the elantech_init() function is very instructive about the
-various available versions.
+Cheers
 
-Hopefully someone can merge this code with the current kernel version,
-so we get something that detects automatically most hardware...
+> See you,
+> Eric
+>=20
+> [1] kudos to Bastien Nocera for spotting it out:
+> http://www.hadess.net/2009/05/dell-mini-10-gah.html
 
-See you,
-Eric
 
-[1] kudos to Bastien Nocera for spotting it out:
-http://www.hadess.net/2009/05/dell-mini-10-gah.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

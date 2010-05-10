@@ -1,17 +1,17 @@
 From: "Oskar Schirmer" <os@emlix.com>
-Subject: [PATCH v2] ad7877: keep dma rx buffers in seperate cache lines
-Date: Mon, 10 May 2010 12:34:02 +0200
-Message-ID: <1273487642-2169-1-git-send-email-os@emlix.com>
-References: <1273142265-11929-2-git-send-email-os@emlix.com>
+Subject: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Mon, 10 May 2010 12:42:34 +0200
+Message-ID: <1273488154-2993-1-git-send-email-os@emlix.com>
+References: <1273487642-2169-1-git-send-email-os@emlix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:55169 "EHLO mx1.emlix.com"
+Received: from mx1.emlix.com ([193.175.82.87]:53994 "EHLO mx1.emlix.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752650Ab0EJKeN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 06:34:13 -0400
-In-Reply-To: <1273142265-11929-2-git-send-email-os@emlix.com>
+	id S1752849Ab0EJKmn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 May 2010 06:42:43 -0400
+In-Reply-To: <1273487642-2169-1-git-send-email-os@emlix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Michael Hennerich <Michael.Hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -42,9 +42,11 @@ Signed-off-by: Johannes Weiner <jw@emlix.com>
 
 v2: add a comment to explain why alignment is needed
 
+v3: fix the typo in comment and layout (- to end of line)
+
 diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
 reen/ad7877.c
-index 9cfc8b5..69ebacf 100644
+index 885354c..9ebb1b4 100644
 --- a/drivers/input/touchscreen/ad7877.c
 +++ b/drivers/input/touchscreen/ad7877.c
 @@ -153,15 +153,29 @@ enum {
@@ -53,7 +55,7 @@ index 9cfc8b5..69ebacf 100644
  struct ser_req {
 +	u16			sample;
 +	/*
-+	 * DMA (thus cache coherency maintainance) requires the
++	 * DMA (thus cache coherency maintenance) requires the
 +	 * transfer buffers to live in their own cache lines.
 +	 */
 +	char			__padalign[L1_CACHE_BYTES - sizeof(u16)];
@@ -69,11 +71,11 @@ index 9cfc8b5..69ebacf 100644
  struct ad7877 {
 +	u16			conversion_data[AD7877_NR_SENSE];
 +	/*
-+	 * DMA (thus cache coherency maintainance) requires the
++	 * DMA (thus cache coherency maintenance) requires the
 +	 * transfer buffers to live in their own cache lines.
 +	 */
-+	char			__padalign[L1_CACHE_BYTES
-+					- AD7877_NR_SENSE * sizeof(u16)];
++	char			__padalign[L1_CACHE_BYTES -
++					AD7877_NR_SENSE * sizeof(u16)];
 +
  	struct input_dev	*input;
  	char			phys[32];

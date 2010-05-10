@@ -1,39 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: add multi-input quirk for eGalax Touchcontroller
-Date: Mon, 10 May 2010 08:52:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005100851540.9849@pobox.suse.cz>
-References: <20100202034040.GA16880@barra.bne.redhat.com> <20100510045022.GA31327@barra.bne.redhat.com>
+From: Clemens Ladisch <clemens@ladisch.de>
+Subject: Re: [alsa-devel] [PATCH 2.6.34-rc5 v2] HID: Prodikeys PC-MIDI HID
+ Driver
+Date: Mon, 10 May 2010 09:48:56 +0200
+Message-ID: <4BE7BA68.90600@ladisch.de>
+References: <4BE6E4FA.10204@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:38657 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752298Ab0EJGwZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 02:52:25 -0400
-In-Reply-To: <20100510045022.GA31327@barra.bne.redhat.com>
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:53158 "EHLO
+	out1.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751923Ab0EJHs7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 May 2010 03:48:59 -0400
+In-Reply-To: <4BE6E4FA.10204@yahoo.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Don Prince <dhprince.devel@yahoo.co.uk>
+Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2010, Peter Hutterer wrote:
-
-> > I've got one of these devices on my desk and it seems that it suffers from
-> > the ABS_Z/ABS_RX issue that we've seen in other devices before. This patch
-> > uses the same reasoning as 9db630b48a99adb4156e205b812fba8959644280.
+Don Prince wrote:
+> A specialised HID driver for the Creative Prodikeys PC-MIDI USB Keyboard.
 > 
-> See https://patchwork.kernel.org/patch/76210/ for the original thread.
-> This patch never got merged, were you waiting on me or did it just drop
-> under the table?
+> The Prodikeys PC-MIDI is a multifunction keyboard comprising a qwerty 
 > 
-> I'm getting positive reports from users that this indeed fixes the issues
-> for their device.
-> https://bugzilla.redhat.com/show_bug.cgi?id=473144
+> keyboard, multimedia keys and a touch sensitive musical keyboard.
+> 
+> The specialised HID driver adds full support for the musical keyboard 
+> 
+> and extra multimedia keys which are not currently handled by the default 
+> 
+> HID driver.
+> 
+> The specialised HID driver interfaces with Alsa, and presents the midi 
+> 
+> keyboard as a Rawmidi device. Sustain duration, octave shifting and the  
+> 
+> midi output channel can be read/written form userspace  via sysfs.
 
-Sorry, I have lost the original thread. I have applied the patch now.
+Thunderbird does this when it reads the text from another mail (neither
+directly typed in nor pasted from the clipboard); the patch itself is
+fine.
 
-Thanks,
+> Signed-off-by: Don Prince <dhprince-devel@yahoo.co.uk>
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+for the ALSA parts:
+Acked-by: Clemens Ladisch <clemens@ladisch.de>
+
+
+You should send the patch not only to the list but also to the HID
+maintainer.
+
+
+Regards,
+Clemens

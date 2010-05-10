@@ -1,97 +1,76 @@
-From: "Oskar Schirmer" <os@emlix.com>
-Subject: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Mon, 10 May 2010 12:42:34 +0200
-Message-ID: <1273488154-2993-1-git-send-email-os@emlix.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 1/2] elantech: Improved protocol support for hardware
+ 2
+Date: Mon, 10 May 2010 14:02:51 +0200
+Message-ID: <4BE7F5EB.9060904@tudelft.nl>
+References: <4BE59352.4070407@tudelft.nl> <4BE5A353.2080308@euromail.se> <4BE604CC.7010903@tudelft.nl> <4BE6EBF6.7060900@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:53994 "EHLO mx1.emlix.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752849Ab0EJKmn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 May 2010 06:42:43 -0400
-In-Reply-To: <1273487642-2169-1-git-send-email-os@emlix.com>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:60907 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751955Ab0EJMCy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 May 2010 08:02:54 -0400
+In-Reply-To: <4BE6EBF6.7060900@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <Michael.Hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oskar Schirmer <os@emlix.com>, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-With dma based spi transmission, data corruption
-is observed occasionally. With dma buffers located
-right next to msg and xfer fields, cache lines
-correctly flushed in preparation for dma usage
-may be polluted again when writing to fields
-in the same cache line.
+Op 09-05-10 19:08, Henrik Rydberg schreef:
+> =C3=89ric Piel wrote:
+>> Op 08-05-10 19:45, Henrik Rydberg schreef:
+>>> Hi =C3=89ric,
+>>>
+>> :
+>>> Please run the ./scripts/checkpatch.pl on patches before submitting=
+ them, to
+>>> remove trivial formatting errors.
+>> Ooops, I usually run it... forgot this time, while it would have bee=
+n
+>> very worthy. Thanks for noticing.
+>> Here is a version fixed.
+>=20
+> Thanks, comments below.
+:
+Thanks for the feedback. I'll fix the comments and resend.
 
-Make sure cache fields used with dma do not
-share cache lines with fields changed during
-dma handling. As both fields are part of a
-struct that is allocated via kzalloc, thus
-cache aligned, moving the fields to the 1st
-position and insert padding for alignment
-does the job.
+>> @@ -467,6 +480,8 @@ static void elantech_set_input_params(struct psm=
+ouse
+>> *psmouse)
+>>  		break;
+>>
+>>  	case 2:
+>> +		__set_bit(BTN_TOOL_QUADTAP, dev->keybit);
+>> +		input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2, ETP_WMAX_V=
+2,
+>> 0, 0);
+>=20
+> Is there an appropriate signal-to-noise ratio for the width? How does=
+ the device
+> handle fingers going away? Does it send one or several zero-width eve=
+nts?
+What do you mean by SNR for the width? The minimal variation which is
+significant for an actual change in the width of the finger? On my
+hardware it was fairly precise, and a unit was stable as long as I kept
+the finger pressed the same way. Actually at some low pressures I could
+swear it detects my blood pulse ;-) That said, in all the measures the
+values were between 13 and 55, but I put as min and max 0 and 64. I did
+this because I'm not sure it's the same with every version of the
+hardware (apparently some old versions of the hardware even just report
+0 all the time). It sounded more conservative this way. Is that the
+right way?
 
-Signed-off-by: Oskar Schirmer <os@emlix.com>
-Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
-Signed-off-by: Oliver Schneidewind <osw@emlix.com>
-Signed-off-by: Johannes Weiner <jw@emlix.com>
----
- drivers/input/touchscreen/ad7877.c |   18 +++++++++++++++---
- 1 files changed, 15 insertions(+), 3 deletions(-)
+When you leave the last finger, the device sends one message with "0
+finger". However, as it is currently working, the driver then just send=
+s
+one "BTN_TOUCH 0", but not any change in the ABS_TOOL_WIDTH. According
+to the input protocol, should it also sends in this case a
+"ABS_TOOL_WIDTH 0"?
 
-v2: add a comment to explain why alignment is needed
-
-v3: fix the typo in comment and layout (- to end of line)
-
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
-reen/ad7877.c
-index 885354c..9ebb1b4 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -153,15 +153,29 @@ enum {
-  */
-=20
- struct ser_req {
-+	u16			sample;
-+	/*
-+	 * DMA (thus cache coherency maintenance) requires the
-+	 * transfer buffers to live in their own cache lines.
-+	 */
-+	char			__padalign[L1_CACHE_BYTES - sizeof(u16)];
-+
- 	u16			reset;
- 	u16			ref_on;
- 	u16			command;
--	u16			sample;
- 	struct spi_message	msg;
- 	struct spi_transfer	xfer[6];
- };
-=20
- struct ad7877 {
-+	u16			conversion_data[AD7877_NR_SENSE];
-+	/*
-+	 * DMA (thus cache coherency maintenance) requires the
-+	 * transfer buffers to live in their own cache lines.
-+	 */
-+	char			__padalign[L1_CACHE_BYTES -
-+					AD7877_NR_SENSE * sizeof(u16)];
-+
- 	struct input_dev	*input;
- 	char			phys[32];
-=20
-@@ -182,8 +196,6 @@ struct ad7877 {
- 	u8			averaging;
- 	u8			pen_down_acc_interval;
-=20
--	u16			conversion_data[AD7877_NR_SENSE];
--
- 	struct spi_transfer	xfer[AD7877_NR_SENSE + 2];
- 	struct spi_message	msg;
-=20
---=20
-1.5.3.7
-
+Eric
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

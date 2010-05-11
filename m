@@ -1,62 +1,33 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-Date: Mon, 10 May 2010 22:45:52 -0700
-Message-ID: <20100511054552.GA1714@core.coreip.homeip.net>
-References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
- <20100421065550.GL4364@core.coreip.homeip.net>
- <27F9C60D11D683428E133F85D2BB4A53043DFD5320@dlee03.ent.ti.com>
- <27F9C60D11D683428E133F85D2BB4A53043DFD5323@dlee03.ent.ti.com>
- <20100511044156.GA21299@core.coreip.homeip.net>
- <27F9C60D11D683428E133F85D2BB4A53043DFD532E@dlee03.ent.ti.com>
+Subject: Re: [PATCH 2/2] iforce: Fix Gullemot Jet Leader 3D entry
+Date: Mon, 10 May 2010 22:53:19 -0700
+Message-ID: <20100511055319.GB5064@core.coreip.homeip.net>
+References: <1273181641-24546-1-git-send-email-marek.vasut@gmail.com>
+ <1273181641-24546-2-git-send-email-marek.vasut@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:40272 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752694Ab0EKFqA (ORCPT
+Received: from mail-pz0-f204.google.com ([209.85.222.204]:59394 "EHLO
+	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754599Ab0EKFxY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 01:46:00 -0400
+	Tue, 11 May 2010 01:53:24 -0400
+Received: by pzk42 with SMTP id 42so551481pzk.4
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2010 22:53:24 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043DFD532E@dlee03.ent.ti.com>
+In-Reply-To: <1273181641-24546-2-git-send-email-marek.vasut@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Arce, Abraham" <x0066660@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Kevin Hilman <khilman@deeprootsystems.com>
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, May 11, 2010 at 12:03:44AM -0500, Arce, Abraham wrote:
-> Hi again Dmitry,
+On Thu, May 06, 2010 at 11:34:01PM +0200, Marek Vasut wrote:
+> USB ID entry for "Gullemot Jet Leader 3D" wasn't the same in iforce-main.c and
+> iforce-usb.c . Fix this.
 > 
-> > No worries, although at first I was surprised that Trilok spoke exactly
-> > the same words I did ;)
-> > 
-> 
-> :)
-> 
-> > > > > > +
-> > > > > > +/* Interrupt thread handler thread */
-> > > > > > +
-> > > > > > +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
-> > > > > > +{
-> > > > >
-> > > > > Why is iti threaded? I fo not see anything that will sleep.
-> > >
-> > >
-> > > It was implemented based on previous comments...
-> > >
-> > 
-> > Would you point me to that comment? Like I said, I do not see anything
-> > that would possibly sleep in this routine so you don't need to use
-> > threaded interrupt.
-> 
-> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26352.html
-> 
+> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
 
-Thanks.
-
-I think Kevin meant "use theaded IRQ, wherever possible" [if we need
-to sleep in interrupt handler].
-
-Adding him to CC.
+Applied both (changed Gullemont to Guillemont though). Thank you Marek.
 
 -- 
 Dmitry

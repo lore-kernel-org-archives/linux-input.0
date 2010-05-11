@@ -1,79 +1,54 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-Date: Tue, 11 May 2010 14:39:53 -0700
-Message-ID: <87632ut8wm.fsf@deeprootsystems.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
-	<20100421065550.GL4364@core.coreip.homeip.net>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD5320@dlee03.ent.ti.com>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD5323@dlee03.ent.ti.com>
-	<20100511044156.GA21299@core.coreip.homeip.net>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD532E@dlee03.ent.ti.com>
-	<20100511054552.GA1714@core.coreip.homeip.net>
-	<87sk5yebh8.fsf@deeprootsystems.com>
-	<20100511164136.GA7396@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Tue, 11 May 2010 14:53:59 -0700
+Message-ID: <20100511215359.GF7396@core.coreip.homeip.net>
+References: <20100511063309.GC9644@core.coreip.homeip.net>
+ <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
+ <AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com>
+ <1273608441.15067.1002.camel@calx>
+ <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
+ <alpine.DEB.2.00.1005111520260.1500@router.home>
+ <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
+ <alpine.DEB.2.00.1005111544330.8388@router.home>
+ <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+ <20100511214836.GH1726@emlix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100511164136.GA7396@core.coreip.homeip.net> (Dmitry Torokhov's message of "Tue\, 11 May 2010 09\:41\:37 -0700")
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:62731 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751647Ab0EKVyK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 May 2010 17:54:10 -0400
+Content-Disposition: inline
+In-Reply-To: <20100511214836.GH1726@emlix.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johannes Weiner <jw@emlix.com>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Tue, May 11, 2010 at 11:48:36PM +0200, Johannes Weiner wrote:
+> On Tue, May 11, 2010 at 04:54:41PM -0400, Mike Frysinger wrote:
+> > does the phrase "DMA safe buffer" imply cache alignment ?
+> 
+> I guess that depends on the architectural requirements.  On x86,
+> apparently, not so much.  On ARM, probably yes, as it's the
+> requirement to properly maintain coherency.
 
-> On Tue, May 11, 2010 at 07:53:23AM -0700, Kevin Hilman wrote:
->> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
->> 
->> > On Tue, May 11, 2010 at 12:03:44AM -0500, Arce, Abraham wrote:
->> >> Hi again Dmitry,
->> >> 
->> >> > No worries, although at first I was surprised that Trilok spoke exactly
->> >> > the same words I did ;)
->> >> > 
->> >> 
->> >> :)
->> >> 
->> >> > > > > > +
->> >> > > > > > +/* Interrupt thread handler thread */
->> >> > > > > > +
->> >> > > > > > +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
->> >> > > > > > +{
->> >> > > > >
->> >> > > > > Why is iti threaded? I fo not see anything that will sleep.
->> >> > >
->> >> > >
->> >> > > It was implemented based on previous comments...
->> >> > >
->> >> > 
->> >> > Would you point me to that comment? Like I said, I do not see anything
->> >> > that would possibly sleep in this routine so you don't need to use
->> >> > threaded interrupt.
->> >> 
->> >> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26352.html
->> >> 
->> >
->> > Thanks.
->> >
->> > I think Kevin meant "use theaded IRQ, wherever possible" [if we need
->> > to sleep in interrupt handler].
->> 
->> Actually, even interrupts that don't sleep can use threaded IRQs.  I
->> prefer to see threaded IRQs wherever possible.  Especially since we're
->> moving towards a world where all interrupts are run with interrupts
->> disabled, using threaded IRQs minimizes interrupts-off critical
->> sections.
->> 
->
-> I think in this case threaded IRQ would just add unnecessary overhead.
-> There are no scanning delays, just a few register reads and writes.
-> Input core will take some cycles propagating the events but it disables
-> interrupts anyway. Setting up a separate thread and scheduling does not
-> make much sense here.
->
-> Also I am not sure if arches with large number of interrupts would want
-> to move to all threaded interrupts model.
+It looks liek ARM (and a few others) do this:
 
-OK, it's your call for this subsystem.
+[dtor@hammer work]$ grep -r ARCH_KMALLOC_MINALIGN arch/
+arch/sh/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+arch/frv/include/asm/mem-layout.h:#define       ARCH_KMALLOC_MINALIGN           8
+arch/powerpc/include/asm/page_32.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+arch/arm/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN      L1_CACHE_BYTES
+arch/microblaze/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+arch/mips/include/asm/mach-tx49xx/kmalloc.h: * All happy, no need to define ARCH_KMALLOC_MINALIGN
+arch/mips/include/asm/mach-ip27/kmalloc.h: * All happy, no need to define ARCH_KMALLOC_MINALIGN
+arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALIGN 32
+arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALIGN 128
+arch/mips/include/asm/mach-generic/kmalloc.h:#define ARCH_KMALLOC_MINALIGN      128
+arch/avr32/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN    L1_CACHE_BYTES
 
-Kevin
+-- 
+Dmitry

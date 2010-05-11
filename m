@@ -1,26 +1,22 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [RFC/PATCH] elantech - use all 3 bytes when checking version
-Date: Tue, 11 May 2010 01:15:32 -0700
-Message-ID: <20100511081532.GA10404@core.coreip.homeip.net>
+Subject: [PATCH 1/3] Input: elantech - use all 3 bytes when checking version
+Date: Tue, 11 May 2010 01:18:48 -0700
+Message-ID: <20100511081848.10546.95545.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:45953 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752643Ab0EKIPh (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:42276 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751895Ab0EKISw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 04:15:37 -0400
-Received: by pxi5 with SMTP id 5so2086629pxi.19
-        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 01:15:36 -0700 (PDT)
-Content-Disposition: inline
+	Tue, 11 May 2010 04:18:52 -0400
+Received: by pvb32 with SMTP id 32so410917pvb.19
+        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 01:18:51 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Input <linux-input@vger.kernel.org>
-Cc: Florian Ragwitz <rafl@debian.org>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Arjan Opmeer <arjan@opmeer.net>
-
-Input: elantech - use all 3 bytes when checking version
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Florian Ragwitz <rafl@debian.org>, =?utf-8?b?w4lyaWM=?= Piel <E.A.B.Piel@tudelft.nl>, Arjan Opmeer <arjan@opmeer.net>
 
 Apparently all 3 bytes returned by ETP_FW_VERSION_QUERY are significant
 and shoudl be taken into account when matching hardware version/features.
@@ -31,7 +27,6 @@ Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
  drivers/input/mouse/elantech.c |   24 ++++++++++++------------
  drivers/input/mouse/elantech.h |    5 ++---
  2 files changed, 14 insertions(+), 15 deletions(-)
-
 
 diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
 index 0520c2e..112b4ee 100644
@@ -133,5 +128,4 @@ index feac5f7..ac57bde 100644
  	unsigned char parity[256];
  };
  
--- 
-Dmitry
+

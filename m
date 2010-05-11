@@ -1,81 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-Date: Tue, 11 May 2010 09:41:37 -0700
-Message-ID: <20100511164136.GA7396@core.coreip.homeip.net>
-References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
- <20100421065550.GL4364@core.coreip.homeip.net>
- <27F9C60D11D683428E133F85D2BB4A53043DFD5320@dlee03.ent.ti.com>
- <27F9C60D11D683428E133F85D2BB4A53043DFD5323@dlee03.ent.ti.com>
- <20100511044156.GA21299@core.coreip.homeip.net>
- <27F9C60D11D683428E133F85D2BB4A53043DFD532E@dlee03.ent.ti.com>
- <20100511054552.GA1714@core.coreip.homeip.net>
- <87sk5yebh8.fsf@deeprootsystems.com>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Tue, 11 May 2010 09:52:28 -0700
+Message-ID: <20100511165228.GC7396@core.coreip.homeip.net>
+References: <1273487642-2169-1-git-send-email-os@emlix.com>
+ <1273488154-2993-1-git-send-email-os@emlix.com>
+ <20100510142225.4bf215ef.akpm@linux-foundation.org>
+ <20100511060547.GA9644@core.coreip.homeip.net>
+ <AANLkTikA9s6lpO2uDuIup8BwGOYYHQ9yQxS36PBSIttX@mail.gmail.com>
+ <20100511062110.GB9644@core.coreip.homeip.net>
+ <AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
+ <20100511063309.GC9644@core.coreip.homeip.net>
+ <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f204.google.com ([209.85.222.204]:59252 "EHLO
+Received: from mail-pz0-f204.google.com ([209.85.222.204]:37508 "EHLO
 	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752277Ab0EKQlq (ORCPT
+	with ESMTP id S1751155Ab0EKQwg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 12:41:46 -0400
+	Tue, 11 May 2010 12:52:36 -0400
 Content-Disposition: inline
-In-Reply-To: <87sk5yebh8.fsf@deeprootsystems.com>
+In-Reply-To: <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, Matt Mackall <mpm@selenic.com>
 
-On Tue, May 11, 2010 at 07:53:23AM -0700, Kevin Hilman wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Tue, May 11, 2010 at 09:42:03AM +0300, Pekka Enberg wrote:
+> Hi Dmitry,
 > 
-> > On Tue, May 11, 2010 at 12:03:44AM -0500, Arce, Abraham wrote:
-> >> Hi again Dmitry,
-> >> 
-> >> > No worries, although at first I was surprised that Trilok spoke exactly
-> >> > the same words I did ;)
-> >> > 
-> >> 
-> >> :)
-> >> 
-> >> > > > > > +
-> >> > > > > > +/* Interrupt thread handler thread */
-> >> > > > > > +
-> >> > > > > > +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
-> >> > > > > > +{
-> >> > > > >
-> >> > > > > Why is iti threaded? I fo not see anything that will sleep.
-> >> > >
-> >> > >
-> >> > > It was implemented based on previous comments...
-> >> > >
-> >> > 
-> >> > Would you point me to that comment? Like I said, I do not see anything
-> >> > that would possibly sleep in this routine so you don't need to use
-> >> > threaded interrupt.
-> >> 
-> >> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26352.html
-> >> 
+> On Tue, May 11, 2010 at 9:33 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >> what guarantee exactly do you have for that statement ?
 > >
-> > Thanks.
-> >
-> > I think Kevin meant "use theaded IRQ, wherever possible" [if we need
-> > to sleep in interrupt handler].
+> > The data is kmalloced, kmalloc aligns on cacheline boundary AFAIK which
+> > means that next kmalloc data chunk will not share "our" cacheline.
 > 
-> Actually, even interrupts that don't sleep can use threaded IRQs.  I
-> prefer to see threaded IRQs wherever possible.  Especially since we're
-> moving towards a world where all interrupts are run with interrupts
-> disabled, using threaded IRQs minimizes interrupts-off critical
-> sections.
+> No, there are no such guarantees. kmalloc() aligns on
+> ARCH_KMALLOC_MINALIGN or ARCH_SLAB_MINALIGN depending on which is
+> bigger but beyond that, there are no guarantees. You can, of course,
+> use kmem_cache_create() with SLAB_HWCACHE_ALIGN to align on cacheline
+> boundary.
 > 
 
-I think in this case threaded IRQ would just add unnecessary overhead.
-There are no scanning delays, just a few register reads and writes.
-Input core will take some cycles propagating the events but it disables
-interrupts anyway. Setting up a separate thread and scheduling does not
-make much sense here.
-
-Also I am not sure if arches with large number of interrupts would want
-to move to all threaded interrupts model.
+The architectures that we are trying to deal with here should be forcing
+kmalloc to the cache boundary already though - otherwise they would not
+be able to used kmalloced memory for DMA buffers at all. Or am I utterly
+lost here?
 
 -- 
 Dmitry

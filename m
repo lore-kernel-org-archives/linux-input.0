@@ -1,40 +1,123 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 2/2] iforce: Fix Gullemot Jet Leader 3D entry
-Date: Tue, 11 May 2010 10:47:45 +0100
-Message-ID: <1273571265.2308.1454.camel@localhost.localdomain>
-References: <1273181641-24546-1-git-send-email-marek.vasut@gmail.com>
-	 <1273181641-24546-2-git-send-email-marek.vasut@gmail.com>
-	 <20100511055319.GB5064@core.coreip.homeip.net>
+From: "Oskar Schirmer" <os@emlix.com>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Tue, 11 May 2010 16:12:11 +0200
+Message-ID: <20100511141210.GA28765@emlix.com>
+References: <1273487642-2169-1-git-send-email-os@emlix.com>
+ <1273488154-2993-1-git-send-email-os@emlix.com>
+ <20100510142225.4bf215ef.akpm@linux-foundation.org>
+ <20100511060547.GA9644@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-v.mail.gandi.net ([217.70.178.78]:53423 "EHLO
-	relay4-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751747Ab0EKJsI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 05:48:08 -0400
-In-Reply-To: <20100511055319.GB5064@core.coreip.homeip.net>
+Received: from mx1.emlix.com ([193.175.82.87]:56745 "EHLO mx1.emlix.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751449Ab0EKOMW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 May 2010 10:12:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20100511060547.GA9644@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, Mike Frysinger <vapier@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel =?utf-8?B?R2zDtmNrbmVy?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
 
-On Mon, 2010-05-10 at 22:53 -0700, Dmitry Torokhov wrote:
-> On Thu, May 06, 2010 at 11:34:01PM +0200, Marek Vasut wrote:
-> > USB ID entry for "Gullemot Jet Leader 3D" wasn't the same in iforce=
--main.c and
-> > iforce-usb.c . Fix this.
-> >=20
-> > Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+On Mon, May 10, 2010 at 23:05:47 -0700, Dmitry Torokhov wrote:
+> OK, then I have the following which I will apply unless someone shout=
+s.
+
+Looks good, we tested it on G45, works fine.
+
+  Oskar
+
+
+> --=20
+> Dmitry
 >=20
-> Applied both (changed Gullemont to Guillemont though). Thank you Mare=
-k.
+> Input: ad7877 - keep dma rx buffers in seperate cache lines
+>=20
+> From: Oskar Schirmer <os@emlix.com>
+>=20
+> With dma based spi transmission, data corruption is observed
+> occasionally. With dma buffers located right next to msg and
+> xfer fields, cache lines correctly flushed in preparation for
+> dma usage may be polluted again when writing to fields in the
+> same cache line.
+>=20
+> Make sure cache fields used with dma do not share cache lines
+> with fields changed during dma handling. As both fields are part
+> of a struct that is allocated via kzalloc, thus cache aligned,
+> moving the fields to the 1st position and insert padding for
+> alignment does the job.
+>=20
+> Signed-off-by: Oskar Schirmer <os@emlix.com>
+> Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
+> Signed-off-by: Oliver Schneidewind <osw@emlix.com>
+> Signed-off-by: Johannes Weiner <jw@emlix.com>
+> Acked-by: Mike Frysinger <vapier@gentoo.org>
+> [dtor@mail.ru - changed to use ___cacheline_aligned at suggestion
+>  of akpm]
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>=20
+>  drivers/input/touchscreen/ad7877.c |   15 ++++++++++++---
+>  1 files changed, 12 insertions(+), 3 deletions(-)
+>=20
+>=20
+> diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touch=
+screen/ad7877.c
+> index e019d53..0d2d7e5 100644
+> --- a/drivers/input/touchscreen/ad7877.c
+> +++ b/drivers/input/touchscreen/ad7877.c
+> @@ -156,9 +156,14 @@ struct ser_req {
+>  	u16			reset;
+>  	u16			ref_on;
+>  	u16			command;
+> -	u16			sample;
+>  	struct spi_message	msg;
+>  	struct spi_transfer	xfer[6];
+> +
+> +	/*
+> +	 * DMA (thus cache coherency maintenance) requires the
+> +	 * transfer buffers to live in their own cache lines.
+> +	 */
+> +	u16 sample ____cacheline_aligned;
+>  };
+> =20
+>  struct ad7877 {
+> @@ -182,8 +187,6 @@ struct ad7877 {
+>  	u8			averaging;
+>  	u8			pen_down_acc_interval;
+> =20
+> -	u16			conversion_data[AD7877_NR_SENSE];
+> -
+>  	struct spi_transfer	xfer[AD7877_NR_SENSE + 2];
+>  	struct spi_message	msg;
+> =20
+> @@ -195,6 +198,12 @@ struct ad7877 {
+>  	spinlock_t		lock;
+>  	struct timer_list	timer;		/* P: lock */
+>  	unsigned		pending:1;	/* P: lock */
+> +
+> +	/*
+> +	 * DMA (thus cache coherency maintenance) requires the
+> +	 * transfer buffers to live in their own cache lines.
+> +	 */
+> +	u16 conversion_data[AD7877_NR_SENSE] ____cacheline_aligned;
+>  };
+> =20
+>  static int gpio3;
+>=20
+>=20
 
-Huh, =E2=80=9CGuillemot=E2=80=9D:
-http://www.joy-stick.net/reviews/joysticks/jetlead.htm
+--=20
+oskar schirmer, emlix gmbh, http://www.emlix.com
+fon +49 551 30664-0, fax -11, bahnhofsallee 1b, 37081 g=C3=B6ttingen, g=
+ermany
+sitz der gesellschaft: g=C3=B6ttingen, amtsgericht g=C3=B6ttingen hr b =
+3160
+gesch=C3=A4ftsf=C3=BChrer: dr. uwe kracke, ust-idnr.: de 205 198 055
 
-
+emlix - your embedded linux partner
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

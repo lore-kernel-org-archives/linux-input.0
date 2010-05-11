@@ -1,190 +1,36 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Tue, 11 May 2010 02:23:34 -0400
-Message-ID: <AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	<1273488154-2993-1-git-send-email-os@emlix.com> <20100510142225.4bf215ef.akpm@linux-foundation.org>
-	<20100511060547.GA9644@core.coreip.homeip.net> <AANLkTikA9s6lpO2uDuIup8BwGOYYHQ9yQxS36PBSIttX@mail.gmail.com>
-	<20100511062110.GB9644@core.coreip.homeip.net>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH 2/2] iforce: Fix Gullemot Jet Leader 3D entry
+Date: Tue, 11 May 2010 08:25:24 +0200
+Message-ID: <201005110825.24197.marek.vasut@gmail.com>
+References: <1273181641-24546-1-git-send-email-marek.vasut@gmail.com> <1273181641-24546-2-git-send-email-marek.vasut@gmail.com> <20100511055319.GB5064@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:45425 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932491Ab0EKGXz convert rfc822-to-8bit (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:55996 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932555Ab0EKG0v convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 02:23:55 -0400
-In-Reply-To: <20100511062110.GB9644@core.coreip.homeip.net>
+	Tue, 11 May 2010 02:26:51 -0400
+Received: by fxm4 with SMTP id 4so153818fxm.19
+        for <linux-input@vger.kernel.org>; Mon, 10 May 2010 23:26:49 -0700 (PDT)
+In-Reply-To: <20100511055319.GB5064@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, May 11, 2010 at 02:21, Dmitry Torokhov wrote:
-> On Tue, May 11, 2010 at 02:11:41AM -0400, Mike Frysinger wrote:
->> On Tue, May 11, 2010 at 02:05, Dmitry Torokhov wrote:
->> > On Mon, May 10, 2010 at 02:22:25PM -0700, Andrew Morton wrote:
->> >> On Mon, 10 May 2010 12:42:34 +0200 Oskar Schirmer wrote:
->> >> > With dma based spi transmission, data corruption
->> >> > is observed occasionally. With dma buffers located
->> >> > right next to msg and xfer fields, cache lines
->> >> > correctly flushed in preparation for dma usage
->> >> > may be polluted again when writing to fields
->> >> > in the same cache line.
->> >> >
->> >> > Make sure cache fields used with dma do not
->> >> > share cache lines with fields changed during
->> >> > dma handling. As both fields are part of a
->> >> > struct that is allocated via kzalloc, thus
->> >> > cache aligned, moving the fields to the 1st
->> >> > position and insert padding for alignment
->> >> > does the job.
->> >>
->> >> This sounds odd. =C2=A0Doesn't it imply that some code somewhere =
-is missing
->> >> some DMA synchronisation actions?
->> >>
->> >> >
->> >> > v2: add a comment to explain why alignment is needed
->> >> >
->> >> > v3: fix the typo in comment and layout (- to end of line)
->> >> >
->> >> > diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input=
-/touchscreen/ad7877.c
->> >> > index 885354c..9ebb1b4 100644
->> >> > --- a/drivers/input/touchscreen/ad7877.c
->> >> > +++ b/drivers/input/touchscreen/ad7877.c
->> >> > @@ -153,15 +153,29 @@ enum {
->> >> > =C2=A0 */
->> >> >
->> >> > =C2=A0struct ser_req {
->> >> > + =C2=A0 u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 sample;
->> >> > + =C2=A0 /*
->> >> > + =C2=A0 =C2=A0* DMA (thus cache coherency maintenance) require=
-s the
->> >> > + =C2=A0 =C2=A0* transfer buffers to live in their own cache li=
-nes.
->> >> > + =C2=A0 =C2=A0*/
->> >> > + =C2=A0 char =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0__padalign[L1_CACHE_BYTES - sizeof(u16)];
->> >>
->> >> It would be better to use __cacheline_aligned, rather than open-c=
-oding
->> >> things in this manner.
->> >>
->> >
->> > OK, then I have the following which I will apply unless someone sh=
-outs.
->> >
->> > --
->> > Dmitry
->> >
->> > Input: ad7877 - keep dma rx buffers in seperate cache lines
->> >
->> > From: Oskar Schirmer <os@emlix.com>
->> >
->> > With dma based spi transmission, data corruption is observed
->> > occasionally. With dma buffers located right next to msg and
->> > xfer fields, cache lines correctly flushed in preparation for
->> > dma usage may be polluted again when writing to fields in the
->> > same cache line.
->> >
->> > Make sure cache fields used with dma do not share cache lines
->> > with fields changed during dma handling. As both fields are part
->> > of a struct that is allocated via kzalloc, thus cache aligned,
->> > moving the fields to the 1st position and insert padding for
->> > alignment does the job.
->> >
->> > Signed-off-by: Oskar Schirmer <os@emlix.com>
->> > Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
->> > Signed-off-by: Oliver Schneidewind <osw@emlix.com>
->> > Signed-off-by: Johannes Weiner <jw@emlix.com>
->> > Acked-by: Mike Frysinger <vapier@gentoo.org>
->> > [dtor@mail.ru - changed to use ___cacheline_aligned at suggestion
->> > =C2=A0of akpm]
->> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
->> > ---
->> >
->> > =C2=A0drivers/input/touchscreen/ad7877.c | =C2=A0 15 ++++++++++++-=
---
->> > =C2=A01 files changed, 12 insertions(+), 3 deletions(-)
->> >
->> >
->> > diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/to=
-uchscreen/ad7877.c
->> > index e019d53..0d2d7e5 100644
->> > --- a/drivers/input/touchscreen/ad7877.c
->> > +++ b/drivers/input/touchscreen/ad7877.c
->> > @@ -156,9 +156,14 @@ struct ser_req {
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 reset;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ref_on;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 command;
->> > - =C2=A0 =C2=A0 =C2=A0 u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 sample;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct spi_message =C2=A0 =C2=A0 =C2=A0=
-msg;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct spi_transfer =C2=A0 =C2=A0 xfer[=
-6];
->> > +
->> > + =C2=A0 =C2=A0 =C2=A0 /*
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* DMA (thus cache coherency maintenan=
-ce) requires the
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* transfer buffers to live in their o=
-wn cache lines.
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
->> > + =C2=A0 =C2=A0 =C2=A0 u16 sample ____cacheline_aligned;
->> > =C2=A0};
->> >
->> > =C2=A0struct ad7877 {
->> > @@ -182,8 +187,6 @@ struct ad7877 {
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0averaging;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0u8 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0pen_down_acc_interval;
->> >
->> > - =C2=A0 =C2=A0 =C2=A0 u16 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 conversion_data[AD7877_NR_SENSE];
->> > -
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct spi_transfer =C2=A0 =C2=A0 xfer[=
-AD7877_NR_SENSE + 2];
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct spi_message =C2=A0 =C2=A0 =C2=A0=
-msg;
->> >
->> > @@ -195,6 +198,12 @@ struct ad7877 {
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0spinlock_t =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0lock;
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0struct timer_list =C2=A0 =C2=A0 =C2=A0 =
-timer; =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* P: lock */
->> > =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0pending:1; =C2=A0 =C2=A0 =C2=A0/* P: lock */
->> > +
->> > + =C2=A0 =C2=A0 =C2=A0 /*
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* DMA (thus cache coherency maintenan=
-ce) requires the
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0* transfer buffers to live in their o=
-wn cache lines.
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0*/
->> > + =C2=A0 =C2=A0 =C2=A0 u16 conversion_data[AD7877_NR_SENSE] ____ca=
-cheline_aligned;
->> > =C2=A0};
->>
->> i'm not sure this is correct. =C2=A0the cached_aligned attribute mak=
-es sure
->> it starts on a cache boundary, but it doesnt make sure it pads out t=
-o
->> one. =C2=A0so it might work more of the time, but i dont think it's
->> guaranteed.
->
-> The buffers are moved to the end of the structure - there is nothing
-> else there.
+Dne =C3=9At 11. kv=C4=9Btna 2010 07:53:19 Dmitry Torokhov napsal(a):
+> On Thu, May 06, 2010 at 11:34:01PM +0200, Marek Vasut wrote:
+> > USB ID entry for "Gullemot Jet Leader 3D" wasn't the same in
+> > iforce-main.c and iforce-usb.c . Fix this.
+> >=20
+> > Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+>=20
+> Applied both (changed Gullemont to Guillemont though). Thank you Mare=
+k.
 
-what guarantee exactly do you have for that statement ?
--mike
+Ah, lack of sleep. Thanks! :)
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

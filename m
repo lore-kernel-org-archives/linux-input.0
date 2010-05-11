@@ -1,48 +1,73 @@
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Wed, 12 May 2010 00:01:02 +0300
-Message-ID: <4BE9C58E.4070204@cs.helsinki.fi>
-References: <1273487642-2169-1-git-send-email-os@emlix.com> 	<AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com> 	<20100511063309.GC9644@core.coreip.homeip.net> <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com> 	<AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com> 	<1273608441.15067.1002.camel@calx> <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com> 	<alpine.DEB.2.00.1005111520260.1500@router.home> <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com> 	<alpine.DEB.2.00.1005111544330.8388@router.home> <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 3/3] Input: elantech - signature...
+Date: Tue, 11 May 2010 23:01:48 +0200
+Message-ID: <4BE9C5BC.5050503@tudelft.nl>
+References: <20100511081848.10546.95545.stgit@localhost.localdomain> <20100511081859.10546.11991.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:34340 "EHLO
-	mail.cs.helsinki.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752267Ab0EKVBd (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:39635 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752733Ab0EKVBu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 17:01:33 -0400
-In-Reply-To: <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+	Tue, 11 May 2010 17:01:50 -0400
+In-Reply-To: <20100511081859.10546.11991.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Christoph Lameter <cl@linux.com>, Matt Mackall <mpm@selenic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Florian Ragwitz <rafl@debian.org>, Arjan Opmeer <arjan@opmeer.net>
 
-Mike Frysinger wrote:
-> On Tue, May 11, 2010 at 16:46, Christoph Lameter wrote:
->> On Tue, 11 May 2010, Mike Frysinger wrote:
->>>> DMA. If the arch can only DMA into cacheline aligned objects then the
->>>> correct method is to force kmalloc alignment to cacheline size.
->>> these are SPI drivers and are usable on any arch that supports a SPI
->>> bus (which is pretty much every arch).  forget about "embedded"
->>> arches.
->>>
->>> the issue here is simple: a SPI driver (AD7877) needs to do a receive
->>> SPI transfer into a DMA safe buffer.  what is the exact API to
->>> dynamically allocate memory for the structure with this buffer
->>> embedded in it such that the start of the structure is cached aligned
->>> ?  creating a dedicated kmem cache may work, but it isnt a scalable
->>> solution if every SPI driver needs to create its own cache.
->> kmalloc returns a pointer to a DMA safe buffer. There is no requirement on
->> the x86 hardware that the DMA buffers have to be cache aligned. Cachelines
->> will be invalidated as needed.
-> 
-> so this guarantee is made by the kmalloc() API ?  and for arches where
-> the cacheline invalidation is handled in software rather than
-> hardware, they must declare a min alignment value for kmalloc to be at
-> least as big as their cache alignment ?
-> 
-> does the phrase "DMA safe buffer" imply cache alignment ?
+Op 11-05-10 10:18, Dmitry Torokhov schreef:
+For the first time, the touchpad is detected out of the box on my Dell
+mini 10... so sweet ;-)
 
-Yes, you should be able to DMA into kmalloc'd memory. IIRC the block or 
-the SCSI layer depends on that.
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Tested-by: Eric Piel <eric.piel@tremplin-utc.net>
+
+
+> ---
+> 
+>  drivers/input/mouse/elantech.c |   20 +++++++++++++++++++-
+>  1 files changed, 19 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 232556a..b18862b 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -575,6 +575,24 @@ static struct attribute_group elantech_attr_group = {
+>  	.attrs = elantech_attrs,
+>  };
+>  
+> +static bool elantech_is_signature_valid(const unsigned char *param)
+> +{
+> +	static const unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10 };
+> +	int i;
+> +
+> +	if (param[0] == 0)
+> +		return false;
+> +
+> +	if (param[1] == 0)
+> +		return true;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(rates); i++)
+> +		if (param[2] == rates[i])
+> +			return false;
+> +
+> +	return true;
+> +}
+> +
+>  /*
+>   * Use magic knock to detect Elantech touchpad
+>   */
+> @@ -617,7 +635,7 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
+>  	pr_debug("Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
+>  		 param[0], param[1], param[2]);
+>  
+> -	if (param[0] == 0 || param[1] != 0) {
+> +	if (!elantech_is_signature_valid(param)) {
+>  		if (!force_elantech) {
+>  			pr_debug("Probably not a real Elantech touchpad. Aborting.\n");
+>  			return -1;
+> 
+

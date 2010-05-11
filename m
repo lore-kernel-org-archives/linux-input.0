@@ -1,67 +1,101 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/3] Input: elantech - signature...
-Date: Tue, 11 May 2010 01:18:59 -0700
-Message-ID: <20100511081859.10546.11991.stgit@localhost.localdomain>
-References: <20100511081848.10546.95545.stgit@localhost.localdomain>
+Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail before
+ retrying
+Date: Tue, 11 May 2010 01:22:18 -0700
+Message-ID: <20100511082218.GB10404@core.coreip.homeip.net>
+References: <1271723857.6652.6.camel@lovely>
+ <20100422215517.GB28213@core.coreip.homeip.net>
+ <1271983668.16254.44.camel@lovely>
+ <201004230953.52447.dmitry.torokhov@gmail.com>
+ <1272072125.4341.10.camel@lovely>
+ <1272103233.4666.15.camel@lovely>
+ <20100428072633.GC4232@core.coreip.homeip.net>
+ <1273335729.7427.17.camel@lovely>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:42276 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751895Ab0EKITC (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:64670 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752643Ab0EKIWY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 04:19:02 -0400
-Received: by mail-pv0-f174.google.com with SMTP id 32so410917pvb.19
-        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 01:19:02 -0700 (PDT)
-In-Reply-To: <20100511081848.10546.95545.stgit@localhost.localdomain>
+	Tue, 11 May 2010 04:22:24 -0400
+Received: by pxi5 with SMTP id 5so2089047pxi.19
+        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 01:22:24 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1273335729.7427.17.camel@lovely>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Florian Ragwitz <rafl@debian.org>, =?utf-8?b?w4lyaWM=?= Piel <E.A.B.Piel@tudelft.nl>, Arjan Opmeer <arjan@opmeer.net>
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
+
+On Sat, May 08, 2010 at 06:22:09PM +0200, Christoph Fritz wrote:
+> On Wed, 2010-04-28 at 00:26 -0700, Dmitry Torokhov wrote:
+> 
+> > What about simply resetting the mouse before actually trying to
+> > reconnect?
+> 
+> Isn't psmouse_reconnect() the first in psmouse-base.c that gets called
+> after waking up from hibernation/suspend?
+> And should all ps2 devices get a reset or only the one which needs it
+> (synaptic touchpads not handled by synaptics driver)?
+> 
+
+I think we should reset all devcices that do not provide reconnect
+method (this includes Synaptics hardware in bare PS/2 mode). Something
+like below.
+
+-- 
+Dmitry
+
+Input: psmouse - reset all types of mice before reconnecting
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Synaptics hardware requires resetting device after suspend to ram
+in order for the device to be operational. The reset lives in
+synaptics-specific reconnect handler, but it is not being invoked
+if synaptics support is disabled and the device is handled as a
+standard PS/2 device (bare or IntelliMouse protocol).
+
+Let's add reset into generic reconnect handler as well.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/input/mouse/elantech.c |   20 +++++++++++++++++++-
- 1 files changed, 19 insertions(+), 1 deletions(-)
+ drivers/input/mouse/psmouse-base.c |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 232556a..b18862b 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -575,6 +575,24 @@ static struct attribute_group elantech_attr_group = {
- 	.attrs = elantech_attrs,
- };
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index cbc8072..a3c9731 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1394,6 +1394,7 @@ static int psmouse_reconnect(struct serio *serio)
+ 	struct psmouse *psmouse = serio_get_drvdata(serio);
+ 	struct psmouse *parent = NULL;
+ 	struct serio_driver *drv = serio->drv;
++	unsigned char type;
+ 	int rc = -1;
  
-+static bool elantech_is_signature_valid(const unsigned char *param)
-+{
-+	static const unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10 };
-+	int i;
+ 	if (!drv || !psmouse) {
+@@ -1413,10 +1414,15 @@ static int psmouse_reconnect(struct serio *serio)
+ 	if (psmouse->reconnect) {
+ 		if (psmouse->reconnect(psmouse))
+ 			goto out;
+-	} else if (psmouse_probe(psmouse) < 0 ||
+-		   psmouse->type != psmouse_extensions(psmouse,
+-						psmouse_max_proto, false)) {
+-		goto out;
++	} else {
++		psmouse_reset(psmouse);
 +
-+	if (param[0] == 0)
-+		return false;
++		if (psmouse_probe(psmouse) < 0)
++			goto out;
 +
-+	if (param[1] == 0)
-+		return true;
-+
-+	for (i = 0; i < ARRAY_SIZE(rates); i++)
-+		if (param[2] == rates[i])
-+			return false;
-+
-+	return true;
-+}
-+
- /*
-  * Use magic knock to detect Elantech touchpad
-  */
-@@ -617,7 +635,7 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
- 	pr_debug("Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
- 		 param[0], param[1], param[2]);
++		type = psmouse_extensions(psmouse, psmouse_max_proto, false);
++		if (psmouse->type != type)
++			goto out;
+ 	}
  
--	if (param[0] == 0 || param[1] != 0) {
-+	if (!elantech_is_signature_valid(param)) {
- 		if (!force_elantech) {
- 			pr_debug("Probably not a real Elantech touchpad. Aborting.\n");
- 			return -1;
+ 	/* ok, the device type (and capabilities) match the old one,
 

@@ -1,117 +1,52 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [PATCH] Reset ps/2 port should      psmouse_probe   fail
-	before retrying
-Date: Wed, 12 May 2010 00:24:50 +0200
-Message-ID: <1273616690.3817.5.camel@lovely>
-References: <1271723857.6652.6.camel@lovely>
-	 <20100422215517.GB28213@core.coreip.homeip.net>
-	 <1271983668.16254.44.camel@lovely>
-	 <201004230953.52447.dmitry.torokhov@gmail.com>
-	 <1272072125.4341.10.camel@lovely> <1272103233.4666.15.camel@lovely>
-	 <20100428072633.GC4232@core.coreip.homeip.net>
-	 <1273335729.7427.17.camel@lovely>
-	 <20100511082218.GB10404@core.coreip.homeip.net>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Tue, 11 May 2010 23:37:42 +0100
+Message-ID: <20100511233742.61cf0a6b@lxorguk.ukuu.org.uk>
+References: <1273487642-2169-1-git-send-email-os@emlix.com>
+	<AANLkTikA9s6lpO2uDuIup8BwGOYYHQ9yQxS36PBSIttX@mail.gmail.com>
+	<20100511062110.GB9644@core.coreip.homeip.net>
+	<AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
+	<20100511063309.GC9644@core.coreip.homeip.net>
+	<y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
+	<AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com>
+	<1273608441.15067.1002.camel@calx>
+	<AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
+	<alpine.DEB.2.00.1005111520260.1500@router.home>
+	<AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.155]:38785 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751635Ab0EKWSn (ORCPT
+Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:39674 "EHLO
+	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1753581Ab0EKWdx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 18:18:43 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so1580693fgg.1
-        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 15:18:41 -0700 (PDT)
-In-Reply-To: <20100511082218.GB10404@core.coreip.homeip.net>
+	Tue, 11 May 2010 18:33:53 -0400
+In-Reply-To: <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Peter M. Petrakis" <peter.petrakis@canonical.com>, linux-input@vger.kernel.org, rubini <rubini@cvml.unipv.it>
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel =?ISO-8859-14?B?R2z2Y2tuZXI=?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
 
-On Tue, 2010-05-11 at 01:22 -0700, Dmitry Torokhov wrote:
-> On Sat, May 08, 2010 at 06:22:09PM +0200, Christoph Fritz wrote:
-> > On Wed, 2010-04-28 at 00:26 -0700, Dmitry Torokhov wrote:
-> > 
-> > > What about simply resetting the mouse before actually trying to
-> > > reconnect?
-> > 
-> > Isn't psmouse_reconnect() the first in psmouse-base.c that gets
-> called
-> > after waking up from hibernation/suspend?
-> > And should all ps2 devices get a reset or only the one which needs
-> it
-> > (synaptic touchpads not handled by synaptics driver)?
-> > 
-> 
-> I think we should reset all devcices that do not provide reconnect
-> method (this includes Synaptics hardware in bare PS/2 mode). Something
-> like below.
-> 
-> -- 
-> Dmitry
-> 
-> Input: psmouse - reset all types of mice before reconnecting
-> 
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Synaptics hardware requires resetting device after suspend to ram
-> in order for the device to be operational. The reset lives in
-> synaptics-specific reconnect handler, but it is not being invoked
-> if synaptics support is disabled and the device is handled as a
-> standard PS/2 device (bare or IntelliMouse protocol).
-> 
-> Let's add reset into generic reconnect handler as well.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/input/mouse/psmouse-base.c |   14 ++++++++++----
->  1 files changed, 10 insertions(+), 4 deletions(-)
-> 
-> 
-> diff --git a/drivers/input/mouse/psmouse-base.c
-> b/drivers/input/mouse/psmouse-base.c
-> index cbc8072..a3c9731 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -1394,6 +1394,7 @@ static int psmouse_reconnect(struct serio
-> *serio)
->         struct psmouse *psmouse = serio_get_drvdata(serio);
->         struct psmouse *parent = NULL;
->         struct serio_driver *drv = serio->drv;
-> +       unsigned char type;
->         int rc = -1;
->  
->         if (!drv || !psmouse) {
-> @@ -1413,10 +1414,15 @@ static int psmouse_reconnect(struct serio
-> *serio)
->         if (psmouse->reconnect) {
->                 if (psmouse->reconnect(psmouse))
->                         goto out;
-> -       } else if (psmouse_probe(psmouse) < 0 ||
-> -                  psmouse->type != psmouse_extensions(psmouse,
-> -                                               psmouse_max_proto,
-> false)) {
-> -               goto out;
-> +       } else {
-> +               psmouse_reset(psmouse);
-> +
-> +               if (psmouse_probe(psmouse) < 0)
-> +                       goto out;
-> +
-> +               type = psmouse_extensions(psmouse, psmouse_max_proto,
-> false);
-> +               if (psmouse->type != type)
-> +                       goto out;
->         }
->  
->         /* ok, the device type (and capabilities) match the old one,
-> 
-> 
+> SPI transfer into a DMA safe buffer.  what is the exact API to
+> dynamically allocate memory for the structure with this buffer
+> embedded in it such that the start of the structure is cached aligned
+> ?  creating a dedicated kmem cache may work, but it isnt a scalable
+> solution if every SPI driver needs to create its own cache.
 
-This looks good and I can understand making this generic because it
-doesn't hurt.
+If you are embedding structures then one solution is to cheat a bit and
+make the structure, compiler and existing kernel compile abuse do the
+work. Something like
 
- Thanks,
-  Christoph
+struct {
+	void *except_where_prohibited;
+	long boat;
+	unsigned photograph;
+
+	u8 pad[0] __cacheline_aligned;
+}..
+
+ought to do the trick providing you align the start of the object - which
+should happen naturally with kmalloc or dma_* apis
+
 

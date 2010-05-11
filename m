@@ -1,42 +1,137 @@
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Tue, 11 May 2010 09:42:03 +0300
-Message-ID: <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	 <1273488154-2993-1-git-send-email-os@emlix.com>
-	 <20100510142225.4bf215ef.akpm@linux-foundation.org>
-	 <20100511060547.GA9644@core.coreip.homeip.net>
-	 <AANLkTikA9s6lpO2uDuIup8BwGOYYHQ9yQxS36PBSIttX@mail.gmail.com>
-	 <20100511062110.GB9644@core.coreip.homeip.net>
-	 <AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
-	 <20100511063309.GC9644@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [RFC/PATCH] elantech - use all 3 bytes when checking version
+Date: Tue, 11 May 2010 01:15:32 -0700
+Message-ID: <20100511081532.GA10404@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:39835 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932354Ab0EKGmG (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:45953 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752643Ab0EKIPh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 02:42:06 -0400
-In-Reply-To: <20100511063309.GC9644@core.coreip.homeip.net>
+	Tue, 11 May 2010 04:15:37 -0400
+Received: by pxi5 with SMTP id 5so2086629pxi.19
+        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 01:15:36 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?ISO-8859-1?Q?Daniel_Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, Matt Mackall <mpm@selenic.com>
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: Florian Ragwitz <rafl@debian.org>, =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Arjan Opmeer <arjan@opmeer.net>
 
-Hi Dmitry,
+Input: elantech - use all 3 bytes when checking version
 
-On Tue, May 11, 2010 at 9:33 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->> what guarantee exactly do you have for that statement ?
->
-> The data is kmalloced, kmalloc aligns on cacheline boundary AFAIK which
-> means that next kmalloc data chunk will not share "our" cacheline.
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-No, there are no such guarantees. kmalloc() aligns on
-ARCH_KMALLOC_MINALIGN or ARCH_SLAB_MINALIGN depending on which is
-bigger but beyond that, there are no guarantees. You can, of course,
-use kmem_cache_create() with SLAB_HWCACHE_ALIGN to align on cacheline
-boundary.
+Apparently all 3 bytes returned by ETP_FW_VERSION_QUERY are significant
+and shoudl be taken into account when matching hardware version/features.
 
-                        Pekka
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/mouse/elantech.c |   24 ++++++++++++------------
+ drivers/input/mouse/elantech.h |    5 ++---
+ 2 files changed, 14 insertions(+), 15 deletions(-)
+
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 0520c2e..112b4ee 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -185,7 +185,7 @@ static void elantech_report_absolute_v1(struct psmouse *psmouse)
+ 	int fingers;
+ 	static int old_fingers;
+ 
+-	if (etd->fw_version_maj == 0x01) {
++	if (etd->fw_version < 0x020000) {
+ 		/*
+ 		 * byte 0:  D   U  p1  p2   1  p3   R   L
+ 		 * byte 1:  f   0  th  tw  x9  x8  y9  y8
+@@ -227,7 +227,7 @@ static void elantech_report_absolute_v1(struct psmouse *psmouse)
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+ 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+ 
+-	if ((etd->fw_version_maj == 0x01) &&
++	if (etd->fw_version < 0x020000 &&
+ 	    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
+ 		/* rocker up */
+ 		input_report_key(dev, BTN_FORWARD, packet[0] & 0x40);
+@@ -321,7 +321,7 @@ static int elantech_check_parity_v1(struct psmouse *psmouse)
+ 	unsigned char p1, p2, p3;
+ 
+ 	/* Parity bits are placed differently */
+-	if (etd->fw_version_maj == 0x01) {
++	if (etd->fw_version < 0x020000) {
+ 		/* byte 0:  D   U  p1  p2   1  p3   R   L */
+ 		p1 = (packet[0] & 0x20) >> 5;
+ 		p2 = (packet[0] & 0x10) >> 4;
+@@ -457,7 +457,7 @@ static void elantech_set_input_params(struct psmouse *psmouse)
+ 	switch (etd->hw_version) {
+ 	case 1:
+ 		/* Rocker button */
+-		if ((etd->fw_version_maj == 0x01) &&
++		if (etd->fw_version < 0x020000 &&
+ 		    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
+ 			__set_bit(BTN_FORWARD, dev->keybit);
+ 			__set_bit(BTN_BACK, dev->keybit);
+@@ -686,15 +686,14 @@ int elantech_init(struct psmouse *psmouse)
+ 		pr_err("elantech.c: failed to query firmware version.\n");
+ 		goto init_fail;
+ 	}
+-	etd->fw_version_maj = param[0];
+-	etd->fw_version_min = param[2];
++
++	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
+ 
+ 	/*
+ 	 * Assume every version greater than this is new EeePC style
+ 	 * hardware with 6 byte packets
+ 	 */
+-	if ((etd->fw_version_maj == 0x02 && etd->fw_version_min >= 0x30) ||
+-	    etd->fw_version_maj > 0x02) {
++	if (etd->fw_version >= 0x020030) {
+ 		etd->hw_version = 2;
+ 		/* For now show extra debug information */
+ 		etd->debug = 1;
+@@ -704,8 +703,9 @@ int elantech_init(struct psmouse *psmouse)
+ 		etd->hw_version = 1;
+ 		etd->paritycheck = 1;
+ 	}
+-	pr_info("elantech.c: assuming hardware version %d, firmware version %d.%d\n",
+-		etd->hw_version, etd->fw_version_maj, etd->fw_version_min);
++
++	pr_info("elantech.c: assuming hardware version %d, firmware version %d.%d.%d\n",
++		etd->hw_version, param[0], param[1], param[2]);
+ 
+ 	if (synaptics_send_cmd(psmouse, ETP_CAPABILITIES_QUERY, param)) {
+ 		pr_err("elantech.c: failed to query capabilities.\n");
+@@ -720,8 +720,8 @@ int elantech_init(struct psmouse *psmouse)
+ 	 * a touch action starts causing the mouse cursor or scrolled page
+ 	 * to jump. Enable a workaround.
+ 	 */
+-	if (etd->fw_version_maj == 0x02 && etd->fw_version_min == 0x22) {
+-		pr_info("elantech.c: firmware version 2.34 detected, "
++	if (etd->fw_version == 0x020022) {
++		pr_info("elantech.c: firmware version 2.0.34 detected, "
+ 			"enabling jumpy cursor workaround\n");
+ 		etd->jumpy_cursor = 1;
+ 	}
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index feac5f7..ac57bde 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -100,11 +100,10 @@ struct elantech_data {
+ 	unsigned char reg_26;
+ 	unsigned char debug;
+ 	unsigned char capabilities;
+-	unsigned char fw_version_maj;
+-	unsigned char fw_version_min;
+-	unsigned char hw_version;
+ 	unsigned char paritycheck;
+ 	unsigned char jumpy_cursor;
++	unsigned char hw_version;
++	unsigned int  fw_version;
+ 	unsigned char parity[256];
+ };
+ 
+-- 
+Dmitry

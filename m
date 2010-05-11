@@ -1,59 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] iforce: Fix Gullemot Jet Leader 3D entry
-Date: Tue, 11 May 2010 09:54:21 -0700
-Message-ID: <20100511165421.GD7396@core.coreip.homeip.net>
-References: <1273181641-24546-1-git-send-email-marek.vasut@gmail.com>
- <1273181641-24546-2-git-send-email-marek.vasut@gmail.com>
- <20100511055319.GB5064@core.coreip.homeip.net>
- <1273571265.2308.1454.camel@localhost.localdomain>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Tue, 11 May 2010 13:31:48 -0400
+Message-ID: <AANLkTimxBtepO6A63Tv7UPxJDgQovjBTvscKUSpVPH8p@mail.gmail.com>
+References: <1273487642-2169-1-git-send-email-os@emlix.com>
+	<1273488154-2993-1-git-send-email-os@emlix.com> <20100510142225.4bf215ef.akpm@linux-foundation.org>
+	<20100511060547.GA9644@core.coreip.homeip.net> <AANLkTikA9s6lpO2uDuIup8BwGOYYHQ9yQxS36PBSIttX@mail.gmail.com>
+	<20100511062110.GB9644@core.coreip.homeip.net> <AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
+	<20100511063309.GC9644@core.coreip.homeip.net> <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
+	<20100511165228.GC7396@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f204.google.com ([209.85.222.204]:45300 "EHLO
-	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755700Ab0EKQye (ORCPT
+Received: from mail-yw0-f198.google.com ([209.85.211.198]:55083 "EHLO
+	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752147Ab0EKRcJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 12:54:34 -0400
-Received: by pzk42 with SMTP id 42so847536pzk.4
-        for <linux-input@vger.kernel.org>; Tue, 11 May 2010 09:54:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1273571265.2308.1454.camel@localhost.localdomain>
+	Tue, 11 May 2010 13:32:09 -0400
+In-Reply-To: <20100511165228.GC7396@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux-foundation.org>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, Matt Mackall <mpm@selenic.com>
 
-On Tue, May 11, 2010 at 10:47:45AM +0100, Bastien Nocera wrote:
-> On Mon, 2010-05-10 at 22:53 -0700, Dmitry Torokhov wrote:
-> > On Thu, May 06, 2010 at 11:34:01PM +0200, Marek Vasut wrote:
-> > > USB ID entry for "Gullemot Jet Leader 3D" wasn't the same in ifor=
-ce-main.c and
-> > > iforce-usb.c . Fix this.
-> > >=20
-> > > Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
-> >=20
-> > Applied both (changed Gullemont to Guillemont though). Thank you Ma=
-rek.
->=20
-> Huh, =E2=80=9CGuillemot=E2=80=9D:
-> http://www.joy-stick.net/reviews/joysticks/jetlead.htm
+On Tue, May 11, 2010 at 12:52, Dmitry Torokhov wrote:
+> On Tue, May 11, 2010 at 09:42:03AM +0300, Pekka Enberg wrote:
+>> On Tue, May 11, 2010 at 9:33 AM, Dmitry Torokhov wrote:
+>> >> what guarantee exactly do you have for that statement ?
+>> >
+>> > The data is kmalloced, kmalloc aligns on cacheline boundary AFAIK which
+>> > means that next kmalloc data chunk will not share "our" cacheline.
+>>
+>> No, there are no such guarantees. kmalloc() aligns on
+>> ARCH_KMALLOC_MINALIGN or ARCH_SLAB_MINALIGN depending on which is
+>> bigger but beyond that, there are no guarantees. You can, of course,
+>> use kmem_cache_create() with SLAB_HWCACHE_ALIGN to align on cacheline
+>> boundary.
+>
+> The architectures that we are trying to deal with here should be forcing
+> kmalloc to the cache boundary already though - otherwise they would not
+> be able to used kmalloced memory for DMA buffers at all. Or am I utterly
+> lost here?
 
-Right, thankfully the patch is correct, just my e-mail was messed up:
-
-        { 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",
-btn_wheel, abs_wheel, ff_iforce, true }, //?
-        { 0x06f8, 0x0001, "Guillemot Jet Leader Force Feedback",
-btn_joystick, abs_joystick_rudder, ff_iforce, true },
-        { 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",
-btn_wheel, abs_wheel, ff_iforce, true }, //?
-        { 0x06f8, 0xa302, "Guillemot Jet Leader 3D",
-btn_joystick, abs_joystick, ff_iforce, true }, //?
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+i dont want to restrict the driver so that it implicitly only works on
+certain arches.  that kind of goes against the entire point of the
+driver model.  the only thing this driver needs is a SPI bus, and
+people can easily do that on most every arch.
+-mike

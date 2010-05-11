@@ -1,64 +1,136 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Tue, 11 May 2010 16:54:41 -0400
-Message-ID: <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	<AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
-	<20100511063309.GC9644@core.coreip.homeip.net> <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
-	<AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com>
-	<1273608441.15067.1002.camel@calx> <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
-	<alpine.DEB.2.00.1005111520260.1500@router.home> <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
-	<alpine.DEB.2.00.1005111544330.8388@router.home>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 1/3] Input: elantech - use all 3 bytes when checking version
+Date: Tue, 11 May 2010 23:00:34 +0200
+Message-ID: <4BE9C572.1050409@tudelft.nl>
+References: <20100511081848.10546.95545.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f198.google.com ([209.85.211.198]:61119 "EHLO
-	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757824Ab0EKUzD convert rfc822-to-8bit (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:52470 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751564Ab0EKVAh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 16:55:03 -0400
-In-Reply-To: <alpine.DEB.2.00.1005111544330.8388@router.home>
+	Tue, 11 May 2010 17:00:37 -0400
+In-Reply-To: <20100511081848.10546.95545.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Florian Ragwitz <rafl@debian.org>, Arjan Opmeer <arjan@opmeer.net>
 
-On Tue, May 11, 2010 at 16:46, Christoph Lameter wrote:
-> On Tue, 11 May 2010, Mike Frysinger wrote:
->> > DMA. If the arch can only DMA into cacheline aligned objects then =
-the
->> > correct method is to force kmalloc alignment to cacheline size.
->>
->> these are SPI drivers and are usable on any arch that supports a SPI
->> bus (which is pretty much every arch). =C2=A0forget about "embedded"
->> arches.
->>
->> the issue here is simple: a SPI driver (AD7877) needs to do a receiv=
-e
->> SPI transfer into a DMA safe buffer. =C2=A0what is the exact API to
->> dynamically allocate memory for the structure with this buffer
->> embedded in it such that the start of the structure is cached aligne=
-d
->> ? =C2=A0creating a dedicated kmem cache may work, but it isnt a scal=
-able
->> solution if every SPI driver needs to create its own cache.
->
-> kmalloc returns a pointer to a DMA safe buffer. There is no requireme=
-nt on
-> the x86 hardware that the DMA buffers have to be cache aligned. Cache=
-lines
-> will be invalidated as needed.
+Op 11-05-10 10:18, Dmitry Torokhov schreef:
+> Apparently all 3 bytes returned by ETP_FW_VERSION_QUERY are significant
+> and shoudl be taken into account when matching hardware version/features.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Tested-by: Eric Piel <eric.piel@tremplin-utc.net>
 
-so this guarantee is made by the kmalloc() API ?  and for arches where
-the cacheline invalidation is handled in software rather than
-hardware, they must declare a min alignment value for kmalloc to be at
-least as big as their cache alignment ?
 
-does the phrase "DMA safe buffer" imply cache alignment ?
--mike
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+> 
+>  drivers/input/mouse/elantech.c |   24 ++++++++++++------------
+>  drivers/input/mouse/elantech.h |    5 ++---
+>  2 files changed, 14 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 0520c2e..112b4ee 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -185,7 +185,7 @@ static void elantech_report_absolute_v1(struct psmouse *psmouse)
+>  	int fingers;
+>  	static int old_fingers;
+>  
+> -	if (etd->fw_version_maj == 0x01) {
+> +	if (etd->fw_version < 0x020000) {
+>  		/*
+>  		 * byte 0:  D   U  p1  p2   1  p3   R   L
+>  		 * byte 1:  f   0  th  tw  x9  x8  y9  y8
+> @@ -227,7 +227,7 @@ static void elantech_report_absolute_v1(struct psmouse *psmouse)
+>  	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+>  	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+>  
+> -	if ((etd->fw_version_maj == 0x01) &&
+> +	if (etd->fw_version < 0x020000 &&
+>  	    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
+>  		/* rocker up */
+>  		input_report_key(dev, BTN_FORWARD, packet[0] & 0x40);
+> @@ -321,7 +321,7 @@ static int elantech_check_parity_v1(struct psmouse *psmouse)
+>  	unsigned char p1, p2, p3;
+>  
+>  	/* Parity bits are placed differently */
+> -	if (etd->fw_version_maj == 0x01) {
+> +	if (etd->fw_version < 0x020000) {
+>  		/* byte 0:  D   U  p1  p2   1  p3   R   L */
+>  		p1 = (packet[0] & 0x20) >> 5;
+>  		p2 = (packet[0] & 0x10) >> 4;
+> @@ -457,7 +457,7 @@ static void elantech_set_input_params(struct psmouse *psmouse)
+>  	switch (etd->hw_version) {
+>  	case 1:
+>  		/* Rocker button */
+> -		if ((etd->fw_version_maj == 0x01) &&
+> +		if (etd->fw_version < 0x020000 &&
+>  		    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
+>  			__set_bit(BTN_FORWARD, dev->keybit);
+>  			__set_bit(BTN_BACK, dev->keybit);
+> @@ -686,15 +686,14 @@ int elantech_init(struct psmouse *psmouse)
+>  		pr_err("elantech.c: failed to query firmware version.\n");
+>  		goto init_fail;
+>  	}
+> -	etd->fw_version_maj = param[0];
+> -	etd->fw_version_min = param[2];
+> +
+> +	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
+>  
+>  	/*
+>  	 * Assume every version greater than this is new EeePC style
+>  	 * hardware with 6 byte packets
+>  	 */
+> -	if ((etd->fw_version_maj == 0x02 && etd->fw_version_min >= 0x30) ||
+> -	    etd->fw_version_maj > 0x02) {
+> +	if (etd->fw_version >= 0x020030) {
+>  		etd->hw_version = 2;
+>  		/* For now show extra debug information */
+>  		etd->debug = 1;
+> @@ -704,8 +703,9 @@ int elantech_init(struct psmouse *psmouse)
+>  		etd->hw_version = 1;
+>  		etd->paritycheck = 1;
+>  	}
+> -	pr_info("elantech.c: assuming hardware version %d, firmware version %d.%d\n",
+> -		etd->hw_version, etd->fw_version_maj, etd->fw_version_min);
+> +
+> +	pr_info("elantech.c: assuming hardware version %d, firmware version %d.%d.%d\n",
+> +		etd->hw_version, param[0], param[1], param[2]);
+>  
+>  	if (synaptics_send_cmd(psmouse, ETP_CAPABILITIES_QUERY, param)) {
+>  		pr_err("elantech.c: failed to query capabilities.\n");
+> @@ -720,8 +720,8 @@ int elantech_init(struct psmouse *psmouse)
+>  	 * a touch action starts causing the mouse cursor or scrolled page
+>  	 * to jump. Enable a workaround.
+>  	 */
+> -	if (etd->fw_version_maj == 0x02 && etd->fw_version_min == 0x22) {
+> -		pr_info("elantech.c: firmware version 2.34 detected, "
+> +	if (etd->fw_version == 0x020022) {
+> +		pr_info("elantech.c: firmware version 2.0.34 detected, "
+>  			"enabling jumpy cursor workaround\n");
+>  		etd->jumpy_cursor = 1;
+>  	}
+> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+> index feac5f7..ac57bde 100644
+> --- a/drivers/input/mouse/elantech.h
+> +++ b/drivers/input/mouse/elantech.h
+> @@ -100,11 +100,10 @@ struct elantech_data {
+>  	unsigned char reg_26;
+>  	unsigned char debug;
+>  	unsigned char capabilities;
+> -	unsigned char fw_version_maj;
+> -	unsigned char fw_version_min;
+> -	unsigned char hw_version;
+>  	unsigned char paritycheck;
+>  	unsigned char jumpy_cursor;
+> +	unsigned char hw_version;
+> +	unsigned int  fw_version;
+>  	unsigned char parity[256];
+>  };
+>  
+> 
+

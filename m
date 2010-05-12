@@ -1,699 +1,386 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH 5/5] HID: add chardev to propagate special events of Roccat
- hardware to userland
-Date: Wed, 12 May 2010 17:45:12 +0200
-Message-ID: <1273679112.2927.8.camel__42144.1521416002$1273679146$gmane$org@localhost>
-Reply-To: erazor_de@users.sourceforge.net
+From: Don Prince <dhprince.devel@yahoo.co.uk>
+Subject: [PATCH 2.6.34-rc5] HID: Zydacron Remote Control HID Driver
+Date: Wed, 12 May 2010 17:03:28 +0100
+Message-ID: <4BEAD150.5080305@yahoo.co.uk>
+Reply-To: Don Prince <dhprince.devel@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-15.arcor-online.net ([151.189.21.55]:33343 "EHLO
-	mail-in-15.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755954Ab0ELPpP (ORCPT
+Received: from smtp107.plus.mail.re1.yahoo.com ([69.147.102.70]:39123 "HELO
+	smtp107.plus.mail.re1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751729Ab0ELQDb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 11:45:15 -0400
+	Wed, 12 May 2010 12:03:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Stefan Achatz <erazor_de@users.sourceforge.net>, Jerome
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->From fd85b3029af2759170adcb7bdb340676ef22ac9b Mon Sep 17 00:00:00 2001
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Date: Sat, 8 May 2010 17:51:18 +0200
-Subject: [PATCH 5/5] HID: add chardev to propagate special events of
-Roccat hardware to userland
+A specialised HID driver for the Zydacron Remote Control (usb id: 13ec:0006).
 
-Module roccat is a char device used to report special events of roccat
-hardware to userland. These events include requests for
-on-screen-display of
-profile or dpi settings or requests for execution of macro sequences
-that are
-not stored in device. The information in these events depends on hid
-device
-implementation and contains data that is not available in a single hid
-event
-or else hidraw could have been used.
-It is inspired by hidraw, but uses only one circular buffer for all
-readers.
-The device is as generic as possible so that the functionality is usable
-by all (kone and upcomming) roccat device drivers.
+The specialised HID driver adds support for the buttons which are not
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+currently handled by the default HID driver.
+
+Signed-off-by: Don Prince <dhprince-devel@yahoo.co.uk>
+
 ---
- drivers/hid/Kconfig           |    8 +
- drivers/hid/Makefile          |    1 +
- drivers/hid/hid-roccat-kone.c |   49 +++++
- drivers/hid/hid-roccat-kone.h |    9 +
- drivers/hid/hid-roccat.c      |  428
-+++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-roccat.h      |   31 +++
- 6 files changed, 526 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-roccat.c
- create mode 100644 drivers/hid/hid-roccat.h
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 44b4691..2c7018b 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -268,6 +268,14 @@ config HID_QUANTA
- 	---help---
- 	Support for Quanta Optical Touch dual-touch panels.
+Apply with "patch -p1 < <path to patch>"
+
+---
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-04-22 18:52:46.445384754 +0100
++++ b/drivers/hid/hid-core.c	2010-05-12 11:38:12.770567799 +0100
+@@ -1365,6 +1365,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
  
-+config HID_ROCCAT
-+	tristate "Roccat special event support"
-+	depends on USB_HID
-+	---help---
-+	Support for Roccat special events.
-+	Say Y here if you have a Roccat mouse or keyboard and want OSD or
-+	macro execution support.
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+ 	{ }
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-04-22 18:52:46.455385039 +0100
++++ b/drivers/hid/hid-ids.h	2010-05-12 11:38:12.771567630 +0100
+@@ -474,6 +474,9 @@
+ 
+ #define USB_VENDOR_ID_ZEROPLUS		0x0c12
+ 
++#define USB_VENDOR_ID_ZYDACRON	0x13EC
++#define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL	0x0006
 +
- config HID_ROCCAT_KONE
- 	tristate "Roccat Kone Mouse support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 08b83cc..77fad93 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
- obj-$(CONFIG_HID_QUANTA)	+= hid-quanta.o
- obj-$(CONFIG_HID_PANTHERLORD)	+= hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+= hid-petalynx.o
-+obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o
- obj-$(CONFIG_HID_ROCCAT_KONE)	+= hid-roccat-kone.o
- obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
-diff --git a/drivers/hid/hid-roccat-kone.c
-b/drivers/hid/hid-roccat-kone.c
-index 66e6940..892654e 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -37,6 +37,7 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include "hid-ids.h"
-+#include "hid-roccat.h"
- #include "hid-roccat-kone.h"
- 
- static void kone_set_settings_checksum(struct kone_settings *settings)
-@@ -849,6 +850,16 @@ static int kone_init_specials(struct hid_device
-*hdev)
- 					"couldn't init struct kone_device\n");
- 			goto exit_free;
- 		}
-+
-+		retval = roccat_connect(hdev);
-+		if (retval < 0) {
-+			dev_err(&hdev->dev, "couldn't init char dev\n");
-+			/* be tolerant about not getting chrdev */
-+		} else {
-+			kone->roccat_claimed = 1;
-+			kone->chrdev_minor = retval;
-+		}
-+
- 		retval = kone_create_sysfs_attributes(intf);
- 		if (retval) {
- 			dev_err(&hdev->dev, "cannot create sysfs files\n");
-@@ -868,10 +879,14 @@ exit_free:
- static void kone_remove_specials(struct hid_device *hdev)
- {
- 	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct kone_device *kone;
- 
- 	if (intf->cur_altsetting->desc.bInterfaceProtocol
- 			== USB_INTERFACE_PROTOCOL_MOUSE) {
- 		kone_remove_sysfs_attributes(intf);
-+		kone = hid_get_drvdata(hdev);
-+		if (kone->roccat_claimed)
-+			roccat_disconnect(kone->chrdev_minor);
- 		kfree(hid_get_drvdata(hdev));
- 	}
- }
-@@ -930,6 +945,37 @@ static void kone_keep_values_up_to_date(struct
-kone_device *kone,
- 	}
- }
- 
-+static void kone_report_to_chrdev(struct kone_device const *kone,
-+		struct kone_mouse_event const *event)
-+{
-+	struct kone_roccat_report roccat_report;
-+
-+	switch (event->event) {
-+	case kone_mouse_event_switch_profile:
-+	case kone_mouse_event_switch_dpi:
-+	case kone_mouse_event_osd_profile:
-+	case kone_mouse_event_osd_dpi:
-+		roccat_report.event = event->event;
-+		roccat_report.value = event->value;
-+		roccat_report.key = 0;
-+		roccat_report_event(kone->chrdev_minor,
-+				(uint8_t *)&roccat_report,
-+				sizeof(struct kone_roccat_report));
-+		break;
-+	case kone_mouse_event_call_overlong_macro:
-+		if (event->value == kone_keystroke_action_press) {
-+			roccat_report.event = kone_mouse_event_call_overlong_macro;
-+			roccat_report.value = kone->actual_profile;
-+			roccat_report.key = event->macro_key;
-+			roccat_report_event(kone->chrdev_minor,
-+					(uint8_t *)&roccat_report,
-+					sizeof(struct kone_roccat_report));
-+		}
-+		break;
-+	}
-+
-+}
-+
- /*
-  * Is called for keyboard- and mousepart.
-  * Only mousepart gets informations about special events in its
-extended event
-@@ -958,6 +1004,9 @@ static int kone_raw_event(struct hid_device *hdev,
-struct hid_report *report,
- 
- 	kone_keep_values_up_to_date(kone, event);
- 
-+	if (kone->roccat_claimed)
-+		kone_report_to_chrdev(kone, event);
-+
- 	return 0; /* always do further processing */
- }
- 
-diff --git a/drivers/hid/hid-roccat-kone.h
-b/drivers/hid/hid-roccat-kone.h
-index b413b10..003e6f8 100644
---- a/drivers/hid/hid-roccat-kone.h
-+++ b/drivers/hid/hid-roccat-kone.h
-@@ -189,6 +189,12 @@ enum kone_commands {
- 	kone_command_firmware = 0xe5a
- };
- 
-+struct kone_roccat_report {
-+	uint8_t event;
-+	uint8_t value; /* holds dpi or profile value */
-+	uint8_t key; /* macro key on overlong macro execution */
-+};
-+
- #pragma pack(pop)
- 
- struct kone_device {
-@@ -219,6 +225,9 @@ struct kone_device {
- 	 * so it's read only once
- 	 */
- 	int firmware_version;
-+
-+	int roccat_claimed;
-+	int chrdev_minor;
- };
- 
- #endif
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-new file mode 100644
-index 0000000..e05d48e
---- /dev/null
-+++ b/drivers/hid/hid-roccat.c
-@@ -0,0 +1,428 @@
+ #define USB_VENDOR_ID_KYE		0x0458
+ #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+ #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
+--- a/drivers/hid/hid-zydacron.c	1970-01-01 01:00:00.000000000 +0100
++++ b/drivers/hid/hid-zydacron.c	2010-05-12 15:29:34.276028189 +0100
+@@ -0,0 +1,291 @@
 +/*
-+ * Roccat driver for Linux
-+ *
-+ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
++*  HID driver for zydacron remote control
++*
++*  Copyright (c) 2010 Don Prince
++*/
 +
 +/*
-+ * This program is free software; you can redistribute it and/or modify
-it
-+ * under the terms of the GNU General Public License as published by
-the Free
-+ * Software Foundation; either version 2 of the License, or (at your
-option)
-+ * any later version.
-+ */
-+
-+/*
-+ * Module roccat is a char device used to report special events of
-roccat
-+ * hardware to userland. These events include requests for
-on-screen-display of
-+ * profile or dpi settings or requests for execution of macro sequences
-that are
-+ * not stored in device. The information in these events depends on hid
-device
-+ * implementation and contains data that is not available in a single
-hid event
-+ * or else hidraw could have been used.
-+ * It is inspired by hidraw, but uses only one circular buffer for all
-readers.
-+ */
-+
-+#include <linux/cdev.h>
-+#include <linux/poll.h>
-+#include <linux/sched.h>
-+
-+#include "hid-roccat.h"
-+
-+#define ROCCAT_FIRST_MINOR 0
-+#define ROCCAT_MAX_DEVICES 8
-+
-+/* should be a power of 2 for performance reason */
-+#define ROCCAT_CBUF_SIZE 16
-+
-+struct roccat_report {
-+	uint8_t *value;
-+	int len;
-+};
-+
-+struct roccat_device {
-+	unsigned int minor;
-+	int open;
-+	int exist;
-+	wait_queue_head_t wait;
-+	struct device *dev;
-+	struct hid_device *hid;
-+	struct list_head readers;
-+	/* protects modifications of readers list */
-+	struct mutex readers_lock;
-+
-+	/*
-+	 * circular_buffer has one writer and multiple readers with their own
-+	 * read pointers
-+	 */
-+	struct roccat_report cbuf[ROCCAT_CBUF_SIZE];
-+	int cbuf_end;
-+	struct mutex cbuf_lock;
-+};
-+
-+struct roccat_reader {
-+	struct list_head node;
-+	struct roccat_device *device;
-+	int cbuf_start;
-+};
-+
-+static int roccat_major;
-+static struct class *roccat_class;
-+static struct cdev roccat_cdev;
-+
-+static struct roccat_device *devices[ROCCAT_MAX_DEVICES];
-+/* protects modifications of devices array */
-+static DEFINE_MUTEX(devices_lock);
-+
-+static ssize_t roccat_read(struct file *file, char __user *buffer,
-+		size_t count, loff_t *ppos)
-+{
-+	struct roccat_reader *reader = file->private_data;
-+	struct roccat_device *device = reader->device;
-+	struct roccat_report *report;
-+	ssize_t retval = 0, len;
-+	DECLARE_WAITQUEUE(wait, current);
-+
-+	mutex_lock(&device->cbuf_lock);
-+
-+	/* no data? */
-+	if (reader->cbuf_start == device->cbuf_end) {
-+		add_wait_queue(&device->wait, &wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		/* wait for data */
-+		while (reader->cbuf_start == device->cbuf_end) {
-+			if (file->f_flags & O_NONBLOCK) {
-+				retval = -EAGAIN;
-+				break;
-+			}
-+			if (signal_pending(current)) {
-+				retval = -ERESTARTSYS;
-+				break;
-+			}
-+			if (!device->exist) {
-+				retval = -EIO;
-+				break;
-+			}
-+
-+			mutex_unlock(&device->cbuf_lock);
-+			schedule();
-+			mutex_lock(&device->cbuf_lock);
-+			set_current_state(TASK_INTERRUPTIBLE);
-+		}
-+
-+		set_current_state(TASK_RUNNING);
-+		remove_wait_queue(&device->wait, &wait);
-+	}
-+
-+	/* here we either have data or a reason to return if retval is set */
-+	if (retval)
-+		goto exit_unlock;
-+
-+	report = &device->cbuf[reader->cbuf_start];
-+	/*
-+	 * If report is larger than requested amount of data, rest of report
-+	 * is lost!
-+	 */
-+	len = report->len > count ? count : report->len;
-+
-+	if (copy_to_user(buffer, report->value, len)) {
-+		retval = -EFAULT;
-+		goto exit_unlock;
-+	}
-+	retval += len;
-+	reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
-+
-+exit_unlock:
-+	mutex_unlock(&device->cbuf_lock);
-+	return retval;
-+}
-+
-+static unsigned int roccat_poll(struct file *file, poll_table *wait)
-+{
-+	struct roccat_reader *reader = file->private_data;
-+	poll_wait(file, &reader->device->wait, wait);
-+	if (reader->cbuf_start != reader->device->cbuf_end)
-+		return POLLIN | POLLRDNORM;
-+	if (!reader->device->exist)
-+		return POLLERR | POLLHUP;
-+	return 0;
-+}
-+
-+static int roccat_open(struct inode *inode, struct file *file)
-+{
-+	unsigned int minor = iminor(inode);
-+	struct roccat_reader *reader;
-+	struct roccat_device *device;
-+	int error = 0;
-+
-+	reader = kzalloc(sizeof(struct roccat_reader), GFP_KERNEL);
-+	if (!reader)
-+		return -ENOMEM;
-+
-+	mutex_lock(&devices_lock);
-+
-+	device = devices[minor];
-+
-+	mutex_lock(&device->readers_lock);
-+
-+	if (!device) {
-+		printk(KERN_EMERG "roccat device with minor %d doesn't exist\n",
-+				minor);
-+		error = -ENODEV;
-+		goto exit_unlock;
-+	}
-+
-+	if (!device->open++) {
-+		/* power on device on adding first reader */
-+		if (device->hid->ll_driver->power) {
-+			error = device->hid->ll_driver->power(device->hid,
-+					PM_HINT_FULLON);
-+			if (error < 0) {
-+				--device->open;
-+				goto exit_unlock;
-+			}
-+		}
-+		error = device->hid->ll_driver->open(device->hid);
-+		if (error < 0) {
-+			if (device->hid->ll_driver->power)
-+				device->hid->ll_driver->power(device->hid,
-+						PM_HINT_NORMAL);
-+			--device->open;
-+			goto exit_unlock;
-+		}
-+	}
-+
-+	reader->device = device;
-+	/* new reader doesn't get old events */
-+	reader->cbuf_start = device->cbuf_end;
-+
-+	list_add_tail(&reader->node, &device->readers);
-+	file->private_data = reader;
-+
-+exit_unlock:
-+	mutex_unlock(&device->readers_lock);
-+	mutex_unlock(&devices_lock);
-+	return error;
-+}
-+
-+static int roccat_release(struct inode *inode, struct file *file)
-+{
-+	unsigned int minor = iminor(inode);
-+	struct roccat_reader *reader = file->private_data;
-+	struct roccat_device *device;
-+
-+	mutex_lock(&devices_lock);
-+
-+	device = devices[minor];
-+	if (!device) {
-+		mutex_unlock(&devices_lock);
-+		printk(KERN_EMERG "roccat device with minor %d doesn't exist\n",
-+				minor);
-+		return -ENODEV;
-+	}
-+
-+	mutex_lock(&device->readers_lock);
-+	list_del(&reader->node);
-+	mutex_unlock(&device->readers_lock);
-+	kfree(reader);
-+
-+	if (!--device->open) {
-+		/* removing last reader */
-+		if (device->exist) {
-+			if (device->hid->ll_driver->power)
-+				device->hid->ll_driver->power(device->hid,
-+						PM_HINT_NORMAL);
-+			device->hid->ll_driver->close(device->hid);
-+		} else {
-+			kfree(device);
-+		}
-+	}
-+
-+	mutex_unlock(&devices_lock);
-+
-+	return 0;
-+}
-+
-+/*
-+ * roccat_report_event() - output data to readers
-+ * @minor: minor device number returned by roccat_connect()
-+ * @data: pointer to data
-+ * @len: size of data
-+ *
-+ * Return value is zero on success, a negative error code on failure.
-+ *
-+ * This is called from interrupt handler.
-+ */
-+int roccat_report_event(int minor, u8 const *data, int len)
-+{
-+	struct roccat_device *device;
-+	struct roccat_reader *reader;
-+	struct roccat_report *report;
-+	uint8_t *new_value;
-+
-+	new_value = kmemdup(data, len, GFP_ATOMIC);
-+	if (!new_value)
-+		return -ENOMEM;
-+
-+	device = devices[minor];
-+
-+	report = &device->cbuf[device->cbuf_end];
-+
-+	/* passing NULL is safe */
-+	kfree(report->value);
-+
-+	report->value = new_value;
-+	report->len = len;
-+	device->cbuf_end = (device->cbuf_end + 1) % ROCCAT_CBUF_SIZE;
-+
-+	list_for_each_entry(reader, &device->readers, node) {
-+		/*
-+		 * As we already inserted one element, the buffer can't be
-+		 * empty. If start and end are equal, buffer is full and we
-+		 * increase start, so that slow reader misses one event, but
-+		 * gets the newer ones in the right order.
-+		 */
-+		if (reader->cbuf_start == device->cbuf_end)
-+			reader->cbuf_start = (reader->cbuf_start + 1) % ROCCAT_CBUF_SIZE;
-+	}
-+
-+	wake_up_interruptible(&device->wait);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(roccat_report_event);
-+
-+/*
-+ * roccat_connect() - create a char device for special event output
-+ * @hid: the hid device the char device should be connected to.
-+ *
-+ * Return value is minor device number in Range [0, ROCCAT_MAX_DEVICES]
-on
-+ * success, a negative error code on failure.
-+ */
-+int roccat_connect(struct hid_device *hid)
-+{
-+	unsigned int minor;
-+	struct roccat_device *device;
-+	int temp;
-+
-+	device = kzalloc(sizeof(struct roccat_device), GFP_KERNEL);
-+	if (!device)
-+		return -ENOMEM;
-+
-+	mutex_lock(&devices_lock);
-+
-+	for (minor = 0; minor < ROCCAT_MAX_DEVICES; ++minor) {
-+		if (devices[minor])
-+			continue;
-+		break;
-+	}
-+
-+	if (minor < ROCCAT_MAX_DEVICES) {
-+		devices[minor] = device;
-+	} else {
-+		mutex_unlock(&devices_lock);
-+		kfree(device);
-+		return -EINVAL;
-+	}
-+
-+	device->dev = device_create(roccat_class, &hid->dev,
-+			MKDEV(roccat_major, minor), NULL,
-+			"%s%s%d", "roccat", hid->driver->name, minor);
-+
-+	if (IS_ERR(device->dev)) {
-+		devices[minor] = NULL;
-+		mutex_unlock(&devices_lock);
-+		temp = PTR_ERR(device->dev);
-+		kfree(device);
-+		return temp;
-+	}
-+
-+	mutex_unlock(&devices_lock);
-+
-+	init_waitqueue_head(&device->wait);
-+	INIT_LIST_HEAD(&device->readers);
-+	mutex_init(&device->readers_lock);
-+	mutex_init(&device->cbuf_lock);
-+	device->minor = minor;
-+	device->hid = hid;
-+	device->exist = 1;
-+	device->cbuf_end = 0;
-+
-+	return minor;
-+}
-+EXPORT_SYMBOL_GPL(roccat_connect);
-+
-+/* roccat_disconnect() - remove char device from hid device
-+ * @minor: the minor device number returned by roccat_connect()
-+ */
-+void roccat_disconnect(int minor)
-+{
-+	struct roccat_device *device;
-+
-+	mutex_lock(&devices_lock);
-+	device = devices[minor];
-+	devices[minor] = NULL;
-+	mutex_unlock(&devices_lock);
-+
-+	device->exist = 0; /* TODO exist maybe not needed */
-+
-+	device_destroy(roccat_class, MKDEV(roccat_major, minor));
-+
-+	if (device->open) {
-+		device->hid->ll_driver->close(device->hid);
-+		wake_up_interruptible(&device->wait);
-+	} else {
-+		kfree(device);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(roccat_disconnect);
-+
-+static const struct file_operations roccat_ops = {
-+	.owner = THIS_MODULE,
-+	.read = roccat_read,
-+	.poll = roccat_poll,
-+	.open = roccat_open,
-+	.release = roccat_release,
-+};
-+
-+static int __init roccat_init(void)
-+{
-+	int retval;
-+	dev_t dev_id;
-+
-+	retval = alloc_chrdev_region(&dev_id, ROCCAT_FIRST_MINOR,
-+			ROCCAT_MAX_DEVICES, "roccat");
-+
-+	roccat_major = MAJOR(dev_id);
-+
-+	if (retval < 0) {
-+		printk(KERN_WARNING "roccat: can't get major number\n");
-+		return retval;
-+	}
-+
-+	roccat_class = class_create(THIS_MODULE, "roccat");
-+	if (IS_ERR(roccat_class)) {
-+		retval = PTR_ERR(roccat_class);
-+		unregister_chrdev_region(dev_id, ROCCAT_MAX_DEVICES);
-+		return retval;
-+	}
-+
-+	cdev_init(&roccat_cdev, &roccat_ops);
-+	cdev_add(&roccat_cdev, dev_id, ROCCAT_MAX_DEVICES);
-+
-+	return 0;
-+}
-+
-+static void __exit roccat_exit(void)
-+{
-+	dev_t dev_id = MKDEV(roccat_major, 0);
-+
-+	cdev_del(&roccat_cdev);
-+	class_destroy(roccat_class);
-+	unregister_chrdev_region(dev_id, ROCCAT_MAX_DEVICES);
-+}
-+
-+module_init(roccat_init);
-+module_exit(roccat_exit);
-+
-+MODULE_AUTHOR("Stefan Achatz");
-+MODULE_DESCRIPTION("USB Roccat char device");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/hid/hid-roccat.h b/drivers/hid/hid-roccat.h
-new file mode 100644
-index 0000000..40cca5b
---- /dev/null
-+++ b/drivers/hid/hid-roccat.h
-@@ -0,0 +1,31 @@
-+#ifndef __HID_ROCCAT_H
-+#define __HID_ROCCAT_H
-+
-+/*
-+ * Copyright (c) 2010 Stefan Achatz <erazor_de@users.sourceforge.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-it
-+ * under the terms of the GNU General Public License as published by
-the Free
-+ * Software Foundation; either version 2 of the License, or (at your
-option)
-+ * any later version.
-+ */
-+
++* This program is free software; you can redistribute it and/or modify it
++* under the terms of the GNU General Public License as published by the Free
++* Software Foundation; either version 2 of the License, or (at your option)
++* any later version.
++*/
++
++#include <linux/device.h>
 +#include <linux/hid.h>
-+#include <linux/types.h>
++#include <linux/module.h>
 +
-+#ifdef CONFIG_HID_ROCCAT
-+int roccat_connect(struct hid_device *hid);
-+void roccat_disconnect(int minor);
-+int roccat_report_event(int minor, u8 const *data, int len);
-+#else
-+static inline int roccat_connect(struct hid_device *hid) { return -1; }
-+static inline void roccat_disconnect(int minor) {}
-+static inline int roccat_report_event(int minor, u8 const *data, int
-len)
++#include "hid-ids.h"
++
++/* button layout
++
++ top:		button id
++ bottom:	button action
++
++	Power/Sleep	TV		radio		teletext
++	default		KEY_TV		KEY_RADIO	KEY_TEXT
++
++	music		photo		video		DVD
++	KEY_AUDIO	KEY_AUX		KEY_VIDEO	KEY_DVD
++
++				UP
++				default
++
++			LEFT		RIGHT
++			default		default
++
++				DOWN
++				default
++
++	back			ok			menu
++	default			default			KEY_MENU
++
++	previous		play/pause		next
++	default			default			default
++
++	rewind			stop			forward
++	default			default			default
++
++	volume +					channel +
++	default						default
++
++				home
++				KEY_PVR
++
++	volume -					channel -
++	default						default
++
++	mute			record			mouse toggle
++	default			default			KEY_MODE
++
++	1			2			3
++	default			default			default
++
++	4			5			6
++	default			default			default
++
++	7			8			9
++	default			default			default
++
++	fullscreen		0			info
++	KEY_SCREEN		default			KEY_INFO
++*/
++
++struct zc_device {
++	struct input_dev	*input_ep81;
++	unsigned short		last_key[4];
++};
++
++
++/*
++* Zydacron remote control has an invalid HID report descriptor,
++* that needs fixing before we can parse it.
++*/
++static void zc_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++	unsigned int rsize)
 +{
-+	return 0;
++	if (rsize >= 253 &&
++		rdesc[0x96] == 0xbc && rdesc[0x97] == 0xff &&
++		rdesc[0xca] == 0xbc && rdesc[0xcb] == 0xff &&
++		rdesc[0xe1] == 0xbc && rdesc[0xe2] == 0xff) {
++			dev_info(&hdev->dev,
++				"fixing up zydacron remote control report "
++				"descriptor\n");
++			rdesc[0x96] = rdesc[0xca] = rdesc[0xe1] = 0x0c;
++			rdesc[0x97] = rdesc[0xcb] = rdesc[0xe2] = 0x00;
++		}
 +}
-+#endif
 +
-+#endif
--- 
-1.6.6.1
++#define zc_map_key_clear(c) \
++	hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
++
++static int zc_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++	struct hid_field *field, struct hid_usage *usage,
++	unsigned long **bit, int *max)
++{
++	int i;
++	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
++	zc->input_ep81 = hi->input;
++
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_CONSUMER)
++		return 0;
++
++	dbg_hid("zynacron input mapping event [0x%x]\n",
++		usage->hid & HID_USAGE);
++
++	switch (usage->hid & HID_USAGE) {
++	/* report 2 */
++	case 0x10:
++		zc_map_key_clear(KEY_MODE);
++		break;
++	case 0x30:
++		zc_map_key_clear(KEY_SCREEN);
++		break;
++	case 0x70:
++		zc_map_key_clear(KEY_INFO);
++		break;
++	/* report 3 */
++	case 0x04:
++		zc_map_key_clear(KEY_RADIO);
++		break;
++	/* report 4 */
++	case 0x0d:
++		zc_map_key_clear(KEY_PVR);
++		break;
++	case 0x25:
++		zc_map_key_clear(KEY_TV);
++		break;
++	case 0x47:
++		zc_map_key_clear(KEY_AUDIO);
++		break;
++	case 0x49:
++		zc_map_key_clear(KEY_AUX);
++		break;
++	case 0x4a:
++		zc_map_key_clear(KEY_VIDEO);
++		break;
++	case 0x48:
++		zc_map_key_clear(KEY_DVD);
++		break;
++	case 0x24:
++		zc_map_key_clear(KEY_MENU);
++		break;
++	case 0x32:
++		zc_map_key_clear(KEY_TEXT);
++		break;
++	default:
++		return 0;
++	}
++
++	for (i = 0; i < 4; i++)
++		zc->last_key[i] = 0;
++
++	return 1;
++}
++
++static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
++	 u8 *data, int size)
++{
++	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
++	int ret = 0;
++	unsigned key;
++	unsigned short index;
++
++	if (report->id == data[0]) {
++
++		/* break keys */
++		for (index = 0; index < 4; index++) {
++			key = zc->last_key[index];
++			if (key) {
++				input_event(zc->input_ep81, EV_KEY, key, 0);
++				zc->last_key[index] = 0;
++			}
++		}
++
++		key = 0;
++		switch (report->id) {
++		case 0x02:
++		case 0x03:
++			switch (data[1]) {
++			case 0x10:
++				key = KEY_MODE;
++				index = 0;
++				break;
++			case 0x30:
++				key = KEY_SCREEN;
++				index = 1;
++				break;
++			case 0x70:
++				key = KEY_INFO;
++				index = 2;
++				break;
++			case 0x04:
++				key = KEY_RADIO;
++				index = 3;
++				break;
++			}
++
++			if (key) {
++				input_event(zc->input_ep81, EV_KEY, key, 1);
++				zc->last_key[index] = key;
++			}
++
++			ret = 1;
++			break;
++		}
++	}
++
++	return ret;
++}
++
++static int zc_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	struct zc_device *zc;
++
++	zc = kzalloc(sizeof(*zc), GFP_KERNEL);
++	if (zc == NULL) {
++		dev_err(&hdev->dev, "zydacron: can't alloc descriptor\n");
++		return -ENOMEM;
++	}
++
++	hid_set_drvdata(hdev, zc);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "zydacron: parse failed\n");
++		goto err_free;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		dev_err(&hdev->dev, "zydacron: hw start failed\n");
++		goto err_free;
++	}
++
++	return 0;
++err_free:
++	kfree(zc);
++
++	return ret;
++}
++
++static void zc_remove(struct hid_device *hdev)
++{
++	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
++
++	hid_hw_stop(hdev);
++
++	if (NULL != zc)
++		kfree(zc);
++}
++
++static const struct hid_device_id zc_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, zc_devices);
++
++static struct hid_driver zc_driver = {
++	.name = "zydacron",
++	.id_table = zc_devices,
++	.report_fixup = zc_report_fixup,
++	.input_mapping = zc_input_mapping,
++	.raw_event = zc_raw_event,
++	.probe = zc_probe,
++	.remove = zc_remove,
++};
++
++static int __init zc_init(void)
++{
++	return hid_register_driver(&zc_driver);
++}
++
++static void __exit zc_exit(void)
++{
++	hid_unregister_driver(&zc_driver);
++}
++
++module_init(zc_init);
++module_exit(zc_exit);
++MODULE_LICENSE("GPL");
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+--- a/drivers/hid/Kconfig	2010-03-09 13:53:05.930183131 +0000
++++ b/drivers/hid/Kconfig	2010-05-12 11:38:12.773567293 +0100
+@@ -372,6 +372,13 @@ config ZEROPLUS_FF
+ 	  Say Y here if you have a Zeroplus based game controller and want
+ 	  to have force feedback support for it.
+ 
++config HID_ZYDACRON
++	tristate "Zydacron remote control support" if EMBEDDED
++	depends on USB_HID
++	default !EMBEDDED
++	---help---
++	Support for Zydacron remote control.
++
+ endmenu
+ 
+ endif # HID_SUPPORT
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/Makefile b/drivers/hid/Makefile
+--- a/drivers/hid/Makefile	2010-03-09 13:53:06.036326844 +0000
++++ b/drivers/hid/Makefile	2010-05-12 11:38:12.774443286 +0100
+@@ -54,6 +54,7 @@ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tm
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
+ obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
+ obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
++obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+ obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid/
 
 
 
+
+		
+___________________________________________________________ 
+All New Yahoo! Mail – Tired of Vi@gr@! come-ons? Let our SpamGuard protect you. http://uk.docs.yahoo.com/nowyoucan.html

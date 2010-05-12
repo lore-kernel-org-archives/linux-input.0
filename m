@@ -1,141 +1,47 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: [RFC] [PATCHv2 2/2] SFH7741: Proximity sensor board support.
-Date: Wed, 12 May 2010 14:22:16 +0530
-Message-ID: <0680EC522D0CC943BC586913CF3768C003B3209EF5@dbde02.ent.ti.com>
+From: Johannes Weiner <jw@emlix.com>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+ cache lines
+Date: Wed, 12 May 2010 12:36:58 +0200
+Message-ID: <20100512103658.GB2635@emlix.com>
+References: <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+ <522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
+ <20100512030350.GJ15903@laptop>
+ <20100512122323J.fujita.tomonori@lab.ntt.co.jp>
+ <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:50829 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755120Ab0ELIwU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 04:52:20 -0400
-Content-Language: en-US
+Received: from mx1.emlix.com ([193.175.82.87]:36578 "EHLO mx1.emlix.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751669Ab0ELKiB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 May 2010 06:38:01 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, npiggin@suse.de, marc@tensilica.com, dmitry.torokhov@gmail.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
 
+On Wed, May 12, 2010 at 12:35:45AM -0400, Mike Frysinger wrote:
+> On Tue, May 11, 2010 at 23:23, FUJITA Tomonori wrote:
+> > Seems that kmalloc is not cacheline aligned on some architectures but
+> > they works. Probably, we might be just lucky because in general they
+> > allocate larger buffers than 64 for DMA via kmalloc and the buffers
+> > are aligned on the size?
+> 
+> i think the magic combo is:
+>  - DMA buffer is written to (receive)
 
-Adding board support for the proximity sensor.
+Check.
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- arch/arm/mach-omap2/board-4430sdp.c |   71 +++++++++++++++++++++++++++++++++++
- 1 files changed, 71 insertions(+), 0 deletions(-)
+>  - some driver state is in the same cacheline as the DMA buffer
+>  - that driver state is used after the flush but before the DMA finishes
 
-diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap2/board-4430sdp.c
-index b88f28c..beb3059 100644
---- a/arch/arm/mach-omap2/board-4430sdp.c
-+++ b/arch/arm/mach-omap2/board-4430sdp.c
-@@ -18,6 +18,7 @@
- #include <linux/io.h>
- #include <linux/gpio.h>
- #include <linux/usb/otg.h>
-+#include <linux/input/sfh7741.h>
- 
- #include <mach/hardware.h>
- #include <asm/mach-types.h>
-@@ -31,7 +32,25 @@
- #include <plat/usb.h>
- #include <asm/hardware/gic.h>
- #include <asm/hardware/cache-l2x0.h>
-+#define OMAP4_SFH7741_SENSOR_OUTPUT_GPIO	184
-+#define OMAP4_SFH7741_ENABLE_GPIO		188
-+static void omap_prox_activate(int state);
-+static int omap_prox_read(void);
-+
-+static struct sfh7741_platform_data omap_sfh7741_data = {
-+		.irq = OMAP_GPIO_IRQ(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO),
-+		.prox_enable = 1,
-+		.activate_func = omap_prox_activate,
-+		.read_prox = omap_prox_read,
-+};
- 
-+static struct platform_device sdp4430_proximity_device = {
-+	.name		= "sfh7741",
-+	.id		= 1,
-+	.dev		= {
-+		.platform_data = &omap_sfh7741_data,
-+	},
-+};
- static struct platform_device sdp4430_lcd_device = {
- 	.name		= "sdp4430_lcd",
- 	.id		= -1,
-@@ -39,6 +58,7 @@ static struct platform_device sdp4430_lcd_device = {
- 
- static struct platform_device *sdp4430_devices[] __initdata = {
- 	&sdp4430_lcd_device,
-+	&sdp4430_proximity_device,
- };
- 
- static struct omap_lcd_config sdp4430_lcd_config __initdata = {
-@@ -111,6 +131,56 @@ static struct omap_musb_board_data musb_board_data = {
- 	.power			= 100,
- };
- 
-+static void omap_prox_activate(int state)
-+{
-+	gpio_set_value(OMAP4_SFH7741_ENABLE_GPIO , state);
-+}
-+
-+static int omap_prox_read(void)
-+{
-+	int proximity;
-+	proximity = gpio_get_value(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-+	return proximity;
-+}
-+
-+static void omap_sfh7741prox_init(void)
-+{
-+	char *desc = "sfh7741";
-+	int  error;
-+
-+	error = gpio_request(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO, "sfh7741");
-+	if (error < 0) {
-+		pr_err("%s: GPIO configuration failed: GPIO %d, error %d\n"
-+			, __func__, OMAP4_SFH7741_SENSOR_OUTPUT_GPIO, error);
-+		return ;
-+	}
-+
-+	error = gpio_direction_input(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-+	if (error < 0) {
-+		pr_err("Proximity GPIO input configuration failed\n");
-+		goto fail1;
-+	}
-+
-+	error = gpio_request(OMAP4_SFH7741_ENABLE_GPIO, "sfh7741");
-+	if (error < 0) {
-+		pr_err("failed to request GPIO %d, error %d\n",
-+			OMAP4_SFH7741_ENABLE_GPIO, error);
-+		goto fail1;
-+	}
-+
-+	error = gpio_direction_output(OMAP4_SFH7741_ENABLE_GPIO , 1);
-+	if (error < 0) {
-+		pr_err("%s: GPIO configuration failed: GPIO %d,\
-+			error %d\n",__func__, OMAP4_SFH7741_ENABLE_GPIO, error);
-+		goto fail3;
-+	}
-+	return;
-+
-+fail3:
-+	gpio_free(OMAP4_SFH7741_ENABLE_GPIO);
-+fail1:
-+	gpio_free(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-+}
- static void __init omap_4430sdp_init(void)
- {
- 	platform_add_devices(sdp4430_devices, ARRAY_SIZE(sdp4430_devices));
-@@ -120,6 +190,7 @@ static void __init omap_4430sdp_init(void)
- 	/* FIXME: allow multi-omap to boot until musb is updated for omap4 */
- 	if (!cpu_is_omap44xx())
- 		usb_musb_init(&musb_board_data);
-+	omap_sfh7741prox_init();
- }
- 
- static void __init omap_4430sdp_map_io(void)
--- 
-1.5.4.7
+The kmalloc caches are system-wide.  Any other kmalloc(samesize) user
+could interfer when touching its object between dma_map_single() on
+the neighbor object and the end of the transfer.
 
+>  - only on arches that need software cache coherency
+> 
+> so i could see this not being an obvious issue for many people
+> -mike

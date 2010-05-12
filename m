@@ -1,49 +1,58 @@
-From: Marc Gauthier <marc@tensilica.com>
-Subject: RE: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
- 	cache lines
-Date: Wed, 12 May 2010 05:35:45 -0700
-Message-ID: <522C1DF17AF50042AD8AE87F7887BD3D01635495D3@exch.hq.tensilica.com>
-References: <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
- 	<522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
- 	<20100512030350.GJ15903@laptop>
- <20100512122323J.fujita.tomonori@lab.ntt.co.jp>
- <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
+From: Manuel Lauss <manuel.lauss@googlemail.com>
+Subject: Re: WM9712 GPIO
+Date: Wed, 12 May 2010 14:50:44 +0200
+Message-ID: <AANLkTimGhfLPxAIhtTYoUO-te1mUs86LEVEcYN7DgOtY@mail.gmail.com>
+References: <AANLkTikXR3vlUg-XX33LCrAiVxk0nJWNe__7SU7g1DuF@mail.gmail.com>
+	 <20100512123026.GA8082@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailgw.tensilica.com ([65.119.96.134]:45799 "EHLO
-	mailgw.tensilica.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751714Ab0ELMg1 convert rfc822-to-8bit (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:43926 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752374Ab0ELMuq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 08:36:27 -0400
-In-Reply-To: <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
-Content-Language: en-US
+	Wed, 12 May 2010 08:50:46 -0400
+Received: by fxm15 with SMTP id 15so8204fxm.19
+        for <linux-input@vger.kernel.org>; Wed, 12 May 2010 05:50:45 -0700 (PDT)
+In-Reply-To: <20100512123026.GA8082@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>, FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
-Cc: "npiggin@suse.de" <npiggin@suse.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jw@emlix.com" <jw@emlix.com>, "cl@linux.com" <cl@linux.com>, "penberg@cs.helsinki.fi" <penberg@cs.helsinki.fi>, "mpm@selenic.com" <mpm@selenic.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "os@emlix.com" <os@emlix.com>, "Michael.Hennerich@analog.com" <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dg@emlix.com" <dg@emlix.com>, "osw@emlix.com" <osw@emlix.com>, "rientjes@google.com" <rientjes@google.com>, "dbrownell@users.sourceforge.net" <dbrownell@users.sourceforge.net>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "chris@zankel.net" <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org
 
-Mike Frysinger wrote:
-> On Tue, May 11, 2010 at 23:23, FUJITA Tomonori wrote:
->> Seems that kmalloc is not cacheline aligned on some architectures but
->> they works. Probably, we might be just lucky because in general they
->> allocate larger buffers than 64 for DMA via kmalloc and the buffers
->> are aligned on the size?
+On Wed, May 12, 2010 at 2:30 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+> On Wed, May 12, 2010 at 01:47:12PM +0200, Manuel Lauss wrote:
 >
-> i think the magic combo is:
->  - DMA buffer is written to (receive)
-[...]
->  - only on arches that need software cache coherency
+>> I'm playing with the GPIO interface on a WM9712G, specifically GPIO1
+>> and 2 of the chip.
+>> However I'm unable to get the chip to toggle any of these pins.
+>
+>> Setting a pin with
+>> wm97xx_set_gpio(wm, WM97XX_GPIO_1, WM97XX_GPIO_HIGH);
+>
+>> reads back 0x0820 from GPIO status reg, sets bit 1,writes back 0x104=
+4 (<<1),
+>> but a read following immediately after yields 0x0820 again, and the =
+pin
+>> never changes.
+>
+>> Am I missing something?
+>
+> The WM9712 does not support this feature. =A0It only supports setting=
+ the
+> GPIO status by use of AC'97 slot 12 for which there's currently no
+> standard glue on Linux. =A0Setting slot 12 needs to be done in the AC=
+'97
+> controller.
 
-In particular, when the architecture port uses cache invalidates that
-throw away dirty lines.  They're equivalent to writing old data to a
-cache line, so an unrelated kmalloc allocation in the same cache line
-gets corrupted.
+Wonderful.  Thanks for the info.
 
-So true, not all architectures need the extra alignment.
-(And maybe some get lucky too, don't know.)
 
--Marc
-
-PS.  Sorry about the gratuitous [LKML] in the subject line, mea culpa.
+      Manuel Lauss
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

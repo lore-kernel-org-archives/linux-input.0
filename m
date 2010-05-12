@@ -1,148 +1,56 @@
-From: Nishanth Menon <nm@ti.com>
-Subject: Re: [RFC] [PATCHv2 2/2] SFH7741: Proximity sensor board support.
-Date: Wed, 12 May 2010 08:22:31 -0500
-Message-ID: <4BEAAB97.1000106@ti.com>
-References: <0680EC522D0CC943BC586913CF3768C003B3209EF5@dbde02.ent.ti.com>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+	cache lines
+Date: Wed, 12 May 2010 10:36:39 -0400
+Message-ID: <AANLkTin2Kz0rdecwMlu6DU5y4b_okl4gdXCcF2c1ZlT4@mail.gmail.com>
+References: <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+	<522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
+	<20100512030350.GJ15903@laptop> <20100512122323J.fujita.tomonori@lab.ntt.co.jp>
+	<AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
+	<522C1DF17AF50042AD8AE87F7887BD3D01635495D3@exch.hq.tensilica.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:33946 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751438Ab0ELNWc (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:49715 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753901Ab0ELOhA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 09:22:32 -0400
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B3209EF5@dbde02.ent.ti.com>
+	Wed, 12 May 2010 10:37:00 -0400
+In-Reply-To: <522C1DF17AF50042AD8AE87F7887BD3D01635495D3@exch.hq.tensilica.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Marc Gauthier <marc@tensilica.com>
+Cc: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, "npiggin@suse.de" <npiggin@suse.de>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "jw@emlix.com" <jw@emlix.com>, "cl@linux.com" <cl@linux.com>, "penberg@cs.helsinki.fi" <penberg@cs.helsinki.fi>, "mpm@selenic.com" <mpm@selenic.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "os@emlix.com" <os@emlix.com>, "Michael.Hennerich@analog.com" <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dg@emlix.com" <dg@emlix.com>, "osw@emlix.com" <osw@emlix.com>, "rientjes@google.com" <rientjes@google.com>, "dbrownell@users.sourceforge.net" <dbrownell@users.sourceforge.net>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "chris@zankel.net" <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.c>
 
-Datta, Shubhrajyoti had written, on 05/12/2010 03:52 AM, the following:
-> Adding board support for the proximity sensor.
-> 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> ---
->  arch/arm/mach-omap2/board-4430sdp.c |   71 +++++++++++++++++++++++++++++++++++
->  1 files changed, 71 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap2/board-4430sdp.c
-> index b88f28c..beb3059 100644
-> --- a/arch/arm/mach-omap2/board-4430sdp.c
-> +++ b/arch/arm/mach-omap2/board-4430sdp.c
-> @@ -18,6 +18,7 @@
->  #include <linux/io.h>
->  #include <linux/gpio.h>
->  #include <linux/usb/otg.h>
-> +#include <linux/input/sfh7741.h>
->  
->  #include <mach/hardware.h>
->  #include <asm/mach-types.h>
-> @@ -31,7 +32,25 @@
->  #include <plat/usb.h>
->  #include <asm/hardware/gic.h>
->  #include <asm/hardware/cache-l2x0.h>
-> +#define OMAP4_SFH7741_SENSOR_OUTPUT_GPIO	184
-> +#define OMAP4_SFH7741_ENABLE_GPIO		188
-> +static void omap_prox_activate(int state);
-> +static int omap_prox_read(void);
-> +
-> +static struct sfh7741_platform_data omap_sfh7741_data = {
-> +		.irq = OMAP_GPIO_IRQ(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO),
-> +		.prox_enable = 1,
-> +		.activate_func = omap_prox_activate,
-> +		.read_prox = omap_prox_read,
-> +};
->  
-> +static struct platform_device sdp4430_proximity_device = {
-> +	.name		= "sfh7741",
-> +	.id		= 1,
-> +	.dev		= {
-> +		.platform_data = &omap_sfh7741_data,
-> +	},
-> +};
->  static struct platform_device sdp4430_lcd_device = {
->  	.name		= "sdp4430_lcd",
->  	.id		= -1,
-> @@ -39,6 +58,7 @@ static struct platform_device sdp4430_lcd_device = {
->  
->  static struct platform_device *sdp4430_devices[] __initdata = {
->  	&sdp4430_lcd_device,
-> +	&sdp4430_proximity_device,
->  };
->  
->  static struct omap_lcd_config sdp4430_lcd_config __initdata = {
-> @@ -111,6 +131,56 @@ static struct omap_musb_board_data musb_board_data = {
->  	.power			= 100,
->  };
->  
-> +static void omap_prox_activate(int state)
-> +{
-> +	gpio_set_value(OMAP4_SFH7741_ENABLE_GPIO , state);
-> +}
-> +
-> +static int omap_prox_read(void)
-> +{
-> +	int proximity;
-> +	proximity = gpio_get_value(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-> +	return proximity;
-> +}
-> +
-> +static void omap_sfh7741prox_init(void)
-> +{
-> +	char *desc = "sfh7741";
-> +	int  error;
-> +
-> +	error = gpio_request(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO, "sfh7741");
-> +	if (error < 0) {
-> +		pr_err("%s: GPIO configuration failed: GPIO %d, error %d\n"
-> +			, __func__, OMAP4_SFH7741_SENSOR_OUTPUT_GPIO, error);
-> +		return ;
-> +	}
-> +
-> +	error = gpio_direction_input(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-> +	if (error < 0) {
-> +		pr_err("Proximity GPIO input configuration failed\n");
-> +		goto fail1;
-> +	}
-> +
-> +	error = gpio_request(OMAP4_SFH7741_ENABLE_GPIO, "sfh7741");
-> +	if (error < 0) {
-> +		pr_err("failed to request GPIO %d, error %d\n",
-> +			OMAP4_SFH7741_ENABLE_GPIO, error);
-> +		goto fail1;
-> +	}
-> +
-> +	error = gpio_direction_output(OMAP4_SFH7741_ENABLE_GPIO , 1);
-> +	if (error < 0) {
-> +		pr_err("%s: GPIO configuration failed: GPIO %d,\
-> +			error %d\n",__func__, OMAP4_SFH7741_ENABLE_GPIO, error);
-> +		goto fail3;
-> +	}
-> +	return;
-> +
-> +fail3:
-> +	gpio_free(OMAP4_SFH7741_ENABLE_GPIO);
-> +fail1:
-> +	gpio_free(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
-> +}
+On Wed, May 12, 2010 at 08:35, Marc Gauthier wrote:
+> Mike Frysinger wrote:
+>> On Tue, May 11, 2010 at 23:23, FUJITA Tomonori wrote:
+>>> Seems that kmalloc is not cacheline aligned on some architectures b=
+ut
+>>> they works. Probably, we might be just lucky because in general the=
+y
+>>> allocate larger buffers than 64 for DMA via kmalloc and the buffers
+>>> are aligned on the size?
+>>
+>> i think the magic combo is:
+>> =C2=A0- DMA buffer is written to (receive)
+> [...]
+>> =C2=A0- only on arches that need software cache coherency
+>
+> In particular, when the architecture port uses cache invalidates that
+> throw away dirty lines. =C2=A0They're equivalent to writing old data =
+to a
+> cache line, so an unrelated kmalloc allocation in the same cache line
+> gets corrupted.
 
-a) mux handling?
-b) if init failed, still register the prox device? it wont function right?
-
->  static void __init omap_4430sdp_init(void)
->  {
->  	platform_add_devices(sdp4430_devices, ARRAY_SIZE(sdp4430_devices));
-> @@ -120,6 +190,7 @@ static void __init omap_4430sdp_init(void)
->  	/* FIXME: allow multi-omap to boot until musb is updated for omap4 */
->  	if (!cpu_is_omap44xx())
->  		usb_musb_init(&musb_board_data);
-> +	omap_sfh7741prox_init();
->  }
->  
->  static void __init omap_4430sdp_map_io(void)
-
-
--- 
-Regards,
-Nishanth Menon
+true; i was thinking of the Blackfin implementation that only has a
+=46LUSH+INV insn (i complain about the lack of a pure INV insn every no=
+w
+and again)
+-mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

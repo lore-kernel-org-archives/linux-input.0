@@ -1,92 +1,70 @@
-From: Mike Frysinger <vapier.adi@gmail.com>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Tue, 11 May 2010 18:39:54 -0400
-Message-ID: <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
-References: <20100511063309.GC9644@core.coreip.homeip.net>
-	<AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com>
-	<1273608441.15067.1002.camel@calx> <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
-	<alpine.DEB.2.00.1005111520260.1500@router.home> <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
-	<alpine.DEB.2.00.1005111544330.8388@router.home> <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
-	<20100511214836.GH1726@emlix.com> <20100511215359.GF7396@core.coreip.homeip.net>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v4 1/2] input: touchscreen: introduce tsc2005 driver
+Date: Tue, 11 May 2010 17:03:36 -0700
+Message-ID: <20100512000336.GS13931@atomide.com>
+References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:44332 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751449Ab0EKWkR convert rfc822-to-8bit (ORCPT
+Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:54877 "EHLO
+	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751754Ab0ELADf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 18:40:17 -0400
-In-Reply-To: <20100511215359.GF7396@core.coreip.homeip.net>
+	Tue, 11 May 2010 20:03:35 -0400
+Content-Disposition: inline
+In-Reply-To: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?Daniel_Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
+To: Aaro Koskinen <aaro.koskinen@nokia.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, dmitry.torokhov@gmail.com, Lauri Leukkunen <lauri.leukkunen@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
 
-On Tue, May 11, 2010 at 17:53, Dmitry Torokhov wrote:
-> On Tue, May 11, 2010 at 11:48:36PM +0200, Johannes Weiner wrote:
->> On Tue, May 11, 2010 at 04:54:41PM -0400, Mike Frysinger wrote:
->> > does the phrase "DMA safe buffer" imply cache alignment ?
->>
->> I guess that depends on the architectural requirements. =C2=A0On x86=
-,
->> apparently, not so much. =C2=A0On ARM, probably yes, as it's the
->> requirement to properly maintain coherency.
->
-> It looks liek ARM (and a few others) do this:
->
-> [dtor@hammer work]$ grep -r ARCH_KMALLOC_MINALIGN arch/
-> arch/sh/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN =C2=A0 =C2=A0=
- =C2=A0 =C2=A0L1_CACHE_BYTES
-> arch/frv/include/asm/mem-layout.h:#define =C2=A0 =C2=A0 =C2=A0 ARCH_K=
-MALLOC_MINALIGN =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 8
-> arch/powerpc/include/asm/page_32.h:#define ARCH_KMALLOC_MINALIGN =C2=A0=
- =C2=A0 =C2=A0 =C2=A0L1_CACHE_BYTES
-> arch/arm/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN =C2=A0 =C2=
-=A0 =C2=A0L1_CACHE_BYTES
-> arch/microblaze/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN =C2=A0=
- =C2=A0 =C2=A0 =C2=A0L1_CACHE_BYTES
-> arch/mips/include/asm/mach-tx49xx/kmalloc.h: * All happy, no need to =
-define ARCH_KMALLOC_MINALIGN
-> arch/mips/include/asm/mach-ip27/kmalloc.h: * All happy, no need to de=
-fine ARCH_KMALLOC_MINALIGN
-> arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALI=
-GN 32
-> arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALI=
-GN 128
-> arch/mips/include/asm/mach-generic/kmalloc.h:#define ARCH_KMALLOC_MIN=
-ALIGN =C2=A0 =C2=A0 =C2=A0128
-> arch/avr32/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN =C2=A0 =C2=
-=A0L1_CACHE_BYTES
+* Aaro Koskinen <aaro.koskinen@nokia.com> [100419 07:47]:
+> From: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> 
+> Introduce a driver for the Texas Instruments TSC2005 touchscreen
+> controller (http://focus.ti.com/docs/prod/folders/print/tsc2005.html).
+> 
+> The patch is based on a driver by Lauri Leukkunen, with modifications
+> by David Brownell, Phil Carmody, Imre Deak, Hiroshi DOYU, Ari Kauppi,
+> Tony Lindgren, Jarkko Nikula, Eero Nurkkala and Roman Tereshonkov.
+> 
+> Signed-off-by: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> [aaro.koskinen@nokia.com: patch description, rebasing & cleanup]
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+> Cc: David Brownell <dbrownell@users.sourceforge.net>
+> Cc: Phil Carmody <ext-phil.2.carmody@nokia.com>
+> Cc: Imre Deak <imre.deak@nokia.com>
+> Cc: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
+> Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Jarkko Nikula <jhnikula@gmail.com>
+> Cc: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
+> Cc: Roman Tereshonkov <roman.tereshonkov@nokia.com>
+> ---
+> 
+> v4: Refreshed the patches against the current mainline
+> (13bd8e4673d527a9e48f41956b11d391e7c2cfe0). No other changes as no
+> comments were received.
+> 
+> The v3 has some major modifications. I have tried to clean up and simplify
+> the driver. All action takes place in thread context, SPI transfers are
+> synchronous, the spinlock is removed, and there are no long sections
+> with interrupts disabled. The driver should be now SMP safe.
+> 
+> Also the following review comments are addressed:
+> 	- Use del_timer_sync() instead of del_timer().
+> 	- Use mod_timer() always instead of add_timer().
+> 	- Use attribute_group.
+> 	- Delete filtering and averaging which belong to upper layers.
+> 	- Delete pen_down sysfs file.
+> 
+> The previous version and comments can be seen here:
+> http://marc.info/?t=125734115600004&r=1&w=2
 
-if ARCH_KMALLOC_MINALIGN is not defined, the current allocators default=
- to:
- slub - alignof(unsigned long long)
- slab - alignof(unsigned long long)
- slob - alignof(unsigned long)
-which for many arches can mean an alignment of merely 4 or 8
+Any news on this? Would be nice to get this merged in as it sounds
+like the N900 display will finally be usable in the mainline kernel
+too.
 
-lets look at the cacheline sizes for arches that dont set
-ARCH_KMALLOC_MINALIGN to L1_CACHE_BYTES:
- - alplha - 32 or 64
- - frv - 32 or 64
- - blackfin - 32
- - parisc - 32 or 64
- - mn10300 - 16
- - s390 - 256
- - score - 16
- - sparc - 32
- - xtensa - 16 or 32
+Regards,
 
-assuming alpha and s390 handle cache coherency in hardware, it looks
-to me like the proposed assumption (kmalloc returns cachealigned
-pointers when cache management is in software) does not hold true.
-
-so should these other arches also be setting ARCH_KMALLOC_MINALIGN to
-L1_CACHE_BYTES ?
--mike
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Tony

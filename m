@@ -1,44 +1,134 @@
-From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
-Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
-	cache lines
-Date: Wed, 12 May 2010 14:28:51 +0900
-Message-ID: <20100512142904Z.fujita.tomonori@lab.ntt.co.jp>
-References: <20100512030350.GJ15903@laptop>
-	<20100512122323J.fujita.tomonori@lab.ntt.co.jp>
-	<AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
+Date: Wed, 12 May 2010 00:40:00 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E08F7B6@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
+ <20100421065550.GL4364@core.coreip.homeip.net>
+ <27F9C60D11D683428E133F85D2BB4A53043DFD5320@dlee03.ent.ti.com>
+ <27F9C60D11D683428E133F85D2BB4A53043DFD5323@dlee03.ent.ti.com>
+ <20100511044156.GA21299@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sh.osrg.net ([192.16.179.4]:43872 "EHLO sh.osrg.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750914Ab0ELFe5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 01:34:57 -0400
-In-Reply-To: <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100511044156.GA21299@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: vapier.adi@gmail.com
-Cc: fujita.tomonori@lab.ntt.co.jp, npiggin@suse.de, marc@tensilica.com, dmitry.torokhov@gmail.com, jw@emlix.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
 
-On Wed, 12 May 2010 00:35:45 -0400
-Mike Frysinger <vapier.adi@gmail.com> wrote:
+Dmitry,
 
-> On Tue, May 11, 2010 at 23:23, FUJITA Tomonori wrote:
-> > Seems that kmalloc is not cacheline aligned on some architectures but
-> > they works. Probably, we might be just lucky because in general they
-> > allocate larger buffers than 64 for DMA via kmalloc and the buffers
-> > are aligned on the size?
+2 comments + one question before sending next version...
+
+[...]
+
+> > > > > +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
+> > > > > +{
+> > > >
+> > > > Why is iti threaded? I fo not see anything that will sleep.
+> >
+> >
+> > It was implemented based on previous comments...
+> >
 > 
-> i think the magic combo is:
->  - DMA buffer is written to (receive)
->  - some driver state is in the same cacheline as the DMA buffer
->  - that driver state is used after the flush but before the DMA finishes
->  - only on arches that need software cache coherency
-> 
-> so i could see this not being an obvious issue for many people
+> Would you point me to that comment? Like I said, I do not see anything
+> that would possibly sleep in this routine so you don't need to use
+> threaded interrupt.
 
-Yeah, we don't hit such condition everyday. And as I said, SCSI
-usually uses kmalloc'ed buffers rather than the cache size (buffers
-are aligned on roundup_pow_of_two(the allocated size)). But I think
-that we want to fix this issue explicitly. I guess that it would be
-better to start a new thread about this issue.
+Using now request_irq based on your comments. In same omap_keypad_interrupt disable/clear/enable interrupts will be executed
+
+[...]
+
+> > > > > +	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+> > > >
+> > > > You forgot to actualy report MSC_SCAN though.
+> >
+> > Should I remove it? I think I do need it only when KEY_UNKNOWN keys will be
+> > remapped, right?
+> 
+> I'd rather you actually report EV_MSC/MSC_SCAN.
+
+I am reporting now EV_MSC/MSC_SCAN. I am using evtest to read the events, if I press and release a key no code will be reported
+
+  Event: time 946684836.854248, -------------- Report Sync ------------
+  Event: time 946684836.854248, -------------- Report Sync ------------
+
+Unless I keep it depressed
+
+  Event: time 946684817.945892, type 1 (Key), code 18 (E), value 2
+
+And after releasing the key some other events will get generated
+
+  Event: time 946684817.967559, type 4 (Misc), code 4 (ScanCode), value 24
+  Event: time 946684817.967559, -------------- Report Sync ------------
+  Event: time 946684817.967559, type 4 (Misc), code 4 (ScanCode), value 32
+  Event: time 946684817.967559, -------------- Report Sync ------------
+  Event: time 946684817.967590, type 4 (Misc), code 4 (ScanCode), value 40
+  Event: time 946684817.967590, -------------- Report Sync ------------
+
+Am I missing something?
+
+[...]
+
+> 
+> >
+> > > > > +failed_free_irq:
+> > > > > +	free_irq(keypad_data->irq, pdev);
+> > > > > +failed_free_base:
+> > > > > +	keypad_data->base = NULL;
+> > > > > +failed_free_input:
+> > > > > +	input_free_device(input_dev);
+> > > > > +failed_free_codes:
+> > > > > +	kfree(keypad_codes);
+> > > > > +failed_free_data:
+> > > > > +	kfree(keypad_data);
+> > > > > +failed_free_platform:
+> > > > > +	kfree(keymap_data);
+> > > > > +	kfree(pdata);
+> > > > > +	return error;
+
+Using now the following sequence...
+
+	pdata = pdev->dev.platform_data;
+		return -EINVAL;
+
+	keymap_data = pdata->keymap_data;
+		goto failed_free_pdata;
+
+	keypad_data = kzalloc(sizeof(struct omap_keypad) +
+		goto failed_free_keymap;
+	
+	keypad_data->base = pdata->base;
+		goto failed_free_keypad;
+
+	keypad_data->irq = pdata->irq;
+		goto failed_free_base;
+
+	input_dev = input_allocate_device();
+		goto failed_free_base;
+
+	status = input_register_device(keypad_data->input);
+		goto failed_free_input;
+
+	status = request_irq(keypad_data->irq, omap_keypad_interrupt,
+		goto failed_unregister_device;
+
+failed_unregister__device:
+	input_unregister_device(keypad_data->input);
+	input_dev = NULL;
+failed_free_input:
+	input_free_device(input_dev);
+failed_free_base:
+	keypad_data->base = NULL;
+failed_free_keypad:
+	kfree(keypad_data);
+failed_free_keymap:
+	kfree(keymap_data);
+failed_free_pdata:
+	kfree(pdata);
+	return error;
+
+Best Regards
+Abraham

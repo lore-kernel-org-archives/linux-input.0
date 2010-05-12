@@ -1,70 +1,54 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v4 1/2] input: touchscreen: introduce tsc2005 driver
-Date: Tue, 11 May 2010 17:03:36 -0700
-Message-ID: <20100512000336.GS13931@atomide.com>
-References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Wed, 12 May 2010 10:58:42 +0900
+Message-ID: <20100512105907H.fujita.tomonori@lab.ntt.co.jp>
+References: <alpine.DEB.2.00.1005111544330.8388@router.home>
+	<AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+	<4BE9C58E.4070204@cs.helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:54877 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751754Ab0ELADf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 May 2010 20:03:35 -0400
-Content-Disposition: inline
-In-Reply-To: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+Received: from sh.osrg.net ([192.16.179.4]:42925 "EHLO sh.osrg.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751554Ab0ELCEh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 May 2010 22:04:37 -0400
+In-Reply-To: <4BE9C58E.4070204@cs.helsinki.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@nokia.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, dmitry.torokhov@gmail.com, Lauri Leukkunen <lauri.leukkunen@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Phil Carmody <ext-phil.2.carmody@nokia.com>, Imre Deak <imre.deak@nokia.com>, Hiroshi DOYU <Hiroshi.DOYU@nokia.com>, Ari Kauppi <Ext-Ari.Kauppi@nokia.com>, Jarkko Nikula <jhnikula@gmail.com>, Eero Nurkkala <ext-eero.nurkkala@nokia.com>, Roman Tereshonkov <roman.tereshonkov@nokia.com>
+To: penberg@cs.helsinki.fi
+Cc: vapier.adi@gmail.com, cl@linux.com, mpm@selenic.com, dmitry.torokhov@gmail.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, jw@emlix.com, npiggin@suse.de, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca
 
-* Aaro Koskinen <aaro.koskinen@nokia.com> [100419 07:47]:
-> From: Lauri Leukkunen <lauri.leukkunen@nokia.com>
-> 
-> Introduce a driver for the Texas Instruments TSC2005 touchscreen
-> controller (http://focus.ti.com/docs/prod/folders/print/tsc2005.html).
-> 
-> The patch is based on a driver by Lauri Leukkunen, with modifications
-> by David Brownell, Phil Carmody, Imre Deak, Hiroshi DOYU, Ari Kauppi,
-> Tony Lindgren, Jarkko Nikula, Eero Nurkkala and Roman Tereshonkov.
-> 
-> Signed-off-by: Lauri Leukkunen <lauri.leukkunen@nokia.com>
-> [aaro.koskinen@nokia.com: patch description, rebasing & cleanup]
-> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> Cc: David Brownell <dbrownell@users.sourceforge.net>
-> Cc: Phil Carmody <ext-phil.2.carmody@nokia.com>
-> Cc: Imre Deak <imre.deak@nokia.com>
-> Cc: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
-> Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Cc: Jarkko Nikula <jhnikula@gmail.com>
-> Cc: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
-> Cc: Roman Tereshonkov <roman.tereshonkov@nokia.com>
-> ---
-> 
-> v4: Refreshed the patches against the current mainline
-> (13bd8e4673d527a9e48f41956b11d391e7c2cfe0). No other changes as no
-> comments were received.
-> 
-> The v3 has some major modifications. I have tried to clean up and simplify
-> the driver. All action takes place in thread context, SPI transfers are
-> synchronous, the spinlock is removed, and there are no long sections
-> with interrupts disabled. The driver should be now SMP safe.
-> 
-> Also the following review comments are addressed:
-> 	- Use del_timer_sync() instead of del_timer().
-> 	- Use mod_timer() always instead of add_timer().
-> 	- Use attribute_group.
-> 	- Delete filtering and averaging which belong to upper layers.
-> 	- Delete pen_down sysfs file.
-> 
-> The previous version and comments can be seen here:
-> http://marc.info/?t=125734115600004&r=1&w=2
+On Wed, 12 May 2010 00:01:02 +0300
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-Any news on this? Would be nice to get this merged in as it sounds
-like the N900 display will finally be usable in the mainline kernel
-too.
+> Mike Frysinger wrote:
+> > On Tue, May 11, 2010 at 16:46, Christoph Lameter wrote:
+> >> On Tue, 11 May 2010, Mike Frysinger wrote:
+> >>>> DMA. If the arch can only DMA into cacheline aligned objects then the
+> >>>> correct method is to force kmalloc alignment to cacheline size.
+> >>> these are SPI drivers and are usable on any arch that supports a SPI
+> >>> bus (which is pretty much every arch).  forget about "embedded"
+> >>> arches.
+> >>>
+> >>> the issue here is simple: a SPI driver (AD7877) needs to do a receive
+> >>> SPI transfer into a DMA safe buffer.  what is the exact API to
+> >>> dynamically allocate memory for the structure with this buffer
+> >>> embedded in it such that the start of the structure is cached aligned
+> >>> ?  creating a dedicated kmem cache may work, but it isnt a scalable
+> >>> solution if every SPI driver needs to create its own cache.
+> >> kmalloc returns a pointer to a DMA safe buffer. There is no requirement on
+> >> the x86 hardware that the DMA buffers have to be cache aligned. Cachelines
+> >> will be invalidated as needed.
+> > 
+> > so this guarantee is made by the kmalloc() API ?  and for arches where
+> > the cacheline invalidation is handled in software rather than
+> > hardware, they must declare a min alignment value for kmalloc to be at
+> > least as big as their cache alignment ?
+> > 
+> > does the phrase "DMA safe buffer" imply cache alignment ?
+> 
+> Yes, you should be able to DMA into kmalloc'd memory. IIRC the block or 
+> the SCSI layer depends on that.
 
-Regards,
-
-Tony
+Yeah, SCSI subsystem and drivers, and block drivers depend on it.

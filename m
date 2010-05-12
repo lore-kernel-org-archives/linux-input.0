@@ -1,102 +1,44 @@
-From: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
-Subject: RE: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-Date: Wed, 12 May 2010 11:04:08 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02C545576B@dbde02.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043D9EE7F5@dlee03.ent.ti.com>
-	<20100421065550.GL4364@core.coreip.homeip.net>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD5320@dlee03.ent.ti.com>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD5323@dlee03.ent.ti.com>
-	<20100511044156.GA21299@core.coreip.homeip.net>
-	<27F9C60D11D683428E133F85D2BB4A53043DFD532E@dlee03.ent.ti.com>
-	<20100511054552.GA1714@core.coreip.homeip.net>
-	<87sk5yebh8.fsf@deeprootsystems.com>
-	<20100511164136.GA7396@core.coreip.homeip.net>
- <87632ut8wm.fsf@deeprootsystems.com>
+From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+	cache lines
+Date: Wed, 12 May 2010 14:28:51 +0900
+Message-ID: <20100512142904Z.fujita.tomonori@lab.ntt.co.jp>
+References: <20100512030350.GJ15903@laptop>
+	<20100512122323J.fujita.tomonori@lab.ntt.co.jp>
+	<AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:39038 "EHLO arroyo.ext.ti.com"
+Received: from sh.osrg.net ([192.16.179.4]:43872 "EHLO sh.osrg.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750914Ab0ELFeT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 May 2010 01:34:19 -0400
-In-Reply-To: <87632ut8wm.fsf@deeprootsystems.com>
-Content-Language: en-US
+	id S1750914Ab0ELFe5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 12 May 2010 01:34:57 -0400
+In-Reply-To: <AANLkTine8JmtsUo3_z6Cwdgm3LINCkJ9jL21r9eQWRm8@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: vapier.adi@gmail.com
+Cc: fujita.tomonori@lab.ntt.co.jp, npiggin@suse.de, marc@tensilica.com, dmitry.torokhov@gmail.com, jw@emlix.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
 
-> -----Original Message-----
-> From: linux-omap-owner@vger.kernel.org [mailto:linux-omap-owner@vger.kernel.org] On Behalf Of Kevin
-> Hilman
-> Sent: Wednesday, May 12, 2010 3:10 AM
-> To: Dmitry Torokhov
-> Cc: Arce, Abraham; linux-input@vger.kernel.org; linux-omap@vger.kernel.org
-> Subject: Re: [RFC] [PATCH 1/3] OMAP4: Keyboard Controller Support
-> 
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> 
-> > On Tue, May 11, 2010 at 07:53:23AM -0700, Kevin Hilman wrote:
-> >> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> >>
-> >> > On Tue, May 11, 2010 at 12:03:44AM -0500, Arce, Abraham wrote:
-> >> >> Hi again Dmitry,
-> >> >>
-> >> >> > No worries, although at first I was surprised that Trilok spoke exactly
-> >> >> > the same words I did ;)
-> >> >> >
-> >> >>
-> >> >> :)
-> >> >>
-> >> >> > > > > > +
-> >> >> > > > > > +/* Interrupt thread handler thread */
-> >> >> > > > > > +
-> >> >> > > > > > +static irqreturn_t omap_keypad_threaded(int irq, void *dev_id)
-> >> >> > > > > > +{
-> >> >> > > > >
-> >> >> > > > > Why is iti threaded? I fo not see anything that will sleep.
-> >> >> > >
-> >> >> > >
-> >> >> > > It was implemented based on previous comments...
-> >> >> > >
-> >> >> >
-> >> >> > Would you point me to that comment? Like I said, I do not see anything
-> >> >> > that would possibly sleep in this routine so you don't need to use
-> >> >> > threaded interrupt.
-> >> >>
-> >> >> http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26352.html
-> >> >>
-> >> >
-> >> > Thanks.
-> >> >
-> >> > I think Kevin meant "use theaded IRQ, wherever possible" [if we need
-> >> > to sleep in interrupt handler].
-> >>
-> >> Actually, even interrupts that don't sleep can use threaded IRQs.  I
-> >> prefer to see threaded IRQs wherever possible.  Especially since we're
-> >> moving towards a world where all interrupts are run with interrupts
-> >> disabled, using threaded IRQs minimizes interrupts-off critical
-> >> sections.
-> >>
-> >
-> > I think in this case threaded IRQ would just add unnecessary overhead.
-> > There are no scanning delays, just a few register reads and writes.
-> > Input core will take some cycles propagating the events but it disables
-> > interrupts anyway. Setting up a separate thread and scheduling does not
-> > make much sense here.
-> >
-> > Also I am not sure if arches with large number of interrupts would want
-> > to move to all threaded interrupts model.
-> 
-> OK, it's your call for this subsystem.
-> 
-Abraham initial driver has top half (ISR) and bottom half (tasklet). With Threaded 
-IRQ, we can get rid-of tasklet and handle the bottom half in thread context.
-IIRC this was on of the intention of this new API.
+On Wed, 12 May 2010 00:35:45 -0400
+Mike Frysinger <vapier.adi@gmail.com> wrote:
 
-Isn't this not good enough to use the threaded IRQ in this case.
+> On Tue, May 11, 2010 at 23:23, FUJITA Tomonori wrote:
+> > Seems that kmalloc is not cacheline aligned on some architectures but
+> > they works. Probably, we might be just lucky because in general they
+> > allocate larger buffers than 64 for DMA via kmalloc and the buffers
+> > are aligned on the size?
+> 
+> i think the magic combo is:
+>  - DMA buffer is written to (receive)
+>  - some driver state is in the same cacheline as the DMA buffer
+>  - that driver state is used after the flush but before the DMA finishes
+>  - only on arches that need software cache coherency
+> 
+> so i could see this not being an obvious issue for many people
 
-Regards,
-Santosh
+Yeah, we don't hit such condition everyday. And as I said, SCSI
+usually uses kmalloc'ed buffers rather than the cache size (buffers
+are aligned on roundup_pow_of_two(the allocated size)). But I think
+that we want to fix this issue explicitly. I guess that it would be
+better to start a new thread about this issue.

@@ -1,42 +1,46 @@
-From: Christoph Fritz <chf.fritz@googlemail.com>
-Subject: Re: [RFC][PATCHv3 1/2] SFH7741: proximity sensor driver support
-Date: Wed, 12 May 2010 22:08:15 +0200
-Message-ID: <1273694895.15717.4.camel@lovely>
-References: <0680EC522D0CC943BC586913CF3768C003B320A007@dbde02.ent.ti.com>
-	 <4BEAF03A.2070308@cam.ac.uk>
-	 <20100512182913.GC29366@core.coreip.homeip.net>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Thu, 13 May 2010 15:21:43 +0900
+Message-ID: <20100513062143.GB9920@linux-sh.org>
+References: <20100511063309.GC9644@core.coreip.homeip.net> <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com> <AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com> <1273608441.15067.1002.camel@calx> <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com> <alpine.DEB.2.00.1005111520260.1500@router.home> <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com> <4BE9C033.2020106@cs.helsinki.fi> <AANLkTinZe1N2NFOzU32PL2AIZi9TovHj5pQ2Y65eOc1T@mail.gmail.com> <4BE9C258.10706@cs.helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100512182913.GC29366@core.coreip.homeip.net>
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jonathan Cameron <jic23@cam.ac.uk>, "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:59769 "EHLO
+	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751028Ab0EMGWb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 May 2010 02:22:31 -0400
+Content-Disposition: inline
+In-Reply-To: <4BE9C258.10706@cs.helsinki.fi>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Mike Frysinger <vapier.adi@gmail.com>, Christoph Lameter <cl@linux.com>, Matt Mackall <mpm@selenic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Gl??ckner <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
 
-On Wed, 2010-05-12 at 11:29 -0700, Dmitry Torokhov wrote:
-> On Wed, May 12, 2010 at 07:15:22PM +0100, Jonathan Cameron wrote:
-> > Hi,
-> > 
-> > I was wondering if you could provide a bit more detail on what this
-> > driver is actually doing?  My appologies if I have missed a
-> > previous explanation.  If so, please add a Documentation file
-> > to explain what is going on.
-> > 
-> > The driver you have here does virtually nothing itself.  It takes
-> > both its source of interrupt and read function from platform
-> > data. Given the value is always 0 or 1, I'm guessing you are
-> > simply reading a gpio pin. That makes this effectively a button
-> > and doesn't require any specific code.  The fact it is a
-> > proximity sensor isn't relevant to anything other than perhaps
-> > the name.
+On Tue, May 11, 2010 at 11:47:20PM +0300, Pekka Enberg wrote:
+> Mike Frysinger wrote:
+> >On Tue, May 11, 2010 at 16:38, Pekka Enberg wrote:
+> >>Mike Frysinger wrote:
+> >>>that is a question for David/Grant.  i'm not the SPI core maintainer,
+> >>>i'm merely watching over some SPI drivers.  however, this answer also
+> >>>doesnt sound like it's thinking big enough because what you're
+> >>>proposing isnt specific to the SPI bus -- any time a DMA safe buffer
+> >>>is needed dynamically, this function could be used.
+> >>Well, we have dma_alloc_coherent(), shouldn't you be using that instead?
+> >
+> >my understanding is that dma_alloc_coherent() gives you a buffer that
+> >is always coherent.  the SPI layers take care of flushing and such on
+> >the fly which means allocating coherent memory is overkill and bad for
+> >performance.
 > 
-> Excellent point. Maybe it should simply use gpio_keys driver with
-> SW_FRONT_PROXIMITY code.
+> OK, I'm out of my expert area here but if dma_alloc_coherent() doesn't 
+> work for you, you should probably extend the DMA API, not kmalloc().
 > 
+Note that the DMA API already has dma_alloc_noncoherent() for these
+sorts of cases. If the driver is taking care of cache maintenance then
+dma_alloc_noncoherent() is certainly a reasonable way to go.
 
-I had a look into the datasheet, this SFH 7741 has one Schmitt trigger
-output: So yes, it's a "key" even without chatter.
-
-
+Most architectures today simply wrap dma_alloc_noncoherent() to
+dma_alloc_coherent(), but if there were more users of the API then
+that would quickly change.

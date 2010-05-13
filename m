@@ -1,85 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 13 May 2010 09:01:18 -0700
-Message-ID: <20100513160117.GB22238@core.coreip.homeip.net>
-References: <20100513075728.GF30110@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
+Subject: Re: mmotm 2010-05-11-18-20 uploaded
+Date: Thu, 13 May 2010 09:02:49 -0700
+Message-ID: <20100513160249.GC22238@core.coreip.homeip.net>
+References: <201005120149.o4C1n7P4002637@imap1.linux-foundation.org>
+ <6195.1273763194@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:49969 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758927Ab0EMQKs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 May 2010 12:10:48 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+In-Reply-To: <6195.1273763194@localhost>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@linux-foundation.org>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, May 13, 2010 at 07:35:02AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 13 May 2010, Dmitry Torokhov wrote:
+On Thu, May 13, 2010 at 11:06:34AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 11 May 2010 18:21:22 PDT, akpm@linux-foundation.org said:
+> > The mm-of-the-moment snapshot 2010-05-11-18-20 has been uploaded to
 > > 
-> > Bastien Nocera (1):
-> >       Input: i8042 - do not try to probe ports on Intel Apple Macs
+> >    http://userweb.kernel.org/~akpm/mmotm/
 > 
-> I pulled, but I skipped the last commit, because I think this one is 
-> fundamentally _wrong_.
+> Dell Latitude E6500, x86_64 kernel.
 > 
-> It is _not_ maintainable to create random tables of exceptions ("DMI 
-> tables"), and it's actively _wrong_ to do for something like this where we 
-> not only have historically worked perfectly well, and this apparently 
-> tries to hide some other bug (the commit says "could potentially lock 
-> up/hang/wait for timeout for long periods of time").
+> Boots to single user prompt, but has issues on the way there.  Possibly
+> very important - I was definitely *not* typing at the time (as I had hit
+> return on the LUKS passphrase for the disk at 36 seconds after boot, and
+> I didn't get the # prompt for single-user for another minute or two (probably
+> due to udev having issues due to the oops). So I have no idea what it was
+> trying to get a keycode for...
 > 
-> We should fix the problems instead of hiding them for specific machines. 
-> Does anybody really think that Apple machines are the only ones with no 
-> legacy keyboard? Hello? Does anybody seriously think that it's ok to add 
-> entries to DMI tables for random new machines coming out?
+
+Udev probably tries to remap special keys on your keyboard...
+
+> [   40.717136] udev: starting version 154
+> [   41.710153] BUG: unable to handle kernel NULL pointer dereference at (null)
+> [   41.711007] IP: [<ffffffff813bb996>] input_default_getkeycode_from_index+0x4e/0x5b
+> [   41.711007] PGD 11d318067 PUD 118af1067 PMD 0
+> [   41.711007] Oops: 0002 [#1] PREEMPT SMP
+> [   41.711007] last sysfs file: /sys/devices/pci0000:00/0000:00:1a.7/usb1/1-4/idVendor
+> [   41.711007] CPU 0
+> [   41.711007] Modules linked in:
+> [   41.711007]
+> [   41.711007] Pid: 2501, comm: keymap Not tainted 2.6.34-rc7-mmotm0511 #2 0X564R/Latitude E6500
 > 
-> So I think that commit was (a) totally inappropriate to send at this point 
-> in the late -rc series _anyway_ (it sure as hell isn't a refression fix), 
-> and that makes me wonder about the other ones.
+> [   41.711007] RIP: 0010:[<ffffffff813bb996>]  [<ffffffff813bb996>] input_default_getkeycode_from_index+0x4e/0x5b
 
-I will freely admit that none of the fixes would qualify as strictly regression
-fixes. The cacheline issue on ad7877 was there in the very first version
-of the driver being committed, iforce got 1 new product ID and a fix to another
-product ID which was there for ages, psmouse changes tries to work
-around issue on a laptop that is not out yet as far as I know... All of
-these however are very small, with low risk of disturbing anyone, and
-making users life better. That is why I thought that rather than having
-them wait for another 3 months we sould get the fixes out earlier.
-
-> But (b) I don't think I 
-> want to ever see anything like that during a merge window either, because 
-> it's quite seriously the wrong thing to do.
->
-
-Sometimes we do need to resort to DMI quirks because we do not have
-anything else to go on and i8042 is littered with such cases. Half of
-the boxes claim to support active multiplexing but don't. HOwever when
-it works it is a useful thing (on laptop both touchpad and external mice
-can work independently with their full protocols instead of degrading
-both to Intellimouse, like Dells do). Some BIOSes hang if you use AUX LOOP.
-And so on.
-
-Apple does proper thing in BIOS and omits keyboard and mouse PNP
-devices, but because of other players we do not really trust PNP BIOS
-and resort to banding on ports directly - there are cases when box has
-mouse and/or keyboard but they are not present in BIOS. Damed if you do,
-damned if you don't...
-
-
-> What are the _actual_ problems on legacy-free machines? And keep in mind 
-> that I ask that exactly because I actually _have_ two Apple Mac Mini's in 
-> my household, and have never seen any problems with keyboard/mouse 
-> handling. 
-> 
-> So if somebody saw "could potentially lock up/hang/wait" issues, then 
-> dangit, say what those issues are, AND LET'S FIX THEM! And not like this, 
-> trying to hide them for some particular machines, rather than fixing the 
-> actual underlying detection bug.
-> 
-> 			Linus
+I think this is Mauro's big keycode additions.
 
 -- 
 Dmitry

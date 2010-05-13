@@ -1,35 +1,87 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 13 May 2010 21:15:32 +0100
-Message-ID: <20100513201532.GA20473@srcf.ucam.org>
-References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <1273762051.2308.4671.camel@localhost.localdomain> <alpine.LFD.2.00.1005130751300.3711@i5.linux-foundation.org> <20100513155031.GA22238@core.coreip.homeip.net>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: [RFC] [PATCH 0/4] OMAP4 Keyboard Controller Support
+Date: Thu, 13 May 2010 15:49:37 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E113BF3@dlee03.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:33727 "EHLO
-	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753148Ab0EMUPw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 May 2010 16:15:52 -0400
-Content-Disposition: inline
-In-Reply-To: <20100513155031.GA22238@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Bastien Nocera <hadess@hadess.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, May 13, 2010 at 08:50:31AM -0700, Dmitry Torokhov wrote:
+Keyboard controller for OMAP4 includes
 
-> Indeed most of them do just work. My Dell T110 for example boots just
-> fine and it only has USB, no PS/2 ports. However there is a rather
-> important difference I think - these other boxes are supposed to work
-> with multiple versions of Windows which, as far as I know, do probe for
-> the i8042. Apple only supports bootcamp on certain BIOSes and does not
-> really expect anything to touch these ports.
+ - built-in scanning algorithm
+ - debouncing feature
+ - handling mechanism up to 9 x 9 keys
+ - wake-up event generation
 
-If you're not using bootcamp then you're booting via EFI, and in that 
-case I think it's probably reasonable to require that the keyboard be 
-provided via PNP or flagged in the XDST.
+Dependency on hwmod changes for OMAP4
+ http://www.mail-archive.com/linux-omap@vger.kernel.org/msg28188.html
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+--
+
+v1
+ http://www.mail-archive.com/linux-omap@vger.kernel.org/msg26502.html
+
+v2
+ Vimal.Singh.01 | Signed-off-by missing in patch
+ Vimal.Singh.02 | row/column interpretation in board file
+ Vimal.Singh.03 | 0 element removal in board file
+
+ Trilok.Soni.01 | hwmod framework in mainline
+ Trilok.Soni.02 | extra brackets in Kconfig
+ Trilok.Soni.03 | default y/n option in Kconfig
+ Trilok.Soni.04 | path/filename in the header of driver
+ Trilok.Soni.05 | static? omap_device_pm_latency in driver
+ Trilok.Soni.06 | input_sync added in driver
+ Trilok.Soni.07 | check error return in all driver
+ Trilok.Soni.08 | keypad_data->input=NULL
+
+ Felipe.Balbi.01 | platform_driver to know about hwmod and omap_device?
+ Felipe.Balbi.02 | blank line
+ Felipe.Balbi.03 | saving struct device *
+ Felipe.Balbi.04 | platform_data should not be saved
+ Felipe.Balbi.05 | dev_dbg() usage
+ Felipe.Balbi.06 | missing input_sync()
+ Felipe.Balbi.07 | snprintf() usage
+ Felipe.Balbi.08 | omap_hwmod and omap_device location
+ Felipe.Balbi.09 | matrix_keypad_platform_data allocation from platform code
+ Felipe.Balbi.10 | omap_device_build from platform code
+ Felipe.Balbi.11 | registering/configuring call location
+
+ Kevin.Hillman.01 | Driver Testing
+ Kevin.Hillman.02 | omap_hwmod and omap_device location
+
+ Dmitry.Torokhov.01 | reason to make omap_keypad_threaded threaded?
+ Dmitry.Torokhov.02 | MATRIX_SCAN_CODE and incorrect values
+ Dmitry.Torokhov.03 | matrix_keypad_platform_data allocation
+ Dmitry.Torokhov.04 | overriding pdata pointer
+ Dmitry.Torokhov.05 | keypad_codes separate allocation
+ Dmitry.Torokhov.06 | keypad_data->base check location
+ Dmitry.Torokhov.07 | keypad_data->irq check location
+ Dmitry.Torokhov.08 | input_dev->keycodemax needed
+ Dmitry.Torokhov.09 | KEY_OK set bit
+ Dmitry.Torokhov.10 | MSC_SCAN report missing
+ Dmitry.Torokhov.11 | input_dev = NULL;
+ Dmitry.Torokhov.12 | free_irq call location in remove function
+
+--
+
+ [PATCH v2 1/4] Input: matrix_keypad: Device driver interfaces
+ [PATCH v2 2/4] OMAP4: Keyboard controller support
+ [PATCH v2 3/4] OMAP4: Keyboard board support
+ [PATCH v2 4/4] OMAP4: Keyboard kernel configuration
+
+--
+
+ arch/arm/configs/omap_4430sdp_defconfig |    3
+ arch/arm/mach-omap2/board-4430sdp.c     |  157 ++++++++++++++++
+ drivers/input/keyboard/Kconfig          |   10 +
+ drivers/input/keyboard/Makefile         |    1
+ drivers/input/keyboard/omap4-keypad.c   |  304 ++++++++++++++++++++++++++++++++
+ include/linux/input/matrix_keypad.h     |    7
+ 6 files changed, 481 insertions(+), 1 deletion(-)
+

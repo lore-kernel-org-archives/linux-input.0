@@ -1,80 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 13 May 2010 08:50:31 -0700
-Message-ID: <20100513155031.GA22238@core.coreip.homeip.net>
+Date: Thu, 13 May 2010 09:01:18 -0700
+Message-ID: <20100513160117.GB22238@core.coreip.homeip.net>
 References: <20100513075728.GF30110@core.coreip.homeip.net>
  <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
- <1273762051.2308.4671.camel@localhost.localdomain>
- <alpine.LFD.2.00.1005130751300.3711@i5.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:44374 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750748Ab0EMPuj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 May 2010 11:50:39 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.1005130751300.3711@i5.linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Bastien Nocera <hadess@hadess.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+List-Id: linux-input@vger.kernel.org
 
-On Thu, May 13, 2010 at 08:04:15AM -0700, Linus Torvalds wrote:
+On Thu, May 13, 2010 at 07:35:02AM -0700, Linus Torvalds wrote:
 > 
 > 
-> On Thu, 13 May 2010, Bastien Nocera wrote:
+> On Thu, 13 May 2010, Dmitry Torokhov wrote:
 > > 
-> > Maybe you didn't update to the latest firmwares on you Mac Mini, and
-> > didn't see the problem with the updated BIOSes, I don't know.
+> > Bastien Nocera (1):
+> >       Input: i8042 - do not try to probe ports on Intel Apple Macs
 > 
-> I can't update the firmware, since it's some random OS X program that does 
-> it (and I don't have OS X on the machine).
+> I pulled, but I skipped the last commit, because I think this one is 
+> fundamentally _wrong_.
 > 
-> But where does it lock up? During the boot probing? Or does it probe as 
-> having a keyboard because Apple added some crazy SMM code to try to 
-> emulate one with USB? 
+> It is _not_ maintainable to create random tables of exceptions ("DMI 
+> tables"), and it's actively _wrong_ to do for something like this where we 
+> not only have historically worked perfectly well, and this apparently 
+> tries to hide some other bug (the commit says "could potentially lock 
+> up/hang/wait for timeout for long periods of time").
 > 
-> Afaik, the Apple hardware actually does _physically_ have a keyboard 
-> controller (it's on the regular intel southbridge silicon, afaik), it just 
-> isn't connected to anything. And I think it is turned off in some of the 
-> southbridge control registers. The control registers also allow trapping 
-> into SMI when accessing the keyboard control registers, and maybe Apple 
-> screwed up there somewhere.
+> We should fix the problems instead of hiding them for specific machines. 
+> Does anybody really think that Apple machines are the only ones with no 
+> legacy keyboard? Hello? Does anybody seriously think that it's ok to add 
+> entries to DMI tables for random new machines coming out?
 > 
-> On one of my Mac Mini's (didn't check the other), I get this:
-> 
-> 	[    2.955087] PNP: No PS/2 controller found. Probing ports directly.
-> 	[    2.958475] i8042.c: No controller found.
-> 	[    2.960998] mice: PS/2 mouse device common for all mice
-> 
-> what do you get?
-> 
-> The thing is, there's a _lot_ of machines out there with no legacy 
-> keyboard support. They tend to work.
+> So I think that commit was (a) totally inappropriate to send at this point 
+> in the late -rc series _anyway_ (it sure as hell isn't a refression fix), 
+> and that makes me wonder about the other ones.
 
-Indeed most of them do just work. My Dell T110 for example boots just
-fine and it only has USB, no PS/2 ports. However there is a rather
-important difference I think - these other boxes are supposed to work
-with multiple versions of Windows which, as far as I know, do probe for
-the i8042. Apple only supports bootcamp on certain BIOSes and does not
-really expect anything to touch these ports.
+I will freely admit that none of the fixes would qualify as strictly regression
+fixes. The cacheline issue on ad7877 was there in the very first version
+of the driver being committed, iforce got 1 new product ID and a fix to another
+product ID which was there for ages, psmouse changes tries to work
+around issue on a laptop that is not out yet as far as I know... All of
+these however are very small, with low risk of disturbing anyone, and
+making users life better. That is why I thought that rather than having
+them wait for another 3 months we sould get the fixes out earlier.
 
-> We have timeouts for the i8042 
-> commands we do during init, but maybe we missed some case. And maybe we 
-> could easily add some extra tests too.
-> 
-> A few printk's in the i8042 init routines to show where it locks up would 
-> be good.. I assume you did that already if you and Dmitry already tried to 
-> debug this. Where's the original thread?
-> 
+> But (b) I don't think I 
+> want to ever see anything like that during a merge window either, because 
+> it's quite seriously the wrong thing to do.
+>
 
->From what I remember (it was a few weeks old thread) we were hanging
-when trying to read from the controller in i8042_flush(). Normally, if
-controller isn't there we'd get a stream of 0xff which will never
-"clear" and so after 32 reads we give up and abort controller
-initialization. But on Bastien's box it just sits there.
+Sometimes we do need to resort to DMI quirks because we do not have
+anything else to go on and i8042 is littered with such cases. Half of
+the boxes claim to support active multiplexing but don't. HOwever when
+it works it is a useful thing (on laptop both touchpad and external mice
+can work independently with their full protocols instead of degrading
+both to Intellimouse, like Dells do). Some BIOSes hang if you use AUX LOOP.
+And so on.
+
+Apple does proper thing in BIOS and omits keyboard and mouse PNP
+devices, but because of other players we do not really trust PNP BIOS
+and resort to banding on ports directly - there are cases when box has
+mouse and/or keyboard but they are not present in BIOS. Damed if you do,
+damned if you don't...
+
+
+> What are the _actual_ problems on legacy-free machines? And keep in mind 
+> that I ask that exactly because I actually _have_ two Apple Mac Mini's in 
+> my household, and have never seen any problems with keyboard/mouse 
+> handling. 
+> 
+> So if somebody saw "could potentially lock up/hang/wait" issues, then 
+> dangit, say what those issues are, AND LET'S FIX THEM! And not like this, 
+> trying to hide them for some particular machines, rather than fixing the 
+> actual underlying detection bug.
+> 
+> 			Linus
 
 -- 
 Dmitry

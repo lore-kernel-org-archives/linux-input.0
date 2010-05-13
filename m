@@ -1,59 +1,67 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 13 May 2010 09:38:20 -0700
-Message-ID: <20100513093820.dca1f423.rdunlap@xenotime.net>
-References: <20100513075728.GF30110@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
-	<1273762051.2308.4671.camel@localhost.localdomain>
-	<alpine.LFD.2.00.1005130751300.3711@i5.linux-foundation.org>
-	<20100513155031.GA22238@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005130908350.3711@i5.linux-foundation.org>
+Date: Thu, 13 May 2010 09:54:00 -0700 (PDT)
+Message-ID: <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([72.52.115.56]:36248 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1759079Ab0EMQi0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 May 2010 12:38:26 -0400
-Received: from chimera.site ([71.245.98.113]) by xenotime.net for <linux-input@vger.kernel.org>; Thu, 13 May 2010 09:38:21 -0700
-In-Reply-To: <alpine.LFD.2.00.1005130908350.3711@i5.linux-foundation.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:47255 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755545Ab0EMQ4N (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 May 2010 12:56:13 -0400
+In-Reply-To: <20100513160117.GB22238@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Thu, 13 May 2010 09:16:31 -0700 (PDT) Linus Torvalds wrote:
 
+
+On Thu, 13 May 2010, Dmitry Torokhov wrote:
 > 
-> 
-> On Thu, 13 May 2010, Dmitry Torokhov wrote:
-> > 
-> > From what I remember (it was a few weeks old thread) we were hanging
-> > when trying to read from the controller in i8042_flush(). Normally, if
-> > controller isn't there we'd get a stream of 0xff which will never
-> > "clear" and so after 32 reads we give up and abort controller
-> > initialization. But on Bastien's box it just sits there.
-> 
-> Is there a web interface to some archive for linux-input (or was this 
-> thread on lkml)?
+> Apple does proper thing in BIOS and omits keyboard and mouse PNP
+> devices, but because of other players we do not really trust PNP BIOS
+> and resort to banding on ports directly - there are cases when box has
+> mouse and/or keyboard but they are not present in BIOS. Damed if you do,
+> damned if you don't...
 
->From Jan. 20, on lkml.
-See http://lkml.org/lkml/2010/1/20/254
+Umm. No.
 
+PnP information _commonly_ doesn't inclure PS/2 ports, even when they 
+exist. Lack of PnP information about the keyboard port means absolutely 
+nothing, and anybody who tells you otherwise is totally and utterly wrong. 
 
-> Anyway, the fact that apparently pressing the power button makes it come 
-> alive again implies that it's likely SCI/SMI-related. Which is not 
-> entirely unexpected if there is some crazy SMM thing going on. But 
-> presumably whatever buggy Apple code is _supposed_ to work for Windows, so 
-> I wonder what bug that quite simple status/data register read could 
-> possibly trigger.
-> 
-> Is it the status read or the data read that causes problems, and is it the 
-> first one or after doing a few? A couple of printk's in that i8042_flush() 
-> routine should tell us.
+So don't confuse this with PnP issues. That's a total red herring, and 
+Apple is _not_at_all_ "doing the proper thing in the BIOS". 
 
+Quite the reverse. Apple is very clearly doing something horribly _wrong_ 
+in their BIOS. Don't give them kudos for being incompetent morons.
 
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+Just google for
+
+	"Probing ports directly" "i8042 KBD port"
+
+and you'll get a lot of hits. That's not because those machines have wrong 
+PnP tables - it's because fundamentally PNP is a joke, and on PC's what is 
+much more important is "standard IO ports". 
+
+For example, in that thread, Bastien is quoted:
+
+	> In other words, on x86, if PNP and/or ACPI don't indicate any PS/2 
+	> controller exists, we randomly bang on the ports in the expectation 
+	> they'll be there anyway. This seems rather misguided.
+
+and all that tells me is that Bastien doesn't know what he is doing. It is 
+_not_ "randomly bang" - it's called standard PC hardware.  And it's not 
+"misguided" - it's very much correct and required, exactly because PnP 
+itself is the misguided aborted fetus of a braindamaged mind.
+
+We do not trust BIOS tables, because BIOS writers are invariably totally 
+incompetent crack-addicted monkeys. If they weren't, they wouldn't be BIOS 
+writers. QED. And in fact the Apple problem is an _example_ of this BIOS 
+writer incompetence, not some shining example of them doing something 
+right.
+
+			Linus

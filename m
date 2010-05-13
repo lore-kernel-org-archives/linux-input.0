@@ -1,31 +1,35 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 13 May 2010 12:55:38 -0700 (PDT)
-Message-ID: <alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org>
-References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net> <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org> <20100513171639.GA23708@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005131017070.3711@i5.linux-foundation.org> <20100513181002.GB23708@core.coreip.homeip.net>
+Date: Thu, 13 May 2010 21:15:32 +0100
+Message-ID: <20100513201532.GA20473@srcf.ucam.org>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <1273762051.2308.4671.camel@localhost.localdomain> <alpine.LFD.2.00.1005130751300.3711@i5.linux-foundation.org> <20100513155031.GA22238@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:48181 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756473Ab0EMT6S (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:33727 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753148Ab0EMUPw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 May 2010 15:58:18 -0400
-In-Reply-To: <20100513181002.GB23708@core.coreip.homeip.net>
+	Thu, 13 May 2010 16:15:52 -0400
+Content-Disposition: inline
+In-Reply-To: <20100513155031.GA22238@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Bastien Nocera <hadess@hadess.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
+On Thu, May 13, 2010 at 08:50:31AM -0700, Dmitry Torokhov wrote:
 
+> Indeed most of them do just work. My Dell T110 for example boots just
+> fine and it only has USB, no PS/2 ports. However there is a rather
+> important difference I think - these other boxes are supposed to work
+> with multiple versions of Windows which, as far as I know, do probe for
+> the i8042. Apple only supports bootcamp on certain BIOSes and does not
+> really expect anything to touch these ports.
 
-On Thu, 13 May 2010, Dmitry Torokhov wrote:
-> 
-> Is there an interface a driver can use to query the style of boot used?
+If you're not using bootcamp then you're booting via EFI, and in that 
+case I think it's probably reasonable to require that the keyboard be 
+provided via PNP or flagged in the XDST.
 
-Maybe 'efi_enabled' will do. I haven't checked exact semantics of that 
-flag. And right now we don't even know if Bastien even uses EFI, or boots 
-a traditional kernel image through bootcamp.
-
-		Linus
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

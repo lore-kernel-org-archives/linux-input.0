@@ -1,54 +1,50 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 1/3] input: mt: Simplify event bypass logic
-Date: Fri, 14 May 2010 10:18:56 +0200
-Message-ID: <4BED0770.3080608@bitmath.org>
-References: <1272721779-2124-1-git-send-email-rydberg@euromail.se> <20100504064905.GB17482@core.coreip.homeip.net>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: RE: [RFC][PATCHv3 1/2] SFH7741: proximity sensor driver support
+Date: Fri, 14 May 2010 14:23:22 +0530
+Message-ID: <0680EC522D0CC943BC586913CF3768C003B320A40C@dbde02.ent.ti.com>
+References: <0680EC522D0CC943BC586913CF3768C003B320A007@dbde02.ent.ti.com>
+ <4BEAF03A.2070308@cam.ac.uk> <20100512182913.GC29366@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:42613 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758072Ab0ENIS7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 04:18:59 -0400
-In-Reply-To: <20100504064905.GB17482@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100512182913.GC29366@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@cam.ac.uk>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Sat, May 01, 2010 at 03:49:39PM +0200, Henrik Rydberg wrote:
->> The input bypass mechanism is only used by the MT events. Since all
->> MT events use bypassing by construction, the current list is a mere
->> duplication of input.h. This patch replaces the bypass list by a
->> simple range test.
->>
+
+
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Wednesday, May 12, 2010 11:59 PM
+> To: Jonathan Cameron
+> Cc: Datta, Shubhrajyoti; linux-input@vger.kernel.org; linux-
+> omap@vger.kernel.org
+> Subject: Re: [RFC][PATCHv3 1/2] SFH7741: proximity sensor driver support
 > 
-> Henrik,
+> On Wed, May 12, 2010 at 07:15:22PM +0100, Jonathan Cameron wrote:
+> > Hi,
+> >
+> > I was wondering if you could provide a bit more detail on what this
+> > driver is actually doing?  My appologies if I have missed a
+> > previous explanation.  If so, please add a Documentation file
+> > to explain what is going on.
+> >
+> > The driver you have here does virtually nothing itself.  It takes
+> > both its source of interrupt and read function from platform
+> > data. Given the value is always 0 or 1, I'm guessing you are
+> > simply reading a gpio pin. That makes this effectively a button
+> > and doesn't require any specific code.  The fact it is a
+> > proximity sensor isn't relevant to anything other than perhaps
+> > the name.
 > 
-> I disagree with the patch. I can not guarantee that we will be able to
-> maintain continuous range of ABS_MT_* events and thus current scheme is
-> more flexible.
+> Excellent point. Maybe it should simply use gpio_keys driver with
+> SW_FRONT_PROXIMITY code.
+> 
+In that case, I have another GPIO to switch on and off. How may I handle that case.
 
-Coming back to this, the current scheme has problems, too.
-
-With the introduction of slots, all events, not only EV_ABS events, are
-implicitly partitioned into global events and per-slot events. In the current
-approach, the partitioning is controlled via the hidden list in input.c, and
-hinted using the prefix MT. However, expecting the usage of slots to grow
-outside of a linear range of EV_ABS events, the user will inevitably need to
-known the semantics of particular events in order to parse correctly. And once
-the user starts to deal with that information, it can just as well be dynamic,
-and controlled by the device driver.
-
-My proposition is to add a bit field in input_dev which controls whether a
-particular event is used in the slot context or the global context. This
-information should be user-readable via EVIO. The driver should be able to alter
-these settings, and the default should match the current behavior.
-
-Thoughts?
-
-Cheers,
-Henrik
-
+> --
+> Dmitry

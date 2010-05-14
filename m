@@ -1,178 +1,368 @@
-From: Martyn Welch <martyn.welch@ge.com>
-Subject: Re: [PATCH] powerpc: Add i8042 keyboard and mouse irq parsing
-Date: Fri, 14 May 2010 11:39:21 +0100
-Message-ID: <4BED2859.3050204@ge.com>
-References: <20100514102905.7807.27638.stgit@ES-J7S4D2J.amer.consind.ge.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2.6.34-rc5] HID: Zydacron Remote Control HID Driver
+Date: Fri, 14 May 2010 13:55:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005141353020.28092@pobox.suse.cz>
+References: <4BEAD150.5080305@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100514102905.7807.27638.stgit@ES-J7S4D2J.amer.consind.ge.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-To: grant.likely@secretlab.ca
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4BEAD150.5080305@yahoo.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Don Prince <dhprince.devel@yahoo.co.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Martyn Welch wrote:
-> Currently the irqs for the i8042, which historically provides keyboard and
-> mouse (aux) support, is hardwired in the driver rather than parsing the
-> dts.
->
-> In addition the interrupts are provided in the dts, but in a way that is
-> not easily parsable using irq_of_parse_and_map().
->
-> This patch modifies the powerpc legacy IO code to attempt to parse the
-> device tree for this information, failing back to the hardcoded values if
-> it fails. For this to succeed the interrupts for the keyboard and mouse
-> ports need to be moved from the parent i8042 node to the individual port
-> nodes.
->
-> Signed-off-by: Martyn Welch <martyn.welch@ge.com>
-> ---
->
-> To get irq_of_parse_and_map() to successfully parse the interrupts, I had
-> to do this to my device tree:
->
-> @@ -120,16 +120,17 @@
->                                 #address-cells = <1>;
->                                 reg = <1 0x60 0x1
->                                        1 0x64 0x1>;
-> -                               interrupts = <1 1 12 1>;
->                                 interrupt-parent = <&lpc_pic>;
->  
->                                 keyboard@0 {
->                                         reg = <0x0>;
-> +                                       interrupts = <1 1>;
->                                         compatible = "pnpPNP,303";
->                                 };
->  
->                                 mouse@1 {
->                                         reg = <0x1>;
-> +                                       interrupts = <12 1>;
->                                         compatible = "pnpPNP,f03";
->                                 };
->                         };
->
-> I'm not sure how to parse for the correct interrupt if I don't do this. I
-> this is incorrect and someone could advise me on how the existing device
-> tree layout can be properly parsed, I'll happily modify this patch.
->
->   
+On Wed, 12 May 2010, Don Prince wrote:
 
-Grant, any suggestions? (sorry, forgot to CC you)
-
-Martyn
-
->  arch/powerpc/kernel/setup-common.c |   34 +++++++++++++++++++++++++++++++---
->  drivers/input/serio/i8042-io.h     |    8 ++++++++
->  2 files changed, 39 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-> index 03dd6a2..9c4dc4c 100644
-> --- a/arch/powerpc/kernel/setup-common.c
-> +++ b/arch/powerpc/kernel/setup-common.c
-> @@ -93,6 +93,10 @@ struct screen_info screen_info = {
->  	.orig_video_points = 16
->  };
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> --- a/drivers/hid/hid-ids.h	2010-04-22 18:52:46.455385039 +0100
+> +++ b/drivers/hid/hid-ids.h	2010-05-12 11:38:12.771567630 +0100
+> @@ -474,6 +474,9 @@
 >  
-> +/* Variables required to store legacy IO irq routing */
-> +int of_i8042_kbd_irq;
-> +int of_i8042_aux_irq;
+>  #define USB_VENDOR_ID_ZEROPLUS		0x0c12
+>  
+> +#define USB_VENDOR_ID_ZYDACRON	0x13EC
+> +#define USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL	0x0006
 > +
->  #ifdef __DO_IRQ_CANON
->  /* XXX should go elsewhere eventually */
->  int ppc_do_canonicalize_irqs;
-> @@ -555,13 +559,37 @@ void probe_machine(void)
->  /* Match a class of boards, not a specific device configuration. */
->  int check_legacy_ioport(unsigned long base_port)
->  {
-> -	struct device_node *parent, *np = NULL;
-> +	struct device_node *parent, *np = NULL, *np_aux = NULL;
->  	int ret = -ENODEV;
->  
->  	switch(base_port) {
->  	case I8042_DATA_REG:
-> -		if (!(np = of_find_compatible_node(NULL, NULL, "pnpPNP,303")))
-> -			np = of_find_compatible_node(NULL, NULL, "pnpPNP,f03");
-> +		np = of_find_compatible_node(NULL, NULL, "pnpPNP,303");
-> +		if (np) {
-> +			/*
-> +			 * Attempt to parse DTS for keyboard irq, fallback to
-> +			 * standard.
-> +			 */
-> +			of_i8042_kbd_irq = irq_of_parse_and_map(np, 0);
-> +			if (!of_i8042_kbd_irq)
-> +				of_i8042_kbd_irq = 1;
+>  #define USB_VENDOR_ID_KYE		0x0458
+>  #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+>  #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
+> --- a/drivers/hid/hid-zydacron.c	1970-01-01 01:00:00.000000000 +0100
+> +++ b/drivers/hid/hid-zydacron.c	2010-05-12 15:29:34.276028189 +0100
+> @@ -0,0 +1,291 @@
+> +/*
+> +*  HID driver for zydacron remote control
+> +*
+> +*  Copyright (c) 2010 Don Prince
+
+Thanks for the driver!
+
+> +*/
+> +
+> +/*
+> +* This program is free software; you can redistribute it and/or modify it
+> +* under the terms of the GNU General Public License as published by the Free
+> +* Software Foundation; either version 2 of the License, or (at your option)
+> +* any later version.
+> +*/
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +
+> +#include "hid-ids.h"
+> +
+> +/* button layout
+> +
+> + top:		button id
+> + bottom:	button action
+> +
+> +	Power/Sleep	TV		radio		teletext
+> +	default		KEY_TV		KEY_RADIO	KEY_TEXT
+> +
+> +	music		photo		video		DVD
+> +	KEY_AUDIO	KEY_AUX		KEY_VIDEO	KEY_DVD
+> +
+> +				UP
+> +				default
+> +
+> +			LEFT		RIGHT
+> +			default		default
+> +
+> +				DOWN
+> +				default
+> +
+> +	back			ok			menu
+> +	default			default			KEY_MENU
+> +
+> +	previous		play/pause		next
+> +	default			default			default
+> +
+> +	rewind			stop			forward
+> +	default			default			default
+> +
+> +	volume +					channel +
+> +	default						default
+> +
+> +				home
+> +				KEY_PVR
+> +
+> +	volume -					channel -
+> +	default						default
+> +
+> +	mute			record			mouse toggle
+> +	default			default			KEY_MODE
+> +
+> +	1			2			3
+> +	default			default			default
+> +
+> +	4			5			6
+> +	default			default			default
+> +
+> +	7			8			9
+> +	default			default			default
+> +
+> +	fullscreen		0			info
+> +	KEY_SCREEN		default			KEY_INFO
+
+Is this really so special that it is needed at all?
+
+> +*/
+> +
+> +struct zc_device {
+> +	struct input_dev	*input_ep81;
+> +	unsigned short		last_key[4];
+> +};
+> +
+> +
+> +/*
+> +* Zydacron remote control has an invalid HID report descriptor,
+> +* that needs fixing before we can parse it.
+> +*/
+> +static void zc_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +	unsigned int rsize)
+> +{
+> +	if (rsize >= 253 &&
+> +		rdesc[0x96] == 0xbc && rdesc[0x97] == 0xff &&
+> +		rdesc[0xca] == 0xbc && rdesc[0xcb] == 0xff &&
+> +		rdesc[0xe1] == 0xbc && rdesc[0xe2] == 0xff) {
+> +			dev_info(&hdev->dev,
+> +				"fixing up zydacron remote control report "
+> +				"descriptor\n");
+> +			rdesc[0x96] = rdesc[0xca] = rdesc[0xe1] = 0x0c;
+> +			rdesc[0x97] = rdesc[0xcb] = rdesc[0xe2] = 0x00;
 > +		}
+> +}
 > +
-> +		np_aux = of_find_compatible_node(NULL, NULL, "pnpPNP,f03");
-> +		if (np_aux) {
-> +			if (!np) {
-> +				of_node_put(np);
-> +				np = np_aux;
+> +#define zc_map_key_clear(c) \
+> +	hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+> +
+> +static int zc_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> +	struct hid_field *field, struct hid_usage *usage,
+> +	unsigned long **bit, int *max)
+> +{
+> +	int i;
+> +	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
+
+The cast is not needed.
+
+> +	zc->input_ep81 = hi->input;
+> +
+> +	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_CONSUMER)
+> +		return 0;
+> +
+> +	dbg_hid("zynacron input mapping event [0x%x]\n",
+> +		usage->hid & HID_USAGE);
+> +
+> +	switch (usage->hid & HID_USAGE) {
+> +	/* report 2 */
+> +	case 0x10:
+> +		zc_map_key_clear(KEY_MODE);
+> +		break;
+> +	case 0x30:
+> +		zc_map_key_clear(KEY_SCREEN);
+> +		break;
+> +	case 0x70:
+> +		zc_map_key_clear(KEY_INFO);
+> +		break;
+> +	/* report 3 */
+> +	case 0x04:
+> +		zc_map_key_clear(KEY_RADIO);
+> +		break;
+> +	/* report 4 */
+> +	case 0x0d:
+> +		zc_map_key_clear(KEY_PVR);
+> +		break;
+> +	case 0x25:
+> +		zc_map_key_clear(KEY_TV);
+> +		break;
+> +	case 0x47:
+> +		zc_map_key_clear(KEY_AUDIO);
+> +		break;
+> +	case 0x49:
+> +		zc_map_key_clear(KEY_AUX);
+> +		break;
+> +	case 0x4a:
+> +		zc_map_key_clear(KEY_VIDEO);
+> +		break;
+> +	case 0x48:
+> +		zc_map_key_clear(KEY_DVD);
+> +		break;
+> +	case 0x24:
+> +		zc_map_key_clear(KEY_MENU);
+> +		break;
+> +	case 0x32:
+> +		zc_map_key_clear(KEY_TEXT);
+> +		break;
+> +	default:
+> +		return 0;
+> +	}
+> +
+> +	for (i = 0; i < 4; i++)
+> +		zc->last_key[i] = 0;
+> +
+> +	return 1;
+> +}
+> +
+> +static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
+> +	 u8 *data, int size)
+> +{
+> +	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
+> +	int ret = 0;
+> +	unsigned key;
+> +	unsigned short index;
+> +
+> +	if (report->id == data[0]) {
+> +
+> +		/* break keys */
+> +		for (index = 0; index < 4; index++) {
+> +			key = zc->last_key[index];
+> +			if (key) {
+> +				input_event(zc->input_ep81, EV_KEY, key, 0);
+> +				zc->last_key[index] = 0;
 > +			}
-> +			/*
-> +			 * Attempt to parse DTS for mouse (aux) irq, fallback to
-> +			 * standard.
-> +			 */
-> +			of_i8042_aux_irq = irq_of_parse_and_map(np_aux, 0);
-> +			if (!of_i8042_aux_irq)
-> +				of_i8042_aux_irq = 12;
 > +		}
 > +
->  		if (np) {
->  			parent = of_get_parent(np);
->  			of_node_put(np);
-> diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
-> index 847f4aa..8fc8753 100644
-> --- a/drivers/input/serio/i8042-io.h
-> +++ b/drivers/input/serio/i8042-io.h
-> @@ -19,6 +19,11 @@
->   * IRQs.
->   */
->  
-> +#if defined(CONFIG_PPC)
-> +extern int of_i8042_kbd_irq;
-> +extern int of_i8042_aux_irq;
-> +#endif
+> +		key = 0;
+> +		switch (report->id) {
+> +		case 0x02:
+> +		case 0x03:
+> +			switch (data[1]) {
+> +			case 0x10:
+> +				key = KEY_MODE;
+> +				index = 0;
+> +				break;
+> +			case 0x30:
+> +				key = KEY_SCREEN;
+> +				index = 1;
+> +				break;
+> +			case 0x70:
+> +				key = KEY_INFO;
+> +				index = 2;
+> +				break;
+> +			case 0x04:
+> +				key = KEY_RADIO;
+> +				index = 3;
+> +				break;
+> +			}
 > +
->  #ifdef __alpha__
->  # define I8042_KBD_IRQ	1
->  # define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-> @@ -27,6 +32,9 @@
->  #include <asm/irq.h>
->  #elif defined(CONFIG_SH_CAYMAN)
->  #include <asm/irq.h>
-> +#elif defined(CONFIG_PPC)
-> +#define I8042_KBD_IRQ	of_i8042_kbd_irq
-> +#define I8042_AUX_IRQ	of_i8042_aux_irq
->  #else
->  # define I8042_KBD_IRQ	1
->  # define I8042_AUX_IRQ	12
->
->
-> --
-> Martyn Welch (Principal Software Engineer)   |   Registered in England and
-> GE Intelligent Platforms                     |   Wales (3828642) at 100
-> T +44(0)127322748                            |   Barbirolli Square, Manchester,
-> E martyn.welch@ge.com                        |   M2 3AB  VAT:GB 927559189
-> _______________________________________________
-> Linuxppc-dev mailing list
-> Linuxppc-dev@lists.ozlabs.org
-> https://lists.ozlabs.org/listinfo/linuxppc-dev
->   
+> +			if (key) {
+> +				input_event(zc->input_ep81, EV_KEY, key, 1);
+> +				zc->last_key[index] = key;
+> +			}
+> +
+> +			ret = 1;
+> +			break;
+> +		}
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static int zc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +{
+> +	int ret;
+> +	struct zc_device *zc;
+> +
+> +	zc = kzalloc(sizeof(*zc), GFP_KERNEL);
+> +	if (zc == NULL) {
+> +		dev_err(&hdev->dev, "zydacron: can't alloc descriptor\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	hid_set_drvdata(hdev, zc);
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		dev_err(&hdev->dev, "zydacron: parse failed\n");
+> +		goto err_free;
+> +	}
+> +
+> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+> +	if (ret) {
+> +		dev_err(&hdev->dev, "zydacron: hw start failed\n");
+> +		goto err_free;
+> +	}
+> +
+> +	return 0;
+> +err_free:
+> +	kfree(zc);
+> +
+> +	return ret;
+> +}
+> +
+> +static void zc_remove(struct hid_device *hdev)
+> +{
+> +	struct zc_device *zc = (struct zc_device *)hid_get_drvdata(hdev);
+> +
+> +	hid_hw_stop(hdev);
+> +
+> +	if (NULL != zc)
+> +		kfree(zc);
+> +}
+> +
+> +static const struct hid_device_id zc_devices[] = {
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, zc_devices);
+> +
+> +static struct hid_driver zc_driver = {
+> +	.name = "zydacron",
+> +	.id_table = zc_devices,
+> +	.report_fixup = zc_report_fixup,
+> +	.input_mapping = zc_input_mapping,
+> +	.raw_event = zc_raw_event,
+> +	.probe = zc_probe,
+> +	.remove = zc_remove,
+> +};
+> +
+> +static int __init zc_init(void)
+> +{
+> +	return hid_register_driver(&zc_driver);
+> +}
+> +
+> +static void __exit zc_exit(void)
+> +{
+> +	hid_unregister_driver(&zc_driver);
+> +}
+> +
+> +module_init(zc_init);
+> +module_exit(zc_exit);
+> +MODULE_LICENSE("GPL");
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> --- a/drivers/hid/Kconfig	2010-03-09 13:53:05.930183131 +0000
+> +++ b/drivers/hid/Kconfig	2010-05-12 11:38:12.773567293 +0100
+> @@ -372,6 +372,13 @@ config ZEROPLUS_FF
+>  	  Say Y here if you have a Zeroplus based game controller and want
+>  	  to have force feedback support for it.
+>  
+> +config HID_ZYDACRON
+> +	tristate "Zydacron remote control support" if EMBEDDED
+> +	depends on USB_HID
+> +	default !EMBEDDED
+> +	---help---
+> +	Support for Zydacron remote control.
+> +
+>  endmenu
+>  
+>  endif # HID_SUPPORT
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/Makefile b/drivers/hid/Makefile
+> --- a/drivers/hid/Makefile	2010-03-09 13:53:06.036326844 +0000
+> +++ b/drivers/hid/Makefile	2010-05-12 11:38:12.774443286 +0100
+> @@ -54,6 +54,7 @@ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tm
+>  obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
+>  obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
+>  obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
+> +obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+>  obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
+>  
+>  obj-$(CONFIG_USB_HID)		+= usbhid/
 
+Otherwise the driver looks OK to me. Could you please resubmit with the 
+above comments addressed, so that I could merge it?
 
 -- 
-Martyn Welch (Principal Software Engineer)   |   Registered in England and
-GE Intelligent Platforms                     |   Wales (3828642) at 100
-T +44(0)127322748                            |   Barbirolli Square, Manchester,
-E martyn.welch@ge.com                        |   M2 3AB  VAT:GB 927559189
+Jiri Kosina
+SUSE Labs, Novell Inc.

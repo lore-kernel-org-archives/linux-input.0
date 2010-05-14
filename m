@@ -1,50 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Fri, 14 May 2010 09:28:59 -0700
-Message-ID: <20100514162858.GA31607@core.coreip.homeip.net>
+Date: Fri, 14 May 2010 09:29:52 -0700
+Message-ID: <20100514162951.GB31607@core.coreip.homeip.net>
 References: <20100513075728.GF30110@core.coreip.homeip.net>
  <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
  <20100514145539.GA5598@srcf.ucam.org>
- <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:61450 "EHLO
+Received: from mail-px0-f174.google.com ([209.85.212.174]:41419 "EHLO
 	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752743Ab0ENQ3P (ORCPT
+	with ESMTP id S1756178Ab0ENQaA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 12:29:15 -0400
+	Fri, 14 May 2010 12:30:00 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
+In-Reply-To: <20100514145539.GA5598@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Fri, May 14, 2010 at 08:16:34AM -0700, Linus Torvalds wrote:
+On Fri, May 14, 2010 at 03:55:39PM +0100, Matthew Garrett wrote:
+> I've done some experimentation under qemu. On ACPI systems, Windows will 
+> *only* touch the keyboard controller if there's a device with an 
+> appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
+> Otherwise it'll simply ignore the hardware entirely. By the looks of it 
+> their keyboard probing is also somewhat different to ours, but that's 
+> probably another story.
 > 
-> 
-> On Fri, 14 May 2010, Matthew Garrett wrote:
-> >
-> > I've done some experimentation under qemu. On ACPI systems, Windows will 
-> > *only* touch the keyboard controller if there's a device with an 
-> > appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
-> > Otherwise it'll simply ignore the hardware entirely. By the looks of it 
-> > their keyboard probing is also somewhat different to ours, but that's 
-> > probably another story.
-> 
-> Well, I'd hate to lose the keyboard hotplug capability, but at the same 
-> time, it _is_ 2010, and while I have personally used it historically, I 
-> don't really foresee ever using it again.
+> However, I did find a couple of device IDs that machines may produce 
+> which we don't currently check for. I'll send a patch.
 > 
 
-FWIW we also using active multiplexing while windows does not as far as
-I know. I'd like us to be better than them.
-
-> So we _could_ decide to just try it, and see if anybody screams. If nobody 
-> does, that would be a very simple solution to the problem.
-> 
-> 			Linus
+I was wondering if we should be matching for _CID instead of _HID for
+mouse and keyboard.
 
 -- 
 Dmitry

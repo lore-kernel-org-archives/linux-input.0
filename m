@@ -1,38 +1,29 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Fri, 14 May 2010 08:16:34 -0700 (PDT)
-Message-ID: <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
-References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100514145539.GA5598@srcf.ucam.org>
+Date: Fri, 14 May 2010 16:38:42 +0100
+Message-ID: <20100514153842.GA6398@srcf.ucam.org>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net> <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org> <20100513171639.GA23708@core.coreip.homeip.net> <alpine.LFD.2.00.1005131017070.3711@i5.linux-foundation.org> <20100513181002.GB23708@core.coreip.homeip.net> <alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org> <m1aas2kjb6.fsf@fess.ebiederm.org> <alpine.LFD.2.00.1005140751300.3711@i5.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:57685 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751140Ab0ENPSx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 11:18:53 -0400
-In-Reply-To: <20100514145539.GA5598@srcf.ucam.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.00.1005140751300.3711@i5.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
+On Fri, May 14, 2010 at 07:54:53AM -0700, Linus Torvalds wrote:
 
+> But the issue here is that on a "legacy PC", we can't just say "ACPI 
+> doesn't mention this device, so it can't exist". Because in a legacy PC 
+> model, that simply isn't true. All those motherboard devices can easily 
+> exist (and do!) even if ACPI/PnP don't mention them.
 
-On Fri, 14 May 2010, Matthew Garrett wrote:
->
-> I've done some experimentation under qemu. On ACPI systems, Windows will 
-> *only* touch the keyboard controller if there's a device with an 
-> appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
-> Otherwise it'll simply ignore the hardware entirely. By the looks of it 
-> their keyboard probing is also somewhat different to ours, but that's 
-> probably another story.
+I think that's true except in the case where the Leading Other OS won't 
+use a device unless it's present in ACPI - that kind of enforcement 
+tends to concentrate vendors' minds, even if they'd otherwise be busy 
+filling data tables with garbage.
 
-Well, I'd hate to lose the keyboard hotplug capability, but at the same 
-time, it _is_ 2010, and while I have personally used it historically, I 
-don't really foresee ever using it again.
-
-So we _could_ decide to just try it, and see if anybody screams. If nobody 
-does, that would be a very simple solution to the problem.
-
-			Linus
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

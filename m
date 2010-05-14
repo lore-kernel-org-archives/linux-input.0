@@ -1,80 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] input: Default to only using PNP for i8042 probing
- on x86
-Date: Fri, 14 May 2010 09:31:59 -0700
-Message-ID: <20100514163158.GC31607@core.coreip.homeip.net>
-References: <1273853403-2870-1-git-send-email-mjg@redhat.com>
- <1273853403-2870-3-git-send-email-mjg@redhat.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Fri, 14 May 2010 17:35:57 +0100
+Message-ID: <20100514163557.GA7843@srcf.ucam.org>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100514145539.GA5598@srcf.ucam.org> <20100514162951.GB31607@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:47469 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752240Ab0ENQcH (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:47853 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752240Ab0ENQgH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 12:32:07 -0400
+	Fri, 14 May 2010 12:36:07 -0400
 Content-Disposition: inline
-In-Reply-To: <1273853403-2870-3-git-send-email-mjg@redhat.com>
+In-Reply-To: <20100514162951.GB31607@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Fri, May 14, 2010 at 12:10:03PM -0400, Matthew Garrett wrote:
-> Experimenting with Windows has revealed that it will not probe the
-> keyboard controller unless a valid PNPACPI device is present. Change our
-> behaviour to match, and add a new i8042.forcedprobe parameter to allow
-> people to override it.
+On Fri, May 14, 2010 at 09:29:52AM -0700, Dmitry Torokhov wrote:
+> On Fri, May 14, 2010 at 03:55:39PM +0100, Matthew Garrett wrote:
+> > I've done some experimentation under qemu. On ACPI systems, Windows will 
+> > *only* touch the keyboard controller if there's a device with an 
+> > appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
+> > Otherwise it'll simply ignore the hardware entirely. By the looks of it 
+> > their keyboard probing is also somewhat different to ours, but that's 
+> > probably another story.
+> > 
+> > However, I did find a couple of device IDs that machines may produce 
+> > which we don't currently check for. I'll send a patch.
+> > 
 > 
+> I was wondering if we should be matching for _CID instead of _HID for
+> mouse and keyboard.
 
-i8042.nopnp would not do?
-
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
-> ---
->  drivers/input/serio/i8042-x86ia64io.h |    5 +++++
->  drivers/input/serio/i8042.c           |    3 +++
->  2 files changed, 8 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 6168469..2c5d9c0 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -1,6 +1,8 @@
->  #ifndef _I8042_X86IA64IO_H
->  #define _I8042_X86IA64IO_H
->  
-> +#include <linux/acpi.h>
-> +
->  /*
->   * This program is free software; you can redistribute it and/or modify it
->   * under the terms of the GNU General Public License version 2 as published by
-> @@ -747,6 +749,9 @@ static int __init i8042_pnp_init(void)
->  #if defined(__ia64__)
->  		return -ENODEV;
->  #else
-> +		if (!acpi_disabled && !i8042_forceprobe)
-> +			return -ENODEV;
-> +
->  		printk(KERN_INFO "PNP: No PS/2 controller found. Probing ports directly.\n");
->  		return 0;
->  #endif
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 6440a8f..413c5a6 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -75,6 +75,9 @@ MODULE_PARM_DESC(dritek, "Force enable the Dritek keyboard extension");
->  static bool i8042_nopnp;
->  module_param_named(nopnp, i8042_nopnp, bool, 0);
->  MODULE_PARM_DESC(nopnp, "Do not use PNP to detect controller settings");
-> +static bool i8042_forceprobe;
-> +module_param_named(forceprobe, i8042_forceprobe, bool, 0);
-> +MODULE_PARM_DESC(forceprobe, "Force probing even if no PNP devices were found");
->  #endif
->  
->  #define DEBUG
-> -- 
-> 1.7.0.1
-> 
+I'm pretty sure the PNP layer will bind to either _HID or _CID.
 
 -- 
-Dmitry
+Matthew Garrett | mjg59@srcf.ucam.org

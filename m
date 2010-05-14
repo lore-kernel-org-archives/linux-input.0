@@ -1,55 +1,54 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Fri, 14 May 2010 00:56:45 -0700
-Message-ID: <m1aas2kjb6.fsf@fess.ebiederm.org>
-References: <20100513075728.GF30110@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
-	<20100513160117.GB22238@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
-	<20100513171639.GA23708@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005131017070.3711@i5.linux-foundation.org>
-	<20100513181002.GB23708@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH 1/3] input: mt: Simplify event bypass logic
+Date: Fri, 14 May 2010 10:18:56 +0200
+Message-ID: <4BED0770.3080608@bitmath.org>
+References: <1272721779-2124-1-git-send-email-rydberg@euromail.se> <20100504064905.GB17482@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out01.mta.xmission.com ([166.70.13.231]:58952 "EHLO
-	out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750785Ab0ENH4x (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 03:56:53 -0400
-In-Reply-To: <alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org> (Linus Torvalds's message of "Thu\, 13 May 2010 12\:55\:38 -0700 \(PDT\)")
+Received: from csmtp2.one.com ([91.198.169.22]:42613 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758072Ab0ENIS7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 May 2010 04:18:59 -0400
+In-Reply-To: <20100504064905.GB17482@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@linux-foundation.org> writes:
+Dmitry Torokhov wrote:
+> On Sat, May 01, 2010 at 03:49:39PM +0200, Henrik Rydberg wrote:
+>> The input bypass mechanism is only used by the MT events. Since all
+>> MT events use bypassing by construction, the current list is a mere
+>> duplication of input.h. This patch replaces the bypass list by a
+>> simple range test.
+>>
+> 
+> Henrik,
+> 
+> I disagree with the patch. I can not guarantee that we will be able to
+> maintain continuous range of ABS_MT_* events and thus current scheme is
+> more flexible.
 
-> On Thu, 13 May 2010, Dmitry Torokhov wrote:
->> 
->> Is there an interface a driver can use to query the style of boot used?
->
-> Maybe 'efi_enabled' will do. I haven't checked exact semantics of that 
-> flag. And right now we don't even know if Bastien even uses EFI, or boots 
-> a traditional kernel image through bootcamp.
+Coming back to this, the current scheme has problems, too.
 
-efi_enabled is a guard on efi calls.  If it is true it tells you that
-you can make runtime efi calls.  If it is false you can't use runtime
-efi calls. efi_enabled does not tell you about the presence of efi
-on a system.
+With the introduction of slots, all events, not only EV_ABS events, are
+implicitly partitioned into global events and per-slot events. In the current
+approach, the partitioning is controlled via the hidden list in input.c, and
+hinted using the prefix MT. However, expecting the usage of slots to grow
+outside of a linear range of EV_ABS events, the user will inevitably need to
+known the semantics of particular events in order to parse correctly. And once
+the user starts to deal with that information, it can just as well be dynamic,
+and controlled by the device driver.
 
-efi_enabled is generally uninteresting because there is an agreement
-that you should be able to all of the runtime work that matters with
-acpi.
+My proposition is to add a bit field in input_dev which controls whether a
+particular event is used in the slot context or the global context. This
+information should be user-readable via EVIO. The driver should be able to alter
+these settings, and the default should match the current behavior.
 
-This is reinforced by the fact that efi comes in two different flavors
-on x86 32bit and 64bit, and 64bit efi does not have a 32bit
-compatibility layer (too many hard coded pointers in the interface).
-You can't make 32bit efi calls from from a 64bit kernel or 64bit efi
-calls from a 32bit kernel.
+Thoughts?
 
-All of which means in the normal case pay attention to acpi.  That is
-more likely to be correct and usable than EFI anything.
+Cheers,
+Henrik
 
-Eric

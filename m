@@ -1,44 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] input: Default to only using PNP for i8042 probing
- on x86
-Date: Fri, 14 May 2010 09:42:01 -0700
-Message-ID: <20100514164200.GD31607@core.coreip.homeip.net>
-References: <1273853403-2870-1-git-send-email-mjg@redhat.com>
- <1273853403-2870-3-git-send-email-mjg@redhat.com>
- <20100514163158.GC31607@core.coreip.homeip.net>
- <20100514163643.GB7843@srcf.ucam.org>
+From: david@lang.hm
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Fri, 14 May 2010 11:47:43 -0700 (PDT)
+Message-ID: <alpine.DEB.2.01.1005141144250.8603@asgard.lang.hm>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100514145539.GA5598@srcf.ucam.org> <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f204.google.com ([209.85.222.204]:52648 "EHLO
-	mail-pz0-f204.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750876Ab0ENQmM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 12:42:12 -0400
-Content-Disposition: inline
-In-Reply-To: <20100514163643.GB7843@srcf.ucam.org>
+Received: from mail.lang.hm ([64.81.33.126]:37607 "EHLO bifrost.lang.hm"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757574Ab0ENSr5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 May 2010 14:47:57 -0400
+In-Reply-To: <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Fri, May 14, 2010 at 05:36:43PM +0100, Matthew Garrett wrote:
-> On Fri, May 14, 2010 at 09:31:59AM -0700, Dmitry Torokhov wrote:
-> > On Fri, May 14, 2010 at 12:10:03PM -0400, Matthew Garrett wrote:
-> > > Experimenting with Windows has revealed that it will not probe the
-> > > keyboard controller unless a valid PNPACPI device is present. Change our
-> > > behaviour to match, and add a new i8042.forcedprobe parameter to allow
-> > > people to override it.
-> > > 
-> > 
-> > i8042.nopnp would not do?
-> 
-> It could - it wouldn't be quite semantically equivalent, but I don't see 
-> why it wouldn't work.
-> 
+On Fri, 14 May 2010, Linus Torvalds wrote:
 
-I think they are exactly equivalent - "piss on what PNP says, bang the ports
-directly".
+> On Fri, 14 May 2010, Matthew Garrett wrote:
+>>
+>> I've done some experimentation under qemu. On ACPI systems, Windows will
+>> *only* touch the keyboard controller if there's a device with an
+>> appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f.
+>> Otherwise it'll simply ignore the hardware entirely. By the looks of it
+>> their keyboard probing is also somewhat different to ours, but that's
+>> probably another story.
+>
+> Well, I'd hate to lose the keyboard hotplug capability, but at the same
+> time, it _is_ 2010, and while I have personally used it historically, I
+> don't really foresee ever using it again.
 
--- 
-Dmitry
+this is actually fairly common in datacenter environments where people 
+plug in crash carts to problem machines.
+
+yes, everything has USB ports, so they could use USB keyboards, but it's 
+actually pretty common to still use PS/2 keyboards (and while the systems 
+all support USB, it's not uncommon to have KVM systems, including pretty 
+expensive 'enterprise' KVM systems that still require PS/2 keyboards be 
+used to plug into the KVM, so those are the keyboards that are in the 
+datacenter that someone will grab to plug into a problem machine)
+
+David Lang

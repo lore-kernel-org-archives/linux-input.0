@@ -1,36 +1,87 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: [RFC] [PATCH v2 3/4] OMAP4: Keyboard board support
-Date: Thu, 13 May 2010 23:01:45 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E113DD9@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E113BFB@dlee03.ent.ti.com>
- <FCCFB4CDC6E5564B9182F639FC35608703050DEF02@dbde02.ent.ti.com>
+From: =?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?= <arve@android.com>
+Subject: [PATCH 7/8] Input: Block suspend while event queue is
+	not empty.
+Date: Thu, 13 May 2010 21:11:12 -0700
+Message-ID: <1273810273-3039-8-git-send-email-arve@android.com>
+References: <1273810273-3039-1-git-send-email-arve@android.com>
+	<1273810273-3039-2-git-send-email-arve@android.com>
+	<1273810273-3039-3-git-send-email-arve@android.com>
+	<1273810273-3039-4-git-send-email-arve@android.com>
+	<1273810273-3039-5-git-send-email-arve@android.com>
+	<1273810273-3039-6-git-send-email-arve@android.com>
+	<1273810273-3039-7-git-send-email-arve@android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:55056 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750767Ab0ENEBr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 May 2010 00:01:47 -0400
-In-Reply-To: <FCCFB4CDC6E5564B9182F639FC35608703050DEF02@dbde02.ent.ti.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <1273810273-3039-7-git-send-email-arve@android.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: linux-pm@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: =?UTF-8?q?M=C3=A1rton=20N=C3=A9meth?= <nm127@freemail.hu>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sven Neumann <s.neumann@raumfeld.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, Matthew Garrett <mjg@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: "Pandita, Vikram" <vikram.pandita@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-Vikram,
-
-> From: Pandita, Vikram
-
-[..]
-
-> >+
-> >+struct omap_device *od;
-> 
-> Any reason to have this global?
-
-Not really... I'll change it local to the keyboard init function, thanks!
-
-Best Regards
-Abraham
+QWRkIGFuIGlvY3RsLCBFVklPQ1NTVVNQRU5EQkxPQ0ssIHRvIGVuYWJsZSBhIHN1c3BlbmRfYmxv
+Y2tlciB0aGF0IHdpbGwgYmxvY2sKc3VzcGVuZCB3aGlsZSB0aGUgZXZlbnQgcXVldWUgaXMgbm90
+IGVtcHR5LiBUaGlzIGFsbG93cyB1c2Vyc3BhY2UgY29kZSB0bwpwcm9jZXNzIGlucHV0IGV2ZW50
+cyB3aGlsZSB0aGUgZGV2aWNlIGFwcGVhcnMgdG8gYmUgYXNsZWVwLgoKU2lnbmVkLW9mZi1ieTog
+QXJ2ZSBIasO4bm5ldsOlZyA8YXJ2ZUBhbmRyb2lkLmNvbT4KLS0tCiBkcml2ZXJzL2lucHV0L2V2
+ZGV2LmMgfCAgIDIyICsrKysrKysrKysrKysrKysrKysrKysKIGluY2x1ZGUvbGludXgvaW5wdXQu
+aCB8ICAgIDMgKysrCiAyIGZpbGVzIGNoYW5nZWQsIDI1IGluc2VydGlvbnMoKyksIDAgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9ldmRldi5jIGIvZHJpdmVycy9pbnB1
+dC9ldmRldi5jCmluZGV4IDJlZTZjN2EuLmJmZjIyNDcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5w
+dXQvZXZkZXYuYworKysgYi9kcml2ZXJzL2lucHV0L2V2ZGV2LmMKQEAgLTIwLDYgKzIwLDcgQEAK
+ICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgogI2luY2x1ZGUgPGxpbnV4L21ham9yLmg+CiAjaW5j
+bHVkZSA8bGludXgvZGV2aWNlLmg+CisjaW5jbHVkZSA8bGludXgvc3VzcGVuZC5oPgogI2luY2x1
+ZGUgImlucHV0LWNvbXBhdC5oIgogCiBzdHJ1Y3QgZXZkZXYgewpAQCAtNDMsNiArNDQsOCBAQCBz
+dHJ1Y3QgZXZkZXZfY2xpZW50IHsKIAlzdHJ1Y3QgZmFzeW5jX3N0cnVjdCAqZmFzeW5jOwogCXN0
+cnVjdCBldmRldiAqZXZkZXY7CiAJc3RydWN0IGxpc3RfaGVhZCBub2RlOworCXN0cnVjdCBzdXNw
+ZW5kX2Jsb2NrZXIgc3VzcGVuZF9ibG9ja2VyOworCWJvb2wgdXNlX3N1c3BlbmRfYmxvY2tlcjsK
+IH07CiAKIHN0YXRpYyBzdHJ1Y3QgZXZkZXYgKmV2ZGV2X3RhYmxlW0VWREVWX01JTk9SU107CkBA
+IC01NSw2ICs1OCw4IEBAIHN0YXRpYyB2b2lkIGV2ZGV2X3Bhc3NfZXZlbnQoc3RydWN0IGV2ZGV2
+X2NsaWVudCAqY2xpZW50LAogCSAqIEludGVycnVwdHMgYXJlIGRpc2FibGVkLCBqdXN0IGFjcXVp
+cmUgdGhlIGxvY2sKIAkgKi8KIAlzcGluX2xvY2soJmNsaWVudC0+YnVmZmVyX2xvY2spOworCWlm
+IChjbGllbnQtPnVzZV9zdXNwZW5kX2Jsb2NrZXIpCisJCXN1c3BlbmRfYmxvY2soJmNsaWVudC0+
+c3VzcGVuZF9ibG9ja2VyKTsKIAljbGllbnQtPmJ1ZmZlcltjbGllbnQtPmhlYWQrK10gPSAqZXZl
+bnQ7CiAJY2xpZW50LT5oZWFkICY9IEVWREVWX0JVRkZFUl9TSVpFIC0gMTsKIAlzcGluX3VubG9j
+aygmY2xpZW50LT5idWZmZXJfbG9jayk7CkBAIC0yMzQsNiArMjM5LDggQEAgc3RhdGljIGludCBl
+dmRldl9yZWxlYXNlKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlKQogCW11
+dGV4X3VubG9jaygmZXZkZXYtPm11dGV4KTsKIAogCWV2ZGV2X2RldGFjaF9jbGllbnQoZXZkZXYs
+IGNsaWVudCk7CisJaWYgKGNsaWVudC0+dXNlX3N1c3BlbmRfYmxvY2tlcikKKwkJc3VzcGVuZF9i
+bG9ja2VyX3VucmVnaXN0ZXIoJmNsaWVudC0+c3VzcGVuZF9ibG9ja2VyKTsKIAlrZnJlZShjbGll
+bnQpOwogCiAJZXZkZXZfY2xvc2VfZGV2aWNlKGV2ZGV2KTsKQEAgLTMzNSw2ICszNDIsOCBAQCBz
+dGF0aWMgaW50IGV2ZGV2X2ZldGNoX25leHRfZXZlbnQoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xp
+ZW50LAogCWlmIChoYXZlX2V2ZW50KSB7CiAJCSpldmVudCA9IGNsaWVudC0+YnVmZmVyW2NsaWVu
+dC0+dGFpbCsrXTsKIAkJY2xpZW50LT50YWlsICY9IEVWREVWX0JVRkZFUl9TSVpFIC0gMTsKKwkJ
+aWYgKGNsaWVudC0+dXNlX3N1c3BlbmRfYmxvY2tlciAmJiBjbGllbnQtPmhlYWQgPT0gY2xpZW50
+LT50YWlsKQorCQkJc3VzcGVuZF91bmJsb2NrKCZjbGllbnQtPnN1c3BlbmRfYmxvY2tlcik7CiAJ
+fQogCiAJc3Bpbl91bmxvY2tfaXJxKCZjbGllbnQtPmJ1ZmZlcl9sb2NrKTsKQEAgLTU4NSw2ICs1
+OTQsMTkgQEAgc3RhdGljIGxvbmcgZXZkZXZfZG9faW9jdGwoc3RydWN0IGZpbGUgKmZpbGUsIHVu
+c2lnbmVkIGludCBjbWQsCiAJCWVsc2UKIAkJCXJldHVybiBldmRldl91bmdyYWIoZXZkZXYsIGNs
+aWVudCk7CiAKKwljYXNlIEVWSU9DR1NVU1BFTkRCTE9DSzoKKwkJcmV0dXJuIHB1dF91c2VyKGNs
+aWVudC0+dXNlX3N1c3BlbmRfYmxvY2tlciwgaXApOworCisJY2FzZSBFVklPQ1NTVVNQRU5EQkxP
+Q0s6CisJCXNwaW5fbG9ja19pcnEoJmNsaWVudC0+YnVmZmVyX2xvY2spOworCQlpZiAoIWNsaWVu
+dC0+dXNlX3N1c3BlbmRfYmxvY2tlciAmJiBwKQorCQkJc3VzcGVuZF9ibG9ja2VyX2luaXQoJmNs
+aWVudC0+c3VzcGVuZF9ibG9ja2VyLCAiZXZkZXYiKTsKKwkJZWxzZSBpZiAoY2xpZW50LT51c2Vf
+c3VzcGVuZF9ibG9ja2VyICYmICFwKQorCQkJc3VzcGVuZF9ibG9ja2VyX3VucmVnaXN0ZXIoJmNs
+aWVudC0+c3VzcGVuZF9ibG9ja2VyKTsKKwkJY2xpZW50LT51c2Vfc3VzcGVuZF9ibG9ja2VyID0g
+ISFwOworCQlzcGluX3VubG9ja19pcnEoJmNsaWVudC0+YnVmZmVyX2xvY2spOworCQlyZXR1cm4g
+MDsKKwogCWRlZmF1bHQ6CiAKIAkJaWYgKF9JT0NfVFlQRShjbWQpICE9ICdFJykKZGlmZiAtLWdp
+dCBhL2luY2x1ZGUvbGludXgvaW5wdXQuaCBiL2luY2x1ZGUvbGludXgvaW5wdXQuaAppbmRleCA3
+ZWQyMjUxLi5iMmQ5M2I0IDEwMDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L2lucHV0LmgKKysrIGIv
+aW5jbHVkZS9saW51eC9pbnB1dC5oCkBAIC04Miw2ICs4Miw5IEBAIHN0cnVjdCBpbnB1dF9hYnNp
+bmZvIHsKIAogI2RlZmluZSBFVklPQ0dSQUIJCV9JT1coJ0UnLCAweDkwLCBpbnQpCQkJLyogR3Jh
+Yi9SZWxlYXNlIGRldmljZSAqLwogCisjZGVmaW5lIEVWSU9DR1NVU1BFTkRCTE9DSwlfSU9SKCdF
+JywgMHg5MSwgaW50KQkJCS8qIGdldCBzdXNwZW5kIGJsb2NrIGVuYWJsZSAqLworI2RlZmluZSBF
+VklPQ1NTVVNQRU5EQkxPQ0sJX0lPVygnRScsIDB4OTEsIGludCkJCQkvKiBzZXQgc3VzcGVuZCBi
+bG9jayBlbmFibGUgKi8KKwogLyoKICAqIEV2ZW50IHR5cGVzCiAgKi8KLS0gCjEuNi41LjEKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LXBtIG1h
+aWxpbmcgbGlzdApsaW51eC1wbUBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtcG0=

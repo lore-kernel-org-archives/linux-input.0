@@ -1,64 +1,35 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 3/4] drivers/hid: Eliminate use after free
-Date: Sat, 15 May 2010 11:46:36 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005151146120.15566@ask.diku.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
+Subject: [PATCH] input: alps: Add support for the touchpad on Dell Latitude E6410
+Date: Sat, 15 May 2010 15:52:04 +0200
+Message-ID: <1273931524-15654-1-git-send-email-thomas@archlinux.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw2.diku.dk ([130.225.96.92]:53951 "EHLO mgw2.diku.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752090Ab0EOJql (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 May 2010 05:46:41 -0400
+Received: from gerolde.archlinux.org ([66.211.214.132]:50622 "EHLO
+	archlinux.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752472Ab0EON7w (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 May 2010 09:59:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-
-From: Julia Lawall <julia@diku.dk>
-
-The skip label frees resp, which has not been allocated at the point of
-this goto and then does a break, based on the fact that err is non-zero.
-This is replaced by a break directly.
-
-A simplified version of the semantic match that finds this problem is as
-follows: (http://coccinelle.lip6.fr/)
-
-// <smpl>
-@free@
-expression E;
-position p;
-@@
-kfree@p(E)
-
-@@
-expression free.E, subE<=free.E, E1;
-position free.p;
-@@
-
-  kfree@p(E)
-  ...
-(
-  subE = E1
-|
-* E
-)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, alessandro@molarulez.com, =?UTF-8?q?Thomas=20B=C3=A4chler?= <thomas@archlinux.org>
 
 ---
- drivers/hid/hid-picolcd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/alps.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd.c b/drivers/hid/hid-picolcd.c
-index 95253b3..7aabf65 100644
---- a/drivers/hid/hid-picolcd.c
-+++ b/drivers/hid/hid-picolcd.c
-@@ -1616,7 +1616,7 @@ static ssize_t _picolcd_flash_write(struct picolcd_data *data, int report_id,
- 		raw_data[len_off] = s > 32 ? 32 : s;
- 		if (copy_from_user(raw_data+len_off+1, u, raw_data[len_off])) {
- 			err = -EFAULT;
--			goto skip;
-+			break;
- 		}
- 		resp = picolcd_send_and_wait(data->hdev, report_id, raw_data,
- 				len_off+1+raw_data[len_off]);
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 99d5876..0c83070 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -66,6 +66,8 @@ static const struct alps_model_info alps_model_data[] = {
+ 	{ { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FOUR_BUTTONS },	  /* Dell Vostro 1400 */
+ 	{ { 0x52, 0x01, 0x14 }, 0xff, 0xff,
+ 		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED },	  /* Toshiba Tecra A11-11L */
++	{ { 0x73, 0x02, 0x64 }, 0xff, 0xff,
++		ALPS_PASS | ALPS_DUALPOINT },				  /* Dell Latitude E6410 */
+ };
+ 
+ /*
+-- 
+1.7.1
+

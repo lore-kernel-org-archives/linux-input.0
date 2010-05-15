@@ -1,54 +1,70 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 29/37] drivers/input/misc: Use kmemdup
-Date: Sat, 15 May 2010 23:22:00 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005152321430.21345@ask.diku.dk>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Sat, 15 May 2010 17:25:37 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
+References: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Miloslav Trmac <mitr@volny.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+On Fri, 14 May 2010, Arve Hj=F8nnev=E5g wrote:
 
-Use kmemdup when some other buffer is immediately copied into the
-allocated region.
+> > I'd like to explore this avenue a little farther. =A0In particular, what
+> > is the issue involving loss of wakeup events? =A0Can you describe this =
+in
+> > more detail?
+> >
+> =
 
-A simplified version of the semantic patch that makes this change is as
-follows: (http://coccinelle.lip6.fr/)
+> On the desktop systems I have used I only wake the up the system by
+> pressing a button/key or with an rtc alarm. Losing a button or key
+> wakeup event is not usually a problem on a desktop since the user will
+> press it again. Losing an alarm however could be a problem and this
+> can be avoided by using opportunistic suspend and suspend blockers.
 
-// <smpl>
-@@
-expression from,to,size,flag;
-statement S;
-@@
+How can runtime PM combined with CPUidle cause an alarm to be lost?
 
--  to = \(kmalloc\|kzalloc\)(size,flag);
-+  to = kmemdup(from,size,flag);
-   if (to==NULL || ...) S
--  memcpy(to, from, size);
-// </smpl>
+> > Why would you want to use system suspend if runtime PM can do
+> > everything you need?
+> >
+> Because it stops threads that wakeup every second to check if they
+> have work to do (this includes standard kernel threads), and it
+> prevents bad apps that never go idle from completely destroying our
+> battery life.
 
-Signed-off-by: Julia Lawall <julia@diku.dk>
+Ah, the ill-behaved apps problem.  I think everybody agrees that they =
 
----
- drivers/input/misc/wistron_btns.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+are hard to deal with.
 
-diff -u -p a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
---- a/drivers/input/misc/wistron_btns.c
-+++ b/drivers/input/misc/wistron_btns.c
-@@ -983,11 +983,11 @@ static int __init copy_keymap(void)
- 	for (key = keymap; key->type != KE_END; key++)
- 		length++;
- 
--	new_keymap = kmalloc(length * sizeof(struct key_entry), GFP_KERNEL);
-+	new_keymap = kmemdup(keymap, length * sizeof(struct key_entry),
-+			     GFP_KERNEL);
- 	if (!new_keymap)
- 		return -ENOMEM;
- 
--	memcpy(new_keymap, keymap, length * sizeof(struct key_entry));
- 	keymap = new_keymap;
- 
- 	return 0;
+The kernel-threads problem might better be addressed by fixing those
+threads than by adding a new API.
+
+> > Sure, I can see that an ACPI-based system needs something more. =A0But
+> > that's not the real issue here.
+> >
+> =
+
+> The system we started with entered a much lower power state from
+> suspend than idle so we needed wakelocks to get more than 24 hours
+> battery life. We kept wakelocks when we moved to the msm platform
+> since it reduces our power consumption.
+
+Is it generally true among embedded systems nowadays that idle is =
+
+capable of reaching essentially the same power states as suspend?
+
+Alan Stern

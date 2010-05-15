@@ -1,17 +1,17 @@
 From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 21/37] drivers/hid: Use kmemdup
-Date: Sat, 15 May 2010 23:19:30 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005152319150.21345@ask.diku.dk>
+Subject: [PATCH 27/37] drivers/input/touchscreen: Use kmemdup
+Date: Sat, 15 May 2010 23:21:18 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1005152321020.21345@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw1.diku.dk ([130.225.96.91]:51365 "EHLO mgw1.diku.dk"
+Received: from mgw2.diku.dk ([130.225.96.92]:35459 "EHLO mgw2.diku.dk"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752564Ab0EOVTg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 May 2010 17:19:36 -0400
+	id S1756349Ab0EOVVZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 May 2010 17:21:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
 From: Julia Lawall <julia@diku.dk>
 
@@ -36,21 +36,24 @@ statement S;
 Signed-off-by: Julia Lawall <julia@diku.dk>
 
 ---
- drivers/hid/hid-core.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff -u -p a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -653,10 +653,9 @@ int hid_parse_report(struct hid_device *
- 	if (device->driver->report_fixup)
- 		device->driver->report_fixup(device, start, size);
+diff -u -p a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -811,12 +811,11 @@ static int nexio_init(struct usbtouch_us
  
--	device->rdesc = kmalloc(size, GFP_KERNEL);
-+	device->rdesc = kmemdup(start, size, GFP_KERNEL);
- 	if (device->rdesc == NULL)
- 		return -ENOMEM;
--	memcpy(device->rdesc, start, size);
- 	device->rsize = size;
+ 	priv = usbtouch->priv;
  
- 	parser = vmalloc(sizeof(struct hid_parser));
+-	priv->ack_buf = kmalloc(sizeof(nexio_ack_pkt), GFP_KERNEL);
++	priv->ack_buf = kmemdup(nexio_ack_pkt, sizeof(nexio_ack_pkt),
++				GFP_KERNEL);
+ 	if (!priv->ack_buf)
+ 		goto err_priv;
+ 
+-	memcpy(priv->ack_buf, nexio_ack_pkt, sizeof(nexio_ack_pkt));
+-
+ 	priv->ack = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!priv->ack) {
+ 		dbg("%s - usb_alloc_urb failed: usbtouch->ack", __func__);

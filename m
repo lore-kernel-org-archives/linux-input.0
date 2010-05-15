@@ -1,17 +1,13 @@
 From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 27/37] drivers/input/touchscreen: Use kmemdup
-Date: Sat, 15 May 2010 23:21:18 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1005152321020.21345@ask.diku.dk>
+Subject: [PATCH 29/37] drivers/input/misc: Use kmemdup
+Date: Sat, 15 May 2010 23:22:00 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1005152321430.21345@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw2.diku.dk ([130.225.96.92]:35459 "EHLO mgw2.diku.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756349Ab0EOVVZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 May 2010 17:21:25 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Miloslav Trmac <mitr@volny.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
 From: Julia Lawall <julia@diku.dk>
 
@@ -36,24 +32,23 @@ statement S;
 Signed-off-by: Julia Lawall <julia@diku.dk>
 
 ---
- drivers/input/touchscreen/usbtouchscreen.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/misc/wistron_btns.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff -u -p a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -811,12 +811,11 @@ static int nexio_init(struct usbtouch_us
+diff -u -p a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
+--- a/drivers/input/misc/wistron_btns.c
++++ b/drivers/input/misc/wistron_btns.c
+@@ -983,11 +983,11 @@ static int __init copy_keymap(void)
+ 	for (key = keymap; key->type != KE_END; key++)
+ 		length++;
  
- 	priv = usbtouch->priv;
+-	new_keymap = kmalloc(length * sizeof(struct key_entry), GFP_KERNEL);
++	new_keymap = kmemdup(keymap, length * sizeof(struct key_entry),
++			     GFP_KERNEL);
+ 	if (!new_keymap)
+ 		return -ENOMEM;
  
--	priv->ack_buf = kmalloc(sizeof(nexio_ack_pkt), GFP_KERNEL);
-+	priv->ack_buf = kmemdup(nexio_ack_pkt, sizeof(nexio_ack_pkt),
-+				GFP_KERNEL);
- 	if (!priv->ack_buf)
- 		goto err_priv;
+-	memcpy(new_keymap, keymap, length * sizeof(struct key_entry));
+ 	keymap = new_keymap;
  
--	memcpy(priv->ack_buf, nexio_ack_pkt, sizeof(nexio_ack_pkt));
--
- 	priv->ack = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!priv->ack) {
- 		dbg("%s - usb_alloc_urb failed: usbtouch->ack", __func__);
+ 	return 0;

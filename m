@@ -1,70 +1,267 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 0/8] Suspend block api (version 6)
-Date: Sat, 15 May 2010 17:25:37 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
-References: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
+From: Don Prince <dhprince.devel@yahoo.co.uk>
+Subject: [PATCH 2.6.34-rc7] HID: hid-samsung: add support for Creative Desktop
+ Wireless 6000
+Date: Sun, 16 May 2010 01:32:31 +0100
+Message-ID: <4BEF3D1F.6080403@yahoo.co.uk>
+Reply-To: dhprince.devel@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 14 May 2010, Arve Hj=F8nnev=E5g wrote:
+Add support for the Creative Desktop Wireless 6000 keyboard/mouse
+bundle's multimedia buttons which are not currently handled by
+the default/samsung HID driver.
 
-> > I'd like to explore this avenue a little farther. =A0In particular, what
-> > is the issue involving loss of wakeup events? =A0Can you describe this =
-in
-> > more detail?
-> >
-> =
+Signed-off-by: Don Prince <dhprince-devel@yahoo.co.uk>
 
-> On the desktop systems I have used I only wake the up the system by
-> pressing a button/key or with an rtc alarm. Losing a button or key
-> wakeup event is not usually a problem on a desktop since the user will
-> press it again. Losing an alarm however could be a problem and this
-> can be avoided by using opportunistic suspend and suspend blockers.
+---
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-05-15 15:38:23.938711974 +0100
++++ b/drivers/hid/hid-core.c	2010-05-15 20:43:36.363484676 +0100
+@@ -1343,6 +1343,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+--- a/drivers/hid/hid-ids.h	2010-05-15 15:38:23.946652184 +0100
++++ b/drivers/hid/hid-ids.h	2010-05-15 20:40:06.313485144 +0100
+@@ -409,6 +409,7 @@
+ 
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
++#define USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE	0x0600
+ 
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-samsung.c b/drivers/hid/hid-samsung.c
+--- a/drivers/hid/hid-samsung.c	2010-03-09 13:53:06.892466071 +0000
++++ b/drivers/hid/hid-samsung.c	2010-05-15 23:18:59.890676767 +0100
+@@ -7,6 +7,7 @@
+  *  Copyright (c) 2006-2007 Jiri Kosina
+  *  Copyright (c) 2007 Paul Walmsley
+  *  Copyright (c) 2008 Jiri Slaby
++ *  Copyright (c) 2010 Don Prince <dhprince.devel@yahoo.co.uk>
+  */
+ 
+ /*
+@@ -17,6 +18,7 @@
+  */
+ 
+ #include <linux/device.h>
++#include <linux/usb.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ 
+@@ -43,21 +45,21 @@
+  * 4. 171 byte report descriptor
+  * Report #3 has an array field with logical range 0..1 instead of 1..3.
+  */
+-static inline void samsung_dev_trace(struct hid_device *hdev,
++static inline void samsung_irda_dev_trace(struct hid_device *hdev,
+ 		unsigned int rsize)
+ {
+ 	dev_info(&hdev->dev, "fixing up Samsung IrDA %d byte report "
+ 			"descriptor\n", rsize);
+ }
+ 
+-static void samsung_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++static void samsung_irda_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int rsize)
+ {
+ 	if (rsize == 184 && rdesc[175] == 0x25 && rdesc[176] == 0x40 &&
+ 			rdesc[177] == 0x75 && rdesc[178] == 0x30 &&
+ 			rdesc[179] == 0x95 && rdesc[180] == 0x01 &&
+ 			rdesc[182] == 0x40) {
+-		samsung_dev_trace(hdev, 184);
++		samsung_irda_dev_trace(hdev, 184);
+ 		rdesc[176] = 0xff;
+ 		rdesc[178] = 0x08;
+ 		rdesc[180] = 0x06;
+@@ -65,24 +67,123 @@ static void samsung_report_fixup(struct 
+ 	} else
+ 	if (rsize == 203 && rdesc[192] == 0x15 && rdesc[193] == 0x0 &&
+ 			rdesc[194] == 0x25 && rdesc[195] == 0x12) {
+-		samsung_dev_trace(hdev, 203);
++		samsung_irda_dev_trace(hdev, 203);
+ 		rdesc[193] = 0x1;
+ 		rdesc[195] = 0xf;
+ 	} else
+ 	if (rsize == 135 && rdesc[124] == 0x15 && rdesc[125] == 0x0 &&
+ 			rdesc[126] == 0x25 && rdesc[127] == 0x11) {
+-		samsung_dev_trace(hdev, 135);
++		samsung_irda_dev_trace(hdev, 135);
+ 		rdesc[125] = 0x1;
+ 		rdesc[127] = 0xe;
+ 	} else
+ 	if (rsize == 171 && rdesc[160] == 0x15 && rdesc[161] == 0x0 &&
+ 			rdesc[162] == 0x25 && rdesc[163] == 0x01) {
+-		samsung_dev_trace(hdev, 171);
++		samsung_irda_dev_trace(hdev, 171);
+ 		rdesc[161] = 0x1;
+ 		rdesc[163] = 0x3;
+ 	}
+ }
+ 
++#define samsung_kbd_mouse_map_key_clear(c) \
++	hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
++
++static int samsung_kbd_mouse_input_mapping(struct hid_device *hdev,
++	struct hid_input *hi, struct hid_field *field, struct hid_usage *usage,
++	unsigned long **bit, int *max)
++{
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++	unsigned short ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
++
++	if (1 != ifnum || HID_UP_CONSUMER != (usage->hid & HID_USAGE_PAGE))
++		return 0;
++
++	dbg_hid("samsung wireless keyboard/mouse input mapping event [0x%x]\n",
++		usage->hid & HID_USAGE);
++
++	switch (usage->hid & HID_USAGE) {
++	/* report 2 */
++	case 0x0b5:
++		samsung_kbd_mouse_map_key_clear(KEY_NEXTSONG);
++		break;
++	case 0x0b6:
++		samsung_kbd_mouse_map_key_clear(KEY_PREVIOUSSONG);
++		break;
++	case 0x0b7:
++		samsung_kbd_mouse_map_key_clear(KEY_STOPCD);
++		break;
++	case 0x0cd:
++		samsung_kbd_mouse_map_key_clear(KEY_PLAYPAUSE);
++		break;
++	case 0x0e2:
++		samsung_kbd_mouse_map_key_clear(KEY_MUTE);
++		break;
++	case 0x0e9:
++		samsung_kbd_mouse_map_key_clear(KEY_VOLUMEUP);
++		break;
++	case 0x0ea:
++		samsung_kbd_mouse_map_key_clear(KEY_VOLUMEDOWN);
++		break;
++	case 0x183:
++		samsung_kbd_mouse_map_key_clear(KEY_MEDIA);
++		break;
++	case 0x195:
++		samsung_kbd_mouse_map_key_clear(KEY_EMAIL);
++		break;
++	case 0x196:
++		samsung_kbd_mouse_map_key_clear(KEY_CALC);
++		break;
++	case 0x197:
++		samsung_kbd_mouse_map_key_clear(KEY_COMPUTER);
++		break;
++	case 0x22b:
++		samsung_kbd_mouse_map_key_clear(KEY_SEARCH);
++		break;
++	case 0x22c:
++		samsung_kbd_mouse_map_key_clear(KEY_WWW);
++		break;
++	case 0x22d:
++		samsung_kbd_mouse_map_key_clear(KEY_BACK);
++		break;
++	case 0x22e:
++		samsung_kbd_mouse_map_key_clear(KEY_FORWARD);
++		break;
++	case 0x22f:
++		samsung_kbd_mouse_map_key_clear(KEY_FAVORITES);
++		break;
++	case 0x230:
++		samsung_kbd_mouse_map_key_clear(KEY_REFRESH);
++		break;
++	case 0x231:
++		samsung_kbd_mouse_map_key_clear(KEY_STOP);
++		break;
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++static void samsung_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++	unsigned int rsize)
++{
++	if (USB_DEVICE_ID_SAMSUNG_IR_REMOTE == hdev->product)
++		samsung_irda_report_fixup(hdev, rdesc, rsize);
++}
++
++static int samsung_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++	struct hid_field *field, struct hid_usage *usage,
++	unsigned long **bit, int *max)
++{
++	int ret = 0;
++
++	if (USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE == hdev->product)
++		ret = samsung_kbd_mouse_input_mapping(hdev,
++			hi, field, usage, bit, max);
++
++	return ret;
++}
++
+ static int samsung_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+@@ -95,10 +196,12 @@ static int samsung_probe(struct hid_devi
+ 		goto err_free;
+ 	}
+ 
+-	if (hdev->rsize == 184) {
+-		/* disable hidinput, force hiddev */
+-		cmask = (cmask & ~HID_CONNECT_HIDINPUT) |
+-			HID_CONNECT_HIDDEV_FORCE;
++	if (USB_DEVICE_ID_SAMSUNG_IR_REMOTE == hdev->product) {
++		if (hdev->rsize == 184) {
++			/* disable hidinput, force hiddev */
++			cmask = (cmask & ~HID_CONNECT_HIDINPUT) |
++				HID_CONNECT_HIDDEV_FORCE;
++		}
+ 	}
+ 
+ 	ret = hid_hw_start(hdev, cmask);
+@@ -114,6 +217,7 @@ err_free:
+ 
+ static const struct hid_device_id samsung_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, samsung_devices);
+@@ -122,6 +226,7 @@ static struct hid_driver samsung_driver 
+ 	.name = "samsung",
+ 	.id_table = samsung_devices,
+ 	.report_fixup = samsung_report_fixup,
++	.input_mapping = samsung_input_mapping,
+ 	.probe = samsung_probe,
+ };
+ 
+diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+--- a/drivers/hid/Kconfig	2010-03-09 13:53:05.930183131 +0000
++++ b/drivers/hid/Kconfig	2010-05-15 20:38:53.584485932 +0100
+@@ -273,7 +273,7 @@ config HID_SAMSUNG
+ 	depends on USB_HID
+ 	default !EMBEDDED
+ 	---help---
+-	Support for Samsung InfraRed remote control.
++	Support for Samsung InfraRed remote control or keyboards.
+ 
+ config HID_SONY
+ 	tristate "Sony" if EMBEDDED
 
-How can runtime PM combined with CPUidle cause an alarm to be lost?
 
-> > Why would you want to use system suspend if runtime PM can do
-> > everything you need?
-> >
-> Because it stops threads that wakeup every second to check if they
-> have work to do (this includes standard kernel threads), and it
-> prevents bad apps that never go idle from completely destroying our
-> battery life.
 
-Ah, the ill-behaved apps problem.  I think everybody agrees that they =
-
-are hard to deal with.
-
-The kernel-threads problem might better be addressed by fixing those
-threads than by adding a new API.
-
-> > Sure, I can see that an ACPI-based system needs something more. =A0But
-> > that's not the real issue here.
-> >
-> =
-
-> The system we started with entered a much lower power state from
-> suspend than idle so we needed wakelocks to get more than 24 hours
-> battery life. We kept wakelocks when we moved to the msm platform
-> since it reduces our power consumption.
-
-Is it generally true among embedded systems nowadays that idle is =
-
-capable of reaching essentially the same power states as suspend?
-
-Alan Stern
+		
+___________________________________________________________ 
+Try the all-new Yahoo! Mail. "The New Version is radically easier to use" – The Wall Street Journal 
+http://uk.docs.yahoo.com/nowyoucan.html

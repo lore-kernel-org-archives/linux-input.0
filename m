@@ -1,78 +1,67 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH] ad7877: fix spi word size to 16 bit
-Date: Mon, 17 May 2010 09:14:39 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E568FC181@LIMKCMBX1.ad.analog.com>
-References: <1273142265-11929-1-git-send-email-os@emlix.com>
- <n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
- <4BE3E02E.1090500@emlix.com>
- <h2l8bd0f97a1005071123u782bab2doee5c122dbd4c8642@mail.gmail.com>
- <20100513075335.GD30110@core.coreip.homeip.net>
- <20100515181523.GA3081@emlix.com>
- <AANLkTinn6VgvujPP3gGsteBGckIFgljn7B35DV6n8kwL@mail.gmail.com>
- <20100517072935.GA14891@emlix.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 21/37] drivers/hid: Use kmemdup
+Date: Mon, 17 May 2010 10:27:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005171026500.28092@pobox.suse.cz>
+References: <Pine.LNX.4.64.1005152319150.21345@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:31422 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751830Ab0EQIOn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 May 2010 04:14:43 -0400
-In-Reply-To: <20100517072935.GA14891@emlix.com>
-Content-Language: en-US
+Received: from cantor.suse.de ([195.135.220.2]:50597 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751446Ab0EQI1j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 May 2010 04:27:39 -0400
+In-Reply-To: <Pine.LNX.4.64.1005152319150.21345@ask.diku.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oskar Schirmer <os@emlix.com>, Mike Frysinger <vapier.adi@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Schneidewind <osw@emlix.com>
+To: Julia Lawall <julia@diku.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-T3NrYXIgU2NoaXJtZXIgd3JvdGUgb24gMjAxMC0wNS0xNzoNCj4gT24gU3VuLCBNYXkgMTYsIDIw
-MTAgYXQgMTU6MjU6MzQgLTA0MDAsIE1pa2UgRnJ5c2luZ2VyIHdyb3RlOg0KPj4gT24gU2F0LCBN
-YXkgMTUsIDIwMTAgYXQgMTQ6MTUsIE9za2FyIFNjaGlybWVyIHdyb3RlOg0KPj4+IE9uIFRodSwg
-TWF5IDEzLCAyMDEwIGF0IDAwOjUzOjM1IC0wNzAwLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+
-Pj4+IE9uIEZyaSwgTWF5IDA3LCAyMDEwIGF0IDAyOjIzOjA3UE0gLTA0MDAsIE1pa2UgRnJ5c2lu
-Z2VyIHdyb3RlOg0KPj4+Pj4gT24gRnJpLCBNYXkgNywgMjAxMCBhdCAwNTo0MSwgRGFuaWVsIEds
-w7Zja25lciB3cm90ZToNCj4+Pj4+PiBPbiAwNS8wNi8yMDEwIDA4OjI2IFBNLCBNaWtlIEZyeXNp
-bmdlciB3cm90ZToNCj4+Pj4+Pj4gaSB0aGluayBpdCdkIGJlIGEgYmV0dGVyIGlkZWEgdG8gZG8g
-c29tZXRoaW5nIGxpa2U6DQo+Pj4+Pj4+ICAgaWYgKHNwaS0+Yml0c19wZXJfd29yZCAhPSAxNikg
-ew0KPj4+Pj4+PiAgICAgaWYgKHNwaS0+Yml0c19wZXJfd29yZCkgew0KPj4+Pj4+PiAgICAgICBk
-ZXZfZXJyKCZzcGktPmRldiwgIkludmFsaWQgU1BJIHNldHRpbmdzOw0KPj4+Pj4+PiBiaXRzX3Bl
-cl93b3JkIG11c3QgYmUgMTZcbiIpOw0KPj4+Pj4+PiAgICAgICByZXR1cm4gLUVJTlZBTDsNCj4+
-Pj4+Pj4gICAgIH0NCj4+Pj4+Pj4gICAgIHNwaS0+Yml0c19wZXJfd29yZCA9IDE2Ow0KPj4+Pj4+
-PiAgICAgc3BpX3NldHVwKHNwaSk7DQo+Pj4+Pj4+ICAgfQ0KPj4+Pj4+DQo+Pj4+Pj4gVGhlcmUg
-aXMgbm8gd2F5IHRvIHNldCBiaXRzX3Blcl93b3JkIHVzaW5nIHN0cnVjdCBzcGlfYm9hcmRfaW5m
-by4NCj4+Pj4+PiBUaGUgZGVzY3JpcHRpb24gb2YgdGhhdCBzdHJ1Y3R1cmUgaW4gc3BpLmggZXhw
-bGljaXRseSBsaXN0cyB0aGUNCj4+Pj4+PiB3b3Jkc2l6ZSBhcyBvbmUgb2YgdGhlIHBhcmFtZXRl
-cnMgZHJpdmVycyBzaG91bGQgc2V0IHRoZW1zZWxmIGluDQo+Pj4+Pj4gcHJvYmUoKS4NCj4+Pj4+
-Pg0KPj4+Pj4+IE9ubHkgc3RydWN0IGJmaW41eHhfc3BpX2NoaXAgYWxsb3dzIHRvIHNldCB0aGlz
-IHZhbHVlIGluIHRoZQ0KPiBib2FyZCBjb2RlLg0KPj4+Pj4NCj4+Pj4+IGFuIG9idmlvdXMgc2hv
-cnRjb21pbmcgaW4gdGhlIFNQSSBmcmFtZXdvcmsgdGhhdCBzaG91bGQgYmUgZml4ZWQsDQo+Pj4+
-PiBidXQgdGhhdCBkb2VzbnQgbWFrZSBhbnkgZGlmZmVyZW5jZSB0byB0aGUgYWJvdmUgY29kZSBu
-b3cgZG9lcyBpdCA/DQo+Pj4+PiAgaXQnbGwgb3BlcmF0ZSBjb3JyZWN0bHkgcmVnYXJkbGVzcyBv
-ZiB0aGUgU1BJIGJ1cyBtYXN0ZXIuDQo+Pj4+DQo+Pj4+IFNvIGlzIHRoZSB1cGRhdGVkIHBhdGNo
-IGNvbWluZz8NCj4+Pg0KPj4+IFRoZSBiYXNpYyBxdWVzdGlvbiBJIHNlZSBpcywgd2hldGhlciBp
-dCBpcyBpbiB0aGUgcmVzcG9uc2liaWxpdHkNCj4+PiBvZg0KPj4+IGFkNzg3NyB0byBjaGVjayBh
-IHdyb25nIHNldHRpbmcgcG9zc2libHkgY2F1c2VkIGluIGJvYXJkIHNwZWNpZmljDQo+Pj4gY29k
-ZS4gSWYgc28sIHRoZW4gdGhlIHByb3Bvc2FsIGJ5IE1pa2Ugc2hvdWxkIGJlIHVzZWQsIGJ1dCBp
-ZiBub3QNCj4+PiBzbywgaXQgd291bGQgaW50cm9kdWNlIHVubmVlZGVkIGNvZGUuDQo+Pj4NCj4+
-PiBSZW1lbWJlcjogYm90aCB2ZXJzaW9ucyBlbmQgdXAgaW4gY29ycmVjdGx5IHNldHRpbmcgYml0
-c19wZXJfd29yZCwNCj4+PiB3aXRoIHRoZSBkaWZmZXJlbmNlIG1lcmVseSBpbiBmZWVkYmFjayBs
-ZXZlbC4NCj4+DQo+PiBpbW8sIHVuc3VwcG9ydGVkIGJvYXJkIHNldHRpbmdzIHNob3VsZCBhbHdh
-eXMgYmUgZGV0ZWN0ZWQgJiByZWplY3RlZC4NCj4+IGFsbCBTUEkgbWFzdGVyIGRyaXZlcnMgZG8g
-dGhpcyAoZGV0ZWN0ICYgcmVqZWN0IHVuc3VwcG9ydGVkIFNQSQ0KPj4gc2xhdmUgc2V0dGluZ3Mp
-Lg0KPg0KPiBwbGVhc2Ugbm90ZSwgdGhhdCBiaXRzX3Blcl93b3JkIGlzIG5vdCBhIGJvYXJkIHNl
-dHRpbmcsIGl0J3MgYSBkZW1hbmQNCj4gb2YgdGhlIGRldmljZS4gY29uc2VxdWVudGx5LCB0aGVy
-ZSBpcyBubyBvbmUgdG8gc2V0IHVuc3VwcG9ydGVkIHZhbHVlcw0KPiBhbmQgdGh1cyBub25lIHRv
-IGJlIGRldGVjdGVkLg0KPg0KPiB0aGUgb25seSBhcmNoaXRlY3R1cmUgc2V0dGluZyBiaXRzX3Bl
-cl93b3JkIHRocnUgc3BpX2NoaXAgaXMgYmxhY2tmaW4sDQo+IGJ1dCBJIGNhbm5vdCBzZWUgYSBn
-b29kIHJlYXNvbiwgd2h5IHRoZSBib2FyZCBzZXR0aW5ncyBzaG91bGQgZW5nYWdlDQo+IHdpdGgg
-YSBmaXhlZCBkZW1hbmQgb2YgdGhlIGRldmljZT8NCj4NCj4gICBPc2thcg0KDQoxMDAlIGFncmVl
-ZC4NCg0KVHdvIHdheXMgdG8gYWRkcmVzcyB0aGUgaXNzdWU6DQoxKSBGb3JjaW5nIHNwaS0+Yml0
-c19wZXJfd29yZCA9IDE2IGxpa2UgdGhpcyBwYXRjaCBkb2VzLg0KMikgT3IgZ29pbmcgd2l0aCB0
-aGUgZGVmYXVsdCA4LWJpdCB0cmFuc2ZlcnMgYW5kIHVzaW5nIGJlMTZfdG9fY3B1KCkuDQoNClBl
-cnNvbmFsbHkgSSBwcmVmZXIgMSkgdW5sZXNzIHNvbWVvbmUgdGVsbHMgbWUgdGhhdCBub3QgYWxs
-IFNQSSBidXMgZHJpdmVycw0Kc3VwcG9ydCAxNi1iaXQgdHJhbnNmZXJzLg0KDQpHcmVldGluZ3Ms
-DQpNaWNoYWVsDQoNCkFuYWxvZyBEZXZpY2VzIEdtYkggICAgICBXaWxoZWxtLVdhZ2VuZmVsZC1T
-dHIuIDYgICAgICA4MDgwNyBNdWVuY2hlbg0KU2l0eiBkZXIgR2VzZWxsc2NoYWZ0IE11ZW5jaGVu
-LCBSZWdpc3RlcmdlcmljaHQgTXVlbmNoZW4gSFJCIDQwMzYgR2VzY2hhZWZ0c2Z1ZWhyZXIgVGhv
-bWFzIFdlc3NlbCwgV2lsbGlhbSBBLiBNYXJ0aW4sIE1hcmdhcmV0IFNlaWYNCg0KDQo=
+On Sat, 15 May 2010, Julia Lawall wrote:
+
+> From: Julia Lawall <julia@diku.dk>
+> 
+> Use kmemdup when some other buffer is immediately copied into the
+> allocated region.
+> 
+> A simplified version of the semantic patch that makes this change is as
+> follows: (http://coccinelle.lip6.fr/)
+> 
+> // <smpl>
+> @@
+> expression from,to,size,flag;
+> statement S;
+> @@
+> 
+> -  to = \(kmalloc\|kzalloc\)(size,flag);
+> +  to = kmemdup(from,size,flag);
+>    if (to==NULL || ...) S
+> -  memcpy(to, from, size);
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> 
+> ---
+>  drivers/hid/hid-core.c |    3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff -u -p a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -653,10 +653,9 @@ int hid_parse_report(struct hid_device *
+>  	if (device->driver->report_fixup)
+>  		device->driver->report_fixup(device, start, size);
+>  
+> -	device->rdesc = kmalloc(size, GFP_KERNEL);
+> +	device->rdesc = kmemdup(start, size, GFP_KERNEL);
+>  	if (device->rdesc == NULL)
+>  		return -ENOMEM;
+> -	memcpy(device->rdesc, start, size);
+>  	device->rsize = size;
+>  
+>  	parser = vmalloc(sizeof(struct hid_parser));
+
+Applied, thanks Julia.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

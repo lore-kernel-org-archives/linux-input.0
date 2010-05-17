@@ -1,78 +1,72 @@
-From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Subject: Re: [PATCH 0/8] Suspend block api (version 6)
-Date: Sun, 16 May 2010 21:54:51 -0700
-Message-ID: <AANLkTikSu7D_qao0_coP8q0l6xL_sWp9c1-y_cYqm7wU@mail.gmail.com>
-References: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
-	<Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
+From: Michal Simek <michal.simek@petalogix.com>
+Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
+Date: Mon, 17 May 2010 08:12:46 +0200
+Message-ID: <4BF0DE5E.4010904@petalogix.com>
+References: <20100511063309.GC9644@core.coreip.homeip.net> 	<AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com> 	<1273608441.15067.1002.camel@calx> <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com> 	<alpine.DEB.2.00.1005111520260.1500@router.home> <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com> 	<alpine.DEB.2.00.1005111544330.8388@router.home> <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com> 	<20100511214836.GH1726@emlix.com> <20100511215359.GF7396@core.coreip.homeip.net> <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+Reply-To: michal.simek@petalogix.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.153]:44884 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753261Ab0EQGNj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 May 2010 02:13:39 -0400
+In-Reply-To: <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Frysinger <vapier.adi@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
 
-On Sat, May 15, 2010 at 2:25 PM, Alan Stern <stern@rowland.harvard.edu> wro=
-te:
-> On Fri, 14 May 2010, Arve Hj=F8nnev=E5g wrote:
->
->> > I'd like to explore this avenue a little farther. =A0In particular, wh=
-at
->> > is the issue involving loss of wakeup events? =A0Can you describe this=
- in
->> > more detail?
->> >
+Mike Frysinger wrote:
+> On Tue, May 11, 2010 at 17:53, Dmitry Torokhov wrote:
+>> On Tue, May 11, 2010 at 11:48:36PM +0200, Johannes Weiner wrote:
+>>> On Tue, May 11, 2010 at 04:54:41PM -0400, Mike Frysinger wrote:
+>>>> does the phrase "DMA safe buffer" imply cache alignment ?
+>>> I guess that depends on the architectural requirements.  On x86,
+>>> apparently, not so much.  On ARM, probably yes, as it's the
+>>> requirement to properly maintain coherency.
+>> It looks liek ARM (and a few others) do this:
 >>
->> On the desktop systems I have used I only wake the up the system by
->> pressing a button/key or with an rtc alarm. Losing a button or key
->> wakeup event is not usually a problem on a desktop since the user will
->> press it again. Losing an alarm however could be a problem and this
->> can be avoided by using opportunistic suspend and suspend blockers.
->
-> How can runtime PM combined with CPUidle cause an alarm to be lost?
->
-It doesn't. My desktop systems only gets to a low power state (<3W)
-from suspend.
+>> [dtor@hammer work]$ grep -r ARCH_KMALLOC_MINALIGN arch/
+>> arch/sh/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+>> arch/frv/include/asm/mem-layout.h:#define       ARCH_KMALLOC_MINALIGN           8
+>> arch/powerpc/include/asm/page_32.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+>> arch/arm/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN      L1_CACHE_BYTES
+>> arch/microblaze/include/asm/page.h:#define ARCH_KMALLOC_MINALIGN        L1_CACHE_BYTES
+>> arch/mips/include/asm/mach-tx49xx/kmalloc.h: * All happy, no need to define ARCH_KMALLOC_MINALIGN
+>> arch/mips/include/asm/mach-ip27/kmalloc.h: * All happy, no need to define ARCH_KMALLOC_MINALIGN
+>> arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALIGN 32
+>> arch/mips/include/asm/mach-ip32/kmalloc.h:#define ARCH_KMALLOC_MINALIGN 128
+>> arch/mips/include/asm/mach-generic/kmalloc.h:#define ARCH_KMALLOC_MINALIGN      128
+>> arch/avr32/include/asm/cache.h:#define ARCH_KMALLOC_MINALIGN    L1_CACHE_BYTES
+> 
+> if ARCH_KMALLOC_MINALIGN is not defined, the current allocators default to:
+>  slub - alignof(unsigned long long)
+>  slab - alignof(unsigned long long)
+>  slob - alignof(unsigned long)
+> which for many arches can mean an alignment of merely 4 or 8
+> 
+> lets look at the cacheline sizes for arches that dont set
+> ARCH_KMALLOC_MINALIGN to L1_CACHE_BYTES:
+>  - alplha - 32 or 64
+>  - frv - 32 or 64
+>  - blackfin - 32
+>  - parisc - 32 or 64
+>  - mn10300 - 16
+>  - s390 - 256
+>  - score - 16
+>  - sparc - 32
+>  - xtensa - 16 or 32
 
->> > Why would you want to use system suspend if runtime PM can do
->> > everything you need?
->> >
->> Because it stops threads that wakeup every second to check if they
->> have work to do (this includes standard kernel threads), and it
->> prevents bad apps that never go idle from completely destroying our
->> battery life.
->
-> Ah, the ill-behaved apps problem. =A0I think everybody agrees that they
-> are hard to deal with.
->
-> The kernel-threads problem might better be addressed by fixing those
-> threads than by adding a new API.
->
->> > Sure, I can see that an ACPI-based system needs something more. =A0But
->> > that's not the real issue here.
->> >
->>
->> The system we started with entered a much lower power state from
->> suspend than idle so we needed wakelocks to get more than 24 hours
->> battery life. We kept wakelocks when we moved to the msm platform
->> since it reduces our power consumption.
->
-> Is it generally true among embedded systems nowadays that idle is
-> capable of reaching essentially the same power states as suspend?
+Just for completion.
 
-Embedded system in general, no, but all the recent SOCs I've seen that
-target phones do.
+microblaze - 16 or 32.
 
--- =
+Michal
 
-Arve Hj=F8nnev=E5g
+-- 
+Michal Simek, Ing. (M.Eng)
+PetaLogix - Linux Solutions for a Reconfigurable World
+w: www.petalogix.com p: +61-7-30090663,+42-0-721842854 f: +61-7-30090663

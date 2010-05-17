@@ -1,53 +1,51 @@
 From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH V2 1/3] input: Add some extra PNP keyboard types
-Date: Mon, 17 May 2010 11:38:34 -0400
-Message-ID: <1274110716-12488-1-git-send-email-mjg@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56049 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753883Ab0EQPjc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 May 2010 11:39:32 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH V2 3/3] input: Default to only using PNP for i8042 probing on x86
+Date: Mon, 17 May 2010 11:38:36 -0400
+Message-ID: <1274110716-12488-3-git-send-email-mjg@redhat.com>
+References: <1274110716-12488-1-git-send-email-mjg@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1274110716-12488-1-git-send-email-mjg@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, Matthew Garrett <mjg@redhat.com>
+List-Id: linux-input@vger.kernel.org
 
-Some Japanese machines declare their keyboard with a different PNP ID.
-Add it to the list of probed device IDs. While we're at it, add all the
-other IDs that Windows binds to - we'll probably never see them in the
-real world, but it doesn't hurt.
+Experimenting with Windows has revealed that it will not probe the
+keyboard controller unless a valid PNPACPI device is present. Change our
+behaviour to match - users can override by using the existing
+i8042.nopnp=1 parameter.
 
 Signed-off-by: Matthew Garrett <mjg@redhat.com>
 ---
- drivers/input/serio/i8042-x86ia64io.h |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index ead0494..871a74c 100644
+index 6168469..a5b5926 100644
 --- a/drivers/input/serio/i8042-x86ia64io.h
 +++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -660,8 +660,21 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
- }
+@@ -1,6 +1,8 @@
+ #ifndef _I8042_X86IA64IO_H
+ #define _I8042_X86IA64IO_H
  
- static struct pnp_device_id pnp_kbd_devids[] = {
-+	{ .id = "PNP0300", .driver_data = 0 },
-+	{ .id = "PNP0301", .driver_data = 0 },
-+	{ .id = "PNP0302", .driver_data = 0 },
- 	{ .id = "PNP0303", .driver_data = 0 },
-+	{ .id = "PNP0304", .driver_data = 0 },
-+	{ .id = "PNP0305", .driver_data = 0 },
-+	{ .id = "PNP0306", .driver_data = 0 },
-+	{ .id = "PNP0309", .driver_data = 0 },
-+	{ .id = "PNP030a", .driver_data = 0 },
- 	{ .id = "PNP030b", .driver_data = 0 },
-+	{ .id = "PNP0320", .driver_data = 0 },
-+	{ .id = "PNP0343", .driver_data = 0 },
-+	{ .id = "PNP0344", .driver_data = 0 },
-+	{ .id = "PNP0345", .driver_data = 0 },
-+	{ .id = "CPQA0D7", .driver_data = 0 },
- 	{ .id = "", },
- };
++#include <linux/acpi.h>
++
+ /*
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published by
+@@ -744,9 +746,10 @@ static int __init i8042_pnp_init(void)
  
+ 	if (!i8042_pnp_kbd_devices && !i8042_pnp_aux_devices) {
+ 		i8042_pnp_exit();
+-#if defined(__ia64__)
+-		return -ENODEV;
+-#else
++
++		if (!acpi_disabled)
++			return -ENODEV;
++
+ 		printk(KERN_INFO "PNP: No PS/2 controller found. Probing ports directly.\n");
+ 		return 0;
+ #endif
 -- 
 1.7.0.1
-

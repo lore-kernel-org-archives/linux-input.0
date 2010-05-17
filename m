@@ -1,66 +1,73 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 21/37] drivers/hid: Use kmemdup
-Date: Mon, 17 May 2010 10:27:37 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005171026500.28092@pobox.suse.cz>
-References: <Pine.LNX.4.64.1005152319150.21345@ask.diku.dk>
+Subject: Re: [PATCH 2.6.34-rc7 v3] HID: hid-samsung: add support for Creative
+ Desktop Wireless 6000
+Date: Mon, 17 May 2010 10:33:26 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005171031440.28092@pobox.suse.cz>
+References: <4BF0531C.40307@yahoo.co.uk>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:50597 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:50946 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751446Ab0EQI1j (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 May 2010 04:27:39 -0400
-In-Reply-To: <Pine.LNX.4.64.1005152319150.21345@ask.diku.dk>
+	id S1753483Ab0EQId2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 May 2010 04:33:28 -0400
+In-Reply-To: <4BF0531C.40307@yahoo.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia@diku.dk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Don Prince <dhprince.devel@yahoo.co.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 15 May 2010, Julia Lawall wrote:
+On Sun, 16 May 2010, Don Prince wrote:
 
-> From: Julia Lawall <julia@diku.dk>
-> 
-> Use kmemdup when some other buffer is immediately copied into the
-> allocated region.
-> 
-> A simplified version of the semantic patch that makes this change is as
-> follows: (http://coccinelle.lip6.fr/)
-> 
-> // <smpl>
-> @@
-> expression from,to,size,flag;
-> statement S;
-> @@
-> 
-> -  to = \(kmalloc\|kzalloc\)(size,flag);
-> +  to = kmemdup(from,size,flag);
->    if (to==NULL || ...) S
-> -  memcpy(to, from, size);
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-> 
-> ---
->  drivers/hid/hid-core.c |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff -u -p a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -653,10 +653,9 @@ int hid_parse_report(struct hid_device *
->  	if (device->driver->report_fixup)
->  		device->driver->report_fixup(device, start, size);
->  
-> -	device->rdesc = kmalloc(size, GFP_KERNEL);
-> +	device->rdesc = kmemdup(start, size, GFP_KERNEL);
->  	if (device->rdesc == NULL)
->  		return -ENOMEM;
-> -	memcpy(device->rdesc, start, size);
->  	device->rsize = size;
->  
->  	parser = vmalloc(sizeof(struct hid_parser));
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> --- a/drivers/hid/hid-core.c	2010-05-15 15:38:23.938711974 +0100
+> +++ b/drivers/hid/hid-core.c	2010-05-15 20:43:36.363484676 +0100
+> @@ -1343,6 +1343,7 @@ static const struct hid_device_id hid_bl
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
 
-Applied, thanks Julia.
+On my side it seems that your mailer whitespace-damaged the patch somehow. 
+Could you please either try to fix up your mailer, or attach the patch as 
+an attachment if it doesn't work inline?
+
+> +#define samsung_kbd_mouse_map_key_clear(c) \
+> +	hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+> +
+> +static int samsung_kbd_mouse_input_mapping(struct hid_device *hdev,
+> +	struct hid_input *hi, struct hid_field *field, struct hid_usage *usage,
+> +	unsigned long **bit, int *max)
+> +{
+> +	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+> +	unsigned short ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+> +
+> +	if (1 != ifnum || HID_UP_CONSUMER != (usage->hid & HID_USAGE_PAGE))
+> +		return 0;
+> +
+> +	dbg_hid("samsung wireless keyboard/mouse input mapping event [0x%x]\n",
+> +		usage->hid & HID_USAGE);
+> +
+> +	switch (usage->hid & HID_USAGE) {
+> +	/* report 2 */
+> +	case 0x0b5:
+> +		samsung_kbd_mouse_map_key_clear(KEY_NEXTSONG);
+> +		break;
+> +	case 0x0b6:
+> +		samsung_kbd_mouse_map_key_clear(KEY_PREVIOUSSONG);
+> +		break;
+> +	case 0x0b7:
+> +		samsung_kbd_mouse_map_key_clear(KEY_STOPCD);
+> +		break;
+> +	case 0x0cd:
+> +		samsung_kbd_mouse_map_key_clear(KEY_PLAYPAUSE);
+> +		break;
+
+Could you please use more compact code look for the mappings (i.e. one 
+line per mapping), as done in other drivers and in hid-input itself, so 
+that it's consistent?
+
+Thanks,
 
 -- 
 Jiri Kosina

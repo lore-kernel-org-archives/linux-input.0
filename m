@@ -1,40 +1,37 @@
-From: Matthew Garrett <mjg@redhat.com>
-Subject: [PATCH V2 2/3] input: Add a PNP entry to the aux device list
-Date: Mon, 17 May 2010 11:38:35 -0400
-Message-ID: <1274110716-12488-2-git-send-email-mjg@redhat.com>
-References: <1274110716-12488-1-git-send-email-mjg@redhat.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Extended scancodes and input filtering
+Date: Mon, 17 May 2010 16:58:11 +0100
+Message-ID: <20100517155811.GA27311@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:23930 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754248Ab0EQPjj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 May 2010 11:39:39 -0400
-In-Reply-To: <1274110716-12488-1-git-send-email-mjg@redhat.com>
+Received: from cavan.codon.org.uk ([93.93.128.6]:41705 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751657Ab0EQP6P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 May 2010 11:58:15 -0400
+Received: from mjg59 by cavan.codon.org.uk with local (Exim 4.69)
+	(envelope-from <mjg59@cavan.codon.org.uk>)
+	id 1OE2ho-00078K-0u
+	for linux-input@vger.kernel.org; Mon, 17 May 2010 16:58:12 +0100
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, Matthew Garrett <mjg@redhat.com>
 
-Windows checks for an ALPS PS/2 device in PNP. Add it on the off-chance
-that there's a machine that expresses this without also providing a
-compatibility ID.
+If an i8042 input filter returns false then the byte will be dropped. 
+This is unfortunate if it's the second byte of an extended scancode. 
+We'd like to be able to drop some events if a platform driver consumes 
+them, but right now it looks like bad things will happen in that case. 
+The filtering is done at the i8042 layer, which has no knowledge of 
+extended scancodes - and teaching it would look like a layering 
+violation.
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
----
- drivers/input/serio/i8042-x86ia64io.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+The simplest approach would seem to be to pass the data byte by 
+reference rather than by value and then let the filter code change it to 
+something that would then be an invalid scancode, but that presupposes 
+that there's such a thing as an invalid scancode. Is there anything 
+suitable here?
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 871a74c..6168469 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -685,6 +685,7 @@ static struct pnp_driver i8042_pnp_kbd_driver = {
- };
- 
- static struct pnp_device_id pnp_aux_devids[] = {
-+	{ .id = "AUI0200", .driver_data = 0 },
- 	{ .id = "FJC6000", .driver_data = 0 },
- 	{ .id = "FJC6001", .driver_data = 0 },
- 	{ .id = "PNP0f03", .driver_data = 0 },
 -- 
-1.7.0.1
-
+Matthew Garrett | mjg59@srcf.ucam.org

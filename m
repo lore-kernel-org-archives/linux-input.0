@@ -1,102 +1,78 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH 1/1] hidraw: Use Interrupt Endpoint for OUT Transfers if Available
-Date: Sun, 16 May 2010 18:07:09 -0400
-Message-ID: <4BF06C8D.6060308@signal11.us>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Sun, 16 May 2010 21:54:51 -0700
+Message-ID: <AANLkTikSu7D_qao0_coP8q0l6xL_sWp9c1-y_cYqm7wU@mail.gmail.com>
+References: <AANLkTinztS8B4LkceGgZB94sRKbseKQ6qMnWB0Jcyh9I@mail.gmail.com>
+	<Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:40672 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751507Ab0EPWHM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 May 2010 18:07:12 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 362C01042FF
-	for <linux-input@vger.kernel.org>; Sun, 16 May 2010 18:07:11 -0400 (EDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <Pine.LNX.4.44L0.1005151720330.24645-100000@netrider.rowland.org>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Marcel Holtmann <marcel@holtmann.org>, Alan Stern <stern@rowland.harvard.edu>, H Hartley Sweeten <hsweeten@visionengravers.com>, David Fries <david@fries.net>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Alan Ott <alan@signal11.us>
+On Sat, May 15, 2010 at 2:25 PM, Alan Stern <stern@rowland.harvard.edu> wro=
+te:
+> On Fri, 14 May 2010, Arve Hj=F8nnev=E5g wrote:
+>
+>> > I'd like to explore this avenue a little farther. =A0In particular, wh=
+at
+>> > is the issue involving loss of wakeup events? =A0Can you describe this=
+ in
+>> > more detail?
+>> >
+>>
+>> On the desktop systems I have used I only wake the up the system by
+>> pressing a button/key or with an rtc alarm. Losing a button or key
+>> wakeup event is not usually a problem on a desktop since the user will
+>> press it again. Losing an alarm however could be a problem and this
+>> can be avoided by using opportunistic suspend and suspend blockers.
+>
+> How can runtime PM combined with CPUidle cause an alarm to be lost?
+>
+It doesn't. My desktop systems only gets to a low power state (<3W)
+from suspend.
 
-This patch makes the hidraw driver use the first Interrupt OUT endpoint for
-HID transfers to the device if such an endpoint exists. This is consistent
-with the behavior of the hiddev driver, and the logic is similar.
+>> > Why would you want to use system suspend if runtime PM can do
+>> > everything you need?
+>> >
+>> Because it stops threads that wakeup every second to check if they
+>> have work to do (this includes standard kernel threads), and it
+>> prevents bad apps that never go idle from completely destroying our
+>> battery life.
+>
+> Ah, the ill-behaved apps problem. =A0I think everybody agrees that they
+> are hard to deal with.
+>
+> The kernel-threads problem might better be addressed by fixing those
+> threads than by adding a new API.
+>
+>> > Sure, I can see that an ACPI-based system needs something more. =A0But
+>> > that's not the real issue here.
+>> >
+>>
+>> The system we started with entered a much lower power state from
+>> suspend than idle so we needed wakelocks to get more than 24 hours
+>> battery life. We kept wakelocks when we moved to the msm platform
+>> since it reduces our power consumption.
+>
+> Is it generally true among embedded systems nowadays that idle is
+> capable of reaching essentially the same power states as suspend?
 
-Signed-off-by: Alan Ott <alan@signal11.us>
----
-I believe this to be consistent with the section 4.4 of the HID 1.11
-specification located at:
-    http://www.usb.org/developers/devclass_docs/HID1_11.pdf
+Embedded system in general, no, but all the recent SOCs I've seen that
+target phones do.
 
->From the specification (page numbered 10, the 20th page of the document
-(xpdf page 20)):
+-- =
 
-   The Interrupt Out pipe is optional. If a device declares an Interrupt Out
-   endpoint then Output reports are transmitted by the host to the device
-   through the Interrupt Out endpoint. If no Interrupt Out endpoint is
-   declared then Output reports are transmitted to a device through the
-   Control endpoint, using Set_Report(Output) requests.
-
-This is also consistent with the way the Windows HID library (hid.dll)
-works.
-
-Please let me know if I'm off-base here, or have misread the standard.
-
-Alan.
-
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 56d06cd..6fd833d 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -807,16 +807,36 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
- 	struct usb_host_interface *interface = intf->cur_altsetting;
- 	int ret;
- 
--	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
--		HID_REQ_SET_REPORT,
--		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
--		((report_type + 1) << 8) | *buf,
--		interface->desc.bInterfaceNumber, buf + 1, count - 1,
--		USB_CTRL_SET_TIMEOUT);
--
--	/* count also the report id */
--	if (ret > 0)
--		ret++;
-+	if (usbhid->urbout) {
-+		int actual_length;
-+		int skipped_report_id = 0;
-+		if (buf[0] == 0x0) {
-+			/* Don't send the Report ID */
-+			buf++;
-+			count--;
-+			skipped_report_id = 1;
-+		}
-+		ret = usb_interrupt_msg(dev, usbhid->urbout->pipe,
-+			buf, count, &actual_length,
-+			USB_CTRL_SET_TIMEOUT);
-+		/* return the number of bytes transferred */
-+		if (ret == 0) {
-+			ret = actual_length;
-+			/* count also the report id */
-+			if (skipped_report_id)
-+				ret++;
-+		}
-+	} else {
-+		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			HID_REQ_SET_REPORT,
-+			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			((report_type + 1) << 8) | *buf,
-+			interface->desc.bInterfaceNumber, buf + 1, count - 1,
-+			USB_CTRL_SET_TIMEOUT);
-+		/* count also the report id */
-+		if (ret > 0)
-+			ret++;
-+	}
- 
- 	return ret;
- }
-
-
-
+Arve Hj=F8nnev=E5g

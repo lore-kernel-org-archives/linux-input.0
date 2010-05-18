@@ -1,17 +1,17 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 3/5] HID: Correctly mark init and exit functions of Roccat
- Kone module
-Date: Tue, 18 May 2010 14:03:50 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005181403410.28092@pobox.suse.cz>
-References: <1273679065.2927.6.camel@localhost>
+Subject: Re: [PATCH 4/5] HID: refactored special event handling in Roccat
+ Kone
+Date: Tue, 18 May 2010 14:04:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005181404100.28092@pobox.suse.cz>
+References: <1273679086.2927.7.camel@localhost>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:40175 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:40249 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757233Ab0ERMDv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 08:03:51 -0400
-In-Reply-To: <1273679065.2927.6.camel@localhost>
+	id S1757218Ab0ERMEl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 May 2010 08:04:41 -0400
+In-Reply-To: <1273679086.2927.7.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Stefan Achatz <erazor_de@users.sourceforge.net>
@@ -19,41 +19,37 @@ Cc: Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
 
 On Wed, 12 May 2010, Stefan Achatz wrote:
 
-> >From bbc9f26b13e7756061adb62c561d40f060623bd7 Mon Sep 17 00:00:00 2001
-> From: Stefan Achatz <erazor_de@users.sourceforge.net>
-> Date: Sat, 8 May 2010 17:20:38 +0200
-> Subject: [PATCH 3/5] HID: Correctly mark init and exit functions of
-> Roccat Kone module
 > 
-> Added the __init and __exit hints for module functions.
+> >From e550163af2c39c4e7490cd5bf02e44c5dec72d2b Mon Sep 17 00:00:00 2001
+> From: Stefan Achatz <erazor_de@users.sourceforge.net>
+> Date: Sat, 8 May 2010 17:30:27 +0200
+> Subject: [PATCH 4/5] HID: refactored special event handling in Roccat
+> Kone
+> 
+> As special events are reported along with hid event information all
+> events are now processed further by standard handler.
+> Also cleaned up this code.
 > 
 > Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
 > ---
->  drivers/hid/hid-roccat-kone.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-roccat-kone.c |   54
+> +++++++++++++++-------------------------
+>  1 files changed, 20 insertions(+), 34 deletions(-)
 > 
 > diff --git a/drivers/hid/hid-roccat-kone.c
 > b/drivers/hid/hid-roccat-kone.c
-> index 9d68442..0b1db24 100644
+> index 0b1db24..66e6940 100644
 > --- a/drivers/hid/hid-roccat-kone.c
 > +++ b/drivers/hid/hid-roccat-kone.c
-> @@ -990,12 +990,12 @@ static struct hid_driver kone_driver = {
->  		.raw_event = kone_raw_event
->  };
->  
-> -static int kone_init(void)
-> +static int __init kone_init(void)
->  {
->  	return hid_register_driver(&kone_driver);
+> @@ -912,6 +912,24 @@ static void kone_remove(struct hid_device *hdev)
+>  	hid_hw_stop(hdev);
 >  }
 >  
-> -static void kone_exit(void)
-> +static void __exit kone_exit(void)
->  {
->  	hid_unregister_driver(&kone_driver);
->  }
+> +/* handle special events and keep actual profile and dpi values up to
+> date */
 
-Applied, thanks Stefan.
+This is also line-wrapped, could you please fix that up in your mail 
+client and resend?
 
 -- 
 Jiri Kosina

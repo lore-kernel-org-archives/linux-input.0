@@ -1,173 +1,65 @@
 From: "Oskar Schirmer" <os@emlix.com>
-Subject: Re: [PATCH] ad7877: fix spi word size to 16 bit
-Date: Tue, 18 May 2010 10:32:31 +0200
-Message-ID: <20100518083231.GA7939@emlix.com>
+Subject: [PATCH v2] ad7877: fix spi word size to 16 bit
+Date: Tue, 18 May 2010 10:34:13 +0200
+Message-ID: <1274171653-8152-1-git-send-email-os@emlix.com>
 References: <1273142265-11929-1-git-send-email-os@emlix.com>
- <n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
- <4BE3E02E.1090500@emlix.com>
- <h2l8bd0f97a1005071123u782bab2doee5c122dbd4c8642@mail.gmail.com>
- <20100513075335.GD30110@core.coreip.homeip.net>
- <20100515181523.GA3081@emlix.com>
- <AANLkTinn6VgvujPP3gGsteBGckIFgljn7B35DV6n8kwL@mail.gmail.com>
- <20100517072935.GA14891@emlix.com>
- <AANLkTimeAn9ALs4KxBNwwk-B419OwZ0BUwoKcoEfUbGw@mail.gmail.com>
- <0D753D10438DA54287A00B0270842697636F0E1458@AUSP01VMBX24.collaborationhost.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:47274 "EHLO mx1.emlix.com"
+Received: from mx1.emlix.com ([193.175.82.87]:55531 "EHLO mx1.emlix.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754101Ab0ERIck (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 04:32:40 -0400
-Content-Disposition: inline
-In-Reply-To: <0D753D10438DA54287A00B0270842697636F0E1458@AUSP01VMBX24.collaborationhost.net>
+	id S1754101Ab0ERIeZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 May 2010 04:34:25 -0400
+In-Reply-To: <1273142265-11929-1-git-send-email-os@emlix.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Mike Frysinger <vapier.adi@gmail.com>, Oskar Schirmer <os@emlix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel =?utf-8?B?R2zDtmNrbmVy?= <dg@emlix.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Schneidewind <osw@emlix.com>, Michael Hennerich <michael.hennerich@analog.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <Michael.Hennerich@analog.com>, H Hartley Sweeten <hartleys@visionengravers.com>, Oskar Schirmer <os@emlix.com>, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>
 
-On Mon, May 17, 2010 at 19:18:28 -0500, H Hartley Sweeten wrote:
-> On Monday, May 17, 2010 4:50 PM, Mike Frysinger wrote:
-> > 2010/5/17 Oskar Schirmer:
-> >> On Sun, May 16, 2010 at 15:25:34 -0400, Mike Frysinger wrote:
-> >>> On Sat, May 15, 2010 at 14:15, Oskar Schirmer wrote:
-> >>>> On Thu, May 13, 2010 at 00:53:35 -0700, Dmitry Torokhov wrote:
-> >>>>> On Fri, May 07, 2010 at 02:23:07PM -0400, Mike Frysinger wrote:
-> >>>>>> On Fri, May 7, 2010 at 05:41, Daniel Gl=C3=B6ckner wrote:
-> >>>>>>> On 05/06/2010 08:26 PM, Mike Frysinger wrote:
-> >>>>>>>> i think it'd be a better idea to do something like:
-> >>>>>>>> =C2=A0 if (spi->bits_per_word !=3D 16) {
-> >>>>>>>> =C2=A0 =C2=A0 if (spi->bits_per_word) {
-> >>>>>>>> =C2=A0 =C2=A0 =C2=A0 dev_err(&spi->dev, "Invalid SPI setting=
-s; bits_per_word must be 16\n");
-> >>>>>>>> =C2=A0 =C2=A0 =C2=A0 return -EINVAL;
-> >>>>>>>> =C2=A0 =C2=A0 }
-> >>>>>>>> =C2=A0 =C2=A0 spi->bits_per_word =3D 16;
-> >>>>>>>> =C2=A0 =C2=A0 spi_setup(spi);
-> >>>>>>>> =C2=A0 }
-> >>>>>>>
-> >>>>>>> There is no way to set bits_per_word using struct spi_board_i=
-nfo. The
-> >>>>>>> description of that structure in spi.h explicitly lists the w=
-ordsize as
-> >>>>>>> one of the parameters drivers should set themself in probe().
-> >>>>>> >
-> >>>>>>> Only struct bfin5xx_spi_chip allows to set this value in the =
-board code.
-> >>>>>>
-> >>>>>> an obvious shortcoming in the SPI framework that should be fix=
-ed, but
-> >>>>>> that doesnt make any difference to the above code now does it =
-? =C2=A0it'll
-> >>>>>> operate correctly regardless of the SPI bus master.
-> >>>>>
-> >>>>> So is the updated patch coming?
-> >>>>
-> >>>> The basic question I see is, whether it is in the
-> >>>> responsibility of ad7877 to check a wrong setting
-> >>>> possibly caused in board specific code. If so,
-> >>>> then the proposal by Mike should be used, but if not
-> >>>> so, it would introduce unneeded code.
-> >>>>
-> >>>> Remember: both versions end up in correctly setting
-> >>>> bits_per_word, with the difference merely in feedback
-> >>>> level.
-> >>>
-> >>> imo, unsupported board settings should always be detected & rejec=
-ted.
-> >>> all SPI master drivers do this (detect & reject unsupported SPI s=
-lave
-> >>> settings).
-> >>
-> >> please note, that bits_per_word is not a board setting,
-> >> it's a demand of the device. consequently, there is no one
-> >> to set unsupported values and thus none to be detected.
-> >>
-> >> the only architecture setting bits_per_word thru spi_chip
-> >> is blackfin, but I cannot see a good reason, why the board
-> >> settings should engage with a fixed demand of the device?
-> >
-> > you're telling me that every single SPI device out there can only e=
-ver
-> > operate in one specific bit length or lacks optional settings ?  i
-> > find that hard to believe which means it does make sense to let the
-> > boards pick a length when appropriate.
+With no word size given in the users platform data,
+a generic spi host controller driver will assume a default
+word size of eight bit. This causes transmission to be
+performed bytewise, which will fail on little endian
+machines for sure. Failure on big endian depends on usage
+of slave select to mark word boundaries.
 
-Hartley was so kind to give a description on how this
-can be done, including an example. See below.
+Anyway, ad7877 is specified to work with 16 bit per word,
+so unconditionally set the word size accordingly.
+=46lag an error where 16 bit per word is not available.
 
-> > the board settings also function as default setup values so when us=
-ing
-> > generic things like the spidev driver, there is no kernel driver to
-> > request the desired bitmode.
-> >
-> > the simple code i posted addresses your concerns as well as reject
-> > invalid settings (wherever they may originate).  if you're not goin=
-g
-> > to post an updated patch, i'll take the simple one Michael committe=
-d
-> > and post that.
->=20
-> Just my 0.02, I haven't been following this thread very closely...
->=20
-> I believe it's the spi "device", i.e. the protocol, drivers responsib=
-ility
-> to supply the bits_per_word that it will operate with.  The spi maste=
-r
-> driver simply validates it if can support the requested size.  If the
-> bits_per_word is left at the default (0) it indicates that the protoc=
-ol
-> words are eight bit bytes.
->=20
-> If a protocol driver can support multiple word sizes it should probab=
-ly
-> also support a "setup" callback during the driver probe so that the
-> underlying board support can provide the desired word size.  This is =
-what
-> the libertas_spi driver does (drivers/net/wireless/libertas/if_spi.c)=
-=2E
-> That driver does nothing with the bits_per_word value but the callbac=
-ks in
-> arch/arm/mach-pxa/cm-x270.c and em-x270.c do.  They both set the bits=
-_per_word
-> to 16 and then call spi_setup.  They also probably should be checking=
- the
-> return value of spi_setup to make sure that the requested mode is sup=
-ported
-> by the master driver, but they probably don't since it is already kno=
-wn...
+Signed-off-by: Oskar Schirmer <os@emlix.com>
+Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
+Signed-off-by: Oliver Schneidewind <osw@emlix.com>
+---
+ drivers/input/touchscreen/ad7877.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-Right, for cases where both device driver and master driver
-support multiple bits_per_word settings, and the intersection
-does contain more than one possible setting, it may be desirable
-to have some third party select the real value, unless it is
-ok to just use the default value, which in most cases will be 8.
+v2: check return value for spi_setup failure
 
-So the callback functions you mention solve the dilemma,
-don't they?
-
-> If the ad7877 "only" supports 16-bit word sizes it should be setting =
-the
-> bits_per_word to indicate this.  If the underlying master driver does=
- not
-> support that word size it will return an error when spi_setup is call=
-ed.
-
-Yes. So the original patch should be extended to
-check the return value of spi_setup to see whether
-16 bit are possible. Thank you for that point.
-
-  Oskar
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
+reen/ad7877.c
+index 698d6e7..eebde5b 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -680,6 +680,13 @@ static int __devinit ad7877_probe(struct spi_devic=
+e *spi)
+ 		return -EINVAL;
+ 	}
+=20
++	spi->bits_per_word =3D 16;
++	err =3D spi_setup(spi);
++	if (err) {
++		dev_dbg(&spi->dev, "spi master doesn't support 16 bits/word\n");
++		return err;
++	}
++
+ 	ts =3D kzalloc(sizeof(struct ad7877), GFP_KERNEL);
+ 	input_dev =3D input_allocate_device();
+ 	if (!ts || !input_dev) {
 --=20
-oskar schirmer, emlix gmbh, http://www.emlix.com
-fon +49 551 30664-0, fax -11, bahnhofsallee 1b, 37081 g=C3=B6ttingen, g=
-ermany
-sitz der gesellschaft: g=C3=B6ttingen, amtsgericht g=C3=B6ttingen hr b =
-3160
-gesch=C3=A4ftsf=C3=BChrer: dr. uwe kracke, ust-idnr.: de 205 198 055
+1.5.3.7
 
-emlix - your embedded linux partner
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

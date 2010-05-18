@@ -1,67 +1,51 @@
-From: "Oskar Schirmer" <os@emlix.com>
-Subject: [PATCH v2] ad7877: fix spi word size to 16 bit
-Date: Tue, 18 May 2010 10:34:13 +0200
-Message-ID: <1274171653-8152-1-git-send-email-os@emlix.com>
-References: <1273142265-11929-1-git-send-email-os@emlix.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2.6.34-rc7] HID: remove redundant key mappings from
+ Desktop Wireless 6000
+Date: Tue, 18 May 2010 10:41:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005181041240.28092@pobox.suse.cz>
+References: <4BF1967D.3060404@yahoo.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:55531 "EHLO mx1.emlix.com"
+Received: from cantor.suse.de ([195.135.220.2]:34291 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754101Ab0ERIeZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 04:34:25 -0400
-In-Reply-To: <1273142265-11929-1-git-send-email-os@emlix.com>
+	id S1752654Ab0ERIlm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 May 2010 04:41:42 -0400
+In-Reply-To: <4BF1967D.3060404@yahoo.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <Michael.Hennerich@analog.com>, H Hartley Sweeten <hartleys@visionengravers.com>, Oskar Schirmer <os@emlix.com>, =?utf-8?q?Daniel=20Gl=C3=B6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>
+To: Don Prince <dhprince.devel@yahoo.co.uk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-With no word size given in the users platform data,
-a generic spi host controller driver will assume a default
-word size of eight bit. This causes transmission to be
-performed bytewise, which will fail on little endian
-machines for sure. Failure on big endian depends on usage
-of slave select to mark word boundaries.
+On Mon, 17 May 2010, Don Prince wrote:
 
-Anyway, ad7877 is specified to work with 16 bit per word,
-so unconditionally set the word size accordingly.
-=46lag an error where 16 bit per word is not available.
+> Remove 7 redundant key mappings from Desktop Wireless 6000 that are
+> already handled by the default hid code.
+> 
+> Signed-off-by: Don Prince <dhprince-devel@yahoo.co.uk>
+> 
+> ---
+> 
+> Spotted by by Robert Schedel <r.schedel@yahoo.de>
+> 
+> 
+> diff -X /opt/scripts/diff-exclude.txt -Npaur a/drivers/hid/hid-samsung.c b/drivers/hid/hid-samsung.c
+> --- a/drivers/hid/hid-samsung.c	2010-05-17 11:01:26.772377750 +0100
+> +++ b/drivers/hid/hid-samsung.c	2010-05-17 20:04:36.988502775 +0100
+> @@ -112,13 +112,6 @@ static int samsung_kbd_mouse_input_mappi
+>  
+>  	switch (usage->hid & HID_USAGE) {
+>  	/* report 2 */
+> -	case 0x0b5: samsung_kbd_mouse_map_key_clear(KEY_NEXTSONG); break;
+> -	case 0x0b6: samsung_kbd_mouse_map_key_clear(KEY_PREVIOUSSONG); break;
+> -	case 0x0b7: samsung_kbd_mouse_map_key_clear(KEY_STOPCD); break;
+> -	case 0x0cd: samsung_kbd_mouse_map_key_clear(KEY_PLAYPAUSE); break;
+> -	case 0x0e2: samsung_kbd_mouse_map_key_clear(KEY_MUTE); break;
+> -	case 0x0e9: samsung_kbd_mouse_map_key_clear(KEY_VOLUMEUP); break;
+> -	case 0x0ea: samsung_kbd_mouse_map_key_clear(KEY_VOLUMEDOWN); break;
 
-Signed-off-by: Oskar Schirmer <os@emlix.com>
-Signed-off-by: Daniel Gl=C3=B6ckner <dg@emlix.com>
-Signed-off-by: Oliver Schneidewind <osw@emlix.com>
----
- drivers/input/touchscreen/ad7877.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+Applied, thanks for spotting it Robert.
 
-v2: check return value for spi_setup failure
-
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchsc=
-reen/ad7877.c
-index 698d6e7..eebde5b 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -680,6 +680,13 @@ static int __devinit ad7877_probe(struct spi_devic=
-e *spi)
- 		return -EINVAL;
- 	}
-=20
-+	spi->bits_per_word =3D 16;
-+	err =3D spi_setup(spi);
-+	if (err) {
-+		dev_dbg(&spi->dev, "spi master doesn't support 16 bits/word\n");
-+		return err;
-+	}
-+
- 	ts =3D kzalloc(sizeof(struct ad7877), GFP_KERNEL);
- 	input_dev =3D input_allocate_device();
- 	if (!ts || !input_dev) {
---=20
-1.5.3.7
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

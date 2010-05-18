@@ -1,44 +1,113 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/8] Suspend block api (version 6)
-Date: Tue, 18 May 2010 09:03:08 +0200
-Message-ID: <4BF23BAC.90102@euromail.se>
-References: <1272667021-21312-1-git-send-email-arve@android.com>	
-	<87wrvl5479.fsf@deeprootsystems.com>	
-	<20100503180741.GB2098@rakim.wolfsonmicro.main>	
-	<201005032318.35383.rjw@sisk.pl>
-	<87sk68r1zh.fsf@deeprootsystems.com>	
-	<s2qd6200be21005031709r28420f0ezf3cf286517ee9114@mail.gmail.com>	
-	<alpine.DEB.2.00.1005141422110.3348@utopia.booyaka.com>	
-	<AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>	
-	<alpine.DEB.2.00.1005172018380.27473@utopia.booyaka.com>
-	<AANLkTinOFSVHnufbVKIei0KMbfkVvDgLVDRHkCldagfY@mail.gmail.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH 2/5] HID: Added further information for Roccat Kone
+Date: Tue, 18 May 2010 18:26:15 +0200
+Message-ID: <1274199975.2243.0.camel@localhost>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <AANLkTinOFSVHnufbVKIei0KMbfkVvDgLVDRHkCldagfY@mail.gmail.com>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, Liam Girdwood <lrg@slimlogic.co.uk>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-in-16.arcor-online.net ([151.189.21.56]:52995 "EHLO
+	mail-in-16.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754847Ab0ERQ0T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 May 2010 12:26:19 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, wylda@volny.cz, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, Je
 
-Arve Hj=F8nnev=E5g wrote:
-> It does not matter how you enter suspend. Without opportunistic
-> suspend, once you tell the kernel that you want to suspend, you cannot
-> abort. If a wakeup event occurs at this point, it will probably not be
-> processed until the system wakes up for another wakeup event.
-> =
+>From 0875b1fdc784c60d28d3c5bc02ffcf0f30ccea2c Mon Sep 17 00:00:00 2001
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Date: Sat, 8 May 2010 16:53:31 +0200
+Subject: [PATCH 2/5] HID: Added further information for Roccat Kone
+
+Added new data and changed workaround for abnormal button behaviour
+according to new gained knowledge about Roccat Kone device.
+
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-kone.c |   11 ++++++-----
+ drivers/hid/hid-roccat-kone.h |   19 ++++++++++++++++---
+ 2 files changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index d23d309..9d68442 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -928,14 +928,15 @@ static int kone_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		return 0;
+ 
+ 	/*
+-	 * Firmware 1.38 introduced new behaviour for tilt buttons.
+-	 * Pressed tilt button is reported in each movement event.
++	 * Firmware 1.38 introduced new behaviour for tilt and special buttons.
++	 * Pressed button is reported in each movement event.
+ 	 * Workaround sends only one event per press.
+ 	 */
+-	if (kone->last_tilt_state == event->tilt)
+-		event->tilt = 0;
++	if (memcmp(&kone->last_mouse_event.tilt, &event->tilt, 5))
++		memcpy(&kone->last_mouse_event, event,
++				sizeof(struct kone_mouse_event));
+ 	else
+-		kone->last_tilt_state = event->tilt;
++		memset(&event->tilt, 0, 5);
+ 
+ 	/*
+ 	 * handle special events and keep actual profile and dpi values
+diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
+index 99290ad..b413b10 100644
+--- a/drivers/hid/hid-roccat-kone.h
++++ b/drivers/hid/hid-roccat-kone.h
+@@ -80,6 +80,17 @@ enum kone_button_info_types {
+ 	kone_button_info_type_multimedia_volume_down = 0x27
+ };
+ 
++enum kone_button_info_numbers {
++	kone_button_top = 1,
++	kone_button_wheel_tilt_left = 2,
++	kone_button_wheel_tilt_right = 3,
++	kone_button_forward = 4,
++	kone_button_backward = 5,
++	kone_button_middle = 6,
++	kone_button_plus = 7,
++	kone_button_minus = 8,
++};
++
+ struct kone_light_info {
+ 	uint8_t number; /* number of light 1-5 */
+ 	uint8_t mod;   /* 1 = on, 2 = off */
+@@ -117,6 +128,7 @@ struct kone_profile {
+ 	uint8_t light_effect_speed; /* range 0-255 */
+ 
+ 	struct kone_light_info light_infos[5];
++	/* offset is kone_button_info_numbers - 1 */
+ 	struct kone_button_info button_infos[8];
+ 
+ 	uint16_t checksum; /* \brief holds checksum of struct */
+@@ -162,7 +174,7 @@ enum kone_mouse_events {
+ 	/* TODO clarify meaning and occurence of kone_mouse_event_calibration */
+ 	kone_mouse_event_calibration = 0xc0,
+ 	kone_mouse_event_call_overlong_macro = 0xe0,
+-	/* switch events notify if user changed values wiht mousebutton click */
++	/* switch events notify if user changed values with mousebutton click */
+ 	kone_mouse_event_switch_dpi = 0xf0,
+ 	kone_mouse_event_switch_profile = 0xf1
+ };
+@@ -185,8 +197,9 @@ struct kone_device {
+ 	 * is no way of getting this information from the device on demand
+ 	 */
+ 	int actual_profile, actual_dpi;
+-	/* Used for neutralizing abnormal tilt button behaviour */
+-	int last_tilt_state;
++	/* Used for neutralizing abnormal button behaviour */
++	struct kone_mouse_event last_mouse_event;
++
+ 	/*
+ 	 * It's unlikely that multiple sysfs attributes are accessed at a time,
+ 	 * so only one mutex is used to secure hardware access and profiles and
+-- 
+1.6.6.1
 
 
-Since it seems to be at the very core of the argument, how long time does it
-take to suspend your system? Is it something that could be improved upon?
 
-Henrik

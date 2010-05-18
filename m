@@ -1,102 +1,85 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: RE: [PATCH] ad7877: fix spi word size to 16 bit
-Date: Mon, 17 May 2010 19:18:28 -0500
-Message-ID: <0D753D10438DA54287A00B0270842697636F0E1458@AUSP01VMBX24.collaborationhost.net>
-References: <1273142265-11929-1-git-send-email-os@emlix.com>
- 	<n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com>
- 	<4BE3E02E.1090500@emlix.com>
- <h2l8bd0f97a1005071123u782bab2doee5c122dbd4c8642@mail.gmail.com>
- 	<20100513075335.GD30110@core.coreip.homeip.net>
- <20100515181523.GA3081@emlix.com>
- 	<AANLkTinn6VgvujPP3gGsteBGckIFgljn7B35DV6n8kwL@mail.gmail.com>
- 	<20100517072935.GA14891@emlix.com>
- <AANLkTimeAn9ALs4KxBNwwk-B419OwZ0BUwoKcoEfUbGw@mail.gmail.com>
+From: Paul Walmsley <paul@pwsan.com>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Mon, 17 May 2010 20:26:28 -0600 (MDT)
+Message-ID: <alpine.DEB.2.00.1005172018380.27473@utopia.booyaka.com>
+References: <1272667021-21312-1-git-send-email-arve@android.com>
+	<87wrvl5479.fsf@deeprootsystems.com>
+	<20100503180741.GB2098@rakim.wolfsonmicro.main>
+	<201005032318.35383.rjw@sisk.pl>
+	<87sk68r1zh.fsf@deeprootsystems.com>
+	<s2qd6200be21005031709r28420f0ezf3cf286517ee9114@mail.gmail.com>
+	<alpine.DEB.2.00.1005141422110.3348@utopia.booyaka.com>
+	<AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AANLkTimeAn9ALs4KxBNwwk-B419OwZ0BUwoKcoEfUbGw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>, Oskar Schirmer <os@emlix.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Oliver Schneidewind <osw@emlix.com>, Michael Hennerich <michael.hennerich@analog.com>
+Content-Type: MULTIPART/MIXED; BOUNDARY="155748971-758310667-1274149588=:27473"
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: =?ISO-8859-15?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, Liam Girdwood <lrg@slimlogic.co.uk>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, Oleg Nesterov <oleg@redhat.com>, linux-omap@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-15?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@go>
 List-Id: linux-input@vger.kernel.org
 
-T24gTW9uZGF5LCBNYXkgMTcsIDIwMTAgNDo1MCBQTSwgTWlrZSBGcnlzaW5nZXIgd3JvdGU6DQo+
-IDIwMTAvNS8xNyBPc2thciBTY2hpcm1lcjoNCj4+IE9uIFN1biwgTWF5IDE2LCAyMDEwIGF0IDE1
-OjI1OjM0IC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3cm90ZToNCj4+PiBPbiBTYXQsIE1heSAxNSwg
-MjAxMCBhdCAxNDoxNSwgT3NrYXIgU2NoaXJtZXIgd3JvdGU6DQo+Pj4+IE9uIFRodSwgTWF5IDEz
-LCAyMDEwIGF0IDAwOjUzOjM1IC0wNzAwLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+Pj4+PiBP
-biBGcmksIE1heSAwNywgMjAxMCBhdCAwMjoyMzowN1BNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
-cm90ZToNCj4+Pj4+PiBPbiBGcmksIE1heSA3LCAyMDEwIGF0IDA1OjQxLCBEYW5pZWwgR2zDtmNr
-bmVyIHdyb3RlOg0KPj4+Pj4+PiBPbiAwNS8wNi8yMDEwIDA4OjI2IFBNLCBNaWtlIEZyeXNpbmdl
-ciB3cm90ZToNCj4+Pj4+Pj4+IGkgdGhpbmsgaXQnZCBiZSBhIGJldHRlciBpZGVhIHRvIGRvIHNv
-bWV0aGluZyBsaWtlOg0KPj4+Pj4+Pj4gwqAgaWYgKHNwaS0+Yml0c19wZXJfd29yZCAhPSAxNikg
-ew0KPj4+Pj4+Pj4gwqAgwqAgaWYgKHNwaS0+Yml0c19wZXJfd29yZCkgew0KPj4+Pj4+Pj4gwqAg
-wqAgwqAgZGV2X2Vycigmc3BpLT5kZXYsICJJbnZhbGlkIFNQSSBzZXR0aW5nczsgYml0c19wZXJf
-d29yZCBtdXN0IGJlIDE2XG4iKTsNCj4+Pj4+Pj4+IMKgIMKgIMKgIHJldHVybiAtRUlOVkFMOw0K
-Pj4+Pj4+Pj4gwqAgwqAgfQ0KPj4+Pj4+Pj4gwqAgwqAgc3BpLT5iaXRzX3Blcl93b3JkID0gMTY7
-DQo+Pj4+Pj4+PiDCoCDCoCBzcGlfc2V0dXAoc3BpKTsNCj4+Pj4+Pj4+IMKgIH0NCj4+Pj4+Pj4N
-Cj4+Pj4+Pj4gVGhlcmUgaXMgbm8gd2F5IHRvIHNldCBiaXRzX3Blcl93b3JkIHVzaW5nIHN0cnVj
-dCBzcGlfYm9hcmRfaW5mby4gVGhlDQo+Pj4+Pj4+IGRlc2NyaXB0aW9uIG9mIHRoYXQgc3RydWN0
-dXJlIGluIHNwaS5oIGV4cGxpY2l0bHkgbGlzdHMgdGhlIHdvcmRzaXplIGFzDQo+Pj4+Pj4+IG9u
-ZSBvZiB0aGUgcGFyYW1ldGVycyBkcml2ZXJzIHNob3VsZCBzZXQgdGhlbXNlbGYgaW4gcHJvYmUo
-KS4NCj4+Pj4+PiA+DQo+Pj4+Pj4+IE9ubHkgc3RydWN0IGJmaW41eHhfc3BpX2NoaXAgYWxsb3dz
-IHRvIHNldCB0aGlzIHZhbHVlIGluIHRoZSBib2FyZCBjb2RlLg0KPj4+Pj4+DQo+Pj4+Pj4gYW4g
-b2J2aW91cyBzaG9ydGNvbWluZyBpbiB0aGUgU1BJIGZyYW1ld29yayB0aGF0IHNob3VsZCBiZSBm
-aXhlZCwgYnV0DQo+Pj4+Pj4gdGhhdCBkb2VzbnQgbWFrZSBhbnkgZGlmZmVyZW5jZSB0byB0aGUg
-YWJvdmUgY29kZSBub3cgZG9lcyBpdCA/IMKgaXQnbGwNCj4+Pj4+PiBvcGVyYXRlIGNvcnJlY3Rs
-eSByZWdhcmRsZXNzIG9mIHRoZSBTUEkgYnVzIG1hc3Rlci4NCj4+Pj4+DQo+Pj4+PiBTbyBpcyB0
-aGUgdXBkYXRlZCBwYXRjaCBjb21pbmc/DQo+Pj4+DQo+Pj4+IFRoZSBiYXNpYyBxdWVzdGlvbiBJ
-IHNlZSBpcywgd2hldGhlciBpdCBpcyBpbiB0aGUNCj4+Pj4gcmVzcG9uc2liaWxpdHkgb2YgYWQ3
-ODc3IHRvIGNoZWNrIGEgd3Jvbmcgc2V0dGluZw0KPj4+PiBwb3NzaWJseSBjYXVzZWQgaW4gYm9h
-cmQgc3BlY2lmaWMgY29kZS4gSWYgc28sDQo+Pj4+IHRoZW4gdGhlIHByb3Bvc2FsIGJ5IE1pa2Ug
-c2hvdWxkIGJlIHVzZWQsIGJ1dCBpZiBub3QNCj4+Pj4gc28sIGl0IHdvdWxkIGludHJvZHVjZSB1
-bm5lZWRlZCBjb2RlLg0KPj4+Pg0KPj4+PiBSZW1lbWJlcjogYm90aCB2ZXJzaW9ucyBlbmQgdXAg
-aW4gY29ycmVjdGx5IHNldHRpbmcNCj4+Pj4gYml0c19wZXJfd29yZCwgd2l0aCB0aGUgZGlmZmVy
-ZW5jZSBtZXJlbHkgaW4gZmVlZGJhY2sNCj4+Pj4gbGV2ZWwuDQo+Pj4NCj4+PiBpbW8sIHVuc3Vw
-cG9ydGVkIGJvYXJkIHNldHRpbmdzIHNob3VsZCBhbHdheXMgYmUgZGV0ZWN0ZWQgJiByZWplY3Rl
-ZC4NCj4+PiBhbGwgU1BJIG1hc3RlciBkcml2ZXJzIGRvIHRoaXMgKGRldGVjdCAmIHJlamVjdCB1
-bnN1cHBvcnRlZCBTUEkgc2xhdmUNCj4+PiBzZXR0aW5ncykuDQo+Pg0KPj4gcGxlYXNlIG5vdGUs
-IHRoYXQgYml0c19wZXJfd29yZCBpcyBub3QgYSBib2FyZCBzZXR0aW5nLA0KPj4gaXQncyBhIGRl
-bWFuZCBvZiB0aGUgZGV2aWNlLiBjb25zZXF1ZW50bHksIHRoZXJlIGlzIG5vIG9uZQ0KPj4gdG8g
-c2V0IHVuc3VwcG9ydGVkIHZhbHVlcyBhbmQgdGh1cyBub25lIHRvIGJlIGRldGVjdGVkLg0KPj4N
-Cj4+IHRoZSBvbmx5IGFyY2hpdGVjdHVyZSBzZXR0aW5nIGJpdHNfcGVyX3dvcmQgdGhydSBzcGlf
-Y2hpcA0KPj4gaXMgYmxhY2tmaW4sIGJ1dCBJIGNhbm5vdCBzZWUgYSBnb29kIHJlYXNvbiwgd2h5
-IHRoZSBib2FyZA0KPj4gc2V0dGluZ3Mgc2hvdWxkIGVuZ2FnZSB3aXRoIGEgZml4ZWQgZGVtYW5k
-IG9mIHRoZSBkZXZpY2U/DQo+DQo+IHlvdSdyZSB0ZWxsaW5nIG1lIHRoYXQgZXZlcnkgc2luZ2xl
-IFNQSSBkZXZpY2Ugb3V0IHRoZXJlIGNhbiBvbmx5IGV2ZXINCj4gb3BlcmF0ZSBpbiBvbmUgc3Bl
-Y2lmaWMgYml0IGxlbmd0aCBvciBsYWNrcyBvcHRpb25hbCBzZXR0aW5ncyA/ICBpDQo+IGZpbmQg
-dGhhdCBoYXJkIHRvIGJlbGlldmUgd2hpY2ggbWVhbnMgaXQgZG9lcyBtYWtlIHNlbnNlIHRvIGxl
-dCB0aGUNCj4gYm9hcmRzIHBpY2sgYSBsZW5ndGggd2hlbiBhcHByb3ByaWF0ZS4NCj4NCj4gdGhl
-IGJvYXJkIHNldHRpbmdzIGFsc28gZnVuY3Rpb24gYXMgZGVmYXVsdCBzZXR1cCB2YWx1ZXMgc28g
-d2hlbiB1c2luZw0KPiBnZW5lcmljIHRoaW5ncyBsaWtlIHRoZSBzcGlkZXYgZHJpdmVyLCB0aGVy
-ZSBpcyBubyBrZXJuZWwgZHJpdmVyIHRvDQo+IHJlcXVlc3QgdGhlIGRlc2lyZWQgYml0bW9kZS4N
-Cj4NCj4gdGhlIHNpbXBsZSBjb2RlIGkgcG9zdGVkIGFkZHJlc3NlcyB5b3VyIGNvbmNlcm5zIGFz
-IHdlbGwgYXMgcmVqZWN0DQo+IGludmFsaWQgc2V0dGluZ3MgKHdoZXJldmVyIHRoZXkgbWF5IG9y
-aWdpbmF0ZSkuICBpZiB5b3UncmUgbm90IGdvaW5nDQo+IHRvIHBvc3QgYW4gdXBkYXRlZCBwYXRj
-aCwgaSdsbCB0YWtlIHRoZSBzaW1wbGUgb25lIE1pY2hhZWwgY29tbWl0dGVkDQo+IGFuZCBwb3N0
-IHRoYXQuDQoNCkp1c3QgbXkgMC4wMiwgSSBoYXZlbid0IGJlZW4gZm9sbG93aW5nIHRoaXMgdGhy
-ZWFkIHZlcnkgY2xvc2VseS4uLg0KDQpJIGJlbGlldmUgaXQncyB0aGUgc3BpICJkZXZpY2UiLCBp
-LmUuIHRoZSBwcm90b2NvbCwgZHJpdmVycyByZXNwb25zaWJpbGl0eQ0KdG8gc3VwcGx5IHRoZSBi
-aXRzX3Blcl93b3JkIHRoYXQgaXQgd2lsbCBvcGVyYXRlIHdpdGguICBUaGUgc3BpIG1hc3Rlcg0K
-ZHJpdmVyIHNpbXBseSB2YWxpZGF0ZXMgaXQgaWYgY2FuIHN1cHBvcnQgdGhlIHJlcXVlc3RlZCBz
-aXplLiAgSWYgdGhlDQpiaXRzX3Blcl93b3JkIGlzIGxlZnQgYXQgdGhlIGRlZmF1bHQgKDApIGl0
-IGluZGljYXRlcyB0aGF0IHRoZSBwcm90b2NvbA0Kd29yZHMgYXJlIGVpZ2h0IGJpdCBieXRlcy4N
-Cg0KSWYgYSBwcm90b2NvbCBkcml2ZXIgY2FuIHN1cHBvcnQgbXVsdGlwbGUgd29yZCBzaXplcyBp
-dCBzaG91bGQgcHJvYmFibHkNCmFsc28gc3VwcG9ydCBhICJzZXR1cCIgY2FsbGJhY2sgZHVyaW5n
-IHRoZSBkcml2ZXIgcHJvYmUgc28gdGhhdCB0aGUNCnVuZGVybHlpbmcgYm9hcmQgc3VwcG9ydCBj
-YW4gcHJvdmlkZSB0aGUgZGVzaXJlZCB3b3JkIHNpemUuICBUaGlzIGlzIHdoYXQNCnRoZSBsaWJl
-cnRhc19zcGkgZHJpdmVyIGRvZXMgKGRyaXZlcnMvbmV0L3dpcmVsZXNzL2xpYmVydGFzL2lmX3Nw
-aS5jKS4NClRoYXQgZHJpdmVyIGRvZXMgbm90aGluZyB3aXRoIHRoZSBiaXRzX3Blcl93b3JkIHZh
-bHVlIGJ1dCB0aGUgY2FsbGJhY2tzIGluDQphcmNoL2FybS9tYWNoLXB4YS9jbS14MjcwLmMgYW5k
-IGVtLXgyNzAuYyBkby4gIFRoZXkgYm90aCBzZXQgdGhlIGJpdHNfcGVyX3dvcmQNCnRvIDE2IGFu
-ZCB0aGVuIGNhbGwgc3BpX3NldHVwLiAgVGhleSBhbHNvIHByb2JhYmx5IHNob3VsZCBiZSBjaGVj
-a2luZyB0aGUNCnJldHVybiB2YWx1ZSBvZiBzcGlfc2V0dXAgdG8gbWFrZSBzdXJlIHRoYXQgdGhl
-IHJlcXVlc3RlZCBtb2RlIGlzIHN1cHBvcnRlZA0KYnkgdGhlIG1hc3RlciBkcml2ZXIsIGJ1dCB0
-aGV5IHByb2JhYmx5IGRvbid0IHNpbmNlIGl0IGlzIGFscmVhZHkga25vd24uLi4NCg0KSWYgdGhl
-IGFkNzg3NyAib25seSIgc3VwcG9ydHMgMTYtYml0IHdvcmQgc2l6ZXMgaXQgc2hvdWxkIGJlIHNl
-dHRpbmcgdGhlDQpiaXRzX3Blcl93b3JkIHRvIGluZGljYXRlIHRoaXMuICBJZiB0aGUgdW5kZXJs
-eWluZyBtYXN0ZXIgZHJpdmVyIGRvZXMgbm90DQpzdXBwb3J0IHRoYXQgd29yZCBzaXplIGl0IHdp
-bGwgcmV0dXJuIGFuIGVycm9yIHdoZW4gc3BpX3NldHVwIGlzIGNhbGxlZC4NCg0KSnVzdCBteSAw
-LjAyLi4uIA0KDQpSZWdhcmRzLA0KSGFydGxleQ0K
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--155748971-758310667-1274149588=:27473
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+
+Hello Arve,
+
+On Fri, 14 May 2010, Arve Hj=F8nnev=E5g wrote:
+
+> On Fri, May 14, 2010 at 1:27 PM, Paul Walmsley <paul@pwsan.com> wrote:
+> >
+> > On Mon, 3 May 2010, Arve Hj=F8nnev=E5g wrote:
+> >
+> >> No, suspend blockers are mostly used to ensure wakeup events are not
+> >> ignored, and to ensure tasks triggered by these wakeup events
+> >> complete.
+> >
+> > Standard Linux systems don't need these,
+>=20
+> If you don't want to lose wakeup events they do.  Standard Linux systems=
+=20
+> support suspend, but since they usually don't have a lot of wakeup=20
+> events you don't run into a lot of problems.
+
+Sorry, I don't follow.  What causes wakeup events to be lost?  Is it the=20
+current opportunistic suspend governor?  On OMAP Linux systems, as far as=
+=20
+I know, we don't lose any wakeup events.
+
+> > because the scheduler just keeps the system running as long as there=20
+> > is work to be done.
+>=20
+> That is only true if you never use suspend.
+
+If, instead of the current Android opportunistic suspend governor, the=20
+system entered suspend from pm_idle(), wouldn't that keep the system=20
+running as long as there is work to done?
+
+As far as I can see, it's the current Android opportunistic suspend=20
+governor design in patch 1 that causes the system to enter suspend even=20
+when there is work to be done, since it will try to suspend even when the=
+=20
+system is out of the idle loop.
+
+
+- Paul
+--155748971-758310667-1274149588=:27473
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--155748971-758310667-1274149588=:27473--

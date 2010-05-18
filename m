@@ -1,53 +1,71 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: [UPDATE] [RFC] [PATCH 0/4] OMAP4 Keyboard Controller Support
-Date: Tue, 18 May 2010 18:13:48 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E22D52D@dlee03.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:43016 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752068Ab0ERXNu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 19:13:50 -0400
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: [PATCH] touchscreen: ads7846: please don't touch free'd memory
+Date: Tue, 18 May 2010 16:46:53 -0700
+Message-ID: <1274226413-8520-1-git-send-email-khilman@deeprootsystems.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Roth <mroth@nessie.de>, Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@linux-foundation.org>, Mike Frysinger <vapier@gentoo.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-Hi,
+If the _probe() method fails, the 'ts' struct is freed, yet it is
+still used as the drvdata passed to suspend/resume/remove methods.
+Even though the input device does not get registerd, the driver's
+suspend/resume methods still get called as it's a registered SPI
+device.  This patch adds sanity checks to these methods to ensure that
+drvdata is valid before using it.
 
-Here you have the list of changes done so far for OMAP4 Keyboard
-Controller Support v2. I'll appreciate if someone else has more comments
-to share.
+Problem discovered when using lockdep since the ts->lock taken in
+suspend & resume methods was left pointing into free'd memory if
+_probe() fails.
 
-Vikram.Pandita.01    | struct omap_device global
-Govindraj.Raja.01    | Extra space between interrupt and probe functions
-
+Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
 ---
+ drivers/input/touchscreen/ads7846.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
 
-[PATCH v2 1/4] Input: matrix_keypad: Device driver interfaces
-[PATCH v2 2/4] OMAP4: Keyboard controller support
-[PATCH v2 3/4] OMAP4: Keyboard board support
-[PATCH v2 4/4] OMAP4: Keyboard kernel configuration
-
-http://www.mail-archive.com/linux-omap@vger.kernel.org/msg28334.html
-https://patchwork.kernel.org/patch/99429/
-https://patchwork.kernel.org/patch/99430/
-https://patchwork.kernel.org/patch/99432/
-https://patchwork.kernel.org/patch/99434/
-
---
-
- arch/arm/configs/omap_4430sdp_defconfig |    3
- arch/arm/mach-omap2/board-4430sdp.c     |  157 ++++++++++++++++
- drivers/input/keyboard/Kconfig          |   10 +
- drivers/input/keyboard/Makefile         |    1
- drivers/input/keyboard/omap4-keypad.c   |  304 ++++++++++++++++++++++++++++++++
- include/linux/input/matrix_keypad.h     |    7
- 6 files changed, 481 insertions(+), 1 deletion(-)
-
-Best Regards
-Abraham
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 532279c..1da2369 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -815,6 +815,9 @@ static int ads7846_suspend(struct spi_device *spi, pm_message_t message)
+ {
+ 	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+ 
++	if (WARN_ON_ONCE(!ts))
++		return 0;
++
+ 	spin_lock_irq(&ts->lock);
+ 
+ 	ts->is_suspended = 1;
+@@ -833,6 +836,9 @@ static int ads7846_resume(struct spi_device *spi)
+ {
+ 	struct ads7846 *ts = dev_get_drvdata(&spi->dev);
+ 
++	if (WARN_ON_ONCE(!ts))
++		return 0;
++
+ 	if (device_may_wakeup(&ts->spi->dev))
+ 		disable_irq_wake(ts->spi->irq);
+ 
+@@ -1231,6 +1237,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	input_free_device(input_dev);
+ 	kfree(packet);
+ 	kfree(ts);
++	dev_set_drvdata(&spi->dev, NULL);
+ 	return err;
+ }
+ 
+@@ -1240,6 +1247,9 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ 
+ 	device_init_wakeup(&spi->dev, false);
+ 
++	if (WARN_ON_ONCE(!ts))
++		return 0;
++
+ 	ads784x_hwmon_unregister(spi, ts);
+ 	input_unregister_device(ts->input);
+ 
+-- 
+1.7.0.2
 

@@ -1,46 +1,78 @@
-From: =?UTF-8?B?RGFuaWVsIEdsw7Zja25lcg==?= <dg@emlix.com>
-Subject: Re: [PATCH] ad7877: fix spi word size to 16 bit
-Date: Tue, 18 May 2010 11:37:05 +0200
-Message-ID: <4BF25FC1.30201@emlix.com>
-References: <1273142265-11929-1-git-send-email-os@emlix.com> 	<n2j8bd0f97a1005061126h7fecc32btad9986c0e38246f2@mail.gmail.com> 	<4BE3E02E.1090500@emlix.com> <h2l8bd0f97a1005071123u782bab2doee5c122dbd4c8642@mail.gmail.com> 	<20100513075335.GD30110@core.coreip.homeip.net> <20100515181523.GA3081@emlix.com> 	<AANLkTinn6VgvujPP3gGsteBGckIFgljn7B35DV6n8kwL@mail.gmail.com> 	<20100517072935.GA14891@emlix.com> <AANLkTimeAn9ALs4KxBNwwk-B419OwZ0BUwoKcoEfUbGw@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/5] HID: Removing/Renaming preprocessor macros for Roccat
+ Kone
+Date: Tue, 18 May 2010 13:59:32 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005181359041.28092@pobox.suse.cz>
+References: <1273679014.2927.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:33332 "EHLO mx1.emlix.com"
+Received: from cantor2.suse.de ([195.135.220.15]:38696 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755928Ab0ERJhM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 05:37:12 -0400
-In-Reply-To: <AANLkTimeAn9ALs4KxBNwwk-B419OwZ0BUwoKcoEfUbGw@mail.gmail.com>
+	id S1757178Ab0ERL7e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 May 2010 07:59:34 -0400
+In-Reply-To: <1273679014.2927.4.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Oskar Schirmer <os@emlix.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Schneidewind <osw@emlix.com>, Michael Hennerich <michael.hennerich@analog.com>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Jerome Vidal <jerom3@free.fr>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/18/2010 01:49 AM, Mike Frysinger wrote:
-> the board settings also function as default setup values so when usin=
-g
-> generic things like the spidev driver, there is no kernel driver to
-> request the desired bitmode.
+On Wed, 12 May 2010, Stefan Achatz wrote:
 
-spidev allows to set the bits per word with the SPI_IOC_WR_BITS_PER_WOR=
-D
-ioctl. it is also possible to set this on a per-transfer basis.
+> >From a50a004999d4bd2b9ae08f1298b1fc89ce9e1e12 Mon Sep 17 00:00:00 2001
+> From: Stefan Achatz <erazor_de@users.sourceforge.net>
+> Date: Sat, 8 May 2010 16:34:05 +0200
+> Subject: [PATCH 1/5] HID: Removing/Renaming preprocessor macros for Roccat Kone
+> 
+> Removed useless preprocessor macros and renamed remaining one to be
+> more qualified.
+> 
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+> ---
+>  drivers/hid/hid-roccat-kone.c |    8 ++++----
+>  drivers/hid/hid-roccat-kone.h |    5 +----
+>  2 files changed, 5 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+> index 7b11784..d23d309 100644
+> --- a/drivers/hid/hid-roccat-kone.c
+> +++ b/drivers/hid/hid-roccat-kone.c
+> @@ -630,7 +630,7 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+>  static ssize_t kone_sysfs_show_driver_version(struct device *dev,
+>  		struct device_attribute *attr, char *buf)
+>  {
+> -	return snprintf(buf, PAGE_SIZE, DRIVER_VERSION "\n");
+> +	return snprintf(buf, PAGE_SIZE, ROCCAT_KONE_DRIVER_VERSION "\n");
+>  }
+>  
+>  /*
+> @@ -1002,6 +1002,6 @@ static void kone_exit(void)
+>  module_init(kone_init);
+>  module_exit(kone_exit);
+>  
+> -MODULE_AUTHOR(DRIVER_AUTHOR);
+> -MODULE_DESCRIPTION(DRIVER_DESC);
+> -MODULE_LICENSE(DRIVER_LICENSE);
+> +MODULE_AUTHOR("Stefan Achatz");
+> +MODULE_DESCRIPTION("USB Roccat Kone driver");
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/drivers/hid/hid-roccat-kone.h b/drivers/hid/hid-roccat-kone.h
+> index ee6898c..99290ad 100644
+> --- a/drivers/hid/hid-roccat-kone.h
+> +++ b/drivers/hid/hid-roccat-kone.h
+> @@ -14,10 +14,7 @@
+>  
+>  #include <linux/types.h>
+>  
+> -#define DRIVER_VERSION "v0.3.0"
+> -#define DRIVER_AUTHOR "Stefan Achatz"
+> -#define DRIVER_DESC "USB Roccat Kone driver"
+> -#define DRIVER_LICENSE "GPL v2"
+> +#define ROCCAT_KONE_DRIVER_VERSION "v0.3.1"
 
-  Daniel
+Why do we need this? git is much better tracking revisions than humans, 
+who usually forget to update the defines anyway ...
 
-
---=20
-Dipl.-Math. Daniel Gl=C3=B6ckner, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax -11, Bahnhofsallee 1b, 37081 G=C3=B6ttingen,=
- Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B =
-3160
-Gesch=C3=A4ftsf=C3=BChrer: Dr. Uwe Kracke, Ust-IdNr.: DE 205 198 055
-
-emlix - your embedded linux partner
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

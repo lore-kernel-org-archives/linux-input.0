@@ -1,64 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: add chardev to propagate special events of Roccat
- hardware to userland
-Date: Tue, 18 May 2010 14:09:46 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005181408140.28092@pobox.suse.cz>
-References: <1273161216.2343.6.camel@localhost>  <alpine.LNX.2.00.1005071305350.9849@pobox.suse.cz> <1273383923.2278.17.camel@localhost>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Tue, 18 May 2010 09:03:08 +0200
+Message-ID: <4BF23BAC.90102@euromail.se>
+References: <1272667021-21312-1-git-send-email-arve@android.com>	
+	<87wrvl5479.fsf@deeprootsystems.com>	
+	<20100503180741.GB2098@rakim.wolfsonmicro.main>	
+	<201005032318.35383.rjw@sisk.pl>
+	<87sk68r1zh.fsf@deeprootsystems.com>	
+	<s2qd6200be21005031709r28420f0ezf3cf286517ee9114@mail.gmail.com>	
+	<alpine.DEB.2.00.1005141422110.3348@utopia.booyaka.com>	
+	<AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>	
+	<alpine.DEB.2.00.1005172018380.27473@utopia.booyaka.com>
+	<AANLkTinOFSVHnufbVKIei0KMbfkVvDgLVDRHkCldagfY@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:40512 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757232Ab0ERMJs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 May 2010 08:09:48 -0400
-In-Reply-To: <1273383923.2278.17.camel@localhost>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <AANLkTinOFSVHnufbVKIei0KMbfkVvDgLVDRHkCldagfY@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, Liam Girdwood <lrg@slimlogic.co.uk>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?ISO-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
 List-Id: linux-input@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: Stephane Chatty <chatty@enac.fr>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, wylda@volny.cz, Jerome Vidal <jerom3@free.fr>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2010, Stefan Achatz wrote:
+Arve Hj=F8nnev=E5g wrote:
+> It does not matter how you enter suspend. Without opportunistic
+> suspend, once you tell the kernel that you want to suspend, you cannot
+> abort. If a wakeup event occurs at this point, it will probably not be
+> processed until the system wakes up for another wakeup event.
+> =
 
-> > >  static void kone_set_settings_checksum(struct kone_settings *settings)
-> > > @@ -630,7 +631,7 @@ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
-> > >  static ssize_t kone_sysfs_show_driver_version(struct device *dev,
-> > >  		struct device_attribute *attr, char *buf)
-> > >  {
-> > > -	return snprintf(buf, PAGE_SIZE, DRIVER_VERSION "\n");
-> > > +	return snprintf(buf, PAGE_SIZE, ROCCAT_KONE_DRIVER_VERSION "\n");
-> > 
-> > Do we really want to keep this kind of driver versioning? Git provided 
-> > much more fine-graned versioning anyway. What is it needed for?
-> 
-> My comment to function kone_sysfs_show_driver_version states:
-> /*
->  * This file is used by userland software to find devices that are handled by
->  * this driver. This provides a consistent way for actual and older kernels
->  * where this driver replaced usbhid instead of generic-usb.
->  * Driver capabilities are determined by version number.
->  */
 
-Hmm, I don't seem to get it. Is it some kind of ABI versioning? What role 
-does legacy usbhid play in it, as it didn't provide this file at all?
+Since it seems to be at the very core of the argument, how long time does it
+take to suspend your system? Is it something that could be improved upon?
 
-> > > +/*
-> > > + * Module roccat is a char device used to report special events of roccat
-> > > + * hardware to userland. These events include requests for on-screen-display of
-> > > + * profile or dpi settings or requests for execution of macro sequences that are
-> > > + * not stored in device. The information in these events depends on hid device
-> > > + * implementation and contains data that is not available in a single hid event
-> > > + * or else hidraw could have been used.
-> > > + * It is inspired by hidraw, but uses only one circular buffer for all readers.
-> > 
-> > This information could maybe go into the kernel changelog as well. For 
-> > someone not familiar with the driver layout, the difference between 
-> > 'roccat' and 'roccat-kone' might be very difficult to understand.
-> 
-> How or where do I do this?
-
-Just put it as an "explanation" text accompanying the patch. That will be 
-then propagated into the changelog once comitted.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Henrik

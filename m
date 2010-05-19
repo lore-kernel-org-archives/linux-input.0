@@ -1,59 +1,72 @@
-From: Johannes Weiner <jw@emlix.com>
-Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
- cache lines
-Date: Wed, 19 May 2010 17:00:03 +0200
-Message-ID: <20100519150003.GK26131@emlix.com>
-References: <20100511215359.GF7396@core.coreip.homeip.net>
- <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
- <522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
- <20100512030350.GJ15903@laptop>
- <1274273325.6930.10022.camel@macbook.infradead.org>
- <20100519130710.GX2516@laptop>
- <1274275067.6930.10073.camel@macbook.infradead.org>
- <20100519133656.GY2516@laptop>
- <20100519134429.GH26131@emlix.com>
- <20100519135226.GZ2516@laptop>
+From: H Hartley Sweeten <hartleys@visionengravers.com>
+Subject: RE: Subject: [PATCH] AD7879: Fix spi word size
+Date: Wed, 19 May 2010 10:39:41 -0500
+Message-ID: <0D753D10438DA54287A00B0270842697636F1BD0E9@AUSP01VMBX24.collaborationhost.net>
+References: <1274263274.6138.6.camel@mhenneri-D02.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.emlix.com ([193.175.82.87]:50148 "EHLO mx1.emlix.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753198Ab0ESPBL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 11:01:11 -0400
-Content-Disposition: inline
-In-Reply-To: <20100519135226.GZ2516@laptop>
+Received: from p01c12o141.mxlogic.net ([208.65.145.64]:39041 "EHLO
+	p01c12o141.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751999Ab0ESPmI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 May 2010 11:42:08 -0400
+In-Reply-To: <1274263274.6138.6.camel@mhenneri-D02.ad.analog.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Piggin <npiggin@suse.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Marc Gauthier <marc@tensilica.com>, Mike Frysinger <vapier.adi@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>, Chris Zankel <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.com>
+To: "michael.hennerich@analog.com" <michael.hennerich@analog.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, May 19, 2010 at 11:52:26PM +1000, Nick Piggin wrote:
-> On Wed, May 19, 2010 at 03:44:30PM +0200, Johannes Weiner wrote:
-> > On Wed, May 19, 2010 at 11:36:56PM +1000, Nick Piggin wrote:
-> > > On Wed, May 19, 2010 at 02:17:47PM +0100, David Woodhouse wrote:
-> > > >
-> > > > The 'cacheline aligned' misconception did manage to get into the ad7877
-> > > > driver in commit 3843384a though -- it now uses ____cacheline_aligned
-> > > > instead of __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN))) as it
-> > > > should.
-> > > 
-> > > OK so long as there is not a "must be cacheline aligned" requirement.
-> > > Your proposal for a __dma_aligned attribute in an arch header looks
-> > > like a good idea there.
-> > 
-> > Would you happen to know of other potential users?  At this point I'd
-> > much rather just allocate the buffers dynamically and hide the issue
-> > nicely behind kmalloc().
+On Wednesday, May 19, 2010 3:01 AM, Michael Hennerich wrote:
+> Similar patch as reported by Oskar Schirmer <os@emlix.com> for the
+> AD7877.
 > 
-> I don't think we need to hide the fact that some platforms have
-> specific alignment restrictions for DMA. So if any drivers make use
-> of the alignment, I see no problem with __dma_aligned.
+> With no word size given in the users platform data, a generic spi host
+> controller driver will assume a default word size of eight bit.
+> Ensure spi->bits_per_word is set for 16-bit transfers.
+> 
+> Signed-off-by: Michael Hennerich <Michael.hennerich@analog.com>
+> ---
+>  drivers/input/touchscreen/ad7879.c |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ad7879.c
+> b/drivers/input/touchscreen/ad7879.c
+> index 794d070..ff490c0 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -715,6 +715,16 @@ static int __devinit ad7879_probe(struct spi_device
+> *spi)
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (spi->bits_per_word != 16) {
 
-In this case, the slave driver does not know whether the master driver
-is even using DMA.  That's the reason we do not use dma_alloc_* for
-the buffers in the first place.  And that's why I'd prefer to leave
-the slave agnostic about it.  Use kmalloc(), don't worry about the
-details.
+The master never sets this field so this test isn't needed.  The platform
+specific spi_board_info "could" set the field but I don't think any currently
+do.
 
-Of course, there may still be more appropriate users for the macro,
-that's why I asked.
+If the bits_per_word field is not set when spi_setup is called, it is set to
+the default value (8) before calling the spi master drivers setup routine.
+You just need to set the value since that is what the protocol requires.  The
+spi_setup call is still needed since part of the probe for this driver does
+generate a spi transaction, you need to make sure the master driver will support
+the protocol before that happens.
+
+> +		spi->bits_per_word = 16;
+> +		error = spi_setup(spi);
+> +		if (error) {
+> +			dev_dbg(&spi->dev,
+> +				"spi master doesn't support 16 bits/word\n");
+> +			return error;
+> +		}
+> +	}   
+> +
+>  	ts = kzalloc(sizeof(struct ad7879), GFP_KERNEL);
+>  	if (!ts)
+>  		return -ENOMEM;
+
+Regards,
+Hartley

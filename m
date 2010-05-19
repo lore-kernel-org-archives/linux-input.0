@@ -1,104 +1,82 @@
-From: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH v3] ad7877: keep dma rx buffers in seperate cache lines
-Date: Wed, 19 May 2010 14:00:23 +0100
-Message-ID: <1274274023.6930.10047.camel@macbook.infradead.org>
-References: <1273487642-2169-1-git-send-email-os@emlix.com>
-	 <AANLkTiktu7N5IXknkkJ9D5L4z5plhuGvD45IVqJm9zG1@mail.gmail.com>
-	 <20100511063309.GC9644@core.coreip.homeip.net>
-	 <y2k84144f021005102342m18bce930g53599c9112565f78@mail.gmail.com>
-	 <AANLkTinV79HZqS1cktHDsTsHDel-0Nti_Uk4i7mGaRiK@mail.gmail.com>
-	 <1273608441.15067.1002.camel@calx>
-	 <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
-	 <alpine.DEB.2.00.1005111520260.1500@router.home>
-	 <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
-	 <alpine.DEB.2.00.1005111544330.8388@router.home>
-	 <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+From: Nick Piggin <npiggin@suse.de>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+ cache lines
+Date: Wed, 19 May 2010 23:07:10 +1000
+Message-ID: <20100519130710.GX2516@laptop>
+References: <alpine.DEB.2.00.1005111520260.1500@router.home>
+ <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
+ <alpine.DEB.2.00.1005111544330.8388@router.home>
+ <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+ <20100511214836.GH1726@emlix.com>
+ <20100511215359.GF7396@core.coreip.homeip.net>
+ <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+ <522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
+ <20100512030350.GJ15903@laptop>
+ <1274273325.6930.10022.camel@macbook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:46830 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753306Ab0ESNA4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 09:00:56 -0400
-In-Reply-To: <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+Received: from cantor.suse.de ([195.135.220.2]:55474 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750830Ab0ESNHR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 May 2010 09:07:17 -0400
+Content-Disposition: inline
+In-Reply-To: <1274273325.6930.10022.camel@macbook.infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel =?ISO-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, Johannes Weiner <jw@emlix.com>, Nick Piggin <npiggin@suse.de>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Marc Gauthier <marc@tensilica.com>, Mike Frysinger <vapier.adi@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>, Chris Zankel <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.com>
 
-On Tue, 2010-05-11 at 16:54 -0400, Mike Frysinger wrote:
+On Wed, May 19, 2010 at 01:48:45PM +0100, David Woodhouse wrote:
+> On Wed, 2010-05-12 at 13:03 +1000, Nick Piggin wrote:
+> > I don't think it's necessarily a good idea. MINALIGN is an enforced
+> > minimum alignment and the allocator has no leeway in reducing this.
+> > In a UP system, or in a memory constrained system, it might be a better
+> > idea to pack objects more tightly, for example.
+> > 
+> > If we allow drivers to assume kmalloc is cacheline aligned, it will be
+> > (practically) impossible to revert this because it would require driver
+> > audits.
 > 
-> > kmalloc returns a pointer to a DMA safe buffer. There is no requirement on
-> > the x86 hardware that the DMA buffers have to be cache aligned. Cachelines
-> > will be invalidated as needed.
+> No, we definitely don't, and shouldn't, allow drivers to assume that
+> kmalloc is cacheline-aligned.
+
+Good.
+
+
+> However, we _do_ allow drivers to assume that kmalloc is DMA-safe. That
+> happens to mean "cacheline-aligned" for cache-incoherent architectures,
+> but drivers should never really have to think about that.
+
+DMA-safe for GFP_DMA, or all kmalloc?
+
+Either way, yes the arch should take care of those details.
+
+ 
+> > So whenever strengthening API guarantees like this, it is better to be
+> > very careful and conservative. Probably even introducing a new API with
+> > the stronger semantics (even if it is just a wrapper in the case where
+> > KMALLOC_MINALIGNED *is* cacheline sized).
 > 
-> so this guarantee is made by the kmalloc() API ?  and for arches where
-> the cacheline invalidation is handled in software rather than
-> hardware, they must declare a min alignment value for kmalloc to be at
-> least as big as their cache alignment ?
+> We're not talking about strengthening API guarantees. It's _always_ been
+> this way; it's just that some architectures are buggy.
+
+It just appeared, in the post I replied to, that there was a suggestion
+of making it explicitly cacheline aligned. If I misread that, ignore
+me.
+
 > 
-> does the phrase "DMA safe buffer" imply cache alignment ? 
-
-Not necessarily. If you have cache-coherent DMA, then there's no need to
-align things. You only need cache-alignment when you have
-cache-incoherent DMA and have to manage the cache in software. And in
-that case, the architecture must set ARCH_KMALLOC_MINALIGN to an
-appropriate value so that kmalloc() meets the guarantee.
-
-However, your problem is kind of unrelated to that -- your problem is
-actually that you're putting both a DMA buffer _and_ other stuff into
-the same kmalloc'd buffer. Don't do that. Instead, allocate your DMA
-buffer separately and put a _pointer_ to it into the structure.
-
-Or if you really _must_ include it in your structure, then align to
-ARCH_KMALLOC_MINALIGN bytes both before and after the DMA buffer by
-adding __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN))) to both the
-DMA buffer _and_ the element which follows it in your struct (if any).
-
-Using ____cacheline_aligned wastes a lot of space on the architectures
-that don't need it.
-
-Arguably, this __dma_aligned definition should go somewhere generic...
-
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 0d2d7e5..ae5d56e 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -151,6 +151,11 @@ enum {
- /*
-  * Non-touchscreen sensors only use single-ended conversions.
-  */
-+#ifdef ARCH_KMALLOC_MINALIGN
-+#define __dma_aligned __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN)))
-+#else
-+#define __dma_aligned
-+#endif
- 
- struct ser_req {
- 	u16			reset;
-@@ -163,7 +168,7 @@ struct ser_req {
- 	 * DMA (thus cache coherency maintenance) requires the
- 	 * transfer buffers to live in their own cache lines.
- 	 */
--	u16 sample ____cacheline_aligned;
-+	u16 sample __dma_aligned;
- };
- 
- struct ad7877 {
-@@ -203,7 +208,7 @@ struct ad7877 {
- 	 * DMA (thus cache coherency maintenance) requires the
- 	 * transfer buffers to live in their own cache lines.
- 	 */
--	u16 conversion_data[AD7877_NR_SENSE] ____cacheline_aligned;
-+	u16 conversion_data[AD7877_NR_SENSE] __dma_aligned;
- };
- 
- static int gpio3;
-
-
--- 
-David Woodhouse                            Open Source Technology Centre
-David.Woodhouse@intel.com                              Intel Corporation
-
+> But it looks like ARM, PowerPC, SH, MIPS, Microblaze, AVR32 and all
+> unconditionally cache-coherent architectures _do_ get it right already.
+> 
+> > I think adding to the DMA API would be a better idea. If the arch knows
+> > that kmalloc is suitable for the job directly, it can be used. Drivers
+> > can use the new interface, and kmalloc doesn't get saddled with
+> > alignment requirements.
+> 
+> No, that would be a change which would require auditing all drivers. The
+> _current_ rule is that buffers returned from kmalloc() are OK for DMA.
+> 
+> -- 
+> David Woodhouse                            Open Source Technology Centre
+> David.Woodhouse@intel.com                              Intel Corporation

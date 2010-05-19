@@ -1,12 +1,12 @@
 From: Ben Dooks <ben-linux@fluff.org>
-Subject: [PATCH 1/8] ARM: SAMSUNG: Move mach/ts.h to plat/ts.h
-Date: Wed, 19 May 2010 07:12:15 +0100
-Message-ID: <1274249542-28795-2-git-send-email-ben-linux@fluff.org>
+Subject: [PATCH 2/8] ARM: S3C64XX: Add touchscreen platform device definition
+Date: Wed, 19 May 2010 07:12:16 +0100
+Message-ID: <1274249542-28795-3-git-send-email-ben-linux@fluff.org>
 References: <1274249542-28795-1-git-send-email-ben-linux@fluff.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from trinity.fluff.org ([89.16.178.74]:57026 "EHLO trinity.fluff.org"
+Received: from trinity.fluff.org ([89.16.178.74]:57024 "EHLO trinity.fluff.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752460Ab0ESGMd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	id S1752400Ab0ESGMd (ORCPT <rfc822;linux-input@vger.kernel.org>);
 	Wed, 19 May 2010 02:12:33 -0400
 In-Reply-To: <1274249542-28795-1-git-send-email-ben-linux@fluff.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -16,124 +16,110 @@ Cc: kgene.kim@samsung.com, ch.naveen@samsubng.com, dmitry.torokhov@gmail.com, Ma
 
 From: Maurus Cuelenaere <mcuelenaere@gmail.com>
 
-This moves mach-s3c2410/include/mach/ts.h to plat-samsung/include/plat/ts.h in
-order to prepare for s3c64xx support in the touchscreen driver.
+This patch adds the touchscreen platform device definition for S3C64XX boards.
 
 Signed-off-by: Maurus Cuelenaere <mcuelenaere@gmail.com>
 Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 ---
- arch/arm/mach-s3c2410/include/mach/ts.h |   21 ---------------------
- arch/arm/mach-s3c2410/mach-h1940.c      |    2 +-
- arch/arm/plat-s3c24xx/devs.c            |    3 +--
- arch/arm/plat-samsung/include/plat/ts.h |   21 +++++++++++++++++++++
- drivers/input/touchscreen/s3c2410_ts.c  |    2 +-
- 5 files changed, 24 insertions(+), 25 deletions(-)
- delete mode 100644 arch/arm/mach-s3c2410/include/mach/ts.h
- create mode 100644 arch/arm/plat-samsung/include/plat/ts.h
+ arch/arm/mach-s3c64xx/Makefile |    1 +
+ arch/arm/mach-s3c64xx/dev-ts.c |   61 ++++++++++++++++++++++++++++++++++++++++
+ arch/arm/plat-samsung/Kconfig  |    6 ++++
+ 3 files changed, 68 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/mach-s3c64xx/dev-ts.c
 
-diff --git a/arch/arm/mach-s3c2410/include/mach/ts.h b/arch/arm/mach-s3c2410/include/mach/ts.h
-deleted file mode 100644
-index dc36170..0000000
---- a/arch/arm/mach-s3c2410/include/mach/ts.h
-+++ /dev/null
-@@ -1,21 +0,0 @@
--/* linux/include/asm/arch-s3c2410/ts.h
-- *
-- * Copyright (c) 2005 Arnaud Patard <arnaud.patard@rtp-net.org>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
--*/
--
--#ifndef __ASM_ARM_TS_H
--#define __ASM_ARM_TS_H
--
--struct s3c2410_ts_mach_info {
--       int             delay;
--       int             presc;
--       int             oversampling_shift;
--};
--
--extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
--
--#endif /* __ASM_ARM_TS_H */
-diff --git a/arch/arm/mach-s3c2410/mach-h1940.c b/arch/arm/mach-s3c2410/mach-h1940.c
-index d2a2fad..b1f7dbb 100644
---- a/arch/arm/mach-s3c2410/mach-h1940.c
-+++ b/arch/arm/mach-s3c2410/mach-h1940.c
-@@ -46,7 +46,6 @@
- #include <mach/h1940.h>
- #include <mach/h1940-latch.h>
- #include <mach/fb.h>
--#include <mach/ts.h>
- #include <plat/udc.h>
- #include <plat/iic.h>
- 
-@@ -57,6 +56,7 @@
- #include <plat/pll.h>
- #include <plat/pm.h>
- #include <plat/mci.h>
-+#include <plat/ts.h>
- 
- static struct map_desc h1940_iodesc[] __initdata = {
- 	[0] = {
-diff --git a/arch/arm/plat-s3c24xx/devs.c b/arch/arm/plat-s3c24xx/devs.c
-index cd5b41d..5858373 100644
---- a/arch/arm/plat-s3c24xx/devs.c
-+++ b/arch/arm/plat-s3c24xx/devs.c
-@@ -39,8 +39,7 @@
- #include <plat/devs.h>
- #include <plat/cpu.h>
- #include <plat/regs-spi.h>
--
--#include <mach/ts.h>
-+#include <plat/ts.h>
- 
- /* Serial port registrations */
- 
-diff --git a/arch/arm/plat-samsung/include/plat/ts.h b/arch/arm/plat-samsung/include/plat/ts.h
+diff --git a/arch/arm/mach-s3c64xx/Makefile b/arch/arm/mach-s3c64xx/Makefile
+index d78c3dd..a10f1fc 100644
+--- a/arch/arm/mach-s3c64xx/Makefile
++++ b/arch/arm/mach-s3c64xx/Makefile
+@@ -58,3 +58,4 @@ obj-$(CONFIG_MACH_HMT)		+= mach-hmt.o
+ obj-y				+= dev-uart.o
+ obj-y				+= dev-audio.o
+ obj-$(CONFIG_S3C64XX_DEV_SPI)	+= dev-spi.o
++obj-$(CONFIG_S3C64XX_DEV_TS)	+= dev-ts.o
+diff --git a/arch/arm/mach-s3c64xx/dev-ts.c b/arch/arm/mach-s3c64xx/dev-ts.c
 new file mode 100644
-index 0000000..8a51675
+index 0000000..17cc793
 --- /dev/null
-+++ b/arch/arm/plat-samsung/include/plat/ts.h
-@@ -0,0 +1,21 @@
-+/* arch/arm/plat-samsung/include/plat/ts.h
++++ b/arch/arm/mach-s3c64xx/dev-ts.c
+@@ -0,0 +1,61 @@
++/* linux/arch/arm/mach-s3c64xx/dev-ts.c
 + *
-+ * Copyright (c) 2005 Arnaud Patard <arnaud.patard@rtp-net.org>
++ * Copyright (c) 2008 Simtec Electronics
++ *	http://armlinux.simtec.co.uk/
++ *	Ben Dooks <ben@simtec.co.uk>, <ben-linux@fluff.org>
++ *
++ * Adapted by Maurus Cuelenaere for s3c64xx
++ *
++ * S3C64XX series device definition for touchscreen device
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 +*/
 +
-+#ifndef __ASM_ARM_TS_H
-+#define __ASM_ARM_TS_H
++#include <linux/kernel.h>
++#include <linux/string.h>
++#include <linux/platform_device.h>
 +
-+struct s3c2410_ts_mach_info {
-+       int             delay;
-+       int             presc;
-+       int             oversampling_shift;
++#include <mach/irqs.h>
++#include <mach/map.h>
++
++#include <plat/devs.h>
++#include <plat/ts.h>
++
++static struct resource s3c_ts_resource[] = {
++	[0] = {
++		.start = S3C64XX_PA_ADC,
++		.end   = S3C64XX_PA_ADC + SZ_256 - 1,
++		.flags = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start = IRQ_TC,
++		.end   = IRQ_TC,
++		.flags = IORESOURCE_IRQ,
++	},
 +};
 +
-+extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
++struct platform_device s3c_device_ts = {
++	.name		= "s3c64xx-ts",
++	.id		= -1,
++	.num_resources	= ARRAY_SIZE(s3c_ts_resource),
++	.resource	= s3c_ts_resource,
++};
 +
-+#endif /* __ASM_ARM_TS_H */
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 98a7d12..a2e1228 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -37,9 +37,9 @@
++void __init s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *pd)
++{
++	struct s3c2410_ts_mach_info *npd;
++
++	if (!pd) {
++		printk(KERN_ERR "%s: no platform data\n", __func__);
++		return;
++	}
++
++	npd = kmemdup(pd, sizeof(struct s3c2410_ts_mach_info), GFP_KERNEL);
++	if (!npd)
++		printk(KERN_ERR "%s: no memory for platform data\n", __func__);
++
++	s3c_device_ts.dev.platform_data = npd;
++}
++EXPORT_SYMBOL(s3c24xx_ts_set_platdata);
+diff --git a/arch/arm/plat-samsung/Kconfig b/arch/arm/plat-samsung/Kconfig
+index 64ab53c..1ea9389 100644
+--- a/arch/arm/plat-samsung/Kconfig
++++ b/arch/arm/plat-samsung/Kconfig
+@@ -206,6 +206,12 @@ config S3C64XX_DEV_SPI
+ 	  Compile in platform device definitions for S3C64XX's type
+ 	  SPI controllers.
  
- #include <plat/adc.h>
- #include <plat/regs-adc.h>
-+#include <plat/ts.h>
++config S3C64XX_DEV_TS
++	bool
++	help
++	    Common in platform device definitions for S3C64XX touchscreen
++	    device
++
+ # DMA
  
- #include <mach/regs-gpio.h>
--#include <mach/ts.h>
- 
- #define TSC_SLEEP  (S3C2410_ADCTSC_PULL_UP_DISABLE | S3C2410_ADCTSC_XY_PST(0))
- 
+ config S3C_DMA
 -- 
 1.6.3.3
 

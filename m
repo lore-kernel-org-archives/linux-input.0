@@ -1,100 +1,71 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Wed, 19 May 2010 14:12:14 +0200
-Message-ID: <4BF3D59E.1070801@euromail.se>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <1274213429-22667-2-git-send-email-rydberg@euromail.se> <20100519023727.GA21030@barra.bne.redhat.com>
+From: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+ cache lines
+Date: Wed, 19 May 2010 13:48:45 +0100
+Message-ID: <1274273325.6930.10022.camel@macbook.infradead.org>
+References: <1273608441.15067.1002.camel@calx>
+	 <AANLkTimt-eRCt_HTq7OUwzG1dgRuzJHk1tlgOcq4ocL7@mail.gmail.com>
+	 <alpine.DEB.2.00.1005111520260.1500@router.home>
+	 <AANLkTilEfZLWYxPmCQ1KHIvUGIF_8Qchali66wHNf2gB@mail.gmail.com>
+	 <alpine.DEB.2.00.1005111544330.8388@router.home>
+	 <AANLkTimzxrZyQAfocTwIt5zCVyXP7bReKOvP4K7m8epO@mail.gmail.com>
+	 <20100511214836.GH1726@emlix.com>
+	 <20100511215359.GF7396@core.coreip.homeip.net>
+	 <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
+	 <522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
+	 <20100512030350.GJ15903@laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:44389 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756271Ab0ESMMo (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:48231 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758067Ab0ESMtU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 08:12:44 -0400
-In-Reply-To: <20100519023727.GA21030@barra.bne.redhat.com>
+	Wed, 19 May 2010 08:49:20 -0400
+In-Reply-To: <20100512030350.GJ15903@laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Marc Gauthier <marc@tensilica.com>, Mike Frysinger <vapier.adi@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Johannes Weiner <jw@emlix.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel =?ISO-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>, Chris Zankel <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.com>
 
-Peter Hutterer wrote:
-> On Tue, May 18, 2010 at 10:10:29PM +0200, Henrik Rydberg wrote:
->> This patch adds documentation for the SYN_MT_SLOT event and gives
->> examples of how to use the event slot protocol.
+On Wed, 2010-05-12 at 13:03 +1000, Nick Piggin wrote:
+> I don't think it's necessarily a good idea. MINALIGN is an enforced
+> minimum alignment and the allocator has no leeway in reducing this.
+> In a UP system, or in a memory constrained system, it might be a better
+> idea to pack objects more tightly, for example.
 > 
-> thanks, this is really nice documentation! the approach seems good, though I
-> do have a few questions inline.
-> 
-[...]
-> 
-> Is there a limit on the number of slots?
+> If we allow drivers to assume kmalloc is cacheline aligned, it will be
+> (practically) impossible to revert this because it would require driver
+> audits.
 
-The slots are dynamically allocated by the driver, so there is no practical
-limit. Each slot currently takes 44 bytes, and allocating a few kilobytes of
-kernel memory is not a problem.
+No, we definitely don't, and shouldn't, allow drivers to assume that
+kmalloc is cacheline-aligned.
 
-> Will all drivers with ABS_MT_TRACKING_ID use slots? if not, how can I know
-> in advance if a device may use slots or not?
+However, we _do_ allow drivers to assume that kmalloc is DMA-safe. That
+happens to mean "cacheline-aligned" for cache-incoherent architectures,
+but drivers should never really have to think about that.
 
-Eventually, this might become true, but you are pointing at one of the weaker
-points of the current setup. There is no bit field for the EV_SYN events, so
-there is no way to know in advance if SYN_MT_SYNC or SYN_MT_SLOT is used. This
-could quite possibly be added to the EVIO interface. Meanwhile, the method I use
-is to detect the first SYN_MT_SLOT and select parser based on that information.
+> So whenever strengthening API guarantees like this, it is better to be
+> very careful and conservative. Probably even introducing a new API with
+> the stronger semantics (even if it is just a wrapper in the case where
+> KMALLOC_MINALIGNED *is* cacheline sized).
 
->> +
->> +Protocol Example B
->> +------------------
->> +
->> +Here is what a minimal event sequence for a two-contact touch would look
->> +like for a type B device:
->> +
->> +   SYN_MT_SLOT 0
->> +   ABS_MT_TRACKING_ID 45
->> +   ABS_MT_POSITION_X x[0]
->> +   ABS_MT_POSITION_Y y[0]
->> +   SYN_MT_SLOT 1
->> +   ABS_MT_TRACKING_ID 46
->> +   ABS_MT_POSITION_X x[1]
->> +   ABS_MT_POSITION_Y y[1]
->> +   SYN_REPORT
->> +
->> +Here is the sequence after moving contact 45 in the x direction:
->> +
->> +   SYN_MT_SLOT 0
->> +   ABS_MT_POSITION_X x[0]
->> +   SYN_REPORT
->> +
->> +Here is the sequence after lifting the contact in slot 0:
->> +
->> +   ABS_MT_TRACKING_ID 0
->> +   SYN_REPORT
->> +
->> +The active slot is already 0, so the SYN_MT_SLOT is omitted.  The message
->> +removes the association of slot 0 with contact 45, thereby destroying
->> +contact 45 and freeing slot 0 to be reused for another contact.
-> 
-> I'm probably missing something here, but how would a process know which one
-> is the active slot if it didn't get the previous event?
+We're not talking about strengthening API guarantees. It's _always_ been
+this way; it's just that some architectures are buggy.
 
-I am assuming you are not talking about losing events in the stream, but simply
-what information is available at the point of parsing it. The parser (the X
-evdev driver for instance) keeps all attributes of all slots, plus a single
-variable saying what slot is currently active, i.e, being modified.
+But it looks like ARM, PowerPC, SH, MIPS, Microblaze, AVR32 and all
+unconditionally cache-coherent architectures _do_ get it right already.
 
-If you are thinking of a setup where one program is already hooked up to the
-device, and a new one comes in just as the message in question appears on the
-wire, it just means the new program will have to spend some time catching up. If
-this should ever become a problem, one could possibly add a send-full-state
-method to the input layer, to be issued when the new program opens the device. I
-doubt this will be needed in practice though, since contacts change all the time.
+> I think adding to the DMA API would be a better idea. If the arch knows
+> that kmalloc is suitable for the job directly, it can be used. Drivers
+> can use the new interface, and kmalloc doesn't get saddled with
+> alignment requirements.
 
-As a side note, the notion of a used slot depends on how the attributes of the
-slot are interpreted. The method described in the document treats an
-ABS_MT_TRACKING_ID value outside of the driver-specified value range as an
-unused slot.
+No, that would be a change which would require auditing all drivers. The
+_current_ rule is that buffers returned from kmalloc() are OK for DMA.
 
-Cheers,
-Henrik
+-- 
+David Woodhouse                            Open Source Technology Centre
+David.Woodhouse@intel.com                              Intel Corporation
 

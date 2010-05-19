@@ -1,59 +1,53 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Subject: [PATCH] AD7879: Fix spi word size
-Date: Wed, 19 May 2010 12:01:14 +0200
-Message-ID: <1274263274.6138.6.camel@mhenneri-D02.ad.analog.com>
-Reply-To: michael.hennerich@analog.com
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/5] HID: Added further information for Roccat Kone
+Date: Wed, 19 May 2010 13:53:55 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005191353230.28092@pobox.suse.cz>
+References: <1274199975.2243.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:4133 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752978Ab0ESKGU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 06:06:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:52765 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755440Ab0ESLx5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 May 2010 07:53:57 -0400
+In-Reply-To: <1274199975.2243.0.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Stephane Chatty <chatty@enac.fr>, wylda@volny.cz, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, Jerome Vidal <jerom3@free.fr>, linux-kernel@vger.kernel.org
 
+On Tue, 18 May 2010, Stefan Achatz wrote:
 
-Similar patch as reported by Oskar Schirmer <os@emlix.com> for the
-AD7877.
+> >From 0875b1fdc784c60d28d3c5bc02ffcf0f30ccea2c Mon Sep 17 00:00:00 2001
+> From: Stefan Achatz <erazor_de@users.sourceforge.net>
+> Date: Sat, 8 May 2010 16:53:31 +0200
+> Subject: [PATCH 2/5] HID: Added further information for Roccat Kone
+> 
+> Added new data and changed workaround for abnormal button behaviour
+> according to new gained knowledge about Roccat Kone device.
+> 
+> Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+> ---
+>  drivers/hid/hid-roccat-kone.c |   11 ++++++-----
+>  drivers/hid/hid-roccat-kone.h |   19 ++++++++++++++++---
+>  2 files changed, 22 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+> index d23d309..9d68442 100644
+> --- a/drivers/hid/hid-roccat-kone.c
+> +++ b/drivers/hid/hid-roccat-kone.c
+> @@ -928,14 +928,15 @@ static int kone_raw_event(struct hid_device *hdev, struct hid_report *report,
+>  		return 0;
+>  
+>  	/*
+> -	 * Firmware 1.38 introduced new behaviour for tilt buttons.
+> -	 * Pressed tilt button is reported in each movement event.
+> +	 * Firmware 1.38 introduced new behaviour for tilt and special buttons.
+> +	 * Pressed button is reported in each movement event.
+>  	 * Workaround sends only one event per press.
 
-With no word size given in the users platform data, a generic spi host
-controller driver will assume a default word size of eight bit.
-Ensure spi->bits_per_word is set for 16-bit transfers.
+Applied, thank you Stefan.
 
-Signed-off-by: Michael Hennerich <Michael.hennerich@analog.com>
----
- drivers/input/touchscreen/ad7879.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ad7879.c
-b/drivers/input/touchscreen/ad7879.c
-index 794d070..ff490c0 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -715,6 +715,16 @@ static int __devinit ad7879_probe(struct spi_device
-*spi)
- 		return -EINVAL;
- 	}
- 
-+	if (spi->bits_per_word != 16) {
-+		spi->bits_per_word = 16;
-+		error = spi_setup(spi);
-+		if (error) {
-+			dev_dbg(&spi->dev,
-+				"spi master doesn't support 16 bits/word\n");
-+			return error;
-+		}
-+	}   
-+
- 	ts = kzalloc(sizeof(struct ad7879), GFP_KERNEL);
- 	if (!ts)
- 		return -ENOMEM;
 -- 
-1.6.0.2
-
-
+Jiri Kosina
+SUSE Labs, Novell Inc.

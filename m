@@ -1,121 +1,103 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: Subject: [PATCH] AD7879: Fix spi word size
-Date: Wed, 19 May 2010 22:30:59 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E568FC7FC@LIMKCMBX1.ad.analog.com>
-References: <1274263274.6138.6.camel@mhenneri-D02.ad.analog.com>
- <0D753D10438DA54287A00B0270842697636F1BD0E9@AUSP01VMBX24.collaborationhost.net>
- <544AC56F16B56944AEC3BD4E3D5917712E568FC795@LIMKCMBX1.ad.analog.com>
- <0D753D10438DA54287A00B0270842697636F1BD17B@AUSP01VMBX24.collaborationhost.net>
- <0D753D10438DA54287A00B0270842697636F1BD20A@AUSP01VMBX24.collaborationhost.net>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Wed, 19 May 2010 15:43:32 -0700
+Message-ID: <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
+	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:24349 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750832Ab0ESVbF convert rfc822-to-8bit (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:34654 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750943Ab0ESWnc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 17:31:05 -0400
-In-Reply-To: <0D753D10438DA54287A00B0270842697636F1BD20A@AUSP01VMBX24.collaborationhost.net>
-Content-Language: en-US
+	Wed, 19 May 2010 18:43:32 -0400
+In-Reply-To: <1274213429-22667-2-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>, "Frysinger, Michael" <Michael.Frysinger@analog.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-H Hartley Sweeten wrote on 2010-05-19:
-> On Wednesday, May 19, 2010 9:00 AM, H Hartley Sweeten wrote:
->> On Wednesday, May 19, 2010 8:46 AM, Hennerich, Michael wrote:
->>> H Hartley Sweeten wrote on 2010-05-19:
->>>> On Wednesday, May 19, 2010 3:01 AM, Michael Hennerich wrote:
->>>>> Similar patch as reported by Oskar Schirmer <os@emlix.com> for
->>>>> the AD7877.
->>>>>
->>>>> With no word size given in the users platform data, a generic spi
->>>>> host controller driver will assume a default word size of eight
->>>>> bit. Ensure
->>>>> spi->bits_per_word is set for 16-bit transfers.
->>>>>
->>>>> Signed-off-by: Michael Hennerich <Michael.hennerich@analog.com>
->>>>> ---
->>>>>  drivers/input/touchscreen/ad7879.c |   10 ++++++++++
->>>>>  1 files changed, 10 insertions(+), 0 deletions(-) diff --git
->>>>> a/drivers/input/touchscreen/ad7879.c
->>>>> b/drivers/input/touchscreen/ad7879.c
->>>>> index 794d070..ff490c0 100644
->>>>> --- a/drivers/input/touchscreen/ad7879.c
->>>>> +++ b/drivers/input/touchscreen/ad7879.c
->>>>> @@ -715,6 +715,16 @@ static int __devinit ad7879_probe(struct
->>>>> spi_device
->>>>> *spi)
->>>>>              return -EINVAL;
->>>>>      }
->>>>> +    if (spi->bits_per_word != 16) {
->>>>
->>>> The master never sets this field so this test isn't needed.  The
->>>> platform specific spi_board_info "could" set the field but I don't
->>>> think any currently do.
->
-> Oh.. And I was wrong about the spi_board_info being able to set the
-> field. From the struct spi_board_info definition in
-> include/linux/spi/spi.h:
->
->  * When adding new SPI devices to the device tree, these structures
->  serve * as a partial device template.  They hold information which
->  can't always * be determined by drivers.  Information that probe() can
->  establish (such * as the default transfer wordsize) is not included
->  here.
-> The Blackfin driver is using the controller_data field to pass the extra
-> information.  Also from the struct spi_board_info definition in
-> include/linux/spi/spi.h:
->
->  * @controller_data: Initializes spi_device.controller_data; some
->  *    controllers need hints about hardware setup, e.g. for DMA.
-> And from arch/blackfin/include/asm/bfin5xx_spi.h:
->
-> /* spi_board_info.controller_data for SPI slave devices,
->  * copied to spi_device.platform_data ... mostly for dma tuning  */
-> struct bfin5xx_spi_chip {
->       u16 ctl_reg;
->       u8 enable_dma;
->       u8 bits_per_word;
->       u8 cs_change_per_word;
->       u16 cs_chg_udelay; /* Some devices require 16-bit delays */
->       u32 cs_gpio;
->       /* Value to send if no TX value is supplied, usually 0x0 or 0xFFFF */
->       u16 idle_tx_val;
->       u8 pio_interrupt; /* Enable spi data irq */ };
->
->>>
->>> Blackfin does!
->>> Originally my assumption was that everyone does it - that's why
->>> this haven't been fixed earlier.
->>
->> Hmm... It appears they do ;-)
->>
->> But, it's passed as controller_data that would be specific to the
->> Blackfin spi master driver.
+Hi Henrik,
 
-Hartley,
+I am trying to link the protocol to the actual multi-touch devices in
+my "mind". Hope it helps you to point out the mismatch between my
+imagination and the protocol.  Please see details in line.
 
-if (spi->bits_per_word != 16)
+Ping
 
-I know that this if clause is likely taken by all ARCH except Blackfin.
+On Tue, May 18, 2010 at 1:10 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> This patch adds documentation for the SYN_MT_SLOT event and
+> gives examples of how to use the event slot protocol.
 
-The questions/actions would be:
-1) remove it since it may confuse people
-2) put some comments there to explain it
-3) remove bits_per_word from struct bfin5xx_spi_chip spi controller_data to make spi_bfin5xx
-look like everyone else spi master.
+Am I right in thinking that SYN_MT_SLOT represents to the actual touch
+area/finger on the surface? There could be more than one (x,y) (a few
+points that form an irregular shape) that represents one finger.  The
+following example shows that slot 0 (finger 1) touched three points on
+the surface while slot 1 (finger 2) only has one point reported:
 
->
-> Regards,
-> Hartley
++   SYN_MT_SLOT 0
++   ABS_MT_TRACKING_ID 45
++   ABS_MT_POSITION_X x[0]
++   ABS_MT_POSITION_Y y[0]
++   ABS_MT_TRACKING_ID 46
++   ABS_MT_POSITION_X x[1]
++   ABS_MT_POSITION_Y y[1]
++   ABS_MT_TRACKING_ID 47
++   ABS_MT_POSITION_X x[2]
++   ABS_MT_POSITION_Y y[2]
++   SYN_MT_SLOT 1
++   ABS_MT_TRACKING_ID 30
++   ABS_MT_POSITION_X x[3]
++   ABS_MT_POSITION_Y y[3]
++   SYN_REPORT
 
-Greetings,
-Michael
+If my assumption is correct, i.e., one slot can have more than one
+point, I would think ABS_MT_TRACKING_ID may not have to be a required
+entry inside SYN_MT_SLOT.  To the user land clients/drivers,
+SYN_MT_SLOT itself could serve as an ID. So, the following case is
+also a type B ( we know there are two touch areas. But we don't keep
+track of the points inside the areas):
 
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
++   SYN_MT_SLOT 0
++   ABS_MT_POSITION_X x[0]
++   ABS_MT_POSITION_Y y[0]
++   ABS_MT_POSITION_X x[1]
++   ABS_MT_POSITION_Y y[1]
++   ABS_MT_POSITION_X x[2]
++   ABS_MT_POSITION_Y y[2]
++   SYN_MT_SLOT 1
++   ABS_MT_POSITION_X x[3]
++   ABS_MT_POSITION_Y y[3]
++   SYN_REPORT
 
+So, an EVIO for X driver to retrieve the number of SLOTs would be very
+helpful.  Something like the following would do the work:
 
+input_set_abs_params(input_dev, ABS_MT_SLOT, 0, 12, 0, 0);
+
+which tells the user land clients that they can expect up to 13 touch areas.
+
+> +The main difference between the raw type A protocol and the higher level
+> +type B slot protocol lies in the usage of identifiable contacts. The slot
+> +protocol requires the use of the ABS_MT_TRACKING_ID,
+
+With what I said above, I think ABS_MT_TRACKING_ID is not the unique
+identifier for type B protocol. It is the fact that we can identify
+individual touch areas and use ABS_MT_SLOT to report them that makes
+it a type B event.
+
+> ABS_MT_TRACKING_ID, either provided by the
+> +hardware of computed from the raw data [5].
+                   ^^ or  (is it?)
+
+I agree with this ABS_MT_TRACKING_ID definition.  I would think something like:
+
+input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0, 47, 0, 0);
+
+which tells the clients that total of 48 points are tracked, would be helpful.
+
+Another topic that may be irrelevant to this patch is the filter. With
+the use of ABS_MT_TRACKING_ID, a filter can be applied to discard the
+useless repeated points or less than a certain number of points
+movement.

@@ -1,50 +1,52 @@
-From: Nick Piggin <npiggin@suse.de>
+From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
 Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
  cache lines
-Date: Wed, 19 May 2010 23:52:26 +1000
-Message-ID: <20100519135226.GZ2516@laptop>
-References: <20100511214836.GH1726@emlix.com>
- <20100511215359.GF7396@core.coreip.homeip.net>
- <AANLkTimm7bOmIz2sdODgHwtCk26kdHgZt7PvceM6gjS3@mail.gmail.com>
- <522C1DF17AF50042AD8AE87F7887BD3D0163549554@exch.hq.tensilica.com>
- <20100512030350.GJ15903@laptop>
- <1274273325.6930.10022.camel@macbook.infradead.org>
- <20100519130710.GX2516@laptop>
- <1274275067.6930.10073.camel@macbook.infradead.org>
- <20100519133656.GY2516@laptop>
- <20100519134429.GH26131@emlix.com>
+Date: Wed, 19 May 2010 23:38:34 +0900
+Message-ID: <20100519234049C.fujita.tomonori@lab.ntt.co.jp>
+References: <20100519133656.GY2516@laptop>
+	<20100519134429.GH26131@emlix.com>
+	<20100519135226.GZ2516@laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:56830 "EHLO mx1.suse.de"
+Received: from sh.osrg.net ([192.16.179.4]:47490 "EHLO sh.osrg.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751441Ab0ESNwb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 09:52:31 -0400
-Content-Disposition: inline
-In-Reply-To: <20100519134429.GH26131@emlix.com>
+	id S1752866Ab0ESOo7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 May 2010 10:44:59 -0400
+In-Reply-To: <20100519135226.GZ2516@laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Weiner <jw@emlix.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Marc Gauthier <marc@tensilica.com>, Mike Frysinger <vapier.adi@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@cs.helsinki.fi>, Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@linux-foundation.org>, Oskar Schirmer <os@emlix.com>, Michael Hennerich <Michael.Hennerich@analog.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg@emlix.com>, Oliver Schneidewind <osw@emlix.com>, David Rientjes <rientjes@google.com>, David Brownell <dbrownell@users.sourceforge.net>, Grant Likely <grant.likely@secretlab.ca>, Chris Zankel <chris@zankel.net>, Piet Delaney <Piet.Delaney@tensilica.com>
+To: npiggin@suse.de
+Cc: jw@emlix.com, dwmw2@infradead.org, marc@tensilica.com, vapier.adi@gmail.com, dmitry.torokhov@gmail.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
 
-On Wed, May 19, 2010 at 03:44:30PM +0200, Johannes Weiner wrote:
-> On Wed, May 19, 2010 at 11:36:56PM +1000, Nick Piggin wrote:
-> > On Wed, May 19, 2010 at 02:17:47PM +0100, David Woodhouse wrote:
-> > >
-> > > The 'cacheline aligned' misconception did manage to get into the ad7877
-> > > driver in commit 3843384a though -- it now uses ____cacheline_aligned
-> > > instead of __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN))) as it
-> > > should.
+On Wed, 19 May 2010 23:52:26 +1000
+Nick Piggin <npiggin@suse.de> wrote:
+
+> On Wed, May 19, 2010 at 03:44:30PM +0200, Johannes Weiner wrote:
+> > On Wed, May 19, 2010 at 11:36:56PM +1000, Nick Piggin wrote:
+> > > On Wed, May 19, 2010 at 02:17:47PM +0100, David Woodhouse wrote:
+> > > >
+> > > > The 'cacheline aligned' misconception did manage to get into the ad7877
+> > > > driver in commit 3843384a though -- it now uses ____cacheline_aligned
+> > > > instead of __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN))) as it
+> > > > should.
+> > > 
+> > > OK so long as there is not a "must be cacheline aligned" requirement.
+> > > Your proposal for a __dma_aligned attribute in an arch header looks
+> > > like a good idea there.
 > > 
-> > OK so long as there is not a "must be cacheline aligned" requirement.
-> > Your proposal for a __dma_aligned attribute in an arch header looks
-> > like a good idea there.
+> > Would you happen to know of other potential users?  At this point I'd
+> > much rather just allocate the buffers dynamically and hide the issue
+> > nicely behind kmalloc().
 > 
-> Would you happen to know of other potential users?  At this point I'd
-> much rather just allocate the buffers dynamically and hide the issue
-> nicely behind kmalloc().
+> I don't think we need to hide the fact that some platforms have
+> specific alignment restrictions for DMA. So if any drivers make use
+> of the alignment, I see no problem with __dma_aligned.
 
-I don't think we need to hide the fact that some platforms have
-specific alignment restrictions for DMA. So if any drivers make use
-of the alignment, I see no problem with __dma_aligned.
+IIRC, such was proposed several times:
 
+http://www.mail-archive.com/linux-scsi@vger.kernel.org/msg12633.html
+
+I guess that we agreed that it's better to tell driver writers to just
+use kmalloc.

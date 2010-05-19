@@ -1,99 +1,63 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: RE: Subject: [PATCH] AD7879: Fix spi word size
-Date: Wed, 19 May 2010 11:19:55 -0500
-Message-ID: <0D753D10438DA54287A00B0270842697636F1BD20A@AUSP01VMBX24.collaborationhost.net>
-References: <1274263274.6138.6.camel@mhenneri-D02.ad.analog.com>
- <0D753D10438DA54287A00B0270842697636F1BD0E9@AUSP01VMBX24.collaborationhost.net>
- <544AC56F16B56944AEC3BD4E3D5917712E568FC795@LIMKCMBX1.ad.analog.com>
- <0D753D10438DA54287A00B0270842697636F1BD17B@AUSP01VMBX24.collaborationhost.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
+ cache lines
+Date: Wed, 19 May 2010 09:37:45 -0700
+Message-ID: <20100519163745.GA27475@core.coreip.homeip.net>
+References: <20100519133656.GY2516@laptop>
+ <20100519134429.GH26131@emlix.com>
+ <20100519135226.GZ2516@laptop>
+ <20100519234049C.fujita.tomonori@lab.ntt.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from p01c12o141.mxlogic.net ([208.65.145.64]:48138 "EHLO
-	p01c12o141.mxlogic.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750943Ab0ESQUz convert rfc822-to-8bit (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:35435 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751723Ab0ESQiA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 12:20:55 -0400
-In-Reply-To: <0D753D10438DA54287A00B0270842697636F1BD17B@AUSP01VMBX24.collaborationhost.net>
-Content-Language: en-US
+	Wed, 19 May 2010 12:38:00 -0400
+Content-Disposition: inline
+In-Reply-To: <20100519234049C.fujita.tomonori@lab.ntt.co.jp>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>, "Frysinger, Michael" <Michael.Frysinger@analog.com>
+To: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
+Cc: npiggin@suse.de, jw@emlix.com, dwmw2@infradead.org, marc@tensilica.com, vapier.adi@gmail.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
 
-On Wednesday, May 19, 2010 9:00 AM, H Hartley Sweeten wrote:
-> On Wednesday, May 19, 2010 8:46 AM, Hennerich, Michael wrote:
->> H Hartley Sweeten wrote on 2010-05-19:
->>> On Wednesday, May 19, 2010 3:01 AM, Michael Hennerich wrote:
->>>> Similar patch as reported by Oskar Schirmer <os@emlix.com> for the
->>>> AD7877.
->>>>
->>>> With no word size given in the users platform data, a generic spi host
->>>> controller driver will assume a default word size of eight bit. Ensure
->>>> spi->bits_per_word is set for 16-bit transfers.
->>>>
->>>> Signed-off-by: Michael Hennerich <Michael.hennerich@analog.com>
->>>> ---
->>>>  drivers/input/touchscreen/ad7879.c |   10 ++++++++++
->>>>  1 files changed, 10 insertions(+), 0 deletions(-)
->>>> diff --git a/drivers/input/touchscreen/ad7879.c
->>>> b/drivers/input/touchscreen/ad7879.c
->>>> index 794d070..ff490c0 100644
->>>> --- a/drivers/input/touchscreen/ad7879.c
->>>> +++ b/drivers/input/touchscreen/ad7879.c
->>>> @@ -715,6 +715,16 @@ static int __devinit ad7879_probe(struct
->>>> spi_device
->>>> *spi)
->>>>              return -EINVAL;
->>>>      }
->>>> +    if (spi->bits_per_word != 16) {
->>>
->>> The master never sets this field so this test isn't needed.  The
->>> platform specific spi_board_info "could" set the field but I don't
->>> think any currently do.
+On Wed, May 19, 2010 at 11:38:34PM +0900, FUJITA Tomonori wrote:
+> On Wed, 19 May 2010 23:52:26 +1000
+> Nick Piggin <npiggin@suse.de> wrote:
+> 
+> > On Wed, May 19, 2010 at 03:44:30PM +0200, Johannes Weiner wrote:
+> > > On Wed, May 19, 2010 at 11:36:56PM +1000, Nick Piggin wrote:
+> > > > On Wed, May 19, 2010 at 02:17:47PM +0100, David Woodhouse wrote:
+> > > > >
+> > > > > The 'cacheline aligned' misconception did manage to get into the ad7877
+> > > > > driver in commit 3843384a though -- it now uses ____cacheline_aligned
+> > > > > instead of __attribute__((__aligned__(ARCH_KMALLOC_MINALIGN))) as it
+> > > > > should.
+> > > > 
+> > > > OK so long as there is not a "must be cacheline aligned" requirement.
+> > > > Your proposal for a __dma_aligned attribute in an arch header looks
+> > > > like a good idea there.
+> > > 
+> > > Would you happen to know of other potential users?  At this point I'd
+> > > much rather just allocate the buffers dynamically and hide the issue
+> > > nicely behind kmalloc().
+> > 
+> > I don't think we need to hide the fact that some platforms have
+> > specific alignment restrictions for DMA. So if any drivers make use
+> > of the alignment, I see no problem with __dma_aligned.
+> 
+> IIRC, such was proposed several times:
+> 
+> http://www.mail-archive.com/linux-scsi@vger.kernel.org/msg12633.html
+> 
+> I guess that we agreed that it's better to tell driver writers to just
+> use kmalloc.
 
-Oh.. And I was wrong about the spi_board_info being able to set the field.
->From the struct spi_board_info definition in include/linux/spi/spi.h:
+It really dpeends on the size of the buffer. When I need a single byte I
+really do not want to mess with separate kmalloced buffer.
 
- * When adding new SPI devices to the device tree, these structures serve
- * as a partial device template.  They hold information which can't always
- * be determined by drivers.  Information that probe() can establish (such
- * as the default transfer wordsize) is not included here.
+If somebody coudl pick David's patch that would be great.
 
-The Blackfin driver is using the controller_data field to pass the extra
-information.  Also from the struct spi_board_info definition in
-include/linux/spi/spi.h:
-
- * @controller_data: Initializes spi_device.controller_data; some
- *	controllers need hints about hardware setup, e.g. for DMA.
-
-And from arch/blackfin/include/asm/bfin5xx_spi.h:
-
-/* spi_board_info.controller_data for SPI slave devices,
- * copied to spi_device.platform_data ... mostly for dma tuning
- */
-struct bfin5xx_spi_chip {
-	u16 ctl_reg;
-	u8 enable_dma;
-	u8 bits_per_word;
-	u8 cs_change_per_word;
-	u16 cs_chg_udelay; /* Some devices require 16-bit delays */
-	u32 cs_gpio;
-	/* Value to send if no TX value is supplied, usually 0x0 or 0xFFFF */
-	u16 idle_tx_val;
-	u8 pio_interrupt; /* Enable spi data irq */
-};
-
->>
->> Blackfin does!
->> Originally my assumption was that everyone does it - that's why this
->> haven't been fixed earlier.
->
-> Hmm... It appears they do ;-)
->
-> But, it's passed as controller_data that would be specific to the Blackfin
-> spi master driver.
-
-Regards,
-Hartley
+-- 
+Dmitry

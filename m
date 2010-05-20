@@ -1,108 +1,141 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: mmotm 2010-05-11-18-20 uploaded
-Date: Wed, 19 May 2010 20:34:20 -0300
-Message-ID: <4BF4757C.5090303@redhat.com>
-References: <201005120149.o4C1n7P4002637@imap1.linux-foundation.org> <6195.1273763194@localhost> <20100513160249.GC22238@core.coreip.homeip.net>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Thu, 20 May 2010 10:13:24 +1000
+Message-ID: <20100520001323.GA28116@barra.bne.redhat.com>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
+ <1274213429-22667-2-git-send-email-rydberg@euromail.se>
+ <20100519023727.GA21030@barra.bne.redhat.com>
+ <4BF3D59E.1070801@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100513160249.GC22238@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:41271 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752276Ab0ETAQW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 May 2010 20:16:22 -0400
+Content-Disposition: inline
+In-Reply-To: <4BF3D59E.1070801@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-Dmitry Torokhov wrote:
-> On Thu, May 13, 2010 at 11:06:34AM -0400, Valdis.Kletnieks@vt.edu wrote:
->> On Tue, 11 May 2010 18:21:22 PDT, akpm@linux-foundation.org said:
->>> The mm-of-the-moment snapshot 2010-05-11-18-20 has been uploaded to
->>>
->>>    http://userweb.kernel.org/~akpm/mmotm/
->> Dell Latitude E6500, x86_64 kernel.
->>
->> Boots to single user prompt, but has issues on the way there.  Possibly
->> very important - I was definitely *not* typing at the time (as I had hit
->> return on the LUKS passphrase for the disk at 36 seconds after boot, and
->> I didn't get the # prompt for single-user for another minute or two (probably
->> due to udev having issues due to the oops). So I have no idea what it was
->> trying to get a keycode for...
->>
+On Wed, May 19, 2010 at 02:12:14PM +0200, Henrik Rydberg wrote:
+> Peter Hutterer wrote:
+> > On Tue, May 18, 2010 at 10:10:29PM +0200, Henrik Rydberg wrote:
+> >> This patch adds documentation for the SYN_MT_SLOT event and gives
+> >> examples of how to use the event slot protocol.
+> > 
+> > thanks, this is really nice documentation! the approach seems good, though I
+> > do have a few questions inline.
+> > 
+> [...]
+> > 
+> > Is there a limit on the number of slots?
 > 
-> Udev probably tries to remap special keys on your keyboard...
+> The slots are dynamically allocated by the driver, so there is no practical
+> limit. Each slot currently takes 44 bytes, and allocating a few kilobytes of
+> kernel memory is not a problem.
 > 
->> [   40.717136] udev: starting version 154
->> [   41.710153] BUG: unable to handle kernel NULL pointer dereference at (null)
->> [   41.711007] IP: [<ffffffff813bb996>] input_default_getkeycode_from_index+0x4e/0x5b
->> [   41.711007] PGD 11d318067 PUD 118af1067 PMD 0
->> [   41.711007] Oops: 0002 [#1] PREEMPT SMP
->> [   41.711007] last sysfs file: /sys/devices/pci0000:00/0000:00:1a.7/usb1/1-4/idVendor
->> [   41.711007] CPU 0
->> [   41.711007] Modules linked in:
->> [   41.711007]
->> [   41.711007] Pid: 2501, comm: keymap Not tainted 2.6.34-rc7-mmotm0511 #2 0X564R/Latitude E6500
->>
->> [   41.711007] RIP: 0010:[<ffffffff813bb996>]  [<ffffffff813bb996>] input_default_getkeycode_from_index+0x4e/0x5b
+> > Will all drivers with ABS_MT_TRACKING_ID use slots? if not, how can I know
+> > in advance if a device may use slots or not?
 > 
-> I think this is Mauro's big keycode additions.
+> Eventually, this might become true, but you are pointing at one of the weaker
+> points of the current setup. There is no bit field for the EV_SYN events, so
+> there is no way to know in advance if SYN_MT_SYNC or SYN_MT_SLOT is used. This
+> could quite possibly be added to the EVIO interface. Meanwhile, the method I use
+> is to detect the first SYN_MT_SLOT and select parser based on that information.
+
+I'd really prefer if there was some way to detect this. While I'm not quite
+sure how the matching X drivers would look like it's likely that the setups
+will be different for drivers that support slots and those that don't.
+e.g. those that don't have slots simply send events as valuators, those that
+do may split into multiple devices.
+
+Doing this at runtime - after the device has been set up is...tricky.
+
+> >> +
+> >> +Protocol Example B
+> >> +------------------
+> >> +
+> >> +Here is what a minimal event sequence for a two-contact touch would look
+> >> +like for a type B device:
+> >> +
+> >> +   SYN_MT_SLOT 0
+> >> +   ABS_MT_TRACKING_ID 45
+> >> +   ABS_MT_POSITION_X x[0]
+> >> +   ABS_MT_POSITION_Y y[0]
+> >> +   SYN_MT_SLOT 1
+> >> +   ABS_MT_TRACKING_ID 46
+> >> +   ABS_MT_POSITION_X x[1]
+> >> +   ABS_MT_POSITION_Y y[1]
+> >> +   SYN_REPORT
+> >> +
+> >> +Here is the sequence after moving contact 45 in the x direction:
+> >> +
+> >> +   SYN_MT_SLOT 0
+> >> +   ABS_MT_POSITION_X x[0]
+> >> +   SYN_REPORT
+> >> +
+> >> +Here is the sequence after lifting the contact in slot 0:
+> >> +
+> >> +   ABS_MT_TRACKING_ID 0
+> >> +   SYN_REPORT
+> >> +
+> >> +The active slot is already 0, so the SYN_MT_SLOT is omitted.  The message
+> >> +removes the association of slot 0 with contact 45, thereby destroying
+> >> +contact 45 and freeing slot 0 to be reused for another contact.
+> > 
+> > I'm probably missing something here, but how would a process know which one
+> > is the active slot if it didn't get the previous event?
 > 
+> I am assuming you are not talking about losing events in the stream, but simply
+> what information is available at the point of parsing it. The parser (the X
+> evdev driver for instance) keeps all attributes of all slots, plus a single
+> variable saying what slot is currently active, i.e, being modified.
+> 
+> If you are thinking of a setup where one program is already hooked up to the
+> device, and a new one comes in just as the message in question appears on the
+> wire, it just means the new program will have to spend some time catching up. If
+> this should ever become a problem, one could possibly add a send-full-state
+> method to the input layer, to be issued when the new program opens the device. I
+> doubt this will be needed in practice though, since contacts change all the time.
 
-Ok, I was able to reproduce the bug:
+This was the case I was wondering about. While I agree with the last part
+(contacts change all the time) the side-effect that you'll get from this is
+that devices can seemingly be non-responsive for random periods of time.
 
-# getkeycodes                                              
-[22726.468755] BUG: unable to handle kernel NULL pointer dereference at (null)  
-[22726.471074] IP: [<c138b6d0>] input_default_getkeycode_from_index+0x40/0x60   
-[22726.471074] *pde = 00000000                                                  
-[22726.471074] Oops: 0002 [#1] SMP                                              
-[22726.471074] last sysfs file: /sys/devices/pci0000:00/0000:00:0b.1/usb1/1-3/dm
-[22726.471074] Modules linked in: ip6t_REJECT nf_conntrack_ipv6 ip6table_filter]
-[22726.471074]                                                                  
-[22726.471074] Pid: 947, comm: getkeycodes Not tainted 2.6.34 #6 C51MCP51/      
-[22726.471074] EIP: 0060:[<c138b6d0>] EFLAGS: 00210046 CPU: 0                   
-[22726.471074] EIP is at input_default_getkeycode_from_index+0x40/0x60          
-[22726.471074] EAX: 00000000 EBX: 00000000 ECX: 00000002 EDX: dacfbdc8          
-[22726.471074] ESI: dacfbdc8 EDI: f5daf794 EBP: dacfbdb8 ESP: dacfbdb4          
-[22726.471074]  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068                    
-[22726.471074] Process getkeycodes (pid: 947, ti=dacfa000 task=f573d4a0 task.ti)
-[22726.471074] Stack:                                                           
-[22726.471074]  f5daf000 dacfbdec c138d233 dacfbe30 00200286 00000000 00000000 4
-[22726.471074] <0> 00000000 00000000 00000000 dacfbe2c f5da0340 c16c12cc dacfbd8
-[22726.471074] <0> c12f4130 dacfbe24 c138d9f8 00000002 00000001 00000000 c138d90
-[22726.471074] Call Trace:                                                      
-[22726.471074]  [<c138d233>] ? input_get_keycode+0x73/0x90                      
-[22726.471074]  [<c12f4148>] ? getkeycode_helper+0x18/0x30                      
-[22726.471074]  [<c12f4130>] ? getkeycode_helper+0x0/0x30                       
-[22726.471074]  [<c138d9f8>] ? input_handler_for_each_handle+0x78/0xa0          
-[22726.471074]  [<c138d980>] ? input_handler_for_each_handle+0x0/0xa0           
-[22726.471074]  [<c12f4130>] ? getkeycode_helper+0x0/0x30                       
-[22726.471074]  [<c12f399e>] ? getkeycode+0x2e/0x40                             
-[22726.471074]  [<c12f16ab>] ? vt_ioctl+0xb9b/0x1960                            
-[22726.471074]  [<c12ed600>] ? tty_ldisc_try+0x20/0x50                          
-[22726.471074]  [<c12ed8da>] ? put_ldisc+0x4a/0xd0                              
-[22726.471074]  [<c107649c>] ? trace_hardirqs_on_caller+0x12c/0x170             
-[22726.471074]  [<c10764eb>] ? trace_hardirqs_on+0xb/0x10                       
-[22726.471074]  [<c12f0b10>] ? vt_ioctl+0x0/0x1960                              
-[22726.471074]  [<c12e74bf>] ? tty_ioctl+0x7f/0x8a0                             
-[22726.471074]  [<c11150e2>] ? vfs_ioctl+0x32/0xc0                              
-[22726.471074]  [<c12e7440>] ? tty_ioctl+0x0/0x8a0                              
-[22726.471074]  [<c111584a>] ? do_vfs_ioctl+0x6a/0x5d0                          
-[22726.471074]  [<c10fc455>] ? kmem_cache_free+0x85/0xc0                        
-[22726.471074]  [<c107649c>] ? trace_hardirqs_on_caller+0x12c/0x170             
-[22726.471074]  [<c10764eb>] ? trace_hardirqs_on+0xb/0x10                       
-[22726.471074]  [<c111070b>] ? putname+0x2b/0x40                                
-[22726.471074]  [<c1105523>] ? do_sys_open+0xf3/0x110                           
-[22726.471074]  [<c1097f13>] ? audit_syscall_entry+0x1e3/0x210                  
-[22726.471074]  [<c1115e17>] ? sys_ioctl+0x67/0x80                              
-[22726.471074]  [<c1002fdf>] ? sysenter_do_call+0x12/0x38                       
-[22726.471074] Code: 0a b8 ea ff ff ff 5b 5d c3 66 90 3b 98 a4 00 00 00 73 ee 8 
-[22726.471074] EIP: [<c138b6d0>] input_default_getkeycode_from_index+0x40/0x60 4
-[22726.471074] CR2: 0000000000000000                                            
-[22726.471074] ---[ end trace 4ee8ba470bac54f1 ]---                             
+If you have a finger down when the X server starts or after a VT switch (or
+even a fast user switch), the driver will have to drop events. So you can
+wriggle your finger around and nothing happens, but once you lift it goes
+"well, now it works again". Since this happens only once in a while, it can
+make the whole lot appear flaky.  Especially if one finger works and the
+other one doesn't.
 
-I've removed the big getkeycode stuff from the material I've submitted earlier
-today for 2.6.35. I'm currently working on fix the issue.
+So I guess it comes down to whether sending SYN_MT_SLOT with every event
+costs too much compared to these admittedly rare use-cases. They're not much
+different to the current button events either, if you weren't there when a
+button was pressed you won't know. So I'm somewhat indifferent about this
+bit.
 
--- 
+And yes, you could add it once we find it's an issue, but by then someone
+has already spent time to work around this. And when you then start sending
+slot events all the time, you admit that writing the workaround was just a
+time waster :)
+
+> As a side note, the notion of a used slot depends on how the attributes of the
+> slot are interpreted. The method described in the document treats an
+> ABS_MT_TRACKING_ID value outside of the driver-specified value range as an
+> unused slot.
+
+It's easier for a latecomer to guess a tracking ID since you can just
+assign any random value to it, provided the kernel guarantees to only send
+updates on the tracking ID for changes. This doesn't quite work for slots.
+
+But I'm not sure what your last sentence means. Does this mean the kernel
+will open a new slot for out-of-range tracking IDs? I'm missing something
+here.
 
 Cheers,
-Mauro
+  Peter

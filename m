@@ -1,57 +1,50 @@
-From: Jerone Young <jerone.young@canonical.com>
-Subject: Re: [PATCH][RFC] input: Add KEY_MIC_MUTE
-Date: Thu, 20 May 2010 12:17:23 -0500
-Message-ID: <1274375843.25409.16.camel@laptop>
-References: <1274374228.24413.150.camel@laptop>
-	 <1274374800.27274.3795.camel@localhost.localdomain>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: Re: [PATCH 0/2 v2] elantech: Additional info reporting with version
+ 2
+Date: Thu, 20 May 2010 19:47:20 +0200
+Message-ID: <4BF575A8.4040401@tudelft.nl>
+References: <4BE592AB.7040801@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:54881 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754502Ab0ETRR3 (ORCPT
+Received: from mailservice.tudelft.nl ([130.161.131.5]:48947 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753477Ab0ETRrW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 13:17:29 -0400
-In-Reply-To: <1274374800.27274.3795.camel@localhost.localdomain>
+	Thu, 20 May 2010 13:47:22 -0400
+In-Reply-To: <4BE592AB.7040801@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, 2010-05-20 at 18:00 +0100, Bastien Nocera wrote:
-> On Thu, 2010-05-20 at 11:50 -0500, Jerone Young wrote:
-> > Today Lenovo Thinkpads are coming with a new key for muting the
-> > microphone. They started this with the T400s & it is now on T410(s)/510,
-> > W510/W710, L412/512, X100e, Edge 13/14/15 Thinkpads. Currently 12
-> > models, with more coming in the foreseeable future.
-> 
-> There's a "Microphone" usage name listed in the HID Usage Tables (under
-> Consumer Page) which would probably do fine.
+Op 08-05-10 18:34, =C3=89ric Piel schreef:
+> Hello,
+>=20
+> Will follow a second version of my patches to support more informatio=
+n
+> in the hardware version 2 of elantech. The main changes is that I've
+> done much further reverse engineering on the protocol, and found out =
+that:
+>  * the width is acutally reported on 6 bits (not just 4)
+>  * the coordinates of the three finger touch are rerported as a one
+> finger touch
+>  * it's possible to differentiate between 3 and 4 fingers touch
+>=20
+> The second patch to add MT support has only be adapted to work better
+> with mousedev, as suggested by Dmitry.
+>=20
+> Patches are against git input-linux for-linus.
 
-Thanks for the pointer.  HID Usage Table seems like it would be in line
-to what I'm trying to do. Though still doesn't define a set keycode
-anywhere (this would actually be great to line this up to a standard).
+Hi Dmitry,
+These two patches were not in your queue for 2.6.35-rc0. Is there any
+additional changes that you'd like to have on them before merging?
 
-> 
-> Do this button toggle the mute status?
-
-Yes it's a toggle for microphone (though done all in software) .. so no
-hardware controls going on here. Right now on these Thinkpads sends an
-acpi event, we can remap that to a standard key code once it is defined
-(done in module thinkpad-acpi).
-
-I also failed to mention before that there is also Thinkpad USB keyboard
-as well with the key:
-http://www.thinkpads.com/wp-content/gallery/thinkpad-usb-keyboard/lenovo_thinkpad_usb_ultranav_keyboard-top.jpg
-It sends a keycode..though that can be remmapped in udev to whatever
-ends up getting defined.
-
-			Thanks,
-				Jerone
-
-> 
-> Cheers
-> 
-
-
+Cheers,
+Eric
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

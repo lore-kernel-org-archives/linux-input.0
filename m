@@ -1,54 +1,83 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Samsung touchscreen updates
-Date: Thu, 20 May 2010 00:15:59 -0700
-Message-ID: <20100520071559.GD8080@core.coreip.homeip.net>
-References: <1274249542-28795-1-git-send-email-ben-linux@fluff.org>
- <888AB3A0-262F-4603-9B83-B8B6A4D25DC1@gmail.com>
- <20100519064138.GG4720@trinity.fluff.org>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH] input: mcs5000 - Add MCS5000 touchkey support
+Date: Thu, 20 May 2010 16:42:29 +0900
+Message-ID: <4BF4E7E5.5000006@samsung.com>
+References: <4BF4DA4D.1090407@samsung.com>
+ <20100520070655.GA8080@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:50528 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750955Ab0ETHQJ (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:44113 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751355Ab0ETHmc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 03:16:09 -0400
-Received: by mail-pw0-f46.google.com with SMTP id 5so1949466pwi.19
-        for <linux-input@vger.kernel.org>; Thu, 20 May 2010 00:16:09 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20100519064138.GG4720@trinity.fluff.org>
+	Thu, 20 May 2010 03:42:32 -0400
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0L2P00MTAK2TDK@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 20 May 2010 16:42:29 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0L2P00LUJK2TIE@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 20 May 2010 16:42:29 +0900 (KST)
+In-reply-to: <20100520070655.GA8080@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, "ch.naveen@samsubng.com" <ch.naveen@samsubng.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: riverful.kim@samsung.com, kyungmin.park@samsung.com, linux-input@vger.kernel.org
 
-On Wed, May 19, 2010 at 07:41:38AM +0100, Ben Dooks wrote:
-> On Tue, May 18, 2010 at 11:34:51PM -0700, Dmitry Torokhov wrote:
-> > On May 18, 2010, at 11:12 PM, Ben Dooks <ben-linux@fluff.org> wrote:
-> >
-> >> Dimitry, this is a set of updates for the Samsung platform support for
-> >> touchscreen devices and the drivers/input/touchscreen items for the
-> >> s3c2410_ts driver.
-> >>
-> >> Since the changes have some interedependency, I would like permission
-> >> to merge this via the Samsung platform tree with your acknowledgement
-> >> for the drivers/input/touchscreen items.
-> >>
-> >> The arch/arm/* portions of this patchset have been included as FYI and
-> >> to show other interested parties what is goign on.
-> >>
-> >> Please let me know what you think.
-> >
-> > Yeah, it all looks Ok, please merge through your tree.
+On 5/20/2010 4:06 PM, Dmitry Torokhov wrote:
+> Hi Joonyoung,
 > 
-> Just rememberred I acked Maurus' original 64xx patch, did that get
-> merged anywhere as I couldn't find it in the tree listed in MAINTAINERS?
+> On Thu, May 20, 2010 at 03:44:29PM +0900, Joonyoung Shim wrote:
+>> The MELPAS MCS5000 can use to touchkey controller. This is patch to
+>> support touchkey at original MCS5000 touchscreen driver.
+>>
+> 
+> Not much of the touchscreen code ends up being reused it seems. Would
+> not creating a separate keypad driver make more sense?
 > 
 
-It looks like it got lost in my queue. The patch looks sane, would you
-mind merging it with the rest of changes for s3c2140?
+OK, i will make a separate keypad driver and it will support MCS5080
+keypad together.
+
+> Also, please amke sure that driver allows remapping the keymap (by
+> setting keycode, kmeycodemax, keycodesize in input device).
+> 
+
+Do you mean a implementation of setkeycode and getkeycode functions?
+
+>> +
+>> +	key_val = val & 0x7f;
+>> +	pressed = val >> 7;
+>> +
+>> +	if (pressed) {
+>> +		for (i = 0; i < pdata->keymap_size; i++) {
+>> +			if (MCS5000_KEY_VAL(pdata->keymap[i]) == key_val) {
+>> +				key_code = MCS5000_KEY_CODE(pdata->keymap[i]);
+>> +				data->key_code = key_code;
+>> +				break;
+>> +			}
+>> +		}
+>> +	} else
+>> +		key_code = data->key_code;
+> 
+> Does that mean that controller does not report code of released key?
+> And we can't have several keys being pressed at once?
+> 
+
+Yes, this keypad doesn't report key values when releases and keypad
+cannot detect several keys at once, so i saved and used last key_code.
+
+>> +
+>> +	input_report_key(input, key_code, pressed ? 1 : 0);
+>> +	input_sync(input);
+> 
+> Please also report EV_MSC/MSC_SCAN.
+> 
+
+OK.
 
 Thanks.
-
--- 
-Dmitry

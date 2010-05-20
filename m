@@ -1,52 +1,58 @@
-From: Len Brown <lenb@kernel.org>
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 20 May 2010 00:53:39 -0400 (EDT)
-Message-ID: <alpine.LFD.2.00.1005200025360.2921@localhost.localdomain>
-References: <20100513160117.GB22238@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
- <20100513171639.GA23708@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005131017070.3711@i5.linux-foundation.org>
- <20100513181002.GB23708@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org>
- <m1aas2kjb6.fsf@fess.ebiederm.org>
- <alpine.LFD.2.00.1005140751300.3711@i5.linux-foundation.org>
- <20100514153842.GA6398@srcf.ucam.org>
- <alpine.LFD.2.00.1005140841320.3711@i5.linux-foundation.org>
- <20100514154905.GA6681@srcf.ucam.org>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: [PATCH] input: fix error at the default input_get_keycode call
+Date: Thu, 20 May 2010 01:55:50 -0300
+Message-ID: <4BF4C0D6.9030808@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vms173011pub.verizon.net ([206.46.173.11]:58070 "EHLO
-	vms173011pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753510Ab0ETEy2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 00:54:28 -0400
-In-reply-to: <20100514154905.GA6681@srcf.ucam.org>
+Received: from mx1.redhat.com ([209.132.183.28]:5395 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751200Ab0ETEz4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 May 2010 00:55:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+To: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vladis Kletnieks <Valdis.Kletnieks@vt.edu>
 
-> Also, even with Windows, I do wonder if they have things like cut-off 
-> dates for trusting ACPI. We certainly do.
+[   76.376140] BUG: unable to handle kernel NULL pointer dereference at (null)
+[   76.376670] IP: [<c138b6d0>] input_default_getkeycode_from_index+0x40/0x60
+[   76.376670] *pde = 00000000
+[   76.376670] Oops: 0002 [#1] SMP
+[   76.376670] last sysfs file: /sys/devices/virtual/block/dm-5/range
+[   76.376670] Modules linked in: ip6t_REJECT nf_conntrack_ipv6 ip6table_filter ip6_tables ipv6 dm_mirror dm_region_hash dm_log uinput snd_intel8x0 snd_ac97_codec ac97_bus snd_seq snd_seq_device snd_pcm snd_timer snd ppdev sg parport_pc soundcore k8temp snd_page_alloc forcedeth pcspkr hwmon parport i2c_nforce2 sd_mod crc_t10dif sr_mod cdrom pata_acpi ata_generic pata_amd sata_nv floppy nouveau ttm drm_kms_helper drm i2c_algo_bit i2c_core dm_mod [last unloaded: scsi_wait_scan]
+[   76.376670]
+[   76.376670] Pid: 6183, comm: getkeycodes Not tainted 2.6.34 #11 C51MCP51/
+[   76.376670] EIP: 0060:[<c138b6d0>] EFLAGS: 00210046 CPU: 0
+[   76.376670] EIP is at input_default_getkeycode_from_index+0x40/0x60
+[   76.376670] EAX: 00000000 EBX: 00000000 ECX: 00000002 EDX: f53ebdc8
+[   76.376670] ESI: f53ebdc8 EDI: f5daf794 EBP: f53ebdb8 ESP: f53ebdb4
+[   76.376670]  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068
+[   76.376670] Process getkeycodes (pid: 6183, ti=f53ea000 task=f53bd060 task.ti=f53ea000)
+[   76.376670] Stack:
+[   76.376670]  f5daf000 f53ebdec c138d233 f53ebe30 00200286 00000000 00000000 00000004
+[   76.376670] <0> 00000000 00000000 00000000 f53ebe2c f5da0340 c16c12cc f53ebdf8 c12f4148
+[   76.376670] <0> c12f4130 f53ebe24 c138d9f8 00000002 00000001 00000000 c138d980 c12f4130
+[   76.376670] Call Trace:
+[   76.376670]  [<c138d233>] ? input_get_keycode+0x73/0x90
 
-Upstream Linux's main ACPI cutoff, CONFIG_ACPI_BLACKLIST_YEAR
-has been disabled by default since Linux-2.6.9.
-So if a platform claims to support ACPI,
-upstream Linux has run in ACPI mode on it for many years.
+input_default_getkeycode_from_index() returns the scancode at kt_entry.scancode
+pointer. Fill it with the scancode address at the function call.
 
-The idea was that we'd harvest and debug ACPI failures
-using the upstream kernels, while the distros could play it safe
-and set the cutoff to 1999 or even later.
+Thanks-to: Vladis Kletnieks <Valdis.Kletnieks@vt.edu> for pointing the issue
 
-But a funny thing happened a few years ago.
-The distros stopped setting this cutoff, and nobody complained.
-Of course, it could simply be that few people are using machines
-that old anymore...
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
 
-In any case, I expect that versions of Windows around 1999 or 2000
-had to check, but that like Linux, they don't really need to anymore.
-
-cheers,
-Len Brown, Intel Open Source Technology Center
-
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3b63fad..7851d8e 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -838,6 +838,7 @@ int input_get_keycode(struct input_dev *dev,
+ 		memset(&kt_entry, 0, sizeof(kt_entry));
+ 		kt_entry.len = 4;
+ 		kt_entry.index = scancode;
++		kt_entry.scancode = &scancode;
+ 
+ 		spin_lock_irqsave(&dev->event_lock, flags);
+ 		retval = dev->getkeycodebig_from_index(dev, &kt_entry);

@@ -1,65 +1,141 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2 v2] elantech: Additional info reporting with version2
-Date: Thu, 20 May 2010 10:52:37 -0700
-Message-ID: <201005201052.38099.dmitry.torokhov@gmail.com>
-References: <4BE592AB.7040801@tudelft.nl> <4BF575A8.4040401@tudelft.nl>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Thu, 20 May 2010 15:19:37 -0700
+Message-ID: <AANLkTinYX96zokFF6Rc-3_gxIrMZmvMS_pw3YdQD6CG4@mail.gmail.com>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
+	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>
+	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
+	 <4BF4E00A.30206@euromail.se>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:57746 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753266Ab0ETRwp convert rfc822-to-8bit (ORCPT
+Received: from mail-pz0-f185.google.com ([209.85.222.185]:56787 "EHLO
+	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754808Ab0ETWTj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 13:52:45 -0400
-Received: by pwi5 with SMTP id 5so39676pwi.19
-        for <linux-input@vger.kernel.org>; Thu, 20 May 2010 10:52:44 -0700 (PDT)
-In-Reply-To: <4BF575A8.4040401@tudelft.nl>
+	Thu, 20 May 2010 18:19:39 -0400
+In-Reply-To: <4BF4E00A.30206@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?q?=C3=89ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Cc: Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Thursday 20 May 2010 10:47:20 am =C3=89ric Piel wrote:
-> Op 08-05-10 18:34, =C3=89ric Piel schreef:
-> > Hello,
-> >=20
-> > Will follow a second version of my patches to support more informat=
-ion
-> > in the hardware version 2 of elantech. The main changes is that I'v=
-e
-> >=20
-> > done much further reverse engineering on the protocol, and found ou=
-t that:
-> >  * the width is acutally reported on 6 bits (not just 4)
-> >  * the coordinates of the three finger touch are rerported as a one
-> >=20
-> > finger touch
-> >=20
-> >  * it's possible to differentiate between 3 and 4 fingers touch
-> >=20
-> > The second patch to add MT support has only be adapted to work bett=
-er
-> > with mousedev, as suggested by Dmitry.
-> >=20
-> > Patches are against git input-linux for-linus.
->=20
-> Hi Dmitry,
-> These two patches were not in your queue for 2.6.35-rc0. Is there any
-> additional changes that you'd like to have on them before merging?
->=20
+On Thu, May 20, 2010 at 12:08 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+> Hi Ping,
+>
+> first out, thank you for your detailed analysis, it aids in removing =
+ambiguities
+> =A0and defining the borders of the protocol.
 
-Eric,
+Glad to hear from you directly this time :). I have more questions.
 
-It is still unclear to me what is the cutoff version of the firmware
-that starts reporting teh width and multiple fingers. I think that
-we should not advertise these capabilities on touchpads that do not
-support them.
+> It helps to think of both TRACKING_ID and BLOB_ID as labels of a sing=
+le
+> identified contact which occupies one slot.
 
-So basically more testing/data is needed at this point.
+I need double check with you although I think I know the answer. From
+your explanation and examples so far, I see MT_SLOT is only associated
+with one (x,y). Is this true?  If yes, can we eliminate the
+requirement for TRACKING_ID? If you think the requirement is
+necessary, can you give me an example where missing the TRACKING_ID
+would bring issue or confusion?
 
---=20
-Dmitry
+>To represent a set of contacts as an
+> entity, one needs to add a label to the slot, representing that entit=
+y.
+
+Doesn't MT_SLOT itself serves as a label? It has a value.  May be
+ABS_MT_SLOT_ID fits the term more closely.
+
+> As pointed out in a later reply by Peter, the BLOB_ID serves this pur=
+pose well. The
+> name is slightly unfortunate, being a bit too generic. Let us use thi=
+s
+> discussion to pin down a more exact definition:
+>
+> ABS_MT_BLOB_ID is a label which groups contacts in close relation to =
+each other,
+> such as a hand.
+
+I think I get this part.  However, (too late to regret that you've
+replied to me :)
+
+> With this in mind, the sequence becomes
+>
+> SYN_MT_SLOT 0
+> ABS_MT_BLOB_ID 11
+> ABS_MT_TRACKING_ID 45
+> ABS_MT_POSITION_X x[0]
+> ABS_MT_POSITION_Y y[0]
+> SYN_MT_SLOT 1
+> ABS_MT_BLOB_ID 11
+> ABS_MT_TRACKING_ID 46
+> ABS_MT_POSITION_X x[1]
+> ABS_MT_POSITION_Y y[1]
+> SYN_MT_SLOT 2
+> ABS_MT_BLOB_ID 11
+> ABS_MT_TRACKING_ID 47
+> ABS_MT_POSITION_X x[2]
+> ABS_MT_POSITION_Y y[2]
+> SYN_MT_SLOT 3
+> ABS_MT_BLOB_ID 89
+> ABS_MT_TRACKING_ID 30
+> ABS_MT_POSITION_X x[3]
+> ABS_MT_POSITION_Y y[3]
+> SYN_REPORT
+
+I would think something like the following would make sense too:
+
+ABS_MT_BLOB_ID 11
+ABS_MT_TRACKING_ID 45
+ABS_MT_SLOT_ID 0
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+ABS_MT_SLOT_ID 1
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+ABS_MT_SLOT_ID 2
+ABS_MT_POSITION_X x[2]
+ABS_MT_POSITION_Y y[2]
+SYN_MT_BLOB
+ABS_MT_BLOB_ID 89
+ABS_MT_SLOT_ID 3
+ABS_MT_TRACKING_ID 30
+ABS_MT_POSITION_X x[3]
+ABS_MT_POSITION_Y y[3]
+SYN_MT_BLOB
+SYN_REPORT
+
+where we have two blob of data. They represent finger 1 and finger 2.
+=46inger 1 has a tracking number 11 while finger 2 has 30.  We do not
+track the three contacts inside the blob since they all belong to the
+same finger.  We could even combine type A and B as:
+
+ABS_MT_TRACKING_ID 0      # indicates first finger or hand
+ABS_MT_BLOB 3                     # indicates 3 contacts in the blob
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+SYN_MT_REPORT
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+SYN_MT_REPORT
+ABS_MT_POSITION_X x[2]
+ABS_MT_POSITION_Y y[2]
+SYN_MT_REPORT
+ABS_MT_TRACKING_ID 1      # indicates second finger or hand
+ABS_MT_BLOB_ID 1               # indicates 1 contact in the blob
+ABS_MT_POSITION_X x[3]
+ABS_MT_POSITION_Y y[3]
+SYN_REPORT
+
+where SYN_MT_BLOB is unnecessary since we know how many contacts we
+are going to get. I would expect this approach complicates the
+implementation in the kernel. So I am not sure if it makes sense to
+use it or not.  Just to share some random thoughts with you.
+
+Ping
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

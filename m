@@ -1,58 +1,161 @@
-From: Jerone Young <jerone.young@canonical.com>
-Subject: [PATCH][RFC] input: Add KEY_MIC_MUTE
-Date: Thu, 20 May 2010 11:50:28 -0500
-Message-ID: <1274374228.24413.150.camel@laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.35-rc0
+Date: Thu, 20 May 2010 09:52:43 -0700
+Message-ID: <20100520165243.GA20861@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:53889 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752146Ab0ETQui (ORCPT
+Received: from mail-pz0-f193.google.com ([209.85.222.193]:65229 "EHLO
+	mail-pz0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752355Ab0ETQws (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 12:50:38 -0400
-Received: from hutte.canonical.com ([91.189.90.181])
-	by adelie.canonical.com with esmtp (Exim 4.69 #1 (Debian))
-	id 1OF8x9-0001da-HO
-	for <linux-input@vger.kernel.org>; Thu, 20 May 2010 17:50:35 +0100
-Received: from adsl-70-249-74-11.dsl.austtx.swbell.net ([70.249.74.11] helo=[10.1.106.184])
-	by hutte.canonical.com with esmtpsa (TLS-1.0:DHE_RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.69)
-	(envelope-from <jerone.young@canonical.com>)
-	id 1OF8x9-0001uZ-33
-	for linux-input@vger.kernel.org; Thu, 20 May 2010 17:50:35 +0100
+	Thu, 20 May 2010 12:52:48 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Today Lenovo Thinkpads are coming with a new key for muting the
-microphone. They started this with the T400s & it is now on T410(s)/510,
-W510/W710, L412/512, X100e, Edge 13/14/15 Thinkpads. Currently 12
-models, with more coming in the foreseeable future.
+Hi Linus,
 
-I want to define a keycode for microphone mute to be able take advantage
-of this key in userspace.
+Please pull from:
 
-The only issue is I'm not sure the best code to use, or if these are
-defined from somewhere else? Here is what I propose .. though feedback
-would be greatly appreciated.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: Jerone Young <jerone.young@canonical.com>
+to receive updates for the input subsystem.
+
+Changelog:
+---------
+
+Adam Bennett (1):
+      Input: add driver for hampshire serial touchscreens
+
+Axel Lin (2):
+      Input: acecad - fix incorrect size parameter in usb_buffer_free
+      Input: kbtab - fix incorrect size parameter in usb_buffer_free
+
+Barry Song (1):
+      Input: ad714x - add support for the AD7143/8/7A parts
+
+Bryan Wu (2):
+      Input: add PCF8574 I2C keypad input device driver
+      Input: add Analog Devices AD714x captouch input driver
+
+Dmitry Torokhov (17):
+      Input: wacom - do not allocate wacom_wac separately
+      Input: wacom - fix some formatting issues
+      Input: wacom - get rid of input event wrappers
+      Input: wacom - get rid of wacom_combo structure
+      Input: wacom - use get_unaligned to access unaligned data
+      Input: implement SysRq as a separate input handler
+      Input: keyboard - switch to using pr_err() and friends
+      Input: keyboard - fix formatting issues
+      Input: acecad - simplify usb_acecad_disconnect()
+      Input: acecad - fix some formatting issues
+      Input: acecad - don't advertise mouse events
+      Input: kbtab - simplify kbtab_disconnect()
+      Input: kbtab - do not advertise unsupported events
+      Input: elantech - enforce common prefix on messages
+      Input: elantech - relax signature checks
+      Input: synaptics - set dimensions as reported by firmware
+      Input: psmouse - small formatting changes to better follow coding style
+
+Eric Miao (2):
+      Input: remove now deprecated corgi_ts.c touchscreen driver
+      Input: remove obsolete {corgi,spitz,tosa}kbd.c
+
+Haojian Zhuang (1):
+      Input: 88pm860x_onkey - remove invalid irq number assignment
+
+Jacob Pan (1):
+      Input: do not force selecting i8042 on Moorestown
+
+Julia Lawall (2):
+      Input: usbtouchscreen - switch to using kmemdup()
+      Input: wistron_btns - switch to using kmemdup()
+
+Manuel Lauss (1):
+      Input: wm9712 - fix wm97xx_set_gpio() logic
+
+Matthew Garrett (2):
+      Input: i8042 - add some extra PNP keyboard types
+      Input: i8042 - add a PNP entry to the aux device list
+
+Paul Fox (1):
+      Input: Documentation/sysrq.txt - update KEY_SYSRQ info
+
+Ping Cheng (4):
+      Input: wacom - switch mode upon system resume
+      Input: wacom - merge out and in prox events
+      Input: wacom - share pen info with touch of the same ID
+      Input: wacom - streamline 2-finger touch support
+
+Sriramakrishnan Govindarajan (1):
+      Input: add keypad driver for keys interfaced to TCA6416
+
+Wolfram Sang (2):
+      Input: tsc2007 - do not leave dangling clientdata pointer
+      Input: lm8323 - do not leave dangling client data pointer
 
 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 746d426..ca5373a 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -377,6 +377,8 @@ struct input_absinfo {
- 
- #define KEY_WIMAX              246
- 
-+#define KEY_MICROPHONE_MUTE           247     /* mute microphone */
-+
- /* Range 248 - 255 is reserved for special needs of AT keyboard driver
-*/
- 
- #define BTN_MISC               0x100
+Diffstat:
+--------
 
+ Documentation/sysrq.txt                    |   14 +-
+ drivers/char/keyboard.c                    |  325 ++++----
+ drivers/char/sysrq.c                       |  243 +++++-
+ drivers/input/keyboard/Kconfig             |   18 +-
+ drivers/input/keyboard/Makefile            |    1 +
+ drivers/input/keyboard/lm8323.c            |    6 +-
+ drivers/input/keyboard/tca6416-keypad.c    |  349 +++++++
+ drivers/input/misc/88pm860x_onkey.c        |    1 -
+ drivers/input/misc/Kconfig                 |   40 +
+ drivers/input/misc/Makefile                |    4 +
+ drivers/input/misc/ad714x-i2c.c            |  140 +++
+ drivers/input/misc/ad714x-spi.c            |  103 +++
+ drivers/input/misc/ad714x.c                | 1347 ++++++++++++++++++++++++++++
+ drivers/input/misc/ad714x.h                |   26 +
+ drivers/input/misc/pcf8574_keypad.c        |  227 +++++
+ drivers/input/misc/wistron_btns.c          |    4 +-
+ drivers/input/mouse/Kconfig                |    2 +-
+ drivers/input/mouse/elantech.c             |   87 ++-
+ drivers/input/mouse/hgpk.c                 |    4 +-
+ drivers/input/mouse/logips2pp.c            |   98 ++-
+ drivers/input/mouse/psmouse-base.c         |   72 +-
+ drivers/input/mouse/synaptics.c            |   53 +-
+ drivers/input/mouse/synaptics.h            |    6 +-
+ drivers/input/serio/i8042-x86ia64io.h      |   14 +
+ drivers/input/tablet/acecad.c              |   86 +-
+ drivers/input/tablet/kbtab.c               |   53 +-
+ drivers/input/tablet/wacom.h               |   36 +-
+ drivers/input/tablet/wacom_sys.c           |  316 +++-----
+ drivers/input/tablet/wacom_wac.c           | 1168 +++++++++++++-----------
+ drivers/input/tablet/wacom_wac.h           |   13 +-
+ drivers/input/touchscreen/Kconfig          |   12 +
+ drivers/input/touchscreen/Makefile         |    1 +
+ drivers/input/touchscreen/hampshire.c      |  205 +++++
+ drivers/input/touchscreen/tsc2007.c        |    2 +
+ drivers/input/touchscreen/usbtouchscreen.c |    5 +-
+ drivers/input/touchscreen/wm97xx-core.c    |    2 +-
+ include/linux/input.h                      |    1 +
+ include/linux/input/ad714x.h               |   63 ++
+ include/linux/serio.h                      |    1 +
+ include/linux/sysrq.h                      |   23 +-
+ include/linux/tca6416_keypad.h             |   34 +
+ kernel/sysctl.c                            |   23 +-
+ 42 files changed, 3995 insertions(+), 1233 deletions(-)
+ create mode 100644 drivers/input/keyboard/tca6416-keypad.c
+ create mode 100644 drivers/input/misc/ad714x-i2c.c
+ create mode 100644 drivers/input/misc/ad714x-spi.c
+ create mode 100644 drivers/input/misc/ad714x.c
+ create mode 100644 drivers/input/misc/ad714x.h
+ create mode 100644 drivers/input/misc/pcf8574_keypad.c
+ create mode 100644 drivers/input/touchscreen/hampshire.c
+ create mode 100644 include/linux/input/ad714x.h
+ create mode 100644 include/linux/tca6416_keypad.h
+
+-- 
+Dmitry
 

@@ -1,58 +1,52 @@
-From: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>
-Subject: Re: [LKML] Re: [PATCH v3] ad7877: keep dma rx buffers in seperate
- cache lines
-Date: Thu, 20 May 2010 13:42:51 +0900
-Message-ID: <20100520134455W.fujita.tomonori@lab.ntt.co.jp>
-References: <20100519135226.GZ2516@laptop>
-	<20100519234049C.fujita.tomonori@lab.ntt.co.jp>
-	<1274281117.6930.10190.camel@macbook.infradead.org>
+From: Len Brown <lenb@kernel.org>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Thu, 20 May 2010 00:53:39 -0400 (EDT)
+Message-ID: <alpine.LFD.2.00.1005200025360.2921@localhost.localdomain>
+References: <20100513160117.GB22238@core.coreip.homeip.net>
+ <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
+ <20100513171639.GA23708@core.coreip.homeip.net>
+ <alpine.LFD.2.00.1005131017070.3711@i5.linux-foundation.org>
+ <20100513181002.GB23708@core.coreip.homeip.net>
+ <alpine.LFD.2.00.1005131253310.3711@i5.linux-foundation.org>
+ <m1aas2kjb6.fsf@fess.ebiederm.org>
+ <alpine.LFD.2.00.1005140751300.3711@i5.linux-foundation.org>
+ <20100514153842.GA6398@srcf.ucam.org>
+ <alpine.LFD.2.00.1005140841320.3711@i5.linux-foundation.org>
+ <20100514154905.GA6681@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sh.osrg.net ([192.16.179.4]:41292 "EHLO sh.osrg.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752171Ab0ETEsu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 00:48:50 -0400
-In-Reply-To: <1274281117.6930.10190.camel@macbook.infradead.org>
+Received: from vms173011pub.verizon.net ([206.46.173.11]:58070 "EHLO
+	vms173011pub.verizon.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753510Ab0ETEy2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 May 2010 00:54:28 -0400
+In-reply-to: <20100514154905.GA6681@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dwmw2@infradead.org
-Cc: fujita.tomonori@lab.ntt.co.jp, npiggin@suse.de, jw@emlix.com, marc@tensilica.com, vapier.adi@gmail.com, dmitry.torokhov@gmail.com, cl@linux.com, penberg@cs.helsinki.fi, mpm@selenic.com, akpm@linux-foundation.org, os@emlix.com, Michael.Hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dg@emlix.com, osw@emlix.com, rientjes@google.com, dbrownell@users.sourceforge.net, grant.likely@secretlab.ca, chris@zankel.net, Piet.Delaney@tensilica.com
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-On Wed, 19 May 2010 15:58:37 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
+> Also, even with Windows, I do wonder if they have things like cut-off 
+> dates for trusting ACPI. We certainly do.
 
-> On Wed, 2010-05-19 at 23:38 +0900, FUJITA Tomonori wrote:
-> > 
-> > > I don't think we need to hide the fact that some platforms have
-> > > specific alignment restrictions for DMA. So if any drivers make use
-> > > of the alignment, I see no problem with __dma_aligned.
-> > 
-> > IIRC, such was proposed several times:
-> > 
-> > http://www.mail-archive.com/linux-scsi@vger.kernel.org/msg12633.html
-> > 
-> > I guess that we agreed that it's better to tell driver writers to just
-> > use kmalloc. 
-> 
-> Perhaps -- but only a few days ago in this thread, they were being
-> advised to use ____cacheline_aligned instead!
+Upstream Linux's main ACPI cutoff, CONFIG_ACPI_BLACKLIST_YEAR
+has been disabled by default since Linux-2.6.9.
+So if a platform claims to support ACPI,
+upstream Linux has run in ACPI mode on it for many years.
 
-Hmm, driver writers should read DMA-API and DMA-API-HOWTO docs.
+The idea was that we'd harvest and debug ACPI failures
+using the upstream kernels, while the distros could play it safe
+and set the cutoff to 1999 or even later.
 
+But a funny thing happened a few years ago.
+The distros stopped setting this cutoff, and nobody complained.
+Of course, it could simply be that few people are using machines
+that old anymore...
 
-> And for this case it really does seem to make sense to keep the buffer
-> in the parent structure rather than allocating it separately. The DMA
-> buffers are tiny and on cache-coherent architectures it's _much_ more
-> efficient just to have them in the original structure and use
-> __dma_aligned.
+In any case, I expect that versions of Windows around 1999 or 2000
+had to check, but that like Linux, they don't really need to anymore.
 
-Yeah, I think that that's a valid point (which was also discussed in
-the past). However, I tend to agree on:
+cheers,
+Len Brown, Intel Open Source Technology Center
 
-http://lwn.net/Articles/2270/
-
-I think that forcing kmalloc is not that bad. Surely more code, but
-the performance is not notable in most cases. IMHO, exporting cache
-line thing everywhere is worse than it.

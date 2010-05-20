@@ -1,89 +1,99 @@
-From: Ping Cheng <pinglinux@gmail.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Wed, 19 May 2010 17:51:31 -0700
-Message-ID: <AANLkTik3wNaTCh5JBI7A69QWh9RXvZo0UcuoZ-rQTDlz@mail.gmail.com>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
-	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>
-	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
-	 <4BF4756C.8030204@seas.upenn.edu>
-	 <AANLkTinLNuyDDR0ISjOcXDatdXWEN4RIyuXc-3aSz2b3@mail.gmail.com>
-	 <4BF48198.4090300@seas.upenn.edu>
+Date: Wed, 19 May 2010 21:03:10 -0400
+Message-ID: <4BF48A4E.4060807@seas.upenn.edu>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>	 <4BF4756C.8030204@seas.upenn.edu>	 <AANLkTinLNuyDDR0ISjOcXDatdXWEN4RIyuXc-3aSz2b3@mail.gmail.com>	 <4BF48198.4090300@seas.upenn.edu> <AANLkTik3wNaTCh5JBI7A69QWh9RXvZo0UcuoZ-rQTDlz@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:62144 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752895Ab0ETAvc convert rfc822-to-8bit (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:44309 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753446Ab0ETBFT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 20:51:32 -0400
-In-Reply-To: <4BF48198.4090300@seas.upenn.edu>
+	Wed, 19 May 2010 21:05:19 -0400
+In-Reply-To: <AANLkTik3wNaTCh5JBI7A69QWh9RXvZo0UcuoZ-rQTDlz@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
+To: Ping Cheng <pinglinux@gmail.com>
 Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
 
-On Wed, May 19, 2010 at 5:26 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote=
-:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 05/19/10 20:13, Ping Cheng wrote:
->> On Wed, May 19, 2010 at 4:34 PM, Rafi Rubin <rafi@seas.upenn.edu> wr=
-ote:
->>> My understanding is that it would be more like
->>> + =A0 SYN_MT_SLOT 0
->>> + =A0 ABS_MT_POSITION_X x
->>> + =A0 ABS_MT_POSITION_Y y
->>> + =A0 SYN_REPORT
->>> + =A0 SYN_MT_SLOT 0
->>> + =A0 ABS_MT_POSITION_X x
->>> + =A0 ABS_MT_POSITION_Y y
->>> + =A0 SYN_REPORT
->>> + =A0 SYN_MT_SLOT 0
->>> + =A0 ABS_MT_POSITION_X x
->>> + =A0 ABS_MT_POSITION_Y y
->>> + =A0 SYN_MT_SLOT 1
->>> + =A0 ABS_MT_POSITION_X x
->>> + =A0 ABS_MT_POSITION_Y y
->>> + =A0 SYN_REPORT
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On 05/19/10 20:51, Ping Cheng wrote:
+> On Wed, May 19, 2010 at 5:26 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> You are right if one slot only has or is only allowed to have one
->> point. My scenario is that one slot can have more than one point.
->> Basically, my intention is to utilize the MT_SLOT and MT_TRACKING_ID
->> in such a way that it avoids as much overlap as possible.
+>> On 05/19/10 20:13, Ping Cheng wrote:
+>>> On Wed, May 19, 2010 at 4:34 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
+>>>> My understanding is that it would be more like
+>>>> +   SYN_MT_SLOT 0
+>>>> +   ABS_MT_POSITION_X x
+>>>> +   ABS_MT_POSITION_Y y
+>>>> +   SYN_REPORT
+>>>> +   SYN_MT_SLOT 0
+>>>> +   ABS_MT_POSITION_X x
+>>>> +   ABS_MT_POSITION_Y y
+>>>> +   SYN_REPORT
+>>>> +   SYN_MT_SLOT 0
+>>>> +   ABS_MT_POSITION_X x
+>>>> +   ABS_MT_POSITION_Y y
+>>>> +   SYN_MT_SLOT 1
+>>>> +   ABS_MT_POSITION_X x
+>>>> +   ABS_MT_POSITION_Y y
+>>>> +   SYN_REPORT
+>>>
+>>> You are right if one slot only has or is only allowed to have one
+>>> point. My scenario is that one slot can have more than one point.
+>>> Basically, my intention is to utilize the MT_SLOT and MT_TRACKING_ID
+>>> in such a way that it avoids as much overlap as possible.
+>>>
+>>> And hopefully it makes sesne in the reality too.
 >>
->> And hopefully it makes sesne in the reality too.
->
-> Please clarify by what you mean by more than one point.
+>> Please clarify by what you mean by more than one point.
+> 
+> I might have been confused myself by ABS_MT_BLOB_ID and SYN_MT_SLOT
+> here.  What I meant by "more than one point" is a contact (or touch, I
+> am not sure which one is the right term :) is represented by a few
+> (x,y) coordinates. Maybe we should use SYN_MT_SLOT for my case?
+> 
+>> I may be misunderstanding, but I thought that these slots are basically a
+>> superior replacement to tracking id.
+>>
+>> one finger -> one slot
+> 
+> This is what I needed to understand. Is slot for one (x,y) only or can
+> it also be used for more than one set of (x,y)?
+> 
+>> But with slots we can use the filtering that input provides, which we've been
+>> by-passing with the existing MT protocol (at least that's what I think Henrik's
+>> goal is).
+> 
+> Good to know that filtering has already been considered. I know I must
+> be out of sync with Henrik's goal.  That's why I wanted to show my
+> ignorance :).
+> 
+> Ping
+> 
 
-I might have been confused myself by ABS_MT_BLOB_ID and SYN_MT_SLOT
-here.  What I meant by "more than one point" is a contact (or touch, I
-am not sure which one is the right term :) is represented by a few
-(x,y) coordinates. Maybe we should use SYN_MT_SLOT for my case?
+Hey, sometimes Mark Twain's old advice is good, and sometimes its not.
 
-> I may be misunderstanding, but I thought that these slots are basical=
-ly a
-> superior replacement to tracking id.
->
-> one finger -> one slot
+It's better to keep your mouth shut and be thought a fool than to open it and
+leave no doubt. --Mark Twain
 
-This is what I needed to understand. Is slot for one (x,y) only or can
-it also be used for more than one set of (x,y)?
 
-> But with slots we can use the filtering that input provides, which we=
-'ve been
-> by-passing with the existing MT protocol (at least that's what I thin=
-k Henrik's
-> goal is).
+I think this is definitely a case where he's wrong.  We need to sync up so that
+we're all implementing the same protocol, and can move on to the next
+interesting problem.
 
-Good to know that filtering has already been considered. I know I must
-be out of sync with Henrik's goal.  That's why I wanted to show my
-ignorance :).
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iEYEARECAAYFAkv0ik4ACgkQwuRiAT9o608XmQCdFiTOymC+OEVyQ+atbEdpCiDd
+RRYAoIsNpOZpI0Yxr4BG1uEj7Fja2Fyo
+=lK01
+-----END PGP SIGNATURE-----

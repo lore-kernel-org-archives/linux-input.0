@@ -1,58 +1,100 @@
-From: Santiago Carot <sancane@gmail.com>
-Subject: Re: [PATCH] Fix device_match_pattern function
-Date: Thu, 20 May 2010 12:12:50 +0200
-Message-ID: <AANLkTimTW6-tcCNQ_e1uCE_ByN_5mVrFMefzixEjS0ql@mail.gmail.com>
-References: <1274349303-19044-1-git-send-email-sancane@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Thu, 20 May 2010 12:40:08 +0200
+Message-ID: <4BF51188.3090608@euromail.se>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <1274213429-22667-2-git-send-email-rydberg@euromail.se> <20100519023727.GA21030@barra.bne.redhat.com> <4BF3D59E.1070801@euromail.se> <20100520001323.GA28116@barra.bne.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:44996 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755424Ab0ETKMv convert rfc822-to-8bit (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:60483 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752733Ab0ETKkd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 06:12:51 -0400
-Received: by pxi18 with SMTP id 18so1240714pxi.19
-        for <linux-input@vger.kernel.org>; Thu, 20 May 2010 03:12:51 -0700 (PDT)
-In-Reply-To: <1274349303-19044-1-git-send-email-sancane@gmail.com>
+	Thu, 20 May 2010 06:40:33 -0400
+In-Reply-To: <20100520001323.GA28116@barra.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-Sorry,
-I was wrong about the mailing list. Please, discard this patch here.
+Peter Hutterer wrote:
+[...]
+>>> Will all drivers with ABS_MT_TRACKING_ID use slots? if not, how can I know
+>>> in advance if a device may use slots or not?
+>> Eventually, this might become true, but you are pointing at one of the weaker
+>> points of the current setup. There is no bit field for the EV_SYN events, so
+>> there is no way to know in advance if SYN_MT_SYNC or SYN_MT_SLOT is used. This
+>> could quite possibly be added to the EVIO interface. Meanwhile, the method I use
+>> is to detect the first SYN_MT_SLOT and select parser based on that information.
+> 
+> I'd really prefer if there was some way to detect this. While I'm not quite
+> sure how the matching X drivers would look like it's likely that the setups
+> will be different for drivers that support slots and those that don't.
+> e.g. those that don't have slots simply send events as valuators, those that
+> do may split into multiple devices.
+> 
+> Doing this at runtime - after the device has been set up is...tricky.
 
-2010/5/20 Santiago Carot-Nemesio <sancane@gmail.com>:
-> This patch fixes a problem adding uuids to list provided when a
-> driver is probed. Without this patch the same uuids were added
-> more than once to list and if two or more uuids were in the
-> same class id list only the first one was included repeatedly
-> ---
-> =A0src/device.c | =A0 =A02 +-
-> =A01 files changed, 1 insertions(+), 1 deletions(-)
+Changing SYN_MT_SLOT to ABS_MT_SLOT will take care of this.
+
+>> If you are thinking of a setup where one program is already hooked up to the
+>> device, and a new one comes in just as the message in question appears on the
+>> wire, it just means the new program will have to spend some time catching up. If
+>> this should ever become a problem, one could possibly add a send-full-state
+>> method to the input layer, to be issued when the new program opens the device. I
+>> doubt this will be needed in practice though, since contacts change all the time.
+> 
+> This was the case I was wondering about. While I agree with the last part
+> (contacts change all the time) the side-effect that you'll get from this is
+> that devices can seemingly be non-responsive for random periods of time.
+> 
+> If you have a finger down when the X server starts or after a VT switch (or
+> even a fast user switch), the driver will have to drop events. So you can
+> wriggle your finger around and nothing happens, but once you lift it goes
+> "well, now it works again". Since this happens only once in a while, it can
+> make the whole lot appear flaky.  Especially if one finger works and the
+> other one doesn't.
 >
-> diff --git a/src/device.c b/src/device.c
-> index 6ba1612..d0768ce 100644
-> --- a/src/device.c
-> +++ b/src/device.c
-> @@ -1053,7 +1053,7 @@ static GSList *device_match_pattern(struct btd_=
-device *device,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0continue;
->
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (record_has_uuid(rec, match_uuid))
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 uuids =3D g_slist_appen=
-d(uuids, profile_uuid);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 uuids =3D g_slist_appen=
-d(uuids, match_uuid);
-> =A0 =A0 =A0 =A0}
->
-> =A0 =A0 =A0 =A0return uuids;
-> --
-> 1.6.3.3
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> So I guess it comes down to whether sending SYN_MT_SLOT with every event
+> costs too much compared to these admittedly rare use-cases. They're not much
+> different to the current button events either, if you weren't there when a
+> button was pressed you won't know. So I'm somewhat indifferent about this
+> bit.
+
+Yes, it is a inherent property of the input protocol between the kernel and user
+space. A different problem, in other words.
+
+> And yes, you could add it once we find it's an issue, but by then someone
+> has already spent time to work around this. And when you then start sending
+> slot events all the time, you admit that writing the workaround was just a
+> time waster :)
+
+Work around what, exactly?
+
+>> As a side note, the notion of a used slot depends on how the attributes of the
+>> slot are interpreted. The method described in the document treats an
+>> ABS_MT_TRACKING_ID value outside of the driver-specified value range as an
+>> unused slot.
+> 
+> It's easier for a latecomer to guess a tracking ID since you can just
+> assign any random value to it, provided the kernel guarantees to only send
+> updates on the tracking ID for changes. This doesn't quite work for slots.
+> 
+> But I'm not sure what your last sentence means. Does this mean the kernel
+> will open a new slot for out-of-range tracking IDs? I'm missing something
+> here.
+
+I am referring to the notion of create-move-destroy from earlier discussions,
+and the question of how it is implemented using slots. The document is a bit
+unclear on this point, so I will add a note stating something like this:
+
+* Every slot with a tracking id within the value range represents a contact.
+
+* Tracking ids not previously present are considered new.
+
+* Tracking ids no longer present are considered removed.
+
+Cheers,
+Henrik
+

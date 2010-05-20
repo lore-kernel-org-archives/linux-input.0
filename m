@@ -1,23 +1,30 @@
-From: "walters Light" <jane@p4001-ipbf610yosida.nagano.ocn.ne.jp>
-Subject: Chiropractors - 108,421 total records * 3,414 emails * 6,553 fax numbers
-Date: Thu, 20 May 2010 21:14:47 +0900 (JST)
-Message-ID: <20100520121447.6E27EDCADBF@mail.legend-net.jp>
-Reply-To: jane@p4001-ipbf610yosida.nagano.ocn.ne.jp
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [git pull] Input updates for 2.6.34-rc3
+Date: Thu, 20 May 2010 09:34:59 -0700 (PDT)
+Message-ID: <alpine.LFD.2.00.1005200933380.23538@i5.linux-foundation.org>
+References: <20100406063051.GB1895@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pee5b73.tokyff01.ap.so-net.ne.jp ([202.238.91.115]:36789 "EHLO
-	mail.legend-net.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754350Ab0ETNiw (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:39910 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752044Ab0ETQhv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 May 2010 09:38:52 -0400
+	Thu, 20 May 2010 12:37:51 -0400
+In-Reply-To: <20100406063051.GB1895@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: webmaster@custompaintshop.net, contact@erbgood.com, pierangelo_zerboni@fastwebnet.it, bernadette.shaw@umassmemorial.org, 268miles@photographer.net, neregion@level3medicalrecruiters.co
-
-We have lists for healthcare, business & finance, consumers and professionals. Lots of different lists from various optin sources.
-
-Just send me an email here for additional info: successtools@gmx.com
-
-  
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
-To invoke no further correspondence status please send an email to remfiles@gmx.com
+
+On Mon, 5 Apr 2010, Dmitry Torokhov wrote:
+> 
+> Please pull from:
+> 
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+"Already up-to-date." Forgot to push?
+
+		Linus

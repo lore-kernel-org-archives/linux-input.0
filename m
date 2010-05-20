@@ -1,28 +1,28 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
 Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Wed, 19 May 2010 20:26:00 -0400
-Message-ID: <4BF48198.4090300@seas.upenn.edu>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>	 <4BF4756C.8030204@seas.upenn.edu> <AANLkTinLNuyDDR0ISjOcXDatdXWEN4RIyuXc-3aSz2b3@mail.gmail.com>
+Date: Wed, 19 May 2010 20:34:45 -0400
+Message-ID: <4BF483A5.2050702@seas.upenn.edu>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <1274213429-22667-2-git-send-email-rydberg@euromail.se> <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com> <4BF4756C.8030204@seas.upenn.edu> <20100520002105.GB28116@barra.bne.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:58629 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752307Ab0ETA2p (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:33429 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753253Ab0ETAhl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 May 2010 20:28:45 -0400
-In-Reply-To: <AANLkTinLNuyDDR0ISjOcXDatdXWEN4RIyuXc-3aSz2b3@mail.gmail.com>
+	Wed, 19 May 2010 20:37:41 -0400
+In-Reply-To: <20100520002105.GB28116@barra.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, rafi@seas.upenn.edu
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Ping Cheng <pinglinux@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, rafi@seas.upenn.edu
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 05/19/10 20:13, Ping Cheng wrote:
-> On Wed, May 19, 2010 at 4:34 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
+On 05/19/10 20:21, Peter Hutterer wrote:
+> On Wed, May 19, 2010 at 07:34:04PM -0400, Rafi Rubin wrote:
 >> My understanding is that it would be more like
 >> +   SYN_MT_SLOT 0
 >> +   ABS_MT_POSITION_X x
@@ -39,32 +39,41 @@ On 05/19/10 20:13, Ping Cheng wrote:
 >> +   ABS_MT_POSITION_X x
 >> +   ABS_MT_POSITION_Y y
 >> +   SYN_REPORT
-> 
-> You are right if one slot only has or is only allowed to have one
-> point. My scenario is that one slot can have more than one point.
-> Basically, my intention is to utilize the MT_SLOT and MT_TRACKING_ID
-> in such a way that it avoids as much overlap as possible.
-> 
-> And hopefully it makes sesne in the reality too.
-
-Please clarify by what you mean by more than one point.
-
-I may be misunderstanding, but I thought that these slots are basically a
-superior replacement to tracking id.
-
-one finger -> one slot
-
-But with slots we can use the filtering that input provides, which we've been
-by-passing with the existing MT protocol (at least that's what I think Henrik's
-goal is).
-
-Rafi
-
+>>
+>>
 >> (2 events from 1 finger, followed by 1 event with both).
->>
->>
+> 
+> where does the ABS_MT_BLOB_ID come in then? I thought this was the use-case
+> it was added for. With the example above, you're updating the position for
+> the finger three times, not specifying that there are 3 _simultaneous_ but
+> disparate touches of the same finger.
+> 
+> I'm thinking of a palm touch which may (for some hand shapes) gives you two
+> blobs right next to each other but separated by a thin line.
+> So palm + finger gives you three blobs in three slots, two of them linked by
+> contact ID?
+> 
+> Cheers,
+>   Peter
+
+Once again, I'm interpreting, perhaps with bias towards what I'd like it to mean.
+
+I think blobs are spatially localized contacts.  It all the contacts which would
+most likely represent one hand.  If you have two hands operating a screen
+(whether one or two people (hopefully not three)), you should have two blobs
+(I've been thinking about this concept in terms of "group" or "cluster") each
+with one of more contact.
+
+
+I think that gets interesting when you start thinking about larger scale
+environments where you will be using multiple hands, and multiple people.  I
+think each blob should be allocated its own master pointer.  And if you can bind
+a master keyboard to the blob too (perhaps an on screen keyboard), its trivial
+to imagine using that for a large table like surface where multiple people are
+using a single desktop independently.
+
+> 
 >> On 05/19/2010 06:43 PM, Ping Cheng wrote:
->>>
 >>> Hi Henrik,
 >>>
 >>> I am trying to link the protocol to the actual multi-touch devices in
@@ -73,9 +82,7 @@ Rafi
 >>>
 >>> Ping
 >>>
->>> On Tue, May 18, 2010 at 1:10 PM, Henrik Rydberg<rydberg@euromail.se>
->>>  wrote:
->>>>
+>>> On Tue, May 18, 2010 at 1:10 PM, Henrik Rydberg<rydberg@euromail.se>  wrote:
 >>>> This patch adds documentation for the SYN_MT_SLOT event and
 >>>> gives examples of how to use the event slot protocol.
 >>>
@@ -125,12 +132,10 @@ Rafi
 >>>
 >>> input_set_abs_params(input_dev, ABS_MT_SLOT, 0, 12, 0, 0);
 >>>
->>> which tells the user land clients that they can expect up to 13 touch
->>> areas.
+>>> which tells the user land clients that they can expect up to 13 touch areas.
 >>>
 >>>> +The main difference between the raw type A protocol and the higher level
->>>> +type B slot protocol lies in the usage of identifiable contacts. The
->>>> slot
+>>>> +type B slot protocol lies in the usage of identifiable contacts. The slot
 >>>> +protocol requires the use of the ABS_MT_TRACKING_ID,
 >>>
 >>> With what I said above, I think ABS_MT_TRACKING_ID is not the unique
@@ -140,30 +145,26 @@ Rafi
 >>>
 >>>> ABS_MT_TRACKING_ID, either provided by the
 >>>> +hardware of computed from the raw data [5].
->>>
 >>>                    ^^ or  (is it?)
 >>>
->>> I agree with this ABS_MT_TRACKING_ID definition.  I would think something
->>> like:
+>>> I agree with this ABS_MT_TRACKING_ID definition.  I would think something like:
 >>>
 >>> input_set_abs_params(input_dev, ABS_MT_TRACKING_ID, 0, 47, 0, 0);
 >>>
->>> which tells the clients that total of 48 points are tracked, would be
->>> helpful.
+>>> which tells the clients that total of 48 points are tracked, would be helpful.
 >>>
 >>> Another topic that may be irrelevant to this patch is the filter. With
 >>> the use of ABS_MT_TRACKING_ID, a filter can be applied to discard the
 >>> useless repeated points or less than a certain number of points
 >>> movement.
 >>>
->>
 > 
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-iEYEARECAAYFAkv0gZgACgkQwuRiAT9o60/v5QCguYH/eGD4R12cIPGc/AF3Xz6Y
-RXgAoIfEYSVqekbLRU4NXHo0bnG323vA
-=OUmf
+iEYEARECAAYFAkv0g6UACgkQwuRiAT9o60927ACguoocWebY+/FxOvZ51Dx1WsAD
+sa0AoJjiLuuQG1/kcx8k/D1O4TeiTa1k
+=N7EH
 -----END PGP SIGNATURE-----

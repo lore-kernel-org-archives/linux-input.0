@@ -1,118 +1,38 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: [RFC ] [PATCH  V2  2/2] Platform changes for CMA3000
-Date: Fri, 21 May 2010 12:23:04 +0530 (IST)
-Message-ID: <15504.10.24.255.17.1274424784.squirrel@dbdmail.itg.ti.com>
+From: Mike Frysinger <vapier.adi@gmail.com>
+Subject: Re: [Uclinux-dist-devel] [PATCH v3] Input: ad7879: split bus logic
+	out
+Date: Fri, 21 May 2010 04:10:12 -0400
+Message-ID: <AANLkTimUPkH9iIeus-jIvrMjZu3z63mzVj6kHp2ueV1d@mail.gmail.com>
+References: <20100119082652.GA19338@core.coreip.homeip.net>
+	<1263891413-18194-1-git-send-email-vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f180.google.com ([209.85.211.180]:48366 "EHLO
+	mail-yw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754105Ab0EUIKd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 May 2010 04:10:33 -0400
+Received: by ywh10 with SMTP id 10so427516ywh.1
+        for <linux-input@vger.kernel.org>; Fri, 21 May 2010 01:10:32 -0700 (PDT)
+In-Reply-To: <1263891413-18194-1-git-send-email-vapier@gentoo.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>
 
-From: Hemanth V <hemanthv@ti.com>
-Date: Thu, 20 May 2010 20:33:03 +0530
-Subject: [PATCH] Platform changes for CMA3000 Accelerometer driver
+On Tue, Jan 19, 2010 at 04:56, Mike Frysinger wrote:
+> The ad7879 driver is using the old bus method of only supporting one =
+at a
+> time (I2C or SPI). =C2=A0So refactor it like the other input drivers =
+that
+> support multiple busses simultaneously.
 
-
-Signed-off-by: Hemanth V <hemanthv@ti.com>
----
- arch/arm/mach-omap2/board-4430sdp.c |   37 ++++++++++++++++++++++++++++++++++-
- 1 files changed, 36 insertions(+), 1 deletions(-)
-
-diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap2/board-4430sdp.c
-index 3005558..b5b3d0b 100755
---- a/arch/arm/mach-omap2/board-4430sdp.c
-+++ b/arch/arm/mach-omap2/board-4430sdp.c
-@@ -19,9 +19,11 @@
- #include <linux/gpio.h>
- #include <linux/usb/otg.h>
- #include <linux/i2c/twl.h>
-+#include <linux/i2c/cma3000.h>
- #include <linux/regulator/machine.h>
- #include <linux/spi/spi.h>
- #include <linux/input.h>
-+#include <linux/interrupt.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/input/sfh7741.h>
-
-@@ -66,6 +68,8 @@ static struct platform_device sdp4430_proximity_device = {
- 	},
- };
-
-+#define OMAP4_CMA3000ACCL_GPIO		186
-+
- static int sdp4430_keymap[] = {
- 	KEY(0, 0, KEY_E),
- 	KEY(0, 1, KEY_R),
-@@ -575,6 +579,18 @@ static struct twl4030_platform_data sdp4430_twldata = {
- 	.vaux3		= &sdp4430_vaux3,
- };
-
-+static struct cma3000_platform_data cma3000_platform_data = {
-+	.fuzz_x = 25,
-+	.fuzz_y = 25,
-+	.fuzz_z = 25,
-+	.g_range = CMARANGE_8G,
-+	.mode = CMAMODE_MOTDET,
-+	.mdthr = 0x8,
-+	.mdfftmr = 0x33,
-+	.ffthr = 0x8,
-+	.irqflags = IRQF_TRIGGER_HIGH,
-+};
-+
- static struct i2c_board_info __initdata sdp4430_i2c_boardinfo[] = {
- 	{
- 		I2C_BOARD_INFO("twl6030", 0x48),
-@@ -598,6 +614,14 @@ static struct i2c_board_info __initdata sdp4430_i2c_3_boardinfo[] = {
- 	},
- };
-
-+static struct i2c_board_info __initdata sdp4430_i2c_4_boardinfo[] = {
-+	{
-+		I2C_BOARD_INFO("cma3000_accl", 0x1c),
-+		.platform_data = &cma3000_platform_data,
-+		.irq = OMAP_GPIO_IRQ(OMAP4_CMA3000ACCL_GPIO),
-+	},
-+};
-+
- static int __init omap4_i2c_init(void)
- {
- 	/* Phoenix Audio IC needs I2C1 to start with 400 KHz and less */
-@@ -607,7 +631,8 @@ static int __init omap4_i2c_init(void)
- 				ARRAY_SIZE(sdp4430_i2c_2_boardinfo));
- 	omap_register_i2c_bus(3, 400, sdp4430_i2c_3_boardinfo,
- 				ARRAY_SIZE(sdp4430_i2c_3_boardinfo));
--	omap_register_i2c_bus(4, 400, NULL, 0);
-+	omap_register_i2c_bus(4, 400, sdp4430_i2c_4_boardinfo,
-+				ARRAY_SIZE(sdp4430_i2c_4_boardinfo));
- 	return 0;
- }
-
-@@ -661,6 +686,15 @@ fail1:
- 	gpio_free(OMAP4_SFH7741_SENSOR_OUTPUT_GPIO);
- }
-
-+static void omap_cma3000accl_init(void)
-+{
-+	if (gpio_request(OMAP4_CMA3000ACCL_GPIO, "Accelerometer") < 0) {
-+		pr_err("Accelerometer GPIO request failed\n");
-+		return;
-+	}
-+	gpio_direction_input(OMAP4_CMA3000ACCL_GPIO);
-+}
-+
- static void __init omap_4430sdp_init(void)
- {
- 	int status;
-@@ -686,6 +720,7 @@ static void __init omap_4430sdp_init(void)
- 				ARRAY_SIZE(sdp4430_spi_board_info));
- 	}
- 	omap_sfh7741prox_init();
-+	omap_cma3000accl_init();
- }
-
- static void __init omap_4430sdp_map_io(void)
--- 
-1.5.6.3
+doesnt seem like this was picked up ?
+-mike
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

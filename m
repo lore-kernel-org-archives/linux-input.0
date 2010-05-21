@@ -1,36 +1,62 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
-Date: Fri, 21 May 2010 19:49:42 +0200
-Message-ID: <4BF6C7B6.2020008@euromail.se>
-References: <1274457354-5570-1-git-send-email-rydberg@euromail.se> <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com> <4BF6B673.1080507@euromail.se> <20100521165218.GA26439@core.coreip.homeip.net> <4BF6BB43.2020405@euromail.se> <20100521172222.GB26439@core.coreip.homeip.net> <4BF6C303.7030804@euromail.se> <20100521174140.GA23155@core.coreip.homeip.net>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Fri, 21 May 2010 23:25:41 +0200
+Message-ID: <4BF6FA55.6040900@euromail.se>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>	 <4BF4E00A.30206@euromail.se>	 <AANLkTinYX96zokFF6Rc-3_gxIrMZmvMS_pw3YdQD6CG4@mail.gmail.com>	 <1274455140.1871.8.camel@tron> <AANLkTimemw0iAslk6jeuwf0LGRgCo0-2Mvpgso42CP5Z@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:45468 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754509Ab0EURt7 (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:52040 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751394Ab0EUV14 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 May 2010 13:49:59 -0400
-In-Reply-To: <20100521174140.GA23155@core.coreip.homeip.net>
+	Fri, 21 May 2010 17:27:56 -0400
+In-Reply-To: <AANLkTimemw0iAslk6jeuwf0LGRgCo0-2Mvpgso42CP5Z@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
 
-Dmitry Torokhov wrote:
+Ping Cheng wrote:
+> On Fri, May 21, 2010 at 8:19 AM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
+[...]
+>> Ping: please confirm, are you actually talking about each finger simultaneously sending multiple positions?
 > 
-> I guess this is where our disconnect lies as when I am looking at the
-> event names I view all *_MT_* events as related to the multitouch
-> protocol handling.
+> You are definitely on the right track.  The fingers/touch objects can
+> be represented two-dimensionally (x,y) instead of one-dimensionally
+> (ABS_MT_TRACKING_ID).  I think we can survive with the current MT_BLOB
+> definition although some optimization would be helpful, especially for
+> filtering. For the sake of Henrik great effort, I'd like to see his
+> current patchset gets in the tree before we start another round of
+> "suggestions".
 > 
+> Thank you for asking.
 
-Yes. It is true that slot control is MT related, but I am looking at this from
-the perspective of future expansions like KEY_MT,  KEY_REL, and such, finding a
-way to signal to user space which events are handled via slots. If we had
-ABS_MT_SLOT, we would most likely get applications which store ABS_MT_SLOT as an
-attribute of the slot together with ABS_MT_POSITION_X, ABS_MT_TOUCH_MAJOR, etc,
-which is just not right. So the proposal is ABS_SLOT. May we have your verdict,
-please. :-)
+Regarding blobs, I confused myself yesterday. The original intention of the blob
+ id was in fact to be able to "paint" more generic contact forms. However, no
+driver has come close to doing this yet, so it has gotten close to no attention.
+Now, to address the question of how to communicate more elaborate contact forms,
+it seems one can combine the two goals "one position per slot" and "multiple
+positions per contact" by simply repeating the same tracking id for a set of
+slots, like this:
 
+ABS_SLOT 0
+ABS_MT_TRACKING_ID 14
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+ABS_SLOT 1
+ABS_MT_TRACKING_ID 14
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+ABS_SLOT 2
+ABS_MT_TRACKING_ID 14
+ABS_MT_POSITION_X x[2]
+ABS_MT_POSITION_Y y[2]
+
+Not all too different from what you suggested, and there is no blob id involved
+at all. And yes, it would require additional parsing power at the user end.
+Something for later.
+
+Cheers,
 Henrik

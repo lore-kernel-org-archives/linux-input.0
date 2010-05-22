@@ -1,78 +1,65 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Fri, 21 May 2010 20:10:29 -0700
-Message-ID: <AANLkTik9LlaAk-6dB2_Vy4_rESGYx7VKSRBxeBOPP87W@mail.gmail.com>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
-	 <1274213429-22667-2-git-send-email-rydberg@euromail.se>
-	 <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
-	 <4BF4E00A.30206@euromail.se>
-	 <AANLkTinYX96zokFF6Rc-3_gxIrMZmvMS_pw3YdQD6CG4@mail.gmail.com>
-	 <1274455140.1871.8.camel@tron>
-	 <AANLkTimemw0iAslk6jeuwf0LGRgCo0-2Mvpgso42CP5Z@mail.gmail.com>
-	 <4BF6FA55.6040900@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
+Date: Fri, 21 May 2010 20:52:31 -0700
+Message-ID: <AANLkTikzH7IscIAYGNw00fjXSYJosaaAsbUArt9M7wfJ@mail.gmail.com>
+References: <1274457354-5570-1-git-send-email-rydberg@euromail.se>
+	 <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com>
+	 <4BF6B673.1080507@euromail.se>
+	 <20100521165218.GA26439@core.coreip.homeip.net>
+	 <4BF6BB43.2020405@euromail.se>
+	 <20100521172222.GB26439@core.coreip.homeip.net>
+	 <4BF6C303.7030804@euromail.se>
+	 <20100521174140.GA23155@core.coreip.homeip.net>
+	 <4BF6C7B6.2020008@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4BF6FA55.6040900@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:45032 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752284Ab0EVDwc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 May 2010 23:52:32 -0400
+In-Reply-To: <4BF6C7B6.2020008@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Fri, May 21, 2010 at 2:25 PM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
-> Ping Cheng wrote:
->> On Fri, May 21, 2010 at 8:19 AM, Rafi Rubin <rafi@seas.upenn.edu> wr=
-ote:
-> [...]
->>> Ping: please confirm, are you actually talking about each finger si=
-multaneously sending multiple positions?
+On Fri, May 21, 2010 at 10:49 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+> Dmitry Torokhov wrote:
 >>
->> You are definitely on the right track. =A0The fingers/touch objects =
-can
->> be represented two-dimensionally (x,y) instead of one-dimensionally
->> (ABS_MT_TRACKING_ID). =A0I think we can survive with the current MT_=
-BLOB
->> definition although some optimization would be helpful, especially f=
-or
->> filtering. For the sake of Henrik great effort, I'd like to see his
->> current patchset gets in the tree before we start another round of
->> "suggestions".
+>> I guess this is where our disconnect lies as when I am looking at th=
+e
+>> event names I view all *_MT_* events as related to the multitouch
+>> protocol handling.
 >>
->> Thank you for asking.
 >
-> Regarding blobs, I confused myself yesterday. The original intention =
-of the blob
-> =A0id was in fact to be able to "paint" more generic contact forms. H=
-owever, no
-> driver has come close to doing this yet, so it has gotten close to no=
- attention.
-> Now, to address the question of how to communicate more elaborate con=
-tact forms,
-> it seems one can combine the two goals "one position per slot" and "m=
-ultiple
-> positions per contact" by simply repeating the same tracking id for a=
- set of
-> slots, like this:
->
-> ABS_SLOT 0
-> ABS_MT_TRACKING_ID 14
-> ABS_MT_POSITION_X x[0]
-> ABS_MT_POSITION_Y y[0]
-> ABS_SLOT 1
-> ABS_MT_TRACKING_ID 14
-> ABS_MT_POSITION_X x[1]
-> ABS_MT_POSITION_Y y[1]
-> ABS_SLOT 2
-> ABS_MT_TRACKING_ID 14
-> ABS_MT_POSITION_X x[2]
-> ABS_MT_POSITION_Y y[2]
+> Yes. It is true that slot control is MT related, but I am looking at =
+this from
+> the perspective of future expansions like KEY_MT, =A0KEY_REL, and suc=
+h, finding a
+> way to signal to user space which events are handled via slots. If we=
+ had
+> ABS_MT_SLOT, we would most likely get applications which store ABS_MT=
+_SLOT as an
+> attribute of the slot together with ABS_MT_POSITION_X, ABS_MT_TOUCH_M=
+AJOR, etc,
+> which is just not right.
 
-This solution matches with my imagination more closely.  Let's stay
-with it for now.  I may come up with other suggestions once I have
-time to do real testing with the protocol.
+Why is it not right?  Do you mean ABS_SLOT can be used as a label for
+both _MT_ and non _MT_ events while ABS_MT_SLOT can not?
 
-Thank you, Henrik, for your continuous effort.
+> So the proposal is ABS_SLOT.
+
+I haven't convinced myself with this proposal yet. Can you explain the
+difference between ABS_SLOT and ABS_MT_SLOT with a concrete example?
+=46ool always ignores Mark Twain's advice, you know :).
 
 Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

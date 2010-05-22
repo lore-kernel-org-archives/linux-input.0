@@ -1,42 +1,69 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
-Date: Sat, 22 May 2010 19:47:18 +0200
-Message-ID: <4BF818A6.6000801@euromail.se>
-References: <1274457354-5570-1-git-send-email-rydberg@euromail.se>	 <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com>	 <4BF6B673.1080507@euromail.se>	 <20100521165218.GA26439@core.coreip.homeip.net>	 <4BF6BB43.2020405@euromail.se>	 <20100521172222.GB26439@core.coreip.homeip.net>	 <4BF6C303.7030804@euromail.se>	 <20100521174140.GA23155@core.coreip.homeip.net>	 <4BF6C7B6.2020008@euromail.se> <4BF7A4E8.3050806@seas.upenn.edu>	 <4BF7B438.8000001@euromail.se> <1274539582.13705.132.camel@cndougla-ubuntu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Cory Maccarrone <darkstar6262@gmail.com>
+Subject: [PATCH] [hid] Add the GYR4101US USB ID to hid-gyration
+Date: Sat, 22 May 2010 13:00:28 -0700
+Message-ID: <1274558428-1799-1-git-send-email-darkstar6262@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:45612 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755863Ab0EVRrx (ORCPT
+Received: from mail-yw0-f180.google.com ([209.85.211.180]:64606 "EHLO
+	mail-yw0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753153Ab0EVUAs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 13:47:53 -0400
-In-Reply-To: <1274539582.13705.132.camel@cndougla-ubuntu>
+	Sat, 22 May 2010 16:00:48 -0400
+Received: by ywh10 with SMTP id 10so1213397ywh.1
+        for <linux-input@vger.kernel.org>; Sat, 22 May 2010 13:00:48 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Cory Maccarrone <darkstar6262@gmail.com>
 
-Chase Douglas wrote:
-> On Sat, 2010-05-22 at 12:38 +0200, Henrik Rydberg wrote:
->> Getting serious, it is anyone's guess what will happen next, but I was picturing
->> a table, with a large multitouch screen and buttons along the side of the table.
->> Sure, we can do "ABS_BTN_0", "ABS_BTN_1", etc, but with slots in place, it seems
->> more natural to use something like "ABS_MT_BTN_X". While at it, REL_MT event
->> makes sense for those touchscreen techniques which register changes, like
->> acoustic pulse recognition.
+This change adds in the USB product ID for the Gyration
+GYR4101US USB media center remote control.  This remote
+is similar enough to the other two devices that this driver
+can be used without any other changes to get full support
+for the remote.
 
-s/ABS/KEY/
+Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
+---
+ drivers/hid/hid-core.c     |    1 +
+ drivers/hid/hid-gyration.c |    1 +
+ drivers/hid/hid-ids.h      |    1 +
+ 3 files changed, 3 insertions(+), 0 deletions(-)
 
-> 
-> Shouldn't this be handled in userspace? I don't think we want to be
-> quirking drivers for instances where the same touchscreen is overlaid on
-> buttons in some cases, but not in others. If we don't quirk, we'd need
-> some mechanism to tell the driver about such buttons.
-
-Perhaps you would like to clarify what "this" means here, and how you arrive at
-quirking drivers.
-
-Henrik
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 368fbb0..6efc814 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1309,6 +1309,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+diff --git a/drivers/hid/hid-gyration.c b/drivers/hid/hid-gyration.c
+index cab13e8..9de37d0 100644
+--- a/drivers/hid/hid-gyration.c
++++ b/drivers/hid/hid-gyration.c
+@@ -70,6 +70,7 @@ static int gyration_event(struct hid_device *hdev, struct hid_field *field,
+ static const struct hid_device_id gyration_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, gyration_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 72c05f9..33ae92d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -266,6 +266,7 @@
+ #define USB_VENDOR_ID_GYRATION		0x0c16
+ #define USB_DEVICE_ID_GYRATION_REMOTE	0x0002
+ #define USB_DEVICE_ID_GYRATION_REMOTE_2 0x0003
++#define USB_DEVICE_ID_GYRATION_REMOTE_3 0x0008
+ 
+ #define USB_VENDOR_ID_HAPP		0x078b
+ #define USB_DEVICE_ID_UGCI_DRIVING	0x0010
+-- 
+1.7.0.4
 

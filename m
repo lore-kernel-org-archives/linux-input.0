@@ -1,59 +1,48 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: Lost events in older kernels
-Date: Sat, 22 May 2010 05:22:15 -0400
-Message-ID: <4BF7A247.5090307@seas.upenn.edu>
-References: <4BF7825F.2030405@seas.upenn.edu> <20100522074249.GA25143@core.coreip.homeip.net>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
+Date: Sat, 22 May 2010 05:33:28 -0400
+Message-ID: <4BF7A4E8.3050806@seas.upenn.edu>
+References: <1274457354-5570-1-git-send-email-rydberg@euromail.se> <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com> <4BF6B673.1080507@euromail.se> <20100521165218.GA26439@core.coreip.homeip.net> <4BF6BB43.2020405@euromail.se> <20100521172222.GB26439@core.coreip.homeip.net> <4BF6C303.7030804@euromail.se> <20100521174140.GA23155@core.coreip.homeip.net> <4BF6C7B6.2020008@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:34390 "EHLO
+Received: from LION.seas.upenn.edu ([158.130.12.194]:51428 "EHLO
 	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752275Ab0EVJW6 (ORCPT
+	with ESMTP id S1752275Ab0EVJeZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 05:22:58 -0400
-In-Reply-To: <20100522074249.GA25143@core.coreip.homeip.net>
+	Sat, 22 May 2010 05:34:25 -0400
+In-Reply-To: <4BF6C7B6.2020008@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On 05/22/10 03:42, Dmitry Torokhov wrote:
-> On Sat, May 22, 2010 at 03:06:07AM -0400, Rafi Rubin wrote:
->> I'm playing with a project with a 2.6.29 kernel, and the userspace application
->> seems to miss some events.  Is there a particular fix that improved the handling?
+On 05/21/10 13:49, Henrik Rydberg wrote:
+> Dmitry Torokhov wrote:
 >>
->> Also tried catting the dev to a file while testing, and the dump also is missing
->> some events.
+>> I guess this is where our disconnect lies as when I am looking at the
+>> event names I view all *_MT_* events as related to the multitouch
+>> protocol handling.
 >>
 > 
-> No "interesting" patches went into evdev for a few release now...
+> Yes. It is true that slot control is MT related, but I am looking at this from
+> the perspective of future expansions like KEY_MT,  KEY_REL, and such, finding a
+> way to signal to user space which events are handled via slots. If we had
+> ABS_MT_SLOT, we would most likely get applications which store ABS_MT_SLOT as an
+> attribute of the slot together with ABS_MT_POSITION_X, ABS_MT_TOUCH_MAJOR, etc,
+> which is just not right. So the proposal is ABS_SLOT. May we have your verdict,
+> please. :-)
 > 
-> Hm, could it be that event queue is overflowing before userspace gets a
-> chance to empty it. What kind of event rate are we talking here?
+> Henrik
 > 
 
-Quite possibly.  It is a multitouch device and we know Henrik's been concerned
-with the load for a while.
+How many fingers can type on cap of a key?
 
-So to put some numbers behind his fears:
+(sorry, couldn't resist).
 
-146668 hid events processed
-24952 evdev events captured with a cat
-30 seconds (give or take).
 
-This is for a mix of different numbers of fingers, but continuous use for those
-30 seconds.  And X was running and reading the dev node too.
+Seems to me like part of the problem here is still the overlap between tracking
+id and slot id.
 
 Rafi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
-
-iEYEARECAAYFAkv3okcACgkQwuRiAT9o609A7ACg44p+YjeGhsDPZ3nEsWAscWK6
-6akAoPp/Vx1GjGCtQCfvPNTNzQHgAdTA
-=m4Mt
------END PGP SIGNATURE-----

@@ -1,59 +1,86 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
-Date: Sat, 22 May 2010 23:15:53 +0200
-Message-ID: <4BF84989.3020004@euromail.se>
-References: <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com> <4BF6B673.1080507@euromail.se> <20100521165218.GA26439@core.coreip.homeip.net> <4BF6BB43.2020405@euromail.se> <20100521172222.GB26439@core.coreip.homeip.net> <4BF6C303.7030804@euromail.se> <20100521174140.GA23155@core.coreip.homeip.net> <4BF6C7B6.2020008@euromail.se> <4BF7A4E8.3050806@seas.upenn.edu> <4BF7B438.8000001@euromail.se> <20100522201637.GC30464@core.coreip.homeip.net>
+Subject: Re: Lost events in older kernels
+Date: Sat, 22 May 2010 23:26:30 +0200
+Message-ID: <4BF84C06.9050103@euromail.se>
+References: <4BF7825F.2030405@seas.upenn.edu> <20100522074249.GA25143@core.coreip.homeip.net> <4BF7A247.5090307@seas.upenn.edu> <4BF7B183.2050801@euromail.se> <20100522201256.GB30464@core.coreip.homeip.net> <4BF84546.2050502@euromail.se> <20100522210810.GA30516@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:40936 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755773Ab0EVVQX (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:34782 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758716Ab0EVV0j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 17:16:23 -0400
-In-Reply-To: <20100522201637.GC30464@core.coreip.homeip.net>
+	Sat, 22 May 2010 17:26:39 -0400
+In-Reply-To: <20100522210810.GA30516@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
 
 Dmitry Torokhov wrote:
-> On Sat, May 22, 2010 at 12:38:48PM +0200, Henrik Rydberg wrote:
->> Rafi Rubin wrote:
->>> On 05/21/10 13:49, Henrik Rydberg wrote:
->>>> Dmitry Torokhov wrote:
->>>>> I guess this is where our disconnect lies as when I am looking at the
->>>>> event names I view all *_MT_* events as related to the multitouch
->>>>> protocol handling.
+> On Sat, May 22, 2010 at 10:57:42PM +0200, Henrik Rydberg wrote:
+>> Dmitry Torokhov wrote:
+>>> On Sat, May 22, 2010 at 12:27:15PM +0200, Henrik Rydberg wrote:
+>>>> Rafi Rubin wrote:
+>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>> Hash: SHA1
 >>>>>
->>>> Yes. It is true that slot control is MT related, but I am looking at this from
->>>> the perspective of future expansions like KEY_MT,  KEY_REL, and such, finding a
->>>> way to signal to user space which events are handled via slots. If we had
->>>> ABS_MT_SLOT, we would most likely get applications which store ABS_MT_SLOT as an
->>>> attribute of the slot together with ABS_MT_POSITION_X, ABS_MT_TOUCH_MAJOR, etc,
->>>> which is just not right. So the proposal is ABS_SLOT. May we have your verdict,
->>>> please. :-)
->>>>
->>>> Henrik
->>>>
->>> How many fingers can type on cap of a key?
->> It depends on the size of the key, does it not. :-)
+>>>>> On 05/22/10 03:42, Dmitry Torokhov wrote:
+>>>>>> On Sat, May 22, 2010 at 03:06:07AM -0400, Rafi Rubin wrote:
+>>>>>>> I'm playing with a project with a 2.6.29 kernel, and the userspace application
+>>>>>>> seems to miss some events.  Is there a particular fix that improved the handling?
+>>>>>>>
+>>>>>>> Also tried catting the dev to a file while testing, and the dump also is missing
+>>>>>>> some events.
+>>>>>>>
+>>>>>> No "interesting" patches went into evdev for a few release now...
+>>>>>>
+>>>>>> Hm, could it be that event queue is overflowing before userspace gets a
+>>>>>> chance to empty it. What kind of event rate are we talking here?
+>>>>>>
+>>>>> Quite possibly.  It is a multitouch device and we know Henrik's been concerned
+>>>>> with the load for a while.
+>>>>>
+>>>>> So to put some numbers behind his fears:
+>>>>>
+>>>>> 146668 hid events processed
+>>>>> 24952 evdev events captured with a cat
+>>>>> 30 seconds (give or take).
+>> Thanks for these numbers, Rafi.
 >>
->> Getting serious, it is anyone's guess what will happen next, but I was picturing
->> a table, with a large multitouch screen and buttons along the side of the table.
->> Sure, we can do "ABS_BTN_0", "ABS_BTN_1", etc, but with slots in place, it seems
->> more natural to use something like "ABS_MT_BTN_X". While at it, REL_MT event
->> makes sense for those touchscreen techniques which register changes, like
->> acoustic pulse recognition.
+>>>>> This is for a mix of different numbers of fingers, but continuous use for those
+>>>>> 30 seconds.  And X was running and reading the dev node too.
+>>>> Others have experienced this too. Mika has a patch for this, increasing the
+>>>> (kernel) evdev buffer quite a bit, from 64 to 256. I believe the reason it is
+>>>> not sent upstream is because it increases the footprint by 3 Kb. Perhaps a
+>>>> dynamic solution could work here.
+>>>>
+>>> Yes, if input devices could hint handlers about their "packet size"
+>>> then evdev could size it's event queue accordingly. I'd say we need to
+>>> keep about 8 packets worth of data (number is pulled right out of my
+>>> behind ;) )...
+>>>
+>> Yeah. The bcm5974 driver sends 8 events per finger, plus some ST stuff. With
+>> four fingers on the pad, that amounts to roughly 40 events per packet.
+>>
+>> 146668 / 24952 = 5.9
+>> 40 * 8 / 64 = 5.0
+>>
+>> Looks reasonable, doesn't it?
+>>
+>> Regarding the packet size hinting, the handler already knows which events are
+>> potentially being sent, and could produce a reasonable buffer size from it. In
+>> particular if it knows which events are bypassing filtering. ;-)
 >>
 > 
-> While I could see relative MT events I do not understand the need for
-> slotted key events. We already allow pressing multiple keys at once and
-> if a device has 2 separate keys with the same event - they either should
-> be treated as one logical key or 2 separate input devices.
+> Yes, but the driver knows for sure. Why making one guess when another
+> can tell?
 > 
 
-Understood.
+I was thinking that the data stream itself should be enough to dynamically
+adjust the buffer size, given an initial appropriate size. In theory, that could
+even be better than asking the driver. It would also avoid changing all drivers.
+Just a thought. Either way, the problem seems real.
 
 Henrik

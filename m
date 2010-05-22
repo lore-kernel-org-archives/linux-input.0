@@ -1,85 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [hid] Add the GYR4101US USB ID to hid-gyration
-Date: Sat, 22 May 2010 13:07:40 -0700
-Message-ID: <20100522200740.GA30464@core.coreip.homeip.net>
-References: <1274558428-1799-1-git-send-email-darkstar6262@gmail.com>
+Subject: Re: Lost events in older kernels
+Date: Sat, 22 May 2010 13:12:56 -0700
+Message-ID: <20100522201256.GB30464@core.coreip.homeip.net>
+References: <4BF7825F.2030405@seas.upenn.edu>
+ <20100522074249.GA25143@core.coreip.homeip.net>
+ <4BF7A247.5090307@seas.upenn.edu>
+ <4BF7B183.2050801@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:38692 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758026Ab0EVUHr (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:42351 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757978Ab0EVUNE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 16:07:47 -0400
-Received: by pxi18 with SMTP id 18so912804pxi.19
-        for <linux-input@vger.kernel.org>; Sat, 22 May 2010 13:07:46 -0700 (PDT)
+	Sat, 22 May 2010 16:13:04 -0400
+Received: by pwi5 with SMTP id 5so905637pwi.19
+        for <linux-input@vger.kernel.org>; Sat, 22 May 2010 13:13:02 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1274558428-1799-1-git-send-email-darkstar6262@gmail.com>
+In-Reply-To: <4BF7B183.2050801@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cory Maccarrone <darkstar6262@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
 
-Hi Cory,
-
-On Sat, May 22, 2010 at 01:00:28PM -0700, Cory Maccarrone wrote:
-> This change adds in the USB product ID for the Gyration
-> GYR4101US USB media center remote control.  This remote
-> is similar enough to the other two devices that this driver
-> can be used without any other changes to get full support
-> for the remote.
+On Sat, May 22, 2010 at 12:27:15PM +0200, Henrik Rydberg wrote:
+> Rafi Rubin wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > On 05/22/10 03:42, Dmitry Torokhov wrote:
+> >> On Sat, May 22, 2010 at 03:06:07AM -0400, Rafi Rubin wrote:
+> >>> I'm playing with a project with a 2.6.29 kernel, and the userspace application
+> >>> seems to miss some events.  Is there a particular fix that improved the handling?
+> >>>
+> >>> Also tried catting the dev to a file while testing, and the dump also is missing
+> >>> some events.
+> >>>
+> >> No "interesting" patches went into evdev for a few release now...
+> >>
+> >> Hm, could it be that event queue is overflowing before userspace gets a
+> >> chance to empty it. What kind of event rate are we talking here?
+> >>
+> > 
+> > Quite possibly.  It is a multitouch device and we know Henrik's been concerned
+> > with the load for a while.
+> > 
+> > So to put some numbers behind his fears:
+> > 
+> > 146668 hid events processed
+> > 24952 evdev events captured with a cat
+> > 30 seconds (give or take).
+> > 
+> > This is for a mix of different numbers of fingers, but continuous use for those
+> > 30 seconds.  And X was running and reading the dev node too.
 > 
-> Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
-
-Please send HID-related stuff to Jiri (CCed).
-
-Thanks!
-
-> ---
->  drivers/hid/hid-core.c     |    1 +
->  drivers/hid/hid-gyration.c |    1 +
->  drivers/hid/hid-ids.h      |    1 +
->  3 files changed, 3 insertions(+), 0 deletions(-)
+> Others have experienced this too. Mika has a patch for this, increasing the
+> (kernel) evdev buffer quite a bit, from 64 to 256. I believe the reason it is
+> not sent upstream is because it increases the footprint by 3 Kb. Perhaps a
+> dynamic solution could work here.
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 368fbb0..6efc814 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1309,6 +1309,7 @@ static const struct hid_device_id hid_blacklist[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_ERGO_525V) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
-> diff --git a/drivers/hid/hid-gyration.c b/drivers/hid/hid-gyration.c
-> index cab13e8..9de37d0 100644
-> --- a/drivers/hid/hid-gyration.c
-> +++ b/drivers/hid/hid-gyration.c
-> @@ -70,6 +70,7 @@ static int gyration_event(struct hid_device *hdev, struct hid_field *field,
->  static const struct hid_device_id gyration_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, gyration_devices);
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 72c05f9..33ae92d 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -266,6 +266,7 @@
->  #define USB_VENDOR_ID_GYRATION		0x0c16
->  #define USB_DEVICE_ID_GYRATION_REMOTE	0x0002
->  #define USB_DEVICE_ID_GYRATION_REMOTE_2 0x0003
-> +#define USB_DEVICE_ID_GYRATION_REMOTE_3 0x0008
->  
->  #define USB_VENDOR_ID_HAPP		0x078b
->  #define USB_DEVICE_ID_UGCI_DRIVING	0x0010
-> -- 
-> 1.7.0.4
-> 
+
+Yes, if input devices could hint handlers about their "packet size"
+then evdev could size it's event queue accordingly. I'd say we need to
+keep about 8 packets worth of data (number is pulled right out of my
+behind ;) )...
 
 -- 
 Dmitry

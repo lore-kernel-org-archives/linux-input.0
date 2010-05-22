@@ -1,90 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Lost events in older kernels
-Date: Sat, 22 May 2010 14:08:10 -0700
-Message-ID: <20100522210810.GA30516@core.coreip.homeip.net>
-References: <4BF7825F.2030405@seas.upenn.edu>
- <20100522074249.GA25143@core.coreip.homeip.net>
- <4BF7A247.5090307@seas.upenn.edu>
- <4BF7B183.2050801@euromail.se>
- <20100522201256.GB30464@core.coreip.homeip.net>
- <4BF84546.2050502@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
+Date: Sat, 22 May 2010 23:09:25 +0200
+Message-ID: <4BF84805.1030009@euromail.se>
+References: <1274457354-5570-1-git-send-email-rydberg@euromail.se>	 <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com>	 <4BF6B673.1080507@euromail.se>	 <20100521165218.GA26439@core.coreip.homeip.net>	 <4BF6BB43.2020405@euromail.se>	 <20100521172222.GB26439@core.coreip.homeip.net>	 <4BF6C303.7030804@euromail.se>	 <20100521174140.GA23155@core.coreip.homeip.net>	 <4BF6C7B6.2020008@euromail.se> <4BF7A4E8.3050806@seas.upenn.edu>	 <4BF7B438.8000001@euromail.se> <1274539582.13705.132.camel@cndougla-ubuntu>	 <4BF818A6.6000801@euromail.se> <1274561549.20881.8.camel@mini>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:51866 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754616Ab0EVVIP (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:39906 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758238Ab0EVVJw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 17:08:15 -0400
-Received: by pvg4 with SMTP id 4so273121pvg.19
-        for <linux-input@vger.kernel.org>; Sat, 22 May 2010 14:08:15 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4BF84546.2050502@euromail.se>
+	Sat, 22 May 2010 17:09:52 -0400
+In-Reply-To: <1274561549.20881.8.camel@mini>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
 
-On Sat, May 22, 2010 at 10:57:42PM +0200, Henrik Rydberg wrote:
-> Dmitry Torokhov wrote:
-> > On Sat, May 22, 2010 at 12:27:15PM +0200, Henrik Rydberg wrote:
-> >> Rafi Rubin wrote:
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> On 05/22/10 03:42, Dmitry Torokhov wrote:
-> >>>> On Sat, May 22, 2010 at 03:06:07AM -0400, Rafi Rubin wrote:
-> >>>>> I'm playing with a project with a 2.6.29 kernel, and the userspace application
-> >>>>> seems to miss some events.  Is there a particular fix that improved the handling?
-> >>>>>
-> >>>>> Also tried catting the dev to a file while testing, and the dump also is missing
-> >>>>> some events.
-> >>>>>
-> >>>> No "interesting" patches went into evdev for a few release now...
-> >>>>
-> >>>> Hm, could it be that event queue is overflowing before userspace gets a
-> >>>> chance to empty it. What kind of event rate are we talking here?
-> >>>>
-> >>> Quite possibly.  It is a multitouch device and we know Henrik's been concerned
-> >>> with the load for a while.
-> >>>
-> >>> So to put some numbers behind his fears:
-> >>>
-> >>> 146668 hid events processed
-> >>> 24952 evdev events captured with a cat
-> >>> 30 seconds (give or take).
+Chase Douglas wrote:
+> On Sat, 2010-05-22 at 19:47 +0200, Henrik Rydberg wrote:
+>> Chase Douglas wrote:
+>>> On Sat, 2010-05-22 at 12:38 +0200, Henrik Rydberg wrote:
+>>>> Getting serious, it is anyone's guess what will happen next, but I was picturing
+>>>> a table, with a large multitouch screen and buttons along the side of the table.
+>>>> Sure, we can do "ABS_BTN_0", "ABS_BTN_1", etc, but with slots in place, it seems
+>>>> more natural to use something like "ABS_MT_BTN_X". While at it, REL_MT event
+>>>> makes sense for those touchscreen techniques which register changes, like
+>>>> acoustic pulse recognition.
+>> s/ABS/KEY/
+>>
+>>> Shouldn't this be handled in userspace? I don't think we want to be
+>>> quirking drivers for instances where the same touchscreen is overlaid on
+>>> buttons in some cases, but not in others. If we don't quirk, we'd need
+>>> some mechanism to tell the driver about such buttons.
+>> Perhaps you would like to clarify what "this" means here, and how you arrive at
+>> quirking drivers.
 > 
-> Thanks for these numbers, Rafi.
+> I'm arriving rather late to the conversation, so this could be a matter
+> of me not understanding everything. What I thought you were proposing is
+> something like what I have on my Nexus One: an MT area encompassing a
+> touchscreen and extending to an area of four "buttons" off the bottom of
+> the screen. I was thinking that interactions with these buttons would
+> trigger the KEY_MT_BTN events you mentioned. However, if thats the case
+> then the driver needs to know of these buttons, so we've gone from a
+> dumb touchscreen driver to a driver that must be aware of regions of the
+> screen where there are buttons. This is where I think it would be better
+> to have a userspace application (X?) understand the properties of the
+> screen to know exactly what a touch means, instead of trying to
+> interpret it inside the kernel.
 > 
-> >>> This is for a mix of different numbers of fingers, but continuous use for those
-> >>> 30 seconds.  And X was running and reading the dev node too.
-> >> Others have experienced this too. Mika has a patch for this, increasing the
-> >> (kernel) evdev buffer quite a bit, from 64 to 256. I believe the reason it is
-> >> not sent upstream is because it increases the footprint by 3 Kb. Perhaps a
-> >> dynamic solution could work here.
-> >>
-> > 
-> > Yes, if input devices could hint handlers about their "packet size"
-> > then evdev could size it's event queue accordingly. I'd say we need to
-> > keep about 8 packets worth of data (number is pulled right out of my
-> > behind ;) )...
-> > 
-> 
-> Yeah. The bcm5974 driver sends 8 events per finger, plus some ST stuff. With
-> four fingers on the pad, that amounts to roughly 40 events per packet.
-> 
-> 146668 / 24952 = 5.9
-> 40 * 8 / 64 = 5.0
-> 
-> Looks reasonable, doesn't it?
-> 
-> Regarding the packet size hinting, the handler already knows which events are
-> potentially being sent, and could produce a reasonable buffer size from it. In
-> particular if it knows which events are bypassing filtering. ;-)
-> 
+> If this isn't what you meant, then feel free to ignore me :).
 
-Yes, but the driver knows for sure. Why making one guess when another
-can tell?
+I see -- I was not thinking anything that advanced at all, but rather imagining
+that some future driver development might consider using slots to communicate
+arrays of similar (physical) button data. And that imagination, in turn, was an
+example of why userspace would want to know which events are treated on a
+per-slot basis.
 
--- 
-Dmitry
+And as Dmitry just said, KEY_MT will not happen, anyways. ;-)
+
+Cheers,
+Henrik

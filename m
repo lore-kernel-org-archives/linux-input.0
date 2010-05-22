@@ -1,65 +1,35 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev3)
-Date: Fri, 21 May 2010 20:52:31 -0700
-Message-ID: <AANLkTikzH7IscIAYGNw00fjXSYJosaaAsbUArt9M7wfJ@mail.gmail.com>
-References: <1274457354-5570-1-git-send-email-rydberg@euromail.se>
-	 <AANLkTikBWzgRmso0oQNXcTxeExdKZORXYbIwK9CcMl85@mail.gmail.com>
-	 <4BF6B673.1080507@euromail.se>
-	 <20100521165218.GA26439@core.coreip.homeip.net>
-	 <4BF6BB43.2020405@euromail.se>
-	 <20100521172222.GB26439@core.coreip.homeip.net>
-	 <4BF6C303.7030804@euromail.se>
-	 <20100521174140.GA23155@core.coreip.homeip.net>
-	 <4BF6C7B6.2020008@euromail.se>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Lost events in older kernels
+Date: Sat, 22 May 2010 03:06:07 -0400
+Message-ID: <4BF7825F.2030405@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:45032 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752284Ab0EVDwc convert rfc822-to-8bit (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:33527 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752034Ab0EVHGq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 May 2010 23:52:32 -0400
-In-Reply-To: <4BF6C7B6.2020008@euromail.se>
+	Sat, 22 May 2010 03:06:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>
 
-On Fri, May 21, 2010 at 10:49 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
-> Dmitry Torokhov wrote:
->>
->> I guess this is where our disconnect lies as when I am looking at th=
-e
->> event names I view all *_MT_* events as related to the multitouch
->> protocol handling.
->>
->
-> Yes. It is true that slot control is MT related, but I am looking at =
-this from
-> the perspective of future expansions like KEY_MT, =A0KEY_REL, and suc=
-h, finding a
-> way to signal to user space which events are handled via slots. If we=
- had
-> ABS_MT_SLOT, we would most likely get applications which store ABS_MT=
-_SLOT as an
-> attribute of the slot together with ABS_MT_POSITION_X, ABS_MT_TOUCH_M=
-AJOR, etc,
-> which is just not right.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Why is it not right?  Do you mean ABS_SLOT can be used as a label for
-both _MT_ and non _MT_ events while ABS_MT_SLOT can not?
+I'm playing with a project with a 2.6.29 kernel, and the userspace application
+seems to miss some events.  Is there a particular fix that improved the handling?
 
-> So the proposal is ABS_SLOT.
+Also tried catting the dev to a file while testing, and the dump also is missing
+some events.
 
-I haven't convinced myself with this proposal yet. Can you explain the
-difference between ABS_SLOT and ABS_MT_SLOT with a concrete example?
-=46ool always ignores Mark Twain's advice, you know :).
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
 
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+iEYEARECAAYFAkv3glkACgkQwuRiAT9o609vZACffkFSeTCDcNONThELFmUNx7Rk
+LbQAn1Zzw0w1TcRn16hC8mBgpipF6ZL8
+=F24i
+-----END PGP SIGNATURE-----

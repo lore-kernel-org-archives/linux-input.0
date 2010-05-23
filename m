@@ -1,110 +1,92 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol
- (rev4)
-Date: Sun, 23 May 2010 10:24:13 -0700
-Message-ID: <20100523102413.2fee3f4c.rdunlap@xenotime.net>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
-	<1274567437-2818-2-git-send-email-rydberg@euromail.se>
+From: Jindrich Makovicka <makovick@gmail.com>
+Subject: [PATCH] HID: check for HID_QUIRK_IGNORE during probing
+Date: Sun, 23 May 2010 20:47:25 +0200
+Message-ID: <20100523204725.6e9e8dad@holly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="MP_/hzyW5upsQVNVeHIU_Q.oxKF"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([72.52.115.56]:50759 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1753284Ab0EWRYQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 May 2010 13:24:16 -0400
-Received: from chimera.site ([71.245.98.113]) by xenotime.net for <linux-input@vger.kernel.org>; Sun, 23 May 2010 10:24:14 -0700
-In-Reply-To: <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+Received: from lo.gmane.org ([80.91.229.12]:47606 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755119Ab0EWSuE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 May 2010 14:50:04 -0400
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1OGGFP-0002P9-4j
+	for linux-input@vger.kernel.org; Sun, 23 May 2010 20:50:03 +0200
+Received: from r11jd148.net.upc.cz ([94.113.7.148])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sun, 23 May 2010 20:50:03 +0200
+Received: from makovick by r11jd148.net.upc.cz with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sun, 23 May 2010 20:50:03 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: linux-input@vger.kernel.org
 
-On Sun, 23 May 2010 00:30:37 +0200 Henrik Rydberg wrote:
+--MP_/hzyW5upsQVNVeHIU_Q.oxKF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> This patch adds documentation for the ABS_MT_SLOT event and gives
-> examples of how to use the event slot protocol.
-> 
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Revision 4 incorporates the following changes:
-> 	 - Rename the slot event to ABS_MT_SLOT to keep all MT-related events
-> 	   in the same namespace.
-> 	 - Fix typo, thanks to Ping Cheng.
-> 	   
->  Documentation/input/multi-touch-protocol.txt |  204 ++++++++++++++++++--------
->  1 files changed, 140 insertions(+), 64 deletions(-)
-> 
-> diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-> index c0fc1c7..92be65e 100644
-> --- a/Documentation/input/multi-touch-protocol.txt
-> +++ b/Documentation/input/multi-touch-protocol.txt
-> @@ -6,31 +6,146 @@ Multi-touch (MT) Protocol
-...
-> +Protocol Usage
-> +--------------
-> +
-> +Contact details are sent sequentially as separate packets of ABS_MT
-> +events. Only the ABS_MT events are recognized as part of a contact
-> +packet. Since these events are ignored by current single-touch (ST)
-> +applications, the MT protocol can be implemented on top of the ST protocol
-> +in an existing driver.
-> +
-> +Drivers for type A devices mark the end of a packet by calling the
+While the hardcoded ignore list is checked in usbhid_probe(), the
+user supplied ignore flags are not. Thus, the IGNORE quirk (0x0004)
+cannot be used to stop usbhid from binding devices like iBuddy, which
+has been recently removed from the ignore list due to product ID
+conflict.
 
-end?
+This patch adds the user quirk check to usb_probe(), and makes
+usb_probe() return -ENODEV when HID_QUIRK_IGNORE bit is set.
 
-> +input_mt_sync() function, which generates a SYN_MT_REPORT event. This
-> +instructs the receiver to accept the data for the current contact and
-> +prepare to receive another. Drivers for type B devices mark the beginning
+With the patch, iBuddy works properly using libusb when the following
+option is added to modprobe.d:
 
-vs. beginning?  Seems incongruous.  And not just to the doc, but to
-producers and consumers as well.
+options usbhid quirks=0x1130:0x0002:0x0004
 
+Signed-off-by: Jindrich Makovicka <makovick@gmail.com>
 
-> +of a packet by calling the input_mt_slot() function with a slot as
-> +argument, which generates an ABS_MT_SLOT event. This instructs the receiver
-> +to prepare for updates of the given slot.
-> +
-> +The end of a multi-touch transfer is marked by calling the usual
+-- 
+Jindrich Makovicka
 
-The end method is done for Types A and B, right?
+--MP_/hzyW5upsQVNVeHIU_Q.oxKF
+Content-Type: text/x-patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=hid-core.c.diff
 
+--- hid-core.c.orig	2010-05-16 23:17:36.000000000 +0200
++++ hid-core.c	2010-05-23 20:23:28.471259245 +0200
+@@ -864,8 +864,7 @@ static int usbhid_parse(struct hid_devic
+ 	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
+ 			le16_to_cpu(dev->descriptor.idProduct));
+ 
+-	if (quirks & HID_QUIRK_IGNORE)
+-		return -ENODEV;
++	WARN_ON(quirks & HID_QUIRK_IGNORE);
+ 
+ 	/* Many keyboards and mice don't like to be polled for reports,
+ 	 * so we will always set the HID_QUIRK_NOGET flag for them. */
+@@ -1098,6 +1097,7 @@ static int usbhid_probe(struct usb_inter
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct usbhid_device *usbhid;
+ 	struct hid_device *hid;
++	u32 quirks = 0;
+ 	unsigned int n, has_in = 0;
+ 	size_t len;
+ 	int ret;
+@@ -1114,6 +1114,12 @@ static int usbhid_probe(struct usb_inter
+ 		return -ENODEV;
+ 	}
+ 
++	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
++			le16_to_cpu(dev->descriptor.idProduct));
++
++	if (quirks & HID_QUIRK_IGNORE)
++		return -ENODEV;
++
+ 	hid = hid_allocate_device();
+ 	if (IS_ERR(hid))
+ 		return PTR_ERR(hid);
 
-> +input_sync() function. This instructs the receiver to act upon events
-> +accumulated since last EV_SYN/SYN_REPORT and prepare to receive a new set
-> +of events/packets.
-> +
-...
-
-> @@ -192,20 +277,11 @@ finger along the X axis (1).
->  Finger Tracking
->  ---------------
->  
-> -The kernel driver should generate an arbitrary enumeration of the set of
-> -anonymous contacts currently on the surface. The order in which the packets
-> -appear in the event stream is not important.
-> -
->  The process of finger tracking, i.e., to assign a unique trackingID to each
-> -initiated contact on the surface, is left to user space; preferably the
-> -multi-touch X driver [3]. In that driver, the trackingID stays the same and
-> -unique until the contact vanishes (when the finger leaves the surface). The
-> -problem of assigning a set of anonymous fingers to a set of identified
-> -fingers is a euclidian bipartite matching problem at each event update, and
-> -relies on a sufficiently rapid update rate.
-> -
-> -There are a few devices that support trackingID in hardware. User space can
-> -make use of these native identifiers to reduce bandwidth and cpu usage.
-> +initiated contact on the surface, is a Euclidian Bipartite Matching
-> +problem.  At each event synchronization, the set of actual contacts are
-
-                                                                       is
-
-> +matched to the set of contacts from the previous synchronization. A full
-> +implementation can be found in [3].
+--MP_/hzyW5upsQVNVeHIU_Q.oxKF--
 
 
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***

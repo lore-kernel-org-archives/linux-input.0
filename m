@@ -1,46 +1,33 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
-Date: Sat, 22 May 2010 23:52:17 -0700
-Message-ID: <AANLkTinyVk0cHpsI6ZfMmxqGI7C_jM-BcYiaue185kBA@mail.gmail.com>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
-	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: Lost events in older kernels
+Date: Sun, 23 May 2010 10:44:25 +0200
+Message-ID: <4BF8EAE9.3050504@euromail.se>
+References: <4BF7825F.2030405@seas.upenn.edu> <20100522074249.GA25143@core.coreip.homeip.net> <4BF7A247.5090307@seas.upenn.edu> <4BF7B183.2050801@euromail.se> <20100522201256.GB30464@core.coreip.homeip.net> <4BF88EA2.3040402@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:42610 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753098Ab0EWGwR convert rfc822-to-8bit (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:46756 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752476Ab0EWIor (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 May 2010 02:52:17 -0400
-In-Reply-To: <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+	Sun, 23 May 2010 04:44:47 -0400
+In-Reply-To: <4BF88EA2.3040402@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
 
-The fool is smiling like a fool now :).
+Rafi Rubin wrote:
+[...]
+> Um, turns out I missed input_init_abs_bypass(void) in my backport, and for some
+> reason get a bit of corruption ;)
+> 
+> Sorry for the false alarm.
 
-Ping
+If your code executed without bypassing event filtering, it would only mean less
+events were sent, which would not void the argument. If you have updated
+numbers, it would be very interesting to see them.
 
-BTW, I didn't receive the updated "[PATCH 1/2] input: mt: Introduce MT
-event slots (rev 5)".  Maybe gmail filtered the file for me?
+Henrik
 
-On Sat, May 22, 2010 at 3:30 PM, Henrik Rydberg <rydberg@euromail.se> w=
-rote:
-> This patch adds documentation for the ABS_MT_SLOT event and gives
-> examples of how to use the event slot protocol.
->
-> Reviewed-by: Ping Cheng <pingc@wacom.com>
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> Revision 4 incorporates the following changes:
-> =A0 =A0 =A0 =A0 - Rename the slot event to ABS_MT_SLOT to keep all MT=
--related events
-> =A0 =A0 =A0 =A0 =A0 in the same namespace.
-> =A0 =A0 =A0 =A0 - Fix typo, thanks to Ping Cheng.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

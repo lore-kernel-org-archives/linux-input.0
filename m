@@ -1,92 +1,72 @@
-From: Jindrich Makovicka <makovick@gmail.com>
-Subject: [PATCH] HID: check for HID_QUIRK_IGNORE during probing
-Date: Sun, 23 May 2010 20:47:25 +0200
-Message-ID: <20100523204725.6e9e8dad@holly>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Mon, 24 May 2010 00:27:19 +0200
+Message-ID: <4BF9ABC7.9090208@euromail.se>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>	<1274567437-2818-2-git-send-email-rydberg@euromail.se> <20100523102413.2fee3f4c.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MP_/hzyW5upsQVNVeHIU_Q.oxKF"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lo.gmane.org ([80.91.229.12]:47606 "EHLO lo.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755119Ab0EWSuE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 May 2010 14:50:04 -0400
-Received: from list by lo.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1OGGFP-0002P9-4j
-	for linux-input@vger.kernel.org; Sun, 23 May 2010 20:50:03 +0200
-Received: from r11jd148.net.upc.cz ([94.113.7.148])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sun, 23 May 2010 20:50:03 +0200
-Received: from makovick by r11jd148.net.upc.cz with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sun, 23 May 2010 20:50:03 +0200
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:34963 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754890Ab0EWW2A (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 23 May 2010 18:28:00 -0400
+In-Reply-To: <20100523102413.2fee3f4c.rdunlap@xenotime.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
---MP_/hzyW5upsQVNVeHIU_Q.oxKF
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Randy Dunlap wrote:
+[...]
+>> +Protocol Usage
+>> +--------------
+>> +
+>> +Contact details are sent sequentially as separate packets of ABS_MT
+>> +events. Only the ABS_MT events are recognized as part of a contact
+>> +packet. Since these events are ignored by current single-touch (ST)
+>> +applications, the MT protocol can be implemented on top of the ST protocol
+>> +in an existing driver.
+>> +
+>> +Drivers for type A devices mark the end of a packet by calling the
+> 
+> end?
+> 
+>> +input_mt_sync() function, which generates a SYN_MT_REPORT event. This
+>> +instructs the receiver to accept the data for the current contact and
+>> +prepare to receive another. Drivers for type B devices mark the beginning
+> 
+> vs. beginning?  Seems incongruous.  And not just to the doc, but to
+> producers and consumers as well.
 
-While the hardcoded ignore list is checked in usbhid_probe(), the
-user supplied ignore flags are not. Thus, the IGNORE quirk (0x0004)
-cannot be used to stop usbhid from binding devices like iBuddy, which
-has been recently removed from the ignore list due to product ID
-conflict.
+Perhaps this modification makes it clearer?
 
-This patch adds the user quirk check to usb_probe(), and makes
-usb_probe() return -ENODEV when HID_QUIRK_IGNORE bit is set.
+Drivers for type A devices separate contact packets by calling
+input_mt_sync() at the end of each packet. This generates a SYN_MT_REPORT
+event, which instructs the receiver to accept the data for the current
+contact and prepare to receive another.
 
-With the patch, iBuddy works properly using libusb when the following
-option is added to modprobe.d:
+Drivers for type B devices separate contact packets by calling
+input_mt_slot(), with a slot as argument, at the beginning of each packet.
+This generates an ABS_MT_SLOT event, which instructs the receiver to
+prepare for updates of the given slot.
 
-options usbhid quirks=0x1130:0x0002:0x0004
+>> +of a packet by calling the input_mt_slot() function with a slot as
+>> +argument, which generates an ABS_MT_SLOT event. This instructs the receiver
+>> +to prepare for updates of the given slot.
+>> +
+>> +The end of a multi-touch transfer is marked by calling the usual
+> 
+> The end method is done for Types A and B, right?
 
-Signed-off-by: Jindrich Makovicka <makovick@gmail.com>
+How about this line instead?
 
--- 
-Jindrich Makovicka
+All drivers mark the end of a multi-touch transfer by calling the usual
 
---MP_/hzyW5upsQVNVeHIU_Q.oxKF
-Content-Type: text/x-patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=hid-core.c.diff
+>                                                                        is
 
---- hid-core.c.orig	2010-05-16 23:17:36.000000000 +0200
-+++ hid-core.c	2010-05-23 20:23:28.471259245 +0200
-@@ -864,8 +864,7 @@ static int usbhid_parse(struct hid_devic
- 	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
- 			le16_to_cpu(dev->descriptor.idProduct));
- 
--	if (quirks & HID_QUIRK_IGNORE)
--		return -ENODEV;
-+	WARN_ON(quirks & HID_QUIRK_IGNORE);
- 
- 	/* Many keyboards and mice don't like to be polled for reports,
- 	 * so we will always set the HID_QUIRK_NOGET flag for them. */
-@@ -1098,6 +1097,7 @@ static int usbhid_probe(struct usb_inter
- 	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct usbhid_device *usbhid;
- 	struct hid_device *hid;
-+	u32 quirks = 0;
- 	unsigned int n, has_in = 0;
- 	size_t len;
- 	int ret;
-@@ -1114,6 +1114,12 @@ static int usbhid_probe(struct usb_inter
- 		return -ENODEV;
- 	}
- 
-+	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
-+			le16_to_cpu(dev->descriptor.idProduct));
-+
-+	if (quirks & HID_QUIRK_IGNORE)
-+		return -ENODEV;
-+
- 	hid = hid_allocate_device();
- 	if (IS_ERR(hid))
- 		return PTR_ERR(hid);
+Changed, thanks.
 
---MP_/hzyW5upsQVNVeHIU_Q.oxKF--
-
+Henrik
 

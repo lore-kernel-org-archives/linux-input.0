@@ -1,89 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Lost events in older kernels
-Date: Sat, 22 May 2010 19:24:11 -0700
-Message-ID: <20100523022411.GA2410@core.coreip.homeip.net>
-References: <4BF7825F.2030405@seas.upenn.edu>
- <20100522074249.GA25143@core.coreip.homeip.net>
- <4BF7A247.5090307@seas.upenn.edu>
- <4BF7B183.2050801@euromail.se>
- <20100522201256.GB30464@core.coreip.homeip.net>
- <4BF88EA2.3040402@seas.upenn.edu>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Sat, 22 May 2010 23:52:17 -0700
+Message-ID: <AANLkTinyVk0cHpsI6ZfMmxqGI7C_jM-BcYiaue185kBA@mail.gmail.com>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:48417 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755245Ab0EWCYR (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:42610 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753098Ab0EWGwR convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 May 2010 22:24:17 -0400
-Received: by pxi18 with SMTP id 18so970165pxi.19
-        for <linux-input@vger.kernel.org>; Sat, 22 May 2010 19:24:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4BF88EA2.3040402@seas.upenn.edu>
+	Sun, 23 May 2010 02:52:17 -0400
+In-Reply-To: <1274567437-2818-2-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Sat, May 22, 2010 at 10:10:42PM -0400, Rafi Rubin wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On 05/22/10 16:12, Dmitry Torokhov wrote:
-> > On Sat, May 22, 2010 at 12:27:15PM +0200, Henrik Rydberg wrote:
-> >> Rafi Rubin wrote:
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> On 05/22/10 03:42, Dmitry Torokhov wrote:
-> >>>> On Sat, May 22, 2010 at 03:06:07AM -0400, Rafi Rubin wrote:
-> >>>>> I'm playing with a project with a 2.6.29 kernel, and the userspace application
-> >>>>> seems to miss some events.  Is there a particular fix that improved the handling?
-> >>>>>
-> >>>>> Also tried catting the dev to a file while testing, and the dump also is missing
-> >>>>> some events.
-> >>>>>
-> >>>> No "interesting" patches went into evdev for a few release now...
-> >>>>
-> >>>> Hm, could it be that event queue is overflowing before userspace gets a
-> >>>> chance to empty it. What kind of event rate are we talking here?
-> >>>>
-> >>>
-> >>> Quite possibly.  It is a multitouch device and we know Henrik's been concerned
-> >>> with the load for a while.
-> >>>
-> >>> So to put some numbers behind his fears:
-> >>>
-> >>> 146668 hid events processed
-> >>> 24952 evdev events captured with a cat
-> >>> 30 seconds (give or take).
-> >>>
-> >>> This is for a mix of different numbers of fingers, but continuous use for those
-> >>> 30 seconds.  And X was running and reading the dev node too.
-> >>
-> >> Others have experienced this too. Mika has a patch for this, increasing the
-> >> (kernel) evdev buffer quite a bit, from 64 to 256. I believe the reason it is
-> >> not sent upstream is because it increases the footprint by 3 Kb. Perhaps a
-> >> dynamic solution could work here.
-> >>
-> > 
-> > Yes, if input devices could hint handlers about their "packet size"
-> > then evdev could size it's event queue accordingly. I'd say we need to
-> > keep about 8 packets worth of data (number is pulled right out of my
-> > behind ;) )...
-> 
-> Um, turns out I missed input_init_abs_bypass(void) in my backport, and for some
-> reason get a bit of corruption ;)
-> 
-> Sorry for the false alarm.
-> 
-> As for buffering, strategies, if we have a rate of reports from the device, I'd
-> vote for sizing the buffer based on time.
-> 
-> Does the code make sure we don't drop parts of a report?
-> 
+The fool is smiling like a fool now :).
 
-No, it does not. Evdev has no idea about the size of a report.
+Ping
 
--- 
-Dmitry
+BTW, I didn't receive the updated "[PATCH 1/2] input: mt: Introduce MT
+event slots (rev 5)".  Maybe gmail filtered the file for me?
+
+On Sat, May 22, 2010 at 3:30 PM, Henrik Rydberg <rydberg@euromail.se> w=
+rote:
+> This patch adds documentation for the ABS_MT_SLOT event and gives
+> examples of how to use the event slot protocol.
+>
+> Reviewed-by: Ping Cheng <pingc@wacom.com>
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Revision 4 incorporates the following changes:
+> =A0 =A0 =A0 =A0 - Rename the slot event to ABS_MT_SLOT to keep all MT=
+-related events
+> =A0 =A0 =A0 =A0 =A0 in the same namespace.
+> =A0 =A0 =A0 =A0 - Fix typo, thanks to Ping Cheng.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,138 +1,60 @@
-From: Martyn Welch <martyn.welch@ge.com>
-Subject: [PATCH v2] powerpc: Add i8042 keyboard and mouse irq parsing
-Date: Mon, 24 May 2010 17:25:15 +0100
-Message-ID: <20100524162325.11133.8579.stgit@ES-J7S4D2J.amer.consind.ge.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Mon, 24 May 2010 10:01:56 -0700
+Message-ID: <AANLkTimro6rna8MTqylaE2cnr_7Fif68Ldc6czLk7UDG@mail.gmail.com>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+	 <20100523102413.2fee3f4c.rdunlap@xenotime.net>
+	 <4BF9ABC7.9090208@euromail.se>
+	 <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
+	 <4BFA272B.7090602@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod5og105.obsmtp.com ([64.18.0.180]:57578 "EHLO
-	exprod5og105.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757652Ab0EXQZT (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:47477 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757828Ab0EXRB5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 12:25:19 -0400
+	Mon, 24 May 2010 13:01:57 -0400
+In-Reply-To: <4BFA272B.7090602@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>, benh@kernel.crashing.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-Currently the irqs for the i8042, which historically provides keyboard and
-mouse (aux) support, is hardwired in the driver rather than parsing the
-dts.  This patch modifies the powerpc legacy IO code to attempt to parse
-the device tree for this information, failing back to the hardcoded values
-if it fails.
+On Mon, May 24, 2010 at 12:13 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> Ping Cheng wrote:
+>> What I am thinking is that we only need one SYN_ call for both _MT_
+>> and regular data combined, which is a call to input_sync() at the end
+>> of the whole packet. The SYN_MT_ can be replaced by the following
+>> example, which I think is more "client-friendly". This solution is
+>> based on the fact that the major difference between type A and type B
+>> is whether we need to filter the data or not:
+>>
+>> ABS_MT_RANDOM 0
+>> ABS_MT_POSITION_X x[0]
+>> ABS_MT_POSITION_Y y[0]
+>> ABS_MT_ RANDOM 1
+>> ABS_MT_POSITION_X x[1]
+>> ABS_MT_POSITION_Y y[1]
+>> SYN_REPORT
+>>
+>> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
+>>
+>> would tell the clients that they can expect two random touches.
+>
+> And if you do s/RANDOM/SLOT/, you end up with what? ;-)
 
-Signed-off-by: Martyn Welch <martyn.welch@ge.com>
----
+Haha, I know what you are thinking :).
 
-v2: This patch no longer requires the DTS files to be modified, reading the
-interrupts from the current location as suggested by Grant.
+Maybe I didn't make my point clear.  I didn't mean to make SLOT
+backward compatible.  I meant to replace SYN_MT_REPORT event with the
+ABS_MT_ RANDOM label so we only sync the whole packet once at the end.
+This way both types of MT_ data follow the same input event reporting
+flow....
 
- arch/powerpc/kernel/setup-common.c |   49 ++++++++++++++++++++++++++++++++++--
- drivers/input/serio/i8042-io.h     |    8 ++++++
- 2 files changed, 54 insertions(+), 3 deletions(-)
+SLOT and RANDOM are both needed since they deal with two different
+types of MT data, filtered (type B) and unfiltered (type A). There is
+no midunderstanding there.
 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 48f0a00..7f1bb99 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -94,6 +94,10 @@ struct screen_info screen_info = {
- 	.orig_video_points = 16
- };
- 
-+/* Variables required to store legacy IO irq routing */
-+int of_i8042_kbd_irq;
-+int of_i8042_aux_irq;
-+
- #ifdef __DO_IRQ_CANON
- /* XXX should go elsewhere eventually */
- int ppc_do_canonicalize_irqs;
-@@ -558,13 +562,52 @@ void probe_machine(void)
- /* Match a class of boards, not a specific device configuration. */
- int check_legacy_ioport(unsigned long base_port)
- {
--	struct device_node *parent, *np = NULL;
-+	struct device_node *parent, *np = NULL, *np_aux = NULL;
- 	int ret = -ENODEV;
- 
- 	switch(base_port) {
- 	case I8042_DATA_REG:
--		if (!(np = of_find_compatible_node(NULL, NULL, "pnpPNP,303")))
--			np = of_find_compatible_node(NULL, NULL, "pnpPNP,f03");
-+		np = of_find_compatible_node(NULL, NULL, "pnpPNP,303");
-+		if (np) {
-+			/* Interrupt routing in parent node */
-+			parent = of_get_parent(np);
-+			if (parent) {
-+				/*
-+				 * Attempt to parse DTS for keyboard irq,
-+				 * fallback to standard.
-+				 */
-+				of_i8042_kbd_irq = irq_of_parse_and_map(parent,
-+					0);
-+				if (!of_i8042_kbd_irq)
-+					of_i8042_kbd_irq = 1;
-+
-+				of_node_put(parent);
-+			}
-+		}
-+
-+		np_aux = of_find_compatible_node(NULL, NULL, "pnpPNP,f03");
-+		if (np_aux) {
-+			if (!np) {
-+				of_node_put(np);
-+				np = np_aux;
-+			}
-+
-+			/* Interrupt routing in parent node */
-+			parent = of_get_parent(np_aux);
-+			if (parent) {
-+				/*
-+				 * Attempt to parse DTS for mouse (aux) irq,
-+				 * fallback to standard.
-+				 */
-+				of_i8042_aux_irq = irq_of_parse_and_map(parent,
-+					1);
-+				if (!of_i8042_aux_irq)
-+					of_i8042_aux_irq = 12;
-+
-+				of_node_put(parent);
-+			}
-+		}
-+
- 		if (np) {
- 			parent = of_get_parent(np);
- 			of_node_put(np);
-diff --git a/drivers/input/serio/i8042-io.h b/drivers/input/serio/i8042-io.h
-index 847f4aa..8fc8753 100644
---- a/drivers/input/serio/i8042-io.h
-+++ b/drivers/input/serio/i8042-io.h
-@@ -19,6 +19,11 @@
-  * IRQs.
-  */
- 
-+#if defined(CONFIG_PPC)
-+extern int of_i8042_kbd_irq;
-+extern int of_i8042_aux_irq;
-+#endif
-+
- #ifdef __alpha__
- # define I8042_KBD_IRQ	1
- # define I8042_AUX_IRQ	(RTC_PORT(0) == 0x170 ? 9 : 12)	/* Jensen is special */
-@@ -27,6 +32,9 @@
- #include <asm/irq.h>
- #elif defined(CONFIG_SH_CAYMAN)
- #include <asm/irq.h>
-+#elif defined(CONFIG_PPC)
-+#define I8042_KBD_IRQ	of_i8042_kbd_irq
-+#define I8042_AUX_IRQ	of_i8042_aux_irq
- #else
- # define I8042_KBD_IRQ	1
- # define I8042_AUX_IRQ	12
-
-
---
-Martyn Welch (Principal Software Engineer)   |   Registered in England and
-GE Intelligent Platforms                     |   Wales (3828642) at 100
-T +44(0)127322748                            |   Barbirolli Square, Manchester,
-E martyn.welch@ge.com                        |   M2 3AB  VAT:GB 927559189
+Ping

@@ -1,63 +1,57 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
-Date: Mon, 24 May 2010 20:31:21 +0200
-Message-ID: <4BFAC5F9.2060305@euromail.se>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se> <1274567437-2818-2-git-send-email-rydberg@euromail.se> <20100523102413.2fee3f4c.rdunlap@xenotime.net> <4BF9ABC7.9090208@euromail.se> <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com> <4BFA272B.7090602@euromail.se> <AANLkTimro6rna8MTqylaE2cnr_7Fif68Ldc6czLk7UDG@mail.gmail.com> <4BFABF40.30700@euromail.se> <20100524181343.GB6033@core.coreip.homeip.net>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Mon, 24 May 2010 21:19:09 +0200
+Message-ID: <4BFAD12D.1000607@euromail.se>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <20100524155901.GB3182@core.coreip.homeip.net> <AANLkTin9ahtqL7jrUP4C0zF9-P3rUg7ktN93-hcqdDnj@mail.gmail.com> <201005241021.02731.dmitry.torokhov@gmail.com> <4BFABBD0.9020202@euromail.se> <20100524180411.GA6033@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:50697 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757682Ab0EXSda (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:33716 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752526Ab0EXTTa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 14:33:30 -0400
-In-Reply-To: <20100524181343.GB6033@core.coreip.homeip.net>
+	Mon, 24 May 2010 15:19:30 -0400
+In-Reply-To: <20100524180411.GA6033@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+Cc: Ping Cheng <pinglinux@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
 Dmitry Torokhov wrote:
-> On Mon, May 24, 2010 at 08:02:40PM +0200, Henrik Rydberg wrote:
->> Ping Cheng wrote:
->>> On Mon, May 24, 2010 at 12:13 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
->>>> Ping Cheng wrote:
->>>>> What I am thinking is that we only need one SYN_ call for both _MT_
->>>>> and regular data combined, which is a call to input_sync() at the end
->>>>> of the whole packet. The SYN_MT_ can be replaced by the following
->>>>> example, which I think is more "client-friendly". This solution is
->>>>> based on the fact that the major difference between type A and type B
->>>>> is whether we need to filter the data or not:
->>>>>
->>>>> ABS_MT_RANDOM 0
->>>>> ABS_MT_POSITION_X x[0]
->>>>> ABS_MT_POSITION_Y y[0]
->>>>> ABS_MT_ RANDOM 1
->>>>> ABS_MT_POSITION_X x[1]
->>>>> ABS_MT_POSITION_Y y[1]
->>>>> SYN_REPORT
->>>>>
->>>>> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
->>>>>
->>>>> would tell the clients that they can expect two random touches.
->>>> And if you do s/RANDOM/SLOT/, you end up with what? ;-)
->>> Haha, I know what you are thinking :).
+> On Mon, May 24, 2010 at 07:48:00PM +0200, Henrik Rydberg wrote:
+>> Dmitry Torokhov wrote:
+>> [...]
+>>>>>> I think we need to add an ioctl to enable user land driver/client to
+>>>>>> signal the kernel driver to send all events without filtering, just
+>>>>>> once. Hot-plugged devices and X driver starts after user has contacted
+>>>>>> with the device are two examples that the client would miss filtered
+>>>>>> events.
+>>>>>>
+>>>>>> Dmitry, do you think it is a valid suggestion?
+>>>>> What about using EVIOCGKEY/EVIOCGSW/EVIOCGABS?
+>>>> Those EVIOCs only give us the static values (max/min/supported keys,
+>>>> etc.).  We need their dynamic input data here, the actual x, y,
+>>>> button, pressure, etc. Am I missing something about those EVIOs?
+>>>>
+>>> Yes you are ;) Supported events are reported via EVIOCGBIT, EVIOCGKEY and
+>>> EVIOCGSW will return current state of keys/switches. As far as EVIOCGABS
+>>> goes, it also returns, besides min/max/etc, last reported _values_ of the
+>>> ABS_* events.
 >>>
->>> Maybe I didn't make my point clear.  I didn't mean to make SLOT
->>> backward compatible.  I meant to replace SYN_MT_REPORT event with the
->>> ABS_MT_ RANDOM label so we only sync the whole packet once at the end.
->>> This way both types of MT_ data follow the same input event reporting
->>> flow....
->> You mean changing the type A protocol, breaking the current code base? That is a
->> big no-no.
+>> Ping is not alone. :-)
+>>
+>> But it does not work for MT events -- yet.
 >>
 > 
-> We, however, could say that SYN_MT_REPORT may be omitted by the drivers
-> using slotting mechanism.
+> Yes, this is true.
+> 
+> I think the most interesting is the switch data, since they may not change
+> at all. The rest is transient and should refresh "fairly quickly".
 > 
 
-Yes. If that is still unclear from the documentation, I will happily modify it.
+Still, if one allows EVIOCSABS(ABS_MT_SLOT) to set a slot state in evdev instead
+of modifying the input_dev, one could extract all ABS_MT events in sequence via
+EVIOCGABS.
 
 Henrik
-

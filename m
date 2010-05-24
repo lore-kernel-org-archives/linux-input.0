@@ -1,61 +1,229 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Mon, 24 May 2010 08:59:01 -0700
-Message-ID: <20100524155901.GB3182@core.coreip.homeip.net>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
- <1274213429-22667-2-git-send-email-rydberg@euromail.se>
- <20100519023727.GA21030@barra.bne.redhat.com>
- <4BF3D59E.1070801@euromail.se>
- <20100520001323.GA28116@barra.bne.redhat.com>
- <4BF51188.3090608@euromail.se>
- <20100524045855.GC16369@barra>
- <AANLkTimTChXjbDL0NAxoNu-Ld7AGDezfsvIHwjKuKt1A@mail.gmail.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Mon, 24 May 2010 18:08:05 +0200
+Message-ID: <20100524160805.GO30801@buzzloop.caiaq.de>
+References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from buzzloop.caiaq.de ([212.112.241.133]:38776 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757658Ab0EXQIW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 May 2010 12:08:22 -0400
 Content-Disposition: inline
-In-Reply-To: <AANLkTimTChXjbDL0NAxoNu-Ld7AGDezfsvIHwjKuKt1A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+In-Reply-To: <1274289757-2723-5-git-send-email-daniel@caiaq.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 
-On Sun, May 23, 2010 at 11:07:27PM -0700, Ping Cheng wrote:
-> On Sun, May 23, 2010 at 9:58 PM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> >> > And yes, you could add it once we find it's an issue, but by then someone
-> >> > has already spent time to work around this. And when you then start sending
-> >> > slot events all the time, you admit that writing the workaround was just a
-> >> > time waster :)
-> >>
-> >> Work around what, exactly?
-> >
-> > I was referring to having a protocol where processes has to ignore contacts
-> > already down until they've been there when a contact was pressed (and your
-> > comment that if this becomes an issue it could be added lateron).
-> > Now, the ignoring part needs to be written (this is the "workaround"
-> > referred to above). if you're planning to add it later, we need to cater for
-> > that part as well then, having two implementations depending on the kernel
-> > versions.
-> >
-> > but this is just for clarification, it's a moot point anyway given that
-> > button events have the same behaviour.
-> 
-> This topic is outside of the _MT_ protocol discussion.
-> 
-> However, it is indeed an issue with all filtered input events, both
-> for MT and regular ones.
-> 
-> I think we need to add an ioctl to enable user land driver/client to
-> signal the kernel driver to send all events without filtering, just
-> once. Hot-plugged devices and X driver starts after user has contacted
-> with the device are two examples that the client would miss filtered
-> events.
-> 
-> Dmitry, do you think it is a valid suggestion?
->
+Hi Dmitry,
 
-What about using EVIOCGKEY/EVIOCGSW/EVIOCGABS?
+any feelings about this approach?
 
--- 
-Dmitry
+Thanks,
+Daniel
+
+On Wed, May 19, 2010 at 07:22:37PM +0200, Daniel Mack wrote:
+> As all callers are now changed to only use the input_abs_*() access
+> helpers, switching over to dynamically allocated ABS information is
+> easy.
+> 
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> Cc: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>  drivers/input/input.c |   26 ++++++++++++++++++++
+>  include/linux/input.h |   63 +++++++++++++++++++++++++++++++-----------------
+>  2 files changed, 67 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 5bc92f6..ced6b39 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -373,6 +373,25 @@ void input_inject_event(struct input_handle *handle,
+>  EXPORT_SYMBOL(input_inject_event);
+>  
+>  /**
+> + * input_alloc_absinfo - allocates an input_absinfo struct
+> + * @dev: the input device
+> + * @axis: the ABS axis
+> + *
+> + * If the absinfo struct the caller asked for is already allocated, this
+> + * functions will not do anything but return it.
+> + */
+> +struct input_absinfo *input_alloc_absinfo(struct input_dev *dev, int axis)
+> +{
+> +	if (!dev->absinfo[axis])
+> +		dev->absinfo[axis] =
+> +			kzalloc(sizeof(struct input_absinfo), GFP_KERNEL);
+> +
+> +	WARN(!dev->absinfo[axis], "%s(): kzalloc() failed?\n", __func__);
+> +	return dev->absinfo[axis];
+> +}
+> +EXPORT_SYMBOL(input_alloc_absinfo);
+> +
+> +/**
+>   * input_grab_device - grabs device for exclusive use
+>   * @handle: input handle that wants to own the device
+>   *
+> @@ -1276,9 +1295,16 @@ static const struct attribute_group *input_dev_attr_groups[] = {
+>  
+>  static void input_dev_release(struct device *device)
+>  {
+> +	int i;
+>  	struct input_dev *dev = to_input_dev(device);
+>  
+>  	input_ff_destroy(dev);
+> +
+> +	for (i = 0; i < ABS_CNT; i++) {
+> +		kfree(dev->absinfo[i]);
+> +		dev->absinfo[i] = NULL;
+> +	}
+> +
+>  	kfree(dev);
+>  
+>  	module_put(THIS_MODULE);
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index ff1ee6d..67650ab 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -1154,7 +1154,6 @@ struct input_dev {
+>  
+>  	int sync;
+>  
+> -	int abs[ABS_CNT];
+>  	int rep[REP_MAX + 1];
+>  
+>  	unsigned long key[BITS_TO_LONGS(KEY_CNT)];
+> @@ -1162,11 +1161,7 @@ struct input_dev {
+>  	unsigned long snd[BITS_TO_LONGS(SND_CNT)];
+>  	unsigned long sw[BITS_TO_LONGS(SW_CNT)];
+>  
+> -	int absmax[ABS_CNT];
+> -	int absmin[ABS_CNT];
+> -	int absfuzz[ABS_CNT];
+> -	int absflat[ABS_CNT];
+> -	int absres[ABS_CNT];
+> +	struct input_absinfo *absinfo[ABS_CNT];
+>  
+>  	int (*open)(struct input_dev *dev);
+>  	void (*close)(struct input_dev *dev);
+> @@ -1190,62 +1185,82 @@ struct input_dev {
+>  
+>  static inline int input_abs(struct input_dev *dev, int axis)
+>  {
+> -	return dev->abs[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->value : 0;
+>  }
+>  
+>  static inline int input_abs_max(struct input_dev *dev, int axis)
+>  {
+> -	return dev->absmax[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->maximum : 0;
+>  }
+>  
+>  static inline int input_abs_min(struct input_dev *dev, int axis)
+>  {
+> -	return dev->absmin[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->minimum : 0;
+>  }
+>  
+>  static inline int input_abs_fuzz(struct input_dev *dev, int axis)
+>  {
+> -	return dev->absfuzz[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->fuzz : 0;
+>  }
+>  
+>  static inline int input_abs_flat(struct input_dev *dev, int axis)
+>  {
+> -	return dev->absflat[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->flat : 0;
+>  }
+>  
+>  static inline int input_abs_res(struct input_dev *dev, int axis)
+>  {
+> -	return dev->absres[axis];
+> +	struct input_absinfo *absinfo = dev->absinfo[axis];
+> +	return absinfo ? absinfo->resolution: 0;
+>  }
+>  
+> +struct input_absinfo *input_alloc_absinfo(struct input_dev *dev, int axis);
+> +
+>  static inline void input_abs_set(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->abs[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->value = val;
+>  }
+>  
+>  static inline void input_abs_set_max(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->absmax[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->maximum = val;
+>  }
+>  
+>  static inline void input_abs_set_min(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->absmin[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->minimum = val;
+>  }
+>  
+>  static inline void input_abs_set_fuzz(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->absfuzz[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->fuzz = val;
+>  }
+>  
+>  static inline void input_abs_set_flat(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->absflat[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->flat = val;
+>  }
+>  
+>  static inline void input_abs_set_res(struct input_dev *dev, int axis, int val)
+>  {
+> -	dev->absres[axis] = val;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (absinfo)
+> +		absinfo->resolution = val;
+>  }
+>  
+>  /*
+> @@ -1469,10 +1484,14 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+>  
+>  static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
+>  {
+> -	dev->absmin[axis] = min;
+> -	dev->absmax[axis] = max;
+> -	dev->absfuzz[axis] = fuzz;
+> -	dev->absflat[axis] = flat;
+> +	struct input_absinfo *absinfo = input_alloc_absinfo(dev, axis);
+> +	if (!absinfo)
+> +		return;
+> +
+> +	absinfo->minimum = min;
+> +	absinfo->maximum = max;
+> +	absinfo->fuzz = fuzz;
+> +	absinfo->flat = flat;
+>  
+>  	dev->absbit[BIT_WORD(axis)] |= BIT_MASK(axis);
+>  }
+> -- 
+> 1.7.1
+> 

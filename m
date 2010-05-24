@@ -1,121 +1,81 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
 Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Mon, 24 May 2010 14:58:55 +1000
-Message-ID: <20100524045855.GC16369@barra>
+Date: Mon, 24 May 2010 15:25:30 +1000
+Message-ID: <20100524052530.GD16369@barra>
 References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
  <1274213429-22667-2-git-send-email-rydberg@euromail.se>
- <20100519023727.GA21030@barra.bne.redhat.com>
- <4BF3D59E.1070801@euromail.se>
- <20100520001323.GA28116@barra.bne.redhat.com>
- <4BF51188.3090608@euromail.se>
+ <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
+ <4BF4E00A.30206@euromail.se>
+ <AANLkTinYX96zokFF6Rc-3_gxIrMZmvMS_pw3YdQD6CG4@mail.gmail.com>
+ <1274455140.1871.8.camel@tron>
+ <AANLkTimemw0iAslk6jeuwf0LGRgCo0-2Mvpgso42CP5Z@mail.gmail.com>
+ <4BF6FA55.6040900@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:56524 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:16425 "EHLO
 	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1749667Ab0EXFBw (ORCPT
+	with ESMTP id S1751430Ab0EXF20 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 01:01:52 -0400
+	Mon, 24 May 2010 01:28:26 -0400
 Content-Disposition: inline
-In-Reply-To: <4BF51188.3090608@euromail.se>
+In-Reply-To: <4BF6FA55.6040900@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+Cc: Ping Cheng <pinglinux@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
 
-On Thu, May 20, 2010 at 12:40:08PM +0200, Henrik Rydberg wrote:
-> Peter Hutterer wrote:
+On Fri, May 21, 2010 at 11:25:41PM +0200, Henrik Rydberg wrote:
+> Ping Cheng wrote:
+> > On Fri, May 21, 2010 at 8:19 AM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
 > [...]
-> >>> Will all drivers with ABS_MT_TRACKING_ID use slots? if not, how can I know
-> >>> in advance if a device may use slots or not?
-> >> Eventually, this might become true, but you are pointing at one of the weaker
-> >> points of the current setup. There is no bit field for the EV_SYN events, so
-> >> there is no way to know in advance if SYN_MT_SYNC or SYN_MT_SLOT is used. This
-> >> could quite possibly be added to the EVIO interface. Meanwhile, the method I use
-> >> is to detect the first SYN_MT_SLOT and select parser based on that information.
+> >> Ping: please confirm, are you actually talking about each finger simultaneously sending multiple positions?
 > > 
-> > I'd really prefer if there was some way to detect this. While I'm not quite
-> > sure how the matching X drivers would look like it's likely that the setups
-> > will be different for drivers that support slots and those that don't.
-> > e.g. those that don't have slots simply send events as valuators, those that
-> > do may split into multiple devices.
+> > You are definitely on the right track.  The fingers/touch objects can
+> > be represented two-dimensionally (x,y) instead of one-dimensionally
+> > (ABS_MT_TRACKING_ID).  I think we can survive with the current MT_BLOB
+> > definition although some optimization would be helpful, especially for
+> > filtering. For the sake of Henrik great effort, I'd like to see his
+> > current patchset gets in the tree before we start another round of
+> > "suggestions".
 > > 
-> > Doing this at runtime - after the device has been set up is...tricky.
+> > Thank you for asking.
 > 
-> Changing SYN_MT_SLOT to ABS_MT_SLOT will take care of this.
+> Regarding blobs, I confused myself yesterday. The original intention of the blob
+>  id was in fact to be able to "paint" more generic contact forms. However, no
+> driver has come close to doing this yet, so it has gotten close to no attention.
+> Now, to address the question of how to communicate more elaborate contact forms,
+> it seems one can combine the two goals "one position per slot" and "multiple
+> positions per contact" by simply repeating the same tracking id for a set of
+> slots, like this:
 > 
-> >> If you are thinking of a setup where one program is already hooked up to the
-> >> device, and a new one comes in just as the message in question appears on the
-> >> wire, it just means the new program will have to spend some time catching up. If
-> >> this should ever become a problem, one could possibly add a send-full-state
-> >> method to the input layer, to be issued when the new program opens the device. I
-> >> doubt this will be needed in practice though, since contacts change all the time.
-> > 
-> > This was the case I was wondering about. While I agree with the last part
-> > (contacts change all the time) the side-effect that you'll get from this is
-> > that devices can seemingly be non-responsive for random periods of time.
-> > 
-> > If you have a finger down when the X server starts or after a VT switch (or
-> > even a fast user switch), the driver will have to drop events. So you can
-> > wriggle your finger around and nothing happens, but once you lift it goes
-> > "well, now it works again". Since this happens only once in a while, it can
-> > make the whole lot appear flaky.  Especially if one finger works and the
-> > other one doesn't.
-> >
-> > So I guess it comes down to whether sending SYN_MT_SLOT with every event
-> > costs too much compared to these admittedly rare use-cases. They're not much
-> > different to the current button events either, if you weren't there when a
-> > button was pressed you won't know. So I'm somewhat indifferent about this
-> > bit.
+> ABS_SLOT 0
+> ABS_MT_TRACKING_ID 14
+> ABS_MT_POSITION_X x[0]
+> ABS_MT_POSITION_Y y[0]
+> ABS_SLOT 1
+> ABS_MT_TRACKING_ID 14
+> ABS_MT_POSITION_X x[1]
+> ABS_MT_POSITION_Y y[1]
+> ABS_SLOT 2
+> ABS_MT_TRACKING_ID 14
+> ABS_MT_POSITION_X x[2]
+> ABS_MT_POSITION_Y y[2]
 > 
-> Yes, it is a inherent property of the input protocol between the kernel and user
-> space. A different problem, in other words.
-> 
-> > And yes, you could add it once we find it's an issue, but by then someone
-> > has already spent time to work around this. And when you then start sending
-> > slot events all the time, you admit that writing the workaround was just a
-> > time waster :)
-> 
-> Work around what, exactly?
+> Not all too different from what you suggested, and there is no blob id involved
+> at all. And yes, it would require additional parsing power at the user end.
+> Something for later.
 
-I was referring to having a protocol where processes has to ignore contacts
-already down until they've been there when a contact was pressed (and your
-comment that if this becomes an issue it could be added lateron). 
-Now, the ignoring part needs to be written (this is the "workaround"
-referred to above). if you're planning to add it later, we need to cater for
-that part as well then, having two implementations depending on the kernel
-versions.
+This is confusing me now :)
 
-but this is just for clarification, it's a moot point anyway given that
-button events have the same behaviour. so, nevermind, I think we can just
-ignore it and get on with life.
+How would a device get multiple x/y coordinates for a single contact? I
+could understand a range of coordinates but that's what we have the
+ABS_MT_WIDTH_MAJOR/MINOR for. If a touchpoint sends two different x/y
+coordinates, wouldn't that be two touchpoints, tracked individually and thus
+with a different tracking ID?
+
+I read the example above as _the_ example for using blob IDs to combine
+multiple contacts into one semantic contact.
 
 Cheers,
   Peter
-
-> >> As a side note, the notion of a used slot depends on how the attributes of the
-> >> slot are interpreted. The method described in the document treats an
-> >> ABS_MT_TRACKING_ID value outside of the driver-specified value range as an
-> >> unused slot.
-> > 
-> > It's easier for a latecomer to guess a tracking ID since you can just
-> > assign any random value to it, provided the kernel guarantees to only send
-> > updates on the tracking ID for changes. This doesn't quite work for slots.
-> > 
-> > But I'm not sure what your last sentence means. Does this mean the kernel
-> > will open a new slot for out-of-range tracking IDs? I'm missing something
-> > here.
-> 
-> I am referring to the notion of create-move-destroy from earlier discussions,
-> and the question of how it is implemented using slots. The document is a bit
-> unclear on this point, so I will add a note stating something like this:
-> 
-> * Every slot with a tracking id within the value range represents a contact.
-> 
-> * Tracking ids not previously present are considered new.
-> 
-> * Tracking ids no longer present are considered removed.
-> 
-> Cheers,
-> Henrik
-> 

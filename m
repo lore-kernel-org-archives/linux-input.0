@@ -1,57 +1,60 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Mon, 24 May 2010 21:19:09 +0200
-Message-ID: <4BFAD12D.1000607@euromail.se>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <20100524155901.GB3182@core.coreip.homeip.net> <AANLkTin9ahtqL7jrUP4C0zF9-P3rUg7ktN93-hcqdDnj@mail.gmail.com> <201005241021.02731.dmitry.torokhov@gmail.com> <4BFABBD0.9020202@euromail.se> <20100524180411.GA6033@core.coreip.homeip.net>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: calibrating a hid device
+Date: Mon, 24 May 2010 16:11:12 -0400
+Message-ID: <4BFADD60.7020901@seas.upenn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:33716 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752526Ab0EXTTa (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:54458 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753047Ab0EXULx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 15:19:30 -0400
-In-Reply-To: <20100524180411.GA6033@core.coreip.homeip.net>
+	Mon, 24 May 2010 16:11:53 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Dmitry Torokhov wrote:
-> On Mon, May 24, 2010 at 07:48:00PM +0200, Henrik Rydberg wrote:
->> Dmitry Torokhov wrote:
->> [...]
->>>>>> I think we need to add an ioctl to enable user land driver/client to
->>>>>> signal the kernel driver to send all events without filtering, just
->>>>>> once. Hot-plugged devices and X driver starts after user has contacted
->>>>>> with the device are two examples that the client would miss filtered
->>>>>> events.
->>>>>>
->>>>>> Dmitry, do you think it is a valid suggestion?
->>>>> What about using EVIOCGKEY/EVIOCGSW/EVIOCGABS?
->>>> Those EVIOCs only give us the static values (max/min/supported keys,
->>>> etc.).  We need their dynamic input data here, the actual x, y,
->>>> button, pressure, etc. Am I missing something about those EVIOs?
->>>>
->>> Yes you are ;) Supported events are reported via EVIOCGBIT, EVIOCGKEY and
->>> EVIOCGSW will return current state of keys/switches. As far as EVIOCGABS
->>> goes, it also returns, besides min/max/etc, last reported _values_ of the
->>> ABS_* events.
->>>
->> Ping is not alone. :-)
->>
->> But it does not work for MT events -- yet.
->>
-> 
-> Yes, this is true.
-> 
-> I think the most interesting is the switch data, since they may not change
-> at all. The rest is transient and should refresh "fairly quickly".
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Still, if one allows EVIOCSABS(ABS_MT_SLOT) to set a slot state in evdev instead
-of modifying the input_dev, one could extract all ABS_MT events in sequence via
-EVIOCGABS.
+I've written a calibration tool for my touch screen that works well from user
+space (just sends a few commands over usb telling the digitizer to recalibrate
+and reset itself).  I've been running that with the ntrig and usbhid modules
+unloaded.
 
-Henrik
+Now I'm trying to translate that to something in the kernel which I can run just
+by poking a sysfs node.  However as I sort of expected, it doesn't actually work
+quite right.  I've been seeing something like this:
+
+- From user space:
+  S Ii:3:002:2 -115:2 94 <
+  C Ii:3:002:2 0:2 94 = 033fbc07 0000a014 f012ce01 68010100 000c0701 00000000
+00fa0096 00000b00
+
+kernel space:
+  S Ii:3:002:2 -115:2 94 <
+  C Ii:3:002:2 -2:2 0
+
+
+What sort of calls should I wrap the calibration code with?
+
+Also, the process seems to involve telling the digitizer to go off and run
+calibration, and then interrupting it after a while.  I've been using a number
+of microseconds dumped to the sysfs node for that.  Is there any harm in using
+"msleep(val);"?
+
+
+Once I get this sorted out, I'll clean up the code a bit and send in some
+patches (and documentation for this and filtering).
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkv63V0ACgkQwuRiAT9o609I3gCgg9ZKGqwWFsZQa2wyX270JlGq
+qj4An1w776oL0CiLEZPnKFwvIT0PDKWV
+=dtIw
+-----END PGP SIGNATURE-----

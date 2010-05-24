@@ -1,47 +1,46 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Mon, 24 May 2010 19:48:00 +0200
-Message-ID: <4BFABBD0.9020202@euromail.se>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <20100524155901.GB3182@core.coreip.homeip.net> <AANLkTin9ahtqL7jrUP4C0zF9-P3rUg7ktN93-hcqdDnj@mail.gmail.com> <201005241021.02731.dmitry.torokhov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Lost events in older kernels
+Date: Mon, 24 May 2010 10:48:13 -0700
+Message-ID: <201005241048.13707.dmitry.torokhov@gmail.com>
+References: <4BF7825F.2030405@seas.upenn.edu> <4BF88EA2.3040402@seas.upenn.edu> <4BF8EAE9.3050504@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39309 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757262Ab0EXRsU (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:62401 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758185Ab0EXRsh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 13:48:20 -0400
-In-Reply-To: <201005241021.02731.dmitry.torokhov@gmail.com>
+	Mon, 24 May 2010 13:48:37 -0400
+Received: by pxi18 with SMTP id 18so1551857pxi.19
+        for <linux-input@vger.kernel.org>; Mon, 24 May 2010 10:48:37 -0700 (PDT)
+In-Reply-To: <4BF8EAE9.3050504@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Rafi Rubin <rafi@seas.upenn.edu>, linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>
 
-Dmitry Torokhov wrote:
-[...]
->>>> I think we need to add an ioctl to enable user land driver/client to
->>>> signal the kernel driver to send all events without filtering, just
->>>> once. Hot-plugged devices and X driver starts after user has contacted
->>>> with the device are two examples that the client would miss filtered
->>>> events.
->>>>
->>>> Dmitry, do you think it is a valid suggestion?
->>> What about using EVIOCGKEY/EVIOCGSW/EVIOCGABS?
->> Those EVIOCs only give us the static values (max/min/supported keys,
->> etc.).  We need their dynamic input data here, the actual x, y,
->> button, pressure, etc. Am I missing something about those EVIOs?
->>
+On Sunday 23 May 2010 01:44:25 am Henrik Rydberg wrote:
+> Rafi Rubin wrote:
+> [...]
 > 
-> Yes you are ;) Supported events are reported via EVIOCGBIT, EVIOCGKEY and
-> EVIOCGSW will return current state of keys/switches. As far as EVIOCGABS
-> goes, it also returns, besides min/max/etc, last reported _values_ of the
-> ABS_* events.
+> > Um, turns out I missed input_init_abs_bypass(void) in my backport, and
+> > for some reason get a bit of corruption ;)
+> > 
+> > Sorry for the false alarm.
 > 
+> If your code executed without bypassing event filtering, it would only mean
+> less events were sent,
 
-Ping is not alone. :-)
+Right, and that would look like some events (multitouch ones) were dropped,
+whereas they were simply filtered out. 
 
-But it does not work for MT events -- yet.
+> which would not void the argument. If you have
+> updated numbers, it would be very interesting to see them.
 
-Henrik
+Yes, we still need to think about [re]sizing event queue, especially for
+multi-touch devices.
 
+-- 
+Dmitry

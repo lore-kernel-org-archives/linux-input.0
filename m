@@ -1,38 +1,68 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [RFC] User Guide for Sysfs and libudev
-Date: Mon, 24 May 2010 14:08:48 -0400
-Message-ID: <4BFAC0B0.2060701@signal11.us>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Mon, 24 May 2010 11:13:43 -0700
+Message-ID: <20100524181343.GB6033@core.coreip.homeip.net>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+ <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+ <20100523102413.2fee3f4c.rdunlap@xenotime.net>
+ <4BF9ABC7.9090208@euromail.se>
+ <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
+ <4BFA272B.7090602@euromail.se>
+ <AANLkTimro6rna8MTqylaE2cnr_7Fif68Ldc6czLk7UDG@mail.gmail.com>
+ <4BFABF40.30700@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:34068 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753023Ab0EXSIt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 14:08:49 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 525FF1042FC
-	for <linux-input@vger.kernel.org>; Mon, 24 May 2010 14:08:49 -0400 (EDT)
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:44737 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754533Ab0EXSNt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 May 2010 14:13:49 -0400
+Content-Disposition: inline
+In-Reply-To: <4BFABF40.30700@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Ping Cheng <pinglinux@gmail.com>, Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-Hello,
+On Mon, May 24, 2010 at 08:02:40PM +0200, Henrik Rydberg wrote:
+> Ping Cheng wrote:
+> > On Mon, May 24, 2010 at 12:13 AM, Henrik Rydberg <rydberg@euromail.se> wrote:
+> >> Ping Cheng wrote:
+> >>> What I am thinking is that we only need one SYN_ call for both _MT_
+> >>> and regular data combined, which is a call to input_sync() at the end
+> >>> of the whole packet. The SYN_MT_ can be replaced by the following
+> >>> example, which I think is more "client-friendly". This solution is
+> >>> based on the fact that the major difference between type A and type B
+> >>> is whether we need to filter the data or not:
+> >>>
+> >>> ABS_MT_RANDOM 0
+> >>> ABS_MT_POSITION_X x[0]
+> >>> ABS_MT_POSITION_Y y[0]
+> >>> ABS_MT_ RANDOM 1
+> >>> ABS_MT_POSITION_X x[1]
+> >>> ABS_MT_POSITION_Y y[1]
+> >>> SYN_REPORT
+> >>>
+> >>> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
+> >>>
+> >>> would tell the clients that they can expect two random touches.
+> >> And if you do s/RANDOM/SLOT/, you end up with what? ;-)
+> > 
+> > Haha, I know what you are thinking :).
+> > 
+> > Maybe I didn't make my point clear.  I didn't mean to make SLOT
+> > backward compatible.  I meant to replace SYN_MT_REPORT event with the
+> > ABS_MT_ RANDOM label so we only sync the whole packet once at the end.
+> > This way both types of MT_ data follow the same input event reporting
+> > flow....
+> 
+> You mean changing the type A protocol, breaking the current code base? That is a
+> big no-no.
+> 
 
-Several weeks ago I had need of libudev, and was unable to find very
-much documentation for it on the web.
+We, however, could say that SYN_MT_REPORT may be omitted by the drivers
+using slotting mechanism.
 
-I have created a guide on how to use libudev, which also provides some
-background information on /dev, Sysfs, and why this kind of thing is needed.
-
-Please check it out and provide comments, as I'm sure there are things
-which I have gotten wrong or omitted.
-
-The guide can be found here:
-    http://www.signal11.us/oss/udev/
-
-Thanks,
-
-Alan.
-
-
+-- 
+Dmitry

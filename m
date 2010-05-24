@@ -1,146 +1,62 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
-Date: Mon, 24 May 2010 16:15:03 +1000
-Message-ID: <20100524061503.GA20447@barra.redhat.com>
-References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
- <1274213429-22667-2-git-send-email-rydberg@euromail.se>
- <AANLkTikpmYwEYh5Dh-p3478cDMVo9hXOsDkt54ltHW6J@mail.gmail.com>
- <4BF4E00A.30206@euromail.se>
- <AANLkTinYX96zokFF6Rc-3_gxIrMZmvMS_pw3YdQD6CG4@mail.gmail.com>
- <1274455140.1871.8.camel@tron>
- <AANLkTimemw0iAslk6jeuwf0LGRgCo0-2Mvpgso42CP5Z@mail.gmail.com>
- <4BF6FA55.6040900@euromail.se>
- <20100524052530.GD16369@barra>
- <AANLkTimoAPwV8IUox5MpOrFsefdte15dSCmNnuZ7bCOn@mail.gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Mon, 24 May 2010 09:13:47 +0200
+Message-ID: <4BFA272B.7090602@euromail.se>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>	 <20100523102413.2fee3f4c.rdunlap@xenotime.net>	 <4BF9ABC7.9090208@euromail.se> <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:11982 "EHLO
-	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753416Ab0EXGR6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 02:17:58 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTimoAPwV8IUox5MpOrFsefdte15dSCmNnuZ7bCOn@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Ping Cheng <pinglinux@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+List-Id: linux-input@vger.kernel.org
 
-On Sun, May 23, 2010 at 10:48:35PM -0700, Ping Cheng wrote:
-> On Sun, May 23, 2010 at 10:25 PM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > On Fri, May 21, 2010 at 11:25:41PM +0200, Henrik Rydberg wrote:
-> >> Ping Cheng wrote:
-> >> > On Fri, May 21, 2010 at 8:19 AM, Rafi Rubin <rafi@seas.upenn.edu=
-> wrote:
-> >> [...]
-> >> >> Ping: please confirm, are you actually talking about each finge=
-r simultaneously sending multiple positions?
-> >> >
-> >> > You are definitely on the right track. =A0The fingers/touch obje=
-cts can
-> >> > be represented two-dimensionally (x,y) instead of one-dimensiona=
-lly
-> >> > (ABS_MT_TRACKING_ID). =A0I think we can survive with the current=
- MT_BLOB
-> >> > definition although some optimization would be helpful, especial=
-ly for
-> >> > filtering. For the sake of Henrik great effort, I'd like to see =
-his
-> >> > current patchset gets in the tree before we start another round =
-of
-> >> > "suggestions".
-> >> >
-> >> > Thank you for asking.
-> >>
-> >> Regarding blobs, I confused myself yesterday. The original intenti=
-on of the blob
-> >> =A0id was in fact to be able to "paint" more generic contact forms=
-=2E However, no
-> >> driver has come close to doing this yet, so it has gotten close to=
- no attention.
-> >> Now, to address the question of how to communicate more elaborate =
-contact forms,
-> >> it seems one can combine the two goals "one position per slot" and=
- "multiple
-> >> positions per contact" by simply repeating the same tracking id fo=
-r a set of
-> >> slots, like this:
-> >>
-> >> ABS_SLOT 0
-> >> ABS_MT_TRACKING_ID 14
-> >> ABS_MT_POSITION_X x[0]
-> >> ABS_MT_POSITION_Y y[0]
-> >> ABS_SLOT 1
-> >> ABS_MT_TRACKING_ID 14
-> >> ABS_MT_POSITION_X x[1]
-> >> ABS_MT_POSITION_Y y[1]
-> >> ABS_SLOT 2
-> >> ABS_MT_TRACKING_ID 14
-> >> ABS_MT_POSITION_X x[2]
-> >> ABS_MT_POSITION_Y y[2]
-> >>
-> >> Not all too different from what you suggested, and there is no blo=
-b id involved
-> >> at all. And yes, it would require additional parsing power at the =
-user end.
-> >> Something for later.
-> >
-> > This is confusing me now :)
-> >
-> > How would a device get multiple x/y coordinates for a single contac=
-t? I
-> > could understand a range of coordinates but that's what we have the
-> > ABS_MT_WIDTH_MAJOR/MINOR for. If a touchpoint sends two different x=
-/y
-> > coordinates, wouldn't that be two touchpoints, tracked individually=
- and thus
-> > with a different tracking ID?
-> >
-> > I read the example above as _the_ example for using blob IDs to com=
-bine
-> > multiple contacts into one semantic contact.
->=20
-> As Henrik pointed out, the current BLOB format is for "more generic
-> contact forms", such as rectangles or ellipses.  They are special
-> blobs. A generic (true) blob doesn't have to have a regular shape.  I=
-t
-> is most likely in an irregular shape. They would be represented in an
-> array of points/contacts/(x,y)s,  whichever term works for you :).
+Ping Cheng wrote:
+> On Sun, May 23, 2010 at 3:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>> Randy Dunlap wrote:
+>> [...]
+>>>> +Protocol Usage
+>>>> +--------------
+>>>> +
+>>>> +Contact details are sent sequentially as separate packets of ABS_MT
+>>>> +events. Only the ABS_MT events are recognized as part of a contact
+>>>> +packet. Since these events are ignored by current single-touch (ST)
+>>>> +applications, the MT protocol can be implemented on top of the ST protocol
+>>>> +in an existing driver.
+>>>> +
+>>>> +Drivers for type A devices mark the end of a packet by calling the
+>>> end?
+> 
+> Since Randy brought this question up, I feel the urge to say
+> something.  I know there are X drivers and clients using the type A
+> format so I am not suggesting that we need to change this format.
 
-Hmm. I always assumed blob is for irregular shapes, and rectangles or o=
-thers
-are just subsets of irregular shapes (with slightly less 'ir', maybe).
-So what would be the difference between these two event streams?
+It is tempting to try to make type B backwards compatible, but unfortunately,
+that is not possible. A type A receiver will always expect all data, and a type
+B device will never send all data.
 
-ABS_SLOT 0
-ABS_MT_TRACKING_ID 14
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_SLOT 1
-ABS_MT_TRACKING_ID 14
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
+> 
+> What I am thinking is that we only need one SYN_ call for both _MT_
+> and regular data combined, which is a call to input_sync() at the end
+> of the whole packet. The SYN_MT_ can be replaced by the following
+> example, which I think is more "client-friendly". This solution is
+> based on the fact that the major difference between type A and type B
+> is whether we need to filter the data or not:
+> 
+> ABS_MT_RANDOM 0
+> ABS_MT_POSITION_X x[0]
+> ABS_MT_POSITION_Y y[0]
+> ABS_MT_ RANDOM 1
+> ABS_MT_POSITION_X x[1]
+> ABS_MT_POSITION_Y y[1]
+> SYN_REPORT
+> 
+> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
+> 
+> would tell the clients that they can expect two random touches.
 
+And if you do s/RANDOM/SLOT/, you end up with what? ;-)
 
-ABS_SLOT 0
-ABS_MT_TRACKING_ID 14
-ABS_MT_BLOB_ID 1
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_SLOT 1
-ABS_MT_BLOB_ID 1
-ABS_MT_TRACKING_ID 15
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
-
-Cheers,
-  Peter
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Henrik

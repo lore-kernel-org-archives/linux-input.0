@@ -1,82 +1,121 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
-Date: Sun, 23 May 2010 16:47:47 -0700
-Message-ID: <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
-	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
-	 <20100523102413.2fee3f4c.rdunlap@xenotime.net>
-	 <4BF9ABC7.9090208@euromail.se>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Mon, 24 May 2010 14:58:55 +1000
+Message-ID: <20100524045855.GC16369@barra>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se>
+ <1274213429-22667-2-git-send-email-rydberg@euromail.se>
+ <20100519023727.GA21030@barra.bne.redhat.com>
+ <4BF3D59E.1070801@euromail.se>
+ <20100520001323.GA28116@barra.bne.redhat.com>
+ <4BF51188.3090608@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:59933 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755622Ab0EWXrr (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:56524 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1749667Ab0EXFBw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 May 2010 19:47:47 -0400
-In-Reply-To: <4BF9ABC7.9090208@euromail.se>
+	Mon, 24 May 2010 01:01:52 -0400
+Content-Disposition: inline
+In-Reply-To: <4BF51188.3090608@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Sun, May 23, 2010 at 3:27 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
-> Randy Dunlap wrote:
+On Thu, May 20, 2010 at 12:40:08PM +0200, Henrik Rydberg wrote:
+> Peter Hutterer wrote:
 > [...]
->>> +Protocol Usage
->>> +--------------
->>> +
->>> +Contact details are sent sequentially as separate packets of ABS_MT
->>> +events. Only the ABS_MT events are recognized as part of a contact
->>> +packet. Since these events are ignored by current single-touch (ST)
->>> +applications, the MT protocol can be implemented on top of the ST protocol
->>> +in an existing driver.
->>> +
->>> +Drivers for type A devices mark the end of a packet by calling the
->>
->> end?
+> >>> Will all drivers with ABS_MT_TRACKING_ID use slots? if not, how can I know
+> >>> in advance if a device may use slots or not?
+> >> Eventually, this might become true, but you are pointing at one of the weaker
+> >> points of the current setup. There is no bit field for the EV_SYN events, so
+> >> there is no way to know in advance if SYN_MT_SYNC or SYN_MT_SLOT is used. This
+> >> could quite possibly be added to the EVIO interface. Meanwhile, the method I use
+> >> is to detect the first SYN_MT_SLOT and select parser based on that information.
+> > 
+> > I'd really prefer if there was some way to detect this. While I'm not quite
+> > sure how the matching X drivers would look like it's likely that the setups
+> > will be different for drivers that support slots and those that don't.
+> > e.g. those that don't have slots simply send events as valuators, those that
+> > do may split into multiple devices.
+> > 
+> > Doing this at runtime - after the device has been set up is...tricky.
+> 
+> Changing SYN_MT_SLOT to ABS_MT_SLOT will take care of this.
+> 
+> >> If you are thinking of a setup where one program is already hooked up to the
+> >> device, and a new one comes in just as the message in question appears on the
+> >> wire, it just means the new program will have to spend some time catching up. If
+> >> this should ever become a problem, one could possibly add a send-full-state
+> >> method to the input layer, to be issued when the new program opens the device. I
+> >> doubt this will be needed in practice though, since contacts change all the time.
+> > 
+> > This was the case I was wondering about. While I agree with the last part
+> > (contacts change all the time) the side-effect that you'll get from this is
+> > that devices can seemingly be non-responsive for random periods of time.
+> > 
+> > If you have a finger down when the X server starts or after a VT switch (or
+> > even a fast user switch), the driver will have to drop events. So you can
+> > wriggle your finger around and nothing happens, but once you lift it goes
+> > "well, now it works again". Since this happens only once in a while, it can
+> > make the whole lot appear flaky.  Especially if one finger works and the
+> > other one doesn't.
+> >
+> > So I guess it comes down to whether sending SYN_MT_SLOT with every event
+> > costs too much compared to these admittedly rare use-cases. They're not much
+> > different to the current button events either, if you weren't there when a
+> > button was pressed you won't know. So I'm somewhat indifferent about this
+> > bit.
+> 
+> Yes, it is a inherent property of the input protocol between the kernel and user
+> space. A different problem, in other words.
+> 
+> > And yes, you could add it once we find it's an issue, but by then someone
+> > has already spent time to work around this. And when you then start sending
+> > slot events all the time, you admit that writing the workaround was just a
+> > time waster :)
+> 
+> Work around what, exactly?
 
-Since Randy brought this question up, I feel the urge to say
-something.  I know there are X drivers and clients using the type A
-format so I am not suggesting that we need to change this format.
+I was referring to having a protocol where processes has to ignore contacts
+already down until they've been there when a contact was pressed (and your
+comment that if this becomes an issue it could be added lateron). 
+Now, the ignoring part needs to be written (this is the "workaround"
+referred to above). if you're planning to add it later, we need to cater for
+that part as well then, having two implementations depending on the kernel
+versions.
 
-What I am thinking is that we only need one SYN_ call for both _MT_
-and regular data combined, which is a call to input_sync() at the end
-of the whole packet. The SYN_MT_ can be replaced by the following
-example, which I think is more "client-friendly". This solution is
-based on the fact that the major difference between type A and type B
-is whether we need to filter the data or not:
+but this is just for clarification, it's a moot point anyway given that
+button events have the same behaviour. so, nevermind, I think we can just
+ignore it and get on with life.
 
-ABS_MT_RANDOM 0
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_MT_ RANDOM 1
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
-SYN_REPORT
+Cheers,
+  Peter
 
-input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
-
-would tell the clients that they can expect two random touches.
-
-
->>> +The end of a multi-touch transfer is marked by calling the usual
->>
->> The end method is done for Types A and B, right?
->
-> How about this line instead?
->
-> All drivers mark the end of a multi-touch transfer by calling the usual
-
-If we use ABS_MT_RANDOM, there would be only one SYN_ event for the
-whole packet at the end, regardless of what kind of data is included
-before the SYN_ event.
-
-Basically, ABS_MT_RANDOM indicates a non-filtered and non-tracked MT_
-event; ABS_MT_SLOT indicates a filtered and tracked MT_ event/slot.
-
-With all this said, I don't have a preference for type A since I do
-not need it for my driver. Just to be active in the group if you
-wonder if there is any positive rationale :).
-
-Ping
+> >> As a side note, the notion of a used slot depends on how the attributes of the
+> >> slot are interpreted. The method described in the document treats an
+> >> ABS_MT_TRACKING_ID value outside of the driver-specified value range as an
+> >> unused slot.
+> > 
+> > It's easier for a latecomer to guess a tracking ID since you can just
+> > assign any random value to it, provided the kernel guarantees to only send
+> > updates on the tracking ID for changes. This doesn't quite work for slots.
+> > 
+> > But I'm not sure what your last sentence means. Does this mean the kernel
+> > will open a new slot for out-of-range tracking IDs? I'm missing something
+> > here.
+> 
+> I am referring to the notion of create-move-destroy from earlier discussions,
+> and the question of how it is implemented using slots. The document is a bit
+> unclear on this point, so I will add a note stating something like this:
+> 
+> * Every slot with a tracking id within the value range represents a contact.
+> 
+> * Tracking ids not previously present are considered new.
+> 
+> * Tracking ids no longer present are considered removed.
+> 
+> Cheers,
+> Henrik
+> 

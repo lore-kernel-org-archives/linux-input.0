@@ -1,37 +1,74 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] [hid] Add the GYR4101US USB ID to hid-gyration
-Date: Mon, 24 May 2010 19:10:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005241908070.28092@pobox.suse.cz>
-References: <1274558428-1799-1-git-send-email-darkstar6262@gmail.com> <20100522200740.GA30464@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev2)
+Date: Mon, 24 May 2010 10:21:02 -0700
+Message-ID: <201005241021.02731.dmitry.torokhov@gmail.com>
+References: <1274213429-22667-1-git-send-email-rydberg@euromail.se> <20100524155901.GB3182@core.coreip.homeip.net> <AANLkTin9ahtqL7jrUP4C0zF9-P3rUg7ktN93-hcqdDnj@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:54672 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757961Ab0EXRK2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 May 2010 13:10:28 -0400
-In-Reply-To: <20100522200740.GA30464@core.coreip.homeip.net>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:53051 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758044Ab0EXRWh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 May 2010 13:22:37 -0400
+In-Reply-To: <AANLkTin9ahtqL7jrUP4C0zF9-P3rUg7ktN93-hcqdDnj@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Cory Maccarrone <darkstar6262@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Sat, 22 May 2010, Dmitry Torokhov wrote:
-
-> > This change adds in the USB product ID for the Gyration
-> > GYR4101US USB media center remote control.  This remote
-> > is similar enough to the other two devices that this driver
-> > can be used without any other changes to get full support
-> > for the remote.
+On Monday 24 May 2010 10:06:15 am Ping Cheng wrote:
+> On Mon, May 24, 2010 at 8:59 AM, Dmitry Torokhov
+> 
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Sun, May 23, 2010 at 11:07:27PM -0700, Ping Cheng wrote:
+> >> On Sun, May 23, 2010 at 9:58 PM, Peter Hutterer
+> >> 
+> >> <peter.hutterer@who-t.net> wrote:
+> >> >> > And yes, you could add it once we find it's an issue, but by then
+> >> >> > someone has already spent time to work around this. And when you
+> >> >> > then start sending slot events all the time, you admit that
+> >> >> > writing the workaround was just a time waster :)
+> >> >> 
+> >> >> Work around what, exactly?
+> >> > 
+> >> > I was referring to having a protocol where processes has to ignore
+> >> > contacts already down until they've been there when a contact was
+> >> > pressed (and your comment that if this becomes an issue it could be
+> >> > added lateron). Now, the ignoring part needs to be written (this is
+> >> > the "workaround" referred to above). if you're planning to add it
+> >> > later, we need to cater for that part as well then, having two
+> >> > implementations depending on the kernel versions.
+> >> > 
+> >> > but this is just for clarification, it's a moot point anyway given
+> >> > that button events have the same behaviour.
+> >> 
+> >> This topic is outside of the _MT_ protocol discussion.
+> >> 
+> >> However, it is indeed an issue with all filtered input events, both
+> >> for MT and regular ones.
+> >> 
+> >> I think we need to add an ioctl to enable user land driver/client to
+> >> signal the kernel driver to send all events without filtering, just
+> >> once. Hot-plugged devices and X driver starts after user has contacted
+> >> with the device are two examples that the client would miss filtered
+> >> events.
+> >> 
+> >> Dmitry, do you think it is a valid suggestion?
 > > 
-> > Signed-off-by: Cory Maccarrone <darkstar6262@gmail.com>
+> > What about using EVIOCGKEY/EVIOCGSW/EVIOCGABS?
 > 
-> Please send HID-related stuff to Jiri (CCed).
+> Those EVIOCs only give us the static values (max/min/supported keys,
+> etc.).  We need their dynamic input data here, the actual x, y,
+> button, pressure, etc. Am I missing something about those EVIOs?
 > 
-> Thanks!
 
-Applied, thanks a lot, Cory.
+Yes you are ;) Supported events are reported via EVIOCGBIT, EVIOCGKEY and
+EVIOCGSW will return current state of keys/switches. As far as EVIOCGABS
+goes, it also returns, besides min/max/etc, last reported _values_ of the
+ABS_* events.
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Dmitry

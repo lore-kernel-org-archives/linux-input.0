@@ -1,137 +1,76 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
-Date: Tue, 25 May 2010 09:33:32 -0700
-Message-ID: <AANLkTilW4xkWdenQE3429jTmFDXabnAAx0iIUnSXNVQR@mail.gmail.com>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
-	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
-	 <20100523102413.2fee3f4c.rdunlap@xenotime.net>
-	 <4BF9ABC7.9090208@euromail.se>
-	 <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
-	 <4BFA272B.7090602@euromail.se>
-	 <AANLkTimro6rna8MTqylaE2cnr_7Fif68Ldc6czLk7UDG@mail.gmail.com>
-	 <4BFABF40.30700@euromail.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Tue, 25 May 2010 09:51:37 -0700
+Message-ID: <20100525165137.GB2730@core.coreip.homeip.net>
+References: <1272667021-21312-1-git-send-email-arve@android.com>
+	<87wrvl5479.fsf@deeprootsystems.com>
+	<20100503180741.GB2098@rakim.wolfsonmicro.main>
+	<201005032318.35383.rjw@sisk.pl>
+	<87sk68r1zh.fsf@deeprootsystems.com>
+	<s2qd6200be21005031709r28420f0ezf3cf286517ee9114@mail.gmail.com>
+	<alpine.DEB.2.00.1005141422110.3348@utopia.booyaka.com>
+	<AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:56238 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756580Ab0EYQdd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 12:33:33 -0400
-In-Reply-To: <4BFABF40.30700@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTinyNYFwM4QJKPunlvK-ATJwSYVXGayeZIR9izx2@mail.gmail.com>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Oleg Nesterov <oleg@redhat.com>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, linux-pm@lists.linux-foundation.org, Liam Girdwood <lrg@slimlogic.co.uk>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, linux-omap@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?iso-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Andres
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Mon, May 24, 2010 at 11:02 AM, Henrik Rydberg <rydberg@euromail.se> =
-wrote:
-> Ping Cheng wrote:
->> On Mon, May 24, 2010 at 12:13 AM, Henrik Rydberg <rydberg@euromail.s=
-e> wrote:
->>> Ping Cheng wrote:
->>>> What I am thinking is that we only need one SYN_ call for both _MT=
-_
->>>> and regular data combined, which is a call to input_sync() at the =
-end
->>>> of the whole packet. The SYN_MT_ can be replaced by the following
->>>> example, which I think is more "client-friendly". This solution is
->>>> based on the fact that the major difference between type A and typ=
-e B
->>>> is whether we need to filter the data or not:
->>>>
->>>> ABS_MT_RANDOM 0
->>>> ABS_MT_POSITION_X x[0]
->>>> ABS_MT_POSITION_Y y[0]
->>>> ABS_MT_ RANDOM 1
->>>> ABS_MT_POSITION_X x[1]
->>>> ABS_MT_POSITION_Y y[1]
->>>> SYN_REPORT
->>>>
->>>> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
->>>>
->>>> would tell the clients that they can expect two random touches.
->>> And if you do s/RANDOM/SLOT/, you end up with what? ;-)
->>
->> Haha, I know what you are thinking :).
->>
->> Maybe I didn't make my point clear. =A0I didn't mean to make SLOT
->> backward compatible. =A0I meant to replace SYN_MT_REPORT event with =
-the
->> ABS_MT_ RANDOM label so we only sync the whole packet once at the en=
-d.
->> This way both types of MT_ data follow the same input event reportin=
-g
->> flow....
->
-> You mean changing the type A protocol, breaking the current code base=
-? That is a
-> big no-no.
+On Fri, May 14, 2010 at 03:18:13PM -0700, Arve Hj=F8nnev=E5g wrote:
+> On Fri, May 14, 2010 at 1:27 PM, Paul Walmsley <paul@pwsan.com> wrote:
+> >
+> > Hello,
+> >
+> > On Mon, 3 May 2010, Arve Hj=F8nnev=E5g wrote:
+> >
+> >> No, suspend blockers are mostly used to ensure wakeup events are not
+> >> ignored, and to ensure tasks triggered by these wakeup events
+> >> complete.
+> >
+> > Standard Linux systems don't need these,
+> =
 
-Hi Henrik,
+> If you don't want to lose wakeup events they do. Standard Linux
+> systems support suspend, but since they usually don't have a lot of
+> wakeup events you don't run into a lot of problems.
+> =
 
-I saw your new patchset, very much appreciated.  There are reasons
-that I am not "attacking" your new patches:
 
-1.  I don't want to ruin your hard work;
-2.  It would be easier for others to understand what I am talking
-about along this thread.
+What I do not quite understand is how exactly suspend blocks save us
+from missing wakeup events. Consider case when all events have been
+processed and system starts entering the sleep: we are in a half-sleep,
+half awake state, with some devices already put to sleep and some just
+now being processed. If user presses a key while physical input device
+is being suspended, what will happen? Do you expect interrupt routine
+abort suspend process? Initiate resume if suspend of the device has
+completed?
 
-I came up with another "crazy" idea which doesn't break the existing
-type A protocol/code. We leave the existing code as is. However, we
-make the new SLOT format support both type A and type B. This unified
-approach offers a benefit for future X driver and client developers to
-treat both types the same way.
+Also, let's say device is suspended and is configured as a wakeup source
+while the rest of the system is still awake... If I press a key I do not
+think that it will necessarily abort suspend process. Or will it?
 
-As we've discussed before, the major difference between type A and
-type B is the filtering and tracking mechanism. Filtering is tied to
-the tracking ID since we do not apply filter to the untracked touch
-poinsts. From this point of view, ABS_MT_SLOT doesn't lead to the
-filter. The existence of an unique tracking ID triggers the filter.
+BTW, If you are concerned about events that already "left" physical
+device but has not reached userspace yet - maybe instead of suspend
+blockers we should make sure that all drivers throughout the chain
+implement suspend/resume and refuse suspending if their queues are not
+empty.  In input land that would mean extending suspend routine in
+input_dev and adding one to evdev.
 
-Pure type A format (no filter applied):
+Thanks.
 
-ABS_MT_SLOT 0
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_MT_ SLOT 1
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
-SYN_REPORT
+-- =
 
-Pure type B format (filter applied upon the detection of a tracking ID)
-
-ABS_MT_SLOT 0
-ABS_MT_TRACKING_ID 45
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_MT_SLOT 1
-ABS_MT_TRACKING_ID 46
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
-SYN_REPORT
-
-Hybrid format (filter applied only when a tracking ID is detected):
-
-ABS_MT_SLOT 0
-ABS_MT_POSITION_X x[0]
-ABS_MT_POSITION_Y y[0]
-ABS_MT_SLOT 1
-ABS_MT_TRACKING_ID 46
-ABS_MT_POSITION_X x[1]
-ABS_MT_POSITION_Y y[1]
-ABS_MT_SLOT 2
-ABS_MT_TRACKING_ID 20
-ABS_MT_POSITION_X x[2]
-ABS_MT_POSITION_Y y[2]
-SYN_REPORT
-
-So, one protocol covers both cases for the future.
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

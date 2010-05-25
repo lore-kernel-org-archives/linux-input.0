@@ -1,119 +1,139 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
-	and decoder plugins
-Date: Tue, 25 May 2010 17:05:17 -0400
-Message-ID: <AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
-References: <20100401145632.5631756f@pedra>
-	 <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
-	 <20100402102011.GA6947@hardeman.nu>
-	 <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
-	 <20100407093205.GB3029@hardeman.nu>
-	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
-	 <20100424051206.GA3101@hardeman.nu>
-	 <h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH] touchscreen: ads7846: please don't touch free'd memory
+Date: Tue, 25 May 2010 14:46:38 -0700
+Message-ID: <8739xflkn5.fsf@deeprootsystems.com>
+References: <1274226413-8520-1-git-send-email-khilman@deeprootsystems.com>
+	<20100519000019.GA17475@core.coreip.homeip.net>
+	<87mxvnlpxv.fsf@deeprootsystems.com>
+	<20100525202135.GC4455@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:55372 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752611Ab0EYVFT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 17:05:19 -0400
-In-Reply-To: <h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100525202135.GC4455@core.coreip.homeip.net> (Dmitry Torokhov's message of "Tue\, 25 May 2010 13\:21\:35 -0700")
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Michael Roth <mroth@nessie.de>, Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@linux-foundation.org>, Mike Frysinger <vapier@gentoo.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-On Wed, Apr 28, 2010 at 12:32 AM, Jarod Wilson <jarod@wilsonet.com> wro=
-te:
-> On Sat, Apr 24, 2010 at 1:12 AM, David H=E4rdeman <david@hardeman.nu>=
- wrote:
->> On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
->>> So now that I'm more or less done with porting the imon driver, I
->>> think I'm ready to start tackling the mceusb driver. But I'm debati=
-ng
->>> on what approach to take with respect to lirc support. It sort of
->>> feels like we should have lirc_dev ported as an ir "decoder"
->>> driver/plugin before starting to port mceusb to ir-core, so that we
->>> can maintain lirc compat and transmit support. Alternatively, I cou=
-ld
->>> port mceusb without lirc support for now, leaving it to only use
->>> in-kernel decoding and have no transmit support for the moment, the=
-n
->>> re-add lirc support. I'm thinking that porting lirc_dev as, say,
->>> ir-lirc-decoder first is probably the way to go though. Anyone else
->>> want to share their thoughts on this?
->>
->> I think it would make sense to start with a mce driver without the T=
-X
->> and lirc bits first. Adding lirc rx support can be done as a separat=
-e
->> "raw" decoder later (so its scope is outside the mce driver anyway) =
-and
->> TX support is not implemented in ir-core yet and we haven't had any
->> discussion yet on which form it should take.
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+
+> On Tue, May 25, 2010 at 12:52:12PM -0700, Kevin Hilman wrote:
+>> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+>> 
+>> > On Tue, May 18, 2010 at 04:46:53PM -0700, Kevin Hilman wrote:
+>> >> If the _probe() method fails, the 'ts' struct is freed, yet it is
+>> >> still used as the drvdata passed to suspend/resume/remove methods.
+>> >> Even though the input device does not get registerd, the driver's
+>> >> suspend/resume methods still get called as it's a registered SPI
+>> >> device.  This patch adds sanity checks to these methods to ensure that
+>> >> drvdata is valid before using it.
+>> >> 
+>> >
+>> > This is a load of crap. If probe() fails that means that driver does not
+>> > manage the device and thus ads7846_suspend() and ads7846_resume() should
+>> > not be called _at all_. If SPI core manages to call random methods from
+>> > the drivers that failed to bind to a device that should be fixed in SPI
+>> > core.
+>> 
+>> Agreed, this is indeed a bug in the SPI driver core.
+>> 
+>> However, by fixing the SPI core to unregister the driver on failure
+>> (patch below), we prevent the suspend & resume methods from being
+>> called, but the driver's ->remove() method will still be called due to
+>> the driver_unregister().  So at least the remove() method needs fixing
+>> to prevent accessing free'd memory.
+>> 
+>> Unless there are objections, I'll post the below along with an updated
+>> version of ads7846 patch.
+>> 
+>> Kevin
+>> 
+>> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+>> index b3a1f92..42d4d26 100644
+>> --- a/drivers/spi/spi.c
+>> +++ b/drivers/spi/spi.c
+>> @@ -175,6 +175,8 @@ static void spi_drv_shutdown(struct device *dev)
+>>   */
+>>  int spi_register_driver(struct spi_driver *sdrv)
+>>  {
+>> +	int ret;
+>> +
+>>  	sdrv->driver.bus = &spi_bus_type;
+>>  	if (sdrv->probe)
+>>  		sdrv->driver.probe = spi_drv_probe;
+>> @@ -182,7 +184,12 @@ int spi_register_driver(struct spi_driver *sdrv)
+>>  		sdrv->driver.remove = spi_drv_remove;
+>>  	if (sdrv->shutdown)
+>>  		sdrv->driver.shutdown = spi_drv_shutdown;
+>> -	return driver_register(&sdrv->driver);
+>> +
+>> +	ret = driver_register(&sdrv->driver);
+>> +	if (!ret)
+>> +		driver_unregister(&sdrv->driver);
 >
-> So after looking at folks feedback, I did settle on starting the
-> mceusb port first, my logic going more or less like this... Having a
-> well-supported general-purpose IR receiver functional is a Good Thing
-> for people wanting to work on protocol support (i.e., so they have a
-> way to actually test protocol support). Having an
-> already-ir-core-ified driver to test out an ir-lirc-decoder (lirc_dev
-> port) would also be rather helpful. So rather than trying to port
-> lirc_dev before there's anything that can actually make use of it,
-> give myself something to work with. I'm kind of thinking that
-> ir-lirc-decoder might actually be ir-lirc-codec, able to do xmit as
-> well, maintaining full compat with lirc userspace, and then we'd have
-> a separate input subsystem based xmit method at some point, which
-> might be the "preferred/blessed" route. This means ripping a bunch of
-> code out of lirc_mceusb.c only to put it back in later, but that's no=
-t
-> terribly painful. I've already got as far as having an mceusb.c that
-> has no lirc dependency, which builds, but doesn't actually do anythin=
-g
-> useful yet (not wired up to ir-core). Should be able to get something
-> functional RSN, I hope...
+> This is still wrong. driver_register() should properly clean up after
+> itself and not require calls to driver_unregister() (and I believe it
+> does).
+>
+> Besides, I do not see how this patch changes anything with regard to
+> binding devices and drivers. Even if driver_register() succeeds, binding
+> may still fail and we should not be calling neither ->remove(), nor
+> ->suspend()/->resume() for the devices that failed to be bound.
 
-Got sidetracked for a few weeks, but I'm probably 95% of the way there
-as of this afternoon. Something isn't quite right with how I'm
-processing and handing off the raw IR data right now though, best as I
-can tell. Its also possible my first-gen mce device is throwing things
-for a loop, so I need to see if maybe things Just Work with a newer
-gen device so I know if its device-specific, or if something is still
-generally wrong. I did crib the simplified mce data processing routine
-from Jon's code, but the original lirc_mceusb.c has some changes
-specific to the first-gen mce device that were made to properly
-support it quite some time after Jon's port, so I may also try w/the
-uglier/more complex routine I know has been working on this device...
+Hmm, good point.
 
-David, you mentioned having something based on Jon's earlier port that
-was more or less working. I'd be curious to get a look at that if
-you're willing to drop me a copy, see if I've missed something
-blindingly stupid. :)
+After digging into the driver core and realizing that it seemed to
+have sane error handling itself, I took a closer look at
+ads7846_probe() and discovered it doesn't actually return an error
+code for certain failure cases!  That was the root cause.
 
-What I get right now when I press a key:
-=2E..
-ir_rc6_decode: RC6 decode failed at state 0 (0us space)
-ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
-ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
-ir_rc6_decode: RC6 decode failed at state 0 (0us space)
-ir_rc6_decode: RC6 decode failed at state 0 (1us pulse)
-ir_rc6_decode: RC6 decode failed at state 0 (0us space)
-ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
-ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
-ir_rc6_decode: RC6 decode failed at state 0 (0us space)
-ir_rc6_decode: RC6 decode failed at state 0 (1us pulse)
+The patch below fixes the problem.
 
-Always fails at state 0, varying us values from 0 to 100, but mostly 0 =
-and 1.
+Thanks,
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kevin 
+
+
+
+>From 3588494cf6e51754f7089bb8089b99abd765c493 Mon Sep 17 00:00:00 2001
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Date: Tue, 25 May 2010 14:38:04 -0700
+Subject: [PATCH] input: touchscreen: ads7846: return error on probe failure
+
+In probe(), if regulator_get() failed, an error code was not being
+returned causing the driver to be successfully bound, even though
+probe failed.  This in turn caused the suspend, resume and remove
+methods to be registered and accessed via the SPI core.  Since these
+functions all access private driver data using pointers that had been
+freed during the failed probe, this would lead to unpredictable
+behavior.
+
+This patch ensures that probe() returns an error code in this failure
+case so the driver is not bound.
+
+Found using lockdep and noticing the lock used in the suspend/resum
+path pointed to a bogus lock due to the freed memory.
+
+Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+---
+ drivers/input/touchscreen/ads7846.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 532279c..634f6f6 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -1163,8 +1163,8 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 
+ 	ts->reg = regulator_get(&spi->dev, "vcc");
+ 	if (IS_ERR(ts->reg)) {
+-		dev_err(&spi->dev, "unable to get regulator: %ld\n",
+-			PTR_ERR(ts->reg));
++		err = PTR_ERR(ts->reg);
++		dev_err(&spi->dev, "unable to get regulator: %ld\n", err);
+ 		goto err_free_gpio;
+ 	}
+ 
+-- 
+1.7.0.2
+

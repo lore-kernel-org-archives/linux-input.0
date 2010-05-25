@@ -1,60 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] input: mt: Add EVIOC mechanism for MT slots
-Date: Tue, 25 May 2010 13:23:40 -0700
-Message-ID: <20100525202340.GD4455@core.coreip.homeip.net>
-References: <1274788379-11026-1-git-send-email-rydberg@euromail.se>
- <20100525173446.GA4634@core.coreip.homeip.net>
- <4BFC2A7D.50501@euromail.se>
+From: Jindrich Makovicka <makovick@gmail.com>
+Subject: Re: [PATCH] HID: check for HID_QUIRK_IGNORE during probing
+Date: Tue, 25 May 2010 22:53:23 +0200
+Message-ID: <20100525225323.134b2c00@holly>
+References: <20100523204725.6e9e8dad@holly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:44664 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932566Ab0EYUXr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 16:23:47 -0400
-Content-Disposition: inline
-In-Reply-To: <4BFC2A7D.50501@euromail.se>
+Received: from lo.gmane.org ([80.91.229.12]:51585 "EHLO lo.gmane.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756378Ab0EYUxe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 May 2010 16:53:34 -0400
+Received: from list by lo.gmane.org with local (Exim 4.69)
+	(envelope-from <glki-linux-input-2@m.gmane.org>)
+	id 1OH17y-0000wp-QN
+	for linux-input@vger.kernel.org; Tue, 25 May 2010 22:53:30 +0200
+Received: from r11at174.net.upc.cz ([94.112.45.174])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 22:53:30 +0200
+Received: from makovick by r11at174.net.upc.cz with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 22:53:30 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: linux-input@vger.kernel.org
 
-On Tue, May 25, 2010 at 09:52:29PM +0200, Henrik Rydberg wrote:
-> Dmitry Torokhov wrote:
-> > Hi Henrik,
-> > 
-> > On Tue, May 25, 2010 at 01:52:57PM +0200, Henrik Rydberg wrote:
-> >> These patches are in response to the discussion about input state
-> >> retrieval.
-> >>
-> >> The current EVIOCGABS method does not work with MT slots.  These
-> >> patches provides a mechanism where a slot is first selected via a call
-> >> to EVIOCSABS, after which the corresponding MT events can be extracted
-> >> with calls to EVIOCGABS.
-> >>
-> >> The symmetric operation, to set the MT state via EVIOCSABS, seems to
-> >> violate input data integrity, and is therefore not implemented.
-> >>
-> > 
-> > This looks sane, however the question remains - is there any users for
-> > this data? Like I mentioned, I can see the need to fetch state of
-> > switches and ranges of absolute axis, and even non-multitouch ABS values
-> > (due to the fact that some input devices, like sliders, may stay in a
-> > certain position for long periods of time), but I expect multitouch data
-> > to be "refreshed" very quickly.
-> > 
-> > Thanks.
-> > 
-> 
-> There were some voices addressing this issue, and the patches are here,
-> available for whomever to pick up. Drop them if you wish, I will not send them anew.
-> 
+Updated to current git:
 
-I'll save them in my queue but will hold off applying until I hear
-userspace folks requesting such functionality.
-
-Thanks.
+--- hid-core.c.orig	2010-05-25 22:04:58.000000000 +0200
++++ hid-core.c	2010-05-25 22:08:53.791241376 +0200
+@@ -1759,7 +1759,8 @@
+ 
+ 	/* we need to kill them here, otherwise they will stay
+allocated to
+ 	 * wait for coming driver */
+-	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE) && hid_ignore(hdev))
++	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE)
++            && (hid_ignore(hdev) || (hdev->quirks & HID_QUIRK_IGNORE)))
+ 		return -ENODEV;
+ 
+ 	/* XXX hack, any other cleaner solution after the driver core
 
 -- 
-Dmitry
+Jindrich Makovicka
+
+

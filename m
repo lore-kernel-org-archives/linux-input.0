@@ -1,89 +1,101 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] touchscreen: ads7846: please don't touch free'd memory
-Date: Tue, 25 May 2010 13:21:35 -0700
-Message-ID: <20100525202135.GC4455@core.coreip.homeip.net>
-References: <1274226413-8520-1-git-send-email-khilman@deeprootsystems.com>
- <20100519000019.GA17475@core.coreip.homeip.net>
- <87mxvnlpxv.fsf@deeprootsystems.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v3] powerpc: Add i8042 keyboard and mouse irq parsing
+Date: Tue, 25 May 2010 14:21:50 -0600
+Message-ID: <AANLkTikve-ZghgpVl3cyjjgWAch-oCJ0EiYK2127f5gS@mail.gmail.com>
+References: <20100525080834.29149.70967.stgit@ES-J7S4D2J.amer.consind.ge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f176.google.com ([209.85.222.176]:39111 "EHLO
-	mail-pz0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932996Ab0EYUVr (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:34729 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932635Ab0EYUWM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 16:21:47 -0400
-Content-Disposition: inline
-In-Reply-To: <87mxvnlpxv.fsf@deeprootsystems.com>
+	Tue, 25 May 2010 16:22:12 -0400
+Received: by gwaa12 with SMTP id a12so156429gwa.19
+        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 13:22:10 -0700 (PDT)
+In-Reply-To: <20100525080834.29149.70967.stgit@ES-J7S4D2J.amer.consind.ge.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Michael Roth <mroth@nessie.de>, Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@linux-foundation.org>, Mike Frysinger <vapier@gentoo.org>, linux-kernel@vger.kernel.org
+To: Martyn Welch <martyn.welch@ge.com>
+Cc: benh@kernel.crashing.org, linuxppc-dev@ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>
 
-On Tue, May 25, 2010 at 12:52:12PM -0700, Kevin Hilman wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
-> 
-> > On Tue, May 18, 2010 at 04:46:53PM -0700, Kevin Hilman wrote:
-> >> If the _probe() method fails, the 'ts' struct is freed, yet it is
-> >> still used as the drvdata passed to suspend/resume/remove methods.
-> >> Even though the input device does not get registerd, the driver's
-> >> suspend/resume methods still get called as it's a registered SPI
-> >> device.  This patch adds sanity checks to these methods to ensure that
-> >> drvdata is valid before using it.
-> >> 
-> >
-> > This is a load of crap. If probe() fails that means that driver does not
-> > manage the device and thus ads7846_suspend() and ads7846_resume() should
-> > not be called _at all_. If SPI core manages to call random methods from
-> > the drivers that failed to bind to a device that should be fixed in SPI
-> > core.
-> 
-> Agreed, this is indeed a bug in the SPI driver core.
-> 
-> However, by fixing the SPI core to unregister the driver on failure
-> (patch below), we prevent the suspend & resume methods from being
-> called, but the driver's ->remove() method will still be called due to
-> the driver_unregister().  So at least the remove() method needs fixing
-> to prevent accessing free'd memory.
-> 
-> Unless there are objections, I'll post the below along with an updated
-> version of ads7846 patch.
-> 
-> Kevin
-> 
-> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-> index b3a1f92..42d4d26 100644
-> --- a/drivers/spi/spi.c
-> +++ b/drivers/spi/spi.c
-> @@ -175,6 +175,8 @@ static void spi_drv_shutdown(struct device *dev)
->   */
->  int spi_register_driver(struct spi_driver *sdrv)
->  {
-> +	int ret;
+On Tue, May 25, 2010 at 2:09 AM, Martyn Welch <martyn.welch@ge.com> wro=
+te:
+> Currently the irqs for the i8042, which historically provides keyboar=
+d and
+> mouse (aux) support, is hardwired in the driver rather than parsing t=
+he
+> dts. =A0This patch modifies the powerpc legacy IO code to attempt to =
+parse
+> the device tree for this information, failing back to the hardcoded v=
+alues
+> if it fails.
+>
+> Signed-off-by: Martyn Welch <martyn.welch@ge.com>
+> ---
+>
+> v2: This patch no longer requires the DTS files to be modified, readi=
+ng the
+> interrupts from the current location as suggested by Grant.
+>
+> v3: Code compacted as suggested by Grant.
+>
+> =A0arch/powerpc/kernel/setup-common.c | =A0 13 +++++++++++++
+> =A0drivers/input/serio/i8042-io.h =A0 =A0 | =A0 =A05 +++++
+> =A02 files changed, 18 insertions(+), 0 deletions(-)
+>
+> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel=
+/setup-common.c
+> index 48f0a00..3d169bb 100644
+> --- a/arch/powerpc/kernel/setup-common.c
+> +++ b/arch/powerpc/kernel/setup-common.c
+> @@ -94,6 +94,10 @@ struct screen_info screen_info =3D {
+> =A0 =A0 =A0 =A0.orig_video_points =3D 16
+> =A0};
+>
+> +/* Variables required to store legacy IO irq routing */
+> +int of_i8042_kbd_irq;
+> +int of_i8042_aux_irq;
 > +
->  	sdrv->driver.bus = &spi_bus_type;
->  	if (sdrv->probe)
->  		sdrv->driver.probe = spi_drv_probe;
-> @@ -182,7 +184,12 @@ int spi_register_driver(struct spi_driver *sdrv)
->  		sdrv->driver.remove = spi_drv_remove;
->  	if (sdrv->shutdown)
->  		sdrv->driver.shutdown = spi_drv_shutdown;
-> -	return driver_register(&sdrv->driver);
+> =A0#ifdef __DO_IRQ_CANON
+> =A0/* XXX should go elsewhere eventually */
+> =A0int ppc_do_canonicalize_irqs;
+> @@ -567,6 +571,15 @@ int check_legacy_ioport(unsigned long base_port)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0np =3D of_find_compati=
+ble_node(NULL, NULL, "pnpPNP,f03");
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (np) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0parent =3D of_get_pare=
+nt(np);
 > +
-> +	ret = driver_register(&sdrv->driver);
-> +	if (!ret)
-> +		driver_unregister(&sdrv->driver);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i8042_kbd_irq =3D ir=
+q_of_parse_and_map(parent, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!of_i8042_kbd_irq)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i804=
+2_kbd_irq =3D 1;
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i8042_aux_irq =3D ir=
+q_of_parse_and_map(parent, 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!of_i8042_aux_irq)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i804=
+2_aux_irq =3D 12;
+> +
 
-This is still wrong. driver_register() should properly clean up after
-itself and not require calls to driver_unregister() (and I believe it
-does).
+The patch looks okay to me.
 
-Besides, I do not see how this patch changes anything with regard to
-binding devices and drivers. Even if driver_register() succeeds, binding
-may still fail and we should not be calling neither ->remove(), nor
-->suspend()/->resume() for the devices that failed to be bound.
+BTW, where is the i8042 binding documented?  Ben, is this location of
+the kbd/mouse irq historical, or is it just something that we happened
+to get when the .dts files were first created?  Having the irq
+specified directly in the kbd or aux nodes would make a lot more
+sense, and if this isn't something already nailed down, then it
+probably does make sense to move the irq specification, fall back to
+the parent node to still support older trees, and with the hard coded
+irq numbers as the last resort.
 
-Still NAK, sorry.
-
--- 
-Dmitry
+Cheers,
+g.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

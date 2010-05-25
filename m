@@ -1,48 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/8] Suspend block api (version 6)
-Date: Tue, 25 May 2010 11:33:35 -0700
-Message-ID: <20100525183334.GA4669@core.coreip.homeip.net>
-References: <20100525165137.GB2730@core.coreip.homeip.net>
-	<Pine.LNX.4.44L0.1005251408120.1634-100000@iolanthe.rowland.org>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH] touchscreen: ads7846: please don't touch free'd memory
+Date: Tue, 25 May 2010 12:52:12 -0700
+Message-ID: <87mxvnlpxv.fsf@deeprootsystems.com>
+References: <1274226413-8520-1-git-send-email-khilman@deeprootsystems.com>
+	<20100519000019.GA17475@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1005251408120.1634-100000@iolanthe.rowland.org>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, Kernel development list <linux-kernel@vger.kernel.org>, Tero Saarni <tero.saarni@gmail.com>, linux-input@vger.kernel.org, Linux-pm mailing list <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, Oleg Nesterov <oleg@redhat.com>, linux-omap@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.org>, Theodore Ts'o <tytso@mit.edu>, =?iso-8859-1?Q?M=E1rton_N=E9meth?= <nm127@freemail.hu>, Brian Swetland <swetland@google.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:59077 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758317Ab0EYTwQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 May 2010 15:52:16 -0400
+In-Reply-To: <20100519000019.GA17475@core.coreip.homeip.net> (Dmitry Torokhov's message of "Tue\, 18 May 2010 17\:00\:20 -0700")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Michael Roth <mroth@nessie.de>, Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@linux-foundation.org>, Mike Frysinger <vapier@gentoo.org>, linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2010 at 02:25:08PM -0400, Alan Stern wrote:
-> On Tue, 25 May 2010, Dmitry Torokhov wrote:
-> 
-> > BTW, If you are concerned about events that already "left" physical
-> > device but has not reached userspace yet - maybe instead of suspend
-> > blockers we should make sure that all drivers throughout the chain
-> > implement suspend/resume and refuse suspending if their queues are not
-> > empty.  In input land that would mean extending suspend routine in
-> > input_dev and adding one to evdev.
-> 
-> That's not the only problem.  We also have to consider events that have
-> reached userspace but not yet been fully processed.  The user thread
-> handling the event needs some way to prevent the system from suspending
-> until it is all done.
-> 
+Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
 
-It is a problem if kernel initiated suspend transition on its own. I
-believe that it is userspace responsibility to initiate sustend (and
-make sure that needs of userspace, including processing of certain
-events, are served beforehand).
+> On Tue, May 18, 2010 at 04:46:53PM -0700, Kevin Hilman wrote:
+>> If the _probe() method fails, the 'ts' struct is freed, yet it is
+>> still used as the drvdata passed to suspend/resume/remove methods.
+>> Even though the input device does not get registerd, the driver's
+>> suspend/resume methods still get called as it's a registered SPI
+>> device.  This patch adds sanity checks to these methods to ensure that
+>> drvdata is valid before using it.
+>> 
+>
+> This is a load of crap. If probe() fails that means that driver does not
+> manage the device and thus ads7846_suspend() and ads7846_resume() should
+> not be called _at all_. If SPI core manages to call random methods from
+> the drivers that failed to bind to a device that should be fixed in SPI
+> core.
 
--- 
-Dmitry
+Agreed, this is indeed a bug in the SPI driver core.
+
+However, by fixing the SPI core to unregister the driver on failure
+(patch below), we prevent the suspend & resume methods from being
+called, but the driver's ->remove() method will still be called due to
+the driver_unregister().  So at least the remove() method needs fixing
+to prevent accessing free'd memory.
+
+Unless there are objections, I'll post the below along with an updated
+version of ads7846 patch.
+
+Kevin
+
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index b3a1f92..42d4d26 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -175,6 +175,8 @@ static void spi_drv_shutdown(struct device *dev)
+  */
+ int spi_register_driver(struct spi_driver *sdrv)
+ {
++	int ret;
++
+ 	sdrv->driver.bus = &spi_bus_type;
+ 	if (sdrv->probe)
+ 		sdrv->driver.probe = spi_drv_probe;
+@@ -182,7 +184,12 @@ int spi_register_driver(struct spi_driver *sdrv)
+ 		sdrv->driver.remove = spi_drv_remove;
+ 	if (sdrv->shutdown)
+ 		sdrv->driver.shutdown = spi_drv_shutdown;
+-	return driver_register(&sdrv->driver);
++
++	ret = driver_register(&sdrv->driver);
++	if (!ret)
++		driver_unregister(&sdrv->driver);
++
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(spi_register_driver);
+ 
+

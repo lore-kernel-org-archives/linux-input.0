@@ -1,101 +1,60 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH v3] powerpc: Add i8042 keyboard and mouse irq parsing
-Date: Tue, 25 May 2010 14:21:50 -0600
-Message-ID: <AANLkTikve-ZghgpVl3cyjjgWAch-oCJ0EiYK2127f5gS@mail.gmail.com>
-References: <20100525080834.29149.70967.stgit@ES-J7S4D2J.amer.consind.ge.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] input: mt: Add EVIOC mechanism for MT slots
+Date: Tue, 25 May 2010 13:23:40 -0700
+Message-ID: <20100525202340.GD4455@core.coreip.homeip.net>
+References: <1274788379-11026-1-git-send-email-rydberg@euromail.se>
+ <20100525173446.GA4634@core.coreip.homeip.net>
+ <4BFC2A7D.50501@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:34729 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932635Ab0EYUWM convert rfc822-to-8bit (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:44664 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932566Ab0EYUXr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 16:22:12 -0400
-Received: by gwaa12 with SMTP id a12so156429gwa.19
-        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 13:22:10 -0700 (PDT)
-In-Reply-To: <20100525080834.29149.70967.stgit@ES-J7S4D2J.amer.consind.ge.com>
+	Tue, 25 May 2010 16:23:47 -0400
+Content-Disposition: inline
+In-Reply-To: <4BFC2A7D.50501@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martyn Welch <martyn.welch@ge.com>
-Cc: benh@kernel.crashing.org, linuxppc-dev@ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Tue, May 25, 2010 at 2:09 AM, Martyn Welch <martyn.welch@ge.com> wro=
-te:
-> Currently the irqs for the i8042, which historically provides keyboar=
-d and
-> mouse (aux) support, is hardwired in the driver rather than parsing t=
-he
-> dts. =A0This patch modifies the powerpc legacy IO code to attempt to =
-parse
-> the device tree for this information, failing back to the hardcoded v=
-alues
-> if it fails.
->
-> Signed-off-by: Martyn Welch <martyn.welch@ge.com>
-> ---
->
-> v2: This patch no longer requires the DTS files to be modified, readi=
-ng the
-> interrupts from the current location as suggested by Grant.
->
-> v3: Code compacted as suggested by Grant.
->
-> =A0arch/powerpc/kernel/setup-common.c | =A0 13 +++++++++++++
-> =A0drivers/input/serio/i8042-io.h =A0 =A0 | =A0 =A05 +++++
-> =A02 files changed, 18 insertions(+), 0 deletions(-)
->
-> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel=
-/setup-common.c
-> index 48f0a00..3d169bb 100644
-> --- a/arch/powerpc/kernel/setup-common.c
-> +++ b/arch/powerpc/kernel/setup-common.c
-> @@ -94,6 +94,10 @@ struct screen_info screen_info =3D {
-> =A0 =A0 =A0 =A0.orig_video_points =3D 16
-> =A0};
->
-> +/* Variables required to store legacy IO irq routing */
-> +int of_i8042_kbd_irq;
-> +int of_i8042_aux_irq;
-> +
-> =A0#ifdef __DO_IRQ_CANON
-> =A0/* XXX should go elsewhere eventually */
-> =A0int ppc_do_canonicalize_irqs;
-> @@ -567,6 +571,15 @@ int check_legacy_ioport(unsigned long base_port)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0np =3D of_find_compati=
-ble_node(NULL, NULL, "pnpPNP,f03");
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (np) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0parent =3D of_get_pare=
-nt(np);
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i8042_kbd_irq =3D ir=
-q_of_parse_and_map(parent, 0);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!of_i8042_kbd_irq)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i804=
-2_kbd_irq =3D 1;
-> +
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i8042_aux_irq =3D ir=
-q_of_parse_and_map(parent, 1);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!of_i8042_aux_irq)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 of_i804=
-2_aux_irq =3D 12;
-> +
+On Tue, May 25, 2010 at 09:52:29PM +0200, Henrik Rydberg wrote:
+> Dmitry Torokhov wrote:
+> > Hi Henrik,
+> > 
+> > On Tue, May 25, 2010 at 01:52:57PM +0200, Henrik Rydberg wrote:
+> >> These patches are in response to the discussion about input state
+> >> retrieval.
+> >>
+> >> The current EVIOCGABS method does not work with MT slots.  These
+> >> patches provides a mechanism where a slot is first selected via a call
+> >> to EVIOCSABS, after which the corresponding MT events can be extracted
+> >> with calls to EVIOCGABS.
+> >>
+> >> The symmetric operation, to set the MT state via EVIOCSABS, seems to
+> >> violate input data integrity, and is therefore not implemented.
+> >>
+> > 
+> > This looks sane, however the question remains - is there any users for
+> > this data? Like I mentioned, I can see the need to fetch state of
+> > switches and ranges of absolute axis, and even non-multitouch ABS values
+> > (due to the fact that some input devices, like sliders, may stay in a
+> > certain position for long periods of time), but I expect multitouch data
+> > to be "refreshed" very quickly.
+> > 
+> > Thanks.
+> > 
+> 
+> There were some voices addressing this issue, and the patches are here,
+> available for whomever to pick up. Drop them if you wish, I will not send them anew.
+> 
 
-The patch looks okay to me.
+I'll save them in my queue but will hold off applying until I hear
+userspace folks requesting such functionality.
 
-BTW, where is the i8042 binding documented?  Ben, is this location of
-the kbd/mouse irq historical, or is it just something that we happened
-to get when the .dts files were first created?  Having the irq
-specified directly in the kbd or aux nodes would make a lot more
-sense, and if this isn't something already nailed down, then it
-probably does make sense to move the irq specification, fall back to
-the parent node to still support older trees, and with the hard coded
-irq numbers as the last resort.
+Thanks.
 
-Cheers,
-g.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

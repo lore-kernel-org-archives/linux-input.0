@@ -1,45 +1,34 @@
-From: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] User Guide for Sysfs and libudev
-Date: Tue, 25 May 2010 06:43:30 +0200
-Message-ID: <AANLkTikDHib2QiQ51cJztYGxORojxo5PEwOGXvS5vCJ1@mail.gmail.com>
-References: <4BFAC0B0.2060701@signal11.us>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 5/5] HID: add chardev to propagate special events of
+ Roccat hardware to userland
+Date: Tue, 25 May 2010 09:45:37 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1005250944580.28092@pobox.suse.cz>
+References: <1274288116.2248.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4BFAC0B0.2060701@signal11.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:46105 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753247Ab0EYHpj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 May 2010 03:45:39 -0400
+In-Reply-To: <1274288116.2248.3.camel@localhost>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Stephane Chatty <chatty@enac.fr>, wylda@volny.cz, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.org, Jerome Vidal <jerom3@free.fr>, linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2010 at 20:08, Alan Ott <alan@signal11.us> wrote:
-> Several weeks ago I had need of libudev, and was unable to find very
-> much documentation for it on the web.
->
-> I have created a guide on how to use libudev, which also provides som=
-e
-> background information on /dev, Sysfs, and why this kind of thing is =
-needed.
->
-> Please check it out and provide comments, as I'm sure there are thing=
-s
-> which I have gotten wrong or omitted.
->
-> The guide can be found here:
-> =C2=A0 =C2=A0http://www.signal11.us/oss/udev/
+On Wed, 19 May 2010, Stefan Achatz wrote:
 
-Enumeration and monitoring should be in one example, I guess -- that's
-what people are supposed to do today. Before starting to enumerate,
-software should subscribe to events. This makes the handle
-coldplug/hotplug properly, makes it handle duplicate events properly,
-and all other sorts of cases, which software should handle today.
+> Module roccat is a char device used to report special events of roccat
+> hardware to userland. 
 
-Also "change" is not necessarily a "property" change, it can be any
-event, that a device has changed its state, it will only in  a few
-cases be visible in /sys. The most prominent example is "media
-changed" event for SCSI devices, and we forward them to the block
-device. There will never change anything in /sys before or after the
-event.
+I have now applied it.
 
-Kay
+It would be also nice if you could provide a link to the userspace 
+software taking care of these special events somewhere.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

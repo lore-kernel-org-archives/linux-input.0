@@ -1,66 +1,137 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
-Subject: Re: [RFC][PATCH] Add support for TMP105
-Date: Tue, 25 May 2010 13:21:27 +0100
-Message-ID: <4BFBC0C7.2010401@cam.ac.uk>
-References: <0680EC522D0CC943BC586913CF3768C003B32B4012@dbde02.ent.ti.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Tue, 25 May 2010 09:33:32 -0700
+Message-ID: <AANLkTilW4xkWdenQE3429jTmFDXabnAAx0iIUnSXNVQR@mail.gmail.com>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+	 <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+	 <20100523102413.2fee3f4c.rdunlap@xenotime.net>
+	 <4BF9ABC7.9090208@euromail.se>
+	 <AANLkTimQIIPiah962ar_TRZvJZpqCFvh-KLXxakbUHmZ@mail.gmail.com>
+	 <4BFA272B.7090602@euromail.se>
+	 <AANLkTimro6rna8MTqylaE2cnr_7Fif68Ldc6czLk7UDG@mail.gmail.com>
+	 <4BFABF40.30700@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B32B4012@dbde02.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LM Sensors <lm-sensors@lm-sensors.org>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:56238 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756580Ab0EYQdd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 May 2010 12:33:33 -0400
+In-Reply-To: <4BFABF40.30700@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On 05/25/10 13:12, Datta, Shubhrajyoti wrote:
-> 
-> Adds the driver support for the TMP105 temperature sensor device. The
-> interface is I2C.The driver supports the read of the temperature values.
-> 
-Still on the wrong list... cc'ing lm-sensors...
-Please check MAINTAINERS for the correct mailing list for patches.
+On Mon, May 24, 2010 at 11:02 AM, Henrik Rydberg <rydberg@euromail.se> =
+wrote:
+> Ping Cheng wrote:
+>> On Mon, May 24, 2010 at 12:13 AM, Henrik Rydberg <rydberg@euromail.s=
+e> wrote:
+>>> Ping Cheng wrote:
+>>>> What I am thinking is that we only need one SYN_ call for both _MT=
+_
+>>>> and regular data combined, which is a call to input_sync() at the =
+end
+>>>> of the whole packet. The SYN_MT_ can be replaced by the following
+>>>> example, which I think is more "client-friendly". This solution is
+>>>> based on the fact that the major difference between type A and typ=
+e B
+>>>> is whether we need to filter the data or not:
+>>>>
+>>>> ABS_MT_RANDOM 0
+>>>> ABS_MT_POSITION_X x[0]
+>>>> ABS_MT_POSITION_Y y[0]
+>>>> ABS_MT_ RANDOM 1
+>>>> ABS_MT_POSITION_X x[1]
+>>>> ABS_MT_POSITION_Y y[1]
+>>>> SYN_REPORT
+>>>>
+>>>> input_set_abs_params(input_dev, ABS_MT_RANDOM, 0, 2, 0, 0);
+>>>>
+>>>> would tell the clients that they can expect two random touches.
+>>> And if you do s/RANDOM/SLOT/, you end up with what? ;-)
+>>
+>> Haha, I know what you are thinking :).
+>>
+>> Maybe I didn't make my point clear. =A0I didn't mean to make SLOT
+>> backward compatible. =A0I meant to replace SYN_MT_REPORT event with =
+the
+>> ABS_MT_ RANDOM label so we only sync the whole packet once at the en=
+d.
+>> This way both types of MT_ data follow the same input event reportin=
+g
+>> flow....
+>
+> You mean changing the type A protocol, breaking the current code base=
+? That is a
+> big no-no.
 
+Hi Henrik,
 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-Acked-by: Jonathan Cameron <jic23@cam.ac.uk>
-> ---
->  drivers/hwmon/Kconfig |    3 ++-
->  drivers/hwmon/lm75.c  |    2 ++
->  2 files changed, 4 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-> index a4a5352..7a137d5 100644
-> --- a/drivers/hwmon/Kconfig
-> +++ b/drivers/hwmon/Kconfig
-> @@ -483,7 +483,8 @@ config SENSORS_LM75
->  		- NXP's LM75A
->  		- ST Microelectronics STDS75
->  		- TelCom (now Microchip) TCN75
-> -		- Texas Instruments TMP100, TMP101, TMP75, TMP175, TMP275
-> +		- Texas Instruments TMP100, TMP101, TMP105, TMP75, TMP175, 
-> +			TMP275
->  
->  	  This driver supports driver model based binding through board
->  	  specific I2C device tables.
-> diff --git a/drivers/hwmon/lm75.c b/drivers/hwmon/lm75.c
-> index 8ae2cfe..5646342 100644
-> --- a/drivers/hwmon/lm75.c
-> +++ b/drivers/hwmon/lm75.c
-> @@ -46,6 +46,7 @@ enum lm75_type {		/* keep sorted in alphabetical order */
->  	tcn75,
->  	tmp100,
->  	tmp101,
-> +	tmp105,
->  	tmp175,
->  	tmp275,
->  	tmp75,
-> @@ -220,6 +221,7 @@ static const struct i2c_device_id lm75_ids[] = {
->  	{ "tcn75", tcn75, },
->  	{ "tmp100", tmp100, },
->  	{ "tmp101", tmp101, },
-> +	{ "tmp105", tmp105, },
->  	{ "tmp175", tmp175, },
->  	{ "tmp275", tmp275, },
->  	{ "tmp75", tmp75, },
+I saw your new patchset, very much appreciated.  There are reasons
+that I am not "attacking" your new patches:
 
+1.  I don't want to ruin your hard work;
+2.  It would be easier for others to understand what I am talking
+about along this thread.
+
+I came up with another "crazy" idea which doesn't break the existing
+type A protocol/code. We leave the existing code as is. However, we
+make the new SLOT format support both type A and type B. This unified
+approach offers a benefit for future X driver and client developers to
+treat both types the same way.
+
+As we've discussed before, the major difference between type A and
+type B is the filtering and tracking mechanism. Filtering is tied to
+the tracking ID since we do not apply filter to the untracked touch
+poinsts. From this point of view, ABS_MT_SLOT doesn't lead to the
+filter. The existence of an unique tracking ID triggers the filter.
+
+Pure type A format (no filter applied):
+
+ABS_MT_SLOT 0
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+ABS_MT_ SLOT 1
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+SYN_REPORT
+
+Pure type B format (filter applied upon the detection of a tracking ID)
+
+ABS_MT_SLOT 0
+ABS_MT_TRACKING_ID 45
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+ABS_MT_SLOT 1
+ABS_MT_TRACKING_ID 46
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+SYN_REPORT
+
+Hybrid format (filter applied only when a tracking ID is detected):
+
+ABS_MT_SLOT 0
+ABS_MT_POSITION_X x[0]
+ABS_MT_POSITION_Y y[0]
+ABS_MT_SLOT 1
+ABS_MT_TRACKING_ID 46
+ABS_MT_POSITION_X x[1]
+ABS_MT_POSITION_Y y[1]
+ABS_MT_SLOT 2
+ABS_MT_TRACKING_ID 20
+ABS_MT_POSITION_X x[2]
+ABS_MT_POSITION_Y y[2]
+SYN_REPORT
+
+So, one protocol covers both cases for the future.
+
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

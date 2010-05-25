@@ -1,48 +1,119 @@
-From: Jindrich Makovicka <makovick@gmail.com>
-Subject: Re: [PATCH] HID: check for HID_QUIRK_IGNORE during probing
-Date: Tue, 25 May 2010 22:53:23 +0200
-Message-ID: <20100525225323.134b2c00@holly>
-References: <20100523204725.6e9e8dad@holly>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
+	and decoder plugins
+Date: Tue, 25 May 2010 17:05:17 -0400
+Message-ID: <AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
+References: <20100401145632.5631756f@pedra>
+	 <t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
+	 <20100402102011.GA6947@hardeman.nu>
+	 <p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+	 <20100407093205.GB3029@hardeman.nu>
+	 <z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+	 <20100424051206.GA3101@hardeman.nu>
+	 <h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lo.gmane.org ([80.91.229.12]:51585 "EHLO lo.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756378Ab0EYUxe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 May 2010 16:53:34 -0400
-Received: from list by lo.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1OH17y-0000wp-QN
-	for linux-input@vger.kernel.org; Tue, 25 May 2010 22:53:30 +0200
-Received: from r11at174.net.upc.cz ([94.112.45.174])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 22:53:30 +0200
-Received: from makovick by r11at174.net.upc.cz with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 25 May 2010 22:53:30 +0200
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:55372 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752611Ab0EYVFT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 May 2010 17:05:19 -0400
+In-Reply-To: <h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 
-Updated to current git:
+On Wed, Apr 28, 2010 at 12:32 AM, Jarod Wilson <jarod@wilsonet.com> wro=
+te:
+> On Sat, Apr 24, 2010 at 1:12 AM, David H=E4rdeman <david@hardeman.nu>=
+ wrote:
+>> On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
+>>> So now that I'm more or less done with porting the imon driver, I
+>>> think I'm ready to start tackling the mceusb driver. But I'm debati=
+ng
+>>> on what approach to take with respect to lirc support. It sort of
+>>> feels like we should have lirc_dev ported as an ir "decoder"
+>>> driver/plugin before starting to port mceusb to ir-core, so that we
+>>> can maintain lirc compat and transmit support. Alternatively, I cou=
+ld
+>>> port mceusb without lirc support for now, leaving it to only use
+>>> in-kernel decoding and have no transmit support for the moment, the=
+n
+>>> re-add lirc support. I'm thinking that porting lirc_dev as, say,
+>>> ir-lirc-decoder first is probably the way to go though. Anyone else
+>>> want to share their thoughts on this?
+>>
+>> I think it would make sense to start with a mce driver without the T=
+X
+>> and lirc bits first. Adding lirc rx support can be done as a separat=
+e
+>> "raw" decoder later (so its scope is outside the mce driver anyway) =
+and
+>> TX support is not implemented in ir-core yet and we haven't had any
+>> discussion yet on which form it should take.
+>
+> So after looking at folks feedback, I did settle on starting the
+> mceusb port first, my logic going more or less like this... Having a
+> well-supported general-purpose IR receiver functional is a Good Thing
+> for people wanting to work on protocol support (i.e., so they have a
+> way to actually test protocol support). Having an
+> already-ir-core-ified driver to test out an ir-lirc-decoder (lirc_dev
+> port) would also be rather helpful. So rather than trying to port
+> lirc_dev before there's anything that can actually make use of it,
+> give myself something to work with. I'm kind of thinking that
+> ir-lirc-decoder might actually be ir-lirc-codec, able to do xmit as
+> well, maintaining full compat with lirc userspace, and then we'd have
+> a separate input subsystem based xmit method at some point, which
+> might be the "preferred/blessed" route. This means ripping a bunch of
+> code out of lirc_mceusb.c only to put it back in later, but that's no=
+t
+> terribly painful. I've already got as far as having an mceusb.c that
+> has no lirc dependency, which builds, but doesn't actually do anythin=
+g
+> useful yet (not wired up to ir-core). Should be able to get something
+> functional RSN, I hope...
 
---- hid-core.c.orig	2010-05-25 22:04:58.000000000 +0200
-+++ hid-core.c	2010-05-25 22:08:53.791241376 +0200
-@@ -1759,7 +1759,8 @@
- 
- 	/* we need to kill them here, otherwise they will stay
-allocated to
- 	 * wait for coming driver */
--	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE) && hid_ignore(hdev))
-+	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE)
-+            && (hid_ignore(hdev) || (hdev->quirks & HID_QUIRK_IGNORE)))
- 		return -ENODEV;
- 
- 	/* XXX hack, any other cleaner solution after the driver core
+Got sidetracked for a few weeks, but I'm probably 95% of the way there
+as of this afternoon. Something isn't quite right with how I'm
+processing and handing off the raw IR data right now though, best as I
+can tell. Its also possible my first-gen mce device is throwing things
+for a loop, so I need to see if maybe things Just Work with a newer
+gen device so I know if its device-specific, or if something is still
+generally wrong. I did crib the simplified mce data processing routine
+from Jon's code, but the original lirc_mceusb.c has some changes
+specific to the first-gen mce device that were made to properly
+support it quite some time after Jon's port, so I may also try w/the
+uglier/more complex routine I know has been working on this device...
 
--- 
-Jindrich Makovicka
+David, you mentioned having something based on Jon's earlier port that
+was more or less working. I'd be curious to get a look at that if
+you're willing to drop me a copy, see if I've missed something
+blindingly stupid. :)
 
+What I get right now when I press a key:
+=2E..
+ir_rc6_decode: RC6 decode failed at state 0 (0us space)
+ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
+ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
+ir_rc6_decode: RC6 decode failed at state 0 (0us space)
+ir_rc6_decode: RC6 decode failed at state 0 (1us pulse)
+ir_rc6_decode: RC6 decode failed at state 0 (0us space)
+ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
+ir_rc6_decode: RC6 decode failed at state 0 (0us pulse)
+ir_rc6_decode: RC6 decode failed at state 0 (0us space)
+ir_rc6_decode: RC6 decode failed at state 0 (1us pulse)
 
+Always fails at state 0, varying us values from 0 to 100, but mostly 0 =
+and 1.
+
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

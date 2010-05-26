@@ -1,86 +1,59 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 0/2] input: mt: Add EVIOC mechanism for MT slots
-Date: Wed, 26 May 2010 08:59:35 -0700
-Message-ID: <AANLkTimR3VN21URkandBGhPjWYdkdFP2zmAVscyRbqtW@mail.gmail.com>
-References: <1274788379-11026-1-git-send-email-rydberg@euromail.se>
-	 <20100525173446.GA4634@core.coreip.homeip.net>
-	 <4BFC2A7D.50501@euromail.se>
-	 <20100525202340.GD4455@core.coreip.homeip.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 0/8] Suspend block api (version 6)
+Date: Wed, 26 May 2010 12:01:49 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1005261156130.1328-100000@iolanthe.rowland.org>
+References: <CEE6BB42CAD6E947908279175AF8470A025A7D7DC4@EXDCVYMBSTM006.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100525202340.GD4455@core.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+In-Reply-To: <CEE6BB42CAD6E947908279175AF8470A025A7D7DC4@EXDCVYMBSTM006.EQ1STM.local>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: Linus WALLEIJ <linus.walleij@stericsson.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-pm@lists.linux-foundation.org" <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, Oleg Nesterov <oleg@redhat.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 25, 2010 at 1:23 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, May 25, 2010 at 09:52:29PM +0200, Henrik Rydberg wrote:
->> Dmitry Torokhov wrote:
->> > Hi Henrik,
->> >
->> > On Tue, May 25, 2010 at 01:52:57PM +0200, Henrik Rydberg wrote:
->> >> These patches are in response to the discussion about input state
->> >> retrieval.
->> >>
->> >> The current EVIOCGABS method does not work with MT slots. =A0Thes=
-e
->> >> patches provides a mechanism where a slot is first selected via a=
- call
->> >> to EVIOCSABS, after which the corresponding MT events can be extr=
-acted
->> >> with calls to EVIOCGABS.
->> >>
->> >> The symmetric operation, to set the MT state via EVIOCSABS, seems=
- to
->> >> violate input data integrity, and is therefore not implemented.
->> >>
->> >
->> > This looks sane, however the question remains - is there any users=
- for
->> > this data? Like I mentioned, I can see the need to fetch state of
->> > switches and ranges of absolute axis, and even non-multitouch ABS =
-values
->> > (due to the fact that some input devices, like sliders, may stay i=
-n a
->> > certain position for long periods of time), but I expect multitouc=
-h data
->> > to be "refreshed" very quickly.
->> >
->> > Thanks.
->> >
->>
->> There were some voices addressing this issue, and the patches are he=
-re,
->> available for whomever to pick up. Drop them if you wish, I will not=
- send them anew.
->>
->
-> I'll save them in my queue but will hold off applying until I hear
-> userspace folks requesting such functionality.
+On Wed, 26 May 2010, Linus WALLEIJ wrote:
 
-Hi Dmitry,
+> Overall as a driver writer I'm quite confused at this point, if
+> I have a driver X, how is that code going to look if it is going
+> to support both runtime PM *and* suspend blockers? I don't say
+> it has to support both mechanisms in parallell, I'm even fine
+> with putting it in #ifdef:s, but how will the source code look?
+> A real-world example on a simple driver out of the Motorola Droid
+> git or so would help a lot.
+> 
+> It's quite relevant since e.g. all OMAP drivers will need this
+> modification to be used with Android-like systems, and at
+> ST-Ericsson we will need both runtime PM and suspend blockers for
+> our drivers as well. It will as a consequence affect the drivers
+> for all ARM reference boards since we use the drivers for ARM
+> PrimeCells. etc...
+> 
+> Now if this mechanism is going in, my main interest is that there
+> is some clearly cut way and design pattern for supporting both
+> runtime PM and suspend blocks.
 
-You do have a valid point - the (x,y) from a touch object would most
-likely change all the time. Even if the object itself is in a steady
-state on the digitizer, i.e., without any intentional movement, the
-electronic noise would most likely lead to some (x,y) changes. So, the
-chance that we need to retrieve (x,y) is rare.
+It's not difficult.  You just have to decide what situations should 
+block opportunistic suspend.  For example, let's say that opportunistic 
+suspend should be blocked when your event queue is non-empty.
 
-However, it is possibe that when X driver starts, an object was
-already on the digitizer. And the digitizer is of such a high quality
-:), it filtered all the noises so we can not locate the touch without
-a EVIOCGABS call.
+Then in the routine that adds new events to the queue, while still
+holding the spinlock that protects your queue, you enable your suspend
+blocker.  Likewise, in the routine that takes events off the queue and
+sends them to userspace, while holding the spinlock you test whether
+the queue has become empty; if it has you disable your suspend blocker.
 
-Plus, from a pure coding/development point of view, it is not a bad
-practice to provide the equivalent features for _MT_ support as we did
-for the existing input devices. At least, it doesn't hurt to make the
-support consistent across devices/tools (considering touch as a new
-input device/tool).
+That's all.  No other changes are needed (except to create and destroy 
+the suspend blocker, of course).  No other interaction with suspend, 
+resume, or runtime PM.
 
-Hope I didn't miss too much this round :).
-
-Ping
+Alan Stern

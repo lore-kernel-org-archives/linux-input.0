@@ -1,185 +1,172 @@
-From: Luotao Fu <l.fu@pengutronix.de>
-Subject: [PATCH] matrix_keypad: add support for clustered irq
-Date: Wed, 26 May 2010 15:57:06 +0200
-Message-ID: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Luotao Fu <l.fu@pengutronix.de>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: [PATCH] matrix_keypad: add support for clustered irq
+Date: Wed, 26 May 2010 22:29:53 +0800
+Message-ID: <AANLkTimYG1kQBSmp2CPgLoPt-S4mNsJY2QV-cPJgV5lT@mail.gmail.com>
+References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:39490 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755184Ab0EZOaO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 May 2010 10:30:14 -0400
+In-Reply-To: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Luotao Fu <l.fu@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This one adds support of a combined irq source for the whole matrix keypad.
-This can be useful all rows and columns of the keypad is e.g. connected to
-a GPIO expander, which only has one interrupt line for all events on every
-single GPIO.
-
-Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
----
- drivers/input/keyboard/matrix_keypad.c |   80 ++++++++++++++++++++++++++------
- include/linux/input/matrix_keypad.h    |    5 ++
- 2 files changed, 70 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index b443e08..260dcb0 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -87,8 +87,12 @@ static void enable_row_irqs(struct matrix_keypad *keypad)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	for (i = 0; i < pdata->num_row_gpios; i++)
--		enable_irq(gpio_to_irq(pdata->row_gpios[i]));
-+	if (pdata->clustered_irq > 0)
-+		enable_irq(pdata->clustered_irq);
-+	else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			enable_irq(gpio_to_irq(pdata->row_gpios[i]));
-+	}
- }
- 
- static void disable_row_irqs(struct matrix_keypad *keypad)
-@@ -96,8 +100,12 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	for (i = 0; i < pdata->num_row_gpios; i++)
--		disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
-+	if (pdata->clustered_irq > 0)
-+		disable_irq_nosync(pdata->clustered_irq);
-+	else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
-+	}
- }
- 
- /*
-@@ -226,6 +234,17 @@ static int matrix_keypad_suspend(struct device *dev)
- 	matrix_keypad_stop(keypad->input_dev);
- 
- 	if (device_may_wakeup(&pdev->dev)) {
-+		if (pdata->clustered_irq > 0) {
-+			unsigned int cirq = pdata->clustered_irq;
-+
-+			if (enable_irq_wake(cirq) == 0) {
-+				for (i = 0; i < pdata->num_row_gpios; i++)
-+					__set_bit(i, keypad->disabled_gpios);
-+			}
-+
-+			goto out;
-+		}
-+
- 		for (i = 0; i < pdata->num_row_gpios; i++) {
- 			if (!test_bit(i, keypad->disabled_gpios)) {
- 				unsigned int gpio = pdata->row_gpios[i];
-@@ -235,7 +254,7 @@ static int matrix_keypad_suspend(struct device *dev)
- 			}
- 		}
- 	}
--
-+out:
- 	return 0;
- }
- 
-@@ -247,6 +266,17 @@ static int matrix_keypad_resume(struct device *dev)
- 	int i;
- 
- 	if (device_may_wakeup(&pdev->dev)) {
-+		if (pdata->clustered_irq > 0) {
-+			unsigned int cirq = pdata->clustered_irq;
-+
-+			if (disable_irq_wake(cirq) == 0) {
-+				for (i = 0; i < pdata->num_row_gpios; i++)
-+					clear_bit(i, keypad->disabled_gpios);
-+			}
-+
-+			goto out;
-+		}
-+
- 		for (i = 0; i < pdata->num_row_gpios; i++) {
- 			if (test_and_clear_bit(i, keypad->disabled_gpios)) {
- 				unsigned int gpio = pdata->row_gpios[i];
-@@ -256,6 +286,7 @@ static int matrix_keypad_resume(struct device *dev)
- 		}
- 	}
- 
-+out:
- 	matrix_keypad_start(keypad->input_dev);
- 
- 	return 0;
-@@ -296,17 +327,31 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
- 		gpio_direction_input(pdata->row_gpios[i]);
- 	}
- 
--	for (i = 0; i < pdata->num_row_gpios; i++) {
--		err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-+	if (pdata->clustered_irq > 0) {
-+		err = request_irq(pdata->clustered_irq,
- 				matrix_keypad_interrupt,
--				IRQF_DISABLED |
--				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				pdata->clustered_irq_flags,
- 				"matrix-keypad", keypad);
- 		if (err) {
- 			dev_err(&pdev->dev,
--				"Unable to acquire interrupt for GPIO line %i\n",
--				pdata->row_gpios[i]);
--			goto err_free_irqs;
-+				"Unable to acquire clustered interrupt\n");
-+			goto err_free_rows;
-+		}
-+	} else {
-+		for (i = 0; i < pdata->num_row_gpios; i++) {
-+			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-+					matrix_keypad_interrupt,
-+					IRQF_DISABLED |
-+					IRQF_TRIGGER_RISING |
-+					IRQF_TRIGGER_FALLING,
-+					"matrix-keypad", keypad);
-+			if (err) {
-+				dev_err(&pdev->dev,
-+					"Unable to acquire interrupt "
-+					"for GPIO line %i\n",
-+					pdata->row_gpios[i]);
-+				goto err_free_irqs;
-+			}
- 		}
- 	}
- 
-@@ -418,11 +463,16 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 0);
- 
--	for (i = 0; i < pdata->num_row_gpios; i++) {
--		free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
--		gpio_free(pdata->row_gpios[i]);
-+	if (pdata->clustered_irq > 0) {
-+		free_irq(pdata->clustered_irq, keypad);
-+	} else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
- 	}
- 
-+	for (i = 0; i < pdata->num_row_gpios; i++)
-+		gpio_free(pdata->row_gpios[i]);
-+
- 	for (i = 0; i < pdata->num_col_gpios; i++)
- 		gpio_free(pdata->col_gpios[i]);
- 
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index c964cd7..8e8dc2e 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -63,6 +63,11 @@ struct matrix_keypad_platform_data {
- 	/* key debounce interval in milli-second */
- 	unsigned int	debounce_ms;
- 
-+	/* used if interrupts of all row/column GPIOs are bundled to one single
-+	 * irq */
-+	unsigned int	clustered_irq;
-+	unsigned int	clustered_irq_flags;
-+
- 	bool		active_low;
- 	bool		wakeup;
- 	bool		no_autorepeat;
--- 
-1.7.0
+T24gV2VkLCBNYXkgMjYsIDIwMTAgYXQgOTo1NyBQTSwgTHVvdGFvIEZ1IDxsLmZ1QHBlbmd1dHJv
+bml4LmRlPiB3cm90ZToKPiBUaGlzIG9uZSBhZGRzIHN1cHBvcnQgb2YgYSBjb21iaW5lZCBpcnEg
+c291cmNlIGZvciB0aGUgd2hvbGUgbWF0cml4IGtleXBhZC4KPiBUaGlzIGNhbiBiZSB1c2VmdWwg
+YWxsIHJvd3MgYW5kIGNvbHVtbnMgb2YgdGhlIGtleXBhZCBpcyBlLmcuIGNvbm5lY3RlZCB0bwo+
+IGEgR1BJTyBleHBhbmRlciwgd2hpY2ggb25seSBoYXMgb25lIGludGVycnVwdCBsaW5lIGZvciBh
+bGwgZXZlbnRzIG9uIGV2ZXJ5Cj4gc2luZ2xlIEdQSU8uCj4KPiBTaWduZWQtb2ZmLWJ5OiBMdW90
+YW8gRnUgPGwuZnVAcGVuZ3V0cm9uaXguZGU+Cj4gLS0tCj4gwqBkcml2ZXJzL2lucHV0L2tleWJv
+YXJkL21hdHJpeF9rZXlwYWQuYyB8IMKgIDgwICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0t
+LS0tCj4gwqBpbmNsdWRlL2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaCDCoCDCoHwgwqAgwqA1
+ICsrCj4gwqAyIGZpbGVzIGNoYW5nZWQsIDcwIGluc2VydGlvbnMoKyksIDE1IGRlbGV0aW9ucygt
+KQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBhZC5j
+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMKPiBpbmRleCBiNDQzZTA4
+Li4yNjBkY2IwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tl
+eXBhZC5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMKPiBA
+QCAtODcsOCArODcsMTIgQEAgc3RhdGljIHZvaWQgZW5hYmxlX3Jvd19pcnFzKHN0cnVjdCBtYXRy
+aXhfa2V5cGFkICprZXlwYWQpCj4gwqAgwqAgwqAgwqBjb25zdCBzdHJ1Y3QgbWF0cml4X2tleXBh
+ZF9wbGF0Zm9ybV9kYXRhICpwZGF0YSA9IGtleXBhZC0+cGRhdGE7Cj4gwqAgwqAgwqAgwqBpbnQg
+aTsKPgo+IC0gwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBp
+KyspCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKGdwaW9fdG9faXJxKHBkYXRh
+LT5yb3dfZ3Bpb3NbaV0pKTsKPiArIMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+
+IDApCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKHBkYXRhLT5jbHVzdGVyZWRf
+aXJxKTsKPiArIMKgIMKgIMKgIGVsc2Ugewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9yIChp
+ID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspCj4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3Nb
+aV0pKTsKPiArIMKgIMKgIMKgIH0KPiDCoH0KPgo+IMKgc3RhdGljIHZvaWQgZGlzYWJsZV9yb3df
+aXJxcyhzdHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFkKQo+IEBAIC05Niw4ICsxMDAsMTIgQEAg
+c3RhdGljIHZvaWQgZGlzYWJsZV9yb3dfaXJxcyhzdHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFk
+KQo+IMKgIMKgIMKgIMKgY29uc3Qgc3RydWN0IG1hdHJpeF9rZXlwYWRfcGxhdGZvcm1fZGF0YSAq
+cGRhdGEgPSBrZXlwYWQtPnBkYXRhOwo+IMKgIMKgIMKgIMKgaW50IGk7Cj4KPiAtIMKgIMKgIMKg
+IGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlvczsgaSsrKQo+IC0gwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgZGlzYWJsZV9pcnFfbm9zeW5jKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bp
+b3NbaV0pKTsKPiArIMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApCj4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBkaXNhYmxlX2lycV9ub3N5bmMocGRhdGEtPmNsdXN0ZXJlZF9p
+cnEpOwo+ICsgwqAgwqAgwqAgZWxzZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3IgKGkg
+PSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGRpc2FibGVfaXJxX25vc3luYyhncGlvX3RvX2lycShwZGF0YS0+cm93
+X2dwaW9zW2ldKSk7Cj4gKyDCoCDCoCDCoCB9Cj4gwqB9Cj4KPiDCoC8qCj4gQEAgLTIyNiw2ICsy
+MzQsMTcgQEAgc3RhdGljIGludCBtYXRyaXhfa2V5cGFkX3N1c3BlbmQoc3RydWN0IGRldmljZSAq
+ZGV2KQo+IMKgIMKgIMKgIMKgbWF0cml4X2tleXBhZF9zdG9wKGtleXBhZC0+aW5wdXRfZGV2KTsK
+Pgo+IMKgIMKgIMKgIMKgaWYgKGRldmljZV9tYXlfd2FrZXVwKCZwZGV2LT5kZXYpKSB7Cj4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4gKyDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgY2lycSA9IHBkYXRh
+LT5jbHVzdGVyZWRfaXJxOwo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IGlmIChlbmFibGVfaXJxX3dha2UoY2lycSkgPT0gMCkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93
+X2dwaW9zOyBpKyspCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCBfX3NldF9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9ncGlvcyk7Cj4g
+KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4gKwo+ICsgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgZ290byBvdXQ7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9
+Cj4gKwoKVGhpcyBtaWdodCBkZXNlcnZlIGEgc2VwYXJhdGUgZnVuY3Rpb24sIGFuZCB3aGF0IGlz
+IHRoZSB1c2FnZSBvZiBkaXNhYmxlZF9ncGlvcywKSSBzZWVtIHRvIGZpbmQgbm93aGVyZSAoZXhj
+ZXB0IGluIHRoZSByZXN1bWUgcm91dGluZSkuCgo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZm9y
+IChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlmICghdGVzdF9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9n
+cGlvcykpIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oHVuc2lnbmVkIGludCBncGlvID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiBAQCAtMjM1LDcgKzI1
+NCw3IEBAIHN0YXRpYyBpbnQgbWF0cml4X2tleXBhZF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRl
+dikKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoH0KPiDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoH0KPiDCoCDCoCDCoCDCoH0KPiAtCj4gK291dDoKPiDCoCDCoCDCoCDCoHJldHVy
+biAwOwo+IMKgfQo+Cj4gQEAgLTI0Nyw2ICsyNjYsMTcgQEAgc3RhdGljIGludCBtYXRyaXhfa2V5
+cGFkX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCj4gwqAgwqAgwqAgwqBpbnQgaTsKPgo+IMKg
+IMKgIMKgIMKgaWYgKGRldmljZV9tYXlfd2FrZXVwKCZwZGV2LT5kZXYpKSB7Cj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgY2lycSA9IHBkYXRhLT5jbHVz
+dGVyZWRfaXJxOwo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChk
+aXNhYmxlX2lycV93YWtlKGNpcnEpID09IDApIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlv
+czsgaSsrKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgY2xlYXJfYml0KGksIGtleXBhZC0+ZGlzYWJsZWRfZ3Bpb3MpOwo+ICsgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGdvdG8gb3V0Owo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+ICsK
+CkJldHRlciBhIHNlcGFyYXRlIHJvdXRpbmUuCgo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZm9y
+IChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlmICh0ZXN0X2FuZF9jbGVhcl9iaXQoaSwga2V5cGFkLT5k
+aXNhYmxlZF9ncGlvcykpIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoHVuc2lnbmVkIGludCBncGlvID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiBAQCAt
+MjU2LDYgKzI4Niw3IEBAIHN0YXRpYyBpbnQgbWF0cml4X2tleXBhZF9yZXN1bWUoc3RydWN0IGRl
+dmljZSAqZGV2KQo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgfQo+IMKgIMKgIMKgIMKgfQo+Cj4g
+K291dDoKPiDCoCDCoCDCoCDCoG1hdHJpeF9rZXlwYWRfc3RhcnQoa2V5cGFkLT5pbnB1dF9kZXYp
+Owo+Cj4gwqAgwqAgwqAgwqByZXR1cm4gMDsKPiBAQCAtMjk2LDE3ICszMjcsMzEgQEAgc3RhdGlj
+IGludCBfX2RldmluaXQgaW5pdF9tYXRyaXhfZ3BpbyhzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpw
+ZGV2LAo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZ3Bpb19kaXJlY3Rpb25faW5wdXQocGRhdGEt
+PnJvd19ncGlvc1tpXSk7Cj4gwqAgwqAgwqAgwqB9Cj4KPiAtIMKgIMKgIMKgIGZvciAoaSA9IDA7
+IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlvczsgaSsrKSB7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCBlcnIgPSByZXF1ZXN0X2lycShncGlvX3RvX2lycShwZGF0YS0+cm93X2dwaW9zW2ldKSwKPiAr
+IMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApIHsKPiArIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGVyciA9IHJlcXVlc3RfaXJxKHBkYXRhLT5jbHVzdGVyZWRfaXJxLAo+IMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgbWF0cml4X2tleXBhZF9p
+bnRlcnJ1cHQsCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCBJUlFGX0RJU0FCTEVEIHwKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIElSUUZfVFJJR0dFUl9SSVNJTkcgfCBJUlFGX1RSSUdHRVJfRkFMTElORywKPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHBkYXRhLT5jbHVz
+dGVyZWRfaXJxX2ZsYWdzLAo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIm1hdHJpeC1rZXlwYWQiLCBrZXlwYWQpOwo+IMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgaWYgKGVycikgewo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZGV2X2Vy
+cigmcGRldi0+ZGV2LAo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgIlVuYWJsZSB0byBhY3F1aXJlIGludGVycnVwdCBmb3IgR1BJTyBsaW5lICVpXG4iLAo+
+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcGRhdGEtPnJv
+d19ncGlvc1tpXSk7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBnb3RvIGVy
+cl9mcmVlX2lycXM7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCAiVW5hYmxlIHRvIGFjcXVpcmUgY2x1c3RlcmVkIGludGVycnVwdFxuIik7Cj4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBnb3RvIGVycl9mcmVlX3Jvd3M7Cj4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCB9Cj4gKyDCoCDCoCDCoCB9IGVsc2Ugewo+ICsgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVyciA9IHJlcXVlc3RfaXJxKGdwaW9f
+dG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3NbaV0pLAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgbWF0cml4X2tleXBhZF9pbnRlcnJ1cHQs
+Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCBJUlFGX0RJU0FCTEVEIHwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIElSUUZfVFJJR0dFUl9SSVNJTkcgfAo+ICsgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgSVJRRl9U
+UklHR0VSX0ZBTExJTkcsCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCAibWF0cml4LWtleXBhZCIsIGtleXBhZCk7Cj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoZXJyKSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkZXZfZXJyKCZwZGV2LT5kZXYsCj4gKyDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAiVW5h
+YmxlIHRvIGFjcXVpcmUgaW50ZXJydXB0ICIKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJmb3IgR1BJTyBsaW5lICVpXG4iLAo+ICsg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+cGRhdGEtPnJvd19ncGlvc1tpXSk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBnb3RvIGVycl9mcmVlX2lycXM7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCB9CgpEaXR0by4KCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4gwqAg
+wqAgwqAgwqB9Cj4KPiBAQCAtNDE4LDExICs0NjMsMTYgQEAgc3RhdGljIGludCBfX2RldmV4aXQg
+bWF0cml4X2tleXBhZF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKPgo+IMKg
+IMKgIMKgIMKgZGV2aWNlX2luaXRfd2FrZXVwKCZwZGV2LT5kZXYsIDApOwo+Cj4gLSDCoCDCoCDC
+oCBmb3IgKGkgPSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykgewo+IC0gwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgZnJlZV9pcnEoZ3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSks
+IGtleXBhZCk7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBncGlvX2ZyZWUocGRhdGEtPnJvd19n
+cGlvc1tpXSk7Cj4gKyDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4g
+KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmcmVlX2lycShwZGF0YS0+Y2x1c3RlcmVkX2lycSwga2V5
+cGFkKTsKPiArIMKgIMKgIMKgIH0gZWxzZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3Ig
+KGkgPSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIGZyZWVfaXJxKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3Nb
+aV0pLCBrZXlwYWQpOwo+IMKgIMKgIMKgIMKgfQo+Cj4gKyDCoCDCoCDCoCBmb3IgKGkgPSAwOyBp
+IDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdw
+aW9fZnJlZShwZGF0YS0+cm93X2dwaW9zW2ldKTsKPiArCj4gwqAgwqAgwqAgwqBmb3IgKGkgPSAw
+OyBpIDwgcGRhdGEtPm51bV9jb2xfZ3Bpb3M7IGkrKykKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oGdwaW9fZnJlZShwZGF0YS0+Y29sX2dwaW9zW2ldKTsKPgo+IGRpZmYgLS1naXQgYS9pbmNsdWRl
+L2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaCBiL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4
+X2tleXBhZC5oCj4gaW5kZXggYzk2NGNkNy4uOGU4ZGMyZSAxMDA2NDQKPiAtLS0gYS9pbmNsdWRl
+L2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvaW5wdXQv
+bWF0cml4X2tleXBhZC5oCj4gQEAgLTYzLDYgKzYzLDExIEBAIHN0cnVjdCBtYXRyaXhfa2V5cGFk
+X3BsYXRmb3JtX2RhdGEgewo+IMKgIMKgIMKgIMKgLyoga2V5IGRlYm91bmNlIGludGVydmFsIGlu
+IG1pbGxpLXNlY29uZCAqLwo+IMKgIMKgIMKgIMKgdW5zaWduZWQgaW50IMKgIMKgZGVib3VuY2Vf
+bXM7Cj4KPiArIMKgIMKgIMKgIC8qIHVzZWQgaWYgaW50ZXJydXB0cyBvZiBhbGwgcm93L2NvbHVt
+biBHUElPcyBhcmUgYnVuZGxlZCB0byBvbmUgc2luZ2xlCj4gKyDCoCDCoCDCoCDCoCogaXJxICov
+Cj4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgwqAgwqBjbHVzdGVyZWRfaXJxOwo+ICsgwqAgwqAg
+wqAgdW5zaWduZWQgaW50IMKgIMKgY2x1c3RlcmVkX2lycV9mbGFnczsKPiArCj4gwqAgwqAgwqAg
+wqBib29sIMKgIMKgIMKgIMKgIMKgIMKgYWN0aXZlX2xvdzsKPiDCoCDCoCDCoCDCoGJvb2wgwqAg
+wqAgwqAgwqAgwqAgwqB3YWtldXA7Cj4gwqAgwqAgwqAgwqBib29sIMKgIMKgIMKgIMKgIMKgIMKg
+bm9fYXV0b3JlcGVhdDsKPiAtLQo+IDEuNy4wCj4KPgoKT3RoZXJ3aXNlIGxvb2tzIE9LIHRvIG1l
+Lgo=

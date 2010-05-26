@@ -1,154 +1,185 @@
-From: Christoph Egger <siccegge@cs.fau.de>
-Subject: [PATCH] config SPRUCE
-Date: Wed, 26 May 2010 15:36:21 +0200
-Message-ID: <20100526133621.GB7508__31953.7669224248$1274881466$gmane$org@faui49.informatik.uni-erlangen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from faui40.informatik.uni-erlangen.de ([131.188.34.40]:65189 "EHLO
-	faui40.informatik.uni-erlangen.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755091Ab0EZNoT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 May 2010 09:44:19 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+From: Luotao Fu <l.fu@pengutronix.de>
+Subject: [PATCH] matrix_keypad: add support for clustered irq
+Date: Wed, 26 May 2010 15:57:06 +0200
+Message-ID: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Luotao Fu <l.fu@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>, Tejun Heo <tj@kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Greg Ungerer <gerg@uclinux.org>, Thiago Farina <tfransosi@gmail.com>linux
-Cc: vamos@i4.informatik.uni-erlangen.de
 
-Hi all!
+This one adds support of a combined irq source for the whole matrix keypad.
+This can be useful all rows and columns of the keypad is e.g. connected to
+a GPIO expander, which only has one interrupt line for all events on every
+single GPIO.
 
-	As part of the VAMOS[0] research project at the University of
-Erlangen we are looking at multiple integrity errors in linux'
-configuration system.
-
-	CONFIG_SPRUCE is obsolete since kernel 2.6.26 so this last bit
-should be killed as well I guess.
-
-	Please keep me informed of this patch getting confirmed /
-merged so we can keep track of it.
-
-Regards
-
-	Christoph Egger
-
-[0] http://vamos1.informatik.uni-erlangen.de/
-
-----
->From 2f75bae3a66c39b85d83024fa86113cc5ea2c10b Mon Sep 17 00:00:00 2001
-From: Christoph Egger <siccegge@cs.fau.de>
-Date: Wed, 26 May 2010 12:47:42 +0200
-Subject: [PATCH] Remaining of CONFIG_SPRUCE removal (2.6.26)
-
-CONFIG_SPRUCE was removed from kernel around 2.6.26. Last piece of
-relevant code that is still in linux' source tree will be removed by
-this patch.
-
-Signed-off-by: Christoph Egger <siccegge@cs.fau.de>
+Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
 ---
- drivers/input/serio/i8042-ppcio.h |   75 -------------------------------------
- 1 files changed, 0 insertions(+), 75 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c |   80 ++++++++++++++++++++++++++------
+ include/linux/input/matrix_keypad.h    |    5 ++
+ 2 files changed, 70 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-ppcio.h b/drivers/input/serio/i8042-ppcio.h
-index 2906e1b..f708c75 100644
---- a/drivers/input/serio/i8042-ppcio.h
-+++ b/drivers/input/serio/i8042-ppcio.h
-@@ -52,81 +52,6 @@ static inline void i8042_platform_exit(void)
- {
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index b443e08..260dcb0 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -87,8 +87,12 @@ static void enable_row_irqs(struct matrix_keypad *keypad)
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+ 	int i;
+ 
+-	for (i = 0; i < pdata->num_row_gpios; i++)
+-		enable_irq(gpio_to_irq(pdata->row_gpios[i]));
++	if (pdata->clustered_irq > 0)
++		enable_irq(pdata->clustered_irq);
++	else {
++		for (i = 0; i < pdata->num_row_gpios; i++)
++			enable_irq(gpio_to_irq(pdata->row_gpios[i]));
++	}
  }
  
--#elif defined(CONFIG_SPRUCE)
--
--#define I8042_KBD_IRQ 22
--#define I8042_AUX_IRQ 21
--
--#define I8042_KBD_PHYS_DESC "spruceps2/serio0"
--#define I8042_AUX_PHYS_DESC "spruceps2/serio1"
--#define I8042_MUX_PHYS_DESC "spruceps2/serio%d"
--
--#define I8042_COMMAND_REG 0xff810000
--#define I8042_DATA_REG 0xff810001
--
--static inline int i8042_read_data(void)
--{
--	unsigned long kbd_data;
--
--	__raw_writel(0x00000088, 0xff500008);
--	eieio();
--
--	__raw_writel(0x03000000, 0xff50000c);
--	eieio();
--
--	asm volatile("lis     7,0xff88        \n\
--		      lswi    6,7,0x8         \n\
--		      mr      %0,6"
--	              : "=r" (kbd_data) :: "6", "7");
--
--	__raw_writel(0x00000000, 0xff50000c);
--	eieio();
--
--	return (unsigned char)(kbd_data >> 24);
--}
--
--static inline int i8042_read_status(void)
--{
--	unsigned long kbd_status;
--
--	__raw_writel(0x00000088, 0xff500008);
--	eieio();
--
--	__raw_writel(0x03000000, 0xff50000c);
--	eieio();
--
--	asm volatile("lis     7,0xff88        \n\
--		      ori     7,7,0x8         \n\
--		      lswi    6,7,0x8         \n\
--		      mr      %0,6"
--		      : "=r" (kbd_status) :: "6", "7");
--
--	__raw_writel(0x00000000, 0xff50000c);
--	eieio();
--
--	return (unsigned char)(kbd_status >> 24);
--}
--
--static inline void i8042_write_data(int val)
--{
--	*((unsigned char *)0xff810000) = (char)val;
--}
--
--static inline void i8042_write_command(int val)
--{
--	*((unsigned char *)0xff810001) = (char)val;
--}
--
--static inline int i8042_platform_init(void)
--{
--	i8042_reset = 1;
--	return 0;
--}
--
--static inline void i8042_platform_exit(void)
--{
--}
--
- #else
+ static void disable_row_irqs(struct matrix_keypad *keypad)
+@@ -96,8 +100,12 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+ 	int i;
  
- #include "i8042-io.h"
+-	for (i = 0; i < pdata->num_row_gpios; i++)
+-		disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
++	if (pdata->clustered_irq > 0)
++		disable_irq_nosync(pdata->clustered_irq);
++	else {
++		for (i = 0; i < pdata->num_row_gpios; i++)
++			disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
++	}
+ }
+ 
+ /*
+@@ -226,6 +234,17 @@ static int matrix_keypad_suspend(struct device *dev)
+ 	matrix_keypad_stop(keypad->input_dev);
+ 
+ 	if (device_may_wakeup(&pdev->dev)) {
++		if (pdata->clustered_irq > 0) {
++			unsigned int cirq = pdata->clustered_irq;
++
++			if (enable_irq_wake(cirq) == 0) {
++				for (i = 0; i < pdata->num_row_gpios; i++)
++					__set_bit(i, keypad->disabled_gpios);
++			}
++
++			goto out;
++		}
++
+ 		for (i = 0; i < pdata->num_row_gpios; i++) {
+ 			if (!test_bit(i, keypad->disabled_gpios)) {
+ 				unsigned int gpio = pdata->row_gpios[i];
+@@ -235,7 +254,7 @@ static int matrix_keypad_suspend(struct device *dev)
+ 			}
+ 		}
+ 	}
+-
++out:
+ 	return 0;
+ }
+ 
+@@ -247,6 +266,17 @@ static int matrix_keypad_resume(struct device *dev)
+ 	int i;
+ 
+ 	if (device_may_wakeup(&pdev->dev)) {
++		if (pdata->clustered_irq > 0) {
++			unsigned int cirq = pdata->clustered_irq;
++
++			if (disable_irq_wake(cirq) == 0) {
++				for (i = 0; i < pdata->num_row_gpios; i++)
++					clear_bit(i, keypad->disabled_gpios);
++			}
++
++			goto out;
++		}
++
+ 		for (i = 0; i < pdata->num_row_gpios; i++) {
+ 			if (test_and_clear_bit(i, keypad->disabled_gpios)) {
+ 				unsigned int gpio = pdata->row_gpios[i];
+@@ -256,6 +286,7 @@ static int matrix_keypad_resume(struct device *dev)
+ 		}
+ 	}
+ 
++out:
+ 	matrix_keypad_start(keypad->input_dev);
+ 
+ 	return 0;
+@@ -296,17 +327,31 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
+ 		gpio_direction_input(pdata->row_gpios[i]);
+ 	}
+ 
+-	for (i = 0; i < pdata->num_row_gpios; i++) {
+-		err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
++	if (pdata->clustered_irq > 0) {
++		err = request_irq(pdata->clustered_irq,
+ 				matrix_keypad_interrupt,
+-				IRQF_DISABLED |
+-				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++				pdata->clustered_irq_flags,
+ 				"matrix-keypad", keypad);
+ 		if (err) {
+ 			dev_err(&pdev->dev,
+-				"Unable to acquire interrupt for GPIO line %i\n",
+-				pdata->row_gpios[i]);
+-			goto err_free_irqs;
++				"Unable to acquire clustered interrupt\n");
++			goto err_free_rows;
++		}
++	} else {
++		for (i = 0; i < pdata->num_row_gpios; i++) {
++			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
++					matrix_keypad_interrupt,
++					IRQF_DISABLED |
++					IRQF_TRIGGER_RISING |
++					IRQF_TRIGGER_FALLING,
++					"matrix-keypad", keypad);
++			if (err) {
++				dev_err(&pdev->dev,
++					"Unable to acquire interrupt "
++					"for GPIO line %i\n",
++					pdata->row_gpios[i]);
++				goto err_free_irqs;
++			}
+ 		}
+ 	}
+ 
+@@ -418,11 +463,16 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+-	for (i = 0; i < pdata->num_row_gpios; i++) {
+-		free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
+-		gpio_free(pdata->row_gpios[i]);
++	if (pdata->clustered_irq > 0) {
++		free_irq(pdata->clustered_irq, keypad);
++	} else {
++		for (i = 0; i < pdata->num_row_gpios; i++)
++			free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
+ 	}
+ 
++	for (i = 0; i < pdata->num_row_gpios; i++)
++		gpio_free(pdata->row_gpios[i]);
++
+ 	for (i = 0; i < pdata->num_col_gpios; i++)
+ 		gpio_free(pdata->col_gpios[i]);
+ 
+diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
+index c964cd7..8e8dc2e 100644
+--- a/include/linux/input/matrix_keypad.h
++++ b/include/linux/input/matrix_keypad.h
+@@ -63,6 +63,11 @@ struct matrix_keypad_platform_data {
+ 	/* key debounce interval in milli-second */
+ 	unsigned int	debounce_ms;
+ 
++	/* used if interrupts of all row/column GPIOs are bundled to one single
++	 * irq */
++	unsigned int	clustered_irq;
++	unsigned int	clustered_irq_flags;
++
+ 	bool		active_low;
+ 	bool		wakeup;
+ 	bool		no_autorepeat;
 -- 
-1.6.3.3
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+1.7.0

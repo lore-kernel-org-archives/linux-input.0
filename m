@@ -1,172 +1,309 @@
-From: Eric Miao <eric.y.miao@gmail.com>
+From: Luotao Fu <l.fu@pengutronix.de>
 Subject: Re: [PATCH] matrix_keypad: add support for clustered irq
-Date: Wed, 26 May 2010 22:29:53 +0800
-Message-ID: <AANLkTimYG1kQBSmp2CPgLoPt-S4mNsJY2QV-cPJgV5lT@mail.gmail.com>
-References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
+Date: Wed, 26 May 2010 16:38:25 +0200
+Message-ID: <20100526143825.GB2255@pengutronix.de>
+References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de> <AANLkTimYG1kQBSmp2CPgLoPt-S4mNsJY2QV-cPJgV5lT@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:39490 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755184Ab0EZOaO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 26 May 2010 10:30:14 -0400
-In-Reply-To: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SkvwRMAIpAhPCcCJ"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTimYG1kQBSmp2CPgLoPt-S4mNsJY2QV-cPJgV5lT@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Luotao Fu <l.fu@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Luotao Fu <l.fu@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-T24gV2VkLCBNYXkgMjYsIDIwMTAgYXQgOTo1NyBQTSwgTHVvdGFvIEZ1IDxsLmZ1QHBlbmd1dHJv
-bml4LmRlPiB3cm90ZToKPiBUaGlzIG9uZSBhZGRzIHN1cHBvcnQgb2YgYSBjb21iaW5lZCBpcnEg
-c291cmNlIGZvciB0aGUgd2hvbGUgbWF0cml4IGtleXBhZC4KPiBUaGlzIGNhbiBiZSB1c2VmdWwg
-YWxsIHJvd3MgYW5kIGNvbHVtbnMgb2YgdGhlIGtleXBhZCBpcyBlLmcuIGNvbm5lY3RlZCB0bwo+
-IGEgR1BJTyBleHBhbmRlciwgd2hpY2ggb25seSBoYXMgb25lIGludGVycnVwdCBsaW5lIGZvciBh
-bGwgZXZlbnRzIG9uIGV2ZXJ5Cj4gc2luZ2xlIEdQSU8uCj4KPiBTaWduZWQtb2ZmLWJ5OiBMdW90
-YW8gRnUgPGwuZnVAcGVuZ3V0cm9uaXguZGU+Cj4gLS0tCj4gwqBkcml2ZXJzL2lucHV0L2tleWJv
-YXJkL21hdHJpeF9rZXlwYWQuYyB8IMKgIDgwICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0t
-LS0tCj4gwqBpbmNsdWRlL2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaCDCoCDCoHwgwqAgwqA1
-ICsrCj4gwqAyIGZpbGVzIGNoYW5nZWQsIDcwIGluc2VydGlvbnMoKyksIDE1IGRlbGV0aW9ucygt
-KQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBhZC5j
-IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMKPiBpbmRleCBiNDQzZTA4
-Li4yNjBkY2IwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tl
-eXBhZC5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFkLmMKPiBA
-QCAtODcsOCArODcsMTIgQEAgc3RhdGljIHZvaWQgZW5hYmxlX3Jvd19pcnFzKHN0cnVjdCBtYXRy
-aXhfa2V5cGFkICprZXlwYWQpCj4gwqAgwqAgwqAgwqBjb25zdCBzdHJ1Y3QgbWF0cml4X2tleXBh
-ZF9wbGF0Zm9ybV9kYXRhICpwZGF0YSA9IGtleXBhZC0+cGRhdGE7Cj4gwqAgwqAgwqAgwqBpbnQg
-aTsKPgo+IC0gwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBp
-KyspCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKGdwaW9fdG9faXJxKHBkYXRh
-LT5yb3dfZ3Bpb3NbaV0pKTsKPiArIMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+
-IDApCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKHBkYXRhLT5jbHVzdGVyZWRf
-aXJxKTsKPiArIMKgIMKgIMKgIGVsc2Ugewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9yIChp
-ID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspCj4gKyDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCBlbmFibGVfaXJxKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3Nb
-aV0pKTsKPiArIMKgIMKgIMKgIH0KPiDCoH0KPgo+IMKgc3RhdGljIHZvaWQgZGlzYWJsZV9yb3df
-aXJxcyhzdHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFkKQo+IEBAIC05Niw4ICsxMDAsMTIgQEAg
-c3RhdGljIHZvaWQgZGlzYWJsZV9yb3dfaXJxcyhzdHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFk
-KQo+IMKgIMKgIMKgIMKgY29uc3Qgc3RydWN0IG1hdHJpeF9rZXlwYWRfcGxhdGZvcm1fZGF0YSAq
-cGRhdGEgPSBrZXlwYWQtPnBkYXRhOwo+IMKgIMKgIMKgIMKgaW50IGk7Cj4KPiAtIMKgIMKgIMKg
-IGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlvczsgaSsrKQo+IC0gwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgZGlzYWJsZV9pcnFfbm9zeW5jKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bp
-b3NbaV0pKTsKPiArIMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApCj4gKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCBkaXNhYmxlX2lycV9ub3N5bmMocGRhdGEtPmNsdXN0ZXJlZF9p
-cnEpOwo+ICsgwqAgwqAgwqAgZWxzZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3IgKGkg
-PSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIGRpc2FibGVfaXJxX25vc3luYyhncGlvX3RvX2lycShwZGF0YS0+cm93
-X2dwaW9zW2ldKSk7Cj4gKyDCoCDCoCDCoCB9Cj4gwqB9Cj4KPiDCoC8qCj4gQEAgLTIyNiw2ICsy
-MzQsMTcgQEAgc3RhdGljIGludCBtYXRyaXhfa2V5cGFkX3N1c3BlbmQoc3RydWN0IGRldmljZSAq
-ZGV2KQo+IMKgIMKgIMKgIMKgbWF0cml4X2tleXBhZF9zdG9wKGtleXBhZC0+aW5wdXRfZGV2KTsK
-Pgo+IMKgIMKgIMKgIMKgaWYgKGRldmljZV9tYXlfd2FrZXVwKCZwZGV2LT5kZXYpKSB7Cj4gKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4gKyDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgY2lycSA9IHBkYXRh
-LT5jbHVzdGVyZWRfaXJxOwo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IGlmIChlbmFibGVfaXJxX3dha2UoY2lycSkgPT0gMCkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93
-X2dwaW9zOyBpKyspCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCBfX3NldF9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9ncGlvcyk7Cj4g
-KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4gKwo+ICsgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgZ290byBvdXQ7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9
-Cj4gKwoKVGhpcyBtaWdodCBkZXNlcnZlIGEgc2VwYXJhdGUgZnVuY3Rpb24sIGFuZCB3aGF0IGlz
-IHRoZSB1c2FnZSBvZiBkaXNhYmxlZF9ncGlvcywKSSBzZWVtIHRvIGZpbmQgbm93aGVyZSAoZXhj
-ZXB0IGluIHRoZSByZXN1bWUgcm91dGluZSkuCgo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZm9y
-IChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlmICghdGVzdF9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9n
-cGlvcykpIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oHVuc2lnbmVkIGludCBncGlvID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiBAQCAtMjM1LDcgKzI1
-NCw3IEBAIHN0YXRpYyBpbnQgbWF0cml4X2tleXBhZF9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRl
-dikKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoH0KPiDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoH0KPiDCoCDCoCDCoCDCoH0KPiAtCj4gK291dDoKPiDCoCDCoCDCoCDCoHJldHVy
-biAwOwo+IMKgfQo+Cj4gQEAgLTI0Nyw2ICsyNjYsMTcgQEAgc3RhdGljIGludCBtYXRyaXhfa2V5
-cGFkX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpCj4gwqAgwqAgwqAgwqBpbnQgaTsKPgo+IMKg
-IMKgIMKgIMKgaWYgKGRldmljZV9tYXlfd2FrZXVwKCZwZGV2LT5kZXYpKSB7Cj4gKyDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4gKyDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgY2lycSA9IHBkYXRhLT5jbHVz
-dGVyZWRfaXJxOwo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChk
-aXNhYmxlX2lycV93YWtlKGNpcnEpID09IDApIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlv
-czsgaSsrKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgY2xlYXJfYml0KGksIGtleXBhZC0+ZGlzYWJsZWRfZ3Bpb3MpOwo+ICsgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIGdvdG8gb3V0Owo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+ICsK
-CkJldHRlciBhIHNlcGFyYXRlIHJvdXRpbmUuCgo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZm9y
-IChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoGlmICh0ZXN0X2FuZF9jbGVhcl9iaXQoaSwga2V5cGFkLT5k
-aXNhYmxlZF9ncGlvcykpIHsKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoHVuc2lnbmVkIGludCBncGlvID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiBAQCAt
-MjU2LDYgKzI4Niw3IEBAIHN0YXRpYyBpbnQgbWF0cml4X2tleXBhZF9yZXN1bWUoc3RydWN0IGRl
-dmljZSAqZGV2KQo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgfQo+IMKgIMKgIMKgIMKgfQo+Cj4g
-K291dDoKPiDCoCDCoCDCoCDCoG1hdHJpeF9rZXlwYWRfc3RhcnQoa2V5cGFkLT5pbnB1dF9kZXYp
-Owo+Cj4gwqAgwqAgwqAgwqByZXR1cm4gMDsKPiBAQCAtMjk2LDE3ICszMjcsMzEgQEAgc3RhdGlj
-IGludCBfX2RldmluaXQgaW5pdF9tYXRyaXhfZ3BpbyhzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpw
-ZGV2LAo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZ3Bpb19kaXJlY3Rpb25faW5wdXQocGRhdGEt
-PnJvd19ncGlvc1tpXSk7Cj4gwqAgwqAgwqAgwqB9Cj4KPiAtIMKgIMKgIMKgIGZvciAoaSA9IDA7
-IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlvczsgaSsrKSB7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBlcnIgPSByZXF1ZXN0X2lycShncGlvX3RvX2lycShwZGF0YS0+cm93X2dwaW9zW2ldKSwKPiAr
-IMKgIMKgIMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApIHsKPiArIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIGVyciA9IHJlcXVlc3RfaXJxKHBkYXRhLT5jbHVzdGVyZWRfaXJxLAo+IMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgbWF0cml4X2tleXBhZF9p
-bnRlcnJ1cHQsCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCBJUlFGX0RJU0FCTEVEIHwKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIElSUUZfVFJJR0dFUl9SSVNJTkcgfCBJUlFGX1RSSUdHRVJfRkFMTElORywKPiAr
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHBkYXRhLT5jbHVz
-dGVyZWRfaXJxX2ZsYWdzLAo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIm1hdHJpeC1rZXlwYWQiLCBrZXlwYWQpOwo+IMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgaWYgKGVycikgewo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZGV2X2Vy
-cigmcGRldi0+ZGV2LAo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgIlVuYWJsZSB0byBhY3F1aXJlIGludGVycnVwdCBmb3IgR1BJTyBsaW5lICVpXG4iLAo+
-IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcGRhdGEtPnJv
-d19ncGlvc1tpXSk7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBnb3RvIGVy
-cl9mcmVlX2lycXM7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCAiVW5hYmxlIHRvIGFjcXVpcmUgY2x1c3RlcmVkIGludGVycnVwdFxuIik7Cj4gKyDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBnb3RvIGVycl9mcmVlX3Jvd3M7Cj4gKyDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCB9Cj4gKyDCoCDCoCDCoCB9IGVsc2Ugewo+ICsgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiAr
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVyciA9IHJlcXVlc3RfaXJxKGdwaW9f
-dG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3NbaV0pLAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgbWF0cml4X2tleXBhZF9pbnRlcnJ1cHQs
-Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCBJUlFGX0RJU0FCTEVEIHwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIElSUUZfVFJJR0dFUl9SSVNJTkcgfAo+ICsgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgSVJRRl9U
-UklHR0VSX0ZBTExJTkcsCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCAibWF0cml4LWtleXBhZCIsIGtleXBhZCk7Cj4gKyDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoZXJyKSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkZXZfZXJyKCZwZGV2LT5kZXYsCj4gKyDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAiVW5h
-YmxlIHRvIGFjcXVpcmUgaW50ZXJydXB0ICIKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJmb3IgR1BJTyBsaW5lICVpXG4iLAo+ICsg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-cGRhdGEtPnJvd19ncGlvc1tpXSk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCBnb3RvIGVycl9mcmVlX2lycXM7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCB9CgpEaXR0by4KCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4gwqAg
-wqAgwqAgwqB9Cj4KPiBAQCAtNDE4LDExICs0NjMsMTYgQEAgc3RhdGljIGludCBfX2RldmV4aXQg
-bWF0cml4X2tleXBhZF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKPgo+IMKg
-IMKgIMKgIMKgZGV2aWNlX2luaXRfd2FrZXVwKCZwZGV2LT5kZXYsIDApOwo+Cj4gLSDCoCDCoCDC
-oCBmb3IgKGkgPSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykgewo+IC0gwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgZnJlZV9pcnEoZ3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSks
-IGtleXBhZCk7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBncGlvX2ZyZWUocGRhdGEtPnJvd19n
-cGlvc1tpXSk7Cj4gKyDCoCDCoCDCoCBpZiAocGRhdGEtPmNsdXN0ZXJlZF9pcnEgPiAwKSB7Cj4g
-KyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmcmVlX2lycShwZGF0YS0+Y2x1c3RlcmVkX2lycSwga2V5
-cGFkKTsKPiArIMKgIMKgIMKgIH0gZWxzZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3Ig
-KGkgPSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIGZyZWVfaXJxKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3Nb
-aV0pLCBrZXlwYWQpOwo+IMKgIMKgIMKgIMKgfQo+Cj4gKyDCoCDCoCDCoCBmb3IgKGkgPSAwOyBp
-IDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdw
-aW9fZnJlZShwZGF0YS0+cm93X2dwaW9zW2ldKTsKPiArCj4gwqAgwqAgwqAgwqBmb3IgKGkgPSAw
-OyBpIDwgcGRhdGEtPm51bV9jb2xfZ3Bpb3M7IGkrKykKPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oGdwaW9fZnJlZShwZGF0YS0+Y29sX2dwaW9zW2ldKTsKPgo+IGRpZmYgLS1naXQgYS9pbmNsdWRl
-L2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaCBiL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4
-X2tleXBhZC5oCj4gaW5kZXggYzk2NGNkNy4uOGU4ZGMyZSAxMDA2NDQKPiAtLS0gYS9pbmNsdWRl
-L2xpbnV4L2lucHV0L21hdHJpeF9rZXlwYWQuaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvaW5wdXQv
-bWF0cml4X2tleXBhZC5oCj4gQEAgLTYzLDYgKzYzLDExIEBAIHN0cnVjdCBtYXRyaXhfa2V5cGFk
-X3BsYXRmb3JtX2RhdGEgewo+IMKgIMKgIMKgIMKgLyoga2V5IGRlYm91bmNlIGludGVydmFsIGlu
-IG1pbGxpLXNlY29uZCAqLwo+IMKgIMKgIMKgIMKgdW5zaWduZWQgaW50IMKgIMKgZGVib3VuY2Vf
-bXM7Cj4KPiArIMKgIMKgIMKgIC8qIHVzZWQgaWYgaW50ZXJydXB0cyBvZiBhbGwgcm93L2NvbHVt
-biBHUElPcyBhcmUgYnVuZGxlZCB0byBvbmUgc2luZ2xlCj4gKyDCoCDCoCDCoCDCoCogaXJxICov
-Cj4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgwqAgwqBjbHVzdGVyZWRfaXJxOwo+ICsgwqAgwqAg
-wqAgdW5zaWduZWQgaW50IMKgIMKgY2x1c3RlcmVkX2lycV9mbGFnczsKPiArCj4gwqAgwqAgwqAg
-wqBib29sIMKgIMKgIMKgIMKgIMKgIMKgYWN0aXZlX2xvdzsKPiDCoCDCoCDCoCDCoGJvb2wgwqAg
-wqAgwqAgwqAgwqAgwqB3YWtldXA7Cj4gwqAgwqAgwqAgwqBib29sIMKgIMKgIMKgIMKgIMKgIMKg
-bm9fYXV0b3JlcGVhdDsKPiAtLQo+IDEuNy4wCj4KPgoKT3RoZXJ3aXNlIGxvb2tzIE9LIHRvIG1l
-Lgo=
+
+--SkvwRMAIpAhPCcCJ
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Eric,
+
+thankf for the review.
+
+On Wed, May 26, 2010 at 10:29:53PM +0800, Eric Miao wrote:
+> On Wed, May 26, 2010 at 9:57 PM, Luotao Fu <l.fu@pengutronix.de> wrote:
+> > This one adds support of a combined irq source for the whole matrix key=
+pad.
+> > This can be useful all rows and columns of the keypad is e.g. connected=
+ to
+> > a GPIO expander, which only has one interrupt line for all events on ev=
+ery
+> > single GPIO.
+> >
+> > Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+> > ---
+> > =A0drivers/input/keyboard/matrix_keypad.c | =A0 80 ++++++++++++++++++++=
+++++++------
+> > =A0include/linux/input/matrix_keypad.h =A0 =A0| =A0 =A05 ++
+> > =A02 files changed, 70 insertions(+), 15 deletions(-)
+> >
+> > diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/key=
+board/matrix_keypad.c
+> > index b443e08..260dcb0 100644
+> > --- a/drivers/input/keyboard/matrix_keypad.c
+> > +++ b/drivers/input/keyboard/matrix_keypad.c
+> > @@ -87,8 +87,12 @@ static void enable_row_irqs(struct matrix_keypad *ke=
+ypad)
+> > =A0 =A0 =A0 =A0const struct matrix_keypad_platform_data *pdata =3D keyp=
+ad->pdata;
+> > =A0 =A0 =A0 =A0int i;
+> >
+> > - =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i++)
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 enable_irq(gpio_to_irq(pdata->row_gpios[i=
+]));
+> > + =A0 =A0 =A0 if (pdata->clustered_irq > 0)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 enable_irq(pdata->clustered_irq);
+> > + =A0 =A0 =A0 else {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i=
+++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 enable_irq(gpio_to_irq(pd=
+ata->row_gpios[i]));
+> > + =A0 =A0 =A0 }
+> > =A0}
+> >
+> > =A0static void disable_row_irqs(struct matrix_keypad *keypad)
+> > @@ -96,8 +100,12 @@ static void disable_row_irqs(struct matrix_keypad *=
+keypad)
+> > =A0 =A0 =A0 =A0const struct matrix_keypad_platform_data *pdata =3D keyp=
+ad->pdata;
+> > =A0 =A0 =A0 =A0int i;
+> >
+> > - =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i++)
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_nosync(gpio_to_irq(pdata->row=
+_gpios[i]));
+> > + =A0 =A0 =A0 if (pdata->clustered_irq > 0)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_nosync(pdata->clustered_irq);
+> > + =A0 =A0 =A0 else {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i=
+++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_nosync(gpio_t=
+o_irq(pdata->row_gpios[i]));
+> > + =A0 =A0 =A0 }
+> > =A0}
+> >
+> > =A0/*
+> > @@ -226,6 +234,17 @@ static int matrix_keypad_suspend(struct device *de=
+v)
+> > =A0 =A0 =A0 =A0matrix_keypad_stop(keypad->input_dev);
+> >
+> > =A0 =A0 =A0 =A0if (device_may_wakeup(&pdev->dev)) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pdata->clustered_irq > 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int cirq =3D pda=
+ta->clustered_irq;
+> > +
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (enable_irq_wake(cirq)=
+ =3D=3D 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =
+=3D 0; i < pdata->num_row_gpios; i++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 __set_bit(i, keypad->disabled_gpios);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > +
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > +
+>=20
+> This might deserve a separate function, and what is the usage of disabled=
+_gpios,
+> I seem to find nowhere (except in the resume routine).
+
+indeed, will fix. The disable_gpios flag seems to be used to flag an
+asleep/awake row/column. It's introduced by the original code. I think
+that for the case with single irq I might better use another flag
+instead since we have the situaiton "all or none" here and don't have to
+mark every single lines.
+
+>=20
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0for (i =3D 0; i < pdata->num_row_gpios; =
+i++) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (!test_bit(i, keypad-=
+>disabled_gpios)) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0unsigned=
+ int gpio =3D pdata->row_gpios[i];
+> > @@ -235,7 +254,7 @@ static int matrix_keypad_suspend(struct device *dev)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> > =A0 =A0 =A0 =A0}
+> > -
+> > +out:
+> > =A0 =A0 =A0 =A0return 0;
+> > =A0}
+> >
+> > @@ -247,6 +266,17 @@ static int matrix_keypad_resume(struct device *dev)
+> > =A0 =A0 =A0 =A0int i;
+> >
+> > =A0 =A0 =A0 =A0if (device_may_wakeup(&pdev->dev)) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (pdata->clustered_irq > 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int cirq =3D pda=
+ta->clustered_irq;
+> > +
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (disable_irq_wake(cirq=
+) =3D=3D 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =
+=3D 0; i < pdata->num_row_gpios; i++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 clear_bit(i, keypad->disabled_gpios);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > +
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > +
+>=20
+> Better a separate routine.
+>=20
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0for (i =3D 0; i < pdata->num_row_gpios; =
+i++) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (test_and_clear_bit(i=
+, keypad->disabled_gpios)) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0unsigned=
+ int gpio =3D pdata->row_gpios[i];
+> > @@ -256,6 +286,7 @@ static int matrix_keypad_resume(struct device *dev)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> > =A0 =A0 =A0 =A0}
+> >
+> > +out:
+> > =A0 =A0 =A0 =A0matrix_keypad_start(keypad->input_dev);
+> >
+> > =A0 =A0 =A0 =A0return 0;
+> > @@ -296,17 +327,31 @@ static int __devinit init_matrix_gpio(struct plat=
+form_device *pdev,
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_direction_input(pdata->row_gpios[i]=
+);
+> > =A0 =A0 =A0 =A0}
+> >
+> > - =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i++) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D request_irq(gpio_to_irq(pdata->ro=
+w_gpios[i]),
+> > + =A0 =A0 =A0 if (pdata->clustered_irq > 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D request_irq(pdata->clustered_irq,
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0matrix_k=
+eypad_interrupt,
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 IRQF_DISA=
+BLED |
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 IRQF_TRIG=
+GER_RISING | IRQF_TRIGGER_FALLING,
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->cl=
+ustered_irq_flags,
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"matrix-=
+keypad", keypad);
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (err) {
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev,
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "Unable t=
+o acquire interrupt for GPIO line %i\n",
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->ro=
+w_gpios[i]);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_irqs;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "Unable t=
+o acquire clustered interrupt\n");
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_rows;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> > + =A0 =A0 =A0 } else {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i=
+++) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D request_irq(gpio_=
+to_irq(pdata->row_gpios[i]),
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 matrix_keypad_interrupt,
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 IRQF_DISABLED |
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 IRQF_TRIGGER_RISING |
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 IRQF_TRIGGER_FALLING,
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 "matrix-keypad", keypad);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (err) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&=
+pdev->dev,
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 "Unable to acquire interrupt "
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 "for GPIO line %i\n",
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 pdata->row_gpios[i]);
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_=
+free_irqs;
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>=20
+> Ditto.
+>=20
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> > =A0 =A0 =A0 =A0}
+> >
+> > @@ -418,11 +463,16 @@ static int __devexit matrix_keypad_remove(struct =
+platform_device *pdev)
+> >
+> > =A0 =A0 =A0 =A0device_init_wakeup(&pdev->dev, 0);
+> >
+> > - =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i++) {
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 free_irq(gpio_to_irq(pdata->row_gpios[i])=
+, keypad);
+> > - =A0 =A0 =A0 =A0 =A0 =A0 =A0 gpio_free(pdata->row_gpios[i]);
+> > + =A0 =A0 =A0 if (pdata->clustered_irq > 0) {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 free_irq(pdata->clustered_irq, keypad);
+> > + =A0 =A0 =A0 } else {
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i=
+++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 free_irq(gpio_to_irq(pdat=
+a->row_gpios[i]), keypad);
+> > =A0 =A0 =A0 =A0}
+> >
+> > + =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios; i++)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 gpio_free(pdata->row_gpios[i]);
+> > +
+> > =A0 =A0 =A0 =A0for (i =3D 0; i < pdata->num_col_gpios; i++)
+> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0gpio_free(pdata->col_gpios[i]);
+> >
+> > diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/=
+matrix_keypad.h
+> > index c964cd7..8e8dc2e 100644
+> > --- a/include/linux/input/matrix_keypad.h
+> > +++ b/include/linux/input/matrix_keypad.h
+> > @@ -63,6 +63,11 @@ struct matrix_keypad_platform_data {
+> > =A0 =A0 =A0 =A0/* key debounce interval in milli-second */
+> > =A0 =A0 =A0 =A0unsigned int =A0 =A0debounce_ms;
+> >
+> > + =A0 =A0 =A0 /* used if interrupts of all row/column GPIOs are bundled=
+ to one single
+> > + =A0 =A0 =A0 =A0* irq */
+> > + =A0 =A0 =A0 unsigned int =A0 =A0clustered_irq;
+> > + =A0 =A0 =A0 unsigned int =A0 =A0clustered_irq_flags;
+> > +
+> > =A0 =A0 =A0 =A0bool =A0 =A0 =A0 =A0 =A0 =A0active_low;
+> > =A0 =A0 =A0 =A0bool =A0 =A0 =A0 =A0 =A0 =A0wakeup;
+> > =A0 =A0 =A0 =A0bool =A0 =A0 =A0 =A0 =A0 =A0no_autorepeat;
+> > --
+> > 1.7.0
+> >
+> >
+>=20
+> Otherwise looks OK to me.
+
+Thanks
+
+cheers
+Luotao Fu
+--=20
+Pengutronix e.K.                           | Dipl.-Ing. Luotao Fu        |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+--SkvwRMAIpAhPCcCJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkv9MmEACgkQkLuxfMCkDTZRqQCfdp0e9RfALLwYU5sYoyvaUj1c
+4roAn34x+KFmB+8BXodfzrw1kmBS/foG
+=L0JG
+-----END PGP SIGNATURE-----
+
+--SkvwRMAIpAhPCcCJ--

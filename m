@@ -1,59 +1,119 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 0/8] Suspend block api (version 6)
-Date: Wed, 26 May 2010 12:01:49 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1005261156130.1328-100000@iolanthe.rowland.org>
-References: <CEE6BB42CAD6E947908279175AF8470A025A7D7DC4@EXDCVYMBSTM006.EQ1STM.local>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
+	and decoder plugins
+Date: Wed, 26 May 2010 14:28:52 -0400
+Message-ID: <AANLkTin4KkvVZPUVHmURgSUPaGW8N-7xDVPfAlV7ZKtv@mail.gmail.com>
+References: <20100401145632.5631756f@pedra>
+	<t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
+	<20100402102011.GA6947@hardeman.nu>
+	<p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
+	<20100407093205.GB3029@hardeman.nu>
+	<z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
+	<20100424051206.GA3101@hardeman.nu>
+	<h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
+	<AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-bounces@lists.linux-foundation.org>
-In-Reply-To: <CEE6BB42CAD6E947908279175AF8470A025A7D7DC4@EXDCVYMBSTM006.EQ1STM.local>
-List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
-List-Post: <mailto:linux-pm@lists.linux-foundation.org>
-List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
-	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
-Sender: linux-pm-bounces@lists.linux-foundation.org
-Errors-To: linux-pm-bounces@lists.linux-foundation.org
-To: Linus WALLEIJ <linus.walleij@stericsson.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Sven Neumann <s.neumann@raumfeld.com>, Jesse Barnes <jbarnes@virtuousgeek.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tero Saarni <tero.saarni@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-pm@lists.linux-foundation.org" <linux-pm@lists.linux-foundation.org>, Arjan van de Ven <arjan@infradead.org>, Alexey Dobriyan <adobriyan@gmail.com>, Matthew Garrett <mjg@redhat.com>, Len Brown <len.brown@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>, Daniel Mack <daniel@caiaq.de>, Oleg Nesterov <oleg@redhat.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Daniel Walker <dwalker@codeaurora.>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 26 May 2010, Linus WALLEIJ wrote:
+On Tue, May 25, 2010 at 5:05 PM, Jarod Wilson <jarod@wilsonet.com> wrot=
+e:
+> On Wed, Apr 28, 2010 at 12:32 AM, Jarod Wilson <jarod@wilsonet.com> w=
+rote:
+>> On Sat, Apr 24, 2010 at 1:12 AM, David H=E4rdeman <david@hardeman.nu=
+> wrote:
+>>> On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
+>>>> So now that I'm more or less done with porting the imon driver, I
+>>>> think I'm ready to start tackling the mceusb driver. But I'm debat=
+ing
+>>>> on what approach to take with respect to lirc support. It sort of
+>>>> feels like we should have lirc_dev ported as an ir "decoder"
+>>>> driver/plugin before starting to port mceusb to ir-core, so that w=
+e
+>>>> can maintain lirc compat and transmit support. Alternatively, I co=
+uld
+>>>> port mceusb without lirc support for now, leaving it to only use
+>>>> in-kernel decoding and have no transmit support for the moment, th=
+en
+>>>> re-add lirc support. I'm thinking that porting lirc_dev as, say,
+>>>> ir-lirc-decoder first is probably the way to go though. Anyone els=
+e
+>>>> want to share their thoughts on this?
+>>>
+>>> I think it would make sense to start with a mce driver without the =
+TX
+>>> and lirc bits first. Adding lirc rx support can be done as a separa=
+te
+>>> "raw" decoder later (so its scope is outside the mce driver anyway)=
+ and
+>>> TX support is not implemented in ir-core yet and we haven't had any
+>>> discussion yet on which form it should take.
+>>
+>> So after looking at folks feedback, I did settle on starting the
+>> mceusb port first, my logic going more or less like this... Having a
+>> well-supported general-purpose IR receiver functional is a Good Thin=
+g
+>> for people wanting to work on protocol support (i.e., so they have a
+>> way to actually test protocol support). Having an
+>> already-ir-core-ified driver to test out an ir-lirc-decoder (lirc_de=
+v
+>> port) would also be rather helpful. So rather than trying to port
+>> lirc_dev before there's anything that can actually make use of it,
+>> give myself something to work with. I'm kind of thinking that
+>> ir-lirc-decoder might actually be ir-lirc-codec, able to do xmit as
+>> well, maintaining full compat with lirc userspace, and then we'd hav=
+e
+>> a separate input subsystem based xmit method at some point, which
+>> might be the "preferred/blessed" route. This means ripping a bunch o=
+f
+>> code out of lirc_mceusb.c only to put it back in later, but that's n=
+ot
+>> terribly painful. I've already got as far as having an mceusb.c that
+>> has no lirc dependency, which builds, but doesn't actually do anythi=
+ng
+>> useful yet (not wired up to ir-core). Should be able to get somethin=
+g
+>> functional RSN, I hope...
+>
+> Got sidetracked for a few weeks, but I'm probably 95% of the way ther=
+e
+> as of this afternoon. Something isn't quite right with how I'm
+> processing and handing off the raw IR data right now though, best as =
+I
+> can tell. Its also possible my first-gen mce device is throwing thing=
+s
+> for a loop, so I need to see if maybe things Just Work with a newer
+> gen device so I know if its device-specific, or if something is still
+> generally wrong. I did crib the simplified mce data processing routin=
+e
+> from Jon's code, but the original lirc_mceusb.c has some changes
+> specific to the first-gen mce device that were made to properly
+> support it quite some time after Jon's port, so I may also try w/the
+> uglier/more complex routine I know has been working on this device...
+>
+> David, you mentioned having something based on Jon's earlier port tha=
+t
+> was more or less working. I'd be curious to get a look at that if
+> you're willing to drop me a copy, see if I've missed something
+> blindingly stupid. :)
 
-> Overall as a driver writer I'm quite confused at this point, if
-> I have a driver X, how is that code going to look if it is going
-> to support both runtime PM *and* suspend blockers? I don't say
-> it has to support both mechanisms in parallell, I'm even fine
-> with putting it in #ifdef:s, but how will the source code look?
-> A real-world example on a simple driver out of the Motorola Droid
-> git or so would help a lot.
-> 
-> It's quite relevant since e.g. all OMAP drivers will need this
-> modification to be used with Android-like systems, and at
-> ST-Ericsson we will need both runtime PM and suspend blockers for
-> our drivers as well. It will as a consequence affect the drivers
-> for all ARM reference boards since we use the drivers for ARM
-> PrimeCells. etc...
-> 
-> Now if this mechanism is going in, my main interest is that there
-> is some clearly cut way and design pattern for supporting both
-> runtime PM and suspend blocks.
+I was missing something blindingly stupid. Was accumulating duration
+values in ms instead of us. Now alternating presses of the OK button
+on the stock MCE remote get this:
 
-It's not difficult.  You just have to decide what situations should 
-block opportunistic suspend.  For example, let's say that opportunistic 
-suspend should be blocked when your event queue is non-empty.
+ir_rc6_decode: RC6(6A) scancode 0x800f0422 (toggle: 1)
+ir_rc6_decode: RC6(6A) scancode 0x800f0422 (toggle: 0)
 
-Then in the routine that adds new events to the queue, while still
-holding the spinlock that protects your queue, you enable your suspend
-blocker.  Likewise, in the routine that takes events off the queue and
-sends them to userspace, while holding the spinlock you test whether
-the queue has become empty; if it has you disable your suspend blocker.
+This is with Jon's IR handling routine and a recent MCE device, still
+need to go back and see how the older one behaves, but within the next
+few days, I should have a patch worthy of submission.
 
-That's all.  No other changes are needed (except to create and destroy 
-the suspend blocker, of course).  No other interaction with suspend, 
-resume, or runtime PM.
-
-Alan Stern
+--=20
+Jarod Wilson
+jarod@wilsonet.com

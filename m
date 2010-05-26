@@ -1,119 +1,47 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 00/15] ir-core: Several improvements to allow adding LIRC
-	and decoder plugins
-Date: Wed, 26 May 2010 14:28:52 -0400
-Message-ID: <AANLkTin4KkvVZPUVHmURgSUPaGW8N-7xDVPfAlV7ZKtv@mail.gmail.com>
-References: <20100401145632.5631756f@pedra>
-	<t2z9e4733911004011844pd155bbe8g13e4cbcc1a5bf1f6@mail.gmail.com>
-	<20100402102011.GA6947@hardeman.nu>
-	<p2ube3a4a1004051349y11e3004bk1c71e3ab38d3f669@mail.gmail.com>
-	<20100407093205.GB3029@hardeman.nu>
-	<z2hbe3a4a1004231040uce51091fnf24b97de215e3ef1@mail.gmail.com>
-	<20100424051206.GA3101@hardeman.nu>
-	<h2hbe3a4a1004272132y46e90a8ak862f20620053b1cc@mail.gmail.com>
-	<AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
+From: Stefan Achatz <erazor_de@users.sourceforge.net>
+Subject: [PATCH 1/3] HID: Removed obsolete comment from roccat kone driver
+Date: Wed, 26 May 2010 20:50:50 +0200
+Message-ID: <1274899850.9492.1.camel__89.0440111563251$1274899884$gmane$org@localhost>
+Reply-To: erazor_de@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTikE3bYGaQDthmOIZRSFEPteJqpzL3g1AiQJpUxh@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Media Mailing List <linux-media@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-in-13.arcor-online.net ([151.189.21.53]:36520 "EHLO
+	mail-in-13.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756726Ab0EZSu4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 May 2010 14:50:56 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jkosina@suse.cz>, Stephen Rothwell <sfr@canb.auug.org.au>, Tejun Heo <tj@kernel.org>
 
-On Tue, May 25, 2010 at 5:05 PM, Jarod Wilson <jarod@wilsonet.com> wrot=
-e:
-> On Wed, Apr 28, 2010 at 12:32 AM, Jarod Wilson <jarod@wilsonet.com> w=
-rote:
->> On Sat, Apr 24, 2010 at 1:12 AM, David H=E4rdeman <david@hardeman.nu=
-> wrote:
->>> On Fri, Apr 23, 2010 at 01:40:34PM -0400, Jarod Wilson wrote:
->>>> So now that I'm more or less done with porting the imon driver, I
->>>> think I'm ready to start tackling the mceusb driver. But I'm debat=
-ing
->>>> on what approach to take with respect to lirc support. It sort of
->>>> feels like we should have lirc_dev ported as an ir "decoder"
->>>> driver/plugin before starting to port mceusb to ir-core, so that w=
-e
->>>> can maintain lirc compat and transmit support. Alternatively, I co=
-uld
->>>> port mceusb without lirc support for now, leaving it to only use
->>>> in-kernel decoding and have no transmit support for the moment, th=
-en
->>>> re-add lirc support. I'm thinking that porting lirc_dev as, say,
->>>> ir-lirc-decoder first is probably the way to go though. Anyone els=
-e
->>>> want to share their thoughts on this?
->>>
->>> I think it would make sense to start with a mce driver without the =
-TX
->>> and lirc bits first. Adding lirc rx support can be done as a separa=
-te
->>> "raw" decoder later (so its scope is outside the mce driver anyway)=
- and
->>> TX support is not implemented in ir-core yet and we haven't had any
->>> discussion yet on which form it should take.
->>
->> So after looking at folks feedback, I did settle on starting the
->> mceusb port first, my logic going more or less like this... Having a
->> well-supported general-purpose IR receiver functional is a Good Thin=
-g
->> for people wanting to work on protocol support (i.e., so they have a
->> way to actually test protocol support). Having an
->> already-ir-core-ified driver to test out an ir-lirc-decoder (lirc_de=
-v
->> port) would also be rather helpful. So rather than trying to port
->> lirc_dev before there's anything that can actually make use of it,
->> give myself something to work with. I'm kind of thinking that
->> ir-lirc-decoder might actually be ir-lirc-codec, able to do xmit as
->> well, maintaining full compat with lirc userspace, and then we'd hav=
-e
->> a separate input subsystem based xmit method at some point, which
->> might be the "preferred/blessed" route. This means ripping a bunch o=
-f
->> code out of lirc_mceusb.c only to put it back in later, but that's n=
-ot
->> terribly painful. I've already got as far as having an mceusb.c that
->> has no lirc dependency, which builds, but doesn't actually do anythi=
-ng
->> useful yet (not wired up to ir-core). Should be able to get somethin=
-g
->> functional RSN, I hope...
->
-> Got sidetracked for a few weeks, but I'm probably 95% of the way ther=
-e
-> as of this afternoon. Something isn't quite right with how I'm
-> processing and handing off the raw IR data right now though, best as =
-I
-> can tell. Its also possible my first-gen mce device is throwing thing=
-s
-> for a loop, so I need to see if maybe things Just Work with a newer
-> gen device so I know if its device-specific, or if something is still
-> generally wrong. I did crib the simplified mce data processing routin=
-e
-> from Jon's code, but the original lirc_mceusb.c has some changes
-> specific to the first-gen mce device that were made to properly
-> support it quite some time after Jon's port, so I may also try w/the
-> uglier/more complex routine I know has been working on this device...
->
-> David, you mentioned having something based on Jon's earlier port tha=
-t
-> was more or less working. I'd be curious to get a look at that if
-> you're willing to drop me a copy, see if I've missed something
-> blindingly stupid. :)
+Removed comment that is obsolete since roccat char device is
+implemented
 
-I was missing something blindingly stupid. Was accumulating duration
-values in ms instead of us. Now alternating presses of the OK button
-on the stock MCE remote get this:
+Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-kone.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-ir_rc6_decode: RC6(6A) scancode 0x800f0422 (toggle: 1)
-ir_rc6_decode: RC6(6A) scancode 0x800f0422 (toggle: 0)
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 17f2dc0..3e5b553 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -22,11 +22,6 @@
+  *      Is it possible to remove and reinstall the urb in raw-event- or any
+  *      other handler, or to defer this action to be executed somewhere else?
+  *
+- * TODO implement notification mechanism for overlong macro execution
+- *      If user wants to execute an overlong macro only the names of macroset
+- *      and macro are given. Should userland tap hidraw or is there an
+- *      additional streaming mechanism?
+- *
+  * TODO is it possible to overwrite group for sysfs attributes via udev?
+  */
+ 
+-- 
+1.6.6.1
 
-This is with Jon's IR handling routine and a recent MCE device, still
-need to go back and see how the older one behaves, but within the next
-few days, I should have a patch worthy of submission.
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
+

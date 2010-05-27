@@ -1,40 +1,110 @@
-From: Vasily Khoruzhick <anarsoul@gmail.com>
-Subject: [PATCH] s3c2410_ts: restore s3c24xx ids
-Date: Thu, 27 May 2010 09:16:37 +0300
-Message-ID: <1274940997-23706-1-git-send-email-anarsoul@gmail.com>
+From: Robert Hancock <hancockrwd@gmail.com>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Thu, 27 May 2010 00:22:35 -0600
+Message-ID: <4BFE0FAB.9040009@gmail.com>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net> <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:46210 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751428Ab0E0GTA (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:36169 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750967Ab0E0GWm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 May 2010 02:19:00 -0400
-Received: by bwz11 with SMTP id 11so64860bwz.19
-        for <linux-input@vger.kernel.org>; Wed, 26 May 2010 23:18:59 -0700 (PDT)
+	Thu, 27 May 2010 02:22:42 -0400
+In-Reply-To: <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Vasily Khoruzhick <anarsoul@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-Without s3c24xx ids driver doesn't attach on s3c2410 and s3c244x
+On 05/13/2010 10:54 AM, Linus Torvalds wrote:
+>
+>
+> On Thu, 13 May 2010, Dmitry Torokhov wrote:
+>>
+>> Apple does proper thing in BIOS and omits keyboard and mouse PNP
+>> devices, but because of other players we do not really trust PNP BIOS
+>> and resort to banding on ports directly - there are cases when box has
+>> mouse and/or keyboard but they are not present in BIOS. Damed if you do,
+>> damned if you don't...
+>
+> Umm. No.
+>
+> PnP information _commonly_ doesn't inclure PS/2 ports, even when they
+> exist. Lack of PnP information about the keyboard port means absolutely
+> nothing, and anybody who tells you otherwise is totally and utterly wrong.
+>
+> So don't confuse this with PnP issues. That's a total red herring, and
+> Apple is _not_at_all_ "doing the proper thing in the BIOS".
+>
+> Quite the reverse. Apple is very clearly doing something horribly _wrong_
+> in their BIOS. Don't give them kudos for being incompetent morons.
 
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
----
- drivers/input/touchscreen/s3c2410_ts.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+I don't think they did anything wrong in their BIOS, it's working 
+exactly as the spec intended. There is no PS/2 controller, and the ACPI 
+PnP tables do not list one. I wouldn't argue that it was a good decision 
+of them to have the hardware somehow blow up if something poked those 
+ports anyway, but from a BIOS point of view they did the right thing.
 
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index e0b7c83..ac5d0f9 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -413,6 +413,8 @@ static struct dev_pm_ops s3c_ts_pmops = {
- #endif
- 
- static struct platform_device_id s3cts_driver_ids[] = {
-+	{ "s3c2410-ts", 0 },
-+	{ "s3c2440-ts", 0 },
- 	{ "s3c64xx-ts", FEAT_PEN_IRQ },
- 	{ }
- };
--- 
-1.7.1
+>
+> Just google for
+>
+> 	"Probing ports directly" "i8042 KBD port"
+>
+> and you'll get a lot of hits. That's not because those machines have wrong
+> PnP tables - it's because fundamentally PNP is a joke, and on PC's what is
+> much more important is "standard IO ports".
+>
+> For example, in that thread, Bastien is quoted:
+>
+> 	>  In other words, on x86, if PNP and/or ACPI don't indicate any PS/2
+> 	>  controller exists, we randomly bang on the ports in the expectation
+> 	>  they'll be there anyway. This seems rather misguided.
+>
+> and all that tells me is that Bastien doesn't know what he is doing. It is
+> _not_ "randomly bang" - it's called standard PC hardware.  And it's not
+> "misguided" - it's very much correct and required, exactly because PnP
+> itself is the misguided aborted fetus of a braindamaged mind.
+
+I think that may have been me, actually, not Bastien. Misguided may have 
+been a too strong term, but in this case I think the PnP information is 
+quite trustable because Windows trusts it. Definitely for the PS/2 mouse 
+controller (quite likely the keyboard too), if Windows is in ACPI mode 
+and the PnP tables do not list it, it will not detect or use it.
+
+Now, many BIOSes seem to have have code (like an "auto" mode for the 
+PS/2 port, which may or may not be always set) which disables the PnP 
+entry if it doesn't detect a mouse or keyboard connected on boot. If 
+memory serves, this is because I think at least on some versions, if 
+Windows finds a controller but no mouse is responding then it shows up 
+with an error indication in Device Manager, which tends to make people 
+unhappy. This is likely what's responsible for most of those cases where 
+Linux detects devices after "probing ports directly", because the BIOS 
+hid the device but we were too "clever" for it and found it anyway.
+
+In fact on a lot of boards, Linux still detects the port even if set as 
+"disabled" in the BIOS, because all that does is disable the PnP entry.
+
+Long and the short of it is, it seems pretty safe to say that on any 
+ACPI machine, if there's no PnP entry for PS/2 devices, the BIOS does 
+not intend for the OS to use them. There may be cases where you might 
+want to try to locate ports anyway (maybe you really want to hotplug a 
+mouse in after boot, or you have an ancient KVM which doesn't emulate a 
+device presence on the non-selected machine), but those seem like very 
+much the exception rather than the rule.
+
+>
+> We do not trust BIOS tables, because BIOS writers are invariably totally
+> incompetent crack-addicted monkeys. If they weren't, they wouldn't be BIOS
+> writers. QED. And in fact the Apple problem is an _example_ of this BIOS
+> writer incompetence, not some shining example of them doing something
+> right.
+>
+> 			Linus
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 

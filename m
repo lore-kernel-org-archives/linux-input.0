@@ -1,62 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.35-rc0
-Date: Thu, 27 May 2010 09:14:56 -0700
-Message-ID: <20100527161455.GA558@core.coreip.homeip.net>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: [UPDATE] [RFC] [PATCH 0/4] OMAP4 Keyboard Controller Support
+Date: Thu, 27 May 2010 11:24:17 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E46DB3F@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043E22D52D@dlee03.ent.ti.com>
+ <20100525081414.GA31751@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from comal.ext.ti.com ([198.47.26.152]:54467 "EHLO comal.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752754Ab0E0QYT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 May 2010 12:24:19 -0400
+In-Reply-To: <20100525081414.GA31751@core.coreip.homeip.net>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-Hi Linus,
+Hi Dmitry,
 
-Please pull from:
+> On Tue, May 18, 2010 at 06:13:48PM -0500, Arce, Abraham wrote:
+> > Hi,
+> >
+> > Here you have the list of changes done so far for OMAP4 Keyboard
+> > Controller Support v2. I'll appreciate if someone else has more comments
+> > to share.
+> >
+> 
+> I finally had a chance to review the patches and I do not think that we
+> shoudl be adding new hooks, especially omap-specific platform methods,
+> into matrix_keypad_platform_data structure. Also, the structre does not
+> really match the device since it does nto use GPIOs. Why don't we
+> define a driver-specific platform structure based on matrix_keypad_data
+> and use it instead?
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Agree, looks clean now...
 
-to receive some more updates for the input subsystem.
+> 
+> Please try the patch below and let me know if it works for you.
 
-Changelog:
----------
+Yes, it works... I am putting it in a TI internal tree...
 
-Daniel Mack (1):
-      Input: use ABS_CNT rather than (ABS_MAX + 1)
+> Btw, you should not be allocating platform data in the platform code -
+> it meant to be statically allocated and preferrably constant.
 
-Haojian Zhuang (1):
-      Input: enable onkey driver of max8925
+I'll take a look at this...
 
-Kevin Hilman (1):
-      Input: ads7846 - return error on regulator_get() failure
+> +
+> +#include <plat/omap4_keypad.h>
 
-Ondrej Zary (1):
-      Input: usbtouchscreen - support bigger iNexio touchscreens
+One fix to your patch...
 
-Peter Ujfalusi (1):
-      Input: twl4030-vibra - correct the power down sequence
+#include <plat/omap4-keypad.h>
 
+[snip]
 
-Diffstat:
---------
-
- drivers/hid/hid-debug.c                    |    2 +-
- drivers/input/joydev.c                     |   10 +-
- drivers/input/misc/Kconfig                 |   10 ++
- drivers/input/misc/Makefile                |    1 +
- drivers/input/misc/max8925_onkey.c         |  148 ++++++++++++++++++++++++++++
- drivers/input/misc/twl4030-vibra.c         |    2 +-
- drivers/input/misc/uinput.c                |    4 +-
- drivers/input/touchscreen/ads7846.c        |    4 +-
- drivers/input/touchscreen/usbtouchscreen.c |    7 +-
- include/linux/input.h                      |   12 +-
- include/linux/joystick.h                   |    4 +-
- include/linux/uinput.h                     |   10 +-
- 12 files changed, 189 insertions(+), 25 deletions(-)
- create mode 100644 drivers/input/misc/max8925_onkey.c
-
--- 
-Dmitry
+Best Regards
+Abraham

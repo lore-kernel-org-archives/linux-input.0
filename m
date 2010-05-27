@@ -1,62 +1,76 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: [UPDATE] [RFC] [PATCH 0/4] OMAP4 Keyboard Controller Support
-Date: Thu, 27 May 2010 11:24:17 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E46DB3F@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E22D52D@dlee03.ent.ti.com>
- <20100525081414.GA31751@core.coreip.homeip.net>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Thu, 27 May 2010 10:06:37 -0700 (PDT)
+Message-ID: <alpine.LFD.2.00.1005270956380.3689@i5.linux-foundation.org>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net> <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
+ <4BFE0FAB.9040009@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:54467 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752754Ab0E0QYT convert rfc822-to-8bit (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:33422 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751497Ab0E0RKQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 May 2010 12:24:19 -0400
-In-Reply-To: <20100525081414.GA31751@core.coreip.homeip.net>
-Content-Language: en-US
+	Thu, 27 May 2010 13:10:16 -0400
+In-Reply-To: <4BFE0FAB.9040009@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Robert Hancock <hancockrwd@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
 
-Hi Dmitry,
 
-> On Tue, May 18, 2010 at 06:13:48PM -0500, Arce, Abraham wrote:
-> > Hi,
-> >
-> > Here you have the list of changes done so far for OMAP4 Keyboard
-> > Controller Support v2. I'll appreciate if someone else has more comments
-> > to share.
-> >
+
+On Thu, 27 May 2010, Robert Hancock wrote:
 > 
-> I finally had a chance to review the patches and I do not think that we
-> shoudl be adding new hooks, especially omap-specific platform methods,
-> into matrix_keypad_platform_data structure. Also, the structre does not
-> really match the device since it does nto use GPIOs. Why don't we
-> define a driver-specific platform structure based on matrix_keypad_data
-> and use it instead?
+> I don't think they did anything wrong in their BIOS, it's working exactly as
+> the spec intended. There is no PS/2 controller, and the ACPI PnP tables do not
+> list one.
 
-Agree, looks clean now...
+You seem to be unable to read. 
 
-> 
-> Please try the patch below and let me know if it works for you.
+First off, there _is_ a PS2 controller. You can't get any normal Intel 
+chips without one, as far as I can tell. The lines may not be brought out, 
+but that's immaterial.
 
-Yes, it works... I am putting it in a TI internal tree...
+Secondly, even if there wasn't any - or the controller is actively 
+disabled, Linux handles that situation perfectly fine. The fact is, the 
+low ports (< 0x100) are reserved for motherboard devices, and Linux probes 
+the things fine.
 
-> Btw, you should not be allocating platform data in the platform code -
-> it meant to be statically allocated and preferrably constant.
+Thirdly, the thing is, PnP tables are incomplete. Always. They don't prove 
+a negative. Deal with it. It's a _fact_.
 
-I'll take a look at this...
+So Apple must have actively screwed things up. If you can't admit that, 
+it's your problem.
 
-> +
-> +#include <plat/omap4_keypad.h>
+> Long and the short of it is, it seems pretty safe to say that on any ACPI
+> machine, if there's no PnP entry for PS/2 devices, the BIOS does not intend
+> for the OS to use them. 
 
-One fix to your patch...
+And your argument is pure and utter sh*t. I don't know why I even bother 
+replying to it, but I'll try one more time:
 
-#include <plat/omap4-keypad.h>
+ - BIOS writers are incompetent drug-addled morons. Your argument that 
+   "the BIOS does not intend for the OS to use them" is a totally idiotic 
+   argument, for the simple reason that it's not up to the BIOS writers, 
+   and even if it _was_ up to them, they always screw things up.
 
-[snip]
+The thing boils down to: we cannot trust the firmware anyway (this is a 
+simple _fact_, not some random opinion), and no, the BIOS writers do not 
+have some magic powers that allow them to determine how hardware should be 
+used.
 
-Best Regards
-Abraham
+Should we always use PIO mode for IDE just because the BIOS may have set 
+it up that way? Even if we know better? It's the exact same issue: 
+firmware simply isn't the last word. It shouldn't be in the first place, 
+but more importantly, it _cannot_ be, because the BIOS writers have shown 
+themselves to be inevitably incompetent.
+
+And Apple BIOS writers seem to be worse than average. The _average_ BIOS 
+writer tends to still result in working keyboards (or properly disabled 
+ones). The incompetent ones do bad things with SMM and actively break the 
+keyboard. Apple is not alone in this, although I think this is the first 
+time I hear of somebody breaking it quite _that_ badly (normally it's just 
+"horribly bad latency due to SMM traps").
+
+		Linus

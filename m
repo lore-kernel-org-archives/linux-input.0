@@ -1,251 +1,110 @@
-From: Luotao Fu <l.fu@pengutronix.de>
-Subject: [PATCH V2] matrix_keypad: add support for clustered irq
-Date: Thu, 27 May 2010 08:43:54 +0200
-Message-ID: <1274942634-31735-1-git-send-email-l.fu@pengutronix.de>
-References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Luotao Fu <l.fu@pengutronix.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] input: mt: Add EVIOC mechanism for MT slots
+Date: Thu, 27 May 2010 00:03:10 -0700
+Message-ID: <20100527070310.GC17625@core.coreip.homeip.net>
+References: <1274788379-11026-1-git-send-email-rydberg@euromail.se>
+ <20100525173446.GA4634@core.coreip.homeip.net>
+ <4BFC2A7D.50501@euromail.se>
+ <20100525202340.GD4455@core.coreip.homeip.net>
+ <AANLkTimR3VN21URkandBGhPjWYdkdFP2zmAVscyRbqtW@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:47078 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751136Ab0E0HDS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 27 May 2010 03:03:18 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTimR3VN21URkandBGhPjWYdkdFP2zmAVscyRbqtW@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-This one adds support of a combined irq source for the whole matrix keypad.
-This can be useful if all rows and columns of the keypad are e.g. connected
-to a GPIO expander, which only has one interrupt line for all events on
-every single GPIO.
+On Wed, May 26, 2010 at 08:59:35AM -0700, Ping Cheng wrote:
+> On Tue, May 25, 2010 at 1:23 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Tue, May 25, 2010 at 09:52:29PM +0200, Henrik Rydberg wrote:
+> >> Dmitry Torokhov wrote:
+> >> > Hi Henrik,
+> >> >
+> >> > On Tue, May 25, 2010 at 01:52:57PM +0200, Henrik Rydberg wrote:
+> >> >> These patches are in response to the discussion about input sta=
+te
+> >> >> retrieval.
+> >> >>
+> >> >> The current EVIOCGABS method does not work with MT slots. =A0Th=
+ese
+> >> >> patches provides a mechanism where a slot is first selected via=
+ a call
+> >> >> to EVIOCSABS, after which the corresponding MT events can be ex=
+tracted
+> >> >> with calls to EVIOCGABS.
+> >> >>
+> >> >> The symmetric operation, to set the MT state via EVIOCSABS, see=
+ms to
+> >> >> violate input data integrity, and is therefore not implemented.
+> >> >>
+> >> >
+> >> > This looks sane, however the question remains - is there any use=
+rs for
+> >> > this data? Like I mentioned, I can see the need to fetch state o=
+f
+> >> > switches and ranges of absolute axis, and even non-multitouch AB=
+S values
+> >> > (due to the fact that some input devices, like sliders, may stay=
+ in a
+> >> > certain position for long periods of time), but I expect multito=
+uch data
+> >> > to be "refreshed" very quickly.
+> >> >
+> >> > Thanks.
+> >> >
+> >>
+> >> There were some voices addressing this issue, and the patches are =
+here,
+> >> available for whomever to pick up. Drop them if you wish, I will n=
+ot send them anew.
+> >>
+> >
+> > I'll save them in my queue but will hold off applying until I hear
+> > userspace folks requesting such functionality.
+>=20
+> Hi Dmitry,
+>=20
+> You do have a valid point - the (x,y) from a touch object would most
+> likely change all the time. Even if the object itself is in a steady
+> state on the digitizer, i.e., without any intentional movement, the
+> electronic noise would most likely lead to some (x,y) changes. So, th=
+e
+> chance that we need to retrieve (x,y) is rare.
+>=20
+> However, it is possibe that when X driver starts, an object was
+> already on the digitizer. And the digitizer is of such a high quality
+> :), it filtered all the noises so we can not locate the touch without
+> a EVIOCGABS call.
+>=20
+> Plus, from a pure coding/development point of view, it is not a bad
+> practice to provide the equivalent features for _MT_ support as we di=
+d
+> for the existing input devices. At least, it doesn't hurt to make the
+> support consistent across devices/tools (considering touch as a new
+> input device/tool).
 
-Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
----
-V2 Changes:
-* create separate functions for suspend/resume calls.
-* add bool flag to signal enable/disable state of all gpios.
-* add spinlock to suspend and resume callbacks.
+Ping,
 
- drivers/input/keyboard/matrix_keypad.c |  138 ++++++++++++++++++++++++--------
- include/linux/input/matrix_keypad.h    |    5 +
- 2 files changed, 109 insertions(+), 34 deletions(-)
+I did not say that there was a problem with the patch, I agree with it.
+However if no one using this - why should we bother? Will _you_ utilize
+this functionality in Wacom X driver? If so let me know and I will merg=
+e
+it.
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index b443e08..99b7204 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -37,6 +37,7 @@ struct matrix_keypad {
- 	spinlock_t lock;
- 	bool scan_pending;
- 	bool stopped;
-+	bool gpio_all_disabled;
- };
- 
- /*
-@@ -87,8 +88,12 @@ static void enable_row_irqs(struct matrix_keypad *keypad)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	for (i = 0; i < pdata->num_row_gpios; i++)
--		enable_irq(gpio_to_irq(pdata->row_gpios[i]));
-+	if (pdata->clustered_irq > 0)
-+		enable_irq(pdata->clustered_irq);
-+	else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			enable_irq(gpio_to_irq(pdata->row_gpios[i]));
-+	}
- }
- 
- static void disable_row_irqs(struct matrix_keypad *keypad)
-@@ -96,8 +101,12 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	for (i = 0; i < pdata->num_row_gpios; i++)
--		disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
-+	if (pdata->clustered_irq > 0)
-+		disable_irq_nosync(pdata->clustered_irq);
-+	else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
-+	}
- }
- 
- /*
-@@ -216,25 +225,74 @@ static void matrix_keypad_stop(struct input_dev *dev)
- }
- 
- #ifdef CONFIG_PM
--static int matrix_keypad_suspend(struct device *dev)
-+static inline void __suspend_keypad(struct matrix_keypad *keypad)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	unsigned int cirq = pdata->clustered_irq;
-+	unsigned int gpio;
-+	unsigned long flags;
- 	int i;
- 
--	matrix_keypad_stop(keypad->input_dev);
-+	spin_lock_irqsave(&keypad->lock, flags);
- 
--	if (device_may_wakeup(&pdev->dev)) {
--		for (i = 0; i < pdata->num_row_gpios; i++) {
--			if (!test_bit(i, keypad->disabled_gpios)) {
--				unsigned int gpio = pdata->row_gpios[i];
-+	if (pdata->clustered_irq > 0) {
-+		if (enable_irq_wake(cirq) == 0)
-+			keypad->gpio_all_disabled = true;
- 
--				if (enable_irq_wake(gpio_to_irq(gpio)) == 0)
--					__set_bit(i, keypad->disabled_gpios);
--			}
-+		goto out;
-+	}
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++) {
-+		if (!test_bit(i, keypad->disabled_gpios)) {
-+			gpio = pdata->row_gpios[i];
-+
-+			if (enable_irq_wake(gpio_to_irq(gpio)) == 0)
-+				__set_bit(i, keypad->disabled_gpios);
-+		}
-+	}
-+out:
-+	spin_unlock_irqrestore(&keypad->lock, flags);
-+}
-+
-+static inline void __resume_keypad(struct matrix_keypad *keypad)
-+{
-+	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	unsigned int cirq = pdata->clustered_irq;
-+	unsigned int gpio;
-+	unsigned long flags;
-+	int i;
-+
-+	spin_lock_irqsave(&keypad->lock, flags);
-+
-+	if (pdata->clustered_irq > 0) {
-+		if (keypad->gpio_all_disabled) {
-+			disable_irq_wake(cirq);
-+			keypad->gpio_all_disabled = false;
-+		}
-+
-+		goto out;
-+	}
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++) {
-+		if (test_and_clear_bit(i, keypad->disabled_gpios)) {
-+			gpio = pdata->row_gpios[i];
-+			disable_irq_wake(gpio_to_irq(gpio));
- 		}
- 	}
-+out:
-+	spin_unlock_irqrestore(&keypad->lock, flags);
-+
-+}
-+
-+static int matrix_keypad_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	matrix_keypad_stop(keypad->input_dev);
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		__suspend_keypad(keypad);
- 
- 	return 0;
- }
-@@ -246,15 +304,8 @@ static int matrix_keypad_resume(struct device *dev)
- 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
- 	int i;
- 
--	if (device_may_wakeup(&pdev->dev)) {
--		for (i = 0; i < pdata->num_row_gpios; i++) {
--			if (test_and_clear_bit(i, keypad->disabled_gpios)) {
--				unsigned int gpio = pdata->row_gpios[i];
--
--				disable_irq_wake(gpio_to_irq(gpio));
--			}
--		}
--	}
-+	if (device_may_wakeup(&pdev->dev))
-+		__resume_keypad(keypad);
- 
- 	matrix_keypad_start(keypad->input_dev);
- 
-@@ -296,17 +347,31 @@ static int __devinit init_matrix_gpio(struct platform_device *pdev,
- 		gpio_direction_input(pdata->row_gpios[i]);
- 	}
- 
--	for (i = 0; i < pdata->num_row_gpios; i++) {
--		err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-+	if (pdata->clustered_irq > 0) {
-+		err = request_irq(pdata->clustered_irq,
- 				matrix_keypad_interrupt,
--				IRQF_DISABLED |
--				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				pdata->clustered_irq_flags,
- 				"matrix-keypad", keypad);
- 		if (err) {
- 			dev_err(&pdev->dev,
--				"Unable to acquire interrupt for GPIO line %i\n",
--				pdata->row_gpios[i]);
--			goto err_free_irqs;
-+				"Unable to acquire clustered interrupt\n");
-+			goto err_free_rows;
-+		}
-+	} else {
-+		for (i = 0; i < pdata->num_row_gpios; i++) {
-+			err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-+					matrix_keypad_interrupt,
-+					IRQF_DISABLED |
-+					IRQF_TRIGGER_RISING |
-+					IRQF_TRIGGER_FALLING,
-+					"matrix-keypad", keypad);
-+			if (err) {
-+				dev_err(&pdev->dev,
-+					"Unable to acquire interrupt "
-+					"for GPIO line %i\n",
-+					pdata->row_gpios[i]);
-+				goto err_free_irqs;
-+			}
- 		}
- 	}
- 
-@@ -418,11 +483,16 @@ static int __devexit matrix_keypad_remove(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 0);
- 
--	for (i = 0; i < pdata->num_row_gpios; i++) {
--		free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
--		gpio_free(pdata->row_gpios[i]);
-+	if (pdata->clustered_irq > 0) {
-+		free_irq(pdata->clustered_irq, keypad);
-+	} else {
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
- 	}
- 
-+	for (i = 0; i < pdata->num_row_gpios; i++)
-+		gpio_free(pdata->row_gpios[i]);
-+
- 	for (i = 0; i < pdata->num_col_gpios; i++)
- 		gpio_free(pdata->col_gpios[i]);
- 
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index c964cd7..8e8dc2e 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -63,6 +63,11 @@ struct matrix_keypad_platform_data {
- 	/* key debounce interval in milli-second */
- 	unsigned int	debounce_ms;
- 
-+	/* used if interrupts of all row/column GPIOs are bundled to one single
-+	 * irq */
-+	unsigned int	clustered_irq;
-+	unsigned int	clustered_irq_flags;
-+
- 	bool		active_low;
- 	bool		wakeup;
- 	bool		no_autorepeat;
--- 
-1.7.0
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,198 +1,211 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 0/2] input: mt: Add EVIOC mechanism for MT slots
-Date: Thu, 27 May 2010 14:33:08 +0200
-Message-ID: <4BFE6684.5030908@euromail.se>
-References: <1274788379-11026-1-git-send-email-rydberg@euromail.se> <20100525173446.GA4634@core.coreip.homeip.net> <4BFC2A7D.50501@euromail.se> <20100525202340.GD4455@core.coreip.homeip.net> <AANLkTimR3VN21URkandBGhPjWYdkdFP2zmAVscyRbqtW@mail.gmail.com> <20100527070310.GC17625@core.coreip.homeip.net> <4BFE1A5A.8010802@cena.fr> <20100527072438.GA13188@core.coreip.homeip.net> <4BFE54D7.3090300@cena.fr>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: [PATCH V2] matrix_keypad: add support for clustered irq
+Date: Thu, 27 May 2010 23:14:50 +0800
+Message-ID: <AANLkTikzzqx0mJM6cjqdm_n8i3F4lCdaAf2xkpQ_havX@mail.gmail.com>
+References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de>
+	<1274942634-31735-1-git-send-email-l.fu@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:48319 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750831Ab0E0Mdp (ORCPT
+Received: from mail-qy0-f183.google.com ([209.85.221.183]:36301 "EHLO
+	mail-qy0-f183.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751469Ab0E0PPL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 May 2010 08:33:45 -0400
-In-Reply-To: <4BFE54D7.3090300@cena.fr>
+	Thu, 27 May 2010 11:15:11 -0400
+In-Reply-To: <1274942634-31735-1-git-send-email-l.fu@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <tissoire@cena.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+To: Luotao Fu <l.fu@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Benjamin Tissoires wrote:
->=20
->=20
-> Le 27/05/2010 09:24, Dmitry Torokhov a =E9crit :
->> On Thu, May 27, 2010 at 09:08:10AM +0200, Benjamin Tissoires wrote:
->>> Le 27/05/2010 09:03, Dmitry Torokhov a =E9crit :
->>>> On Wed, May 26, 2010 at 08:59:35AM -0700, Ping Cheng wrote:
->>>>> On Tue, May 25, 2010 at 1:23 PM, Dmitry Torokhov
->>>>> <dmitry.torokhov@gmail.com>   wrote:
->>>>>> On Tue, May 25, 2010 at 09:52:29PM +0200, Henrik Rydberg wrote:
->>>>>>> Dmitry Torokhov wrote:
->>>>>>>> Hi Henrik,
->>>>>>>>
->>>>>>>> On Tue, May 25, 2010 at 01:52:57PM +0200, Henrik Rydberg wrote=
-:
->>>>>>>>> These patches are in response to the discussion about input s=
-tate
->>>>>>>>> retrieval.
->>>>>>>>>
->>>>>>>>> The current EVIOCGABS method does not work with MT slots.  Th=
-ese
->>>>>>>>> patches provides a mechanism where a slot is first selected v=
-ia
->>>>>>>>> a call
->>>>>>>>> to EVIOCSABS, after which the corresponding MT events can be
->>>>>>>>> extracted
->>>>>>>>> with calls to EVIOCGABS.
->>>>>>>>>
->>>>>>>>> The symmetric operation, to set the MT state via EVIOCSABS,
->>>>>>>>> seems to
->>>>>>>>> violate input data integrity, and is therefore not implemente=
-d.
->>>>>>>>>
->>>>>>>>
->>>>>>>> This looks sane, however the question remains - is there any
->>>>>>>> users for
->>>>>>>> this data? Like I mentioned, I can see the need to fetch state=
- of
->>>>>>>> switches and ranges of absolute axis, and even non-multitouch
->>>>>>>> ABS values
->>>>>>>> (due to the fact that some input devices, like sliders, may st=
-ay
->>>>>>>> in a
->>>>>>>> certain position for long periods of time), but I expect
->>>>>>>> multitouch data
->>>>>>>> to be "refreshed" very quickly.
->>>>>>>>
->>>>>>>> Thanks.
->>>>>>>>
->>>>>>>
->>>>>>> There were some voices addressing this issue, and the patches a=
-re
->>>>>>> here,
->>>>>>> available for whomever to pick up. Drop them if you wish, I wil=
-l
->>>>>>> not send them anew.
->>>>>>>
->>>>>>
->>>>>> I'll save them in my queue but will hold off applying until I he=
-ar
->>>>>> userspace folks requesting such functionality.
->>>>>
->>>>> Hi Dmitry,
->>>>>
->>>>> You do have a valid point - the (x,y) from a touch object would m=
-ost
->>>>> likely change all the time. Even if the object itself is in a ste=
-ady
->>>>> state on the digitizer, i.e., without any intentional movement, t=
-he
->>>>> electronic noise would most likely lead to some (x,y) changes. So=
-, the
->>>>> chance that we need to retrieve (x,y) is rare.
->>>>>
->>>>> However, it is possibe that when X driver starts, an object was
->>>>> already on the digitizer. And the digitizer is of such a high qua=
-lity
->>>>> :), it filtered all the noises so we can not locate the touch wit=
-hout
->>>>> a EVIOCGABS call.
->>>>>
->>>>> Plus, from a pure coding/development point of view, it is not a b=
-ad
->>>>> practice to provide the equivalent features for _MT_ support as w=
-e did
->>>>> for the existing input devices. At least, it doesn't hurt to make=
- the
->>>>> support consistent across devices/tools (considering touch as a n=
-ew
->>>>> input device/tool).
->>>>
->>>> Ping,
->>>>
->>>> I did not say that there was a problem with the patch, I agree wit=
-h it.
->>>> However if no one using this - why should we bother? Will _you_ ut=
-ilize
->>>> this functionality in Wacom X driver? If so let me know and I will
->>>> merge
->>>> it.
->>>>
->>>
->>> Hi Dmitry,
->>>
->>> I'm the guy who submitted some patchs to enable multitouch in the
->>> xf86-input-evdev driver. And I think that I will use the MT_SLOTS a=
-s
->>> soon as they are available. It is much easier for the upper part to
->>> have this protocol instead of the protocol type A.
->>>
->>
->> This is not the question about slotted protocol (which is everyone
->> agrees is needed), the question is whether anyone will use EIVICGABS=
- to
->> retrieve the initial MT values in case someone started touching the
->> device before X opened the corresponding /dev/input/eventX.
->>
->=20
-> Sorry for the misunderstanding.
->=20
-> I can see at least 2 scenarios where such feature is interesting.
->=20
-> Scenario n=B01:
-> Imagine a mt-enabled surface, like the Microsoft Surface or other big
-> devices. On these tables, we can put static objects that can be
-> recognized by a tag or just by their weight, size, etc. These objects
-> can be put before the X server starts and may be of interest. But sin=
-ce
-> these objects are "statics" the kernel driver does not send new value=
-s
-> and the X server does not see them, until they are moved by a human.
->=20
-> Here, I did not understood if the patch allows us to retrieve all slo=
-ts
-> that are currently present on the surface or if we can have only the
-> last one.
->=20
-> Scenario n=B02:
-> The Apple Magicmouse. This device is a mouse with a mt-surface on top=
- of
-> it. If the filter is good enough, the device won't send the positions=
- of
-> the fingers that are on the surface as we have quite a static positio=
-n
-> while handling a mouse. In the case a user starts X and has a hand on
-> the mouse, the X server won't see them until they are actually moved.
-> This may not be a problem but if we need to know the mt-state while
-> sending the clicks, the driver can misunderstand the user aim.
-> But from what I understood, if the user has only one contact on the
-> surface, the slot will not be send and the X driver will be a little =
-bit
-> lost concerning the slot in use.
->=20
-> So, I don't know if those patches will fit my needs, but for me, it i=
-s
-> clear that the X server will need to retrieve the state of the
-> mt-surface when the device is initialized.
->=20
-> I hope I'm not too far from the topic....
->=20
-> Cheers,
-> Benjamin
-
-Thank you Benjamin, you got it all right. I thought something similar t=
-o what
-you describe when writing the patches. I agree with Dmitry that in gene=
-ral, an
-MT contact state is dynamic enough not to need much state initializatio=
-n, but I
-also agree with you that there are cases where it is indeed needed.
-
-Henrik
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gVGh1LCBNYXkgMjcsIDIwMTAgYXQgMjo0MyBQTSwgTHVvdGFvIEZ1IDxsLmZ1QHBlbmd1dHJv
+bml4LmRlPiB3cm90ZToKPiBUaGlzIG9uZSBhZGRzIHN1cHBvcnQgb2YgYSBjb21iaW5lZCBpcnEg
+c291cmNlIGZvciB0aGUgd2hvbGUgbWF0cml4IGtleXBhZC4KPiBUaGlzIGNhbiBiZSB1c2VmdWwg
+aWYgYWxsIHJvd3MgYW5kIGNvbHVtbnMgb2YgdGhlIGtleXBhZCBhcmUgZS5nLiBjb25uZWN0ZWQK
+PiB0byBhIEdQSU8gZXhwYW5kZXIsIHdoaWNoIG9ubHkgaGFzIG9uZSBpbnRlcnJ1cHQgbGluZSBm
+b3IgYWxsIGV2ZW50cyBvbgo+IGV2ZXJ5IHNpbmdsZSBHUElPLgo+Cj4gU2lnbmVkLW9mZi1ieTog
+THVvdGFvIEZ1IDxsLmZ1QHBlbmd1dHJvbml4LmRlPgoKSSBmZWVsIE9LLiBBY2tlZC1ieTogRXJp
+YyBNaWFvIDxlcmljLnkubWlhb0BnbWFpbC5jb20+Cgo+IC0tLQo+IFYyIENoYW5nZXM6Cj4gKiBj
+cmVhdGUgc2VwYXJhdGUgZnVuY3Rpb25zIGZvciBzdXNwZW5kL3Jlc3VtZSBjYWxscy4KPiAqIGFk
+ZCBib29sIGZsYWcgdG8gc2lnbmFsIGVuYWJsZS9kaXNhYmxlIHN0YXRlIG9mIGFsbCBncGlvcy4K
+PiAqIGFkZCBzcGlubG9jayB0byBzdXNwZW5kIGFuZCByZXN1bWUgY2FsbGJhY2tzLgo+Cj4gwqBk
+cml2ZXJzL2lucHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYyB8IMKgMTM4ICsrKysrKysrKysr
+KysrKysrKysrKysrKy0tLS0tLS0tCj4gwqBpbmNsdWRlL2xpbnV4L2lucHV0L21hdHJpeF9rZXlw
+YWQuaCDCoCDCoHwgwqAgwqA1ICsKPiDCoDIgZmlsZXMgY2hhbmdlZCwgMTA5IGluc2VydGlvbnMo
+KyksIDM0IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQva2V5Ym9h
+cmQvbWF0cml4X2tleXBhZC5jIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9tYXRyaXhfa2V5cGFk
+LmMKPiBpbmRleCBiNDQzZTA4Li45OWI3MjA0IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5wdXQv
+a2V5Ym9hcmQvbWF0cml4X2tleXBhZC5jCj4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9t
+YXRyaXhfa2V5cGFkLmMKPiBAQCAtMzcsNiArMzcsNyBAQCBzdHJ1Y3QgbWF0cml4X2tleXBhZCB7
+Cj4gwqAgwqAgwqAgwqBzcGlubG9ja190IGxvY2s7Cj4gwqAgwqAgwqAgwqBib29sIHNjYW5fcGVu
+ZGluZzsKPiDCoCDCoCDCoCDCoGJvb2wgc3RvcHBlZDsKPiArIMKgIMKgIMKgIGJvb2wgZ3Bpb19h
+bGxfZGlzYWJsZWQ7Cj4gwqB9Owo+Cj4gwqAvKgo+IEBAIC04Nyw4ICs4OCwxMiBAQCBzdGF0aWMg
+dm9pZCBlbmFibGVfcm93X2lycXMoc3RydWN0IG1hdHJpeF9rZXlwYWQgKmtleXBhZCkKPiDCoCDC
+oCDCoCDCoGNvbnN0IHN0cnVjdCBtYXRyaXhfa2V5cGFkX3BsYXRmb3JtX2RhdGEgKnBkYXRhID0g
+a2V5cGFkLT5wZGF0YTsKPiDCoCDCoCDCoCDCoGludCBpOwo+Cj4gLSDCoCDCoCDCoCBmb3IgKGkg
+PSAwOyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykKPiAtIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIGVuYWJsZV9pcnEoZ3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSkpOwo+ICsgwqAg
+wqAgwqAgaWYgKHBkYXRhLT5jbHVzdGVyZWRfaXJxID4gMCkKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIGVuYWJsZV9pcnEocGRhdGEtPmNsdXN0ZXJlZF9pcnEpOwo+ICsgwqAgwqAgwqAgZWxzZSB7
+Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3IgKGkgPSAwOyBpIDwgcGRhdGEtPm51bV9yb3df
+Z3Bpb3M7IGkrKykKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVuYWJsZV9p
+cnEoZ3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSkpOwo+ICsgwqAgwqAgwqAgfQo+IMKg
+fQo+Cj4gwqBzdGF0aWMgdm9pZCBkaXNhYmxlX3Jvd19pcnFzKHN0cnVjdCBtYXRyaXhfa2V5cGFk
+ICprZXlwYWQpCj4gQEAgLTk2LDggKzEwMSwxMiBAQCBzdGF0aWMgdm9pZCBkaXNhYmxlX3Jvd19p
+cnFzKHN0cnVjdCBtYXRyaXhfa2V5cGFkICprZXlwYWQpCj4gwqAgwqAgwqAgwqBjb25zdCBzdHJ1
+Y3QgbWF0cml4X2tleXBhZF9wbGF0Zm9ybV9kYXRhICpwZGF0YSA9IGtleXBhZC0+cGRhdGE7Cj4g
+wqAgwqAgwqAgwqBpbnQgaTsKPgo+IC0gwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5u
+dW1fcm93X2dwaW9zOyBpKyspCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBkaXNhYmxlX2lycV9u
+b3N5bmMoZ3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSkpOwo+ICsgwqAgwqAgwqAgaWYg
+KHBkYXRhLT5jbHVzdGVyZWRfaXJxID4gMCkKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGRpc2Fi
+bGVfaXJxX25vc3luYyhwZGF0YS0+Y2x1c3RlcmVkX2lycSk7Cj4gKyDCoCDCoCDCoCBlbHNlIHsK
+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19n
+cGlvczsgaSsrKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZGlzYWJsZV9p
+cnFfbm9zeW5jKGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3NbaV0pKTsKPiArIMKgIMKgIMKg
+IH0KPiDCoH0KPgo+IMKgLyoKPiBAQCAtMjE2LDI1ICsyMjUsNzQgQEAgc3RhdGljIHZvaWQgbWF0
+cml4X2tleXBhZF9zdG9wKHN0cnVjdCBpbnB1dF9kZXYgKmRldikKPiDCoH0KPgo+IMKgI2lmZGVm
+IENPTkZJR19QTQo+IC1zdGF0aWMgaW50IG1hdHJpeF9rZXlwYWRfc3VzcGVuZChzdHJ1Y3QgZGV2
+aWNlICpkZXYpCj4gK3N0YXRpYyBpbmxpbmUgdm9pZCBfX3N1c3BlbmRfa2V5cGFkKHN0cnVjdCBt
+YXRyaXhfa2V5cGFkICprZXlwYWQpCj4gwqB7Cj4gLSDCoCDCoCDCoCBzdHJ1Y3QgcGxhdGZvcm1f
+ZGV2aWNlICpwZGV2ID0gdG9fcGxhdGZvcm1fZGV2aWNlKGRldik7Cj4gLSDCoCDCoCDCoCBzdHJ1
+Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFkID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7Cj4g
+wqAgwqAgwqAgwqBjb25zdCBzdHJ1Y3QgbWF0cml4X2tleXBhZF9wbGF0Zm9ybV9kYXRhICpwZGF0
+YSA9IGtleXBhZC0+cGRhdGE7Cj4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgY2lycSA9IHBkYXRh
+LT5jbHVzdGVyZWRfaXJxOwo+ICsgwqAgwqAgwqAgdW5zaWduZWQgaW50IGdwaW87Cj4gKyDCoCDC
+oCDCoCB1bnNpZ25lZCBsb25nIGZsYWdzOwo+IMKgIMKgIMKgIMKgaW50IGk7Cj4KPiAtIMKgIMKg
+IMKgIG1hdHJpeF9rZXlwYWRfc3RvcChrZXlwYWQtPmlucHV0X2Rldik7Cj4gKyDCoCDCoCDCoCBz
+cGluX2xvY2tfaXJxc2F2ZSgma2V5cGFkLT5sb2NrLCBmbGFncyk7Cj4KPiAtIMKgIMKgIMKgIGlm
+IChkZXZpY2VfbWF5X3dha2V1cCgmcGRldi0+ZGV2KSkgewo+IC0gwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiAtIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmICghdGVzdF9iaXQoaSwga2V5cGFkLT5kaXNh
+YmxlZF9ncGlvcykpIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIHVuc2lnbmVkIGludCBncGlvID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiArIMKgIMKg
+IMKgIGlmIChwZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIGlmIChlbmFibGVfaXJxX3dha2UoY2lycSkgPT0gMCkKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGtleXBhZC0+Z3Bpb19hbGxfZGlzYWJsZWQgPSB0cnVlOwo+Cj4gLSDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoZW5hYmxlX2ly
+cV93YWtlKGdwaW9fdG9faXJxKGdwaW8pKSA9PSAwKQo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgX19zZXRfYml0KGksIGtleXBhZC0+
+ZGlzYWJsZWRfZ3Bpb3MpOwo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgfQo+
+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZ290byBvdXQ7Cj4gKyDCoCDCoCDCoCB9Cj4gKwo+ICsg
+wqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93X2dwaW9zOyBpKyspIHsKPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmICghdGVzdF9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9n
+cGlvcykpIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdwaW8gPSBwZGF0
+YS0+cm93X2dwaW9zW2ldOwo+ICsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IGlmIChlbmFibGVfaXJxX3dha2UoZ3Bpb190b19pcnEoZ3BpbykpID09IDApCj4gKyDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBfX3NldF9iaXQoaSwga2V5cGFk
+LT5kaXNhYmxlZF9ncGlvcyk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCB9Cj4gKyDCoCDCoCDC
+oCB9Cj4gK291dDoKPiArIMKgIMKgIMKgIHNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmtleXBhZC0+
+bG9jaywgZmxhZ3MpOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIHZvaWQgX19yZXN1bWVfa2V5
+cGFkKHN0cnVjdCBtYXRyaXhfa2V5cGFkICprZXlwYWQpCj4gK3sKPiArIMKgIMKgIMKgIGNvbnN0
+IHN0cnVjdCBtYXRyaXhfa2V5cGFkX3BsYXRmb3JtX2RhdGEgKnBkYXRhID0ga2V5cGFkLT5wZGF0
+YTsKPiArIMKgIMKgIMKgIHVuc2lnbmVkIGludCBjaXJxID0gcGRhdGEtPmNsdXN0ZXJlZF9pcnE7
+Cj4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgZ3BpbzsKPiArIMKgIMKgIMKgIHVuc2lnbmVkIGxv
+bmcgZmxhZ3M7Cj4gKyDCoCDCoCDCoCBpbnQgaTsKPiArCj4gKyDCoCDCoCDCoCBzcGluX2xvY2tf
+aXJxc2F2ZSgma2V5cGFkLT5sb2NrLCBmbGFncyk7Cj4gKwo+ICsgwqAgwqAgwqAgaWYgKHBkYXRh
+LT5jbHVzdGVyZWRfaXJxID4gMCkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKGtleXBh
+ZC0+Z3Bpb19hbGxfZGlzYWJsZWQpIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIGRpc2FibGVfaXJxX3dha2UoY2lycSk7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCBrZXlwYWQtPmdwaW9fYWxsX2Rpc2FibGVkID0gZmFsc2U7Cj4gKyDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCB9Cj4gKwo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZ290byBvdXQ7Cj4gKyDC
+oCDCoCDCoCB9Cj4gKwo+ICsgwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93
+X2dwaW9zOyBpKyspIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmICh0ZXN0X2FuZF9jbGVh
+cl9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9ncGlvcykpIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGdwaW8gPSBwZGF0YS0+cm93X2dwaW9zW2ldOwo+ICsgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZGlzYWJsZV9pcnFfd2FrZShncGlvX3RvX2lycShncGlv
+KSk7Cj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqB9Cj4gwqAgwqAgwqAgwqB9Cj4gK291dDoKPiAr
+IMKgIMKgIMKgIHNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmtleXBhZC0+bG9jaywgZmxhZ3MpOwo+
+ICsKPiArfQo+ICsKPiArc3RhdGljIGludCBtYXRyaXhfa2V5cGFkX3N1c3BlbmQoc3RydWN0IGRl
+dmljZSAqZGV2KQo+ICt7Cj4gKyDCoCDCoCDCoCBzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2
+ID0gdG9fcGxhdGZvcm1fZGV2aWNlKGRldik7Cj4gKyDCoCDCoCDCoCBzdHJ1Y3QgbWF0cml4X2tl
+eXBhZCAqa2V5cGFkID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7Cj4gKwo+ICsgwqAgwqAg
+wqAgbWF0cml4X2tleXBhZF9zdG9wKGtleXBhZC0+aW5wdXRfZGV2KTsKPiArCj4gKyDCoCDCoCDC
+oCBpZiAoZGV2aWNlX21heV93YWtldXAoJnBkZXYtPmRldikpCj4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCBfX3N1c3BlbmRfa2V5cGFkKGtleXBhZCk7Cj4KPiDCoCDCoCDCoCDCoHJldHVybiAwOwo+
+IMKgfQo+IEBAIC0yNDYsMTUgKzMwNCw4IEBAIHN0YXRpYyBpbnQgbWF0cml4X2tleXBhZF9yZXN1
+bWUoc3RydWN0IGRldmljZSAqZGV2KQo+IMKgIMKgIMKgIMKgY29uc3Qgc3RydWN0IG1hdHJpeF9r
+ZXlwYWRfcGxhdGZvcm1fZGF0YSAqcGRhdGEgPSBrZXlwYWQtPnBkYXRhOwo+IMKgIMKgIMKgIMKg
+aW50IGk7Cj4KPiAtIMKgIMKgIMKgIGlmIChkZXZpY2VfbWF5X3dha2V1cCgmcGRldi0+ZGV2KSkg
+ewo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93
+X2dwaW9zOyBpKyspIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmICh0
+ZXN0X2FuZF9jbGVhcl9iaXQoaSwga2V5cGFkLT5kaXNhYmxlZF9ncGlvcykpIHsKPiAtIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHVuc2lnbmVkIGludCBncGlv
+ID0gcGRhdGEtPnJvd19ncGlvc1tpXTsKPiAtCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCBkaXNhYmxlX2lycV93YWtlKGdwaW9fdG9faXJxKGdwaW8pKTsK
+PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KPiAtIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIH0KPiAtIMKgIMKgIMKgIH0KPiArIMKgIMKgIMKgIGlmIChkZXZpY2VfbWF5X3dha2V1
+cCgmcGRldi0+ZGV2KSkKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIF9fcmVzdW1lX2tleXBhZChr
+ZXlwYWQpOwo+Cj4gwqAgwqAgwqAgwqBtYXRyaXhfa2V5cGFkX3N0YXJ0KGtleXBhZC0+aW5wdXRf
+ZGV2KTsKPgo+IEBAIC0yOTYsMTcgKzM0NywzMSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCBpbml0
+X21hdHJpeF9ncGlvKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYsCj4gwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqBncGlvX2RpcmVjdGlvbl9pbnB1dChwZGF0YS0+cm93X2dwaW9zW2ldKTsKPiDC
+oCDCoCDCoCDCoH0KPgo+IC0gwqAgwqAgwqAgZm9yIChpID0gMDsgaSA8IHBkYXRhLT5udW1fcm93
+X2dwaW9zOyBpKyspIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGVyciA9IHJlcXVlc3RfaXJx
+KGdwaW9fdG9faXJxKHBkYXRhLT5yb3dfZ3Bpb3NbaV0pLAo+ICsgwqAgwqAgwqAgaWYgKHBkYXRh
+LT5jbHVzdGVyZWRfaXJxID4gMCkgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZXJyID0gcmVx
+dWVzdF9pcnEocGRhdGEtPmNsdXN0ZXJlZF9pcnEsCj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBtYXRyaXhfa2V5cGFkX2ludGVycnVwdCwKPiAtIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIElSUUZfRElTQUJMRUQgfAo+
+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgSVJRRl9UUklH
+R0VSX1JJU0lORyB8IElSUUZfVFJJR0dFUl9GQUxMSU5HLAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcGRhdGEtPmNsdXN0ZXJlZF9pcnFfZmxhZ3MsCj4g
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAibWF0cml4LWtl
+eXBhZCIsIGtleXBhZCk7Cj4gwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBpZiAoZXJyKSB7Cj4gwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqBkZXZfZXJyKCZwZGV2LT5kZXYsCj4gLSDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAiVW5hYmxlIHRvIGFj
+cXVpcmUgaW50ZXJydXB0IGZvciBHUElPIGxpbmUgJWlcbiIsCj4gLSDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBwZGF0YS0+cm93X2dwaW9zW2ldKTsKPiAtIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdvdG8gZXJyX2ZyZWVfaXJxczsKPiArIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJVbmFibGUgdG8gYWNx
+dWlyZSBjbHVzdGVyZWQgaW50ZXJydXB0XG4iKTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGdvdG8gZXJyX2ZyZWVfcm93czsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0K
+PiArIMKgIMKgIMKgIH0gZWxzZSB7Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmb3IgKGkgPSAw
+OyBpIDwgcGRhdGEtPm51bV9yb3dfZ3Bpb3M7IGkrKykgewo+ICsgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgZXJyID0gcmVxdWVzdF9pcnEoZ3Bpb190b19pcnEocGRhdGEtPnJvd19n
+cGlvc1tpXSksCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBtYXRyaXhfa2V5cGFkX2ludGVycnVwdCwKPiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIElSUUZfRElTQUJMRUQg
+fAo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgSVJRRl9UUklHR0VSX1JJU0lORyB8Cj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBJUlFGX1RSSUdHRVJfRkFMTElORywKPiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+ICJtYXRyaXgta2V5cGFkIiwga2V5cGFkKTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIGlmIChlcnIpIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIGRldl9lcnIoJnBkZXYtPmRldiwKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgICJVbmFibGUgdG8gYWNxdWlyZSBpbnRl
+cnJ1cHQgIgo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgImZvciBHUElPIGxpbmUgJWlcbiIsCj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBwZGF0YS0+cm93X2dwaW9zW2ld
+KTsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdvdG8g
+ZXJyX2ZyZWVfaXJxczsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KPiDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoH0KPiDCoCDCoCDCoCDCoH0KPgo+IEBAIC00MTgsMTEgKzQ4
+MywxNiBAQCBzdGF0aWMgaW50IF9fZGV2ZXhpdCBtYXRyaXhfa2V5cGFkX3JlbW92ZShzdHJ1Y3Qg
+cGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+Cj4gwqAgwqAgwqAgwqBkZXZpY2VfaW5pdF93YWtldXAo
+JnBkZXYtPmRldiwgMCk7Cj4KPiAtIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVt
+X3Jvd19ncGlvczsgaSsrKSB7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBmcmVlX2lycShncGlv
+X3RvX2lycShwZGF0YS0+cm93X2dwaW9zW2ldKSwga2V5cGFkKTsKPiAtIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIGdwaW9fZnJlZShwZGF0YS0+cm93X2dwaW9zW2ldKTsKPiArIMKgIMKgIMKgIGlmIChw
+ZGF0YS0+Y2x1c3RlcmVkX2lycSA+IDApIHsKPiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGZyZWVf
+aXJxKHBkYXRhLT5jbHVzdGVyZWRfaXJxLCBrZXlwYWQpOwo+ICsgwqAgwqAgwqAgfSBlbHNlIHsK
+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19n
+cGlvczsgaSsrKQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZnJlZV9pcnEo
+Z3Bpb190b19pcnEocGRhdGEtPnJvd19ncGlvc1tpXSksIGtleXBhZCk7Cj4gwqAgwqAgwqAgwqB9
+Cj4KPiArIMKgIMKgIMKgIGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX3Jvd19ncGlvczsgaSsr
+KQo+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgZ3Bpb19mcmVlKHBkYXRhLT5yb3dfZ3Bpb3NbaV0p
+Owo+ICsKPiDCoCDCoCDCoCDCoGZvciAoaSA9IDA7IGkgPCBwZGF0YS0+bnVtX2NvbF9ncGlvczsg
+aSsrKQo+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZ3Bpb19mcmVlKHBkYXRhLT5jb2xfZ3Bpb3Nb
+aV0pOwo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4X2tleXBhZC5o
+IGIvaW5jbHVkZS9saW51eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgKPiBpbmRleCBjOTY0Y2Q3Li44
+ZThkYzJlIDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvaW5wdXQvbWF0cml4X2tleXBhZC5o
+Cj4gKysrIGIvaW5jbHVkZS9saW51eC9pbnB1dC9tYXRyaXhfa2V5cGFkLmgKPiBAQCAtNjMsNiAr
+NjMsMTEgQEAgc3RydWN0IG1hdHJpeF9rZXlwYWRfcGxhdGZvcm1fZGF0YSB7Cj4gwqAgwqAgwqAg
+wqAvKiBrZXkgZGVib3VuY2UgaW50ZXJ2YWwgaW4gbWlsbGktc2Vjb25kICovCj4gwqAgwqAgwqAg
+wqB1bnNpZ25lZCBpbnQgwqAgwqBkZWJvdW5jZV9tczsKPgo+ICsgwqAgwqAgwqAgLyogdXNlZCBp
+ZiBpbnRlcnJ1cHRzIG9mIGFsbCByb3cvY29sdW1uIEdQSU9zIGFyZSBidW5kbGVkIHRvIG9uZSBz
+aW5nbGUKPiArIMKgIMKgIMKgIMKgKiBpcnEgKi8KPiArIMKgIMKgIMKgIHVuc2lnbmVkIGludCDC
+oCDCoGNsdXN0ZXJlZF9pcnE7Cj4gKyDCoCDCoCDCoCB1bnNpZ25lZCBpbnQgwqAgwqBjbHVzdGVy
+ZWRfaXJxX2ZsYWdzOwo+ICsKPiDCoCDCoCDCoCDCoGJvb2wgwqAgwqAgwqAgwqAgwqAgwqBhY3Rp
+dmVfbG93Owo+IMKgIMKgIMKgIMKgYm9vbCDCoCDCoCDCoCDCoCDCoCDCoHdha2V1cDsKPiDCoCDC
+oCDCoCDCoGJvb2wgwqAgwqAgwqAgwqAgwqAgwqBub19hdXRvcmVwZWF0Owo+IC0tCj4gMS43LjAK
+Pgo+Cg==

@@ -1,40 +1,62 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: [PATCH -next] hid: roccat modules interdependencies
-Date: Thu, 27 May 2010 09:07:06 -0700
-Message-ID: <20100527090706.6c2bc555.randy.dunlap@oracle.com>
-References: <20100527152628.b23a14c6.sfr@canb.auug.org.au>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.35-rc0
+Date: Thu, 27 May 2010 09:14:56 -0700
+Message-ID: <20100527161455.GA558@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20100527152628.b23a14c6.sfr@canb.auug.org.au>
-Sender: linux-next-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+Hi Linus,
 
-hid-roccat-kone calls the hid-roccat module interfaces,
-so the former should depend on or select the latter to prevent
-build errors, like:
+Please pull from:
 
-hid-roccat-kone.c:(.text+0x133ed2): undefined reference to `roccat_report_event'
-hid-roccat-kone.c:(.text+0x133fa8): undefined reference to `roccat_disconnect'
-hid-roccat-kone.c:(.text+0x1353be): undefined reference to `roccat_connect'
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/hid/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+to receive some more updates for the input subsystem.
 
---- linux-next-20100527.orig/drivers/hid/Kconfig
-+++ linux-next-20100527/drivers/hid/Kconfig
-@@ -358,6 +358,7 @@ config HID_ROCCAT
- config HID_ROCCAT_KONE
- 	tristate "Roccat Kone Mouse support"
- 	depends on USB_HID
-+	select HID_ROCCAT
- 	---help---
- 	Support for Roccat Kone mouse.
- 
+Changelog:
+---------
+
+Daniel Mack (1):
+      Input: use ABS_CNT rather than (ABS_MAX + 1)
+
+Haojian Zhuang (1):
+      Input: enable onkey driver of max8925
+
+Kevin Hilman (1):
+      Input: ads7846 - return error on regulator_get() failure
+
+Ondrej Zary (1):
+      Input: usbtouchscreen - support bigger iNexio touchscreens
+
+Peter Ujfalusi (1):
+      Input: twl4030-vibra - correct the power down sequence
+
+
+Diffstat:
+--------
+
+ drivers/hid/hid-debug.c                    |    2 +-
+ drivers/input/joydev.c                     |   10 +-
+ drivers/input/misc/Kconfig                 |   10 ++
+ drivers/input/misc/Makefile                |    1 +
+ drivers/input/misc/max8925_onkey.c         |  148 ++++++++++++++++++++++++++++
+ drivers/input/misc/twl4030-vibra.c         |    2 +-
+ drivers/input/misc/uinput.c                |    4 +-
+ drivers/input/touchscreen/ads7846.c        |    4 +-
+ drivers/input/touchscreen/usbtouchscreen.c |    7 +-
+ include/linux/input.h                      |   12 +-
+ include/linux/joystick.h                   |    4 +-
+ include/linux/uinput.h                     |   10 +-
+ 12 files changed, 189 insertions(+), 25 deletions(-)
+ create mode 100644 drivers/input/misc/max8925_onkey.c
+
+-- 
+Dmitry

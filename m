@@ -1,69 +1,63 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH 3/5] ARM: S5PV210: Add keypad device to the GONI board
-Date: Fri, 28 May 2010 20:51:45 +0900
-Message-ID: <4BFFAE51.3060504@samsung.com>
+Subject: [PATCH 4/5] ARM: S5PV210: Add keypad device to the Aquila board
+Date: Fri, 28 May 2010 20:51:48 +0900
+Message-ID: <4BFFAE54.7030203@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:63579 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754160Ab0E1Lvr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 May 2010 07:51:47 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: ben-linux@fluff.org
 Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com
+List-Id: linux-input@vger.kernel.org
 
-This patch is to support keypad device to the GONI board.
+This patch is to support keypad device to the Aquila board.
 
 Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 ---
- arch/arm/mach-s5pv210/Kconfig     |    2 ++
- arch/arm/mach-s5pv210/mach-goni.c |   26 ++++++++++++++++++++++++++
- 2 files changed, 28 insertions(+), 0 deletions(-)
+ arch/arm/mach-s5pv210/Kconfig       |    2 ++
+ arch/arm/mach-s5pv210/mach-aquila.c |   25 +++++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
-index 04d3992..6f41b2d 100644
+index 6f41b2d..25b9e96 100644
 --- a/arch/arm/mach-s5pv210/Kconfig
 +++ b/arch/arm/mach-s5pv210/Kconfig
-@@ -64,7 +64,9 @@ config MACH_GONI
- 	bool "GONI"
+@@ -55,8 +55,10 @@ config MACH_AQUILA
  	select CPU_S5PV210
  	select ARCH_SPARSEMEM_ENABLE
+ 	select S5PV210_SETUP_FB_24BPP
 +	select S5PV210_SETUP_KEYPAD
+ 	select S3C_DEV_FB
  	select S5PC110_DEV_ONENAND
 +	select SAMSUNG_DEV_KEYPAD
  	help
- 	  Machine support for Samsung GONI board
- 	  S5PC110(MCP) is one of package option of S5PV210
-diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
-index bea812f..cb46d21 100644
---- a/arch/arm/mach-s5pv210/mach-goni.c
-+++ b/arch/arm/mach-s5pv210/mach-goni.c
-@@ -25,6 +25,7 @@
- #include <plat/s5pv210.h>
+ 	  Machine support for the Samsung Aquila target based on S5PC110 SoC
+ 
+diff --git a/arch/arm/mach-s5pv210/mach-aquila.c b/arch/arm/mach-s5pv210/mach-aquila.c
+index fb9dbb2..526fed8 100644
+--- a/arch/arm/mach-s5pv210/mach-aquila.c
++++ b/arch/arm/mach-s5pv210/mach-aquila.c
+@@ -28,6 +28,7 @@
  #include <plat/devs.h>
  #include <plat/cpu.h>
+ #include <plat/fb.h>
 +#include <plat/keypad.h>
  
  /* Following are default values for UCON, ULCON and UFCON UART registers */
  #define S5PV210_UCON_DEFAULT	(S3C2410_UCON_TXILEVEL |	\
-@@ -71,8 +72,30 @@ static struct s3c2410_uartcfg goni_uartcfgs[] __initdata = {
- 	},
+@@ -116,9 +117,30 @@ static struct s3c_fb_platdata aquila_lcd_pdata __initdata = {
+ 	.setup_gpio	= s5pv210_fb_gpio_setup_24bpp,
  };
  
 +/* KEYPAD */
 +static uint32_t keymap[] __initdata = {
 +	/* KEY(row, col, keycode) */
-+	KEY(0, 1, KEY_MENU),		/* Send */
-+	KEY(0, 2, KEY_BACK),		/* End */
-+	KEY(1, 1, KEY_CONFIG),		/* Half shot */
-+	KEY(1, 2, KEY_VOLUMEUP),
-+	KEY(2, 1, KEY_CAMERA),		/* Full shot */
-+	KEY(2, 2, KEY_VOLUMEDOWN),
++	KEY(0, 0, KEY_CAMERA),		/* Full Shot */
++	KEY(0, 1, KEY_VOLUMEUP),
++	KEY(1, 0, KEY_CONFIG),		/* Halt Shot */
++	KEY(1, 1, KEY_VOLUMEDOWN),
 +};
 +
 +static struct matrix_keymap_data keymap_data __initdata = {
@@ -73,23 +67,25 @@ index bea812f..cb46d21 100644
 +
 +static struct samsung_kp_platdata keypad_data __initdata = {
 +	.keymap_data	= &keymap_data,
-+	.rows		= 3,
++	.rows		= 2,
 +	.cols		= 3,
 +};
- static struct platform_device *goni_devices[] __initdata = {
++
+ static struct platform_device *aquila_devices[] __initdata = {
+ 	&s3c_device_fb,
  	&s5pc110_device_onenand,
 +	&samsung_device_keypad,
  };
  
- static void __init goni_map_io(void)
-@@ -84,6 +107,9 @@ static void __init goni_map_io(void)
+ static void __init aquila_map_io(void)
+@@ -133,6 +155,9 @@ static void __init aquila_machine_init(void)
+ 	/* FB */
+ 	s3c_fb_set_platdata(&aquila_lcd_pdata);
  
- static void __init goni_machine_init(void)
- {
 +	/* KEYPAD */
 +	samsung_kp_set_platdata(&keypad_data);
 +
- 	platform_add_devices(goni_devices, ARRAY_SIZE(goni_devices));
+ 	platform_add_devices(aquila_devices, ARRAY_SIZE(aquila_devices));
  }
  
 -- 

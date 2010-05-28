@@ -1,91 +1,62 @@
-From: Dave Airlie <airlied@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.35-rc0
-Date: Fri, 28 May 2010 12:56:53 +1000
-Message-ID: <AANLkTiklv48cDWNqKlFfh5RVtxxNH8shH_JjDypPgeHA@mail.gmail.com>
-References: <20100520165243.GA20861@core.coreip.homeip.net>
-	<alpine.LFD.2.00.1005271837050.11382@i5.linux-foundation.org>
+From: Robert Hancock <hancockrwd@gmail.com>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Thu, 27 May 2010 22:05:52 -0600
+Message-ID: <4BFF4120.7030501@gmail.com>
+References: <20100513075728.GF30110@core.coreip.homeip.net> <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org> <20100513160117.GB22238@core.coreip.homeip.net> <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org> <4BFE0FAB.9040009@gmail.com> <alpine.LFD.2.00.1005270956380.3689@i5.linux-foundation.org> <AANLkTimkI2rLOO2vaPFBQUbzr5t0pAQGQ5R5noTOBp4K@mail.gmail.com> <alpine.LFD.2.00.1005271744410.11382@i5.linux-foundation.org> <4B59D6F4-825C-4851-929F-DCA28A343B23@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:42192 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755531Ab0E1C4y convert rfc822-to-8bit (ORCPT
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:64510 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750701Ab0E1EF4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 May 2010 22:56:54 -0400
-In-Reply-To: <alpine.LFD.2.00.1005271837050.11382@i5.linux-foundation.org>
+	Fri, 28 May 2010 00:05:56 -0400
+In-Reply-To: <4B59D6F4-825C-4851-929F-DCA28A343B23@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, Arjan Opmeer <arjan@opmeer.net>, Eric Piel <eric.piel@tremplin-utc.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>
 
-On Fri, May 28, 2010 at 11:53 AM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+On 05/27/2010 07:03 PM, Dmitry Torokhov wrote:
+> On May 27, 2010, at 5:46 PM, Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
 >
->
-> On Thu, 20 May 2010, Dmitry Torokhov wrote:
 >>
->> Dmitry Torokhov (17):
->> =A0 =A0 =A0 Input: elantech - enforce common prefix on messages
->> =A0 =A0 =A0 Input: elantech - relax signature checks
+>>
+>> On Thu, 27 May 2010, Robert Hancock wrote:
+>>>
+>>> It's highly unlikely that they are incomplete in this respect, as
+>>> since I mentioned, Windows would fail to recognize the PS/2 controller
+>>> that people would expect to work, which would most likely get
+>>> noticed..
+>>
+>> Did you miss the part where I actually quoted my own modern Core i5
+>> machine that _does_ have a keyboard controller, and _does_ have a
+>> keyboard
+>> port, and that does _not_ mention them in the PnP tables?
 >
-> These two commits (I _think_ - I didn't actually bisect it) seem to r=
-esult
-> in a Dell Inspiron bootup message changing from:
+> Except that it _does_. But _our_ ACPI implementation drops all inactive
+> devices so our PNP layer does not see your mouse and keyboard ports.
+
+That's likely true - my machine works similarly, it doesn't list any 
+keyboard or mouse controller in PnP and Windows doesn't see them if no 
+device is plugged in at boot. The PnP devices for them are still 
+defined, but they are marked as disabled (the _STA method in the DSDT 
+returns 0). So we could likely detect that case and say "hey, the device 
+is there, just turned off, maybe we should try and see if it works 
+anyway". Whereas if the device is not there at all, we'd likely be 
+better off leaving it alone, by default anyway.
+
 >
-> =A0 =A0 =A0 =A0input: ImPS/2 Logitech Wheel Mouse as /devices/platfor=
-m/i8042/serio1/input/input5
 >
-> to
+>>
+>>> I think this is a case where it has to be trusted, because that's what
+>>> Windows does.
+>>
+>> The thing is, Windows isn't used for things like headless machines. Which
+>> we went over extensively in the thread. There's a _reason_ why Linux
+>> probes the dang thing.
 >
-> =A0 =A0 =A0 =A0elantech: assuming hardware version 2, firmware versio=
-n 4.3.1
-> =A0 =A0 =A0 =A0elantech: Synaptics capabilities query result 0x08, 0x=
-18, 0x0c.
-> =A0 =A0 =A0 =A0input: ETPS/2 Elantech Touchpad as /devices/platform/i=
-8042/serio1/input/input5
->
-> and the end result is a total disaster. In the words of my daughter, =
-whose
-> laptop this is:
->
-> =A0 =A0 =A0 =A0Subject: Computer=3Dawful
->
-> =A0 =A0 =A0 =A0I am not able to click by tapping, I actually have to =
-press down.. It's
-> =A0 =A0 =A0 =A0really frustrating and I want it fixed.
->
-> and having tested it, I have to agree. It's beyond awful. It's absolu=
-tely
-> disgusting, and the touchpad went from "quite usable" (with tapping,
-> double-tapping, scroll-wheel on the right side etc) to "totally unusa=
-ble".
-> The buttons you have to press (since tapping doesn't work) are on the
-> touch-pad itself, and it's basically a total pain.
->
-> The scroll-wheel emulation still seems to work, but tapping has gone =
-away.
-> I'm reading the docs, and they say that you can do magic things with =
-the
-> raw registers, but if I'm looking at the register contents they seem =
-to
-> say that tapping _is_ enabled. It just doesn't work.
->
-> So it would seem that the "non-native" PS/2 emulation of that thing i=
-s way
-> better than the native driver, and we should _not_ try to treat it as=
- a
-> touchpad. We're better off leaving it in ImPS/2 mode.
 >
 
-Was this in GNOME?
-
-Does System->Preferences->Mouse have a touchpad tab? do it have tapping=
- off?
-
-Dave.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

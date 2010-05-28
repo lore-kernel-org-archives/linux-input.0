@@ -1,62 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Thu, 27 May 2010 22:10:20 -0700
-Message-ID: <20100528051020.GC2663@core.coreip.homeip.net>
-References: <20100513075728.GF30110@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
- <20100513160117.GB22238@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005130943460.3711@i5.linux-foundation.org>
- <4BFE0FAB.9040009@gmail.com>
- <alpine.LFD.2.00.1005270956380.3689@i5.linux-foundation.org>
- <AANLkTimkI2rLOO2vaPFBQUbzr5t0pAQGQ5R5noTOBp4K@mail.gmail.com>
- <alpine.LFD.2.00.1005271744410.11382@i5.linux-foundation.org>
- <4B59D6F4-825C-4851-929F-DCA28A343B23@gmail.com>
- <4BFF4120.7030501@gmail.com>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: [git pull] Input updates for 2.6.35-rc0
+Date: Fri, 28 May 2010 15:44:18 +1000
+Message-ID: <AANLkTinPt49coLNjPqJSSxDP8zTmnjbKuIP1NuQFvwL-@mail.gmail.com>
+References: <20100520165243.GA20861@core.coreip.homeip.net>
+	<alpine.LFD.2.00.1005271837050.11382@i5.linux-foundation.org>
+	<AANLkTiklv48cDWNqKlFfh5RVtxxNH8shH_JjDypPgeHA@mail.gmail.com>
+	<alpine.LFD.2.00.1005272108210.11382@i5.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:60326 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751415Ab0E1FKc (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:59260 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751285Ab0E1FoT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 May 2010 01:10:32 -0400
-Content-Disposition: inline
-In-Reply-To: <4BFF4120.7030501@gmail.com>
+	Fri, 28 May 2010 01:44:19 -0400
+In-Reply-To: <alpine.LFD.2.00.1005272108210.11382@i5.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Hancock <hancockrwd@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Ragwitz <rafl@debian.org>, Arjan Opmeer <arjan@opmeer.net>, Eric Piel <eric.piel@tremplin-utc.net>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, peter.hutterer@who-t.net
 
-On Thu, May 27, 2010 at 10:05:52PM -0600, Robert Hancock wrote:
-> On 05/27/2010 07:03 PM, Dmitry Torokhov wrote:
-> >On May 27, 2010, at 5:46 PM, Linus Torvalds
-> ><torvalds@linux-foundation.org> wrote:
-> >
-> >>
-> >>
-> >>On Thu, 27 May 2010, Robert Hancock wrote:
-> >>>
-> >>>It's highly unlikely that they are incomplete in this respect, as
-> >>>since I mentioned, Windows would fail to recognize the PS/2 controller
-> >>>that people would expect to work, which would most likely get
-> >>>noticed..
-> >>
-> >>Did you miss the part where I actually quoted my own modern Core i5
-> >>machine that _does_ have a keyboard controller, and _does_ have a
-> >>keyboard
-> >>port, and that does _not_ mention them in the PnP tables?
-> >
-> >Except that it _does_. But _our_ ACPI implementation drops all inactive
-> >devices so our PNP layer does not see your mouse and keyboard ports.
-> 
-> That's likely true - 
+On Fri, May 28, 2010 at 2:12 PM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+>
+> On Fri, 28 May 2010, Dave Airlie wrote:
+>>
+>> Was this in GNOME?
+>>
+>> Does System->Preferences->Mouse have a touchpad tab? do it have tapping off?
+>
+> Bingo! Yup, that turns a totally useless piece-of-crap touchpad into a
+> perfectly cromulent one!
+>
+> Too bad that the default behavior made it act so horribly bad.
+>
 
-This was not a guess - I have seen DSDT from Linus' box.
+I've cc'ed Peter, but I think thats the GNOME default behaviour, which
+might make sense for
+older style touchpads, but maybe not for these newer the touchpad is a
+button type.
 
-That is why I said I'd be happy applying Metthew's patch if our ACPI did
-not drop inactive devices - it would leave Apple and newer boxes alone
-while still allowing plugging in keyboard/mouse in boxes that do have
-i8042 even if BIOS decided to hide it from Windows.
-
--- 
-Dmitry
+Dave.

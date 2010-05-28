@@ -1,56 +1,36 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 1/3] input: evdev: use multi-reader buffer to save space
-Date: Fri, 28 May 2010 20:34:32 +0200
-Message-ID: <4C000CB8.4020909@euromail.se>
-References: <1275059434-2110-1-git-send-email-rydberg@euromail.se> <1275059434-2110-2-git-send-email-rydberg@euromail.se> <20100528181047.GB2905@core.coreip.homeip.net>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [RFC PATCH] Quickstart Button ACPI driver to serve PNP0C32
+	ACPI devices
+Date: Fri, 28 May 2010 22:11:56 +0100
+Message-ID: <20100528211156.GA3883@srcf.ucam.org>
+References: <201005281940.09925.trenn@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:46918 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753751Ab0E1SfB (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:38334 "EHLO
+	cavan.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753689Ab0E1VMD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 May 2010 14:35:01 -0400
-In-Reply-To: <20100528181047.GB2905@core.coreip.homeip.net>
+	Fri, 28 May 2010 17:12:03 -0400
+Content-Disposition: inline
+In-Reply-To: <201005281940.09925.trenn@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Thomas Renninger <trenn@suse.de>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Angelo Arrifano <miknix@gmail.com>
 
-Hi Dmitry,
+On Fri, May 28, 2010 at 07:40:09PM +0200, Thomas Renninger wrote:
 
-> On Fri, May 28, 2010 at 05:10:32PM +0200, Henrik Rydberg wrote:
->> In preparation of larger buffer needs, convert the current per-client
->> circular buffer to a single buffer with multiple clients. Since there
->> is only one writer but potentially many readers, use the somewhat
->> discouraged rwlock_t pattern.
-> 
-> rwlock is completely unsuitable here:
-> 
-> 1. You must absiolutely not starve writers since they are quite likely
-> are interrupt handlers. If anything they should get priority.
+> The idea of these buttons is that they are undefined from BIOS/kernel
+> point of view. Userspace has to map a functionality to them.
+> Therefore the idea to modify the input event keycode via sysfs file.
+> There should be 2 situations that perfectly are triggered via userspace:
 
-Thanks, I overlooked the starvation argument here.
+They're logically buttons, so the right mechanism is for them to be 
+configured via the standard keymap ioctls. There's already 
+infrastructure for setting this via udev - see /lib/udev/keymaps on 
+recent systems. That should let you avoid the need to 
+unregister/reregister.
 
-> 2. The amount of time the thing is locked is very miniscule, I'd say
-> that regular spinlocks will still give better performance.
-
-I still have a feeling it should be possible to do this lock-less, but I can see
-all docs and your comments pointing towards using the spinlock, so consider it
-changed.
-
-> 
-> Also, use of atomic is funky, I do not think it does whta you think it
-> would... Could you explain more why you are using it?
-
-The use of atomic here serves a declarative purpose, I imagine the assembly code
-is more or less identical to the current evdev code. I personally think it is
-good to be able to see which variables are involved in a thread-to-thread
-exchange. Removing it is not a problem. Is it just me being an old fart, not
-understanding that the atomic int has been assumed for the last half decade, or
-why is it considered funky?
-
-Cheers,
-Henrik
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

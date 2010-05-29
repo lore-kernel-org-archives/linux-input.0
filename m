@@ -1,106 +1,201 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 2/3] input: evdev: convert to dynamic event buffer (rev2)
-Date: Sat, 29 May 2010 17:57:43 +0200
-Message-ID: <1275148664-6238-3-git-send-email-rydberg@euromail.se>
-References: <1275148664-6238-1-git-send-email-rydberg@euromail.se>
- <1275148664-6238-2-git-send-email-rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [RFC PATCH 1/1] input/touchscreen: Synaptics Touchscreen Driver
+Date: Sat, 29 May 2010 22:34:37 +0200
+Message-ID: <4C017A5D.6060706@euromail.se>
+References: <1275092980-29208-1-git-send-email-cheiny@synaptics.com> <1275092980-29208-2-git-send-email-cheiny@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:45312 "EHLO
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:42537 "EHLO
 	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757547Ab0E2QA3 (ORCPT
+	by vger.kernel.org with ESMTP id S1754841Ab0E2Uet (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 May 2010 12:00:29 -0400
-In-Reply-To: <1275148664-6238-2-git-send-email-rydberg@euromail.se>
+	Sat, 29 May 2010 16:34:49 -0400
+In-Reply-To: <1275092980-29208-2-git-send-email-cheiny@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+To: Christopher Heiny <cheiny@synaptics.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>
 
-Allocate the event buffer dynamically, and prepare to compute the buffer
-size in a separate function. This patch defines the size computation to
-be identical to the current code, and does not contain any logical changes.
+Christopher Heiny wrote:
+> Initial driver for Synaptics touchscreens using RMI4 protocol.
+> 
+> Signed-off-by: William Manson <WManson@synaptics.com>
+> Signed-off-by: Allie Xiong <axiong@synaptics.com>
+> Signed-off-by: Christopher Heiny <cheiny@synaptics.com>
+> ---
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/evdev.c |   23 +++++++++++++++++++----
- 1 files changed, 19 insertions(+), 4 deletions(-)
+Thank you for this driver. Some scattered comments on the MT parts below.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 9cbed21..327f821 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -10,7 +10,7 @@
- 
- #define EVDEV_MINOR_BASE	64
- #define EVDEV_MINORS		32
--#define EVDEV_BUFFER_SIZE	64
-+#define EVDEV_MIN_BUFFER_SIZE	64
- 
- #include <linux/poll.h>
- #include <linux/sched.h>
-@@ -35,7 +35,8 @@ struct evdev {
- 	struct device dev;
- 	int head;
- 	int next_head;
--	struct input_event buffer[EVDEV_BUFFER_SIZE];
-+	int bufsize;
-+	struct input_event *buffer;
- };
- 
- struct evdev_client {
-@@ -73,7 +74,7 @@ static void evdev_event(struct input_handle *handle,
- 	event.value = value;
- 
- 	/* lock-less write, interrupts disabled locally */
--	evdev->next_head = (evdev->head + 1) & (EVDEV_BUFFER_SIZE - 1);
-+	evdev->next_head = (evdev->head + 1) & (evdev->bufsize - 1);
- 	smp_wmb();
- 	evdev->buffer[evdev->head] = event;
- 	smp_wmb();
-@@ -125,6 +126,7 @@ static void evdev_free(struct device *dev)
- 	struct evdev *evdev = container_of(dev, struct evdev, dev);
- 
- 	input_put_device(evdev->handle.dev);
-+	kfree(evdev->buffer);
- 	kfree(evdev);
- }
- 
-@@ -354,7 +356,7 @@ static int evdev_fetch_next_event(struct evdev *evdev,
- 		goto repeat;
- 	}
- 
--	client->tail = (client->tail + 1) & (EVDEV_BUFFER_SIZE - 1);
-+	client->tail = (client->tail + 1) & (evdev->bufsize - 1);
- 	return 1;
- }
- 
-@@ -803,6 +805,11 @@ static void evdev_cleanup(struct evdev *evdev)
- 	}
- }
- 
-+static int evdev_compute_buffer_size(struct input_dev *dev)
-+{
-+	return EVDEV_MIN_BUFFER_SIZE;
-+}
-+
- /*
-  * Create new evdev device. Note that input core serializes calls
-  * to connect and disconnect so we don't need to lock evdev_table here.
-@@ -847,6 +854,14 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	evdev->dev.release = evdev_free;
- 	device_initialize(&evdev->dev);
- 
-+	evdev->bufsize = evdev_compute_buffer_size(dev);
-+	evdev->buffer = kzalloc(evdev->bufsize * sizeof(struct input_event),
-+				GFP_KERNEL);
-+	if (!evdev->buffer) {
-+		error = -ENOMEM;
-+		goto err_free_evdev;
-+	}
-+
- 	error = input_register_handle(&evdev->handle);
- 	if (error)
- 		goto err_free_evdev;
--- 
-1.6.3.3
+Henrik
+
+[...]
+> +int FN_11_report(struct rmi_application *app,
+> +		struct rmi_function_info *rfi, struct input_dev *input)
+> +{
+> +	unsigned char values[2] = {0, 0};
+> +	unsigned char data[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+> +	/* number of touch points - fingers down in this case */
+> +	int fingerDownCount;
+> +	int X, Y, Z, W, Wy, Wx;
+> +	int finger;
+> +	int fn11FingersSupported;
+> +	int fn11FingerRegisters;
+> +	unsigned short fn11DataBaseAddr;
+> +	unsigned char fn11DataRegBlockSize;
+> +	static bool wasdown;
+> +
+> +	fingerDownCount = 0;
+> +
+> +	/* get 2D sensor finger data */
+> +
+> +	/* First get the finger status field - the size of the finger status
+> +	field is determined by the number of finger supporte - 2 bits per
+> +	finger, so the number of registers to read is:
+> +		registerCount = ceil(numberOfFingers/4).
+> +	Read the required number of registers and check each 2 bit field to
+> +	determine if a finger is down:
+> +		00 = finger not present,
+> +		01 = finger present and data accurate,
+> +		10 = finger present but data may not be accurate,
+> +		11 = reserved for product use.
+> +	*/
+> +	fn11FingersSupported = rfi->numDataPoints;
+> +	fn11FingerRegisters = (fn11FingersSupported + 3)/4;
+> +
+> +	fn11DataBaseAddr = rfi->funcDescriptor.dataBaseAddr;
+> +
+> +	if (rmi_read_multiple(app, fn11DataBaseAddr, values,
+> +			fn11FingerRegisters)) {
+> +		printk(KERN_ERR "%s: RMI4 function $11 report: "
+> +			"Could not read finger status registers 0x%x\n",
+> +			__func__, fn11DataBaseAddr);
+> +		return 0;
+
+The in-kernel rmi interface seems to expect the number of touches to be returned
+here, but it does not seem to be used anywhere. Would it not be more useful to
+return zero on success, and error codes on failure?
+
+> +	}
+> +
+> +	/* For each finger present, read the proper number of registers
+> +	to get absolute data. */
+> +	fn11DataRegBlockSize = rfi->dataRegBlockSize;
+> +
+> +	for (finger = 0; finger < fn11FingersSupported; finger++) {
+> +		int reg;
+> +		int fingerShift;
+> +		int fingerStatus;
+> +
+> +		/* determine which data byte the finger status is in */
+> +		reg = finger/4;
+> +		/* bit shift to get finger's status */
+> +		fingerShift = (finger % 4) * 2;
+> +		fingerStatus = (values[reg] >> fingerShift) & 3;
+> +
+> +		/* if finger status indicates a finger is present then
+> +		read the finger data and report it */
+> +		if (fingerStatus == 1 || fingerStatus == 2) {
+> +			/* number of active touch points not same as
+> +			number of supported fingers */
+> +			fingerDownCount++;
+> +
+> +			/* Read the finger data */
+> +			if (rmi_read_multiple(app, fn11DataBaseAddr +
+> +					((finger  * fn11DataRegBlockSize) +
+> +					fn11FingerRegisters),
+> +					data, fn11DataRegBlockSize)) {
+> +				printk(KERN_ERR "%s: RMI4 function $11 report: "
+> +					"Could not read finger data registers "
+> +					"0x%x\n", __func__,
+> +					fn11DataBaseAddr +
+> +					((finger  * fn11DataRegBlockSize) +
+> +					fn11FingerRegisters));
+> +				return 0;
+
+Bailing out without finishing off the input packet...
+
+> +			} else {
+> +				X = (data[0] & 0x1f) << 4;
+> +				X |= data[2] & 0xf;
+> +				Y = (data[1] & 0x1f) << 4;
+> +				Y |= (data[2] >> 4) & 0xf;
+> +				W = data[3];
+> +
+> +				/* upper 4 bits of W are Wy,
+> +				lower 4 of W are Wx */
+> +				Wy =  (W >> 4) & 0x0f;
+> +				Wx = W & 0x0f;
+> +
+> +				Z = data[4];
+> +
+> +				/* if this is the first finger report normal
+> +				ABS_X, ABS_Y, PRESSURE, TOOL_WIDTH events for
+> +				non-MT apps. Apps that support Multi-touch
+> +				will ignore these events and use the MT events.
+> +				Apps that don't support Multi-touch will still
+> +				function.
+> +				*/
+> +				if (fingerDownCount == 1) {
+> +					input_report_abs(input, ABS_X, X);
+> +					input_report_abs(input, ABS_Y, Y);
+> +					input_report_abs(input, ABS_PRESSURE,
+> +							Z);
+> +					input_report_abs(input, ABS_TOOL_WIDTH,
+> +							max(Wx, Wy));
+> +					input_report_key(input, BTN_TOUCH, 1);
+> +					wasdown = true;
+> +				}
+> +
+> +				/* Report Multi-Touch events for each finger */
+> +				/* major axis of touch area ellipse */
+> +				input_report_abs(input, ABS_MT_TOUCH_MAJOR,
+> +						max(Wx, Wy));
+> +				/* minor axis of touch area ellipse */
+> +				input_report_abs(input, ABS_MT_TOUCH_MINOR,
+> +						min(Wx, Wy));
+> +				/* Currently only 2 supported - 1 or 0 */
+> +				input_report_abs(input, ABS_MT_ORIENTATION,
+> +						(Wx > Wy ? 1 : 0));
+> +				input_report_abs(input, ABS_MT_POSITION_X, X);
+> +				input_report_abs(input, ABS_MT_POSITION_Y, Y);
+> +				/* Tracking ID reported but not used yet */
+> +				input_report_abs(input, ABS_MT_TRACKING_ID,
+> +						finger+1);
+
+The tracking id used here is not entirely proper, since the id seems to be
+reused too often.
+
+Does the position in the finger array (0..fn11FingersSupported) really track an
+identified contact, as suggested by the code? If so, a proper tracking id could
+be formed by keeping an id per position, and assigning a new id when the
+fingerStatus changes for that position.
+
+> +				/* MT sync between fingers */
+> +				input_mt_sync(input);
+> +			}
+> +		}
+> +	}
+> +
+> +	if (fingerDownCount) {
+> +		/* touch will be non-zero if we had any reported events */
+> +		input_sync(input); /* sync after groups of events */
+> +	} else {
+> +		/* if we had a finger down before and now we don't have
+> +		any we need to send a button up and a sync. */
+> +		if (wasdown) {
+> +			wasdown = false;
+> +			input_report_key(input, BTN_TOUCH, 0);
+> +			input_sync(input); /* sync after groups of events */
+> +		}
+> +	}
+
+input_sync() should always be called at the end, regardless. If nothing changed,
+the input core will filter it out.
+
+> +
+> +	/* return the number of touch points: fingers down or buttons pressed */
+> +	return fingerDownCount;
+> +}
 

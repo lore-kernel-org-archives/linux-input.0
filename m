@@ -1,40 +1,83 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 0/3] input: evdev: Dynamic buffers (rev2)
-Date: Sat, 29 May 2010 17:57:41 +0200
-Message-ID: <1275148664-6238-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 3/3] input: use driver hint to compute the evdev buffer size
+Date: Sat, 29 May 2010 17:57:44 +0200
+Message-ID: <1275148664-6238-4-git-send-email-rydberg@euromail.se>
+References: <1275148664-6238-1-git-send-email-rydberg@euromail.se>
+ <1275148664-6238-2-git-send-email-rydberg@euromail.se>
+ <1275148664-6238-3-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:44687 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757328Ab0E2P61 (ORCPT
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:51301 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757544Ab0E2P6y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 May 2010 11:58:27 -0400
+	Sat, 29 May 2010 11:58:54 -0400
+In-Reply-To: <1275148664-6238-3-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
 
-Ok, second version of the evdev buffer patches.
+Some devices, in particular MT devices, produce a lot of data.
+This leads to a high frequency of lost packets in evdev, which
+by default uses a fairly small event buffer. Let the drivers hint
+the average number of events per packet for the device by calling
+the input_set_events_per_packet(), and use that information when
+computing the evdev buffer size.
 
-In the first patch, the locking has been completely reworked. The
-buffer locking is now similar to seqlock, except the readers only
-block while there is an update affecting the current read. Should be
-fairly optimal, but we can always revert to seqlocks in case the
-scatter of smp instructions feels inadequate.
-
-The second patch only has trivial changes, and the third patch is
-unchanged, but included for completeness.
-
-Cheers,
-Henrik
-
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
+ drivers/input/evdev.c |    5 ++++-
+ include/linux/input.h |    7 +++++++
+ 2 files changed, 11 insertions(+), 1 deletions(-)
 
-Henrik Rydberg (3):
-  input: evdev: use multi-reader buffer to save space (rev2)
-  input: evdev: convert to dynamic event buffer (rev2)
-  input: use driver hint to compute the evdev buffer size
-
- drivers/input/evdev.c |   90 +++++++++++++++++++++++++++++++++---------------
- include/linux/input.h |    7 ++++
- 2 files changed, 69 insertions(+), 28 deletions(-)
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 327f821..fdddb43 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -11,6 +11,7 @@
+ #define EVDEV_MINOR_BASE	64
+ #define EVDEV_MINORS		32
+ #define EVDEV_MIN_BUFFER_SIZE	64
++#define EVDEV_BUF_PACKETS	8
+ 
+ #include <linux/poll.h>
+ #include <linux/sched.h>
+@@ -807,7 +808,9 @@ static void evdev_cleanup(struct evdev *evdev)
+ 
+ static int evdev_compute_buffer_size(struct input_dev *dev)
+ {
+-	return EVDEV_MIN_BUFFER_SIZE;
++	int nev = dev->hint_events_per_packet * EVDEV_BUF_PACKETS;
++	nev = max(nev, EVDEV_MIN_BUFFER_SIZE);
++	return roundup_pow_of_two(nev);
+ }
+ 
+ /*
+diff --git a/include/linux/input.h b/include/linux/input.h
+index bd00786..35b015d 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1162,6 +1162,8 @@ struct input_dev {
+ 	unsigned long ffbit[BITS_TO_LONGS(FF_CNT)];
+ 	unsigned long swbit[BITS_TO_LONGS(SW_CNT)];
+ 
++	unsigned int hint_events_per_packet;
++
+ 	unsigned int keycodemax;
+ 	unsigned int keycodesize;
+ 	void *keycode;
+@@ -1439,6 +1441,11 @@ static inline void input_mt_slot(struct input_dev *dev, int slot)
+ 
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code);
+ 
++static inline void input_set_events_per_packet(struct input_dev *dev, int nev)
++{
++	dev->hint_events_per_packet = nev;
++}
++
+ static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
+ {
+ 	dev->absmin[axis] = min;
+-- 
+1.6.3.3
 

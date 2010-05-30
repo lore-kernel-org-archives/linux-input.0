@@ -1,38 +1,55 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [NEEDS TEST][PATCH] elantech: discard the first 2 positions
- reports for some firmwares
-Date: Sun, 30 May 2010 16:29:39 -0400
-Message-ID: <1275251379.6666.76.camel@mini>
-References: <4C02B18D.3050003@tudelft.nl> <1275243114.6666.50.camel@mini>
-	 <20100530182600.GA32416@core.coreip.homeip.net>
-	 <1275245732.6666.70.camel@mini>
-	 <20100530201221.GA6069@core.coreip.homeip.net>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [spi-devel-general] [PATCH] Input: Add tsc2046 touchscreen driver
+Date: Sun, 30 May 2010 14:08:13 -0700 (PDT)
+Message-ID: <885802.70948.qm@web180316.mail.gq1.yahoo.com>
+References: <AANLkTike4Hu6xJ52fcC9TcKaeD4hLeWxHwUvA90tc3_Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:40001 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754730Ab0E3U3p (ORCPT
+Received: from n12.bullet.mail.mud.yahoo.com ([209.191.125.209]:20497 "HELO
+	n12.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753670Ab0E3VIO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 May 2010 16:29:45 -0400
-In-Reply-To: <20100530201221.GA6069@core.coreip.homeip.net>
+	Sun, 30 May 2010 17:08:14 -0400
+In-Reply-To: <AANLkTike4Hu6xJ52fcC9TcKaeD4hLeWxHwUvA90tc3_Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>, Florian Ragwitz <rafl@debian.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Cory Maccarrone <darkstar6262@gmail.com>
+Cc: spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org
 
-On Sun, 2010-05-30 at 13:12 -0700, Dmitry Torokhov wrote:
-> The patch was not taken from the commit, Eric just referenced the commit
-> as he gathered some additional information. The code in that commit is
-> so hideous that it would never get close to mainline as is.
+--- On Sun, 5/30/10, Cory Maccarrone <darkstar6262@gmail.com> wrote:
 
-Ahhh, yes. Now I see what's going on. I thought, based on Eric's initial
-email and his related email describing the protocol, the commit was
-something we had in our tree that hadn't made it upstream. I should have
-read through everything a second time more thoroughly :).
+I don't see the point in having a separate driver
+for this chip ... it's just an updated ADS7846,
+and the ads7846 driver has handled it for quite
+a few years now, as I recall.  There's no need for
+ second driver.
 
-Thanks,
+> >> This driver differs from the ADS7846 in that it
+> >> uses 16-bit commands instead of 8-bit,
 
--- Chase
+The reason the ads7846 code uses 8-bit messaging
+is portability ... it works with SPI controllers
+which don't support 16-bit words.  The commands are
+of necessity 16-bits.  Using 16-bit words means this
+driver won't run on as many systems; folk will still
+need to use the ads7846 driver with tsc2046 chips..
+ 
+
+
+ and does not include
+> temerature
+> >> or voltage sensing capabilities.
+
+Another reason not to have a separate driver: this
+one is less capable (as well as less portable)
+
+
+> >> additions that allow
+> >> the injection of pointercal parameters from tslib through /sys. 
+
+Something the ads7846 driver could benefit from
+too ... again, two drivers is counterproductive.
+
+- Dave
 

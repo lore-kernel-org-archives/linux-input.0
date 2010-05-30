@@ -1,292 +1,473 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH v2 1/5] ARM: SAMSUNG: Add keypad device support
-Date: Sun, 30 May 2010 05:42:37 +0200
-Message-ID: <201005300542.37715.marek.vasut@gmail.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v2 5/5] input: samsung-keypad - Add samsung keypad	driver
+Date: Sun, 30 May 2010 13:35:58 +0900
+Message-ID: <4C01EB2E.4020600@samsung.com>
 References: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
+ <1275188784-23395-5-git-send-email-jy0922.shim@samsung.com>
+ <20100530034250.GK7248@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:58382 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755680Ab0E3DoW convert rfc822-to-8bit (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:61044 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736Ab0E3EgI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 May 2010 23:44:22 -0400
-In-Reply-To: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
+	Sun, 30 May 2010 00:36:08 -0400
+In-reply-to: <20100530034250.GK7248@trinity.fluff.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Dne Ne 30. kv=C4=9Btna 2010 05:06:20 Joonyoung Shim napsal(a):
-> This patch adds samsung keypad device definition for samsung cpus.
->=20
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
->  arch/arm/plat-samsung/Kconfig                    |    7 ++-
->  arch/arm/plat-samsung/Makefile                   |    1 +
->  arch/arm/plat-samsung/dev-keypad.c               |   50
-> +++++++++++++++++++ arch/arm/plat-samsung/include/plat/devs.h        =
-|  =20
-> 2 +
->  arch/arm/plat-samsung/include/plat/keypad.h      |   57
-> ++++++++++++++++++++++ arch/arm/plat-samsung/include/plat/regs-keypad=
-=2Eh |=20
->  49 +++++++++++++++++++ 6 files changed, 165 insertions(+), 1 deletio=
-ns(-)
->  create mode 100644 arch/arm/plat-samsung/dev-keypad.c
->  create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
->  create mode 100644 arch/arm/plat-samsung/include/plat/regs-keypad.h
->=20
-> diff --git a/arch/arm/plat-samsung/Kconfig b/arch/arm/plat-samsung/Kc=
-onfig
-> index 2753fb3..3ef2df7 100644
-> --- a/arch/arm/plat-samsung/Kconfig
-> +++ b/arch/arm/plat-samsung/Kconfig
-> @@ -225,7 +225,12 @@ config S3C64XX_DEV_SPI
->  config SAMSUNG_DEV_TS
->  	bool
->  	help
-> -	    Common in platform device definitions for touchscreen device
-> +	  Common in platform device definitions for touchscreen device
-> +
-> +config SAMSUNG_DEV_KEYPAD
-> +	bool
-> +	help
-> +	  Compile in platform device definitions for keypad
->=20
->  # DMA
->=20
-> diff --git a/arch/arm/plat-samsung/Makefile
-> b/arch/arm/plat-samsung/Makefile index 228c2ad..ef00c47 100644
-> --- a/arch/arm/plat-samsung/Makefile
-> +++ b/arch/arm/plat-samsung/Makefile
-> @@ -50,6 +50,7 @@ obj-$(CONFIG_S3C_DEV_RTC)	+=3D dev-rtc.o
->=20
->  obj-$(CONFIG_SAMSUNG_DEV_ADC)	+=3D dev-adc.o
->  obj-$(CONFIG_SAMSUNG_DEV_TS)	+=3D dev-ts.o
-> +obj-$(CONFIG_SAMSUNG_DEV_KEYPAD)	+=3D dev-keypad.o
->=20
->  # DMA support
->=20
-> diff --git a/arch/arm/plat-samsung/dev-keypad.c
-> b/arch/arm/plat-samsung/dev-keypad.c new file mode 100644
-> index 0000000..70e2e2d
-> --- /dev/null
-> +++ b/arch/arm/plat-samsung/dev-keypad.c
-> @@ -0,0 +1,50 @@
-> +/*
-> + * linux/arch/arm/plat-samsung/dev-keypad.c
-> + *
-> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
-> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-> + *
-> + *  This program is free software; you can redistribute  it and/or m=
-odify
-> it + *  under  the terms of  the GNU General  Public License as publi=
-shed
-> by the + *  Free Software Foundation;  either version 2 of the  Licen=
-se,
-> or (at your + *  option) any later version.
-> + *
-> + */
-> +
-> +#include <linux/platform_device.h>
-> +#include <mach/irqs.h>
-> +#include <mach/map.h>
-> +#include <plat/cpu.h>
-> +#include <plat/devs.h>
-> +#include <plat/keypad.h>
-> +
-> +static struct resource samsung_kp_resources[] =3D {
-> +	[0] =3D {
-> +		.start	=3D SAMSUNG_PA_KEYPAD,
-> +		.end	=3D SAMSUNG_PA_KEYPAD + 0x20 - 1,
-> +		.flags	=3D IORESOURCE_MEM,
-> +	},
-> +	[1] =3D {
-> +		.start	=3D IRQ_KEYPAD,
-> +		.end	=3D IRQ_KEYPAD,
-> +		.flags	=3D IORESOURCE_IRQ,
-> +	},
-> +};
-> +
-> +struct platform_device samsung_device_keypad =3D {
-> +	.name		=3D "samsung-keypad",
-> +	.id		=3D -1,
-> +	.num_resources	=3D ARRAY_SIZE(samsung_kp_resources),
-> +	.resource	=3D samsung_kp_resources,
-> +};
-> +
-> +void __init samsung_kp_set_platdata(struct samsung_kp_platdata *pd)
-> +{
-> +	struct samsung_kp_platdata *npd;
-> +
-> +	npd =3D s3c_set_platdata(pd, sizeof(struct samsung_kp_platdata),
-> +			&samsung_device_keypad);
-> +
-> +	if (!npd->cfg_gpio)
-> +		npd->cfg_gpio =3D samsung_keypad_cfg_gpio;
-> +}
-> diff --git a/arch/arm/plat-samsung/include/plat/devs.h
-> b/arch/arm/plat-samsung/include/plat/devs.h index 6760999..c06386b 10=
-0644
-> --- a/arch/arm/plat-samsung/include/plat/devs.h
-> +++ b/arch/arm/plat-samsung/include/plat/devs.h
-> @@ -100,6 +100,8 @@ extern struct platform_device s5pc100_device_iis0=
-;
->  extern struct platform_device s5pc100_device_iis1;
->  extern struct platform_device s5pc100_device_iis2;
->=20
-> +extern struct platform_device samsung_device_keypad;
-> +
->  /* s3c2440 specific devices */
->=20
->  #ifdef CONFIG_CPU_S3C2440
-> diff --git a/arch/arm/plat-samsung/include/plat/keypad.h
-> b/arch/arm/plat-samsung/include/plat/keypad.h new file mode 100644
-> index 0000000..d144f42
-> --- /dev/null
-> +++ b/arch/arm/plat-samsung/include/plat/keypad.h
-> @@ -0,0 +1,57 @@
-> +/*
-> + * linux/arch/arm/plat-samsung/include/plat/keypad.h
-> + *
-> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
-> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-> + *
-> + * Samsung Platform - Keypad platform data definitions
-> + *
-> + *  This program is free software; you can redistribute  it and/or m=
-odify
-> it + *  under  the terms of  the GNU General  Public License as publi=
-shed
-> by the + *  Free Software Foundation;  either version 2 of the  Licen=
-se,
-> or (at your + *  option) any later version.
-> + *
-> + */
-> +
-> +#ifndef __PLAT_SAMSUNG_KEYPAD_H
-> +#define __PLAT_SAMSUNG_KEYPAD_H
-> +
-> +#include <linux/input/matrix_keypad.h>
-> +
-> +#define SAMSUNG_MAX_ROWS	8
-> +#define SAMSUNG_MAX_COLS	8
-> +
-> +/**
-> + * struct samsung_kp_platdata() - Platform device data for Samsung K=
-eypad
-> + * @keymap_data: pointer to &matrix_keymap_data
-> + * @rows: number of keypad row supported.
-> + * @cols: number of keypad col supported.
-> + * @rep: flag for repeat setting.
-> + * @cfg_gpio: configure the GPIO.
-> + *
-> + * Initialisation data specific to either the machine or the platfor=
-m
-> + * for the device driver to use or call-back when configuring gpio.
-> + */
-> +struct samsung_kp_platdata {
-> +	const struct matrix_keymap_data	*keymap_data;
-> +	unsigned int		rows;
-> +	unsigned int		cols;
-> +	unsigned int		rep;
+On 5/30/2010 12:42 PM, Ben Dooks wrote:
+> On Sun, May 30, 2010 at 12:06:24PM +0900, Joonyoung Shim wrote:
+>> This patch adds support for keypad driver running on Samsung cpus. This
+>> driver is tested on GONI and Aquila board using S5PC110 cpu.
+>>
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+>> ---
+>>  drivers/input/keyboard/Kconfig          |    9 +
+>>  drivers/input/keyboard/Makefile         |    1 +
+>>  drivers/input/keyboard/samsung-keypad.c |  364 +++++++++++++++++++++++++++++++
+>>  3 files changed, 374 insertions(+), 0 deletions(-)
+>>  create mode 100644 drivers/input/keyboard/samsung-keypad.c
+>>
+>> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+>> index d8fa5d7..bf6a50f 100644
+>> --- a/drivers/input/keyboard/Kconfig
+>> +++ b/drivers/input/keyboard/Kconfig
+>> @@ -342,6 +342,15 @@ config KEYBOARD_PXA930_ROTARY
+>>  	  To compile this driver as a module, choose M here: the
+>>  	  module will be called pxa930_rotary.
+>>  
+>> +config KEYBOARD_SAMSUNG
+>> +	tristate "Samsung keypad support"
+>> +	depends on SAMSUNG_DEV_KEYPAD
+>> +	help
+>> +	  Say Y here if you want to use the Samsung keypad.
+>> +
+>> +	  To compile this driver as a module, choose M here: the
+>> +	  module will be called samsung-keypad.
+>> +
+>>  config KEYBOARD_STOWAWAY
+>>  	tristate "Stowaway keyboard"
+>>  	select SERIO
+>> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+>> index 4596d0c..8f973ed 100644
+>> --- a/drivers/input/keyboard/Makefile
+>> +++ b/drivers/input/keyboard/Makefile
+>> @@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+>>  obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
+>>  obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
+>>  obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+>> +obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
+>>  obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+>>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+>>  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+>> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+>> new file mode 100644
+>> index 0000000..f4bcf97
+>> --- /dev/null
+>> +++ b/drivers/input/keyboard/samsung-keypad.c
+>> @@ -0,0 +1,364 @@
+>> +/*
+>> + * samsung-keypad.c  --  Samsung keypad driver
+>> + *
+>> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+>> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+>> + * Author: Donghwa Lee <dh09.lee@samsung.com>
+>> + *
+>> + *  This program is free software; you can redistribute  it and/or modify it
+>> + *  under  the terms of  the GNU General  Public License as published by the
+>> + *  Free Software Foundation;  either version 2 of the  License, or (at your
+>> + *  option) any later version.
+>> + */
+>> +
+>> +#include <linux/clk.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/err.h>
+>> +#include <linux/init.h>
+>> +#include <linux/input.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/io.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/slab.h>
+>> +#include <plat/cpu.h>
+> 
+> you should _not_ be including <plat/cpu.h> here. and it looks form
+> the rest of the file that there's nothing from it being used.
+> 
 
-I don't know, maybe using uint32_t here? On ARM, it doesn't matter so f=
-ar as int=20
-will be always 32bit, but maybe we should just type the variables well =
-?
+Yes, i will remove it.
 
-Guys, what do you think ?
+>> +#include <plat/keypad.h>
+>> +#include <plat/regs-keypad.h>
+>> +
+>> +struct samsung_kp {
+>> +	struct input_dev *input_dev;
+>> +	struct timer_list timer;
+>> +	struct clk *clk;
+>> +	struct work_struct work;
+>> +	void __iomem *base;
+>> +	unsigned short *keycodes;
+>> +	unsigned int row_shift;
+>> +	unsigned int rows;
+>> +	unsigned int cols;
+>> +	unsigned int row_state[SAMSUNG_MAX_COLS];
+>> +	int irq;
+>> +};
+>> +
+>> +static void samsung_kp_scan(struct samsung_kp *keypad, unsigned int *row_state)
+>> +{
+>> +	unsigned int col;
+>> +	unsigned int val;
+>> +
+>> +	for (col = 0; col < keypad->cols; col++) {
+>> +#if CONFIG_ARCH_S5PV210
+>> +		val = S5PV210_KEYIFCOLEN_MASK;
+>> +		val &= ~(1 << col) << 8;
+>> +#else
+>> +		val = SAMSUNG_KEYIFCOL_MASK;
+>> +		val &= ~(1 << col);
+>> +#endif
+> 
+> no platform specific #ifdefs
+> 
 
-Otherwise this change looks ok to me.
+OK, i will find other ways.
 
-> +
-> +	void	(*cfg_gpio)(unsigned int rows, unsigned int cols);
-> +};
-> +
-> +/**
-> + * samsung_kp_set_platdata - Set platform data for Samsung Keypad de=
-vice.
-> + * @pd: Platform data to register to device.
-> + *
-> + * Register the given platform data for use with Samsung Keypad devi=
-ce.
-> + * The call will copy the platform data, so the board definitions ca=
-n
-> + * make the structure itself __initdata.
-> + */
-> +extern void samsung_kp_set_platdata(struct samsung_kp_platdata *pd);
-> +
-> +/* defined by architecture to configure gpio */
-> +extern void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int =
-cols);
-> +
-> +#endif /* __PLAT_SAMSUNG_KEYPAD_H */
-> diff --git a/arch/arm/plat-samsung/include/plat/regs-keypad.h
-> b/arch/arm/plat-samsung/include/plat/regs-keypad.h new file mode 1006=
-44
-> index 0000000..1a8c046
-> --- /dev/null
-> +++ b/arch/arm/plat-samsung/include/plat/regs-keypad.h
-> @@ -0,0 +1,49 @@
-> +/*
-> + * linux/arch/arm/plat-samsung/include/plat/regs-keypad.h
-> + *
-> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
-> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-> + *
-> + *  This program is free software; you can redistribute  it and/or m=
-odify
-> it + *  under  the terms of  the GNU General  Public License as publi=
-shed
-> by the + *  Free Software Foundation;  either version 2 of the  Licen=
-se,
-> or (at your + *  option) any later version.
-> + *
-> + */
-> +
-> +#ifndef __SAMSUNG_KEYPAD_H__
-> +#define __SAMSUNG_KEYPAD_H__
-> +
-> +#define SAMSUNG_KEYIFCON	0x00
-> +#define SAMSUNG_KEYIFSTSCLR	0x04
-> +#define SAMSUNG_KEYIFCOL	0x08
-> +#define SAMSUNG_KEYIFROW	0x0c
-> +#define SAMSUNG_KEYIFFC		0x10
-> +
-> +/* SAMSUNG_KEYIFCON */
-> +#define SAMSUNG_INT_F_EN	(1 << 0)
-> +#define SAMSUNG_INT_R_EN	(1 << 1)
-> +#define SAMSUNG_DF_EN		(1 << 2)
-> +#define SAMSUNG_FC_EN		(1 << 3)
-> +#define SAMSUNG_WAKEUPEN	(1 << 4)
-> +
-> +/* SAMSUNG_KEYIFSTSCLR */
-> +#define SAMSUNG_P_INT_MASK	(0xff << 0)
-> +#define SAMSUNG_R_INT_MASK	(0xff << 8)
-> +#define SAMSUNG_R_INT_OFFSET	8
-> +#define S5PV210_P_INT_MASK	(0x3fff << 0)
-> +#define S5PV210_R_INT_MASK	(0x3fff << 16)
-> +#define S5PV210_R_INT_OFFSET	16
-> +
-> +/* SAMSUNG_KEYIFCOL */
-> +#define SAMSUNG_KEYIFCOL_MASK	(0xff << 0)
-> +#define S5PV210_KEYIFCOLEN_MASK (0xff << 8)
-> +
-> +/* SAMSUNG_KEYIFROW */
-> +#define SAMSUNG_KEYIFROW_MASK	(0xff << 0)
-> +#define S5PV210_KEYIFROW_MASK	(0x3fff << 0)
-> +
-> +/* SAMSUNG_KEYIFFC */
-> +#define SAMSUNG_KEYIFFC_MASK	(0x3ff << 0)
-> +
-> +#endif /* __SAMSUNG_KEYPAD_H__ */
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +		writel(val, keypad->base + SAMSUNG_KEYIFCOL);
+>> +		mdelay(1);
+>> +
+>> +		val = readl(keypad->base + SAMSUNG_KEYIFROW);
+>> +		row_state[col] = ~val & ((1 << keypad->rows) - 1);
+>> +	}
+>> +
+>> +	/* KEYIFCOL reg clear */
+>> +	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
+>> +}
+>> +
+>> +static void samsung_kp_worker(struct work_struct *work)
+>> +{
+>> +	struct samsung_kp *keypad = container_of(work, struct samsung_kp, work);
+>> +	unsigned int row_state[SAMSUNG_MAX_COLS];
+>> +	unsigned int val;
+>> +	unsigned int changed;
+>> +	unsigned int pressed;
+>> +	unsigned int key_down = 0;
+>> +	int col, row;
+>> +
+>> +	clk_enable(keypad->clk);
+>> +
+>> +	val = readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
+>> +
+>> +	/* interrupt clear */
+>> +	writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
+>> +
+>> +	val = readl(keypad->base + SAMSUNG_KEYIFCON);
+>> +	val &= ~(SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN);
+>> +	writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +
+>> +	samsung_kp_scan(keypad, row_state);
+>> +
+>> +	for (col = 0; col < keypad->cols; col++) {
+>> +		changed = row_state[col] ^ keypad->row_state[col];
+>> +		key_down |= row_state[col];
+>> +		if (!changed)
+>> +			continue;
+>> +
+>> +		for (row = 0; row < keypad->rows; row++) {
+>> +			if (!(changed & (1 << row)))
+>> +				continue;
+>> +
+>> +			pressed = row_state[col] & (1 << row);
+>> +
+>> +			dev_dbg(&keypad->input_dev->dev,
+>> +				"key %s, row: %d, col: %d\n",
+>> +				pressed ? "pressed" : "released", row, col);
+>> +
+>> +			val = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
+>> +
+>> +			input_report_key(keypad->input_dev,
+>> +					keypad->keycodes[val], pressed);
+>> +			input_sync(keypad->input_dev);
+>> +		}
+>> +	}
+>> +	memcpy(keypad->row_state, row_state, sizeof(row_state));
+>> +
+>> +	if (key_down)
+>> +		mod_timer(&keypad->timer, jiffies + HZ / 20);
+>> +	else {
+>> +		/* enable interrupt bit */
+>> +		val = readl(keypad->base + SAMSUNG_KEYIFCON);
+>> +		val |= (SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN);
+>> +		writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +		enable_irq(keypad->irq);
+>> +	}
+>> +	clk_disable(keypad->clk);
+>> +}
+>> +
+>> +static irqreturn_t samsung_kp_interrupt(int irq, void *dev_id)
+>> +{
+>> +	struct samsung_kp *keypad = dev_id;
+>> +
+>> +	if (!work_pending(&keypad->work)) {
+>> +		disable_irq_nosync(keypad->irq);
+>> +		schedule_work(&keypad->work);
+>> +	}
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static void samsung_kp_timer(unsigned long data)
+>> +{
+>> +	struct samsung_kp *keypad = (struct samsung_kp *)data;
+>> +
+>> +	schedule_work(&keypad->work);
+>> +}
+>> +
+>> +static int __devinit samsung_kp_probe(struct platform_device *pdev)
+>> +{
+>> +	const struct samsung_kp_platdata *pdata;
+>> +	const struct matrix_keymap_data *keymap_data;
+>> +	struct samsung_kp *keypad;
+>> +	struct resource *res;
+>> +	struct input_dev *input_dev;
+>> +	unsigned short *keycodes;
+>> +	unsigned int row_shift;
+>> +	unsigned int val;
+>> +	int ret;
+>> +
+>> +	pdata = pdev->dev.platform_data;
+>> +	if (!pdata) {
+>> +		dev_err(&pdev->dev, "no platform data defined\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	keymap_data = pdata->keymap_data;
+>> +	if (!keymap_data) {
+>> +		dev_err(&pdev->dev, "no keymap data defined\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	if ((pdata->rows <= 0) || (pdata->rows > SAMSUNG_MAX_ROWS))
+>> +		return -EINVAL;
+> 
+> 
+> how about making pdata->rows unsigned then if -ve values are illegal
+> 
+
+Ah, pdata->rows is unsigned. This is unnecessary checking.
+
+>> +	if ((pdata->cols <= 0) || (pdata->cols > SAMSUNG_MAX_COLS))
+>> +		return -EINVAL;
+>> +
+>> +	/* initialize the gpio */
+>> +	if (pdata->cfg_gpio)
+>> +		pdata->cfg_gpio(pdata->rows, pdata->cols);
+>> +
+>> +	row_shift = get_count_order(pdata->cols);
+>> +	keypad = kzalloc(sizeof(*keypad), GFP_KERNEL);
+>> +	keycodes = kzalloc((pdata->rows << row_shift) * sizeof(*keycodes),
+>> +			GFP_KERNEL);
+> 
+> you could allocate this in one go.
+> 
+
+Hmm, how i do it? Do you mean to allocate keypad and keycodes together?
+
+>> +	input_dev = input_allocate_device();
+>> +	if (!keypad || !keycodes || !input_dev) {
+>> +		ret = -ENOMEM;
+>> +		goto err_free_mem;
+>> +	}
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	if (!res) {
+>> +		ret = -ENODEV;
+>> +		goto err_free_mem;
+>> +	}
+>> +
+>> +	keypad->base = ioremap(res->start, resource_size(res));
+>> +	if (!keypad->base) {
+>> +		ret = -EBUSY;
+>> +		goto err_free_mem;
+>> +	}
+>> +
+>> +	keypad->clk = clk_get(&pdev->dev, "keypad");
+>> +	if (IS_ERR(keypad->clk)) {
+>> +		dev_err(&pdev->dev, "failed to get keypad clk\n");
+>> +		ret = PTR_ERR(keypad->clk);
+>> +		goto err_unmap_base;
+>> +	}
+>> +	clk_enable(keypad->clk);
+>> +
+>> +	keypad->input_dev = input_dev;
+>> +	keypad->keycodes = keycodes;
+>> +	keypad->row_shift = row_shift;
+>> +	keypad->rows = pdata->rows;
+>> +	keypad->cols = pdata->cols;
+>> +
+>> +	INIT_WORK(&keypad->work, samsung_kp_worker);
+>> +
+>> +	setup_timer(&keypad->timer, samsung_kp_timer, (unsigned long)keypad);
+>> +
+>> +	/* enable interrupt and wakeup bit */
+>> +	val = SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN | SAMSUNG_WAKEUPEN;
+>> +	writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +
+>> +	/* KEYIFCOL reg clear */
+>> +	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
+>> +
+>> +	keypad->irq = platform_get_irq(pdev, 0);
+>> +	if (keypad->irq < 0) {
+>> +		ret = keypad->irq;
+>> +		goto err_disable_clk;
+>> +	}
+>> +
+>> +	ret = request_irq(keypad->irq, samsung_kp_interrupt, 0,
+>> +			dev_name(&pdev->dev), keypad);
+>> +
+>> +	if (ret)
+>> +		goto err_disable_clk;
+>> +
+>> +	input_dev->name = pdev->name;
+>> +	input_dev->id.bustype = BUS_HOST;
+>> +	input_dev->dev.parent = &pdev->dev;
+>> +
+>> +	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+>> +	if (pdata->rep)
+>> +		input_dev->evbit[0] |= BIT_MASK(EV_REP);
+>> +
+>> +	input_dev->keycode = keycodes;
+>> +	input_dev->keycodesize = sizeof(*keycodes);
+>> +	input_dev->keycodemax = pdata->rows << row_shift;
+>> +
+>> +	matrix_keypad_build_keymap(keymap_data, row_shift,
+>> +			input_dev->keycode, input_dev->keybit);
+>> +
+>> +	ret = input_register_device(keypad->input_dev);
+>> +	if (ret)
+>> +		goto err_free_irq;
+>> +
+>> +	platform_set_drvdata(pdev, keypad);
+>> +	clk_disable(keypad->clk);
+>> +
+>> +	return 0;
+>> +
+>> +err_free_irq:
+>> +	free_irq(keypad->irq, keypad);
+>> +err_disable_clk:
+>> +	clk_disable(keypad->clk);
+>> +	clk_put(keypad->clk);
+>> +err_unmap_base:
+>> +	iounmap(keypad->base);
+>> +err_free_mem:
+>> +	input_free_device(input_dev);
+>> +	kfree(keycodes);
+>> +	kfree(keypad);
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static int __devexit samsung_kp_remove(struct platform_device *pdev)
+>> +{
+>> +	struct samsung_kp *keypad = platform_get_drvdata(pdev);
+>> +
+>> +	free_irq(keypad->irq, keypad);
+>> +	cancel_work_sync(&keypad->work);
+>> +	del_timer_sync(&keypad->timer);
+>> +
+>> +	platform_set_drvdata(pdev, NULL);
+>> +	input_unregister_device(keypad->input_dev);
+>> +
+>> +	clk_disable(keypad->clk);
+>> +	clk_put(keypad->clk);
+>> +
+>> +	iounmap(keypad->base);
+>> +	kfree(keypad->keycodes);
+>> +	kfree(keypad);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_PM
+>> +static int samsung_kp_suspend(struct device *dev)
+>> +{
+>> +	struct platform_device *pdev = to_platform_device(dev);
+>> +	struct samsung_kp *keypad = platform_get_drvdata(pdev);
+>> +
+>> +	disable_irq(keypad->irq);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int samsung_kp_resume(struct device pdev)
+>> +{
+>> +	struct platform_device *pdev = to_platform_device(dev);
+>> +	struct samsung_kp *keypad = platform_get_drvdata(pdev);
+>> +	unsigned int val;
+>> +
+>> +	clk_enable(keypad->clk);
+>> +
+>> +	/* enable interrupt and wakeup bit */
+>> +	val = SAMSUNG_INT_F_EN | SAMSUNG_INT_R_EN | SAMSUNG_WAKEUPEN;
+>> +	writel(val, keypad->base + SAMSUNG_KEYIFCON);
+>> +
+>> +	/* KEYIFCOL reg clear */
+>> +	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
+>> +
+>> +	enable_irq(keypad->irq);
+>> +	clk_disable(keypad->clk);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static const struct dev_pm_ops samsung_kp_pm_ops = {
+>> +	.suspend	= samsung_kp_suspend,
+>> +	.resume		= samsung_kp_resume,
+>> +};
+>> +#endif
+>> +
+>> +static struct platform_driver samsung_kp_driver = {
+>> +	.probe		= samsung_kp_probe,
+>> +	.remove		= __devexit_p(samsung_kp_remove),
+>> +	.driver		= {
+>> +		.name	= "samsung-keypad",
+>> +		.owner	= THIS_MODULE,
+>> +#ifdef CONFIG_PM
+>> +		.pm	= &samsung_kp_pm_ops,
+>> +#endif
+>> +	},
+>> +};
+>> +
+>> +static int __init samsung_kp_init(void)
+>> +{
+>> +	return platform_driver_register(&samsung_kp_driver);
+>> +}
+>> +
+>> +static void __exit samsung_kp_exit(void)
+>> +{
+>> +	platform_driver_unregister(&samsung_kp_driver);
+>> +}
+>> +
+>> +module_init(samsung_kp_init);
+>> +module_exit(samsung_kp_exit);
+>> +
+>> +MODULE_DESCRIPTION("Samsung keypad driver");
+>> +MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
+>> +MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
+>> +MODULE_LICENSE("GPL");
+>> -- 
+>> 1.7.0.4
+>>
+>>
+>> _______________________________________________
+>> linux-arm-kernel mailing list
+>> linux-arm-kernel@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
+

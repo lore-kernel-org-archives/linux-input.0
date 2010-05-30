@@ -1,114 +1,97 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH v2 2/5] ARM: S5PV210: Add keypad device helpers
-Date: Sun, 30 May 2010 12:06:21 +0900
-Message-ID: <1275188784-23395-2-git-send-email-jy0922.shim@samsung.com>
+Subject: [PATCH v2 3/5] ARM: S5PV210: Add keypad device to the GONI board
+Date: Sun, 30 May 2010 12:06:22 +0900
+Message-ID: <1275188784-23395-3-git-send-email-jy0922.shim@samsung.com>
 References: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:44415 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754247Ab0E3DJZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 29 May 2010 23:09:25 -0400
 In-reply-to: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: ben-linux@fluff.org
 Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com
-List-Id: linux-input@vger.kernel.org
 
-This patch adds the keypad device platform helpers for S5PV210 cpu.
+This patch is to support keypad device to the GONI board.
 
 Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 ---
- arch/arm/mach-s5pv210/Kconfig            |    5 ++++
- arch/arm/mach-s5pv210/Makefile           |    1 +
- arch/arm/mach-s5pv210/include/mach/map.h |    3 ++
- arch/arm/mach-s5pv210/setup-keypad.c     |   34 ++++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+), 0 deletions(-)
- create mode 100644 arch/arm/mach-s5pv210/setup-keypad.c
+ arch/arm/mach-s5pv210/Kconfig     |    2 ++
+ arch/arm/mach-s5pv210/mach-goni.c |   26 ++++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
-index 7e2e1eb..04d3992 100644
+index 04d3992..6f41b2d 100644
 --- a/arch/arm/mach-s5pv210/Kconfig
 +++ b/arch/arm/mach-s5pv210/Kconfig
-@@ -32,6 +32,11 @@ config S5PV210_SETUP_FB_24BPP
+@@ -64,7 +64,9 @@ config MACH_GONI
+ 	bool "GONI"
+ 	select CPU_S5PV210
+ 	select ARCH_SPARSEMEM_ENABLE
++	select S5PV210_SETUP_KEYPAD
+ 	select S5PC110_DEV_ONENAND
++	select SAMSUNG_DEV_KEYPAD
  	help
-           Common setup code for S5PV210 with an 24bpp RGB display helper.
+ 	  Machine support for Samsung GONI board
+ 	  S5PC110(MCP) is one of package option of S5PV210
+diff --git a/arch/arm/mach-s5pv210/mach-goni.c b/arch/arm/mach-s5pv210/mach-goni.c
+index bea812f..cb46d21 100644
+--- a/arch/arm/mach-s5pv210/mach-goni.c
++++ b/arch/arm/mach-s5pv210/mach-goni.c
+@@ -25,6 +25,7 @@
+ #include <plat/s5pv210.h>
+ #include <plat/devs.h>
+ #include <plat/cpu.h>
++#include <plat/keypad.h>
  
-+config S5PV210_SETUP_KEYPAD
-+	bool
-+	help
-+	  Common setup code for keypad.
-+
- config S5PV210_SETUP_SDHCI
-         bool
-         select S5PV210_SETUP_SDHCI_GPIO
-diff --git a/arch/arm/mach-s5pv210/Makefile b/arch/arm/mach-s5pv210/Makefile
-index 30be9a6..aae592a 100644
---- a/arch/arm/mach-s5pv210/Makefile
-+++ b/arch/arm/mach-s5pv210/Makefile
-@@ -31,5 +31,6 @@ obj-$(CONFIG_S5PC110_DEV_ONENAND) += dev-onenand.o
- obj-$(CONFIG_S5PV210_SETUP_FB_24BPP)	+= setup-fb-24bpp.o
- obj-$(CONFIG_S5PV210_SETUP_I2C1) 	+= setup-i2c1.o
- obj-$(CONFIG_S5PV210_SETUP_I2C2) 	+= setup-i2c2.o
-+obj-$(CONFIG_S5PV210_SETUP_KEYPAD)	+= setup-keypad.o
- obj-$(CONFIG_S5PV210_SETUP_SDHCI)       += setup-sdhci.o
- obj-$(CONFIG_S5PV210_SETUP_SDHCI_GPIO)	+= setup-sdhci-gpio.o
-diff --git a/arch/arm/mach-s5pv210/include/mach/map.h b/arch/arm/mach-s5pv210/include/mach/map.h
-index 9f4c368..17687f0 100644
---- a/arch/arm/mach-s5pv210/include/mach/map.h
-+++ b/arch/arm/mach-s5pv210/include/mach/map.h
-@@ -32,6 +32,8 @@
- #define S5PV210_PA_SPI0		0xE1300000
- #define S5PV210_PA_SPI1		0xE1400000
+ /* Following are default values for UCON, ULCON and UFCON UART registers */
+ #define S5PV210_UCON_DEFAULT	(S3C2410_UCON_TXILEVEL |	\
+@@ -71,8 +72,30 @@ static struct s3c2410_uartcfg goni_uartcfgs[] __initdata = {
+ 	},
+ };
  
-+#define S5PV210_PA_KEYPAD	(0xE1600000)
++/* KEYPAD */
++static uint32_t keymap[] __initdata = {
++	/* KEY(row, col, keycode) */
++	KEY(0, 1, KEY_MENU),		/* Send */
++	KEY(0, 2, KEY_BACK),		/* End */
++	KEY(1, 1, KEY_CONFIG),		/* Half shot */
++	KEY(1, 2, KEY_VOLUMEUP),
++	KEY(2, 1, KEY_CAMERA),		/* Full shot */
++	KEY(2, 2, KEY_VOLUMEDOWN),
++};
 +
- #define S5PV210_PA_IIC0		(0xE1800000)
- #define S5PV210_PA_IIC1		(0xFAB00000)
- #define S5PV210_PA_IIC2		(0xE1A00000)
-@@ -104,5 +106,6 @@
- #define S3C_PA_WDT		S5PV210_PA_WATCHDOG
++static struct matrix_keymap_data keymap_data __initdata = {
++	.keymap		= keymap,
++	.keymap_size	= ARRAY_SIZE(keymap),
++};
++
++static struct samsung_kp_platdata keypad_data __initdata = {
++	.keymap_data	= &keymap_data,
++	.rows		= 3,
++	.cols		= 3,
++};
+ static struct platform_device *goni_devices[] __initdata = {
+ 	&s5pc110_device_onenand,
++	&samsung_device_keypad,
+ };
  
- #define SAMSUNG_PA_ADC		S5PV210_PA_ADC
-+#define SAMSUNG_PA_KEYPAD	S5PV210_PA_KEYPAD
+ static void __init goni_map_io(void)
+@@ -84,6 +107,9 @@ static void __init goni_map_io(void)
  
- #endif /* __ASM_ARCH_MAP_H */
-diff --git a/arch/arm/mach-s5pv210/setup-keypad.c b/arch/arm/mach-s5pv210/setup-keypad.c
-new file mode 100644
-index 0000000..f51bf8d
---- /dev/null
-+++ b/arch/arm/mach-s5pv210/setup-keypad.c
-@@ -0,0 +1,34 @@
-+/*
-+ * linux/arch/arm/mach-s5pv210/setup-keypad.c
-+ *
-+ * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
-+ */
+ static void __init goni_machine_init(void)
+ {
++	/* KEYPAD */
++	samsung_kp_set_platdata(&keypad_data);
 +
-+#include <linux/gpio.h>
-+#include <plat/gpio-cfg.h>
-+
-+void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int cols)
-+{
-+	unsigned int gpio, end;
-+
-+	/* Set all the necessary GPH3 pins to special-function 3 */
-+	end = S5PV210_GPH3(rows);
-+	for (gpio = S5PV210_GPH3(0); gpio < end; gpio++) {
-+		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
-+		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
-+	}
-+
-+	/* Set all the necessary GPH2 pins to special-function 3 */
-+	end = S5PV210_GPH2(cols);
-+	for (gpio = S5PV210_GPH2(0); gpio < end; gpio++) {
-+		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
-+		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
-+	}
-+}
+ 	platform_add_devices(goni_devices, ARRAY_SIZE(goni_devices));
+ }
+ 
 -- 
 1.7.0.4
+

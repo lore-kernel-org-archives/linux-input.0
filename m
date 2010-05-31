@@ -1,50 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH -next] hid: roccat modules interdependencies
-Date: Mon, 31 May 2010 13:58:02 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1005311357540.28092@pobox.suse.cz>
-References: <20100527152628.b23a14c6.sfr@canb.auug.org.au> <20100527090706.6c2bc555.randy.dunlap@oracle.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch 1/2] input/tps6507x-ts: dereferencing before checking
+Date: Mon, 31 May 2010 14:01:22 +0200
+Message-ID: <20100531120122.GR5483@bicker>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:42515 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753582Ab0EaL6F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 07:58:05 -0400
-In-Reply-To: <20100527090706.6c2bc555.randy.dunlap@oracle.com>
+Received: from mail-ew0-f216.google.com ([209.85.219.216]:61098 "EHLO
+	mail-ew0-f216.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751691Ab0EaMBi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 May 2010 08:01:38 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Stefan Achatz <erazor_de@users.sourceforge.net>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Thu, 27 May 2010, Randy Dunlap wrote:
+This patch moves the dereference after the check for NULL.
 
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> hid-roccat-kone calls the hid-roccat module interfaces,
-> so the former should depend on or select the latter to prevent
-> build errors, like:
-> 
-> hid-roccat-kone.c:(.text+0x133ed2): undefined reference to `roccat_report_event'
-> hid-roccat-kone.c:(.text+0x133fa8): undefined reference to `roccat_disconnect'
-> hid-roccat-kone.c:(.text+0x1353be): undefined reference to `roccat_connect'
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> ---
->  drivers/hid/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> --- linux-next-20100527.orig/drivers/hid/Kconfig
-> +++ linux-next-20100527/drivers/hid/Kconfig
-> @@ -358,6 +358,7 @@ config HID_ROCCAT
->  config HID_ROCCAT_KONE
->  	tristate "Roccat Kone Mouse support"
->  	depends on USB_HID
-> +	select HID_ROCCAT
->  	---help---
->  	Support for Roccat Kone mouse.
+Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-Applied, thanks Randy.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+index 5de80a1..b99db09 100644
+--- a/drivers/input/touchscreen/tps6507x-ts.c
++++ b/drivers/input/touchscreen/tps6507x-ts.c
+@@ -355,10 +355,11 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
+ {
+ 	struct tps6507x_dev *tps6507x_dev = platform_get_drvdata(pdev);
+ 	struct tps6507x_ts *tsc = tps6507x_dev->ts;
+-	struct input_dev *input_dev = tsc->input_dev;
++	struct input_dev *input_dev;
+ 
+ 	if (!tsc)
+ 		return 0;
++	input_dev = tsc->input_dev;
+ 
+ 	cancel_delayed_work(&tsc->work);
+ 	flush_workqueue(tsc->wq);

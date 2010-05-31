@@ -1,51 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 1/2] input/tps6507x-ts: dereferencing before checking
-Date: Mon, 31 May 2010 12:17:23 -0700
-Message-ID: <20100531191723.GE30712@core.coreip.homeip.net>
-References: <20100531120122.GR5483@bicker>
+From: Anatolij Gustschin <agust@denx.de>
+Subject: Re: [PATCH 1/2] Input: ads7846 - allow specifying irq trigger type
+ in platform data
+Date: Mon, 31 May 2010 21:28:20 +0200
+Message-ID: <20100531212820.322d5bfd@wker>
+References: <1272630181-5364-1-git-send-email-agust@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:43421 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753093Ab0EaTRn (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:56620 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756893Ab0EaT2Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 15:17:43 -0400
-Content-Disposition: inline
-In-Reply-To: <20100531120122.GR5483@bicker>
+	Mon, 31 May 2010 15:28:25 -0400
+In-Reply-To: <1272630181-5364-1-git-send-email-agust@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
 
-On Mon, May 31, 2010 at 02:01:22PM +0200, Dan Carpenter wrote:
-> This patch moves the dereference after the check for NULL.
+Hi Dmitry,
+
+On Fri, 30 Apr 2010 14:23:00 +0200
+Anatolij Gustschin <agust@denx.de> wrote:
+
+> On some platforms, for example with GPIO interrupts
+> on mpc5121, it is not possible to configure falling edge
+> interrupts.
 > 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> Specifying irq trigger type in platform data structure
+> allows using ads7846 driver on such platforms.
 > 
-> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-> index 5de80a1..b99db09 100644
-> --- a/drivers/input/touchscreen/tps6507x-ts.c
-> +++ b/drivers/input/touchscreen/tps6507x-ts.c
-> @@ -355,10 +355,11 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
->  {
->  	struct tps6507x_dev *tps6507x_dev = platform_get_drvdata(pdev);
->  	struct tps6507x_ts *tsc = tps6507x_dev->ts;
-> -	struct input_dev *input_dev = tsc->input_dev;
-> +	struct input_dev *input_dev;
->  
->  	if (!tsc)
->  		return 0;
-> +	input_dev = tsc->input_dev;
->  
+> Signed-off-by: Anatolij Gustschin <agust@denx.de>
+> ---
+>  drivers/input/touchscreen/ads7846.c |    5 ++++-
+>  include/linux/spi/ads7846.h         |    1 +
+>  2 files changed, 5 insertions(+), 1 deletions(-)
 
-Why would tsc ever be NULL?
+Any comments on these patches?
 
-Also I really do not like that pdev's driver data that is supposed to be
-driver-private data is being used by the parent. Parent should be using
-it's own drvdata and leave child's data alone. We should probably do in
-platform code what I2C is about to do and clear drvdata on unbind
-automatically to prevent this kind of misuse.
-
--- 
-Dmitry
+Thanks,
+Anatolij

@@ -1,40 +1,53 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] input: Tone down logging from S3C touchscreen driver
-Date: Mon, 31 May 2010 18:52:51 +0100
-Message-ID: <1275328371-32066-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60478 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754942Ab0EaRwz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 13:52:55 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: question about v4l2_subdev
+Date: Mon, 31 May 2010 14:19:07 -0400
+Message-ID: <1275329947.2261.19.camel@localhost>
+References: <4C03D80B.5090009@atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4C03D80B.5090009@atmel.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-The S3C touchscreen driver is logging at LOG_INFO on every stylus up
-event which spams the console needlessly.  Reduce the priority of the
-message to debug level for some peace and quiet.
+On Mon, 2010-05-31 at 17:38 +0200, Sedji Gaouaou wrote:
+> Hi,
+> 
+> I am currently working on the atmel video driver, and I am facing a issue.
+> I have written a driver for the ov2640 omnivison sensor(enclosed). In 
+> the ov2640 driver I am using the v4l2_subdev API. The point is I don't 
+> how how can I access it in my video driver?
+> How to register the subdev struct in the atmel driver, so I could access 
+> the s_ftm function for instance.
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/s3c2410_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+That depends.  Is the atmel video driver instantiating a v4l_device for
+itself, or is it using some frame work that instantiates one for it?
 
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index ac5d0f9..6085d12 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -173,7 +173,7 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
- 	if (down)
- 		s3c_adc_start(ts.client, 0, 1 << ts.shift);
- 	else
--		dev_info(ts.dev, "%s: count=%d\n", __func__, ts.count);
-+		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
- 
- 	if (ts.features & FEAT_PEN_IRQ) {
- 		/* Clear pen down/up interrupt */
--- 
-1.7.1
 
+The details of using the v4l2 framework are in
+
+	linux/Documentation/video4linux/v4l2-framework.txt
+
+but, typically
+
+1. Something first should call v4l2_device_register() on a v4l2_device
+object.  (Typically there is only one v4l2_device object per "bridge"
+chip between the PCI, PCIe, or USB bus and the subdevices, even if that
+bridge chip has more than one I2C master implementation.)
+
+2. Then, for subdevices connected to the bridge chip via I2C, something
+needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as one
+of the arguments, to get back a v4l2_subdevice instance pointer.
+
+3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as one of
+the arguments can be used to invoke the subdevice methods.
+
+TV Video capture drivers do this work themselves.  Drivers using a
+camera framework may have the framework doing some of the work for them.
+
+
+Regards,
+Andy

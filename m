@@ -1,468 +1,856 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH v3 5/5] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 31 May 2010 13:37:57 +0900
-Message-ID: <1275280677-13357-5-git-send-email-jy0922.shim@samsung.com>
-References: <1275280677-13357-1-git-send-email-jy0922.shim@samsung.com>
-Content-Transfer-Encoding: 7BIT
+From: Roger Quadros <roger.quadros@nokia.com>
+Subject: Re: [PATCH v4 1/2] input: touchscreen: introduce tsc2005 driver
+Date: Mon, 31 May 2010 10:36:18 +0300
+Message-ID: <4C0366F2.5030805@nokia.com>
+References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:63563 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750963Ab0EaElS (ORCPT
+Received: from smtp.nokia.com ([192.100.105.134]:41589 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753078Ab0EaHhB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 00:41:18 -0400
-In-reply-to: <1275280677-13357-1-git-send-email-jy0922.shim@samsung.com>
+	Mon, 31 May 2010 03:37:01 -0400
+In-Reply-To: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ben-linux@fluff.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com
+To: "Koskinen Aaro (Nokia-D/Helsinki)" <aaro.koskinen@nokia.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "Leukkunen Lauri (Nokia-D/Helsinki)" <lauri.leukkunen@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, "Carmody Phil.2 (EXT-Ixonos/Helsinki)" <ext-phil.2.carmody@nokia.com>, "Deak Imre (Nokia-D/Helsinki)" <imre.deak@nokia.com>, "Doyu Hiroshi (Nokia-D/Helsinki)" <hiroshi.doyu@nokia.com>, "Kauppi Ari (EXT-Ixonos/Oulu)" <ext-ari.kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, "Nurkkala Eero.An (EXT-Offcode/Oulu)" <ext-Eero.Nurkkala@nokia.com>, "Tereshonkov Roman (Nokia-D/Helsinki)" <roman.tereshonkov@nokia.com>
 
-This patch adds support for keypad driver running on Samsung cpus. This
-driver is tested on GONI and Aquila board using S5PC110 cpu.
+Hi,
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
----
- drivers/input/keyboard/Kconfig          |    9 +
- drivers/input/keyboard/Makefile         |    1 +
- drivers/input/keyboard/samsung-keypad.c |  397 +++++++++++++++++++++++++++++++
- 3 files changed, 407 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/samsung-keypad.c
+It seems this patch is just hanging out in the air since quite long.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index d8fa5d7..bf6a50f 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -342,6 +342,15 @@ config KEYBOARD_PXA930_ROTARY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called pxa930_rotary.
- 
-+config KEYBOARD_SAMSUNG
-+	tristate "Samsung keypad support"
-+	depends on SAMSUNG_DEV_KEYPAD
-+	help
-+	  Say Y here if you want to use the Samsung keypad.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called samsung-keypad.
-+
- config KEYBOARD_STOWAWAY
- 	tristate "Stowaway keyboard"
- 	select SERIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 4596d0c..8f973ed 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
- obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
- obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
- obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
-+obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
- obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
- obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-new file mode 100644
-index 0000000..244a3b6
---- /dev/null
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -0,0 +1,397 @@
-+/*
-+ * samsung-keypad.c  --  Samsung keypad driver
-+ *
-+ * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-+ * Author: Donghwa Lee <dh09.lee@samsung.com>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <plat/keypad.h>
-+#include <plat/regs-keypad.h>
-+
-+enum samsung_keypad_type {
-+	KEYPAD_TYPE_SAMSUNG,
-+	KEYPAD_TYPE_S5PV210,
-+};
-+
-+struct samsung_keypad {
-+	struct input_dev *input_dev;
-+	struct timer_list timer;
-+	struct clk *clk;
-+	struct work_struct work;
-+	void __iomem *base;
-+	unsigned short *keycodes;
-+	unsigned int row_shift;
-+	unsigned int rows;
-+	unsigned int cols;
-+	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	int irq;
-+};
-+
-+static int samsung_keypad_is_s5pv210(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	enum samsung_keypad_type type;
-+
-+	type = platform_get_device_id(pdev)->driver_data;
-+	return type == KEYPAD_TYPE_S5PV210;
-+}
-+
-+static void samsung_keypad_scan(struct samsung_keypad *keypad,
-+		unsigned int *row_state)
-+{
-+	struct device *dev = keypad->input_dev->dev.parent;
-+	unsigned int col;
-+	unsigned int val;
-+
-+	for (col = 0; col < keypad->cols; col++) {
-+		if (samsung_keypad_is_s5pv210(dev)) {
-+			val = S5PV210_KEYIFCOLEN_MASK;
-+			val &= ~(1 << col) << 8;
-+		} else {
-+			val = SAMSUNG_KEYIFCOL_MASK;
-+			val &= ~(1 << col);
-+		}
-+
-+		writel(val, keypad->base + SAMSUNG_KEYIFCOL);
-+		mdelay(1);
-+
-+		val = readl(keypad->base + SAMSUNG_KEYIFROW);
-+		row_state[col] = ~val & ((1 << keypad->rows) - 1);
-+	}
-+
-+	/* KEYIFCOL reg clear */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+}
-+
-+static void samsung_keypad_worker(struct work_struct *work)
-+{
-+	struct samsung_keypad *keypad = container_of(work,
-+			struct samsung_keypad, work);
-+	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	unsigned int val;
-+	unsigned int changed;
-+	unsigned int pressed;
-+	unsigned int key_down = 0;
-+	int col, row;
-+
-+	clk_enable(keypad->clk);
-+
-+	val = readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
-+
-+	/* interrupt clear */
-+	writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
-+
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	val &= ~(SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	samsung_keypad_scan(keypad, row_state);
-+
-+	for (col = 0; col < keypad->cols; col++) {
-+		changed = row_state[col] ^ keypad->row_state[col];
-+		key_down |= row_state[col];
-+		if (!changed)
-+			continue;
-+
-+		for (row = 0; row < keypad->rows; row++) {
-+			if (!(changed & (1 << row)))
-+				continue;
-+
-+			pressed = row_state[col] & (1 << row);
-+
-+			dev_dbg(&keypad->input_dev->dev,
-+				"key %s, row: %d, col: %d\n",
-+				pressed ? "pressed" : "released", row, col);
-+
-+			val = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-+
-+			input_report_key(keypad->input_dev,
-+					keypad->keycodes[val], pressed);
-+			input_sync(keypad->input_dev);
-+		}
-+	}
-+	memcpy(keypad->row_state, row_state, sizeof(row_state));
-+
-+	if (key_down)
-+		mod_timer(&keypad->timer, jiffies + HZ / 20);
-+	else {
-+		/* enable interrupt bit */
-+		val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+		val |= (SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
-+		writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+		enable_irq(keypad->irq);
-+	}
-+	clk_disable(keypad->clk);
-+}
-+
-+static irqreturn_t samsung_keypad_interrupt(int irq, void *dev_id)
-+{
-+	struct samsung_keypad *keypad = dev_id;
-+
-+	if (!work_pending(&keypad->work)) {
-+		disable_irq_nosync(keypad->irq);
-+		schedule_work(&keypad->work);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void samsung_keypad_timer(unsigned long data)
-+{
-+	struct samsung_keypad *keypad = (struct samsung_keypad *)data;
-+
-+	schedule_work(&keypad->work);
-+}
-+
-+static int __devinit samsung_keypad_probe(struct platform_device *pdev)
-+{
-+	const struct samsung_keypad_platdata *pdata;
-+	const struct matrix_keymap_data *keymap_data;
-+	struct samsung_keypad *keypad;
-+	struct resource *res;
-+	struct input_dev *input_dev;
-+	unsigned short *keycodes;
-+	unsigned int row_shift;
-+	unsigned int val;
-+	int ret;
-+
-+	pdata = pdev->dev.platform_data;
-+	if (!pdata) {
-+		dev_err(&pdev->dev, "no platform data defined\n");
-+		return -EINVAL;
-+	}
-+
-+	keymap_data = pdata->keymap_data;
-+	if (!keymap_data) {
-+		dev_err(&pdev->dev, "no keymap data defined\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!pdata->rows || (pdata->rows > SAMSUNG_MAX_ROWS))
-+		return -EINVAL;
-+
-+	if (!pdata->cols || (pdata->cols > SAMSUNG_MAX_COLS))
-+		return -EINVAL;
-+
-+	/* initialize the gpio */
-+	if (pdata->cfg_gpio)
-+		pdata->cfg_gpio(pdata->rows, pdata->cols);
-+
-+	row_shift = get_count_order(pdata->cols);
-+	keypad = kzalloc(sizeof(*keypad), GFP_KERNEL);
-+	keycodes = kzalloc((pdata->rows << row_shift) * sizeof(*keycodes),
-+			GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!keypad || !keycodes || !input_dev) {
-+		ret = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		ret = -ENODEV;
-+		goto err_free_mem;
-+	}
-+
-+	keypad->base = ioremap(res->start, resource_size(res));
-+	if (!keypad->base) {
-+		ret = -EBUSY;
-+		goto err_free_mem;
-+	}
-+
-+	keypad->clk = clk_get(&pdev->dev, "keypad");
-+	if (IS_ERR(keypad->clk)) {
-+		dev_err(&pdev->dev, "failed to get keypad clk\n");
-+		ret = PTR_ERR(keypad->clk);
-+		goto err_unmap_base;
-+	}
-+	clk_enable(keypad->clk);
-+
-+	keypad->input_dev = input_dev;
-+	keypad->keycodes = keycodes;
-+	keypad->row_shift = row_shift;
-+	keypad->rows = pdata->rows;
-+	keypad->cols = pdata->cols;
-+
-+	INIT_WORK(&keypad->work, samsung_keypad_worker);
-+
-+	setup_timer(&keypad->timer, samsung_keypad_timer,
-+			(unsigned long)keypad);
-+
-+	/* enable interrupt and wakeup bit */
-+	val = SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN |
-+		SAMSUNG_KEYIFCON_WAKEUPEN;
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	/* KEYIFCOL reg clear */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+
-+	keypad->irq = platform_get_irq(pdev, 0);
-+	if (keypad->irq < 0) {
-+		ret = keypad->irq;
-+		goto err_disable_clk;
-+	}
-+
-+	ret = request_irq(keypad->irq, samsung_keypad_interrupt, 0,
-+			dev_name(&pdev->dev), keypad);
-+
-+	if (ret)
-+		goto err_disable_clk;
-+
-+	input_dev->name = pdev->name;
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->dev.parent = &pdev->dev;
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY);
-+	if (pdata->rep)
-+		input_dev->evbit[0] |= BIT_MASK(EV_REP);
-+
-+	input_dev->keycode = keycodes;
-+	input_dev->keycodesize = sizeof(*keycodes);
-+	input_dev->keycodemax = pdata->rows << row_shift;
-+
-+	matrix_keypad_build_keymap(keymap_data, row_shift,
-+			input_dev->keycode, input_dev->keybit);
-+
-+	ret = input_register_device(keypad->input_dev);
-+	if (ret)
-+		goto err_free_irq;
-+
-+	platform_set_drvdata(pdev, keypad);
-+	clk_disable(keypad->clk);
-+
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(keypad->irq, keypad);
-+err_disable_clk:
-+	clk_disable(keypad->clk);
-+	clk_put(keypad->clk);
-+err_unmap_base:
-+	iounmap(keypad->base);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(keycodes);
-+	kfree(keypad);
-+
-+	return ret;
-+}
-+
-+static int __devexit samsung_keypad_remove(struct platform_device *pdev)
-+{
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	free_irq(keypad->irq, keypad);
-+	cancel_work_sync(&keypad->work);
-+	del_timer_sync(&keypad->timer);
-+
-+	platform_set_drvdata(pdev, NULL);
-+	input_unregister_device(keypad->input_dev);
-+
-+	clk_disable(keypad->clk);
-+	clk_put(keypad->clk);
-+
-+	iounmap(keypad->base);
-+	kfree(keypad->keycodes);
-+	kfree(keypad);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int samsung_keypad_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	disable_irq(keypad->irq);
-+
-+	return 0;
-+}
-+
-+static int samsung_keypad_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+	unsigned int val;
-+
-+	clk_enable(keypad->clk);
-+
-+	/* enable interrupt and wakeup bit */
-+	val = SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN |
-+		SAMSUNG_KEYIFCON_WAKEUPEN;
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	/* KEYIFCOL reg clear */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+
-+	enable_irq(keypad->irq);
-+	clk_disable(keypad->clk);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops samsung_keypad_pm_ops = {
-+	.suspend	= samsung_keypad_suspend,
-+	.resume		= samsung_keypad_resume,
-+};
-+#endif
-+
-+static struct platform_device_id samsung_keypad_driver_ids[] = {
-+	{
-+		.name		= "samsung-keypad",
-+		.driver_data	= KEYPAD_TYPE_SAMSUNG,
-+	}, {
-+		.name		= "s5pv210-keypad",
-+		.driver_data	= KEYPAD_TYPE_S5PV210,
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(platform, samsung_keypad_driver_ids);
-+
-+static struct platform_driver samsung_keypad_driver = {
-+	.probe		= samsung_keypad_probe,
-+	.remove		= __devexit_p(samsung_keypad_remove),
-+	.driver		= {
-+		.name	= "samsung-keypad",
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &samsung_keypad_pm_ops,
-+#endif
-+	},
-+	.id_table	= samsung_keypad_driver_ids,
-+};
-+
-+static int __init samsung_keypad_init(void)
-+{
-+	return platform_driver_register(&samsung_keypad_driver);
-+}
-+
-+static void __exit samsung_keypad_exit(void)
-+{
-+	platform_driver_unregister(&samsung_keypad_driver);
-+}
-+
-+module_init(samsung_keypad_init);
-+module_exit(samsung_keypad_exit);
-+
-+MODULE_DESCRIPTION("Samsung keypad driver");
-+MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
-+MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
-+MODULE_LICENSE("GPL");
--- 
-1.7.0.4
+Can Tony or Dmitry please pick this?
+
+Thanks.
+
+cheers,
+-roger
+
+Koskinen Aaro (Nokia-D/Helsinki) wrote:
+> From: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> 
+> Introduce a driver for the Texas Instruments TSC2005 touchscreen
+> controller (http://focus.ti.com/docs/prod/folders/print/tsc2005.html).
+> 
+> The patch is based on a driver by Lauri Leukkunen, with modifications
+> by David Brownell, Phil Carmody, Imre Deak, Hiroshi DOYU, Ari Kauppi,
+> Tony Lindgren, Jarkko Nikula, Eero Nurkkala and Roman Tereshonkov.
+> 
+> Signed-off-by: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> [aaro.koskinen@nokia.com: patch description, rebasing & cleanup]
+> Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+> Cc: David Brownell <dbrownell@users.sourceforge.net>
+> Cc: Phil Carmody <ext-phil.2.carmody@nokia.com>
+> Cc: Imre Deak <imre.deak@nokia.com>
+> Cc: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
+> Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Jarkko Nikula <jhnikula@gmail.com>
+> Cc: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
+> Cc: Roman Tereshonkov <roman.tereshonkov@nokia.com>
+> ---
+> 
+> v4: Refreshed the patches against the current mainline
+> (13bd8e4673d527a9e48f41956b11d391e7c2cfe0). No other changes as no
+> comments were received.
+> 
+> The v3 has some major modifications. I have tried to clean up and simplify
+> the driver. All action takes place in thread context, SPI transfers are
+> synchronous, the spinlock is removed, and there are no long sections
+> with interrupts disabled. The driver should be now SMP safe.
+> 
+> Also the following review comments are addressed:
+>         - Use del_timer_sync() instead of del_timer().
+>         - Use mod_timer() always instead of add_timer().
+>         - Use attribute_group.
+>         - Delete filtering and averaging which belong to upper layers.
+>         - Delete pen_down sysfs file.
+> 
+> The previous version and comments can be seen here:
+> http://marc.info/?t=125734115600004&r=1&w=2
+> 
+>  drivers/input/touchscreen/Kconfig   |   11 +
+>  drivers/input/touchscreen/Makefile  |    1 +
+>  drivers/input/touchscreen/tsc2005.c |  678 +++++++++++++++++++++++++++++++++++
+>  include/linux/spi/tsc2005.h         |   41 +++
+>  4 files changed, 731 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/tsc2005.c
+>  create mode 100644 include/linux/spi/tsc2005.h
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index dfafc76..72c1797 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -548,6 +548,17 @@ config TOUCHSCREEN_TOUCHIT213
+>           To compile this driver as a module, choose M here: the
+>           module will be called touchit213.
+> 
+> +config TOUCHSCREEN_TSC2005
+> +        tristate "TSC2005 based touchscreens"
+> +        depends on SPI_MASTER
+> +        help
+> +          Say Y here if you have a TSC2005 based touchscreen.
+> +
+> +         If unsure, say N.
+> +
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called tsc2005.
+> +
+>  config TOUCHSCREEN_TSC2007
+>         tristate "TSC2007 based touchscreens"
+>         depends on I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index d61a3b4..61fa8b5 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -33,6 +33,7 @@ obj-$(CONFIG_TOUCHSCREEN_S3C2410)     += s3c2410_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)   += touchit213.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)   += touchright.o
+>  obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)     += touchwin.o
+> +obj-$(CONFIG_TOUCHSCREEN_TSC2005)      += tsc2005.o
+>  obj-$(CONFIG_TOUCHSCREEN_TSC2007)      += tsc2007.o
+>  obj-$(CONFIG_TOUCHSCREEN_UCB1400)      += ucb1400_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)  += wacom_w8001.o
+> diff --git a/drivers/input/touchscreen/tsc2005.c b/drivers/input/touchscreen/tsc2005.c
+> new file mode 100644
+> index 0000000..27ee361
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/tsc2005.c
+> @@ -0,0 +1,678 @@
+> +/*
+> + * TSC2005 touchscreen driver
+> + *
+> + * Copyright (C) 2006-2010 Nokia Corporation
+> + *
+> + * Author: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> + * based on TSC2301 driver by Klaus K. Pedersen <klaus.k.pedersen@nokia.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + *
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/delay.h>
+> +#include <linux/spi/spi.h>
+> +#include <linux/spi/tsc2005.h>
+> +
+> +/*
+> + * The touchscreen interface operates as follows:
+> + *
+> + * 1) Pen is pressed against the touchscreen.
+> + * 2) TSC2005 performs AD conversion.
+> + * 3) After the conversion is done TSC2005 drives DAV line down.
+> + * 4) GPIO IRQ is received and tsc2005_irq_thread() is scheduled.
+> + * 5) tsc2005_irq_thread() queues up an spi transfer to fetch the x, y, z1, z2
+> + *    values.
+> + * 6) tsc2005_irq_thread() reports coordinates to input layer and sets up
+> + *    tsc2005_penup_timer() to be called after TSC2005_PENUP_TIME_MS (40ms).
+> + * 7) When the penup timer expires, there have not been touch or DAV interrupts
+> + *    during the last 40ms which means the pen has been lifted.
+> + *
+> + * ESD recovery via a hardware reset is done if the TSC2005 doesn't respond
+> + * after a configurable period (in ms) of activity. If esd_timeout is 0, the
+> + * watchdog is disabled.
+> + */
+> +
+> +/* control byte 1 */
+> +#define TSC2005_CMD                    0x80
+> +#define TSC2005_CMD_NORMAL             0x00
+> +#define TSC2005_CMD_STOP               0x01
+> +#define TSC2005_CMD_12BIT              0x04
+> +
+> +/* control byte 0 */
+> +#define TSC2005_REG_READ               0x0001
+> +#define TSC2005_REG_PND0               0x0002
+> +#define TSC2005_REG_X                  0x0000
+> +#define TSC2005_REG_Y                  0x0008
+> +#define TSC2005_REG_Z1                 0x0010
+> +#define TSC2005_REG_Z2                 0x0018
+> +#define TSC2005_REG_TEMP_HIGH          0x0050
+> +#define TSC2005_REG_CFR0               0x0060
+> +#define TSC2005_REG_CFR1               0x0068
+> +#define TSC2005_REG_CFR2               0x0070
+> +
+> +/* configuration register 0 */
+> +#define TSC2005_CFR0_PRECHARGE_276US   0x0040
+> +#define TSC2005_CFR0_STABTIME_1MS      0x0300
+> +#define TSC2005_CFR0_CLOCK_1MHZ                0x1000
+> +#define TSC2005_CFR0_RESOLUTION12      0x2000
+> +#define TSC2005_CFR0_PENMODE           0x8000
+> +#define TSC2005_CFR0_INITVALUE         (TSC2005_CFR0_STABTIME_1MS    | \
+> +                                        TSC2005_CFR0_CLOCK_1MHZ      | \
+> +                                        TSC2005_CFR0_RESOLUTION12    | \
+> +                                        TSC2005_CFR0_PRECHARGE_276US | \
+> +                                        TSC2005_CFR0_PENMODE)
+> +
+> +/* bits common to both read and write of configuration register 0 */
+> +#define        TSC2005_CFR0_RW_MASK            0x3fff
+> +
+> +/* configuration register 1 */
+> +#define TSC2005_CFR1_BATCHDELAY_4MS    0x0003
+> +#define TSC2005_CFR1_INITVALUE         TSC2005_CFR1_BATCHDELAY_4MS
+> +
+> +/* configuration register 2 */
+> +#define TSC2005_CFR2_MAVE_Z            0x0004
+> +#define TSC2005_CFR2_MAVE_Y            0x0008
+> +#define TSC2005_CFR2_MAVE_X            0x0010
+> +#define TSC2005_CFR2_AVG_7             0x0800
+> +#define TSC2005_CFR2_MEDIUM_15         0x3000
+> +#define TSC2005_CFR2_INITVALUE         (TSC2005_CFR2_MAVE_X    | \
+> +                                        TSC2005_CFR2_MAVE_Y    | \
+> +                                        TSC2005_CFR2_MAVE_Z    | \
+> +                                        TSC2005_CFR2_MEDIUM_15 | \
+> +                                        TSC2005_CFR2_AVG_7)
+> +
+> +#define MAX_12BIT                      0xfff
+> +#define TSC2005_SPI_MAX_SPEED_HZ       10000000
+> +#define TSC2005_PENUP_TIME_MS          40
+> +
+> +struct tsc2005_spi_rd {
+> +       struct spi_transfer     spi_xfer;
+> +       u32                     spi_tx;
+> +       u32                     spi_rx;
+> +};
+> +
+> +struct tsc2005 {
+> +       struct spi_device       *spi;
+> +
+> +       struct spi_message      spi_read_msg;
+> +       struct tsc2005_spi_rd   spi_x;
+> +       struct tsc2005_spi_rd   spi_y;
+> +       struct tsc2005_spi_rd   spi_z1;
+> +       struct tsc2005_spi_rd   spi_z2;
+> +
+> +       struct input_dev        *idev;
+> +       char                    phys[32];
+> +
+> +       struct mutex            mutex;
+> +
+> +       struct timer_list       penup_timer;
+> +       struct work_struct      penup_work;
+> +
+> +       unsigned int            esd_timeout;
+> +       struct timer_list       esd_timer;
+> +       struct work_struct      esd_work;
+> +
+> +       unsigned int            x_plate_ohm;
+> +
+> +       bool                    disabled;
+> +       unsigned int            disable_depth;
+> +
+> +       void                    (*set_reset)(bool enable);
+> +};
+> +
+> +static void tsc2005_cmd(struct tsc2005 *ts, u8 cmd)
+> +{
+> +       u8 tx;
+> +       struct spi_message msg;
+> +       struct spi_transfer xfer = { 0 };
+> +
+> +       tx = TSC2005_CMD | TSC2005_CMD_12BIT | cmd;
+> +
+> +       xfer.tx_buf = &tx;
+> +       xfer.rx_buf = NULL;
+> +       xfer.len = 1;
+> +       xfer.bits_per_word = 8;
+> +
+> +       spi_message_init(&msg);
+> +       spi_message_add_tail(&xfer, &msg);
+> +       spi_sync(ts->spi, &msg);
+> +}
+> +
+> +static void tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
+> +{
+> +       u32 tx;
+> +       struct spi_message msg;
+> +       struct spi_transfer xfer = { 0 };
+> +
+> +       tx = (reg | TSC2005_REG_PND0) << 16;
+> +       tx |= value;
+> +
+> +       xfer.tx_buf = &tx;
+> +       xfer.rx_buf = NULL;
+> +       xfer.len = 4;
+> +       xfer.bits_per_word = 24;
+> +
+> +       spi_message_init(&msg);
+> +       spi_message_add_tail(&xfer, &msg);
+> +       spi_sync(ts->spi, &msg);
+> +}
+> +
+> +static void tsc2005_setup_read(struct tsc2005_spi_rd *rd, u8 reg, bool last)
+> +{
+> +       rd->spi_tx                 = (reg | TSC2005_REG_READ) << 16;
+> +       rd->spi_xfer.tx_buf        = &rd->spi_tx;
+> +       rd->spi_xfer.rx_buf        = &rd->spi_rx;
+> +       rd->spi_xfer.len           = 4;
+> +       rd->spi_xfer.bits_per_word = 24;
+> +       rd->spi_xfer.cs_change     = !last;
+> +}
+> +
+> +static void tsc2005_read(struct tsc2005 *ts, u8 reg, u16 *value)
+> +{
+> +       struct spi_message msg;
+> +       struct tsc2005_spi_rd spi_rd = { { 0 }, 0, 0 };
+> +
+> +       tsc2005_setup_read(&spi_rd, reg, 1);
+> +
+> +       spi_message_init(&msg);
+> +       spi_message_add_tail(&spi_rd.spi_xfer, &msg);
+> +       spi_sync(ts->spi, &msg);
+> +       *value = spi_rd.spi_rx;
+> +}
+> +
+> +static void tsc2005_update_pen_state(struct tsc2005 *ts,
+> +                                    int x, int y, int pressure)
+> +{
+> +       if (pressure) {
+> +               input_report_abs(ts->idev, ABS_X, x);
+> +               input_report_abs(ts->idev, ABS_Y, y);
+> +       }
+> +       input_report_abs(ts->idev, ABS_PRESSURE, pressure);
+> +       input_report_key(ts->idev, BTN_TOUCH, !!pressure);
+> +       input_sync(ts->idev);
+> +       dev_dbg(&ts->spi->dev, "point(%4d,%4d), pressure (%4d)\n", x, y,
+> +               pressure);
+> +}
+> +
+> +static irqreturn_t tsc2005_irq_handler(int irq, void *dev_id)
+> +{
+> +       struct tsc2005 *ts = dev_id;
+> +
+> +       /* update the penup timer only if it's pending */
+> +       mod_timer_pending(&ts->penup_timer,
+> +                         jiffies + msecs_to_jiffies(TSC2005_PENUP_TIME_MS));
+> +
+> +       return IRQ_WAKE_THREAD;
+> +}
+> +
+> +static irqreturn_t tsc2005_irq_thread(int irq, void *_ts)
+> +{
+> +       struct tsc2005 *ts = _ts;
+> +       unsigned int pressure;
+> +       u32 x;
+> +       u32 y;
+> +       u32 z1;
+> +       u32 z2;
+> +
+> +       mutex_lock(&ts->mutex);
+> +
+> +       if (unlikely(ts->disable_depth))
+> +               goto out;
+> +
+> +       /* read the coordinates */
+> +       spi_sync(ts->spi, &ts->spi_read_msg);
+> +       x = ts->spi_x.spi_rx;
+> +       y = ts->spi_y.spi_rx;
+> +       z1 = ts->spi_z1.spi_rx;
+> +       z2 = ts->spi_z2.spi_rx;
+> +
+> +       /* validate position */
+> +       if (unlikely(x > MAX_12BIT || y > MAX_12BIT))
+> +               goto out;
+> +
+> +       /* skip coords if the pressure components are out of range */
+> +       if (unlikely(z1 == 0 || z2 > MAX_12BIT || z1 >= z2))
+> +               goto out;
+> +
+> +       /* compute touch pressure resistance using equation #1 */
+> +       pressure = x * (z2 - z1) / z1;
+> +       pressure = pressure * ts->x_plate_ohm / 4096;
+> +       if (unlikely(pressure > MAX_12BIT))
+> +               goto out;
+> +
+> +       tsc2005_update_pen_state(ts, x, y, pressure);
+> +
+> +       /* set the penup timer */
+> +       mod_timer(&ts->penup_timer,
+> +                 jiffies + msecs_to_jiffies(TSC2005_PENUP_TIME_MS));
+> +
+> +       if (!ts->esd_timeout)
+> +               goto out;
+> +
+> +       /* update the watchdog timer */
+> +       mod_timer(&ts->esd_timer,
+> +                 round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
+> +
+> +out:
+> +       mutex_unlock(&ts->mutex);
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static void tsc2005_penup_timer(unsigned long data)
+> +{
+> +       struct tsc2005 *ts = (struct tsc2005 *)data;
+> +
+> +       schedule_work(&ts->penup_work);
+> +}
+> +
+> +static void tsc2005_penup_work(struct work_struct *work)
+> +{
+> +       struct tsc2005 *ts = container_of(work, struct tsc2005, penup_work);
+> +
+> +       mutex_lock(&ts->mutex);
+> +       tsc2005_update_pen_state(ts, 0, 0, 0);
+> +       mutex_unlock(&ts->mutex);
+> +}
+> +
+> +static void tsc2005_start_scan(struct tsc2005 *ts)
+> +{
+> +       tsc2005_write(ts, TSC2005_REG_CFR0, TSC2005_CFR0_INITVALUE);
+> +       tsc2005_write(ts, TSC2005_REG_CFR1, TSC2005_CFR1_INITVALUE);
+> +       tsc2005_write(ts, TSC2005_REG_CFR2, TSC2005_CFR2_INITVALUE);
+> +       tsc2005_cmd(ts, TSC2005_CMD_NORMAL);
+> +}
+> +
+> +static void tsc2005_stop_scan(struct tsc2005 *ts)
+> +{
+> +       tsc2005_cmd(ts, TSC2005_CMD_STOP);
+> +}
+> +
+> +/* must be called with mutex held */
+> +static void tsc2005_disable(struct tsc2005 *ts)
+> +{
+> +       if (ts->disable_depth++ != 0)
+> +               return;
+> +       disable_irq(ts->spi->irq);
+> +       if (ts->esd_timeout)
+> +               del_timer_sync(&ts->esd_timer);
+> +       del_timer_sync(&ts->penup_timer);
+> +       tsc2005_stop_scan(ts);
+> +}
+> +
+> +/* must be called with mutex held */
+> +static void tsc2005_enable(struct tsc2005 *ts)
+> +{
+> +       if (--ts->disable_depth != 0)
+> +               return;
+> +       tsc2005_start_scan(ts);
+> +       enable_irq(ts->spi->irq);
+> +       if (!ts->esd_timeout)
+> +               return;
+> +       mod_timer(&ts->esd_timer,
+> +                 round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
+> +}
+> +
+> +static ssize_t tsc2005_disable_show(struct device *dev,
+> +                                   struct device_attribute *attr, char *buf)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(dev);
+> +
+> +       return sprintf(buf, "%u\n", ts->disabled);
+> +}
+> +
+> +static ssize_t tsc2005_disable_store(struct device *dev,
+> +                                    struct device_attribute *attr,
+> +                                    const char *buf, size_t count)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(dev);
+> +       unsigned long res;
+> +       int i;
+> +
+> +       if (strict_strtoul(buf, 10, &res) < 0)
+> +               return -EINVAL;
+> +       i = res ? 1 : 0;
+> +
+> +       mutex_lock(&ts->mutex);
+> +       if (i == ts->disabled)
+> +               goto out;
+> +       ts->disabled = i;
+> +       if (i)
+> +               tsc2005_disable(ts);
+> +       else
+> +               tsc2005_enable(ts);
+> +out:
+> +       mutex_unlock(&ts->mutex);
+> +       return count;
+> +}
+> +static DEVICE_ATTR(disable, 0664, tsc2005_disable_show, tsc2005_disable_store);
+> +
+> +static ssize_t tsc2005_selftest_show(struct device *dev,
+> +                                    struct device_attribute *attr,
+> +                                    char *buf)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(dev);
+> +       u16 temp_high;
+> +       u16 temp_high_orig;
+> +       u16 temp_high_test;
+> +       unsigned int result;
+> +
+> +       if (!ts->set_reset) {
+> +               dev_warn(&ts->spi->dev,
+> +                        "unable to selftest: no reset function\n");
+> +               result = 0;
+> +               goto out;
+> +       }
+> +
+> +       mutex_lock(&ts->mutex);
+> +
+> +       /*
+> +        * Test TSC2005 communications via temp high register.
+> +        */
+> +       tsc2005_disable(ts);
+> +       result = 1;
+> +       tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high_orig);
+> +       temp_high_test = (temp_high_orig - 1) & MAX_12BIT;
+> +       tsc2005_write(ts, TSC2005_REG_TEMP_HIGH, temp_high_test);
+> +       tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
+> +       if (temp_high != temp_high_test) {
+> +               dev_warn(dev, "selftest failed: %d != %d\n",
+> +                        temp_high, temp_high_test);
+> +               result = 0;
+> +       }
+> +
+> +       /* hardware reset */
+> +       ts->set_reset(0);
+> +       msleep(1); /* only 10us required */
+> +       ts->set_reset(1);
+> +       tsc2005_enable(ts);
+> +
+> +       /* test that the reset really happened */
+> +       tsc2005_read(ts, TSC2005_REG_TEMP_HIGH, &temp_high);
+> +       if (temp_high != temp_high_orig) {
+> +               dev_warn(dev, "selftest failed after reset: %d != %d\n",
+> +                        temp_high, temp_high_orig);
+> +               result = 0;
+> +       }
+> +
+> +       mutex_unlock(&ts->mutex);
+> +
+> +out:
+> +       return sprintf(buf, "%u\n", result);
+> +}
+> +static DEVICE_ATTR(selftest, S_IRUGO, tsc2005_selftest_show, NULL);
+> +
+> +static void tsc2005_esd_timer(unsigned long data)
+> +{
+> +       struct tsc2005 *ts = (struct tsc2005 *)data;
+> +
+> +       schedule_work(&ts->esd_work);
+> +}
+> +
+> +static void tsc2005_esd_work(struct work_struct *work)
+> +{
+> +       struct tsc2005 *ts = container_of(work, struct tsc2005, esd_work);
+> +       u16 r;
+> +
+> +       mutex_lock(&ts->mutex);
+> +
+> +       if (ts->disable_depth)
+> +               goto out;
+> +
+> +       /*
+> +        * If we cannot read our known value from configuration register 0 then
+> +        * reset the controller as if from power-up and start scanning again.
+> +        */
+> +       tsc2005_read(ts, TSC2005_REG_CFR0, &r);
+> +       if ((r ^ TSC2005_CFR0_INITVALUE) & TSC2005_CFR0_RW_MASK) {
+> +               dev_info(&ts->spi->dev, "TSC2005 not responding - resetting\n");
+> +               ts->set_reset(0);
+> +               msleep(1); /* only 10us required */
+> +               ts->set_reset(1);
+> +               tsc2005_start_scan(ts);
+> +       }
+> +
+> +       /* re-arm the watchdog */
+> +       mod_timer(&ts->esd_timer,
+> +                 round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
+> +
+> +out:
+> +       mutex_unlock(&ts->mutex);
+> +}
+> +
+> +static void __devinit tsc2005_setup_spi_xfer(struct tsc2005 *ts)
+> +{
+> +       tsc2005_setup_read(&ts->spi_x, TSC2005_REG_X, 0);
+> +       tsc2005_setup_read(&ts->spi_y, TSC2005_REG_Y, 0);
+> +       tsc2005_setup_read(&ts->spi_z1, TSC2005_REG_Z1, 0);
+> +       tsc2005_setup_read(&ts->spi_z2, TSC2005_REG_Z2, 1);
+> +
+> +       spi_message_init(&ts->spi_read_msg);
+> +       spi_message_add_tail(&ts->spi_x.spi_xfer, &ts->spi_read_msg);
+> +       spi_message_add_tail(&ts->spi_y.spi_xfer, &ts->spi_read_msg);
+> +       spi_message_add_tail(&ts->spi_z1.spi_xfer, &ts->spi_read_msg);
+> +       spi_message_add_tail(&ts->spi_z2.spi_xfer, &ts->spi_read_msg);
+> +}
+> +
+> +static struct attribute *tsc2005_attrs[] = {
+> +       &dev_attr_disable.attr,
+> +       &dev_attr_selftest.attr,
+> +       NULL
+> +};
+> +
+> +static struct attribute_group tsc2005_attr_group = {
+> +       .attrs = tsc2005_attrs,
+> +};
+> +
+> +static int __devinit tsc2005_setup(struct tsc2005 *ts,
+> +                                  struct tsc2005_platform_data *pdata)
+> +{
+> +       int r;
+> +       int fudge_x;
+> +       int fudge_y;
+> +       int fudge_p;
+> +       int p_max;
+> +       int x_max;
+> +       int y_max;
+> +
+> +       mutex_init(&ts->mutex);
+> +
+> +       tsc2005_setup_spi_xfer(ts);
+> +
+> +       init_timer(&ts->penup_timer);
+> +       setup_timer(&ts->penup_timer, tsc2005_penup_timer, (unsigned long)ts);
+> +       INIT_WORK(&ts->penup_work, tsc2005_penup_work);
+> +
+> +       fudge_x         = pdata->ts_x_fudge        ? : 0;
+> +       fudge_y         = pdata->ts_y_fudge        ? : 0;
+> +       fudge_p         = pdata->ts_pressure_fudge ? : 0;
+> +       x_max           = pdata->ts_x_max          ? : MAX_12BIT;
+> +       y_max           = pdata->ts_y_max          ? : MAX_12BIT;
+> +       p_max           = pdata->ts_pressure_max   ? : MAX_12BIT;
+> +       ts->x_plate_ohm = pdata->ts_x_plate_ohm    ? : 0;
+> +       ts->esd_timeout = pdata->esd_timeout_ms;
+> +       ts->set_reset   = pdata->set_reset;
+> +
+> +       ts->idev = input_allocate_device();
+> +       if (ts->idev == NULL)
+> +               return -ENOMEM;
+> +       ts->idev->name = "TSC2005 touchscreen";
+> +       snprintf(ts->phys, sizeof(ts->phys), "%s/input-ts",
+> +                dev_name(&ts->spi->dev));
+> +       ts->idev->phys = ts->phys;
+> +       ts->idev->evbit[0] = BIT(EV_ABS) | BIT(EV_KEY);
+> +       ts->idev->absbit[0] = BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE);
+> +       ts->idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +       input_set_abs_params(ts->idev, ABS_X, 0, x_max, fudge_x, 0);
+> +       input_set_abs_params(ts->idev, ABS_Y, 0, y_max, fudge_y, 0);
+> +       input_set_abs_params(ts->idev, ABS_PRESSURE, 0, p_max, fudge_p, 0);
+> +
+> +       r = request_threaded_irq(ts->spi->irq, tsc2005_irq_handler,
+> +                                tsc2005_irq_thread, IRQF_TRIGGER_RISING,
+> +                                "tsc2005", ts);
+> +       if (r) {
+> +               dev_err(&ts->spi->dev, "request_threaded_irq(): %d\n", r);
+> +               goto err1;
+> +       }
+> +       set_irq_wake(ts->spi->irq, 1);
+> +
+> +       r = input_register_device(ts->idev);
+> +       if (r) {
+> +               dev_err(&ts->spi->dev, "input_register_device(): %d\n", r);
+> +               goto err2;
+> +       }
+> +
+> +       r = sysfs_create_group(&ts->spi->dev.kobj, &tsc2005_attr_group);
+> +       if (r)
+> +               dev_warn(&ts->spi->dev, "sysfs entry creation failed: %d\n", r);
+> +
+> +       tsc2005_start_scan(ts);
+> +
+> +       if (!ts->esd_timeout || !ts->set_reset)
+> +               goto done;
+> +
+> +       /* start the optional ESD watchdog */
+> +       setup_timer(&ts->esd_timer, tsc2005_esd_timer, (unsigned long)ts);
+> +       INIT_WORK(&ts->esd_work, tsc2005_esd_work);
+> +       mod_timer(&ts->esd_timer,
+> +                 round_jiffies(jiffies + msecs_to_jiffies(ts->esd_timeout)));
+> +
+> +done:
+> +       return 0;
+> +
+> +err2:
+> +       free_irq(ts->spi->irq, ts);
+> +
+> +err1:
+> +       input_free_device(ts->idev);
+> +       return r;
+> +}
+> +
+> +static int __devinit tsc2005_probe(struct spi_device *spi)
+> +{
+> +       struct tsc2005_platform_data *pdata = spi->dev.platform_data;
+> +       struct tsc2005 *ts;
+> +       int r;
+> +
+> +       if (spi->irq < 0) {
+> +               dev_dbg(&spi->dev, "no irq\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       if (!pdata) {
+> +               dev_dbg(&spi->dev, "no platform data\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       ts = kzalloc(sizeof(*ts), GFP_KERNEL);
+> +       if (ts == NULL)
+> +               return -ENOMEM;
+> +
+> +       dev_set_drvdata(&spi->dev, ts);
+> +       ts->spi = spi;
+> +       spi->dev.power.power_state = PMSG_ON;
+> +       spi->mode = SPI_MODE_0;
+> +       spi->bits_per_word = 8;
+> +       if (!spi->max_speed_hz)
+> +               spi->max_speed_hz = TSC2005_SPI_MAX_SPEED_HZ;
+> +       spi_setup(spi);
+> +
+> +       r = tsc2005_setup(ts, pdata);
+> +       if (r)
+> +               kfree(ts);
+> +       return r;
+> +}
+> +
+> +static int __devexit tsc2005_remove(struct spi_device *spi)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(&spi->dev);
+> +
+> +       mutex_lock(&ts->mutex);
+> +       tsc2005_disable(ts);
+> +       mutex_unlock(&ts->mutex);
+> +
+> +       if (ts->esd_timeout)
+> +               del_timer_sync(&ts->esd_timer);
+> +       del_timer_sync(&ts->penup_timer);
+> +
+> +       flush_work(&ts->esd_work);
+> +       flush_work(&ts->penup_work);
+> +
+> +       sysfs_remove_group(&ts->spi->dev.kobj, &tsc2005_attr_group);
+> +       free_irq(ts->spi->irq, ts);
+> +       input_unregister_device(ts->idev);
+> +       kfree(ts);
+> +
+> +       return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int tsc2005_suspend(struct spi_device *spi, pm_message_t mesg)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(&spi->dev);
+> +
+> +       mutex_lock(&ts->mutex);
+> +       tsc2005_disable(ts);
+> +       mutex_unlock(&ts->mutex);
+> +
+> +       return 0;
+> +}
+> +
+> +static int tsc2005_resume(struct spi_device *spi)
+> +{
+> +       struct tsc2005 *ts = dev_get_drvdata(&spi->dev);
+> +
+> +       mutex_lock(&ts->mutex);
+> +       tsc2005_enable(ts);
+> +       mutex_unlock(&ts->mutex);
+> +
+> +       return 0;
+> +}
+> +#endif
+> +
+> +static struct spi_driver tsc2005_driver = {
+> +       .driver = {
+> +               .name = "tsc2005",
+> +               .owner = THIS_MODULE,
+> +       },
+> +#ifdef CONFIG_PM
+> +       .suspend = tsc2005_suspend,
+> +       .resume = tsc2005_resume,
+> +#endif
+> +       .probe = tsc2005_probe,
+> +       .remove = __devexit_p(tsc2005_remove),
+> +};
+> +
+> +static int __init tsc2005_init(void)
+> +{
+> +       printk(KERN_INFO "TSC2005 driver initializing\n");
+> +       return spi_register_driver(&tsc2005_driver);
+> +}
+> +module_init(tsc2005_init);
+> +
+> +static void __exit tsc2005_exit(void)
+> +{
+> +       spi_unregister_driver(&tsc2005_driver);
+> +}
+> +module_exit(tsc2005_exit);
+> +
+> +MODULE_AUTHOR("Lauri Leukkunen <lauri.leukkunen@nokia.com>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:tsc2005");
+> diff --git a/include/linux/spi/tsc2005.h b/include/linux/spi/tsc2005.h
+> new file mode 100644
+> index 0000000..d9b0c84
+> --- /dev/null
+> +++ b/include/linux/spi/tsc2005.h
+> @@ -0,0 +1,41 @@
+> +/*
+> + * This file is part of TSC2005 touchscreen driver
+> + *
+> + * Copyright (C) 2009-2010 Nokia Corporation
+> + *
+> + * Contact: Aaro Koskinen <aaro.koskinen@nokia.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + *
+> + */
+> +
+> +#ifndef _LINUX_SPI_TSC2005_H
+> +#define _LINUX_SPI_TSC2005_H
+> +
+> +#include <linux/types.h>
+> +
+> +struct tsc2005_platform_data {
+> +       int             ts_pressure_max;
+> +       int             ts_pressure_fudge;
+> +       int             ts_x_max;
+> +       int             ts_x_fudge;
+> +       int             ts_y_max;
+> +       int             ts_y_fudge;
+> +       int             ts_x_plate_ohm;
+> +       unsigned int    esd_timeout_ms;
+> +       void            (*set_reset)(bool enable);
+> +};
+> +
+> +#endif
+> --
+> 1.6.0.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 

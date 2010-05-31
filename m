@@ -1,53 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: Fix build of S3C touchscreen driver
-Date: Mon, 31 May 2010 12:03:41 -0700
-Message-ID: <20100531190341.GB30712@core.coreip.homeip.net>
-References: <1275311294-10760-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
+Date: Mon, 31 May 2010 12:09:12 -0700
+Message-ID: <20100531190911.GC30712@core.coreip.homeip.net>
+References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:61753 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756962Ab0EaTDr (ORCPT
+Received: from mail-pz0-f185.google.com ([209.85.222.185]:42482 "EHLO
+	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753093Ab0EaTJW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 15:03:47 -0400
+	Mon, 31 May 2010 15:09:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1275311294-10760-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, George Joseph <george.joseph@fairview5.com>, Riku Voipio <riku.voipio@iki.fi>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Richard Purdie <rpurdie@rpsys.net>, Colin Leroy <colin@colino.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Paul Gortmaker <p_gortmaker@yahoo.com>, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@suse.de>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-media@vger.kernel.org
 
-On Mon, May 31, 2010 at 02:08:14PM +0100, Mark Brown wrote:
-> The name of the Kconfig symbol for the ADC has changed as a result of
-> application to more SoCs but the select statement has not been updated,
-> causing linker failures in 2.6.35-rc1 as the ADC core has not been
-> built.
+Hi Wolfram,
+
+On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
+> I2C-drivers can use the clientdata-pointer to point to private data. As I2C
+> devices are not really unregistered, but merely detached from their driver, it
+> used to be the drivers obligation to clear this pointer during remove() or a
+> failed probe(). As a couple of drivers forgot to do this, it was agreed that it
+> was cleaner if the i2c-core does this clearance when appropriate, as there is
+> no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
+> This feature was added to the core with commit
+> e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
 > 
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-
-Applied, tahnk you Mark.
-
+> As there is no need anymore to clear the clientdata-pointer, remove all current
+> occurrences in the drivers to simplify the code and prevent confusion.
+> 
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Cc: Jean Delvare <khali@linux-fr.org>
 > ---
->  drivers/input/touchscreen/Kconfig |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 6703c6b..3b9d5e2 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -156,7 +156,7 @@ config TOUCHSCREEN_FUJITSU
->  config TOUCHSCREEN_S3C2410
->  	tristate "Samsung S3C2410/generic touchscreen input driver"
->  	depends on ARCH_S3C2410 || SAMSUNG_DEV_TS
-> -	select S3C24XX_ADC
-> +	select S3C_ADC
->  	help
->  	  Say Y here if you have the s3c2410 touchscreen.
->  
-> -- 
-> 1.7.1
+> Some more notes:
 > 
+> I waited for rc1 as I knew there were some drivers/patches coming along which
+> needed to be processed, too.
+> 
+> I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
+> once.
+> 
+
+Frankly I'd prefer taking input stuff through my tree with the goal of
+.36 merge window just to minimize potential merge issues. This is a
+simple cleanup patch that has no dependencies, so there is little gain
+from doing it all in one go.
+
+Thanks.
 
 -- 
 Dmitry

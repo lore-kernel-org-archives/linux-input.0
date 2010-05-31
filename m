@@ -1,56 +1,26 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v4 1/2] input: touchscreen: introduce tsc2005 driver
-Date: Mon, 31 May 2010 11:49:29 +0300
-Message-ID: <20100531084928.GC30216@atomide.com>
-References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
- <4C0366F2.5030805@nokia.com>
- <20100531083805.GC5272@zero.research.nokia.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2 1/5] ARM: SAMSUNG: Add keypad device support
+Date: Mon, 31 May 2010 10:44:09 +0100
+Message-ID: <20100531094408.GB7799@sirena.org.uk>
+References: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com> <201005300542.37715.marek.vasut@gmail.com> <AANLkTilt_-UAZGZepwtIYM7HRuPsX7gsW_ppLZD1_bZq@mail.gmail.com> <20100530045151.GE4720@trinity.fluff.org> <AANLkTimJyc8E_D_-95eeVFwOVXwJKM5xKCCW-7gkNWrU@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mho-01-ewr.mailhop.org ([204.13.248.71]:61360 "EHLO
-	mho-01-ewr.mailhop.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754459Ab0EaIt0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 04:49:26 -0400
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100531083805.GC5272@zero.research.nokia.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <AANLkTimJyc8E_D_-95eeVFwOVXwJKM5xKCCW-7gkNWrU@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Jassi Brar <jassisinghbrar@gmail.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, linux-samsung-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, dmitry.torokhov@gmail.com, Marek Vasut <marek.vasut@gmail.com>, kyungmin.park@samsung.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Lauri Leukkunen <lauri.leukkunen@nokia.com>
-Cc: "Quadros Roger (Nokia-D/Helsinki)" <roger.quadros@nokia.com>, "Koskinen Aaro (Nokia-D/Helsinki)" <aaro.koskinen@nokia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, David Brownell <dbrownell@users.sourceforge.net>, "Carmody Phil.2 (EXT-Ixonos/Helsinki)" <ext-phil.2.carmody@nokia.com>, "Deak Imre (Nokia-D/Helsinki)" <imre.deak@nokia.com>, "Doyu Hiroshi (Nokia-D/Helsinki)" <hiroshi.doyu@nokia.com>, "Kauppi Ari (EXT-Ixonos/Oulu)" <ext-ari.kauppi@nokia.com>, Jarkko Nikula <jhnikula@gmail.com>, "Nurkkala Eero.An (EXT-Offcode/Oulu)" <ext-Eero.Nurkkala@nokia.com>, "Tereshonkov Roman (Nokia-D/Helsinki)" <roman.tereshonkov@nokia.com>
 
-* Lauri Leukkunen <lauri.leukkunen@nokia.com> [100531 11:35]:
-> On 31/05/10 09:36 +0200, Quadros Roger (Nokia-D/Helsinki) wrote:
-> > Hi,
-> > 
-> > It seems this patch is just hanging out in the air since quite long.
-> > 
-> > Can Tony or Dmitry please pick this?
+On Sun, May 30, 2010 at 02:04:39PM +0900, Jassi Brar wrote:
 
-This should go via Dmitry's queue.
+> I believe on most implementations, if not all, sizeof char, short and
+> int are resp
+> 1, 2 and 4 bytes. whereas long denotes the native capacity of the arch.
 
-> I wouldn't mind if one of the listed authors adopted this patch, I've had
-> nothing to do with it in the last two and a half years.
-
-Or Roger could look after it as he is already active trying to
-get it merged :)
-
-Regards,
-
-Tony
-
- 
-> > > Signed-off-by: Lauri Leukkunen <lauri.leukkunen@nokia.com>
-> > > [aaro.koskinen@nokia.com: patch description, rebasing & cleanup]
-> > > Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
-> > > Cc: David Brownell <dbrownell@users.sourceforge.net>
-> > > Cc: Phil Carmody <ext-phil.2.carmody@nokia.com>
-> > > Cc: Imre Deak <imre.deak@nokia.com>
-> > > Cc: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
-> > > Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
-> > > Cc: Tony Lindgren <tony@atomide.com>
-> > > Cc: Jarkko Nikula <jhnikula@gmail.com>
-> > > Cc: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
-> > > Cc: Roman Tereshonkov <roman.tereshonkov@nokia.com>
-> 
+This is very common for interoperability with code making the assumption
+that you just made but you shouldn't rely on it, the C standard just
+specifies minimum sizes and requires that char <= short <= int <= long.
+The common issues to run into are int being made the native word size
+and not having any sub word types at all.

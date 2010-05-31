@@ -1,72 +1,304 @@
-From: Cory Maccarrone <darkstar6262@gmail.com>
-Subject: Re: [spi-devel-general] [PATCH] Input: Add tsc2046 touchscreen driver
-Date: Sun, 30 May 2010 14:15:12 -0700
-Message-ID: <AANLkTik0Kz0wZDcAMh8VBeIJ-nKX_oL1k023T9jjtrRj@mail.gmail.com>
-References: <AANLkTike4Hu6xJ52fcC9TcKaeD4hLeWxHwUvA90tc3_Q@mail.gmail.com>
-	<885802.70948.qm@web180316.mail.gq1.yahoo.com>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: RE: [PATCH v2 1/5] ARM: SAMSUNG: Add keypad device support
+Date: Mon, 31 May 2010 09:06:48 +0900
+Message-ID: <004101cb0055$2c9d5640$85d802c0$%kim@samsung.com>
+References: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:64590 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754882Ab0E3VPc convert rfc822-to-8bit (ORCPT
+Received: from mailout5.samsung.com ([203.254.224.35]:49674 "EHLO
+	mailout5.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750929Ab0EaAGy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 May 2010 17:15:32 -0400
-Received: by pxi18 with SMTP id 18so1218337pxi.19
-        for <linux-input@vger.kernel.org>; Sun, 30 May 2010 14:15:32 -0700 (PDT)
-In-Reply-To: <885802.70948.qm@web180316.mail.gq1.yahoo.com>
+	Sun, 30 May 2010 20:06:54 -0400
+In-reply-to: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
+Content-language: ko
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org
+To: 'Joonyoung Shim' <jy0922.shim@samsung.com>, ben-linux@fluff.org
+Cc: kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Sun, May 30, 2010 at 2:08 PM, David Brownell <david-b@pacbell.net> w=
-rote:
-> --- On Sun, 5/30/10, Cory Maccarrone <darkstar6262@gmail.com> wrote:
->
-> I don't see the point in having a separate driver
-> for this chip ... it's just an updated ADS7846,
-> and the ads7846 driver has handled it for quite
-> a few years now, as I recall. =C2=A0There's no need for
-> =C2=A0second driver.
->
->> >> This driver differs from the ADS7846 in that it
->> >> uses 16-bit commands instead of 8-bit,
->
-> The reason the ads7846 code uses 8-bit messaging
-> is portability ... it works with SPI controllers
-> which don't support 16-bit words. =C2=A0The commands are
-> of necessity 16-bits. =C2=A0Using 16-bit words means this
-> driver won't run on as many systems; folk will still
-> need to use the ads7846 driver with tsc2046 chips..
->
->
->
-> =C2=A0and does not include
->> temerature
->> >> or voltage sensing capabilities.
->
-> Another reason not to have a separate driver: this
-> one is less capable (as well as less portable)
->
->
->> >> additions that allow
->> >> the injection of pointercal parameters from tslib through /sys.
->
-> Something the ads7846 driver could benefit from
-> too ... again, two drivers is counterproductive.
->
-> - Dave
->
->
+Joonyoung Shim wrote:
+> 
+> This patch adds samsung keypad device definition for samsung cpus.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
+>  arch/arm/plat-samsung/Kconfig                    |    7 ++-
+>  arch/arm/plat-samsung/Makefile                   |    1 +
+>  arch/arm/plat-samsung/dev-keypad.c               |   50
+> +++++++++++++++++++
+>  arch/arm/plat-samsung/include/plat/devs.h        |    2 +
+>  arch/arm/plat-samsung/include/plat/keypad.h      |   57
+> ++++++++++++++++++++++
+>  arch/arm/plat-samsung/include/plat/regs-keypad.h |   49
++++++++++++++++++++
+>  6 files changed, 165 insertions(+), 1 deletions(-)
+>  create mode 100644 arch/arm/plat-samsung/dev-keypad.c
+>  create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
+>  create mode 100644 arch/arm/plat-samsung/include/plat/regs-keypad.h
+> 
+> diff --git a/arch/arm/plat-samsung/Kconfig b/arch/arm/plat-samsung/Kconfig
+> index 2753fb3..3ef2df7 100644
+> --- a/arch/arm/plat-samsung/Kconfig
+> +++ b/arch/arm/plat-samsung/Kconfig
+> @@ -225,7 +225,12 @@ config S3C64XX_DEV_SPI
+>  config SAMSUNG_DEV_TS
+>  	bool
+>  	help
+> -	    Common in platform device definitions for touchscreen device
+> +	  Common in platform device definitions for touchscreen device
+> +
 
-I totally agree, thus my previous message.  This submitted patch is no
-longer relevant.
+Above changing is not for keypad.
 
-- Cory
+> +config SAMSUNG_DEV_KEYPAD
+> +	bool
+> +	help
+> +	  Compile in platform device definitions for keypad
+> 
+>  # DMA
+> 
+> diff --git a/arch/arm/plat-samsung/Makefile
+b/arch/arm/plat-samsung/Makefile
+> index 228c2ad..ef00c47 100644
+> --- a/arch/arm/plat-samsung/Makefile
+> +++ b/arch/arm/plat-samsung/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_S3C_DEV_RTC)	+= dev-rtc.o
+> 
+>  obj-$(CONFIG_SAMSUNG_DEV_ADC)	+= dev-adc.o
+>  obj-$(CONFIG_SAMSUNG_DEV_TS)	+= dev-ts.o
+> +obj-$(CONFIG_SAMSUNG_DEV_KEYPAD)	+= dev-keypad.o
+> 
+>  # DMA support
+> 
+> diff --git a/arch/arm/plat-samsung/dev-keypad.c
+b/arch/arm/plat-samsung/dev-
+> keypad.c
+> new file mode 100644
+> index 0000000..70e2e2d
+> --- /dev/null
+> +++ b/arch/arm/plat-samsung/dev-keypad.c
+> @@ -0,0 +1,50 @@
+> +/*
+> + * linux/arch/arm/plat-samsung/dev-keypad.c
+> + *
+> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify
+it
+> + *  under  the terms of  the GNU General  Public License as published by
+the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at
+your
+> + *  option) any later version.
+> + *
+> + */
+> +
+> +#include <linux/platform_device.h>
+> +#include <mach/irqs.h>
+> +#include <mach/map.h>
+> +#include <plat/cpu.h>
+> +#include <plat/devs.h>
+> +#include <plat/keypad.h>
+> +
+> +static struct resource samsung_kp_resources[] = {
+
+How about samsung_keypad_resources easily to reading?
+
+> +	[0] = {
+> +		.start	= SAMSUNG_PA_KEYPAD,
+> +		.end	= SAMSUNG_PA_KEYPAD + 0x20 - 1,
+> +		.flags	= IORESOURCE_MEM,
+> +	},
+> +	[1] = {
+> +		.start	= IRQ_KEYPAD,
+> +		.end	= IRQ_KEYPAD,
+> +		.flags	= IORESOURCE_IRQ,
+> +	},
+> +};
+> +
+> +struct platform_device samsung_device_keypad = {
+> +	.name		= "samsung-keypad",
+> +	.id		= -1,
+> +	.num_resources	= ARRAY_SIZE(samsung_kp_resources),
+> +	.resource	= samsung_kp_resources,
+> +};
+> +
+> +void __init samsung_kp_set_platdata(struct samsung_kp_platdata *pd)
+> +{
+> +	struct samsung_kp_platdata *npd;
+> +
+> +	npd = s3c_set_platdata(pd, sizeof(struct samsung_kp_platdata),
+> +			&samsung_device_keypad);
+> +
+> +	if (!npd->cfg_gpio)
+> +		npd->cfg_gpio = samsung_keypad_cfg_gpio;
+> +}
+> diff --git a/arch/arm/plat-samsung/include/plat/devs.h b/arch/arm/plat-
+> samsung/include/plat/devs.h
+> index 6760999..c06386b 100644
+> --- a/arch/arm/plat-samsung/include/plat/devs.h
+> +++ b/arch/arm/plat-samsung/include/plat/devs.h
+> @@ -100,6 +100,8 @@ extern struct platform_device s5pc100_device_iis0;
+>  extern struct platform_device s5pc100_device_iis1;
+>  extern struct platform_device s5pc100_device_iis2;
+> 
+> +extern struct platform_device samsung_device_keypad;
+> +
+>  /* s3c2440 specific devices */
+> 
+>  #ifdef CONFIG_CPU_S3C2440
+> diff --git a/arch/arm/plat-samsung/include/plat/keypad.h b/arch/arm/plat-
+> samsung/include/plat/keypad.h
+> new file mode 100644
+> index 0000000..d144f42
+> --- /dev/null
+> +++ b/arch/arm/plat-samsung/include/plat/keypad.h
+> @@ -0,0 +1,57 @@
+> +/*
+> + * linux/arch/arm/plat-samsung/include/plat/keypad.h
+> + *
+> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + * Samsung Platform - Keypad platform data definitions
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify
+it
+> + *  under  the terms of  the GNU General  Public License as published by
+the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at
+your
+> + *  option) any later version.
+> + *
+> + */
+> +
+> +#ifndef __PLAT_SAMSUNG_KEYPAD_H
+> +#define __PLAT_SAMSUNG_KEYPAD_H
+> +
+> +#include <linux/input/matrix_keypad.h>
+> +
+> +#define SAMSUNG_MAX_ROWS	8
+> +#define SAMSUNG_MAX_COLS	8
+
+Is the MAX really 8?
+
+S5PV210 & S5PC110 has 2 slots supporting 14 rows * 8 columns and 8 rows * 8
+columns.
+
+So just SAMSUNG_KEYPAD_ROWS is 8.
+
+> +
+> +/**
+> + * struct samsung_kp_platdata() - Platform device data for Samsung Keypad
+> + * @keymap_data: pointer to &matrix_keymap_data
+> + * @rows: number of keypad row supported.
+> + * @cols: number of keypad col supported.
+> + * @rep: flag for repeat setting.
+> + * @cfg_gpio: configure the GPIO.
+> + *
+> + * Initialisation data specific to either the machine or the platform
+> + * for the device driver to use or call-back when configuring gpio.
+> + */
+> +struct samsung_kp_platdata {
+> +	const struct matrix_keymap_data	*keymap_data;
+> +	unsigned int		rows;
+> +	unsigned int		cols;
+> +	unsigned int		rep;
+> +
+> +	void	(*cfg_gpio)(unsigned int rows, unsigned int cols);
+> +};
+> +
+> +/**
+> + * samsung_kp_set_platdata - Set platform data for Samsung Keypad device.
+> + * @pd: Platform data to register to device.
+> + *
+> + * Register the given platform data for use with Samsung Keypad device.
+> + * The call will copy the platform data, so the board definitions can
+> + * make the structure itself __initdata.
+> + */
+> +extern void samsung_kp_set_platdata(struct samsung_kp_platdata *pd);
+> +
+> +/* defined by architecture to configure gpio */
+> +extern void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int cols);
+> +
+> +#endif /* __PLAT_SAMSUNG_KEYPAD_H */
+> diff --git a/arch/arm/plat-samsung/include/plat/regs-keypad.h
+b/arch/arm/plat-
+> samsung/include/plat/regs-keypad.h
+> new file mode 100644
+> index 0000000..1a8c046
+> --- /dev/null
+> +++ b/arch/arm/plat-samsung/include/plat/regs-keypad.h
+> @@ -0,0 +1,49 @@
+> +/*
+> + * linux/arch/arm/plat-samsung/include/plat/regs-keypad.h
+> + *
+> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify
+it
+> + *  under  the terms of  the GNU General  Public License as published by
+the
+> + *  Free Software Foundation;  either version 2 of the  License, or (at
+your
+> + *  option) any later version.
+> + *
+> + */
+> +
+> +#ifndef __SAMSUNG_KEYPAD_H__
+> +#define __SAMSUNG_KEYPAD_H__
+> +
+> +#define SAMSUNG_KEYIFCON	0x00
+> +#define SAMSUNG_KEYIFSTSCLR	0x04
+> +#define SAMSUNG_KEYIFCOL	0x08
+> +#define SAMSUNG_KEYIFROW	0x0c
+> +#define SAMSUNG_KEYIFFC		0x10
+> +
+> +/* SAMSUNG_KEYIFCON */
+> +#define SAMSUNG_INT_F_EN	(1 << 0)
+> +#define SAMSUNG_INT_R_EN	(1 << 1)
+> +#define SAMSUNG_DF_EN		(1 << 2)
+> +#define SAMSUNG_FC_EN		(1 << 3)
+> +#define SAMSUNG_WAKEUPEN	(1 << 4)
+
+Needs KEYIF in the definition name for avoid confusing.
+
+> +
+> +/* SAMSUNG_KEYIFSTSCLR */
+> +#define SAMSUNG_P_INT_MASK	(0xff << 0)
+> +#define SAMSUNG_R_INT_MASK	(0xff << 8)
+> +#define SAMSUNG_R_INT_OFFSET	8
+> +#define S5PV210_P_INT_MASK	(0x3fff << 0)
+> +#define S5PV210_R_INT_MASK	(0x3fff << 16)
+> +#define S5PV210_R_INT_OFFSET	16
+> +
+> +/* SAMSUNG_KEYIFCOL */
+> +#define SAMSUNG_KEYIFCOL_MASK	(0xff << 0)
+> +#define S5PV210_KEYIFCOLEN_MASK (0xff << 8)
+> +
+> +/* SAMSUNG_KEYIFROW */
+> +#define SAMSUNG_KEYIFROW_MASK	(0xff << 0)
+> +#define S5PV210_KEYIFROW_MASK	(0x3fff << 0)
+> +
+> +/* SAMSUNG_KEYIFFC */
+> +#define SAMSUNG_KEYIFFC_MASK	(0x3ff << 0)
+> +
+> +#endif /* __SAMSUNG_KEYPAD_H__ */
+> --
+> 1.7.0.4
+
+
+Thanks.
+
+Best regards,
+Kgene.
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+SW Solution Development Team, Samsung Electronics Co., Ltd.
+

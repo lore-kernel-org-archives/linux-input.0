@@ -1,57 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
-Date: Mon, 31 May 2010 12:09:12 -0700
-Message-ID: <20100531190911.GC30712@core.coreip.homeip.net>
-References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
+Subject: Re: [patch 2/2] input/tps6507x-ts: zero vs NULL
+Date: Mon, 31 May 2010 12:10:29 -0700
+Message-ID: <20100531191029.GD30712@core.coreip.homeip.net>
+References: <20100531120215.GS5483@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f185.google.com ([209.85.222.185]:42482 "EHLO
-	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753093Ab0EaTJW (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:51889 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757218Ab0EaTKe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 15:09:22 -0400
+	Mon, 31 May 2010 15:10:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
+In-Reply-To: <20100531120215.GS5483@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, George Joseph <george.joseph@fairview5.com>, Riku Voipio <riku.voipio@iki.fi>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@ipvvis.unipv.it>, Richard Purdie <rpurdie@rpsys.net>, Colin Leroy <colin@colino.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Paul Gortmaker <p_gortmaker@yahoo.com>, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@suse.de>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-media@vger.kernel.org
+To: Dan Carpenter <error27@gmail.com>, Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-j
 
-Hi Wolfram,
+On Mon, May 31, 2010 at 02:02:15PM +0200, Dan Carpenter wrote:
+> This patch silences a sparse warning:
+> 
+> drivers/input/touchscreen/tps6507x-ts.c:345:19:
+> 	warning: Using plain integer as NULL pointer
+> drivers/input/touchscreen/tps6507x-ts.c:367:19:
+> 	warning: Using plain integer as NULL pointer
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> 
+> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+> index b99db09..1e57e4e 100644
+> --- a/drivers/input/touchscreen/tps6507x-ts.c
+> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+> @@ -342,7 +342,7 @@ err2:
+>  	cancel_delayed_work(&tsc->work);
+>  	flush_workqueue(tsc->wq);
+>  	destroy_workqueue(tsc->wq);
+> -	tsc->wq = 0;
+> +	tsc->wq = NULL;
+>  	input_free_device(input_dev);
+>  err1:
+>  	kfree(tsc);
+> @@ -364,7 +364,7 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
+>  	cancel_delayed_work(&tsc->work);
+>  	flush_workqueue(tsc->wq);
 
-On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
-> I2C-drivers can use the clientdata-pointer to point to private data. As I2C
-> devices are not really unregistered, but merely detached from their driver, it
-> used to be the drivers obligation to clear this pointer during remove() or a
-> failed probe(). As a couple of drivers forgot to do this, it was agreed that it
-> was cleaner if the i2c-core does this clearance when appropriate, as there is
-> no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
-> This feature was added to the core with commit
-> e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
-> 
-> As there is no need anymore to clear the clientdata-pointer, remove all current
-> occurrences in the drivers to simplify the code and prevent confusion.
-> 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> Cc: Jean Delvare <khali@linux-fr.org>
-> ---
-> 
-> Some more notes:
-> 
-> I waited for rc1 as I knew there were some drivers/patches coming along which
-> needed to be processed, too.
-> 
-> I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
-> once.
-> 
+Why isn't it cancel_delayed_work_sync()?
 
-Frankly I'd prefer taking input stuff through my tree with the goal of
-.36 merge window just to minimize potential merge issues. This is a
-simple cleanup patch that has no dependencies, so there is little gain
-from doing it all in one go.
+>  	destroy_workqueue(tsc->wq);
+> -	tsc->wq = 0;
+> +	tsc->wq = NULL;
+>  
 
-Thanks.
+Setting tsc to 0/NULL does not make much sense as it is being freed a
+couple of lines below.
+
+>  	input_free_device(input_dev);
+>  
 
 -- 
 Dmitry

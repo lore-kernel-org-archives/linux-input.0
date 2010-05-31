@@ -1,71 +1,46 @@
-From: Jindrich Makovicka <makovick@gmail.com>
-Subject: Re: [PATCH] HID: check for HID_QUIRK_IGNORE during probing
-Date: Mon, 31 May 2010 10:01:14 +0200
-Message-ID: <20100531100114.0c808b91@holly>
-References: <20100523204725.6e9e8dad@holly>
-	<20100525225323.134b2c00@holly>
-	<1274827262.27274.19170.camel@localhost.localdomain>
-	<20100526082423.627f8cac@holly>
+From: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+Subject: Re: [PATCH v4 1/2] input: touchscreen: introduce tsc2005 driver
+Date: Mon, 31 May 2010 11:38:05 +0300
+Message-ID: <20100531083805.GC5272@zero.research.nokia.com>
+References: <1271688664-21525-1-git-send-email-aaro.koskinen@nokia.com>
+ <4C0366F2.5030805@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lo.gmane.org ([80.91.229.12]:55866 "EHLO lo.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753552Ab0EaIBf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 04:01:35 -0400
-Received: from list by lo.gmane.org with local (Exim 4.69)
-	(envelope-from <glki-linux-input-2@m.gmane.org>)
-	id 1OIzw9-0002Aa-SB
-	for linux-input@vger.kernel.org; Mon, 31 May 2010 10:01:29 +0200
-Received: from 84.42.166.196 ([84.42.166.196])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Mon, 31 May 2010 10:01:29 +0200
-Received: from makovick by 84.42.166.196 with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Mon, 31 May 2010 10:01:29 +0200
-In-Reply-To: <20100526082423.627f8cac@holly>
+Received: from smtp.nokia.com ([192.100.122.230]:64343 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754847Ab0EaIli (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 May 2010 04:41:38 -0400
+Content-Disposition: inline
+In-Reply-To: <4C0366F2.5030805@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: "Quadros Roger (Nokia-D/Helsinki)" <roger.quadros@nokia.com>
+Cc: "Koskinen Aaro (Nokia-D/Helsinki)" <aaro.koskinen@nokia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, David Brownell <dbrownell@users.sourceforge.net>, "Carmody Phil.2 (EXT-Ixonos/Helsinki)" <ext-phil.2.carmody@nokia.com>, "Deak Imre (Nokia-D/Helsinki)" <imre.deak@nokia.com>, "Doyu Hiroshi (Nokia-D/Helsinki)" <hiroshi.doyu@nokia.com>, "Kauppi Ari (EXT-Ixonos/Oulu)" <ext-ari.kauppi@nokia.com>, Tony Lindgren <tony@atomide.com>, Jarkko Nikula <jhnikula@gmail.com>, "Nurkkala Eero.An (EXT-Offcode/Oulu)" <ext-Eero.Nurkkala@nokia.com>, "Tereshonkov Roman (Nokia-D/Helsinki)" <roman.tereshonkov@nokia.com>
 
-On Wed, 26 May 2010 08:24:23 +0200
-Jindrich Makovicka <makovick@gmail.com> wrote:
-
-> On Tue, 25 May 2010 23:41:02 +0100
-> Bastien Nocera <hadess@hadess.net> wrote:
+On 31/05/10 09:36 +0200, Quadros Roger (Nokia-D/Helsinki) wrote:
+> Hi,
 > 
-> > On Tue, 2010-05-25 at 22:53 +0200, Jindrich Makovicka wrote:
-> > > Updated to current git:
-> > > 
-> > > --- hid-core.c.orig	2010-05-25 22:04:58.000000000 +0200
-> > > +++ hid-core.c	2010-05-25 22:08:53.791241376 +0200
-> > > @@ -1759,7 +1759,8 @@
-> > >  
-> > >  	/* we need to kill them here, otherwise they will stay
-> > > allocated to
-> > >  	 * wait for coming driver */
-> > > -	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE) &&
-> > > hid_ignore(hdev))
-> > > +	if (!(hdev->quirks & HID_QUIRK_NO_IGNORE)
-> > > +            && (hid_ignore(hdev) || (hdev->quirks &
-> > > HID_QUIRK_IGNORE))) return -ENODEV;
-> > >  
-> > >  	/* XXX hack, any other cleaner solution after the driver
-> > > core
-> > 
-> > Wouldn't that mean that a device with HID_QUIRK_IGNORE for which we
-> > pass HID_QUIRK_NO_IGNORE, would still be ignored?
+> It seems this patch is just hanging out in the air since quite long.
 > 
-> With HID_QUIRK_NO_IGNORE, the whole expression will be FALSE, and the 
-> part after && wouldn't be even evaluated in both current and patched
-> version. So, NO_IGNORE takes precedence over IGNORE.
-> 
+> Can Tony or Dmitry please pick this?
 
-Ping?
+I wouldn't mind if one of the listed authors adopted this patch, I've had
+nothing to do with it in the last two and a half years.
 
--- 
-Jindrich Makovicka
+/lauri
 
+> > Signed-off-by: Lauri Leukkunen <lauri.leukkunen@nokia.com>
+> > [aaro.koskinen@nokia.com: patch description, rebasing & cleanup]
+> > Signed-off-by: Aaro Koskinen <aaro.koskinen@nokia.com>
+> > Cc: David Brownell <dbrownell@users.sourceforge.net>
+> > Cc: Phil Carmody <ext-phil.2.carmody@nokia.com>
+> > Cc: Imre Deak <imre.deak@nokia.com>
+> > Cc: Hiroshi DOYU <Hiroshi.DOYU@nokia.com>
+> > Cc: Ari Kauppi <Ext-Ari.Kauppi@nokia.com>
+> > Cc: Tony Lindgren <tony@atomide.com>
+> > Cc: Jarkko Nikula <jhnikula@gmail.com>
+> > Cc: Eero Nurkkala <ext-eero.nurkkala@nokia.com>
+> > Cc: Roman Tereshonkov <roman.tereshonkov@nokia.com>
 

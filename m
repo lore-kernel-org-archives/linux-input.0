@@ -1,64 +1,54 @@
-From: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
-Date: Mon, 31 May 2010 22:48:32 +0100
-Message-ID: <1275342512.24079.1559.camel@rex>
-References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
-	<20100531190911.GC30712@core.coreip.homeip.net>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [PATCH] input: Tone down logging from S3C touchscreen driver
+Date: Tue, 1 Jun 2010 00:19:58 +0100
+Message-ID: <20100531231958.GS4720@trinity.fluff.org>
+References: <1275328371-32066-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20100531190911.GC30712@core.coreip.homeip.net>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Sender: devel-bounces@linuxdriverproject.org
-Errors-To: devel-bounces@linuxdriverproject.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Alessandro Rubini <rubini@cvml.unipv.it>, Samuel Ortiz <sameo@linux.intel.com>, lm-sensors@lm-sensors.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Paul Gortmaker <p_gortmaker@yahoo.com>, devel@driverdev.osuosl.org, rtc-linux@googlegroups.com, Riku Voipio <riku.voipio@iki.fi>, Mauro Carvalho Chehab <mchehab@infradead.org>, Jean Delvare <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Alessandro Zummo <a.zummo@towertech.it>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, George Joseph <george.joseph@fairview5.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, Colin Leroy <colin@co>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from trinity.fluff.org ([89.16.178.74]:52743 "EHLO trinity.fluff.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753909Ab0EaXUB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 31 May 2010 19:20:01 -0400
+Content-Disposition: inline
+In-Reply-To: <1275328371-32066-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2010-05-31 at 12:09 -0700, Dmitry Torokhov wrote:
-> On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
-> > I2C-drivers can use the clientdata-pointer to point to private data. As I2C
-> > devices are not really unregistered, but merely detached from their driver, it
-> > used to be the drivers obligation to clear this pointer during remove() or a
-> > failed probe(). As a couple of drivers forgot to do this, it was agreed that it
-> > was cleaner if the i2c-core does this clearance when appropriate, as there is
-> > no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
-> > This feature was added to the core with commit
-> > e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
-> > 
-> > As there is no need anymore to clear the clientdata-pointer, remove all current
-> > occurrences in the drivers to simplify the code and prevent confusion.
-> > 
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> > Cc: Jean Delvare <khali@linux-fr.org>
-> > ---
-> > 
-> > Some more notes:
-> > 
-> > I waited for rc1 as I knew there were some drivers/patches coming along which
-> > needed to be processed, too.
-> > 
-> > I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
-> > once.
-> > 
+On Mon, May 31, 2010 at 06:52:51PM +0100, Mark Brown wrote:
+> The S3C touchscreen driver is logging at LOG_INFO on every stylus up
+> event which spams the console needlessly.  Reduce the priority of the
+> message to debug level for some peace and quiet.
 > 
-> Frankly I'd prefer taking input stuff through my tree with the goal of
-> .36 merge window just to minimize potential merge issues. This is a
-> simple cleanup patch that has no dependencies, so there is little gain
-> from doing it all in one go.
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Acekd-by: Ben Dooks <ben-linux@fluff.org>
+> ---
+>  drivers/input/touchscreen/s3c2410_ts.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+> index ac5d0f9..6085d12 100644
+> --- a/drivers/input/touchscreen/s3c2410_ts.c
+> +++ b/drivers/input/touchscreen/s3c2410_ts.c
+> @@ -173,7 +173,7 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
+>  	if (down)
+>  		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+>  	else
+> -		dev_info(ts.dev, "%s: count=%d\n", __func__, ts.count);
+> +		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
+>  
+>  	if (ts.features & FEAT_PEN_IRQ) {
+>  		/* Clear pen down/up interrupt */
+> -- 
+> 1.7.1
+> 
 
-How about asking Linus to take this one now, then its done and we can
-all move on rather than queuing up problems for the next merge window?
+-- 
+-- 
+Ben
 
-Acked-by: Richard Purdie <rpurdie@linux.intel.com>
+Q:      What's a light-year?
+A:      One-third less calories than a regular year.
 
-Cheers,
-
-Richard

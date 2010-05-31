@@ -1,43 +1,52 @@
-From: Anatolij Gustschin <agust@denx.de>
-Subject: Re: [PATCH 1/2] Input: ads7846 - allow specifying irq trigger type
- in platform data
-Date: Mon, 31 May 2010 21:28:20 +0200
-Message-ID: <20100531212820.322d5bfd@wker>
-References: <1272630181-5364-1-git-send-email-agust@denx.de>
+From: =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
+Subject: [PATCH 2/2] mx31moboard: Add MC13783 power button support
+Date: Mon, 31 May 2010 21:29:00 +0200
+Message-ID: <1275334140-29339-3-git-send-email-philippe.retornaz@epfl.ch>
+References: <1275334140-29339-1-git-send-email-philippe.retornaz@epfl.ch>
+	<1275334140-29339-2-git-send-email-philippe.retornaz@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:56620 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756893Ab0EaT2Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 15:28:25 -0400
-In-Reply-To: <1272630181-5364-1-git-send-email-agust@denx.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1275334140-29339-2-git-send-email-philippe.retornaz@epfl.ch>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: s.hauer@pengutronix.de
+Cc: linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, sameo@linux.intel.com, dmitry.torokhov@gmail.com, valentin.longchamp@epfl.ch, ext-jari.vanhala@nokia.com, u.kleine-koenig@pengutronix.de, =?utf-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
 
-Hi Dmitry,
-
-On Fri, 30 Apr 2010 14:23:00 +0200
-Anatolij Gustschin <agust@denx.de> wrote:
-
-> On some platforms, for example with GPIO interrupts
-> on mpc5121, it is not possible to configure falling edge
-> interrupts.
-> 
-> Specifying irq trigger type in platform data structure
-> allows using ads7846 driver on such platforms.
-> 
-> Signed-off-by: Anatolij Gustschin <agust@denx.de>
-> ---
->  drivers/input/touchscreen/ads7846.c |    5 ++++-
->  include/linux/spi/ads7846.h         |    1 +
->  2 files changed, 5 insertions(+), 1 deletions(-)
-
-Any comments on these patches?
-
-Thanks,
-Anatolij
+QWRkIHRoZSBwb3dlci1vbiBidXR0b24gb24gbXgzMW1vYm9hcmQgdXNpbmcgTUMxMzc4MyBQTUlD
+LgoKU2lnbmVkLW9mZi1ieTogUGhpbGlwcGUgUsOpdG9ybmF6IDxwaGlsaXBwZS5yZXRvcm5hekBl
+cGZsLmNoPgotLS0KIGFyY2gvYXJtL21hY2gtbXgzL21hY2gtbXgzMW1vYm9hcmQuYyB8ICAgMTAg
+KysrKysrKysrLQogMSBmaWxlcyBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25z
+KC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1teDMvbWFjaC1teDMxbW9ib2FyZC5jIGIv
+YXJjaC9hcm0vbWFjaC1teDMvbWFjaC1teDMxbW9ib2FyZC5jCmluZGV4IDYyYjVlNDAuLjdhOGYw
+NzggMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtbXgzL21hY2gtbXgzMW1vYm9hcmQuYworKysg
+Yi9hcmNoL2FybS9tYWNoLW14My9tYWNoLW14MzFtb2JvYXJkLmMKQEAgLTMxLDYgKzMxLDcgQEAK
+ICNpbmNsdWRlIDxsaW51eC9tZmQvbWMxMzc4My5oPgogI2luY2x1ZGUgPGxpbnV4L3NwaS9zcGku
+aD4KICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgorI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+CiAK
+ICNpbmNsdWRlIDxsaW51eC91c2Ivb3RnLmg+CiAjaW5jbHVkZSA8bGludXgvdXNiL3VscGkuaD4K
+QEAgLTI2MiwxMiArMjYzLDE5IEBAIHN0YXRpYyBzdHJ1Y3QgbWMxMzc4M19sZWRzX3BsYXRmb3Jt
+X2RhdGEgbW9ib2FyZF9sZWRzID0gewogCS50YzJfcGVyaW9kID0gTUMxMzc4M19MRURfUEVSSU9E
+XzEwTVMsCiB9OwogCitzdGF0aWMgc3RydWN0IG1jMTM3ODNfYnV0dG9uc19wbGF0Zm9ybV9kYXRh
+IG1vYm9hcmRfYnV0dG9ucyA9IHsKKwkuYjFvbl9mbGFncyA9IE1DMTM3ODNfQlVUVE9OX0RCTkNf
+NzUwTVMgfCBNQzEzNzgzX0JVVFRPTl9FTkFCTEUgfAorCQkJTUMxMzc4M19CVVRUT05fUE9MX0lO
+VkVSVCB8IE1DMTM3ODNfQlVUVE9OX0VNVUxfQ0FELAorCS5iMW9uX2tleSA9IEtFWV9QT1dFUiwK
+K307CisKIHN0YXRpYyBzdHJ1Y3QgbWMxMzc4M19wbGF0Zm9ybV9kYXRhIG1vYm9hcmRfcG1pYyA9
+IHsKIAkucmVndWxhdG9ycyA9IG1vYm9hcmRfcmVndWxhdG9ycywKIAkubnVtX3JlZ3VsYXRvcnMg
+PSBBUlJBWV9TSVpFKG1vYm9hcmRfcmVndWxhdG9ycyksCiAJLmxlZHMgPSAmbW9ib2FyZF9sZWRz
+LAorCS5idXR0b25zID0gJm1vYm9hcmRfYnV0dG9ucywKIAkuZmxhZ3MgPSBNQzEzNzgzX1VTRV9S
+RUdVTEFUT1IgfCBNQzEzNzgzX1VTRV9SVEMgfAotCQlNQzEzNzgzX1VTRV9BREMgfCBNQzEzNzgz
+X1VTRV9MRUQsCisJCU1DMTM3ODNfVVNFX0FEQyB8IE1DMTM3ODNfVVNFX0xFRCB8IE1DMTM3ODNf
+VVNFX0JVVFRPTiwKIH07CiAKIHN0YXRpYyBzdHJ1Y3Qgc3BpX2JvYXJkX2luZm8gbW9ib2FyZF9z
+cGlfYm9hcmRfaW5mb1tdIF9faW5pdGRhdGEgPSB7Ci0tIAoxLjYuMy4zCgoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWls
+aW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0
+cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=

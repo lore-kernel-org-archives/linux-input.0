@@ -1,72 +1,69 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch] input/tps6507x-ts: a couple work queue cleanups
-Date: Tue, 1 Jun 2010 17:27:45 +0200
-Message-ID: <20100601152744.GN5483@bicker>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [RFC] [PATCH v3 1/4] OMAP4: Keyboard controller support
+Date: Tue, 01 Jun 2010 10:45:56 -0700
+Message-ID: <87hblmbq97.fsf@deeprootsystems.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043E537F73@dlee03.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:61533 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755601Ab0FAP2E (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 11:28:04 -0400
-Content-Disposition: inline
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:63228 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756735Ab0FARqB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 13:46:01 -0400
+In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043E537F73@dlee03.ent.ti.com> (Abraham Arce's message of "Mon\, 31 May 2010 16\:44\:02 -0500")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: "Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-1) Use msecs_to_jiffies() instead of calculating by hand.
-2) Call cancel_delayed_work_sync() instead of cancel_delayed_work() 
-   followed by a separate flush_workqueue().
-3) Remove the "tsc->wq = 0;"  Sparse complains about that because
-   tsc->wq is a pointer, not an int.  It's not needed because we just
-   free the pointer anyway.
+"Arce, Abraham" <x0066660@ti.com> writes:
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+> OMAP4 keyboard controller includes:
+>   - built-in scanning algorithm
+>   - debouncing feature
+>
+> Driver implementation is based on matrix_keypac.c
+>
+> Signed-off-by: Syed Rafiuddin <rafiuddin.syed@ti.com>
+> Signed-off-by: Abraham Arce <x0066660@ti.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  arch/arm/plat-omap/include/plat/omap4-keypad.h |   23 ++
+>  drivers/input/keyboard/Kconfig                 |   10 +
+>  drivers/input/keyboard/Makefile                |    1 +
+>  drivers/input/keyboard/omap4-keypad.c          |  288 ++++++++++++++++++++++++
+>  4 files changed, 322 insertions(+), 0 deletions(-)
+>  create mode 100644 arch/arm/plat-omap/include/plat/omap4-keypad.h
+>  create mode 100644 drivers/input/keyboard/omap4-keypad.c
+>
+> diff --git a/arch/arm/plat-omap/include/plat/omap4-keypad.h b/arch/arm/plat-omap/include/plat/omap4-keypad.h
+> new file mode 100644
+> index 0000000..7a6ce70
+> --- /dev/null
+> +++ b/arch/arm/plat-omap/include/plat/omap4-keypad.h
+> @@ -0,0 +1,23 @@
+> +#ifndef ARCH_ARM_PLAT_OMAP4_KEYPAD_H
+> +#define ARCH_ARM_PLAT_OMAP4_KEYPAD_H
+> +
+> +#include <linux/input/matrix_keypad.h>
+> +
+> +struct omap4_keypad_platform_data {
+> +	const struct matrix_keymap_data *keymap_data;
+> +
+> +	u8 rows;
+> +	u8 cols;
+> +
+> +	u16 irq;
+> +	void __iomem *base;
+> +
+> +	int (*device_enable) (struct platform_device *pdev);
+> +	int (*device_shutdown) (struct platform_device *pdev);
+> +	int (*device_idle) (struct platform_device *pdev);
+> +};
 
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index 5de80a1..5b70a14 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -221,7 +221,7 @@ done:
- 
- 	if (poll) {
- 		schd = queue_delayed_work(tsc->wq, &tsc->work,
--					  tsc->poll_period * HZ / 1000);
-+					  msecs_to_jiffies(tsc->poll_period));
- 		if (schd)
- 			tsc->polling = 1;
- 		else {
-@@ -326,7 +326,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 		goto err2;
- 
- 	schd = queue_delayed_work(tsc->wq, &tsc->work,
--				  tsc->poll_period * HZ / 1000);
-+				  msecs_to_jiffies(tsc->poll_period));
- 
- 	if (schd)
- 		tsc->polling = 1;
-@@ -339,10 +339,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	return 0;
- 
- err2:
--	cancel_delayed_work(&tsc->work);
--	flush_workqueue(tsc->wq);
-+	cancel_delayed_work_sync(&tsc->work);
- 	destroy_workqueue(tsc->wq);
--	tsc->wq = 0;
- 	input_free_device(input_dev);
- err1:
- 	kfree(tsc);
-@@ -360,10 +358,8 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
- 	if (!tsc)
- 		return 0;
- 
--	cancel_delayed_work(&tsc->work);
--	flush_workqueue(tsc->wq);
-+	cancel_delayed_work_sync(&tsc->work);
- 	destroy_workqueue(tsc->wq);
--	tsc->wq = 0;
- 
- 	input_free_device(input_dev);
- 
+Abraham,
+
+Please drop these from this driver.  First, they are not used in the driver,
+and 2nd, new drivers should use the runtime PM API for this as needed.
+
+Kevin

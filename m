@@ -1,23 +1,69 @@
-From: Joshua.Roche@warwick.ac.uk
-Subject: Your Mail-ID has been given
- =?iso-8859-1?Q?=A3500=2C000_GBP_in_our_Uk_Online_promo.send_your?=
-Date: Tue, 1 Jun 2010 01:16:12 +0100
-Message-ID: <6a66c62223398116812f72d4df672f02.squirrel@smail.warwick.ac.uk>
-Reply-To: gloriawilson2010@hotmail.com
+From: Felipe Balbi <felipe.balbi@nokia.com>
+Subject: Re: [RFC] [PATCH v3 1/4] OMAP4: Keyboard controller support
+Date: Tue, 1 Jun 2010 07:43:19 +0300
+Message-ID: <20100601044318.GA13883@nokia.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043E537F73@dlee03.ent.ti.com>
+Reply-To: felipe.balbi@nokia.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-relay-3.csv.warwick.ac.uk ([137.205.128.9]:37540 "EHLO
-	mail-relay-3.csv.warwick.ac.uk" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752735Ab0FACOE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 May 2010 22:14:04 -0400
+Received: from smtp.nokia.com ([192.100.105.134]:28130 "EHLO
+	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751338Ab0FAEnv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 00:43:51 -0400
+Content-Disposition: inline
+In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043E537F73@dlee03.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "ext Arce, Abraham" <x0066660@ti.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
+On Mon, May 31, 2010 at 11:44:02PM +0200, ext Arce, Abraham wrote:
+>diff --git a/arch/arm/plat-omap/include/plat/omap4-keypad.h b/arch/arm/plat-omap/include/plat/omap4-keypad.h
+>new file mode 100644
+>index 0000000..7a6ce70
+>--- /dev/null
+>+++ b/arch/arm/plat-omap/include/plat/omap4-keypad.h
+>@@ -0,0 +1,23 @@
+>+#ifndef ARCH_ARM_PLAT_OMAP4_KEYPAD_H
+>+#define ARCH_ARM_PLAT_OMAP4_KEYPAD_H
+>+
+>+#include <linux/input/matrix_keypad.h>
+>+
+>+struct omap4_keypad_platform_data {
+>+       const struct matrix_keymap_data *keymap_data;
+>+
+>+       u8 rows;
+>+       u8 cols;
 
-1.Names............
-2.Address........
-3.Country.........
-4Occupation...
+rows and cols should be passed by struct matryx_keymap_data
+
+>+       u16 irq;
+>+       void __iomem *base;
+
+base and irq are to be passed by struct resource
+
+>+       int (*device_enable) (struct platform_device *pdev);
+>+       int (*device_shutdown) (struct platform_device *pdev);
+>+       int (*device_idle) (struct platform_device *pdev);
+
+why are you passing these three here ?? I would expect those to be 
+driver specific not board specific.
+
+>+       error = request_irq(keypad_data->irq, omap4_keypad_interrupt,
+>+                            IRQF_TRIGGER_FALLING,
+>+                            "omap4-keypad", keypad_data);
+>+       if (error) {
+>+               dev_err(&pdev->dev, "failed to register interrupt\n");
+>+               goto err_free_input;
+>+       }
+>+
+>+       error = input_register_device(keypad_data->input);
+
+register the input device before enabling the irq line please, you might 
+end up with 'spurious' irqs happening during probe otherwise.
+
+-- 
+balbi
+
+DefectiveByDesign.org

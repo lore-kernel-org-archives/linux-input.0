@@ -1,54 +1,23 @@
-From: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Subject: Re: question about v4l2_subdev
-Date: Tue, 01 Jun 2010 10:14:53 +0200
-Message-ID: <4C04C17D.8020702@atmel.com>
-References: <4C03D80B.5090009@atmel.com> <1275329947.2261.19.camel@localhost>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [RFC ] [PATCH  V2  2/2] Platform changes for CMA3000
+Date: Tue, 1 Jun 2010 11:35:54 +0300
+Message-ID: <20100601083550.GF841@atomide.com>
+References: <15504.10.24.255.17.1274424784.squirrel@dbdmail.itg.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from newsmtp5.atmel.com ([204.2.163.5]:54799 "EHLO
-	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755166Ab0FAIPI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 04:15:08 -0400
-In-Reply-To: <1275329947.2261.19.camel@localhost>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <15504.10.24.255.17.1274424784.squirrel@dbdmail.itg.ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Hemanth V <hemanthv@ti.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi,
+* Hemanth V <hemanthv@ti.com> [100521 09:49]:
+> From: Hemanth V <hemanthv@ti.com>
+> Date: Thu, 20 May 2010 20:33:03 +0530
+> Subject: [PATCH] Platform changes for CMA3000 Accelerometer driver
 
+Patch description? 
 
->
-> 1. Something first should call v4l2_device_register() on a v4l2_device
-> object.  (Typically there is only one v4l2_device object per "bridge"
-> chip between the PCI, PCIe, or USB bus and the subdevices, even if that
-> bridge chip has more than one I2C master implementation.)
->
-> 2. Then, for subdevices connected to the bridge chip via I2C, something
-> needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as one
-> of the arguments, to get back a v4l2_subdevice instance pointer.
->
-> 3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as one of
-> the arguments can be used to invoke the subdevice methods.
->
-> TV Video capture drivers do this work themselves.  Drivers using a
-> camera framework may have the framework doing some of the work for them.
->
->
-> Regards,
-> Andy
->
->
->
-
-
-Is there a sensor driver which is using this method?
-
-To write the ov2640 driver I have just copied the ov7670.c file, and I 
-didn't find the v4l2_i2c_new_subdev in it...
-
-Regards,
-Sedji
-
+Tony 

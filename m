@@ -1,32 +1,63 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
-Date: Tue, 1 Jun 2010 07:49:19 +0300
-Message-ID: <20100601044919.GD13883@nokia.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
- <20100601044734.GB13883@nokia.com>
-Reply-To: felipe.balbi@nokia.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers: remove all i2c_set_clientdata(client, NULL)
+Date: Mon, 31 May 2010 22:05:39 -0700
+Message-ID: <20100601050538.GA7391@core.coreip.homeip.net>
+References: <1275310552-14685-1-git-send-email-w.sang@pengutronix.de>
+ <20100531190911.GC30712@core.coreip.homeip.net>
+ <1275342512.24079.1559.camel@rex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:26505 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751577Ab0FAEuB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 00:50:01 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100601044734.GB13883@nokia.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1275342512.24079.1559.camel@rex>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, George Joseph <george.joseph@fairview5.com>, Riku Voipio <riku.voipio@iki.fi>, Guillaume Ligneul <guillaume.ligneul@gmail.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@cvml.unipv.it>, Colin Leroy <colin@colino.net>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Samuel Ortiz <sameo@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, David Woodhouse <dwmw2@infradead.org>, Liam Girdwood <lrg@slimlogic.co.uk>, Paul Gortmaker <p_gortmaker@yahoo.com>, Alessandro Zummo <a.zummo@towertech.it>, Greg Kroah-Hartman <gregkh@suse.de>, lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Balbi Felipe (Nokia-D/Helsinki)" <felipe.balbi@nokia.com>
-Cc: "ext Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-On Tue, Jun 01, 2010 at 06:47:34AM +0200, Balbi Felipe (Nokia-D/Helsinki) wrote:
->>+	pdata->device_enable = omap_device_enable;
->
->this is undefined at least here or previous patch.
+On Mon, May 31, 2010 at 10:48:32PM +0100, Richard Purdie wrote:
+> On Mon, 2010-05-31 at 12:09 -0700, Dmitry Torokhov wrote:
+> > On Mon, May 31, 2010 at 02:55:48PM +0200, Wolfram Sang wrote:
+> > > I2C-drivers can use the clientdata-pointer to point to private data. As I2C
+> > > devices are not really unregistered, but merely detached from their driver, it
+> > > used to be the drivers obligation to clear this pointer during remove() or a
+> > > failed probe(). As a couple of drivers forgot to do this, it was agreed that it
+> > > was cleaner if the i2c-core does this clearance when appropriate, as there is
+> > > no guarantee for the lifetime of the clientdata-pointer after remove() anyhow.
+> > > This feature was added to the core with commit
+> > > e4a7b9b04de15f6b63da5ccdd373ffa3057a3681 to fix the faulty drivers.
+> > > 
+> > > As there is no need anymore to clear the clientdata-pointer, remove all current
+> > > occurrences in the drivers to simplify the code and prevent confusion.
+> > > 
+> > > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> > > Cc: Jean Delvare <khali@linux-fr.org>
+> > > ---
+> > > 
+> > > Some more notes:
+> > > 
+> > > I waited for rc1 as I knew there were some drivers/patches coming along which
+> > > needed to be processed, too.
+> > > 
+> > > I'd suggest that this goes via the i2c-tree, so we get rid of all occurences at
+> > > once.
+> > > 
+> > 
+> > Frankly I'd prefer taking input stuff through my tree with the goal of
+> > .36 merge window just to minimize potential merge issues. This is a
+> > simple cleanup patch that has no dependencies, so there is little gain
+> > from doing it all in one go.
+> 
+> How about asking Linus to take this one now, then its done and we can
+> all move on rather than queuing up problems for the next merge window?
+> 
 
-or does it come from omap_device layers ??
+That should work.
+
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
+
+> Acked-by: Richard Purdie <rpurdie@linux.intel.com>
+> 
 
 -- 
-balbi
-
-DefectiveByDesign.org
+Dmitry

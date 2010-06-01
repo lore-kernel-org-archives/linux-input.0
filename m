@@ -1,95 +1,482 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH] input: fix error at the default input_get_keycode call
-Date: Tue, 01 Jun 2010 19:13:28 -0300
-Message-ID: <4C058608.8000107@redhat.com>
-References: <4BF4C0D6.9030808@redhat.com>            <9427.1274377906@localhost> <48947.1275332484@localhost>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/3] input: add STMPExxxx keypad driver
+Date: Tue, 1 Jun 2010 15:16:11 -0700
+Message-ID: <20100601221611.GB17468@core.coreip.homeip.net>
+References: <1275308236-1775-1-git-send-email-rabin.vincent@stericsson.com>
+ <1275308236-1775-3-git-send-email-rabin.vincent@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58542 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754551Ab0FAWNU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Jun 2010 18:13:20 -0400
-In-Reply-To: <48947.1275332484@localhost>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:64434 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754551Ab0FAWQV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 18:16:21 -0400
+Content-Disposition: inline
+In-Reply-To: <1275308236-1775-3-git-send-email-rabin.vincent@stericsson.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Valdis.Kletnieks@vt.edu
-Cc: Linux Media Mailing List <linux-media@vger.kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Rabin Vincent <rabin.vincent@stericsson.com>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@stericsson.com>
 
-Hi Valdis,
+Hi Rabin,
 
-Em 31-05-2010 16:01, Valdis.Kletnieks@vt.edu escreveu:
-> On Thu, 20 May 2010 13:51:46 EDT, Valdis.Kletnieks@vt.edu said:
+Looks like a nice driver, just a couple of comments...
+
+On Mon, May 31, 2010 at 05:47:16PM +0530, Rabin Vincent wrote:
+> Add an input driver for the keypad on STMPExxxx I/O expanders.  This
+> driver uses the common support provided by the STMPE MFD driver.
 > 
-> *ping*?  Still broken in a linux-next pull I did about an hour ago.  The
-> patch fixed one oops, but it just died a little further down - I'm guessing
-> it missed a case?
-
-Sorry, -ETOOMUCHWORK
-
-I've removed the offended patches from my linux-next tree for now. I'll do
-more tests on it and provide a a fix for it soon. I've created a separate
-branch for the input changes at:
-
-	http://git.linuxtv.org/v4l-dvb.git?a=shortlog;h=refs/heads/staging/input
-
+> Cc: linux-input@vger.kernel.org
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Acked-by: Linus Walleij <linus.walleij@stericsson.com>
+> Signed-off-by: Rabin Vincent <rabin.vincent@stericsson.com>
+> ---
+>  drivers/input/keyboard/Kconfig        |   10 +
+>  drivers/input/keyboard/Makefile       |    1 +
+>  drivers/input/keyboard/stmpe-keypad.c |  382 +++++++++++++++++++++++++++++++++
+>  3 files changed, 393 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/keyboard/stmpe-keypad.c
 > 
->>> input_default_getkeycode_from_index() returns the scancode at kt_entry.scancode
->>> pointer. Fill it with the scancode address at the function call.
->>>
->>> Thanks-to: Vladis Kletnieks <Valdis.Kletnieks@vt.edu> for pointing the issue
->>>
->>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
->>>
->>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>> index 3b63fad..7851d8e 100644
->>
->> Still dies, but in input_set_keycode() instead...
->>
->> [   35.294528] BUG: unable to handle kernel NULL pointer dereference at (null
-> )
->> [   35.295005] IP: [<(null)>] (null)
->> [   35.296935] PGD 11da3c067 PUD 11d4ad067 PMD 0 
->> [   35.296935] Oops: 0010 [#1] PREEMPT SMP 
->> [   35.299667] last sysfs file: /sys/devices/pci0000:00/0000:00:1a.7/usb1/idVendor
->> [   35.300328] CPU 0 
->> [   35.300328] Modules linked in:
->> [   35.300328] 
->> [   35.300328] Pid: 2481, comm: keymap Not tainted 2.6.34-mmotm0519 #1 0X564R/Latitude E6500                  
->> [   35.300328] RIP: 0010:[<0000000000000000>]  [<(null)>] (null)
->> [   35.300328] RSP: 0018:ffff88011d4d5cb0  EFLAGS: 00010046
->> [   35.310163] RAX: 0000000000000000 RBX: ffff88011c03e000 RCX: 0000000000000081
->> [   35.310163] RDX: ffff88011d4d5cc4 RSI: ffff88011d4d5cc8 RDI: ffff88011c03e000
->> [   35.310163] RBP: ffff88011d4d5d28 R08: ffff88011e9b28e8 R09: 0000000000000001
->> [   35.310163] R10: ffffffff81e0b160 R11: 0000000000000004 R12: 00000000000000a4
->> [   35.310163] R13: ffff88011c03e830 R14: 0000000000000286 R15: ffff88011d4d5cc8
->> [   35.310163] FS:  00007f4b86283700(0000) GS:ffff880002600000(0000) knlGS:0000000000000000
->> [   35.319397] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> [   35.319397] CR2: 0000000000000000 CR3: 000000011d575000 CR4: 00000000000406f0
->> [   35.319397] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->> [   35.319397] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
->> [   35.319397] Process keymap (pid: 2481, threadinfo ffff88011d4d4000, task ffff88011e9b28c0)
->> [   35.319397] Stack:
->> [   35.319397]  ffffffff813bf3d1 ffff88011d4d5cf8 0000008100000246 00000081000000a4
->> [   35.319397] <0> 0000000000000004 0000000000000000 ffff88011d4d5cc4 ffff88011cf11200
->> [   35.319397] <0> ffff88011c179000 ffff88011d4d5d28 0000000000000081 00007fff9ee21fa0
->> [   35.319397] Call Trace:
->> [   35.319397]  [<ffffffff813bf3d1>] ? input_set_keycode+0xad/0x12c
->> [   35.319397]  [<ffffffff813c231d>] evdev_do_ioctl+0x22b/0x79b
->> [   35.337913]  [<ffffffff815a4b04>] ? __mutex_lock_common+0x564/0x580
->> [   35.337913]  [<ffffffff813c28ca>] ? evdev_ioctl_handler+0x3d/0x80
->> [   35.341507]  [<ffffffff813c28ca>] ? evdev_ioctl_handler+0x3d/0x80
->> [   35.341507]  [<ffffffff813c28f0>] evdev_ioctl_handler+0x63/0x80
->> [   35.344034]  [<ffffffff813c292a>] evdev_ioctl+0xb/0xd
->> [   35.344034]  [<ffffffff810ea6cd>] vfs_ioctl+0x2d/0xa1
->> [   35.344034]  [<ffffffff810eac4c>] do_vfs_ioctl+0x494/0x4cd
->> [   35.344034]  [<ffffffff810eacdc>] sys_ioctl+0x57/0x95
->> [   35.344034]  [<ffffffff8100266b>] system_call_fastpath+0x16/0x1b
->> [   35.344034] Code:  Bad RIP value.
->> [   35.344034] RIP  [<(null)>] (null)
->> [   35.344034]  RSP <ffff88011d4d5cb0>
->> [   35.344034] CR2: 0000000000000000
->> [   35.357018] ---[ end trace 394fa5aa8a77b6f3 ]---
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index d8fa5d7..0e57fbc 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -374,6 +374,16 @@ config KEYBOARD_SH_KEYSC
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called sh_keysc.
+>  
+> +config KEYBOARD_STMPE
+> +	tristate "STMPExxxx keypad support"
+> +	depends on MFD_STMPE
+> +	help
+> +	  Say Y here if you want to use the keypad controller on STMPExxx I/O
+> +	  expanders.
+> +
+> +	  To compile this driver as a module, choose M here: the module will be
+> +	  called stmpe-keypad.
+> +
+>  config KEYBOARD_DAVINCI
+>  	tristate "TI DaVinci Key Scan"
+>  	depends on ARCH_DAVINCI_DM365
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index 4596d0c..af24b07 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -33,6 +33,7 @@ obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
+>  obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
+>  obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+>  obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
+> +obj-$(CONFIG_KEYBOARD_STMPE)		+= stmpe-keypad.o
+>  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+>  obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+>  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
+> new file mode 100644
+> index 0000000..98ae170
+> --- /dev/null
+> +++ b/drivers/input/keyboard/stmpe-keypad.c
+> @@ -0,0 +1,382 @@
+> +/*
+> + * Copyright (C) ST-Ericsson SA 2010
+> + *
+> + * License Terms: GNU General Public License, version 2
+> + * Author: Rabin Vincent <rabin.vincent@stericsson.com> for ST-Ericsson
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input/matrix_keypad.h>
+> +#include <linux/mfd/stmpe.h>
+> +
+> +/* These are at the same addresses in all STMPE variants */
+> +#define STMPE_KPC_COL			0x60
+> +#define STMPE_KPC_ROW_MSB		0x61
+> +#define STMPE_KPC_ROW_LSB		0x62
+> +#define STMPE_KPC_CTRL_MSB		0x63
+> +#define STMPE_KPC_CTRL_LSB		0x64
+> +#define STMPE_KPC_COMBI_KEY_0		0x65
+> +#define STMPE_KPC_COMBI_KEY_1		0x66
+> +#define STMPE_KPC_COMBI_KEY_2		0x67
+> +#define STMPE_KPC_DATA_BYTE0		0x68
+> +#define STMPE_KPC_DATA_BYTE1		0x69
+> +#define STMPE_KPC_DATA_BYTE2		0x6a
+> +#define STMPE_KPC_DATA_BYTE3		0x6b
+> +#define STMPE_KPC_DATA_BYTE4		0x6c
+> +
+> +#define STMPE_KPC_CTRL_LSB_SCAN		(0x1 << 0)
+> +#define STMPE_KPC_CTRL_LSB_DEBOUNCE	(0x7f << 1)
+> +#define STMPE_KPC_CTRL_MSB_SCAN_COUNT	(0xf << 4)
+> +
+> +#define STMPE_KPC_ROW_MSB_ROWS		0xff
+> +
+> +#define STMPE_KPC_DATA_UP		(0x1 << 7)
+> +#define STMPE_KPC_DATA_ROW		(0xf << 3)
+> +#define STMPE_KPC_DATA_COL		(0x7 << 0)
+> +#define STMPE_KPC_DATA_NOKEY_MASK	0x78
+> +
+> +#define STMPE_KEYPAD_MAX_DEBOUNCE	127
+> +#define STMPE_KEYPAD_MAX_SCAN_COUNT	15
+> +
+> +#define STMPE_KEYPAD_MAX_ROWS		8
+> +#define STMPE_KEYPAD_MAX_COLS		8
+> +#define STMPE_KEYPAD_ROW_SHIFT		3
+> +#define STMPE_KEYPAD_KEYMAP_SIZE	\
+> +	(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS)
+> +
+> +/**
+> + * struct stmpe_keypad_variant - model-specific attributes
+> + * @auto_increment: whether the KPC_DATA_BYTE register address
+> + *		    auto-increments on multiple read
+> + * @num_data: number of data bytes
+> + * @num_normal_data: number of normal keys' data bytes
+> + * @max_cols: maximum number of columns supported
+> + * @max_rows: maximum number of rows supported
+> + * @col_gpios: bitmask of gpios which can be used for columns
+> + * @row_gpios: bitmask of gpios which can be used for rows
+> + */
+> +struct stmpe_keypad_variant {
+> +	bool		auto_increment;
+> +	int		num_data;
+> +	int		num_normal_data;
+> +	int		max_cols;
+> +	int		max_rows;
+> +	unsigned int	col_gpios;
+> +	unsigned int	row_gpios;
+> +};
+> +
+> +static struct stmpe_keypad_variant stmpe_keypad_variants[] = {
+> +	[STMPE1601] = {
+> +		.auto_increment		= true,
+> +		.num_data		= 5,
+> +		.num_normal_data	= 3,
+> +		.max_cols		= 8,
+> +		.max_rows		= 8,
+> +		.col_gpios		= 0x000ff,	/* GPIO 0 - 7 */
+> +		.row_gpios		= 0x0ff00,	/* GPIO 8 - 15 */
+> +	},
+> +	[STMPE2401] = {
+> +		.auto_increment		= false,
+> +		.num_data		= 3,
+> +		.num_normal_data	= 2,
+> +		.max_cols		= 8,
+> +		.max_rows		= 12,
+> +		.col_gpios		= 0x0000ff,	/* GPIO 0 - 7*/
+> +		.row_gpios		= 0x1fef00,	/* GPIO 8-14, 16-20 */
+> +	},
+> +	[STMPE2403] = {
+> +		.auto_increment		= true,
+> +		.num_data		= 5,
+> +		.num_normal_data	= 3,
+> +		.max_cols		= 8,
+> +		.max_rows		= 12,
+> +		.col_gpios		= 0x0000ff,	/* GPIO 0 - 7*/
+> +		.row_gpios		= 0x1fef00,	/* GPIO 8-14, 16-20 */
+> +	},
+> +};
 
+I think it would be better if you moved stmpe_keypad_variant into a
+separate header had have board code provide variant instead of needing
+to add new variants to the driver itself. Or it is not defined by the
+board?
+
+> +
+> +struct stmpe_keypad {
+> +	struct stmpe *stmpe;
+> +	struct input_dev *input;
+> +	struct stmpe_keypad_variant *variant;
+
+const?
+
+> +	struct stmpe_keypad_platform_data *plat;
+
+const?
+
+> +
+> +	unsigned int rows;
+> +	unsigned int cols;
+> +
+> +	unsigned short keymap[STMPE_KEYPAD_KEYMAP_SIZE];
+> +};
+> +
+> +static int stmpe_keypad_read_data(struct stmpe_keypad *keypad, u8 *data)
+> +{
+> +	struct stmpe_keypad_variant *variant = keypad->variant;
+> +	struct stmpe *stmpe = keypad->stmpe;
+> +	int ret;
+> +	int i;
+> +
+> +	if (variant->auto_increment)
+> +		return stmpe_block_read(stmpe, STMPE_KPC_DATA_BYTE0,
+> +					variant->num_data, data);
+> +
+> +	for (i = 0; i < variant->num_data; i++) {
+> +		ret = stmpe_reg_read(stmpe, STMPE_KPC_DATA_BYTE0 + i);
+> +		if (ret < 0)
+> +			return ret;
+> +
+> +		data[i] = ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t stmpe_keypad_irq(int irq, void *dev)
+> +{
+> +	struct stmpe_keypad *keypad = dev;
+> +	struct input_dev *input = keypad->input;
+> +	struct stmpe_keypad_variant *variant = keypad->variant;
+> +	u8 fifo[variant->num_data];
+> +	int ret;
+> +	int i;
+> +
+> +	ret = stmpe_keypad_read_data(keypad, fifo);
+> +	if (ret < 0)
+> +		return IRQ_NONE;
+> +
+> +	for (i = 0; i < variant->num_normal_data; i++) {
+> +		u8 data = fifo[i];
+> +		int row = (data & STMPE_KPC_DATA_ROW) >> 3;
+> +		int col = data & STMPE_KPC_DATA_COL;
+> +		int code = MATRIX_SCAN_CODE(row, col, STMPE_KEYPAD_ROW_SHIFT);
+> +		bool up = data & STMPE_KPC_DATA_UP;
+> +
+> +		if ((data & STMPE_KPC_DATA_NOKEY_MASK)
+> +			== STMPE_KPC_DATA_NOKEY_MASK)
+> +			continue;
+> +
+> +		input_event(input, EV_MSC, MSC_SCAN, code);
+> +		input_report_key(input, keypad->keymap[code], !up);
+> +		input_sync(input);
+> +	}
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit stmpe_keypad_altfunc_init(struct stmpe_keypad *keypad)
+> +{
+> +	struct stmpe_keypad_variant *variant = keypad->variant;
+> +	unsigned int col_gpios = variant->col_gpios;
+> +	unsigned int row_gpios = variant->row_gpios;
+> +	struct stmpe *stmpe = keypad->stmpe;
+> +	unsigned int pins = 0;
+> +	int i;
+> +
+> +	/*
+> +	 * Figure out which pins need to be set to alternate function 1.
+> +	 *
+> +	 * {cols,rows}_gpios are bitmasks of which pins on the chip can be used
+> +	 * for the keypad.
+> +	 *
+> +	 * keypad->{cols,rows} are a bitmask of which pins (of the ones useable
+> +	 * for the keypad) are used on the board.
+> +	 */
+> +
+> +	for (i = 0; i < variant->max_cols; i++) {
+> +		int num = __ffs(col_gpios);
+> +
+> +		if (keypad->cols & (1 << i))
+> +			pins |= 1 << num;
+> +
+> +		col_gpios &= ~(1 << num);
+> +	}
+> +
+> +	for (i = 0; i < variant->max_rows; i++) {
+> +		int num = __ffs(row_gpios);
+> +
+> +		if (keypad->rows & (1 << i))
+> +			pins |= 1 << num;
+> +
+> +		row_gpios &= ~(1 << num);
+> +	}
+> +
+> +	return stmpe_set_altfunc(stmpe, pins, 1);
+> +}
+> +
+> +static int __devinit stmpe_keypad_chip_init(struct stmpe_keypad *keypad)
+> +{
+> +	struct stmpe_keypad_platform_data *plat = keypad->plat;
+> +	struct stmpe_keypad_variant *variant = keypad->variant;
+> +	struct stmpe *stmpe = keypad->stmpe;
+> +	int ret;
+> +
+> +	if (plat->debounce_ms > STMPE_KEYPAD_MAX_DEBOUNCE)
+> +		return -EINVAL;
+> +
+> +	if (plat->scan_count > STMPE_KEYPAD_MAX_SCAN_COUNT)
+> +		return -EINVAL;
+> +
+> +	ret = stmpe_set_bits(stmpe, STMPE_SYSCON, STMPE_SYSCON_ENABLE_KPC,
+> +			     STMPE_SYSCON_ENABLE_KPC);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = stmpe_keypad_altfunc_init(keypad);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = stmpe_reg_write(stmpe, STMPE_KPC_COL, keypad->cols);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = stmpe_reg_write(stmpe, STMPE_KPC_ROW_LSB, keypad->rows);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (variant->max_rows > 8) {
+> +		ret = stmpe_set_bits(stmpe, STMPE_KPC_ROW_MSB,
+> +				     STMPE_KPC_ROW_MSB_ROWS,
+> +				     keypad->rows >> 8);
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	ret = stmpe_set_bits(stmpe, STMPE_KPC_CTRL_MSB,
+> +			     STMPE_KPC_CTRL_MSB_SCAN_COUNT,
+> +			     plat->scan_count << 4);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	return stmpe_set_bits(stmpe, STMPE_KPC_CTRL_LSB,
+> +			      STMPE_KPC_CTRL_LSB_SCAN |
+> +			      STMPE_KPC_CTRL_LSB_DEBOUNCE,
+> +			      STMPE_KPC_CTRL_LSB_SCAN |
+> +			      (plat->debounce_ms << 1));
+> +}
+> +
+> +static int __devinit stmpe_keypad_probe(struct platform_device *pdev)
+> +{
+> +	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
+> +	struct stmpe_keypad_platform_data *plat;
+> +	struct stmpe_keypad *keypad;
+> +	struct input_dev *input;
+> +	int ret;
+> +	int irq;
+> +	int i;
+> +
+> +	plat = stmpe->pdata->keypad;
+> +	if (!plat)
+> +		return -ENODEV;
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0)
+> +		return irq;
+> +
+> +	keypad = kzalloc(sizeof(struct stmpe_keypad), GFP_KERNEL);
+> +	if (!keypad)
+> +		return -ENOMEM;
+> +
+> +	input = input_allocate_device();
+> +	if (!input) {
+> +		ret = -ENOMEM;
+> +		goto out_freekeypad;
+> +	}
+> +
+> +	input->name = "STMPE keypad";
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = &pdev->dev;
+> +
+> +	input_set_capability(input, EV_MSC, MSC_SCAN);
+> +
+> +	__set_bit(EV_KEY, input->evbit);
+> +	if (!plat->no_autorepeat)
+> +		__set_bit(EV_REP, input->evbit);
+> +
+> +	input->keycode = keypad->keymap;
+> +	input->keycodesize = sizeof(keypad->keymap[0]);
+> +	input->keycodemax = ARRAY_SIZE(keypad->keymap);
+> +
+> +	matrix_keypad_build_keymap(plat->keymap_data, STMPE_KEYPAD_ROW_SHIFT,
+> +				   input->keycode, input->keybit);
+> +
+> +	for (i = 0; i < plat->keymap_data->keymap_size; i++) {
+> +		unsigned int key = plat->keymap_data->keymap[i];
+> +
+> +		keypad->cols |= 1 << KEY_COL(key);
+> +		keypad->rows |= 1 << KEY_ROW(key);
+> +	}
+> +
+> +	keypad->stmpe = stmpe;
+> +	keypad->plat = plat;
+> +	keypad->input = input;
+> +	keypad->variant = &stmpe_keypad_variants[stmpe->variant];
+> +
+> +	ret = stmpe_keypad_chip_init(keypad);
+> +	if (ret < 0)
+> +		goto out_freeinput;
+> +
+> +	ret = request_threaded_irq(irq, NULL, stmpe_keypad_irq, IRQF_ONESHOT,
+> +				   "stmpe-keypad", keypad);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "unable to get irq: %d\n", ret);
+> +		goto out_freeinput;
+> +	}
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev,
+> +			"unable to register input device: %d\n", ret);
+> +		goto out_freeirq;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, keypad);
+> +
+> +	return 0;
+> +
+> +out_freeirq:
+> +	free_irq(irq, keypad);
+> +out_freeinput:
+> +	input_free_device(input);
+> +out_freekeypad:
+> +	kfree(keypad);
+> +	return ret;
+> +}
+> +
+> +static int __devexit stmpe_keypad_remove(struct platform_device *pdev)
+> +{
+> +	struct stmpe_keypad *keypad = platform_get_drvdata(pdev);
+> +	int irq = platform_get_irq(pdev, 0);
+> +
+> +	input_unregister_device(keypad->input);
+> +	free_irq(irq, keypad);
+
+You want to free IRQ first, before unregisterin the device. Also, is
+there a way to power down keypad parts?
+
+> +	platform_set_drvdata(pdev, NULL);
+> +	kfree(keypad);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver stmpe_keypad_driver = {
+> +	.driver.name	= "stmpe-keypad",
+> +	.driver.owner	= THIS_MODULE,
+> +	.probe		= stmpe_keypad_probe,
+> +	.remove		= __devexit_p(stmpe_keypad_remove),
+> +};
+> +
+> +static int __init stmpe_keypad_init(void)
+> +{
+> +	return platform_driver_register(&stmpe_keypad_driver);
+> +}
+> +module_init(stmpe_keypad_init);
+> +
+> +static void __exit stmpe_keypad_exit(void)
+> +{
+> +	platform_driver_unregister(&stmpe_keypad_driver);
+> +}
+> +module_exit(stmpe_keypad_exit);
+> +
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DESCRIPTION("STMPExxxx keypad driver");
+> +MODULE_AUTHOR("Rabin Vincent <rabin.vincent@stericsson.com>");
+> -- 
+> 1.7.0
+> 
+
+-- 
+Dmitry

@@ -1,85 +1,101 @@
-From: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Subject: Re: question about v4l2_subdev
-Date: Tue, 01 Jun 2010 16:04:13 +0200
-Message-ID: <4C05135D.1080108@atmel.com>
-References: <4C03D80B.5090009@atmel.com> <1275329947.2261.19.camel@localhost> <4C04C17D.8020702@atmel.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 4/4] drivers/hid: introduce missing kfree
+Date: Tue, 1 Jun 2010 16:35:15 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1006011634560.12546@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4C04C17D.8020702@atmel.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Cc: Andy Walls <awalls@md.metrocast.net>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+From: Julia Lawall <julia@diku.dk>
 
-Sorry to bother you again, but here is the situation:
-I have 2 drivers: an ov2640 driver and my atmel driver.
-Basically the ov2640 driver is the same as the ov7670 driver.
+Error handling code following a kmalloc should free the allocated data.
 
-So what I don't know is how to call the ov2640 functions(such as set=20
-format) in my atmel driver.
+The semantic match that finds the problem is as follows:
+(http://www.emn.fr/x-info/coccinelle/)
 
-In the ov2640 I used the function: v4l2_i2c_subdev_init, and in the=20
-atmel driver I used v4l2_device_register.
+// <smpl>
+@r exists@
+local idexpression x;
+statement S;
+expression E;
+identifier f,f1,l;
+position p1,p2;
+expression *ptr != NULL;
+@@
 
-But I don't know where I should use the v4l2_i2c_new_subdev function,=20
-and how to link my atmel video struct to the i2c sensor.
+x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
+...
+if (x == NULL) S
+<... when != x
+     when != if (...) { <+...x...+> }
+(
+x->f1 = E
+|
+ (x->f1 == NULL || ...)
+|
+ f(...,x->f1,...)
+)
+...>
+(
+ return \(0\|<+...x...+>\|ptr\);
+|
+ return@p2 ...;
+)
 
-Is there any examples in linux?
+@script:python@
+p1 << r.p1;
+p2 << r.p2;
+@@
 
-Regards,
-Sedji
+print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
+// </smpl>
 
-Le 6/1/2010 10:14 AM, Sedji Gaouaou a =C3=A9crit :
-> Hi,
->
->
->>
->> 1. Something first should call v4l2_device_register() on a v4l2_devi=
-ce
->> object. (Typically there is only one v4l2_device object per "bridge"
->> chip between the PCI, PCIe, or USB bus and the subdevices, even if t=
-hat
->> bridge chip has more than one I2C master implementation.)
->>
->> 2. Then, for subdevices connected to the bridge chip via I2C, someth=
-ing
->> needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as =
-one
->> of the arguments, to get back a v4l2_subdevice instance pointer.
->>
->> 3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as on=
-e of
->> the arguments can be used to invoke the subdevice methods.
->>
->> TV Video capture drivers do this work themselves. Drivers using a
->> camera framework may have the framework doing some of the work for t=
-hem.
->>
->>
->> Regards,
->> Andy
->>
->>
->>
->
->
-> Is there a sensor driver which is using this method?
->
-> To write the ov2640 driver I have just copied the ov7670.c file, and =
-I
-> didn't find the v4l2_i2c_new_subdev in it...
->
-> Regards,
-> Sedji
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-media=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
->
+Signed-off-by: Julia Lawall <julia@diku.dk>
+---
+ drivers/hid/hid-roccat.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index e05d48e..f6e80c7 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -168,7 +168,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 		printk(KERN_EMERG "roccat device with minor %d doesn't exist\n",
+ 				minor);
+ 		error = -ENODEV;
+-		goto exit_unlock;
++		goto exit_err;
+ 	}
+ 
+ 	if (!device->open++) {
+@@ -178,7 +178,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 					PM_HINT_FULLON);
+ 			if (error < 0) {
+ 				--device->open;
+-				goto exit_unlock;
++				goto exit_err;
+ 			}
+ 		}
+ 		error = device->hid->ll_driver->open(device->hid);
+@@ -187,7 +187,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 				device->hid->ll_driver->power(device->hid,
+ 						PM_HINT_NORMAL);
+ 			--device->open;
+-			goto exit_unlock;
++			goto exit_err;
+ 		}
+ 	}
+ 
+@@ -202,6 +202,9 @@ exit_unlock:
+ 	mutex_unlock(&device->readers_lock);
+ 	mutex_unlock(&devices_lock);
+ 	return error;
++exit_err:
++	kfree(reader);
++	goto exit_unlock;
+ }
+ 
+ static int roccat_release(struct inode *inode, struct file *file)

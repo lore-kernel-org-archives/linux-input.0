@@ -1,33 +1,54 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [RFC] [PATCH v3 1/4] OMAP4: Keyboard controller support
-Date: Tue, 1 Jun 2010 09:14:20 +0300
-Message-ID: <20100601061420.GB6465@nokia.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F73@dlee03.ent.ti.com>
- <20100601044318.GA13883@nokia.com>
- <20100601060954.GB7391@core.coreip.homeip.net>
-Reply-To: felipe.balbi@nokia.com
+From: Sedji Gaouaou <sedji.gaouaou@atmel.com>
+Subject: Re: question about v4l2_subdev
+Date: Tue, 01 Jun 2010 10:14:53 +0200
+Message-ID: <4C04C17D.8020702@atmel.com>
+References: <4C03D80B.5090009@atmel.com> <1275329947.2261.19.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.105.134]:35040 "EHLO
-	mgw-mx09.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750833Ab0FAGPD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 02:15:03 -0400
-Content-Disposition: inline
-In-Reply-To: <20100601060954.GB7391@core.coreip.homeip.net>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:54799 "EHLO
+	sjogate2.atmel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755166Ab0FAIPI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jun 2010 04:15:08 -0400
+In-Reply-To: <1275329947.2261.19.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Balbi Felipe (Nokia-D/Helsinki)" <felipe.balbi@nokia.com>, "ext Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Tue, Jun 01, 2010 at 08:09:54AM +0200, ext Dmitry Torokhov wrote:
->There isn't such member in matrix_keymap_data, it only contains length
->of the keymap.
+Hi,
 
-sorry, I had the idea in mind that KEY(row, col, val) would do something 
-different.
 
--- 
-balbi
+>
+> 1. Something first should call v4l2_device_register() on a v4l2_device
+> object.  (Typically there is only one v4l2_device object per "bridge"
+> chip between the PCI, PCIe, or USB bus and the subdevices, even if that
+> bridge chip has more than one I2C master implementation.)
+>
+> 2. Then, for subdevices connected to the bridge chip via I2C, something
+> needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as one
+> of the arguments, to get back a v4l2_subdevice instance pointer.
+>
+> 3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as one of
+> the arguments can be used to invoke the subdevice methods.
+>
+> TV Video capture drivers do this work themselves.  Drivers using a
+> camera framework may have the framework doing some of the work for them.
+>
+>
+> Regards,
+> Andy
+>
+>
+>
 
-DefectiveByDesign.org
+
+Is there a sensor driver which is using this method?
+
+To write the ov2640 driver I have just copied the ov7670.c file, and I 
+didn't find the v4l2_i2c_new_subdev in it...
+
+Regards,
+Sedji
+

@@ -1,44 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Success! [was Re: Getting recent elantech touchpads to work]
-Date: Wed, 2 Jun 2010 00:25:38 -0700
-Message-ID: <20100602072538.GE3713@core.coreip.homeip.net>
-References: <Pine.LNX.4.64.1005281743130.25516@adore2.lightlink.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v3] powerpc: Add i8042 keyboard and mouse irq parsing
+Date: Wed, 02 Jun 2010 17:25:32 +1000
+Message-ID: <1275463532.1931.773.camel@pasglop>
+References: <20100525080834.29149.70967.stgit@ES-J7S4D2J.amer.consind.ge.com>
+	 <1275104126.1931.521.camel@pasglop> <4C050017.10905@ge.com>
+	 <20100602062634.GA3713@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f185.google.com ([209.85.222.185]:35793 "EHLO
-	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751666Ab0FBHZm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:25:42 -0400
-Received: by pzk15 with SMTP id 15so2032036pzk.15
-        for <linux-input@vger.kernel.org>; Wed, 02 Jun 2010 00:25:42 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.1005281743130.25516@adore2.lightlink.com>
+Received: from gate.crashing.org ([63.228.1.57]:46308 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753204Ab0FBHZu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jun 2010 03:25:50 -0400
+In-Reply-To: <20100602062634.GA3713@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Max <ikj1234i@lightlink.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Martyn Welch <martyn.welch@ge.com>, Grant Likely <grant.likely@secretlab.ca>, linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
 
-On Fri, May 28, 2010 at 05:49:39PM -0400, Max wrote:
+On Tue, 2010-06-01 at 23:26 -0700, Dmitry Torokhov wrote:
 > 
-> >Subject: Getting recent elantech touchpads to work with synaptics
-> >From: Florian Ragwitz <rafl@xxxxxxxxxx>
-> >Date: Sat, 24 Apr 2010 22:40:58 +0200
-> >
-> >The following 4 patches aim to improve various bits of the [snipped]
-> 
-> These 4 patches worked for me!  Thank you !!!!
-> 
-> Laptop: Asus K50I
-> Did not even need to use the "force" parameter...
-> 
+> FYI: i8042 core expects I8042_{KBD|AUX}_IRQ to be integers, however it
+> is certainly fixable...
 
-Max, could you please try 2.6.31-rc1 and see if the touchapd is
-recognized there as well and what firmware version it reports. Also if
-you could describe features of the pad (number of buttons, etc) that
-would be great.
+Let's not bother.
 
-Thanks.
+Cheers,
+Ben.
 
--- 
-Dmitry
+

@@ -1,53 +1,116 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: Re: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
-Date: Wed, 2 Jun 2010 10:28:13 +0200
-Message-ID: <20100602102813.59519b77@surf>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 4/4] drivers/hid: introduce missing kfree
+Date: Wed, 2 Jun 2010 11:08:56 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1006021108460.12271@pobox.suse.cz>
+References: <Pine.LNX.4.64.1006011634560.12546@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([88.191.76.200]:56896 "EHLO
-	mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752388Ab0FBIfK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 04:35:10 -0400
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
+Received: from cantor.suse.de ([195.135.220.2]:56210 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755229Ab0FBJI5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jun 2010 05:08:57 -0400
+In-Reply-To: <Pine.LNX.4.64.1006011634560.12546@ask.diku.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Arce, Abraham" <x0066660@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: Julia Lawall <julia@diku.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Mon, 31 May 2010 16:44:52 -0500
-"Arce, Abraham" <x0066660@ti.com> wrote:
+On Tue, 1 Jun 2010, Julia Lawall wrote:
 
-> +	unsigned int length = 0, id = 0;
-> +	int hw_mod_name_len = 16;
-> +	char oh_name[hw_mod_name_len];
-> +	char *name = "omap4-keypad";
-> +
-> +	length = snprintf(oh_name, hw_mod_name_len, "kbd");
-> +
-> +	oh = omap_hwmod_lookup(oh_name);
-> +	if (!oh) {
-> +		pr_err("Could not look up %s\n", oh_name);
-> +		return -EIO;
-> +	}
+> From: Julia Lawall <julia@diku.dk>
+> 
+> Error handling code following a kmalloc should free the allocated data.
+> 
+> The semantic match that finds the problem is as follows:
+> (http://www.emn.fr/x-info/coccinelle/)
+> 
+> // <smpl>
+> @r exists@
+> local idexpression x;
+> statement S;
+> expression E;
+> identifier f,f1,l;
+> position p1,p2;
+> expression *ptr != NULL;
+> @@
+> 
+> x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
+> ...
+> if (x == NULL) S
+> <... when != x
+>      when != if (...) { <+...x...+> }
+> (
+> x->f1 = E
+> |
+>  (x->f1 == NULL || ...)
+> |
+>  f(...,x->f1,...)
+> )
+> ...>
+> (
+>  return \(0\|<+...x...+>\|ptr\);
+> |
+>  return@p2 ...;
+> )
+> 
+> @script:python@
+> p1 << r.p1;
+> p2 << r.p2;
+> @@
+> 
+> print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
+> // </smpl>
+> 
+> Signed-off-by: Julia Lawall <julia@diku.dk>
+> ---
+>  drivers/hid/hid-roccat.c |    9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+> index e05d48e..f6e80c7 100644
+> --- a/drivers/hid/hid-roccat.c
+> +++ b/drivers/hid/hid-roccat.c
+> @@ -168,7 +168,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+>  		printk(KERN_EMERG "roccat device with minor %d doesn't exist\n",
+>  				minor);
+>  		error = -ENODEV;
+> -		goto exit_unlock;
+> +		goto exit_err;
+>  	}
+>  
+>  	if (!device->open++) {
+> @@ -178,7 +178,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+>  					PM_HINT_FULLON);
+>  			if (error < 0) {
+>  				--device->open;
+> -				goto exit_unlock;
+> +				goto exit_err;
+>  			}
+>  		}
+>  		error = device->hid->ll_driver->open(device->hid);
+> @@ -187,7 +187,7 @@ static int roccat_open(struct inode *inode, struct file *file)
+>  				device->hid->ll_driver->power(device->hid,
+>  						PM_HINT_NORMAL);
+>  			--device->open;
+> -			goto exit_unlock;
+> +			goto exit_err;
+>  		}
+>  	}
+>  
+> @@ -202,6 +202,9 @@ exit_unlock:
+>  	mutex_unlock(&device->readers_lock);
+>  	mutex_unlock(&devices_lock);
+>  	return error;
+> +exit_err:
+> +	kfree(reader);
+> +	goto exit_unlock;
+>  }
+>  
+>  static int roccat_release(struct inode *inode, struct file *file)
 
-Maybe I'm missing something here, but I don't see where "length" is
-being used, and why the snprintf()/oh_name thing is needed. What about:
+Applied, thank you Julia.
 
-	unsigned int id = 0;
-	char *name = "omap4-keypad";
-
-	oh = omap_hwmod_lookup("kbd");
-	if (!oh) {
-		pr_err("Could not look up kbd\n");
-		return -EIO;
-	}
-
-Thomas
 -- 
-Thomas Petazzoni, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Jiri Kosina
+SUSE Labs, Novell Inc.

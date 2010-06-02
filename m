@@ -1,52 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: bcm5974 turn wellspring mode off if failed to
- start traffic
-Date: Wed, 2 Jun 2010 00:35:13 -0700
-Message-ID: <20100602073513.GG3713@core.coreip.homeip.net>
-References: <1275421559-7980-1-git-send-email-sunmoon1997@gmail.com>
+Subject: Re: [PATCH] Input: ads7846: Fix warning about output format
+Date: Wed, 2 Jun 2010 00:39:56 -0700
+Message-ID: <20100602073955.GH3713@core.coreip.homeip.net>
+References: <1275461429-4838-1-git-send-email-weber@corscience.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:37845 "EHLO
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:38007 "EHLO
 	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751350Ab0FBHfS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:35:18 -0400
-Received: by pvg11 with SMTP id 11so2190595pvg.19
-        for <linux-input@vger.kernel.org>; Wed, 02 Jun 2010 00:35:17 -0700 (PDT)
+	with ESMTP id S1753168Ab0FBHkA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:40:00 -0400
 Content-Disposition: inline
-In-Reply-To: <1275421559-7980-1-git-send-email-sunmoon1997@gmail.com>
+In-Reply-To: <1275461429-4838-1-git-send-email-weber@corscience.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Luo Jinghua <sunmoon1997@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org
+To: Thomas Weber <weber@corscience.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Luo,
-
-On Wed, Jun 02, 2010 at 03:45:59AM +0800, Luo Jinghua wrote:
-> The bcm5974 driver doesn't work on my MacbookPro6,2 for some reason. It
-> failed to start traffic and left the wellsprint mode on. As a result,
-> the keyboard is slow to response and become unusable.
+On Wed, Jun 02, 2010 at 08:50:29AM +0200, Thomas Weber wrote:
+> This patch fixes a compiler warning about wrong output format.
 > 
-> Signed-off-by: Luo Jinghua <sunmoon1997@gmail.com>
-> ---
->  drivers/input/mouse/bcm5974.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> drivers/input/touchscreen/ads7846.c: In function 'ads7846_probe':
+> drivers/input/touchscreen/ads7846.c:1167: warning: format '%ld' expects
+> type 'long int', but argument 4 has type 'int'
 > 
-> diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-> index 6dedded..5518089 100644
-> --- a/drivers/input/mouse/bcm5974.c
-> +++ b/drivers/input/mouse/bcm5974.c
-> @@ -595,6 +595,7 @@ static int bcm5974_start_traffic(struct bcm5974 *dev)
->  
->  err_kill_bt:
->  	usb_kill_urb(dev->bt_urb);
-> +	bcm5974_wellspring_mode(dev, false);
->  error:
->  	return -EIO;
->  }
+> Introduced by commit 067fb2f648543894ce775082c5636f4c32b99e4f ("Input:
+> ads7846 - return error on regulator_get() failure").
+> 
+> The ERR_PTR returns a long so the variable err needs to be long.
 
-Could you see what URB it failed to submit and what error code was
-returned? Maybe it will give us idea what went wrong.
+No, int works just as well. I have a patch that simply fixes format
+specification.
+
+Thanks.
 
 -- 
 Dmitry

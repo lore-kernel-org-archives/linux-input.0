@@ -1,42 +1,32 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: bcm5974 turn wellspring mode off if failed to
- 	start traffic
-Date: Wed, 02 Jun 2010 11:27:45 +0200
-Message-ID: <4C062411.10409@euromail.se>
-References: <1275421559-7980-1-git-send-email-sunmoon1997@gmail.com>	<20100602073513.GG3713@core.coreip.homeip.net> <AANLkTil4cysRYD9Ofx9vnuU7B4z8yw1fYOJ5VF7A4d-P@mail.gmail.com>
+From: "Arce, Abraham" <x0066660@ti.com>
+Subject: RE: [RFC] [PATCH v3 3/4] OMAP4: Keyboard board support
+Date: Wed, 2 Jun 2010 07:26:46 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E538A88@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043E537F75@dlee03.ent.ti.com>
+ <20100601044813.GC13883@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:56756 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755202Ab0FBJa1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jun 2010 05:30:27 -0400
-In-Reply-To: <AANLkTil4cysRYD9Ofx9vnuU7B4z8yw1fYOJ5VF7A4d-P@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100601044813.GC13883@nokia.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "felipe.balbi@nokia.com" <felipe.balbi@nokia.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Luo Jinghua <sunmoon1997@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Luo Jinghua wrote:
-[...]
-> So the error code is the ENOSPC.
+Felipe,
 
-Interesting. A couple of years back, there were a few reports on strange usb
-behavior on Macbooks that turned out to be a hardware problem, a bad internal
-usb connector. Could that be the case here?
+> >+static struct omap4_keypad_platform_data sdp4430_keypad_data = {
+> >+	.keymap_data		= &sdp4430_keymap_data,
+> >+	.rows			= 8,
+> >+	.cols			= 8,
+> >+	.device_enable		= omap_device_enable,
+> >+	.device_shutdown	= omap_device_shutdown,
+> >+	.device_idle		= omap_device_idle,
+> 
+> again all three are undefined
+> 
 
-Since ENOSPC is pretty rare, narrowing it down code-wise seems possible. It
-could for instance be this path happening:
-
-usb_submit_urb
-  usb_hcd_submit_urb
-     hcd->driver->urb_enqueue
-       ehci_urb_enqueue
-         intr_submit
-           qh_schedule
-             fail
-
-Henrik
+To be removed...
 

@@ -1,38 +1,50 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: Re: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
-Date: Wed, 2 Jun 2010 15:46:03 +0200
-Message-ID: <20100602154603.28fe7a16@surf>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
-	<20100602102813.59519b77@surf>
-	<27F9C60D11D683428E133F85D2BB4A53043E538AA1@dlee03.ent.ti.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: rotary encoder
+Date: Wed, 2 Jun 2010 15:52:51 +0200
+Message-ID: <20100602135251.GC2695@buzzloop.caiaq.de>
+References: <7A46ED6446BE4CF7AAC51205F1B5A88B@tech>
+ <20100602132031.GB2695@buzzloop.caiaq.de>
+ <BA41AF5D757645AD94502E4B0A29158A@tech>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043E538AA1@dlee03.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Arce, Abraham" <x0066660@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from buzzloop.caiaq.de ([212.112.241.133]:53058 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755211Ab0FBNw4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 09:52:56 -0400
+Content-Disposition: inline
+In-Reply-To: <BA41AF5D757645AD94502E4B0A29158A@tech>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitriy Vasil'ev <tech@digiton.ru>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 2 Jun 2010 07:45:07 -0500
-"Arce, Abraham" <x0066660@ti.com> wrote:
+(please don't drop any Cc'ed addresses)
 
-> I'll remove length variable and keep snprintf, below oh_name -> kbd is used again, this will keep name defined in one single place
+On Wed, Jun 02, 2010 at 05:28:35PM +0400, Dmitriy Vasil'ev wrote:
+> thank you for reply,
 > 
-> 	WARN(IS_ERR(od), "Could not build omap_device for %s %s\n",
-> 		name, oh_name);
+> I am using custom variant of the Atmel's board at91sam9260-ek.
+> Yes, I understand how I can attach your driver to my board.
+> 
+> But how I can use events in user space?
+> 
+> Do I must using /dev/input/evenX for processing encoder's events?
 
-In this case, why not:
+Yes, once the driver is successfully probed, you should see a message in
+dmesg. Can you post your dmesg output? Depending on your platform_data,
+you should then get relative or absolute axis information in the
+/dev/input handle the driver allocated.
 
-	char *oh_name = "kbd";
+> How I can translate it to keyboard codes?
 
-There's really no point in using snprintf() for statically-defined
-strings.
+Up to you, or your userspace application :)
 
-Thomas
--- 
-Thomas Petazzoni, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+> Sorry for my stupid questions.
+
+No problem. Just remember to keep the mailing list in the Cc, so others
+can follow and respond as well.
+
+Thanks,
+Daniel
+

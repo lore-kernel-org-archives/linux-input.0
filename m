@@ -1,116 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4/4] drivers/hid: introduce missing kfree
-Date: Wed, 2 Jun 2010 11:08:56 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006021108460.12271@pobox.suse.cz>
-References: <Pine.LNX.4.64.1006011634560.12546@ask.diku.dk>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: bcm5974 turn wellspring mode off if failed to
+ 	start traffic
+Date: Wed, 02 Jun 2010 11:27:45 +0200
+Message-ID: <4C062411.10409@euromail.se>
+References: <1275421559-7980-1-git-send-email-sunmoon1997@gmail.com>	<20100602073513.GG3713@core.coreip.homeip.net> <AANLkTil4cysRYD9Ofx9vnuU7B4z8yw1fYOJ5VF7A4d-P@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:56210 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755229Ab0FBJI5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 2 Jun 2010 05:08:57 -0400
-In-Reply-To: <Pine.LNX.4.64.1006011634560.12546@ask.diku.dk>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:56756 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755202Ab0FBJa1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jun 2010 05:30:27 -0400
+In-Reply-To: <AANLkTil4cysRYD9Ofx9vnuU7B4z8yw1fYOJ5VF7A4d-P@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <julia@diku.dk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Luo Jinghua <sunmoon1997@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, 1 Jun 2010, Julia Lawall wrote:
+Luo Jinghua wrote:
+[...]
+> So the error code is the ENOSPC.
 
-> From: Julia Lawall <julia@diku.dk>
-> 
-> Error handling code following a kmalloc should free the allocated data.
-> 
-> The semantic match that finds the problem is as follows:
-> (http://www.emn.fr/x-info/coccinelle/)
-> 
-> // <smpl>
-> @r exists@
-> local idexpression x;
-> statement S;
-> expression E;
-> identifier f,f1,l;
-> position p1,p2;
-> expression *ptr != NULL;
-> @@
-> 
-> x@p1 = \(kmalloc\|kzalloc\|kcalloc\)(...);
-> ...
-> if (x == NULL) S
-> <... when != x
->      when != if (...) { <+...x...+> }
-> (
-> x->f1 = E
-> |
->  (x->f1 == NULL || ...)
-> |
->  f(...,x->f1,...)
-> )
-> ...>
-> (
->  return \(0\|<+...x...+>\|ptr\);
-> |
->  return@p2 ...;
-> )
-> 
-> @script:python@
-> p1 << r.p1;
-> p2 << r.p2;
-> @@
-> 
-> print "* file: %s kmalloc %s return %s" % (p1[0].file,p1[0].line,p2[0].line)
-> // </smpl>
-> 
-> Signed-off-by: Julia Lawall <julia@diku.dk>
-> ---
->  drivers/hid/hid-roccat.c |    9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index e05d48e..f6e80c7 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
-> @@ -168,7 +168,7 @@ static int roccat_open(struct inode *inode, struct file *file)
->  		printk(KERN_EMERG "roccat device with minor %d doesn't exist\n",
->  				minor);
->  		error = -ENODEV;
-> -		goto exit_unlock;
-> +		goto exit_err;
->  	}
->  
->  	if (!device->open++) {
-> @@ -178,7 +178,7 @@ static int roccat_open(struct inode *inode, struct file *file)
->  					PM_HINT_FULLON);
->  			if (error < 0) {
->  				--device->open;
-> -				goto exit_unlock;
-> +				goto exit_err;
->  			}
->  		}
->  		error = device->hid->ll_driver->open(device->hid);
-> @@ -187,7 +187,7 @@ static int roccat_open(struct inode *inode, struct file *file)
->  				device->hid->ll_driver->power(device->hid,
->  						PM_HINT_NORMAL);
->  			--device->open;
-> -			goto exit_unlock;
-> +			goto exit_err;
->  		}
->  	}
->  
-> @@ -202,6 +202,9 @@ exit_unlock:
->  	mutex_unlock(&device->readers_lock);
->  	mutex_unlock(&devices_lock);
->  	return error;
-> +exit_err:
-> +	kfree(reader);
-> +	goto exit_unlock;
->  }
->  
->  static int roccat_release(struct inode *inode, struct file *file)
+Interesting. A couple of years back, there were a few reports on strange usb
+behavior on Macbooks that turned out to be a hardware problem, a bad internal
+usb connector. Could that be the case here?
 
-Applied, thank you Julia.
+Since ENOSPC is pretty rare, narrowing it down code-wise seems possible. It
+could for instance be this path happening:
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+usb_submit_urb
+  usb_hcd_submit_urb
+     hcd->driver->urb_enqueue
+       ehci_urb_enqueue
+         intr_submit
+           qh_schedule
+             fail
+
+Henrik
+

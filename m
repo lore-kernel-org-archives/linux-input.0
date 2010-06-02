@@ -1,93 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch] input/tps6507x-ts: a couple work queue cleanups
-Date: Tue, 1 Jun 2010 23:57:11 -0700
-Message-ID: <20100602065711.GB3713@core.coreip.homeip.net>
-References: <20100601152744.GN5483@bicker>
+Subject: Re: Ads7846 breaks suspend-to-ram on 3430SDP
+Date: Wed, 2 Jun 2010 00:24:00 -0700
+Message-ID: <20100602072400.GD3713@core.coreip.homeip.net>
+References: <5A47E75E594F054BAF48C5E4FC4B92AB0322D7D778@dbde02.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:32914 "EHLO
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:49967 "EHLO
 	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755774Ab0FBG5R (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 02:57:17 -0400
+	with ESMTP id S1752684Ab0FBHYF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:24:05 -0400
 Content-Disposition: inline
-In-Reply-To: <20100601152744.GN5483@bicker>
+In-Reply-To: <5A47E75E594F054BAF48C5E4FC4B92AB0322D7D778@dbde02.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: "Gadiyar, Anand" <gadiyar@ti.com>
+Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dan,
+Hi Anand,
 
-On Tue, Jun 01, 2010 at 05:27:45PM +0200, Dan Carpenter wrote:
-> 1) Use msecs_to_jiffies() instead of calculating by hand.
-> 2) Call cancel_delayed_work_sync() instead of cancel_delayed_work() 
->    followed by a separate flush_workqueue().
-> 3) Remove the "tsc->wq = 0;"  Sparse complains about that because
->    tsc->wq is a pointer, not an int.  It's not needed because we just
->    free the pointer anyway.
+On Fri, May 14, 2010 at 02:26:40PM +0530, Gadiyar, Anand wrote:
+> Looks like the ads7846 driver breaks suspend-to-ram at least on
+> the OMAP 3430SDP. On a kernel built with the omap3_defconfig, with
+> no_console_suspend, I see the log below.
 > 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> Will investigate some time next week, unless someone already has a fix.
 > 
 
-Applied the patch, thank you, but more cleanups needed.
+Could you please try 2.6.35-rc1 - I expect Kevin's fix to handle
+regulatore registering failure will take care of this oops.
 
-> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-> index 5de80a1..5b70a14 100644
-> --- a/drivers/input/touchscreen/tps6507x-ts.c
-> +++ b/drivers/input/touchscreen/tps6507x-ts.c
-> @@ -221,7 +221,7 @@ done:
->  
->  	if (poll) {
->  		schd = queue_delayed_work(tsc->wq, &tsc->work,
-> -					  tsc->poll_period * HZ / 1000);
-> +					  msecs_to_jiffies(tsc->poll_period));
->  		if (schd)
-
-
-I think the driver author misunderstood the return values of
-queue_delayed_work().
-
->  			tsc->polling = 1;
->  		else {
-> @@ -326,7 +326,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
->  		goto err2;
->  
->  	schd = queue_delayed_work(tsc->wq, &tsc->work,
-> -				  tsc->poll_period * HZ / 1000);
-> +				  msecs_to_jiffies(tsc->poll_period));
->  
->  	if (schd)
->  		tsc->polling = 1;
-> @@ -339,10 +339,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
->  	return 0;
->  
->  err2:
-> -	cancel_delayed_work(&tsc->work);
-> -	flush_workqueue(tsc->wq);
-> +	cancel_delayed_work_sync(&tsc->work);
->  	destroy_workqueue(tsc->wq);
-> -	tsc->wq = 0;
->  	input_free_device(input_dev);
->  err1:
->  	kfree(tsc);
-> @@ -360,10 +358,8 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
->  	if (!tsc)
->  		return 0;
->  
-> -	cancel_delayed_work(&tsc->work);
-> -	flush_workqueue(tsc->wq);
-> +	cancel_delayed_work_sync(&tsc->work);
->  	destroy_workqueue(tsc->wq);
-> -	tsc->wq = 0;
->  
->  	input_free_device(input_dev);
-
-This should be input_unregister_device().
-
-I also question the production utility of a driver that continuously
-poll device every 30 ms... I think that it was merged prematurely,
-without adequate review ;(
+Thanks.
 
 -- 
 Dmitry

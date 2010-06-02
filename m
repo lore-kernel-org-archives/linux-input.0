@@ -1,34 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Ads7846 breaks suspend-to-ram on 3430SDP
-Date: Wed, 2 Jun 2010 00:24:00 -0700
-Message-ID: <20100602072400.GD3713@core.coreip.homeip.net>
-References: <5A47E75E594F054BAF48C5E4FC4B92AB0322D7D778@dbde02.ent.ti.com>
+Subject: Re: Success! [was Re: Getting recent elantech touchpads to work]
+Date: Wed, 2 Jun 2010 00:25:38 -0700
+Message-ID: <20100602072538.GE3713@core.coreip.homeip.net>
+References: <Pine.LNX.4.64.1005281743130.25516@adore2.lightlink.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:49967 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752684Ab0FBHYF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:24:05 -0400
+Received: from mail-pz0-f185.google.com ([209.85.222.185]:35793 "EHLO
+	mail-pz0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751666Ab0FBHZm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 03:25:42 -0400
+Received: by pzk15 with SMTP id 15so2032036pzk.15
+        for <linux-input@vger.kernel.org>; Wed, 02 Jun 2010 00:25:42 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <5A47E75E594F054BAF48C5E4FC4B92AB0322D7D778@dbde02.ent.ti.com>
+In-Reply-To: <Pine.LNX.4.64.1005281743130.25516@adore2.lightlink.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Gadiyar, Anand" <gadiyar@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Max <ikj1234i@lightlink.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Anand,
-
-On Fri, May 14, 2010 at 02:26:40PM +0530, Gadiyar, Anand wrote:
-> Looks like the ads7846 driver breaks suspend-to-ram at least on
-> the OMAP 3430SDP. On a kernel built with the omap3_defconfig, with
-> no_console_suspend, I see the log below.
+On Fri, May 28, 2010 at 05:49:39PM -0400, Max wrote:
 > 
-> Will investigate some time next week, unless someone already has a fix.
+> >Subject: Getting recent elantech touchpads to work with synaptics
+> >From: Florian Ragwitz <rafl@xxxxxxxxxx>
+> >Date: Sat, 24 Apr 2010 22:40:58 +0200
+> >
+> >The following 4 patches aim to improve various bits of the [snipped]
+> 
+> These 4 patches worked for me!  Thank you !!!!
+> 
+> Laptop: Asus K50I
+> Did not even need to use the "force" parameter...
 > 
 
-Could you please try 2.6.35-rc1 - I expect Kevin's fix to handle
-regulatore registering failure will take care of this oops.
+Max, could you please try 2.6.31-rc1 and see if the touchapd is
+recognized there as well and what firmware version it reports. Also if
+you could describe features of the pad (number of buttons, etc) that
+would be great.
 
 Thanks.
 

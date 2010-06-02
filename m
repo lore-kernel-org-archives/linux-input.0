@@ -1,55 +1,37 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
-Date: Wed, 2 Jun 2010 07:45:07 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E538AA1@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
- <20100602102813.59519b77@surf>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: rotary encoder
+Date: Wed, 2 Jun 2010 15:20:31 +0200
+Message-ID: <20100602132031.GB2695@buzzloop.caiaq.de>
+References: <7A46ED6446BE4CF7AAC51205F1B5A88B@tech>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from arroyo.ext.ti.com ([192.94.94.40]:38917 "EHLO arroyo.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757936Ab0FBMpM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 08:45:12 -0400
-In-Reply-To: <20100602102813.59519b77@surf>
-Content-Language: en-US
+Received: from buzzloop.caiaq.de ([212.112.241.133]:40017 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932439Ab0FBNUj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 09:20:39 -0400
+Content-Disposition: inline
+In-Reply-To: <7A46ED6446BE4CF7AAC51205F1B5A88B@tech>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: Dmitriy Vasil'ev <tech@digiton.ru>
+Cc: linux-input@vger.kernel.org
 
-Thanks Thomas,
+(Cc'ing the linux-input mailing list)
 
-> > +	unsigned int length = 0, id = 0;
-> > +	int hw_mod_name_len = 16;
-> > +	char oh_name[hw_mod_name_len];
-> > +	char *name = "omap4-keypad";
-> > +
-> > +	length = snprintf(oh_name, hw_mod_name_len, "kbd");
-> > +
-> > +	oh = omap_hwmod_lookup(oh_name);
-> > +	if (!oh) {
-> > +		pr_err("Could not look up %s\n", oh_name);
-> > +		return -EIO;
-> > +	}
+On Wed, Jun 02, 2010 at 05:12:49PM +0400, Dmitriy Vasil'ev wrote:
+> I have founded your rotary encoder driver at the Linux kernel.
+> I am sorry, but I do not understand how I can use it.
 > 
-> Maybe I'm missing something here, but I don't see where "length" is
-> being used, and why the snprintf()/oh_name thing is needed. What about:
-> 
-> 	unsigned int id = 0;
-> 	char *name = "omap4-keypad";
-> 
-> 	oh = omap_hwmod_lookup("kbd");
-> 	if (!oh) {
-> 		pr_err("Could not look up kbd\n");
-> 		return -EIO;
-> 	}
+> How I can read data from encoder in a user space programm?
+> Do I can have input like keyboard?
+> For example, I would like have key-left and key-left-alt emulation keyboard-keys while rotate counterclockwise,
+> key-right and key-right-alt keyboard-keys while rotate clockwise,
+> shift and enter keys emulation while pressing.
+> How I can do it?
 
-I'll remove length variable and keep snprintf, below oh_name -> kbd is used again, this will keep name defined in one single place
+You have to register this driver as platform device in your board
+support code. See arch/arm/mach-pxa/raumfeld.c for an example of how to
+do that. What hardware are you working on?
 
-	WARN(IS_ERR(od), "Could not build omap_device for %s %s\n",
-		name, oh_name);
-
-Best Regards
-Abraham
+Daniel

@@ -1,32 +1,55 @@
 From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: [RFC] [PATCH v3 3/4] OMAP4: Keyboard board support
-Date: Wed, 2 Jun 2010 07:26:46 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E538A88@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F75@dlee03.ent.ti.com>
- <20100601044813.GC13883@nokia.com>
+Subject: RE: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
+Date: Wed, 2 Jun 2010 07:45:07 -0500
+Message-ID: <27F9C60D11D683428E133F85D2BB4A53043E538AA1@dlee03.ent.ti.com>
+References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
+ <20100602102813.59519b77@surf>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100601044813.GC13883@nokia.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:38917 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757936Ab0FBMpM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Jun 2010 08:45:12 -0400
+In-Reply-To: <20100602102813.59519b77@surf>
 Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: "felipe.balbi@nokia.com" <felipe.balbi@nokia.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-Felipe,
+Thanks Thomas,
 
-> >+static struct omap4_keypad_platform_data sdp4430_keypad_data = {
-> >+	.keymap_data		= &sdp4430_keymap_data,
-> >+	.rows			= 8,
-> >+	.cols			= 8,
-> >+	.device_enable		= omap_device_enable,
-> >+	.device_shutdown	= omap_device_shutdown,
-> >+	.device_idle		= omap_device_idle,
+> > +	unsigned int length = 0, id = 0;
+> > +	int hw_mod_name_len = 16;
+> > +	char oh_name[hw_mod_name_len];
+> > +	char *name = "omap4-keypad";
+> > +
+> > +	length = snprintf(oh_name, hw_mod_name_len, "kbd");
+> > +
+> > +	oh = omap_hwmod_lookup(oh_name);
+> > +	if (!oh) {
+> > +		pr_err("Could not look up %s\n", oh_name);
+> > +		return -EIO;
+> > +	}
 > 
-> again all three are undefined
+> Maybe I'm missing something here, but I don't see where "length" is
+> being used, and why the snprintf()/oh_name thing is needed. What about:
 > 
+> 	unsigned int id = 0;
+> 	char *name = "omap4-keypad";
+> 
+> 	oh = omap_hwmod_lookup("kbd");
+> 	if (!oh) {
+> 		pr_err("Could not look up kbd\n");
+> 		return -EIO;
+> 	}
 
-To be removed...
+I'll remove length variable and keep snprintf, below oh_name -> kbd is used again, this will keep name defined in one single place
 
+	WARN(IS_ERR(od), "Could not build omap_device for %s %s\n",
+		name, oh_name);
+
+Best Regards
+Abraham

@@ -1,108 +1,90 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 3/4] input: evdev: Convert to dynamic event buffer (rev3)
-Date: Thu,  3 Jun 2010 10:01:01 +0200
-Message-ID: <1275552062-8153-4-git-send-email-rydberg@euromail.se>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
- <1275552062-8153-2-git-send-email-rydberg@euromail.se>
- <1275552062-8153-3-git-send-email-rydberg@euromail.se>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 2/2] mx31moboard: Add MC13783 power button support
+Date: Thu, 3 Jun 2010 10:31:55 +0200
+Message-ID: <20100603083155.GW26820@pengutronix.de>
+References: <1275334140-29339-1-git-send-email-philippe.retornaz@epfl.ch> <1275334140-29339-2-git-send-email-philippe.retornaz@epfl.ch> <1275334140-29339-3-git-send-email-philippe.retornaz@epfl.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:52491 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757973Ab0FCICW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Jun 2010 04:02:22 -0400
-In-Reply-To: <1275552062-8153-3-git-send-email-rydberg@euromail.se>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:43581 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751449Ab0FCIcE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2010 04:32:04 -0400
+Content-Disposition: inline
+In-Reply-To: <1275334140-29339-3-git-send-email-philippe.retornaz@epfl.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+To: Philippe =?iso-8859-15?Q?R=E9tornaz?= <philippe.retornaz@epfl.ch>
+Cc: linux-arm-kernel@lists.infradead.org, dmitry.torokhov@gmail.com, sameo@linux.intel.com, linux-input@vger.kernel.org, broonie@opensource.wolfsonmicro.com, u.kleine-koenig@pengutronix.de, ext-jari.vanhala@nokia.com, valentin.longchamp@epfl.ch
 
-Allocate the event buffer dynamically, and prepare to compute the
-buffer size in a separate function. This patch defines the size
-computation to be identical to the current code, and does not contain
-any logical changes.
+Hi Philippe,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/evdev.c |   23 +++++++++++++++++++----
- 1 files changed, 19 insertions(+), 4 deletions(-)
+Please ping me once the LED/Power button support is merged. I'll take
+care of the platform patches.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 7f0c7da..2e2a339 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -10,7 +10,7 @@
- 
- #define EVDEV_MINOR_BASE	64
- #define EVDEV_MINORS		32
--#define EVDEV_BUFFER_SIZE	64
-+#define EVDEV_MIN_BUFFER_SIZE	64
- 
- #include <linux/poll.h>
- #include <linux/sched.h>
-@@ -35,7 +35,8 @@ struct evdev {
- 	struct mutex mutex;
- 	struct device dev;
- 	struct buflock_writer writer;
--	struct input_event buffer[EVDEV_BUFFER_SIZE];
-+	unsigned int bufsize;
-+	struct input_event *buffer;
- };
- 
- struct evdev_client {
-@@ -74,7 +75,7 @@ static void evdev_event(struct input_handle *handle,
- 	event.value = value;
- 
- 	/* lock-less write */
--	buflock_write(evdev->writer, evdev->buffer, EVDEV_BUFFER_SIZE, event);
-+	buflock_write(evdev->writer, evdev->buffer, evdev->bufsize, event);
- 
- 	rcu_read_lock();
- 
-@@ -121,6 +122,7 @@ static void evdev_free(struct device *dev)
- 	struct evdev *evdev = container_of(dev, struct evdev, dev);
- 
- 	input_put_device(evdev->handle.dev);
-+	kfree(evdev->buffer);
- 	kfree(evdev);
- }
- 
-@@ -333,7 +335,7 @@ static int evdev_fetch_next_event(struct evdev_client *client,
- 	have_event = !buflock_reader_empty(client->reader);
- 	if (have_event)
- 		buflock_read(client->reader, evdev->writer,
--			     evdev->buffer, EVDEV_BUFFER_SIZE, *event);
-+			     evdev->buffer, evdev->bufsize, *event);
- 
- 	spin_unlock_irq(&client->entry_lock);
- 
-@@ -786,6 +788,11 @@ static void evdev_cleanup(struct evdev *evdev)
- 	}
- }
- 
-+static int evdev_compute_buffer_size(struct input_dev *dev)
-+{
-+	return EVDEV_MIN_BUFFER_SIZE;
-+}
-+
- /*
-  * Create new evdev device. Note that input core serializes calls
-  * to connect and disconnect so we don't need to lock evdev_table here.
-@@ -830,6 +837,14 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
- 	evdev->dev.release = evdev_free;
- 	device_initialize(&evdev->dev);
- 
-+	evdev->bufsize = evdev_compute_buffer_size(dev);
-+	evdev->buffer = kzalloc(evdev->bufsize * sizeof(struct input_event),
-+				GFP_KERNEL);
-+	if (!evdev->buffer) {
-+		error = -ENOMEM;
-+		goto err_free_evdev;
-+	}
-+
- 	error = input_register_handle(&evdev->handle);
- 	if (error)
- 		goto err_free_evdev;
--- 
-1.6.3.3
+Sascha
 
+On Mon, May 31, 2010 at 09:29:00PM +0200, Philippe R=E9tornaz wrote:
+> Add the power-on button on mx31moboard using MC13783 PMIC.
+>=20
+> Signed-off-by: Philippe R=E9tornaz <philippe.retornaz@epfl.ch>
+> ---
+>  arch/arm/mach-mx3/mach-mx31moboard.c |   10 +++++++++-
+>  1 files changed, 9 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/arch/arm/mach-mx3/mach-mx31moboard.c b/arch/arm/mach-mx3=
+/mach-mx31moboard.c
+> index 62b5e40..7a8f078 100644
+> --- a/arch/arm/mach-mx3/mach-mx31moboard.c
+> +++ b/arch/arm/mach-mx3/mach-mx31moboard.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/mfd/mc13783.h>
+>  #include <linux/spi/spi.h>
+>  #include <linux/types.h>
+> +#include <linux/input.h>
+> =20
+>  #include <linux/usb/otg.h>
+>  #include <linux/usb/ulpi.h>
+> @@ -262,12 +263,19 @@ static struct mc13783_leds_platform_data moboar=
+d_leds =3D {
+>  	.tc2_period =3D MC13783_LED_PERIOD_10MS,
+>  };
+> =20
+> +static struct mc13783_buttons_platform_data moboard_buttons =3D {
+> +	.b1on_flags =3D MC13783_BUTTON_DBNC_750MS | MC13783_BUTTON_ENABLE |
+> +			MC13783_BUTTON_POL_INVERT | MC13783_BUTTON_EMUL_CAD,
+> +	.b1on_key =3D KEY_POWER,
+> +};
+> +
+>  static struct mc13783_platform_data moboard_pmic =3D {
+>  	.regulators =3D moboard_regulators,
+>  	.num_regulators =3D ARRAY_SIZE(moboard_regulators),
+>  	.leds =3D &moboard_leds,
+> +	.buttons =3D &moboard_buttons,
+>  	.flags =3D MC13783_USE_REGULATOR | MC13783_USE_RTC |
+> -		MC13783_USE_ADC | MC13783_USE_LED,
+> +		MC13783_USE_ADC | MC13783_USE_LED | MC13783_USE_BUTTON,
+>  };
+> =20
+>  static struct spi_board_info moboard_spi_board_info[] __initdata =3D=
+ {
+> --=20
+> 1.6.3.3
+>=20
+>=20
+
+--=20
+Pengutronix e.K.                           |                           =
+  |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
+  |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
+5 |
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

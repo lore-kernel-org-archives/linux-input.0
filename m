@@ -1,88 +1,47 @@
-From: Micki Balanga <micki@n-trig.com>
-Subject: [PATCH] HID: Add support to new N-trig firwmare
-Date: Thu, 03 Jun 2010 08:11:44 +0300
-Message-ID: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7BIT
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 0/4] input: evdev: Dynamic buffers (rev3)
+Date: Thu,  3 Jun 2010 10:00:58 +0200
+Message-ID: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxout12.netvision.net.il ([194.90.6.37]:52304 "EHLO
-	mxout12.netvision.net.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750873Ab0FCF0A (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jun 2010 01:26:00 -0400
-Content-class: urn:content-classes:message
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:44357 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755646Ab0FCIBZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Jun 2010 04:01:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, chatty@enac.fr, dhprince-devel@yahoo.co.uk
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
 
-Update hid-ids.h to support new N-trig firmware.
-Product id  0x02 - 0x0A
+Dmitry,
 
-Signed-off-by: Micki Balanga <micki@n-trig.com>
+Please find enclosed the third version of the evdev buffer patches.
+
+This version has one more patch; the locking mechanism has been broken
+out into its own file, buflock.h, adding a fair amount of
+documentation. The mechanism has been moderately tested, showing
+graceful dropping of packets as the buffer size gets smaller and the
+number of simultaneous readers gets larger.
+
+In the second patch, the per-client buffer is replaced by the buflock
+reader, and the spinlock name is changed to reflect the reduced area
+it covers. The third patch only has trivial changes, and the fourth
+patch is unchanged, but included for completeness.
+
+Cheers,
+Henrik
+
 ---
----
- drivers/hid/hid-core.c |    9 +++++++++
- drivers/hid/hid-ids.h  |   10 ++++++++++
- 2 files changed, 19 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index aa0f7dc..19f627a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1337,6 +1337,15 @@ static const struct hid_device_id hid_blacklist[]
-= {
-        { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY,
-USB_DEVICE_ID_GENIUS_KB29E) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_3) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_4) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_5) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_6) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_7) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_8) },
-+       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
-USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_9) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK,
-USB_DEVICE_ID_ORTEK_WKB2000) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX,
-USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
-USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6af77ed..55fbfd6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -391,6 +391,16 @@
+Henrik Rydberg (4):
+  input: Introduce buflock, a one-to-many circular buffer mechanism
+  input: evdev: Use multi-reader buffer to save space (rev3)
+  input: evdev: Convert to dynamic event buffer (rev3)
+  input: Use driver hint to compute the evdev buffer size
 
- #define USB_VENDOR_ID_NTRIG                0x1b96
- #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1 0x0002
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2 0x0003
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_3 0x0004
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_4 0x0005
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_5 0x0006
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_6 0x0007
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_7 0x0008
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_8 0x0009
-+#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_9 0x000A
-+
-
- #define USB_VENDOR_ID_ONTRAK           0x0a07
- #define USB_DEVICE_ID_ONTRAK_ADU100    0x0064
--- 
-1.6.3.3
+ drivers/input/buflock.h |  133 +++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/input/evdev.c   |   77 +++++++++++++++++-----------
+ include/linux/input.h   |    7 +++
+ 3 files changed, 187 insertions(+), 30 deletions(-)
+ create mode 100644 drivers/input/buflock.h
 

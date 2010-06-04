@@ -1,36 +1,26 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 0/4] input: evdev: Dynamic buffers (rev3)
-Date: Fri, 04 Jun 2010 18:11:47 +0200
-Message-ID: <4C0925C3.5060403@bitmath.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <20100604065915.GF21239@core.coreip.homeip.net>
+From: "=?ISO-8859-1?Q?Webmaster?=" <maintenance@webmaster.org>
+Subject: Dear Account User
+Date: Fri,  4 Jun 2010 12:43:52 -0300
+Message-ID: <20100604154352.4411.qmail@hm726.locaweb.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp1.one.com ([195.47.247.21]:34725 "EHLO csmtp1.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751897Ab0FDQLz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jun 2010 12:11:55 -0400
-In-Reply-To: <20100604065915.GF21239@core.coreip.homeip.net>
+Received: from hm1480-13.locaweb.com.br ([201.76.49.110]:58533 "EHLO
+	hm1480-13.locaweb.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751825Ab0FDQSN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 12:18:13 -0400
+References: 
+In-Reply-To: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Dmitry Torokhov wrote:
-> Hi Henrik,
-[...]
-> 
-> I think the patchet moves things in the right direction, however I am
-> unsure at the moment about buflock implementation. Any chance you coudl
-> redo the series without the buflock (with readers taking dev->event_lock
-> for now) and once buflock is sorted we can switch to is as a followup).
-> 
-> Thanks.
-> 
+Dear Account User,
 
-Good idea, I will do that.
+We have congestion due to the anonymous registration of webmail accounts. Therefore, we are closing some email accounts to enable the web upgrade.
+We are sending this email so you can inform us whether you still want to use this account. If you are still interested please confirm your account immediately.
+You must confirm your e-mail, filling the form by following the link http://www.emailmeform.com/fid.php?formid=684723
 
-Thanks,
-Henrik
+Warning! Any direct Webmail Account owner that refuses to update your account after you receive this email you will lose your account permanently.
 
+Regards,
+Web Maintenance Team

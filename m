@@ -1,127 +1,39 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
- buffer mechanism
-Date: Fri, 04 Jun 2010 21:43:07 +0200
-Message-ID: <4C09574B.3030807@bitmath.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net> <4C08BCB5.7020201@bitmath.org> <20100604191308.GA10942@redhat.com>
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch] input: off by one in pcf8574_kp_irq_handler()
+Date: Sat, 5 Jun 2010 01:19:39 +0200
+Message-ID: <20100604231939.GJ5483@bicker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:46679 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753414Ab0FDTnS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jun 2010 15:43:18 -0400
-In-Reply-To: <20100604191308.GA10942@redhat.com>
+Received: from mail-ew0-f223.google.com ([209.85.219.223]:41219 "EHLO
+	mail-ew0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757065Ab0FDXT4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 19:19:56 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>, Richard Purdie <rpurdie@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Oleg,
+If nextstate == ARRAY_SIZE(lp->btncode), then we read one past the end of
+the array on the next line.
 
-Thank you very much for looking at this.
+This fixes a smatch warning:
+drivers/input/misc/pcf8574_keypad.c +74 pcf8574_kp_irq_handler(8)
+	error: buffer overflow 'lp->btncode' 17 <= 17
 
-> I am puzzled. I don't understand what this patch does at all ;)
-> 
-> Could you please provide a simple example or answer my questions?
+Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-I will do my best. It seem you figured out most of it even without the evdev
-example for which it was created. But additional usage documentation ought to be
-in place, in other words. Noted.
-
->>>> + * During normal operation, with adequate buffer size, this method will not
->>>> + * block, regardless of the number of concurrent readers.
-> 
-> I don't understand this "regardless of the number of concurrent" comment.
-> buflock_read(br) modifies br.tail, it can't be used lockless.
-> 
-> Or, do you mean that every reader should use its own buflock_reader?
-
-Yes.
-
-> If yes. Afaics, we have one buflock_writer, and one buf "connected"
-> to this buflock_writer. In that case I don't understand why this
-> buf doesn't live in "struct buflock_writer", it can be char[].
-> This way both read/write macros do not need buf and size args.
-> typeof(item) could be used for read/write into this buf.
-
-Both Dmitry and yourself say the same thing here, also noted. If looking for an
-explanation anyways, it would go something like "do not automatically put things
-together if not absolutely necessary".
-
-> But still I can't understand how this all works.
-> 
->>>> +#define buflock_read(br, bw, buf, size, item)			\
->>>> +	do {								\
->>>> +		unsigned int _h, _nh;					\
->>>> +		do {							\
->>>> +			_h = bw.head;					\
->>>> +			smp_rmb();					\
->>>> +			item = buf[br.tail];				\
->>>> +			smp_rmb();					\
->>>> +			_nh = bw.next_head;				\
->>>> +			smp_rmb();					\
->>>> +		} while (unlikely(br.tail - _h < _nh - _h));		\
->>>> +		br.tail = (br.tail + 1) & ((size) - 1);			\
->>>> +	} while (0)
-> 
-> How can the reader know there is something new/valid in buf it
-> can read?
-> 
-> I guess it should call buflock_sync_reader() at least once, to
-> "attach" to the writer/buf, and then check buflock_reader_empty() ?
-> 
-> But. If the reader calls buflock_read() constantly, sooner or
-> later buflock_reader_empty() becomes T again.
-> 
-> Probably the reader should call buflock_sync_reader() + check
-> buflock_reader_empty() == F every time before buflock_read() ?
-> 
-> In this case I do not understand why do we have 2 separate
-> helpers, and why do we need buflock_reader->head.
-> 
-> Perhaps it is writer who calls buflock_sync_reader() and tells
-> the reader it has the new data? In this case I do not understand
-> the "feeding many readers" part.
-
-Yes, the writer thread "synchronizes" the readers. Having separate reader/writer
-heads helps minimizing the contact area between threads. There is also a
-practical reason, in that the writer is able to choose which readers should get
-data. In the input layer, this maps to the notion of grabbing a device.
-Admittedly a bit of a special case.
-
-> And in any case I do not understand which guarantees this API
-> provides.
-> 
-> Whatever we do, buflock_read() can race with the writer and read
-> the invalid item.
-
-Yep.
-
-> Suppose that buflock_read(br, item) gets the preemption "inside" of
-> item = buf[br.tail] asignment.
-> 
-> The writer calls buflock_write() SIZE times.
-> 
-> The reader resumes, continues its memcpy() operation, and suceeds.
-> 
-> But the "item" it returns is not consistent, it is neither the old
-> value nor the new.
-
-True. However, one could argue this is a highly unlikely case given the
-(current) usage. Or, one could remedy it by not wrapping the indexes modulo SIZE.
-
-> 
-> No?
-
-Yes. :-)
-
-Regarding the barriers used in the code, would it be possible to get a picture
-of exactly how bad those operations are for performance? Is it true that a
-simple spinlock might be faster on average, for instance? Do you see any other
-solutions?
-
-Thanks,
-Henrik
-
+diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
+index 0ac47d2..4b42ffc 100644
+--- a/drivers/input/misc/pcf8574_keypad.c
++++ b/drivers/input/misc/pcf8574_keypad.c
+@@ -69,7 +69,7 @@ static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
+ 	unsigned char nextstate = read_state(lp);
+ 
+ 	if (lp->laststate != nextstate) {
+-		int key_down = nextstate <= ARRAY_SIZE(lp->btncode);
++		int key_down = nextstate < ARRAY_SIZE(lp->btncode);
+ 		unsigned short keycode = key_down ?
+ 			lp->btncode[nextstate] : lp->btncode[lp->laststate];
+ 

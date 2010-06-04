@@ -1,218 +1,106 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
- buffer mechanism
-Date: Fri, 04 Jun 2010 10:43:33 +0200
-Message-ID: <4C08BCB5.7020201@bitmath.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Add support to new N-trig firwmare
+Date: Fri, 4 Jun 2010 11:17:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1006041115480.12271@pobox.suse.cz>
+References: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:50295 "EHLO csmtp2.one.com"
+Received: from cantor2.suse.de ([195.135.220.15]:42314 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753942Ab0FDInn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jun 2010 04:43:43 -0400
-In-Reply-To: <20100604065658.GE21239@core.coreip.homeip.net>
+	id S1754402Ab0FDJRJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Jun 2010 05:17:09 -0400
+In-Reply-To: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Oleg Nesterov <oleg@redhat.com>
+To: Micki Balanga <micki@n-trig.com>
+Cc: chatty@enac.fr, dhprince-devel@yahoo.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>
 
-Hi Dmitry,
->> +struct buflock_writer {
->> +	unsigned int head;
->> +	unsigned int next_head;
->> +};
+On Thu, 3 Jun 2010, Micki Balanga wrote:
+
+> Update hid-ids.h to support new N-trig firmware.
+> Product id  0x02 - 0x0A
+
+[ adding Rafi Rubin to CC ]
+
+Hi Micki,
+
+thanks a lot for the update. Your mail client line-wrapped the patch 
+though, so I couldn't apply it without having to fix all the wrapped lines 
+manually. Could you please fix it and resend? (or send it as attachment if 
+your mail client can't be configured not to damage the patch if put 
+in-line)?
+
+Thanks.
+
+> Signed-off-by: Micki Balanga <micki@n-trig.com>
+> ---
+> ---
+>  drivers/hid/hid-core.c |    9 +++++++++
+>  drivers/hid/hid-ids.h  |   10 ++++++++++
+>  2 files changed, 19 insertions(+), 0 deletions(-)
 > 
-> Since there can be only one writer thread should we just create "struct
-> buflock" and pull head and next head into it along with the buffer
-> itself and element size?
-
-It is possible, but there are some arguments against it:
-
-1. What type to give the buffer?
-2. Static or dynamic buffering?
-3. Can size be both a compile-time constant and a variable?
-
-In short, I think that by _not_ including the actual buffer, the method
-ultimately becomes more useful.
-
-> Also, maybe we could extend kfifo with the notion of multiple readers?
-
-If merging the data and algorithm as you suggest, that would be a logical step,
-yes. To me, the most ideal would be to modify split the kfifo into data, writers
-and readers. But that would require api changes.
-
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index aa0f7dc..19f627a 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1337,6 +1337,15 @@ static const struct hid_device_id hid_blacklist[]
+> = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> USB_DEVICE_ID_WIRELESS_OPTICAL_DESKTOP_3_0) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY,
+> USB_DEVICE_ID_GENIUS_KB29E) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_3) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_4) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_5) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_6) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_7) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_8) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,
+> USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_9) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_ORTEK,
+> USB_DEVICE_ID_ORTEK_WKB2000) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX,
+> USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+> USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 6af77ed..55fbfd6 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -391,6 +391,16 @@
 > 
-> In any case, it shoudl not live in include/linux/input/ as it may be
-> useful ouside of input subsystem.
-
-Agreed.
-
+>  #define USB_VENDOR_ID_NTRIG                0x1b96
+>  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1 0x0002
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2 0x0003
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_3 0x0004
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_4 0x0005
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_5 0x0006
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_6 0x0007
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_7 0x0008
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_8 0x0009
+> +#define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_9 0x000A
+> +
 > 
->> +
->> +struct buflock_reader {
->> +	unsigned int head;
->> +	unsigned int tail;
->> +};
->> +
->> +/*
->> + * Write to buffer without locking
+>  #define USB_VENDOR_ID_ONTRAK           0x0a07
+>  #define USB_DEVICE_ID_ONTRAK_ADU100    0x0064
+> -- 
+> 1.6.3.3
 > 
-> Implies that there is an option of doing so with locking. Juts change to
-> write. Also please use standard kerneldoc-style markups.
 
-Ok.
-
-> 
->> + *
->> + * bw - the buflock_writer keeping track of the write position
->> + * buf - the buffer to write to (array of item type)
->> + * size - the size of the circular buffer (must be a power of two)
->> + * item - the item to write
->> + *
->> + * There is no locking involved during write, so this method is
->> + * suitable to use in interrupt context.
-> 
-> This is a misleading statement. You can say that this operation does not
-> sleep and thus is suitable for use in atomic contexts.
-
-Ok.
-
-> 
->> + */
->> +#define buflock_write(bw, buf, size, item)				\
->> +	do {								\
->> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
->> +		smp_wmb();						\
-> 
-> Why do we need the write barrier here?
-
-   reader_loads_next_head
-    -> interrupt modifying next_head then the buffer then the head
-   reader_loads_buffer
-   reader_loads_head
-
-In this scenario, the reader ends up seeing next_head < head, but the position
-written was next_head. The reader will get a false picture of which portion of
-the buffer was modified.
-
-> 
->> +		buf[bw.head] = item;					\
->> +		smp_wmb();						\
-> 
-> I think this is the only barrier that is needed. You want to make sure
-> that we advance head only after we complete write. Also, why SMP only?
-> Can't we get into trouble if we rearrange writes and take interrupt and
-> schedule away from this thread?
-
-This would be true for a single-reader fifo, if we do not care about what
-happens when the buffer wraps around. Regarding reordering, my impression was
-that this cannot happen across smp_wmb(), but I might very well be wrong.
-
-> 
->> +		bw.head = bw.next_head;					\
->> +		smp_wmb();						\
-> 
-> Why do we need the write barrier here?
-
-This is following the pattern of seqlocks. My understanding is that since we
-will later rely on head being written, the last smp_wmb() is "for the road".
-
-> 
->> +	} while (0)
->> +
-> 
-> This (and the rest) should be a static inline function so that we have
-> type safety, etc, etc.
-
-And this is precisely what I wanted to avoid by not including the buffer in the
-buflock structures.
-
-> 
->> +
->> +/*
->> + * Syncronize reader with current writer
->> + *
->> + * br - the buflock_reader keeping track of the read position
->> + * bw - the buflock_writer keeping track of the write position
->> + *
->> + * Synchronize the reader head with the writer head, effectively
->> + * telling the reader thread that there is new data to read.
->> + *
->> + * The reader head will always follow the writer head. As a
->> + * consequence, the number of items stored in the read buffer might
->> + * decrease during sync, as an effect of wrap-around. To avoid
->> + * non-deterministic behavior during polls, the read buffer is
->> + * guaranteed to be non-empty after synchronization.
->> + *
->> + */
->> +#define buflock_sync_reader(br, bw)				\
->> +	do {							\
->> +		if (br.tail != bw.head)				\
->> +			br.head = bw.head;			\
-> 
-> Why condition? Simple assignment is cheaper.
-
-The condition takes care of a problem that is present also in the current evdev
-code: When the buffer is very small and wraps around a lot, it may well be that
-a write increases the head so that head == tail. If this happens between a point
-where a poll is triggered and the actual data being read, there will be no data
-to read. In an application like "cat", this will close the file and the program
-will exit.
-
-By ensuring that the writer never creates a situation where head == tail, this
-problem is avoided.
-
-> 
->> +	} while (0)
->> +
->> +/*
->> + * True if reader is empty
->> + *
->> + * br - the buflock_reader keeping track of the read position
->> + *
->> + */
->> +#define buflock_reader_empty(br) (br.head == br.tail)
->> +
->> +/*
->> + * Read from buffer, retry during wrap-around
->> + *
->> + * br - the buflock_reader keeping track of the read position
->> + * bw - the buflock_writer keeping track of the write position
->> + * buf - the buffer to read from (array of item type)
->> + * size - the size of the circular buffer (must be a power of two)
->> + * item - the item to read to
->> + *
->> + * Read the oldest item available in the buffer.
->> + *
->> + * During normal operation, with adequate buffer size, this method will not
->> + * block, regardless of the number of concurrent readers. The method will
->> + * only block momentarily during a write to the same position being read
->> + * from, which happens when the buffer gets full. In such cases, the value
->> + * eventually read will be the new value written to the buffer.
->> + *
->> + */
->> +#define buflock_read(br, bw, buf, size, item)				\
->> +	do {								\
->> +		unsigned int _h, _nh;					\
->> +		do {							\
->> +			_h = bw.head;					\
->> +			smp_rmb();					\
->> +			item = buf[br.tail];				\
->> +			smp_rmb();					\
->> +			_nh = bw.next_head;				\
->> +			smp_rmb();					\
->> +		} while (unlikely(br.tail - _h < _nh - _h));		\
->> +		br.tail = (br.tail + 1) & ((size) - 1);			\
->> +	} while (0)
-> 
-> Again, are we sure we need all these barriers? Spinlock may end up less
-> expensive... Anyway, Oleg Nesterov knows more than anyone about data
-> coherency issues (CCed).
-
-These barriers I am less certain of, so additional eyes would be very helpful.
-
-Thanks,
-Henrik
-
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,57 +1,99 @@
-From: Jonathan Cameron <jic23@cam.ac.uk>
+From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
- buffer mechanism
-Date: Fri, 04 Jun 2010 18:08:39 +0100
-Message-ID: <4C093317.1090606@cam.ac.uk>
+	buffer mechanism
+Date: Fri, 4 Jun 2010 21:13:08 +0200
+Message-ID: <20100604191308.GA10942@redhat.com>
 References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net> <4C08BCB5.7020201@bitmath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ppsw-33.csi.cam.ac.uk ([131.111.8.133]:38468 "EHLO
-	ppsw-33.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752069Ab0FDRIP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 13:08:15 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:6599 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751672Ab0FDTPZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Jun 2010 15:15:25 -0400
+Content-Disposition: inline
 In-Reply-To: <4C08BCB5.7020201@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Oleg Nesterov <oleg@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On 06/04/10 09:43, Henrik Rydberg wrote:
-> Hi Dmitry,
->>> +struct buflock_writer {
->>> +	unsigned int head;
->>> +	unsigned int next_head;
->>> +};
->>
->> Since there can be only one writer thread should we just create "struct
->> buflock" and pull head and next head into it along with the buffer
->> itself and element size?
-> 
-> It is possible, but there are some arguments against it:
-> 
-> 1. What type to give the buffer?
-> 2. Static or dynamic buffering?
-> 3. Can size be both a compile-time constant and a variable?
-> 
-> In short, I think that by _not_ including the actual buffer, the method
-> ultimately becomes more useful.
-> 
->> Also, maybe we could extend kfifo with the notion of multiple readers?
-> 
-> If merging the data and algorithm as you suggest, that would be a logical step,
-> yes. To me, the most ideal would be to modify split the kfifo into data, writers
-> and readers. But that would require api changes.
-> 
->>
->> In any case, it shoudl not live in include/linux/input/ as it may be
->> useful ouside of input subsystem.
-> 
-> Agreed.
-I've just opened a debate on linux-iio about whether we want our event infrastructure to
-support multiple readers. If enough people care, then this looks like some infrastructure
-we will be wanting to use as well so I would definitely support putting this outside 
-of input.
+On 06/04, Henrik Rydberg wrote:
+>
+> additional eyes would be very helpful
 
-Jonathan
+I am puzzled. I don't understand what this patch does at all ;)
+
+Could you please provide a simple example or answer my questions?
+
+> >> + * During normal operation, with adequate buffer size, this method will not
+> >> + * block, regardless of the number of concurrent readers.
+
+I don't understand this "regardless of the number of concurrent" comment.
+buflock_read(br) modifies br.tail, it can't be used lockless.
+
+Or, do you mean that every reader should use its own buflock_reader?
+
+If yes. Afaics, we have one buflock_writer, and one buf "connected"
+to this buflock_writer. In that case I don't understand why this
+buf doesn't live in "struct buflock_writer", it can be char[].
+This way both read/write macros do not need buf and size args.
+typeof(item) could be used for read/write into this buf.
+
+But still I can't understand how this all works.
+
+> >> +#define buflock_read(br, bw, buf, size, item)			\
+> >> +	do {								\
+> >> +		unsigned int _h, _nh;					\
+> >> +		do {							\
+> >> +			_h = bw.head;					\
+> >> +			smp_rmb();					\
+> >> +			item = buf[br.tail];				\
+> >> +			smp_rmb();					\
+> >> +			_nh = bw.next_head;				\
+> >> +			smp_rmb();					\
+> >> +		} while (unlikely(br.tail - _h < _nh - _h));		\
+> >> +		br.tail = (br.tail + 1) & ((size) - 1);			\
+> >> +	} while (0)
+
+How can the reader know there is something new/valid in buf it
+can read?
+
+I guess it should call buflock_sync_reader() at least once, to
+"attach" to the writer/buf, and then check buflock_reader_empty() ?
+
+But. If the reader calls buflock_read() constantly, sooner or
+later buflock_reader_empty() becomes T again.
+
+Probably the reader should call buflock_sync_reader() + check
+buflock_reader_empty() == F every time before buflock_read() ?
+
+In this case I do not understand why do we have 2 separate
+helpers, and why do we need buflock_reader->head.
+
+Perhaps it is writer who calls buflock_sync_reader() and tells
+the reader it has the new data? In this case I do not understand
+the "feeding many readers" part.
+
+
+
+And in any case I do not understand which guarantees this API
+provides.
+
+Whatever we do, buflock_read() can race with the writer and read
+the invalid item.
+
+Suppose that buflock_read(br, item) gets the preemption "inside" of
+item = buf[br.tail] asignment.
+
+The writer calls buflock_write() SIZE times.
+
+The reader resumes, continues its memcpy() operation, and suceeds.
+
+But the "item" it returns is not consistent, it is neither the old
+value nor the new.
+
+No?
+
+Oleg.
+

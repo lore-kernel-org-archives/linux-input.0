@@ -1,113 +1,218 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: usbtouchscreen - reduce number fo be16_to_cpu
-	conversions
-Date: Fri, 04 Jun 2010 00:51:43 -0700
-Message-ID: <20100604075057.15829.92443.stgit@localhost.localdomain>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
+ buffer mechanism
+Date: Fri, 04 Jun 2010 10:43:33 +0200
+Message-ID: <4C08BCB5.7020201@bitmath.org>
+References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:47909 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752511Ab0FDHvt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 03:51:49 -0400
-Received: by pvg16 with SMTP id 16so459815pvg.19
-        for <linux-input@vger.kernel.org>; Fri, 04 Jun 2010 00:51:48 -0700 (PDT)
+Received: from csmtp2.one.com ([91.198.169.22]:50295 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753942Ab0FDInn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Jun 2010 04:43:43 -0400
+In-Reply-To: <20100604065658.GE21239@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Oleg Nesterov <oleg@redhat.com>
 
-Let's perform be16_to_cpu() conversions once for each received packet,
-and then use cached values. Makes code a little bit easier to follow.
+Hi Dmitry,
+>> +struct buflock_writer {
+>> +	unsigned int head;
+>> +	unsigned int next_head;
+>> +};
+> 
+> Since there can be only one writer thread should we just create "struct
+> buflock" and pull head and next head into it along with the buffer
+> itself and element size?
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+It is possible, but there are some arguments against it:
 
-Ondrej,
+1. What type to give the buffer?
+2. Static or dynamic buffering?
+3. Can size be both a compile-time constant and a variable?
 
-Any chance you could test the following patch?
+In short, I think that by _not_ including the actual buffer, the method
+ultimately becomes more useful.
+
+> Also, maybe we could extend kfifo with the notion of multiple readers?
+
+If merging the data and algorithm as you suggest, that would be a logical step,
+yes. To me, the most ideal would be to modify split the kfifo into data, writers
+and readers. But that would require api changes.
+
+> 
+> In any case, it shoudl not live in include/linux/input/ as it may be
+> useful ouside of input subsystem.
+
+Agreed.
+
+> 
+>> +
+>> +struct buflock_reader {
+>> +	unsigned int head;
+>> +	unsigned int tail;
+>> +};
+>> +
+>> +/*
+>> + * Write to buffer without locking
+> 
+> Implies that there is an option of doing so with locking. Juts change to
+> write. Also please use standard kerneldoc-style markups.
+
+Ok.
+
+> 
+>> + *
+>> + * bw - the buflock_writer keeping track of the write position
+>> + * buf - the buffer to write to (array of item type)
+>> + * size - the size of the circular buffer (must be a power of two)
+>> + * item - the item to write
+>> + *
+>> + * There is no locking involved during write, so this method is
+>> + * suitable to use in interrupt context.
+> 
+> This is a misleading statement. You can say that this operation does not
+> sleep and thus is suitable for use in atomic contexts.
+
+Ok.
+
+> 
+>> + */
+>> +#define buflock_write(bw, buf, size, item)				\
+>> +	do {								\
+>> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
+>> +		smp_wmb();						\
+> 
+> Why do we need the write barrier here?
+
+   reader_loads_next_head
+    -> interrupt modifying next_head then the buffer then the head
+   reader_loads_buffer
+   reader_loads_head
+
+In this scenario, the reader ends up seeing next_head < head, but the position
+written was next_head. The reader will get a false picture of which portion of
+the buffer was modified.
+
+> 
+>> +		buf[bw.head] = item;					\
+>> +		smp_wmb();						\
+> 
+> I think this is the only barrier that is needed. You want to make sure
+> that we advance head only after we complete write. Also, why SMP only?
+> Can't we get into trouble if we rearrange writes and take interrupt and
+> schedule away from this thread?
+
+This would be true for a single-reader fifo, if we do not care about what
+happens when the buffer wraps around. Regarding reordering, my impression was
+that this cannot happen across smp_wmb(), but I might very well be wrong.
+
+> 
+>> +		bw.head = bw.next_head;					\
+>> +		smp_wmb();						\
+> 
+> Why do we need the write barrier here?
+
+This is following the pattern of seqlocks. My understanding is that since we
+will later rely on head being written, the last smp_wmb() is "for the road".
+
+> 
+>> +	} while (0)
+>> +
+> 
+> This (and the rest) should be a static inline function so that we have
+> type safety, etc, etc.
+
+And this is precisely what I wanted to avoid by not including the buffer in the
+buflock structures.
+
+> 
+>> +
+>> +/*
+>> + * Syncronize reader with current writer
+>> + *
+>> + * br - the buflock_reader keeping track of the read position
+>> + * bw - the buflock_writer keeping track of the write position
+>> + *
+>> + * Synchronize the reader head with the writer head, effectively
+>> + * telling the reader thread that there is new data to read.
+>> + *
+>> + * The reader head will always follow the writer head. As a
+>> + * consequence, the number of items stored in the read buffer might
+>> + * decrease during sync, as an effect of wrap-around. To avoid
+>> + * non-deterministic behavior during polls, the read buffer is
+>> + * guaranteed to be non-empty after synchronization.
+>> + *
+>> + */
+>> +#define buflock_sync_reader(br, bw)				\
+>> +	do {							\
+>> +		if (br.tail != bw.head)				\
+>> +			br.head = bw.head;			\
+> 
+> Why condition? Simple assignment is cheaper.
+
+The condition takes care of a problem that is present also in the current evdev
+code: When the buffer is very small and wraps around a lot, it may well be that
+a write increases the head so that head == tail. If this happens between a point
+where a poll is triggered and the actual data being read, there will be no data
+to read. In an application like "cat", this will close the file and the program
+will exit.
+
+By ensuring that the writer never creates a situation where head == tail, this
+problem is avoided.
+
+> 
+>> +	} while (0)
+>> +
+>> +/*
+>> + * True if reader is empty
+>> + *
+>> + * br - the buflock_reader keeping track of the read position
+>> + *
+>> + */
+>> +#define buflock_reader_empty(br) (br.head == br.tail)
+>> +
+>> +/*
+>> + * Read from buffer, retry during wrap-around
+>> + *
+>> + * br - the buflock_reader keeping track of the read position
+>> + * bw - the buflock_writer keeping track of the write position
+>> + * buf - the buffer to read from (array of item type)
+>> + * size - the size of the circular buffer (must be a power of two)
+>> + * item - the item to read to
+>> + *
+>> + * Read the oldest item available in the buffer.
+>> + *
+>> + * During normal operation, with adequate buffer size, this method will not
+>> + * block, regardless of the number of concurrent readers. The method will
+>> + * only block momentarily during a write to the same position being read
+>> + * from, which happens when the buffer gets full. In such cases, the value
+>> + * eventually read will be the new value written to the buffer.
+>> + *
+>> + */
+>> +#define buflock_read(br, bw, buf, size, item)				\
+>> +	do {								\
+>> +		unsigned int _h, _nh;					\
+>> +		do {							\
+>> +			_h = bw.head;					\
+>> +			smp_rmb();					\
+>> +			item = buf[br.tail];				\
+>> +			smp_rmb();					\
+>> +			_nh = bw.next_head;				\
+>> +			smp_rmb();					\
+>> +		} while (unlikely(br.tail - _h < _nh - _h));		\
+>> +		br.tail = (br.tail + 1) & ((size) - 1);			\
+>> +	} while (0)
+> 
+> Again, are we sure we need all these barriers? Spinlock may end up less
+> expensive... Anyway, Oleg Nesterov knows more than anyone about data
+> coherency issues (CCed).
+
+These barriers I am less certain of, so additional eyes would be very helpful.
 
 Thanks,
-Dmitry
-
-
- drivers/input/touchscreen/usbtouchscreen.c |   34 +++++++++++++++-------------
- 1 files changed, 18 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 567d572..5d6bf2a 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -849,29 +849,32 @@ static void nexio_exit(struct usbtouch_usb *usbtouch)
- 
- static int nexio_read_data(struct usbtouch_usb *usbtouch, unsigned char *pkt)
- {
--	int x, y, begin_x, begin_y, end_x, end_y, w, h, ret;
- 	struct nexio_touch_packet *packet = (void *) pkt;
- 	struct nexio_priv *priv = usbtouch->priv;
-+	unsigned int data_len = be16_to_cpu(packet->data_len);
-+	unsigned int x_len = be16_to_cpu(packet->x_len);
-+	unsigned int y_len = be16_to_cpu(packet->y_len);
-+	int x, y, begin_x, begin_y, end_x, end_y, w, h, ret;
- 
- 	/* got touch data? */
- 	if ((pkt[0] & 0xe0) != 0xe0)
- 		return 0;
- 
--	if (be16_to_cpu(packet->data_len) > 0xff)
--		packet->data_len = cpu_to_be16(be16_to_cpu(packet->data_len) - 0x100);
--	if (be16_to_cpu(packet->x_len) > 0xff)
--		packet->x_len = cpu_to_be16(be16_to_cpu(packet->x_len) - 0x80);
-+	if (data_len > 0xff)
-+		data_len -= 0x100;
-+	if (x_len > 0xff)
-+		x_len -= 0x80;
- 
- 	/* send ACK */
- 	ret = usb_submit_urb(priv->ack, GFP_ATOMIC);
- 
- 	if (!usbtouch->type->max_xc) {
--		usbtouch->type->max_xc = 2 * be16_to_cpu(packet->x_len);
--		input_set_abs_params(usbtouch->input, ABS_X, 0,
--				     2 * be16_to_cpu(packet->x_len), 0, 0);
--		usbtouch->type->max_yc = 2 * be16_to_cpu(packet->y_len);
--		input_set_abs_params(usbtouch->input, ABS_Y, 0,
--				     2 * be16_to_cpu(packet->y_len), 0, 0);
-+		usbtouch->type->max_xc = 2 * x_len;
-+		input_set_abs_params(usbtouch->input, ABS_X,
-+				     0, usbtouch->type->max_xc, 0, 0);
-+		usbtouch->type->max_yc = 2 * y_len;
-+		input_set_abs_params(usbtouch->input, ABS_Y,
-+				     0, usbtouch->type->max_yc, 0, 0);
- 	}
- 	/*
- 	 * The device reports state of IR sensors on X and Y axes.
-@@ -881,22 +884,21 @@ static int nexio_read_data(struct usbtouch_usb *usbtouch, unsigned char *pkt)
- 	 * it's disabled (and untested) here as there's no X driver for that.
- 	 */
- 	begin_x = end_x = begin_y = end_y = -1;
--	for (x = 0; x < be16_to_cpu(packet->x_len); x++) {
-+	for (x = 0; x < x_len; x++) {
- 		if (begin_x == -1 && packet->data[x] > NEXIO_THRESHOLD) {
- 			begin_x = x;
- 			continue;
- 		}
- 		if (end_x == -1 && begin_x != -1 && packet->data[x] < NEXIO_THRESHOLD) {
- 			end_x = x - 1;
--			for (y = be16_to_cpu(packet->x_len);
--			     y < be16_to_cpu(packet->data_len); y++) {
-+			for (y = x_len; y < data_len; y++) {
- 				if (begin_y == -1 && packet->data[y] > NEXIO_THRESHOLD) {
--					begin_y = y - be16_to_cpu(packet->x_len);
-+					begin_y = y - x_len;
- 					continue;
- 				}
- 				if (end_y == -1 &&
- 				    begin_y != -1 && packet->data[y] < NEXIO_THRESHOLD) {
--					end_y = y - 1 - be16_to_cpu(packet->x_len);
-+					end_y = y - 1 - x_len;
- 					w = end_x - begin_x;
- 					h = end_y - begin_y;
- #if 0
+Henrik
 

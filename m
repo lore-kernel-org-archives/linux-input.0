@@ -1,48 +1,57 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
+From: Jonathan Cameron <jic23@cam.ac.uk>
 Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
  buffer mechanism
-Date: Fri, 04 Jun 2010 18:36:55 +0200
-Message-ID: <4C092BA7.507@bitmath.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net>
+Date: Fri, 04 Jun 2010 18:08:39 +0100
+Message-ID: <4C093317.1090606@cam.ac.uk>
+References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net> <4C08BCB5.7020201@bitmath.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp1.one.com ([195.47.247.21]:32811 "EHLO csmtp1.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754660Ab0FDQhC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jun 2010 12:37:02 -0400
-In-Reply-To: <20100604065658.GE21239@core.coreip.homeip.net>
+Received: from ppsw-33.csi.cam.ac.uk ([131.111.8.133]:38468 "EHLO
+	ppsw-33.csi.cam.ac.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752069Ab0FDRIP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 13:08:15 -0400
+In-Reply-To: <4C08BCB5.7020201@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Oleg Nesterov <oleg@redhat.com>
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Oleg Nesterov <oleg@redhat.com>
 
->> +#define buflock_write(bw, buf, size, item)				\
->> +	do {								\
->> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
->> +		smp_wmb();						\
+On 06/04/10 09:43, Henrik Rydberg wrote:
+> Hi Dmitry,
+>>> +struct buflock_writer {
+>>> +	unsigned int head;
+>>> +	unsigned int next_head;
+>>> +};
+>>
+>> Since there can be only one writer thread should we just create "struct
+>> buflock" and pull head and next head into it along with the buffer
+>> itself and element size?
 > 
-> Why do we need the write barrier here?
+> It is possible, but there are some arguments against it:
+> 
+> 1. What type to give the buffer?
+> 2. Static or dynamic buffering?
+> 3. Can size be both a compile-time constant and a variable?
+> 
+> In short, I think that by _not_ including the actual buffer, the method
+> ultimately becomes more useful.
+> 
+>> Also, maybe we could extend kfifo with the notion of multiple readers?
+> 
+> If merging the data and algorithm as you suggest, that would be a logical step,
+> yes. To me, the most ideal would be to modify split the kfifo into data, writers
+> and readers. But that would require api changes.
+> 
+>>
+>> In any case, it shoudl not live in include/linux/input/ as it may be
+>> useful ouside of input subsystem.
+> 
+> Agreed.
+I've just opened a debate on linux-iio about whether we want our event infrastructure to
+support multiple readers. If enough people care, then this looks like some infrastructure
+we will be wanting to use as well so I would definitely support putting this outside 
+of input.
 
-I believe my first answer to this question was foggy indeed, so allow me to go
-again, with a time line:
-
-Scenario 1, correct write order:
-
-writer              store_next_head   store_buf        store_head
-reader  load_head   load_buf       load_next_head
-
-Result: head != next_head, incoherent read detected
-
-Scenario 2, incorrect write order:
-
-writer              store_buf         store_next_head  store_head
-reader  load_head   load_buf       load_next_head
-
-Result: head == next_head, incoherent read not detected
-
-Based on the assumption that scenario 2 could happen if the smp_wmb() is not
-present, the barrier is needed.
-
-Henrik
+Jonathan

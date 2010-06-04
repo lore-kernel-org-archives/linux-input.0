@@ -1,39 +1,42 @@
-From: "Buckley K Bobbi" <tom@mail.maritimabusonich.com.pe>
-Subject: b2b marketing list
-Date: Thu,  3 Jun 2010 05:45:02 -0500 (PET)
-Message-ID: <20100603104502.CF8121AE9B1@mail.maritimabusonich.com.pe>
-Reply-To: tom@mail.maritimabusonich.com.pe
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] input: Use driver hint to compute the evdev buffer
+ size
+Date: Thu, 3 Jun 2010 23:34:30 -0700
+Message-ID: <20100604063429.GB21239@core.coreip.homeip.net>
+References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
+ <1275552062-8153-2-git-send-email-rydberg@euromail.se>
+ <1275552062-8153-3-git-send-email-rydberg@euromail.se>
+ <1275552062-8153-4-git-send-email-rydberg@euromail.se>
+ <1275552062-8153-5-git-send-email-rydberg@euromail.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.maritimabusonich.com.pe ([200.37.149.2]:44626 "EHLO
-	mail.maritimabusonich.com.pe" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750845Ab0FCKwy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Jun 2010 06:52:54 -0400
+Received: from mail-px0-f174.google.com ([209.85.212.174]:57616 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775Ab0FDGeg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 02:34:36 -0400
+Content-Disposition: inline
+In-Reply-To: <1275552062-8153-5-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: webmaster@hockey-angebote.de, infoweb@tecnoidealsrl.com, ron@medallionofnm.com, andra@mothersclick.com, rothdentistry@sbcblobal.net
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Here's a couple of our healthcare list packages on sale this week only:
+Hi Henrik,
 
-Package 1
+On Thu, Jun 03, 2010 at 10:01:02AM +0200, Henrik Rydberg wrote:
+>  
+> +static inline void input_set_events_per_packet(struct input_dev *dev, int nev)
 
-Alternative Medicine - 1,141,602 total records with 36,320 emails and 38.935 fax numbers
-Massage Therapists - 76,701 records and 8,305 emails
-Physical Therapists - 125,460 total records with 5,483 emails and 4,405 fax numbers
+A kerneldoc-style comment explaining the purpose of the new function would
+be very beneficial.
 
-All complete lists above: $277
+> +{
+> +	dev->hint_events_per_packet = nev;
+> +}
+> +
 
-Package 2
+Thanks.
 
-Chiropractors - 108,421 total records * 3,414 emails * 6,553 fax numbers
-Acupuncturists - 23,988 records 1,826 emails
-Massage Therapists - 76,701 records and 8,305 emails
-
-All complete lists above: $247
-
-There are more packages and not just for healthcare contact me here for more info or to get samples: Vicente.Mckinley@listnirvana.net
-
-  
-
-
-Send email to disappear@listnirvana.net to ensure no further communication
+-- 
+Dmitry

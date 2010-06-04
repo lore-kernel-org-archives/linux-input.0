@@ -1,47 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/4] input: evdev: Dynamic buffers (rev3)
-Date: Thu, 3 Jun 2010 23:59:15 -0700
-Message-ID: <20100604065915.GF21239@core.coreip.homeip.net>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
+Subject: [git pull] Input updates for 2.6.35-rc1
+Date: Fri, 4 Jun 2010 00:47:01 -0700
+Message-ID: <20100604074701.GH21239@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:39726 "EHLO
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:36494 "EHLO
 	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751967Ab0FDG7W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 02:59:22 -0400
+	with ESMTP id S1752149Ab0FDHrJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 03:47:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Henrik,
+Hi Linus,
 
-On Thu, Jun 03, 2010 at 10:00:58AM +0200, Henrik Rydberg wrote:
-> Dmitry,
-> 
-> Please find enclosed the third version of the evdev buffer patches.
-> 
-> This version has one more patch; the locking mechanism has been broken
-> out into its own file, buflock.h, adding a fair amount of
-> documentation. The mechanism has been moderately tested, showing
-> graceful dropping of packets as the buffer size gets smaller and the
-> number of simultaneous readers gets larger.
-> 
-> In the second patch, the per-client buffer is replaced by the buflock
-> reader, and the spinlock name is changed to reflect the reduced area
-> it covers. The third patch only has trivial changes, and the fourth
-> patch is unchanged, but included for completeness.
-> 
+Please pull from:
 
-I think the patchet moves things in the right direction, however I am
-unsure at the moment about buflock implementation. Any chance you coudl
-redo the series without the buflock (with readers taking dev->event_lock
-for now) and once buflock is sorted we can switch to is as a followup).
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thanks.
+to receive updates for the input subsystem.
+
+Changelog:
+---------
+
+Dan Carpenter (1):
+      Input: tps6507x-ts - a couple work queue cleanups
+
+Dmitry Torokhov (1):
+      Input: ads7846 - fix compiler warning in ads7846_probe()
+
+Mark Brown (2):
+      Input: s3c2410_ts - fix build error due to ADC Kconfig rename
+      Input: s3c2410_ts - tone down logging
+
+Ping Cheng (1):
+      Input: wacom - add Cintiq 21UX2 and Intuos4 WL
+
+
+Diffstat:
+--------
+
+ drivers/input/tablet/wacom_sys.c        |    1 -
+ drivers/input/tablet/wacom_wac.c        |   73 +++++++++++++++++++++++++------
+ drivers/input/tablet/wacom_wac.h        |    1 +
+ drivers/input/touchscreen/Kconfig       |    2 +-
+ drivers/input/touchscreen/ads7846.c     |    2 +-
+ drivers/input/touchscreen/s3c2410_ts.c  |    2 +-
+ drivers/input/touchscreen/tps6507x-ts.c |   12 ++---
+ 7 files changed, 67 insertions(+), 26 deletions(-)
 
 -- 
 Dmitry
+

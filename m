@@ -1,71 +1,67 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: question about v4l2_subdev
-Date: Fri, 04 Jun 2010 21:27:38 -0400
-Message-ID: <1275701258.2247.16.camel@localhost>
-References: <4C03D80B.5090009@atmel.com>
-	 <1275329947.2261.19.camel@localhost>  <4C04C17D.8020702@atmel.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
+ buffer mechanism
+Date: Fri, 4 Jun 2010 18:35:50 -0700
+Message-ID: <20100604183550.919cde7d.akpm@linux-foundation.org>
+References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
+	<1275552062-8153-2-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <4C04C17D.8020702@atmel.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:59684 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752406Ab0FEBhF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Jun 2010 21:37:05 -0400
+In-Reply-To: <1275552062-8153-2-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Tue, 2010-06-01 at 10:14 +0200, Sedji Gaouaou wrote:
-> Hi,
+On Thu,  3 Jun 2010 10:00:59 +0200 "Henrik Rydberg" <rydberg@euromail.se> wrote:
+
+> In spite of the many lock patterns and fifo helpers in the kernel, the
+> case of a single writer feeding many readers via a circular buffer
+> seems to be uncovered. This patch adds the buflock, a minimalistic
+> interface implementing SMP-safe locking for such a buffer. Under
+> normal operation, given adequate buffer size, the operation is
+> lock-less. The template is given the name buflock to emphasize that
+> the locking depends on the buffer read/write clashes.
 > 
-> 
-> >
-> > 1. Something first should call v4l2_device_register() on a v4l2_device
-> > object.  (Typically there is only one v4l2_device object per "bridge"
-> > chip between the PCI, PCIe, or USB bus and the subdevices, even if that
-> > bridge chip has more than one I2C master implementation.)
-> >
-> > 2. Then, for subdevices connected to the bridge chip via I2C, something
-> > needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as one
-> > of the arguments, to get back a v4l2_subdevice instance pointer.
-> >
-> > 3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as one of
-> > the arguments can be used to invoke the subdevice methods.
-> >
-> > TV Video capture drivers do this work themselves.  Drivers using a
-> > camera framework may have the framework doing some of the work for them.
-> >
-> >
-> > Regards,
-> > Andy
-> >
-> >
-> >
-> 
-> 
-> Is there a sensor driver which is using this method?
-> 
-> To write the ov2640 driver I have just copied the ov7670.c file, and I 
-> didn't find the v4l2_i2c_new_subdev in it...
 
-Subdev driver modules, like ov7670.c, don't attach themselves; the
-bridge chip driver attaches an instance to an I2C bus.
+Seems that reviewers have already covered most of the oddities.
 
-Look at
+> +/*
+> + * Write to buffer without locking
+> + *
+> + * bw - the buflock_writer keeping track of the write position
+> + * buf - the buffer to write to (array of item type)
+> + * size - the size of the circular buffer (must be a power of two)
+> + * item - the item to write
+> + *
+> + * There is no locking involved during write, so this method is
+> + * suitable to use in interrupt context.
+> + */
 
-	drivers/media/video/cafe_ccic.c
+And if the buffer fills up, it silently overwrites old data?
 
-And examine cafe_pci_probe() and the definition and use of the
-sensor_call() macro.
+There are many options in this sort of thing.  Certain choices have
+been made here and they should be spelled out exhaustively please.
 
-Also note
+> +#define buflock_write(bw, buf, size, item)				\
+> +	do {								\
+> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
+> +		smp_wmb();						\
+> +		buf[bw.head] = item;					\
+> +		smp_wmb();						\
+> +		bw.head = bw.next_head;					\
+> +		smp_wmb();						\
+> +	} while (0)
 
-$ grep -Ril ov7670 drivers/media/video/*
+I don't think there's a reason why these all had to be implemented as
+bloaty, un-typesafe macros?  Especially as buggy ones which reference
+their arguments multiple times!
 
-will show you in what drivers, the ov7670 might be used.
-
-
-Regards,
-Andy
-
-> Regards,
-> Sedji
+Code it in C if possible, please.

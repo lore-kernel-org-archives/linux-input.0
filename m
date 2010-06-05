@@ -1,35 +1,41 @@
-From: "2010 Account Upgrade" <info@upgrade.co.uk>
-Subject: Dear Webmail/E-mail user
-Date: Sat, 5 Jun 2010 08:24:17 +0100 (BST)
-Message-ID: <e5b945d885130d35dfc20c5bfceb2f5d.squirrel__42269.0317071558$1275725607$gmane$org@webmail.tdm.co.mz>
-Reply-To: sbc.upgrade@onfruit.cn
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
+Date: Sat,  5 Jun 2010 13:04:26 +0200
+Message-ID: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pop.tdm.co.mz ([41.220.162.42]:55688 "EHLO pop.tdm.co.mz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932455Ab0FEINT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Jun 2010 04:13:19 -0400
+Received: from smtp-out11.han.skanova.net ([195.67.226.200]:34134 "EHLO
+	smtp-out11.han.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751940Ab0FELKg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Jun 2010 07:10:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
 
-Dear Webmail/E-mail user,
+Dmitry,
 
-This message is from our Webmail Messaging Center to all our account
-owners.We are currently upgrading our database and e-mail center. We are
-deleting all unused webmail account to create more space for new accounts.
-To ensure that you do not experience service interruption during this
-period; you will need to  verify your webmail account details through the
-following:
+Please find enclosed the fourth version of the evdev buffer patches.
 
-1.Username :....................................
-2.Password :...................................
-3.Date of Birth :...............................
+This version implements buffer locking using event_lock as you
+suggested, such that we can proceed with fixing the evdev buffer
+problem independently from providing a suitable one-to-many buffer.
 
-You will be sent a new confirmation alphanumerical password that will only
-be valid during this period, and may be altered by this process. We very
-much regret any inconvenience this may cost you.Please reply to this
-message to enable us to give you better online services with our new
-improved webmail functionality and improvements.
+The first patch converts the per-client buffers to a common buffer,
+and adds a fixme since the code is expected to be further
+improved. The second and third patch includes your review comments.
+
+Thanks,
+Henrik
+
+---
+
+Henrik Rydberg (3):
+  input: evdev: Use multi-reader buffer to save space (rev4)
+  input: evdev: Convert to dynamic event buffer (rev4)
+  input: Use driver hint to compute the evdev buffer size (rev2)
+
+ drivers/input/evdev.c |   68 +++++++++++++++++++++++++++++++++----------------
+ include/linux/input.h |   17 ++++++++++++
+ 2 files changed, 63 insertions(+), 22 deletions(-)
 

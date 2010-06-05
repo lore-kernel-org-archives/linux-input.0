@@ -1,51 +1,35 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [patch] input: off by one in pcf8574_kp_irq_handler()
-Date: Sat, 5 Jun 2010 08:50:02 +0200
-Message-ID: <20100605085002.064a6888@hyperion.delvare>
-References: <20100604231939.GJ5483@bicker>
+From: "2010 Account Upgrade" <info@upgrade.co.uk>
+Subject: Dear Webmail/E-mail user
+Date: Sat, 5 Jun 2010 08:22:27 +0100 (BST)
+Message-ID: <1b7c4434f015dd34d37aa5e032c9ffe2.squirrel__44830.5300822996$1275722877$gmane$org@webmail.tdm.co.mz>
+Reply-To: sbc.upgrade@onfruit.cn
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from poutre.nerim.net ([62.4.16.124]:59256 "EHLO poutre.nerim.net"
+Received: from webmail.tdm.co.mz ([41.220.162.42]:58663 "EHLO pop.tdm.co.mz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754452Ab0FEGuH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Jun 2010 02:50:07 -0400
-In-Reply-To: <20100604231939.GJ5483@bicker>
+	id S1755011Ab0FEH1h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Jun 2010 03:27:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Greg Kroah-Hartman <gregkh@suse.de>, Richard Purdie <rpurdie@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Dan,
+Dear Webmail/E-mail user,
 
-On Sat, 5 Jun 2010 01:19:39 +0200, Dan Carpenter wrote:
-> If nextstate == ARRAY_SIZE(lp->btncode), then we read one past the end of
-> the array on the next line.
-> 
-> This fixes a smatch warning:
-> drivers/input/misc/pcf8574_keypad.c +74 pcf8574_kp_irq_handler(8)
-> 	error: buffer overflow 'lp->btncode' 17 <= 17
-> 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
-> 
-> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-> index 0ac47d2..4b42ffc 100644
-> --- a/drivers/input/misc/pcf8574_keypad.c
-> +++ b/drivers/input/misc/pcf8574_keypad.c
-> @@ -69,7 +69,7 @@ static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
->  	unsigned char nextstate = read_state(lp);
->  
->  	if (lp->laststate != nextstate) {
-> -		int key_down = nextstate <= ARRAY_SIZE(lp->btncode);
-> +		int key_down = nextstate < ARRAY_SIZE(lp->btncode);
->  		unsigned short keycode = key_down ?
->  			lp->btncode[nextstate] : lp->btncode[lp->laststate];
->  
+This message is from our Webmail Messaging Center to all our account
+owners.We are currently upgrading our database and e-mail center. We are
+deleting all unused webmail account to create more space for new accounts.
+To ensure that you do not experience service interruption during this
+period; you will need to  verify your webmail account details through the
+following:
 
-Good catch.
+1.Username :....................................
+2.Password :...................................
+3.Date of Birth :...............................
 
-Acked-by: Jean Delvare <khali@linux-fr.org>
+You will be sent a new confirmation alphanumerical password that will only
+be valid during this period, and may be altered by this process. We very
+much regret any inconvenience this may cost you.Please reply to this
+message to enable us to give you better online services with our new
+improved webmail functionality and improvements.
 
--- 
-Jean Delvare

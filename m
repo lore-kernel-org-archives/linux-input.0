@@ -1,39 +1,71 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch] input: off by one in pcf8574_kp_irq_handler()
-Date: Sat, 5 Jun 2010 01:19:39 +0200
-Message-ID: <20100604231939.GJ5483@bicker>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: question about v4l2_subdev
+Date: Fri, 04 Jun 2010 21:27:38 -0400
+Message-ID: <1275701258.2247.16.camel@localhost>
+References: <4C03D80B.5090009@atmel.com>
+	 <1275329947.2261.19.camel@localhost>  <4C04C17D.8020702@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f223.google.com ([209.85.219.223]:41219 "EHLO
-	mail-ew0-f223.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757065Ab0FDXT4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Jun 2010 19:19:56 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <4C04C17D.8020702@atmel.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Sedji Gaouaou <sedji.gaouaou@atmel.com>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>, Richard Purdie <rpurdie@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-If nextstate == ARRAY_SIZE(lp->btncode), then we read one past the end of
-the array on the next line.
+On Tue, 2010-06-01 at 10:14 +0200, Sedji Gaouaou wrote:
+> Hi,
+> 
+> 
+> >
+> > 1. Something first should call v4l2_device_register() on a v4l2_device
+> > object.  (Typically there is only one v4l2_device object per "bridge"
+> > chip between the PCI, PCIe, or USB bus and the subdevices, even if that
+> > bridge chip has more than one I2C master implementation.)
+> >
+> > 2. Then, for subdevices connected to the bridge chip via I2C, something
+> > needs to call v4l2_i2c_new_subdev() with the v4l2_device pointer as one
+> > of the arguments, to get back a v4l2_subdevice instance pointer.
+> >
+> > 3. After that, v4l2_subdev_call() with the v4l2_subdev pointer as one of
+> > the arguments can be used to invoke the subdevice methods.
+> >
+> > TV Video capture drivers do this work themselves.  Drivers using a
+> > camera framework may have the framework doing some of the work for them.
+> >
+> >
+> > Regards,
+> > Andy
+> >
+> >
+> >
+> 
+> 
+> Is there a sensor driver which is using this method?
+> 
+> To write the ov2640 driver I have just copied the ov7670.c file, and I 
+> didn't find the v4l2_i2c_new_subdev in it...
 
-This fixes a smatch warning:
-drivers/input/misc/pcf8574_keypad.c +74 pcf8574_kp_irq_handler(8)
-	error: buffer overflow 'lp->btncode' 17 <= 17
+Subdev driver modules, like ov7670.c, don't attach themselves; the
+bridge chip driver attaches an instance to an I2C bus.
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+Look at
 
-diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-index 0ac47d2..4b42ffc 100644
---- a/drivers/input/misc/pcf8574_keypad.c
-+++ b/drivers/input/misc/pcf8574_keypad.c
-@@ -69,7 +69,7 @@ static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
- 	unsigned char nextstate = read_state(lp);
- 
- 	if (lp->laststate != nextstate) {
--		int key_down = nextstate <= ARRAY_SIZE(lp->btncode);
-+		int key_down = nextstate < ARRAY_SIZE(lp->btncode);
- 		unsigned short keycode = key_down ?
- 			lp->btncode[nextstate] : lp->btncode[lp->laststate];
- 
+	drivers/media/video/cafe_ccic.c
+
+And examine cafe_pci_probe() and the definition and use of the
+sensor_call() macro.
+
+Also note
+
+$ grep -Ril ov7670 drivers/media/video/*
+
+will show you in what drivers, the ov7670 might be used.
+
+
+Regards,
+Andy
+
+> Regards,
+> Sedji

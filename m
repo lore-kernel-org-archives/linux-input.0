@@ -1,87 +1,73 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 3/3] input: Use driver hint to compute the evdev buffer size (rev2)
-Date: Sat,  5 Jun 2010 13:04:29 +0200
-Message-ID: <1275735869-2185-4-git-send-email-rydberg@euromail.se>
-References: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
- <1275735869-2185-2-git-send-email-rydberg@euromail.se>
- <1275735869-2185-3-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1275735869-2185-3-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
+ buffer mechanism
+Date: Sat, 05 Jun 2010 13:21:39 +0200
+Message-ID: <4C0A3343.4030902@euromail.se>
+References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>	<1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604183550.919cde7d.akpm@linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out21.han.skanova.net ([195.67.226.208]:55266 "EHLO
+	smtp-out21.han.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752779Ab0FELV5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Jun 2010 07:21:57 -0400
+In-Reply-To: <20100604183550.919cde7d.akpm@linux-foundation.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Some devices, in particular MT devices, produce a lot of data.  This
-leads to a high frequency of lost packets in evdev, which by default
-uses a fairly small event buffer. Let the drivers hint the average
-number of events per packet for the device by calling the
-input_set_events_per_packet(), and use that information when computing
-the evdev buffer size.
+Andrew Morton wrote:
+> On Thu,  3 Jun 2010 10:00:59 +0200 "Henrik Rydberg" <rydberg@euromail.se> wrote:
+> 
+>> In spite of the many lock patterns and fifo helpers in the kernel, the
+>> case of a single writer feeding many readers via a circular buffer
+>> seems to be uncovered. This patch adds the buflock, a minimalistic
+>> interface implementing SMP-safe locking for such a buffer. Under
+>> normal operation, given adequate buffer size, the operation is
+>> lock-less. The template is given the name buflock to emphasize that
+>> the locking depends on the buffer read/write clashes.
+>>
+> 
+> Seems that reviewers have already covered most of the oddities.
+> 
+>> +/*
+>> + * Write to buffer without locking
+>> + *
+>> + * bw - the buflock_writer keeping track of the write position
+>> + * buf - the buffer to write to (array of item type)
+>> + * size - the size of the circular buffer (must be a power of two)
+>> + * item - the item to write
+>> + *
+>> + * There is no locking involved during write, so this method is
+>> + * suitable to use in interrupt context.
+>> + */
+> 
+> And if the buffer fills up, it silently overwrites old data?
+> 
+> There are many options in this sort of thing.  Certain choices have
+> been made here and they should be spelled out exhaustively please.
+> 
+>> +#define buflock_write(bw, buf, size, item)				\
+>> +	do {								\
+>> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
+>> +		smp_wmb();						\
+>> +		buf[bw.head] = item;					\
+>> +		smp_wmb();						\
+>> +		bw.head = bw.next_head;					\
+>> +		smp_wmb();						\
+>> +	} while (0)
+> 
+> I don't think there's a reason why these all had to be implemented as
+> bloaty, un-typesafe macros?  Especially as buggy ones which reference
+> their arguments multiple times!
+> 
+> Code it in C if possible, please.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/evdev.c |    5 ++++-
- include/linux/input.h |   17 +++++++++++++++++
- 2 files changed, 21 insertions(+), 1 deletions(-)
+Thanks Andrew, Dmitry, Oleg and Jonathan for your reviews. Next round of the
+buflock stuff will be targeting the wider audience in include/linux/.
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 463bf1b..2cf7b3a 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -11,6 +11,7 @@
- #define EVDEV_MINOR_BASE	64
- #define EVDEV_MINORS		32
- #define EVDEV_MIN_BUFFER_SIZE	64
-+#define EVDEV_BUF_PACKETS	8
- 
- #include <linux/poll.h>
- #include <linux/sched.h>
-@@ -797,7 +798,9 @@ static void evdev_cleanup(struct evdev *evdev)
- 
- static int evdev_compute_buffer_size(struct input_dev *dev)
- {
--	return EVDEV_MIN_BUFFER_SIZE;
-+	int nev = dev->hint_events_per_packet * EVDEV_BUF_PACKETS;
-+	nev = max(nev, EVDEV_MIN_BUFFER_SIZE);
-+	return roundup_pow_of_two(nev);
- }
- 
- /*
-diff --git a/include/linux/input.h b/include/linux/input.h
-index bd00786..b2a8a59 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -1162,6 +1162,8 @@ struct input_dev {
- 	unsigned long ffbit[BITS_TO_LONGS(FF_CNT)];
- 	unsigned long swbit[BITS_TO_LONGS(SW_CNT)];
- 
-+	unsigned int hint_events_per_packet;
-+
- 	unsigned int keycodemax;
- 	unsigned int keycodesize;
- 	void *keycode;
-@@ -1439,6 +1441,21 @@ static inline void input_mt_slot(struct input_dev *dev, int slot)
- 
- void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code);
- 
-+/**
-+ * input_set_events_per_packet - tell handlers about the driver event rate
-+ * @dev: the input device used by the driver
-+ * @nev: the average number of events between calls to input_sync()
-+ *
-+ * If the event rate sent from a device is unusually large, use this
-+ * function to set the expected event rate. This will allow handlers
-+ * to set up an approriate buffer size for the event stream, in order
-+ * to minimize information loss.
-+ */
-+static inline void input_set_events_per_packet(struct input_dev *dev, int nev)
-+{
-+	dev->hint_events_per_packet = nev;
-+}
-+
- static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
- {
- 	dev->absmin[axis] = min;
--- 
-1.6.3.3
+Henrik
+

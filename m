@@ -1,67 +1,51 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
- buffer mechanism
-Date: Fri, 4 Jun 2010 18:35:50 -0700
-Message-ID: <20100604183550.919cde7d.akpm@linux-foundation.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se>
-	<1275552062-8153-2-git-send-email-rydberg@euromail.se>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [patch] input: off by one in pcf8574_kp_irq_handler()
+Date: Sat, 5 Jun 2010 08:50:02 +0200
+Message-ID: <20100605085002.064a6888@hyperion.delvare>
+References: <20100604231939.GJ5483@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:59684 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752406Ab0FEBhF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Jun 2010 21:37:05 -0400
-In-Reply-To: <1275552062-8153-2-git-send-email-rydberg@euromail.se>
+Received: from poutre.nerim.net ([62.4.16.124]:59256 "EHLO poutre.nerim.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754452Ab0FEGuH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Jun 2010 02:50:07 -0400
+In-Reply-To: <20100604231939.GJ5483@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: Dan Carpenter <error27@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, Greg Kroah-Hartman <gregkh@suse.de>, Richard Purdie <rpurdie@linux.intel.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Thu,  3 Jun 2010 10:00:59 +0200 "Henrik Rydberg" <rydberg@euromail.se> wrote:
+Hi Dan,
 
-> In spite of the many lock patterns and fifo helpers in the kernel, the
-> case of a single writer feeding many readers via a circular buffer
-> seems to be uncovered. This patch adds the buflock, a minimalistic
-> interface implementing SMP-safe locking for such a buffer. Under
-> normal operation, given adequate buffer size, the operation is
-> lock-less. The template is given the name buflock to emphasize that
-> the locking depends on the buffer read/write clashes.
+On Sat, 5 Jun 2010 01:19:39 +0200, Dan Carpenter wrote:
+> If nextstate == ARRAY_SIZE(lp->btncode), then we read one past the end of
+> the array on the next line.
 > 
+> This fixes a smatch warning:
+> drivers/input/misc/pcf8574_keypad.c +74 pcf8574_kp_irq_handler(8)
+> 	error: buffer overflow 'lp->btncode' 17 <= 17
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> 
+> diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
+> index 0ac47d2..4b42ffc 100644
+> --- a/drivers/input/misc/pcf8574_keypad.c
+> +++ b/drivers/input/misc/pcf8574_keypad.c
+> @@ -69,7 +69,7 @@ static irqreturn_t pcf8574_kp_irq_handler(int irq, void *dev_id)
+>  	unsigned char nextstate = read_state(lp);
+>  
+>  	if (lp->laststate != nextstate) {
+> -		int key_down = nextstate <= ARRAY_SIZE(lp->btncode);
+> +		int key_down = nextstate < ARRAY_SIZE(lp->btncode);
+>  		unsigned short keycode = key_down ?
+>  			lp->btncode[nextstate] : lp->btncode[lp->laststate];
+>  
 
-Seems that reviewers have already covered most of the oddities.
+Good catch.
 
-> +/*
-> + * Write to buffer without locking
-> + *
-> + * bw - the buflock_writer keeping track of the write position
-> + * buf - the buffer to write to (array of item type)
-> + * size - the size of the circular buffer (must be a power of two)
-> + * item - the item to write
-> + *
-> + * There is no locking involved during write, so this method is
-> + * suitable to use in interrupt context.
-> + */
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
-And if the buffer fills up, it silently overwrites old data?
-
-There are many options in this sort of thing.  Certain choices have
-been made here and they should be spelled out exhaustively please.
-
-> +#define buflock_write(bw, buf, size, item)				\
-> +	do {								\
-> +		bw.next_head = (bw.head + 1) & ((size) - 1);		\
-> +		smp_wmb();						\
-> +		buf[bw.head] = item;					\
-> +		smp_wmb();						\
-> +		bw.head = bw.next_head;					\
-> +		smp_wmb();						\
-> +	} while (0)
-
-I don't think there's a reason why these all had to be implemented as
-bloaty, un-typesafe macros?  Especially as buggy ones which reference
-their arguments multiple times!
-
-Code it in C if possible, please.
+-- 
+Jean Delvare

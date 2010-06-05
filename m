@@ -1,91 +1,105 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 1/4] input: Introduce buflock, a one-to-many circular
- buffer mechanism
-Date: Sat, 05 Jun 2010 20:34:05 +0200
-Message-ID: <4C0A989D.5040001@bitmath.org>
-References: <1275552062-8153-1-git-send-email-rydberg@euromail.se> <1275552062-8153-2-git-send-email-rydberg@euromail.se> <20100604065658.GE21239@core.coreip.homeip.net> <4C08BCB5.7020201@bitmath.org> <20100604191308.GA10942@redhat.com> <4C09574B.3030807@bitmath.org> <20100605174034.GA13506@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp1.one.com ([195.47.247.21]:33171 "EHLO csmtp1.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753189Ab0FESeJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Jun 2010 14:34:09 -0400
-In-Reply-To: <20100605174034.GA13506@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 1/1] LEDS: leds-input, fix sleep inside atomic
+Date: Sat,  5 Jun 2010 23:12:22 +0200
+Message-ID: <1275772342-25094-1-git-send-email-jslaby@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: rpurdie@rpsys.net
+Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Hi Oleg,
+input_led_connect creates an atomic context by spin_lock_irqsave and
+calls functions which then perform sleeping operations. For example
+GFP_KERNEL allocations in led_classdev_register.
 
-thanks for having another look at this.
+So LOCKDEP complains then like:
+------------[ cut here ]------------
+WARNING: at kernel/lockdep.c:2469 lockdep_trace_alloc+0xbc/0xd0()
+Pid: 1, comm: swapper Not tainted 2.6.34-mm1_64+ #5
+Call Trace:
+...
+ [<ffffffff8109359c>] lockdep_trace_alloc+0xbc/0xd0
+ [<ffffffff810f65b2>] kmem_cache_alloc+0x32/0xf0
+ [<ffffffff81324826>] device_create_vargs+0x56/0x110
+ [<ffffffff8132490c>] device_create+0x2c/0x30
+ [<ffffffff8142068c>] led_classdev_register+0x2c/0xe0
+ [<ffffffff814213de>] input_led_connect+0x21e/0x2c0
+...
 
-[...]
->>> Whatever we do, buflock_read() can race with the writer and read
->>> the invalid item.
->> True. However, one could argue this is a highly unlikely case given the
->> (current) usage.
-> 
-> Agreed, but then I'd strongly suggest you to document this in the header.
-> The possible user of this API should know the limitations.
-> 
->> Or, one could remedy it by not wrapping the indexes modulo SIZE.
-> 
-> You mean, change the implementation? Yes.
+Fix this by changing the spinlock to mutex as it is used only in
+input_handler->connect and ->disconnect and it is safe to sleep
+there.
 
-I feel this is the only option now.
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Richard Purdie <rpurdie@rpsys.net>
+---
+ drivers/leds/leds-input.c |   12 +++++-------
+ 1 files changed, 5 insertions(+), 7 deletions(-)
 
-> One more question. As you rightly pointed out, this is similar to seqlocks.
-> Did you consider the option to merely use them?
-> 
-> IOW,
-> 	struct buflock_writer {
-> 		seqcount_t	lock;
-> 		unsigned int	head;
-> 	};
-> 
-> In this case the implementation is obvious and correct.
-> 
-> Afaics, compared to the current implentation it has the only drawback:
-> the reader has to restart if it races with any write, while with your
-> code it only restarts if the writer writes to the item we are trying
-> to read.
-
-Yes, I did consider it, but it is suboptimal. :-)
-
-We fixed the immediate problem in another (worse but simpler) way, so this
-implementation is now pursued more out of academic interest.
-
->> Regarding the barriers used in the code, would it be possible to get a picture
->> of exactly how bad those operations are for performance?
-> 
-> Oh, sorry I don't know, and this obvioulsy differs depending on arch.
-> I never Knew how these barriers actually work in hardware, just have
-> the foggy ideas about the "side effects" they have ;)
-> 
-> And I agree with Dmitry, the last smp_Xmb() in buflock_write/read looks
-> unneeded. Both helpers do not care about the subsequent LOAD/STORE's.
-> 
-> write_seqcount_begin() has the "final" wmb, yes. But this is because
-> it does care. We are going to modify something under this write_lock,
-> the result of these subsequent STORE's shouldn't be visible to reader
-> before it sees the result of ++sequence.
-
-The relation between storing the writer head and synchronizing the reader head
-is similar in structure, in my view. On the other hand, it might be possible to
-remove one of the writer heads altogether, which would make things simpler still.
-
->> Is it true that a
->> simple spinlock might be faster on average, for instance?
-> 
-> May be. But without spinlock's the writer can be never delayed by
-> reader. I guess this was your motivation.
-
-Yes, one of them. The other was a lock where readers do not wait for each other.
-
-Thanks!
-
-Henrik
-
+diff --git a/drivers/leds/leds-input.c b/drivers/leds/leds-input.c
+index 93ab5ae..794155a 100644
+--- a/drivers/leds/leds-input.c
++++ b/drivers/leds/leds-input.c
+@@ -92,7 +92,7 @@ static struct led_trigger input_led_triggers[LED_CNT] = {
+ 	DEFINE_INPUT_LED_TRIGGER(LED_CHARGING, "charging"),
+ };
+ /* Lock for registration coherency */
+-static DEFINE_SPINLOCK(input_led_registered_lock);
++static DEFINE_MUTEX(input_led_registered_lock);
+ /* Which global LED classes and triggers are registered */
+ static unsigned long input_led_registered[BITS_TO_LONGS(LED_CNT)];
+ 
+@@ -159,7 +159,6 @@ static int input_led_connect(struct input_handler *handler,
+ {
+ 	struct input_handle *handle;
+ 	int i, error = 0;
+-	unsigned long flags;
+ 	struct led_classdev *leds;
+ 
+ 	if (!test_bit(EV_LED, dev->keybit))
+@@ -187,7 +186,7 @@ static int input_led_connect(struct input_handler *handler,
+ 		goto err;
+ 
+ 	/* lazily register missing global input LEDs */
+-	spin_lock_irqsave(&input_led_registered_lock, flags);
++	mutex_lock(&input_led_registered_lock);
+ 	for (i = 0; i < LED_CNT; i++)
+ 		if (input_leds[i].name
+ 				&& !test_bit(i, input_led_registered)
+@@ -199,7 +198,7 @@ static int input_led_connect(struct input_handler *handler,
+ 			else
+ 				led_trigger_unregister(&input_led_triggers[i]);
+ 		}
+-	spin_unlock_irqrestore(&input_led_registered_lock, flags);
++	mutex_unlock(&input_led_registered_lock);
+ 
+ 	/* and register this device's LEDs */
+ 	for (i = 0; i < LED_CNT; i++)
+@@ -239,7 +238,6 @@ err:
+ static void input_led_disconnect(struct input_handle *handle)
+ {
+ 	int unregister, i;
+-	unsigned long flags;
+ 	struct led_classdev *leds = handle->private;
+ 
+ 	for (i = 0; i < LED_CNT; i++)
+@@ -249,7 +247,7 @@ static void input_led_disconnect(struct input_handle *handle)
+ 	input_unregister_handle(handle);
+ 	input_led_delete_handle(handle);
+ 
+-	spin_lock_irqsave(&input_led_registered_lock, flags);
++	mutex_lock(&input_led_registered_lock);
+ 	for (i = 0; i < LED_CNT; i++) {
+ 		if (!test_bit(i, input_led_registered))
+ 			continue;
+@@ -268,7 +266,7 @@ static void input_led_disconnect(struct input_handle *handle)
+ 		led_trigger_unregister(&input_led_triggers[i]);
+ 		clear_bit(i, input_led_registered);
+ 	}
+-	spin_unlock_irqrestore(&input_led_registered_lock, flags);
++	mutex_unlock(&input_led_registered_lock);
+ }
+ 
+ /* Only handle input devices which have LEDs */
+-- 
+1.7.1

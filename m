@@ -1,29 +1,18 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
-Date: Sat, 5 Jun 2010 17:42:04 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz>
-References: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com> <alpine.LNX.2.00.1006041115480.12271@pobox.suse.cz> <48A28051AC6D7A48B64F28272458190326E03E@Exchange-IL.n-trig.com>
+From: ROSE <tom-coffey@sbcglobal.net>
+Subject: (unknown)
+Date: Sat, 5 Jun 2010 09:14:53 -0700 (PDT)
+Message-ID: <976817.38386.qm@web82701.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:57445 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757398Ab0FEPmJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 5 Jun 2010 11:42:09 -0400
-In-Reply-To: <48A28051AC6D7A48B64F28272458190326E03E@Exchange-IL.n-trig.com>
+Received: from web82701.mail.mud.yahoo.com ([68.142.201.82]:42769 "HELO
+	web82701.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S933622Ab0FEQOz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 5 Jun 2010 12:14:55 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Micki Balanga <micki@n-trig.com>
-Cc: chatty@enac.fr, dhprince-devel@yahoo.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Fri, 4 Jun 2010, Micki Balanga wrote:
 
-> Hi Jiri,
-> Attach the patch via file.
-> (Also fix 3 warning: please , no space before tabs)
-
-Thanks Micki, I have applied the patch.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Winner Of Seven Hundred And Fifty Thousand Great British Pounds In Toyota Cash Splash:Name:...
+Address:.

@@ -1,86 +1,42 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Mon, 7 Jun 2010 16:15:30 -0400
-Message-ID: <20100607201530.GG16638@redhat.com>
-References: <20100424210843.11570.82007.stgit@localhost.localdomain>
- <20100424211411.11570.2189.stgit@localhost.localdomain>
- <4BDF2B45.9060806@redhat.com>
- <20100607190003.GC19390@hardeman.nu>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
+Date: Mon, 7 Jun 2010 16:22:54 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1006071622260.1332-100000@iolanthe.rowland.org>
+References: <201006072131.18949.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100607190003.GC19390@hardeman.nu>
-Sender: linux-media-owner@vger.kernel.org
-To: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201006072131.18949.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 07, 2010 at 09:00:03PM +0200, David H=E4rdeman wrote:
-> On Mon, May 03, 2010 at 05:00:05PM -0300, Mauro Carvalho Chehab wrote=
-:
-> > David H=E4rdeman wrote:
-> > > This patch moves the state from each raw decoder into the
-> > > ir_raw_event_ctrl struct.
-> > >=20
-> > > This allows the removal of code like this:
-> > >=20
-> > >         spin_lock(&decoder_lock);
-> > >         list_for_each_entry(data, &decoder_list, list) {
-> > >                 if (data->ir_dev =3D=3D ir_dev)
-> > >                         break;
-> > >         }
-> > >         spin_unlock(&decoder_lock);
-> > >         return data;
-> > >=20
-> > > which is currently run for each decoder on each event in order
-> > > to get the client-specific decoding state data.
-> > >=20
-> > > In addition, ir decoding modules and ir driver module load
-> > > order is now independent. Centralizing the data also allows
-> > > for a nice code reduction of about 30% per raw decoder as
-> > > client lists and client registration callbacks are no longer
-> > > necessary.
-> >=20
-> > The registration callbacks will likely still be needed by lirc,
-> > as you need to create/delete lirc_dev interfaces, when the module
-> > is registered, but I might be wrong. It would be interesting to
-> > add lirc_dev first, in order to be sure about the better interfaces
-> > for it.
->=20
-> Or the lirc_dev patch can add whatever interfaces it needs. Anyway, t=
-he=20
-> current interfaces are not good enough since it'll break if lirc_dev =
-is=20
-> loaded after the hardware modules.
+On Mon, 7 Jun 2010, Oliver Neukum wrote:
 
-This is something I've been meaning to mention myself. On system boot, =
-if
-an mceusb device is connected, it pretty regularly only has the NEC
-decoder available to use. I have to reload mceusb, or make sure ir-core=
- is
-explicitly loaded, wait a bit, then load mceusb, if I want to have all =
-of
-the protocol handlers available -- which includes the needed-by-default
-rc6 one. I've only briefly tinkered with trying to fix it, sounds like =
-you
-may already have fixage within this patchset.
+> Am Montag, 7. Juni 2010 18:23:16 schrieb Dmitry Torokhov:
+> > On Mon, Jun 07, 2010 at 03:13:42PM +0200, Oliver Neukum wrote:
+> > >  static int usbtouch_open(struct input_dev *input)
+> > >  {
+> > >  	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
+> > > +	int r;
+> > >  
+> > >  	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
+> > >  
+> > > +	r = usb_autopm_get_interface(usbtouch->interface) ? -EIO : 0;
+> > 
+> > Why are we clobbering error code with -EIO? We should propagate te code
+> > returned to us (here and below).
+> 
+> usb_autopm_get_interface() uses internal USB error codes which with
+> a few exceptions, do not have the meaning error codes in user space
+> have.
 
-=2E..
-> In addition, random module load order is currently broken (try loadin=
-g=20
-> decoders first and hardware later and you'll see).  With this patch, =
-it=20
-> works again.
+But other drivers don't do this.  What's special about usbtouch?
 
-Want.
+Alan Stern
 
-> Anyway, I'll post a new patch series this evening and then we can go=20
-> back to our regular arguing :)
-
-Hey, at least we're making progress too! :)
-
---=20
-Jarod Wilson
-jarod@redhat.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

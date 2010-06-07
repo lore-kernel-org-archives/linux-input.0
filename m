@@ -1,105 +1,99 @@
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 2/4] ir-core: centralize sysfs raw decoder
- enabling/disabling
-Date: Mon, 7 Jun 2010 20:48:36 +0200
-Message-ID: <20100607184836.GB19390@hardeman.nu>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Mon, 7 Jun 2010 21:00:03 +0200
+Message-ID: <20100607190003.GC19390@hardeman.nu>
 References: <20100424210843.11570.82007.stgit@localhost.localdomain>
- <20100424211406.11570.96241.stgit@localhost.localdomain>
- <4BDF28C0.4060102@redhat.com>
+ <20100424211411.11570.2189.stgit@localhost.localdomain>
+ <4BDF2B45.9060806@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4BDF28C0.4060102@redhat.com>
+In-Reply-To: <4BDF2B45.9060806@redhat.com>
 Sender: linux-media-owner@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@redhat.com>
 Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, May 03, 2010 at 04:49:20PM -0300, Mauro Carvalho Chehab wrote:
-> Hi David,
-
-Hi, sorry for dropping off the radar...life has been hetic...daughter i=
-n=20
-hospital (she's fine now).
-
+On Mon, May 03, 2010 at 05:00:05PM -0300, Mauro Carvalho Chehab wrote:
 > David H=E4rdeman wrote:
-> > With the current logic, each raw decoder needs to add a copy of the=
- exact
-> > same sysfs code. This is both unnecessary and also means that (re)l=
-oading
-> > an IR driver after raw decoder modules have been loaded won't work =
-as
-> > expected.
+> > This patch moves the state from each raw decoder into the
+> > ir_raw_event_ctrl struct.
 > >=20
-> > This patch moves that logic into ir-raw-event and adds a single sys=
-fs
-> > file per device.
+> > This allows the removal of code like this:
 > >=20
-> > Reading that file returns something like:
+> >         spin_lock(&decoder_lock);
+> >         list_for_each_entry(data, &decoder_list, list) {
+> >                 if (data->ir_dev =3D=3D ir_dev)
+> >                         break;
+> >         }
+> >         spin_unlock(&decoder_lock);
+> >         return data;
 > >=20
-> > 	"rc5 [rc6] nec jvc [sony]"
+> > which is currently run for each decoder on each event in order
+> > to get the client-specific decoding state data.
 > >=20
-> > (with enabled protocols in [] brackets)
-> >=20
-> > Writing either "+protocol" or "-protocol" to that file will
-> > enable or disable the according protocol decoder.
-> >=20
-> > An additional benefit is that the disabling of a decoder will be
-> > remembered across module removal/insertion so a previously
-> > disabled decoder won't suddenly be activated again. The default
-> > setting is to enable all decoders.
-> >=20
-> > This is also necessary for the next patch which moves even more dec=
-oder
-> > state into the central raw decoding structs.
+> > In addition, ir decoding modules and ir driver module load
+> > order is now independent. Centralizing the data also allows
+> > for a nice code reduction of about 30% per raw decoder as
+> > client lists and client registration callbacks are no longer
+> > necessary.
 >=20
-> I liked the idea of your redesign, but I didn't like the removal of
-> a per-decoder sysfs entry. As already discussed, there are cases wher=
-e
-> we'll need a per-decoder sysfs entry (lirc_dev is probably one of tho=
-se
-> cases - also Jarod's imon driver is currently implementing a modprobe
-> parameter that needs to be moved to the driver).
+> The registration callbacks will likely still be needed by lirc,
+> as you need to create/delete lirc_dev interfaces, when the module
+> is registered, but I might be wrong. It would be interesting to
+> add lirc_dev first, in order to be sure about the better interfaces
+> for it.
 
-per-decoder or per-decoder-per-receiver sysfs entries? If you want the=20
-latter, you'll need much more code than what is currently there to not=20
-break random module load order (which doesn't work with the current=20
-code).  Additionally, *if* imon and lirc_dev really need something like=
+Or the lirc_dev patch can add whatever interfaces it needs. Anyway, the=
 =20
-that, those modules should carry the burden.
+current interfaces are not good enough since it'll break if lirc_dev is=
 =20
-> So, while we can implement some core support at the raw event core, w=
-e should
-> keep the decoder attributes internally inside the driver.
+loaded after the hardware modules.
 
-Why?
+> Also, from one side, you reduced the code size, but, on the other han=
+d,
+> you've increased the memory usage, as now the protocol data will be
+> stored even for protocols that weren't compiled/loaded.=20
 
-> So, each decoder
-> may have his own code like:
->=20
-> static struct attribute *decoder_attributes[] =3D {
->        &dev_attr_enabled.attr,
->        &dev_attr_bar1.attr,
->        &dev_attr_bar2.attr,
->        &dev_attr_bar3.attr,
->        NULL
-> };
->=20
-> static struct attribute_group decoder_attribute_group =3D {
->        .name   =3D "foo_decoder",
->        .attrs  =3D decoder_attributes,
-> };
->=20
-> As the attr_enabled is common to all, maybe we can have a default ena=
-ble
-> code at the .h or inside the core.
+In <4BBF3309.6020909@infradead.org>, Mauro Carvalho Chehab wrote:
+>> Andy Walls wrote:
+>>> Encoding pulse vs space with a negative sign, even if now hidden=20
+>>> with macros, is still just using a sign instead of a boolean. =20
+>>> Memory in modern computers (and now microcontrollers) is cheap and=20
+>>> only getting cheaper.  Don't give up readability, flexibility, or=20
+>>> mainatainability, for the sake of saving memory.
+>
+> That was my point since the beginning: the amount of saved memory=20
+> doesn't justify the lack of readability.
 
-Smells like lots of duplicated code with no gain for the current set of=
+Are you worried about memory usage now?
+
+> Probably, the code size savings are big enough to justify the runtime=
 =20
-decoders.
+> memory footprint, at least with the current decoders. Not sure how bi=
+g=20
+> this will become when we add lirc_dev and other decoders that might b=
+e=20
+> missing.
 
+Right now, the "reasonable default" is a user machine with one hardware=
+=20
+decoder and with all of the rc-core decoders loaded (cause that's how=20
+his/her distro will set it up).  For that machine, the patch will save =
+a=20
+lot of memory, not waste it (~380 lines less code...I'll assure you it'=
+s=20
+a net gain).
+
+In addition, random module load order is currently broken (try loading=20
+decoders first and hardware later and you'll see).  With this patch, it=
+=20
+works again.
+
+Anyway, I'll post a new patch series this evening and then we can go=20
+back to our regular arguing :)
 
 --=20
 David H=E4rdeman

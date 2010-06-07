@@ -1,46 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [0000/0003]full power management for usb touchscreens
-Date: Mon, 7 Jun 2010 09:19:21 -0700
-Message-ID: <20100607161920.GA7706@core.coreip.homeip.net>
-References: <201006071513.29478.oneukum@suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
+Date: Mon, 7 Jun 2010 09:23:16 -0700
+Message-ID: <20100607162316.GB7706@core.coreip.homeip.net>
+References: <201006071513.42714.oneukum@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:60532 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752186Ab0FGQXX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jun 2010 12:23:23 -0400
 Content-Disposition: inline
-In-Reply-To: <201006071513.29478.oneukum-l3A5Bk7waGM@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+In-Reply-To: <201006071513.42714.oneukum@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Daniel Ritz <daniel.ritz@gmx.ch>
 
-On Mon, Jun 07, 2010 at 03:13:29PM +0200, Oliver Neukum wrote:
-> Hi,
-> 
-> this patch series implements:
-> 
-> - full support for suspend/resume/reset_resume
-> - runtime power management
-> 
-> It does so by adding normal methods for suspend/resume,
-> splitting device intialization into a part that needs to be repeated
-> after reset_resume() and a part that does not.
-> Runtime power management is possible while the device is
-> active if the device supports remote wakeup, otherwise a fallback
-> to a method based on open/close is implemented.
-> 
-> I lack the hardware. Therefore I need testers.
-> 
+On Mon, Jun 07, 2010 at 03:13:42PM +0200, Oliver Neukum wrote:
+>  static int usbtouch_open(struct input_dev *input)
+>  {
+>  	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
+> +	int r;
+>  
+>  	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
+>  
+> +	r = usb_autopm_get_interface(usbtouch->interface) ? -EIO : 0;
 
-Ondrej,
+Why are we clobbering error code with -EIO? We should propagate te code
+returned to us (here and below).
 
-You are the latest person I know who users usbtouchscreen driver, any
-chance you could lend a hand to Oliver here, please?
-
-Thanks!
+Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

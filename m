@@ -1,36 +1,55 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: RE: [PATCH v2 5/5] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 07 Jun 2010 09:30:36 +0200
-Message-ID: <000b01cb0613$5545bc90$ffd135b0$%szyprowski@samsung.com>
-References: <1275188784-23395-1-git-send-email-jy0922.shim@samsung.com>
- <1275188784-23395-5-git-send-email-jy0922.shim@samsung.com>
- <20100530034250.GK7248@trinity.fluff.org> <4C01EB2E.4020600@samsung.com>
- <20100603010025.GA14272@trinity.fluff.org>
+From: Sedji Gaouaou <sedji.gaouaou@atmel.com>
+Subject: Re: question about v4l2_subdev
+Date: Mon, 07 Jun 2010 12:01:24 +0200
+Message-ID: <4C0CC374.5030901@atmel.com>
+References: <4C03D80B.5090009@atmel.com>	 <1275329947.2261.19.camel@localhost>  <4C04C17D.8020702@atmel.com> <1275701258.2247.16.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20100603010025.GA14272@trinity.fluff.org>
-Content-language: pl
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: 'Ben Dooks' <ben-linux@fluff.org>, 'Joonyoung Shim' <jy0922.shim@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from newsmtp5.atmel.com ([204.2.163.5]:7402 "EHLO sjogate2.atmel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753637Ab0FGKBi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 7 Jun 2010 06:01:38 -0400
+In-Reply-To: <1275701258.2247.16.camel@localhost>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hello,
+Hi,
 
-On Thursday, June 03, 2010 3:00 AM Ben Dooks wrote:
+>
+> Look at
+>
+> 	drivers/media/video/cafe_ccic.c
+>
+> And examine cafe_pci_probe() and the definition and use of the
+> sensor_call() macro.
+>
+> Also note
+>
+> $ grep -Ril ov7670 drivers/media/video/*
+>
+> will show you in what drivers, the ov7670 might be used.
+>
 
-> > >> +	keypad->clk = clk_get(&pdev->dev, "keypad");
-> 
-> I'm going to get rid of this practice, it should be clk_get(&pdev->dev,
-> NULL),
-> see up-comming clock changes.
+I had a look at cafe_ccic.c and also at vpif_capture.c.
 
-Good idea, but how do you want to handle some special/additional clocks?
-Like for example mmc_bus or fimc_sclk clocks?
+I tried to use "v4l2_i2c_new_subdev_board", but at boot time I have the 
+following error:
+i2c i2c-0: Failed to register i2c client ov2640 at 0x30 (-16)
 
-Best regards
---
-Marek Szyprowski
-Samsung Poland R&D Center
+
+I don't understand where it could come from, I pass the proper 
+i2c_board_info struct, and it seems to check the proper i2c address, 
+since it is not working.
+
+Basically I do like cafe_ccic.c execpt that I use the 
+v4l2_i2c_new_subdev_board instead of v4l2_i2c_new_subdev...
+
+Any idea why I can't detect the sensor here?
+
+Regards,
+Sedji
+

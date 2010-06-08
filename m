@@ -1,66 +1,78 @@
-From: Alan Ott <alan@signal11.us>
-Subject: Re: [PATCH] HID: Add Support for Setting and Getting Feature  Reports  from hidraw
-Date: Tue, 08 Jun 2010 09:42:55 -0400
-Message-ID: <4C0E48DF.7000006@signal11.us>
-References: <1275969108-14948-1-git-send-email-alan@signal11.us> <20100608083226.2dac88d2.ospite@studenti.unina.it>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
+Date: Tue, 8 Jun 2010 16:12:03 +0200
+Message-ID: <201006081612.03253.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.1006071622260.1332-100000@iolanthe.rowland.org> <201006072247.33068.oliver@neukum.org> <20100608083751.GA27348@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:52874 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755138Ab0FHNm7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Jun 2010 09:42:59 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id DF2231042FD
-	for <linux-input@vger.kernel.org>; Tue,  8 Jun 2010 09:42:58 -0400 (EDT)
-In-Reply-To: <20100608083226.2dac88d2.ospite@studenti.unina.it>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100608083751.GA27348-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: Jiri Kosina <jkosina@suse.cz>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On 06/08/2010 02:32 AM, Antonio Ospite wrote:
-> On Mon,  7 Jun 2010 23:51:48 -0400
-> Alan Ott<alan@signal11.us>  wrote:
+Am Dienstag, 8. Juni 2010 10:37:51 schrieb Dmitry Torokhov:
+> On Mon, Jun 07, 2010 at 10:47:33PM +0200, Oliver Neukum wrote:
 >
->    
->> Per the HID Specification, Feature reports must be sent and received on
->> the Configuration endpoint (EP 0) through the Set_Report/Get_Report
->> interfaces.  This patch adds two ioctls to hidraw to set and get feature
->> reports to and from the device.  Modifications were made to hidraw and
->> usbhid.
->>
->> New hidraw ioctls:
->>    HIDIOCSFEATURE - Perform a Set_Report transfer of a Feature report.
->>    HIDIOCGFEATURE - Perform a Get_Report transfer of a Feature report.
->>
->> Signed-off-by: Alan Ott<alan@signal11.us>
->> ---
->>      
-> Thanks Alan, I am going to test this quite soon.
->
-> TBH, when I was thinking about how to extend hidraw I thought we could
-> have added a new report_type field to struct hidraw_report_descriptor,
-> in order to re-use the HIDIOCGRDESC ioctl handler itself, adding then a
-> HIDIOCSRDESC for setting the report. This looked cleaner to my eyes,
->    
-Thanks for the feedback, Antonio. The HIDIOCGRDESC ioctl copies the 
-existing descriptor from the hid_device structure. Since it does not 
-initiate a Get_Report transfer, I'm not sure how much re-use there could 
-have been using that method. In my estimation, a Set_Report/Get_Report 
-was more similar to the call to write().
+> > Then I'd say the other drivers are wrong. We cannot leak USB specific
+> > codes. Maybe we should pass -ENOMEM and -ENODEV, but the others
+> > really don't mean anything as generic codes.
+> > 
+> 
+> No, I'd say that usb_autopm_get_interface() is wrong - since it is
+> supposed to be used by drivers who are not concerned about USB-specific
+> codes these functions should not leak them to the callers but rather
+> provide ones suitable for reporting upstream.
 
-> but I didn't actually implement this, so I don't know if it was
-> feasible, for instance one problem I didn't investigate further was
-> about the default value of the aforementioned report_type field in
-> order to keep the current behavior of HIDIOCGRDESC.
->    
-I'm not sure what you mean here, as the report_type field is not part of 
-hidraw_report_descriptor.
+How about a wrapper like this?
 
-Thanks for testing my patch. Please let me know if you have problems 
-with it.
+	Regards
+		Oliver
 
-Alan.
+>From f4c742fa1ec8a368bbaeb129fb502aecb9cf9208 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Date: Tue, 8 Jun 2010 16:02:51 +0200
+Subject: [PATCH] usb: add helper for error code conversion
 
+USB uses error codes in a particular manner. Such codes must
+not be passed to user space as that violates POSIX. This helper
+maps the error codes to error codes that may be passed to
+user space
+
+Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+---
+ drivers/usb/core/usb.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
+index cd88220..b070549 100644
+--- a/drivers/usb/core/usb.h
++++ b/drivers/usb/core/usb.h
+@@ -124,6 +124,18 @@ static inline int is_usb_device_driver(struct device_driver *drv)
+ 			for_devices;
+ }
+ 
++/* translate USB error codes to codes user space understands */
++static inline int usb_translate_errors(int error_code)
++{
++	switch (error_code) {
++	case 0:
++	case -ENOMEM:
++	case -ENODEV:
++		return error_code;
++	default:
++		return -EIO;
++	}
++}
+ 
+ /* for labeling diagnostics */
+ extern const char *usbcore_name;
+-- 
+1.6.4.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,58 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
-Date: Tue, 8 Jun 2010 01:37:51 -0700
-Message-ID: <20100608083751.GA27348@core.coreip.homeip.net>
-References: <Pine.LNX.4.44L0.1006071622260.1332-100000@iolanthe.rowland.org>
- <201006072247.33068.oliver@neukum.org>
+From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
+Subject: [Regression 2.6.35-rc1?] Sysrq works too well (no need of alt)
+Date: Tue, 08 Jun 2010 11:33:05 +0200
+Message-ID: <4C0E0E51.8050709@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201006072247.33068.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailservice.tudelft.nl ([130.161.131.5]:43542 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752464Ab0FHJdJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jun 2010 05:33:09 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>
 
-On Mon, Jun 07, 2010 at 10:47:33PM +0200, Oliver Neukum wrote:
-> Am Montag, 7. Juni 2010 22:22:54 schrieb Alan Stern:
-> > On Mon, 7 Jun 2010, Oliver Neukum wrote:
-> > 
-> > > Am Montag, 7. Juni 2010 18:23:16 schrieb Dmitry Torokhov:
-> > > > On Mon, Jun 07, 2010 at 03:13:42PM +0200, Oliver Neukum wrote:
-> > > > >  static int usbtouch_open(struct input_dev *input)
-> > > > >  {
-> > > > >  	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
-> > > > > +	int r;
-> > > > >  
-> > > > >  	usbtouch->irq->dev = interface_to_usbdev(usbtouch->interface);
-> > > > >  
-> > > > > +	r = usb_autopm_get_interface(usbtouch->interface) ? -EIO : 0;
-> > > > 
-> > > > Why are we clobbering error code with -EIO? We should propagate te code
-> > > > returned to us (here and below).
-> > > 
-> > > usb_autopm_get_interface() uses internal USB error codes which with
-> > > a few exceptions, do not have the meaning error codes in user space
-> > > have.
-> > 
-> > But other drivers don't do this.  What's special about usbtouch?
-> 
-> Then I'd say the other drivers are wrong. We cannot leak USB specific
-> codes. Maybe we should pass -ENOMEM and -ENODEV, but the others
-> really don't mean anything as generic codes.
-> 
+Hello,
+I haven't investigated much yet, but I have the feeling that since
+2.6.35-rc1 my "Print Screen/SysRq" key works only as SysRq: if I press
+it (normally assigned to take screenshot in gnome), nothing happens (no
+input event received in userspace) and no key on the keyboard works
+afterwards, until I press Alt. Actually the keys work, but behave as if
+the sysrq key was kept pressed (can be seen in dmesg, or by pressing "b").
 
-No, I'd say that usb_autopm_get_interface() is wrong - since it is
-supposed to be used by drivers who are not concerned about USB-specific
-codes these functions should not leak them to the callers but rather
-provide ones suitable for reporting upstream.
+Looking at the log, a potential culprit is commit
+97f5f0cd8cd0a05449cbb77d1e6f02e026875802 (Input: implement SysRq as a
+separate input handler). Probably the logic of "have to press all the
+keys at the same time" changed to "have to press the keys one after each
+other". So pressing alt and later on pressing PrintScreen leads to a SysRq.
 
-Thanks.
+Does anybody else see this behaviour? Any suggestion on how to solve
+this bug? I'll try reverting the commit and report if it fixes the
+problem (the git revert fails so I've got to fix the conflict manually).
 
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Eric

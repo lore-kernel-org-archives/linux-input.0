@@ -1,37 +1,42 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
-Subject: [Regression 2.6.35-rc1?] Sysrq works too well (no need of alt)
-Date: Tue, 08 Jun 2010 11:33:05 +0200
-Message-ID: <4C0E0E51.8050709@tudelft.nl>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
+Date: Tue, 8 Jun 2010 12:14:18 +0200
+Message-ID: <201006081214.18184.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.1006071622260.1332-100000@iolanthe.rowland.org> <201006072247.33068.oliver@neukum.org> <20100608083751.GA27348@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:43542 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752464Ab0FHJdJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jun 2010 05:33:09 -0400
+Received: from smtp-out003.kontent.com ([81.88.40.217]:33999 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754396Ab0FHKOS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jun 2010 06:14:18 -0400
+In-Reply-To: <20100608083751.GA27348@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Daniel Ritz <daniel.ritz@gmx.ch>
 
-Hello,
-I haven't investigated much yet, but I have the feeling that since
-2.6.35-rc1 my "Print Screen/SysRq" key works only as SysRq: if I press
-it (normally assigned to take screenshot in gnome), nothing happens (no
-input event received in userspace) and no key on the keyboard works
-afterwards, until I press Alt. Actually the keys work, but behave as if
-the sysrq key was kept pressed (can be seen in dmesg, or by pressing "b").
+Am Dienstag, 8. Juni 2010 10:37:51 schrieb Dmitry Torokhov:
+> On Mon, Jun 07, 2010 at 10:47:33PM +0200, Oliver Neukum wrote:
+> > Am Montag, 7. Juni 2010 22:22:54 schrieb Alan Stern:
+> > > On Mon, 7 Jun 2010, Oliver Neukum wrote:
 
-Looking at the log, a potential culprit is commit
-97f5f0cd8cd0a05449cbb77d1e6f02e026875802 (Input: implement SysRq as a
-separate input handler). Probably the logic of "have to press all the
-keys at the same time" changed to "have to press the keys one after each
-other". So pressing alt and later on pressing PrintScreen leads to a SysRq.
+> > > But other drivers don't do this.  What's special about usbtouch?
+> > 
+> > Then I'd say the other drivers are wrong. We cannot leak USB specific
+> > codes. Maybe we should pass -ENOMEM and -ENODEV, but the others
+> > really don't mean anything as generic codes.
+> > 
+> 
+> No, I'd say that usb_autopm_get_interface() is wrong - since it is
+> supposed to be used by drivers who are not concerned about USB-specific
+> codes these functions should not leak them to the callers but rather
+> provide ones suitable for reporting upstream.
 
-Does anybody else see this behaviour? Any suggestion on how to solve
-this bug? I'll try reverting the commit and report if it fixes the
-problem (the git revert fails so I've got to fix the conflict manually).
+But the driver may need to know why its request failed to handle errors
+properly, for example it makes no sense to reset a device if you get -ENODEV.
 
-Cheers,
-Eric
+	Regards
+		Oliver

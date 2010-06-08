@@ -1,78 +1,118 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/3] usbtouchscreen: Implement runtime power management
-Date: Tue, 8 Jun 2010 16:12:03 +0200
-Message-ID: <201006081612.03253.oliver@neukum.org>
-References: <Pine.LNX.4.44L0.1006071622260.1332-100000@iolanthe.rowland.org> <201006072247.33068.oliver@neukum.org> <20100608083751.GA27348@core.coreip.homeip.net>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Tue, 8 Jun 2010 19:50:17 +0200
+Message-ID: <20100608175017.GC5181@hardeman.nu>
+References: <20100424210843.11570.82007.stgit@localhost.localdomain>
+ <20100424211411.11570.2189.stgit@localhost.localdomain>
+ <4BDF2B45.9060806@redhat.com>
+ <20100607190003.GC19390@hardeman.nu>
+ <20100607201530.GG16638@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100608083751.GA27348-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:52837 "EHLO
+	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755983Ab0FHRuW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jun 2010 13:50:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20100607201530.GG16638@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Am Dienstag, 8. Juni 2010 10:37:51 schrieb Dmitry Torokhov:
-> On Mon, Jun 07, 2010 at 10:47:33PM +0200, Oliver Neukum wrote:
->
-> > Then I'd say the other drivers are wrong. We cannot leak USB specific
-> > codes. Maybe we should pass -ENOMEM and -ENODEV, but the others
-> > really don't mean anything as generic codes.
-> > 
-> 
-> No, I'd say that usb_autopm_get_interface() is wrong - since it is
-> supposed to be used by drivers who are not concerned about USB-specific
-> codes these functions should not leak them to the callers but rather
-> provide ones suitable for reporting upstream.
+On Mon, Jun 07, 2010 at 04:15:30PM -0400, Jarod Wilson wrote:
+> On Mon, Jun 07, 2010 at 09:00:03PM +0200, David H=E4rdeman wrote:
+> > On Mon, May 03, 2010 at 05:00:05PM -0300, Mauro Carvalho Chehab wro=
+te:
+> > > David H=E4rdeman wrote:
+> > > > This patch moves the state from each raw decoder into the
+> > > > ir_raw_event_ctrl struct.
+> > > >=20
+> > > > This allows the removal of code like this:
+> > > >=20
+> > > >         spin_lock(&decoder_lock);
+> > > >         list_for_each_entry(data, &decoder_list, list) {
+> > > >                 if (data->ir_dev =3D=3D ir_dev)
+> > > >                         break;
+> > > >         }
+> > > >         spin_unlock(&decoder_lock);
+> > > >         return data;
+> > > >=20
+> > > > which is currently run for each decoder on each event in order
+> > > > to get the client-specific decoding state data.
+> > > >=20
+> > > > In addition, ir decoding modules and ir driver module load
+> > > > order is now independent. Centralizing the data also allows
+> > > > for a nice code reduction of about 30% per raw decoder as
+> > > > client lists and client registration callbacks are no longer
+> > > > necessary.
+> > >=20
+> > > The registration callbacks will likely still be needed by lirc,
+> > > as you need to create/delete lirc_dev interfaces, when the module
+> > > is registered, but I might be wrong. It would be interesting to
+> > > add lirc_dev first, in order to be sure about the better interfac=
+es
+> > > for it.
+> >=20
+> > Or the lirc_dev patch can add whatever interfaces it needs. Anyway,=
+ the=20
+> > current interfaces are not good enough since it'll break if lirc_de=
+v is=20
+> > loaded after the hardware modules.
+>=20
+> This is something I've been meaning to mention myself. On system boot=
+, if
+> an mceusb device is connected, it pretty regularly only has the NEC
+> decoder available to use. I have to reload mceusb, or make sure ir-co=
+re is
+> explicitly loaded, wait a bit, then load mceusb, if I want to have al=
+l of
+> the protocol handlers available -- which includes the needed-by-defau=
+lt
+> rc6 one. I've only briefly tinkered with trying to fix it, sounds lik=
+e you
+> may already have fixage within this patchset.
 
-How about a wrapper like this?
+The problem is that without the patchset, each decoder is expected to=20
+carry it's own list of datastructures for each hardware receiver. =20
+Hardware receiver addition/removal is signalled through a callback to=20
+the decoder, but the callback will (naturally) not be invoked if the=20
+hardware driver is already loaded when the decoder is. So loading a=20
+decoder "late" or reloading a decoder will mean that it doesn't know=20
+about pre-existing hardware.
 
-	Regards
-		Oliver
+> > In addition, random module load order is currently broken (try load=
+ing=20
+> > decoders first and hardware later and you'll see).  With this patch=
+, it=20
+> > works again.
+>=20
+> Want.
 
->From f4c742fa1ec8a368bbaeb129fb502aecb9cf9208 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Date: Tue, 8 Jun 2010 16:02:51 +0200
-Subject: [PATCH] usb: add helper for error code conversion
+Then please help me with two things:
 
-USB uses error codes in a particular manner. Such codes must
-not be passed to user space as that violates POSIX. This helper
-maps the error codes to error codes that may be passed to
-user space
+a) Test the patches I just sent (especially 6/8 and 7/8, they should
+   be independent from the rest)
 
-Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
----
- drivers/usb/core/usb.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+b) Mauro mentioned in <4BDF28C0.4060102@redhat.com> that:
 
-diff --git a/drivers/usb/core/usb.h b/drivers/usb/core/usb.h
-index cd88220..b070549 100644
---- a/drivers/usb/core/usb.h
-+++ b/drivers/usb/core/usb.h
-@@ -124,6 +124,18 @@ static inline int is_usb_device_driver(struct device_driver *drv)
- 			for_devices;
- }
- 
-+/* translate USB error codes to codes user space understands */
-+static inline int usb_translate_errors(int error_code)
-+{
-+	switch (error_code) {
-+	case 0:
-+	case -ENOMEM:
-+	case -ENODEV:
-+		return error_code;
-+	default:
-+		return -EIO;
-+	}
-+}
- 
- /* for labeling diagnostics */
- extern const char *usbcore_name;
--- 
-1.6.4.2
+	I liked the idea of your redesign, but I didn't like the removal
+	of a per-decoder sysfs entry. As already discussed, there are
+	cases where we'll need a per-decoder sysfs entry (lirc_dev is
+	probably one of those cases - also Jarod's imon driver is
+	currently implementing a modprobe parameter that needs to be
+	moved to the driver).
 
+   could you please confirm if your lirc and/or imon drivers would be
+   negatively affected by the proposed patches?
+
+
+--=20
+David H=E4rdeman
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,120 +1,123 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Regression 2.6.35-rc1?] Sysrq works too well (no need of alt)
-Date: Wed, 9 Jun 2010 01:30:14 -0700
-Message-ID: <20100609083014.GA13304@core.coreip.homeip.net>
-References: <4C0E0E51.8050709@tudelft.nl>
- <4C0ECA4C.9020806@tudelft.nl>
- <201006081737.43007.dmitry.torokhov@gmail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH] HID: Add Support for Setting and Getting Feature
+ Reports  from hidraw
+Date: Wed, 9 Jun 2010 10:42:35 +0200
+Message-ID: <20100609104235.ccce2289.ospite@studenti.unina.it>
+References: <1275969108-14948-1-git-send-email-alan@signal11.us>
+	<20100608083226.2dac88d2.ospite@studenti.unina.it>
+	<4C0E48DF.7000006@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:47364 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756934Ab0FIIaV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jun 2010 04:30:21 -0400
-Received: by pvg16 with SMTP id 16so2379326pvg.19
-        for <linux-input@vger.kernel.org>; Wed, 09 Jun 2010 01:30:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201006081737.43007.dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__9_Jun_2010_10_42_35_+0200_flczoNE2olJ/V8Iz"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C0E48DF.7000006@signal11.us>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Jiri Kosina <jkosina@suse.cz>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
 
-On Tue, Jun 08, 2010 at 05:37:42PM -0700, Dmitry Torokhov wrote:
-> On Tuesday, June 08, 2010 03:55:08 pm =C9ric Piel wrote:
-> > Op 08-06-10 11:33, =C9ric Piel schreef:
-> > > Hello,
-> > > I haven't investigated much yet, but I have the feeling that sinc=
-e
-> > > 2.6.35-rc1 my "Print Screen/SysRq" key works only as SysRq: if I =
-press
-> > > it (normally assigned to take screenshot in gnome), nothing happe=
-ns (no
-> > > input event received in userspace) and no key on the keyboard wor=
-ks
-> > > afterwards, until I press Alt. Actually the keys work, but behave=
- as if
-> > > the sysrq key was kept pressed (can be seen in dmesg, or by press=
-ing
-> > > "b").
-> > >=20
-> > > Looking at the log, a potential culprit is commit
-> > > 97f5f0cd8cd0a05449cbb77d1e6f02e026875802 (Input: implement SysRq =
-as a
-> > > separate input handler). Probably the logic of "have to press all=
- the
-> > > keys at the same time" changed to "have to press the keys one aft=
-er each
-> > > other". So pressing alt and later on pressing PrintScreen leads t=
-o a
-> > > SysRq.
-> > >=20
-> > > Does anybody else see this behaviour? Any suggestion on how to so=
-lve
-> > > this bug? I'll try reverting the commit and report if it fixes th=
-e
-> > > problem (the git revert fails so I've got to fix the conflict man=
-ually).
-> >=20
-> > I can confirm this regression is due to
-> > 97f5f0cd8cd0a05449cbb77d1e6f02e026875802: the reverting patch below
-> > fixes it. And, as long as you don't press alt since boot, PrintScre=
-en
-> > works fine. So it is likely due to not taking into account key rele=
-ases.
-> >=20
-> > Dmitry, do you have a better fix? I'll be happy to test it if neede=
-d.
-> >=20
->=20
-> Not yet, but I see the effects you are describing... Stay tuned...
->=20
+--Signature=_Wed__9_Jun_2010_10_42_35_+0200_flczoNE2olJ/V8Iz
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Eric, could you tell me if the following fixes the problem for you?
+On Tue, 08 Jun 2010 09:42:55 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-Thanks!
+> On 06/08/2010 02:32 AM, Antonio Ospite wrote:
+> > On Mon,  7 Jun 2010 23:51:48 -0400
+> > Alan Ott<alan@signal11.us>  wrote:
+> >
+> >   =20
+> >> Per the HID Specification, Feature reports must be sent and received on
+> >> the Configuration endpoint (EP 0) through the Set_Report/Get_Report
+> >> interfaces.  This patch adds two ioctls to hidraw to set and get featu=
+re
+> >> reports to and from the device.  Modifications were made to hidraw and
+> >> usbhid.
+> >>
+> >> New hidraw ioctls:
+> >>    HIDIOCSFEATURE - Perform a Set_Report transfer of a Feature report.
+> >>    HIDIOCGFEATURE - Perform a Get_Report transfer of a Feature report.
+> >>
+> >> Signed-off-by: Alan Ott<alan@signal11.us>
+> >> ---
+> >>     =20
+> > Thanks Alan, I am going to test this quite soon.
+> >
+> > TBH, when I was thinking about how to extend hidraw I thought we could
+> > have added a new report_type field to struct hidraw_report_descriptor,
+> > in order to re-use the HIDIOCGRDESC ioctl handler itself, adding then a
+> > HIDIOCSRDESC for setting the report. This looked cleaner to my eyes,
+> >   =20
+> Thanks for the feedback, Antonio. The HIDIOCGRDESC ioctl copies the=20
+> existing descriptor from the hid_device structure. Since it does not=20
+> initiate a Get_Report transfer, I'm not sure how much re-use there could=
+=20
+> have been using that method. In my estimation, a Set_Report/Get_Report=20
+> was more similar to the call to write().
+>
+
+I was only thinking about the interface to userspace,
+HIDIOCGRDESC/HIDIOCSRDESC sounded more general to me (and look like
+HIDIOCGREPORT/HIDIOCSREPORT from hiddev) if they could be made to work
+with different report types, but as I said I didn't look at the
+current code very well, so my remark are surely quite naive.
+
+> > but I didn't actually implement this, so I don't know if it was
+> > feasible, for instance one problem I didn't investigate further was
+> > about the default value of the aforementioned report_type field in
+> > order to keep the current behavior of HIDIOCGRDESC.
+> >   =20
+> I'm not sure what you mean here, as the report_type field is not part of=
+=20
+> hidraw_report_descriptor.
+>
+
+I was thinking about _adding_ that field, but again, pretty arbitrarily
+thought.
+
+> Thanks for testing my patch. Please let me know if you have problems=20
+> with it.
+>
+
+It works basically ok for my needs, thanks again, waiting for comments
+from usb/HID people.
+
+Note that there are some checkpatch.pl errors in the current patch, and
+also a style fix mixed with functional ones (@@ -315,7 +411,7 @@), you
+may want to sort these out in a v2.
+
+After this gets in, some more style fixes to hidraw.c could be made,
+I'll do these. Maybe some naming cleanup can be made too,
+hid_output_raw_report could become hid_set_raw_report for instance, but
+I am waiting for the topic to settle first.
+
+Thanks,
+   Antonio
 
 --=20
-Dmitry
+Antonio Ospite
+http://ao2.it
 
-Input: sysrq - fix "stuck" SysRq mode
+PGP public key ID: 0x4553B001
 
-This shoud fix the problem with SysRq mode staying half-way enabled
-and interfereing with normal PrtScrn operation after user presses ALT
-for the first time.
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Reported-by: =C9ric Piel <E.A.B.Piel@tudelft.nl>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+--Signature=_Wed__9_Jun_2010_10_42_35_+0200_flczoNE2olJ/V8Iz
+Content-Type: application/pgp-signature
 
- drivers/char/sysrq.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
+iEYEARECAAYFAkwPU/sACgkQ5xr2akVTsAGilACeKT/YwLKe10oCE7rIK3Gye/Zj
+QK4AoKFe/OCuGgXWeWyPCOlQzNPh1stZ
+=yQ4k
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/char/sysrq.c b/drivers/char/sysrq.c
-index c046075..5bf3618 100644
---- a/drivers/char/sysrq.c
-+++ b/drivers/char/sysrq.c
-@@ -579,8 +579,12 @@ static bool sysrq_filter(struct input_handle *hand=
-le, unsigned int type,
- 	case KEY_RIGHTALT:
- 		if (value)
- 			sysrq_alt =3D code;
--		else if (sysrq_down && code =3D=3D sysrq_alt_use)
--			sysrq_down =3D false;
-+		else {
-+			if (sysrq_down && code =3D=3D sysrq_alt_use)
-+				sysrq_down =3D false;
-+
-+			sysrq_alt =3D 0;
-+		}
- 		break;
-=20
- 	case KEY_SYSRQ:
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Signature=_Wed__9_Jun_2010_10_42_35_+0200_flczoNE2olJ/V8Iz--

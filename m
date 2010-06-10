@@ -1,60 +1,156 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch] input: error handling bug in lm8323_probe()
-Date: Thu, 10 Jun 2010 09:54:31 +0200
-Message-ID: <20100610075431.GK5483@bicker>
+From: Roger Pueyo <linux-input@rogerpueyo.com>
+Subject: [patch] TC4UM driver for linux-input
+Date: Thu, 10 Jun 2010 11:33:16 +0200
+Message-ID: <AANLkTinBJz0IBgpV7n3M3CZVccLBfVs67d0zCfohUDP4@mail.gmail.com>
+References: <AANLkTimmEtxuQ00jlLPMJkiS7htBV53wMpuWzW_RPs51@mail.gmail.com>
+	<20100603072424.GP26052@ibawizard.net> <20100603075720.GQ26052@ibawizard.net>
+Reply-To: linux-input@rogerpueyo.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary=0016e65c7bd27cf3280488a9b721
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:56284 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752524Ab0FJHyz (ORCPT
+Received: from mail-pv0-f194.google.com ([74.125.83.194]:57249 "EHLO
+	mail-pv0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753389Ab0FJKjp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jun 2010 03:54:55 -0400
-Content-Disposition: inline
+	Thu, 10 Jun 2010 06:39:45 -0400
+Received: by pva18 with SMTP id 18so1178739pva.1
+        for <linux-input@vger.kernel.org>; Thu, 10 Jun 2010 03:39:45 -0700 (PDT)
+Received: by fxm8 with SMTP id 8so4119568fxm.19
+        for <linux-input@vger.kernel.org>; Thu, 10 Jun 2010 02:33:36 -0700 (PDT)
+In-Reply-To: <20100603075720.GQ26052@ibawizard.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Richard Purdie <rpurdie@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-We reuse the "i" variable later on so if we goto fail3 or fail4 then "i"
-will be set to the wrong thing and cause a crash.
+--0016e65c7bd27cf3280488a9b721
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+Hi,
 
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index 40b032f..f7c2a16 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -642,6 +642,7 @@ static int __devinit lm8323_probe(struct i2c_client *client,
- 	struct lm8323_platform_data *pdata = client->dev.platform_data;
- 	struct input_dev *idev;
- 	struct lm8323_chip *lm;
-+	int pwm;
- 	int i, err;
- 	unsigned long tmo;
- 	u8 data[2];
-@@ -710,8 +711,9 @@ static int __devinit lm8323_probe(struct i2c_client *client,
- 		goto fail1;
- 	}
- 
--	for (i = 0; i < LM8323_NUM_PWMS; i++) {
--		err = init_pwm(lm, i + 1, &client->dev, pdata->pwm_names[i]);
-+	for (pwm = 0; pwm < LM8323_NUM_PWMS; pwm++) {
-+		err = init_pwm(lm, pwm + 1, &client->dev,
-+			       pdata->pwm_names[pwm]);
- 		if (err < 0)
- 			goto fail2;
- 	}
-@@ -764,9 +766,9 @@ fail4:
- fail3:
- 	device_remove_file(&client->dev, &dev_attr_disable_kp);
- fail2:
--	while (--i >= 0)
--		if (lm->pwm[i].enabled)
--			led_classdev_unregister(&lm->pwm[i].cdev);
-+	while (--pwm >= 0)
-+		if (lm->pwm[pwm].enabled)
-+			led_classdev_unregister(&lm->pwm[pwm].cdev);
- fail1:
- 	input_free_device(idev);
- 	kfree(lm);
+These patches are for the ET&T TC4UM usb touchscreen. They are by Petr
+=C5=A0tetiar. They are the same as his previously written TC5UH, just
+changing the hardware ID.
+
+I've tested them against kernel 2.6.34 with X.org 1.7 and work
+flawlessly with evdev driver.
+
+Let me know any suggestions, please.
+
+Roger
+
+---------- Forwarded message ----------
+From: Petr =C5=A0tetiar <@>
+Date: 2010/6/3
+Subject: Re: TC4UM driver for linux-input
+To: Roger Pueyo <@>
+Cc: Petr =C5=A0tetiar <@>
+
+
+Please can you test attached patches? Does they work for you? Thank you.
+
+-- ynezz
+
+--0016e65c7bd27cf3280488a9b721
+Content-Type: text/x-diff; charset=iso-8859-2;
+	name="0001-Input-usbtouchscreen-add-support-for-ET-T-TC4UM-t.patch"
+Content-Disposition: attachment;
+	filename="0001-Input-usbtouchscreen-add-support-for-ET-T-TC4UM-t.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: 50fca7313dfecfd2_0.1
+
+RnJvbSAzNzNiMDFmNmYxMWQyMzgxMjUxMDAyNmI0NzQ2NGU1Y2Q0Y2I1NTkzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/UGV0cj0yMD1DNT1BMHRldGlhcj89IDx5bmV6
+ekB0cnVlLmN6PgpEYXRlOiBUaHUsIDMgSnVuIDIwMTAgMDk6NDg6MDAgKzAyMDAKU3ViamVjdDog
+W1BBVENIXSBJbnB1dDogdXNidG91Y2hzY3JlZW4gLSBhZGQgc3VwcG9ydCBmb3IgRVQmVCBUQzRV
+TSB0b3VjaHNjcmVlbiBjb250cm9sbGVyCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlwZTog
+dGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0
+CgpUaGlzIHBhdGNoIGFkZHMgc3VwcG9ydCBmb3IgdGhlIEVUJlQgVEM0VU0gNC13aXJlIFVTQiB0
+b3VjaHNjcmVlbiBjb250cm9sbGVyCmFuZCB0cmllcyB0byByZXVzZSBjb2RlIGZvciBUQzVVSCBj
+b250cm9sbGVyIGluIGtlcm5lbCBhbHJlYWR5LiBEYXRhIGludGVyZmFjZQppcyBzYW1lLgoKVGVz
+dGVkLWJ5OiBSb2dlciBQdWV5byBDZW50ZWxsZXMgPHJvZ2VycHVleW9Acm9nZXJwdWV5by5jb20+
+ClNpZ25lZC1vZmYtYnk6IFBldHIgqXRldGlhciA8eW5lenpAdHJ1ZS5jej4KLS0tCiBkcml2ZXJz
+L2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcgICAgICAgICAgfCAgICA0ICsrLS0KIGRyaXZlcnMv
+aW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYyB8ICAgMjEgKysrKysrKysrKysrLS0t
+LS0tLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygt
+KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZyBiL2RyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZwppbmRleCA2NzAzYzZiLi40MjUwNzE4IDEwMDY0
+NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcKKysrIGIvZHJpdmVycy9p
+bnB1dC90b3VjaHNjcmVlbi9LY29uZmlnCkBAIC01NDAsOSArNTQwLDkgQEAgY29uZmlnIFRPVUNI
+U0NSRUVOX1VTQl9aWVRST05JQwogCWJvb2wgIlp5dHJvbmljIGNvbnRyb2xsZXIiIGlmIEVNQkVE
+REVECiAJZGVwZW5kcyBvbiBUT1VDSFNDUkVFTl9VU0JfQ09NUE9TSVRFCiAKLWNvbmZpZyBUT1VD
+SFNDUkVFTl9VU0JfRVRUX1RDNVVICitjb25maWcgVE9VQ0hTQ1JFRU5fVVNCX0VUVF9UQzQ1VVNC
+CiAJZGVmYXVsdCB5Ci0JYm9vbCAiRVQmVCBUQzVVSCB0b3VjaHNjcmVlbiBjb250cm9sZXIgc3Vw
+cG9ydCIgaWYgRU1CRURERUQKKwlib29sICJFVCZUIFVTQiBzZXJpZXMgVEM0VU0vVEM1VUggdG91
+Y2hzY3JlZW4gY29udHJvbGVyIHN1cHBvcnQiIGlmIEVNQkVEREVECiAJZGVwZW5kcyBvbiBUT1VD
+SFNDUkVFTl9VU0JfQ09NUE9TSVRFCiAKIGNvbmZpZyBUT1VDSFNDUkVFTl9VU0JfTkVYSU8KZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYyBiL2Ry
+aXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYwppbmRleCA1NjdkNTcyLi4z
+MjQ0NTQyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3VzYnRvdWNoc2Ny
+ZWVuLmMKKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91c2J0b3VjaHNjcmVlbi5jCkBA
+IC0xMzUsNyArMTM1LDcgQEAgZW51bSB7CiAJREVWVFlQRV9KQVNURUMsCiAJREVWVFlQRV9FMkks
+CiAJREVWVFlQRV9aWVRST05JQywKLQlERVZUWVBFX1RDNVVILAorCURFVlRZUEVfVEM0NVVTQiwK
+IAlERVZUWVBFX05FWElPLAogfTsKIApAQCAtMjIyLDggKzIyMiwxMSBAQCBzdGF0aWMgY29uc3Qg
+c3RydWN0IHVzYl9kZXZpY2VfaWQgdXNidG91Y2hfZGV2aWNlc1tdID0gewogCXtVU0JfREVWSUNF
+KDB4MTRjOCwgMHgwMDAzKSwgLmRyaXZlcl9pbmZvID0gREVWVFlQRV9aWVRST05JQ30sCiAjZW5k
+aWYKIAotI2lmZGVmIENPTkZJR19UT1VDSFNDUkVFTl9VU0JfRVRUX1RDNVVICi0Je1VTQl9ERVZJ
+Q0UoMHgwNjY0LCAweDAzMDkpLCAuZHJpdmVyX2luZm8gPSBERVZUWVBFX1RDNVVIfSwKKyNpZmRl
+ZiBDT05GSUdfVE9VQ0hTQ1JFRU5fVVNCX0VUVF9UQzQ1VVNCCisJLyogVEM1VUggKi8KKwl7VVNC
+X0RFVklDRSgweDA2NjQsIDB4MDMwOSksIC5kcml2ZXJfaW5mbyA9IERFVlRZUEVfVEM0NVVTQn0s
+CisJLyogVEM0VU0gKi8KKwl7VVNCX0RFVklDRSgweDA2NjQsIDB4MDMwNiksIC5kcml2ZXJfaW5m
+byA9IERFVlRZUEVfVEM0NVVTQn0sCiAjZW5kaWYKIAogI2lmZGVmIENPTkZJR19UT1VDSFNDUkVF
+Tl9VU0JfTkVYSU8KQEAgLTU3NCwxMCArNTc3LDEwIEBAIHN0YXRpYyBpbnQgaXJ0b3VjaF9yZWFk
+X2RhdGEoc3RydWN0IHVzYnRvdWNoX3VzYiAqZGV2LCB1bnNpZ25lZCBjaGFyICpwa3QpCiAjZW5k
+aWYKIAogLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqCi0gKiBFVCZUIFRDNVVIIHBhcnQKKyAqIEVUJlQg
+VEM1VUgvVEM0VU0gcGFydAogICovCi0jaWZkZWYgQ09ORklHX1RPVUNIU0NSRUVOX1VTQl9FVFRf
+VEM1VUgKLXN0YXRpYyBpbnQgdGM1dWhfcmVhZF9kYXRhKHN0cnVjdCB1c2J0b3VjaF91c2IgKmRl
+diwgdW5zaWduZWQgY2hhciAqcGt0KQorI2lmZGVmIENPTkZJR19UT1VDSFNDUkVFTl9VU0JfRVRU
+X1RDNDVVU0IKK3N0YXRpYyBpbnQgdGM0NXVzYl9yZWFkX2RhdGEoc3RydWN0IHVzYnRvdWNoX3Vz
+YiAqZGV2LCB1bnNpZ25lZCBjaGFyICpwa3QpCiB7CiAJZGV2LT54ID0gKChwa3RbMl0gJiAweDBG
+KSA8PCA4KSB8IHBrdFsxXTsKIAlkZXYtPnkgPSAoKHBrdFs0XSAmIDB4MEYpIDw8IDgpIHwgcGt0
+WzNdOwpAQCAtMTEwNCwxNCArMTEwNywxNCBAQCBzdGF0aWMgc3RydWN0IHVzYnRvdWNoX2Rldmlj
+ZV9pbmZvIHVzYnRvdWNoX2Rldl9pbmZvW10gPSB7CiAJfSwKICNlbmRpZgogCi0jaWZkZWYgQ09O
+RklHX1RPVUNIU0NSRUVOX1VTQl9FVFRfVEM1VUgKLQlbREVWVFlQRV9UQzVVSF0gPSB7CisjaWZk
+ZWYgQ09ORklHX1RPVUNIU0NSRUVOX1VTQl9FVFRfVEM0NVVTQgorCVtERVZUWVBFX1RDNDVVU0Jd
+ID0gewogCQkubWluX3hjCQk9IDB4MCwKIAkJLm1heF94YwkJPSAweDBmZmYsCiAJCS5taW5feWMJ
+CT0gMHgwLAogCQkubWF4X3ljCQk9IDB4MGZmZiwKIAkJLnJlcHRfc2l6ZQk9IDUsCi0JCS5yZWFk
+X2RhdGEJPSB0YzV1aF9yZWFkX2RhdGEsCisJCS5yZWFkX2RhdGEJPSB0YzQ1dXNiX3JlYWRfZGF0
+YSwKIAl9LAogI2VuZGlmCiAKLS0gCjEuNS42LjUKCg==
+--0016e65c7bd27cf3280488a9b721
+Content-Type: text/x-diff; charset=iso-8859-2;
+	name="0002-HID-blacklist-ET-T-TC4UH-touchscreen-controller.patch"
+Content-Disposition: attachment;
+	filename="0002-HID-blacklist-ET-T-TC4UH-touchscreen-controller.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: 50fca7313dfecfd2_0.2
+
+RnJvbSA2ZmNjOTY4N2I4ZWRiZDdkZjcwYmM0ODY4ZThhODQ5ZWRkZDNiNGZlIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/UGV0cj0yMD1DNT1BMHRldGlhcj89IDx5bmV6
+ekB0cnVlLmN6PgpEYXRlOiBUaHUsIDMgSnVuIDIwMTAgMDk6NTM6NDkgKzAyMDAKU3ViamVjdDog
+W1BBVENIXSBISUQ6IGJsYWNrbGlzdCBFVCZUIFRDNFVIIHRvdWNoc2NyZWVuIGNvbnRyb2xsZXIK
+TUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04
+CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKCgpTaWduZWQtb2ZmLWJ5OiBQZXRyIKl0
+ZXRpYXIgPHluZXp6QHRydWUuY3o+Ci0tLQogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgIDEg
+KwogZHJpdmVycy9oaWQvaGlkLWlkcy5oICB8ICAgIDEgKwogMiBmaWxlcyBjaGFuZ2VkLCAyIGlu
+c2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlk
+LWNvcmUuYyBiL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMKaW5kZXggYWEwZjdkYy4uYTM1ZjhiZSAx
+MDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYworKysgYi9kcml2ZXJzL2hpZC9oaWQt
+Y29yZS5jCkBAIC0xNTY4LDYgKzE1NjgsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGhpZF9kZXZp
+Y2VfaWQgaGlkX2lnbm9yZV9saXN0W10gPSB7CiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9S
+X0lEX0RFTE9STUUsIFVTQl9ERVZJQ0VfSURfREVMT1JNRV9FTV9MVDIwKSB9LAogCXsgSElEX1VT
+Ql9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FU1NFTlRJQUxfUkVBTElUWSwgVVNCX0RFVklDRV9JRF9F
+U1NFTlRJQUxfUkVBTElUWV9QNSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURf
+RVRULCBVU0JfREVWSUNFX0lEX1RDNVVIKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9FVFQsIFVTQl9ERVZJQ0VfSURfVEM0VU0pIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0Jf
+VkVORE9SX0lEX0dFTkVSQUxfVE9VQ0gsIDB4MDAwMSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVT
+Ql9WRU5ET1JfSURfR0VORVJBTF9UT1VDSCwgMHgwMDAyKSB9LAogCXsgSElEX1VTQl9ERVZJQ0Uo
+VVNCX1ZFTkRPUl9JRF9HRU5FUkFMX1RPVUNILCAweDAwMDMpIH0sCmRpZmYgLS1naXQgYS9kcml2
+ZXJzL2hpZC9oaWQtaWRzLmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKaW5kZXggNmFmNzdlZC4u
+ZmFkNGNiMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMv
+aGlkL2hpZC1pZHMuaApAQCAtMTk3LDYgKzE5Nyw3IEBACiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9J
+RF9FVFQJCTB4MDY2NAogI2RlZmluZSBVU0JfREVWSUNFX0lEX1RDNVVICQkweDAzMDkKKyNkZWZp
+bmUgVVNCX0RFVklDRV9JRF9UQzRVTQkJMHgwMzA2CiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9F
+WktFWSAJCTB4MDUxOAogI2RlZmluZSBVU0JfREVWSUNFX0lEX0JUQ184MTkzCQkweDAwMDIKLS0g
+CjEuNS42LjUKCg==
+--0016e65c7bd27cf3280488a9b721--

@@ -1,46 +1,62 @@
-From: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Subject: Re: [0000/0003]full power management for usb touchscreens
-Date: Thu, 10 Jun 2010 16:13:51 +0200
-Message-ID: <201006101613.52736.linux@rainbow-software.org>
-References: <201006071513.29478.oneukum@suse.de> <201006101333.58693.linux@rainbow-software.org> <201006101546.55460.oliver@neukum.org>
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH 1/2] input: mt: Introduce MT event slots (rev 5)
+Date: Thu, 10 Jun 2010 10:15:19 -0400
+Message-ID: <1276179319.24373.24.camel@cndougla-ubuntu>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201006101546.55460.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:47570 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759209Ab0FJOP2 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Jun 2010 10:15:28 -0400
+In-Reply-To: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Thursday 10 June 2010, Oliver Neukum wrote:
-> Am Donnerstag, 10. Juni 2010 13:33:57 schrieb Ondrej Zary:
-> > On Wednesday 09 June 2010, Oliver Neukum wrote:
-> > > Am Mittwoch, 9. Juni 2010 15:40:04 schrieb Ondrej Zary:
-> > > > Looking at the patches from archive:
-> > > >
-> > > > If I understand it correctly, usbtouch_resume submits the irq URB
-> > > > only if the input device is open. That will fail with Nexio as it has
-> > > > an internal watchdog which needs URBs or the device will reconnect -
-> > > > see irq_always (Zytronic seems to need it too).
-> > >
-> > > Thank you for the review. Does this patch fix the issues?
-> >
-> > I haven't tested the patches before. Now I tested them and the Nexio
-> > touchscreen does not play well with suspend. It always reconnects after
-> > resume from STR or hibernation. Autosuspend is probably never activated
-> > at the URBs are submitted continuously.
->
-> I see. Can you compile with CONFIG_USB_DEBUG and send me the log?
+On Sun, 2010-05-23 at 00:30 +0200, Henrik Rydberg wrote:
+> With the rapidly increasing number of intelligent multi-contact and
+> multi-user devices, the need to send digested, filtered information
+> from a set of different sources within the same device is imminent.
+> This patch adds the concept of slots to the MT protocol. The slots
+> enumerate a set of identified sources, such that all MT events
+> can be passed independently and selectively per identified source.
+> 
+> The protocol works like this: Instead of sending a SYN_MT_REPORT
+> event immediately after the contact data, one sends an ABS_MT_SLOT
+> event immediately before the contact data. The input core will only
+> emit events for slots with modified MT events. It is assumed that
+> the same slot is used for the duration of an initiated contact.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Revision 5 incorporates the following changes:
+> 	 - Rename the slot event to ABS_MT_SLOT to keep all MT-related events
+> 	   in the same namespace.
+> 	 - Move the MT slot event list to input.h so that it can be read
+> 	   by userspace.
+> 
+>  drivers/input/input.c |  105 +++++++++++++++++++++++++++++++++++++------------
+>  include/linux/input.h |   44 ++++++++++++++++++++
+>  2 files changed, 123 insertions(+), 26 deletions(-)
 
-This can't be fixed - no matter what you do, the device reconnects if you stop 
-talking to it.
+I was wondering what the status of this patch was. I reviewed it and I
+think it's a good improvement of the protocol. I think it will help
+simplify things in userspace event handling, and should reduce the noise
+in evdev. I also like the incremental approach in that it doesn't force
+drivers into the new protocol, but makes it available for them when they
+can use it.
 
--- 
-Ondrej Zary
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Chase Douglas <chase.douglas@canonical.com>
+
+Long term, I think it makes the most sense to have a layer inside the
+kernel to do software touch tracking and expose all MT data through the
+slots protocol instead of it being determined by the capabilities of the
+device/driver.
+
+-- Chase
+

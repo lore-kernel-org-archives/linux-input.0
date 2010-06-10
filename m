@@ -1,117 +1,60 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Wed, 9 Jun 2010 21:25:44 -0400
-Message-ID: <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-References: <20100424210843.11570.82007.stgit@localhost.localdomain>
-	<20100424211411.11570.2189.stgit@localhost.localdomain>
-	<4BDF2B45.9060806@redhat.com>
-	<20100607190003.GC19390@hardeman.nu>
-	<20100607201530.GG16638@redhat.com>
-	<20100608175017.GC5181@hardeman.nu>
-	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	<20100609132908.GM16638@redhat.com>
-	<20100609175621.GA19620@hardeman.nu>
-	<20100609181506.GO16638@redhat.com>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 2/4] HID: magicmouse: properly account for scroll movement in state
+Date: Wed, 09 Jun 2010 21:25:54 -0400
+Message-ID: <8739wvel0d.fsf@troilus.org>
+References: <1275488908-23624-1-git-send-email-chase.douglas@canonical.com>
+	<1275488908-23624-3-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:48279 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757247Ab0FJBZq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jun 2010 21:25:46 -0400
-In-Reply-To: <20100609181506.GO16638@redhat.com>
+Received: from na3sys009aog111.obsmtp.com ([74.125.149.205]:49401 "HELO
+	na3sys009aog111.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756501Ab0FJBcK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 9 Jun 2010 21:32:10 -0400
+Received: by mail-vw0-f51.google.com with SMTP id 6so5265485vws.38
+        for <linux-input@vger.kernel.org>; Wed, 09 Jun 2010 18:32:09 -0700 (PDT)
+In-Reply-To: <1275488908-23624-3-git-send-email-chase.douglas@canonical.com>
+	(Chase Douglas's message of "Wed, 2 Jun 2010 10:28:26 -0400")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Jun 9, 2010 at 2:15 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> On Wed, Jun 09, 2010 at 07:56:21PM +0200, David H=E4rdeman wrote:
->> On Wed, Jun 09, 2010 at 09:29:08AM -0400, Jarod Wilson wrote:
-=2E..
->> > So this definitely negatively impacts my ir-core-to-lirc_dev
->> > (ir-lirc-codec.c) bridge driver, as it was doing the lirc_dev devi=
-ce
->> > registration work in its register function. However, if (after you=
-r
->> > patchset) we add a new pair of callbacks replacing raw_register an=
-d
->> > raw_unregister, which are optional, that work could be done there =
-instead,
->> > so I don't think this is an insurmountable obstacle for the lirc b=
-its.
->>
->> While I'm not sure exactly what callbacks you're suggesting,
+Chase Douglas writes:
+
+> Before this change, sequential scroll events would take a variable
+> amount of movement due to incorrect accounting. This change ensures all
+> scroll movements require a deterministic touch movement for an action to
+> occur.
 >
-> Essentially:
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+
+My apologies for the delay in reviewing this one.  I understand now, and
+agree it's the right thing to do here.
+
+Acked-by: Michael Poole <mdpoole@troilus.org>
+
+(For the rest of the list, I acked the other three patches in this
+series via private email earlier.)
+
+Michael Poole
+
+> ---
+>  drivers/hid/hid-magicmouse.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
 >
-> .setup_other_crap
-> .tear_down_other_crap
->
-> ...which in the ir-lirc-codec case, register ir-lirc-codec for a spec=
-ific
-> hardware receiver as an lirc_dev client, and conversely, tear it down=
-=2E
->
->> it still
->> sounds like the callbacks would have the exact same problems that th=
-e
->> current code has (i.e. the decoder will be blissfully unaware of
->> hardware which exists before the decoder is loaded). Right?
->
-> In my head, this was going to work out, but you're correct, I still h=
-ave
-> the exact same problem -- its not in ir_raw_handler_list yet when
-> ir_raw_event_register runs, and thus the callback never fires, so lir=
-c_dev
-> never actually gets wired up to ir-lirc-codec. It now knows about the=
- lirc
-> decoder, but its completely useless. Narf.
-
-And now I have it working atop your patches. Its a bit of a nasty-ish
-hack, at least for the lirc case, but its working, even in the case
-where the decoder drivers aren't actually loaded until after the
-device driver. I've added one extra param to each protocol-specific
-struct in ir-core-priv.h (bool initialized) and hooked into the
-protocol-specific decode functions to both determine whether a
-protocol should be enabled or disabled by default, and to run any
-additionally required initialization (such as in the ir-lirc-codec
-case).
-
-So initially, mceusb comes up with all decoders enabled. Then when ir
-comes in, every protocol-specific decoder fires. Each of them check
-for whether or not they've been fully initialized, and if not, we
-check the loaded keymap, and if it doesn't match, we disable that
-decoder (bringing back the "disable protocol handlers we don't need"
-functionality that disappeared w/this patchset). In the lirc case, we
-actually do all the work needed to wire up the connection over to
-lirc_dev.
-
-This works perfectly fine for all the in-kernel decoders, but has one
-minor shortcoming for ir-lirc-codec, in that /dev/lirc0 won't actually
-exist until the first incoming ir signal is seen. lircd can handle
-this case just fine, it'll wait for /dev/lirc0 to show up, but it
-doesn't come up fast enough to catch and decode the very first
-incoming ir signal. Subsequent ones work perfectly fine though. This
-need to initialize the link via incoming ir is a bit problematic if
-you're using a device for transmit-only (e.g., and mceusb device
-hooked to a mythtv backend in the closet or something), as there would
-be a strong possibility of /dev/lirc0 never getting hooked up. I can
-think of a few workarounds, but none are particularly clean and/or
-automagic.
-
-Not sure how palatable it is, but here it is:
-
-http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=3Dcommitdiff;h=3D8f2be5=
-76ecb82448daa0c0d789bf0c978c66b103
-
-
---=20
-Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index cd70635..171ed0c 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -183,7 +183,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+>  		case TOUCH_STATE_DRAG:
+>  			step = step / accel_profile[msc->scroll_accel];
+>  			if (step != 0) {
+> -				msc->touches[id].scroll_y = y;
+> +				msc->touches[id].scroll_y -=
+> +					step * accel_profile[msc->scroll_accel];
+>  				msc->scroll_jiffies = now;
+>  				input_report_rel(input, REL_WHEEL, step);
+>  			}

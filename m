@@ -1,44 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] matrix_keypad: add support for clustered irq
-Date: Thu, 10 Jun 2010 12:32:43 -0700
-Message-ID: <201006101232.43598.dmitry.torokhov@gmail.com>
-References: <1274882226-19778-1-git-send-email-l.fu@pengutronix.de> <1274942634-31735-1-git-send-email-l.fu@pengutronix.de> <AANLkTikzzqx0mJM6cjqdm_n8i3F4lCdaAf2xkpQ_havX@mail.gmail.com>
+Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
+Date: Thu, 10 Jun 2010 12:11:50 -0700
+Message-ID: <201006101211.51395.dmitry.torokhov@gmail.com>
+References: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="utf-8"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <AANLkTikzzqx0mJM6cjqdm_n8i3F4lCdaAf2xkpQ_havX@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Luotao Fu <l.fu@pengutronix.de>, Marek Vasut <marek.vasut@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:48931 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750874Ab0FODPk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jun 2010 23:15:40 -0400
+In-Reply-To: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Thursday, May 27, 2010 08:14:50 am Eric Miao wrote:
-> On Thu, May 27, 2010 at 2:43 PM, Luotao Fu <l.fu@pengutronix.de> wrote:
-> > This one adds support of a combined irq source for the whole matrix keypad.
-> > This can be useful if all rows and columns of the keypad are e.g. connected
-> > to a GPIO expander, which only has one interrupt line for all events on
-> > every single GPIO.
-> >
-> > Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+On Saturday, June 05, 2010 04:04:26 am Henrik Rydberg wrote:
+> Dmitry,
 > 
-> I feel OK. Acked-by: Eric Miao <eric.y.miao@gmail.com>
+> Please find enclosed the fourth version of the evdev buffer patches.
 > 
-> > ---
-> > V2 Changes:
-> > * create separate functions for suspend/resume calls.
-> > * add bool flag to signal enable/disable state of all gpios.
-> > * add spinlock to suspend and resume callbacks.
+> This version implements buffer locking using event_lock as you
+> suggested, such that we can proceed with fixing the evdev buffer
+> problem independently from providing a suitable one-to-many buffer.
+> 
+> The first patch converts the per-client buffers to a common buffer,
+> and adds a fixme since the code is expected to be further
+> improved. The second and third patch includes your review comments.
 
-The spinlock is not needed, it should be OK to get interrupted in the middle
-of setting up wakeup sources. The enable/disable irq is different as if we
-get interrupted in the middle of the process our counters will get messed
-up.
+Henrik,
 
-Fixed a few compile warnings and applied for .36.
+Applied to .36 queue with minor adjustments, please take a peek in my
+'for-linus' branch and see if you spot anything wrong. The changes have
+been made with an eye of implementing a per-client event filters which
+would again require using private event queues (but only by clients that
+request filtering).
 
-Thanks.
+The desire for allowing event filtering in kernel is to avoid waking up
+HAL-ish processes (ones that only interested in certain special events, 
+like KEY_SUSPEND, KEY_WIFI, KEY_MUTE, etc) needlessly. Not sure if I am
+going to have time to actually implement it though, anyone wants to
+take a stab?
 
 -- 
 Dmitry

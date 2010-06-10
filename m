@@ -1,156 +1,72 @@
-From: Roger Pueyo <linux-input@rogerpueyo.com>
-Subject: [patch] TC4UM driver for linux-input
-Date: Thu, 10 Jun 2010 11:33:16 +0200
-Message-ID: <AANLkTinBJz0IBgpV7n3M3CZVccLBfVs67d0zCfohUDP4@mail.gmail.com>
-References: <AANLkTimmEtxuQ00jlLPMJkiS7htBV53wMpuWzW_RPs51@mail.gmail.com>
-	<20100603072424.GP26052@ibawizard.net> <20100603075720.GQ26052@ibawizard.net>
-Reply-To: linux-input@rogerpueyo.com
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v2] HID: Add Support for Setting and Getting Feature
+ Reports from hidraw
+Date: Thu, 10 Jun 2010 12:45:11 +0200
+Message-ID: <20100610124511.973a2ca5.ospite@studenti.unina.it>
+References: <1275969108-14948-1-git-send-email-alan@signal11.us>
+	<1276098868-3262-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016e65c7bd27cf3280488a9b721
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__10_Jun_2010_12_45_11_+0200_=L0YqTYKWoKfYaWU"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f194.google.com ([74.125.83.194]:57249 "EHLO
-	mail-pv0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753389Ab0FJKjp (ORCPT
+Received: from smtp208.alice.it ([82.57.200.104]:44504 "EHLO
+	smtp208-alice.cp.alice.it" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1758100Ab0FJKv6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jun 2010 06:39:45 -0400
-Received: by pva18 with SMTP id 18so1178739pva.1
-        for <linux-input@vger.kernel.org>; Thu, 10 Jun 2010 03:39:45 -0700 (PDT)
-Received: by fxm8 with SMTP id 8so4119568fxm.19
-        for <linux-input@vger.kernel.org>; Thu, 10 Jun 2010 02:33:36 -0700 (PDT)
-In-Reply-To: <20100603075720.GQ26052@ibawizard.net>
+	Thu, 10 Jun 2010 06:51:58 -0400
+In-Reply-To: <1276098868-3262-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Jiri Kosina <jkosina@suse.cz>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Stephane Chatty <chatty@enac.fr>, Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
---0016e65c7bd27cf3280488a9b721
-Content-Type: text/plain; charset=UTF-8
+--Signature=_Thu__10_Jun_2010_12_45_11_+0200_=L0YqTYKWoKfYaWU
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Wed,  9 Jun 2010 11:54:28 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-These patches are for the ET&T TC4UM usb touchscreen. They are by Petr
-=C5=A0tetiar. They are the same as his previously written TC5UH, just
-changing the hardware ID.
+> Per the HID Specification, Feature reports must be sent and received on
+> the Configuration endpoint (EP 0) through the Set_Report/Get_Report
+> interfaces.  This patch adds two ioctls to hidraw to set and get feature
+> reports to and from the device.  Modifications were made to hidraw and
+> usbhid.
+>=20
+> New hidraw ioctls:
+>   HIDIOCSFEATURE - Perform a Set_Report transfer of a Feature report.
+>   HIDIOCGFEATURE - Perform a Get_Report transfer of a Feature report.
+>=20
+> Signed-off-by: Alan Ott <alan@signal11.us>
 
-I've tested them against kernel 2.6.34 with X.org 1.7 and work
-flawlessly with evdev driver.
+Tested-by: Antonio Ospite <ospite@studenti.unina.it>
 
-Let me know any suggestions, please.
+Regards,
+   Antonio
 
-Roger
+--=20
+Antonio Ospite
+http://ao2.it
 
----------- Forwarded message ----------
-From: Petr =C5=A0tetiar <@>
-Date: 2010/6/3
-Subject: Re: TC4UM driver for linux-input
-To: Roger Pueyo <@>
-Cc: Petr =C5=A0tetiar <@>
+PGP public key ID: 0x4553B001
 
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Please can you test attached patches? Does they work for you? Thank you.
+--Signature=_Thu__10_Jun_2010_12_45_11_+0200_=L0YqTYKWoKfYaWU
+Content-Type: application/pgp-signature
 
--- ynezz
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
 
---0016e65c7bd27cf3280488a9b721
-Content-Type: text/x-diff; charset=iso-8859-2;
-	name="0001-Input-usbtouchscreen-add-support-for-ET-T-TC4UM-t.patch"
-Content-Disposition: attachment;
-	filename="0001-Input-usbtouchscreen-add-support-for-ET-T-TC4UM-t.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: 50fca7313dfecfd2_0.1
+iEYEARECAAYFAkwQwjcACgkQ5xr2akVTsAGi5QCfddQ3+Tw0qKSEPpahyuFJul2y
+KloAn04s+M7U21CxsUH6G4FJmr/5FKvg
+=f32D
+-----END PGP SIGNATURE-----
 
-RnJvbSAzNzNiMDFmNmYxMWQyMzgxMjUxMDAyNmI0NzQ2NGU1Y2Q0Y2I1NTkzIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/UGV0cj0yMD1DNT1BMHRldGlhcj89IDx5bmV6
-ekB0cnVlLmN6PgpEYXRlOiBUaHUsIDMgSnVuIDIwMTAgMDk6NDg6MDAgKzAyMDAKU3ViamVjdDog
-W1BBVENIXSBJbnB1dDogdXNidG91Y2hzY3JlZW4gLSBhZGQgc3VwcG9ydCBmb3IgRVQmVCBUQzRV
-TSB0b3VjaHNjcmVlbiBjb250cm9sbGVyCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlwZTog
-dGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0
-CgpUaGlzIHBhdGNoIGFkZHMgc3VwcG9ydCBmb3IgdGhlIEVUJlQgVEM0VU0gNC13aXJlIFVTQiB0
-b3VjaHNjcmVlbiBjb250cm9sbGVyCmFuZCB0cmllcyB0byByZXVzZSBjb2RlIGZvciBUQzVVSCBj
-b250cm9sbGVyIGluIGtlcm5lbCBhbHJlYWR5LiBEYXRhIGludGVyZmFjZQppcyBzYW1lLgoKVGVz
-dGVkLWJ5OiBSb2dlciBQdWV5byBDZW50ZWxsZXMgPHJvZ2VycHVleW9Acm9nZXJwdWV5by5jb20+
-ClNpZ25lZC1vZmYtYnk6IFBldHIgqXRldGlhciA8eW5lenpAdHJ1ZS5jej4KLS0tCiBkcml2ZXJz
-L2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcgICAgICAgICAgfCAgICA0ICsrLS0KIGRyaXZlcnMv
-aW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYyB8ICAgMjEgKysrKysrKysrKysrLS0t
-LS0tLS0tCiAyIGZpbGVzIGNoYW5nZWQsIDE0IGluc2VydGlvbnMoKyksIDExIGRlbGV0aW9ucygt
-KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZyBiL2RyaXZl
-cnMvaW5wdXQvdG91Y2hzY3JlZW4vS2NvbmZpZwppbmRleCA2NzAzYzZiLi40MjUwNzE4IDEwMDY0
-NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL0tjb25maWcKKysrIGIvZHJpdmVycy9p
-bnB1dC90b3VjaHNjcmVlbi9LY29uZmlnCkBAIC01NDAsOSArNTQwLDkgQEAgY29uZmlnIFRPVUNI
-U0NSRUVOX1VTQl9aWVRST05JQwogCWJvb2wgIlp5dHJvbmljIGNvbnRyb2xsZXIiIGlmIEVNQkVE
-REVECiAJZGVwZW5kcyBvbiBUT1VDSFNDUkVFTl9VU0JfQ09NUE9TSVRFCiAKLWNvbmZpZyBUT1VD
-SFNDUkVFTl9VU0JfRVRUX1RDNVVICitjb25maWcgVE9VQ0hTQ1JFRU5fVVNCX0VUVF9UQzQ1VVNC
-CiAJZGVmYXVsdCB5Ci0JYm9vbCAiRVQmVCBUQzVVSCB0b3VjaHNjcmVlbiBjb250cm9sZXIgc3Vw
-cG9ydCIgaWYgRU1CRURERUQKKwlib29sICJFVCZUIFVTQiBzZXJpZXMgVEM0VU0vVEM1VUggdG91
-Y2hzY3JlZW4gY29udHJvbGVyIHN1cHBvcnQiIGlmIEVNQkVEREVECiAJZGVwZW5kcyBvbiBUT1VD
-SFNDUkVFTl9VU0JfQ09NUE9TSVRFCiAKIGNvbmZpZyBUT1VDSFNDUkVFTl9VU0JfTkVYSU8KZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYyBiL2Ry
-aXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYwppbmRleCA1NjdkNTcyLi4z
-MjQ0NTQyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3VzYnRvdWNoc2Ny
-ZWVuLmMKKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91c2J0b3VjaHNjcmVlbi5jCkBA
-IC0xMzUsNyArMTM1LDcgQEAgZW51bSB7CiAJREVWVFlQRV9KQVNURUMsCiAJREVWVFlQRV9FMkks
-CiAJREVWVFlQRV9aWVRST05JQywKLQlERVZUWVBFX1RDNVVILAorCURFVlRZUEVfVEM0NVVTQiwK
-IAlERVZUWVBFX05FWElPLAogfTsKIApAQCAtMjIyLDggKzIyMiwxMSBAQCBzdGF0aWMgY29uc3Qg
-c3RydWN0IHVzYl9kZXZpY2VfaWQgdXNidG91Y2hfZGV2aWNlc1tdID0gewogCXtVU0JfREVWSUNF
-KDB4MTRjOCwgMHgwMDAzKSwgLmRyaXZlcl9pbmZvID0gREVWVFlQRV9aWVRST05JQ30sCiAjZW5k
-aWYKIAotI2lmZGVmIENPTkZJR19UT1VDSFNDUkVFTl9VU0JfRVRUX1RDNVVICi0Je1VTQl9ERVZJ
-Q0UoMHgwNjY0LCAweDAzMDkpLCAuZHJpdmVyX2luZm8gPSBERVZUWVBFX1RDNVVIfSwKKyNpZmRl
-ZiBDT05GSUdfVE9VQ0hTQ1JFRU5fVVNCX0VUVF9UQzQ1VVNCCisJLyogVEM1VUggKi8KKwl7VVNC
-X0RFVklDRSgweDA2NjQsIDB4MDMwOSksIC5kcml2ZXJfaW5mbyA9IERFVlRZUEVfVEM0NVVTQn0s
-CisJLyogVEM0VU0gKi8KKwl7VVNCX0RFVklDRSgweDA2NjQsIDB4MDMwNiksIC5kcml2ZXJfaW5m
-byA9IERFVlRZUEVfVEM0NVVTQn0sCiAjZW5kaWYKIAogI2lmZGVmIENPTkZJR19UT1VDSFNDUkVF
-Tl9VU0JfTkVYSU8KQEAgLTU3NCwxMCArNTc3LDEwIEBAIHN0YXRpYyBpbnQgaXJ0b3VjaF9yZWFk
-X2RhdGEoc3RydWN0IHVzYnRvdWNoX3VzYiAqZGV2LCB1bnNpZ25lZCBjaGFyICpwa3QpCiAjZW5k
-aWYKIAogLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqCi0gKiBFVCZUIFRDNVVIIHBhcnQKKyAqIEVUJlQg
-VEM1VUgvVEM0VU0gcGFydAogICovCi0jaWZkZWYgQ09ORklHX1RPVUNIU0NSRUVOX1VTQl9FVFRf
-VEM1VUgKLXN0YXRpYyBpbnQgdGM1dWhfcmVhZF9kYXRhKHN0cnVjdCB1c2J0b3VjaF91c2IgKmRl
-diwgdW5zaWduZWQgY2hhciAqcGt0KQorI2lmZGVmIENPTkZJR19UT1VDSFNDUkVFTl9VU0JfRVRU
-X1RDNDVVU0IKK3N0YXRpYyBpbnQgdGM0NXVzYl9yZWFkX2RhdGEoc3RydWN0IHVzYnRvdWNoX3Vz
-YiAqZGV2LCB1bnNpZ25lZCBjaGFyICpwa3QpCiB7CiAJZGV2LT54ID0gKChwa3RbMl0gJiAweDBG
-KSA8PCA4KSB8IHBrdFsxXTsKIAlkZXYtPnkgPSAoKHBrdFs0XSAmIDB4MEYpIDw8IDgpIHwgcGt0
-WzNdOwpAQCAtMTEwNCwxNCArMTEwNywxNCBAQCBzdGF0aWMgc3RydWN0IHVzYnRvdWNoX2Rldmlj
-ZV9pbmZvIHVzYnRvdWNoX2Rldl9pbmZvW10gPSB7CiAJfSwKICNlbmRpZgogCi0jaWZkZWYgQ09O
-RklHX1RPVUNIU0NSRUVOX1VTQl9FVFRfVEM1VUgKLQlbREVWVFlQRV9UQzVVSF0gPSB7CisjaWZk
-ZWYgQ09ORklHX1RPVUNIU0NSRUVOX1VTQl9FVFRfVEM0NVVTQgorCVtERVZUWVBFX1RDNDVVU0Jd
-ID0gewogCQkubWluX3hjCQk9IDB4MCwKIAkJLm1heF94YwkJPSAweDBmZmYsCiAJCS5taW5feWMJ
-CT0gMHgwLAogCQkubWF4X3ljCQk9IDB4MGZmZiwKIAkJLnJlcHRfc2l6ZQk9IDUsCi0JCS5yZWFk
-X2RhdGEJPSB0YzV1aF9yZWFkX2RhdGEsCisJCS5yZWFkX2RhdGEJPSB0YzQ1dXNiX3JlYWRfZGF0
-YSwKIAl9LAogI2VuZGlmCiAKLS0gCjEuNS42LjUKCg==
---0016e65c7bd27cf3280488a9b721
-Content-Type: text/x-diff; charset=iso-8859-2;
-	name="0002-HID-blacklist-ET-T-TC4UH-touchscreen-controller.patch"
-Content-Disposition: attachment;
-	filename="0002-HID-blacklist-ET-T-TC4UH-touchscreen-controller.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: 50fca7313dfecfd2_0.2
-
-RnJvbSA2ZmNjOTY4N2I4ZWRiZDdkZjcwYmM0ODY4ZThhODQ5ZWRkZDNiNGZlIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiA9P3V0Zi04P3E/UGV0cj0yMD1DNT1BMHRldGlhcj89IDx5bmV6
-ekB0cnVlLmN6PgpEYXRlOiBUaHUsIDMgSnVuIDIwMTAgMDk6NTM6NDkgKzAyMDAKU3ViamVjdDog
-W1BBVENIXSBISUQ6IGJsYWNrbGlzdCBFVCZUIFRDNFVIIHRvdWNoc2NyZWVuIGNvbnRyb2xsZXIK
-TUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04
-CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKCgpTaWduZWQtb2ZmLWJ5OiBQZXRyIKl0
-ZXRpYXIgPHluZXp6QHRydWUuY3o+Ci0tLQogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgIDEg
-KwogZHJpdmVycy9oaWQvaGlkLWlkcy5oICB8ICAgIDEgKwogMiBmaWxlcyBjaGFuZ2VkLCAyIGlu
-c2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlk
-LWNvcmUuYyBiL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMKaW5kZXggYWEwZjdkYy4uYTM1ZjhiZSAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYworKysgYi9kcml2ZXJzL2hpZC9oaWQt
-Y29yZS5jCkBAIC0xNTY4LDYgKzE1NjgsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGhpZF9kZXZp
-Y2VfaWQgaGlkX2lnbm9yZV9saXN0W10gPSB7CiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9S
-X0lEX0RFTE9STUUsIFVTQl9ERVZJQ0VfSURfREVMT1JNRV9FTV9MVDIwKSB9LAogCXsgSElEX1VT
-Ql9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9FU1NFTlRJQUxfUkVBTElUWSwgVVNCX0RFVklDRV9JRF9F
-U1NFTlRJQUxfUkVBTElUWV9QNSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURf
-RVRULCBVU0JfREVWSUNFX0lEX1RDNVVIKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
-Ul9JRF9FVFQsIFVTQl9ERVZJQ0VfSURfVEM0VU0pIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0Jf
-VkVORE9SX0lEX0dFTkVSQUxfVE9VQ0gsIDB4MDAwMSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVT
-Ql9WRU5ET1JfSURfR0VORVJBTF9UT1VDSCwgMHgwMDAyKSB9LAogCXsgSElEX1VTQl9ERVZJQ0Uo
-VVNCX1ZFTkRPUl9JRF9HRU5FUkFMX1RPVUNILCAweDAwMDMpIH0sCmRpZmYgLS1naXQgYS9kcml2
-ZXJzL2hpZC9oaWQtaWRzLmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKaW5kZXggNmFmNzdlZC4u
-ZmFkNGNiMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMv
-aGlkL2hpZC1pZHMuaApAQCAtMTk3LDYgKzE5Nyw3IEBACiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9J
-RF9FVFQJCTB4MDY2NAogI2RlZmluZSBVU0JfREVWSUNFX0lEX1RDNVVICQkweDAzMDkKKyNkZWZp
-bmUgVVNCX0RFVklDRV9JRF9UQzRVTQkJMHgwMzA2CiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9F
-WktFWSAJCTB4MDUxOAogI2RlZmluZSBVU0JfREVWSUNFX0lEX0JUQ184MTkzCQkweDAwMDIKLS0g
-CjEuNS42LjUKCg==
---0016e65c7bd27cf3280488a9b721--
+--Signature=_Thu__10_Jun_2010_12_45_11_+0200_=L0YqTYKWoKfYaWU--

@@ -1,76 +1,46 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol
- (rev4)
-Date: Thu, 10 Jun 2010 15:56:34 +0200
-Message-ID: <20100610135634.GD4514@ucw.cz>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
- <1274567437-2818-2-git-send-email-rydberg@euromail.se>
+From: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Subject: Re: [0000/0003]full power management for usb touchscreens
+Date: Thu, 10 Jun 2010 16:13:51 +0200
+Message-ID: <201006101613.52736.linux@rainbow-software.org>
+References: <201006071513.29478.oneukum@suse.de> <201006101333.58693.linux@rainbow-software.org> <201006101546.55460.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ksp.mff.cuni.cz ([195.113.26.206]:36967 "EHLO
-	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757992Ab0FJN50 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jun 2010 09:57:26 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201006101546.55460.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1274567437-2818-2-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-Hi!
+On Thursday 10 June 2010, Oliver Neukum wrote:
+> Am Donnerstag, 10. Juni 2010 13:33:57 schrieb Ondrej Zary:
+> > On Wednesday 09 June 2010, Oliver Neukum wrote:
+> > > Am Mittwoch, 9. Juni 2010 15:40:04 schrieb Ondrej Zary:
+> > > > Looking at the patches from archive:
+> > > >
+> > > > If I understand it correctly, usbtouch_resume submits the irq URB
+> > > > only if the input device is open. That will fail with Nexio as it has
+> > > > an internal watchdog which needs URBs or the device will reconnect -
+> > > > see irq_always (Zytronic seems to need it too).
+> > >
+> > > Thank you for the review. Does this patch fix the issues?
+> >
+> > I haven't tested the patches before. Now I tested them and the Nexio
+> > touchscreen does not play well with suspend. It always reconnects after
+> > resume from STR or hibernation. Autosuspend is probably never activated
+> > at the URBs are submitted continuously.
+>
+> I see. Can you compile with CONFIG_USB_DEBUG and send me the log?
 
-> +Protocol Example A
-> +------------------
-> +
-> +Here is what a minimal event sequence for a two-contact touch would look
-> +like for a type A device:
-> +
-> +   ABS_MT_POSITION_X x[0]
-> +   ABS_MT_POSITION_Y y[0]
-> +   SYN_MT_REPORT
-> +   ABS_MT_POSITION_X x[1]
-> +   ABS_MT_POSITION_Y y[1]
-> +   SYN_MT_REPORT
-> +   SYN_REPORT
-...
-> -Usage
-> ------
-> +Here is the sequence after lifting the first contact:
-> +
-> +   ABS_MT_POSITION_X x[1]
-> +   ABS_MT_POSITION_Y y[1]
-> +   SYN_MT_REPORT
-> +   SYN_REPORT
+This can't be fixed - no matter what you do, the device reconnects if you stop 
+talking to it.
 
-...
-
-> +Protocol Example B
-> +------------------
-> +
-> +Here is what a minimal event sequence for a two-contact touch would look
-> +like for a type B device:
-> +
-> +   ABS_MT_SLOT 0
-> +   ABS_MT_TRACKING_ID 45
-> +   ABS_MT_POSITION_X x[0]
-> +   ABS_MT_POSITION_Y y[0]
-> +   ABS_MT_SLOT 1
-> +   ABS_MT_TRACKING_ID 46
-> +   ABS_MT_POSITION_X x[1]
-> +   ABS_MT_POSITION_Y y[1]
-> +   SYN_REPORT
-> +
-> +Here is the sequence after moving contact 45 in the x direction:
-> +
-> +   ABS_MT_SLOT 0
-> +   ABS_MT_POSITION_X x[0]
-> +   SYN_REPORT
-
-With this proposed system, protocol A is *very* different from
-protocol B. Is there way to make them more similar?
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Ondrej Zary
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

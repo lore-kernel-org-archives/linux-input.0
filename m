@@ -1,106 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: fixup X86_MRST selects
-Date: Thu, 10 Jun 2010 12:04:45 -0700
-Message-ID: <201006101204.45709.dmitry.torokhov@gmail.com>
-References: <20100609133443.38f1f957.sfr@canb.auug.org.au> <201006091540.43122.dmitry.torokhov@gmail.com> <4C1018C0.6020304@oracle.com>
+Subject: Re: [RFC] Input: ADP5588 - Support GPI event for ADP5588 devices
+Date: Thu, 10 Jun 2010 12:28:03 -0700
+Message-ID: <201006101228.03993.dmitry.torokhov@gmail.com>
+References: <AANLkTinaguxmGVrx3lWqNT__xE6S2CIjoLc69TrS-yyN@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:48161 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750744Ab0FODPj (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:64946 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750744Ab0FODPm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jun 2010 23:15:39 -0400
-In-Reply-To: <4C1018C0.6020304@oracle.com>
+	Mon, 14 Jun 2010 23:15:42 -0400
+Received: by pwi1 with SMTP id 1so3151703pwi.19
+        for <linux-input@vger.kernel.org>; Mon, 14 Jun 2010 20:15:42 -0700 (PDT)
+In-Reply-To: <AANLkTinaguxmGVrx3lWqNT__xE6S2CIjoLc69TrS-yyN@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Jacob Pan <jacob.jun.pan@intel.com>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, akpm <akpm@linux-foundation.org>
+To: Xiaolong CHEN <a21785@motorola.com>
+Cc: linux-input@vger.kernel.org, Michael Hennerich <hennerich@blackfin.uclinux.org>, TAO HU <taohu@motorola.com>, "Yuan.Bo YE" <yuan-bo.ye@motorola.com>
 
-On Wednesday, June 09, 2010 03:42:08 pm Randy Dunlap wrote:
-> On 06/09/10 15:40, Dmitry Torokhov wrote:
-> > On Wednesday, June 09, 2010 03:29:21 pm Randy Dunlap wrote:
-> >> +++ linux-next-20100609/drivers/input/keyboard/Kconfig
-> >> @@ -70,9 +70,10 @@ config KEYBOARD_ATARI
-> >>  
-> >>  config KEYBOARD_ATKBD
-> >>         tristate "AT keyboard" if EMBEDDED || !X86
-> >> +       depends on !X86 || (X86 && !X86_MRST)
-> > 
-> > Should it be simply 'depends on !X86_MRST' and then we could kill
-> > '!X86_MRST' conditionals in selects?
+Hi Xiaolong,
+
+On Wednesday, June 09, 2010 07:36:14 pm Xiaolong CHEN wrote:
+> Hi,
 > 
-> Duh, that sounds good, yes.
+> This patch supports GPI event for ADP5588 devices.
+> 
+> Kernel Version: 2.6.34
+> 
+> A column or row configured as a GPI can be programmed to be part of
+> the key event table and therefore also capable of generating a key
+> event interrupt. A key event interrupt caused by a GPI follows the
+> same process flow as a key event interrupt caused by a key press. GPIs
+> configured as part of the key event table allow single key switches
+> and other GPI interrupts to bemonitored. As part of the event table,
+> GPIs are represented by the decimal value 97 (0x61or 1100001) through
+> the decimal value 114 (0x72 or 1110010). See Table as below for GPI
+> event number assignments for rows and columns.
+> 
+> GPI Event Number Assignments for Rows
+> Row0 Row1 Row2 Row3 Row4 Row5 Row6 Row7
+> 97       98       99       100     101     102     103    104
+> 
+> GPI Event Number Assignments for Cols
+> Col0 Col1 Col2 Col3 Col4 Col5 Col6 Col7 Col8 Col9
+> 105  106   107   108   109   110   111   112  113  114
+> 
+> Usage:
+> 1. Enable CONFIG_KEYBOARD_ADP5588_GPI_EVENT
+> 2. Add gpimap and gpimapsize setting in adp5588_kpad_platform_data
+> (The settings should not conflict with rows/cols for keymap)
 
-Actually, I do not think this is a correct approach. While Moorestown does
-not have i8042 theoretically it is possible to add AT-style keyboard by
-other means (however unlikely it is) so we should not be disabling it.
+A couple of questions:
 
-We should, however, disallow i8042 from being selected. Could you please
-tell me if the patch below works for you?
+1. Why did you go with a compile option? Is it possible to enable this
+   functionality unconditionally and let board setup code specify what
+   it wants to use?
 
-Thanks!
+2. Why did you decide to make the events switches and not keys?
+
+Thanks.
 
 -- 
 Dmitry
-
-Input: fixup X86_MRST selects
-
-From: Randy Dunlap <randy.dunlap@oracle.com>
-
-Some of the recent X86_MRST additions make some "select"s
-conditional on X86_MRST but missed some related kconfig symbols,
-causing:
-
-drivers/built-in.o: In function `ps2_end_command':
-(.text+0x257ab2): undefined reference to `i8042_check_port_owner'
-drivers/built-in.o: In function `ps2_end_command':
-(.text+0x257ae1): undefined reference to `i8042_unlock_chip'
-drivers/built-in.o: In function `ps2_begin_command':
-(.text+0x257b40): undefined reference to `i8042_check_port_owner'
-drivers/built-in.o: In function `ps2_begin_command':
-(.text+0x257b6f): undefined reference to `i8042_lock_chip'
-
-when SERIO_I8042=m, SERIO_LIBPS2=y, KEYBOARD_ATKBD=y.
-
-We need to make i8042 dependant upon !X86_MRST and allow deselecting
-atkbd on Moorestown even when !CONFIG_EMBEDDED.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Jacob Pan <jacob.jun.pan@intel.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/keyboard/Kconfig |    2 +-
- drivers/input/serio/Kconfig    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 9522b89..d3a99de 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -69,7 +69,7 @@ config KEYBOARD_ATARI
- 	  module will be called atakbd.
- 
- config KEYBOARD_ATKBD
--	tristate "AT keyboard" if EMBEDDED || !X86
-+	tristate "AT keyboard" if EMBEDDED || !X86 || X86_MRST
- 	default y
- 	select SERIO
- 	select SERIO_LIBPS2
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index 3bfe8fa..256b9e9 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -22,7 +22,7 @@ config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
- 	default y
- 	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && \
--		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN
-+		   (!SUPERH || SH_CAYMAN) && !M68K && !BLACKFIN && !X86_MRST
- 	help
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
- 	  mouse are connected to the computer. If you use these devices,

@@ -1,35 +1,87 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [0000/0003]full power management for usb touchscreens
-Date: Thu, 10 Jun 2010 16:25:10 +0200
-Message-ID: <201006101625.10897.oliver@neukum.org>
-References: <201006071513.29478.oneukum@suse.de> <201006101546.55460.oliver@neukum.org> <201006101613.52736.linux@rainbow-software.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: mt: Document the MT event slot protocol (rev4)
+Date: Thu, 10 Jun 2010 18:28:32 +0200
+Message-ID: <4C1112B0.8070806@euromail.se>
+References: <1274567437-2818-1-git-send-email-rydberg@euromail.se> <1274567437-2818-2-git-send-email-rydberg@euromail.se> <20100610135634.GD4514@ucw.cz>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201006101613.52736.linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100610135634.GD4514@ucw.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 List-Id: linux-input@vger.kernel.org
 
-Am Donnerstag, 10. Juni 2010 16:13:51 schrieb Ondrej Zary:
-> > > I haven't tested the patches before. Now I tested them and the Nexio
-> > > touchscreen does not play well with suspend. It always reconnects after
-> > > resume from STR or hibernation. Autosuspend is probably never activated
-> > > at the URBs are submitted continuously.
-> >
-> > I see. Can you compile with CONFIG_USB_DEBUG and send me the log?
+Pavel Machek wrote:
+> Hi!
 > 
-> This can't be fixed - no matter what you do, the device reconnects if you stop 
-> talking to it.
+>> +Protocol Example A
+>> +------------------
+>> +
+>> +Here is what a minimal event sequence for a two-contact touch would look
+>> +like for a type A device:
+>> +
+>> +   ABS_MT_POSITION_X x[0]
+>> +   ABS_MT_POSITION_Y y[0]
+>> +   SYN_MT_REPORT
+>> +   ABS_MT_POSITION_X x[1]
+>> +   ABS_MT_POSITION_Y y[1]
+>> +   SYN_MT_REPORT
+>> +   SYN_REPORT
+> ...
+>> -Usage
+>> ------
+>> +Here is the sequence after lifting the first contact:
+>> +
+>> +   ABS_MT_POSITION_X x[1]
+>> +   ABS_MT_POSITION_Y y[1]
+>> +   SYN_MT_REPORT
+>> +   SYN_REPORT
+> 
+> ...
+> 
+>> +Protocol Example B
+>> +------------------
+>> +
+>> +Here is what a minimal event sequence for a two-contact touch would look
+>> +like for a type B device:
+>> +
+>> +   ABS_MT_SLOT 0
+>> +   ABS_MT_TRACKING_ID 45
+>> +   ABS_MT_POSITION_X x[0]
+>> +   ABS_MT_POSITION_Y y[0]
+>> +   ABS_MT_SLOT 1
+>> +   ABS_MT_TRACKING_ID 46
+>> +   ABS_MT_POSITION_X x[1]
+>> +   ABS_MT_POSITION_Y y[1]
+>> +   SYN_REPORT
+>> +
+>> +Here is the sequence after moving contact 45 in the x direction:
+>> +
+>> +   ABS_MT_SLOT 0
+>> +   ABS_MT_POSITION_X x[0]
+>> +   SYN_REPORT
+> 
+> With this proposed system, protocol A is *very* different from
+> protocol B. Is there way to make them more similar?
 
-Even if you immediately go into suspend?
+Hello,
 
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+unfortunately, the two protocols are different for a reason. Given the point of
+the type B protocol, to reduce bandwidth and accommodate filtering in the input
+core, the major difference is that type A receivers always expect all data
+between synchronizations, whereas type B devices never send all data. This alone
+means a receiver wishing to support both type of streams will need to know what
+type of stream to expect. This is accomplished by the presence of ABS_MT_SLOT.
+Secondly, in order to not break the established semantics of events, ABS_MT_SLOT
+is used instead SYN_MT_REPORT. This also makes type B devices in type A
+applications stop working in a somewhat graceful fashion.
+
+The usage of SYN_MT_REPORT versus ABS_MT_SLOT is the only syntactic difference
+between the protocols, and it stems from the different interpretation of what
+comes through the wire. IMHO, it means the way the type B protocol is formulated
+is the smallest possible change that accommodates the required effect.
+
+Thanks,
+Henrik

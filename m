@@ -1,57 +1,35 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
-Date: Thu, 10 Jun 2010 10:21:47 -0400
-Message-ID: <1276179707.24373.29.camel@cndougla-ubuntu>
-References: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: [0000/0003]full power management for usb touchscreens
+Date: Thu, 10 Jun 2010 16:25:10 +0200
+Message-ID: <201006101625.10897.oliver@neukum.org>
+References: <201006071513.29478.oneukum@suse.de> <201006101546.55460.oliver@neukum.org> <201006101613.52736.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:43551 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753363Ab0FJOVx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jun 2010 10:21:53 -0400
-In-Reply-To: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201006101613.52736.linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Sat, 2010-06-05 at 13:04 +0200, Henrik Rydberg wrote:
-> Dmitry,
+Am Donnerstag, 10. Juni 2010 16:13:51 schrieb Ondrej Zary:
+> > > I haven't tested the patches before. Now I tested them and the Nexio
+> > > touchscreen does not play well with suspend. It always reconnects after
+> > > resume from STR or hibernation. Autosuspend is probably never activated
+> > > at the URBs are submitted continuously.
+> >
+> > I see. Can you compile with CONFIG_USB_DEBUG and send me the log?
 > 
-> Please find enclosed the fourth version of the evdev buffer patches.
-> 
-> This version implements buffer locking using event_lock as you
-> suggested, such that we can proceed with fixing the evdev buffer
-> problem independently from providing a suitable one-to-many buffer.
-> 
-> The first patch converts the per-client buffers to a common buffer,
-> and adds a fixme since the code is expected to be further
-> improved. The second and third patch includes your review comments.
-> 
-> Thanks,
-> Henrik
-> 
-> ---
-> 
-> Henrik Rydberg (3):
->   input: evdev: Use multi-reader buffer to save space (rev4)
->   input: evdev: Convert to dynamic event buffer (rev4)
->   input: Use driver hint to compute the evdev buffer size (rev2)
-> 
->  drivers/input/evdev.c |   68 +++++++++++++++++++++++++++++++++----------------
->  include/linux/input.h |   17 ++++++++++++
->  2 files changed, 63 insertions(+), 22 deletions(-)
+> This can't be fixed - no matter what you do, the device reconnects if you stop 
+> talking to it.
 
-I like the first patch for the simplification of buffer management into
-one buffer per device, and I think it may be more efficient due to there
-being less locking when syncing the clients.
+Even if you immediately go into suspend?
 
-The second and third patches seem like reasonable solutions to the
-buffers being too small for some devices that can handle many MT events
-simultaneously and offer many attributes per event.
-
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
+	Regards
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

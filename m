@@ -1,62 +1,57 @@
 From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH 1/2] input: mt: Introduce MT event slots (rev 5)
-Date: Thu, 10 Jun 2010 10:15:19 -0400
-Message-ID: <1276179319.24373.24.camel@cndougla-ubuntu>
-References: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
+Date: Thu, 10 Jun 2010 10:21:47 -0400
+Message-ID: <1276179707.24373.29.camel@cndougla-ubuntu>
+References: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:47570 "EHLO
+Received: from adelie.canonical.com ([91.189.90.139]:43551 "EHLO
 	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759209Ab0FJOP2 (ORCPT
+	with ESMTP id S1753363Ab0FJOVx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jun 2010 10:15:28 -0400
-In-Reply-To: <1274567437-2818-1-git-send-email-rydberg@euromail.se>
+	Thu, 10 Jun 2010 10:21:53 -0400
+In-Reply-To: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Sun, 2010-05-23 at 00:30 +0200, Henrik Rydberg wrote:
-> With the rapidly increasing number of intelligent multi-contact and
-> multi-user devices, the need to send digested, filtered information
-> from a set of different sources within the same device is imminent.
-> This patch adds the concept of slots to the MT protocol. The slots
-> enumerate a set of identified sources, such that all MT events
-> can be passed independently and selectively per identified source.
+On Sat, 2010-06-05 at 13:04 +0200, Henrik Rydberg wrote:
+> Dmitry,
 > 
-> The protocol works like this: Instead of sending a SYN_MT_REPORT
-> event immediately after the contact data, one sends an ABS_MT_SLOT
-> event immediately before the contact data. The input core will only
-> emit events for slots with modified MT events. It is assumed that
-> the same slot is used for the duration of an initiated contact.
+> Please find enclosed the fourth version of the evdev buffer patches.
 > 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> This version implements buffer locking using event_lock as you
+> suggested, such that we can proceed with fixing the evdev buffer
+> problem independently from providing a suitable one-to-many buffer.
+> 
+> The first patch converts the per-client buffers to a common buffer,
+> and adds a fixme since the code is expected to be further
+> improved. The second and third patch includes your review comments.
+> 
+> Thanks,
+> Henrik
+> 
 > ---
-> Revision 5 incorporates the following changes:
-> 	 - Rename the slot event to ABS_MT_SLOT to keep all MT-related events
-> 	   in the same namespace.
-> 	 - Move the MT slot event list to input.h so that it can be read
-> 	   by userspace.
 > 
->  drivers/input/input.c |  105 +++++++++++++++++++++++++++++++++++++------------
->  include/linux/input.h |   44 ++++++++++++++++++++
->  2 files changed, 123 insertions(+), 26 deletions(-)
+> Henrik Rydberg (3):
+>   input: evdev: Use multi-reader buffer to save space (rev4)
+>   input: evdev: Convert to dynamic event buffer (rev4)
+>   input: Use driver hint to compute the evdev buffer size (rev2)
+> 
+>  drivers/input/evdev.c |   68 +++++++++++++++++++++++++++++++++----------------
+>  include/linux/input.h |   17 ++++++++++++
+>  2 files changed, 63 insertions(+), 22 deletions(-)
 
-I was wondering what the status of this patch was. I reviewed it and I
-think it's a good improvement of the protocol. I think it will help
-simplify things in userspace event handling, and should reduce the noise
-in evdev. I also like the incremental approach in that it doesn't force
-drivers into the new protocol, but makes it available for them when they
-can use it.
+I like the first patch for the simplification of buffer management into
+one buffer per device, and I think it may be more efficient due to there
+being less locking when syncing the clients.
+
+The second and third patches seem like reasonable solutions to the
+buffers being too small for some devices that can handle many MT events
+simultaneously and offer many attributes per event.
 
 Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
-Long term, I think it makes the most sense to have a layer inside the
-kernel to do software touch tracking and expose all MT data through the
-slots protocol instead of it being determined by the capabilities of the
-device/driver.
-
--- Chase
 

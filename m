@@ -1,126 +1,61 @@
-From: =?utf-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
-Subject: [PATCH 1/2] Input: usbtouchscreen - add support for ET&T TC4UM touchscreen controller
-Date: Fri, 11 Jun 2010 09:40:53 +0200
-Message-ID: <1276242054-11127-1-git-send-email-ynezz@true.cz>
-References: <20100603075720.GQ26052@ibawizard.net>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [PATCH v4 0/3] Add samsung keypad
+Date: Fri, 11 Jun 2010 17:08:44 +0900
+Message-ID: <4C11EF0C.8060109@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ibawizard.net ([82.208.49.253]:53039 "EHLO
-	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755069Ab0FKHtL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jun 2010 03:49:11 -0400
-In-Reply-To: <20100603075720.GQ26052@ibawizard.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com, kgene.kim@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@novell.com>, ynezz@true.cz
 
-This patch adds support for the ET&T TC4UM 4-wire USB touchscreen contr=
-oller
-and tries to reuse the bits for TC5UH controller in kernel already. Dat=
-a
-interface is same.
+This is patch v4 series to add Samsung keypad. I've removed board file
+patchs for samsung-keypad support in the v4, They don't have any change
+but i will post later because of dependence problem with other patches.
 
-Tested-by: Roger Pueyo Centelles <rogerpueyo@rogerpueyo.com>
-Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
----
- drivers/input/touchscreen/Kconfig          |    4 ++--
- drivers/input/touchscreen/usbtouchscreen.c |   21 ++++++++++++--------=
--
- 2 files changed, 14 insertions(+), 11 deletions(-)
+Changes since v1:
+- Include linux/gpio.h instead of mach/gpio.h
+- Switch to dev_pm_ops in the samsung keypad driver
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscr=
-een/Kconfig
-index 3b9d5e2..e835f04 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -540,9 +540,9 @@ config TOUCHSCREEN_USB_ZYTRONIC
- 	bool "Zytronic controller" if EMBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
-=20
--config TOUCHSCREEN_USB_ETT_TC5UH
-+config TOUCHSCREEN_USB_ETT_TC45USB
- 	default y
--	bool "ET&T TC5UH touchscreen controler support" if EMBEDDED
-+	bool "ET&T USB series TC4UM/TC5UH touchscreen controler support" if E=
-MBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
-=20
- config TOUCHSCREEN_USB_NEXIO
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input=
-/touchscreen/usbtouchscreen.c
-index 567d572..3244542 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -135,7 +135,7 @@ enum {
- 	DEVTYPE_JASTEC,
- 	DEVTYPE_E2I,
- 	DEVTYPE_ZYTRONIC,
--	DEVTYPE_TC5UH,
-+	DEVTYPE_TC45USB,
- 	DEVTYPE_NEXIO,
- };
-=20
-@@ -222,8 +222,11 @@ static const struct usb_device_id usbtouch_devices=
-[] =3D {
- 	{USB_DEVICE(0x14c8, 0x0003), .driver_info =3D DEVTYPE_ZYTRONIC},
- #endif
-=20
--#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC5UH
--	{USB_DEVICE(0x0664, 0x0309), .driver_info =3D DEVTYPE_TC5UH},
-+#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC45USB
-+	/* TC5UH */
-+	{USB_DEVICE(0x0664, 0x0309), .driver_info =3D DEVTYPE_TC45USB},
-+	/* TC4UM */
-+	{USB_DEVICE(0x0664, 0x0306), .driver_info =3D DEVTYPE_TC45USB},
- #endif
-=20
- #ifdef CONFIG_TOUCHSCREEN_USB_NEXIO
-@@ -574,10 +577,10 @@ static int irtouch_read_data(struct usbtouch_usb =
-*dev, unsigned char *pkt)
- #endif
-=20
- /*********************************************************************=
-********
-- * ET&T TC5UH part
-+ * ET&T TC5UH/TC4UM part
-  */
--#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC5UH
--static int tc5uh_read_data(struct usbtouch_usb *dev, unsigned char *pk=
-t)
-+#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC45USB
-+static int tc45usb_read_data(struct usbtouch_usb *dev, unsigned char *=
-pkt)
- {
- 	dev->x =3D ((pkt[2] & 0x0F) << 8) | pkt[1];
- 	dev->y =3D ((pkt[4] & 0x0F) << 8) | pkt[3];
-@@ -1104,14 +1107,14 @@ static struct usbtouch_device_info usbtouch_dev=
-_info[] =3D {
- 	},
- #endif
-=20
--#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC5UH
--	[DEVTYPE_TC5UH] =3D {
-+#ifdef CONFIG_TOUCHSCREEN_USB_ETT_TC45USB
-+	[DEVTYPE_TC45USB] =3D {
- 		.min_xc		=3D 0x0,
- 		.max_xc		=3D 0x0fff,
- 		.min_yc		=3D 0x0,
- 		.max_yc		=3D 0x0fff,
- 		.rept_size	=3D 5,
--		.read_data	=3D tc5uh_read_data,
-+		.read_data	=3D tc45usb_read_data,
- 	},
- #endif
-=20
---=20
-1.5.6.5
+Changes since v2:
+- Add keypad device types to remove platform specific #ifdef
+- Remove unnecessary include and checking codes.
+- Rename from 'kp' to 'keypad'
+- Rename keypad registers definition
+- Modify 'rep' variable declaration
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Changes since v3:
+- Use schedule_delayed_work and remove timer
+- Modify memory alloc codes
+- Add MODULE_ALIAS() and missing error printk
+- Change from rep to no_autorepeat and it's type to bool
+- Add report EV_MSC/MSC_SCAN and wakeup control
+- Remove s3c_set_platdata() call because there is not yet
+
+Joonyoung Shim (3):
+      ARM: SAMSUNG: Add keypad device support
+      ARM: S5PV210: Add keypad device helpers
+      input: samsung-keypad - Add samsung keypad driver
+
+ arch/arm/mach-s5pv210/Kconfig                    |    5 +
+ arch/arm/mach-s5pv210/Makefile                   |    1 +
+ arch/arm/mach-s5pv210/cpu.c                      |    4 +
+ arch/arm/mach-s5pv210/include/mach/map.h         |    3 +
+ arch/arm/mach-s5pv210/setup-keypad.c             |   34 ++
+ arch/arm/plat-samsung/Kconfig                    |    5 +
+ arch/arm/plat-samsung/Makefile                   |    1 +
+ arch/arm/plat-samsung/dev-keypad.c               |   58 ++++
+ arch/arm/plat-samsung/include/plat/devs.h        |    2 +
+ arch/arm/plat-samsung/include/plat/keypad.h      |   59 ++++
+ arch/arm/plat-samsung/include/plat/regs-keypad.h |   49 +++
+ drivers/input/keyboard/Kconfig                   |    9 +
+ drivers/input/keyboard/Makefile                  |    1 +
+ drivers/input/keyboard/samsung-keypad.c          |  400 ++++++++++++++++++++++
+ 14 files changed, 631 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/mach-s5pv210/setup-keypad.c
+ create mode 100644 arch/arm/plat-samsung/dev-keypad.c
+ create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
+ create mode 100644 arch/arm/plat-samsung/include/plat/regs-keypad.h
+ create mode 100644 drivers/input/keyboard/samsung-keypad.c

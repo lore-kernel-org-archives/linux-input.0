@@ -1,45 +1,62 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [RFC] [PATCH v3 2/4] OMAP4: Keyboard device registration
-Date: Fri, 11 Jun 2010 10:31:14 +0300
-Message-ID: <20100611073114.GH32208@atomide.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043E537F74@dlee03.ent.ti.com>
- <20100601094358.GJ841@atomide.com>
- <27F9C60D11D683428E133F85D2BB4A53043E538286@dlee03.ent.ti.com>
- <20100601185358.GE23818@nokia.com>
- <20100601201314.GA17468@core.coreip.homeip.net>
+From: =?utf-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
+Subject: [PATCH 2/2] HID: blacklist ET&T TC4UH touchscreen controller
+Date: Fri, 11 Jun 2010 09:40:54 +0200
+Message-ID: <1276242054-11127-2-git-send-email-ynezz@true.cz>
+References: <20100603075720.GQ26052@ibawizard.net>
+ <1276242054-11127-1-git-send-email-ynezz@true.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100601201314.GA17468@core.coreip.homeip.net>
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <felipe.balbi@nokia.com>, "ext Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ibawizard.net ([82.208.49.253]:53038 "EHLO
+	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753188Ab0FKHtL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jun 2010 03:49:11 -0400
+In-Reply-To: <1276242054-11127-1-git-send-email-ynezz@true.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@novell.com>, ynezz@true.cz
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [100601 23:07]:
-> On Tue, Jun 01, 2010 at 09:53:58PM +0300, Felipe Balbi wrote:
-> > On Tue, Jun 01, 2010 at 05:14:09PM +0200, ext Arce, Abraham wrote:
-> > >I am using #ifdef CONFIG_ARCH_OMAP4 for this portion of code, what
-> > >you are suggesting is to check at runtime?
-> > 
-> > you need to add both checks. If you build omap3-only or omap2-only
-> > you don't want that code to be compiled, but if you build
-> > omap1-2-3-4 kernel, you want it to work correctly on all cases.
-> > 
-> 
-> It sould be nice if cpu_is_xxx were stubbed out for "wrong" arches
-> withing the same group (like omap, etc) so we could reduce the #ifdef
-> clutter.
+Signed-off-by: Petr =C5=A0tetiar <ynezz@true.cz>
+---
+ drivers/hid/hid-core.c |    1 +
+ drivers/hid/hid-ids.h  |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-They are defined as stubs for for non-selected omaps. So in general a
-function doing this in the beginning of the function:
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index aa0f7dc..a35f8be 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1568,6 +1568,7 @@ static const struct hid_device_id hid_ignore_list=
+[] =3D {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20=
+) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSEN=
+TIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0001) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0002) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0003) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6af77ed..fad4cb0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -197,6 +197,7 @@
+=20
+ #define USB_VENDOR_ID_ETT		0x0664
+ #define USB_DEVICE_ID_TC5UH		0x0309
++#define USB_DEVICE_ID_TC4UM		0x0306
+=20
+ #define USB_VENDOR_ID_EZKEY 		0x0518
+ #define USB_DEVICE_ID_BTC_8193		0x0002
+--=20
+1.5.6.5
 
-	if (!cpu_is_omap44xx())
-		return -ENODEV;
-
-Should already get optimized out if 44xx is not selected in Kconfig.
-
-Regards,
-
-Tony
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

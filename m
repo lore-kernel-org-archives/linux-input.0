@@ -1,85 +1,58 @@
 From: Luotao Fu <l.fu@pengutronix.de>
-Subject: Re: [PATCH 1/3] mfd: add STMPE811 core support
-Date: Fri, 11 Jun 2010 13:38:11 +0200
-Message-ID: <20100611113811.GB4078@pengutronix.de>
+Subject: Re: [PATCH 3/3] input: STMPE811 touch controller support
+Date: Fri, 11 Jun 2010 13:45:28 +0200
+Message-ID: <20100611114527.GC4078@pengutronix.de>
 References: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
- <1276251195-22981-2-git-send-email-l.fu@pengutronix.de>
- <20100611111326.GD12436@sirena.org.uk>
+ <1276251195-22981-4-git-send-email-l.fu@pengutronix.de>
+ <20100611112102.GE12436@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
+	protocol="application/pgp-signature"; boundary="iFRdW5/EC4oqxDHL"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:37941 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:51483 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751293Ab0FKLiO (ORCPT
+	with ESMTP id S1751293Ab0FKLpa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jun 2010 07:38:14 -0400
+	Fri, 11 Jun 2010 07:45:30 -0400
 Content-Disposition: inline
-In-Reply-To: <20100611111326.GD12436@sirena.org.uk>
+In-Reply-To: <20100611112102.GE12436@sirena.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Cc: Luotao Fu <l.fu@pengutronix.de>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---KFztAG8eRSV9hGtP
+--iFRdW5/EC4oqxDHL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Fri, Jun 11, 2010 at 12:13:26PM +0100, Mark Brown wrote:
-> On Fri, Jun 11, 2010 at 12:13:13PM +0200, Luotao Fu wrote:
+On Fri, Jun 11, 2010 at 12:21:02PM +0100, Mark Brown wrote:
+> On Fri, Jun 11, 2010 at 12:13:15PM +0200, Luotao Fu wrote:
 >=20
-> > +	for_each_set_bit(bit, (unsigned long *)&int_stat, STMPE811_NUM_IRQ) {
-> > +		handler =3D stm->irqhandler[bit];
-> > +		data =3D stm->irqdata[bit];
-> > +		if (handler) {
+> > +/*
+> > + * reference source:
+> > + *
+> > + * Set ref_sel =3D 0 for internal reference
+> > + *     ref_sel =3D 1 for external reference
+> > + */
+> > +static int ref_sel;
+> > +module_param(ref_sel, int, 0444);
+> > +MODULE_PARM_DESC(ref_sel,
+> > +	"Set ADC reference source. Default is 0 (internal reference)");
 >=20
-> You should be using genirq here - just call handle_nested_irq() if the
-> IRQ is asserted and let genirq manage the handler for you.
->=20
+> This looks like something that ought to be configured via platform data
+> since the value that should be used is going to be determined by the
+> board schematic.  Similar comments apply to most of the other module
+> parameters, though in some cases sysfs files might be more appropriate
+> as well, or in addition.
 
-ah OK, I did think about using nested irq, was however too lazy to find
-out how it works. ;-). Will fix in V2.
-
-> > +static irqreturn_t stmpe811_irq(int irq, void *data)
-> > +{
-> > +	struct stmpe811 *stm =3D data;
-> > +
-> > +	get_device(stm->dev);
-> > +	disable_irq_nosync(stm->irq);
-> > +	queue_work(stm->work_queue, &stm->irq_work);
-> > +
-> > +	return IRQ_HANDLED;
-> > +}
->=20
-> You should use request_threaded_irq() for the main IRQ - it will take
-> care of all this for you.
->=20
->=20
-> > +static struct i2c_device_id stmpe811_id_table[] =3D {
-> > +	{"stmpe811", 0x88},
->=20
-> Any reason for the 0x88 - you don't seem to use it anywhere?
->=20
-
-doh, this is bogus. will fix in the next round.
-
-> > +int stmpe811_register_irq(struct stmpe811 *stm, int irq,
-> > +			  irq_handler_t handler, void *data);
-> > +int stmpe811_free_irq(struct stmpe811 *stm, int irq);
->=20
-> If you use genirq these can be dropped - this will also mean that
-> existing generic drivers using the standard GPIO and IRQ frameworks will
-> be able to use the chip without modification.
-
-all right.
+OK. These stuffs are indeed platform dependent. I'll create a platform
+data for it than.
 
 Thanks
-
-cheers
 Luotao Fu
 --=20
 Pengutronix e.K.                           | Dipl.-Ing. Luotao Fu        |
@@ -87,7 +60,7 @@ Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
 Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
 
---KFztAG8eRSV9hGtP
+--iFRdW5/EC4oqxDHL
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -95,9 +68,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkwSICMACgkQkLuxfMCkDTZgYQCfcTsEQPfDWkPYtDVLv1bn/l/n
-M+YAnjxe7vSkgDh1yYU7rS84UGYMBMLC
-=DNAQ
+iEYEARECAAYFAkwSIdcACgkQkLuxfMCkDTZHzwCeIHO03VV1vYIEHQPbP89A89kK
+vFUAn3q2Jdw+rW1sUP76h8q7L6u3s6c4
+=M0O+
 -----END PGP SIGNATURE-----
 
---KFztAG8eRSV9hGtP--
+--iFRdW5/EC4oqxDHL--

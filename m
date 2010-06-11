@@ -1,70 +1,100 @@
-From: TAO HU <tghk48@motorola.com>
-Subject: Re: [RFC] Input: ADP5588 - Support GPI event for ADP5588 devices
-Date: Fri, 11 Jun 2010 20:04:31 +0800
-Message-ID: <AANLkTilGTxbdkGl4-hAxFx3LNFUDJHLq6tMqciYU6fR-@mail.gmail.com>
-References: <AANLkTinaguxmGVrx3lWqNT__xE6S2CIjoLc69TrS-yyN@mail.gmail.com>
-	<AANLkTimubPIlTrbIBUGHbvOHK1XAhUATbWjEgPIk_QX1@mail.gmail.com>
-	<544AC56F16B56944AEC3BD4E3D5917712E66C5BE31@LIMKCMBX1.ad.analog.com>
+From: Richard =?ISO-8859-1?Q?R=F6jfors?=
+	<richard.rojfors@pelagicore.com>
+Subject: [PATCH] tsc2007: Add z1 lower threshold
+Date: Fri, 11 Jun 2010 14:36:56 +0200
+Message-ID: <1276259816.12874.5.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod5og105.obsmtp.com ([64.18.0.180]:54583 "EHLO
-	exprod5og105.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755746Ab0FKMEd convert rfc822-to-8bit (ORCPT
+Received: from smtp-gw11.han.skanova.net ([81.236.55.20]:40762 "EHLO
+	smtp-gw11.han.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754326Ab0FKMmr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jun 2010 08:04:33 -0400
-Received: from il06vts04.mot.com (il06vts04.mot.com [129.188.137.144])
-	by mdgate1.mot.com (8.14.3/8.14.3) with SMTP id o5BC4jgr017720
-	for <linux-input@vger.kernel.org>; Fri, 11 Jun 2010 06:04:45 -0600 (MDT)
-Received: from mail-px0-f182.google.com (mail-px0-f182.google.com [209.85.212.182])
-	by mdgate1.mot.com (8.14.3/8.14.3) with ESMTP id o5BC2cLF017429
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=OK)
-	for <linux-input@vger.kernel.org>; Fri, 11 Jun 2010 06:04:44 -0600 (MDT)
-Received: by mail-px0-f182.google.com with SMTP id 7so562553pxi.27
-        for <linux-input@vger.kernel.org>; Fri, 11 Jun 2010 05:04:31 -0700 (PDT)
-In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712E66C5BE31@LIMKCMBX1.ad.analog.com>
+	Fri, 11 Jun 2010 08:42:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Cc: TAO HU <taohu@motorola.com>, Michael Hennerich <hennerich@blackfin.uclinux.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, "Yuan.Bo YE" <yuan-bo.ye@motorola.com>, Xiaolong CHEN <xiao-long.chen@motorola.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, kwangwoo.lee@gmail.com, thierry.reding@avionic-design.de, soni.trilok@gmail.com
 
-Hi, Michael
+There are hardware where the z1 value never reaches 0 even of the film
+is not touch. This patch introduces a lower threshold which is useful
+in these situations.
 
-Thanks!
+I also kernel doc:ed the platform data.
 
-Hi, Dmitry
+Signed-off-by: Richard R=C3=B6jfors <richard.rojfors@pelagicore.com>
+---
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchs=
+creen/tsc2007.c
+index be23780..fffa448 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -75,6 +75,7 @@ struct tsc2007 {
+=20
+ 	u16			model;
+ 	u16			x_plate_ohms;
++	u16			z1_low_threshold;
+=20
+ 	bool			pendown;
+ 	int			irq;
+@@ -129,7 +130,7 @@ static u32 tsc2007_calculate_pressure(struct tsc200=
+7 *tsc, struct ts_event *tc)
+ 	if (tc->x =3D=3D MAX_12BIT)
+ 		tc->x =3D 0;
+=20
+-	if (likely(tc->x && tc->z1)) {
++	if (likely(tc->x && (tc->z1 > tsc->z1_low_threshold))) {
+ 		/* compute touch pressure resistance using equation #1 */
+ 		rt =3D tc->z2 - tc->z1;
+ 		rt *=3D tc->x;
+@@ -292,6 +293,7 @@ static int __devinit tsc2007_probe(struct i2c_clien=
+t *client,
+=20
+ 	ts->model             =3D pdata->model;
+ 	ts->x_plate_ohms      =3D pdata->x_plate_ohms;
++	ts->z1_low_threshold  =3D pdata->z1_low_threshold;
+ 	ts->get_pendown_state =3D pdata->get_pendown_state;
+ 	ts->clear_penirq      =3D pdata->clear_penirq;
+=20
+diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
+index c6361fb..75b75fb 100644
+--- a/include/linux/i2c/tsc2007.h
++++ b/include/linux/i2c/tsc2007.h
+@@ -3,13 +3,27 @@
+=20
+ /* linux/i2c/tsc2007.h */
+=20
++/**
++ * struct tsc2007_platform_data - Platform data of the TSC2007 driver
++ *
++ * @model:		Touch controller model, currently 2003 or 2007.
++ * @x_plate_ohms:	X-Plate resistance.
++ * @z1_low_threshold:	All measured Z1 values below or equal to the thr=
+eshold
++ *			are regarded as 0.
++ * @get_pendown_state:	Optional callback used to check if the film is =
+touched.
++ *			Can be useful since the pressure value can fluctuate for
++ *			quite a while after lifting the pen.
++ * @clear_penirq:	Optional callback clear 2nd level interrupt source.
++ * @init_platform_hw:	Optional callback to initialise the hardware.
++ * @exit_platform_hw:	Optional callback to de-initialise the hardware.
++ */
+ struct tsc2007_platform_data {
+-	u16	model;				/* 2007. */
++	u16	model;
+ 	u16	x_plate_ohms;
++	u16	z1_low_threshold;
+=20
+ 	int	(*get_pendown_state)(void);
+-	void	(*clear_penirq)(void);		/* If needed, clear 2nd level
+-						   interrupt source */
++	void	(*clear_penirq)(void);
+ 	int	(*init_platform_hw)(void);
+ 	void	(*exit_platform_hw)(void);
+ };
 
-Is it OK for you to merge this patch?
-Or you would expect more comments from this mail list?
-
-On Fri, Jun 11, 2010 at 5:31 PM, Hennerich, Michael
-<Michael.Hennerich@analog.com> wrote:
-> TAO HU wrote on 2010-06-11:
->> Hi, Michael =A0and Dmitry
->>
->> Any comments?
->>
->
-> Looks good to me.
->
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
->
-> Greetings,
-> Michael
->
-> Analog Devices GmbH =A0 =A0 =A0Wilhelm-Wagenfeld-Str. 6 =A0 =A0 =A080=
-807 Muenchen
-> Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Ges=
-chaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
->
->
-
-
-
---=20
-Best Regards
-Hu Tao
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

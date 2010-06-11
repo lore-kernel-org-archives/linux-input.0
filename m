@@ -1,12 +1,12 @@
 From: Luotao Fu <l.fu@pengutronix.de>
-Subject: [PATCH 2/3] gpio: add STMPE811 gpio controller support
-Date: Fri, 11 Jun 2010 12:13:14 +0200
-Message-ID: <1276251195-22981-3-git-send-email-l.fu@pengutronix.de>
+Subject: [PATCH 1/3] mfd: add STMPE811 core support
+Date: Fri, 11 Jun 2010 12:13:13 +0200
+Message-ID: <1276251195-22981-2-git-send-email-l.fu@pengutronix.de>
 References: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from metis.ext.pengutronix.de ([92.198.50.35]:45059 "EHLO
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:45060 "EHLO
 	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753432Ab0FKKNq (ORCPT
+	with ESMTP id S1757394Ab0FKKNq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Fri, 11 Jun 2010 06:13:46 -0400
 In-Reply-To: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
@@ -15,291 +15,557 @@ List-Id: linux-input@vger.kernel.org
 To: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, l.fu@pengutronix.de
 
-This one adds a driver for STMPE811 GPIO controller. STMPE811 is a
-multifunction device. Hence this driver depends on stmpe811_core
-driver for core functionalities. The gpio chip is registered to
-gpiolib. Interrupts are currently not supported.
+STMPE811 is a multifunction device, which contains a GPIO controller, a
+Touchscreen controller, an ADC and a temperature sensor. This patch adds a core
+driver for this device. The driver provides core functionalities like accessing
+the registers and management of subdevices. The device supports communication
+through SPI and I2C interface. Currently we only support I2C.
 
 Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
 ---
- drivers/gpio/Kconfig         |   10 ++
- drivers/gpio/Makefile        |    1 +
- drivers/gpio/stmpe811_gpio.c |  236 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 247 insertions(+), 0 deletions(-)
- create mode 100644 drivers/gpio/stmpe811_gpio.c
+ drivers/mfd/Kconfig          |    8 +
+ drivers/mfd/Makefile         |    1 +
+ drivers/mfd/stmpe811-core.c  |  369 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/stmpe811.h |  126 ++++++++++++++
+ 4 files changed, 504 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/mfd/stmpe811-core.c
+ create mode 100644 include/linux/mfd/stmpe811.h
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 724038d..38307e5 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -249,6 +249,16 @@ config GPIO_ADP5588
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called adp5588-gpio.
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 9da0e50..2c5388b 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -482,6 +482,14 @@ config MFD_JANZ_CMODIO
+ 	  host many different types of MODULbus daughterboards, including
+ 	  CAN and GPIO controllers.
  
-+config GPIO_STMPE811
-+	tristate "STMPE811 I2C MFD GPIO expander"
++config MFD_STMPE811
++	tristate "STMicroelectronics STMPE811"
 +	depends on I2C
-+	depends on MFD_STMPE811
++	select MFD_CORE
 +	help
-+	  This option enables support for 8 GPIOs found
-+	  on STMicroelectronics STMPE811 multifunction devices.
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called stmpe811_gpio.
++	  This is the core driver for the stmpe811 GPIO expander with touchscreen
++	  controller, ADC and temperature sensor.
 +
- comment "PCI GPIO expanders:"
+ endif # MFD_SUPPORT
  
- config GPIO_CS5535
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 51c3cdd..7b184aa 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -31,3 +31,4 @@ obj-$(CONFIG_GPIO_WM8994)	+= wm8994-gpio.o
- obj-$(CONFIG_GPIO_SCH)		+= sch_gpio.o
- obj-$(CONFIG_GPIO_RDC321X)	+= rdc321x-gpio.o
- obj-$(CONFIG_GPIO_JANZ_TTL)	+= janz-ttl.o
-+obj-$(CONFIG_GPIO_STMPE811)	+= stmpe811_gpio.o
-diff --git a/drivers/gpio/stmpe811_gpio.c b/drivers/gpio/stmpe811_gpio.c
+ menu "Multimedia Capabilities Port drivers"
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index fb503e7..6a7ad83 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -71,3 +71,4 @@ obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+ obj-$(CONFIG_LPC_SCH)		+= lpc_sch.o
+ obj-$(CONFIG_MFD_RDC321X)	+= rdc321x-southbridge.o
+ obj-$(CONFIG_MFD_JANZ_CMODIO)	+= janz-cmodio.o
++obj-$(CONFIG_MFD_STMPE811)	+= stmpe811-core.o
+diff --git a/drivers/mfd/stmpe811-core.c b/drivers/mfd/stmpe811-core.c
 new file mode 100644
-index 0000000..54da187
+index 0000000..080b3d7
 --- /dev/null
-+++ b/drivers/gpio/stmpe811_gpio.c
-@@ -0,0 +1,236 @@
++++ b/drivers/mfd/stmpe811-core.c
+@@ -0,0 +1,369 @@
 +/*
-+ * stmpe811_gpio.c  --  gpiolib support for STMicroelectronics STMPE811 chip.
++ * stmpe811-core.c  --  core support for STMicroelectronics STMPE811 chip.
++ *
++ * based on pcf50633-core.c by Harald Welte <laforge@openmoko.org> and
++ * Balaji Rao <balajirrao@openmoko.org>
 + *
 + * (c)2010 Luotao Fu <l.fu@pengutronix.de>
 + *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + */
 +
 +#include <linux/kernel.h>
 +#include <linux/module.h>
 +#include <linux/interrupt.h>
 +#include <linux/slab.h>
-+#include <linux/gpio.h>
 +#include <linux/platform_device.h>
-+
++#include <linux/i2c.h>
++#include <linux/mfd/core.h>
 +#include <linux/mfd/stmpe811.h>
 +
-+#define STMPE811_GPIO_NAME	"stmpe811-gpio"
-+
-+struct stmpe811_gpio {
-+	struct stmpe811 *stm;
-+	struct gpio_chip gpio;
-+};
-+
-+static inline struct stmpe811_gpio *to_stmpe811_gpio(struct gpio_chip *chip)
-+{
-+	return container_of(chip, struct stmpe811_gpio, gpio);
-+}
-+
-+static int stmpe811_gpio_direction_in(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct stmpe811_gpio *stm_gpio = to_stmpe811_gpio(chip);
-+
-+	return stmpe811_reg_clear_bits(stm_gpio->stm,
-+			STMPE811_REG_GPIO_DIR, BIT(offset));
-+}
-+
-+static int stmpe811_gpio_get(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct stmpe811_gpio *stm_gpio = to_stmpe811_gpio(chip);
-+	uint8_t gpio_sta;
-+	int ret;
-+
-+	ret = stmpe811_reg_read(stm_gpio->stm,
-+			STMPE811_REG_GPIO_MP_STA, &gpio_sta);
-+	if (ret)
-+		return ret;
-+
-+	if (gpio_sta & BIT(offset))
-+		return 1;
-+	else
-+		return 0;
-+}
-+
-+static inline int __stmpe811_gpio_set(struct stmpe811 *stm,
-+		unsigned offset, int value)
++static inline int __stmpe811_i2c_reads(struct i2c_client *client, int reg,
++				       int len, u8 *val)
 +{
 +	int ret;
 +
-+	if (value)
-+		ret = stmpe811_reg_write(stm, STMPE811_REG_GPIO_SET_PIN,
-+				BIT(offset));
-+	else
-+		ret = stmpe811_reg_write(stm, STMPE811_REG_GPIO_CLR_PIN,
-+				BIT(offset));
-+
-+	return ret;
-+}
-+
-+static int stmpe811_gpio_direction_out(struct gpio_chip *chip, unsigned offset,
-+				       int value)
-+{
-+	struct stmpe811_gpio *stm_gpio = to_stmpe811_gpio(chip);
-+	struct stmpe811 *stm = stm_gpio->stm;
-+	int ret;
-+
-+	ret = stmpe811_reg_set_bits(stm, STMPE811_REG_GPIO_DIR, BIT(offset));
-+	if (ret)
-+		goto out;
-+
-+	ret = __stmpe811_gpio_set(stm, offset, value);
-+out:
-+	return ret;
-+}
-+
-+static void stmpe811_gpio_set(struct gpio_chip *chip, unsigned offset,
-+			      int value)
-+{
-+	struct stmpe811_gpio *stm_gpio = to_stmpe811_gpio(chip);
-+
-+	__stmpe811_gpio_set(stm_gpio->stm, offset, value);
-+}
-+
-+static int stmpe811_gpio_request(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct stmpe811_gpio *stm_gpio = to_stmpe811_gpio(chip);
-+	struct stmpe811 *stm = stm_gpio->stm;
-+
-+	if (offset > 3 && (stm->active_flag & STMPE811_USE_TS))
-+		return 1;
-+	else
-+		return stmpe811_reg_set_bits(stm, STMPE811_REG_GPIO_AF,
-+				BIT(offset));
-+}
-+
-+static struct gpio_chip gpio_chip = {
-+	.label = STMPE811_GPIO_NAME,
-+	.owner = THIS_MODULE,
-+	.direction_input = stmpe811_gpio_direction_in,
-+	.get = stmpe811_gpio_get,
-+	.direction_output = stmpe811_gpio_direction_out,
-+	.set = stmpe811_gpio_set,
-+	.request = stmpe811_gpio_request,
-+	.can_sleep = 1,
-+};
-+
-+static int __devinit stmpe811_gpio_probe(struct platform_device *pdev)
-+{
-+	struct stmpe811 *stm = dev_get_drvdata(pdev->dev.parent);
-+	struct stmpe811_platform_data *pdata = stm->pdata;
-+	struct stmpe811_gpio_platform_data *gpio_pdata = NULL;
-+	struct stmpe811_gpio *stm_gpio;
-+
-+	int ret, tmp;
-+
-+	stm_gpio = kzalloc(sizeof(*stm_gpio), GFP_KERNEL);
-+	if (!stm_gpio)
-+		return -ENOMEM;
-+
-+	stm_gpio->stm = stm;
-+	stm_gpio->gpio = gpio_chip;
-+	stm_gpio->gpio.ngpio = 8;
-+	stm_gpio->gpio.dev = &pdev->dev;
-+
-+	if (pdata)
-+		gpio_pdata = pdata->gpio_pdata;
-+
-+	if (gpio_pdata && gpio_pdata->gpio_base)
-+		stm_gpio->gpio.base = gpio_pdata->gpio_base;
-+	else
-+		stm_gpio->gpio.base = -1;
-+
-+	ret = gpiochip_add(&stm_gpio->gpio);
++	ret = i2c_smbus_read_i2c_block_data(client, reg, len, val);
 +	if (ret < 0) {
-+		dev_err(&pdev->dev, "Could not register gpiochip, %d\n", ret);
-+		goto err_free_stmgpio;
++		dev_err(&client->dev, "failed reading from 0x%02x\n", reg);
++		return ret;
 +	}
-+	/* enable clock supply */
-+	ret = stmpe811_reg_clear_bits(stm, STMPE811_REG_SYS_CTRL2,
-+			STMPE811_SYS_CTRL2_GPIO_OFF);
++	return 0;
++}
++
++static struct mfd_cell stmpe811_ts_dev = {
++	.name = "stmpe811-ts",
++};
++
++static struct mfd_cell stmpe811_gpio_dev = {
++	.name = "stmpe811-gpio",
++};
++
++static void stmpe811_irq_worker(struct work_struct *work)
++{
++	struct stmpe811 *stm;
++	int ret, bit;
++	u8 int_stat;
++	irq_handler_t handler;
++	void *data;
++
++	stm = container_of(work, struct stmpe811, irq_work);
++
++	ret = stmpe811_reg_read(stm, STMPE811_REG_INT_STA, &int_stat);
 +	if (ret) {
-+		dev_err(&pdev->dev, "Could not enable clock for gpio\n");
-+		goto err_free_gpiochip;
++		dev_err(stm->dev, "Error reading INT registers\n");
++		goto out;
 +	}
 +
-+	if (gpio_pdata && gpio_pdata->setup) {
-+		ret = gpio_pdata->setup(stm);
++	dev_dbg(stm->dev, "%s int_stat 0x%02x\n", __func__, int_stat);
 +
-+		if (ret != 0) {
-+			dev_err(&pdev->dev, "setup hook failed, %d\n",
-+					ret);
-+			goto err_free_gpiochip;
++	for_each_set_bit(bit, (unsigned long *)&int_stat, STMPE811_NUM_IRQ) {
++		handler = stm->irqhandler[bit];
++		data = stm->irqdata[bit];
++		if (handler) {
++			/* mask the interrupt while calling handler */
++			stmpe811_reg_clear_bits(stm, STMPE811_REG_INT_EN,
++						1 << bit);
++			/* call handler and acknowledge the interrupt */
++			handler(bit, data);
++			stmpe811_reg_set_bits(stm, STMPE811_REG_INT_STA,
++					      (1 << bit));
++			/* demask the interrupt */
++			stmpe811_reg_set_bits(stm, STMPE811_REG_INT_EN,
++					      1 << bit);
 +		}
 +	}
++out:
++	put_device(stm->dev);
++	enable_irq(stm->irq);
 +
-+	dev_info(&pdev->dev, "registerd gpios %d..%d on a stmpe811\n",
-+			stm_gpio->gpio.base,
-+			stm_gpio->gpio.base + stm_gpio->gpio.ngpio - 1);
-+	platform_set_drvdata(pdev, stm_gpio);
-+
-+	return ret;
-+
-+err_free_gpiochip:
-+	tmp = gpiochip_remove(&stm_gpio->gpio);
-+	if (tmp) {
-+		dev_err(&pdev->dev, "Could net remove gpio chip\n");
-+		return ret;
-+	}
-+err_free_stmgpio:
-+	kfree(stm_gpio);
-+	return ret;
 +}
 +
-+static int __devexit stmpe811_gpio_remove(struct platform_device *pdev)
++static irqreturn_t stmpe811_irq(int irq, void *data)
 +{
-+	struct stmpe811_gpio *stm_gpio = platform_get_drvdata(pdev);
-+	struct stmpe811_platform_data *pdata = stm_gpio->stm->pdata;
-+	struct stmpe811_gpio_platform_data *gpio_pdata = NULL;
++	struct stmpe811 *stm = data;
++
++	get_device(stm->dev);
++	disable_irq_nosync(stm->irq);
++	queue_work(stm->work_queue, &stm->irq_work);
++
++	return IRQ_HANDLED;
++}
++
++static inline int __stmpe811_i2c_read(struct i2c_client *client,
++				      int reg, u8 *val)
++{
 +	int ret;
 +
-+	if (pdata)
-+		gpio_pdata = pdata->gpio_pdata;
++	ret = i2c_smbus_read_byte_data(client, reg);
++	if (ret < 0) {
++		dev_err(&client->dev, "failed reading at 0x%02x\n", reg);
++		return ret;
++	}
++	dev_dbg(&client->dev, "%s: value 0x%x from 0x%x\n", __func__, ret, reg);
 +
-+	if (gpio_pdata && gpio_pdata->remove)
-+		gpio_pdata->remove(stm_gpio->stm);
++	*val = (u8) ret;
++	return 0;
++}
 +
-+	/* disable clock supply */
-+	stmpe811_reg_set_bits(stm_gpio->stm, STMPE811_REG_SYS_CTRL2,
-+			STMPE811_SYS_CTRL2_GPIO_OFF);
++static inline int __stmpe811_i2c_write(struct i2c_client *client,
++				       int reg, u8 val)
++{
++	int ret;
 +
-+	ret = gpiochip_remove(&stm_gpio->gpio);
-+	if (ret == 0)
-+		kfree(stm_gpio);
++	ret = i2c_smbus_write_byte_data(client, reg, val);
++	if (ret < 0) {
++		dev_err(&client->dev, "failed writing 0x%02x to 0x%02x\n",
++			val, reg);
++		return ret;
++	}
++	return 0;
++}
++
++int stmpe811_block_read(struct stmpe811 *stm, u8 reg, uint len, u8 *val)
++{
++	int ret;
++
++	mutex_lock(&stm->io_lock);
++	ret = __stmpe811_i2c_reads(stm->i2c_client, reg, len, val);
++	mutex_unlock(&stm->io_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(stmpe811_block_read);
++
++int stmpe811_reg_read(struct stmpe811 *stm, u8 reg, u8 *val)
++{
++	int ret;
++
++	mutex_lock(&stm->io_lock);
++	ret = __stmpe811_i2c_read(stm->i2c_client, reg, val);
++	mutex_unlock(&stm->io_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(stmpe811_reg_read);
++
++int stmpe811_reg_write(struct stmpe811 *stm, u8 reg, u8 val)
++{
++	int ret;
++
++	mutex_lock(&stm->io_lock);
++	ret = __stmpe811_i2c_write(stm->i2c_client, reg, val);
++	mutex_unlock(&stm->io_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(stmpe811_reg_write);
++
++int stmpe811_reg_set_bits(struct stmpe811 *stm, u8 reg, u8 val)
++{
++	int ret;
++	u8 tmp;
++
++	mutex_lock(&stm->io_lock);
++	ret = __stmpe811_i2c_read(stm->i2c_client, reg, &tmp);
++	if (ret < 0)
++		goto out;
++
++	tmp |= val;
++	ret = __stmpe811_i2c_write(stm->i2c_client, reg, tmp);
++
++out:
++	mutex_unlock(&stm->io_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(stmpe811_reg_set_bits);
++
++int stmpe811_reg_clear_bits(struct stmpe811 *stm, u8 reg, u8 val)
++{
++	int ret;
++	u8 tmp;
++
++	mutex_lock(&stm->io_lock);
++	ret = __stmpe811_i2c_read(stm->i2c_client, reg, &tmp);
++	if (ret < 0)
++		goto out;
++
++	tmp &= ~val;
++	ret = __stmpe811_i2c_write(stm->i2c_client, reg, tmp);
++
++out:
++	mutex_unlock(&stm->io_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(stmpe811_reg_clear_bits);
++
++int stmpe811_register_irq(struct stmpe811 *stm, int irq,
++			  irq_handler_t handler, void *data)
++{
++	if (irq < 0 || irq > STMPE811_NUM_IRQ || !handler)
++		return -EINVAL;
++
++	if (WARN_ON(stm->irqhandler[irq]))
++		return -EBUSY;
++
++	stm->irqhandler[irq] = handler;
++	stm->irqdata[irq] = data;
++	/* unmask the irq */
++	return stmpe811_reg_set_bits(stm, STMPE811_REG_INT_EN, 1 << irq);
++}
++EXPORT_SYMBOL_GPL(stmpe811_register_irq);
++
++int stmpe811_free_irq(struct stmpe811 *stm, int irq)
++{
++	if (irq < 0 || irq > STMPE811_NUM_IRQ)
++		return -EINVAL;
++
++	stm->irqhandler[irq] = NULL;
++
++	return stmpe811_reg_clear_bits(stm, STMPE811_REG_INT_EN, 1 << irq);
++}
++EXPORT_SYMBOL_GPL(stmpe811_free_irq);
++
++static int __devinit stmpe811_probe(struct i2c_client *client,
++				    const struct i2c_device_id *ids)
++{
++	struct stmpe811 *stm;
++	struct stmpe811_platform_data *pdata = client->dev.platform_data;
++	int ret = 0;
++	u8 chip_id[2], chip_ver = 0;
++
++	if (!client->irq) {
++		dev_err(&client->dev, "Missing IRQ\n");
++		return -ENOENT;
++	}
++
++	stm = kzalloc(sizeof(*stm), GFP_KERNEL);
++	if (!stm)
++		return -ENOMEM;
++
++	stm->pdata = pdata;
++
++	mutex_init(&stm->io_lock);
++
++	i2c_set_clientdata(client, stm);
++	stm->dev = &client->dev;
++	stm->i2c_client = client;
++	stm->irq = client->irq;
++	stm->work_queue = create_singlethread_workqueue("stmpe811");
++
++	if (!stm->work_queue) {
++		dev_err(&client->dev, "Failed to alloc workqueue\n");
++		ret = -ENOMEM;
++		goto err_free;
++	}
++
++	INIT_WORK(&stm->irq_work, stmpe811_irq_worker);
++
++	ret = stmpe811_block_read(stm, STMPE811_REG_CHIP_ID, 2, chip_id);
++	if ((ret < 0) || (((chip_id[0] << 8) | chip_id[1]) != 0x811)) {
++		dev_err(&client->dev, "could not verify  stmpe811 chip id\n");
++		ret = -ENODEV;
++		goto err_destroy_workqueue;
++	}
++
++	stmpe811_reg_read(stm, STMPE811_REG_ID_VER, &chip_ver);
++	dev_info(&client->dev, "found stmpe811 chip id 0x%x version 0x%x\n",
++		 (chip_id[0] << 8) | chip_id[1], chip_ver);
++
++	/* reset the device */
++	stmpe811_reg_write(stm, STMPE811_REG_SYS_CTRL1,
++			   STMPE811_SYS_CTRL1_SOFT_RESET);
++
++	/* setup platform specific interrupt control flags and enable global
++	 * interrupt */
++	stmpe811_reg_write(stm, STMPE811_REG_INT_CTRL,
++			   STMPE811_INT_CTRL_GLOBAL_INT | pdata->int_conf);
++	ret =
++	    request_irq(client->irq, stmpe811_irq, pdata->irq_flags, "stmpe811",
++			stm);
++	if (ret) {
++		dev_err(stm->dev, "Failed to request IRQ %d\n", ret);
++		goto err_destroy_workqueue;
++	}
++
++	if (pdata->flags & STMPE811_USE_TS)
++		ret =
++		    mfd_add_devices(&client->dev, -1, &stmpe811_ts_dev, 1, NULL,
++				    0);
++	if (ret != 0)
++		goto err_release_irq;
++
++	if (pdata->flags & STMPE811_USE_GPIO)
++		ret =
++		    mfd_add_devices(&client->dev, -1, &stmpe811_gpio_dev, 1,
++				    NULL, 0);
++	if (ret != 0)
++		goto err_remove_mfd_devices;
++
++	return ret;
++
++err_remove_mfd_devices:
++	mfd_remove_devices(&client->dev);
++err_release_irq:
++	free_irq(client->irq, stm);
++err_destroy_workqueue:
++	destroy_workqueue(stm->work_queue);
++err_free:
++	mutex_destroy(&stm->io_lock);
++	i2c_set_clientdata(client, NULL);
++	kfree(stm);
 +
 +	return ret;
 +}
 +
-+static struct platform_driver stmpe811_gpio_driver = {
-+	.driver.name = STMPE811_GPIO_NAME,
-+	.driver.owner = THIS_MODULE,
-+	.probe = stmpe811_gpio_probe,
-+	.remove = __devexit_p(stmpe811_gpio_remove),
++static int __devexit stmpe811_remove(struct i2c_client *client)
++{
++	struct stmpe811 *stm = i2c_get_clientdata(client);
++
++	stmpe811_reg_write(stm, STMPE811_REG_SYS_CTRL1,
++			   STMPE811_SYS_CTRL1_HIBERNATE);
++
++	free_irq(stm->irq, stm);
++	destroy_workqueue(stm->work_queue);
++
++	mfd_remove_devices(&client->dev);
++
++	kfree(stm);
++
++	return 0;
++}
++
++static struct i2c_device_id stmpe811_id_table[] = {
++	{"stmpe811", 0x88},
++	{ /* end of list */ }
 +};
 +
-+static int __init stmpe811_gpio_init(void)
++static struct i2c_driver stmpe811_driver = {
++	.driver = {
++		   .name = "stmpe811",
++		   .owner = THIS_MODULE,
++		   },
++	.probe = stmpe811_probe,
++	.remove = __devexit_p(stmpe811_remove),
++	.id_table = stmpe811_id_table,
++};
++
++static int __init stmpe811_init(void)
 +{
-+	return platform_driver_register(&stmpe811_gpio_driver);
++	return i2c_add_driver(&stmpe811_driver);
 +}
 +
-+subsys_initcall(stmpe811_gpio_init);
++subsys_initcall(stmpe811_init);
 +
-+static void __exit stmpe811_gpio_exit(void)
++static void __exit stmpe811_exit(void)
 +{
-+	platform_driver_unregister(&stmpe811_gpio_driver);
++	i2c_del_driver(&stmpe811_driver);
 +}
 +
-+module_exit(stmpe811_gpio_exit);
++module_exit(stmpe811_exit);
 +
++MODULE_DESCRIPTION
++    ("CORE Driver for STMPE811 Touch screen controller with GPIO expander");
 +MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
-+MODULE_DESCRIPTION("GPIO interface for STMicroelectronics STMPE811");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:" STMPE811_GPIO_NAME);
+diff --git a/include/linux/mfd/stmpe811.h b/include/linux/mfd/stmpe811.h
+new file mode 100644
+index 0000000..ab2808a
+--- /dev/null
++++ b/include/linux/mfd/stmpe811.h
+@@ -0,0 +1,126 @@
++#ifndef __LINUX_MFD_STMPE811_H
++#define __LINUX_MFD_STMPE811_H
++
++#include <linux/i2c.h>
++#include <linux/workqueue.h>
++
++#define STMPE811_REG_CHIP_ID		0x00
++#define STMPE811_REG_ID_VER		0x02
++#define STMPE811_REG_SYS_CTRL1		0x03
++#define STMPE811_REG_SYS_CTRL2		0x04
++#define STMPE811_REG_SPI_CFG		0x08
++#define STMPE811_REG_INT_CTRL		0x09
++#define STMPE811_REG_INT_EN		0x0A
++#define STMPE811_REG_INT_STA		0x0B
++#define STMPE811_REG_GPIO_EN		0x0C
++#define STMPE811_REG_GPIO_INT_STA	0x0D
++#define STMPE811_REG_ADC_INT_EN		0x0E
++#define STMPE811_REG_ADC_INT_STA	0x0F
++#define STMPE811_REG_GPIO_SET_PIN	0x10
++#define STMPE811_REG_GPIO_CLR_PIN	0x11
++#define STMPE811_REG_GPIO_MP_STA	0x12
++#define STMPE811_REG_GPIO_DIR		0x13
++#define STMPE811_REG_GPIO_ED		0x14
++#define STMPE811_REG_GPIO_RE		0x15
++#define STMPE811_REG_GPIO_FE		0x16
++#define STMPE811_REG_GPIO_AF		0x17
++#define STMPE811_REG_ADC_CTRL1		0x20
++#define STMPE811_REG_ADC_CTRL2		0x21
++#define STMPE811_REG_ADC_CAPT		0x22
++#define STMPE811_REG_ADC_DATA_CH0	0x30
++#define STMPE811_REG_ADC_DATA_CH1	0x32
++#define STMPE811_REG_ADC_DATA_CH2	0x34
++#define STMPE811_REG_ADC_DATA_CH3	0x36
++#define STMPE811_REG_ADC_DATA_CH4	0x38
++#define STMPE811_REG_ADC_DATA_CH5	0x3A
++#define STMPE811_REG_ADC_DATA_CH6	0x3C
++#define STMPE811_REG_ADC_DATA_CH7	0x3E
++#define STMPE811_REG_TSC_CTRL		0x40
++#define STMPE811_REG_TSC_CFG		0x41
++#define STMPE811_REG_WDW_TR_X		0x42
++#define STMPE811_REG_WDW_TR_Y		0x44
++#define STMPE811_REG_WDW_BL_X		0x46
++#define STMPE811_REG_WDW_BL_Y		0x48
++#define STMPE811_REG_FIFO_TH		0x4A
++#define STMPE811_REG_FIFO_STA		0x4B
++#define STMPE811_REG_FIFO_SIZE		0x4C
++#define STMPE811_REG_TSC_DATA_X		0x4D
++#define STMPE811_REG_TSC_DATA_Y		0x4F
++#define STMPE811_REG_TSC_DATA_Z		0x51
++#define STMPE811_REG_TSC_DATA_XYZ	0x52
++#define STMPE811_REG_TSC_FRACTION_Z	0x56
++#define STMPE811_REG_TSC_DATA		0x57
++#define STMPE811_REG_TSC_DATA_SINGLE	0xD7
++#define STMPE811_REG_TSC_I_DRIVE	0x58
++#define STMPE811_REG_TSC_SHIELD		0x59
++#define STMPE811_REG_TEMP_CTRL		0x60
++
++#define STMPE811_IRQ_TOUCH_DET		0
++#define STMPE811_IRQ_FIFO_TH		1
++#define STMPE811_IRQ_FIFO_OFLOW		2
++#define STMPE811_IRQ_FIFO_FULL		3
++#define STMPE811_IRQ_FIFO_EMPTY		4
++#define STMPE811_IRQ_TEMP_SENS		5
++#define STMPE811_IRQ_ADC		6
++#define STMPE811_IRQ_GPIO		7
++#define STMPE811_NUM_IRQ		8
++
++#define STMPE811_SYS_CTRL1_HIBERNATE	(1<<0)
++#define STMPE811_SYS_CTRL1_SOFT_RESET	(1<<1)
++
++#define STMPE811_SYS_CTRL2_ADC_OFF	(1<<0)
++#define STMPE811_SYS_CTRL2_TSC_OFF	(1<<1)
++#define STMPE811_SYS_CTRL2_GPIO_OFF	(1<<2)
++#define STMPE811_SYS_CTRL2_TS_OFF	(1<<3)
++
++#define STMPE811_INT_CTRL_GLOBAL_INT	(1<<0)
++#define STMPE811_INT_CTRL_INT_TYPE	(1<<1)
++#define STMPE811_INT_CTRL_INT_POLARITY	(1<<2)
++
++#define STMPE811_FIFO_STA_OFLOW		(1<<7)
++#define STMPE811_FIFO_STA_FULL		(1<<6)
++#define STMPE811_FIFO_STA_EMPTY		(1<<5)
++#define STMPE811_FIFO_STA_TH_TRIG	(1<<4)
++#define STMPE811_FIFO_STA_RESET		(1<<0)
++
++#define STMPE811_USE_TS			(1<<0)
++#define STMPE811_USE_GPIO		(1<<1)
++
++struct stmpe811 {
++	struct device *dev;
++	struct i2c_client *i2c_client;
++
++	struct stmpe811_platform_data *pdata;
++	int irq;
++	irq_handler_t irqhandler[STMPE811_NUM_IRQ];
++	void *irqdata[STMPE811_NUM_IRQ];
++	struct work_struct irq_work;
++	struct workqueue_struct *work_queue;
++	struct mutex io_lock;
++	u8 active_flag;
++};
++
++struct stmpe811_gpio_platform_data {
++	unsigned int gpio_base;
++	int (*setup) (struct stmpe811 *stm);
++	void (*remove) (struct stmpe811 *stm);
++};
++
++struct stmpe811_platform_data {
++	unsigned int flags;
++	unsigned int irq_flags;
++	unsigned int int_conf;
++	struct stmpe811_gpio_platform_data *gpio_pdata;
++};
++
++int stmpe811_block_read(struct stmpe811 *stm, u8 reg, uint len, u8 *val);
++int stmpe811_reg_read(struct stmpe811 *pcf, u8 reg, u8 *val);
++int stmpe811_reg_write(struct stmpe811 *stm, u8 reg, u8 val);
++int stmpe811_reg_set_bits(struct stmpe811 *stm, u8 reg, u8 val);
++int stmpe811_reg_clear_bits(struct stmpe811 *stm, u8 reg, u8 val);
++
++int stmpe811_register_irq(struct stmpe811 *stm, int irq,
++			  irq_handler_t handler, void *data);
++int stmpe811_free_irq(struct stmpe811 *stm, int irq);
++
++#endif
 -- 
 1.7.1
 

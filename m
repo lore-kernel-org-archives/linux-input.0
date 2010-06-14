@@ -1,36 +1,46 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 2/3 V2] gpio: add STMPE811 gpio controller support
-Date: Mon, 14 Jun 2010 12:51:23 +0100
-Message-ID: <20100614115123.GB14604@rakim.wolfsonmicro.main>
-References: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
- <1276511558-27121-3-git-send-email-l.fu@pengutronix.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid-input: Use a larger event buffer for MT devices
+Date: Mon, 14 Jun 2010 13:55:03 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1006141354040.12271@pobox.suse.cz>
+References: <1276516181-4519-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43196 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752369Ab0FNLvZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jun 2010 07:51:25 -0400
-Content-Disposition: inline
-In-Reply-To: <1276511558-27121-3-git-send-email-l.fu@pengutronix.de>
+Received: from cantor.suse.de ([195.135.220.2]:59369 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753718Ab0FNLzH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jun 2010 07:55:07 -0400
+In-Reply-To: <1276516181-4519-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Luotao Fu <l.fu@pengutronix.de>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>
 
-On Mon, Jun 14, 2010 at 12:32:37PM +0200, Luotao Fu wrote:
+On Mon, 14 Jun 2010, Henrik Rydberg wrote:
 
-> +static struct gpio_chip gpio_chip = {
-> +	.label = STMPE811_GPIO_NAME,
-> +	.owner = THIS_MODULE,
-> +	.direction_input = stmpe811_gpio_direction_in,
-> +	.get = stmpe811_gpio_get,
-> +	.direction_output = stmpe811_gpio_direction_out,
-> +	.set = stmpe811_gpio_set,
-> +	.request = stmpe811_gpio_request,
-> +	.can_sleep = 1,
-> +};
+> The MT devices produce a lot of data. Tell the underlying input device
+> approximately how many events will be sent per synchronization, to allow
+> for better buffering. The number is a template based on continuously
+> reporting details for each finger on a single hand.
+> 
+> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> ---
+> Hi Jiri,
+> 
+> This patch goes together with the evdev buffer patchset, which Dmitry
+> is going to queue for 2.6.36.
 
-Assuming you're able to do interrupts on the GPIOs you should now be
-able to implement to_irq() as well.
+So it makes sense to take it together with the rest of the patchset to 
+avoid syncing problems between the trees.
+
+Dmitry, could you please add
+
+	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+
+to Henrik's patch and take it through your tree together with the rest?
+
+Thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

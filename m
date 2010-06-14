@@ -1,17 +1,17 @@
 From: Oliver Neukum <oneukum@suse.de>
 Subject: Re: [RFC] [PATCH] Adding support for BMP085 pressure sensor.
-Date: Mon, 14 Jun 2010 12:16:32 +0200
-Message-ID: <201006141216.32386.oneukum@suse.de>
+Date: Mon, 14 Jun 2010 12:30:56 +0200
+Message-ID: <201006141230.56099.oneukum@suse.de>
 References: <0680EC522D0CC943BC586913CF3768C003B34A60A3@dbde02.ent.ti.com>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51649 "EHLO mx2.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:56946 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755478Ab0FNKQJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jun 2010 06:16:09 -0400
+	id S1755469Ab0FNKad (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jun 2010 06:30:33 -0400
 In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B34A60A3@dbde02.ent.ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,23 +19,22 @@ To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
 Am Montag, 14. Juni 2010 12:13:44 schrieb Datta, Shubhrajyoti:
-> +static s32 bmp085_get_calibration_data(struct i2c_client *client)
-> +{
-> +       u8 tmp[BMP085_CALIBRATION_DATA_LENGTH];
-> +       struct bmp085_data *data = i2c_get_clientdata(client);
-> +       struct bmp085_calibration_data *cali = &(data->calibration);
-> +       s32 status = i2c_smbus_read_i2c_block_data(client,
-> +                               BMP085_CALIBRATION_DATA_START,
-> +                               BMP085_CALIBRATION_DATA_LENGTH, tmp);
-> +
-> +       cali->AC1 =  (tmp[0] << 8) | tmp[1];
-> +       cali->AC2 =  (tmp[2] << 8) | tmp[3];
-> +       cali->AC3 =  (tmp[4] << 8) | tmp[5];
-> +       cali->AC4 =  (tmp[6] << 8) | tmp[7];
-> +       cali->AC5 =  (tmp[8] << 8) | tmp[9];
-> +       cali->AC6 = (tmp[10] << 8) | tmp[11];
 
-Please use the macros for reading be16 data.
+> +/* sysfs callbacks */
+> +static ssize_t set_oversampling(struct device *dev,
+> +				struct device_attribute *attr,
+> +				const char *buf,
+> +				size_t count)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct bmp085_data *data = i2c_get_clientdata(client);
+> +	data->oversampling_setting = simple_strtoul(buf, NULL, 10);
+> +	if (data->oversampling_setting > 3)
+> +		data->oversampling_setting = 3;
+> +	return count;
+> +}
+
+What happens if somebody writes a non-numerical value?
 
 	Regards
 		Oliver

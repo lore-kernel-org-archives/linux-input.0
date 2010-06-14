@@ -1,130 +1,162 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Sun, 13 Jun 2010 22:29:45 +0200
-Message-ID: <20100613202945.GA5883@hardeman.nu>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
- <4BDF2B45.9060806@redhat.com>
- <20100607190003.GC19390@hardeman.nu>
- <20100607201530.GG16638@redhat.com>
- <20100608175017.GC5181@hardeman.nu>
- <AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
- <20100609132908.GM16638@redhat.com>
- <20100609175621.GA19620@hardeman.nu>
- <20100609181506.GO16638@redhat.com>
- <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: RE: [PATCH v4 2/3] ARM: S5PV210: Add keypad device helpers
+Date: Mon, 14 Jun 2010 14:18:53 +0900
+Message-ID: <007801cb0b81$16cc0ff0$44642fd0$%kim@samsung.com>
+References: <1276243728-17704-1-git-send-email-jy0922.shim@samsung.com>
+ <1276243728-17704-2-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:46122 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754766Ab0FMU3t (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Jun 2010 16:29:49 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1276243728-17704-2-git-send-email-jy0922.shim@samsung.com>
+Content-language: ko
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: 'Joonyoung Shim' <jy0922.shim@samsung.com>, ben-linux@fluff.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Jun 09, 2010 at 09:25:44PM -0400, Jarod Wilson wrote:
-> On Wed, Jun 9, 2010 at 2:15 PM, Jarod Wilson <jarod@redhat.com> wrote=
-:
-> > On Wed, Jun 09, 2010 at 07:56:21PM +0200, David H=E4rdeman wrote:
-> >> On Wed, Jun 09, 2010 at 09:29:08AM -0400, Jarod Wilson wrote:
-> ...
-> >> > So this definitely negatively impacts my ir-core-to-lirc_dev
-> >> > (ir-lirc-codec.c) bridge driver, as it was doing the lirc_dev de=
-vice
-> >> > registration work in its register function. However, if (after y=
-our
-> >> > patchset) we add a new pair of callbacks replacing raw_register =
-and
-> >> > raw_unregister, which are optional, that work could be done ther=
-e instead,
-> >> > so I don't think this is an insurmountable obstacle for the lirc=
- bits.
-> >>
-> >> While I'm not sure exactly what callbacks you're suggesting,
-> >
-> > Essentially:
-> >
-> > .setup_other_crap
-> > .tear_down_other_crap
-> >
-> > ...which in the ir-lirc-codec case, register ir-lirc-codec for a sp=
-ecific
-> > hardware receiver as an lirc_dev client, and conversely, tear it do=
-wn.
-> >
-> >> it still
-> >> sounds like the callbacks would have the exact same problems that =
+Joonyoung Shim wrote:
+> 
+> This patch adds the keypad device platform helpers for S5PV210 cpu.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> ---
+>  arch/arm/mach-s5pv210/Kconfig            |    5 ++++
+>  arch/arm/mach-s5pv210/Makefile           |    1 +
+>  arch/arm/mach-s5pv210/cpu.c              |    4 +++
+>  arch/arm/mach-s5pv210/include/mach/map.h |    3 ++
+>  arch/arm/mach-s5pv210/setup-keypad.c     |   34
+> ++++++++++++++++++++++++++++++
+>  5 files changed, 47 insertions(+), 0 deletions(-)
+>  create mode 100644 arch/arm/mach-s5pv210/setup-keypad.c
+> 
+> diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
+> index 0761eac..692d01c 100644
+> --- a/arch/arm/mach-s5pv210/Kconfig
+> +++ b/arch/arm/mach-s5pv210/Kconfig
+> @@ -32,6 +32,11 @@ config S5PV210_SETUP_FB_24BPP
+>  	help
+>            Common setup code for S5PV210 with an 24bpp RGB display helper.
+> 
+> +config S5PV210_SETUP_KEYPAD
+> +	bool
+> +	help
+> +	  Common setup code for keypad.
+> +
+>  config S5PV210_SETUP_SDHCI
+>          bool
+>          select S5PV210_SETUP_SDHCI_GPIO
+> diff --git a/arch/arm/mach-s5pv210/Makefile
+b/arch/arm/mach-s5pv210/Makefile
+> index 30be9a6..aae592a 100644
+> --- a/arch/arm/mach-s5pv210/Makefile
+> +++ b/arch/arm/mach-s5pv210/Makefile
+> @@ -31,5 +31,6 @@ obj-$(CONFIG_S5PC110_DEV_ONENAND) += dev-onenand.o
+>  obj-$(CONFIG_S5PV210_SETUP_FB_24BPP)	+= setup-fb-24bpp.o
+>  obj-$(CONFIG_S5PV210_SETUP_I2C1) 	+= setup-i2c1.o
+>  obj-$(CONFIG_S5PV210_SETUP_I2C2) 	+= setup-i2c2.o
+> +obj-$(CONFIG_S5PV210_SETUP_KEYPAD)	+= setup-keypad.o
+>  obj-$(CONFIG_S5PV210_SETUP_SDHCI)       += setup-sdhci.o
+>  obj-$(CONFIG_S5PV210_SETUP_SDHCI_GPIO)	+= setup-sdhci-gpio.o
+> diff --git a/arch/arm/mach-s5pv210/cpu.c b/arch/arm/mach-s5pv210/cpu.c
+> index 411a4a9..a3034ac 100644
+> --- a/arch/arm/mach-s5pv210/cpu.c
+> +++ b/arch/arm/mach-s5pv210/cpu.c
+> @@ -80,6 +80,10 @@ void __init s5pv210_map_io(void)
+>  	s3c_device_adc.name	= "s3c64xx-adc";
+>  #endif
+> 
+> +#ifdef CONFIG_SAMSUNG_DEV_KEYPAD
+> +	samsung_device_keypad.name = "s5pv210-keypad";
+> +#endif
+> +
+
+Please use one method. See Kyungmin Park's prev. comments on the subject.
+
+>  	iotable_init(s5pv210_iodesc, ARRAY_SIZE(s5pv210_iodesc));
+> 
+>  	/* initialise device information early */
+> diff --git a/arch/arm/mach-s5pv210/include/mach/map.h b/arch/arm/mach-
+> s5pv210/include/mach/map.h
+> index 34eb168..e2f6e2a 100644
+> --- a/arch/arm/mach-s5pv210/include/mach/map.h
+> +++ b/arch/arm/mach-s5pv210/include/mach/map.h
+> @@ -32,6 +32,8 @@
+>  #define S5PV210_PA_SPI0		0xE1300000
+>  #define S5PV210_PA_SPI1		0xE1400000
+> 
+> +#define S5PV210_PA_KEYPAD	(0xE1600000)
+> +
+>  #define S5PV210_PA_IIC0		(0xE1800000)
+>  #define S5PV210_PA_IIC1		(0xFAB00000)
+>  #define S5PV210_PA_IIC2		(0xE1A00000)
+> @@ -104,5 +106,6 @@
+>  #define S3C_PA_WDT		S5PV210_PA_WATCHDOG
+> 
+>  #define SAMSUNG_PA_ADC		S5PV210_PA_ADC
+> +#define SAMSUNG_PA_KEYPAD	S5PV210_PA_KEYPAD
+> 
+>  #endif /* __ASM_ARCH_MAP_H */
+> diff --git a/arch/arm/mach-s5pv210/setup-keypad.c
+b/arch/arm/mach-s5pv210/setup-
+> keypad.c
+> new file mode 100644
+> index 0000000..f51bf8d
+> --- /dev/null
+> +++ b/arch/arm/mach-s5pv210/setup-keypad.c
+> @@ -0,0 +1,34 @@
+> +/*
+> + * linux/arch/arm/mach-s5pv210/setup-keypad.c
+> + *
+> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+> + *
+> + *  This program is free software; you can redistribute  it and/or modify
+it
+> + *  under  the terms of  the GNU General  Public License as published by
 the
-> >> current code has (i.e. the decoder will be blissfully unaware of
-> >> hardware which exists before the decoder is loaded). Right?
-> >
-> > In my head, this was going to work out, but you're correct, I still=
- have
-> > the exact same problem -- its not in ir_raw_handler_list yet when
-> > ir_raw_event_register runs, and thus the callback never fires, so l=
-irc_dev
-> > never actually gets wired up to ir-lirc-codec. It now knows about t=
-he lirc
-> > decoder, but its completely useless. Narf.
->=20
-> And now I have it working atop your patches. Its a bit of a nasty-ish
-> hack, at least for the lirc case, but its working, even in the case
-> where the decoder drivers aren't actually loaded until after the
-> device driver. I've added one extra param to each protocol-specific
-> struct in ir-core-priv.h (bool initialized) and hooked into the
-> protocol-specific decode functions to both determine whether a
-> protocol should be enabled or disabled by default, and to run any
-> additionally required initialization (such as in the ir-lirc-codec
-> case).
->=20
-> So initially, mceusb comes up with all decoders enabled. Then when ir
-> comes in, every protocol-specific decoder fires. Each of them check
-> for whether or not they've been fully initialized, and if not, we
-> check the loaded keymap, and if it doesn't match, we disable that
-> decoder (bringing back the "disable protocol handlers we don't need"
-> functionality that disappeared w/this patchset). In the lirc case, we
-> actually do all the work needed to wire up the connection over to
-> lirc_dev.
->=20
-> This works perfectly fine for all the in-kernel decoders, but has one
-> minor shortcoming for ir-lirc-codec, in that /dev/lirc0 won't actuall=
-y
-> exist until the first incoming ir signal is seen. lircd can handle
-> this case just fine, it'll wait for /dev/lirc0 to show up, but it
-> doesn't come up fast enough to catch and decode the very first
-> incoming ir signal. Subsequent ones work perfectly fine though. This
-> need to initialize the link via incoming ir is a bit problematic if
-> you're using a device for transmit-only (e.g., and mceusb device
-> hooked to a mythtv backend in the closet or something), as there woul=
-d
-> be a strong possibility of /dev/lirc0 never getting hooked up. I can
-> think of a few workarounds, but none are particularly clean and/or
-> automagic.
->=20
-> Not sure how palatable it is, but here it is:
+> + *  Free Software Foundation;  either version 2 of the  License, or (at
+your
+> + *  option) any later version.
+> + *
+> + */
+> +
+> +#include <linux/gpio.h>
+> +#include <plat/gpio-cfg.h>
+> +
+> +void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int cols)
+> +{
+> +	unsigned int gpio, end;
+> +
+> +	/* Set all the necessary GPH3 pins to special-function 3 */
 
-I think it sounds pretty awful :)
+What's the special-function 3?
+How about 'special function KP_ROWs'?
 
-I have another suggestion, let's keep the client register/unregister=20
-callbacks for decoders (but add a comment that they're only used for=20
-lirc). Then teach drivers/media/IR/ir-raw-event.c to keep track of the=20
-raw clients so that it can pass all pre-existing clients to newly added=
-=20
-decoders.
+> +	end = S5PV210_GPH3(rows);
+> +	for (gpio = S5PV210_GPH3(0); gpio < end; gpio++) {
+> +		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
+> +		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
+> +	}
+> +
+> +	/* Set all the necessary GPH2 pins to special-function 3 */
 
-I'll post two patches (compile tested only) in a few seconds to show=20
-what I mean.
+How about 'special function KP_COLs'?
 
---=20
-David H=E4rdeman
+> +	end = S5PV210_GPH2(cols);
+> +	for (gpio = S5PV210_GPH2(0); gpio < end; gpio++) {
+> +		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
+> +		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
+> +	}
+> +}
+> --
+
+
+Thanks.
+
+Best regards,
+Kgene.
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+SW Solution Development Team, Samsung Electronics Co., Ltd.

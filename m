@@ -1,22 +1,20 @@
-From: Melchior FRANZ <mfranz@aon.at>
+From: Melchior FRANZ <melchior.franz@gmail.com>
 Subject: Re: [BUG?] hid-core.c: hid->name = dev->manufacturer + dev->product ... why not + dev->serial?
-Date: Mon, 14 Jun 2010 23:11:18 +0200
-Message-ID: <201006142311.18972@rk-nord.at>
-References: <201003071655.06644@rk-nord.at> <20100309082216.GG17288@core.coreip.homeip.net> <201003091342.20273@rk-nord.at>
+Date: Mon, 14 Jun 2010 23:12:48 +0200
+Message-ID: <201006142312.48990@rk-nord.at>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nat-warsl417-02.aon.at ([195.3.96.120]:65089 "EHLO email.aon.at"
+Received: from nat-warsl417-02.aon.at ([195.3.96.120]:7209 "EHLO email.aon.at"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756468Ab0FNVSA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jun 2010 17:18:00 -0400
-Received: from unknown (HELO email.aon.at) ([172.18.1.197])
-          (envelope-sender <mfranz@aon.at>)
-          by fallback43.highway.telekom.at (qmail-ldap-1.03) with SMTP
-          for <linux-input@vger.kernel.org>; 14 Jun 2010 21:11:19 -0000
-In-Reply-To: <201003091342.20273@rk-nord.at>
+	id S1756468Ab0FNVT3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jun 2010 17:19:29 -0400
+Received: from smarthub93.highway.telekom.at (HELO email.aon.at) ([172.18.5.237])
+          (envelope-sender <melchior.franz@gmail.com>)
+          by fallback44.highway.telekom.at (qmail-ldap-1.03) with SMTP
+          for <linux-input@vger.kernel.org>; 14 Jun 2010 21:12:48 -0000
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org

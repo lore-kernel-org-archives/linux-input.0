@@ -1,40 +1,34 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [RFC] [PATCH] Adding support for BMP085 pressure sensor.
-Date: Mon, 14 Jun 2010 12:30:56 +0200
-Message-ID: <201006141230.56099.oneukum@suse.de>
-References: <0680EC522D0CC943BC586913CF3768C003B34A60A3@dbde02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Luotao Fu <l.fu@pengutronix.de>
+Subject: Patch serie for STMPE811 [V2]
+Date: Mon, 14 Jun 2010 12:32:35 +0200
+Message-ID: <1276511558-27121-1-git-send-email-l.fu@pengutronix.de>
+References: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:56946 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755469Ab0FNKad (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jun 2010 06:30:33 -0400
-In-Reply-To: <0680EC522D0CC943BC586913CF3768C003B34A60A3@dbde02.ent.ti.com>
+Received: from metis.ext.pengutronix.de ([92.198.50.35]:53052 "EHLO
+	metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756003Ab0FNKcx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jun 2010 06:32:53 -0400
+In-Reply-To: <1276251195-22981-1-git-send-email-l.fu@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am Montag, 14. Juni 2010 12:13:44 schrieb Datta, Shubhrajyoti:
+Hi,
 
-> +/* sysfs callbacks */
-> +static ssize_t set_oversampling(struct device *dev,
-> +				struct device_attribute *attr,
-> +				const char *buf,
-> +				size_t count)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct bmp085_data *data = i2c_get_clientdata(client);
-> +	data->oversampling_setting = simple_strtoul(buf, NULL, 10);
-> +	if (data->oversampling_setting > 3)
-> +		data->oversampling_setting = 3;
-> +	return count;
-> +}
+in the following is the V2 patch serie for the stmpe811 chip. Changes are made
+all over the place:
+* irq management of the core
+* configuration parameter passing in the touch screen driver.
+* Some additional locking stuff
+* i2c client stuff
+* formating fix
+etc.
+See the individual patch header for more details.
 
-What happens if somebody writes a non-numerical value?
+thanks
 
-	Regards
-		Oliver
+cheers
+Luotao Fu
+

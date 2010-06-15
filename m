@@ -1,43 +1,37 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH] input: fixup X86_MRST selects
-Date: Tue, 15 Jun 2010 08:17:21 -0700
-Message-ID: <4C179981.6040404@oracle.com>
-References: <20100609133443.38f1f957.sfr@canb.auug.org.au> <201006091540.43122.dmitry.torokhov@gmail.com> <4C1018C0.6020304@oracle.com> <201006101204.45709.dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <201006101204.45709.dmitry.torokhov@gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Jacob Pan <jacob.jun.pan@intel.com>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, akpm <akpm@linux-foundation.org>
+From: Manuel Lauss <manuel.lauss@googlemail.com>
+Subject: [PATCH RFC 0/3] WM97xx AC97 GPIO support
+Date: Tue, 15 Jun 2010 17:55:44 +0200
+Message-ID: <1276617347-3522-1-git-send-email-manuel.lauss@googlemail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:63423 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751196Ab0FOPzz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Jun 2010 11:55:55 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: alsa-devel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, Manuel Lauss <manuel.lauss@googlemail.com>
 
-On 06/10/10 12:04, Dmitry Torokhov wrote:
-> On Wednesday, June 09, 2010 03:42:08 pm Randy Dunlap wrote:
->> On 06/09/10 15:40, Dmitry Torokhov wrote:
->>> On Wednesday, June 09, 2010 03:29:21 pm Randy Dunlap wrote:
->>>> +++ linux-next-20100609/drivers/input/keyboard/Kconfig
->>>> @@ -70,9 +70,10 @@ config KEYBOARD_ATARI
->>>>  
->>>>  config KEYBOARD_ATKBD
->>>>         tristate "AT keyboard" if EMBEDDED || !X86
->>>> +       depends on !X86 || (X86 && !X86_MRST)
->>>
->>> Should it be simply 'depends on !X86_MRST' and then we could kill
->>> '!X86_MRST' conditionals in selects?
->>
->> Duh, that sounds good, yes.
-> 
-> Actually, I do not think this is a correct approach. While Moorestown does
-> not have i8042 theoretically it is possible to add AT-style keyboard by
-> other means (however unlikely it is) so we should not be disabling it.
-> 
-> We should, however, disallow i8042 from being selected. Could you please
-> tell me if the patch below works for you?
+Here's 3 patches which implement simple AC97 GPIO support to the WM97xx touch
+drivers and the Alchemy (au1x) AC97 ASoC implementation.
 
-Yes, that's good.  Thanks.
+Tested on Au1200 hardware with a WM9712 codec:  According to Mark Brown the
+WM9712 only sets GPIOs when data is sent through slot 12, which prompted me
+to implement this.
 
--- 
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+Thanks,
+       Manuel Lauss
+
+
+Manuel Lauss (3):
+  sound: ac97: Add GPIO manipulation hooks
+  input: wm97xx: set GPIOs with AC97 GPIO busops if implemented
+  sound: asoc: au1x: implement AC97 GPIO access
+
+ drivers/input/touchscreen/wm97xx-core.c |    5 +++-
+ include/sound/ac97_codec.h              |    2 +
+ sound/soc/au1x/psc-ac97.c               |   39 +++++++++++++++++++++++++++++-
+ sound/soc/au1x/psc.h                    |    2 +
+ 4 files changed, 45 insertions(+), 3 deletions(-)
+

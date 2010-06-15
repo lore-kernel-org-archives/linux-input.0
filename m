@@ -1,44 +1,53 @@
-From: Manuel Lauss <manuel.lauss@googlemail.com>
-Subject: [PATCH RFC 2/3] input: wm97xx: set GPIOs with AC97 GPIO busops if implemented
-Date: Tue, 15 Jun 2010 17:55:46 +0200
-Message-ID: <1276617347-3522-3-git-send-email-manuel.lauss@googlemail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH RFC 1/3] sound: ac97: Add GPIO manipulation hooks
+Date: Tue, 15 Jun 2010 17:02:53 +0100
+Message-ID: <20100615160253.GK14510@rakim.wolfsonmicro.main>
 References: <1276617347-3522-1-git-send-email-manuel.lauss@googlemail.com>
+ <1276617347-3522-2-git-send-email-manuel.lauss@googlemail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:63423 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751196Ab0FOPz7 (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:51858 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752850Ab0FOQCz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jun 2010 11:55:59 -0400
-In-Reply-To: <1276617347-3522-1-git-send-email-manuel.lauss@googlemail.com>
+	Tue, 15 Jun 2010 12:02:55 -0400
+Content-Disposition: inline
+In-Reply-To: <1276617347-3522-2-git-send-email-manuel.lauss@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: alsa-devel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, Manuel Lauss <manuel.lauss@googlemail.com>
+To: Manuel Lauss <manuel.lauss@googlemail.com>
+Cc: alsa-devel@vger.kernel.org, linux-input@vger.kernel.org, Takasi Iwai <tiwai@suse.de>
 
-If the AC97 controller implements the ->setgpio callback, use it.
-Some codecs (i.e. WM9712) only accept GPIO data through AC97 slot 12.
+On Tue, Jun 15, 2010 at 05:55:45PM +0200, Manuel Lauss wrote:
+> Add callbacks to struct snd_ac97 to set and retrieve ac97 codec
+> GPIO status.
 
-Signed-off-by: Manuel Lauss <manuel.lauss@googlemail.com>
----
- drivers/input/touchscreen/wm97xx-core.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+> Signed-off-by: Manuel Lauss <manuel.lauss@googlemail.com>
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index cbfef1e..4f7b38c 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -206,7 +206,10 @@ void wm97xx_set_gpio(struct wm97xx *wm, u32 gpio,
- 		reg &= ~gpio;
- 
- 	if (wm->id == WM9712_ID2 && wm->variant != WM97xx_WM1613)
--		wm97xx_reg_write(wm, AC97_GPIO_STATUS, reg << 1);
-+		reg <<= 1;
-+
-+	if (wm->ac97->bus->ops->setgpio)
-+		wm->ac97->bus->ops->setgpio(wm->ac97, reg);
- 	else
- 		wm97xx_reg_write(wm, AC97_GPIO_STATUS, reg);
- 	mutex_unlock(&wm->codec_mutex);
--- 
-1.7.1
+CCing in Takashi since this is generic AC'97 stuff.
 
+> ---
+>  include/sound/ac97_codec.h |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/sound/ac97_codec.h b/include/sound/ac97_codec.h
+> index 4940045..db3aee1 100644
+> --- a/include/sound/ac97_codec.h
+> +++ b/include/sound/ac97_codec.h
+> @@ -437,6 +437,8 @@ struct snd_ac97_bus_ops {
+>  	unsigned short (*read) (struct snd_ac97 *ac97, unsigned short reg);
+>  	void (*wait) (struct snd_ac97 *ac97);
+>  	void (*init) (struct snd_ac97 *ac97);
+> +	void (*setgpio) (struct snd_ac97 *ac97, unsigned short gpio);
+> +	unsigned short (*getgpio) (struct snd_ac97 *ac97);
+>  };
+>  
+>  struct snd_ac97_bus {
+> -- 
+> 1.7.1
+> 
+
+So, I'd kind of expect some sort of interaction with gpiolib somewhere
+if we do support GPIOs (I know the WM97xx custom stuff doesn't currently
+use GPIOs but...).

@@ -1,63 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
-Date: Wed, 16 Jun 2010 13:31:56 -0700
-Message-ID: <20100616203156.GA25729@core.coreip.homeip.net>
-References: <1275735869-2185-1-git-send-email-rydberg@euromail.se>
- <201006101211.51395.dmitry.torokhov@gmail.com>
- <alpine.LRH.2.00.1006161645380.2497@twin.jikos.cz>
- <4C18F906.5060805@bitmath.org>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 2/2] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Wed, 16 Jun 2010 16:39:27 -0400
+Message-ID: <AANLkTim5AVO67s20VjOew8L4QyhsELpURMZ6hEd0iXYZ@mail.gmail.com>
+References: <20100613202718.6044.29599.stgit@localhost.localdomain>
+	<20100613202936.6044.99651.stgit@localhost.localdomain>
+	<AANLkTinUnmKIvaWasBot_iy0Sk5_Ba54zfpEscKu2N74@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:53967 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751595Ab0FPUjR (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:48257 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759619Ab0FPUj2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 16:39:17 -0400
-Content-Disposition: inline
-In-Reply-To: <4C18F906.5060805@bitmath.org>
+	Wed, 16 Jun 2010 16:39:28 -0400
+In-Reply-To: <AANLkTinUnmKIvaWasBot_iy0Sk5_Ba54zfpEscKu2N74@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: jarod@redhat.com, linux-media@vger.kernel.org, mchehab@redhat.com, linux-input@vger.kernel.org
 
-On Wed, Jun 16, 2010 at 06:17:10PM +0200, Henrik Rydberg wrote:
-> Jiri Kosina wrote:
-> > On Thu, 10 Jun 2010, Dmitry Torokhov wrote:
-> > 
-> >>> This version implements buffer locking using event_lock as you
-> >>> suggested, such that we can proceed with fixing the evdev buffer
-> >>> problem independently from providing a suitable one-to-many buffer.
-> >>>
-> >>> The first patch converts the per-client buffers to a common buffer,
-> >>> and adds a fixme since the code is expected to be further
-> >>> improved. The second and third patch includes your review comments.
-> >> Henrik,
-> >>
-> >> Applied to .36 queue with minor adjustments, please take a peek in my
-> >> 'for-linus' branch and see if you spot anything wrong. 
-> > 
-> > Hi Dmitry,
-> > 
-> > I guess you forgot to push it to kernel.org? Last change I see in your 
-> > tree is 6 days old.
-> > 
-> > Thanks,
-> > 
-> 
-> ... which seems like a lucky strike; the patch has a blatant security hole,
-> leaking grabbed events to listening clients after ungrab. I sent an updated
-> patch to Dmitry earlier today, in a brown paper bag. Not knowing if the original
-> patch was actually applied or not, I thought I had better hold on to the change
-> just a little bit.
-> 
+On Wed, Jun 16, 2010 at 4:06 PM, Jarod Wilson <jarod@wilsonet.com> wrot=
+e:
+> On Sun, Jun 13, 2010 at 4:29 PM, David H=E4rdeman <david@hardeman.nu>=
+ wrote:
+>> This patch moves the state from each raw decoder into the
+>> ir_raw_event_ctrl struct.
+>>
+>> This allows the removal of code like this:
+>>
+>> =A0 =A0 =A0 =A0spin_lock(&decoder_lock);
+>> =A0 =A0 =A0 =A0list_for_each_entry(data, &decoder_list, list) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (data->ir_dev =3D=3D ir_dev)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+>> =A0 =A0 =A0 =A0}
+>> =A0 =A0 =A0 =A0spin_unlock(&decoder_lock);
+>> =A0 =A0 =A0 =A0return data;
+>>
+>> which is currently run for each decoder on each event in order
+>> to get the client-specific decoding state data.
+>>
+>> In addition, ir decoding modules and ir driver module load
+>> order is now independent. Centralizing the data also allows
+>> for a nice code reduction of about 30% per raw decoder as
+>> client lists and client registration callbacks are no longer
+>> necessary (but still kept around for the benefit of the lirc
+>> decoder).
+>>
+>> Out-of-tree modules can still use a similar trick to what
+>> the raw decoders did before this patch until they are merged.
+>>
+>> Signed-off-by: David H=E4rdeman <david@hardeman.nu>
+>
+> Acked-by: Jarod Wilson <jarod@redhat.com>
+> Tested-by: Jarod Wilson <jarod@redhat.com>
+>
+> Note that I was running a version rebased atop the linuxtv staging/rc
+> branch though.
 
-Sorry, just getting back from vacation, the mails escaped when I synced
-the mailbox at an airport but I indeed did not push the patcehs out yet.
+Which can be seen here:
 
-I should be operable in a day or so and sort everything out.
+http://git.wilsonet.com//linux-2.6-ir-wip.git?a=3Dcommitdiff;h=3Dfaee13=
+2179abe884a6e995acb1f5106cb2d5afa2
 
-Thanks.
 
--- 
-Dmitry
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

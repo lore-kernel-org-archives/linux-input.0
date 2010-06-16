@@ -1,49 +1,39 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH RFC 1/3] sound: ac97: Add GPIO manipulation hooks
-Date: Wed, 16 Jun 2010 13:52:13 +0100
-Message-ID: <20100616125213.GA24491@rakim.wolfsonmicro.main>
-References: <1276617347-3522-1-git-send-email-manuel.lauss@googlemail.com>
- <1276617347-3522-2-git-send-email-manuel.lauss@googlemail.com>
- <20100615160253.GK14510@rakim.wolfsonmicro.main>
- <s5h1vc7o1i3.wl%tiwai@suse.de>
- <AANLkTik3PHoo-1Is-yrzzTRjeH9G7v8LUgqxBzgVRQDi@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
+Date: Wed, 16 Jun 2010 16:46:12 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.1006161645380.2497@twin.jikos.cz>
+References: <1275735869-2185-1-git-send-email-rydberg@euromail.se> <201006101211.51395.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60284 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754788Ab0FPMwP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 08:52:15 -0400
-Content-Disposition: inline
-In-Reply-To: <AANLkTik3PHoo-1Is-yrzzTRjeH9G7v8LUgqxBzgVRQDi@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201006101211.51395.dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 List-Id: linux-input@vger.kernel.org
-To: Manuel Lauss <manuel.lauss@googlemail.com>
-Cc: Takashi Iwai <tiwai@suse.de>, alsa-devel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Jun 16, 2010 at 10:00:19AM +0200, Manuel Lauss wrote:
-> On Wed, Jun 16, 2010 at 9:55 AM, Takashi Iwai <tiwai@suse.de> wrote:
+On Thu, 10 Jun 2010, Dmitry Torokhov wrote:
 
-> >> > + =A0 void (*setgpio) (struct snd_ac97 *ac97, unsigned short gpi=
-o);
-> >> > + =A0 unsigned short (*getgpio) (struct snd_ac97 *ac97);
+> > This version implements buffer locking using event_lock as you
+> > suggested, such that we can proceed with fixing the evdev buffer
+> > problem independently from providing a suitable one-to-many buffer.
+> > 
+> > The first patch converts the per-client buffers to a common buffer,
+> > and adds a fixme since the code is expected to be further
+> > improved. The second and third patch includes your review comments.
+> 
+> Henrik,
+> 
+> Applied to .36 queue with minor adjustments, please take a peek in my
+> 'for-linus' branch and see if you spot anything wrong. 
 
-> > Can this be handled simply in read/write callbacks in the controlle=
-r
-> > side? =A0In callbacks, you can check whether reg =3D=3D AC97_GPIO_S=
-TATUS and
-> > handle differently for such an access.
+Hi Dmitry,
 
-> Interesting Idea, and as a bonus requires no changes to the wm97xx co=
-de.
+I guess you forgot to push it to kernel.org? Last change I see in your 
+tree is 6 days old.
 
-The only thing that worries me there is any non-standard behavior the
-chip may implement - it may actually want a write to that register for
-some extended functionality.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

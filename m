@@ -1,49 +1,147 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 0/3] input: evdev: Dynamic buffers (rev4)
-Date: Wed, 16 Jun 2010 18:17:10 +0200
-Message-ID: <4C18F906.5060805@bitmath.org>
-References: <1275735869-2185-1-git-send-email-rydberg@euromail.se> <201006101211.51395.dmitry.torokhov@gmail.com> <alpine.LRH.2.00.1006161645380.2497@twin.jikos.cz>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Wed, 16 Jun 2010 16:04:16 -0400
+Message-ID: <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+References: <20100424211411.11570.2189.stgit@localhost.localdomain>
+	<4BDF2B45.9060806@redhat.com>
+	<20100607190003.GC19390@hardeman.nu>
+	<20100607201530.GG16638@redhat.com>
+	<20100608175017.GC5181@hardeman.nu>
+	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
+	<20100609132908.GM16638@redhat.com>
+	<20100609175621.GA19620@hardeman.nu>
+	<20100609181506.GO16638@redhat.com>
+	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+	<20100613202945.GA5883@hardeman.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:57211 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754750Ab0FPQRN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 12:17:13 -0400
-In-Reply-To: <alpine.LRH.2.00.1006161645380.2497@twin.jikos.cz>
+Received: from mail-qy0-f174.google.com ([209.85.216.174]:61499 "EHLO
+	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752249Ab0FPUES convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jun 2010 16:04:18 -0400
+In-Reply-To: <20100613202945.GA5883@hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Thu, 10 Jun 2010, Dmitry Torokhov wrote:
-> 
->>> This version implements buffer locking using event_lock as you
->>> suggested, such that we can proceed with fixing the evdev buffer
->>> problem independently from providing a suitable one-to-many buffer.
->>>
->>> The first patch converts the per-client buffers to a common buffer,
->>> and adds a fixme since the code is expected to be further
->>> improved. The second and third patch includes your review comments.
->> Henrik,
+On Sun, Jun 13, 2010 at 4:29 PM, David H=E4rdeman <david@hardeman.nu> w=
+rote:
+> On Wed, Jun 09, 2010 at 09:25:44PM -0400, Jarod Wilson wrote:
+>> On Wed, Jun 9, 2010 at 2:15 PM, Jarod Wilson <jarod@redhat.com> wrot=
+e:
+>> > On Wed, Jun 09, 2010 at 07:56:21PM +0200, David H=E4rdeman wrote:
+>> >> On Wed, Jun 09, 2010 at 09:29:08AM -0400, Jarod Wilson wrote:
+>> ...
+>> >> > So this definitely negatively impacts my ir-core-to-lirc_dev
+>> >> > (ir-lirc-codec.c) bridge driver, as it was doing the lirc_dev d=
+evice
+>> >> > registration work in its register function. However, if (after =
+your
+>> >> > patchset) we add a new pair of callbacks replacing raw_register=
+ and
+>> >> > raw_unregister, which are optional, that work could be done the=
+re instead,
+>> >> > so I don't think this is an insurmountable obstacle for the lir=
+c bits.
+>> >>
+>> >> While I'm not sure exactly what callbacks you're suggesting,
+>> >
+>> > Essentially:
+>> >
+>> > .setup_other_crap
+>> > .tear_down_other_crap
+>> >
+>> > ...which in the ir-lirc-codec case, register ir-lirc-codec for a s=
+pecific
+>> > hardware receiver as an lirc_dev client, and conversely, tear it d=
+own.
+>> >
+>> >> it still
+>> >> sounds like the callbacks would have the exact same problems that=
+ the
+>> >> current code has (i.e. the decoder will be blissfully unaware of
+>> >> hardware which exists before the decoder is loaded). Right?
+>> >
+>> > In my head, this was going to work out, but you're correct, I stil=
+l have
+>> > the exact same problem -- its not in ir_raw_handler_list yet when
+>> > ir_raw_event_register runs, and thus the callback never fires, so =
+lirc_dev
+>> > never actually gets wired up to ir-lirc-codec. It now knows about =
+the lirc
+>> > decoder, but its completely useless. Narf.
 >>
->> Applied to .36 queue with minor adjustments, please take a peek in my
->> 'for-linus' branch and see if you spot anything wrong. 
-> 
-> Hi Dmitry,
-> 
-> I guess you forgot to push it to kernel.org? Last change I see in your 
-> tree is 6 days old.
-> 
-> Thanks,
-> 
+>> And now I have it working atop your patches. Its a bit of a nasty-is=
+h
+>> hack, at least for the lirc case, but its working, even in the case
+>> where the decoder drivers aren't actually loaded until after the
+>> device driver. I've added one extra param to each protocol-specific
+>> struct in ir-core-priv.h (bool initialized) and hooked into the
+>> protocol-specific decode functions to both determine whether a
+>> protocol should be enabled or disabled by default, and to run any
+>> additionally required initialization (such as in the ir-lirc-codec
+>> case).
+>>
+>> So initially, mceusb comes up with all decoders enabled. Then when i=
+r
+>> comes in, every protocol-specific decoder fires. Each of them check
+>> for whether or not they've been fully initialized, and if not, we
+>> check the loaded keymap, and if it doesn't match, we disable that
+>> decoder (bringing back the "disable protocol handlers we don't need"
+>> functionality that disappeared w/this patchset). In the lirc case, w=
+e
+>> actually do all the work needed to wire up the connection over to
+>> lirc_dev.
+>>
+>> This works perfectly fine for all the in-kernel decoders, but has on=
+e
+>> minor shortcoming for ir-lirc-codec, in that /dev/lirc0 won't actual=
+ly
+>> exist until the first incoming ir signal is seen. lircd can handle
+>> this case just fine, it'll wait for /dev/lirc0 to show up, but it
+>> doesn't come up fast enough to catch and decode the very first
+>> incoming ir signal. Subsequent ones work perfectly fine though. This
+>> need to initialize the link via incoming ir is a bit problematic if
+>> you're using a device for transmit-only (e.g., and mceusb device
+>> hooked to a mythtv backend in the closet or something), as there wou=
+ld
+>> be a strong possibility of /dev/lirc0 never getting hooked up. I can
+>> think of a few workarounds, but none are particularly clean and/or
+>> automagic.
+>>
+>> Not sure how palatable it is, but here it is:
+>
+> I think it sounds pretty awful :)
 
-... which seems like a lucky strike; the patch has a blatant security hole,
-leaking grabbed events to listening clients after ungrab. I sent an updated
-patch to Dmitry earlier today, in a brown paper bag. Not knowing if the original
-patch was actually applied or not, I thought I had better hold on to the change
-just a little bit.
+So my suspicion wrt palatability was correct. :)
 
-Henrik
+> I have another suggestion, let's keep the client register/unregister
+> callbacks for decoders (but add a comment that they're only used for
+> lirc). Then teach drivers/media/IR/ir-raw-event.c to keep track of th=
+e
+> raw clients so that it can pass all pre-existing clients to newly add=
+ed
+> decoders.
+>
+> I'll post two patches (compile tested only) in a few seconds to show
+> what I mean.
+
+Consider them now runtime tested as well. They appear to do the trick,
+the lirc bridge comes up just fine, even when ir-lirc-codec isn't
+loaded until after mceusb. *Much* better implementation than my ugly
+trick. I'll ack your patches and submit a series on top of them for
+lirc support, hopefully this evening (in addition to a few other fixes
+that aren't dependent on any of them).
+
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

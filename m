@@ -1,74 +1,56 @@
 From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 2/2] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Wed, 16 Jun 2010 16:39:27 -0400
-Message-ID: <AANLkTim5AVO67s20VjOew8L4QyhsELpURMZ6hEd0iXYZ@mail.gmail.com>
-References: <20100613202718.6044.29599.stgit@localhost.localdomain>
-	<20100613202936.6044.99651.stgit@localhost.localdomain>
-	<AANLkTinUnmKIvaWasBot_iy0Sk5_Ba54zfpEscKu2N74@mail.gmail.com>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Wed, 16 Jun 2010 16:41:25 -0400
+Message-ID: <AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
+References: <20100424211411.11570.2189.stgit@localhost.localdomain>
+	<4BDF2B45.9060806@redhat.com>
+	<20100607190003.GC19390@hardeman.nu>
+	<20100607201530.GG16638@redhat.com>
+	<20100608175017.GC5181@hardeman.nu>
+	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
+	<20100609132908.GM16638@redhat.com>
+	<20100609175621.GA19620@hardeman.nu>
+	<20100609181506.GO16638@redhat.com>
+	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+	<20100613202945.GA5883@hardeman.nu>
+	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:48257 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759619Ab0FPUj2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 16:39:28 -0400
-In-Reply-To: <AANLkTinUnmKIvaWasBot_iy0Sk5_Ba54zfpEscKu2N74@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+Sender: linux-media-owner@vger.kernel.org
 To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: jarod@redhat.com, linux-media@vger.kernel.org, mchehab@redhat.com, linux-input@vger.kernel.org
+Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 16, 2010 at 4:06 PM, Jarod Wilson <jarod@wilsonet.com> wrot=
-e:
-> On Sun, Jun 13, 2010 at 4:29 PM, David H=E4rdeman <david@hardeman.nu>=
- wrote:
->> This patch moves the state from each raw decoder into the
->> ir_raw_event_ctrl struct.
+On Wed, Jun 16, 2010 at 4:04 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
+...
+>> I have another suggestion, let's keep the client register/unregister
+>> callbacks for decoders (but add a comment that they're only used for
+>> lirc). Then teach drivers/media/IR/ir-raw-event.c to keep track of the
+>> raw clients so that it can pass all pre-existing clients to newly added
+>> decoders.
 >>
->> This allows the removal of code like this:
->>
->> =A0 =A0 =A0 =A0spin_lock(&decoder_lock);
->> =A0 =A0 =A0 =A0list_for_each_entry(data, &decoder_list, list) {
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (data->ir_dev =3D=3D ir_dev)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
->> =A0 =A0 =A0 =A0}
->> =A0 =A0 =A0 =A0spin_unlock(&decoder_lock);
->> =A0 =A0 =A0 =A0return data;
->>
->> which is currently run for each decoder on each event in order
->> to get the client-specific decoding state data.
->>
->> In addition, ir decoding modules and ir driver module load
->> order is now independent. Centralizing the data also allows
->> for a nice code reduction of about 30% per raw decoder as
->> client lists and client registration callbacks are no longer
->> necessary (but still kept around for the benefit of the lirc
->> decoder).
->>
->> Out-of-tree modules can still use a similar trick to what
->> the raw decoders did before this patch until they are merged.
->>
->> Signed-off-by: David H=E4rdeman <david@hardeman.nu>
+>> I'll post two patches (compile tested only) in a few seconds to show
+>> what I mean.
 >
-> Acked-by: Jarod Wilson <jarod@redhat.com>
-> Tested-by: Jarod Wilson <jarod@redhat.com>
->
-> Note that I was running a version rebased atop the linuxtv staging/rc
-> branch though.
+> Consider them now runtime tested as well. They appear to do the trick,
+> the lirc bridge comes up just fine, even when ir-lirc-codec isn't
+> loaded until after mceusb. *Much* better implementation than my ugly
+> trick. I'll ack your patches and submit a series on top of them for
+> lirc support, hopefully this evening (in addition to a few other fixes
+> that aren't dependent on any of them).
 
-Which can be seen here:
+A fully functional tree carrying both of David's patches and the
+entire stack of other patches I've submitted today, based on top of
+the linuxtv staging/rc branch, can be found here:
 
-http://git.wilsonet.com//linux-2.6-ir-wip.git?a=3Dcommitdiff;h=3Dfaee13=
-2179abe884a6e995acb1f5106cb2d5afa2
+http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/patches
 
+Also includes the lirc patches that I believe are ready to be
+submitted for actual consideration (note that they're dependent on
+David's two patches).
 
---=20
+-- 
 Jarod Wilson
 jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

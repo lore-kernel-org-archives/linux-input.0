@@ -1,101 +1,177 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH 2/2] input: mcs - Modify header file of MCS5000 touchscreen
-Date: Wed, 16 Jun 2010 10:03:49 +0900
-Message-ID: <1276650229-1322-2-git-send-email-jy0922.shim@samsung.com>
-References: <1276650229-1322-1-git-send-email-jy0922.shim@samsung.com>
+Subject: Re: [PATCH v4 2/3] ARM: S5PV210: Add keypad device helpers
+Date: Wed, 16 Jun 2010 11:21:18 +0900
+Message-ID: <4C18351E.2080805@samsung.com>
+References: <1276243728-17704-1-git-send-email-jy0922.shim@samsung.com>
+ <1276243728-17704-2-git-send-email-jy0922.shim@samsung.com>
+ <007801cb0b81$16cc0ff0$44642fd0$%kim@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:21191 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751544Ab0FPBDz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jun 2010 21:03:55 -0400
-Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
- by mailout2.samsung.com
- (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
- with ESMTP id <0L4300FKF1MFD490@mailout2.samsung.com> for
- linux-input@vger.kernel.org; Wed, 16 Jun 2010 10:03:51 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0L4300L9F1MFFJ@mmp2.samsung.com> for
- linux-input@vger.kernel.org; Wed, 16 Jun 2010 10:03:51 +0900 (KST)
-In-reply-to: <1276650229-1322-1-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <007801cb0b81$16cc0ff0$44642fd0$%kim@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Kukjin Kim <kgene.kim@samsung.com>
+Cc: ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-This patch is to use same header file - mcs.h at mcs5000 touchscreen and
-touchkey driver.
+On 6/14/2010 2:18 PM, Kukjin Kim wrote:
+> Joonyoung Shim wrote:
+>> This patch adds the keypad device platform helpers for S5PV210 cpu.
+>>
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+>> ---
+>>  arch/arm/mach-s5pv210/Kconfig            |    5 ++++
+>>  arch/arm/mach-s5pv210/Makefile           |    1 +
+>>  arch/arm/mach-s5pv210/cpu.c              |    4 +++
+>>  arch/arm/mach-s5pv210/include/mach/map.h |    3 ++
+>>  arch/arm/mach-s5pv210/setup-keypad.c     |   34
+>> ++++++++++++++++++++++++++++++
+>>  5 files changed, 47 insertions(+), 0 deletions(-)
+>>  create mode 100644 arch/arm/mach-s5pv210/setup-keypad.c
+>>
+>> diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
+>> index 0761eac..692d01c 100644
+>> --- a/arch/arm/mach-s5pv210/Kconfig
+>> +++ b/arch/arm/mach-s5pv210/Kconfig
+>> @@ -32,6 +32,11 @@ config S5PV210_SETUP_FB_24BPP
+>>  	help
+>>            Common setup code for S5PV210 with an 24bpp RGB display helper.
+>>
+>> +config S5PV210_SETUP_KEYPAD
+>> +	bool
+>> +	help
+>> +	  Common setup code for keypad.
+>> +
+>>  config S5PV210_SETUP_SDHCI
+>>          bool
+>>          select S5PV210_SETUP_SDHCI_GPIO
+>> diff --git a/arch/arm/mach-s5pv210/Makefile
+> b/arch/arm/mach-s5pv210/Makefile
+>> index 30be9a6..aae592a 100644
+>> --- a/arch/arm/mach-s5pv210/Makefile
+>> +++ b/arch/arm/mach-s5pv210/Makefile
+>> @@ -31,5 +31,6 @@ obj-$(CONFIG_S5PC110_DEV_ONENAND) += dev-onenand.o
+>>  obj-$(CONFIG_S5PV210_SETUP_FB_24BPP)	+= setup-fb-24bpp.o
+>>  obj-$(CONFIG_S5PV210_SETUP_I2C1) 	+= setup-i2c1.o
+>>  obj-$(CONFIG_S5PV210_SETUP_I2C2) 	+= setup-i2c2.o
+>> +obj-$(CONFIG_S5PV210_SETUP_KEYPAD)	+= setup-keypad.o
+>>  obj-$(CONFIG_S5PV210_SETUP_SDHCI)       += setup-sdhci.o
+>>  obj-$(CONFIG_S5PV210_SETUP_SDHCI_GPIO)	+= setup-sdhci-gpio.o
+>> diff --git a/arch/arm/mach-s5pv210/cpu.c b/arch/arm/mach-s5pv210/cpu.c
+>> index 411a4a9..a3034ac 100644
+>> --- a/arch/arm/mach-s5pv210/cpu.c
+>> +++ b/arch/arm/mach-s5pv210/cpu.c
+>> @@ -80,6 +80,10 @@ void __init s5pv210_map_io(void)
+>>  	s3c_device_adc.name	= "s3c64xx-adc";
+>>  #endif
+>>
+>> +#ifdef CONFIG_SAMSUNG_DEV_KEYPAD
+>> +	samsung_device_keypad.name = "s5pv210-keypad";
+>> +#endif
+>> +
+> 
+> Please use one method. See Kyungmin Park's prev. comments on the subject.
+> 
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
----
- drivers/input/touchscreen/mcs5000_ts.c |    6 +++---
- include/linux/i2c/mcs5000_ts.h         |   24 ------------------------
- 2 files changed, 3 insertions(+), 27 deletions(-)
- delete mode 100644 include/linux/i2c/mcs5000_ts.h
+I cannot understand this comment meaning and where is Kyungmin's
+comments? Please let me know detailed thing.
 
-diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
-index 1fb0c2f..6ee9940 100644
---- a/drivers/input/touchscreen/mcs5000_ts.c
-+++ b/drivers/input/touchscreen/mcs5000_ts.c
-@@ -16,7 +16,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
--#include <linux/i2c/mcs5000_ts.h>
-+#include <linux/i2c/mcs.h>
- #include <linux/interrupt.h>
- #include <linux/input.h>
- #include <linux/irq.h>
-@@ -105,7 +105,7 @@ enum mcs5000_ts_read_offset {
- struct mcs5000_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
--	const struct mcs5000_ts_platform_data *platform_data;
-+	const struct mcs_platform_data *platform_data;
- };
- 
- static irqreturn_t mcs5000_ts_interrupt(int irq, void *dev_id)
-@@ -164,7 +164,7 @@ static irqreturn_t mcs5000_ts_interrupt(int irq, void *dev_id)
- 
- static void mcs5000_ts_phys_init(struct mcs5000_ts_data *data)
- {
--	const struct mcs5000_ts_platform_data *platform_data =
-+	const struct mcs_platform_data *platform_data =
- 		data->platform_data;
- 	struct i2c_client *client = data->client;
- 
-diff --git a/include/linux/i2c/mcs5000_ts.h b/include/linux/i2c/mcs5000_ts.h
-deleted file mode 100644
-index 5a117b5..0000000
---- a/include/linux/i2c/mcs5000_ts.h
-+++ /dev/null
-@@ -1,24 +0,0 @@
--/*
-- * mcs5000_ts.h
-- *
-- * Copyright (C) 2009 Samsung Electronics Co.Ltd
-- * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-- *
-- *  This program is free software; you can redistribute  it and/or modify it
-- *  under  the terms of  the GNU General  Public License as published by the
-- *  Free Software Foundation;  either version 2 of the  License, or (at your
-- *  option) any later version.
-- *
-- */
--
--#ifndef __LINUX_MCS5000_TS_H
--#define __LINUX_MCS5000_TS_H
--
--/* platform data for the MELFAS MCS-5000 touchscreen driver */
--struct mcs5000_ts_platform_data {
--	void (*cfg_pin)(void);
--	int x_size;
--	int y_size;
--};
--
--#endif	/* __LINUX_MCS5000_TS_H */
--- 
-1.7.0.4
+>>  	iotable_init(s5pv210_iodesc, ARRAY_SIZE(s5pv210_iodesc));
+>>
+>>  	/* initialise device information early */
+>> diff --git a/arch/arm/mach-s5pv210/include/mach/map.h b/arch/arm/mach-
+>> s5pv210/include/mach/map.h
+>> index 34eb168..e2f6e2a 100644
+>> --- a/arch/arm/mach-s5pv210/include/mach/map.h
+>> +++ b/arch/arm/mach-s5pv210/include/mach/map.h
+>> @@ -32,6 +32,8 @@
+>>  #define S5PV210_PA_SPI0		0xE1300000
+>>  #define S5PV210_PA_SPI1		0xE1400000
+>>
+>> +#define S5PV210_PA_KEYPAD	(0xE1600000)
+>> +
+>>  #define S5PV210_PA_IIC0		(0xE1800000)
+>>  #define S5PV210_PA_IIC1		(0xFAB00000)
+>>  #define S5PV210_PA_IIC2		(0xE1A00000)
+>> @@ -104,5 +106,6 @@
+>>  #define S3C_PA_WDT		S5PV210_PA_WATCHDOG
+>>
+>>  #define SAMSUNG_PA_ADC		S5PV210_PA_ADC
+>> +#define SAMSUNG_PA_KEYPAD	S5PV210_PA_KEYPAD
+>>
+>>  #endif /* __ASM_ARCH_MAP_H */
+>> diff --git a/arch/arm/mach-s5pv210/setup-keypad.c
+> b/arch/arm/mach-s5pv210/setup-
+>> keypad.c
+>> new file mode 100644
+>> index 0000000..f51bf8d
+>> --- /dev/null
+>> +++ b/arch/arm/mach-s5pv210/setup-keypad.c
+>> @@ -0,0 +1,34 @@
+>> +/*
+>> + * linux/arch/arm/mach-s5pv210/setup-keypad.c
+>> + *
+>> + * Copyright (C) 2010 Samsung Electronics Co.Ltd
+>> + * Author: Joonyoung Shim <jy0922.shim@samsung.com>
+>> + *
+>> + *  This program is free software; you can redistribute  it and/or modify
+> it
+>> + *  under  the terms of  the GNU General  Public License as published by
+> the
+>> + *  Free Software Foundation;  either version 2 of the  License, or (at
+> your
+>> + *  option) any later version.
+>> + *
+>> + */
+>> +
+>> +#include <linux/gpio.h>
+>> +#include <plat/gpio-cfg.h>
+>> +
+>> +void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int cols)
+>> +{
+>> +	unsigned int gpio, end;
+>> +
+>> +	/* Set all the necessary GPH3 pins to special-function 3 */
+> 
+> What's the special-function 3?
 
+I refered s3c_gpio_cfgpin() comments of
+arch/arm/plat-samsung/include/plat/gpio-cfg.h
+
+I think this is enough comments but if you want more specific comments
+still, i can add it.
+
+Thanks.
+
+> How about 'special function KP_ROWs'?
+> 
+>> +	end = S5PV210_GPH3(rows);
+>> +	for (gpio = S5PV210_GPH3(0); gpio < end; gpio++) {
+>> +		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
+>> +		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
+>> +	}
+>> +
+>> +	/* Set all the necessary GPH2 pins to special-function 3 */
+> 
+> How about 'special function KP_COLs'?
+> 
+>> +	end = S5PV210_GPH2(cols);
+>> +	for (gpio = S5PV210_GPH2(0); gpio < end; gpio++) {
+>> +		s3c_gpio_cfgpin(gpio, S3C_GPIO_SFN(3));
+>> +		s3c_gpio_setpull(gpio, S3C_GPIO_PULL_NONE);
+>> +	}
+>> +}
+>> --
+> 
+> 
+> Thanks.
+> 
+> Best regards,
+> Kgene.
+> --
+> Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+> SW Solution Development Team, Samsung Electronics Co., Ltd.
+> 
+> 

@@ -1,33 +1,49 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v4 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Wed, 16 Jun 2010 17:17:32 +0900
-Message-ID: <4C18889C.2030501@samsung.com>
-References: <1276243728-17704-1-git-send-email-jy0922.shim@samsung.com>
- <1276243728-17704-3-git-send-email-jy0922.shim@samsung.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Wed, 16 Jun 2010 10:39:03 +0200
+Message-ID: <20100616083903.GU17833@buzzloop.caiaq.de>
+References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
+ <20100524160805.GO30801@buzzloop.caiaq.de>
+ <20100524161527.GC3182@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1276243728-17704-3-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, dmitry.torokhov@gmail.com, kgene.kim@samsung.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from buzzloop.caiaq.de ([212.112.241.133]:55428 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751905Ab0FPIjJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jun 2010 04:39:09 -0400
+Content-Disposition: inline
+In-Reply-To: <20100524161527.GC3182@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 6/11/2010 5:08 PM, Joonyoung Shim wrote:
-> This patch adds support for keypad driver running on Samsung cpus. This
-> driver is tested on GONI and Aquila board using S5PC110 cpu.
+Hi Dmitry,
+
+On Mon, May 24, 2010 at 09:15:28AM -0700, Dmitry Torokhov wrote:
+> On Mon, May 24, 2010 at 06:08:05PM +0200, Daniel Mack wrote:
+> > any feelings about this approach?
+> > 
 > 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> ---
->  drivers/input/keyboard/Kconfig          |    9 +
->  drivers/input/keyboard/Makefile         |    1 +
->  drivers/input/keyboard/samsung-keypad.c |  400 +++++++++++++++++++++++++++++++
->  3 files changed, 410 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/samsung-keypad.c
-> 
+> Still pondering...I applied the very first patch though...
 
-Hi,
+Any news about this? I have no problem throwing away the whole patch set
+and use a different approach, if there is any :)
 
-Dmitry and Kukjin, any feedback on this?
+And I need one, because I have a patch pending for a MIDI/Controller
+device which is something like a drum computer control device, and this
+one has more ABS information channels than currently supported by the
+input stack.
+
+OTOH, the current plan is to use *axis* information for the transport
+to the user space, but in fact, their hardware representation is a
+pressure-sesitive button. Same counts for potentiometers etc, which
+aren't axis either. So maybe I should use some different layer for such
+devices? MIDI legacy after all? I'm open to any suggestions :)
+
+Thanks,
+Daniel
+

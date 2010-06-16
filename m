@@ -1,20 +1,19 @@
 From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 1/2] ir-core: centralize sysfs raw decoder
-	enabling/disabling
-Date: Wed, 16 Jun 2010 16:05:41 -0400
-Message-ID: <AANLkTilI8pmY0Gezv8BdeGKmYr1u4nEFyquFdKa-RrEA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Wed, 16 Jun 2010 16:06:13 -0400
+Message-ID: <AANLkTinUnmKIvaWasBot_iy0Sk5_Ba54zfpEscKu2N74@mail.gmail.com>
 References: <20100613202718.6044.29599.stgit@localhost.localdomain>
-	<20100613202930.6044.97940.stgit@localhost.localdomain>
+	<20100613202936.6044.99651.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f174.google.com ([209.85.216.174]:37547 "EHLO
-	mail-qy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752249Ab0FPUFn convert rfc822-to-8bit (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:49452 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759204Ab0FPUGP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 16:05:43 -0400
-In-Reply-To: <20100613202930.6044.97940.stgit@localhost.localdomain>
+	Wed, 16 Jun 2010 16:06:15 -0400
+In-Reply-To: <20100613202936.6044.99651.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
@@ -22,33 +21,31 @@ Cc: jarod@redhat.com, linux-media@vger.kernel.org, mchehab@redhat.com, linux-inp
 
 On Sun, Jun 13, 2010 at 4:29 PM, David H=E4rdeman <david@hardeman.nu> w=
 rote:
-> With the current logic, each raw decoder needs to add a copy of the e=
-xact
-> same sysfs code. This is both unnecessary and also means that (re)loa=
-ding
-> an IR driver after raw decoder modules have been loaded won't work as
-> expected.
+> This patch moves the state from each raw decoder into the
+> ir_raw_event_ctrl struct.
 >
-> This patch moves that logic into ir-raw-event and adds a single sysfs
-> file per device.
+> This allows the removal of code like this:
 >
-> Reading that file returns something like:
+> =A0 =A0 =A0 =A0spin_lock(&decoder_lock);
+> =A0 =A0 =A0 =A0list_for_each_entry(data, &decoder_list, list) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (data->ir_dev =3D=3D ir_dev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0break;
+> =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0spin_unlock(&decoder_lock);
+> =A0 =A0 =A0 =A0return data;
 >
-> =A0 =A0 =A0 =A0"rc5 [rc6] nec jvc [sony]"
+> which is currently run for each decoder on each event in order
+> to get the client-specific decoding state data.
 >
-> (with enabled protocols in [] brackets)
+> In addition, ir decoding modules and ir driver module load
+> order is now independent. Centralizing the data also allows
+> for a nice code reduction of about 30% per raw decoder as
+> client lists and client registration callbacks are no longer
+> necessary (but still kept around for the benefit of the lirc
+> decoder).
 >
-> Writing either "+protocol" or "-protocol" to that file will
-> enable or disable the according protocol decoder.
->
-> An additional benefit is that the disabling of a decoder will be
-> remembered across module removal/insertion so a previously
-> disabled decoder won't suddenly be activated again. The default
-> setting is to enable all decoders.
->
-> This is also necessary for the next patch which moves even more decod=
-er
-> state into the central raw decoding structs.
+> Out-of-tree modules can still use a similar trick to what
+> the raw decoders did before this patch until they are merged.
 >
 > Signed-off-by: David H=E4rdeman <david@hardeman.nu>
 

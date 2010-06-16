@@ -1,56 +1,41 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Wed, 16 Jun 2010 16:41:25 -0400
-Message-ID: <AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	<4BDF2B45.9060806@redhat.com>
-	<20100607190003.GC19390@hardeman.nu>
-	<20100607201530.GG16638@redhat.com>
-	<20100608175017.GC5181@hardeman.nu>
-	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	<20100609132908.GM16638@redhat.com>
-	<20100609175621.GA19620@hardeman.nu>
-	<20100609181506.GO16638@redhat.com>
-	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	<20100613202945.GA5883@hardeman.nu>
-	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 1/1] LEDS: leds-input, fix sleep inside atomic
+Date: Wed, 16 Jun 2010 13:46:46 -0700
+Message-ID: <20100616134646.3f7870e7.akpm@linux-foundation.org>
+References: <1275772342-25094-1-git-send-email-jslaby@suse.cz>
+	<20100605234505.GZ5358@const.famille.thibault.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
-Cc: Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:51594 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1759527Ab0FPUrX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jun 2010 16:47:23 -0400
+In-Reply-To: <20100605234505.GZ5358@const.famille.thibault.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: Jiri Slaby <jslaby@suse.cz>, rpurdie@rpsys.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Alessandro Zummo <a.zummo@towertech.it>
 
-On Wed, Jun 16, 2010 at 4:04 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
-...
->> I have another suggestion, let's keep the client register/unregister
->> callbacks for decoders (but add a comment that they're only used for
->> lirc). Then teach drivers/media/IR/ir-raw-event.c to keep track of the
->> raw clients so that it can pass all pre-existing clients to newly added
->> decoders.
->>
->> I'll post two patches (compile tested only) in a few seconds to show
->> what I mean.
->
-> Consider them now runtime tested as well. They appear to do the trick,
-> the lirc bridge comes up just fine, even when ir-lirc-codec isn't
-> loaded until after mceusb. *Much* better implementation than my ugly
-> trick. I'll ack your patches and submit a series on top of them for
-> lirc support, hopefully this evening (in addition to a few other fixes
-> that aren't dependent on any of them).
+On Sun, 6 Jun 2010 01:45:06 +0200
+Samuel Thibault <samuel.thibault@ens-lyon.org> wrote:
 
-A fully functional tree carrying both of David's patches and the
-entire stack of other patches I've submitted today, based on top of
-the linuxtv staging/rc branch, can be found here:
+> Jiri Slaby, le Sat 05 Jun 2010 23:12:22 +0200, a __crit :
+> > Fix this by changing the spinlock to mutex as it is used only in
+> > input_handler->connect and ->disconnect and it is safe to sleep
+> > there.
+> 
+> Right. in a previous patch it was also used in interrupt context, but
+> now it should be safe indeed.
+> 
+> Andrew, please fold it into the leds-input patch.
 
-http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/patches
+hm, I did, nine days ago;
 
-Also includes the lirc patches that I believe are ready to be
-submitted for actual consideration (note that they're dependent on
-David's two patches).
+btw, leds-route-kbd-leds-through-the-generic-leds-layer.patch is still
+in the "stuck" state coz Alessandro said he'd test it ;)
 
--- 
-Jarod Wilson
-jarod@wilsonet.com
+I think I'll start pestering Richard with it anyway.
+

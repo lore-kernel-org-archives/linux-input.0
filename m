@@ -1,49 +1,49 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
-Date: Wed, 16 Jun 2010 10:39:03 +0200
-Message-ID: <20100616083903.GU17833@buzzloop.caiaq.de>
-References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
- <1274289757-2723-5-git-send-email-daniel@caiaq.de>
- <20100524160805.GO30801@buzzloop.caiaq.de>
- <20100524161527.GC3182@core.coreip.homeip.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH RFC 1/3] sound: ac97: Add GPIO manipulation hooks
+Date: Wed, 16 Jun 2010 13:52:13 +0100
+Message-ID: <20100616125213.GA24491@rakim.wolfsonmicro.main>
+References: <1276617347-3522-1-git-send-email-manuel.lauss@googlemail.com>
+ <1276617347-3522-2-git-send-email-manuel.lauss@googlemail.com>
+ <20100615160253.GK14510@rakim.wolfsonmicro.main>
+ <s5h1vc7o1i3.wl%tiwai@suse.de>
+ <AANLkTik3PHoo-1Is-yrzzTRjeH9G7v8LUgqxBzgVRQDi@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:55428 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751905Ab0FPIjJ (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60284 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754788Ab0FPMwP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 04:39:09 -0400
+	Wed, 16 Jun 2010 08:52:15 -0400
 Content-Disposition: inline
-In-Reply-To: <20100524161527.GC3182@core.coreip.homeip.net>
+In-Reply-To: <AANLkTik3PHoo-1Is-yrzzTRjeH9G7v8LUgqxBzgVRQDi@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Manuel Lauss <manuel.lauss@googlemail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, alsa-devel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, Jun 16, 2010 at 10:00:19AM +0200, Manuel Lauss wrote:
+> On Wed, Jun 16, 2010 at 9:55 AM, Takashi Iwai <tiwai@suse.de> wrote:
 
-On Mon, May 24, 2010 at 09:15:28AM -0700, Dmitry Torokhov wrote:
-> On Mon, May 24, 2010 at 06:08:05PM +0200, Daniel Mack wrote:
-> > any feelings about this approach?
-> > 
-> 
-> Still pondering...I applied the very first patch though...
+> >> > + =A0 void (*setgpio) (struct snd_ac97 *ac97, unsigned short gpi=
+o);
+> >> > + =A0 unsigned short (*getgpio) (struct snd_ac97 *ac97);
 
-Any news about this? I have no problem throwing away the whole patch set
-and use a different approach, if there is any :)
+> > Can this be handled simply in read/write callbacks in the controlle=
+r
+> > side? =A0In callbacks, you can check whether reg =3D=3D AC97_GPIO_S=
+TATUS and
+> > handle differently for such an access.
 
-And I need one, because I have a patch pending for a MIDI/Controller
-device which is something like a drum computer control device, and this
-one has more ABS information channels than currently supported by the
-input stack.
+> Interesting Idea, and as a bonus requires no changes to the wm97xx co=
+de.
 
-OTOH, the current plan is to use *axis* information for the transport
-to the user space, but in fact, their hardware representation is a
-pressure-sesitive button. Same counts for potentiometers etc, which
-aren't axis either. So maybe I should use some different layer for such
-devices? MIDI legacy after all? I'm open to any suggestions :)
-
-Thanks,
-Daniel
-
+The only thing that worries me there is any non-standard behavior the
+chip may implement - it may actually want a write to that register for
+some extended functionality.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

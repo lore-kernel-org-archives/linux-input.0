@@ -1,298 +1,370 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: mt: Introduce MT event slots (rev 5b)
-Date: Tue, 15 Jun 2010 19:01:14 +0200
-Message-ID: <1276621274-25984-1-git-send-email-rydberg@euromail.se>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: [PATCH 1/2] input: mcs - Add MCS touchkey driver
+Date: Wed, 16 Jun 2010 10:03:48 +0900
+Message-ID: <1276650229-1322-1-git-send-email-jy0922.shim@samsung.com>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:41007 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754172Ab0FORBk (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:21191 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751458Ab0FPBDy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jun 2010 13:01:40 -0400
+	Tue, 15 Jun 2010 21:03:54 -0400
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout2.samsung.com
+ (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
+ with ESMTP id <0L4300FKF1MFD490@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 16 Jun 2010 10:03:51 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0L4300L9F1MFFJ@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 16 Jun 2010 10:03:51 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-With the rapidly increasing number of intelligent multi-contact and
-multi-user devices, the need to send digested, filtered information
-from a set of different sources within the same device is imminent.
-This patch adds the concept of slots to the MT protocol. The slots
-enumerate a set of identified sources, such that all MT events
-can be passed independently and selectively per identified source.
+The MELPAS MCS5000 can use to touchkey controller but touchkey is
+implemented to driver separated with original MCS5000 touchscreen
+driver. This also supports MCS5080 touchkey.
 
-The protocol works like this: Instead of sending a SYN_MT_REPORT
-event immediately after the contact data, one sends an ABS_MT_SLOT
-event immediately before the contact data. The input core will only
-emit events for slots with modified MT events. It is assumed that
-the same slot is used for the duration of an initiated contact.
-
-Acked-by: Ping Cheng <pingc@wacom.com>
-Acked-by: Chase Douglas <chase.douglas@canonical.com>
-Acked-by: Rafi Rubin <rafi@seas.upenn.edu>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
 ---
-Hi Dmitry,
+ drivers/input/keyboard/Kconfig        |   12 ++
+ drivers/input/keyboard/Makefile       |    1 +
+ drivers/input/keyboard/mcs_touchkey.c |  245 +++++++++++++++++++++++++++++++++
+ include/linux/i2c/mcs.h               |   36 +++++
+ 4 files changed, 294 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/mcs_touchkey.c
+ create mode 100644 include/linux/i2c/mcs.h
 
-this patch is the same as revision 5, but rebased against 2.6.35-rc3
-and including the ACKs received so far.
-
-Cheers,
-Henrik
-
- drivers/input/input.c |  105 +++++++++++++++++++++++++++++++++++++------------
- include/linux/input.h |   44 ++++++++++++++++++++
- 2 files changed, 123 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 9c79bd5..9b6d474 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -33,24 +33,9 @@ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index d8fa5d7..c748093 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -297,6 +297,18 @@ config KEYBOARD_MAX7359
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called max7359_keypad.
  
- #define INPUT_DEVICES	256
- 
--/*
-- * EV_ABS events which should not be cached are listed here.
-- */
--static unsigned int input_abs_bypass_init_data[] __initdata = {
--	ABS_MT_TOUCH_MAJOR,
--	ABS_MT_TOUCH_MINOR,
--	ABS_MT_WIDTH_MAJOR,
--	ABS_MT_WIDTH_MINOR,
--	ABS_MT_ORIENTATION,
--	ABS_MT_POSITION_X,
--	ABS_MT_POSITION_Y,
--	ABS_MT_TOOL_TYPE,
--	ABS_MT_BLOB_ID,
--	ABS_MT_TRACKING_ID,
--	ABS_MT_PRESSURE,
--	0
--};
--static unsigned long input_abs_bypass[BITS_TO_LONGS(ABS_CNT)];
-+static unsigned int input_mt_abs_map_init_data[] __initdata =
-+	MT_SLOT_ABS_EVENTS;
-+static unsigned char input_mt_abs_map[ABS_CNT];
- 
- static LIST_HEAD(input_dev_list);
- static LIST_HEAD(input_handler_list);
-@@ -181,6 +166,26 @@ static void input_stop_autorepeat(struct input_dev *dev)
- #define INPUT_PASS_TO_DEVICE	2
- #define INPUT_PASS_TO_ALL	(INPUT_PASS_TO_HANDLERS | INPUT_PASS_TO_DEVICE)
- 
-+static void input_mt_handle_abs_event(struct input_dev *dev,
-+				      unsigned int code, int value)
-+{
-+	if (dev->mt) {
-+		struct input_mt_slot *mtslot = &dev->mt[dev->slot];
-+		unsigned int mtcode = input_mt_abs_map[code] - 1;
-+		int old = mtslot->abs[mtcode];
-+		value = input_defuzz_abs_event(value, old, dev->absfuzz[code]);
-+		if (value == old)
-+			return;
-+		mtslot->abs[mtcode] = value;
-+	}
-+	dev->sync = 0;
-+	if (dev->slot != dev->abs[ABS_MT_SLOT]) {
-+		dev->abs[ABS_MT_SLOT] = dev->slot;
-+		input_pass_event(dev, EV_ABS, ABS_MT_SLOT, dev->slot);
-+	}
-+	input_pass_event(dev, EV_ABS, code, value);
-+}
++config KEYBOARD_MCS
++	tristate "MELFAS MCS Touchkey"
++	depends on I2C
++	help
++	  Say Y here if you have the MELFAS MCS5000/5080 touchkey controller
++	  chip in your system.
 +
- static void input_handle_event(struct input_dev *dev,
- 			       unsigned int type, unsigned int code, int value)
- {
-@@ -235,11 +240,17 @@ static void input_handle_event(struct input_dev *dev,
- 	case EV_ABS:
- 		if (is_event_supported(code, dev->absbit, ABS_MAX)) {
- 
--			if (test_bit(code, input_abs_bypass)) {
--				disposition = INPUT_PASS_TO_HANDLERS;
-+			if (code == ABS_MT_SLOT) {
-+				if (value >= 0 && value < dev->mtsize)
-+					dev->slot = value;
- 				break;
- 			}
- 
-+			if (input_mt_abs_map[code]) {
-+				input_mt_handle_abs_event(dev, code, value);
-+				return;
-+			}
++	  If unsure, say N.
 +
- 			value = input_defuzz_abs_event(value,
- 					dev->abs[code], dev->absfuzz[code]);
- 
-@@ -1278,6 +1289,7 @@ static void input_dev_release(struct device *device)
- 	struct input_dev *dev = to_input_dev(device);
- 
- 	input_ff_destroy(dev);
-+	input_mt_destroy_slots(dev);
- 	kfree(dev);
- 
- 	module_put(THIS_MODULE);
-@@ -1518,6 +1530,46 @@ void input_free_device(struct input_dev *dev)
- EXPORT_SYMBOL(input_free_device);
- 
- /**
-+ * input_mt_create_slots() - create MT input slots
-+ * @dev: input device supporting MT events and finger tracking
-+ * @max_slots: maximum number of slots supported by the device
-+ *
-+ * This function allocates all necessary memory for MT slot handling
-+ * in the input device, and adds ABS_MT_SLOT to the device capabilities.
-+ */
-+int input_mt_create_slots(struct input_dev *dev, int max_slots)
-+{
-+	struct input_mt_slot *mt;
++	  To compile this driver as a module, choose M here: the
++	  module will be called mcs_touchkey.
 +
-+	if (max_slots <= 0)
-+		return 0;
-+	mt = kzalloc(max_slots * sizeof(struct input_mt_slot), GFP_KERNEL);
-+	if (!mt)
-+		return -ENOMEM;
-+
-+	dev->mt = mt;
-+	dev->mtsize = max_slots;
-+	input_set_abs_params(dev, ABS_MT_SLOT, 0, max_slots - 1, 0, 0);
-+	return 0;
-+}
-+EXPORT_SYMBOL(input_mt_create_slots);
-+
-+/**
-+ * input_mt_destroy_slots() - frees the MT slots of the input device
-+ * @dev: input device with allocated MT slots
-+ *
-+ * This function is only needed in error path as the input core will
-+ * automatically free the MT slots when the device is destroyed.
-+ */
-+void input_mt_destroy_slots(struct input_dev *dev)
-+{
-+	kfree(dev->mt);
-+	dev->mt = NULL;
-+	dev->mtsize = 0;
-+}
-+EXPORT_SYMBOL(input_mt_destroy_slots);
-+
-+/**
-  * input_set_capability - mark device as capable of a certain event
-  * @dev: device that is capable of emitting or accepting event
-  * @type: type of the event (EV_KEY, EV_REL, etc...)
-@@ -1926,19 +1978,20 @@ static const struct file_operations input_fops = {
- 	.open = input_open_file,
- };
- 
--static void __init input_init_abs_bypass(void)
-+static void __init input_mt_init_maps(void)
- {
--	const unsigned int *p;
--
--	for (p = input_abs_bypass_init_data; *p; p++)
--		input_abs_bypass[BIT_WORD(*p)] |= BIT_MASK(*p);
-+	int i;
-+	BUILD_BUG_ON(MT_ABS_SIZE != (typeof(input_mt_abs_map[0]))MT_ABS_SIZE);
-+	BUILD_BUG_ON(ARRAY_SIZE(input_mt_abs_map_init_data) > MT_ABS_SIZE);
-+	for (i = 0; i < ARRAY_SIZE(input_mt_abs_map_init_data); i++)
-+		input_mt_abs_map[input_mt_abs_map_init_data[i]] = i + 1;
- }
- 
- static int __init input_init(void)
- {
- 	int err;
- 
--	input_init_abs_bypass();
-+	input_mt_init_maps();
- 
- 	err = class_register(&input_class);
- 	if (err) {
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 6fcc910..20e4eac 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -694,6 +694,7 @@ struct input_absinfo {
- #define ABS_VOLUME		0x20
- #define ABS_MISC		0x28
- 
-+#define ABS_MT_SLOT		0x2f	/* MT slot being modified */
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
- #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
- #define ABS_MT_WIDTH_MAJOR	0x32	/* Major axis of approaching ellipse */
-@@ -815,6 +816,24 @@ struct input_absinfo {
- #define MT_TOOL_PEN		1
- 
- /*
-+ * MT slot event lists
-+ */
-+
-+#define MT_SLOT_ABS_EVENTS {	\
-+	ABS_MT_TOUCH_MAJOR,	\
-+	ABS_MT_TOUCH_MINOR,	\
-+	ABS_MT_WIDTH_MAJOR,	\
-+	ABS_MT_WIDTH_MINOR,	\
-+	ABS_MT_ORIENTATION,	\
-+	ABS_MT_POSITION_X,	\
-+	ABS_MT_POSITION_Y,	\
-+	ABS_MT_TOOL_TYPE,	\
-+	ABS_MT_BLOB_ID,		\
-+	ABS_MT_TRACKING_ID,	\
-+	ABS_MT_PRESSURE,	\
-+}
-+
+ config KEYBOARD_IMX
+ 	tristate "IMX keypad support"
+ 	depends on ARCH_MXC
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 4596d0c..0a16674 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -26,6 +26,7 @@ obj-$(CONFIG_KEYBOARD_LOCOMO)		+= locomokbd.o
+ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+ obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
++obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+new file mode 100644
+index 0000000..d70e048
+--- /dev/null
++++ b/drivers/input/keyboard/mcs_touchkey.c
+@@ -0,0 +1,245 @@
 +/*
-  * Values describing the status of a force-feedback effect
-  */
- #define FF_STATUS_STOPPED	0x00
-@@ -1081,6 +1100,9 @@ struct ff_effect {
-  * @sync: set to 1 when there were no new events since last EV_SYNC
-  * @abs: current values for reports from absolute axes
-  * @rep: current values for autorepeat parameters (delay, rate)
-+ * @mt: array of MT slots
-+ * @mtsize: number of allocated MT slots
-+ * @slot: current MT slot
-  * @key: reflects current state of device's keys/buttons
-  * @led: reflects current state of device's LEDs
-  * @snd: reflects current state of sound effects
-@@ -1158,6 +1180,10 @@ struct input_dev {
- 	int abs[ABS_CNT];
- 	int rep[REP_MAX + 1];
- 
-+	struct input_mt_slot *mt;
-+	int mtsize;
-+	int slot;
-+
- 	unsigned long key[BITS_TO_LONGS(KEY_CNT)];
- 	unsigned long led[BITS_TO_LONGS(LED_CNT)];
- 	unsigned long snd[BITS_TO_LONGS(SND_CNT)];
-@@ -1406,6 +1432,11 @@ static inline void input_mt_sync(struct input_dev *dev)
- 	input_event(dev, EV_SYN, SYN_MT_REPORT, 0);
- }
- 
-+static inline void input_mt_slot(struct input_dev *dev, int slot)
-+{
-+	input_event(dev, EV_ABS, ABS_MT_SLOT, slot);
-+}
-+
- void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code);
- 
- static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
-@@ -1485,5 +1516,18 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
- int input_ff_create_memless(struct input_dev *dev, void *data,
- 		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
- 
-+#define MT_ABS_SIZE 11
-+
-+/**
-+ * struct input_mt_slot - represents the state of an input MT slot
-+ * @abs: current values of ABS_MT axes for this slot
++ * mcs_touchkey.c - Touchkey driver for MELFAS MCS5000/5080 controller
++ *
++ * Copyright (C) 2010 Samsung Electronics Co.Ltd
++ * Author: HeungJun Kim <riverful.kim@samsung.com>
++ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
 + */
-+struct input_mt_slot {
-+	int abs[MT_ABS_SIZE];
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/i2c/mcs.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/irq.h>
++#include <linux/slab.h>
++
++/* MCS5000 Touchkey */
++#define MCS5000_TOUCHKEY_STATUS		0x04
++#define MCS5000_TOUCHKEY_STATUS_PRESS	7
++#define MCS5000_TOUCHKEY_FW		0x0a
++#define MCS5000_TOUCHKEY_BASE_VAL	0x61
++
++/* MCS5080 Touchkey */
++#define MCS5080_TOUCHKEY_STATUS		0x00
++#define MCS5080_TOUCHKEY_STATUS_PRESS	3
++#define MCS5080_TOUCHKEY_FW		0x01
++#define MCS5080_TOUCHKEY_BASE_VAL	0x1
++
++enum mcs_touchkey_type {
++	MCS5000_TOUCHKEY,
++	MCS5080_TOUCHKEY,
 +};
 +
-+int input_mt_create_slots(struct input_dev *dev, int max_slots);
-+void input_mt_destroy_slots(struct input_dev *dev);
++struct mcs_touchkey_chip {
++	unsigned int status_reg;
++	unsigned int pressbit;
++	unsigned int press_invert;
++	unsigned int baseval;
++};
 +
- #endif
- #endif
++struct mcs_touchkey_data {
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	struct mcs_touchkey_chip chip;
++	unsigned short *keycodes;
++	unsigned int key_code;
++	unsigned int key_val;
++};
++
++static irqreturn_t mcs_touchkey_interrupt(int irq, void *dev_id)
++{
++	struct mcs_touchkey_data *data = dev_id;
++	struct mcs_touchkey_chip *chip = &data->chip;
++	struct i2c_client *client = data->client;
++	struct input_dev *input = data->input_dev;
++	unsigned int key_val;
++	unsigned int pressed;
++	int val;
++
++	val = i2c_smbus_read_byte_data(client, chip->status_reg);
++	if (val < 0) {
++		dev_err(&client->dev, "Failed to i2c read error[%d]\n", val);
++		goto out;
++	}
++
++	pressed = (val & (1 << chip->pressbit)) >> chip->pressbit;
++	if (chip->press_invert)
++		pressed ^= chip->press_invert;
++
++	/* key_val is 0 when releases, so we should use key_val of press. */
++	if (pressed) {
++		key_val = val & (0xff >> (8 - chip->pressbit));
++		if (!key_val)
++			goto out;
++		key_val -= chip->baseval;
++		data->key_code = data->keycodes[key_val];
++		data->key_val = key_val;
++	}
++
++	input_event(input, EV_MSC, MSC_SCAN, data->key_val);
++	input_report_key(input, data->key_code, pressed ? 1 : 0);
++	input_sync(input);
++
++	dev_dbg(&client->dev, "key %d %d %s\n", data->key_val, data->key_code,
++			pressed ? "pressed" : "released");
++
++ out:
++	return IRQ_HANDLED;
++}
++
++static int __devinit mcs_touchkey_probe(struct i2c_client *client,
++		const struct i2c_device_id *id)
++{
++	const struct mcs_platform_data *pdata;
++	struct mcs_touchkey_data *data;
++	struct input_dev *input_dev;
++	unsigned short *keycodes;
++	unsigned int fw_reg;
++	int ret;
++	int i;
++
++	pdata = client->dev.platform_data;
++	if (!pdata) {
++		dev_err(&client->dev, "no platform data defined\n");
++		return -EINVAL;
++	}
++
++	data = kzalloc(sizeof(struct mcs_touchkey_data), GFP_KERNEL);
++	keycodes = kzalloc(sizeof(*keycodes) * (pdata->key_maxval + 1),
++			GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!data || !keycodes || !input_dev) {
++		dev_err(&client->dev, "Failed to allocate memory\n");
++		ret = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	data->client = client;
++	data->input_dev = input_dev;
++	data->keycodes = keycodes;
++
++	if (id->driver_data == MCS5000_TOUCHKEY) {
++		data->chip.status_reg = MCS5000_TOUCHKEY_STATUS;
++		data->chip.pressbit = MCS5000_TOUCHKEY_STATUS_PRESS;
++		data->chip.baseval = MCS5000_TOUCHKEY_BASE_VAL;
++		fw_reg = MCS5000_TOUCHKEY_FW;
++	} else {
++		data->chip.status_reg = MCS5080_TOUCHKEY_STATUS;
++		data->chip.pressbit = MCS5080_TOUCHKEY_STATUS_PRESS;
++		data->chip.press_invert = 1;
++		data->chip.baseval = MCS5080_TOUCHKEY_BASE_VAL;
++		fw_reg = MCS5080_TOUCHKEY_FW;
++	}
++
++	ret = i2c_smbus_read_byte_data(client, fw_reg);
++	if (ret < 0) {
++		dev_err(&client->dev, "Failed to i2c read error[%d]\n", ret);
++		goto err_free_mem;
++	}
++	dev_info(&client->dev, "Firmware version: %d\n", ret);
++
++	input_dev->name = "MELPAS MCS Touchkey";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->dev.parent = &client->dev;
++	input_dev->evbit[0] = BIT_MASK(EV_KEY);
++	if (!pdata->no_autorepeat)
++		input_dev->evbit[0] |= BIT_MASK(EV_REP);
++	input_dev->keycode = keycodes;
++	input_dev->keycodesize = sizeof(*keycodes);
++	input_dev->keycodemax = pdata->key_maxval + 1;
++
++	for (i = 0; i < pdata->keymap_size; i++) {
++		int val;
++		int code;
++
++		val = MCS_KEY_VAL(pdata->keymap[i]);
++		code = MCS_KEY_CODE(pdata->keymap[i]);
++		keycodes[val] = code;
++		__set_bit(code, input_dev->keybit);
++	}
++
++	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
++	input_set_drvdata(input_dev, data);
++
++	if (pdata->cfg_pin)
++		pdata->cfg_pin();
++
++	ret = request_threaded_irq(client->irq, NULL, mcs_touchkey_interrupt,
++			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
++
++	if (ret < 0) {
++		dev_err(&client->dev, "Failed to register interrupt\n");
++		goto err_free_mem;
++	}
++
++	ret = input_register_device(input_dev);
++	if (ret < 0)
++		goto err_free_irq;
++
++	i2c_set_clientdata(client, data);
++
++	return 0;
++
++err_free_irq:
++	free_irq(client->irq, data);
++err_free_mem:
++	input_free_device(input_dev);
++	kfree(keycodes);
++	kfree(data);
++	return ret;
++}
++
++static int __devexit mcs_touchkey_remove(struct i2c_client *client)
++{
++	struct mcs_touchkey_data *data = i2c_get_clientdata(client);
++
++	free_irq(client->irq, data);
++	input_unregister_device(data->input_dev);
++	kfree(data->keycodes);
++	kfree(data);
++
++	return 0;
++}
++
++static const struct i2c_device_id mcs_touchkey_id[] = {
++	{ "mcs5000_touchkey", MCS5000_TOUCHKEY },
++	{ "mcs5080_touchkey", MCS5080_TOUCHKEY },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, mcs_touchkey_id);
++
++static struct i2c_driver mcs_touchkey_driver = {
++	.probe		= mcs_touchkey_probe,
++	.remove		= __devexit_p(mcs_touchkey_remove),
++	.driver = {
++		.name = "mcs_touchkey",
++	},
++	.id_table	= mcs_touchkey_id,
++};
++
++static int __init mcs_touchkey_init(void)
++{
++	return i2c_add_driver(&mcs_touchkey_driver);
++}
++
++static void __exit mcs_touchkey_exit(void)
++{
++	i2c_del_driver(&mcs_touchkey_driver);
++}
++
++module_init(mcs_touchkey_init);
++module_exit(mcs_touchkey_exit);
++
++/* Module information */
++MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
++MODULE_AUTHOR("HeungJun Kim <riverful.kim@samsung.com>");
++MODULE_DESCRIPTION("Touchkey driver for MELFAS MCS5000/5080 controller");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c/mcs.h b/include/linux/i2c/mcs.h
+new file mode 100644
+index 0000000..ae3225b
+--- /dev/null
++++ b/include/linux/i2c/mcs.h
+@@ -0,0 +1,36 @@
++/*
++ * mcs.h
++ *
++ * Copyright (C) 2009 - 2010 Samsung Electronics Co.Ltd
++ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ * Author: HeungJun Kim <riverful.kim@samsung.com>
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
++ */
++
++#ifndef __LINUX_MCS_H
++#define __LINUX_MCS_H
++
++#define MCS_KEY_MAP(v, c)	((((v) & 0xff) << 16) | ((c) & 0xffff))
++#define MCS_KEY_VAL(v)		(((v) >> 16) & 0xff)
++#define MCS_KEY_CODE(v)		((v) & 0xffff)
++
++struct mcs_platform_data {
++	void (*cfg_pin)(void);
++
++	/* touchscreen */
++	int x_size;
++	int y_size;
++
++	/* touchkey */
++	const uint32_t *keymap;
++	unsigned int keymap_size;
++	unsigned int key_maxval;
++	bool no_autorepeat;
++};
++
++#endif	/* __LINUX_MCS_H */
 -- 
-1.6.3.3
+1.7.0.4
 

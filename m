@@ -1,81 +1,123 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Thu, 17 Jun 2010 11:11:48 -0400
-Message-ID: <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	<4BDF2B45.9060806@redhat.com>
-	<20100607190003.GC19390@hardeman.nu>
-	<20100607201530.GG16638@redhat.com>
-	<20100608175017.GC5181@hardeman.nu>
-	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	<20100609132908.GM16638@redhat.com>
-	<20100609175621.GA19620@hardeman.nu>
-	<20100609181506.GO16638@redhat.com>
-	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	<20100613202945.GA5883@hardeman.nu>
-	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-	<AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-	<1276776859.2461.16.camel@localhost>
+From: =?utf-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Subject: [PATCH v2] input/imx_keypad: add PM support
+Date: Thu, 17 Jun 2010 20:59:01 +0200
+Message-ID: <1276801147-4103-1-git-send-email-eric@eukrea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:40222 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755890Ab0FQPLw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jun 2010 11:11:52 -0400
-In-Reply-To: <1276776859.2461.16.camel@localhost>
+Received: from smtp3-g21.free.fr ([212.27.42.3]:60066 "EHLO smtp3-g21.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757354Ab0FQS7P (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 17 Jun 2010 14:59:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+Cc: maramaopercheseimorto@gmail.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
-On Thu, Jun 17, 2010 at 8:14 AM, Andy Walls <awalls@md.metrocast.net> wrote:
-> On Wed, 2010-06-16 at 16:41 -0400, Jarod Wilson wrote:
->> On Wed, Jun 16, 2010 at 4:04 PM, Jarod Wilson <jarod@wilsonet.com> wrote:
->> ...
->> >> I have another suggestion, let's keep the client register/unregister
->> >> callbacks for decoders (but add a comment that they're only used for
->> >> lirc). Then teach drivers/media/IR/ir-raw-event.c to keep track of the
->> >> raw clients so that it can pass all pre-existing clients to newly added
->> >> decoders.
->> >>
->> >> I'll post two patches (compile tested only) in a few seconds to show
->> >> what I mean.
->> >
->> > Consider them now runtime tested as well. They appear to do the trick,
->> > the lirc bridge comes up just fine, even when ir-lirc-codec isn't
->> > loaded until after mceusb. *Much* better implementation than my ugly
->> > trick. I'll ack your patches and submit a series on top of them for
->> > lirc support, hopefully this evening (in addition to a few other fixes
->> > that aren't dependent on any of them).
->>
->> A fully functional tree carrying both of David's patches and the
->> entire stack of other patches I've submitted today, based on top of
->> the linuxtv staging/rc branch, can be found here:
->>
->> http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/patches
->>
->> Also includes the lirc patches that I believe are ready to be
->> submitted for actual consideration (note that they're dependent on
->> David's two patches).
->
->
-> I'll try and play with this this weekend along with some cx23885
-> cleanup.
+We use keypad_data to enable wakeup from platform data
 
-Excellent. A few things to note... Many of the lirc_dev ioctls are
-currently commented out, and haven't in any way been wired up to tx
-callbacks, I've only enabled the minimum necessary for mceusb. The
-ioctls are all using __u32 params, which, if you're on x86_64, will
-require a patched lirc userspace build to make the ioctl types match.
-I'm using this patch atm:
+suspend/resume is tested on an i.MX27 when keypad is not
+in use and when it's is in use (in which case we immediatly
+get the key pressed at wakeup)
 
-http://wilsonet.com/jarod/lirc_misc/lirc-0.8.6-make-ioctls-u32.patch
+Signed-off-by: Eric B=C3=A9nard <eric@eukrea.com>
+Cc: maramaopercheseimorto@gmail.com
+Cc: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
+Cc: linux-arm-kernel@lists.infradead.org
+---
+v2 :
+	- simplify suspend & resume functions
+	- convert to pm_ops
 
-(In the future, lirc userspace should obviously just build against
-<media/lirc.h>).
+ drivers/input/keyboard/imx_keypad.c |   40 +++++++++++++++++++++++++++=
+++++++-
+ 1 files changed, 38 insertions(+), 2 deletions(-)
 
--- 
-Jarod Wilson
-jarod@wilsonet.com
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboa=
+rd/imx_keypad.c
+index d92c15c..9aa0005 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -364,6 +364,38 @@ static void imx_keypad_inhibit(struct imx_keypad *=
+keypad)
+ 	writew(0xff00, keypad->mmio_base + KPCR);
+ }
+=20
++#ifdef CONFIG_PM
++static int mxc_kpp_suspend(struct device *dev)
++{
++	struct platform_device *pdev =3D to_platform_device(dev);
++	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
++
++	keypad->enabled =3D false;
++	synchronize_irq(keypad->irq);
++	disable_irq(keypad->irq);
++	clk_disable(keypad->clk);
++
++	return 0;
++}
++
++static int mxc_kpp_resume(struct device *dev)
++{
++	struct platform_device *pdev =3D to_platform_device(dev);
++	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
++
++	keypad->enabled =3D true;
++	clk_enable(keypad->clk);
++	enable_irq(keypad->irq);
++
++	return 0;
++}
++
++static const struct dev_pm_ops mxc_kpp_pm_ops =3D {
++	.suspend	=3D mxc_kpp_suspend,
++	.resume		=3D mxc_kpp_resume,
++};
++#endif
++
+ static void imx_keypad_close(struct input_dev *dev)
+ {
+ 	struct imx_keypad *keypad =3D input_get_drvdata(dev);
+@@ -410,7 +442,8 @@ open_err:
+=20
+ static int __devinit imx_keypad_probe(struct platform_device *pdev)
+ {
+-	const struct matrix_keymap_data *keymap_data =3D pdev->dev.platform_d=
+ata;
++	const struct matrix_keypad_platform_data *keypad_data =3D pdev->dev.p=
+latform_data;
++	const struct matrix_keymap_data *keymap_data =3D keypad_data->keymap_=
+data;
+ 	struct imx_keypad *keypad;
+ 	struct input_dev *input_dev;
+ 	struct resource *res;
+@@ -525,7 +558,7 @@ static int __devinit imx_keypad_probe(struct platfo=
+rm_device *pdev)
+ 	}
+=20
+ 	platform_set_drvdata(pdev, keypad);
+-	device_init_wakeup(&pdev->dev, 1);
++	device_init_wakeup(&pdev->dev, keypad_data->wakeup);
+=20
+ 	return 0;
+=20
+@@ -571,6 +604,9 @@ static struct platform_driver imx_keypad_driver =3D=
+ {
+ 	.driver		=3D {
+ 		.name	=3D "imx-keypad",
+ 		.owner	=3D THIS_MODULE,
++#ifdef CONFIG_PM
++		.pm	=3D &mxc_kpp_pm_ops,
++#endif
+ 	},
+ 	.probe		=3D imx_keypad_probe,
+ 	.remove		=3D __devexit_p(imx_keypad_remove),
+--=20
+1.6.3.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

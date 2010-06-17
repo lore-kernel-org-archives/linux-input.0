@@ -1,41 +1,125 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/1] LEDS: leds-input, fix sleep inside atomic
-Date: Wed, 16 Jun 2010 13:46:46 -0700
-Message-ID: <20100616134646.3f7870e7.akpm@linux-foundation.org>
-References: <1275772342-25094-1-git-send-email-jslaby@suse.cz>
-	<20100605234505.GZ5358@const.famille.thibault.fr>
+From: "Varadarajan, Charulatha" <charu@ti.com>
+Subject: RE: [PATCH v4 2/4] OMAP4: Keyboard device registration
+Date: Thu, 17 Jun 2010 11:37:09 +0530
+Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02C5BEFCC3@dbde02.ent.ti.com>
+References: <x0066660@ti.com>
+ <1276704555-30625-1-git-send-email-x0066660@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:51594 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759527Ab0FPUrX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jun 2010 16:47:23 -0400
-In-Reply-To: <20100605234505.GZ5358@const.famille.thibault.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1276704555-30625-1-git-send-email-x0066660@ti.com>
+Content-Language: en-US
+Sender: linux-omap-owner@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Cc: "Arce, Abraham" <x0066660@ti.com>
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: Jiri Slaby <jslaby@suse.cz>, rpurdie@rpsys.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jirislaby@gmail.com, Alessandro Zummo <a.zummo@towertech.it>
 
-On Sun, 6 Jun 2010 01:45:06 +0200
-Samuel Thibault <samuel.thibault@ens-lyon.org> wrote:
 
-> Jiri Slaby, le Sat 05 Jun 2010 23:12:22 +0200, a __crit :
-> > Fix this by changing the spinlock to mutex as it is used only in
-> > input_handler->connect and ->disconnect and it is safe to sleep
-> > there.
+
+> -----Original Message-----
+> From: linux-omap-owner@vger.kernel.org [mailto:linux-omap-owner@vger.kernel.org]
+> On Behalf Of Abraham Arce
+> Sent: Wednesday, June 16, 2010 9:39 PM
+> To: linux-input@vger.kernel.org; linux-omap@vger.kernel.org
+> Cc: Arce, Abraham
+> Subject: [PATCH v4 2/4] OMAP4: Keyboard device registration
 > 
-> Right. in a previous patch it was also used in interrupt context, but
-> now it should be safe indeed.
+> Register keyboard device with hwmod framework
 > 
-> Andrew, please fold it into the leds-input patch.
+> Signed-off-by: Abraham Arce <x0066660@ti.com>
+> ---
+>  arch/arm/mach-omap2/devices.c |   50 +++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 50 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/devices.c
+> index 03e6c9e..d229901 100644
+> --- a/arch/arm/mach-omap2/devices.c
+> +++ b/arch/arm/mach-omap2/devices.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/io.h>
+>  #include <linux/clk.h>
+> +#include <linux/slab.h>
+> 
+>  #include <mach/hardware.h>
+>  #include <mach/irqs.h>
+> @@ -29,6 +30,9 @@
+>  #include <mach/gpio.h>
+>  #include <plat/mmc.h>
+>  #include <plat/dma.h>
+> +#include <plat/omap_hwmod.h>
+> +#include <plat/omap_device.h>
+> +#include <plat/omap4-keypad.h>
+> 
+>  #include "mux.h"
+> 
+> @@ -139,6 +143,52 @@ static inline void omap_init_camera(void)
+>  }
+>  #endif
+> 
+> +#ifdef CONFIG_ARCH_OMAP4
+> +
+> +struct omap_device_pm_latency omap_keyboard_latency[] = {
+> +	{
+> +		.deactivate_func = omap_device_idle_hwmods,
+> +		.activate_func   = omap_device_enable_hwmods,
+> +		.flags = OMAP_DEVICE_LATENCY_AUTO_ADJUST,
+> +	},
+> +};
+> +
+> +int omap4_init_kp(struct omap4_keypad_platform_data *kp)
+> +{
+> +	struct omap_hwmod *oh;
+> +	struct omap_device *od;
+> +	struct omap4_keypad_platform_data *pdata;
+> +
+> +	unsigned int id = 0;
+> +	char *name = "omap4-keypad";
+> +	char *oh_name = "kbd";
+> +
+> +	if (!cpu_is_omap44xx())
+> +		return -ENODEV;
+> +
+> +	oh = omap_hwmod_lookup(oh_name);
 
-hm, I did, nine days ago;
+Use omap_hwmod_for_each_by_class() instead of lookup by name.
 
-btw, leds-route-kbd-leds-through-the-generic-leds-layer.patch is still
-in the "stuck" state coz Alessandro said he'd test it ;)
 
-I think I'll start pestering Richard with it anyway.
+> +	if (!oh) {
+> +		pr_err("Could not look up %s\n", oh_name);
+> +		return -EIO;
+> +	}
+> +
+> +	pdata = kp;
+> +
+> +	pdata->base = oh->_rt_va;
+> +	pdata->irq = oh->mpu_irqs[0].irq;
 
+Use platform_get_() APIs to get base addr & irq instead of passing
+it as pdata
+
+
+> +
+> +	od = omap_device_build(name, id, oh, pdata,
+> +			sizeof(struct matrix_keypad_platform_data),
+> +			omap_keyboard_latency,
+> +			ARRAY_SIZE(omap_keyboard_latency), 1);
+> +	WARN(IS_ERR(od), "Could not build omap_device for %s %s\n",
+> +		name, oh_name);
+> +
+> +	return 0;
+> +}
+> +
+> +#endif
+> +
+>  #if defined(CONFIG_OMAP_MBOX_FWK) || defined(CONFIG_OMAP_MBOX_FWK_MODULE)
+> 
+>  #define MBOX_REG_SIZE   0x120
+> --
+> 1.6.3.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,147 +1,122 @@
-From: Richard Nauber <richard.nauber@googlemail.com>
-Subject: [PATCH] HID: Fix reporting of nonexistent HWheel for Elecom BM084
- (bluetooth mouse).
-Date: Fri, 18 Jun 2010 11:11:22 +0200
-Message-ID: <4C1B383A.2010309@googlemail.com>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH] HID: Documentation for hidraw
+Date: Fri, 18 Jun 2010 11:57:38 +0200
+Message-ID: <20100618115738.c3dfb81b.ospite@studenti.unina.it>
+References: <1276832283-12084-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.157]:40856 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756281Ab0FRJL0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 05:11:26 -0400
-Received: by fg-out-1718.google.com with SMTP id l26so325055fgb.1
-        for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 02:11:24 -0700 (PDT)
+Received: from smtp207.alice.it ([82.57.200.103]:52035 "EHLO smtp207.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752884Ab0FRJ6Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jun 2010 05:58:16 -0400
+In-Reply-To: <1276832283-12084-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 
-HID: Fix reporting of nonexistent HWheel for Elecom BM084 (bluetooth mouse).
+--Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch removes the annoying feature of Elecoms BM084 to constantly
-scroll to the right.
-The device can be found at:
-http://www.dealextreme.com/details.dx/sku.15402
+On Thu, 17 Jun 2010 23:38:03 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-Signed-off-by:  Richard Nauber <Richard.Nauber@gmail.com>
----
- drivers/hid/Kconfig      |    6 +++++
- drivers/hid/Makefile     |    1 +
- drivers/hid/hid-elecom.c |   57
-++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h    |    3 ++
- 4 files changed, 67 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-elecom.c
+> Documenation for the hidraw driver.
+>=20
+> Signed-off-by: Alan Ott <alan@signal11.us>
+> ---
+>  The information in this patch relies on:
+>   [PATCH v2] HID: Add Support for Setting and Getting Feature  Reports fr=
+om hidraw
+>   which has been applied by Jiri Kosina.
+>
+>  Please provide comments. I'm sure someone here will have a better idea w=
+here
+>  to put this than the root of Documentation/. I didn't see a better place=
+, as
+>  hidraw is used for both Bluetooth and USB.
+>
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 132278f..0eac193 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -148,6 +148,12 @@ config HID_EGALAX
- 	---help---
- 	Support for the eGalax dual-touch panel.
+Maybe both hidraw.txt and hiddev.txt can be moved to
+Documentation/hid/?
 
-+config HID_ELECOM
-+	tristate "ELECOM"
-+	depends on USB_HID
-+	---help---
-+	Support for the ELECOM BM084 (bluetooth mouse).
-+
- config HID_EZKEY
- 	tristate "Ezkey" if EMBEDDED
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 987fa06..2ec042f 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
- obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
-+obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
- obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-new file mode 100644
-index 0000000..7a40878
---- /dev/null
-+++ b/drivers/hid/hid-elecom.c
-@@ -0,0 +1,57 @@
-+/*
-+ *  HID driver for Elecom BM084 (bluetooth mouse).
-+ *  Removes a non-existing horizontal wheel from
-+ *  the HID descriptor.
-+ *  (This module is based on "hid-ortek".)
-+ *
-+ *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by
-the Free
-+ * Software Foundation; either version 2 of the License, or (at your
-option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static void elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int rsize)
-+{
-+	if (rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
-+		dev_info(&hdev->dev, "Fixing up Elecom BM084 "
-+				"report descriptor.\n");
-+		rdesc[47] = 0x00;
-+	}
-+}
-+
-+static const struct hid_device_id elecom_devices[] = {
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, elecom_devices);
-+
-+static struct hid_driver elecom_driver = {
-+	.name = "elecom",
-+	.id_table = elecom_devices,
-+	.report_fixup = elecom_report_fixup
-+};
-+
-+static int __init elecom_init(void)
-+{
-+	return hid_register_driver(&elecom_driver);
-+}
-+
-+static void __exit elecom_exit(void)
-+{
-+	hid_unregister_driver(&elecom_driver);
-+}
-+
-+module_init(elecom_init);
-+module_exit(elecom_exit);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6af77ed..55cecb7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -186,6 +186,9 @@
- #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH	0x480d
+=46rom a first read the document is OK tho. Thanks.
 
-+#define USB_VENDOR_ID_ELECOM		0x056e
-+#define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+
- #define USB_VENDOR_ID_ELO		0x04E7
- #define USB_DEVICE_ID_ELO_TS2700	0x0020
+>  Documentation/hidraw.txt |  283 ++++++++++++++++++++++++++++++++++++++++=
+++++++
+>  1 files changed, 283 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/hidraw.txt
+>=20
+> diff --git a/Documentation/hidraw.txt b/Documentation/hidraw.txt
+> new file mode 100644
+> index 0000000..7153a06
+> --- /dev/null
+> +++ b/Documentation/hidraw.txt
+> @@ -0,0 +1,283 @@
+[...]
+> +
+> +HIDIOCGRAWNAME(len): Get Raw Name
+> +This ioctl returns a string containing the vendor and product strings of
+> +the device.  The returned string is Unicode, UTF-8 encoded.
+> +
 
--- 
-1.7.0.4
+Is the encoding specified in the HID spec?
+
+[...]
+>
+> +Example
+> +---------
+> +The following code shows examples of read() write() and all the ioctls f=
+or
+> +hidraw. The code may be used by anyone for any purpose, and can serve as=
+ a
+> +starting point for developing applications using hidraw.
+> +
+
+Just a very minimal remark, maybe the code should follow the kernel
+coding style (early return on error, no braces for one line conditional
+blocks) even if it is a userspace application. Being it in the
+kernel Documentation I assume people reading it would be used to kernel
+style more.
+
+> +---- Begin Code ----
+[...]
+> +---- End Code ----
+> +
+> +Document by:
+> +	Alan Ott <alan@signal11.us>
+> --=20
+> 1.7.0.4
+
+Regards,
+   Antonio
+
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
+
+--Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkwbQxIACgkQ5xr2akVTsAGkWQCgjGsLDYsCBaM/6LOoZ7lFRkTl
+TLAAoLBrP5yLRMmys1iNmYeIVM6KNPxO
+=+0K+
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf--

@@ -1,40 +1,58 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH] HID: Documentation for hidraw
-Date: Fri, 18 Jun 2010 08:45:07 -0700
-Message-ID: <20100618084507.3dcba19a.rdunlap@xenotime.net>
-References: <1276832283-12084-1-git-send-email-alan@signal11.us>
+From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Subject: Re: [PATCH v2] input/imx_keypad: add PM support
+Date: Fri, 18 Jun 2010 19:40:04 +0200
+Message-ID: <1276882804.3146.14.camel@realization>
+References: <1276801147-4103-1-git-send-email-eric@eukrea.com>
+	 <1276856186.3146.5.camel@realization>  <4C1B84A3.8080300@eukrea.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([72.52.115.56]:56906 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S932443Ab0FRPpK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 11:45:10 -0400
-Received: from chimera.site ([98.108.160.27]) by xenotime.net for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 08:45:07 -0700
-In-Reply-To: <1276832283-12084-1-git-send-email-alan@signal11.us>
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:39352 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933853Ab0FRRkP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jun 2010 13:40:15 -0400
+Received: by wyb33 with SMTP id 33so815208wyb.19
+        for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 10:40:13 -0700 (PDT)
+In-Reply-To: <4C1B84A3.8080300@eukrea.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+To: Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
-On Thu, 17 Jun 2010 23:38:03 -0400 Alan Ott wrote:
+On ven, 2010-06-18 at 16:37 +0200, Eric B=C3=A9nard wrote:
+> Hi Alberto,
+>=20
+> Le 18/06/2010 12:16, Alberto Panizzo a =C3=A9crit :
+> > Ok, so with this patch the keypad cannot wake the system?
+> > It is scheduled another patch?
+> >
+> well, actually, the keypad wakes the system, at least on my board her=
+e.
+>=20
+> I was quite surprised to get this working this way as I would have=20
+> expected disable_irq + clk_disable would prevent the keypad from bein=
+g a=20
+> wake source.
+> Can you try on your board as this cleanup may be wrong on i.MX3 ?
+>=20
+> Thanks,
+> Eric
+Well.. it is a surprise to me too. I have to look down the documentatio=
+n
+ad soon I will try on the mx31pdk.
+I don't wont to tell you wrong things.
 
-> Documenation for the hidraw driver.
-> 
-> Signed-off-by: Alan Ott <alan@signal11.us>
-> ---
-> 
->  Documentation/hidraw.txt |  283 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 283 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/hidraw.txt
 
-In the new sub-directory, please split the example/test program into a separate
-source file and add a Makefile so that it will build.
+--=20
+Alberto!
 
-There are similar Makefiles in many other Documentation/ sub-directories.
+        Be Persistent!
+                - Greg Kroah-Hartman (FOSDEM 2010)
 
-thanks.
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

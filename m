@@ -1,96 +1,43 @@
-From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Subject: Re: [PATCH v2] input/imx_keypad: add PM support
-Date: Fri, 18 Jun 2010 12:16:26 +0200
-Message-ID: <1276856186.3146.5.camel@realization>
-References: <1276801147-4103-1-git-send-email-eric@eukrea.com>
+From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Subject: Wacom based devices and the mt kernel protocol.
+Date: Fri, 18 Jun 2010 13:20:46 +0200
+Message-ID: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f46.google.com ([74.125.82.46]:47711 "EHLO
-	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751178Ab0FRKQd (ORCPT
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:34098 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760973Ab0FRLVI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 06:16:33 -0400
-Received: by wwb22 with SMTP id 22so5645wwb.19
-        for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 03:16:31 -0700 (PDT)
-In-Reply-To: <1276801147-4103-1-git-send-email-eric@eukrea.com>
+	Fri, 18 Jun 2010 07:21:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Henrik Rydberg <rydberg@euromail.se>, pingc@wacom.com, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Eric,
+Hi,
 
-On gio, 2010-06-17 at 20:59 +0200, Eric B=C3=A9nard wrote:
-> We use keypad_data to enable wakeup from platform data
->=20
-> suspend/resume is tested on an i.MX27 when keypad is not
-> in use and when it's is in use (in which case we immediatly
-> get the key pressed at wakeup)
->=20
-> Signed-off-by: Eric B=C3=A9nard <eric@eukrea.com>
-> Cc: maramaopercheseimorto@gmail.com
-> Cc: linux-input@vger.kernel.org
-> Cc: dmitry.torokhov@gmail.com
-> Cc: linux-arm-kernel@lists.infradead.org
-> ---
-> v2 :
-> 	- simplify suspend & resume functions
-> 	- convert to pm_ops
->=20
->  drivers/input/keyboard/imx_keypad.c |   40 +++++++++++++++++++++++++=
-++++++++-
->  1 files changed, 38 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyb=
-oard/imx_keypad.c
-> index d92c15c..9aa0005 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -364,6 +364,38 @@ static void imx_keypad_inhibit(struct imx_keypad=
- *keypad)
->  	writew(0xff00, keypad->mmio_base + KPCR);
->  }
-> =20
-> +#ifdef CONFIG_PM
-> +static int mxc_kpp_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev =3D to_platform_device(dev);
-> +	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
-> +
-> +	keypad->enabled =3D false;
-> +	synchronize_irq(keypad->irq);
-> +	disable_irq(keypad->irq);
-> +	clk_disable(keypad->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static int mxc_kpp_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev =3D to_platform_device(dev);
-> +	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
-> +
-> +	keypad->enabled =3D true;
-> +	clk_enable(keypad->clk);
-> +	enable_irq(keypad->irq);
-> +
-> +	return 0;
-> +}
+Now we can find many multitouch devices based on wacom Wacom panel/digitizer
+Bamboo Pen&Touch, HP tm2, Fujitsu LifeBook T4410 & T4310, etc...
 
-Ok, so with this patch the keypad cannot wake the system?
-It is scheduled another patch?
+it seems that these devices are supported in some way in Linux Kernel,
+but I want to know if they are compliant with the MT Linux protocol.
+N-Trig based devices and Stantum ones are the most compliant, so Wacom
+situation needs to be clarified specially considering they are HID
+devices (meaning similar to the others devices which respect the
+protocol). This impact very much the decision of a Linux user wanting
+to buy wacom mt device.
 
+Ping can you clarifie the situation of wacom based devices ?
 
---=20
-Alberto!
+Thanks,
 
-        Be Persistent!
-                - Greg Kroah-Hartman (FOSDEM 2010)
+ik.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Tue, Jun 15, 2010 at 7:01 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
+>
+> g number of intelligent multi-contact and
+> multi-user devices, the need to send digested, filtered information
+> from a set of different sources within the same device is imminent.
+> This patch adds the concept of slots to the MT protocol. The slots
+> enumerate a set of identified sources, such that all MT events

@@ -1,43 +1,81 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Wacom based devices and the mt kernel protocol.
-Date: Fri, 18 Jun 2010 13:20:46 +0200
-Message-ID: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: Documentation for hidraw
+Date: Fri, 18 Jun 2010 13:59:23 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1006181353120.13809@pobox.suse.cz>
+References: <1276832283-12084-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:34098 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760973Ab0FRLVI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 07:21:08 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1276832283-12084-1-git-send-email-alan@signal11.us>
+Sender: linux-doc-owner@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>, pingc@wacom.com, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi,
+On Thu, 17 Jun 2010, Alan Ott wrote:
 
-Now we can find many multitouch devices based on wacom Wacom panel/digitizer
-Bamboo Pen&Touch, HP tm2, Fujitsu LifeBook T4410 & T4310, etc...
+> Documenation for the hidraw driver.
 
-it seems that these devices are supported in some way in Linux Kernel,
-but I want to know if they are compliant with the MT Linux protocol.
-N-Trig based devices and Stantum ones are the most compliant, so Wacom
-situation needs to be clarified specially considering they are HID
-devices (meaning similar to the others devices which respect the
-protocol). This impact very much the decision of a Linux user wanting
-to buy wacom mt device.
+Thanks a lot for writing this up, Alan. It's something that has been 
+lingering on my TODO for just too long, it's great that someone finally 
+got fed up with it and wrote it :)
 
-Ping can you clarifie the situation of wacom based devices ?
+> 
+> Signed-off-by: Alan Ott <alan@signal11.us>
+> ---
+>  The information in this patch relies on:
+>   [PATCH v2] HID: Add Support for Setting and Getting Feature  Reports from hidraw
+>   which has been applied by Jiri Kosina.
+> 
+>  Please provide comments. I'm sure someone here will have a better idea where
+>  to put this than the root of Documentation/. I didn't see a better place, as
+>  hidraw is used for both Bluetooth and USB.
+
+Either Documentation/input comes to mind, or we could even establish 
+Documentation/hid directory as well.
+
+>  Documentation/hidraw.txt |  283 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 283 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/hidraw.txt
+> 
+> diff --git a/Documentation/hidraw.txt b/Documentation/hidraw.txt
+> new file mode 100644
+> index 0000000..7153a06
+> --- /dev/null
+> +++ b/Documentation/hidraw.txt
+> @@ -0,0 +1,283 @@
+> +      HIDRAW - Raw Access to USB and Bluetooth Human Interface Devices 
+> +     ==================================================================
+> +
+> +The hidraw driver provides a raw interface to USB and Bluetooth Human
+> +Interface Devices (HIDs).  It differs from hiddev in that reports sent and
+> +received are not parsed by the HID parser, but are sent to and received from
+> +the device unmodified.
+
+The important point behind hidraw (compared to hiddev), always has been 
+that it's in fact completely independent on underlying hardware transport 
+protocol. Currently there are no other implementations of HID than the 
+ones using Bluetooth or USB, but there is no general obstacle to using 
+hidraw once any vendor comes with HID-over-FibreChannel :) for example.
+
+This basic principle might be worth mentioning as well.
+
+> +Hidraw should be used if the userspace application knows exactly how to
+> +communicate with the hardware device, and is able to construct the HID
+> +reports manually.  This is often the case when making userspace drivers for
+> +custom HID devices.
+> +
+> +Hidraw is also useful for communicating with non-conformant HID devices
+> +which send and receive data in a way that is inconsistent with their report
+> +descriptors.  Because hiddev parses reports which are sent and received
+> +through it and checks them against the device's report descriptor, such
+> +communication with these non-conformant devices is impossible using hiddev.
+
+hidraw is just one of the alternatives here of course. Writing in-kernel 
+driver also can be done to overcome these obstacles.
 
 Thanks,
 
-ik.
-
-On Tue, Jun 15, 2010 at 7:01 PM, Henrik Rydberg <rydberg@euromail.se> wrote:
->
-> g number of intelligent multi-contact and
-> multi-user devices, the need to send digested, filtered information
-> from a set of different sources within the same device is imminent.
-> This patch adds the concept of slots to the MT protocol. The slots
-> enumerate a set of identified sources, such that all MT events
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

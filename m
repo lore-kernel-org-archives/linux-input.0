@@ -1,39 +1,36 @@
-From: =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric@eukrea.com>
-Subject: Re: [PATCH v2] input/imx_keypad: add PM support
-Date: Fri, 18 Jun 2010 19:50:54 +0200
-Message-ID: <4C1BB1FE.9090403@eukrea.com>
-References: <1276801147-4103-1-git-send-email-eric@eukrea.com>	 <1276856186.3146.5.camel@realization>  <4C1B84A3.8080300@eukrea.com> <1276882804.3146.14.camel@realization>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [0000/0003]full power management for usb touchscreens
+Date: Fri, 18 Jun 2010 20:22:07 +0200
+Message-ID: <201006182022.07496.oliver@neukum.org>
+References: <201006071513.29478.oneukum@suse.de> <201006101546.55460.oliver@neukum.org> <201006101613.52736.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 29.mail-out.ovh.net ([87.98.216.213]:60359 "HELO
-	29.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1754832Ab0FRRu6 (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:35783 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754707Ab0FRSVq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 13:50:58 -0400
-In-Reply-To: <1276882804.3146.14.camel@realization>
+	Fri, 18 Jun 2010 14:21:46 -0400
+In-Reply-To: <201006101613.52736.linux@rainbow-software.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Daniel Ritz <daniel.ritz@gmx.ch>
 
-Le 18/06/2010 19:40, Alberto Panizzo a =C3=A9crit :
-> Well.. it is a surprise to me too. I have to look down the documentat=
-ion
-> ad soon I will try on the mx31pdk.
+Am Donnerstag, 10. Juni 2010 16:13:51 schrieb Ondrej Zary:
+> > > I haven't tested the patches before. Now I tested them and the Nexio
+> > > touchscreen does not play well with suspend. It always reconnects after
+> > > resume from STR or hibernation. Autosuspend is probably never activated
+> > > at the URBs are submitted continuously.
+> >
+> > I see. Can you compile with CONFIG_USB_DEBUG and send me the log?
+> 
+> This can't be fixed - no matter what you do, the device reconnects if you stop 
+> talking to it.
 
-OK, I'm waiting for your feedback on the mx31pdk.
+Have you tried setting it back to config 0?
 
- From my understanding of the documentation, in order to be able to=20
-wakeup the CPU, the interrupt of a peripheral and its clock should stay=
-=20
-enabled while going to suspend.
-
-Eric
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Regards
+		Oliver

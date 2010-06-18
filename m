@@ -1,80 +1,73 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] HID: Documentation for hidraw
-Date: Fri, 18 Jun 2010 13:59:23 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006181353120.13809@pobox.suse.cz>
-References: <1276832283-12084-1-git-send-email-alan@signal11.us>
+Subject: Re: [patch] add quirk to fix volume wheel on Toshiba U300 laptops
+Date: Fri, 18 Jun 2010 14:32:30 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1006181431080.13809@pobox.suse.cz>
+References: <201006091337.10152.akohlsmith@mixdown.ca>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1276832283-12084-1-git-send-email-alan@signal11.us>
-Sender: linux-doc-owner@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:34727 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761177Ab0FRMcc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jun 2010 08:32:32 -0400
+In-Reply-To: <201006091337.10152.akohlsmith@mixdown.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Kohlsmith <akohlsmith@mixdown.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, 17 Jun 2010, Alan Ott wrote:
+On Wed, 9 Jun 2010, Andrew Kohlsmith wrote:
 
-> Documenation for the hidraw driver.
-
-Thanks a lot for writing this up, Alan. It's something that has been 
-lingering on my TODO for just too long, it's great that someone finally 
-got fed up with it and wrote it :)
-
+> Good afternoon,
 > 
-> Signed-off-by: Alan Ott <alan@signal11.us>
-> ---
->  The information in this patch relies on:
->   [PATCH v2] HID: Add Support for Setting and Getting Feature  Reports from hidraw
->   which has been applied by Jiri Kosina.
+> Here is a small patch which adds a quirk match for these laptops; the volume 
+> wheel on them does not stop when you move it (the wheel does not send 'up' 
+> keycodes).
 > 
->  Please provide comments. I'm sure someone here will have a better idea where
->  to put this than the root of Documentation/. I didn't see a better place, as
->  hidraw is used for both Bluetooth and USB.
+> Patch applies cleanly to linus' tree as of about...10 minutes ago. :-)
 
-Either Documentation/input comes to mind, or we could even establish 
-Documentation/hid directory as well.
+Hi Andrew,
 
->  Documentation/hidraw.txt |  283 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 283 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/hidraw.txt
-> 
-> diff --git a/Documentation/hidraw.txt b/Documentation/hidraw.txt
-> new file mode 100644
-> index 0000000..7153a06
-> --- /dev/null
-> +++ b/Documentation/hidraw.txt
-> @@ -0,0 +1,283 @@
-> +      HIDRAW - Raw Access to USB and Bluetooth Human Interface Devices 
-> +     ==================================================================
-> +
-> +The hidraw driver provides a raw interface to USB and Bluetooth Human
-> +Interface Devices (HIDs).  It differs from hiddev in that reports sent and
-> +received are not parsed by the HID parser, but are sent to and received from
-> +the device unmodified.
+this patch needs to go through Dmitry, who is current input subsystem 
+maintainer.
 
-The important point behind hidraw (compared to hiddev), always has been 
-that it's in fact completely independent on underlying hardware transport 
-protocol. Currently there are no other implementations of HID than the 
-ones using Bluetooth or USB, but there is no general obstacle to using 
-hidraw once any vendor comes with HID-over-FibreChannel :) for example.
+I have added him (and linux-input) to CC, and included the patch for 
+convenience below.
 
-This basic principle might be worth mentioning as well.
+You'd also need to include your Signed-off-by: line in order for the patch 
+to be properly merged.
 
-> +Hidraw should be used if the userspace application knows exactly how to
-> +communicate with the hardware device, and is able to construct the HID
-> +reports manually.  This is often the case when making userspace drivers for
-> +custom HID devices.
-> +
-> +Hidraw is also useful for communicating with non-conformant HID devices
-> +which send and receive data in a way that is inconsistent with their report
-> +descriptors.  Because hiddev parses reports which are sent and received
-> +through it and checks them against the device's report descriptor, such
-> +communication with these non-conformant devices is impossible using hiddev.
+Thanks.
 
-hidraw is just one of the alternatives here of course. Writing in-kernel 
-driver also can be done to overcome these obstacles.
 
-Thanks,
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index d358ef8..f1e1801 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1715,6 +1715,22 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		.callback = atkbd_setup_scancode_fixup,
+ 		.driver_data = atkbd_oqo_01plus_scancode_fixup,
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite U300"),
++		},
++		.callback = atkbd_setup_forced_release,
++		.driver_data = atkbd_volume_forced_release_keys,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Satellite Pro U300"),
++		},
++		.callback = atkbd_setup_forced_release,
++		.driver_data = atkbd_volume_forced_release_keys,
++	},
+ 	{ }
+ };
+ 
 
 -- 
 Jiri Kosina

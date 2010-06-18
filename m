@@ -1,56 +1,37 @@
-From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+From: =?UTF-8?B?RXJpYyBCw6luYXJk?= <eric@eukrea.com>
 Subject: Re: [PATCH v2] input/imx_keypad: add PM support
-Date: Fri, 18 Jun 2010 19:40:04 +0200
-Message-ID: <1276882804.3146.14.camel@realization>
-References: <1276801147-4103-1-git-send-email-eric@eukrea.com>
-	 <1276856186.3146.5.camel@realization>  <4C1B84A3.8080300@eukrea.com>
+Date: Fri, 18 Jun 2010 19:50:54 +0200
+Message-ID: <4C1BB1FE.9090403@eukrea.com>
+References: <1276801147-4103-1-git-send-email-eric@eukrea.com>	 <1276856186.3146.5.camel@realization>  <4C1B84A3.8080300@eukrea.com> <1276882804.3146.14.camel@realization>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wy0-f174.google.com ([74.125.82.174]:39352 "EHLO
-	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933853Ab0FRRkP (ORCPT
+Received: from 29.mail-out.ovh.net ([87.98.216.213]:60359 "HELO
+	29.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754832Ab0FRRu6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 13:40:15 -0400
-Received: by wyb33 with SMTP id 33so815208wyb.19
-        for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 10:40:13 -0700 (PDT)
-In-Reply-To: <4C1B84A3.8080300@eukrea.com>
+	Fri, 18 Jun 2010 13:50:58 -0400
+In-Reply-To: <1276882804.3146.14.camel@realization>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>
+To: Alberto Panizzo <maramaopercheseimorto@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
-On ven, 2010-06-18 at 16:37 +0200, Eric B=C3=A9nard wrote:
-> Hi Alberto,
->=20
-> Le 18/06/2010 12:16, Alberto Panizzo a =C3=A9crit :
-> > Ok, so with this patch the keypad cannot wake the system?
-> > It is scheduled another patch?
-> >
-> well, actually, the keypad wakes the system, at least on my board her=
-e.
->=20
-> I was quite surprised to get this working this way as I would have=20
-> expected disable_irq + clk_disable would prevent the keypad from bein=
-g a=20
-> wake source.
-> Can you try on your board as this cleanup may be wrong on i.MX3 ?
->=20
-> Thanks,
-> Eric
-Well.. it is a surprise to me too. I have to look down the documentatio=
-n
-ad soon I will try on the mx31pdk.
-I don't wont to tell you wrong things.
+Le 18/06/2010 19:40, Alberto Panizzo a =C3=A9crit :
+> Well.. it is a surprise to me too. I have to look down the documentat=
+ion
+> ad soon I will try on the mx31pdk.
 
+OK, I'm waiting for your feedback on the mx31pdk.
 
---=20
-Alberto!
+ From my understanding of the documentation, in order to be able to=20
+wakeup the CPU, the interrupt of a peripheral and its clock should stay=
+=20
+enabled while going to suspend.
 
-        Be Persistent!
-                - Greg Kroah-Hartman (FOSDEM 2010)
-
+Eric
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

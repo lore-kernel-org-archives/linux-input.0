@@ -1,122 +1,96 @@
-From: Antonio Ospite <ospite@studenti.unina.it>
-Subject: Re: [PATCH] HID: Documentation for hidraw
-Date: Fri, 18 Jun 2010 11:57:38 +0200
-Message-ID: <20100618115738.c3dfb81b.ospite@studenti.unina.it>
-References: <1276832283-12084-1-git-send-email-alan@signal11.us>
+From: Alberto Panizzo <maramaopercheseimorto@gmail.com>
+Subject: Re: [PATCH v2] input/imx_keypad: add PM support
+Date: Fri, 18 Jun 2010 12:16:26 +0200
+Message-ID: <1276856186.3146.5.camel@realization>
+References: <1276801147-4103-1-git-send-email-eric@eukrea.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp207.alice.it ([82.57.200.103]:52035 "EHLO smtp207.alice.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752884Ab0FRJ6Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 05:58:16 -0400
-In-Reply-To: <1276832283-12084-1-git-send-email-alan@signal11.us>
+Received: from mail-ww0-f46.google.com ([74.125.82.46]:47711 "EHLO
+	mail-ww0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751178Ab0FRKQd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Jun 2010 06:16:33 -0400
+Received: by wwb22 with SMTP id 22so5645wwb.19
+        for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 03:16:31 -0700 (PDT)
+In-Reply-To: <1276801147-4103-1-git-send-email-eric@eukrea.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+To: Eric =?ISO-8859-1?Q?B=E9nard?= <eric@eukrea.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.infradead.org
 
---Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Eric,
 
-On Thu, 17 Jun 2010 23:38:03 -0400
-Alan Ott <alan@signal11.us> wrote:
-
-> Documenation for the hidraw driver.
+On gio, 2010-06-17 at 20:59 +0200, Eric B=C3=A9nard wrote:
+> We use keypad_data to enable wakeup from platform data
 >=20
-> Signed-off-by: Alan Ott <alan@signal11.us>
+> suspend/resume is tested on an i.MX27 when keypad is not
+> in use and when it's is in use (in which case we immediatly
+> get the key pressed at wakeup)
+>=20
+> Signed-off-by: Eric B=C3=A9nard <eric@eukrea.com>
+> Cc: maramaopercheseimorto@gmail.com
+> Cc: linux-input@vger.kernel.org
+> Cc: dmitry.torokhov@gmail.com
+> Cc: linux-arm-kernel@lists.infradead.org
 > ---
->  The information in this patch relies on:
->   [PATCH v2] HID: Add Support for Setting and Getting Feature  Reports fr=
-om hidraw
->   which has been applied by Jiri Kosina.
->
->  Please provide comments. I'm sure someone here will have a better idea w=
-here
->  to put this than the root of Documentation/. I didn't see a better place=
-, as
->  hidraw is used for both Bluetooth and USB.
->
-
-Maybe both hidraw.txt and hiddev.txt can be moved to
-Documentation/hid/?
-
-=46rom a first read the document is OK tho. Thanks.
-
->  Documentation/hidraw.txt |  283 ++++++++++++++++++++++++++++++++++++++++=
-++++++
->  1 files changed, 283 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/hidraw.txt
+> v2 :
+> 	- simplify suspend & resume functions
+> 	- convert to pm_ops
 >=20
-> diff --git a/Documentation/hidraw.txt b/Documentation/hidraw.txt
-> new file mode 100644
-> index 0000000..7153a06
-> --- /dev/null
-> +++ b/Documentation/hidraw.txt
-> @@ -0,0 +1,283 @@
-[...]
+>  drivers/input/keyboard/imx_keypad.c |   40 +++++++++++++++++++++++++=
+++++++++-
+>  1 files changed, 38 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyb=
+oard/imx_keypad.c
+> index d92c15c..9aa0005 100644
+> --- a/drivers/input/keyboard/imx_keypad.c
+> +++ b/drivers/input/keyboard/imx_keypad.c
+> @@ -364,6 +364,38 @@ static void imx_keypad_inhibit(struct imx_keypad=
+ *keypad)
+>  	writew(0xff00, keypad->mmio_base + KPCR);
+>  }
+> =20
+> +#ifdef CONFIG_PM
+> +static int mxc_kpp_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev =3D to_platform_device(dev);
+> +	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
 > +
-> +HIDIOCGRAWNAME(len): Get Raw Name
-> +This ioctl returns a string containing the vendor and product strings of
-> +the device.  The returned string is Unicode, UTF-8 encoded.
+> +	keypad->enabled =3D false;
+> +	synchronize_irq(keypad->irq);
+> +	disable_irq(keypad->irq);
+> +	clk_disable(keypad->clk);
 > +
-
-Is the encoding specified in the HID spec?
-
-[...]
->
-> +Example
-> +---------
-> +The following code shows examples of read() write() and all the ioctls f=
-or
-> +hidraw. The code may be used by anyone for any purpose, and can serve as=
- a
-> +starting point for developing applications using hidraw.
+> +	return 0;
+> +}
 > +
-
-Just a very minimal remark, maybe the code should follow the kernel
-coding style (early return on error, no braces for one line conditional
-blocks) even if it is a userspace application. Being it in the
-kernel Documentation I assume people reading it would be used to kernel
-style more.
-
-> +---- Begin Code ----
-[...]
-> +---- End Code ----
+> +static int mxc_kpp_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev =3D to_platform_device(dev);
+> +	struct imx_keypad *keypad =3D platform_get_drvdata(pdev);
 > +
-> +Document by:
-> +	Alan Ott <alan@signal11.us>
-> --=20
-> 1.7.0.4
+> +	keypad->enabled =3D true;
+> +	clk_enable(keypad->clk);
+> +	enable_irq(keypad->irq);
+> +
+> +	return 0;
+> +}
 
-Regards,
-   Antonio
+Ok, so with this patch the keypad cannot wake the system?
+It is scheduled another patch?
+
 
 --=20
-Antonio Ospite
-http://ao2.it
+Alberto!
 
-PGP public key ID: 0x4553B001
+        Be Persistent!
+                - Greg Kroah-Hartman (FOSDEM 2010)
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
-A: Top-posting.
-Q: What is the most annoying thing in e-mail?
-
---Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkwbQxIACgkQ5xr2akVTsAGkWQCgjGsLDYsCBaM/6LOoZ7lFRkTl
-TLAAoLBrP5yLRMmys1iNmYeIVM6KNPxO
-=+0K+
------END PGP SIGNATURE-----
-
---Signature=_Fri__18_Jun_2010_11_57_38_+0200_OnVCqUAY+H3u_Xbf--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

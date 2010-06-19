@@ -1,45 +1,44 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH v2 0/2] HID: hidraw documentation
-Date: Sat, 19 Jun 2010 19:47:02 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006191946030.13809@pobox.suse.cz>
-References: <1276832283-12084-1-git-send-email-alan@signal11.us> <1276913623-6126-1-git-send-email-alan@signal11.us> <20100618201445.28c58573.rdunlap@xenotime.net>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [Regression 2.6.35-rc1?] Sysrq works too well (no need of alt)
+Date: Sat, 19 Jun 2010 23:16:32 +0200
+Message-ID: <201006192316.32360.rjw@sisk.pl>
+References: <4C0E0E51.8050709@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20100618201445.28c58573.rdunlap@xenotime.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Alan Ott <alan@signal11.us>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C0E0E51.8050709@tudelft.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?utf-8?q?=C3=89ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 18 Jun 2010, Randy Dunlap wrote:
+On Tuesday, June 08, 2010, =C3=89ric Piel wrote:
+> Hello,
+> I haven't investigated much yet, but I have the feeling that since
+> 2.6.35-rc1 my "Print Screen/SysRq" key works only as SysRq: if I pres=
+s
+> it (normally assigned to take screenshot in gnome), nothing happens (=
+no
+> input event received in userspace) and no key on the keyboard works
+> afterwards, until I press Alt. Actually the keys work, but behave as =
+if
+> the sysrq key was kept pressed (can be seen in dmesg, or by pressing =
+"b").
+>=20
+> Looking at the log, a potential culprit is commit
+> 97f5f0cd8cd0a05449cbb77d1e6f02e026875802 (Input: implement SysRq as a
+> separate input handler). Probably the logic of "have to press all the
+> keys at the same time" changed to "have to press the keys one after e=
+ach
+> other". So pressing alt and later on pressing PrintScreen leads to a =
+SysRq.
+>=20
+> Does anybody else see this behaviour? Any suggestion on how to solve
+> this bug? I'll try reverting the commit and report if it fixes the
+> problem (the git revert fails so I've got to fix the conflict manuall=
+y).
 
-> On Fri, 18 Jun 2010 22:13:41 -0400 Alan Ott wrote:
-> 
-> > These patches add the hidraw.txt file to a new Documentation/hid/ directory.
-> > 
-> > The example program has been moved out of the document and fixed up for style
-> > (it's now checkpatch.pl clean), and a Makefile has been created for it.
-> > 
-> > I integrated the comments provided.
-> > 
-> > hiddev.txt has been moved from Documentation/usb/ to Documentation/hid/
-> > 
-> > 
-> > Alan Ott (2):
-> >   HID: Documentation for hidraw
-> >   HID: Move hiddev.txt to the new Documentation/HID directory
-> 
-> Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> Jiri, can you merge these patches, please?
+Is this still a problem with 2.6.35-rc3?
 
-Yeah, I will be taking them through my tree, thanks.
-
-I am only still waiting for Marcel (or any other Bluetooth people) to Ack 
-the bluetooth-side of the HIDIOCGFEATURE/HIDIOCSFEATURE patch, so that the 
-documentation actually tells the truth :)
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Rafael

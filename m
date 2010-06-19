@@ -1,54 +1,87 @@
-From: "Microsoft E-mail Promotions" <e-contact@microsoft.com>
-Subject: You Have Won!
-Date: Sat, 19 Jun 2010 05:53:09 -0200 (FNT)
-Message-ID: <60537.41.184.4.162.1276933989.squirrel__13923.2960450046$1276934853$gmane$org@41.184.4.162>
-Reply-To: ivannickerson04@live.co.uk
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH v2 0/2] HID: hidraw documentation
+Date: Sat, 19 Jun 2010 10:25:58 +0200
+Message-ID: <20100619102558.86fa43dc.ospite@studenti.unina.it>
+References: <1276832283-12084-1-git-send-email-alan@signal11.us>
+	<1276913623-6126-1-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sat__19_Jun_2010_10_25_58_+0200_Qu=KyNXjGTH+P0_b"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.avellaneda-ba.gov.ar ([200.71.230.2]:43003 "EHLO
-	ns2.avellaneda-ba.gov.ar" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754532Ab0FSIHC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Jun 2010 04:07:02 -0400
+Received: from smtp204.alice.it ([82.57.200.100]:44393 "EHLO smtp204.alice.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754711Ab0FSI0R (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Jun 2010 04:26:17 -0400
+In-Reply-To: <1276913623-6126-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
 
-Congratulations: You Have Won!
+--Signature=_Sat__19_Jun_2010_10_25_58_+0200_Qu=KyNXjGTH+P0_b
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The MICROSOFT EMAIL PROMO TEAM is glad to announce that
-after a successful completion of the PROMO DRAWS held on the
-19th June 2010,your e-mail address,attached to winning
-numbers:(11) (80) (12)(96) (09) (43) won in the Tenth
-lottery category.
+On Fri, 18 Jun 2010 22:13:41 -0400
+Alan Ott <alan@signal11.us> wrote:
 
-You have therefore been approved to claim a total sum of
-=A3250,000,00 Pounds Sterling in cash credited to REF NO:MICRO-L/2009-E=
-ND10.
+> These patches add the hidraw.txt file to a new Documentation/hid/ directo=
+ry.
+>=20
+> The example program has been moved out of the document and fixed up for s=
+tyle
+> (it's now checkpatch.pl clean), and a Makefile has been created for it.
+>=20
+> I integrated the comments provided.
+>=20
+> hiddev.txt has been moved from Documentation/usb/ to Documentation/hid/
+>=20
+>=20
+> Alan Ott (2):
+>   HID: Documentation for hidraw
+>   HID: Move hiddev.txt to the new Documentation/HID directory
+>
 
-All participants were selected through our Microsoft computer
-ballot system drawn from 167,000 Names,as part of our
-International  "E-MAIL" Promotion Program for our prominent
-MS-WORD users all over the world and for the continuous use
-of the internet. You are advised to contact the claims
-processor with the details below via his e-mail address :
+Acked-by: Antonio Ospite <ospite@studenti.unina.it>
 
-NAME:  Ivan Nickerson
-EMAIL:ivannickerson04@live.co.uk
-
-PLEASE NOTE YOU ARE TO SEND THE FOLLOWING INFORMATION TO CLAIM YOUR PRI=
-ZE:
-1.Full Name:... 2.Address:... 3.Phone:... 4.Country:... 5.Sex/Gender:..=
-=2E
-
-
-YOURS SINCERELY,
-HILDA CREIGHTON.
+>  Documentation/hid/Makefile            |    8 ++
+>  Documentation/hid/hid-example.c       |  167 +++++++++++++++++++++++++++=
+++++++
+>  Documentation/{usb =3D> hid}/hiddev.txt |    0
+>  Documentation/hid/hidraw.txt          |  119 +++++++++++++++++++++++
+>  4 files changed, 294 insertions(+), 0 deletions(-)
+>  create mode 100644 Documentation/hid/Makefile
+>  create mode 100644 Documentation/hid/hid-example.c
+>  rename Documentation/{usb =3D> hid}/hiddev.txt (100%)
+>  create mode 100644 Documentation/hid/hidraw.txt
+>=20
+>=20
+>=20
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Antonio Ospite
+http://ao2.it
+
+PGP public key ID: 0x4553B001
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
+
+--Signature=_Sat__19_Jun_2010_10_25_58_+0200_Qu=KyNXjGTH+P0_b
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkwcfxYACgkQ5xr2akVTsAHP7ACeJuxVcJK+dI2uZpoNhh9jLEUL
+E5MAoJGZCiFVsXsY6ZpKwzbARRWUA2Us
+=6IdX
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__19_Jun_2010_10_25_58_+0200_Qu=KyNXjGTH+P0_b--

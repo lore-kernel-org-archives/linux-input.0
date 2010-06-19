@@ -1,54 +1,36 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH v2 0/2] HID: hidraw documentation
-Date: Fri, 18 Jun 2010 20:14:45 -0700
-Message-ID: <20100618201445.28c58573.rdunlap@xenotime.net>
-References: <1276832283-12084-1-git-send-email-alan@signal11.us>
-	<1276913623-6126-1-git-send-email-alan@signal11.us>
+From: Kyungmin Park <kmpark@infradead.org>
+Subject: Pending patches for s5p series
+Date: Sat, 19 Jun 2010 13:03:46 +0900
+Message-ID: <AANLkTik0r1MXwJ7Htfreh6MSPDWjqiGstiMDLNjFhtBP@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([72.52.115.56]:50405 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751587Ab0FSDOv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Jun 2010 23:14:51 -0400
-Received: from chimera.site ([98.108.160.27]) by xenotime.net for <linux-input@vger.kernel.org>; Fri, 18 Jun 2010 20:14:46 -0700
-In-Reply-To: <1276913623-6126-1-git-send-email-alan@signal11.us>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>, arm-linux <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org
+Cc: =?EUC-KR?B?seixucH4L0FQsLO538bAL0U1L7vvvLrA/MDa?= <kgene.kim@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
-On Fri, 18 Jun 2010 22:13:41 -0400 Alan Ott wrote:
+Hi,
 
-> These patches add the hidraw.txt file to a new Documentation/hid/ directory.
-> 
-> The example program has been moved out of the document and fixed up for style
-> (it's now checkpatch.pl clean), and a Makefile has been created for it.
-> 
-> I integrated the comments provided.
-> 
-> hiddev.txt has been moved from Documentation/usb/ to Documentation/hid/
-> 
-> 
-> Alan Ott (2):
->   HID: Documentation for hidraw
->   HID: Move hiddev.txt to the new Documentation/HID directory
+Pending or no comments at these patches.
 
-Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+1. [PATCH/RFC] Samsung multimedia (FIMC and FB) drivers proposal
+http://marc.info/?l=linux-arm-kernel&m=127668321706310&w=2
 
-Jiri, can you merge these patches, please?
+2. [PATCH v2] Various s3c-fb updates
+http://marc.info/?l=linux-arm-kernel&m=127668095702084&w=2
 
->  Documentation/hid/Makefile            |    8 ++
->  Documentation/hid/hid-example.c       |  167 +++++++++++++++++++++++++++++++++
->  Documentation/{usb => hid}/hiddev.txt |    0
->  Documentation/hid/hidraw.txt          |  119 +++++++++++++++++++++++
->  4 files changed, 294 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/hid/Makefile
->  create mode 100644 Documentation/hid/hid-example.c
->  rename Documentation/{usb => hid}/hiddev.txt (100%)
->  create mode 100644 Documentation/hid/hidraw.txt
+3. [PATCH v2] SDHCI-S3C fixes and enhancements (driver specific code)
+http://marc.info/?l=linux-arm-kernel&m=127667104617587&w=2
 
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+4. [RFC/PATCH 0/9] Samsung crypto engine
+http://marc.info/?l=linux-arm-kernel&m=127628580015805&w=2
+
+5. [PATCH v2 0/4] ARM: S5P: Support gpio interrupts
+http://marc.info/?l=linux-arm-kernel&m=127624524906617&w=2
+
+6. [PATCH v4 0/3] Add samsung keypad
+http://marc.info/?l=linux-arm-kernel&m=127624378103808&w=2
+
+Thank you,
+Kyungmin Park

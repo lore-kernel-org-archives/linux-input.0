@@ -1,53 +1,189 @@
-From: Stefan Achatz <erazor_de@users.sourceforge.net>
-Subject: [PATCH] HID: Fixing offset errors in bin_attribute read functions
- of roccat kone
-Date: Sun, 20 Jun 2010 19:19:06 +0200
-Message-ID: <1277054346.10971.1.camel@localhost>
-Reply-To: erazor_de@users.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: evdev: Use multi-reader buffer to save space (rev5)
+Date: Sun, 20 Jun 2010 20:48:54 +0200
+Message-ID: <1277059734-2939-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-in-16.arcor-online.net ([151.189.21.56]:59197 "EHLO
-	mail-in-16.arcor-online.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755500Ab0FTRTK (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:55004 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756766Ab0FTStV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 13:19:10 -0400
+	Sun, 20 Jun 2010 14:49:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Stefan Achatz <erazor_de@users.sourceforge.net>, Stephen Rothwell <sfr@canb.auug.org.au>, Tejun Heo <tj@kernel.org>, linux-input@vger.kernel.orglinux
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
 
-Fixing wrong calculated offsets in bin_attribute read functions.
+Preparing for larger buffer needs, convert the current per-client
+circular buffer to a single buffer with multiple clients. Ideally, there
+should be a mechanism where clients wait during buffer collision only.
+Meanwhile, let clients take the dev->event_lock, which is already held
+during buffer writes.
 
-Signed-off-by: Stefan Achatz <erazor_de@users.sourceforge.net>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 ---
- drivers/hid/hid-roccat-kone.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Hi Dmitry,
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index fcc2ccc..f776957 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -272,7 +272,7 @@ static ssize_t kone_sysfs_read_settings(struct file *fp, struct kobject *kobj,
- 		count = sizeof(struct kone_settings) - off;
+This is revision 5 of the evdev multi-reader buffer patch, fixing the
+grab/ungrab bug mentioned in an earlier post.
+
+Thanks,
+Henrik
+
+ drivers/input/evdev.c |   65 ++++++++++++++++++++++++++++++++++---------------
+ 1 files changed, 45 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 2ee6c7a..da0fe3f 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -33,13 +33,13 @@ struct evdev {
+ 	spinlock_t client_lock; /* protects client_list */
+ 	struct mutex mutex;
+ 	struct device dev;
++	int head;
++	struct input_event buffer[EVDEV_BUFFER_SIZE];
+ };
  
- 	mutex_lock(&kone->kone_lock);
--	memcpy(buf, &kone->settings + off, count);
-+	memcpy(buf, ((char const *)&kone->settings) + off, count);
- 	mutex_unlock(&kone->kone_lock);
+ struct evdev_client {
+-	struct input_event buffer[EVDEV_BUFFER_SIZE];
+ 	int head;
+ 	int tail;
+-	spinlock_t buffer_lock; /* protects access to buffer, head and tail */
+ 	struct fasync_struct *fasync;
+ 	struct evdev *evdev;
+ 	struct list_head node;
+@@ -48,18 +48,13 @@ struct evdev_client {
+ static struct evdev *evdev_table[EVDEV_MINORS];
+ static DEFINE_MUTEX(evdev_table_mutex);
  
- 	return count;
-@@ -332,7 +332,7 @@ static ssize_t kone_sysfs_read_profilex(struct kobject *kobj,
- 		count = sizeof(struct kone_profile) - off;
+-static void evdev_pass_event(struct evdev_client *client,
+-			     struct input_event *event)
++static inline void evdev_sync_event(struct evdev_client *client,
++				    struct evdev *evdev, int type)
+ {
+-	/*
+-	 * Interrupts are disabled, just acquire the lock
+-	 */
+-	spin_lock(&client->buffer_lock);
+-	client->buffer[client->head++] = *event;
+-	client->head &= EVDEV_BUFFER_SIZE - 1;
+-	spin_unlock(&client->buffer_lock);
+-
+-	if (event->type == EV_SYN)
++	/* sync the reader such that it never becomes empty */
++	if (client->tail != evdev->head)
++		client->head = evdev->head;
++	if (type == EV_SYN)
+ 		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+ }
  
- 	mutex_lock(&kone->kone_lock);
--	memcpy(buf, &kone->profiles[number - 1], sizeof(struct kone_profile));
-+	memcpy(buf, ((char const *)&kone->profiles[number - 1]) + off, count);
- 	mutex_unlock(&kone->kone_lock);
+@@ -78,14 +73,18 @@ static void evdev_event(struct input_handle *handle,
+ 	event.code = code;
+ 	event.value = value;
  
- 	return count;
++	/* dev->event_lock held */
++	evdev->buffer[evdev->head] = event;
++	evdev->head = (evdev->head + 1) & (EVDEV_BUFFER_SIZE - 1);
++
+ 	rcu_read_lock();
+ 
+ 	client = rcu_dereference(evdev->grab);
+ 	if (client)
+-		evdev_pass_event(client, &event);
++		evdev_sync_event(client, evdev, type);
+ 	else
+ 		list_for_each_entry_rcu(client, &evdev->client_list, node)
+-			evdev_pass_event(client, &event);
++			evdev_sync_event(client, evdev, type);
+ 
+ 	rcu_read_unlock();
+ 
+@@ -149,11 +148,29 @@ static int evdev_grab(struct evdev *evdev, struct evdev_client *client)
+ 
+ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+ {
++	struct input_dev *dev = evdev->handle.dev;
++	int head, tail;
++
+ 	if (evdev->grab != client)
+ 		return  -EINVAL;
+ 
++	spin_lock_irq(&dev->event_lock);
++
++	head = client->head;
++	tail = client->tail;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(client, &evdev->client_list, node) {
++		client->head = head;
++		client->tail = tail;
++	}
++	rcu_read_unlock();
++
+ 	rcu_assign_pointer(evdev->grab, NULL);
+ 	synchronize_rcu();
++
++	spin_unlock_irq(&dev->event_lock);
++
+ 	input_release_device(&evdev->handle);
+ 
+ 	return 0;
+@@ -162,6 +179,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+ static void evdev_attach_client(struct evdev *evdev,
+ 				struct evdev_client *client)
+ {
++	client->head = client->tail = evdev->head;
+ 	spin_lock(&evdev->client_lock);
+ 	list_add_tail_rcu(&client->node, &evdev->client_list);
+ 	spin_unlock(&evdev->client_lock);
+@@ -269,7 +287,6 @@ static int evdev_open(struct inode *inode, struct file *file)
+ 		goto err_put_evdev;
+ 	}
+ 
+-	spin_lock_init(&client->buffer_lock);
+ 	client->evdev = evdev;
+ 	evdev_attach_client(evdev, client);
+ 
+@@ -325,19 +342,27 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ }
+ 
+ static int evdev_fetch_next_event(struct evdev_client *client,
++				  struct evdev *evdev,
+ 				  struct input_event *event)
+ {
++	struct input_dev *dev = evdev->handle.dev;
+ 	int have_event;
+ 
+-	spin_lock_irq(&client->buffer_lock);
++	/*
++	 * FIXME: taking event_lock protects against reentrant fops
++	 * reads and provides sufficient buffer locking. However,
++	 * clients should not block writes, and having multiple clients
++	 * waiting for each other is suboptimal.
++	 */
++	spin_lock_irq(&dev->event_lock);
+ 
+ 	have_event = client->head != client->tail;
+ 	if (have_event) {
+-		*event = client->buffer[client->tail++];
++		*event = evdev->buffer[client->tail++];
+ 		client->tail &= EVDEV_BUFFER_SIZE - 1;
+ 	}
+ 
+-	spin_unlock_irq(&client->buffer_lock);
++	spin_unlock_irq(&dev->event_lock);
+ 
+ 	return have_event;
+ }
+@@ -366,7 +391,7 @@ static ssize_t evdev_read(struct file *file, char __user *buffer,
+ 		return -ENODEV;
+ 
+ 	while (retval + input_event_size() <= count &&
+-	       evdev_fetch_next_event(client, &event)) {
++	       evdev_fetch_next_event(client, evdev, &event)) {
+ 
+ 		if (input_event_to_user(buffer + retval, &event))
+ 			return -EFAULT;
 -- 
-1.6.6.1
-
-
+1.6.3.3
 

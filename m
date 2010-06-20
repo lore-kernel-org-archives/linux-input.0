@@ -1,58 +1,102 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [Regression 2.6.35-rc1?] Sysrq works too well (no need of alt)
-Date: Sun, 20 Jun 2010 01:15:50 +0200
-Message-ID: <4C1D4FA6.6030607@tudelft.nl>
-References: <4C0E0E51.8050709@tudelft.nl> <201006192316.32360.rjw@sisk.pl>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: Wacom based devices and the mt kernel protocol.
+Date: Sat, 19 Jun 2010 22:35:43 -0700
+Message-ID: <AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
+References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:51558 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753108Ab0FSXPz (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:56109 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750810Ab0FTFfo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Jun 2010 19:15:55 -0400
-In-Reply-To: <201006192316.32360.rjw@sisk.pl>
+	Sun, 20 Jun 2010 01:35:44 -0400
+In-Reply-To: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Op 19-06-10 23:16, Rafael J. Wysocki schreef:
-> On Tuesday, June 08, 2010, =C3=89ric Piel wrote:
->> Hello,
->> I haven't investigated much yet, but I have the feeling that since
->> 2.6.35-rc1 my "Print Screen/SysRq" key works only as SysRq: if I pre=
-ss
->> it (normally assigned to take screenshot in gnome), nothing happens =
-(no
->> input event received in userspace) and no key on the keyboard works
->> afterwards, until I press Alt. Actually the keys work, but behave as=
- if
->> the sysrq key was kept pressed (can be seen in dmesg, or by pressing=
- "b").
->>
->> Looking at the log, a potential culprit is commit
->> 97f5f0cd8cd0a05449cbb77d1e6f02e026875802 (Input: implement SysRq as =
-a
->> separate input handler). Probably the logic of "have to press all th=
-e
->> keys at the same time" changed to "have to press the keys one after =
-each
->> other". So pressing alt and later on pressing PrintScreen leads to a=
- SysRq.
->>
->> Does anybody else see this behaviour? Any suggestion on how to solve
->> this bug? I'll try reverting the commit and report if it fixes the
->> problem (the git revert fails so I've got to fix the conflict manual=
-ly).
->=20
-> Is this still a problem with 2.6.35-rc3?
-The bug is still in 2.6.35-rc3. The patch that fixes this regression is
-in the "for-linus" branch of the input tree, but I think Dmitry hasn't
-yet sent a pull request to Linus.
+Hi Mohamed,
 
-Eric
+I am glad that you've initiated this email thread. Otherwise, I would
+have to find a proper way to explain the current status of Wacom MT
+support. Please see my comments inline.
+
+Thank you,
+
+Ping
+
+On Fri, Jun 18, 2010 at 4:20 AM, Mohamed Ikbel Boulabiar
+<boulabiar@gmail.com> wrote:
+> Hi,
+>
+> Now we can find many multitouch devices based on wacom Wacom panel/di=
+gitizer
+> Bamboo Pen&Touch, HP tm2, Fujitsu LifeBook T4410 & T4310, etc...
+>
+> it seems that these devices are supported in some way in Linux Kernel=
+,
+> but I want to know if they are compliant with the MT Linux protocol.
+
+As most of you know, the current Wacom two finger touch devices have
+been supported on Linux since last Oct.  However, they are not
+supported with the current in-kernel MT protocol, aka, MT type A
+protocol.
+
+I know you would ask me why. The reason is simple: it doesn't support
+the Wacom case - finger tracking.  If you wonder why I don't work with
+the other developers to support Wacom MT case, I can assure you that I
+am working with them. We will support Wacom MT devices once the
+appropriate protocol is available.
+
+> N-Trig based devices and Stantum ones are the most compliant,
+
+That's fair since they don't need to track the fingers.
+
+> so Wacom situation needs to be clarified specially considering they a=
+re HID
+> devices (meaning similar to the others devices which respect the
+> protocol).
+
+Well, it is not a pure HID issue.  It is more of how we want to
+support MT on Linux issue.
+
+> This impact very much the decision of a Linux user wanting to buy wac=
+om mt device.
+
+I think end users have already got the Linux support from Wacom.  Can
+you share the specific issues that are preventing Linux end users from
+buying a Wacom MT devices? If I didn't misunderstand your point here,
+you are talking about Linux users, not Linux developers/hackers,
+right?
+
+> Ping can you clarifie the situation of wacom based devices ?
+
+What else do you need me to clarify? I am all ears and I am ready to
+clarify any thing that puzzles you.
+
+Ping
+
+> Thanks,
+>
+> ik.
+>
+> On Tue, Jun 15, 2010 at 7:01 PM, Henrik Rydberg <rydberg@euromail.se>=
+ wrote:
+>>
+>> g number of intelligent multi-contact and
+>> multi-user devices, the need to send digested, filtered information
+>> from a set of different sources within the same device is imminent.
+>> This patch adds the concept of slots to the MT protocol. The slots
+>> enumerate a set of identified sources, such that all MT events
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,287 +1,128 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] Introduce buflock, a one-to-many circular buffer mechanism (rev2)
-Date: Sun, 20 Jun 2010 21:05:05 +0200
-Message-ID: <1277060705-3363-1-git-send-email-rydberg@euromail.se>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: Wacom based devices and the mt kernel protocol.
+Date: Sun, 20 Jun 2010 15:22:52 -0400
+Message-ID: <4C1E6A8C.4020904@seas.upenn.edu>
+References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com> <AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:55044 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756738Ab0FTTFf (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:50199 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756927Ab0FTTaP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 15:05:35 -0400
+	Sun, 20 Jun 2010 15:30:15 -0400
+In-Reply-To: <AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jonathan Cameron <jic23@cam.ac.uk>, Henrik Rydberg <rydberg@euromail.se>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-In spite of the many lock patterns and fifo helpers in the kernel, the
-case of a single writer feeding many readers via a circular event
-buffer seems to be uncovered. This patch adds the buflock, a mechanism
-for handling multiple concurrent read positions in a shared circular
-buffer.  Under normal operation, given adequate buffer size, the
-operation is lock-less. The mechanism is given the name buflock to
-emphasize that the locking depends on the buffer read/write clashes.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-This is version 2 of the buflock, which was first introduced as a
-patch against the input subsystem. In the reviews, it was suggested
-the file be placed in include/linux/, which is the patch presented
-here. The major changes, taking review comments into account, are:
+On 06/20/10 01:35, Ping Cheng wrote:
+> Hi Mohamed,
+> 
+> I am glad that you've initiated this email thread. Otherwise, I would
+> have to find a proper way to explain the current status of Wacom MT
+> support. Please see my comments inline.
+> 
+> Thank you,
+> 
+> Ping
+> 
+> On Fri, Jun 18, 2010 at 4:20 AM, Mohamed Ikbel Boulabiar
+> <boulabiar@gmail.com> wrote:
+>> Hi,
+>>
+>> Now we can find many multitouch devices based on wacom Wacom panel/digitizer
+>> Bamboo Pen&Touch, HP tm2, Fujitsu LifeBook T4410 & T4310, etc...
+>>
+>> it seems that these devices are supported in some way in Linux Kernel,
+>> but I want to know if they are compliant with the MT Linux protocol.
+> 
+> As most of you know, the current Wacom two finger touch devices have
+> been supported on Linux since last Oct.  However, they are not
+> supported with the current in-kernel MT protocol, aka, MT type A
+> protocol.
+> 
+> I know you would ask me why. The reason is simple: it doesn't support
+> the Wacom case - finger tracking.  If you wonder why I don't work with
+> the other developers to support Wacom MT case, I can assure you that I
+> am working with them. We will support Wacom MT devices once the
+> appropriate protocol is available.
 
-* The API has been rewritten to better abstract a lock, which
-  hopefully provides a clearer reason to leave the actual memory
-  handling to the user.
+Er, the A protocol supports both tracked and untracked fingers (just wouldn't
+mix the two for a single device).  Still, you probably have a point about
+waiting for the B protocol to make its way upstream.
 
-* The number of memory barriers has been reduced.
 
-* Overlap detection now takes write interrupts larger than the buffer
-  size into account.
+>> N-Trig based devices and Stantum ones are the most compliant,
+> 
+> That's fair since they don't need to track the fingers.
 
-* All methods are now static inlines.
+N-Trig doesn't have hardware tracking, Stantum does.
 
-Thanks,
-Henrik
+>> so Wacom situation needs to be clarified specially considering they are HID
+>> devices (meaning similar to the others devices which respect the
+>> protocol).
+> 
+> Well, it is not a pure HID issue.  It is more of how we want to
+> support MT on Linux issue.
 
- include/linux/buflock.h |  230 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 230 insertions(+), 0 deletions(-)
- create mode 100644 include/linux/buflock.h
+Side note for Ikbel, its not clear the wacom devices actually stay HID compliant
+when the full protocol is active, and the basic modes are really basic (and not
+very useful).  As my understanding of the way HID and usb stuff communicate in
+general, I've been growing less convinced its a protocol issue, more like an
+initialization problem.  Still I'm not quite sure.
 
-diff --git a/include/linux/buflock.h b/include/linux/buflock.h
-new file mode 100644
-index 0000000..3d5df22
---- /dev/null
-+++ b/include/linux/buflock.h
-@@ -0,0 +1,230 @@
-+#ifndef _BUFLOCK_H
-+#define _BUFLOCK_H
-+/*
-+ * Circular event buffer lock for single writer, concurrent readers
-+ *
-+ * Copyright (c) 2010 Henrik Rydberg
-+ *
-+ * The buflock is a mechanism for handling multiple concurrent read
-+ * positions in a shared circular buffer. The buflock does not handle
-+ * the actual buffer, which can therefore be of any type.
-+ *
-+ * The writer does not block, but overwrites older events as the
-+ * buffer gets full. Writing is performed in two stages; writing the
-+ * data and telling the readers about it (syncing).
-+ *
-+ * The readers all read from the same shared buffer, but at individual
-+ * positions. Reading from the position currently being written to
-+ * will cause the reader to retry until the read is coherent. During
-+ * normal operation, with sufficient buffer size, the mechanism is
-+ * practically lock-less.
-+ *
-+ * The buflock is particularly suitable for input event buffers, where
-+ * the single writer must not be starved, and where there are several
-+ * threads reading the same data.
-+ *
-+ * Buflocks are similar to seqlocks, but while seqlocks have a finite
-+ * retry frequency, buflocks virtually never retry. Like seqlocks,
-+ * buflocks are not very cache friendly, and require the buffer to be
-+ * valid in all threads.
-+ *
-+ * Multiple writers and re-entrant readers require additional locking.
-+ *
-+ * Event queue writer example.  Readers are synchronized individually.
-+ *
-+ *    bufwrite_lock(&writer);
-+ *
-+ *    buffer[bufwrite_at(&writer)] = event_to_write;
-+ *
-+ *    bufwrite_unlock(&writer);
-+ *
-+ *    for (i = 0; i < NUM_READERS; i++)
-+ *            bufwrite_sync(&writer, &client[i]->reader);
-+ *
-+ * Event queue reader example, reading all available events.
-+ *
-+ *    while (!bufread_empty(&reader)) {
-+ *            do {
-+ *                    bufread_try(&reader, &writer);
-+ *                    event_to_read = buffer[bufread_at(&reader, &writer)];
-+ *            } while (bufread_retry(&reader, &writer));
-+ *    }
-+ *
-+ */
-+
-+/**
-+ * struct buflock_writer - buflock writer
-+ * @page: the bits of the circular buffer (page = size - 1)
-+ * @head: the current writer head
-+ * @next: the head to take effect after the lock
-+ *
-+ * The buffer size must be a power of two, such that page is the set
-+ * of bits in which the buffer positions live.
-+ *
-+ */
-+struct buflock_writer {
-+	unsigned int page;
-+	unsigned int head;
-+	unsigned int next;
-+};
-+
-+/**
-+ * struct buflock_reader - buflock reader
-+ * @last: the last write head seen beforing trying
-+ * @head: the current reader head
-+ * @tail: the current reader tail
-+ */
-+struct buflock_reader {
-+	unsigned int last;
-+	unsigned int head;
-+	unsigned int tail;
-+};
-+
-+/**
-+ * bufwrite_init - initialize writer
-+ * @bw: the buflock_writer to initialize
-+ * @size: the size of the buffer (must be power of two)
-+ */
-+static inline void bufwrite_init(struct buflock_writer *bw, unsigned int size)
-+{
-+	bw->page = size - 1;
-+	bw->head = 0;
-+	bw->next = 0;
-+}
-+
-+/**
-+ * bufwrite_lock - lock to write one event
-+ * @bw: the buflock_writer to lock
-+ *
-+ * This method prepares to write one event.  The write lock does not
-+ * sleep and is thus suitable for use in atomic contexts.
-+ *
-+ */
-+static inline void bufwrite_lock(struct buflock_writer *bw)
-+{
-+	++bw->next;
-+	smp_wmb();
-+}
-+
-+/**
-+ * bufwrite_at - return position to write to
-+ * @bw: the buflock_writer keeping track of the write position
-+ *
-+ * Returns the buffer position to write to. Must be called from within
-+ * the write lock.
-+ *
-+ */
-+static inline unsigned int bufwrite_at(const struct buflock_writer *bw)
-+{
-+	return bw->head & bw->page;
-+}
-+
-+/**
-+ * bufwrite_unlock - unlock writing
-+ * @bw: the buflock_writer to unlock
-+ */
-+static inline void bufwrite_unlock(struct buflock_writer *bw)
-+{
-+	++bw->head;
-+	smp_wmb();
-+}
-+
-+/**
-+ * bufwrite_sync - synchronize reader with current writer
-+ * @bw: the buflock_writer to sync with
-+ * @br: the buflock_reader to sync
-+ *
-+ * Synchronize the reader head with the writer head, effectively
-+ * telling the reader thread that there is new data to read.
-+ *
-+ */
-+static inline void bufwrite_sync(const struct buflock_writer *bw,
-+				 struct buflock_reader *br)
-+{
-+	br->head = bw->head;
-+}
-+
-+/**
-+ * bufread_init - initialize reader
-+ * @br: the buflock_reader to initialize
-+ * @head: the initial reader head
-+ * @tail: the initial reader tail
-+ *
-+ * This function must be called while bufwrite_sync() and
-+ * bufread_empty() are out of reach, since the reader state is updated
-+ * without coherence guarantees.
-+ */
-+static inline void bufread_init(struct buflock_reader *br,
-+				unsigned int head, unsigned int tail)
-+{
-+	br->head = head;
-+	br->tail = tail;
-+	smp_wmb();
-+}
-+
-+/**
-+ * bufread_empty - true if reader is empty
-+ * @br: the buflock_reader to check
-+ */
-+static inline bool bufread_empty(const struct buflock_reader *br)
-+{
-+	return br->head == br->tail;
-+}
-+
-+/**
-+ * bufread_try - try to read data
-+ * @br: the buflock_reader to try to read from
-+ * @bw: the buflock_writer keeping track of the write position
-+ *
-+ * Prepare to read from buffer. The reader must be non-empty before
-+ * trying to read from it.
-+ *
-+ */
-+static inline void bufread_try(struct buflock_reader *br,
-+			       const struct buflock_writer *bw)
-+{
-+	br->last = bw->head;
-+	smp_rmb();
-+}
-+
-+/**
-+ * bufread_at - return position to read from
-+ * @br: the buflock_reader keeping track of the read position
-+ * @bw: the buflock_writer keeping track of the buffer size
-+ *
-+ * Returns the buffer position to read from. Must be called from
-+ * within the read try block.
-+ *
-+ */
-+static inline unsigned int bufread_at(const struct buflock_reader *br,
-+				      const struct buflock_writer *bw)
-+{
-+	return br->tail & bw->page;
-+}
-+
-+/**
-+ * bufread_retry - try to finish read
-+ * @br: the buflock_reader to try to finish
-+ * @bw: the buflock_writer keeping track of the write position
-+ *
-+ * Try to finish the read. Returns false if successful. Otherwise, the
-+ * read was incoherent and one must bufread_try() again.  During
-+ * normal operation, with adequate buffer size, this method will
-+ * always return false.
-+ *
-+ * If the reader falls behind, it catches up by jumping to the head,
-+ * as if all available events had actually been read.
-+ *
-+ */
-+static __always_inline bool __must_check bufread_retry(struct buflock_reader *br, const struct buflock_writer *bw)
-+{
-+	smp_rmb();
-+	if (unlikely(((br->tail - br->last) & bw->page) < bw->next - br->last))
-+		return true;
-+	++br->tail;
-+	if (unlikely(br->head - br->tail > bw->page))
-+		br->tail = br->head;
-+	return false;
-+}
-+
-+#endif /* _BUFLOCK_H */
--- 
-1.6.3.3
+>> This impact very much the decision of a Linux user wanting to buy wacom mt device.
+> 
+> I think end users have already got the Linux support from Wacom.  Can
+> you share the specific issues that are preventing Linux end users from
+> buying a Wacom MT devices? If I didn't misunderstand your point here,
+> you are talking about Linux users, not Linux developers/hackers,
+> right?
 
+I think normal users wanting to use linux for MT are generally frustrated and
+confused at the moment.  Certainly the protocol between the wacom kernel driver
+and the wacom user space driver is way below the level that most are following.
+
+As developers, I think we have a strong interest in seeing wacom migrate to a
+shared protocol.  But our interests are in pushing the functionality beyond
+what's currently available, and we just want to see everyone get equal access to
+features as we create them.  I think to convince Ping (if he weren't already),
+and the others working on the Wacom code, we'd have to show off some of what
+he's going to gain by switching, and at the moment, as a community, I don't
+think we are quite ready, maybe soon.
+
+So, Ping, consider that I and others will have cool things to show you in the
+near future, and if you start migrating you will get some cool new functionality
+when the two waves of progress collide.  Also, I think Henrik's B protocol has
+some cool advantages which you've demonstrated considerable interest in.  So I
+gather you do intend to switch when its convenient?
+
+>> Ping can you clarifie the situation of wacom based devices ?
+> 
+> What else do you need me to clarify? I am all ears and I am ready to
+> clarify any thing that puzzles you.
+
+Will Wacom be moving to more than 2 finger support in the near future?  Do you
+already have some products on the market?
+
+Rafi
+
+> Ping
+> 
+>> Thanks,
+>>
+>> ik.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkweaooACgkQwuRiAT9o609XfACeN7OgUTXusOztPHwoHbTEqF7F
+VwwAoKIedssO79JIzeOnkegjsBu2fLkl
+=QyOK
+-----END PGP SIGNATURE-----

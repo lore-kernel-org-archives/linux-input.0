@@ -1,104 +1,63 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: Wacom based devices and the mt kernel protocol.
-Date: Sat, 19 Jun 2010 22:35:43 -0700
-Message-ID: <AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
-References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 1/2] drivers/hid: Eliminate a double lock
+Date: Sun, 20 Jun 2010 13:24:35 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1006201324170.4366@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:56109 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750810Ab0FTFfo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 01:35:44 -0400
-In-Reply-To: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Hi Mohamed,
+From: Julia Lawall <julia@diku.dk>
 
-I am glad that you've initiated this email thread. Otherwise, I would
-have to find a proper way to explain the current status of Wacom MT
-support. Please see my comments inline.
+The path around the loop ends with the lock held, so the call to mutex_lock
+is moved before the beginning of the loop.
 
-Thank you,
+A simplified version of the semantic match that finds this problem is as
+follows: (http://coccinelle.lip6.fr/)
 
-Ping
+// <smpl>
+@locked@
+expression E1;
+position p;
+@@
 
-On Fri, Jun 18, 2010 at 4:20 AM, Mohamed Ikbel Boulabiar
-<boulabiar@gmail.com> wrote:
-> Hi,
->
-> Now we can find many multitouch devices based on wacom Wacom panel/di=
-gitizer
-> Bamboo Pen&Touch, HP tm2, Fujitsu LifeBook T4410 & T4310, etc...
->
-> it seems that these devices are supported in some way in Linux Kernel=
-,
-> but I want to know if they are compliant with the MT Linux protocol.
+read_lock(E1@p,...);
 
-As most of you know, the current Wacom two finger touch devices have
-been supported on Linux since last Oct.  However, they are not
-supported with the current in-kernel MT protocol, aka, MT type A
-protocol.
+@r exists@
+expression x <= locked.E1;
+expression locked.E1;
+expression E2;
+identifier lock;
+position locked.p,p1,p2;
+@@
 
-I know you would ask me why. The reason is simple: it doesn't support
-the Wacom case - finger tracking.  If you wonder why I don't work with
-the other developers to support Wacom MT case, I can assure you that I
-am working with them. We will support Wacom MT devices once the
-appropriate protocol is available.
+*lock@p1 (E1@p,...);
+... when != E1
+    when != \(x = E2\|&x\)
+*lock@p2 (E1,...);
+// </smpl>
 
-> N-Trig based devices and Stantum ones are the most compliant,
+Signed-off-by: Julia Lawall <julia@diku.dk>
 
-That's fair since they don't need to track the fingers.
+---
+Compile tested only.
 
-> so Wacom situation needs to be clarified specially considering they a=
-re HID
-> devices (meaning similar to the others devices which respect the
-> protocol).
+ drivers/hid/hid-debug.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Well, it is not a pure HID issue.  It is more of how we want to
-support MT on Linux issue.
-
-> This impact very much the decision of a Linux user wanting to buy wac=
-om mt device.
-
-I think end users have already got the Linux support from Wacom.  Can
-you share the specific issues that are preventing Linux end users from
-buying a Wacom MT devices? If I didn't misunderstand your point here,
-you are talking about Linux users, not Linux developers/hackers,
-right?
-
-> Ping can you clarifie the situation of wacom based devices ?
-
-What else do you need me to clarify? I am all ears and I am ready to
-clarify any thing that puzzles you.
-
-Ping
-
-> Thanks,
->
-> ik.
->
-> On Tue, Jun 15, 2010 at 7:01 PM, Henrik Rydberg <rydberg@euromail.se>=
- wrote:
->>
->> g number of intelligent multi-contact and
->> multi-user devices, the need to send digested, filtered information
->> from a set of different sources within the same device is imminent.
->> This patch adds the concept of slots to the MT protocol. The slots
->> enumerate a set of identified sources, such that all MT events
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index c940267..850d02a 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -949,8 +949,8 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
+ 	int ret = 0, len;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
++	mutex_lock(&list->read_mutex);
+ 	while (ret == 0) {
+-		mutex_lock(&list->read_mutex);
+ 		if (list->head == list->tail) {
+ 			add_wait_queue(&list->hdev->debug_wait, &wait);
+ 			set_current_state(TASK_INTERRUPTIBLE);

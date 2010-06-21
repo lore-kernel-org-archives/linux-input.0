@@ -1,91 +1,105 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: [PATCH 3/3] HID: magicmouse: enable horizontal scrolling
-Date: Sun, 20 Jun 2010 21:32:31 -0400
-Message-ID: <1277083951-29137-4-git-send-email-chase.douglas@canonical.com>
-References: <1277083951-29137-1-git-send-email-chase.douglas@canonical.com>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Sun, 20 Jun 2010 23:51:21 -0400
+Message-ID: <AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
+References: <20100424211411.11570.2189.stgit@localhost.localdomain>
+	<4BDF2B45.9060806@redhat.com>
+	<20100607190003.GC19390@hardeman.nu>
+	<20100607201530.GG16638@redhat.com>
+	<20100608175017.GC5181@hardeman.nu>
+	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
+	<20100609132908.GM16638@redhat.com>
+	<20100609175621.GA19620@hardeman.nu>
+	<20100609181506.GO16638@redhat.com>
+	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+	<20100613202945.GA5883@hardeman.nu>
+	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+	<AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
+	<1276776859.2461.16.camel@localhost>
+	<AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
+	<1277081276.2252.12.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:53220 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757231Ab0FUBck (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:57685 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757210Ab0FUDvW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 21:32:40 -0400
-In-Reply-To: <1277083951-29137-1-git-send-email-chase.douglas@canonical.com>
+	Sun, 20 Jun 2010 23:51:22 -0400
+In-Reply-To: <1277081276.2252.12.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Michael Poole <mdpoole@troilus.org>
-Cc: linux-input@vger.kernel.org
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Mimicks OS X behavior.
+On Sun, Jun 20, 2010 at 8:47 PM, Andy Walls <awalls@md.metrocast.net> w=
+rote:
+> On Thu, 2010-06-17 at 11:11 -0400, Jarod Wilson wrote:
+>> On Thu, Jun 17, 2010 at 8:14 AM, Andy Walls <awalls@md.metrocast.net=
+> wrote:
+>
+>> >> A fully functional tree carrying both of David's patches and the
+>> >> entire stack of other patches I've submitted today, based on top =
+of
+>> >> the linuxtv staging/rc branch, can be found here:
+>> >>
+>> >> http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=3Dshortlog;h=3Dre=
+fs/heads/patches
+>> >>
+>> >> Also includes the lirc patches that I believe are ready to be
+>> >> submitted for actual consideration (note that they're dependent o=
+n
+>> >> David's two patches).
+>> >
+>> >
+>> > I'll try and play with this this weekend along with some cx23885
+>> > cleanup.
+>>
+>> Excellent. A few things to note...
+>
+> Jarrod,
+>
+> I was unable to get this task completed in the time I had available t=
+his
+> weekend. =A0A power supply failure, unexpected hard drive replacement=
+, and
+> my inability to build/install a kernel from a git tree that would
+> actually boot my Fedora 12 installation didn't help. =A0(My productiv=
+ity
+> has tanked since v4l-dvb went to GIT for CM, and the last time I buil=
+t a
+> real kernel without rpmbuild was for RedHat 9. I'm still working out
+> processes for doing basic things, sorry.)
 
-Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
----
- drivers/hid/hid-magicmouse.c |   25 +++++++++++++++++++------
- 1 files changed, 19 insertions(+), 6 deletions(-)
+Heh, yeah, hardware failure is always fun when you're trying really
+hard to get something done. :)
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index fe0c760..0b89c1c 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -95,6 +95,7 @@ struct magicmouse_sc {
- 	struct {
- 		short x;
- 		short y;
-+		short scroll_x;
- 		short scroll_y;
- 		u8 size;
- 	} touches[16];
-@@ -181,11 +182,13 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 	 */
- 	if (emulate_scroll_wheel) {
- 		unsigned long now = jiffies;
--		int step = msc->touches[id].scroll_y - y;
-+		int step_x = msc->touches[id].scroll_x - x;
-+		int step_y = msc->touches[id].scroll_y - y;
- 
- 		/* Calculate and apply the scroll motion. */
- 		switch (tdata[7] & TOUCH_STATE_MASK) {
- 		case TOUCH_STATE_START:
-+			msc->touches[id].scroll_x = x;
- 			msc->touches[id].scroll_y = y;
- 
- 			/* Reset acceleration after half a second. */
-@@ -198,12 +201,20 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
- 
- 			break;
- 		case TOUCH_STATE_DRAG:
--			step /= (64 - (int)scroll_speed) * msc->scroll_accel;
--			if (step != 0) {
--				msc->touches[id].scroll_y -= step *
-+			step_x /= (64 - (int)scroll_speed) * msc->scroll_accel;
-+			if (step_x != 0) {
-+				msc->touches[id].scroll_x -= step_x *
- 					(64 - scroll_speed) * msc->scroll_accel;
- 				msc->scroll_jiffies = now;
--				input_report_rel(input, REL_WHEEL, step);
-+				input_report_rel(input, REL_HWHEEL, -step_x);
-+			}
-+
-+			step_y /= (64 - (int)scroll_speed) * msc->scroll_accel;
-+			if (step_y != 0) {
-+				msc->touches[id].scroll_y -= step_y *
-+					(64 - scroll_speed) * msc->scroll_accel;
-+				msc->scroll_jiffies = now;
-+				input_report_rel(input, REL_WHEEL, step_y);
- 			}
- 			break;
- 		}
-@@ -318,8 +329,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
- 	__set_bit(EV_REL, input->evbit);
- 	__set_bit(REL_X, input->relbit);
- 	__set_bit(REL_Y, input->relbit);
--	if (emulate_scroll_wheel)
-+	if (emulate_scroll_wheel) {
- 		__set_bit(REL_WHEEL, input->relbit);
-+		__set_bit(REL_HWHEEL, input->relbit);
-+	}
- 
- 	if (report_touches) {
- 		__set_bit(EV_ABS, input->evbit);
--- 
-1.7.0.4
+As for the building your own kernel thing... I've been doing my work
+mainly on a pair of x86_64 systems, one a ThinkPad T61 running Fedora
+13, and the other an HP xw4400 workstation running RHEL6. In both
+cases, I copied a distro kernel's, config file out of /boot/, and then
+ran make oldconfig over it and build straight from what's in my tree,
+which works well enough on both setups.
 
+> I'll have time on Thursday night to try again.
+
+No rush yet, we've got a while before the merge window still.
+Christoph (Bartelmus) helped me out with a bunch of ioctl
+documentation this weekend, so I've got that to add to the tree, then
+I think I'll be prepared to resubmit the lirc bits. I'll shoot for
+doing that next weekend, and hopefully, that'll give you a chance to
+try 'em out before then and provide any necessary feedback/fixes/etc.
+(Not that we can't also just fix things up as needed post-merge). I'm
+still up in the air as to what I should work on next... So many lirc
+drivers left to port still... Maybe zilog, maybe streamzap... Maybe
+the MCE IR keyboard...
+
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

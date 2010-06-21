@@ -1,105 +1,148 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Sun, 20 Jun 2010 23:51:21 -0400
-Message-ID: <AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	<4BDF2B45.9060806@redhat.com>
-	<20100607190003.GC19390@hardeman.nu>
-	<20100607201530.GG16638@redhat.com>
-	<20100608175017.GC5181@hardeman.nu>
-	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	<20100609132908.GM16638@redhat.com>
-	<20100609175621.GA19620@hardeman.nu>
-	<20100609181506.GO16638@redhat.com>
-	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	<20100613202945.GA5883@hardeman.nu>
-	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-	<AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-	<1276776859.2461.16.camel@localhost>
-	<AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
-	<1277081276.2252.12.camel@localhost>
+From: Micki Balanga <micki@n-trig.com>
+Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
+Date: Mon, 21 Jun 2010 08:06:15 +0300
+Message-ID: <48A28051AC6D7A48B64F28272458190338280A@Exchange-IL.n-trig.com>
+References: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com>
+ <alpine.LNX.2.00.1006041115480.12271@pobox.suse.cz>
+ <48A28051AC6D7A48B64F28272458190326E03E@Exchange-IL.n-trig.com>
+ <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/mixed; boundary="Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f46.google.com ([209.85.212.46]:57685 "EHLO
-	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757210Ab0FUDvW convert rfc822-to-8bit (ORCPT
+Received: from mxout12.netvision.net.il ([194.90.6.37]:51165 "EHLO
+	mxout12.netvision.net.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751301Ab0FUFFU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 23:51:22 -0400
-In-Reply-To: <1277081276.2252.12.camel@localhost>
+	Mon, 21 Jun 2010 01:05:20 -0400
+Content-class: urn:content-classes:message
+In-reply-to: <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: chatty@enac.fr, dhprince-devel@yahoo.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Sun, Jun 20, 2010 at 8:47 PM, Andy Walls <awalls@md.metrocast.net> w=
-rote:
-> On Thu, 2010-06-17 at 11:11 -0400, Jarod Wilson wrote:
->> On Thu, Jun 17, 2010 at 8:14 AM, Andy Walls <awalls@md.metrocast.net=
-> wrote:
->
->> >> A fully functional tree carrying both of David's patches and the
->> >> entire stack of other patches I've submitted today, based on top =
-of
->> >> the linuxtv staging/rc branch, can be found here:
->> >>
->> >> http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=3Dshortlog;h=3Dre=
-fs/heads/patches
->> >>
->> >> Also includes the lirc patches that I believe are ready to be
->> >> submitted for actual consideration (note that they're dependent o=
-n
->> >> David's two patches).
->> >
->> >
->> > I'll try and play with this this weekend along with some cx23885
->> > cleanup.
->>
->> Excellent. A few things to note...
->
-> Jarrod,
->
-> I was unable to get this task completed in the time I had available t=
-his
-> weekend. =A0A power supply failure, unexpected hard drive replacement=
-, and
-> my inability to build/install a kernel from a git tree that would
-> actually boot my Fedora 12 installation didn't help. =A0(My productiv=
-ity
-> has tanked since v4l-dvb went to GIT for CM, and the last time I buil=
-t a
-> real kernel without rpmbuild was for RedHat 9. I'm still working out
-> processes for doing basic things, sorry.)
+This is a multi-part message in MIME format.
 
-Heh, yeah, hardware failure is always fun when you're trying really
-hard to get something done. :)
+--Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 
-As for the building your own kernel thing... I've been doing my work
-mainly on a pair of x86_64 systems, one a ThinkPad T61 running Fedora
-13, and the other an HP xw4400 workstation running RHEL6. In both
-cases, I copied a distro kernel's, config file out of /boot/, and then
-ran make oldconfig over it and build straight from what's in my tree,
-which works well enough on both setups.
+Hi Jiri
+We have some new product so I have to update the patch,
+When I update my git branch I didn't see the changes regarding N-trig
+Product id. If you can insert this patch, if there a problem with the
+patch
+Let me know and hi will update it
+Thank you
+Micki
 
-> I'll have time on Thursday night to try again.
 
-No rush yet, we've got a while before the merge window still.
-Christoph (Bartelmus) helped me out with a bunch of ioctl
-documentation this weekend, so I've got that to add to the tree, then
-I think I'll be prepared to resubmit the lirc bits. I'll shoot for
-doing that next weekend, and hopefully, that'll give you a chance to
-try 'em out before then and provide any necessary feedback/fixes/etc.
-(Not that we can't also just fix things up as needed post-merge). I'm
-still up in the air as to what I should work on next... So many lirc
-drivers left to port still... Maybe zilog, maybe streamzap... Maybe
-the MCE IR keyboard...
+-----Original Message-----
+From: Jiri Kosina [mailto:jkosina@suse.cz] 
+Sent: Saturday, June 05, 2010 6:42 PM
+To: Micki Balanga
+Cc: chatty@enac.fr; dhprince-devel@yahoo.co.uk;
+linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Rafi Rubin
+Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Fri, 4 Jun 2010, Micki Balanga wrote:
+
+> Hi Jiri,
+> Attach the patch via file.
+> (Also fix 3 warning: please , no space before tabs)
+
+Thanks Micki, I have applied the patch.
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.
+
+--Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)
+Content-type: application/octet-stream;
+ name=0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
+Content-transfer-encoding: base64
+Content-disposition: attachment;
+ filename=0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
+Content-description: 0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
+
+RnJvbSBlZmMwNTM5Yzc4YWY5YWFlYTQ2ZTA3MzhhNGY5ZDc0OWU3MzY4ODgzIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBtaWNraSA8bWlja2lAbWlja2ktbGFwdG9wLihub25lKT4KRGF0
+ZTogU2F0LCAxOSBKdW4gMjAxMCAxMTozNzoyOSArMDMwMApTdWJqZWN0OiBbUEFUQ0hdIEhJRDog
+QWRkIHN1cHBvcnQgdG8gbmV3IE4tdHJpZyBmaXJ3bWFyZSBwYXJ0IDIKClByb2R1Y3QgaWQgIDB4
+MDMgLSAweDE0CgpTaWduZWQtb2ZmLWJ5OiBNaWNraSBCYWxhbmdhIDxtaWNraUBuLXRyaWcuY29t
+PgotLS0KLS0tCi0tLQogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgMTggKysrKysrKysrKysr
+KysrKysrCiBkcml2ZXJzL2hpZC9oaWQtaWRzLmggIHwgICAyMiArKysrKysrKysrKysrKysrKysr
+Ky0tCiAyIGZpbGVzIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpk
+aWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBiL2RyaXZlcnMvaGlkL2hpZC1jb3Jl
+LmMKaW5kZXggYWEwZjdkYy4uODg3YWVmZCAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNv
+cmUuYworKysgYi9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCkBAIC0xMzM3LDYgKzEzMzcsMjQgQEAg
+c3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkIGhpZF9ibGFja2xpc3RbXSA9IHsKIAl7
+IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTUlDUk9TT0ZULCBVU0JfREVWSUNFX0lEX1dJ
+UkVMRVNTX09QVElDQUxfREVTS1RPUF8zXzApIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVO
+RE9SX0lEX01PTlRFUkVZLCBVU0JfREVWSUNFX0lEX0dFTklVU19LQjI5RSkgfSwKIAl7IEhJRF9V
+U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hf
+U0NSRUVOKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RF
+VklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMSkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
+RU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzIpIH0sCisJ
+eyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNFX0lEX05UUklH
+X1RPVUNIX1NDUkVFTl8zKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJ
+RywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNCkgfSwKKwl7IEhJRF9VU0JfREVW
+SUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVO
+XzUpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNF
+X0lEX05UUklHX1RPVUNIX1NDUkVFTl82KSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
+Ul9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNykgfSwKKwl7IEhJ
+RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9V
+Q0hfU0NSRUVOXzgpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBV
+U0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl85KSB9LAorCXsgSElEX1VTQl9ERVZJQ0Uo
+VVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTAp
+IH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNFX0lE
+X05UUklHX1RPVUNIX1NDUkVFTl8xMSkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1Jf
+SURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzEyKSB9LAorCXsgSElE
+X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
+SF9TQ1JFRU5fMTMpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBV
+U0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl8xNCkgfSwKKwl7IEhJRF9VU0JfREVWSUNF
+KFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzE1
+KSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9J
+RF9OVFJJR19UT1VDSF9TQ1JFRU5fMTYpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9S
+X0lEX05UUklHLCBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl8xNykgfSwKKwl7IEhJ
+RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9V
+Q0hfU0NSRUVOXzE4KSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9PUlRFSywg
+VVNCX0RFVklDRV9JRF9PUlRFS19XS0IyMDAwKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZF
+TkRPUl9JRF9QRVRBTFlOWCwgVVNCX0RFVklDRV9JRF9QRVRBTFlOWF9NQVhURVJfUkVNT1RFKSB9
+LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9RVUFOVEEsIFVTQl9ERVZJQ0VfSURf
+UVVBTlRBX09QVElDQUxfVE9VQ0gpIH0sCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtaWRz
+LmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKaW5kZXggNmFmNzdlZC4uMWQ2MTk0YSAxMDA2NDQK
+LS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaApA
+QCAtMzQsNyArMzQsNyBAQAogI2RlZmluZSBVU0JfREVWSUNFX0lEX0FDRUNBRF9GTEFJUgkweDAw
+MDQKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BQ0VDQURfMzAyCTB4MDAwOAogCi0jZGVmaW5lIFVT
+Ql9WRU5ET1JfSURfQURTX1RFQ0ggCQkweDA2ZTEKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9BRFNf
+VEVDSAkweDA2ZTEKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BRFNfVEVDSF9SQURJT19TSTQ3MFgJ
+MHhhMTU1CiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9BRkFURUNICQkweDE1YTQKQEAgLTE5OCw3
+ICsxOTgsNyBAQAogI2RlZmluZSBVU0JfVkVORE9SX0lEX0VUVAkJMHgwNjY0CiAjZGVmaW5lIFVT
+Ql9ERVZJQ0VfSURfVEM1VUgJCTB4MDMwOQogCi0jZGVmaW5lIFVTQl9WRU5ET1JfSURfRVpLRVkg
+CQkweDA1MTgKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9FWktFWQkJMHgwNTE4CiAjZGVmaW5lIFVT
+Ql9ERVZJQ0VfSURfQlRDXzgxOTMJCTB4MDAwMgogCiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfR0FN
+RVJPTgkJMHgwODEwCkBAIC0zOTEsNiArMzkxLDI0IEBACiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9J
+RF9OVFJJRyAgICAgICAgICAgICAgICAweDFiOTYKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJ
+R19UT1VDSF9TQ1JFRU4gICAweDAwMDEKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
+SF9TQ1JFRU5fMSAgIDB4MDAwMworI2RlZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1ND
+UkVFTl8yICAgMHgwMDA0CisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVO
+XzMgICAweDAwMDUKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNCAg
+IDB4MDAwNgorI2RlZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl81ICAgMHgw
+MDA3CisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzYgICAweDAwMDgK
+KyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNyAgIDB4MDAwOQorI2Rl
+ZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl84ICAgMHgwMDBBCisjZGVmaW5l
+IFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzkgICAweDAwMEIKKyNkZWZpbmUgVVNC
+X0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTAgICAweDAwMEMKKyNkZWZpbmUgVVNCX0RF
+VklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTEgICAweDAwMEQKKyNkZWZpbmUgVVNCX0RFVklD
+RV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTIgICAweDAwMEUKKyNkZWZpbmUgVVNCX0RFVklDRV9J
+RF9OVFJJR19UT1VDSF9TQ1JFRU5fMTMgICAweDAwMEYKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9O
+VFJJR19UT1VDSF9TQ1JFRU5fMTQgICAweDAwMTAKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJ
+R19UT1VDSF9TQ1JFRU5fMTUgICAweDAwMTEKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19U
+T1VDSF9TQ1JFRU5fMTYgICAweDAwMTIKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
+SF9TQ1JFRU5fMTcgICAweDAwMTMKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9T
+Q1JFRU5fMTggICAweDAwMTQKIAogI2RlZmluZSBVU0JfVkVORE9SX0lEX09OVFJBSwkJMHgwYTA3
+CiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfT05UUkFLX0FEVTEwMAkweDAwNjQKLS0gCjEuNi4zLjMK
+Cg==
+
+--Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)--

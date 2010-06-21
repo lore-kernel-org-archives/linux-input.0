@@ -1,89 +1,145 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Sun, 20 Jun 2010 20:47:56 -0400
-Message-ID: <1277081276.2252.12.camel@localhost>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	 <4BDF2B45.9060806@redhat.com> <20100607190003.GC19390@hardeman.nu>
-	 <20100607201530.GG16638@redhat.com> <20100608175017.GC5181@hardeman.nu>
-	 <AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	 <20100609132908.GM16638@redhat.com> <20100609175621.GA19620@hardeman.nu>
-	 <20100609181506.GO16638@redhat.com>
-	 <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	 <20100613202945.GA5883@hardeman.nu>
-	 <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-	 <AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-	 <1276776859.2461.16.camel@localhost>
-	 <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: Wacom based devices and the mt kernel protocol.
+Date: Sun, 20 Jun 2010 21:19:02 -0400
+Message-ID: <4C1EBE06.7020605@seas.upenn.edu>
+References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>	<AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>	<4C1E6A8C.4020904@seas.upenn.edu> <AANLkTimCsVwppeTKXErpA6_1vwPHuQeqJHcdzLKd2EEp@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:56019 "EHLO
-	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756808Ab0FUArx (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:50721 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757368Ab0FUB0M (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 20:47:53 -0400
-In-Reply-To: <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
+	Sun, 20 Jun 2010 21:26:12 -0400
+In-Reply-To: <AANLkTimCsVwppeTKXErpA6_1vwPHuQeqJHcdzLKd2EEp@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, 2010-06-17 at 11:11 -0400, Jarod Wilson wrote:
-> On Thu, Jun 17, 2010 at 8:14 AM, Andy Walls <awalls@md.metrocast.net> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >> A fully functional tree carrying both of David's patches and the
-> >> entire stack of other patches I've submitted today, based on top of
-> >> the linuxtv staging/rc branch, can be found here:
-> >>
-> >> http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/patches
-> >>
-> >> Also includes the lirc patches that I believe are ready to be
-> >> submitted for actual consideration (note that they're dependent on
-> >> David's two patches).
-> >
-> >
-> > I'll try and play with this this weekend along with some cx23885
-> > cleanup.
+On 06/20/10 20:31, Ping Cheng wrote:
+> On Sun, Jun 20, 2010 at 12:22 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote:
+>>>> N-Trig based devices and Stantum ones are the most compliant,
+>>>
+>>> That's fair since they don't need to track the fingers.
+>>
+>> N-Trig doesn't have hardware tracking, Stantum does.
 > 
-> Excellent. A few things to note... 
-
-Jarrod,
-
-I was unable to get this task completed in the time I had available this
-weekend.  A power supply failure, unexpected hard drive replacement, and
-my inability to build/install a kernel from a git tree that would
-actually boot my Fedora 12 installation didn't help.  (My productivity
-has tanked since v4l-dvb went to GIT for CM, and the last time I built a
-real kernel without rpmbuild was for RedHat 9. I'm still working out
-processes for doing basic things, sorry.)
-
-I'll have time on Thursday night to try again.
-
-
-
-
-> Many of the lirc_dev ioctls are
-> currently commented out, and haven't in any way been wired up to tx
-> callbacks,
-
-Yes, I saw, that's OK.  It should be easy enough to hack something in
-for testing and prototyping.
-
-
->  I've only enabled the minimum necessary for mceusb. The
-> ioctls are all using __u32 params, which, if you're on x86_64, will
-> require a patched lirc userspace build to make the ioctl types match.
-> I'm using this patch atm:
+> Sorry for my ignorance. I don't have much time to keep track of what
+> other devices are doing. Keeping all of my own balls rolling is more
+> than enough work for me :).
 > 
-> http://wilsonet.com/jarod/lirc_misc/lirc-0.8.6-make-ioctls-u32.patch
+>>>> so Wacom situation needs to be clarified specially considering they are HID
+>>>> devices (meaning similar to the others devices which respect the
+>>>> protocol).
+>>>
+>>> Well, it is not a pure HID issue.  It is more of how we want to
+>>> support MT on Linux issue.
+>>
+>> Side note for Ikbel, its not clear the wacom devices actually stay HID compliant
+>> when the full protocol is active, and the basic modes are really basic (and not
+>> very useful). As my understanding of the way HID and usb stuff communicate in
+>> general, I've been growing less convinced its a protocol issue, more like an
+>> initialization problem.
 > 
-> (In the future, lirc userspace should obviously just build against
-> <media/lirc.h>).
+> Thank you Rafi for explaining this issue.  Wacom tablets have a
+> relatively long history, longer than the time that digitizers were
+> supported on Linux. The default HID mouse protocol was introduced due
+> to the history, which was required by Microsoft.... We can not change
+> history, can we :)?
+> 
+> Wacom kept their devices consistent protocol-wise over the years.
+> That's why even the modern digitizers default to the basic HID
+> protocol.
+> 
+>> Still I'm not quite sure.
+> 
+> I think you've got the point.
+> 
+>>>> This impact very much the decision of a Linux user wanting to buy wacom mt device.
+>>>
+>>> I think end users have already got the Linux support from Wacom.  Can
+>>> you share the specific issues that are preventing Linux end users from
+>>> buying a Wacom MT devices? If I didn't misunderstand your point here,
+>>> you are talking about Linux users, not Linux developers/hackers,
+>>> right?
+>>
+>> I think normal users wanting to use linux for MT are generally frustrated and
+>> confused at the moment.
+> 
+> Why do the end users get frustrated and confused? Can you share some
+> examples from an end user's (not developer's) perspective with me?
 
+Sorry, I've been too focused on the n-trig users.  They have been frustrated,
+and I've seen from the forums that some have been playing with customized
+versions of both the kernel and wacom x driver to get your two finger gestures.
 
-I've got all x86_64 bit machines here, so thank you for the tips.
+I'm also projecting my own frustrations, seeing the X mt interface still not
+quite set, and very little in the way of applications that use mt at all.  We're
+still quite a ways away from seeing the full potential of a more hands on desktop.
 
-Regards,
-Andy
+>> Certainly the protocol between the wacom kernel driver
+>> and the wacom user space driver is way below the level that most are following.
+> 
+> By "most", do you mean most MT device drivers, or most end users, or
+> most developers? I am eager to bring the Wacom driver to the specific
+> level.
 
+End users, they don't tend to care about the internal protocols as long as their
+programs do what they want.
+
+>> As developers, I think we have a strong interest in seeing wacom migrate to a
+>> shared protocol.  But our interests are in pushing the functionality beyond
+>> what's currently available, and we just want to see everyone get equal access to
+>> features as we create them.  I think to convince Ping (if he weren't already),
+>> and the others working on the Wacom code, we'd have to show off some of what
+>> he's going to gain by switching, and at the moment, as a community, I don't
+>> think we are quite ready, maybe soon.
+> 
+> I do see the positive sign here. And, BTW, it is a she that you are
+> talking to :).  Don't worry, you are still taking to the same person.
+> So, it really doesn't matter to me. But, I don't want you to get the
+> fact from someone else and to be "puzzled" :).
+
+Um, what can I say, the hazards of interacting with just text in a language
+curiously lacking in proper androgynous pronouns.  Please forgive my ignorance
+particularly culturally.
+
+>> So, Ping, consider that I and others will have cool things to show you in the
+>> near future, and if you start migrating you will get some cool new functionality
+>> when the two waves of progress collide.  Also, I think Henrik's B protocol has
+>> some cool advantages which you've demonstrated considerable interest in.  So I
+>> gather you do intend to switch when its convenient?
+> 
+> Why not? Do you think I am that stupid :)? To be honest, I've been
+> waiting for the day for a while.
+
+Not at all, I'm just incompetent at subtle nudging.
+
+>>>> Ping can you clarifie the situation of wacom based devices ?
+>>>
+>>> What else do you need me to clarify? I am all ears and I am ready to
+>>> clarify any thing that puzzles you.
+>>
+>> Will Wacom be moving to more than 2 finger support in the near future?  Do you
+>> already have some products on the market?
+> 
+> No, we do not have 2+ finger devices on the market and I can not tell
+> what the future would be. We'll see what it is when time comes.  Any
+> more questions :)?
+
+Nope, I think I've put my foot in it enough for the evening :-)
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkwevgQACgkQwuRiAT9o60+k9QCdEPogsLgVUDc7K/vqWNvjd/yS
+IYwAoPyS0hOuqS51Dlft011EInnrx7+J
+=mPjC
+-----END PGP SIGNATURE-----

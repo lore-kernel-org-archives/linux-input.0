@@ -1,144 +1,89 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: Wacom based devices and the mt kernel protocol.
-Date: Sun, 20 Jun 2010 17:31:20 -0700
-Message-ID: <AANLkTimCsVwppeTKXErpA6_1vwPHuQeqJHcdzLKd2EEp@mail.gmail.com>
-References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
-	<AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
-	<4C1E6A8C.4020904@seas.upenn.edu>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Sun, 20 Jun 2010 20:47:56 -0400
+Message-ID: <1277081276.2252.12.camel@localhost>
+References: <20100424211411.11570.2189.stgit@localhost.localdomain>
+	 <4BDF2B45.9060806@redhat.com> <20100607190003.GC19390@hardeman.nu>
+	 <20100607201530.GG16638@redhat.com> <20100608175017.GC5181@hardeman.nu>
+	 <AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
+	 <20100609132908.GM16638@redhat.com> <20100609175621.GA19620@hardeman.nu>
+	 <20100609181506.GO16638@redhat.com>
+	 <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+	 <20100613202945.GA5883@hardeman.nu>
+	 <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+	 <AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
+	 <1276776859.2461.16.camel@localhost>
+	 <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:33548 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756007Ab0FUAbV convert rfc822-to-8bit (ORCPT
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:56019 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756808Ab0FUArx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jun 2010 20:31:21 -0400
-In-Reply-To: <4C1E6A8C.4020904@seas.upenn.edu>
+	Sun, 20 Jun 2010 20:47:53 -0400
+In-Reply-To: <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Jarod Wilson <jarod@wilsonet.com>
+Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, Jun 20, 2010 at 12:22 PM, Rafi Rubin <rafi@seas.upenn.edu> wrot=
-e:
->>> N-Trig based devices and Stantum ones are the most compliant,
->>
->> That's fair since they don't need to track the fingers.
->
-> N-Trig doesn't have hardware tracking, Stantum does.
+On Thu, 2010-06-17 at 11:11 -0400, Jarod Wilson wrote:
+> On Thu, Jun 17, 2010 at 8:14 AM, Andy Walls <awalls@md.metrocast.net> wrote:
 
-Sorry for my ignorance. I don't have much time to keep track of what
-other devices are doing. Keeping all of my own balls rolling is more
-than enough work for me :).
+> >> A fully functional tree carrying both of David's patches and the
+> >> entire stack of other patches I've submitted today, based on top of
+> >> the linuxtv staging/rc branch, can be found here:
+> >>
+> >> http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/patches
+> >>
+> >> Also includes the lirc patches that I believe are ready to be
+> >> submitted for actual consideration (note that they're dependent on
+> >> David's two patches).
+> >
+> >
+> > I'll try and play with this this weekend along with some cx23885
+> > cleanup.
+> 
+> Excellent. A few things to note... 
 
->>> so Wacom situation needs to be clarified specially considering they=
- are HID
->>> devices (meaning similar to the others devices which respect the
->>> protocol).
->>
->> Well, it is not a pure HID issue. =A0It is more of how we want to
->> support MT on Linux issue.
->
-> Side note for Ikbel, its not clear the wacom devices actually stay HI=
-D compliant
-> when the full protocol is active, and the basic modes are really basi=
-c (and not
-> very useful). As my understanding of the way HID and usb stuff commun=
-icate in
-> general, I've been growing less convinced its a protocol issue, more =
-like an
-> initialization problem.
+Jarrod,
 
-Thank you Rafi for explaining this issue.  Wacom tablets have a
-relatively long history, longer than the time that digitizers were
-supported on Linux. The default HID mouse protocol was introduced due
-to the history, which was required by Microsoft.... We can not change
-history, can we :)?
+I was unable to get this task completed in the time I had available this
+weekend.  A power supply failure, unexpected hard drive replacement, and
+my inability to build/install a kernel from a git tree that would
+actually boot my Fedora 12 installation didn't help.  (My productivity
+has tanked since v4l-dvb went to GIT for CM, and the last time I built a
+real kernel without rpmbuild was for RedHat 9. I'm still working out
+processes for doing basic things, sorry.)
 
-Wacom kept their devices consistent protocol-wise over the years.
-That's why even the modern digitizers default to the basic HID
-protocol.
+I'll have time on Thursday night to try again.
 
-> Still I'm not quite sure.
 
-I think you've got the point.
 
->>> This impact very much the decision of a Linux user wanting to buy w=
-acom mt device.
->>
->> I think end users have already got the Linux support from Wacom. =A0=
-Can
->> you share the specific issues that are preventing Linux end users fr=
-om
->> buying a Wacom MT devices? If I didn't misunderstand your point here=
-,
->> you are talking about Linux users, not Linux developers/hackers,
->> right?
->
-> I think normal users wanting to use linux for MT are generally frustr=
-ated and
-> confused at the moment.
 
-Why do the end users get frustrated and confused? Can you share some
-examples from an end user's (not developer's) perspective with me?
+> Many of the lirc_dev ioctls are
+> currently commented out, and haven't in any way been wired up to tx
+> callbacks,
 
-> Certainly the protocol between the wacom kernel driver
-> and the wacom user space driver is way below the level that most are =
-following.
+Yes, I saw, that's OK.  It should be easy enough to hack something in
+for testing and prototyping.
 
-By "most", do you mean most MT device drivers, or most end users, or
-most developers? I am eager to bring the Wacom driver to the specific
-level.
 
-> As developers, I think we have a strong interest in seeing wacom migr=
-ate to a
-> shared protocol. =A0But our interests are in pushing the functionalit=
-y beyond
-> what's currently available, and we just want to see everyone get equa=
-l access to
-> features as we create them. =A0I think to convince Ping (if he weren'=
-t already),
-> and the others working on the Wacom code, we'd have to show off some =
-of what
-> he's going to gain by switching, and at the moment, as a community, I=
- don't
-> think we are quite ready, maybe soon.
+>  I've only enabled the minimum necessary for mceusb. The
+> ioctls are all using __u32 params, which, if you're on x86_64, will
+> require a patched lirc userspace build to make the ioctl types match.
+> I'm using this patch atm:
+> 
+> http://wilsonet.com/jarod/lirc_misc/lirc-0.8.6-make-ioctls-u32.patch
+> 
+> (In the future, lirc userspace should obviously just build against
+> <media/lirc.h>).
 
-I do see the positive sign here. And, BTW, it is a she that you are
-talking to :).  Don't worry, you are still taking to the same person.
-So, it really doesn't matter to me. But, I don't want you to get the
-fact from someone else and to be "puzzled" :).
 
-> So, Ping, consider that I and others will have cool things to show yo=
-u in the
-> near future, and if you start migrating you will get some cool new fu=
-nctionality
-> when the two waves of progress collide. =A0Also, I think Henrik's B p=
-rotocol has
-> some cool advantages which you've demonstrated considerable interest =
-in. =A0So I
-> gather you do intend to switch when its convenient?
+I've got all x86_64 bit machines here, so thank you for the tips.
 
-Why not? Do you think I am that stupid :)? To be honest, I've been
-waiting for the day for a while.
+Regards,
+Andy
 
->>> Ping can you clarifie the situation of wacom based devices ?
->>
->> What else do you need me to clarify? I am all ears and I am ready to
->> clarify any thing that puzzles you.
->
-> Will Wacom be moving to more than 2 finger support in the near future=
-? =A0Do you
-> already have some products on the market?
-
-No, we do not have 2+ finger devices on the market and I can not tell
-what the future would be. We'll see what it is when time comes.  Any
-more questions :)?
-
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

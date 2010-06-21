@@ -1,111 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid Logitech G13 Driver 0.0.5
-Date: Mon, 21 Jun 2010 14:43:24 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006211442350.13809@pobox.suse.cz>
-References: <201003021848.o22ImLSS004394@mustang.cs.nmsu.edu> <24ab70ff629c48b6d10ce0cf6dc5d64b.squirrel@intranet.cs.nmsu.edu> <20100303051311.GA4651@elf.ucw.cz> <201006191757.22035.marek.vasut@gmail.com>
+From: screamingfist@arcor.de
+Subject: Aw: Re: [PATCH] HID: removing obsolete kone_abi_version sysfs attr
+ for roccat kone
+Date: Mon, 21 Jun 2010 15:08:50 +0200 (CEST)
+Message-ID: <24732538.1277125730475.JavaMail.ngmail@webmail17.arcor-online.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:33949 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756004Ab0FUMng (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jun 2010 08:43:36 -0400
-In-Reply-To: <201006191757.22035.marek.vasut@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: jkosina@suse.cz, erazor_de@users.sourceforge.net
+Cc: rdunlap@xenotime.net, sfr@canb.auug.org.au, tj@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>, Jaya Kumar <jayakumar.lkml@gmail.com>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, npavel@ituner.com, tomi.valkeinen@nokia.com, tony@atomide.com, florianschandinat@gmx.de, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-fbdev@vger.kernel.org, bonbons@linux-vserver.org
 
-On Sat, 19 Jun 2010, Marek Vasut wrote:
+ ----- Original Nachricht ----
+Von:     Jiri Kosina <jkosina@suse.cz>
+An:      Stefan Achatz <erazor_de@users.sourceforge.net>
+Datum:   21.06.2010 14:06
+Betreff: Re: [PATCH] HID: removing obsolete kone_abi_version sysfs attr for
+ roccat kone
 
-> > > >> +/*
-> > > >> + * This is a default logo to be loaded upon driver initialization
-> > > >> + * replacing the default Logitech G13 image loaded on device
-> > > >> + * initialization. This is to provide the user a cue that the
-> > > >> + * Linux driver is loaded and ready.
-> > > >> + *
-> > > >> + * This logo contains the text G13 in the center with two penguins
-> > > >> + * on each side of the text. The penguins are a 33x40 rendition of
-> > > >> + * the default framebuffer 80x80 monochrome image scaled down and
-> > > >> + * cleaned up to retain something that looks a little better than
-> > > >> + * a simple scaling.
-> > > >> + *
-> > > >> + * This logo is a simple xbm image created in GIMP and exported.
-> > > >> + * To view the image copy the following two #defines plus the
-> > > >> + * g13_lcd_bits to an ASCII text file and save with extension
-> > > >> + * .xbm, then open with GIMP or any other graphical editor
-> > > >> + * such as eog that recognizes the .xbm format.
-> > > >> + */
-> > > > 
-> > > > ...
-> > > > 
-> > > >> +static unsigned char g13_lcd_bits[] = {
-> > > >> + 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-> > > >> 0x00,
-> > > > 
-> > > > I think you'll agree above is not an elegant solution.
-> > > 
-> > > I could make it a config option.
-> > 
-> > You get about 10 complains already, but you are not willing to solve
-> > it. No, config option does not help.
-> > 
-> > If you want to, make it separate patch so we can reject it separately.
-> > 
-> > > >> +static DEVICE_ATTR(rgb, 0666, g13_rgb_show, g13_rgb_store);
-> > > > 
-> > > > Reading above code, it looks like this new userspace sysfs attribute
-> > > > is for backlight control. Could that be better exposed using the
-> > > > existing backlight class?
-> > > 
-> > > I looked at the backlight class and it didn't seem to be a very good fit.
-> > > 
-> > > /* This structure defines all the properties of a backlight */
-> > > struct backlight_properties {
-> > > 
-> > > 	/* Current User requested brightness (0 - max_brightness) */
-> > > 	int brightness;
-> > > 	/* Maximal value for brightness (read-only) */
-> > > 	int max_brightness;
-> > > 	/* Current FB Power mode (0: full on, 1..3: power saving
-> > > 	
-> > > 	   modes; 4: full off), see FB_BLANK_XXX */
-> > > 	
-> > > 	int power;
-> > > 	/* FB Blanking active? (values as for power) */
-> > > 	/* Due to be removed, please use (state & BL_CORE_FBBLANK) */
-> > > 	int fb_blank;
-> > > 	/* Flags used to signal drivers of state changes */
-> > > 	/* Upper 4 bits are reserved for driver internal use */
-> > > 	unsigned int state;
-> > > 
-> > > };
-> > > 
-> > > The g13's backlight doesn't support any of these properties. All you can
-> > > set is an rgb value on the g13; no power modes, no brightness, etc. I
-> > > could add a brightness attribute by scaling the rgb values, but I would
-> > > prefer to do that from userspace rather than the driver since it's not
-> > > supported in the device itself.
-> > > 
-> > > And, we'd still have to have the rgb attribute since the backlight class
-> > > doesn't have color.
-> > 
-> > Or you could pretend you have 3 different backlights? ....which is
-> > actually what you have...?
-> > 									Pavel
+> On Fri, 18 Jun 2010, Stefan Achatz wrote:
 > 
-> Any updates on this?
+> > The newest version of the accompanying userland tools cuts backward
+> > compatibility and uses libudev to find its devices superseding the
+> > quirky kone_abi_version sysfs attribute. Therefore it should be removed.
 > 
-> btw. it'd be good if we could use the g13fb on G15 ... would that be possible?
-> Cheers!
+> How backwards incompatible this change actually is?
+> 
+> What happens if you run old userspace tool (the one which looks for 
+> kone_abi_version) on a kernel with this patch applied?
 
-Rick, please correct me if I am wrong, but as far as I remember, you have 
-gathered quite some feedback and were about to incorporate them and 
-re-submit the driver, which hasn't happened yet. Is that correct? Or have 
-I lost track completely?
+Now there is one legacy version of the tool which looks for kone_driver_version and which will not be developed further cause I'm at a dead end with scanning sysfs directly.
 
-Thanks,
+The renamed attribute kone_abi_version is unreleased and at current only in your roccat branch so there's no need for the tool to look for that.
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+For the next features i want to implement in the tool I need the path to the sysfs attributes, the roccat char device and the two hidraw devices (mouse and keyboard endpoints) corresponding to one device. I'm doing this with libudev and not with manually crawling through sysfs. This code only works with kone as hid-driver and with the relatively young libudev taken into account my old kone and roccat modules for kernels prior 2.6.28 won't work either.
+To make a long story short:
+People with kernel versions < 2.6.28 and without libudev have to use the legacy tools with limited functionality.
+Users with kernel versions >= 2.6.28 (using the modules my distibuted package or the official from 2.6.35 on) and with libudev should use the newest version of my tools with increasing functionality.
+
+Have a nice day,
+Stefan

@@ -1,34 +1,29 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: Re: [PATCH v5 1/3] ARM: SAMSUNG: Add keypad device support
-Date: Mon, 21 Jun 2010 22:19:55 +0800
-Message-ID: <AANLkTimhik3BOQNzybs1tUuHUXri-yxm5v7wH1JjQ5B1@mail.gmail.com>
-References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
-	<AANLkTil1aiJ1gu6jRrO4LeB0fYltOq4A3wXJJB1ZOa8q@mail.gmail.com>
-	<4C1F4B30.3020006@samsung.com>
+From: Kim Farah <FarahKE@ldschurch.org>
+Subject: Confirm Mail Receipt!!
+Date: Mon, 21 Jun 2010 07:59:56 -0600
+Message-ID: <064A9A36A18BD34DBF1C6DF89514AF31128F229BE9@MBX03.ldschurch.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gw0-f46.google.com ([74.125.83.46]:45361 "EHLO
-	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932388Ab0FUOUT (ORCPT
+Received: from mail4.gmhwh.org ([216.49.178.94]:54055 "EHLO mail4.gmhwh.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S932472Ab0FURUv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jun 2010 10:20:19 -0400
-In-Reply-To: <4C1F4B30.3020006@samsung.com>
+	Mon, 21 Jun 2010 13:20:51 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, kgene.kim@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
->> and now in s5pc200 code, you can also register/re-use the s5pc100_keypad
->> device/driver, and everyone knows - OK, the IP on S5PC100 is now re-used
->> here.
->>
->
-> This is naming issue and i know it was not desided yet.
-> This keypad driver can support s3c64xx, s5pc100, s5pc110, s5pv210.
->
 
-I bet the first silicon this IP is deployed is s3c64xx, so my understanding
-'s3c64xx-keypad.c' should be an acceptable name.  And it's also reasonable,
-a s3c64xx-keypad driver, and is later expanded to support subsequent silicons
-without the file name being changed.
+Congratulations! You have been awarded
+USD$600,000.00 each 
+amongst Five (5) recipients as charity donation from the 
+Rothschild Foundation. Contact Payment officer: Mr. 
+Well Paulson 
+Contact Information: wellpaulson11@mail2consultant.com
+
+
+ NOTICE: This email message is for the sole use of the intended recipient(s) and may contain confidential and privileged information. Any unauthorized review, use, disclosure or distribution is prohibited. If you are not the intended recipient, please contact the sender by reply email and destroy all copies of the original message.
+
+

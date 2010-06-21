@@ -1,75 +1,19 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] Introduce buflock, a one-to-many circular buffer
- mechanism (rev2)
-Date: Mon, 21 Jun 2010 16:16:10 -0700
-Message-ID: <20100621161610.fdfe23a6.akpm@linux-foundation.org>
-References: <1277060705-3363-1-git-send-email-rydberg@euromail.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1277060705-3363-1-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jonathan Cameron <jic23@cam.ac.uk>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: Add Samsung Keypad driver
+Date: Tue, 22 Jun 2010 08:24:01 +0900
+Message-ID: <1277162642-10137-1-git-send-email-kgene.kim@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org
+Cc: ben-linux@fluff.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 20 Jun 2010 21:05:05 +0200
-"Henrik Rydberg" <rydberg@euromail.se> wrote:
+Following is for Samsung Keypad driver.
+Tested on SMDK6410(S3C6410), SMDKC100(S5PC100), Aquila(S5PC110),
+GONI(S5PC110) and SMDKV210(S5PV210) boards.
 
-> In spite of the many lock patterns and fifo helpers in the kernel, the
-> case of a single writer feeding many readers via a circular event
-> buffer seems to be uncovered. This patch adds the buflock, a mechanism
-> for handling multiple concurrent read positions in a shared circular
-> buffer.  Under normal operation, given adequate buffer size, the
-> operation is lock-less. The mechanism is given the name buflock to
-> emphasize that the locking depends on the buffer read/write clashes.
-> 
-> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-> ---
-> This is version 2 of the buflock, which was first introduced as a
-> patch against the input subsystem. In the reviews, it was suggested
-> the file be placed in include/linux/, which is the patch presented
-> here. The major changes, taking review comments into account, are:
-> 
-> * The API has been rewritten to better abstract a lock, which
->   hopefully provides a clearer reason to leave the actual memory
->   handling to the user.
-> 
-> * The number of memory barriers has been reduced.
-> 
-> * Overlap detection now takes write interrupts larger than the buffer
->   size into account.
-> 
-> * All methods are now static inlines.
-> 
+Please apply.
 
-I don't understand why this has "lock" in its name.
+Thanks.
 
-The API itself is a mixture of "bufwrite_foo" and "bufread_foo".
-
-It's all a bit chaotic.  I'd suggest picking a sane name for the whole
-subsytem - perhaps "mrbuf" for "multi reader buffer"?  Then
-consistently name all interface functions as "mrbuf_foo". 
-mrbuf.h, mrbuf_write_lock(), etc.
-
-> +static __always_inline bool __must_check bufread_retry(struct buflock_reader *br, const struct buflock_writer *bw)
-> +{
-> +	smp_rmb();
-> +	if (unlikely(((br->tail - br->last) & bw->page) < bw->next - br->last))
-> +		return true;
-> +	++br->tail;
-> +	if (unlikely(br->head - br->tail > bw->page))
-> +		br->tail = br->head;
-> +	return false;
-> +}
-
-This looks too large to be inlined.
-
-What's the __always_inline for?  Was gcc uninlining this within
-separate compilation units?
-
-
-Dmitry, if/when this code looks suitable to you and if you think it's
-all desirable then please merge the
-buflock-aka-bufwrite-aka-bufread-aka-mrbuf code via your tree.
+[PATCH] input: samsung-keypad - Add samsung keypad driver

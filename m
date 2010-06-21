@@ -1,88 +1,75 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: Wacom based devices and the mt kernel protocol.
-Date: Sun, 20 Jun 2010 22:30:26 -0700
-Message-ID: <AANLkTikR0PXLqYuK8jDd_pWvcmVlRLnQFLVElHH8e71a@mail.gmail.com>
-References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
-	<AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
-	<4C1E6A8C.4020904@seas.upenn.edu>
-	<AANLkTimCsVwppeTKXErpA6_1vwPHuQeqJHcdzLKd2EEp@mail.gmail.com>
-	<4C1EBE06.7020605@seas.upenn.edu>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] HID: Add support to new N-trig firwmare
+Date: Mon, 21 Jun 2010 02:14:32 -0400
+Message-ID: <4C1F0348.8000804@seas.upenn.edu>
+References: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com> <alpine.LNX.2.00.1006041115480.12271@pobox.suse.cz> <48A28051AC6D7A48B64F28272458190326E03E@Exchange-IL.n-trig.com> <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz> <48A28051AC6D7A48B64F28272458190338280A@Exchange-IL.n-trig.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:42304 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752295Ab0FUFa1 convert rfc822-to-8bit (ORCPT
+Received: from stag.seas.upenn.edu ([158.130.70.79]:55378 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751386Ab0FUGVu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jun 2010 01:30:27 -0400
-In-Reply-To: <4C1EBE06.7020605@seas.upenn.edu>
+	Mon, 21 Jun 2010 02:21:50 -0400
+In-Reply-To: <48A28051AC6D7A48B64F28272458190338280A@Exchange-IL.n-trig.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Micki Balanga <micki@n-trig.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, chatty@enac.fr, dhprince-devel@yahoo.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Jun 20, 2010 at 6:19 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote=
-:
->>
->>>>> This impact very much the decision of a Linux user wanting to buy=
- wacom mt device.
->>>>
->>>> I think end users have already got the Linux support from Wacom. =A0=
-Can
->>>> you share the specific issues that are preventing Linux end users =
-from
->>>> buying a Wacom MT devices? If I didn't misunderstand your point he=
-re,
->>>> you are talking about Linux users, not Linux developers/hackers,
->>>> right?
->>>
->>> I think normal users wanting to use linux for MT are generally frus=
-trated and
->>> confused at the moment.
->>
->> Why do the end users get frustrated and confused? Can you share some
->> examples from an end user's (not developer's) perspective with me?
->
-> Sorry, I've been too focused on the n-trig users. =A0They have been f=
-rustrated,
-> and I've seen from the forums that some have been playing with custom=
-ized
-> versions of both the kernel and wacom x driver to get your two finger=
- gestures.
->
-> I'm also projecting my own frustrations, seeing the X mt interface st=
-ill not
-> quite set, and very little in the way of applications that use mt at =
-all.
-> We're still quite a ways away from seeing the full potential of a mor=
-e hands on desktop.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-As far as I understand,  this issue is not device driver or MT support
-specific. It is universal  on Linux.
+On 06/21/10 01:06, Micki Balanga wrote:
+> Hi Jiri
+> We have some new product so I have to update the patch,
+> When I update my git branch I didn't see the changes regarding N-trig
+> Product id. If you can insert this patch, if there a problem with the
+> patch
+> Let me know and hi will update it
+> Thank you
+> Micki
+> 
+> 
+> -----Original Message-----
+> From: Jiri Kosina [mailto:jkosina@suse.cz] 
+> Sent: Saturday, June 05, 2010 6:42 PM
+> To: Micki Balanga
+> Cc: chatty@enac.fr; dhprince-devel@yahoo.co.uk;
+> linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Rafi Rubin
+> Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
+> 
+> On Fri, 4 Jun 2010, Micki Balanga wrote:
+> 
+>> Hi Jiri,
+>> Attach the patch via file.
+>> (Also fix 3 warning: please , no space before tabs)
+> 
+> Thanks Micki, I have applied the patch.
+> 
 
->>> Certainly the protocol between the wacom kernel driver
->>> and the wacom user space driver is way below the level that most ar=
-e following.
->>
->> By "most", do you mean most MT device drivers, or most end users, or
->> most developers? I am eager to bring the Wacom driver to the specifi=
-c
->> level.
->
-> End users, they don't tend to care about the internal protocols as lo=
-ng as their
-> programs do what they want.
+Micki, looks like there are a couple of accidental whitespace modifications:
 
-Then, I still don't get what you meant by "way below the level that
-most are following". I'd really like to understand it so I can work on
-it.
+- -#define USB_VENDOR_ID_ADS_TECH                 0x06e1
++#define USB_VENDOR_ID_ADS_TECH 0x06e1
 
-Thank you,
+- -#define USB_VENDOR_ID_EZKEY            0x0518
++#define USB_VENDOR_ID_EZKEY            0x0518
 
-Ping
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Also, in the list of product ids, did you mean to skip 2?
+
+
+Jiri, is there a better way than listing each device individually?
+
+
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAkwfA0UACgkQwuRiAT9o60+M9QCfQJcJ7pMo9TOY5vYgfK6Yq16d
+nD8AoK+l5sVJKAUEpyYEEANnCFCNm/zr
+=IFqR
+-----END PGP SIGNATURE-----

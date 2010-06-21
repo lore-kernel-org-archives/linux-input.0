@@ -1,148 +1,88 @@
-From: Micki Balanga <micki@n-trig.com>
-Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
-Date: Mon, 21 Jun 2010 08:06:15 +0300
-Message-ID: <48A28051AC6D7A48B64F28272458190338280A@Exchange-IL.n-trig.com>
-References: <48A28051AC6D7A48B64F28272458190333674B@Exchange-IL.n-trig.com>
- <alpine.LNX.2.00.1006041115480.12271@pobox.suse.cz>
- <48A28051AC6D7A48B64F28272458190326E03E@Exchange-IL.n-trig.com>
- <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: Wacom based devices and the mt kernel protocol.
+Date: Sun, 20 Jun 2010 22:30:26 -0700
+Message-ID: <AANLkTikR0PXLqYuK8jDd_pWvcmVlRLnQFLVElHH8e71a@mail.gmail.com>
+References: <AANLkTinq_3P-QrTqsEdtyMbBtc9EXhahclER_4s5_Kx2@mail.gmail.com>
+	<AANLkTikExwM_LBUw_-z2eimO96Dxs_fNfAM4jlftXyHM@mail.gmail.com>
+	<4C1E6A8C.4020904@seas.upenn.edu>
+	<AANLkTimCsVwppeTKXErpA6_1vwPHuQeqJHcdzLKd2EEp@mail.gmail.com>
+	<4C1EBE06.7020605@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxout12.netvision.net.il ([194.90.6.37]:51165 "EHLO
-	mxout12.netvision.net.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751301Ab0FUFFU (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:42304 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752295Ab0FUFa1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jun 2010 01:05:20 -0400
-Content-class: urn:content-classes:message
-In-reply-to: <alpine.LNX.2.00.1006051741361.12271@pobox.suse.cz>
+	Mon, 21 Jun 2010 01:30:27 -0400
+In-Reply-To: <4C1EBE06.7020605@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: chatty@enac.fr, dhprince-devel@yahoo.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rafi Rubin <rafi@seas.upenn.edu>
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Chase Douglas <chase.douglas@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-This is a multi-part message in MIME format.
+On Sun, Jun 20, 2010 at 6:19 PM, Rafi Rubin <rafi@seas.upenn.edu> wrote=
+:
+>>
+>>>>> This impact very much the decision of a Linux user wanting to buy=
+ wacom mt device.
+>>>>
+>>>> I think end users have already got the Linux support from Wacom. =A0=
+Can
+>>>> you share the specific issues that are preventing Linux end users =
+from
+>>>> buying a Wacom MT devices? If I didn't misunderstand your point he=
+re,
+>>>> you are talking about Linux users, not Linux developers/hackers,
+>>>> right?
+>>>
+>>> I think normal users wanting to use linux for MT are generally frus=
+trated and
+>>> confused at the moment.
+>>
+>> Why do the end users get frustrated and confused? Can you share some
+>> examples from an end user's (not developer's) perspective with me?
+>
+> Sorry, I've been too focused on the n-trig users. =A0They have been f=
+rustrated,
+> and I've seen from the forums that some have been playing with custom=
+ized
+> versions of both the kernel and wacom x driver to get your two finger=
+ gestures.
+>
+> I'm also projecting my own frustrations, seeing the X mt interface st=
+ill not
+> quite set, and very little in the way of applications that use mt at =
+all.
+> We're still quite a ways away from seeing the full potential of a mor=
+e hands on desktop.
 
---Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+As far as I understand,  this issue is not device driver or MT support
+specific. It is universal  on Linux.
 
-Hi Jiri
-We have some new product so I have to update the patch,
-When I update my git branch I didn't see the changes regarding N-trig
-Product id. If you can insert this patch, if there a problem with the
-patch
-Let me know and hi will update it
-Thank you
-Micki
+>>> Certainly the protocol between the wacom kernel driver
+>>> and the wacom user space driver is way below the level that most ar=
+e following.
+>>
+>> By "most", do you mean most MT device drivers, or most end users, or
+>> most developers? I am eager to bring the Wacom driver to the specifi=
+c
+>> level.
+>
+> End users, they don't tend to care about the internal protocols as lo=
+ng as their
+> programs do what they want.
 
+Then, I still don't get what you meant by "way below the level that
+most are following". I'd really like to understand it so I can work on
+it.
 
------Original Message-----
-From: Jiri Kosina [mailto:jkosina@suse.cz] 
-Sent: Saturday, June 05, 2010 6:42 PM
-To: Micki Balanga
-Cc: chatty@enac.fr; dhprince-devel@yahoo.co.uk;
-linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Rafi Rubin
-Subject: RE: [PATCH] HID: Add support to new N-trig firwmare
+Thank you,
 
-On Fri, 4 Jun 2010, Micki Balanga wrote:
-
-> Hi Jiri,
-> Attach the patch via file.
-> (Also fix 3 warning: please , no space before tabs)
-
-Thanks Micki, I have applied the patch.
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
-
---Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)
-Content-type: application/octet-stream;
- name=0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
-Content-transfer-encoding: base64
-Content-disposition: attachment;
- filename=0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
-Content-description: 0001-HID-Add-support-to-new-N-trig-firwmare-part-2.patch
-
-RnJvbSBlZmMwNTM5Yzc4YWY5YWFlYTQ2ZTA3MzhhNGY5ZDc0OWU3MzY4ODgzIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBtaWNraSA8bWlja2lAbWlja2ktbGFwdG9wLihub25lKT4KRGF0
-ZTogU2F0LCAxOSBKdW4gMjAxMCAxMTozNzoyOSArMDMwMApTdWJqZWN0OiBbUEFUQ0hdIEhJRDog
-QWRkIHN1cHBvcnQgdG8gbmV3IE4tdHJpZyBmaXJ3bWFyZSBwYXJ0IDIKClByb2R1Y3QgaWQgIDB4
-MDMgLSAweDE0CgpTaWduZWQtb2ZmLWJ5OiBNaWNraSBCYWxhbmdhIDxtaWNraUBuLXRyaWcuY29t
-PgotLS0KLS0tCi0tLQogZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgMTggKysrKysrKysrKysr
-KysrKysrCiBkcml2ZXJzL2hpZC9oaWQtaWRzLmggIHwgICAyMiArKysrKysrKysrKysrKysrKysr
-Ky0tCiAyIGZpbGVzIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWNvcmUuYyBiL2RyaXZlcnMvaGlkL2hpZC1jb3Jl
-LmMKaW5kZXggYWEwZjdkYy4uODg3YWVmZCAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaGlkLWNv
-cmUuYworKysgYi9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCkBAIC0xMzM3LDYgKzEzMzcsMjQgQEAg
-c3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkIGhpZF9ibGFja2xpc3RbXSA9IHsKIAl7
-IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTUlDUk9TT0ZULCBVU0JfREVWSUNFX0lEX1dJ
-UkVMRVNTX09QVElDQUxfREVTS1RPUF8zXzApIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVO
-RE9SX0lEX01PTlRFUkVZLCBVU0JfREVWSUNFX0lEX0dFTklVU19LQjI5RSkgfSwKIAl7IEhJRF9V
-U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hf
-U0NSRUVOKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RF
-VklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMSkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
-RU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzIpIH0sCisJ
-eyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNFX0lEX05UUklH
-X1RPVUNIX1NDUkVFTl8zKSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJ
-RywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNCkgfSwKKwl7IEhJRF9VU0JfREVW
-SUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVO
-XzUpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNF
-X0lEX05UUklHX1RPVUNIX1NDUkVFTl82KSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
-Ul9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNykgfSwKKwl7IEhJ
-RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9V
-Q0hfU0NSRUVOXzgpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBV
-U0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl85KSB9LAorCXsgSElEX1VTQl9ERVZJQ0Uo
-VVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTAp
-IH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBVU0JfREVWSUNFX0lE
-X05UUklHX1RPVUNIX1NDUkVFTl8xMSkgfSwKKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1Jf
-SURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzEyKSB9LAorCXsgSElE
-X1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
-SF9TQ1JFRU5fMTMpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX05UUklHLCBV
-U0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl8xNCkgfSwKKwl7IEhJRF9VU0JfREVWSUNF
-KFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzE1
-KSB9LAorCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9OVFJJRywgVVNCX0RFVklDRV9J
-RF9OVFJJR19UT1VDSF9TQ1JFRU5fMTYpIH0sCisJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9S
-X0lEX05UUklHLCBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl8xNykgfSwKKwl7IEhJ
-RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfTlRSSUcsIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9V
-Q0hfU0NSRUVOXzE4KSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9PUlRFSywg
-VVNCX0RFVklDRV9JRF9PUlRFS19XS0IyMDAwKSB9LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZF
-TkRPUl9JRF9QRVRBTFlOWCwgVVNCX0RFVklDRV9JRF9QRVRBTFlOWF9NQVhURVJfUkVNT1RFKSB9
-LAogCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9RVUFOVEEsIFVTQl9ERVZJQ0VfSURf
-UVVBTlRBX09QVElDQUxfVE9VQ0gpIH0sCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtaWRz
-LmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgKaW5kZXggNmFmNzdlZC4uMWQ2MTk0YSAxMDA2NDQK
-LS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1pZHMuaApA
-QCAtMzQsNyArMzQsNyBAQAogI2RlZmluZSBVU0JfREVWSUNFX0lEX0FDRUNBRF9GTEFJUgkweDAw
-MDQKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BQ0VDQURfMzAyCTB4MDAwOAogCi0jZGVmaW5lIFVT
-Ql9WRU5ET1JfSURfQURTX1RFQ0ggCQkweDA2ZTEKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9BRFNf
-VEVDSAkweDA2ZTEKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9BRFNfVEVDSF9SQURJT19TSTQ3MFgJ
-MHhhMTU1CiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9BRkFURUNICQkweDE1YTQKQEAgLTE5OCw3
-ICsxOTgsNyBAQAogI2RlZmluZSBVU0JfVkVORE9SX0lEX0VUVAkJMHgwNjY0CiAjZGVmaW5lIFVT
-Ql9ERVZJQ0VfSURfVEM1VUgJCTB4MDMwOQogCi0jZGVmaW5lIFVTQl9WRU5ET1JfSURfRVpLRVkg
-CQkweDA1MTgKKyNkZWZpbmUgVVNCX1ZFTkRPUl9JRF9FWktFWQkJMHgwNTE4CiAjZGVmaW5lIFVT
-Ql9ERVZJQ0VfSURfQlRDXzgxOTMJCTB4MDAwMgogCiAjZGVmaW5lIFVTQl9WRU5ET1JfSURfR0FN
-RVJPTgkJMHgwODEwCkBAIC0zOTEsNiArMzkxLDI0IEBACiAKICNkZWZpbmUgVVNCX1ZFTkRPUl9J
-RF9OVFJJRyAgICAgICAgICAgICAgICAweDFiOTYKICNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJ
-R19UT1VDSF9TQ1JFRU4gICAweDAwMDEKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
-SF9TQ1JFRU5fMSAgIDB4MDAwMworI2RlZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1ND
-UkVFTl8yICAgMHgwMDA0CisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVO
-XzMgICAweDAwMDUKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNCAg
-IDB4MDAwNgorI2RlZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl81ICAgMHgw
-MDA3CisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzYgICAweDAwMDgK
-KyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fNyAgIDB4MDAwOQorI2Rl
-ZmluZSBVU0JfREVWSUNFX0lEX05UUklHX1RPVUNIX1NDUkVFTl84ICAgMHgwMDBBCisjZGVmaW5l
-IFVTQl9ERVZJQ0VfSURfTlRSSUdfVE9VQ0hfU0NSRUVOXzkgICAweDAwMEIKKyNkZWZpbmUgVVNC
-X0RFVklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTAgICAweDAwMEMKKyNkZWZpbmUgVVNCX0RF
-VklDRV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTEgICAweDAwMEQKKyNkZWZpbmUgVVNCX0RFVklD
-RV9JRF9OVFJJR19UT1VDSF9TQ1JFRU5fMTIgICAweDAwMEUKKyNkZWZpbmUgVVNCX0RFVklDRV9J
-RF9OVFJJR19UT1VDSF9TQ1JFRU5fMTMgICAweDAwMEYKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9O
-VFJJR19UT1VDSF9TQ1JFRU5fMTQgICAweDAwMTAKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJ
-R19UT1VDSF9TQ1JFRU5fMTUgICAweDAwMTEKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19U
-T1VDSF9TQ1JFRU5fMTYgICAweDAwMTIKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VD
-SF9TQ1JFRU5fMTcgICAweDAwMTMKKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9OVFJJR19UT1VDSF9T
-Q1JFRU5fMTggICAweDAwMTQKIAogI2RlZmluZSBVU0JfVkVORE9SX0lEX09OVFJBSwkJMHgwYTA3
-CiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfT05UUkFLX0FEVTEwMAkweDAwNjQKLS0gCjEuNi4zLjMK
-Cg==
-
---Boundary_(ID_0hZFtJnK1KKGRuAXHfdFWQ)--
+Ping
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

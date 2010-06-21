@@ -1,73 +1,108 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Mon, 21 Jun 2010 07:04:05 -0400
-Message-ID: <1277118245.2230.17.camel@localhost>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	 <4BDF2B45.9060806@redhat.com> <20100607190003.GC19390@hardeman.nu>
-	 <20100607201530.GG16638@redhat.com> <20100608175017.GC5181@hardeman.nu>
-	 <AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	 <20100609132908.GM16638@redhat.com> <20100609175621.GA19620@hardeman.nu>
-	 <20100609181506.GO16638@redhat.com>
-	 <AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	 <20100613202945.GA5883@hardeman.nu>
-	 <AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-	 <AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-	 <1276776859.2461.16.camel@localhost>
-	 <AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
-	 <1277081276.2252.12.camel@localhost>
-	 <AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH v5 1/3] ARM: SAMSUNG: Add keypad device support
+Date: Mon, 21 Jun 2010 12:16:12 +0100
+Message-ID: <20100621111612.GJ7702@n2100.arm.linux.org.uk>
+References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com> <AANLkTil1aiJ1gu6jRrO4LeB0fYltOq4A3wXJJB1ZOa8q@mail.gmail.com> <20100621091952.GB7702@n2100.arm.linux.org.uk> <AANLkTilU1X1LR33Eed9BVGE2n-dqRuIuUFfbDd3gzEVc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTilU1X1LR33Eed9BVGE2n-dqRuIuUFfbDd3gzEVc@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, kgene.kim@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 2010-06-20 at 23:51 -0400, Jarod Wilson wrote:
-> On Sun, Jun 20, 2010 at 8:47 PM, Andy Walls <awalls@md.metrocast.net> wrote:
+On Mon, Jun 21, 2010 at 06:39:10PM +0800, Eric Miao wrote:
+> On Mon, Jun 21, 2010 at 5:19 PM, Russell King - ARM Linux
+> <linux@arm.linux.org.uk> wrote:
+> > On Mon, Jun 21, 2010 at 05:05:34PM +0800, Eric Miao wrote:
+> >> On Mon, Jun 21, 2010 at 2:26 PM, Joonyoung Shim <jy0922.shim@samsu=
+ng.com> wrote:
+> >> > +void __init samsung_keypad_set_platdata(struct samsung_keypad_p=
+latdata *pd)
+> >> > +{
+> >> > + =A0 =A0 =A0 struct samsung_keypad_platdata *npd;
+> >> > +
+> >> > + =A0 =A0 =A0 if (!pd) {
+> >> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "%s: no platform d=
+ata\n", __func__);
+> >> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return;
+> >> > + =A0 =A0 =A0 }
+> >> > +
+> >> > + =A0 =A0 =A0 npd =3D kmemdup(pd, sizeof(struct samsung_keypad_p=
+latdata), GFP_KERNEL);
+> >> > + =A0 =A0 =A0 if (!npd)
+> >> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "%s: no memory for=
+ platform data\n", __func__);
+> >>
+> >> This part of the code is actually duplicated again and again and a=
+gain
+> >> for each device, PXA and other legacy platforms are bad references=
+ for
+> >> this. In arch/arm/mach-mmp/, it might be a bit cleaner, there are =
+three
+> >> major points:
+> >>
+> >> =A01. A minimum 'struct pxa_device_desc' for a simple description =
+of a
+> >> =A0 =A0 device (more than 90% of the devices can be described that=
+ way),
+> >> =A0 =A0 and avoid using a comparatively heavier weight platform_de=
+vice,
+> >> =A0 =A0 which can be generated at run-time
+> >>
+> >> =A02. pxa_register_device() to allocate and register the platform_=
+device
+> >> =A0 =A0 at run-time, along with the platform data
+> >
+> > It's a bad idea to make platform data be run-time discardable like =
+this:
+> >
+> >> > +struct samsung_keypad_platdata {
+> >> > + =A0 =A0 =A0 const struct matrix_keymap_data *keymap_data;
+> >
+> > What you end up with is some platform data structures which must be=
+ kept
+> > (those which have pointers to them from the platform data), and oth=
+ers
+> > (the platform data itself) which can be discarded at runtime.
+> >
+> > We know that the __initdata attributations cause lots of problems -
+> > they're frequently wrong. =A0Just see the constant hastle with __de=
+vinit
+> > et.al. =A0The same issue happens with __initdata as well.
+> >
+> > So why make things more complicated by allowing some platform data
+> > structures to be discardable and others not to be? =A0Is their smal=
+l
+> > size (maybe 6 words for this one) really worth the hastle of gettin=
+g
+> > __initdata attributations wrong (eg, on the keymap data?)
+> >
+>=20
+> Russell,
+>=20
+> The benefit I see is when multiple boards are compiled in, those
+> data not used can be automatically discarded.
 
+Yes, but only some of the data can be discarded.  Continuing with the
+example in hand, while you can discard the six words which represent
+samsung_keypad_platdata, but the keymap_data can't be because that won'=
+t
+be re-allocated, which is probably a much larger data structure.
 
-> As for the building your own kernel thing... I've been doing my work
-> mainly on a pair of x86_64 systems, one a ThinkPad T61 running Fedora
-> 13, and the other an HP xw4400 workstation running RHEL6. In both
-> cases, I copied a distro kernel's, config file out of /boot/, and then
-> ran make oldconfig over it and build straight from what's in my tree,
-> which works well enough on both setups.
+So, samsung_keypad_platdata can be marked with __initdata, but the keym=
+ap
+data must not be - and this is where the confusion about what can be
+marked with __initdata starts - and eventually leads to the keymap data
+also being mistakenly marked __initdata.
 
-I pulled the config out of the kernel*.src.rpm after 'rpmbuild -bp' (I
-only saw the configs in /boot after doing that :P ), and then ran 'make
-oldconfig'.
-
-The first time around I forgot to do a modules_install and the ext[234]
-modules weren't in the initramfs.  That made it hard for the kernel to
-read the /boot and / filesystems. ;)
-
-After fixing that idiocy, it now hangs in early boot - just a blinking
-cursor.  I'm speculating it is a problem with support for my old-ish ATI
-Radeon Xpress 200 video chipset with a vanilla kernel.  I'll work it out
-eventually.
-
-
-> > I'll have time on Thursday night to try again.
-> 
-> No rush yet, we've got a while before the merge window still.
-> Christoph (Bartelmus) helped me out with a bunch of ioctl
-> documentation this weekend, so I've got that to add to the tree, then
-> I think I'll be prepared to resubmit the lirc bits. I'll shoot for
-> doing that next weekend, and hopefully, that'll give you a chance to
-> try 'em out before then and provide any necessary feedback/fixes/etc.
-> (Not that we can't also just fix things up as needed post-merge). I'm
-> still up in the air as to what I should work on next... So many lirc
-> drivers left to port still... Maybe zilog, maybe streamzap... Maybe
-> the MCE IR keyboard...
-
-I've got a PVR-150 and HVR-1600 both with the Zilog Z8's on them.  If I
-ever get my act together, I'll at least be able to test that and
-integrate any changes into the ivtv & cx18 drivers.   I've recently seen
-users having trouble on IRC, BTW.
-
-Regards,
-Andy
+Is saving six words (or so) worth the effort to track down stuff
+inappropriately marked with __initdata ?  I'm sure there's bigger savin=
+gs
+to be had in other parts of the kernel (such as shrinking the size of
+tcp hash tables, reducing the kernel message ring buffer, etc) if size =
+is
+really a concern.

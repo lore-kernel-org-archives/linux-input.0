@@ -1,64 +1,57 @@
-From: Ondrej Zary <linux-ZCIryABCsrmttCpgsWEBFmD2FQJk+8+b@public.gmane.org>
-Subject: Re: [0000/0003]full power management for usb touchscreens
-Date: Tue, 22 Jun 2010 15:43:24 +0200
-Message-ID: <201006221543.27169.linux@rainbow-software.org>
-References: <201006071513.29478.oneukum@suse.de> <201006221306.13420.linux@rainbow-software.org> <201006221524.25084.oliver@neukum.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] Introduce buflock, a one-to-many circular buffer mechanism
+ (rev2)
+Date: Tue, 22 Jun 2010 15:54:32 +0200
+Message-ID: <4C20C098.1010200@euromail.se>
+References: <1277060705-3363-1-git-send-email-rydberg@euromail.se> <20100621161610.fdfe23a6.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201006221524.25084.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Ritz <daniel.ritz-OI3hZJvNYWs@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:60391 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1758236Ab0FVNzu (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jun 2010 09:55:50 -0400
+In-Reply-To: <20100621161610.fdfe23a6.akpm@linux-foundation.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Jonathan Cameron <jic23@cam.ac.uk>
 
-On Tuesday 22 June 2010, Oliver Neukum wrote:
-> Am Dienstag, 22. Juni 2010, 13:06:12 schrieb Ondrej Zary:
-> > On Friday 18 June 2010, Oliver Neukum wrote:
-> > > Am Freitag, 18. Juni 2010 20:34:03 schrieb Ondrej Zary:
-> > > > On Friday 18 June 2010 20:22:07 Oliver Neukum wrote:
-> > > > > Am Donnerstag, 10. Juni 2010 16:13:51 schrieb Ondrej Zary:
-> > > > > > > > I haven't tested the patches before. Now I tested them and
-> > > > > > > > the Nexio touchscreen does not play well with suspend. It
-> > > > > > > > always reconnects after resume from STR or hibernation.
-> > > > > > > > Autosuspend is probably never activated at the URBs are
-> > > > > > > > submitted continuously.
-> > > > > > >
-> > > > > > > I see. Can you compile with CONFIG_USB_DEBUG and send me the
-> > > > > > > log?
-> > > > > >
-> > > > > > This can't be fixed - no matter what you do, the device
-> > > > > > reconnects if you stop talking to it.
-> > > > >
-> > > > > Have you tried setting it back to config 0?
-> > > >
-> > > > No, I haven't. It reconnects even if there's no driver loaded (e.g.
-> > > > older kernel). I don't know if kernel sets configuration on all USB
-> > > > devices upon connect (even if there's no driver).
-> > >
-> > > Yes, the kernel sets a configuration if the power budget allows it.
-> > > You can set it back to 0 through sysfs and see what happens.
-> >
-> > It disconnects and reconnects after bConfigurationValue is set to 0.
->
-> This is a violation of the spec. Can you give me the IDs so that I can
-> put the devices into the quirks file? Or can I take this from the driver?
-> Do all devices that marked as always needing an irq transfer behave
-> this way?
+Andrew Morton wrote:
+[...]
+> I don't understand why this has "lock" in its name.
+> 
+> The API itself is a mixture of "bufwrite_foo" and "bufread_foo".
+> 
+> It's all a bit chaotic.  I'd suggest picking a sane name for the whole
+> subsytem - perhaps "mrbuf" for "multi reader buffer"?  Then
+> consistently name all interface functions as "mrbuf_foo". 
+> mrbuf.h, mrbuf_write_lock(), etc.
 
-This is not a bug surprise as this device is broken in many ways. It takes 
-ages to detect and identify and looks like cdc_acm. The pseudo-multitouch 
-capable protocol is pretty bad too. Also there are some reports about devices 
-using the same ID but different protocol.
+Point taken.
 
-I have only one - 1870:0001, don't know anything about the other.
+>> +static __always_inline bool __must_check bufread_retry(struct buflock_reader *br, const struct buflock_writer *bw)
+>> +{
+>> +	smp_rmb();
+>> +	if (unlikely(((br->tail - br->last) & bw->page) < bw->next - br->last))
+>> +		return true;
+>> +	++br->tail;
+>> +	if (unlikely(br->head - br->tail > bw->page))
+>> +		br->tail = br->head;
+>> +	return false;
+>> +}
+> 
+> This looks too large to be inlined.
+> 
+> What's the __always_inline for?  Was gcc uninlining this within
+> separate compilation units?
 
--- 
-Ondrej Zary
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+As you say, the function is large, and I am uncertain about the rules regarding
+compiler reordering across general function calls. Starting a general function
+with a memory barrier feels weird. Perhaps the function should be split?
+
+Thanks,
+Henrik
+

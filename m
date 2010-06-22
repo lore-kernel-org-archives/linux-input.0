@@ -1,39 +1,39 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH] INPUT: tps6507x-ts, remove unneeded NULL test
-Date: Tue, 22 Jun 2010 13:41:02 +0200
-Message-ID: <1277206862-27146-1-git-send-email-jslaby@suse.cz>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, jirislaby@gmail.com, Jiri Slaby <jslaby@suse.cz>, Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: [ANNOUNCE] mtdev 1.0.1 released
+Date: Tue, 22 Jun 2010 13:46:37 +0200
+Message-ID: <4C20A29D.90503@bitmath.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from csmtp2.one.com ([91.198.169.22]:40464 "EHLO csmtp2.one.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754562Ab0FVLqj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jun 2010 07:46:39 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>
 
-Stanse found that tsc is dereferenced earlier than checked for being
-NULL in tps6507x_ts_remove. Remove the test because I see no way, how
-tsc can be NULL there.
+Announcement: mtdev v1.0.1 released
+-----------------------------------
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Todd Fischer <todd.fischer@ridgerun.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/touchscreen/tps6507x-ts.c |    3 ---
- 1 files changed, 0 insertions(+), 3 deletions(-)
+mtdev - Multitouch Protocol Translation Library (MIT license)
 
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index 5b70a14..a644d18 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -355,9 +355,6 @@ static int __devexit tps6507x_ts_remove(struct platform_device *pdev)
- 	struct tps6507x_ts *tsc = tps6507x_dev->ts;
- 	struct input_dev *input_dev = tsc->input_dev;
- 
--	if (!tsc)
--		return 0;
--
- 	cancel_delayed_work_sync(&tsc->work);
- 	destroy_workqueue(tsc->wq);
- 
--- 
-1.7.1
+The mtdev library is a kernel input event stream translator, which
+greatly simplifies multitouch handling in applications. The input
+events are simply routed through mtdev, which transforms them to a
+uniform stream of MT slot events. Software finger tracking is
+performed when needed, making all devices appear as if they had
+tracking capabilities. For further details and the source git tree,
+see
+
+http://bitmath.org/code/mtdev/
+
+The bulk of mtdev has been around since 2008, as part of the
+Multitouch X Driver project (http://bitmath.org/code/multitouch/). By
+releasing mtdev as a stand-alone package under the free MIT (X11)
+license, we hope to simplify the adoption of the MT event protocol in
+applications.
+
+Enjoy,
+Henrik Rydberg

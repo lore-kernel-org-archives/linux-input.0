@@ -1,102 +1,111 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v5 1/3] ARM: SAMSUNG: Add keypad device support
-Date: Tue, 22 Jun 2010 09:48:07 +0900
-Message-ID: <4C200847.9010200@samsung.com>
-References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
- <AANLkTil1aiJ1gu6jRrO4LeB0fYltOq4A3wXJJB1ZOa8q@mail.gmail.com>
- <20100621091952.GB7702@n2100.arm.linux.org.uk>
- <AANLkTilU1X1LR33Eed9BVGE2n-dqRuIuUFfbDd3gzEVc@mail.gmail.com>
- <20100621111612.GJ7702@n2100.arm.linux.org.uk>
+From: Michael Poole <mdpoole@troilus.org>
+Subject: Re: [PATCH 3/3] HID: magicmouse: enable horizontal scrolling
+Date: Mon, 21 Jun 2010 21:29:08 -0400
+Message-ID: <87eifzdfdn.fsf@troilus.org>
+References: <1277083951-29137-1-git-send-email-chase.douglas@canonical.com>
+	<1277083951-29137-4-git-send-email-chase.douglas@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20100621111612.GJ7702@n2100.arm.linux.org.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, kgene.kim@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from na3sys009aog112.obsmtp.com ([74.125.149.207]:59046 "HELO
+	na3sys009aog112.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1758732Ab0FVB3M (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Jun 2010 21:29:12 -0400
+Received: by mail-vw0-f53.google.com with SMTP id 2so918202vws.40
+        for <linux-input@vger.kernel.org>; Mon, 21 Jun 2010 18:29:11 -0700 (PDT)
+In-Reply-To: <1277083951-29137-4-git-send-email-chase.douglas@canonical.com>
+	(Chase Douglas's message of "Sun, 20 Jun 2010 21:32:31 -0400")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chase Douglas <chase.douglas@canonical.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On 6/21/2010 8:16 PM, Russell King - ARM Linux wrote:
-> On Mon, Jun 21, 2010 at 06:39:10PM +0800, Eric Miao wrote:
->> On Mon, Jun 21, 2010 at 5:19 PM, Russell King - ARM Linux
->> <linux@arm.linux.org.uk> wrote:
->>> On Mon, Jun 21, 2010 at 05:05:34PM +0800, Eric Miao wrote:
->>>> On Mon, Jun 21, 2010 at 2:26 PM, Joonyoung Shim <jy0922.shim@samsu=
-ng.com> wrote:
->>>>> +void __init samsung_keypad_set_platdata(struct samsung_keypad_pl=
-atdata *pd)
->>>>> +{
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD struct samsung_keypad_platdata *n=
-pd;
->>>>> +
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD if (!pd) {
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
-=BF=BD printk(KERN_ERR "%s: no platform data\n", __func__);
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
-=BF=BD return;
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD }
->>>>> +
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD npd =3D kmemdup(pd, sizeof(struct=
- samsung_keypad_platdata), GFP_KERNEL);
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD if (!npd)
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
-=BF=BD printk(KERN_ERR "%s: no memory for platform data\n", __func__);
->>>> This part of the code is actually duplicated again and again and a=
-gain
->>>> for each device, PXA and other legacy platforms are bad references=
- for
->>>> this. In arch/arm/mach-mmp/, it might be a bit cleaner, there are =
-three
->>>> major points:
->>>>
->>>> =EF=BF=BD1. A minimum 'struct pxa_device_desc' for a simple descri=
-ption of a
->>>> =EF=BF=BD =EF=BF=BD device (more than 90% of the devices can be de=
-scribed that way),
->>>> =EF=BF=BD =EF=BF=BD and avoid using a comparatively heavier weight=
- platform_device,
->>>> =EF=BF=BD =EF=BF=BD which can be generated at run-time
->>>>
->>>> =EF=BF=BD2. pxa_register_device() to allocate and register the pla=
-tform_device
->>>> =EF=BF=BD =EF=BF=BD at run-time, along with the platform data
->>> It's a bad idea to make platform data be run-time discardable like =
-this:
->>>
->>>>> +struct samsung_keypad_platdata {
->>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD const struct matrix_keymap_data *=
-keymap_data;
->>> What you end up with is some platform data structures which must be=
- kept
->>> (those which have pointers to them from the platform data), and oth=
-ers
->>> (the platform data itself) which can be discarded at runtime.
->>>
->>> We know that the __initdata attributations cause lots of problems -
->>> they're frequently wrong. =EF=BF=BDJust see the constant hastle wit=
-h __devinit
->>> et.al. =EF=BF=BDThe same issue happens with __initdata as well.
->>>
->>> So why make things more complicated by allowing some platform data
->>> structures to be discardable and others not to be? =EF=BF=BDIs thei=
-r small
->>> size (maybe 6 words for this one) really worth the hastle of gettin=
-g
->>> __initdata attributations wrong (eg, on the keymap data?)
->>>
->> Russell,
->>
->> The benefit I see is when multiple boards are compiled in, those
->> data not used can be automatically discarded.
->=20
-> Yes, but only some of the data can be discarded.  Continuing with the
-> example in hand, while you can discard the six words which represent
-> samsung_keypad_platdata, but the keymap_data can't be because that wo=
-n't
-> be re-allocated, which is probably a much larger data structure.
->=20
+Chase Douglas writes:
 
-No. the keymap_data is possible too. The keypad driver allocates other
-keymap area of input device and it is assigned from datas based on this
-keymap_data.
+> Mimicks OS X behavior.
+>
+> Signed-off-by: Chase Douglas <chase.douglas@canonical.com>
+> ---
+>  drivers/hid/hid-magicmouse.c |   25 +++++++++++++++++++------
+>  1 files changed, 19 insertions(+), 6 deletions(-)
+
+I like this general idea, but Dmitry Torokhov didn't like my previous
+patch to achieve a similar effect:
+https://patchwork.kernel.org/patch/84201/
+
+The only behavioral question I would have is whether a single
+touch/swipe should be locked in one direction or if it should be able to
+generate both horizontal and vertical scroll events.  That seems like a
+user preference thing to me.
+
+(My real wish is for X and the various widget libraries to get decent
+multitouch support soon, so that the kernel doesn't have to address
+those policy questions.)
+
+Michael
+
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index fe0c760..0b89c1c 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -95,6 +95,7 @@ struct magicmouse_sc {
+>  	struct {
+>  		short x;
+>  		short y;
+> +		short scroll_x;
+>  		short scroll_y;
+>  		u8 size;
+>  	} touches[16];
+> @@ -181,11 +182,13 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+>  	 */
+>  	if (emulate_scroll_wheel) {
+>  		unsigned long now = jiffies;
+> -		int step = msc->touches[id].scroll_y - y;
+> +		int step_x = msc->touches[id].scroll_x - x;
+> +		int step_y = msc->touches[id].scroll_y - y;
+>  
+>  		/* Calculate and apply the scroll motion. */
+>  		switch (tdata[7] & TOUCH_STATE_MASK) {
+>  		case TOUCH_STATE_START:
+> +			msc->touches[id].scroll_x = x;
+>  			msc->touches[id].scroll_y = y;
+>  
+>  			/* Reset acceleration after half a second. */
+> @@ -198,12 +201,20 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+>  
+>  			break;
+>  		case TOUCH_STATE_DRAG:
+> -			step /= (64 - (int)scroll_speed) * msc->scroll_accel;
+> -			if (step != 0) {
+> -				msc->touches[id].scroll_y -= step *
+> +			step_x /= (64 - (int)scroll_speed) * msc->scroll_accel;
+> +			if (step_x != 0) {
+> +				msc->touches[id].scroll_x -= step_x *
+>  					(64 - scroll_speed) * msc->scroll_accel;
+>  				msc->scroll_jiffies = now;
+> -				input_report_rel(input, REL_WHEEL, step);
+> +				input_report_rel(input, REL_HWHEEL, -step_x);
+> +			}
+> +
+> +			step_y /= (64 - (int)scroll_speed) * msc->scroll_accel;
+> +			if (step_y != 0) {
+> +				msc->touches[id].scroll_y -= step_y *
+> +					(64 - scroll_speed) * msc->scroll_accel;
+> +				msc->scroll_jiffies = now;
+> +				input_report_rel(input, REL_WHEEL, step_y);
+>  			}
+>  			break;
+>  		}
+> @@ -318,8 +329,10 @@ static void magicmouse_setup_input(struct input_dev *input, struct hid_device *h
+>  	__set_bit(EV_REL, input->evbit);
+>  	__set_bit(REL_X, input->relbit);
+>  	__set_bit(REL_Y, input->relbit);
+> -	if (emulate_scroll_wheel)
+> +	if (emulate_scroll_wheel) {
+>  		__set_bit(REL_WHEEL, input->relbit);
+> +		__set_bit(REL_HWHEEL, input->relbit);
+> +	}
+>  
+>  	if (report_touches) {
+>  		__set_bit(EV_ABS, input->evbit);

@@ -1,31 +1,119 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH] input: samsung-keypad - Add samsung keypad driver
-Date: Tue, 22 Jun 2010 11:03:00 +0900
-Message-ID: <4C2019D4.1040105@samsung.com>
-References: <1277163098-10263-1-git-send-email-kgene.kim@samsung.com>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: [PATCH v5 1/3] ARM: SAMSUNG: Add keypad device support
+Date: Tue, 22 Jun 2010 11:02:15 +0800
+Message-ID: <AANLkTikbBkDOVF6ti_bTultATuW1KhciAmKc1Geg1OSH@mail.gmail.com>
+References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
+	<AANLkTil1aiJ1gu6jRrO4LeB0fYltOq4A3wXJJB1ZOa8q@mail.gmail.com>
+	<20100621091952.GB7702@n2100.arm.linux.org.uk> <AANLkTilU1X1LR33Eed9BVGE2n-dqRuIuUFfbDd3gzEVc@mail.gmail.com>
+	<20100621111612.GJ7702@n2100.arm.linux.org.uk> <4C200847.9010200@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1277163098-10263-1-git-send-email-kgene.kim@samsung.com>
+In-Reply-To: <4C200847.9010200@samsung.com>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org, dmitry.torokhov@gmail.com, Kyungmin Park <kyungmin.park@samsung.com>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, linux-samsung-soc@vger.kernel.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, kgene.kim@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On 6/22/2010 8:31 AM, Kukjin Kim wrote:
-> From: Joonyoung Shim <jy0922.shim@samsung.com>
-> 
-> This patch adds support for keypad driver running on Samsung SoCs. This
-> driver is tested on SMDK6410(S3C6410), SMDKC100(S5PC100), Aquila(S5PC110),
-> GONI(S5PC110) and SMDKV210(S5PV210) boards.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> Tested-by: Naveen Krishna Ch <ch.naveen@samsung.com>
-> [kgene.kim@samsung.com: added comments]
-> Acked-by: Kukjin Kim <kgene.kim@samsung.com>
-> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+On Tue, Jun 22, 2010 at 8:48 AM, Joonyoung Shim <jy0922.shim@samsung.co=
+m> wrote:
+> On 6/21/2010 8:16 PM, Russell King - ARM Linux wrote:
+>> On Mon, Jun 21, 2010 at 06:39:10PM +0800, Eric Miao wrote:
+>>> On Mon, Jun 21, 2010 at 5:19 PM, Russell King - ARM Linux
+>>> <linux@arm.linux.org.uk> wrote:
+>>>> On Mon, Jun 21, 2010 at 05:05:34PM +0800, Eric Miao wrote:
+>>>>> On Mon, Jun 21, 2010 at 2:26 PM, Joonyoung Shim <jy0922.shim@sams=
+ung.com> wrote:
+>>>>>> +void __init samsung_keypad_set_platdata(struct samsung_keypad_p=
+latdata *pd)
+>>>>>> +{
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD struct samsung_keypad_platdata *=
+npd;
+>>>>>> +
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD if (!pd) {
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
+=BF=BD printk(KERN_ERR "%s: no platform data\n", __func__);
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
+=BF=BD return;
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD }
+>>>>>> +
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD npd =3D kmemdup(pd, sizeof(struc=
+t samsung_keypad_platdata), GFP_KERNEL);
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD if (!npd)
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=BF=BD =EF=
+=BF=BD printk(KERN_ERR "%s: no memory for platform data\n", __func__);
+>>>>> This part of the code is actually duplicated again and again and =
+again
+>>>>> for each device, PXA and other legacy platforms are bad reference=
+s for
+>>>>> this. In arch/arm/mach-mmp/, it might be a bit cleaner, there are=
+ three
+>>>>> major points:
+>>>>>
+>>>>> =EF=BF=BD1. A minimum 'struct pxa_device_desc' for a simple descr=
+iption of a
+>>>>> =EF=BF=BD =EF=BF=BD device (more than 90% of the devices can be d=
+escribed that way),
+>>>>> =EF=BF=BD =EF=BF=BD and avoid using a comparatively heavier weigh=
+t platform_device,
+>>>>> =EF=BF=BD =EF=BF=BD which can be generated at run-time
+>>>>>
+>>>>> =EF=BF=BD2. pxa_register_device() to allocate and register the pl=
+atform_device
+>>>>> =EF=BF=BD =EF=BF=BD at run-time, along with the platform data
+>>>> It's a bad idea to make platform data be run-time discardable like=
+ this:
+>>>>
+>>>>>> +struct samsung_keypad_platdata {
+>>>>>> + =EF=BF=BD =EF=BF=BD =EF=BF=BD const struct matrix_keymap_data =
+*keymap_data;
+>>>> What you end up with is some platform data structures which must b=
+e kept
+>>>> (those which have pointers to them from the platform data), and ot=
+hers
+>>>> (the platform data itself) which can be discarded at runtime.
+>>>>
+>>>> We know that the __initdata attributations cause lots of problems =
+-
+>>>> they're frequently wrong. =EF=BF=BDJust see the constant hastle wi=
+th __devinit
+>>>> et.al. =EF=BF=BDThe same issue happens with __initdata as well.
+>>>>
+>>>> So why make things more complicated by allowing some platform data
+>>>> structures to be discardable and others not to be? =EF=BF=BDIs the=
+ir small
+>>>> size (maybe 6 words for this one) really worth the hastle of getti=
+ng
+>>>> __initdata attributations wrong (eg, on the keymap data?)
+>>>>
+>>> Russell,
+>>>
+>>> The benefit I see is when multiple boards are compiled in, those
+>>> data not used can be automatically discarded.
+>>
+>> Yes, but only some of the data can be discarded. =C2=A0Continuing wi=
+th the
+>> example in hand, while you can discard the six words which represent
+>> samsung_keypad_platdata, but the keymap_data can't be because that w=
+on't
+>> be re-allocated, which is probably a much larger data structure.
+>>
+>
+> No. the keymap_data is possible too. The keypad driver allocates othe=
+r
+> keymap area of input device and it is assigned from datas based on th=
+is
+> keymap_data.
+>
 
-I think this is duplicated posting. Why don't you just reply the
-tested-by or acked-by at previous my mail?
+This is a generic issue. Even if in your example, you can avoid this by
+re-allocation and re-assignment (ignore the performance issue for such
+behavior), the real question is the difficult to track all these down. =
+Since
+matrix_keypad_data is something out of your control (it was actually
+drafted by me and Dmitry if you are interested), and think about one da=
+y
+I changed it's definition, now you have to sync your driver and code ev=
+ery
+time to make sure the discarded data is not referenced.

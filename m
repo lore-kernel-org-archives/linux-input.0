@@ -1,314 +1,155 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: mt: Document the MT event slot protocol (rev5b)
-Date: Tue, 22 Jun 2010 19:02:06 +0200
-Message-ID: <1277226126-3801-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Benjamin Tissoires <tissoire@cena.fr>, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
+From: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>
+Subject: Re: [PATCH] hid Logitech G13 Driver 0.0.5
+Date: Tue, 22 Jun 2010 12:34:09 -0600
+Message-ID: <d1cda632f4cdb650a68119903473fbb4.squirrel@intranet.cs.nmsu.edu>
+References: <alpine.LNX.2.00.1006211442350.13809@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.cs.nmsu.edu ([128.123.64.3]:48638 "EHLO mail.cs.nmsu.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752847Ab0FVTAm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jun 2010 15:00:42 -0400
+In-Reply-To: <alpine.LNX.2.00.1006211442350.13809@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Marek Vasut <marek.vasut@gmail.com>, Pavel Machek <pavel@ucw.cz>, Jaya Kumar <jayakumar.lkml@gmail.com>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, npavel@ituner.com, tomi.valkeinen@nokia.com, tony@atomide.com, florianschandinat@gmx.de, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-fbdev@vger.kernel.org, bonbons@linux-vserver.org
 
-This patch adds documentation for the ABS_MT_SLOT event and gives
-examples of how to use the event slot protocol.
 
-Reviewed-by: Ping Cheng <pingc@wacom.com>
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
-Hi Dmitry,
+Jiri Kosina wrote:
+> On Sat, 19 Jun 2010, Marek Vasut wrote:
+>
+>> > > >> +/*
+>> > > >> + * This is a default logo to be loaded upon driver
+>> initialization
+>> > > >> + * replacing the default Logitech G13 image loaded on device
+>> > > >> + * initialization. This is to provide the user a cue that the
+>> > > >> + * Linux driver is loaded and ready.
+>> > > >> + *
+>> > > >> + * This logo contains the text G13 in the center with two
+>> penguins
+>> > > >> + * on each side of the text. The penguins are a 33x40 rendition
+>> of
+>> > > >> + * the default framebuffer 80x80 monochrome image scaled down
+>> and
+>> > > >> + * cleaned up to retain something that looks a little better
+>> than
+>> > > >> + * a simple scaling.
+>> > > >> + *
+>> > > >> + * This logo is a simple xbm image created in GIMP and exported.
+>> > > >> + * To view the image copy the following two #defines plus the
+>> > > >> + * g13_lcd_bits to an ASCII text file and save with extension
+>> > > >> + * .xbm, then open with GIMP or any other graphical editor
+>> > > >> + * such as eog that recognizes the .xbm format.
+>> > > >> + */
+>> > > >
+>> > > > ...
+>> > > >
+>> > > >> +static unsigned char g13_lcd_bits[] = {
+>> > > >> + 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+>> 0x00,
+>> > > >> 0x00,
+>> > > >
+>> > > > I think you'll agree above is not an elegant solution.
+>> > >
+>> > > I could make it a config option.
+>> >
+>> > You get about 10 complains already, but you are not willing to solve
+>> > it. No, config option does not help.
+>> >
+>> > If you want to, make it separate patch so we can reject it separately.
+>> >
+>> > > >> +static DEVICE_ATTR(rgb, 0666, g13_rgb_show, g13_rgb_store);
+>> > > >
+>> > > > Reading above code, it looks like this new userspace sysfs
+>> attribute
+>> > > > is for backlight control. Could that be better exposed using the
+>> > > > existing backlight class?
+>> > >
+>> > > I looked at the backlight class and it didn't seem to be a very good
+>> fit.
+>> > >
+>> > > /* This structure defines all the properties of a backlight */
+>> > > struct backlight_properties {
+>> > >
+>> > > 	/* Current User requested brightness (0 - max_brightness) */
+>> > > 	int brightness;
+>> > > 	/* Maximal value for brightness (read-only) */
+>> > > 	int max_brightness;
+>> > > 	/* Current FB Power mode (0: full on, 1..3: power saving
+>> > >
+>> > > 	   modes; 4: full off), see FB_BLANK_XXX */
+>> > >
+>> > > 	int power;
+>> > > 	/* FB Blanking active? (values as for power) */
+>> > > 	/* Due to be removed, please use (state & BL_CORE_FBBLANK) */
+>> > > 	int fb_blank;
+>> > > 	/* Flags used to signal drivers of state changes */
+>> > > 	/* Upper 4 bits are reserved for driver internal use */
+>> > > 	unsigned int state;
+>> > >
+>> > > };
+>> > >
+>> > > The g13's backlight doesn't support any of these properties. All you
+>> can
+>> > > set is an rgb value on the g13; no power modes, no brightness, etc.
+>> I
+>> > > could add a brightness attribute by scaling the rgb values, but I
+>> would
+>> > > prefer to do that from userspace rather than the driver since it's
+>> not
+>> > > supported in the device itself.
+>> > >
+>> > > And, we'd still have to have the rgb attribute since the backlight
+>> class
+>> > > doesn't have color.
+>> >
+>> > Or you could pretend you have 3 different backlights? ....which is
+>> > actually what you have...?
+>> > 									Pavel
+>>
+>> Any updates on this?
+>>
+>> btw. it'd be good if we could use the g13fb on G15 ... would that be
+>> possible?
+>> Cheers!
+>
+> Rick, please correct me if I am wrong, but as far as I remember, you have
+> gathered quite some feedback and were about to incorporate them and
+> re-submit the driver, which hasn't happened yet. Is that correct? Or have
+> I lost track completely?
+>
 
-This version contains a small adjustment regarding the use of
-ABS_MT_TRACKING_ID. The previous version of the document allowed any
-id outside the range specified by the device to denote an unused
-slot. This is difficult to handle in userspace, since the valid range
-is unknown. The change here presented tightens the definition of a
-valid ABS_MT_TRACKING_ID to be a non-negative number, and explicitly
-states to use -1 to denote an unused slot.
+I've been waiting to resubmit until I get some of the userspace libraries
+and utilities a little more mature. There were some things I was exposing
+to sysfs that I didn't absolutely need, and some others that I needed to
+add.
 
-Ping, I left your reviewed-by in there, I hope that is alright.
+The cairo and papyrus libraries are (preliminarily) fully working. Once I
+make sure I have everything the daemon will need I'll resubmit the driver,
+and once that is done I was planning on submitting the libs/utils to
+Fedora.
 
-Thanks,
-Henrik
+For now, I've been dropping Fedora 12/13 patches and kernel SRPMS here:
+http://miskatonic.cs.nmsu.edu/g13/
 
- Documentation/input/multi-touch-protocol.txt |  217 ++++++++++++++++++--------
- 1 files changed, 148 insertions(+), 69 deletions(-)
+And the userspace libraries/utilities are at:
+http://g13.sourceforge.net
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
-index c0fc1c7..3ab038d 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -6,31 +6,148 @@ Multi-touch (MT) Protocol
- Introduction
- ------------
- 
--In order to utilize the full power of the new multi-touch devices, a way to
--report detailed finger data to user space is needed. This document
--describes the multi-touch (MT) protocol which allows kernel drivers to
--report details for an arbitrary number of fingers.
-+In order to utilize the full power of the new multi-touch and multi-user
-+devices, a way to report detailed data from multiple contacts, i.e.,
-+objects in direct contact with the device surface, is needed.  This
-+document describes the multi-touch (MT) protocol which allows kernel
-+drivers to report details for an arbitrary number of contacts.
-+
-+The protocol is divided into two types, depending on the capabilities of the
-+hardware. For devices handling anonymous contacts (type A), the protocol
-+describes how to send the raw data for all contacts to the receiver. For
-+devices capable of tracking identifiable contacts (type B), the protocol
-+describes how to send updates for individual contacts via event slots.
-+
-+
-+Protocol Usage
-+--------------
-+
-+Contact details are sent sequentially as separate packets of ABS_MT
-+events. Only the ABS_MT events are recognized as part of a contact
-+packet. Since these events are ignored by current single-touch (ST)
-+applications, the MT protocol can be implemented on top of the ST protocol
-+in an existing driver.
-+
-+Drivers for type A devices separate contact packets by calling
-+input_mt_sync() at the end of each packet. This generates a SYN_MT_REPORT
-+event, which instructs the receiver to accept the data for the current
-+contact and prepare to receive another.
-+
-+Drivers for type B devices separate contact packets by calling
-+input_mt_slot(), with a slot as argument, at the beginning of each packet.
-+This generates an ABS_MT_SLOT event, which instructs the receiver to
-+prepare for updates of the given slot.
-+
-+All drivers mark the end of a multi-touch transfer by calling the usual
-+input_sync() function. This instructs the receiver to act upon events
-+accumulated since last EV_SYN/SYN_REPORT and prepare to receive a new set
-+of events/packets.
-+
-+The main difference between the raw type A protocol and the higher level
-+type B slot protocol lies in the usage of identifiable contacts. The slot
-+protocol requires the use of the ABS_MT_TRACKING_ID, either provided by the
-+hardware or computed from the raw data [5].
-+
-+For type A devices, the kernel driver should generate an arbitrary
-+enumeration of the set of anonymous contacts currently on the surface. The
-+order in which the packets appear in the event stream is not important.
-+Event filtering and finger tracking is left to user space [3].
-+
-+For type B devices, the kernel driver should associate a slot with each
-+identified contact, and use that slot to propagate changes for the contact.
-+Creation, replacement and destruction of contacts is achieved by modifying
-+the ABS_MT_TRACKING_ID of the associated slot.  A non-negative tracking id
-+is interpreted as a contact, and the value -1 denotes an unused slot.  A
-+tracking id not previously present is considered new, and a tracking id no
-+longer present is considered removed.  Since only changes are propagated,
-+the full state of each initiated contact has to reside in the receiving
-+end.  Upon receiving an MT event, one simply updates the appropriate
-+attribute of the current slot.
-+
-+
-+Protocol Example A
-+------------------
-+
-+Here is what a minimal event sequence for a two-contact touch would look
-+like for a type A device:
-+
-+   ABS_MT_POSITION_X x[0]
-+   ABS_MT_POSITION_Y y[0]
-+   SYN_MT_REPORT
-+   ABS_MT_POSITION_X x[1]
-+   ABS_MT_POSITION_Y y[1]
-+   SYN_MT_REPORT
-+   SYN_REPORT
- 
-+The sequence after moving one of the contacts looks exactly the same; the
-+raw data for all present contacts are sent between every synchronization
-+with SYN_REPORT.
- 
--Usage
-------
-+Here is the sequence after lifting the first contact:
-+
-+   ABS_MT_POSITION_X x[1]
-+   ABS_MT_POSITION_Y y[1]
-+   SYN_MT_REPORT
-+   SYN_REPORT
-+
-+And here is the sequence after lifting the second contact:
-+
-+   SYN_MT_REPORT
-+   SYN_REPORT
-+
-+If the driver reports one of BTN_TOUCH or ABS_PRESSURE in addition to the
-+ABS_MT events, the last SYN_MT_REPORT event may be omitted. Otherwise, the
-+last SYN_REPORT will be dropped by the input core, resulting in no
-+zero-contact event reaching userland.
- 
--Anonymous finger details are sent sequentially as separate packets of ABS
--events. Only the ABS_MT events are recognized as part of a finger
--packet. The end of a packet is marked by calling the input_mt_sync()
--function, which generates a SYN_MT_REPORT event. This instructs the
--receiver to accept the data for the current finger and prepare to receive
--another. The end of a multi-touch transfer is marked by calling the usual
--input_sync() function. This instructs the receiver to act upon events
--accumulated since last EV_SYN/SYN_REPORT and prepare to receive a new
--set of events/packets.
-+
-+Protocol Example B
-+------------------
-+
-+Here is what a minimal event sequence for a two-contact touch would look
-+like for a type B device:
-+
-+   ABS_MT_SLOT 0
-+   ABS_MT_TRACKING_ID 45
-+   ABS_MT_POSITION_X x[0]
-+   ABS_MT_POSITION_Y y[0]
-+   ABS_MT_SLOT 1
-+   ABS_MT_TRACKING_ID 46
-+   ABS_MT_POSITION_X x[1]
-+   ABS_MT_POSITION_Y y[1]
-+   SYN_REPORT
-+
-+Here is the sequence after moving contact 45 in the x direction:
-+
-+   ABS_MT_SLOT 0
-+   ABS_MT_POSITION_X x[0]
-+   SYN_REPORT
-+
-+Here is the sequence after lifting the contact in slot 0:
-+
-+   ABS_MT_TRACKING_ID -1
-+   SYN_REPORT
-+
-+The slot being modified is already 0, so the ABS_MT_SLOT is omitted.  The
-+message removes the association of slot 0 with contact 45, thereby
-+destroying contact 45 and freeing slot 0 to be reused for another contact.
-+
-+Finally, here is the sequence after lifting the second contact:
-+
-+   ABS_MT_SLOT 1
-+   ABS_MT_TRACKING_ID -1
-+   SYN_REPORT
-+
-+
-+Event Usage
-+-----------
- 
- A set of ABS_MT events with the desired properties is defined. The events
- are divided into categories, to allow for partial implementation.  The
- minimum set consists of ABS_MT_POSITION_X and ABS_MT_POSITION_Y, which
--allows for multiple fingers to be tracked.  If the device supports it, the
-+allows for multiple contacts to be tracked.  If the device supports it, the
- ABS_MT_TOUCH_MAJOR and ABS_MT_WIDTH_MAJOR may be used to provide the size
--of the contact area and approaching finger, respectively.
-+of the contact area and approaching contact, respectively.
- 
- The TOUCH and WIDTH parameters have a geometrical interpretation; imagine
- looking through a window at someone gently holding a finger against the
-@@ -41,56 +158,26 @@ ABS_MT_TOUCH_MAJOR, the diameter of the outer region is
- ABS_MT_WIDTH_MAJOR. Now imagine the person pressing the finger harder
- against the glass. The inner region will increase, and in general, the
- ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR, which is always smaller than
--unity, is related to the finger pressure. For pressure-based devices,
-+unity, is related to the contact pressure. For pressure-based devices,
- ABS_MT_PRESSURE may be used to provide the pressure on the contact area
- instead.
- 
--In addition to the MAJOR parameters, the oval shape of the finger can be
-+In addition to the MAJOR parameters, the oval shape of the contact can be
- described by adding the MINOR parameters, such that MAJOR and MINOR are the
- major and minor axis of an ellipse. Finally, the orientation of the oval
- shape can be describe with the ORIENTATION parameter.
- 
- The ABS_MT_TOOL_TYPE may be used to specify whether the touching tool is a
--finger or a pen or something else.  Devices with more granular information
-+contact or a pen or something else.  Devices with more granular information
- may specify general shapes as blobs, i.e., as a sequence of rectangular
- shapes grouped together by an ABS_MT_BLOB_ID. Finally, for the few devices
- that currently support it, the ABS_MT_TRACKING_ID event may be used to
--report finger tracking from hardware [5].
-+report contact tracking from hardware [5].
- 
--Here is what a minimal event sequence for a two-finger touch would look
--like:
--
--   ABS_MT_POSITION_X
--   ABS_MT_POSITION_Y
--   SYN_MT_REPORT
--   ABS_MT_POSITION_X
--   ABS_MT_POSITION_Y
--   SYN_MT_REPORT
--   SYN_REPORT
--
--Here is the sequence after lifting one of the fingers:
--
--   ABS_MT_POSITION_X
--   ABS_MT_POSITION_Y
--   SYN_MT_REPORT
--   SYN_REPORT
--
--And here is the sequence after lifting the remaining finger:
--
--   SYN_MT_REPORT
--   SYN_REPORT
--
--If the driver reports one of BTN_TOUCH or ABS_PRESSURE in addition to the
--ABS_MT events, the last SYN_MT_REPORT event may be omitted. Otherwise, the
--last SYN_REPORT will be dropped by the input core, resulting in no
--zero-finger event reaching userland.
- 
- Event Semantics
- ---------------
- 
--The word "contact" is used to describe a tool which is in direct contact
--with the surface. A finger, a pen or a rubber all classify as contacts.
--
- ABS_MT_TOUCH_MAJOR
- 
- The length of the major axis of the contact. The length should be given in
-@@ -157,15 +244,16 @@ MT_TOOL_PEN [2].
- ABS_MT_BLOB_ID
- 
- The BLOB_ID groups several packets together into one arbitrarily shaped
--contact. This is a low-level anonymous grouping, and should not be confused
--with the high-level trackingID [5]. Most kernel drivers will not have blob
--capability, and can safely omit the event.
-+contact. This is a low-level anonymous grouping for type A devices, and
-+should not be confused with the high-level trackingID [5]. Most type A
-+devices do not have blob capability, so drivers can safely omit this event.
- 
- ABS_MT_TRACKING_ID
- 
- The TRACKING_ID identifies an initiated contact throughout its life cycle
--[5]. There are currently only a few devices that support it, so this event
--should normally be omitted.
-+[5]. This event is mandatory for type B devices. The value range of the
-+TRACKING_ID should be large enough to ensure unique identification of a
-+contact maintained over an extended period of time.
- 
- 
- Event Computation
-@@ -192,20 +280,11 @@ finger along the X axis (1).
- Finger Tracking
- ---------------
- 
--The kernel driver should generate an arbitrary enumeration of the set of
--anonymous contacts currently on the surface. The order in which the packets
--appear in the event stream is not important.
--
- The process of finger tracking, i.e., to assign a unique trackingID to each
--initiated contact on the surface, is left to user space; preferably the
--multi-touch X driver [3]. In that driver, the trackingID stays the same and
--unique until the contact vanishes (when the finger leaves the surface). The
--problem of assigning a set of anonymous fingers to a set of identified
--fingers is a euclidian bipartite matching problem at each event update, and
--relies on a sufficiently rapid update rate.
--
--There are a few devices that support trackingID in hardware. User space can
--make use of these native identifiers to reduce bandwidth and cpu usage.
-+initiated contact on the surface, is a Euclidian Bipartite Matching
-+problem.  At each event synchronization, the set of actual contacts is
-+matched to the set of contacts from the previous synchronization. A full
-+implementation can be found in [3].
- 
- 
- Gestures
--- 
-1.6.3.3
+As for the g13fb on the G15... I would imagine it could be done, but I
+don't have a G15 so I can't say for sure.
+
+If I had to guess I think you'll have to take the core functionality of
+the keyboard driver and extend it with the fb code in the _same_ driver if
+the keyboard and display use a similar design to the G13.
+
+The G13 uses the same endpoint for both keyboard input and display
+messages, and since a USB endpoint can't be shared across drivers both
+will have to reside in the same driver.
+
+--
+
+Rick
+

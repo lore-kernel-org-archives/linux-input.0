@@ -1,41 +1,42 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 4/5] hid-input: Use a larger event buffer for MT devices
-Date: Wed, 23 Jun 2010 13:14:45 +0200
-Message-ID: <1277291686-7153-5-git-send-email-rydberg@euromail.se>
-References: <1277291686-7153-1-git-send-email-rydberg@euromail.se>
- <1277291686-7153-2-git-send-email-rydberg@euromail.se>
- <1277291686-7153-3-git-send-email-rydberg@euromail.se>
- <1277291686-7153-4-git-send-email-rydberg@euromail.se>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1277291686-7153-4-git-send-email-rydberg@euromail.se>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 0/4] input: evdev: Dynamic buffers (rev5)
+Date: Wed, 23 Jun 2010 13:14:41 +0200
+Message-ID: <1277291686-7153-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:40898 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752516Ab0FWLPg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 23 Jun 2010 07:15:36 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Benjamin Tissoires <tissoire@cena.fr>, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
-List-Id: linux-input@vger.kernel.org
 
-The MT devices produce a lot of data. Tell the underlying input device
-approximately how many events will be sent per synchronization, to allow
-for better buffering. The number is a template based on continuously
-reporting details for each finger on a single hand.
+Hi Dmitry,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-input.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+Please find enclosed the fifth version of the evdev buffer patches.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 7a0d2e4..69d152e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -534,6 +534,9 @@ mapped:
- 			input_set_abs_params(input, usage->code, a, b, (b - a) >> 8, (b - a) >> 4);
- 		else	input_set_abs_params(input, usage->code, a, b, 0, 0);
- 
-+		/* use a larger default input buffer for MT devices */
-+		if (usage->code == ABS_MT_POSITION_X && input->hint_events_per_packet == 0)
-+			input_set_events_per_packet(input, 60);
- 	}
- 
- 	if (usage->type == EV_ABS &&
--- 
-1.6.3.3
+In this version, the buffer scheme is left intact, leaving a single
+patch to make the client buffers dynamic. Mostly harmless.
+
+The rest of the patches are rebased versions of what has already been
+sent, and summarizes what seems to be needed to fix the original
+buffer problem. The last patch is a bonus which fixes an old bug.
+
+Thanks,
+Henrik
+
+Henrik Rydberg (5):
+  input: evdev: Convert to dynamic event buffer (rev5)
+  input: Use driver hint to compute the evdev buffer size (rev3)
+  input: bcm5974: Set the average number of events per MT event packet
+  hid-input: Use a larger event buffer for MT devices
+  input: evdev: Never leave the client buffer empty after write
+
+ drivers/hid/hid-input.c       |    3 +++
+ drivers/input/evdev.c         |   33 ++++++++++++++++++++++++++++-----
+ drivers/input/mouse/bcm5974.c |    2 ++
+ include/linux/input.h         |   17 +++++++++++++++++
+ 4 files changed, 50 insertions(+), 5 deletions(-)
+

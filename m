@@ -1,39 +1,86 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid Logitech G13 Driver 0.0.5
-Date: Wed, 23 Jun 2010 12:30:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006231229230.13809@pobox.suse.cz>
-References: <alpine.LNX.2.00.1006211442350.13809@pobox.suse.cz> <d1cda632f4cdb650a68119903473fbb4.squirrel@intranet.cs.nmsu.edu> <20100623122344.372e5f75@neptune.home>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH 2/5] input: Use driver hint to compute the evdev buffer size (rev3)
+Date: Wed, 23 Jun 2010 13:14:43 +0200
+Message-ID: <1277291686-7153-3-git-send-email-rydberg@euromail.se>
+References: <1277291686-7153-1-git-send-email-rydberg@euromail.se>
+ <1277291686-7153-2-git-send-email-rydberg@euromail.se>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20100623122344.372e5f75@neptune.home>
+In-Reply-To: <1277291686-7153-2-git-send-email-rydberg@euromail.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
-Cc: "Rick L. Vinyard, Jr." <rvinyard@cs.nmsu.edu>, Marek Vasut <marek.vasut@gmail.com>, Pavel Machek <pavel@ucw.cz>, Jaya Kumar <jayakumar.lkml@gmail.com>, linux-kernel@vger.kernel.org, felipe.balbi@nokia.com, linux-usb@vger.kernel.org, oliver@neukum.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, npavel@ituner.com, tomi.valkeinen@nokia.com, tony@atomide.com, florianschandinat@gmx.de, krzysztof.h1@wp.pl, akpm@linux-foundation.org, linux-fbdev@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Benjamin Tissoires <tissoire@cena.fr>, Chase Douglas <chase.douglas@canonical.com>, Rafi Rubin <rafi@seas.upenn.edu>, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 23 Jun 2010, Bruno Pr=E9mont wrote:
+Some devices, in particular MT devices, produce a lot of data.  This
+leads to a high frequency of lost packets in evdev, which by default
+uses a fairly small event buffer. Let the drivers hint the average
+number of events per packet for the device by calling the
+input_set_events_per_packet(), and use that information when computing
+the evdev buffer size.
 
-> Please check how your driver behaves if the framebuffer is still in u=
-se
-> (open and/or mmapped) by some userspace process when you unplug the
-> keyboard.
->=20
-> Probably you will get hit be the same complaints from kernel I was se=
-eing
-> with PicoLCD driver (see my patch http://lkml.org/lkml/2010/5/30/15 t=
-hat
-> is expected to fix it on PicoLCD side, the refcounting part of the pa=
-tch)
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/evdev.c |    5 ++++-
+ include/linux/input.h |   17 +++++++++++++++++
+ 2 files changed, 21 insertions(+), 1 deletions(-)
 
-BTW I'd like to have this fixed, but I haven't seen any Acks from=20
-framebuffer people, which I'd really like to have before taking it thro=
-ugh=20
-my tree.
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs, Novell Inc.
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 5d84e59..728802f 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -11,6 +11,7 @@
+ #define EVDEV_MINOR_BASE	64
+ #define EVDEV_MINORS		32
+ #define EVDEV_MIN_BUFFER_SIZE	64
++#define EVDEV_BUF_PACKETS	8
+ 
+ #include <linux/poll.h>
+ #include <linux/sched.h>
+@@ -51,7 +52,9 @@ static DEFINE_MUTEX(evdev_table_mutex);
+ 
+ static int evdev_compute_buffer_size(struct input_dev *dev)
+ {
+-	return EVDEV_MIN_BUFFER_SIZE;
++	int nev = dev->hint_events_per_packet * EVDEV_BUF_PACKETS;
++	nev = max(nev, EVDEV_MIN_BUFFER_SIZE);
++	return roundup_pow_of_two(nev);
+ }
+ 
+ static void evdev_pass_event(struct evdev_client *client,
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 20e4eac..9e024b6 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1162,6 +1162,8 @@ struct input_dev {
+ 	unsigned long ffbit[BITS_TO_LONGS(FF_CNT)];
+ 	unsigned long swbit[BITS_TO_LONGS(SW_CNT)];
+ 
++	unsigned int hint_events_per_packet;
++
+ 	unsigned int keycodemax;
+ 	unsigned int keycodesize;
+ 	void *keycode;
+@@ -1439,6 +1441,21 @@ static inline void input_mt_slot(struct input_dev *dev, int slot)
+ 
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code);
+ 
++/**
++ * input_set_events_per_packet - tell handlers about the driver event rate
++ * @dev: the input device used by the driver
++ * @nev: the average number of events between calls to input_sync()
++ *
++ * If the event rate sent from a device is unusually large, use this
++ * function to set the expected event rate. This will allow handlers
++ * to set up an approriate buffer size for the event stream, in order
++ * to minimize information loss.
++ */
++static inline void input_set_events_per_packet(struct input_dev *dev, int nev)
++{
++	dev->hint_events_per_packet = nev;
++}
++
+ static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
+ {
+ 	dev->absmin[axis] = min;
+-- 
+1.6.3.3

@@ -1,190 +1,83 @@
-From: Abraham Arce <abraham.arce.moreno@gmail.com>
-Subject: Re: [PATCH v4 2/4] OMAP4: Keyboard device registration
-Date: Tue, 22 Jun 2010 17:36:37 -0500
-Message-ID: <AANLkTimMbpmHZ5kh1fzuQYZsNQ22QqCKjZDoourCJtMY@mail.gmail.com>
-References: <x0066660@ti.com>
-	<1276704555-30625-1-git-send-email-x0066660@ti.com>
-	<EAF47CD23C76F840A9E7FCE10091EFAB02C5BEFCC3@dbde02.ent.ti.com>
-	<87mxutl64d.fsf@deeprootsystems.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: evdev: Use multi-reader buffer to save space
+ (rev5)
+Date: Tue, 22 Jun 2010 23:19:39 -0700
+Message-ID: <20100623061939.GB11187@core.coreip.homeip.net>
+References: <1277059734-2939-1-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f198.google.com ([209.85.211.198]:54671 "EHLO
-	mail-yw0-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751030Ab0FVWgi convert rfc822-to-8bit (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:44869 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751066Ab0FWGTq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jun 2010 18:36:38 -0400
-In-Reply-To: <87mxutl64d.fsf@deeprootsystems.com>
+	Wed, 23 Jun 2010 02:19:46 -0400
+Content-Disposition: inline
+In-Reply-To: <1277059734-2939-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>, "Varadarajan, Charulatha" <charu@ti.com>
-Cc: "Arce, Abraham" <x0066660@ti.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Charu, Kevin,
+Hi Henrik,
 
-On Thu, Jun 17, 2010 at 4:08 PM, Kevin Hilman
-<khilman@deeprootsystems.com> wrote:
-> "Varadarajan, Charulatha" <charu@ti.com> writes:
+On Sun, Jun 20, 2010 at 08:48:54PM +0200, Henrik Rydberg wrote:
+> @@ -149,11 +148,29 @@ static int evdev_grab(struct evdev *evdev, struct evdev_client *client)
+>  
+>  static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+>  {
+> +	struct input_dev *dev = evdev->handle.dev;
+> +	int head, tail;
+> +
+>  	if (evdev->grab != client)
+>  		return  -EINVAL;
+>  
+> +	spin_lock_irq(&dev->event_lock);
+> +
+> +	head = client->head;
+> +	tail = client->tail;
+> +
+> +	rcu_read_lock();
+> +	list_for_each_entry_rcu(client, &evdev->client_list, node) {
+> +		client->head = head;
+> +		client->tail = tail;
+> +	}
+> +	rcu_read_unlock();
+> +
+>  	rcu_assign_pointer(evdev->grab, NULL);
+>  	synchronize_rcu();
 
-[...]
+You may not call synchronize_rcu() while holding spinlock and with
+interrupts off.
 
->>> +
->>> + =A0 =A0oh =3D omap_hwmod_lookup(oh_name);
->>
->> Use omap_hwmod_for_each_by_class() instead of lookup by name.
->
-> Yes.
+> +
+> +	spin_unlock_irq(&dev->event_lock);
+> +
+>  	input_release_device(&evdev->handle);
+>  
+>  	return 0;
+> @@ -162,6 +179,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+>  static void evdev_attach_client(struct evdev *evdev,
+>  				struct evdev_client *client)
+>  {
+> +	client->head = client->tail = evdev->head;
+>  	spin_lock(&evdev->client_lock);
 
-how about handling all keypad data in devices.c and add
-omap_init_keypad() under omap2_init_devices()?
+So what happens if we advance evdev->head here but before we added the
+new client to the list? I guess we'll have to wait till next event and
+then client will read both of them...
 
-diff --git a/arch/arm/mach-omap2/devices.c b/arch/arm/mach-omap2/device=
-s.c
+Overall I am starting getting concerned about proper isolation between
+clients. Right now, if one client stops reading events and another one
+issues grab then the first client will only get events that were
+accumulated before grab tookm place. With the new shared buffer the
+first client may get "grabbed" events if it stop for long enough for
+buffer to wrap around.
 
-+#ifdef CONFIG_ARCH_OMAP4
-+static int sdp4430_keymap[] =3D {
-+	KEY(0, 0, KEY_E),
-+	KEY(0, 1, KEY_R),
+Do we really same that much memory here? We normally do not have that
+many users connected to event devices at once...
 
-[...]
+Thanks.
 
-+	KEY(7, 6, KEY_OK),
-+	KEY(7, 7, KEY_DOWN),
-+};
-+
-+static struct matrix_keymap_data sdp4430_keymap_data =3D {
-+	.keymap			=3D sdp4430_keymap,
-+	.keymap_size		=3D ARRAY_SIZE(sdp4430_keymap),
-+};
-+
-+static struct omap4_keypad_platform_data sdp4430_keypad_data =3D {
-+	.keymap_data		=3D &sdp4430_keymap_data,
-+	.rows			=3D 8,
-+	.cols			=3D 8,
-+};
-+
-+struct omap_device_pm_latency omap_keyboard_latency[] =3D {
-+	{
-+		.deactivate_func =3D omap_device_idle_hwmods,
-+		.activate_func   =3D omap_device_enable_hwmods,
-+		.flags =3D OMAP_DEVICE_LATENCY_AUTO_ADJUST,
-+	},
-+};
-+
-+static int omap4_init_keypad(struct omap_hwmod *oh, void *user)
-+{
-+	struct omap_device *od;
-+	unsigned int id =3D -1;
-+	char *name =3D "omap4-keypad";
-+
-+	if (!oh)
-+		pr_err("Could not look up omap4 kbd\n");
-+
-+	od =3D omap_device_build(name, id, oh, &sdp4430_keypad_data,
-+			sizeof(struct omap4_keypad_platform_data),
-+			omap_keyboard_latency,
-+			ARRAY_SIZE(omap_keyboard_latency), 0);
-+	WARN(IS_ERR(od), "Could not build omap_device for %s %s\n",
-+		name, oh->name);
-+
-+	return 0;
-+}
-+
-+static int omap_init_keypad(void)
-+{
-+	if (!cpu_is_omap44xx())
-+		return -ENODEV;
-+
-+	return omap_hwmod_for_each_by_class("kbd", omap4_init_keypad, NULL);
-+}
-+#endif /* KEYBOARD CONFIG_ARCH_OMAP4 */
-+
- #if defined(CONFIG_OMAP_MBOX_FWK) || defined(CONFIG_OMAP_MBOX_FWK_MODU=
-LE)
-
- #define MBOX_REG_SIZE   0x120
-@@ -807,6 +931,7 @@ static int __init omap2_init_devices(void)
- 	 */
- 	omap_hsmmc_reset();
- 	omap_init_camera();
-+	omap_init_keypad();
- 	omap_init_mbox();
- 	omap_init_mcspi();
- 	omap_hdq_init();
-
->>> + =A0 =A0pdata->base =3D oh->_rt_va;
->>> + =A0 =A0pdata->irq =3D oh->mpu_irqs[0].irq;
->>
->> Use platform_get_() APIs to get base addr & irq instead of passing
->> it as pdata
->
-> Yes.
->
-> Thanks Charu!
->
-> For all those working on OMAP hwmod conversions, please take some tim=
-e
-> to read the reviews of the other hwmod conversions that have already
-> been posted and reviewed (some of them multiple times) so we don't
-> keep duplicating the same mistakes and wasting review time.
->
-
-These will be the changes....
-
-diff --git a/drivers/input/keyboard/omap4-keypad.c
-b/drivers/input/keyboard/omap4-keypad.c
-index 975f8bb..c606e36 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-
-@@ -158,12 +213,14 @@ static int __devinit omap4_keypad_probe(struct
-platform_device *pdev)
- 		return -EINVAL;
- 	}
-
--	if (!pdata->base) {
-+	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
- 		dev_err(&pdev->dev, "no base address specified\n");
- 		return -EINVAL;
- 	}
-
--	if (!pdata->irq) {
-+	irq =3D platform_get_irq(pdev, 0);
-+	if (!irq) {
- 		dev_err(&pdev->dev, "no keyboard irq assigned\n");
- 		return -EINVAL;
- 	}
-
-@@ -184,9 +240,22 @@ static int __devinit omap4_keypad_probe(struct
-platform_device *pdev)
- 		return -ENOMEM;
- 	}
-
--	keypad_data->base =3D pdata->base;
--	keypad_data->irq =3D pdata->irq;
-+	mem =3D request_mem_region(res->start,
-+			resource_size(res), pdev->name);
-+	if (!mem) {
-+		dev_err(&pdev->dev, "no mem region available\n");
-+		return -ENOMEM;
-+		goto err_free_keypad;
-+	}
-+
-+	keypad_data->base =3D ioremap(res->start, resource_size(res));
-+	if (!keypad_data->base) {
-+		dev_err(&pdev->dev, "can't ioremap mem resource.\n");
-+		error =3D -ENOMEM;
-+		goto err_free_memreg;
-+	}
-
-+	keypad_data->irq =3D irq;
-
-Best Regards
-Abraham
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

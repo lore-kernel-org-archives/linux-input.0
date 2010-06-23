@@ -1,35 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] INPUT: tps6507x-ts, remove unneeded NULL test
-Date: Tue, 22 Jun 2010 23:23:41 -0700
-Message-ID: <20100623062341.GA8963@core.coreip.homeip.net>
-References: <1277206862-27146-1-git-send-email-jslaby@suse.cz>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: evdev: Use multi-reader buffer to save space (rev5)
+Date: Wed, 23 Jun 2010 10:11:47 +0200
+Message-ID: <4C21C1C3.5050708@euromail.se>
+References: <1277059734-2939-1-git-send-email-rydberg@euromail.se> <20100623061939.GB11187@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:62568 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751066Ab0FWGXq (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:56135 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751209Ab0FWIMv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jun 2010 02:23:46 -0400
-Content-Disposition: inline
-In-Reply-To: <1277206862-27146-1-git-send-email-jslaby@suse.cz>
+	Wed, 23 Jun 2010 04:12:51 -0400
+In-Reply-To: <20100623061939.GB11187@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: linux-kernel@vger.kernel.org, jirislaby@gmail.com, Todd Fischer <todd.fischer@ridgerun.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mika Kuoppala <mika.kuoppala@nokia.com>, Benjamin Tissoires <tissoire@cena.fr>, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Tue, Jun 22, 2010 at 01:41:02PM +0200, Jiri Slaby wrote:
-> Stanse found that tsc is dereferenced earlier than checked for being
-> NULL in tps6507x_ts_remove. Remove the test because I see no way, how
-> tsc can be NULL there.
+Dmitry Torokhov wrote:
+> Hi Henrik,
 > 
-> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Todd Fischer <todd.fischer@ridgerun.com>
-> Cc: Samuel Ortiz <sameo@linux.intel.com>
-> Cc: linux-input@vger.kernel.org
+> On Sun, Jun 20, 2010 at 08:48:54PM +0200, Henrik Rydberg wrote:
+>> @@ -149,11 +148,29 @@ static int evdev_grab(struct evdev *evdev, struct evdev_client *client)
+>>  
+>>  static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+>>  {
+>> +	struct input_dev *dev = evdev->handle.dev;
+>> +	int head, tail;
+>> +
+>>  	if (evdev->grab != client)
+>>  		return  -EINVAL;
+>>  
+>> +	spin_lock_irq(&dev->event_lock);
+>> +
+>> +	head = client->head;
+>> +	tail = client->tail;
+>> +
+>> +	rcu_read_lock();
+>> +	list_for_each_entry_rcu(client, &evdev->client_list, node) {
+>> +		client->head = head;
+>> +		client->tail = tail;
+>> +	}
+>> +	rcu_read_unlock();
+>> +
+>>  	rcu_assign_pointer(evdev->grab, NULL);
+>>  	synchronize_rcu();
+> 
+> You may not call synchronize_rcu() while holding spinlock and with
+> interrupts off.
 
-Applied, thanks Jiri.
+Thanks.
 
--- 
-Dmitry
+>> +
+>> +	spin_unlock_irq(&dev->event_lock);
+>> +
+>>  	input_release_device(&evdev->handle);
+>>  
+>>  	return 0;
+>> @@ -162,6 +179,7 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
+>>  static void evdev_attach_client(struct evdev *evdev,
+>>  				struct evdev_client *client)
+>>  {
+>> +	client->head = client->tail = evdev->head;
+>>  	spin_lock(&evdev->client_lock);
+> 
+> So what happens if we advance evdev->head here but before we added the
+> new client to the list? I guess we'll have to wait till next event and
+> then client will read both of them...
+
+Right...
+
+> Overall I am starting getting concerned about proper isolation between
+> clients. Right now, if one client stops reading events and another one
+> issues grab then the first client will only get events that were
+> accumulated before grab tookm place. With the new shared buffer the
+> first client may get "grabbed" events if it stop for long enough for
+> buffer to wrap around.
+
+Doing some research, the semantics of ioctl have obviously been discussed
+before, and I believe this points to another such issue. When grabbing a device,
+are we guaranteeing that the device no longer sends events to other clients, or
+are we guaranteeing that other clients can no longer read the device? If the
+latter, clearing all client buffers in conjunction with a grab would be
+appropriate, and would solve this issue.
+
+> Do we really same that much memory here? We normally do not have that
+> many users connected to event devices at once...
+
+Ok, let's scratch this. Although I think the idea of multi-reader buffers is
+sound, it is obviously sufficiently incompatible with the current approach to
+produce distastefully complex patches. I will return with a new set which only
+fixes the buffer resize problem, and leaves the rest for later.
+
+Thanks,
+Henrik
+

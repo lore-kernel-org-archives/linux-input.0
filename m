@@ -1,27 +1,28 @@
-From: Sriram V <vshrirama@gmail.com>
-Subject: Gesture support query
-Date: Thu, 24 Jun 2010 17:27:00 +0530
-Message-ID: <AANLkTileUKzy88sgBejaZApyNgCH5CQNOfvRReH0pbmA@mail.gmail.com>
+From: Rabin VINCENT <rabin.vincent@stericsson.com>
+Subject: Re: [PATCH 2/6] gpio/stmpe-gpio: fix set direction input
+Date: Thu, 24 Jun 2010 17:33:28 +0530
+Message-ID: <20100624120327.GA2850@bnru02.bnr.st.com>
+References: <20100622135635.GA30720@bnru02.bnr.st.com>
+ <1277378021-16802-3-git-send-email-l.fu@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:53886 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754171Ab0FXL5C (ORCPT
+Received: from eu1sys200aog102.obsmtp.com ([207.126.144.113]:59564 "EHLO
+	eu1sys200aog102.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754828Ab0FXMD7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jun 2010 07:57:02 -0400
-Received: by gye5 with SMTP id 5so4296504gye.19
-        for <linux-input@vger.kernel.org>; Thu, 24 Jun 2010 04:57:01 -0700 (PDT)
+	Thu, 24 Jun 2010 08:03:59 -0400
+Content-Disposition: inline
+In-Reply-To: <1277378021-16802-3-git-send-email-l.fu@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Luotao Fu <l.fu@pengutronix.de>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-Hi,
-  My touch device supports gestures like flip and so on.
-  How drivers can report these to the application? Where can i find
-the event codes for these?
-  Are there test applications to test the gestures or these are
-application specific?
+On Thu, Jun 24, 2010 at 13:13:37 +0200, Luotao Fu wrote:
+> to set an GPIO pin to input, the corresponding bit in GPDR needs to be cleared
+> instead of set. fixed with this patch.
+> 
+> Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
 
-Regards,
-sriram
+Acked-by: Rabin Vincent <rabin.vincent@stericsson.com>

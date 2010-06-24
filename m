@@ -1,28 +1,68 @@
 From: Rabin VINCENT <rabin.vincent@stericsson.com>
-Subject: Re: [PATCH 5/6 V3] mfd/stmpexxx: fix stmpe811 enable hook
-Date: Thu, 24 Jun 2010 18:35:03 +0530
-Message-ID: <20100624130502.GF26189@bnru02.bnr.st.com>
-References: <20100624123211.GB3988@pengutronix.de>
- <1277383678-4973-1-git-send-email-l.fu@pengutronix.de>
+Subject: Re: [PATCH 4/6] mfd/stmpexxx: change touchscreen irq
+Date: Thu, 24 Jun 2010 18:39:43 +0530
+Message-ID: <20100624130942.GG26189@bnru02.bnr.st.com>
+References: <20100622135635.GA30720@bnru02.bnr.st.com>
+ <1277378021-16802-5-git-send-email-l.fu@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eu1sys200aog105.obsmtp.com ([207.126.144.119]:33486 "EHLO
-	eu1sys200aog105.obsmtp.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754810Ab0FXNFK (ORCPT
+Received: from eu1sys200aog110.obsmtp.com ([207.126.144.129]:57128 "EHLO
+	eu1sys200aog110.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754810Ab0FXNJv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jun 2010 09:05:10 -0400
+	Thu, 24 Jun 2010 09:09:51 -0400
 Content-Disposition: inline
-In-Reply-To: <1277383678-4973-1-git-send-email-l.fu@pengutronix.de>
+In-Reply-To: <1277378021-16802-5-git-send-email-l.fu@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Luotao Fu <l.fu@pengutronix.de>
 Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-On Thu, Jun 24, 2010 at 14:47:58 +0200, Luotao Fu wrote:
-> Fix the stmpe811 enable hook so that we can activate the needed clocks for the
-> touchscreen controller.
+On Thu, Jun 24, 2010 at 13:13:39 +0200, Luotao Fu wrote:
+> the stmpe touchscreen driver uses fifo threshold irq to trigger data fetching.
+> The touch_det irq bit is only used while polling for release. Change the
+> platform resource and the irq definition in the variant block.
+> ---
+>  drivers/mfd/stmpe-devices.c |   12 +++---------
+>  1 files changed, 3 insertions(+), 9 deletions(-)
 > 
-> Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+> diff --git a/drivers/mfd/stmpe-devices.c b/drivers/mfd/stmpe-devices.c
+> index fa6934d..3e21c26 100644
+> --- a/drivers/mfd/stmpe-devices.c
+> +++ b/drivers/mfd/stmpe-devices.c
+> @@ -59,17 +59,11 @@ static struct mfd_cell stmpe_keypad_cell = {
+>  
+>  static struct resource stmpe_ts_resources[] = {
+>  	{
+> -		.name	= "TOUCH_DET",
+> +		.name	= "FIFO_TH",
+>  		.start	= 0,
+>  		.end	= 0,
+>  		.flags	= IORESOURCE_IRQ,
+> -	},
+> -	{
+> -		.name	= "FIFO_TH",
+> -		.start	= 1,
+> -		.end	= 1,
+> -		.flags	= IORESOURCE_IRQ,
+> -	},
+> +	}
+>  };
+>  
+>  static struct mfd_cell stmpe_ts_cell = {
+> @@ -107,7 +101,7 @@ static struct stmpe_variant_block stmpe811_blocks[] = {
+>  	},
+>  	{
+>  		.cell	= &stmpe_ts_cell,
+> -		.irq	= STMPE811_IRQ_TOUCH_DET,
+> +		.irq	= STMPE811_IRQ_FIFO_TH,
+>  		.block	= STMPE_BLOCK_TOUCHSCREEN,
+>  	},
+>  };
 
-Acked-by: Rabin Vincent <rabin.vincent@stericsson.com>
+Would it be clearer if you leave this as-is, and instead use
+platform_get_irq_byname("FIFO_TH") in the stmpe-ts driver, since I think
+the TSC block has a whole bunch of irqs?
+
+Rabin

@@ -1,40 +1,50 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: Gesture support query
-Date: Thu, 24 Jun 2010 14:09:36 +0200
-Message-ID: <AANLkTins_UY0opDg87EAlApIbLU84SvAHGZskylVzZ0_@mail.gmail.com>
-References: <AANLkTileUKzy88sgBejaZApyNgCH5CQNOfvRReH0pbmA@mail.gmail.com>
+From: Rabin VINCENT <rabin.vincent@stericsson.com>
+Subject: Re: [PATCH 5/6] mfd/stmpexxx: fix stmpe811 enable hook
+Date: Thu, 24 Jun 2010 17:41:00 +0530
+Message-ID: <20100624121059.GA26189@bnru02.bnr.st.com>
+References: <20100622135635.GA30720@bnru02.bnr.st.com>
+ <1277378021-16802-6-git-send-email-l.fu@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:46831 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754764Ab0FXMJ5 convert rfc822-to-8bit (ORCPT
+Received: from eu1sys200aog113.obsmtp.com ([207.126.144.135]:43338 "EHLO
+	eu1sys200aog113.obsmtp.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752642Ab0FXMLM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jun 2010 08:09:57 -0400
-Received: by gye5 with SMTP id 5so4303578gye.19
-        for <linux-input@vger.kernel.org>; Thu, 24 Jun 2010 05:09:56 -0700 (PDT)
-In-Reply-To: <AANLkTileUKzy88sgBejaZApyNgCH5CQNOfvRReH0pbmA@mail.gmail.com>
+	Thu, 24 Jun 2010 08:11:12 -0400
+Content-Disposition: inline
+In-Reply-To: <1277378021-16802-6-git-send-email-l.fu@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sriram V <vshrirama@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Luotao Fu <l.fu@pengutronix.de>
+Cc: Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>
 
-> =A0My touch device supports gestures like flip and so on.
-What you mean by device support of gestures ?
+On Thu, Jun 24, 2010 at 13:13:40 +0200, Luotao Fu wrote:
+> Fix the stmpe811 enable hook so that we can activate the needed clocks for the
+> touchscreen controller.
+> 
+> Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+> ---
+>  drivers/mfd/stmpe-devices.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/mfd/stmpe-devices.c b/drivers/mfd/stmpe-devices.c
+> index 3e21c26..25941ea 100644
+> --- a/drivers/mfd/stmpe-devices.c
+> +++ b/drivers/mfd/stmpe-devices.c
+> @@ -117,8 +117,9 @@ static int stmpe811_enable(struct stmpe *stmpe, unsigned int blocks,
+>  	if (blocks & STMPE_BLOCK_ADC)
+>  		mask |= STMPE811_SYS_CTRL2_ADC_OFF;
+>  
+> -	if (blocks & STMPE_BLOCK_KEYPAD)
+> -		mask |= STMPE811_SYS_CTRL2_TSC_OFF;
+> +	if (blocks & STMPE_BLOCK_TOUCHSCREEN)
+> +		mask |= STMPE811_SYS_CTRL2_ADC_OFF
+> +			| STMPE811_SYS_CTRL2_TSC_OFF;
 
-> =A0How drivers can report these to the application? Where can i find
-> the event codes for these?
-actually, gesture recognition are not inside drivers, they are
-software in between.
+The KEYPAD -> TOUCHSCREEN fix is fine, but for the ADC, wouldn't it be
+better to pass in STMPE_BLOCK_ADC in your stmpe_enable() call instead?
+You wouldn't need to add another call, you can just pass in
+(STMPE_BLOCK_TOUCHSCREEN | STMPE_BLOCK_ADC) as the argument.
 
-
-> =A0Are there test applications to test the gestures or these are
-> application specific?
-can you specify which gestures you want to test and in which scenarios =
-?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Rabin

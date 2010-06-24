@@ -1,40 +1,47 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/3] HID: magicmouse: More scroll improvements
-Date: Thu, 24 Jun 2010 10:50:21 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006241050040.13809@pobox.suse.cz>
-References: <1277083951-29137-1-git-send-email-chase.douglas@canonical.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] MAINTAINERS: Add an entry for the input MT protocol
+Date: Thu, 24 Jun 2010 12:12:01 +0200
+Message-ID: <1277374321-19358-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44285 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751714Ab0FXIuW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jun 2010 04:50:22 -0400
-In-Reply-To: <1277083951-29137-1-git-send-email-chase.douglas@canonical.com>
+Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:47839 "EHLO
+	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754628Ab0FXKMX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Jun 2010 06:12:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Joe Perches <joe@perches.com>, "David S. Miller" <davem@davemloft.net>
 
-On Sun, 20 Jun 2010, Chase Douglas wrote:
+This patch adds a maintainer for the input multitouch (MT) protocol,
+such that get_maintainer.pl selects it whenever an MT event is present
+in the patch.
 
-> The following three patches improve scrolling for Apple Magicmouse
-> devices. The first two were sent as a set of four patches. Two were
-> applied while two were reviewed later. They are now ready for
-> application. The last patch is new, but is rather simple.
-> 
-> I have been running with these patches for a few weeks and have been
-> very happy with the results :).
-> 
-> HID: magicmouse: properly account for scroll movement in state
-> HID: magicmouse: add param for scroll speed
-> HID: magicmouse: enable horizontal scrolling
-> --
->  drivers/hid/hid-magicmouse.c |   63 ++++++++++++++++++++++++++++++------------
->  1 files changed, 45 insertions(+), 18 deletions(-)
+Cc: Joe Perches <joe@perches.com>
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ MAINTAINERS |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-I have applied all three patches into my 'magicmouse' branch. Thanks,
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6d119c9..603413b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2887,6 +2887,13 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+ S:	Maintained
+ F:	drivers/input/
+ 
++INPUT MULTITOUCH (MT) PROTOCOL
++M:	Henrik Rydberg <rydberg@euromail.se>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/input/multi-touch-protocol.txt
++K:	\b(ABS|SYN)_MT_
++
+ INTEL IDLE DRIVER
+ M:	Len Brown <lenb@kernel.org>
+ L:	linux-pm@lists.linux-foundation.org
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.6.3.3
+

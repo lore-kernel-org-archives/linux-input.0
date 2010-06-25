@@ -1,50 +1,57 @@
-From: Anatolij Gustschin <agust@denx.de>
-Subject: Re: [PATCH 1/2] Input: ads7846 - allow specifying irq trigger type
- in platform data
-Date: Fri, 25 Jun 2010 11:35:34 +0200
-Message-ID: <20100625113534.77524c85@wker>
-References: <1272630181-5364-1-git-send-email-agust@denx.de>
-	<20100531212820.322d5bfd@wker>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v5 3/3] input: samsung-keypad - Add samsung keypad driver
+Date: Fri, 25 Jun 2010 19:25:16 +0900
+Message-ID: <4C24840C.1000701@samsung.com>
+References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
+ <1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
+ <20100625083019.GD8546@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:45142 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754254Ab0FYJfo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jun 2010 05:35:44 -0400
-In-Reply-To: <20100531212820.322d5bfd@wker>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20100625083019.GD8546@core.coreip.homeip.net>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Anatolij Gustschin <agust@denx.de>, linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
+Cc: kgene.kim@samsung.com, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+List-Id: linux-input@vger.kernel.org
 
-On Mon, 31 May 2010 21:28:20 +0200
-Anatolij Gustschin <agust@denx.de> wrote:
-
-> Hi Dmitry,
+On 6/25/2010 5:30 PM, Dmitry Torokhov wrote:
+> Hi Joonyoung,
 > 
-> On Fri, 30 Apr 2010 14:23:00 +0200
-> Anatolij Gustschin <agust@denx.de> wrote:
+> On Mon, Jun 21, 2010 at 03:26:45PM +0900, Joonyoung Shim wrote:
+>> This patch adds support for keypad driver running on Samsung cpus. This
+>> driver is tested on GONI and Aquila board using S5PC110 cpu.
+>>
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 > 
-> > On some platforms, for example with GPIO interrupts
-> > on mpc5121, it is not possible to configure falling edge
-> > interrupts.
-> > 
-> > Specifying irq trigger type in platform data structure
-> > allows using ads7846 driver on such platforms.
-> > 
-> > Signed-off-by: Anatolij Gustschin <agust@denx.de>
-> > ---
-> >  drivers/input/touchscreen/ads7846.c |    5 ++++-
-> >  include/linux/spi/ads7846.h         |    1 +
-> >  2 files changed, 5 insertions(+), 1 deletions(-)
+> Following my conversation with Thomas Gleixner reagrding "long playing"
+> threaded interrupt handlers I tried to convert your driver to use this
+> concept. The idea is to keep polling within IRQ thread context instead
+> of using additional work/timer structures to simplify code and ensure
+> race-free shutdown/unbind.
 > 
-> Any comments on these patches?
+> I think it was based on v4 of your driver and I'd appreciate if you could
+> give it a try.
+> 
 
-Ping? The patches still apply on top of the input.git/next branch.
+Your patch gives me below patch errors.
 
-Thanks,
-Anatolij
+$ patch -p1 --dry-run < 2.patch
+(Stripping trailing CRs from patch.)
+patching file drivers/input/keyboard/samsung-keypad.c
+Hunk #3 FAILED at 68.
+Hunk #4 FAILED at 116.
+Hunk #5 FAILED at 158.
+Hunk #6 succeeded at 196 (offset -7 lines).
+Hunk #7 succeeded at 212 (offset -7 lines).
+Hunk #8 FAILED at 230.
+Hunk #9 FAILED at 365.
+Hunk #10 FAILED at 418.
+6 out of 10 hunks FAILED -- saving rejects to file
+drivers/input/keyboard/samsung-keypad.c.rej
 
+Can you give me your patch based on my v5 patches? If not, i should try
+manual merge.
+
+Thanks.

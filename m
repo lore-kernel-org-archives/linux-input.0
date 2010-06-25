@@ -1,35 +1,72 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 0/2] [RESEND] MT slots
-Date: Fri, 25 Jun 2010 15:15:20 +0200
-Message-ID: <1277471722-2963-1-git-send-email-rydberg@euromail.se>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay-h21.telenor.se ([195.54.99.196]:59455 "EHLO
-	smtprelay-h21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756083Ab0FYNjv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jun 2010 09:39:51 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3] input/misc: new ADXL345/346
+	driver
+Date: Fri, 25 Jun 2010 14:59:24 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E66DFEF69@LIMKCMBX1.ad.analog.com>
+References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
+	<1256028039-15044-1-git-send-email-vapier@gentoo.org>
+	<20100625071425.GA631@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20100625071425.GA631-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Kuoppala <mika.kuoppala@nokia.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <tissoire@cena.fr>, Chase Douglas <chase.douglas@canonical.com>, Ping Cheng <pingc@wacom.com>, Stephane Chatty <chatty@enac.fr>, Rafi Rubin <rafi@seas.upenn.edu>, Michael Poole <mdpoole@troilus.org>, Henrik Rydberg <rydberg@euromail.se>
+
+Dmitry Torokhov wrote on 2010-06-25:
+> Hi Mike, Michael,
+>
+> On Tue, Oct 20, 2009 at 04:40:39AM -0400, Mike Frysinger wrote:
+>> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>
+>> This is a driver for the ADXL345/346 Three-Axis Digital Accelerometers.
+>>
+>
+> As I mentioned in one of the threads I decided to pull 3-axis
+> acceleromenetrs into input and I am finally getting around to apply
+> the patch... However I messed a bit with it so I was wondering if
+> someone could give it a short spin to see if I broke it or not.
+>
+> Thanks!
+>
 
 Hi Dmitry,
 
-Please find enclosed a resend of the MT slot patches, targetting
-2.6.36. The MT slots are implemented in the mtdev library, so the
-protocol is getting a fair amount of testing. Regarding MT event codes
-that require special initial values, it is assumed that the driver
-will initalize the mt slots properly.
+Thanks for merging this driver.
+I gave it a quick spin. And there is one issue.
+There is a code path that is taken with the mutex held,
+which is also trying to acquire the mutex.
 
-Thanks,
-Henrik
+Take a look at
 
-Henrik Rydberg (2):
-  input: mt: Introduce MT event slots (rev 5b)
-  input: mt: Document the MT event slot protocol (rev5b)
+adxl34x_input_close() -> __adxl34x_disable()
+or
+adxl34x_disable() -> __adxl34x_disable()
 
- Documentation/input/multi-touch-protocol.txt |  217 ++++++++++++++++++--------
- drivers/input/input.c                        |  105 ++++++++++---
- include/linux/input.h                        |   44 +++++
- 3 files changed, 271 insertions(+), 95 deletions(-)
+I think __adxl34x_disable() should not acquire the mutex!
 
+Besides that the driver seems to work fine.
+
+We have some local enhancements for this driver which hasn't been submitted yet.
+
+Mike,
+
+Can you please send Dmitry the patches?
+
+Greetings,
+Michael
+
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif

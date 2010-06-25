@@ -1,1571 +1,1634 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen driver
-Date: Fri, 25 Jun 2010 10:54:42 +0900
-Message-ID: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
-Content-Transfer-Encoding: 7BIT
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input/misc: new ADXL345/346 driver
+Date: Fri, 25 Jun 2010 00:14:25 -0700
+Message-ID: <20100625071425.GA631@core.coreip.homeip.net>
+References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
+ <1256028039-15044-1-git-send-email-vapier@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:35692 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751680Ab0FYBzJ (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:59829 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751589Ab0FYHOe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jun 2010 21:55:09 -0400
-Received: from epmmp2 (mailout3.samsung.com [203.254.224.33])
- by mailout3.samsung.com
- (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
- with ESMTP id <0L4J00FO0RZSFY00@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Fri, 25 Jun 2010 10:55:05 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0L4J00KJWRZS3L@mmp2.samsung.com> for
- linux-input@vger.kernel.org; Fri, 25 Jun 2010 10:55:04 +0900 (KST)
+	Fri, 25 Jun 2010 03:14:34 -0400
+Received: by pwj8 with SMTP id 8so2215814pwj.19
+        for <linux-input@vger.kernel.org>; Fri, 25 Jun 2010 00:14:33 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1256028039-15044-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se, kyungmin.park@samsung.com
+To: Mike Frysinger <vapier@gentoo.org>, Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, Barry Song <barry.song@analog.com>
 
-This chip full name is AT42QT602240 or ATMXT224. This is the capacitive
-touchscreen supporting 10 multitouch and uses I2C interface.
+Hi Mike, Michael,
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+On Tue, Oct 20, 2009 at 04:40:39AM -0400, Mike Frysinger wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> 
+> This is a driver for the ADXL345/346 Three-Axis Digital Accelerometers.
+> 
+
+As I mentioned in one of the threads I decided to pull 3-axis
+acceleromenetrs into input and I am finally getting around to apply the
+patch... However I messed a bit with it so I was wondering if someone
+could give it a short spin to see if I broke it or not.
+
+Thanks!
+
+-- 
+Dmitry
+
+Input: add driver for ADXL345/346 Digital Accelerometers
+
+From: Michael Hennerich <michael.hennerich@analog.com>
+
+This is a driver for the ADXL345/346 Three-Axis Digital Accelerometers.
+
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Chris Verges <chrisv@cyberswitching.com>
+Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
+Signed-off-by: Barry Song <barry.song@analog.com>
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
-Changes since v1:
-- Splitting long functions up
-- Use threaded IRQs
-- Add open() and close() methods for the input device
-- Code cleanup from patch v1 feedback
 
- drivers/input/touchscreen/Kconfig       |   12 +
- drivers/input/touchscreen/Makefile      |    1 +
- drivers/input/touchscreen/qt602240_ts.c | 1442 +++++++++++++++++++++++++++++++
- include/linux/i2c/qt602240_ts.h         |   40 +
- 4 files changed, 1495 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/qt602240_ts.c
- create mode 100644 include/linux/i2c/qt602240_ts.h
+ drivers/input/misc/Kconfig       |   37 ++
+ drivers/input/misc/Makefile      |    3 
+ drivers/input/misc/adxl34x-i2c.c |  163 +++++++
+ drivers/input/misc/adxl34x-spi.c |  145 +++++++
+ drivers/input/misc/adxl34x.c     |  842 ++++++++++++++++++++++++++++++++++++++
+ drivers/input/misc/adxl34x.h     |   30 +
+ include/linux/input/adxl34x.h    |  293 +++++++++++++
+ 7 files changed, 1513 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/adxl34x-i2c.c
+ create mode 100644 drivers/input/misc/adxl34x-spi.c
+ create mode 100644 drivers/input/misc/adxl34x.c
+ create mode 100644 drivers/input/misc/adxl34x.h
+ create mode 100644 include/linux/input/adxl34x.h
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 3b9d5e2..99c8c7e 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -603,4 +603,16 @@ config TOUCHSCREEN_TPS6507X
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 354a807..bfd2ca8 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -417,4 +417,41 @@ config INPUT_PCAP
  	  To compile this driver as a module, choose M here: the
- 	  module will be called tps6507x_ts.
+ 	  module will be called pcap_keys.
  
-+config TOUCHSCREEN_QT602240
-+	tristate "QT602240 I2C Touchscreen"
-+	depends on I2C
++config INPUT_ADXL34X
++	tristate "Analog Devices ADXL34x Three-Axis Digital Accelerometer"
++	default n
 +	help
-+	  Say Y here if you have the AT42QT602240/ATMXT224 I2C touchscreen
-+	  connected to your system.
++	  Say Y here if you have a Accelerometer interface using the
++	  ADXL345/6 controller, and your board-specific initialization
++	  code includes that in its table of devices.
 +
-+	  If unsure, say N.
++	  This driver can use either I2C or SPI communication to the
++	  ADXL345/6 controller.  Select the appropriate method for
++	  your system.
++
++	  If unsure, say N (but it's safe to say "Y").
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called qt602240_ts.
++	  module will be called adxl34x.
++
++config INPUT_ADXL34X_I2C
++	tristate "support I2C bus connection"
++	depends on INPUT_ADXL34X && I2C
++	default y
++	help
++	  Say Y here if you have ADXL345/6 hooked to an I2C bus.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called adxl34x-i2c.
++
++config INPUT_ADXL34X_SPI
++	tristate "support SPI bus connection"
++	depends on INPUT_ADXL34X && SPI
++	default y
++	help
++	  Say Y here if you have ADXL345/6 hooked to a SPI bus.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called adxl34x-spi.
 +
  endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 497964a..4f3760b 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -47,3 +47,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
- obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_QT602240)	+= qt602240_ts.o
-diff --git a/drivers/input/touchscreen/qt602240_ts.c b/drivers/input/touchscreen/qt602240_ts.c
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index d80676c..783a619 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -8,6 +8,9 @@ obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
+ obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
+ obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
+ obj-$(CONFIG_INPUT_AD714X_SPI)		+= ad714x-spi.o
++obj-$(CONFIG_INPUT_ADXL34X)		+= adxl34x.o
++obj-$(CONFIG_INPUT_ADXL34X_I2C)		+= adxl34x-i2c.o
++obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
+ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+ obj-$(CONFIG_INPUT_APPLEIR)		+= appleir.o
+ obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
+diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
 new file mode 100644
-index 0000000..10a88dc
+index 0000000..76194b5
 --- /dev/null
-+++ b/drivers/input/touchscreen/qt602240_ts.c
-@@ -0,0 +1,1442 @@
++++ b/drivers/input/misc/adxl34x-i2c.c
+@@ -0,0 +1,163 @@
 +/*
-+ * qt602240_ts.c - AT42QT602240/ATMXT224 Touchscreen driver
++ * ADLX345/346 Three-Axis Digital Accelerometers (I2C Interface)
 + *
-+ * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
++ * Licensed under the GPL-2 or later.
 + */
 +
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/firmware.h>
++#include <linux/input.h>	/* BUS_I2C */
 +#include <linux/i2c.h>
-+#include <linux/i2c/qt602240_ts.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include "adxl34x.h"
 +
-+/* Version */
-+#define QT602240_VER_20			20
-+#define QT602240_VER_21			21
-+#define QT602240_VER_22			22
-+
-+/* Slave addresses */
-+#define QT602240_APP_LOW		0x4a
-+#define QT602240_APP_HIGH		0x4b
-+#define QT602240_BOOT_LOW		0x24
-+#define QT602240_BOOT_HIGH		0x25
-+
-+/* Firmware */
-+#define QT602240_FW_NAME		"qt602240.fw"
-+
-+/* Registers */
-+#define QT602240_FAMILY_ID		0x00
-+#define QT602240_VARIANT_ID		0x01
-+#define QT602240_VERSION		0x02
-+#define QT602240_BUILD			0x03
-+#define QT602240_MATRIX_X_SIZE		0x04
-+#define QT602240_MATRIX_Y_SIZE		0x05
-+#define QT602240_OBJECT_NUM		0x06
-+#define QT602240_OBJECT_START		0x07
-+
-+#define QT602240_OBJECT_SIZE		6
-+
-+/* Object types */
-+#define QT602240_DEBUG_DIAGNOSTIC	37
-+#define QT602240_GEN_MESSAGE		5
-+#define QT602240_GEN_COMMAND		6
-+#define QT602240_GEN_POWER		7
-+#define QT602240_GEN_ACQUIRE		8
-+#define QT602240_TOUCH_MULTI		9
-+#define QT602240_TOUCH_KEYARRAY		15
-+#define QT602240_TOUCH_PROXIMITY	23
-+#define QT602240_PROCI_GRIPFACE		20
-+#define QT602240_PROCG_NOISE		22
-+#define QT602240_PROCI_ONETOUCH		24
-+#define QT602240_PROCI_TWOTOUCH		27
-+#define QT602240_SPT_COMMSCONFIG	18	/* firmware ver 21 over */
-+#define QT602240_SPT_GPIOPWM		19
-+#define QT602240_SPT_SELFTEST		25
-+#define QT602240_SPT_CTECONFIG		28
-+#define QT602240_SPT_USERDATA		38	/* firmware ver 21 over */
-+
-+/* QT602240_GEN_COMMAND field */
-+#define QT602240_COMMAND_RESET		0
-+#define QT602240_COMMAND_BACKUPNV	1
-+#define QT602240_COMMAND_CALIBRATE	2
-+#define QT602240_COMMAND_REPORTALL	3
-+#define QT602240_COMMAND_DIAGNOSTIC	5
-+
-+/* QT602240_GEN_POWER field */
-+#define QT602240_POWER_IDLEACQINT	0
-+#define QT602240_POWER_ACTVACQINT	1
-+#define QT602240_POWER_ACTV2IDLETO	2
-+
-+/* QT602240_GEN_ACQUIRE field */
-+#define QT602240_ACQUIRE_CHRGTIME	0
-+#define QT602240_ACQUIRE_TCHDRIFT	2
-+#define QT602240_ACQUIRE_DRIFTST	3
-+#define QT602240_ACQUIRE_TCHAUTOCAL	4
-+#define QT602240_ACQUIRE_SYNC		5
-+#define QT602240_ACQUIRE_ATCHCALST	6
-+#define QT602240_ACQUIRE_ATCHCALSTHR	7
-+
-+/* QT602240_TOUCH_MULTI field */
-+#define QT602240_TOUCH_CTRL		0
-+#define QT602240_TOUCH_XORIGIN		1
-+#define QT602240_TOUCH_YORIGIN		2
-+#define QT602240_TOUCH_XSIZE		3
-+#define QT602240_TOUCH_YSIZE		4
-+#define QT602240_TOUCH_BLEN		6
-+#define QT602240_TOUCH_TCHTHR		7
-+#define QT602240_TOUCH_TCHDI		8
-+#define QT602240_TOUCH_ORIENT		9
-+#define QT602240_TOUCH_MOVHYSTI		11
-+#define QT602240_TOUCH_MOVHYSTN		12
-+#define QT602240_TOUCH_NUMTOUCH		14
-+#define QT602240_TOUCH_MRGHYST		15
-+#define QT602240_TOUCH_MRGTHR		16
-+#define QT602240_TOUCH_AMPHYST		17
-+#define QT602240_TOUCH_XRANGE_LSB	18
-+#define QT602240_TOUCH_XRANGE_MSB	19
-+#define QT602240_TOUCH_YRANGE_LSB	20
-+#define QT602240_TOUCH_YRANGE_MSB	21
-+#define QT602240_TOUCH_XLOCLIP		22
-+#define QT602240_TOUCH_XHICLIP		23
-+#define QT602240_TOUCH_YLOCLIP		24
-+#define QT602240_TOUCH_YHICLIP		25
-+#define QT602240_TOUCH_XEDGECTRL	26
-+#define QT602240_TOUCH_XEDGEDIST	27
-+#define QT602240_TOUCH_YEDGECTRL	28
-+#define QT602240_TOUCH_YEDGEDIST	29
-+#define QT602240_TOUCH_JUMPLIMIT	30	/* firmware ver 22 over */
-+
-+/* QT602240_PROCI_GRIPFACE field */
-+#define QT602240_GRIPFACE_CTRL		0
-+#define QT602240_GRIPFACE_XLOGRIP	1
-+#define QT602240_GRIPFACE_XHIGRIP	2
-+#define QT602240_GRIPFACE_YLOGRIP	3
-+#define QT602240_GRIPFACE_YHIGRIP	4
-+#define QT602240_GRIPFACE_MAXTCHS	5
-+#define QT602240_GRIPFACE_SZTHR1	7
-+#define QT602240_GRIPFACE_SZTHR2	8
-+#define QT602240_GRIPFACE_SHPTHR1	9
-+#define QT602240_GRIPFACE_SHPTHR2	10
-+#define QT602240_GRIPFACE_SUPEXTTO	11
-+
-+/* QT602240_PROCI_NOISE field */
-+#define QT602240_NOISE_CTRL		0
-+#define QT602240_NOISE_OUTFLEN		1
-+#define QT602240_NOISE_GCAFUL_LSB	3
-+#define QT602240_NOISE_GCAFUL_MSB	4
-+#define QT602240_NOISE_GCAFLL_LSB	5
-+#define QT602240_NOISE_GCAFLL_MSB	6
-+#define QT602240_NOISE_ACTVGCAFVALID	7
-+#define QT602240_NOISE_NOISETHR		8
-+#define QT602240_NOISE_FREQHOPSCALE	10
-+#define QT602240_NOISE_FREQ0		11
-+#define QT602240_NOISE_FREQ1		12
-+#define QT602240_NOISE_FREQ2		13
-+#define QT602240_NOISE_FREQ3		14
-+#define QT602240_NOISE_FREQ4		15
-+#define QT602240_NOISE_IDLEGCAFVALID	16
-+
-+/* QT602240_SPT_COMMSCONFIG */
-+#define QT602240_COMMS_CTRL		0
-+#define QT602240_COMMS_CMD		1
-+
-+/* QT602240_SPT_CTECONFIG field */
-+#define QT602240_CTE_CTRL		0
-+#define QT602240_CTE_CMD		1
-+#define QT602240_CTE_MODE		2
-+#define QT602240_CTE_IDLEGCAFDEPTH	3
-+#define QT602240_CTE_ACTVGCAFDEPTH	4
-+#define QT602240_CTE_VOLTAGE		5	/* firmware ver 21 over */
-+
-+#define QT602240_VOLTAGE_DEFAULT	2700000
-+#define QT602240_VOLTAGE_STEP		10000
-+
-+/* Define for QT602240_GEN_COMMAND */
-+#define QT602240_BOOT_VALUE		0xa5
-+#define QT602240_BACKUP_VALUE		0x55
-+#define QT602240_BACKUP_TIME		25	/* msec */
-+#define QT602240_RESET_TIME		65	/* msec */
-+
-+#define QT602240_FWRESET_TIME		175	/* msec */
-+
-+/* Command to unlock bootloader */
-+#define QT602240_UNLOCK_CMD_MSB		0xaa
-+#define QT602240_UNLOCK_CMD_LSB		0xdc
-+
-+/* Bootloader mode status */
-+#define QT602240_WAITING_BOOTLOAD_CMD	0xc0	/* valid 7 6 bit only */
-+#define QT602240_WAITING_FRAME_DATA	0x80	/* valid 7 6 bit only */
-+#define QT602240_FRAME_CRC_CHECK	0x02
-+#define QT602240_FRAME_CRC_FAIL		0x03
-+#define QT602240_FRAME_CRC_PASS		0x04
-+#define QT602240_APP_CRC_FAIL		0x40	/* valid 7 8 bit only */
-+#define QT602240_BOOT_STATUS_MASK	0x3f
-+
-+/* Touch status */
-+#define QT602240_SUPPRESS		(1 << 1)
-+#define QT602240_AMP			(1 << 2)
-+#define QT602240_VECTOR			(1 << 3)
-+#define QT602240_MOVE			(1 << 4)
-+#define QT602240_RELEASE		(1 << 5)
-+#define QT602240_PRESS			(1 << 6)
-+#define QT602240_DETECT			(1 << 7)
-+
-+/* Touchscreen absolute values */
-+#define QT602240_MAX_XC			0x3ff
-+#define QT602240_MAX_YC			0x3ff
-+#define QT602240_MAX_AREA		0xff
-+
-+#define QT602240_MAX_FINGER		10
-+
-+/* Initial register values recommended from chip vendor */
-+static const u8 init_vals_ver_20[] = {
-+	/* QT602240_GEN_COMMAND(6) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_GEN_POWER(7) */
-+	0x20, 0xff, 0x32,
-+	/* QT602240_GEN_ACQUIRE(8) */
-+	0x08, 0x05, 0x05, 0x00, 0x00, 0x00, 0x05, 0x14,
-+	/* QT602240_TOUCH_MULTI(9) */
-+	0x00, 0x00, 0x00, 0x11, 0x0a, 0x00, 0x00, 0x00, 0x02, 0x00,
-+	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88, 0x64,
-+	/* QT602240_TOUCH_KEYARRAY(15) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00,
-+	/* QT602240_SPT_GPIOPWM(19) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00,
-+	/* QT602240_PROCI_GRIPFACE(20) */
-+	0x00, 0x64, 0x64, 0x64, 0x64, 0x00, 0x00, 0x1e, 0x14, 0x04,
-+	0x1e, 0x00,
-+	/* QT602240_PROCG_NOISE(22) */
-+	0x05, 0x00, 0x00, 0x19, 0x00, 0xe7, 0xff, 0x04, 0x32, 0x00,
-+	0x01, 0x0a, 0x0f, 0x14, 0x00, 0x00, 0xe8,
-+	/* QT602240_TOUCH_PROXIMITY(23) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_ONETOUCH(24) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_SELFTEST(25) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_TWOTOUCH(27) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_CTECONFIG(28) */
-+	0x00, 0x00, 0x00, 0x04, 0x08,
-+};
-+
-+static const u8 init_vals_ver_21[] = {
-+	/* QT602240_GEN_COMMAND(6) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_GEN_POWER(7) */
-+	0x20, 0xff, 0x32,
-+	/* QT602240_GEN_ACQUIRE(8) */
-+	0x07, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
-+	/* QT602240_TOUCH_MULTI(9) */
-+	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
-+	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_TOUCH_KEYARRAY(15) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00,
-+	/* QT602240_SPT_GPIOPWM(19) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_GRIPFACE(20) */
-+	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
-+	0x0f, 0x0a,
-+	/* QT602240_PROCG_NOISE(22) */
-+	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
-+	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
-+	/* QT602240_TOUCH_PROXIMITY(23) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_ONETOUCH(24) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_SELFTEST(25) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_TWOTOUCH(27) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_CTECONFIG(28) */
-+	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
-+};
-+
-+static const u8 init_vals_ver_22[] = {
-+	/* QT602240_GEN_COMMAND(6) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_GEN_POWER(7) */
-+	0x20, 0xff, 0x32,
-+	/* QT602240_GEN_ACQUIRE(8) */
-+	0x07, 0x00, 0x05, 0x00, 0x00, 0x00, 0x09, 0x23,
-+	/* QT602240_TOUCH_MULTI(9) */
-+	0x00, 0x00, 0x00, 0x13, 0x0b, 0x00, 0x00, 0x00, 0x02, 0x00,
-+	0x00, 0x01, 0x01, 0x0e, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00,
-+	/* QT602240_TOUCH_KEYARRAY(15) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00,
-+	/* QT602240_SPT_GPIOPWM(19) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_GRIPFACE(20) */
-+	0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x50, 0x28, 0x04,
-+	0x0f, 0x0a,
-+	/* QT602240_PROCG_NOISE(22) */
-+	0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x23, 0x00,
-+	0x00, 0x05, 0x0f, 0x19, 0x23, 0x2d, 0x03,
-+	/* QT602240_TOUCH_PROXIMITY(23) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_ONETOUCH(24) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_SELFTEST(25) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_PROCI_TWOTOUCH(27) */
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	/* QT602240_SPT_CTECONFIG(28) */
-+	0x00, 0x00, 0x00, 0x08, 0x10, 0x00,
-+};
-+
-+struct qt602240_info {
-+	u8 family_id;
-+	u8 variant_id;
-+	u8 version;
-+	u8 build;
-+	u8 matrix_xsize;
-+	u8 matrix_ysize;
-+	u8 object_num;
-+};
-+
-+struct qt602240_object {
-+	u8 type;
-+	u16 start_address;
-+	u8 size;
-+	u8 instances;
-+	u8 num_report_ids;
-+
-+	/* to map object and message */
-+	u8 max_reportid;
-+};
-+
-+struct qt602240_message {
-+	u8 reportid;
-+	u8 message[7];
-+	u8 checksum;
-+};
-+
-+struct qt602240_finger {
-+	int status;
-+	int x;
-+	int y;
-+	int area;
-+};
-+
-+/* Each client has this additional data */
-+struct qt602240_data {
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct qt602240_platform_data *pdata;
-+	struct qt602240_object *object_table;
-+	struct qt602240_info info;
-+	struct qt602240_finger finger[QT602240_MAX_FINGER];
-+	struct work_struct ts_resume_work;
-+	unsigned int irq;
-+};
-+
-+static int qt602240_object_readable(unsigned int type)
++static int adxl34x_smbus_read(struct device *dev, unsigned char reg)
 +{
-+	switch (type) {
-+	case QT602240_GEN_MESSAGE:
-+	case QT602240_GEN_COMMAND:
-+	case QT602240_GEN_POWER:
-+	case QT602240_GEN_ACQUIRE:
-+	case QT602240_TOUCH_MULTI:
-+	case QT602240_TOUCH_KEYARRAY:
-+	case QT602240_TOUCH_PROXIMITY:
-+	case QT602240_PROCI_GRIPFACE:
-+	case QT602240_PROCG_NOISE:
-+	case QT602240_PROCI_ONETOUCH:
-+	case QT602240_PROCI_TWOTOUCH:
-+	case QT602240_SPT_COMMSCONFIG:
-+	case QT602240_SPT_GPIOPWM:
-+	case QT602240_SPT_SELFTEST:
-+	case QT602240_SPT_CTECONFIG:
-+	case QT602240_SPT_USERDATA:
-+		return 1;
-+	default:
-+		return 0;
-+	}
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return i2c_smbus_read_byte_data(client, reg);
 +}
 +
-+static int qt602240_object_writable(unsigned int type)
++static int adxl34x_smbus_write(struct device *dev,
++			       unsigned char reg, unsigned char val)
 +{
-+	switch (type) {
-+	case QT602240_GEN_COMMAND:
-+	case QT602240_GEN_POWER:
-+	case QT602240_GEN_ACQUIRE:
-+	case QT602240_TOUCH_MULTI:
-+	case QT602240_TOUCH_KEYARRAY:
-+	case QT602240_TOUCH_PROXIMITY:
-+	case QT602240_PROCI_GRIPFACE:
-+	case QT602240_PROCG_NOISE:
-+	case QT602240_PROCI_ONETOUCH:
-+	case QT602240_PROCI_TWOTOUCH:
-+	case QT602240_SPT_GPIOPWM:
-+	case QT602240_SPT_SELFTEST:
-+	case QT602240_SPT_CTECONFIG:
-+		return 1;
-+	default:
-+		return 0;
-+	}
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return i2c_smbus_write_byte_data(client, reg, val);
 +}
 +
-+static void qt602240_dump_message(struct device *dev,
-+		struct qt602240_message *message)
++static int adxl34x_smbus_read_block(struct device *dev,
++				    unsigned char reg, int count,
++				    void *buf)
 +{
-+	dev_dbg(dev, "reportid:\t0x%x\n", message->reportid);
-+	dev_dbg(dev, "message1:\t0x%x\n", message->message[0]);
-+	dev_dbg(dev, "message2:\t0x%x\n", message->message[1]);
-+	dev_dbg(dev, "message3:\t0x%x\n", message->message[2]);
-+	dev_dbg(dev, "message4:\t0x%x\n", message->message[3]);
-+	dev_dbg(dev, "message5:\t0x%x\n", message->message[4]);
-+	dev_dbg(dev, "message6:\t0x%x\n", message->message[5]);
-+	dev_dbg(dev, "message7:\t0x%x\n", message->message[6]);
-+	dev_dbg(dev, "checksum:\t0x%x\n", message->checksum);
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return i2c_smbus_read_i2c_block_data(client, reg, count, buf);
 +}
 +
-+static int qt602240_check_bootloader(struct i2c_client *client,
-+		unsigned int state)
++static int adxl34x_i2c_read_block(struct device *dev,
++				  unsigned char reg, int count,
++				  void *buf)
 +{
-+	u8 val;
-+
-+recheck:
-+	if (i2c_master_recv(client, &val, 1) != 1) {
-+		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	switch (state) {
-+	case QT602240_WAITING_BOOTLOAD_CMD:
-+	case QT602240_WAITING_FRAME_DATA:
-+		val &= ~QT602240_BOOT_STATUS_MASK;
-+		break;
-+	case QT602240_FRAME_CRC_PASS:
-+		if (val == QT602240_FRAME_CRC_CHECK)
-+			goto recheck;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (val != state) {
-+		dev_err(&client->dev, "Unvalid bootloader mode state\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_unlock_bootloader(struct i2c_client *client)
-+{
-+	u8 buf[2];
-+
-+	buf[0] = QT602240_UNLOCK_CMD_LSB;
-+	buf[1] = QT602240_UNLOCK_CMD_MSB;
-+
-+	if (i2c_master_send(client, buf, 2) != 2) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_fw_write(struct i2c_client *client, const u8 *data,
-+		unsigned int frame_size)
-+{
-+	if (i2c_master_send(client, data, frame_size) != frame_size) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_read_reg(struct i2c_client *client, u16 reg)
-+{
-+	u8 buf[2];
-+	u8 val;
-+
-+	buf[0] = reg & 0xff;
-+	buf[1] = (reg >> 8) & 0xff;
-+
-+	if (i2c_master_send(client, buf, 2) != 2) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	if (i2c_master_recv(client, &val, 1) != 1) {
-+		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return val;
-+}
-+
-+static int qt602240_write_reg(struct i2c_client *client, u16 reg, u8 val)
-+{
-+	u8 buf[3];
-+
-+	buf[0] = reg & 0xff;
-+	buf[1] = (reg >> 8) & 0xff;
-+	buf[2] = val;
-+
-+	if (i2c_master_send(client, buf, 3) != 3) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_read_object_table(struct i2c_client *client, u16 reg,
-+		u8 *object_buf)
-+{
-+	u8 buf[2];
-+
-+	buf[0] = reg & 0xff;
-+	buf[1] = (reg >> 8) & 0xff;
-+
-+	if (i2c_master_send(client, buf, 2) != 2) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	if (i2c_master_recv(client, object_buf, 6) != 6) {
-+		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct qt602240_object *
-+qt602240_get_object(struct qt602240_data *data, u8 type)
-+{
-+	struct qt602240_object *object;
-+	int i;
-+
-+	for (i = 0; i < data->info.object_num; i++) {
-+		object = data->object_table + i;
-+		if (object->type == type)
-+			return object;
-+	}
-+
-+	dev_err(&data->client->dev, "invalid type\n");
-+	return NULL;
-+}
-+
-+static int qt602240_read_message(struct qt602240_data *data,
-+		struct qt602240_message *message)
-+{
-+	struct i2c_client *client = data->client;
-+	struct qt602240_object *object;
-+	u16 reg;
-+	u8 buf[2];
-+
-+	object = qt602240_get_object(data, QT602240_GEN_MESSAGE);
-+	if (!object)
-+		return -EINVAL;
-+
-+	reg = object->start_address;
-+
-+	buf[0] = reg & 0xff;
-+	buf[1] = (reg >> 8) & 0xff;
-+
-+	if (i2c_master_send(client, buf, 2) != 2) {
-+		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	if (i2c_master_recv(client, (u8 *)message, 9) != 9) {
-+		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_read_object(struct qt602240_data *data, u8 type, u8 offset)
-+{
-+	struct qt602240_object *object;
-+	u16 reg;
-+
-+	object = qt602240_get_object(data, type);
-+	if (!object)
-+		return -EINVAL;
-+
-+	reg = object->start_address;
-+
-+	return qt602240_read_reg(data->client, reg + offset);
-+}
-+
-+static int qt602240_write_object(struct qt602240_data *data, u8 type,
-+		u8 offset, u8 val)
-+{
-+	struct qt602240_object *object;
-+	u16 reg;
-+
-+	object = qt602240_get_object(data, type);
-+	if (!object)
-+		return -EINVAL;
-+
-+	reg = object->start_address;
-+	return qt602240_write_reg(data->client, reg + offset, val);
-+}
-+
-+static void qt602240_check_config_error(struct qt602240_data *data,
-+		struct qt602240_message *message)
-+{
-+	struct qt602240_object *object;
-+	u8 reportid = message->reportid;
-+	u8 min_reportid;
-+
-+	object = qt602240_get_object(data, QT602240_GEN_COMMAND);
-+	if (!object)
-+		return;
-+
-+	min_reportid = object->max_reportid - object->num_report_ids + 1;
-+
-+	/* Check if configration error */
-+	if ((reportid == min_reportid) && (message->message[0] & 0x8)) {
-+		/* Touch disable */
-+		qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+				QT602240_TOUCH_CTRL, 0);
-+
-+		/* Backup to memory */
-+		qt602240_write_object(data, QT602240_GEN_COMMAND,
-+				QT602240_COMMAND_BACKUPNV,
-+				QT602240_BACKUP_VALUE);
-+		msleep(QT602240_BACKUP_TIME);
-+
-+		/* Soft reset */
-+		qt602240_write_object(data, QT602240_GEN_COMMAND,
-+				QT602240_COMMAND_RESET, 1);
-+		msleep(QT602240_RESET_TIME);
-+
-+		/* Touch enable */
-+		qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+				QT602240_TOUCH_CTRL, 0x83);
-+	}
-+}
-+
-+static void qt602240_input_report(struct qt602240_data *data, int single_id)
-+{
-+	struct qt602240_finger *finger = data->finger;
-+	struct input_dev *input_dev = data->input_dev;
-+	int finger_num = 0;
-+	int id;
-+
-+	for (id = 0; id < QT602240_MAX_FINGER; id++) {
-+		if (!finger[id].status)
-+			continue;
-+
-+		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
-+				finger[id].area);
-+
-+		if (finger[id].status == QT602240_RELEASE)
-+			finger[id].status = 0;
-+		else {
-+			input_report_abs(input_dev, ABS_MT_POSITION_X,
-+					finger[id].x);
-+			input_report_abs(input_dev, ABS_MT_POSITION_Y,
-+					finger[id].y);
-+			finger_num++;
-+		}
-+
-+		input_mt_sync(input_dev);
-+	}
-+
-+	input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
-+
-+	if (finger[single_id].status != QT602240_RELEASE) {
-+		input_report_abs(input_dev, ABS_X, finger[single_id].x);
-+		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
-+	}
-+
-+	input_sync(input_dev);
-+}
-+
-+static void qt602240_input_touchevent(struct qt602240_data *data,
-+		struct qt602240_message *message, int id)
-+{
-+	struct qt602240_finger *finger = data->finger;
-+	struct device *dev = &data->client->dev;
-+	u8 status = message->message[0];
-+	int x;
-+	int y;
-+	int area;
-+
-+	/* Check the touch is present on the screen */
-+	if (!(status & QT602240_DETECT)) {
-+		if (status & QT602240_RELEASE) {
-+			dev_dbg(dev, "[%d] released\n", id);
-+
-+			finger[id].status = QT602240_RELEASE;
-+			finger[id].area = 0;
-+
-+			qt602240_input_report(data, id);
-+		}
-+		return;
-+	}
-+
-+	/* Check only AMP detection */
-+	if (!(status & (QT602240_PRESS | QT602240_MOVE)))
-+		return;
-+
-+	x = (message->message[1] << 2) | ((message->message[3] & ~0x3f) >> 6);
-+	y = (message->message[2] << 2) | ((message->message[3] & ~0xf3) >> 2);
-+	area = message->message[4];
-+
-+	dev_dbg(dev, "[%d] %s x: %d, y: %d, area: %d\n", id,
-+			status & QT602240_MOVE ? "moved" : "pressed",
-+			x, y, area);
-+
-+	finger[id].status = status & QT602240_MOVE ?
-+		QT602240_MOVE : QT602240_PRESS;
-+	finger[id].x = x;
-+	finger[id].y = y;
-+	finger[id].area = area;
-+
-+	qt602240_input_report(data, id);
-+}
-+
-+static irqreturn_t qt602240_interrupt(int irq, void *dev_id)
-+{
-+	struct qt602240_data *data = dev_id;
-+	struct qt602240_message message;
-+	struct qt602240_object *object;
-+	struct device *dev = &data->client->dev;
-+	int id;
-+	u8 reportid;
-+	u8 max_reportid;
-+	u8 min_reportid;
-+
-+	do {
-+		if (qt602240_read_message(data, &message)) {
-+			dev_err(dev, "Failed to read message\n");
-+			goto end;
-+		}
-+
-+		reportid = message.reportid;
-+
-+		/* whether reportid is thing of QT602240_TOUCH_MULTI */
-+		object = qt602240_get_object(data, QT602240_TOUCH_MULTI);
-+		if (!object)
-+			goto end;
-+
-+		max_reportid = object->max_reportid;
-+		min_reportid = max_reportid - object->num_report_ids + 1;
-+		id = reportid - min_reportid;
-+
-+		if ((reportid >= min_reportid) && (reportid <= max_reportid))
-+			qt602240_input_touchevent(data, &message, id);
-+		else {
-+			qt602240_dump_message(dev, &message);
-+			qt602240_check_config_error(data, &message);
-+		}
-+	} while (reportid != 0xff);
-+
-+end:
-+	return IRQ_HANDLED;
-+}
-+
-+static void qt602240_resume_worker(struct work_struct *work)
-+{
-+	struct qt602240_data *data = container_of(work,
-+			struct qt602240_data, ts_resume_work);
-+
-+	/* Soft reset */
-+	qt602240_write_object(data, QT602240_GEN_COMMAND,
-+			QT602240_COMMAND_RESET, 1);
-+
-+	msleep(QT602240_RESET_TIME);
-+
-+	if (data->input_dev->users)
-+		/* Touch enable */
-+		qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+				QT602240_TOUCH_CTRL, 0x83);
-+}
-+
-+static int qt602240_check_reg_init(struct qt602240_data *data)
-+{
-+	struct qt602240_object *object;
-+	struct device *dev = &data->client->dev;
-+	int index = 0;
-+	int i, j;
-+	u8 version = data->info.version;
-+	u8 *init_vals;
-+
-+	switch (version) {
-+	case QT602240_VER_20:
-+		init_vals = (u8 *)init_vals_ver_20;
-+		break;
-+	case QT602240_VER_21:
-+		init_vals = (u8 *)init_vals_ver_21;
-+		break;
-+	case QT602240_VER_22:
-+		init_vals = (u8 *)init_vals_ver_22;
-+		break;
-+	default:
-+		dev_err(dev, "Firmware version %d doesn't support\n", version);
-+		return -EINVAL;
-+	}
-+
-+	for (i = 0; i < data->info.object_num; i++) {
-+		object = data->object_table + i;
-+
-+		if (!qt602240_object_writable(object->type))
-+			continue;
-+
-+		for (j = 0; j < object->size + 1; j++)
-+			qt602240_write_object(data, object->type, j,
-+					init_vals[index + j]);
-+
-+		index += object->size + 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_check_matrix_size(struct qt602240_data *data)
-+{
-+	const struct qt602240_platform_data *pdata = data->pdata;
-+	struct device *dev = &data->client->dev;
-+	int val;
-+	int mode = 0;
-+
-+	dev_dbg(dev, "Number of X lines: %d\n", pdata->x_line);
-+	dev_dbg(dev, "Number of Y lines: %d\n", pdata->y_line);
-+
-+	switch (pdata->x_line) {
-+	case 0 ... 15:
-+		if (pdata->y_line <= 14)
-+			mode = 0;
-+		break;
-+	case 16:
-+		if (pdata->y_line <= 12)
-+			mode = 1;
-+		if (pdata->y_line == 13 || pdata->y_line == 14)
-+			mode = 0;
-+		break;
-+	case 17:
-+		if (pdata->y_line <= 11)
-+			mode = 2;
-+		if (pdata->y_line == 12 || pdata->y_line == 13)
-+			mode = 1;
-+		break;
-+	case 18:
-+		if (pdata->y_line <= 10)
-+			mode = 3;
-+		if (pdata->y_line == 11 || pdata->y_line == 12)
-+			mode = 2;
-+		break;
-+	case 19:
-+		if (pdata->y_line <= 9)
-+			mode = 4;
-+		if (pdata->y_line == 10 || pdata->y_line == 11)
-+			mode = 3;
-+		break;
-+	case 20:
-+		mode = 4;
-+		break;
-+	default:
-+		dev_err(dev, "Invalid X/Y lines\n");
-+		return -EINVAL;
-+	}
-+
-+	val = qt602240_read_object(data, QT602240_SPT_CTECONFIG,
-+			QT602240_CTE_MODE);
-+	if (val < 0)
-+		return -EIO;
-+
-+	if (mode == val)
-+		return 0;
-+
-+	/* Change the CTE configuration */
-+	qt602240_write_object(data, QT602240_SPT_CTECONFIG,
-+			QT602240_CTE_CTRL, 1);
-+	qt602240_write_object(data, QT602240_SPT_CTECONFIG,
-+			QT602240_CTE_MODE, mode);
-+	qt602240_write_object(data, QT602240_SPT_CTECONFIG,
-+			QT602240_CTE_CTRL, 0);
-+
-+	return 0;
-+}
-+
-+static void qt602240_handle_pdata(struct qt602240_data *data)
-+{
-+	const struct qt602240_platform_data *pdata = data->pdata;
-+	u8 voltage;
-+
-+	/* Set touchscreen lines */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_XSIZE,
-+			pdata->x_line);
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_YSIZE,
-+			pdata->y_line);
-+
-+	/* Set touchscreen orient */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_ORIENT,
-+			pdata->orient);
-+
-+	/* Set touchscreen burst length */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_BLEN, pdata->blen);
-+
-+	/* Set touchscreen threshold */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_TCHTHR, pdata->threshold);
-+
-+	/* Set touchscreen detect integration */
-+	if (pdata->tchdi)
-+		qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+				QT602240_TOUCH_TCHDI, pdata->tchdi);
-+
-+	/* Set touchscreen resolution */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_XRANGE_LSB, (pdata->x_size - 1) & 0xff);
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_XRANGE_MSB, (pdata->x_size - 1) >> 8);
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_YRANGE_LSB, (pdata->y_size - 1) & 0xff);
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+			QT602240_TOUCH_YRANGE_MSB, (pdata->y_size - 1) >> 8);
-+
-+	/* Set touchscreen voltage */
-+	if (data->info.version >= QT602240_VER_21 && pdata->voltage) {
-+		if (pdata->voltage < QT602240_VOLTAGE_DEFAULT) {
-+			voltage = (QT602240_VOLTAGE_DEFAULT - pdata->voltage) /
-+				QT602240_VOLTAGE_STEP;
-+			voltage = 0xff - voltage + 1;
-+		} else
-+			voltage = (pdata->voltage - QT602240_VOLTAGE_DEFAULT) /
-+				QT602240_VOLTAGE_STEP;
-+
-+		qt602240_write_object(data, QT602240_SPT_CTECONFIG,
-+				QT602240_CTE_VOLTAGE, voltage);
-+	}
-+}
-+
-+static int qt602240_get_info(struct qt602240_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	struct qt602240_info *info = &data->info;
-+	int val;
-+
-+	val = qt602240_read_reg(client, QT602240_FAMILY_ID);
-+	if (val < 0)
-+		return -EIO;
-+	info->family_id = val;
-+
-+	val = qt602240_read_reg(client, QT602240_VARIANT_ID);
-+	if (val < 0)
-+		return -EIO;
-+	info->variant_id = val;
-+
-+	val = qt602240_read_reg(client, QT602240_VERSION);
-+	if (val < 0)
-+		return -EIO;
-+	info->version = val;
-+
-+	val = qt602240_read_reg(client, QT602240_BUILD);
-+	if (val < 0)
-+		return -EIO;
-+	info->build = val;
-+
-+	val = qt602240_read_reg(client, QT602240_OBJECT_NUM);
-+	if (val < 0)
-+		return -EIO;
-+	info->object_num = val;
-+
-+	return 0;
-+}
-+
-+static int qt602240_get_object_table(struct qt602240_data *data)
-+{
-+	int ret;
-+	int i;
-+	u16 reg;
-+	u8 reportid = 0;
-+	u8 buf[QT602240_OBJECT_SIZE];
-+
-+	for (i = 0; i < data->info.object_num; i++) {
-+		struct qt602240_object *object = data->object_table + i;
-+
-+		reg = QT602240_OBJECT_START + QT602240_OBJECT_SIZE * i;
-+		ret = qt602240_read_object_table(data->client, reg, buf);
-+		if (ret)
-+			return ret;
-+
-+		object->type = buf[0];
-+		object->start_address = (buf[2] << 8) | buf[1];
-+		object->size = buf[3];
-+		object->instances = buf[4];
-+		object->num_report_ids = buf[5];
-+
-+		if (object->num_report_ids) {
-+			reportid += object->num_report_ids *
-+				(object->instances + 1);
-+			object->max_reportid = reportid;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int qt602240_initialize(struct qt602240_data *data)
-+{
-+	struct i2c_client *client = data->client;
-+	struct qt602240_info *info = &data->info;
++	struct i2c_client *client = to_i2c_client(dev);
 +	int ret;
 +
-+	ret = qt602240_get_info(data);
++	ret = i2c_master_send(client, &reg, 1);
 +	if (ret < 0)
 +		return ret;
 +
-+	data->object_table =
-+		kzalloc(sizeof(struct qt602240_data) * info->object_num,
-+				GFP_KERNEL);
-+	if (!data->object_table) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* Get object table information */
-+	ret = qt602240_get_object_table(data);
++	ret = i2c_master_recv(client, buf, count);
 +	if (ret < 0)
 +		return ret;
 +
-+	/* Check register init values */
-+	ret = qt602240_check_reg_init(data);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Check X/Y matrix size */
-+	ret = qt602240_check_matrix_size(data);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Read dummy message to make high CHG pin */
-+	do {
-+		ret = qt602240_read_object(data, QT602240_GEN_MESSAGE, 0);
-+		if (ret < 0)
-+			return ret;
-+	} while (ret != 0xff);
-+
-+	qt602240_handle_pdata(data);
-+
-+	/* Backup to memory */
-+	qt602240_write_object(data, QT602240_GEN_COMMAND,
-+			QT602240_COMMAND_BACKUPNV,
-+			QT602240_BACKUP_VALUE);
-+	msleep(QT602240_BACKUP_TIME);
-+
-+	/* Soft reset */
-+	qt602240_write_object(data, QT602240_GEN_COMMAND,
-+			QT602240_COMMAND_RESET, 1);
-+	msleep(QT602240_RESET_TIME);
-+
-+	/* Update matrix size at info struct */
-+	ret = qt602240_read_reg(client, QT602240_MATRIX_X_SIZE);
-+	if (ret < 0)
-+		return ret;
-+	info->matrix_xsize = ret;
-+
-+	ret = qt602240_read_reg(client, QT602240_MATRIX_Y_SIZE);
-+	if (ret < 0)
-+		return ret;
-+	info->matrix_ysize = ret;
-+
-+	dev_info(&client->dev,
-+			"Family ID: %d Variant ID: %d Version: %d Build: %d\n",
-+			info->family_id, info->variant_id, info->version,
-+			info->build);
-+
-+	dev_info(&client->dev,
-+			"Matrix X Size: %d Matrix Y Size: %d Object Num: %d\n",
-+			info->matrix_xsize, info->matrix_ysize,
-+			info->object_num);
++	if (ret != count)
++		return -EIO;
 +
 +	return 0;
 +}
 +
-+static ssize_t qt602240_object_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct qt602240_data *data = dev_get_drvdata(dev);
-+	struct qt602240_object *object;
-+	int val;
-+	int count = 0;
-+	int i, j;
-+
-+	if (!data) {
-+		dev_err(dev, "The data is NULL\n");
-+		return -EFAULT;
-+	}
-+
-+	for (i = 0; i < data->info.object_num; i++) {
-+		object = data->object_table + i;
-+
-+		count += sprintf(buf + count,
-+				"Object Table Element %d(Type %d)\n",
-+				i + 1, object->type);
-+
-+		if (!qt602240_object_readable(object->type)) {
-+			count += sprintf(buf + count, "\n");
-+			continue;
-+		}
-+
-+		for (j = 0; j < object->size + 1; j++) {
-+			val = qt602240_read_object(data, object->type, j);
-+			if (val < 0)
-+				return count;
-+
-+			count += sprintf(buf + count,
-+					"  Byte %d: 0x%x (%d)\n", j, val, val);
-+		}
-+
-+		count += sprintf(buf + count, "\n");
-+	}
-+
-+	return count;
-+}
-+
-+static int qt602240_load_fw(struct device *dev, const char *fn)
-+{
-+	struct qt602240_data *data = dev_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	const struct firmware *fw = NULL;
-+	unsigned int frame_size;
-+	unsigned int pos = 0;
-+	int ret;
-+
-+	if (!data) {
-+		dev_err(dev, "The data is NULL\n");
-+		return -EFAULT;
-+	}
-+
-+	ret = request_firmware(&fw, fn, dev);
-+	if (ret < 0) {
-+		dev_err(dev, "Unable to open firmware %s\n", fn);
-+		return -ENOMEM;
-+	}
-+
-+	/* Change to the bootloader mode */
-+	qt602240_write_object(data, QT602240_GEN_COMMAND,
-+			QT602240_COMMAND_RESET, QT602240_BOOT_VALUE);
-+	msleep(QT602240_RESET_TIME);
-+
-+	/* Change to slave address of bootloader */
-+	if (client->addr == QT602240_APP_LOW)
-+		client->addr = QT602240_BOOT_LOW;
-+	else
-+		client->addr = QT602240_BOOT_HIGH;
-+
-+	ret = qt602240_check_bootloader(client, QT602240_WAITING_BOOTLOAD_CMD);
-+	if (ret < 0)
-+		goto err_fw;
-+
-+	/* Unlock bootloader */
-+	qt602240_unlock_bootloader(client);
-+
-+	while (pos < fw->size) {
-+		ret = qt602240_check_bootloader(client,
-+				QT602240_WAITING_FRAME_DATA);
-+		if (ret < 0)
-+			goto err_fw;
-+
-+		frame_size = ((*(fw->data + pos) << 8) | *(fw->data + pos + 1));
-+
-+		/* We should add 2 at frame size as the the firmware data is not
-+		 * included the CRC bytes.
-+		 */
-+		frame_size += 2;
-+
-+		/* Write one frame to device */
-+		qt602240_fw_write(client, fw->data + pos, frame_size);
-+
-+		ret = qt602240_check_bootloader(client,
-+				QT602240_FRAME_CRC_PASS);
-+		if (ret < 0)
-+			goto err_fw;
-+
-+		pos += frame_size;
-+
-+		dev_dbg(dev, "Updated %zd bytes / %zd bytes\n", pos, fw->size);
-+	}
-+
-+err_fw:
-+	/* Change to slave address of application */
-+	if (client->addr == QT602240_BOOT_LOW)
-+		client->addr = QT602240_APP_LOW;
-+	else
-+		client->addr = QT602240_APP_HIGH;
-+
-+	return ret;
-+}
-+
-+static ssize_t qt602240_update_fw_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	struct qt602240_data *data = dev_get_drvdata(dev);
-+	unsigned int version;
-+	int ret;
-+
-+	if (sscanf(buf, "%u", &version) != 1) {
-+		dev_err(dev, "Invalid values\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Firmware update supports from version 21 */
-+	if ((data->info.version < QT602240_VER_21) ||
-+			(version < QT602240_VER_21)) {
-+		dev_err(dev, "Firmware update supports from version 21\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Interrupt disable */
-+	disable_irq(data->irq);
-+
-+	ret = qt602240_load_fw(dev, QT602240_FW_NAME);
-+	if (ret < 0)
-+		dev_err(dev, "The firmware update failed(%d)\n", ret);
-+	else {
-+		dev_dbg(dev, "The firmware update successed\n");
-+
-+		/* Wait for reset */
-+		msleep(QT602240_FWRESET_TIME);
-+
-+		kfree(data->object_table);
-+
-+		qt602240_initialize(data);
-+	}
-+
-+	/* Interrupt enable */
-+	enable_irq(data->irq);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(object, 0444, qt602240_object_show, NULL);
-+static DEVICE_ATTR(update_fw, 0664, NULL, qt602240_update_fw_store);
-+
-+static struct attribute *qt602240_attrs[] = {
-+	&dev_attr_object.attr,
-+	&dev_attr_update_fw.attr,
-+	NULL
++static const struct adxl34x_bus_ops adx134x_smbus_bops = {
++	.bustype	= BUS_I2C,
++	.write		= adxl34x_smbus_write,
++	.read		= adxl34x_smbus_read,
++	.read_block	= adxl34x_smbus_read_block,
 +};
 +
-+static const struct attribute_group qt602240_attr_group = {
-+	.attrs = qt602240_attrs,
++static const struct adxl34x_bus_ops adx134x_i2c_bops = {
++	.bustype	= BUS_I2C,
++	.write		= adxl34x_smbus_write,
++	.read		= adxl34x_smbus_read,
++	.read_block	= adxl34x_i2c_read_block,
 +};
 +
-+static int qt602240_input_open(struct input_dev *dev)
++static int __devinit adxl34x_i2c_probe(struct i2c_client *client,
++				       const struct i2c_device_id *id)
 +{
-+	struct qt602240_data *data = input_get_drvdata(dev);
++	struct adxl34x *ac;
++	int error;
 +
-+	/* Touch enable */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_CTRL,
-+			0x83);
-+
-+	return 0;
-+}
-+
-+static void qt602240_input_close(struct input_dev *dev)
-+{
-+	struct qt602240_data *data = input_get_drvdata(dev);
-+
-+	/* Touch disable */
-+	qt602240_write_object(data, QT602240_TOUCH_MULTI, QT602240_TOUCH_CTRL,
-+			0);
-+}
-+
-+static int __devinit qt602240_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	struct qt602240_data *data;
-+	struct input_dev *input_dev;
-+	int ret;
-+
-+	if (!client->dev.platform_data)
-+		return -EINVAL;
-+
-+	data = kzalloc(sizeof(struct qt602240_data), GFP_KERNEL);
-+
-+	input_dev = input_allocate_device();
-+	if (!data || !input_dev) {
-+		dev_err(&client->dev, "Failed to allocate memory\n");
-+		ret = -ENOMEM;
-+		goto err_free_mem;
++	error = i2c_check_functionality(client->adapter,
++			I2C_FUNC_SMBUS_BYTE_DATA);
++	if (!error) {
++		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
++		return -EIO;
 +	}
 +
-+	input_dev->name = "AT42QT602240/ATMXT224 Touchscreen";
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = &client->dev;
-+	input_dev->open = qt602240_input_open;
-+	input_dev->close = qt602240_input_close;
++	ac = adxl34x_probe(&client->dev, client->irq, false,
++			   i2c_check_functionality(client->adapter,
++						   I2C_FUNC_SMBUS_READ_I2C_BLOCK) ?
++				&adx134x_smbus_bops : &adx134x_i2c_bops);
++	if (IS_ERR(ac))
++		return PTR_ERR(ac);
 +
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+
-+	/* For single touch */
-+	input_set_abs_params(input_dev, ABS_X, 0, QT602240_MAX_XC, 0,
-+			0);
-+	input_set_abs_params(input_dev, ABS_Y, 0, QT602240_MAX_YC, 0,
-+			0);
-+
-+	/* For multi touch */
-+	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
-+			QT602240_MAX_AREA, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
-+			QT602240_MAX_XC, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
-+			QT602240_MAX_YC, 0, 0);
-+
-+	input_set_drvdata(input_dev, data);
-+
-+	INIT_WORK(&data->ts_resume_work, qt602240_resume_worker);
-+	data->client = client;
-+	data->input_dev = input_dev;
-+	data->pdata = client->dev.platform_data;
-+	data->irq = client->irq;
-+
-+	i2c_set_clientdata(client, data);
-+
-+	ret = qt602240_initialize(data);
-+	if (ret < 0)
-+		goto err_free_object;
-+
-+	ret = request_threaded_irq(client->irq, NULL, qt602240_interrupt,
-+			IRQF_TRIGGER_FALLING, client->dev.driver->name, data);
-+
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to register interrupt\n");
-+		goto err_free_object;
-+	}
-+
-+	ret = input_register_device(input_dev);
-+	if (ret < 0)
-+		goto err_free_irq;
-+
-+	ret = sysfs_create_group(&client->dev.kobj, &qt602240_attr_group);
-+	if (ret)
-+		goto err_unregister_device;
++	i2c_set_clientdata(client, ac);
 +
 +	return 0;
-+
-+err_unregister_device:
-+	input_unregister_device(data->input_dev);
-+err_free_irq:
-+	free_irq(client->irq, data);
-+err_free_object:
-+	kfree(data->object_table);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(data);
-+	return ret;
 +}
 +
-+static int __devexit qt602240_remove(struct i2c_client *client)
++static int __devexit adxl34x_i2c_remove(struct i2c_client *client)
 +{
-+	struct qt602240_data *data = i2c_get_clientdata(client);
++	struct adxl34x *ac = i2c_get_clientdata(client);
 +
-+	free_irq(data->irq, data);
-+	cancel_work_sync(&data->ts_resume_work);
-+	input_unregister_device(data->input_dev);
-+	kfree(data->object_table);
-+	kfree(data);
-+
-+	sysfs_remove_group(&client->dev.kobj, &qt602240_attr_group);
-+
-+	return 0;
++	return adxl34x_remove(ac);
 +}
 +
 +#ifdef CONFIG_PM
-+static int qt602240_suspend(struct i2c_client *client, pm_message_t mesg)
++static int adxl34x_suspend(struct i2c_client *client, pm_message_t message)
 +{
-+	struct qt602240_data *data = i2c_get_clientdata(client);
++	struct adxl34x *ac = i2c_get_clientdata(client);
 +
-+	if (data->input_dev->users)
-+		/* Touch disable */
-+		qt602240_write_object(data, QT602240_TOUCH_MULTI,
-+				QT602240_TOUCH_CTRL, 0);
++	adxl34x_disable(ac);
 +
 +	return 0;
 +}
 +
-+static int qt602240_resume(struct i2c_client *client)
++static int adxl34x_resume(struct i2c_client *client)
 +{
-+	struct qt602240_data *data = i2c_get_clientdata(client);
++	struct adxl34x *ac = i2c_get_clientdata(client);
 +
-+	schedule_work(&data->ts_resume_work);
++	adxl34x_enable(ac);
 +
 +	return 0;
 +}
 +#else
-+#define qt602240_suspend	NULL
-+#define qt602240_resume		NULL
++# define adxl34x_suspend NULL
++# define adxl34x_resume  NULL
 +#endif
 +
-+static const struct i2c_device_id qt602240_id[] = {
-+	{ "qt602240_ts", 0 },
++static const struct i2c_device_id adxl34x_id[] = {
++	{ "adxl34x", 0 },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(i2c, qt602240_id);
 +
-+static struct i2c_driver qt602240_driver = {
++MODULE_DEVICE_TABLE(i2c, adxl34x_id);
++
++static struct i2c_driver adxl34x_driver = {
 +	.driver = {
-+		.name = "qt602240_ts",
++		.name = "adxl34x",
++		.owner = THIS_MODULE,
 +	},
-+	.probe		= qt602240_probe,
-+	.remove		= __devexit_p(qt602240_remove),
-+	.suspend	= qt602240_suspend,
-+	.resume		= qt602240_resume,
-+	.id_table	= qt602240_id,
++	.probe    = adxl34x_i2c_probe,
++	.remove   = __devexit_p(adxl34x_i2c_remove),
++	.suspend  = adxl34x_suspend,
++	.resume   = adxl34x_resume,
++	.id_table = adxl34x_id,
 +};
 +
-+static int __init qt602240_init(void)
++static int __init adxl34x_i2c_init(void)
 +{
-+	return i2c_add_driver(&qt602240_driver);
++	return i2c_add_driver(&adxl34x_driver);
 +}
++module_init(adxl34x_i2c_init);
 +
-+static void __exit qt602240_exit(void)
++static void __exit adxl34x_i2c_exit(void)
 +{
-+	i2c_del_driver(&qt602240_driver);
++	i2c_del_driver(&adxl34x_driver);
 +}
++module_exit(adxl34x_i2c_exit);
 +
-+module_init(qt602240_init);
-+module_exit(qt602240_exit);
-+
-+/* Module information */
-+MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
-+MODULE_DESCRIPTION("AT42QT602240/ATMXT224 Touchscreen driver");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer I2C Bus Driver");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c/qt602240_ts.h b/include/linux/i2c/qt602240_ts.h
+diff --git a/drivers/input/misc/adxl34x-spi.c b/drivers/input/misc/adxl34x-spi.c
 new file mode 100644
-index 0000000..3a8bf19
+index 0000000..7f99235
 --- /dev/null
-+++ b/include/linux/i2c/qt602240_ts.h
-@@ -0,0 +1,40 @@
++++ b/drivers/input/misc/adxl34x-spi.c
+@@ -0,0 +1,145 @@
 +/*
-+ * qt602240_ts.h - AT42QT602240/ATMXT224 Touchscreen driver
++ * ADLX345/346 Three-Axis Digital Accelerometers (SPI Interface)
 + *
-+ * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
++ * Enter bugs at http://blackfin.uclinux.org/
 + *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
++ * Licensed under the GPL-2 or later.
 + */
 +
-+#ifndef __LINUX_QT602240_TS_H
-+#define __LINUX_QT602240_TS_H
++#include <linux/input.h>	/* BUS_SPI */
++#include <linux/module.h>
++#include <linux/spi/spi.h>
++#include <linux/types.h>
++#include "adxl34x.h"
 +
-+/* Orient */
-+#define QT602240_NORMAL			0x0
-+#define QT602240_DIAGONAL		0x1
-+#define QT602240_HORIZONTAL_FLIP	0x2
-+#define QT602240_ROTATED_90_COUNTER	0x3
-+#define QT602240_VERTICAL_FLIP		0x4
-+#define QT602240_ROTATED_90		0x5
-+#define QT602240_ROTATED_180		0x6
-+#define QT602240_DIAGONAL_COUNTER	0x7
++#define MAX_SPI_FREQ_HZ		5000000
++#define MAX_FREQ_NO_FIFODELAY	1500000
++#define ADXL34X_CMD_MULTB	(1 << 6)
++#define ADXL34X_CMD_READ	(1 << 7)
++#define ADXL34X_WRITECMD(reg)	(reg & 0x3F)
++#define ADXL34X_READCMD(reg)	(ADXL34X_CMD_READ | (reg & 0x3F))
++#define ADXL34X_READMB_CMD(reg) (ADXL34X_CMD_READ | ADXL34X_CMD_MULTB \
++					| (reg & 0x3F))
 +
-+/* The platform data for the AT42QT602240/ATMXT224 touchscreen driver */
-+struct qt602240_platform_data {
-+	unsigned int x_line;
-+	unsigned int y_line;
-+	unsigned int x_size;
-+	unsigned int y_size;
-+	unsigned int blen;
-+	unsigned int threshold;
-+	unsigned int tchdi;
-+	unsigned int voltage;
-+	unsigned char orient;
++static int adxl34x_spi_read(struct device *dev, unsigned char reg)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char cmd;
++
++	cmd = ADXL34X_READCMD(reg);
++
++	return spi_w8r8(spi, cmd);
++}
++
++static int adxl34x_spi_write(struct device *dev,
++			     unsigned char reg, unsigned char val)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	unsigned char buf[2];
++
++	buf[0] = ADXL34X_WRITECMD(reg);
++	buf[1] = val;
++
++	return spi_write(spi, buf, sizeof(buf));
++}
++
++static int adxl34x_spi_read_block(struct device *dev,
++				  unsigned char reg, int count,
++				  void *buf)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	ssize_t status;
++
++	reg = ADXL34X_READMB_CMD(reg);
++	status = spi_write_then_read(spi, &reg, 1, buf, count);
++
++	return (status < 0) ? status : 0;
++}
++
++static const struct adxl34x_bus_ops adx134x_spi_bops = {
++	.bustype	= BUS_SPI,
++	.write		= adxl34x_spi_write,
++	.read		= adxl34x_spi_read,
++	.read_block	= adxl34x_spi_read_block,
 +};
 +
-+#endif /* __LINUX_QT602240_TS_H */
--- 
-1.7.0.4
++static int __devinit adxl34x_spi_probe(struct spi_device *spi)
++{
++	struct adxl34x *ac;
++
++	/* don't exceed max specified SPI CLK frequency */
++	if (spi->max_speed_hz > MAX_SPI_FREQ_HZ) {
++		dev_err(&spi->dev, "SPI CLK %d Hz too fast\n", spi->max_speed_hz);
++		return -EINVAL;
++	}
++
++	ac = adxl34x_probe(&spi->dev, spi->irq,
++			   spi->max_speed_hz > MAX_FREQ_NO_FIFODELAY,
++			   &adx134x_spi_bops);
++
++	if (IS_ERR(ac))
++		return PTR_ERR(ac);
++
++	spi_set_drvdata(spi, ac);
++
++	return 0;
++}
++
++static int __devexit adxl34x_spi_remove(struct spi_device *spi)
++{
++	struct adxl34x *ac = dev_get_drvdata(&spi->dev);
++
++	return adxl34x_remove(ac);
++}
++
++#ifdef CONFIG_PM
++static int adxl34x_suspend(struct spi_device *spi, pm_message_t message)
++{
++	struct adxl34x *ac = dev_get_drvdata(&spi->dev);
++
++	adxl34x_disable(ac);
++
++	return 0;
++}
++
++static int adxl34x_resume(struct spi_device *spi)
++{
++	struct adxl34x *ac = dev_get_drvdata(&spi->dev);
++
++	adxl34x_enable(ac);
++
++	return 0;
++}
++#else
++# define adxl34x_suspend NULL
++# define adxl34x_resume  NULL
++#endif
++
++static struct spi_driver adxl34x_driver = {
++	.driver = {
++		.name = "adxl34x",
++		.bus = &spi_bus_type,
++		.owner = THIS_MODULE,
++	},
++	.probe   = adxl34x_spi_probe,
++	.remove  = __devexit_p(adxl34x_spi_remove),
++	.suspend = adxl34x_suspend,
++	.resume  = adxl34x_resume,
++};
++
++static int __init adxl34x_spi_init(void)
++{
++	return spi_register_driver(&adxl34x_driver);
++}
++module_init(adxl34x_spi_init);
++
++static void __exit adxl34x_spi_exit(void)
++{
++	spi_unregister_driver(&adxl34x_driver);
++}
++module_exit(adxl34x_spi_exit);
++
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer SPI Bus Driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+new file mode 100644
+index 0000000..9cc64a6
+--- /dev/null
++++ b/drivers/input/misc/adxl34x.c
+@@ -0,0 +1,842 @@
++/*
++ * ADXL345/346 Three-Axis Digital Accelerometers
++ *
++ * Enter bugs at http://blackfin.uclinux.org/
++ *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
++ * Licensed under the GPL-2 or later.
++ */
++
++#include <linux/device.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/slab.h>
++#include <linux/workqueue.h>
++#include <linux/input/adxl34x.h>
++
++#include "adxl34x.h"
++
++/* ADXL345/6 Register Map */
++#define DEVID		0x00	/* R   Device ID */
++#define THRESH_TAP	0x1D	/* R/W Tap threshold */
++#define OFSX		0x1E	/* R/W X-axis offset */
++#define OFSY		0x1F	/* R/W Y-axis offset */
++#define OFSZ		0x20	/* R/W Z-axis offset */
++#define DUR		0x21	/* R/W Tap duration */
++#define LATENT		0x22	/* R/W Tap latency */
++#define WINDOW		0x23	/* R/W Tap window */
++#define THRESH_ACT	0x24	/* R/W Activity threshold */
++#define THRESH_INACT	0x25	/* R/W Inactivity threshold */
++#define TIME_INACT	0x26	/* R/W Inactivity time */
++#define ACT_INACT_CTL	0x27	/* R/W Axis enable control for activity and */
++				/* inactivity detection */
++#define THRESH_FF	0x28	/* R/W Free-fall threshold */
++#define TIME_FF		0x29	/* R/W Free-fall time */
++#define TAP_AXES	0x2A	/* R/W Axis control for tap/double tap */
++#define ACT_TAP_STATUS	0x2B	/* R   Source of tap/double tap */
++#define BW_RATE		0x2C	/* R/W Data rate and power mode control */
++#define POWER_CTL	0x2D	/* R/W Power saving features control */
++#define INT_ENABLE	0x2E	/* R/W Interrupt enable control */
++#define INT_MAP		0x2F	/* R/W Interrupt mapping control */
++#define INT_SOURCE	0x30	/* R   Source of interrupts */
++#define DATA_FORMAT	0x31	/* R/W Data format control */
++#define DATAX0		0x32	/* R   X-Axis Data 0 */
++#define DATAX1		0x33	/* R   X-Axis Data 1 */
++#define DATAY0		0x34	/* R   Y-Axis Data 0 */
++#define DATAY1		0x35	/* R   Y-Axis Data 1 */
++#define DATAZ0		0x36	/* R   Z-Axis Data 0 */
++#define DATAZ1		0x37	/* R   Z-Axis Data 1 */
++#define FIFO_CTL	0x38	/* R/W FIFO control */
++#define FIFO_STATUS	0x39	/* R   FIFO status */
++#define TAP_SIGN	0x3A	/* R   Sign and source for tap/double tap */
++/* Orientation ADXL346 only */
++#define ORIENT_CONF	0x3B	/* R/W Orientation configuration */
++#define ORIENT		0x3C	/* R   Orientation status */
++
++/* DEVIDs */
++#define ID_ADXL345	0xE5
++#define ID_ADXL346	0xE6
++
++/* INT_ENABLE/INT_MAP/INT_SOURCE Bits */
++#define DATA_READY	(1 << 7)
++#define SINGLE_TAP	(1 << 6)
++#define DOUBLE_TAP	(1 << 5)
++#define ACTIVITY	(1 << 4)
++#define INACTIVITY	(1 << 3)
++#define FREE_FALL	(1 << 2)
++#define WATERMARK	(1 << 1)
++#define OVERRUN		(1 << 0)
++
++/* ACT_INACT_CONTROL Bits */
++#define ACT_ACDC	(1 << 7)
++#define ACT_X_EN	(1 << 6)
++#define ACT_Y_EN	(1 << 5)
++#define ACT_Z_EN	(1 << 4)
++#define INACT_ACDC	(1 << 3)
++#define INACT_X_EN	(1 << 2)
++#define INACT_Y_EN	(1 << 1)
++#define INACT_Z_EN	(1 << 0)
++
++/* TAP_AXES Bits */
++#define SUPPRESS	(1 << 3)
++#define TAP_X_EN	(1 << 2)
++#define TAP_Y_EN	(1 << 1)
++#define TAP_Z_EN	(1 << 0)
++
++/* ACT_TAP_STATUS Bits */
++#define ACT_X_SRC	(1 << 6)
++#define ACT_Y_SRC	(1 << 5)
++#define ACT_Z_SRC	(1 << 4)
++#define ASLEEP		(1 << 3)
++#define TAP_X_SRC	(1 << 2)
++#define TAP_Y_SRC	(1 << 1)
++#define TAP_Z_SRC	(1 << 0)
++
++/* BW_RATE Bits */
++#define LOW_POWER	(1 << 4)
++#define RATE(x)		((x) & 0xF)
++
++/* POWER_CTL Bits */
++#define PCTL_LINK	(1 << 5)
++#define PCTL_AUTO_SLEEP (1 << 4)
++#define PCTL_MEASURE	(1 << 3)
++#define PCTL_SLEEP	(1 << 2)
++#define PCTL_WAKEUP(x)	((x) & 0x3)
++
++/* DATA_FORMAT Bits */
++#define SELF_TEST	(1 << 7)
++#define SPI		(1 << 6)
++#define INT_INVERT	(1 << 5)
++#define FULL_RES	(1 << 3)
++#define JUSTIFY		(1 << 2)
++#define RANGE(x)	((x) & 0x3)
++#define RANGE_PM_2g	0
++#define RANGE_PM_4g	1
++#define RANGE_PM_8g	2
++#define RANGE_PM_16g	3
++
++/*
++ * Maximum value our axis may get in full res mode for the input device
++ * (signed 13 bits)
++ */
++#define ADXL_FULLRES_MAX_VAL 4096
++
++/*
++ * Maximum value our axis may get in fixed res mode for the input device
++ * (signed 10 bits)
++ */
++#define ADXL_FIXEDRES_MAX_VAL 512
++
++/* FIFO_CTL Bits */
++#define FIFO_MODE(x)	(((x) & 0x3) << 6)
++#define FIFO_BYPASS	0
++#define FIFO_FIFO	1
++#define FIFO_STREAM	2
++#define FIFO_TRIGGER	3
++#define TRIGGER		(1 << 5)
++#define SAMPLES(x)	((x) & 0x1F)
++
++/* FIFO_STATUS Bits */
++#define FIFO_TRIG	(1 << 7)
++#define ENTRIES(x)	((x) & 0x3F)
++
++/* TAP_SIGN Bits ADXL346 only */
++#define XSIGN		(1 << 6)
++#define YSIGN		(1 << 5)
++#define ZSIGN		(1 << 4)
++#define XTAP		(1 << 3)
++#define YTAP		(1 << 2)
++#define ZTAP		(1 << 1)
++
++/* ORIENT_CONF ADXL346 only */
++#define ORIENT_DEADZONE(x)	(((x) & 0x7) << 4)
++#define ORIENT_DIVISOR(x)	((x) & 0x7)
++
++/* ORIENT ADXL346 only */
++#define ADXL346_2D_VALID		(1 << 6)
++#define ADXL346_2D_ORIENT(x)		(((x) & 0x3) >> 4)
++#define ADXL346_3D_VALID		(1 << 3)
++#define ADXL346_3D_ORIENT(x)		((x) & 0x7)
++#define ADXL346_2D_PORTRAIT_POS		0	/* +X */
++#define ADXL346_2D_PORTRAIT_NEG		1	/* -X */
++#define ADXL346_2D_LANDSCAPE_POS	2	/* +Y */
++#define ADXL346_2D_LANDSCAPE_NEG	3	/* -Y */
++
++#define ADXL346_3D_FRONT		3	/* +X */
++#define ADXL346_3D_BACK			4	/* -X */
++#define ADXL346_3D_RIGHT		2	/* +Y */
++#define ADXL346_3D_LEFT			5	/* -Y */
++#define ADXL346_3D_TOP			1	/* +Z */
++#define ADXL346_3D_BOTTOM		6	/* -Z */
++
++#undef ADXL_DEBUG
++
++#define ADXL_X_AXIS			0
++#define ADXL_Y_AXIS			1
++#define ADXL_Z_AXIS			2
++
++#define AC_READ(ac, reg)	((ac)->bops->read((ac)->dev, reg))
++#define AC_WRITE(ac, reg, val)	((ac)->bops->write((ac)->dev, reg, val))
++
++struct axis_triple {
++	int x;
++	int y;
++	int z;
++};
++
++struct adxl34x {
++	struct device *dev;
++	struct input_dev *input;
++	struct mutex mutex;	/* reentrant protection for struct */
++	struct adxl34x_platform_data pdata;
++	struct axis_triple swcal;
++	struct axis_triple hwcal;
++	struct axis_triple saved;
++	char phys[32];
++	bool disabled;	/* P: mutex */
++	bool opened;	/* P: mutex */
++	bool fifo_delay;
++	int irq;
++	unsigned model;
++	unsigned int_mask;
++
++	const struct adxl34x_bus_ops *bops;
++};
++
++static const struct adxl34x_platform_data adxl34x_default_init = {
++	.tap_threshold = 35,
++	.tap_duration = 3,
++	.tap_latency = 20,
++	.tap_window = 20,
++	.tap_axis_control = ADXL_TAP_X_EN | ADXL_TAP_Y_EN | ADXL_TAP_Z_EN,
++	.act_axis_control = 0xFF,
++	.activity_threshold = 6,
++	.inactivity_threshold = 4,
++	.inactivity_time = 3,
++	.free_fall_threshold = 8,
++	.free_fall_time = 0x20,
++	.data_rate = 8,
++	.data_range = ADXL_FULL_RES,
++
++	.ev_type = EV_ABS,
++	.ev_code_x = ABS_X,	/* EV_REL */
++	.ev_code_y = ABS_Y,	/* EV_REL */
++	.ev_code_z = ABS_Z,	/* EV_REL */
++
++	.ev_code_tap = {BTN_TOUCH, BTN_TOUCH, BTN_TOUCH}, /* EV_KEY {x,y,z} */
++	.power_mode = ADXL_AUTO_SLEEP | ADXL_LINK,
++	.fifo_mode = FIFO_STREAM,
++	.watermark = 0,
++};
++
++static void adxl34x_get_triple(struct adxl34x *ac, struct axis_triple *axis)
++{
++	short buf[3];
++
++	ac->bops->read_block(ac->dev, DATAX0, DATAZ1 - DATAX0 + 1, buf);
++
++	mutex_lock(&ac->mutex);
++	ac->saved.x = (s16) le16_to_cpu(buf[0]);
++	axis->x = ac->saved.x;
++
++	ac->saved.y = (s16) le16_to_cpu(buf[1]);
++	axis->y = ac->saved.y;
++
++	ac->saved.z = (s16) le16_to_cpu(buf[2]);
++	axis->z = ac->saved.z;
++	mutex_unlock(&ac->mutex);
++}
++
++static void adxl34x_service_ev_fifo(struct adxl34x *ac)
++{
++	struct adxl34x_platform_data *pdata = &ac->pdata;
++	struct axis_triple axis;
++
++	adxl34x_get_triple(ac, &axis);
++
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_x,
++		    axis.x - ac->swcal.x);
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_y,
++		    axis.y - ac->swcal.y);
++	input_event(ac->input, pdata->ev_type, pdata->ev_code_z,
++		    axis.z - ac->swcal.z);
++}
++
++static void adxl34x_report_key_single(struct input_dev *input, int key)
++{
++	input_report_key(input, key, true);
++	input_sync(input);
++	input_report_key(input, key, false);
++}
++
++static void adxl34x_send_key_events(struct adxl34x *ac,
++		struct adxl34x_platform_data *pdata, int status, int press)
++{
++	int i;
++
++	for (i = ADXL_X_AXIS; i <= ADXL_Z_AXIS; i++) {
++		if (status & (1 << (ADXL_Z_AXIS - i)))
++			input_report_key(ac->input,
++					 pdata->ev_code_tap[i], press);
++	}
++}
++
++static void adxl34x_do_tap(struct adxl34x *ac,
++		struct adxl34x_platform_data *pdata, int status)
++{
++	adxl34x_send_key_events(ac, pdata, status, true);
++	input_sync(ac->input);
++	adxl34x_send_key_events(ac, pdata, status, false);
++}
++
++static irqreturn_t adxl34x_irq(int irq, void *handle)
++{
++	struct adxl34x *ac = handle;
++	struct adxl34x_platform_data *pdata = &ac->pdata;
++	int int_stat, tap_stat, samples;
++
++	/*
++	 * ACT_TAP_STATUS should be read before clearing the interrupt
++	 * Avoid reading ACT_TAP_STATUS in case TAP detection is disabled
++	 */
++
++	if (pdata->tap_axis_control & (TAP_X_EN | TAP_Y_EN | TAP_Z_EN))
++		tap_stat = AC_READ(ac, ACT_TAP_STATUS);
++	else
++		tap_stat = 0;
++
++	int_stat = AC_READ(ac, INT_SOURCE);
++
++	if (int_stat & FREE_FALL)
++		adxl34x_report_key_single(ac->input, pdata->ev_code_ff);
++
++	if (int_stat & OVERRUN)
++		dev_dbg(ac->dev, "OVERRUN\n");
++
++	if (int_stat & (SINGLE_TAP | DOUBLE_TAP)) {
++		adxl34x_do_tap(ac, pdata, tap_stat);
++
++		if (int_stat & DOUBLE_TAP)
++			adxl34x_do_tap(ac, pdata, tap_stat);
++	}
++
++	if (pdata->ev_code_act_inactivity) {
++		if (int_stat & ACTIVITY)
++			input_report_key(ac->input,
++					 pdata->ev_code_act_inactivity, 1);
++		if (int_stat & INACTIVITY)
++			input_report_key(ac->input,
++					 pdata->ev_code_act_inactivity, 0);
++	}
++
++	if (int_stat & (DATA_READY | WATERMARK)) {
++
++		if (pdata->fifo_mode)
++			samples = ENTRIES(AC_READ(ac, FIFO_STATUS)) + 1;
++		else
++			samples = 1;
++
++		for (; samples > 0; samples--) {
++			adxl34x_service_ev_fifo(ac);
++			/*
++			 * To ensure that the FIFO has
++			 * completely popped, there must be at least 5 us between
++			 * the end of reading the data registers, signified by the
++			 * transition to register 0x38 from 0x37 or the CS pin
++			 * going high, and the start of new reads of the FIFO or
++			 * reading the FIFO_STATUS register. For SPI operation at
++			 * 1.5 MHz or lower, the register addressing portion of the
++			 * transmission is sufficient delay to ensure the FIFO has
++			 * completely popped. It is necessary for SPI operation
++			 * greater than 1.5 MHz to de-assert the CS pin to ensure a
++			 * total of 5 us, which is at most 3.4 us at 5 MHz
++			 * operation.
++			 */
++			if (ac->fifo_delay && (samples > 1))
++				udelay(3);
++		}
++	}
++
++	input_sync(ac->input);
++
++	return IRQ_HANDLED;
++}
++
++static void __adxl34x_disable(struct adxl34x *ac)
++{
++	mutex_lock(&ac->mutex);
++	if (!ac->disabled && ac->opened) {
++		/*
++		 * A '0' places the ADXL34x into standby mode
++		 * with minimum power consumption.
++		 */
++		AC_WRITE(ac, POWER_CTL, 0);
++
++		ac->disabled = true;
++	}
++	mutex_unlock(&ac->mutex);
++}
++
++static void __adxl34x_enable(struct adxl34x *ac)
++{
++	if (ac->disabled && ac->opened) {
++		AC_WRITE(ac, POWER_CTL, ac->pdata.power_mode | PCTL_MEASURE);
++		ac->disabled = false;
++	}
++}
++
++void adxl34x_disable(struct adxl34x *ac)
++{
++	mutex_lock(&ac->mutex);
++	__adxl34x_disable(ac);
++	mutex_unlock(&ac->mutex);
++}
++EXPORT_SYMBOL_GPL(adxl34x_disable);
++
++void adxl34x_enable(struct adxl34x *ac)
++{
++	mutex_lock(&ac->mutex);
++	__adxl34x_enable(ac);
++	mutex_unlock(&ac->mutex);
++}
++
++EXPORT_SYMBOL_GPL(adxl34x_enable);
++
++static ssize_t adxl34x_disable_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", ac->disabled);
++}
++
++static ssize_t adxl34x_disable_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
++
++	if (val)
++		adxl34x_disable(ac);
++	else
++		adxl34x_enable(ac);
++
++	return count;
++}
++
++static DEVICE_ATTR(disable, 0664, adxl34x_disable_show, adxl34x_disable_store);
++
++static ssize_t adxl34x_calibrate_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++	count = sprintf(buf, "%d,%d,%d\n",
++			ac->hwcal.x * 4 + ac->swcal.x,
++			ac->hwcal.y * 4 + ac->swcal.y,
++			ac->hwcal.z * 4 + ac->swcal.z);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static ssize_t adxl34x_calibrate_store(struct device *dev,
++				       struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	/*
++	 * Hardware offset calibration has a resolution of 15.6 mg/LSB.
++	 * We use HW calibration and handle the remaining bits in SW. (4mg/LSB)
++	 */
++
++	mutex_lock(&ac->mutex);
++	ac->hwcal.x -= (ac->saved.x / 4);
++	ac->swcal.x = ac->saved.x % 4;
++
++	ac->hwcal.y -= (ac->saved.y / 4);
++	ac->swcal.y = ac->saved.y % 4;
++
++	ac->hwcal.z -= (ac->saved.z / 4);
++	ac->swcal.z = ac->saved.z % 4;
++
++	AC_WRITE(ac, OFSX, (s8) ac->hwcal.x);
++	AC_WRITE(ac, OFSY, (s8) ac->hwcal.y);
++	AC_WRITE(ac, OFSZ, (s8) ac->hwcal.z);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(calibrate, 0664,
++		   adxl34x_calibrate_show, adxl34x_calibrate_store);
++
++static ssize_t adxl34x_rate_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", RATE(ac->pdata.data_rate));
++}
++
++static ssize_t adxl34x_rate_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
++
++	mutex_lock(&ac->mutex);
++
++	ac->pdata.data_rate = RATE(val);
++	AC_WRITE(ac, BW_RATE,
++		 ac->pdata.data_rate |
++			(ac->pdata.low_power_mode ? LOW_POWER : 0));
++
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(rate, 0664, adxl34x_rate_show, adxl34x_rate_store);
++
++static ssize_t adxl34x_autosleep_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n",
++		ac->pdata.power_mode & (PCTL_AUTO_SLEEP | PCTL_LINK) ? 1 : 0);
++}
++
++static ssize_t adxl34x_autosleep_store(struct device *dev,
++				  struct device_attribute *attr,
++				  const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	error = strict_strtoul(buf, 10, &val);
++	if (error)
++		return error;
++
++	mutex_lock(&ac->mutex);
++
++	if (val)
++		ac->pdata.power_mode |= (PCTL_AUTO_SLEEP | PCTL_LINK);
++	else
++		ac->pdata.power_mode &= ~(PCTL_AUTO_SLEEP | PCTL_LINK);
++
++	if (!ac->disabled && ac->opened)
++		AC_WRITE(ac, POWER_CTL, ac->pdata.power_mode | PCTL_MEASURE);
++
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(autosleep, 0664,
++		   adxl34x_autosleep_show, adxl34x_autosleep_store);
++
++static ssize_t adxl34x_position_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	ssize_t count;
++
++	mutex_lock(&ac->mutex);
++	count = sprintf(buf, "(%d, %d, %d)\n",
++			ac->saved.x, ac->saved.y, ac->saved.z);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(position, S_IRUGO, adxl34x_position_show, NULL);
++
++#ifdef ADXL_DEBUG
++static ssize_t adxl34x_write_store(struct device *dev,
++				   struct device_attribute *attr,
++				   const char *buf, size_t count)
++{
++	struct adxl34x *ac = dev_get_drvdata(dev);
++	unsigned long val;
++	int error;
++
++	/*
++	 * This allows basic ADXL register write access for debug purposes.
++	 */
++	error = strict_strtoul(buf, 16, &val);
++	if (error)
++		return error;
++
++	mutex_lock(&ac->mutex);
++	AC_WRITE(ac, val >> 8, val & 0xFF);
++	mutex_unlock(&ac->mutex);
++
++	return count;
++}
++
++static DEVICE_ATTR(write, 0664, NULL, adxl34x_write_store);
++#endif
++
++static struct attribute *adxl34x_attributes[] = {
++	&dev_attr_disable.attr,
++	&dev_attr_calibrate.attr,
++	&dev_attr_rate.attr,
++	&dev_attr_autosleep.attr,
++	&dev_attr_position.attr,
++#ifdef ADXL_DEBUG
++	&dev_attr_write.attr,
++#endif
++	NULL
++};
++
++static const struct attribute_group adxl34x_attr_group = {
++	.attrs = adxl34x_attributes,
++};
++
++static int adxl34x_input_open(struct input_dev *input)
++{
++	struct adxl34x *ac = input_get_drvdata(input);
++
++	mutex_lock(&ac->mutex);
++	ac->opened = true;
++	__adxl34x_enable(ac);
++	mutex_unlock(&ac->mutex);
++
++	return 0;
++}
++
++static void adxl34x_input_close(struct input_dev *input)
++{
++	struct adxl34x *ac = input_get_drvdata(input);
++
++	mutex_lock(&ac->mutex);
++	__adxl34x_disable(ac);
++	ac->opened = false;
++	mutex_unlock(&ac->mutex);
++}
++
++struct adxl34x *adxl34x_probe(struct device *dev, int irq,
++			      bool fifo_delay_default,
++			      const struct adxl34x_bus_ops *bops)
++{
++	struct adxl34x *ac;
++	struct input_dev *input_dev;
++	const struct adxl34x_platform_data *pdata;
++	int err, range;
++	unsigned char revid;
++
++	if (!irq) {
++		dev_err(dev, "no IRQ?\n");
++		err = -ENODEV;
++		goto err_out;
++	}
++
++	ac = kzalloc(sizeof(*ac), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ac || !input_dev) {
++		err = -ENOMEM;
++		goto err_out;
++	}
++
++	ac->fifo_delay = fifo_delay_default;
++
++	pdata = dev->platform_data;
++	if (!pdata) {
++		dev_dbg(dev,
++			"No platfrom data: Using default initialization\n");
++		pdata = &adxl34x_default_init;
++	}
++
++	ac->pdata = *pdata;
++	pdata = &ac->pdata;
++
++	ac->input = input_dev;
++	ac->disabled = true;
++	ac->dev = dev;
++	ac->irq = irq;
++	ac->bops = bops;
++
++	mutex_init(&ac->mutex);
++
++	input_dev->name = "ADXL34x accelerometer";
++	revid = ac->bops->read(dev, DEVID);
++
++	switch (revid) {
++	case ID_ADXL345:
++		ac->model = 345;
++		break;
++	case ID_ADXL346:
++		ac->model = 346;
++		break;
++	default:
++		dev_err(dev, "Failed to probe %s\n", input_dev->name);
++		err = -ENODEV;
++		goto err_free_mem;
++	}
++
++	snprintf(ac->phys, sizeof(ac->phys), "%s/input0", dev_name(dev));
++
++	input_dev->phys = ac->phys;
++	input_dev->dev.parent = dev;
++	input_dev->id.product = ac->model;
++	input_dev->id.bustype = bops->bustype;
++	input_dev->open = adxl34x_input_open;
++	input_dev->close = adxl34x_input_close;
++
++	input_set_drvdata(input_dev, ac);
++
++	__set_bit(ac->pdata.ev_type, input_dev->evbit);
++
++	if (ac->pdata.ev_type == EV_REL) {
++		__set_bit(REL_X, input_dev->relbit);
++		__set_bit(REL_Y, input_dev->relbit);
++		__set_bit(REL_Z, input_dev->relbit);
++	} else {
++		/* EV_ABS */
++		__set_bit(ABS_X, input_dev->absbit);
++		__set_bit(ABS_Y, input_dev->absbit);
++		__set_bit(ABS_Z, input_dev->absbit);
++
++		if (pdata->data_range & FULL_RES)
++			range = ADXL_FULLRES_MAX_VAL;	/* Signed 13-bit */
++		else
++			range = ADXL_FIXEDRES_MAX_VAL;	/* Signed 10-bit */
++
++		input_set_abs_params(input_dev, ABS_X, -range, range, 3, 3);
++		input_set_abs_params(input_dev, ABS_Y, -range, range, 3, 3);
++		input_set_abs_params(input_dev, ABS_Z, -range, range, 3, 3);
++	}
++
++	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(pdata->ev_code_tap[ADXL_X_AXIS], input_dev->keybit);
++	__set_bit(pdata->ev_code_tap[ADXL_Y_AXIS], input_dev->keybit);
++	__set_bit(pdata->ev_code_tap[ADXL_Z_AXIS], input_dev->keybit);
++
++	if (pdata->ev_code_ff) {
++		ac->int_mask = FREE_FALL;
++		__set_bit(pdata->ev_code_ff, input_dev->keybit);
++	}
++
++	if (pdata->ev_code_act_inactivity)
++		__set_bit(pdata->ev_code_act_inactivity, input_dev->keybit);
++
++	ac->int_mask |= ACTIVITY | INACTIVITY;
++
++	if (pdata->watermark) {
++		ac->int_mask |= WATERMARK;
++		if (!FIFO_MODE(pdata->fifo_mode))
++			ac->pdata.fifo_mode |= FIFO_STREAM;
++	} else {
++		ac->int_mask |= DATA_READY;
++	}
++
++	if (pdata->tap_axis_control & (TAP_X_EN | TAP_Y_EN | TAP_Z_EN))
++		ac->int_mask |= SINGLE_TAP | DOUBLE_TAP;
++
++	if (FIFO_MODE(pdata->fifo_mode) == FIFO_BYPASS)
++		ac->fifo_delay = false;
++
++	ac->bops->write(dev, POWER_CTL, 0);
++
++	err = request_threaded_irq(ac->irq, NULL, adxl34x_irq,
++				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
++				   dev_name(dev), ac);
++	if (err) {
++		dev_err(dev, "irq %d busy?\n", ac->irq);
++		goto err_free_mem;
++	}
++
++	err = sysfs_create_group(&dev->kobj, &adxl34x_attr_group);
++	if (err)
++		goto err_free_irq;
++
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_remove_attr;
++
++	AC_WRITE(ac, THRESH_TAP, pdata->tap_threshold);
++	AC_WRITE(ac, OFSX, pdata->x_axis_offset);
++	ac->hwcal.x = pdata->x_axis_offset;
++	AC_WRITE(ac, OFSY, pdata->y_axis_offset);
++	ac->hwcal.y = pdata->y_axis_offset;
++	AC_WRITE(ac, OFSZ, pdata->z_axis_offset);
++	ac->hwcal.z = pdata->z_axis_offset;
++	AC_WRITE(ac, THRESH_TAP, pdata->tap_threshold);
++	AC_WRITE(ac, DUR, pdata->tap_duration);
++	AC_WRITE(ac, LATENT, pdata->tap_latency);
++	AC_WRITE(ac, WINDOW, pdata->tap_window);
++	AC_WRITE(ac, THRESH_ACT, pdata->activity_threshold);
++	AC_WRITE(ac, THRESH_INACT, pdata->inactivity_threshold);
++	AC_WRITE(ac, TIME_INACT, pdata->inactivity_time);
++	AC_WRITE(ac, THRESH_FF, pdata->free_fall_threshold);
++	AC_WRITE(ac, TIME_FF, pdata->free_fall_time);
++	AC_WRITE(ac, TAP_AXES, pdata->tap_axis_control);
++	AC_WRITE(ac, ACT_INACT_CTL, pdata->act_axis_control);
++	AC_WRITE(ac, BW_RATE, RATE(ac->pdata.data_rate) |
++		 (pdata->low_power_mode ? LOW_POWER : 0));
++	AC_WRITE(ac, DATA_FORMAT, pdata->data_range);
++	AC_WRITE(ac, FIFO_CTL, FIFO_MODE(pdata->fifo_mode) |
++			SAMPLES(pdata->watermark));
++
++	if (pdata->use_int2)
++		/* Map all INTs to INT2 */
++		AC_WRITE(ac, INT_MAP, ac->int_mask | OVERRUN);
++	else
++		/* Map all INTs to INT1 */
++		AC_WRITE(ac, INT_MAP, 0);
++
++	AC_WRITE(ac, INT_ENABLE, ac->int_mask | OVERRUN);
++
++	ac->pdata.power_mode &= (PCTL_AUTO_SLEEP | PCTL_LINK);
++
++	return ac;
++
++ err_remove_attr:
++	sysfs_remove_group(&dev->kobj, &adxl34x_attr_group);
++ err_free_irq:
++	free_irq(ac->irq, ac);
++ err_free_mem:
++	input_free_device(input_dev);
++	kfree(ac);
++ err_out:
++	return ERR_PTR(err);
++}
++EXPORT_SYMBOL_GPL(adxl34x_probe);
++
++int adxl34x_remove(struct adxl34x *ac)
++{
++	adxl34x_disable(ac);
++	sysfs_remove_group(&ac->dev->kobj, &adxl34x_attr_group);
++	free_irq(ac->irq, ac);
++	input_unregister_device(ac->input);
++	kfree(ac);
++
++	dev_dbg(ac->dev, "unregistered accelerometer\n");
++	return 0;
++}
++EXPORT_SYMBOL_GPL(adxl34x_remove);
++
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("ADXL345/346 Three-Axis Digital Accelerometer Driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/input/misc/adxl34x.h b/drivers/input/misc/adxl34x.h
+new file mode 100644
+index 0000000..ea9093c
+--- /dev/null
++++ b/drivers/input/misc/adxl34x.h
+@@ -0,0 +1,30 @@
++/*
++ * ADXL345/346 Three-Axis Digital Accelerometers (I2C/SPI Interface)
++ *
++ * Enter bugs at http://blackfin.uclinux.org/
++ *
++ * Copyright (C) 2009 Michael Hennerich, Analog Devices Inc.
++ * Licensed under the GPL-2 or later.
++ */
++
++#ifndef _ADXL34X_H_
++#define _ADXL34X_H_
++
++struct device;
++struct adxl34x;
++
++struct adxl34x_bus_ops {
++	u16 bustype;
++	int (*read)(struct device *, unsigned char);
++	int (*read_block)(struct device *, unsigned char, int, void *);
++	int (*write)(struct device *, unsigned char, unsigned char);
++};
++
++void adxl34x_disable(struct adxl34x *ac);
++void adxl34x_enable(struct adxl34x *ac);
++struct adxl34x *adxl34x_probe(struct device *dev, int irq,
++			      bool fifo_delay_default,
++			      const struct adxl34x_bus_ops *bops);
++int adxl34x_remove(struct adxl34x *ac);
++
++#endif
+diff --git a/include/linux/input/adxl34x.h b/include/linux/input/adxl34x.h
+new file mode 100644
+index 0000000..7121182
+--- /dev/null
++++ b/include/linux/input/adxl34x.h
+@@ -0,0 +1,293 @@
++/*
++ * include/linux/input/adxl34x.h
++ *
++ * Digital Accelerometer characteristics are highly application specific
++ * and may vary between boards and models. The platform_data for the
++ * device's "struct device" holds this information.
++ *
++ * Copyright 2009 Analog Devices Inc.
++ *
++ * Licensed under the GPL-2 or later.
++ */
++
++#ifndef __LINUX_INPUT_ADXL34X_H__
++#define __LINUX_INPUT_ADXL34X_H__
++
++struct adxl34x_platform_data {
++
++	/*
++	 * X,Y,Z Axis Offset:
++	 * offer user offset adjustments in twoscompliment
++	 * form with a scale factor of 15.6 mg/LSB (i.e. 0x7F = +2 g)
++	 */
++
++	s8 x_axis_offset;
++	s8 y_axis_offset;
++	s8 z_axis_offset;
++
++	/*
++	 * TAP_X/Y/Z Enable: Setting TAP_X, Y, or Z Enable enables X,
++	 * Y, or Z participation in Tap detection. A '0' excludes the
++	 * selected axis from participation in Tap detection.
++	 * Setting the SUPPRESS bit suppresses Double Tap detection if
++	 * acceleration greater than tap_threshold is present between
++	 * taps.
++	 */
++
++#define ADXL_SUPPRESS	(1 << 3)
++#define ADXL_TAP_X_EN	(1 << 2)
++#define ADXL_TAP_Y_EN	(1 << 1)
++#define ADXL_TAP_Z_EN	(1 << 0)
++
++	u8 tap_axis_control;
++
++	/*
++	 * tap_threshold:
++	 * holds the threshold value for tap detection/interrupts.
++	 * The data format is unsigned. The scale factor is 62.5 mg/LSB
++	 * (i.e. 0xFF = +16 g). A zero value may result in undesirable
++	 * behavior if Tap/Double Tap is enabled.
++	 */
++
++	u8 tap_threshold;
++
++	/*
++	 * tap_duration:
++	 * is an unsigned time value representing the maximum
++	 * time that an event must be above the tap_threshold threshold
++	 * to qualify as a tap event. The scale factor is 625 us/LSB. A zero
++	 * value will prevent Tap/Double Tap functions from working.
++	 */
++
++	u8 tap_duration;
++
++	/*
++	 * tap_latency:
++	 * is an unsigned time value representing the wait time
++	 * from the detection of a tap event to the opening of the time
++	 * window tap_window for a possible second tap event. The scale
++	 * factor is 1.25 ms/LSB. A zero value will disable the Double Tap
++	 * function.
++	 */
++
++	u8 tap_latency;
++
++	/*
++	 * tap_window:
++	 * is an unsigned time value representing the amount
++	 * of time after the expiration of tap_latency during which a second
++	 * tap can begin. The scale factor is 1.25 ms/LSB. A zero value will
++	 * disable the Double Tap function.
++	 */
++
++	u8 tap_window;
++
++	/*
++	 * act_axis_control:
++	 * X/Y/Z Enable: A '1' enables X, Y, or Z participation in activity
++	 * or inactivity detection. A '0' excludes the selected axis from
++	 * participation. If all of the axes are excluded, the function is
++	 * disabled.
++	 * AC/DC: A '0' = DC coupled operation and a '1' = AC coupled
++	 * operation. In DC coupled operation, the current acceleration is
++	 * compared with activity_threshold and inactivity_threshold directly
++	 * to determine whether activity or inactivity is detected. In AC
++	 * coupled operation for activity detection, the acceleration value
++	 * at the start of activity detection is taken as a reference value.
++	 * New samples of acceleration are then compared to this
++	 * reference value and if the magnitude of the difference exceeds
++	 * activity_threshold the device will trigger an activity interrupt. In
++	 * AC coupled operation for inactivity detection, a reference value
++	 * is used again for comparison and is updated whenever the
++	 * device exceeds the inactivity threshold. Once the reference
++	 * value is selected, the device compares the magnitude of the
++	 * difference between the reference value and the current
++	 * acceleration with inactivity_threshold. If the difference is below
++	 * inactivity_threshold for a total of inactivity_time, the device is
++	 * considered inactive and the inactivity interrupt is triggered.
++	 */
++
++#define ADXL_ACT_ACDC		(1 << 7)
++#define ADXL_ACT_X_EN		(1 << 6)
++#define ADXL_ACT_Y_EN		(1 << 5)
++#define ADXL_ACT_Z_EN		(1 << 4)
++#define ADXL_INACT_ACDC		(1 << 3)
++#define ADXL_INACT_X_EN		(1 << 2)
++#define ADXL_INACT_Y_EN		(1 << 1)
++#define ADXL_INACT_Z_EN		(1 << 0)
++
++	u8 act_axis_control;
++
++	/*
++	 * activity_threshold:
++	 * holds the threshold value for activity detection.
++	 * The data format is unsigned. The scale factor is
++	 * 62.5 mg/LSB. A zero value may result in undesirable behavior if
++	 * Activity interrupt is enabled.
++	 */
++
++	u8 activity_threshold;
++
++	/*
++	 * inactivity_threshold:
++	 * holds the threshold value for inactivity
++	 * detection. The data format is unsigned. The scale
++	 * factor is 62.5 mg/LSB. A zero value may result in undesirable
++	 * behavior if Inactivity interrupt is enabled.
++	 */
++
++	u8 inactivity_threshold;
++
++	/*
++	 * inactivity_time:
++	 * is an unsigned time value representing the
++	 * amount of time that acceleration must be below the value in
++	 * inactivity_threshold for inactivity to be declared. The scale factor
++	 * is 1 second/LSB. Unlike the other interrupt functions, which
++	 * operate on unfiltered data, the inactivity function operates on the
++	 * filtered output data. At least one output sample must be
++	 * generated for the inactivity interrupt to be triggered. This will
++	 * result in the function appearing un-responsive if the
++	 * inactivity_time register is set with a value less than the time
++	 * constant of the Output Data Rate. A zero value will result in an
++	 * interrupt when the output data is below inactivity_threshold.
++	 */
++
++	u8 inactivity_time;
++
++	/*
++	 * free_fall_threshold:
++	 * holds the threshold value for Free-Fall detection.
++	 * The data format is unsigned. The root-sum-square(RSS) value
++	 * of all axes is calculated and compared to the value in
++	 * free_fall_threshold to determine if a free fall event may be
++	 * occurring.  The scale factor is 62.5 mg/LSB. A zero value may
++	 * result in undesirable behavior if Free-Fall interrupt is
++	 * enabled. Values between 300 and 600 mg (0x05 to 0x09) are
++	 * recommended.
++	 */
++
++	u8 free_fall_threshold;
++
++	/*
++	 * free_fall_time:
++	 * is an unsigned time value representing the minimum
++	 * time that the RSS value of all axes must be less than
++	 * free_fall_threshold to generate a Free-Fall interrupt. The
++	 * scale factor is 5 ms/LSB. A zero value may result in
++	 * undesirable behavior if Free-Fall interrupt is enabled.
++	 * Values between 100 to 350 ms (0x14 to 0x46) are recommended.
++	 */
++
++	u8 free_fall_time;
++
++	/*
++	 * data_rate:
++	 * Selects device bandwidth and output data rate.
++	 * RATE = 3200 Hz / (2^(15 - x)). Default value is 0x0A, or 100 Hz
++	 * Output Data Rate. An Output Data Rate should be selected that
++	 * is appropriate for the communication protocol and frequency
++	 * selected. Selecting too high of an Output Data Rate with a low
++	 * communication speed will result in samples being discarded.
++	 */
++
++	u8 data_rate;
++
++	/*
++	 * data_range:
++	 * FULL_RES: When this bit is set with the device is
++	 * in Full-Resolution Mode, where the output resolution increases
++	 * with RANGE to maintain a 4 mg/LSB scale factor. When this
++	 * bit is cleared the device is in 10-bit Mode and RANGE determine the
++	 * maximum g-Range and scale factor.
++	 */
++
++#define ADXL_FULL_RES		(1 << 3)
++#define ADXL_RANGE_PM_2g	0
++#define ADXL_RANGE_PM_4g	1
++#define ADXL_RANGE_PM_8g	2
++#define ADXL_RANGE_PM_16g	3
++
++	u8 data_range;
++
++	/*
++	 * low_power_mode:
++	 * A '0' = Normal operation and a '1' = Reduced
++	 * power operation with somewhat higher noise.
++	 */
++
++	u8 low_power_mode;
++
++	/*
++	 * power_mode:
++	 * LINK: A '1' with both the activity and inactivity functions
++	 * enabled will delay the start of the activity function until
++	 * inactivity is detected. Once activity is detected, inactivity
++	 * detection will begin and prevent the detection of activity. This
++	 * bit serially links the activity and inactivity functions. When '0'
++	 * the inactivity and activity functions are concurrent. Additional
++	 * information can be found in the Application section under Link
++	 * Mode.
++	 * AUTO_SLEEP: A '1' sets the ADXL34x to switch to Sleep Mode
++	 * when inactivity (acceleration has been below inactivity_threshold
++	 * for at least inactivity_time) is detected and the LINK bit is set.
++	 * A '0' disables automatic switching to Sleep Mode. See SLEEP
++	 * for further description.
++	 */
++
++#define ADXL_LINK	(1 << 5)
++#define ADXL_AUTO_SLEEP	(1 << 4)
++
++	u8 power_mode;
++
++	/*
++	 * fifo_mode:
++	 * BYPASS The FIFO is bypassed
++	 * FIFO   FIFO collects up to 32 values then stops collecting data
++	 * STREAM FIFO holds the last 32 data values. Once full, the FIFO's
++	 *        oldest data is lost as it is replaced with newer data
++	 *
++	 * DEFAULT should be ADXL_FIFO_STREAM
++	 */
++
++#define ADXL_FIFO_BYPASS	0
++#define ADXL_FIFO_FIFO		1
++#define ADXL_FIFO_STREAM	2
++
++	u8 fifo_mode;
++
++	/*
++	 * watermark:
++	 * The Watermark feature can be used to reduce the interrupt load
++	 * of the system. The FIFO fills up to the value stored in watermark
++	 * [1..32] and then generates an interrupt.
++	 * A '0' disables the watermark feature.
++	 */
++
++	u8 watermark;
++
++	u32 ev_type;	/* EV_ABS or EV_REL */
++
++	u32 ev_code_x;	/* ABS_X,Y,Z or REL_X,Y,Z */
++	u32 ev_code_y;	/* ABS_X,Y,Z or REL_X,Y,Z */
++	u32 ev_code_z;	/* ABS_X,Y,Z or REL_X,Y,Z */
++
++	/*
++	 * A valid BTN or KEY Code; use tap_axis_control to disable
++	 * event reporting
++	 */
++
++	u32 ev_code_tap[3];	/* EV_KEY {X-Axis, Y-Axis, Z-Axis} */
++
++	/*
++	 * A valid BTN or KEY Code for Free-Fall or Activity enables
++	 * input event reporting. A '0' disables the Free-Fall or
++	 * Activity reporting.
++	 */
++
++	u32 ev_code_ff;	/* EV_KEY */
++	u32 ev_code_act_inactivity;	/* EV_KEY */
++
++	u8 use_int2;
++};
++#endif
 

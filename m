@@ -1,670 +1,495 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Fri, 25 Jun 2010 01:30:19 -0700
-Message-ID: <20100625083019.GD8546@core.coreip.homeip.net>
-References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
- <1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org, kyungmin.park@samsung.com, kgene.kim@samsung.com
+From: Luotao Fu <l.fu@pengutronix.de>
+Subject: [PATCH 5/5 V7] input: STMPE touch controller support
+Date: Fri, 25 Jun 2010 10:37:51 +0200
+Message-ID: <1277455071-8572-1-git-send-email-l.fu@pengutronix.de>
+References: <20100624162407.GA18899@core.coreip.homeip.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100624162407.GA18899@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rabin VINCENT <rabin.vincent@stericsson.com>, Samuel Ortiz <sameo@linux.intel.com>, Linus WALLEIJ <linus.walleij@stericsson.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, STEricsson_nomadik_linux <STEricsson_nomadik_linux@list.st.com>, Luotao Fu <l.fu@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-Hi Joonyoung,
+This one adds a driver for STMPE touchscreen controllers. This driver depends on
+stmpexxx mfd core driver.
 
-On Mon, Jun 21, 2010 at 03:26:45PM +0900, Joonyoung Shim wrote:
-> This patch adds support for keypad driver running on Samsung cpus. This
-> driver is tested on GONI and Aquila board using S5PC110 cpu.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-
-Following my conversation with Thomas Gleixner reagrding "long playing"
-threaded interrupt handlers I tried to convert your driver to use this
-concept. The idea is to keep polling within IRQ thread context instead
-of using additional work/timer structures to simplify code and ensure
-race-free shutdown/unbind.
-
-I think it was based on v4 of your driver and I'd appreciate if you could
-give it a try.
-
-Thank you.
-
--- 
-Dmitry
-
-
-
-Input: samsung-keypad - updates
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Luotao Fu <l.fu@pengutronix.de>
 ---
+V2 Changes:
+* include subsystem headers since they are now remove from the mfd
+  core header file
+* use genirq to register threaded isr. The stmpe811 own irq callbacks
+  are dropped in the core driver.
+* use STMPE811_TS_NAME for name all over the place
+* wait for completion of core IO operation before cancelling polling of
+  release event.
+* switch to platform data for configuration parameters.
+* add FIFO reset to open callback, also reset FIFO before reporting
+  release.
 
- arch/arm/plat-samsung/include/plat/keypad.h      |   21 -
- arch/arm/plat-samsung/include/plat/regs-keypad.h |   49 ---
- drivers/input/keyboard/samsung-keypad.c          |  334 ++++++++++++++--------
- 3 files changed, 215 insertions(+), 189 deletions(-)
- delete mode 100644 arch/arm/plat-samsung/include/plat/regs-keypad.h
+V3 Changes:
+* reformated platform data comments to kernel-doc style
 
+V4 Changes:
+* converted to stmpexxx core by Rabin Vincent <rabin.vincent@stericsson.com>
+* wait for running workqueue callback to finish while canceling the queue
+* add i_drive configuration support
 
-diff --git a/arch/arm/plat-samsung/include/plat/keypad.h b/arch/arm/plat-samsung/include/plat/keypad.h
-index 04ba600..0a35784 100644
---- a/arch/arm/plat-samsung/include/plat/keypad.h
-+++ b/arch/arm/plat-samsung/include/plat/keypad.h
-@@ -34,24 +34,11 @@
-  */
- struct samsung_keypad_platdata {
- 	const struct matrix_keymap_data	*keymap_data;
--	unsigned int		rows;
--	unsigned int		cols;
--	unsigned int		rep:1;
-+	unsigned int rows;
-+	unsigned int cols;
-+	bool rep;
+V5 Changes:
+* add ADC block enable to stmpe_enable call.
+
+V6 Changes:
+* add _reset_fifo callback to reduce duplicated code.
+* fix mask usage while setting bits in probe.
+* acquire platform irq by name
+
+V7 Changes:
+* reranged entry makefile in alphabetical order
+* move hw init stuff into a own function
+* fix queue canceling in close. remove uneccessary register settings from remove
+* removed inline declaration
+* add driver owner
+* set input params before registering the device
+
+ drivers/input/touchscreen/Kconfig    |   10 +
+ drivers/input/touchscreen/Makefile   |    1 +
+ drivers/input/touchscreen/stmpe-ts.c |  397 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 408 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/stmpe-ts.c
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 3b9d5e2..96a9954 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -603,4 +603,14 @@ config TOUCHSCREEN_TPS6507X
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called tps6507x_ts.
  
--	void	(*cfg_gpio)(unsigned int rows, unsigned int cols);
-+	void (*cfg_gpio)(unsigned int rows, unsigned int cols);
- };
- 
--/**
-- * samsung_keypad_set_platdata - Set platform data for Samsung Keypad device.
-- * @pd: Platform data to register to device.
-- *
-- * Register the given platform data for use with Samsung Keypad device.
-- * The call will copy the platform data, so the board definitions can
-- * make the structure itself __initdata.
-- */
--extern void samsung_keypad_set_platdata(struct samsung_keypad_platdata *pd);
--
--/* defined by architecture to configure gpio. */
--extern void samsung_keypad_cfg_gpio(unsigned int rows, unsigned int cols);
--
- #endif /* __PLAT_SAMSUNG_KEYPAD_H */
-diff --git a/arch/arm/plat-samsung/include/plat/regs-keypad.h b/arch/arm/plat-samsung/include/plat/regs-keypad.h
-deleted file mode 100644
-index e4688f0..0000000
---- a/arch/arm/plat-samsung/include/plat/regs-keypad.h
-+++ /dev/null
-@@ -1,49 +0,0 @@
--/*
-- * linux/arch/arm/plat-samsung/include/plat/regs-keypad.h
-- *
-- * Copyright (C) 2010 Samsung Electronics Co.Ltd
-- * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-- *
-- *  This program is free software; you can redistribute  it and/or modify it
-- *  under  the terms of  the GNU General  Public License as published by the
-- *  Free Software Foundation;  either version 2 of the  License, or (at your
-- *  option) any later version.
-- *
-- */
--
--#ifndef __SAMSUNG_KEYPAD_H__
--#define __SAMSUNG_KEYPAD_H__
--
--#define SAMSUNG_KEYIFCON			0x00
--#define SAMSUNG_KEYIFSTSCLR			0x04
--#define SAMSUNG_KEYIFCOL			0x08
--#define SAMSUNG_KEYIFROW			0x0c
--#define SAMSUNG_KEYIFFC				0x10
--
--/* SAMSUNG_KEYIFCON */
--#define SAMSUNG_KEYIFCON_INT_F_EN		(1 << 0)
--#define SAMSUNG_KEYIFCON_INT_R_EN		(1 << 1)
--#define SAMSUNG_KEYIFCON_DF_EN			(1 << 2)
--#define SAMSUNG_KEYIFCON_FC_EN			(1 << 3)
--#define SAMSUNG_KEYIFCON_WAKEUPEN		(1 << 4)
--
--/* SAMSUNG_KEYIFSTSCLR */
--#define SAMSUNG_KEYIFSTSCLR_P_INT_MASK		(0xff << 0)
--#define SAMSUNG_KEYIFSTSCLR_R_INT_MASK		(0xff << 8)
--#define SAMSUNG_KEYIFSTSCLR_R_INT_OFFSET	8
--#define S5PV210_KEYIFSTSCLR_P_INT_MASK		(0x3fff << 0)
--#define S5PV210_KEYIFSTSCLR_R_INT_MASK		(0x3fff << 16)
--#define S5PV210_KEYIFSTSCLR_R_INT_OFFSET	16
--
--/* SAMSUNG_KEYIFCOL */
--#define SAMSUNG_KEYIFCOL_MASK			(0xff << 0)
--#define S5PV210_KEYIFCOLEN_MASK			(0xff << 8)
--
--/* SAMSUNG_KEYIFROW */
--#define SAMSUNG_KEYIFROW_MASK			(0xff << 0)
--#define S5PV210_KEYIFROW_MASK			(0x3fff << 0)
--
--/* SAMSUNG_KEYIFFC */
--#define SAMSUNG_KEYIFFC_MASK			(0x3ff << 0)
--
--#endif /* __SAMSUNG_KEYPAD_H__ */
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 244a3b6..c243fc5 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -1,5 +1,5 @@
- /*
-- * samsung-keypad.c  --  Samsung keypad driver
-+ * Samsung keypad driver
-  *
-  * Copyright (C) 2010 Samsung Electronics Co.Ltd
-  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-@@ -21,8 +21,45 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
--#include <plat/keypad.h>
--#include <plat/regs-keypad.h>
-+//#include <plat/keypad.h>
-+#include "/home/dtor/kernel/work/arch/arm/plat-samsung/include/plat/keypad.h"
++config TOUCHSCREEN_STMPE
++	tristate "STMicroelectronics STMPE touchscreens"
++	depends on MFD_STMPE
++	help
++	  Say Y here if you want support for STMicroelectronics
++	  STMPE touchscreen controllers.
 +
-+MODULE_DESCRIPTION("Samsung keypad driver");
-+MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
-+MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
-+MODULE_LICENSE("GPL");
++	  To compile this driver as a module, choose M here: the
++	  module will be called stmpe-ts.
 +
-+#define SAMSUNG_KEYIFCON			0x00
-+#define SAMSUNG_KEYIFSTSCLR			0x04
-+#define SAMSUNG_KEYIFCOL			0x08
-+#define SAMSUNG_KEYIFROW			0x0c
-+#define SAMSUNG_KEYIFFC				0x10
+ endif
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 497964a..10fb163 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -31,6 +31,7 @@ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
++obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+= touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+new file mode 100644
+index 0000000..f5c1d88
+--- /dev/null
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -0,0 +1,397 @@
++/* STMicroelectronics STMPE811 Touchscreen Driver
++ *
++ * (C) 2010 Luotao Fu <l.fu@pengutronix.de>
++ * All rights reserved.
++ *
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
++ *
++ */
 +
-+/* SAMSUNG_KEYIFCON */
-+#define SAMSUNG_KEYIFCON_INT_F_EN		(1 << 0)
-+#define SAMSUNG_KEYIFCON_INT_R_EN		(1 << 1)
-+#define SAMSUNG_KEYIFCON_DF_EN			(1 << 2)
-+#define SAMSUNG_KEYIFCON_FC_EN			(1 << 3)
-+#define SAMSUNG_KEYIFCON_WAKEUPEN		(1 << 4)
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/interrupt.h>
++#include <linux/init.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/workqueue.h>
 +
-+/* SAMSUNG_KEYIFSTSCLR */
-+#define SAMSUNG_KEYIFSTSCLR_P_INT_MASK		(0xff << 0)
-+#define SAMSUNG_KEYIFSTSCLR_R_INT_MASK		(0xff << 8)
-+#define SAMSUNG_KEYIFSTSCLR_R_INT_OFFSET	8
-+#define S5PV210_KEYIFSTSCLR_P_INT_MASK		(0x3fff << 0)
-+#define S5PV210_KEYIFSTSCLR_R_INT_MASK		(0x3fff << 16)
-+#define S5PV210_KEYIFSTSCLR_R_INT_OFFSET	16
++#include <linux/mfd/stmpe.h>
 +
-+/* SAMSUNG_KEYIFCOL */
-+#define SAMSUNG_KEYIFCOL_MASK			(0xff << 0)
-+#define S5PV210_KEYIFCOLEN_MASK			(0xff << 8)
++/* Register layouts and functionalities are identical on all stmpexxx variants
++ * with touchscreen controller
++ */
++#define STMPE_REG_INT_STA		0x0B
++#define STMPE_REG_ADC_CTRL1		0x20
++#define STMPE_REG_ADC_CTRL2		0x21
++#define STMPE_REG_TSC_CTRL		0x40
++#define STMPE_REG_TSC_CFG		0x41
++#define STMPE_REG_FIFO_TH		0x4A
++#define STMPE_REG_FIFO_STA		0x4B
++#define STMPE_REG_FIFO_SIZE		0x4C
++#define STMPE_REG_TSC_DATA_XYZ		0x52
++#define STMPE_REG_TSC_FRACTION_Z	0x56
++#define STMPE_REG_TSC_I_DRIVE		0x58
 +
-+/* SAMSUNG_KEYIFROW */
-+#define SAMSUNG_KEYIFROW_MASK			(0xff << 0)
-+#define S5PV210_KEYIFROW_MASK			(0x3fff << 0)
++#define OP_MOD_XYZ			0
 +
-+/* SAMSUNG_KEYIFFC */
-+#define SAMSUNG_KEYIFFC_MASK			(0x3ff << 0)
- 
- enum samsung_keypad_type {
- 	KEYPAD_TYPE_SAMSUNG,
-@@ -31,29 +68,28 @@ enum samsung_keypad_type {
- 
- struct samsung_keypad {
- 	struct input_dev *input_dev;
--	struct timer_list timer;
- 	struct clk *clk;
--	struct work_struct work;
- 	void __iomem *base;
--	unsigned short *keycodes;
-+	wait_queue_head_t wait;
-+	bool stopped;
-+	int irq;
- 	unsigned int row_shift;
- 	unsigned int rows;
- 	unsigned int cols;
- 	unsigned int row_state[SAMSUNG_MAX_COLS];
--	int irq;
-+	unsigned short keycodes[];
- };
- 
- static int samsung_keypad_is_s5pv210(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
--	enum samsung_keypad_type type;
-+	enum samsung_keypad_type type = platform_get_device_id(pdev)->driver_data;
- 
--	type = platform_get_device_id(pdev)->driver_data;
- 	return type == KEYPAD_TYPE_S5PV210;
- }
- 
- static void samsung_keypad_scan(struct samsung_keypad *keypad,
--		unsigned int *row_state)
-+				unsigned int *row_state)
- {
- 	struct device *dev = keypad->input_dev->dev.parent;
- 	unsigned int col;
-@@ -79,29 +115,15 @@ static void samsung_keypad_scan(struct samsung_keypad *keypad,
- 	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
- }
- 
--static void samsung_keypad_worker(struct work_struct *work)
-+static bool samsung_keypad_report(struct samsung_keypad *keypad,
-+				  unsigned int *row_state)
- {
--	struct samsung_keypad *keypad = container_of(work,
--			struct samsung_keypad, work);
--	unsigned int row_state[SAMSUNG_MAX_COLS];
--	unsigned int val;
-+	struct input_dev *input_dev = keypad->input_dev;
- 	unsigned int changed;
- 	unsigned int pressed;
- 	unsigned int key_down = 0;
--	int col, row;
--
--	clk_enable(keypad->clk);
--
--	val = readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
--
--	/* interrupt clear */
--	writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
--
--	val = readl(keypad->base + SAMSUNG_KEYIFCON);
--	val &= ~(SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
--	writel(val, keypad->base + SAMSUNG_KEYIFCON);
--
--	samsung_keypad_scan(keypad, row_state);
-+	unsigned int val;
-+	unsigned int col, row;
- 
- 	for (col = 0; col < keypad->cols; col++) {
- 		changed = row_state[col] ^ keypad->row_state[col];
-@@ -121,42 +143,108 @@ static void samsung_keypad_worker(struct work_struct *work)
- 
- 			val = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
- 
--			input_report_key(keypad->input_dev,
-+			input_event(input_dev, EV_MSC, MSC_SCAN, val);
-+			input_report_key(input_dev,
- 					keypad->keycodes[val], pressed);
--			input_sync(keypad->input_dev);
- 		}
-+		input_sync(keypad->input_dev);
- 	}
++#define STMPE_TSC_CTRL_TSC_EN		(1<<0)
 +
- 	memcpy(keypad->row_state, row_state, sizeof(row_state));
- 
--	if (key_down)
--		mod_timer(&keypad->timer, jiffies + HZ / 20);
--	else {
--		/* enable interrupt bit */
--		val = readl(keypad->base + SAMSUNG_KEYIFCON);
--		val |= (SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
--		writel(val, keypad->base + SAMSUNG_KEYIFCON);
--		enable_irq(keypad->irq);
--	}
--	clk_disable(keypad->clk);
-+	return key_down;
- }
- 
--static irqreturn_t samsung_keypad_interrupt(int irq, void *dev_id)
-+static irqreturn_t samsung_keypad_irq(int irq, void *dev_id)
- {
- 	struct samsung_keypad *keypad = dev_id;
-+	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	unsigned int val;
-+	bool key_down;
- 
--	if (!work_pending(&keypad->work)) {
--		disable_irq_nosync(keypad->irq);
--		schedule_work(&keypad->work);
--	}
-+	do {
-+		clk_enable(keypad->clk);
++#define STMPE_FIFO_STA_RESET		(1<<0)
 +
-+		val = readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
-+		/* Clear interrupt. */
-+		writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
++#define STMPE_IRQ_TOUCH_DET		0
 +
-+		samsung_keypad_scan(keypad, row_state);
++#define SAMPLE_TIME(x)			((x & 0xf) << 4)
++#define MOD_12B(x)			((x & 0x1) << 3)
++#define REF_SEL(x)			((x & 0x1) << 1)
++#define ADC_FREQ(x)			(x & 0x3)
++#define AVE_CTRL(x)			((x & 0x3) << 6)
++#define DET_DELAY(x)			((x & 0x7) << 3)
++#define SETTLING(x)			(x & 0x7)
++#define FRACTION_Z(x)			(x & 0x7)
++#define I_DRIVE(x)			(x & 0x1)
++#define OP_MODE(x)			((x & 0x7) << 1)
 +
-+		clk_disable(keypad->clk);
++#define STMPE_TS_NAME			"stmpe-ts"
++#define XY_MASK				0xfff
 +
-+		key_down = samsung_keypad_report(keypad, row_state);
-+		if (key_down)
-+			wait_event_timeout(keypad->wait, keypad->stopped,
-+					   msecs_to_jiffies(50));
++struct stmpe_touch {
++	struct stmpe *stmpe;
++	struct input_dev *idev;
++	struct delayed_work work;
++	struct device *dev;
++	u8 sample_time;
++	u8 mod_12b;
++	u8 ref_sel;
++	u8 adc_freq;
++	u8 ave_ctrl;
++	u8 touch_det_delay;
++	u8 settling;
++	u8 fraction_z;
++	u8 i_drive;
++};
 +
-+	} while (key_down && !keypad->stopped);
- 
- 	return IRQ_HANDLED;
- }
- 
--static void samsung_keypad_timer(unsigned long data)
-+static void samsung_keypad_start(struct samsung_keypad *keypad)
++static int __stmpe_reset_fifo(struct stmpe *stmpe)
 +{
-+	unsigned int val;
++	int ret;
 +
-+	/* Tell IRQ thread that it may poll the device. */
-+	keypad->stopped = false;
++	ret = stmpe_set_bits(stmpe, STMPE_REG_FIFO_STA,
++			STMPE_FIFO_STA_RESET, STMPE_FIFO_STA_RESET);
++	if (ret)
++		return ret;
 +
-+	clk_enable(keypad->clk);
-+
-+	/* Enable interrupt bits. */
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	val |= SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN;
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	/* KEYIFCOL reg clear. */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+
-+	clk_disable(keypad->clk);
++	return stmpe_set_bits(stmpe, STMPE_REG_FIFO_STA,
++			STMPE_FIFO_STA_RESET, 0);
 +}
 +
-+static void samsung_keypad_stop(struct samsung_keypad *keypad)
- {
--	struct samsung_keypad *keypad = (struct samsung_keypad *)data;
-+	unsigned int val;
++static void stmpe_work(struct work_struct *work)
++{
++	int int_sta;
++	u32 timeout = 40;
 +
-+	/* Signal IRQ thread to stop polling and disable the handler. */
-+	keypad->stopped = true;
-+	wake_up(&keypad->wait);
-+	disable_irq(keypad->irq);
- 
--	schedule_work(&keypad->work);
-+	clk_enable(keypad->clk);
++	struct stmpe_touch *ts =
++	    container_of(work, struct stmpe_touch, work.work);
 +
-+	/* Clear interrupt. */
-+	writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
++	int_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_INT_STA);
 +
-+	/* Disable interrupt bits. */
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	val &= ~(SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
++	/* 
++	 * touch_det sometimes get desasserted or just get stuck. This appears
++	 * to be a silicon bug, We still have to clearify this with the
++	 * manufacture. As a workaround We release the key anyway if the
++	 * touch_det keeps coming in after 4ms, while the FIFO contains no value
++	 * during the whole time. 
++	 */
++	while ((int_sta & (1 << STMPE_IRQ_TOUCH_DET)) && (timeout > 0)) {
++		timeout--;
++		int_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_INT_STA);
++		udelay(100);
++	}
 +
-+	clk_disable(keypad->clk);
++	/* reset the FIFO before we report release event */
++	__stmpe_reset_fifo(ts->stmpe);
++
++	input_report_abs(ts->idev, ABS_PRESSURE, 0);
++	input_sync(ts->idev);
++}
++
++static irqreturn_t stmpe_ts_handler(int irq, void *data)
++{
++	u8 data_set[4];
++	int x, y, z;
++	struct stmpe_touch *ts = data;
 +
 +	/*
-+	 * Now that chip should not generate interrupts we can safely
-+	 * re-enable the handler.
++	 * Cancel scheduled polling for release if we have new value
++	 * available. Wait if the polling is already running.
 +	 */
-+	enable_irq(keypad->irq);
++	cancel_delayed_work_sync(&ts->work);
++
++	/*
++	 * The FIFO sometimes just crashes and stops generating interrupts. This
++	 * appears to be a silicon bug. We still have to clearify this with
++	 * the manufacture. As a workaround we disable the TSC while we are
++	 * collecting data and flush the FIFO after reading
++	 */
++	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++				STMPE_TSC_CTRL_TSC_EN, 0);
++
++	stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
++
++	x = (data_set[0] << 4) | (data_set[1] >> 4);
++	y = ((data_set[1] & 0xf) << 8) | data_set[2];
++	z = data_set[3];
++
++	input_report_abs(ts->idev, ABS_X, x);
++	input_report_abs(ts->idev, ABS_Y, y);
++	input_report_abs(ts->idev, ABS_PRESSURE, z);
++	input_sync(ts->idev);
++
++       /* flush the FIFO after we have read out our values. */
++	__stmpe_reset_fifo(ts->stmpe);
++
++	/* reenable the tsc */
++	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++			STMPE_TSC_CTRL_TSC_EN, STMPE_TSC_CTRL_TSC_EN);
++
++	/* start polling for touch_det to detect release */
++	schedule_delayed_work(&ts->work, HZ / 50);
++
++	return IRQ_HANDLED;
 +}
 +
-+static int samsung_keypad_open(struct input_dev *input_dev)
++static int stmpe_init_hw(struct stmpe_touch *ts)
 +{
-+	struct samsung_keypad *keypad = input_get_drvdata(input_dev);
++	int ret;
++	u8 adc_ctrl1, adc_ctrl1_mask, tsc_cfg, tsc_cfg_mask;
++	struct stmpe *stmpe = ts->stmpe;
++	struct device *dev = ts->dev;
 +
-+	samsung_keypad_start(keypad);
++	ret = stmpe_enable(stmpe, STMPE_BLOCK_TOUCHSCREEN | STMPE_BLOCK_ADC);
++	if (ret) {
++		dev_err(dev, "Could not enable clock for ADC and TS\n");
++		return ret;
++	}
++
++	adc_ctrl1 = SAMPLE_TIME(ts->sample_time) | MOD_12B(ts->mod_12b) |
++		REF_SEL(ts->ref_sel);
++	adc_ctrl1_mask = SAMPLE_TIME(0xff) | MOD_12B(0xff) | REF_SEL(0xff);
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
++			adc_ctrl1_mask, adc_ctrl1);
++	if (ret) {
++		dev_err(dev, "Could not setup ADC\n");
++		return ret;
++	}
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
++			ADC_FREQ(0xff), ADC_FREQ(ts->adc_freq));
++	if (ret) {
++		dev_err(dev, "Could not setup ADC\n");
++		return ret;
++	}
++
++	tsc_cfg = AVE_CTRL(ts->ave_ctrl) | DET_DELAY(ts->touch_det_delay) |
++			SETTLING(ts->settling);
++	tsc_cfg_mask = AVE_CTRL(0xff) | DET_DELAY(0xff) | SETTLING(0xff);
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_CFG, tsc_cfg_mask, tsc_cfg);
++	if (ret) {
++		dev_err(dev, "Could not config touch\n");
++		return ret;
++	}
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_FRACTION_Z,
++			FRACTION_Z(0xff), FRACTION_Z(ts->fraction_z));
++	if (ret) {
++		dev_err(dev, "Could not config touch\n");
++		return ret;
++	}
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_I_DRIVE,
++			I_DRIVE(0xff), I_DRIVE(ts->i_drive));
++	if (ret) {
++		dev_err(dev, "Could not config touch\n");
++		return ret;
++	}
++
++	/* set FIFO to 1 for single point reading */
++	ret = stmpe_reg_write(stmpe, STMPE_REG_FIFO_TH, 1);
++	if (ret) {
++		dev_err(dev, "Could not set FIFO\n");
++		return ret;
++	}
++
++	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_CTRL,
++			OP_MODE(0xff), OP_MODE(OP_MOD_XYZ));
++	if (ret) {
++		dev_err(dev, "Could not set mode\n");
++		return ret;
++	}
 +
 +	return 0;
 +}
 +
-+static void samsung_keypad_close(struct input_dev *input_dev)
++static int stmpe_ts_open(struct input_dev *dev)
 +{
-+	struct samsung_keypad *keypad = input_get_drvdata(input_dev);
++	struct stmpe_touch *ts = input_get_drvdata(dev);
++	int ret = 0;
 +
-+	samsung_keypad_stop(keypad);
- }
- 
- static int __devinit samsung_keypad_probe(struct platform_device *pdev)
-@@ -166,10 +254,9 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
- 	struct samsung_keypad *keypad;
- 	struct resource *res;
- 	struct input_dev *input_dev;
--	unsigned short *keycodes;
- 	unsigned int row_shift;
--	unsigned int val;
--	int ret;
-+	unsigned int keymap_size;
-+	int error;
- 
- 	pdata = pdev->dev.platform_data;
- 	if (!pdata) {
-@@ -183,10 +270,10 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	if (!pdata->rows || (pdata->rows > SAMSUNG_MAX_ROWS))
-+	if (!pdata->rows || pdata->rows > SAMSUNG_MAX_ROWS)
- 		return -EINVAL;
- 
--	if (!pdata->cols || (pdata->cols > SAMSUNG_MAX_COLS))
-+	if (!pdata->cols || pdata->cols > SAMSUNG_MAX_COLS)
- 		return -EINVAL;
- 
- 	/* initialize the gpio */
-@@ -194,133 +281,144 @@ static int __devinit samsung_keypad_probe(struct platform_device *pdev)
- 		pdata->cfg_gpio(pdata->rows, pdata->cols);
- 
- 	row_shift = get_count_order(pdata->cols);
--	keypad = kzalloc(sizeof(*keypad), GFP_KERNEL);
--	keycodes = kzalloc((pdata->rows << row_shift) * sizeof(*keycodes),
--			GFP_KERNEL);
-+	keymap_size = (pdata->rows << row_shift) * sizeof(keypad->keycodes[0]);
++	ret = __stmpe_reset_fifo(ts->stmpe);
++	if (ret)
++		return ret;
 +
-+	keypad = kzalloc(sizeof(*keypad) + keymap_size, GFP_KERNEL);
- 	input_dev = input_allocate_device();
--	if (!keypad || !keycodes || !input_dev) {
--		ret = -ENOMEM;
-+	if (!keypad || !input_dev) {
-+		error = -ENOMEM;
- 		goto err_free_mem;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
--		ret = -ENODEV;
-+		error = -ENODEV;
- 		goto err_free_mem;
- 	}
- 
- 	keypad->base = ioremap(res->start, resource_size(res));
- 	if (!keypad->base) {
--		ret = -EBUSY;
-+		error = -EBUSY;
- 		goto err_free_mem;
- 	}
- 
- 	keypad->clk = clk_get(&pdev->dev, "keypad");
- 	if (IS_ERR(keypad->clk)) {
- 		dev_err(&pdev->dev, "failed to get keypad clk\n");
--		ret = PTR_ERR(keypad->clk);
-+		error = PTR_ERR(keypad->clk);
- 		goto err_unmap_base;
- 	}
--	clk_enable(keypad->clk);
- 
- 	keypad->input_dev = input_dev;
--	keypad->keycodes = keycodes;
- 	keypad->row_shift = row_shift;
- 	keypad->rows = pdata->rows;
- 	keypad->cols = pdata->cols;
--
--	INIT_WORK(&keypad->work, samsung_keypad_worker);
--
--	setup_timer(&keypad->timer, samsung_keypad_timer,
--			(unsigned long)keypad);
--
--	/* enable interrupt and wakeup bit */
--	val = SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN |
--		SAMSUNG_KEYIFCON_WAKEUPEN;
--	writel(val, keypad->base + SAMSUNG_KEYIFCON);
--
--	/* KEYIFCOL reg clear */
--	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
--
--	keypad->irq = platform_get_irq(pdev, 0);
--	if (keypad->irq < 0) {
--		ret = keypad->irq;
--		goto err_disable_clk;
--	}
--
--	ret = request_irq(keypad->irq, samsung_keypad_interrupt, 0,
--			dev_name(&pdev->dev), keypad);
--
--	if (ret)
--		goto err_disable_clk;
-+	init_waitqueue_head(&keypad->wait);
- 
- 	input_dev->name = pdev->name;
- 	input_dev->id.bustype = BUS_HOST;
- 	input_dev->dev.parent = &pdev->dev;
-+	input_set_drvdata(input_dev, keypad);
-+
-+	input_dev->open = samsung_keypad_open;
-+	input_dev->close = samsung_keypad_close;
- 
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY);
- 	if (pdata->rep)
- 		input_dev->evbit[0] |= BIT_MASK(EV_REP);
- 
--	input_dev->keycode = keycodes;
--	input_dev->keycodesize = sizeof(*keycodes);
-+	input_dev->keycode = keypad->keycodes;
-+	input_dev->keycodesize = sizeof(keypad->keycodes[0]);
- 	input_dev->keycodemax = pdata->rows << row_shift;
- 
- 	matrix_keypad_build_keymap(keymap_data, row_shift,
- 			input_dev->keycode, input_dev->keybit);
- 
--	ret = input_register_device(keypad->input_dev);
--	if (ret)
-+	keypad->irq = platform_get_irq(pdev, 0);
-+	if (keypad->irq < 0) {
-+		error = keypad->irq;
-+		goto err_put_clk;
-+	}
-+
-+	error = request_threaded_irq(keypad->irq, NULL, samsung_keypad_irq,
-+				     IRQF_ONESHOT, dev_name(&pdev->dev), keypad);
-+	if (error)
-+		goto err_put_clk;
-+
-+	error = input_register_device(keypad->input_dev);
-+	if (error)
- 		goto err_free_irq;
- 
- 	platform_set_drvdata(pdev, keypad);
--	clk_disable(keypad->clk);
--
- 	return 0;
- 
- err_free_irq:
- 	free_irq(keypad->irq, keypad);
--err_disable_clk:
--	clk_disable(keypad->clk);
-+err_put_clk:
- 	clk_put(keypad->clk);
- err_unmap_base:
- 	iounmap(keypad->base);
- err_free_mem:
- 	input_free_device(input_dev);
--	kfree(keycodes);
- 	kfree(keypad);
- 
--	return ret;
-+	return error;
- }
- 
- static int __devexit samsung_keypad_remove(struct platform_device *pdev)
- {
- 	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
- 
--	free_irq(keypad->irq, keypad);
--	cancel_work_sync(&keypad->work);
--	del_timer_sync(&keypad->timer);
--
- 	platform_set_drvdata(pdev, NULL);
-+
- 	input_unregister_device(keypad->input_dev);
- 
--	clk_disable(keypad->clk);
-+	/*
-+	 * It is safe to free IRQ after unregistering device because
-+	 * samsung_keypad_close will shut off interrupts.
-+	 */
-+	free_irq(keypad->irq, keypad);
-+
- 	clk_put(keypad->clk);
- 
- 	iounmap(keypad->base);
--	kfree(keypad->keycodes);
- 	kfree(keypad);
- 
- 	return 0;
- }
- 
- #ifdef CONFIG_PM
-+static void samsung_keypad_toggle_wakeup(struct samsung_keypad *keypad,
-+					 bool enable)
-+{
-+	unsigned int val;
-+
-+	clk_enable(keypad->clk);
-+
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	if (enable)
-+		val |= SAMSUNG_KEYIFCON_WAKEUPEN;
-+	else
-+		val &= ~SAMSUNG_KEYIFCON_WAKEUPEN;
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	clk_disable(keypad->clk);
++	return stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++			STMPE_TSC_CTRL_TSC_EN, STMPE_TSC_CTRL_TSC_EN);
 +}
 +
- static int samsung_keypad_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = keypad->input_dev;
- 
--	disable_irq(keypad->irq);
-+	mutex_lock(&input_dev->mutex);
++static void stmpe_ts_close(struct input_dev *dev)
++{
++	struct stmpe_touch *ts = input_get_drvdata(dev);
 +
-+	if (input_dev->users)
-+		samsung_keypad_stop(keypad);
++	cancel_delayed_work_sync(&ts->work);
 +
-+	samsung_keypad_toggle_wakeup(keypad, true);
++	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
++			STMPE_TSC_CTRL_TSC_EN, 0);
++}
 +
-+	mutex_unlock(&input_dev->mutex);
- 
- 	return 0;
- }
-@@ -329,20 +427,16 @@ static int samsung_keypad_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
--	unsigned int val;
-+	struct input_dev *input_dev = keypad->input_dev;
- 
--	clk_enable(keypad->clk);
-+	mutex_lock(&input_dev->mutex);
- 
--	/* enable interrupt and wakeup bit */
--	val = SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN |
--		SAMSUNG_KEYIFCON_WAKEUPEN;
--	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+	samsung_keypad_toggle_wakeup(keypad, false);
- 
--	/* KEYIFCOL reg clear */
--	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+	if (input_dev->users)
-+		samsung_keypad_start(keypad);
- 
--	enable_irq(keypad->irq);
--	clk_disable(keypad->clk);
-+	mutex_unlock(&input_dev->mutex);
- 
- 	return 0;
- }
-@@ -382,16 +476,10 @@ static int __init samsung_keypad_init(void)
- {
- 	return platform_driver_register(&samsung_keypad_driver);
- }
-+module_init(samsung_keypad_init);
- 
- static void __exit samsung_keypad_exit(void)
- {
- 	platform_driver_unregister(&samsung_keypad_driver);
- }
--
--module_init(samsung_keypad_init);
- module_exit(samsung_keypad_exit);
--
--MODULE_DESCRIPTION("Samsung keypad driver");
--MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
--MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
--MODULE_LICENSE("GPL");
++static int __devinit stmpe_input_probe(struct platform_device *pdev)
++{
++	struct stmpe *stmpe = dev_get_drvdata(pdev->dev.parent);
++	struct stmpe_platform_data *pdata = stmpe->pdata;
++	struct stmpe_touch *ts;
++	struct input_dev *idev;
++	struct stmpe_ts_platform_data *ts_pdata = NULL;
++	int ret = 0;
++	unsigned int ts_irq;
++
++	ts_irq = platform_get_irq_byname(pdev, "FIFO_TH");
++	if (ts_irq < 0)
++		return ts_irq;
++
++	ts = kzalloc(sizeof(*ts), GFP_KERNEL);
++	if (!ts)
++		goto err_out;
++
++	idev = input_allocate_device();
++	if (!idev)
++		goto err_free_ts;
++
++	platform_set_drvdata(pdev, ts);
++	ts->stmpe = stmpe;
++	ts->idev = idev;
++	ts->dev = &pdev->dev;
++
++	if (pdata)
++		ts_pdata = pdata->ts;
++
++	if (ts_pdata) {
++		ts->sample_time = ts_pdata->sample_time;
++		ts->mod_12b = ts_pdata->mod_12b;
++		ts->ref_sel = ts_pdata->ref_sel;
++		ts->adc_freq = ts_pdata->adc_freq;
++		ts->ave_ctrl = ts_pdata->ave_ctrl;
++		ts->touch_det_delay = ts_pdata->touch_det_delay;
++		ts->settling = ts_pdata->settling;
++		ts->fraction_z = ts_pdata->fraction_z;
++		ts->i_drive = ts_pdata->i_drive;
++	}
++
++	INIT_DELAYED_WORK(&ts->work, stmpe_work);
++
++	ret = request_threaded_irq(ts_irq, NULL, stmpe_ts_handler,
++			IRQF_ONESHOT, STMPE_TS_NAME, ts);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to request IRQ %d\n", ts_irq);
++		goto err_free_input;
++	}
++
++	ret = stmpe_init_hw(ts);
++	if (ret)
++		goto err_free_irq;
++
++	idev->name = STMPE_TS_NAME;
++	idev->id.bustype = BUS_I2C;
++	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	idev->open = stmpe_ts_open;
++	idev->close = stmpe_ts_close;
++
++	input_set_drvdata(idev, ts);
++
++	input_set_abs_params(idev, ABS_X, 0, XY_MASK, 0, 0);
++	input_set_abs_params(idev, ABS_Y, 0, XY_MASK, 0, 0);
++	input_set_abs_params(idev, ABS_PRESSURE, 0x0, 0xff, 0, 0);
++
++	ret = input_register_device(idev);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not register input device\n");
++		goto err_free_irq;
++	}
++
++	return ret;
++
++err_free_irq:
++	free_irq(ts_irq, ts);
++err_free_input:
++	input_free_device(idev);
++	platform_set_drvdata(pdev, NULL);
++err_free_ts:
++	kfree(ts);
++err_out:
++	return ret;
++}
++
++static int __devexit stmpe_ts_remove(struct platform_device *pdev)
++{
++	struct stmpe_touch *ts = platform_get_drvdata(pdev);
++	unsigned int ts_irq = platform_get_irq_byname(pdev, "FIFO_TH");
++
++	stmpe_disable(ts->stmpe, STMPE_BLOCK_TOUCHSCREEN);
++
++	free_irq(ts_irq, ts);
++
++	platform_set_drvdata(pdev, NULL);
++
++	input_unregister_device(ts->idev);
++	input_free_device(ts->idev);
++
++	kfree(ts);
++
++	return 0;
++}
++
++static struct platform_driver stmpe_ts_driver = {
++	.driver = {
++		   .name = STMPE_TS_NAME,
++		   .owner = THIS_MODULE,
++		   },
++	.probe = stmpe_input_probe,
++	.remove = __devexit_p(stmpe_ts_remove),
++};
++
++static int __init stmpe_ts_init(void)
++{
++	return platform_driver_register(&stmpe_ts_driver);
++}
++
++module_init(stmpe_ts_init);
++
++static void __exit stmpe_ts_exit(void)
++{
++	platform_driver_unregister(&stmpe_ts_driver);
++}
++
++module_exit(stmpe_ts_exit);
++
++MODULE_AUTHOR("Luotao Fu <l.fu@pengutronix.de>");
++MODULE_DESCRIPTION("STMPEXXX touchscreen driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" STMPE_TS_NAME);
+-- 
+1.7.1

@@ -1,72 +1,103 @@
-From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3] input/misc: new ADXL345/346
-	driver
-Date: Fri, 25 Jun 2010 14:59:24 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E66DFEF69@LIMKCMBX1.ad.analog.com>
-References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
-	<1256028039-15044-1-git-send-email-vapier@gentoo.org>
-	<20100625071425.GA631@core.coreip.homeip.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen driver
+Date: Fri, 25 Jun 2010 16:08:46 +0200
+Message-ID: <4C24B86E.1030407@euromail.se>
+References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20100625071425.GA631-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Cc: "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, Chris Verges <chrisv-TDbMi1wZJFNf2ZY+IB7+a9BPR1lH4CV8@public.gmane.org>, Luotao Fu <l.fu-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay-h12.telenor.se ([62.127.194.5]:53977 "EHLO
+	smtprelay-h12.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753206Ab0FYOIx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Jun 2010 10:08:53 -0400
+Received: from ipb2.telenor.se (ipb2.telenor.se [195.54.127.165])
+	by smtprelay-h12.telenor.se (Postfix) with ESMTP id 94AA6C8AF
+	for <linux-input@vger.kernel.org>; Fri, 25 Jun 2010 16:08:51 +0200 (CEST)
+In-Reply-To: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-Dmitry Torokhov wrote on 2010-06-25:
-> Hi Mike, Michael,
->
-> On Tue, Oct 20, 2009 at 04:40:39AM -0400, Mike Frysinger wrote:
->> From: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> This is a driver for the ADXL345/346 Three-Axis Digital Accelerometers.
->>
->
-> As I mentioned in one of the threads I decided to pull 3-axis
-> acceleromenetrs into input and I am finally getting around to apply
-> the patch... However I messed a bit with it so I was wondering if
-> someone could give it a short spin to see if I broke it or not.
->
-> Thanks!
->
+Hi Joonyoung,
 
-Hi Dmitry,
+some follow-up comments on the MT events.
 
-Thanks for merging this driver.
-I gave it a quick spin. And there is one issue.
-There is a code path that is taken with the mutex held,
-which is also trying to acquire the mutex.
+> +static void qt602240_input_report(struct qt602240_data *data, int single_id)
+> +{
+> +	struct qt602240_finger *finger = data->finger;
+> +	struct input_dev *input_dev = data->input_dev;
+> +	int finger_num = 0;
+> +	int id;
+> +
+> +	for (id = 0; id < QT602240_MAX_FINGER; id++) {
+> +		if (!finger[id].status)
+> +			continue;
+> +
+> +		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
+> +				finger[id].area);
+> +
+> +		if (finger[id].status == QT602240_RELEASE)
+> +			finger[id].status = 0;
+> +		else {
+> +			input_report_abs(input_dev, ABS_MT_POSITION_X,
+> +					finger[id].x);
+> +			input_report_abs(input_dev, ABS_MT_POSITION_Y,
+> +					finger[id].y);
+> +			finger_num++;
+> +		}
+> +
+> +		input_mt_sync(input_dev);
+> +	}
+> +
+> +	input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
+> +
+> +	if (finger[single_id].status != QT602240_RELEASE) {
+> +		input_report_abs(input_dev, ABS_X, finger[single_id].x);
+> +		input_report_abs(input_dev, ABS_Y, finger[single_id].y);
+> +	}
+> +
+> +	input_sync(input_dev);
+> +}
 
-Take a look at
+The problem still persists here. I will try to explain in code form instead:
 
-adxl34x_input_close() -> __adxl34x_disable()
-or
-adxl34x_disable() -> __adxl34x_disable()
+for (id = 0; id < QT602240_MAX_FINGER; id++) {
+	if (!finger[id].status)
+		continue;
 
-I think __adxl34x_disable() should not acquire the mutex!
+	input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
+		finger[id].status != QT602240_RELEASE ? finger[id].area : 0);
+	input_report_abs(input_dev, ABS_MT_POSITION_X,
+			finger[id].x);
+	input_report_abs(input_dev, ABS_MT_POSITION_Y,
+			finger[id].y);
+	input_mt_sync(input_dev);
 
-Besides that the driver seems to work fine.
+	if (finger[id].status == QT602240_RELEASE)
+		finger[id].status = 0;
+	else
+		finger_num++;
+}
 
-We have some local enhancements for this driver which hasn't been submitted yet.
+Regarding the single_id, I can understand the need for it, but the logic for a
+single touch is slightly confusing. If single_id is to be interpreted as the
+contact currently being tracked as the single pointer, and that single_id
+changes as the number of fingers on the pad is reduced, until there is only one
+left, then it would still be clearer logically to do something like this:
 
-Mike,
+if (finger_num > 0) {
+	input_report_key(input_dev, BTN_TOUCH, 1);
+	input_report_abs(input_dev, ABS_X, finger[single_id].x);
+	input_report_abs(input_dev, ABS_Y, finger[single_id].y);
+} else {
+	input_report_key(input_dev, BTN_TOUCH, 0);
+}
+input_sync(input_dev);
 
-Can you please send Dmitry the patches?
+Would it not?
 
-Greetings,
-Michael
-
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
+Thanks,
+Henrik

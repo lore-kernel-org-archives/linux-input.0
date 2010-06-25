@@ -1,17 +1,17 @@
 From: "Webmail Service Centre" <info@webmaster.org>
 Subject: Dear Account User,
-Date: Sat, 26 Jun 2010 00:48:30 +0600
-Message-ID: <c913cdc63245bf2ab7f9a79bcba08a43.squirrel@intechworld.net>
+Date: Sat, 26 Jun 2010 00:04:25 +0600
+Message-ID: <e631caeb25d35a6f03c25bfeafcb9dbe.squirrel@intechworld.net>
 Reply-To: webadminservicecentr@mail2webmaster.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dns2.intechworld.net ([114.129.8.6]:59640 "EHLO
+Received: from dns2.intechworld.net ([114.129.8.6]:56018 "EHLO
 	dns2.intechworld.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753030Ab0FYSnE (ORCPT
+	with ESMTP id S932177Ab0FYTkY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jun 2010 14:43:04 -0400
+	Fri, 25 Jun 2010 15:40:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 

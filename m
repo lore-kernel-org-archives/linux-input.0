@@ -1,48 +1,97 @@
-From: "Webmail Service Centre" <info@webmaster.org>
-Subject: Dear Account User,
-Date: Sat, 26 Jun 2010 00:04:25 +0600
-Message-ID: <e631caeb25d35a6f03c25bfeafcb9dbe.squirrel@intechworld.net>
-Reply-To: webadminservicecentr@mail2webmaster.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Grazvydas Ignotas <notasas@gmail.com>
+Subject: [PATCH] Input: gpio-keys - add gpiolib debounce support
+Date: Sat, 26 Jun 2010 20:33:56 +0300
+Message-ID: <1277573636-10345-1-git-send-email-notasas@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dns2.intechworld.net ([114.129.8.6]:56018 "EHLO
-	dns2.intechworld.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932177Ab0FYTkY (ORCPT
+Received: from mail-wy0-f174.google.com ([74.125.82.174]:61128 "EHLO
+	mail-wy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753395Ab0FZReG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jun 2010 15:40:24 -0400
+	Sat, 26 Jun 2010 13:34:06 -0400
+Received: by wyb38 with SMTP id 38so886884wyb.19
+        for <linux-input@vger.kernel.org>; Sat, 26 Jun 2010 10:34:01 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Felipe Balbi <me@felipebalbi.com>, Grazvydas Ignotas <notasas@gmail.com>
 
-Dear Account User,
+gpiolib now has debounce support added in .35, so let's make use of it.
+This allows to use hardware GPIO debouncing on some platforms like OMAP.
 
-This message is from the Office of the Information Technology Services
-(ITS) to all webmail account owners. Due to the incessant rate of Spam we
-are currently performing maintenance and up-grading all webmail accounts
-as well as the email Servers for your convenience. All email services will
-be interrupted during this period, To prevent your account from closing
-during this exercise you will have to update it below to know it's status
-as a currently used account with a hard spam protector.
+In case gpiolib debounce setup fails for some GPIO, the driver will fall
+back to timer based debouncing, which is what it used before.
 
-This will commence on june 25th to junly 5th 2010 beginning at 9:00 p.m.
-until approximately 12:00 midnight to enable us increase the storage size
-of your webmail account. Be informed  also that we will not hesitate to
-delete your email account if not functioning to create more space for new
-users.
+Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   19 ++++++++++++++-----
+ 1 files changed, 14 insertions(+), 5 deletions(-)
 
-Confirm Your email account Details by clicking on the reply button and
-follow by your;
-
-*Email
-*Username
-*Password
-
-After upgrading, a password reset link will be sent to your email for new
-password.  Please understand that this is a security measure intended to
-help protect your email Account.
-
-Webmail Support Team
-Warning Code :ID67321434
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index b8213fd..a9fd147 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -31,6 +31,7 @@ struct gpio_button_data {
+ 	struct input_dev *input;
+ 	struct timer_list timer;
+ 	struct work_struct work;
++	int timer_debounce;	/* in msecs */
+ 	bool disabled;
+ };
+ 
+@@ -109,7 +110,7 @@ static void gpio_keys_disable_button(struct gpio_button_data *bdata)
+ 		 * Disable IRQ and possible debouncing timer.
+ 		 */
+ 		disable_irq(gpio_to_irq(bdata->button->gpio));
+-		if (bdata->button->debounce_interval)
++		if (bdata->timer_debounce)
+ 			del_timer_sync(&bdata->timer);
+ 
+ 		bdata->disabled = true;
+@@ -347,9 +348,9 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != gpio_to_irq(button->gpio));
+ 
+-	if (button->debounce_interval)
++	if (bdata->timer_debounce)
+ 		mod_timer(&bdata->timer,
+-			jiffies + msecs_to_jiffies(button->debounce_interval));
++			jiffies + msecs_to_jiffies(bdata->timer_debounce));
+ 	else
+ 		schedule_work(&bdata->work);
+ 
+@@ -383,6 +384,14 @@ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 		goto fail3;
+ 	}
+ 
++	if (button->debounce_interval) {
++		error = gpio_set_debounce(button->gpio,
++					  button->debounce_interval * 1000);
++		/* use timer if gpiolib doesn't provide debounce */
++		if (error < 0)
++			bdata->timer_debounce = button->debounce_interval;
++	}
++
+ 	irq = gpio_to_irq(button->gpio);
+ 	if (irq < 0) {
+ 		error = irq;
+@@ -498,7 +507,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+  fail2:
+ 	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
+-		if (pdata->buttons[i].debounce_interval)
++		if (ddata->data[i].timer_debounce)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+@@ -526,7 +535,7 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+ 		free_irq(irq, &ddata->data[i]);
+-		if (pdata->buttons[i].debounce_interval)
++		if (ddata->data[i].timer_debounce)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+-- 
+1.6.3.3
 

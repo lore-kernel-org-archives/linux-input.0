@@ -1,566 +1,167 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH v6 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 28 Jun 2010 20:33:44 +0900
-Message-ID: <1277724824-13308-3-git-send-email-jy0922.shim@samsung.com>
-References: <1277724824-13308-1-git-send-email-jy0922.shim@samsung.com>
+From: Richard Nauber <richard.nauber@googlemail.com>
+Subject: [PATCH v2] HID: Fix reporting of nonexistent HWheel for Elecom BM084
+ (bluetooth mouse).
+Date: Mon, 28 Jun 2010 13:45:27 +0200
+Message-ID: <4C288B57.7060600@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-reply-to: <1277724824-13308-1-git-send-email-jy0922.shim@samsung.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: kgene.kim@samsung.com, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:40760 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751712Ab0F1Lpt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jun 2010 07:45:49 -0400
+Received: by fxm14 with SMTP id 14so549435fxm.19
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 04:45:47 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
-This patch adds support for keypad driver running on Samsung cpus. This
-driver is tested on GONI and Aquila board using S5PC110 cpu.
+Hi,
+my last patch was missing the blacklist entry in hid-core.c.
+Now I think it is complete. It would be nice if you could review 
+it and add it to the input-tree, in case it is ready...
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+Greetings,
+Richard
+
+--snip--
+
+HID: Fix reporting of nonexistent HWheel for Elecom BM084 (bluetooth mouse).
+
+This patch removes the annoying feature of Elecoms BM084 to constantly scroll to the right.
+The device can be found at:
+http://www.dealextreme.com/details.dx/sku.15402
+
+Signed-off-by:  Richard Nauber <Richard.Nauber@gmail.com>
 ---
- drivers/input/keyboard/Kconfig          |    9 +
- drivers/input/keyboard/Makefile         |    1 +
- drivers/input/keyboard/samsung-keypad.c |  491 +++++++++++++++++++++++++++++++
- 3 files changed, 501 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/samsung-keypad.c
+ drivers/hid/Kconfig      |    6 +++++
+ drivers/hid/Makefile     |    1 +
+ drivers/hid/hid-core.c   |    1 +
+ drivers/hid/hid-elecom.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h    |    3 ++
+ 5 files changed, 68 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-elecom.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index d8fa5d7..bf6a50f 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -342,6 +342,15 @@ config KEYBOARD_PXA930_ROTARY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called pxa930_rotary.
- 
-+config KEYBOARD_SAMSUNG
-+	tristate "Samsung keypad support"
-+	depends on SAMSUNG_DEV_KEYPAD
-+	help
-+	  Say Y here if you want to use the Samsung keypad.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 132278f..0eac193 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -148,6 +148,12 @@ config HID_EGALAX
+ 	---help---
+ 	Support for the eGalax dual-touch panel.
+
++config HID_ELECOM
++	tristate "ELECOM"
++	depends on USB_HID
++	---help---
++	Support for the ELECOM BM084 (bluetooth mouse).
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called samsung-keypad.
-+
- config KEYBOARD_STOWAWAY
- 	tristate "Stowaway keyboard"
- 	select SERIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 4596d0c..8f973ed 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
- obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
- obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
- obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
-+obj-$(CONFIG_KEYBOARD_SAMSUNG)		+= samsung-keypad.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
- obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
- obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+ config HID_EZKEY
+ 	tristate "Ezkey" if EMBEDDED
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 987fa06..2ec042f 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -32,6 +32,7 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+ obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+ obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
+ obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
++obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+ obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index aa0f7dc..59ea24e 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1294,6 +1294,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
+diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
 new file mode 100644
-index 0000000..e467195
+index 0000000..7a40878
 --- /dev/null
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -0,0 +1,491 @@
++++ b/drivers/hid/hid-elecom.c
+@@ -0,0 +1,57 @@
 +/*
-+ * Samsung keypad driver
++ *  HID driver for Elecom BM084 (bluetooth mouse).
++ *  Removes a non-existing horizontal wheel from
++ *  the HID descriptor.
++ *  (This module is based on "hid-ortek".)
 + *
-+ * Copyright (C) 2010 Samsung Electronics Co.Ltd
-+ * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-+ * Author: Donghwa Lee <dh09.lee@samsung.com>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
++ *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
 + */
 +
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
 +#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <plat/keypad.h>
 +
-+#define SAMSUNG_KEYIFCON			0x00
-+#define SAMSUNG_KEYIFSTSCLR			0x04
-+#define SAMSUNG_KEYIFCOL			0x08
-+#define SAMSUNG_KEYIFROW			0x0c
-+#define SAMSUNG_KEYIFFC				0x10
++#include "hid-ids.h"
 +
-+/* SAMSUNG_KEYIFCON */
-+#define SAMSUNG_KEYIFCON_INT_F_EN		(1 << 0)
-+#define SAMSUNG_KEYIFCON_INT_R_EN		(1 << 1)
-+#define SAMSUNG_KEYIFCON_DF_EN			(1 << 2)
-+#define SAMSUNG_KEYIFCON_FC_EN			(1 << 3)
-+#define SAMSUNG_KEYIFCON_WAKEUPEN		(1 << 4)
++static void elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int rsize)
++{
++	if (rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
++		dev_info(&hdev->dev, "Fixing up Elecom BM084 "
++				"report descriptor.\n");
++		rdesc[47] = 0x00;
++	}
++}
 +
-+/* SAMSUNG_KEYIFSTSCLR */
-+#define SAMSUNG_KEYIFSTSCLR_P_INT_MASK		(0xff << 0)
-+#define SAMSUNG_KEYIFSTSCLR_R_INT_MASK		(0xff << 8)
-+#define SAMSUNG_KEYIFSTSCLR_R_INT_OFFSET	8
-+#define S5PV210_KEYIFSTSCLR_P_INT_MASK		(0x3fff << 0)
-+#define S5PV210_KEYIFSTSCLR_R_INT_MASK		(0x3fff << 16)
-+#define S5PV210_KEYIFSTSCLR_R_INT_OFFSET	16
++static const struct hid_device_id elecom_devices[] = {
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, elecom_devices);
 +
-+/* SAMSUNG_KEYIFCOL */
-+#define SAMSUNG_KEYIFCOL_MASK			(0xff << 0)
-+#define S5PV210_KEYIFCOLEN_MASK			(0xff << 8)
-+
-+/* SAMSUNG_KEYIFROW */
-+#define SAMSUNG_KEYIFROW_MASK			(0xff << 0)
-+#define S5PV210_KEYIFROW_MASK			(0x3fff << 0)
-+
-+/* SAMSUNG_KEYIFFC */
-+#define SAMSUNG_KEYIFFC_MASK			(0x3ff << 0)
-+
-+enum samsung_keypad_type {
-+	KEYPAD_TYPE_SAMSUNG,
-+	KEYPAD_TYPE_S5PV210,
++static struct hid_driver elecom_driver = {
++	.name = "elecom",
++	.id_table = elecom_devices,
++	.report_fixup = elecom_report_fixup
 +};
 +
-+struct samsung_keypad {
-+	struct input_dev *input_dev;
-+	struct clk *clk;
-+	void __iomem *base;
-+	wait_queue_head_t wait;
-+	bool stopped;
-+	int irq;
-+	unsigned int row_shift;
-+	unsigned int rows;
-+	unsigned int cols;
-+	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	unsigned short keycodes[];
-+};
-+
-+static int samsung_keypad_is_s5pv210(struct device *dev)
++static int __init elecom_init(void)
 +{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	enum samsung_keypad_type type =
-+		platform_get_device_id(pdev)->driver_data;
-+
-+	return type == KEYPAD_TYPE_S5PV210;
++	return hid_register_driver(&elecom_driver);
 +}
 +
-+static void samsung_keypad_scan(struct samsung_keypad *keypad,
-+				unsigned int *row_state)
++static void __exit elecom_exit(void)
 +{
-+	struct device *dev = keypad->input_dev->dev.parent;
-+	unsigned int col;
-+	unsigned int val;
-+
-+	for (col = 0; col < keypad->cols; col++) {
-+		if (samsung_keypad_is_s5pv210(dev)) {
-+			val = S5PV210_KEYIFCOLEN_MASK;
-+			val &= ~(1 << col) << 8;
-+		} else {
-+			val = SAMSUNG_KEYIFCOL_MASK;
-+			val &= ~(1 << col);
-+		}
-+
-+		writel(val, keypad->base + SAMSUNG_KEYIFCOL);
-+		mdelay(1);
-+
-+		val = readl(keypad->base + SAMSUNG_KEYIFROW);
-+		row_state[col] = ~val & ((1 << keypad->rows) - 1);
-+	}
-+
-+	/* KEYIFCOL reg clear */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
++	hid_unregister_driver(&elecom_driver);
 +}
 +
-+static bool samsung_keypad_report(struct samsung_keypad *keypad,
-+				  unsigned int *row_state)
-+{
-+	struct input_dev *input_dev = keypad->input_dev;
-+	unsigned int changed;
-+	unsigned int pressed;
-+	unsigned int key_down = 0;
-+	unsigned int val;
-+	unsigned int col, row;
-+
-+	for (col = 0; col < keypad->cols; col++) {
-+		changed = row_state[col] ^ keypad->row_state[col];
-+		key_down |= row_state[col];
-+		if (!changed)
-+			continue;
-+
-+		for (row = 0; row < keypad->rows; row++) {
-+			if (!(changed & (1 << row)))
-+				continue;
-+
-+			pressed = row_state[col] & (1 << row);
-+
-+			dev_dbg(&keypad->input_dev->dev,
-+				"key %s, row: %d, col: %d\n",
-+				pressed ? "pressed" : "released", row, col);
-+
-+			val = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-+
-+			input_event(input_dev, EV_MSC, MSC_SCAN, val);
-+			input_report_key(input_dev,
-+					keypad->keycodes[val], pressed);
-+		}
-+		input_sync(keypad->input_dev);
-+	}
-+
-+	memcpy(keypad->row_state, row_state,
-+			sizeof(row_state) * SAMSUNG_MAX_COLS);
-+
-+	return key_down;
-+}
-+
-+static irqreturn_t samsung_keypad_irq(int irq, void *dev_id)
-+{
-+	struct samsung_keypad *keypad = dev_id;
-+	unsigned int row_state[SAMSUNG_MAX_COLS];
-+	unsigned int val;
-+	bool key_down;
-+
-+	do {
-+		val = readl(keypad->base + SAMSUNG_KEYIFSTSCLR);
-+		/* Clear interrupt. */
-+		writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
-+
-+		samsung_keypad_scan(keypad, row_state);
-+
-+		key_down = samsung_keypad_report(keypad, row_state);
-+		if (key_down)
-+			wait_event_timeout(keypad->wait, keypad->stopped,
-+					   msecs_to_jiffies(50));
-+
-+	} while (key_down && !keypad->stopped);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void samsung_keypad_start(struct samsung_keypad *keypad)
-+{
-+	unsigned int val;
-+
-+	/* Tell IRQ thread that it may poll the device. */
-+	keypad->stopped = false;
-+
-+	clk_enable(keypad->clk);
-+
-+	/* Enable interrupt bits. */
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	val |= SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN;
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	/* KEYIFCOL reg clear. */
-+	writel(0, keypad->base + SAMSUNG_KEYIFCOL);
-+}
-+
-+static void samsung_keypad_stop(struct samsung_keypad *keypad)
-+{
-+	unsigned int val;
-+
-+	/* Signal IRQ thread to stop polling and disable the handler. */
-+	keypad->stopped = true;
-+	wake_up(&keypad->wait);
-+	disable_irq(keypad->irq);
-+
-+	/* Clear interrupt. */
-+	writel(~0x0, keypad->base + SAMSUNG_KEYIFSTSCLR);
-+
-+	/* Disable interrupt bits. */
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	val &= ~(SAMSUNG_KEYIFCON_INT_F_EN | SAMSUNG_KEYIFCON_INT_R_EN);
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	clk_disable(keypad->clk);
-+
-+	/*
-+	 * Now that chip should not generate interrupts we can safely
-+	 * re-enable the handler.
-+	 */
-+	enable_irq(keypad->irq);
-+}
-+
-+static int samsung_keypad_open(struct input_dev *input_dev)
-+{
-+	struct samsung_keypad *keypad = input_get_drvdata(input_dev);
-+
-+	samsung_keypad_start(keypad);
-+
-+	return 0;
-+}
-+
-+static void samsung_keypad_close(struct input_dev *input_dev)
-+{
-+	struct samsung_keypad *keypad = input_get_drvdata(input_dev);
-+
-+	samsung_keypad_stop(keypad);
-+}
-+
-+static int __devinit samsung_keypad_probe(struct platform_device *pdev)
-+{
-+	const struct samsung_keypad_platdata *pdata;
-+	const struct matrix_keymap_data *keymap_data;
-+	struct samsung_keypad *keypad;
-+	struct resource *res;
-+	struct input_dev *input_dev;
-+	unsigned int row_shift;
-+	unsigned int keymap_size;
-+	int error;
-+
-+	pdata = pdev->dev.platform_data;
-+	if (!pdata) {
-+		dev_err(&pdev->dev, "no platform data defined\n");
-+		return -EINVAL;
-+	}
-+
-+	keymap_data = pdata->keymap_data;
-+	if (!keymap_data) {
-+		dev_err(&pdev->dev, "no keymap data defined\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!pdata->rows || pdata->rows > SAMSUNG_MAX_ROWS)
-+		return -EINVAL;
-+
-+	if (!pdata->cols || pdata->cols > SAMSUNG_MAX_COLS)
-+		return -EINVAL;
-+
-+	/* initialize the gpio */
-+	if (pdata->cfg_gpio)
-+		pdata->cfg_gpio(pdata->rows, pdata->cols);
-+
-+	row_shift = get_count_order(pdata->cols);
-+	keymap_size = (pdata->rows << row_shift) * sizeof(keypad->keycodes[0]);
-+
-+	keypad = kzalloc(sizeof(*keypad) + keymap_size, GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!keypad || !input_dev) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		error = -ENODEV;
-+		goto err_free_mem;
-+	}
-+
-+	keypad->base = ioremap(res->start, resource_size(res));
-+	if (!keypad->base) {
-+		error = -EBUSY;
-+		goto err_free_mem;
-+	}
-+
-+	keypad->clk = clk_get(&pdev->dev, "keypad");
-+	if (IS_ERR(keypad->clk)) {
-+		dev_err(&pdev->dev, "failed to get keypad clk\n");
-+		error = PTR_ERR(keypad->clk);
-+		goto err_unmap_base;
-+	}
-+
-+	keypad->input_dev = input_dev;
-+	keypad->row_shift = row_shift;
-+	keypad->rows = pdata->rows;
-+	keypad->cols = pdata->cols;
-+	init_waitqueue_head(&keypad->wait);
-+
-+	input_dev->name = pdev->name;
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->dev.parent = &pdev->dev;
-+	input_set_drvdata(input_dev, keypad);
-+
-+	input_dev->open = samsung_keypad_open;
-+	input_dev->close = samsung_keypad_close;
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY);
-+	if (!pdata->no_autorepeat)
-+		input_dev->evbit[0] |= BIT_MASK(EV_REP);
-+
-+	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-+
-+	input_dev->keycode = keypad->keycodes;
-+	input_dev->keycodesize = sizeof(keypad->keycodes[0]);
-+	input_dev->keycodemax = pdata->rows << row_shift;
-+
-+	matrix_keypad_build_keymap(keymap_data, row_shift,
-+			input_dev->keycode, input_dev->keybit);
-+
-+	keypad->irq = platform_get_irq(pdev, 0);
-+	if (keypad->irq < 0) {
-+		error = keypad->irq;
-+		goto err_put_clk;
-+	}
-+
-+	error = request_threaded_irq(keypad->irq, NULL, samsung_keypad_irq,
-+			IRQF_ONESHOT, dev_name(&pdev->dev), keypad);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register keypad interrupt\n");
-+		goto err_put_clk;
-+	}
-+
-+	error = input_register_device(keypad->input_dev);
-+	if (error)
-+		goto err_free_irq;
-+
-+	device_init_wakeup(&pdev->dev, pdata->wakeup);
-+	platform_set_drvdata(pdev, keypad);
-+	return 0;
-+
-+err_free_irq:
-+	free_irq(keypad->irq, keypad);
-+err_put_clk:
-+	clk_put(keypad->clk);
-+err_unmap_base:
-+	iounmap(keypad->base);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(keypad);
-+
-+	return error;
-+}
-+
-+static int __devexit samsung_keypad_remove(struct platform_device *pdev)
-+{
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	device_init_wakeup(&pdev->dev, 0);
-+	platform_set_drvdata(pdev, NULL);
-+
-+	input_unregister_device(keypad->input_dev);
-+
-+	/*
-+	 * It is safe to free IRQ after unregistering device because
-+	 * samsung_keypad_close will shut off interrupts.
-+	 */
-+	free_irq(keypad->irq, keypad);
-+
-+	clk_put(keypad->clk);
-+
-+	iounmap(keypad->base);
-+	kfree(keypad);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static void samsung_keypad_toggle_wakeup(struct samsung_keypad *keypad,
-+					 bool enable)
-+{
-+	struct device *dev = keypad->input_dev->dev.parent;
-+	unsigned int val;
-+
-+	clk_enable(keypad->clk);
-+
-+	val = readl(keypad->base + SAMSUNG_KEYIFCON);
-+	if (enable) {
-+		val |= SAMSUNG_KEYIFCON_WAKEUPEN;
-+		if (device_may_wakeup(dev))
-+			enable_irq_wake(keypad->irq);
-+	} else {
-+		val &= ~SAMSUNG_KEYIFCON_WAKEUPEN;
-+		if (device_may_wakeup(dev))
-+			disable_irq_wake(keypad->irq);
-+	}
-+	writel(val, keypad->base + SAMSUNG_KEYIFCON);
-+
-+	clk_disable(keypad->clk);
-+}
-+
-+static int samsung_keypad_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = keypad->input_dev;
-+
-+	mutex_lock(&input_dev->mutex);
-+
-+	if (input_dev->users)
-+		samsung_keypad_stop(keypad);
-+
-+	samsung_keypad_toggle_wakeup(keypad, true);
-+
-+	mutex_unlock(&input_dev->mutex);
-+
-+	return 0;
-+}
-+
-+static int samsung_keypad_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
-+	struct input_dev *input_dev = keypad->input_dev;
-+
-+	mutex_lock(&input_dev->mutex);
-+
-+	samsung_keypad_toggle_wakeup(keypad, false);
-+
-+	if (input_dev->users)
-+		samsung_keypad_start(keypad);
-+
-+	mutex_unlock(&input_dev->mutex);
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops samsung_keypad_pm_ops = {
-+	.suspend	= samsung_keypad_suspend,
-+	.resume		= samsung_keypad_resume,
-+};
-+#endif
-+
-+static struct platform_device_id samsung_keypad_driver_ids[] = {
-+	{
-+		.name		= "samsung-keypad",
-+		.driver_data	= KEYPAD_TYPE_SAMSUNG,
-+	}, {
-+		.name		= "s5pv210-keypad",
-+		.driver_data	= KEYPAD_TYPE_S5PV210,
-+	},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(platform, samsung_keypad_driver_ids);
-+
-+static struct platform_driver samsung_keypad_driver = {
-+	.probe		= samsung_keypad_probe,
-+	.remove		= __devexit_p(samsung_keypad_remove),
-+	.driver		= {
-+		.name	= "samsung-keypad",
-+		.owner	= THIS_MODULE,
-+#ifdef CONFIG_PM
-+		.pm	= &samsung_keypad_pm_ops,
-+#endif
-+	},
-+	.id_table	= samsung_keypad_driver_ids,
-+};
-+
-+static int __init samsung_keypad_init(void)
-+{
-+	return platform_driver_register(&samsung_keypad_driver);
-+}
-+module_init(samsung_keypad_init);
-+
-+static void __exit samsung_keypad_exit(void)
-+{
-+	platform_driver_unregister(&samsung_keypad_driver);
-+}
-+module_exit(samsung_keypad_exit);
-+
-+MODULE_DESCRIPTION("Samsung keypad driver");
-+MODULE_AUTHOR("Joonyoung Shim <jy0922.shim@samsung.com>");
-+MODULE_AUTHOR("Donghwa Lee <dh09.lee@samsung.com>");
++module_init(elecom_init);
++module_exit(elecom_exit);
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:samsung-keypad");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6af77ed..55cecb7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -186,6 +186,9 @@
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH	0x480d
+
++#define USB_VENDOR_ID_ELECOM		0x056e
++#define USB_DEVICE_ID_ELECOM_BM084	0x0061
++
+ #define USB_VENDOR_ID_ELO		0x04E7
+ #define USB_DEVICE_ID_ELO_TS2700	0x0020
+
 -- 
-1.7.0.4
+1.6.4.2
+

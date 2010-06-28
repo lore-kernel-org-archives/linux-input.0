@@ -1,51 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen
- driver
-Date: Mon, 28 Jun 2010 02:01:35 -0700
-Message-ID: <20100628090135.GA13523@core.coreip.homeip.net>
-References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
- <4C24B86E.1030407@euromail.se>
- <4C283048.1090601@samsung.com>
- <4C285124.1050201@euromail.se>
- <4C285AB1.7030301@samsung.com>
- <4C285E85.6080008@euromail.se>
- <20100628084212.GE25287@core.coreip.homeip.net>
- <4C286183.6080304@euromail.se>
+Subject: Re: [PATCH v5 3/3] input: samsung-keypad - Add samsung keypad driver
+Date: Mon, 28 Jun 2010 02:01:56 -0700
+Message-ID: <20100628090156.GB13523@core.coreip.homeip.net>
+References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
+ <1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
+ <20100625083019.GD8546@core.coreip.homeip.net>
+ <4C285FCB.3070100@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:48081 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755046Ab0F1JBo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 05:01:44 -0400
-Received: by pvg2 with SMTP id 2so1802787pvg.19
-        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 02:01:43 -0700 (PDT)
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4C286183.6080304@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <4C285FCB.3070100@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org, kyungmin.park@samsung.com, kgene.kim@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-On Mon, Jun 28, 2010 at 10:46:59AM +0200, Henrik Rydberg wrote:
-> Dmitry Torokhov wrote:
-> > On Mon, Jun 28, 2010 at 10:34:13AM +0200, Henrik Rydberg wrote:
-> >> It is a bit confusing I agree, but the document is correct. The empty
-> >> input_mt_sync() is used when there is no data to report, no lifted fingers,
-> >> nothing. Just imagine a device which gets polled periodically.
+On Mon, Jun 28, 2010 at 05:39:39PM +0900, Joonyoung Shim wrote:
+> Hi, Dmitry.
+> 
+> On 6/25/2010 5:30 PM, Dmitry Torokhov wrote:
+> > Hi Joonyoung,
 > > 
-> > If there is no new data to report why we need to call input_mt_sync() at
-> > all? You can send input_sync() but input core will filter it out...
+> > On Mon, Jun 21, 2010 at 03:26:45PM +0900, Joonyoung Shim wrote:
+> >> This patch adds support for keypad driver running on Samsung cpus. This
+> >> driver is tested on GONI and Aquila board using S5PC110 cpu.
+> >>
+> >> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> >> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> > 
+> > Following my conversation with Thomas Gleixner reagrding "long playing"
+> > threaded interrupt handlers I tried to convert your driver to use this
+> > concept. The idea is to keep polling within IRQ thread context instead
+> > of using additional work/timer structures to simplify code and ensure
+> > race-free shutdown/unbind.
+> > 
+> > I think it was based on v4 of your driver and I'd appreciate if you could
+> > give it a try.
+> > 
+> > Thank you.
 > > 
 > 
-> Yep, that is the reason. Admittedly, this is a corner cases that type A does not
-> handle very gracefully, but it works. The only device so far where this seems
-> useful is for the magic mouse, which does not want to report BTN_TOUCH at all.
-> 
+> I have tested your patch on my v5 patchset and it is working after some
+> fixing. I will post v6 patchset appling your patch.
 
-So what if we filter everything out? Userspace will never know that we
-got an interrupt and will be just fine...
+Cool, thanks.
 
 -- 
 Dmitry

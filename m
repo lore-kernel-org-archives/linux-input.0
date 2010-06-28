@@ -1,45 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] wistron_btns: fix a memory leak in wb_module_init error
- path
-Date: Mon, 28 Jun 2010 01:02:35 -0700
-Message-ID: <20100628080235.GB25287@core.coreip.homeip.net>
-References: <1277706620.4148.2.camel@mola>
+Subject: Re: [PATCH 1/2] Input: ads7846 - allow specifying irq trigger type
+ in platform data
+Date: Mon, 28 Jun 2010 01:32:08 -0700
+Message-ID: <20100628083208.GD25287@core.coreip.homeip.net>
+References: <1272630181-5364-1-git-send-email-agust@denx.de>
+ <20100531212820.322d5bfd@wker>
+ <20100625113534.77524c85@wker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:48678 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754833Ab0F1IcO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jun 2010 04:32:14 -0400
+Received: by pxi8 with SMTP id 8so1642725pxi.19
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 01:32:14 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1277706620.4148.2.camel@mola>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Miloslav Trmac <mitr@volny.cz>, Rakib Mullick <rakib.mullick@gmail.com>, TJ <ubuntu@tjworld.net>, Julia Lawall <julia@diku.dk>, Samu Onkalo <samu.p.onkalo@nokia.com>, linux-input@vger.kernel.org
+In-Reply-To: <20100625113534.77524c85@wker>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anatolij Gustschin <agust@denx.de>
+Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
 
-Hi Axel,
-
-On Mon, Jun 28, 2010 at 02:30:20PM +0800, Axel Lin wrote:
-> select_keymap calls copy_keymap to allocate a memory for keymap.
-> This patch adds a missing kfree(keymap) in wb_module_init error path.
+On Fri, Jun 25, 2010 at 11:35:34AM +0200, Anatolij Gustschin wrote:
+> On Mon, 31 May 2010 21:28:20 +0200
+> Anatolij Gustschin <agust@denx.de> wrote:
 > 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
->  drivers/input/misc/wistron_btns.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
+> > Hi Dmitry,
+> > 
+> > On Fri, 30 Apr 2010 14:23:00 +0200
+> > Anatolij Gustschin <agust@denx.de> wrote:
+> > 
+> > > On some platforms, for example with GPIO interrupts
+> > > on mpc5121, it is not possible to configure falling edge
+> > > interrupts.
+> > > 
+> > > Specifying irq trigger type in platform data structure
+> > > allows using ads7846 driver on such platforms.
+> > > 
+> > > Signed-off-by: Anatolij Gustschin <agust@denx.de>
+> > > ---
+> > >  drivers/input/touchscreen/ads7846.c |    5 ++++-
+> > >  include/linux/spi/ads7846.h         |    1 +
+> > >  2 files changed, 5 insertions(+), 1 deletions(-)
+> > 
+> > Any comments on these patches?
 > 
-> diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
-> index 4dac8b7..55ce70e 100644
-> --- a/drivers/input/misc/wistron_btns.c
-> +++ b/drivers/input/misc/wistron_btns.c
-> @@ -1371,6 +1371,7 @@ static int __init wb_module_init(void)
->  	platform_driver_unregister(&wistron_driver);
->   err_unmap_bios:
->  	unmap_bios();
-> +	kfree(keymap);
+> Ping? The patches still apply on top of the input.git/next branch.
+> 
 
-Thank you for the patch, however this is not quite enough - we also need
-to free keymap when map_bios() call fails instead of returning
-immediately.
+I applied the first one (however changed irq_trigger to be unsigned
+long) however I'd like better changelog for 7845 changes.
 
-I fixed up locally and applied the patch.
+Thanks.
 
 -- 
 Dmitry

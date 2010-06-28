@@ -1,54 +1,67 @@
 From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen driver
-Date: Mon, 28 Jun 2010 20:12:41 +0900
-Message-ID: <4C2883A9.5060305@samsung.com>
-References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
- <4C24B86E.1030407@euromail.se> <4C283048.1090601@samsung.com>
- <4C285124.1050201@euromail.se> <4C285AB1.7030301@samsung.com>
- <4C285E85.6080008@euromail.se> <4C2865D0.7020605@samsung.com>
- <4C28689A.60701@euromail.se> <4C2872B2.1030405@samsung.com>
- <4C2877F3.8020003@euromail.se>
+Subject: [PATCH v6 0/3] Add samsung keypad
+Date: Mon, 28 Jun 2010 20:34:09 +0900
+Message-ID: <4C2888B1.7080704@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:27700 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751182Ab0F1LMn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 07:12:43 -0400
-Received: from epmmp1 (mailout1.samsung.com [203.254.224.24])
- by mailout1.samsung.com
- (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
- with ESMTP id <0L4Q00FW11T6TR50@mailout1.samsung.com> for
- linux-input@vger.kernel.org; Mon, 28 Jun 2010 20:12:42 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0L4Q00E1U1T6J0@mmp1.samsung.com> for
- linux-input@vger.kernel.org; Mon, 28 Jun 2010 20:12:42 +0900 (KST)
-In-reply-to: <4C2877F3.8020003@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org, dmitry.torokhov@gmail.com, kyungmin.park@samsung.com, kgene.kim@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-On 6/28/2010 7:22 PM, Henrik Rydberg wrote:
-> Joonyoung Shim wrote:
-> [...]
->> Do you mean to report the coordinates of contact __remaining__? You told 
->> me at first, "The position should be the position where the finger left
->> the surface", so i am confusing.
-> 
-> The two comments do not apply to the same situation. The latter comment was made
-> in the context of a tracking-capable device which sends one last event for a
-> finger going away. Transformed to the stateless type A protocol, that results in
-> (touch = 0, x = last value, y = last value). 
-> The former comment was in the
-> general context of the type A protocol, which has no notion of anything going
-> away. After you lift a finger and look at the state, what you see is the
-> remaining set of fingers.
-> 
+This is patch v6 series to add Samsung keypad.
 
-OK, i see, but i think it needs to add the latter comment on MT protocol 
-document to prevent some confusion.
+Changes since v1:
+- Include linux/gpio.h instead of mach/gpio.h
+- Switch to dev_pm_ops in the samsung keypad driver
 
+Changes since v2:
+- Add keypad device types to remove platform specific #ifdef
+- Remove unnecessary include and checking codes.
+- Rename from 'kp' to 'keypad'
+- Rename keypad registers definition
+- Modify 'rep' variable declaration
+
+Changes since v3:
+- Use schedule_delayed_work and remove timer
+- Modify memory alloc codes
+- Add MODULE_ALIAS() and missing error printk
+- Change from rep to no_autorepeat and it's type to bool
+- Add report EV_MSC/MSC_SCAN and wakeup control
+- Remove s3c_set_platdata() call because there is not yet
+
+Changes since v4:
+- Add and use samsung_keypad_setname function
+- Add more specific gpio comments
+
+Changes since v5:
+- Add Dmitry patch about threaded IRQs and some fixing
+- Remove clock gating for irq
+
+Joonyoung Shim (3):
+      ARM: SAMSUNG: Add keypad device support
+      ARM: S5PV210: Add keypad device helpers
+      input: samsung-keypad - Add samsung keypad driver
+
+ arch/arm/mach-s5pv210/Kconfig                    |    5 +
+ arch/arm/mach-s5pv210/Makefile                   |    1 +
+ arch/arm/mach-s5pv210/cpu.c                      |    4 +
+ arch/arm/mach-s5pv210/include/mach/map.h         |    3 +
+ arch/arm/mach-s5pv210/setup-keypad.c             |   34 ++
+ arch/arm/plat-samsung/Kconfig                    |    5 +
+ arch/arm/plat-samsung/Makefile                   |    1 +
+ arch/arm/plat-samsung/dev-keypad.c               |   58 +++
+ arch/arm/plat-samsung/include/plat/devs.h        |    2 +
+ arch/arm/plat-samsung/include/plat/keypad-core.h |   31 ++
+ arch/arm/plat-samsung/include/plat/keypad.h      |   59 +++
+ drivers/input/keyboard/Kconfig                   |    9 +
+ drivers/input/keyboard/Makefile                  |    1 +
+ drivers/input/keyboard/samsung-keypad.c          |  491 ++++++++++++++++++++++
+ 14 files changed, 704 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/mach-s5pv210/setup-keypad.c
+ create mode 100644 arch/arm/plat-samsung/dev-keypad.c
+ create mode 100644 arch/arm/plat-samsung/include/plat/keypad-core.h
+ create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
+ create mode 100644 drivers/input/keyboard/samsung-keypad.c

@@ -1,50 +1,112 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 28 Jun 2010 02:01:56 -0700
-Message-ID: <20100628090156.GB13523@core.coreip.homeip.net>
-References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
- <1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
- <20100625083019.GD8546@core.coreip.homeip.net>
- <4C285FCB.3070100@samsung.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen driver
+Date: Mon, 28 Jun 2010 18:05:20 +0900
+Message-ID: <4C2865D0.7020605@samsung.com>
+References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
+ <4C24B86E.1030407@euromail.se> <4C283048.1090601@samsung.com>
+ <4C285124.1050201@euromail.se> <4C285AB1.7030301@samsung.com>
+ <4C285E85.6080008@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4C285FCB.3070100@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-input@vger.kernel.org, ben-linux@fluff.org, kyungmin.park@samsung.com, kgene.kim@samsung.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:41306 "EHLO
+	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753184Ab0F1JFe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jun 2010 05:05:34 -0400
+Received: from epmmp1 (mailout3.samsung.com [203.254.224.33])
+ by mailout3.samsung.com
+ (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
+ with ESMTP id <0L4P0006RVWWVB50@mailout3.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 28 Jun 2010 18:05:20 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0L4P00BE2VWWGW@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Mon, 28 Jun 2010 18:05:20 +0900 (KST)
+In-reply-to: <4C285E85.6080008@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-On Mon, Jun 28, 2010 at 05:39:39PM +0900, Joonyoung Shim wrote:
-> Hi, Dmitry.
+On 6/28/2010 5:34 PM, Henrik Rydberg wrote:
+> Joonyoung Shim wrote:
+> [...]
+>> I see, but i have something wondering at your document.
+>>
+>> This is your patch of "Document the MT event slot protocol"
+>>
+>> +Protocol Example A
+>> +------------------
+>> +
+>> +Here is what a minimal event sequence for a two-contact touch would look
+>> +like for a type A device:
+>> +
+>> +   ABS_MT_POSITION_X x[0]
+>> +   ABS_MT_POSITION_Y y[0]
+>> +   SYN_MT_REPORT
+>> +   ABS_MT_POSITION_X x[1]
+>> +   ABS_MT_POSITION_Y y[1]
+>> +   SYN_MT_REPORT
+>> +   SYN_REPORT
+>>
+>> +The sequence after moving one of the contacts looks exactly the same; the
+>> +raw data for all present contacts are sent between every synchronization
+>> +with SYN_REPORT.
+>>
+>> -Usage
+>> ------
+>> +Here is the sequence after lifting the first contact:
+>> +
+>> +   ABS_MT_POSITION_X x[1]
+>> +   ABS_MT_POSITION_Y y[1]
+>> +   SYN_MT_REPORT
+>> +   SYN_REPORT
+>> +
+>> +And here is the sequence after lifting the second contact:
+>> +
+>> +   SYN_MT_REPORT
+>> +   SYN_REPORT
+>> +
+>>
+>> Here, there is no reporting for ABS_MT_POSITION_X/Y event, because that
+>> is the last contact?
+>> Then, the coordinates of the first contact are x[1] and y[1], right? If 
+>> yes, it is some confusing, i think they are x[0] and y[0].
 > 
-> On 6/25/2010 5:30 PM, Dmitry Torokhov wrote:
-> > Hi Joonyoung,
-> > 
-> > On Mon, Jun 21, 2010 at 03:26:45PM +0900, Joonyoung Shim wrote:
-> >> This patch adds support for keypad driver running on Samsung cpus. This
-> >> driver is tested on GONI and Aquila board using S5PC110 cpu.
-> >>
-> >> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> >> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> > 
-> > Following my conversation with Thomas Gleixner reagrding "long playing"
-> > threaded interrupt handlers I tried to convert your driver to use this
-> > concept. The idea is to keep polling within IRQ thread context instead
-> > of using additional work/timer structures to simplify code and ensure
-> > race-free shutdown/unbind.
-> > 
-> > I think it was based on v4 of your driver and I'd appreciate if you could
-> > give it a try.
-> > 
-> > Thank you.
-> > 
+> It is a bit confusing I agree, but the document is correct. The empty
+> input_mt_sync() is used when there is no data to report, no lifted fingers,
+> nothing. Just imagine a device which gets polled periodically.
 > 
-> I have tested your patch on my v5 patchset and it is working after some
-> fixing. I will post v6 patchset appling your patch.
 
-Cool, thanks.
+The thing i wondering is why reports x[1] and y[1] instead of x[0] and 
+y[0] after lifting the first contact. I have understood the first 
+contact are x[0] and y[0] and the second contact are x[1] and y[1].
 
--- 
-Dmitry
+> [...]
+>>> I see. And you want BTN_TOUCH to follow the logic for the single touch? I think
+>>> that is the main issue here. We can have _one_ of the following definitions, but
+>>> not both:
+>>>
+>>> 1. input_report_key(input_dev, BTN_TOUCH, finger_num > 0);
+>>>
+>> OK, i will use this. This was original code.
+>>
+>>> 2. input_report_key(input_dev, BTN_TOUCH,
+>>>                     finger[single_id].status != QT602240_RELEASE);
+>>>
+>>> If you use the latter, there should be another event to denote the finger_num ==
+>>> 0 case. This line at the end should do it:
+>>>
+>>> if (finger_num == 0)
+>>> 	input_mt_sync(input_dev);
+>>>
+>> I don't know why this needs?
+> 
+> The general reason is the one given above. Since you are going with the first
+> option, it won't be needed.
+> 
+
+But, input_mt_sync is reported already with reporting of ABS_MT_POSITION_X/Y.
+I meant the case of single touch reporting.

@@ -1,168 +1,105 @@
-From: Richard Nauber <richard.nauber@googlemail.com>
-Subject: Re: [PATCH v2] HID: Fix reporting of nonexistent HWheel for Elecom
- BM084 (bluetooth mouse).
-Date: Mon, 28 Jun 2010 18:54:25 +0200
-Message-ID: <4C28D3C1.7070307@googlemail.com>
-References: <4C288B57.7060600@googlemail.com> <20100628163451.GB11670@core.coreip.homeip.net> <alpine.LNX.2.00.1006281837090.13809@pobox.suse.cz>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: [PATCH 1/2] ir-core: centralize sysfs raw decoder enabling/disabling
+Date: Mon, 28 Jun 2010 13:56:16 -0300
+Message-ID: <4C28D430.9010305@redhat.com>
+References: <20100613202718.6044.29599.stgit@localhost.localdomain> <20100613202930.6044.97940.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:48798 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751263Ab0F1Qyo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 12:54:44 -0400
-Received: by fxm14 with SMTP id 14so843063fxm.19
-        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 09:54:43 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.1006281837090.13809@pobox.suse.cz>
+Received: from mx1.redhat.com ([209.132.183.28]:9471 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752289Ab0F1Q4d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jun 2010 12:56:33 -0400
+In-Reply-To: <20100613202930.6044.97940.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
+To: =?UTF-8?B?RGF2aWQgSMOkcmRlbWFu?= <david@hardeman.nu>
+Cc: jarod@wilsonet.com, jarod@redhat.com, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Ok, how about this:
+Em 13-06-2010 17:29, David H=C3=A4rdeman escreveu:
+> With the current logic, each raw decoder needs to add a copy of the e=
+xact
+> same sysfs code. This is both unnecessary and also means that (re)loa=
+ding
+> an IR driver after raw decoder modules have been loaded won't work as
+> expected.
+>=20
+> This patch moves that logic into ir-raw-event and adds a single sysfs
+> file per device.
+>=20
+> Reading that file returns something like:
+>=20
+> 	"rc5 [rc6] nec jvc [sony]"
+>=20
+> (with enabled protocols in [] brackets)
+>=20
+> Writing either "+protocol" or "-protocol" to that file will
+> enable or disable the according protocol decoder.
+>=20
+> An additional benefit is that the disabling of a decoder will be
+> remembered across module removal/insertion so a previously
+> disabled decoder won't suddenly be activated again. The default
+> setting is to enable all decoders.
+>=20
+> This is also necessary for the next patch which moves even more decod=
+er
+> state into the central raw decoding structs.
+>=20
+> Signed-off-by: David H=C3=A4rdeman <david@hardeman.nu>
 
--snip-
+> +	if (!strncasecmp(tmp, "unknown", 7)) {
+> +		tmp +=3D 7;
+> +		mask =3D IR_TYPE_UNKNOWN;
+> +	} else if (!strncasecmp(tmp, "rc5", 3)) {
+> +		tmp +=3D 3;
+> +		mask =3D IR_TYPE_RC5;
+> +	} else if (!strncasecmp(tmp, "nec", 3)) {
+> +		tmp +=3D 3;
+> +		mask =3D IR_TYPE_NEC;
+> +	} else if (!strncasecmp(tmp, "rc6", 3)) {
+> +		tmp +=3D 3;
+> +		mask =3D IR_TYPE_RC6;
+> +	} else if (!strncasecmp(tmp, "jvc", 3)) {
+> +		tmp +=3D 3;
+> +		mask =3D IR_TYPE_JVC;
+> +	} else if (!strncasecmp(tmp, "sony", 4)) {
+> +		tmp +=3D 4;
+> +		mask =3D IR_TYPE_SONY;
+> +	} else {
+>  		IR_dprintk(1, "Unknown protocol\n");
+>  		return -EINVAL;
+>  	}
 
-This patch removes the annoying feature of Elecoms BM084 to constantly scroll to the right.
-The device can be found at:
-http://www.dealextreme.com/details.dx/sku.15402
+Those "magic" sizes at the strcasecmp are ugly. Also, you didn't send
+a patch for the ir-keytable userspace tool (part of v4l-utils.git tree)=
+=2E
 
-Signed-off-by:  Richard Nauber <Richard.Nauber@gmail.com>
----
- drivers/hid/Kconfig      |    6 +++++
- drivers/hid/Makefile     |    1 +
- drivers/hid/hid-core.c   |    1 +
- drivers/hid/hid-elecom.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h    |    3 ++
- 5 files changed, 68 insertions(+), 0 deletions(-)
- create mode 100644 drivers/hid/hid-elecom.c
+Also, this allows some undocumented (and problematic) ways to set proto=
+cols.=20
+=46or example, if someone writes: something like "rc5necjvcsony"
+(on this exact order and without spaces), it will accept it as just "so=
+ny",
+without complaining.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 132278f..0eac193 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -148,6 +148,12 @@ config HID_EGALAX
- 	---help---
- 	Support for the eGalax dual-touch panel.
- 
-+config HID_ELECOM
-+	tristate "ELECOM"
-+	depends on BT_HIDP
-+	---help---
-+	Support for the ELECOM BM084 (bluetooth mouse).
-+
- config HID_EZKEY
- 	tristate "Ezkey" if EMBEDDED
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 987fa06..2ec042f 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
- obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
-+obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
- obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index aa0f7dc..59ea24e 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1294,6 +1294,7 @@ static const struct hid_device_id hid_blacklist[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-new file mode 100644
-index 0000000..7a40878
---- /dev/null
-+++ b/drivers/hid/hid-elecom.c
-@@ -0,0 +1,57 @@
-+/*
-+ *  HID driver for Elecom BM084 (bluetooth mouse).
-+ *  Removes a non-existing horizontal wheel from
-+ *  the HID descriptor.
-+ *  (This module is based on "hid-ortek".)
-+ *
-+ *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+static void elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int rsize)
-+{
-+	if (rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
-+		dev_info(&hdev->dev, "Fixing up Elecom BM084 "
-+				"report descriptor.\n");
-+		rdesc[47] = 0x00;
-+	}
-+}
-+
-+static const struct hid_device_id elecom_devices[] = {
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
-+	{ } heads up and
-+};
-+MODULE_DEVICE_TABLE(hid, elecom_devices);
-+
-+static struct hid_driver elecom_driver = {
-+	.name = "elecom",
-+	.id_table = elecom_devices,
-+	.report_fixup = elecom_report_fixup
-+};
-+
-+static int __init elecom_init(void)
-+{
-+	return hid_register_driver(&elecom_driver);
-+}
-+
-+static void __exit elecom_exit(void)
-+{
-+	hid_unregister_driver(&elecom_driver);
-+}
-+
-+module_init(elecom_init);
-+module_exit(elecom_exit);
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6af77ed..55cecb7 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -186,6 +186,9 @@
- #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH	0x480d
- 
-+#define USB_VENDOR_ID_ELECOM		0x056e
-+#define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+
- #define USB_VENDOR_ID_ELO		0x04E7
- #define USB_DEVICE_ID_ELO_TS2700	0x0020
- 
--- 
-1.6.4.2
+As I found some time during the weekend to add support for the new /pro=
+tocols way at
+the userspace tool, I'll be applying this patch as-is, plus a few patch=
+es after it=20
+fixing the problems I found and adding some additional features that wi=
+ll be needed,
+in order to make userspace stuff easier, like supporting multiple proto=
+cols specs
+without needing to close/open the sysfs node for each protocol.
 
+Btw, we should start writing some docs about the sysfs interface at the=
+ media
+specs (at Documentation/DocBoook).
 
-
-Thanks for the review (and to Dmitry for pointing me into the right direction, spacibo!)
-Richard
-
-
+Cheers,
+Mauro
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

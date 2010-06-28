@@ -1,53 +1,39 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v5 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 28 Jun 2010 17:39:39 +0900
-Message-ID: <4C285FCB.3070100@samsung.com>
-References: <1277101605-2435-1-git-send-email-jy0922.shim@samsung.com>
-	<1277101605-2435-3-git-send-email-jy0922.shim@samsung.com>
-	<20100625083019.GD8546@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen
+ driver
+Date: Mon, 28 Jun 2010 01:42:12 -0700
+Message-ID: <20100628084212.GE25287@core.coreip.homeip.net>
+References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
+ <4C24B86E.1030407@euromail.se>
+ <4C283048.1090601@samsung.com>
+ <4C285124.1050201@euromail.se>
+ <4C285AB1.7030301@samsung.com>
+ <4C285E85.6080008@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-reply-to: <20100625083019.GD8546@core.coreip.homeip.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kgene.kim@samsung.com, kyungmin.park@samsung.com, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:34187 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753184Ab0F1ImS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Jun 2010 04:42:18 -0400
+Received: by pwj8 with SMTP id 8so3292326pwj.19
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 01:42:18 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4C285E85.6080008@euromail.se>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-Hi, Dmitry.
+On Mon, Jun 28, 2010 at 10:34:13AM +0200, Henrik Rydberg wrote:
+> 
+> It is a bit confusing I agree, but the document is correct. The empty
+> input_mt_sync() is used when there is no data to report, no lifted fingers,
+> nothing. Just imagine a device which gets polled periodically.
 
-On 6/25/2010 5:30 PM, Dmitry Torokhov wrote:
-> Hi Joonyoung,
-> 
-> On Mon, Jun 21, 2010 at 03:26:45PM +0900, Joonyoung Shim wrote:
->> This patch adds support for keypad driver running on Samsung cpus. This
->> driver is tested on GONI and Aquila board using S5PC110 cpu.
->>
->> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
->> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-> 
-> Following my conversation with Thomas Gleixner reagrding "long playing"
-> threaded interrupt handlers I tried to convert your driver to use this
-> concept. The idea is to keep polling within IRQ thread context instead
-> of using additional work/timer structures to simplify code and ensure
-> race-free shutdown/unbind.
-> 
-> I think it was based on v4 of your driver and I'd appreciate if you could
-> give it a try.
-> 
-> Thank you.
-> 
+If there is no new data to report why we need to call input_mt_sync() at
+all? You can send input_sync() but input core will filter it out...
 
-I have tested your patch on my v5 patchset and it is working after some
-fixing. I will post v6 patchset appling your patch.
-
-Thanks.
+-- 
+Dmitry

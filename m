@@ -1,38 +1,47 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: rotary encoder
-Date: Mon, 28 Jun 2010 20:32:29 +0200
-Message-ID: <20100628183229.GI2698@buzzloop.caiaq.de>
-References: <20100602135251.GC2695@buzzloop.caiaq.de>
- <888FDE7800AB4E278ED6DF185FEDC869@tech>
- <20100617101021.GB17833@buzzloop.caiaq.de>
- <B221BAA24375436992F7587DF15BB812@tech>
- <20100617112135.GC17833@buzzloop.caiaq.de>
- <B111F158EBCF48779A16E4EF5FAA2F84@tech>
- <20100617113725.GD17833@buzzloop.caiaq.de>
- <1E284238E08046EFA4038129CEA2527F@tech>
- <20100617120005.GF17833@buzzloop.caiaq.de>
- <20100628182225.GB7427@core.coreip.homeip.net>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: problem: Re: [PATCH] input: fixup X86_MRST selects
+Date: Mon, 28 Jun 2010 12:03:44 -0700
+Message-ID: <4C28F210.7030909@oracle.com>
+References: <20100609133443.38f1f957.sfr@canb.auug.org.au> <201006091540.43122.dmitry.torokhov@gmail.com> <4C1018C0.6020304@oracle.com> <201006101204.45709.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:41409 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751320Ab0F1Sce (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 14:32:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20100628182225.GB7427@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201006101204.45709.dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dmitriy Vasil'ev <tech@digiton.ru>, linux-input@vger.kernel.org
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Jacob Pan <jacob.jun.pan@intel.com>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, akpm <akpm@linux-foundation.org>, chuck.lever@oracle.com
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 28, 2010 at 11:22:26AM -0700, Dmitry Torokhov wrote:
-> It looks like Dmitriy's editor of choice happily messed up all
-> whitespace in the original version converting tabs to spaces.
+On 06/10/10 12:04, Dmitry Torokhov wrote:
+> On Wednesday, June 09, 2010 03:42:08 pm Randy Dunlap wrote:
+>> On 06/09/10 15:40, Dmitry Torokhov wrote:
+>>> On Wednesday, June 09, 2010 03:29:21 pm Randy Dunlap wrote:
+>>>> +++ linux-next-20100609/drivers/input/keyboard/Kconfig
+>>>> @@ -70,9 +70,10 @@ config KEYBOARD_ATARI
+>>>>  
+>>>>  config KEYBOARD_ATKBD
+>>>>         tristate "AT keyboard" if EMBEDDED || !X86
+>>>> +       depends on !X86 || (X86 && !X86_MRST)
+>>>
+>>> Should it be simply 'depends on !X86_MRST' and then we could kill
+>>> '!X86_MRST' conditionals in selects?
+>>
+>> Duh, that sounds good, yes.
+> 
+> Actually, I do not think this is a correct approach. While Moorestown does
+> not have i8042 theoretically it is possible to add AT-style keyboard by
+> other means (however unlikely it is) so we should not be disabling it.
+> 
+> We should, however, disallow i8042 from being selected. Could you please
+> tell me if the patch below works for you?
 
-Yeah, something like that. Dmitriy, don't get me wrong - any kind of
-help is certainly appreciated and it's good you try to push things back
-mainline. But please understand that there are some rules to follow :)
+Dmitry,
 
-Daniel
+This patch (in current mainline git) causes a problem when X86_MRST is enabled.
+CONFIG_SERIO_I8042 is no longer enabled when X86_MRST is enabled,
+and X86_MRST could be enabled when someone is trying to build a generic kernel.
+
+-- 
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***

@@ -1,91 +1,180 @@
-From: Dan Murphy <murpdj72@gmail.com>
-Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen
-	driver
-Date: Mon, 28 Jun 2010 09:33:41 -0500
-Message-ID: <AANLkTikJrtCEEdbtXjFA5PjZo8TvOXqFC872LHJQhfBQ@mail.gmail.com>
-References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
-	<4C24B86E.1030407@euromail.se> <4C283048.1090601@samsung.com>
-	<4C285124.1050201@euromail.se> <4C285AB1.7030301@samsung.com>
-	<4C285E85.6080008@euromail.se> <4C2865D0.7020605@samsung.com>
-	<4C28689A.60701@euromail.se> <4C2872B2.1030405@samsung.com>
-	<4C2877F3.8020003@euromail.se> <4C2883A9.5060305@samsung.com>
-	<4C28944A.4050501@euromail.se> <4C289C62.5090403@samsung.com>
-	<4C28A279.2080100@euromail.se> <AANLkTimf-ku6PcfjVWmH0NwtBBxBGH7NWxC2NK6BPGmJ@mail.gmail.com>
-	<AANLkTikNh-LTClIgXGAIEkegLCmWNnN2Zk05XhZWOumb@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] HID: Fix reporting of nonexistent HWheel for Elecom
+ BM084 (bluetooth mouse).
+Date: Mon, 28 Jun 2010 09:34:51 -0700
+Message-ID: <20100628163451.GB11670@core.coreip.homeip.net>
+References: <4C288B57.7060600@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:55999 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753113Ab0F1OeE convert rfc822-to-8bit (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:42447 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751011Ab0F1Qe4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 10:34:04 -0400
-Received: by bwz1 with SMTP id 1so227268bwz.19
-        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 07:34:02 -0700 (PDT)
-In-Reply-To: <AANLkTikNh-LTClIgXGAIEkegLCmWNnN2Zk05XhZWOumb@mail.gmail.com>
+	Mon, 28 Jun 2010 12:34:56 -0400
+Received: by pvg2 with SMTP id 2so2030542pvg.19
+        for <linux-input@vger.kernel.org>; Mon, 28 Jun 2010 09:34:55 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4C288B57.7060600@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <dofmind@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Joonyoung Shim <jy0922.shim@samsung.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
+To: Richard Nauber <richard.nauber@googlemail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Jun 28, 2010 at 9:26 AM, Dan Murphy <murpdj72@gmail.com> wrote:
->
-> I don't see any error handling from the IC here.
->
-> Generally this IC should give a few error messages if a X/Y line is b=
-roken, the chip goes into reset, or the chip is missed configured.
->
-> This is a bad situation here
-> +=A0=A0=A0=A0=A0=A0 /* Read dummy message to make high CHG pin */
-> +=A0=A0=A0=A0=A0=A0 do {
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ret =3D qt602240_read_obj=
-ect(data, QT602240_GEN_MESSAGE, 0);
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (ret < 0)
-> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 r=
-eturn ret;
-> +=A0=A0=A0=A0=A0=A0 } while (ret !=3D 0xff);
->
-> The chip may have an error and constantly send you the message which =
-means you will never get out of this loop.=A0 This can be bad as your p=
-robe or load_fw may never return.
->
->
->
-> Dan
->
-> On Mon, Jun 28, 2010 at 8:41 AM, Joonyoung Shim <dofmind@gmail.com> w=
-rote:
->>
->> 2010/6/28 Henrik Rydberg <rydberg@euromail.se>:
->> > Joonyoung Shim wrote:
->> > [...]
->> >> What is the full set of anonymous contacts? It needs the descript=
-ion of
->> >> case sending event for a finger going away.
->> >
->> > I disagree. Protocol A deals with devices that do not necessarily =
-know what
->> > going away means. There is a whole new protocol devoted to your ki=
-nd of
->> > hardware, type B, and using protocol A is simply not encouraged.
->> >
->>
->> If so, i'm fine.
->>
->> Thanks.
->>
->>
->> --
->> - Joonyoung Shim
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-inpu=
-t" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Richard,
+
+HID changes shoudl go toJiri (CCed).
+
+Thanks.
+
+On Mon, Jun 28, 2010 at 01:45:27PM +0200, Richard Nauber wrote:
+> Hi,
+> my last patch was missing the blacklist entry in hid-core.c.
+> Now I think it is complete. It would be nice if you could review 
+> it and add it to the input-tree, in case it is ready...
+> 
+> Greetings,
+> Richard
+> 
+> --snip--
+> 
+> HID: Fix reporting of nonexistent HWheel for Elecom BM084 (bluetooth mouse).
+> 
+> This patch removes the annoying feature of Elecoms BM084 to constantly scroll to the right.
+> The device can be found at:
+> http://www.dealextreme.com/details.dx/sku.15402
+> 
+> Signed-off-by:  Richard Nauber <Richard.Nauber@gmail.com>
+> ---
+>  drivers/hid/Kconfig      |    6 +++++
+>  drivers/hid/Makefile     |    1 +
+>  drivers/hid/hid-core.c   |    1 +
+>  drivers/hid/hid-elecom.c |   57 ++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-ids.h    |    3 ++
+>  5 files changed, 68 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/hid/hid-elecom.c
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 132278f..0eac193 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -148,6 +148,12 @@ config HID_EGALAX
+>  	---help---
+>  	Support for the eGalax dual-touch panel.
+> 
+> +config HID_ELECOM
+> +	tristate "ELECOM"
+> +	depends on USB_HID
+> +	---help---
+> +	Support for the ELECOM BM084 (bluetooth mouse).
+> +
+>  config HID_EZKEY
+>  	tristate "Ezkey" if EMBEDDED
+>  	depends on USB_HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index 987fa06..2ec042f 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -32,6 +32,7 @@ obj-$(CONFIG_HID_CHICONY)	+= hid-chicony.o
+>  obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
+>  obj-$(CONFIG_HID_DRAGONRISE)	+= hid-drff.o
+>  obj-$(CONFIG_HID_EGALAX)	+= hid-egalax.o
+> +obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
+>  obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+>  obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+>  obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index aa0f7dc..59ea24e 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1294,6 +1294,7 @@ static const struct hid_device_id hid_blacklist[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH) },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
+> diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+> new file mode 100644
+> index 0000000..7a40878
+> --- /dev/null
+> +++ b/drivers/hid/hid-elecom.c
+> @@ -0,0 +1,57 @@
+> +/*
+> + *  HID driver for Elecom BM084 (bluetooth mouse).
+> + *  Removes a non-existing horizontal wheel from
+> + *  the HID descriptor.
+> + *  (This module is based on "hid-ortek".)
+> + *
+> + *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +
+> +#include "hid-ids.h"
+> +
+> +static void elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +		unsigned int rsize)
+> +{
+> +	if (rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
+> +		dev_info(&hdev->dev, "Fixing up Elecom BM084 "
+> +				"report descriptor.\n");
+> +		rdesc[47] = 0x00;
+> +	}
+> +}
+> +
+> +static const struct hid_device_id elecom_devices[] = {
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, elecom_devices);
+> +
+> +static struct hid_driver elecom_driver = {
+> +	.name = "elecom",
+> +	.id_table = elecom_devices,
+> +	.report_fixup = elecom_report_fixup
+> +};
+> +
+> +static int __init elecom_init(void)
+> +{
+> +	return hid_register_driver(&elecom_driver);
+> +}
+> +
+> +static void __exit elecom_exit(void)
+> +{
+> +	hid_unregister_driver(&elecom_driver);
+> +}
+> +
+> +module_init(elecom_init);
+> +module_exit(elecom_exit);
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 6af77ed..55cecb7 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -186,6 +186,9 @@
+>  #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+>  #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH	0x480d
+> 
+> +#define USB_VENDOR_ID_ELECOM		0x056e
+> +#define USB_DEVICE_ID_ELECOM_BM084	0x0061
+> +
+>  #define USB_VENDOR_ID_ELO		0x04E7
+>  #define USB_DEVICE_ID_ELO_TS2700	0x0020
+> 
+> -- 
+> 1.6.4.2
+> 
+
+-- 
+Dmitry

@@ -1,35 +1,31 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio-keys - add gpiolib debounce support
-Date: Tue, 29 Jun 2010 00:06:53 -0700
-Message-ID: <20100629070653.GA19712@core.coreip.homeip.net>
-References: <1277573636-10345-1-git-send-email-notasas@gmail.com>
+Subject: Re: [patch] input: error handling bug in lm8323_probe()
+Date: Tue, 29 Jun 2010 00:07:01 -0700
+Message-ID: <20100629070701.GB19712@core.coreip.homeip.net>
+References: <20100610075431.GK5483@bicker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:45489 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753470Ab0F2HHF (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:64131 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753546Ab0F2HHK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jun 2010 03:07:05 -0400
-Received: by pvg2 with SMTP id 2so2313750pvg.19
-        for <linux-input@vger.kernel.org>; Tue, 29 Jun 2010 00:07:04 -0700 (PDT)
+	Tue, 29 Jun 2010 03:07:10 -0400
 Content-Disposition: inline
-In-Reply-To: <1277573636-10345-1-git-send-email-notasas@gmail.com>
+In-Reply-To: <20100610075431.GK5483@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grazvydas Ignotas <notasas@gmail.com>
-Cc: linux-input@vger.kernel.org, Felipe Balbi <me@felipebalbi.com>
+To: Dan Carpenter <error27@gmail.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Richard Purdie <rpurdie@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Sat, Jun 26, 2010 at 08:33:56PM +0300, Grazvydas Ignotas wrote:
-> gpiolib now has debounce support added in .35, so let's make use of it.
-> This allows to use hardware GPIO debouncing on some platforms like OMAP.
+On Thu, Jun 10, 2010 at 09:54:31AM +0200, Dan Carpenter wrote:
+> We reuse the "i" variable later on so if we goto fail3 or fail4 then "i"
+> will be set to the wrong thing and cause a crash.
 > 
-> In case gpiolib debounce setup fails for some GPIO, the driver will fall
-> back to timer based debouncing, which is what it used before.
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
 > 
-> Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
 
-Applie to 'next', thank you Grazvydas.
+Applied to next, thanks Dan.
 
 -- 
 Dmitry

@@ -1,103 +1,50 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: [PATCH 2/2] Implement EV_KEY:BTN_TOUCH reporting on AD7879 touch
- screen driver
-Date: Tue, 29 Jun 2010 14:49:57 +0200
-Message-ID: <1277815797.11338.8.camel@mhenneri-D02.ad.analog.com>
-References: <1277815615.11338.5.camel@mhenneri-D02.ad.analog.com>
-Reply-To: michael.hennerich@analog.com
+From: Ondrej Zary <linux@rainbow-software.org>
+Subject: Re: [0000/0003]full power management for usb touchscreens
+Date: Tue, 29 Jun 2010 15:51:11 +0200
+Message-ID: <201006291551.13148.linux@rainbow-software.org>
+References: <201006071513.29478.oneukum@suse.de> <201006221543.27169.linux@rainbow-software.org> <201006240856.16402.oneukum@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:17627 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752075Ab0F2MzN (ORCPT
+Received: from mail1-out1.atlantis.sk ([80.94.52.55]:42123 "EHLO
+	mail.atlantis.sk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755773Ab0F2NvS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jun 2010 08:55:13 -0400
-In-Reply-To: <1277815615.11338.5.camel@mhenneri-D02.ad.analog.com>
+	Tue, 29 Jun 2010 09:51:18 -0400
+In-Reply-To: <201006240856.16402.oneukum@suse.de>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, uclinux-dist-devel@blackfin.uclinux.org, vapier@gentoo.org
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Daniel Ritz <daniel.ritz@gmx.ch>
 
-[PATCH 2/2] Implement EV_KEY:BTN_TOUCH reporting on AD7879 touch screen
-driver
+On Thursday 24 June 2010, Oliver Neukum wrote:
+> Am Dienstag, 22. Juni 2010, 15:43:24 schrieb Ondrej Zary:
+> > On Tuesday 22 June 2010, Oliver Neukum wrote:
+> > > This is a violation of the spec. Can you give me the IDs so that I can
+> > > put the devices into the quirks file? Or can I take this from the
+> > > driver? Do all devices that marked as always needing an irq transfer
+> > > behave this way?
+> >
+> > This is not a bug surprise as this device is broken in many ways. It
+> > takes ages to detect and identify and looks like cdc_acm. The
+> > pseudo-multitouch capable protocol is pretty bad too. Also there are some
+> > reports about devices using the same ID but different protocol.
+> >
+> > I have only one - 1870:0001, don't know anything about the other.
+>
+> OK, it seems like those devices are hopeless. Could you test this series
+> form harmlessness on a broken device and functionality on a non-broken
+> device?
 
-Some input events users such as Android require BTN_TOUCH events.
-Implement EV_KEY:BTN_TOUCH and make sure that the release event 
-is not erroneous scheduled without a preceding valid touch.
-Avoid duplicated BTN_TOUCH events, even though input core filters them.
+Tested with:
+0eef:0001 D-WAV Scientific Co., Ltd eGalax TouchScreen
+595a:0001 IRTOUCHSYSTEMS Co. Ltd. Touchscreen
+1870:0001 Nexio Co., Ltd iNexio Touchscreen controller
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+The patches have no visible effect on these devices so they're probably OK.
 
- drivers/input/touchscreen/ad7879.c |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ad7879.c
-b/drivers/input/touchscreen/ad7879.c
-index 1ac0713..05e8574 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -146,7 +146,7 @@ static int ad7879_write(struct ad7879 *ts, u8 reg,
-u16 val)
- 	return ts->bops->write(ts->dev, reg, val);
- }
- 
--static void ad7879_report(struct ad7879 *ts)
-+static int ad7879_report(struct ad7879 *ts)
- {
- 	struct input_dev *input_dev = ts->input;
- 	unsigned Rt;
-@@ -175,11 +175,17 @@ static void ad7879_report(struct ad7879 *ts)
- 		Rt /= z1;
- 		Rt = (Rt + 2047) >> 12;
- 
-+		if (!timer_pending(&ts->timer))
-+			input_report_key(input_dev, BTN_TOUCH, 1);
-+
- 		input_report_abs(input_dev, ABS_X, x);
- 		input_report_abs(input_dev, ABS_Y, y);
- 		input_report_abs(input_dev, ABS_PRESSURE, Rt);
- 		input_sync(input_dev);
-+		return 0;
- 	}
-+
-+	return -EINVAL;
- }
- 
- static void ad7879_ts_event_release(struct ad7879 *ts)
-@@ -187,6 +193,7 @@ static void ad7879_ts_event_release(struct ad7879
-*ts)
- 	struct input_dev *input_dev = ts->input;
- 
- 	input_report_abs(input_dev, ABS_PRESSURE, 0);
-+	input_report_key(input_dev, BTN_TOUCH, 0);
- 	input_sync(input_dev);
- }
- 
-@@ -202,9 +209,9 @@ static irqreturn_t ad7879_irq(int irq, void *handle)
- 	struct ad7879 *ts = handle;
- 
- 	ad7879_multi_read(ts, AD7879_REG_XPLUS, AD7879_NR_SENSE,
-ts->conversion_data);
--	ad7879_report(ts);
- 
--	mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
-+	if (!ad7879_report(ts))
-+		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
- 
- 	return IRQ_HANDLED;
- }
-@@ -505,6 +512,9 @@ struct ad7879 *ad7879_probe(struct device *dev, u8
-devid, unsigned int irq,
- 	__set_bit(ABS_Y, input_dev->absbit);
- 	__set_bit(ABS_PRESSURE, input_dev->absbit);
- 
-+	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
-+
- 	input_set_abs_params(input_dev, ABS_X,
- 			pdata->x_min ? : 0,
- 			pdata->x_max ? : MAX_12BIT,
-
-
+-- 
+Ondrej Zary

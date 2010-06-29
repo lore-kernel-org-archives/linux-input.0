@@ -1,68 +1,84 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v2] input: qt602240 - Add ATMEL QT602240 touchscreen	driver
-Date: Tue, 29 Jun 2010 12:33:35 +0900
-Message-ID: <4C29698F.9010409@samsung.com>
-References: <1277430882-3685-1-git-send-email-jy0922.shim@samsung.com>
- <4C24B86E.1030407@euromail.se> <4C283048.1090601@samsung.com>
- <4C285124.1050201@euromail.se> <4C285AB1.7030301@samsung.com>
- <4C285E85.6080008@euromail.se> <4C2865D0.7020605@samsung.com>
- <4C28689A.60701@euromail.se> <4C2872B2.1030405@samsung.com>
- <4C2877F3.8020003@euromail.se> <4C2883A9.5060305@samsung.com>
- <4C28944A.4050501@euromail.se> <4C289C62.5090403@samsung.com>
- <4C28A279.2080100@euromail.se>
- <AANLkTimf-ku6PcfjVWmH0NwtBBxBGH7NWxC2NK6BPGmJ@mail.gmail.com>
- <AANLkTikNh-LTClIgXGAIEkegLCmWNnN2Zk05XhZWOumb@mail.gmail.com>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH 2/4] Input: ad7879 - split bus logic out
+Date: Tue, 29 Jun 2010 02:08:42 -0400
+Message-ID: <201006290208.44097.vapier@gentoo.org>
+References: <20100625081847.8617.31150.stgit@localhost.localdomain> <20100625082224.8617.52942.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/signed;
+  boundary="nextPart2109669.R7DSD1bhL3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:16214 "EHLO
-	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751320Ab0F2Ddi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Jun 2010 23:33:38 -0400
-Received: from epmmp2 (mailout4.samsung.com [203.254.224.34])
- by mailout4.samsung.com
- (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
- with ESMTP id <0L4R00EYAB80IM60@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Tue, 29 Jun 2010 12:33:36 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0L4R00KEGB80PJ@mmp2.samsung.com> for
- linux-input@vger.kernel.org; Tue, 29 Jun 2010 12:33:36 +0900 (KST)
-In-reply-to: <AANLkTikNh-LTClIgXGAIEkegLCmWNnN2Zk05XhZWOumb@mail.gmail.com>
+Received: from smtp.gentoo.org ([140.211.166.183]:33746 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751336Ab0F2GJg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jun 2010 02:09:36 -0400
+In-Reply-To: <20100625082224.8617.52942.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Murphy <murpdj72@gmail.com>
-Cc: Joonyoung Shim <dofmind@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kyungmin.park@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-Hi,
+--nextPart2109669.R7DSD1bhL3
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 6/28/2010 11:26 PM, Dan Murphy wrote:
-> I don't see any error handling from the IC here.
-> 
-> Generally this IC should give a few error messages if a X/Y line is broken,
-> the chip goes into reset, or the chip is missed configured.
-> 
+On Friday, June 25, 2010 04:22:24 Dmitry Torokhov wrote:
+> From: Mike Frysinger <vapier@gentoo.org>
+>=20
+> The ad7879 driver is using the old bus method of only supporting one at a
+> time (I2C or SPI).  So refactor it like the other input drivers that
+> support multiple busses simultaneously.
+>=20
+> Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>=20
+>  drivers/input/touchscreen/ad7879-i2c.c |  140 +++++++++
+>  drivers/input/touchscreen/ad7879-spi.c |  190 ++++++++++++
+>  drivers/input/touchscreen/ad7879.c     |  495
+> +++++++------------------------- drivers/input/touchscreen/ad7879.h     |=
+=20
+>  30 ++
+>  4 files changed, 461 insertions(+), 394 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/ad7879-i2c.c
+>  create mode 100644 drivers/input/touchscreen/ad7879-spi.c
+>  create mode 100644 drivers/input/touchscreen/ad7879.h
 
-The configuration error can occur and if the chip detect it, we get
-messages from message object in interrupt handler and can see it. If 
-needs, i can add error print.
+i think you forgot the Kconfig and Makefile changes.  without those, the=20
+driver cannot be configured/compiled correctly.
 
-> This is a bad situation here
-> +       /* Read dummy message to make high CHG pin */
-> +       do {
-> +               ret = qt602240_read_object(data, QT602240_GEN_MESSAGE, 0);
-> +               if (ret < 0)
-> +                       return ret;
-> +       } while (ret != 0xff);
-> 
-> The chip may have an error and constantly send you the message which means
-> you will never get out of this loop.  This can be bad as your probe or
-> load_fw may never return.
-> 
+i also see you changed the code from passing a struct device pointer to a=20
+struct ad7879 pointer.  i went with the struct device because it generated=
+=20
+smaller code due to pushing down of the dev get/set drvdata.  the i2c struc=
+t=20
+sucks because it doesnt stick its dev member at the start of the structure.
+=2Dmike
 
-Hmm, this chip reports always 0xff value if the message is nothing, but
-i will add count to prevent unlikely loop.
+--nextPart2109669.R7DSD1bhL3
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-Thanks.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.15 (GNU/Linux)
+
+iQIcBAABAgAGBQJMKY3sAAoJEEFjO5/oN/WBfosP/22SW9JgMxOhkfyiqbubnMaJ
+vUTD8dTUobGlDNi/NVc3M4vTz9PO3eWgrYoUBIX6ryT32Eweeqfh1U90MIIdfVBH
+kyTGJxqJ/41oUn+GhC7+N9GkjC9v0iZnK/7X+WoxmdUy6HdPrCnT5SV7WoijZuns
+X+Dk+sUxDtAWmUc9uC9qjfoRg4SgZk+HiiSLm5NyXxVxvx9wXTVXlhE5IYU5d4GO
+5mFA0JfAa5cK3aoA0KfI2Jdl/1BBQZZqeRe3aSII73/3O6EEDrVuvBmL5QN9eJ93
+DO6rtzMv0DTxC0u8qC/GqWyjxCGUiJONOEhVb8YcW3oSUw7G77jhYyi14+YtCloe
+uCRjAPL74pd4hsY2Dgtff+Bfvown4kRjqgyo/MS6+l5tsapnoIUyRmjHFOfK1OSk
+Zj/S9W7TXQVlCW0vG8exsNvQZwa3Ar5vTkk5jOPfmM8udYC2MVooO/JIRCo55olz
+Yc+/nGCE0R+D9AV99a9GZXI7EOvVh0ENYc4X6q81R1AXftE/eqgmv1szsuMAQaiN
+KKECNY4xIxKMWs634ttWG+YD88fVcGJDHtlDEGGpx3nJIF6Y+CfSu+xHXv3ppNJy
+/4UhyNsLRxqY057kiwY5D6AcCyLDB1hesCoV4P+4kHekJN+/b5IS35eWuPZCOXVn
+TzDNYrcBW3zWYxNUZf+a
+=Hbb9
+-----END PGP SIGNATURE-----
+
+--nextPart2109669.R7DSD1bhL3--

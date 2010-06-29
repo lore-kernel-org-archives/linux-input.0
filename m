@@ -1,61 +1,62 @@
-From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+From: Xiaofan Chen <xiaofanc@gmail.com>
 Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Tue, 29 Jun 2010 12:30:24 -0400
-Message-ID: <4C2A1FA0.6020704@signal11.us>
+Date: Wed, 30 Jun 2010 07:32:33 +0800
+Message-ID: <AANLkTimpF7h-L-qaR-YCBKwr2xRfkOQwQIXKAZDcdDA0@mail.gmail.com>
 References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
+	<4C2A1FA0.6020704@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qw0-f46.google.com ([209.85.216.46]:55759 "EHLO
+	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752677Ab0F2Xcf (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 29 Jun 2010 19:32:35 -0400
+In-Reply-To: <4C2A1FA0.6020704@signal11.us>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Ott <alan@signal11.us>
+Cc: Amit Nagal <helloin.amit@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
 
-On 06/29/2010 07:10 AM, Amit Nagal wrote:
-> i am trying to send a vendor specific HID report from a userspace host
-> program to vendor usb hid device
-> using HIDRAW interface .
+On Wed, Jun 30, 2010 at 12:30 AM, Alan Ott <alan@signal11.us> wrote:
+
+> I thought I'd be able to just go check the HID specification and be able to
+> say that the report number is not sent as part of the payload for Set_Report
+> devices, since it would be redundant because the Report ID is sent over in
+> the wValue field.
 >
+> Unfortunately, I was not able to see that clearly laid out in the HID
+> specification in the section on Set_Report. I did however find language
+> saying "if a Report ID tag was used in the Report descriptor, all reports
+> include a single byte ID prefix," in section 8.1, Report Types.
 >
-> but when i send report in the format<  "Report ID "(0th byte )>
-> <Report ID (1st byte )>  <  "data payload">
-> i am getting perfect report response from usb device .
->   where we use usb_control_msg as  :
+> I did some tests with the Windows implementation, and indeed, when numbered
+> reports are used in the HID descriptor, the Windows implementation will send
+> the report ID as the first byte of the payload.
 >
-> ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-> 		HID_REQ_SET_REPORT,
-> 		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> 		cpu_to_le16(((HID_OUTPUT_REPORT + 1)<<  8) | *buf),
-> 		interface->desc.bInterfaceNumber, buf + 1, count - 1,
-> 		USB_CTRL_SET_TIMEOUT);
+> Based on the language in the HID spec, and the behavior of Windows, I
+> believe the buf+1, count-1 to be a bug.
 >
->    
 
-I thought I'd be able to just go check the HID specification and be able 
-to say that the report number is not sent as part of the payload for 
-Set_Report devices, since it would be redundant because the Report ID is 
-sent over in the wValue field.
+Yes I think it is a bug.
 
-Unfortunately, I was not able to see that clearly laid out in the HID 
-specification in the section on Set_Report. I did however find language 
-saying "if a Report ID tag was used in the Report descriptor, all 
-reports include a single byte ID prefix," in section 8.1, Report Types.
+And the HID specification states:
+"If a Report ID tag was used in the Report descriptor, all reports
+include a single byte ID prefix. If the Report ID tag was not used, all
+values are returned in a single report and a prefix ID is not included
+in that report."
 
-I did some tests with the Windows implementation, and indeed, when 
-numbered reports are used in the HID descriptor, the Windows 
-implementation will send the report ID as the first byte of the payload.
+My understanding is like the following and testing confirms it.
+1) when HID device has explicit report IDs, then the report IDs will
+be transmitted on the bus.
+2) when the HID device does not use report ID at all (implicit report ID 0),
+then this report ID 0 is not transmitted on the bus
 
-Based on the language in the HID spec, and the behavior of Windows, I 
-believe the buf+1, count-1 to be a bug.
+Reference:
+http://www.microchip.com/forums/tm.aspx?m=494711
+http://libusb.6.n5.nabble.com/Missing-first-byte-when-reading-HID-Feature-Reports-with-ID-td9460.html
+(we spent quite some efforts to get the libusb-1.0 Windows native
+HID backend to deal with report ID correctly).
 
-Jiri, what do you think? Can you confirm?
-
-Alan.
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Xiaofan http://sourceforge.net/projects/libusb-win32/

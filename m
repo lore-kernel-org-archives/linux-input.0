@@ -1,79 +1,59 @@
-From: Amit Nagal <helloin.amit@gmail.com>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Wed, 30 Jun 2010 00:39:56 -0700
-Message-ID: <AANLkTikzQ93oJc0-TYuAmiYnq-UaNqOW6H80Cg449gS6@mail.gmail.com>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
-	<4C2A1FA0.6020704@signal11.us>
-	<AANLkTimpF7h-L-qaR-YCBKwr2xRfkOQwQIXKAZDcdDA0@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: usbtouchscreen - runtime PM patches testing [Was: [PATCH 1/2]
+ Input: usbtouchscreen - add support for ET&T TC4UM touchscreen controller]
+Date: Wed, 30 Jun 2010 00:48:29 -0700
+Message-ID: <20100630074828.GA4154@core.coreip.homeip.net>
+References: <20100603075720.GQ26052@ibawizard.net>
+ <1276242054-11127-1-git-send-email-ynezz@true.cz>
+ <20100628091959.GH15039@ibawizard.net>
+ <20100628164603.GC11670@core.coreip.homeip.net>
+ <20100630071635.GJ15039@ibawizard.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:61527 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750909Ab0F3Hj5 (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:63952 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750909Ab0F3Hsf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 03:39:57 -0400
-In-Reply-To: <AANLkTimpF7h-L-qaR-YCBKwr2xRfkOQwQIXKAZDcdDA0@mail.gmail.com>
+	Wed, 30 Jun 2010 03:48:35 -0400
+Received: by pxi8 with SMTP id 8so245367pxi.19
+        for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 00:48:35 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20100630071635.GJ15039@ibawizard.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Xiaofan Chen <xiaofanc@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
+To: Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
+Cc: linux-input@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
 
-Hi ,
+On Wed, Jun 30, 2010 at 09:16:35AM +0200, Petr =C5=A0tetiar wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> [2010-06-28 09:46:03]:
+>=20
+> > Applied to 'next' branch (for .36). But I was wondering - could you
+> > please try the runtime PM patches to usebtouchscreen posted by Oliv=
+er
+> > Neukum on the linux-input list? I'd really like to apply them but
+> > I'd like to have them tested first.
+>=20
+> Thank you for applying my patches. Well, I've now only broken touchsc=
+reen,
+> which have only 4-wires or so working, but I think, that it should be=
+ enough
+> for PM testing. What kind of testing do you need, just few suspend & =
+resume
+> cycles? CC-ing Oliver also.
+>=20
 
+Not breaking stuff by default is good enough for me but Oliver should b=
+e
+able to tell what exactly tests he'd like to see.
 
-Thanx for the reply .
+Thanks.
 
-The below discussions clears the ambiguity regarding   <report id > usage  .
-
-I hope some patch regarding the same bug fix will be there for hidraw
-interface .
-
-Thanx & regards
-Amit Nagal
-
-
-
-On Tue, Jun 29, 2010 at 4:32 PM, Xiaofan Chen <xiaofanc@gmail.com> wrote:
-> On Wed, Jun 30, 2010 at 12:30 AM, Alan Ott <alan@signal11.us> wrote:
->
->> I thought I'd be able to just go check the HID specification and be able to
->> say that the report number is not sent as part of the payload for Set_Report
->> devices, since it would be redundant because the Report ID is sent over in
->> the wValue field.
->>
->> Unfortunately, I was not able to see that clearly laid out in the HID
->> specification in the section on Set_Report. I did however find language
->> saying "if a Report ID tag was used in the Report descriptor, all reports
->> include a single byte ID prefix," in section 8.1, Report Types.
->>
->> I did some tests with the Windows implementation, and indeed, when numbered
->> reports are used in the HID descriptor, the Windows implementation will send
->> the report ID as the first byte of the payload.>>
->> Based on the language in the HID spec, and the behavior of Windows, I
->> believe the buf+1, count-1 to be a bug.
->>
->
-> Yes I think it is a bug.
->
-> And the HID specification states:
-> "If a Report ID tag was used in the Report descriptor, all reports
-> include a single byte ID prefix. If the Report ID tag was not used, all
-> values are returned in a single report and a prefix ID is not included
-> in that report."
->
-> My understanding is like the following and testing confirms it.
-> 1) when HID device has explicit report IDs, then the report IDs will
-> be transmitted on the bus.
-> 2) when the HID device does not use report ID at all (implicit report ID 0),
-> then this report ID 0 is not transmitted on the bus
->
-> Reference:
-> http://www.microchip.com/forums/tm.aspx?m=494711
-> http://libusb.6.n5.nabble.com/Missing-first-byte-when-reading-HID-Feature-Reports-with-ID-td9460.html
-> (we spent quite some efforts to get the libusb-1.0 Windows native
-> HID backend to deal with report ID correctly).
->
-> --
-> Xiaofan http://sourceforge.net/projects/libusb-win32/
->
+--=20
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

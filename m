@@ -1,60 +1,44 @@
-From: Alan Ott <alan@signal11.us>
-Subject: [PATCH 1/1] HID: Send Report ID when numbered reports are sent over the control endpoint.
-Date: Wed, 30 Jun 2010 09:50:36 -0400
-Message-ID: <1277905836-3949-2-git-send-email-alan@signal11.us>
-References: <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
+From: Xiaofan Chen <xiaofanc@gmail.com>
+Subject: Re: Report ID problem with HID-RAW interface usage
+Date: Wed, 30 Jun 2010 22:02:00 +0800
+Message-ID: <AANLkTimpiuADYMRmPNWO_qWjQj1LKyjmh3JncuK9Fa4I@mail.gmail.com>
+References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
+	<4C2A1FA0.6020704@signal11.us>
+	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
+	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>
+	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>
+	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>
+	<4C2B3E6B.7060703@signal11.us>
+	<AANLkTilzYu3mA3vDzuVyxngTcltgKEoNKYrdenz1Z-VG@mail.gmail.com>
+	<20100630151358.d9c9f043.ospite@studenti.unina.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from core.signal11.us ([64.251.29.136]:48585 "EHLO core.signal11.us"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756005Ab0F3NvA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 09:51:00 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by core.signal11.us (Postfix) with SMTP id 61E8A104068
-	for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 09:50:59 -0400 (EDT)
-In-Reply-To: <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
+Received: from mail-gy0-f174.google.com ([209.85.160.174]:60085 "EHLO
+	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754824Ab0F3OCC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 10:02:02 -0400
+In-Reply-To: <20100630151358.d9c9f043.ospite@studenti.unina.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, Anton
-Cc: Alan Ott <alan@signal11.us>
+To: Antonio Ospite <ospite@studenti.unina.it>
+Cc: Alan Ott <alan@signal11.us>, Amit Nagal <helloin.amit@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-The Report ID wasn't sent as part of the payload for reports which were sent
-over the control endpoint. This is required by section 8.1 of the HID spec.
+On Wed, Jun 30, 2010 at 9:13 PM, Antonio Ospite
+<ospite@studenti.unina.it> wrote:
+>
+> One of the advantages in the usb case is that you do not have to
+> _detach_ the kernel driver bound to the device in order to set/get
+> raw hid reports. With libusb this is needed.
+>
 
-Signed-off-by: Alan Ott <alan@signal11.us>
----
- drivers/hid/usbhid/hid-core.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+To me this is not that much an advantage. Actually libusb-1.0
+has the API to re-attach the kernel driver under Linux. And we make
+use of this in the new libusb-1.0 example program xusb.
+http://libusb.sourceforge.net/api-1.0/group__dev.html#ga9de769d3aeb45a07f5559c8a0597cbcc
+http://git.libusb.org/?p=libusb-pbatard.git;a=blob;f=examples/xusb.c;h=e260153aa50234f1c994db521969b7f0e84aebb6;hb=HEAD
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index deef816..1697687 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -854,14 +854,21 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
- 				ret++;
- 		}
- 	} else {
-+		int skipped_report_id = 0;
-+		if (buf[0] == 0x0) {
-+			/* Don't send the Report ID */
-+			buf++;
-+			count--;
-+			skipped_report_id = 1;
-+		}
- 		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
- 			HID_REQ_SET_REPORT,
- 			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 			((report_type + 1) << 8) | *buf,
--			interface->desc.bInterfaceNumber, buf + 1, count - 1,
-+			interface->desc.bInterfaceNumber, buf, count,
- 			USB_CTRL_SET_TIMEOUT);
--		/* count also the report id */
--		if (ret > 0)
-+		/* count also the report id, if this was a numbered report. */
-+		if (ret > 0 && skipped_report_id)
- 			ret++;
- 	}
- 
+
 -- 
-1.7.0.4
-
-
+Xiaofan

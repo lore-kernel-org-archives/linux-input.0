@@ -1,190 +1,346 @@
-From: Amit Nagal <helloin.amit@gmail.com>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Wed, 30 Jun 2010 09:40:23 -0700
-Message-ID: <AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
-	<4C2A1FA0.6020704@signal11.us>
-	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
-	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>
-	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>
-	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>
-	<4C2B3E6B.7060703@signal11.us>
+From: Alan Cox <alan@linux.intel.com>
+Subject: [PATCH] mrst_touchscreen: clean up input side
+Date: Wed, 30 Jun 2010 18:31:58 +0100
+Message-ID: <20100630173137.9776.52847.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gy0-f174.google.com ([209.85.160.174]:44199 "EHLO
-	mail-gy0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754769Ab0F3QkZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 12:40:25 -0400
-In-Reply-To: <4C2B3E6B.7060703@signal11.us>
+Received: from mga09.intel.com ([134.134.136.24]:50614 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755810Ab0F3R6i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 13:58:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>, Xiaofan Chen <xiaofanc@gmail.com>
-
-Hi  ,
-
-ok i explain my requirements again .
+To: greg@kroah.com, linux-input@vger.kernel.org
 
 
-(1)
-
-the hid device  i am  dealing with does not tell in its payload
-protocol specifications
-how many input and output reports it will support and what will be the
-their respective size . the only thing it tells is payload data will
-be in the format
-<Report ID> <Payload > .
-
- >If you know what type of device you are talking to, then you shouldn'=
-t
-> really need to parse the descriptor in software, because you'll know =
-what
-> the device supports, right?
->
-
-No , this information is not available to me in advance .
-the application should parse the report descriptor currently
-and identify the no of input and output reports currently available
-along with their sizes .
-
-infact in my view , it does make sense to get <Report ID> <Report Len >
-from report descriptor only , as a device protocol specification may ch=
-ange
-for its  future releases . and no of reports may increase .
-so its better to get this information from report descriptor only sent
-by the device .
+Still staging stuff but knocked out some of the problems.
 
 
-(2)
+Fix most of the stuff that Dmitry pointed out. This leaves the mutex in IRQ
+and misuse of SPI to sort out.
 
-now lets consider the case for sending report to device .
+Also fix the build bits so it actually builds in staging - whoops.
 
-different output reports have different sizes .
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+---
 
-so depending upon application payload length ,
-
-i have to select which < output report ID > should be used .
-
-so hid_write should be
-
-buff[0] =3D  < Output Report ID having Report Len >=3D application payl=
-oad >
-buff[1....n] =3D <payload data > .
-
-since i need to know dynamically which output report id should be used
-i stressed the need for ioctl which can fetch  the basic information
- <Report ID ><Report Len> parsed from report descriptor send by the dev=
-ice .
-
-i agree hidraw interface sends / receives raw events and
-this functionalty indeed is required by my application ,
-but still to send report , i need to choose report id depending
-upon application payload size .
-Also report id and report length information supported is not
-described in device protocol specs .
-
-i think hidraw interface should provide support for
-<report id > <report len > information as application needs to
-dynamically provides information
-to buff[0] =3D <Report ID> ( we cannot hardcode this value )
-
-(3)
-
-now lets consider the case for hid device read .
-
-the syntax is read( fd , buff , count );
-
-what i want is
-
-buff[0]  =3D <Input Report ID>
-buff[1...n] =3D <Report Payload >
-
-Yes i agree the < Report type > information is not required .
-
-as i explained previously one application payload can be split across
-multiple reports using same <Report Id >
-
-so if Report ID information also comes in buff[0]
-it becomes easy to identify one application payload spilt across multip=
-le
-reports using same <Report ID>.
+ drivers/staging/Makefile                           |    2 
+ drivers/staging/mrst-touchscreen/Kconfig           |    2 
+ drivers/staging/mrst-touchscreen/Makefile          |    2 
+ drivers/staging/mrst-touchscreen/TODO              |    2 
+ drivers/staging/mrst-touchscreen/intel-mid-touch.c |   98 ++++----------------
+ 5 files changed, 25 insertions(+), 81 deletions(-)
 
 
-(4)
+diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
+index a67412a..0575858 100644
+--- a/drivers/staging/Makefile
++++ b/drivers/staging/Makefile
+@@ -52,7 +52,7 @@ obj-$(CONFIG_CXT1E1)		+= cxt1e1/
+ obj-$(CONFIG_TI_ST)		+= ti-st/
+ obj-$(CONFIG_ADIS16255)		+= adis16255/
+ obj-$(CONFIG_FB_XGI)		+= xgifb/
+-obj-$(CONFIG_TOUCHSCREEN_MRSTOUCH)	+= mrst-touchscreen/
++obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= mrst-touchscreen/
+ obj-$(CONFIG_MSM_STAGING)	+= msm/
+ obj-$(CONFIG_EASYCAP)		+= easycap/
+ obj-$(CONFIG_SOLO6X10)		+= solo6x10/
+diff --git a/drivers/staging/mrst-touchscreen/Kconfig b/drivers/staging/mrst-touchscreen/Kconfig
+index c2af492..775d740 100644
+--- a/drivers/staging/mrst-touchscreen/Kconfig
++++ b/drivers/staging/mrst-touchscreen/Kconfig
+@@ -1,6 +1,6 @@
+ config TOUCHSCREEN_INTEL_MID
+ 	tristate "Intel MID platform resistive touchscreen"
+-	depends on INTEL_SCU_IPC
++	depends on INTEL_SCU_IPC && INPUT_TOUCHSCREEN
+ 	default y
+ 	help
+ 	  Say Y here if you have a Intel MID based touchscreen
+diff --git a/drivers/staging/mrst-touchscreen/Makefile b/drivers/staging/mrst-touchscreen/Makefile
+index 2d638b0..155f58b 100644
+--- a/drivers/staging/mrst-touchscreen/Makefile
++++ b/drivers/staging/mrst-touchscreen/Makefile
+@@ -1,3 +1,3 @@
+-obj-$(CONFIG_TOUCHSCREEN_INTEL_MID) := intel_mid_touch.o
++obj-$(CONFIG_TOUCHSCREEN_INTEL_MID) := intel-mid-touch.o
+ 
+ 
+diff --git a/drivers/staging/mrst-touchscreen/TODO b/drivers/staging/mrst-touchscreen/TODO
+index 7157028..84aa695 100644
+--- a/drivers/staging/mrst-touchscreen/TODO
++++ b/drivers/staging/mrst-touchscreen/TODO
+@@ -1,2 +1,4 @@
+ - Move the driver to not think it is SPI (requires fixing some of the SFI
+   and firmware side)
++- Fix mutex in IRQ stuff - threaded IRQ ?
++
+diff --git a/drivers/staging/mrst-touchscreen/intel-mid-touch.c b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
+index abba22f..6fed01e 100644
+--- a/drivers/staging/mrst-touchscreen/intel-mid-touch.c
++++ b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
+@@ -23,7 +23,6 @@
+  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  *
+  * TODO:
+- *	kill off mrstouch_debug eventually
+  *	review conversion of r/m/w sequences
+  *	Replace interrupt mutex abuse
+  *	Kill of mrstouchdevp pointer
+@@ -43,16 +42,6 @@
+ #include <asm/intel_scu_ipc.h>
+ 
+ 
+-#if defined(MRSTOUCH_DEBUG)
+-#define mrstouch_debug(fmt, args...)\
+-	do { \
+-		printk(KERN_DEBUG "\n[MRSTOUCH(%d)] - ", __LINE__); \
+-		printk(KERN_DEBUG fmt, ##args); \
+-	} while (0);
+-#else
+-#define mrstouch_debug(fmt, args...)
+-#endif
+-
+ /* PMIC Interrupt registers */
+ #define PMIC_REG_ID1   0x00 /*PMIC ID1 register */
+ 
+@@ -100,6 +89,9 @@
+ #define MAX_X		1024
+ #define MIN_Y		10
+ #define MAX_Y		1024
++#define MIN_P		0
++#define MAX_P		TOUCH_PRESSURE_FS
++
+ #define WAIT_ADC_COMPLETION 10
+ 
+ /* PMIC ADC round robin delays */
+@@ -124,8 +116,6 @@ struct mrstouch_dev {
+ 	int             irq;    /* Touch screen IRQ # */
+ 	uint		vendor;  /* PMIC vendor */
+ 	uint		rev;  /* PMIC revision */
+-	bool		suspended; /* Device suspended status */
+-	bool		disabled;  /* Device disabled status */
+ 	u16		x;  /* X coordinate */
+ 	u16		y;  /* Y coordinate */
+ 	bool		pendown;  /* PEN position */
+@@ -320,8 +310,6 @@ static int mrstouch_adc_init(struct mrstouch_dev *tsdev)
+ 
+ 	tsdev->asr = start;
+ 
+-	mrstouch_debug("Channel offset(%d): 0x%X\n", tsdev->asr, tsdev->vendor);
+-
+ 	/* ADC power on, start, enable PENDET and set loop delay
+ 	 * ADC loop delay is set to 4.5 ms approximately
+ 	 * Loop delay more than this results in jitter in adc readings
+@@ -355,7 +343,6 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
+ 
+ 	if (tsdev->pendown && z <= TOUCH_PRESSURE) {
+ 		/* Pen removed, report button release */
+-		mrstouch_debug("BTN REL(%d)", z);
+ 		input_report_key(tsdev->input, BTN_TOUCH, 0);
+ 		tsdev->pendown = false;
+ 	}
+@@ -371,7 +358,6 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
+ 	if (x < MIN_X || x > MAX_X || y < MIN_Y || y > MAX_Y) {
+ 		/* Spurious values, release button if touched and return */
+ 		if (tsdev->pendown) {
+-			mrstouch_debug("BTN REL(%d)", z);
+ 			input_report_key(tsdev->input, BTN_TOUCH, 0);
+ 			tsdev->pendown = false;
+ 		}
+@@ -382,13 +368,13 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
+ 
+ 		input_report_abs(tsdev->input, ABS_X, x);
+ 		input_report_abs(tsdev->input, ABS_Y, y);
++		input_report_abs(tsdev->input, ABS_PRESSURE, z);
+ 		input_sync(tsdev->input);
+ 	}
+ 
+ 
+ 	if (!tsdev->pendown && z > TOUCH_PRESSURE) {
+ 		/* Pen touched, report button touch */
+-		mrstouch_debug("BTN TCH(%d, %d, %d)", x, y, z);
+ 		input_report_key(tsdev->input, BTN_TOUCH, 1);
+ 		tsdev->pendown = true;
+ 	}
+@@ -446,18 +432,7 @@ static int mrstouch_pmic_fs_adc_read(struct mrstouch_dev *tsdev)
+ 	z |= data[1] & 0x7; /* Lower 3 bits */
+ 	z &= 0x3FF;
+ 
+-#if defined(MRSTOUCH_PRINT_XYZP)
+-	mrstouch_debug("X: %d, Y: %d, Z: %d", x, y, z);
+-#endif
+-
+-	if (z >= TOUCH_PRESSURE_FS) {
+-		mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE - 1); /* Pen Removed */
+-		return TOUCH_PRESSURE - 1;
+-	} else {
+-		mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE + 1); /* Pen Touched */
+-		return TOUCH_PRESSURE + 1;
+-	}
+-
++	mrstouch_report_xy(tsdev, x, y, z);
+ 	return 0;
+ 
+ ipc_error:
+@@ -615,14 +590,6 @@ static int mrstouch_adc_read(struct mrstouch_dev *tsdev)
+ 	if (err)
+ 		goto ipc_error;
+ 
+-#if defined(MRSTOUCH_PRINT_XYZP)
+-	printk(KERN_INFO "X+: %d, Y+: %d, Z+: %d\n", xp, yp, zp);
+-#endif
+-
+-#if defined(MRSTOUCH_PRINT_XYZM)
+-	printk(KERN_INFO "X-: %d, Y-: %d, Z-: %d\n", xm, ym, zm);
+-#endif
+-
+ 	mrstouch_report_xy(tsdev, xp, yp, zp); /* report x and y to eventX */
+ 
+ 	return zp;
+@@ -694,12 +661,10 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
+ {
+ 	int err = 0;
+ 
+-	mrstouch_debug("%s", __func__);
+-
+ 	tsdev->input = input_allocate_device();
+ 	if (!tsdev->input) {
+ 		dev_err(&tsdev->spi->dev, "Unable to allocate input device.\n");
+-		return -EINVAL;
++		return -ENOMEM;
+ 	}
+ 
+ 	tsdev->input->name = "mrst_touchscreen";
+@@ -714,8 +679,9 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
+ 	tsdev->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	tsdev->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 
+-	input_set_abs_params(tsdev->input, ABS_X, MIN_X, MIN_Y, 0, 0);
+-	input_set_abs_params(tsdev->input, ABS_Y, MIN_X, MIN_Y, 0, 0);
++	input_set_abs_params(tsdev->input, ABS_X, MIN_X, MAX_X, 0, 0);
++	input_set_abs_params(tsdev->input, ABS_Y, MIN_Y, MAX_Y, 0, 0);
++	input_set_abs_params(tsdev->input, ABS_PRESSURE, MIN_P, MAX_P, 0, 0);
+ 
+ 	err = input_register_device(tsdev->input);
+ 	if (err) {
+@@ -723,9 +689,6 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
+ 		input_free_device(tsdev->input);
+ 		return err;
+ 	}
+-
+-	mrstouch_debug("%s", "mrstouch initialized");
+-
+ 	return 0;
+ 
+ }
+@@ -737,8 +700,6 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
+ 	unsigned int myirq;
+ 	struct mrstouch_dev *tsdev;
+ 
+-	mrstouch_debug("%s(%p)", __func__, mrstouch_spi);
+-
+ 	mrstouchdevp = NULL;
+ 	myirq = mrstouch_spi->irq;
+ 
+@@ -768,18 +729,17 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
+ 	err = ts_input_dev_init(tsdev, mrstouch_spi);
+ 	if (err) {
+ 		dev_err(&tsdev->spi->dev, "ts_input_dev_init failed");
+-		goto mrstouch_err_free_mem;
++		goto mrstouch_err_free_dev;
+ 	}
+ 
+ 	mutex_init(&tsdev->lock);
+-	mutex_lock(&tsdev->lock)
++	mutex_lock(&tsdev->lock);
+ 
+-	mrstouch_debug("Requesting IRQ-%d", myirq);
+ 	err = request_irq(myirq, pendet_intr_handler,
+ 				0, "mrstouch", tsdev);
+ 	if (err) {
+ 		dev_err(&tsdev->spi->dev, "unable to allocate irq\n");
+-		goto mrstouch_err_free_mem;
++		goto mrstouch_err_free_dev;
+ 	}
+ 
+ 	tsdev->pendet_thrd = kthread_run(mrstouch_pendet,
+@@ -787,38 +747,24 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
+ 	if (IS_ERR(tsdev->pendet_thrd)) {
+ 		dev_err(&tsdev->spi->dev, "kthread_run failed\n");
+ 		err = PTR_ERR(tsdev->pendet_thrd);
+-		goto mrstouch_err_free_mem;
++		goto mrstouch_err_free_irq;
+ 	}
+-	mrstouch_debug("%s", "Driver initialized");
+ 	return 0;
+-
++mrstouch_err_free_irq:
++	free_irq(myirq, tsdev);
++mrstouch_err_free_dev:
++	input_unregister_device(tsdev->input);
+ mrstouch_err_free_mem:
+ 	kfree(tsdev);
+ 	return err;
+ }
+ 
+-static int mrstouch_suspend(struct spi_device *spi, pm_message_t msg)
+-{
+-	mrstouch_debug("%s", __func__);
+-	mrstouchdevp->suspended = 1;
+-	return 0;
+-}
+-
+-static int mrstouch_resume(struct spi_device *spi)
+-{
+-	mrstouch_debug("%s", __func__);
+-	mrstouchdevp->suspended = 0;
+-	return 0;
+-}
+-
+ static int mrstouch_remove(struct spi_device *spi)
+ {
+-	mrstouch_debug("%s", __func__);
+ 	free_irq(mrstouchdevp->irq, mrstouchdevp);
+-	input_unregister_device(mrstouchdevp->input);
+-	input_free_device(mrstouchdevp->input);
+ 	if (mrstouchdevp->pendet_thrd)
+ 		kthread_stop(mrstouchdevp->pendet_thrd);
++	input_unregister_device(mrstouchdevp->input);
+ 	kfree(mrstouchdevp);
+ 	return 0;
+ }
+@@ -830,8 +776,6 @@ static struct spi_driver mrstouch_driver = {
+ 		.owner  = THIS_MODULE,
+ 	},
+ 	.probe          = mrstouch_probe,
+-	.suspend        = mrstouch_suspend,
+-	.resume         = mrstouch_resume,
+ 	.remove         = mrstouch_remove,
+ };
+ 
+@@ -839,11 +783,10 @@ static int __init mrstouch_module_init(void)
+ {
+ 	int err;
+ 
+-	mrstouch_debug("%s", __func__);
+ 	err = spi_register_driver(&mrstouch_driver);
+ 	if (err) {
+-		mrstouch_debug("%s(%d)", "SPI PENDET failed", err);
+-		return -1;
++		printk(KERN_ERR "%s(%d)", "SPI PENDET failed", err);
++		return err;;
+ 	}
+ 
+ 	return 0;
+@@ -851,7 +794,6 @@ static int __init mrstouch_module_init(void)
+ 
+ static void __exit mrstouch_module_exit(void)
+ {
+-	mrstouch_debug("%s", __func__);
+ 	spi_unregister_driver(&mrstouch_driver);
+ 	return;
+ }
 
-Regarding libusb / libhid usage ,
-the usb device i am using is a composite device
-having hid and audio interfaces .
-
-is it possible to claim audio interface from kernel space
-and hid interface from user space ?
-
-Thanx & Regards
-Amit Nagal
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-On Wed, Jun 30, 2010 at 5:54 AM, Alan Ott <alan@signal11.us> wrote:
-> On 06/30/2010 07:14 AM, Amit Nagal wrote:
->>
->> sorry my mistake :
->>
->> what i wanted to ask was ioctl with which application can get
->> input / output / feature<REPORT ID> =A0and< =A0REPORT LEN> =A0.
->>
->> Thanx& =A0Regards
->> Amit Nagal
->
-> Amit,
->
-> There is a new ioctl() staged for the new merge window which will get=
- and
-> set feature reports. It is used like this:
->
-> =A0 =A0 =A0 =A0/* Set Feature */
-> =A0 =A0 =A0 =A0buf[0] =3D 0x9; /* Report Number */
-> =A0 =A0 =A0 =A0buf[1] =3D 0xff; /* data */
-> =A0 =A0 =A0 =A0buf[2] =3D 0xff;
-> =A0 =A0 =A0 =A0buf[3] =3D 0xff;
-> =A0 =A0 =A0 =A0res =3D ioctl(fd, HIDIOCSFEATURE(4), buf);
->
-> Is that what you're asking for, or are you asking for something which=
- will
-> tell you which reports are _available_ on the device, and what their =
-lengths
-> are? There is currently no way to report which reports are _available=
-_. As
-> Jiri said, HIDRAW does not do any parsing of the report descriptor. A=
-ll data
-> is passed "raw" from the user application to the device.
->
-> If you know what type of device you are talking to, then you shouldn'=
-t
-> really need to parse the descriptor in software, because you'll know =
-what
-> the device supports, right?
->
-> Alan.
->
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

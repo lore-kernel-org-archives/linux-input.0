@@ -1,37 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Wed, 30 Jun 2010 09:57:40 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006300956370.13809@pobox.suse.cz>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com> <4C2A1FA0.6020704@signal11.us> <AANLkTimpF7h-L-qaR-YCBKwr2xRfkOQwQIXKAZDcdDA0@mail.gmail.com> <AANLkTikzQ93oJc0-TYuAmiYnq-UaNqOW6H80Cg449gS6@mail.gmail.com>
- <AANLkTimeMlK_nciq_dQ0i1VA13KyKfIgC0JYYdQynV20@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] Current ad7879 patches
+Date: Wed, 30 Jun 2010 01:03:45 -0700
+Message-ID: <20100630080345.GC4154@core.coreip.homeip.net>
+References: <20100625081847.8617.31150.stgit@localhost.localdomain>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFF408@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58810 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751115Ab0F3H5m (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 03:57:42 -0400
-In-Reply-To: <AANLkTimeMlK_nciq_dQ0i1VA13KyKfIgC0JYYdQynV20@mail.gmail.com>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:50648 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751830Ab0F3IDy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 04:03:54 -0400
+Received: by pzk7 with SMTP id 7so80613pzk.19
+        for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 01:03:52 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712E66DFF408@LIMKCMBX1.ad.analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Amit Nagal <helloin.amit@gmail.com>
-Cc: Alan Ott <alan@signal11.us>, Xiaofan Chen <xiaofanc@gmail.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>
 
-On Wed, 30 Jun 2010, Amit Nagal wrote:
-
-> 1)
+On Tue, Jun 29, 2010 at 01:10:38PM +0100, Hennerich, Michael wrote:
+> Dmitry Torokhov wrote on 2010-06-25:
+> > Mike, Michael,
+> >
+> > I was looking through outstanding patches to ad7879 and here they are.
+> > Since I made some changes to the patches you wrote and there also some
+> > new code and I do not have the hardware I'd appreciate if you could
+> > try them out so they can be applied.
+> >
+> > Thank you.
+> >
 > 
->  it seems no documentation is available in the linux kernel regarding
-> hidraw interface usage .
-> it should be available like the hiddev interface file hiddev.txt .
-> (though  on browising over net i do find hidraw.txt , but it shud be
-> there in linux kernel documentation ) .
+> Hi Dmitry,
+> 
+> I tested your ad7879 patch set -
+> A few issues see patch below.
+> 
+> -Fix ad7879_probe() parameter passing.
+> -Add missing input_set_drvdata()
+> -Avoid unbalanced irq enable warning: disable_irq() after request.
+> -Fix sysfs disable hook logic: the file is called disable so don't treat it as enable.
+> 
 
-Alan has written nice documentation which I am going to merge soon. I am 
-just waiting for Bluetooth bits to settle down, which is a little bit 
-challenging with Bluetooth maintainer having been irresponsive for several 
-months apparently. But it's definitely targeted for next merge window.
+Thanks for catching all the mistakes Michael. Regardgin disable_irq() -
+do you think it would be even better to call __ad7879_disable() there to
+make sure the chip is in low power mode? And I guess we need to add
+matching enable_irq() in error handlig path and in ad7879_remove() in
+case we reload the driver...
+
+BTW, I will be applying the other 2 patches you sent.
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Dmitry

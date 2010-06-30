@@ -1,92 +1,36 @@
-From: feng.tang@intel.com
-Subject: [PATCH] input: i8042 - make function definitions in i8042.h "static inline"
-Date: Wed, 30 Jun 2010 13:26:51 +0800
-Message-ID: <1277875611-22907-1-git-send-email-feng.tang@intel.com>
+From: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
+Subject: usbtouchscreen - runtime PM patches testing [Was: [PATCH 1/2]
+	Input: usbtouchscreen - add support for ET&T TC4UM touchscreen
+	controller]
+Date: Wed, 30 Jun 2010 09:16:35 +0200
+Message-ID: <20100630071635.GJ15039@ibawizard.net>
+References: <20100603075720.GQ26052@ibawizard.net> <1276242054-11127-1-git-send-email-ynezz@true.cz> <20100628091959.GH15039@ibawizard.net> <20100628164603.GC11670@core.coreip.homeip.net>
+Reply-To: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:28468 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750851Ab0F3FIf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 01:08:35 -0400
+Received: from ibawizard.net ([82.208.49.253]:44951 "EHLO
+	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751896Ab0F3HQj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 03:16:39 -0400
+Content-Disposition: inline
+In-Reply-To: <20100628164603.GC11670@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Feng Tang <feng.tang@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>, linux-input@vger.kernel.org, Oliver Neukum <oneukum@suse.de>
 
-From: Feng Tang <feng.tang@intel.com>
+Dmitry Torokhov <dmitry.torokhov@gmail.com> [2010-06-28 09:46:03]:
 
-Otherwise when build kernel with allyesconfig on x86_32, it will
-have such errors:
+> Applied to 'next' branch (for .36). But I was wondering - could you
+> please try the runtime PM patches to usebtouchscreen posted by Oliver
+> Neukum on the linux-input list? I'd really like to apply them but
+> I'd like to have them tested first.
 
-drivers/platform/built-in.o: In function `i8042_lock_chip':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:50: multiple definition of `i8042_lock_chip'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:50: first defined here
-drivers/platform/built-in.o: In function `i8042_unlock_chip':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:54: multiple definition of `i8042_unlock_chip'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:54: first defined here
-drivers/platform/built-in.o: In function `i8042_command':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:58: multiple definition of `i8042_command'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:58: first defined here
-drivers/platform/built-in.o: In function `i8042_remove_filter':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:75: multiple definition of `i8042_remove_filter'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:75: first defined here
-drivers/platform/built-in.o: In function `i8042_check_port_owner':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:63: multiple definition of `i8042_check_port_owner'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:63: first defined here
-drivers/platform/built-in.o: In function `i8042_install_filter':
-/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:69: multiple definition of `i8042_install_filter'
-drivers/input/serio/built-in.o:/home/test/ws2/projects/linux-2.6/include/linux/i8042.h:69: first defined here
-make[1]: *** [drivers/built-in.o] Error 1
-make: *** [drivers] Error 2
+Thank you for applying my patches. Well, I've now only broken touchscreen,
+which have only 4-wires or so working, but I think, that it should be enough
+for PM testing. What kind of testing do you need, just few suspend & resume
+cycles? CC-ing Oliver also.
 
-This patch will fix it.
-
-Signed-off-by: Feng Tang <feng.tang@intel.com>
----
- include/linux/i8042.h |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/include/linux/i8042.h b/include/linux/i8042.h
-index 9bf6870..a986ff5 100644
---- a/include/linux/i8042.h
-+++ b/include/linux/i8042.h
-@@ -46,31 +46,31 @@ int i8042_remove_filter(bool (*filter)(unsigned char data, unsigned char str,
- 
- #else
- 
--void i8042_lock_chip(void)
-+static inline void i8042_lock_chip(void)
- {
- }
- 
--void i8042_unlock_chip(void)
-+static inline void i8042_unlock_chip(void)
- {
- }
- 
--int i8042_command(unsigned char *param, int command)
-+static inline int i8042_command(unsigned char *param, int command)
- {
- 	return -ENODEV;
- }
- 
--bool i8042_check_port_owner(const struct serio *serio)
-+static inline bool i8042_check_port_owner(const struct serio *serio)
- {
- 	return false;
- }
- 
--int i8042_install_filter(bool (*filter)(unsigned char data, unsigned char str,
-+static inline int i8042_install_filter(bool (*filter)(unsigned char data, unsigned char str,
- 					struct serio *serio))
- {
- 	return -ENODEV;
- }
- 
--int i8042_remove_filter(bool (*filter)(unsigned char data, unsigned char str,
-+static inline int i8042_remove_filter(bool (*filter)(unsigned char data, unsigned char str,
- 				       struct serio *serio))
- {
- 	return -ENODEV;
--- 
-1.5.6.5
-
+-- ynezz

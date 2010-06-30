@@ -1,346 +1,577 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: [PATCH] mrst_touchscreen: clean up input side
-Date: Wed, 30 Jun 2010 18:31:58 +0100
-Message-ID: <20100630173137.9776.52847.stgit@localhost.localdomain>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: [RFC][PATCH]add Honeywell hmc5843 3-Axis Magnetometer (digital
+ compass) driver.
+Date: Wed, 30 Jun 2010 23:54:37 +0530
+Message-ID: <0680EC522D0CC943BC586913CF3768C003B3602F54@dbde02.ent.ti.com>
+References: <0680EC522D0CC943BC586913CF3768C003B3553F73@dbde02.ent.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:50614 "EHLO mga09.intel.com"
+Received: from comal.ext.ti.com ([198.47.26.152]:36154 "EHLO comal.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755810Ab0F3R6i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 13:58:38 -0400
+	id S932132Ab0F3SYq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 14:24:46 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: greg@kroah.com, linux-input@vger.kernel.org
+To: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
+Cc: "sfking@fdwdc.com" <sfking@fdwdc.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
+Adding support for the Honeywell HMC5843. The interface to the device is i2c.
 
-Still staging stuff but knocked out some of the problems.
-
-
-Fix most of the stuff that Dmitry pointed out. This leaves the mutex in IRQ
-and misuse of SPI to sort out.
-
-Also fix the build bits so it actually builds in staging - whoops.
-
-Signed-off-by: Alan Cox <alan@linux.intel.com>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
+ drivers/staging/iio/magnetometer/Kconfig   |   17 +
+ drivers/staging/iio/magnetometer/Makefile  |    5 +
+ drivers/staging/iio/magnetometer/hmc5843.c |  499 ++++++++++++++++++++++++++++
+ 3 files changed, 521 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/staging/iio/magnetometer/Kconfig
+ create mode 100644 drivers/staging/iio/magnetometer/Makefile
+ create mode 100644 drivers/staging/iio/magnetometer/hmc5843.c
 
- drivers/staging/Makefile                           |    2 
- drivers/staging/mrst-touchscreen/Kconfig           |    2 
- drivers/staging/mrst-touchscreen/Makefile          |    2 
- drivers/staging/mrst-touchscreen/TODO              |    2 
- drivers/staging/mrst-touchscreen/intel-mid-touch.c |   98 ++++----------------
- 5 files changed, 25 insertions(+), 81 deletions(-)
-
-
-diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index a67412a..0575858 100644
---- a/drivers/staging/Makefile
-+++ b/drivers/staging/Makefile
-@@ -52,7 +52,7 @@ obj-$(CONFIG_CXT1E1)		+= cxt1e1/
- obj-$(CONFIG_TI_ST)		+= ti-st/
- obj-$(CONFIG_ADIS16255)		+= adis16255/
- obj-$(CONFIG_FB_XGI)		+= xgifb/
--obj-$(CONFIG_TOUCHSCREEN_MRSTOUCH)	+= mrst-touchscreen/
-+obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= mrst-touchscreen/
- obj-$(CONFIG_MSM_STAGING)	+= msm/
- obj-$(CONFIG_EASYCAP)		+= easycap/
- obj-$(CONFIG_SOLO6X10)		+= solo6x10/
-diff --git a/drivers/staging/mrst-touchscreen/Kconfig b/drivers/staging/mrst-touchscreen/Kconfig
-index c2af492..775d740 100644
---- a/drivers/staging/mrst-touchscreen/Kconfig
-+++ b/drivers/staging/mrst-touchscreen/Kconfig
-@@ -1,6 +1,6 @@
- config TOUCHSCREEN_INTEL_MID
- 	tristate "Intel MID platform resistive touchscreen"
--	depends on INTEL_SCU_IPC
-+	depends on INTEL_SCU_IPC && INPUT_TOUCHSCREEN
- 	default y
- 	help
- 	  Say Y here if you have a Intel MID based touchscreen
-diff --git a/drivers/staging/mrst-touchscreen/Makefile b/drivers/staging/mrst-touchscreen/Makefile
-index 2d638b0..155f58b 100644
---- a/drivers/staging/mrst-touchscreen/Makefile
-+++ b/drivers/staging/mrst-touchscreen/Makefile
-@@ -1,3 +1,3 @@
--obj-$(CONFIG_TOUCHSCREEN_INTEL_MID) := intel_mid_touch.o
-+obj-$(CONFIG_TOUCHSCREEN_INTEL_MID) := intel-mid-touch.o
- 
- 
-diff --git a/drivers/staging/mrst-touchscreen/TODO b/drivers/staging/mrst-touchscreen/TODO
-index 7157028..84aa695 100644
---- a/drivers/staging/mrst-touchscreen/TODO
-+++ b/drivers/staging/mrst-touchscreen/TODO
-@@ -1,2 +1,4 @@
- - Move the driver to not think it is SPI (requires fixing some of the SFI
-   and firmware side)
-+- Fix mutex in IRQ stuff - threaded IRQ ?
+diff --git a/drivers/staging/iio/magnetometer/Kconfig b/drivers/staging/iio/magnetometer/Kconfig
+new file mode 100644
+index 0000000..6beda8c
+--- /dev/null
++++ b/drivers/staging/iio/magnetometer/Kconfig
+@@ -0,0 +1,17 @@
++#
++# Magnetometer sensors
++#
++comment "Magnetometer sensors"
 +
-diff --git a/drivers/staging/mrst-touchscreen/intel-mid-touch.c b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
-index abba22f..6fed01e 100644
---- a/drivers/staging/mrst-touchscreen/intel-mid-touch.c
-+++ b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
-@@ -23,7 +23,6 @@
-  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  *
-  * TODO:
-- *	kill off mrstouch_debug eventually
-  *	review conversion of r/m/w sequences
-  *	Replace interrupt mutex abuse
-  *	Kill of mrstouchdevp pointer
-@@ -43,16 +42,6 @@
- #include <asm/intel_scu_ipc.h>
- 
- 
--#if defined(MRSTOUCH_DEBUG)
--#define mrstouch_debug(fmt, args...)\
--	do { \
--		printk(KERN_DEBUG "\n[MRSTOUCH(%d)] - ", __LINE__); \
--		printk(KERN_DEBUG fmt, ##args); \
--	} while (0);
--#else
--#define mrstouch_debug(fmt, args...)
--#endif
--
- /* PMIC Interrupt registers */
- #define PMIC_REG_ID1   0x00 /*PMIC ID1 register */
- 
-@@ -100,6 +89,9 @@
- #define MAX_X		1024
- #define MIN_Y		10
- #define MAX_Y		1024
-+#define MIN_P		0
-+#define MAX_P		TOUCH_PRESSURE_FS
 +
- #define WAIT_ADC_COMPLETION 10
- 
- /* PMIC ADC round robin delays */
-@@ -124,8 +116,6 @@ struct mrstouch_dev {
- 	int             irq;    /* Touch screen IRQ # */
- 	uint		vendor;  /* PMIC vendor */
- 	uint		rev;  /* PMIC revision */
--	bool		suspended; /* Device suspended status */
--	bool		disabled;  /* Device disabled status */
- 	u16		x;  /* X coordinate */
- 	u16		y;  /* Y coordinate */
- 	bool		pendown;  /* PEN position */
-@@ -320,8 +310,6 @@ static int mrstouch_adc_init(struct mrstouch_dev *tsdev)
- 
- 	tsdev->asr = start;
- 
--	mrstouch_debug("Channel offset(%d): 0x%X\n", tsdev->asr, tsdev->vendor);
--
- 	/* ADC power on, start, enable PENDET and set loop delay
- 	 * ADC loop delay is set to 4.5 ms approximately
- 	 * Loop delay more than this results in jitter in adc readings
-@@ -355,7 +343,6 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
- 
- 	if (tsdev->pendown && z <= TOUCH_PRESSURE) {
- 		/* Pen removed, report button release */
--		mrstouch_debug("BTN REL(%d)", z);
- 		input_report_key(tsdev->input, BTN_TOUCH, 0);
- 		tsdev->pendown = false;
- 	}
-@@ -371,7 +358,6 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
- 	if (x < MIN_X || x > MAX_X || y < MIN_Y || y > MAX_Y) {
- 		/* Spurious values, release button if touched and return */
- 		if (tsdev->pendown) {
--			mrstouch_debug("BTN REL(%d)", z);
- 			input_report_key(tsdev->input, BTN_TOUCH, 0);
- 			tsdev->pendown = false;
- 		}
-@@ -382,13 +368,13 @@ static void mrstouch_report_xy(struct mrstouch_dev *tsdev, u16 x, u16 y, u16 z)
- 
- 		input_report_abs(tsdev->input, ABS_X, x);
- 		input_report_abs(tsdev->input, ABS_Y, y);
-+		input_report_abs(tsdev->input, ABS_PRESSURE, z);
- 		input_sync(tsdev->input);
- 	}
- 
- 
- 	if (!tsdev->pendown && z > TOUCH_PRESSURE) {
- 		/* Pen touched, report button touch */
--		mrstouch_debug("BTN TCH(%d, %d, %d)", x, y, z);
- 		input_report_key(tsdev->input, BTN_TOUCH, 1);
- 		tsdev->pendown = true;
- 	}
-@@ -446,18 +432,7 @@ static int mrstouch_pmic_fs_adc_read(struct mrstouch_dev *tsdev)
- 	z |= data[1] & 0x7; /* Lower 3 bits */
- 	z &= 0x3FF;
- 
--#if defined(MRSTOUCH_PRINT_XYZP)
--	mrstouch_debug("X: %d, Y: %d, Z: %d", x, y, z);
--#endif
--
--	if (z >= TOUCH_PRESSURE_FS) {
--		mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE - 1); /* Pen Removed */
--		return TOUCH_PRESSURE - 1;
--	} else {
--		mrstouch_report_xy(tsdev, x, y, TOUCH_PRESSURE + 1); /* Pen Touched */
--		return TOUCH_PRESSURE + 1;
--	}
--
-+	mrstouch_report_xy(tsdev, x, y, z);
- 	return 0;
- 
- ipc_error:
-@@ -615,14 +590,6 @@ static int mrstouch_adc_read(struct mrstouch_dev *tsdev)
- 	if (err)
- 		goto ipc_error;
- 
--#if defined(MRSTOUCH_PRINT_XYZP)
--	printk(KERN_INFO "X+: %d, Y+: %d, Z+: %d\n", xp, yp, zp);
--#endif
--
--#if defined(MRSTOUCH_PRINT_XYZM)
--	printk(KERN_INFO "X-: %d, Y-: %d, Z-: %d\n", xm, ym, zm);
--#endif
--
- 	mrstouch_report_xy(tsdev, xp, yp, zp); /* report x and y to eventX */
- 
- 	return zp;
-@@ -694,12 +661,10 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
- {
- 	int err = 0;
- 
--	mrstouch_debug("%s", __func__);
--
- 	tsdev->input = input_allocate_device();
- 	if (!tsdev->input) {
- 		dev_err(&tsdev->spi->dev, "Unable to allocate input device.\n");
--		return -EINVAL;
-+		return -ENOMEM;
- 	}
- 
- 	tsdev->input->name = "mrst_touchscreen";
-@@ -714,8 +679,9 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
- 	tsdev->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
- 	tsdev->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
--	input_set_abs_params(tsdev->input, ABS_X, MIN_X, MIN_Y, 0, 0);
--	input_set_abs_params(tsdev->input, ABS_Y, MIN_X, MIN_Y, 0, 0);
-+	input_set_abs_params(tsdev->input, ABS_X, MIN_X, MAX_X, 0, 0);
-+	input_set_abs_params(tsdev->input, ABS_Y, MIN_Y, MAX_Y, 0, 0);
-+	input_set_abs_params(tsdev->input, ABS_PRESSURE, MIN_P, MAX_P, 0, 0);
- 
- 	err = input_register_device(tsdev->input);
- 	if (err) {
-@@ -723,9 +689,6 @@ static int ts_input_dev_init(struct mrstouch_dev *tsdev, struct spi_device *spi)
- 		input_free_device(tsdev->input);
- 		return err;
- 	}
--
--	mrstouch_debug("%s", "mrstouch initialized");
--
- 	return 0;
- 
- }
-@@ -737,8 +700,6 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
- 	unsigned int myirq;
- 	struct mrstouch_dev *tsdev;
- 
--	mrstouch_debug("%s(%p)", __func__, mrstouch_spi);
--
- 	mrstouchdevp = NULL;
- 	myirq = mrstouch_spi->irq;
- 
-@@ -768,18 +729,17 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
- 	err = ts_input_dev_init(tsdev, mrstouch_spi);
- 	if (err) {
- 		dev_err(&tsdev->spi->dev, "ts_input_dev_init failed");
--		goto mrstouch_err_free_mem;
-+		goto mrstouch_err_free_dev;
- 	}
- 
- 	mutex_init(&tsdev->lock);
--	mutex_lock(&tsdev->lock)
-+	mutex_lock(&tsdev->lock);
- 
--	mrstouch_debug("Requesting IRQ-%d", myirq);
- 	err = request_irq(myirq, pendet_intr_handler,
- 				0, "mrstouch", tsdev);
- 	if (err) {
- 		dev_err(&tsdev->spi->dev, "unable to allocate irq\n");
--		goto mrstouch_err_free_mem;
-+		goto mrstouch_err_free_dev;
- 	}
- 
- 	tsdev->pendet_thrd = kthread_run(mrstouch_pendet,
-@@ -787,38 +747,24 @@ static int __devinit mrstouch_probe(struct spi_device *mrstouch_spi)
- 	if (IS_ERR(tsdev->pendet_thrd)) {
- 		dev_err(&tsdev->spi->dev, "kthread_run failed\n");
- 		err = PTR_ERR(tsdev->pendet_thrd);
--		goto mrstouch_err_free_mem;
-+		goto mrstouch_err_free_irq;
- 	}
--	mrstouch_debug("%s", "Driver initialized");
- 	return 0;
--
-+mrstouch_err_free_irq:
-+	free_irq(myirq, tsdev);
-+mrstouch_err_free_dev:
-+	input_unregister_device(tsdev->input);
- mrstouch_err_free_mem:
- 	kfree(tsdev);
- 	return err;
- }
- 
--static int mrstouch_suspend(struct spi_device *spi, pm_message_t msg)
--{
--	mrstouch_debug("%s", __func__);
--	mrstouchdevp->suspended = 1;
--	return 0;
--}
--
--static int mrstouch_resume(struct spi_device *spi)
--{
--	mrstouch_debug("%s", __func__);
--	mrstouchdevp->suspended = 0;
--	return 0;
--}
--
- static int mrstouch_remove(struct spi_device *spi)
- {
--	mrstouch_debug("%s", __func__);
- 	free_irq(mrstouchdevp->irq, mrstouchdevp);
--	input_unregister_device(mrstouchdevp->input);
--	input_free_device(mrstouchdevp->input);
- 	if (mrstouchdevp->pendet_thrd)
- 		kthread_stop(mrstouchdevp->pendet_thrd);
-+	input_unregister_device(mrstouchdevp->input);
- 	kfree(mrstouchdevp);
- 	return 0;
- }
-@@ -830,8 +776,6 @@ static struct spi_driver mrstouch_driver = {
- 		.owner  = THIS_MODULE,
- 	},
- 	.probe          = mrstouch_probe,
--	.suspend        = mrstouch_suspend,
--	.resume         = mrstouch_resume,
- 	.remove         = mrstouch_remove,
- };
- 
-@@ -839,11 +783,10 @@ static int __init mrstouch_module_init(void)
- {
- 	int err;
- 
--	mrstouch_debug("%s", __func__);
- 	err = spi_register_driver(&mrstouch_driver);
- 	if (err) {
--		mrstouch_debug("%s(%d)", "SPI PENDET failed", err);
--		return -1;
-+		printk(KERN_ERR "%s(%d)", "SPI PENDET failed", err);
-+		return err;;
- 	}
- 
- 	return 0;
-@@ -851,7 +794,6 @@ static int __init mrstouch_module_init(void)
- 
- static void __exit mrstouch_module_exit(void)
- {
--	mrstouch_debug("%s", __func__);
- 	spi_unregister_driver(&mrstouch_driver);
- 	return;
- }
++config SENSORS_HMC5843
++       tristate "Honeywell HMC5843 3-Axis Magnetometer"
++       depends on I2C && SYSFS
++#      select INPUT_POLLDEV
++       help
++         Say Y here to add support for the Honeywell HMC 5843 3-Axis
++         Magnetometer (digital compass).
++
++         To compile this driver as a module, choose M here: the module
++         will be called hmc5843
++
+diff --git a/drivers/staging/iio/magnetometer/Makefile b/drivers/staging/iio/magnetometer/Makefile
+new file mode 100644
+index 0000000..f9bfb2e
+--- /dev/null
++++ b/drivers/staging/iio/magnetometer/Makefile
+@@ -0,0 +1,5 @@
++#
++# Makefile for industrial I/O Magnetometer sensors
++#
++
++obj-$(CONFIG_SENSORS_HMC5843)  += hmc5843.o
+diff --git a/drivers/staging/iio/magnetometer/hmc5843.c b/drivers/staging/iio/magnetometer/hmc5843.c
+new file mode 100644
+index 0000000..fc3dda9
+--- /dev/null
++++ b/drivers/staging/iio/magnetometer/hmc5843.c
+@@ -0,0 +1,499 @@
++/*  Copyright (c) 2010  Shubhrajyoti Datta <shubhrajyoti@ti.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/slab.h>
++#include "../iio.h"
++#include <linux/types.h>
++#include "../sysfs.h"
++#include "magnet.h"
++
++#define HMC5843_I2C_ADDRESS                    0x1E
++
++#define HMC5843_CONFIG_REG_A                   0x00
++#define HMC5843_CONFIG_REG_B                   0x01
++#define HMC5843_MODE_REG                       0x02
++#define HMC5843_DATA_OUT_X_MSB_REG             0x03
++#define HMC5843_DATA_OUT_X_LSB_REG             0x04
++#define HMC5843_DATA_OUT_Y_MSB_REG             0x05
++#define HMC5843_DATA_OUT_Y_LSB_REG             0x06
++#define HMC5843_DATA_OUT_Z_MSB_REG             0x07
++#define HMC5843_DATA_OUT_Z_LSB_REG             0x08
++#define HMC5843_STATUS_REG                     0x09
++#define HMC5843_ID_REG_A                       0x0A
++#define HMC5843_ID_REG_B                       0x0B
++#define HMC5843_ID_REG_C                       0x0C
++
++
++#define HMC5843_ID_REG_LENGTH                  0x03
++#define HMC5843_ID_STRING                      "H43"
++
++/*
++ * Range settings in  (+-)Ga
++ * */
++#define RANGE_GAIN_OFFSET                      0x05
++
++#define        RANGE_0_7                               0x00
++#define        RANGE_1_0                               0x01 /* default */
++#define        RANGE_1_5                               0x02
++#define        RANGE_2_0                               0x03
++#define        RANGE_3_2                               0x04
++#define        RANGE_3_8                               0x05
++#define        RANGE_4_5                               0x06
++#define        RANGE_6_5                               0x07 /* Not recommended */
++
++/*
++ * Device status
++ */
++#define        DATA_READY                              0x01
++#define        DATA_OUTPUT_LOCK                        0x02
++#define        VOLTAGE_REGULATOR_ENABLED               0x04
++
++/*
++ * Mode register configuration
++ */
++#define        MODE_CONVERSION_CONTINUOUS              0x00
++#define        MODE_CONVERSION_SINGLE                  0x01
++#define        MODE_IDLE                               0x02
++#define        MODE_SLEEP                              0x03
++
++/* Minimum Data Output Rate in 1/10 Hz  */
++#define RATE_OFFSET                            0x02
++#define        RATE_5                                  0x00
++#define        RATE_10                                 0x01
++#define        RATE_20                                 0x02
++#define        RATE_50                                 0x03
++#define        RATE_100                                0x04
++#define        RATE_200                                0x05
++#define        RATE_500                                0x06
++#define        RATE_NOT_USED                           0x07
++
++/*
++ * Device Configutration
++ */
++#define        CONF_NORMAL                             0x00
++#define        CONF_POSITIVE_BIAS                      0x01
++#define        CONF_NEGATIVE_BIAS                      0x02
++#define        CONF_NOT_USED                           0x03
++
++static const int regval_to_counts_per_mg[] = {
++       1620,   /* RANGE_0_7 */
++       1300,
++       970,
++       780,
++       530,
++       460,
++       390,
++       280     /* RANGE_6_5 */
++};
++static const int regval_to_input_field_mg[] = {
++       700,
++       1000,
++       1500,
++       2000,
++       3200,
++       3800,
++       4500,
++       6500
++};
++
++/* Addresses to scan: 0x1E */
++static const unsigned short normal_i2c[] = { HMC5843_I2C_ADDRESS,
++                                                       I2C_CLIENT_END };
++
++/* Each client has this additional data */
++struct hmc5843_data {
++       struct iio_dev  *indio_dev;
++       u8              rate;
++       u8              meas_conf;
++       u8              operating_mode;
++       u8              range;
++       s16             data[3];
++};
++
++static void hmc5843_init_client(struct i2c_client *client);
++
++static s32 hmc5843_set_operating_mode(struct i2c_client *client,
++                                      u8 operating_mode)
++{
++       /* The lower two bits contain the current conversion mode */
++       return i2c_smbus_write_byte_data(client,
++                                       HMC5843_MODE_REG,
++                                       (operating_mode & 0x03));
++}
++
++/* API for setting the measurmet configuration to
++ * Normal , Positive bias and Negitive bias
++ */
++static s32 hmc5843_set_meas_conf(struct i2c_client *client,
++                                     u8 meas_conf)
++{
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       u8 reg_val;
++       reg_val = (meas_conf & 0x03) |  (data->rate << RATE_OFFSET);
++       return  i2c_smbus_write_byte_data(client, HMC5843_CONFIG_REG_A, reg_val);
++}
++
++static s32 hmc5843_set_rate(struct i2c_client *client,
++                               u8 rate)
++{
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       u8 reg_val;
++       reg_val = (data->meas_conf) |  (rate << RATE_OFFSET);
++       if (rate >= RATE_NOT_USED) {
++               dev_err(&client->dev,
++                       "This data output rate is not supported \n");
++               return -EINVAL;
++       }
++       return i2c_smbus_write_byte_data(client, HMC5843_CONFIG_REG_A, reg_val);
++}
++
++static ssize_t hmc5843_read_measurement(struct device *dev,
++               struct device_attribute *attr,
++               char *buf)
++{
++       /* Return the measurement value from the  specified channel */
++       struct i2c_client *client = to_i2c_client(dev);
++       s16 coordinate_val;
++       struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
++       s32 result;
++       result = i2c_smbus_read_byte_data(client, HMC5843_STATUS_REG);
++       while (!(result & DATA_READY))
++               result = i2c_smbus_read_byte_data(client, HMC5843_STATUS_REG);
++
++       result = i2c_smbus_read_word_data(client, this_attr->address);
++       if (result > 0) {
++               coordinate_val  = (int)swab16((u16)result);
++               return sprintf(buf, "%d\n",
++                               coordinate_val);
++       }
++       return result;
++}
++static IIO_DEV_ATTR_MAGN_X(hmc5843_read_measurement,
++               HMC5843_DATA_OUT_X_MSB_REG);
++static IIO_DEV_ATTR_MAGN_Y(hmc5843_read_measurement,
++               HMC5843_DATA_OUT_Y_MSB_REG);
++static IIO_DEV_ATTR_MAGN_Z(hmc5843_read_measurement,
++               HMC5843_DATA_OUT_Z_MSB_REG);
++
++static ssize_t show_operating_mode(struct device *dev,
++                                       struct device_attribute *attr,
++                                       char *buf)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       return sprintf(buf, "%d\n", data->operating_mode);
++}
++static ssize_t set_operating_mode(struct device *dev,
++                               struct device_attribute *attr,
++                               const char *buf,
++                               size_t count)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
++       unsigned long operating_mode = 0;
++       s32 status;
++
++       strict_strtoul(buf, 10, &operating_mode);
++       dev_dbg(dev, "set Conversion mode to %lu\n", operating_mode);
++       if (operating_mode > MODE_SLEEP)
++                       return -EINVAL;
++
++       status = i2c_smbus_write_byte_data(client, this_attr->address,
++                                       operating_mode);
++       if (status)
++               return -EINVAL;
++
++       data->operating_mode = operating_mode;
++       return count;
++}
++static IIO_DEVICE_ATTR(operating_mode,
++                       S_IWUSR | S_IRUGO,
++                       show_operating_mode,
++                       set_operating_mode,
++                       HMC5843_MODE_REG);
++
++static ssize_t show_measurement_configuration(struct device *dev,
++                                               struct device_attribute *attr,
++                                               char *buf)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       return sprintf(buf, "%d\n", data->meas_conf);
++}
++
++static ssize_t set_measurement_configuration(struct device *dev,
++                                               struct device_attribute *attr,
++                                               const char *buf,
++                                               size_t count)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       unsigned long meas_conf = 0;
++       strict_strtoul(buf, 10, &meas_conf);
++       dev_dbg(dev, "set mode to %lu\n", meas_conf);
++       if (hmc5843_set_meas_conf(client, meas_conf) == -EINVAL)
++               return -EINVAL;
++       data->meas_conf = meas_conf;
++       return count;
++}
++static IIO_DEVICE_ATTR(meas_conf,
++                       S_IWUSR | S_IRUGO,
++                       show_measurement_configuration,
++                       set_measurement_configuration,
++                       0);
++
++static ssize_t show_rate(struct device *dev,
++                       struct device_attribute *attr, char *buf)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
++       u32 rate = (i2c_smbus_read_byte_data(client,  this_attr->address) & 0x1C) >> RATE_OFFSET;
++       return sprintf(buf, "%d\n", rate);
++}
++
++static ssize_t set_rate(struct device *dev, struct device_attribute *attr,
++                       const char *buf, size_t count)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       unsigned long rate = 0;
++       strict_strtoul(buf, 10, &rate);
++
++       dev_dbg(dev, "set rate to %lu\n", rate);
++       if (hmc5843_set_rate(client, rate) == -EINVAL)
++               return -EINVAL;
++       data->rate = rate;
++       return count;
++}
++static IIO_DEVICE_ATTR(rate, S_IWUSR | S_IRUGO, show_rate,
++                       set_rate, HMC5843_CONFIG_REG_A);
++
++static ssize_t show_range(struct device *dev,
++                               struct device_attribute *attr,
++                               char *buf)
++{
++       u8 range;
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++
++       range = data->range;
++       return sprintf(buf, " %dmGa\n", regval_to_input_field_mg[range]);
++}
++
++static ssize_t set_range(struct device *dev,
++                       struct device_attribute *attr,
++                       const char *buf,
++                       size_t count)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct iio_dev_attr *this_attr = to_iio_dev_attr(attr);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       unsigned long range = 0;
++
++       strict_strtoul(buf, 10, &range);
++       dev_dbg(dev, "set range to %lu\n", range);
++
++       if (range > RANGE_6_5)
++               return -EINVAL;
++
++       data->range = range;
++       range = range << RANGE_GAIN_OFFSET;
++       if (i2c_smbus_write_byte_data(client, this_attr->address, range) ==
++                                                                       -EINVAL)
++               return -EINVAL;
++
++       return count;
++}
++
++static IIO_DEVICE_ATTR(magn_xyz_range,
++                       S_IWUSR | S_IRUGO,
++                       show_range,
++                       set_range,
++                       HMC5843_CONFIG_REG_B);
++
++static ssize_t show_gain(struct device *dev,
++                       struct device_attribute *attr,
++                       char *buf)
++{
++       struct i2c_client *client = to_i2c_client(dev);
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       return sprintf(buf, "%d\n", regval_to_counts_per_mg[data->range]);
++}
++static IIO_DEVICE_ATTR(magn_xyz_gain, S_IRUGO, show_gain, NULL , 0);
++
++
++static struct attribute *hmc5843_attributes[] = {
++       &iio_dev_attr_meas_conf.dev_attr.attr,
++       &iio_dev_attr_operating_mode.dev_attr.attr,
++       &iio_dev_attr_rate.dev_attr.attr,
++       &iio_dev_attr_magn_xyz_range.dev_attr.attr,
++       &iio_dev_attr_magn_xyz_gain.dev_attr.attr,
++       &iio_dev_attr_magn_x_raw.dev_attr.attr,
++       &iio_dev_attr_magn_y_raw.dev_attr.attr,
++       &iio_dev_attr_magn_z_raw.dev_attr.attr,
++       NULL
++};
++
++static const struct attribute_group hmc5843_group = {
++       .attrs = hmc5843_attributes,
++};
++
++static int hmc5843_detect(struct i2c_client *client,
++                         struct i2c_board_info *info)
++{
++       unsigned char id_str[HMC5843_ID_REG_LENGTH];
++
++       if (client->addr != HMC5843_I2C_ADDRESS)
++               return -ENODEV;
++
++       if (i2c_smbus_read_i2c_block_data(client, HMC5843_ID_REG_A,
++                               HMC5843_ID_REG_LENGTH, id_str)
++                       != HMC5843_ID_REG_LENGTH)
++               return -ENODEV;
++
++       if (0 != strncmp(id_str, HMC5843_ID_STRING, HMC5843_ID_REG_LENGTH))
++               return -ENODEV;
++
++       return 0;
++}
++
++
++static int hmc5843_probe(struct i2c_client *client,
++                        const struct i2c_device_id *id)
++{
++       struct hmc5843_data *data;
++       int err = 0;
++
++       data = kzalloc(sizeof(struct hmc5843_data), GFP_KERNEL);
++       if (!data) {
++               err = -ENOMEM;
++               goto exit;
++       }
++
++       /* default settings at probe */
++
++       data->meas_conf = CONF_NORMAL;
++       data->range = RANGE_1_0;
++       data->operating_mode = MODE_CONVERSION_CONTINUOUS;
++
++       i2c_set_clientdata(client, data);
++
++       /* Initialize the HMC5843 chip */
++       hmc5843_init_client(client);
++
++       data->indio_dev = iio_allocate_device();
++       if (!data->indio_dev)
++               goto exit_free;
++       data->indio_dev->attrs = &hmc5843_group;
++       data->indio_dev->dev.parent = &client->dev;
++       data->indio_dev->dev_data = (void *)(data);
++       data->indio_dev->driver_module = THIS_MODULE;
++       data->indio_dev->modes = INDIO_DIRECT_MODE;
++       err = iio_device_register(data->indio_dev);
++       if (err)
++               goto exit_free;
++       /* Register sysfs hooks */
++       err = sysfs_create_group(&client->dev.kobj, &hmc5843_group);
++       if (err)
++               goto exit_free2;
++
++       return 0;
++exit_free2:
++       iio_device_unregister(data->indio_dev);
++exit_free:
++       kfree(data);
++exit:
++       return err;
++}
++
++static int hmc5843_remove(struct i2c_client *client)
++{
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++        /*  sleep mode to save power */
++       hmc5843_set_operating_mode(client, MODE_SLEEP);
++       iio_device_unregister(data->indio_dev);
++       sysfs_remove_group(&client->dev.kobj, &hmc5843_group);
++       kfree(i2c_get_clientdata(client));
++       return 0;
++}
++
++/* Called when we have found a new HMC5843. */
++static void hmc5843_init_client(struct i2c_client *client)
++{
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       hmc5843_set_meas_conf(client, data->meas_conf);
++       hmc5843_set_rate(client, data->rate);
++       hmc5843_set_operating_mode(client, data->operating_mode);
++       i2c_smbus_write_byte_data(client, HMC5843_CONFIG_REG_B, data->range);
++       pr_info("HMC5843 initialized\n");
++}
++
++static int hmc5843_suspend(struct i2c_client *client, pm_message_t mesg)
++{
++       hmc5843_set_operating_mode(client, MODE_SLEEP);
++       pr_info("HMC5843 suspended\n");
++       return 0;
++}
++
++static int hmc5843_resume(struct i2c_client *client)
++{
++       struct hmc5843_data *data = i2c_get_clientdata(client);
++       hmc5843_set_operating_mode(client, data->operating_mode);
++       pr_info("HMC5843 resumed\n");
++       return 0;
++}
++
++static const struct i2c_device_id hmc5843_id[] = {
++       { "hmc5843", 0 },
++       { }
++};
++
++static struct i2c_driver hmc5843_driver = {
++       .driver = {
++               .name   = "hmc5843",
++       },
++       .id_table       = hmc5843_id,
++       .probe          = hmc5843_probe,
++       .remove         = hmc5843_remove,
++       .detect         = hmc5843_detect,
++       .address_list   = normal_i2c,
++       .suspend        = hmc5843_suspend,
++       .resume         = hmc5843_resume,
++};
++
++static int __init hmc5843_init(void)
++{
++       printk(KERN_INFO "init!\n");
++       return i2c_add_driver(&hmc5843_driver);
++}
++
++static void __exit hmc5843_exit(void)
++{
++       printk(KERN_INFO "exit!\n");
++       i2c_del_driver(&hmc5843_driver);
++}
++
++MODULE_AUTHOR("Shubhrajyoti Datta <shubhrajyoti@ti.com");
++MODULE_DESCRIPTION("HMC5843 driver");
++MODULE_LICENSE("GPL");
++
++module_init(hmc5843_init);
++module_exit(hmc5843_exit);
+--
+1.5.4.7
+
+
 

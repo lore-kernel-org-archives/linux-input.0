@@ -1,45 +1,62 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Add support for the Wacom Intuos 4 wireless
-Date: Wed, 30 Jun 2010 15:30:30 +0100
-Message-ID: <1277908230.26120.9.camel@localhost.localdomain>
-References: <1271857920.1960.5.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1004211553220.7579@pobox.suse.cz>
-	 <1271858866.17421.3575.camel@localhost.localdomain>
-	 <alpine.LNX.2.00.1004211619310.7579@pobox.suse.cz>
+From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Subject: Re: Report ID problem with HID-RAW interface usage
+Date: Wed, 30 Jun 2010 10:32:25 -0400
+Message-ID: <4C2B5579.8060104@signal11.us>
+References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>	<4C2A1FA0.6020704@signal11.us>	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>	<4C2B3E6B.7060703@signal11.us>	<AANLkTilzYu3mA3vDzuVyxngTcltgKEoNKYrdenz1Z-VG@mail.gmail.com>	<alpine.LNX.2.00.1006301505490.13809@pobox.suse.cz> <AANLkTil0S747k-MomthJW4dv2WwB-abjZmGmxf3fH59y@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slow3-v.mail.gandi.net ([217.70.178.89]:33805 "EHLO
-	slow3-v.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756288Ab0F3ObA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 10:31:00 -0400
-Received: from mrelay2-d.mgt.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-	by slow3-v.mail.gandi.net (Postfix) with ESMTP id 4C3CC8730A
-	for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 16:30:56 +0200 (CEST)
-In-Reply-To: <alpine.LNX.2.00.1004211619310.7579@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AANLkTil0S747k-MomthJW4dv2WwB-abjZmGmxf3fH59y-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Xiaofan Chen <xiaofanc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
 
-On Wed, 2010-04-21 at 16:19 +0200, Jiri Kosina wrote:
-> On Wed, 21 Apr 2010, Bastien Nocera wrote:
-> 
-> > > How about addition of this VID/PID combination to hid_blacklist[]?
-> > 
-> > My mistake, that needs to be done as well obviously.
-> > 
-> > Will send an updated patch shortly.
-> 
-> No problem, I'll fix that up myself.
+On 06/30/2010 10:09 AM, Xiaofan Chen wrote:
+> Some of us in the libusb mailing list have this desire to
+> create a real cross-platform HID API (which libhid is
+> trying to do but without real success -- at least under
+> Windows since there is no real Windows port) on top
+> of libusb-1.0.
+>
+> The new libusb-1.0 Windows backend can directly
+> use the native HID API. And I create a ticket to ask
+> for a native HID backend for Mac OS X and I believe
+> it can be done.
+> http://www.libusb.org/ticket/33
+>
+> I am not so sure if it is necessary to create a native hidraw
+> backend for Linux or not. But the advantage of transport-independent
+> HID device seems to be a good one. I think Windows native HID API
+> also support non-USB device. Not so sure about Mac OS X though
+> since I do not use Mac and do not know Mac.
+>
+>    
 
-Hmm, I did something stupid there. The Intuos 4 wireless uses a
-different protocol from the Graphire wireless. Another driver will need
-to be written...
+I've had the same ideas of creating a cross-platform HID api, and 
+started a similar project. Maybe we could benefit from one another. What 
+I've got so far is at:
+     www.signal11.us/oss/hidapi
 
-Could you please revert that patch?
+Of course, what's up there right now only supports Windows, and was 
+originally intended to get around the fact that the HID headers and 
+import lib aren't part of the Platform SDK, but part of the Driver Kit 
+(It's all explained on the web page). I have a working backend for 
+hidraw, which I need to get cleaned up and committed. Of course, the 
+Hidraw backend depends on some of the queued changes which won't get in 
+the mainline kernel until 2.6.36.
 
-Cheers
+I have a Mac here and intend to make it work on OS X as well.
 
+I did not realize that libusb-1.0 would talk to the native Windows HID 
+backend. I don't see anything like that in the git version of libusb-1.0 
+or libusb-win32. Is this on another branch or something, or did I miss it?
+
+Alan.
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

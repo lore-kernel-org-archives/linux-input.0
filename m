@@ -1,74 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: rotary encoder
-Date: Wed, 30 Jun 2010 01:40:01 -0700
-Message-ID: <20100630084001.GE4154@core.coreip.homeip.net>
-References: <20100617101021.GB17833@buzzloop.caiaq.de>
- <B221BAA24375436992F7587DF15BB812@tech>
- <20100617112135.GC17833@buzzloop.caiaq.de>
- <B111F158EBCF48779A16E4EF5FAA2F84@tech>
- <20100617113725.GD17833@buzzloop.caiaq.de>
- <1E284238E08046EFA4038129CEA2527F@tech>
- <20100617120005.GF17833@buzzloop.caiaq.de>
- <20100628182225.GB7427@core.coreip.homeip.net>
- <20100628183229.GI2698@buzzloop.caiaq.de>
- <6F142F21F5134B03BDACDD706E7BCA3C@tech>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH 0/4] Current ad7879 patches
+Date: Wed, 30 Jun 2010 09:40:54 +0100
+Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E66DFF584@LIMKCMBX1.ad.analog.com>
+References: <20100625081847.8617.31150.stgit@localhost.localdomain>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFF408@LIMKCMBX1.ad.analog.com>
+ <20100630080345.GC4154@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:39715 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751907Ab0F3IkH (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:23303 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752487Ab0F3Ik6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 04:40:07 -0400
-Received: by pvc7 with SMTP id 7so257528pvc.19
-        for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 01:40:06 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <6F142F21F5134B03BDACDD706E7BCA3C@tech>
+	Wed, 30 Jun 2010 04:40:58 -0400
+In-Reply-To: <20100630080345.GC4154@core.coreip.homeip.net>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitriy Vasil'ev <tech@digiton.ru>
-Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>
 
-On Tue, Jun 29, 2010 at 07:06:24PM +0400, Dmitriy Vasil'ev wrote:
-> I am sorry, I am not a kernel programmer, I just share my code.
-> I think, kernel maintainers must heck any code before applying it to kernel.
-> 
-> I have found of the problem:
-> my editor uses \r\n as end of line symbol.
-> original code uses \n as end of line
-> 
-> diff utlility could be more flexible....
-> 
+Dmitry Torokhov wrote on 2010-06-30:
+> On Tue, Jun 29, 2010 at 01:10:38PM +0100, Hennerich, Michael wrote:
+>> Dmitry Torokhov wrote on 2010-06-25:
+>>> Mike, Michael,
+>>>
+>>> I was looking through outstanding patches to ad7879 and here they are.
+>>> Since I made some changes to the patches you wrote and there also some
+>>> new code and I do not have the hardware I'd appreciate if you could
+>>> try them out so they can be applied.
+>>>
+>>> Thank you.
+>>>
+>>
+>> Hi Dmitry,
+>>
+>> I tested your ad7879 patch set -
+>> A few issues see patch below.
+>>
+>> -Fix ad7879_probe() parameter passing. -Add missing input_set_drvdata()
+>> -Avoid unbalanced irq enable warning: disable_irq() after request. -Fix
+>> sysfs disable hook logic: the file is called disable so don't treat it
+>> as enable.
+>>
+>
+> Thanks for catching all the mistakes Michael. Regardgin disable_irq()
+> - do you think it would be even better to call __ad7879_disable()
+> there to make sure the chip is in low power mode?
 
-The diff utility does not know on which OS the resulting file will be
-used so, by default, it reports everything that was changed. And it was
-a good thing it showd all these differences as we do not really need DOS
-format in kernel code.
+Right - __ad7879_disable() is a good option here.
 
-> 1. I do not know how many people use encoder without button.
-> Probably, need correct this code to disable using the button and
-> free a irq, if button do not uses.
-> 
-> 2. I do not know what code inside the kernel use the rotary encoder.
-> If this code there is, probably it need correct these code.
+> And I guess we need
+> to add matching enable_irq() in error handlig path and in
+> ad7879_remove() in case we reload the driver...
 
-Just grep for it.
+I don't see a problem here. free_irq() will take care and unconditional
+disable the irq for us. Both the error return as well as the module
+remove path will call free_irq().
 
-> 
-> My patch, check it please before applying to kernel:
-> 
+> BTW, I will be applying the other 2 patches you sent.
+>
 
-I will assume that it was Outlook that butchered all indentation, but
-no, it does not apply... It also does not seem to follow our kernel
-style (and please do not consider us too picky, but we do request
-everyone follow the coding style so that review process is easier and
-we can concentrate on more important details).
+Thanks
 
-Anyway, I think that mapping rotary actions on EV_KEY does make sense
-and would be nice to have; the separate gpio/irq for press button is
-better handled as a separate input device by gpio_keys driver.
+Greetings,
+Michael
 
-Thanks.
+Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
+Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
 
--- 
-Dmitry

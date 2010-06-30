@@ -1,68 +1,39 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Wed, 30 Jun 2010 11:26:54 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com> <4C2A1FA0.6020704@signal11.us>
+From: "Dmitriy Vasil'ev" <tech@digiton.ru>
+Subject: Re: rotary encoder
+Date: Wed, 30 Jun 2010 13:33:25 +0400
+Message-ID: <30BA0A72AA534DE289E9DA5963938449@tech>
+References: <20100617101021.GB17833@buzzloop.caiaq.de> <B221BAA24375436992F7587DF15BB812@tech> <20100617112135.GC17833@buzzloop.caiaq.de> <B111F158EBCF48779A16E4EF5FAA2F84@tech> <20100617113725.GD17833@buzzloop.caiaq.de> <1E284238E08046EFA4038129CEA2527F@tech> <20100617120005.GF17833@buzzloop.caiaq.de> <20100628182225.GB7427@core.coreip.homeip.net> <20100628183229.GI2698@buzzloop.caiaq.de> <6F142F21F5134B03BDACDD706E7BCA3C@tech> <20100630084001.GE4154@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C2A1FA0.6020704-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Cc: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
+Content-Type: text/plain;
+	format=flowed;
+	charset="utf-8";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:33895 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755252Ab0F3Jde (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Jun 2010 05:33:34 -0400
+Received: by bwz1 with SMTP id 1so252463bwz.19
+        for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 02:33:32 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 29 Jun 2010, Alan Ott wrote:
-
-> > i am trying to send a vendor specific HID report from a userspace host
-> > program to vendor usb hid device
-> > using HIDRAW interface .
-> > 
-> > 
-> > but when i send report in the format<  "Report ID "(0th byte )>
-> > <Report ID (1st byte )>  <  "data payload">
-> > i am getting perfect report response from usb device .
-> >   where we use usb_control_msg as  :
-> > 
-> > ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-> > 		HID_REQ_SET_REPORT,
-> > 		USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> > 		cpu_to_le16(((HID_OUTPUT_REPORT + 1)<<  8) | *buf),
-> > 		interface->desc.bInterfaceNumber, buf + 1, count - 1,
-> > 		USB_CTRL_SET_TIMEOUT);
-> > 
-> >    
+> the separate gpio/irq for press button is
+> better handled as a separate input device by gpio_keys driver.
 > 
-> I thought I'd be able to just go check the HID specification and be able to
-> say that the report number is not sent as part of the payload for Set_Report
-> devices, since it would be redundant because the Report ID is sent over in the
-> wValue field.
+> Thanks.
 > 
-> Unfortunately, I was not able to see that clearly laid out in the HID
-> specification in the section on Set_Report. I did however find language saying
-> "if a Report ID tag was used in the Report descriptor, all reports include a
-> single byte ID prefix," in section 8.1, Report Types.
-> 
-> I did some tests with the Windows implementation, and indeed, when numbered
-> reports are used in the HID descriptor, the Windows implementation will send
-> the report ID as the first byte of the payload.
-> 
-> Based on the language in the HID spec, and the behavior of Windows, I believe
-> the buf+1, count-1 to be a bug.
-> 
-> Jiri, what do you think? Can you confirm?
+> -- 
+> Dmitry
 
-Correct, it is a bug indeed.
+Small note:
 
-Does any of you guys already have a patch handy which I could apply? 
-Otherwise I'll fix it myself.
+if you use two separate drivers for rotary encoder and it's button,
+you must work with two device nodes in user space.
+If user space driver working with one device node, this more usable.
 
-Thanks for spotting it,
 
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

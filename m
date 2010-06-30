@@ -1,36 +1,72 @@
-From: Anatolij Gustschin <agust@denx.de>
-Subject: Re: [PATCH v2 2/2] Input: ads7846 - extend the driver for ads7845
- controller support
-Date: Wed, 30 Jun 2010 10:45:55 +0200
-Message-ID: <20100630104555.2289c731@mw.dip.t-dialin.net>
-References: <1272630181-5364-2-git-send-email-agust@denx.de>
-	<1277803793-15077-1-git-send-email-agust@denx.de>
-	<20100630081805.GD4154@core.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/4] Current ad7879 patches
+Date: Wed, 30 Jun 2010 02:07:30 -0700
+Message-ID: <20100630090729.GA23627@core.coreip.homeip.net>
+References: <20100625081847.8617.31150.stgit@localhost.localdomain>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFF408@LIMKCMBX1.ad.analog.com>
+ <20100630080345.GC4154@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFF584@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:52607 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751936Ab0F3Ip5 (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:51932 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751673Ab0F3JHh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jun 2010 04:45:57 -0400
-In-Reply-To: <20100630081805.GD4154@core.coreip.homeip.net>
+	Wed, 30 Jun 2010 05:07:37 -0400
+Received: by pvc7 with SMTP id 7so267001pvc.19
+        for <linux-input@vger.kernel.org>; Wed, 30 Jun 2010 02:07:34 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712E66DFF584@LIMKCMBX1.ad.analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>
 
-On Wed, 30 Jun 2010 01:18:05 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-...
-> I just noticed that your previous patch alters pdata which I belive is
-> wrong thing to do. Could you please try the following patch and let me
-> know if I broke anything?
+On Wed, Jun 30, 2010 at 09:40:54AM +0100, Hennerich, Michael wrote:
+> Dmitry Torokhov wrote on 2010-06-30:
+> > On Tue, Jun 29, 2010 at 01:10:38PM +0100, Hennerich, Michael wrote:
+> >> Dmitry Torokhov wrote on 2010-06-25:
+> >>> Mike, Michael,
+> >>>
+> >>> I was looking through outstanding patches to ad7879 and here they are.
+> >>> Since I made some changes to the patches you wrote and there also some
+> >>> new code and I do not have the hardware I'd appreciate if you could
+> >>> try them out so they can be applied.
+> >>>
+> >>> Thank you.
+> >>>
+> >>
+> >> Hi Dmitry,
+> >>
+> >> I tested your ad7879 patch set -
+> >> A few issues see patch below.
+> >>
+> >> -Fix ad7879_probe() parameter passing. -Add missing input_set_drvdata()
+> >> -Avoid unbalanced irq enable warning: disable_irq() after request. -Fix
+> >> sysfs disable hook logic: the file is called disable so don't treat it
+> >> as enable.
+> >>
+> >
+> > Thanks for catching all the mistakes Michael. Regardgin disable_irq()
+> > - do you think it would be even better to call __ad7879_disable()
+> > there to make sure the chip is in low power mode?
+> 
+> Right - __ad7879_disable() is a good option here.
+> 
+> > And I guess we need
+> > to add matching enable_irq() in error handlig path and in
+> > ad7879_remove() in case we reload the driver...
+> 
+> I don't see a problem here. free_irq() will take care and unconditional
+> disable the irq for us. Both the error return as well as the module
+> remove path will call free_irq().
 
-Yes, altering pdata isn't a good idea. I can't try the patch just now
-but will test it this evening.
+free_irq() will disable the irq in the chip and will set desc->action to
+NULL but will not alter desc->depth as far as I can see.
 
-Thanks,
+I guess we can rely on the fact that request_irq resets desc->depth for
+non-shared IRQs...
 
-Anatolij
+-- 
+Dmitry

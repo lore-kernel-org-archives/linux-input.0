@@ -1,67 +1,100 @@
 From: Anatolij Gustschin <agust@denx.de>
-Subject: Re: [PATCH v2 2/2] Input: ads7846 - extend the driver for ads7845
- controller support
-Date: Thu, 1 Jul 2010 13:23:21 +0200
-Message-ID: <20100701132321.5111d872@wker>
-References: <1272630181-5364-2-git-send-email-agust@denx.de>
-	<1277803793-15077-1-git-send-email-agust@denx.de>
-	<20100630081805.GD4154@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Input: ads7846 - do not allow altering platform data
+Date: Thu,  1 Jul 2010 13:26:45 +0200
+Message-ID: <1277983605-27726-1-git-send-email-agust@denx.de>
+References: <20100630081805.GD4154@core.coreip.homeip.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:47751 "EHLO
+Received: from mail-out.m-online.net ([212.18.0.10]:39710 "EHLO
 	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755521Ab0GALX3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 07:23:29 -0400
+	with ESMTP id S1754513Ab0GAL1I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 07:27:08 -0400
 In-Reply-To: <20100630081805.GD4154@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
+To: linux-input@vger.kernel.org
+Cc: Detlev Zundel <dzu@denx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
 
-On Wed, 30 Jun 2010 01:18:05 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> On Tue, Jun 29, 2010 at 11:29:53AM +0200, Anatolij Gustschin wrote:
-> > ADS7845 is a controller for 5-wire touch screens and
-> > somewhat different from 7846. It requires three serial
-> > communications to accomplish one complete conversion.
-> > Unlike 7846 it doesn't allow Z1-/Z2- position measurement.
-> > 
-> > The patch extends the ads7846 driver to also support
-> > ads7845. The packet struct is extended to contain
-> > needed command and conversion buffers. ads7846_rx()
-> > and ads7846_rx_val() now differentiate between 7845
-> > and 7846 case. ads7846_probe() is modified to setup
-> > ads7845 specific command and conversion messages and
-> > to switch ads7845 into power-down mode, since this is
-> > needed to be prepared to respond to pendown interrupts.
-> > 
-> 
-> Thank you for making changes Anatolij, I iwll be applying the patch to
-> my 2.6.36 queue.
-> 
-> I just noticed that your previous patch alters pdata which I belive is
-> wrong thing to do. Could you please try the following patch and let me
-> know if I broke anything?
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Tested-by: Anatolij Gustschin <agust@denx.de>
+---
+ drivers/input/touchscreen/ads7846.c |   35 +++++++++++++++++++----------------
+ include/linux/spi/ads7846.h         |    2 +-
+ 2 files changed, 20 insertions(+), 17 deletions(-)
 
-The patch needs a small fix, please see below.
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 8ab90dd..82290ff 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -942,14 +942,15 @@ static int __devinit setup_pendown(struct spi_device *spi, struct ads7846 *ts)
+ 
+ static int __devinit ads7846_probe(struct spi_device *spi)
+ {
+-	struct ads7846			*ts;
+-	struct ads7846_packet		*packet;
+-	struct input_dev		*input_dev;
+-	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
+-	struct spi_message		*m;
+-	struct spi_transfer		*x;
+-	int				vref;
+-	int				err;
++	struct ads7846 *ts;
++	struct ads7846_packet *packet;
++	struct input_dev *input_dev;
++	const struct ads7846_platform_data *pdata = spi->dev.platform_data;
++	struct spi_message *m;
++	struct spi_transfer *x;
++	unsigned long irq_flags;
++	int vref;
++	int err;
+ 
+ 	if (!spi->irq) {
+ 		dev_dbg(&spi->dev, "no IRQ?\n");
+@@ -1269,20 +1270,22 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 		goto err_put_regulator;
+ 	}
+ 
+-	if (!pdata->irq_flags)
+-		pdata->irq_flags = IRQF_TRIGGER_FALLING;
++	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+ 
+-	if (request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
+-			spi->dev.driver->name, ts)) {
++	err = request_irq(spi->irq, ads7846_irq, irq_flags,
++			  spi->dev.driver->name, ts);
++
++	if (err && !pdata->irq_flags) {
+ 		dev_info(&spi->dev,
+ 			"trying pin change workaround on irq %d\n", spi->irq);
+ 		err = request_irq(spi->irq, ads7846_irq,
+ 				  IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+ 				  spi->dev.driver->name, ts);
+-		if (err) {
+-			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-			goto err_disable_regulator;
+-		}
++	}
++
++	if (err) {
++		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
++		goto err_disable_regulator;
+ 	}
+ 
+ 	err = ads784x_hwmon_register(spi, ts);
+diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+index 95d36bf..92bd083 100644
+--- a/include/linux/spi/ads7846.h
++++ b/include/linux/spi/ads7846.h
+@@ -48,7 +48,7 @@ struct ads7846_platform_data {
+ 					 * state if get_pendown_state == NULL
+ 					 */
+ 	int	(*get_pendown_state)(void);
+-	int	(*filter_init)	(struct ads7846_platform_data *pdata,
++	int	(*filter_init)	(const struct ads7846_platform_data *pdata,
+ 				 void **filter_data);
+ 	int	(*filter)	(void *filter_data, int data_idx, int *val);
+ 	void	(*filter_cleanup)(void *filter_data);
+-- 
+1.7.0.4
 
-...
-> -	if (!pdata->irq_flags)
-> -		pdata->irq_flags = IRQF_TRIGGER_FALLING;
-> +	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
-> 
-> -	if (request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
-> -			spi->dev.driver->name, ts)) {
-> +	err = request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
-> +			  spi->dev.driver->name, ts);
-
-We should pass previously obtained 'irq_flags' to request_irq(),
-not the original 'pdata->irq_flags'. I fixed this and tested the
-corrected patch with ads7845, it is okay now. I'll submit the
-corrected patch shortly.
-
-Thanks,
-Anatolij

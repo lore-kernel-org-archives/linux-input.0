@@ -1,172 +1,84 @@
-From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Thu, 1 Jul 2010 09:16:05 -0400
-Message-ID: <16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com> <4C2A1FA0.6020704@signal11.us> <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz> <AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com> <alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz> <AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com> <4C2B3E6B.7060703@signal11.us> <AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v936)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Xiaofan Chen <xiaofanc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] input/misc: new ADXL345/346 driver
+Date: Thu, 1 Jul 2010 09:08:08 -0700
+Message-ID: <20100701160808.GA4152@core.coreip.homeip.net>
+References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
+ <1256028039-15044-1-git-send-email-vapier@gentoo.org>
+ <20100625071425.GA631@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFEF69@LIMKCMBX1.ad.analog.com>
+ <20100701075316.GA14696@core.coreip.homeip.net>
+ <544AC56F16B56944AEC3BD4E3D5917712E66DFF76E@LIMKCMBX1.ad.analog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:62887 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754103Ab0GAQIc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 12:08:32 -0400
+Received: by pwi5 with SMTP id 5so220717pwi.19
+        for <linux-input@vger.kernel.org>; Thu, 01 Jul 2010 09:08:31 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712E66DFF76E@LIMKCMBX1.ad.analog.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, "Song, Barry" <Barry.Song@analog.com>
 
+On Thu, Jul 01, 2010 at 10:15:11AM +0100, Hennerich, Michael wrote:
+> Dmitry Torokhov wrote on 2010-07-01:
+> > On Fri, Jun 25, 2010 at 02:59:24PM +0100, Hennerich, Michael wrote:
+> >> Dmitry Torokhov wrote on 2010-06-25:
+> >>> Hi Mike, Michael,
+> >>>
+> >>> On Tue, Oct 20, 2009 at 04:40:39AM -0400, Mike Frysinger wrote:
+> >>>> From: Michael Hennerich <michael.hennerich@analog.com>
+> >>>>
+> >>>> This is a driver for the ADXL345/346 Three-Axis Digital
+> >>>> Accelerometers.
+> >>>>
+> >>>
+> >>> As I mentioned in one of the threads I decided to pull 3-axis
+> >>> acceleromenetrs into input and I am finally getting around to
+> >>> apply the patch... However I messed a bit with it so I was
+> >>> wondering if someone could give it a short spin to see if I broke it or not.
+> >>>
+> >>> Thanks!
+> >>>
+> >>
+> >> Hi Dmitry,
+> >>
+> >> Thanks for merging this driver.
+> >> I gave it a quick spin. And there is one issue.
+> >> There is a code path that is taken with the mutex held, which is
+> >> also trying to acquire the mutex.
+> >>
+> >> Take a look at
+> >>
+> >> adxl34x_input_close() -> __adxl34x_disable() or
+> >> adxl34x_disable() -> __adxl34x_disable()
+> >>
+> >> I think __adxl34x_disable() should not acquire the mutex!
+> >>
+> >
+> > Yes, indeed it shoudl not have. I fixed it up and applied the patch.
+> > Could you also please try the following patch - hopefully it also works
+> > ;)
+> >
+> > Thank you in advance.
+> >
+> 
+> Hi Dmitry,
+> 
+> A few minor things.
+> See patch below.
+> 
+> -adxl34x is on startup not disabled - otherwise user must reset disable sysfs
+> hook before the driver delivers any data.
+> -restore erroneously dropped line in adxl34x_calibrate_store()
+> -fix typo in adxl34x-i2c.c (l versus 1)
+> 
 
-On Jun 30, 2010, at 12:40 PM, Amit Nagal wrote:
+Folded and applied, thank you Michael.
 
-> Hi  ,
->
-> ok i explain my requirements again .
->
->
-> (1)
->
-> the hid device  i am  dealing with does not tell in its payload
-> protocol specifications
-> how many input and output reports it will support and what will be the
-> their respective size . the only thing it tells is payload data will
-> be in the format
-> <Report ID> <Payload > .
->
->> If you know what type of device you are talking to, then you  
->> shouldn't
->> really need to parse the descriptor in software, because you'll  
->> know what
->> the device supports, right?
->>
->
-> No , this information is not available to me in advance .
-> the application should parse the report descriptor currently
-> and identify the no of input and output reports currently available
-> along with their sizes .
->
-> infact in my view , it does make sense to get <Report ID> <Report  
-> Len >
-> from report descriptor only , as a device protocol specification may  
-> change
-> for its  future releases . and no of reports may increase .
-> so its better to get this information from report descriptor only sent
-> by the device .
-
-So let me see if I understand correctly (let me know yes or no on each):
-1. You do not have documentation which tells what reports are  
-available on the device.
-2. The number and size of reports is listed in the HID descriptor,  
-which you do not want to parse in userspace. You want the kernel to do  
-it for you (which is a reasonable request, as modules like hiddev  
-already do this kind of parsing).
-3. You want to be able to support the future releases where the report  
-sizes may change.
-
-
-> (2)
->
-> now lets consider the case for sending report to device .
->
-> different output reports have different sizes .
->
-> so depending upon application payload length ,
->
-> i have to select which < output report ID > should be used .
->
-> so hid_write should be
->
-> buff[0] =  < Output Report ID having Report Len >= application  
-> payload >
-> buff[1....n] = <payload data > .
->
-> since i need to know dynamically which output report id should be used
-> i stressed the need for ioctl which can fetch  the basic information
-> <Report ID ><Report Len> parsed from report descriptor send by the  
-> device .
->
-> i agree hidraw interface sends / receives raw events and
-> this functionalty indeed is required by my application ,
-> but still to send report , i need to choose report id depending
-> upon application payload size .
-> Also report id and report length information supported is not
-> described in device protocol specs .
->
-
-I think I'm finally getting the picture. Again, tell me yes or no on  
-each:
-0. You're using HID device with User-Defined data.
-1. Your device has lots of reports, which all take the same type of  
-data.
-2. Each report differs _only_ in its length, but the data is the same.  
-For example:
-	1. If you want to send 5 bytes to the device, you use report 1, which  
-is 5 bytes long
-	2. If you want to send 10 bytes to the device, you use report 2,  
-which is 10 bytes long.
-	3. if you want to send 20 bytes to the device, you use report 3,  
-which is 20 bytes long.
-	etc.
-4. You want to know dynamically, which report you need to use, based  
-on the payload length, because
-4a. the only difference in your reports is the payload length.
-
-Might I ask what kind of device this is that behaves this way?
-
-
-> i think hidraw interface should provide support for
-> <report id > <report len > information as application needs to
-> dynamically provides information
-> to buff[0] = <Report ID> ( we cannot hardcode this value )
->
-> (3)
->
-> now lets consider the case for hid device read .
->
-> the syntax is read( fd , buff , count );
->
-> what i want is
->
-> buff[0]  = <Input Report ID>
-> buff[1...n] = <Report Payload >
->
-> Yes i agree the < Report type > information is not required .
->
-
-For a device which uses numbered reports, the input report ID is  
-always returned to read(). It's already doing what you're asking for.
-
-> as i explained previously one application payload can be split across
-> multiple reports using same <Report Id >
->
-
-read() is going to return one report per call to read(). It's not a  
-stream interface. If your data is split across multiple reports,  
-you'll need to stitch it back together on your end.
-
-
-> so if Report ID information also comes in buff[0]
-> it becomes easy to identify one application payload spilt across  
-> multiple
-> reports using same <Report ID>.
->
-
-Again, it already does this, for devices which use numbered reports.
-
-
->
-> (4)
->
-> Regarding libusb / libhid usage ,
-> the usb device i am using is a composite device
-> having hid and audio interfaces .
->
-> is it possible to claim audio interface from kernel space
-> and hid interface from user space ?
->
-
-Xiaofan?
-
-Alan.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

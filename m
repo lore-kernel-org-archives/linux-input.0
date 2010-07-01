@@ -1,100 +1,172 @@
-From: Anatolij Gustschin <agust@denx.de>
-Subject: [PATCH] Input: ads7846 - do not allow altering platform data
-Date: Thu,  1 Jul 2010 13:26:45 +0200
-Message-ID: <1277983605-27726-1-git-send-email-agust@denx.de>
-References: <20100630081805.GD4154@core.coreip.homeip.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:39710 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754513Ab0GAL1I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 07:27:08 -0400
-In-Reply-To: <20100630081805.GD4154@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Subject: Re: Report ID problem with HID-RAW interface usage
+Date: Thu, 1 Jul 2010 09:16:05 -0400
+Message-ID: <16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us>
+References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com> <4C2A1FA0.6020704@signal11.us> <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz> <AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com> <alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz> <AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com> <4C2B3E6B.7060703@signal11.us> <AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v936)
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Xiaofan Chen <xiaofanc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Detlev Zundel <dzu@denx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-Tested-by: Anatolij Gustschin <agust@denx.de>
----
- drivers/input/touchscreen/ads7846.c |   35 +++++++++++++++++++----------------
- include/linux/spi/ads7846.h         |    2 +-
- 2 files changed, 20 insertions(+), 17 deletions(-)
+On Jun 30, 2010, at 12:40 PM, Amit Nagal wrote:
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 8ab90dd..82290ff 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -942,14 +942,15 @@ static int __devinit setup_pendown(struct spi_device *spi, struct ads7846 *ts)
- 
- static int __devinit ads7846_probe(struct spi_device *spi)
- {
--	struct ads7846			*ts;
--	struct ads7846_packet		*packet;
--	struct input_dev		*input_dev;
--	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
--	struct spi_message		*m;
--	struct spi_transfer		*x;
--	int				vref;
--	int				err;
-+	struct ads7846 *ts;
-+	struct ads7846_packet *packet;
-+	struct input_dev *input_dev;
-+	const struct ads7846_platform_data *pdata = spi->dev.platform_data;
-+	struct spi_message *m;
-+	struct spi_transfer *x;
-+	unsigned long irq_flags;
-+	int vref;
-+	int err;
- 
- 	if (!spi->irq) {
- 		dev_dbg(&spi->dev, "no IRQ?\n");
-@@ -1269,20 +1270,22 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		goto err_put_regulator;
- 	}
- 
--	if (!pdata->irq_flags)
--		pdata->irq_flags = IRQF_TRIGGER_FALLING;
-+	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
- 
--	if (request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
--			spi->dev.driver->name, ts)) {
-+	err = request_irq(spi->irq, ads7846_irq, irq_flags,
-+			  spi->dev.driver->name, ts);
-+
-+	if (err && !pdata->irq_flags) {
- 		dev_info(&spi->dev,
- 			"trying pin change workaround on irq %d\n", spi->irq);
- 		err = request_irq(spi->irq, ads7846_irq,
- 				  IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
- 				  spi->dev.driver->name, ts);
--		if (err) {
--			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
--			goto err_disable_regulator;
--		}
-+	}
-+
-+	if (err) {
-+		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
-+		goto err_disable_regulator;
- 	}
- 
- 	err = ads784x_hwmon_register(spi, ts);
-diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
-index 95d36bf..92bd083 100644
---- a/include/linux/spi/ads7846.h
-+++ b/include/linux/spi/ads7846.h
-@@ -48,7 +48,7 @@ struct ads7846_platform_data {
- 					 * state if get_pendown_state == NULL
- 					 */
- 	int	(*get_pendown_state)(void);
--	int	(*filter_init)	(struct ads7846_platform_data *pdata,
-+	int	(*filter_init)	(const struct ads7846_platform_data *pdata,
- 				 void **filter_data);
- 	int	(*filter)	(void *filter_data, int data_idx, int *val);
- 	void	(*filter_cleanup)(void *filter_data);
--- 
-1.7.0.4
+> Hi  ,
+>
+> ok i explain my requirements again .
+>
+>
+> (1)
+>
+> the hid device  i am  dealing with does not tell in its payload
+> protocol specifications
+> how many input and output reports it will support and what will be the
+> their respective size . the only thing it tells is payload data will
+> be in the format
+> <Report ID> <Payload > .
+>
+>> If you know what type of device you are talking to, then you  
+>> shouldn't
+>> really need to parse the descriptor in software, because you'll  
+>> know what
+>> the device supports, right?
+>>
+>
+> No , this information is not available to me in advance .
+> the application should parse the report descriptor currently
+> and identify the no of input and output reports currently available
+> along with their sizes .
+>
+> infact in my view , it does make sense to get <Report ID> <Report  
+> Len >
+> from report descriptor only , as a device protocol specification may  
+> change
+> for its  future releases . and no of reports may increase .
+> so its better to get this information from report descriptor only sent
+> by the device .
 
+So let me see if I understand correctly (let me know yes or no on each):
+1. You do not have documentation which tells what reports are  
+available on the device.
+2. The number and size of reports is listed in the HID descriptor,  
+which you do not want to parse in userspace. You want the kernel to do  
+it for you (which is a reasonable request, as modules like hiddev  
+already do this kind of parsing).
+3. You want to be able to support the future releases where the report  
+sizes may change.
+
+
+> (2)
+>
+> now lets consider the case for sending report to device .
+>
+> different output reports have different sizes .
+>
+> so depending upon application payload length ,
+>
+> i have to select which < output report ID > should be used .
+>
+> so hid_write should be
+>
+> buff[0] =  < Output Report ID having Report Len >= application  
+> payload >
+> buff[1....n] = <payload data > .
+>
+> since i need to know dynamically which output report id should be used
+> i stressed the need for ioctl which can fetch  the basic information
+> <Report ID ><Report Len> parsed from report descriptor send by the  
+> device .
+>
+> i agree hidraw interface sends / receives raw events and
+> this functionalty indeed is required by my application ,
+> but still to send report , i need to choose report id depending
+> upon application payload size .
+> Also report id and report length information supported is not
+> described in device protocol specs .
+>
+
+I think I'm finally getting the picture. Again, tell me yes or no on  
+each:
+0. You're using HID device with User-Defined data.
+1. Your device has lots of reports, which all take the same type of  
+data.
+2. Each report differs _only_ in its length, but the data is the same.  
+For example:
+	1. If you want to send 5 bytes to the device, you use report 1, which  
+is 5 bytes long
+	2. If you want to send 10 bytes to the device, you use report 2,  
+which is 10 bytes long.
+	3. if you want to send 20 bytes to the device, you use report 3,  
+which is 20 bytes long.
+	etc.
+4. You want to know dynamically, which report you need to use, based  
+on the payload length, because
+4a. the only difference in your reports is the payload length.
+
+Might I ask what kind of device this is that behaves this way?
+
+
+> i think hidraw interface should provide support for
+> <report id > <report len > information as application needs to
+> dynamically provides information
+> to buff[0] = <Report ID> ( we cannot hardcode this value )
+>
+> (3)
+>
+> now lets consider the case for hid device read .
+>
+> the syntax is read( fd , buff , count );
+>
+> what i want is
+>
+> buff[0]  = <Input Report ID>
+> buff[1...n] = <Report Payload >
+>
+> Yes i agree the < Report type > information is not required .
+>
+
+For a device which uses numbered reports, the input report ID is  
+always returned to read(). It's already doing what you're asking for.
+
+> as i explained previously one application payload can be split across
+> multiple reports using same <Report Id >
+>
+
+read() is going to return one report per call to read(). It's not a  
+stream interface. If your data is split across multiple reports,  
+you'll need to stitch it back together on your end.
+
+
+> so if Report ID information also comes in buff[0]
+> it becomes easy to identify one application payload spilt across  
+> multiple
+> reports using same <Report ID>.
+>
+
+Again, it already does this, for devices which use numbered reports.
+
+
+>
+> (4)
+>
+> Regarding libusb / libhid usage ,
+> the usb device i am using is a composite device
+> having hid and audio interfaces .
+>
+> is it possible to claim audio interface from kernel space
+> and hid interface from user space ?
+>
+
+Xiaofan?
+
+Alan.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

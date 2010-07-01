@@ -1,142 +1,67 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH v3] input/misc: new ADXL345/346 driver
-Date: Thu, 1 Jul 2010 10:15:11 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E66DFF76E@LIMKCMBX1.ad.analog.com>
-References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
- <1256028039-15044-1-git-send-email-vapier@gentoo.org>
- <20100625071425.GA631@core.coreip.homeip.net>
- <544AC56F16B56944AEC3BD4E3D5917712E66DFEF69@LIMKCMBX1.ad.analog.com>
- <20100701075316.GA14696@core.coreip.homeip.net>
+From: Anatolij Gustschin <agust@denx.de>
+Subject: Re: [PATCH v2 2/2] Input: ads7846 - extend the driver for ads7845
+ controller support
+Date: Thu, 1 Jul 2010 13:23:21 +0200
+Message-ID: <20100701132321.5111d872@wker>
+References: <1272630181-5364-2-git-send-email-agust@denx.de>
+	<1277803793-15077-1-git-send-email-agust@denx.de>
+	<20100630081805.GD4154@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:11198 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754576Ab0GAJPS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 05:15:18 -0400
-In-Reply-To: <20100701075316.GA14696@core.coreip.homeip.net>
-Content-Language: en-US
+Received: from mail-out.m-online.net ([212.18.0.9]:47751 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755521Ab0GALX3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jul 2010 07:23:29 -0400
+In-Reply-To: <20100630081805.GD4154@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, "Song, Barry" <Barry.Song@analog.com>
+Cc: linux-input@vger.kernel.org, Detlev Zundel <dzu@denx.de>
 
-Dmitry Torokhov wrote on 2010-07-01:
-> On Fri, Jun 25, 2010 at 02:59:24PM +0100, Hennerich, Michael wrote:
->> Dmitry Torokhov wrote on 2010-06-25:
->>> Hi Mike, Michael,
->>>
->>> On Tue, Oct 20, 2009 at 04:40:39AM -0400, Mike Frysinger wrote:
->>>> From: Michael Hennerich <michael.hennerich@analog.com>
->>>>
->>>> This is a driver for the ADXL345/346 Three-Axis Digital
->>>> Accelerometers.
->>>>
->>>
->>> As I mentioned in one of the threads I decided to pull 3-axis
->>> acceleromenetrs into input and I am finally getting around to
->>> apply the patch... However I messed a bit with it so I was
->>> wondering if someone could give it a short spin to see if I broke it or not.
->>>
->>> Thanks!
->>>
->>
->> Hi Dmitry,
->>
->> Thanks for merging this driver.
->> I gave it a quick spin. And there is one issue.
->> There is a code path that is taken with the mutex held, which is
->> also trying to acquire the mutex.
->>
->> Take a look at
->>
->> adxl34x_input_close() -> __adxl34x_disable() or
->> adxl34x_disable() -> __adxl34x_disable()
->>
->> I think __adxl34x_disable() should not acquire the mutex!
->>
->
-> Yes, indeed it shoudl not have. I fixed it up and applied the patch.
-> Could you also please try the following patch - hopefully it also works
-> ;)
->
-> Thank you in advance.
->
+On Wed, 30 Jun 2010 01:18:05 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Hi Dmitry,
+> On Tue, Jun 29, 2010 at 11:29:53AM +0200, Anatolij Gustschin wrote:
+> > ADS7845 is a controller for 5-wire touch screens and
+> > somewhat different from 7846. It requires three serial
+> > communications to accomplish one complete conversion.
+> > Unlike 7846 it doesn't allow Z1-/Z2- position measurement.
+> > 
+> > The patch extends the ads7846 driver to also support
+> > ads7845. The packet struct is extended to contain
+> > needed command and conversion buffers. ads7846_rx()
+> > and ads7846_rx_val() now differentiate between 7845
+> > and 7846 case. ads7846_probe() is modified to setup
+> > ads7845 specific command and conversion messages and
+> > to switch ads7845 into power-down mode, since this is
+> > needed to be prepared to respond to pendown interrupts.
+> > 
+> 
+> Thank you for making changes Anatolij, I iwll be applying the patch to
+> my 2.6.36 queue.
+> 
+> I just noticed that your previous patch alters pdata which I belive is
+> wrong thing to do. Could you please try the following patch and let me
+> know if I broke anything?
 
-A few minor things.
-See patch below.
+The patch needs a small fix, please see below.
 
--adxl34x is on startup not disabled - otherwise user must reset disable sysfs
-hook before the driver delivers any data.
--restore erroneously dropped line in adxl34x_calibrate_store()
--fix typo in adxl34x-i2c.c (l versus 1)
+...
+> -	if (!pdata->irq_flags)
+> -		pdata->irq_flags = IRQF_TRIGGER_FALLING;
+> +	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
+> 
+> -	if (request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
+> -			spi->dev.driver->name, ts)) {
+> +	err = request_irq(spi->irq, ads7846_irq, pdata->irq_flags,
+> +			  spi->dev.driver->name, ts);
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+We should pass previously obtained 'irq_flags' to request_irq(),
+not the original 'pdata->irq_flags'. I fixed this and tested the
+corrected patch with ads7845, it is okay now. I'll submit the
+corrected patch shortly.
 
- drivers/input/misc/adxl34x-i2c.c |    6 +++---
- drivers/input/misc/adxl34x.c     |    3 ++-
- 2 files changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
-index b1b8df3..0779724 100644
---- a/drivers/input/misc/adxl34x-i2c.c
-+++ b/drivers/input/misc/adxl34x-i2c.c
-@@ -58,14 +58,14 @@ static int adxl34x_i2c_read_block(struct device *dev,
-        return 0;
- }
-
--static const struct adxl34x_bus_ops adx134x_smbus_bops = {
-+static const struct adxl34x_bus_ops adxl34x_smbus_bops = {
-        .bustype        = BUS_I2C,
-        .write          = adxl34x_smbus_write,
-        .read           = adxl34x_smbus_read,
-        .read_block     = adxl34x_smbus_read_block,
- };
-
--static const struct adxl34x_bus_ops adx134x_i2c_bops = {
-+static const struct adxl34x_bus_ops adxl34x_i2c_bops = {
-        .bustype        = BUS_I2C,
-        .write          = adxl34x_smbus_write,
-        .read           = adxl34x_smbus_read,
-@@ -88,7 +88,7 @@ static int __devinit adxl34x_i2c_probe(struct i2c_client *client,
-        ac = adxl34x_probe(&client->dev, client->irq, false,
-                           i2c_check_functionality(client->adapter,
-                                                   I2C_FUNC_SMBUS_READ_I2C_BLOCK) ?
--                               &adx134x_smbus_bops : &adx134x_i2c_bops);
-+                               &adxl34x_smbus_bops : &adxl34x_i2c_bops);
-        if (IS_ERR(ac))
-                return PTR_ERR(ac);
-
-diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-index 2706ea0..756f4d0 100644
---- a/drivers/input/misc/adxl34x.c
-+++ b/drivers/input/misc/adxl34x.c
-@@ -514,6 +514,7 @@ static ssize_t adxl34x_calibrate_store(struct device *dev,
-        ac->hwcal.y -= (ac->saved.y / 4);
-        ac->swcal.y = ac->saved.y % 4;
-
-+       ac->hwcal.z -= (ac->saved.z / 4);
-        ac->swcal.z = ac->saved.z % 4;
-
-        AC_WRITE(ac, OFSX, (s8) ac->hwcal.x);
-@@ -724,7 +725,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
-        pdata = &ac->pdata;
-
-        ac->input = input_dev;
--       ac->disabled = true;
-+       ac->disabled = false;
-        ac->dev = dev;
-        ac->irq = irq;
-        ac->bops = bops;
-
-
-
-Greetings,
-Michael
-
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
-
+Thanks,
+Anatolij

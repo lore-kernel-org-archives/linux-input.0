@@ -1,317 +1,64 @@
-From: Amit Nagal <helloin.amit@gmail.com>
+From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
 Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Fri, 2 Jul 2010 12:16:12 +0530
-Message-ID: <AANLkTilFyRjuP4VUmJolYhloDol5B7HsYV9d5SD8vZPo@mail.gmail.com>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
-	<4C2A1FA0.6020704@signal11.us>
-	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
-	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>
-	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>
-	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>
-	<4C2B3E6B.7060703@signal11.us>
-	<AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>
-	<16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us>
+Date: Fri, 02 Jul 2010 11:05:59 -0400
+Message-ID: <4C2E0057.30206@signal11.us>
+References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>	<4C2A1FA0.6020704@signal11.us>	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>	<4C2B3E6B.7060703@signal11.us>	<AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>	<16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us> <AANLkTilFyRjuP4VUmJolYhloDol5B7HsYV9d5SD8vZPo@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001485ec0e5854133d048a61f1be
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-iw0-f174.google.com ([209.85.214.174]:62961 "EHLO
-	mail-iw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752588Ab0GBGqO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jul 2010 02:46:14 -0400
-In-Reply-To: <16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AANLkTilFyRjuP4VUmJolYhloDol5B7HsYV9d5SD8vZPo-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Xiaofan Chen <xiaofanc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Alan Ott <alan@signal11.us>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>, Xiaofan Chen <xiaofanc@gmail.com>
 
---001485ec0e5854133d048a61f1be
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-> So let me see if I understand correctly (let me know yes or no on each):
-
-> 1. You do not have documentation which tells what reports are available o=
-n
-> the device.
-
-
-Yes . documentation tells only that data payload will come in form
-<Report ID> <Payload>
-No documentation is there to tell what reports are available on device .
-
-
-> 2. The number and size of reports is listed in the HID descriptor, which =
-you
-> do not want to parse in userspace. You want the kernel to do it for you
-> (which is a reasonable request, as modules like hiddev already do this ki=
-nd
-> of parsing).
-
-Yes . its better if kernel do it it . otherwise each application
-utilising hidraw
-interface will have to maintain its own parser to get this minimum informat=
-ion
-regarding No of reports and their len .
-
-if kernel provides this minimum info , hidraw offers a very convinient
-interface to communicate with a hid device using standard
-open/read/write/ioctl system calls.
-and its very useful for applications which are interested in getting
-raw events only from device
-without dwelling much deeper into the complexities of hid specs .
-
-
-> 3. You want to be able to support the future releases where the report si=
-zes
-> may change.
+On 07/02/2010 02:46 AM, Amit Nagal wrote:
+>> 1. Your device has lots of reports, which all take the same type of data.
+>>      
+> Yes . the device has lots of inputs and output reports .
+> the report values are<command>  <  response>  only .
 >
+>    
+>> 2. Each report differs _only_ in its length, but the data is the same. For
+>> example:
+>>         1. If you want to send 5 bytes to the device, you use report 1, which
+>> is 5 bytes long
+>>         2. If you want to send 10 bytes to the device, you use report 2,
+>> which is 10 bytes long.
+>>         3. if you want to send 20 bytes to the device, you use report 3,
+>> which is 20 bytes long.
+>>         etc.
+>>      
+> Yes. exactly . data  payload len is the defining parameter to
+> determine the report N to use .
+>    
 
-Yes. definately it is required .
+I'm going to challenge this. I looked at the report descriptor you 
+attached, and I don't think it really works the way you think it does. 
+What it looks like to me is separate reports expecting separate data, 
+not a bunch of reports all expecting the same data but of different 
+lengths. What you describe would be fairly non-standard, IMO.
 
+What I would suggest for the short-term is this:
+With the device you have, send data based on the HID descriptor you 
+attached to the last email. I mean manually. In the case of your 
+descriptor: if the report length you want to send is <= 5, use report 1; 
+If it's <= 9, use report 2; if it's <= 13, use report 3; if it's <= 17, 
+use report 4; if it's <= 25, use report 5, etc.
 
-> I think I'm finally getting the picture. Again, tell me yes or no on each=
-:
+This will allow you to say for sure that it works the way you think it 
+does. If it does, then you're right, (and I'm wrong :) ). I'm betting 
+though, that it won't, and that each report is expecting different types 
+of data than all the other reports.
 
-> 0. You're using HID device with User-Defined data.
+Does this sound like a reasonable approach to the rest of you guys?
 
-Yes . the device data is mostly in the form of <command > < response > .
-
-
-> 1. Your device has lots of reports, which all take the same type of data.
-
-Yes . the device has lots of inputs and output reports .
-the report values are <command > < response> only .
-
-
-> 2. Each report differs _only_ in its length, but the data is the same. Fo=
-r
-> example:
-> =A0 =A0 =A0 =A01. If you want to send 5 bytes to the device, you use repo=
-rt 1, which
-> is 5 bytes long
-> =A0 =A0 =A0 =A02. If you want to send 10 bytes to the device, you use rep=
-ort 2,
-> which is 10 bytes long.
-> =A0 =A0 =A0 =A03. if you want to send 20 bytes to the device, you use rep=
-ort 3,
-> which is 20 bytes long.
-> =A0 =A0 =A0 =A0etc.
-
-Yes. exactly . data  payload len is the defining parameter to
-determine the report N to use .
-
-
-
-> 4. You want to know dynamically, which report you need to use, based on t=
-he
-> payload length, because
-> 4a. the only difference in your reports is the payload length.
->
-
-Yes .  Report selection should  be dynamic .
-
-> Might I ask what kind of device this is that behaves this way?
->
-
-it is Ipod .  i am enclosing report_descriptor and lsusb files for the same=
- .
+Alan.
 
 
-> For a device which uses numbered reports, the input report ID is always
-> returned to read(). It's already doing what you're asking for.
->
 
-it is ok .  read() calls returns  < report id > .
-
-
-> read() is going to return one report per call to read(). It's not a strea=
-m
-> interface. If your data is split across multiple reports, you'll need to
-> stitch it back together on your end.
->
->
-
-yes . i agree .
-
-
-Thanx & Regards
-Amit Nagal
-
---001485ec0e5854133d048a61f1be
-Content-Type: text/plain; charset=US-ASCII; name="lsusb_ipod.txt"
-Content-Disposition: attachment; filename="lsusb_ipod.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gb4nmrit0
-
-QnVzIDAwMiBEZXZpY2UgMDAyOiBJRCAwNWFjOjEyNjEgQXBwbGUsIEluYy4gaVBvZCBDbGFzc2lj
-DQpEZXZpY2UgRGVzY3JpcHRvcjoNCiAgYkxlbmd0aCAgICAgICAgICAgICAgICAxOA0KICBiRGVz
-Y3JpcHRvclR5cGUgICAgICAgICAxDQogIGJjZFVTQiAgICAgICAgICAgICAgIDIuMDANCiAgYkRl
-dmljZUNsYXNzICAgICAgICAgICAgMCAoRGVmaW5lZCBhdCBJbnRlcmZhY2UgbGV2ZWwpDQogIGJE
-ZXZpY2VTdWJDbGFzcyAgICAgICAgIDAgDQogIGJEZXZpY2VQcm90b2NvbCAgICAgICAgIDAgDQog
-IGJNYXhQYWNrZXRTaXplMCAgICAgICAgNjQNCiAgaWRWZW5kb3IgICAgICAgICAgIDB4MDVhYyBB
-cHBsZSwgSW5jLg0KICBpZFByb2R1Y3QgICAgICAgICAgMHgxMjYxIGlQb2QgQ2xhc3NpYw0KICBi
-Y2REZXZpY2UgICAgICAgICAgICAwLjAxDQogIGlNYW51ZmFjdHVyZXIgICAgICAgICAgIDEgQXBw
-bGUgSW5jLg0KICBpUHJvZHVjdCAgICAgICAgICAgICAgICAyIGlQb2QNCiAgaVNlcmlhbCAgICAg
-ICAgICAgICAgICAgMyAwMDBBMjcwMDEzQTA2MjM4DQogIGJOdW1Db25maWd1cmF0aW9ucyAgICAg
-IDINCiAgQ29uZmlndXJhdGlvbiBEZXNjcmlwdG9yOg0KICAgIGJMZW5ndGggICAgICAgICAgICAg
-ICAgIDkNCiAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICAyDQogICAgd1RvdGFsTGVuZ3RoICAg
-ICAgICAgICAzMg0KICAgIGJOdW1JbnRlcmZhY2VzICAgICAgICAgIDENCiAgICBiQ29uZmlndXJh
-dGlvblZhbHVlICAgICAxDQogICAgaUNvbmZpZ3VyYXRpb24gICAgICAgICAgMCANCiAgICBibUF0
-dHJpYnV0ZXMgICAgICAgICAweGMwDQogICAgICBTZWxmIFBvd2VyZWQNCiAgICBNYXhQb3dlciAg
-ICAgICAgICAgICAgNTAwbUENCiAgICBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAgIGJMZW5n
-dGggICAgICAgICAgICAgICAgIDkNCiAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDQNCiAg
-ICAgIGJJbnRlcmZhY2VOdW1iZXIgICAgICAgIDANCiAgICAgIGJBbHRlcm5hdGVTZXR0aW5nICAg
-ICAgIDANCiAgICAgIGJOdW1FbmRwb2ludHMgICAgICAgICAgIDINCiAgICAgIGJJbnRlcmZhY2VD
-bGFzcyAgICAgICAgIDggTWFzcyBTdG9yYWdlDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAg
-ICA2IFNDU0kNCiAgICAgIGJJbnRlcmZhY2VQcm90b2NvbCAgICAgODAgQnVsayAoWmlwKQ0KICAg
-ICAgaUludGVyZmFjZSAgICAgICAgICAgICAgMCANCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6
-DQogICAgICAgIGJMZW5ndGggICAgICAgICAgICAgICAgIDcNCiAgICAgICAgYkRlc2NyaXB0b3JU
-eXBlICAgICAgICAgNQ0KICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDgzICBFUCAzIElO
-DQogICAgICAgIGJtQXR0cmlidXRlcyAgICAgICAgICAgIDINCiAgICAgICAgICBUcmFuc2ZlciBU
-eXBlICAgICAgICAgICAgQnVsaw0KICAgICAgICAgIFN5bmNoIFR5cGUgICAgICAgICAgICAgICBO
-b25lDQogICAgICAgICAgVXNhZ2UgVHlwZSAgICAgICAgICAgICAgIERhdGENCiAgICAgICAgd01h
-eFBhY2tldFNpemUgICAgIDB4MDIwMCAgMXggNTEyIGJ5dGVzDQogICAgICAgIGJJbnRlcnZhbCAg
-ICAgICAgICAgICAgIDANCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6DQogICAgICAgIGJMZW5n
-dGggICAgICAgICAgICAgICAgIDcNCiAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQ0K
-ICAgICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDAyICBFUCAyIE9VVA0KICAgICAgICBibUF0
-dHJpYnV0ZXMgICAgICAgICAgICAyDQogICAgICAgICAgVHJhbnNmZXIgVHlwZSAgICAgICAgICAg
-IEJ1bGsNCiAgICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAg
-IFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAg
-ICAweDAyMDAgIDF4IDUxMiBieXRlcw0KICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAgICAw
-DQogIENvbmZpZ3VyYXRpb24gRGVzY3JpcHRvcjoNCiAgICBiTGVuZ3RoICAgICAgICAgICAgICAg
-ICA5DQogICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgMg0KICAgIHdUb3RhbExlbmd0aCAgICAg
-ICAgICAxNDkNCiAgICBiTnVtSW50ZXJmYWNlcyAgICAgICAgICAzDQogICAgYkNvbmZpZ3VyYXRp
-b25WYWx1ZSAgICAgMg0KICAgIGlDb25maWd1cmF0aW9uICAgICAgICAgIDQgaVBvZCBVU0IgSW50
-ZXJmYWNlDQogICAgYm1BdHRyaWJ1dGVzICAgICAgICAgMHhjMA0KICAgICAgU2VsZiBQb3dlcmVk
-DQogICAgTWF4UG93ZXIgICAgICAgICAgICAgIDUwMG1BDQogICAgSW50ZXJmYWNlIERlc2NyaXB0
-b3I6DQogICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICBiRGVzY3JpcHRvclR5
-cGUgICAgICAgICA0DQogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAwDQogICAgICBiQWx0
-ZXJuYXRlU2V0dGluZyAgICAgICAwDQogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAwDQog
-ICAgICBiSW50ZXJmYWNlQ2xhc3MgICAgICAgICAxIEF1ZGlvDQogICAgICBiSW50ZXJmYWNlU3Vi
-Q2xhc3MgICAgICAxIENvbnRyb2wgRGV2aWNlDQogICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAg
-ICAwIA0KICAgICAgaUludGVyZmFjZSAgICAgICAgICAgICAgMCANCiAgICAgIEF1ZGlvQ29udHJv
-bCBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAg
-OQ0KICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgIDM2DQogICAgICAgIGJEZXNjcmlwdG9y
-U3VidHlwZSAgICAgIDEgKEhFQURFUikNCiAgICAgICAgYmNkQURDICAgICAgICAgICAgICAgMS4w
-MA0KICAgICAgICB3VG90YWxMZW5ndGggICAgICAgICAgIDMwDQogICAgICAgIGJJbkNvbGxlY3Rp
-b24gICAgICAgICAgIDENCiAgICAgICAgYmFJbnRlcmZhY2VOciggMCkgICAgICAgMQ0KICAgICAg
-QXVkaW9Db250cm9sIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KICAgICAgICBiTGVuZ3RoICAgICAg
-ICAgICAgICAgIDEyDQogICAgICAgIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgMzYNCiAgICAgICAg
-YkRlc2NyaXB0b3JTdWJ0eXBlICAgICAgMiAoSU5QVVRfVEVSTUlOQUwpDQogICAgICAgIGJUZXJt
-aW5hbElEICAgICAgICAgICAgIDENCiAgICAgICAgd1Rlcm1pbmFsVHlwZSAgICAgIDB4MDIwMSBN
-aWNyb3Bob25lDQogICAgICAgIGJBc3NvY1Rlcm1pbmFsICAgICAgICAgIDINCiAgICAgICAgYk5y
-Q2hhbm5lbHMgICAgICAgICAgICAgMg0KICAgICAgICB3Q2hhbm5lbENvbmZpZyAgICAgMHgwMDAz
-DQogICAgICAgICAgTGVmdCBGcm9udCAoTCkNCiAgICAgICAgICBSaWdodCBGcm9udCAoUikNCiAg
-ICAgICAgaUNoYW5uZWxOYW1lcyAgICAgICAgICAgMCANCiAgICAgICAgaVRlcm1pbmFsICAgICAg
-ICAgICAgICAgMCANCiAgICAgIEF1ZGlvQ29udHJvbCBJbnRlcmZhY2UgRGVzY3JpcHRvcjoNCiAg
-ICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgOQ0KICAgICAgICBiRGVzY3JpcHRvclR5cGUg
-ICAgICAgIDM2DQogICAgICAgIGJEZXNjcmlwdG9yU3VidHlwZSAgICAgIDMgKE9VVFBVVF9URVJN
-SU5BTCkNCiAgICAgICAgYlRlcm1pbmFsSUQgICAgICAgICAgICAgMg0KICAgICAgICB3VGVybWlu
-YWxUeXBlICAgICAgMHgwMTAxIFVTQiBTdHJlYW1pbmcNCiAgICAgICAgYkFzc29jVGVybWluYWwg
-ICAgICAgICAgMQ0KICAgICAgICBiU291cmNlSUQgICAgICAgICAgICAgICAxDQogICAgICAgIGlU
-ZXJtaW5hbCAgICAgICAgICAgICAgIDAgDQogICAgSW50ZXJmYWNlIERlc2NyaXB0b3I6DQogICAg
-ICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAg
-ICA0DQogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAxDQogICAgICBiQWx0ZXJuYXRlU2V0
-dGluZyAgICAgICAwDQogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAwDQogICAgICBiSW50
-ZXJmYWNlQ2xhc3MgICAgICAgICAxIEF1ZGlvDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAg
-ICAyIFN0cmVhbWluZw0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCANCiAgICAgIGlJ
-bnRlcmZhY2UgICAgICAgICAgICAgIDAgDQogICAgSW50ZXJmYWNlIERlc2NyaXB0b3I6DQogICAg
-ICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAg
-ICA0DQogICAgICBiSW50ZXJmYWNlTnVtYmVyICAgICAgICAxDQogICAgICBiQWx0ZXJuYXRlU2V0
-dGluZyAgICAgICAxDQogICAgICBiTnVtRW5kcG9pbnRzICAgICAgICAgICAxDQogICAgICBiSW50
-ZXJmYWNlQ2xhc3MgICAgICAgICAxIEF1ZGlvDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAg
-ICAyIFN0cmVhbWluZw0KICAgICAgYkludGVyZmFjZVByb3RvY29sICAgICAgMCANCiAgICAgIGlJ
-bnRlcmZhY2UgICAgICAgICAgICAgIDAgDQogICAgICBBdWRpb1N0cmVhbWluZyBJbnRlcmZhY2Ug
-RGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAgICAgICAgNw0KICAgICAgICBi
-RGVzY3JpcHRvclR5cGUgICAgICAgIDM2DQogICAgICAgIGJEZXNjcmlwdG9yU3VidHlwZSAgICAg
-IDEgKEFTX0dFTkVSQUwpDQogICAgICAgIGJUZXJtaW5hbExpbmsgICAgICAgICAgIDINCiAgICAg
-ICAgYkRlbGF5ICAgICAgICAgICAgICAgICAgMSBmcmFtZXMNCiAgICAgICAgd0Zvcm1hdFRhZyAg
-ICAgICAgICAgICAgMSBQQ00NCiAgICAgIEF1ZGlvU3RyZWFtaW5nIEludGVyZmFjZSBEZXNjcmlw
-dG9yOg0KICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgIDM1DQogICAgICAgIGJEZXNjcmlw
-dG9yVHlwZSAgICAgICAgMzYNCiAgICAgICAgYkRlc2NyaXB0b3JTdWJ0eXBlICAgICAgMiAoRk9S
-TUFUX1RZUEUpDQogICAgICAgIGJGb3JtYXRUeXBlICAgICAgICAgICAgIDEgKEZPUk1BVF9UWVBF
-X0kpDQogICAgICAgIGJOckNoYW5uZWxzICAgICAgICAgICAgIDINCiAgICAgICAgYlN1YmZyYW1l
-U2l6ZSAgICAgICAgICAgMg0KICAgICAgICBiQml0UmVzb2x1dGlvbiAgICAgICAgIDE2DQogICAg
-ICAgIGJTYW1GcmVxVHlwZSAgICAgICAgICAgIDkgRGlzY3JldGUNCiAgICAgICAgdFNhbUZyZXFb
-IDBdICAgICAgICAgODAwMA0KICAgICAgICB0U2FtRnJlcVsgMV0gICAgICAgIDExMDI1DQogICAg
-ICAgIHRTYW1GcmVxWyAyXSAgICAgICAgMTIwMDANCiAgICAgICAgdFNhbUZyZXFbIDNdICAgICAg
-ICAxNjAwMA0KICAgICAgICB0U2FtRnJlcVsgNF0gICAgICAgIDIyMDUwDQogICAgICAgIHRTYW1G
-cmVxWyA1XSAgICAgICAgMjQwMDANCiAgICAgICAgdFNhbUZyZXFbIDZdICAgICAgICAzMjAwMA0K
-ICAgICAgICB0U2FtRnJlcVsgN10gICAgICAgIDQ0MTAwDQogICAgICAgIHRTYW1GcmVxWyA4XSAg
-ICAgICAgNDgwMDANCiAgICAgIEVuZHBvaW50IERlc2NyaXB0b3I6DQogICAgICAgIGJMZW5ndGgg
-ICAgICAgICAgICAgICAgIDkNCiAgICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNQ0KICAg
-ICAgICBiRW5kcG9pbnRBZGRyZXNzICAgICAweDgxICBFUCAxIElODQogICAgICAgIGJtQXR0cmli
-dXRlcyAgICAgICAgICAgIDENCiAgICAgICAgICBUcmFuc2ZlciBUeXBlICAgICAgICAgICAgSXNv
-Y2hyb25vdXMNCiAgICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAg
-ICAgIFVzYWdlIFR5cGUgICAgICAgICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXpl
-ICAgICAweDAwYzAgIDF4IDE5MiBieXRlcw0KICAgICAgICBiSW50ZXJ2YWwgICAgICAgICAgICAg
-ICA0DQogICAgICAgIGJSZWZyZXNoICAgICAgICAgICAgICAgIDANCiAgICAgICAgYlN5bmNoQWRk
-cmVzcyAgICAgICAgICAgMA0KICAgICAgICBBdWRpb0NvbnRyb2wgRW5kcG9pbnQgRGVzY3JpcHRv
-cjoNCiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA3DQogICAgICAgICAgYkRlc2Ny
-aXB0b3JUeXBlICAgICAgICAzNw0KICAgICAgICAgIGJEZXNjcmlwdG9yU3VidHlwZSAgICAgIDEg
-KEVQX0dFTkVSQUwpDQogICAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAgICAgMHgwMQ0KICAgICAg
-ICAgICAgU2FtcGxpbmcgRnJlcXVlbmN5DQogICAgICAgICAgYkxvY2tEZWxheVVuaXRzICAgICAg
-ICAgMCBVbmRlZmluZWQNCiAgICAgICAgICB3TG9ja0RlbGF5ICAgICAgICAgICAgICAwIFVuZGVm
-aW5lZA0KICAgIEludGVyZmFjZSBEZXNjcmlwdG9yOg0KICAgICAgYkxlbmd0aCAgICAgICAgICAg
-ICAgICAgOQ0KICAgICAgYkRlc2NyaXB0b3JUeXBlICAgICAgICAgNA0KICAgICAgYkludGVyZmFj
-ZU51bWJlciAgICAgICAgMg0KICAgICAgYkFsdGVybmF0ZVNldHRpbmcgICAgICAgMA0KICAgICAg
-Yk51bUVuZHBvaW50cyAgICAgICAgICAgMQ0KICAgICAgYkludGVyZmFjZUNsYXNzICAgICAgICAg
-MyBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlDQogICAgICBiSW50ZXJmYWNlU3ViQ2xhc3MgICAgICAw
-IE5vIFN1YmNsYXNzDQogICAgICBiSW50ZXJmYWNlUHJvdG9jb2wgICAgICAwIE5vbmUNCiAgICAg
-IGlJbnRlcmZhY2UgICAgICAgICAgICAgIDAgDQogICAgICAgIEhJRCBEZXZpY2UgRGVzY3JpcHRv
-cjoNCiAgICAgICAgICBiTGVuZ3RoICAgICAgICAgICAgICAgICA5DQogICAgICAgICAgYkRlc2Ny
-aXB0b3JUeXBlICAgICAgICAzMw0KICAgICAgICAgIGJjZEhJRCAgICAgICAgICAgICAgIDEuMDEN
-CiAgICAgICAgICBiQ291bnRyeUNvZGUgICAgICAgICAgICAwIE5vdCBzdXBwb3J0ZWQNCiAgICAg
-ICAgICBiTnVtRGVzY3JpcHRvcnMgICAgICAgICAxDQogICAgICAgICAgYkRlc2NyaXB0b3JUeXBl
-ICAgICAgICAzNCBSZXBvcnQNCiAgICAgICAgICB3RGVzY3JpcHRvckxlbmd0aCAgICAgMjA4DQog
-ICAgICAgICBSZXBvcnQgRGVzY3JpcHRvcnM6IA0KICAgICAgICAgICAqKiBVTkFWQUlMQUJMRSAq
-Kg0KICAgICAgRW5kcG9pbnQgRGVzY3JpcHRvcjoNCiAgICAgICAgYkxlbmd0aCAgICAgICAgICAg
-ICAgICAgNw0KICAgICAgICBiRGVzY3JpcHRvclR5cGUgICAgICAgICA1DQogICAgICAgIGJFbmRw
-b2ludEFkZHJlc3MgICAgIDB4ODMgIEVQIDMgSU4NCiAgICAgICAgYm1BdHRyaWJ1dGVzICAgICAg
-ICAgICAgMw0KICAgICAgICAgIFRyYW5zZmVyIFR5cGUgICAgICAgICAgICBJbnRlcnJ1cHQNCiAg
-ICAgICAgICBTeW5jaCBUeXBlICAgICAgICAgICAgICAgTm9uZQ0KICAgICAgICAgIFVzYWdlIFR5
-cGUgICAgICAgICAgICAgICBEYXRhDQogICAgICAgIHdNYXhQYWNrZXRTaXplICAgICAweDAwNDAg
-IDF4IDY0IGJ5dGVzDQogICAgICAgIGJJbnRlcnZhbCAgICAgICAgICAgICAgIDENCkRldmljZSBR
-dWFsaWZpZXIgKGZvciBvdGhlciBkZXZpY2Ugc3BlZWQpOg0KICBiTGVuZ3RoICAgICAgICAgICAg
-ICAgIDEwDQogIGJEZXNjcmlwdG9yVHlwZSAgICAgICAgIDYNCiAgYmNkVVNCICAgICAgICAgICAg
-ICAgMi4wMA0KICBiRGV2aWNlQ2xhc3MgICAgICAgICAgICAwIChEZWZpbmVkIGF0IEludGVyZmFj
-ZSBsZXZlbCkNCiAgYkRldmljZVN1YkNsYXNzICAgICAgICAgMCANCiAgYkRldmljZVByb3RvY29s
-ICAgICAgICAgMCANCiAgYk1heFBhY2tldFNpemUwICAgICAgICA2NA0KICBiTnVtQ29uZmlndXJh
-dGlvbnMgICAgICAyDQpEZXZpY2UgU3RhdHVzOiAgICAgMHgwMDAwDQogIChCdXMgUG93ZXJlZCk=
---001485ec0e5854133d048a61f1be
-Content-Type: text/plain; charset=US-ASCII; name="report_descriptor.txt"
-Content-Disposition: attachment; filename="report_descriptor.txt"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_gb4nn8sa1
-
-cmVwb3J0IGRlc2NyaXB0b3IgKHNpemUgMjA4LCByZWFkIDIwOCkgPSAgDQowNiAwMCBmZiAwOSAw
-MSBhMSAwMSA3NSAwOCAyNiA4MCAwMCAxNSAwMCAwOSAwMSA4NSAwMSA5NSAwNSA4MiAwMiAwMSAw
-OSAwMSA4NSAwMiANCjk1IDA5IDgyIDAyIDAxIDA5IDAxIDg1IDAzIDk1IDBkIDgyIDAyIDAxIDA5
-IDAxIDg1IDA0IDk1IDExIDgyIDAyIDAxIDA5IDAxIDg1IDA1IA0KOTUgMTkgODIgMDIgMDEgMDkg
-MDEgODUgMDYgOTUgMzEgODIgMDIgMDEgMDkgMDEgODUgMDcgOTUgNWYgODIgMDIgMDEgMDkgMDEg
-ODUgMDggDQo5NSBjMSA4MiAwMiAwMSAwOSAwMSA4NSAwOSA5NiAwMSAwMSA4MiAwMiAwMSAwOSAw
-MSA4NSAwYSA5NiA4MSAwMSA4MiAwMiAwMSAwOSAwMSANCjg1IDBiIDk2IDAxIDAyIDgyIDAyIDAx
-IDA5IDAxIDg1IDBjIDk2IGZmIDAyIDgyIDAyIDAxIDA5IDAxIDg1IDBkIDk1IDA1IDkyIDAyIDAx
-IA0KMDkgMDEgODUgMGUgOTUgMDkgOTIgMDIgMDEgMDkgMDEgODUgMGYgOTUgMGQgOTIgMDIgMDEg
-MDkgMDEgODUgMTAgOTUgMTEgOTIgMDIgMDEgDQowOSAwMSA4NSAxMSA5NSAxOSA5MiAwMiAwMSAw
-OSAwMSA4NSAxMiA5NSAzMSA5MiAwMiAwMSAwOSAwMSA4NSAxMyA5NSA1ZiA5MiAwMiAwMSANCjA5
-IDAxIDg1IDE0IDk1IGMxIDkyIDAyIDAxIDA5IDAxIDg1IDE1IDk1IGZmIDkyIDAyIDAxIGMwDQoN
-Cj09PT09PltJUE9EIEhJRCBdZGV0YWlsZWQgOg0KIDA2IDAwIGZmICAvL3ZlbmRvciBkZWZpbmVk
-IHVzYWdlIHBhZ2UNCiAwOSAwMSAJICAgLy92ZW5kb3IgdXNhZ2UgMSANCiBhMSAwMQkgICAvL2Nv
-bGxlY3Rpb24gYXBwbGljYXRvcg0KIDc1IDA4CSAgIC8vcmVwb3J0IHNpemUNCiAyNiA4MCAwMCAg
-Ly9sb2dpY2FsIG1heGltdW0NCiAxNSAwMCAJICAgLy9sb2dpY2FsIG1pbmltdW0NCiAvL3ZlbmRv
-ciB1c2FnZSAtaWQgICAoMiBieXRlcyApICwgcmVwb3J0IGlkICgyIGJ5dGVzICkgLCAgcmVwb3J0
-IGNvdW50ICgyLzMgYnl0ZXMgKSAsIGkvcCBvciBvL3AgcmVwb3J0ICgzIGJ5dGVzICkgDQogMDkg
-MDEgODUgMDEgOTUgMDUgODIgMDIgMDEgDQogMDkgMDEgODUgMDIgOTUgMDkgODIgMDIgMDEgDQog
-MDkgMDEgODUgMDMgOTUgMGQgODIgMDIgMDEgDQogMDkgMDEgODUgMDQgOTUgMTEgODIgMDIgMDEg
-DQogMDkgMDEgODUgMDUgOTUgMTkgODIgMDIgMDEgDQogMDkgMDEgODUgMDYgOTUgMzEgODIgMDIg
-MDEgDQogMDkgMDEgODUgMDcgOTUgNWYgODIgMDIgMDEgDQogMDkgMDEgODUgMDggOTUgYzEgODIg
-MDIgMDEgDQogMDkgMDEgODUgMDkgOTYgMDEgMDEgODIgMDIgMDEgDQogMDkgMDEgODUgMGEgOTYg
-ODEgMDEgODIgMDIgMDEgDQogMDkgMDEgODUgMGIgOTYgMDEgMDIgODIgMDIgMDEgDQogMDkgMDEg
-ODUgMGMgOTYgZmYgMDIgODIgMDIgMDEgDQogMDkgMDEgODUgMGQgOTUgMDUgOTIgMDIgMDENCiAw
-OSAwMSA4NSAwZSA5NSAwOSA5MiAwMiAwMSANCiAwOSAwMSA4NSAwZiA5NSAwZCA5MiAwMiAwMSAN
-CiAwOSAwMSA4NSAxMCA5NSAxMSA5MiAwMiAwMSANCiAwOSAwMSA4NSAxMSA5NSAxOSA5MiAwMiAw
-MSANCiAwOSAwMSA4NSAxMiA5NSAzMSA5MiAwMiAwMSANCiAwOSAwMSA4NSAxMyA5NSA1ZiA5MiAw
-MiAwMSANCiAwOSAwMSA4NSAxNCA5NSBjMSA5MiAwMiAwMSANCiAwOSAwMSA4NSAxNSA5NSBmZiA5
-MiAwMiAwMSANCiANCiBjMCAvL2VuZCBvZiBjb2xsZWN0aW9uIA==
---001485ec0e5854133d048a61f1be--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

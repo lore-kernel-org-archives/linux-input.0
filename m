@@ -1,91 +1,49 @@
-From: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Report ID problem with HID-RAW interface usage
-Date: Fri, 2 Jul 2010 09:19:59 -0700
-Message-ID: <AANLkTin8sNV75wRTM8au0Nad-zp2R0ugMdVpJiah31Di@mail.gmail.com>
-References: <AANLkTinrmRsB39gj7Ie4xCr3fhP3jU1dfYuVrkiKv347@mail.gmail.com>
-	<4C2A1FA0.6020704@signal11.us>
-	<alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz>
-	<AANLkTilf1JU_GPlqE-FeaRon6IMqgA68WZ964PJfLpSP@mail.gmail.com>
-	<alpine.LNX.2.00.1006301252380.13809@pobox.suse.cz>
-	<AANLkTil-hNWeWbLQqE0ezlmZhO1w402NClaT_tayPJra@mail.gmail.com>
-	<4C2B3E6B.7060703@signal11.us>
-	<AANLkTimb_xMYTZYAm51lmHEkYvrvegwbmkUyJldxYA-f@mail.gmail.com>
-	<16645BD8-07BB-4189-8A69-18E5EC76E670@signal11.us>
-	<AANLkTilFyRjuP4VUmJolYhloDol5B7HsYV9d5SD8vZPo@mail.gmail.com>
-	<4C2E0057.30206@signal11.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C2E0057.30206-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Xiaofan Chen <xiaofanc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Jonathan Rockway <jon@jrock.us>
+Subject: [PATCH] add support for my CH Eclipse yoke
+Date: Sat,  3 Jul 2010 02:59:01 -0500
+Message-ID: <1278143941-10817-1-git-send-email-jon@jrock.us>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dsl253-036-036.chi1.dsl.speakeasy.net ([66.253.36.36]:51030
+	"EHLO snowball2.jrock.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752000Ab0GCIeA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Jul 2010 04:34:00 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jonathan Rockway <jon@jrock.us>
 
-> I'm going to challenge this. I looked at the report descriptor you attached,
-> and I don't think it really works the way you think it does. What it looks
-> like to me is separate reports expecting separate data, not a bunch of
-> reports all expecting the same data but of different lengths. What you
-> describe would be fairly non-standard, IMO.
->
+This USB flight yoke needs the NOGET quirk, like most of CH's other
+products.  This patch adds that :)
 
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-Sorry , i did not get what is meant by "a bunch of reports all
-expecting same data
-but of different lengths " . what is the meaning of this phrase "same data"  .
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index adbef5d..b2c5bd5 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -117,6 +117,7 @@
+ #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
+ #define USB_DEVICE_ID_CH_COMBATSTICK	0x00f4
+ #define USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE	0x00ff
++#define USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE	0x0051
 
-ya i agree if the device supports separate reports ,
-theoretically each one should be there to serve separate data .
-otherwise a device can define a report of max size N and all transactions
-can take place with it .
-but if a device support only one report of max size N
-the drawback is that even to send  a very small report data (say 4-5 bytes ) ,
-we have to use max size N report always , which may waste considerable
-bandwidth .
-
-Now in my case yes mostly different reports carry different data only .
-as i told previously , the payload protocol is in the form  <command >
-<response >.
-
-by this i mean let say if i want to fetch ipod root folder entries
-(filenames ),
-i will send a command for that in a output report and device will send
-root folder entries
-in input reports .
-
-so different payload commands are send over different reports only .
-
-But again , the defining parameter that a report N should be used is
-data payload len only . so if 2 payload commands have
-same size , both can be send using same report ID .
-and this thing is already working for me  .
-
-> What I would suggest for the short-term is this:
-> With the device you have, send data based on the HID descriptor you attached
-> to the last email. I mean manually. In the case of your descriptor: if the
-> report length you want to send is <= 5, use report 1; If it's <= 9, use
-> report 2; if it's <= 13, use report 3; if it's <= 17, use report 4; if it's
-> <= 25, use report 5, etc.
->
-
-Yes , this approach is already working for me .
-with the above mentioned approch ( <= 5 use report 1 , <=9  use report 2) and
-using hidraw interface  , i am able to transact a few basic payload
-commands with the device .
-infact even the device is sending different payload command <Responses >
-using the same < Report ID > .
-
-May be i am wrong , due to lack of documentation regarding the
-presence of different report ID ,
-but i am able to transact with the device using the above mentioned
-approach of sending
-payload data in  a report whose size is >= data payload len .
-
-if desired , i can send dmesg logs also depicting the same .
-
-Thanx & Regards
-Amit Nagal
+ #define USB_VENDOR_ID_CHERRY		0x046a
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 0d9045a..f5bd7e8 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -52,6 +52,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_COMBATSTICK, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.7.1
+

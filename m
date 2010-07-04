@@ -1,49 +1,31 @@
-From: Jonathan Rockway <jon@jrock.us>
-Subject: [PATCH] add support for my CH Eclipse yoke
-Date: Sat,  3 Jul 2010 02:59:01 -0500
-Message-ID: <1278143941-10817-1-git-send-email-jon@jrock.us>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: mcs - Add MCS touchkey driver
+Date: Sun, 4 Jul 2010 01:26:51 -0700
+Message-ID: <20100704082651.GD32427@core.coreip.homeip.net>
+References: <1276650229-1322-1-git-send-email-jy0922.shim@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dsl253-036-036.chi1.dsl.speakeasy.net ([66.253.36.36]:51030
-	"EHLO snowball2.jrock.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752000Ab0GCIeA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 3 Jul 2010 04:34:00 -0400
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:33086 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756220Ab0GDI05 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jul 2010 04:26:57 -0400
+Received: by pwi5 with SMTP id 5so1127138pwi.19
+        for <linux-input@vger.kernel.org>; Sun, 04 Jul 2010 01:26:56 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1276650229-1322-1-git-send-email-jy0922.shim@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jonathan Rockway <jon@jrock.us>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com
 
-This USB flight yoke needs the NOGET quirk, like most of CH's other
-products.  This patch adds that :)
+On Wed, Jun 16, 2010 at 10:03:48AM +0900, Joonyoung Shim wrote:
+> The MELPAS MCS5000 can use to touchkey controller but touchkey is
+> implemented to driver separated with original MCS5000 touchscreen
+> driver. This also supports MCS5080 touchkey.
+> 
 
----
- drivers/hid/hid-ids.h           |    1 +
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+), 0 deletions(-)
+Applied (2nd patch folded into this one), thank you.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index adbef5d..b2c5bd5 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -117,6 +117,7 @@
- #define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
- #define USB_DEVICE_ID_CH_COMBATSTICK	0x00f4
- #define USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE	0x00ff
-+#define USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE	0x0051
-
- #define USB_VENDOR_ID_CHERRY		0x046a
- #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 0d9045a..f5bd7e8 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -52,6 +52,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_COMBATSTICK, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE, HID_QUIRK_NOGET },
-+	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_ECLIPSE_YOKE, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
---
-1.7.1
-
+-- 
+Dmitry

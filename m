@@ -1,111 +1,295 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
-Date: Tue, 6 Jul 2010 13:12:55 -0400
-Message-ID: <AANLkTinNTUfrR3Yl7E2i7etRkW6cJ_HMeoG7uTZ_zy5A@mail.gmail.com>
-References: <20100424211411.11570.2189.stgit@localhost.localdomain>
-	<4BDF2B45.9060806@redhat.com>
-	<20100607190003.GC19390@hardeman.nu>
-	<20100607201530.GG16638@redhat.com>
-	<20100608175017.GC5181@hardeman.nu>
-	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
-	<20100609132908.GM16638@redhat.com>
-	<20100609175621.GA19620@hardeman.nu>
-	<20100609181506.GO16638@redhat.com>
-	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
-	<20100613202945.GA5883@hardeman.nu>
-	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
-	<AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
-	<1276776859.2461.16.camel@localhost>
-	<AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
-	<1277081276.2252.12.camel@localhost>
-	<AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
-	<1277118245.2230.17.camel@localhost>
+From: Alexander Clouter <alex@digriz.org.uk>
+Subject: [PATCH] input: gpio_keys: polling mode support
+Date: Tue, 6 Jul 2010 20:01:28 +0100
+Message-ID: <20100706190128.GB24655@chipmunk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:48330 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753758Ab0GFRM5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 13:12:57 -0400
-In-Reply-To: <1277118245.2230.17.camel@localhost>
+Received: from chipmunk.wormnet.eu ([195.195.131.226]:56469 "EHLO
+	chipmunk.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752852Ab0GFTI4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 15:08:56 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Paul Mundt <lethal@linux-sh.org>
 
-On Mon, Jun 21, 2010 at 7:04 AM, Andy Walls <awalls@md.metrocast.net> w=
-rote:
-> On Sun, 2010-06-20 at 23:51 -0400, Jarod Wilson wrote:
->> On Sun, Jun 20, 2010 at 8:47 PM, Andy Walls <awalls@md.metrocast.net=
-> wrote:
->
->
->> As for the building your own kernel thing... I've been doing my work
->> mainly on a pair of x86_64 systems, one a ThinkPad T61 running Fedor=
-a
->> 13, and the other an HP xw4400 workstation running RHEL6. In both
->> cases, I copied a distro kernel's, config file out of /boot/, and th=
-en
->> ran make oldconfig over it and build straight from what's in my tree=
-,
->> which works well enough on both setups.
->
-> I pulled the config out of the kernel*.src.rpm after 'rpmbuild -bp' (=
-I
-> only saw the configs in /boot after doing that :P ), and then ran 'ma=
-ke
-> oldconfig'.
->
-> The first time around I forgot to do a modules_install and the ext[23=
-4]
-> modules weren't in the initramfs. =A0That made it hard for the kernel=
- to
-> read the /boot and / filesystems. ;)
->
-> After fixing that idiocy, it now hangs in early boot - just a blinkin=
-g
-> cursor. =A0I'm speculating it is a problem with support for my old-is=
-h ATI
-> Radeon Xpress 200 video chipset with a vanilla kernel. =A0I'll work i=
-t out
-> eventually.
+This implements an optional polling mode for the gpio_keys driver,
+necessary for GPIOs that are not able to generate IRQs.
 
-Seems you've already gotten around this, but it did remind me of
-someone on one of the fedora mailing lists who said w/their older
-radeon hardware, they could only boot recent kernels if the passed in
-nomodeset=3D1 or something like that.
+gpio_keys_platform_data has been extended with poll_interval
+which specifies the polling interval in ms, this is passed onto
+input-polldev.
 
->> > I'll have time on Thursday night to try again.
->>
->> No rush yet, we've got a while before the merge window still.
->> Christoph (Bartelmus) helped me out with a bunch of ioctl
->> documentation this weekend, so I've got that to add to the tree, the=
-n
->> I think I'll be prepared to resubmit the lirc bits. I'll shoot for
->> doing that next weekend, and hopefully, that'll give you a chance to
->> try 'em out before then and provide any necessary feedback/fixes/etc=
-=2E
->> (Not that we can't also just fix things up as needed post-merge). I'=
-m
->> still up in the air as to what I should work on next... So many lirc
->> drivers left to port still... Maybe zilog, maybe streamzap... Maybe
->> the MCE IR keyboard...
->
-> I've got a PVR-150 and HVR-1600 both with the Zilog Z8's on them. =A0=
-If I
-> ever get my act together, I'll at least be able to test that and
-> integrate any changes into the ivtv & cx18 drivers. =A0 I've recently=
- seen
-> users having trouble on IRC, BTW.
+This work was based on the patch[1] originally conceived by Paul
+Mundt but now the absolute dependency on INPUT_POLLDEV has been
+removed (so existing users of gpio_keys can compile out polldev)
+plus some un-necessary code has been removed.
 
-Yeah, me too. Hoping to dig into porting (and fixing) lirc_zilog RSN...
+N.B. untested on an IRQ driven gpio_keys using platform as I have
+	none available to me, but looks like it should still work
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+[1] http://article.gmane.org/gmane.linux.kernel.input/5814
+
+Signed-off-by: Alexander Clouter <alex@digriz.org.uk>
+---
+ drivers/input/keyboard/gpio_keys.c |  122 +++++++++++++++++++++++++++++++-----
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 106 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index b8213fd..c790b45 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -1,7 +1,9 @@
+ /*
+- * Driver for keys on GPIO lines capable of generating interrupts.
++ * Driver for keys on GPIO lines, either IRQ-driven or polled.
+  *
+  * Copyright 2005 Phil Blundell
++ * Copyright 2008 Paul Mundt
++ * Copyright 2010 Alexander Clouter <alex@digriz.org.uk>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -25,6 +27,7 @@
+ #include <linux/gpio_keys.h>
+ #include <linux/workqueue.h>
+ #include <linux/gpio.h>
++#include <linux/input-polldev.h>
+ 
+ struct gpio_button_data {
+ 	struct gpio_keys_button *button;
+@@ -36,6 +39,9 @@ struct gpio_button_data {
+ 
+ struct gpio_keys_drvdata {
+ 	struct input_dev *input;
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	struct input_polled_dev *poll_dev;
++#endif
+ 	struct mutex disable_lock;
+ 	unsigned int n_buttons;
+ 	struct gpio_button_data data[0];
+@@ -340,6 +346,16 @@ static void gpio_keys_timer(unsigned long _data)
+ 	schedule_work(&data->work);
+ }
+ 
++static void gpio_handle_button_event(struct gpio_keys_button *button,
++				     struct gpio_button_data *bdata)
++{
++	if (button->debounce_interval)
++		mod_timer(&bdata->timer,
++			jiffies + msecs_to_jiffies(button->debounce_interval));
++	else
++		gpio_keys_report_event(bdata);
++}
++
+ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ {
+ 	struct gpio_button_data *bdata = dev_id;
+@@ -347,15 +363,26 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != gpio_to_irq(button->gpio));
+ 
+-	if (button->debounce_interval)
+-		mod_timer(&bdata->timer,
+-			jiffies + msecs_to_jiffies(button->debounce_interval));
+-	else
+-		schedule_work(&bdata->work);
++	gpio_handle_button_event(button, bdata);
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++static void gpio_keys_poll(struct input_polled_dev *dev)
++{
++	struct gpio_keys_drvdata *ddata = dev->private;
++	int i;
++
++	for (i = 0; i < ddata->n_buttons; i++) {
++		struct gpio_button_data *bdata = &ddata->data[i];
++		struct gpio_keys_button *button = bdata->button;
++
++		gpio_handle_button_event(button, bdata);
++	}
++}
++#endif
++
+ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 					 struct gpio_button_data *bdata,
+ 					 struct gpio_keys_button *button)
+@@ -422,23 +449,52 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	struct input_dev *input;
+ 	int i, error;
+ 	int wakeup = 0;
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	struct input_polled_dev *poll_dev;
++#else
++
++	if (pdata->poll_interval) {
++		dev_err(dev, "device needs polling (enable INPUT_POLLDEV)\n");
++		return -EINVAL;
++	}
++#endif
+ 
+ 	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
+ 			pdata->nbuttons * sizeof(struct gpio_button_data),
+ 			GFP_KERNEL);
+-	input = input_allocate_device();
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval) {
++		poll_dev = input_allocate_polled_device();
++		if (poll_dev)
++			input = poll_dev->input;
++	} else
++#endif
++		input = input_allocate_device();
+ 	if (!ddata || !input) {
+ 		dev_err(dev, "failed to allocate state\n");
+ 		error = -ENOMEM;
+ 		goto fail1;
+ 	}
+ 
+-	ddata->input = input;
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval) {
++		ddata->poll_dev = poll_dev;
++	} else
++#endif
++		ddata->input = input;
+ 	ddata->n_buttons = pdata->nbuttons;
+ 	mutex_init(&ddata->disable_lock);
+ 
+ 	platform_set_drvdata(pdev, ddata);
+ 
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval) {
++		poll_dev->private = ddata;
++		poll_dev->poll = gpio_keys_poll;
++		poll_dev->poll_interval = pdata->poll_interval;
++	}
++#endif
++
+ 	input->name = pdev->name;
+ 	input->phys = "gpio-keys/input0";
+ 	input->dev.parent = &pdev->dev;
+@@ -460,14 +516,17 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		bdata->input = input;
+ 		bdata->button = button;
+ 
++		input_set_capability(input, type, button->code);
++
++		if (pdata->poll_interval)
++			continue;
++
+ 		error = gpio_keys_setup_key(pdev, bdata, button);
+ 		if (error)
+ 			goto fail2;
+ 
+ 		if (button->wakeup)
+ 			wakeup = 1;
+-
+-		input_set_capability(input, type, button->code);
+ 	}
+ 
+ 	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+@@ -477,7 +536,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		goto fail2;
+ 	}
+ 
+-	error = input_register_device(input);
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval)
++		error = input_register_polled_device(poll_dev);
++	else
++#endif
++		error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(dev, "Unable to register input device, error: %d\n",
+ 			error);
+@@ -497,7 +561,9 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+  fail2:
+ 	while (--i >= 0) {
+-		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
++		if (!pdata->poll_interval)
++			free_irq(gpio_to_irq(pdata->buttons[i].gpio),
++				&ddata->data[i]);
+ 		if (pdata->buttons[i].debounce_interval)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+@@ -506,7 +572,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, NULL);
+  fail1:
+-	input_free_device(input);
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval)
++		input_free_polled_device(poll_dev);
++	else
++#endif
++		input_free_device(input);
+ 	kfree(ddata);
+ 
+ 	return error;
+@@ -516,23 +587,40 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
+-	struct input_dev *input = ddata->input;
++	struct input_dev *input;
+ 	int i;
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	struct input_polled_dev *poll_dev;
++#endif
+ 
+ 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+-		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+-		free_irq(irq, &ddata->data[i]);
++		if (!pdata->poll_interval) {
++			int irq = gpio_to_irq(pdata->buttons[i].gpio);
++			free_irq(irq, &ddata->data[i]);
++		}
+ 		if (pdata->buttons[i].debounce_interval)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+-	input_unregister_device(input);
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval) {
++		poll_dev = ddata->poll_dev;
++		input_unregister_polled_device(poll_dev);
++		input_free_polled_device(poll_dev);
++	} else {
++#endif
++		input = ddata->input;
++		input_unregister_device(input);
++		input_free_device(input);
++#if defined(CONFIG_INPUT_POLLDEV) || defined(CONFIG_INPUT_POLLDEV_MODULE)
++	}
++#endif
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index cd0b3f3..7dd075b 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -17,6 +17,7 @@ struct gpio_keys_platform_data {
+ 	struct gpio_keys_button *buttons;
+ 	int nbuttons;
+ 	unsigned int rep:1;		/* enable input subsystem auto repeat */
++	unsigned int poll_interval;	/* polling interval in ms */
+ };
+ 
+ #endif
+-- 
+1.7.1

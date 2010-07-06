@@ -1,61 +1,111 @@
-From: <ext-phil.2.carmody@nokia.com>
-Subject: RE: [PATCH] hid-magicmouse: Correct parsing of large X and Y
- motions.
-Date: Tue, 6 Jul 2010 15:05:03 +0200
-Message-ID: <702744BC498BAE41B3AA631D95EC463058B3CFD780@NOK-EUMSG-01.mgdnok.nokia.com>
-References: <878w5qaspq.fsf@troilus.org>
-	<AANLkTim9R0ur7r2Y3r3bOMIRSM7JYVcZdGZ0QMaYvK4X@mail.gmail.com>
-	<1278360120.2425.97.camel@cndougla> <87wrt9acu5.fsf@troilus.org>
-	<1278363118.10426.15.camel@cndougla> <87sk3xa8f3.fsf@troilus.org>
-	<702744BC498BAE41B3AA631D95EC463058B3CFD77F@NOK-EUMSG-01.mgdnok.nokia.com>,<87lj9oakpr.fsf@troilus.org>
+From: Jarod Wilson <jarod@wilsonet.com>
+Subject: Re: [PATCH 3/4] ir-core: move decoding state to ir_raw_event_ctrl
+Date: Tue, 6 Jul 2010 13:12:55 -0400
+Message-ID: <AANLkTinNTUfrR3Yl7E2i7etRkW6cJ_HMeoG7uTZ_zy5A@mail.gmail.com>
+References: <20100424211411.11570.2189.stgit@localhost.localdomain>
+	<4BDF2B45.9060806@redhat.com>
+	<20100607190003.GC19390@hardeman.nu>
+	<20100607201530.GG16638@redhat.com>
+	<20100608175017.GC5181@hardeman.nu>
+	<AANLkTimuYkKzDPvtnrWKoT8sh1H9paPBQQNmYWOT7-R2@mail.gmail.com>
+	<20100609132908.GM16638@redhat.com>
+	<20100609175621.GA19620@hardeman.nu>
+	<20100609181506.GO16638@redhat.com>
+	<AANLkTims0dmYCOoI_K4S6Q8hwLV_MqUdGQjVwFu43sCL@mail.gmail.com>
+	<20100613202945.GA5883@hardeman.nu>
+	<AANLkTim6f6jM4TGzyQsuHDNPUSsjINXFHck0NevrtqHr@mail.gmail.com>
+	<AANLkTil6P0rnmViLwpkiBOYoC6qF217V90g7Nslk3DHN@mail.gmail.com>
+	<1276776859.2461.16.camel@localhost>
+	<AANLkTinJPFBBDEiOpbFhkAccF5E7caKNmAuvEnq-uV4W@mail.gmail.com>
+	<1277081276.2252.12.camel@localhost>
+	<AANLkTikkSIk9XZiuF62YeCmGebrfy8SA9n3J5Agv8LjD@mail.gmail.com>
+	<1277118245.2230.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:18459 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754789Ab0GFNFi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 09:05:38 -0400
-In-Reply-To: <87lj9oakpr.fsf@troilus.org>
-Content-Language: en-US
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:48330 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753758Ab0GFRM5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 13:12:57 -0400
+In-Reply-To: <1277118245.2230.17.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mdpoole@troilus.org
-Cc: chase.douglas@canonical.com, pinglinux@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>, Jarod Wilson <jarod@redhat.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-From: ext Michael Poole [mdpoole@troilus.org]
->ext-phil.2.carmody@nokia.com writes:
+On Mon, Jun 21, 2010 at 7:04 AM, Andy Walls <awalls@md.metrocast.net> w=
+rote:
+> On Sun, 2010-06-20 at 23:51 -0400, Jarod Wilson wrote:
+>> On Sun, Jun 20, 2010 at 8:47 PM, Andy Walls <awalls@md.metrocast.net=
+> wrote:
 >
->[snip]
->>>+/* Function shamelessly borrowed from hid-core.c. */
->>>+
->>>+static s32 snto32(__u32 value, unsigned n)
->>>+{
->>>+       switch (n) {
->>>+       case 8:  return ((__s8)value);
->>>+       case 16: return ((__s16)value);
->>>+       case 32: return ((__s32)value);
+>
+>> As for the building your own kernel thing... I've been doing my work
+>> mainly on a pair of x86_64 systems, one a ThinkPad T61 running Fedor=
+a
+>> 13, and the other an HP xw4400 workstation running RHEL6. In both
+>> cases, I copied a distro kernel's, config file out of /boot/, and th=
+en
+>> ran make oldconfig over it and build straight from what's in my tree=
+,
+>> which works well enough on both setups.
+>
+> I pulled the config out of the kernel*.src.rpm after 'rpmbuild -bp' (=
+I
+> only saw the configs in /boot after doing that :P ), and then ran 'ma=
+ke
+> oldconfig'.
+>
+> The first time around I forgot to do a modules_install and the ext[23=
+4]
+> modules weren't in the initramfs. =A0That made it hard for the kernel=
+ to
+> read the /boot and / filesystems. ;)
+>
+> After fixing that idiocy, it now hangs in early boot - just a blinkin=
+g
+> cursor. =A0I'm speculating it is a problem with support for my old-is=
+h ATI
+> Radeon Xpress 200 video chipset with a vanilla kernel. =A0I'll work i=
+t out
+> eventually.
+
+Seems you've already gotten around this, but it did remind me of
+someone on one of the fedora mailing lists who said w/their older
+radeon hardware, they could only boot recent kernels if the passed in
+nomodeset=3D1 or something like that.
+
+>> > I'll have time on Thursday night to try again.
 >>
->> Beware - this relies on sane behaviour from the current and future compilers, as the C standard doesn't mandate what should happen when shortening out of range signed values. [n869.txt: 6.3.1.1.#3]
+>> No rush yet, we've got a while before the merge window still.
+>> Christoph (Bartelmus) helped me out with a bunch of ioctl
+>> documentation this weekend, so I've got that to add to the tree, the=
+n
+>> I think I'll be prepared to resubmit the lirc bits. I'll shoot for
+>> doing that next weekend, and hopefully, that'll give you a chance to
+>> try 'em out before then and provide any necessary feedback/fixes/etc=
+=2E
+>> (Not that we can't also just fix things up as needed post-merge). I'=
+m
+>> still up in the air as to what I should work on next... So many lirc
+>> drivers left to port still... Maybe zilog, maybe streamzap... Maybe
+>> the MCE IR keyboard...
 >
->That's good to know.  There's probably some much more complicated, but
->portable, way to write the operation -- I suspect we'll continue to rely
->on the compiler to be sane.
->
->>>+       }
->>>+       return value & (1 << (n - 1)) ? value | (-1 << n) : value;
->>
->> That signed left shift, however, is good old fashioned undefined behaviour. [n869.txt 6.5.7.#4]
->
->Which version is that from?
+> I've got a PVR-150 and HVR-1600 both with the Zilog Z8's on them. =A0=
+If I
+> ever get my act together, I'll at least be able to test that and
+> integrate any changes into the ivtv & cx18 drivers. =A0 I've recently=
+ seen
+> users having trouble on IRC, BTW.
 
-A text version of n869, which looks like it suffered a little in conversion to not-quite-ASCII.
+Yeah, me too. Hoping to dig into porting (and fixing) lirc_zilog RSN...
 
->  The copy of C99 I have says the resulting
->value is -1 * (2 ** n) if that value can be represented.  (A 6 May 2005
->committee draft of TC2 says the same thing.)  Until n > 31, the behavior
->should be standard-defined.
-
-Looking at the pdfs, agreed, My mistake. I shall have to 'fix' the non-ASCII in my text version, as I much prefer greppable text to pdfs.
-
-Phil
+--=20
+Jarod Wilson
+jarod@wilsonet.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

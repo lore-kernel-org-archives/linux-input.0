@@ -1,88 +1,111 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v3] input: qt602240 - Add ATMEL QT602240 touchscreen driver
-Date: Tue, 06 Jul 2010 17:23:44 +0900
-Message-ID: <4C32E810.2000301@samsung.com>
-References: <1277725091-13456-1-git-send-email-jy0922.shim@samsung.com>
- <20100628175500.GA7427@core.coreip.homeip.net> <4C2956B1.8030000@samsung.com>
- <20100629131150.3c1a2005@hyperion.delvare> <4C32DECE.2030009@samsung.com>
- <20100706101803.6d13ac65@hyperion.delvare>
+From: <ext-phil.2.carmody@nokia.com>
+Subject: RE: [PATCH] hid-magicmouse: Correct parsing of large X and Y
+ motions.
+Date: Tue, 6 Jul 2010 13:23:03 +0200
+Message-ID: <702744BC498BAE41B3AA631D95EC463058B3CFD77F@NOK-EUMSG-01.mgdnok.nokia.com>
+References: <878w5qaspq.fsf@troilus.org>
+	<AANLkTim9R0ur7r2Y3r3bOMIRSM7JYVcZdGZ0QMaYvK4X@mail.gmail.com>
+	<1278360120.2425.97.camel@cndougla> <87wrt9acu5.fsf@troilus.org>
+	<1278363118.10426.15.camel@cndougla>,<87sk3xa8f3.fsf@troilus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:50004 "EHLO
-	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754495Ab0GFIXr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 04:23:47 -0400
-Received: from epmmp1 (mailout1.samsung.com [203.254.224.24])
- by mailout1.samsung.com
- (Sun Java(tm) System Messaging Server 7u3-15.01 64bit (built Feb 12 2010))
- with ESMTP id <0L54006A3NBKD750@mailout1.samsung.com> for
- linux-input@vger.kernel.org; Tue, 06 Jul 2010 17:23:44 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0L5400JTQNBK1S@mmp1.samsung.com> for
- linux-input@vger.kernel.org; Tue, 06 Jul 2010 17:23:44 +0900 (KST)
-In-reply-to: <20100706101803.6d13ac65@hyperion.delvare>
+Received: from smtp.nokia.com ([192.100.122.230]:48159 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756318Ab0GFLXa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jul 2010 07:23:30 -0400
+In-Reply-To: <87sk3xa8f3.fsf@troilus.org>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, kyungmin.park@samsung.com, rydberg@euromail.se
+To: mdpoole@troilus.org, chase.douglas@canonical.com
+Cc: pinglinux@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org
 
-On 7/6/2010 5:18 PM, Jean Delvare wrote:
-> On Tue, 06 Jul 2010 16:44:14 +0900, Joonyoung Shim wrote:
->> On 6/29/2010 8:11 PM, Jean Delvare wrote:
->>> On Tue, 29 Jun 2010 11:13:05 +0900, Joonyoung Shim wrote:
->>>> On 6/29/2010 2:55 AM, Dmitry Torokhov wrote:
->>>>> Also, please CC Jean Delvare to make sure I2C bits look good.
->>>> I add him to CC.
->>> I can't comment without seeing the full patch.
+Arsebiscuits, forced to use webmail, sloppily prefixing every line with '>' manually ...
+
+________________________________________
+From: linux-input-owner@vger.kernel.org [linux-input-owner@vger.kernel.org] On Behalf Of ext Michael Poole [mdpoole@troilus.org]
+Sent: Tuesday, July 06, 2010 12:08 AM
+To: Chase Douglas
+Cc: Ping Cheng; Jiri Kosina; linux-input@vger.kernel.org
+Subject: Re: [PATCH] hid-magicmouse: Correct parsing of large X and Y motions.
+
+>Chase Douglas writes:
+>
+>> On Mon, 2010-07-05 at 16:33 -0400, Michael Poole wrote:
+>>> C99 says that the result of right-shifting a negative value is
+>>> compiler-defined.  gcc documents that it ensures sign extension.  Other
+>>> parts of hid-magicmouse.c use this idiom already.  The corresponding
+>>> idiom in hid-core.c (see the snto32() function) would look something
+>>> like this:
 >>>
->> Sorry for late response, you can see the full patch in follow site.
+>>>       x = ((data[3] & 0x0c) << 6) | data[1];
+>>>       x |= (x & (1 << 9)) ? (-1 << 10) : 0;
 >>
->> https://patchwork.kernel.org/patch/108363/
-> 
-> OK, overall it's OK, but your driver is vulnerable to a race condition
-> due to the use of i2c_master_send() and i2c_master_recv().
-> 
->> +static int qt602240_read_reg(struct i2c_client *client, u16 reg)
->> +{
->> +	u8 buf[2];
->> +	u8 val;
->> +
->> +	buf[0] = reg & 0xff;
->> +	buf[1] = (reg >> 8) & 0xff;
->> +
->> +	if (i2c_master_send(client, buf, 2) != 2) {
->> +		dev_err(&client->dev, "%s: i2c send failed\n", __func__);
->> +		return -EIO;
->> +	}
->> +
->> +	if (i2c_master_recv(client, &val, 1) != 1) {
->> +		dev_err(&client->dev, "%s: i2c recv failed\n", __func__);
->> +		return -EIO;
->> +	}
->> +
->> +	return val;
->> +}
-> 
-> As you don't have any locking in place, there is no guarantee that
-> another I2C access to the device won't happen between i2c_master_send()
-> which sets the register pointer and i2c_master_recv() which reads the
-> value back.
-> 
-> There are 2 ways to fix this. First way is to add locking around all
-> your device register accesses. Second way (much better IMHO) is to use
-> i2c_transfer() with 2 messages instead of i2c_master_send() +
-> i2c_master_recv(). i2c_transfer() is guaranteed to be atomic (as far as
-> the device register pointer is concerned) by i2c-core.
-> 
+>> snto32() seems like something we should be using in hid-magicmouse.c? On
+>> further thought, it actually seems like something that should be a macro
+>> in linux/kernel.h. I would think there could be utility for it in many
+>> places of the kernel.
+>
+>Probably so.  The patch below is a proof of concept, which probably is
+>not worth including until we decide the right place to put snto32(), but
+>I think does show that using snto32() is more readable than the current
+>code.
+>
+>Note the bitwise-and for the ABS_MT_POSITION_X value: I missed that the
+>first time I tried this, to rather undesirable effect.  I am not sure
+>whether snto32() should automatically do that kind of masking: It is
+>only needed in one out of the four sites here, but it is a fairly easy
+>mistake to make.
+>
+>Michael Poole
+>
+>--- a/drivers/hid/hid-magicmouse.c
+>+++ b/drivers/hid/hid-magicmouse.c
+>@@ -163,14 +163,26 @@ static void magicmouse_emit_buttons(struct magicmouse_sc *msc, int state)
+>                msc->scroll_accel = SCROLL_ACCEL_DEFAULT;
+> }
+>
+>+/* Function shamelessly borrowed from hid-core.c. */
+>+
+>+static s32 snto32(__u32 value, unsigned n)
+>+{
+>+       switch (n) {
+>+       case 8:  return ((__s8)value);
+>+       case 16: return ((__s16)value);
+>+       case 32: return ((__s32)value);
 
-OK, i think second solution is better too. I will fix it.
+Beware - this relies on sane behaviour from the current and future compilers, as the C standard doesn't mandate what should happen when shortening out of range signed values. [n869.txt: 6.3.1.1.#3]
 
-Thanks.
+>+       }
+>+       return value & (1 << (n - 1)) ? value | (-1 << n) : value;
 
-> Same applies to qt602240_read_object_table() and
-> qt602240_read_message(), and maybe other functions I haven't seen.
-> 
+That signed left shift, however, is good old fashioned undefined behaviour. [n869.txt 6.5.7.#4]
 
+>+}
+>+
+> static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tdata)
+> {
+>        struct input_dev *input = msc->input;
+>        __s32 x_y = tdata[0] << 8 | tdata[1] << 16 | tdata[2] << 24;
+>        int misc = tdata[5] | tdata[6] << 8;
+>        int id = (misc >> 6) & 15;
+>-       int x = x_y << 12 >> 20;
+>-       int y = -(x_y >> 20);
+>+       int x = snto32((x_y >> 8) & 4095, 12);
+>+       int y = snto32(x_y >> 20, 12);
+>        int down = (tdata[7] & TOUCH_STATE_MASK) != TOUCH_STATE_NONE;
+>
+>        /* Store tracking ID and other fields. */
+>@@ -285,8 +297,8 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>                 * to have the current touch information before
+>                 * generating a click event.
+>                 */
+>-               x = (int)(((data[3] & 0x0c) << 28) | (data[1] << 22)) >> 22;
+>-               y = (int)(((data[3] & 0x30) << 26) | (data[2] << 22)) >> 22;
+>+               x = snto32(((data[3] & 0x0c) << 6) | data[1], 10);
+>+               y = snto32(((data[3] & 0x30) << 4) | data[2], 10);
+>                clicks = data[3];
+>                break;
+>        case 0x20: /* Theoretically battery status (0-100), but I have

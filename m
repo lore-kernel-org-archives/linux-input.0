@@ -1,56 +1,83 @@
-From: Markus Lehtonen <markus.lehtonen@nokia.com>
-Subject: [PATCH] Input: twl4030-pwrbutton - replace __devinit with __init
-Date: Wed,  7 Jul 2010 16:24:23 +0300
-Message-ID: <1278509063-30362-1-git-send-email-markus.lehtonen@nokia.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:56009 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754312Ab0GGNYy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jul 2010 09:24:54 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: Some issues with imon input driver
+Date: Wed, 7 Jul 2010 09:52:59 -0400
+Message-ID: <20100707135259.GA29996@redhat.com>
+References: <201007070536.45900.anssi.hannula@iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201007070536.45900.anssi.hannula@iki.fi>
+Sender: linux-media-owner@vger.kernel.org
+To: Anssi Hannula <anssi.hannula@iki.fi>
+Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dtor@mail.ru, felipe.balbi@nokia.com
 
-Power button is not hot-pluggable so we can save some memory by
-using __init.
+On Wed, Jul 07, 2010 at 05:36:45AM +0300, Anssi Hannula wrote:
+> Hi!
+> 
+> I tried to set up my imon remote, but run into the issue of buttons getting 
+> easily stuck. And while looking at the code, I noticed some more issues :)
 
-Signed-off-by: Markus Lehtonen <markus.lehtonen@nokia.com>
----
- drivers/input/misc/twl4030-pwrbutton.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+I'm not entirely surprised, I knew there were a few quirks left I'd not
+yet fully sorted out. Generally, it works quite well, but I didn't abuse
+the receiver quite as thoroughly as you. ;)
 
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-index e9069b8..353cfea 100644
---- a/drivers/input/misc/twl4030-pwrbutton.c
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -52,7 +52,7 @@ static irqreturn_t powerbutton_irq(int irq, void *_pwr)
- 	return IRQ_HANDLED;
- }
- 
--static int __devinit twl4030_pwrbutton_probe(struct platform_device *pdev)
-+static int __init twl4030_pwrbutton_probe(struct platform_device *pdev)
- {
- 	struct input_dev *pwr;
- 	int irq = platform_get_irq(pdev, 0);
-@@ -107,7 +107,6 @@ static int __devexit twl4030_pwrbutton_remove(struct platform_device *pdev)
- }
- 
- struct platform_driver twl4030_pwrbutton_driver = {
--	.probe		= twl4030_pwrbutton_probe,
- 	.remove		= __devexit_p(twl4030_pwrbutton_remove),
- 	.driver		= {
- 		.name	= "twl4030_pwrbutton",
-@@ -117,7 +116,8 @@ struct platform_driver twl4030_pwrbutton_driver = {
- 
- static int __init twl4030_pwrbutton_init(void)
- {
--	return platform_driver_register(&twl4030_pwrbutton_driver);
-+	return platform_driver_probe(&twl4030_pwrbutton_driver,
-+			twl4030_pwrbutton_probe);
- }
- module_init(twl4030_pwrbutton_init);
- 
+Can I talk you into filing a bug to track this? I can probably work up
+fixes for a number of these sooner or later, if you don't beat me to them,
+but it'd be easy for one or more of the specific problems to slip through
+the cracks if not logged somewhere. My From: address here matches my
+b.k.o. account, if you want to assign said bug to me.
+
+Ah, and because we're actually handing remote controls via
+drivers/media/IR/, you should cc linux-media as well (if not instead of
+linux-input) on anything regarding this driver.
+
+Thanks much,
+
+--jarod
+
+
+> So here they all are (on 2.6.35-rc4):
+> 
+> - There is no fallback timer if a release code is missed (i.e. remote pointed 
+> away from receiver or some other anomaly), causing a key stuck on autorepeat. 
+> The driver should inject a release code itself if there is no release/repeat 
+> code in 500ms after initial press or in 120ms after a repeat code.
+> 
+> - No release code is sent for 0x02XXXXXX keys if pressing any other button 
+> before release, examples:
+> 
+> example 1:
+> hold '5', then press 'Play' once, then release '5'
+> The 'Play' codes are relayed properly, but the release code for '5' (the 'all 
+> 0x02XXXXXX keys released' (i.e. empty HID input report) which the hardware 
+> does send properly) is wrongly interpreted as a release code for 'Play'.
+> The driver should either release '5' when the empty report is received, or, as 
+> this is just a remote control, just inject a release code for '5' when 'Play' 
+> is pressed.
+> 
+> example 2:
+> hold '5', then hold '4', then release '5', then release '4'
+> As the 0x02XXXXXX range is not completely released until after '4' is 
+> released, the zeroed bitfield is not sent until after '4', and the driver 
+> doesn't release '5' at this point anymore. The driver should've injected a 
+> release code for '5' when '4' was pressed.
+> 
+> - imon_mce_timeout() timer function seems to access ictx->last_keycode without 
+> locking
+> 
+> - imon_parse_press_type() tests for ictx->release_code which is in an 
+> undefined state if ktype isn't IMON_KEY_IMON
+> 
+> - when the dpad is in keyboard mode and you hold it down to one direction, 
+> instead of autorepeat there is a constant stream of release/press events
+> 
+> 
+> I may get around to fix these (if I find time and an MCE remote for testing), 
+> but that won't probably happen soon, thus I'm reporting these here if someone 
+> else wants to fix them.
+
 -- 
-1.7.0.4
-
+Jarod Wilson
+jarod@redhat.com

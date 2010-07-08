@@ -1,86 +1,33 @@
-From: Forest Bond <forest@alittletooquiet.net>
-Subject: Re: [PATCH] hid: ignore digitizer usage Undefined (0x00)
-Date: Wed, 7 Jul 2010 23:16:15 -0400
-Message-ID: <20100708031615.GB20081@alittletooquiet.net>
-References: <20100527151808.GA484@alittletooquiet.net>
+From: Felipe Balbi <felipe.balbi@nokia.com>
+Subject: Re: [PATCH] Input: twl4030-pwrbutton - replace __devinit with
+ __init
+Date: Thu, 8 Jul 2010 12:27:08 +0300
+Message-ID: <20100708092708.GB29007@nokia.com>
+References: <1278509063-30362-1-git-send-email-markus.lehtonen@nokia.com>
+Reply-To: felipe.balbi@nokia.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from storm.alittletooquiet.net ([67.23.28.199]:59351 "EHLO
-	storm.alittletooquiet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752091Ab0GHDQQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jul 2010 23:16:16 -0400
+Received: from smtp.nokia.com ([192.100.122.233]:16666 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754286Ab0GHJ1u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 Jul 2010 05:27:50 -0400
 Content-Disposition: inline
-In-Reply-To: <20100527151808.GA484@alittletooquiet.net>
+In-Reply-To: <1278509063-30362-1-git-send-email-markus.lehtonen@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Bjorn Behrendt <bbehrendt@msjvermont.org>, linux-input@vger.kernel.org
+To: "Lehtonen Markus (Nokia-MS/Helsinki)" <markus.lehtonen@nokia.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dtor@mail.ru" <dtor@mail.ru>, "Balbi Felipe (Nokia-MS/Helsinki)" <felipe.balbi@nokia.com>
 
+On Wed, Jul 07, 2010 at 03:24:23PM +0200, Lehtonen Markus (Nokia-MS/Helsinki) wrote:
+>Power button is not hot-pluggable so we can save some memory by
+>using __init.
+>
+>Signed-off-by: Markus Lehtonen <markus.lehtonen@nokia.com>
 
---CUfgB8w4ZwR/yMy5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+then you need to change __devexit too ?!?
 
-Hi Jiri,
+-- 
+balbi
 
-This patch has gone ignored on the linux-input mailing list.  Perhaps that =
-was
-done intentionally, but I wanted to try once more to get it looked at before
-giving up.
-
-Can you comment?
-
-Thanks,
-Forest
-
-On Thu, May 27, 2010 at 11:18:08AM -0400, Forest Bond wrote:
-> SMART Technologies has recommended this change to fix a problem reported
-> with SMART Board series interactive whiteboards.
->=20
-> A description of the device-specific symptom follows:
->=20
->   When the board is connected my mouse bounces up to the top left corner.
->=20
-> Bjorn has tested this fix with model SB680.
->=20
-> Tested-by: Bjorn Behrendt <bbehrendt@msjvermont.org>
-> Signed-off-by: Forest Bond <forest@alittletooquiet.net>
-> ---
->  drivers/hid/hid-input.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 7a0d2e4..6b10e5a 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -301,6 +301,9 @@ static void hidinput_configure_usage(struct hid_input=
- *hidinput, struct hid_fiel
-> =20
->  	case HID_UP_DIGITIZER:
->  		switch (usage->hid & 0xff) {
-> +		case 0x00: /* Undefined */
-> +			goto ignore;
-> +
->  		case 0x30: /* TipPressure */
->  			if (!test_bit(BTN_TOUCH, input->keybit)) {
->  				device->quirks |=3D HID_QUIRK_NOTOUCH;
-> --=20
-> 1.7.0.4
-
---CUfgB8w4ZwR/yMy5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFMNUL/RO4fQQdv5AwRAtp8AKDZgZ1kV4adni2wK4vnPMVofKNOHACeM3VV
-FT21Z7gFH16hCDR8XiCbsNs=
-=7iMa
------END PGP SIGNATURE-----
-
---CUfgB8w4ZwR/yMy5--
+DefectiveByDesign.org

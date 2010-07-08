@@ -1,545 +1,852 @@
 From: Alan Cox <alan@linux.intel.com>
-Subject: [PATCH] cy8ctmg110: capacitive touchscreen support
-Date: Thu, 08 Jul 2010 17:11:38 +0100
-Message-ID: <20100708161040.23957.36738.stgit@localhost.localdomain>
+Subject: [PATCH] intel_mid: Keypad Driver
+Date: Thu, 08 Jul 2010 17:18:40 +0100
+Message-ID: <20100708161838.6610.60143.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:58799 "EHLO mga03.intel.com"
+Received: from mga02.intel.com ([134.134.136.20]:59209 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754368Ab0GHQkQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 Jul 2010 12:40:16 -0400
+	id S1752631Ab0GHQrR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Jul 2010 12:47:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-From: Samuli Konttila <samuli.konttila@aavamobile.com>
+From: Zheng Ba <zheng.ba@intel.com>
 
-Add support for the cy8ctmg110 capacitive touchscreen used on some embedded
-devices.
+This patch adds the keypad support for the MID platform keypad
+interfaces.
 
-(Some clean up by Alan Cox)
+(some tidying Alan Cox)
 
+Signed-off-by: Zheng Ba <zheng.ba@intel.com>
 Signed-off-by: Alan Cox <alan@linux.intel.com>
 ---
 
- drivers/input/touchscreen/Kconfig         |   14 +
- drivers/input/touchscreen/Makefile        |    1 
- drivers/input/touchscreen/cy8ctmg110_ts.c |  470 +++++++++++++++++++++++++++++
- 3 files changed, 485 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/cy8ctmg110_ts.c
+ drivers/input/keyboard/Kconfig            |    7 
+ drivers/input/keyboard/Makefile           |    1 
+ drivers/input/keyboard/intel_mid_keypad.c |  781 +++++++++++++++++++++++++++++
+ 3 files changed, 789 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/intel_mid_keypad.c
 
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 625e625..8393f47 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -612,4 +612,18 @@ config TOUCHSCREEN_STMPE
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 77ad4ce..950f6d1 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -318,6 +318,13 @@ config KEYBOARD_IMX
  	  To compile this driver as a module, choose M here: the
- 	  module will be called stmpe-ts.
+ 	  module will be called imx_keypad.
  
-+config TOUCHSCREEN_CY8CTMG110
-+	tristate "cy8ctmg110 touchscreen"
-+	depends on I2C
-+	depends on GPIOLIB
-+
++config KEYBOARD_INTEL_MID
++	tristate "Intel MID keypad support"
++	depends on GPIO_LANGWELL
 +	help
-+	  Say Y here if you have a cy8ctmg110 capacitive touchscreen on
-+	  an AAVA device.
++	  Say Y if you want support for Intel MID keypad devices
++	  depends on GPIO_LANGWELL
 +
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cy8ctmg110_ts.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 963fec2..662d066 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -14,6 +14,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
- obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
-+obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)    += cy8ctmg110_ts.o
- obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
- obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
- obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
+ config KEYBOARD_NEWTON
+ 	tristate "Newton keyboard"
+ 	select SERIO
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index c9c457c..a1f5e9d 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -13,6 +13,7 @@ obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
+ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
+ obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
+ obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
++obj-$(CONFIG_KEYBOARD_INTEL_MID)	+= intel_mid_keypad.o
+ obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
+ obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
+ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+diff --git a/drivers/input/keyboard/intel_mid_keypad.c b/drivers/input/keyboard/intel_mid_keypad.c
 new file mode 100644
-index 0000000..e7017c7
+index 0000000..b41d50f
 --- /dev/null
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -0,0 +1,470 @@
++++ b/drivers/input/keyboard/intel_mid_keypad.c
+@@ -0,0 +1,781 @@
 +/*
-+ * cy8ctmg110_ts.c Driver for cypress touch screen controller
-+ * Copyright (c) 2009 Aava Mobile
++ * linux/drivers/input/keyboard/intel_mid_keypad.c
 + *
-+ * Some cleanups by Alan Cox <alan@linux.intel.com>
++ * Driver for the matrix keypad controller on MID platform.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * Copyright (c) 2009 Intel Corporation.
++ * Created:	Sep 18, 2008
++ * Updated:	May 14, 2010
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * Based on pxa27x_keypad.c by Rodolfo Giometti <giometti@linux.it>
++ * pxa27x_keypad.c is based on a previous implementation by Kevin O'Connor
++ * <kevin_at_keconnor.net> and Alex Osborne <bobofdoom@gmail.com> and
++ * on some suggestions by Nicolas Pitre <nico@cam.org>
 + *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
++ *
 + */
 +
-+#include <linux/module.h>
++#define DRV_NAME	"mrst_keypad"
++#define DRV_VERSION	"0.0.1"
++#define MRST_KEYPAD_DRIVER_NAME   DRV_NAME " " DRV_VERSION
++
 +#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/init.h>
 +#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/i2c.h>
-+#include <linux/timer.h>
++#include <linux/input.h>
++#include <linux/device.h>
++#include <linux/err.h>
 +#include <linux/gpio.h>
-+#include <linux/hrtimer.h>
-+
-+#define CY8CTMG110_DRIVER_NAME      "cy8ctmg110"
-+
-+/* HW definitions */
-+#define CY8CTMG110_RESET_PIN_GPIO	43
-+#define CY8CTMG110_IRQ_PIN_GPIO		59
-+#define CY8CTMG110_I2C_ADDR		0x38
-+#define CY8CTMG110_TOUCH_IRQ		21
-+
-+/* Touch coordinates */
-+#define CY8CTMG110_X_MIN		0
-+#define CY8CTMG110_Y_MIN		0
-+#define CY8CTMG110_X_MAX		864
-+#define CY8CTMG110_Y_MAX		480
-+
-+
-+/* cy8ctmg110 register definitions */
-+#define CY8CTMG110_TOUCH_WAKEUP_TIME	0
-+#define CY8CTMG110_TOUCH_SLEEP_TIME	2
-+#define CY8CTMG110_TOUCH_X1		3
-+#define CY8CTMG110_TOUCH_Y1		5
-+#define CY8CTMG110_TOUCH_X2		7
-+#define CY8CTMG110_TOUCH_Y2		9
-+#define CY8CTMG110_FINGERS		11
-+#define CY8CTMG110_GESTURE		12
-+#define CY8CTMG110_REG_MAX		13
-+
-+#define CY8CTMG110_POLL_TIMER_DELAY	(1000*1000*100)
-+#define TOUCH_MAX_I2C_FAILS		50
-+
-+/* Scale factors for coordinates */
-+#define X_SCALE_FACTOR			9387/8424
-+#define Y_SCALE_FACTOR			97/100
-+
-+/* Polling mode */
-+static int polling;
-+module_param(polling, int, 0);
-+MODULE_PARM_DESC(polling, "Set to enable polling of the touchscreen");
-+
 +
 +/*
-+ * The touch position structure.
++ * Keypad Controller registers
 + */
-+struct ts_event {
-+	int x1;
-+	int y1;
-+	int x2;
-+	int y2;
++#define KPC             0x0000 /* Keypad Control register */
++#define KPDK            0x0004 /* Keypad Direct Key register */
++#define KPREC           0x0008 /* Keypad Rotary Encoder register */
++#define KPMK            0x000C /* Keypad Matrix Key register */
++#define KPAS            0x0010 /* Keypad Automatic Scan register */
++
++/* Keypad Automatic Scan Multiple Key Presser register 0-3 */
++#define KPASMKP0        0x0014
++#define KPASMKP1        0x0018
++#define KPASMKP2        0x001C
++#define KPASMKP3        0x0020
++#define KPKDI           0x0024
++
++/* bit definitions */
++#define KPC_MKRN(n)	((((n) - 1) & 0x7) << 26) /* matrix key row number */
++#define KPC_MKCN(n)	((((n) - 1) & 0x7) << 23) /* matrix key col number */
++#define KPC_DKN(n)	((((n) - 1) & 0x7) << 6)  /* direct key number */
++
++#define KPC_AS          (0x1 << 30)  /* Automatic Scan bit */
++#define KPC_ASACT       (0x1 << 29)  /* Automatic Scan on Activity */
++#define KPC_MI          (0x1 << 22)  /* Matrix interrupt bit */
++#define KPC_IMKP        (0x1 << 21)  /* Ignore Multiple Key Press */
++
++#define KPC_MS(n)	(0x1 << (13 + (n)))	/* Matrix scan line 'n' */
++#define KPC_MS_ALL      (0xff << 13)
++
++#define KPC_ME          (0x1 << 12)  /* Matrix Keypad Enable */
++#define KPC_MIE         (0x1 << 11)  /* Matrix Interrupt Enable */
++#define KPC_DK_DEB_SEL	(0x1 <<  9)  /* Direct Keypad Debounce Select */
++#define KPC_DI          (0x1 <<  5)  /* Direct key interrupt bit */
++#define KPC_RE_ZERO_DEB (0x1 <<  4)  /* Rotary Encoder Zero Debounce */
++#define KPC_REE1        (0x1 <<  3)  /* Rotary Encoder1 Enable */
++#define KPC_REE0        (0x1 <<  2)  /* Rotary Encoder0 Enable */
++#define KPC_DE          (0x1 <<  1)  /* Direct Keypad Enable */
++#define KPC_DIE         (0x1 <<  0)  /* Direct Keypad interrupt Enable */
++
++#define KPDK_DKP        (0x1 << 31)
++#define KPDK_DK(n)	((n) & 0xff)
++
++#define KPREC_OF1       (0x1 << 31)
++#define kPREC_UF1       (0x1 << 30)
++#define KPREC_OF0       (0x1 << 15)
++#define KPREC_UF0       (0x1 << 14)
++
++#define KPREC_RECOUNT0(n)	((n) & 0xff)
++#define KPREC_RECOUNT1(n)	(((n) >> 16) & 0xff)
++
++#define KPMK_MKP        (0x1 << 31)
++#define KPAS_SO         (0x1 << 31)
++#define KPASMKPx_SO     (0x1 << 31)
++
++#define KPAS_MUKP(n)	(((n) >> 26) & 0x1f)
++#define KPAS_RP(n)	(((n) >> 4) & 0xf)
++#define KPAS_CP(n)	((n) & 0xf)
++
++#define KPASMKP_MKC_MASK	(0xff)
++
++#define	KEYPAD_MATRIX_GPIO_IN_PIN	24
++#define	KEYPAD_MATRIX_GPIO_OUT_PIN	32
++#define KEYPAD_DIRECT_GPIO_IN_PIN	40
++
++
++#define keypad_readl(off)	readl(keypad->mmio_base + (off))
++#define keypad_writel(off, v)	writel((v), keypad->mmio_base + (off))
++
++#define MAX_MATRIX_KEY_NUM	(8 * 8)
++#define MAX_DIRECT_KEY_NUM	(4)
++
++#define MAX_MATRIX_KEY_ROWS	(8)
++#define MAX_MATRIX_KEY_COLS	(8)
++#define DEBOUNCE_INTERVAL	100
++
++#define KEY_HALFSHUTTER		KEY_PROG1
++#define KEY_FULLSHUTTER		KEY_CAMERA
++
++static unsigned int mrst_keycode[MAX_MATRIX_KEY_NUM] = {
++	KEY_F, KEY_D, KEY_E, KEY_GRAVE, KEY_C, KEY_R, KEY_4, KEY_V,
++	KEY_NUMLOCK, KEY_LEFTCTRL, KEY_Z, KEY_W, KEY_2, KEY_X, KEY_S, KEY_3,
++	KEY_EQUAL, KEY_N, KEY_H, KEY_U, KEY_7, KEY_M, KEY_J, KEY_8,
++	KEY_6, KEY_5, KEY_APOSTROPHE, KEY_G, KEY_T, KEY_SPACE, KEY_B, KEY_Y,
++	KEY_MINUS, KEY_0, KEY_LEFT, KEY_SEMICOLON, KEY_P, KEY_DOWN, KEY_UP,
++	KEY_BACKSPACE,
++	KEY_L, KEY_K, KEY_I, KEY_SLASH, KEY_COMMA, KEY_O, KEY_9, KEY_DOT,
++	KEY_Q, KEY_TAB, KEY_ESC, KEY_LEFTSHIFT, KEY_CAPSLOCK, KEY_1, KEY_FN,
++	KEY_A,
++	0, KEY_RIGHTSHIFT, KEY_ENTER, 0, KEY_RIGHT, 0, 0, 0,
 +};
 +
-+/*
-+ * The touch driver structure.
-+ */
-+struct cy8ctmg110 {
-+	struct input_dev *input;
-+	char phys[32];
-+	struct ts_event tc;
-+	struct i2c_client *client;
-+	spinlock_t lock;
-+	bool sleepmode;
-+	int polling;
-+	struct hrtimer timer;
++/* NumLk key mapping */
++static unsigned int mrst_keycode_numlck[MAX_MATRIX_KEY_NUM] = {
++	KEY_F, KEY_D, KEY_E, KEY_GRAVE, KEY_C, KEY_R, KEY_4, KEY_V,
++	KEY_NUMLOCK, KEY_LEFTCTRL, KEY_Z, KEY_W, KEY_2, KEY_X, KEY_S, KEY_3,
++	KEY_EQUAL, KEY_N, KEY_H, KEY_KP4, KEY_KP7, KEY_KP0, KEY_KP1, KEY_KP8,
++	KEY_6, KEY_5, KEY_APOSTROPHE, KEY_G, KEY_T, KEY_SPACE, KEY_B, KEY_Y,
++	KEY_MINUS, KEY_KPSLASH, KEY_LEFT, KEY_KPMINUS, KEY_KPASTERISK,
++	KEY_DOWN, KEY_UP, KEY_BACKSPACE,
++	KEY_KP3, KEY_KP2, KEY_KP5, KEY_SLASH, KEY_KPDOT, KEY_KP6, KEY_KP9,
++	KEY_KPPLUS,
++	KEY_Q, KEY_TAB, KEY_ESC, KEY_LEFTSHIFT, KEY_CAPSLOCK, KEY_1, KEY_FN,
++	KEY_A,
++	0, KEY_RIGHTSHIFT, KEY_ENTER, 0, KEY_RIGHT, 0, 0, 0,
 +};
 +
-+/*
-+ * cy8ctmg110_power is the routine that is called when touch hardware
-+ * will powered off or on.
-+ */
-+static void cy8ctmg110_power(int poweron)
++/* Fn key mapping */
++static unsigned int mrst_keycode_fn[MAX_MATRIX_KEY_NUM] = {
++	0, 0, 0, 0, 0, 0, 0, 0,
++	0, 0, 0, 0, 0, 0, 0, 0,
++	KEY_LEFTBRACE, 0, 0, 0, 0, 0, 0, 0,
++	0, 0, 0, 0, 0, 0, 0, 0,
++	0, 0, KEY_HOME, 0, 0, KEY_PAGEDOWN, KEY_PAGEUP, 0,
++	0, 0, 0, KEY_RIGHTBRACE, KEY_LEFTBRACE, 0, 0, KEY_RIGHTBRACE,
++	0, 0, 0, KEY_LEFTSHIFT, 0, 0, KEY_FN, 0,
++	0, KEY_RIGHTSHIFT, 0, 0, KEY_END, 0, 0, 0,
++};
++
++/* direct key map */
++static unsigned int mrst_direct_keycode[MAX_DIRECT_KEY_NUM] = {
++	KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_HALFSHUTTER, KEY_FULLSHUTTER,
++};
++
++struct mrst_keypad {
++
++	struct input_dev *input_dev;
++	void __iomem *mmio_base;
++
++	unsigned int	matrix_key_rows;
++	unsigned int	matrix_key_cols;
++	int		matrix_key_map_size;
++
++	/* key debounce interval */
++	unsigned int	debounce_interval;
++
++	/* matrix key code map */
++	unsigned int matrix_keycodes[MAX_MATRIX_KEY_NUM];
++
++	/* state row bits of each column scan */
++	uint32_t matrix_key_state[MAX_MATRIX_KEY_COLS];
++	uint32_t direct_key_state;
++
++	unsigned int direct_key_mask;
++
++	int direct_key_num;
++
++	unsigned int direct_key_map[MAX_DIRECT_KEY_NUM];
++
++	/* rotary encoders 0 */
++	int enable_rotary0;
++	int rotary0_rel_code;
++	int rotary0_up_key;
++	int rotary0_down_key;
++
++	/* rotary encoders 1 */
++	int enable_rotary1;
++	int rotary1_rel_code;
++	int rotary1_up_key;
++	int rotary1_down_key;
++
++	int rotary_rel_code[2];
++	int rotary_up_key[2];
++	int rotary_down_key[2];
++
++	/* Fn key */
++	int fn;
++
++	/* Number Lock key */
++	int numlck;
++
++	/* FIXME:
++	 * Keypad controller likely issues fake interrupts
++	 * when direct key status registers were first initialized
++	 * This value assures this interrupt will not be proceeded.
++	 */
++	int count;
++};
++
++static void mrst_keypad_build_keycode(struct mrst_keypad *keypad)
 +{
-+	gpio_direction_output(CY8CTMG110_RESET_PIN_GPIO, 1 - poweron);
-+}
++	struct input_dev *input_dev = keypad->input_dev;
++	unsigned int *key;
++	int i, code;
 +
-+/*
-+ * cy8ctmg110_write_req write regs to the i2c devices
-+ */
-+static int cy8ctmg110_write_req(struct cy8ctmg110 *tsc, unsigned char reg,
-+		unsigned char len, unsigned char *value)
-+{
-+	struct i2c_client *client = tsc->client;
-+	unsigned int ret;
-+	unsigned char i2c_data[6];
++	keypad->matrix_key_rows = MAX_MATRIX_KEY_ROWS;
++	keypad->matrix_key_cols = MAX_MATRIX_KEY_COLS;
++	keypad->matrix_key_map_size = MAX_MATRIX_KEY_NUM;
++	keypad->debounce_interval = DEBOUNCE_INTERVAL;
 +
-+	BUG_ON(len > 5);
++	/* three sets of keycode here */
++	if (keypad->fn)
++		memcpy(keypad->matrix_keycodes, mrst_keycode_fn,
++		       sizeof(keypad->matrix_keycodes));
++	else if (keypad->numlck)
++		memcpy(keypad->matrix_keycodes, mrst_keycode_numlck,
++		       sizeof(keypad->matrix_keycodes));
++	else
++		memcpy(keypad->matrix_keycodes, mrst_keycode,
++		       sizeof(keypad->matrix_keycodes));
 +
-+	i2c_data[0] = reg;
-+	memcpy(i2c_data + 1, value, len);
++	memcpy(keypad->direct_key_map, mrst_direct_keycode,
++	       sizeof(keypad->direct_key_map));
 +
-+	ret = i2c_master_send(client, i2c_data, len + 1);
-+	if (ret != 1) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110 touch : i2c write data cmd failed\n");
-+		return ret;
++	key = &keypad->matrix_keycodes[0];
++	for (i = 0; i < MAX_MATRIX_KEY_NUM; i++, key++) {
++		code = (*key) & 0xffffff;
++		set_bit(code, input_dev->keybit);
 +	}
-+	return 0;
-+}
 +
-+/*
-+ * cy8ctmg110_read_req read regs from i2c devise
-+ */
-+
-+static int cy8ctmg110_read_req(struct cy8ctmg110 *tsc,
-+		unsigned char *i2c_data, unsigned char len, unsigned char cmd)
-+{
-+	struct i2c_client *client = tsc->client;
-+	unsigned int ret;
-+
-+	/* first write slave position to i2c devices */
-+	ret = i2c_master_send(client, &cmd, 1);
-+	if (ret != 1)
-+		return ret;
-+
-+	/* Second read data from position */
-+	ret = i2c_master_recv(client, i2c_data, 1);
-+	if (ret != 1)
-+		return ret;
-+	return 0;
-+}
-+
-+/*
-+ * cy8ctmg110_send_event delevery touch event to the userpace
-+ * function use normal input interface
-+ */
-+static void cy8ctmg110_send_event(void *tsc)
-+{
-+	struct cy8ctmg110 *ts = tsc;
-+	struct input_dev *input = ts->input;
-+	u16 x, y;
-+	u16 x2, y2;
-+
-+	x = ts->tc.x1;
-+	y = ts->tc.y1;
-+
-+	input_report_key(input, BTN_TOUCH, 1);
-+	x2 = (u16) (y * X_SCALE_FACTOR);
-+	y2 = (u16) (x * Y_SCALE_FACTOR);
-+	input_report_abs(input, ABS_X, x2);
-+	input_report_abs(input, ABS_Y, y2);
-+	input_sync(input);
-+}
-+
-+/*
-+ * cy8ctmg110_touch_pos check touch position from i2c devices
-+ */
-+static int cy8ctmg110_touch_pos(struct cy8ctmg110 *tsc)
-+{
-+	unsigned char reg_p[CY8CTMG110_REG_MAX];
-+	int x, y;
-+
-+	memset(reg_p, 0, CY8CTMG110_REG_MAX);
-+
-+	/* Reading coordinates */
-+	if (cy8ctmg110_read_req(tsc, reg_p, 9, CY8CTMG110_TOUCH_X1) != 0)
-+		return -EIO;
-+
-+	y = reg_p[2] << 8 | reg_p[3];
-+	x = reg_p[0] << 8 | reg_p[1];
-+
-+	/* Number of touch */
-+	if (reg_p[8] == 0) {
-+		struct input_dev *input = tsc->input;
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_sync(input);
-+	} else if (tsc->tc.x1 != x || tsc->tc.y1 != y) {
-+		tsc->tc.y1 = y;
-+		tsc->tc.x1 = x;
-+		cy8ctmg110_send_event(tsc);
++	key = &keypad->direct_key_map[0];
++	for (i = 0; i < MAX_DIRECT_KEY_NUM; i++, key++) {
++		code = (*key) & 0xffffff;
++		set_bit(code, input_dev->keybit);
 +	}
-+	return 0;
++
++	keypad->direct_key_num = MAX_DIRECT_KEY_NUM;
++	keypad->enable_rotary0 = 0;
++	keypad->enable_rotary1 = 0;
++
 +}
 +
-+/*
-+ * If the interrupt isn't in use the touch positions can be read by polling
-+ */
-+static enum hrtimer_restart cy8ctmg110_timer(struct hrtimer *handle)
++static inline unsigned int lookup_matrix_keycode(
++		struct mrst_keypad *keypad, int row, int col)
 +{
-+	struct cy8ctmg110 *ts = container_of(handle, struct cy8ctmg110, timer);
-+
-+	cy8ctmg110_touch_pos(ts);
-+	hrtimer_start(&ts->timer,
-+		ktime_set(0, CY8CTMG110_POLL_TIMER_DELAY), HRTIMER_MODE_REL);
-+
-+	return HRTIMER_NORESTART;
++	return keypad->matrix_keycodes[(row << 3) + col];
 +}
 +
-+/*
-+ * cy8ctmg110_init_controller set init value to touchcontroller
-+ */
-+static bool cy8ctmg110_set_sleepmode(struct cy8ctmg110 *ts)
++static void handle_constant_keypress(struct mrst_keypad *keypad,
++				     int num, int col, int row,
++				     int state)
 +{
-+	unsigned char reg_p[3];
++	struct input_dev *dev = keypad->input_dev;
 +
-+	if (ts->sleepmode == true) {
-+		reg_p[0] = 0x00;
-+		reg_p[1] = 0xff;
-+		reg_p[2] = 5;
++	switch (num) {
++	case 0:
++		if (keypad->fn)
++			keypad->fn = 0;
++		/* Manually release special keys (Fn combinations) */
++		if (test_bit(KEY_LEFTBRACE, dev->key))
++			input_report_key(dev, KEY_LEFTBRACE, 0);
++		if (test_bit(KEY_RIGHTBRACE, dev->key))
++			input_report_key(dev, KEY_RIGHTBRACE, 0);
++		if (test_bit(KEY_HOME, dev->key))
++			input_report_key(dev, KEY_RIGHTBRACE, 0);
++		if (test_bit(KEY_END, dev->key))
++			input_report_key(dev, KEY_END, 0);
++		if (test_bit(KEY_PAGEUP, dev->key))
++			input_report_key(dev, KEY_RIGHTBRACE, 0);
++		if (test_bit(KEY_PAGEDOWN, dev->key))
++			input_report_key(dev, KEY_RIGHTBRACE, 0);
++
++		return;
++
++	case 1:
++		/* if Fn pressed */
++		if (col == 6 && row == 6)
++			keypad->fn = 1;
++		/* key '[' */
++		else if ((col == 0 && row == 2) && state) {
++			keypad->fn = 0;
++			set_bit(KEY_EQUAL, dev->key);
++			dev->repeat_key = KEY_EQUAL;
++		}
++		/* key ']' */
++		else if ((col == 3 && row == 5) && state) {
++			keypad->fn = 0;
++			set_bit(KEY_SLASH, dev->key);
++			dev->repeat_key = KEY_SLASH;
++		}
++		/* key '{' */
++		else if ((col == 4 && row == 5) && state) {
++			keypad->fn = 0;
++			set_bit(KEY_COMMA, dev->key);
++			dev->repeat_key = KEY_COMMA;
++		}
++		/* key '}' */
++		else if ((col == 7 && row == 5) && state) {
++			keypad->fn = 0;
++			set_bit(KEY_DOT, dev->key);
++			dev->repeat_key = KEY_DOT;
++		}
++
++		return;
++	default:
++		;
++	}
++}
++
++static void mrst_keypad_scan_matrix(struct mrst_keypad *keypad)
++{
++	int row, col, num_keys_pressed = 0;
++	uint32_t new_state[MAX_MATRIX_KEY_COLS];
++	uint32_t kpas = keypad_readl(KPAS);
++	int status;
++
++	num_keys_pressed = KPAS_MUKP(kpas);
++
++	memset(new_state, 0, sizeof(new_state));
++
++	if (num_keys_pressed == 0) {
++		status = keypad->matrix_key_state[0] & (1 << 0);
++		handle_constant_keypress(keypad, num_keys_pressed, 0, 0,
++					 status);
++
++		goto scan;
++	}
++
++	if (num_keys_pressed == 1) {
++		col = KPAS_CP(kpas);
++		row = KPAS_RP(kpas);
++
++		/* if invalid row/col, treat as no key pressed */
++		if (col < MAX_MATRIX_KEY_COLS &&
++		    row < MAX_MATRIX_KEY_ROWS) {
++
++			/* if NumLk pressed */
++			if (col == 0 && row == 1)
++				keypad->numlck = !keypad->numlck;
++
++			status = keypad->matrix_key_state[col] & (1 << row);
++			handle_constant_keypress(keypad, num_keys_pressed, col,
++						 row, status);
++
++			new_state[col] = (1 << row);
++		}
++
++		goto scan;
++	}
++
++	if (num_keys_pressed > 1) {
++		uint32_t kpasmkp0 = keypad_readl(KPASMKP0);
++		uint32_t kpasmkp1 = keypad_readl(KPASMKP1);
++		uint32_t kpasmkp2 = keypad_readl(KPASMKP2);
++		uint32_t kpasmkp3 = keypad_readl(KPASMKP3);
++
++		new_state[0] = kpasmkp0 & KPASMKP_MKC_MASK;
++		new_state[1] = (kpasmkp0 >> 16) & KPASMKP_MKC_MASK;
++		new_state[2] = kpasmkp1 & KPASMKP_MKC_MASK;
++		new_state[3] = (kpasmkp1 >> 16) & KPASMKP_MKC_MASK;
++		new_state[4] = kpasmkp2 & KPASMKP_MKC_MASK;
++		new_state[5] = (kpasmkp2 >> 16) & KPASMKP_MKC_MASK;
++		new_state[6] = kpasmkp3 & KPASMKP_MKC_MASK;
++		new_state[7] = (kpasmkp3 >> 16) & KPASMKP_MKC_MASK;
++
++		/* if Fn is pressed, all SHIFT is ignored, except when {
++		 * or } is pressed */
++		if (new_state[6] & 0x40) {
++			keypad->fn = 1;
++			new_state[3] &= ~0x40;
++			new_state[1] &= ~0x80;
++		}
++
++		if (keypad->fn == 1) {
++			/* if { or } pressed */
++			if ((new_state[4] & 0x20) || (new_state[7] & 0x20)) {
++				/* as if LEFTSHIFT is pressed */
++				new_state[3] |= 0x40;
++				/* as if Fn not pressed */
++				new_state[6] &= ~0x40;
++			}
++			/* if [ or ] pressed */
++			if ((new_state[0] & 0x04) || (new_state[3] & 0x20))
++				/* as if Fn not pressed */
++				new_state[6] &= ~0x40;
++		}
++	}
++
++
++scan:
++	/* re-build keycode */
++	mrst_keypad_build_keycode(keypad);
++
++	for (col = 0; col < keypad->matrix_key_cols; col++) {
++		uint32_t bits_changed;
++
++		bits_changed = keypad->matrix_key_state[col] ^ new_state[col];
++		if (bits_changed == 0)
++			continue;
++
++		for (row = 0; row < keypad->matrix_key_rows; row++) {
++			if ((bits_changed & (1 << row)) == 0)
++				continue;
++
++			input_report_key(keypad->input_dev,
++				lookup_matrix_keycode(keypad, row, col),
++				new_state[col] & (1 << row));
++		}
++	}
++	input_sync(keypad->input_dev);
++	memcpy(keypad->matrix_key_state, new_state, sizeof(new_state));
++}
++
++#define DEFAULT_KPREC	(0x007f007f)
++
++static inline int rotary_delta(uint32_t kprec)
++{
++	if (kprec & KPREC_OF0)
++		return (kprec & 0xff) + 0x7f;
++	else if (kprec & KPREC_UF0)
++		return (kprec & 0xff) - 0x7f - 0xff;
++	else
++		return (kprec & 0xff) - 0x7f;
++}
++
++static void report_rotary_event(struct mrst_keypad *keypad, int r, int delta)
++{
++	struct input_dev *dev = keypad->input_dev;
++
++	if (delta == 0)
++		return;
++
++	if (keypad->rotary_up_key[r] && keypad->rotary_down_key[r]) {
++		int keycode = (delta > 0) ? keypad->rotary_up_key[r] :
++					    keypad->rotary_down_key[r];
++
++		/* simulate a press-n-release */
++		input_report_key(dev, keycode, 1);
++		input_sync(dev);
++		input_report_key(dev, keycode, 0);
++		input_sync(dev);
 +	} else {
-+		reg_p[0] = 0x10;
-+		reg_p[1] = 0xff;
-+		reg_p[2] = 0;
++		input_report_rel(dev, keypad->rotary_rel_code[r], delta);
++		input_sync(dev);
 +	}
-+
-+	if (cy8ctmg110_write_req(ts, CY8CTMG110_TOUCH_WAKEUP_TIME, 3, reg_p))
-+		return false;
-+	return true;
 +}
 +
-+/*
-+ * cy8ctmg110_irq_handler irq handling function
-+ */
-+
-+static irqreturn_t cy8ctmg110_irq_handler(int irq, void *dev_id)
++static void mrst_keypad_scan_rotary(struct mrst_keypad *keypad)
 +{
-+	struct cy8ctmg110 *tsc = (struct cy8ctmg110 *) dev_id;
-+	cy8ctmg110_touch_pos(tsc);
++	unsigned int kprec;
++
++	/* read and reset to default count value */
++	kprec = keypad_readl(KPREC);
++	keypad_writel(KPREC, DEFAULT_KPREC);
++
++	if (keypad->enable_rotary0)
++		report_rotary_event(keypad, 0, rotary_delta(kprec));
++
++	if (keypad->enable_rotary1)
++		report_rotary_event(keypad, 1, rotary_delta(kprec >> 16));
++}
++
++static void mrst_keypad_scan_direct(struct mrst_keypad *keypad)
++{
++	unsigned int new_state;
++	uint32_t kpdk, bits_changed;
++	int i;
++
++	kpdk = keypad_readl(KPDK);
++
++	if (keypad->enable_rotary0 || keypad->enable_rotary1)
++		mrst_keypad_scan_rotary(keypad);
++
++	if ((keypad->direct_key_map == NULL) || (++keypad->count == 1)) {
++		keypad->direct_key_state = 0;
++		return;
++	}
++
++	new_state = KPDK_DK(kpdk) & keypad->direct_key_mask;
++	new_state = ~new_state;
++	bits_changed = keypad->direct_key_state ^ new_state;
++
++	if (bits_changed == 0)
++		return;
++
++	for (i = 0; i < keypad->direct_key_num; i++) {
++		if (bits_changed & (1 << i)) {
++			input_report_key(keypad->input_dev,
++					 keypad->direct_key_map[i],
++					 (new_state & (1 << i)));
++		}
++	}
++	input_sync(keypad->input_dev);
++	keypad->direct_key_state = new_state;
++
++}
++
++static irqreturn_t mrst_keypad_irq_handler(int irq, void *dev_id)
++{
++	struct mrst_keypad *keypad = dev_id;
++	unsigned long kpc = keypad_readl(KPC);
++
++	if (kpc & KPC_DI)
++		mrst_keypad_scan_direct(keypad);
++
++	if (kpc & KPC_MI)
++		mrst_keypad_scan_matrix(keypad);
++
 +	return IRQ_HANDLED;
 +}
 +
-+static int cy8ctmg110_probe(struct i2c_client *client,
-+					const struct i2c_device_id *id)
++static int mrst_keypad_gpio_init(void)
 +{
-+	struct cy8ctmg110 *ts;
-+	struct input_dev *input_dev;
-+	int err;
++	int i, err, cnt = 0;
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + MAX_DIRECT_KEY_NUM;
 +
-+	client->irq = CY8CTMG110_TOUCH_IRQ;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+					I2C_FUNC_SMBUS_READ_WORD_DATA))
-+		return -EIO;
-+
-+	ts = kzalloc(sizeof(struct cy8ctmg110), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+
-+	if (!ts || !input_dev) {
-+		err = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	ts->client = client;
-+	i2c_set_clientdata(client, ts);
-+
-+	ts->input = input_dev;
-+	ts->polling = polling;
-+
-+	snprintf(ts->phys, sizeof(ts->phys), "%s/input0",
-+						dev_name(&client->dev));
-+
-+	input_dev->name = CY8CTMG110_DRIVER_NAME " Touchscreen";
-+	input_dev->phys = ts->phys;
-+	input_dev->id.bustype = BUS_I2C;
-+
-+	spin_lock_init(&ts->lock);
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+
-+	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
-+
-+	input_set_abs_params(input_dev, ABS_X,
-+			CY8CTMG110_X_MIN, CY8CTMG110_X_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y,
-+			CY8CTMG110_Y_MIN, CY8CTMG110_Y_MAX, 0, 0);
-+
-+	err = gpio_request(CY8CTMG110_RESET_PIN_GPIO, NULL);
-+
-+	if (err) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110_ts: Unable to request GPIO pin %d.\n",
-+						CY8CTMG110_RESET_PIN_GPIO);
-+		goto err_free_mem;
-+	}
-+	cy8ctmg110_power(1);
-+	cy8ctmg110_set_sleepmode(ts);
-+
-+	hrtimer_init(&ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	ts->timer.function = cy8ctmg110_timer;
-+
-+	if (ts->polling == 0) {
-+		/* Can we fall back to polling if these bits fail - something
-+		   to look at for robustness */
-+		err = gpio_request(CY8CTMG110_IRQ_PIN_GPIO, "touch_irq_key");
-+		if (err < 0) {
-+			dev_err(&client->dev,
-+			"cy8ctmg110_ts: failed to request GPIO %d, error %d\n",
-+						CY8CTMG110_IRQ_PIN_GPIO, err);
-+			ts->polling = 1;
-+			goto failed_irq;
-+		}
-+		err = gpio_direction_input(CY8CTMG110_IRQ_PIN_GPIO);
-+
-+		if (err < 0) {
-+			dev_err(&client->dev,
-+  "cy8ctmg110_ts: failed to configure input direction for GPIO %d, error %d\n",
-+						CY8CTMG110_IRQ_PIN_GPIO, err);
-+			gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+			ts->polling = 1;
-+			goto failed_irq;
-+		}
-+		client->irq = gpio_to_irq(CY8CTMG110_IRQ_PIN_GPIO);
-+		if (client->irq < 0) {
-+			err = client->irq;
-+			dev_err(&client->dev,
-+	"cy8ctmg110_ts: Unable to get irq number for GPIO %d, error %d\n",
-+						CY8CTMG110_IRQ_PIN_GPIO, err);
-+			gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+			ts->polling = 1;
-+			goto failed_irq;
-+		}
-+		err = request_irq(client->irq, cy8ctmg110_irq_handler,
-+					IRQF_TRIGGER_RISING | IRQF_SHARED,
-+						"touch_reset_key", ts);
-+		if (err < 0) {
-+			dev_err(&client->dev,
-+				"cy8ctmg110 irq %d busy? error %d\n",
-+					client->irq, err);
-+			gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+			ts->polling = 1;
++	/* explicitely tell which pins have been occupied... */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < pins; i++, cnt++) {
++		err = gpio_request(i, NULL);
++		if (err) {
++			printk(KERN_ERR "GPIO pin %d failed to request.\n", i);
++			goto err_request;
 +		}
 +	}
-+failed_irq:
-+	if (ts->polling)
-+		hrtimer_start(&ts->timer, ktime_set(10, 0), HRTIMER_MODE_REL);
 +
-+	err = input_register_device(input_dev);
-+	if (!err)
-+		return 0;
++	for (i = 0; i < MAX_MATRIX_KEY_ROWS; i++)
++		gpio_direction_input(KEYPAD_MATRIX_GPIO_IN_PIN + i);
 +
-+	if (ts->polling)
-+		hrtimer_cancel(&ts->timer);
-+	else
-+		free_irq(client->irq, ts);
-+	gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+	gpio_free(CY8CTMG110_RESET_PIN_GPIO);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(ts);
++	for (i = 0; i < MAX_MATRIX_KEY_COLS; i++)
++		/* __gpio_set_value(KEYPAD_GPIO_OUT_PIN + i, 1); */
++		/* set action is executed in gpio_direction_output() */
++		gpio_direction_output(KEYPAD_MATRIX_GPIO_OUT_PIN + i, 1);
++
++	for (i = 0; i < MAX_DIRECT_KEY_NUM; i++)
++		gpio_direction_input(KEYPAD_DIRECT_GPIO_IN_PIN + i);
++
++	return 0;
++
++err_request:
++	/* free requested pins... */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN + cnt - 1;
++	     i >= KEYPAD_MATRIX_GPIO_IN_PIN; i--)
++		gpio_free(i);
 +	return err;
 +}
 +
-+#ifdef CONFIG_PM
-+/*
-+ * cy8ctmg110_suspend
-+ */
-+
-+static int cy8ctmg110_suspend(struct i2c_client *client, pm_message_t mesg)
++static void mrst_keypad_config(struct mrst_keypad *keypad)
 +{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
++	unsigned int mask = 0, direct_key_num = 0;
++	unsigned long kpc = 0;
 +
-+	if (ts->polling)
-+		hrtimer_cancel(&ts->timer);
-+	if (device_may_wakeup(&client->dev))
-+		enable_irq_wake(client->irq);
-+	else {
-+		ts->sleepmode = true;
-+		cy8ctmg110_set_sleepmode(ts);
-+		cy8ctmg110_power(0);
++	/* enable matrix keys with automatic scan */
++	if (keypad->matrix_key_rows && keypad->matrix_key_cols) {
++		kpc |= KPC_ASACT | KPC_MIE | KPC_ME | KPC_MS_ALL;
++		kpc |= KPC_MKRN(keypad->matrix_key_rows) |
++		       KPC_MKCN(keypad->matrix_key_cols);
 +	}
++
++	/* enable rotary key, debounce interval same as direct keys */
++	if (keypad->enable_rotary0) {
++		mask |= 0x03;
++		direct_key_num = 2;
++		kpc |= KPC_REE0;
++	}
++
++	if (keypad->enable_rotary1) {
++		mask |= 0x0c;
++		direct_key_num = 4;
++		kpc |= KPC_REE1;
++	}
++
++	if (keypad->direct_key_num > direct_key_num)
++		direct_key_num = keypad->direct_key_num;
++
++	keypad->direct_key_mask = ((2 << direct_key_num) - 1) & ~mask;
++
++	/* enable direct key */
++	if (direct_key_num)
++		kpc |= KPC_DE | KPC_DIE | KPC_DKN(direct_key_num);
++
++	keypad_writel(KPC, kpc);
++	keypad_writel(KPREC, DEFAULT_KPREC);
++	keypad_writel(KPKDI, keypad->debounce_interval);
++}
++
++static int mrst_keypad_open(struct input_dev *dev)
++{
++	struct mrst_keypad *keypad = input_get_drvdata(dev);
++	int err;
++
++	err = mrst_keypad_gpio_init();
++	if (err)
++		return err;
++	mrst_keypad_config(keypad);
++
 +	return 0;
 +}
 +
-+/*
-+ * cy8ctmg110_resume
-+ */
-+
-+static int cy8ctmg110_resume(struct i2c_client *client)
++static void mrst_keypad_close(struct input_dev *dev)
 +{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + MAX_DIRECT_KEY_NUM;
 +
-+	if (device_may_wakeup(&client->dev))
-+		disable_irq_wake(client->irq);
-+	else {
-+		cy8ctmg110_power(1);
-+		ts->sleepmode = false;
-+		cy8ctmg110_set_sleepmode(ts);
-+	}
-+	if (ts->polling)
-+		hrtimer_start(&ts->timer, ktime_set(10, 0), HRTIMER_MODE_REL);
-+	return 0;
++	int i;
++	/* free occupied pins */
++	for (i = KEYPAD_MATRIX_GPIO_IN_PIN; i < pins; i++)
++		gpio_free(i);
 +}
++
++static int __devinit mrst_keypad_probe(struct pci_dev *pdev,
++			const struct pci_device_id *ent)
++{
++	struct mrst_keypad *keypad;
++	struct input_dev *input_dev;
++	int error;
++
++#ifndef MODULE
++	printk(KERN_INFO MRST_KEYPAD_DRIVER_NAME "\n");
 +#endif
 +
-+/*
-+ * cy8ctmg110_remove
-+ */
++	keypad = kzalloc(sizeof(struct mrst_keypad), GFP_KERNEL);
++	if (keypad == NULL) {
++		dev_err(&pdev->dev, "failed to allocate driver data\n");
++		return -ENOMEM;
++	}
 +
-+static int cy8ctmg110_remove(struct i2c_client *client)
-+{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
++	error = pci_enable_device(pdev);
++	if (error || (pdev->irq < 0)) {
++		dev_err(&pdev->dev, "failed to enable device/get irq\n");
++		error = -ENXIO;
++		goto failed_free;
++	}
 +
-+	cy8ctmg110_power(0);
++	error = pci_request_regions(pdev, DRV_NAME);
++	if (error) {
++		dev_err(&pdev->dev, "failed to request I/O memory\n");
++		goto failed_free;
++	}
 +
-+	if (ts->polling)
-+		hrtimer_cancel(&ts->timer);
-+	free_irq(client->irq, ts);
-+	input_unregister_device(ts->input);
-+	gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+	gpio_free(CY8CTMG110_RESET_PIN_GPIO);
-+	kfree(ts);
++	keypad->mmio_base = ioremap(pci_resource_start(pdev, 0),
++		pci_resource_len(pdev, 0));
++	if (keypad->mmio_base == NULL) {
++		dev_err(&pdev->dev, "failed to remap I/O memory\n");
++		error = -ENXIO;
++		goto failed_free_mem;
++	}
++
++	/* Create and register the input driver. */
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		error = -ENOMEM;
++		goto failed_free_io;
++	}
++
++	input_dev->name = pci_name(pdev);
++	input_dev->id.bustype = BUS_PCI;
++	input_dev->open = mrst_keypad_open;
++	input_dev->close = mrst_keypad_close;
++	input_dev->dev.parent = &pdev->dev;
++
++	input_dev->keycode = keypad->matrix_keycodes;
++	input_dev->keycodesize = sizeof(unsigned int);
++	input_dev->keycodemax = ARRAY_SIZE(mrst_keycode);
++
++	keypad->input_dev = input_dev;
++	keypad->fn = 0;
++	keypad->numlck = 0;
++	/*FIXME*/keypad->count = 0;
++	input_set_drvdata(input_dev, keypad);
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
++		BIT_MASK(EV_REL);
++
++	mrst_keypad_build_keycode(keypad);
++	pci_set_drvdata(pdev, keypad);
++
++	error = request_irq(pdev->irq, mrst_keypad_irq_handler, IRQF_SHARED,
++		pci_name(pdev), keypad);
++	if (error) {
++		dev_err(&pdev->dev, "failed to request IRQ\n");
++		goto failed_free_dev;
++	}
++
++	/* Register the input device */
++	error = input_register_device(input_dev);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register input device\n");
++		goto failed_free_irq;
++	}
++
++	printk(KERN_INFO "*** keypad driver load successfully ***\n");
 +	return 0;
++
++failed_free_irq:
++	free_irq(pdev->irq, keypad);
++	pci_set_drvdata(pdev, NULL);
++failed_free_dev:
++	input_free_device(input_dev);
++failed_free_io:
++	iounmap(keypad->mmio_base);
++failed_free_mem:
++	pci_release_regions(pdev);
++failed_free:
++	kfree(keypad);
++	return error;
 +}
 +
-+static struct i2c_device_id cy8ctmg110_idtable[] = {
-+	{CY8CTMG110_DRIVER_NAME, 1},
-+	{}
++static void __devexit mrst_keypad_remove(struct pci_dev *pdev)
++{
++	struct mrst_keypad *keypad = pci_get_drvdata(pdev);
++	int i;
++	int pins = KEYPAD_MATRIX_GPIO_IN_PIN + MAX_MATRIX_KEY_ROWS +
++	    MAX_MATRIX_KEY_COLS + MAX_DIRECT_KEY_NUM;
++
++	for (i = pins - 1; i > KEYPAD_MATRIX_GPIO_IN_PIN; i--)
++		gpio_free(i);
++
++	free_irq(pdev->irq, keypad);
++	input_unregister_device(keypad->input_dev);
++	iounmap(keypad->mmio_base);
++	pci_release_regions(pdev);
++	pci_set_drvdata(pdev, NULL);
++	kfree(keypad);
++}
++
++static struct pci_device_id keypad_pci_tbl[] = {
++	{0x8086, 0x0805, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{0,}
 +};
++MODULE_DEVICE_TABLE(pci, keypad_pci_tbl);
 +
-+MODULE_DEVICE_TABLE(i2c, cy8ctmg110_idtable);
-+
-+static struct i2c_driver cy8ctmg110_driver = {
-+	.driver = {
-+		   .owner = THIS_MODULE,
-+		   .name = CY8CTMG110_DRIVER_NAME,
-+		   .bus = &i2c_bus_type,
-+		   },
-+	.id_table = cy8ctmg110_idtable,
-+	.probe = cy8ctmg110_probe,
-+	.remove = cy8ctmg110_remove,
++static struct pci_driver mrst_keypad_driver = {
++	.name		= DRV_NAME,
++	.id_table	= keypad_pci_tbl,
++	.probe		= mrst_keypad_probe,
++	.remove		= __devexit_p(mrst_keypad_remove),
 +#ifdef CONFIG_PM
-+	.suspend = cy8ctmg110_suspend,
-+	.resume = cy8ctmg110_resume,
-+#endif
++	.suspend	= NULL,
++	.resume		= NULL,
++#endif /* CONFIG_PM */
 +};
 +
-+static int __init cy8ctmg110_init(void)
++static int __init mrst_keypad_init(void)
 +{
-+	return i2c_add_driver(&cy8ctmg110_driver);
++	return pci_register_driver(&mrst_keypad_driver);
 +}
 +
-+static void __exit cy8ctmg110_exit(void)
++static void __exit mrst_keypad_exit(void)
 +{
-+	i2c_del_driver(&cy8ctmg110_driver);
++	pci_unregister_driver(&mrst_keypad_driver);
 +}
 +
-+module_init(cy8ctmg110_init);
-+module_exit(cy8ctmg110_exit);
++module_init(mrst_keypad_init);
++module_exit(mrst_keypad_exit);
 +
-+MODULE_AUTHOR("Samuli Konttila <samuli.konttila@aavamobile.com>");
-+MODULE_DESCRIPTION("cy8ctmg110 TouchScreen Driver");
++MODULE_DESCRIPTION("MRST Keypad Controller Driver");
 +MODULE_LICENSE("GPL v2");
 

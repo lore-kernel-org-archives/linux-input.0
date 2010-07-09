@@ -1,466 +1,818 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: [PATCH] cy8ctmg110: capacitive touchscreen support
-Date: Fri, 09 Jul 2010 16:36:32 +0100
-Message-ID: <20100709153546.31399.14995.stgit@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: introduce medfield keypad driver
+Date: Fri, 9 Jul 2010 09:21:13 -0700
+Message-ID: <20100709162113.GA19827@core.coreip.homeip.net>
+References: <20100708164127.22458.31279.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:52977 "EHLO mga01.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757440Ab0GIQFY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jul 2010 12:05:24 -0400
+Received: from mail-px0-f174.google.com ([209.85.212.174]:38950 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755883Ab0GIQVX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jul 2010 12:21:23 -0400
+Received: by pxi14 with SMTP id 14so899300pxi.19
+        for <linux-input@vger.kernel.org>; Fri, 09 Jul 2010 09:21:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20100708164127.22458.31279.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Alan Cox <alan@linux.intel.com>
+Cc: linux-input@vger.kernel.org
 
-From: Samuli Konttila <samuli.konttila@aavamobile.com>
+On Thu, Jul 08, 2010 at 05:41:33PM +0100, Alan Cox wrote:
+> From: Zheng Ba <zheng.ba@intel.com>
+> 
+> An i2c bus driver for the Intel Medfield keypad interface.
+> 
+> Signed-off-by: Zheng Ba <zheng.ba@intel.com>
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
+> ---
+> 
+>  drivers/input/keyboard/Kconfig       |   10 +
+>  drivers/input/keyboard/Makefile      |    1 
+>  drivers/input/keyboard/mfld_keypad.c |  613 ++++++++++++++++++++++++++++++++++
+>  drivers/input/keyboard/mfld_keypad.h |   56 +++
+>  4 files changed, 680 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/keyboard/mfld_keypad.c
+>  create mode 100644 drivers/input/keyboard/mfld_keypad.h
+> 
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 950f6d1..10cc686 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -309,6 +309,16 @@ config KEYBOARD_MCS
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called mcs_touchkey.
+>  
+> +config KEYBOARD_MFLD
+> +	tristate "Medfield I2C keypad support"
+> +	depends on I2C && GPIOLIB && X86_MRST
+> +	help
+> +	  Say Y here if you want to get support for the keypad controller
+> +	  on the Medfield (MFLD) platform of Intel MID.
+> +
+> +	  To compile this as a module, choose M here: the
+> +	  module will be called mfld_keypad.
+> +
+>  config KEYBOARD_IMX
+>  	tristate "IMX keypad support"
+>  	depends on ARCH_MXC
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+> index a1f5e9d..9672c3d 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -14,6 +14,7 @@ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
+>  obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
+>  obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
+>  obj-$(CONFIG_KEYBOARD_INTEL_MID)	+= intel_mid_keypad.o
+> +obj-$(CONFIG_KEYBOARD_MFLD)		+= mfld_keypad.o
+>  obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
+>  obj-$(CONFIG_KEYBOARD_TCA6416)		+= tca6416-keypad.o
+>  obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+> diff --git a/drivers/input/keyboard/mfld_keypad.c b/drivers/input/keyboard/mfld_keypad.c
+> new file mode 100644
+> index 0000000..096349a
+> --- /dev/null
+> +++ b/drivers/input/keyboard/mfld_keypad.c
+> @@ -0,0 +1,613 @@
+> +/*
+> + * drivers/input/keyboard/mfld_keypad.c
+> + *
+> + * Copyright (c) 2010 Intel Corporation.
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms and conditions of the GNU General Public License,
+> + * version 2, as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope it will be useful, but WITHOUT
+> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> + * more details.
+> + *
+> + * You should have received a copy of the GNU General Public License along with
+> + * this program; if not, write to the Free Software Foundation, Inc.,
+> + * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> + *
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/sched.h>
+> +#include <linux/mutex.h>
+> +#include <linux/delay.h>
+> +#include <linux/input.h>
+> +#include <linux/device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/slab.h>
+> +
+> +#include "mfld_keypad.h"
+> +
+> +/* commands to send to the chip */
+> +#define MFLD_KEYPAD_CMD_RSTCTRL		0x82	/* the reset register */
+> +#define MFLD_KEYPAD_CMD_EXTRSTN		0x83	/* external reset ball enable */
+> +#define MFLD_KEYPAD_CMD_RSTINTCLR	0x84	/* clear the intrrupt caused
+> +						   by power-on */
+> +
+> +#define MFLD_KEYPAD_CMD_READ_INT	0x91	/* get interrupt status */
+> +
+> +#define MFLD_KEYPAD_CMD_AUTOSLPENA	0x8B	/* auto sleep enable */
+> +#define MFLD_KEYPAD_CMD_AUTOSLPTIMER	0x8C	/* min time to switch
+> +						   into auto sleep */
+> +#define MFLD_KEYPAD_CMD_WAKEUPEN	0x8E	/* wake-up automatically
+> +						   when i2c access */
+> +#define MFLD_KEYPAD_CMD_CLKEN		0x8A	/* enable internal clock */
+> +#define MFLD_KEYPAD_CMD_CLKCFG		0x89	/* clock configure,2x */
+> +#define MFLD_KEYPAD_CMD_IOCFG		0xA7	/* input/output configure */
+> +#define MFLD_KEYPAD_CMD_IOPCEXT		0xA8	/* pull up resistor
+> +						   programming */
+> +#define MFLD_KEYPAD_CMD_IOPC0		0xAA
+> +#define MFLD_KEYPAD_CMD_IOPC1		0xAC
+> +#define MFLD_KEYPAD_CMD_IOPC2		0xAE
+> +
+> +/* keyboard read event */
+> +#define MFLD_KEYPAD_FIFO_LEN		8
+> +#define MFLD_KEYPAD_CMD_READ_FIFO	0x10	/* event buffer for key press,
+> +						   EVTCODE reg */
+> +#define MFLD_KEYPAD_CMD_KBDRIS		0x06	/* kbd raw interrupt register */
+> +#define MFLD_KEYPAD_CMD_KBDMIS		0x07	/* kbd mask interrupt reg */
+> +#define MFLD_KEYPAD_CMD_KBDIC		0x08	/* clear the kbd interrupt &
+> +						   event buffer */
+> +#define MFLD_KEYPAD_CMD_KBDMSK		0x09	/* KBD mask register */
+> +#define MFLD_KEYPAD_CMD_KBDMFS		0x8F	/* KBD modified feature set */
+> +#define MFLD_KEYPAD_CMD_GPIODIR2	0xC8	/* gpio input/ output */
+> +#define MFLD_KEYPAD_CMD_GPIODIR1	0xC7	/* bit clear after reset */
+> +#define MFLD_KEYPAD_CMD_GPIODIR0	0xC6
+> +#define MFLD_KEYPAD_CMD_GPIODATA2	0xC4	/* MASK & Data bit */
+> +#define MFLD_KEYPAD_CMD_GPIODATA1	0xC2
+> +#define MFLD_KEYPAD_CMD_GPIODATA0	0xC0
+> +
+> +/* About the direct key function, maybe non-used here */
+> +#define MFLD_KEYPAD_CMD_DEVTCODE	0xE6	/* direct key event */
+> +#define MFLD_KEYPAD_CMD_DEBOUNCE	0xE8	/* direct key debounce */
+> +#define MFLD_KEYPAD_CMD_DIRECT0		0xEC	/* direct key enable */
+> +#define MFLD_KEYPAD_CMD_DIRECT1		0xED
+> +#define MFLD_KEYPAD_CMD_DIRECT2		0xEE
+> +#define MFLD_KEYPAD_CMD_DIRECT3		0xEF
+> +#define MFLD_KEYPAD_CMD_DKBDRIS		0xF0	/* unmasked direct key intr */
+> +#define MFLD_KEYPAD_CMD_DKBDMIS		0xF1	/* key mask interrupt */
+> +#define MFLD_KEYPAD_CMD_DKBDIC		0xF2	/* direct key intr clear */
+> +#define MFLD_KEYPAD_CMD_DKBDMSK		0xF3	/* direct key mask register */
+> +
+> +/* keyboard setting registers */
+> +#define MFLD_KEYPAD_CMD_KBDSETTLE	0x01	/* setup of init wait period */
+> +#define MFLD_KEYPAD_CMD_KBDBOUNCE	0x02	/* setup of de-bouncing */
+> +#define MFLD_KEYPAD_CMD_KBDSIZE		0x03	/* keyboard matrix setup */
+> +#define MFLD_KEYPAD_CMD_KBDDEDCFG	0x04	/* dedicated key setup */
+> +
+> +/* For detected */
+> +#define MFLD_KEYPAD_CMD_MANUFACT	0x80	/* manufact.code */
+> +#define MFLD_KEYPAD_CMD_SWVERSION	0x81	/* SW version */
+> +
+> +/* interrupt status */
+> +#define INT_KEYPAD	0x40	/* kbd irq bit */
+> +#define INT_PORIRQ	0x80	/* when power on, the bit is set */
+> +#define INT_MELINT	0x08	/* more than 8 key events overflow */
+> +
+> +#define MFLD_KEYPAD_INT_GPIO	51
+> +#define MFLD_KEYPAD_RST_GPIO	173
+> +
+> +/* XXX backlight controls */
+> +#define PWM1CLKDIV0	0x64
+> +#define PWM2CLKDIV1	0x65
+> +#define PWM2DUTYCYCLE	0x69	/* brightness control */
+> +
+> +struct mfld_keypad_chip {
+> +	/* device lock */
+> +	struct mutex lock;
+> +	struct i2c_client *client;
+> +	struct work_struct work;
+> +	struct input_dev *idev;
+> +	bool kp_enabled;
+> +	bool pm_suspend;
+> +	char phys[32];
+> +	const unsigned short *keymap;
+> +	int size_x;
+> +	int size_y;
+> +	int shift_down;
+> +};
+> +
+> +#define work_to_mfld_keypad(w)	 container_of(w, struct	mfld_keypad_chip, work)
+> +#define client_to_mfld_keypad(c) container_of(c, struct mfld_keypad_chip, \
+> +						client)
+> +#define dev_to_mfld_keypad(d)	 container_of(c, struct mfld_keypad_chip, \
+> +						client->dev)
+> +
+> +#define MFLD_KEYPAD_MAX_DATA	8
+> +
+> +/*
+> + * To write, access the chip's address in write mode, and dump the
+> + * command and data on the bus. The command and data are taken as
+> + * sequential u8s out of varargs, to a maxinum of MFLD_KEYPAD_MAX_DATA
+> + */
+> +static int mfld_keypad_write(struct mfld_keypad_chip *tc, int len, ...)
+> +{
+> +	int ret, i;
+> +	va_list ap;
+> +	u8 data[MFLD_KEYPAD_MAX_DATA];
+> +
+> +	va_start(ap, len);
+> +	if (len > MFLD_KEYPAD_MAX_DATA) {
+> +		WARN_ON(1);
+> +		dev_err(&tc->client->dev, "tried to send %d bytes\n", len);
+> +		va_end(ap);
+> +		return 0;
+> +	}
+> +
+> +	for (i = 0; i < len; i++)
+> +		data[i] = va_arg(ap, int);
+> +	va_end(ap);
+> +
+> +	/*
+> +	 * If the host is asleep, send again when get NACK
+> +	 */
+> +	ret = i2c_master_send(tc->client, data, len);
+> +	if (unlikely(ret == -EREMOTEIO))
+> +		ret = i2c_master_send(tc->client, data, len);
+> +
+> +	if (unlikely(ret != len))
+> +		dev_err(&tc->client->dev, "sent %d bytes of %d total\n",
+> +			len, ret);
+> +
+> +	return ret;
+> +}
+> +
+> +/*
+> + * To read, first send the command byte and end the transaction.
+> + * Then we can get the data in read mode.
+> + */
+> +static int mfld_keypad_read(struct mfld_keypad_chip *tc,
+> +			    u8 cmd, u8 *buf, int len)
+> +{
+> +	int ret;
+> +	/*
+> +	 * In case of host's asleep, send again when get NACK
+> +	 */
+> +	ret = i2c_master_send(tc->client, &cmd, 1);
+> +	if (unlikely(ret == -EREMOTEIO))
+> +		ret = i2c_master_send(tc->client, &cmd, 1);
+> +
+> +	if (unlikely(ret != 1)) {
+> +		dev_err(&tc->client->dev, "sending command 0x%2x failed.\n",
+> +			cmd);
+> +		return 0;
+> +	}
+> +
+> +	ret = i2c_master_recv(tc->client, buf, len);
+> +	if (unlikely(ret != len))
+> +		dev_err(&tc->client->dev, "want %d bytes, got %d\n", len, ret);
+> +
 
-Add support for the cy8ctmg110 capacitive touchscreen used on some embedded
-devices.
-
-(Some clean up by Alan Cox)
-
-- Moved the hardcoded GPIO lines into platform data
-
-Signed-off-by: Alan Cox <alan@linux.intel.com>
----
-
- drivers/input/touchscreen/Kconfig         |   14 +
- drivers/input/touchscreen/Makefile        |    1 
- drivers/input/touchscreen/cy8ctmg110_ts.c |  389 +++++++++++++++++++++++++++++
- 3 files changed, 404 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/cy8ctmg110_ts.c
+Maybe use i2c_transfer()? Alan, could you please CC Jean for I2C bits review?
 
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 625e625..8393f47 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -612,4 +612,18 @@ config TOUCHSCREEN_STMPE
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called stmpe-ts.
- 
-+config TOUCHSCREEN_CY8CTMG110
-+	tristate "cy8ctmg110 touchscreen"
-+	depends on I2C
-+	depends on GPIOLIB
-+
-+	help
-+	  Say Y here if you have a cy8ctmg110 capacitive touchscreen on
-+	  an AAVA device.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called cy8ctmg110_ts.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 963fec2..662d066 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -14,6 +14,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
- obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
-+obj-$(CONFIG_TOUCHSCREEN_CY8CTMG110)    += cy8ctmg110_ts.o
- obj-$(CONFIG_TOUCHSCREEN_DYNAPRO)	+= dynapro.o
- obj-$(CONFIG_TOUCHSCREEN_HAMPSHIRE)	+= hampshire.o
- obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-new file mode 100644
-index 0000000..ce240e3
---- /dev/null
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -0,0 +1,389 @@
-+/*
-+ * cy8ctmg110_ts.c Driver for cypress touch screen controller
-+ * Copyright (c) 2009 Aava Mobile
-+ *
-+ * Some cleanups by Alan Cox <alan@linux.intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/i2c.h>
-+#include <linux/timer.h>
-+#include <linux/gpio.h>
-+#include <linux/hrtimer.h>
-+
-+#define CY8CTMG110_DRIVER_NAME      "cy8ctmg110"
-+
-+/* HW definitions */
-+#define CY8CTMG110_RESET_PIN_GPIO	43
-+#define CY8CTMG110_IRQ_PIN_GPIO		59
-+#define CY8CTMG110_I2C_ADDR		0x38
-+#define CY8CTMG110_TOUCH_IRQ		21
-+
-+/* Touch coordinates */
-+#define CY8CTMG110_X_MIN		0
-+#define CY8CTMG110_Y_MIN		0
-+#define CY8CTMG110_X_MAX		759
-+#define CY8CTMG110_Y_MAX		465
-+
-+
-+/* cy8ctmg110 register definitions */
-+#define CY8CTMG110_TOUCH_WAKEUP_TIME	0
-+#define CY8CTMG110_TOUCH_SLEEP_TIME	2
-+#define CY8CTMG110_TOUCH_X1		3
-+#define CY8CTMG110_TOUCH_Y1		5
-+#define CY8CTMG110_TOUCH_X2		7
-+#define CY8CTMG110_TOUCH_Y2		9
-+#define CY8CTMG110_FINGERS		11
-+#define CY8CTMG110_GESTURE		12
-+#define CY8CTMG110_REG_MAX		13
-+
-+#define CY8CTMG110_POLL_TIMER_DELAY	(1000*1000*100)
-+#define TOUCH_MAX_I2C_FAILS		50
-+
-+/*
-+ * The touch driver structure.
-+ */
-+struct cy8ctmg110 {
-+	struct input_dev *input;
-+	char phys[32];
-+	struct i2c_client *client;
-+	spinlock_t lock;
-+};
-+
-+/*
-+ * cy8ctmg110_power is the routine that is called when touch hardware
-+ * will powered off or on.
-+ */
-+static void cy8ctmg110_power(bool poweron)
-+{
-+	gpio_direction_output(CY8CTMG110_RESET_PIN_GPIO, 1 - poweron);
-+}
-+
-+/*
-+ * cy8ctmg110_write_req write regs to the i2c devices
-+ */
-+static int cy8ctmg110_write_regs(struct cy8ctmg110 *tsc, unsigned char reg,
-+		unsigned char len, unsigned char *value)
-+{
-+	struct i2c_client *client = tsc->client;
-+	unsigned int ret;
-+	unsigned char i2c_data[6];
-+
-+	BUG_ON(len > 5);
-+
-+	i2c_data[0] = reg;
-+	memcpy(i2c_data + 1, value, len);
-+
-+	ret = i2c_master_send(client, i2c_data, len + 1);
-+	if (ret != 1) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110 touch : i2c write data cmd failed\n");
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * cy8ctmg110_read_req read regs from i2c devise
-+ */
-+
-+static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
-+		unsigned char *i2c_data, unsigned char len, unsigned char cmd)
-+{
-+	struct i2c_client *client = tsc->client;
-+	unsigned int ret;
-+	struct i2c_msg msg[2] = {
-+		/* first write slave position to i2c devices */
-+		{ client->addr, 0, 1, &cmd },
-+		/* Second read data from position */
-+		{ client->addr, I2C_M_RD, len, i2c_data }
-+	}
-+
-+	ret = i2c_transfer(client->adapter, msg, 2);
-+	if (ret < 0)
-+		return ret;
-+	return 0;
-+}
-+
-+/*
-+ * cy8ctmg110_touch_pos check touch position from i2c devices
-+ */
-+static int cy8ctmg110_touch_pos(struct cy8ctmg110 *tsc)
-+{
-+	unsigned char reg_p[CY8CTMG110_REG_MAX];
-+	int x, y;
-+
-+	memset(reg_p, 0, CY8CTMG110_REG_MAX);
-+
-+	/* Reading coordinates */
-+	if (cy8ctmg110_read_regs(tsc, reg_p, 9, CY8CTMG110_TOUCH_X1) != 0)
-+		return -EIO;
-+
-+	y = reg_p[2] << 8 | reg_p[3];
-+	x = reg_p[0] << 8 | reg_p[1];
-+
-+	/* Number of touch */
-+	if (reg_p[8] == 0) {
-+		struct input_dev *input = tsc->input;
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_sync(input);
-+	} else  {
-+		input_report_key(input, BTN_TOUCH, 1);
-+		input_report_abs(input, ABS_X, x);
-+		input_report_abs(input, ABS_Y, y);
-+		input_sync(input);
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * cy8ctmg110_init_controller set init value to touchcontroller
-+ */
-+static bool cy8ctmg110_set_sleepmode(struct cy8ctmg110 *ts, bool sleep)
-+{
-+	unsigned char reg_p[3];
-+
-+	if (sleep == true) {
-+		reg_p[0] = 0x00;
-+		reg_p[1] = 0xff;
-+		reg_p[2] = 5;
-+	} else {
-+		reg_p[0] = 0x10;
-+		reg_p[1] = 0xff;
-+		reg_p[2] = 0;
-+	}
-+	if (cy8ctmg110_write_regs(ts, CY8CTMG110_TOUCH_WAKEUP_TIME, 3, reg_p))
-+		return false;
-+	return true;
-+}
-+
-+/*
-+ * cy8ctmg110_irq_handler irq handling function
-+ */
-+
-+static irqreturn_t cy8ctmg110_irq_handler(int irq, void *dev_id)
-+{
-+	struct cy8ctmg110 *tsc = (struct cy8ctmg110 *) dev_id;
-+	cy8ctmg110_touch_pos(tsc);
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit cy8ctmg110_probe(struct i2c_client *client,
-+					const struct i2c_device_id *id)
-+{
-+	struct cy8ctmg110 *ts;
-+	struct input_dev *input_dev;
-+	int err;
-+
-+	client->irq = CY8CTMG110_TOUCH_IRQ;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+					I2C_FUNC_SMBUS_READ_WORD_DATA))
-+		return -EIO;
-+
-+	ts = kzalloc(sizeof(struct cy8ctmg110), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+
-+	if (!ts || !input_dev) {
-+		err = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	ts->client = client;
-+	i2c_set_clientdata(client, ts);
-+
-+	ts->input = input_dev;
-+
-+	snprintf(ts->phys, sizeof(ts->phys), "%s/input0",
-+						dev_name(&client->dev));
-+
-+	input_dev->name = CY8CTMG110_DRIVER_NAME " Touchscreen";
-+	input_dev->phys = ts->phys;
-+	input_dev->id.bustype = BUS_I2C;
-+	input_dev->dev.parent = client->dev;
-+
-+	spin_lock_init(&ts->lock);
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+
-+	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
-+
-+	input_set_abs_params(input_dev, ABS_X,
-+			CY8CTMG110_X_MIN, CY8CTMG110_X_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y,
-+			CY8CTMG110_Y_MIN, CY8CTMG110_Y_MAX, 0, 0);
-+
-+	err = gpio_request(CY8CTMG110_RESET_PIN_GPIO, NULL);
-+
-+	if (err) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110_ts: Unable to request GPIO pin %d.\n",
-+						CY8CTMG110_RESET_PIN_GPIO);
-+		goto err_free_mem;
-+	}
-+	cy8ctmg110_power(1);
-+	cy8ctmg110_set_sleepmode(ts, false);
-+
-+	hrtimer_init(&ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	ts->timer.function = cy8ctmg110_timer;
-+
-+	err = gpio_request(CY8CTMG110_IRQ_PIN_GPIO, "touch_irq_key");
-+	if (err < 0) {
-+		dev_err(&client->dev,
-+		"cy8ctmg110_ts: failed to request GPIO %d, error %d\n",
-+					CY8CTMG110_IRQ_PIN_GPIO, err);
-+		goto failed_irq;
-+	}
-+	err = gpio_direction_input(CY8CTMG110_IRQ_PIN_GPIO);
-+	if (err < 0) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110_ts: failed to configure input direction for GPIO %d, error %d\n",
-+					CY8CTMG110_IRQ_PIN_GPIO, err);
-+		goto failed_irq2;
-+	}
-+	client->irq = gpio_to_irq(CY8CTMG110_IRQ_PIN_GPIO);
-+	if (client->irq < 0) {
-+		err = client->irq;
-+		dev_err(&client->dev,
-+			"cy8ctmg110_ts: Unable to get irq number for GPIO %d, error %d\n",
-+					CY8CTMG110_IRQ_PIN_GPIO, err);
-+		goto failed_irq2;
-+	}
-+	err = request_threaded_irq(client->irq, cy8ctmg110_irq_handler,
-+				IRQF_TRIGGER_RISING | IRQF_SHARED,
-+					"touch_reset_key", ts);
-+	if (err < 0) {
-+		dev_err(&client->dev,
-+			"cy8ctmg110 irq %d busy? error %d\n", client->irq, err);
-+		got failed_irq2;
-+	}
-+	err = input_register_device(input_dev);
-+	if (!err)
-+		return 0;
-+
-+	free_irq(client->irq, ts);
-+failed_irq2:
-+	gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+failed_irq:
-+	gpio_free(CY8CTMG110_RESET_PIN_GPIO);
-+err_free_mem:
-+	input_free_device(input_dev);
-+	kfree(ts);
-+	return err;
-+}
-+
-+#ifdef CONFIG_PM
-+/*
-+ * cy8ctmg110_suspend
-+ *
-+ * Put the hardware into sleep mode and power it down
-+ */
-+
-+static int cy8ctmg110_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
-+
-+	if (device_may_wakeup(&client->dev))
-+		enable_irq_wake(client->irq);
-+	else {
-+		cy8ctmg110_set_sleepmode(ts, true);
-+		cy8ctmg110_power(0);
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * cy8ctmg110_resume
-+ *
-+ * Power the touchscreen back up.
-+ */
-+
-+static int cy8ctmg110_resume(struct i2c_client *client)
-+{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
-+
-+	if (device_may_wakeup(&client->dev))
-+		disable_irq_wake(client->irq);
-+	else {
-+		cy8ctmg110_power(1);
-+		cy8ctmg110_set_sleepmode(ts, false);
-+	}
-+	return 0;
-+}
-+#endif
-+
-+/*
-+ * cy8ctmg110_remove
-+ */
-+
-+static int __devexit cy8ctmg110_remove(struct i2c_client *client)
-+{
-+	struct cy8ctmg110 *ts = i2c_get_clientdata(client);
-+
-+	cy8ctmg110_power(0);
-+
-+	free_irq(client->irq, ts);
-+	input_unregister_device(ts->input);
-+	gpio_free(CY8CTMG110_IRQ_PIN_GPIO);
-+	gpio_free(CY8CTMG110_RESET_PIN_GPIO);
-+	kfree(ts);
-+	return 0;
-+}
-+
-+static struct i2c_device_id cy8ctmg110_idtable[] = {
-+	{CY8CTMG110_DRIVER_NAME, 1},
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, cy8ctmg110_idtable);
-+
-+static struct i2c_driver cy8ctmg110_driver = {
-+	.driver = {
-+		   .owner = THIS_MODULE,
-+		   .name = CY8CTMG110_DRIVER_NAME,
-+		   .bus = &i2c_bus_type,
-+		   },
-+	.id_table = cy8ctmg110_idtable,
-+	.probe = cy8ctmg110_probe,
-+	.remove = __devexit_p(cy8ctmg110_remove),
-+#ifdef CONFIG_PM
-+	.suspend = cy8ctmg110_suspend,
-+	.resume = cy8ctmg110_resume,
-+#endif
-+};
-+
-+static int __init cy8ctmg110_init(void)
-+{
-+	return i2c_add_driver(&cy8ctmg110_driver);
-+}
-+
-+static void __exit cy8ctmg110_exit(void)
-+{
-+	i2c_del_driver(&cy8ctmg110_driver);
-+}
-+
-+module_init(cy8ctmg110_init);
-+module_exit(cy8ctmg110_exit);
-+
-+MODULE_AUTHOR("Samuli Konttila <samuli.konttila@aavamobile.com>");
-+MODULE_DESCRIPTION("cy8ctmg110 TouchScreen Driver");
-+MODULE_LICENSE("GPL v2");
+> +	return ret;
+> +}
+> +
+> +static int mfld_keypad_configure(struct mfld_keypad_chip *tc)
+> +{
+> +	int keysize = (tc->size_x << 4) | tc->size_y;
+> +
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_CLKEN, 0x01);
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDSIZE, keysize);
+> +	mfld_keypad_write(tc, 3, MFLD_KEYPAD_CMD_KBDDEDCFG, 0xFF, 0xFF);
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_CLKCFG, 0x45);
+> +	/* maximum debounce time : 15.6ms */
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDBOUNCE, 0x02);
+> +
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDMSK, 0x0F);
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_DKBDMSK, 0x03);
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDIC, 0x83);
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_DKBDIC, 0x01);
+> +
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDMSK, 0x00);
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * AT-style: low 7 bits are the keycode, and the top
+> + * bit indicates the state( 1 for down, 0 for up)
+> + */
+> +static inline u8 mfld_keypad_whichkey(u8 event)
+> +{
+> +	/* bit[7-4]:key row, bit[3-0]:key col */
+> +	u8 row, col;
+> +	u8 key;
+> +	row = (event & 0x70) >> 4;
+> +	col = (event & 0x0F);
+> +
+> +	key = row * 8 + col;
+> +
+> +	return key;
+> +}
+> +
+> +static inline int mfld_keypad_ispress(u8 event)
+> +{
+> +	/* 1: pressed, 0: released */
+> +	return (event & 0x80) ? 0 : 1;
+> +}
+> +
+> +/* Reset the keybit of input */
+> +static void set_keymap_bit(struct mfld_keypad_chip *tc)
+> +{
+> +	int i;
+> +	for (i = 0; i < KEYMAP_SIZE; i++)
+> +		__set_bit(tc->keymap[i], tc->idev->keybit);
+> +}
+> +
+> +/* Shift key report needed? */
+> +static int shift_key_needed(struct mfld_keypad_chip *tc, u8 key)
+> +{
+> +	if (tc->keymap == mfld_keymap_fn) {
+> +		switch (key) {
+> +		case 0: /* '~' */
+> +		case 1:	/* '@' */
+> +		case 2:	/* '#' */
+> +		case 3: /* '$' */
+> +		case 4:	/* '%' */
+> +		case 5:	/* '^' */
+> +		case 6:	/* '&' */
+> +		case 8:	/* '|' */
+> +		case 22:	/* ':' */
+> +		case 29:	/* '_' */
+> +		case 30:	/* '!' */
+> +		case 31:	/* '?' */
+> +		case 32:	/* '(' */
+> +		case 42:	/* '"' */
+> +		case 44:	/* ')' */
+> +			return 1;
+> +		default:
+> +			return 0;
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+> +/* Report the 'right shift' key */
+> +static void report_shift_key(struct mfld_keypad_chip *tc, u8 key, int isdown)
+> +{
+> +	if (tc->kp_enabled) {
+> +		/* The right shift key stored at last position:47 */
+> +		input_report_key(tc->idev, tc->keymap[RIGHT_SHIFT_KEY], isdown);
+> +		input_sync(tc->idev);
+> +	}
+> +}
+> +
+> +/* Report the key code */
+> +static void submit_key(struct mfld_keypad_chip *tc, u8 key,
+> +		       unsigned short keycode, int isdown)
+> +{
+> +	/*
+> +	 * Translate the non-exist keycode keys.
+> +	 * when key press down, report the 'shift' key pressed ahead.
+> +	 */
 
+This is cute, French, Czech and host of other nationalities will surely
+appreciate.
+
+Seriously, this stuff should be handled either by legacy keyboard driver
+keymaps or in userspace by X or whatever replaces it, with proper
+international keymaps, etc, etc, but not in kernel. Please remove it
+from this driver as well as the other keyboard driver you posted.
+
+> +
+> +	if (shift_key_needed(tc, key) && isdown)
+> +		report_shift_key(tc, key, isdown);
+> +
+> +	/* report the key */
+> +	if (tc->kp_enabled) {
+> +		input_report_key(tc->idev, keycode, isdown);
+> +		input_sync(tc->idev);
+> +	}
+> +
+> +	/*
+> +	 * When key press up, report the 'shift' up followed.
+> +	 */
+> +	if (shift_key_needed(tc, key) && !isdown)
+> +		report_shift_key(tc, key, isdown);
+> +
+> +	/*
+> +	 * if no keys are pressed anymore, remove the 'shift'
+> +	 */
+> +	if (i2c_smbus_read_byte_data(tc->client, 0x0B) == 0x7F) {
+> +		input_report_key(tc->idev, KEY_RIGHTSHIFT, 0);
+> +		input_report_key(tc->idev, KEY_LEFTSHIFT, 0);
+> +		input_sync(tc->idev);
+> +	}
+> +}
+> +
+> +/* Key event interrupt handler */
+> +static inline void process_keys(struct mfld_keypad_chip *tc)
+> +{
+> +	int ret;
+> +	u8 key_queue[MFLD_KEYPAD_FIFO_LEN];
+> +	int tail = 0;
+> +
+> +	u8 evtcode;
+> +
+> +	ret = mfld_keypad_read(tc, MFLD_KEYPAD_CMD_READ_FIFO, &evtcode, 1);
+> +	if (ret < 0) {
+> +		dev_err(&tc->client->dev, "Failed reading fifo\n");
+> +		return;
+> +	}
+> +
+> +	/* clear event buffer */
+> +	mfld_keypad_write(tc, 2, MFLD_KEYPAD_CMD_KBDIC, 0x83);
+> +
+> +	if (evtcode != 0x7F && evtcode != 0xFF) {
+> +		u8 key = mfld_keypad_whichkey(evtcode);
+> +		int isdown = mfld_keypad_ispress(evtcode);
+> +		unsigned short keycode = tc->keymap[key];
+> +
+> +		/* The function key pressed */
+> +		if (key == FN_KEY && isdown) {
+> +			tc->keymap = mfld_keymap_fn;
+> +			set_keymap_bit(tc);
+> +			keycode = tc->keymap[key];
+> +		}
+> +
+> +		/* Function key press up */
+> +		if (key == FN_KEY && !isdown) {
+> +			/*
+> +			 * dequeue the key_queue,
+> +			 * where keys stored while FN is pressed
+> +			 */
+> +			int j;
+> +			for (j = 0; j < tail; j++)	/* keys up */
+> +				submit_key(tc, key_queue[j],
+> +					   mfld_keymap_fn[key_queue[j]], 0);
+> +			tail = 0;
+> +
+> +			tc->keymap = mfld_keymap;
+> +			set_keymap_bit(tc);
+> +		}
+> +
+> +		if (tc->keymap == mfld_keymap_fn)
+> +			key_queue[tail++] = key;
+> +
+> +		submit_key(tc, key, keycode, isdown);
+> +	}
+> +}
+> +
+> +/*
+> + * Bottom Half: handle the interrupt by posting key events, or dealing with
+> + * errors appropriately
+> + */
+> +static void mfld_keypad_work(struct work_struct *work)
+> +{
+> +	struct mfld_keypad_chip *tc = work_to_mfld_keypad(work);
+> +	u8 ints = 0;
+> +
+> +	mutex_lock(&tc->lock);
+> +	while ((mfld_keypad_read(tc, MFLD_KEYPAD_CMD_READ_INT, &ints, 1) == 1)
+> +	       && ints) {
+> +		if (likely(ints & INT_KEYPAD))
+> +			process_keys(tc);
+> +	}
+> +
+> +	mutex_unlock(&tc->lock);
+> +}
+> +
+> +/*
+> + * We cannot use I2c in interrupt context, so we just schedule work.
+> + */
+> +static irqreturn_t mfld_keypad_irq(int irq, void *data)
+> +{
+> +	struct mfld_keypad_chip *tc = data;
+> +	schedule_work(&tc->work);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/* Return 0 if detection is successful, -ENODEV otherwise */
+> +static int mfld_keypad_detect(struct i2c_client *client,
+> +			      struct i2c_board_info *info)
+> +{
+> +	struct i2c_adapter *adapter = client->adapter;
+> +	int manufact, sw_ver;
+> +
+> +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
+> +
+> +		dev_err(&client->dev, "error checking function\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* validate vendor and revison */
+> +	manufact = i2c_smbus_read_byte_data(client,
+> +					    MFLD_KEYPAD_CMD_MANUFACT);
+> +	sw_ver = i2c_smbus_read_byte_data(client,
+> +					  MFLD_KEYPAD_CMD_SWVERSION);
+> +	if (manufact != 0x03 || sw_ver != 0xC0) {
+> +		dev_err(&client->dev, "error checking vendor and revision\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	i2c_smbus_write_byte_data(client, MFLD_KEYPAD_CMD_RSTINTCLR, 0x01);
+> +
+> +	dev_dbg(&client->dev, "Successfully detected the i2c keypad\n");
+> +	strlcpy(info->type, "mfld_keypad", I2C_NAME_SIZE);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devinit mfld_keypad_probe(struct i2c_client *client,
+> +				       const struct i2c_device_id *id)
+> +{
+> +	struct input_dev *idev;
+> +	struct mfld_keypad_chip *tc;
+> +	unsigned int irq;
+> +	int i, err;
+> +	int gpio;
+> +
+> +	tc = kzalloc(sizeof(*tc), GFP_KERNEL);
+> +	idev = input_allocate_device();
+> +	if (!tc || !idev) {
+> +		err = -ENOMEM;
+> +		goto fail1;
+> +	}
+> +
+> +	i2c_set_clientdata(client, tc);
+> +	tc->client = client;
+> +	tc->idev = idev;
+> +	tc->keymap = mfld_keymap;
+> +
+> +	mutex_init(&tc->lock);
+> +	INIT_WORK(&tc->work, mfld_keypad_work);
+> +
+> +	tc->size_x = SIZE_X;
+> +	tc->size_y = SIZE_Y;
+> +	dev_vdbg(&client->dev, "Keypad size: %d x %d\n",
+> +		 tc->size_x, tc->size_y);
+> +
+> +	mfld_keypad_configure(tc);
+> +
+> +	tc->kp_enabled = true;
+
+Why do you need this flag?
+
+> +
+> +	idev->name = "mfld_keypad";
+
+Setting up phys and parent device would be nice.
+
+> +	idev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+> +	    BIT_MASK(EV_REL);
+> +	idev->keycode = (unsigned short *)mfld_kesound;
+
+This cast indicates that the driver is doing wrong thing. Keymaps can be
+changed via EVIOCSKEYCODE. You need to allocate a copy of the keymap that
+is private to the device.
+
+> +	idev->keycodesize = sizeof(unsigned short);
+> +	idev->keycodemax = sizeof(mfld_keymap);
+> +
+> +	for (i = 0; i < KEYMAP_SIZE; i++)
+> +		set_bit(mfld_keymap[i], idev->keybit);
+> +
+> +	err = input_register_device(idev);
+> +	if (err) {
+> +		dev_dbg(&client->dev, "error register input device\n");
+> +		goto fail1;
+> +	}
+> +
+> +	gpio = MFLD_KEYPAD_INT_GPIO;
+> +	irq = gpio_to_irq(gpio);
+> +	if (irq < 0) {
+> +		dev_dbg(&client->dev, "error acquire IRQ to GPIO %d\n", gpio);
+
+Could you please fix the error messages so they sound a bit better?
+
+> +		err = irq;
+> +		goto fail2;
+> +	}
+> +	client->irq = irq;
+> +
+> +	err = request_irq(irq, mfld_keypad_irq,
+> +			  IRQF_SHARED | IRQ_TYPE_EDGE_FALLING,
+
+IRQ_TYPE_EDGE_FALLING is not supposed to be used here,
+IRQF_TRIGGER_FALLING is I believe. Also, as Ville mentioned, this shoudl
+be threaded IRQ.
+
+> +			  "mfld_keypad", tc);
+> +	if (err) {
+> +		dev_err(&client->dev, "could not get IRQ %d\n", irq);
+> +		goto fail2;
+> +	}
+> +
+> +	return 0;
+> +
+> +fail2:
+> +	input_unregister_device(idev);
+> +	idev = NULL;
+> +fail1:
+> +	input_free_device(idev);
+> +	kfree(tc);
+> +	return err;
+> +}
+> +
+> +static int __devexit mfld_keypad_remove(struct i2c_client *client)
+> +{
+> +	struct mfld_keypad_chip *tc = i2c_get_clientdata(client);
+> +
+> +	free_irq(client->irq, tc);
+> +	cancel_work_sync(&tc->work);
+> +
+> +	input_unregister_device(tc->idev);
+> +
+> +	kfree(tc);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +/*
+> + * The chip can switch off when there is no activity, so
+> + * explicit suspend is not needed
+> + */
+> +
+> +static int mfld_keypad_suspend(struct i2c_client *client, pm_message_t mesg)
+> +{
+> +	struct mfld_keypad_chip *tc = i2c_get_clientdata(client);
+> +
+> +	set_irq_wake(client->irq, 0);
+
+Hmm, I think you meant to enable wakeups here, no? Most drivers do:
+
+	if (device_may_wakeup(&client->dev))
+		enable_irq_wake(client->irq);
+
+and do
+
+	device_init_wakeup(&pdev->dev, 1);
+
+in probe().
+
+
+> +	disable_irq(client->irq);
+> +
+> +	mutex_lock(&tc->lock);
+> +	tc->pm_suspend = true;
+
+Useless locking here. And the flag itself.
+
+> +	mutex_unlock(&tc->lock);
+> +
+> +	return 0;
+> +}
+> +
+> +static int mfld_keypad_resume(struct i2c_client *client)
+> +{
+> +	struct mfld_keypad_chip *tc = i2c_get_clientdata(client);
+> +
+> +	mutex_lock(&tc->lock);
+> +	tc->pm_suspend = false;
+> +	mutex_unlock(&tc->lock);
+> +
+> +	enable_irq(client->irq);
+> +	set_irq_wake(client->irq, 1);
+> +
+> +	return 0;
+> +}
+> +
+> +#else
+> +#define mfld_keypad_suspend NULL
+> +#define mfld_keypad_resume NULL
+> +#endif
+> +
+> +/* Address to scan: 0x45-i2c slave addr*/
+> +static const unsigned short normal_i2c[] = { 0x45, I2C_CLIENT_END };
+> +
+> +static const struct i2c_device_id mfld_keypad_id[] = {
+> +	{"mfld_keypad", 0},
+> +	{}
+> +};
+> +
+> +static struct i2c_driver mfld_keypad_i2c_driver = {
+> +	.driver = {
+> +		   .name = "mfld_keypad",
+> +		   },
+> +	.probe = mfld_keypad_probe,
+> +	.remove = __devexit_p(mfld_keypad_remove),
+> +	.suspend = mfld_keypad_suspend,
+> +	.resume = mfld_keypad_resume,
+> +	.id_table = mfld_keypad_id,
+> +	.detect = mfld_keypad_detect,
+> +	.address_list = normal_i2c,
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, mfld_keypad_id);
+> +
+> +static int __init mfld_keypad_init(void)
+> +{
+> +	/*
+> +	 * TODO
+> +	 * Should add platform detect here before hardware reset, or if
+> +	 * it loaded on a non-mfld system it might do unintended things.
+> +	 */
+> +	int gpio = MFLD_KEYPAD_RST_GPIO;
+> +	gpio_request(gpio, "mfld_keypad");
+
+Error handling?
+
+> +	/* hardware reset */
+> +	gpio_direction_output(gpio, 0);
+> +	gpio_direction_output(gpio, 1);
+
+Does this belong here and not in detect/probe?
+
+> +	return i2c_add_driver(&mfld_keypad_i2c_driver);
+
+i2c_register_driver() is more common.
+
+> +}
+> +
+> +static void __exit mfld_keypad_exit(void)
+> +{
+> +	i2c_del_driver(&mfld_keypad_i2c_driver);
+> +	gpio_free(MFLD_KEYPAD_RST_GPIO);
+> +}
+> +
+> +module_init(mfld_keypad_init);
+> +module_exit(mfld_keypad_exit);
+> +
+> +MODULE_AUTHOR("Zheng Ba <zheng.ba@intel.com>");
+> +MODULE_AUTHOR("Yang Liang");
+> +MODULE_DESCRIPTION("Medfield keypad driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/input/keyboard/mfld_keypad.h b/drivers/input/keyboard/mfld_keypad.h
+> new file mode 100644
+> index 0000000..dbbf149
+> --- /dev/null
+> +++ b/drivers/input/keyboard/mfld_keypad.h
+> @@ -0,0 +1,56 @@
+> +#ifndef __MFLD_KEYPAD_H
+> +#define __MFLD_KEYPAD_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/input.h>
+> +
+> +#define KEYMAP_SIZE 49		/* 6 x 8 + right_shift */
+> +#define SIZE_X 6
+> +#define SIZE_Y 8
+> +
+> +/* two keys index in keymap */
+> +#define FN_KEY	33	/* function key position */
+> +#define RIGHT_SHIFT_KEY	48	/* right shift key position */
+> +
+> +const unsigned short mfld_keymap[KEYMAP_SIZE] = {
+> +	KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8,
+> +	KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I,
+> +	KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K,
+> +	KEY_LEFTSHIFT, KEY_Z, KEY_X,
+> +	KEY_C, KEY_V, KEY_B, KEY_N, KEY_M,
+> +	KEY_9, KEY_FN, KEY_LEFTALT, KEY_SPACE,
+> +	KEY_DELETE, KEY_LEFT, KEY_DOWN, KEY_RIGHT,
+> +	KEY_LEFTCTRL, KEY_O, KEY_L, KEY_UP,
+> +	KEY_0, KEY_P, KEY_BACKSPACE, KEY_ENTER, KEY_RIGHTSHIFT,
+> +};
+> +
+> +/* Some FN_KEYS have no direct keycode */
+> +#define KEY_EXCLAM		KEY_1	/* '!' -> shift+1 */
+> +#define KEY_AT			KEY_2	/* '@' -> shift+2 */
+> +#define KEY_NUMER_SIGN	KEY_3	/* '#' -> shift+3 */
+> +#define KEY_NOR			KEY_6	/* '^' -> shift+6 */
+> +#define KEY_PERCENT		KEY_5	/* '%' -> shift+5 */
+> +#define KEY_AMPERSAND	KEY_7	/* '&' -> shift+7 */
+> +
+> +#define KEY_BAR			KEY_BACKSLASH	/* '|' -> shift+\ */
+> +#define KEY_COLON		KEY_SEMICOLON	/* ':' -> shift+; */
+> +#define KEY_UNDERSCORE	KEY_KPMINUS	/* '_' -> shift+- */
+> +#define KEY_QUOTE_DBL	KEY_APOSTROPHE	/* '"' -> shift+' */
+> +#define KEY_QUES	KEY_SLASH	/* '/' -> shift+/ */
+> +
+> +const unsigned short mfld_keymap_fn[KEYMAP_SIZE] = {
+> +	KEY_GRAVE, KEY_AT, KEY_NUMER_SIGN, KEY_4,
+> +	KEY_PERCENT, KEY_NOR, KEY_AMPERSAND, KEY_KPASTERISK,
+> +	KEY_BAR, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
+> +	KEY_RESERVED, KEY_BACKSLASH, KEY_SLASH, KEY_KPPLUS,
+> +	KEY_TAB, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
+> +	KEY_APOSTROPHE, KEY_SEMICOLON, KEY_COLON, KEY_COMMA,
+> +	KEY_CAPSLOCK, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
+> +	KEY_DOT, KEY_UNDERSCORE, KEY_EXCLAM, KEY_QUES,
+> +	KEY_9, KEY_RESERVED, KEY_RESERVED, KEY_COMMA,
+> +	KEY_RESERVED, KEY_RESERVED, KEY_PAGEDOWN, KEY_RESERVED,
+> +	KEY_RESERVED, KEY_KPMINUS, KEY_QUOTE_DBL, KEY_PAGEUP,
+> +	KEY_0, KEY_EQUAL, KEY_CONFIG, KEY_RESERVED, KEY_RIGHTSHIFT,
+> +};
+> +
+> +#endif /* __MFLD_KEYPAD_H */
+> 
+
+I do not see the reason for a separate file.
+
+Thanks.
+
+-- 
+Dmitry

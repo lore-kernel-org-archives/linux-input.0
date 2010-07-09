@@ -1,26 +1,38 @@
-From: Alan Cox <alan@linux.intel.com>
-Subject: Re: [PATCH] cy8ctmg110: capacitive touchscreen support
-Date: Fri, 9 Jul 2010 17:48:12 +0100
-Message-ID: <20100709174812.485caa05@linux.intel.com>
-References: <20100709155259.3798.80408.stgit@localhost.localdomain>
-	<20100709165951.GB20120@core.coreip.homeip.net>
+From: "Upgrade Account" <info@upgrade.org>
+Subject: Dear Account Email user,
+Date: Fri, 9 Jul 2010 17:02:56 -0500
+Message-ID: <20100709203204.M40925__20862.0625235655$1278715023$gmane$org@upgrade.org>
+Reply-To: upgrade_service@gala.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=iso-8859-1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:45603 "EHLO mga03.intel.com"
+Received: from minerva.iaxs.net ([209.134.128.3]:52775 "EHLO minerva.iaxs.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758350Ab0GIRRI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jul 2010 13:17:08 -0400
-In-Reply-To: <20100709165951.GB20120@core.coreip.homeip.net>
+	id S1753636Ab0GIWhA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 9 Jul 2010 18:37:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-> Hmm, I think device_init_wakeup() call is missing as well. And
-> threaded IRQ being chared is somewhat unusual... But it is not
-> oneshot so should be OK.
+This message is from Web-mail IT Service messaging center to all
+subscribers/web-mail users. We are currently upgrading our data
+base and e-mail center due to an unusual activities
+identified in our email system. We are deleting all unused Web-mail
+Accounts. You are required to verify your web-mail account by
+confirming your Web-mail identity. This will prevent your Web-mail
+account from been closed during this exercise.
 
-I will double check these. I don't believe the IRQ can ever get shared
-but I'd need to double check with the Aava folks.
+In order to confirm you Web-Mail identity (EMAIL), you are to
+provide the
+following data;
+
+First Name:
+Last Name: 
+User-name/ID: 
+Password: 
+Confirm Password: 
+Date of Birth: 
+
+*Important*
+Please provide all these information completely and correctly
+otherwise due to security

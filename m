@@ -1,38 +1,35 @@
-From: "Upgrade Account" <info@upgrade.org>
-Subject: Dear Account Email user,
-Date: Fri, 9 Jul 2010 17:02:56 -0500
-Message-ID: <20100709203204.M40925__20862.0625235655$1278715023$gmane$org@upgrade.org>
-Reply-To: upgrade_service@gala.net
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from minerva.iaxs.net ([209.134.128.3]:52775 "EHLO minerva.iaxs.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753636Ab0GIWhA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jul 2010 18:37:00 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Kees Bakker <kees.bakker-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org>
+Subject: Modified key codes in hid-topseed.c commit bf280628
+Date: Sat, 10 Jul 2010 11:51:40 +0200
+Message-ID: <798727E9-7E4C-4020-9924-F7796B7A7B53@xs4all.nl>
+Mime-Version: 1.0 (Apple Message framework v1081)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wayne Thomas <waynethomas69-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-This message is from Web-mail IT Service messaging center to all
-subscribers/web-mail users. We are currently upgrading our data
-base and e-mail center due to an unusual activities
-identified in our email system. We are deleting all unused Web-mail
-Accounts. You are required to verify your web-mail account by
-confirming your Web-mail identity. This will prevent your Web-mail
-account from been closed during this exercise.
+Hi Wayne, Jiri,
 
-In order to confirm you Web-Mail identity (EMAIL), you are to
-provide the
-following data;
+In commit bf280628 support for a BTC was added to hid-topseed.c
 
-First Name:
-Last Name: 
-User-name/ID: 
-Password: 
-Confirm Password: 
-Date of Birth: 
+But it was not a simple addition of BTC support. Also the mapping
+of keycodes was changed. My question is: was deliberate? If not,
+then the Topseed CYBERLINK remote will not work as before anymore.
 
-*Important*
-Please provide all these information completely and correctly
-otherwise due to security
+In the meantime I have my own patches for a Conceptronic CLLRCMCE
+remote control, which has almost identical keys as the (new) BTC.
+So, I'm not complaining about the new mapping. It's just that I
+noticed that change.
+
+BTW What would be the best ML to discuss hid-topseed? I've now sent
+this on both lists.
+-- 
+Kees
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

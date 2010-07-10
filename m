@@ -1,124 +1,33 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: [RFC][PATCH] Add the proximity sensor support for 4430sdp
-Date: Sat, 10 Jul 2010 21:27:05 +0530
-Message-ID: <0680EC522D0CC943BC586913CF3768C003B36AAFAF@dbde02.ent.ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH v3 0/1] HID: Add Support for Setting and Getting Feature Reports from hidraw
+Date: Sat, 10 Jul 2010 14:33:10 -0400
+Message-ID: <1278786791-4025-1-git-send-email-alan@signal11.us>
+References: <1275969108-14948-1-git-send-email-alan@signal11.us>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:35010 "EHLO comal.ext.ti.com"
+Received: from core.signal11.us ([64.251.29.136]:46865 "EHLO core.signal11.us"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755717Ab0GJP5L convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jul 2010 11:57:11 -0400
-Content-Language: en-US
+	id S1752016Ab0GJSdh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 10 Jul 2010 14:33:37 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 258271CCA9EE
+	for <linux-input@vger.kernel.org>; Sat, 10 Jul 2010 14:33:37 -0400 (EDT)
+In-Reply-To: <1275969108-14948-1-git-send-email-alan@signal11.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>, Antonio Ospite <ospite@studenti.unina.it>, Alexey Dobriyan <adobriyan@gmail.com>, Tejun Heo <tj@kernel.org>, Marcel Holtmann <marcel@holtmann.org>
+Cc: Alan Ott <alan@signal11.us>
 
+Version 3 of the patch. Fixing the problem reported by Amit Nagal where
+Report IDs were not getting sent to the device when using Set_Report control
+tranfers.
 
-The proximity sensor is registered as a gpio-key
+Alan Ott (1):
+  HID: Add Support for Setting and Getting Feature Reports from hidraw
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- arch/arm/mach-omap2/board-4430sdp.c |   43 +++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+ drivers/hid/hidraw.c          |  105 +++++++++++++++++++++++++++++++++++++++--
+ drivers/hid/usbhid/hid-core.c |   31 ++++++++++--
+ include/linux/hid.h           |    3 +
+ include/linux/hidraw.h        |    3 +
+ 4 files changed, 132 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/board-4430sdp.c b/arch/arm/mach-omap2/board-4430sdp.c
-index 9447644..91eba3f 100644
---- a/arch/arm/mach-omap2/board-4430sdp.c
-+++ b/arch/arm/mach-omap2/board-4430sdp.c
-@@ -20,6 +20,7 @@
- #include <linux/usb/otg.h>
- #include <linux/spi/spi.h>
- #include <linux/i2c/twl.h>
-+#include <linux/gpio_keys.h>
- #include <linux/regulator/machine.h>
- #include <linux/leds.h>
- 
-@@ -40,6 +41,8 @@
- #define ETH_KS8851_IRQ			34
- #define ETH_KS8851_POWER_ON		48
- #define ETH_KS8851_QUART		138
-+#define OMAP4_SFH7741_SENSOR_OUTPUT_GPIO	184
-+#define OMAP4_SFH7741_ENABLE_GPIO		188
- 
- static struct gpio_led sdp4430_gpio_leds[] = {
- 	{
-@@ -76,11 +79,31 @@ static struct gpio_led sdp4430_gpio_leds[] = {
- 	},
- 
- };
-+static struct gpio_keys_button sdp4430_gpio_keys[] = {
-+ {
-+		.desc			= "Proximity Sensor",
-+		.type			= EV_SW,
-+		.code			= SW_FRONT_PROXIMITY,
-+		.gpio			= OMAP4_SFH7741_SENSOR_OUTPUT_GPIO,
-+		.active_low		= 0,
-+	}
-+};
- 
- static struct gpio_led_platform_data sdp4430_led_data = {
- 	.leds	= sdp4430_gpio_leds,
- 	.num_leds	= ARRAY_SIZE(sdp4430_gpio_leds),
- };
-+static struct gpio_keys_platform_data sdp4430_gpio_keys_data = {
-+	.buttons	= sdp4430_gpio_keys,
-+	.nbuttons	= ARRAY_SIZE(sdp4430_gpio_keys),
-+};
-+static struct platform_device sdp4430_gpio_keys_device = {
-+	.name	= "gpio-keys",
-+	.id	= -1,
-+	.dev	= {
-+		.platform_data	= &sdp4430_gpio_keys_data,
-+	},
-+};
- 
- static struct platform_device sdp4430_leds_gpio = {
- 	.name	= "leds-gpio",
-@@ -161,6 +184,7 @@ static struct platform_device sdp4430_lcd_device = {
- 
- static struct platform_device *sdp4430_devices[] __initdata = {
- 	&sdp4430_lcd_device,
-+	&sdp4430_gpio_keys_device,
- 	&sdp4430_leds_gpio,
- };
- 
-@@ -426,6 +450,24 @@ static int __init omap4_i2c_init(void)
- 	omap_register_i2c_bus(4, 400, NULL, 0);
- 	return 0;
- }
-+static void omap_sfh7741prox_init(void)
-+{
-+	int  error;
-+
-+	error = gpio_request(OMAP4_SFH7741_ENABLE_GPIO, "sfh7741");
-+	if (error < 0) {
-+		pr_err("failed to request GPIO %d, error %d\n",
-+			OMAP4_SFH7741_ENABLE_GPIO, error);
-+		return;
-+	}
-+
-+	error = gpio_direction_output(OMAP4_SFH7741_ENABLE_GPIO , 1);
-+	if (error < 0) {
-+		pr_err("%s: GPIO configuration failed: GPIO %d,\
-+			error %d\n",__func__, OMAP4_SFH7741_ENABLE_GPIO, error);
-+		gpio_free(OMAP4_SFH7741_ENABLE_GPIO);
-+	}
-+}
- static void __init omap_4430sdp_init(void)
- {
- 	int status;
-@@ -448,6 +490,7 @@ static void __init omap_4430sdp_init(void)
- 		spi_register_board_info(sdp4430_spi_board_info,
- 				ARRAY_SIZE(sdp4430_spi_board_info));
- 	}
-+	omap_sfh7741prox_init();
- }
- 
- static void __init omap_4430sdp_map_io(void)
--- 
-1.5.4.7
 

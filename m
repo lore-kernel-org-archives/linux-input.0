@@ -1,56 +1,65 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid-magicmouse: Correct parsing of large X and Y
- motions.
-Date: Sun, 11 Jul 2010 23:07:10 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1007112306270.4741@pobox.suse.cz>
-References: <878w5qaspq.fsf@troilus.org> <1278347288.2425.21.camel@cndougla>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 1/1] HID: Send Report ID when numbered reports are sent
+ over the control endpoint.
+Date: Sun, 11 Jul 2010 23:14:01 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1007112313240.4741@pobox.suse.cz>
+References: <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz> <1277905836-3949-2-git-send-email-alan@signal11.us>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:41830 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753088Ab0GKVHM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jul 2010 17:07:12 -0400
-In-Reply-To: <1278347288.2425.21.camel@cndougla>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1277905836-3949-2-git-send-email-alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
-Cc: Michael Poole <mdpoole@troilus.org>, linux-input@vger.kernel.org
 
-On Mon, 5 Jul 2010, Chase Douglas wrote:
+On Wed, 30 Jun 2010, Alan Ott wrote:
 
-> On Mon, 2010-07-05 at 10:50 -0400, Michael Poole wrote:
-> > The X and Y values have two more significant bits in the same byte
-> > that contains click status.  Include these in the reported value.
-> > Thanks to Iain Hibbert of NetBSD for pointing this out.
-> > 
-> > Signed-off-by: Michael Poole <mdpoole@troilus.org>
-> > ---
-> >  drivers/hid/hid-magicmouse.c |    4 ++--
-> >  1 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> > index 0b89c1c..7cdda23 100644
-> > --- a/drivers/hid/hid-magicmouse.c
-> > +++ b/drivers/hid/hid-magicmouse.c
-> > @@ -267,8 +267,8 @@ static int magicmouse_raw_event(struct hid_device *hdev,
-> >  		 * to have the current touch information before
-> >  		 * generating a click event.
-> >  		 */
-> > -		x = (signed char)data[1];
-> > -		y = (signed char)data[2];
-> > +		x = (int)(((data[3] & 0x0c) << 28) | (data[1] << 22)) >> 22;
-> > +		y = (int)(((data[3] & 0x30) << 26) | (data[2] << 22)) >> 22;
-> >  		clicks = data[3];
-> >  		break;
-> >  	case 0x20: /* Theoretically battery status (0-100), but I have
+> The Report ID wasn't sent as part of the payload for reports which were sent
+> over the control endpoint. This is required by section 8.1 of the HID spec.
+
+We already have a8ab5d58b0238b8199cc699b8dff7c5e1da24138 commit in Linus' 
+tree, so I'll take this for .35 still, thanks a lot for fixing it Alan.
+
 > 
-> Looks right to me.
+> Signed-off-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+> ---
+>  drivers/hid/usbhid/hid-core.c |   13 ++++++++++---
+>  1 files changed, 10 insertions(+), 3 deletions(-)
 > 
-> Acked-by: Chase Douglas <chase.douglas@canonical.com>
-
-Thanks. Applied to magicmouse branch now.
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index deef816..1697687 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -854,14 +854,21 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+>  				ret++;
+>  		}
+>  	} else {
+> +		int skipped_report_id = 0;
+> +		if (buf[0] == 0x0) {
+> +			/* Don't send the Report ID */
+> +			buf++;
+> +			count--;
+> +			skipped_report_id = 1;
+> +		}
+>  		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+>  			HID_REQ_SET_REPORT,
+>  			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+>  			((report_type + 1) << 8) | *buf,
+> -			interface->desc.bInterfaceNumber, buf + 1, count - 1,
+> +			interface->desc.bInterfaceNumber, buf, count,
+>  			USB_CTRL_SET_TIMEOUT);
+> -		/* count also the report id */
+> -		if (ret > 0)
+> +		/* count also the report id, if this was a numbered report. */
+> +		if (ret > 0 && skipped_report_id)
+>  			ret++;
+>  	}
 
 -- 
 Jiri Kosina
 SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

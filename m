@@ -1,37 +1,49 @@
-From: Jonathan Rockway <jon@jrock.us>
-Subject: Re: [PATCH] add support for my CH Eclipse yoke
-Date: Sun, 11 Jul 2010 14:54:17 -0500
-Message-ID: <87r5j9hk0m.fsf@snowball2.jrock.us>
-References: <1278143941-10817-1-git-send-email-jon@jrock.us>
-	<alpine.LRH.2.00.1007112149270.21712@twin.jikos.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCHv1] USB HID DRIVERS: Enable HID_QUIRK_MULTI_INPUT for
+ Retro  Adaptor
+Date: Sun, 11 Jul 2010 22:12:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1007112212050.4741@pobox.suse.cz>
+References: <AANLkTilCk7q_GsrBtxsuNGTwsQMZmUJN7O8e1G0q3fqA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dsl253-036-036.chi1.dsl.speakeasy.net ([66.253.36.36]:37193
-	"EHLO snowball2.jrock.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751835Ab0GKTyS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jul 2010 15:54:18 -0400
-In-Reply-To: <alpine.LRH.2.00.1007112149270.21712@twin.jikos.cz> (Jiri
-	Kosina's message of "Sun, 11 Jul 2010 21:52:20 +0200 (CEST)")
+Received: from cantor.suse.de ([195.135.220.2]:60074 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753216Ab0GKUNA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jul 2010 16:13:00 -0400
+In-Reply-To: <AANLkTilCk7q_GsrBtxsuNGTwsQMZmUJN7O8e1G0q3fqA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: samwise <samwise@bagshot-row.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Stephane Chatty <chatty@enac.fr>, Don Prince <dhprince-devel@yahoo.co.uk>, Peter Hutterer <peter.hutterer@who-t.net>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Daniel Oliveira Nascimento <don@syst.com.br>, Andrew Morton <akpm@linux-foundation.org>, Paul Qureshi <retro@world3.net>
 
-* On Sun, Jul 11 2010, Jiri Kosina wrote:
-> thanks a lot for the patch. I have added
->
-> 	Signed-off-by: Jonathan Rockway <jon@jrock.us>
->
-> so that the patch is compliant with SubmittingPatches guidelines. Please
-> ACK/NACK this addition, so that we have everything in place properly.
+On Sun, 11 Jul 2010, samwise wrote:
 
-Perfect, thanks for adding that.  Next time I will remember to do that
-myself :)
+> From: Peter Edwards <samwise@bagshot-row.org>
+> 
+> Patch for linux-2.6.35-rc4 mainline kernel to enable Paul Qureshi's
+> Retro Adapter [http://keio.dk/retroadapter.html], an open source USB
+> device which allows controllers and joysticks from classic computers
+> and consoles to work on modern PCs, to appear as two separate devices
+> under Linux.
+> Signed-off-by: Peter Edwards <samwise@bagshot-row.org>
+> Acked-by: Paul Qureshi <retro@world3.net>
+> ---
+> 
+> This is a first patch submission following the
+> Documentation/SubmittingPatches guidelines. Hope this is in the
+> correct format for inclusion and is directed at the correct
+> maintainer. Please reply if any modifications or further info is
+> required.
 
-Regards,
-Jonathan Rockway
+Hi Peter,
 
---
-print just => another => perl => hacker => if $,=$"
+your mail client damaged (whitespaces and line-wrapping) the patch. I have 
+fixed it up and applied the patch to my tree, but please keep that in mind 
+for your further patch submissions.
+
+Thanks!
+
+-- 
+Jiri Kosina
+SUSE Labs, Novell Inc.

@@ -1,38 +1,37 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Jonathan Rockway <jon@jrock.us>
 Subject: Re: [PATCH] add support for my CH Eclipse yoke
-Date: Sun, 11 Jul 2010 21:52:20 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.1007112149270.21712@twin.jikos.cz>
+Date: Sun, 11 Jul 2010 14:54:17 -0500
+Message-ID: <87r5j9hk0m.fsf@snowball2.jrock.us>
 References: <1278143941-10817-1-git-send-email-jon@jrock.us>
+	<alpine.LRH.2.00.1007112149270.21712@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:59642 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751835Ab0GKTw1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jul 2010 15:52:27 -0400
-In-Reply-To: <1278143941-10817-1-git-send-email-jon@jrock.us>
+Received: from dsl253-036-036.chi1.dsl.speakeasy.net ([66.253.36.36]:37193
+	"EHLO snowball2.jrock.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751835Ab0GKTyS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 Jul 2010 15:54:18 -0400
+In-Reply-To: <alpine.LRH.2.00.1007112149270.21712@twin.jikos.cz> (Jiri
+	Kosina's message of "Sun, 11 Jul 2010 21:52:20 +0200 (CEST)")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Rockway <jon@jrock.us>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org
 
-On Sat, 3 Jul 2010, Jonathan Rockway wrote:
+* On Sun, Jul 11 2010, Jiri Kosina wrote:
+> thanks a lot for the patch. I have added
+>
+> 	Signed-off-by: Jonathan Rockway <jon@jrock.us>
+>
+> so that the patch is compliant with SubmittingPatches guidelines. Please
+> ACK/NACK this addition, so that we have everything in place properly.
 
-> This USB flight yoke needs the NOGET quirk, like most of CH's other
-> products.  This patch adds that :)
+Perfect, thanks for adding that.  Next time I will remember to do that
+myself :)
 
-Hi Jonathan,
+Regards,
+Jonathan Rockway
 
-thanks a lot for the patch. I have added
-
-	Signed-off-by: Jonathan Rockway <jon@jrock.us>
-
-so that the patch is compliant with SubmittingPatches guidelines. Please 
-ACK/NACK this addition, so that we have everything in place properly.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
-
+--
+print just => another => perl => hacker => if $,=$"

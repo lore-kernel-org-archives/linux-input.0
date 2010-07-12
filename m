@@ -1,65 +1,123 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 1/1] HID: Send Report ID when numbered reports are sent
- over the control endpoint.
-Date: Sun, 11 Jul 2010 23:14:01 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1007112313240.4741@pobox.suse.cz>
-References: <alpine.LNX.2.00.1006301126130.13809@pobox.suse.cz> <1277905836-3949-2-git-send-email-alan@signal11.us>
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
+Subject: Lenovo ThinkPad USB Keyboard: delayed release of Shift/Ctrl/Alt
+Date: Mon, 12 Jul 2010 12:08:47 +0300
+Message-ID: <20100712090847.GB25456@shutemov.name>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1277905836-3949-2-git-send-email-alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from shutemov.name ([188.40.19.243]:38476 "EHLO shutemov.name"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754472Ab0GLJOc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Jul 2010 05:14:32 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, 30 Jun 2010, Alan Ott wrote:
+I've bought Thinkpad USB Keyboard (P/N 55Y9086) last week.
 
-> The Report ID wasn't sent as part of the payload for reports which were sent
-> over the control endpoint. This is required by section 8.1 of the HID spec.
+Unfortunately, it has very annoying issue. When you type fast enough
+and you want to type one capitalized (Shift + a letter) you'll get two or
+even three capitalized letters (e.g. WOrd instead of Word). The same
+problem with Alt and Ctrl keys.
 
-We already have a8ab5d58b0238b8199cc699b8dff7c5e1da24138 commit in Linus' 
-tree, so I'll take this for .35 still, thanks a lot for fixing it Alan.
+Windows users also complains about the issue. So it looks like a hardware
+(or firmware?) issue.
 
-> 
-> Signed-off-by: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
-> ---
->  drivers/hid/usbhid/hid-core.c |   13 ++++++++++---
->  1 files changed, 10 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index deef816..1697687 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -854,14 +854,21 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
->  				ret++;
->  		}
->  	} else {
-> +		int skipped_report_id = 0;
-> +		if (buf[0] == 0x0) {
-> +			/* Don't send the Report ID */
-> +			buf++;
-> +			count--;
-> +			skipped_report_id = 1;
-> +		}
->  		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
->  			HID_REQ_SET_REPORT,
->  			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->  			((report_type + 1) << 8) | *buf,
-> -			interface->desc.bInterfaceNumber, buf + 1, count - 1,
-> +			interface->desc.bInterfaceNumber, buf, count,
->  			USB_CTRL_SET_TIMEOUT);
-> -		/* count also the report id */
-> -		if (ret > 0)
-> +		/* count also the report id, if this was a numbered report. */
-> +		if (ret > 0 && skipped_report_id)
->  			ret++;
->  	}
+Is it possible to workaround the issue in the driver or I have to return
+the keyboard to the store?
+
+lsusb -vvv output:
+
+Bus 001 Device 009: ID 17ef:6009 Lenovo 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0         8
+  idVendor           0x17ef Lenovo
+  idProduct          0x6009 
+  bcdDevice            1.22
+  iManufacturer           1 Lite-On Technology Corp.
+  iProduct                2 ThinkPad USB Keyboard with TrackPoint
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           59
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      65
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     185
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ Kirill A. Shutemov

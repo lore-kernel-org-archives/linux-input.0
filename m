@@ -1,263 +1,304 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH] input: Add pwm beeper driver
-Date: Tue, 13 Jul 2010 19:17:39 +0200
-Message-ID: <1279041459-5585-1-git-send-email-lars@metafoo.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
+From: Alexander Clouter <alex@digriz.org.uk>
+Subject: [PATCHv2] input: gpio_keys: polling mode support
+Date: Tue, 13 Jul 2010 20:57:45 +0100
+Message-ID: <20100713195745.GJ2428@chipmunk>
+References: <20100706190128.GB24655@chipmunk> <20100712192950.GR6976@chipmunk> <20100713011707.GA12728@linux-sh.org> <20100713012819.GA15800@core.coreip.homeip.net> <20100713072605.GS6976@chipmunk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from chipmunk.wormnet.eu ([195.195.131.226]:34653 "EHLO
+	chipmunk.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753316Ab0GMT5r (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Jul 2010 15:57:47 -0400
+Content-Disposition: inline
+In-Reply-To: <20100713072605.GS6976@chipmunk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Paul Mundt <lethal@linux-sh.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This patch adds a simple driver which allows to use pwm based beepers (for
-example piezo elements) as a pcspkr-like device.
+This implements an optional polling mode for the gpio_keys driver,
+necessary for GPIOs that are not able to generate IRQs.
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+gpio_keys_platform_data has been extended with poll_interval
+which specifies the polling interval in ms, this is passed onto
+input-polldev.
+
+This work was based on the patch[1] originally conceived by Paul
+Mundt but now the absolute dependency on INPUT_POLLDEV has been
+removed (so existing users of gpio_keys can compile out polldev)
+plus some un-necessary code has been removed.
+
+Changes since v1:
+ * remove #ifdef madness
+
+[1] http://article.gmane.org/gmane.linux.kernel.input/5814
+
+Signed-off-by: Alexander Clouter <alex@digriz.org.uk>
 ---
- drivers/input/misc/Kconfig      |   11 ++
- drivers/input/misc/Makefile     |    2 +-
- drivers/input/misc/pwm-beeper.c |  197 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 209 insertions(+), 1 deletions(-)
- create mode 100644 drivers/input/misc/pwm-beeper.c
+ drivers/input/keyboard/gpio_keys.c |  121 +++++++++++++++++++++++++++++++-----
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 105 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ede6d52..068f250 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -427,4 +427,15 @@ config INPUT_ADXL34X_SPI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called adxl34x-spi.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index b8213fd..285638d 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -1,7 +1,9 @@
+ /*
+- * Driver for keys on GPIO lines capable of generating interrupts.
++ * Driver for keys on GPIO lines, either IRQ-driven or polled.
+  *
+  * Copyright 2005 Phil Blundell
++ * Copyright 2008 Paul Mundt
++ * Copyright 2010 Alexander Clouter <alex@digriz.org.uk>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -25,6 +27,7 @@
+ #include <linux/gpio_keys.h>
+ #include <linux/workqueue.h>
+ #include <linux/gpio.h>
++#include <linux/input-polldev.h>
  
-+config INPUT_PWM_BEEPER
-+	tristate "PWM beeper support"
-+	depends on HAVE_PWM
-+	help
-+	  Say Y here to get support for PWM based beeper devices.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called pwm-beeper
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 97b5dc3..1df6c55 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -29,6 +29,7 @@ obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
- obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
- obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
-+obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
-@@ -40,4 +41,3 @@ obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
- obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
- obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
--
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-new file mode 100644
-index 0000000..8f5321f
---- /dev/null
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -0,0 +1,197 @@
-+/*
-+ *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-+ *  PWM beeper driver
-+ *
-+ *  This program is free software; you can redistribute it and/or modify it
-+ *  under  the terms of the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the License, or (at your
-+ *  option) any later version.
-+ *
-+ *  You should have received a copy of the GNU General Public License along
-+ *  with this program; if not, write to the Free Software Foundation, Inc.,
-+ *  675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/platform_device.h>
-+#include <linux/pwm.h>
-+#include <linux/slab.h>
-+
-+struct pwm_beeper {
-+	struct input_dev *input;
-+	struct pwm_device *pwm;
-+	unsigned long period;
-+};
-+
-+#define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
-+
-+static int pwm_beeper_event(struct input_dev *input, unsigned int type,
-+	unsigned int code, int value)
+ struct gpio_button_data {
+ 	struct gpio_keys_button *button;
+@@ -36,11 +39,32 @@ struct gpio_button_data {
+ 
+ struct gpio_keys_drvdata {
+ 	struct input_dev *input;
++	struct input_polled_dev *poll_dev;
+ 	struct mutex disable_lock;
+ 	unsigned int n_buttons;
+ 	struct gpio_button_data data[0];
+ };
+ 
++#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV_MODULE)
++inline struct input_polled_dev *input_allocate_polled_device(void)
 +{
-+	int ret = 0;
-+	struct pwm_beeper *beeper = input_get_drvdata(input);
-+	unsigned long period;
-+
-+	if (type != EV_SND || value < 0)
-+		return -EINVAL;
-+
-+	switch (code) {
-+	case SND_BELL:
-+		value = value ? 1000 : 0;
-+		break;
-+	case SND_TONE:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (value == 0) {
-+		pwm_config(beeper->pwm, 0, 0);
-+		pwm_disable(beeper->pwm);
-+	} else {
-+		period = HZ_TO_NANOSECONDS(value);
-+		ret = pwm_config(beeper->pwm, period / 2, period);
-+		if (ret)
-+			return ret;
-+		ret = pwm_enable(beeper->pwm);
-+		if (ret)
-+			return ret;
-+		beeper->period = period;
-+	}
-+
-+	return 0;
++	return NULL;
 +}
 +
-+static int __devinit pwm_beeper_probe(struct platform_device *pdev)
++inline void input_free_polled_device(struct input_polled_dev *poll_dev)
 +{
-+	int ret;
-+	struct pwm_beeper *beeper;
-+	unsigned long pwm_id = (unsigned long)pdev->dev.platform_data;
-+
-+	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
-+	if (!beeper)
-+		return -ENOMEM;
-+
-+	beeper->pwm = pwm_request(pwm_id, "pwm beeper");
-+
-+	if (IS_ERR(beeper->pwm)) {
-+		ret = PTR_ERR(beeper->pwm);
-+		dev_err(&pdev->dev, "Failed to request pwm device: %d\n", ret);
-+		goto err_free;
-+	}
-+
-+	beeper->input = input_allocate_device();
-+	if (!beeper->input) {
-+		dev_err(&pdev->dev, "Failed to allocate input device\n");
-+		ret = -ENOMEM;
-+		goto err_pwm_free;
-+	}
-+	beeper->input->dev.parent = &pdev->dev;
-+
-+	beeper->input->name = "pwm-beeper";
-+	beeper->input->phys = "pwm/input0";
-+	beeper->input->id.bustype = BUS_HOST;
-+	beeper->input->id.vendor = 0x001f;
-+	beeper->input->id.product = 0x0001;
-+	beeper->input->id.version = 0x0100;
-+
-+	beeper->input->evbit[0] = BIT(EV_SND);
-+	beeper->input->sndbit[0] = BIT(SND_TONE) | BIT(SND_BELL);
-+
-+	beeper->input->event = pwm_beeper_event;
-+
-+	input_set_drvdata(beeper->input, beeper);
-+	ret = input_register_device(beeper->input);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to register input device: %d\n", ret);
-+		goto err_input_free;
-+	}
-+
-+	platform_set_drvdata(pdev, beeper);
-+
-+	return 0;
-+
-+err_input_free:
-+	input_free_device(beeper->input);
-+err_pwm_free:
-+	pwm_free(beeper->pwm);
-+err_free:
-+	kfree(beeper);
-+
-+	return ret;
 +}
 +
-+static int __devexit pwm_beeper_remove(struct platform_device *pdev)
++inline int input_register_polled_device(struct input_polled_dev *dev)
 +{
-+	struct pwm_beeper *beeper = platform_get_drvdata(pdev);
-+
-+	platform_set_drvdata(pdev, NULL);
-+	input_unregister_device(beeper->input);
-+
-+	pwm_disable(beeper->pwm);
-+	pwm_free(beeper->pwm);
-+
-+	kfree(beeper);
-+
-+	return 0;
++	return -ENXIO;
 +}
 +
-+#ifdef CONFIG_PM
-+static int pwm_beeper_suspend(struct device *dev)
++inline void input_unregister_polled_device(struct input_polled_dev *poll_dev)
 +{
-+	struct pwm_beeper *beeper = dev_get_drvdata(dev);
-+	if (beeper->period)
-+		pwm_disable(beeper->pwm);
-+
-+	return 0;
 +}
-+
-+static int pwm_beeper_resume(struct device *dev)
-+{
-+	struct pwm_beeper *beeper = dev_get_drvdata(dev);
-+
-+	if (beeper->period) {
-+		pwm_config(beeper->pwm, beeper->period / 2, beeper->period);
-+		pwm_enable(beeper->pwm);
-+	}
-+
-+	return 0;
-+}
-+
-+static const SIMPLE_DEV_PM_OPS(pwm_beeper_pm_ops,
-+				pwm_beeper_suspend, pwm_beeper_resume);
-+
-+#define PWM_BEEPER_PM_OPS (&pwm_beeper_pm_ops)
-+#else
-+#define PWM_BEEPER_PM_OPS NULL
 +#endif
 +
-+static struct platform_driver pwm_beeper_driver = {
-+	.probe	= pwm_beeper_probe,
-+	.remove = __devexit_p(pwm_beeper_remove),
-+	.driver = {
-+		.name	= "pwm-beeper",
-+		.owner	= THIS_MODULE,
-+		.pm		= PWM_BEEPER_PM_OPS,
-+	},
-+};
-+
-+static int __init pwm_beeper_init(void)
+ /*
+  * SYSFS interface for enabling/disabling keys and switches:
+  *
+@@ -340,6 +364,16 @@ static void gpio_keys_timer(unsigned long _data)
+ 	schedule_work(&data->work);
+ }
+ 
++static void gpio_handle_button_event(struct gpio_keys_button *button,
++				     struct gpio_button_data *bdata)
 +{
-+	return platform_driver_register(&pwm_beeper_driver);
++	if (button->debounce_interval)
++		mod_timer(&bdata->timer,
++			jiffies + msecs_to_jiffies(button->debounce_interval));
++	else
++		gpio_keys_report_event(bdata);
 +}
-+module_init(pwm_beeper_init);
 +
-+static void __exit pwm_beeper_exit(void)
+ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ {
+ 	struct gpio_button_data *bdata = dev_id;
+@@ -347,15 +381,24 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != gpio_to_irq(button->gpio));
+ 
+-	if (button->debounce_interval)
+-		mod_timer(&bdata->timer,
+-			jiffies + msecs_to_jiffies(button->debounce_interval));
+-	else
+-		schedule_work(&bdata->work);
++	gpio_handle_button_event(button, bdata);
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
++static void gpio_keys_poll(struct input_polled_dev *dev)
 +{
-+	platform_driver_unregister(&pwm_beeper_driver);
-+}
-+module_exit(pwm_beeper_exit);
++	struct gpio_keys_drvdata *ddata = dev->private;
++	int i;
 +
-+MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
-+MODULE_DESCRIPTION("PWM beeper driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:pwm-beeper");
++	for (i = 0; i < ddata->n_buttons; i++) {
++		struct gpio_button_data *bdata = &ddata->data[i];
++		struct gpio_keys_button *button = bdata->button;
++
++		gpio_handle_button_event(button, bdata);
++	}
++}
++
+ static int __devinit gpio_keys_setup_key(struct platform_device *pdev,
+ 					 struct gpio_button_data *bdata,
+ 					 struct gpio_keys_button *button)
+@@ -420,25 +463,47 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	struct gpio_keys_drvdata *ddata;
+ 	struct device *dev = &pdev->dev;
+ 	struct input_dev *input;
++	struct input_polled_dev *poll_dev;
+ 	int i, error;
+ 	int wakeup = 0;
+ 
++#if !defined(CONFIG_INPUT_POLLDEV) && !defined(CONFIG_INPUT_POLLDEV_MODULE)
++	if (pdata->poll_interval) {
++		dev_err(dev, "device needs polling (enable INPUT_POLLDEV)\n");
++		return -EINVAL;
++	}
++#endif
++
+ 	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
+ 			pdata->nbuttons * sizeof(struct gpio_button_data),
+ 			GFP_KERNEL);
+-	input = input_allocate_device();
++	if (pdata->poll_interval) {
++		poll_dev = input_allocate_polled_device();
++		if (poll_dev)
++			input = poll_dev->input;
++	} else
++		input = input_allocate_device();
+ 	if (!ddata || !input) {
+ 		dev_err(dev, "failed to allocate state\n");
+ 		error = -ENOMEM;
+ 		goto fail1;
+ 	}
+ 
+-	ddata->input = input;
++	if (pdata->poll_interval) {
++		ddata->poll_dev = poll_dev;
++	} else
++		ddata->input = input;
+ 	ddata->n_buttons = pdata->nbuttons;
+ 	mutex_init(&ddata->disable_lock);
+ 
+ 	platform_set_drvdata(pdev, ddata);
+ 
++	if (pdata->poll_interval) {
++		poll_dev->private = ddata;
++		poll_dev->poll = gpio_keys_poll;
++		poll_dev->poll_interval = pdata->poll_interval;
++	}
++
+ 	input->name = pdev->name;
+ 	input->phys = "gpio-keys/input0";
+ 	input->dev.parent = &pdev->dev;
+@@ -460,14 +525,17 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		bdata->input = input;
+ 		bdata->button = button;
+ 
++		input_set_capability(input, type, button->code);
++
++		if (pdata->poll_interval)
++			continue;
++
+ 		error = gpio_keys_setup_key(pdev, bdata, button);
+ 		if (error)
+ 			goto fail2;
+ 
+ 		if (button->wakeup)
+ 			wakeup = 1;
+-
+-		input_set_capability(input, type, button->code);
+ 	}
+ 
+ 	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+@@ -477,7 +545,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		goto fail2;
+ 	}
+ 
+-	error = input_register_device(input);
++	if (pdata->poll_interval)
++		error = input_register_polled_device(poll_dev);
++	else
++		error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(dev, "Unable to register input device, error: %d\n",
+ 			error);
+@@ -497,7 +568,9 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+  fail2:
+ 	while (--i >= 0) {
+-		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
++		if (!pdata->poll_interval)
++			free_irq(gpio_to_irq(pdata->buttons[i].gpio),
++				&ddata->data[i]);
+ 		if (pdata->buttons[i].debounce_interval)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+@@ -506,7 +579,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, NULL);
+  fail1:
+-	input_free_device(input);
++	if (pdata->poll_interval)
++		input_free_polled_device(poll_dev);
++	else
++		input_free_device(input);
+ 	kfree(ddata);
+ 
+ 	return error;
+@@ -516,7 +592,8 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+ 	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
+-	struct input_dev *input = ddata->input;
++	struct input_dev *input;
++	struct input_polled_dev *poll_dev;
+ 	int i;
+ 
+ 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+@@ -524,15 +601,25 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, 0);
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+-		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+-		free_irq(irq, &ddata->data[i]);
++		if (!pdata->poll_interval) {
++			int irq = gpio_to_irq(pdata->buttons[i].gpio);
++			free_irq(irq, &ddata->data[i]);
++		}
+ 		if (pdata->buttons[i].debounce_interval)
+ 			del_timer_sync(&ddata->data[i].timer);
+ 		cancel_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+-	input_unregister_device(input);
++	if (pdata->poll_interval) {
++		poll_dev = ddata->poll_dev;
++		input_unregister_polled_device(poll_dev);
++		input_free_polled_device(poll_dev);
++	} else {
++		input = ddata->input;
++		input_unregister_device(input);
++		input_free_device(input);
++	}
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index cd0b3f3..7dd075b 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -17,6 +17,7 @@ struct gpio_keys_platform_data {
+ 	struct gpio_keys_button *buttons;
+ 	int nbuttons;
+ 	unsigned int rep:1;		/* enable input subsystem auto repeat */
++	unsigned int poll_interval;	/* polling interval in ms */
+ };
+ 
+ #endif
 -- 
-1.5.6.5
+1.7.1

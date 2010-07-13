@@ -1,87 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] atlas_btns: fix mixing acpi_status and int for return
- value
-Date: Tue, 13 Jul 2010 09:25:08 -0700
-Message-ID: <20100713162508.GA26529@core.coreip.homeip.net>
-References: <1279013475.28550.5.camel@mola>
+Subject: Re: [PATCH] Input: xpad - remove mouse buttons and axes for dance
+ pads
+Date: Tue, 13 Jul 2010 09:45:29 -0700
+Message-ID: <20100713164528.GB26529@core.coreip.homeip.net>
+References: <1278768358.3018.2.camel@lovely.krouter>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:64687 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752788Ab0GMQZX (ORCPT
+Received: from mail-px0-f174.google.com ([209.85.212.174]:35660 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756148Ab0GMQph (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jul 2010 12:25:23 -0400
+	Tue, 13 Jul 2010 12:45:37 -0400
+Received: by pxi14 with SMTP id 14so2361929pxi.19
+        for <linux-input@vger.kernel.org>; Tue, 13 Jul 2010 09:45:35 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1279013475.28550.5.camel@mola>
+In-Reply-To: <1278768358.3018.2.camel@lovely.krouter>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Lin Ming <ming.m.lin@intel.com>, linux-input@vger.kernel.org
+To: Christoph Fritz <chf.fritz@googlemail.com>
+Cc: Nicolas =?iso-8859-1?Q?L=E9veill=E9?= <nicolas@uucidl.com>, Benjamin Valentin <benpicco@zedat.fu-berlin.de>, Anssi Hannula <anssi.hannula@iki.fi>, Michael Gruber <lists.mg@googlemail.com>, linux-input@vger.kernel.org
 
-On Tue, Jul 13, 2010 at 05:31:15PM +0800, Axel Lin wrote:
-> To improve readability, this patch fixes mixing acpi_status
-> and int for return value.
+On Sat, Jul 10, 2010 at 03:25:58PM +0200, Christoph Fritz wrote:
+> Dance pads don't have any axes/sticks, only buttons for directions. For
+> example buttons like left+right will get triggered at once, an axis
+> can't handle this anyway.  So this patch adds a module parameter named
+> "sticks_to_null" for unknown devices. A known dance pad makes use of
+> it by changing to a new mapping-option named DANCEPAD_MAP_CONFIG. Other
+> tested devices may follow by adding this mapping-option too.
 > 
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> ---
->  drivers/input/misc/atlas_btns.c |   13 +++++++------
->  1 files changed, 7 insertions(+), 6 deletions(-)
+> Some buttons of xpad-devices are addressing mouse-buttons instead of
+> gamepad-buttons. This gets fixed too.
 > 
-> diff --git a/drivers/input/misc/atlas_btns.c b/drivers/input/misc/atlas_btns.c
-> index 7d53608..ea14800 100644
-> --- a/drivers/input/misc/atlas_btns.c
-> +++ b/drivers/input/misc/atlas_btns.c
-> @@ -60,12 +60,12 @@ static acpi_status acpi_atlas_button_handler(u32 function,
->  		input_report_key(input_dev, atlas_keymap[code], key_down);
->  		input_sync(input_dev);
->  
-> -		status = 0;
-> +		status = AE_OK;
->  	} else {
->  		printk(KERN_WARNING "atlas: shrugged on unexpected function"
->  			":function=%x,address=%lx,value=%x\n",
->  			function, (unsigned long)address, (u32)*value);
-> -		status = -EINVAL;
-> +		status = AE_BAD_PARAMETER;
->  	}
->  
->  	return status;
-> @@ -114,26 +114,27 @@ static int atlas_acpi_button_add(struct acpi_device *device)
->  	if (ACPI_FAILURE(status)) {
->  		printk(KERN_ERR "Atlas: Error installing addr spc handler\n");
->  		input_unregister_device(input_dev);
-> -		status = -EINVAL;
-> +		err = -EINVAL;
->  	}
->  
-> -	return status;
-> +	return err;
->  }
->  
->  static int atlas_acpi_button_remove(struct acpi_device *device, int type)
->  {
->  	acpi_status status;
-> +	int err = 0;
->  
->  	status = acpi_remove_address_space_handler(device->handle,
->  				0x81, &acpi_atlas_button_handler);
->  	if (ACPI_FAILURE(status)) {
->  		printk(KERN_ERR "Atlas: Error removing addr spc handler\n");
-> -		status = -EINVAL;
-> +		err = -EINVAL;
->  	}
->  
->  	input_unregister_device(input_dev);
->  
-> -	return status;
-> +	return err;
+> Signed-off-by: Christoph Fritz <chf.fritz@googlemail.com>
 
-We should not report any errors since operation is irreversible, just
-log them. I believe typing remove methods as returning int instead of
-void was a mistake.
+Applied, thanks Christoph.
 
-I'll fix it up and apply both patches, thanks Axel.
+I hope not many people will be inconvenienced with changing of existing
+mapping but the new one is definitely better...
 
 -- 
 Dmitry

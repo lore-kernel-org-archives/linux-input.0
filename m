@@ -1,18 +1,18 @@
 From: Alexander Clouter <alex@digriz.org.uk>
-Subject: [PATCHv2] input: gpio_keys: polling mode support
-Date: Tue, 13 Jul 2010 20:57:45 +0100
-Message-ID: <20100713195745.GJ2428@chipmunk>
-References: <20100706190128.GB24655@chipmunk> <20100712192950.GR6976@chipmunk> <20100713011707.GA12728@linux-sh.org> <20100713012819.GA15800@core.coreip.homeip.net> <20100713072605.GS6976@chipmunk>
+Subject: [PATCHv3] input: gpio_keys: polling mode support
+Date: Tue, 13 Jul 2010 21:04:55 +0100
+Message-ID: <20100713200455.GK2428@chipmunk>
+References: <20100706190128.GB24655@chipmunk> <20100712192950.GR6976@chipmunk> <20100713011707.GA12728@linux-sh.org> <20100713012819.GA15800@core.coreip.homeip.net> <20100713072605.GS6976@chipmunk> <20100713195745.GJ2428@chipmunk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from chipmunk.wormnet.eu ([195.195.131.226]:34653 "EHLO
+Received: from chipmunk.wormnet.eu ([195.195.131.226]:44994 "EHLO
 	chipmunk.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753316Ab0GMT5r (ORCPT
+	with ESMTP id S1753316Ab0GMUE4 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jul 2010 15:57:47 -0400
+	Tue, 13 Jul 2010 16:04:56 -0400
 Content-Disposition: inline
-In-Reply-To: <20100713072605.GS6976@chipmunk>
+In-Reply-To: <20100713195745.GJ2428@chipmunk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -30,10 +30,12 @@ Mundt but now the absolute dependency on INPUT_POLLDEV has been
 removed (so existing users of gpio_keys can compile out polldev)
 plus some un-necessary code has been removed.
 
+[1] http://article.gmane.org/gmane.linux.kernel.input/5814
+
+Changes since v2:
+ * fix minor coding style glitch
 Changes since v1:
  * remove #ifdef madness
-
-[1] http://article.gmane.org/gmane.linux.kernel.input/5814
 
 Signed-off-by: Alexander Clouter <alex@digriz.org.uk>
 ---
@@ -42,7 +44,7 @@ Signed-off-by: Alexander Clouter <alex@digriz.org.uk>
  2 files changed, 105 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index b8213fd..285638d 100644
+index b8213fd..b88a308 100644
 --- a/drivers/input/keyboard/gpio_keys.c
 +++ b/drivers/input/keyboard/gpio_keys.c
 @@ -1,7 +1,9 @@
@@ -176,9 +178,9 @@ index b8213fd..285638d 100644
  	}
  
 -	ddata->input = input;
-+	if (pdata->poll_interval) {
++	if (pdata->poll_interval)
 +		ddata->poll_dev = poll_dev;
-+	} else
++	else
 +		ddata->input = input;
  	ddata->n_buttons = pdata->nbuttons;
  	mutex_init(&ddata->disable_lock);

@@ -1,46 +1,42 @@
-From: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
-Subject: Re: usbtouchscreen - runtime PM patches testing [Was: [PATCH 1/2]
-	Input: usbtouchscreen - add support for ET&T TC4UM touchscreen
-	controller]
-Date: Wed, 14 Jul 2010 12:43:27 +0200
-Message-ID: <20100714104327.GW15039@ibawizard.net>
-References: <20100603075720.GQ26052@ibawizard.net> <20100628164603.GC11670@core.coreip.homeip.net> <20100630071635.GJ15039@ibawizard.net> <201006301504.51681.oneukum@suse.de>
-Reply-To: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
-Mime-Version: 1.0
+From: Tim Kersten <tim@io41.com>
+Subject: [PATCH] Bump HID_MAX_USAGES to 32768
+Date: Wed, 14 Jul 2010 12:45:47 +0100
+Message-ID: <CF547DFF-246C-484C-B161-B37F74347EAE@io41.com>
+Mime-Version: 1.0 (Apple Message framework v1081)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ibawizard.net ([82.208.49.253]:33783 "EHLO
-	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753565Ab0GNKnc (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:51045 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753236Ab0GNLpv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jul 2010 06:43:32 -0400
-Content-Disposition: inline
-In-Reply-To: <201006301504.51681.oneukum@suse.de>
+	Wed, 14 Jul 2010 07:45:51 -0400
+Received: by eya25 with SMTP id 25so974674eya.19
+        for <linux-input@vger.kernel.org>; Wed, 14 Jul 2010 04:45:49 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.de>
-Cc: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Oliver Neukum <oneukum@suse.de> [2010-06-30 15:04:51]:
+to cater for number of usages reported by  JAOTECH/Alcor Micro Corp
+wired remote. Needed for volume and channnel buttons. (USB ID 058f:9462)
 
-Hi,
+Signed-off-by: Tim Kersten <tim@io41.com>
+---
+ include/linux/hid.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> 1. indeed a few suspend & resume cycles
-
-it seems to work, although I've tested it with the suspend to RAM only with 
-'echo devices > /sys/power/pm_test', the complete suspend doesn't work on my
-laptop. I hope it's enough. If the whole cycle is necessary I can try to test
-it on 
-
-I was testing it with 'cat /dev/input/touchscreen | od -x' and without your
-patches the device dissapeared after the resume cycle. With your patches it was
-still working fine after 5-6 suspend and resume cycles.
-
-> 2. to know what happens if you switch runtime power management on with
-> echo "auto" >/sys/bus/usb/devices/$DEVICE/power/level
-
-Sorry my ignorance, but what should happen? I don't follow PM stuff that much.
-I've enabled auto and the touchscreen is still working and nothing has
-changed, is it ok?
-
--- ynezz
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 895001f..91fbf4e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -339,7 +339,7 @@ struct hid_global {
+  * This is the local environment. It is persistent up the next main-item.
+  */
+ 
+-#define HID_MAX_USAGES                 12288
++#define HID_MAX_USAGES                 32768
+ #define HID_DEFAULT_NUM_COLLECTIONS    16
+ 
+ struct hid_local {
+-- 
+1.7.0.4

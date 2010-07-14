@@ -1,84 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/4] input: switch to input_abs_*() access functions
-Date: Wed, 14 Jul 2010 01:09:39 -0700
-Message-ID: <20100714080939.GB2712@core.coreip.homeip.net>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Wed, 14 Jul 2010 01:18:48 -0700
+Message-ID: <20100714081848.GC2712@core.coreip.homeip.net>
 References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
- <1274289757-2723-4-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:39770 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752267Ab0GNIJq (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:61485 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753124Ab0GNISz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jul 2010 04:09:46 -0400
+	Wed, 14 Jul 2010 04:18:55 -0400
 Content-Disposition: inline
-In-Reply-To: <1274289757-2723-4-git-send-email-daniel@caiaq.de>
+In-Reply-To: <1274289757-2723-5-git-send-email-daniel@caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Daniel Mack <daniel@caiaq.de>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Daniel,
-
-On Wed, May 19, 2010 at 07:22:36PM +0200, Daniel Mack wrote:
->  		joydev->corr[i].type = JS_CORR_BROKEN;
-> -		joydev->corr[i].prec = dev->absfuzz[j];
-> -		joydev->corr[i].coef[0] =
-> -			(dev->absmax[j] + dev->absmin[j]) / 2 - dev->absflat[j];
-> -		joydev->corr[i].coef[1] =
-> -			(dev->absmax[j] + dev->absmin[j]) / 2 + dev->absflat[j];
-> +		joydev->corr[i].prec = input_abs_fuzz(dev, j);
-> +
-> +		t = (input_abs_max(dev, j) + input_abs_min(dev, j)) / 2
-> +			- input_abs_flat(dev, j);
-> +		joydev->corr[i].coef[0] = t;
-> +		joydev->corr[i].coef[1] = t;
-
-FYI: this is not equivalent transformation - note that original code
-either added or subtracted flat from the average to get coefficient.
-
-> @@ -128,17 +129,20 @@ static void mousedev_touchpad_event(struct input_dev *dev,
->  				    struct mousedev *mousedev,
->  				    unsigned int code, int value)
->  {
-> -	int size, tmp;
->  	enum { FRACTION_DENOM = 128 };
-> +	int tmp;
-> +
-> +	/* use X size for ABS_Y to keep the same scale */
-> +	int size = input_abs_max(dev, ABS_X) - input_abs_min(dev, ABS_X);
-> +
-> +	if (size == 0)
-> +		size = 256 * 2;
+On Wed, May 19, 2010 at 07:22:37PM +0200, Daniel Mack wrote:
 >  
->  	switch (code) {
->  
->  	case ABS_X:
->  		fx(0) = value;
->  		if (mousedev->touch && mousedev->pkt_count >= 2) {
-> -			size = dev->absmax[ABS_X] - dev->absmin[ABS_X];
-> -			if (size == 0)
-> -				size = 256 * 2;
->  			tmp = ((value - fx(2)) * 256 * FRACTION_DENOM) / size;
->  			tmp += mousedev->frac_dx;
->  			mousedev->packet.dx = tmp / FRACTION_DENOM;
-> @@ -150,10 +154,6 @@ static void mousedev_touchpad_event(struct input_dev *dev,
->  	case ABS_Y:
->  		fy(0) = value;
->  		if (mousedev->touch && mousedev->pkt_count >= 2) {
-> -			/* use X size to keep the same scale */
-> -			size = dev->absmax[ABS_X] - dev->absmin[ABS_X];
-> -			if (size == 0)
-> -				size = 256 * 2;
+>  /**
+> + * input_alloc_absinfo - allocates an input_absinfo struct
+> + * @dev: the input device
+> + * @axis: the ABS axis
+> + *
+> + * If the absinfo struct the caller asked for is already allocated, this
+> + * functions will not do anything but return it.
+> + */
+> +struct input_absinfo *input_alloc_absinfo(struct input_dev *dev, int axis)
+> +{
+> +	if (!dev->absinfo[axis])
+> +		dev->absinfo[axis] =
+> +			kzalloc(sizeof(struct input_absinfo), GFP_KERNEL);
+> +
+> +	WARN(!dev->absinfo[axis], "%s(): kzalloc() failed?\n", __func__);
+> +	return dev->absinfo[axis];
 
-The reason we had the repeating code blocks is that we don't do
-calculations for events we are not interested in. This especially
-important for multitouch devices generating lots of data.
+This causes us to allocate every absinfo structure separately and use
+64 additional pointers (256 bytes on 32 bit boxes and even more on 64 bit
+boxes). If device uses enough axis we end up eating up most savings.
 
-I think I will keep it the way it was.
+I think we should simply alloctate ABS_CNT worth of absinfo first time
+we try to set up abs parameters and be done with it so we'll be saving
+space for devices not reporting absolute events.
 
-No need to resubmit, I am working on the patches...
+Another optionw woudl be to allow drivers specify size of absinfo array
+but I am not sure if it worth it.
 
 Thanks.
 

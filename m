@@ -1,33 +1,31 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] input: qt602240 - Add ATMEL QT602240 touchscreen
- driver
-Date: Wed, 14 Jul 2010 22:01:16 -0700
-Message-ID: <20100715050116.GA24016@core.coreip.homeip.net>
-References: <1279158645-23050-1-git-send-email-jy0922.shim@samsung.com>
+From: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
+Subject: Re: usbtouchscreen - runtime PM patches testing [Was: [PATCH 1/2]
+	Input: usbtouchscreen - add support for ET&T TC4UM touchscreen
+	controller]
+Date: Thu, 15 Jul 2010 08:39:14 +0200
+Message-ID: <20100715063914.GY15039@ibawizard.net>
+References: <20100603075720.GQ26052@ibawizard.net> <201006301504.51681.oneukum@suse.de> <20100714104327.GW15039@ibawizard.net> <201007141423.04634.oneukum@suse.de>
+Reply-To: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:38339 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932267Ab0GOFBW (ORCPT
+Received: from ibawizard.net ([82.208.49.253]:60620 "EHLO
+	mengele.ibawizard.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753384Ab0GOGjR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jul 2010 01:01:22 -0400
-Received: by pvc7 with SMTP id 7so122532pvc.19
-        for <linux-input@vger.kernel.org>; Wed, 14 Jul 2010 22:01:21 -0700 (PDT)
+	Thu, 15 Jul 2010 02:39:17 -0400
 Content-Disposition: inline
-In-Reply-To: <1279158645-23050-1-git-send-email-jy0922.shim@samsung.com>
+In-Reply-To: <201007141423.04634.oneukum@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, rydberg@euromail.se, khali@linux-fr.org, kyungmin.park@samsung.com
+To: Oliver Neukum <oneukum@suse.de>
+Cc: Petr =?iso-8859-2?Q?=A9tetiar?= <ynezz@true.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Jul 15, 2010 at 10:50:45AM +0900, Joonyoung Shim wrote:
-> This chip full name is AT42QT602240 or ATMXT224. This is the capacitive
-> touchscreen supporting 10 multitouch and uses I2C interface.
-> 
-> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+Oliver Neukum <oneukum@suse.de> [2010-07-14 14:23:04]:
 
-Applied, thanks Joonyoung.
+> This is quite good already. Ideally in the /sys/bus/usb/devices/$DEVICE/power
+> directory active_duration should grow slower than connected_duration.
 
--- 
-Dmitry
+Yes, it's behaving as you described.
+
+-- ynezz

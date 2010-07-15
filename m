@@ -1,43 +1,84 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [0/3]power management for usbtouchscreens
-Date: Thu, 15 Jul 2010 09:24:00 -0700
-Message-ID: <20100715162400.GA17622@core.coreip.homeip.net>
-References: <201007151556.27284.oneukum@suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] hid: ACRUX game controller force feedback support
+Date: Thu, 15 Jul 2010 09:57:06 -0700
+Message-ID: <20100715165706.GA20371@core.coreip.homeip.net>
+References: <4C3E7850.2010802@dv-life.ru>
+ <4C3ED9C4.5080800@jic23.retrosnub.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:64063 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933757Ab0GOQ5V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jul 2010 12:57:21 -0400
 Content-Disposition: inline
-In-Reply-To: <201007151556.27284.oneukum-l3A5Bk7waGM@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz-knWk7/PSn+s@public.gmane.org>
+In-Reply-To: <4C3ED9C4.5080800@jic23.retrosnub.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: x0r <x0r@dv-life.ru>
+Cc: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Thu, Jul 15, 2010 at 03:56:27PM +0200, Oliver Neukum wrote:
-> Hi,
->=20
-> this series implements power management in form of suspend/resume
-> and reset_resume() for USB touchscreens. For devices that can live wi=
-thout
-> constant communication runtime power management is also implemented.
-> Support for reset_resume() required splitting up device initializatio=
-n in two
-> parts. Allocations are not repeated upon reset_resume(); initializing=
- the
-> hardware is repeated.
->=20
-> Many thanks to Petr =C5=A0tetiar for testing.
->=20
+Hi,
 
-Will apply, thanks Oliver.
+On Thu, Jul 15, 2010 at 10:49:56AM +0100, Jonathan Cameron wrote:
+> > +
+> > +static int ax_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> > +{
+> > +    int ret;
+> > +
+> > +    dev_dbg(&hdev->dev, "ACRUX HID hardware probe...");
+> > +
+> > +    ret = hid_parse(hdev);
+> > +    if (ret) {
+> > +        dev_err(&hdev->dev, "parse failed\n");
+> > +        goto err;
+> > +    }
+> > +
+> > +    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT&  ~HID_CONNECT_FF);
+> > +    if (ret) {
+> > +        dev_err(&hdev->dev, "hw start failed\n");
+> > +        goto err;
+> > +    }
+> > +
+> > +    axff_init(hdev);
 
-BTW, your editor adds a bit of whitespace garbage to the files, please
-beat it into submission.
+Error handling for axff_init() too please.
 
---=20
+> > 
+> > --- a/drivers/hid/Kconfig
+> > +++ b/drivers/hid/Kconfig
+> > @@ -68,6 +68,21 @@
+> >      ---help---
+> >      Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+> > 
+> > +config HID_ACRUX
+> > +    tristate "ACRUX support" if EMBEDDED
+> > +    depends on USB_HID
+> > +    default !EMBEDDED
+> > +    ---help---
+> > +    Say Y here if you have ACRUX game controllers.
+> > +
+> > +config ACRUX_FF
+> > +    bool "ACRUX force feedback support"
+> > +    depends on HID_ACRUX
+> > +    select INPUT_FF_MEMLESS
+> > +    ---help---
+> > +    Say Y here if you want to enable force feedback support for ACRUX
+> > +    game controllers.
+> > +
+
+Why 2 separate CONFIG options? I do not see any special handling except
+for force feedback control itself; doesn't the device work with vanilla
+kernel (sans FF of course)?
+
+I also have a string suspicion the file is indented with 4 spaces, please
+make sure it is indented with tabs.
+
+And since it is HID device please make sure you copy Jiri Kosina
+(CCed).
+
+Thanks.
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

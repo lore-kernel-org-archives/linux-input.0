@@ -1,84 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] hid: ACRUX game controller force feedback support
-Date: Thu, 15 Jul 2010 09:57:06 -0700
-Message-ID: <20100715165706.GA20371@core.coreip.homeip.net>
-References: <4C3E7850.2010802@dv-life.ru>
- <4C3ED9C4.5080800@jic23.retrosnub.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>
+Subject: [PATCH] Input: mousedev - Fix mousedev_poll() to advertise when /dev/input/mice is writable.
+Date: Thu, 15 Jul 2010 19:31:27 +0200
+Message-ID: <1279215089-20361-1-git-send-email-julm+linux@savines.alpes.fr.eu.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:64063 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933757Ab0GOQ5V (ORCPT
+Received: from commune-des.alpes.fr.eu.org ([195.88.84.51]:57405 "EHLO
+	commune-des.alpes.fr.eu.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S933810Ab0GORnj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jul 2010 12:57:21 -0400
-Content-Disposition: inline
-In-Reply-To: <4C3ED9C4.5080800@jic23.retrosnub.co.uk>
+	Thu, 15 Jul 2010 13:43:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: x0r <x0r@dv-life.ru>
-Cc: Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Alexey Dobriyan <adobriyan@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+The Microsoft ImPS/2 mouse protocol being bidirectionnal (sic)
+one may have to write in /dev/input/mice; and that works better
+if select() does not hang.
 
-On Thu, Jul 15, 2010 at 10:49:56AM +0100, Jonathan Cameron wrote:
-> > +
-> > +static int ax_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> > +{
-> > +    int ret;
-> > +
-> > +    dev_dbg(&hdev->dev, "ACRUX HID hardware probe...");
-> > +
-> > +    ret = hid_parse(hdev);
-> > +    if (ret) {
-> > +        dev_err(&hdev->dev, "parse failed\n");
-> > +        goto err;
-> > +    }
-> > +
-> > +    ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT&  ~HID_CONNECT_FF);
-> > +    if (ret) {
-> > +        dev_err(&hdev->dev, "hw start failed\n");
-> > +        goto err;
-> > +    }
-> > +
-> > +    axff_init(hdev);
+Signed-off-by: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>
+---
+ drivers/input/mousedev.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Error handling for axff_init() too please.
-
-> > 
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -68,6 +68,21 @@
-> >      ---help---
-> >      Support for A4 tech X5 and WOP-35 / Trust 450L mice.
-> > 
-> > +config HID_ACRUX
-> > +    tristate "ACRUX support" if EMBEDDED
-> > +    depends on USB_HID
-> > +    default !EMBEDDED
-> > +    ---help---
-> > +    Say Y here if you have ACRUX game controllers.
-> > +
-> > +config ACRUX_FF
-> > +    bool "ACRUX force feedback support"
-> > +    depends on HID_ACRUX
-> > +    select INPUT_FF_MEMLESS
-> > +    ---help---
-> > +    Say Y here if you want to enable force feedback support for ACRUX
-> > +    game controllers.
-> > +
-
-Why 2 separate CONFIG options? I do not see any special handling except
-for force feedback control itself; doesn't the device work with vanilla
-kernel (sans FF of course)?
-
-I also have a string suspicion the file is indented with 4 spaces, please
-make sure it is indented with tabs.
-
-And since it is HID device please make sure you copy Jiri Kosina
-(CCed).
-
-Thanks.
-
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index f34b22b..1f67b8f 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -768,7 +768,8 @@ static unsigned int mousedev_poll(struct file *file, poll_table *wait)
+ 
+ 	poll_wait(file, &mousedev->wait, wait);
+ 	return ((client->ready || client->buffer) ? (POLLIN | POLLRDNORM) : 0) |
+-		(mousedev->exist ? 0 : (POLLHUP | POLLERR));
++		(mousedev->exist ?
++			(POLLOUT | POLLWRNORM) : (POLLHUP | POLLERR));
+ }
+ 
+ static const struct file_operations mousedev_fops = {
 -- 
-Dmitry
+1.7.1
+

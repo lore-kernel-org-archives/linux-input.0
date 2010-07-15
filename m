@@ -1,40 +1,39 @@
-From: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>
-Subject: [PATCH] Input: mousedev - Fix mousedev_poll() to advertise when /dev/input/mice is writable.
-Date: Thu, 15 Jul 2010 19:31:27 +0200
-Message-ID: <1279215089-20361-1-git-send-email-julm+linux@savines.alpes.fr.eu.org>
+From: Kulikov Vasiliy <segooon@gmail.com>
+Subject: [PATCH 2/8] touchscreen: fix sign bug
+Date: Thu, 15 Jul 2010 22:43:54 +0400
+Message-ID: <1279219435-12128-1-git-send-email-segooon@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from commune-des.alpes.fr.eu.org ([195.88.84.51]:57405 "EHLO
-	commune-des.alpes.fr.eu.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S933810Ab0GORnj (ORCPT
+Received: from mail-ey0-f174.google.com ([209.85.215.174]:35888 "EHLO
+	mail-ey0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934208Ab0GOSob (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jul 2010 13:43:39 -0400
+	Thu, 15 Jul 2010 14:44:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, Alexey Dobriyan <adobriyan@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kernel-janitors@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Microsoft ImPS/2 mouse protocol being bidirectionnal (sic)
-one may have to write in /dev/input/mice; and that works better
-if select() does not hang.
+platform_get_irq_byname() can return negative results, it is not seen to
+unsigned ts_irq. Make it signed.
 
-Signed-off-by: Julien Moutinho <julm+linux@savines.alpes.fr.eu.org>
+Signed-off-by: Kulikov Vasiliy <segooon@gmail.com>
 ---
- drivers/input/mousedev.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/stmpe-ts.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index f34b22b..1f67b8f 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -768,7 +768,8 @@ static unsigned int mousedev_poll(struct file *file, poll_table *wait)
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index 77f4374..656148e 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -269,7 +269,7 @@ static int __devinit stmpe_input_probe(struct platform_device *pdev)
+ 	struct input_dev *idev;
+ 	struct stmpe_ts_platform_data *ts_pdata = NULL;
+ 	int ret = 0;
+-	unsigned int ts_irq;
++	int ts_irq;
  
- 	poll_wait(file, &mousedev->wait, wait);
- 	return ((client->ready || client->buffer) ? (POLLIN | POLLRDNORM) : 0) |
--		(mousedev->exist ? 0 : (POLLHUP | POLLERR));
-+		(mousedev->exist ?
-+			(POLLOUT | POLLWRNORM) : (POLLHUP | POLLERR));
- }
- 
- static const struct file_operations mousedev_fops = {
+ 	ts_irq = platform_get_irq_byname(pdev, "FIFO_TH");
+ 	if (ts_irq < 0)
 -- 
-1.7.1
+1.7.0.4
 

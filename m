@@ -1,57 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] [PATCH] Input: ADP5588 - Support gpio function on unused
- pin
-Date: Fri, 16 Jul 2010 09:42:39 -0700
-Message-ID: <20100716164239.GC9232@core.coreip.homeip.net>
-References: <AANLkTikJKMYajxh799evj7Xv_HV3DFhabCZgYDkhuokh@mail.gmail.com>
- <AANLkTimbg9yhPvR8vya2dN4MIOF0JxyKbOrpQ_T0R_T3@mail.gmail.com>
- <544AC56F16B56944AEC3BD4E3D5917712E7EA5A357@LIMKCMBX1.ad.analog.com>
- <AANLkTimCA8gNc6aQW46ESbSbqxT6UGoqbT5PWC3vwkBc@mail.gmail.com>
- <20100716162017.GA9232@core.coreip.homeip.net>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] input: fix wiring up default setkeycode/setkeycodebig
+Date: Fri, 16 Jul 2010 13:23:51 -0400
+Message-ID: <20100716172351.GA4364@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:56508 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750983Ab0GPQms (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Jul 2010 12:42:48 -0400
-Received: by pvc7 with SMTP id 7so865483pvc.19
-        for <linux-input@vger.kernel.org>; Fri, 16 Jul 2010 09:42:47 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:54361 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754116Ab0GPRXx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Jul 2010 13:23:53 -0400
 Content-Disposition: inline
-In-Reply-To: <20100716162017.GA9232@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Xiaolong CHEN <a21785@motorola.com>
-Cc: "Hennerich, Michael" <Michael.Hennerich@analog.com>, david-b@pacbell.net, Xiaolong CHEN <xiao-long.chen@motorola.com>, Michael Hennerich <hennerich@blackfin.uclinux.org>, linux-input@vger.kernel.org, TAO HU <taohu@motorola.com>, "Yuan.Bo YE" <yuan-bo.ye@motorola.com>
+To: linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 
-One more thing...
+I believe there's a mistake in 94977ff15f4214ee4630cf4a67195a1d48da771c,
+where the conditions on which to set a setkeycodebig function are
+incorrect. Previously, we had the case where if the dev didn't provide
+its own setkeycode, we'd set the default input layer one. Now, we set
+setkeycode big if the dev provides its own setkeycode but doesn't
+provide setkeycodebig. Devices that provide neither setkeycode nor
+setkeycodebig wind up with neither, which blows up horribly later on
+down the road when a setkeycode{,big} operation is attempted. Such is
+the case with the thinkpad_acpi driver's input device registered for the
+extra hotkey buttons on my own t61. This makes it happy again, and seems
+to be an obvious fix for a thinko.
 
-On Fri, Jul 16, 2010 at 09:20:18AM -0700, Dmitry Torokhov wrote:
-> On Fri, Jul 16, 2010 at 07:48:07PM +0800, Xiaolong CHEN wrote:
-> >  static int __devexit adp5588_remove(struct i2c_client *client)
-> >  {
-> > +	int ret;
-> >  	struct adp5588_kpad *kpad = i2c_get_clientdata(client);
-> > 
-> >  	adp5588_write(client, CFG, 0);
-> >  	free_irq(client->irq, kpad);
-> >  	cancel_delayed_work_sync(&kpad->work);
-> >  	input_unregister_device(kpad->input);
-> > +	if (kpad->support_gpio)
-> > +		ret = gpiochip_remove(&kpad->gpio_chip);
+Oh yeah, patch is against the linuxtv staging/other tree, not sure where
+else the previously referenced hash can be found just yet.
 
-You need to actually handle this (add an error message) since we can't
-simply ignore errors.
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+---
+ drivers/input/input.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-However I think that having gpiochip_remove() __must_check while
-gpiochip_add is quite silly.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 43aeb71..ce5d90d 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1850,7 +1850,7 @@ int input_register_device(struct input_dev *dev)
+ 			dev->getkeycodebig_from_scancode = input_default_getkeycode_from_scancode;
+ 	}
+ 
+-	if (dev->setkeycode) {
++	if (!dev->setkeycode) {
+ 		if (!dev->setkeycodebig)
+ 			dev->setkeycodebig = input_default_setkeycode;
+ 	}
+-- 
+1.7.1.1
 
-I'd argue that gpiochip_remove() should wither WARN or BUG if we trying
-to remove a chip that still has GPIOs requested and return void since
-callers normally can't do anything about the failure. Many simply abort
-device teardown leaving device a zombie and report failure up the stack,
-to the driver core, where it is ignored. Not very helpful.
 
 -- 
-Dmitry
+Jarod Wilson
+jarod@redhat.com
+

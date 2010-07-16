@@ -1,42 +1,72 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: [PATCH] touchscreen/nuc900: fix wrong setup_timer parameter
-Date: Fri, 16 Jul 2010 10:43:02 +0800
-Message-ID: <4C3FC736.4010805@gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: any value in running my kernel scanning scripts before release?
+Date: Thu, 15 Jul 2010 20:00:12 -0700
+Message-ID: <20100716030012.GA26610@kroah.com>
+References: <alpine.DEB.2.00.1007150728520.13042@lynx> <4C3F0D1B.9060403@suse.cz> <alpine.DEB.2.00.1007151845490.11593@lynx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:46044 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935363Ab0GPCnS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jul 2010 22:43:18 -0400
+Received: from kroah.org ([198.145.64.141]:54087 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935482Ab0GPDBr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 Jul 2010 23:01:47 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.00.1007151845490.11593@lynx>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: "Robert P. J. Day" <rpjday@crashcourse.ca>
+Cc: Michal Marek <mmarek@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Thu, Jul 15, 2010 at 06:50:20PM -0400, Robert P. J. Day wrote:
+> On Thu, 15 Jul 2010, Michal Marek wrote:
+> 
+> > On 07/15/2010 01:32 PM, Robert P. J. Day wrote:
+> > >
+> > >   normally i wait for the merge window, then run my kernel scanning
+> > > scripts and post results.  any interest in me doing that earlier?  i
+> > > just did a quick test and found a number of incongruities like, for
+> > > example:
+> > >
+> > > $ grep -r "config QT2160" *
+> > > drivers/input/keyboard/Kconfig:config QT2160
+> > > $
+> > >
+> > > $ grep -r KEYBOARD_QT2160 *
+> > > drivers/input/keyboard/Makefile:obj-$(CONFIG_KEYBOARD_QT2160) += qt2160.o
+> > > $
+> >
+> > These are plain bugs, so it's IMO OK to send fixes for these at any
+> > time before the final release. In the worst case, it will be merged
+> > after the final release.
+> 
+>   i wasn't suggesting that was the only example, only that it was an
+> obvious one.  there are others.  just for fun, here's the entire list
+> of references specifically from *Makefiles* to Kconfig variables that
+> don't exist (for whatever reason):
+> 
+> ===== ATHEROS_AR71XX =====
+> ./drivers/net/wireless/ath/ath9k/Makefile:ath9k-$(CONFIG_ATHEROS_AR71XX) += ahb.o
+> ===== KEYBOARD_QT2160 =====
+> ./drivers/input/keyboard/Makefile:obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
+> ===== PCMCIA_IOCTL =====
+> ./drivers/pcmcia/Makefile:pcmcia-$(CONFIG_PCMCIA_IOCTL)			+= pcmcia_ioctl.o
+> ===== USB_ETH_FUNCTIONFS =====
+> ./drivers/usb/gadget/Makefile:obj-$(CONFIG_USB_ETH_FUNCTIONFS)	+= g_eth_ffs.o
+> 
+>   in other words, none of that content is ever going to get compiled.
+> mercifully, there are only four examples of that left in the tree.
+> used to be a lot more.  clean up whatever catches your eye.
+> 
+> rday
+> 
+> p.s.  i cc'ed greg kh since i suspect he'll want to do something about
+> that last one.  i need sleep.
 
-This patch fixes wrong setup_timer parameter,when pen up event coming
-all codes quoting the w90p910_ts work failed.
+Ah, ick, that usb functionfs one is a real bug, nice catch.  I too have
+been getting no sleep, and will just wait for you to send me a patch :)
 
-Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
----
- drivers/input/touchscreen/w90p910_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+The joys of conference season...
 
-diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
-index cc18265..7a45d68 100644
---- a/drivers/input/touchscreen/w90p910_ts.c
-+++ b/drivers/input/touchscreen/w90p910_ts.c
-@@ -233,7 +233,7 @@ static int __devinit w90x900ts_probe(struct platform_device *pdev)
- 	w90p910_ts->state = TS_IDLE;
- 	spin_lock_init(&w90p910_ts->lock);
- 	setup_timer(&w90p910_ts->timer, w90p910_check_pen_up,
--		    (unsigned long)&w90p910_ts);
-+		    (unsigned long)w90p910_ts);
+thanks,
 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
--- 
-1.6.3.3
+greg k-h

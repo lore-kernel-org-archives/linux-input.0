@@ -1,72 +1,53 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: any value in running my kernel scanning scripts before release?
-Date: Thu, 15 Jul 2010 20:00:12 -0700
-Message-ID: <20100716030012.GA26610@kroah.com>
-References: <alpine.DEB.2.00.1007150728520.13042@lynx> <4C3F0D1B.9060403@suse.cz> <alpine.DEB.2.00.1007151845490.11593@lynx>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: [0/3]power management for usbtouchscreens
+Date: Fri, 16 Jul 2010 08:56:04 +0200
+Message-ID: <201007160856.04636.oneukum@suse.de>
+References: <201007151556.27284.oneukum@suse.de> <20100715162400.GA17622@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:54087 "EHLO coco.kroah.org"
+Received: from cantor.suse.de ([195.135.220.2]:52407 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935482Ab0GPDBr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jul 2010 23:01:47 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.00.1007151845490.11593@lynx>
+	id S935636Ab0GPG4u convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Jul 2010 02:56:50 -0400
+In-Reply-To: <20100715162400.GA17622@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Cc: Michal Marek <mmarek@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Petr =?utf-8?q?=C5=A0tetiar?= <ynezz@true.cz>
 
-On Thu, Jul 15, 2010 at 06:50:20PM -0400, Robert P. J. Day wrote:
-> On Thu, 15 Jul 2010, Michal Marek wrote:
-> 
-> > On 07/15/2010 01:32 PM, Robert P. J. Day wrote:
-> > >
-> > >   normally i wait for the merge window, then run my kernel scanning
-> > > scripts and post results.  any interest in me doing that earlier?  i
-> > > just did a quick test and found a number of incongruities like, for
-> > > example:
-> > >
-> > > $ grep -r "config QT2160" *
-> > > drivers/input/keyboard/Kconfig:config QT2160
-> > > $
-> > >
-> > > $ grep -r KEYBOARD_QT2160 *
-> > > drivers/input/keyboard/Makefile:obj-$(CONFIG_KEYBOARD_QT2160) += qt2160.o
-> > > $
-> >
-> > These are plain bugs, so it's IMO OK to send fixes for these at any
-> > time before the final release. In the worst case, it will be merged
-> > after the final release.
-> 
->   i wasn't suggesting that was the only example, only that it was an
-> obvious one.  there are others.  just for fun, here's the entire list
-> of references specifically from *Makefiles* to Kconfig variables that
-> don't exist (for whatever reason):
-> 
-> ===== ATHEROS_AR71XX =====
-> ./drivers/net/wireless/ath/ath9k/Makefile:ath9k-$(CONFIG_ATHEROS_AR71XX) += ahb.o
-> ===== KEYBOARD_QT2160 =====
-> ./drivers/input/keyboard/Makefile:obj-$(CONFIG_KEYBOARD_QT2160)		+= qt2160.o
-> ===== PCMCIA_IOCTL =====
-> ./drivers/pcmcia/Makefile:pcmcia-$(CONFIG_PCMCIA_IOCTL)			+= pcmcia_ioctl.o
-> ===== USB_ETH_FUNCTIONFS =====
-> ./drivers/usb/gadget/Makefile:obj-$(CONFIG_USB_ETH_FUNCTIONFS)	+= g_eth_ffs.o
-> 
->   in other words, none of that content is ever going to get compiled.
-> mercifully, there are only four examples of that left in the tree.
-> used to be a lot more.  clean up whatever catches your eye.
-> 
-> rday
-> 
-> p.s.  i cc'ed greg kh since i suspect he'll want to do something about
-> that last one.  i need sleep.
+Am Donnerstag, 15. Juli 2010, 18:24:00 schrieb Dmitry Torokhov:
+> On Thu, Jul 15, 2010 at 03:56:27PM +0200, Oliver Neukum wrote:
+> > Hi,
+> >=20
+> > this series implements power management in form of suspend/resume
+> > and reset_resume() for USB touchscreens. For devices that can live =
+without
+> > constant communication runtime power management is also implemented=
+=2E
+> > Support for reset_resume() required splitting up device initializat=
+ion in two
+> > parts. Allocations are not repeated upon reset_resume(); initializi=
+ng the
+> > hardware is repeated.
+> >=20
+> > Many thanks to Petr =C5=A0tetiar for testing.
+> >=20
+>=20
+> Will apply, thanks Oliver.
+>=20
+> BTW, your editor adds a bit of whitespace garbage to the files, pleas=
+e
+> beat it into submission.
 
-Ah, ick, that usb functionfs one is a real bug, nice catch.  I too have
-been getting no sleep, and will just wait for you to send me a patch :)
+That is not good. What did it do?
 
-The joys of conference season...
-
-thanks,
-
-greg k-h
+	Regards
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,69 +1,43 @@
-From: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Subject: you should fix typo, "QT2160" versus "KEYBOARD_QT2160"
-Date: Fri, 16 Jul 2010 04:39:38 -0400 (EDT)
-Message-ID: <alpine.DEB.2.00.1007160434590.13824@lynx>
+From: chatty@lii-enac.fr (Stephane Chatty)
+Subject: [PATCH] Fix for the multitouch panel of the Asus T91MT
+Date: Fri, 16 Jul 2010 11:46:11 +0200
+Message-ID: <20100716094611.C9A089520B@smtp.lii-enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from astoria.ccjclearline.com ([64.235.106.9]:41653 "EHLO
-	astoria.ccjclearline.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935955Ab0GPIjy (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:53106 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S964898Ab0GPJ4V (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Jul 2010 04:39:54 -0400
-Received: from cpe002275e3273f-cm001225dbafb6.cpe.net.cable.rogers.com ([99.235.245.115] helo=crashcourse.ca)
-	by astoria.ccjclearline.com with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.69)
-	(envelope-from <rpjday@crashcourse.ca>)
-	id 1OZgSV-0002jw-MP
-	for linux-input@vger.kernel.org; Fri, 16 Jul 2010 04:39:52 -0400
+	Fri, 16 Jul 2010 05:56:21 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: jkosina@suze.cz, linux-input@vger.kernel.org
+Cc: chase.douglas@canonical.com, chatty@enac.fr
+
+Fixed bug in management of the multitouch panel of the Asus T91MT: it was
+erroneously added to the ignore list instead of the black list.
+
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
 
-  not sure what you want to do with this, but there's a mismatch:
-
-drivers/input/keyboard/Kconfig:
-...
-config QT2160
-...
-
-  while the corresponding Makefile contains:
-
-obj-$(CONFIG_KEYBOARD_QT2160)           += qt2160.o
-             ^^^^^^^^^
-
-  normally, i'd just edit the Kconfig file to be consistent with all
-other config entries in that file, but:
-
-$ grep -rw CONFIG_QT2160 *
-arch/powerpc/configs/pasemi_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/44x/sam440ep_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/44x/icon_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/wii_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/85xx/stx_gp3_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/ppc64e_defconfig:# CONFIG_QT2160 is not set
-arch/powerpc/configs/mpc512x_defconfig:# CONFIG_QT2160 is not set
-arch/mips/configs/fuloong2e_defconfig:# CONFIG_QT2160 is not set
-arch/mips/configs/mtx1_defconfig:# CONFIG_QT2160 is not set
-arch/sparc/configs/sparc64_defconfig:# CONFIG_QT2160 is not set
-arch/avr32/configs/atstk1006_defconfig:# CONFIG_QT2160 is not set
-arch/avr32/configs/atstk1002_defconfig:# CONFIG_QT2160 is not set
-arch/blackfin/configs/BF548-EZKIT_defconfig:# CONFIG_QT2160 is not set
-... etc etc ...
-
-  i'll let you decide how to resolve that.
-
-rday
-
--- 
-
-========================================================================
-Robert P. J. Day                               Waterloo, Ontario, CANADA
-
-        Top-notch, inexpensive online Linux/OSS/kernel courses
-                        http://crashcourse.ca
-
-Twitter:                                       http://twitter.com/rpjday
-LinkedIn:                               http://ca.linkedin.com/in/rpjday
-========================================================================
+diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+--- a/drivers/hid/hid-core.c	2010-07-05 05:22:50.000000000 +0200
++++ b/drivers/hid/hid-core.c	2010-07-16 13:38:24.266220496 +0200
+@@ -1280,6 +1280,7 @@ static const struct hid_device_id hid_bl
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
+@@ -1553,7 +1554,6 @@ static const struct hid_device_id hid_ig
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },

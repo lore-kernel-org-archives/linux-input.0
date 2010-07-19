@@ -1,65 +1,40 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] HID: Force registration of an input device for "VEC
- footpedal" devices
-Date: Mon, 19 Jul 2010 11:59:48 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1007191158330.4741@pobox.suse.cz>
-References: <1278955708-9428-1-git-send-email-daniel@caiaq.de> <1278955708-9428-3-git-send-email-daniel@caiaq.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v4] input: qt602240 - Add ATMEL QT602240 touchscreen
+ driver
+Date: Mon, 19 Jul 2010 11:29:59 +0200
+Message-ID: <20100719112959.00939d83@hyperion.delvare>
+References: <1278488423-2727-1-git-send-email-jy0922.shim@samsung.com>
+	<20100713165152.GC26529@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1278955708-9428-3-git-send-email-daniel-rDUAYElUppE@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zone0.gcu-squad.org ([212.85.147.21]:47853 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760440Ab0GSKCA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Jul 2010 06:02:00 -0400
+In-Reply-To: <20100713165152.GC26529@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, linux-input@vger.kernel.org, kyungmin.park@samsung.com, rydberg@euromail.se
 
-On Mon, 12 Jul 2010, Daniel Mack wrote:
+On Tue, 13 Jul 2010 09:51:52 -0700, Dmitry Torokhov wrote:
+> On Wed, Jul 07, 2010 at 04:40:23PM +0900, Joonyoung Shim wrote:
+> > This chip full name is AT42QT602240 or ATMXT224. This is the capacitive
+> > touchscreen supporting 10 multitouch and uses I2C interface.
+> > 
+> > Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> 
+> Henrik, Jean,
+> 
+> Have your concerns with this patch been addressed? If I get your
+> acked-by I am ready to apply it.
 
-> These devices report a usage page of type "consumer" and a usage of
-> "Programmable buttons". They are hence ignored by the hid-input layer.
-> 
-> Force the registration of an input device by using the new quirk type
-> HID_QUIRK_HIDINPUT_FORCE.
-> 
-> Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
-> Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/hid/hid-ids.h           |    2 ++
->  drivers/hid/usbhid/hid-quirks.c |    2 ++
->  2 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 6af77ed..0510cc1 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -505,5 +505,7 @@
->  #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
->  #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
->  
-> +#define USB_VENDOR_ID_PI_ENGINEERING	0x05f3
-> +#define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL	0xff
->  
->  #endif
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 5ff8d32..12b38d1 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -73,6 +73,8 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
->  
-> +	{ USB_VENDOR_ID_PI_ENGINEERING, USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL, HID_QUIRK_HIDINPUT_FORCE },
-> +
->  	{ 0, 0 }
->  };
+Yes they have been, sorry for the slow response, I was travelling.
 
-I have applied the whole series, thanks Daniel.
+Acked-by: Jean Delvare <khali@linux-fr.org>
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jean Delvare

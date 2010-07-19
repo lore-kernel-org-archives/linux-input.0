@@ -1,49 +1,30 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH] input: fix uninitialized old_keycode oops in
- input_set_keycode
-Date: Mon, 19 Jul 2010 15:59:12 -0400
-Message-ID: <20100719195912.GC31837@redhat.com>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: Re: [PATCHv3] input: gpio_keys: polling mode support
+Date: Mon, 19 Jul 2010 23:26:55 +0200
+Message-ID: <87fwzf40yo.fsf@tac.ki.iif.hu>
+References: <20100706190128.GB24655@chipmunk> <20100712192950.GR6976@chipmunk>
+	<20100713011707.GA12728@linux-sh.org>
+	<20100713012819.GA15800@core.coreip.homeip.net>
+	<20100713072605.GS6976@chipmunk> <20100713195745.GJ2428@chipmunk>
+	<20100713200455.GK2428@chipmunk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35998 "EHLO mx1.redhat.com"
+Received: from tac.ki.iif.hu ([193.6.222.43]:40646 "EHLO tac.ki.iif.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966644Ab0GSUIE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jul 2010 16:08:04 -0400
-Content-Disposition: inline
+	id S966352Ab0GSVz6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Jul 2010 17:55:58 -0400
+In-Reply-To: <20100713200455.GK2428@chipmunk> (Alexander Clouter's message of
+	"Tue, 13 Jul 2010 21:04:55 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, kmcmartin@redhat.com
+To: Alexander Clouter <alex@digriz.org.uk>
+Cc: linux-input@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Patch as suggested by Kyle McMartin, in response to Red Hat bugzilla
-615707, filed against a rawhide kernel carrying ir-core enabling patches
-from the linuxtv staging/other tree. Fix is based on the similar logic in
-input_set_keycode_big, and is confirmed by the bz reporter.
+Hi,
 
-CC: Kyle McMartin <kmcmartin@redhat.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
----
- drivers/input/input.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index ce5d90d..0c71977 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -900,6 +900,7 @@ int input_set_keycode(struct input_dev *dev,
- 		if (retval)
- 			goto out;
- 
-+		old_keycode = kt_entry.keycode;
- 		kt_entry.keycode = keycode;
- 
- 		retval = dev->setkeycodebig(dev, &kt_entry);
+Just in case you didn't know: there's an alternate implementation at
+https://dev.openwrt.org/browser/trunk/target/linux/generic-2.6/files/drivers/input/misc/gpio_buttons.c?rev=21436
 -- 
-1.7.1.1
-
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Regards,
+Feri.

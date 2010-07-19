@@ -1,48 +1,49 @@
-From: Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH] i8042: add Gigabyte Spring Peak to dmi_noloop_table
-Date: Mon, 19 Jul 2010 10:45:34 -0700
-Message-ID: <1279561534-3551-1-git-send-email-kamal@canonical.com>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] input: fix uninitialized old_keycode oops in
+ input_set_keycode
+Date: Mon, 19 Jul 2010 15:59:12 -0400
+Message-ID: <20100719195912.GC31837@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:56577 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932452Ab0GSRpo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jul 2010 13:45:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:35998 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966644Ab0GSUIE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 Jul 2010 16:08:04 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: kernel-team@lists.ubuntu.com, Kamal Mostafa <kamal@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Elliott Sales de Andrade <quantum.analyst@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, kmcmartin@redhat.com
 
-Gigabyte "Spring Peak" notebook indicates wrong chassis-type, tripping up
-i8042 and breaking the touchpad.  Add this model to i8042_dmi_noloop_table[]
-to resolve.
+Patch as suggested by Kyle McMartin, in response to Red Hat bugzilla
+615707, filed against a rawhide kernel carrying ir-core enabling patches
+from the linuxtv staging/other tree. Fix is based on the similar logic in
+input_set_keycode_big, and is confirmed by the bz reporter.
 
-BugLink: https://bugs.launchpad.net/bugs/580664
-
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-Cc: <stable@kernel.org>
+CC: Kyle McMartin <kmcmartin@redhat.com>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ drivers/input/input.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 6168469..d953d65 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -166,6 +166,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
- 		},
- 	},
- 	{
-+		/* Gigabyte Spring Peak */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Spring Peak"),
-+		},
-+	},
-+	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv9700"),
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index ce5d90d..0c71977 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -900,6 +900,7 @@ int input_set_keycode(struct input_dev *dev,
+ 		if (retval)
+ 			goto out;
+ 
++		old_keycode = kt_entry.keycode;
+ 		kt_entry.keycode = keycode;
+ 
+ 		retval = dev->setkeycodebig(dev, &kt_entry);
 -- 
-1.7.0.4
+1.7.1.1
+
+
+-- 
+Jarod Wilson
+jarod@redhat.com
 

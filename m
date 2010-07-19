@@ -1,45 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: synaptics - only report width on hardware
- that supports it
-Date: Mon, 19 Jul 2010 09:07:12 -0700
-Message-ID: <20100719160712.GA13318@core.coreip.homeip.net>
-References: <1279479967-4499-1-git-send-email-chris@cnpbagwell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Kamal Mostafa <kamal@canonical.com>
+Subject: [PATCH] i8042: add Gigabyte Spring Peak to dmi_noloop_table
+Date: Mon, 19 Jul 2010 10:45:34 -0700
+Message-ID: <1279561534-3551-1-git-send-email-kamal@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:65359 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936228Ab0GSQHU (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:56577 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932452Ab0GSRpo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jul 2010 12:07:20 -0400
-Received: by pwi5 with SMTP id 5so1719345pwi.19
-        for <linux-input@vger.kernel.org>; Mon, 19 Jul 2010 09:07:19 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1279479967-4499-1-git-send-email-chris@cnpbagwell.com>
+	Mon, 19 Jul 2010 13:45:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: chris@cnpbagwell.com
-Cc: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: kernel-team@lists.ubuntu.com, Kamal Mostafa <kamal@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg@redhat.com>, Elliott Sales de Andrade <quantum.analyst@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org
 
-On Sun, Jul 18, 2010 at 02:06:06PM -0500, chris@cnpbagwell.com wrote:
-> From: Chris Bagwell <chris@cnpbagwell.com>
-> 
-> Synaptics devices report fixed value of 5 for finger/palm widths
-> on devices that do not support capability and driver further
-> hardcodes to 5.  Stop reporting this fixed value when its
-> not supported since its not useful.
-> 
-> This will aid applications so they can better auto-enable
-> support for multi-touch emulation and palm detection logic
-> using finger width only for devices that support width detection.
-> 
-> I can find no applications that currently require existence
-> on ABS_TOOL_WIDTH. Since only synaptics and bcm input devices
-> currently support this tool, it seems they must handle it gracefully.
-> 
-> Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Gigabyte "Spring Peak" notebook indicates wrong chassis-type, tripping up
+i8042 and breaking the touchpad.  Add this model to i8042_dmi_noloop_table[]
+to resolve.
 
-Applied both, thanks Chris.
+BugLink: https://bugs.launchpad.net/bugs/580664
 
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+Cc: <stable@kernel.org>
+---
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 6168469..d953d65 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -166,6 +166,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 		},
+ 	},
+ 	{
++		/* Gigabyte Spring Peak */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Spring Peak"),
++		},
++	},
++	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv9700"),
 -- 
-Dmitry
+1.7.0.4
+

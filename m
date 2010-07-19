@@ -1,28 +1,65 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
-Date: Mon, 19 Jul 2010 11:28:23 +0200
-Message-ID: <20100719112823.7569384f@hyperion.delvare>
-References: <Kevin McNeely <kev@cypress.com>
-	<1278968210-6827-1-git-send-email-kev@cypress.com>
-	<4C3C1654.9010204@codeaurora.org>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] HID: Force registration of an input device for "VEC
+ footpedal" devices
+Date: Mon, 19 Jul 2010 11:59:48 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1007191158330.4741@pobox.suse.cz>
+References: <1278955708-9428-1-git-send-email-daniel@caiaq.de> <1278955708-9428-3-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C3C1654.9010204-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: Kevin McNeely <kev-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Brown <davidb-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Fred <fwk-Oe2toyAt74HPMrFvwkxXifhex3umJS83AL8bYrjMMd8@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Simtec Linux Team <linux-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1278955708-9428-3-git-send-email-daniel-rDUAYElUppE@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 13 Jul 2010 13:01:32 +0530, Trilok Soni wrote:
-> Hi Kevin,
-> 
-> Thanks for posting this driver.
-> 
-> Adding Jean Delvar for i2c bits.
+On Mon, 12 Jul 2010, Daniel Mack wrote:
 
--ENOTIME, sorry.
+> These devices report a usage page of type "consumer" and a usage of
+> "Programmable buttons". They are hence ignored by the hid-input layer.
+> 
+> Force the registration of an input device by using the new quirk type
+> HID_QUIRK_HIDINPUT_FORCE.
+> 
+> Signed-off-by: Daniel Mack <daniel-rDUAYElUppE@public.gmane.org>
+> Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/hid/hid-ids.h           |    2 ++
+>  drivers/hid/usbhid/hid-quirks.c |    2 ++
+>  2 files changed, 4 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 6af77ed..0510cc1 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -505,5 +505,7 @@
+>  #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
+>  #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
+>  
+> +#define USB_VENDOR_ID_PI_ENGINEERING	0x05f3
+> +#define USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL	0xff
+>  
+>  #endif
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 5ff8d32..12b38d1 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -73,6 +73,8 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+>  
+> +	{ USB_VENDOR_ID_PI_ENGINEERING, USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL, HID_QUIRK_HIDINPUT_FORCE },
+> +
+>  	{ 0, 0 }
+>  };
+
+I have applied the whole series, thanks Daniel.
 
 -- 
-Jean Delvare
+Jiri Kosina
+SUSE Labs, Novell Inc.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,86 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Buffer overrun in the TWL4030 keypad driver with Nokia RX51
-Date: Tue, 20 Jul 2010 11:07:45 -0700
-Message-ID: <201007201107.46003.dmitry.torokhov@gmail.com>
-References: <201007161728.44227.laurent.pinchart@ideasonboard.com> <20100717213705.GA22477@core.coreip.homeip.net> <201007201306.10505.laurent.pinchart@ideasonboard.com>
+Subject: Re: Fwd: [RFC] [PATCH] Input: ADP5588 - Support gpio function on
+ unused pin
+Date: Tue, 20 Jul 2010 11:40:03 -0700
+Message-ID: <20100720184003.GA14222@core.coreip.homeip.net>
+References: <4c459b70.0aee8c0a.1c29.3e9e@mx.google.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:33334 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932156Ab0GTSH7 (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:60161 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761404Ab0GTSkP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Jul 2010 14:07:59 -0400
-In-Reply-To: <201007201306.10505.laurent.pinchart@ideasonboard.com>
+	Tue, 20 Jul 2010 14:40:15 -0400
+Received: by pwi5 with SMTP id 5so2274341pwi.19
+        for <linux-input@vger.kernel.org>; Tue, 20 Jul 2010 11:40:14 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <4c459b70.0aee8c0a.1c29.3e9e@mx.google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Amit Kucheria <amit.kucheria@verdurent.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+To: Xiaolong Chen <xiaolong.chen@gmail.com>
+Cc: Michael <Michael.Hennerich@analog.com>, david-b@pacbell.net, Michael Hennerich <hennerich@blackfin.uclinux.org>, linux-input@vger.kernel.org, TAO HU <taohu@motorola.com>, "Yuan.Bo YE" <yuan-bo.ye@motorola.com>, Xiaolong CHEN <a21785@motorola.com>
 
-On Tuesday, July 20, 2010 04:06:08 am Laurent Pinchart wrote:
+Hi Xiaolong,
+
+On Tue, Jul 20, 2010 at 08:49:36PM +0800, Xiaolong Chen wrote:
 > Hi Dmitry,
 > 
-> On Saturday 17 July 2010 23:37:05 Dmitry Torokhov wrote:
-> > On Fri, Jul 16, 2010 at 05:28:43PM +0200, Laurent Pinchart wrote:
-> > > I've spent the day debugging a kernel crash in the USB networking code
-> > > to find out the problem was caused by a buffer overrun in the TWL4030
-> > > keypad driver.
-> > > 
-> > > The Nokia RX51 board code
-> > > (arch/arm/mach-omap2/board-rx51-peripherals.c) defines a key map for
-> > > the matrix keypad keyboard. The hardware seems to use all of the 8
-> > > rows and 8 columns of the keypad, although not all possible locations
-> > > are used.
-> > > 
-> > > The TWL4030 supports keypads with at most 8 rows and 8 columns. Most
-> > > keys are defined with a row and column number between 0 and 7, except
-> > > 
-> > >         KEY(0xff, 2, KEY_F9),
-> > >         KEY(0xff, 4, KEY_F10),
-> > >         KEY(0xff, 5, KEY_F11),
-> > > 
-> > > The row number is set to 0xff. As the generic matrix keypad support
-> > > (include/linux/input/matrix_keypad.h) supports at most 16 rows and 16
-> > > columns, it masks all but the lower 4 bits of the row and column
-> > > numbers in the KEY macro.
-> > 
-> > [..snipped..]
-> > 
-> > Thanks for the report. Could yo uplease try the patch below and let me
-> > know if it works.
+> There is still some issue on my company mail system, so change to this mail to submit the patch.
 > 
-> The patch fixes the crash at startup,
-
-Great.
-
-> but the F9, F10 and F11 key events
-> are never reported. That might be because those keys are not wired up to
-> anything though.
-
-I would not know... If you see all keys on the device being handled then I 
-guess it's the case... Tony, Amit, any ideas?
-
-> All keys on the keyboard, as well as the F7 and F8 keys
-> (volume up and down on the of the case)
-
-I guess we need to remap them to KEY_VOLUMEUP and KEY_VOLUMEDOWN then. So is 
-F7 == Up and F8 == Down?
-
-> generate the proper events. All
-> other "keys" (keyboard slider switch, power button, focus button, lock
-> switch, proximity sensor) report events through other devices.
+> Looks like this time haven't the line wrapped issue, any further comments and suggestion, please let me know.
 > 
-> > I have some concerns with the keymap assignments, I see that Amit
-> > changed them during KEY(col, row) -> KEY(row, col) conversion. I marked
-> > the entries I am concerned with with XXX.
-> 
-> F7, F8, right alt and left shift are properly mapped. I don't know what F9,
-> F10 and F11 are supposed to be.
 
-OK, thanks. Since you don't crash anymore I think it is worth pushing
-it out.
+I think we need to protect the code you are adding with #ifdef
+CONFIG_GPIOLIBi and provide the stubs in case gpiolib is not
+available. This will also force splitting the gpio hanlding code
+into separate functions so that it is easier to read. Please see
+how it is done in ad7879 driver.
+
+Also if would be great if you generated the patch against the
+version of the driver that is ither in linux-next or in the 'next'
+branch of my tree as there a few changes clashing with yours.
+
+Thanks.
 
 -- 
 Dmitry

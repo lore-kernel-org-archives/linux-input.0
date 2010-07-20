@@ -1,65 +1,68 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: Buffer overrun in the TWL4030 keypad driver with Nokia RX51
-Date: Tue, 20 Jul 2010 13:06:08 +0200
-Message-ID: <201007201306.10505.laurent.pinchart@ideasonboard.com>
-References: <201007161728.44227.laurent.pinchart@ideasonboard.com> <20100717213705.GA22477@core.coreip.homeip.net>
+From: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: ACRUX gamepads not happy with autosuspend?
+Date: Tue, 20 Jul 2010 14:24:20 +0200
+Message-ID: <201007201424.20880.oneukum@suse.de>
+References: <4C3F8A90.3020308@dv-life.ru> <201007201203.43573.oneukum@suse.de> <1279628053.6419.3.camel@desktop>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20100717213705.GA22477@core.coreip.homeip.net>
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Amit Kucheria <amit.kucheria@verdurent.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1279628053.6419.3.camel@desktop>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: x0r <x0r-MmyNGb77m7ovJsYlp49lxw@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux USB <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Am Dienstag, 20. Juli 2010, 14:14:13 schrieb x0r:
+> =D0=92 =D0=92=D1=82=D1=80, 20/07/2010 =D0=B2 12:03 +0200, Oliver Neuk=
+um =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> > Am Dienstag, 20. Juli 2010, 10:58:50 schrieb Jiri Kosina:
+> > > On Tue, 20 Jul 2010, Oliver Neukum wrote:
+> > >=20
+> > > > > It looks like ACRUX game controllers do not like autopm. Ther=
+e is
+> > > > > a bug report over at Ubuntu's launchpad:
+> > > > >=20
+> > > > > 	https://bugs.launchpad.net/ubuntu/+source/joystick/+bug/4484=
+46
+> > > >=20
+> > > > That report shows that the symptoms are consistent with autosus=
+pend,
+> > > > but it doesn't show that autosuspend was on.
+> > >=20
+> > > That would be my first question -- who enabled autosuspend, if it=
+ was=20
+> > > really on? I thought it should be still off by default, shouldn't=
+ it?
+> >=20
+> > It is off by default, but that doesn't stop Ubuntu having a udev ru=
+le to
+> > switch it on or patching the kernel, so it might be on. We simply n=
+eed
+> > to know.
+> >=20
+> > 	Regards
+> > 		Oliver
+> >=20
+>=20
+> x0r@desktop:~$ cat /sys/bus/usb/devices/5-1/power/autosuspend
+> 2
+>=20
+> Does it mean that autosuspend is enabled?
 
-On Saturday 17 July 2010 23:37:05 Dmitry Torokhov wrote:
-> On Fri, Jul 16, 2010 at 05:28:43PM +0200, Laurent Pinchart wrote:
-> > 
-> > I've spent the day debugging a kernel crash in the USB networking code to
-> > find out the problem was caused by a buffer overrun in the TWL4030
-> > keypad driver.
-> > 
-> > The Nokia RX51 board code (arch/arm/mach-omap2/board-rx51-peripherals.c)
-> > defines a key map for the matrix keypad keyboard. The hardware seems to
-> > use all of the 8 rows and 8 columns of the keypad, although not all
-> > possible locations are used.
-> > 
-> > The TWL4030 supports keypads with at most 8 rows and 8 columns. Most keys
-> > are defined with a row and column number between 0 and 7, except
-> > 
-> >         KEY(0xff, 2, KEY_F9),
-> >         KEY(0xff, 4, KEY_F10),
-> >         KEY(0xff, 5, KEY_F11),
-> > 
-> > The row number is set to 0xff. As the generic matrix keypad support
-> > (include/linux/input/matrix_keypad.h) supports at most 16 rows and 16
-> > columns, it masks all but the lower 4 bits of the row and column numbers
-> > in the KEY macro.
-> 
-> [..snipped..]
-> 
-> Thanks for the report. Could yo uplease try the patch below and let me
-> know if it works.
+No, this means that if it is enabled a heuristic timeout of 2s is used.
+That is if your device has been being idle for 2s, it will be autosuspe=
+nd.
 
-The patch fixes the crash at startup, but the F9, F10 and F11 key events are 
-never reported. That might be because those keys are not wired up to anything 
-though. All keys on the keyboard, as well as the F7 and F8 keys (volume up and 
-down on the of the case) generate the proper events. All other "keys" 
-(keyboard slider switch, power button, focus button, lock switch, proximity 
-sensor) report events through other devices.
+Whether it is autosuspended at all all is controlled in the "level" att=
+ribute.
 
-> I have some concerns with the keymap assignments, I see that Amit
-> changed them during KEY(col, row) -> KEY(row, col) conversion. I marked
-> the entries I am concerned with with XXX.
+on =3D no autosuspend
+auto =3D autosuspend activated
 
-F7, F8, right alt and left shift are properly mapped. I don't know what F9, 
-F10 and F11 are supposed to be.
-
--- 
-Regards,
-
-Laurent Pinchart
+	HTH
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,40 +1,65 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: ACRUX gamepads not happy with autosuspend?
-Date: Tue, 20 Jul 2010 12:03:43 +0200
-Message-ID: <201007201203.43573.oneukum@suse.de>
-References: <4C3F8A90.3020308@dv-life.ru> <201007201007.04518.oneukum@suse.de> <alpine.LNX.2.00.1007201058190.4741@pobox.suse.cz>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: Buffer overrun in the TWL4030 keypad driver with Nokia RX51
+Date: Tue, 20 Jul 2010 13:06:08 +0200
+Message-ID: <201007201306.10505.laurent.pinchart@ideasonboard.com>
+References: <201007161728.44227.laurent.pinchart@ideasonboard.com> <20100717213705.GA22477@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56994 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761158Ab0GTKEX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Jul 2010 06:04:23 -0400
-In-Reply-To: <alpine.LNX.2.00.1007201058190.4741@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20100717213705.GA22477@core.coreip.homeip.net>
+Sender: linux-omap-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Amit Kucheria <amit.kucheria@verdurent.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, x0r <x0r@dv-life.ru>, Linux Input <linux-input@vger.kernel.org>, Linux USB <linux-usb@vger.kernel.org>
 
-Am Dienstag, 20. Juli 2010, 10:58:50 schrieb Jiri Kosina:
-> On Tue, 20 Jul 2010, Oliver Neukum wrote:
-> 
-> > > It looks like ACRUX game controllers do not like autopm. There is
-> > > a bug report over at Ubuntu's launchpad:
-> > > 
-> > > 	https://bugs.launchpad.net/ubuntu/+source/joystick/+bug/448446
+Hi Dmitry,
+
+On Saturday 17 July 2010 23:37:05 Dmitry Torokhov wrote:
+> On Fri, Jul 16, 2010 at 05:28:43PM +0200, Laurent Pinchart wrote:
 > > 
-> > That report shows that the symptoms are consistent with autosuspend,
-> > but it doesn't show that autosuspend was on.
+> > I've spent the day debugging a kernel crash in the USB networking code to
+> > find out the problem was caused by a buffer overrun in the TWL4030
+> > keypad driver.
+> > 
+> > The Nokia RX51 board code (arch/arm/mach-omap2/board-rx51-peripherals.c)
+> > defines a key map for the matrix keypad keyboard. The hardware seems to
+> > use all of the 8 rows and 8 columns of the keypad, although not all
+> > possible locations are used.
+> > 
+> > The TWL4030 supports keypads with at most 8 rows and 8 columns. Most keys
+> > are defined with a row and column number between 0 and 7, except
+> > 
+> >         KEY(0xff, 2, KEY_F9),
+> >         KEY(0xff, 4, KEY_F10),
+> >         KEY(0xff, 5, KEY_F11),
+> > 
+> > The row number is set to 0xff. As the generic matrix keypad support
+> > (include/linux/input/matrix_keypad.h) supports at most 16 rows and 16
+> > columns, it masks all but the lower 4 bits of the row and column numbers
+> > in the KEY macro.
 > 
-> That would be my first question -- who enabled autosuspend, if it was 
-> really on? I thought it should be still off by default, shouldn't it?
+> [..snipped..]
+> 
+> Thanks for the report. Could yo uplease try the patch below and let me
+> know if it works.
 
-It is off by default, but that doesn't stop Ubuntu having a udev rule to
-switch it on or patching the kernel, so it might be on. We simply need
-to know.
+The patch fixes the crash at startup, but the F9, F10 and F11 key events are 
+never reported. That might be because those keys are not wired up to anything 
+though. All keys on the keyboard, as well as the F7 and F8 keys (volume up and 
+down on the of the case) generate the proper events. All other "keys" 
+(keyboard slider switch, power button, focus button, lock switch, proximity 
+sensor) report events through other devices.
 
-	Regards
-		Oliver
+> I have some concerns with the keymap assignments, I see that Amit
+> changed them during KEY(col, row) -> KEY(row, col) conversion. I marked
+> the entries I am concerned with with XXX.
+
+F7, F8, right alt and left shift are properly mapped. I don't know what F9, 
+F10 and F11 are supposed to be.
+
+-- 
+Regards,
+
+Laurent Pinchart

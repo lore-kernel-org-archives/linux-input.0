@@ -1,60 +1,28 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: ACRUX gamepads not happy with autosuspend?
-Date: Mon, 19 Jul 2010 17:17:45 -0700
-Message-ID: <20100720001745.GA17910@core.coreip.homeip.net>
-References: <4C3F8A90.3020308@dv-life.ru>
- <20100716080200.GA14120@core.coreip.homeip.net>
- <4C44D236.40002@dv-life.ru>
- <201007191630.07475.dmitry.torokhov@gmail.com>
- <4C44E3A2.8080301@dv-life.ru>
+From: "Sonia Porter" <sporter@jusd.k12.ca.us>
+Subject: Dear Webmail User
+Date: Mon, 19 Jul 2010 18:26:37 -0700
+Message-ID: <8A78544F83994B468EAC5A3D242C1E34C79054__16061.2887972549$1279590176$gmane$org@exchsrv02.jusd.dom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:63105 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754050Ab0GTARu (ORCPT
+Received: from mail.jusd.k12.ca.us ([204.100.155.6]:43451 "EHLO
+	mail.jusd.k12.ca.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932088Ab0GTBma convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jul 2010 20:17:50 -0400
-Content-Disposition: inline
-In-Reply-To: <4C44E3A2.8080301@dv-life.ru>
+	Mon, 19 Jul 2010 21:42:30 -0400
+Content-class: urn:content-classes:message
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Oliver Neukum <oliver@neukum.org>
-Cc: x0r <x0r@dv-life.ru>, Linux Input <linux-input@vger.kernel.org>, Linux USB <linux-usb@vger.kernel.org>
+To: info@upgrade.com
 
-Jiri, Oliver,
+This message was sent automatically by a program on Web mail which periodically checks the size of in boxes, where new messages are received.The program is run weekly to ensure no one's in box grows too large. If your in box becomes too large,you will be unable to receive new email. Just before this message was sent,you had 18 Mega bytes (MB) or more of messages stored in your in box on your Web mail. To help's re-set your SPACE on our database prior to maintain your IN BOX.
+ 
+YOU MUST COPY AND PAST THE BELOW LINK TO INCREASE YOUR INBOX QUOTA AND UPGRADE YOUR WEBMAIL ACCOUNT
 
-It looks like ACRUX game controllers do not like autopm. There is
-a bug report over at Ubuntu's launchpad:
-
-	https://bugs.launchpad.net/ubuntu/+source/joystick/+bug/448446
-
-that states that once device is plugged in the light ion it turns on
-briefly and then goes off and from that point on nothing comes from
-the device. They deal with it by having an application open the jsX
-device as soon as it appears and that makes gamepad work - but it
-is obviously not a solution.
-
-It looks like we either need to disable autosuspend for these devices
-or maybe kick the device harder when userspace tries to open it so
-that it wakes up if it went to sleep.
-
-(Sergei, have you tried disabling autosuspend on your box if it is
-enabled?)
-
-Also, if one attempts to boot the box with gamepad already connected
-then the driver gets confused and will attempt to reset the device
-indefinitely:
-
-[   32.430271] drivers/hid/usbhid/hid-core.c: can't reset device, 0000:00:1a.2-1/input0, status -32
-[   32.446271] drivers/hid/usbhid/hid-core.c: can't reset device, 0000:00:1a.2-1/input0, status -32
-[   32.462271] drivers/hid/usbhid/hid-core.c: can't reset device, 0000:00:1a.2-1/input0, status -32
-[   32.478272] drivers/hid/usbhid/hid-core.c: can't reset device, 0000:00:1a.2-1/input0, status -32
-
-Under Windows the device works well with the standard driver; no
-vendor specific drivers is required... Any ideas?
-
-Thanks!
-
--- 
-Dmitry
+http://www.eformit.com/eform.aspx?webmasterupgradesystem 
+ 
+ You will continue to receive this warning message periodically if your inbox size continues to be between 18 and 20 MB. If your in box size grows to 20MB,then a program on the Web mail will move your oldest email to a folder in your home directory to ensure that you will continue to be able to receive incoming email. You will be notified by email that this has taken place. If your in box grows to 25 MB, you will be unable to receive new email as it will be returned to the sender.After you read a message,it is best to REPLY and SAVE a copy.
+ 
+Thanks.
+Web mail Help Desk

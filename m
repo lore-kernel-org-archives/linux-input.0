@@ -1,40 +1,86 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Add support for the Wacom Intuos 4 wireless
-Date: Tue, 20 Jul 2010 17:53:05 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1007201752570.4741@pobox.suse.cz>
-References: <1271857920.1960.5.camel@localhost.localdomain>  <alpine.LNX.2.00.1004211553220.7579@pobox.suse.cz>  <1271858866.17421.3575.camel@localhost.localdomain>  <alpine.LNX.2.00.1004211619310.7579@pobox.suse.cz>
- <1277908230.26120.9.camel@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Buffer overrun in the TWL4030 keypad driver with Nokia RX51
+Date: Tue, 20 Jul 2010 11:07:45 -0700
+Message-ID: <201007201107.46003.dmitry.torokhov@gmail.com>
+References: <201007161728.44227.laurent.pinchart@ideasonboard.com> <20100717213705.GA22477@core.coreip.homeip.net> <201007201306.10505.laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:35436 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S932442Ab0GTPxH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Jul 2010 11:53:07 -0400
-In-Reply-To: <1277908230.26120.9.camel@localhost.localdomain>
+Received: from mail-px0-f174.google.com ([209.85.212.174]:33334 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932156Ab0GTSH7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Jul 2010 14:07:59 -0400
+In-Reply-To: <201007201306.10505.laurent.pinchart@ideasonboard.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Amit Kucheria <amit.kucheria@verdurent.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 
-On Wed, 30 Jun 2010, Bastien Nocera wrote:
-
-> > > > How about addition of this VID/PID combination to hid_blacklist[]?
+On Tuesday, July 20, 2010 04:06:08 am Laurent Pinchart wrote:
+> Hi Dmitry,
+> 
+> On Saturday 17 July 2010 23:37:05 Dmitry Torokhov wrote:
+> > On Fri, Jul 16, 2010 at 05:28:43PM +0200, Laurent Pinchart wrote:
+> > > I've spent the day debugging a kernel crash in the USB networking code
+> > > to find out the problem was caused by a buffer overrun in the TWL4030
+> > > keypad driver.
 > > > 
-> > > My mistake, that needs to be done as well obviously.
+> > > The Nokia RX51 board code
+> > > (arch/arm/mach-omap2/board-rx51-peripherals.c) defines a key map for
+> > > the matrix keypad keyboard. The hardware seems to use all of the 8
+> > > rows and 8 columns of the keypad, although not all possible locations
+> > > are used.
 > > > 
-> > > Will send an updated patch shortly.
+> > > The TWL4030 supports keypads with at most 8 rows and 8 columns. Most
+> > > keys are defined with a row and column number between 0 and 7, except
+> > > 
+> > >         KEY(0xff, 2, KEY_F9),
+> > >         KEY(0xff, 4, KEY_F10),
+> > >         KEY(0xff, 5, KEY_F11),
+> > > 
+> > > The row number is set to 0xff. As the generic matrix keypad support
+> > > (include/linux/input/matrix_keypad.h) supports at most 16 rows and 16
+> > > columns, it masks all but the lower 4 bits of the row and column
+> > > numbers in the KEY macro.
 > > 
-> > No problem, I'll fix that up myself.
+> > [..snipped..]
+> > 
+> > Thanks for the report. Could yo uplease try the patch below and let me
+> > know if it works.
 > 
-> Hmm, I did something stupid there. The Intuos 4 wireless uses a
-> different protocol from the Graphire wireless. Another driver will need
-> to be written...
-> 
-> Could you please revert that patch?
+> The patch fixes the crash at startup,
 
-Reverted, thanks for letting me know.
+Great.
+
+> but the F9, F10 and F11 key events
+> are never reported. That might be because those keys are not wired up to
+> anything though.
+
+I would not know... If you see all keys on the device being handled then I 
+guess it's the case... Tony, Amit, any ideas?
+
+> All keys on the keyboard, as well as the F7 and F8 keys
+> (volume up and down on the of the case)
+
+I guess we need to remap them to KEY_VOLUMEUP and KEY_VOLUMEDOWN then. So is 
+F7 == Up and F8 == Down?
+
+> generate the proper events. All
+> other "keys" (keyboard slider switch, power button, focus button, lock
+> switch, proximity sensor) report events through other devices.
+> 
+> > I have some concerns with the keymap assignments, I see that Amit
+> > changed them during KEY(col, row) -> KEY(row, col) conversion. I marked
+> > the entries I am concerned with with XXX.
+> 
+> F7, F8, right alt and left shift are properly mapped. I don't know what F9,
+> F10 and F11 are supposed to be.
+
+OK, thanks. Since you don't crash anymore I think it is worth pushing
+it out.
 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+Dmitry

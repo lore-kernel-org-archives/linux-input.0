@@ -1,28 +1,97 @@
-From: "Sonia Porter" <sporter@jusd.k12.ca.us>
-Subject: Dear Webmail User
-Date: Mon, 19 Jul 2010 18:26:37 -0700
-Message-ID: <8A78544F83994B468EAC5A3D242C1E34C79054__16061.2887972549$1279590176$gmane$org@exchsrv02.jusd.dom>
+From: Oliver Neukum <oneukum@suse.de>
+Subject: Re: ACRUX gamepads not happy with autosuspend?
+Date: Tue, 20 Jul 2010 10:07:04 +0200
+Message-ID: <201007201007.04518.oneukum@suse.de>
+References: <4C3F8A90.3020308@dv-life.ru> <4C44E3A2.8080301@dv-life.ru> <20100720001745.GA17910@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_okVRMgFJar1uxlo"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.jusd.k12.ca.us ([204.100.155.6]:43451 "EHLO
-	mail.jusd.k12.ca.us" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932088Ab0GTBma convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 Jul 2010 21:42:30 -0400
-Content-class: urn:content-classes:message
+Received: from cantor.suse.de ([195.135.220.2]:44707 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757906Ab0GTIHq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 20 Jul 2010 04:07:46 -0400
+In-Reply-To: <20100720001745.GA17910@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: info@upgrade.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, x0r <x0r@dv-life.ru>, Linux Input <linux-input@vger.kernel.org>, Linux USB <linux-usb@vger.kernel.org>
 
-This message was sent automatically by a program on Web mail which periodically checks the size of in boxes, where new messages are received.The program is run weekly to ensure no one's in box grows too large. If your in box becomes too large,you will be unable to receive new email. Just before this message was sent,you had 18 Mega bytes (MB) or more of messages stored in your in box on your Web mail. To help's re-set your SPACE on our database prior to maintain your IN BOX.
- 
-YOU MUST COPY AND PAST THE BELOW LINK TO INCREASE YOUR INBOX QUOTA AND UPGRADE YOUR WEBMAIL ACCOUNT
+--Boundary-00=_okVRMgFJar1uxlo
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-http://www.eformit.com/eform.aspx?webmasterupgradesystem 
- 
- You will continue to receive this warning message periodically if your inbox size continues to be between 18 and 20 MB. If your in box size grows to 20MB,then a program on the Web mail will move your oldest email to a folder in your home directory to ensure that you will continue to be able to receive incoming email. You will be notified by email that this has taken place. If your in box grows to 25 MB, you will be unable to receive new email as it will be returned to the sender.After you read a message,it is best to REPLY and SAVE a copy.
- 
-Thanks.
-Web mail Help Desk
+Am Dienstag, 20. Juli 2010, 02:17:45 schrieb Dmitry Torokhov:
+> Jiri, Oliver,
+> 
+> It looks like ACRUX game controllers do not like autopm. There is
+> a bug report over at Ubuntu's launchpad:
+> 
+> 	https://bugs.launchpad.net/ubuntu/+source/joystick/+bug/448446
+
+That report shows that the symptoms are consistent with autosuspend,
+but it doesn't show that autosuspend was on.
+
+> that states that once device is plugged in the light ion it turns on
+> briefly and then goes off and from that point on nothing comes from
+> the device. They deal with it by having an application open the jsX
+> device as soon as it appears and that makes gamepad work - but it
+> is obviously not a solution.
+
+If autosuspend is enabled simply opening the device file will keep the
+device active as it does not suport remote wakeup.
+
+Something like
+sleep 5000 </dev/input/js0
+should fix the issue.
+
+> It looks like we either need to disable autosuspend for these devices
+> or maybe kick the device harder when userspace tries to open it so
+> that it wakes up if it went to sleep.
+
+You can try the attached patch. I doubt it works.
+
+	Regards
+		Oliver
+
+--Boundary-00=_okVRMgFJar1uxlo
+Content-Type: text/x-patch;
+  charset="UTF-8";
+  name="0001-USB-quirk-for-ACRUX-USB-GAMEPAD-8116.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="0001-USB-quirk-for-ACRUX-USB-GAMEPAD-8116.patch"
+
+=46rom d7fb44af446eaf9f2a200d3645b72f7f98029b57 Mon Sep 17 00:00:00 2001
+=46rom: Oliver Neukum <oliver@neukum.org>
+Date: Tue, 20 Jul 2010 10:04:47 +0200
+Subject: [PATCH] USB: quirk for ACRUX USB GAMEPAD 8116
+
+This needs to be reset as the system wakes up and
+for runtime power management.
+
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+=2D--
+ drivers/usb/core/quirks.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index f22d03d..cb2e985 100644
+=2D-- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -75,6 +75,9 @@ static const struct usb_device_id usb_quirk_list[] =3D {
+ 	{ USB_DEVICE(0x1908, 0x1315), .driver_info =3D
+ 			USB_QUIRK_HONOR_BNUMINTERFACES },
+=20
++	/* ACRUX USB GAMEPAD 8116 */
++	{ USB_DEVICE(0x1a34, 0x0802), .driver_info =3D USB_QUIRK_RESET_RESUME },
++
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info =3D USB_QUIRK_RESET_RESUME },
+=20
+=2D-=20
+1.7.1
+
+
+--Boundary-00=_okVRMgFJar1uxlo--

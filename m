@@ -1,67 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
-Date: Tue, 20 Jul 2010 20:36:55 -0700
-Message-ID: <20100721033655.GA9070@core.coreip.homeip.net>
+Subject: Re: [PATCH 5/7] elantech: report position also with 3 fingers
+Date: Tue, 20 Jul 2010 20:38:21 -0700
+Message-ID: <20100721033821.GB9070@core.coreip.homeip.net>
 References: <4C1FD2B0.1080504@tudelft.nl>
- <4C1FD454.4050807@tudelft.nl>
+ <4C1FD48C.3040506@tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:37385 "EHLO
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:44245 "EHLO
 	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932940Ab0GUDhB (ORCPT
+	with ESMTP id S932940Ab0GUDi0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 20 Jul 2010 23:37:01 -0400
-Received: by pwi5 with SMTP id 5so2443218pwi.19
-        for <linux-input@vger.kernel.org>; Tue, 20 Jul 2010 20:37:00 -0700 (PDT)
+	Tue, 20 Jul 2010 23:38:26 -0400
+Received: by pwi5 with SMTP id 5so2443602pwi.19
+        for <linux-input@vger.kernel.org>; Tue, 20 Jul 2010 20:38:26 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4C1FD454.4050807@tudelft.nl>
+In-Reply-To: <4C1FD48C.3040506@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?iso-8859-1?Q?=C9ric?= Piel <E.A.B.Piel@tudelft.nl>
 Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
 
-On Mon, Jun 21, 2010 at 11:06:28PM +0200, =C9ric Piel wrote:
-> When 2 fingers are pressed, the low and high coordinates are given.
-> Instead of reporting just the low coordinate as the normal position,
-> report an average of both. This allow to have the cursor always move,
-> whichever finger moves. In practice, this improves the support of
-> two-fingers scolling with the synaptics X driver.
+Hi Eric,
+
+On Mon, Jun 21, 2010 at 11:07:24PM +0200, =C9ric Piel wrote:
+>=20
+> The 6-byte protocol supports reporting the position when three finger=
+s
+> are pressed, exactly like when one finger is pressed. Report this.
+>=20
+> In addition, it is also distinguishes between 3 and 4 fingers pressed=
+=2E
 >=20
 > Signed-off-by: =C9ric Piel <eric.piel@tremplin-utc.net>
 > ---
->  drivers/input/mouse/elantech.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
+>  drivers/input/mouse/elantech.c |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
 >=20
 > diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
 ntech.c
-> index c84f741..d1b505a 100644
+> index b09b458..633f100 100644
 > --- a/drivers/input/mouse/elantech.c
 > +++ b/drivers/input/mouse/elantech.c
-> @@ -301,11 +301,11 @@ static void elantech_report_absolute_v2(struct =
-psmouse *psmouse)
->  		/* byte 5: by7 by8 by5 by4 by3 by2 by1 by0 */
->  		y2 =3D ETP_2FT_YMAX - (((packet[3] & 0x20) << 3) | packet[5]);
->  		/*
-> -		 * For compatibility with the X Synaptics driver scale up
-> -		 * one coordinate and report as ordinary mouse movent
-> +		 * For compatibility with non-multitouch userspace apps
-> +		 * report the average of both coordinates and scale up.
->  		 */
-> -		input_report_abs(dev, ABS_X, x1 << 2);
-> -		input_report_abs(dev, ABS_Y, y1 << 2);
-> +		input_report_abs(dev, ABS_X, (x1 + x2) << 1);
-> +		input_report_abs(dev, ABS_Y, (y1 + y2) << 1);
+> @@ -257,6 +257,14 @@ static void elantech_report_absolute_v2(struct p=
+smouse *psmouse)
+>  	input_report_key(dev, BTN_TOUCH, fingers !=3D 0);
+>   	switch (fingers) {
+> +	case 3:
+> +		/*
+> +		 * Same as one finger, except report of more than 3 fingers:
+> +		 * byte 3:  n4  .   w1  w0   .   .   .   .
+> +		 */
+> +		if (packet[3] & 0x80)
+> +			fingers =3D 4;
+> +		/* pass through... */
 
-I am concerned what happens when you put one finger first and then add
-another one. Would not that couse the cursor to jump?
-
-I'd say we need to obey MT protocol and continue reporting the first
-contact in non-MT protocol and rely on MT-aware drivers to do better jo=
-b
-of contact tracking. This is also consistent with how other drivers,
-such as bcm5974, report coordinates.
+Are we certain it is 4-finger and not equivalent of "palm detect" flag?
+I could not locate the equivalent in Ubutu sources, where did you get
+this data?
 
 --=20
 Dmitry

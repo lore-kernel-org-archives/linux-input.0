@@ -1,51 +1,31 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch -next] input: adxl34x: fix leak and use after free
-Date: Thu, 22 Jul 2010 10:55:52 +0200
-Message-ID: <20100722085552.GW17585@bicker>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
+Date: Thu, 22 Jul 2010 16:03:18 +0530
+Message-ID: <4C481E6E.9000804@codeaurora.org>
+References: <kev@cypress.com> <1278968210-6827-1-git-send-email-kev@cypress.com> <4C3C1654.9010204@codeaurora.org> <20100713075544.GA16013@core.coreip.homeip.net> <4C3C2706.4020005@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:40551 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758998Ab0GVI4j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jul 2010 04:56:39 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4C3C2706.4020005@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Michael Hennerich <michael.hennerich@analog.com>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Cc: Kevin McNeely <kev@cypress.com>, David Brown <davidb@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Simtec Linux Team <linux@simtec.co.uk>, Arnaud Patard <arnaud.patard@rtp-net.org>, Antonio Ospite <ospite@studenti.unina.it>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, khali@linux-fr.org, linux-arm-msm@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-These are a couple smatch issues.  In the original code, if only one of
-the allocation fails we leak the other variable so we should goto
-out_free_mem.
+Hi Kevin,
 
-Also there was a use after free if debugging was enabled and so I moved
-the kfree() down a line.
+On 7/13/2010 2:12 PM, Trilok Soni wrote:
+> On 7/13/2010 1:25 PM, Dmitry Torokhov wrote:
+>> On Tue, Jul 13, 2010 at 01:01:32PM +0530, Trilok Soni wrote:
+>>> Hi Kevin,
+>>>
+>>> Thanks for posting this driver.
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
+Are you going to post updated version of this patch, addressing review comments?
 
-diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-index bb9c10f..e925d12 100644
---- a/drivers/input/misc/adxl34x.c
-+++ b/drivers/input/misc/adxl34x.c
-@@ -709,7 +709,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
- 	input_dev = input_allocate_device();
- 	if (!ac || !input_dev) {
- 		err = -ENOMEM;
--		goto err_out;
-+		goto err_free_mem;
- 	}
- 
- 	ac->fifo_delay = fifo_delay_default;
-@@ -904,9 +904,9 @@ int adxl34x_remove(struct adxl34x *ac)
- 	sysfs_remove_group(&ac->dev->kobj, &adxl34x_attr_group);
- 	free_irq(ac->irq, ac);
- 	input_unregister_device(ac->input);
-+	dev_dbg(ac->dev, "unregistered accelerometer\n");
- 	kfree(ac);
- 
--	dev_dbg(ac->dev, "unregistered accelerometer\n");
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(adxl34x_remove);
+---Trilok Soni
+
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

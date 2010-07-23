@@ -1,60 +1,106 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] i8042: add Gigabyte Spring Peak to dmi_noloop_table
-Date: Thu, 22 Jul 2010 23:45:35 -0700
-Message-ID: <20100723064534.GD20532@core.coreip.homeip.net>
-References: <1279561534-3551-1-git-send-email-kamal@canonical.com>
+From: Alan Cox <alan@linux.intel.com>
+Subject: [PATCH 3/6] mrst-touchscreen: Fix use before initialize in mrst_touch
+	[Fix bug 2561]
+Date: Fri, 23 Jul 2010 14:52:12 +0100
+Message-ID: <20100723135210.19151.19238.stgit@localhost.localdomain>
+References: <20100723134852.19151.6999.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:57501 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751286Ab0GWGpj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jul 2010 02:45:39 -0400
-Content-Disposition: inline
-In-Reply-To: <1279561534-3551-1-git-send-email-kamal@canonical.com>
+Received: from mga14.intel.com ([143.182.124.37]:34234 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752644Ab0GWOYj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jul 2010 10:24:39 -0400
+In-Reply-To: <20100723134852.19151.6999.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kamal Mostafa <kamal@canonical.com>
-Cc: linux-kernel@vger.kernel.org, kernel-team@lists.ubuntu.com, Matthew Garrett <mjg@redhat.com>, Elliott Sales de Andrade <quantum.analyst@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org
+To: greg@kroah.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Mon, Jul 19, 2010 at 10:45:34AM -0700, Kamal Mostafa wrote:
-> Gigabyte "Spring Peak" notebook indicates wrong chassis-type, tripping up
-> i8042 and breaking the touchpad.  Add this model to i8042_dmi_noloop_table[]
-> to resolve.
-> 
-> BugLink: https://bugs.launchpad.net/bugs/580664
-> 
-> Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-> Cc: <stable@kernel.org>
+From: Arjan van de Ven <arjan@linux.intel.com>
 
-Applied, thanks Kamal.
+The mrst touch screen driver, in mrstouch_adc_init does
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
->  1 files changed, 7 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 6168469..d953d65 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -166,6 +166,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
->  		},
->  	},
->  	{
-> +		/* Gigabyte Spring Peak */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Spring Peak"),
-> +		},
-> +	},
-> +	{
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
->  			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv9700"),
-> -- 
-> 1.7.0.4
-> 
+                 dev_err(&tsdev->spi->dev, "Unable to read PMIC id\n");
 
--- 
-Dmitry
+which does not work very well since the tsdev->spi member does not get
+initialized until after the call to mrstouch_adc_init
+
+this patch makes sure the ->spi member is initialized prior to the call
+to mrstouch_adc_init
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Signed-off-by: Alan Cox <alan@linux.intel.com>
+
+
+--- linux-2.6.34/drivers/staging/mrst-touchscreen/intel-mid-touch.c~
+  2010-06-23 03:13:39.000000000 +0000
++++ linux-2.6.34/drivers/staging/mrst-touchscreen/intel-mid-touch.c
+  2010-06-23 03:14:47.736742734 +0000
+@@ -759,6 +759,8 @@
+      tsdev->irq = myirq;
+      mrstouchdevp = tsdev;
+
++    tsdev->spi = mrstouch_spi;
++
+      err = mrstouch_adc_init(tsdev);
+      if (err) {
+          dev_err(&mrstouch_spi->dev, "ADC init failed\n");
+@@ -766,7 +768,6 @@
+      }
+
+      dev_set_drvdata(&mrstouch_spi->dev, tsdev);
+-    tsdev->spi = mrstouch_spi;
+
+      err = ts_input_dev_init(tsdev, mrstouch_spi);
+      if (err) {
+
+
+--------------030606040305060606070104
+Content-Type: text/plain;
+ name="Q"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="Q"
+
+--- linux-2.6.34/drivers/staging/mrst-touchscreen/intel-mid-touch.c~	2010-06-23 03:13:39.000000000 +0000
++++ linux-2.6.34/drivers/staging/mrst-touchscreen/intel-mid-touch.c	2010-06-23 03:14:47.736742734 +0000
+@@ -759,6 +759,8 @@
+ 	tsdev->irq = myirq;
+ 	mrstouchdevp = tsdev;
+
++	tsdev->spi = mrstouch_spi;
++
+ 	err = mrstouch_adc_init(tsdev);
+ 	if (err) {
+ 		dev_err(&mrstouch_spi->dev, "ADC init failed\n");
+@@ -766,7 +768,6 @@
+ 	}
+
+ 	dev_set_drvdata(&mrstouch_spi->dev, tsdev);
+-	tsdev->spi = mrstouch_spi;
+
+ 	err = ts_input_dev_init(tsdev, mrstouch_spi);
+ 	if (err) {
+
+--------------030606040305060606070104--
+---
+
+ drivers/staging/mrst-touchscreen/intel-mid-touch.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+
+diff --git a/drivers/staging/mrst-touchscreen/intel-mid-touch.c b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
+index 7e77737..c41989b 100644
+--- a/drivers/staging/mrst-touchscreen/intel-mid-touch.c
++++ b/drivers/staging/mrst-touchscreen/intel-mid-touch.c
+@@ -651,6 +651,8 @@ static int __devinit mrstouch_probe(struct spi_device *spi)
+ 	snprintf(tsdev->phys, sizeof(tsdev->phys),
+ 		 "%s/input0", dev_name(&spi->dev));
+ 
++	tsdev->spi = mrstouch_spi;
++
+ 	err = mrstouch_adc_init(tsdev);
+ 	if (err) {
+ 		dev_err(&spi->dev, "ADC initialization failed\n");
+

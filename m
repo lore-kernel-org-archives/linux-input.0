@@ -1,75 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Uclinux-dist-devel] [PATCH v3] input/misc: new ADXL345/346
- driver
-Date: Thu, 22 Jul 2010 23:44:02 -0700
-Message-ID: <20100723064401.GB20532@core.coreip.homeip.net>
-References: <1255517680-30733-1-git-send-email-vapier@gentoo.org>
- <1256028039-15044-1-git-send-email-vapier@gentoo.org>
- <20100625071425.GA631@core.coreip.homeip.net>
- <544AC56F16B56944AEC3BD4E3D5917712E66DFEF69@LIMKCMBX1.ad.analog.com>
- <20100701075316.GA14696@core.coreip.homeip.net>
- <AANLkTikI3ps5u30x235VOtQgAN0KdMGRNotKjLYSTpCc@mail.gmail.com>
+Subject: Re: [patch -next] input: adxl34x: fix leak and use after free
+Date: Thu, 22 Jul 2010 23:44:35 -0700
+Message-ID: <20100723064435.GC20532@core.coreip.homeip.net>
+References: <20100722085552.GW17585@bicker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:34170 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780Ab0GWGoH (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:47334 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750780Ab0GWGoj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jul 2010 02:44:07 -0400
-Received: by pwi5 with SMTP id 5so3378737pwi.19
-        for <linux-input@vger.kernel.org>; Thu, 22 Jul 2010 23:44:07 -0700 (PDT)
+	Fri, 23 Jul 2010 02:44:39 -0400
 Content-Disposition: inline
-In-Reply-To: <AANLkTikI3ps5u30x235VOtQgAN0KdMGRNotKjLYSTpCc@mail.gmail.com>
+In-Reply-To: <20100722085552.GW17585@bicker>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Frysinger <vapier.adi@gmail.com>
-Cc: "Hennerich, Michael" <Michael.Hennerich@analog.com>, Luotao Fu <l.fu@pengutronix.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, Chris Verges <chrisv@cyberswitching.com>
+To: Dan Carpenter <error27@gmail.com>
+Cc: Mike Frysinger <vapier@gentoo.org>, Michael Hennerich <michael.hennerich@analog.com>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi Mike,
+On Thu, Jul 22, 2010 at 10:55:52AM +0200, Dan Carpenter wrote:
+> These are a couple smatch issues.  In the original code, if only one of
+> the allocation fails we leak the other variable so we should goto
+> out_free_mem.
+> 
+> Also there was a use after free if debugging was enabled and so I moved
+> the kfree() down a line.
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> 
 
-On Wed, Jul 21, 2010 at 09:50:12AM -0400, Mike Frysinger wrote:
-> On Thu, Jul 1, 2010 at 03:53, Dmitry Torokhov wrote:
-> > Input: adxl34 - make enable/disable separate from suspend/resume
->=20
-> this should be "adxl34x" i think to match the style we've used in the
-> past and the actual driver name
->=20
-> > -void adxl34x_enable(struct adxl34x *ac)
-> > +void adxl34x_resume(struct adxl34x *ac)
-> > =A0{
-> > =A0 =A0 =A0 =A0mutex_lock(&ac->mutex);
-> > - =A0 =A0 =A0 __adxl34x_enable(ac);
-> > +
-> > + =A0 =A0 =A0 if (ac->suspended && !ac->disabled && ac->opened)
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 __adxl34x_enable(ac);
-> > +
-> > + =A0 =A0 =A0 ac->suspended=3D false;
->=20
-> ERROR: spaces required around that '=3D' (ctx:VxW)
-> #191: FILE: drivers/input/misc/adxl34x.c:435:
-> +       ac->suspended=3D false;
->=20
-> > =A0}
-> >
-> > -EXPORT_SYMBOL_GPL(adxl34x_enable);
-> > +EXPORT_SYMBOL_GPL(adxl34x_resume);
->=20
-> while you're here, might want to delete the newline after the brace t=
-o
-> avoid the checkpatch warning:
+Applied, thanks Dan.
 
-Thanks for noticing these issues however as the original change is quit=
-e
-buried I opted to roll these changes into another patch.
+> diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+> index bb9c10f..e925d12 100644
+> --- a/drivers/input/misc/adxl34x.c
+> +++ b/drivers/input/misc/adxl34x.c
+> @@ -709,7 +709,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+>  	input_dev = input_allocate_device();
+>  	if (!ac || !input_dev) {
+>  		err = -ENOMEM;
+> -		goto err_out;
+> +		goto err_free_mem;
+>  	}
+>  
+>  	ac->fifo_delay = fifo_delay_default;
+> @@ -904,9 +904,9 @@ int adxl34x_remove(struct adxl34x *ac)
+>  	sysfs_remove_group(&ac->dev->kobj, &adxl34x_attr_group);
+>  	free_irq(ac->irq, ac);
+>  	input_unregister_device(ac->input);
+> +	dev_dbg(ac->dev, "unregistered accelerometer\n");
+>  	kfree(ac);
+>  
+> -	dev_dbg(ac->dev, "unregistered accelerometer\n");
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(adxl34x_remove);
 
-Thanks.
-
---=20
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

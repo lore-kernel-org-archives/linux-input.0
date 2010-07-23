@@ -1,60 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch -next] input: adxl34x: fix leak and use after free
-Date: Thu, 22 Jul 2010 23:44:35 -0700
-Message-ID: <20100723064435.GC20532@core.coreip.homeip.net>
-References: <20100722085552.GW17585@bicker>
+Subject: Re: [PATCH] i8042: add Gigabyte Spring Peak to dmi_noloop_table
+Date: Thu, 22 Jul 2010 23:45:35 -0700
+Message-ID: <20100723064534.GD20532@core.coreip.homeip.net>
+References: <1279561534-3551-1-git-send-email-kamal@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:47334 "EHLO
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:57501 "EHLO
 	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750780Ab0GWGoj (ORCPT
+	with ESMTP id S1751286Ab0GWGpj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Jul 2010 02:44:39 -0400
+	Fri, 23 Jul 2010 02:45:39 -0400
 Content-Disposition: inline
-In-Reply-To: <20100722085552.GW17585@bicker>
+In-Reply-To: <1279561534-3551-1-git-send-email-kamal@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: Mike Frysinger <vapier@gentoo.org>, Michael Hennerich <michael.hennerich@analog.com>, Chris Verges <chrisv@cyberswitching.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Kamal Mostafa <kamal@canonical.com>
+Cc: linux-kernel@vger.kernel.org, kernel-team@lists.ubuntu.com, Matthew Garrett <mjg@redhat.com>, Elliott Sales de Andrade <quantum.analyst@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org
 
-On Thu, Jul 22, 2010 at 10:55:52AM +0200, Dan Carpenter wrote:
-> These are a couple smatch issues.  In the original code, if only one of
-> the allocation fails we leak the other variable so we should goto
-> out_free_mem.
+On Mon, Jul 19, 2010 at 10:45:34AM -0700, Kamal Mostafa wrote:
+> Gigabyte "Spring Peak" notebook indicates wrong chassis-type, tripping up
+> i8042 and breaking the touchpad.  Add this model to i8042_dmi_noloop_table[]
+> to resolve.
 > 
-> Also there was a use after free if debugging was enabled and so I moved
-> the kfree() down a line.
+> BugLink: https://bugs.launchpad.net/bugs/580664
 > 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
-> 
+> Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+> Cc: <stable@kernel.org>
 
-Applied, thanks Dan.
+Applied, thanks Kamal.
 
-> diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-> index bb9c10f..e925d12 100644
-> --- a/drivers/input/misc/adxl34x.c
-> +++ b/drivers/input/misc/adxl34x.c
-> @@ -709,7 +709,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
->  	input_dev = input_allocate_device();
->  	if (!ac || !input_dev) {
->  		err = -ENOMEM;
-> -		goto err_out;
-> +		goto err_free_mem;
->  	}
->  
->  	ac->fifo_delay = fifo_delay_default;
-> @@ -904,9 +904,9 @@ int adxl34x_remove(struct adxl34x *ac)
->  	sysfs_remove_group(&ac->dev->kobj, &adxl34x_attr_group);
->  	free_irq(ac->irq, ac);
->  	input_unregister_device(ac->input);
-> +	dev_dbg(ac->dev, "unregistered accelerometer\n");
->  	kfree(ac);
->  
-> -	dev_dbg(ac->dev, "unregistered accelerometer\n");
->  	return 0;
->  }
->  EXPORT_SYMBOL_GPL(adxl34x_remove);
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+>  1 files changed, 7 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 6168469..d953d65 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -166,6 +166,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+>  		},
+>  	},
+>  	{
+> +		/* Gigabyte Spring Peak */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Spring Peak"),
+> +		},
+> +	},
+> +	{
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+>  			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv9700"),
+> -- 
+> 1.7.0.4
+> 
 
 -- 
 Dmitry

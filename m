@@ -1,66 +1,55 @@
-From: =?koi8-r?Q?=E1=CE=D4=CF=CE_=E5=D2=CF=C6=C5=C5=D7=D3=CB=C9=CA?=
-	<aeforeve@mail.ru>
-Subject: Multikey autorepetition
-Date: Sun, 25 Jul 2010 22:27:28 +0400
-Message-ID: <E1Od5v6-0004iL-00.aeforeve-mail-ru@f207.mail.ru>
-Reply-To: =?koi8-r?Q?=E1=CE=D4=CF=CE_=E5=D2=CF=C6=C5=C5=D7=D3=CB=C9=CA?=
-	  <aeforeve@mail.ru>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH 2/8] touchscreen: fix sign bug
+Date: Sun, 25 Jul 2010 23:32:41 +0200
+Message-ID: <20100725213240.GA2613@sortiz-mobl>
+References: <1279219435-12128-1-git-send-email-segooon@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fallback4.mail.ru ([94.100.176.42]:50265 "EHLO
-	fallback4.mail.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751869Ab0GYS14 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Jul 2010 14:27:56 -0400
-Received: from f207.mail.ru (f207.mail.ru [217.69.128.146])
-	by fallback4.mail.ru (mPOP.Fallback_MX) with ESMTP id B097A2AB31E4
-	for <linux-input@vger.kernel.org>; Sun, 25 Jul 2010 22:27:54 +0400 (MSD)
-Received: from mail by f207.mail.ru with local
-	id 1Od5v6-0004iL-00
-	for linux-input@vger.kernel.org; Sun, 25 Jul 2010 22:27:28 +0400
+Received: from mga14.intel.com ([143.182.124.37]:44177 "EHLO mga14.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751784Ab0GYVcl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Jul 2010 17:32:41 -0400
+Content-Disposition: inline
+In-Reply-To: <1279219435-12128-1-git-send-email-segooon@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Kulikov Vasiliy <segooon@gmail.com>
+Cc: kernel-janitors@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Luotao Fu <l.fu@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-sory for my english
+Hi Vasiliy,
 
-Multikey autorepetition in linux and x-win
+On Thu, Jul 15, 2010 at 10:43:54PM +0400, Kulikov Vasiliy wrote:
+> platform_get_irq_byname() can return negative results, it is not seen to
+> unsigned ts_irq. Make it signed.
+Patch applied to my mfd tree, thanks.
 
-Has decided to write for this purpose - that most to understand - wheth=
-er is it in linux a defect or and has been conceived
+Cheers,
+Samuel.
 
-The basic question in that is that if to press 2 keys - why one repeats=
- only?
 
-Will tell I in a spreadsheet I press downwards and to the right - and i=
-n general that I expect that the cursor will run on a diagonal - but it=
- =D0=D2=C5=D4 only in one direction
+> Signed-off-by: Kulikov Vasiliy <segooon@gmail.com>
+> ---
+>  drivers/input/touchscreen/stmpe-ts.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+> index 77f4374..656148e 100644
+> --- a/drivers/input/touchscreen/stmpe-ts.c
+> +++ b/drivers/input/touchscreen/stmpe-ts.c
+> @@ -269,7 +269,7 @@ static int __devinit stmpe_input_probe(struct platform_device *pdev)
+>  	struct input_dev *idev;
+>  	struct stmpe_ts_platform_data *ts_pdata = NULL;
+>  	int ret = 0;
+> -	unsigned int ts_irq;
+> +	int ts_irq;
+>  
+>  	ts_irq = platform_get_irq_byname(pdev, "FIFO_TH");
+>  	if (ts_irq < 0)
+> -- 
+> 1.7.0.4
+> 
 
-Why? It is a defect or and should be?
-
-I for myself have found in a kernel and in =C9=CB=D3=C1=C8 places that =
-for it answer - they strangely enough are almost identical that in a ke=
-rnel that in =C9=CB=D3=C1=C8
-
-And the theory is that - if not to concern ps/2 keyboards - that an ess=
-ence here in what usb the keyboard sends in a computer of purely event =
-of pressing and unpressing keys - and it is 8 byte package - 1 byte a c=
-ondition of keys of modifiers - 2 byte a reserve - 3-8 bytes codes of t=
-he pressed keys
-=46or this reason usb the keyboard theoretically  to serve only 6 simul=
-taneous pressing (without modifiers)
-
-here - a car usb the key at all is not engaged in repetition - in syste=
-m that in a kernel that in x-win - for autorepetition the usual timer a=
-nswers - which joins by key pressing - and through the necessary interv=
-als adds pressing
-But it is made so - that autorepeat only one key
-
-Here and at me the question is a defect or and should be?
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/

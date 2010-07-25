@@ -1,49 +1,44 @@
-From: loody <miloody@gmail.com>
-Subject: Why my usb mouse don't have report/physical descriptors
-Date: Mon, 26 Jul 2010 00:18:18 +0800
-Message-ID: <AANLkTi=iKJRXE8SczRA=hdPB64zkXbm5tGfYCM_RyZhT@mail.gmail.com>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: mmotm 2010-07-19-16-37 uploaded
+Date: Sun, 25 Jul 2010 15:00:05 -0300
+Message-ID: <4C4C7BA5.3050709@redhat.com>
+References: <201007200007.o6K07Xbg028863@imap1.linux-foundation.org> <6434.1279658492@localhost> <201007201350.28961.dmitry.torokhov@gmail.com> <4825.1279660300@localhost> <20100720214112.GM13176@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.161.174]:60057 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751206Ab0GYQST (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Jul 2010 12:18:19 -0400
-Received: by gxk23 with SMTP id 23so615139gxk.19
-        for <linux-input@vger.kernel.org>; Sun, 25 Jul 2010 09:18:18 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:3001 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752115Ab0GYR7t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Jul 2010 13:59:49 -0400
+In-Reply-To: <20100720214112.GM13176@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Valdis.Kletnieks@vt.edu, Dmitry Torokhov <dmitry.torokhov@gmail.com>, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-Dear all:
-I see there are report and physical descriptrs in hid spec.
-But when I dump my HID device, a mouse, I cannot see these 2 descriptors.
-How could I see these 2 descriptors on my HID device?
-attach the content of my HID device at the end of letter.
-Appreciate your help,
-miloody
+Em 20-07-2010 18:41, Jarod Wilson escreveu:
+> On Tue, Jul 20, 2010 at 05:11:40PM -0400, Valdis.Kletnieks@vt.edu wrote:
+>> On Tue, 20 Jul 2010 13:50:27 PDT, Dmitry Torokhov said:
+>>
+>>>> And things go downhill from there...
+>>>
+>>> I guess you need these 2 from Jarod...
+>>
+>> Hmm. I seem to remember 2 similar patches from the last time I reported it. :)
+>>
+>> System boots fine after applying those two patches.  I'll let somebody else
+>> worry about making sure they end up in linux-next in time for the next merge
+>> window...
+> 
+> I believe Mauro's on vacation at the moment, but due back Real Soon Now,
+> and I'd expect him to pick up both fixes shortly after he settles back in
+> at his desk, so they should be in next before much longer, and definitely
+> before the merge window.
 
-Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      2 Mouse
-      iInterface              0
-      ** UNRECOGNIZED:  09 21 10 01 00 01 22 34 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0004  1x 4 bytes
-        bInterval              10
-Device Status:     0x0000
-  (Bus Powered)
+I just arrived from vacations. I'll be testing this patch and applying it if OK.
+Just give me some days, since I have a huge backlog due to vacations.
+
+Cheers,
+Mauro.
+

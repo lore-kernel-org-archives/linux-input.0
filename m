@@ -1,46 +1,31 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: Re: [PATCHv3] input: gpio_keys: polling mode support
-Date: Sat, 24 Jul 2010 21:17:51 +0200
-Message-ID: <877hkkd6zk.fsf@tac.ki.iif.hu>
-References: <20100706190128.GB24655@chipmunk> <20100712192950.GR6976@chipmunk>
-	<20100713011707.GA12728@linux-sh.org>
-	<20100713012819.GA15800@core.coreip.homeip.net>
-	<20100713072605.GS6976@chipmunk> <20100713195745.GJ2428@chipmunk>
-	<20100713200455.GK2428@chipmunk> <87fwzf40yo.fsf@tac.ki.iif.hu>
-	<20100724074646.GA3615@core.coreip.homeip.net>
+From: x0r <x0r-MmyNGb77m7ovJsYlp49lxw@public.gmane.org>
+Subject: Re: ACRUX gamepads not happy with autosuspend?
+Date: Sun, 25 Jul 2010 11:58:09 +1100
+Message-ID: <1280019489.4057.2.camel@desktop>
+References: <4C3F8A90.3020308@dv-life.ru>
+	 <201007201203.43573.oneukum@suse.de> <1279628053.6419.3.camel@desktop>
+	 <201007201424.20880.oneukum@suse.de>
+	 <20100724075112.GB3615@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:45669 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755852Ab0GXTR5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Jul 2010 15:17:57 -0400
-In-Reply-To: <20100724074646.GA3615@core.coreip.homeip.net> (Dmitry Torokhov's
-	message of "Sat, 24 Jul 2010 00:46:46 -0700")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20100724075112.GB3615-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux USB <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexander Clouter <alex@digriz.org.uk>, linux-input@vger.kernel.org, Paul Mundt <lethal@linux-sh.org>, Gabor Juhos <juhosg@openwrt.org>, Nuno Goncalves <nunojpg@gmail.com>
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+I found old bug dedicated to this problem:
+http://kerneltrap.org/mailarchive/linux-usb-devel/2007/11/2/378569
 
-> On Mon, Jul 19, 2010 at 11:26:55PM +0200, Ferenc Wagner wrote:
-> 
->> Just in case you didn't know: there's an alternate implementation at
->> https://dev.openwrt.org/browser/trunk/target/linux/generic-2.6/files/drivers/input/misc/gpio_buttons.c?rev=21436
->
-> Hmm, I might like this option best of all. We just need to rename the
-> driver so that we can have both polled and interrupt driven compiled,
-> Then we'd bind based on device name creatd for us.
->
-> Can you submit it officially?
+In additional there is similar bugs in other distributions with
+different kernel versions:
+http://ubuntuforums.org/showthread.php?t=959127
+http://bugs.archlinux.org/task/18558
+https://bbs.archlinux.org/viewtopic.php?pid=720066
 
-Hi,
-
-Actually, I'm not affiliated with that code, I just happened to run into
-it some time ago.  I put its authors on Cc, they sure can help you
-better.  I'd expect them to very gladly submit it, thus reducing the
-delta between OpenWRT and upstream Linux. :)
--- 
-Regards,
-Feri.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

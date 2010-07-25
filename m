@@ -1,31 +1,31 @@
-From: x0r <x0r-MmyNGb77m7ovJsYlp49lxw@public.gmane.org>
-Subject: Re: ACRUX gamepads not happy with autosuspend?
-Date: Sun, 25 Jul 2010 11:58:09 +1100
-Message-ID: <1280019489.4057.2.camel@desktop>
-References: <4C3F8A90.3020308@dv-life.ru>
-	 <201007201203.43573.oneukum@suse.de> <1279628053.6419.3.camel@desktop>
-	 <201007201424.20880.oneukum@suse.de>
-	 <20100724075112.GB3615@core.coreip.homeip.net>
+From: "Math.ucsb.edu Web-Admin" <info@uk.com>
+Subject: **Winning Alert!! Claims Of 750,000GBP**
+Date: Sun, 25 Jul 2010 03:51:08 -0400 (EDT)
+Message-ID: <40cb69310a01282cce550d8612d1dcab.squirrel@webmail.rci.rutgers.edu>
+Reply-To: uk.claimsboard@msn.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20100724075112.GB3615-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux USB <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from whitelist-out.rutgers.edu ([128.6.68.238]:30844 "EHLO
+	annwn41.rutgers.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751821Ab0GYINs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Jul 2010 04:13:48 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I found old bug dedicated to this problem:
-http://kerneltrap.org/mailarchive/linux-usb-devel/2007/11/2/378569
+You have won =A3750,000.00(British Pounds)  held on 20th July 2010  in
+London(Uk lottery) Through email selection system. Fill the below for
+claim: Name: Address: Occupation: Phone Number: Date Of Birth: state:
+Country:
 
-In additional there is similar bugs in other distributions with
-different kernel versions:
-http://ubuntuforums.org/showthread.php?t=959127
-http://bugs.archlinux.org/task/18558
-https://bbs.archlinux.org/viewtopic.php?pid=720066
+Mr Patrick Joseph
+Phone: +448713155272
+Email: uk.claimsboard@msn.com
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,59 +1,95 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 4/6] *	Register platform interface
-Date: Mon, 26 Jul 2010 15:49:42 -0700
-Message-ID: <20100726224942.GA17929@kroah.com>
-References: <20100723134852.19151.6999.stgit@localhost.localdomain>
- <20100723135219.19151.98855.stgit@localhost.localdomain>
- <20100723160716.GA21546@core.coreip.homeip.net>
- <20100723163859.1a8bfe7d@linux.intel.com>
- <20100723164316.GA21684@core.coreip.homeip.net>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH 0/15] STAGING: add lirc device drivers
+Date: Mon, 26 Jul 2010 19:25:46 -0400
+Message-ID: <20100726232546.GA21225@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:60344 "EHLO coco.kroah.org"
+Received: from mx1.redhat.com ([209.132.183.28]:42739 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755698Ab0GZWxt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jul 2010 18:53:49 -0400
+	id S1751201Ab0GZXZs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Jul 2010 19:25:48 -0400
 Content-Disposition: inline
-In-Reply-To: <20100723164316.GA21684@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Jul 23, 2010 at 09:43:17AM -0700, Dmitry Torokhov wrote:
-> On Fri, Jul 23, 2010 at 04:38:59PM +0100, Alan Cox wrote:
-> > > I am confused here... Are you having a separate SPI driver create a
-> > > platform device and then you have mrstouch to bind to this
-> > > intermediate platform device? Are you doing that so you can introduce
-> > > I2C interface later? If so I think I prefer how adxl34x and ad7879
-> > > drivers are structured - they are split into core and interface parts
-> > > but do not require extra devices/drivers (see in my 'next' brnach).
-> > 
-> > There is no SPI interface to the device. It ended up in the kernel SPI
-> > because old versions of the device firmware listed it in the firmware
-> > tables as SPI and rather than doing the right thing (correcting the
-> > type) the x86 code created an SPI device for it.
-> > 
-> > At a certain level it may be SPI, but it's all hidden behind the
-> > firmware on the SCU and nothing to do with Linux SPI at all.
-> > 
-> 
-> Ah, OK then.
-> 
-> So, what is the plan of action? Greg, are you going to apply the patches
-> to staging and move over to input or shoudl I do that (apply Alan's
-> patches to staging _in my tree_ and move over to drivers.input)?
+This patch series adds the remaining lirc_foo device drivers to the staging
+tree. The core lirc_dev driver and lirc headers are currently merged in a
+v4l/dvb staging tree (which is pulled into linux-next), and are utilized by
+way of an IR decoder/encoder bridge plugin to ir-core.
 
-I already have the driver in my staging-next tree, so I can apply these
-6 patches as well, and then move it to the drivers/input subdirectory if
-you want.
+I've started porting lirc_foo drivers over to ir-core, first tackling the
+lirc_mceusb and lirc_imon drivers. lirc_mceusb is no more, replaced by a
+pure ir-core mceusb driver, and lirc_imon only supports the old first-gen
+imon devices now, which are quite different from the current-gen ones, now
+supported by a pure ir-core imon driver.
 
-Or I can leave it all in drivers/staging/ and then after 2.6.36-rc1
-comes, you can move the driver into drivers/input/ subdir.
+The long-term goal here is that all of these drivers should either be ported
+to ir-core, or dropped entirely. Some of them (*cough* lirc_parallel *cough*)
+should likely just be put out to pasture, but others are definitely still in
+use by quite a few people out there. I've got hardware for another four or
+five of the drivers, but not the rest, so I'm hoping that maybe people who
+have the hardware will pitch in and help with the porting if the bits are
+more readily available by way of the staging tree.
 
-Which do you prefer?
+Drivers I have hardware for, and am thus most likely to work on porting to
+ir-core before any others (and probably in this order):
+- lirc_zilog
+- lirc_streamzap
+- lirc_i2c
+- lirc_serial
+- lirc_sir
 
-thanks,
+Additionally, Maxim Levitsky, the author of lirc_ene0100, has already started
+work on porting lirc_ene0100 to ir-core. Everything else, definitely
+looking for help.
 
-greg k-h
+Patches:
+staging/lirc: add lirc_bt829 driver
+staging/lirc: add lirc_ene0100 driver
+staging/lirc: add lirc_i2c driver
+staging/lirc: add lirc_igorplugusb driver
+staging/lirc: add lirc_imon driver
+staging/lirc: add lirc_it87 driver
+staging/lirc: add lirc_ite8709 driver
+staging/lirc: add lirc_parallel driver
+staging/lirc: add lirc_sasem driver
+staging/lirc: add lirc_serial driver
+staging/lirc: add lirc_sir driver
+staging/lirc: add lirc_streamzap driver
+staging/lirc: add lirc_ttusbir driver
+staging/lirc: add lirc_zilog driver
+staging/lirc: wire up Kconfig and Makefile bits
+
+Diffstat:
+ drivers/staging/Kconfig                 |    2 +
+ drivers/staging/Makefile                |    1 +
+ drivers/staging/lirc/Kconfig            |  110 +++
+ drivers/staging/lirc/Makefile           |   19 +
+ drivers/staging/lirc/TODO               |    8 +
+ drivers/staging/lirc/lirc_bt829.c       |  383 +++++++++
+ drivers/staging/lirc/lirc_ene0100.c     |  646 ++++++++++++++
+ drivers/staging/lirc/lirc_ene0100.h     |  169 ++++
+ drivers/staging/lirc/lirc_i2c.c         |  536 ++++++++++++
+ drivers/staging/lirc/lirc_igorplugusb.c |  555 ++++++++++++
+ drivers/staging/lirc/lirc_imon.c        | 1058 +++++++++++++++++++++++
+ drivers/staging/lirc/lirc_it87.c        | 1019 +++++++++++++++++++++++
+ drivers/staging/lirc/lirc_it87.h        |  116 +++
+ drivers/staging/lirc/lirc_ite8709.c     |  542 ++++++++++++
+ drivers/staging/lirc/lirc_parallel.c    |  705 ++++++++++++++++
+ drivers/staging/lirc/lirc_parallel.h    |   26 +
+ drivers/staging/lirc/lirc_sasem.c       |  933 +++++++++++++++++++++
+ drivers/staging/lirc/lirc_serial.c      | 1313 +++++++++++++++++++++++++++++
+ drivers/staging/lirc/lirc_sir.c         | 1282 ++++++++++++++++++++++++++++
+ drivers/staging/lirc/lirc_streamzap.c   |  821 ++++++++++++++++++
+ drivers/staging/lirc/lirc_ttusbir.c     |  397 +++++++++
+ drivers/staging/lirc/lirc_zilog.c       | 1387
++++++++++++++++++++++++++++++++
+ 22 files changed, 12028 insertions(+), 0 deletions(-)
+
+-- 
+Jarod Wilson
+jarod@redhat.com
+

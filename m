@@ -1,56 +1,55 @@
-From: Wayne Lin <00601wayne@gmail.com>
-Subject: [RFC 02/36]  [Driver][Qualcomm 1070][USB] Register GPIO#109 for USB analog switch configuration
-Date: Mon, 26 Jul 2010 16:30:11 +0800
-Message-ID: <1280133045-25945-2-git-send-email-wayne.lin@quantatw.com>
-References: <1280133045-25945-1-git-send-email-wayne.lin@quantatw.com>
+From: Trilok Soni <tsoni@codeaurora.org>
+Subject: Re: [RFC 04/36]  [Driver][Qualcomm 1070][EC_KB] Adding new qci keyboard
+ driver
+Date: Mon, 26 Jul 2010 16:46:10 +0530
+Message-ID: <4C4D6E7A.3080903@codeaurora.org>
+References: <1280133045-25945-1-git-send-email-wayne.lin@quantatw.com> <1280133045-25945-4-git-send-email-wayne.lin@quantatw.com> <20100726085507.GB27151@core.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f194.google.com ([74.125.83.194]:57937 "EHLO
-	mail-pv0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753321Ab0GZJ0Q (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:21366 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754143Ab0GZLQR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jul 2010 05:26:16 -0400
-Received: by pvc7 with SMTP id 7so4889491pvc.1
-        for <linux-input@vger.kernel.org>; Mon, 26 Jul 2010 02:26:16 -0700 (PDT)
-In-Reply-To: <1280133045-25945-1-git-send-email-wayne.lin@quantatw.com>
+	Mon, 26 Jul 2010 07:16:17 -0400
+In-Reply-To: <20100726085507.GB27151@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: wayne <wayne.lin@quantatw.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wayne Lin <00601wayne@gmail.com>, linux-input@vger.kernel.org, wayne <wayne.lin@quantatw.com>
 
-From: wayne <wayne.lin@quantatw.com>
+Hi Dmitry,
 
----
- arch/arm/mach-msm/board-qsd8x50.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On 7/26/2010 2:25 PM, Dmitry Torokhov wrote:
+> On Mon, Jul 26, 2010 at 04:30:13PM +0800, Wayne Lin wrote:
+>> From: wayne <wayne.lin@quantatw.com>
+>>
+> 
+> - Change log?
+> - run through checkpatch.pl
+> - Get rid of debug printks (or convert to dev_dbg)?
+> - use dev_XXX instrad of pr_xxx when you have device? Get rig
+> - I have seen lots of time people trying to call input_free_device
+>   after calling input_unregister_device (which is forbidden,
+>   input_unregister_device is sufficient alone) but you are the first to
+>   call free _before_ unregister.
+> - No need to initialize keymap with zeroes (NOKEYS)
+> - threaded IRQ
+> - copy keymap into device and set keycode, keycodemax, keycodesize so
+>   that keymap can be adjusted from userspace
+> - why do you export input device?
+> 
+> I dont think you tried applying this patch... At least I do not have
+> qci_kbd.c in my tree so it would not apply.
+> 
 
-diff --git a/arch/arm/mach-msm/board-qsd8x50.c b/arch/arm/mach-msm/board-qsd8x50.c
-index 0cab166..633514a 100644
---- a/arch/arm/mach-msm/board-qsd8x50.c
-+++ b/arch/arm/mach-msm/board-qsd8x50.c
-@@ -416,7 +416,7 @@ static struct msm_gpio hsusb_gpio_config_data[] = {
- 	{ GPIO_CFG(98, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA), "fs_power" },
- 	{ GPIO_CFG(HUB_RESET_GPIO, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA),
- 								"swch_ctrl" },
--	{ GPIO_CFG(108, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA), "hub_reset" },
-+	{ GPIO_CFG(109, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA), "hub_reset" },
- };
- 
- static int msm_otg_gpio_init(void)
-@@ -441,12 +441,12 @@ static void msm_otg_setup_gpio(unsigned int enable)
- 			/* Config analog switch as USB host. */
- 			gpio_set_value(98, 0); /* USB_FS_POWER_EN */
- 			gpio_set_value(HUB_RESET_GPIO, 0); /* SWITCH_CONTROL */
--			gpio_set_value(108, 1); /* USB_HUB_RESET */
-+			gpio_set_value(109, 1); /* USB_HUB_RESET */
- 		} else {
- 			/* Config analog switch as USB peripheral. */
- 			gpio_set_value(98, 0); /* USB_FS_POWER_EN */
- 			gpio_set_value(HUB_RESET_GPIO, 1); /* SWITCH_CONTROL */
--			gpio_set_value(108, 0); /* USB_HUB_RESET */
-+			gpio_set_value(109, 0); /* USB_HUB_RESET */
- 		}
- 	}
- }
+I think whole series needs a refresh as you had mentioned in the another email. No
+point in reviewing this series, because Wayne needs to post only driver part here,
+if he has some mach-msm bits, then they should go through Daniel Walker.
+
+---Trilok Soni
+
 -- 
-1.7.0.4
-
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

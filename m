@@ -1,59 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 21/36] Revert " [Driver][Qualcomm 1070][CLOCK] Modify the
- AXI bus speed"
-Date: Mon, 26 Jul 2010 01:46:55 -0700
-Message-ID: <20100726084655.GA27151@core.coreip.homeip.net>
+From: "Premi, Sanjeev" <premi@ti.com>
+Subject: RE: [RFC 36/36]  [Driver][Qualcomm 1070][VERSION] 0.2.0
+Date: Mon, 26 Jul 2010 14:17:14 +0530
+Message-ID: <B85A65D85D7EB246BE421B3FB0FBB59301E7D0AEFE@dbde02.ent.ti.com>
 References: <1280133045-25945-1-git-send-email-wayne.lin@quantatw.com>
- <1280133045-25945-21-git-send-email-wayne.lin@quantatw.com>
+ <1280133045-25945-36-git-send-email-wayne.lin@quantatw.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:44212 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752471Ab0GZIrC (ORCPT
+Received: from devils.ext.ti.com ([198.47.26.153]:41701 "EHLO
+	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752471Ab0GZIrV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jul 2010 04:47:02 -0400
-Received: by pvc7 with SMTP id 7so4324652pvc.19
-        for <linux-input@vger.kernel.org>; Mon, 26 Jul 2010 01:47:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1280133045-25945-21-git-send-email-wayne.lin@quantatw.com>
+	Mon, 26 Jul 2010 04:47:21 -0400
+In-Reply-To: <1280133045-25945-36-git-send-email-wayne.lin@quantatw.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wayne Lin <00601wayne@gmail.com>
-Cc: linux-input@vger.kernel.org, wayne <wayne.lin@quantatw.com>
+To: Wayne Lin <00601wayne@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: wayne <wayne.lin@quantatw.com>
 
-On Mon, Jul 26, 2010 at 04:30:30PM +0800, Wayne Lin wrote:
+ 
+
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org 
+> [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Wayne Lin
+> Sent: Monday, July 26, 2010 2:01 PM
+> To: linux-input@vger.kernel.org
+> Cc: wayne
+> Subject: [RFC 36/36] [Driver][Qualcomm 1070][VERSION] 0.2.0
+> 
 > From: wayne <wayne.lin@quantatw.com>
 > 
-> This reverts commit 9ab35ce7ead42adf500950c6492fdd8aae173f5e.
-
-You really need to sanitize your patch series before posting and not
-simply dump your internal tree with all its history.
-
 > ---
->  arch/arm/mach-msm/acpuclock-8x50a.c |    2 +-
+>  arch/arm/mach-msm/version.c |    2 +-
 >  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/arch/arm/mach-msm/acpuclock-8x50a.c b/arch/arm/mach-msm/acpuclock-8x50a.c
-> index beaac14..fab4c27 100644
-> --- a/arch/arm/mach-msm/acpuclock-8x50a.c
-> +++ b/arch/arm/mach-msm/acpuclock-8x50a.c
-> @@ -106,7 +106,7 @@ struct clkctl_acpu_speed acpu_freq_tbl[] = {
->  	{ 0,  921600, ACPU_PLL_3, 0, 0, 0, 0, 128000, 1, 0x18, 1225 },
->  	{ 0,  960000, ACPU_PLL_3, 0, 0, 0, 0, 128000, 1, 0x19, 1225 },
->  	{ 1,  998400, ACPU_PLL_3, 0, 0, 0, 0, 128000, 1, 0x1A, 1225 },
-> -	{ 1, 1190400, ACPU_PLL_3, 0, 0, 0, 0, 192000, 1, 0x1F, 1225 },
-> +	{ 1, 1190400, ACPU_PLL_3, 0, 0, 0, 0, 128000, 1, 0x1F, 1225 },
->  	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
->  };
+> diff --git a/arch/arm/mach-msm/version.c b/arch/arm/mach-msm/version.c
+> index f665d9f..be21aae 100755
+> --- a/arch/arm/mach-msm/version.c
+> +++ b/arch/arm/mach-msm/version.c
+> @@ -12,7 +12,7 @@
+>  #include "smd_private.h"
 >  
+>  #define KERNEL_VERSION UTS_RELEASE
+> -#define IMAGE_VERSION "0.1.2"
+> +#define IMAGE_VERSION "0.2.0"
+>  
+
+[sp] I see 3 patches that are successively changing the same version number.
+
+
+>  static int version_proc_show(struct seq_file *m, void *v)
+>  {
 > -- 
 > 1.7.0.4
 > 
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-input" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
-Dmitry
+> 

@@ -1,216 +1,380 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH 15/15] staging/lirc: wire up Kconfig and Makefile bits
-Date: Mon, 26 Jul 2010 19:34:23 -0400
-Message-ID: <20100726233423.GP21225@redhat.com>
-References: <20100726232546.GA21225@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Wayne Lin <00601wayne@gmail.com>
+Subject: [RFC] MSM: add trackpad driver in st1.5
+Date: Tue, 27 Jul 2010 09:49:05 +0800
+Message-ID: <1280195345-2459-1-git-send-email-wayne.lin@quantatw.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:25944 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755829Ab0GZXeY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jul 2010 19:34:24 -0400
-Content-Disposition: inline
-In-Reply-To: <20100726232546.GA21225@redhat.com>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:47774 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751994Ab0G0BtN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Jul 2010 21:49:13 -0400
+Received: by pwi5 with SMTP id 5so285285pwi.19
+        for <linux-input@vger.kernel.org>; Mon, 26 Jul 2010 18:49:12 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Mandeep Singh Baines <msb@chromium.org>, Horace Fu <horace.fu@quantatw.com>
 
-Make the bits under staging/lirc/ buildable, and add a TODO note.
+From: Mandeep Singh Baines <msb@chromium.org>
 
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
+BUG=NONE
+TEST=Built and ran on st1.5
+
+Signed-off-by: Horace Fu <horace.fu@quantatw.com>
+Signed-off-by: Mandeep Singh Baines <msb@chromium.org>
+
+Review URL: http://codereview.chromium.org/724001
 ---
- drivers/staging/Kconfig       |    2 +
- drivers/staging/Makefile      |    1 +
- drivers/staging/lirc/Kconfig  |  110 +++++++++++++++++++++++++++++++++++++++++
- drivers/staging/lirc/Makefile |   19 +++++++
- drivers/staging/lirc/TODO     |    8 +++
- 5 files changed, 140 insertions(+), 0 deletions(-)
- create mode 100644 drivers/staging/lirc/Kconfig
- create mode 100644 drivers/staging/lirc/Makefile
- create mode 100644 drivers/staging/lirc/TODO
+ drivers/input/mouse/Kconfig        |    9 +
+ drivers/input/mouse/Makefile       |    1 +
+ drivers/input/mouse/qci_touchpad.c |  308 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 318 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/mouse/qci_touchpad.c
 
-diff --git a/drivers/staging/Kconfig b/drivers/staging/Kconfig
-index 9fc196d..fad88fb 100644
---- a/drivers/staging/Kconfig
-+++ b/drivers/staging/Kconfig
-@@ -155,5 +155,7 @@ source "drivers/staging/tidspbridge/Kconfig"
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 3feeb3a..35aab2c 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -321,4 +321,13 @@ config MOUSE_SYNAPTICS_I2C
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called synaptics_i2c.
  
- source "drivers/staging/quickstart/Kconfig"
++config MOUSE_QCITP
++	tristate "Quanta Computer Inc. Touchpad"
++	depends on I2C && ARCH_MSM_SCORPION
++	default n
++	help
++	  Say Y here if you want to use the Quanta touchpad driver for ST 1.5
++	  platform.
++
++
+ endif
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 570c84a..57d5135 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -19,6 +19,7 @@ obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
+ obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
++obj-$(CONFIG_MOUSE_QCITP)       += qci_touchpad.o
  
-+source "drivers/staging/lirc/Kconfig"
-+
- endif # !STAGING_EXCLUDE_BUILD
- endif # STAGING
-diff --git a/drivers/staging/Makefile b/drivers/staging/Makefile
-index 26942aa..27bb127 100644
---- a/drivers/staging/Makefile
-+++ b/drivers/staging/Makefile
-@@ -58,3 +58,4 @@ obj-$(CONFIG_EASYCAP)		+= easycap/
- obj-$(CONFIG_SOLO6X10)		+= solo6x10/
- obj-$(CONFIG_TIDSPBRIDGE)	+= tidspbridge/
- obj-$(CONFIG_ACPI_QUICKSTART)	+= quickstart/
-+obj-$(CONFIG_LIRC_STAGING)	+= lirc/
-diff --git a/drivers/staging/lirc/Kconfig b/drivers/staging/lirc/Kconfig
+ psmouse-objs := psmouse-base.o synaptics.o
+ 
+diff --git a/drivers/input/mouse/qci_touchpad.c b/drivers/input/mouse/qci_touchpad.c
 new file mode 100644
-index 0000000..968c2ad
+index 0000000..1cfa0ee
 --- /dev/null
-+++ b/drivers/staging/lirc/Kconfig
-@@ -0,0 +1,110 @@
-+#
-+# LIRC driver(s) configuration
-+#
-+menuconfig LIRC_STAGING
-+	bool "Linux Infrared Remote Control IR receiver/transmitter drivers"
-+	help
-+	  Say Y here, and all supported Linux Infrared Remote Control IR and
-+	  RF receiver and transmitter drivers will be displayed. When paired
-+	  with a remote control and the lirc daemon, the receiver drivers
-+	  allow control of your Linux system via remote control.
++++ b/drivers/input/mouse/qci_touchpad.c
+@@ -0,0 +1,308 @@
++/* Quanta I2C Touchpad Driver
++ *
++ * Copyright (C) 2009 Quanta Computer Inc.
++ * Author: Hsin Wu <hsin.wu@quantatw.com>
++ * Author: Austin Lai <austin.lai@quantatw.com>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
 +
-+if LIRC_STAGING
++  /*
++ *
++ *  The Driver with I/O communications via the I2C Interface for ON2 of AP BU.
++ *  And it is only working on the nuvoTon WPCE775x Embedded Controller.
++ *
++ */
 +
-+config LIRC_BT829
-+        tristate "BT829 based hardware"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the IR interface on BT829-based hardware
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/jiffies.h>
++#include <linux/i2c.h>
++#include <linux/mutex.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/keyboard.h>
++#include <linux/gpio.h>
++#include <linux/delay.h>
 +
-+config LIRC_ENE0100
-+	tristate "ENE KB3924/ENE0100 CIR Port Reciever"
-+	depends on LIRC_STAGING
-+	help
-+	  This is a driver for CIR port handled by ENE KB3924 embedded
-+	  controller found on some notebooks.
-+	  It appears on PNP list as ENE0100.
++#define TOUCHPAD_ID_NAME          "qci-i2cpad"
++#define TOUCHPAD_NAME                "PS2 Touchpad"
++#define TOUCHPAD_DEVICE             "/i2c/input1"
++#define TOUCHPAD_CMD_ENABLE             0xF4
 +
-+config LIRC_I2C
-+	tristate "I2C Based IR Receivers"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for I2C-based IR receivers, such as those commonly
-+	  found onboard Hauppauge PVR-150/250/350 video capture cards
++static int __devinit qcitp_probe(struct i2c_client *client,
++	const struct i2c_device_id *id);
++static int __devexit qcitp_remove(struct i2c_client *kbd);
 +
-+config LIRC_IGORPLUGUSB
-+	tristate "Igor Cesko's USB IR Receiver"
-+	depends on LIRC_STAGING && USB
-+	help
-+	  Driver for Igor Cesko's USB IR Receiver
++/* General structure to hold the driver data */
++struct i2ctpad_drv_data {
++	struct i2c_client *ti2c_client;
++	struct work_struct work;
++	struct input_dev *qcitp_dev;
++	struct kobject *tp_kobj;
++	unsigned int  qcitp_gpio;
++	unsigned int  qcitp_irq;
++	char ecdata[8];
++};
 +
-+config LIRC_IMON
-+	tristate "Legacy SoundGraph iMON Receiver and Display"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the original SoundGraph iMON IR Receiver and Display
++static int tp_sense_val = 10;
++static ssize_t tp_sensitive_show(struct kobject *kobj,
++	struct kobj_attribute *attr, char * buf)
++{
++	return sprintf(buf, "%d\n", tp_sense_val);
++}
 +
-+	  Current generation iMON devices use the input layer imon driver.
++static ssize_t tp_sensitive_store(struct kobject *kobj,
++	struct kobj_attribute *attr, const char* buf, size_t n)
++{
++	unsigned int val = 0;
++	sscanf(buf, "%d", &val);
 +
-+config LIRC_IT87
-+	tristate "ITE IT87XX CIR Port Receiver"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the ITE IT87xx IR Receiver
++	if (val >= 1 && val <= 10)
++		tp_sense_val = val;
++	else
++		return  -ENOSYS;
 +
-+config LIRC_ITE8709
-+	tristate "ITE8709 CIR Port Receiver"
-+	depends on LIRC_STAGING && PNP
-+	help
-+	  Driver for the ITE8709 IR Receiver
++	return sizeof(buf);
++}
 +
-+config LIRC_PARALLEL
-+	tristate "Homebrew Parallel Port Receiver"
-+	depends on LIRC_STAGING && !SMP
-+	help
-+	  Driver for Homebrew Parallel Port Receivers
++static struct kobj_attribute tp_sensitivity = __ATTR(tp_sensitivity ,
++						     0644 ,
++						     tp_sensitive_show ,
++						     tp_sensitive_store);
 +
-+config LIRC_SASEM
-+	tristate "Sasem USB IR Remote"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the Sasem OnAir Remocon-V or Dign HV5 HTPC IR/VFD Module
++static struct attribute *g_tp[] = {
++	&tp_sensitivity.attr,
++	NULL,
++};
 +
-+config LIRC_SERIAL
-+	tristate "Homebrew Serial Port Receiver"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for Homebrew Serial Port Receivers
++static struct attribute_group attr_group = {
++	.attrs = g_tp,
++};
 +
-+config LIRC_SERIAL_TRANSMITTER
-+	bool "Serial Port Transmitter"
-+	default y
-+	depends on LIRC_SERIAL
-+	help
-+	  Serial Port Transmitter support
++/*-----------------------------------------------------------------------------
++ * Driver functions
++ *---------------------------------------------------------------------------*/
 +
-+config LIRC_SIR
-+	tristate "Built-in SIR IrDA port"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the SIR IrDA port
++#ifdef CONFIG_PM
++static int qcitp_suspend(struct device *dev)
++{
++	return 0;
++}
 +
-+config LIRC_STREAMZAP
-+	tristate "Streamzap PC Receiver"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the Streamzap PC Receiver
++static int qcitp_resume(struct device *dev)
++{
++	return 0;
++}
++#endif
 +
-+config LIRC_TTUSBIR
-+	tristate "Technotrend USB IR Receiver"
-+	depends on LIRC_STAGING && USB
-+	help
-+	  Driver for the Technotrend USB IR Receiver
++static const struct i2c_device_id qcitp_idtable[] = {
++	{ TOUCHPAD_ID_NAME, 0 },
++	{ }
++};
 +
-+config LIRC_ZILOG
-+	tristate "Zilog/Hauppauge IR Transmitter"
-+	depends on LIRC_STAGING
-+	help
-+	  Driver for the Zilog/Hauppauge IR Transmitter, found on
-+	  PVR-150/500, HVR-1200/1250/1700/1800, HD-PVR and other cards
-+endif
-diff --git a/drivers/staging/lirc/Makefile b/drivers/staging/lirc/Makefile
-new file mode 100644
-index 0000000..a019182
---- /dev/null
-+++ b/drivers/staging/lirc/Makefile
-@@ -0,0 +1,19 @@
-+# Makefile for the lirc drivers.
-+#
++MODULE_DEVICE_TABLE(i2c, qcitp_idtable);
++#ifdef CONFIG_PM
++static struct dev_pm_ops qcitp_pm_ops = {
++	.suspend  = qcitp_suspend,
++	.resume   = qcitp_resume,
++};
++#endif
++static struct i2c_driver i2ctp_driver = {
++	.driver = {
++		.owner = THIS_MODULE,
++		.name  = TOUCHPAD_ID_NAME,
++#ifdef CONFIG_PM
++		.pm = &qcitp_pm_ops,
++#endif
++	},
++	.probe	  = qcitp_probe,
++	.remove	  = __devexit_p(qcitp_remove),
++	.id_table = qcitp_idtable,
++};
 +
-+# Each configuration option enables a list of files.
++static void qcitp_fetch_data(struct i2c_client *tpad_client,
++	char *ec_data)
++{
++	struct i2c_msg tp_msg;
++	int ret;
++	tp_msg.addr = tpad_client->addr;
++	tp_msg.flags = I2C_M_RD;
++	tp_msg.len = 3;
++	tp_msg.buf = (char *)&ec_data[0];
++	ret = i2c_transfer(tpad_client->adapter, &tp_msg, 1);
++}
 +
-+obj-$(CONFIG_LIRC_BT829)	+= lirc_bt829.o
-+obj-$(CONFIG_LIRC_ENE0100)	+= lirc_ene0100.o
-+obj-$(CONFIG_LIRC_I2C)		+= lirc_i2c.o
-+obj-$(CONFIG_LIRC_IGORPLUGUSB)	+= lirc_igorplugusb.o
-+obj-$(CONFIG_LIRC_IMON)		+= lirc_imon.o
-+obj-$(CONFIG_LIRC_IT87)		+= lirc_it87.o
-+obj-$(CONFIG_LIRC_ITE8709)	+= lirc_ite8709.o
-+obj-$(CONFIG_LIRC_PARALLEL)	+= lirc_parallel.o
-+obj-$(CONFIG_LIRC_SASEM)	+= lirc_sasem.o
-+obj-$(CONFIG_LIRC_SERIAL)	+= lirc_serial.o
-+obj-$(CONFIG_LIRC_SIR)		+= lirc_sir.o
-+obj-$(CONFIG_LIRC_STREAMZAP)	+= lirc_streamzap.o
-+obj-$(CONFIG_LIRC_TTUSBIR)	+= lirc_ttusbir.o
-+obj-$(CONFIG_LIRC_ZILOG)	+= lirc_zilog.o
-diff --git a/drivers/staging/lirc/TODO b/drivers/staging/lirc/TODO
-new file mode 100644
-index 0000000..b6cb593
---- /dev/null
-+++ b/drivers/staging/lirc/TODO
-@@ -0,0 +1,8 @@
-+- All drivers should either be ported to ir-core, or dropped entirely
-+  (see drivers/media/IR/mceusb.c vs. lirc_mceusb.c in lirc cvs for an
-+  example of a previously completed port).
++static void qcitp_report_key(struct input_dev *tpad_dev, char *ec_data)
++{
++	int dx = 0;
++	int dy = 0;
 +
-+Please send patches to:
-+Jarod Wilson <jarod@wilsonet.com>
-+Greg Kroah-Hartman <greg@kroah.com>
++	if (ec_data[1])
++		dx = (int) ec_data[1] -
++		     (int) ((ec_data[0] << 4) & 0x100);
 +
++	if (ec_data[2])
++		dy = (int) ((ec_data[0] << 3) & 0x100) -
++		     (int) ec_data[2];
++
++	dx = (dx * tp_sense_val)/10;
++	dy = (dy * tp_sense_val)/10;
++
++	input_report_key(tpad_dev, BTN_LEFT, ec_data[0] & 0x01);
++	input_report_key(tpad_dev, BTN_RIGHT, ec_data[0] & 0x02);
++	input_report_key(tpad_dev, BTN_MIDDLE, ec_data[0] & 0x04);
++	input_report_rel(tpad_dev, REL_X, dx);
++	input_report_rel(tpad_dev, REL_Y, dy);
++	input_sync(tpad_dev);
++}
++
++static void qcitp_work_handler(struct work_struct *_work)
++{
++	struct i2ctpad_drv_data *itpad_drv_data =
++		container_of(_work, struct i2ctpad_drv_data, work);
++
++	struct i2c_client *itpad_client = itpad_drv_data->ti2c_client;
++	struct input_dev *itpad_dev = itpad_drv_data->qcitp_dev;
++
++	qcitp_fetch_data(itpad_client, itpad_drv_data->ecdata);
++	qcitp_report_key(itpad_dev, itpad_drv_data->ecdata);
++}
++
++static irqreturn_t qcitp_interrupt(int irq, void *dev_id)
++{
++	struct i2ctpad_drv_data *itpad_drv_data = dev_id;
++	schedule_work(&itpad_drv_data->work);
++	return IRQ_HANDLED;
++}
++
++static int __devinit qcitp_probe(struct i2c_client *client,
++				    const struct i2c_device_id *id)
++{
++	int err = -ENOMEM;
++	struct i2ctpad_drv_data *context = 0;
++
++	context = kzalloc(sizeof(struct i2ctpad_drv_data), GFP_KERNEL);
++	if (!context)
++		return err;
++	i2c_set_clientdata(client, context);
++	context->ti2c_client = client;
++	context->qcitp_gpio = client->irq;
++
++	/* Enable mouse */
++	i2c_smbus_write_byte(client, TOUCHPAD_CMD_ENABLE);
++	mdelay(100);
++	i2c_smbus_read_byte(client);
++	/*allocate and register input device*/
++	context->qcitp_dev = input_allocate_device();
++	if (!context->qcitp_dev) {
++		pr_err("[TouchPad] allocting memory fail\n");
++		err = -ENOMEM;
++		goto allocate_fail;
++	}
++	context->qcitp_dev->name        = TOUCHPAD_NAME;
++	context->qcitp_dev->phys         = TOUCHPAD_DEVICE;
++	context->qcitp_dev->id.bustype = BUS_I2C;
++	context->qcitp_dev->id.vendor  = 0x1050;
++	context->qcitp_dev->id.product = 0x1;
++	context->qcitp_dev->id.version = 0x1;
++	context->qcitp_dev->evbit[0]  = BIT_MASK(EV_KEY) |
++					BIT_MASK(EV_REL);
++	context->qcitp_dev->relbit[0] = BIT_MASK(REL_X) |
++					BIT_MASK(REL_Y);
++	context->qcitp_dev->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) |
++							 BIT_MASK(BTN_MIDDLE) |
++							 BIT_MASK(BTN_RIGHT);
++
++	input_set_drvdata(context->qcitp_dev, context);
++	err = input_register_device(context->qcitp_dev);
++	if (err) {
++		pr_err("[TouchPad] register device fail\n");
++		goto register_fail;
++	}
++
++	/*request intterrupt*/
++	INIT_WORK(&context->work, qcitp_work_handler);
++
++	err = gpio_request(context->qcitp_gpio, "qci-pad");
++	if (err) {
++		pr_err("[TouchPad]err gpio request\n");
++		goto gpio_request_fail;
++	}
++
++	context->qcitp_irq = gpio_to_irq(context->qcitp_gpio);
++	err = request_irq(context->qcitp_irq,
++			  qcitp_interrupt,
++			  IRQF_TRIGGER_FALLING,
++			  TOUCHPAD_ID_NAME,
++			  context);
++	if (err) {
++		pr_err("[TouchPad] unable to get IRQ\n");
++		goto request_irq_fail;
++	}
++	/*create touchpad kobject*/
++	context->tp_kobj = kobject_create_and_add("touchpad", NULL);
++
++	err = sysfs_create_group(context->tp_kobj, &attr_group);
++	if (err)
++		pr_warning("[TouchPad] sysfs create fail\n");
++
++	tp_sense_val = 10;
++
++	return 0;
++
++request_irq_fail:
++	gpio_free(context->qcitp_gpio);
++
++gpio_request_fail:
++	input_unregister_device(context->qcitp_dev);
++
++register_fail:
++	input_free_device(context->qcitp_dev);
++
++allocate_fail:
++	i2c_set_clientdata(client, NULL);
++	kfree(context);
++	return err;
++}
++
++static int __devexit qcitp_remove(struct i2c_client *dev)
++{
++	struct i2ctpad_drv_data *context = i2c_get_clientdata(dev);
++
++	free_irq(context->qcitp_irq, context);
++	gpio_free(context->qcitp_gpio);
++	input_free_device(context->qcitp_dev);
++	input_unregister_device(context->qcitp_dev);
++	kfree(context);
++
++	return 0;
++}
++
++static int __init qcitp_init(void)
++{
++	return i2c_add_driver(&i2ctp_driver);
++}
++
++
++static void __exit qcitp_exit(void)
++{
++	i2c_del_driver(&i2ctp_driver);
++}
++
++module_init(qcitp_init);
++module_exit(qcitp_exit);
++
++MODULE_AUTHOR("Quanta Computer Inc.");
++MODULE_DESCRIPTION("Quanta Embedded Controller I2C Touch Pad Driver");
++MODULE_LICENSE("GPL v2");
 -- 
-1.7.1.1
-
--- 
-Jarod Wilson
-jarod@redhat.com
+1.7.0.4
 

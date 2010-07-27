@@ -1,41 +1,42 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0/15] STAGING: add lirc device drivers
-Date: Tue, 27 Jul 2010 09:09:56 -0700
-Message-ID: <20100727160955.GA7528@kroah.com>
-References: <20100726232546.GA21225@redhat.com>
- <4C4F0244.2070803@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: OMAP: RX51: fix 'KEY_10' compile breakage
+Date: Tue, 27 Jul 2010 09:43:25 -0700
+Message-ID: <20100727164325.GA4302@core.coreip.homeip.net>
+References: <alpine.DEB.2.00.1007261625470.1906@utopia.booyaka.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gw0-f46.google.com ([74.125.83.46]:40034 "EHLO
+	mail-gw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751655Ab0G0Qnd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Jul 2010 12:43:33 -0400
 Content-Disposition: inline
-In-Reply-To: <4C4F0244.2070803@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Jarod Wilson <jarod@redhat.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <alpine.DEB.2.00.1007261625470.1906@utopia.booyaka.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Walmsley <paul@pwsan.com>
+Cc: Tony Lindgren <tony@atomide.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Amit Kucheria <amit.kucheria@verdurent.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, stable@kernel.org
 
-On Tue, Jul 27, 2010 at 12:59:00PM -0300, Mauro Carvalho Chehab wrote:
-> Em 26-07-2010 20:25, Jarod Wilson escreveu:
+Hi Paul,
 
-Hm, Jarod, you forgot to cc: the staging maintainer, so I missed these
-:)
-
-> Please add a TODO file at staging/lirc, describing what's needed for
-> the drivers to move to the IR branch.
+On Mon, Jul 26, 2010 at 04:28:12PM -0600, Paul Walmsley wrote:
 > 
-> Greg,
+> Commit 3fea60261e73dbf4a51130d40cafcc8465b0f2c3 replaces KEY_F10 and 
+> KEY_F11 macro references with 'KEY_10' and 'KEY_11'.  This breaks 
+> v2.6.35-rc6 compiles with omap3_defconfig:
 > 
-> It is probably simpler to merge those files via my tree, as they depend
-> on some changes scheduled for 2.6.36.
+>   CC      arch/arm/mach-omap2/board-rx51-peripherals.o
+> arch/arm/mach-omap2/board-rx51-peripherals.c:223: error: 'KEY_10' undeclared here (not in a function)
+> arch/arm/mach-omap2/board-rx51-peripherals.c:226: error: 'KEY_11' undeclared here (not in a function)
 > 
-> Would it be ok for you if I merge them from my tree?
+> Fix by renaming the macro references back to KEY_F10 and KEY_F11.
+> 
+> Compile-tested only.
+> 
 
-No objection from me for them to go through your tree.
+Thank you for the patch however Linus managed to fish off LKML and apply
+another version that I posted earlier.
 
-Do you want me to handle the cleanup and other fixes after they go into
-the tree, or do you want to also handle them as well (either is fine
-with me.)
-
-thanks,
-
-greg k-h
+-- 
+Dmitry

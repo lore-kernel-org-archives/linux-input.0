@@ -1,68 +1,59 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 4/6] *	Register platform interface
-Date: Tue, 27 Jul 2010 08:22:15 -0700
-Message-ID: <20100727152215.GB6395@kroah.com>
-References: <20100723134852.19151.6999.stgit@localhost.localdomain>
- <20100723135219.19151.98855.stgit@localhost.localdomain>
- <20100723160716.GA21546@core.coreip.homeip.net>
- <20100723163859.1a8bfe7d@linux.intel.com>
- <20100723164316.GA21684@core.coreip.homeip.net>
- <20100726224942.GA17929@kroah.com>
- <20100727081633.GC32084@core.coreip.homeip.net>
+From: "Kevin McNeely" <Kevin.McNeely-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
+Date: Tue, 27 Jul 2010 08:20:25 -0700
+Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC09BCC3EA@labamba.mis.cypress.com>
+References: <kev@cypress.com> <1278968210-6827-1-git-send-email-kev@cypress.com> <4C3C1654.9010204@codeaurora.org> <20100713075544.GA16013@core.coreip.homeip.net> <4C3C2706.4020005@codeaurora.org> <4C481E6E.9000804@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:34572 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754649Ab0G0PWe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Jul 2010 11:22:34 -0400
-Content-Disposition: inline
-In-Reply-To: <20100727081633.GC32084@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-class: urn:content-classes:message
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Trilok Soni <tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: David Brown <davidb-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Simtec Linux Team <linux-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alan Cox <alan@linux.intel.com>, linux-input@vger.kernel.org
 
-On Tue, Jul 27, 2010 at 01:16:33AM -0700, Dmitry Torokhov wrote:
-> On Mon, Jul 26, 2010 at 03:49:42PM -0700, Greg KH wrote:
-> > On Fri, Jul 23, 2010 at 09:43:17AM -0700, Dmitry Torokhov wrote:
-> > > On Fri, Jul 23, 2010 at 04:38:59PM +0100, Alan Cox wrote:
-> > > > > I am confused here... Are you having a separate SPI driver create a
-> > > > > platform device and then you have mrstouch to bind to this
-> > > > > intermediate platform device? Are you doing that so you can introduce
-> > > > > I2C interface later? If so I think I prefer how adxl34x and ad7879
-> > > > > drivers are structured - they are split into core and interface parts
-> > > > > but do not require extra devices/drivers (see in my 'next' brnach).
-> > > > 
-> > > > There is no SPI interface to the device. It ended up in the kernel SPI
-> > > > because old versions of the device firmware listed it in the firmware
-> > > > tables as SPI and rather than doing the right thing (correcting the
-> > > > type) the x86 code created an SPI device for it.
-> > > > 
-> > > > At a certain level it may be SPI, but it's all hidden behind the
-> > > > firmware on the SCU and nothing to do with Linux SPI at all.
-> > > > 
-> > > 
-> > > Ah, OK then.
-> > > 
-> > > So, what is the plan of action? Greg, are you going to apply the patches
-> > > to staging and move over to input or shoudl I do that (apply Alan's
-> > > patches to staging _in my tree_ and move over to drivers.input)?
-> > 
-> > I already have the driver in my staging-next tree, so I can apply these
-> > 6 patches as well, and then move it to the drivers/input subdirectory if
-> > you want.
-> > 
-> > Or I can leave it all in drivers/staging/ and then after 2.6.36-rc1
-> > comes, you can move the driver into drivers/input/ subdir.
-> > 
-> 
-> The 2nd one I think is the best.
+Hi Trilok,
 
-Great.  I'll queue up these patches then.  Alan, when 2.6.36-rc1 is out,
-ask Dmitry to move the driver into the input subdir and all should be
-good.
+Yes, I am working on a new refactored version.  I will be looking to
+post the new version soon.
 
-thanks,
+-kev
 
-greg k-h
+-----Original Message-----
+From: Trilok Soni [mailto:tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org] 
+Sent: Thursday, July 22, 2010 3:33 AM
+To: Dmitry Torokhov
+Cc: Kevin McNeely; David Brown; Samuel Ortiz; Eric Miao; Mark Brown;
+Simtec Linux Team; Arnaud Patard; Antonio Ospite; Henrik Rydberg;
+linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
+linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
+linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Subject: Re: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
+
+Hi Kevin,
+
+On 7/13/2010 2:12 PM, Trilok Soni wrote:
+> On 7/13/2010 1:25 PM, Dmitry Torokhov wrote:
+>> On Tue, Jul 13, 2010 at 01:01:32PM +0530, Trilok Soni wrote:
+>>> Hi Kevin,
+>>>
+>>> Thanks for posting this driver.
+
+Are you going to post updated version of this patch, addressing review
+comments?
+
+---Trilok Soni
+
+-- 
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
+Forum.
+
+---------------------------------------------------------------
+This message and any attachments may contain Cypress (or its
+subsidiaries) confidential information. If it has been received
+in error, please advise the sender and immediately delete this
+message.
+---------------------------------------------------------------

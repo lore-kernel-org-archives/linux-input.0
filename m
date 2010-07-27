@@ -1,59 +1,39 @@
-From: "Kevin McNeely" <Kevin.McNeely-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
-Date: Tue, 27 Jul 2010 08:20:25 -0700
-Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC09BCC3EA@labamba.mis.cypress.com>
-References: <kev@cypress.com> <1278968210-6827-1-git-send-email-kev@cypress.com> <4C3C1654.9010204@codeaurora.org> <20100713075544.GA16013@core.coreip.homeip.net> <4C3C2706.4020005@codeaurora.org> <4C481E6E.9000804@codeaurora.org>
+From: "Mr. Ling Tia" <info@tia.org>
+Subject: Business Transaction
+Date: Tue, 27 Jul 2010 15:10:32 -0000 (UTC)
+Message-ID: <8d72498cdd62bb6182682295e4e79fe4.squirrel@webmail.4u.com.gh>
+Reply-To: tialing@discuz.org
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Brown <davidb-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Simtec Linux Team <linux-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>, Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from isp6.4u.com.gh ([80.87.72.6]:64266 "HELO isp6.4u.com.gh"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751281Ab0G0Po4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Jul 2010 11:44:56 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Trilok,
 
-Yes, I am working on a new refactored version.  I will be looking to
-post the new version soon.
 
--kev
 
------Original Message-----
-From: Trilok Soni [mailto:tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org] 
-Sent: Thursday, July 22, 2010 3:33 AM
-To: Dmitry Torokhov
-Cc: Kevin McNeely; David Brown; Samuel Ortiz; Eric Miao; Mark Brown;
-Simtec Linux Team; Arnaud Patard; Antonio Ospite; Henrik Rydberg;
-linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org;
-linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Subject: Re: [PATCH] i2c: cyttsp i2c touchscreen driver init submit
 
-Hi Kevin,
+Good day,
 
-On 7/13/2010 2:12 PM, Trilok Soni wrote:
-> On 7/13/2010 1:25 PM, Dmitry Torokhov wrote:
->> On Tue, Jul 13, 2010 at 01:01:32PM +0530, Trilok Soni wrote:
->>> Hi Kevin,
->>>
->>> Thanks for posting this driver.
+my name is Mr. Ling Tia Liu; I work with Industrial and commercial Bank of
+China i need your assistance regarding $21,300,000.00 US Dollars that will
+be transfer out of my bank After the successful transfer,40% for you and
+60% for me if you are interested contact me with your details
 
-Are you going to post updated version of this patch, addressing review
-comments?
 
----Trilok Soni
+Name..........
+Sex.........
+Age.............
+country.......
+Phone Contact......
+Home Address....
+Occupation
+Thanks
 
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
-Forum.
 
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------

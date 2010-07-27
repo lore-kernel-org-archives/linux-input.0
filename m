@@ -1,50 +1,43 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 0/15] STAGING: add lirc device drivers
-Date: Tue, 27 Jul 2010 14:17:57 -0400
-Message-ID: <20100727181757.GD9465@redhat.com>
-References: <20100726232546.GA21225@redhat.com>
- <4C4F0244.2070803@redhat.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3/6] mrst-touchscreen: Fix use before initialize in
+	mrst_touch [Fix bug 2561]
+Date: Tue, 27 Jul 2010 11:17:04 -0700
+Message-ID: <20100727181704.GA29234@kroah.com>
+References: <20100723134852.19151.6999.stgit@localhost.localdomain> <20100723135210.19151.19238.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kroah.org ([198.145.64.141]:49887 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751950Ab0G0S3e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Jul 2010 14:29:34 -0400
 Content-Disposition: inline
-In-Reply-To: <4C4F0244.2070803@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20100723135210.19151.19238.stgit@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@linux.intel.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Tue, Jul 27, 2010 at 12:59:00PM -0300, Mauro Carvalho Chehab wrote:
-> Em 26-07-2010 20:25, Jarod Wilson escreveu:
-> > This patch series adds the remaining lirc_foo device drivers to the staging
-> > tree.
-> >  drivers/staging/lirc/TODO               |    8 +
-
-^^^
-
-> Hi Jarod,
+On Fri, Jul 23, 2010 at 02:52:12PM +0100, Alan Cox wrote:
+> From: Arjan van de Ven <arjan@linux.intel.com>
 > 
-> Please add a TODO file at staging/lirc, describing what's needed for
-> the drivers to move to the IR branch.
-
-See above. :)
-
-It could use some further fleshing out though, particularly, some "known
-issues that must be fixed in this specific driver" type things.
-
-
-> Greg,
+> The mrst touch screen driver, in mrstouch_adc_init does
 > 
-> It is probably simpler to merge those files via my tree, as they depend
-> on some changes scheduled for 2.6.36.
+>                  dev_err(&tsdev->spi->dev, "Unable to read PMIC id\n");
+> 
+> which does not work very well since the tsdev->spi member does not get
+> initialized until after the call to mrstouch_adc_init
+> 
+> this patch makes sure the ->spi member is initialized prior to the call
+> to mrstouch_adc_init
+> 
+> Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+> Signed-off-by: Alan Cox <alan@linux.intel.com>
 
-The patches were created against yesterday's linux-next tree, so I'd
-assumed they could go in via staging for 2.6.36, but...
+Why are there 3 patches attached to this email, all a bit different?
 
-> Would it be ok for you if I merge them from my tree?
+Care to resend this one so I know which to apply?
 
-...it certainly doesn't matter to me if they go in this way instead.
+thanks,
 
--- 
-Jarod Wilson
-jarod@redhat.com
+greg k-h

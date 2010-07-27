@@ -1,33 +1,52 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 1/6] Staging: mrst_touchscreen: clean up input side
-Date: Tue, 27 Jul 2010 11:18:31 -0700
-Message-ID: <20100727181831.GA29281@kroah.com>
-References: <20100723134852.19151.6999.stgit@localhost.localdomain> <20100723135151.19151.73344.stgit@localhost.localdomain>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH 0/15] STAGING: add lirc device drivers
+Date: Tue, 27 Jul 2010 14:24:04 -0400
+Message-ID: <20100727182404.GE9465@redhat.com>
+References: <20100726232546.GA21225@redhat.com>
+ <4C4F0244.2070803@redhat.com>
+ <20100727160955.GA7528@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:49892 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753299Ab0G0SaE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Jul 2010 14:30:04 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20100723135151.19151.73344.stgit@localhost.localdomain>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20100727160955.GA7528@kroah.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@linux.intel.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Fri, Jul 23, 2010 at 02:51:52PM +0100, Alan Cox wrote:
-> Fix most of the stuff that Dmitry pointed out. This leaves the mutex in IRQ
-> and misuse of SPI to sort out.
+On Tue, Jul 27, 2010 at 09:09:56AM -0700, Greg KH wrote:
+> On Tue, Jul 27, 2010 at 12:59:00PM -0300, Mauro Carvalho Chehab wrote:
+> > Em 26-07-2010 20:25, Jarod Wilson escreveu:
 > 
-> Also fix the build bits so it actually builds in staging - whoops.
+> Hm, Jarod, you forgot to cc: the staging maintainer, so I missed these
+> :)
+
+D'oh, sorry, yeah, realized that about 10 minutes after I sent everything.
+Figured I'd ping you if you hadn't said anything about 'em in a day or
+three.
+
+> > Greg,
+> > 
+> > It is probably simpler to merge those files via my tree, as they depend
+> > on some changes scheduled for 2.6.36.
+> > 
+> > Would it be ok for you if I merge them from my tree?
 > 
-> Signed-off-by: Alan Cox <alan@linux.intel.com>
+> No objection from me for them to go through your tree.
+> 
+> Do you want me to handle the cleanup and other fixes after they go into
+> the tree, or do you want to also handle them as well (either is fine
+> with me.)
 
-This doesn't apply for some reason.  Care to resend all 6 of these so I
-can apply them?
+Note that I've got a git tree I've been maintaining the lirc drivers in
+for a while, so whomever is ultimately the gateway, I can also stage
+cleanups there -- I'll certainly be pushing any cleanups I do on the lirc
+drivers there prior to sending along for upstream, or else I'm liable to
+lose track of them... :)
 
-thanks,
+http://git.kernel.org/?p=linux/kernel/git/jarod/linux-2.6-lirc.git
 
-greg k-h
+-- 
+Jarod Wilson
+jarod@redhat.com

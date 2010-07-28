@@ -1,74 +1,67 @@
-From: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH 1/9] IR: Kconfig fixes
-Date: Wed, 28 Jul 2010 10:36:17 -0700
-Message-ID: <20100728103617.4b0207b9.randy.dunlap@oracle.com>
-References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com>
-	<1280330051-27732-2-git-send-email-maximlevitsky@gmail.com>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Can I expect in-kernel decoding to work out of box?
+Date: Wed, 28 Jul 2010 13:38:33 -0400
+Message-ID: <AANLkTikHpLHo7Z9XyYHVtnKapvJkHnV=wtqDK9yd6CFX@mail.gmail.com>
+References: <1280269990.21278.15.camel@maxim-laptop>
+	<1280273550.32216.4.camel@maxim-laptop>
+	<AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com>
+	<AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com>
+	<1280298606.6736.15.camel@maxim-laptop>
+	<AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com>
+	<4C502CE6.80106@redhat.com>
+	<1280327080.9175.58.camel@maxim-laptop>
+	<AANLkTi=Ww9yvN5RWaXEi+cB2QaDWn34nSVGAvKxbJ2k2@mail.gmail.com>
+	<4C505313.2010904@redhat.com>
+	<AANLkTi=Ms0saB5b3+o9qQQYFNT96XStKCkVivB65q_33@mail.gmail.com>
+	<1280337661.19593.66.camel@morgan.silverblock.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rcsinet10.oracle.com ([148.87.113.121]:27338 "EHLO
-	rcsinet10.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751303Ab0G1Rhl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 13:37:41 -0400
-In-Reply-To: <1280330051-27732-2-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1280337661.19593.66.camel@morgan.silverblock.net>
+Sender: linux-media-owner@vger.kernel.org
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-On Wed, 28 Jul 2010 18:14:03 +0300 Maxim Levitsky wrote:
+On Wed, Jul 28, 2010 at 1:21 PM, Andy Walls <awalls@md.metrocast.net> wrote:
+> On Wed, 2010-07-28 at 13:04 -0400, Jon Smirl wrote:
+>> On Wed, Jul 28, 2010 at 11:56 AM, Mauro Carvalho Chehab
+>> <mchehab@redhat.com> wrote:
+>> > Em 28-07-2010 11:41, Jon Smirl escreveu:
+>
+>>
+>> Are there any IR protocols less than 20 (or 17) years old? If they are
+>> older than that the patents have expired. I expect IR use to decline
+>> in the future, it will be replaced with RF4CE radio remotes.
+>
+> UEI's XMP protocol for one, IIRC.
 
-> Move IR drives below separate menu.
-> This allows to disable them.
-> Also correct a typo.
-> 
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> ---
->  drivers/media/IR/Kconfig |   14 +++++++++++---
->  1 files changed, 11 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/media/IR/Kconfig b/drivers/media/IR/Kconfig
-> index e557ae0..99ea9cd 100644
-> --- a/drivers/media/IR/Kconfig
-> +++ b/drivers/media/IR/Kconfig
-> @@ -1,8 +1,10 @@
-> -config IR_CORE
-> -	tristate
-> +menuconfig IR_CORE
-> +	tristate "Infrared remote controller adapters"
->  	depends on INPUT
->  	default INPUT
->  
-> +if IR_CORE
-> +
->  config VIDEO_IR
->  	tristate
->  	depends on IR_CORE
-> @@ -16,7 +18,7 @@ config LIRC
->  	   Enable this option to build the Linux Infrared Remote
->  	   Control (LIRC) core device interface driver. The LIRC
->  	   interface passes raw IR to and from userspace, where the
-> -	   LIRC daemon handles protocol decoding for IR reception ann
-> +	   LIRC daemon handles protocol decoding for IR reception and
->  	   encoding for IR transmitting (aka "blasting").
->  
->  source "drivers/media/IR/keymaps/Kconfig"
-> @@ -102,3 +104,9 @@ config IR_MCEUSB
->  
->  	   To compile this driver as a module, choose M here: the
->  	   module will be called mceusb.
-> +
-> +
-> +
-> +
-> +
-> +endif #IR_CORE
+The beauty of LIRC is that you can use any remote for input.  If one
+remote's protocols are patented, just use another remote.
 
-I don't think that those extra blank lines are a fix...
+Only in the case where we have to xmit the protocol is the patent
+conflict unavoidable. In that case we could resort to sending a raw
+pulse timing string that comes from user space.
 
----
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+>
+> UEI are the folks that sell/make "OneForALL" branded remotes.
+>
+> You can read about their patents' remaining lifetimes in this March 2010
+> SEC filing:
+>
+> http://www.faqs.org/sec-filings/100315/UNIVERSAL-ELECTRONICS-INC_10-K/
+>
+> 1 to 18 years - that includes the ones they just bought from Zilog.
+> That is not to say that all those patents cover protocols.
+>
+>
+> Regards,
+> Andy
+>
+>
+
+
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

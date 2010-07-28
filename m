@@ -1,54 +1,31 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 2/9] IR: minor fixes:
-Date: Wed, 28 Jul 2010 13:01:21 -0300
-Message-ID: <4C505451.8030809@redhat.com>
-References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com> <1280330051-27732-3-git-send-email-maximlevitsky@gmail.com>
+Subject: Re: [PATCH 3/9] IR: replace spinlock with mutex.
+Date: Wed, 28 Jul 2010 13:03:02 -0300
+Message-ID: <4C5054B6.5050207@redhat.com>
+References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com> <1280330051-27732-4-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:63944 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58431 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755494Ab0G1QBR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 12:01:17 -0400
-In-Reply-To: <1280330051-27732-3-git-send-email-maximlevitsky@gmail.com>
+	id S1751136Ab0G1QC4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jul 2010 12:02:56 -0400
+In-Reply-To: <1280330051-27732-4-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxim Levitsky <maximlevitsky@gmail.com>
 Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
 Em 28-07-2010 12:14, Maxim Levitsky escreveu:
-> * lirc: Don't propagate reset event to userspace
-> * lirc: Remove strange logic from lirc that would make first sample always be pulse
-> * Make TO_US macro actualy print what it should.
-> 
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> ---
->  drivers/media/IR/ir-core-priv.h  |    3 +--
->  drivers/media/IR/ir-lirc-codec.c |   14 ++++++++------
->  drivers/media/IR/ir-raw-event.c  |    3 +++
->  3 files changed, 12 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-> index babd520..8ce80e4 100644
-> --- a/drivers/media/IR/ir-core-priv.h
-> +++ b/drivers/media/IR/ir-core-priv.h
-> @@ -76,7 +76,6 @@ struct ir_raw_event_ctrl {
->  	struct lirc_codec {
->  		struct ir_input_dev *ir_dev;
->  		struct lirc_driver *drv;
-> -		int lircdata;
->  	} lirc;
->  };
->  
-> @@ -104,7 +103,7 @@ static inline void decrease_duration(struct ir_raw_event *ev, unsigned duration)
->  		ev->duration -= duration;
->  }
->  
-> -#define TO_US(duration)			(((duration) + 500) / 1000)
-> +#define TO_US(duration)			((duration) / 1000)
+> Some handlers (lirc for example) allocates memory on initialization,
+> doing so in atomic context is cumbersome.
+> Fixes warning about sleeping function in atomic context.
 
-It is better to keep rounding the duration to its closest value.
+You should not replace it by a mutex, as the decoding code may happen during
+IRQ time on several drivers.
+
+If lirc is allocating memory, it should be using GFP_ATOMIC to avoid sleeping.
 
 Cheers,
 Mauro

@@ -1,37 +1,141 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 5/9] IR: extend interfaces to support more device settings
-Date: Wed, 28 Jul 2010 16:47:47 -0400
-Message-ID: <20100728204747.GH26480@redhat.com>
-References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com>
- <1280330051-27732-6-git-send-email-maximlevitsky@gmail.com>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: Can I expect in-kernel decoding to work out of box?
+Date: Thu, 29 Jul 2010 00:01:31 +0300
+Message-ID: <1280350891.8891.14.camel@maxim-laptop>
+References: <1280269990.21278.15.camel@maxim-laptop>
+	 <1280273550.32216.4.camel@maxim-laptop>
+	 <AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com>
+	 <AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com>
+	 <1280298606.6736.15.camel@maxim-laptop>
+	 <AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com>
+	 <4C502CE6.80106@redhat.com>  <1280327080.9175.58.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1280330051-27732-6-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:65019 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756327Ab0G1VBk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jul 2010 17:01:40 -0400
+In-Reply-To: <1280327080.9175.58.camel@maxim-laptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 
-On Wed, Jul 28, 2010 at 06:14:07PM +0300, Maxim Levitsky wrote:
-> Also reuse LIRC_SET_MEASURE_CARRIER_MODE as LIRC_SET_LEARN_MODE
-> (LIRC_SET_LEARN_MODE will start carrier reports if possible, and
-> tune receiver to wide band mode)
+On Wed, 2010-07-28 at 17:24 +0300, Maxim Levitsky wrote: 
+> On Wed, 2010-07-28 at 10:13 -0300, Mauro Carvalho Chehab wrote: 
+> > Em 28-07-2010 07:40, Jon Smirl escreveu:
+> > > On Wed, Jul 28, 2010 at 2:30 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
+> > >> On Tue, 2010-07-27 at 22:33 -0400, Jarod Wilson wrote:
+> > >>> On Tue, Jul 27, 2010 at 9:29 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
+> > 
+> > >> No its not, its just extended NEC.
+> > > 
+> > > http://www.sbprojects.com/knowledge/ir/nec.htm
+> > > Says the last two bytes should be the complement of each other.
+> > > 
+> > > So for extended NEC it would need to be:
+> > > 1100 0010 1010 0101 instead of 1100 0010 1010 0100
+> > > The last bit is wrong.
+> > > 
+> > > From the debug output it is decoding as NEC, but then it fails a
+> > > consistency check. Maybe we need to add a new protocol that lets NEC
+> > > commands through even if they fail the error checks.
+> > 
+> > Assuming that Maxim's IR receiver is not causing some bad decode at the
+> > NEC code, it seems simpler to add a parameter at sysfs to relax the NEC
+> > detection. We should add some way, at the userspace table for those RC's
+> > that uses a NEC-like code.
+> > 
+> > There's another alternative: currently, the NEC decoder produces a 16 bits
+> > code for NEC and a 24 bits for NEC-extended code. The decoder may return a
+> > 32 bits code when none of the checksum's match the NEC or NEC-extended standard.
+> > 
+> > Such 32 bits code won't match a keycode on a 16-bits or 24-bits table, so
+> > there's no risk of generating a wrong keycode, if the wrong consistent check
+> > is due to a reception error.
+> > 
+> > Btw, we still need to port rc core to use the new tables ioctl's, as cleaning
+> > all keycodes on a 32 bits table would take forever with the current input
+> > events ioctls.
+> > 
+> > > It may also be
+> > > that the NEC machine rejected it because the timing was so far off
+> > > that it concluded that it couldn't be a NEC messages. The log didn't
+> > > include the exact reason it got rejected. Add some printks at the end
+> > > of the NEC machine to determine the exact reason for rejection.
+> > 
+> > The better is to discard the possibility of a timing issue before changing
+> > the decoder to accept NEC-like codes without consistency checks.
+> > 
+> > > The current state machines enforce protocol compliance so there are
+> > > probably a lot of older remotes that won't decode right. We can use
+> > > some help in adjusting the state machines to let out of spec codes
+> > > through.
+> > 
+> > Yes, but we should take some care to avoid having another protocol decoder to
+> > interpret badly a different protocol. So, I think that the decoders may have
+> > some sysfs nodes to tweak the decoders to accept those older remotes.
+> > 
+> > We'll need a consistent way to add some logic at the remotes keycodes used by
+> > ir-keycode, in order to allow it to tweak the decoder when a keycode table for
+> > such remote is loaded into the driver.
+> > 
+> > > User space lirc is much older. Bugs like this have been worked out of
+> > > it. It will take some time to get the kernel implementation up to the
+> > > same level.
+> > 
+> > True.
 > 
-> This IOCTL isn't yet used by lirc, so this won't break userspace.
+> 
+> I more or less got to the bottom of this.
+> 
+> 
+> It turns out that ENE reciever has a non linear measurement error.
+> That is the longer sample is, the larger error it contains.
+> Substracting around 4% from the samples makes the output look much more
+> standard compliant.
+> 
+> You are right that my remote has  JVC protocol. (at least I am sure now
+> it hasn't NEC, because repeat looks differently).
+> 
+> My remote now actually partially works with JVC decoder, it decodes
+> every other keypress.
+> 
+> Still, no repeat is supported.
+> 
+> However, all recievers (and transmitters) aren't perfect.
+> Thats why I prefer lirc, because it makes no assumptions about protocol,
+> so it can be 'trained' to work with any remote, and under very large
+> range of error tolerances.
+> 
+> Best regards,
+> Maxim Levitsky
+> 
 
-Plus, once lirc 0.8.7 is released (Real Soon Now), we'll start working on
-lirc 0.9.0 with the express goal of it being built against lirc.h as
-provided by the kernel.
+I think I found the reason behind some of incorrect behavior.
 
-These all generally look good and sane to me, and I'll make use of the
-LEARN_MODE bits for mceusb after something along these lines is committed.
+I see that in-kernel decoding is unhappy about the way I process gaps.
 
-I like the simplifications Mauro suggested for the ioctl handling. In
-addition to those, there's a bit of whitespace damage in lirc.h that I'd
-like to see cleaned up for v2.
+I do exactly the same I did in lirc driver.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+At the end of keypress, the driver receives series of spaces from
+hardware.
+I accumulate 'em until patience^Wtimeout runs out.
+Then I put hardware in 'idle' mode, and remember current time.
+
+As soon as I get new pulse, I send a sum of accumulated same and time
+difference to user.
+
+Therefore every keypress ends with a pulse, and starts with space.
+But in-kernel decoding isn't happy about it, it seems.. at least NEC
+decoder...
+
+How you think to solve that?
+Fix in-kernel decoders maybe?
+
+Best regards,
+Maxim  Levitsky
+

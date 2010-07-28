@@ -1,95 +1,166 @@
-From: Andy Walls <awalls@md.metrocast.net>
+From: Jon Smirl <jonsmirl@gmail.com>
 Subject: Re: Can I expect in-kernel decoding to work out of box?
-Date: Wed, 28 Jul 2010 10:38:49 -0400
-Message-ID: <1280327929.11072.24.camel@morgan.silverblock.net>
+Date: Wed, 28 Jul 2010 10:41:27 -0400
+Message-ID: <AANLkTi=Ww9yvN5RWaXEi+cB2QaDWn34nSVGAvKxbJ2k2@mail.gmail.com>
 References: <1280269990.21278.15.camel@maxim-laptop>
-	 <1280273550.32216.4.camel@maxim-laptop>
-	 <AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com>
-	 <AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com>
-	 <1280298606.6736.15.camel@maxim-laptop>
-	 <AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com>
-	 <4C502CE6.80106@redhat.com>
-	 <AANLkTinCs7f6zF-tYZqJ49CAjNWF=2MPGh0VRuU=VLzq@mail.gmail.com>
+	<1280273550.32216.4.camel@maxim-laptop>
+	<AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com>
+	<AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com>
+	<1280298606.6736.15.camel@maxim-laptop>
+	<AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com>
+	<4C502CE6.80106@redhat.com>
+	<1280327080.9175.58.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTinCs7f6zF-tYZqJ49CAjNWF=2MPGh0VRuU=VLzq@mail.gmail.com>
+In-Reply-To: <1280327080.9175.58.camel@maxim-laptop>
 Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2010-07-28 at 09:46 -0400, Jon Smirl wrote:
-> Let's be really sure it is NEC and not JVC.
-> 
-> > >    8850     4350      525     1575      525     1575
-> > >     525      450      525      450      525      450
-> > >     525      450      525     1575      525      450
-> > >     525     1575      525      450      525     1575
-> > >     525      450      525      450      525     1575
-> > >     525      450      525      450      525    23625
-> 
-> 
-> NEC timings are 9000 4500 560 1680 560 560 etc
-> 
-> JVC timings are 8400 4200 525 1575 525 525
-> 
-> It is a closer match to the JVC timing.  But neither protocol uses a
-> different mark/space timing -- 450 vs 525
+On Wed, Jul 28, 2010 at 10:24 AM, Maxim Levitsky
+<maximlevitsky@gmail.com> wrote:
+> On Wed, 2010-07-28 at 10:13 -0300, Mauro Carvalho Chehab wrote:
+>> Em 28-07-2010 07:40, Jon Smirl escreveu:
+>> > On Wed, Jul 28, 2010 at 2:30 AM, Maxim Levitsky <maximlevitsky@gma=
+il.com> wrote:
+>> >> On Tue, 2010-07-27 at 22:33 -0400, Jarod Wilson wrote:
+>> >>> On Tue, Jul 27, 2010 at 9:29 PM, Jon Smirl <jonsmirl@gmail.com> =
+wrote:
+>>
+>> >> No its not, its just extended NEC.
+>> >
+>> > http://www.sbprojects.com/knowledge/ir/nec.htm
+>> > Says the last two bytes should be the complement of each other.
+>> >
+>> > So for extended NEC it would need to be:
+>> > 1100 0010 1010 0101 instead of 1100 0010 1010 0100
+>> > The last bit is wrong.
+>> >
+>> > From the debug output it is decoding as NEC, but then it fails a
+>> > consistency check. Maybe we need to add a new protocol that lets N=
+EC
+>> > commands through even if they fail the error checks.
+>>
+>> Assuming that Maxim's IR receiver is not causing some bad decode at =
+the
+>> NEC code, it seems simpler to add a parameter at sysfs to relax the =
+NEC
+>> detection. We should add some way, at the userspace table for those =
+RC's
+>> that uses a NEC-like code.
+>>
+>> There's another alternative: currently, the NEC decoder produces a 1=
+6 bits
+>> code for NEC and a 24 bits for NEC-extended code. The decoder may re=
+turn a
+>> 32 bits code when none of the checksum's match the NEC or NEC-extend=
+ed standard.
+>>
+>> Such 32 bits code won't match a keycode on a 16-bits or 24-bits tabl=
+e, so
+>> there's no risk of generating a wrong keycode, if the wrong consiste=
+nt check
+>> is due to a reception error.
+>>
+>> Btw, we still need to port rc core to use the new tables ioctl's, as=
+ cleaning
+>> all keycodes on a 32 bits table would take forever with the current =
+input
+>> events ioctls.
+>>
+>> > It may also be
+>> > that the NEC machine rejected it because the timing was so far off
+>> > that it concluded that it couldn't be a NEC messages. The log didn=
+'t
+>> > include the exact reason it got rejected. Add some printks at the =
+end
+>> > of the NEC machine to determine the exact reason for rejection.
+>>
+>> The better is to discard the possibility of a timing issue before ch=
+anging
+>> the decoder to accept NEC-like codes without consistency checks.
+>>
+>> > The current state machines enforce protocol compliance so there ar=
+e
+>> > probably a lot of older remotes that won't decode right. We can us=
+e
+>> > some help in adjusting the state machines to let out of spec codes
+>> > through.
+>>
+>> Yes, but we should take some care to avoid having another protocol d=
+ecoder to
+>> interpret badly a different protocol. So, I think that the decoders =
+may have
+>> some sysfs nodes to tweak the decoders to accept those older remotes=
+=2E
+>>
+>> We'll need a consistent way to add some logic at the remotes keycode=
+s used by
+>> ir-keycode, in order to allow it to tweak the decoder when a keycode=
+ table for
+>> such remote is loaded into the driver.
+>>
+>> > User space lirc is much older. Bugs like this have been worked out=
+ of
+>> > it. It will take some time to get the kernel implementation up to =
+the
+>> > same level.
+>>
+>> True.
+>
+>
+> I more or less got to the bottom of this.
+>
+>
+> It turns out that ENE reciever has a non linear measurement error.
+> That is the longer sample is, the larger error it contains.
+> Substracting around 4% from the samples makes the output look much mo=
+re
+> standard compliant.
 
-I assume you mean "different mark/space timing for the symbol for which
-they are the same length" (in NEC that's the '0' symbol IIRC).
-  
+Most of the protocols are arranged using power of two timings.
 
-I've noticed different mark/space timings for the '0' symbol from NEC
-remotes and with some RC-5 remotes.  I usually attribute it to cheap
-remote designs, weak batteries, capacitive effects, receiver pulse
-measurement technique, etc.
+=46or example 562.5, 1125, 2250, 4500, 9000 -- NEC
+525, 1050, 2100, 4200, 8400 - JVC
 
-Here's an example of NEC remote from a DTV STB remote as measured by the
-CX23888 IR receiver on an HVR-1850:
+The decoders are designed to be much more sensitive to the power of
+two relationship than the exact timing. Your non-linear error messed
+up the relationship.
 
-8257296 ns  mark
-4206185 ns  space
-        leader
- 482926 ns  mark
- 545296 ns  space
-        0
- 481296 ns  mark
-1572259 ns  space
-        1
- 481148 ns  mark
- 546333 ns  space
-        0
- 479963 ns  mark
- 551815 ns  space
-        0
- 454333 ns  mark
-1615519 ns  space
-        1
- 435074 ns  mark
- 591370 ns  space
-[...]
+>
+> You are right that my remote has =A0JVC protocol. (at least I am sure=
+ now
+> it hasn't NEC, because repeat looks differently).
+>
+> My remote now actually partially works with JVC decoder, it decodes
+> every other keypress.
+>
+> Still, no repeat is supported.
 
-I don't know the source of the error.  I would have to check the same
-remote against my MCE USB receiver to try and determine any receiver
-induced measurement errors.
+It probably isn't implemented yet. Jarod has been focusing more on
+getting the basic decoders to work.
 
-But, in Maxim's case, the difference isn't bad: 450/525 ~= 86%.  I would
-hope a 15% difference would still be recognizable.
+> However, all recievers (and transmitters) aren't perfect.
+> Thats why I prefer lirc, because it makes no assumptions about protoc=
+ol,
+> so it can be 'trained' to work with any remote, and under very large
+> range of error tolerances.
+
+It's possible to build a Linux IR decoder engine that can be loaded
+with the old LIRC config files.  But before doing this we should work
+on getting all of the errors out of the standard decoders.
+
+>
+> Best regards,
+> Maxim Levitsky
+>
+>
 
 
-> Also look at the repeats. This is repeating at about 25ms. NEC repeat
-> spacing is 110ms. JVC is supposed to be at 50-60ms. NEC does not
-> repeat the entire command and JVC does. The repeats are closer to
-> following the JVC model.
-> 
-> I'd say this is a JVC command. So the question is, why didn't JVC
-> decoder get out of state zero?
 
-Is JVC enabled by default?  I recall analyzing that it could generate
-false positives on NEC codes.
-
-Regards,
-Andy
+--=20
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,49 +1,127 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: Can I expect in-kernel decoding to work out of box?
-Date: Wed, 28 Jul 2010 02:32:30 +0300
-Message-ID: <1280273550.32216.4.camel@maxim-laptop>
-References: <1280269990.21278.15.camel@maxim-laptop>
+From: Christopher Heiny <cheiny@synaptics.com>
+Subject: =?UTF-8?q?=5BRFC=20PATCH=200/1=5D=20input/touchscreen=3A=20Synaptics=20Touchscreen=20Driver?=
+Date: Tue, 27 Jul 2010 17:42:09 -0700
+Message-ID: <1280277730-10657-1-git-send-email-cheiny@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:63056 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751439Ab0G0Xci (ORCPT
+Received: from [12.234.97.163] ([12.234.97.163]:4612 "EHLO
+	archaeopteryx.synaptics.com" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751234Ab0G1A5U (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 Jul 2010 19:32:38 -0400
-Received: by bwz1 with SMTP id 1so3642633bwz.19
-        for <linux-input@vger.kernel.org>; Tue, 27 Jul 2010 16:32:36 -0700 (PDT)
-In-Reply-To: <1280269990.21278.15.camel@maxim-laptop>
+	Tue, 27 Jul 2010 20:57:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, linux-input <linux-input@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Christopher Heiny <cheiny@synaptics.com>, Allie Xiong <axiong@synaptics.com>, William Manson <wmanson@synaptics.com>, Joerie de Gram <j.de.gram@gmail.com>
 
-On Wed, 2010-07-28 at 01:33 +0300, Maxim Levitsky wrote: 
-> Hi,
-> 
-> I ported my ene driver to in-kernel decoding.
-> It isn't yet ready to be released, but in few days it will be.
-> 
-> Now, knowing about wonders of in-kernel decoding, I try to use it, but
-> it just doesn't work.
-> 
-> Mind you that lircd works with this remote.
-> (I attach my lircd.conf)
-> 
-> Here is the output of mode2 for a single keypress:
+This patch adds an initial driver supporting Synaptics ClearPad
+touchscreens that use the RMI4 protocol, as defined here:
 
-Just want to add that I tested it with many different modes of my
-remotes, and all but one fail (one mode is detected as NEC).
+http://www.synaptics.com/sites/default/files/511-000136-01_revA.pdf
 
-Don't get me wrong.
-Although I opposed to idea of in-kernel decoding, lately I began to
-think that this isn't such a bad idea.
-Especially if number of users for whom it will work out of box.
 
-So, I am very disappointed.
+This patch addresses feedback relating to our previous submission on Ma=
+y 28, in particular multifinger comments from Henrik Rydberg.  Addition=
+ally, we've added a defconfig file that builds the driver for the Omap =
+Zoom2 platform (assuming you've retrofitted it with an RMI4 sensor).
 
-Best regards,
-Maxim Levitsky
+I2C changes in the May 28th patch were ACK'ed by Jean Delvare on May 29=
+=2E
 
+=46eedback from previous patches that has not yet been acted on (such a=
+s creation of an 'rmi' bus on the kernel bus architecture) are captured=
+ as TODOs in the code, and will be implemented in a future submission.
+
+This patch builds with the included defconfig in our development enviro=
+nment,
+but I cannot guarantee that it will build for you.  We're working on ma=
+king
+sure it builds generically, and feedback relating to that will be great=
+ly
+appreciated (special thanks to Joerie de Gram for his previous feedback
+on this).
+
+
+This version of the driver does not support all features of the RMI4
+protocol yet.  We felt it more important to start with a solid
+implementation of the basic functionality, and then build on that base
+to support additional features (such as gestures, proximity detection,
+capacitive buttons, and so on).
+
+Additionally, as this is our team's first venture into the wonderful
+world of kernel submissions, we figured it was important to start out
+initially with a fairly simple codebase, just in case we're doing
+something horribly wrong.
+
+
+The significant files in this version of the driver are:
+    rmi_core.c
+        Implements the basic core of the RMI4 protocol
+        including self-discovery of RMI4 functions.  This
+        also implements RMI4 function 0x01, which provides
+        generic device control.
+    rmi_function_11.c
+        Implements basic RMI4 function 0x11 (2D sensor)
+        features, including multitouch up to 10 fingers.
+    rmi_app_touchpad.c
+        The major driver functions (mod_init, mod_exit,
+        and so on).
+An additional file is included, but will eventually be changed/dropped
+    rmi_i2c_gta01.c
+        Provides platform setup for development.  This will
+        be replaced in the future by a generic approach to
+        specifying platform parameters.
+More detailed descriptions can be found in each file's comments.
+
+We chose to use multiple source files because it makes it easy to add
+support for additional RMI4 functions with minimal impact to existing
+functions.  Additionally, this supports future changes to the
+configuration to allow you to compile in only those RMI4 functions that
+you need for your particular device.
+
+
+There are two existing drivers for similar Synaptics devices in the
+current kernel tree (excluding the PS/2 touchpad driver).  These are:
+
+=2E/linux-2.6/drivers/input/mouse/synaptics_i2c.c
+      A driver for the Exeda 15mm touchpad, written by Mike Rapoport
+      <mike@compulab.co.il> and Igor Grinberg <grinberg@compulab.co.il>
+
+=2E/linux-2.6/drivers/staging/dream/synaptics_i2c_rmi.c
+      A driver for the HTC Dream ClearPad, written by Arve Hj=C3=B8nnev=
+=C3=A5g
+      <arve@android.com>
+
+We have not extended these drivers for a couple of reasons.  First, the
+two drivers are specific to particular Synaptics products, and it is ou=
+r
+desire to produce a general solution that takes advantage of the 'self
+describing' features of products that use the RMI protocol.
+
+Second, and more importantly, is that the existing drivers are written
+for an older version of the RMI protocol (aka RMI3) that is being
+retired in favor of a more recent and substantially changed version (ak=
+a
+RMI4).  Most currently shipping Synaptics ClearPads speak the RMI4
+protocol, and it will be Synaptics protocol of choice going forward.  I=
+n
+almost all respects, RMI4 is not backward compatible with RMI3, making
+it impractical to support both versions in the same driver.
+
+
+Comments and other feedback on this driver are welcomed.
+
+Bill Manson
+Allie Xiong
+Christopher Heiny
+
+
+
+---
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

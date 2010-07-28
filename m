@@ -1,180 +1,62 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 6/9] IR: Allow not to compile keymaps in.
-Date: Thu, 29 Jul 2010 02:40:49 +0300
-Message-ID: <1280360452-8852-7-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 7/9] IR: report unknown scancodes the in-kernel decoders found.
+Date: Thu, 29 Jul 2010 02:40:50 +0300
+Message-ID: <1280360452-8852-8-git-send-email-maximlevitsky@gmail.com>
 References: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:56704 "EHLO
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:42214 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752387Ab0G1XlK (ORCPT
+	with ESMTP id S1754252Ab0G1XlM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 19:41:10 -0400
+	Wed, 28 Jul 2010 19:41:12 -0400
 In-Reply-To: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: lirc-list@lists.sourceforge.net
 Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
 
-Currently, ir device registration fails if keymap requested by driver is not found.
-Fix that by always compiling in the empty keymap, and using it as a failback.
+This way it is possible to use evtest to create keymap for unknown remote.
 
 Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 ---
- drivers/media/IR/ir-core-priv.h     |    3 +-
- drivers/media/IR/ir-sysfs.c         |    2 +
- drivers/media/IR/keymaps/Makefile   |    1 -
- drivers/media/IR/keymaps/rc-empty.c |   44 -----------------------------------
- drivers/media/IR/rc-map.c           |   23 ++++++++++++++++++
- include/media/ir-core.h             |    8 ++++-
- 6 files changed, 33 insertions(+), 48 deletions(-)
- delete mode 100644 drivers/media/IR/keymaps/rc-empty.c
+ drivers/media/IR/ir-keytable.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index 9c594af..78106a0 100644
---- a/drivers/media/IR/ir-core-priv.h
-+++ b/drivers/media/IR/ir-core-priv.h
-@@ -127,7 +127,8 @@ int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_init(void);
+diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
+index 34b9c07..4498c64 100644
+--- a/drivers/media/IR/ir-keytable.c
++++ b/drivers/media/IR/ir-keytable.c
+@@ -339,6 +339,8 @@ void ir_repeat(struct input_dev *dev)
  
--
-+int ir_rcmap_init(void);
-+void ir_rcmap_cleanup(void);
- /*
-  * Decoder initialization code
-  *
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index a841e51..936dff8 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -341,6 +341,7 @@ static int __init ir_core_init(void)
+ 	spin_lock_irqsave(&ir->keylock, flags);
  
- 	/* Initialize/load the decoders/keymap code that will be used */
- 	ir_raw_init();
-+	ir_rcmap_init();
++	input_event(dev, EV_MSC, MSC_SCAN, ir->last_scancode);
++
+ 	if (!ir->keypressed)
+ 		goto out;
  
- 	return 0;
- }
-@@ -348,6 +349,7 @@ static int __init ir_core_init(void)
- static void __exit ir_core_exit(void)
- {
- 	class_unregister(&ir_input_class);
-+	ir_rcmap_cleanup();
- }
+@@ -383,9 +385,12 @@ void ir_keydown(struct input_dev *dev, int scancode, u8 toggle)
+ 	ir->last_toggle = toggle;
+ 	ir->last_keycode = keycode;
  
- module_init(ir_core_init);
-diff --git a/drivers/media/IR/keymaps/Makefile b/drivers/media/IR/keymaps/Makefile
-index 86d3d1f..24992cd 100644
---- a/drivers/media/IR/keymaps/Makefile
-+++ b/drivers/media/IR/keymaps/Makefile
-@@ -17,7 +17,6 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t-pci.o \
- 			rc-dm1105-nec.o \
- 			rc-dntv-live-dvb-t.o \
- 			rc-dntv-live-dvbt-pro.o \
--			rc-empty.o \
- 			rc-em-terratec.o \
- 			rc-encore-enltv2.o \
- 			rc-encore-enltv.o \
-diff --git a/drivers/media/IR/keymaps/rc-empty.c b/drivers/media/IR/keymaps/rc-empty.c
-deleted file mode 100644
-index 3b338d8..0000000
---- a/drivers/media/IR/keymaps/rc-empty.c
-+++ /dev/null
-@@ -1,44 +0,0 @@
--/* empty.h - Keytable for empty Remote Controller
-- *
-- * keymap imported from ir-keymaps.c
-- *
-- * Copyright (c) 2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
--
--#include <media/rc-map.h>
--
--/* empty keytable, can be used as placeholder for not-yet created keytables */
--
--static struct ir_scancode empty[] = {
--	{ 0x2a, KEY_COFFEE },
--};
--
--static struct rc_keymap empty_map = {
--	.map = {
--		.scan    = empty,
--		.size    = ARRAY_SIZE(empty),
--		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
--		.name    = RC_MAP_EMPTY,
--	}
--};
--
--static int __init init_rc_map_empty(void)
--{
--	return ir_register_map(&empty_map);
--}
--
--static void __exit exit_rc_map_empty(void)
--{
--	ir_unregister_map(&empty_map);
--}
--
--module_init(init_rc_map_empty)
--module_exit(exit_rc_map_empty)
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Mauro Carvalho Chehab <mchehab@redhat.com>");
-diff --git a/drivers/media/IR/rc-map.c b/drivers/media/IR/rc-map.c
-index 46a8f15..689143f 100644
---- a/drivers/media/IR/rc-map.c
-+++ b/drivers/media/IR/rc-map.c
-@@ -82,3 +82,26 @@ void ir_unregister_map(struct rc_keymap *map)
- }
- EXPORT_SYMBOL_GPL(ir_unregister_map);
++	input_event(dev, EV_MSC, MSC_SCAN, scancode);
++
+ 	if (keycode == KEY_RESERVED)
+ 		goto out;
  
 +
-+static struct ir_scancode empty[] = {
-+	{ 0x2a, KEY_COFFEE },
-+};
-+
-+static struct rc_keymap empty_map = {
-+	.map = {
-+		.scan    = empty,
-+		.size    = ARRAY_SIZE(empty),
-+		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
-+		.name    = RC_MAP_EMPTY,
-+	}
-+};
-+
-+int ir_rcmap_init(void)
-+{
-+	return ir_register_map(&empty_map);
-+}
-+
-+void ir_rcmap_cleanup(void)
-+{
-+	ir_unregister_map(&empty_map);
-+}
-diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index 7299e7a..cf17be3 100644
---- a/include/media/ir-core.h
-+++ b/include/media/ir-core.h
-@@ -134,8 +134,12 @@ static inline int ir_input_register(struct input_dev *dev,
- 		return -EINVAL;
+ 	/* Register a keypress */
+ 	ir->keypressed = true;
+ 	IR_dprintk(1, "%s: key down event, key 0x%04x, scancode 0x%04x\n",
+@@ -480,6 +485,8 @@ int __ir_input_register(struct input_dev *input_dev,
  
- 	ir_codes = get_rc_map(map_name);
--	if (!ir_codes)
--		return -EINVAL;
-+	if (!ir_codes) {
-+		ir_codes = get_rc_map(RC_MAP_EMPTY);
-+
-+		if (!ir_codes)
-+			return -EINVAL;
-+	}
+ 	set_bit(EV_KEY, input_dev->evbit);
+ 	set_bit(EV_REP, input_dev->evbit);
++	set_bit(EV_MSC, input_dev->evbit);
++	set_bit(MSC_SCAN, input_dev->mscbit);
  
- 	rc = __ir_input_register(dev, ir_codes, props, driver_name);
- 	if (rc < 0)
+ 	if (ir_setkeytable(input_dev, &ir_dev->rc_tab, rc_tab)) {
+ 		rc = -ENOMEM;
 -- 
 1.7.0.4
 

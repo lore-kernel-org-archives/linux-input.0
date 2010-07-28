@@ -1,48 +1,71 @@
 From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 3/9] IR: replace spinlock with mutex.
-Date: Wed, 28 Jul 2010 15:37:28 -0300
-Message-ID: <4C5078E8.5010409@redhat.com>
-References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com> <1280330051-27732-4-git-send-email-maximlevitsky@gmail.com> <4C5054B6.5050207@redhat.com> <1280334778.28785.6.camel@localhost.localdomain> <20100728174338.GD26480@redhat.com>
+Subject: Re: Can I expect in-kernel decoding to work out of box?
+Date: Wed, 28 Jul 2010 15:40:44 -0300
+Message-ID: <4C5079AC.9030006@redhat.com>
+References: <AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com> <AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com> <1280298606.6736.15.camel@maxim-laptop> <AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com> <4C502CE6.80106@redhat.com> <1280327080.9175.58.camel@maxim-laptop> <AANLkTi=Ww9yvN5RWaXEi+cB2QaDWn34nSVGAvKxbJ2k2@mail.gmail.com> <4C505313.2010904@redhat.com> <AANLkTi=Ms0saB5b3+o9qQQYFNT96XStKCkVivB65q_33@mail.gmail.com> <4C50720D.5000301@redhat.com> <20100728180516.GG26480@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20100728174338.GD26480@redhat.com>
+In-Reply-To: <20100728180516.GG26480@redhat.com>
 Sender: linux-media-owner@vger.kernel.org
 To: Jarod Wilson <jarod@redhat.com>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Cc: Jon Smirl <jonsmirl@gmail.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Em 28-07-2010 14:43, Jarod Wilson escreveu:
-> On Wed, Jul 28, 2010 at 07:32:58PM +0300, Maxim Levitsky wrote:
->> On Wed, 2010-07-28 at 13:03 -0300, Mauro Carvalho Chehab wrote:
->>> Em 28-07-2010 12:14, Maxim Levitsky escreveu:
->>>> Some handlers (lirc for example) allocates memory on initialization,
->>>> doing so in atomic context is cumbersome.
->>>> Fixes warning about sleeping function in atomic context.
+Em 28-07-2010 15:05, Jarod Wilson escreveu:
+> On Wed, Jul 28, 2010 at 03:08:13PM -0300, Mauro Carvalho Chehab wrote:
+>> Em 28-07-2010 14:04, Jon Smirl escreveu:
+>>> On Wed, Jul 28, 2010 at 11:56 AM, Mauro Carvalho Chehab
+>>> <mchehab@redhat.com> wrote:
+>>>> Em 28-07-2010 11:41, Jon Smirl escreveu:
+>>>>
+>>>>> It's possible to build a Linux IR decoder engine that can be loaded
+>>>>> with the old LIRC config files.
+>>>>
+>>>> I think it is a good idea to have a decoder that works with such files anyway.
 >>>
->>> You should not replace it by a mutex, as the decoding code may happen during
->>> IRQ time on several drivers.
->> I though decoding code is run by a work queue?
+>>> The recorder should use the Linux IR system to record the data. It
+>>> would confusing to mix the systems. Users need to be really sure that
+>>> the standard protocol decoders don't understand their protocol before
+>>> resorting to this. Any one in this situation should post their
+>>> recorded data so we can check for driver implementation errors.
+>>>
+>>> An example: if you use irrecord on Sony remotes lirc always records
+>>> them in raw mode. The true problem here is that irrecord doesn't
+>>> understand that Sony remotes mix different flavors of the Sony
+>>> protocol on a single remote. This leads you to think that the Sony
+>>> protocol engine is broken when it really isn't. It's the irrecord tool
+>>> that is broken.  The kernel IR system will decode these remotes
+>>> correctly without resorting to raw mode.
+>>
+>> A decoder like that should be a last-resort decoder, only in the
+>> cases where there's no other option.
+>>
+>>>> There are some good reasons for that, as it would allow in-kernel support for
+>>>> protocols that may have some patent restrictions on a few countries that allow
+>>>> patents on software.
+>>>
+>>> Are there any IR protocols less than 20 (or 17) years old?
+>>
+>> Yes. This protocol is brand new:
+>> 	https://www.smkusa.com/usa/technologies/qp/
+>>
+>> And several new devices are starting to accept it.
 > 
-> Yeah, it is. (INIT_WORK(&ir->raw->rx_work, ir_raw_event_work); in
-> ir_raw_event_register).
-> 
->> I don't see any atomic codepath here...
-> 
-> I think the ir_raw_event_store variants are the only things that are run
-> from an interrupt context, and none of them touch ir_raw_handler_lock.
-> That lock is advertised as being for the protection of ir_raw_handler_list
-> and ir_raw_client_list, which are primarily manipulated by
-> register/unregister functions, and we just lock them when doing actual IR
-> decode work (via said work queue) so we don't feed raw IR somewhere that
-> we shouldn't. I think Maxim is correct here, we should be okay with
-> changing this to a mutex, unless I'm missing something else.
+> The US patent appears to have been filed in 1995 and granted in 1997, so
+> "brand new" is relative. ;)
 
-You're probably right. The previous code used to do this at IRQ time, but a latter
-patch changed it to happen via a workqueue.
+Yes, I saw the patent timestamps too ;) Yet, AFAIK, they're starting to use this protocol
+on newer IR devices, so, we'll probably see some new devices using it.
+> 
+> http://www.freepatentsonline.com/5640160.html
+> 
+> We do have a few more years of being encumbered by it here in the US
+> though. :(
+> 
 
-So, I'm OK with this patch.
+:(
 
 Cheers,
 Mauro.

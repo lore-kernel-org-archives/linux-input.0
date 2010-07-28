@@ -1,67 +1,51 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: Can I expect in-kernel decoding to work out of box?
-Date: Wed, 28 Jul 2010 13:38:33 -0400
-Message-ID: <AANLkTikHpLHo7Z9XyYHVtnKapvJkHnV=wtqDK9yd6CFX@mail.gmail.com>
-References: <1280269990.21278.15.camel@maxim-laptop>
-	<1280273550.32216.4.camel@maxim-laptop>
-	<AANLkTi=493LW6ZBURCtyeSYPoX=xfz6n6z77Lw=a2C9D@mail.gmail.com>
-	<AANLkTimN1t-1a0v3S1zAXqk4MXJepKdsKP=cx9bmo=6g@mail.gmail.com>
-	<1280298606.6736.15.camel@maxim-laptop>
-	<AANLkTingNgxFLZcUszp-WDZocH+VK_+QTW8fB2PAR7XS@mail.gmail.com>
-	<4C502CE6.80106@redhat.com>
-	<1280327080.9175.58.camel@maxim-laptop>
-	<AANLkTi=Ww9yvN5RWaXEi+cB2QaDWn34nSVGAvKxbJ2k2@mail.gmail.com>
-	<4C505313.2010904@redhat.com>
-	<AANLkTi=Ms0saB5b3+o9qQQYFNT96XStKCkVivB65q_33@mail.gmail.com>
-	<1280337661.19593.66.camel@morgan.silverblock.net>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Re: [PATCH 3/9] IR: replace spinlock with mutex.
+Date: Wed, 28 Jul 2010 13:43:38 -0400
+Message-ID: <20100728174338.GD26480@redhat.com>
+References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com>
+ <1280330051-27732-4-git-send-email-maximlevitsky@gmail.com>
+ <4C5054B6.5050207@redhat.com>
+ <1280334778.28785.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1280337661.19593.66.camel@morgan.silverblock.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Jarod Wilson <jarod@wilsonet.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54782 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751521Ab0G1RyV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jul 2010 13:54:21 -0400
+Content-Disposition: inline
+In-Reply-To: <1280334778.28785.6.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
-On Wed, Jul 28, 2010 at 1:21 PM, Andy Walls <awalls@md.metrocast.net> wrote:
-> On Wed, 2010-07-28 at 13:04 -0400, Jon Smirl wrote:
->> On Wed, Jul 28, 2010 at 11:56 AM, Mauro Carvalho Chehab
->> <mchehab@redhat.com> wrote:
->> > Em 28-07-2010 11:41, Jon Smirl escreveu:
->
->>
->> Are there any IR protocols less than 20 (or 17) years old? If they are
->> older than that the patents have expired. I expect IR use to decline
->> in the future, it will be replaced with RF4CE radio remotes.
->
-> UEI's XMP protocol for one, IIRC.
+On Wed, Jul 28, 2010 at 07:32:58PM +0300, Maxim Levitsky wrote:
+> On Wed, 2010-07-28 at 13:03 -0300, Mauro Carvalho Chehab wrote:
+> > Em 28-07-2010 12:14, Maxim Levitsky escreveu:
+> > > Some handlers (lirc for example) allocates memory on initialization,
+> > > doing so in atomic context is cumbersome.
+> > > Fixes warning about sleeping function in atomic context.
+> > 
+> > You should not replace it by a mutex, as the decoding code may happen during
+> > IRQ time on several drivers.
+> I though decoding code is run by a work queue?
 
-The beauty of LIRC is that you can use any remote for input.  If one
-remote's protocols are patented, just use another remote.
+Yeah, it is. (INIT_WORK(&ir->raw->rx_work, ir_raw_event_work); in
+ir_raw_event_register).
 
-Only in the case where we have to xmit the protocol is the patent
-conflict unavoidable. In that case we could resort to sending a raw
-pulse timing string that comes from user space.
+> I don't see any atomic codepath here...
 
->
-> UEI are the folks that sell/make "OneForALL" branded remotes.
->
-> You can read about their patents' remaining lifetimes in this March 2010
-> SEC filing:
->
-> http://www.faqs.org/sec-filings/100315/UNIVERSAL-ELECTRONICS-INC_10-K/
->
-> 1 to 18 years - that includes the ones they just bought from Zilog.
-> That is not to say that all those patents cover protocols.
->
->
-> Regards,
-> Andy
->
->
-
-
+I think the ir_raw_event_store variants are the only things that are run
+from an interrupt context, and none of them touch ir_raw_handler_lock.
+That lock is advertised as being for the protection of ir_raw_handler_list
+and ir_raw_client_list, which are primarily manipulated by
+register/unregister functions, and we just lock them when doing actual IR
+decode work (via said work queue) so we don't feed raw IR somewhere that
+we shouldn't. I think Maxim is correct here, we should be okay with
+changing this to a mutex, unless I'm missing something else.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Jarod Wilson
+jarod@redhat.com
+

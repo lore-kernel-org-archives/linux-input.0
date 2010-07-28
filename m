@@ -1,90 +1,39 @@
 From: Ian Campbell <ian.campbell@citrix.com>
-Subject: [PATCH 1/4] irq: rename IRQF_TIMER to IRQF_NO_SUSPEND
-Date: Wed, 28 Jul 2010 11:54:24 +0100
-Message-ID: <1280314467-5637-1-git-send-email-ian.campbell@citrix.com>
+Subject: [PATCH 2/4] ixp4xx-beeper: Use IRQF_NO_SUSPEND not IRQF_TIMER for non-timer interrupt
+Date: Wed, 28 Jul 2010 11:54:25 +0100
+Message-ID: <1280314467-5637-2-git-send-email-ian.campbell@citrix.com>
 References: <1280314445.24292.90.camel@zakaz.uk.xensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp02.citrix.com ([66.165.176.63]:19098 "EHLO
-	SMTP02.CITRIX.COM" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754804Ab0G1Kyf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 06:54:35 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1280314445.24292.90.camel@zakaz.uk.xensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Ian Campbell <ian.campbell@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Jeremy Fitzhardinge <jeremy@goop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Grant Likely <grant.likely@secretlab.ca>, xen-devel@lists.xensource.com, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, devicetree-discuss@lists.ozlabs.org
+Cc: Ian Campbell <ian.campbell@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Continue to provide IRQF_TIMER as an alias to IRQF_NO_SUSPEND since I
-think it is worth preserving the nice self-documenting name (where it
-is used appropriately). It also avoid needing to patch all the many
-users who are using the flag for an actual timer interrupt.
+ixp4xx_spkr_interrupt is not a timer interrupt and therefore should
+not use IRQF_TIMER. Use the recently introduced IRQF_NO_SUSPEND
+instead since that is the actual desired behaviour.
 
 Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Grant Likely <grant.likely@secretlab.ca>
-Cc: xen-devel@lists.xensource.com
 Cc: linux-input@vger.kernel.org
-Cc: linuxppc-dev@ozlabs.org
-Cc: devicetree-discuss@lists.ozlabs.org
 ---
- include/linux/interrupt.h |    8 ++++++--
- kernel/irq/manage.c       |    2 +-
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/misc/ixp4xx-beeper.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
-index c233113..b9bedd5 100644
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -44,7 +44,7 @@
-  * IRQF_SAMPLE_RANDOM - irq is used to feed the random generator
-  * IRQF_SHARED - allow sharing the irq among several devices
-  * IRQF_PROBE_SHARED - set by callers when they expect sharing mismatches to occur
-- * IRQF_TIMER - Flag to mark this interrupt as timer interrupt
-+ * IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
-  * IRQF_PERCPU - Interrupt is per cpu
-  * IRQF_NOBALANCING - Flag to exclude this interrupt from irq balancing
-  * IRQF_IRQPOLL - Interrupt is used for polling (only the interrupt that is
-@@ -53,17 +53,21 @@
-  * IRQF_ONESHOT - Interrupt is not reenabled after the hardirq handler finished.
-  *                Used by threaded interrupts which need to keep the
-  *                irq line disabled until the threaded handler has been run.
-+ *
-+ * IRQF_TIMER - Flag to mark this interrupt as timer interrupt
-  */
- #define IRQF_DISABLED		0x00000020
- #define IRQF_SAMPLE_RANDOM	0x00000040
- #define IRQF_SHARED		0x00000080
- #define IRQF_PROBE_SHARED	0x00000100
--#define IRQF_TIMER		0x00000200
-+#define IRQF_NO_SUSPEND		0x00000200
- #define IRQF_PERCPU		0x00000400
- #define IRQF_NOBALANCING	0x00000800
- #define IRQF_IRQPOLL		0x00001000
- #define IRQF_ONESHOT		0x00002000
+diff --git a/drivers/input/misc/ixp4xx-beeper.c b/drivers/input/misc/ixp4xx-beeper.c
+index 9946d73..5c5ea77 100644
+--- a/drivers/input/misc/ixp4xx-beeper.c
++++ b/drivers/input/misc/ixp4xx-beeper.c
+@@ -115,7 +115,7 @@ static int __devinit ixp4xx_spkr_probe(struct platform_device *dev)
+ 	input_dev->event = ixp4xx_spkr_event;
  
-+#define IRQF_TIMER		(IRQF_NO_SUSPEND)
-+
- /*
-  * Bits used by threaded handlers:
-  * IRQTF_RUNTHREAD - signals that the interrupt handler thread should run
-diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
-index e149748..c3003e9 100644
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -216,7 +216,7 @@ static inline int setup_affinity(unsigned int irq, struct irq_desc *desc)
- void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
- {
- 	if (suspend) {
--		if (!desc->action || (desc->action->flags & IRQF_TIMER))
-+		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
- 			return;
- 		desc->status |= IRQ_SUSPENDED;
- 	}
+ 	err = request_irq(IRQ_IXP4XX_TIMER2, &ixp4xx_spkr_interrupt,
+-			  IRQF_DISABLED | IRQF_TIMER, "ixp4xx-beeper", (void *) dev->id);
++			  IRQF_DISABLED | IRQF_NO_SUSPEND, "ixp4xx-beeper", (void *) dev->id);
+ 	if (err)
+ 		goto err_free_device;
+ 
 -- 
 1.5.6.5
-

@@ -1,42 +1,36 @@
 From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 8/9] IR: Add ENE input driver.
-Date: Wed, 28 Jul 2010 13:17:39 -0400
-Message-ID: <20100728171739.GB26480@redhat.com>
+Subject: Re: [PATCH 2/9] IR: minor fixes:
+Date: Wed, 28 Jul 2010 13:23:03 -0400
+Message-ID: <20100728172303.GC26480@redhat.com>
 References: <1280330051-27732-1-git-send-email-maximlevitsky@gmail.com>
- <1280330051-27732-9-git-send-email-maximlevitsky@gmail.com>
- <4C506472.3080506@redhat.com>
- <1280337215.6590.1.camel@maxim-laptop>
+ <1280330051-27732-3-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:26988 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59282 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751170Ab0G1R2U (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 13:28:20 -0400
+	id S1751225Ab0G1Rdo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jul 2010 13:33:44 -0400
 Content-Disposition: inline
-In-Reply-To: <1280337215.6590.1.camel@maxim-laptop>
+In-Reply-To: <1280330051-27732-3-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-On Wed, Jul 28, 2010 at 08:13:35PM +0300, Maxim Levitsky wrote:
-> On Wed, 2010-07-28 at 14:10 -0300, Mauro Carvalho Chehab wrote: 
-> > Em 28-07-2010 12:14, Maxim Levitsky escreveu:
-> > > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> > 
-> > Please, instead of patch 9/9, do a patch moving ENE driver from staging into 
-> > drivers/media/IR, and then a patch porting it into rc-core. This will allow us
-> > to better understand what were done to convert it to rc-core, being an example
-> > for others that may work on porting the other drivers to rc-core.
+On Wed, Jul 28, 2010 at 06:14:04PM +0300, Maxim Levitsky wrote:
+> * lirc: Don't propagate reset event to userspace
+> * lirc: Remove strange logic from lirc that would make first sample always be pulse
+> * Make TO_US macro actualy print what it should.
 > 
-> The version in staging is outdated.
+> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 
-D'oh, sorry about that.
+For the ir-lirc-codec-specific bits:
 
-> Should I first update it, and then move?
+Acked-by: Jarod Wilson <jarod@redhat.com>
 
-Yeah, that sounds sane to me.
+I'm inclined to pull them into my tree now, and the IR_dprintk and TO_US
+portions can be handled separately.
 
 -- 
 Jarod Wilson

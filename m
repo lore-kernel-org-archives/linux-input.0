@@ -1,36 +1,31 @@
-From: lirc@bartelmus.de (Christoph Bartelmus)
-Subject: Re: <kein Betreff>
-Date: 29 Jul 2010 09:23:00 +0200
-Message-ID: <BTlMsWzZjFB@christoph>
-References: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 1/4] irq: rename IRQF_TIMER to IRQF_NO_SUSPEND
+Date: Thu, 29 Jul 2010 10:49:21 +0200 (CEST)
+Message-ID: <alpine.LFD.2.00.1007291045060.2471@localhost.localdomain>
+References: <1280314445.24292.90.camel@zakaz.uk.xensource.com> <1280314467-5637-1-git-send-email-ian.campbell@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.17.9]:54356 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753551Ab0G2H1A (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 03:27:00 -0400
-In-Reply-To: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1280314467-5637-1-git-send-email-ian.campbell@citrix.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ian Campbell <ian.campbell@citrix.com>
+Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Grant Likely <grant.likely@secretlab.ca>, xen-devel@lists.xensource.com, linux-input@vger.kernel.org, linuxppc-dev@ozlabs.org, devicetree-discuss@lists.ozlabs.org
 List-Id: linux-input@vger.kernel.org
-To: maximlevitsky@gmail.com
-Cc: jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-Hi Maxim,
+On Wed, 28 Jul 2010, Ian Campbell wrote:
 
-on 29 Jul 10 at 02:40, Maxim Levitsky wrote:
-[...]
-> In addition to comments, I changed helper function that processes samples
-> so it sends last space as soon as timeout is reached.
-> This breaks somewhat lirc, because now it gets 2 spaces in row.
-> However, if it uses timeout reports (which are now fully supported)
-> it will get such report in middle.
->
-> Note that I send timeout report with zero value.
-> I don't think that this value is importaint.
+> Continue to provide IRQF_TIMER as an alias to IRQF_NO_SUSPEND since I
+> think it is worth preserving the nice self-documenting name (where it
+> is used appropriately). It also avoid needing to patch all the many
+> users who are using the flag for an actual timer interrupt.
 
-This does not sound good. Of course the value is important to userspace  
-and 2 spaces in a row will break decoding.
+I'm not happy about the alias. What about:
 
-Christoph
+#define __IRQF_TIMER		0x00000200
+#define IRQF_NO_SUSPEND		0x00000400
+
+#define IRQF_TIMER    (__IRQF_TIMER | IRQF_NO_SUSPEND)
+
+Thanks,
+
+	tglx

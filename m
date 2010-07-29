@@ -1,56 +1,32 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 0/9 v2] IR: few fixes, additions and ENE driver
-Date: Wed, 28 Jul 2010 23:52:13 -0400
-Message-ID: <20100729035213.GA11543@redhat.com>
-References: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [PATCH 5/9] IR: extend interfaces to support more device settings
+Date: 29 Jul 2010 09:25:00 +0200
+Message-ID: <BTlMvkhXqgB@lirc>
+References: <1280360452-8852-6-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49523 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751550Ab0G2Dwb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jul 2010 23:52:31 -0400
-Content-Disposition: inline
-In-Reply-To: <1280360452-8852-1-git-send-email-maximlevitsky@gmail.com>
+Received: from moutng.kundenserver.de ([212.227.126.186]:55383 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752083Ab0G2H0l (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jul 2010 03:26:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+To: maximlevitsky@gmail.com
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-On Thu, Jul 29, 2010 at 02:40:43AM +0300, Maxim Levitsky wrote:
-> Hi,
-> This is second version of the patchset.
-> Hopefully, I didn't forget to address all comments.
-> 
-> In addition to comments, I changed helper function that processes samples
-> so it sends last space as soon as timeout is reached.
-> This breaks somewhat lirc, because now it gets 2 spaces in row.
-> However, if it uses timeout reports (which are now fully supported)
-> it will get such report in middle.
-> 
-> Note that I send timeout report with zero value.
-> I don't think that this value is importaint.
+Hi!
 
-I just patched the entire series into a branch here and tested, no
-regressions with an mceusb transceiver with in-kernel decode, lirc decode
-or lirc tx. Only issue I had (which I neglected to mention earlier) was
-some pedantic issues w/whitespace. Here's the tree I built and tested:
+Maxim Levitsky "maximlevitsky@gmail.com" wrote:
 
-http://git.wilsonet.com/linux-2.6-ir-wip.git/?a=shortlog;h=refs/heads/maxim
+> Also reuse LIRC_SET_MEASURE_CARRIER_MODE as LIRC_SET_LEARN_MODE
+> (LIRC_SET_LEARN_MODE will start carrier reports if possible, and
+> tune receiver to wide band mode)
 
-7486d6ae3 addresses all the whitespace/formatting issues I had. Could
-either merge that into your patches, or I can just send it along as an
-additional patch after the fact. In either case, for 1-7 v2:
+I don't like the rename of the ioctl. The ioctl should enable carrier
+reports. Anything else is hardware specific. Learn mode gives a somewhat
+wrong association to me. irrecord always has been using "learn mode"
+without ever using this ioctl.
 
-Tested-by: Jarod Wilson <jarod@redhat.com>
-
-I have no ene hardware to actually test with, but it did build. :)
-
-For 1-9 v2:
-
-Acked-by: Jarod Wilson <jarod@redhat.com>
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Christoph

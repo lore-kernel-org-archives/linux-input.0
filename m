@@ -1,50 +1,60 @@
-From: Jarod Wilson <jarod@redhat.com>
+From: lirc@bartelmus.de (Christoph Bartelmus)
 Subject: Re: [PATCH 0/9 v2] IR: few fixes, additions and ENE driver
-Date: Thu, 29 Jul 2010 15:21:50 -0400
-Message-ID: <20100729192150.GC7507@redhat.com>
-References: <1280414519.29938.53.camel@maxim-laptop>
- <BTlN15rJjFB@christoph>
+Date: 29 Jul 2010 21:35:00 +0200
+Message-ID: <BTlNJJN3jFB@christoph>
+References: <1280424946.32069.11.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:11637 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757109Ab0G2Tdw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 15:33:52 -0400
-Content-Disposition: inline
-In-Reply-To: <BTlN15rJjFB@christoph>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: maximlevitsky@gmail.com
+Cc: awalls@md.metrocast.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 List-Id: linux-input@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: maximlevitsky@gmail.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-On Thu, Jul 29, 2010 at 06:58:00PM +0200, Christoph Bartelmus wrote:
-> Hi Maxim,
-> 
-> on 29 Jul 10 at 17:41, Maxim Levitsky wrote:
-> [...]
-> >>> Note that I send timeout report with zero value.
-> >>> I don't think that this value is importaint.
-> >>
-> >> This does not sound good. Of course the value is important to userspace
-> >> and 2 spaces in a row will break decoding.
-> >>
-> >> Christoph
-> 
-> > Could you explain exactly how timeout reports work?
-> 
-> It all should be documented in the interface description. Jarod probably  
-> can point you where it can be found.
+Hi!
 
-There's a start to interface documentation at
-Documentation/DocBook/v4l/lirc_device_interface.xml, and it does cover
-timeout report usage.
+Maxim Levitsky "maximlevitsky@gmail.com" wrote:
+[...]
+>>>>> Could you explain exactly how timeout reports work?
+[...]
+>>> So, timeout report is just another sample, with a mark attached, that
+>>> this is last sample? right?
+>>
+>> No, a timeout report is just an additional hint for the decoder that a
+>> specific amount of time has passed since the last pulse _now_.
+>>
+>> [...]
+>>> In that case, lets do that this way:
+>>>
+>>> As soon as timeout is reached, I just send lirc the timeout report.
+>>> Then next keypress will start with pulse.
+>>
+>> When timeout reports are enabled the sequence must be:
+>> <pulse> <timeout> <space> <pulse>
+>> where <timeout> is optional.
+>>
+>> lircd will not work when you leave out the space. It must know the exact
+>> time between the pulses. Some hardware generates timeout reports that are
+>> too short to distinguish between spaces that are so short that the next
+>> sequence can be interpreted as a repeat or longer spaces which indicate
+>> that this is a new key press.
 
-(Side note: I forgot, Mauro asked if we could flesh out that document even
-further with descriptions of the assorted defines beyond just the ioctls.
-I'm going to scribble that on my TODO list right now...)
+> Let me give an example to see if I got that right.
+>
+>
+> Suppose we have this sequence of reports from the driver:
+>
+> 500 (pulse)
+> 200000 (timeout)
+> 100000000 (space)
+> 500 (pulse)
+>
+>
+> Is that correct that time between first and second pulse is
+> '100200000' ?
 
--- 
-Jarod Wilson
-jarod@redhat.com
+No, it's 100000000. The timeout is optional and just a hint to the decoder  
+how much time has passed already since the last pulse. It does not change  
+the meaning of the next space.
 
+Christoph

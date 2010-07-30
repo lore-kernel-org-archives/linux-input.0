@@ -1,121 +1,99 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
+From: Andy Walls <awalls@md.metrocast.net>
 Subject: Re: [PATCH 0/9 v2] IR: few fixes, additions and ENE driver
-Date: Fri, 30 Jul 2010 01:24:59 +0300
-Message-ID: <1280442299.17111.1.camel@maxim-laptop>
-References: <1280424946.32069.11.camel@maxim-laptop> <BTlNJJN3jFB@christoph>
-	 <1280433887.2523.11.camel@maxim-laptop> <20100729212836.GD7507@redhat.com>
-	 <AANLkTi=a_kii4g2EPVJukxRsWkoqBGK9gLv2yNh4YJxH@mail.gmail.com>
-	 <1280441221.2523.15.camel@maxim-laptop>
+Date: Thu, 29 Jul 2010 22:03:30 -0400
+Message-ID: <1280455410.15737.58.camel@localhost>
+References: <BTlN5mEJjFB@christoph>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:47305 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755255Ab0G2WZF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 18:25:05 -0400
-In-Reply-To: <1280441221.2523.15.camel@maxim-laptop>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <BTlN5mEJjFB@christoph>
+Sender: linux-media-owner@vger.kernel.org
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: maximlevitsky@gmail.com, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@md.metrocast.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-On Fri, 2010-07-30 at 01:07 +0300, Maxim Levitsky wrote: 
-> On Thu, 2010-07-29 at 17:57 -0400, Jarod Wilson wrote: 
-> > On Thu, Jul 29, 2010 at 5:28 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> > > On Thu, Jul 29, 2010 at 11:04:47PM +0300, Maxim Levitsky wrote:
-> > >> On Thu, 2010-07-29 at 21:35 +0200, Christoph Bartelmus wrote:
-> > >> > Hi!
-> > >> >
-> > >> > Maxim Levitsky "maximlevitsky@gmail.com" wrote:
-> > >> > [...]
-> > >> > >>>>> Could you explain exactly how timeout reports work?
-> > >> > [...]
-> > >> > >>> So, timeout report is just another sample, with a mark attached, that
-> > >> > >>> this is last sample? right?
-> > >> > >>
-> > >> > >> No, a timeout report is just an additional hint for the decoder that a
-> > >> > >> specific amount of time has passed since the last pulse _now_.
-> > >> > >>
-> > >> > >> [...]
-> > >> > >>> In that case, lets do that this way:
-> > >> > >>>
-> > >> > >>> As soon as timeout is reached, I just send lirc the timeout report.
-> > >> > >>> Then next keypress will start with pulse.
-> > >> > >>
-> > >> > >> When timeout reports are enabled the sequence must be:
-> > >> > >> <pulse> <timeout> <space> <pulse>
-> > >> > >> where <timeout> is optional.
-> > >> > >>
-> > >> > >> lircd will not work when you leave out the space. It must know the exact
-> > >> > >> time between the pulses. Some hardware generates timeout reports that are
-> > >> > >> too short to distinguish between spaces that are so short that the next
-> > >> > >> sequence can be interpreted as a repeat or longer spaces which indicate
-> > >> > >> that this is a new key press.
-> > >> >
-> > >> > > Let me give an example to see if I got that right.
-> > >> > >
-> > >> > >
-> > >> > > Suppose we have this sequence of reports from the driver:
-> > >> > >
-> > >> > > 500 (pulse)
-> > >> > > 200000 (timeout)
-> > >> > > 100000000 (space)
-> > >> > > 500 (pulse)
-> > >> > >
-> > >> > >
-> > >> > > Is that correct that time between first and second pulse is
-> > >> > > '100200000' ?
-> > >> >
-> > >> > No, it's 100000000. The timeout is optional and just a hint to the decoder
-> > >> > how much time has passed already since the last pulse. It does not change
-> > >> > the meaning of the next space.
-> > >>
-> > >> its like a carrier report then I guess.
-> > >> Its clear to me now.
-> > >>
-> > >> So, I really don't need to send/support timeout reports because hw
-> > >> doesn't support that.
-> > >>
-> > >> I can however support timeout (LIRC_SET_REC_TIMEOUT) and and use it to
-> > >> adjust threshold upon which I stop the hardware, and remember current
-> > >> time.
-> > >> I can put that in generic function for ene like hardware
-> > >> (hw that sends small packs of samples very often)
-> > >
-> > > So... I presume this means a v3 patchset? And/or, is it worth merging
-> > > patches 1, 2, 3, 6 and 7 now, then having you work on top of that?
-> > 
-> > This branch is a as-of-a-few-minutes-ago, up-to-date linuxtv
-> > staging/other plus a few outstanding patches and your patches 1, 2, 3,
-> > 6 and 7:
+On Thu, 2010-07-29 at 19:15 +0200, Christoph Bartelmus wrote:
+> on 29 Jul 10 at 19:26, Maxim Levitsky wrote:
+> > On Thu, 2010-07-29 at 11:38 -0400, Andy Walls wrote:
+> >> On Thu, 2010-07-29 at 17:41 +0300, Maxim Levitsky wrote:
+> >>> On Thu, 2010-07-29 at 09:23 +0200, Christoph Bartelmus wrote:
+
+Hi Christoph, Mauro, and Jarrod
+
+> When timeout reports are enabled the sequence must be:
+> <pulse> <timeout> <space> <pulse>
+> where <timeout> is optional.
+
+OK.  This is some of the detail I needed.
+
+I'm looking at the master branch of Jarrod's wip git repo, but:
+
+
+1. I don't see how a timeout report is going to make it through 
+
+	drivers/media/IR/ir-lirc-codec.c:lir_lirc_decode()
+
+I guess I'll have to add a "flags" field (or something) to 
+
+	include/media/ir_core.h:struct ir_raw_event
+
+to modify the events beyond just mark or space reports.
+
+Mauro, do you have any preferences or comments here?
+
+
+
+2. The in-kernel decoders normally need a the final space to close out
+the decoding, so the above sequence will cause them to wait.  It would
+only really be noticiable if no repeat came from the remote, but it
+still would be annoying.
+
+If I send a space for the timeout to get the in kernel decoders to close
+out decoding, then I end up sending a double space out to LIRC, which I
+just read will confuse LIRC.  
+
+So...
+
+If I'm going to add a timeout event flag to struct ir_raw_event, I
+suppose we could either:
+
+	a. have the current in kernel decoders interpret an
+	   ir_raw_event with a timeout event as a cue to conclude
+           decoding the current pulse train
+
+	b. add a "finish decode" flag and have the in kernel decoders
+	   respond to that.
+
+I beleive this will also let the in-kernel decoders still respond to
+final space as they currently do.
+
+Objections? comments?
+
+
+3.  When my hardware times out, it stops measuring anything, until it
+sees a new edge.  For short timeout settings (smaller than the
+intertransmission gap), I will have generate a space in software to
+provide the length of the gap.
+
+I'll have to store the time of reading the timeout flag of the hardware
+Rx FIFO, compute an approximate gap length when the next mark
+measurement comes in, and insert a the space.  The gaps space time will
+only be approximate, as the Rx FIFO watermark is set to interrupt at 4
+measurements in the FIFO.
+
+
+
+If I can't do #1 & #2 above, I'm not sure how I can send any in band
+signaling out to user space.
+
+Regards,
+Andy
+
+> lircd will not work when you leave out the space. It must know the exact  
+> time between the pulses. Some hardware generates timeout reports that are  
+> too short to distinguish between spaces that are so short that the next  
+> sequence can be interpreted as a repeat or longer spaces which indicate  
+> that this is a new key press.
 > 
-> I am surely send V3 and likely V4.
-> I changed many of my patches, 
-> 
-> I now  am chasing a very strange leak of samples I see. (sometimes,
-> randomaly a sample goes missing, and that breaks in-kernel decoding...)
-> It appears to be not my driver fault, nor fifo overflow...
-
-
-Rolls eyes.... 
-
-
-void ir_raw_event_handle(struct input_dev *input_dev)
-{
-struct ir_input_dev *ir = input_get_drvdata(input_dev);
-
-if (!ir->raw)
-return;
-
-schedule_work(&ir->raw->rx_work);
-}
-EXPORT_SYMBOL_GPL(ir_raw_event_handle);
-
-
-This is workqueue, so who said two of them can run at same time.....
-
-Best regards,
-Maxim Levitsky
-
+> Christoph

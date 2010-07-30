@@ -1,41 +1,72 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and enable
-	it.
-Date: Thu, 29 Jul 2010 22:39:09 -0400
-Message-ID: <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 04/13] IR: fix locking in ir_raw_event_work
+Date: Thu, 29 Jul 2010 22:42:49 -0400
+Message-ID: <1280457769.15737.72.camel@localhost>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-	<1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
+	 <1280456235-2024-5-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-media-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:34287 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754953Ab0G3Cm3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jul 2010 22:42:29 -0400
+In-Reply-To: <1280456235-2024-5-git-send-email-maximlevitsky@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Maxim Levitsky <maximlevitsky@gmail.com>
 Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
-List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 29, 2010 at 10:17 PM, Maxim Levitsky
-<maximlevitsky@gmail.com> wrote:
-> note that error_adjustment module option is added.
-> This allows to reduce input samples by a percent.
-> This makes input on my system more correct.
->
-> Default is 4% as it works best here.
->
-> Note that only normal input is adjusted. I don't know
-> what adjustments to apply to fan tachometer input.
-> Maybe it is accurate already.
+On Fri, 2010-07-30 at 05:17 +0300, Maxim Levitsky wrote:
+> It is prefectly possible to have ir_raw_event_work
+> running concurently on two cpus, thus we must protect
+> it from that situation.
 
-Do you have the manual for the ENE chip in English? or do you read Chinese?
+Yup, the work is marked as not pending (and hence reschedulable) just
+before the work handler is run.
 
-Maybe you can figure out why the readings are off by 4%. I suspect
-that someone has set a clock divider wrong when programming the chip.
-For example setting the divider for a 25Mhz clock when the clock is
-actually 26Mhz would cause the error you are seeing. Or they just made
-a mistake in computing the divisor. It is probably a bug in the BIOS
-of your laptop.  If that's the case you could add a quirk in the
-system boot code to fix the register setting.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> Maybe better solution is to ditch the workqueue at all
+> and use good 'ol thread per receiver, and just wake it up...
+
+I suppose you could also use a single threaded workqueue instead of a
+mutex, and let a bit test provide exclusivity.  With the mutex, when the
+second thread finally obtains the lock, there will likely not be
+anything for it to do.
+
+Regards,
+Andy
+
+
+> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+> ---
+>  drivers/media/IR/ir-raw-event.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
+> index 9d5c029..4098748 100644
+> --- a/drivers/media/IR/ir-raw-event.c
+> +++ b/drivers/media/IR/ir-raw-event.c
+> @@ -40,13 +40,16 @@ static void ir_raw_event_work(struct work_struct *work)
+>  	struct ir_raw_event_ctrl *raw =
+>  		container_of(work, struct ir_raw_event_ctrl, rx_work);
+>  
+> +	mutex_lock(&ir_raw_handler_lock);
+> +
+>  	while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) == sizeof(ev)) {
+> -		mutex_lock(&ir_raw_handler_lock);
+>  		list_for_each_entry(handler, &ir_raw_handler_list, list)
+>  			handler->decode(raw->input_dev, ev);
+> -		mutex_unlock(&ir_raw_handler_lock);
+>  		raw->prev_ev = ev;
+>  	}
+> +
+> +	mutex_unlock(&ir_raw_handler_lock);
+> +
+>  }
+>  
+>  /**
+
+

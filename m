@@ -1,76 +1,70 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 07/13] IR: NECX: support repeat
-Date: Fri, 30 Jul 2010 14:38:47 +0300
-Message-ID: <1280489933-20865-8-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 11/13] IR: report unknown scancodes the in-kernel decoders found.
+Date: Fri, 30 Jul 2010 14:38:51 +0300
+Message-ID: <1280489933-20865-12-git-send-email-maximlevitsky@gmail.com>
 References: <1280489933-20865-1-git-send-email-maximlevitsky@gmail.com>
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:41194 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758505Ab0G3Lj0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Jul 2010 07:39:26 -0400
 In-Reply-To: <1280489933-20865-1-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: lirc-list@lists.sourceforge.net
 Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-This adds support for repeat detecting for NECX variant
-Tested with uneversal remote
+This way it is possible to use evtest to create keymap for unknown remote.
 
 Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 ---
- drivers/media/IR/ir-core-priv.h   |    1 +
- drivers/media/IR/ir-nec-decoder.c |   16 ++++++++++++++--
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/media/IR/ir-keytable.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index 84c7a9a..08383b9 100644
---- a/drivers/media/IR/ir-core-priv.h
-+++ b/drivers/media/IR/ir-core-priv.h
-@@ -45,6 +45,7 @@ struct ir_raw_event_ctrl {
- 		int state;
- 		unsigned count;
- 		u32 bits;
-+		bool is_nec_x;
- 	} nec;
- 	struct rc5_dec {
- 		int state;
-diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
-index 1c0cf03..59127b1 100644
---- a/drivers/media/IR/ir-nec-decoder.c
-+++ b/drivers/media/IR/ir-nec-decoder.c
-@@ -26,6 +26,7 @@
- #define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
- #define	NEC_TRAILER_PULSE	(1  * NEC_UNIT)
- #define	NEC_TRAILER_SPACE	(10 * NEC_UNIT) /* even longer in reality */
-+#define NECX_REPEAT_BITS	1
+diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
+index 34b9c07..ba7678a 100644
+--- a/drivers/media/IR/ir-keytable.c
++++ b/drivers/media/IR/ir-keytable.c
+@@ -339,6 +339,8 @@ void ir_repeat(struct input_dev *dev)
  
- enum nec_state {
- 	STATE_INACTIVE,
-@@ -67,8 +68,11 @@ static int ir_nec_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 		if (!ev.pulse)
- 			break;
+ 	spin_lock_irqsave(&ir->keylock, flags);
  
--		if (!eq_margin(ev.duration, NEC_HEADER_PULSE, NEC_UNIT / 2) &&
--		    !eq_margin(ev.duration, NECX_HEADER_PULSE, NEC_UNIT / 2))
-+		if (eq_margin(ev.duration, NEC_HEADER_PULSE, NEC_UNIT / 2))
-+			data->is_nec_x = false;
-+		else if (eq_margin(ev.duration, NECX_HEADER_PULSE, NEC_UNIT / 2))
-+			data->is_nec_x = true;
-+		else
- 			break;
- 
- 		data->count = 0;
-@@ -105,6 +109,14 @@ static int ir_nec_decode(struct input_dev *input_dev, struct ir_raw_event ev)
- 		if (ev.pulse)
- 			break;
- 
-+		if (geq_margin(ev.duration, NEC_TRAILER_SPACE, NEC_UNIT / 2) &&
-+			data->is_nec_x && data->count == NECX_REPEAT_BITS) {
-+				IR_dprintk(1, "Repeat last key\n");
-+				ir_repeat(input_dev);
-+				data->state = STATE_INACTIVE;
-+				return 0;
-+			}
++	input_event(dev, EV_MSC, MSC_SCAN, ir->last_scancode);
 +
- 		data->bits <<= 1;
- 		if (eq_margin(ev.duration, NEC_BIT_1_SPACE, NEC_UNIT / 2))
- 			data->bits |= 1;
+ 	if (!ir->keypressed)
+ 		goto out;
+ 
+@@ -370,6 +372,8 @@ void ir_keydown(struct input_dev *dev, int scancode, u8 toggle)
+ 
+ 	spin_lock_irqsave(&ir->keylock, flags);
+ 
++	input_event(dev, EV_MSC, MSC_SCAN, scancode);
++
+ 	/* Repeat event? */
+ 	if (ir->keypressed &&
+ 	    ir->last_scancode == scancode &&
+@@ -383,9 +387,11 @@ void ir_keydown(struct input_dev *dev, int scancode, u8 toggle)
+ 	ir->last_toggle = toggle;
+ 	ir->last_keycode = keycode;
+ 
++
+ 	if (keycode == KEY_RESERVED)
+ 		goto out;
+ 
++
+ 	/* Register a keypress */
+ 	ir->keypressed = true;
+ 	IR_dprintk(1, "%s: key down event, key 0x%04x, scancode 0x%04x\n",
+@@ -480,6 +486,8 @@ int __ir_input_register(struct input_dev *input_dev,
+ 
+ 	set_bit(EV_KEY, input_dev->evbit);
+ 	set_bit(EV_REP, input_dev->evbit);
++	set_bit(EV_MSC, input_dev->evbit);
++	set_bit(MSC_SCAN, input_dev->mscbit);
+ 
+ 	if (ir_setkeytable(input_dev, &ir_dev->rc_tab, rc_tab)) {
+ 		rc = -ENOMEM;
 -- 
 1.7.0.4
+

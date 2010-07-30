@@ -1,180 +1,233 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 08/13] IR: Allow not to compile keymaps in.
-Date: Fri, 30 Jul 2010 05:17:10 +0300
-Message-ID: <1280456235-2024-9-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 09/13] IR: add helper function for hardware with small o/b buffer.
+Date: Fri, 30 Jul 2010 05:17:11 +0300
+Message-ID: <1280456235-2024-10-git-send-email-maximlevitsky@gmail.com>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:53717 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758392Ab0G3CRx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 22:17:53 -0400
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: lirc-list@lists.sourceforge.net
 Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-Currently, ir device registration fails if keymap requested by driver is not found.
-Fix that by always compiling in the empty keymap, and using it as a failback.
+Some ir input devices have small buffer, and interrupt the host
+each time it is full (or half full)
+
+Add a helper that automaticly handles timeouts, and also
+automaticly merges samples of same time (space-space)
+Such samples might be placed by hardware because size of
+sample in the buffer is small (a byte for example).
+
+Also remove constness from ir_dev_props, because it now contains timeout
+settings that driver might want to change
 
 Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 ---
- drivers/media/IR/ir-core-priv.h     |    3 +-
- drivers/media/IR/ir-sysfs.c         |    2 +
- drivers/media/IR/keymaps/Makefile   |    1 -
- drivers/media/IR/keymaps/rc-empty.c |   44 -----------------------------------
- drivers/media/IR/rc-map.c           |   23 ++++++++++++++++++
- include/media/ir-core.h             |    8 ++++-
- 6 files changed, 33 insertions(+), 48 deletions(-)
- delete mode 100644 drivers/media/IR/keymaps/rc-empty.c
+ drivers/media/IR/ir-core-priv.h |    1 +
+ drivers/media/IR/ir-keytable.c  |    2 +-
+ drivers/media/IR/ir-raw-event.c |   84 +++++++++++++++++++++++++++++++++++++++
+ include/media/ir-core.h         |   23 +++++++++-
+ 4 files changed, 106 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index 494e1f8..fe84374 100644
+index fe84374..841b76c 100644
 --- a/drivers/media/IR/ir-core-priv.h
 +++ b/drivers/media/IR/ir-core-priv.h
-@@ -125,7 +125,8 @@ int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_init(void);
+@@ -41,6 +41,7 @@ struct ir_raw_event_ctrl {
  
--
-+int ir_rcmap_init(void);
-+void ir_rcmap_cleanup(void);
- /*
-  * Decoder initialization code
-  *
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index a841e51..936dff8 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -341,6 +341,7 @@ static int __init ir_core_init(void)
- 
- 	/* Initialize/load the decoders/keymap code that will be used */
- 	ir_raw_init();
-+	ir_rcmap_init();
- 
- 	return 0;
- }
-@@ -348,6 +349,7 @@ static int __init ir_core_init(void)
- static void __exit ir_core_exit(void)
+ 	/* raw decoder state follows */
+ 	struct ir_raw_event prev_ev;
++	struct ir_raw_event this_ev;
+ 	struct nec_dec {
+ 		int state;
+ 		unsigned count;
+diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
+index 94a8577..34b9c07 100644
+--- a/drivers/media/IR/ir-keytable.c
++++ b/drivers/media/IR/ir-keytable.c
+@@ -428,7 +428,7 @@ static void ir_close(struct input_dev *input_dev)
+  */
+ int __ir_input_register(struct input_dev *input_dev,
+ 		      const struct ir_scancode_table *rc_tab,
+-		      const struct ir_dev_props *props,
++		      struct ir_dev_props *props,
+ 		      const char *driver_name)
  {
- 	class_unregister(&ir_input_class);
-+	ir_rcmap_cleanup();
- }
+ 	struct ir_input_dev *ir_dev;
+diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
+index 4098748..5a6f8ce 100644
+--- a/drivers/media/IR/ir-raw-event.c
++++ b/drivers/media/IR/ir-raw-event.c
+@@ -132,6 +132,90 @@ int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_event_type typ
+ EXPORT_SYMBOL_GPL(ir_raw_event_store_edge);
  
- module_init(ir_core_init);
-diff --git a/drivers/media/IR/keymaps/Makefile b/drivers/media/IR/keymaps/Makefile
-index 86d3d1f..24992cd 100644
---- a/drivers/media/IR/keymaps/Makefile
-+++ b/drivers/media/IR/keymaps/Makefile
-@@ -17,7 +17,6 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t-pci.o \
- 			rc-dm1105-nec.o \
- 			rc-dntv-live-dvb-t.o \
- 			rc-dntv-live-dvbt-pro.o \
--			rc-empty.o \
- 			rc-em-terratec.o \
- 			rc-encore-enltv2.o \
- 			rc-encore-enltv.o \
-diff --git a/drivers/media/IR/keymaps/rc-empty.c b/drivers/media/IR/keymaps/rc-empty.c
-deleted file mode 100644
-index 3b338d8..0000000
---- a/drivers/media/IR/keymaps/rc-empty.c
-+++ /dev/null
-@@ -1,44 +0,0 @@
--/* empty.h - Keytable for empty Remote Controller
-- *
-- * keymap imported from ir-keymaps.c
-- *
-- * Copyright (c) 2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
--
--#include <media/rc-map.h>
--
--/* empty keytable, can be used as placeholder for not-yet created keytables */
--
--static struct ir_scancode empty[] = {
--	{ 0x2a, KEY_COFFEE },
--};
--
--static struct rc_keymap empty_map = {
--	.map = {
--		.scan    = empty,
--		.size    = ARRAY_SIZE(empty),
--		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
--		.name    = RC_MAP_EMPTY,
--	}
--};
--
--static int __init init_rc_map_empty(void)
--{
--	return ir_register_map(&empty_map);
--}
--
--static void __exit exit_rc_map_empty(void)
--{
--	ir_unregister_map(&empty_map);
--}
--
--module_init(init_rc_map_empty)
--module_exit(exit_rc_map_empty)
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Mauro Carvalho Chehab <mchehab@redhat.com>");
-diff --git a/drivers/media/IR/rc-map.c b/drivers/media/IR/rc-map.c
-index 46a8f15..689143f 100644
---- a/drivers/media/IR/rc-map.c
-+++ b/drivers/media/IR/rc-map.c
-@@ -82,3 +82,26 @@ void ir_unregister_map(struct rc_keymap *map)
- }
- EXPORT_SYMBOL_GPL(ir_unregister_map);
- 
+ /**
++ * ir_raw_event_store_with_filter() - pass next pulse/space to decoders with some processing
++ * @input_dev:	the struct input_dev device descriptor
++ * @type:	the type of the event that has occurred
++ *
++ * This routine (which may be called from an interrupt context) works
++ * in similiar manner to ir_raw_event_store_edge.
++ * This routine is intended for devices with limited internal buffer
++ * It automerges samples of same type, and handles timeouts
++ */
++int ir_raw_event_store_with_filter(struct input_dev *input_dev,
++						struct ir_raw_event *ev)
++{
++	struct ir_input_dev *ir = input_get_drvdata(input_dev);
++	struct ir_raw_event_ctrl *raw = ir->raw;
 +
-+static struct ir_scancode empty[] = {
-+	{ 0x2a, KEY_COFFEE },
-+};
++	if (!raw || !ir->props)
++		return -EINVAL;
 +
-+static struct rc_keymap empty_map = {
-+	.map = {
-+		.scan    = empty,
-+		.size    = ARRAY_SIZE(empty),
-+		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
-+		.name    = RC_MAP_EMPTY,
++	/* Ignore spaces in idle mode */
++	if (ir->idle && !ev->pulse)
++		return 0;
++	else if (ir->idle)
++		ir_raw_event_set_idle(input_dev, 0);
++
++	if (!raw->this_ev.duration) {
++		raw->this_ev = *ev;
++	} else if (ev->pulse == raw->this_ev.pulse) {
++		raw->this_ev.duration += ev->duration;
++	} else {
++		ir_raw_event_store(input_dev, &raw->this_ev);
++		raw->this_ev = *ev;
 +	}
-+};
 +
-+int ir_rcmap_init(void)
-+{
-+	return ir_register_map(&empty_map);
++	/* Enter idle mode if nessesary */
++	if (!ev->pulse && ir->props->timeout &&
++		raw->this_ev.duration >= ir->props->timeout)
++		ir_raw_event_set_idle(input_dev, 1);
++	return 0;
 +}
++EXPORT_SYMBOL_GPL(ir_raw_event_store_with_filter);
 +
-+void ir_rcmap_cleanup(void)
++void ir_raw_event_set_idle(struct input_dev *input_dev, int idle)
 +{
-+	ir_unregister_map(&empty_map);
++	struct ir_input_dev *ir = input_get_drvdata(input_dev);
++	struct ir_raw_event_ctrl *raw = ir->raw;
++	ktime_t now;
++	u64 delta;
++
++	if (!ir->props)
++		return;
++
++	if (!ir->raw)
++		goto out;
++
++	if (idle) {
++		IR_dprintk(2, "enter idle mode\n");
++		raw->last_event = ktime_get();
++	} else {
++		IR_dprintk(2, "exit idle mode\n");
++
++		now = ktime_get();
++		delta = ktime_to_ns(ktime_sub(now, ir->raw->last_event));
++
++		WARN_ON(raw->this_ev.pulse);
++
++		raw->this_ev.duration =
++			min(raw->this_ev.duration + delta,
++						(u64)IR_MAX_DURATION);
++
++		ir_raw_event_store(input_dev, &raw->this_ev);
++
++		if (raw->this_ev.duration == IR_MAX_DURATION)
++			ir_raw_event_reset(input_dev);
++
++		raw->this_ev.duration = 0;
++	}
++out:
++	if (ir->props->s_idle)
++		ir->props->s_idle(ir->props->priv, idle);
++	ir->idle = idle;
 +}
++EXPORT_SYMBOL_GPL(ir_raw_event_set_idle);
++
++/**
+  * ir_raw_event_handle() - schedules the decoding of stored ir data
+  * @input_dev:	the struct input_dev device descriptor
+  *
 diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index 513e60d..197d05a 100644
+index 197d05a..7ad39fe 100644
 --- a/include/media/ir-core.h
 +++ b/include/media/ir-core.h
-@@ -110,8 +110,12 @@ static inline int ir_input_register(struct input_dev *dev,
- 		return -EINVAL;
- 
- 	ir_codes = get_rc_map(map_name);
--	if (!ir_codes)
--		return -EINVAL;
-+	if (!ir_codes) {
-+		ir_codes = get_rc_map(RC_MAP_EMPTY);
+@@ -41,6 +41,9 @@ enum rc_driver_type {
+  *	anything with it. Yet, as the same keycode table can be used with other
+  *	devices, a mask is provided to allow its usage. Drivers should generally
+  *	leave this field in blank
++ * @timeout: optional time after which device stops sending data
++ * @min_timeout: minimum timeout supported by device
++ * @max_timeout: maximum timeout supported by device
+  * @priv: driver-specific data, to be used on the callbacks
+  * @change_protocol: allow changing the protocol used on hardware decoders
+  * @open: callback to allow drivers to enable polling/irq when IR input device
+@@ -50,11 +53,19 @@ enum rc_driver_type {
+  * @s_tx_mask: set transmitter mask (for devices with multiple tx outputs)
+  * @s_tx_carrier: set transmit carrier frequency
+  * @tx_ir: transmit IR
++ * @s_idle: optional: enable/disable hardware idle mode, upon which,
++ *	device doesn't interrupt host untill it sees IR data
+  */
+ struct ir_dev_props {
+ 	enum rc_driver_type	driver_type;
+ 	unsigned long		allowed_protos;
+ 	u32			scanmask;
 +
-+		if (!ir_codes)
-+			return -EINVAL;
-+	}
++	u64			timeout;
++	u64			min_timeout;
++	u64			max_timeout;
++
++
+ 	void			*priv;
+ 	int			(*change_protocol)(void *priv, u64 ir_type);
+ 	int			(*open)(void *priv);
+@@ -62,6 +73,7 @@ struct ir_dev_props {
+ 	int			(*s_tx_mask)(void *priv, u32 mask);
+ 	int			(*s_tx_carrier)(void *priv, u32 carrier);
+ 	int			(*tx_ir)(void *priv, int *txbuf, u32 n);
++	void			(*s_idle)(void *priv, int enable);
+ };
  
- 	rc = __ir_input_register(dev, ir_codes, props, driver_name);
- 	if (rc < 0)
+ struct ir_input_dev {
+@@ -69,9 +81,10 @@ struct ir_input_dev {
+ 	char				*driver_name;	/* Name of the driver module */
+ 	struct ir_scancode_table	rc_tab;		/* scan/key table */
+ 	unsigned long			devno;		/* device number */
+-	const struct ir_dev_props	*props;		/* Device properties */
++	struct ir_dev_props		*props;		/* Device properties */
+ 	struct ir_raw_event_ctrl	*raw;		/* for raw pulse/space events */
+ 	struct input_dev		*input_dev;	/* the input device associated with this device */
++	bool				idle;
+ 
+ 	/* key info - needed by IR keycode handlers */
+ 	spinlock_t			keylock;	/* protects the below members */
+@@ -95,12 +108,12 @@ enum raw_event_type {
+ /* From ir-keytable.c */
+ int __ir_input_register(struct input_dev *dev,
+ 		      const struct ir_scancode_table *ir_codes,
+-		      const struct ir_dev_props *props,
++		      struct ir_dev_props *props,
+ 		      const char *driver_name);
+ 
+ static inline int ir_input_register(struct input_dev *dev,
+ 		      const char *map_name,
+-		      const struct ir_dev_props *props,
++		      struct ir_dev_props *props,
+ 		      const char *driver_name) {
+ 	struct ir_scancode_table *ir_codes;
+ 	struct ir_input_dev *ir_dev;
+@@ -148,6 +161,10 @@ struct ir_raw_event {
+ void ir_raw_event_handle(struct input_dev *input_dev);
+ int ir_raw_event_store(struct input_dev *input_dev, struct ir_raw_event *ev);
+ int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_event_type type);
++int ir_raw_event_store_with_filter(struct input_dev *input_dev,
++				struct ir_raw_event *ev);
++void ir_raw_event_set_idle(struct input_dev *input_dev, int idle);
++
+ static inline void ir_raw_event_reset(struct input_dev *input_dev)
+ {
+ 	struct ir_raw_event ev = { .pulse = false, .duration = 0 };
 -- 
 1.7.0.4
-

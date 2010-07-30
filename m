@@ -1,116 +1,114 @@
-From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
-Date: Fri, 30 Jul 2010 23:41:46 +0200
-Message-ID: <4C53471A.9080001@tudelft.nl>
-References: <4C1FD2B0.1080504@tudelft.nl> <4C1FD454.4050807@tudelft.nl> <20100721033655.GA9070@core.coreip.homeip.net> <4C532009.4020103@tudelft.nl> <4C533DC3.9070001@euromail.se>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: [PATCH 10/13] IR: extend interfaces to support more device
+ settings LIRC: add new IOCTL that enables learning mode (wide band receiver)
+Date: Sat, 31 Jul 2010 01:01:04 +0300
+Message-ID: <1280527264.3159.10.camel@maxim-laptop>
+References: <1280489933-20865-11-git-send-email-maximlevitsky@gmail.com>
+	 <BTpNtKTJjFB@christoph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:39507 "EHLO
-	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753149Ab0G3Vlu (ORCPT
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:62073 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752568Ab0G3WBQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jul 2010 17:41:50 -0400
-In-Reply-To: <4C533DC3.9070001@euromail.se>
+	Fri, 30 Jul 2010 18:01:16 -0400
+In-Reply-To: <BTpNtKTJjFB@christoph>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-Op 30-07-10 23:01, Henrik Rydberg schreef:
-> On 07/30/2010 08:55 PM, =C9ric Piel wrote:
-:
->>> I am concerned what happens when you put one finger first and then =
-add
->>> another one. Would not that couse the cursor to jump?
->=20
->=20
-> I agree, I have seen this behavior before and it is not quite what yo=
-u want. The
-> average point does jump.
->=20
->>> I'd say we need to obey MT protocol and continue reporting the firs=
-t
->>> contact in non-MT protocol and rely on MT-aware drivers to do bette=
-r job
->>> of contact tracking. This is also consistent with how other drivers=
-,
->>> such as bcm5974, report coordinates.
->> If the MT protocol says we should always report on the single-touch =
-side
->> the first contact, then I guess it's better to do so. However, I've =
-just
->> read the latest version of the mt-protocol document, and couldn't se=
-e
->> anything saying that. Are you sure this is the official behavior? I'=
-d
->> tend to think that single-touch and multi-touch are never read toget=
-her,
->> so they can be different.
->=20
->=20
-> It is true that there are no specific section on how to handle the AB=
-S_X/Y
-> events, and different drivers have slightly different strategies. How=
-ever,
-> common to them all is that a single finger is consistently used to re=
-port the
-> events.
-Maybe it would be useful to add a paragraph to the mt-protocol document
-about the relation with the single-touch events.
+On Fri, 2010-07-30 at 23:22 +0200, Christoph Bartelmus wrote: 
+> Hi!
+> 
+> Maxim Levitsky "maximlevitsky@gmail.com" wrote:
+> 
+> > Still missing features: carrier report & timeout reports.
+> > Will need to pack these into ir_raw_event
+> 
+> 
+> Hm, this patch changes the LIRC interface but I can't see the according  
+> patch to the documentation.
+> 
+> [...]
+> >   * @tx_ir: transmit IR
+> >   * @s_idle: optional: enable/disable hardware idle mode, upon which,
+> > +<<<<<<< current
+> >   *	device doesn't interrupt host untill it sees IR data
+> > +=======
+> 
+> Huh?
+:-)
 
-Well as an anecdote, on my old laptop with a single-touch synaptics
-hardware, when I press 2 fingers, the average point is reported. That's
-all in hardware, though so it probably doesn't count as a typical drive=
-r
-behaviour ;-)
 
->> More specifically, on this hardware, when there are two fingers, we =
-get
->> only the lower coordinates and the higher coordinates, but we don't =
-know
->> exactly where are the fingers. As there is no tracking, the lower
->> coordinate might be the second finger applied, so even if we report =
-just
->> the lower coordinates, there is 75% chance that the cursor will jump=
-=2E
->=20
->=20
-> Perhaps it is better to not report ABS_X/Y at all in the case of two =
-fingers on
-> this trackpad. With any reasonable userspace driver, the ABS_X/Y will=
- be masked
-> out anyways.
-What do you mean? ABS_X/Y is still very useful, for example for gesture=
-,
-or to manage horizontal/vertical scrolling. In the xorg synaptics
-driver, it's not used to move the cursor position, but it's definitely
-not masked out!
+> 
+> > +	device doesn't interrupt host untill it sees IR data
+> > + * @s_learning_mode: enable wide band receiver used for learning
+> +>>>>>>>> patched
+> 
+> s/untill/until/
+> 
+> [...]
+> >  #define LIRC_CAN_MEASURE_CARRIER          0x02000000
+> > +#define LIRC_CAN_HAVE_WIDEBAND_RECEIVER   0x04000000
+> 
+> LIRC_CAN_USE_WIDEBAND_RECEIVER
 
->> That's actually the reason I prefer the average: it gives a 100%
->> expectable behavior (because the average is always correct). In
->> practice, when using the xorg synaptics driver, with the default
->> 2-fingers-scrolling mode, the cursor never jumps because as soon as =
-the
->> second finger is applied, X and Y are not used to move the cursor.
->=20
->=20
-> It is predictable, but it is still bad behavior. ;-)
-:
-I'm completely against not reporting the position with 2 fingers,
-because definitely, users would lose some features. With 3 and 4
-fingers, we report the lower coordinates (the only ones provided by the
-hardware). So it'd be extremely weird not to report any for 2 fingers!
+OK. 
+> 
+> [...]
+> > @@ -145,7 +146,7 @@
+> >   * if enabled from the next key press on the driver will send
+> >   * LIRC_MODE2_FREQUENCY packets
+> >   */
+> > -#define LIRC_SET_MEASURE_CARRIER_MODE  _IOW('i', 0x0000001d, __u32)
+> > +#define LIRC_SET_MEASURE_CARRIER_MODE	_IOW('i', 0x0000001d, __u32)
+> >
+> >  /*
+> >   * to set a range use
+> > @@ -162,4 +163,6 @@
+> >  #define LIRC_SETUP_START               _IO('i', 0x00000021)
+> >  #define LIRC_SETUP_END                 _IO('i', 0x00000022)
+> >
+> > +#define LIRC_SET_WIDEBAND_RECEIVER     _IOW('i', 0x00000023, __u32)
+> 
+> If you really want this new ioctl, then it should be clarified how it  
+> behaves in relation to LIRC_SET_MEASURE_CARRIER_MODE.
 
-As a user, I enjoy better when the average is reported, because
-whichever finger I move, I get a feedback, there is never a finger
-"hidden" behind the other one. Nevertheless, if consistency matters,
-let's just leave it as is.
+In my opinion, I won't need the LIRC_SET_MEASURE_CARRIER_MODE,
+I would just optionally turn that on in learning mode.
+You disagree, and since that is not important (besides TX and learning
+features are present only at fraction of ENE devices. The only user I
+did the debugging with, doesn't seem to want to help debug that code
+anymore...)
 
-Eric
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+But anyway, in current state I want these features to be independent.
+Driver will enable learning mode if it have to.
+
+I'll add the documentation.
+
+
+
+> 
+> Do you have to enable the wide-band receiver explicitly before you can  
+> enable carrier reports or does enabling carrier reports implicitly switch  
+> to the wide-band receiver?
+I would implicitly switch the learning mode on, untill user turns off
+the carrier reports.
+
+> 
+> What happens if carrier mode is enabled and you explicitly turn off the  
+> wide-band receiver?
+Wouldn't it be better to have one ioctl for both after all?
+
+> 
+> And while we're at interface stuff:
+> Do we really need LIRC_SETUP_START and LIRC_SETUP_END? It is only used  
+> once in lircd during startup.
+I don't think so.
+
+Best regards,
+Maxim Levitsky
+

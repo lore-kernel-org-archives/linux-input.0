@@ -1,7 +1,7 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 09/13] IR: add helper function for hardware with small o/b buffer.
-Date: Fri, 30 Jul 2010 05:17:11 +0300
-Message-ID: <1280456235-2024-10-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 10/13] IR: extend interfaces to support more device settings LIRC: add new IOCTL that enables learning mode (wide band receiver)
+Date: Fri, 30 Jul 2010 05:17:12 +0300
+Message-ID: <1280456235-2024-11-git-send-email-maximlevitsky@gmail.com>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
@@ -10,224 +10,289 @@ To: lirc-list@lists.sourceforge.net
 Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Some ir input devices have small buffer, and interrupt the host
-each time it is full (or half full)
+Still missing features: carrier report & timeout reports.
+Will need to pack these into ir_raw_event
 
-Add a helper that automaticly handles timeouts, and also
-automaticly merges samples of same time (space-space)
-Such samples might be placed by hardware because size of
-sample in the buffer is small (a byte for example).
-
-Also remove constness from ir_dev_props, because it now contains timeout
-settings that driver might want to change
 
 Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 ---
- drivers/media/IR/ir-core-priv.h |    1 +
- drivers/media/IR/ir-keytable.c  |    2 +-
- drivers/media/IR/ir-raw-event.c |   84 +++++++++++++++++++++++++++++++++++++++
- include/media/ir-core.h         |   23 +++++++++-
- 4 files changed, 106 insertions(+), 4 deletions(-)
+ drivers/media/IR/ir-core-priv.h  |    1 +
+ drivers/media/IR/ir-lirc-codec.c |  112 +++++++++++++++++++++++++++++++-------
+ include/media/ir-core.h          |   14 +++++
+ include/media/lirc.h             |    5 ++-
+ 4 files changed, 112 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index fe84374..841b76c 100644
+index 841b76c..068807d 100644
 --- a/drivers/media/IR/ir-core-priv.h
 +++ b/drivers/media/IR/ir-core-priv.h
-@@ -41,6 +41,7 @@ struct ir_raw_event_ctrl {
+@@ -78,6 +78,7 @@ struct ir_raw_event_ctrl {
+ 	struct lirc_codec {
+ 		struct ir_input_dev *ir_dev;
+ 		struct lirc_driver *drv;
++		int carrier_low;
+ 	} lirc;
+ };
  
- 	/* raw decoder state follows */
- 	struct ir_raw_event prev_ev;
-+	struct ir_raw_event this_ev;
- 	struct nec_dec {
- 		int state;
- 		unsigned count;
-diff --git a/drivers/media/IR/ir-keytable.c b/drivers/media/IR/ir-keytable.c
-index 94a8577..34b9c07 100644
---- a/drivers/media/IR/ir-keytable.c
-+++ b/drivers/media/IR/ir-keytable.c
-@@ -428,7 +428,7 @@ static void ir_close(struct input_dev *input_dev)
-  */
- int __ir_input_register(struct input_dev *input_dev,
- 		      const struct ir_scancode_table *rc_tab,
--		      const struct ir_dev_props *props,
-+		      struct ir_dev_props *props,
- 		      const char *driver_name)
+diff --git a/drivers/media/IR/ir-lirc-codec.c b/drivers/media/IR/ir-lirc-codec.c
+index 8ca01fd..5d5150f 100644
+--- a/drivers/media/IR/ir-lirc-codec.c
++++ b/drivers/media/IR/ir-lirc-codec.c
+@@ -46,7 +46,6 @@ static int ir_lirc_decode(struct input_dev *input_dev, struct ir_raw_event ev)
+ 	IR_dprintk(2, "LIRC data transfer started (%uus %s)\n",
+ 		   TO_US(ev.duration), TO_STR(ev.pulse));
+ 
+-
+ 	sample = ev.duration / 1000;
+ 	if (ev.pulse)
+ 		sample |= PULSE_BIT;
+@@ -96,13 +95,14 @@ out:
+ 	return ret;
+ }
+ 
+-static long ir_lirc_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
++static long ir_lirc_ioctl(struct file *filep, unsigned int cmd,
++			unsigned long __user arg)
  {
+ 	struct lirc_codec *lirc;
  	struct ir_input_dev *ir_dev;
-diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
-index 4098748..5a6f8ce 100644
---- a/drivers/media/IR/ir-raw-event.c
-+++ b/drivers/media/IR/ir-raw-event.c
-@@ -132,6 +132,90 @@ int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_event_type typ
- EXPORT_SYMBOL_GPL(ir_raw_event_store_edge);
+ 	int ret = 0;
+ 	void *drv_data;
+-	unsigned long val;
++	unsigned long val = 0;
  
- /**
-+ * ir_raw_event_store_with_filter() - pass next pulse/space to decoders with some processing
-+ * @input_dev:	the struct input_dev device descriptor
-+ * @type:	the type of the event that has occurred
-+ *
-+ * This routine (which may be called from an interrupt context) works
-+ * in similiar manner to ir_raw_event_store_edge.
-+ * This routine is intended for devices with limited internal buffer
-+ * It automerges samples of same type, and handles timeouts
-+ */
-+int ir_raw_event_store_with_filter(struct input_dev *input_dev,
-+						struct ir_raw_event *ev)
-+{
-+	struct ir_input_dev *ir = input_get_drvdata(input_dev);
-+	struct ir_raw_event_ctrl *raw = ir->raw;
-+
-+	if (!raw || !ir->props)
-+		return -EINVAL;
-+
-+	/* Ignore spaces in idle mode */
-+	if (ir->idle && !ev->pulse)
-+		return 0;
-+	else if (ir->idle)
-+		ir_raw_event_set_idle(input_dev, 0);
-+
-+	if (!raw->this_ev.duration) {
-+		raw->this_ev = *ev;
-+	} else if (ev->pulse == raw->this_ev.pulse) {
-+		raw->this_ev.duration += ev->duration;
-+	} else {
-+		ir_raw_event_store(input_dev, &raw->this_ev);
-+		raw->this_ev = *ev;
+ 	lirc = lirc_get_pdata(filep);
+ 	if (!lirc)
+@@ -114,47 +114,106 @@ static long ir_lirc_ioctl(struct file *filep, unsigned int cmd, unsigned long ar
+ 
+ 	drv_data = ir_dev->props->priv;
+ 
+-	switch (cmd) {
+-	case LIRC_SET_TRANSMITTER_MASK:
++	if (_IOC_DIR(cmd) & _IOC_WRITE) {
+ 		ret = get_user(val, (unsigned long *)arg);
+ 		if (ret)
+ 			return ret;
 +	}
 +
-+	/* Enter idle mode if nessesary */
-+	if (!ev->pulse && ir->props->timeout &&
-+		raw->this_ev.duration >= ir->props->timeout)
-+		ir_raw_event_set_idle(input_dev, 1);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(ir_raw_event_store_with_filter);
++	switch (cmd) {
 +
-+void ir_raw_event_set_idle(struct input_dev *input_dev, int idle)
-+{
-+	struct ir_input_dev *ir = input_get_drvdata(input_dev);
-+	struct ir_raw_event_ctrl *raw = ir->raw;
-+	ktime_t now;
-+	u64 delta;
++	/* legacy support */
++	case LIRC_GET_SEND_MODE:
++		val = LIRC_CAN_SEND_PULSE & LIRC_CAN_SEND_MASK;
++		break;
 +
-+	if (!ir->props)
-+		return;
++	case LIRC_SET_SEND_MODE:
++		if (val != (LIRC_MODE_PULSE & LIRC_CAN_SEND_MASK))
++			return -EINVAL;
++		break;
+ 
+-		if (ir_dev->props && ir_dev->props->s_tx_mask)
++	/* TX settings */
++	case LIRC_SET_TRANSMITTER_MASK:
++		if (ir_dev->props->s_tx_mask)
+ 			ret = ir_dev->props->s_tx_mask(drv_data, (u32)val);
+ 		else
+ 			return -EINVAL;
+ 		break;
+ 
+ 	case LIRC_SET_SEND_CARRIER:
+-		ret = get_user(val, (unsigned long *)arg);
+-		if (ret)
+-			return ret;
+-
+-		if (ir_dev->props && ir_dev->props->s_tx_carrier)
++		if (ir_dev->props->s_tx_carrier)
+ 			ir_dev->props->s_tx_carrier(drv_data, (u32)val);
+ 		else
+ 			return -EINVAL;
+ 		break;
+ 
+-	case LIRC_GET_SEND_MODE:
+-		val = LIRC_CAN_SEND_PULSE & LIRC_CAN_SEND_MASK;
+-		ret = put_user(val, (unsigned long *)arg);
++	case LIRC_SET_SEND_DUTY_CYCLE:
++		if (!ir_dev->props->s_tx_duty_cycle)
++			return -ENOSYS;
 +
-+	if (!ir->raw)
-+		goto out;
++		if (val <= 0 || val >= 100)
++			return -EINVAL;
 +
-+	if (idle) {
-+		IR_dprintk(2, "enter idle mode\n");
-+		raw->last_event = ktime_get();
-+	} else {
-+		IR_dprintk(2, "exit idle mode\n");
++		ir_dev->props->s_tx_duty_cycle(ir_dev->props->priv, val);
+ 		break;
+ 
+-	case LIRC_SET_SEND_MODE:
+-		ret = get_user(val, (unsigned long *)arg);
+-		if (ret)
+-			return ret;
++	/* RX settings */
++	case LIRC_SET_REC_CARRIER:
++		if (ir_dev->props->s_rx_carrier_range)
++			ret = ir_dev->props->s_rx_carrier_range(
++				ir_dev->props->priv,
++				ir_dev->raw->lirc.carrier_low, val);
++		else
++			return -ENOSYS;
+ 
+-		if (val != (LIRC_MODE_PULSE & LIRC_CAN_SEND_MASK))
++		if (!ret)
++			ir_dev->raw->lirc.carrier_low = 0;
++		break;
 +
-+		now = ktime_get();
-+		delta = ktime_to_ns(ktime_sub(now, ir->raw->last_event));
++	case LIRC_SET_REC_CARRIER_RANGE:
++		if (val >= 0)
++			ir_dev->raw->lirc.carrier_low = val;
++		break;
 +
-+		WARN_ON(raw->this_ev.pulse);
 +
-+		raw->this_ev.duration =
-+			min(raw->this_ev.duration + delta,
-+						(u64)IR_MAX_DURATION);
++	case LIRC_GET_REC_RESOLUTION:
++		val = ir_dev->props->rx_resolution;
++		break;
 +
-+		ir_raw_event_store(input_dev, &raw->this_ev);
++	case LIRC_SET_WIDEBAND_RECEIVER:
++		if (ir_dev->props->s_learning_mode)
++			return ir_dev->props->s_learning_mode(
++				ir_dev->props->priv, !!val);
++		else
++			return -ENOSYS;
 +
-+		if (raw->this_ev.duration == IR_MAX_DURATION)
-+			ir_raw_event_reset(input_dev);
++	/* Generic timeout support */
++	case LIRC_GET_MIN_TIMEOUT:
++		if (!ir_dev->props->max_timeout)
++			return -ENOSYS;
++		val = ir_dev->props->min_timeout / 1000;
++		break;
 +
-+		raw->this_ev.duration = 0;
-+	}
-+out:
-+	if (ir->props->s_idle)
-+		ir->props->s_idle(ir->props->priv, idle);
-+	ir->idle = idle;
-+}
-+EXPORT_SYMBOL_GPL(ir_raw_event_set_idle);
++	case LIRC_GET_MAX_TIMEOUT:
++		if (!ir_dev->props->max_timeout)
++			return -ENOSYS;
++		val = ir_dev->props->max_timeout / 1000;
++		break;
 +
-+/**
-  * ir_raw_event_handle() - schedules the decoding of stored ir data
-  * @input_dev:	the struct input_dev device descriptor
-  *
++	case LIRC_SET_REC_TIMEOUT:
++		if (val < ir_dev->props->min_timeout ||
++		    val > ir_dev->props->max_timeout)
+ 			return -EINVAL;
++		ir_dev->props->timeout = val * 1000;
+ 		break;
+ 
+ 	default:
+ 		return lirc_dev_fop_ioctl(filep, cmd, arg);
+ 	}
+ 
++	if (_IOC_DIR(cmd) & _IOC_READ)
++		ret = put_user(val, (unsigned long *)arg);
++
+ 	return ret;
+ }
+ 
+@@ -200,13 +259,28 @@ static int ir_lirc_register(struct input_dev *input_dev)
+ 
+ 	features = LIRC_CAN_REC_MODE2;
+ 	if (ir_dev->props->tx_ir) {
++
+ 		features |= LIRC_CAN_SEND_PULSE;
+ 		if (ir_dev->props->s_tx_mask)
+ 			features |= LIRC_CAN_SET_TRANSMITTER_MASK;
+ 		if (ir_dev->props->s_tx_carrier)
+ 			features |= LIRC_CAN_SET_SEND_CARRIER;
++
++		if (ir_dev->props->s_tx_duty_cycle)
++			features |= LIRC_CAN_SET_REC_DUTY_CYCLE;
+ 	}
+ 
++	if (ir_dev->props->s_rx_carrier_range)
++		features |= LIRC_CAN_SET_REC_CARRIER |
++			LIRC_CAN_SET_REC_CARRIER_RANGE;
++
++	if (ir_dev->props->s_learning_mode)
++		features |= LIRC_CAN_HAVE_WIDEBAND_RECEIVER;
++
++	if (ir_dev->props->max_timeout)
++		features |= LIRC_CAN_SET_REC_TIMEOUT;
++
++
+ 	snprintf(drv->name, sizeof(drv->name), "ir-lirc-codec (%s)",
+ 		 ir_dev->driver_name);
+ 	drv->minor = -1;
 diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index 197d05a..7ad39fe 100644
+index 7ad39fe..ed9c1cb 100644
 --- a/include/media/ir-core.h
 +++ b/include/media/ir-core.h
-@@ -41,6 +41,9 @@ enum rc_driver_type {
-  *	anything with it. Yet, as the same keycode table can be used with other
-  *	devices, a mask is provided to allow its usage. Drivers should generally
-  *	leave this field in blank
-+ * @timeout: optional time after which device stops sending data
-+ * @min_timeout: minimum timeout supported by device
-+ * @max_timeout: maximum timeout supported by device
+@@ -44,6 +44,8 @@ enum rc_driver_type {
+  * @timeout: optional time after which device stops sending data
+  * @min_timeout: minimum timeout supported by device
+  * @max_timeout: maximum timeout supported by device
++ * @rx_resolution : resolution (in ns) of input sampler
++ * @tx_resolution: resolution (in ns) of output sampler
   * @priv: driver-specific data, to be used on the callbacks
   * @change_protocol: allow changing the protocol used on hardware decoders
   * @open: callback to allow drivers to enable polling/irq when IR input device
-@@ -50,11 +53,19 @@ enum rc_driver_type {
+@@ -52,9 +54,16 @@ enum rc_driver_type {
+  *	is opened.
   * @s_tx_mask: set transmitter mask (for devices with multiple tx outputs)
   * @s_tx_carrier: set transmit carrier frequency
++ * @s_tx_duty_cycle: set transmit duty cycle (0% - 100%)
++ * @s_rx_carrier: inform driver about carrier it is expected to handle
   * @tx_ir: transmit IR
-+ * @s_idle: optional: enable/disable hardware idle mode, upon which,
-+ *	device doesn't interrupt host untill it sees IR data
+  * @s_idle: optional: enable/disable hardware idle mode, upon which,
++<<<<<<< current
+  *	device doesn't interrupt host untill it sees IR data
++=======
++	device doesn't interrupt host untill it sees IR data
++ * @s_learning_mode: enable wide band receiver used for learning
++>>>>>>> patched
   */
  struct ir_dev_props {
  	enum rc_driver_type	driver_type;
- 	unsigned long		allowed_protos;
- 	u32			scanmask;
-+
-+	u64			timeout;
-+	u64			min_timeout;
-+	u64			max_timeout;
-+
-+
+@@ -65,6 +74,8 @@ struct ir_dev_props {
+ 	u64			min_timeout;
+ 	u64			max_timeout;
+ 
++	u32			rx_resolution;
++	u32			tx_resolution;
+ 
  	void			*priv;
  	int			(*change_protocol)(void *priv, u64 ir_type);
- 	int			(*open)(void *priv);
-@@ -62,6 +73,7 @@ struct ir_dev_props {
+@@ -72,8 +83,11 @@ struct ir_dev_props {
+ 	void			(*close)(void *priv);
  	int			(*s_tx_mask)(void *priv, u32 mask);
  	int			(*s_tx_carrier)(void *priv, u32 carrier);
++	int			(*s_tx_duty_cycle)(void *priv, u32 duty_cycle);
++	int			(*s_rx_carrier_range)(void *priv, u32 min, u32 max);
  	int			(*tx_ir)(void *priv, int *txbuf, u32 n);
-+	void			(*s_idle)(void *priv, int enable);
+ 	void			(*s_idle)(void *priv, int enable);
++	int			(*s_learning_mode)(void *priv, int enable);
  };
  
  struct ir_input_dev {
-@@ -69,9 +81,10 @@ struct ir_input_dev {
- 	char				*driver_name;	/* Name of the driver module */
- 	struct ir_scancode_table	rc_tab;		/* scan/key table */
- 	unsigned long			devno;		/* device number */
--	const struct ir_dev_props	*props;		/* Device properties */
-+	struct ir_dev_props		*props;		/* Device properties */
- 	struct ir_raw_event_ctrl	*raw;		/* for raw pulse/space events */
- 	struct input_dev		*input_dev;	/* the input device associated with this device */
-+	bool				idle;
+diff --git a/include/media/lirc.h b/include/media/lirc.h
+index 42c467c..bda3d03 100644
+--- a/include/media/lirc.h
++++ b/include/media/lirc.h
+@@ -77,6 +77,7 @@
+ #define LIRC_CAN_SET_REC_FILTER           0x08000000
  
- 	/* key info - needed by IR keycode handlers */
- 	spinlock_t			keylock;	/* protects the below members */
-@@ -95,12 +108,12 @@ enum raw_event_type {
- /* From ir-keytable.c */
- int __ir_input_register(struct input_dev *dev,
- 		      const struct ir_scancode_table *ir_codes,
--		      const struct ir_dev_props *props,
-+		      struct ir_dev_props *props,
- 		      const char *driver_name);
+ #define LIRC_CAN_MEASURE_CARRIER          0x02000000
++#define LIRC_CAN_HAVE_WIDEBAND_RECEIVER   0x04000000
  
- static inline int ir_input_register(struct input_dev *dev,
- 		      const char *map_name,
--		      const struct ir_dev_props *props,
-+		      struct ir_dev_props *props,
- 		      const char *driver_name) {
- 	struct ir_scancode_table *ir_codes;
- 	struct ir_input_dev *ir_dev;
-@@ -148,6 +161,10 @@ struct ir_raw_event {
- void ir_raw_event_handle(struct input_dev *input_dev);
- int ir_raw_event_store(struct input_dev *input_dev, struct ir_raw_event *ev);
- int ir_raw_event_store_edge(struct input_dev *input_dev, enum raw_event_type type);
-+int ir_raw_event_store_with_filter(struct input_dev *input_dev,
-+				struct ir_raw_event *ev);
-+void ir_raw_event_set_idle(struct input_dev *input_dev, int idle);
+ #define LIRC_CAN_SEND(x) ((x)&LIRC_CAN_SEND_MASK)
+ #define LIRC_CAN_REC(x) ((x)&LIRC_CAN_REC_MASK)
+@@ -145,7 +146,7 @@
+  * if enabled from the next key press on the driver will send
+  * LIRC_MODE2_FREQUENCY packets
+  */
+-#define LIRC_SET_MEASURE_CARRIER_MODE  _IOW('i', 0x0000001d, __u32)
++#define LIRC_SET_MEASURE_CARRIER_MODE	_IOW('i', 0x0000001d, __u32)
+ 
+ /*
+  * to set a range use
+@@ -162,4 +163,6 @@
+ #define LIRC_SETUP_START               _IO('i', 0x00000021)
+ #define LIRC_SETUP_END                 _IO('i', 0x00000022)
+ 
++#define LIRC_SET_WIDEBAND_RECEIVER     _IOW('i', 0x00000023, __u32)
 +
- static inline void ir_raw_event_reset(struct input_dev *input_dev)
- {
- 	struct ir_raw_event ev = { .pulse = false, .duration = 0 };
+ #endif
 -- 
 1.7.0.4

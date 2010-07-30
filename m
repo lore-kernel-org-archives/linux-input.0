@@ -1,72 +1,58 @@
 From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 04/13] IR: fix locking in ir_raw_event_work
-Date: Thu, 29 Jul 2010 22:42:49 -0400
-Message-ID: <1280457769.15737.72.camel@localhost>
+Subject: Re: [PATCH 06/13] IR: nec decoder: fix repeat.
+Date: Thu, 29 Jul 2010 22:50:07 -0400
+Message-ID: <1280458207.15737.75.camel@localhost>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-	 <1280456235-2024-5-git-send-email-maximlevitsky@gmail.com>
+	 <1280456235-2024-7-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:34287 "EHLO
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:7969 "EHLO
 	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754953Ab0G3Cm3 (ORCPT
+	by vger.kernel.org with ESMTP id S1755697Ab0G3Cto (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 22:42:29 -0400
-In-Reply-To: <1280456235-2024-5-git-send-email-maximlevitsky@gmail.com>
+	Thu, 29 Jul 2010 22:49:44 -0400
+In-Reply-To: <1280456235-2024-7-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Maxim Levitsky <maximlevitsky@gmail.com>
 Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
 On Fri, 2010-07-30 at 05:17 +0300, Maxim Levitsky wrote:
-> It is prefectly possible to have ir_raw_event_work
-> running concurently on two cpus, thus we must protect
-> it from that situation.
-
-Yup, the work is marked as not pending (and hence reschedulable) just
-before the work handler is run.
+> Repeat space is 4 units, not 8.
+> Current code would never trigger a repeat.
 
 
-> Maybe better solution is to ditch the workqueue at all
-> and use good 'ol thread per receiver, and just wake it up...
+Yup.  Page 11, line (4)
 
-I suppose you could also use a single threaded workqueue instead of a
-mutex, and let a bit test provide exclusivity.  With the mutex, when the
-second thread finally obtains the lock, there will likely not be
-anything for it to do.
+http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
+
+Reviewed-by: Andy Walls <awalls@md.metrocast.net>
 
 Regards,
 Andy
 
-
+> However that isn't true for NECX, so repeat there
+> must be handled differently.
+> 
 > Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 > ---
->  drivers/media/IR/ir-raw-event.c |    7 +++++--
->  1 files changed, 5 insertions(+), 2 deletions(-)
+>  drivers/media/IR/ir-nec-decoder.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 > 
-> diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
-> index 9d5c029..4098748 100644
-> --- a/drivers/media/IR/ir-raw-event.c
-> +++ b/drivers/media/IR/ir-raw-event.c
-> @@ -40,13 +40,16 @@ static void ir_raw_event_work(struct work_struct *work)
->  	struct ir_raw_event_ctrl *raw =
->  		container_of(work, struct ir_raw_event_ctrl, rx_work);
->  
-> +	mutex_lock(&ir_raw_handler_lock);
-> +
->  	while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) == sizeof(ev)) {
-> -		mutex_lock(&ir_raw_handler_lock);
->  		list_for_each_entry(handler, &ir_raw_handler_list, list)
->  			handler->decode(raw->input_dev, ev);
-> -		mutex_unlock(&ir_raw_handler_lock);
->  		raw->prev_ev = ev;
->  	}
-> +
-> +	mutex_unlock(&ir_raw_handler_lock);
-> +
->  }
->  
->  /**
+> diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
+> index 52e0f37..1c0cf03 100644
+> --- a/drivers/media/IR/ir-nec-decoder.c
+> +++ b/drivers/media/IR/ir-nec-decoder.c
+> @@ -20,7 +20,7 @@
+>  #define NEC_HEADER_PULSE	(16 * NEC_UNIT)
+>  #define NECX_HEADER_PULSE	(8  * NEC_UNIT) /* Less common NEC variant */
+>  #define NEC_HEADER_SPACE	(8  * NEC_UNIT)
+> -#define NEC_REPEAT_SPACE	(8  * NEC_UNIT)
+> +#define NEC_REPEAT_SPACE	(4  * NEC_UNIT)
+>  #define NEC_BIT_PULSE		(1  * NEC_UNIT)
+>  #define NEC_BIT_0_SPACE		(1  * NEC_UNIT)
+>  #define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
 
 

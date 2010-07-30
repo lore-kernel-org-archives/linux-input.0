@@ -1,64 +1,51 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH 06/13] IR: nec decoder: fix repeat.
-Date: Fri, 30 Jul 2010 16:36:51 -0300
-Message-ID: <4C5329D3.3020801@redhat.com>
-References: <1280489933-20865-1-git-send-email-maximlevitsky@gmail.com> <1280489933-20865-7-git-send-email-maximlevitsky@gmail.com>
+From: Maxim Levitsky <maximlevitsky@gmail.com>
+Subject: Re: [PATCH 0/9 v3] IR: few fixes, additions and ENE driver
+Date: Fri, 30 Jul 2010 22:52:24 +0300
+Message-ID: <1280519544.3159.0.camel@maxim-laptop>
+References: <1280489933-20865-1-git-send-email-maximlevitsky@gmail.com>
+	 <4C5328F2.8040404@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <1280489933-20865-7-git-send-email-maximlevitsky@gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Christoph Bartelmus <lirc@bartelmus.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:57568 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759054Ab0G3Twa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Jul 2010 15:52:30 -0400
+In-Reply-To: <4C5328F2.8040404@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Christoph Bartelmus <lirc@bartelmus.de>
 
-Em 30-07-2010 08:38, Maxim Levitsky escreveu:
-> Repeat space is 4 units, not 8.
-> Current code would never trigger a repeat.
-
-Yes, this fixed the issue:
-
-Jul 30 16:53:52 agua kernel: [24343.507577] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.507588] ir_nec_decode: Repeat last key
-Jul 30 16:53:52 agua kernel: [24343.507590] ir_nec_decode: NEC scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.507592] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.507595] ir_nec_decode: Repeat last key
-Jul 30 16:53:52 agua kernel: [24343.724242] ir_nec_decode: NEC scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.724246] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.724257] ir_nec_decode: Repeat last key
-Jul 30 16:53:52 agua kernel: [24343.724259] ir_nec_decode: NEC scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.724261] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:52 agua kernel: [24343.724264] ir_nec_decode: Repeat last key
-Jul 30 16:53:53 agua kernel: [24343.937576] ir_nec_decode: NEC scancode 0x0009
-Jul 30 16:53:53 agua kernel: [24343.937580] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:53 agua kernel: [24343.937592] ir_nec_decode: Repeat last key
-Jul 30 16:53:53 agua kernel: [24343.937594] ir_nec_decode: NEC scancode 0x0009
-Jul 30 16:53:53 agua kernel: [24343.937596] ir_getkeycode: unknown key for scancode 0x0009
-Jul 30 16:53:53 agua kernel: [24343.937599] ir_nec_decode: Repeat last key
-
+On Fri, 2010-07-30 at 16:33 -0300, Mauro Carvalho Chehab wrote: 
+> Em 30-07-2010 08:38, Maxim Levitsky escreveu:
+> > Hi,
+> > 
+> > This is mostly same patchset.
+> > 
+> > I addressed the comments of Andy Walls.
+> > 
+> > Now IR decoding is done by a separate thread, and this fixes
+> > the race, and unnesesary performance loss due to it.
+> > 
+> > Best regards,
+> > 	Maxim Levitsky
+> > 
 > 
-> However that isn't true for NECX, so repeat there
-> must be handled differently.
+> Hmm... some change at this changeset is trying to divide a 64 bits integer
+> at the LIRC driver. This is causing the following error:
 > 
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-
-Please preserve Andy's reviewed-by: when re-submitting a patch.
-
-> ---
->  drivers/media/IR/ir-nec-decoder.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+> Jul 30 16:45:23 agua kernel: [23834.179871] lirc_dev: IR Remote Control driver registered, major 251 
+> Jul 30 16:45:23 agua kernel: [23834.181884] ir_lirc_codec: Unknown symbol __udivdi3 (err 0)
 > 
-> diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
-> index 52e0f37..1c0cf03 100644
-> --- a/drivers/media/IR/ir-nec-decoder.c
-> +++ b/drivers/media/IR/ir-nec-decoder.c
-> @@ -20,7 +20,7 @@
->  #define NEC_HEADER_PULSE	(16 * NEC_UNIT)
->  #define NECX_HEADER_PULSE	(8  * NEC_UNIT) /* Less common NEC variant */
->  #define NEC_HEADER_SPACE	(8  * NEC_UNIT)
-> -#define NEC_REPEAT_SPACE	(8  * NEC_UNIT)
-> +#define NEC_REPEAT_SPACE	(4  * NEC_UNIT)
->  #define NEC_BIT_PULSE		(1  * NEC_UNIT)
->  #define NEC_BIT_0_SPACE		(1  * NEC_UNIT)
->  #define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
+> you should, instead use do_div for doing that. Another fix would be to define the timeout
+> constants as int or u32.
+I know about that, but forgot, sorry.
+
+Sure, will do.
+
+Best regards,
+Maxim Levitsky
+

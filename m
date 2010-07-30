@@ -1,29 +1,61 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 0/9 v2] IR: few fixes, additions and ENE driver
-Date: Fri, 30 Jul 2010 05:17:02 +0300
-Message-ID: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: lirc-list@lists.sourceforge.net
-Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+Subject: [PATCH 01/13] IR: Kconfig fixes
+Date: Fri, 30 Jul 2010 05:17:03 +0300
+Message-ID: <1280456235-2024-2-git-send-email-maximlevitsky@gmail.com>
+References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:53717 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758335Ab0G3CRe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jul 2010 22:17:34 -0400
+In-Reply-To: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: lirc-list@lists.sourceforge.net
+Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
 
-Hi,
+Move IR drives below separate menu.
+This allows to disable them.
+Also correct a typo.
 
-This is third revision of my patchset.
+Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
+---
+ drivers/media/IR/Kconfig |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
 
-Notable changes:
+diff --git a/drivers/media/IR/Kconfig b/drivers/media/IR/Kconfig
+index e557ae0..fc48a3f 100644
+--- a/drivers/media/IR/Kconfig
++++ b/drivers/media/IR/Kconfig
+@@ -1,8 +1,10 @@
+-config IR_CORE
+-	tristate
++menuconfig IR_CORE
++	tristate "Infrared remote controller adapters"
+ 	depends on INPUT
+ 	default INPUT
+ 
++if IR_CORE
++
+ config VIDEO_IR
+ 	tristate
+ 	depends on IR_CORE
+@@ -16,7 +18,7 @@ config LIRC
+ 	   Enable this option to build the Linux Infrared Remote
+ 	   Control (LIRC) core device interface driver. The LIRC
+ 	   interface passes raw IR to and from userspace, where the
+-	   LIRC daemon handles protocol decoding for IR reception ann
++	   LIRC daemon handles protocol decoding for IR reception and
+ 	   encoding for IR transmitting (aka "blasting").
+ 
+ source "drivers/media/IR/keymaps/Kconfig"
+@@ -102,3 +104,5 @@ config IR_MCEUSB
+ 
+ 	   To compile this driver as a module, choose M here: the
+ 	   module will be called mceusb.
++
++endif #IR_CORE
+-- 
+1.7.0.4
 
-* Added whitespace fixes from Jarod Wilson
-* 4 new bugs fixed (patches 04-07). Now in-kernel decoding
-  works perfectly with all protocols it supports.
-* lirc interface additions cleaned up.
-  no more wrong support for timeout reports
-  new ioctl for learning mode
-  still need to add carrier detect, timeout reports, and rx filter
-* replaced int with bool in my driver, plus few cleanups.
-* added myself to maintainers of the ene driver
-* added another PNP ID to ene driver
-
-Best regards,
-	Maxim Levitsky

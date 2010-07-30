@@ -1,55 +1,44 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 04/13] IR: fix locking in ir_raw_event_work
-Date: Fri, 30 Jul 2010 05:17:06 +0300
-Message-ID: <1280456235-2024-5-git-send-email-maximlevitsky@gmail.com>
+Subject: [PATCH 06/13] IR: nec decoder: fix repeat.
+Date: Fri, 30 Jul 2010 05:17:08 +0300
+Message-ID: <1280456235-2024-7-git-send-email-maximlevitsky@gmail.com>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from mail-bw0-f46.google.com ([209.85.214.46]:53717 "EHLO
 	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758370Ab0G3CRo (ORCPT
+	with ESMTP id S1758379Ab0G3CRr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 22:17:44 -0400
+	Thu, 29 Jul 2010 22:17:47 -0400
 In-Reply-To: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: lirc-list@lists.sourceforge.net
 Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
 
-It is prefectly possible to have ir_raw_event_work
-running concurently on two cpus, thus we must protect
-it from that situation.
+Repeat space is 4 units, not 8.
+Current code would never trigger a repeat.
 
-Maybe better solution is to ditch the workqueue at all
-and use good 'ol thread per receiver, and just wake it up...
+However that isn't true for NECX, so repeat there
+must be handled differently.
 
 Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
 ---
- drivers/media/IR/ir-raw-event.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/IR/ir-nec-decoder.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/IR/ir-raw-event.c b/drivers/media/IR/ir-raw-event.c
-index 9d5c029..4098748 100644
---- a/drivers/media/IR/ir-raw-event.c
-+++ b/drivers/media/IR/ir-raw-event.c
-@@ -40,13 +40,16 @@ static void ir_raw_event_work(struct work_struct *work)
- 	struct ir_raw_event_ctrl *raw =
- 		container_of(work, struct ir_raw_event_ctrl, rx_work);
- 
-+	mutex_lock(&ir_raw_handler_lock);
-+
- 	while (kfifo_out(&raw->kfifo, &ev, sizeof(ev)) == sizeof(ev)) {
--		mutex_lock(&ir_raw_handler_lock);
- 		list_for_each_entry(handler, &ir_raw_handler_list, list)
- 			handler->decode(raw->input_dev, ev);
--		mutex_unlock(&ir_raw_handler_lock);
- 		raw->prev_ev = ev;
- 	}
-+
-+	mutex_unlock(&ir_raw_handler_lock);
-+
- }
- 
- /**
+diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
+index 52e0f37..1c0cf03 100644
+--- a/drivers/media/IR/ir-nec-decoder.c
++++ b/drivers/media/IR/ir-nec-decoder.c
+@@ -20,7 +20,7 @@
+ #define NEC_HEADER_PULSE	(16 * NEC_UNIT)
+ #define NECX_HEADER_PULSE	(8  * NEC_UNIT) /* Less common NEC variant */
+ #define NEC_HEADER_SPACE	(8  * NEC_UNIT)
+-#define NEC_REPEAT_SPACE	(8  * NEC_UNIT)
++#define NEC_REPEAT_SPACE	(4  * NEC_UNIT)
+ #define NEC_BIT_PULSE		(1  * NEC_UNIT)
+ #define NEC_BIT_0_SPACE		(1  * NEC_UNIT)
+ #define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
 -- 
 1.7.0.4
 

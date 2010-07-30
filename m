@@ -1,76 +1,88 @@
-From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: Fwd: [RFC] [PATCH] Input: ADP5588 -
- Support gpio function on unused pin
-Date: Fri, 30 Jul 2010 09:29:36 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E7EC2301D@LIMKCMBX1.ad.analog.com>
-References: <4c459b70.0aee8c0a.1c29.3e9e@mx.google.com>
-	<4C4DADA7.9000201@gmail.com>	<20100726173844.GC14609@core.coreip.homeip.net>
-	<AANLkTi=qHUknGZdoj75Nr9gCKe-TRPMf3cgtsHejSrOc@mail.gmail.com>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 1/4] irq: Add new IRQ flag IRQF_NO_SUSPEND
+Date: Fri, 30 Jul 2010 20:29:38 +1000
+Message-ID: <1280485778.1902.9.camel@pasglop>
+References: <1280398573.24292.1684.camel@zakaz.uk.xensource.com>
+	<1280398595-29708-1-git-send-email-ian.campbell@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <AANLkTi=qHUknGZdoj75Nr9gCKe-TRPMf3cgtsHejSrOc-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Xiaolong Chen <xiaolong.chen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org" <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Xiaolong CHEN <a21785-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, TAO HU <taohu-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>, "Yuan.Bo YE" <yuan-bo.ye-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1280398595-29708-1-git-send-email-ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>
+Cc: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>, xen-devel-GuqFBffKawuULHF6PoxzQEEOCMrvLtNR@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Thu, 2010-07-29 at 11:16 +0100, Ian Campbell wrote:
+> A small number of users of IRQF_TIMER are using it for the implied no
+> suspend behaviour on interrupts which are not timer interrupts.
+> 
+> Therefore add a new IRQF_NO_SUSPEND flag, rename IRQF_TIMER to
+> __IRQF_TIMER and redefine IRQF_TIMER in terms of these new flags.
+> 
+> Signed-off-by: Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>
+> Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> Cc: Jeremy Fitzhardinge <jeremy-TSDbQ3PG+2Y@public.gmane.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-I took a look at the driver in your next tree.
-
-Two issues:
--Avoid NULL pointer dereference in adp5588_gpio_add(),
-set clientdata before call to adp5588_gpio_add().
--Avoid NULL pointer dereference, exit if gpio_data doesn't exist
-
-Signed-off-by: Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-
-drivers/input/keyboard/adp5588-keys.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index c39ec93..456bba7 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -201,6 +201,9 @@ static int __devinit adp5588_gpio_add(struct device *dev)
-
-                if (kpad->gc.ngpio)
-                        kpad->export_gpio = true;
-+       } else {
-+               kpad->export_gpio = false;
-+               return 0;
-        }
-
-        if (!kpad->export_gpio) {
-@@ -581,12 +584,13 @@ static int __devinit adp5588_probe(struct i2c_client *client,
-        if (kpad->gpimapsize)
-                adp5588_report_switch_state(kpad);
-
-+       i2c_set_clientdata(client, kpad);
-+
-        error = adp5588_gpio_add(&client->dev);
-        if (error)
-                goto err_free_irq;
-
-        device_init_wakeup(&client->dev, 1);
--       i2c_set_clientdata(client, kpad);
-
-        dev_info(&client->dev, "Rev.%d keypad, irq %d\n", revid, client->irq);
-        return 0;
-
-Greetings,
-Michael
-
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
+Acked-by: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> Cc: Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>
+> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: xen-devel-GuqFBffKawuULHF6PoxzQEEOCMrvLtNR@public.gmane.org
+> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> ---
+>  include/linux/interrupt.h |    7 ++++++-
+>  kernel/irq/manage.c       |    2 +-
+>  2 files changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+> index c233113..a0384a4 100644
+> --- a/include/linux/interrupt.h
+> +++ b/include/linux/interrupt.h
+> @@ -53,16 +53,21 @@
+>   * IRQF_ONESHOT - Interrupt is not reenabled after the hardirq handler finished.
+>   *                Used by threaded interrupts which need to keep the
+>   *                irq line disabled until the threaded handler has been run.
+> + * IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
+> + *
+>   */
+>  #define IRQF_DISABLED		0x00000020
+>  #define IRQF_SAMPLE_RANDOM	0x00000040
+>  #define IRQF_SHARED		0x00000080
+>  #define IRQF_PROBE_SHARED	0x00000100
+> -#define IRQF_TIMER		0x00000200
+> +#define __IRQF_TIMER		0x00000200
+>  #define IRQF_PERCPU		0x00000400
+>  #define IRQF_NOBALANCING	0x00000800
+>  #define IRQF_IRQPOLL		0x00001000
+>  #define IRQF_ONESHOT		0x00002000
+> +#define IRQF_NO_SUSPEND		0x00004000
+> +
+> +#define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND)
+>  
+>  /*
+>   * Bits used by threaded handlers:
+> diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+> index e149748..c3003e9 100644
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+> @@ -216,7 +216,7 @@ static inline int setup_affinity(unsigned int irq, struct irq_desc *desc)
+>  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
+>  {
+>  	if (suspend) {
+> -		if (!desc->action || (desc->action->flags & IRQF_TIMER))
+> +		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
+>  			return;
+>  		desc->status |= IRQ_SUSPENDED;
+>  	}

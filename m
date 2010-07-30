@@ -1,58 +1,60 @@
 From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 06/13] IR: nec decoder: fix repeat.
-Date: Thu, 29 Jul 2010 22:50:07 -0400
-Message-ID: <1280458207.15737.75.camel@localhost>
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
+ enable  it.
+Date: Thu, 29 Jul 2010 23:46:05 -0400
+Message-ID: <1280461565.15737.124.camel@localhost>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-	 <1280456235-2024-7-git-send-email-maximlevitsky@gmail.com>
+	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
+	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:7969 "EHLO
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:50427 "EHLO
 	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755697Ab0G3Cto (ORCPT
+	by vger.kernel.org with ESMTP id S1755806Ab0G3Dpp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jul 2010 22:49:44 -0400
-In-Reply-To: <1280456235-2024-7-git-send-email-maximlevitsky@gmail.com>
+	Thu, 29 Jul 2010 23:45:45 -0400
+In-Reply-To: <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Fri, 2010-07-30 at 05:17 +0300, Maxim Levitsky wrote:
-> Repeat space is 4 units, not 8.
-> Current code would never trigger a repeat.
+On Thu, 2010-07-29 at 22:39 -0400, Jon Smirl wrote:
+> On Thu, Jul 29, 2010 at 10:17 PM, Maxim Levitsky
+> <maximlevitsky@gmail.com> wrote:
+> > note that error_adjustment module option is added.
+> > This allows to reduce input samples by a percent.
+> > This makes input on my system more correct.
+> >
+> > Default is 4% as it works best here.
+> >
+> > Note that only normal input is adjusted. I don't know
+> > what adjustments to apply to fan tachometer input.
+> > Maybe it is accurate already.
+> 
+> Do you have the manual for the ENE chip in English? or do you read Chinese?
 
+The datasheet for a similar chip, the KB3700, is out there in English,
+but it doesn't have CIR.
 
-Yup.  Page 11, line (4)
+You might find these links mildly interesting:
 
-http://www.datasheetcatalog.org/datasheet/nec/UPD6122G-002.pdf
-
-Reviewed-by: Andy Walls <awalls@md.metrocast.net>
+http://www.coreboot.org/Embedded_controller
+http://wiki.laptop.org/go/Embedded_controller
+http://lists.laptop.org/pipermail/openec/2008-July/000108.html
 
 Regards,
 Andy
 
-> However that isn't true for NECX, so repeat there
-> must be handled differently.
+> Maybe you can figure out why the readings are off by 4%. I suspect
+> that someone has set a clock divider wrong when programming the chip.
+> For example setting the divider for a 25Mhz clock when the clock is
+> actually 26Mhz would cause the error you are seeing. Or they just made
+> a mistake in computing the divisor. It is probably a bug in the BIOS
+> of your laptop.  If that's the case you could add a quirk in the
+> system boot code to fix the register setting.
 > 
-> Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-> ---
->  drivers/media/IR/ir-nec-decoder.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/media/IR/ir-nec-decoder.c b/drivers/media/IR/ir-nec-decoder.c
-> index 52e0f37..1c0cf03 100644
-> --- a/drivers/media/IR/ir-nec-decoder.c
-> +++ b/drivers/media/IR/ir-nec-decoder.c
-> @@ -20,7 +20,7 @@
->  #define NEC_HEADER_PULSE	(16 * NEC_UNIT)
->  #define NECX_HEADER_PULSE	(8  * NEC_UNIT) /* Less common NEC variant */
->  #define NEC_HEADER_SPACE	(8  * NEC_UNIT)
-> -#define NEC_REPEAT_SPACE	(8  * NEC_UNIT)
-> +#define NEC_REPEAT_SPACE	(4  * NEC_UNIT)
->  #define NEC_BIT_PULSE		(1  * NEC_UNIT)
->  #define NEC_BIT_0_SPACE		(1  * NEC_UNIT)
->  #define NEC_BIT_1_SPACE		(3  * NEC_UNIT)
 
 

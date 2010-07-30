@@ -1,117 +1,191 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
- enable  it.
-Date: Fri, 30 Jul 2010 15:45:11 +0300
-Message-ID: <1280493911.22296.5.camel@maxim-laptop>
-References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
-	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
-	 <1280461565.15737.124.camel@localhost>
-	 <1280489761.3646.3.camel@maxim-laptop>
-	 <AANLkTimqi+DwXUKxBkfkLVnvS4ONRT461CcRLk3F9ojX@mail.gmail.com>
-	 <1280490865.21345.0.camel@maxim-laptop>
-	 <AANLkTikMkWt9bnY58tOneydJNHi1PZO5DsQbwuucJcrO@mail.gmail.com>
-	 <AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Fwd: [RFC] [PATCH] Input: ADP5588 - Support gpio function on
+ unused pin
+Date: Fri, 30 Jul 2010 10:08:54 -0700
+Message-ID: <20100730170854.GA22450@core.coreip.homeip.net>
+References: <4c459b70.0aee8c0a.1c29.3e9e@mx.google.com>
+ <4C4DADA7.9000201@gmail.com>
+ <20100726173844.GC14609@core.coreip.homeip.net>
+ <AANLkTi=qHUknGZdoj75Nr9gCKe-TRPMf3cgtsHejSrOc@mail.gmail.com>
+ <544AC56F16B56944AEC3BD4E3D5917712E7EC2301D@LIMKCMBX1.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Andy Walls <awalls@md.metrocast.net>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:36028 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751921Ab0G3RJD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Jul 2010 13:09:03 -0400
+Received: by pvc7 with SMTP id 7so617117pvc.19
+        for <linux-input@vger.kernel.org>; Fri, 30 Jul 2010 10:09:01 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <544AC56F16B56944AEC3BD4E3D5917712E7EC2301D@LIMKCMBX1.ad.analog.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: Xiaolong Chen <xiaolong.chen@gmail.com>, "david-b@pacbell.net" <david-b@pacbell.net>, Michael Hennerich <hennerich@blackfin.uclinux.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, TAO HU <taohu@motorola.com>, "Yuan.Bo YE" <yuan-bo.ye@motorola.com>, Xiaolong CHEN <a21785@motorola.com>, uclinux-dist-devel <uclinux-dist-devel@blackfin.uclinux.org>
 
-On Fri, 2010-07-30 at 08:07 -0400, Jon Smirl wrote: 
-> On Fri, Jul 30, 2010 at 8:02 AM, Jon Smirl <jonsmirl@gmail.com> wrote:
-> > On Fri, Jul 30, 2010 at 7:54 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> >> On Fri, 2010-07-30 at 07:51 -0400, Jon Smirl wrote:
-> >>> On Fri, Jul 30, 2010 at 7:36 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
-> >>> > On Thu, 2010-07-29 at 23:46 -0400, Andy Walls wrote:
-> >>> >> On Thu, 2010-07-29 at 22:39 -0400, Jon Smirl wrote:
-> >>> >> > On Thu, Jul 29, 2010 at 10:17 PM, Maxim Levitsky
-> >>> >> > <maximlevitsky@gmail.com> wrote:
-> >>> >> > > note that error_adjustment module option is added.
-> >>> >> > > This allows to reduce input samples by a percent.
-> >>> >> > > This makes input on my system more correct.
-> >>> >> > >
-> >>> >> > > Default is 4% as it works best here.
-> >>> >> > >
-> >>> >> > > Note that only normal input is adjusted. I don't know
-> >>> >> > > what adjustments to apply to fan tachometer input.
-> >>> >> > > Maybe it is accurate already.
-> >>> >> >
-> >>> >> > Do you have the manual for the ENE chip in English? or do you read Chinese?
-> >>> >>
-> >>> >> The datasheet for a similar chip, the KB3700, is out there in English,
-> >>> >> but it doesn't have CIR.
-> >>> >>
-> >>> >> You might find these links mildly interesting:
-> >>> >>
-> >>> >> http://www.coreboot.org/Embedded_controller
-> >>> >> http://wiki.laptop.org/go/Embedded_controller
-> >>> >> http://lists.laptop.org/pipermail/openec/2008-July/000108.html
-> >>> >
-> >>> > Nope, I have read that.
-> >>> >>
-> >>> >> Regards,
-> >>> >> Andy
-> >>> >>
-> >>> >> > Maybe you can figure out why the readings are off by 4%. I suspect
-> >>> >> > that someone has set a clock divider wrong when programming the chip.
-> >>> >> > For example setting the divider for a 25Mhz clock when the clock is
-> >>> >> > actually 26Mhz would cause the error you are seeing. Or they just made
-> >>> >> > a mistake in computing the divisor. It is probably a bug in the BIOS
-> >>> >> > of your laptop.  If that's the case you could add a quirk in the
-> >>> >> > system boot code to fix the register setting.
-> >>> >
-> >>> > I figured out how windows driver compensates for the offset, and do the
-> >>> > same in my driver. I think the problem is solved.
-> >>> >
-> >>>
-> >>> Should that be a <= or >= instead of !=?
-> >>> +       if (pll_freq != 1000)
-> >>
-> >> This is how its done in windows driver.
-> >
-> > That doesn't mean it is bug free.
+Hi Michael,
 
-This PLL frequency is likely to be chip internal frequency.
-And windows driver doesn't touch it.
-Its embedded controller, so I don't want to touch things I am not sure
-about.
-
-> >
-> > Experimenting with changing the PLL frequency register may correct the
-> > error.  Try taking 96% of pll_freq and write it back into these
-> > register. This would be easy to fix with a manual. The root problem is
-> > almost certainly a bug in the way the PLLs were programmed.
-> >
-> > I don't like putting in fudge factors like the 4% correction. What
-> > happens if a later version of the hardware has fixed firmware? I
-> > normal user is never going to figure out that they need to change the
-> > fudge factor.
-I don't think that is a hardware bug, rather a limitation.
-
-Lets leave it as is.
-I will soon publish the driver on launchpad or something like that and
-try to contact users I debugged that driver with, and then see what
-ranges PLL register takes.
-
-
-
-> >
-> > +       pll_freq = (ene_hw_read_reg(dev, ENE_PLLFRH) << 4) +
-> > +               (ene_hw_read_reg(dev, ENE_PLLFRL) >> 2);
+On Fri, Jul 30, 2010 at 09:29:36AM +0100, Hennerich, Michael wrote:
+> Hi Dmitry,
 > 
-
-
-> I can understand the shift of the high bits, but that shift of the low
-> bits is unlikely.  A manual would tell us if it is right.
+> I took a look at the driver in your next tree.
 > 
-This shift is correct (according to datasheet, which contains mostly
-useless info, but it does dociment this reg briefly.)
+> Two issues:
+> -Avoid NULL pointer dereference in adp5588_gpio_add(),
+> set clientdata before call to adp5588_gpio_add().
+
+Ah, I see. However, now that you pointed this out, I do not like that
+we pass 'struct dev ice *' and use dev_get_drvdata() when adding and
+removing gpios. I'd rather pass keypad structre there, as in the patch
+below. What do you think?
+
+-- 
+Dmitry
 
 
-Best regards,
-Maxim Levitsky
+Input: adp5588-keypad - fix NULL dereference in adp5588_gpio_add()
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+The kpad structure is assigned to i2c client via i2s_set_clientdata()
+at the end of adp5588_probe(), but in adp5588_gpio_add() we tried to
+access it (via dev_get_drvdata! which is not nice at all) causing an
+oops.
+
+Let's pass pointer to kpad directly into adp5588_gpio_add() and
+adp5588_gpio_remove() to avoid accessing driver data before it is
+set up.
+
+Also split out building of gpiomap into a separate function to
+clear the logic.
+
+Reported-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/keyboard/adp5588-keys.c |   64 ++++++++++++++++++---------------
+ 1 files changed, 35 insertions(+), 29 deletions(-)
+
+
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index c39ec93..4208ff5 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -173,41 +173,47 @@ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
+ 	return ret;
+ }
+ 
+-static int __devinit adp5588_gpio_add(struct device *dev)
++static int __devinit adp5588_build_gpiomap(struct adp5588_kpad *kpad,
++				const struct adp5588_kpad_platform_data *pdata)
+ {
+-	struct adp5588_kpad *kpad = dev_get_drvdata(dev);
+-	const struct adp5588_kpad_platform_data *pdata = dev->platform_data;
+-	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+-	int i, error;
++	bool pin_used[MAXGPIO];
++	int n_unused = 0;
++	int i;
+ 
+-	if (gpio_data) {
+-		int j = 0;
+-		bool pin_used[MAXGPIO];
++	for (i = 0; i < pdata->rows; i++)
++		pin_used[i] = true;
+ 
+-		for (i = 0; i < pdata->rows; i++)
+-			pin_used[i] = true;
++	for (i = 0; i < pdata->cols; i++)
++		pin_used[i + GPI_PIN_COL_BASE - GPI_PIN_BASE] = true;
+ 
+-		for (i = 0; i < pdata->cols; i++)
+-			pin_used[i + GPI_PIN_COL_BASE - GPI_PIN_BASE] = true;
++	for (i = 0; i < kpad->gpimapsize; i++)
++		pin_used[kpad->gpimap[i].pin - GPI_PIN_BASE] = true;
+ 
+-		for (i = 0; i < kpad->gpimapsize; i++)
+-			pin_used[kpad->gpimap[i].pin - GPI_PIN_BASE] = true;
++	for (i = 0; i < MAXGPIO; i++)
++		if (!pin_used[i])
++			kpad->gpiomap[n_unused++] = i;
+ 
+-		for (i = 0; i < MAXGPIO; i++) {
+-			if (!pin_used[i])
+-				kpad->gpiomap[j++] = i;
+-		}
+-		kpad->gc.ngpio = j;
++	return n_unused;
++}
+ 
+-		if (kpad->gc.ngpio)
+-			kpad->export_gpio = true;
+-	}
++static int __devinit adp5588_gpio_add(struct adp5588_kpad *kpad)
++{
++	struct device *dev = &kpad->client->dev;
++	const struct adp5588_kpad_platform_data *pdata = dev->platform_data;
++	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
++	int i, error;
+ 
+-	if (!kpad->export_gpio) {
++	if (!gpio_data)
++		return 0;
++
++	kpad->gc.ngpio = adp5588_build_gpiomap(kpad, pdata);
++	if (kpad->gc.ngpio == 0) {
+ 		dev_info(dev, "No unused gpios left to export\n");
+ 		return 0;
+ 	}
+ 
++	kpad->export_gpio = true;
++
+ 	kpad->gc.direction_input = adp5588_gpio_direction_input;
+ 	kpad->gc.direction_output = adp5588_gpio_direction_output;
+ 	kpad->gc.get = adp5588_gpio_get_value;
+@@ -243,9 +249,9 @@ static int __devinit adp5588_gpio_add(struct device *dev)
+ 	return 0;
+ }
+ 
+-static void __devexit adp5588_gpio_remove(struct device *dev)
++static void __devexit adp5588_gpio_remove(struct adp5588_kpad *kpad)
+ {
+-	struct adp5588_kpad *kpad = dev_get_drvdata(dev);
++	struct device *dev = &kpad->client->dev;
+ 	const struct adp5588_kpad_platform_data *pdata = dev->platform_data;
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int error;
+@@ -266,12 +272,12 @@ static void __devexit adp5588_gpio_remove(struct device *dev)
+ 		dev_warn(dev, "gpiochip_remove failed %d\n", error);
+ }
+ #else
+-static inline int adp5588_gpio_add(struct device *dev)
++static inline int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ {
+ 	return 0;
+ }
+ 
+-static inline void adp5588_gpio_remove(struct device *dev)
++static inline void adp5588_gpio_remove(struct adp5588_kpad *kpad)
+ {
+ }
+ #endif
+@@ -581,7 +587,7 @@ static int __devinit adp5588_probe(struct i2c_client *client,
+ 	if (kpad->gpimapsize)
+ 		adp5588_report_switch_state(kpad);
+ 
+-	error = adp5588_gpio_add(&client->dev);
++	error = adp5588_gpio_add(kpad);
+ 	if (error)
+ 		goto err_free_irq;
+ 
+@@ -611,7 +617,7 @@ static int __devexit adp5588_remove(struct i2c_client *client)
+ 	free_irq(client->irq, kpad);
+ 	cancel_delayed_work_sync(&kpad->work);
+ 	input_unregister_device(kpad->input);
+-	adp5588_gpio_remove(&client->dev);
++	adp5588_gpio_remove(kpad);
+ 	kfree(kpad);
+ 
+ 	return 0;

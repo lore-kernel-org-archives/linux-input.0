@@ -1,34 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Marek Vasut <marek.vasut@gmail.com>
 Subject: Re: [PATCH] Input: Make ADS7846 independent on regulator
-Date: Fri, 30 Jul 2010 23:33:29 -0700
-Message-ID: <20100731063329.GA23620@core.coreip.homeip.net>
-References: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com>
+Date: Sat, 31 Jul 2010 09:03:52 +0200
+Message-ID: <201007310903.52921.marek.vasut@gmail.com>
+References: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com> <20100731063329.GA23620@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:36027 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755151Ab0GaGdf (ORCPT
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:53738 "EHLO
+	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751161Ab0GaHEM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 02:33:35 -0400
-Content-Disposition: inline
-In-Reply-To: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com>
+	Sat, 31 Jul 2010 03:04:12 -0400
+In-Reply-To: <20100731063329.GA23620@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com
 
-Hi Marek,
+Dne So 31. =C4=8Dervence 2010 08:33:29 Dmitry Torokhov napsal(a):
+> Hi Marek,
+>=20
+> On Sat, Jul 31, 2010 at 07:45:08AM +0200, Marek Vasut wrote:
+> > In case regulator was not found, ADS7846 failed to probe.
+> >=20
+> > This fixes a problem on some Sharp Zaurus devices, where there is n=
+o
+> > regulator present and yet the touchscreen is used.
+>=20
+> Too many ifdefs to my taste... Can we have ads7846_regulator_enable()
+> and friends stubbed out in case !CONFIG_REGULATOR?
 
-On Sat, Jul 31, 2010 at 07:45:08AM +0200, Marek Vasut wrote:
-> In case regulator was not found, ADS7846 failed to probe.
-> 
-> This fixes a problem on some Sharp Zaurus devices, where there is no regulator
-> present and yet the touchscreen is used.
-> 
+Hi,
 
-Too many ifdefs to my taste... Can we have ads7846_regulator_enable()
-and friends stubbed out in case !CONFIG_REGULATOR?
+I believe you should ask the regulator guys about these. We can certain=
+ly just=20
+remove the ifdefs (I was thinking about it, because it poluted the code=
+ quality=20
+quite a bit). Just removing the ifdefs shouldn't cause any harm.
 
--- 
-Dmitry
+Cheers
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

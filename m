@@ -1,43 +1,78 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
-Date: Sat, 31 Jul 2010 14:49:07 +0200
-Message-ID: <4C541BC3.9000100@euromail.se>
-References: <4C1FD2B0.1080504@tudelft.nl> <4C1FD454.4050807@tudelft.nl> <20100721033655.GA9070@core.coreip.homeip.net> <4C532009.4020103@tudelft.nl> <4C533DC3.9070001@euromail.se> <4C53471A.9080001@tudelft.nl> <4C53ECB4.2080700@euromail.se> <20100731093312.GA3461@core.coreip.homeip.net>
+From: Mauro Carvalho Chehab <mchehab@redhat.com>
+Subject: Re: Handling of large keycodes
+Date: Sat, 31 Jul 2010 10:23:45 -0300
+Message-ID: <4C5423E1.30805@redhat.com>
+References: <20100731091936.GA22253@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:53096 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751938Ab0GaMtf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 08:49:35 -0400
-In-Reply-To: <20100731093312.GA3461@core.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20100731091936.GA22253@core.coreip.homeip.net>
+Sender: linux-media-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+List-Id: linux-input@vger.kernel.org
 
-On 07/31/2010 11:33 AM, Dmitry Torokhov wrote:
-[...]
+Hi Dmitry,
 
->> This sounds like a misunderstanding. To rephrase: the suggestion is to always
->> send the last known one-finger touch point, and to update that point only when
->> there is a single finger on the pad.
->>
+Em 31-07-2010 06:19, Dmitry Torokhov escreveu:
+> Hi Mauro,
 > 
-> This would break two-finger scrolling mode of synaptics X driver.
+> I finally got a chance to review the patches adding handling of large
+> scancodes to input core and there are a few things with this approach
+> that I do not like.
 
+Thanks for the review!
 
-I envision synaptics being MT-aware at some point, but alright, the idea is too
-radical at this stage.
+> First of all I do not think that we should be working with scancode via
+> a pointer as it requires additional compat handling when running 32-bit
+> userspace on 64-bit kernel. We can use a static buffer of sufficient
+> size (lets say 32 bytes) to move scancode around and simply increase its
+> size if we come upon device that uses even bigger scancodes. As long as
+> buffer is at the end we can handle this in a compatible way.
 
-Back to the original problem. When adding the second finger, the first finger
-will actually be in one of the four corners of the detected rectangle, correct?
-So how about keeping as a state what corner of the rectangle represents the
-original touch, and continue to report that corner as ABS_X/Y during a
-two-finger touch?
+Yes, this is the downside of using a pointer. I'm not aware of a Remote
+Controller protocol using more than 256 bits for scancode, so 32 bits
+should be ok.
+
+> The other issue is that interface is notsymmetrical, setting is done by
+> scancode but retrieval is done by index. I think we should be able to
+> use both scancode and index in both operations.
+
+Yes, this also bothered me. I was thinking to do something similar to your
+approach of having a bool to select between them. This change is welcome.
+
+> The usefulnes of reserved data elements in the structure is doubtful,
+> since we do not seem to require them being set to a particular value and
+> so we'll be unable to distinguish betwee legacy and newer users.
+
+David proposed some parameters that we rejected on our discussions. As we
+might need to add something similar, I decided to keep it on my approach,
+since a set of reserved fields wouldn't hurt (and removing it on our discussions
+would be easy), but I'm ok on removing them.
+
+> I also concerned about the code very messy with regard to using old/new
+> style interfaces instea dof converting old ones to use new
+> insfrastructure,
+
+Good cleanup at the code!
+
+> I below is something that addresses these issues and seems to be working
+> for me. It is on top of your patches and it also depends on a few
+> changes in my tree that I have not publushed yet but plan on doing that
+> tomorrow. I am also attaching patches converting sparse keymap and hid
+> to the new style of getkeycode and setkeycode as examples.
+> 
+> Please take a look and let me know if I missed something important.
+
+It seems to work for me. After you add the patches on your git tree, I'll 
+work on porting the RC core to the new approach, and change the ir-keycode
+userspace program to work with, in order to be 100% sure that it will work, 
+but I can't foresee any missing part on it.
+
+Currently, I'm not using my input patches, as I was waiting for your
+review. I just patched the userspace application, in order to test the legacy
+mode.
 
 Cheers,
-Henrik
-
+Mauro

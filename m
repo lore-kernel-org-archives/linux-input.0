@@ -1,124 +1,107 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
- enable  it.
-Date: Sat, 31 Jul 2010 11:12:33 -0400
-Message-ID: <1280589153.2473.78.camel@localhost>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and enable
+	it.
+Date: Sat, 31 Jul 2010 12:25:22 -0400
+Message-ID: <AANLkTimaut1mMUXwbJAgjNjmQkxgsf-GOCTXmKYNm1Lz@mail.gmail.com>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
-	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
-	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
-	 <1280461565.15737.124.camel@localhost>
-	 <1280489761.3646.3.camel@maxim-laptop>
-	 <AANLkTimqi+DwXUKxBkfkLVnvS4ONRT461CcRLk3F9ojX@mail.gmail.com>
-	 <1280490865.21345.0.camel@maxim-laptop>
-	 <AANLkTikMkWt9bnY58tOneydJNHi1PZO5DsQbwuucJcrO@mail.gmail.com>
-	 <AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
-	 <1280493911.22296.5.camel@maxim-laptop>
+	<1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
+	<AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
+	<1280461565.15737.124.camel@localhost>
+	<1280489761.3646.3.camel@maxim-laptop>
+	<AANLkTimqi+DwXUKxBkfkLVnvS4ONRT461CcRLk3F9ojX@mail.gmail.com>
+	<1280490865.21345.0.camel@maxim-laptop>
+	<AANLkTikMkWt9bnY58tOneydJNHi1PZO5DsQbwuucJcrO@mail.gmail.com>
+	<AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
+	<1280493911.22296.5.camel@maxim-laptop>
+	<1280589153.2473.78.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:48208 "EHLO
-	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756014Ab0GaPMR (ORCPT
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:49936 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751829Ab0GaQZX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 11:12:17 -0400
-In-Reply-To: <1280493911.22296.5.camel@maxim-laptop>
+	Sat, 31 Jul 2010 12:25:23 -0400
+In-Reply-To: <1280589153.2473.78.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Maxim Levitsky <maximlevitsky@gmail.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-On Fri, 2010-07-30 at 15:45 +0300, Maxim Levitsky wrote:
-> On Fri, 2010-07-30 at 08:07 -0400, Jon Smirl wrote: 
-> > On Fri, Jul 30, 2010 at 8:02 AM, Jon Smirl <jonsmirl@gmail.com> wrote:
+On Sat, Jul 31, 2010 at 11:12 AM, Andy Walls <awalls@md.metrocast.net> =
+wrote:
+> I think you won't be able to fix the problem conclusively either way.=
+ =A0A
+> lot of how the chip's clocks should be programmed depends on how the
+> GPIOs are used and what crystal is used.
+>
+> I suspect many designers will use some reference design layout from E=
+NE,
+> but it won't be good in every case. =A0The wire-up of the ENE of vari=
+ous
+> motherboards is likely something you'll have to live with as unknowns=
+=2E
+>
+> This is a case where looser tolerances in the in kernel decoders coul=
+d
+> reduce this driver's complexity and/or get rid of arbitrary fudge
+> factors in the driver.
 
-> > >>> >
-> > >>>
-> > >>> Should that be a <= or >= instead of !=?
-> > >>> +       if (pll_freq != 1000)
-> > >>
-> > >> This is how its done in windows driver.
-> > >
-> > > That doesn't mean it is bug free.
-> 
-> This PLL frequency is likely to be chip internal frequency.
-> And windows driver doesn't touch it.
-> Its embedded controller, so I don't want to touch things I am not sure
-> about.
+The tolerances are as loose as they can be. The NEC protocol uses
+pulses that are 4% longer than JVC. The decoders allow errors up to 2%
+(50% of 4%).  The crystals used in electronics are accurate to
+0.0001%+.  The 4% error in this driver is because the hardware is not
+being programmed accurately. This needs to be fixed in the driver and
+not in the upper layers.
 
+How is sample period being computed, where is the complete source to
+this driver?
 
-The KB3700 datasheet states there are 4 clock domains in the chip.
+       dev->tx_period =3D 32;
 
-One of the clock domains is a PLL LOW domain, used to clock
-miscellaneous peripherials (which probably includes CIR on similar
-chips).   The defualt for this clock appears to be 32.768 kHz clock
-derived from a 32.768 MHz clock from which a 32.768 kHz clock is
-derived.  It seems to be set up in the EC (ACPI 2.0 Embedded Controller)
-register bank of the KB3700 chip.
+Where is sample_period computed?
 
-That 1000 (0x3e8) is the default divider value to go from 32.768 MHz to
-32.768 kHz.  I suspect it could be off by one - 0x3e7 might be the right
-value - but that is only a 30 ns difference in the 30 us clock period.
+@@ -672,13 +583,25 @@ static irqreturn_t ene_isr(int irq, void *data)
+                       pulse =3D !(hw_value & ENE_SAMPLE_SPC_MASK);
+                       hw_value &=3D ENE_SAMPLE_VALUE_MASK;
+                       hw_sample =3D hw_value * sample_period;
++
++                       if (dev->rx_period_adjust) {
++                               hw_sample *=3D (100 - dev->rx_period_ad=
+just);
++                               hw_sample /=3D 100;
++                       }
+               }
 
+I suspect sample_period is set to 32us. For 32.768Mhz the period needs
+to be 30.5us. I don't see the code for how it was computed.
 
-So the check for 1000 by the Windows driver is likely a check for the
-chip being in it's default configuration.  Looking at the CLKCFG2
-register, the PLL can apparently output a 25 MHz clock instead of a
-32.768 MHz clock.
+You have to be careful with rounding errors when doing this type of
+computation. What looks like a minor error can amplify into a large
+error. Sometimes I do the math in 64b ints just to keep the round off
+errors from accumulating.  Instead of doing the math in calculator and
+plugging in 32. Use #defines and do the math in the code.
 
-While I'm looking at CLKCFG2, I note the default divider value of 0x1f
-(31) for 1000 ns is wrong as well:
+Maybe something like
+#define sample_period  (1 / (32768 * 1000))
 
-	32 / 32.768 MHz ~= 977 ns = 0.977 us   (-2.3%)
+Then don't store this constant in a variable since it will cause a
+round off. Just use it directly in the computation.
 
-where as
-
-	33 / 32.768 MHz ~= 1007 ns = 1.007 us  (+0.7%)
-
-so the CLKCFG2 register programmed with 0x20 (32) would a better divisor
-for a 1 us time period, if the functions in the chip can tolerate being
-a little late vs. early.
-
-I also read that the PLL reference comes from the LPC portion of the
-chip which is the PCI clock domain.  So if a 33 MHz reference is used
-instead of 32.768 MHz, then the default CLKCFG2 value yields this for a
-nominal 1 us:
-
-	32 / 33.333 MHz ~= 960 ns = 0.960 us   (-4.0%)
- 
+>
+> Regards,
+> Andy
+>
+>
 
 
 
-
-
-> > > Experimenting with changing the PLL frequency register may correct the
-> > > error.  Try taking 96% of pll_freq and write it back into these
-> > > register. This would be easy to fix with a manual. The root problem is
-> > > almost certainly a bug in the way the PLLs were programmed.
-> > >
-> > > I don't like putting in fudge factors like the 4% correction. What
-> > > happens if a later version of the hardware has fixed firmware? I
-> > > normal user is never going to figure out that they need to change the
-> > > fudge factor.
-> I don't think that is a hardware bug, rather a limitation.
-> 
-> Lets leave it as is.
-> I will soon publish the driver on launchpad or something like that and
-> try to contact users I debugged that driver with, and then see what
-> ranges PLL register takes.
-
-I think you won't be able to fix the problem conclusively either way.  A
-lot of how the chip's clocks should be programmed depends on how the
-GPIOs are used and what crystal is used.
-
-I suspect many designers will use some reference design layout from ENE,
-but it won't be good in every case.  The wire-up of the ENE of various
-motherboards is likely something you'll have to live with as unknowns.
-
-This is a case where looser tolerances in the in kernel decoders could
-reduce this driver's complexity and/or get rid of arbitrary fudge
-factors in the driver.
-
-Regards,
-Andy
-
+--=20
+Jon Smirl
+jonsmirl@gmail.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

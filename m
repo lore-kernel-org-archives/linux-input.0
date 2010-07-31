@@ -1,181 +1,124 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: [PATCH 08/13] IR: Allow not to compile keymaps in.
-Date: Sat, 31 Jul 2010 17:59:21 +0300
-Message-ID: <1280588366-26101-9-git-send-email-maximlevitsky@gmail.com>
-References: <1280588366-26101-1-git-send-email-maximlevitsky@gmail.com>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
+ enable  it.
+Date: Sat, 31 Jul 2010 11:12:33 -0400
+Message-ID: <1280589153.2473.78.camel@localhost>
+References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
+	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
+	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
+	 <1280461565.15737.124.camel@localhost>
+	 <1280489761.3646.3.camel@maxim-laptop>
+	 <AANLkTimqi+DwXUKxBkfkLVnvS4ONRT461CcRLk3F9ojX@mail.gmail.com>
+	 <1280490865.21345.0.camel@maxim-laptop>
+	 <AANLkTikMkWt9bnY58tOneydJNHi1PZO5DsQbwuucJcrO@mail.gmail.com>
+	 <AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
+	 <1280493911.22296.5.camel@maxim-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:55010 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756043Ab0GaO7u (ORCPT
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:48208 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756014Ab0GaPMR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 10:59:50 -0400
-In-Reply-To: <1280588366-26101-1-git-send-email-maximlevitsky@gmail.com>
+	Sat, 31 Jul 2010 11:12:17 -0400
+In-Reply-To: <1280493911.22296.5.camel@maxim-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: lirc-list@lists.sourceforge.net
-Cc: Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, Maxim Levitsky <maximlevitsky@gmail.com>
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Currently, ir device registration fails if keymap requested by driver is not found.
-Fix that by always compiling in the empty keymap, and using it as a failback.
+On Fri, 2010-07-30 at 15:45 +0300, Maxim Levitsky wrote:
+> On Fri, 2010-07-30 at 08:07 -0400, Jon Smirl wrote: 
+> > On Fri, Jul 30, 2010 at 8:02 AM, Jon Smirl <jonsmirl@gmail.com> wrote:
 
-Signed-off-by: Maxim Levitsky <maximlevitsky@gmail.com>
-Acked-by: Jarod Wilson <jarod@redhat.com>
----
- drivers/media/IR/ir-core-priv.h     |    3 +-
- drivers/media/IR/ir-sysfs.c         |    2 +
- drivers/media/IR/keymaps/Makefile   |    1 -
- drivers/media/IR/keymaps/rc-empty.c |   44 -----------------------------------
- drivers/media/IR/rc-map.c           |   23 ++++++++++++++++++
- include/media/ir-core.h             |    8 ++++-
- 6 files changed, 33 insertions(+), 48 deletions(-)
- delete mode 100644 drivers/media/IR/keymaps/rc-empty.c
+> > >>> >
+> > >>>
+> > >>> Should that be a <= or >= instead of !=?
+> > >>> +       if (pll_freq != 1000)
+> > >>
+> > >> This is how its done in windows driver.
+> > >
+> > > That doesn't mean it is bug free.
+> 
+> This PLL frequency is likely to be chip internal frequency.
+> And windows driver doesn't touch it.
+> Its embedded controller, so I don't want to touch things I am not sure
+> about.
 
-diff --git a/drivers/media/IR/ir-core-priv.h b/drivers/media/IR/ir-core-priv.h
-index 502d477..be68172 100644
---- a/drivers/media/IR/ir-core-priv.h
-+++ b/drivers/media/IR/ir-core-priv.h
-@@ -126,7 +126,8 @@ int ir_raw_handler_register(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_handler_unregister(struct ir_raw_handler *ir_raw_handler);
- void ir_raw_init(void);
+
+The KB3700 datasheet states there are 4 clock domains in the chip.
+
+One of the clock domains is a PLL LOW domain, used to clock
+miscellaneous peripherials (which probably includes CIR on similar
+chips).   The defualt for this clock appears to be 32.768 kHz clock
+derived from a 32.768 MHz clock from which a 32.768 kHz clock is
+derived.  It seems to be set up in the EC (ACPI 2.0 Embedded Controller)
+register bank of the KB3700 chip.
+
+That 1000 (0x3e8) is the default divider value to go from 32.768 MHz to
+32.768 kHz.  I suspect it could be off by one - 0x3e7 might be the right
+value - but that is only a 30 ns difference in the 30 us clock period.
+
+
+So the check for 1000 by the Windows driver is likely a check for the
+chip being in it's default configuration.  Looking at the CLKCFG2
+register, the PLL can apparently output a 25 MHz clock instead of a
+32.768 MHz clock.
+
+While I'm looking at CLKCFG2, I note the default divider value of 0x1f
+(31) for 1000 ns is wrong as well:
+
+	32 / 32.768 MHz ~= 977 ns = 0.977 us   (-2.3%)
+
+where as
+
+	33 / 32.768 MHz ~= 1007 ns = 1.007 us  (+0.7%)
+
+so the CLKCFG2 register programmed with 0x20 (32) would a better divisor
+for a 1 us time period, if the functions in the chip can tolerate being
+a little late vs. early.
+
+I also read that the PLL reference comes from the LPC portion of the
+chip which is the PCI clock domain.  So if a 33 MHz reference is used
+instead of 32.768 MHz, then the default CLKCFG2 value yields this for a
+nominal 1 us:
+
+	32 / 33.333 MHz ~= 960 ns = 0.960 us   (-4.0%)
  
--
-+int ir_rcmap_init(void);
-+void ir_rcmap_cleanup(void);
- /*
-  * Decoder initialization code
-  *
-diff --git a/drivers/media/IR/ir-sysfs.c b/drivers/media/IR/ir-sysfs.c
-index a841e51..936dff8 100644
---- a/drivers/media/IR/ir-sysfs.c
-+++ b/drivers/media/IR/ir-sysfs.c
-@@ -341,6 +341,7 @@ static int __init ir_core_init(void)
- 
- 	/* Initialize/load the decoders/keymap code that will be used */
- 	ir_raw_init();
-+	ir_rcmap_init();
- 
- 	return 0;
- }
-@@ -348,6 +349,7 @@ static int __init ir_core_init(void)
- static void __exit ir_core_exit(void)
- {
- 	class_unregister(&ir_input_class);
-+	ir_rcmap_cleanup();
- }
- 
- module_init(ir_core_init);
-diff --git a/drivers/media/IR/keymaps/Makefile b/drivers/media/IR/keymaps/Makefile
-index 86d3d1f..24992cd 100644
---- a/drivers/media/IR/keymaps/Makefile
-+++ b/drivers/media/IR/keymaps/Makefile
-@@ -17,7 +17,6 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t-pci.o \
- 			rc-dm1105-nec.o \
- 			rc-dntv-live-dvb-t.o \
- 			rc-dntv-live-dvbt-pro.o \
--			rc-empty.o \
- 			rc-em-terratec.o \
- 			rc-encore-enltv2.o \
- 			rc-encore-enltv.o \
-diff --git a/drivers/media/IR/keymaps/rc-empty.c b/drivers/media/IR/keymaps/rc-empty.c
-deleted file mode 100644
-index 3b338d8..0000000
---- a/drivers/media/IR/keymaps/rc-empty.c
-+++ /dev/null
-@@ -1,44 +0,0 @@
--/* empty.h - Keytable for empty Remote Controller
-- *
-- * keymap imported from ir-keymaps.c
-- *
-- * Copyright (c) 2010 by Mauro Carvalho Chehab <mchehab@redhat.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- */
--
--#include <media/rc-map.h>
--
--/* empty keytable, can be used as placeholder for not-yet created keytables */
--
--static struct ir_scancode empty[] = {
--	{ 0x2a, KEY_COFFEE },
--};
--
--static struct rc_keymap empty_map = {
--	.map = {
--		.scan    = empty,
--		.size    = ARRAY_SIZE(empty),
--		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
--		.name    = RC_MAP_EMPTY,
--	}
--};
--
--static int __init init_rc_map_empty(void)
--{
--	return ir_register_map(&empty_map);
--}
--
--static void __exit exit_rc_map_empty(void)
--{
--	ir_unregister_map(&empty_map);
--}
--
--module_init(init_rc_map_empty)
--module_exit(exit_rc_map_empty)
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Mauro Carvalho Chehab <mchehab@redhat.com>");
-diff --git a/drivers/media/IR/rc-map.c b/drivers/media/IR/rc-map.c
-index 46a8f15..689143f 100644
---- a/drivers/media/IR/rc-map.c
-+++ b/drivers/media/IR/rc-map.c
-@@ -82,3 +82,26 @@ void ir_unregister_map(struct rc_keymap *map)
- }
- EXPORT_SYMBOL_GPL(ir_unregister_map);
- 
-+
-+static struct ir_scancode empty[] = {
-+	{ 0x2a, KEY_COFFEE },
-+};
-+
-+static struct rc_keymap empty_map = {
-+	.map = {
-+		.scan    = empty,
-+		.size    = ARRAY_SIZE(empty),
-+		.ir_type = IR_TYPE_UNKNOWN,	/* Legacy IR type */
-+		.name    = RC_MAP_EMPTY,
-+	}
-+};
-+
-+int ir_rcmap_init(void)
-+{
-+	return ir_register_map(&empty_map);
-+}
-+
-+void ir_rcmap_cleanup(void)
-+{
-+	ir_unregister_map(&empty_map);
-+}
-diff --git a/include/media/ir-core.h b/include/media/ir-core.h
-index 513e60d..197d05a 100644
---- a/include/media/ir-core.h
-+++ b/include/media/ir-core.h
-@@ -110,8 +110,12 @@ static inline int ir_input_register(struct input_dev *dev,
- 		return -EINVAL;
- 
- 	ir_codes = get_rc_map(map_name);
--	if (!ir_codes)
--		return -EINVAL;
-+	if (!ir_codes) {
-+		ir_codes = get_rc_map(RC_MAP_EMPTY);
-+
-+		if (!ir_codes)
-+			return -EINVAL;
-+	}
- 
- 	rc = __ir_input_register(dev, ir_codes, props, driver_name);
- 	if (rc < 0)
--- 
-1.7.0.4
+
+
+
+
+
+> > > Experimenting with changing the PLL frequency register may correct the
+> > > error.  Try taking 96% of pll_freq and write it back into these
+> > > register. This would be easy to fix with a manual. The root problem is
+> > > almost certainly a bug in the way the PLLs were programmed.
+> > >
+> > > I don't like putting in fudge factors like the 4% correction. What
+> > > happens if a later version of the hardware has fixed firmware? I
+> > > normal user is never going to figure out that they need to change the
+> > > fudge factor.
+> I don't think that is a hardware bug, rather a limitation.
+> 
+> Lets leave it as is.
+> I will soon publish the driver on launchpad or something like that and
+> try to contact users I debugged that driver with, and then see what
+> ranges PLL register takes.
+
+I think you won't be able to fix the problem conclusively either way.  A
+lot of how the chip's clocks should be programmed depends on how the
+GPIOs are used and what crystal is used.
+
+I suspect many designers will use some reference design layout from ENE,
+but it won't be good in every case.  The wire-up of the ENE of various
+motherboards is likely something you'll have to live with as unknowns.
+
+This is a case where looser tolerances in the in kernel decoders could
+reduce this driver's complexity and/or get rid of arbitrary fudge
+factors in the driver.
+
+Regards,
+Andy
 

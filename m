@@ -1,78 +1,56 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: Handling of large keycodes
-Date: Sat, 31 Jul 2010 10:23:45 -0300
-Message-ID: <4C5423E1.30805@redhat.com>
-References: <20100731091936.GA22253@core.coreip.homeip.net>
+From: Andy Walls <awalls@md.metrocast.net>
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
+ enable  it.
+Date: Sat, 31 Jul 2010 09:55:31 -0400
+Message-ID: <1280584531.2473.4.camel@localhost>
+References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
+	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
+	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
+	 <1280461565.15737.124.camel@localhost>
+	 <1280489761.3646.3.camel@maxim-laptop>
+	 <AANLkTimqi+DwXUKxBkfkLVnvS4ONRT461CcRLk3F9ojX@mail.gmail.com>
+	 <1280490865.21345.0.camel@maxim-laptop>
+	 <AANLkTikMkWt9bnY58tOneydJNHi1PZO5DsQbwuucJcrO@mail.gmail.com>
+	 <AANLkTi=dkyrJM_WRhQPTY1V_1YnJRwNN5RN4hGNNeZ9v@mail.gmail.com>
+	 <1280493911.22296.5.camel@maxim-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20100731091936.GA22253@core.coreip.homeip.net>
-Sender: linux-media-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:24023 "EHLO
+	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753538Ab0GaNzP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Jul 2010 09:55:15 -0400
+In-Reply-To: <1280493911.22296.5.camel@maxim-laptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxim Levitsky <maximlevitsky@gmail.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 
-Hi Dmitry,
+On Fri, 2010-07-30 at 15:45 +0300, Maxim Levitsky wrote:
+> On Fri, 2010-07-30 at 08:07 -0400, Jon Smirl wrote: 
+> > On Fri, Jul 30, 2010 at 8:02 AM, Jon Smirl <jonsmirl@gmail.com> wrote:
+> > > On Fri, Jul 30, 2010 at 7:54 AM, Maxim Levitsky <maximlevitsky@gmail.com> wrote:
 
-Em 31-07-2010 06:19, Dmitry Torokhov escreveu:
-> Hi Mauro,
 > 
-> I finally got a chance to review the patches adding handling of large
-> scancodes to input core and there are a few things with this approach
-> that I do not like.
-
-Thanks for the review!
-
-> First of all I do not think that we should be working with scancode via
-> a pointer as it requires additional compat handling when running 32-bit
-> userspace on 64-bit kernel. We can use a static buffer of sufficient
-> size (lets say 32 bytes) to move scancode around and simply increase its
-> size if we come upon device that uses even bigger scancodes. As long as
-> buffer is at the end we can handle this in a compatible way.
-
-Yes, this is the downside of using a pointer. I'm not aware of a Remote
-Controller protocol using more than 256 bits for scancode, so 32 bits
-should be ok.
-
-> The other issue is that interface is notsymmetrical, setting is done by
-> scancode but retrieval is done by index. I think we should be able to
-> use both scancode and index in both operations.
-
-Yes, this also bothered me. I was thinking to do something similar to your
-approach of having a bool to select between them. This change is welcome.
-
-> The usefulnes of reserved data elements in the structure is doubtful,
-> since we do not seem to require them being set to a particular value and
-> so we'll be unable to distinguish betwee legacy and newer users.
-
-David proposed some parameters that we rejected on our discussions. As we
-might need to add something similar, I decided to keep it on my approach,
-since a set of reserved fields wouldn't hurt (and removing it on our discussions
-would be easy), but I'm ok on removing them.
-
-> I also concerned about the code very messy with regard to using old/new
-> style interfaces instea dof converting old ones to use new
-> insfrastructure,
-
-Good cleanup at the code!
-
-> I below is something that addresses these issues and seems to be working
-> for me. It is on top of your patches and it also depends on a few
-> changes in my tree that I have not publushed yet but plan on doing that
-> tomorrow. I am also attaching patches converting sparse keymap and hid
-> to the new style of getkeycode and setkeycode as examples.
+> > >
+> > > +       pll_freq = (ene_hw_read_reg(dev, ENE_PLLFRH) << 4) +
+> > > +               (ene_hw_read_reg(dev, ENE_PLLFRL) >> 2);
+> > 
 > 
-> Please take a look and let me know if I missed something important.
+> 
+> > I can understand the shift of the high bits, but that shift of the low
+> > bits is unlikely.  A manual would tell us if it is right.
+> > 
+> This shift is correct (according to datasheet, which contains mostly
+> useless info, but it does dociment this reg briefly.)
 
-It seems to work for me. After you add the patches on your git tree, I'll 
-work on porting the RC core to the new approach, and change the ir-keycode
-userspace program to work with, in order to be 100% sure that it will work, 
-but I can't foresee any missing part on it.
+The KB3700 series datasheet indicates that the value from ENE_PLLFRL
+should be shifted by >> 4 bits, not by >> 2.  Of course, the KB3700
+isn't the exact same chip.
 
-Currently, I'm not using my input patches, as I was waiting for your
-review. I just patched the userspace application, in order to test the legacy
-mode.
+Regards,
+Andy
 
-Cheers,
-Mauro
+

@@ -1,47 +1,106 @@
 From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH] Input: Make ADS7846 independent on regulator
-Date: Sat, 31 Jul 2010 09:03:52 +0200
-Message-ID: <201007310903.52921.marek.vasut@gmail.com>
-References: <1280555108-27994-1-git-send-email-marek.vasut@gmail.com> <20100731063329.GA23620@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: [PATCH v2] Input: Make ADS7846 independent on regulator
+Date: Sat, 31 Jul 2010 09:09:42 +0200
+Message-ID: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:53738 "EHLO
+Received: from mail-fx0-f46.google.com ([209.85.161.46]:41603 "EHLO
 	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751161Ab0GaHEM convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1751161Ab0GaHKE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 03:04:12 -0400
-In-Reply-To: <20100731063329.GA23620@core.coreip.homeip.net>
+	Sat, 31 Jul 2010 03:10:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com
+To: linux-arm-kernel@lists.infradead.org
+Cc: dmitry.torokhov@gmail.com, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com, Marek Vasut <marek.vasut@gmail.com>
 
-Dne So 31. =C4=8Dervence 2010 08:33:29 Dmitry Torokhov napsal(a):
-> Hi Marek,
->=20
-> On Sat, Jul 31, 2010 at 07:45:08AM +0200, Marek Vasut wrote:
-> > In case regulator was not found, ADS7846 failed to probe.
-> >=20
-> > This fixes a problem on some Sharp Zaurus devices, where there is n=
-o
-> > regulator present and yet the touchscreen is used.
->=20
-> Too many ifdefs to my taste... Can we have ads7846_regulator_enable()
-> and friends stubbed out in case !CONFIG_REGULATOR?
+In case regulator was not found, ADS7846 failed to probe.
 
-Hi,
+This fixes a problem on some Sharp Zaurus devices, where there is no regulator
+present and the touchscreen is used.
 
-I believe you should ask the regulator guys about these. We can certain=
-ly just=20
-remove the ifdefs (I was thinking about it, because it poluted the code=
- quality=20
-quite a bit). Just removing the ifdefs shouldn't cause any harm.
+Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+---
+ drivers/input/touchscreen/ads7846.c |   38 +++++++++++++++++++---------------
+ 1 files changed, 21 insertions(+), 17 deletions(-)
 
-Cheers
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index a9fdf55..53b318b 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -791,7 +791,8 @@ static void ads7846_disable(struct ads7846 *ts)
+ 		}
+ 	}
+ 
+-	regulator_disable(ts->reg);
++	if (ts->reg)
++		regulator_disable(ts->reg);
+ 
+ 	/* we know the chip's in lowpower mode since we always
+ 	 * leave it that way after every request
+@@ -804,7 +805,8 @@ static void ads7846_enable(struct ads7846 *ts)
+ 	if (!ts->disabled)
+ 		return;
+ 
+-	regulator_enable(ts->reg);
++	if (ts->reg)
++		regulator_enable(ts->reg);
+ 
+ 	ts->disabled = 0;
+ 	ts->irq_disabled = 0;
+@@ -1162,16 +1164,15 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+ 	ts->last_msg = m;
+ 
+ 	ts->reg = regulator_get(&spi->dev, "vcc");
+-	if (IS_ERR(ts->reg)) {
+-		err = PTR_ERR(ts->reg);
+-		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
+-		goto err_free_gpio;
+-	}
+-
+-	err = regulator_enable(ts->reg);
+-	if (err) {
+-		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
+-		goto err_put_regulator;
++	if (IS_ERR(ts->reg))
++		ts->reg = NULL;
++	else {
++		err = regulator_enable(ts->reg);
++		if (err) {
++			dev_err(&spi->dev, "unable to enable regulator: %d\n",
++				err);
++			goto err_put_regulator;
++		}
+ 	}
+ 
+ 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
+@@ -1218,10 +1219,11 @@ static int __devinit ads7846_probe(struct spi_device *spi)
+  err_free_irq:
+ 	free_irq(spi->irq, ts);
+  err_disable_regulator:
+-	regulator_disable(ts->reg);
++	if (ts->reg)
++		regulator_disable(ts->reg);
+  err_put_regulator:
+-	regulator_put(ts->reg);
+- err_free_gpio:
++	if (ts->reg)
++		regulator_put(ts->reg);
+ 	if (ts->gpio_pendown != -1)
+ 		gpio_free(ts->gpio_pendown);
+  err_cleanup_filter:
+@@ -1251,8 +1253,10 @@ static int __devexit ads7846_remove(struct spi_device *spi)
+ 	/* suspend left the IRQ disabled */
+ 	enable_irq(ts->spi->irq);
+ 
+-	regulator_disable(ts->reg);
+-	regulator_put(ts->reg);
++	if (ts->reg) {
++		regulator_disable(ts->reg);
++		regulator_put(ts->reg);
++	}
+ 
+ 	if (ts->gpio_pendown != -1)
+ 		gpio_free(ts->gpio_pendown);
+-- 
+1.7.1
+

@@ -1,98 +1,74 @@
-From: Andy Walls <awalls@md.metrocast.net>
-Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
- enable  it.
-Date: Sat, 31 Jul 2010 14:51:21 -0400
-Message-ID: <1280602281.20879.76.camel@localhost>
-References: <AANLkTimaut1mMUXwbJAgjNjmQkxgsf-GOCTXmKYNm1Lz@mail.gmail.com>
-	 <BTtOJbzJjFB@christoph>
-	 <AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
+From: Chris Bagwell <chris@cnpbagwell.com>
+Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
+Date: Sat, 31 Jul 2010 14:56:24 -0500
+Message-ID: <AANLkTinNYjG8EaU_SXvWQO9_7rrp7s8T80FoP4BkN_AE@mail.gmail.com>
+References: <4C1FD2B0.1080504@tudelft.nl>
+	<4C1FD454.4050807@tudelft.nl>
+	<20100721033655.GA9070@core.coreip.homeip.net>
+	<4C532009.4020103@tudelft.nl>
+	<4C533DC3.9070001@euromail.se>
+	<4C53471A.9080001@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from proofpoint-cluster.metrocast.net ([65.175.128.136]:32140 "EHLO
-	proofpoint-cluster.metrocast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754425Ab0GaSvB (ORCPT
+Received: from mail-qy0-f181.google.com ([209.85.216.181]:57010 "EHLO
+	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756198Ab0GaT40 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 14:51:01 -0400
-In-Reply-To: <AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
+	Sat, 31 Jul 2010 15:56:26 -0400
+Received: by qyk8 with SMTP id 8so779690qyk.19
+        for <linux-input@vger.kernel.org>; Sat, 31 Jul 2010 12:56:25 -0700 (PDT)
+In-Reply-To: <4C53471A.9080001@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, maximlevitsky@gmail.com, mchehab@redhat.com
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sat, 2010-07-31 at 14:14 -0400, Jon Smirl wrote:
-> On Sat, Jul 31, 2010 at 1:47 PM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
-> > Hi Jon,
+On Fri, Jul 30, 2010 at 4:41 PM, =C9ric Piel <E.A.B.Piel@tudelft.nl> wr=
+ote:
+>
+> Op 30-07-10 23:01, Henrik Rydberg schreef:
+> > On 07/30/2010 08:55 PM, =C9ric Piel wrote:
+> :
+> >>> I am concerned what happens when you put one finger first and the=
+n add
+> >>> another one. Would not that couse the cursor to jump?
 > >
-> > on 31 Jul 10 at 12:25, Jon Smirl wrote:
-> >> On Sat, Jul 31, 2010 at 11:12 AM, Andy Walls <awalls@md.metrocast.net>
-> >> wrote:
-> >>> I think you won't be able to fix the problem conclusively either way.  A
-> >>> lot of how the chip's clocks should be programmed depends on how the
-> >>> GPIOs are used and what crystal is used.
-> >>>
-> >>> I suspect many designers will use some reference design layout from ENE,
-> >>> but it won't be good in every case.  The wire-up of the ENE of various
-> >>> motherboards is likely something you'll have to live with as unknowns.
-> >>>
-> >>> This is a case where looser tolerances in the in kernel decoders could
-> >>> reduce this driver's complexity and/or get rid of arbitrary fudge
-> >>> factors in the driver.
 > >
-> >> The tolerances are as loose as they can be. The NEC protocol uses
-> >> pulses that are 4% longer than JVC. The decoders allow errors up to 2%
-> >> (50% of 4%).  The crystals used in electronics are accurate to
-> >> 0.0001%+.
+> > I agree, I have seen this behavior before and it is not quite what =
+you want. The
+> > average point does jump.
 > >
-> > But the standard IR receivers are far from being accurate enough to allow
-> > tolerance windows of only 2%.
-> > I'm surprised that this works for you. LIRC uses a standard tolerance of
-> > 30% / 100 us and even this is not enough sometimes.
-> >
-> > For the NEC protocol one signal consists of 22 individual pulses at 38kHz.
-> > If the receiver just misses one pulse, you already have an error of 1/22
-> >> 4%.
-> 
-> There are different types of errors. The decoders can take large
-> variations in bit times. The problem is with cumulative errors. In
-> this case the error had accumulated up to 450us in the lead pulse.
-> That's just too big of an error 
 
-Hi Jon,
+This is basically same approach as what synaptics hardware is
+reporting.  Their  Synaptics PS/2 TouchPad Interfacing Guide mentions
+current hardware reports an x/y closer to first finger during multiple
+fingers and that older hardware reports a value closer to center.
+Both cases, you can see movement when either finger is moving.
 
-Hmmm.  Leader marks are, by protocol design, there to give time for the
-receiver's AGC to settle.  We should make it OK to miss somewhat large
-portions of leader marks.  I'm not sure what the harm is in accepting
-too long of a leader mark, but I'm pretty sure a leader mark that is too
-long will always be due to systematic error and not noise errors.
+There are a few existing X side bug reports I've seen related to this
+behaviour.  On newer synaptics pad its easiest to see if you touch 1st
+finger on left side of pad, 2nd finger on right side of pad, and then
+release 1st finger then you will see a big cursor jump as hardware is
+force to transition over to 2nd finger x/y (make sure 2 finger
+scrolling is disabled as that feature can fix issue).
 
-However, if we know we have systematic errors caused by unknowns, we
-should be designing and imlpementing a decoding system that reasonably
-deals with those systematic errors.  Again the part of the system almost
-completely out of our control is the remote controls, and we *have no
-control* over systematic errors introduced by remotes.
+I've seen xf86-input-synaptics patches floating around that try to
+detect jumps-because-of-averaging from the size of delta and discard
+but it is easy to be mistaken.  Probably its better to detect
+BTN_TOOL_DOUBLETAP transitions back to 0 and treating similar to both
+fingers being lifted to account for expected jump.
 
-Obviously we want to reduce or elimiinate systematic errors by
-determining the unknowns and undoing their effects or by compensating
-for their overall effect.  But in the case of the ENE receiver driver,
-you didn't seem to like the Maxim's software compensation for the
-systematic receiver errors.
+So an option is to do something similar to below and clearly document
+that user space needs to account for known reporting behaviour when
+BTN_TOOL_DOUBLETOUCH transitions back to 0.
 
+input_report_abs(dev, ABS_X, x1 + (x2 & 7));
+input_report_abs(dev, ABS_Y, y1 + (y2 & 7));
 
-> and caused the JVC code to be
-> misclassified as NEC.
-
-I still have not heard why we need protocol discrimination/classifcation
-in the kernel.  Doing discrimination between two protocols with such
-close timings is whose requirement again?
-
-Since these two protocols have such close timings that systematic errors
-can cause misclassifcation when using simple mark or space measurments
-against fixed thresholds, it indicates that a more sophisticated
-discrimation mechanism would be needed.  Perhaps one that takes multiple
-successive measurments into account?
-
-Regards,
-Andy
-
+Chris
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

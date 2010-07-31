@@ -1,106 +1,76 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: [PATCH v2] Input: Make ADS7846 independent on regulator
-Date: Sat, 31 Jul 2010 09:09:42 +0200
-Message-ID: <1280560182-7071-1-git-send-email-marek.vasut@gmail.com>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [PATCH 10/13] IR: extend interfaces to support more device settings LIRC: add new IOCTL that enables learning mode (wide band receiver)
+Date: 31 Jul 2010 10:10:00 +0200
+Message-ID: <BTtO1S1ZjFB@christoph>
+References: <1280527264.3159.10.camel@maxim-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f46.google.com ([209.85.161.46]:41603 "EHLO
-	mail-fx0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751161Ab0GaHKE (ORCPT
+Received: from moutng.kundenserver.de ([212.227.17.8]:64670 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752217Ab0GaINH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jul 2010 03:10:04 -0400
+	Sat, 31 Jul 2010 04:13:07 -0400
+In-Reply-To: <1280527264.3159.10.camel@maxim-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: dmitry.torokhov@gmail.com, vapier@gentoo.org, pavel@ucw.cz, akpm@linux-foundation.org, khilman@deeprootsystems.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, eric.y.miao@gmail.com, Marek Vasut <marek.vasut@gmail.com>
+To: maximlevitsky@gmail.com
+Cc: linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-In case regulator was not found, ADS7846 failed to probe.
+Hi Maxim,
 
-This fixes a problem on some Sharp Zaurus devices, where there is no regulator
-present and the touchscreen is used.
+on 31 Jul 10 at 01:01, Maxim Levitsky wrote:
+> On Fri, 2010-07-30 at 23:22 +0200, Christoph Bartelmus wrote:
+[...]
+>>> +#define LIRC_SET_WIDEBAND_RECEIVER     _IOW('i', 0x00000023, __u32)
+>>
+>> If you really want this new ioctl, then it should be clarified how it
+>> behaves in relation to LIRC_SET_MEASURE_CARRIER_MODE.
 
-Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
----
- drivers/input/touchscreen/ads7846.c |   38 +++++++++++++++++++---------------
- 1 files changed, 21 insertions(+), 17 deletions(-)
+> In my opinion, I won't need the LIRC_SET_MEASURE_CARRIER_MODE,
+> I would just optionally turn that on in learning mode.
+> You disagree, and since that is not important (besides TX and learning
+> features are present only at fraction of ENE devices. The only user I
+> did the debugging with, doesn't seem to want to help debug that code
+> anymore...)
+>
+> But anyway, in current state I want these features to be independent.
+> Driver will enable learning mode if it have to.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index a9fdf55..53b318b 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -791,7 +791,8 @@ static void ads7846_disable(struct ads7846 *ts)
- 		}
- 	}
- 
--	regulator_disable(ts->reg);
-+	if (ts->reg)
-+		regulator_disable(ts->reg);
- 
- 	/* we know the chip's in lowpower mode since we always
- 	 * leave it that way after every request
-@@ -804,7 +805,8 @@ static void ads7846_enable(struct ads7846 *ts)
- 	if (!ts->disabled)
- 		return;
- 
--	regulator_enable(ts->reg);
-+	if (ts->reg)
-+		regulator_enable(ts->reg);
- 
- 	ts->disabled = 0;
- 	ts->irq_disabled = 0;
-@@ -1162,16 +1164,15 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	ts->last_msg = m;
- 
- 	ts->reg = regulator_get(&spi->dev, "vcc");
--	if (IS_ERR(ts->reg)) {
--		err = PTR_ERR(ts->reg);
--		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
--		goto err_free_gpio;
--	}
--
--	err = regulator_enable(ts->reg);
--	if (err) {
--		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
--		goto err_put_regulator;
-+	if (IS_ERR(ts->reg))
-+		ts->reg = NULL;
-+	else {
-+		err = regulator_enable(ts->reg);
-+		if (err) {
-+			dev_err(&spi->dev, "unable to enable regulator: %d\n",
-+				err);
-+			goto err_put_regulator;
-+		}
- 	}
- 
- 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
-@@ -1218,10 +1219,11 @@ static int __devinit ads7846_probe(struct spi_device *spi)
-  err_free_irq:
- 	free_irq(spi->irq, ts);
-  err_disable_regulator:
--	regulator_disable(ts->reg);
-+	if (ts->reg)
-+		regulator_disable(ts->reg);
-  err_put_regulator:
--	regulator_put(ts->reg);
-- err_free_gpio:
-+	if (ts->reg)
-+		regulator_put(ts->reg);
- 	if (ts->gpio_pendown != -1)
- 		gpio_free(ts->gpio_pendown);
-  err_cleanup_filter:
-@@ -1251,8 +1253,10 @@ static int __devexit ads7846_remove(struct spi_device *spi)
- 	/* suspend left the IRQ disabled */
- 	enable_irq(ts->spi->irq);
- 
--	regulator_disable(ts->reg);
--	regulator_put(ts->reg);
-+	if (ts->reg) {
-+		regulator_disable(ts->reg);
-+		regulator_put(ts->reg);
-+	}
- 
- 	if (ts->gpio_pendown != -1)
- 		gpio_free(ts->gpio_pendown);
--- 
-1.7.1
+Please avoid the term "learning mode" as to you it probably means  
+something different than to me.
 
+>
+> I'll add the documentation.
+
+>>
+>> Do you have to enable the wide-band receiver explicitly before you can
+>> enable carrier reports or does enabling carrier reports implicitly switch
+>> to the wide-band receiver?
+> I would implicitly switch the learning mode on, untill user turns off
+> the carrier reports.
+
+You mean that you'll implicitly switch on the wide-band receiver. Ok.
+
+>>
+>> What happens if carrier mode is enabled and you explicitly turn off the
+>> wide-band receiver?
+> Wouldn't it be better to have one ioctl for both after all?
+
+There may be hardware that allows carrier measurement but does not have a  
+wide-band receiver. And there may be hardware that does have a wide-band  
+receiver but does not allow carrier measurement. irrecord needs to be able  
+to distinguish these cases, so we need separate ioctls.
+
+I'd say: carrier reports may switch on the wide-band reciever implicitly.  
+In that case the wide-band receiver cannot be switched off explicitly  
+until carrier reports are disabled again. It just needs to be documented.
+
+>>
+>> And while we're at interface stuff:
+>> Do we really need LIRC_SETUP_START and LIRC_SETUP_END? It is only used
+>> once in lircd during startup.
+> I don't think so.
+>
+
+Christoph

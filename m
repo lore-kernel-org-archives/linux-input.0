@@ -1,8 +1,8 @@
 From: Maxim Levitsky <maximlevitsky@gmail.com>
 Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and
  enable  it.
-Date: Sat, 31 Jul 2010 19:44:25 +0300
-Message-ID: <1280594665.3523.7.camel@maxim-laptop>
+Date: Sat, 31 Jul 2010 19:51:09 +0300
+Message-ID: <1280595069.3523.10.camel@maxim-laptop>
 References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
 	 <1280456235-2024-14-git-send-email-maximlevitsky@gmail.com>
 	 <AANLkTim42mHVhOgmVGxh2XsbbbVC7ZOgtfd7DDSrxZDB@mail.gmail.com>
@@ -18,12 +18,17 @@ References: <1280456235-2024-1-git-send-email-maximlevitsky@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bw0-f46.google.com ([209.85.214.46]:52824 "EHLO
+	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752528Ab0GaQvO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Jul 2010 12:51:14 -0400
 In-Reply-To: <AANLkTimaut1mMUXwbJAgjNjmQkxgsf-GOCTXmKYNm1Lz@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jon Smirl <jonsmirl@gmail.com>
 Cc: Andy Walls <awalls@md.metrocast.net>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
-List-Id: linux-input@vger.kernel.org
 
 On Sat, 2010-07-31 at 12:25 -0400, Jon Smirl wrote: 
 > On Sat, Jul 31, 2010 at 11:12 AM, Andy Walls <awalls@md.metrocast.net> wrote:
@@ -45,25 +50,41 @@ On Sat, 2010-07-31 at 12:25 -0400, Jon Smirl wrote:
 > 0.0001%+.  The 4% error in this driver is because the hardware is not
 > being programmed accurately. This needs to be fixed in the driver and
 > not in the upper layers.
+> 
+> How is sample period being computed, where is the complete source to
+> this driver?
+> 
+>        dev->tx_period = 32;
+> 
+> Where is sample_period computed?
+> 
+> @@ -672,13 +583,25 @@ static irqreturn_t ene_isr(int irq, void *data)
+>                        pulse = !(hw_value & ENE_SAMPLE_SPC_MASK);
+>                        hw_value &= ENE_SAMPLE_VALUE_MASK;
+>                        hw_sample = hw_value * sample_period;
+> +
+> +                       if (dev->rx_period_adjust) {
+> +                               hw_sample *= (100 - dev->rx_period_adjust);
+> +                               hw_sample /= 100;
+> +                       }
+>                }
+> 
+> I suspect sample_period is set to 32us. For 32.768Mhz the period needs
+> to be 30.5us. I don't see the code for how it was computed.
+> 
+> You have to be careful with rounding errors when doing this type of
+> computation. What looks like a minor error can amplify into a large
+> error. Sometimes I do the math in 64b ints just to keep the round off
+> errors from accumulating.  Instead of doing the math in calculator and
+> plugging in 32. Use #defines and do the math in the
+There is no reason to worry about rounding here.
 
-Let me explain again.
-
-I get samples in 4 byte buffer. each sample is a count of sample
-periods.
-Sample period is programmed into hardware, at 'ENE_CIR_SAMPLE_PERIOD'
-(it is in us)
-
-Default sample period is 50 us.
-
-The error source isn't 'electronics' fault.
-The device is microprocessor.
-I don't read the samples 'directly' from hardware, but rather from ram
-of that microprocessor.
-I don't know how it samples the input.
-A expiration of sample period might just cause a IRQ inside that
-microprocessor, and it can't process it instantly. That is probably the
-source of the delay.
-Or something like that.
+hw_sample is maximum of 127 * 50, so when I muliply by 100 I get exact
+result.
+Then I do one divide.
 
 Best regards,
 Maxim Levitsky
+
+
+

@@ -1,24 +1,28 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and enable
-	it.
-Date: Sun, 1 Aug 2010 10:05:30 -0400
-Message-ID: <AANLkTi=7p1WaJYu5WM373XZQM-iQpoAsvYfiXJaw8A3N@mail.gmail.com>
-References: <AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
-	<BU0Ob6WojFB@christoph>
-	<AANLkTi=c4pNtjPQ9OYL-uxXFFnPUJStUjU26TgpzpL+a@mail.gmail.com>
+From: lirc@bartelmus.de (Christoph Bartelmus)
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and enable  it.
+Date: 01 Aug 2010 17:13:00 +0200
+Message-ID: <BU0OmdJJjFB@christoph>
+References: <AANLkTi=c4pNtjPQ9OYL-uxXFFnPUJStUjU26TgpzpL+a@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <AANLkTi=c4pNtjPQ9OYL-uxXFFnPUJStUjU26TgpzpL+a@mail.gmail.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Christoph Bartelmus <lirc@bartelmus.de>
-Cc: awalls@md.metrocast.net, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, maximlevitsky@gmail.com, mchehab@redhat.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from moutng.kundenserver.de ([212.227.126.171]:55663 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756289Ab0HAPOZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Aug 2010 11:14:25 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jonsmirl@gmail.com
+Cc: awalls@md.metrocast.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
 
-On Sun, Aug 1, 2010 at 10:00 AM, Jon Smirl <jonsmirl@gmail.com> wrote:
+Hi!
+
+Jon Smirl "jonsmirl@gmail.com" wrote:
+
 > On Sun, Aug 1, 2010 at 5:50 AM, Christoph Bartelmus <lirc@bartelmus.d=
-e> wrote:
+e>
+> wrote:
 >> Hi Jon,
 >>
 >> on 31 Jul 10 at 14:14, Jon Smirl wrote:
@@ -32,17 +36,18 @@ s.de>
 =2Enet>
 >>>>> wrote:
 >>>>>> I think you won't be able to fix the problem conclusively either=
- way. =A0A
->>>>>> lot of how the chip's clocks should be programmed depends on how=
- the
+ way.
+>>>>>> =A0A lot of how the chip's clocks should be programmed depends o=
+n how the
 >>>>>> GPIOs are used and what crystal is used.
 >>>>>>
 >>>>>> I suspect many designers will use some reference design layout f=
-rom ENE,
->>>>>> but it won't be good in every case. =A0The wire-up of the ENE of=
- various
->>>>>> motherboards is likely something you'll have to live with as unk=
-nowns.
+rom
+>>>>>> ENE, but it won't be good in every case. =A0The wire-up of the E=
+NE of
+>>>>>> various motherboards is likely something you'll have to live wit=
+h as
+>>>>>> unknowns.
 >>>>>>
 >>>>>> This is a case where looser tolerances in the in kernel decoders=
  could
@@ -64,9 +69,10 @@ nce of
 >>>> 30% / 100 us and even this is not enough sometimes.
 >>>>
 >>>> For the NEC protocol one signal consists of 22 individual pulses a=
-t 38kHz..
->>>> If the receiver just misses one pulse, you already have an error o=
-f 1/22
+t
+>>>> 38kHz.. If the receiver just misses one pulse, you already have an=
+ error
+>>>> of 1/22
 >>>>> 4%.
 >>
 >>> There are different types of errors. The decoders can take large
@@ -87,67 +93,37 @@ fuse
 rd
 >> generates the config file using your receiver it will compensate for=
  any
->
+
 > At the end of the process we can build a record and match raw mode if
 > we have to.
->
+
+I'm not talking about raw mode here. lircd will happily decode the sign=
+als =20
+despite of any timing error as long it's consistent.
+
+I'm still interested how JVC can be confused with NEC codes.
+
 >> timing error. It will work with pulses cut down to 50 us like IrDA
 >> hardware does and it will work when half of the bits are swallowed l=
 ike
 >> the IgorPlug USB receiver does.
->
+
 > The code for fixing IrDA and IgorPLug should live inside their low
-> level device drivers. =A0The characteristics of the errors produced b=
-y
-> this hardware are known so a fix can be written to compensate. =A0The
-> IgorPlug people might find it easier to fix their firmware. You don't
-> have to get the timing exactly right for the protocol engines to work=
-,
-> you just need to get the big systematic errors out.
+> level device drivers.  The characteristics of the errors produced by
+> this hardware are known so a fix can be written to compensate.
 
-There is a real benefit to strict protocol engines. If the IgorPlus
-people had strict protocol engines to test against they would have
-discovered their firmware bugs during the initial development process.
+The function f(x) =3D 50 is not bijective. No way to compensate.
 
->
-> Before doing raw the low level IR drivers should be fixed to provide
-> the most accurate data possible. I don't think it is good design for =
-a
-> low level driver to be injecting systematic errors and then have the
-> next layer of code remove them. =A0The source of the systematic error=
-s
-> should be characterized and fixed in the low level driver. That also
-> allows the fixed to be constrained to fixing data from only a single
-> receiver type.
->
-> I have been burnt twice in the past from fixing errors in a low level
-> driver higher in the stack. I have learned the hard way that it is a
-> bad thing to do. As the fixes accumulate in the higher layers you wil=
-l
-> reach a point where they conflict and no solution is possible. Bugs i=
-n
-> the low level drivers need to be fixed in that driver.
->
-> Show me a case that can't be fixed in the low level driver and we can
-> explore the options.
->
->>
->> But of course the driver should try to generate timings as accurate =
-as
->> possible.
->>
->> Christoph
->>
->
->
->
-> --
-> Jon Smirl
-> jonsmirl@gmail.com
->
+Missing bits cannot be magically regenerated by the driver.
 
+> The
+> IgorPlug people might find it easier to fix their firmware.
 
+There is a firmware patch available? Do you have a pointer?
 
---=20
-Jon Smirl
-jonsmirl@gmail.com
+Christoph
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

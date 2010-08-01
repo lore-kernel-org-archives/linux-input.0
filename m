@@ -1,281 +1,139 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
-Date: Sun, 01 Aug 2010 15:57:14 +0200
-Message-ID: <4C557D3A.3050501@euromail.se>
-References: <4C1FD2B0.1080504@tudelft.nl>	<4C1FD454.4050807@tudelft.nl>	<20100721033655.GA9070@core.coreip.homeip.net>	<4C532009.4020103@tudelft.nl>	<4C533DC3.9070001@euromail.se> <AANLkTi=cEEx-5eQPbRYvMMaECvXKQ+i-e0Eaw_g4JY7=@mail.gmail.com> <4C54ABFE.8050106@tudelft.nl> <4C554058.6080203@euromail.se> <4C555A44.5050505@tudelft.nl>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH 13/13] IR: Port ene driver to new IR subsystem and enable
+	it.
+Date: Sun, 1 Aug 2010 10:00:05 -0400
+Message-ID: <AANLkTi=c4pNtjPQ9OYL-uxXFFnPUJStUjU26TgpzpL+a@mail.gmail.com>
+References: <AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
+	<BU0Ob6WojFB@christoph>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp03.sth.basefarm.net ([80.76.149.214]:60303 "EHLO
-	ch-smtp03.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754181Ab0HAN5g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 1 Aug 2010 09:57:36 -0400
-In-Reply-To: <4C555A44.5050505@tudelft.nl>
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:54284 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756874Ab0HAOAG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Aug 2010 10:00:06 -0400
+In-Reply-To: <BU0Ob6WojFB@christoph>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
+To: Christoph Bartelmus <lirc@bartelmus.de>
+Cc: awalls@md.metrocast.net, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, maximlevitsky@gmail.com, mchehab@redhat.com
 
-On 08/01/2010 01:28 PM, =C9ric Piel wrote:
-[...]
-
->> How about this as a stab at the MT point problem. The idea here is t=
-hat
->> get_corner_id() returns the rectangle corner which minimizes the cha=
-nge in
->> motion direction, according to the principle of inertia. For all cas=
-es,
->> position[0] is reported as the ABS_X/Y point.
+On Sun, Aug 1, 2010 at 5:50 AM, Christoph Bartelmus <lirc@bartelmus.de>=
+ wrote:
+> Hi Jon,
+>
+> on 31 Jul 10 at 14:14, Jon Smirl wrote:
+>> On Sat, Jul 31, 2010 at 1:47 PM, Christoph Bartelmus <lirc@bartelmus=
+=2Ede>
+>> wrote:
+>>> Hi Jon,
+>>>
+>>> on 31 Jul 10 at 12:25, Jon Smirl wrote:
+>>>> On Sat, Jul 31, 2010 at 11:12 AM, Andy Walls <awalls@md.metrocast.=
+net>
+>>>> wrote:
+>>>>> I think you won't be able to fix the problem conclusively either =
+way. =A0A
+>>>>> lot of how the chip's clocks should be programmed depends on how =
+the
+>>>>> GPIOs are used and what crystal is used.
+>>>>>
+>>>>> I suspect many designers will use some reference design layout fr=
+om ENE,
+>>>>> but it won't be good in every case. =A0The wire-up of the ENE of =
+various
+>>>>> motherboards is likely something you'll have to live with as unkn=
+owns.
+>>>>>
+>>>>> This is a case where looser tolerances in the in kernel decoders =
+could
+>>>>> reduce this driver's complexity and/or get rid of arbitrary fudge
+>>>>> factors in the driver.
+>>>
+>>>> The tolerances are as loose as they can be. The NEC protocol uses
+>>>> pulses that are 4% longer than JVC. The decoders allow errors up t=
+o 2%
+>>>> (50% of 4%). =A0The crystals used in electronics are accurate to
+>>>> 0.0001%+.
+>>>
+>>> But the standard IR receivers are far from being accurate enough to=
+ allow
+>>> tolerance windows of only 2%.
+>>> I'm surprised that this works for you. LIRC uses a standard toleran=
+ce of
+>>> 30% / 100 us and even this is not enough sometimes.
+>>>
+>>> For the NEC protocol one signal consists of 22 individual pulses at=
+ 38kHz..
+>>> If the receiver just misses one pulse, you already have an error of=
+ 1/22
+>>>> 4%.
+>
+>> There are different types of errors. The decoders can take large
+>> variations in bit times. The problem is with cumulative errors. In
+>> this case the error had accumulated up to 450us in the lead pulse.
+>> That's just too big of an error and caused the JVC code to be
+>> misclassified as NEC.
 >>
->> state =3D (num_finger, corner_id, motion_id, position[n])
->>
->> At each touch frame update, do
->>
->> 1. num_finger =3D=3D 1
->>
->> Set
->>   position[0] =3D finger-position
->>
->> 2. num_finger =3D=3D 2
->>
->> If last frame was one finger, do
->>   Find corner id such that position change is minimized
->>     id =3D get_initial_corner_id(position[0], corner-position[id])
->>
->> Else
->>   Find temporary motion id
->>     mid =3D get_motion_id(position[0], corner-position[corner_id])
->>   Find corner id such that motion change is minimized
->>     id =3D get_corner_id(corner_id, motion_id, mid)
->>
->> Set
->>   corner_id =3D id
->>   motion_id =3D get_motion_id(position[0], corner-position[id])
->>   position[0] =3D corner-position[id],
->>   position[1] =3D corner-position[opposite[id]]
->>
->> Report position[0] and position[1] as MT points
->>
->> Since this is all integer logic, it should be possible to detect mot=
-ion changes
->> as sign changes, such that get_motion_id() and get_corner_id() can b=
-e
->> implemented as constant arrays.
-> Hi, I've tried, with a simplified version, and it works!
+>> I think he said lirc was misclassifying it too. So we both did the s=
+ame
+>> thing.
+>
+> No way. JVC is a 16 bit code. NEC uses 32 bits. How can you ever conf=
+use
+> JVC with NEC signals?
+>
+> LIRC will work if there is a 4% or 40% or 400% error. Because irrecor=
+d
+> generates the config file using your receiver it will compensate for =
+any
+
+At the end of the process we can build a record and match raw mode if
+we have to.
+
+> timing error. It will work with pulses cut down to 50 us like IrDA
+> hardware does and it will work when half of the bits are swallowed li=
+ke
+> the IgorPlug USB receiver does.
+
+The code for fixing IrDA and IgorPLug should live inside their low
+level device drivers.  The characteristics of the errors produced by
+this hardware are known so a fix can be written to compensate.  The
+IgorPlug people might find it easier to fix their firmware. You don't
+have to get the timing exactly right for the protocol engines to work,
+you just need to get the big systematic errors out.
+
+Before doing raw the low level IR drivers should be fixed to provide
+the most accurate data possible. I don't think it is good design for a
+low level driver to be injecting systematic errors and then have the
+next layer of code remove them.  The source of the systematic errors
+should be characterized and fixed in the low level driver. That also
+allows the fixed to be constrained to fixing data from only a single
+receiver type.
+
+I have been burnt twice in the past from fixing errors in a low level
+driver higher in the stack. I have learned the hard way that it is a
+bad thing to do. As the fixes accumulate in the higher layers you will
+reach a point where they conflict and no solution is possible. Bugs in
+the low level drivers need to be fixed in that driver.
+
+Show me a case that can't be fixed in the low level driver and we can
+explore the options.
+
+>
+> But of course the driver should try to generate timings as accurate a=
+s
+> possible.
+>
+> Christoph
+>
 
 
-:-)
 
-> Basically, I track both coordinates independently, as the rectangle
-> coordinates are independent anyway. Then I associate to position[0]
-> always the closest coordinates compared to the previous frame.
-
-
-Yep, looks equivalent to the first part of the pseudo code.
-
-> It works pretty fine. At least it avoid the jump between one and two
-> fingers. Of course, when the two fingers become horizontally or
-> vertically aligned (eg: in a rotation gesture), it's not possible to
-> differentiate anymore when they dis-align. And I don't think using mo=
-tion
-> will help because the hardware tends to report _exactly_ the same val=
-ue
-> as soon the two fingers become close (=3D a segment instead of a
-> rectangle).  Or motion tracking would require a long window of past
-> frames.
-
-
-The case when the fingers are first resting in horizontal/vertical posi=
-tion,
-then moving, is, as you say, not possible to resolve. I agree, the vers=
-ion you
-implemented is probably as far as one gets without more information fro=
-m the
-device. Too bad. :-)
-
-> I still think that for the very specific use case of scrolling when
-> pressing one finger and moving up and dow the other one, reporting th=
-e
-> average works better than the first finger. However, I guess this can=
- be
-> considered just as a drawback of the ST protocol, and fixed in usersp=
-ace
-> by using the MT protocol.
->=20
-> What do you think? Does it look fine to you? Below is the code.
-
-
-I might have lost track of what problem needs to be solved. The current=
- patch
-seems to implement tracking, but still does not solve the individual MT=
- finger
-problem. And, it uses the same definition of ABS_X/Y as before. I was a=
-lso under
-the impression that synaptics needs fixing, anyways. All of this taken =
-together
-sadly suggests that this patch could just as well be reverted to the or=
-iginal
-one. Or? Alternatively, one could switch to the type B protocol, since =
-no
-further tracking improvement is possible in userspace. The implementati=
-on is
-tidy and simple enough, I think.
-
-> Eric
->=20
->=20
-> 8<-------------------------------------------------------------------=
--
-> The elantech hardware is limited when reporting two fingers. It just
-> reports the minimum and maximum coordinates of the rectangle containi=
-ng
-> the fingers.
->=20
-> As multitouch protocol requires at least to report the correct positi=
-on
-> of each finger, we track the finger position when there is only one
-> finger to distinguish which corner of the rectangle corresponds to th=
-e
-> actual position of the fingers. When there are three fingers, only th=
-e
-> minimum position is reported, so we just don't track it and hope the
-> last tracked position has the most likelihood to be correct.
->=20
-> It works fine, at least as long as the two fingers don't get
-> horizontally or vertically aligned, after what it's back to random.
-> This also allows to avoid so "jumps" in the single-touch protocol.
->=20
-> Signed-off-by: =C9ric Piel <eric.piel@tremplin-utc.net>
-> ---
->  drivers/input/mouse/elantech.c |   51 ++++++++++++++++++++++++++++++=
-++--------
->  drivers/input/mouse/elantech.h |    2 +
->  2 files changed, 43 insertions(+), 10 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/ela=
-ntech.c
-> index bb66ae8..a3a3d8d 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -242,6 +242,33 @@ static void elantech_report_absolute_v1(struct p=
-smouse *psmouse)
->  	input_sync(dev);
->  }
-> =20
-> +
-> +static void track_one_finger(struct elantech_data *etd, int x, int y=
-)
-> +{
-> +	etd->prev_x =3D x;
-> +	etd->prev_y =3D y;
-> +}
-> +
-> +static void find_closest_and_swap(int *ref, int *a, int *b)
-> +{
-> +	int diff_a =3D abs(*ref - *a);
-> +	int diff_b =3D abs(*ref - *b);
-> +	int tmp;
-> +	if (diff_b < diff_a) {
-> +		tmp =3D *a;
-> +		*a =3D *b;
-> +		*b =3D tmp;
-> +	}
-> +	*ref =3D *a;
-> +}
-
-
-Use swap(a, b);
-
-> +
-> +static void track_two_fingers(struct elantech_data *etd, int *x1, in=
-t *y1, int *x2, int *y2)
-> +{
-> +	find_closest_and_swap(&etd->prev_x, x1, x2);
-> +	find_closest_and_swap(&etd->prev_y, y1, y2);
-> +}
-> +
-> +
->  /*
->   * Interpret complete data packets and report absolute mode input ev=
-ents for
->   * hardware version 2. (6 byte packets)
-> @@ -284,6 +311,8 @@ static void elantech_report_absolute_v2(struct ps=
-mouse *psmouse)
-> =20
->  		input_report_abs(dev, ABS_X, x1);
->  		input_report_abs(dev, ABS_Y, y1);
-> +		if (fingers =3D=3D 1)
-> +			track_one_finger(etd, x1, y1);
-> =20
->  		pres =3D (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
->  		width =3D ((packet[0] & 0x30) >> 2) | ((packet[3] & 0x30) >> 4);
-> @@ -296,29 +325,31 @@ static void elantech_report_absolute_v2(struct =
-psmouse *psmouse)
->  		 * byte 0:  .   .  ay8 ax8  .   .   .   .
->  		 * byte 1: ax7 ax6 ax5 ax4 ax3 ax2 ax1 ax0
->  		 */
-> -		x1 =3D ((packet[0] & 0x10) << 4) | packet[1];
-> +		x1 =3D (((packet[0] & 0x10) << 4) | packet[1]) << 2;
->  		/* byte 2: ay7 ay6 ay5 ay4 ay3 ay2 ay1 ay0 */
-> -		y1 =3D ETP_2FT_YMAX - (((packet[0] & 0x20) << 3) | packet[2]);
-> +		y1 =3D (ETP_2FT_YMAX - (((packet[0] & 0x20) << 3) | packet[2])) <<=
- 2;
->  		/*
->  		 * byte 3:  .   .  by8 bx8  .   .   .   .
->  		 * byte 4: bx7 bx6 bx5 bx4 bx3 bx2 bx1 bx0
->  		 */
-> -		x2 =3D ((packet[3] & 0x10) << 4) | packet[4];
-> +		x2 =3D (((packet[3] & 0x10) << 4) | packet[4]) << 2;
->  		/* byte 5: by7 by8 by5 by4 by3 by2 by1 by0 */
-> -		y2 =3D ETP_2FT_YMAX - (((packet[3] & 0x20) << 3) | packet[5]);
-> +		y2 =3D (ETP_2FT_YMAX - (((packet[3] & 0x20) << 3) | packet[5])) <<=
- 2;
-> +
-> +		track_two_fingers(etd, &x1, &y1, &x2, &y2);
->  		/* Multitouch */
-> -		input_report_abs(dev, ABS_MT_POSITION_X, x1 << 2);
-> -		input_report_abs(dev, ABS_MT_POSITION_Y, y1 << 2);
-> +		input_report_abs(dev, ABS_MT_POSITION_X, x1);
-> +		input_report_abs(dev, ABS_MT_POSITION_Y, y1);
->  		input_mt_sync(dev);
-> -		input_report_abs(dev, ABS_MT_POSITION_X, x2 << 2);
-> -		input_report_abs(dev, ABS_MT_POSITION_Y, y2 << 2);
-> +		input_report_abs(dev, ABS_MT_POSITION_X, x2);
-> +		input_report_abs(dev, ABS_MT_POSITION_Y, y2);
->  		input_mt_sync(dev);
->  		/*
->  		 * For compatibility with non-multitouch userspace apps
->  		 * report the average of both coordinates and scale up.
->  		 */
-> -		input_report_abs(dev, ABS_X, (x1 + x2) << 1);
-> -		input_report_abs(dev, ABS_Y, (y1 + y2) << 1);
-> +		input_report_abs(dev, ABS_X, (x1 + x2) >> 1);
-> +		input_report_abs(dev, ABS_Y, (y1 + y2) >> 1);
->  		/*
->  		 * For compatibility with the proprietary X Elantech driver
->  		 * report both coordinates as hat coordinates
-> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/ela=
-ntech.h
-> index f6e3be5..fa9a6b4 100644
-> --- a/drivers/input/mouse/elantech.h
-> +++ b/drivers/input/mouse/elantech.h
-> @@ -111,6 +111,8 @@ struct elantech_data {
->  	unsigned char hw_version;
->  	unsigned int  fw_version;
->  	unsigned char parity[256];
-> +	unsigned int prev_x;
-> +	unsigned int prev_y;
->  };
-> =20
->  enum paritycheck_types {
-
-
-Thanks,
-Henrik
-
-
+--=20
+Jon Smirl
+jonsmirl@gmail.com
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

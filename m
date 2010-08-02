@@ -1,32 +1,48 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: [ANNOUNCE] mtdev v1.0.8 -- Multitouch Protocol Translation Library
-Date: Mon, 02 Aug 2010 02:04:28 +0200
-Message-ID: <4C560B8C.2050709@bitmath.org>
+From: Noel Gerald <gnoel@centralstate.edu>
+Subject: Contact Owen Gibson via email: (msoftclaims10@w.cn)
+Date: Sun, 1 Aug 2010 22:01:30 -0400
+Message-ID: <B7FF8D4C259B5442BCC354A568C0FD7916D6C10E8C@informa-jhpvcrb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp2.one.com ([91.198.169.22]:40790 "EHLO csmtp2.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751695Ab0HBAEc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 1 Aug 2010 20:04:32 -0400
+Received: from csumail.ces.edu ([144.50.130.137]:36907 "EHLO
+	INFORMA-JHPVCRB.ces.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751774Ab0HBCDg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Aug 2010 22:03:36 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, "X.Org Devel List" <xorg-devel@lists.freedesktop.org>
 
-mtdev - Multitouch Protocol Translation Library (MIT license)
 
-The mtdev library is a kernel input event stream translator, which greatly
-simplifies multitouch device driver testing as well as handling in applications.
-The input events are simply routed through mtdev, which transforms them to a
-uniform stream of MT slot events. Software finger tracking is performed when
-needed, making all devices appear as if they had tracking capabilities. For
-further details and the source git tree, see
+MICROSOFT CUSTOMER SERVICE
+REFNO.:MS/75-A08055161/2010
+Batch: 044/05/ZY369
+Dear E-mail Owner,
+You are a winner of the just conclude Microsoft Online Email Promo. You=
+ have therefore been approved to claim a total sum Five Hundred Thousan=
+d Great Britain Pounds (=A3500,000.00). Please this informations are re=
+quired for verification.
+Name:...................
+Address:...............
+Country:...............
+Age:..................
+Gender:................
+Occupation:..............
+Phone and Fax:...............
+Winning E-mail Address:................
+Please contact:
+Owens Gibson
+Email: msoftclaims10@w.cn<mailto:msoftclaims10@w.cn>
+Telephone: +44-704-570-7201
+Noel Gerald
+Annoucer For Microsoft Online Email Promo
 
-http://bitmath.org/code/mtdev/
+N.B. All email sent to other locations outside msoftclaims10@w.cn<mailt=
+o:msoftclaims10@w.cn> will not be treated.
 
-The v1.0.8 release contains a number of packaging fixes, and one header file
-change needed for the 2.6.36 release, when MT slots appear in the kernel.
-
-Enjoy,
-Henrik Rydberg
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

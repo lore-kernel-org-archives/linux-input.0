@@ -1,98 +1,48 @@
 From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: Handling of large keycodes
-Date: Mon, 2 Aug 2010 11:19:46 -0400
-Message-ID: <20100802151946.GB2296@redhat.com>
-References: <20100731091936.GA22253@core.coreip.homeip.net>
- <4C5423E1.30805@redhat.com>
- <20100802080231.GA9872@core.coreip.homeip.net>
- <4C56AD89.7060604@redhat.com>
+Subject: Re: [PATCH 09/13] IR: add helper function for hardware with small
+ o/b buffer.
+Date: Mon, 2 Aug 2010 11:54:05 -0400
+Message-ID: <20100802155405.GD2296@redhat.com>
+References: <1280588366-26101-1-git-send-email-maximlevitsky@gmail.com>
+ <1280588366-26101-10-git-send-email-maximlevitsky@gmail.com>
+ <1280715061.19666.47.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4C56AD89.7060604@redhat.com>
+In-Reply-To: <1280715061.19666.47.camel@localhost>
 Sender: linux-media-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Maxim Levitsky <maximlevitsky@gmail.com>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+To: Andy Walls <awalls@md.metrocast.net>
+Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 02, 2010 at 08:35:37AM -0300, Mauro Carvalho Chehab wrote:
-> Em 02-08-2010 05:02, Dmitry Torokhov escreveu:
-> > On Sat, Jul 31, 2010 at 10:23:45AM -0300, Mauro Carvalho Chehab wrote:
-> >> Hi Dmitry,
-> >>
-> >> Em 31-07-2010 06:19, Dmitry Torokhov escreveu:
-> >>> Hi Mauro,
-> >>>
-> >>> I finally got a chance to review the patches adding handling of large
-> >>> scancodes to input core and there are a few things with this approach
-> >>> that I do not like.
-> >>
-> >> Thanks for the review!
-> >>
-> >>> First of all I do not think that we should be working with scancode via
-> >>> a pointer as it requires additional compat handling when running 32-bit
-> >>> userspace on 64-bit kernel. We can use a static buffer of sufficient
-> >>> size (lets say 32 bytes) to move scancode around and simply increase its
-> >>> size if we come upon device that uses even bigger scancodes. As long as
-> >>> buffer is at the end we can handle this in a compatible way.
-> >>
-> >> Yes, this is the downside of using a pointer. I'm not aware of a Remote
-> >> Controller protocol using more than 256 bits for scancode, so 32 bits
-> >> should be ok.
-> >>
-> >>> The other issue is that interface is notsymmetrical, setting is done by
-> >>> scancode but retrieval is done by index. I think we should be able to
-> >>> use both scancode and index in both operations.
-> >>
-> >> Yes, this also bothered me. I was thinking to do something similar to your
-> >> approach of having a bool to select between them. This change is welcome.
-> >>
-> >>> The usefulnes of reserved data elements in the structure is doubtful,
-> >>> since we do not seem to require them being set to a particular value and
-> >>> so we'll be unable to distinguish betwee legacy and newer users.
-> >>
-> >> David proposed some parameters that we rejected on our discussions. As we
-> >> might need to add something similar, I decided to keep it on my approach,
-> >> since a set of reserved fields wouldn't hurt (and removing it on our discussions
-> >> would be easy), but I'm ok on removing them.
-> >>
-> >>> I also concerned about the code very messy with regard to using old/new
-> >>> style interfaces instea dof converting old ones to use new
-> >>> insfrastructure,
-> >>
-> >> Good cleanup at the code!
-> >>
-> >>> I below is something that addresses these issues and seems to be working
-> >>> for me. It is on top of your patches and it also depends on a few
-> >>> changes in my tree that I have not publushed yet but plan on doing that
-> >>> tomorrow. I am also attaching patches converting sparse keymap and hid
-> >>> to the new style of getkeycode and setkeycode as examples.
-> >>>
-> >>> Please take a look and let me know if I missed something important.
-> >>
-> >> It seems to work for me. After you add the patches on your git tree, I'll 
-> >> work on porting the RC core to the new approach, and change the ir-keycode
-> >> userspace program to work with, in order to be 100% sure that it will work, 
-> >> but I can't foresee any missing part on it.
-> >>
-> >> Currently, I'm not using my input patches, as I was waiting for your
-> >> review. I just patched the userspace application, in order to test the legacy
-> >> mode.
-> >>
-> > 
-> > OK, great.
-> > 
-> > I want to fold all the patches from your tree plus this one into one and
-> > apply in one shpt (mentioning Jarod and Dan as authors of fixup patches
-> > in the changelog) - I do not believe we shoudl expose intermediate
-> > versions in the code that will go to Linus. Are you OK with this?
+On Sun, Aug 01, 2010 at 10:11:01PM -0400, Andy Walls wrote:
+> On Sat, 2010-07-31 at 17:59 +0300, Maxim Levitsky wrote:
+...
+> >  struct ir_input_dev {
+> > @@ -69,9 +81,10 @@ struct ir_input_dev {
+> >  	char				*driver_name;	/* Name of the driver module */
+> >  	struct ir_scancode_table	rc_tab;		/* scan/key table */
+> >  	unsigned long			devno;		/* device number */
+> > -	const struct ir_dev_props	*props;		/* Device properties */
+> > +	struct ir_dev_props		*props;		/* Device properties */
 > 
-> I'm OK. If you want, you can add my ack on your patch:
+> So I don't think the struct ir_dev_props structure is the right place to
+> be storing current operating parameters. IMO, operating parameters
+> stored in the ir_dev_props are "too far" from the lower level driver,
+> and are essentially mirroring what the low level driver should be
+> tracking internally as it's own state anyway.
 > 
-> Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+> 
+> So in summary, I think we need to keep the opertions in struct
+> ir_dev_props simple using ,get_parameters() and .set_parameters() to
+> contol the lower level driver and to fetch, retrieve, and store
+> parameters.
 
-Yeah, works for me too.
+Yeah, I neglected to consider this change the first pass through an
+earlier revision. Making props modifiable on the fly does feel like we're
+mixing up hardware features with hardware state, and perhaps the
+on-the-fly-modifiable state bits should be stored somewhere else.
 
 -- 
 Jarod Wilson

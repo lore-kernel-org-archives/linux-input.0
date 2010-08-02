@@ -1,62 +1,88 @@
-From: "Hennerich, Michael" <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: Re: Fwd: [RFC] [PATCH] Input: ADP5588 -
- Support gpio function on unused pin
-Date: Mon, 2 Aug 2010 10:37:12 +0100
-Message-ID: <544AC56F16B56944AEC3BD4E3D5917712E7EC8592A@LIMKCMBX1.ad.analog.com>
-References: <4c459b70.0aee8c0a.1c29.3e9e@mx.google.com>
-	<4C4DADA7.9000201@gmail.com>
-	<20100726173844.GC14609@core.coreip.homeip.net>
-	<AANLkTi=qHUknGZdoj75Nr9gCKe-TRPMf3cgtsHejSrOc@mail.gmail.com>
-	<544AC56F16B56944AEC3BD4E3D5917712E7EC2301D@LIMKCMBX1.ad.analog.com>
-	<20100730170854.GA22450@core.coreip.homeip.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
+Date: Mon, 02 Aug 2010 12:02:44 +0200
+Message-ID: <4C5697C4.1020801@euromail.se>
+References: <4C1FD2B0.1080504@tudelft.nl>	<4C1FD454.4050807@tudelft.nl>	<20100721033655.GA9070@core.coreip.homeip.net>	<4C532009.4020103@tudelft.nl>	<4C533DC3.9070001@euromail.se> <AANLkTi=cEEx-5eQPbRYvMMaECvXKQ+i-e0Eaw_g4JY7=@mail.gmail.com> <4C54ABFE.8050106@tudelft.nl> <4C554058.6080203@euromail.se> <4C555A44.5050505@tudelft.nl> <4C557D3A.3050501@euromail.se> <4C567F27.7070900@tudelft.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20100730170854.GA22450-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Xiaolong Chen <xiaolong.chen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org" <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Xiaolong CHEN <a21785-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, TAO HU <taohu-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>, "Yuan.Bo YE" <yuan-bo.ye-3WKxDLwmzFNWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:44808 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751142Ab0HBKC5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Aug 2010 06:02:57 -0400
+In-Reply-To: <4C567F27.7070900@tudelft.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
+Cc: Chris Bagwell <chris@cnpbagwell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
 
-Dmitry Torokhov wrote on 2010-07-30:
-> Hi Michael,
->
-> On Fri, Jul 30, 2010 at 09:29:36AM +0100, Hennerich, Michael wrote:
->> Hi Dmitry,
+On 08/02/2010 10:17 AM, =C9ric Piel wrote:
+
+> Op 01-08-10 15:57, Henrik Rydberg schreef:
+>> On 08/01/2010 01:28 PM, =C9ric Piel wrote:
+> :
+>>> I still think that for the very specific use case of scrolling when
+>>> pressing one finger and moving up and dow the other one, reporting =
+the
+>>> average works better than the first finger. However, I guess this c=
+an be
+>>> considered just as a drawback of the ST protocol, and fixed in user=
+space
+>>> by using the MT protocol.
+>>>
+>>> What do you think? Does it look fine to you? Below is the code.
 >>
->> I took a look at the driver in your next tree.
 >>
->> Two issues:
->> -Avoid NULL pointer dereference in adp5588_gpio_add(), set
->> clientdata before call to adp5588_gpio_add().
->
-> Ah, I see. However, now that you pointed this out, I do not like that
-> we pass 'struct dev ice *' and use dev_get_drvdata() when adding and
-> removing gpios. I'd rather pass keypad structre there, as in the patch
-> below. What do you think?
->
+>> I might have lost track of what problem needs to be solved. The curr=
+ent patch
+>> seems to implement tracking, but still does not solve the individual=
+ MT finger
+>> problem. And, it uses the same definition of ABS_X/Y as before. I wa=
+s also under
+>> the impression that synaptics needs fixing, anyways. All of this tak=
+en together
+>> sadly suggests that this patch could just as well be reverted to the=
+ original
+>> one. Or? Alternatively, one could switch to the type B protocol, sin=
+ce no
+>> further tracking improvement is possible in userspace. The implement=
+ation is
+>> tidy and simple enough, I think.
+> Yes, you're right, the patch I've sent was still with the "average of
+> the 2 fingers", but I'm now willing to drop it. With the tracking, at
+> least we can keep sending info about a real finger and avoid jumps at
+> the transition 1->2, so reporting the first finger might have advanta=
+ges
+> over reporting the average :-) The improvement for the test case can
+> just go to userspace.
+>=20
+> The tracking is still not so clever, so it's definitly not adapted to=
+ a
+> type B MT protocol (think transition 2->1).
 
-Hi Dmitry,
 
-Your patch looks good.
-However there is another problem.
-The pin_used array must be cleared before it is used.
+You need to add the tracking id and a couple of lines, but i do not see=
+ why the
+2->1 transition would be treated any differently. The one-finger coordi=
+nate
+would be close to either position[0] or position[1], which would determ=
+ine the
+tracking id to keep. Every time you add a finger you add a new tracking=
+ id. What
+is your planned support for three fingers?
 
-+ memset(pin_used, false, sizeof(pin_used));
+Henrik
+
+> Dmitry, if that's ok with you, you can drop this patch 7/7, and I'll
+> send you two new patches to add MT support and finger tracking?
+>=20
+> Eric
 
 
-Greetings,
-Michael
-
-Analog Devices GmbH      Wilhelm-Wagenfeld-Str. 6      80807 Muenchen
-Sitz der Gesellschaft Muenchen, Registergericht Muenchen HRB 4036 Geschaeftsfuehrer Thomas Wessel, William A. Martin, Margaret Seif
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

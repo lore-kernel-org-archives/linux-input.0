@@ -1,129 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 3/3] input: samsung-keypad - Add samsung keypad driver
-Date: Mon, 2 Aug 2010 00:58:27 -0700
-Message-ID: <20100802075827.GA11903@core.coreip.homeip.net>
-References: <4C4688BE.1080409@samsung.com>
- <20100721080725.GA21373@core.coreip.homeip.net>
- <4C46B777.9010808@samsung.com>
- <009501cb28d1$c54c9f00$4fe5dd00$%kim@samsung.com>
- <4C5636DC.5070703@samsung.com>
- <019a01cb31f4$226a8aa0$673f9fe0$%kim@samsung.com>
- <4C564C6A.9040204@samsung.com>
- <002f01cb3201$5da32480$18e96d80$%kim@samsung.com>
- <4C565D21.8050506@samsung.com>
- <003901cb320c$47daa960$d78ffc20$%kim@samsung.com>
+Subject: Re: Handling of large keycodes
+Date: Mon, 2 Aug 2010 01:02:31 -0700
+Message-ID: <20100802080231.GA9872@core.coreip.homeip.net>
+References: <20100731091936.GA22253@core.coreip.homeip.net>
+ <4C5423E1.30805@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:53752 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555Ab0HBICg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Aug 2010 04:02:36 -0400
 Content-Disposition: inline
-In-Reply-To: <003901cb320c$47daa960$d78ffc20$%kim@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: 'Joonyoung Shim' <jy0922.shim@samsung.com>, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, ch.naveen@samsung.com, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <4C5423E1.30805@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
 
-On Mon, Aug 02, 2010 at 03:30:57PM +0900, Kukjin Kim wrote:
-> Joonyoung Shim wrote:
-> > 
-> > On 8/2/2010 2:12 PM, Kukjin Kim wrote:
-> > > Joonyoung Shim wrote:
-> > >> On 8/2/2010 12:38 PM, Kukjin Kim wrote:
-> > >>> Joonyoung Shim wrote:
-> > >>>> Hi, I came back from vacation.
-> > >>>>
-> > >>>>>>>> Do you have any feedback? If ok, i want to go to input tree or samsung
-> > >>>>>>>> tree these added sched.h including.
-> > >>>>>>> I applied the patch adding samsung-keypad.c and the platform data
-> > >>>>>>> arch/arm/plat-samsung/include/plat/keypad.h and I expect that
-> > >>>>>>> patches to actually enable keypad will go through appropriate
-> > >>>>>>> platform tree(s).
-> > >>>>>>>
-> > >>>>>> OK, the rest will go through samsung platform tree
-> > >>>>>>
-> > >>>>> Ok..will apply.
-> > >>>>>
-> > >>>> Kukjin, could you remove keypad.h on the commit "ARM: SAMSUNG: Add
-> > >>>> keypad device support" of the samsung platform tree. The keypad.h file
-> > >>>> was included on input tree.
-> > >>>>
-> > >>
-> > (http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=0fffed27f92d9d7
-> > >>>> a34de9fe017b7082b5958bb93)
-> > >>> You mean in plat-samsung/dev-keypad.c?
-> > >>> If remove inclusion plat/keypad.h in there, following build error happens.
-> > >>>
-> > >> No. I mean to remove arch/arm/plat-samsung/include/plat/keypad.h file on
-> > >> samsung platform tree, it was applied on input tree already. If needs, i
-> > >> can repost.
-> > >>
-> > > If it is not small change like to remove a file in a patch, I think should be re-
-> > submitted.
-> > > Will drop your previous patch in my tree.
-> > >
-> > >>> arch/arm/plat-samsung/dev-keypad.c:41: warning: 'struct
-> > >> samsung_keypad_platdata' declared inside parameter list
-> > >>> arch/arm/plat-samsung/dev-keypad.c:41: warning: its scope is only this
-> > definition
-> > >> or declaration, which is probably not what you want
-> > >>> arch/arm/plat-samsung/dev-keypad.c: In function
-> > >> 'samsung_keypad_set_platdata':
-> > >>> arch/arm/plat-samsung/dev-keypad.c:50: error: invalid application of 'sizeof'
-> > to
-> > >> incomplete type 'struct samsung_keypad_platdata'
-> > >>> arch/arm/plat-samsung/dev-keypad.c:54: error: dereferencing pointer to
-> > >> incomplete type
-> > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: dereferencing pointer to
-> > >> incomplete type
-> > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: 'samsung_keypad_cfg_gpio'
-> > >> undeclared (first use in this function)
-> > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: (Each undeclared identifier is
-> > >> reported only once
-> > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: for each function it appears in.)
-> > >>> make[1]: *** [arch/arm/plat-samsung/dev-keypad.o] Error 1
-> > >>>
-> > >>> As you know, released 35 today. So we have no much time for this merge
-> > >> window.
-> > >> I'm not sure about merge rule, but I think the compile problem can be
-> > >> solved by merge to 36 of input tree and samsung platform tree.
-> > >
-> > > Hmm...actually, already informed about that on linux-next.
-> > > If it's just build problem, I or Dmitry can fix it. However, this is not just that.
-> > > I cannot understand how your 'plat/keypad.h' was included to both of patch.
-> > 
-> > Please see the prior mail history. The keypad.h file is included only at
-> > the 1/3 patch in the original patch set, but Dmitry applied the 3/3
-> > patch modified with keypad.h.
-> > 
-> > The basic problem is that each patches be applied on two tree. It makes
-> > compile errors at the one tree lacking keypad.h file because both tree
-> > share keypad.h file.
-> > 
-> > There are two solutions, First, all patches go to one tree. Second, we
-> > wait for merging to 36 of both tree then apply platform patches.
-> > 
-> > > And I'm not sure, should be 'plat/keypad.h' in which tree...
-> > >
-> 
+On Sat, Jul 31, 2010 at 10:23:45AM -0300, Mauro Carvalho Chehab wrote:
 > Hi Dmitry,
 > 
-> How can/should I do for it?...Which way is better to us? :-)
+> Em 31-07-2010 06:19, Dmitry Torokhov escreveu:
+> > Hi Mauro,
+> > 
+> > I finally got a chance to review the patches adding handling of large
+> > scancodes to input core and there are a few things with this approach
+> > that I do not like.
 > 
+> Thanks for the review!
 > 
-> Joonyoung,
-> Let's wait for Dmitry's reply.
-> I will holding drop your previous patch in my tree till that time.
+> > First of all I do not think that we should be working with scancode via
+> > a pointer as it requires additional compat handling when running 32-bit
+> > userspace on 64-bit kernel. We can use a static buffer of sufficient
+> > size (lets say 32 bytes) to move scancode around and simply increase its
+> > size if we come upon device that uses even bigger scancodes. As long as
+> > buffer is at the end we can handle this in a compatible way.
 > 
+> Yes, this is the downside of using a pointer. I'm not aware of a Remote
+> Controller protocol using more than 256 bits for scancode, so 32 bits
+> should be ok.
+> 
+> > The other issue is that interface is notsymmetrical, setting is done by
+> > scancode but retrieval is done by index. I think we should be able to
+> > use both scancode and index in both operations.
+> 
+> Yes, this also bothered me. I was thinking to do something similar to your
+> approach of having a bool to select between them. This change is welcome.
+> 
+> > The usefulnes of reserved data elements in the structure is doubtful,
+> > since we do not seem to require them being set to a particular value and
+> > so we'll be unable to distinguish betwee legacy and newer users.
+> 
+> David proposed some parameters that we rejected on our discussions. As we
+> might need to add something similar, I decided to keep it on my approach,
+> since a set of reserved fields wouldn't hurt (and removing it on our discussions
+> would be easy), but I'm ok on removing them.
+> 
+> > I also concerned about the code very messy with regard to using old/new
+> > style interfaces instea dof converting old ones to use new
+> > insfrastructure,
+> 
+> Good cleanup at the code!
+> 
+> > I below is something that addresses these issues and seems to be working
+> > for me. It is on top of your patches and it also depends on a few
+> > changes in my tree that I have not publushed yet but plan on doing that
+> > tomorrow. I am also attaching patches converting sparse keymap and hid
+> > to the new style of getkeycode and setkeycode as examples.
+> > 
+> > Please take a look and let me know if I missed something important.
+> 
+> It seems to work for me. After you add the patches on your git tree, I'll 
+> work on porting the RC core to the new approach, and change the ir-keycode
+> userspace program to work with, in order to be 100% sure that it will work, 
+> but I can't foresee any missing part on it.
+> 
+> Currently, I'm not using my input patches, as I was waiting for your
+> review. I just patched the userspace application, in order to test the legacy
+> mode.
+>
 
-Kgene,
+OK, great.
 
-I will be sending pull request to Linus in the next day or so, so it
-will have plat/keypad.h as it is in my tree. Once you merge (with his or
-mine) you have an option to patching the plat/keypad.h with hooks that I
-removed, although I would prefer if you changed the way you initialize
-your devices since having the these hooks defeats the purpose of having
-config pointer in platform data. Another option would be to have a
-separate include file for the hooks, one that
-drivers/input/keyboard/samsung-keypad.c does not use.
+I want to fold all the patches from your tree plus this one into one and
+apply in one shpt (mentioning Jarod and Dan as authors of fixup patches
+in the changelog) - I do not believe we shoudl expose intermediate
+versions in the code that will go to Linus. Are you OK with this?
 
 Thanks.
 

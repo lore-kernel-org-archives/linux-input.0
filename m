@@ -1,49 +1,160 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH 09/13] IR: add helper function for hardware with small
- o/b buffer.
-Date: Mon, 2 Aug 2010 11:54:05 -0400
-Message-ID: <20100802155405.GD2296@redhat.com>
-References: <1280588366-26101-1-git-send-email-maximlevitsky@gmail.com>
- <1280588366-26101-10-git-send-email-maximlevitsky@gmail.com>
- <1280715061.19666.47.camel@localhost>
+From: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: Remote that breaks current system (was: IR: Port ene driver...)
+	it.
+Date: Mon, 2 Aug 2010 12:11:41 -0400
+Message-ID: <AANLkTi=F4CQ2_pCDno1SNGS6w=7wERk1FwjezkwC=nS5@mail.gmail.com>
+References: <AANLkTimaut1mMUXwbJAgjNjmQkxgsf-GOCTXmKYNm1Lz@mail.gmail.com>
+	<BTtOJbzJjFB@christoph>
+	<AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
+	<1280602281.20879.76.camel@localhost>
+	<AANLkTi=tZaSGp3V8+4FHupzegmVrgM4-dzJb-y8YazOh@mail.gmail.com>
+	<20100802151225.GA2296@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1280715061.19666.47.camel@localhost>
+In-Reply-To: <20100802151225.GA2296@redhat.com>
 Sender: linux-media-owner@vger.kernel.org
-To: Andy Walls <awalls@md.metrocast.net>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, lirc-list@lists.sourceforge.net, Jarod Wilson <jarod@wilsonet.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mauro Carvalho Chehab <mchehab@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>
+To: Jarod Wilson <jarod@redhat.com>
+Cc: Andy Walls <awalls@md.metrocast.net>, Christoph Bartelmus <lirc@bartelmus.de>, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, maximlevitsky@gmail.com, mchehab@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Aug 01, 2010 at 10:11:01PM -0400, Andy Walls wrote:
-> On Sat, 2010-07-31 at 17:59 +0300, Maxim Levitsky wrote:
-...
-> >  struct ir_input_dev {
-> > @@ -69,9 +81,10 @@ struct ir_input_dev {
-> >  	char				*driver_name;	/* Name of the driver module */
-> >  	struct ir_scancode_table	rc_tab;		/* scan/key table */
-> >  	unsigned long			devno;		/* device number */
-> > -	const struct ir_dev_props	*props;		/* Device properties */
-> > +	struct ir_dev_props		*props;		/* Device properties */
-> 
-> So I don't think the struct ir_dev_props structure is the right place to
-> be storing current operating parameters. IMO, operating parameters
-> stored in the ir_dev_props are "too far" from the lower level driver,
-> and are essentially mirroring what the low level driver should be
-> tracking internally as it's own state anyway.
-> 
-> 
-> So in summary, I think we need to keep the opertions in struct
-> ir_dev_props simple using ,get_parameters() and .set_parameters() to
-> contol the lower level driver and to fetch, retrieve, and store
-> parameters.
+On Mon, Aug 2, 2010 at 11:12 AM, Jarod Wilson <jarod@redhat.com> wrote:
+> On Sat, Jul 31, 2010 at 05:53:33PM -0400, Jon Smirl wrote:
+>> On Sat, Jul 31, 2010 at 2:51 PM, Andy Walls <awalls@md.metrocast.net=
+> wrote:
+> ...
+>> > Since these two protocols have such close timings that systematic =
+errors
+>> > can cause misclassification when using simple mark or space measur=
+ements
+>> > against fixed thresholds, it indicates that a more sophisticated
+>> > discrimination mechanism would be needed. =A0Perhaps one that take=
+s multiple
+>> > successive measurements into account?
+>>
+>> If we get to the point where we need more sophisticated
+>> classifications we can build it. But are we at that point yet? I'd
+>> prefer to initially leave everything pretty strict as a way of
+>> flushing out driver implementation bugs.
+>>
+>> Find some remotes and receivers that break the current system.
+>
+> Got one. The Streamzap PC Remote. Its 14-bit RC5. Can't get it to pro=
+perly
+> decode in-kernel for the life of me. I got lirc_streamzap 99% of the =
+way
+> ported over the weekend, but this remote just won't decode correctly =
+w/the
+> in-kernel RC5 decoder.
 
-Yeah, I neglected to consider this change the first pass through an
-earlier revision. Making props modifiable on the fly does feel like we're
-mixing up hardware features with hardware state, and perhaps the
-on-the-fly-modifiable state bits should be stored somewhere else.
+Manchester encoding may need a decoder that waits to get 2-3 edge
+changes before deciding what the first bit. As you decode the output
+is always a couple bits behind the current input data.
 
--- 
-Jarod Wilson
-jarod@redhat.com
+You can build of a table of states
+L0 S1 S0 L1  - emit a 1, move forward an edge
+S0 S1 L0 L1 - emit a 0, move forward an edge
+
+By doing it that way you don't have to initially figure out the bit clo=
+ck.
+
+The current decoder code may not be properly tracking the leading
+zero. In Manchester encoding it is illegal for a bit to be 11 or 00.
+They have to be 01 or 10. If you get a 11 or 00 bit, your decoding is
+off by 1/2 a bit cycle.
+
+Did you note the comment that Extended RC-5 has only a single start
+bit instead of two?
+
+>
+> Working:
+> Streamzap receiver + RC6 (MCE) remote, in-kernel decoding
+> Streamzap receiver + RC5 (Streamzap) remote, lirc decoding
+>
+> Not working:
+> Streamzap receiver + RC5 (Streamzap) remote, in-kernel decoding
+> MCE transceiver + RC5 (Streamzap) remote, in-kernel decoding
+>
+> Failure mode is identical between the two, leading me to believe my
+> streamzap port is good to go, we just have an issue to track down wit=
+h rc5
+> decoding.
+>
+> Said failure mode is that RC5 fails at STATE_INACTIVE (0) with the in=
+itial
+> space provided by both receivers, then gets rolling with (I believe) =
+the
+> first pulse. It then gets all the way to STATE_FINISHED, and bails,
+> because it should be on a space there, but its on a pulse.
+>
+> I've twiddled the decoder to proceed even if its a pulse, but the
+> resulting decoding is still no good, as multiple adjacent keys (which=
+ have
+> proper decoded values that only differ by 1, per lirc decoding) get
+> decoded to the same value as one another.
+>
+> Still poking around trying to figure out the problem, but here's what=
+ the
+> (slightly modified to not bail when it gets to STATE_FINISHED with a
+> pulse) rc5 decoder is seeing/doing:
+>
+> ir_rc5_decode: RC5(x) decode started at state 0 (4292819813us space)
+> ir_rc5_decode: RC5(x) decode failed at state 0 (4292819813us space)
+> ir_rc5_decode: RC5(x) decode started at state 0 (896us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (7us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (1031us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (896us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 3 (7us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 3 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (1031us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+> ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+> ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+> ir_rc5_decode: RC5(x) decode started at state 4 (1031us pulse)
+> ir_rc5_decode: RC5 usually ends w/space, wtf?
+> ir_rc5_decode: RC5 scancode 0x1129 (toggle: 0)
+> ir_getkeycode: unknown key for scancode 0x1129
+>
+> This was for the OK button on the remote, which in lircd, decodes to
+> scancode 0x12 in the lower 6 bits, high 8 bits are 0xa3 for all butto=
+ns.
+> At least, I think I'm decoding lircd.conf correctly. See here to be s=
+ure:
+>
+> http://lirc.sourceforge.net/remotes/streamzap/lircd.conf.streamzap
+>
+> --
+> Jarod Wilson
+> jarod@redhat.com
+>
+>
+
+
+
+--=20
+Jon Smirl
+jonsmirl@gmail.com

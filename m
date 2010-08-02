@@ -1,54 +1,138 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 7/7] elantech: average the two coordinates when 2 fingers
-Date: Mon, 02 Aug 2010 16:12:55 +0200
-Message-ID: <4C56D267.3000600@euromail.se>
-References: <4C1FD2B0.1080504@tudelft.nl>	<4C1FD454.4050807@tudelft.nl>	<20100721033655.GA9070@core.coreip.homeip.net>	<4C532009.4020103@tudelft.nl>	<4C533DC3.9070001@euromail.se> <AANLkTi=cEEx-5eQPbRYvMMaECvXKQ+i-e0Eaw_g4JY7=@mail.gmail.com> <4C54ABFE.8050106@tudelft.nl> <4C554058.6080203@euromail.se> <4C555A44.5050505@tudelft.nl> <4C557D3A.3050501@euromail.se> <4C567F27.7070900@tudelft.nl> <4C5697C4.1020801@euromail.se> <4C56A81E.3040703@tudelft.nl> <4C56AA67.8000902@euromail.se> <4C56AD12.1080106@tudelft.nl> <4C56B00B.50204@euromail.se> <4C56B686.60606@tudelft.nl> <4C56BA13.3030104@euromail.se> <4C56BE30.2070807@tudelft.nl> <4C56C213.2010605@euromail.se> <4C56C6DF.2040106@tudelft.nl>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: Remote that breaks current system (was: IR: Port ene driver...) it.
+Date: Mon, 2 Aug 2010 11:12:25 -0400
+Message-ID: <20100802151225.GA2296@redhat.com>
+References: <AANLkTimaut1mMUXwbJAgjNjmQkxgsf-GOCTXmKYNm1Lz@mail.gmail.com>
+ <BTtOJbzJjFB@christoph>
+ <AANLkTikRBupAsSSk5QmudHrpEccMSOjmK2bT+xg8CocK@mail.gmail.com>
+ <1280602281.20879.76.camel@localhost>
+ <AANLkTi=tZaSGp3V8+4FHupzegmVrgM4-dzJb-y8YazOh@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:59350 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753381Ab0HBONM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Aug 2010 10:13:12 -0400
-In-Reply-To: <4C56C6DF.2040106@tudelft.nl>
+Received: from mx1.redhat.com ([209.132.183.28]:34786 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751490Ab0HBPYK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Aug 2010 11:24:10 -0400
+Content-Disposition: inline
+In-Reply-To: <AANLkTi=tZaSGp3V8+4FHupzegmVrgM4-dzJb-y8YazOh@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Cc: Chris Bagwell <chris@cnpbagwell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andy Walls <awalls@md.metrocast.net>, Christoph Bartelmus <lirc@bartelmus.de>, jarod@wilsonet.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, maximlevitsky@gmail.com, mchehab@redhat.com
 
-On 08/02/2010 03:23 PM, =C9ric Piel wrote:
-
-[...]
-
->> For your usecase, perhaps one should add ABS_ZOOM etcetera instead, =
-and patch up
-
->> synaptics to use those values.
-> Detecting the pinch gesture in-kernel? In addition to me not knowing =
-how
-> to do gesture recognition, I doubt Dmitry would ever accept such a
-> patch, and Peter Hutterer would probably not enjoy a lot either the
-> patch for synaptics.
+On Sat, Jul 31, 2010 at 05:53:33PM -0400, Jon Smirl wrote:
+> On Sat, Jul 31, 2010 at 2:51 PM, Andy Walls <awalls@md.metrocast.net>=
+ wrote:
+=2E..
+> > Since these two protocols have such close timings that systematic e=
+rrors
+> > can cause misclassification when using simple mark or space measure=
+ments
+> > against fixed thresholds, it indicates that a more sophisticated
+> > discrimination mechanism would be needed. =A0Perhaps one that takes=
+ multiple
+> > successive measurements into account?
 >=20
-> That's why I like the idea of reporting MT events as well as we can (=
+> If we get to the point where we need more sophisticated
+> classifications we can build it. But are we at that point yet? I'd
+> prefer to initially leave everything pretty strict as a way of
+> flushing out driver implementation bugs.
+>=20
+> Find some remotes and receivers that break the current system.
+
+Got one. The Streamzap PC Remote. Its 14-bit RC5. Can't get it to prope=
+rly
+decode in-kernel for the life of me. I got lirc_streamzap 99% of the wa=
+y
+ported over the weekend, but this remote just won't decode correctly w/=
 the
-> user will know that on his device some gestures are limited), and  th=
+in-kernel RC5 decoder.
+
+Working:
+Streamzap receiver + RC6 (MCE) remote, in-kernel decoding
+Streamzap receiver + RC5 (Streamzap) remote, lirc decoding
+
+Not working:
+Streamzap receiver + RC5 (Streamzap) remote, in-kernel decoding
+MCE transceiver + RC5 (Streamzap) remote, in-kernel decoding
+
+=46ailure mode is identical between the two, leading me to believe my
+streamzap port is good to go, we just have an issue to track down with =
+rc5
+decoding.
+
+Said failure mode is that RC5 fails at STATE_INACTIVE (0) with the init=
+ial
+space provided by both receivers, then gets rolling with (I believe) th=
 e
-> rest of the stack can stay completely standard.
+first pulse. It then gets all the way to STATE_FINISHED, and bails,
+because it should be on a space there, but its on a pulse.
 
+I've twiddled the decoder to proceed even if its a pulse, but the
+resulting decoding is still no good, as multiple adjacent keys (which h=
+ave
+proper decoded values that only differ by 1, per lirc decoding) get
+decoded to the same value as one another.
 
-Using my offering of a different solution as an argument _for_ your sol=
-ution is
-incorrect. It is clear that you want zoom to work, and rotate to almost=
- work. I
-disagree with the notion of implementing a fairly complex but still inc=
-omplete
-MT solution to that end alone. I am sure there is a third alternative h=
-ere.
+Still poking around trying to figure out the problem, but here's what t=
+he
+(slightly modified to not bail when it gets to STATE_FINISHED with a
+pulse) rc5 decoder is seeing/doing:
 
-Henrik
+ir_rc5_decode: RC5(x) decode started at state 0 (4292819813us space)
+ir_rc5_decode: RC5(x) decode failed at state 0 (4292819813us space)
+ir_rc5_decode: RC5(x) decode started at state 0 (896us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (7us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (1031us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (896us pulse)
+ir_rc5_decode: RC5(x) decode started at state 3 (7us pulse)
+ir_rc5_decode: RC5(x) decode started at state 3 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (1031us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us pulse)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (896us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (7us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (896us pulse)
+ir_rc5_decode: RC5(x) decode started at state 2 (1664us space)
+ir_rc5_decode: RC5(x) decode started at state 1 (775us space)
+ir_rc5_decode: RC5(x) decode started at state 2 (1920us pulse)
+ir_rc5_decode: RC5(x) decode started at state 4 (1031us pulse)
+ir_rc5_decode: RC5 usually ends w/space, wtf?
+ir_rc5_decode: RC5 scancode 0x1129 (toggle: 0)
+ir_getkeycode: unknown key for scancode 0x1129
+
+This was for the OK button on the remote, which in lircd, decodes to
+scancode 0x12 in the lower 6 bits, high 8 bits are 0xa3 for all buttons=
+=2E
+At least, I think I'm decoding lircd.conf correctly. See here to be sur=
+e:
+
+http://lirc.sourceforge.net/remotes/streamzap/lircd.conf.streamzap
+
+--=20
+Jarod Wilson
+jarod@redhat.com
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

@@ -1,239 +1,172 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.36-rc0
-Date: Mon, 2 Aug 2010 18:46:08 -0700
-Message-ID: <20100803014608.GA3436@core.coreip.homeip.net>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: RE: [PATCH v6 3/3] input: samsung-keypad - Add samsung keypad driver
+Date: Tue, 03 Aug 2010 11:10:32 +0900
+Message-ID: <00ea01cb32b1$115ae1c0$3410a540$%kim@samsung.com>
+References: <4C4688BE.1080409@samsung.com>
+ <20100721080725.GA21373@core.coreip.homeip.net> <4C46B777.9010808@samsung.com>
+ <009501cb28d1$c54c9f00$4fe5dd00$%kim@samsung.com>
+ <4C5636DC.5070703@samsung.com>
+ <019a01cb31f4$226a8aa0$673f9fe0$%kim@samsung.com>
+ <4C564C6A.9040204@samsung.com>
+ <002f01cb3201$5da32480$18e96d80$%kim@samsung.com>
+ <4C565D21.8050506@samsung.com>
+ <003901cb320c$47daa960$d78ffc20$%kim@samsung.com>
+ <20100802075827.GA11903@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:51746 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751420Ab0HCBqN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Aug 2010 21:46:13 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20100802075827.GA11903@core.coreip.homeip.net>
+Content-language: ko
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Joonyoung Shim' <jy0922.shim@samsung.com>, linux-samsung-soc@vger.kernel.org, kyungmin.park@samsung.com, ben-linux@fluff.org, linux-input@vger.kernel.org, ch.naveen@samsung.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Dmitry Torokhov wrote:
+> 
+> On Mon, Aug 02, 2010 at 03:30:57PM +0900, Kukjin Kim wrote:
+> > Joonyoung Shim wrote:
+> > >
+> > > On 8/2/2010 2:12 PM, Kukjin Kim wrote:
+> > > > Joonyoung Shim wrote:
+> > > >> On 8/2/2010 12:38 PM, Kukjin Kim wrote:
+> > > >>> Joonyoung Shim wrote:
+> > > >>>> Hi, I came back from vacation.
+> > > >>>>
+> > > >>>>>>>> Do you have any feedback? If ok, i want to go to input tree
 or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> samsung
+> > > >>>>>>>> tree these added sched.h including.
+> > > >>>>>>> I applied the patch adding samsung-keypad.c and the platform
+data
+> > > >>>>>>> arch/arm/plat-samsung/include/plat/keypad.h and I expect that
+> > > >>>>>>> patches to actually enable keypad will go through appropriate
+> > > >>>>>>> platform tree(s).
+> > > >>>>>>>
+> > > >>>>>> OK, the rest will go through samsung platform tree
+> > > >>>>>>
+> > > >>>>> Ok..will apply.
+> > > >>>>>
+> > > >>>> Kukjin, could you remove keypad.h on the commit "ARM: SAMSUNG:
+> Add
+> > > >>>> keypad device support" of the samsung platform tree. The keypad.h
+file
+> > > >>>> was included on input tree.
+> > > >>>>
+> > > >>
+> > >
+>
+(http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=0fffed2
+7f92d9d7
+> > > >>>> a34de9fe017b7082b5958bb93)
+> > > >>> You mean in plat-samsung/dev-keypad.c?
+> > > >>> If remove inclusion plat/keypad.h in there, following build error
+happens.
+> > > >>>
+> > > >> No. I mean to remove arch/arm/plat-samsung/include/plat/keypad.h
+file on
+> > > >> samsung platform tree, it was applied on input tree already. If
+needs, i
+> > > >> can repost.
+> > > >>
+> > > > If it is not small change like to remove a file in a patch, I think
+should be re-
+> > > submitted.
+> > > > Will drop your previous patch in my tree.
+> > > >
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:41: warning: 'struct
+> > > >> samsung_keypad_platdata' declared inside parameter list
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:41: warning: its scope is only
+this
+> > > definition
+> > > >> or declaration, which is probably not what you want
+> > > >>> arch/arm/plat-samsung/dev-keypad.c: In function
+> > > >> 'samsung_keypad_set_platdata':
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:50: error: invalid application
+of
+> 'sizeof'
+> > > to
+> > > >> incomplete type 'struct samsung_keypad_platdata'
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:54: error: dereferencing
+pointer to
+> > > >> incomplete type
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: dereferencing
+pointer to
+> > > >> incomplete type
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:55: error:
+> 'samsung_keypad_cfg_gpio'
+> > > >> undeclared (first use in this function)
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: (Each undeclared
+identifier
+> is
+> > > >> reported only once
+> > > >>> arch/arm/plat-samsung/dev-keypad.c:55: error: for each function it
+> appears in.)
+> > > >>> make[1]: *** [arch/arm/plat-samsung/dev-keypad.o] Error 1
+> > > >>>
+> > > >>> As you know, released 35 today. So we have no much time for this
+merge
+> > > >> window.
+> > > >> I'm not sure about merge rule, but I think the compile problem can
+be
+> > > >> solved by merge to 36 of input tree and samsung platform tree.
+> > > >
+> > > > Hmm...actually, already informed about that on linux-next.
+> > > > If it's just build problem, I or Dmitry can fix it. However, this is
+not just that.
+> > > > I cannot understand how your 'plat/keypad.h' was included to both of
+patch.
+> > >
+> > > Please see the prior mail history. The keypad.h file is included only
+at
+> > > the 1/3 patch in the original patch set, but Dmitry applied the 3/3
+> > > patch modified with keypad.h.
+> > >
+> > > The basic problem is that each patches be applied on two tree. It
+makes
+> > > compile errors at the one tree lacking keypad.h file because both tree
+> > > share keypad.h file.
+> > >
+> > > There are two solutions, First, all patches go to one tree. Second, we
+> > > wait for merging to 36 of both tree then apply platform patches.
+> > >
+> > > > And I'm not sure, should be 'plat/keypad.h' in which tree...
+> > > >
+> >
+> > Hi Dmitry,
+> >
+> > How can/should I do for it?...Which way is better to us? :-)
+> >
+> >
+> > Joonyoung,
+> > Let's wait for Dmitry's reply.
+> > I will holding drop your previous patch in my tree till that time.
+> >
+> 
+> Kgene,
+> 
+> I will be sending pull request to Linus in the next day or so, so it
+> will have plat/keypad.h as it is in my tree. Once you merge (with his or
+> mine) you have an option to patching the plat/keypad.h with hooks that I
+> removed, although I would prefer if you changed the way you initialize
+> your devices since having the these hooks defeats the purpose of having
+> config pointer in platform data. Another option would be to have a
+> separate include file for the hooks, one that
+> drivers/input/keyboard/samsung-keypad.c does not use.
+> 
+> Thanks.
+> 
+Hi Dmitry,
 
-to receive updates for the input subsystem.
+Hmm...I saw your pull request to Linus...ok...will replace new one which
+don't have duplicate 'plat/keypad.h' in my tree.
+But..in this case, I'm not sure which way is better to us...
 
-Changelog:
----------
+Thanks.
 
-Anatolij Gustschin (2):
-      Input: ads7846 - allow specifying irq trigger type in platform da=
-ta
-      Input: ads7846 - extend the driver for ads7845 controller support
-
-Axel Lin (3):
-      Input: wistron_btns - fix a memory leak in wb_module_init error p=
-ath
-      Input: atlas_btns - adds a missing owner field for atlas_acpi_dri=
-ver
-      Input: atlas_btns - fix mixing acpi_status and int for return val=
-ue
-
-Chris Bagwell (2):
-      Input: synaptics - only report width on hardware that supports it
-      Input: synaptics - set min/max for finger width
-
-Chris Merrett (1):
-      Input: xpad - add product ID for Hori Fighting Stick EX2
-
-Christoph Egger (1):
-      Input: i8042 - remove SPRUCE support
-
-Christoph Fritz (1):
-      Input: xpad - remove mouse buttons and axes for dance pads
-
-Dan Carpenter (2):
-      Input: lm8323 - fix error handling in lm8323_probe()
-      Input: adxl34x - fix leak and use after free
-
-Dmitry Torokhov (11):
-      Input: usbtouchscreen - reduce number fo be16_to_cpu conversions
-      Input: ad7879 - use threaded IRQ
-      Input: ad7879 - add open and close methods
-      Input: adxl34 - make enable/disable separate from suspend/resume
-      Input: ads7846 - do not allow altering platform data
-      Input: atlas_btns - switch to using pr_err() and friends
-      Input: fix signedness warning in input_set_keycode()
-      Input: change input handlers to use bool when possible
-      Input: evdev - signal that device is writable in evdev_poll()
-      Input: i8042 - reset keyboard controller wehen resuming from S2R
-      Input: adp5588-keypad - fix NULL dereference in adp5588_gpio_add(=
-)
-
-Grazvydas Ignotas (1):
-      Input: gpio-keys - add gpiolib debounce support
-
-Henrik Rydberg (7):
-      Input: evdev - convert to dynamic event buffer
-      Input: evdev - use driver hint to compute size of event buffer
-      Input: bcm5974 - set the average number of events per MT event pa=
-cket
-      Input: hid-input - use a larger event buffer for MT devices
-      Input: evdev - never leave the client buffer empty after write
-      Input: introduce MT event slots
-      Input: document the MT event slot protocol
-
-Jiri Slaby (1):
-      Input: tps6507x-ts - remove unneeded NULL test
-
-Joonyoung Shim (3):
-      Input: mcs - Add MCS touchkey driver
-      Input: Add ATMEL QT602240 touchscreen driver
-      Input: samsung-keypad - Add samsung keypad driver
-
-Julien Moutinho (1):
-      Input: mousedev - signal that device is writable in mousedev_poll=
-()
-
-Lars-Peter Clausen (1):
-      Input: Add pwm beeper driver
-
-Luo Jinghua (1):
-      Input: bcm5974 - turn wellspring mode off if failed to start traf=
-fic
-
-Luotao Fu (1):
-      Input: matrix_keypad - add support for clustered irq
-
-Markus Lehtonen (1):
-      Input: twl4030-pwrbutton - replace __devinit with __init
-
-Michael Hennerich (5):
-      Input: add driver for ADXL345/346 Digital Accelerometers
-      Input: adxl34x - add support for ADXL346 orientation sensing
-      Input: ad7879 - use i2c_smbus_read_i2c_block_data() to lower over=
-head
-      Input: ad7879 - fix spi word size to 16 bit
-      Input: ad7879 - report EV_KEY/BTN_TOUCH events
-
-Mike Frysinger (1):
-      Input: ad7879 - split bus logic out
-
-Oliver Neukum (4):
-      Input: release pressed keys when resuming device
-      Input: usbtouchscreen - implement basic suspend/resume
-      Input: usbtouchscreen - implement runtime power management
-      Input: usbtouchscreen - implement reset_resume
-
-Petr =C5=A0tetiar (2):
-      Input: usbtouchscreen - add support for ET&T TC4UM touchscreen co=
-ntroller
-      HID - blacklist ET&T TC4UH touchscreen controller
-
-Ping Cheng (1):
-      Input: wacom - add support for DTU2231 and DTU1631
-
-Samuel Thibault (1):
-      Input: keyboard - also match braille-only keyboards
-
-Samuli Konttila (1):
-      Input: cy8ctmg110 - capacitive touchscreen support
-
-Xiaolong CHEN (1):
-      Input: adp5588-keys - support GPI events for ADP5588 devices
-
-Xiaolong Chen (1):
-      Input: adp5588-keys - export unused GPIO pins
-
-
-Diffstat:
---------
-
- Documentation/input/multi-touch-protocol.txt |  218 +++--
- arch/arm/plat-samsung/include/plat/keypad.h  |   43 +
- drivers/char/keyboard.c                      |    6 +-
- drivers/hid/hid-core.c                       |    1 +
- drivers/hid/hid-ids.h                        |    1 +
- drivers/hid/hid-input.c                      |    3 +
- drivers/input/evdev.c                        |   54 +-
- drivers/input/input.c                        |  182 +++--
- drivers/input/joydev.c                       |    7 +-
- drivers/input/joystick/xpad.c                |  108 ++-
- drivers/input/keyboard/Kconfig               |   21 +
- drivers/input/keyboard/Makefile              |    2 +
- drivers/input/keyboard/adp5588-keys.c        |  351 +++++++-
- drivers/input/keyboard/gpio_keys.c           |   19 +-
- drivers/input/keyboard/lm8323.c              |   12 +-
- drivers/input/keyboard/matrix_keypad.c       |  108 ++-
- drivers/input/keyboard/mcs_touchkey.c        |  239 +++++
- drivers/input/keyboard/samsung-keypad.c      |  491 +++++++++
- drivers/input/misc/Kconfig                   |   48 +
- drivers/input/misc/Makefile                  |    4 +
- drivers/input/misc/adxl34x-i2c.c             |  163 +++
- drivers/input/misc/adxl34x-spi.c             |  145 +++
- drivers/input/misc/adxl34x.c                 |  915 +++++++++++++++++
- drivers/input/misc/adxl34x.h                 |   30 +
- drivers/input/misc/atlas_btns.c              |   38 +-
- drivers/input/misc/pwm-beeper.c              |  199 ++++
- drivers/input/misc/twl4030-pwrbutton.c       |   12 +-
- drivers/input/misc/wistron_btns.c            |    4 +-
- drivers/input/mouse/bcm5974.c                |   23 +-
- drivers/input/mouse/synaptics.c              |    8 +-
- drivers/input/mousedev.c                     |   15 +-
- drivers/input/serio/i8042-ppcio.h            |   75 --
- drivers/input/serio/i8042.c                  |   65 +-
- drivers/input/tablet/wacom_wac.c             |   44 +
- drivers/input/tablet/wacom_wac.h             |    1 +
- drivers/input/touchscreen/Kconfig            |   67 +-
- drivers/input/touchscreen/Makefile           |    6 +-
- drivers/input/touchscreen/ad7879-i2c.c       |  143 +++
- drivers/input/touchscreen/ad7879-spi.c       |  198 ++++
- drivers/input/touchscreen/ad7879.c           |  625 ++++--------
- drivers/input/touchscreen/ad7879.h           |   30 +
- drivers/input/touchscreen/ads7846.c          |  206 +++-
- drivers/input/touchscreen/cy8ctmg110_ts.c    |  363 +++++++
- drivers/input/touchscreen/mcs5000_ts.c       |    6 +-
- drivers/input/touchscreen/qt602240_ts.c      | 1401 ++++++++++++++++++=
-++++++++
- drivers/input/touchscreen/tps6507x-ts.c      |    3 -
- drivers/input/touchscreen/usbtouchscreen.c   |  215 +++--
- include/linux/i2c/adp5588.h                  |   37 +
- include/linux/i2c/mcs.h                      |   34 +
- include/linux/i2c/mcs5000_ts.h               |   24 -
- include/linux/i2c/qt602240_ts.h              |   38 +
- include/linux/input.h                        |   60 ++-
- include/linux/input/adxl34x.h                |  349 +++++++
- include/linux/input/cy8ctmg110_pdata.h       |   10 +
- include/linux/input/matrix_keypad.h          |    6 +
- include/linux/spi/ads7846.h                  |    3 +-
- 56 files changed, 6496 insertions(+), 983 deletions(-)
- create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
- create mode 100644 drivers/input/keyboard/mcs_touchkey.c
- create mode 100644 drivers/input/keyboard/samsung-keypad.c
- create mode 100644 drivers/input/misc/adxl34x-i2c.c
- create mode 100644 drivers/input/misc/adxl34x-spi.c
- create mode 100644 drivers/input/misc/adxl34x.c
- create mode 100644 drivers/input/misc/adxl34x.h
- create mode 100644 drivers/input/misc/pwm-beeper.c
- create mode 100644 drivers/input/touchscreen/ad7879-i2c.c
- create mode 100644 drivers/input/touchscreen/ad7879-spi.c
- create mode 100644 drivers/input/touchscreen/ad7879.h
- create mode 100644 drivers/input/touchscreen/cy8ctmg110_ts.c
- create mode 100644 drivers/input/touchscreen/qt602240_ts.c
- create mode 100644 include/linux/i2c/mcs.h
- delete mode 100644 include/linux/i2c/mcs5000_ts.h
- create mode 100644 include/linux/i2c/qt602240_ts.h
- create mode 100644 include/linux/input/adxl34x.h
- create mode 100644 include/linux/input/cy8ctmg110_pdata.h
-
---=20
-Dmitry
-
+Best regards,
+Kgene.
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
+SW Solution Development Team, Samsung Electronics Co., Ltd.

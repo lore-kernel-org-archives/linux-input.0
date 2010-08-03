@@ -1,132 +1,237 @@
-From: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: Remote that breaks current system
-Date: Mon, 2 Aug 2010 16:42:25 -0400
-Message-ID: <AANLkTin9+s_AbKst+ZsY6CfzeRYCh=V7kjseut5sbO23@mail.gmail.com>
-References: <AANLkTi=F4CQ2_pCDno1SNGS6w=7wERk1FwjezkwC=nS5@mail.gmail.com>
-	<BU4OxfMZjFB@christoph>
-	<AANLkTimXULCDLw6=kcFC2Kddbm4kuO4nqtXL6ozftMQj@mail.gmail.com>
-	<20100802180940.GF2296@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.36-rc0
+Date: Mon, 2 Aug 2010 18:46:08 -0700
+Message-ID: <20100803014608.GA3436@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:35109 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751102Ab0HBUm1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Aug 2010 16:42:27 -0400
-In-Reply-To: <20100802180940.GF2296@redhat.com>
+Received: from mail-pw0-f46.google.com ([209.85.160.46]:51746 "EHLO
+	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751420Ab0HCBqN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Aug 2010 21:46:13 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@redhat.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, Jarod Wilson <jarod@wilsonet.com>, awalls@md.metrocast.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, lirc-list@lists.sourceforge.net, mchehab@redhat.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Aug 2, 2010 at 2:09 PM, Jarod Wilson <jarod@redhat.com> wrote:
-> On Mon, Aug 02, 2010 at 01:13:22PM -0400, Jon Smirl wrote:
->> On Mon, Aug 2, 2010 at 12:42 PM, Christoph Bartelmus <lirc@bartelmus=
-=2Ede> wrote:
->> > Hi!
->> >
->> > Jon Smirl "jonsmirl@gmail.com" wrote:
->> > [...]
->> >>> Got one. The Streamzap PC Remote. Its 14-bit RC5. Can't get it t=
-o properly
->> >>> decode in-kernel for the life of me. I got lirc_streamzap 99% of=
- the way
->> >>> ported over the weekend, but this remote just won't decode corre=
-ctly w/the
->> >>> in-kernel RC5 decoder.
->> >
->> >> Manchester encoding may need a decoder that waits to get 2-3 edge
->> >> changes before deciding what the first bit. As you decode the out=
-put
->> >> is always a couple bits behind the current input data.
->> >>
->> >> You can build of a table of states
->> >> L0 S1 S0 L1 =A0- emit a 1, move forward an edge
->> >> S0 S1 L0 L1 - emit a 0, move forward an edge
->> >>
->> >> By doing it that way you don't have to initially figure out the b=
-it clock.
->> >>
->> >> The current decoder code may not be properly tracking the leading
->> >> zero. In Manchester encoding it is illegal for a bit to be 11 or =
-00.
->> >> They have to be 01 or 10. If you get a 11 or 00 bit, your decodin=
-g is
->> >> off by 1/2 a bit cycle.
->> >>
->> >> Did you note the comment that Extended RC-5 has only a single sta=
-rt
->> >> bit instead of two?
->> >
->> > It has nothing to do with start bits.
->> > The Streamzap remote just sends 14 (sic!) bits instead of 13.
->> > The decoder expects 13 bits.
->> > Yes, the Streamzap remote does _not_ use standard RC-5.
->> > Did I mention this already? Yes. ;-)
->>
->> If the remote is sending a weird protocol then there are several cho=
-ices:
->> =A0 1) implement raw mode
->> =A0 2) make a Stream-Zap protocol engine (it would be a 14b version =
-of
->> RC-5). Standard RC5 engine will still reject the messages.
->> =A0 3) throw away your Stream-Zap remotes
->>
->> I'd vote for #3, but #2 will probably make people happier.
->
-> Hm. Yeah, I know a few people who are quite attached to their Streamz=
-ap
-> remotes. I'm not a particularly big fan of it, I only got the thing o=
-ff
-> ebay to have the hardware so I could work on the driver. :) So yeah, =
-#3 is
-> probably not the best route. But I don't know that I'm a huge fan of =
-#2
-> either. Another decoder engine just for one quirky remote seems exces=
-sive,
-> and there's an option #4:
->
-> 4) just keep passing data out to lirc by default.
+Hi Linus,
 
-That's a decent idea. Implement the mainstream, standard protocols in
-the kernel and kick the weird stuff out to LIRC. We can avoid the
-whole world of raw mode, config files, etc. Let LIRC deal with all
-that. If the weird stuff gets enough users bring it in-kernel.  Maybe
-StreamZap will suddenly sell a million units, you never know.
+Please pull from:
 
-It is easy to implement a StreamZap engine. Just copy the RC5 one.
-Rename everything and adjust it to require one more bit. You'll have
-to modify the RC5 to wait for a bit interval (timeout) before sending
-the data up. If you want to get fancy use a weak symbol in the
-StrreamZap engine to tell the RC5 engine if Stream Zap is loaded. Then
-you can decide to wait the extra bit interval or not.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> Let lircd handle the default remote in this case. If you want to use
-> another remote that actually uses a standard protocol, and want to us=
-e
-> in-kernel decoding for that, its just an ir-keytable call away.
->
-> For giggles, I may tinker with implementing another decoder engine th=
-ough,
-> if only to force myself to actually pay more attention to protocol
-> specifics. For the moment, I'm inclined to go ahead with the streamza=
-p
-> port as it is right now, and include either an empty or not-empty, bu=
-t
-> not-functional key table.
->
-> --
-> Jarod Wilson
-> jarod@redhat.com
->
->
+to receive updates for the input subsystem.
+
+Changelog:
+---------
+
+Anatolij Gustschin (2):
+      Input: ads7846 - allow specifying irq trigger type in platform da=
+ta
+      Input: ads7846 - extend the driver for ads7845 controller support
+
+Axel Lin (3):
+      Input: wistron_btns - fix a memory leak in wb_module_init error p=
+ath
+      Input: atlas_btns - adds a missing owner field for atlas_acpi_dri=
+ver
+      Input: atlas_btns - fix mixing acpi_status and int for return val=
+ue
+
+Chris Bagwell (2):
+      Input: synaptics - only report width on hardware that supports it
+      Input: synaptics - set min/max for finger width
+
+Chris Merrett (1):
+      Input: xpad - add product ID for Hori Fighting Stick EX2
+
+Christoph Egger (1):
+      Input: i8042 - remove SPRUCE support
+
+Christoph Fritz (1):
+      Input: xpad - remove mouse buttons and axes for dance pads
+
+Dan Carpenter (2):
+      Input: lm8323 - fix error handling in lm8323_probe()
+      Input: adxl34x - fix leak and use after free
+
+Dmitry Torokhov (11):
+      Input: usbtouchscreen - reduce number fo be16_to_cpu conversions
+      Input: ad7879 - use threaded IRQ
+      Input: ad7879 - add open and close methods
+      Input: adxl34 - make enable/disable separate from suspend/resume
+      Input: ads7846 - do not allow altering platform data
+      Input: atlas_btns - switch to using pr_err() and friends
+      Input: fix signedness warning in input_set_keycode()
+      Input: change input handlers to use bool when possible
+      Input: evdev - signal that device is writable in evdev_poll()
+      Input: i8042 - reset keyboard controller wehen resuming from S2R
+      Input: adp5588-keypad - fix NULL dereference in adp5588_gpio_add(=
+)
+
+Grazvydas Ignotas (1):
+      Input: gpio-keys - add gpiolib debounce support
+
+Henrik Rydberg (7):
+      Input: evdev - convert to dynamic event buffer
+      Input: evdev - use driver hint to compute size of event buffer
+      Input: bcm5974 - set the average number of events per MT event pa=
+cket
+      Input: hid-input - use a larger event buffer for MT devices
+      Input: evdev - never leave the client buffer empty after write
+      Input: introduce MT event slots
+      Input: document the MT event slot protocol
+
+Jiri Slaby (1):
+      Input: tps6507x-ts - remove unneeded NULL test
+
+Joonyoung Shim (3):
+      Input: mcs - Add MCS touchkey driver
+      Input: Add ATMEL QT602240 touchscreen driver
+      Input: samsung-keypad - Add samsung keypad driver
+
+Julien Moutinho (1):
+      Input: mousedev - signal that device is writable in mousedev_poll=
+()
+
+Lars-Peter Clausen (1):
+      Input: Add pwm beeper driver
+
+Luo Jinghua (1):
+      Input: bcm5974 - turn wellspring mode off if failed to start traf=
+fic
+
+Luotao Fu (1):
+      Input: matrix_keypad - add support for clustered irq
+
+Markus Lehtonen (1):
+      Input: twl4030-pwrbutton - replace __devinit with __init
+
+Michael Hennerich (5):
+      Input: add driver for ADXL345/346 Digital Accelerometers
+      Input: adxl34x - add support for ADXL346 orientation sensing
+      Input: ad7879 - use i2c_smbus_read_i2c_block_data() to lower over=
+head
+      Input: ad7879 - fix spi word size to 16 bit
+      Input: ad7879 - report EV_KEY/BTN_TOUCH events
+
+Mike Frysinger (1):
+      Input: ad7879 - split bus logic out
+
+Oliver Neukum (4):
+      Input: release pressed keys when resuming device
+      Input: usbtouchscreen - implement basic suspend/resume
+      Input: usbtouchscreen - implement runtime power management
+      Input: usbtouchscreen - implement reset_resume
+
+Petr =C5=A0tetiar (2):
+      Input: usbtouchscreen - add support for ET&T TC4UM touchscreen co=
+ntroller
+      HID - blacklist ET&T TC4UH touchscreen controller
+
+Ping Cheng (1):
+      Input: wacom - add support for DTU2231 and DTU1631
+
+Samuel Thibault (1):
+      Input: keyboard - also match braille-only keyboards
+
+Samuli Konttila (1):
+      Input: cy8ctmg110 - capacitive touchscreen support
+
+Xiaolong CHEN (1):
+      Input: adp5588-keys - support GPI events for ADP5588 devices
+
+Xiaolong Chen (1):
+      Input: adp5588-keys - export unused GPIO pins
 
 
+Diffstat:
+--------
+
+ Documentation/input/multi-touch-protocol.txt |  218 +++--
+ arch/arm/plat-samsung/include/plat/keypad.h  |   43 +
+ drivers/char/keyboard.c                      |    6 +-
+ drivers/hid/hid-core.c                       |    1 +
+ drivers/hid/hid-ids.h                        |    1 +
+ drivers/hid/hid-input.c                      |    3 +
+ drivers/input/evdev.c                        |   54 +-
+ drivers/input/input.c                        |  182 +++--
+ drivers/input/joydev.c                       |    7 +-
+ drivers/input/joystick/xpad.c                |  108 ++-
+ drivers/input/keyboard/Kconfig               |   21 +
+ drivers/input/keyboard/Makefile              |    2 +
+ drivers/input/keyboard/adp5588-keys.c        |  351 +++++++-
+ drivers/input/keyboard/gpio_keys.c           |   19 +-
+ drivers/input/keyboard/lm8323.c              |   12 +-
+ drivers/input/keyboard/matrix_keypad.c       |  108 ++-
+ drivers/input/keyboard/mcs_touchkey.c        |  239 +++++
+ drivers/input/keyboard/samsung-keypad.c      |  491 +++++++++
+ drivers/input/misc/Kconfig                   |   48 +
+ drivers/input/misc/Makefile                  |    4 +
+ drivers/input/misc/adxl34x-i2c.c             |  163 +++
+ drivers/input/misc/adxl34x-spi.c             |  145 +++
+ drivers/input/misc/adxl34x.c                 |  915 +++++++++++++++++
+ drivers/input/misc/adxl34x.h                 |   30 +
+ drivers/input/misc/atlas_btns.c              |   38 +-
+ drivers/input/misc/pwm-beeper.c              |  199 ++++
+ drivers/input/misc/twl4030-pwrbutton.c       |   12 +-
+ drivers/input/misc/wistron_btns.c            |    4 +-
+ drivers/input/mouse/bcm5974.c                |   23 +-
+ drivers/input/mouse/synaptics.c              |    8 +-
+ drivers/input/mousedev.c                     |   15 +-
+ drivers/input/serio/i8042-ppcio.h            |   75 --
+ drivers/input/serio/i8042.c                  |   65 +-
+ drivers/input/tablet/wacom_wac.c             |   44 +
+ drivers/input/tablet/wacom_wac.h             |    1 +
+ drivers/input/touchscreen/Kconfig            |   67 +-
+ drivers/input/touchscreen/Makefile           |    6 +-
+ drivers/input/touchscreen/ad7879-i2c.c       |  143 +++
+ drivers/input/touchscreen/ad7879-spi.c       |  198 ++++
+ drivers/input/touchscreen/ad7879.c           |  625 ++++--------
+ drivers/input/touchscreen/ad7879.h           |   30 +
+ drivers/input/touchscreen/ads7846.c          |  206 +++-
+ drivers/input/touchscreen/cy8ctmg110_ts.c    |  363 +++++++
+ drivers/input/touchscreen/mcs5000_ts.c       |    6 +-
+ drivers/input/touchscreen/qt602240_ts.c      | 1401 ++++++++++++++++++=
+++++++++
+ drivers/input/touchscreen/tps6507x-ts.c      |    3 -
+ drivers/input/touchscreen/usbtouchscreen.c   |  215 +++--
+ include/linux/i2c/adp5588.h                  |   37 +
+ include/linux/i2c/mcs.h                      |   34 +
+ include/linux/i2c/mcs5000_ts.h               |   24 -
+ include/linux/i2c/qt602240_ts.h              |   38 +
+ include/linux/input.h                        |   60 ++-
+ include/linux/input/adxl34x.h                |  349 +++++++
+ include/linux/input/cy8ctmg110_pdata.h       |   10 +
+ include/linux/input/matrix_keypad.h          |    6 +
+ include/linux/spi/ads7846.h                  |    3 +-
+ 56 files changed, 6496 insertions(+), 983 deletions(-)
+ create mode 100644 arch/arm/plat-samsung/include/plat/keypad.h
+ create mode 100644 drivers/input/keyboard/mcs_touchkey.c
+ create mode 100644 drivers/input/keyboard/samsung-keypad.c
+ create mode 100644 drivers/input/misc/adxl34x-i2c.c
+ create mode 100644 drivers/input/misc/adxl34x-spi.c
+ create mode 100644 drivers/input/misc/adxl34x.c
+ create mode 100644 drivers/input/misc/adxl34x.h
+ create mode 100644 drivers/input/misc/pwm-beeper.c
+ create mode 100644 drivers/input/touchscreen/ad7879-i2c.c
+ create mode 100644 drivers/input/touchscreen/ad7879-spi.c
+ create mode 100644 drivers/input/touchscreen/ad7879.h
+ create mode 100644 drivers/input/touchscreen/cy8ctmg110_ts.c
+ create mode 100644 drivers/input/touchscreen/qt602240_ts.c
+ create mode 100644 include/linux/i2c/mcs.h
+ delete mode 100644 include/linux/i2c/mcs5000_ts.h
+ create mode 100644 include/linux/i2c/qt602240_ts.h
+ create mode 100644 include/linux/input/adxl34x.h
+ create mode 100644 include/linux/input/cy8ctmg110_pdata.h
 
 --=20
-Jon Smirl
-jonsmirl@gmail.com
+Dmitry
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

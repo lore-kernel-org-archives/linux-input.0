@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/3] Input: sysrq - drop tty argument form handle_sysrq()
-Date: Wed, 04 Aug 2010 00:59:06 -0700
-Message-ID: <20100804075906.30647.97136.stgit@localhost.localdomain>
+Subject: [PATCH 1/3] Input: sysrq - drop tty argument from sysrq ops handlers
+Date: Wed, 04 Aug 2010 00:59:00 -0700
+Message-ID: <20100804075900.30647.46910.stgit@localhost.localdomain>
 References: <20100804075602.30647.91462.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -13,271 +13,322 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Airlie <airlied@linux.ie>, David Miller <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Sysrq operations do not accept tty argument anymore so no need to pass
-it to us.
+Noone is using tty argument so let's get rid of it.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- arch/ia64/hp/sim/simserial.c    |    2 +-
- arch/um/drivers/mconsole_kern.c |    2 +-
- drivers/char/hangcheck-timer.c  |    2 +-
- drivers/char/hvc_console.c      |    2 +-
- drivers/char/hvsi.c             |    2 +-
- drivers/char/sysrq.c            |   11 +++++------
- drivers/s390/char/ctrlchar.c    |    4 +---
- drivers/serial/sn_console.c     |    2 +-
- drivers/usb/serial/generic.c    |    2 +-
- drivers/xen/manage.c            |    2 +-
- include/linux/serial_core.h     |    2 +-
- include/linux/sysrq.h           |   11 ++++-------
- kernel/debug/kdb/kdb_main.c     |    2 +-
- 13 files changed, 20 insertions(+), 26 deletions(-)
+ arch/arm/kernel/etm.c           |    2 +-
+ arch/powerpc/xmon/xmon.c        |    5 ++---
+ arch/sparc/kernel/process_64.c  |    2 +-
+ drivers/char/sysrq.c            |   42 ++++++++++++++++++++-------------------
+ drivers/gpu/drm/drm_fb_helper.c |    2 +-
+ drivers/net/ibm_newemac/debug.c |    2 +-
+ include/linux/sysrq.h           |    6 +++++-
+ kernel/power/poweroff.c         |    2 +-
+ 8 files changed, 33 insertions(+), 30 deletions(-)
 
-diff --git a/arch/ia64/hp/sim/simserial.c b/arch/ia64/hp/sim/simserial.c
-index 2bef526..1e8d71a 100644
---- a/arch/ia64/hp/sim/simserial.c
-+++ b/arch/ia64/hp/sim/simserial.c
-@@ -149,7 +149,7 @@ static  void receive_chars(struct tty_struct *tty)
- 						ch = ia64_ssc(0, 0, 0, 0,
- 							      SSC_GETCHAR);
- 					while (!ch);
--					handle_sysrq(ch, NULL);
-+					handle_sysrq(ch);
- 				}
- #endif
- 				seen_esc = 0;
-diff --git a/arch/um/drivers/mconsole_kern.c b/arch/um/drivers/mconsole_kern.c
-index de317d0..ebc6807 100644
---- a/arch/um/drivers/mconsole_kern.c
-+++ b/arch/um/drivers/mconsole_kern.c
-@@ -690,7 +690,7 @@ static void with_console(struct mc_request *req, void (*proc)(void *),
- static void sysrq_proc(void *arg)
- {
- 	char *op = arg;
--	handle_sysrq(*op, NULL);
-+	handle_sysrq(*op);
+diff --git a/arch/arm/kernel/etm.c b/arch/arm/kernel/etm.c
+index 8277539..7647593 100644
+--- a/arch/arm/kernel/etm.c
++++ b/arch/arm/kernel/etm.c
+@@ -230,7 +230,7 @@ static void etm_dump(void)
+ 	etb_lock(t);
  }
  
- void mconsole_sysrq(struct mc_request *req)
-diff --git a/drivers/char/hangcheck-timer.c b/drivers/char/hangcheck-timer.c
-index e024972..f953c96 100644
---- a/drivers/char/hangcheck-timer.c
-+++ b/drivers/char/hangcheck-timer.c
-@@ -159,7 +159,7 @@ static void hangcheck_fire(unsigned long data)
- 		if (hangcheck_dump_tasks) {
- 			printk(KERN_CRIT "Hangcheck: Task state:\n");
+-static void sysrq_etm_dump(int key, struct tty_struct *tty)
++static void sysrq_etm_dump(int key)
+ {
+ 	dev_dbg(tracer.dev, "Dumping ETB buffer\n");
+ 	etm_dump();
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index 8bad7d5..654e155 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -2728,15 +2728,14 @@ static void xmon_init(int enable)
+ }
+ 
  #ifdef CONFIG_MAGIC_SYSRQ
--			handle_sysrq('t', NULL);
-+			handle_sysrq('t');
- #endif  /* CONFIG_MAGIC_SYSRQ */
- 		}
- 		if (hangcheck_reboot) {
-diff --git a/drivers/char/hvc_console.c b/drivers/char/hvc_console.c
-index 35cca4c..1f99a6f 100644
---- a/drivers/char/hvc_console.c
-+++ b/drivers/char/hvc_console.c
-@@ -651,7 +651,7 @@ int hvc_poll(struct hvc_struct *hp)
- 					if (sysrq_pressed)
- 						continue;
- 				} else if (sysrq_pressed) {
--					handle_sysrq(buf[i], tty);
-+					handle_sysrq(buf[i]);
- 					sysrq_pressed = 0;
- 					continue;
- 				}
-diff --git a/drivers/char/hvsi.c b/drivers/char/hvsi.c
-index d4b14ff..8620f7d 100644
---- a/drivers/char/hvsi.c
-+++ b/drivers/char/hvsi.c
-@@ -403,7 +403,7 @@ static void hvsi_insert_chars(struct hvsi_struct *hp, const char *buf, int len)
- 			hp->sysrq = 1;
- 			continue;
- 		} else if (hp->sysrq) {
--			handle_sysrq(c, hp->tty);
-+			handle_sysrq(c);
- 			hp->sysrq = 0;
- 			continue;
- 		}
+-static void sysrq_handle_xmon(int key, struct tty_struct *tty) 
++static void sysrq_handle_xmon(int key)
+ {
+ 	/* ensure xmon is enabled */
+ 	xmon_init(1);
+ 	debugger(get_irq_regs());
+ }
+ 
+-static struct sysrq_key_op sysrq_xmon_op = 
+-{
++static struct sysrq_key_op sysrq_xmon_op = {
+ 	.handler =	sysrq_handle_xmon,
+ 	.help_msg =	"Xmon",
+ 	.action_msg =	"Entering xmon",
+diff --git a/arch/sparc/kernel/process_64.c b/arch/sparc/kernel/process_64.c
+index dbe81a3..25b01b4 100644
+--- a/arch/sparc/kernel/process_64.c
++++ b/arch/sparc/kernel/process_64.c
+@@ -303,7 +303,7 @@ void arch_trigger_all_cpu_backtrace(void)
+ 
+ #ifdef CONFIG_MAGIC_SYSRQ
+ 
+-static void sysrq_handle_globreg(int key, struct tty_struct *tty)
++static void sysrq_handle_globreg(int key)
+ {
+ 	arch_trigger_all_cpu_backtrace();
+ }
 diff --git a/drivers/char/sysrq.c b/drivers/char/sysrq.c
-index a892a3c..ef31bb8 100644
+index 878ac0c..a892a3c 100644
 --- a/drivers/char/sysrq.c
 +++ b/drivers/char/sysrq.c
-@@ -18,7 +18,6 @@
- #include <linux/interrupt.h>
- #include <linux/mm.h>
- #include <linux/fs.h>
--#include <linux/tty.h>
- #include <linux/mount.h>
- #include <linux/kdev_t.h>
- #include <linux/major.h>
-@@ -493,7 +492,7 @@ static void __sysrq_put_key_op(int key, struct sysrq_key_op *op_p)
-                 sysrq_key_table[i] = op_p;
- }
+@@ -76,7 +76,7 @@ static int __init sysrq_always_enabled_setup(char *str)
+ __setup("sysrq_always_enabled", sysrq_always_enabled_setup);
  
--void __handle_sysrq(int key, struct tty_struct *tty, int check_mask)
-+void __handle_sysrq(int key, bool check_mask)
+ 
+-static void sysrq_handle_loglevel(int key, struct tty_struct *tty)
++static void sysrq_handle_loglevel(int key)
  {
- 	struct sysrq_key_op *op_p;
- 	int orig_log_level;
-@@ -545,10 +544,10 @@ void __handle_sysrq(int key, struct tty_struct *tty, int check_mask)
- 	spin_unlock_irqrestore(&sysrq_key_table_lock, flags);
- }
+ 	int i;
  
--void handle_sysrq(int key, struct tty_struct *tty)
-+void handle_sysrq(int key)
+@@ -93,7 +93,7 @@ static struct sysrq_key_op sysrq_loglevel_op = {
+ };
+ 
+ #ifdef CONFIG_VT
+-static void sysrq_handle_SAK(int key, struct tty_struct *tty)
++static void sysrq_handle_SAK(int key)
  {
- 	if (sysrq_on())
--		__handle_sysrq(key, tty, 1);
-+		__handle_sysrq(key, true);
+ 	struct work_struct *SAK_work = &vc_cons[fg_console].SAK_work;
+ 	schedule_work(SAK_work);
+@@ -109,7 +109,7 @@ static struct sysrq_key_op sysrq_SAK_op = {
+ #endif
+ 
+ #ifdef CONFIG_VT
+-static void sysrq_handle_unraw(int key, struct tty_struct *tty)
++static void sysrq_handle_unraw(int key)
+ {
+ 	struct kbd_struct *kbd = &kbd_table[fg_console];
+ 
+@@ -126,7 +126,7 @@ static struct sysrq_key_op sysrq_unraw_op = {
+ #define sysrq_unraw_op (*(struct sysrq_key_op *)NULL)
+ #endif /* CONFIG_VT */
+ 
+-static void sysrq_handle_crash(int key, struct tty_struct *tty)
++static void sysrq_handle_crash(int key)
+ {
+ 	char *killer = NULL;
+ 
+@@ -141,7 +141,7 @@ static struct sysrq_key_op sysrq_crash_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_DUMP,
+ };
+ 
+-static void sysrq_handle_reboot(int key, struct tty_struct *tty)
++static void sysrq_handle_reboot(int key)
+ {
+ 	lockdep_off();
+ 	local_irq_enable();
+@@ -154,7 +154,7 @@ static struct sysrq_key_op sysrq_reboot_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_BOOT,
+ };
+ 
+-static void sysrq_handle_sync(int key, struct tty_struct *tty)
++static void sysrq_handle_sync(int key)
+ {
+ 	emergency_sync();
  }
- EXPORT_SYMBOL(handle_sysrq);
+@@ -165,7 +165,7 @@ static struct sysrq_key_op sysrq_sync_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_SYNC,
+ };
  
-@@ -597,7 +596,7 @@ static bool sysrq_filter(struct input_handle *handle, unsigned int type,
+-static void sysrq_handle_show_timers(int key, struct tty_struct *tty)
++static void sysrq_handle_show_timers(int key)
+ {
+ 	sysrq_timer_list_show();
+ }
+@@ -176,7 +176,7 @@ static struct sysrq_key_op sysrq_show_timers_op = {
+ 	.action_msg	= "Show clockevent devices & pending hrtimers (no others)",
+ };
  
- 	default:
- 		if (sysrq_down && value && value != 2)
--			__handle_sysrq(sysrq_xlate[code], NULL, 1);
-+			__handle_sysrq(sysrq_xlate[code], true);
- 		break;
+-static void sysrq_handle_mountro(int key, struct tty_struct *tty)
++static void sysrq_handle_mountro(int key)
+ {
+ 	emergency_remount();
+ }
+@@ -188,7 +188,7 @@ static struct sysrq_key_op sysrq_mountro_op = {
+ };
+ 
+ #ifdef CONFIG_LOCKDEP
+-static void sysrq_handle_showlocks(int key, struct tty_struct *tty)
++static void sysrq_handle_showlocks(int key)
+ {
+ 	debug_show_all_locks();
+ }
+@@ -226,7 +226,7 @@ static void sysrq_showregs_othercpus(struct work_struct *dummy)
+ 
+ static DECLARE_WORK(sysrq_showallcpus, sysrq_showregs_othercpus);
+ 
+-static void sysrq_handle_showallcpus(int key, struct tty_struct *tty)
++static void sysrq_handle_showallcpus(int key)
+ {
+ 	/*
+ 	 * Fall back to the workqueue based printing if the
+@@ -252,7 +252,7 @@ static struct sysrq_key_op sysrq_showallcpus_op = {
+ };
+ #endif
+ 
+-static void sysrq_handle_showregs(int key, struct tty_struct *tty)
++static void sysrq_handle_showregs(int key)
+ {
+ 	struct pt_regs *regs = get_irq_regs();
+ 	if (regs)
+@@ -266,7 +266,7 @@ static struct sysrq_key_op sysrq_showregs_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_DUMP,
+ };
+ 
+-static void sysrq_handle_showstate(int key, struct tty_struct *tty)
++static void sysrq_handle_showstate(int key)
+ {
+ 	show_state();
+ }
+@@ -277,7 +277,7 @@ static struct sysrq_key_op sysrq_showstate_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_DUMP,
+ };
+ 
+-static void sysrq_handle_showstate_blocked(int key, struct tty_struct *tty)
++static void sysrq_handle_showstate_blocked(int key)
+ {
+ 	show_state_filter(TASK_UNINTERRUPTIBLE);
+ }
+@@ -291,7 +291,7 @@ static struct sysrq_key_op sysrq_showstate_blocked_op = {
+ #ifdef CONFIG_TRACING
+ #include <linux/ftrace.h>
+ 
+-static void sysrq_ftrace_dump(int key, struct tty_struct *tty)
++static void sysrq_ftrace_dump(int key)
+ {
+ 	ftrace_dump(DUMP_ALL);
+ }
+@@ -305,7 +305,7 @@ static struct sysrq_key_op sysrq_ftrace_dump_op = {
+ #define sysrq_ftrace_dump_op (*(struct sysrq_key_op *)NULL)
+ #endif
+ 
+-static void sysrq_handle_showmem(int key, struct tty_struct *tty)
++static void sysrq_handle_showmem(int key)
+ {
+ 	show_mem();
+ }
+@@ -330,7 +330,7 @@ static void send_sig_all(int sig)
  	}
- 
-@@ -765,7 +764,7 @@ static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
- 
- 		if (get_user(c, buf))
- 			return -EFAULT;
--		__handle_sysrq(c, NULL, 0);
-+		__handle_sysrq(c, false);
- 	}
- 
- 	return count;
-diff --git a/drivers/s390/char/ctrlchar.c b/drivers/s390/char/ctrlchar.c
-index c6cbcb3..0e9a309 100644
---- a/drivers/s390/char/ctrlchar.c
-+++ b/drivers/s390/char/ctrlchar.c
-@@ -16,12 +16,11 @@
- 
- #ifdef CONFIG_MAGIC_SYSRQ
- static int ctrlchar_sysrq_key;
--static struct tty_struct *sysrq_tty;
- 
- static void
- ctrlchar_handle_sysrq(struct work_struct *work)
- {
--	handle_sysrq(ctrlchar_sysrq_key, sysrq_tty);
-+	handle_sysrq(ctrlchar_sysrq_key);
  }
  
- static DECLARE_WORK(ctrlchar_work, ctrlchar_handle_sysrq);
-@@ -54,7 +53,6 @@ ctrlchar_handle(const unsigned char *buf, int len, struct tty_struct *tty)
- 	/* racy */
- 	if (len == 3 && buf[1] == '-') {
- 		ctrlchar_sysrq_key = buf[2];
--		sysrq_tty = tty;
- 		schedule_work(&ctrlchar_work);
- 		return CTRLCHAR_SYSRQ;
- 	}
-diff --git a/drivers/serial/sn_console.c b/drivers/serial/sn_console.c
-index 9794e0c..4924108 100644
---- a/drivers/serial/sn_console.c
-+++ b/drivers/serial/sn_console.c
-@@ -492,7 +492,7 @@ sn_receive_chars(struct sn_cons_port *port, unsigned long flags)
-                         sysrq_requested = 0;
-                         if (ch && time_before(jiffies, sysrq_timeout)) {
-                                 spin_unlock_irqrestore(&port->sc_port.lock, flags);
--                                handle_sysrq(ch, NULL);
-+                                handle_sysrq(ch);
-                                 spin_lock_irqsave(&port->sc_port.lock, flags);
-                                 /* ignore actual sysrq command char */
-                                 continue;
-diff --git a/drivers/usb/serial/generic.c b/drivers/usb/serial/generic.c
-index a817ced..9587c22 100644
---- a/drivers/usb/serial/generic.c
-+++ b/drivers/usb/serial/generic.c
-@@ -448,7 +448,7 @@ int usb_serial_handle_sysrq_char(struct tty_struct *tty,
+-static void sysrq_handle_term(int key, struct tty_struct *tty)
++static void sysrq_handle_term(int key)
  {
- 	if (port->sysrq && port->port.console) {
- 		if (ch && time_before(jiffies, port->sysrq)) {
--			handle_sysrq(ch, tty);
-+			handle_sysrq(ch);
- 			port->sysrq = 0;
- 			return 1;
+ 	send_sig_all(SIGTERM);
+ 	console_loglevel = 8;
+@@ -349,7 +349,7 @@ static void moom_callback(struct work_struct *ignored)
+ 
+ static DECLARE_WORK(moom_work, moom_callback);
+ 
+-static void sysrq_handle_moom(int key, struct tty_struct *tty)
++static void sysrq_handle_moom(int key)
+ {
+ 	schedule_work(&moom_work);
+ }
+@@ -361,7 +361,7 @@ static struct sysrq_key_op sysrq_moom_op = {
+ };
+ 
+ #ifdef CONFIG_BLOCK
+-static void sysrq_handle_thaw(int key, struct tty_struct *tty)
++static void sysrq_handle_thaw(int key)
+ {
+ 	emergency_thaw_all();
+ }
+@@ -373,7 +373,7 @@ static struct sysrq_key_op sysrq_thaw_op = {
+ };
+ #endif
+ 
+-static void sysrq_handle_kill(int key, struct tty_struct *tty)
++static void sysrq_handle_kill(int key)
+ {
+ 	send_sig_all(SIGKILL);
+ 	console_loglevel = 8;
+@@ -385,7 +385,7 @@ static struct sysrq_key_op sysrq_kill_op = {
+ 	.enable_mask	= SYSRQ_ENABLE_SIGNAL,
+ };
+ 
+-static void sysrq_handle_unrt(int key, struct tty_struct *tty)
++static void sysrq_handle_unrt(int key)
+ {
+ 	normalize_rt_tasks();
+ }
+@@ -520,7 +520,7 @@ void __handle_sysrq(int key, struct tty_struct *tty, int check_mask)
+ 		if (!check_mask || sysrq_on_mask(op_p->enable_mask)) {
+ 			printk("%s\n", op_p->action_msg);
+ 			console_loglevel = orig_log_level;
+-			op_p->handler(key, tty);
++			op_p->handler(key);
+ 		} else {
+ 			printk("This sysrq operation is disabled.\n");
  		}
-diff --git a/drivers/xen/manage.c b/drivers/xen/manage.c
-index 07e857b..3896719 100644
---- a/drivers/xen/manage.c
-+++ b/drivers/xen/manage.c
-@@ -212,7 +212,7 @@ static void sysrq_handler(struct xenbus_watch *watch, const char **vec,
- 		goto again;
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index 7196620..9598ae7 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -295,7 +295,7 @@ static void drm_fb_helper_restore_work_fn(struct work_struct *ignored)
+ }
+ static DECLARE_WORK(drm_fb_helper_restore_work, drm_fb_helper_restore_work_fn);
  
- 	if (sysrq_key != '\0')
--		handle_sysrq(sysrq_key, NULL);
-+		handle_sysrq(sysrq_key);
+-static void drm_fb_helper_sysrq(int dummy1, struct tty_struct *dummy3)
++static void drm_fb_helper_sysrq(int dummy1)
+ {
+ 	schedule_work(&drm_fb_helper_restore_work);
+ }
+diff --git a/drivers/net/ibm_newemac/debug.c b/drivers/net/ibm_newemac/debug.c
+index 3995faf..8c6c1e2 100644
+--- a/drivers/net/ibm_newemac/debug.c
++++ b/drivers/net/ibm_newemac/debug.c
+@@ -238,7 +238,7 @@ void emac_dbg_dump_all(void)
  }
  
- static struct xenbus_watch sysrq_watch = {
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index f10db6e..1faf49d 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -453,7 +453,7 @@ uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
- #ifdef SUPPORT_SYSRQ
- 	if (port->sysrq) {
- 		if (ch && time_before(jiffies, port->sysrq)) {
--			handle_sysrq(ch, port->state->port.tty);
-+			handle_sysrq(ch);
- 			port->sysrq = 0;
- 			return 1;
- 		}
+ #if defined(CONFIG_MAGIC_SYSRQ)
+-static void emac_sysrq_handler(int key, struct tty_struct *tty)
++static void emac_sysrq_handler(int key)
+ {
+ 	emac_dbg_dump_all();
+ }
 diff --git a/include/linux/sysrq.h b/include/linux/sysrq.h
-index 4ee6503..32d360a 100644
+index 609e8ca..4ee6503 100644
 --- a/include/linux/sysrq.h
 +++ b/include/linux/sysrq.h
-@@ -16,9 +16,6 @@
+@@ -31,7 +31,7 @@ struct tty_struct;
+ #define SYSRQ_ENABLE_RTNICE	0x0100
  
- #include <linux/errno.h>
- 
--struct pt_regs;
--struct tty_struct;
--
- /* Possible values of bitmask for enabling sysrq functions */
- /* 0x0001 is reserved for enable everything */
- #define SYSRQ_ENABLE_LOG	0x0002
-@@ -44,8 +41,8 @@ struct sysrq_key_op {
-  * are available -- else NULL's).
-  */
- 
--void handle_sysrq(int key, struct tty_struct *tty);
--void __handle_sysrq(int key, struct tty_struct *tty, int check_mask);
-+void handle_sysrq(int key);
-+void __handle_sysrq(int key, bool check_mask);
- int register_sysrq_key(int key, struct sysrq_key_op *op);
- int unregister_sysrq_key(int key, struct sysrq_key_op *op);
- struct sysrq_key_op *__sysrq_get_key_op(int key);
-@@ -54,11 +51,11 @@ int sysrq_toggle_support(int enable_mask);
- 
- #else
- 
--static inline void handle_sysrq(int key, struct tty_struct *tty)
-+static inline void handle_sysrq(int key)
+ struct sysrq_key_op {
+-	void (*handler)(int, struct tty_struct *);
++	void (*handler)(int);
+ 	char *help_msg;
+ 	char *action_msg;
+ 	int enable_mask;
+@@ -58,6 +58,10 @@ static inline void handle_sysrq(int key, struct tty_struct *tty)
  {
  }
  
--static inline void __handle_sysrq(int key, struct tty_struct *tty, int check_mask);
-+static inline void __handle_sysrq(int key, bool check_mask)
++static inline void __handle_sysrq(int key, struct tty_struct *tty, int check_mask);
++{
++}
++
+ static inline int register_sysrq_key(int key, struct sysrq_key_op *op)
  {
- }
+ 	return -EINVAL;
+diff --git a/kernel/power/poweroff.c b/kernel/power/poweroff.c
+index e8b3370..d523593 100644
+--- a/kernel/power/poweroff.c
++++ b/kernel/power/poweroff.c
+@@ -24,7 +24,7 @@ static void do_poweroff(struct work_struct *dummy)
  
-diff --git a/kernel/debug/kdb/kdb_main.c b/kernel/debug/kdb/kdb_main.c
-index ebe4a28..4768998 100644
---- a/kernel/debug/kdb/kdb_main.c
-+++ b/kernel/debug/kdb/kdb_main.c
-@@ -1821,7 +1821,7 @@ static int kdb_sr(int argc, const char **argv)
- 	if (argc != 1)
- 		return KDB_ARGCOUNT;
- 	kdb_trap_printk++;
--	__handle_sysrq(*argv[1], NULL, 0);
-+	__handle_sysrq(*argv[1], false);
- 	kdb_trap_printk--;
+ static DECLARE_WORK(poweroff_work, do_poweroff);
  
- 	return 0;
+-static void handle_poweroff(int key, struct tty_struct *tty)
++static void handle_poweroff(int key)
+ {
+ 	/* run sysrq poweroff on boot cpu */
+ 	schedule_work_on(cpumask_first(cpu_online_mask), &poweroff_work);

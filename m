@@ -1,93 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2.6.37? ] drivers/input: Use pr_<level>
-Date: Wed, 4 Aug 2010 01:04:00 -0700
-Message-ID: <20100804080400.GA30735@core.coreip.homeip.net>
-References: <1280860850.2963.24.camel@Joe-Laptop.home>
- <20100804043256.GB25256@core.coreip.homeip.net>
- <1280907222.1005.63.camel@Joe-Laptop.home>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 1/3] Input: sysrq - drop tty argument from sysrq ops
+ handlers
+Date: Wed, 04 Aug 2010 18:33:50 +1000
+Message-ID: <1280910830.1902.144.camel@pasglop>
+References: <20100804075602.30647.91462.stgit@localhost.localdomain>
+	 <20100804075900.30647.46910.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:58451 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751351Ab0HDIEG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Aug 2010 04:04:06 -0400
-Content-Disposition: inline
-In-Reply-To: <1280907222.1005.63.camel@Joe-Laptop.home>
+Received: from gate.crashing.org ([63.228.1.57]:41374 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753895Ab0HDIeX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Aug 2010 04:34:23 -0400
+In-Reply-To: <20100804075900.30647.46910.stgit@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Airlie <airlied@linux.ie>, David Miller <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>
 
-On Wed, Aug 04, 2010 at 12:33:42AM -0700, Joe Perches wrote:
-> On Tue, 2010-08-03 at 21:32 -0700, Dmitry Torokhov wrote:
-> > Hi Joe,
-> 
-> Hi Dmitry.
-> 
-> > On Tue, Aug 03, 2010 at 11:40:50AM -0700, Joe Perches wrote:
-> > > Remove prefixes from printks and convert to pr_fmt/pr_<level>.
-> > Thanks for doing this, however instead of using pr_xxx() I'd like
-> > drivers that are integrated in driver model (serio, usb, gameport, etc,
-> > i.e. when we have 'struct device' available, exept for psmouse) to use
-> > drv_xxx() instead.
-> 
-> These files?
-> $ grep -rPl --include=*.[ch] "\bstruct\s+device\b" drivers/input | \
->   xargs grep -wl pr_fmt
-> drivers/input/keyboard/omap-keypad.c
-> drivers/input/mousedev.c
-> drivers/input/serio/serio.c
-> drivers/input/serio/i8042.c
-> drivers/input/evdev.c
-> drivers/input/joydev.c
-> drivers/input/gameport/gameport.c
-> drivers/input/touchscreen/htcpen.c
-> drivers/input/input-polldev.c
-> drivers/input/input.c
-> drivers/input/tablet/aiptek.c
-> drivers/input/misc/winbond-cir.c
-> drivers/input/misc/yealink.c
-> drivers/input/misc/ati_remote2.c
-> drivers/input/misc/wistron_btns.c
-> drivers/input/misc/ati_remote.c
-> drivers/input/mouse/psmouse-base.c
+On Wed, 2010-08-04 at 00:59 -0700, Dmitry Torokhov wrote:
+> Noone is using tty argument so let's get rid of it.
 
-There should be more. USB for example. Basically anything but very old
-legacy drivers that never been converted to the 2.6 device model.
+While talking about sysrq...
 
->   
-> > That would make synaptics messages to come as "psmouse", right?
-> 
-> Yes.
-> 
-> > I think we should use
-> > 	#define pr_fmt(fmt) "synaptics: " fmt
-> > here and in the rest of specialized PS/2 protocol handlers.
-> 
-> Perhaps convert to what elantech uses
-> #define pr_fmt(fmt) KBUILD_BASENAME ": " fmt
-> 
-> $ grep -l "define pr_fmt" drivers/input/mouse/*.[ch] | \
->   xargs grep -il "ps2" 
-> drivers/input/mouse/alps.c
-> drivers/input/mouse/elantech.c
-> drivers/input/mouse/lifebook.c
-> drivers/input/mouse/logips2pp.c
-> drivers/input/mouse/psmouse-base.c
+I noticed that serial drivers call sysrq with the uart lock held.
 
-psmouse-base should use KBUILD_MODNAME, for the rest of these
-KBUILD_BASENAME seems to fit.
+I've seen deadlocks caused by that, for example, when entering the
+debugger, it waits forever for a CPU which is itself waiting on the UART
+lock.
 
-> drivers/input/mouse/sentelic.c
-> drivers/input/mouse/synaptics.c
-> drivers/input/mouse/trackpoint.c
-> 
-> Which ones do you want converted? 
-> Any others?
-> 
+I have a patch to drop the lock in serial_core.h, I'll post that
+tomorrow hopefully, just checking if there's any objection there ? The
+serial drivers might need to be audited a bit to make sure they cope
+with the lock being dropped and re-acquired around the sysrq call.
 
-No, I think this is it as far as PS/2 mice go.
+Cheers,
+Ben.
+ 
 
--- 
-Dmitry

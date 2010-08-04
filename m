@@ -1,61 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2.6.37? ] drivers/input: Use pr_<level>
-Date: Tue, 3 Aug 2010 21:32:57 -0700
-Message-ID: <20100804043256.GB25256@core.coreip.homeip.net>
-References: <1280860850.2963.24.camel@Joe-Laptop.home>
+Subject: Re: [git pull] Input updates for 2.6.34-rc6
+Date: Tue, 3 Aug 2010 23:20:22 -0700
+Message-ID: <20100804062021.GA25742@core.coreip.homeip.net>
+References: <20100513075728.GF30110@core.coreip.homeip.net>
+ <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
+ <20100514145539.GA5598@srcf.ucam.org>
+ <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pw0-f46.google.com ([209.85.160.46]:40793 "EHLO
-	mail-pw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753249Ab0HDEdB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Aug 2010 00:33:01 -0400
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:57401 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758256Ab0HDGU3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Aug 2010 02:20:29 -0400
 Content-Disposition: inline
-In-Reply-To: <1280860850.2963.24.camel@Joe-Laptop.home>
+In-Reply-To: <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Anisse Astier <anisse@astier.eu>
 
-Hi Joe,
-
-On Tue, Aug 03, 2010 at 11:40:50AM -0700, Joe Perches wrote:
-> Remove prefixes from printks and convert to pr_fmt/pr_<level>.
+On Fri, May 14, 2010 at 08:16:34AM -0700, Linus Torvalds wrote:
 > 
-> Always make output prefix match module name.
-> There are some existing uses that do not.  For instance:
-> spaceorb used "input: " once, probably a copy/paste error,
-> newtonkbd as well.  Synaptics used "serio: ", etc.
 > 
-> A few miscellaneous typos corrected.
-> Converted a few uses of usb macros err to pr_err.
+> On Fri, 14 May 2010, Matthew Garrett wrote:
+> >
+> > I've done some experimentation under qemu. On ACPI systems, Windows will 
+> > *only* touch the keyboard controller if there's a device with an 
+> > appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
+> > Otherwise it'll simply ignore the hardware entirely. By the looks of it 
+> > their keyboard probing is also somewhat different to ours, but that's 
+> > probably another story.
 > 
-> Compiled x86 only, some files not compile tested
+> Well, I'd hate to lose the keyboard hotplug capability, but at the same 
+> time, it _is_ 2010, and while I have personally used it historically, I 
+> don't really foresee ever using it again.
+> 
+> So we _could_ decide to just try it, and see if anybody screams. If nobody 
+> does, that would be a very simple solution to the problem.
 > 
 
-Thanks for doing this, however instead of using pr_xxx() I'd like
-drivers that are integrated in driver model (serio, usb, gameport, etc,
-i.e. when we have 'struct device' available, exept for psmouse) to use
-drv_xxx() instead.
+OK, time to ressurect the topic ;)
 
->  
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 8c32440..e02c2a7 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -23,6 +23,8 @@
->   * Trademarks are the property of their respective owners.
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
+There is another report (from Anisse - CCed) - MSI AE2220 stops for 10
+seconds when we try to see if "AUX DISABLE" command took effect (it
+doesn't). While we should reduce the time we wait and retry to something
+more reasonable it woudl not fix this issue completely.
 
-That would make synaptics messages to come as "psmouse", right? I think
-we shoudl use
-
-	#define pr_fmt(fmt) "synaptics: " fmt
-
-here and in the rest of specialized PS/2 protocol handlers.
+The box does not have any PS/2 ports but in this case BIOS writers _did_
+some crack and put PS/2 devices in DSDT. While the devices are most
+likely not active and thus Matthew's patch would help Anisse I do hate
+to loose the option of plugging PS/2 mouse/keyboard after boot and
+having chance of them working. I would still like to add a few blacklist
+entries instead.
 
 Thanks.
 

@@ -1,78 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.34-rc6
-Date: Tue, 3 Aug 2010 23:29:54 -0700
-Message-ID: <20100804062954.GA28706@core.coreip.homeip.net>
-References: <20100513075728.GF30110@core.coreip.homeip.net>
- <alpine.LFD.2.00.1005130724280.3711@i5.linux-foundation.org>
- <20100514145539.GA5598@srcf.ucam.org>
- <alpine.LFD.2.00.1005140814380.3711@i5.linux-foundation.org>
- <20100804062021.GA25742@core.coreip.homeip.net>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 2.6.37? ] drivers/input: Use pr_<level>
+Date: Wed, 04 Aug 2010 00:33:42 -0700
+Message-ID: <1280907222.1005.63.camel@Joe-Laptop.home>
+References: <1280860850.2963.24.camel@Joe-Laptop.home>
+	 <20100804043256.GB25256@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:58549 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758197Ab0HDG37 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Aug 2010 02:29:59 -0400
-Content-Disposition: inline
-In-Reply-To: <20100804062021.GA25742@core.coreip.homeip.net>
+Received: from mail.perches.com ([173.55.12.10]:2249 "EHLO mail.perches.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758526Ab0HDHdo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Aug 2010 03:33:44 -0400
+In-Reply-To: <20100804043256.GB25256@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>, Anisse Astier <anisse@astier.eu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Tue, Aug 03, 2010 at 11:20:22PM -0700, Dmitry Torokhov wrote:
-> On Fri, May 14, 2010 at 08:16:34AM -0700, Linus Torvalds wrote:
-> > 
-> > 
-> > On Fri, 14 May 2010, Matthew Garrett wrote:
-> > >
-> > > I've done some experimentation under qemu. On ACPI systems, Windows will 
-> > > *only* touch the keyboard controller if there's a device with an 
-> > > appropriate PNP HID or CID and if _STA evaluates to 0x0b or 0x0f. 
-> > > Otherwise it'll simply ignore the hardware entirely. By the looks of it 
-> > > their keyboard probing is also somewhat different to ours, but that's 
-> > > probably another story.
-> > 
-> > Well, I'd hate to lose the keyboard hotplug capability, but at the same 
-> > time, it _is_ 2010, and while I have personally used it historically, I 
-> > don't really foresee ever using it again.
-> > 
-> > So we _could_ decide to just try it, and see if anybody screams. If nobody 
-> > does, that would be a very simple solution to the problem.
-> > 
-> 
-> OK, time to ressurect the topic ;)
-> 
-> There is another report (from Anisse - CCed) - MSI AE2220 stops for 10
-> seconds when we try to see if "AUX DISABLE" command took effect (it
-> doesn't). While we should reduce the time we wait and retry to something
-> more reasonable it woudl not fix this issue completely.
-> 
+On Tue, 2010-08-03 at 21:32 -0700, Dmitry Torokhov wrote:
+> Hi Joe,
 
-Hm, I take it back.. We won't be able to reduce timeout because we don't
-hit that code yet. Here is the excerpt from dmesg:
+Hi Dmitry.
 
-[    0.500931] drivers/input/serio/i8042.c: a7 -> i8042 (command) [9]
-[    0.502950] drivers/input/serio/i8042.c: 20 -> i8042 (command) [10]
-[    0.502950] drivers/input/serio/i8042.c:      -- i8042 (timeout) [10]
-[   11.045100] Failed to disable AUX port, but continuing anyway... Is this a SiS?
-[   11.049741] If AUX port is really absent please use the 'i8042.noaux' option.
-[   11.055417] drivers/input/serio/i8042.c: a8 -> i8042 (command) [13]
-[   11.057436] drivers/input/serio/i8042.c: 20 -> i8042 (command) [14]
-[   11.057436] drivers/input/serio/i8042.c:      -- i8042 (timeout) [14]
+> On Tue, Aug 03, 2010 at 11:40:50AM -0700, Joe Perches wrote:
+> > Remove prefixes from printks and convert to pr_fmt/pr_<level>.
+> Thanks for doing this, however instead of using pr_xxx() I'd like
+> drivers that are integrated in driver model (serio, usb, gameport, etc,
+> i.e. when we have 'struct device' available, exept for psmouse) to use
+> drv_xxx() instead.
 
-We try do disable AUX and then read back the control register. We see
-there isn't any data coming and then box goes away for 10 seconds.
-And if we don't touch AUX port all is good...
+These files?
+$ grep -rPl --include=*.[ch] "\bstruct\s+device\b" drivers/input | \
+  xargs grep -wl pr_fmt
+drivers/input/keyboard/omap-keypad.c
+drivers/input/mousedev.c
+drivers/input/serio/serio.c
+drivers/input/serio/i8042.c
+drivers/input/evdev.c
+drivers/input/joydev.c
+drivers/input/gameport/gameport.c
+drivers/input/touchscreen/htcpen.c
+drivers/input/input-polldev.c
+drivers/input/input.c
+drivers/input/tablet/aiptek.c
+drivers/input/misc/winbond-cir.c
+drivers/input/misc/yealink.c
+drivers/input/misc/ati_remote2.c
+drivers/input/misc/wistron_btns.c
+drivers/input/misc/ati_remote.c
+drivers/input/mouse/psmouse-base.c
+  
+> That would make synaptics messages to come as "psmouse", right?
 
-> The box does not have any PS/2 ports but in this case BIOS writers _did_
-> some crack and put PS/2 devices in DSDT. While the devices are most
-> likely not active and thus Matthew's patch would help Anisse I do hate
-> to loose the option of plugging PS/2 mouse/keyboard after boot and
-> having chance of them working. I would still like to add a few blacklist
-> entries instead.
-> 
+Yes.
 
--- 
-Dmitry
+> I think we should use
+> 	#define pr_fmt(fmt) "synaptics: " fmt
+> here and in the rest of specialized PS/2 protocol handlers.
+
+Perhaps convert to what elantech uses
+#define pr_fmt(fmt) KBUILD_BASENAME ": " fmt
+
+$ grep -l "define pr_fmt" drivers/input/mouse/*.[ch] | \
+  xargs grep -il "ps2" 
+drivers/input/mouse/alps.c
+drivers/input/mouse/elantech.c
+drivers/input/mouse/lifebook.c
+drivers/input/mouse/logips2pp.c
+drivers/input/mouse/psmouse-base.c
+drivers/input/mouse/sentelic.c
+drivers/input/mouse/synaptics.c
+drivers/input/mouse/trackpoint.c
+
+Which ones do you want converted? 
+Any others?
+

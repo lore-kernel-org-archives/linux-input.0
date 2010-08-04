@@ -1,50 +1,51 @@
-From: Greg KH <greg@kroah.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] Fujitsu Tablet PC Button Driver
-Date: Tue, 3 Aug 2010 13:39:24 -0700
-Message-ID: <20100803203924.GA14557@kroah.com>
+Date: Tue, 3 Aug 2010 19:48:08 -0700
+Message-ID: <20100804024808.GA25256@core.coreip.homeip.net>
 References: <20100803202936.GB596@rhltablet.adillc.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:45143 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754466Ab0HCUjx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Aug 2010 16:39:53 -0400
+Received: from mail-px0-f174.google.com ([209.85.212.174]:53167 "EHLO
+	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756695Ab0HDCsP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Aug 2010 22:48:15 -0400
+Received: by pxi14 with SMTP id 14so1850898pxi.19
+        for <linux-input@vger.kernel.org>; Tue, 03 Aug 2010 19:48:14 -0700 (PDT)
 Content-Disposition: inline
 In-Reply-To: <20100803202936.GB596@rhltablet.adillc.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "Ryan H. Lewis" <me@ryanlewis.net>
-Cc: khnz@gmx.de, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: greg@kroah.com, khnz@gmx.de, linux-input@vger.kernel.org
+
+Hi Ryan,
 
 On Tue, Aug 03, 2010 at 04:29:36PM -0400, Ryan H. Lewis wrote:
-> Below is a patch which adds support for many Fujitsu Tablet PC
-> Buttons, and automatic screen rotation. This is my first kernel patch
-> and I am not the original author of this code. 
-
-Looks like a good start, only a few minor things below:
-
+> Below is a patch which adds support for many Fujitsu Tablet PC Buttons, and automatic screen rotation. This is my first kernel patch and I am not the original author of this code. 
 > 
 > Thanks,
 > rhl 
 > =========================================================
 > Signed-off-by: Ryan H. Lewis <me at ryanlewis.net>
-
-Needs to be a real email address.
-
+> 
 > Patch Author: Ryan H. Lewis <me AT ryanlewis DOT net>
 > Original Author of this code is Robert Gerlach at khnz AT gmx DOT de
-
-Same with these, please use real email addresses.
-
+> 
 > rhl is volunteering to help maintain this code with Robert Gerlach, this is rhl's first kernel patch
 > 
 > This is a driver for the tablet buttons and the tablet mode switch of
 > many Fujitsu tablet PCs. The driver is based on reverse-engineering of
 > the Windows driver. I have no specification for this device.
-
-The signed-off-by goes at the end of the changelog comment.
-
+> ---
+>  drivers/input/misc/Kconfig    |   13 +
+>  drivers/input/misc/Makefile   |    1 +
+>  drivers/input/misc/fsc_btns.c |  739 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 753 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/misc/fsc_btns.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index c44b9ea..b778201 100644
 > --- a/drivers/input/misc/Kconfig
 > +++ b/drivers/input/misc/Kconfig
 > @@ -104,6 +104,19 @@ config INPUT_APANEL
@@ -64,9 +65,6 @@ The signed-off-by goes at the end of the changelog comment.
 > +
 > +
 > +
-
-Two extra lines that are not needed here.
-
 >  config INPUT_IXP4XX_BEEPER
 >  	tristate "IXP4XX Beeper support"
 >  	depends on ARCH_IXP4XX
@@ -110,17 +108,11 @@ Two extra lines that are not needed here.
 > +#ifdef HAVE_CONFIG_H
 > +#  include "../../config.h"
 > +#endif
-
-You can delete this.
-
 > +
 > +#include <linux/kernel.h>
 > +#include <linux/module.h>
 > +#include <linux/moduleparam.h>
 > +#include <linux/version.h>
-
-Don't need version.h either.
-
 > +#include <linux/dmi.h>
 > +#include <linux/bitops.h>
 > +#include <linux/io.h>
@@ -142,18 +134,9 @@ Don't need version.h either.
 > +#  define REPEAT_RATE 16
 > +#  define STICKY_TIMEOUT 1400
 > +#endif
-
-There is no "HAVE_CONFIG_H in the code, so you can remove that.
-
 > +
 > +#undef DEBUG
-
-Not needed.
-
 > +#define SPLIT_INPUT_DEVICE
-
-What is this for?
-
 > +
 > +static const struct acpi_device_id fscbtns_ids[] = {
 > +	{ .id = "FUJ02BD" },
@@ -182,6 +165,9 @@ What is this for?
 > +};
 > +
 > +static struct fscbtns_config config_Lifebook_Tseries __initdata = {
+
+static const struct .... __initconst
+
 > +	.invert_orientation_bit = 1,
 > +	.keymap = {
 > +		KEY_RESERVED,
@@ -273,14 +259,13 @@ What is this for?
 > +	struct input_dev *idev;
 > +#ifdef SPLIT_INPUT_DEVICE
 > +	struct input_dev *idev_sw;
+
+What for?
+
 > +#endif
 > +#if (defined(STICKY_TIMEOUT) && (STICKY_TIMEOUT > 0))
 > +	struct timer_list timer;
 > +#endif
-
-Don't put #ifdef in .c files.  Based on the above, this can all be fixed
-up without it.
-
 > +
 > +	unsigned int interrupt;
 > +	unsigned int address;
@@ -292,20 +277,12 @@ up without it.
 > +static unsigned int user_model;
 > +module_param_named(model, user_model, uint, 0);
 > +MODULE_PARM_DESC(model, "model (1 = Stylistic, 2 = Lifebook T- and P-Series, 3 = Stylistic ST5xxx, 4 = Lifebook U800)");
-
-We can't determine the model number dynamically from what is present in
-the system?  No one is going to want to configure this in this manner.
-
 > +
 > +/*** HELPER *******************************************************************/
 > +
 > +static inline u8 fscbtns_ack(void)
 > +{
 > +	return inb(fscbtns.address+2);
-
-Try running the patch through scripts/checkpatch.pl to fix stuff like
-this up.
-
 > +}
 > +
 > +static inline u8 fscbtns_status(void)
@@ -320,8 +297,16 @@ this up.
 > +}
 > +
 > +static inline void fscbtns_use_config(struct fscbtns_config *config)
+
+const struct fscbtns_config *
+
 > +{
 > +	memcpy(&fscbtns.config, config, sizeof(struct fscbtns_config));
+
+	fscbtns.config = *config;
+
+Or, better yet, just get rid of this useless wrapper.
+
 > +}
 > +
 > +
@@ -352,9 +337,6 @@ this up.
 > +#ifdef REPEAT_RATE
 > +	__set_bit(EV_REP, idev->evbit);
 > +#endif
-
-Again, no #ifdef.
-
 > +	__set_bit(EV_KEY, idev->evbit);
 > +
 > +	for(x = 0; x < ARRAY_SIZE(fscbtns.config.keymap); x++)
@@ -482,6 +464,28 @@ Again, no #ifdef.
 > +		fscbtns.timer.data = keycode;
 > +		fscbtns.timer.function = fscbtns_sticky_timeout;
 > +		add_timer(&fscbtns.timer);
+
+Not sure what you are trying to do here... I'd just do:
+
+	if (pressed) {
+		if (fscbtns.last_key != KEY_RESERVED &&
+				fscbtns.last_key != keycode)
+			input_report_key(fscbtns.idev, fscbtns.last_key, 0);
+
+		fscbtns.last_key = keycode;
+		mod_timer(&fscbtns.timer, jiffies + msecs_to_jiffies(200);
+	} else {
+		fscbtns.last_key = KEY_RESERVED;
+		del_timer(&fscbtns.timer);
+	}
+
+	input_report_key(fscbtns.idev, keycode, pressed);
+	input_sync(fscbtns.idev);
+
+... if you really need timed release. What if you always report down/up
+events on every press and simply ignore releases?
+
+
 > +		return 1;
 > +	}
 > +
@@ -494,6 +498,9 @@ Again, no #ifdef.
 > +	unsigned int keycode = fscbtns.config.keymap[kmindex];
 > +	if (keycode == KEY_RESERVED)
 > +		return;
+
+No need to filter here, input core will do it for you.
+
 > +
 > +	if (pressed)
 > +		input_event(fscbtns.idev, EV_MSC, MSC_SCAN, kmindex);
@@ -511,6 +518,12 @@ Again, no #ifdef.
 > +	unsigned long keymask;
 > +	unsigned long changed;
 > +	static unsigned long prev_keymask = 0;
+
+No need to initialize statics. Also it would be better if prev_keymask
+would go into your fscbtns structure.
+
+Why unisgned long btw? you have 16 only bit worth of data.
+
 > +
 > +	fscbtns_report_orientation();
 > +
@@ -530,11 +543,17 @@ Again, no #ifdef.
 > +		/* get number of changed bit */
 > +		while(!test_bit(x, &changed))
 > +			x++;
+
+I think you want hweight32() here.
+
 > +
 > +		fscbtns_report_key(x, pressed);
 > +	}
 > +
 > +	input_sync(fscbtns.idev);
+
+Move input_sync into fscbtns_report_key().
+
 > +}
 > +
 > +
@@ -554,6 +573,10 @@ Again, no #ifdef.
 > +		return IRQ_NONE;
 > +
 > +	schedule_work(&isr_wq);
+
+Why do you need workqueue? Why can't fscbtns_event() and fscbtns_ack()
+be called from IRQ context?
+
 > +	return IRQ_HANDLED;
 > +}
 > +
@@ -775,11 +798,10 @@ Again, no #ifdef.
 > +	},
 > +	{ NULL }
 > +};
-
-This should have a MODULE_DEVICE_TABLE() entry afterward to match up
-with the DMI values so the module is automatically loaded on these types
-of systems.
-
+> +
+> +
+> +/*** MODULE *******************************************************************/
+> +
 > +static int __init fscbtns_module_init(void)
 > +{
 > +	int error;
@@ -800,14 +822,73 @@ of systems.
 > +		default:
 > +			dmi_check_system(dmi_ids);
 > +	}
+> +
+> +#if defined(STICKY_TIMEOUT) && (STICKY_TIMEOUT > 0)
+> +	init_timer(&fscbtns.timer);
+> +#endif
+> +
+> +	error = acpi_bus_register_driver(&acpi_fscbtns_driver);
+> +	if (ACPI_FAILURE(error)) {
+> +		error = -EINVAL;
+> +		goto err;
+> +	}
+> +
+> +	if (!fscbtns.interrupt || !fscbtns.address) {
+> +		error = -ENODEV;
+> +		goto err_acpi;
+> +	}
+> +
+> +	error = platform_driver_register(&fscbtns_platform_driver);
+> +	if (error)
+> +		goto err_acpi;
+> +
+> +	fscbtns.pdev = platform_device_register_simple(MODULENAME, -1, NULL, 0);
+> +	if (IS_ERR(fscbtns.pdev)) {
+> +		error = PTR_ERR(fscbtns.pdev);
+> +		goto err_pdrv;
+> +	}
 
-No hard-coding of models, do everything based on what system we have
-found.
+Do you need it to be both platform and acpi driver? Can it be
+acpi-only driver? or platform-only?
 
-> +MODULE_DEVICE_TABLE(cpi, fscbtns_ids);
+> +
+> +	return 0;
+> +
+> +err_pdrv:
+> +	platform_driver_unregister(&fscbtns_platform_driver);
+> +err_acpi:
+> +	acpi_bus_unregister_driver(&acpi_fscbtns_driver);
+> +err:
+> +#if (defined(STICKY_TIMEOUT) && (STICKY_TIMEOUT > 0))
+> +	del_timer_sync(&fscbtns.timer);
+> +#endif
+> +	return error;
+> +}
+> +
+> +static void __exit fscbtns_module_exit(void)
+> +{
+> +#if (defined(STICKY_TIMEOUT) && (STICKY_TIMEOUT > 0))
+> +	del_timer_sync(&fscbtns.timer);
+> +#endif
+> +	platform_device_unregister(fscbtns.pdev);
+> +	platform_driver_unregister(&fscbtns_platform_driver);
+> +	acpi_bus_unregister_driver(&acpi_fscbtns_driver);
+> +}
+> +
+> +module_init(fscbtns_module_init);
+> +module_exit(fscbtns_module_exit);
+> +
+> +MODULE_AUTHOR("Robert Gerlach <khnz@users.sourceforge.net>");
+> +MODULE_DESCRIPTION("Fujitsu Siemens tablet button driver");
+> +MODULE_LICENSE("GPL");
+> +MODULE_VERSION("2.1.2");
+> +
+> +MODULE_DEVICE_TABLE(acpi, fscbtns_ids);
+> -- 
+> 1.7.2
+> 
 
-Ah, that's good, but the DMI stuff is also good to have.
+Thanks.
 
-thanks,
-
-greg k-h
+-- 
+Dmitry

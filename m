@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/5] Input: hp-wmi - switch to using sparse keymap library
-Date: Wed, 04 Aug 2010 22:30:13 -0700
-Message-ID: <20100805053013.604.84229.stgit@localhost.localdomain>
+Subject: [PATCH 5/5] toshiba-acpi - switch to using sparse keymap
+Date: Wed, 04 Aug 2010 22:30:19 -0700
+Message-ID: <20100805053018.604.78180.stgit@localhost.localdomain>
 References: <20100805052645.604.28606.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -16,106 +16,131 @@ List-Id: linux-input@vger.kernel.org
 Instead of implementing its own version of keymap hanlding switch over
 to using sparse keymap library.
 
-Also make sure that we install notify handler only after we allocated
-input device and that we remove notify handler before unregistering
-input device.
+Also, install notify handler only after we allocated input device,
+otherwise we may risk getting event too early and crash. Similarly,
+notify handler should be removed before we unregister input device.
 
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig  |    1 
- drivers/platform/x86/hp-wmi.c |  172 ++++++++++++-----------------------------
- 2 files changed, 52 insertions(+), 121 deletions(-)
+ drivers/platform/x86/Kconfig        |    2 
+ drivers/platform/x86/toshiba_acpi.c |  191 ++++++++++++-----------------------
+ 2 files changed, 65 insertions(+), 128 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 22cec21..15d5374 100644
+index 15d5374..b40c15c 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -141,6 +141,7 @@ config HP_WMI
- 	depends on ACPI_WMI
+@@ -485,7 +485,7 @@ config ACPI_TOSHIBA
+ 	depends on ACPI
  	depends on INPUT
  	depends on RFKILL || RFKILL = n
+-	select INPUT_POLLDEV
 +	select INPUT_SPARSEKMAP
- 	help
- 	 Say Y here if you want to support WMI-based hotkeys on HP laptops and
- 	 to read data from WMI such as docking or ambient light sensor state.
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index f155163..92a8c18 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -29,6 +29,7 @@
- #include <linux/slab.h>
- #include <linux/types.h>
+ 	select BACKLIGHT_CLASS_DEVICE
+ 	---help---
+ 	  This driver adds support for access to certain system settings
+diff --git a/drivers/platform/x86/toshiba_acpi.c b/drivers/platform/x86/toshiba_acpi.c
+index 7d67a45..06f304f 100644
+--- a/drivers/platform/x86/toshiba_acpi.c
++++ b/drivers/platform/x86/toshiba_acpi.c
+@@ -48,6 +48,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/rfkill.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
- #include <linux/platform_device.h>
- #include <linux/acpi.h>
- #include <linux/rfkill.h>
-@@ -87,24 +88,16 @@ struct bios_return {
- 	u32 return_code;
+ #include <linux/leds.h>
+ #include <linux/slab.h>
+ 
+@@ -121,36 +122,28 @@ static const struct acpi_device_id toshiba_device_ids[] = {
  };
+ MODULE_DEVICE_TABLE(acpi, toshiba_device_ids);
  
 -struct key_entry {
--	char type;		/* See KE_* below */
+-	char type;
 -	u16 code;
 -	u16 keycode;
 -};
 -
--enum { KE_KEY, KE_END };
+-enum {KE_KEY, KE_END};
 -
--static struct key_entry hp_wmi_keymap[] = {
--	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
--	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
--	{KE_KEY, 0x20e6, KEY_PROG1},
--	{KE_KEY, 0x20e8, KEY_MEDIA},
--	{KE_KEY, 0x2142, KEY_MEDIA},
--	{KE_KEY, 0x213b, KEY_INFO},
--	{KE_KEY, 0x2169, KEY_DIRECTION},
--	{KE_KEY, 0x231b, KEY_HELP},
--	{KE_END, 0}
-+static const struct key_entry hp_wmi_keymap[] = {
-+	{ KE_KEY, 0x02,   { KEY_BRIGHTNESSUP } },
-+	{ KE_KEY, 0x03,   { KEY_BRIGHTNESSDOWN } },
-+	{ KE_KEY, 0x20e6, { KEY_PROG1 } },
-+	{ KE_KEY, 0x20e8, { KEY_MEDIA } },
-+	{ KE_KEY, 0x2142, { KEY_MEDIA } },
-+	{ KE_KEY, 0x213b, { KEY_INFO } },
-+	{ KE_KEY, 0x2169, { KEY_DIRECTION } },
-+	{ KE_KEY, 0x231b, { KEY_HELP } },
-+	{ KE_END, 0 }
+-static struct key_entry toshiba_acpi_keymap[]  = {
+-	{KE_KEY, 0x101, KEY_MUTE},
+-	{KE_KEY, 0x102, KEY_ZOOMOUT},
+-	{KE_KEY, 0x103, KEY_ZOOMIN},
+-	{KE_KEY, 0x13b, KEY_COFFEE},
+-	{KE_KEY, 0x13c, KEY_BATTERY},
+-	{KE_KEY, 0x13d, KEY_SLEEP},
+-	{KE_KEY, 0x13e, KEY_SUSPEND},
+-	{KE_KEY, 0x13f, KEY_SWITCHVIDEOMODE},
+-	{KE_KEY, 0x140, KEY_BRIGHTNESSDOWN},
+-	{KE_KEY, 0x141, KEY_BRIGHTNESSUP},
+-	{KE_KEY, 0x142, KEY_WLAN},
+-	{KE_KEY, 0x143, KEY_PROG1},
+-	{KE_KEY, 0xb05, KEY_PROG2},
+-	{KE_KEY, 0xb06, KEY_WWW},
+-	{KE_KEY, 0xb07, KEY_MAIL},
+-	{KE_KEY, 0xb30, KEY_STOP},
+-	{KE_KEY, 0xb31, KEY_PREVIOUSSONG},
+-	{KE_KEY, 0xb32, KEY_NEXTSONG},
+-	{KE_KEY, 0xb33, KEY_PLAYPAUSE},
+-	{KE_KEY, 0xb5a, KEY_MEDIA},
+-	{KE_END, 0, 0},
++static const struct key_entry toshiba_acpi_keymap[] __initconst = {
++	{ KE_KEY, 0x101, { KEY_MUTE } },
++	{ KE_KEY, 0x102, { KEY_ZOOMOUT } },
++	{ KE_KEY, 0x103, { KEY_ZOOMIN } },
++	{ KE_KEY, 0x13b, { KEY_COFFEE } },
++	{ KE_KEY, 0x13c, { KEY_BATTERY } },
++	{ KE_KEY, 0x13d, { KEY_SLEEP } },
++	{ KE_KEY, 0x13e, { KEY_SUSPEND } },
++	{ KE_KEY, 0x13f, { KEY_SWITCHVIDEOMODE } },
++	{ KE_KEY, 0x140, { KEY_BRIGHTNESSDOWN } },
++	{ KE_KEY, 0x141, { KEY_BRIGHTNESSUP } },
++	{ KE_KEY, 0x142, { KEY_WLAN } },
++	{ KE_KEY, 0x143, { KEY_PROG1 } },
++	{ KE_KEY, 0xb05, { KEY_PROG2 } },
++	{ KE_KEY, 0xb06, { KEY_WWW } },
++	{ KE_KEY, 0xb07, { KEY_MAIL } },
++	{ KE_KEY, 0xb30, { KEY_STOP } },
++	{ KE_KEY, 0xb31, { KEY_PREVIOUSSONG } },
++	{ KE_KEY, 0xb32, { KEY_NEXTSONG } },
++	{ KE_KEY, 0xb33, { KEY_PLAYPAUSE } },
++	{ KE_KEY, 0xb5a, { KEY_MEDIA } },
++	{ KE_END, 0 },
  };
  
- static struct input_dev *hp_wmi_input_dev;
-@@ -361,64 +354,9 @@ static DEVICE_ATTR(als, S_IRUGO | S_IWUSR, show_als, set_als);
- static DEVICE_ATTR(dock, S_IRUGO, show_dock, NULL);
- static DEVICE_ATTR(tablet, S_IRUGO, show_tablet, NULL);
+ /* utility
+@@ -852,64 +845,9 @@ static struct backlight_ops toshiba_backlight_data = {
+         .update_status  = set_lcd_status,
+ };
  
--static struct key_entry *hp_wmi_get_entry_by_scancode(unsigned int code)
+-static struct key_entry *toshiba_acpi_get_entry_by_scancode(unsigned int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = hp_wmi_keymap; key->type != KE_END; key++)
+-	for (key = toshiba_acpi_keymap; key->type != KE_END; key++)
 -		if (code == key->code)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static struct key_entry *hp_wmi_get_entry_by_keycode(unsigned int keycode)
+-static struct key_entry *toshiba_acpi_get_entry_by_keycode(unsigned int code)
 -{
 -	struct key_entry *key;
 -
--	for (key = hp_wmi_keymap; key->type != KE_END; key++)
--		if (key->type == KE_KEY && keycode == key->keycode)
+-	for (key = toshiba_acpi_keymap; key->type != KE_END; key++)
+-		if (code == key->keycode && key->type == KE_KEY)
 -			return key;
 -
 -	return NULL;
 -}
 -
--static int hp_wmi_getkeycode(struct input_dev *dev,
--			     unsigned int scancode, unsigned int *keycode)
+-static int toshiba_acpi_getkeycode(struct input_dev *dev,
+-				   unsigned int scancode, unsigned int *keycode)
 -{
--	struct key_entry *key = hp_wmi_get_entry_by_scancode(scancode);
+-	struct key_entry *key = toshiba_acpi_get_entry_by_scancode(scancode);
 -
 -	if (key && key->type == KE_KEY) {
 -		*keycode = key->keycode;
@@ -125,18 +150,18 @@ index f155163..92a8c18 100644
 -	return -EINVAL;
 -}
 -
--static int hp_wmi_setkeycode(struct input_dev *dev,
--			     unsigned int scancode, unsigned int keycode)
+-static int toshiba_acpi_setkeycode(struct input_dev *dev,
+-				   unsigned int scancode, unsigned int keycode)
 -{
 -	struct key_entry *key;
 -	unsigned int old_keycode;
 -
--	key = hp_wmi_get_entry_by_scancode(scancode);
+-	key = toshiba_acpi_get_entry_by_scancode(scancode);
 -	if (key && key->type == KE_KEY) {
 -		old_keycode = key->keycode;
 -		key->keycode = keycode;
 -		set_bit(keycode, dev->keybit);
--		if (!hp_wmi_get_entry_by_keycode(old_keycode))
+-		if (!toshiba_acpi_get_entry_by_keycode(old_keycode))
 -			clear_bit(old_keycode, dev->keybit);
 -		return 0;
 -	}
@@ -144,152 +169,144 @@ index f155163..92a8c18 100644
 -	return -EINVAL;
 -}
 -
- static void hp_wmi_notify(u32 value, void *context)
+ static void toshiba_acpi_notify(acpi_handle handle, u32 event, void *context)
  {
- 	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
--	static struct key_entry *key;
- 	union acpi_object *obj;
- 	u32 event_id, event_data;
- 	int key_code, ret;
-@@ -479,19 +417,9 @@ static void hp_wmi_notify(u32 value, void *context)
- 					   sizeof(key_code));
- 		if (ret)
- 			break;
--		key = hp_wmi_get_entry_by_scancode(key_code);
--		if (key) {
--			switch (key->type) {
--			case KE_KEY:
--				input_report_key(hp_wmi_input_dev,
--						 key->keycode, 1);
--				input_sync(hp_wmi_input_dev);
--				input_report_key(hp_wmi_input_dev,
--						 key->keycode, 0);
--				input_sync(hp_wmi_input_dev);
--				break;
--			}
--		} else
-+
-+		if (!sparse_keymap_report_event(hp_wmi_input_dev,
-+						key_code, 1, true))
- 			printk(KERN_INFO PREFIX "Unknown key code - 0x%x\n",
- 			       key_code);
- 		break;
-@@ -524,7 +452,7 @@ static void hp_wmi_notify(u32 value, void *context)
- 
- static int __init hp_wmi_input_setup(void)
- {
+ 	u32 hci_result, value;
 -	struct key_entry *key;
-+	acpi_status status;
- 	int err;
  
- 	hp_wmi_input_dev = input_allocate_device();
-@@ -534,21 +462,14 @@ static int __init hp_wmi_input_setup(void)
- 	hp_wmi_input_dev->name = "HP WMI hotkeys";
- 	hp_wmi_input_dev->phys = "wmi/input0";
- 	hp_wmi_input_dev->id.bustype = BUS_HOST;
--	hp_wmi_input_dev->getkeycode = hp_wmi_getkeycode;
--	hp_wmi_input_dev->setkeycode = hp_wmi_setkeycode;
--
--	for (key = hp_wmi_keymap; key->type != KE_END; key++) {
--		switch (key->type) {
--		case KE_KEY:
--			set_bit(EV_KEY, hp_wmi_input_dev->evbit);
--			set_bit(key->keycode, hp_wmi_input_dev->keybit);
--			break;
--		}
--	}
+ 	if (event != 0x80)
+ 		return;
+@@ -922,19 +860,11 @@ static void toshiba_acpi_notify(acpi_handle handle, u32 event, void *context)
+ 			if (value & 0x80)
+ 				continue;
  
--	set_bit(EV_SW, hp_wmi_input_dev->evbit);
--	set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
--	set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
-+	__set_bit(EV_SW, hp_wmi_input_dev->evbit);
-+	__set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
-+	__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
-+
-+	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
-+	if (err)
-+		goto err_free_dev;
+-			key = toshiba_acpi_get_entry_by_scancode
+-				(value);
+-			if (!key) {
++			if (!sparse_keymap_report_event(toshiba_acpi.hotkey_dev,
++							value, 1, true)) {
+ 				printk(MY_INFO "Unknown key %x\n",
+ 				       value);
+-				continue;
+ 			}
+-			input_report_key(toshiba_acpi.hotkey_dev,
+-					 key->keycode, 1);
+-			input_sync(toshiba_acpi.hotkey_dev);
+-			input_report_key(toshiba_acpi.hotkey_dev,
+-					 key->keycode, 0);
+-			input_sync(toshiba_acpi.hotkey_dev);
+ 		} else if (hci_result == HCI_NOT_SUPPORTED) {
+ 			/* This is a workaround for an unresolved issue on
+ 			 * some machines where system events sporadically
+@@ -945,34 +875,17 @@ static void toshiba_acpi_notify(acpi_handle handle, u32 event, void *context)
+ 	} while (hci_result != HCI_EMPTY);
+ }
  
- 	/* Set initial hardware state */
- 	input_report_switch(hp_wmi_input_dev, SW_DOCK, hp_wmi_dock_state());
-@@ -556,14 +477,32 @@ static int __init hp_wmi_input_setup(void)
- 			    hp_wmi_tablet_state());
- 	input_sync(hp_wmi_input_dev);
+-static int toshiba_acpi_setup_keyboard(char *device)
++static int __init toshiba_acpi_setup_keyboard(char *device)
+ {
+ 	acpi_status status;
+-	acpi_handle handle;
+-	int result;
+-	const struct key_entry *key;
++	int error;
  
--	err = input_register_device(hp_wmi_input_dev);
--
--	if (err) {
--		input_free_device(hp_wmi_input_dev);
--		return err;
-+	status = wmi_install_notify_handler(HPWMI_EVENT_GUID, hp_wmi_notify, NULL);
-+	if (ACPI_FAILURE(status)) {
-+		err = -EIO;
-+		goto err_free_keymap;
+-	status = acpi_get_handle(NULL, device, &handle);
++	status = acpi_get_handle(NULL, device, &toshiba_acpi.handle);
+ 	if (ACPI_FAILURE(status)) {
+ 		printk(MY_INFO "Unable to get notification device\n");
+ 		return -ENODEV;
  	}
  
-+	err = input_register_device(hp_wmi_input_dev);
-+	if (err)
-+		goto err_uninstall_notifier;
+-	toshiba_acpi.handle = handle;
+-
+-	status = acpi_evaluate_object(handle, "ENAB", NULL, NULL);
+-	if (ACPI_FAILURE(status)) {
+-		printk(MY_INFO "Unable to enable hotkeys\n");
+-		return -ENODEV;
+-	}
+-
+-	status = acpi_install_notify_handler(handle, ACPI_DEVICE_NOTIFY,
+-					      toshiba_acpi_notify, NULL);
+-	if (ACPI_FAILURE(status)) {
+-		printk(MY_INFO "Unable to install hotkey notification\n");
+-		return -ENODEV;
+-	}
+-
+ 	toshiba_acpi.hotkey_dev = input_allocate_device();
+ 	if (!toshiba_acpi.hotkey_dev) {
+ 		printk(MY_INFO "Unable to register input device\n");
+@@ -982,27 +895,54 @@ static int toshiba_acpi_setup_keyboard(char *device)
+ 	toshiba_acpi.hotkey_dev->name = "Toshiba input device";
+ 	toshiba_acpi.hotkey_dev->phys = device;
+ 	toshiba_acpi.hotkey_dev->id.bustype = BUS_HOST;
+-	toshiba_acpi.hotkey_dev->getkeycode = toshiba_acpi_getkeycode;
+-	toshiba_acpi.hotkey_dev->setkeycode = toshiba_acpi_setkeycode;
+ 
+-	for (key = toshiba_acpi_keymap; key->type != KE_END; key++) {
+-		set_bit(EV_KEY, toshiba_acpi.hotkey_dev->evbit);
+-		set_bit(key->keycode, toshiba_acpi.hotkey_dev->keybit);
++	error = sparse_keymap_setup(toshiba_acpi.hotkey_dev,
++				    toshiba_acpi_keymap, NULL);
++	if (error)
++		goto err_free_dev;
 +
++	status = acpi_install_notify_handler(toshiba_acpi.handle,
++				ACPI_DEVICE_NOTIFY, toshiba_acpi_notify, NULL);
++	if (ACPI_FAILURE(status)) {
++		printk(MY_INFO "Unable to install hotkey notification\n");
++		error = -ENODEV;
++		goto err_free_keymap;
++	}
++
++	status = acpi_evaluate_object(toshiba_acpi.handle, "ENAB", NULL, NULL);
++	if (ACPI_FAILURE(status)) {
++		printk(MY_INFO "Unable to enable hotkeys\n");
++		error = -ENODEV;
++		goto err_remove_notify;
+ 	}
+ 
+-	result = input_register_device(toshiba_acpi.hotkey_dev);
+-	if (result) {
++	error = input_register_device(toshiba_acpi.hotkey_dev);
++	if (error) {
+ 		printk(MY_INFO "Unable to register input device\n");
+-		return result;
++		goto err_remove_notify;
+ 	}
+ 
  	return 0;
 +
-+ err_uninstall_notifier:
-+	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
++ err_remove_notify:
++	acpi_remove_notify_handler(toshiba_acpi.handle,
++				   ACPI_DEVICE_NOTIFY, toshiba_acpi_notify);
 + err_free_keymap:
-+	sparse_keymap_free(hp_wmi_input_dev);
++	sparse_keymap_free(toshiba_acpi.hotkey_dev);
 + err_free_dev:
-+	input_free_device(hp_wmi_input_dev);
-+	return err;
-+}
-+
-+static void hp_wmi_input_destroy(void)
-+{
-+	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-+	sparse_keymap_free(hp_wmi_input_dev);
-+	input_unregister_device(hp_wmi_input_dev);
++	input_free_device(toshiba_acpi.hotkey_dev);
++	toshiba_acpi.hotkey_dev = NULL;
++	return error;
  }
  
- static void cleanup_sysfs(struct platform_device *device)
-@@ -718,15 +657,9 @@ static int __init hp_wmi_init(void)
- 	int bios_capable = wmi_has_guid(HPWMI_BIOS_GUID);
- 
- 	if (event_capable) {
--		err = wmi_install_notify_handler(HPWMI_EVENT_GUID,
--						 hp_wmi_notify, NULL);
--		if (ACPI_FAILURE(err))
--			return -EINVAL;
- 		err = hp_wmi_input_setup();
--		if (err) {
--			wmi_remove_notify_handler(HPWMI_EVENT_GUID);
-+		if (err)
- 			return err;
--		}
- 	}
- 
- 	if (bios_capable) {
-@@ -753,20 +686,17 @@ err_device_add:
- err_device_alloc:
- 	platform_driver_unregister(&hp_wmi_driver);
- err_driver_reg:
--	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
--		input_unregister_device(hp_wmi_input_dev);
--		wmi_remove_notify_handler(HPWMI_EVENT_GUID);
--	}
-+	if (event_capable)
-+		hp_wmi_input_destroy();
- 
- 	return err;
- }
- 
- static void __exit hp_wmi_exit(void)
+ static void toshiba_acpi_exit(void)
  {
--	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
--		wmi_remove_notify_handler(HPWMI_EVENT_GUID);
--		input_unregister_device(hp_wmi_input_dev);
--	}
-+	if (wmi_has_guid(HPWMI_EVENT_GUID))
-+		hp_wmi_input_destroy();
-+
- 	if (hp_wmi_platform_dev) {
- 		platform_device_unregister(hp_wmi_platform_dev);
- 		platform_driver_unregister(&hp_wmi_driver);
+-	if (toshiba_acpi.hotkey_dev)
++	if (toshiba_acpi.hotkey_dev) {
++		acpi_remove_notify_handler(toshiba_acpi.handle,
++				ACPI_DEVICE_NOTIFY, toshiba_acpi_notify);
++		sparse_keymap_free(toshiba_acpi.hotkey_dev);
+ 		input_unregister_device(toshiba_acpi.hotkey_dev);
++	}
+ 
+ 	if (toshiba_acpi.bt_rfk) {
+ 		rfkill_unregister(toshiba_acpi.bt_rfk);
+@@ -1017,9 +957,6 @@ static void toshiba_acpi_exit(void)
+ 	if (toshiba_proc_dir)
+ 		remove_proc_entry(PROC_TOSHIBA, acpi_root_dir);
+ 
+-	acpi_remove_notify_handler(toshiba_acpi.handle, ACPI_DEVICE_NOTIFY,
+-				   toshiba_acpi_notify);
+-
+ 	if (toshiba_acpi.illumination_installed)
+ 		led_classdev_unregister(&toshiba_led);
+ 

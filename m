@@ -1,30 +1,55 @@
-From: Greg KH <gregkh@suse.de>
-Subject: Re: [PATCH 0/3] SysRq: do not pass tty argument around
-Date: Wed, 4 Aug 2010 12:44:41 -0700
-Message-ID: <20100804194441.GB30722@suse.de>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH 1/3] Input: sysrq - drop tty argument from sysrq ops
+ handlers
+Date: Thu, 05 Aug 2010 11:59:24 +1000
+Message-ID: <1280973564.1902.166.camel@pasglop>
 References: <20100804075602.30647.91462.stgit@localhost.localdomain>
+	 <20100804075900.30647.46910.stgit@localhost.localdomain>
+	 <1280910830.1902.144.camel@pasglop>
+	 <20100804100926.3f24f5e5@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20100804075602.30647.91462.stgit@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, David Airlie <airlied@linux.ie>, David Miller <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gate.crashing.org ([63.228.1.57]:36511 "EHLO gate.crashing.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759439Ab0HECAB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Aug 2010 22:00:01 -0400
+In-Reply-To: <20100804100926.3f24f5e5@lxorguk.ukuu.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Airlie <airlied@linux.ie>, David Miller <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>, Jason Wessel <jason.wessel@windriver.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>
 
-On Wed, Aug 04, 2010 at 12:58:55AM -0700, Dmitry Torokhov wrote:
-> Hi,
+On Wed, 2010-08-04 at 10:09 +0100, Alan Cox wrote:
 > 
-> The following 3 patches get rid of 'tty' argument in SysRq handlers as
-> nobody is using it. If noone objects I'd like to get it merged through
-> my tree.
+> Fundamentally - no. However the impact it has on a lot of the drivers
+> will be significant and you'll be submitting a huge patch pile to fix up
+> all the locking assumptions (for one it means port->tty might change
+> across any call that ends up in sysrq)
 
-Nice job.
+Right. That's nasty. I think we need somewhat to break the loop when
+that happens as if we were getting a new interrupt to some extent.
 
-No objection from me for you to take this through your tree:
-	Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+And that's a lot of drivers to fix.
 
-thanks,
+> > serial drivers might need to be audited a bit to make sure they cope
+> > with the lock being dropped and re-acquired around the sysrq call.
+> 
+> Architecturally I think it would make more sense to add a new sysrq
+> helper which merely sets a flag, and check that flag at the end of the IRQ
+> when dropping the lock anyway.
 
-greg k-h
+Interesting idea. That does mean that multiple sysrq in one interrupt
+will be coalesced but I don't see that as an issue.
+
+> Otherwise it'll be a huge amount of work to even build test all those
+> consoles.
+
+Right. Better to have a way where we can fix them one at a time. I'll
+look into it. Thanks.
+
+Cheers,
+Ben.
+
+

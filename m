@@ -1,7 +1,7 @@
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH 1/9] drivers/input/gameport: Use pr_fmt and pr_<level>
-Date: Thu,  5 Aug 2010 00:29:42 -0700
-Message-ID: <4372564dd9aeb4c85e233d31e2997b8643b58e56.1280992117.git.joe@perches.com>
+Subject: [PATCH 7/9] drivers/input/tablet: Use pr_fmt and pr_<level>
+Date: Thu,  5 Aug 2010 00:29:48 -0700
+Message-ID: <fcdf137fd3ea0fc78ea2f13192805cc003b3558f.1280992119.git.joe@perches.com>
 References: <20100804043256.GB25256@core.coreip.homeip.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20100804043256.GB25256@core.coreip.homeip.net>
@@ -14,137 +14,159 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Joe Perches <joe@perches.com>
 ---
- drivers/input/gameport/emu10k1-gp.c |    4 +++-
- drivers/input/gameport/fm801-gp.c   |    8 +++++---
- drivers/input/gameport/lightning.c  |    6 ++++--
- drivers/input/gameport/ns558.c      |    8 +++++---
- 4 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/input/tablet/acecad.c    |    5 +++--
+ drivers/input/tablet/aiptek.c    |    7 ++++---
+ drivers/input/tablet/gtco.c      |    2 +-
+ drivers/input/tablet/kbtab.c     |    5 +++--
+ drivers/input/tablet/wacom_sys.c |    7 ++++---
+ drivers/input/tablet/wacom_wac.c |    8 ++++++--
+ 6 files changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
-index 7392992..3b065c7 100644
---- a/drivers/input/gameport/emu10k1-gp.c
-+++ b/drivers/input/gameport/emu10k1-gp.c
-@@ -26,6 +26,8 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-  */
- 
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <asm/io.h>
- 
- #include <linux/module.h>
-@@ -75,7 +77,7 @@ static int __devinit emu_probe(struct pci_dev *pdev, const struct pci_device_id
- 	emu = kzalloc(sizeof(struct emu), GFP_KERNEL);
- 	port = gameport_allocate_port();
- 	if (!emu || !port) {
--		printk(KERN_ERR "emu10k1-gp: Memory allocation failed\n");
-+		pr_err("Memory allocation failed\n");
- 		release_region(ioport, iolen);
- 		kfree(emu);
- 		gameport_free_port(port);
-diff --git a/drivers/input/gameport/fm801-gp.c b/drivers/input/gameport/fm801-gp.c
-index 14d3f3e..9f8b4fa 100644
---- a/drivers/input/gameport/fm801-gp.c
-+++ b/drivers/input/gameport/fm801-gp.c
-@@ -20,6 +20,8 @@
+diff --git a/drivers/input/tablet/acecad.c b/drivers/input/tablet/acecad.c
+index aea9a93..bf95597 100644
+--- a/drivers/input/tablet/acecad.c
++++ b/drivers/input/tablet/acecad.c
+@@ -25,6 +25,8 @@
   *
   */
  
 +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
- #include <asm/io.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
-@@ -87,7 +89,7 @@ static int __devinit fm801_gp_probe(struct pci_dev *pci, const struct pci_device
- 	gp = kzalloc(sizeof(struct fm801_gp), GFP_KERNEL);
- 	port = gameport_allocate_port();
- 	if (!gp || !port) {
--		printk(KERN_ERR "fm801-gp: Memory allocation failed\n");
-+		pr_err("Memory allocation failed\n");
- 		error = -ENOMEM;
- 		goto err_out_free;
- 	}
-@@ -108,8 +110,8 @@ static int __devinit fm801_gp_probe(struct pci_dev *pci, const struct pci_device
- 	gp->gameport = port;
- 	gp->res_port = request_region(port->io, 0x10, "FM801 GP");
- 	if (!gp->res_port) {
--		printk(KERN_DEBUG "fm801-gp: unable to grab region 0x%x-0x%x\n",
--			port->io, port->io + 0x0f);
-+		printk(KERN_DEBUG pr_fmt("unable to grab region 0x%x-0x%x\n"),
-+		       port->io, port->io + 0x0f);
- 		error = -EBUSY;
- 		goto err_out_disable_dev;
- 	}
-diff --git a/drivers/input/gameport/lightning.c b/drivers/input/gameport/lightning.c
-index 85d6ee0..73ff2a0 100644
---- a/drivers/input/gameport/lightning.c
-+++ b/drivers/input/gameport/lightning.c
-@@ -26,6 +26,8 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-  */
- 
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <asm/io.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
-@@ -228,7 +230,7 @@ static int __init l4_create_ports(int card_no)
- 		l4 = &l4_ports[idx];
- 
- 		if (!(l4->gameport = port = gameport_allocate_port())) {
--			printk(KERN_ERR "lightning: Memory allocation failed\n");
-+			pr_err("Memory allocation failed\n");
- 			while (--i >= 0) {
- 				gameport_free_port(l4->gameport);
- 				l4->gameport = NULL;
-@@ -287,7 +289,7 @@ static int __init l4_add_card(int card_no)
- 	if (result)
- 		return result;
- 
--	printk(KERN_INFO "gameport: PDPI Lightning 4 %s card v%d.%d at %#x\n",
-+	pr_info("PDPI Lightning 4 %s card v%d.%d at %#x\n",
- 		card_no ? "secondary" : "primary", rev >> 4, rev, L4_PORT);
- 
- 	for (i = 0; i < 4; i++) {
-diff --git a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
-index 7c21784..11b3309 100644
---- a/drivers/input/gameport/ns558.c
-+++ b/drivers/input/gameport/ns558.c
-@@ -27,6 +27,8 @@
-  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-  */
- 
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <asm/io.h>
- 
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
  #include <linux/module.h>
-@@ -142,7 +144,7 @@ static int ns558_isa_probe(int io)
- 	ns558 = kzalloc(sizeof(struct ns558), GFP_KERNEL);
- 	port = gameport_allocate_port();
- 	if (!ns558 || !port) {
--		printk(KERN_ERR "ns558: Memory allocation failed.\n");
-+		pr_err("Memory allocation failed\n");
- 		release_region(io & (-1 << i), (1 << i));
- 		kfree(ns558);
- 		gameport_free_port(port);
-@@ -201,7 +203,7 @@ static int ns558_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
- 	struct gameport *port;
+@@ -272,8 +274,7 @@ static int __init usb_acecad_init(void)
+ {
+ 	int result = usb_register(&usb_acecad_driver);
+ 	if (result == 0)
+-		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
+-		       DRIVER_DESC "\n");
++		pr_info(DRIVER_VERSION ":" DRIVER_DESC "\n");
+ 	return result;
+ }
  
- 	if (!pnp_port_valid(dev, 0)) {
--		printk(KERN_WARNING "ns558: No i/o ports on a gameport? Weird\n");
-+		pr_warning("No i/o ports on a gameport? Weird\n");
- 		return -ENODEV;
+diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+index 57b25b8..11f1c09 100644
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -70,6 +70,8 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/jiffies.h>
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+@@ -1924,9 +1926,8 @@ static int __init aiptek_init(void)
+ {
+ 	int result = usb_register(&aiptek_driver);
+ 	if (result == 0) {
+-		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
+-		       DRIVER_DESC "\n");
+-		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_AUTHOR "\n");
++		pr_info(DRIVER_VERSION ":" DRIVER_DESC "\n");
++		pr_info(DRIVER_AUTHOR "\n");
+ 	}
+ 	return result;
+ }
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 8ea6afe..822941f 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -1035,7 +1035,7 @@ static int __init gtco_init(void)
+ 		return error;
  	}
  
-@@ -214,7 +216,7 @@ static int ns558_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
- 	ns558 = kzalloc(sizeof(struct ns558), GFP_KERNEL);
- 	port = gameport_allocate_port();
- 	if (!ns558 || !port) {
--		printk(KERN_ERR "ns558: Memory allocation failed\n");
-+		pr_err("Memory allocation failed\n");
- 		kfree(ns558);
- 		gameport_free_port(port);
- 		return -ENOMEM;
+-	printk("GTCO usb driver version: %s", GTCO_VERSION);
++	pr_info("GTCO usb driver version: %s\n", GTCO_VERSION);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
+index 290f4e5..18a4878 100644
+--- a/drivers/input/tablet/kbtab.c
++++ b/drivers/input/tablet/kbtab.c
+@@ -1,3 +1,5 @@
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+@@ -204,8 +206,7 @@ static int __init kbtab_init(void)
+ 	retval = usb_register(&kbtab_driver);
+ 	if (retval)
+ 		goto out;
+-	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
+-	       DRIVER_DESC "\n");
++	pr_info(DRIVER_VERSION ":" DRIVER_DESC "\n");
+ out:
+ 	return retval;
+ }
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 42ba369..0b888a0 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -11,6 +11,8 @@
+  * (at your option) any later version.
+  */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include "wacom_wac.h"
+ #include "wacom.h"
+ 
+@@ -343,7 +345,7 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	if (usb_get_extra_descriptor(interface, HID_DEVICET_HID, &hid_desc)) {
+ 		if (usb_get_extra_descriptor(&interface->endpoint[0],
+ 				HID_DEVICET_REPORT, &hid_desc)) {
+-			printk("wacom: can not retrieve extra class descriptor\n");
++			pr_info("can not retrieve extra class descriptor\n");
+ 			error = 1;
+ 			goto out;
+ 		}
+@@ -610,8 +612,7 @@ static int __init wacom_init(void)
+ 
+ 	result = usb_register(&wacom_driver);
+ 	if (result == 0)
+-		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
+-		       DRIVER_DESC "\n");
++		pr_info(DRIVER_VERSION ":" DRIVER_DESC "\n");
+ 	return result;
+ }
+ 
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 40d77ba..c9df214 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -12,6 +12,8 @@
+  * (at your option) any later version.
+  */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include "wacom_wac.h"
+ #include "wacom.h"
+ 
+@@ -51,7 +53,8 @@ static int wacom_penpartner_irq(struct wacom_wac *wacom)
+ 		break;
+ 
+ 	default:
+-		printk(KERN_INFO "wacom_penpartner_irq: received unknown report #%d\n", data[0]);
++		pr_info("%s(): received unknown report #%d\n",
++			__func__, data[0]);
+ 		return 0;
+         }
+ 
+@@ -136,7 +139,8 @@ static int wacom_ptu_irq(struct wacom_wac *wacom)
+ 	struct input_dev *input = wacom->input;
+ 
+ 	if (data[0] != WACOM_REPORT_PENABLED) {
+-		printk(KERN_INFO "wacom_ptu_irq: received unknown report #%d\n", data[0]);
++		pr_info("%s(): received unknown report #%d\n",
++			__func__, data[0]);
+ 		return 0;
+ 	}
+ 
 -- 
 1.7.2.19.g9a302

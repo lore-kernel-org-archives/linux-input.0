@@ -1,254 +1,295 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/5] topstar-laptop - switch to using sparse keymap library
-Date: Wed, 04 Aug 2010 22:29:57 -0700
-Message-ID: <20100805052957.604.79075.stgit@localhost.localdomain>
+Subject: [PATCH 4/5] Input: hp-wmi - switch to using sparse keymap library
+Date: Wed, 04 Aug 2010 22:30:13 -0700
+Message-ID: <20100805053013.604.84229.stgit@localhost.localdomain>
 References: <20100805052645.604.28606.stgit@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 In-Reply-To: <20100805052645.604.28606.stgit@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
 To: platform-driver-x86@vger.kernel.org
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mjg@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-Instead of implementing its own version of keymap hanlding switch over to
-using sparse keymap library.
+Instead of implementing its own version of keymap hanlding switch over
+to using sparse keymap library.
 
-Acked-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Also make sure that we install notify handler only after we allocated
+input device and that we remove notify handler before unregistering
+input device.
+
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
 
- drivers/platform/x86/Kconfig          |    1 
- drivers/platform/x86/topstar-laptop.c |  161 +++++++++++----------------------
- 2 files changed, 55 insertions(+), 107 deletions(-)
+ drivers/platform/x86/Kconfig  |    1 
+ drivers/platform/x86/hp-wmi.c |  172 ++++++++++++-----------------------------
+ 2 files changed, 52 insertions(+), 121 deletions(-)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 79baa63..63d68e7 100644
+index 22cec21..15d5374 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -471,6 +471,7 @@ config TOPSTAR_LAPTOP
- 	tristate "Topstar Laptop Extras"
- 	depends on ACPI
+@@ -141,6 +141,7 @@ config HP_WMI
+ 	depends on ACPI_WMI
  	depends on INPUT
+ 	depends on RFKILL || RFKILL = n
 +	select INPUT_SPARSEKMAP
- 	---help---
- 	  This driver adds support for hotkeys found on Topstar laptops.
- 
-diff --git a/drivers/platform/x86/topstar-laptop.c b/drivers/platform/x86/topstar-laptop.c
-index ff4b476..1d07d6d 100644
---- a/drivers/platform/x86/topstar-laptop.c
-+++ b/drivers/platform/x86/topstar-laptop.c
-@@ -19,6 +19,7 @@
+ 	help
+ 	 Say Y here if you want to support WMI-based hotkeys on HP laptops and
+ 	 to read data from WMI such as docking or ambient light sensor state.
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index f155163..92a8c18 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -29,6 +29,7 @@
  #include <linux/slab.h>
- #include <linux/acpi.h>
+ #include <linux/types.h>
  #include <linux/input.h>
 +#include <linux/input/sparse-keymap.h>
- 
- #define ACPI_TOPSTAR_CLASS "topstar"
- 
-@@ -26,52 +27,37 @@ struct topstar_hkey {
- 	struct input_dev *inputdev;
+ #include <linux/platform_device.h>
+ #include <linux/acpi.h>
+ #include <linux/rfkill.h>
+@@ -87,24 +88,16 @@ struct bios_return {
+ 	u32 return_code;
  };
  
--struct tps_key_entry {
--	u8 code;
+-struct key_entry {
+-	char type;		/* See KE_* below */
+-	u16 code;
 -	u16 keycode;
 -};
 -
--static struct tps_key_entry topstar_keymap[] = {
--	{ 0x80, KEY_BRIGHTNESSUP },
--	{ 0x81, KEY_BRIGHTNESSDOWN },
--	{ 0x83, KEY_VOLUMEUP },
--	{ 0x84, KEY_VOLUMEDOWN },
--	{ 0x85, KEY_MUTE },
--	{ 0x86, KEY_SWITCHVIDEOMODE },
--	{ 0x87, KEY_F13 }, /* touchpad enable/disable key */
--	{ 0x88, KEY_WLAN },
--	{ 0x8a, KEY_WWW },
--	{ 0x8b, KEY_MAIL },
--	{ 0x8c, KEY_MEDIA },
--	{ 0x96, KEY_F14 }, /* G key? */
--	{ }
--};
+-enum { KE_KEY, KE_END };
 -
--static struct tps_key_entry *tps_get_key_by_scancode(unsigned int code)
+-static struct key_entry hp_wmi_keymap[] = {
+-	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
+-	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
+-	{KE_KEY, 0x20e6, KEY_PROG1},
+-	{KE_KEY, 0x20e8, KEY_MEDIA},
+-	{KE_KEY, 0x2142, KEY_MEDIA},
+-	{KE_KEY, 0x213b, KEY_INFO},
+-	{KE_KEY, 0x2169, KEY_DIRECTION},
+-	{KE_KEY, 0x231b, KEY_HELP},
+-	{KE_END, 0}
++static const struct key_entry hp_wmi_keymap[] = {
++	{ KE_KEY, 0x02,   { KEY_BRIGHTNESSUP } },
++	{ KE_KEY, 0x03,   { KEY_BRIGHTNESSDOWN } },
++	{ KE_KEY, 0x20e6, { KEY_PROG1 } },
++	{ KE_KEY, 0x20e8, { KEY_MEDIA } },
++	{ KE_KEY, 0x2142, { KEY_MEDIA } },
++	{ KE_KEY, 0x213b, { KEY_INFO } },
++	{ KE_KEY, 0x2169, { KEY_DIRECTION } },
++	{ KE_KEY, 0x231b, { KEY_HELP } },
++	{ KE_END, 0 }
+ };
+ 
+ static struct input_dev *hp_wmi_input_dev;
+@@ -361,64 +354,9 @@ static DEVICE_ATTR(als, S_IRUGO | S_IWUSR, show_als, set_als);
+ static DEVICE_ATTR(dock, S_IRUGO, show_dock, NULL);
+ static DEVICE_ATTR(tablet, S_IRUGO, show_tablet, NULL);
+ 
+-static struct key_entry *hp_wmi_get_entry_by_scancode(unsigned int code)
 -{
--	struct tps_key_entry *key;
+-	struct key_entry *key;
 -
--	for (key = topstar_keymap; key->code; key++)
+-	for (key = hp_wmi_keymap; key->type != KE_END; key++)
 -		if (code == key->code)
 -			return key;
-+static const struct key_entry topstar_keymap[] = {
-+	{ KE_KEY, 0x80, { KEY_BRIGHTNESSUP } },
-+	{ KE_KEY, 0x81, { KEY_BRIGHTNESSDOWN } },
-+	{ KE_KEY, 0x83, { KEY_VOLUMEUP } },
-+	{ KE_KEY, 0x84, { KEY_VOLUMEDOWN } },
-+	{ KE_KEY, 0x85, { KEY_MUTE } },
-+	{ KE_KEY, 0x86, { KEY_SWITCHVIDEOMODE } },
-+	{ KE_KEY, 0x87, { KEY_F13 } }, /* touchpad enable/disable key */
-+	{ KE_KEY, 0x88, { KEY_WLAN } },
-+	{ KE_KEY, 0x8a, { KEY_WWW } },
-+	{ KE_KEY, 0x8b, { KEY_MAIL } },
-+	{ KE_KEY, 0x8c, { KEY_MEDIA } },
- 
+-
 -	return NULL;
 -}
 -
--static struct tps_key_entry *tps_get_key_by_keycode(unsigned int code)
+-static struct key_entry *hp_wmi_get_entry_by_keycode(unsigned int keycode)
 -{
--	struct tps_key_entry *key;
-+	/* Known non hotkey events don't handled or that we don't care yet */
-+	{ KE_IGNORE, 0x8e, },
-+	{ KE_IGNORE, 0x8f, },
-+	{ KE_IGNORE, 0x90, },
- 
--	for (key = topstar_keymap; key->code; key++)
--		if (code == key->keycode)
+-	struct key_entry *key;
+-
+-	for (key = hp_wmi_keymap; key->type != KE_END; key++)
+-		if (key->type == KE_KEY && keycode == key->keycode)
 -			return key;
-+	/*
-+	 * 'G key' generate two event codes, convert to only
-+	 * one event/key code for now, consider replacing by
-+	 * a switch (3G switch - SW_3G?)
-+	 */
-+	{ KE_KEY, 0x96, { KEY_F14 } },
-+	{ KE_KEY, 0x97, { KEY_F14 } },
- 
+-
 -	return NULL;
 -}
-+	{ KE_END, 0 }
-+};
- 
- static void acpi_topstar_notify(struct acpi_device *device, u32 event)
- {
--	struct tps_key_entry *key;
- 	static bool dup_evnt[2];
- 	bool *dup;
- 	struct topstar_hkey *hkey = acpi_driver_data(device);
-@@ -86,27 +72,8 @@ static void acpi_topstar_notify(struct acpi_device *device, u32 event)
- 		*dup = true;
- 	}
- 
--	/*
--	 * 'G key' generate two event codes, convert to only
--	 * one event/key code for now (3G switch?)
--	 */
--	if (event == 0x97)
--		event = 0x96;
 -
--	key = tps_get_key_by_scancode(event);
--	if (key) {
--		input_report_key(hkey->inputdev, key->keycode, 1);
--		input_sync(hkey->inputdev);
--		input_report_key(hkey->inputdev, key->keycode, 0);
--		input_sync(hkey->inputdev);
--		return;
+-static int hp_wmi_getkeycode(struct input_dev *dev,
+-			     unsigned int scancode, unsigned int *keycode)
+-{
+-	struct key_entry *key = hp_wmi_get_entry_by_scancode(scancode);
+-
+-	if (key && key->type == KE_KEY) {
+-		*keycode = key->keycode;
+-		return 0;
 -	}
 -
--	/* Known non hotkey events don't handled or that we don't care yet */
--	if (event == 0x8e || event == 0x8f || event == 0x90)
--		return;
--
--	pr_info("unknown event = 0x%02x\n", event);
-+	if (!sparse_keymap_report_event(hkey->inputdev, event, 1, true))
-+		pr_info("unknown event = 0x%02x\n", event);
- }
- 
- static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
-@@ -127,62 +94,41 @@ static int acpi_topstar_fncx_switch(struct acpi_device *device, bool state)
- 	return 0;
- }
- 
--static int topstar_getkeycode(struct input_dev *dev,
--				unsigned int scancode, unsigned int *keycode)
--{
--	struct tps_key_entry *key = tps_get_key_by_scancode(scancode);
--
--	if (!key)
--		return -EINVAL;
--
--	*keycode = key->keycode;
--	return 0;
+-	return -EINVAL;
 -}
 -
--static int topstar_setkeycode(struct input_dev *dev,
--				unsigned int scancode, unsigned int keycode)
+-static int hp_wmi_setkeycode(struct input_dev *dev,
+-			     unsigned int scancode, unsigned int keycode)
 -{
--	struct tps_key_entry *key;
--	int old_keycode;
+-	struct key_entry *key;
+-	unsigned int old_keycode;
 -
--	key = tps_get_key_by_scancode(scancode);
+-	key = hp_wmi_get_entry_by_scancode(scancode);
+-	if (key && key->type == KE_KEY) {
+-		old_keycode = key->keycode;
+-		key->keycode = keycode;
+-		set_bit(keycode, dev->keybit);
+-		if (!hp_wmi_get_entry_by_keycode(old_keycode))
+-			clear_bit(old_keycode, dev->keybit);
+-		return 0;
+-	}
 -
--	if (!key)
--		return -EINVAL;
--
--	old_keycode = key->keycode;
--	key->keycode = keycode;
--	set_bit(keycode, dev->keybit);
--	if (!tps_get_key_by_keycode(old_keycode))
--		clear_bit(old_keycode, dev->keybit);
--	return 0;
+-	return -EINVAL;
 -}
 -
- static int acpi_topstar_init_hkey(struct topstar_hkey *hkey)
+ static void hp_wmi_notify(u32 value, void *context)
  {
--	struct tps_key_entry *key;
-+	struct input_dev *input;
-+	int error;
+ 	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
+-	static struct key_entry *key;
+ 	union acpi_object *obj;
+ 	u32 event_id, event_data;
+ 	int key_code, ret;
+@@ -479,19 +417,9 @@ static void hp_wmi_notify(u32 value, void *context)
+ 					   sizeof(key_code));
+ 		if (ret)
+ 			break;
+-		key = hp_wmi_get_entry_by_scancode(key_code);
+-		if (key) {
+-			switch (key->type) {
+-			case KE_KEY:
+-				input_report_key(hp_wmi_input_dev,
+-						 key->keycode, 1);
+-				input_sync(hp_wmi_input_dev);
+-				input_report_key(hp_wmi_input_dev,
+-						 key->keycode, 0);
+-				input_sync(hp_wmi_input_dev);
+-				break;
+-			}
+-		} else
++
++		if (!sparse_keymap_report_event(hp_wmi_input_dev,
++						key_code, 1, true))
+ 			printk(KERN_INFO PREFIX "Unknown key code - 0x%x\n",
+ 			       key_code);
+ 		break;
+@@ -524,7 +452,7 @@ static void hp_wmi_notify(u32 value, void *context)
  
--	hkey->inputdev = input_allocate_device();
--	if (!hkey->inputdev) {
-+	input = input_allocate_device();
-+	if (!input) {
- 		pr_err("Unable to allocate input device\n");
--		return -ENODEV;
-+		return -ENOMEM;
- 	}
--	hkey->inputdev->name = "Topstar Laptop extra buttons";
--	hkey->inputdev->phys = "topstar/input0";
--	hkey->inputdev->id.bustype = BUS_HOST;
--	hkey->inputdev->getkeycode = topstar_getkeycode;
--	hkey->inputdev->setkeycode = topstar_setkeycode;
--	for (key = topstar_keymap; key->code; key++) {
--		set_bit(EV_KEY, hkey->inputdev->evbit);
--		set_bit(key->keycode, hkey->inputdev->keybit);
+ static int __init hp_wmi_input_setup(void)
+ {
+-	struct key_entry *key;
++	acpi_status status;
+ 	int err;
+ 
+ 	hp_wmi_input_dev = input_allocate_device();
+@@ -534,21 +462,14 @@ static int __init hp_wmi_input_setup(void)
+ 	hp_wmi_input_dev->name = "HP WMI hotkeys";
+ 	hp_wmi_input_dev->phys = "wmi/input0";
+ 	hp_wmi_input_dev->id.bustype = BUS_HOST;
+-	hp_wmi_input_dev->getkeycode = hp_wmi_getkeycode;
+-	hp_wmi_input_dev->setkeycode = hp_wmi_setkeycode;
+-
+-	for (key = hp_wmi_keymap; key->type != KE_END; key++) {
+-		switch (key->type) {
+-		case KE_KEY:
+-			set_bit(EV_KEY, hp_wmi_input_dev->evbit);
+-			set_bit(key->keycode, hp_wmi_input_dev->keybit);
+-			break;
+-		}
+-	}
+ 
+-	set_bit(EV_SW, hp_wmi_input_dev->evbit);
+-	set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
+-	set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
++	__set_bit(EV_SW, hp_wmi_input_dev->evbit);
++	__set_bit(SW_DOCK, hp_wmi_input_dev->swbit);
++	__set_bit(SW_TABLET_MODE, hp_wmi_input_dev->swbit);
 +
-+	input->name = "Topstar Laptop extra buttons";
-+	input->phys = "topstar/input0";
-+	input->id.bustype = BUS_HOST;
-+
-+	error = sparse_keymap_setup(input, topstar_keymap, NULL);
-+	if (error) {
-+		pr_err("Unable to setup input device keymap\n");
++	err = sparse_keymap_setup(hp_wmi_input_dev, hp_wmi_keymap, NULL);
++	if (err)
 +		goto err_free_dev;
- 	}
--	if (input_register_device(hkey->inputdev)) {
-+
-+	error = input_register_device(input);
-+	if (error) {
- 		pr_err("Unable to register input device\n");
--		input_free_device(hkey->inputdev);
--		return -ENODEV;
+ 
+ 	/* Set initial hardware state */
+ 	input_report_switch(hp_wmi_input_dev, SW_DOCK, hp_wmi_dock_state());
+@@ -556,14 +477,32 @@ static int __init hp_wmi_input_setup(void)
+ 			    hp_wmi_tablet_state());
+ 	input_sync(hp_wmi_input_dev);
+ 
+-	err = input_register_device(hp_wmi_input_dev);
+-
+-	if (err) {
+-		input_free_device(hp_wmi_input_dev);
+-		return err;
++	status = wmi_install_notify_handler(HPWMI_EVENT_GUID, hp_wmi_notify, NULL);
++	if (ACPI_FAILURE(status)) {
++		err = -EIO;
 +		goto err_free_keymap;
  	}
  
-+	hkey->inputdev = input;
++	err = input_register_device(hp_wmi_input_dev);
++	if (err)
++		goto err_uninstall_notifier;
++
  	return 0;
 +
++ err_uninstall_notifier:
++	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
 + err_free_keymap:
-+	sparse_keymap_free(input);
++	sparse_keymap_free(hp_wmi_input_dev);
 + err_free_dev:
-+	input_free_device(input);
-+	return error;
++	input_free_device(hp_wmi_input_dev);
++	return err;
++}
++
++static void hp_wmi_input_destroy(void)
++{
++	wmi_remove_notify_handler(HPWMI_EVENT_GUID);
++	sparse_keymap_free(hp_wmi_input_dev);
++	input_unregister_device(hp_wmi_input_dev);
  }
  
- static int acpi_topstar_add(struct acpi_device *device)
-@@ -216,6 +162,7 @@ static int acpi_topstar_remove(struct acpi_device *device, int type)
+ static void cleanup_sysfs(struct platform_device *device)
+@@ -718,15 +657,9 @@ static int __init hp_wmi_init(void)
+ 	int bios_capable = wmi_has_guid(HPWMI_BIOS_GUID);
  
- 	acpi_topstar_fncx_switch(device, false);
+ 	if (event_capable) {
+-		err = wmi_install_notify_handler(HPWMI_EVENT_GUID,
+-						 hp_wmi_notify, NULL);
+-		if (ACPI_FAILURE(err))
+-			return -EINVAL;
+ 		err = hp_wmi_input_setup();
+-		if (err) {
+-			wmi_remove_notify_handler(HPWMI_EVENT_GUID);
++		if (err)
+ 			return err;
+-		}
+ 	}
  
-+	sparse_keymap_free(tps_hkey->inputdev);
- 	input_unregister_device(tps_hkey->inputdev);
- 	kfree(tps_hkey);
+ 	if (bios_capable) {
+@@ -753,20 +686,17 @@ err_device_add:
+ err_device_alloc:
+ 	platform_driver_unregister(&hp_wmi_driver);
+ err_driver_reg:
+-	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
+-		input_unregister_device(hp_wmi_input_dev);
+-		wmi_remove_notify_handler(HPWMI_EVENT_GUID);
+-	}
++	if (event_capable)
++		hp_wmi_input_destroy();
  
+ 	return err;
+ }
+ 
+ static void __exit hp_wmi_exit(void)
+ {
+-	if (wmi_has_guid(HPWMI_EVENT_GUID)) {
+-		wmi_remove_notify_handler(HPWMI_EVENT_GUID);
+-		input_unregister_device(hp_wmi_input_dev);
+-	}
++	if (wmi_has_guid(HPWMI_EVENT_GUID))
++		hp_wmi_input_destroy();
++
+ 	if (hp_wmi_platform_dev) {
+ 		platform_device_unregister(hp_wmi_platform_dev);
+ 		platform_driver_unregister(&hp_wmi_driver);

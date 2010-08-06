@@ -1,50 +1,32 @@
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Subject: Re: Handling of large keycodes
-Date: Fri, 6 Aug 2010 23:00:11 +0200
-Message-ID: <20100806210011.GB24488@hardeman.nu>
-References: <20100731091936.GA22253@core.coreip.homeip.net>
- <4C5423E1.30805@redhat.com>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH 0/1] mouse: add qci touchpad driver
+Date: Fri, 06 Aug 2010 17:37:31 -0400
+Message-ID: <4C5C809B.4030802@codeaurora.org>
+References: <4C5C713D.8010902@codeaurora.org> <201008061344.13326.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:44378 "EHLO
-	palpatine.hardeman.nu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935183Ab0HFVGv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Aug 2010 17:06:51 -0400
-Content-Disposition: inline
-In-Reply-To: <4C5423E1.30805@redhat.com>
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:29328 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751403Ab0HFVhe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Aug 2010 17:37:34 -0400
+In-Reply-To: <201008061344.13326.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, Jarod Wilson <jarod@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
 
-On Sat, Jul 31, 2010 at 10:23:45AM -0300, Mauro Carvalho Chehab wrote:
-> Em 31-07-2010 06:19, Dmitry Torokhov escreveu:
-> > The usefulnes of reserved data elements in the structure is=20
-> > doubtful,
-> > since we do not seem to require them being set to a particular valu=
-e and
-> > so we'll be unable to distinguish betwee legacy and newer users.
->=20
-> David proposed some parameters that we rejected on our discussions. A=
-s we
-> might need to add something similar, I decided to keep it on my appro=
-ach,
-> since a set of reserved fields wouldn't hurt (and removing it on our =
-discussions
-> would be easy), but I'm ok on removing them.
+On 8/6/2010 4:44 PM, Dmitry Torokhov wrote:
+>
+> Doesn't "xset mouse" do what you want?
+>
 
-The parameters that we'll need for the ir subsystem can be implemented=20
-in a different way in the future (with no changes necessary to the inpu=
-t=20
-subsystem) so I'm also ok with removing them.
+Yes, I believe it does. I'll resubmit the patch with the scaling removed 
+- thanks.
 
-
---=20
-David H=E4rdeman
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Neil
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

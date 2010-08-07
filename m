@@ -1,95 +1,44 @@
-From: Trilok Soni <tsoni@codeaurora.org>
-Subject: Re: [PATCH 1/1] mouse: add qci touchpad driver
-Date: Sat, 07 Aug 2010 16:14:54 +0530
-Message-ID: <4C5D3926.6050307@codeaurora.org>
-References: <1281126776-20014-1-git-send-email-nleeder@codeaurora.org>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Sat, 7 Aug 2010 17:23:09 +0200
+Message-ID: <20100807152309.GF17833@buzzloop.caiaq.de>
+References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
+ <20100524160805.GO30801@buzzloop.caiaq.de>
+ <20100524161527.GC3182@core.coreip.homeip.net>
+ <20100616083903.GU17833@buzzloop.caiaq.de>
+ <20100721083048.GA21558@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1281126776-20014-1-git-send-email-nleeder@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <20100721083048.GA21558@core.coreip.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Leeder <nleeder@codeaurora.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Neil,
+Hi Dmitry,
 
-On 8/7/2010 2:02 AM, Neil Leeder wrote:
-> This driver is for the QCI trackpad used on Quanta smartbooks
-> 
-> Review URL: http://codereview.chromium.org/724001
+sorry for the late reply on this, I guess I haven't been much help
+around here lately.
 
-Do we need such URLs? 
+On Wed, Jul 21, 2010 at 01:30:48AM -0700, Dmitry Torokhov wrote:
+> The approach is pretty solid, with the exception that I do not think
+> we'd save much if we allocate every axis data separately (as I mentioned
+> in one of my earlier mails).
 
-> +
-> +/*
-> + * Driver communicates over i2c to nuvoTon WPCE775x Embedded Controller,
-> + * which has touchpad attached through PS/2 interface.
-> + */
+Agreed. We at least save the memory for all input devices that don't
+have absolute axis at all.
 
-Why this driver is not developed through MFD architecture then? nuvoTon chip
-looks like multi-function chip, isn't it?
+> Coudl you please take a look at the following patches and let me know if
+> you see something wrong.
 
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/input.h>
-> +#include <linux/gpio.h>
-> +#include <linux/delay.h>
-> +#include <linux/input/qci_touchpad.h>
-> +
-> +#define TOUCHPAD_ID_NAME          "qci-i2cpad"
-> +#define TOUCHPAD_NAME             "QCI Touchpad"
-> +#define TOUCHPAD_DEVICE           "/qci_touchpad/input0"
-> +#define TOUCHPAD_CMD_ENABLE       0xF4
-> +#define TOUCHPAD_READ_DATA_LEN    3
-> +
-> +struct i2ctpad_drv_data {
-> +	struct i2c_client *ti2c_client;
-> +	struct input_dev *qcitp_dev;
-> +	unsigned int qcitp_gpio;
-> +	unsigned int qcitp_irq;
-> +	char ecdata[8];
-> +	bool opened;
-> +};
-> +
-> +
-> +static const struct i2c_device_id qcitp_idtable[] = {
-> +	{ TOUCHPAD_ID_NAME, 0 },
+I checked the patches and tried them locally on my desktop, and I can't
+see any breakage, but we might need more coverage for testing.
 
-This should be chip name instead of driver or ID name I think. 
+Will you push them to the .36 merge window or is it too late for this?
 
-> +
-> +	err = gpio_request(context->qcitp_gpio, "qci-pad");
-> +	if (err) {
-> +		pr_err("[QCI TouchPad] gpio request failed\n");
-> +		goto gpio_request_fail;
-> +	}
-> +
-> +	context->qcitp_irq = gpio_to_irq(context->qcitp_gpio);
+Many thanks for your help :)
 
-Please set the direction of the gpio as input, gpio_direction_input, even though gpios
-are coming as input by default.
-
-> +
-> +static int __devexit qcitp_remove(struct i2c_client *client)
-> +{
-> +	struct i2ctpad_drv_data *context = i2c_get_clientdata(client);
-> +
-> +	free_irq(context->qcitp_irq, context);
-> +	gpio_free(context->qcitp_gpio);
-> +	input_unregister_device(context->qcitp_dev);
-> +	i2c_set_clientdata(client, NULL);
-
-Not required in latest kernels.
-
----Trilok Soni
-
--- 
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Daniel

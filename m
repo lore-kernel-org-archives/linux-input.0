@@ -1,99 +1,76 @@
 From: =?ISO-8859-1?Q?=C9ric_Piel?= <E.A.B.Piel@tudelft.nl>
-Subject: [PATCH 07/10] elantech: Report multitouch with proper ABS_MT messages
-Date: Mon, 09 Aug 2010 00:52:46 +0200
-Message-ID: <4C5F353E.4020608@tudelft.nl>
+Subject: [PATCH 09/10] elantech: remove support for proprietary X driver
+Date: Mon, 09 Aug 2010 00:54:49 +0200
+Message-ID: <4C5F35B9.6060006@tudelft.nl>
 References: <4C567F27.7070900@tudelft.nl> <4C5697C4.1020801@euromail.se> <4C56A81E.3040703@tudelft.nl> <4C56AA67.8000902@euromail.se> <4C56AD12.1080106@tudelft.nl> <4C56B00B.50204@euromail.se> <4C56B686.60606@tudelft.nl> <4C56BA13.3030104@euromail.se> <4C56BE30.2070807@tudelft.nl> <4C56C213.2010605@euromail.se> <20100802163913.GB3276@core.coreip.homeip.net> <4C5F34F4.7030503@tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailservice.tudelft.nl ([130.161.131.5]:57813 "EHLO
+Received: from mailservice.tudelft.nl ([130.161.131.5]:40073 "EHLO
 	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754596Ab0HHWzs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Aug 2010 18:55:48 -0400
+	with ESMTP id S1754712Ab0HHWzw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Aug 2010 18:55:52 -0400
 In-Reply-To: <4C5F34F4.7030503@tudelft.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@euromail.se>, Chris Bagwell <chris@cnpbagwell.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Florian Ragwitz <rafl@debian.org>
 
-Multitouch info was reported only via a old protocol used by the
-proprietary X driver from elantech. Let's report the multitouch info
-also following the official MT protocol.
-
-This was done following the multi-touch-protocol.txt documentation, and
-inspired by the bcm5974 implementation. Testing was light as there is
-not many applications using this protocol yet, but the X synaptics
-driver didn't complain and the X multitouch driver behaved correctly.
+Apparently somewhere someone had a proprietary X driver. To get the
+multitouch info, it uses some hack on the normal API instead of using
+the multitouch protocol. Now that the multitouch info is transmitted
+correctly it makes not much sense to keep it. Especially because it's
+impossible to find this proprietary X driver anywhere, so the number of
+user must be pretty low.
 
 Signed-off-by: =C9ric Piel <eric.piel@tremplin-utc.net>
 ---
- drivers/input/mouse/elantech.c |   23 +++++++++++++++++++----
- 1 files changed, 19 insertions(+), 4 deletions(-)
+ drivers/input/mouse/elantech.c |   12 ------------
+ 1 files changed, 0 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elant=
 ech.c
-index c84f741..7fa4f29 100644
+index 1dd7e7c..ba1c3d8 100644
 --- a/drivers/input/mouse/elantech.c
 +++ b/drivers/input/mouse/elantech.c
-@@ -271,14 +271,20 @@ static void elantech_report_absolute_v2(struct ps=
-mouse *psmouse)
- 		 * byte 1:  .   .   .   .   .  x10 x9  x8
- 		 * byte 2: x7  x6  x5  x4  x4  x2  x1  x0
- 		 */
--		input_report_abs(dev, ABS_X,
--			((packet[1] & 0x07) << 8) | packet[2]);
-+		x1 =3D ((packet[1] & 0x07) << 8) | packet[2];
- 		/*
- 		 * byte 4:  .   .   .   .   .   .  y9  y8
- 		 * byte 5: y7  y6  y5  y4  y3  y2  y1  y0
- 		 */
--		input_report_abs(dev, ABS_Y,
--			ETP_YMAX_V2 - (((packet[4] & 0x03) << 8) | packet[5]));
-+		y1 =3D ETP_YMAX_V2 - (((packet[4] & 0x03) << 8) | packet[5]);
-+		/* Multitouch */
-+		input_report_abs(dev, ABS_MT_POSITION_X, x1);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, y1);
-+		input_mt_sync(dev);
-+
-+		input_report_abs(dev, ABS_X, x1);
-+		input_report_abs(dev, ABS_Y, y1);
-+
- 		pres =3D (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
- 		width =3D ((packet[0] & 0x30) >> 2) | ((packet[3] & 0x30) >> 4);
- 		break;
-@@ -300,6 +306,13 @@ static void elantech_report_absolute_v2(struct psm=
+@@ -364,14 +364,6 @@ static void elantech_report_absolute_v2(struct psm=
 ouse *psmouse)
- 		x2 =3D ((packet[3] & 0x10) << 4) | packet[4];
- 		/* byte 5: by7 by8 by5 by4 by3 by2 by1 by0 */
- 		y2 =3D ETP_2FT_YMAX - (((packet[3] & 0x20) << 3) | packet[5]);
-+		/* Multitouch */
-+		input_report_abs(dev, ABS_MT_POSITION_X, x1 << 2);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, y1 << 2);
-+		input_mt_sync(dev);
-+		input_report_abs(dev, ABS_MT_POSITION_X, x2 << 2);
-+		input_report_abs(dev, ABS_MT_POSITION_Y, y2 << 2);
-+		input_mt_sync(dev);
- 		/*
- 		 * For compatibility with the X Synaptics driver scale up
- 		 * one coordinate and report as ordinary mouse movent
-@@ -548,6 +561,8 @@ static void elantech_set_input_params(struct psmous=
-e *psmouse)
- 			input_set_abs_params(dev, ABS_TOOL_WIDTH, ETP_WMIN_V2,
- 					     ETP_WMAX_V2, 0, 0);
+ 		 */
+ 		input_report_abs(dev, ABS_X, x1);
+ 		input_report_abs(dev, ABS_Y, y1);
+-		/*
+-		 * For compatibility with the proprietary X Elantech driver
+-		 * report both coordinates as hat coordinates
+-		 */
+-		input_report_abs(dev, ABS_HAT0X, x1 >> 2);
+-		input_report_abs(dev, ABS_HAT0Y, y1 >> 2);
+-		input_report_abs(dev, ABS_HAT1X, x2 >> 2);
+-		input_report_abs(dev, ABS_HAT1Y, y2 >> 2);
+=20
+ 		/* Unknown so just report sensible values */
+ 		pres =3D 127;
+@@ -608,10 +600,6 @@ static void elantech_set_input_params(struct psmou=
+se *psmouse)
  		}
-+		input_set_abs_params(dev, ABS_MT_POSITION_X, ETP_XMIN_V2, ETP_XMAX_V=
+ 		input_set_abs_params(dev, ABS_MT_POSITION_X, ETP_XMIN_V2, ETP_XMAX_V=
 2, 0, 0);
-+		input_set_abs_params(dev, ABS_MT_POSITION_Y, ETP_YMIN_V2, ETP_YMAX_V=
+ 		input_set_abs_params(dev, ABS_MT_POSITION_Y, ETP_YMIN_V2, ETP_YMAX_V=
 2, 0, 0);
- 		input_set_abs_params(dev, ABS_HAT0X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, =
+-		input_set_abs_params(dev, ABS_HAT0X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, =
 0);
- 		input_set_abs_params(dev, ABS_HAT0Y, ETP_2FT_YMIN, ETP_2FT_YMAX, 0, =
+-		input_set_abs_params(dev, ABS_HAT0Y, ETP_2FT_YMIN, ETP_2FT_YMAX, 0, =
 0);
- 		input_set_abs_params(dev, ABS_HAT1X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, =
+-		input_set_abs_params(dev, ABS_HAT1X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, =
 0);
+-		input_set_abs_params(dev, ABS_HAT1Y, ETP_2FT_YMIN, ETP_2FT_YMAX, 0, =
+0);
+ 		break;
+ 	}
+ }
 --=20
 1.7.2.1
+
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

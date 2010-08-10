@@ -1,55 +1,38 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: Dual touchscreen implementation
-Date: Tue, 10 Aug 2010 18:16:27 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043F6195B1@dlee03.ent.ti.com>
+From: David Brown <davidb@codeaurora.org>
+Subject: Re: [PATCH 1/1] mouse: add qci touchpad driver
+Date: Tue, 10 Aug 2010 16:20:14 -0700
+Message-ID: <20100810232014.GB21240@huya.qualcomm.com>
+References: <1281126776-20014-1-git-send-email-nleeder@codeaurora.org>
+ <4C5D3926.6050307@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:58584 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754014Ab0HJXQa convert rfc822-to-8bit (ORCPT
+Received: from wolverine02.qualcomm.com ([199.106.114.251]:46154 "EHLO
+	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753391Ab0HJXUQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Aug 2010 19:16:30 -0400
-Received: from dlep36.itg.ti.com ([157.170.170.91])
-	by comal.ext.ti.com (8.13.7/8.13.7) with ESMTP id o7ANGTM7030603
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <linux-input@vger.kernel.org>; Tue, 10 Aug 2010 18:16:29 -0500
-Received: from dlep26.itg.ti.com (localhost [127.0.0.1])
-	by dlep36.itg.ti.com (8.13.8/8.13.8) with ESMTP id o7ANGTTr019747
-	for <linux-input@vger.kernel.org>; Tue, 10 Aug 2010 18:16:29 -0500 (CDT)
-Received: from dsbe71.ent.ti.com (localhost [127.0.0.1])
-	by dlep26.itg.ti.com (8.13.8/8.13.8) with ESMTP id o7ANGTfI004656
-	for <linux-input@vger.kernel.org>; Tue, 10 Aug 2010 18:16:29 -0500 (CDT)
-Content-Language: en-US
+	Tue, 10 Aug 2010 19:20:16 -0400
+Content-Disposition: inline
+In-Reply-To: <4C5D3926.6050307@codeaurora.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Trilok Soni <tsoni@codeaurora.org>
+Cc: Neil Leeder <nleeder@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
 
-Hi,
+On Sat, Aug 07, 2010 at 04:14:54PM +0530, Trilok Soni wrote:
 
-I am working in a board with dual display/touchscreen. I have searched within drivers/input/touchscreen for some examples on how to implement the functionality to configure driver and behave as a single touchscreen if 2 sensors are present, no specific example found
+> > +
+> > +/*
+> > + * Driver communicates over i2c to nuvoTon WPCE775x Embedded Controller,
+> > + * which has touchpad attached through PS/2 interface.
+> > + */
+> 
+> Why this driver is not developed through MFD architecture then? nuvoTon chip
+> looks like multi-function chip, isn't it?
 
-My idea is to create an attribute "virtualized" to enable/disable virtualization in the second touchscreen
+It is, in the sense that it does multiple things.  But, for this
+particular device, it makes the keyboard available as an i2c device.
+I don't see any particular reason to tie that to other functionality
+that the chip provides.
 
-+ static DEVICE_ATTR(virtualized, S_IRUGO | S_IWUSR,
-+ 		   syn_show_attr_virtualized, syn_store_attr_virtualized);
-
-
-In the function which reports the values to input subsystem we can then decide to make the second one as an extension of the first touchscreen if
-
-* virtualized is set to 1
-* and touchscreen sensor is the second one
-
-
- + if (ts->virtualized && dev_name(&sensor->dev == '2')
- +	data->x = ts->touch_caps.max_x + d->x;
- [..]
- + input_report_abs(idev, ABS_x, data->x);
-
-
-I'd appreciate any comments on this approach...
-
-Best Regards
-Abraham
-
+David

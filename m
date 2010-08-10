@@ -1,78 +1,106 @@
-From: "Kevin McNeely" <Kevin.McNeely@cypress.com>
-Subject: RE: [PATCH] i2c: cyttsp i2c and spi touchscreen driver init submit
-Date: Mon, 9 Aug 2010 17:51:18 -0700
-Message-ID: <FB9C2CB29A07AB45B575A4E8D2AABC09C4882D@labamba.mis.cypress.com>
-References: <Kevin McNeely <kev@cypress.com> <1281031924-3032-1-git-send-email-kev@cypress.com> <4C5B4404.6010602@euromail.se> <FB9C2CB29A07AB45B575A4E8D2AABC09C4860A@labamba.mis.cypress.com> <4C5CAD84.2040804@euromail.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.36-rc0
+Date: Tue, 10 Aug 2010 08:50:38 -0700
+Message-ID: <20100810155037.GA17552@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns1.cypress.com ([157.95.67.4]:37678 "EHLO ns1.cypress.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751845Ab0HJAz1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Aug 2010 20:55:27 -0400
-Content-class: urn:content-classes:message
+Received: from mail-pz0-f46.google.com ([209.85.210.46]:64229 "EHLO
+	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932179Ab0HJPup (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Aug 2010 11:50:45 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brown <davidb@codeaurora.org>, Trilok Soni <tsoni@codeaurora.org>, Fred <fwk@ubuntu.linuxcertified.com>, Samuel Ortiz <sameo@linux.intel.com>, Eric Miao <eric.y.miao@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Simtec Linux Team <linux@simtec.co.uk>, Todd Fischer <todd.fischer@ridgerun.com>, Arnaud Patard <arnaud.patard@rtp-net.org>, Sascha Hauer <s.hauer@pengutronix.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Henrik,
+Hi Linus,
 
-> -----Original Message-----
-> From: Henrik Rydberg [mailto:rydberg@euromail.se]
-> Sent: Friday, August 06, 2010 5:49 PM
-> To: Kevin McNeely
-> Cc: Dmitry Torokhov; David Brown; Trilok Soni; Fred; Samuel Ortiz;
-Eric
-> Miao; Ben Dooks; Simtec Linux Team; Todd Fischer; Arnaud Patard;
-Sascha
-> Hauer; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] i2c: cyttsp i2c and spi touchscreen driver init
-> submit
-> 
-> On 08/07/2010 02:32 AM, Kevin McNeely wrote:
-> 
-> [...]
-> 
-> > However, I would like to keep the MT Protocol A.  Our solution
-allows
-> 
-> > The platform builder to select to use MT protocol B or not as part
-of
-> > platform_data in the board configuration. If it makes more sense,
-> > I can reverse the code to default to protocol B and allow the
-> platform
-> > builder developer to select protocol A.
-> 
-> 
-> There is nothing preventing you from keeping say a dkms package
-> somewhere with
-> all options intact. However, for the kernel, it is a question of
-> maintainability. If the driver can produce prefectly valid data using
-> protocol
-> B, and by doing so several hundred lines of code can be removed, that
-> is very
-> much preferred. Since both protocols can be translated to protocol B
-> via mtdev,
-> which is already very much in use, there is little reason to support
-> protocol A
-> when the device can do tracking.
+Please pull from:
 
-I will remove the Protocol A.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Thank you again for your review.
--kevin
+to receive 2nd round of updates for the input subsystem. The main chang=
+e
+is from Daniel Mack to allocate memory to hold ABS data in input device=
+s
+only when devices actually produce ABS events as it slims down struct
+input_dev significantly.
 
-> 
-> Thanks,
-> Henrik
+I also have a couple of patches pending that remove 'tty' argument from
+handle_sysrq() and friends as noone uses it, but since the change
+comflicts with kgdb a bit I want to wait till after -rc1 to merge it
+properly and send it off to you.
 
----------------------------------------------------------------
-This message and any attachments may contain Cypress (or its
-subsidiaries) confidential information. If it has been received
-in error, please advise the sender and immediately delete this
-message.
----------------------------------------------------------------
+Changelog:
+---------
 
+Christoph Fritz (1):
+      Input: xpad - add USB-ID for PL-3601 Xbox 360 pad
+
+Dan Carpenter (1):
+      Input: cy8ctmg100_ts - signedness bug
+
+Daniel Mack (3):
+      Input: add static inline accessors for ABS properties
+      Input: switch to input_abs_*() access functions
+      Input: dynamically allocate ABS information
+
+Dmitry Torokhov (1):
+      Input: evdev - rearrange ioctl handling
+
+Michael Hennerich (1):
+      Input: adxl34x - do not mark device as disabled on startup
+
+Shubhrajyoti D (1):
+      Input: gpio_keys - add hooks to enable/disable device
+
+=C9ric Piel (2):
+      Input: elantech - discard the first 2 positions on some firmwares
+      Input: elantech - report position also with 3 fingers
+
+
+Diffstat:
+--------
+
+ drivers/hid/hid-wacom.c                   |   49 +++++-----
+ drivers/input/evdev.c                     |  152 ++++++++++++++-------=
+--------
+ drivers/input/input.c                     |   46 ++++++++-
+ drivers/input/joydev.c                    |   31 +++---
+ drivers/input/joystick/a3d.c              |    3 +-
+ drivers/input/joystick/adi.c              |    2 +-
+ drivers/input/joystick/amijoy.c           |    4 +-
+ drivers/input/joystick/gf2k.c             |   20 ++--
+ drivers/input/joystick/interact.c         |   14 +--
+ drivers/input/joystick/sidewinder.c       |   18 ++--
+ drivers/input/joystick/xpad.c             |    1 +
+ drivers/input/keyboard/gpio_keys.c        |   22 ++++
+ drivers/input/keyboard/hil_kbd.c          |   21 +++--
+ drivers/input/misc/adxl34x.c              |    1 -
+ drivers/input/misc/uinput.c               |   29 +++---
+ drivers/input/mouse/elantech.c            |   31 ++++--
+ drivers/input/mouse/elantech.h            |    7 +-
+ drivers/input/mouse/pc110pad.c            |    4 +-
+ drivers/input/mouse/synaptics.c           |    4 +-
+ drivers/input/mousedev.c                  |   44 +++++----
+ drivers/input/tablet/aiptek.c             |   15 +--
+ drivers/input/tablet/wacom_wac.c          |    4 +-
+ drivers/input/touchscreen/cy8ctmg110_ts.c |    6 +-
+ include/linux/gpio_keys.h                 |    2 +
+ include/linux/input.h                     |   53 ++++++----
+ 25 files changed, 336 insertions(+), 247 deletions(-)
+
+--=20
+Dmitry
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

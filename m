@@ -1,24 +1,92 @@
-From: wellsk40@gmail.com
-Subject: rfc input/touch: LPC32xx: Introduce touch driver for the LPC32xx
-Date: Wed, 11 Aug 2010 16:09:01 -0700
-Message-ID: <1281568142-12892-1-git-send-email-wellsk40@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f181.google.com ([209.85.216.181]:44500 "EHLO
-	mail-qy0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757404Ab0HKXKj (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Aug 2010 19:10:39 -0400
-Received: by qyk5 with SMTP id 5so730373qyk.19
-        for <linux-input@vger.kernel.org>; Wed, 11 Aug 2010 16:10:38 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Greg KH <gregkh@suse.de>
+Subject: [039/111] irq: Add new IRQ flag IRQF_NO_SUSPEND
+Date: Wed, 11 Aug 2010 16:54:20 -0700
+Message-ID: <20100811235459.104341564@clark.site>
+References: <20100811235623.GA24440@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20100811235623.GA24440@kroah.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, linux-input@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, stable-review@kernel.org, alan@lxorguk.ukuu.org.uk
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
 
-This patch set introduces support for the LPC32xx touchscreen
-controller driver. The LPC32xx touchscreen controller supports
-automated event detection and conversion for resistive touchscreens.
+2.6.32-stable review patch.  If anyone has any objections, please let us know.
 
-The patch can be pulled from:
-	git://git.lpclinux.com/linux-2.6-lpc ts-lpc32xx
+------------------
 
+From: Ian Campbell <ian.campbell@citrix.com>
+
+commit 685fd0b4ea3f0f1d5385610b0d5b57775a8d5842 upstream.
+
+A small number of users of IRQF_TIMER are using it for the implied no
+suspend behaviour on interrupts which are not timer interrupts.
+
+Therefore add a new IRQF_NO_SUSPEND flag, rename IRQF_TIMER to
+__IRQF_TIMER and redefine IRQF_TIMER in terms of these new flags.
+
+Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: xen-devel@lists.xensource.com
+Cc: linux-input@vger.kernel.org
+Cc: linuxppc-dev@ozlabs.org
+Cc: devicetree-discuss@lists.ozlabs.org
+LKML-Reference: <1280398595-29708-1-git-send-email-ian.campbell@citrix.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ include/linux/interrupt.h |    7 ++++++-
+ kernel/irq/manage.c       |    2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -52,16 +52,21 @@
+  * IRQF_ONESHOT - Interrupt is not reenabled after the hardirq handler finished.
+  *                Used by threaded interrupts which need to keep the
+  *                irq line disabled until the threaded handler has been run.
++ * IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
++ *
+  */
+ #define IRQF_DISABLED		0x00000020
+ #define IRQF_SAMPLE_RANDOM	0x00000040
+ #define IRQF_SHARED		0x00000080
+ #define IRQF_PROBE_SHARED	0x00000100
+-#define IRQF_TIMER		0x00000200
++#define __IRQF_TIMER		0x00000200
+ #define IRQF_PERCPU		0x00000400
+ #define IRQF_NOBALANCING	0x00000800
+ #define IRQF_IRQPOLL		0x00001000
+ #define IRQF_ONESHOT		0x00002000
++#define IRQF_NO_SUSPEND		0x00004000
++
++#define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND)
+ 
+ /*
+  * Bits used by threaded handlers:
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -200,7 +200,7 @@ static inline int setup_affinity(unsigne
+ void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
+ {
+ 	if (suspend) {
+-		if (!desc->action || (desc->action->flags & IRQF_TIMER))
++		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
+ 			return;
+ 		desc->status |= IRQ_SUSPENDED;
+ 	}

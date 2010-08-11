@@ -1,67 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] drivers/hid: the support for Hanwang tablet
-Date: Wed, 11 Aug 2010 09:33:13 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1008110931240.2702@pobox.suse.cz>
-References: <201008111148203123394@hanwang.com.cn>
+From: "Xing Wei" <weixing@hanwang.com.cn>
+Subject: Re: Re: [PATCH] drivers/hid: the support for Hanwang tablet
+Date: Wed, 11 Aug 2010 17:27:33 +0800
+Message-ID: <201008111727331714570@hanwang.com.cn>
+References: <201008111148203123394@hanwang.com.cn>,
+ <alpine.LNX.2.00.1008110931240.2702@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:55572 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753827Ab0HKHdO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Aug 2010 03:33:14 -0400
-In-Reply-To: <201008111148203123394@hanwang.com.cn>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Xing Wei <weixing@hanwang.com.cn>
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Wed, 11 Aug 2010, Xing Wei wrote:
-
-> From: Xing Wei  <weixing@hanwang.com.cn>
-> 
-> This patch is the support for tablet of BeiJing HanwangTechnology Co, Ltd.
-> The main purpose is to make the device taken over by our driver.
-> The driver code will be submitted later.
-> 
-> Signed-off-by: Xing Wei <weixing@hanwang.com.cn>
-> 
-> ---
-> This is our first time to submit the patch for linux.We'll really appreciate the comment and advice.
-> 
-> diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-core.c devel/linux-2.6.35/drivers/hid/hid-core.c
-> --- linux-2.6.35-vanilla/drivers/hid/hid-core.c	2010-08-02 06:11:14.000000000 +0800
-> +++ devel/linux-2.6.35/drivers/hid/hid-core.c	2010-08-11 18:20:13.832088816 +0800
-> @@ -1759,6 +1759,11 @@ static bool hid_ignore(struct hid_device
->  		    hdev->product <= USB_DEVICE_ID_SOUNDGRAPH_IMON_LAST)
->  			return true;
->  		break;
-> +	case USB_VENDOR_ID_HANWANG:
-> +		if (hdev->product >= USB_DEVICE_ID_HANWANG_TABLET_FIRST &&
-> +		    hdev->product <= USB_DEVICE_ID_HANWANG_TABLET_LAST)
-> +			return true;
-> +		break;
->  	}
->  
->  	if (hdev->type == HID_TYPE_USBMOUSE &&
-> diff -uprN -X linux-2.6.35-vanilla/Documentation/dontdiff linux-2.6.35-vanilla/drivers/hid/hid-ids.h devel/linux-2.6.35/drivers/hid/hid-ids.h
-> --- linux-2.6.35-vanilla/drivers/hid/hid-ids.h	2010-08-02 06:11:14.000000000 +0800
-> +++ devel/linux-2.6.35/drivers/hid/hid-ids.h	2010-08-11 18:17:32.967089161 +0800
-> @@ -526,5 +526,8 @@
->  #define USB_DEVICE_ID_KYE_ERGO_525V	0x0087
->  #define USB_DEVICE_ID_KYE_GPEN_560	0x5003
->  
-> +#define USB_VENDOR_ID_HANWANG		0x0b57
-> +#define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
-> +#define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
-
-The patch is fine (I'd only suggest swapping 'LAST' and 'FIRST' lines here 
-to keep proper ordering), but I will be applying it only together with the 
-driver once you submit it, as it doesn't make sense stand-alone.
-
-The driver is not HID-based (i.e. not using hid bus), but completely 
-standalone, right?
-
--- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+b2ssaSdsbCBmaXggaXQgYW5kIHN1Ym1pdCBpdCB3aXRoIGRyaXZlciBsYXRlci4NClRoZSBkcml2
+ZXIgaXMganVzdCB1c2luZyB1c2IgYnVzLg0KDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQq3orz+yMujukppcmkgS29zaW5hDQq3
+osvNyNXG2qO6MjAxMC0wOC0xMSAxNTozNDo0OQ0KytW8/sjLo7pYaW5nIFdlaQ0Ks63LzaO6bGlu
+dXgtaW5wdXQ7IGxpbnV4LWtlcm5lbA0K1vfM4qO6UmU6IFtQQVRDSF0gZHJpdmVycy9oaWQ6IHRo
+ZSBzdXBwb3J0IGZvciBIYW53YW5nIHRhYmxldA0KDQpPbiBXZWQsIDExIEF1ZyAyMDEwLCBYaW5n
+IFdlaSB3cm90ZToNCg0KPiBGcm9tOiBYaW5nIFdlaSAgPHdlaXhpbmdAaGFud2FuZy5jb20uY24+
+DQo+IA0KPiBUaGlzIHBhdGNoIGlzIHRoZSBzdXBwb3J0IGZvciB0YWJsZXQgb2YgQmVpSmluZyBI
+YW53YW5nVGVjaG5vbG9neSBDbywgTHRkLg0KPiBUaGUgbWFpbiBwdXJwb3NlIGlzIHRvIG1ha2Ug
+dGhlIGRldmljZSB0YWtlbiBvdmVyIGJ5IG91ciBkcml2ZXIuDQo+IFRoZSBkcml2ZXIgY29kZSB3
+aWxsIGJlIHN1Ym1pdHRlZCBsYXRlci4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFhpbmcgV2VpIDx3
+ZWl4aW5nQGhhbndhbmcuY29tLmNuPg0KPiANCj4gLS0tDQo+IFRoaXMgaXMgb3VyIGZpcnN0IHRp
+bWUgdG8gc3VibWl0IHRoZSBwYXRjaCBmb3IgbGludXguV2UnbGwgcmVhbGx5IGFwcHJlY2lhdGUg
+dGhlIGNvbW1lbnQgYW5kIGFkdmljZS4NCj4gDQo+IGRpZmYgLXVwck4gLVggbGludXgtMi42LjM1
+LXZhbmlsbGEvRG9jdW1lbnRhdGlvbi9kb250ZGlmZiBsaW51eC0yLjYuMzUtdmFuaWxsYS9kcml2
+ZXJzL2hpZC9oaWQtY29yZS5jIGRldmVsL2xpbnV4LTIuNi4zNS9kcml2ZXJzL2hpZC9oaWQtY29y
+ZS5jDQo+IC0tLSBsaW51eC0yLjYuMzUtdmFuaWxsYS9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCTIw
+MTAtMDgtMDIgMDY6MTE6MTQuMDAwMDAwMDAwICswODAwDQo+ICsrKyBkZXZlbC9saW51eC0yLjYu
+MzUvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwkyMDEwLTA4LTExIDE4OjIwOjEzLjgzMjA4ODgxNiAr
+MDgwMA0KPiBAQCAtMTc1OSw2ICsxNzU5LDExIEBAIHN0YXRpYyBib29sIGhpZF9pZ25vcmUoc3Ry
+dWN0IGhpZF9kZXZpY2UNCj4gIAkJICAgIGhkZXYtPnByb2R1Y3QgPD0gVVNCX0RFVklDRV9JRF9T
+T1VOREdSQVBIX0lNT05fTEFTVCkNCj4gIAkJCXJldHVybiB0cnVlOw0KPiAgCQlicmVhazsNCj4g
+KwljYXNlIFVTQl9WRU5ET1JfSURfSEFOV0FORzoNCj4gKwkJaWYgKGhkZXYtPnByb2R1Y3QgPj0g
+VVNCX0RFVklDRV9JRF9IQU5XQU5HX1RBQkxFVF9GSVJTVCAmJg0KPiArCQkgICAgaGRldi0+cHJv
+ZHVjdCA8PSBVU0JfREVWSUNFX0lEX0hBTldBTkdfVEFCTEVUX0xBU1QpDQo+ICsJCQlyZXR1cm4g
+dHJ1ZTsNCj4gKwkJYnJlYWs7DQo+ICAJfQ0KPiAgDQo+ICAJaWYgKGhkZXYtPnR5cGUgPT0gSElE
+X1RZUEVfVVNCTU9VU0UgJiYNCj4gZGlmZiAtdXByTiAtWCBsaW51eC0yLjYuMzUtdmFuaWxsYS9E
+b2N1bWVudGF0aW9uL2RvbnRkaWZmIGxpbnV4LTIuNi4zNS12YW5pbGxhL2RyaXZlcnMvaGlkL2hp
+ZC1pZHMuaCBkZXZlbC9saW51eC0yLjYuMzUvZHJpdmVycy9oaWQvaGlkLWlkcy5oDQo+IC0tLSBs
+aW51eC0yLjYuMzUtdmFuaWxsYS9kcml2ZXJzL2hpZC9oaWQtaWRzLmgJMjAxMC0wOC0wMiAwNjox
+MToxNC4wMDAwMDAwMDAgKzA4MDANCj4gKysrIGRldmVsL2xpbnV4LTIuNi4zNS9kcml2ZXJzL2hp
+ZC9oaWQtaWRzLmgJMjAxMC0wOC0xMSAxODoxNzozMi45NjcwODkxNjEgKzA4MDANCj4gQEAgLTUy
+Niw1ICs1MjYsOCBAQA0KPiAgI2RlZmluZSBVU0JfREVWSUNFX0lEX0tZRV9FUkdPXzUyNVYJMHgw
+MDg3DQo+ICAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfS1lFX0dQRU5fNTYwCTB4NTAwMw0KPiAgDQo+
+ICsjZGVmaW5lIFVTQl9WRU5ET1JfSURfSEFOV0FORwkJMHgwYjU3DQo+ICsjZGVmaW5lIFVTQl9E
+RVZJQ0VfSURfSEFOV0FOR19UQUJMRVRfTEFTVAkweDhmZmYNCj4gKyNkZWZpbmUgVVNCX0RFVklD
+RV9JRF9IQU5XQU5HX1RBQkxFVF9GSVJTVAkweDUwMDANCg0KVGhlIHBhdGNoIGlzIGZpbmUgKEkn
+ZCBvbmx5IHN1Z2dlc3Qgc3dhcHBpbmcgJ0xBU1QnIGFuZCAnRklSU1QnIGxpbmVzIGhlcmUgDQp0
+byBrZWVwIHByb3BlciBvcmRlcmluZyksIGJ1dCBJIHdpbGwgYmUgYXBwbHlpbmcgaXQgb25seSB0
+b2dldGhlciB3aXRoIHRoZSANCmRyaXZlciBvbmNlIHlvdSBzdWJtaXQgaXQsIGFzIGl0IGRvZXNu
+J3QgbWFrZSBzZW5zZSBzdGFuZC1hbG9uZS4NCg0KVGhlIGRyaXZlciBpcyBub3QgSElELWJhc2Vk
+IChpLmUuIG5vdCB1c2luZyBoaWQgYnVzKSwgYnV0IGNvbXBsZXRlbHkgDQpzdGFuZGFsb25lLCBy
+aWdodD8NCg0KLS0gDQpKaXJpIEtvc2luYQ0KU1VTRSBMYWJzLCBOb3ZlbGwgSW5jLg0KLS0NClRv
+IHVuc3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBs
+aW51eC1pbnB1dCIgaW4NCnRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5r
+ZXJuZWwub3JnDQpNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3Jn
+L21ham9yZG9tby1pbmZvLmh0bWwNCg==

@@ -1,38 +1,53 @@
-From: David Brown <davidb@codeaurora.org>
-Subject: Re: [PATCH 1/1] mouse: add qci touchpad driver
-Date: Tue, 10 Aug 2010 16:20:14 -0700
-Message-ID: <20100810232014.GB21240@huya.qualcomm.com>
-References: <1281126776-20014-1-git-send-email-nleeder@codeaurora.org>
- <4C5D3926.6050307@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Tue, 10 Aug 2010 20:29:30 -0700
+Message-ID: <20100811032929.GA10104@core.coreip.homeip.net>
+References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
+ <20100524160805.GO30801@buzzloop.caiaq.de>
+ <20100524161527.GC3182@core.coreip.homeip.net>
+ <20100616083903.GU17833@buzzloop.caiaq.de>
+ <20100721083048.GA21558@core.coreip.homeip.net>
+ <20100807152309.GF17833@buzzloop.caiaq.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wolverine02.qualcomm.com ([199.106.114.251]:46154 "EHLO
-	wolverine02.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753391Ab0HJXUQ (ORCPT
+Received: from mail-gx0-f174.google.com ([209.85.161.174]:60084 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932428Ab0HKD3h (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Aug 2010 19:20:16 -0400
+	Tue, 10 Aug 2010 23:29:37 -0400
 Content-Disposition: inline
-In-Reply-To: <4C5D3926.6050307@codeaurora.org>
+In-Reply-To: <20100807152309.GF17833@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <tsoni@codeaurora.org>
-Cc: Neil Leeder <nleeder@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, Aug 07, 2010 at 04:14:54PM +0530, Trilok Soni wrote:
-
-> > +
-> > +/*
-> > + * Driver communicates over i2c to nuvoTon WPCE775x Embedded Controller,
-> > + * which has touchpad attached through PS/2 interface.
-> > + */
+On Sat, Aug 07, 2010 at 05:23:09PM +0200, Daniel Mack wrote:
+> Hi Dmitry,
 > 
-> Why this driver is not developed through MFD architecture then? nuvoTon chip
-> looks like multi-function chip, isn't it?
+> sorry for the late reply on this, I guess I haven't been much help
+> around here lately.
+> 
+> On Wed, Jul 21, 2010 at 01:30:48AM -0700, Dmitry Torokhov wrote:
+> > The approach is pretty solid, with the exception that I do not think
+> > we'd save much if we allocate every axis data separately (as I mentioned
+> > in one of my earlier mails).
+> 
+> Agreed. We at least save the memory for all input devices that don't
+> have absolute axis at all.
+> 
+> > Coudl you please take a look at the following patches and let me know if
+> > you see something wrong.
+> 
+> I checked the patches and tried them locally on my desktop, and I can't
+> see any breakage, but we might need more coverage for testing.
+> 
+> Will you push them to the .36 merge window or is it too late for this?
+> 
 
-It is, in the sense that it does multiple things.  But, for this
-particular device, it makes the keyboard available as an i2c device.
-I don't see any particular reason to tie that to other functionality
-that the chip provides.
+Yep, it in mainline now. Thank you for working on this.
 
-David
+- 
+Dmitry

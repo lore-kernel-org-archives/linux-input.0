@@ -1,143 +1,144 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: Remote that breaks current system
-Date: Wed, 11 Aug 2010 10:38:35 -0400
-Message-ID: <AANLkTimz2eLSEy+U1NdMVsQ=af7v67omPntwMQs+8jno@mail.gmail.com>
-References: <AANLkTi=F4CQ2_pCDno1SNGS6w=7wERk1FwjezkwC=nS5@mail.gmail.com>
-	<BU4OxfMZjFB@christoph>
-	<AANLkTimXULCDLw6=kcFC2Kddbm4kuO4nqtXL6ozftMQj@mail.gmail.com>
-	<20100802180940.GF2296@redhat.com>
-	<AANLkTin9+s_AbKst+ZsY6CfzeRYCh=V7kjseut5sbO23@mail.gmail.com>
+From: Alan Ott <alan-yzvJWuRpmD1zbRFIqnYvSA@public.gmane.org>
+Subject: PROBLEM: HIDRAW: /dev/hidraw* device does not get removed when unplugged
+Date: Wed, 11 Aug 2010 11:15:17 -0400
+Message-ID: <4C62BE85.2040803@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:49057 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752581Ab0HKOih convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Aug 2010 10:38:37 -0400
-In-Reply-To: <AANLkTin9+s_AbKst+ZsY6CfzeRYCh=V7kjseut5sbO23@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Antonio Ospite <ospite-aNJ+ML1ZbiP93QAQaVx+gl6hYfS7NtTn@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Jarod Wilson <jarod@redhat.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@md.metrocast.net, linux-input@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com
 
-On Mon, Aug 2, 2010 at 4:42 PM, Jon Smirl <jonsmirl@gmail.com> wrote:
-> On Mon, Aug 2, 2010 at 2:09 PM, Jarod Wilson <jarod@redhat.com> wrote=
-:
->> On Mon, Aug 02, 2010 at 01:13:22PM -0400, Jon Smirl wrote:
->>> On Mon, Aug 2, 2010 at 12:42 PM, Christoph Bartelmus <lirc@bartelmu=
-s.de> wrote:
-=2E..
->>> > It has nothing to do with start bits.
->>> > The Streamzap remote just sends 14 (sic!) bits instead of 13.
->>> > The decoder expects 13 bits.
->>> > Yes, the Streamzap remote does _not_ use standard RC-5.
->>> > Did I mention this already? Yes. ;-)
->>>
->>> If the remote is sending a weird protocol then there are several ch=
-oices:
->>> =A0 1) implement raw mode
->>> =A0 2) make a Stream-Zap protocol engine (it would be a 14b version=
- of
->>> RC-5). Standard RC5 engine will still reject the messages.
->>> =A0 3) throw away your Stream-Zap remotes
->>>
->>> I'd vote for #3, but #2 will probably make people happier.
->>
->> Hm. Yeah, I know a few people who are quite attached to their Stream=
-zap
->> remotes. I'm not a particularly big fan of it, I only got the thing =
-off
->> ebay to have the hardware so I could work on the driver. :) So yeah,=
- #3 is
->> probably not the best route. But I don't know that I'm a huge fan of=
- #2
->> either. Another decoder engine just for one quirky remote seems exce=
-ssive,
->> and there's an option #4:
->>
->> 4) just keep passing data out to lirc by default.
->
-> That's a decent idea. Implement the mainstream, standard protocols in
-> the kernel and kick the weird stuff out to LIRC. We can avoid the
-> whole world of raw mode, config files, etc. Let LIRC deal with all
-> that. If the weird stuff gets enough users bring it in-kernel. =A0May=
-be
-> StreamZap will suddenly sell a million units, you never know.
->
-> It is easy to implement a StreamZap engine. Just copy the RC5 one.
-> Rename everything and adjust it to require one more bit. You'll have
-> to modify the RC5 to wait for a bit interval (timeout) before sending
-> the data up. If you want to get fancy use a weak symbol in the
-> StrreamZap engine to tell the RC5 engine if Stream Zap is loaded. The=
-n
-> you can decide to wait the extra bit interval or not.
+Hello,
 
-The other thought I had was to not load the engine by default, and
-only auto-load it from the streamzap driver itself.
+I'm having a bit of trouble with hidraw (with a USB device) and device 
+removal. When I remove a device and re-attach it, the original device 
+does not get removed, and another node is added to /dev.
 
->> Let lircd handle the default remote in this case. If you want to use
->> another remote that actually uses a standard protocol, and want to u=
-se
->> in-kernel decoding for that, its just an ir-keytable call away.
->>
->> For giggles, I may tinker with implementing another decoder engine t=
-hough,
->> if only to force myself to actually pay more attention to protocol
->> specifics. For the moment, I'm inclined to go ahead with the streamz=
-ap
->> port as it is right now, and include either an empty or not-empty, b=
-ut
->> not-functional key table.
+At boot:
+     no /dev/hidraw devices exist
 
-So I spent a while beating on things the past few nights for giggles
-(and for a sanity break from "vacation" with too many kids...). I
-ended up doing a rather large amount of somewhat invasive work to the
-streamzap driver itself, but the end result is functional in-kernel
-decoding, and lirc userspace decode continues to behave correctly. RFC
-patch here:
+attach a device:
+     /dev/hidraw0 exists
 
-http://wilsonet.com/jarod/ir-core/IR-streamzap-in-kernel-decode.patch
+detach the device:
+     /dev/hidraw0 remains
 
-Core changes to streamzap.c itself:
+re-attach the device:
+     /dev/hidraw0 exists (defunct)
+     /dev/hidraw1 exists
 
-- had to enable reporting of a long space at the conclusion of each
-signal (which is what the lirc driver would do w/timeout_enabled set),
-otherwise I kept having issues with key bounce and/or old data being
-buffered (i.e., press up, cursor moves up. push down, cursor moves up
-then down, press left, it moves down, then left, etc.). Still not
-quite sure what the real problem is there, the lirc userspace decoder
-has no problems with it either way.
+This is with 2.6.35+ from git, revision 3d30701b58970425e1d, updated 
+about 30 minutes ago.
 
-- removed streamzap's internal delay buffer, as the ir-core kfifo
-seems to provide the necessary signal buffering just fine by itself.
-Can't see any significant difference in decode performance either
-in-kernel or via lirc with it removed, anyway. (Christoph, can you
-perhaps expand a bit on why the delay buffer was originally needed/how
-to reproduce the problem it was intended to solve? Maybe I'm just not
-triggering it yet.)
+Aug 11 11:04:15 ato kernel: [  109.554287] ------------[ cut here 
+]------------
+Aug 11 11:04:15 ato kernel: [  109.554300] WARNING: at lib/kobject.c:595 
+kobject_put+0x50/0x60()
+Aug 11 11:04:15 ato kernel: [  109.554306] Hardware name: GA-MA770T-UD3P
+Aug 11 11:04:15 ato kernel: [  109.554311] kobject: '(null)' 
+(ffff880244a49898): is not initialized, yet kobject_put() is being called.
+Aug 11 11:04:15 ato kernel: [  109.554317] Modules linked in: usbhid hid 
+binfmt_misc fbcon tileblit font bitblit softcursor snd_hda_codec_nvhdmi 
+nouveau snd_hda_codec_realtek snd_hda_intel snd_hda_codec snd_hwdep 
+snd_pcm_oss ttm drm_kms_helper snd_mixer_oss snd_pcm drm snd_seq_dummy 
+snd_seq_oss snd_seq_midi snd_rawmidi ppdev parport_pc snd_seq_midi_event 
+snd_seq psmouse lp snd_timer parport i2c_algo_bit edac_core video 
+edac_mce_amd i2c_piix4 snd_seq_device serio_raw snd soundcore 
+snd_page_alloc output ohci1394 floppy pata_atiixp ieee1394 ahci libahci 
+r8169 mii
+Aug 11 11:04:15 ato kernel: [  109.554399] Pid: 29, comm: khubd Not 
+tainted 2.6.35+ #19
+Aug 11 11:04:15 ato kernel: [  109.554404] Call Trace:
+Aug 11 11:04:15 ato kernel: [  109.554416]  [<ffffffff8105de1f>] 
+warn_slowpath_common+0x7f/0xc0
+Aug 11 11:04:15 ato kernel: [  109.554425]  [<ffffffff8105df16>] 
+warn_slowpath_fmt+0x46/0x50
+Aug 11 11:04:15 ato kernel: [  109.554434]  [<ffffffff812a47c0>] 
+kobject_put+0x50/0x60
+Aug 11 11:04:15 ato kernel: [  109.554442]  [<ffffffff8135c6b7>] 
+put_device+0x17/0x20
+Aug 11 11:04:15 ato kernel: [  109.554455]  [<ffffffffa0238998>] 
+hid_destroy_device+0x48/0x60 [hid]
+Aug 11 11:04:15 ato kernel: [  109.554466]  [<ffffffffa00f2aeb>] 
+usbhid_disconnect+0x2b/0x50 [usbhid]
+Aug 11 11:04:15 ato kernel: [  109.554477]  [<ffffffff813d620a>] 
+usb_unbind_interface+0x5a/0x1a0
+Aug 11 11:04:15 ato kernel: [  109.554487]  [<ffffffff81360645>] 
+__device_release_driver+0x75/0xe0
+Aug 11 11:04:15 ato kernel: [  109.554495]  [<ffffffff813607ad>] 
+device_release_driver+0x2d/0x40
+Aug 11 11:04:15 ato kernel: [  109.554503]  [<ffffffff8135f79e>] 
+bus_remove_device+0xae/0xf0
+Aug 11 11:04:15 ato kernel: [  109.554510]  [<ffffffff8135d437>] 
+device_del+0x127/0x1d0
+Aug 11 11:04:15 ato kernel: [  109.554519]  [<ffffffff813d2b88>] 
+usb_disable_device+0xa8/0x130
+Aug 11 11:04:15 ato kernel: [  109.554527]  [<ffffffff813cbe65>] 
+usb_disconnect+0x95/0x130
+Aug 11 11:04:15 ato kernel: [  109.554535]  [<ffffffff813cd51d>] 
+hub_thread+0x48d/0x1210
+Aug 11 11:04:15 ato kernel: [  109.554544]  [<ffffffff8105771b>] ? 
+dequeue_task_fair+0x8b/0x90
+Aug 11 11:04:15 ato kernel: [  109.554555]  [<ffffffff8107e490>] ? 
+autoremove_wake_function+0x0/0x40
+Aug 11 11:04:15 ato kernel: [  109.554563]  [<ffffffff813cd090>] ? 
+hub_thread+0x0/0x1210
+Aug 11 11:04:15 ato kernel: [  109.554571]  [<ffffffff8107df36>] 
+kthread+0x96/0xa0
+Aug 11 11:04:15 ato kernel: [  109.554580]  [<ffffffff8100be64>] 
+kernel_thread_helper+0x4/0x10
+Aug 11 11:04:15 ato kernel: [  109.554588]  [<ffffffff8107dea0>] ? 
+kthread+0x0/0xa0
+Aug 11 11:04:15 ato kernel: [  109.554595]  [<ffffffff8100be60>] ? 
+kernel_thread_helper+0x0/0x10
+Aug 11 11:04:15 ato kernel: [  109.554601] ---[ end trace 
+212263bbb326ec69 ]---
+Aug 11 11:04:21 ato kernel: [  116.450553] usb 1-5.4: new full speed USB 
+device using ehci_hcd and address 7
+Aug 11 11:04:22 ato kernel: [  116.576230] generic-usb 
+0003:04D8:003F.0002: hiddev0,hidraw1: USB HID v1.11 Device [Microchip 
+Technology Inc. Simple HID Device Demo] on usb-0000:00:12.2-5.4/input0
+Aug 11 11:04:23 ato kernel: [  117.746427] usb 1-5.4: USB disconnect, 
+address 7
+Aug 11 11:04:23 ato kernel: [  117.746500] ------------[ cut here 
+]------------
 
-Other fun stuff to note:
 
-- currently, loading up an rc5-sz decoder unconditionally, have
-considered only auto-loading it from the streamzap driver itself. Its
-a copy of the rc5 decoder with relatively minor tweaks to deal with
-the extra bit and resulting slightly different bit layout. Might
-actually be possible to merge back into the rc5 decoder itself,
-haven't really looked into that yet (should be entirely doable if
-there's an easy way to figure out early on if we need to grab 15
-bits).
+lan@ato:~/work/linux-2.6$ scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-- not sure the decoder is 100% correct, but it does get to the same
-scancodes as the lirc userspace now (with both a streamzap and mceusb
-receiver).
+Linux ato 2.6.35+ #19 SMP Wed Aug 11 10:53:49 EDT 2010 x86_64 GNU/Linux
 
---=20
-Jarod Wilson
-jarod@wilsonet.com
+Gnu C                  4.4.3
+Gnu make               3.81
+binutils               2.20.1
+util-linux             2.17.2
+mount                  support
+module-init-tools      3.11.1
+e2fsprogs              1.41.11
+pcmciautils            014
+Linux C Library        2.11.1
+Dynamic linker (ldd)   2.11.1
+Procps                 3.2.8
+Net-tools              1.60
+Kbd                    1.15
+Sh-utils               7.4
+wireless-tools         30
+Modules Loaded         usbhid hid binfmt_misc fbcon tileblit font 
+bitblit softcursor snd_hda_codec_nvhdmi nouveau snd_hda_codec_realtek 
+snd_hda_intel snd_hda_codec snd_hwdep snd_pcm_oss ttm drm_kms_helper 
+snd_mixer_oss snd_pcm drm snd_seq_dummy snd_seq_oss snd_seq_midi 
+snd_rawmidi ppdev parport_pc snd_seq_midi_event snd_seq psmouse lp 
+snd_timer parport i2c_algo_bit edac_core video edac_mce_amd i2c_piix4 
+snd_seq_device serio_raw snd soundcore snd_page_alloc output ohci1394 
+floppy pata_atiixp ieee1394 ahci libahci r8169 mii
+
+
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

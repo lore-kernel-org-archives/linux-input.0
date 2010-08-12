@@ -1,13 +1,13 @@
 From: Greg KH <gregkh@suse.de>
-Subject: [48/54] irq: Add new IRQ flag IRQF_NO_SUSPEND
-Date: Wed, 11 Aug 2010 17:01:03 -0700
-Message-ID: <20100812000127.671295845@clark.site>
-References: <20100812000249.GA30948@kroah.com>
+Subject: [64/67] irq: Add new IRQ flag IRQF_NO_SUSPEND
+Date: Wed, 11 Aug 2010 17:06:19 -0700
+Message-ID: <20100812000618.582410219@clark.site>
+References: <20100812000641.GA6348@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100812000249.GA30948@kroah.com>
+In-Reply-To: <20100812000641.GA6348@kroah.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -21,7 +21,7 @@ To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, linux-input@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, stable-review@kernel.org, alan@lxorguk.ukuu.org.uk
 List-Id: linux-input@vger.kernel.org
 
-2.6.34-stable review patch.  If anyone has any objections, please let us know.
+2.6.35-stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
 
@@ -56,7 +56,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 --- a/include/linux/interrupt.h
 +++ b/include/linux/interrupt.h
-@@ -52,16 +52,21 @@
+@@ -53,16 +53,21 @@
   * IRQF_ONESHOT - Interrupt is not reenabled after the hardirq handler finished.
   *                Used by threaded interrupts which need to keep the
   *                irq line disabled until the threaded handler has been run.
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
   * Bits used by threaded handlers:
 --- a/kernel/irq/manage.c
 +++ b/kernel/irq/manage.c
-@@ -200,7 +200,7 @@ static inline int setup_affinity(unsigne
+@@ -216,7 +216,7 @@ static inline int setup_affinity(unsigne
  void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
  {
  	if (suspend) {

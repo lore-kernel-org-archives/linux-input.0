@@ -1,92 +1,194 @@
-From: Greg KH <gregkh@suse.de>
-Subject: [64/67] irq: Add new IRQ flag IRQF_NO_SUSPEND
-Date: Wed, 11 Aug 2010 17:06:19 -0700
-Message-ID: <20100812000618.582410219@clark.site>
-References: <20100812000641.GA6348@kroah.com>
+From: Alan Ott <alan@signal11.us>
+Subject: Re: PROBLEM: HIDRAW: /dev/hidraw* device does not get removed when    unplugged
+Date: Wed, 11 Aug 2010 23:53:17 -0400
+Message-ID: <4C63702D.4040905@signal11.us>
+References: <4C62BE85.2040803@signal11.us> <alpine.LNX.2.00.1008111720300.2702@pobox.suse.cz> <4C62C1B1.8080903@signal11.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100812000641.GA6348@kroah.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, linux-input@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, stable-review@kernel.org, alan@lxorguk.ukuu.org.uk
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from core.signal11.us ([64.251.29.136]:43819 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758895Ab0HLDxT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Aug 2010 23:53:19 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id 666691CCAA3C
+	for <linux-input@vger.kernel.org>; Wed, 11 Aug 2010 23:53:18 -0400 (EDT)
+In-Reply-To: <4C62C1B1.8080903@signal11.us>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Antonio Ospite <ospite@studenti.unina.it>, Greg KH <greg@kroah.com>
 
-2.6.35-stable review patch.  If anyone has any objections, please let us know.
+On 08/11/2010 11:28 AM, Alan Ott wrote:
+> On 08/11/2010 11:21 AM, Jiri Kosina wrote:
+>> On Wed, 11 Aug 2010, Alan Ott wrote:
+>>
+>>> Hello,
+>>>
+>>> I'm having a bit of trouble with hidraw (with a USB device) and device
+>>> removal. When I remove a device and re-attach it, the original 
+>>> device does not
+>>> get removed, and another node is added to /dev.
+>>>
+>>> At boot:
+>>>      no /dev/hidraw devices exist
+>>>
+>>> attach a device:
+>>>      /dev/hidraw0 exists
+>>>
+>>> detach the device:
+>>>      /dev/hidraw0 remains
+>>>
+>>> re-attach the device:
+>>>      /dev/hidraw0 exists (defunct)
+>>>      /dev/hidraw1 exists
+>>>
+>>> This is with 2.6.35+ from git, revision 3d30701b58970425e1d, updated 
+>>> about 30
+>>> minutes ago.
+>>>
+>>> Aug 11 11:04:15 ato kernel: [  109.554287] ------------[ cut here
+>>> ]------------
+>>> Aug 11 11:04:15 ato kernel: [  109.554300] WARNING: at 
+>>> lib/kobject.c:595
+>>> kobject_put+0x50/0x60()
+>>> Aug 11 11:04:15 ato kernel: [  109.554306] Hardware name: 
+>>> GA-MA770T-UD3P
+>>> Aug 11 11:04:15 ato kernel: [  109.554311] kobject: '(null)'
+>>> (ffff880244a49898): is not initialized, yet kobject_put() is being 
+>>> called.
+>>> Aug 11 11:04:15 ato kernel: [  109.554317] Modules linked in: usbhid 
+>>> hid
+>>> binfmt_misc fbcon tileblit font bitblit softcursor snd_hda_codec_nvhdmi
+>>> nouveau snd_hda_codec_realtek snd_hda_intel snd_hda_codec snd_hwdep
+>>> snd_pcm_oss ttm drm_kms_helper snd_mixer_oss snd_pcm drm snd_seq_dummy
+>>> snd_seq_oss snd_seq_midi snd_rawmidi ppdev parport_pc 
+>>> snd_seq_midi_event
+>>> snd_seq psmouse lp snd_timer parport i2c_algo_bit edac_core video 
+>>> edac_mce_amd
+>>> i2c_piix4 snd_seq_device serio_raw snd soundcore snd_page_alloc output
+>>> ohci1394 floppy pata_atiixp ieee1394 ahci libahci r8169 mii
+>>> Aug 11 11:04:15 ato kernel: [  109.554399] Pid: 29, comm: khubd Not 
+>>> tainted
+>>> 2.6.35+ #19
+>>> Aug 11 11:04:15 ato kernel: [  109.554404] Call Trace:
+>>> Aug 11 11:04:15 ato kernel: [  109.554416]  [<ffffffff8105de1f>]
+>>> warn_slowpath_common+0x7f/0xc0
+>>> Aug 11 11:04:15 ato kernel: [  109.554425]  [<ffffffff8105df16>]
+>>> warn_slowpath_fmt+0x46/0x50
+>>> Aug 11 11:04:15 ato kernel: [  109.554434]  [<ffffffff812a47c0>]
+>>> kobject_put+0x50/0x60
+>>> Aug 11 11:04:15 ato kernel: [  109.554442]  [<ffffffff8135c6b7>]
+>>> put_device+0x17/0x20
+>>> Aug 11 11:04:15 ato kernel: [  109.554455]  [<ffffffffa0238998>]
+>>> hid_destroy_device+0x48/0x60 [hid]
+>>> Aug 11 11:04:15 ato kernel: [  109.554466]  [<ffffffffa00f2aeb>]
+>>> usbhid_disconnect+0x2b/0x50 [usbhid]
+>>> Aug 11 11:04:15 ato kernel: [  109.554477]  [<ffffffff813d620a>]
+>>> usb_unbind_interface+0x5a/0x1a0
+>>> Aug 11 11:04:15 ato kernel: [  109.554487]  [<ffffffff81360645>]
+>>> __device_release_driver+0x75/0xe0
+>>> Aug 11 11:04:15 ato kernel: [  109.554495]  [<ffffffff813607ad>]
+>>> device_release_driver+0x2d/0x40
+>>> Aug 11 11:04:15 ato kernel: [  109.554503]  [<ffffffff8135f79e>]
+>>> bus_remove_device+0xae/0xf0
+>>> Aug 11 11:04:15 ato kernel: [  109.554510]  [<ffffffff8135d437>]
+>>> device_del+0x127/0x1d0
+>>> Aug 11 11:04:15 ato kernel: [  109.554519]  [<ffffffff813d2b88>]
+>>> usb_disable_device+0xa8/0x130
+>>> Aug 11 11:04:15 ato kernel: [  109.554527]  [<ffffffff813cbe65>]
+>>> usb_disconnect+0x95/0x130
+>>> Aug 11 11:04:15 ato kernel: [  109.554535]  [<ffffffff813cd51d>]
+>>> hub_thread+0x48d/0x1210
+>>> Aug 11 11:04:15 ato kernel: [  109.554544]  [<ffffffff8105771b>] ?
+>>> dequeue_task_fair+0x8b/0x90
+>>> Aug 11 11:04:15 ato kernel: [  109.554555]  [<ffffffff8107e490>] ?
+>>> autoremove_wake_function+0x0/0x40
+>>> Aug 11 11:04:15 ato kernel: [  109.554563]  [<ffffffff813cd090>] ?
+>>> hub_thread+0x0/0x1210
+>>> Aug 11 11:04:15 ato kernel: [  109.554571]  [<ffffffff8107df36>]
+>>> kthread+0x96/0xa0
+>>> Aug 11 11:04:15 ato kernel: [  109.554580]  [<ffffffff8100be64>]
+>>> kernel_thread_helper+0x4/0x10
+>>> Aug 11 11:04:15 ato kernel: [  109.554588]  [<ffffffff8107dea0>] ?
+>>> kthread+0x0/0xa0
+>>> Aug 11 11:04:15 ato kernel: [  109.554595]  [<ffffffff8100be60>] ?
+>>> kernel_thread_helper+0x0/0x10
+>>> Aug 11 11:04:15 ato kernel: [  109.554601] ---[ end trace 
+>>> 212263bbb326ec69
+>>> ]---
+>>> Aug 11 11:04:21 ato kernel: [  116.450553] usb 1-5.4: new full speed 
+>>> USB
+>>> device using ehci_hcd and address 7
+>>> Aug 11 11:04:22 ato kernel: [  116.576230] generic-usb 
+>>> 0003:04D8:003F.0002:
+>>> hiddev0,hidraw1: USB HID v1.11 Device [Microchip Technology Inc. 
+>>> Simple HID
+>>> Device Demo] on usb-0000:00:12.2-5.4/input0
+>>> Aug 11 11:04:23 ato kernel: [  117.746427] usb 1-5.4: USB 
+>>> disconnect, address
+>>> 7
+>>> Aug 11 11:04:23 ato kernel: [  117.746500] ------------[ cut here
+>>> ]------------
+>>>
+>>>
+>>> lan@ato:~/work/linux-2.6$ scripts/ver_linux
+>>> If some fields are empty or look unusual you may have an old version.
+>>> Compare to the current minimal requirements in Documentation/Changes.
+>>>
+>>> Linux ato 2.6.35+ #19 SMP Wed Aug 11 10:53:49 EDT 2010 x86_64 GNU/Linux
+>>>
+>>> Gnu C                  4.4.3
+>>> Gnu make               3.81
+>>> binutils               2.20.1
+>>> util-linux             2.17.2
+>>> mount                  support
+>>> module-init-tools      3.11.1
+>>> e2fsprogs              1.41.11
+>>> pcmciautils            014
+>>> Linux C Library        2.11.1
+>>> Dynamic linker (ldd)   2.11.1
+>>> Procps                 3.2.8
+>>> Net-tools              1.60
+>>> Kbd                    1.15
+>>> Sh-utils               7.4
+>>> wireless-tools         30
+>>> Modules Loaded         usbhid hid binfmt_misc fbcon tileblit font 
+>>> bitblit
+>>> softcursor snd_hda_codec_nvhdmi nouveau snd_hda_codec_realtek 
+>>> snd_hda_intel
+>>> snd_hda_codec snd_hwdep snd_pcm_oss ttm drm_kms_helper snd_mixer_oss 
+>>> snd_pcm
+>>> drm snd_seq_dummy snd_seq_oss snd_seq_midi snd_rawmidi ppdev parport_pc
+>>> snd_seq_midi_event snd_seq psmouse lp snd_timer parport i2c_algo_bit 
+>>> edac_core
+>>> video edac_mce_amd i2c_piix4 snd_seq_device serio_raw snd soundcore
+>>> snd_page_alloc output ohci1394 floppy pata_atiixp ieee1394 ahci 
+>>> libahci r8169
+>>> mii
+>> This looks very similar to http://lkml.org/lkml/2010/8/10/373
+>>
+>> I have not yet root-caused this, but I am not aware of any recent 
+>> changes
+>> in usb-hid that might be causing that, so I suspect some change in USB
+>> core. But will have to investigate.
+>
+> I just tried it with a Bluetooth HID keyboard and it works as 
+> expected. I'd suspect it to not be a HID problem.
 
-------------------
+I think the warning and the non-removal of the /dev/hidraw* node are 
+unrelated.
 
-From: Ian Campbell <ian.campbell@citrix.com>
+I spent some time looking into the non-removal of the /dev/hidraw* node. 
+The hid_disconnect() function takes care of removing the node, and it's 
+not getting called. hid_disconnect() is called by hid_hw_stop() (hid.h), 
+which is called by hid_device_remove() (hid-core.c) which _should_ be 
+getting called by the driver subsystem. It looks like this is not 
+happening for whatever reason.
 
-commit 685fd0b4ea3f0f1d5385610b0d5b57775a8d5842 upstream.
+I wasn't able to get anything conclusive beyond this (yet).
 
-A small number of users of IRQF_TIMER are using it for the implied no
-suspend behaviour on interrupts which are not timer interrupts.
+Alan.
 
-Therefore add a new IRQF_NO_SUSPEND flag, rename IRQF_TIMER to
-__IRQF_TIMER and redefine IRQF_TIMER in terms of these new flags.
 
-Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Grant Likely <grant.likely@secretlab.ca>
-Cc: xen-devel@lists.xensource.com
-Cc: linux-input@vger.kernel.org
-Cc: linuxppc-dev@ozlabs.org
-Cc: devicetree-discuss@lists.ozlabs.org
-LKML-Reference: <1280398595-29708-1-git-send-email-ian.campbell@citrix.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- include/linux/interrupt.h |    7 ++++++-
- kernel/irq/manage.c       |    2 +-
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
---- a/include/linux/interrupt.h
-+++ b/include/linux/interrupt.h
-@@ -53,16 +53,21 @@
-  * IRQF_ONESHOT - Interrupt is not reenabled after the hardirq handler finished.
-  *                Used by threaded interrupts which need to keep the
-  *                irq line disabled until the threaded handler has been run.
-+ * IRQF_NO_SUSPEND - Do not disable this IRQ during suspend
-+ *
-  */
- #define IRQF_DISABLED		0x00000020
- #define IRQF_SAMPLE_RANDOM	0x00000040
- #define IRQF_SHARED		0x00000080
- #define IRQF_PROBE_SHARED	0x00000100
--#define IRQF_TIMER		0x00000200
-+#define __IRQF_TIMER		0x00000200
- #define IRQF_PERCPU		0x00000400
- #define IRQF_NOBALANCING	0x00000800
- #define IRQF_IRQPOLL		0x00001000
- #define IRQF_ONESHOT		0x00002000
-+#define IRQF_NO_SUSPEND		0x00004000
-+
-+#define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND)
- 
- /*
-  * Bits used by threaded handlers:
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -216,7 +216,7 @@ static inline int setup_affinity(unsigne
- void __disable_irq(struct irq_desc *desc, unsigned int irq, bool suspend)
- {
- 	if (suspend) {
--		if (!desc->action || (desc->action->flags & IRQF_TIMER))
-+		if (!desc->action || (desc->action->flags & IRQF_NO_SUSPEND))
- 			return;
- 		desc->status |= IRQ_SUSPENDED;
- 	}

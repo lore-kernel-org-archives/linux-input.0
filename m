@@ -1,13 +1,13 @@
 From: Greg KH <gregkh@suse.de>
-Subject: [039/111] irq: Add new IRQ flag IRQF_NO_SUSPEND
-Date: Wed, 11 Aug 2010 16:54:20 -0700
-Message-ID: <20100811235459.104341564@clark.site>
-References: <20100811235623.GA24440@kroah.com>
+Subject: [48/54] irq: Add new IRQ flag IRQF_NO_SUSPEND
+Date: Wed, 11 Aug 2010 17:01:03 -0700
+Message-ID: <20100812000127.671295845@clark.site>
+References: <20100812000249.GA30948@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20100811235623.GA24440@kroah.com>
+In-Reply-To: <20100812000249.GA30948@kroah.com>
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
 	<mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev>
@@ -21,7 +21,7 @@ To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Ian Campbell <ian.campbell@citrix.com>, devicetree-discuss@lists.ozlabs.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>, linux-input@vger.kernel.org, akpm@linux-foundation.org, torvalds@linux-foundation.org, stable-review@kernel.org, alan@lxorguk.ukuu.org.uk
 List-Id: linux-input@vger.kernel.org
 
-2.6.32-stable review patch.  If anyone has any objections, please let us know.
+2.6.34-stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
 

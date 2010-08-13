@@ -1,79 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen
- controller driver
-Date: Fri, 13 Aug 2010 12:24:53 -0700
-Message-ID: <20100813192453.GA8387@core.coreip.homeip.net>
-References: <1281568142-12892-1-git-send-email-wellsk40@gmail.com>
- <1281568142-12892-2-git-send-email-wellsk40@gmail.com>
- <20100813083311.GA7824@core.coreip.homeip.net>
- <AANLkTik0voaTUHoJuaVGvmhqpUh_tfbk3VUNXyWMh1av@mail.gmail.com>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Fri, 13 Aug 2010 17:56:41 -0400
+Message-ID: <4C65BF99.9030601@codeaurora.org>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <4C642E6D.6000908@codeaurora.org> <4C64363A.4080406@codeaurora.org> <20100813024912.GA2661@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pv0-f174.google.com ([74.125.83.174]:33018 "EHLO
-	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755485Ab0HMTY7 (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:38413 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752903Ab0HMV4o (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Aug 2010 15:24:59 -0400
-Received: by pvg2 with SMTP id 2so917780pvg.19
-        for <linux-input@vger.kernel.org>; Fri, 13 Aug 2010 12:24:59 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <AANLkTik0voaTUHoJuaVGvmhqpUh_tfbk3VUNXyWMh1av@mail.gmail.com>
+	Fri, 13 Aug 2010 17:56:44 -0400
+In-Reply-To: <20100813024912.GA2661@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Wells <wellsk40@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
 
-On Fri, Aug 13, 2010 at 12:00:33PM -0700, Kevin Wells wrote:
-> >>
-> >> This patch set introduces support for the LPC32xx touchscreen
-> >> controller driver. The LPC32xx touchscreen controller supports
-> >> automated event detection and X/Y data conversion for resistive
-> >> touchscreens.
-> >>
-> >
-> > Overall looks very nice, a few comments below.
-> >
->=20
-> Thanks for helping review this driver. I'll update and repost once
-> the fixes and changes are finalized.
->=20
-> >> +
-> >> + =A0 =A0 if (input_register_device(tsc->dev)) {
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "failed registering =
-input device\n");
-> >> + =A0 =A0 =A0 =A0 =A0 =A0 goto err_stop_clk;
-> >
-> > retval is garbage here, you need to do:
-> >
-> > =A0 =A0 =A0 =A0error =3D input_register_device();
-> > =A0 =A0 =A0 =A0if (error) {
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0...
-> > =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_stop_clk;
-> > =A0 =A0 =A0 =A0}
-> >
-> > I must say that I do not like mixing devm_* with the standard error=
- path
-> > unwinding, if we can rely on devm_xxx() calls to take care of every=
-thing
-> > we should revert to standard error unsinding practice for everythng=
-=2E
-> >
->=20
-> Would it be preferable to just use standard resource functions and er=
-ror
-> path unwinding (with fixes in _remove too) similar to the other drive=
-rs in
-> ./drivers/input?
+On 8/12/2010 10:49 PM, Dmitry Torokhov wrote:
+> On Thu, Aug 12, 2010 at 01:58:18PM -0400, Neil Leeder wrote:
+> Actually, since this is not a new touchpad but simply a PS/2 interface
+> it should be implemented as a serio driver, not input device driver.
+>
+Dmitri,
 
-Yes, that what I was trying to say. If only I didn't make so many
-typos...
+Thanks for supplying that serio driver. I just have a couple of questions.
 
---=20
-Dmitry
+Even though the interface on the wpce775x EC happens to be a PS/2 
+interface, this is completely hidden by the firmware on that device. To 
+the linux driver it looks like a dedicated i2c connection directly to 
+the touchpad. You can't substitute any other device on that PS/2 
+interface without rewriting the firmware in the EC - it's not a generic 
+interface.  A manufacturer could even move the touchpad from the PS/2 
+interface to say GPIOs, re-write the firmware and the linux driver 
+couldn't tell the difference. Does that change the rationale for using a 
+serio driver?
+
+If the request to use a serio driver is still valid, then it seems that 
+the workqueue from the interrupt handler sends each byte of data 
+received over i2c in a separate serio_interrupt() call to the touchpad 
+driver. Touchpad data comes in 3-byte packets, so the touchpad driver 
+will have to re-assemble the packet from 3 separate interrupts. Is that 
+the intended use?
+
+> Could you please tell me if the following works for you? Note that it
+> expects IRQ to be set up properly (edge vs. level trigger) by the
+> platform code
+
+The i2c_board_info that supplies the irq # from platform code doesn't 
+have a way to set i2c flags, and can't set_irq_type() until after 
+irq_request(). This may require another platform_data struct to pass the 
+trigger level in.
+
+Thanks.
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Neil
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

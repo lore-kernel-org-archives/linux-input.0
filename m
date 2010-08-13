@@ -1,99 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] serio: add support for PS2Mult multiplexer protocol
-Date: Thu, 12 Aug 2010 20:33:42 -0700
-Message-ID: <20100813033342.GC2661@core.coreip.homeip.net>
-References: <1281605513-11586-1-git-send-email-dbaryshkov@gmail.com>
- <1281605513-11586-3-git-send-email-dbaryshkov@gmail.com>
+Subject: Re: [PATCH 4/4] input: dynamically allocate ABS information
+Date: Thu, 12 Aug 2010 20:35:28 -0700
+Message-ID: <20100813033528.GD2661@core.coreip.homeip.net>
+References: <1274289757-2723-1-git-send-email-daniel@caiaq.de>
+ <1274289757-2723-5-git-send-email-daniel@caiaq.de>
+ <20100524160805.GO30801@buzzloop.caiaq.de>
+ <20100524161527.GC3182@core.coreip.homeip.net>
+ <20100616083903.GU17833@buzzloop.caiaq.de>
+ <20100721083048.GA21558@core.coreip.homeip.net>
+ <20100721083150.GB21558@core.coreip.homeip.net>
+ <20100811070238.GF10432@buzzloop.caiaq.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f46.google.com ([209.85.210.46]:57735 "EHLO
-	mail-pz0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751268Ab0HMDds (ORCPT
+Received: from mail-pv0-f174.google.com ([74.125.83.174]:55929 "EHLO
+	mail-pv0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751448Ab0HMDfe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Aug 2010 23:33:48 -0400
-Received: by pzk26 with SMTP id 26so666301pzk.19
-        for <linux-input@vger.kernel.org>; Thu, 12 Aug 2010 20:33:47 -0700 (PDT)
+	Thu, 12 Aug 2010 23:35:34 -0400
 Content-Disposition: inline
-In-Reply-To: <1281605513-11586-3-git-send-email-dbaryshkov@gmail.com>
+In-Reply-To: <20100811070238.GF10432@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Aug 12, 2010 at 01:31:51PM +0400, Dmitry Eremin-Solenikov wrote:
-> +
-> +static int ps2mult_serio_write(struct serio *serio, unsigned char data)
-> +{
-> +	struct ps2mult *psm = serio_get_drvdata(serio->parent);
-> +	struct ps2mult_port *psmp = serio->port_data;
-> +	int need_escape = 0;
-> +
-> +	mutex_lock(&psm->lock);
+On Wed, Aug 11, 2010 at 09:02:38AM +0200, Daniel Mack wrote:
+> Hi Dmitry,
+> 
+> On Wed, Jul 21, 2010 at 01:31:50AM -0700, Dmitry Torokhov wrote:
+> > Input: switch to input_abs_*() access functions
+> > 
+> > From: Daniel Mack <daniel@caiaq.de>
+> > 
+> > Change all call sites in drivers/input to not access the ABS axis
+> > information directly anymore. Make them use the access helpers instead.
+> > 
+> > Also use input_set_abs_params() when possible.
+> > Did some code refactoring as I was on it.
+> > 
+> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> > Cc: Dmitry Torokhov <dtor@mail.ru>
+> > Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> Hmm, there are three locations where some mysterious 'XX' characters
+> were introduced.
+> 
 
-serio->write() is allowed to be called from interrupt contexts so you
-should not be using mutex but a spinlock.
+Gah, it is all my fault, I was marking stuff that I want to review but
+missed these 2 drivers.
 
-BTW, if anyone has time to annotate serio code with kerneldoc markups
-that would be great.
-
-
-> +	if (psm->cur_out_port != psmp->port) {
-> +		psm->serio->write(psm->serio, psmp->sel);
-> +		psm->cur_out_port = psmp->port;
-> +		dev_dbg(&serio->dev, "switched to sel %02x\n", psmp->sel);
-> +	}
-> +	if (data == PS2MULT_ESCAPE
-> +	 || data == PS2MULT_BSYNC
-> +	 || data == PS2MULT_SESSION_START
-> +	 || data == PS2MULT_SESSION_END
-> +	 || memchr(ps2mult_selectors, data, PS2MULT_NUM_PORTS))
-> +		need_escape = 1;
-
-Use bool/true/false please. I'd also probably write
-
-	need_escape = data == PS2MULT_ESCAPE ||
-		      data == ...
-
-> +
-> +static int ps2mult_connect(struct serio *serio, struct serio_driver *drv)
-> +{
-> +	struct ps2mult *psm;
-> +	int i;
-> +	int rc;
-> +
-> +	if (!serio->write)
-> +		return -EINVAL;
-> +
-> +	psm = kzalloc(sizeof(*psm), GFP_KERNEL);
-> +	if (!psm)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&psm->lock);
-> +	psm->serio = serio;
-> +
-> +	serio_set_drvdata(serio, psm);
-> +	serio_open(serio, drv);
-> +
-
-Here serio port is allowed to start sending the data. I do not believe
-you are ready to receive it though. I think you need to create ports
-first and then use start() to mark ports that have been regstered by
-serio core as 'ready'. Probably i8042 could give you some ideas.
-
-> index d2ae60d..1cf47e5 100644
-> --- a/include/linux/serio.h
-> +++ b/include/linux/serio.h
-> @@ -155,6 +155,7 @@ static inline void serio_continue_rx(struct serio *serio)
->  #define SERIO_HIL_MLC	0x03
->  #define SERIO_PS_PSTHRU	0x05
->  #define SERIO_8042_XL	0x06
-> +#define SERIO_PS2MULT_T	0x07
-
-Why do you need new serio type? I'd stick with SERIO_I8042 so that you
-do not need to patch atkbd/psmouse.
-
-Thanks.
+I sent it on to Linus, hopefully he'll apply it.
 
 -- 
 Dmitry

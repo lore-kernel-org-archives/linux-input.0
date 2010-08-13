@@ -1,64 +1,97 @@
-From: "Arce, Abraham" <x0066660@ti.com>
-Subject: RE: Dual touchscreen implementation
-Date: Fri, 13 Aug 2010 03:40:17 -0500
-Message-ID: <27F9C60D11D683428E133F85D2BB4A53043F6CC264@dlee03.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043F6195B1@dlee03.ent.ti.com>
- <20100813075047.GA7700@core.coreip.homeip.net>
+From: Amit Nagal <helloin.amit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RESEND] USB HID: Protect against disconnect/NULL-dereference
+ race
+Date: Fri, 13 Aug 2010 14:25:52 +0530
+Message-ID: <AANLkTim_Jj0w22AM0O=PoF01DHFe+VMvjmvi4nqVnqNx@mail.gmail.com>
+References: <m3y6ee62gp.fsf@pullcord.laptop.org>
+	<m3lj8b8m6b.fsf@pullcord.laptop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:39847 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761358Ab0HMIkU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Aug 2010 04:40:20 -0400
-In-Reply-To: <20100813075047.GA7700@core.coreip.homeip.net>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <m3lj8b8m6b.fsf-0VGQAjvlmrQzNDMTQreKSUB+6BGkLq7r@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+Hi ,
 
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> 
-> > I am working in a board with dual display/touchscreen. I have searched
-> within drivers/input/touchscreen for some examples on how to implement the
-> functionality to configure driver and behave as a single touchscreen if 2
-> sensors are present, no specific example found
-> >
-> > My idea is to create an attribute "virtualized" to enable/disable
-> virtualization in the second touchscreen
-> >
-> > + static DEVICE_ATTR(virtualized, S_IRUGO | S_IWUSR,
-> > + 		   syn_show_attr_virtualized, syn_store_attr_virtualized);
-> >
-> >
-> > In the function which reports the values to input subsystem we can then
-> decide to make the second one as an extension of the first touchscreen if
-> >
-> > * virtualized is set to 1
-> > * and touchscreen sensor is the second one
-> >
-> >
-> >  + if (ts->virtualized && dev_name(&sensor->dev == '2')
-> >  +	data->x = ts->touch_caps.max_x + d->x;
-> >  [..]
-> >  + input_report_abs(idev, ABS_x, data->x);
-> >
-> >
-> > I'd appreciate any comments on this approach...
-> >
-> 
-> Does the kernel have to do that? I'd say it is userspace task to
-> [re]interpret events.
+i am also using HIDDEV interface . and i also got hiddev_ioctl NULL
+dereference problem .
 
-That was a first thinking however your point makes more sense. I'll explore and get more information on how Ubuntu or Android may implement it and get back with final resolution.
+Below  patch fixes my problem .
 
-Thanks a lot!
+Regards
+Amit Nagal
 
-Best Regards
-Abraham
 
+
+
+
+
+
+On Fri, Aug 13, 2010 at 4:37 AM, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org> wrote:
+> One of our users reports consistently hitting a NULL dereference that
+> resolves to the "hid_to_usb_dev(hid);" call in hiddev_ioctl(), when
+> disconnecting a Lego WeDo USB HID device from an OLPC XO running
+> Scratch software. =A0There's a FIXME comment and a guard against the
+> dereference, but that happens farther down the function than the
+> initial dereference does.
+>
+> This patch moves the call to be below the guard, and the user reports
+> that it fixes the problem for him. =A0OLPC bug report:
+> http://dev.laptop.org/ticket/10174
+>
+> Signed-off-by: Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+> ---
+> =A0drivers/hid/usbhid/hiddev.c | =A0 =A06 ++++--
+> =A01 files changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.=
+c
+> index c24d2fa..7ec009a 100644
+> --- a/drivers/hid/usbhid/hiddev.c
+> +++ b/drivers/hid/usbhid/hiddev.c
+> @@ -593,7 +593,7 @@ static long hiddev_ioctl(struct file *file, unsig=
+ned int cmd, unsigned long arg)
+> =A0 =A0 =A0 =A0struct hiddev_list *list =3D file->private_data;
+> =A0 =A0 =A0 =A0struct hiddev *hiddev =3D list->hiddev;
+> =A0 =A0 =A0 =A0struct hid_device *hid =3D hiddev->hid;
+> - =A0 =A0 =A0 struct usb_device *dev =3D hid_to_usb_dev(hid);
+> + =A0 =A0 =A0 struct usb_device *dev;
+> =A0 =A0 =A0 =A0struct hiddev_collection_info cinfo;
+> =A0 =A0 =A0 =A0struct hiddev_report_info rinfo;
+> =A0 =A0 =A0 =A0struct hiddev_field_info finfo;
+> @@ -607,9 +607,11 @@ static long hiddev_ioctl(struct file *file, unsi=
+gned int cmd, unsigned long arg)
+> =A0 =A0 =A0 =A0/* Called without BKL by compat methods so no BKL take=
+n */
+>
+> =A0 =A0 =A0 =A0/* FIXME: Who or what stop this racing with a disconne=
+ct ?? */
+> - =A0 =A0 =A0 if (!hiddev->exist)
+> + =A0 =A0 =A0 if (!hiddev->exist || !hid)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EIO;
+>
+> + =A0 =A0 =A0 dev =3D hid_to_usb_dev(hid);
+> +
+> =A0 =A0 =A0 =A0switch (cmd) {
+>
+> =A0 =A0 =A0 =A0case HIDIOCGVERSION:
+> --
+> 1.7.0.1
+>
+> --
+> Chris Ball =A0 <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+> One Laptop Per Child
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

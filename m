@@ -1,23 +1,99 @@
-From: "Hemanth V" <hemanthv@ti.com>
-Subject: Re: [RFC] [PATCH V2 1/2] input: CMA3000 Accelerometer driver
-Date: Fri, 13 Aug 2010 18:17:00 +0530
-Message-ID: <0ebd01cb3ae5$a0dcfc70$LocalHost@wipblrx0099946>
-References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com> <4BF6753B.60201@cam.ac.uk>
+From: "Murphy, Dan" <dmurphy@ti.com>
+Subject: RE: [RFC] [PATCH V2 1/2] input: CMA3000 Accelerometer driver
+Date: Fri, 13 Aug 2010 08:34:07 -0500
+Message-ID: <C9D59C82B94F474B872F2092A87F261412470D0874@dlee07.ent.ti.com>
+References: <15445.10.24.255.17.1274424777.squirrel@dbdmail.itg.ti.com>
+ <4BF6753B.60201@cam.ac.uk> <0ebd01cb3ae5$a0dcfc70$LocalHost@wipblrx0099946>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bear.ext.ti.com ([192.94.94.41]:58446 "EHLO bear.ext.ti.com"
+Received: from bear.ext.ti.com ([192.94.94.41]:60824 "EHLO bear.ext.ti.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934206Ab0HMMrR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Aug 2010 08:47:17 -0400
+	id S1755198Ab0HMNeW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Aug 2010 09:34:22 -0400
+In-Reply-To: <0ebd01cb3ae5$a0dcfc70$LocalHost@wipblrx0099946>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+To: "V, Hemanth" <hemanthv@ti.com>, Jonathan Cameron <jic23@cam.ac.uk>, Andrew Morton <akpm@linux-foundation.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+
+Hemanth
+I have a few comments on this patch.
+
++static ssize_t cma3000_store_attr_mdfftmr(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct cma3000_accl_data *data = platform_get_drvdata(pdev);
++	unsigned long val;
++	int error;
++
++	error = strict_strtoul(buf, 0, &val);
++	if (error)
++		return error;
++
++	mutex_lock(&data->mutex);
++	data->pdata.mdfftmr = val;
++
++	disable_irq(data->client->irq);
+You should use disable_irq_nosync here.  This may not work properly on SMP.
+
+> +	if (val == CMARANGE_2G) {
+> +		ctrl |= CMA3000_RANGE2G;
+> +		data->pdata.g_range = CMARANGE_2G;
+> +	} else if (val == CMARANGE_8G) {
+> +		ctrl |= CMA3000_RANGE8G;
+> +		data->pdata.g_range = CMARANGE_8G;
+
+Why are you modifying the platform data?  Why not just keep it in a global or a glocal structure and modify it that way?
+> +	} else {
+> +		error = -EINVAL;
+> +		goto err_op_failed;
+> +	}
+> +
+> +	g_range = data->pdata.g_range;
+> +	fuzz_x = data->pdata.fuzz_x;
+> +	fuzz_y = data->pdata.fuzz_y;
+> +	fuzz_z = data->pdata.fuzz_z;
+Why are you storing these locally and then using them once can't we eliminate these completely and just pass the platform data values into the set params?
+> +
+> +	disable_irq(data->client->irq);
+You should use disable_irq_nosync here.  This may not work properly on SMP.
+
+> +	cma3000_set(data, CMA3000_CTRL, ctrl, "ctrl");
+> +
+> +	input_set_abs_params(data->input_dev, ABS_X, -g_range,
+> +				g_range, fuzz_x, 0);
+> +	input_set_abs_params(data->input_dev, ABS_Y, -g_range,
+> +				g_range, fuzz_y, 0);
+> +	input_set_abs_params(data->input_dev, ABS_Z, -g_range,
+> +				g_range, fuzz_z, 0);
+Don't necessarily agree with modifying the parameters for the input device on the fly.  Some implementations may be a read once on init and do not go back and check this.
+
+
++		ret = request_threaded_irq(data->client->irq, NULL,
++					cma3000_thread_irq,
++					irqflags | IRQF_ONESHOT,
++					data->client->name, data);
+
+This is implemented wrong.  You are doing a lot of processing in the IRQ context here.  Especially calls out to a peripheral.  The NULL should be your handler thread where you do all the device processing.
+
+Also this implementation only suggests that the HW has the IRQ connected what about devices that the IRQ line was not connected?
+
+I have changed this driver to adjust all the issues above.  Let me know if you want the patches or the files.
+
+Dan
+
+-----Original Message-----
+From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of V, Hemanth
+Sent: Friday, August 13, 2010 7:47 AM
+To: Jonathan Cameron; Andrew Morton
+Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; linux-omap@vger.kernel.org
+Subject: Re: [RFC] [PATCH V2 1/2] input: CMA3000 Accelerometer driver
 
 ----- Original Message ----- 
 From: "Jonathan Cameron" <jic23@cam.ac.uk>
@@ -61,3 +137,7 @@ from the input maintainer
 Thanks
 Hemanth 
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

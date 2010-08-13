@@ -1,489 +1,407 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen
- controller driver
-Date: Fri, 13 Aug 2010 01:33:11 -0700
-Message-ID: <20100813083311.GA7824@core.coreip.homeip.net>
-References: <1281568142-12892-1-git-send-email-wellsk40@gmail.com>
- <1281568142-12892-2-git-send-email-wellsk40@gmail.com>
+From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
+Subject: RE: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Fri, 13 Aug 2010 14:06:08 +0530
+Message-ID: <0680EC522D0CC943BC586913CF3768C003B3909F9C@dbde02.ent.ti.com>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.212.174]:62914 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754389Ab0HMIdR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Aug 2010 04:33:17 -0400
-Received: by pxi10 with SMTP id 10so727110pxi.19
-        for <linux-input@vger.kernel.org>; Fri, 13 Aug 2010 01:33:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1281568142-12892-2-git-send-email-wellsk40@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Neil Leeder <nleeder@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: wellsk40@gmail.com
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
 
-Hi Kevin,
 
-On Wed, Aug 11, 2010 at 04:09:02PM -0700, wellsk40@gmail.com wrote:
-> From: Kevin Wells <wellsk40@gmail.com>
+Minor comments feel free to ignore if you feel so.
+
+> -----Original Message-----
+> From: linux-input-owner@vger.kernel.org [mailto:linux-input-
+> owner@vger.kernel.org] On Behalf Of Neil Leeder
+> Sent: Thursday, August 12, 2010 10:19 PM
+> To: Dmitry Torokhov
+> Cc: linux-input@vger.kernel.org; linux-arm-msm@vger.kernel.org; linux-
+> kernel@vger.kernel.org; Neil Leeder; Horace Fu; Mandeep Singh Baines
+> Subject: [PATCH v2] input: mouse: add qci touchpad driver
 > 
-> This patch set introduces support for the LPC32xx touchscreen
-> controller driver. The LPC32xx touchscreen controller supports
-> automated event detection and X/Y data conversion for resistive
-> touchscreens.
+> This driver is for the QCI trackpad used on Quanta smartbooks
+Would you like to mention the part number.
 > 
-
-Overall looks very nice, a few comments below.
-
-> Signed-off-by: Kevin Wells <wellsk40@gmail.com>
-> Signed-off-by: Durgesh Pattamatta <durgesh.pattamatta@nxp.com>
+> Signed-off-by: Horace Fu <horace.fu@quantatw.com>
+> Signed-off-by: Mandeep Singh Baines <msb@chromium.org>
+> [nleeder@codeaurora.org: cleanup i2c calls, address review comments etc]
+> Signed-off-by: Neil Leeder <nleeder@codeaurora.org>
 > ---
->  drivers/input/touchscreen/Kconfig      |   10 +
->  drivers/input/touchscreen/Makefile     |    1 +
->  drivers/input/touchscreen/lpc32xx_ts.c |  365 ++++++++++++++++++++++++++++++++
->  3 files changed, 376 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/touchscreen/lpc32xx_ts.c
+>  drivers/input/mouse/Kconfig        |   12 ++
+>  drivers/input/mouse/Makefile       |    1 +
+>  drivers/input/mouse/qci_touchpad.c |  270
+> ++++++++++++++++++++++++++++++++++++
+>  include/linux/input/qci_touchpad.h |   25 ++++
+>  4 files changed, 308 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/mouse/qci_touchpad.c
+>  create mode 100644 include/linux/input/qci_touchpad.h
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 61f3518..f74b6eb 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -214,6 +214,16 @@ config TOUCHSCREEN_WACOM_W8001
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called wacom_w8001.
->  
-> +config TOUCHSCREEN_LPC32XX
-> +	tristate "LPC32XX touchscreen controller"
-> +	depends on ARCH_LPC32XX
+> diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+> index c714ca2..32a88b4 100644
+> --- a/drivers/input/mouse/Kconfig
+> +++ b/drivers/input/mouse/Kconfig
+> @@ -303,6 +303,18 @@ config MOUSE_MAPLE
+>  	  To compile this driver as a module choose M here: the module will
+> be
+>  	  called maplemouse.
+> 
+> +config MOUSE_QCITP
+> +	tristate "Quanta Computer Inc. Touchpad"
+> +	depends on I2C
 > +	help
-> +	  Say Y here if you have a LPC32XX device and want
-> +	  to support the built-in touchscreen.
+> +	  This driver supports the touchpad on Quanta smartbook devices.
+> +
+> +	  Say Y here if you have a Quanta-based smartboot or notepad
+> +	  device and want to use the Quanta touchpad driver.
 > +
 > +	  To compile this driver as a module, choose M here: the
-> +	  module will be called lpc32xx_ts.
+> +	  module will be called qci_touchpad.
 > +
->  config TOUCHSCREEN_MCS5000
->  	tristate "MELFAS MCS-5000 touchscreen"
+>  config MOUSE_SYNAPTICS_I2C
+>  	tristate "Synaptics I2C Touchpad support"
 >  	depends on I2C
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index bd6f30b..595275d 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -23,6 +23,7 @@ obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
->  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
-> +obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_MC13783)	+= mc13783_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_MCS5000)	+= mcs5000_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
-> diff --git a/drivers/input/touchscreen/lpc32xx_ts.c b/drivers/input/touchscreen/lpc32xx_ts.c
+> diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+> index 570c84a..6eda35d 100644
+> --- a/drivers/input/mouse/Makefile
+> +++ b/drivers/input/mouse/Makefile
+> @@ -15,6 +15,7 @@ obj-$(CONFIG_MOUSE_MAPLE)		+= maplemouse.o
+>  obj-$(CONFIG_MOUSE_PC110PAD)		+= pc110pad.o
+>  obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
+>  obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= pxa930_trkball.o
+> +obj-$(CONFIG_MOUSE_QCITP)		+= qci_touchpad.o
+>  obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
+>  obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
+>  obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
+> diff --git a/drivers/input/mouse/qci_touchpad.c
+> b/drivers/input/mouse/qci_touchpad.c
 > new file mode 100644
-> index 0000000..ebb8f28
+> index 0000000..746cbaa
 > --- /dev/null
-> +++ b/drivers/input/touchscreen/lpc32xx_ts.c
-> @@ -0,0 +1,365 @@
-> +/*
-> + * LPC32xx built-in touchscreen driver
+> +++ b/drivers/input/mouse/qci_touchpad.c
+> @@ -0,0 +1,270 @@
+> +/* Quanta I2C Touchpad Driver
 > + *
-> + * Copyright (C) 2010 NXP Semiconductors
+> + * Copyright (C) 2009 Quanta Computer Inc.
+> + * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+> + * Author: Hsin Wu <hsin.wu@quantatw.com>
+> + * Author: Austin Lai <austin.lai@quantatw.com>
 > + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
 > + *
 > + * This program is distributed in the hope that it will be useful,
 > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
 > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 > + * GNU General Public License for more details.
+> + *
 > + */
-> +
-> +#include <linux/platform_device.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +#include <linux/slab.h>
 > +
 > +/*
-> + * Touchscreen controller register offsets
+> + * Driver communicates over i2c to nuvoTon WPCE775x Embedded Controller,
+> + * which has touchpad attached through PS/2 interface.
 > + */
-> +#define TSC_STAT			0x00
-> +#define TSC_SEL				0x04
-> +#define TSC_CON				0x08
-> +#define TSC_FIFO			0x0C
-> +#define TSC_DTR				0x10
-> +#define TSC_RTR				0x14
-> +#define TSC_UTR				0x18
-> +#define TSC_TTR				0x1C
-> +#define TSC_DXP				0x20
-> +#define TSC_MIN_X			0x24
-> +#define TSC_MAX_X			0x28
-> +#define TSC_MIN_Y			0x2C
-> +#define TSC_MAX_Y			0x30
-> +#define TSC_AUX_UTR			0x34
-> +#define TSC_AUX_MIN			0x38
-> +#define TSC_AUX_MAX			0x3C
+> +#define pr_fmt(fmt) KBUILD_BASENAME ": " fmt
 > +
-> +#define TSC_STAT_FIFO_OVRRN		(1 << 8)
-> +#define TSC_STAT_FIFO_EMPTY		(1 << 7)
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/input.h>
+> +#include <linux/gpio.h>
+> +#include <linux/delay.h>
+> +#include <linux/input/qci_touchpad.h>
 > +
-> +#define TSC_SEL_DEFVAL			0x0284
+> +#define TOUCHPAD_ID_NAME          "qci-i2cpad"
+> +#define TOUCHPAD_NAME             "QCI Touchpad"
+> +#define TOUCHPAD_DEVICE           "/qci_touchpad/input0"
+> +#define TOUCHPAD_CMD_ENABLE       0xF4
+> +#define TOUCHPAD_READ_DATA_LEN    3
 > +
-> +#define TSC_ADCCON_IRQ_TO_FIFO_4	(0x1 << 11)
-> +#define TSC_ADCCON_X_SAMPLE_SIZE(s)	((10 - (s)) << 7)
-> +#define TSC_ADCCON_Y_SAMPLE_SIZE(s)	((10 - (s)) << 4)
-> +#define TSC_ADCCON_POWER_UP		(1 << 2)
-> +#define TSC_ADCCON_AUTO_EN		(1 << 0)
-> +
-> +#define TSC_FIFO_TS_P_LEVEL		(1 << 31)
-> +#define TSC_FIFO_NORMALIZE_X_VAL(x)	(((x) & 0x03FF0000) >> 16)
-> +#define TSC_FIFO_NORMALIZE_Y_VAL(y)	((y) & 0x000003FF)
-> +
-> +#define TSC_ADCDAT_VALUE_MASK		0x000003FF
-> +
-> +#define TSC_MIN_XY_VAL			0x0
-> +#define TSC_MAX_XY_VAL			0x3FF
-> +
-> +#define MOD_NAME "ts-lpc32xx"
-> +
-> +#define tsc_readl(dev, reg) \
-> +	__raw_readl((dev)->tsc_base + (reg))
-> +#define tsc_writel(dev, reg, val) \
-> +	__raw_writel((val), (dev)->tsc_base + (reg))
-> +
-> +struct lpc32xx_tsc {
-> +	struct input_dev *dev;
-> +	void __iomem *tsc_base;
-> +	int irq;
-> +	struct clk *clk;
+> +struct i2ctpad_drv_data {
+> +	struct i2c_client *ti2c_client;
+> +	struct input_dev *qcitp_dev;
+> +	unsigned int qcitp_gpio;
+> +	unsigned int qcitp_irq;
+> +	char ecdata[8];
+> +	bool opened;
 > +};
 > +
-> +static void lpc32xx_fifo_clear(struct lpc32xx_tsc *tsc)
+> +#ifdef CONFIG_PM
+> +static int qcitp_suspend(struct device *_dev)
 > +{
-> +	while (!(tsc_readl(tsc, TSC_STAT) & TSC_STAT_FIFO_EMPTY))
-> +		tsc_readl(tsc, TSC_FIFO);
+> +	struct i2c_client *client =
+> +		container_of(_dev, struct i2c_client, dev);
+> +	struct i2ctpad_drv_data *context = i2c_get_clientdata(client);
+> +
+> +	disable_irq(context->qcitp_irq);
+> +	return 0;
 > +}
 > +
-> +static irqreturn_t lpc32xx_ts_interrupt(int irq, void *dev_id)
+> +static int qcitp_resume(struct device *_dev)
 > +{
-> +	u32 tmp, rv[4], xs[4], ys[4];
-> +	int idx;
-> +	struct lpc32xx_tsc *tsc = dev_id;
-> +	struct input_dev *input = tsc->dev;
+> +	struct i2c_client *client =
+> +		container_of(_dev, struct i2c_client, dev);
+> +	struct i2ctpad_drv_data *context = i2c_get_clientdata(client);
 > +
-> +	tmp = tsc_readl(tsc, TSC_STAT);
+> +	enable_irq(context->qcitp_irq);
+> +	return 0;
+> +}
+> +#endif
 > +
-> +	if (tmp & TSC_STAT_FIFO_OVRRN) {
-> +		/* FIFO overflow - throw away samples */
-> +		lpc32xx_fifo_clear(tsc);
-> +		return IRQ_HANDLED;
-> +	}
+> +static const struct i2c_device_id qcitp_idtable[] = {
+> +	{ "wpce775-touchpad", 0 },
+> +	{ }
+> +};
 > +
-> +	/*
-> +	 * Gather and normalize 4 samples. Pen-up events may have less
-> +	 * than 4 samples, but its ok to pop 4 and let the last sample
-> +	 * pen status check drop the samples.
-> +	 */
-> +	idx = 0;
-> +	while ((idx < 4) &&
-> +		(!(tsc_readl(tsc, TSC_STAT) & TSC_STAT_FIFO_EMPTY))) {
-> +		tmp = tsc_readl(tsc, TSC_FIFO);
-> +		xs[idx] = TSC_ADCDAT_VALUE_MASK -
-> +			TSC_FIFO_NORMALIZE_X_VAL(tmp);
-> +		ys[idx] = TSC_ADCDAT_VALUE_MASK -
-> +			TSC_FIFO_NORMALIZE_Y_VAL(tmp);
-> +		rv[idx] = tmp;
-> +		idx++;
-> +	}
+> +MODULE_DEVICE_TABLE(i2c, qcitp_idtable);
 > +
-> +	/* Data is only valid if pen is still down in last sample */
-> +	if ((!(rv[3] & TSC_FIFO_TS_P_LEVEL)) && (idx == 4)) {
-> +		/* Use average of 2nd and 3rd sample for position */
-> +		input_report_abs(input, ABS_X, ((xs[1] + xs[2]) / 2));
-> +		input_report_abs(input, ABS_Y, ((ys[1] + ys[2]) / 2));
-> +		input_report_key(input, BTN_TOUCH, 1);
-> +	} else
-> +		input_report_key(input, BTN_TOUCH, 0);
+> +#ifdef CONFIG_PM
+> +static const struct dev_pm_ops qcitp_pm_ops = {
+> +	.suspend  = qcitp_suspend,
+> +	.resume   = qcitp_resume,
+> +};
+> +#endif
 > +
-> +	input_sync(input);
+> +static void qcitp_report_key(struct input_dev *tpad_dev, char *ec_data)
+> +{
+> +	int dx = 0;
+> +	int dy = 0;
+> +
+> +	if (ec_data[1])
+> +		dx = (int) ec_data[1] -
+> +		     (int) ((ec_data[0] << 4) & 0x100);
+> +
+> +	if (ec_data[2])
+> +		dy = (int) ((ec_data[0] << 3) & 0x100) -
+> +		     (int) ec_data[2];
+> +
+> +	input_report_key(tpad_dev, BTN_LEFT, ec_data[0] & 0x01);
+> +	input_report_key(tpad_dev, BTN_RIGHT, ec_data[0] & 0x02);
+> +	input_report_key(tpad_dev, BTN_MIDDLE, ec_data[0] & 0x04);
+> +	input_report_rel(tpad_dev, REL_X, dx);
+> +	input_report_rel(tpad_dev, REL_Y, dy);
+> +	input_sync(tpad_dev);
+> +}
+> +
+> +static irqreturn_t qcitp_interrupt(int irq, void *dev_id)
+> +{
+> +	struct i2ctpad_drv_data *context = dev_id;
+> +	int rc;
+> +
+> +	rc = i2c_master_recv(context->ti2c_client, context->ecdata,
+> +			     TOUCHPAD_READ_DATA_LEN);
+> +	if (rc == TOUCHPAD_READ_DATA_LEN)
+> +		qcitp_report_key(context->qcitp_dev, context->ecdata);
 > +
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static void stop_tsc(struct lpc32xx_tsc *tsc)
+> +static int qcitp_open(struct input_dev *input)
 > +{
-> +	/* Disable auto mode */
-> +	tsc_writel(tsc, TSC_CON,
-> +		   tsc_readl(tsc, TSC_CON) & ~TSC_ADCCON_AUTO_EN);
+> +	struct i2ctpad_drv_data *context = input_get_drvdata(input);
+> +	u8 buf[1];
+> +	int err = 0;
+> +
+> +	if (context->opened)
+> +		return 0;
+> +	context->opened = 1;
+> +
+> +	buf[0] = TOUCHPAD_CMD_ENABLE;
+> +	err = i2c_master_send(context->ti2c_client, buf, 1);
+> +	if (err < 0)
+> +		goto i2c_fail;
+> +	msleep(100);
+Could you explain the time or have a #define XXX 
+
+> +	err = i2c_master_recv(context->ti2c_client, buf, 1);
+> +
+> +i2c_fail:
+> +	return err;
 > +}
 > +
-
-Hmm, that looks like good candidate for input_dev->close() method. And
-setup_tsc() should be ->open(). Btw, maybe move clk_disable() here as
-well?
-
-> +static void setup_tsc(struct lpc32xx_tsc *tsc)
+> +static int __devinit qcitp_probe(struct i2c_client *client,
+> +				    const struct i2c_device_id *id)
 > +{
-
-Keep the common prefix (lpc32xx_) perhaps?
-
-> +	u32 tmp;
+> +	int err;
+> +	struct i2ctpad_drv_data *context;
+> +	struct qci_touchpad_platform_data *pd;
+> +	int irq_trigger_type;
 > +
-> +	tmp = tsc_readl(tsc, TSC_CON) & ~TSC_ADCCON_POWER_UP;
-> +
-> +	/* Set the TSC FIFO depth to 4 samples @ 10-bits per sample (max) */
-> +	tmp = (TSC_ADCCON_IRQ_TO_FIFO_4 |
-> +		TSC_ADCCON_X_SAMPLE_SIZE(10) |
-> +		TSC_ADCCON_Y_SAMPLE_SIZE(10));
-> +	tsc_writel(tsc, TSC_CON, tmp);
-> +
-> +	/* These values are all preset */
-> +	tsc_writel(tsc, TSC_SEL, TSC_SEL_DEFVAL);
-> +	tsc_writel(tsc, TSC_MIN_X, TSC_MIN_XY_VAL);
-> +	tsc_writel(tsc, TSC_MAX_X, TSC_MAX_XY_VAL);
-> +	tsc_writel(tsc, TSC_MIN_Y, TSC_MIN_XY_VAL);
-> +	tsc_writel(tsc, TSC_MAX_Y, TSC_MAX_XY_VAL);
-> +
-> +	/* Aux support is not used */
-> +	tsc_writel(tsc, TSC_AUX_UTR, 0);
-> +	tsc_writel(tsc, TSC_AUX_MIN, 0);
-> +	tsc_writel(tsc, TSC_AUX_MAX, 0);
-> +
-> +	/*
-> +	 * Set sample rate to about 240Hz per X/Y pair. A single measurement
-> +	 * consists of 4 pairs which gives about a 60Hz sample rate based on
-> +	 * a stable 32768Hz clock source. Values are in clocks.
-> +	 * Rate is (32768 / (RTR + XCONV + RTR + YCONV + DXP + TTR + UTR) / 4
-> +	 */
-> +	tsc_writel(tsc, TSC_RTR, 0x2);
-> +	tsc_writel(tsc, TSC_DTR, 0x2);
-> +	tsc_writel(tsc, TSC_TTR, 0x10);
-> +	tsc_writel(tsc, TSC_DXP, 0x4);
-> +	tsc_writel(tsc, TSC_UTR, 88);
-> +
-> +	lpc32xx_fifo_clear(tsc);
-> +
-> +	/* Enable automatic ts event capture */
-> +	tsc_writel(tsc, TSC_CON, tmp | TSC_ADCCON_AUTO_EN);
-> +}
-> +
-> +static int __devinit lpc32xx_ts_probe(struct platform_device *pdev)
-> +{
-> +	struct lpc32xx_tsc *tsc;
-> +	struct resource *res;
-> +	resource_size_t size;
-> +	int retval;
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "Can't get memory resource\n");
-> +		return -ENOENT;
+> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +		pr_err("i2c functionality failed\n");
+> +		return -ENODEV;
 > +	}
 > +
-> +	retval = platform_get_irq(pdev, 0);
-> +	if (retval < 0) {
-> +		dev_err(&pdev->dev, "Can't get interrupt resource\n");
-> +		return retval;
-> +	}
-> +
-> +	tsc = devm_kzalloc(&pdev->dev, sizeof(*tsc), GFP_KERNEL);
-> +	if (unlikely(!tsc)) {
-> +		dev_err(&pdev->dev, "failed allocating memory\n");
+> +	context = kzalloc(sizeof(struct i2ctpad_drv_data), GFP_KERNEL);
+> +	if (!context)
 > +		return -ENOMEM;
+> +	i2c_set_clientdata(client, context);
+> +	context->ti2c_client = client;
+> +	context->qcitp_gpio = client->irq;
+> +
+> +	pd = client->dev.platform_data;
+> +	if (pd)
+> +		irq_trigger_type = pd->irq_trigger_type;
+> +	else
+> +		irq_trigger_type = IRQF_TRIGGER_FALLING;
+> +
+> +	context->qcitp_dev = input_allocate_device();
+> +	if (!context->qcitp_dev) {
+> +		pr_err("allocating memory failed\n");
+> +		err = -ENOMEM;
+> +		goto allocate_fail;
 > +	}
-> +	tsc->irq = retval;
+> +	context->qcitp_dev->name       = TOUCHPAD_NAME;
+> +	context->qcitp_dev->phys       = TOUCHPAD_DEVICE;
+> +	context->qcitp_dev->id.bustype = BUS_I2C;
+> +	context->qcitp_dev->id.vendor  = 0x1050;
+> +	context->qcitp_dev->id.product = 0x1;
+> +	context->qcitp_dev->id.version = 0x1;
+> +	context->qcitp_dev->evbit[0]  = BIT_MASK(EV_KEY) |
+> +					BIT_MASK(EV_REL);
+> +	context->qcitp_dev->relbit[0] = BIT_MASK(REL_X) |
+> +					BIT_MASK(REL_Y);
+> +	context->qcitp_dev->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT)
+> |
+> +							 BIT_MASK(BTN_MIDDLE) |
+> +							 BIT_MASK(BTN_RIGHT);
 > +
-> +	size = resource_size(res);
-> +
-> +	if (!devm_request_mem_region(&pdev->dev, res->start, size,
-> +				     pdev->name)) {
-> +		dev_err(&pdev->dev, "TSC registers are not free\n");
-> +		return -EBUSY;
+> +	input_set_drvdata(context->qcitp_dev, context);
+> +	context->qcitp_dev->open = qcitp_open;
+> +	err = input_register_device(context->qcitp_dev);
+> +	if (err) {
+> +		pr_err("register device failed\n");
+> +		goto register_fail;
 > +	}
 > +
-> +	tsc->tsc_base = devm_ioremap(&pdev->dev, res->start, size);
-> +	if (!tsc->tsc_base) {
-> +		dev_err(&pdev->dev, "Can't map memory\n");
-> +		return -ENOMEM;
+> +	err = gpio_request(context->qcitp_gpio, "qci-pad");
+> +	if (err) {
+> +		pr_err("gpio request failed\n");
+> +		goto gpio_request_fail;
 > +	}
-> +
-> +	tsc->dev = input_allocate_device();
-> +	if (!tsc->dev) {
-> +		dev_err(&pdev->dev, "failed allocating input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	tsc->clk = clk_get(&pdev->dev, NULL);
-> +	if (IS_ERR(tsc->clk)) {
-> +		dev_err(&pdev->dev, "failed getting clock\n");
-> +		retval = -ENOENT;
-> +		goto err_no_clk;
-> +	}
-> +
-> +	clk_enable(tsc->clk);
-> +	setup_tsc(tsc);
-> +
-> +	platform_set_drvdata(pdev, tsc);
-> +
-> +	tsc->dev->name = MOD_NAME;
-> +	tsc->dev->phys = "lpc32xx/input0";
-> +	tsc->dev->id.bustype = BUS_HOST;
-> +	tsc->dev->id.vendor = 0x0001;
-> +	tsc->dev->id.product = 0x0002;
-> +	tsc->dev->id.version = 0x0100;
-> +	tsc->dev->dev.parent = &pdev->dev;
-> +
-> +	tsc->dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> +	tsc->dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +	input_set_abs_params(tsc->dev, ABS_X, TSC_MIN_XY_VAL,
-> +			     TSC_MAX_XY_VAL, 0, 0);
-> +	input_set_abs_params(tsc->dev, ABS_Y, TSC_MIN_XY_VAL,
-> +			     TSC_MAX_XY_VAL, 0, 0);
-> +
-> +	if (input_register_device(tsc->dev)) {
-> +		dev_err(&pdev->dev, "failed registering input device\n");
-> +		goto err_stop_clk;
+> +	gpio_direction_input(context->qcitp_gpio);
+The result is not checked here.
 
-retval is garbage here, you need to do:
-
-	error = input_register_device();
-	if (error) {
-		...
-		goto err_stop_clk;
-	}
-
-I must say that I do not like mixing devm_* with the standard error path
-unwinding, if we can rely on devm_xxx() calls to take care of everything
-we should revert to standard error unsinding practice for everythng.
-
-> +	}
 > +
-> +	retval = devm_request_irq(&pdev->dev, tsc->irq, lpc32xx_ts_interrupt,
-> +		IRQF_DISABLED, pdev->name, tsc);
-> +	if (retval < 0) {
-> +		dev_err(&pdev->dev, "failed requesting interrupt\n");
-> +		goto err_no_irq;
+> +	context->qcitp_irq = gpio_to_irq(context->qcitp_gpio);
+> +	err = request_threaded_irq(context->qcitp_irq, NULL,
+> qcitp_interrupt,
+> +				   irq_trigger_type, client->name, context);
+> +	if (err) {
+> +		pr_err("request threaded irq failed\n");
+> +		goto request_irq_fail;
 > +	}
-> +
-> +	device_init_wakeup(&pdev->dev, 1);
 > +
 > +	return 0;
 > +
-> +err_no_irq:
-> +	input_unregister_device(tsc->dev);
+> +request_irq_fail:
+> +	gpio_free(context->qcitp_gpio);
+> +
+> +gpio_request_fail:
+> +	input_unregister_device(context->qcitp_dev);
+> +	context->qcitp_dev = NULL;
+> +
+> +register_fail:
+> +	input_free_device(context->qcitp_dev);
+You may like to revisit the use of free after unregister.
 
-You'll fall through to input_free_device() which is forbidden after
-calling input_unregister_device(). Add tsc->dev = NULL to avoid this
-issue.
- 
 > +
-> +err_stop_clk:
-> +	stop_tsc(tsc);
-> +	clk_disable(tsc->clk);
-> +	clk_put(tsc->clk);
-> +
-> +err_no_clk:
-> +	input_free_device(tsc->dev);
-> +
-> +	return retval;
+> +allocate_fail:
+> +	kfree(context);
+> +	return err;
 > +}
 > +
-> +static int __devexit lpc32xx_ts_remove(struct platform_device *pdev)
+> +static int __devexit qcitp_remove(struct i2c_client *client)
 > +{
-> +	struct lpc32xx_tsc *tsc = platform_get_drvdata(pdev);
+> +	struct i2ctpad_drv_data *context = i2c_get_clientdata(client);
 > +
-> +	device_init_wakeup(&pdev->dev, 0);
-> +	disable_irq(tsc->irq);
-> +
-> +	input_unregister_device(tsc->dev);
-> +
-> +	stop_tsc(tsc);
-> +	clk_disable(tsc->clk);
-> +	clk_put(tsc->clk);
-> +
-> +	input_free_device(tsc->dev);
-
-Again, do not call input_free_device() here, input_unregister_device()
-will free the structure (if it holds the last reference).
-
-
+> +	free_irq(context->qcitp_irq, context);
+> +	gpio_free(context->qcitp_gpio);
+> +	input_unregister_device(context->qcitp_dev);
+> +	kfree(context);
 > +
 > +	return 0;
 > +}
 > +
+> +static struct i2c_driver i2ctp_driver = {
+> +	.driver = {
+> +		.owner = THIS_MODULE,
+> +		.name  = TOUCHPAD_ID_NAME,
 > +#ifdef CONFIG_PM
-> +static int lpc32xx_ts_suspend(struct device *dev)
-> +{
-> +	struct lpc32xx_tsc *tsc = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(tsc->irq);
-> +	else {
-> +		stop_tsc(tsc);
-> +		clk_disable(tsc->clk);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int lpc32xx_ts_resume(struct device *dev)
-> +{
-> +	struct lpc32xx_tsc *tsc = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(tsc->irq);
-> +	else {
-> +		clk_enable(tsc->clk);
-> +		setup_tsc(tsc);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops lpc32xx_ts_pm_ops = {
-> +	.suspend	= lpc32xx_ts_suspend,
-> +	.resume		= lpc32xx_ts_resume,
-> +};
-> +#define LPC32XX_TS_PM_OPS (&lpc32xx_ts_pm_ops)
-> +#else
-> +#define LPC32XX_TS_PM_OPS NULL
+> +		.pm = &qcitp_pm_ops,
 > +#endif
-> +
-> +static struct platform_driver lpc32xx_ts_driver = {
-> +	.probe		= lpc32xx_ts_probe,
-> +	.remove		= __devexit_p(lpc32xx_ts_remove),
-> +	.driver		= {
-> +		.name	= MOD_NAME,
-> +		.owner	= THIS_MODULE,
-> +		.pm	= LPC32XX_TS_PM_OPS,
 > +	},
+> +	.probe	  = qcitp_probe,
+> +	.remove	  = __devexit_p(qcitp_remove),
+> +	.id_table = qcitp_idtable,
 > +};
 > +
-> +static int __init lpc32xx_ts_init(void)
+> +static int __init qcitp_init(void)
 > +{
-> +	return platform_driver_register(&lpc32xx_ts_driver);
+> +	return i2c_add_driver(&i2ctp_driver);
 > +}
-> +module_init(lpc32xx_ts_init);
 > +
-> +static void __exit lpc32xx_ts_exit(void)
+> +
+> +static void __exit qcitp_exit(void)
 > +{
-> +	platform_driver_unregister(&lpc32xx_ts_driver);
+> +	i2c_del_driver(&i2ctp_driver);
 > +}
-> +module_exit(lpc32xx_ts_exit);
 > +
-> +MODULE_AUTHOR("Kevin Wells <kevin.wells@nxp.com");
-> +MODULE_DESCRIPTION("LPC32XX TSC Driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:lpc32xx_ts");
-> -- 
-> 1.7.1.1
-> 
-
-Thanks.
-
--- 
-Dmitry
+> +module_init(qcitp_init);
+> +module_exit(qcitp_exit);
+> +
+> +MODULE_AUTHOR("Quanta Computer Inc.");
+> +MODULE_DESCRIPTION("Quanta Embedded Controller I2C Touchpad Driver");
+> +MODULE_ALIAS("platform:qci-touchpad");
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/include/linux/input/qci_touchpad.h
+> b/include/linux/input/qci_touchpad.h
+> new file mode 100644
+> index 0000000..8e266e4
+> --- /dev/null
+> +++ b/include/linux/input/qci_touchpad.h
+> @@ -0,0 +1,25 @@
+> +/* Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 and
+> + * only version 2 as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+> + * 02110-1301, USA.
+> + */
+> +
+> +#ifndef __QCI_TOUCHPAD_H
+> +#define __QCI_TOUCHPAD_H
+> +
+> +struct qci_touchpad_platform_data {
+> +	unsigned long irq_trigger_type;
+> +};
+> +
+> +#endif
+> --
+> 1.7.0
+> --
+> Sent by an employee of the Qualcomm Innovation Center, Inc.
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

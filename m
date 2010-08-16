@@ -1,88 +1,38 @@
-From: Maxim Levitsky <maximlevitsky@gmail.com>
-Subject: Re: Remote that breaks current system
-Date: Mon, 16 Aug 2010 23:41:52 +0300
-Message-ID: <1281991312.3661.2.camel@maxim-laptop>
-References: <AANLkTimz2eLSEy+U1NdMVsQ=af7v67omPntwMQs+8jno@mail.gmail.com>
-	 <BUhP+pZ3jFB@christoph>
-	 <AANLkTik7pPs6Bs6Pgq_MG00ONcZWEKFnfUqrTZtgwQRa@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: wellsk40@gmail.com
+Subject: input/touch: LPC32xx: Introduce touch driver for the LPC32xx (v2)
+Date: Mon, 16 Aug 2010 14:21:00 -0700
+Message-ID: <1281993661-21097-1-git-send-email-wellsk40@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f46.google.com ([209.85.214.46]:58513 "EHLO
-	mail-bw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755466Ab0HPUmB (ORCPT
+Received: from mail-vw0-f46.google.com ([209.85.212.46]:56008 "EHLO
+	mail-vw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756869Ab0HPVWD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Aug 2010 16:42:01 -0400
-In-Reply-To: <AANLkTik7pPs6Bs6Pgq_MG00ONcZWEKFnfUqrTZtgwQRa@mail.gmail.com>
+	Mon, 16 Aug 2010 17:22:03 -0400
+Received: by vws3 with SMTP id 3so3820734vws.19
+        for <linux-input@vger.kernel.org>; Mon, 16 Aug 2010 14:22:02 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarod Wilson <jarod@wilsonet.com>
-Cc: Christoph Bartelmus <lirc@bartelmus.de>, awalls@md.metrocast.net, jarod@redhat.com, jonsmirl@gmail.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org, mchehab@redhat.com
+To: linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
 
-On Mon, 2010-08-16 at 00:04 -0400, Jarod Wilson wrote: 
-> On Thu, Aug 12, 2010 at 2:46 AM, Christoph Bartelmus <lirc@bartelmus.de> wrote:
-> ...
-> >> So I spent a while beating on things the past few nights for giggles
-> >> (and for a sanity break from "vacation" with too many kids...). I
-> >> ended up doing a rather large amount of somewhat invasive work to the
-> >> streamzap driver itself, but the end result is functional in-kernel
-> >> decoding, and lirc userspace decode continues to behave correctly. RFC
-> >> patch here:
-> >>
-> >> http://wilsonet.com/jarod/ir-core/IR-streamzap-in-kernel-decode.patch
-> >>
-> >> Core changes to streamzap.c itself:
-> >>
-> >> - had to enable reporting of a long space at the conclusion of each
-> >> signal (which is what the lirc driver would do w/timeout_enabled set),
-> >> otherwise I kept having issues with key bounce and/or old data being
-> >> buffered (i.e., press up, cursor moves up. push down, cursor moves up
-> >> then down, press left, it moves down, then left, etc.). Still not
-> >> quite sure what the real problem is there, the lirc userspace decoder
-> >> has no problems with it either way.
-> >>
-> >> - removed streamzap's internal delay buffer, as the ir-core kfifo
-> >> seems to provide the necessary signal buffering just fine by itself.
-> >> Can't see any significant difference in decode performance either
-> >> in-kernel or via lirc with it removed, anyway. (Christoph, can you
-> >> perhaps expand a bit on why the delay buffer was originally needed/how
-> >> to reproduce the problem it was intended to solve? Maybe I'm just not
-> >> triggering it yet.)
-> >
-> > Should be fine. Current lircd with timeout support shouldn't have a
-> > problem with that anymore. I was already thinking of suggesting to remove
-> > the delay buffer.
-> 
-> Cool, sounds like a plan then, I'll go ahead with it.
-> 
-> >> Other fun stuff to note:
-> >>
-> >> - currently, loading up an rc5-sz decoder unconditionally, have
-> >> considered only auto-loading it from the streamzap driver itself. Its
-> >> a copy of the rc5 decoder with relatively minor tweaks to deal with
-> >> the extra bit and resulting slightly different bit layout. Might
-> >> actually be possible to merge back into the rc5 decoder itself,
-> >> haven't really looked into that yet (should be entirely doable if
-> >> there's an easy way to figure out early on if we need to grab 14
-> >> bits).
-> >
-> > There is no way until you see the 14th bit.
-> 
-> Hm. Was afraid of that. I gave it a shot to see if I could make that
-> work, pretty shaky results. About 2/3 of the keys get decoded as
-> 15-bit streamzap, the other 1/3 get decoded as 14-bit RC5, and don't
-> match anything in the keytable (and often duplicate one another). So
-> it looks like at least for the time being, a separate parallel decoder
-> is the way to go. I'm thinking that I like the approach of only
-> explicitly loading it from the streamzap driver though.
+This patch set introduces support for the LPC32xx touchscreen
+controller driver. The LPC32xx touchscreen controller supports
+automated event detection and conversion for resistive touchscreens.
 
-Just one minor nitpick.
-You could 'use' the original RC5 decoder, but add a knob to it to make
-it accept 15 bits instead of 14.
-However, this will require some interface changes.
+The patch can be pulled from:
+	git://git.lpclinux.com/linux-2.6-lpc ts-lpc32xx_v2
 
-
-Best regards,
-Maxim Levitsky
+v2 includes updates from the initial review of the TSC driver..
+	All local TSC_* macros have been prefixed with LCP32XX_
+	Added lpc32xx_ prefix to stop_tsc() and start_tsc()
+	Moved clk_enable and clk_disable into lpc32xx_start_tsc()
+		and lpc32xx_stop_tsc() functions
+	Added ->open and ->close methods using the start and
+		stop tsc functions
+	Removed use of devm_* functions. Modified error unwinding
+		and _remove() based on this change.
+	Fixed an error return condition from input_register_device()
+	Fixed use of input_free_device
+	Added a use count check for suspend and resume so device
+		state isn't altered if it isn't open
 

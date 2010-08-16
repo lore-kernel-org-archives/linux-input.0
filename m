@@ -1,310 +1,350 @@
 From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: [PATCH 1/2] serio: support multiple child devices per single parent
-Date: Mon, 16 Aug 2010 15:26:36 +0400
-Message-ID: <1281957997-12959-2-git-send-email-dbaryshkov@gmail.com>
+Subject: [PATCH 2/2] serio: add support for PS2Mult multiplexer protocol
+Date: Mon, 16 Aug 2010 15:26:37 +0400
+Message-ID: <1281957997-12959-3-git-send-email-dbaryshkov@gmail.com>
 References: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ww0-f44.google.com ([74.125.82.44]:48050 "EHLO
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:59401 "EHLO
 	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753621Ab0HPL0x (ORCPT
+	with ESMTP id S1753888Ab0HPL0y (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Aug 2010 07:26:53 -0400
-Received: by wwj40 with SMTP id 40so6383487wwj.1
-        for <linux-input@vger.kernel.org>; Mon, 16 Aug 2010 04:26:51 -0700 (PDT)
+	Mon, 16 Aug 2010 07:26:54 -0400
+Received: by wwj40 with SMTP id 40so6383511wwj.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Aug 2010 04:26:53 -0700 (PDT)
 In-Reply-To: <1281957997-12959-1-git-send-email-dbaryshkov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Some (rare) serio devices need to have multiple serio children. One of
-the examples is PS/2 multiplexer present on several TQC STKxxx boards,
-which connect PS/2 keyboard and mouse to single tty port.
+PS2Mult is a simple serial protocol used for multiplexing several PS/2 streams
+into one serial data stream. It's used e.g. on TQM85xx serie of boards.
 
 Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 ---
- drivers/input/mouse/psmouse-base.c |    2 +-
- drivers/input/mouse/synaptics.c    |   11 +++-
- drivers/input/serio/serio.c        |  114 +++++++++++++++++++-----------------
- include/linux/serio.h              |    5 +-
- 4 files changed, 73 insertions(+), 59 deletions(-)
+ drivers/input/serio/Kconfig   |    8 ++
+ drivers/input/serio/Makefile  |    1 +
+ drivers/input/serio/ps2mult.c |  265 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/serio.h         |    2 +
+ 4 files changed, 276 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/serio/ps2mult.c
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 979c502..0eeed6c 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1582,7 +1582,7 @@ static ssize_t psmouse_attr_set_protocol(struct psmouse *psmouse, void *data, co
- 	if (!new_dev)
- 		return -ENOMEM;
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 3bfe8fa..63f4658 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -226,4 +226,12 @@ config SERIO_AMS_DELTA
+ 	  To compile this driver as a module, choose M here;
+ 	  the module will be called ams_delta_serio.
  
--	while (serio->child) {
-+	while (!list_empty(&serio->children)) {
- 		if (++retry > 3) {
- 			printk(KERN_WARNING
- 				"psmouse: failed to destroy child port, "
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 705589d..9295ad0 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -315,7 +315,9 @@ static void synaptics_pass_pt_packet(struct serio *ptport, unsigned char *packet
- 
- static void synaptics_pt_activate(struct psmouse *psmouse)
- {
--	struct serio *ptport = psmouse->ps2dev.serio->child;
-+	struct serio *ptport =
-+		list_first_entry(&psmouse->ps2dev.serio->children,
-+				struct serio, child_list);
- 	struct psmouse *child = serio_get_drvdata(ptport);
- 	struct synaptics_data *priv = psmouse->private;
- 
-@@ -577,8 +579,11 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
- 			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
- 
- 		if (SYN_CAP_PASS_THROUGH(priv->capabilities) && synaptics_is_pt_packet(psmouse->packet)) {
--			if (psmouse->ps2dev.serio->child)
--				synaptics_pass_pt_packet(psmouse->ps2dev.serio->child, psmouse->packet);
-+			if (!list_empty(&psmouse->ps2dev.serio->children))
-+				synaptics_pass_pt_packet(
-+						list_first_entry(&psmouse->ps2dev.serio->children,
-+							struct serio, child_list),
-+						psmouse->packet);
- 		} else
- 			synaptics_process_packet(psmouse);
- 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index c3b626e..55c46e8 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -312,12 +312,9 @@ static void serio_handle_event(void)
-  * Remove all events that have been submitted for a given
-  * object, be it serio port or driver.
-  */
--static void serio_remove_pending_events(void *object)
-+static void __serio_remove_pending_events(void *object)
- {
- 	struct serio_event *event, *next;
--	unsigned long flags;
--
--	spin_lock_irqsave(&serio_event_lock, flags);
- 
- 	list_for_each_entry_safe(event, next, &serio_event_list, node) {
- 		if (event->object == object) {
-@@ -325,38 +322,41 @@ static void serio_remove_pending_events(void *object)
- 			serio_free_event(event);
- 		}
- 	}
-+}
++config SERIO_PS2MULT
++	tristate "TQC PS/2 multiplexer"
++	help
++	  Say Y here if you have the PS/2 line multiplexer like present on TQC boads
 +
-+static void serio_remove_pending_events(void *object)
++	  To compile this driver as a module, choose M here: the
++	  module will be called ps2mult.
++
+ endif
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index 84c80bf..26714c5 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -24,3 +24,4 @@ obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
+ obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
+ obj-$(CONFIG_SERIO_XILINX_XPS_PS2)	+= xilinx_ps2.o
+ obj-$(CONFIG_SERIO_ALTERA_PS2)	+= altera_ps2.o
++obj-$(CONFIG_SERIO_PS2MULT)	+= ps2mult.o
+diff --git a/drivers/input/serio/ps2mult.c b/drivers/input/serio/ps2mult.c
+new file mode 100644
+index 0000000..e9b7951
+--- /dev/null
++++ b/drivers/input/serio/ps2mult.c
+@@ -0,0 +1,265 @@
++/*
++ * TQC PS/2 Multiplexer driver
++ *
++ * Copyright (C) 2010 Dmitry Eremin-Solenikov
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/serio.h>
++
++MODULE_AUTHOR("Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>");
++MODULE_DESCRIPTION("TQC PS/2 Multiplexer driver");
++MODULE_LICENSE("GPL");
++
++#define PS2MULT_KB_SELECTOR		0xA0
++#define PS2MULT_MS_SELECTOR		0xA1
++#define PS2MULT_ESCAPE			0x7D
++#define PS2MULT_BSYNC			0x7E
++#define PS2MULT_SESSION_START		0x55
++#define PS2MULT_SESSION_END		0x56
++
++struct ps2mult_port {
++	struct serio *serio;
++	unsigned char sel;
++	unsigned char port;
++};
++
++#define PS2MULT_NUM_PORTS	2
++
++struct ps2mult {
++	struct serio *serio;
++	struct ps2mult_port ports[PS2MULT_NUM_PORTS];
++
++	spinlock_t lock;
++	unsigned char cur_out_port;
++	unsigned char cur_in_port;
++	unsigned escape:1;
++};
++
++static unsigned char ps2mult_selectors[PS2MULT_NUM_PORTS] = {
++	PS2MULT_KB_SELECTOR, PS2MULT_MS_SELECTOR,
++};
++
++static struct serio_device_id ps2mult_serio_ids[] = {
++	{
++		.type	= SERIO_RS232,
++		.proto	= SERIO_PS2MULT,
++		.id	= SERIO_ANY,
++		.extra	= SERIO_ANY,
++	},
++	{ 0 }
++};
++
++MODULE_DEVICE_TABLE(serio, ps2mult_serio_ids);
++
++static int ps2mult_serio_write(struct serio *serio, unsigned char data)
 +{
++	struct ps2mult *psm = serio_get_drvdata(serio->parent);
++	struct ps2mult_port *psmp = serio->port_data;
++	bool need_escape;
 +	unsigned long flags;
 +
-+	spin_lock_irqsave(&serio_event_lock, flags);
-+
-+	__serio_remove_pending_events(object);
- 
- 	spin_unlock_irqrestore(&serio_event_lock, flags);
- }
- 
- /*
-  * Destroy child serio port (if any) that has not been fully registered yet.
-- *
-- * Note that we rely on the fact that port can have only one child and therefore
-- * only one child registration request can be pending. Additionally, children
-- * are registered by driver's connect() handler so there can't be a grandchild
-- * pending registration together with a child.
-  */
--static struct serio *serio_get_pending_child(struct serio *parent)
-+static void serio_drop_pending_children(struct serio *parent)
- {
--	struct serio_event *event;
--	struct serio *serio, *child = NULL;
-+	struct serio_event *event, *temp;
-+	struct serio *serio;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&serio_event_lock, flags);
- 
--	list_for_each_entry(event, &serio_event_list, node) {
-+	list_for_each_entry_safe(event, temp, &serio_event_list, node) {
- 		if (event->type == SERIO_REGISTER_PORT) {
- 			serio = event->object;
- 			if (serio->parent == parent) {
--				child = serio;
--				break;
-+				__serio_remove_pending_events(serio);
-+				put_device(&serio->dev);
- 			}
- 		}
- 	}
- 
- 	spin_unlock_irqrestore(&serio_event_lock, flags);
--	return child;
- }
- 
- static int serio_thread(void *nothing)
-@@ -516,6 +516,9 @@ static void serio_init_port(struct serio *serio)
- 	__module_get(THIS_MODULE);
- 
- 	INIT_LIST_HEAD(&serio->node);
-+	INIT_LIST_HEAD(&serio->children);
-+	INIT_LIST_HEAD(&serio->child_list);
-+	INIT_LIST_HEAD(&serio->internal);
- 	spin_lock_init(&serio->lock);
- 	mutex_init(&serio->drv_mutex);
- 	device_initialize(&serio->dev);
-@@ -542,7 +545,7 @@ static void serio_add_port(struct serio *serio)
- 
- 	if (serio->parent) {
- 		serio_pause_rx(serio->parent);
--		serio->parent->child = serio;
-+		list_add_tail(&serio->child_list, &serio->parent->children);
- 		serio_continue_rx(serio->parent);
- 	}
- 
-@@ -564,20 +567,14 @@ static void serio_add_port(struct serio *serio)
-  */
- static void serio_destroy_port(struct serio *serio)
- {
--	struct serio *child;
--
--	child = serio_get_pending_child(serio);
--	if (child) {
--		serio_remove_pending_events(child);
--		put_device(&child->dev);
--	}
-+	serio_drop_pending_children(serio);
- 
- 	if (serio->stop)
- 		serio->stop(serio);
- 
- 	if (serio->parent) {
- 		serio_pause_rx(serio->parent);
--		serio->parent->child = NULL;
-+		list_del(&serio->child_list);
- 		serio_continue_rx(serio->parent);
- 		serio->parent = NULL;
- 	}
-@@ -613,13 +610,19 @@ static int serio_reconnect_port(struct serio *serio)
-  */
- static void serio_reconnect_chain(struct serio *serio)
- {
--	do {
--		if (serio_reconnect_port(serio)) {
--			/* Ok, old children are now gone, we are done */
--			break;
--		}
--		serio = serio->child;
--	} while (serio);
-+	struct serio *child;
-+	LIST_HEAD(todo);
-+
-+	list_add_tail(&serio->internal, &todo);
-+
-+	while (!list_empty(&todo)) {
-+		serio = list_first_entry(&todo, struct serio, internal);
-+		list_del_init(&serio->internal);
-+
-+		if (!serio_reconnect_port(serio))
-+			list_for_each_entry(child, &serio->children, child_list)
-+				list_add_tail(&child->internal, &todo);
++	spin_lock_irqsave(&psm->lock, flags);
++	if (psm->cur_out_port != psmp->port) {
++		psm->serio->write(psm->serio, psmp->sel);
++		psm->cur_out_port = psmp->port;
++		dev_dbg(&serio->dev, "switched to sel %02x\n", psmp->sel);
 +	}
- }
- 
- /*
-@@ -628,29 +631,31 @@ static void serio_reconnect_chain(struct serio *serio)
-  */
- static void serio_disconnect_port(struct serio *serio)
- {
--	struct serio *s, *parent;
-+	struct serio *s, *child;
-+	LIST_HEAD(todo);
- 
--	if (serio->child) {
--		/*
--		 * Children ports should be disconnected and destroyed
--		 * first, staring with the leaf one, since we don't want
--		 * to do recursion
--		 */
--		for (s = serio; s->child; s = s->child)
--			/* empty */;
-+	list_add_tail(&serio->internal, &todo);
- 
--		do {
--			parent = s->parent;
-+	while (!list_empty(&todo)) {
-+		s = list_first_entry(&todo, struct serio, internal);
 +
-+		if (!list_empty(&s->children)) {
-+			list_for_each_entry(child, &s->children, child_list)
-+				list_add(&child->internal, &todo);
++	need_escape = data == PS2MULT_ESCAPE
++		   || data == PS2MULT_BSYNC
++		   || data == PS2MULT_SESSION_START
++		   || data == PS2MULT_SESSION_END
++		   || memchr(ps2mult_selectors, data, PS2MULT_NUM_PORTS);
 +
-+			/*
-+			 * We will return to this item later, when it will have
-+			 * no children.
-+			 */
-+		} else {
-+			list_del_init(&s->internal);
- 
- 			device_release_driver(&s->dev);
--			serio_destroy_port(s);
--		} while ((s = parent) != serio);
--	}
- 
--	/*
--	 * Ok, no children left, now disconnect this port
--	 */
--	device_release_driver(&serio->dev);
-+			if (s != serio)
-+				serio_destroy_port(s);
++	dev_dbg(&serio->dev, "write: %s%02x\n",
++			need_escape ? "ESC " : "", data);
++
++	if (need_escape)
++		psm->serio->write(psm->serio, PS2MULT_ESCAPE);
++	psm->serio->write(psm->serio, data);
++
++	spin_unlock_irqrestore(&psm->lock, flags);
++
++	return 0;
++}
++
++static int ps2mult_create_port(struct ps2mult *psm, int i)
++{
++	struct serio *serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
++	if (!serio)
++		return -ENOMEM;
++
++	strlcpy(serio->name, "TQC PS/2 Multiplexer", sizeof(serio->name));
++	snprintf(serio->phys, sizeof(serio->phys),
++			"%s/port%d", psm->serio->phys, i);
++	serio->id.type = SERIO_PS2MULT_T;
++	serio->write = ps2mult_serio_write;
++	serio->parent = psm->serio;
++
++	serio->port_data = &psm->ports[i];
++
++	psm->ports[i].serio = serio;
++	psm->ports[i].port = i;
++	psm->ports[i].sel = ps2mult_selectors[i];
++
++	serio_register_port(serio);
++	dev_info(&serio->dev, "%s port at %s\n", serio->name, psm->serio->phys);
++
++	return 0;
++}
++
++static int ps2mult_reconnect(struct serio *serio)
++{
++	struct ps2mult *psm = serio_get_drvdata(serio);
++
++	serio->write(serio, PS2MULT_SESSION_END);
++	serio->write(serio, PS2MULT_SESSION_START);
++	psm->cur_out_port = 0;
++	serio->write(serio, psm->ports[psm->cur_out_port].sel);
++
++	return 0;
++}
++
++static void ps2mult_disconnect(struct serio *serio)
++{
++	struct ps2mult *psm = serio_get_drvdata(serio);
++	int i;
++
++	serio->write(serio, PS2MULT_SESSION_END);
++
++	for (i = 0; i < PS2MULT_NUM_PORTS; i++)
++		psm->ports[i].serio = NULL;
++
++	serio_close(serio);
++	serio_set_drvdata(serio, NULL);
++
++	kfree(psm);
++}
++
++static int ps2mult_connect(struct serio *serio, struct serio_driver *drv)
++{
++	struct ps2mult *psm;
++	int i;
++	int rc;
++
++	if (!serio->write)
++		return -EINVAL;
++
++	psm = kzalloc(sizeof(*psm), GFP_KERNEL);
++	if (!psm)
++		return -ENOMEM;
++
++	spin_lock_init(&psm->lock);
++	psm->serio = serio;
++
++	serio_set_drvdata(serio, psm);
++	serio_open(serio, drv);
++
++	for (i = 0; i <  PS2MULT_NUM_PORTS; i++) {
++		rc = ps2mult_create_port(psm, i);
++		if (rc)
++			goto err_out;
++	}
++
++	rc = ps2mult_reconnect(serio);
++	if (rc)
++		goto err_out;
++
++	return 0;
++
++err_out:
++	ps2mult_disconnect(serio);
++
++	return rc;
++}
++
++static void ps2mult_selector(struct ps2mult *psm, unsigned char data)
++{
++	int i;
++
++	dev_dbg(&psm->serio->dev, "Received selector %02x\n", data);
++
++	spin_lock(&psm->lock);
++
++	for (i = 0; i < PS2MULT_NUM_PORTS; i++)
++		if (psm->ports[i].sel == data) {
++			psm->cur_in_port = i;
++			break;
 +		}
++
++	spin_unlock(&psm->lock);
++}
++
++static irqreturn_t ps2mult_interrupt(struct serio *serio, unsigned char data,
++		unsigned int flags)
++{
++	struct ps2mult *psm = serio_get_drvdata(serio);
++
++	dev_dbg(&serio->dev, "Received %02x flags %02x\n", data, flags);
++	if (psm->escape) {
++		serio_interrupt(psm->ports[psm->cur_in_port].serio,
++				data, flags);
++		psm->escape = 0;
++	} else
++	switch (data) {
++	case PS2MULT_ESCAPE:
++		dev_dbg(&serio->dev, "ESCAPE\n");
++		psm->escape = 1;
++		break;
++	case PS2MULT_BSYNC:
++		dev_dbg(&serio->dev, "BSYNC\n");
++		psm->cur_in_port = psm->cur_out_port;
++		break;
++	case PS2MULT_SESSION_START:
++		dev_dbg(&serio->dev, "SS\n");
++		break;
++	case PS2MULT_SESSION_END:
++		dev_dbg(&serio->dev, "SE\n");
++		break;
++	case PS2MULT_KB_SELECTOR:
++		dev_dbg(&serio->dev, "KB\n");
++		ps2mult_selector(psm, data);
++		break;
++	case PS2MULT_MS_SELECTOR:
++		dev_dbg(&serio->dev, "MS\n");
++		ps2mult_selector(psm, data);
++		break;
++	default:
++		serio_interrupt(psm->ports[psm->cur_in_port].serio,
++				data, flags);
 +	}
- }
- 
- void serio_rescan(struct serio *serio)
-@@ -689,14 +694,15 @@ void serio_unregister_port(struct serio *serio)
- EXPORT_SYMBOL(serio_unregister_port);
- 
- /*
-- * Safely unregisters child port if one is present.
-+ * Safely unregisters child ports if any is present.
-  */
- void serio_unregister_child_port(struct serio *serio)
- {
-+	struct serio *s, *temp;
- 	mutex_lock(&serio_mutex);
--	if (serio->child) {
--		serio_disconnect_port(serio->child);
--		serio_destroy_port(serio->child);
-+	list_for_each_entry_safe(s, temp, &serio->children, child_list) {
-+		serio_disconnect_port(s);
-+		serio_destroy_port(s);
- 	}
- 	mutex_unlock(&serio_mutex);
- }
++	return IRQ_HANDLED;
++}
++
++static struct serio_driver ps2mult_drv = {
++	.driver		= {
++		.name	= "ps2mult",
++	},
++	.description	= "TQC PS/2 Multiplexer driver",
++	.id_table	= ps2mult_serio_ids,
++	.interrupt	= ps2mult_interrupt,
++	.connect	= ps2mult_connect,
++	.disconnect	= ps2mult_disconnect,
++	.reconnect	= ps2mult_reconnect,
++};
++
++static int __init ps2mult_init(void)
++{
++	return serio_register_driver(&ps2mult_drv);
++}
++
++static void __exit ps2mult_exit(void)
++{
++	serio_unregister_driver(&ps2mult_drv);
++}
++
++module_init(ps2mult_init);
++module_exit(ps2mult_exit);
 diff --git a/include/linux/serio.h b/include/linux/serio.h
-index b555256..861a72a 100644
+index 861a72a..7257e6c 100644
 --- a/include/linux/serio.h
 +++ b/include/linux/serio.h
-@@ -41,7 +41,9 @@ struct serio {
- 	int (*start)(struct serio *);
- 	void (*stop)(struct serio *);
+@@ -156,6 +156,7 @@ static inline void serio_continue_rx(struct serio *serio)
+ #define SERIO_HIL_MLC	0x03
+ #define SERIO_PS_PSTHRU	0x05
+ #define SERIO_8042_XL	0x06
++#define SERIO_PS2MULT_T	0x07
  
--	struct serio *parent, *child;
-+	struct serio *parent;
-+	struct list_head child_list;
-+	struct list_head children;
- 	unsigned int depth;		/* level of nesting in serio hierarchy */
+ /*
+  * Serio protocols
+@@ -200,5 +201,6 @@ static inline void serio_continue_rx(struct serio *serio)
+ #define SERIO_W8001	0x39
+ #define SERIO_DYNAPRO	0x3a
+ #define SERIO_HAMPSHIRE	0x3b
++#define SERIO_PS2MULT	0x3c
  
- 	struct serio_driver *drv;	/* accessed from interrupt, must be protected by serio->lock and serio->sem */
-@@ -50,6 +52,7 @@ struct serio {
- 	struct device dev;
- 
- 	struct list_head node;
-+	struct list_head internal;	/* Used internally to avoid recursion */
- };
- #define to_serio_port(d)	container_of(d, struct serio, dev)
- 
+ #endif
 -- 
 1.7.1
 

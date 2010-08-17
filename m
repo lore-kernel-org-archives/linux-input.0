@@ -1,80 +1,64 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in  JooJoo tablet
-Date: Tue, 17 Aug 2010 13:33:56 +0200
-Message-ID: <D329710B-AA85-411D-834B-FE2626AD8727@enac.fr>
-References: <4C695985.5080403@bitmath.org>  <BFCA5963-D589-434B-B07B-6899A794F28F@enac.fr> <1282042502.13264.21.camel@mini>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
+From: Chase Douglas <chase.douglas@canonical.com>
+Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in
+ JooJoo tablet
+Date: Tue, 17 Aug 2010 07:44:13 -0400
+Message-ID: <1282045453.13264.40.camel@mini>
+References: <4C695985.5080403@bitmath.org>
+	 <BFCA5963-D589-434B-B07B-6899A794F28F@enac.fr>
+	 <1282042502.13264.21.camel@mini>
+	 <D329710B-AA85-411D-834B-FE2626AD8727@enac.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.intuilab.com ([93.93.42.171]:54672 "EHLO
-	zimbra.intuilab.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750945Ab0HQLmV convert rfc822-to-8bit (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:40231 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751647Ab0HQLoT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Aug 2010 07:42:21 -0400
-In-Reply-To: <1282042502.13264.21.camel@mini>
+	Tue, 17 Aug 2010 07:44:19 -0400
+In-Reply-To: <D329710B-AA85-411D-834B-FE2626AD8727@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chase Douglas <chase.douglas@canonical.com>
+To: =?ISO-8859-1?Q?St=E9phane?= Chatty <chatty@enac.fr>
 Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input <linux-input@vger.kernel.org>
 
+On Tue, 2010-08-17 at 13:33 +0200, St=C3=A9phane Chatty wrote:
+> Yes, the debate is what to do when the 'actual oldest' finger is =20
+> released: should the 'second oldest' take its place or should this be=
+ =20
+> a release or should somthing else occur.
+>=20
+> Some arguments in favour of the first option:
+> - My experience is that 'accidental' touches are transient. =20
+> Therefore, the conjunction of having an accidental touch and a =20
+> release is not very frequent.
+>   - At the opposite, on very large screens, it may sometimes be =20
+> comfortable to "replace one finger with another", thus 'moving' the =20
+> dragged object from one hand to the other.
+>=20
+> More or less, the debate is about statistics and user experience =20
+> design...
 
-Le 17 ao=FBt 10 =E0 12:55, Chase Douglas a =E9crit :
+Thanks for the explanation! Since this comes down to what the user
+intends with multiple touches on the screen, I'll trust your experience
+over mine :).
 
-> On Tue, 2010-08-17 at 09:49 +0200, St=E9phane Chatty wrote:
->> Le 16 ao=FBt 10 =E0 17:30, Henrik Rydberg a =E9crit :
->>
->>   - the single touch emulation is highly device dependent. I was (an=
-d
->> still am) pretty proud of my choice of tracking the 'oldest' finger
->> on the panel: this turns multitouch panels into single touch panels
->> that are impervious to parasite touches. But the drawback is that
->> currently there is no generic method for this tracking: I used
->> whatever device-specific information I could use (order of fingers i=
-n
->> a message, tracking id, etc).
->
-> St=E9phan,
->
-> Can you explain in more detail why you chose an 'oldest' finger =20
-> approach
-> for single touch emulation? I wonder if it's the best mechanism. Take
-> the following example:
->
-> 1. User touches with one finger and intends to drag an object on =20
-> screen
-> 2. User touches another finger down, either accidentally or
-> intentionally, while dragging the first finger
-> 3. User releases first finger to end the drag
-> 4. Object suddenly is dragged under the second finger
->
-> As I'm implementing support for the Magic Trackpad right now, I'm =20
-> having
-> to figure out the best way to do single-touch emulation. What I'm
-> currently doing is converting the first finger touched for single-=20
-> touch
-> emulation, and when that finger is released no single-touch emulation
-> can occur until all fingers have left the screen again.
+However, while your 'eldest' method may be good for touchscreens, I
+think it's a moot point for touchpads since they are relative devices
+(even if they are really absolute in the driver). The user won't be abl=
+e
+to continuously drag across the screen by using multiple fingers becaus=
+e
+each switch of coordinates from the eldest to the next eldest will
+generate a relative motion that will just shift the object back where w=
+e
+started a drag.
 
-Yes, the debate is what to do when the 'actual oldest' finger is =20
-released: should the 'second oldest' take its place or should this be =20
-a release or should somthing else occur.
+I'll probably leave my current implementation for the trackpad as is,
+since it's easier than the 'eldest' method and provides just as much
+functionality.
 
-Some arguments in favour of the first option:
-- My experience is that 'accidental' touches are transient. =20
-Therefore, the conjunction of having an accidental touch and a =20
-release is not very frequent.
-  - At the opposite, on very large screens, it may sometimes be =20
-comfortable to "replace one finger with another", thus 'moving' the =20
-dragged object from one hand to the other.
-
-More or less, the debate is about statistics and user experience =20
-design...
-
-Cheers,
-
-St.
+-- Chase
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

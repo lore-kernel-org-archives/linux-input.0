@@ -1,89 +1,51 @@
-From: "Murphy, Dan" <dmurphy@ti.com>
-Subject: RE: Dual touchscreen implementation
-Date: Tue, 17 Aug 2010 09:06:00 -0500
-Message-ID: <C9D59C82B94F474B872F2092A87F261412470D10F6@dlee07.ent.ti.com>
-References: <27F9C60D11D683428E133F85D2BB4A53043F6195B1@dlee03.ent.ti.com>
- <20100813075047.GA7700@core.coreip.homeip.net>
- <27F9C60D11D683428E133F85D2BB4A53043F6CC264@dlee03.ent.ti.com>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Tue, 17 Aug 2010 13:14:59 -0400
+Message-ID: <4C6AC393.8000109@codeaurora.org>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <20100813024912.GA2661@core.coreip.homeip.net> <4C65BF99.9030601@codeaurora.org> <201008131754.49488.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from comal.ext.ti.com ([198.47.26.152]:43765 "EHLO comal.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756641Ab0HQOGD convert rfc822-to-8bit (ORCPT
+Received: from wolverine01.qualcomm.com ([199.106.114.254]:43793 "EHLO
+	wolverine01.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750903Ab0HQRPB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Aug 2010 10:06:03 -0400
-In-Reply-To: <27F9C60D11D683428E133F85D2BB4A53043F6CC264@dlee03.ent.ti.com>
-Content-Language: en-US
+	Tue, 17 Aug 2010 13:15:01 -0400
+In-Reply-To: <201008131754.49488.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Arce, Abraham" <x0066660@ti.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
 
-Abraham
-	My thoughts would be similar to Dmitry's.  We should let the user space figure it out.  Then the application itself can combine and render the touches as a contiguous touch screen or as an independent touch.
+On 8/13/2010 8:54 PM, Dmitry Torokhov wrote:
+> Also it is not a simple coincidence that to enable device you send 0xf4
+> to it (which is PSMOUSE_CMD_ENABLE - standard PS/2 command). This tends
+> to suggest that interface is not actually hidden and that the device
+> (touchpad) could be replaced with other kinds of devices.
+>
+> Anyway, please try the driver (you  may need to hardcode the IRQ trigger
+> type for now) and see if psmouse is able to talk to the touchpad. If it
+> is then serio is the proper solution.
 
-But we would probably need a way for the kernel driver to identify which touch controller that the information came from.
+Dmitri,
+I fixed one line in the wpce775x_serio driver which looked like a typo - 
+hope I got that right:
 
-For multi touch we may be able to use ABS_MT_TRACKING_ID for passing up the controller ID but there is not really a good code for the standard ABS axes.  Maybe we can make one called ABS_TRACKING_ID to keep with the theme.
+	for (i = 0; i < count; i++)
+-		serio_interrupt(ps2if->serio, ps2if->data_in[1], 0);
++		serio_interrupt(ps2if->serio, ps2if->data_in[i], 0);
+	}
 
-This way the user space and use that to know where it came from.
-
-Or Dmitry if you have any patches or thoughts let me know.
-
-Dan
-
------Original Message-----
-From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of Arce, Abraham
-Sent: Friday, August 13, 2010 3:40 AM
-To: Dmitry Torokhov
-Cc: linux-input@vger.kernel.org
-Subject: RE: Dual touchscreen implementation
-
-Hi Dmitry,
-
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> 
-> > I am working in a board with dual display/touchscreen. I have searched
-> within drivers/input/touchscreen for some examples on how to implement the
-> functionality to configure driver and behave as a single touchscreen if 2
-> sensors are present, no specific example found
-> >
-> > My idea is to create an attribute "virtualized" to enable/disable
-> virtualization in the second touchscreen
-> >
-> > + static DEVICE_ATTR(virtualized, S_IRUGO | S_IWUSR,
-> > + 		   syn_show_attr_virtualized, syn_store_attr_virtualized);
-> >
-> >
-> > In the function which reports the values to input subsystem we can then
-> decide to make the second one as an extension of the first touchscreen if
-> >
-> > * virtualized is set to 1
-> > * and touchscreen sensor is the second one
-> >
-> >
-> >  + if (ts->virtualized && dev_name(&sensor->dev == '2')
-> >  +	data->x = ts->touch_caps.max_x + d->x;
-> >  [..]
-> >  + input_report_abs(idev, ABS_x, data->x);
-> >
-> >
-> > I'd appreciate any comments on this approach...
-> >
-> 
-> Does the kernel have to do that? I'd say it is userspace task to
-> [re]interpret events.
-
-That was a first thinking however your point makes more sense. I'll explore and get more information on how Ubuntu or Android may implement it and get back with final resolution.
-
-Thanks a lot!
-
-Best Regards
-Abraham
+I tried running with psmouse but it didn't work. The touchpad was never 
+detected as a synaptics touchpad. I looked at the dataflow from the 
+device and it wasn't responding to the commands that synaptics_detect() 
+was sending it. It eventually showed up as an unknown logitech mouse. I 
+can see data being passed through the serio driver but the logitech 
+driver can't process it.
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Neil
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

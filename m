@@ -1,16 +1,16 @@
 From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
 Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in  JooJoo tablet
-Date: Tue, 17 Aug 2010 13:34:00 +0200
-Message-ID: <FDB1F269-49AF-4985-BD0F-869D23833D2B@enac.fr>
+Date: Tue, 17 Aug 2010 13:33:56 +0200
+Message-ID: <D329710B-AA85-411D-834B-FE2626AD8727@enac.fr>
 References: <4C695985.5080403@bitmath.org>  <BFCA5963-D589-434B-B07B-6899A794F28F@enac.fr> <1282042502.13264.21.camel@mini>
 Mime-Version: 1.0 (Apple Message framework v752.3)
 Content-Type: text/plain; charset=ISO-8859-1;
 	delsp=yes	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.intuilab.com ([93.93.42.171]:54677 "EHLO
+Received: from smtp.intuilab.com ([93.93.42.171]:54672 "EHLO
 	zimbra.intuilab.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751144Ab0HQLmV convert rfc822-to-8bit (ORCPT
+	with ESMTP id S1750945Ab0HQLmV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 17 Aug 2010 07:42:21 -0400
 In-Reply-To: <1282042502.13264.21.camel@mini>

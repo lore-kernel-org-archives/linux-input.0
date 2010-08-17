@@ -1,63 +1,52 @@
-From: Jarod Wilson <jarod@wilsonet.com>
-Subject: Re: Remote that breaks current system
-Date: Mon, 16 Aug 2010 23:40:12 -0400
-Message-ID: <AANLkTikwHLutYQVUhzY1GWrWM0gt46uR-TeJAdUYr2XC@mail.gmail.com>
-References: <AANLkTimz2eLSEy+U1NdMVsQ=af7v67omPntwMQs+8jno@mail.gmail.com>
-	<BUhP+pZ3jFB@christoph>
-	<AANLkTik7pPs6Bs6Pgq_MG00ONcZWEKFnfUqrTZtgwQRa@mail.gmail.com>
-	<1281991312.3661.2.camel@maxim-laptop>
-	<AANLkTimJtCWv-QyKy8HQXWm8BTv8SerO9Qo_0EDY1+LP@mail.gmail.com>
-	<4C6A026B.3030808@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Alan Ott <alan@signal11.us>
+Subject: [PATCH 1/1] usbhid: Set Report ID properly for Output reports on the Control endpoint.
+Date: Tue, 17 Aug 2010 00:44:04 -0400
+Message-ID: <1282020244-25786-1-git-send-email-alan@signal11.us>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qw0-f46.google.com ([209.85.216.46]:50815 "EHLO
-	mail-qw0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755392Ab0HQDkO (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Aug 2010 23:40:14 -0400
-In-Reply-To: <4C6A026B.3030808@redhat.com>
+Received: from core.signal11.us ([64.251.29.136]:56302 "EHLO core.signal11.us"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751806Ab0HQEob (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Aug 2010 00:44:31 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by core.signal11.us (Postfix) with SMTP id E006E1CCAA46
+	for <linux-input@vger.kernel.org>; Tue, 17 Aug 2010 00:44:30 -0400 (EDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: Maxim Levitsky <maximlevitsky@gmail.com>, Christoph Bartelmus <lirc@bartelmus.de>, awalls@md.metrocast.net, jarod@redhat.com, jonsmirl@gmail.com, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@suse.de>, Marcel Holtmann <marcel@holtmann.org>, linux
+Cc: Alan Ott <alan@signal11.us>
 
-On Mon, Aug 16, 2010 at 11:30 PM, Mauro Carvalho Chehab
-<mchehab@redhat.com> wrote:
-> Em 16-08-2010 21:14, Jarod Wilson escreveu:
->
->>> Just one minor nitpick.
->>> You could 'use' the original RC5 decoder, but add a knob to it to make
->>> it accept 15 bits instead of 14.
->>> However, this will require some interface changes.
->>
->> Well, I think that still falls down if someone, for some reason, wants
->> to use both an old RC5 remote and the Streamzap remote at the same
->> time. I think a parallel decoder is probably the best situation for
->> the moment, as both 14-bit RC5 and Streamzap RC5 can be decoded
->> simultaneously.
->
-> One option could be to change rc5 decoder to work with 3 different modes,
-> controlled by a sysfs node:
-> 1) just 14 bits code;
-> 2) just 15 bits code;
-> 3) both 14 and 15 bits code.
->
-> For (3), it will need a timeout logic for a short period (like 2T), for the
-> 15th bit. If nothing happens, it will assume it is 14 bits, producing a code
-> and resetting the finite-state machine.
->
-> By default, it would be working on 14-bits mode for normal RC decoders, and
-> on 15-bits mode for Streamzap.
->
-> Yet, IMHO, the better is to commit what you have currently. Just my 2 cents.
+When I made commit 29129a98e6fc89, I didn't account for *buf not being
+the report ID anymore, as buf is incremented.
 
-Yeah, I don't doubt that we *could* come up with some way to make them
-coexist in the same decoder, but I think its probably not worth the
-effort or added complexity over simply having a separate parallel
-decoder (which is only loaded by default if the receiver bundled with
-the funky remote is plugged in).
+This applies to 2.6.35 and newer.
 
+Signed-off-by: Alan Ott <alan@signal11.us>
+---
+ drivers/hid/usbhid/hid-core.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index b729c02..ffd6899 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -828,6 +828,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+ 		}
+ 	} else {
+ 		int skipped_report_id = 0;
++		int report_id = buf[0];
+ 		if (buf[0] == 0x0) {
+ 			/* Don't send the Report ID */
+ 			buf++;
+@@ -837,7 +838,7 @@ static int usbhid_output_raw_report(struct hid_device *hid, __u8 *buf, size_t co
+ 		ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 			HID_REQ_SET_REPORT,
+ 			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+-			((report_type + 1) << 8) | *buf,
++			((report_type + 1) << 8) | report_id,
+ 			interface->desc.bInterfaceNumber, buf, count,
+ 			USB_CTRL_SET_TIMEOUT);
+ 		/* count also the report id, if this was a numbered report. */
 -- 
-Jarod Wilson
-jarod@wilsonet.com
+1.7.0.4
+
+

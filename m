@@ -1,56 +1,89 @@
-From: Chase Douglas <chase.douglas@canonical.com>
-Subject: Re: [PATCH] Fix for the multitouch panel of the Asus T91MT
-Date: Tue, 17 Aug 2010 21:37:27 -0400
-Message-ID: <1282095447.20340.26.camel@mini>
-References: <20100716094611.C9A089520B@smtp.lii-enac.fr>
+From: Mathieu Virbel <tito-aNgzRxDdy4Qdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in
+ JooJoo tablet
+Date: Wed, 18 Aug 2010 11:33:37 +0200
+Message-ID: <20100818093337.GA2514@bankiz.org>
+References: <m339wl2ug6.fsf@pullcord.laptop.org>
+ <m3hbiz8m11.fsf@pullcord.laptop.org>
+ <alpine.LNX.2.00.1008130113530.2702@pobox.suse.cz>
+ <C6B3DDC8-79F3-47FC-BC26-244C49998852@enac.fr>
+ <alpine.LNX.2.00.1008161557020.1019@pobox.suse.cz>
+ <F35B802E-C47A-47BF-A350-8F57250D4394@enac.fr>
+Reply-To: tito-aNgzRxDdy4Qdnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:37166 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751835Ab0HRBhi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Aug 2010 21:37:38 -0400
-In-Reply-To: <20100716094611.C9A089520B@smtp.lii-enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <F35B802E-C47A-47BF-A350-8F57250D4394-rXV5z7KbLFk@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?iso-8859-1?Q?St=E9phane?= Chatty <chatty-rXV5z7KbLFk@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suze.cz
-Cc: Stephane Chatty <chatty@lii-enac.fr>, linux-input@vger.kernel.org, chatty@enac.fr
 
-On Fri, 2010-07-16 at 11:46 +0200, Stephane Chatty wrote:
-> Fixed bug in management of the multitouch panel of the Asus T91MT: it was
-> erroneously added to the ignore list instead of the black list.
-> 
-> Signed-off-by: Stephane Chatty <chatty@enac.fr>
-> 
-> 
-> diff -rupN a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> --- a/drivers/hid/hid-core.c	2010-07-05 05:22:50.000000000 +0200
-> +++ b/drivers/hid/hid-core.c	2010-07-16 13:38:24.266220496 +0200
-> @@ -1280,6 +1280,7 @@ static const struct hid_device_id hid_bl
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CANDO, USB_DEVICE_ID_CANDO_MULTI_TOUCH) },
-> @@ -1553,7 +1554,6 @@ static const struct hid_device_id hid_ig
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_T91MT)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },
 
-Jiri,
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What's the status of this patch? (Note that this is the second time I'm
-asking as I haven't received any response yet :).
+Hi everyone,
 
-Thanks,
+* St=E9phane Chatty <chatty-rXV5z7KbLFk@public.gmane.org> [2010-08-16 17:17:52]:
 
--- Chase
+>=20
+> Le 16 ao=FBt 10 =E0 15:58, Jiri Kosina a =E9crit :
+>=20
+> >
+> >
+> >thanks for the analysis. How do devices in their report descriptor
+> >describe the fact whether the events should be interleaved by sync
+> >or not?
+>=20
+> As far as I know, they don't. I know of two multitouch devices that
+> send groups of fingers over several HID messages:
+>  - the 3M 22" panel, when there are more than 6 fingers on the
+> panel. You know there are more messages coming when the number of
+> fingers (reported through ContactCount in the first message) is
+> greater than 6.
+>  - the eGalax 72xx series, that adds a second message whenever there
+> are two fingers; I am not sure yet how one knows when to wait  for a
+> second message. Mathieu might be able to tell us.
 
+Well, i've actually the problem, i can't known :)
+So for my case, i dispatch event - 1, not current event, and doing the
+merge on userland size by checking old event contact id. Since i known
+that the screen is doing only one or two touches, it's kind of easy to
+do the "sync" ourself... except when touch UP. With event - 1, i can't
+known if it's finished or not...
+
+It cannot be resolved until the kernel send correct sync message...
+
+
+> The short term solution could be to add a .sync hook similar to
+> .event. Each specific driver could override the call to input_sync()
+> based on its knowledge of the device.
+
+That would solve this case :)
+
+
+Mathieu
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAkxrqPEACgkQhUnvgY6MdEgQVwCggy05H3VjNRW56lHG8hOtZzW8
+nDQAn2GWJEaoucvxh+87y5S8xJjZ760o
+=XZMF
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

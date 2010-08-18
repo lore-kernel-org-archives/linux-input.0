@@ -1,51 +1,59 @@
-From: <Christine.Rey-Caillat@ac-orleans-tours.fr>
-Subject: Western Union
-Date: Wed, 18 Aug 2010 00:22:11 +0100
-Message-ID: <b48d0e834ead9c73.4c6b27b3@ac-orleans-tours.fr>
-Reply-To: western.union.departments@w.cn
+From: Kevin Wells <wellsk40@gmail.com>
+Subject: Re: [PATCH] input/touch: Introduce the LPC32xx touchscreen controller
+ driver (v2)
+Date: Tue, 17 Aug 2010 17:34:44 -0700
+Message-ID: <AANLkTi=P-y_xB6RSYN7Oyeb2paSLAFc=Nxu19bWHxE53@mail.gmail.com>
+References: <1281993661-21097-1-git-send-email-wellsk40@gmail.com>
+	<1281993661-21097-2-git-send-email-wellsk40@gmail.com>
+	<4C69B708.3020008@bluewatersys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from datura.ac-orleans-tours.fr ([195.83.89.149]:46058 "EHLO
-	datura.ac-orleans-tours.fr" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751669Ab0HQXWM (ORCPT
+Received: from mail-ww0-f44.google.com ([74.125.82.44]:61804 "EHLO
+	mail-ww0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752310Ab0HRAeq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Aug 2010 19:22:12 -0400
-Content-Language: en
-Content-Disposition: inline
+	Tue, 17 Aug 2010 20:34:46 -0400
+Received: by wwi17 with SMTP id 17so1874621wwi.1
+        for <linux-input@vger.kernel.org>; Tue, 17 Aug 2010 17:34:45 -0700 (PDT)
+In-Reply-To: <4C69B708.3020008@bluewatersys.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ryan Mallon <ryan@bluewatersys.com>
+Cc: linux-input@vger.kernel.org, Durgesh Pattamatta <durgesh.pattamatta@nxp.com>, linux-arm-kernel@lists.infradead.org
 
+Hi Ryan,
 
+Thanks for taking the time to review this.
 
-Good day,
- 
-My working partner has helped me to send your
-first payment of US$7,500 to you as
-instructed by Mr. David Cameron and will
-keep sending you US$7,500 twice a week until
-the payment of (US$360,000) is completed
-within six months and here is the information
-below:
- 
-MONEY TRANSFER CONTROL NUMBER (MTCN):
-522-905-9427
- 
-SENDER'S NAME: Mr. Mark Daniel
-AMOUNT: US$7,500
- 
-To track your funds forward Western Union
-Money Transfer agent your Full Names and
-Mobile Number via Email to:
- 
-Mr Gary Moore
-E-mail:western.union.departments@w.cn
-D/L Number: +44 (0) 702 403 4679
-Fax Number: +44 (0) 844 774 1410
- 
-Please direct all enquiring to:
-western.union.departments@w.cn
- 
-Best Regards,
-Mrs. Larisa Alexander.
+>> +
+>> + =A0 =A0 /*
+>> + =A0 =A0 =A0* Set sample rate to about 240Hz per X/Y pair. A single=
+ measurement
+>> + =A0 =A0 =A0* consists of 4 pairs which gives about a 60Hz sample r=
+ate based on
+>> + =A0 =A0 =A0* a stable 32768Hz clock source. Values are in clocks.
+>> + =A0 =A0 =A0* Rate is (32768 / (RTR + XCONV + RTR + YCONV + DXP + T=
+TR + UTR) / 4
+>> + =A0 =A0 =A0*/
+>
+> Is the clock source internal, or at least always 32.768kHz? If not,
+> should the timing be controlled via some platform data so that this
+> driver is compatible with other board setups?
+>
+
+The clock source for this is internal and locked in the driver and cloc=
+k control
+handler at 32768Hz.
+
+As much as I want to argue not using platform data :), I can't think of=
+ one good
+reason not to use it for this (the keyscanner driver has it). I
+probably should of
+used it from the start.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

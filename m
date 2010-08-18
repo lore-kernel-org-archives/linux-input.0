@@ -1,67 +1,38 @@
-From: H Hartley Sweeten <hartleys@visionengravers.com>
-Subject: [PATCH] iforce: simplify Kconfig depends
-Date: Wed, 18 Aug 2010 10:06:26 -0700
-Message-ID: <201008181006.26891.hartleys@visionengravers.com>
+From: "CMD" <CMD@irisl.net>
+Subject: ***=?iso-8859-1?Q?=A31?=,000,000,00 POUNDS AWARD WINNER***
+Date: Wed, 18 Aug 2010 08:02:04 +0430
+Message-ID: <WC20100818033204.730BF4@irisl.net>
+Reply-To: claimdept2010@bnlonline.co.cc
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from [87.107.91.67] ([87.107.91.67]:3608 "EHLO irisl.net"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750938Ab0HRR2d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Aug 2010 13:28:33 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The depends on for JOYSTICK_IFORCE is already handled in drivers/input/Kconfig and
-drivers/input/joystick/Kconfig.
 
-Remove the depends on JOYSTICK_IFORCE for the *_USB and *_232 connections
-by wrapping them in an if/endif block. The second depends on check is still needed
-to prevent the iforce driver from being built-in while the connection is a module.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This is to inform you that you have been  
+selected for a cash prize of 1,000,000  
+(British Pounds) in YAHOO/MSN lottery
+promo in London (United Kingdom).The selection 
+process was carried 
+out through  random selection in Our  
+computerized email selection system (ESS)  
+London Uk. Fill the below:
 
----
+Names:
+Tel:
+Age:
+Address:
+occupation:
+country:
 
-Should the connection depends on be changed to a select similar to the other
-joystick drivers?
+Agent Name: Mrs. Rose Elvis
+Email: (claimdept2010@bnlonline.co.cc)
 
-diff --git a/drivers/input/joystick/iforce/Kconfig b/drivers/input/joystick/iforce/Kconfig
-index 8fde22a..d5fa68d 100644
---- a/drivers/input/joystick/iforce/Kconfig
-+++ b/drivers/input/joystick/iforce/Kconfig
-@@ -3,7 +3,6 @@
- #
- config JOYSTICK_IFORCE
- 	tristate "I-Force devices"
--	depends on INPUT && INPUT_JOYSTICK
- 	help
- 	  Say Y here if you have an I-Force joystick or steering wheel
- 
-@@ -12,16 +11,18 @@ config JOYSTICK_IFORCE
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called iforce.
- 
-+if JOYSTICK_IFORCE
-+
- config JOYSTICK_IFORCE_USB
- 	bool "I-Force USB joysticks and wheels"
--	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || USB=y) && USB
-+	depends on (JOYSTICK_IFORCE=m || USB=y) && USB
- 	help
- 	  Say Y here if you have an I-Force joystick or steering wheel
- 	  connected to your USB port.
- 
- config JOYSTICK_IFORCE_232
- 	bool "I-Force Serial joysticks and wheels"
--	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || SERIO=y) && SERIO
-+	depends on (JOYSTICK_IFORCE=m || SERIO=y) && SERIO
- 	help
- 	  Say Y here if you have an I-Force joystick or steering wheel
- 	  connected to your serial (COM) port.
-@@ -30,3 +31,4 @@ config JOYSTICK_IFORCE_232
- 	  <file:Documentation/input/joystick.txt>
- 	  and <file:Documentation/input/ff.txt>.
- 
-+endif
+

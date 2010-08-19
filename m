@@ -1,116 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
-Date: Wed, 18 Aug 2010 22:33:13 -0700
-Message-ID: <20100819053311.GE5832@core.coreip.homeip.net>
-References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org>
- <20100813024912.GA2661@core.coreip.homeip.net>
- <4C65BF99.9030601@codeaurora.org>
- <201008131754.49488.dmitry.torokhov@gmail.com>
- <4C6AC393.8000109@codeaurora.org>
- <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com>
- <4C6C52DE.4040700@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4C6C52DE.4040700@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Leeder <nleeder@codeaurora.org>
-Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in  JooJoo tablet
+Date: Thu, 19 Aug 2010 23:45:42 +0200
+Message-ID: <C7CA092C-6BDD-4457-B800-606FF4C2DC9D@enac.fr>
+References: <4C695985.5080403@bitmath.org>  <BFCA5963-D589-434B-B07B-6899A794F28F@enac.fr> <4C6A5CB2.6000603@bitmath.org>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:47202 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751059Ab0HSVpt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Aug 2010 17:45:49 -0400
+In-Reply-To: <4C6A5CB2.6000603@bitmath.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Wed, Aug 18, 2010 at 05:38:38PM -0400, Neil Leeder wrote:
-> Hi Dmitry,
-> 
-> On 8/17/2010 2:05 PM, Dmitry Torokhov wrote:
-> >That suggests that the device responds to at least basic PS/2 queries.
-> >
-> >>I can see data being passed through the serio driver but the logitech
-> >>driver can't process it.
-> >>
-> >
-> >What about loading psmouse module with proto=bare?
-> >
-> >Could you also dump the data received from touchpad during probing?
-> >
-> 
-> It appears the controller does somewhat respond as a PS/2 device.
-> The first problem is it only responds to CMD_GETID correctly about
-> 50% of the time. Sometimes it responds well with a 0x00, other times
-> with 0xfa, which causes psmouse_probe to not recognize it as a
-> pointing device.
-> 
-> [    1.037223] wpce775x_send len=1 data=f2
-> [    1.054412] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
-> 0 0 0 0
-> 
-> It also doesn't respond well to CMD_GETINFO, which is why it gets
-> mis-detected as the wrong device type. As an aside, I'm not sure if
-> combining separate commands into one i2c packet is correct, but
-> separating them didn't seem to produce better results either.
-> 
-> [    1.723943] wpce775x_send len=3 data=e8 3 e6
-> [    1.735666] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
-> 0 0 0 0
-> [    1.735892] wpce775x_send len=3 data=e6 e6 e9
-> [    1.748281] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0
-> 0 0 0 0
-> [    1.748500] wpce775x_send len=3 data=e8 0 e6
-> [    1.760233] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
-> 0 0 0 0
-> [    1.760457] wpce775x_send len=3 data=e6 e6 e9
-> [    1.772876] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0
-> 0 0 0 0
-> 
-> Using proto=bare gets around the GETINFO failure, but doesn't help
-> with the more important GETID failure.
 
-Does it help if you change write() to transmit (and read) 1 byte at a time?
+Le 17 ao=FBt 10 =E0 11:56, Henrik Rydberg a =E9crit :
 
-> 
-> The other issue is that when the serio driver requests up to 16
-> bytes over i2c, the controller responds with 16 bytes of data, which
-> appear to be the 3 flags/X/Y regs plus 13 bytes of irrelevant data.
-> This all gets passed to psmouse which interprets it 3 bytes at a
-> time as movement data. Not only does the extra data get interpreted
-> as movement info, but it causes subsequent real data to be
-> mis-aligned and wrongly interpreted.
-> 
-> [  115.915558] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
-> [  115.915649] psmouse_process_byte data=28 01 ff rel_x=1 rel_y=1
-> <--- OK
-> [  115.915688] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.915714] psmouse_process_byte data=00 00 9c rel_x=0 rel_y=-156
-> <--- bad
-> [  115.915745] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.915771] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.928269] wpce775x_recv ... data_in=28 1 fe 0 0 0 0 0 9c 0 0 0 0 0 0 0
-> [  115.928357] psmouse_process_byte data=00 28 01 rel_x=40 rel_y=-1
-> <--- wrong
-> [  115.928396] psmouse_process_byte data=fe 00 00 rel_x=0 rel_y=0
-> <--- wrong
-> [  115.928426] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.928457] psmouse_process_byte data=9c 00 00 rel_x=0 rel_y=0
-> [  115.928484] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.939728] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
-> [  115.939818] psmouse_process_byte data=00 00 28 rel_x=0 rel_y=-40
-> <--- wrong
-> [  115.939857] psmouse_process_byte data=01 ff 00 rel_x=255 rel_y=0
-> <--- wrong
-> [  115.939889] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.939916] psmouse_process_byte data=00 9c 00 rel_x=156 rel_y=0
-> <--- bad
-> [  115.939947] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> [  115.939972] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-> 
-> Is there a way to get the serio driver to only read 3 bytes of data
-> per interrupt?
-> 
+>
+> Ah yes, the pointer emulation via ABS_X/Y. My personal view is that =20
+> pointer
+> emulation is a gesture, and thus best implemented in userspace.
 
-One way would be to look for PSMOUSE_CMD_ENABLE/PSMOUSE_CMD_DISABLE
-(0xf4/0xf5) in ->write() method to switch between 1 and 3-byte transfers.
+I agree 100% with you on this (well, I'd rather say that gestures and =20
+single touch emulation are two cases of input interpretation, but =20
+that's just my academical bias).
 
-Thanks.
+However this issue was discussed last year on this list and as far as =20
+I understood it was decided that single touch emulation was required =20
+in the kernel for some time...
 
--- 
-Dmitry
+St.
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

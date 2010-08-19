@@ -1,80 +1,116 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] iforce: simplify Kconfig depends
-Date: Wed, 18 Aug 2010 22:23:23 -0700
-Message-ID: <20100819052317.GC5832@core.coreip.homeip.net>
-References: <201008181006.26891.hartleys@visionengravers.com>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Wed, 18 Aug 2010 22:33:13 -0700
+Message-ID: <20100819053311.GE5832@core.coreip.homeip.net>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org>
+ <20100813024912.GA2661@core.coreip.homeip.net>
+ <4C65BF99.9030601@codeaurora.org>
+ <201008131754.49488.dmitry.torokhov@gmail.com>
+ <4C6AC393.8000109@codeaurora.org>
+ <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com>
+ <4C6C52DE.4040700@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201008181006.26891.hartleys@visionengravers.com>
+In-Reply-To: <4C6C52DE.4040700@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Neil Leeder <nleeder@codeaurora.org>
+Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Harvey,
-On Wed, Aug 18, 2010 at 10:06:26AM -0700, H Hartley Sweeten wrote:
-> The depends on for JOYSTICK_IFORCE is already handled in drivers/input/Kconfig and
-> drivers/input/joystick/Kconfig.
+On Wed, Aug 18, 2010 at 05:38:38PM -0400, Neil Leeder wrote:
+> Hi Dmitry,
 > 
-> Remove the depends on JOYSTICK_IFORCE for the *_USB and *_232 connections
-> by wrapping them in an if/endif block. The second depends on check is still needed
-> to prevent the iforce driver from being built-in while the connection is a module.
+> On 8/17/2010 2:05 PM, Dmitry Torokhov wrote:
+> >That suggests that the device responds to at least basic PS/2 queries.
+> >
+> >>I can see data being passed through the serio driver but the logitech
+> >>driver can't process it.
+> >>
+> >
+> >What about loading psmouse module with proto=bare?
+> >
+> >Could you also dump the data received from touchpad during probing?
+> >
 > 
-> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> It appears the controller does somewhat respond as a PS/2 device.
+> The first problem is it only responds to CMD_GETID correctly about
+> 50% of the time. Sometimes it responds well with a 0x00, other times
+> with 0xfa, which causes psmouse_probe to not recognize it as a
+> pointing device.
+> 
+> [    1.037223] wpce775x_send len=1 data=f2
+> [    1.054412] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
+> 0 0 0 0
+> 
+> It also doesn't respond well to CMD_GETINFO, which is why it gets
+> mis-detected as the wrong device type. As an aside, I'm not sure if
+> combining separate commands into one i2c packet is correct, but
+> separating them didn't seem to produce better results either.
+> 
+> [    1.723943] wpce775x_send len=3 data=e8 3 e6
+> [    1.735666] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
+> 0 0 0 0
+> [    1.735892] wpce775x_send len=3 data=e6 e6 e9
+> [    1.748281] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0
+> 0 0 0 0
+> [    1.748500] wpce775x_send len=3 data=e8 0 e6
+> [    1.760233] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0
+> 0 0 0 0
+> [    1.760457] wpce775x_send len=3 data=e6 e6 e9
+> [    1.772876] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0
+> 0 0 0 0
+> 
+> Using proto=bare gets around the GETINFO failure, but doesn't help
+> with the more important GETID failure.
+
+Does it help if you change write() to transmit (and read) 1 byte at a time?
+
+> 
+> The other issue is that when the serio driver requests up to 16
+> bytes over i2c, the controller responds with 16 bytes of data, which
+> appear to be the 3 flags/X/Y regs plus 13 bytes of irrelevant data.
+> This all gets passed to psmouse which interprets it 3 bytes at a
+> time as movement data. Not only does the extra data get interpreted
+> as movement info, but it causes subsequent real data to be
+> mis-aligned and wrongly interpreted.
+> 
+> [  115.915558] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
+> [  115.915649] psmouse_process_byte data=28 01 ff rel_x=1 rel_y=1
+> <--- OK
+> [  115.915688] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.915714] psmouse_process_byte data=00 00 9c rel_x=0 rel_y=-156
+> <--- bad
+> [  115.915745] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.915771] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.928269] wpce775x_recv ... data_in=28 1 fe 0 0 0 0 0 9c 0 0 0 0 0 0 0
+> [  115.928357] psmouse_process_byte data=00 28 01 rel_x=40 rel_y=-1
+> <--- wrong
+> [  115.928396] psmouse_process_byte data=fe 00 00 rel_x=0 rel_y=0
+> <--- wrong
+> [  115.928426] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.928457] psmouse_process_byte data=9c 00 00 rel_x=0 rel_y=0
+> [  115.928484] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.939728] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
+> [  115.939818] psmouse_process_byte data=00 00 28 rel_x=0 rel_y=-40
+> <--- wrong
+> [  115.939857] psmouse_process_byte data=01 ff 00 rel_x=255 rel_y=0
+> <--- wrong
+> [  115.939889] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.939916] psmouse_process_byte data=00 9c 00 rel_x=156 rel_y=0
+> <--- bad
+> [  115.939947] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> [  115.939972] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
+> 
+> Is there a way to get the serio driver to only read 3 bytes of data
+> per interrupt?
 > 
 
-I have something in the local queus that reworks iforce a bit, I'll hold
-on to the patch and see if it is still makes sense when I done with my
-changes.
+One way would be to look for PSMOUSE_CMD_ENABLE/PSMOUSE_CMD_DISABLE
+(0xf4/0xf5) in ->write() method to switch between 1 and 3-byte transfers.
 
 Thanks.
-
-> ---
-> 
-> Should the connection depends on be changed to a select similar to the other
-> joystick drivers?
-> 
-> diff --git a/drivers/input/joystick/iforce/Kconfig b/drivers/input/joystick/iforce/Kconfig
-> index 8fde22a..d5fa68d 100644
-> --- a/drivers/input/joystick/iforce/Kconfig
-> +++ b/drivers/input/joystick/iforce/Kconfig
-> @@ -3,7 +3,6 @@
->  #
->  config JOYSTICK_IFORCE
->  	tristate "I-Force devices"
-> -	depends on INPUT && INPUT_JOYSTICK
->  	help
->  	  Say Y here if you have an I-Force joystick or steering wheel
->  
-> @@ -12,16 +11,18 @@ config JOYSTICK_IFORCE
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called iforce.
->  
-> +if JOYSTICK_IFORCE
-> +
->  config JOYSTICK_IFORCE_USB
->  	bool "I-Force USB joysticks and wheels"
-> -	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || USB=y) && USB
-> +	depends on (JOYSTICK_IFORCE=m || USB=y) && USB
->  	help
->  	  Say Y here if you have an I-Force joystick or steering wheel
->  	  connected to your USB port.
->  
->  config JOYSTICK_IFORCE_232
->  	bool "I-Force Serial joysticks and wheels"
-> -	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || SERIO=y) && SERIO
-> +	depends on (JOYSTICK_IFORCE=m || SERIO=y) && SERIO
->  	help
->  	  Say Y here if you have an I-Force joystick or steering wheel
->  	  connected to your serial (COM) port.
-> @@ -30,3 +31,4 @@ config JOYSTICK_IFORCE_232
->  	  <file:Documentation/input/joystick.txt>
->  	  and <file:Documentation/input/ff.txt>.
->  
-> +endif
 
 -- 
 Dmitry

@@ -1,103 +1,38 @@
-From: Neil Leeder <nleeder@codeaurora.org>
-Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
-Date: Wed, 18 Aug 2010 17:38:38 -0400
-Message-ID: <4C6C52DE.4040700@codeaurora.org>
-References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <20100813024912.GA2661@core.coreip.homeip.net> <4C65BF99.9030601@codeaurora.org> <201008131754.49488.dmitry.torokhov@gmail.com> <4C6AC393.8000109@codeaurora.org> <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
+ called
+Date: Thu, 19 Aug 2010 09:41:39 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1008190941120.1019@pobox.suse.cz>
+References: <alpine.LNX.2.00.1008121108540.2702@pobox.suse.cz> <20100812091659.GA1591@arch.tripp.de> <alpine.LNX.2.00.1008121148100.2702@pobox.suse.cz> <20100812113624.GB1591@arch.tripp.de> <20100812114513.GA1584@arch.tripp.de> <20100812115657.GA1611@arch.tripp.de>
+ <alpine.LNX.2.00.1008121401580.2702@pobox.suse.cz> <alpine.LNX.2.00.1008121457060.2702@pobox.suse.cz> <20100812130411.GA1626@arch.tripp.de> <4C63F285.8070801@signal11.us> <20100812164035.GB6761@fritha.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:49281 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751111Ab0HSHlm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Aug 2010 03:41:42 -0400
+In-Reply-To: <20100812164035.GB6761@fritha.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heinz Diehl <htd@fritha.org>
+Cc: Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-Hi Dmitry,
+On Thu, 12 Aug 2010, Heinz Diehl wrote:
 
-On 8/17/2010 2:05 PM, Dmitry Torokhov wrote:
-> That suggests that the device responds to at least basic PS/2 queries.
->
->> I can see data being passed through the serio driver but the logitech
->> driver can't process it.
->>
->
-> What about loading psmouse module with proto=bare?
->
-> Could you also dump the data received from touchpad during probing?
->
+> > >>Could please those of you, who are able to reproduce the problem, verify
+> > >>whether the patch below (completely untested) makes everything behave
+> > >>again? Thanks.
+> 
+> > >Yes, everything behaves again. Thanks Jiri.
+>  
+> > Seconded. Works good. Thanks for your support Jiri.
+> 
+> Thirded! This fixes the warning here.
 
-It appears the controller does somewhat respond as a PS/2 device. The 
-first problem is it only responds to CMD_GETID correctly about 50% of 
-the time. Sometimes it responds well with a 0x00, other times with 0xfa, 
-which causes psmouse_probe to not recognize it as a pointing device.
+The fix is now in Linus' tree, and thus will be in -rc2. Thanks everyone 
+for testing.
 
-[    1.037223] wpce775x_send len=1 data=f2
-[    1.054412] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0 0 0 
-0 0
-
-It also doesn't respond well to CMD_GETINFO, which is why it gets 
-mis-detected as the wrong device type. As an aside, I'm not sure if 
-combining separate commands into one i2c packet is correct, but 
-separating them didn't seem to produce better results either.
-
-[    1.723943] wpce775x_send len=3 data=e8 3 e6
-[    1.735666] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0 0 0 
-0 0
-[    1.735892] wpce775x_send len=3 data=e6 e6 e9
-[    1.748281] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0 0 0 
-0 0
-[    1.748500] wpce775x_send len=3 data=e8 0 e6
-[    1.760233] wpce775x_recv ... data_in=fa fa 64 0 0 0 0 0 fa 0 0 0 0 0 
-0 0
-[    1.760457] wpce775x_send len=3 data=e6 e6 e9
-[    1.772876] wpce775x_recv ... data_in=fe fa 64 0 0 0 0 0 fa 0 0 0 0 0 
-0 0
-
-Using proto=bare gets around the GETINFO failure, but doesn't help with 
-the more important GETID failure.
-
-The other issue is that when the serio driver requests up to 16 bytes 
-over i2c, the controller responds with 16 bytes of data, which appear to 
-be the 3 flags/X/Y regs plus 13 bytes of irrelevant data. This all gets 
-passed to psmouse which interprets it 3 bytes at a time as movement 
-data. Not only does the extra data get interpreted as movement info, but 
-it causes subsequent real data to be mis-aligned and wrongly interpreted.
-
-[  115.915558] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
-[  115.915649] psmouse_process_byte data=28 01 ff rel_x=1 rel_y=1 
-<--- OK
-[  115.915688] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.915714] psmouse_process_byte data=00 00 9c rel_x=0 rel_y=-156 
-<--- bad
-[  115.915745] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.915771] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.928269] wpce775x_recv ... data_in=28 1 fe 0 0 0 0 0 9c 0 0 0 0 0 0 0
-[  115.928357] psmouse_process_byte data=00 28 01 rel_x=40 rel_y=-1 
-<--- wrong
-[  115.928396] psmouse_process_byte data=fe 00 00 rel_x=0 rel_y=0 
-<--- wrong
-[  115.928426] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.928457] psmouse_process_byte data=9c 00 00 rel_x=0 rel_y=0
-[  115.928484] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.939728] wpce775x_recv ... data_in=28 1 ff 0 0 0 0 0 9c 0 0 0 0 0 0 0
-[  115.939818] psmouse_process_byte data=00 00 28 rel_x=0 rel_y=-40 
-<--- wrong
-[  115.939857] psmouse_process_byte data=01 ff 00 rel_x=255 rel_y=0 
-<--- wrong
-[  115.939889] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.939916] psmouse_process_byte data=00 9c 00 rel_x=156 rel_y=0 
-<--- bad
-[  115.939947] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-[  115.939972] psmouse_process_byte data=00 00 00 rel_x=0 rel_y=0
-
-Is there a way to get the serio driver to only read 3 bytes of data per 
-interrupt?
-
-Thanks.
-
---
-Neil
 -- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+Jiri Kosina
+SUSE Labs, Novell Inc.

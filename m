@@ -1,55 +1,60 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH RESEND] USB HID: Add ID for eGalax Multitouch used in
-  JooJoo tablet
-Date: Thu, 19 Aug 2010 23:59:17 +0200
-Message-ID: <4C6DA935.1060302@bitmath.org>
-References: <4C695985.5080403@bitmath.org>  <BFCA5963-D589-434B-B07B-6899A794F28F@enac.fr> <4C6A5CB2.6000603@bitmath.org> <C7CA092C-6BDD-4457-B800-606FF4C2DC9D@enac.fr>
+From: Neil Leeder <nleeder@codeaurora.org>
+Subject: Re: [PATCH v2] input: mouse: add qci touchpad driver
+Date: Thu, 19 Aug 2010 18:19:10 -0400
+Message-ID: <4C6DADDE.7030107@codeaurora.org>
+References: <1281631760-15589-1-git-send-email-nleeder@codeaurora.org> <20100813024912.GA2661@core.coreip.homeip.net> <4C65BF99.9030601@codeaurora.org> <201008131754.49488.dmitry.torokhov@gmail.com> <4C6AC393.8000109@codeaurora.org> <BC741E3E-377E-45BF-80E1-A60F4E0FDFC9@gmail.com> <4C6C52DE.4040700@codeaurora.org> <20100819053311.GE5832@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from csmtp3.one.com ([91.198.169.23]:33899 "EHLO csmtp3.one.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751191Ab0HSV7W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Aug 2010 17:59:22 -0400
-In-Reply-To: <C7CA092C-6BDD-4457-B800-606FF4C2DC9D@enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20100819053311.GE5832@core.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stepan Moskovchenko <stepanm@codeaurora.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Horace Fu <horace.fu@quantatw.com>, Mandeep Singh Baines <msb@chromium.org>, Trilok Soni <tsoni@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-On 08/19/2010 11:45 PM, St=E9phane Chatty wrote:
+Hi Dmitry,
 
->=20
-> Le 17 ao=FBt 10 =E0 11:56, Henrik Rydberg a =E9crit :
->=20
->>
->> Ah yes, the pointer emulation via ABS_X/Y. My personal view is that
->> pointer
->> emulation is a gesture, and thus best implemented in userspace.
->=20
-> I agree 100% with you on this (well, I'd rather say that gestures and
-> single touch emulation are two cases of input interpretation, but tha=
-t's
-> just my academical bias).
->=20
-> However this issue was discussed last year on this list and as far as=
- I
-> understood it was decided that single touch emulation was required in
-> the kernel for some time...
+On 8/19/2010 1:33 AM, Dmitry Torokhov wrote:
+> On Wed, Aug 18, 2010 at 05:38:38PM -0400, Neil Leeder wrote:
+>> Using proto=bare gets around the GETINFO failure, but doesn't help
+>> with the more important GETID failure.
+>
+> Does it help if you change write() to transmit (and read) 1 byte at a time?
+>
 
+Thanks for the suggestions. Nothing I change seems able to get a 
+consistent valid response to GETID. I think this is the first time 
+anyone has written anything other than 0xF4 to the firmware in the EC 
+and it's just not passing through the other PS/2 commands and responses 
+reliably.
 
-At that time, maybe the alternatives were not as clear as they are now.=
- :-) I
-think what it all means is that over time, we will see less and less of=
- the
-ABS_X/Y, since we will eventually stop adding it, and hardware inevitab=
-ly ages.
+> One way would be to look for PSMOUSE_CMD_ENABLE/PSMOUSE_CMD_DISABLE
+> (0xf4/0xf5) in ->write() method to switch between 1 and 3-byte transfers.
 
-Cheers,
-Henrik
+If I force my way past GETID and set the receive length to 3 based on 
+seeing F4/F5 being written then the touchpad does work. However the 
+serio driver is now a touchpad-specific driver rather than a generic 
+PS/2 one.  I have a keyboard on the same device. I'm not sure if it will 
+work with serio, but if so it will probably have its own requirements 
+for the length of data sent on responses, probably not 3.
+
+BTW, using 1 as the receive length for commands has its own problems as 
+some commands require more than one byte response (GETID, GETINFO). I 
+can work around it, but it's not particularly clean and getting further 
+away from a generic driver.
+
+At this point I'm thinking that the interface is close to being able to 
+work with serio/psmouse, but just not close enough. The unreliability of 
+responding to basic commands as well as the length of data problems 
+indicates some custom driver is going to be needed. That could either be 
+Quanta's original touchpad driver I posted, or a modification of your 
+serio driver. I'd lean towards not having a serio driver which includes 
+workarounds for a specific device, but I'd appreciate hearing your opinion.
+
+Thanks.
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Neil
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.

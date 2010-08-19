@@ -1,38 +1,46 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [BUG] object: is not initialized, yet kobject_put() is being
- called
-Date: Thu, 19 Aug 2010 09:41:39 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1008190941120.1019@pobox.suse.cz>
-References: <alpine.LNX.2.00.1008121108540.2702@pobox.suse.cz> <20100812091659.GA1591@arch.tripp.de> <alpine.LNX.2.00.1008121148100.2702@pobox.suse.cz> <20100812113624.GB1591@arch.tripp.de> <20100812114513.GA1584@arch.tripp.de> <20100812115657.GA1611@arch.tripp.de>
- <alpine.LNX.2.00.1008121401580.2702@pobox.suse.cz> <alpine.LNX.2.00.1008121457060.2702@pobox.suse.cz> <20100812130411.GA1626@arch.tripp.de> <4C63F285.8070801@signal11.us> <20100812164035.GB6761@fritha.org>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:49281 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751111Ab0HSHlm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Aug 2010 03:41:42 -0400
-In-Reply-To: <20100812164035.GB6761@fritha.org>
-Sender: linux-input-owner@vger.kernel.org
+From: David Gow <david@ingeniumdigital.com>
+Subject: [PATCH] hid: Add support for chicony multitouch screens.
+Date: Thu, 19 Aug 2010 15:43:56 +0800
+Message-ID: <1282203836-5895-1-git-send-email-david@ingeniumdigital.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jkosina@suse.cz, chatty@enac.fr, dhprince-devel@yahoo.co.uk, dtor@mail.ru, kees.bakker@xs4all.nl, cascardo@holoscopio.com, don@syst.com.br, peter.hutterer@who-t.net, daniel@caiaq.de
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, David Gow <david@ingeniumdigital.com>
 List-Id: linux-input@vger.kernel.org
-To: Heinz Diehl <htd@fritha.org>
-Cc: Alan Ott <alan@signal11.us>, Markus Trippelsdorf <markus@trippelsdorf.de>, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
 
-On Thu, 12 Aug 2010, Heinz Diehl wrote:
+Adds a hid quirk for the chicony multitouch screen found in the Acer
+Aspire 1820pt notebook.
 
-> > >>Could please those of you, who are able to reproduce the problem, verify
-> > >>whether the patch below (completely untested) makes everything behave
-> > >>again? Thanks.
-> 
-> > >Yes, everything behaves again. Thanks Jiri.
->  
-> > Seconded. Works good. Thanks for your support Jiri.
-> 
-> Thirded! This fixes the warning here.
+Signed-off-by: David Gow <david@ingeniumdigital.com>
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-The fix is now in Linus' tree, and thus will be in -rc2. Thanks everyone 
-for testing.
-
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 85c6d13..2905142 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -149,6 +149,7 @@
+ 
+ #define USB_VENDOR_ID_CHICONY		0x04f2
+ #define USB_DEVICE_ID_CHICONY_TACTICAL_PAD	0x0418
++#define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
+ 
+ #define USB_VENDOR_ID_CIDC		0x1677
+ 
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 2643d31..51ec481 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -77,6 +77,8 @@ static const struct hid_blacklist {
+ 
+ 	{ USB_VENDOR_ID_PI_ENGINEERING, USB_DEVICE_ID_PI_ENGINEERING_VEC_USB_FOOTPEDAL, HID_QUIRK_HIDINPUT_FORCE },
+ 
++	{ USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH, HID_QUIRK_MULTI_INPUT },
++	
+ 	{ 0, 0 }
+ };
+ 
 -- 
-Jiri Kosina
-SUSE Labs, Novell Inc.
+1.7.0.4

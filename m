@@ -1,183 +1,153 @@
-From: "Varadarajan, Charulatha" <charu@ti.com>
-Subject: RE: [RFC  PATCH] Board support for the the GPIO keys
-Date: Fri, 20 Aug 2010 12:13:16 +0530
-Message-ID: <EAF47CD23C76F840A9E7FCE10091EFAB02C67AE9EE@dbde02.ent.ti.com>
-References: <1282218130-17111-1-git-send-email-shubhrajyoti@ti.com>
+From: Jason Wang <jason77.wang@gmail.com>
+Subject: Re: [PATCH] Input: ads7846 - move regulator codes out of spinlock
+ protected area
+Date: Fri, 20 Aug 2010 15:19:03 +0800
+Message-ID: <4C6E2C67.3060108@gmail.com>
+References: <1282205670-30618-1-git-send-email-jason77.wang@gmail.com> <20100820051921.GD12243@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from devils.ext.ti.com ([198.47.26.153]:51949 "EHLO
-	devils.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750959Ab0HTGnV convert rfc822-to-8bit (ORCPT
+Received: from mail.windriver.com ([147.11.1.11]:63973 "EHLO
+	mail.windriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751054Ab0HTHPj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Aug 2010 02:43:21 -0400
-In-Reply-To: <1282218130-17111-1-git-send-email-shubhrajyoti@ti.com>
-Content-Language: en-US
+	Fri, 20 Aug 2010 03:15:39 -0400
+In-Reply-To: <20100820051921.GD12243@core.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jason Wang <jason77.wang@gmail.com>, notasas@gmail.com, vapier@gentoo.org, linux-input@vger.kernel.org
 
- 
+Dmitry Torokhov wrote:
+> On Thu, Aug 19, 2010 at 04:14:30PM +0800, Jason Wang wrote:
+>   
+>> The commit 9114337 introduces regulator operations in the ads7846
+>> touchscreen driver. Among these operations, some are called in the
+>> spinlock protected context.
+>> On most platforms, the regulator operation is achieved through
+>> i2c/spi bus transfer operations, some of bus transfer operations will
+>> call wait_for_completion function. It isn't allowable  to call
+>> sleepable function in the atomic context. So move them out from the
+>> atomic context.
+>>     
+>
+> I do not believe simply moving calls out of splnlock-protected area is
+> enough. Are all regulator drivers allow regulator_enable() and
+> regulator_disable() to be called simultaneously? Even if they do allow
+> it I think there still a race between ads7846_enable/disable/suspend/resume
+> and you need to wrap all of it in a mutex...
+>
+>   
+Hi Dmitry,
 
-> -----Original Message-----
-> From: linux-omap-owner@vger.kernel.org 
-> [mailto:linux-omap-owner@vger.kernel.org] On Behalf Of Datta, 
-> Shubhrajyoti
-> Sent: Thursday, August 19, 2010 5:12 PM
-> To: linux-omap@vger.kernel.org
-> Cc: linux-input@vger.kernel.org; Datta, Shubhrajyoti
-> Subject: [RFC PATCH] Board support for the the GPIO keys
-> 
-> Board support for the GPIO keys.
-> The proximity sensor is connected to GPIO and is registered as a 
-> GPIO key.
-> 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> ---
->  arch/arm/mach-omap2/board-4430sdp.c |   56 
-> +++++++++++++++++++++++++++++++++++
->  1 files changed, 56 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-omap2/board-4430sdp.c 
-> b/arch/arm/mach-omap2/board-4430sdp.c
-> index 9447644..7f619bf 100644
-> --- a/arch/arm/mach-omap2/board-4430sdp.c
-> +++ b/arch/arm/mach-omap2/board-4430sdp.c
-> @@ -20,6 +20,7 @@
->  #include <linux/usb/otg.h>
->  #include <linux/spi/spi.h>
->  #include <linux/i2c/twl.h>
-> +#include <linux/gpio_keys.h>
->  #include <linux/regulator/machine.h>
->  #include <linux/leds.h>
->  
-> @@ -40,6 +41,10 @@
->  #define ETH_KS8851_IRQ			34
->  #define ETH_KS8851_POWER_ON		48
->  #define ETH_KS8851_QUART		138
-> +#define OMAP4_SFH7741_SENSOR_OUTPUT_GPIO	184
-> +#define OMAP4_SFH7741_ENABLE_GPIO		188
+The regulator_enable() and regulator_disable() are already protected by 
+a mutex,
+see drivers/regulator/core.c
 
-Insert a new line.
+int regulator_enable(struct regulator *regulator)
+{
+struct regulator_dev *rdev = regulator->rdev;
+int ret = 0;
 
-> +static int omap_prox_activate(struct device *dev);
-> +static void omap_prox_deactivate(struct device *dev);
->  
->  static struct gpio_led sdp4430_gpio_leds[] = {
->  	{
-> @@ -76,11 +81,33 @@ static struct gpio_led sdp4430_gpio_leds[] = {
->  	},
->  
->  };
-> +static struct gpio_keys_button sdp4430_gpio_keys[] = {
-> +	{
-> +		.desc			= "Proximity Sensor",
-> +		.type			= EV_SW,
-> +		.code			= SW_FRONT_PROXIMITY,
-> +		.gpio			= 
-> OMAP4_SFH7741_SENSOR_OUTPUT_GPIO,
-> +		.active_low		= 0,
-> +	}
-> +};
->  
->  static struct gpio_led_platform_data sdp4430_led_data = {
->  	.leds	= sdp4430_gpio_leds,
->  	.num_leds	= ARRAY_SIZE(sdp4430_gpio_leds),
->  };
+mutex_lock(&rdev->mutex);
+ret = _regulator_enable(rdev);
+mutex_unlock(&rdev->mutex);
+return ret;
+}
+EXPORT_SYMBOL_GPL(regulator_enable);
 
-Insert a new line.
+int regulator_disable(struct regulator *regulator)
+{
+struct regulator_dev *rdev = regulator->rdev;
+int ret = 0;
 
-> +static struct gpio_keys_platform_data sdp4430_gpio_keys_data = {
-> +	.buttons	= sdp4430_gpio_keys,
-> +	.nbuttons	= ARRAY_SIZE(sdp4430_gpio_keys),
-> +	.enable		= omap_prox_activate,
-> +	.disable	= omap_prox_deactivate,
-> +};
+mutex_lock(&rdev->mutex);
+ret = _regulator_disable(rdev);
+mutex_unlock(&rdev->mutex);
+return ret;
+}
+EXPORT_SYMBOL_GPL(regulator_disable);
 
-Insert a new line.
+So there is no race between these two functions.
 
-> +static struct platform_device sdp4430_gpio_keys_device = {
-> +	.name	= "gpio-keys",
-> +	.id	= -1,
-> +	.dev	= {
-> +		.platform_data	= &sdp4430_gpio_keys_data,
-> +	},
-> +};
->  
->  static struct platform_device sdp4430_leds_gpio = {
->  	.name	= "leds-gpio",
-> @@ -161,6 +188,7 @@ static struct platform_device 
-> sdp4430_lcd_device = {
->  
->  static struct platform_device *sdp4430_devices[] __initdata = {
->  	&sdp4430_lcd_device,
-> +	&sdp4430_gpio_keys_device,
->  	&sdp4430_leds_gpio,
->  };
->  
-> @@ -426,6 +454,33 @@ static int __init omap4_i2c_init(void)
->  	omap_register_i2c_bus(4, 400, NULL, 0);
->  	return 0;
->  }
+You are right, i will design a protection wrap for 
+enable/disable/suspend/resume.
 
-Insert a new line.
+Thanks,
+Jason.
 
-> +static int  omap_prox_activate(struct device *dev)
-> +{
-> +	gpio_set_value(OMAP4_SFH7741_ENABLE_GPIO , 1);
-> +	return 0;
-> +}
+>> [tested on TI OMAP3530EVM board]
+>>
+>> Signed-off-by: Jason Wang <jason77.wang@gmail.com>
+>> ---
+>>  drivers/input/touchscreen/ads7846.c |   14 ++++++++++----
+>>  1 files changed, 10 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+>> index 1603193..9421df9 100644
+>> --- a/drivers/input/touchscreen/ads7846.c
+>> +++ b/drivers/input/touchscreen/ads7846.c
+>> @@ -531,6 +531,9 @@ static ssize_t ads7846_disable_store(struct device *dev,
+>>  	if (strict_strtoul(buf, 10, &i))
+>>  		return -EINVAL;
+>>  
+>> +	if (!i)
+>> +		regulator_enable(ts->reg);
+>> +
+>>  	spin_lock_irq(&ts->lock);
+>>  
+>>  	if (i)
+>> @@ -540,6 +543,9 @@ static ssize_t ads7846_disable_store(struct device *dev,
+>>  
+>>  	spin_unlock_irq(&ts->lock);
+>>  
+>> +	if (i)
+>> +		regulator_disable(ts->reg);
+>> +
+>>  	return count;
+>>  }
+>>  
+>> @@ -855,8 +861,6 @@ static void ads7846_disable(struct ads7846 *ts)
+>>  		}
+>>  	}
+>>  
+>> -	regulator_disable(ts->reg);
+>> -
+>>  	/* we know the chip's in lowpower mode since we always
+>>  	 * leave it that way after every request
+>>  	 */
+>> @@ -868,8 +872,6 @@ static void ads7846_enable(struct ads7846 *ts)
+>>  	if (!ts->disabled)
+>>  		return;
+>>  
+>> -	regulator_enable(ts->reg);
+>> -
+>>  	ts->disabled = 0;
+>>  	ts->irq_disabled = 0;
+>>  	enable_irq(ts->spi->irq);
+>> @@ -886,6 +888,8 @@ static int ads7846_suspend(struct spi_device *spi, pm_message_t message)
+>>  
+>>  	spin_unlock_irq(&ts->lock);
+>>  
+>> +	regulator_disable(ts->reg);
+>> +
+>>  	if (device_may_wakeup(&ts->spi->dev))
+>>  		enable_irq_wake(ts->spi->irq);
+>>  
+>> @@ -900,6 +904,8 @@ static int ads7846_resume(struct spi_device *spi)
+>>  	if (device_may_wakeup(&ts->spi->dev))
+>>  		disable_irq_wake(ts->spi->irq);
+>>  
+>> +	regulator_enable(ts->reg);
+>> +
+>>  	spin_lock_irq(&ts->lock);
+>>  
+>>  	ts->is_suspended = 0;
+>> -- 
+>> 1.5.6.5
+>>
+>>     
+>
+>   
 
-Insert a new line.
-
-> +static void omap_prox_deactivate(struct device *dev)
-> +{
-> +	gpio_set_value(OMAP4_SFH7741_ENABLE_GPIO , 0);
-> +}
-
-Insert a new line.
-
-> +static void omap_sfh7741prox_init(void)
-> +{
-> +	int  error;
-> +
-> +	error = gpio_request(OMAP4_SFH7741_ENABLE_GPIO, "sfh7741");
-> +	if (error < 0) {
-> +		pr_err("failed to request GPIO %d, error %d\n",
-> +			OMAP4_SFH7741_ENABLE_GPIO, error);
-> +		return;
-> +	}
-> +
-> +	error = gpio_direction_output(OMAP4_SFH7741_ENABLE_GPIO , 1);
-> +	if (error < 0) {
-> +		pr_err("%s: GPIO configuration failed: GPIO 
-> %d,error %d\n",\
-> +			 __func__, OMAP4_SFH7741_ENABLE_GPIO, error);
-> +		gpio_free(OMAP4_SFH7741_ENABLE_GPIO);
-> +	}
-> +}
-
-Insert a new line.
-
->  static void __init omap_4430sdp_init(void)
->  {
->  	int status;
-> @@ -448,6 +503,7 @@ static void __init omap_4430sdp_init(void)
->  		spi_register_board_info(sdp4430_spi_board_info,
->  				ARRAY_SIZE(sdp4430_spi_board_info));
->  	}
-> +	omap_sfh7741prox_init();
->  }
->  
->  static void __init omap_4430sdp_map_io(void)
-> -- 
-> 1.7.0.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 

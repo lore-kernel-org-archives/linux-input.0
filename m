@@ -1,35 +1,55 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: [2.6.36 regression] Under linux console gpm cursor now going to
- opposite direction of mouse
-Date: Fri, 20 Aug 2010 22:33:16 +0200
-Message-ID: <20100820223316.4f6ac734@neptune.home>
+From: Dan Carpenter <error27-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: re: HID: hiddev: protect against disconnect/NULL-dereference race
+Date: Fri, 20 Aug 2010 23:24:14 +0200
+Message-ID: <20100820212413.GE6674@bicker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from legolas.restena.lu ([158.64.1.34]:53402 "EHLO
-	legolas.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751164Ab0HTUeM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Aug 2010 16:34:12 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 
-Somewhere between 2.6.35 and Linus's tree as of this writing gpm
-started moving its cursor to the opposite direction of mouse movement.
+The patch 7032269e87a "HID: hiddev: protect against
+disconnect/NULL-dereference race" added a check to make sure that "hid"
+was non-NULL.  The problem is that it added the check after "hid" had
+already been dereferenced.
 
-e.g. moving mouse up causes cursor to move down, moving mouse left
-     causes cursor to go right
+drivers/hid/usbhid/hiddev.c +606 hiddev_ioctl(19)
+	warn: variable dereferenced before check 'hid'
 
-Under 2.6.35 the cursor moved into the same direction as the mouse.
+   599          struct usbhid_device *usbhid = hid->driver_data;
+                                               ^^^^^^^^^^^^^^^^
+	dereferenced here.
 
-Note, mouse is synaptics touchpad (Acer TravelMate660):
-  Synaptics Touchpad, model: 1, fw: 5.8, id: 0x9d48b1, caps: 0x904713/0x4006/0x0
+   600          void __user *user_arg = (void __user *)arg;
+   601          int i, r;
+   602          
+   603          /* Called without BKL by compat methods so no BKL taken */
+   604  
+   605          /* FIXME: Who or what stop this racing with a disconnect ?? */
+   606          if (!hiddev->exist || !hid)
+                                      ^^^^
+	new check added here.
 
+   607                  return -EIO;
 
-When I get around to it I will try to get more precise information as
-to when this regression got introduced, eventually bisecting.
+So obviously in hind-sight this patch didn't fix the user's problem.  
+Also the user reported a NULL dereference, yes, but the stack dump which
+says: "BUG: unable to handle kernel paging request at 6b6b6b6b" is a use
+after free bug and that isn't addressed by adding a check for NULL.
 
-Bruno
+I am just looking at this because it showed up with my static checker
+and I'm not very familiar with this code.  I think we need to take 
+"hiddev->existancelock" and make sure that exist is true before we 
+dereference hiddev in the ioctl function?  Also it seems like there
+should probably be some locking in hiddev_release().
+
+regards,
+dan carpenter
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
